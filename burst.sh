@@ -46,15 +46,12 @@ function upgrade_conf () {
         BRS="${BRS//burst\.rebroadcastAfter/P2P.rebroadcastTxAfter}"
         BRS="${BRS//burst\.rebroadcastEvery/P2P.rebroadcastTxEvery}"
         BRS="${BRS//nxt\.enablePeerServerGZIPFilter/JETTY.P2P.GZIPFilter}"
-
         
         ### P2P Hallmarks
         BRS="${BRS//nxt\.enableHallmarkProtection/P2P.HallmarkProtection}"
         BRS="${BRS//nxt\.myHallmark/P2P.myHallmark}"
         BRS="${BRS//nxt\.pushThreshold/P2P.HallmarkPush}"
         BRS="${BRS//nxt\.pullThreshold/P2P.HallmarkPull}"
-        BRS="${BRS///}"
-        BRS="${BRS///}"
 
         ### JETTY pass-through params
         BRS="${BRS//nxt\.enablePeerServerDoSFilter/JETTY.P2P.DoSFilter}"
@@ -99,7 +96,6 @@ function upgrade_conf () {
         BRS="${BRS//nxt\.apiServerCORS/API.CrossOriginFilter}"
         BRS="${BRS//nxt\.apiResourceBase/API.UI_Dir}"
         BRS="${BRS//nxt\.javadocResourceBase/API.Doc_Dir}"
-
         
         # DB-related params
         BRS="${BRS//nxt\.dbUrl/DB.Url}"
@@ -124,7 +120,7 @@ function upgrade_conf () {
         # CPU-related params
         BRS="${BRS//Nxt\.cpuCores/CPU.NumCores}"
         
-        echo "$BRS" > conf/brs-default.properties.test
+        echo "$BRS" > conf/brs-default.properties.converted
     else
         echo "$BRS_CFG_NAME not present or not readable."
         exit 1

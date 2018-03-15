@@ -28,6 +28,16 @@ Please take a look at http://package.cryptoguru.org/ where you can
 find the burstcoincg package. This will take care of the MariaDB
 installation for you.
 
+##### Upgrading your wallet config from 1.3.6cg
+
+```
+burst.sh upgrade
+```
+will take the old nxt-default.properties file and create a
+brs-default.properties.converted file in the conf directory. This
+should give you a headstart with the new option naming system.
+
+
 #### Windows
 
 ###### MariaDb
