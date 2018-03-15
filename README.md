@@ -13,8 +13,8 @@ and fair Proof-of-Capacity (PoC) consensus algorithm.
 This wallet version is developed and maintained by the PoC consortium
 (PoCC) and supports a multitude of database backends. The two builtin
 backends are:
-- MariaDB (recommended, but complex installation)
-- H2 (for compatibility/migration purposes)
+- MariaDB (recommended)
+- H2 (embedded, easier install)
 
 Other DB backends are supported by the Burstcoin DB manager:
 https://github.com/PoC-Consortium/burstcoin-db-manager
@@ -39,9 +39,9 @@ Download and install MariaDB https://mariadb.com/downloads/mariadb-tx
 The MariaDb installation will ask to setup a password for the root user. 
 Add this password to the brs.properties file created above in the following section:
 ```
-brs.dbUrl=jdbc:mariadb://localhost:3306/burstwallet
-brs.dbUsername=root
-brs.dbPassword=YOUR_PASSWORD
+DB.Url=jdbc:mariadb://localhost:3306/burstwallet
+DB.Username=root
+DB.Password=YOUR_PASSWORD
 ```
 
 The MariaDB installation will also install HeidiSQL, a gui tool to administer MariaDb.
@@ -74,9 +74,9 @@ mysql -uroot burstwallet < init-mysql.sql
 Now you need to add the following stuff to your conf/brs.properties:
 
 ```
-brs.dbUrl=jdbc:mariadb://localhost:3306/burstwallet
-brs.dbUsername=brs_user
-brs.dbPassword=yourpassword
+DB.Url=jdbc:mariadb://localhost:3306/burstwallet
+DB.Username=brs_user
+DB.Password=yourpassword
 ```
 
 ## Striking Features
@@ -102,7 +102,7 @@ For a general overview of Burst history see https://burstwiki.org/wiki/History_o
 ```
 2018-03-15 2.0.0
            BRS - Burst Reference Software:
-           Burst namespace, some NXT legacy is in API data sent P2P
+           Burst namespace, last little NXT legacy is in API data sent P2P
            streamlined configuration namespace, more logical and intuitive
            migrated to JOOQ, supports many  DB backends; only H2 and mariaDB
            in-code to prevent bloat, all others via DB-manager
