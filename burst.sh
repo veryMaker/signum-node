@@ -18,11 +18,16 @@ EOF
 }
 
 function upgrade_conf () {
-    BRS_CFG_NAME="conf/nxt-default.properties"
+    NXT_CFG_NAME="conf/$1"
 
-    if [ -r $BRS_CFG_NAME ]
+    if [ -r $NXT_CFG_NAME ]
     then
-        BRS=$(<$BRS_CFG_NAME)    # read in the config file content
+        BRS_CFG_NAME="${NXT_CFG_NAME//nxt/brs}"
+        BRS_CFG_NAME="${BRS_CFG_NAME}.converted"
+
+        echo "converting $NXT_CFG_NAME -> $BRS_CFG_NAME"
+
+        BRS=$(<$NXT_CFG_NAME)    # read in the config file content
         ### P2P-related params
         BRS="${BRS//nxt\.shareMyAddress/P2P.shareMyAddress}"
         BRS="${BRS//nxt\.myAddress/P2P.myAddress}"
@@ -46,6 +51,7 @@ function upgrade_conf () {
         BRS="${BRS//burst\.rebroadcastAfter/P2P.rebroadcastTxAfter}"
         BRS="${BRS//burst\.rebroadcastEvery/P2P.rebroadcastTxEvery}"
         BRS="${BRS//nxt\.enablePeerServerGZIPFilter/JETTY.P2P.GZIPFilter}"
+
         
         ### P2P Hallmarks
         BRS="${BRS//nxt\.enableHallmarkProtection/P2P.HallmarkProtection}"
@@ -95,7 +101,7 @@ function upgrade_conf () {
         BRS="${BRS//nxt\.apiServerEnforcePOST/API.ServerEnforcePOST}"
         BRS="${BRS//nxt\.apiServerCORS/API.CrossOriginFilter}"
         BRS="${BRS//nxt\.apiResourceBase/API.UI_Dir}"
-        BRS="${BRS//nxt\.javadocResourceBase/API.Doc_Dir}"
+
         
         # DB-related params
         BRS="${BRS//nxt\.dbUrl/DB.Url}"
@@ -107,7 +113,6 @@ function upgrade_conf () {
         BRS="${BRS//nxt\.trimDerivedTables/DB.trimDerivedTables}"
         BRS="${BRS//nxt\.maxRollback/DB.maxRollback}"
         BRS="${BRS//nxt\.dbDefaultLockTimeout/DB.LockTimeout}"
-        BRS="${BRS///}"
 
         # GPU-related params
         BRS="${BRS//burst\.oclVerify/GPU.Acceleration}"
@@ -120,9 +125,9 @@ function upgrade_conf () {
         # CPU-related params
         BRS="${BRS//Nxt\.cpuCores/CPU.NumCores}"
         
-        echo "$BRS" > conf/brs-default.properties.converted
+        echo "$BRS" > $BRS_CFG_NAME
     else
-        echo "$BRS_CFG_NAME not present or not readable."
+        echo "$NXT_CFG_NAME not present or not readable."
         exit 1
     fi
 }
@@ -168,7 +173,8 @@ if [[ $# -gt 0 ]] ; then
             fi
             ;;
         "upgrade")
-            upgrade_conf
+            upgrade_conf nxt-default.properties
+            upgrade_conf nxt.properties
             ;;
         "h2shell")
             java -cp burst.jar org.h2.tools.Shell
