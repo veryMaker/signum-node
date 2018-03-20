@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
 
 public final class Burst {
 
-  public static final String VERSION     = "2.0.0";
+  public static final String VERSION     = "2.0.1";
   public static final String APPLICATION = "BRS";
   public static final String LEGACY_APP  = "NRS";
   public static final String LEGACY_VER  = "1.2";
@@ -284,7 +284,8 @@ public final class Burst {
 
   public static void shutdown() {
     logger.info("Shutting down...");
-    api.shutdown();
+    if (api != null)
+      api.shutdown();
     Peers.shutdown(threadPool);
     threadPool.shutdown();
     dbCacheManager.close();
