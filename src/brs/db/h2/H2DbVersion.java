@@ -14,6 +14,7 @@ import brs.db.sql.SqlBlockDb;
 final class H2DbVersion {
 
   private static final Logger logger = LoggerFactory.getLogger(H2DbVersion.class);
+  private static int initialDbVersion = 0;
 
   static void init() {
     try (Connection con = Db.beginTransaction(); Statement stmt = con.createStatement()) {
@@ -22,7 +23,12 @@ final class H2DbVersion {
         if (! rs.next() || ! rs.isLast()) {
           throw new RuntimeException("Invalid version table");
         }
-        nextUpdate = rs.getInt("next_update");
+        nextUpdate       = rs.getInt("next_update");
+        initialDbVersion = nextUpdate - 1;
+        // wallets with DB release 175 had a broken trim function, which deleted way too much data
+        if ( initialDbVersion >= 163 && initialDbVersion <= 175 ) {
+          throw new RuntimeException("Your database looks inconsistent. Please drop and recreate your database.");
+        }
         logger.info("Database update may take a while if needed, current db version " + (nextUpdate - 1) + "...");
       } catch (SQLException e) {
         logger.info("Initializing an empty database");
@@ -471,8 +477,6 @@ final class H2DbVersion {
       case 152:
         apply("CREATE INDEX IF NOT EXISTS transaction_recipient_id_amount_height_idx ON transaction (recipient_id, amount, height)");
       case 153:
-        logger.warn("If this is a ");
-        //                BlockchainProcessorImpl.getInstance().forceScanAtStart();
         apply(null);
       case 154:
         apply("DROP INDEX IF EXISTS account_guaranteed_balance_id_height_idx");

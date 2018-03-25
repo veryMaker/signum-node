@@ -40,6 +40,8 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
   private final EntityTable<Transaction> unconfirmedTransactionTable;
 
+  private final Object unconfirmedTransactionsSyncObj = new Object();
+  
   private final Set<Transaction> nonBroadcastedTransactions = Collections.newSetFromMap(new ConcurrentHashMap<Transaction,Boolean>());
   private final Listeners<List<? extends Transaction>,Event> transactionListeners = new Listeners<>();
   private final Set<Transaction> lostTransactions = new HashSet<>();
@@ -88,9 +90,12 @@ public class TransactionProcessorImpl implements TransactionProcessor {
       });
     }
   }
-
+  public Object getUnconfirmedTransactionsSyncObj() {
+	  return unconfirmedTransactionsSyncObj;
+  }
   private final Runnable removeUnconfirmedTransactionsThread = () -> {
-    try {
+    synchronized (unconfirmedTransactionsSyncObj) {
+	try {
       List<Transaction> expiredTransactions = new ArrayList<>();
       try (BurstIterator<Transaction> iterator = stores.getTransactionProcessorStore().getExpiredTransactions()) {
         while (iterator.hasNext()) {
@@ -100,9 +105,9 @@ public class TransactionProcessorImpl implements TransactionProcessor {
       if (! expiredTransactions.isEmpty()) {
         try {
           stores.beginTransaction();
+          accountService.flushAccountTable();
           expiredTransactions.forEach(this::removeUnconfirmedTransaction);
           stores.commitTransaction();
-
         } catch (Exception e) {
           logger.error(e.toString(), e);
           stores.rollbackTransaction();
@@ -114,6 +119,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     } catch (Exception e) {
       logger.debug("Error removing unconfirmed transactions", e);
     }
+  }
   };
   private final Runnable rebroadcastTransactionsThread = () -> {
 
@@ -315,6 +321,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
           removed.add(transaction);
         }
       }
+      accountService.flushAccountTable();
       unconfirmedTransactionTable.truncate();
       stores.commitTransaction();
     } catch (Exception e) {
@@ -346,6 +353,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     if (!stores.isInTransaction()) {
         try {
           stores.beginTransaction();
+          accountService.flushAccountTable();
           removeUnconfirmedTransaction(transaction);
           stores.commitTransaction();
         } catch (Exception e) {
@@ -403,6 +411,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   }
 
   List<Transaction> processTransactions(Collection<Transaction> transactions, final boolean sendToPeers) {
+    synchronized (unconfirmedTransactionsSyncObj) {
     if (transactions.isEmpty()) {
       return Collections.emptyList();
     }
@@ -425,7 +434,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
             break; // not ready to process transactions
           }
 
-          if (dbs.getTransactionDb().hasTransaction(transaction.getId()) || unconfirmedTransactionTable.get(transaction.getDbKey()) != null) {
+          if (dbs.getTransactionDb().hasTransaction(transaction.getId()) || stores.getTransactionProcessorStore().hasTransaction(transaction.getId())) {
             stores.commitTransaction();
             continue;
           }
@@ -453,6 +462,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
           } else {
             addedDoubleSpendingTransactions.add(transaction);
           }
+          accountService.flushAccountTable();
           stores.commitTransaction();
         } catch (Exception e) {
           stores.rollbackTransaction();
@@ -477,5 +487,5 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     }
     return addedUnconfirmedTransactions;
   }
-
+  }
 }
