@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
 
 public final class Burst {
 
-  public static final String VERSION     = "2.0.2";
+  public static final String VERSION     = "2.0.3";
   public static final String APPLICATION = "BRS";
   public static final String LEGACY_APP  = "NRS";
   public static final String LEGACY_VER  = "1.2";
@@ -152,8 +152,20 @@ public final class Burst {
   }
 
   public static void main(String[] args) {
+    validateVersionNotDev(VERSION);
     Runtime.getRuntime().addShutdownHook(new Thread(Burst::shutdown));
     init();
+  }
+
+  private static void validateVersionNotDev(String version) {
+    if(isDevVersion(version) && System.getProperty("dev") == null) {
+      logger.error("THIS IS A DEVELOPMENT WALLET, PLEASE DO NOT USE THIS");
+      System.exit(0);
+    }
+  }
+
+  private static boolean isDevVersion(String version) {
+    return Integer.parseInt(version.split("\\.")[1]) % 2 != 0;
   }
 
   public static void init(Properties customProperties) {
@@ -227,7 +239,7 @@ public final class Burst {
       blockchainProcessor = new BlockchainProcessorImpl(threadPool, blockService, transactionProcessor, blockchain, propertyService, subscriptionService,
           timeService, derivedTableManager,
           blockDb, transactionDb, economicClustering, blockchainStore, stores, escrowService, transactionService, downloadCache, generator, statisticsManager,
-          dbCacheManager);
+          dbCacheManager, accountService);
 
       generator.generateForBlockchainProcessor(threadPool, blockchainProcessor);
 
@@ -283,13 +295,19 @@ public final class Burst {
   }
 
   public static void shutdown() {
+    shutdown(false);
+  }
+
+  public static void shutdown(boolean ignoreDBShutdown) {
     logger.info("Shutting down...");
     if (api != null)
       api.shutdown();
     Peers.shutdown(threadPool);
     threadPool.shutdown();
     dbCacheManager.close();
-    Db.shutdown();
+    if(! ignoreDBShutdown) {
+      Db.shutdown();
+    }
     if (blockchainProcessor != null && blockchainProcessor.getOclVerify()) {
       OCLPoC.destroy();
     }
