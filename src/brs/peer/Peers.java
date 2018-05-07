@@ -215,8 +215,9 @@ public final class Peers {
 
     blacklistingPeriod = propertyService.getInt(Props.P2P_BLACKLISTING_TIME_MS);
     communicationLoggingMask = propertyService.getInt(Props.BRS_COMMUNICATION_LOGGING_MASK);
-    sendToPeersLimit = propertyService.getInt(Props.BRS_SEND_TO_PEERS_LIMIT);
+    sendToPeersLimit = propertyService.getInt(Props.P2P_SEND_TO_LIMIT);
     usePeersDb       = propertyService.getBoolean(Props.P2P_USE_PEERS_DB) && ! Constants.isOffline;
+
     savePeers        = usePeersDb && propertyService.getBoolean(Props.P2P_SAVE_PEERS);
     getMorePeers     = propertyService.getBoolean(Props.P2P_GET_MORE_PEERS);
     getMorePeersThreshold = propertyService.getInt(Props.P2P_GET_MORE_PEERS_THRESHOLD);
