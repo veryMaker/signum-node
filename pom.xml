@@ -392,6 +392,11 @@
                     <include name="burst.sh"/>
                   </fileset>
                 </copy>
+                <!-- copy lib dir -->
+                <copy todir="${project.basedir}/dist/tmp/lib">
+                  <fileset dir="${project.basedir}/lib">
+                  </fileset>
+                </copy>
 
                 <!-- workaround to keep org. burst.(sh|cmd) working, if build with compile scripts -->
                 <copy file="${project.basedir}/burst.sh"
