@@ -1,4 +1,4 @@
-package brs;
+package brs.unconfirmedtransactions;
 
 import static brs.Attachment.ORDINARY_PAYMENT;
 import static org.junit.Assert.fail;
@@ -11,9 +11,16 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+import brs.Account;
+import brs.BlockchainImpl;
+import brs.Burst;
 import brs.BurstException.NotCurrentlyValidException;
+import brs.BurstException.NotValidException;
 import brs.BurstException.ValidationException;
+import brs.Constants;
+import brs.Transaction;
 import brs.Transaction.Builder;
+import brs.TransactionType;
 import brs.common.Props;
 import brs.common.TestConstants;
 import brs.db.BurstKey;
@@ -166,12 +173,15 @@ public class UnconfirmedTransactionStoreTest {
   @Test
   public void transactionGetsRemovedWhenExpiredWhenRunningForeach() throws ValidationException, InterruptedException {
     final int deadlineWithin2Seconds = timeService.getEpochTime() - 29998;
-    final Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 500, 735000, deadlineWithin2Seconds, (short) 500, ORDINARY_PAYMENT)
-        .id(1).senderId(123L).build();
 
-    transaction.sign(TestConstants.TEST_SECRET_PHRASE);
+    for (int i = 0; i < 10; i++) {
+      final Transaction transaction = new Transaction.Builder((byte) i, TestConstants.TEST_PUBLIC_KEY_BYTES, 500, 735000, deadlineWithin2Seconds, (short) 500, ORDINARY_PAYMENT)
+          .id(i).senderId(123L).build();
 
-    t.put(transaction);
+      transaction.sign(TestConstants.TEST_SECRET_PHRASE);
+
+      t.put(transaction);
+    }
 
     assertNotNull(t.get(1L));
 
@@ -219,5 +229,32 @@ public class UnconfirmedTransactionStoreTest {
     transaction2.sign(TestConstants.TEST_SECRET_PHRASE);
 
     t.put(transaction2);
+  }
+
+  @Test
+  public void transactionsCanBeRetrievedBasedOnTheTimestampThatTheyGetAdded() throws ValidationException {
+    final long momentOne = timeService.getEpochTimeMillis();
+
+    for (int i = 1; i <= 5; i++) {
+      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, 735000, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
+          .id(i).senderId(123L).build();
+      transaction.sign(TestConstants.TEST_SECRET_PHRASE);
+      t.put(transaction);
+    }
+
+    final long momentTwo = timeService.getEpochTimeMillis();
+
+    for (int i = 1; i <= 5; i++) {
+      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, 735000, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
+          .id(i).senderId(123L).build();
+      transaction.sign(TestConstants.TEST_SECRET_PHRASE);
+      t.put(transaction);
+    }
+
+    final long momentThree = timeService.getEpochTimeMillis();
+
+    assertEquals(10, t.getAllSince(momentOne).size());
+    assertEquals(5, t.getAllSince(momentTwo).size());
+    assertEquals(0, t.getAllSince(momentThree).size());
   }
 }
