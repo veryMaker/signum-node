@@ -242,7 +242,7 @@ final class PeerImpl implements Peer {
       boolean alreadyBlacklisted = isBlacklisted();
       blacklist(description); // refresh blacklist expiry
       if ( ! alreadyBlacklisted ) {
-        logger.debug("... because of: " + cause.toString() + cause.getStackTrace().toString(), cause);
+        logger.debug("... because of: " + cause.toString(), cause);
       }
     }
   }
