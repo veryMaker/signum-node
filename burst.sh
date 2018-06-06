@@ -156,6 +156,11 @@ fi
 
 if [[ $# -gt 0 ]] ; then
     case "$MY_CMD" in
+        "clean")
+            rm -rf dist html/ui/doc
+            mkdir -p html/ui/doc
+            mvn clean
+            ;;
         "compile")
             if [ -d "maven/apache-maven-${MY_MAVEN_VERSION}" ]; then
                 PATH=maven/apache-maven-${MY_MAVEN_VERSION}/bin:$PATH
@@ -163,10 +168,9 @@ if [[ $# -gt 0 ]] ; then
 
             ## check if command exists
             if hash mvn 2>/dev/null; then
+                ./burst.sh clean
                 mvn -DskipTests=true package
                 mvn javadoc:javadoc-no-fork
-                rm -rf html/ui/doc
-                mkdir -p html/ui/doc
                 cp -r target/site/apidocs/* html/ui/doc
                 cp dist/tmp/burst.jar .
                 echo a .zip file has been built for distribution in dist/, its contents are in dist/tmp
@@ -201,12 +205,31 @@ if [[ $# -gt 0 ]] ; then
             echo
             if [[ $REPLY =~ ^[Yy]$ ]]; then
                 if [[ $MY_ARG == "mariadb" ]]; then
-                    echo
-                    echo "Please enter your connection details"
-                    read -rp  "Host     (localhost) : " P_HOST
-                    read -rp  "Database (brs_master): " P_DATA
-                    read -rp  "Username (brs_user)  : " P_USER
-                    read -rsp "Password empty       : " P_PASS
+                    isConfigured="$(grep -E '^DB.Url.+mariadb.+' conf/brs.properties)"
+                    useCurrentConfig="0"
+                    if [ "${isConfigured}" != "" ]
+                    then
+                        read -p "Detected a previous database config(conf/brs.properties). Do you want to use the config? " -n 1 -r
+                        echo
+                        if [[ $REPLY =~ ^[Yy]$ ]]
+                        then
+                            useCurrentConfig="1"
+                        fi
+                    fi
+                    if [ "${useCurrentConfig}" == "1" ]
+                    then
+                        P_HOST="$(grep -E '^DB.Url.+mariadb.+' conf/brs.properties | cut -d '/' -f 3 | cut -d ':' -f 1)"
+                        P_DATA="$(grep -E '^DB.Url.+mariadb.+' conf/brs.properties | cut -d '/' -f 4)"
+                        P_USER="$(grep '^DB.Username=' conf/brs.properties | cut -d '=' -f 2)"
+                        P_PASS="$(grep '^DB.Password=' conf/brs.properties | cut -d '=' -f 2)"
+                    else
+                        echo
+                        echo "Please enter your connection details"
+                        read -rp  "Host     (localhost) : " P_HOST
+                        read -rp  "Database (brs_master): " P_DATA
+                        read -rp  "Username (brs_user)  : " P_USER
+                        read -rsp "Password empty       : " P_PASS
+                    fi
                     [ -z $P_HOST ] && P_HOST="localhost"
                     [ -z $P_USER ] && P_USER="brs_user"
                     [ -z $P_DATA ] && P_DATA="brs_master"
