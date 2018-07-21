@@ -7,7 +7,8 @@ import brs.GeneratorImpl.MockGeneratorImpl;
 import brs.assetexchange.AssetExchange;
 import brs.assetexchange.AssetExchangeImpl;
 import brs.blockchainlistener.DevNullListener;
-import brs.common.Props;
+import brs.feesuggestions.FeeSuggestionCalculator;
+import brs.props.Props;
 import brs.db.BlockDb;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.sql.Db;
@@ -29,7 +30,7 @@ import brs.services.BlockService;
 import brs.services.DGSGoodsStoreService;
 import brs.services.EscrowService;
 import brs.services.ParameterService;
-import brs.services.PropertyService;
+import brs.props.PropertyService;
 import brs.services.SubscriptionService;
 import brs.services.TimeService;
 import brs.services.TransactionService;
@@ -40,7 +41,7 @@ import brs.services.impl.BlockServiceImpl;
 import brs.services.impl.DGSGoodsStoreServiceImpl;
 import brs.services.impl.EscrowServiceImpl;
 import brs.services.impl.ParameterServiceImpl;
-import brs.services.impl.PropertyServiceImpl;
+import brs.props.PropertyServiceImpl;
 import brs.services.impl.SubscriptionServiceImpl;
 import brs.services.impl.TimeServiceImpl;
 import brs.services.impl.TransactionServiceImpl;
@@ -229,6 +230,8 @@ public final class Burst {
           blockDb, transactionDb, economicClustering, blockchainStore, stores, escrowService, transactionService, downloadCache, generator, statisticsManager,
           dbCacheManager, accountService);
 
+      final FeeSuggestionCalculator feeSuggestionCalculator = new FeeSuggestionCalculator(blockchainProcessor, blockchainStore, 10);
+
       generator.generateForBlockchainProcessor(threadPool, blockchainProcessor);
 
       final ParameterService parameterService = new ParameterServiceImpl(accountService, aliasService, assetExchange,
@@ -244,7 +247,8 @@ public final class Burst {
 
       api = new API(transactionProcessor, blockchain, blockchainProcessor, parameterService,
           accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
-          subscriptionService, atService, timeService, economicClustering, propertyService, threadPool, transactionService, blockService, generator, apiTransactionManager);
+          subscriptionService, atService, timeService, economicClustering, propertyService, threadPool,
+          transactionService, blockService, generator, apiTransactionManager, feeSuggestionCalculator);
 
       DebugTrace.init(propertyService, blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService);
 

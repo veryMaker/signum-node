@@ -138,5 +138,10 @@ public class ResultFields {
   public static final String ESCROW_ID_RESPONSE = "escrowId";
   public static final String SUBSCRIPTION_ID_RESPONSE = "subscriptionId";
   public static final String CREATION_BYTES_RESPONSE = "creationBytes";
-
+  public static final String LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_RESPONSE = "lastUnconfirmedTransactionTimestamp";
+  public static final String UNCONFIRMED_TRANSACTIONS_RESPONSE = "unconfirmedTransactions";
+  public static final String UNCONFIRMED_TRANSACTIONS_IDS_RESPONSE = "unconfirmedTransactionIds";
+  public static final String CHEAP_FEE_RESPONSE = "cheap";
+  public static final String STANDARD_FEE_RESPONSE = "standard";
+  public static final String PRIORITY_FEE_RESPONSE = "priority";
 }

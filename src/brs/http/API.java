@@ -6,7 +6,9 @@ import brs.EconomicClustering;
 import brs.Generator;
 import brs.TransactionProcessor;
 import brs.assetexchange.AssetExchange;
-import brs.common.Props;
+import brs.feesuggestions.FeeSuggestionCalculator;
+import brs.props.PropertyService;
+import brs.props.Props;
 import brs.services.*;
 import brs.util.Subnet;
 import brs.util.ThreadPool;
@@ -33,13 +35,13 @@ public final class API {
   private static Server apiServer;
 
   public API(TransactionProcessor transactionProcessor,
-             Blockchain blockchain, BlockchainProcessor blockchainProcessor, ParameterService parameterService,
-             AccountService accountService, AliasService aliasService,
-             AssetExchange assetExchange, EscrowService escrowService, DGSGoodsStoreService digitalGoodsStoreService,
-             SubscriptionService subscriptionService, ATService atService,
-             TimeService timeService, EconomicClustering economicClustering, PropertyService propertyService,
-             ThreadPool threadPool, TransactionService transactionService, BlockService blockService,
-             Generator generator, APITransactionManager apiTransactionManager) {
+      Blockchain blockchain, BlockchainProcessor blockchainProcessor, ParameterService parameterService,
+      AccountService accountService, AliasService aliasService,
+      AssetExchange assetExchange, EscrowService escrowService, DGSGoodsStoreService digitalGoodsStoreService,
+      SubscriptionService subscriptionService, ATService atService,
+      TimeService timeService, EconomicClustering economicClustering, PropertyService propertyService,
+      ThreadPool threadPool, TransactionService transactionService, BlockService blockService,
+      Generator generator, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator) {
 
     enableDebugAPI = propertyService.getBoolean(Props.API_DEBUG);
     List<String> allowedBotHostsList = propertyService.getStringList(Props.API_ALLOWED);
@@ -120,10 +122,11 @@ public final class API {
 
       ServletHolder peerServletHolder = new ServletHolder(new APIServlet(transactionProcessor, blockchain, blockchainProcessor, parameterService,
                                                                          accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
-                                                                         subscriptionService, atService, timeService, economicClustering, transactionService, blockService, generator, propertyService, apiTransactionManager));
+                                                                         subscriptionService, atService, timeService, economicClustering, transactionService, blockService, generator, propertyService,
+                                                                         apiTransactionManager, feeSuggestionCalculator));
       apiHandler.addServlet(peerServletHolder, "/burst");
 
-      if (propertyService.getBoolean("JETTY.API.GzipFilter")) {
+      if (propertyService.getBoolean(Props.JETTY_API_GZIP_FILTER)) {
         FilterHolder gzipFilterHolder = apiHandler.addFilter(GzipFilter.class, "/burst", null);
         gzipFilterHolder.setInitParameter("methods",     propertyService.getString(Props.JETTY_API_GZIP_FILTER_METHODS));
         gzipFilterHolder.setInitParameter("bufferSize",  propertyService.getString(Props.JETTY_API_GZIP_FILTER_BUFFER_SIZE));
@@ -131,7 +134,7 @@ public final class API {
         gzipFilterHolder.setAsyncSupported(true);
       }
       
-      if (propertyService.getBoolean("JETTY.API.DoSFilter")) {
+      if (propertyService.getBoolean(Props.JETTY_API_DOS_FILTER)) {
         FilterHolder dosFilterHolder = apiHandler.addFilter(DoSFilter.class, "/burst", null);
         dosFilterHolder.setInitParameter("maxRequestsPerSec", propertyService.getString(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_PER_SEC));
         dosFilterHolder.setInitParameter("throttledRequests", propertyService.getString(Props.JETTY_API_DOS_FILTER_THROTTLED_REQUESTS));
