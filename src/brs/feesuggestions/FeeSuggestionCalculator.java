@@ -48,11 +48,11 @@ public class FeeSuggestionCalculator {
 
   private void recalculateSuggestion() {
     int lowestAmountTransactionsNearHistory = latestBlocks.stream().mapToInt(b -> ((Block) b).getTransactions().size()).min().orElse(1);
-    int medianAmountTransactionsNearHistory = (int) latestBlocks.stream().mapToInt(b -> ((Block) b).getTransactions().size()).sorted().skip((latestBlocks.size()-1)/2).limit(2-latestBlocks.size()%2).average().getAsDouble();
+    int averageAmountTransactionsNearHistory = (int) Math.ceil(latestBlocks.stream().mapToInt(b -> ((Block) b).getTransactions().size()).average().getAsDouble());
     int highestAmountTransactionsNearHistory = latestBlocks.stream().mapToInt(b -> ((Block) b).getTransactions().size()).max().orElse(1);
 
     long cheapFee = (1 + lowestAmountTransactionsNearHistory) * FEE_QUANT;
-    long standardFee = (1 + medianAmountTransactionsNearHistory) * FEE_QUANT;
+    long standardFee = (1 + averageAmountTransactionsNearHistory) * FEE_QUANT;
     long priorityFee = (1 + highestAmountTransactionsNearHistory) * FEE_QUANT;
 
     feeSuggestion = new FeeSuggestion(cheapFee, standardFee, priorityFee);
