@@ -303,16 +303,57 @@ if [[ $# -gt 0 ]] ; then
                 echo "[!] Please install unzip"
                 exit 99
             fi
-            read -p "[?] Do you want to remove the current databases, download and import new one? " -n 1 -r
+            CONF_FILE="conf/brs.properties"
+            useCurrentConfig="0"
+            allFound="1"
+            read -p "Do you want to remove the current databases, download and import new one? " -n 1 -r
             echo
             if [[ $REPLY =~ ^[Yy]$ ]]; then
                 if [[ $MY_ARG == "mariadb" ]]; then
-                    echo
-                    echo "\nPlease enter your connection details"
-                    read -rp  "Host     (localhost) : " P_HOST
-                    read -rp  "Database (brs_master): " P_DATA
-                    read -rp  "Username (brs_user)  : " P_USER
-                    read -rsp "Password empty       : " P_PASS
+                    if [[ -f $CONF_FILE ]]
+                    then
+                        read -p "Detected a previous database config(conf/brs.properties). Do you want to use the config? " -n 1 -r
+                        echo
+                        if [[ $REPLY =~ ^[Yy]$ ]]
+                        then
+                            useCurrentConfig="1"
+                        fi
+                    fi
+                    if [ "${useCurrentConfig}" == "1" ]
+                    then
+                        BRS=$(<$CONF_FILE)
+                        if [[ $BRS =~ DB.Url=jdbc:mariadb://([0-9a-zA-Z]+):[0-9]+/([0-9a-zA-Z]+) ]]
+                        then
+                            P_HOST="${BASH_REMATCH[1]}"
+                            P_DATA="${BASH_REMATCH[2]}"
+                            if [[ $BRS =~ DB.Username=([0-9a-zA-Z]+) ]]
+                            then
+                                P_USER="${BASH_REMATCH[1]}"
+                            else
+                                echo "Could not find Database Username"
+                                allFound="0"
+                            fi
+                            if [[ $BRS =~ DB.Password=([0-9A-Za-z\.-_\!\"\%\&\/\(\)\\\<\>\^]+) ]]
+                            then
+                                P_PASS="${BASH_REMATCH[1]}"
+                            else
+                                echo "Could not find Database Password"
+                                allFound="0"
+                            fi
+                        else
+                            echo "Could not find Hostname and DatabaseName"
+                            allFound="0"
+                        fi
+                    fi
+                    if [ "${allfound}" != "1" ] || [ "${useCurrentConfig}" != "1" ]
+                    then
+                        echo
+                        echo "Please enter your connection details"
+                        read -rp  "Host     (localhost) : " P_HOST
+                        read -rp  "Database (brs_master): " P_DATA
+                        read -rp  "Username (brs_user)  : " P_USER
+                        read -rsp "Password empty       : " P_PASS
+                    fi
                     [ -z $P_HOST ] && P_HOST="localhost"
                     [ -z $P_USER ] && P_USER="brs_user"
                     [ -z $P_DATA ] && P_DATA="brs_master"
