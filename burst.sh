@@ -345,7 +345,7 @@ if [[ $# -gt 0 ]] ; then
                             allFound="0"
                         fi
                     fi
-                    if [ "${allfound}" != "1" ] || [ "${useCurrentConfig}" != "1" ]
+                    if [ "${allFound}" != "1" ] || [ "${useCurrentConfig}" != "1" ]
                     then
                         echo
                         echo "Please enter your connection details"
