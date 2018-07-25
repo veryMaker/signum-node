@@ -31,8 +31,8 @@ public final class GetUnconfirmedTransactionIds extends APIServlet.APIRequestHan
     final String lastUnconfirmedTransactionTimestampParameter = Convert.emptyToNull(req.getParameter(LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_PARAMETER));
     final String limitUnconfirmedTransactionsRetrievedParameter = Convert.emptyToNull(req.getParameter(LIMIT_UNCONFIRMED_TRANSACTIONS_RETRIEVED_PARAMETER));
 
-    final Long lastUnconfirmedTransactionTimestamp = lastUnconfirmedTransactionTimestampParameter != null ? Long.parseLong(lastUnconfirmedTransactionTimestampParameter) : null;
-    final Integer limitUnconfirmedTransactionsRetrieved = limitUnconfirmedTransactionsRetrievedParameter != null ? Integer.parseInt(limitUnconfirmedTransactionsRetrievedParameter) : Integer.MAX_VALUE;
+    final Long lastUnconfirmedTransactionTimestamp = lastUnconfirmedTransactionTimestampParameter != null ? Convert.parseLong(lastUnconfirmedTransactionTimestampParameter) : null;
+    final Long limitUnconfirmedTransactionsRetrieved = limitUnconfirmedTransactionsRetrievedParameter != null ? Convert.parseLong(limitUnconfirmedTransactionsRetrievedParameter) : Long.MAX_VALUE;
 
     long accountId = 0;
 
