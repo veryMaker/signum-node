@@ -18,6 +18,7 @@ import brs.services.TimeService;
 import brs.services.TransactionService;
 import brs.unconfirmedtransactions.TimedUnconfirmedTransactionOverview;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
+import brs.util.Convert;
 import brs.util.JSON;
 import brs.util.Listener;
 import brs.util.Listeners;
@@ -128,7 +129,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
       {
         JSONObject request = new JSONObject();
         request.put("requestType", "getUnconfirmedTransactions");
-        request.put(LIMIT_UNCONFIRMED_TRANSACTIONS_RETRIEVED_PARAMETER, limitUnconfirmedTransactionsToRetrieve);
+        request.put(LIMIT_UNCONFIRMED_TRANSACTIONS_RETRIEVED_PARAMETER, "" + limitUnconfirmedTransactionsToRetrieve);
         getUnconfirmedTransactionsRequest = JSON.prepareRequest(request);
       }
 
@@ -137,7 +138,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
         request.put("requestType", "getUnconfirmedTransactions");
         if(lastUnconfirmedTransactionTimestamp != null) {
           request.put(LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_PARAMETER, lastUnconfirmedTransactionTimestamp.toString());
-          request.put(LIMIT_UNCONFIRMED_TRANSACTIONS_RETRIEVED_PARAMETER, limitUnconfirmedTransactionsToRetrieve);
+          request.put(LIMIT_UNCONFIRMED_TRANSACTIONS_RETRIEVED_PARAMETER, "" + limitUnconfirmedTransactionsToRetrieve);
         }
         return JSON.prepareRequest(request);
       }
@@ -178,7 +179,6 @@ public class TransactionProcessorImpl implements TransactionProcessor {
             if (peer == null) {
               return;
             }
-
             JSONObject response = peer.send(peer.getLastUnconfirmedTransactionTimestamp() == null ? getUnconfirmedTransactionsRequest : unconfirmedTransactionRequest(peer.getLastUnconfirmedTransactionTimestamp()));
             if (response == null) {
               return;
@@ -188,7 +188,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
             Object lastUnconfirmedTransactionTimeStampResponse = response.get(LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_RESPONSE);
 
             if(lastUnconfirmedTransactionTimeStampResponse != null) {
-              peer.setLastUnconfirmedTransactionTimestamp(Long.parseLong((String) lastUnconfirmedTransactionTimeStampResponse));
+              peer.setLastUnconfirmedTransactionTimestamp(Convert.parseLong("" + lastUnconfirmedTransactionTimeStampResponse));
             }
 
             if (transactionsData == null || transactionsData.isEmpty()) {
@@ -226,7 +226,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   }
 
   @Override
-  public TimedUnconfirmedTransactionOverview getAllUnconfirmedTransactions(Long lastUnconfirmedTransactionTimestamp, int limit) {
+  public TimedUnconfirmedTransactionOverview getAllUnconfirmedTransactions(Long lastUnconfirmedTransactionTimestamp, Long limit) {
     if(lastUnconfirmedTransactionTimestamp != null) {
       return unconfirmedTransactionStore.getAllSince(lastUnconfirmedTransactionTimestamp, limit);
     }

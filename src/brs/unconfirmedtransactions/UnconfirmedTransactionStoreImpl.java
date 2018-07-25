@@ -133,7 +133,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   @Override
-  public TimedUnconfirmedTransactionOverview getAll(int limit) {
+  public TimedUnconfirmedTransactionOverview getAll(long limit) {
     synchronized (internalStore) {
       final ArrayList<UnconfirmedTransactionTiming> flatTransactionList = new ArrayList<>();
 
@@ -155,7 +155,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   @Override
-  public TimedUnconfirmedTransactionOverview getAllSince(long timestampInMillis, int limit) {
+  public TimedUnconfirmedTransactionOverview getAllSince(long timestampInMillis, long limit) {
     synchronized (internalStore) {
       final ArrayList<UnconfirmedTransactionTiming> flatTransactionList = new ArrayList<>();
 
