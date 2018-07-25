@@ -258,6 +258,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
       final UnconfirmedTransactionTiming utt = transactionSlotIterator.next();
       if (utt.getTransaction().getId() == transaction.getId()) {
         transactionSlotIterator.remove();
+        transactionDuplicatesChecker.removeTransaction(transaction);
         this.reservedBalanceCache.refundBalance(transaction);
         totalSize--;
 
