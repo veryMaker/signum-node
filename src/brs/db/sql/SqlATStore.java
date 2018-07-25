@@ -144,6 +144,8 @@ public class SqlATStore implements ATStore {
     ).and(
       AT_STATE.LATEST.isTrue()
     ).and(
+      ACCOUNT.LATEST.isTrue()
+    ).and(
       AT_STATE.NEXT_HEIGHT.lessOrEqual( Burst.getBlockchain().getHeight() + 1)
     ).and(
       ACCOUNT.BALANCE.greaterOrEqual(
