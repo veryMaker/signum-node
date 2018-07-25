@@ -28,7 +28,7 @@ final class GetUnconfirmedTransactions extends PeerServlet.PeerRequestHandler {
     Object limitAmountUnconfirmedTransactionsParameter = request.get(LIMIT_UNCONFIRMED_TRANSACTIONS_RETRIEVED_PARAMETER);
 
     final Long lastUnconfirmedTransactionTimestamp = lastUnconfirmedTransactionTimestampParameter != null ? Convert.parseLong(lastUnconfirmedTransactionTimestampParameter) : null;
-    final Integer limitAmountUnconfirmedTransactions = limitAmountUnconfirmedTransactionsParameter != null ? Convert.parseInteger(limitAmountUnconfirmedTransactionsParameter) : Integer.MAX_VALUE;
+    final Long limitAmountUnconfirmedTransactions = limitAmountUnconfirmedTransactionsParameter != null ? Convert.parseLong(limitAmountUnconfirmedTransactionsParameter) : Long.MAX_VALUE;
 
     JSONObject response = new JSONObject();
 

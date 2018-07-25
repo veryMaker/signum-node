@@ -88,7 +88,7 @@ public final class Convert {
     } else if (o instanceof String) {
       return Integer.parseInt((String)o);
     } else {
-      throw new IllegalArgumentException("Not a long: " + o);
+      throw new IllegalArgumentException("Not an Integer: " + o);
     }
   }
 
@@ -157,7 +157,7 @@ public final class Convert {
 
   public static String toString(byte[] bytes) {
     try {
-      return new String(bytes, "UTF-8");
+      return new String(bytes, "UTF-8").trim();
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e.toString(), e);
     }
