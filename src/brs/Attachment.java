@@ -83,6 +83,8 @@ import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import brs.at.AT_Constants;
+
 public interface Attachment extends Appendix {
 
   TransactionType getTransactionType();
@@ -1966,7 +1968,6 @@ public interface Attachment extends Appendix {
     private final String description;
     private final byte[] creationBytes;
 
-
     AutomatedTransactionsCreation(ByteBuffer buffer,
                                   byte transactionVersion) throws BurstException.NotValidException {
       super(buffer, transactionVersion);
@@ -1974,10 +1975,60 @@ public interface Attachment extends Appendix {
       this.name = Convert.readString( buffer , buffer.get() , Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH );
       this.description = Convert.readString( buffer , buffer.getShort() , Constants.MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH );
 
-      byte[] dst = new byte[ buffer.capacity() - buffer.position() ];
-      buffer.get( dst , 0 , buffer.capacity() - buffer.position() );
-      this.creationBytes = dst;
+      // rest of the parsing is at related; code comes from
+      // public AT_Machine_State( byte[] atId, byte[] creator, byte[] creationBytes, int height ) {
+      int startPosition = buffer.position();
+      buffer.getShort();
 
+      buffer.getShort(); //future: reserved for future needs
+
+      int pageSize = ( int ) AT_Constants.getInstance().PAGE_SIZE( Burst.getBlockchain().getHeight() );
+      short codePages = buffer.getShort();
+      short dataPages = buffer.getShort();
+      buffer.getShort();
+      buffer.getShort();
+
+      buffer.getLong();
+
+      int codeLen;
+      if ( codePages * pageSize < pageSize + 1 ) {
+	      codeLen = buffer.get();
+	      if ( codeLen < 0 )
+	        codeLen += (Byte.MAX_VALUE + 1) * 2;
+      }
+      else if ( codePages * pageSize < Short.MAX_VALUE + 1 ) {
+	    codeLen = buffer.getShort();
+	    if( codeLen < 0 )
+	      codeLen += (Short.MAX_VALUE + 1) * 2;
+      }
+      else {
+	      codeLen = buffer.getInt();
+      }
+      byte[] code = new byte[ codeLen ];
+      buffer.get( code, 0, codeLen );
+
+      int dataLen;
+      if ( dataPages * pageSize < 257 ) {
+	      dataLen = buffer.get();
+	      if ( dataLen < 0 )
+	        dataLen += (Byte.MAX_VALUE + 1) * 2;
+      }
+      else if ( dataPages * pageSize < Short.MAX_VALUE + 1 ) {
+	      dataLen = buffer.getShort();
+	      if ( dataLen < 0 )
+	        dataLen += (Short.MAX_VALUE + 1) * 2;
+      }
+      else {
+	      dataLen = buffer.getInt();
+      }
+      byte[] data = new byte[ dataLen ];
+      buffer.get( data, 0, dataLen );
+
+      int endPosition = buffer.position();
+      buffer.position(startPosition);
+      byte[] dst = new byte[ endPosition - startPosition ];
+      buffer.get( dst , 0 , endPosition - startPosition );
+      this.creationBytes = dst;
     }
 
     AutomatedTransactionsCreation(JSONObject attachmentData) {

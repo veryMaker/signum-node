@@ -12,7 +12,8 @@ import brs.EconomicClustering;
 import brs.Generator;
 import brs.TransactionProcessor;
 import brs.assetexchange.AssetExchange;
-import brs.common.Props;
+import brs.feesuggestions.FeeSuggestionCalculator;
+import brs.props.Props;
 import brs.services.ATService;
 import brs.services.AccountService;
 import brs.services.AliasService;
@@ -20,7 +21,7 @@ import brs.services.BlockService;
 import brs.services.DGSGoodsStoreService;
 import brs.services.EscrowService;
 import brs.services.ParameterService;
-import brs.services.PropertyService;
+import brs.props.PropertyService;
 import brs.services.SubscriptionService;
 import brs.services.TimeService;
 import brs.services.TransactionService;
@@ -52,10 +53,10 @@ public final class APIServlet extends HttpServlet {
       AccountService accountService, AliasService aliasService, AssetExchange assetExchange,
       EscrowService escrowService, DGSGoodsStoreService digitalGoodsStoreService,
       SubscriptionService subscriptionService, ATService atService, TimeService timeService, EconomicClustering economicClustering, TransactionService transactionService,
-      BlockService blockService, Generator generator, PropertyService propertyService, APITransactionManager apiTransactionManager) {
+      BlockService blockService, Generator generator, PropertyService propertyService, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator) {
 
     enforcePost = propertyService.getBoolean(Props.API_SERVER_ENFORCE_POST);
-    acceptSurplusParams = propertyService.getBoolean(Props.API_ACCEPT_SURPLUS_PARAMS, false);
+    acceptSurplusParams = propertyService.getBoolean(Props.API_ACCEPT_SURPLUS_PARAMS);
     
     final Map<String, APIRequestHandler> map = new HashMap<>();
 
@@ -135,6 +136,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getBidOrder", new GetBidOrder(assetExchange));
     map.put("getBidOrderIds", new GetBidOrderIds(parameterService, assetExchange));
     map.put("getBidOrders", new GetBidOrders(parameterService, assetExchange));
+    map.put("suggestFee", new SuggestFee(feeSuggestionCalculator));
     map.put("issueAsset", new IssueAsset(parameterService, blockchain, apiTransactionManager));
     // map.put("leaseBalance", new LeaseBalance(parameterService, blockchain, accountService, apiTransactionManager));
     map.put("longConvert", LongConvert.instance);
