@@ -1163,7 +1163,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               // transaction can only be handled if all referenced ones exist
               if (hasAllReferencedTransactions(transaction, transaction.getTimestamp(), 0)) {
                 // handle non- duplicates and transactions which can be applied
-                if (! transactionDuplicatesChecker.hasAnyDuplicate(transaction) && transactionService.applyUnconfirmed(transaction)) {
+                if (! transactionDuplicatesChecker.hasAnyDuplicate(transaction) && ! transactionDb.hasTransaction(transaction.getId()) && transactionService.applyUnconfirmed(transaction)) {
                   try {
                     transactionService.validate(transaction);
                     payloadSize -= transaction.getSize();
