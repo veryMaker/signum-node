@@ -13,19 +13,19 @@ var BRS = (function(BRS, $, undefined) {
 	BRS.showTransactionModal(transactionId);
     });
     $('#send_money_modal').on('show.bs.modal', function (e) {
-        BRS.showFeeSuggestions(send_money_fee, suggested_fee_response_ordinary);
-        BRS.showFeeSuggestions(multi_out_fee,suggested_fee_response_multi);
+        BRS.showFeeSuggestions("#send_money_fee", "#suggested_fee_response_ordinary");
+        BRS.showFeeSuggestions("#multi_out_fee", "#suggested_fee_response_multi");
     });
     $('#send_money_modal').on('hide.bs.modal', function (e) {
            $("#total_amount_multi_out").html('0.1 BURST');
         });
     $("#suggested_fee_ordinary").on("click", function(e) {
         e.preventDefault();
-    	BRS.showFeeSuggestions(send_money_fee, suggested_fee_response_ordinary);
+    	BRS.showFeeSuggestions("#send_money_fee", "#suggested_fee_response_ordinary");
     });
     $("#suggested_fee_multi").on("click", function(e) {
         e.preventDefault();
-        BRS.showFeeSuggestions(multi_out_fee,suggested_fee_response_multi);
+        BRS.showFeeSuggestions("#multi_out_fee","#suggested_fee_response_multi");
     });
 
 

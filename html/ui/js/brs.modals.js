@@ -560,11 +560,11 @@ var BRS = (function(BRS, $, undefined) {
 
 
     $("#reward_assignment_modal").on("show.bs.modal", function(e) {
-    	BRS.showFeeSuggestions(reward_assignment_fee, suggested_fee_response_reward_assignment, reward_assignment_bottom_fee);
+    	BRS.showFeeSuggestions("#reward_assignment_fee", "#suggested_fee_response_reward_assignment", "#reward_assignment_bottom_fee");
         });
         $("#reward_assignment_fee_suggested").on("click", function(e) {
            e.preventDefault();
-           BRS.showFeeSuggestions(reward_assignment_fee, suggested_fee_response_reward_assignment, reward_assignment_bottom_fee);
+           BRS.showFeeSuggestions("#reward_assignment_fee", "#suggested_fee_response_reward_assignment", "#reward_assignment_bottom_fee");
         });
 
     return BRS;
