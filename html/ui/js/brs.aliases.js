@@ -10,6 +10,27 @@ BRS = (function (BRS, $, undefined) {
             e.preventDefault();
         	BRS.showFeeSuggestions("#register_alias_fee", "#suggested_fee_response_alias_register");
         });
+        $('#transfer_alias_modal').on('show.bs.modal', function (e) {
+            BRS.showFeeSuggestions("#transfer_alias_fee", "#suggested_fee_response_alias_transfer");
+        });
+        $("#suggested_fee_alias_transfer").on("click", function(e) {
+            e.preventDefault();
+            BRS.showFeeSuggestions("#transfer_alias_fee", "#suggested_fee_response_alias_transfer");
+        });
+        $('#sell_alias_modal').on('show.bs.modal', function (e) {
+            BRS.showFeeSuggestions("#sell_alias_fee", "#suggested_fee_response_alias_sell");
+        });
+        $("#suggested_fee_alias_sell").on("click", function(e) {
+            e.preventDefault();
+            BRS.showFeeSuggestions("#sell_alias_fee", "#suggested_fee_response_alias_sell");
+        });
+        $('#buy_alias_modal').on('show.bs.modal', function (e) {
+            BRS.showFeeSuggestions("#buy_alias_fee", "#suggested_fee_response_alias_buy");
+        });
+        $("#suggested_fee_alias_buy").on("click", function(e) {
+            e.preventDefault();
+            BRS.showFeeSuggestions("#buy_alias_fee", "#suggested_fee_response_alias_buy");
+        });
     BRS.pages.aliases = function () {
         BRS.sendRequest("getAliases+", {
             "account": BRS.account,

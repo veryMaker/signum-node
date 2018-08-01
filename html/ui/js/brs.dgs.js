@@ -5,6 +5,42 @@ var BRS = (function(BRS, $, undefined) {
     var _goodsToShow;
     var _currentSeller;
 
+    $('#dgs_listing_modal').on('show.bs.modal', function (e) {
+        BRS.showFeeSuggestions("#dgs_listing_fee", "#suggested_fee_response_dgs_list_product_for_sale");
+    });
+    $("#suggested_fee_dgs_list_product_for_sale").on("click", function(e) {
+        e.preventDefault();
+        BRS.showFeeSuggestions("#dgs_listing_fee", "#suggested_fee_response_dgs_list_product_for_sale");
+    });
+    $('#dgs_listing_modal').on('show.bs.modal', function (e) {
+        BRS.showFeeSuggestions("#dgs_delisting_fee", "#suggested_fee_response_dgs_delisting_modal");
+    });
+    $("#suggested_fee_dgs_delisting_fee").on("click", function(e) {
+        e.preventDefault();
+        BRS.showFeeSuggestions("#dgs_delisting_fee", "#suggested_fee_response_dgs_delisting_modal");
+    });
+    $('#dgs_price_change_modal').on('show.bs.modal', function (e) {
+        BRS.showFeeSuggestions("#dgs_price_change_fee", "#suggested_fee_response_dgs_price_change_modal");
+    });
+    $("#suggested_fee_dgs_price_change_modal").on("click", function(e) {
+        e.preventDefault();
+        BRS.showFeeSuggestions("#dgs_price_change_fee", "#suggested_fee_response_dgs_price_change_modal");
+    });
+    $('#dgs_quantity_change_modal').on('show.bs.modal', function (e) {
+        BRS.showFeeSuggestions("#dgs_quantity_change_fee", "#suggested_fee_response_dgs_quantity_change_modal");
+    });
+    $("#suggested_fee_dgs_quantity_change_modal").on("click", function(e) {
+        e.preventDefault();
+        BRS.showFeeSuggestions("#dgs_quantity_change_fee", "#suggested_fee_response_dgs_quantity_change_modal");
+    });
+     $('#dgs_purchase_modal').on('show.bs.modal', function (e) {
+        BRS.showFeeSuggestions("#dgs_purchase_fee", "#suggested_fee_response_dgs_purchase_modal");
+    });
+    $("#suggested_fee_dgs_purchase_modal").on("click", function(e) {
+        e.preventDefault();
+        BRS.showFeeSuggestions("#dgs_purchase_fee", "#suggested_fee_response_dgs_purchase_modal");
+    });
+
     BRS.getMarketplaceItemHTML = function(good) {
         return "<tr>" +
             "<td><a href='#' data-goods='" + String(good.goods).escapeHTML() + "' data-toggle='modal' data-target='#dgs_purchase_modal'>" + String(good.name).escapeHTML() +"</a></td>" +

@@ -5,6 +5,14 @@ var BRS = (function(BRS, $, undefined) {
     var _messages = {};
     var _latestMessages = {};
 
+    $('#send_message_modal').on('show.bs.modal', function (e) {
+        BRS.showFeeSuggestions("#send_message_fee", "#suggested_fee_response_send_message");
+    });
+    $("#suggested_fee_send_message").on("click", function(e) {
+        e.preventDefault();
+        BRS.showFeeSuggestions("#send_message_fee", "#suggested_fee_response_send_message");
+    });
+
     BRS.pages.messages = function(callback) {
 	_messages = {};
 
