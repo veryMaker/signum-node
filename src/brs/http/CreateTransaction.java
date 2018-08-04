@@ -15,7 +15,7 @@ import static brs.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER;
 import static brs.http.common.Parameters.ENCRYPTED_MESSAGE_NONCE_PARAMETER;
 import static brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_DATA;
 import static brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_NONCE;
-import static brs.http.common.Parameters.FEE_QT_PARAMETER;
+import static brs.http.common.Parameters.FEE_NQT_PARAMETER;
 import static brs.http.common.Parameters.MESSAGE_IS_TEXT_PARAMETER;
 import static brs.http.common.Parameters.MESSAGE_PARAMETER;
 import static brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER;
@@ -30,7 +30,7 @@ import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
 abstract class CreateTransaction extends APIServlet.APIRequestHandler {
 
   private static final String[] commonParameters = new String[] {
-    SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_QT_PARAMETER,
+    SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_NQT_PARAMETER,
     DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER,
     MESSAGE_PARAMETER, MESSAGE_IS_TEXT_PARAMETER,
     MESSAGE_TO_ENCRYPT_PARAMETER, MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, ENCRYPTED_MESSAGE_DATA_PARAMETER, ENCRYPTED_MESSAGE_NONCE_PARAMETER,

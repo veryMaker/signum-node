@@ -41,6 +41,7 @@
     <weupnp.version>0.1.4</weupnp.version>
     <ehcache.version>3.5.0</ehcache.version>
     <apachehttpclient.version>4.5.2</apachehttpclient.version>
+    <xzing.version>3.3.0</xzing.version>
 
     <junit-jupiter.version>5.2.0</junit-jupiter.version>
     <junit-platform.version>1.2.0</junit-platform.version>
@@ -179,6 +180,16 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>${commons-lang.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.zxing</groupId>
+      <artifactId>core</artifactId>
+      <version>${xzing.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.zxing</groupId>
+      <artifactId>javase</artifactId>
+      <version>${xzing.version}</version>
     </dependency>
 
     <dependency>

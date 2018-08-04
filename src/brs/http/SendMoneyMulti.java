@@ -2,20 +2,9 @@ package brs.http;
 
 import static brs.http.common.Parameters.BROADCAST_PARAMETER;
 import static brs.http.common.Parameters.DEADLINE_PARAMETER;
-import static brs.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER;
-import static brs.http.common.Parameters.ENCRYPTED_MESSAGE_NONCE_PARAMETER;
-import static brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_DATA;
-import static brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_NONCE;
-import static brs.http.common.Parameters.FEE_QT_PARAMETER;
-import static brs.http.common.Parameters.MESSAGE_IS_TEXT_PARAMETER;
-import static brs.http.common.Parameters.MESSAGE_PARAMETER;
-import static brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER;
-import static brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER;
-import static brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER;
-import static brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER;
+import static brs.http.common.Parameters.FEE_NQT_PARAMETER;
 import static brs.http.common.Parameters.PUBLIC_KEY_PARAMETER;
 import static brs.http.common.Parameters.RECIPIENTS_PARAMETER;
-import static brs.http.common.Parameters.RECIPIENT_PUBLIC_KEY_PARAMETER;
 import static brs.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER;
 import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
 import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
@@ -39,7 +28,7 @@ import org.json.simple.JSONStreamAware;
 public final class SendMoneyMulti extends CreateTransaction {
 
   private static final String[] commonParameters = new String[] {
-      SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_QT_PARAMETER,
+      SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_NQT_PARAMETER,
       DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER,
       RECIPIENTS_PARAMETER};
 

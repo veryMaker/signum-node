@@ -1,7 +1,7 @@
 package brs.common;
 
 import static brs.http.common.Parameters.DEADLINE_PARAMETER;
-import static brs.http.common.Parameters.FEE_QT_PARAMETER;
+import static brs.http.common.Parameters.FEE_NQT_PARAMETER;
 import static brs.http.common.Parameters.PUBLIC_KEY_PARAMETER;
 import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
 import static org.mockito.ArgumentMatchers.eq;
@@ -41,7 +41,7 @@ public class QuickMocker {
         new MockParam(SECRET_PHRASE_PARAMETER, TestConstants.TEST_SECRET_PHRASE),
         new MockParam(PUBLIC_KEY_PARAMETER, TestConstants.TEST_PUBLIC_KEY),
         new MockParam(DEADLINE_PARAMETER, TestConstants.DEADLINE),
-        new MockParam(FEE_QT_PARAMETER, TestConstants.FEE)
+        new MockParam(FEE_NQT_PARAMETER, TestConstants.FEE)
     ));
 
     paramsWithKeys.addAll(Arrays.asList(parameters));

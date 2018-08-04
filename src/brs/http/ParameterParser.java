@@ -20,7 +20,7 @@ import static brs.http.JSONResponses.MISSING_SECRET_PHRASE;
 import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
 import static brs.http.common.Parameters.BUYER_PARAMETER;
 import static brs.http.common.Parameters.CREATION_BYTES_PARAMETER;
-import static brs.http.common.Parameters.FEE_QT_PARAMETER;
+import static brs.http.common.Parameters.FEE_NQT_PARAMETER;
 import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
 import static brs.http.common.Parameters.GOODS_DATA_PARAMETER;
 import static brs.http.common.Parameters.GOODS_NONCE_PARAMETER;
@@ -46,7 +46,7 @@ import javax.servlet.http.HttpServletRequest;
 final class ParameterParser {
 
   static long getFeeNQT(HttpServletRequest req) throws ParameterException {
-    String feeValueNQT = Convert.emptyToNull(req.getParameter(FEE_QT_PARAMETER));
+    String feeValueNQT = Convert.emptyToNull(req.getParameter(FEE_NQT_PARAMETER));
     if (feeValueNQT == null) {
       throw new ParameterException(MISSING_FEE);
     }

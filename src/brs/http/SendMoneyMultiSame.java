@@ -3,7 +3,7 @@ package brs.http;
 import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
 import static brs.http.common.Parameters.BROADCAST_PARAMETER;
 import static brs.http.common.Parameters.DEADLINE_PARAMETER;
-import static brs.http.common.Parameters.FEE_QT_PARAMETER;
+import static brs.http.common.Parameters.FEE_NQT_PARAMETER;
 import static brs.http.common.Parameters.PUBLIC_KEY_PARAMETER;
 import static brs.http.common.Parameters.RECIPIENTS_PARAMETER;
 import static brs.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER;
@@ -18,10 +18,8 @@ import brs.BurstException;
 import brs.Constants;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
@@ -29,7 +27,7 @@ import org.json.simple.JSONStreamAware;
 public final class SendMoneyMultiSame extends CreateTransaction {
 
   private static final String[] commonParameters = new String[] {
-      SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_QT_PARAMETER,
+      SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_NQT_PARAMETER,
       DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER,
       RECIPIENTS_PARAMETER, AMOUNT_NQT_PARAMETER};
 

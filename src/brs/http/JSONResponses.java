@@ -23,7 +23,7 @@ public final class JSONResponses {
   public static final JSONStreamAware INCORRECT_PUBLIC_KEY = incorrect(PUBLIC_KEY_PARAMETER);
   public static final JSONStreamAware MISSING_ALIAS_NAME = missing(ALIAS_NAME_PARAMETER);
   public static final JSONStreamAware MISSING_ALIAS_OR_ALIAS_NAME = missing(ALIAS_PARAMETER, "aliasName");
-  public static final JSONStreamAware MISSING_FEE = missing(FEE_QT_PARAMETER);
+  public static final JSONStreamAware MISSING_FEE = missing(FEE_NQT_PARAMETER);
   public static final JSONStreamAware MISSING_DEADLINE = missing(DEADLINE_PARAMETER);
   public static final JSONStreamAware INCORRECT_DEADLINE = incorrect(DEADLINE_PARAMETER);
   public static final JSONStreamAware INCORRECT_FEE = incorrect(FEE_PARAMETER);
@@ -108,8 +108,7 @@ public final class JSONResponses {
   public static final JSONStreamAware UNKNOWN_AT = unknown(AT_PARAMETER);
   public static final JSONStreamAware INCORRECT_AT = incorrect(AT_PARAMETER);
   public static final JSONStreamAware INCORRECT_CREATION_BYTES = incorrect("incorrect creation bytes");
-    
-    
+
   public static final JSONStreamAware NOT_ENOUGH_FUNDS;
   static {
     JSONObject response = new JSONObject();
