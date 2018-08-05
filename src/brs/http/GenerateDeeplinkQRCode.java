@@ -87,6 +87,11 @@ public class GenerateDeeplinkQRCode implements PrimitiveRequestHandler {
 
       final String message = Convert.emptyToNull(req.getParameter(MESSAGE_PARAMETER));
 
+      if(! StringUtils.isEmpty(message) && message.length() > Constants.MAX_ARBITRARY_MESSAGE_LENGTH) {
+        addErrorMessage(resp, "Message can have a max length of " + Constants.MAX_ARBITRARY_MESSAGE_LENGTH);
+        return;
+      }
+
       resp.setContentType("image/jpeg");
 
       final BufferedImage qrImage = deeplinkQRCodeGenerator.generateRequestBurstDeepLinkQRCode(receiverId, amountNQT, feeSuggestionType, feeNQT, message);
