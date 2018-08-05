@@ -1,5 +1,6 @@
 package brs.deeplink;
 
+import brs.feesuggestions.FeeSuggestionType;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageConfig;
@@ -13,12 +14,18 @@ public class DeeplinkQRCodeGenerator {
 
   private final QRCodeWriter qrCodeWriter = new QRCodeWriter();
 
-  public BufferedImage generateRequestBurstDeepLinkQRCode(String receiverId, long amount, long transactionCost, String message) throws WriterException {
+  public BufferedImage generateRequestBurstDeepLinkQRCode(String receiverId, long amountNQT, FeeSuggestionType feeSuggestionType, Long feeNQT, String message) throws WriterException {
     final StringBuilder deeplinkBuilder = new StringBuilder("burst://requestBurst");
 
     deeplinkBuilder.append("&receiver=" + receiverId);
-    deeplinkBuilder.append("&amount=" + amount);
-    deeplinkBuilder.append("&transactionCost=" + transactionCost);
+    deeplinkBuilder.append("&amountNQT=" + amountNQT);
+
+    if(feeNQT != null) {
+      deeplinkBuilder.append("&feeNQT=" + feeNQT);
+    } else {
+      deeplinkBuilder.append("&feeSuggestionType=" + feeSuggestionType.getType());
+    }
+
     if(! StringUtils.isEmpty(message)) {
       deeplinkBuilder.append("&message=" + message);
     }

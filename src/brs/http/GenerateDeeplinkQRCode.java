@@ -2,11 +2,13 @@ package brs.http;
 
 import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
 import static brs.http.common.Parameters.FEE_NQT_PARAMETER;
+import static brs.http.common.Parameters.FEE_SUGGESTION_TYPE_PARAMETER;
 import static brs.http.common.Parameters.MESSAGE_PARAMETER;
 import static brs.http.common.Parameters.RECEIVER_ID_PARAMETER;
 
 import brs.Constants;
 import brs.deeplink.DeeplinkQRCodeGenerator;
+import brs.feesuggestions.FeeSuggestionType;
 import brs.http.APIServlet.PrimitiveRequestHandler;
 import brs.util.Convert;
 import com.google.zxing.WriterException;
@@ -34,23 +36,60 @@ public class GenerateDeeplinkQRCode implements PrimitiveRequestHandler {
   public void processRequest(HttpServletRequest req, HttpServletResponse resp) {
     try {
       final String receiverId = Convert.emptyToNull(req.getParameter(RECEIVER_ID_PARAMETER));
-      final Long amount = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(AMOUNT_NQT_PARAMETER)));
-      final Long transactionCost = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(FEE_NQT_PARAMETER)));
-      final String message = Convert.emptyToNull(req.getParameter(MESSAGE_PARAMETER));
 
-      if(StringUtils.isEmpty(receiverId) || amount == null || transactionCost == null
-          || amount < 0 || amount > Constants.MAX_BALANCE_NQT || transactionCost <= 0 || transactionCost >= Constants.MAX_BALANCE_NQT) {
-        try (Writer writer = resp.getWriter()) {
-          resp.setContentType("text/plain; charset=UTF-8");
-          resp.setStatus(500);
-          writer.write("Missing arguments, required: receiverId, amountNQT, feeNQT; AmountNQT, feeNQT should be positive numbers, less than the max balance");
+      if(StringUtils.isEmpty(receiverId)) {
+        addErrorMessage(resp, "Missing argument receiverId");
+        return;
+      }
+
+      final String amountNQTString = Convert.emptyToNull(req.getParameter(AMOUNT_NQT_PARAMETER));
+      if(StringUtils.isEmpty(amountNQTString)) {
+        addErrorMessage(resp, "Missing argument amountNQT");
+        return;
+      }
+
+      final Long amountNQT = Convert.parseLong(amountNQTString);
+      if(amountNQT < 0 || amountNQT > Constants.MAX_BALANCE_NQT) {
+        addErrorMessage(resp, "amountNQT should be a positive number, less than the max balance");
+        return;
+      }
+
+      final String feeNQTString = Convert.emptyToNull(req.getParameter(FEE_NQT_PARAMETER));
+
+      Long feeNQT = null;
+
+      if(! StringUtils.isEmpty(feeNQTString)) {
+        feeNQT = Convert.parseLong(feeNQTString);
+
+        if (feeNQT != null && (feeNQT <= 0 || feeNQT >= Constants.MAX_BALANCE_NQT)) {
+          addErrorMessage(resp, "feeNQT should be a positive number, less than the max balance");
           return;
         }
       }
 
+      FeeSuggestionType feeSuggestionType = null;
+
+      if(feeNQT == null) {
+        final String feeSuggestionTypeString = Convert.emptyToNull(req.getParameter(FEE_SUGGESTION_TYPE_PARAMETER));
+
+        if(StringUtils.isEmpty(feeSuggestionTypeString)) {
+          addErrorMessage(resp, "Either feeNQT or feeSuggestionType is a required parameter");
+          return;
+        } else {
+          feeSuggestionType = FeeSuggestionType.getByType(feeSuggestionTypeString);
+
+          if(feeSuggestionType == null) {
+            addErrorMessage(resp, "feeSuggestionType is not valid");
+            return;
+          }
+        }
+      }
+
+      final String message = Convert.emptyToNull(req.getParameter(MESSAGE_PARAMETER));
+
       resp.setContentType("image/jpeg");
 
-      final BufferedImage qrImage = deeplinkQRCodeGenerator.generateRequestBurstDeepLinkQRCode(receiverId, amount, transactionCost, message);
+      final BufferedImage qrImage = deeplinkQRCodeGenerator.generateRequestBurstDeepLinkQRCode(receiverId, amountNQT, feeSuggestionType, feeNQT, message);
       ImageIO.write(qrImage, "jpg", resp.getOutputStream());
       resp.getOutputStream().close();
     } catch (WriterException | IOException e) {
@@ -59,6 +98,14 @@ public class GenerateDeeplinkQRCode implements PrimitiveRequestHandler {
     } catch (IllegalArgumentException e) {
       logger.error("Problem with arguments", e);
       resp.setStatus(500);
+    }
+  }
+
+  public void addErrorMessage(HttpServletResponse resp, String msg) throws IOException {
+    try (Writer writer = resp.getWriter()) {
+      resp.setContentType("text/plain; charset=UTF-8");
+      resp.setStatus(500);
+      writer.write(msg);
     }
   }
 }
