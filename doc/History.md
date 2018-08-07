@@ -1,6 +1,12 @@
 For a general overview of Burst history see https://burstwiki.org/wiki/History_of_Burst
 
 ```
+
+2018-05-30 2.2.0
+           "Pre-Dymaxion" HF1 release (Burst hard fork/upgrade)
+           @500k: 4x bigger blocks, multi-out transactions, dynamic fees
+           @502k: PoC2
+
 2018-03-15 2.0.0
            BRS - Burst Reference Software:
            Burst namespace, some NXT legacy is in API data sent P2P
