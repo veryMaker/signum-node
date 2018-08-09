@@ -109,6 +109,12 @@ public final class JSONResponses {
   public static final JSONStreamAware INCORRECT_AT = incorrect(AT_PARAMETER);
   public static final JSONStreamAware INCORRECT_CREATION_BYTES = incorrect("incorrect creation bytes");
 
+  public static final JSONStreamAware MISSING_RECEIVER_ID = missing(RECEIVER_ID_PARAMETER);
+
+  public static final JSONStreamAware FEE_OR_FEE_SUGGESTION_REQUIRED = incorrect(FEE_SUGGESTION_TYPE_PARAMETER, "Either feeNQT or feeSuggestionType is a required parameter");
+  public static final JSONStreamAware FEE_SUGGESTION_TYPE_INVALID = incorrect(FEE_SUGGESTION_TYPE_PARAMETER, "feeSuggestionType is not valid");
+  public static final JSONStreamAware INCORRECT_MESSAGE_LENGTH = incorrect(MESSAGE_PARAMETER, "Message can have a max length of " + Constants.MAX_ARBITRARY_MESSAGE_LENGTH);
+
   public static final JSONStreamAware NOT_ENOUGH_FUNDS;
   static {
     JSONObject response = new JSONObject();

@@ -236,9 +236,18 @@ public final class APIServlet extends HttpServlet {
 
   }
 
-  interface PrimitiveRequestHandler {
+  abstract static class PrimitiveRequestHandler {
 
-    void processRequest(HttpServletRequest req, HttpServletResponse resp);
+    public abstract void processRequest(HttpServletRequest req, HttpServletResponse resp);
+
+    public void addErrorMessage(HttpServletResponse resp, JSONStreamAware msg) throws IOException {
+      try (Writer writer = resp.getWriter()) {
+        resp.setContentType("text/plain; charset=UTF-8");
+        resp.setStatus(500);
+
+        msg.writeJSONString(writer);
+      }
+    }
 
   }
 
