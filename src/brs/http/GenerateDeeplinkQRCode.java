@@ -47,7 +47,7 @@ public class GenerateDeeplinkQRCode extends PrimitiveRequestHandler {
 
       final String receiverId = Convert.emptyToNull(req.getParameter(RECEIVER_ID_PARAMETER));
 
-      if (immutable && StringUtils.isEmpty(receiverId)) {
+      if (StringUtils.isEmpty(receiverId)) {
         addErrorMessage(resp, MISSING_RECEIVER_ID);
         return;
       }
