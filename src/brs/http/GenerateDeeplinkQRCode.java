@@ -3,6 +3,7 @@ package brs.http;
 import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
 import static brs.http.common.Parameters.FEE_NQT_PARAMETER;
 import static brs.http.common.Parameters.FEE_SUGGESTION_TYPE_PARAMETER;
+import static brs.http.common.Parameters.IMMUTABLE_PARAMETER;
 import static brs.http.common.Parameters.MESSAGE_PARAMETER;
 import static brs.http.common.Parameters.RECEIVER_ID_PARAMETER;
 
@@ -10,6 +11,7 @@ import brs.Constants;
 import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionType;
 import brs.http.APIServlet.PrimitiveRequestHandler;
+import brs.http.common.Parameters;
 import brs.util.Convert;
 import com.google.zxing.WriterException;
 import java.awt.image.BufferedImage;
@@ -35,21 +37,23 @@ public class GenerateDeeplinkQRCode implements PrimitiveRequestHandler {
   @Override
   public void processRequest(HttpServletRequest req, HttpServletResponse resp) {
     try {
+      final boolean immutable = Parameters.isTrue(req.getParameter(IMMUTABLE_PARAMETER));
+
       final String receiverId = Convert.emptyToNull(req.getParameter(RECEIVER_ID_PARAMETER));
 
-      if(StringUtils.isEmpty(receiverId)) {
+      if(immutable && StringUtils.isEmpty(receiverId)) {
         addErrorMessage(resp, "Missing argument receiverId");
         return;
       }
 
       final String amountNQTString = Convert.emptyToNull(req.getParameter(AMOUNT_NQT_PARAMETER));
-      if(StringUtils.isEmpty(amountNQTString)) {
+      if(immutable && StringUtils.isEmpty(amountNQTString)) {
         addErrorMessage(resp, "Missing argument amountNQT");
         return;
       }
 
       final Long amountNQT = Convert.parseLong(amountNQTString);
-      if(amountNQT < 0 || amountNQT > Constants.MAX_BALANCE_NQT) {
+      if(immutable && (amountNQT < 0 || amountNQT > Constants.MAX_BALANCE_NQT)) {
         addErrorMessage(resp, "amountNQT should be a positive number, less than the max balance");
         return;
       }
@@ -94,7 +98,7 @@ public class GenerateDeeplinkQRCode implements PrimitiveRequestHandler {
 
       resp.setContentType("image/jpeg");
 
-      final BufferedImage qrImage = deeplinkQRCodeGenerator.generateRequestBurstDeepLinkQRCode(receiverId, amountNQT, feeSuggestionType, feeNQT, message);
+      final BufferedImage qrImage = deeplinkQRCodeGenerator.generateRequestBurstDeepLinkQRCode(receiverId, amountNQT, feeSuggestionType, feeNQT, message, immutable);
       ImageIO.write(qrImage, "jpg", resp.getOutputStream());
       resp.getOutputStream().close();
     } catch (WriterException | IOException e) {

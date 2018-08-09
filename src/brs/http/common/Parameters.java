@@ -124,6 +124,7 @@ public class Parameters {
   public static final String LIMIT_UNCONFIRMED_TRANSACTIONS_RETRIEVED_PARAMETER = "limitUnconfirmedTransactionsRetrieved";
   public static final String RECEIVER_ID_PARAMETER = "receiverId";
   public static final String FEE_SUGGESTION_TYPE_PARAMETER = "feeSuggestionType";
+  public static final String IMMUTABLE_PARAMETER = "immutable";
 
   public static final String FEE_SUGGESTION_RESPONSE = "feeSuggestion";
 

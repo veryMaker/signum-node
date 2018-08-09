@@ -14,7 +14,7 @@ public class DeeplinkQRCodeGenerator {
 
   private final QRCodeWriter qrCodeWriter = new QRCodeWriter();
 
-  public BufferedImage generateRequestBurstDeepLinkQRCode(String receiverId, long amountNQT, FeeSuggestionType feeSuggestionType, Long feeNQT, String message) throws WriterException {
+  public BufferedImage generateRequestBurstDeepLinkQRCode(String receiverId, long amountNQT, FeeSuggestionType feeSuggestionType, Long feeNQT, String message, boolean immutable) throws WriterException {
     final StringBuilder deeplinkBuilder = new StringBuilder("burst://requestBurst");
 
     deeplinkBuilder.append("&receiver=" + receiverId);
@@ -29,6 +29,8 @@ public class DeeplinkQRCodeGenerator {
     if(! StringUtils.isEmpty(message)) {
       deeplinkBuilder.append("&message=" + message);
     }
+
+    deeplinkBuilder.append("&immutable=" + immutable);
 
     final BitMatrix bitMatrix = qrCodeWriter.encode(deeplinkBuilder.toString(), BarcodeFormat.QR_CODE, 350, 350);
     return MatrixToImageWriter.toBufferedImage(bitMatrix, new MatrixToImageConfig());
