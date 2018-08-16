@@ -306,6 +306,7 @@
 
   <build>
     <sourceDirectory>src</sourceDirectory>
+    <resources><resource><directory>resources</directory></resource></resources>
     <testSourceDirectory>test/java</testSourceDirectory>
     <testResources>
       <testResource>
