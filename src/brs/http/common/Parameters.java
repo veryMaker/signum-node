@@ -5,7 +5,7 @@ public class Parameters {
   public static final String ALIAS_PARAMETER = "alias";
   public static final String AMOUNT_NQT_PARAMETER = "amountNQT";
   public static final String ALIAS_NAME_PARAMETER = "aliasName";
-  public static final String FEE_QT_PARAMETER = "feeNQT";
+  public static final String FEE_NQT_PARAMETER = "feeNQT";
   public static final String PRICE_NQT_PARAMETER = "priceNQT";
   public static final String QUANTITY_QNT_PARAMETER = "quantityQNT";
   public static final String ASSET_PARAMETER = "asset";
@@ -122,6 +122,9 @@ public class Parameters {
   public static final String RECIPIENTS_RESPONSE = "recipients";
   public static final String LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_PARAMETER = "lastUnconfirmedTransactionTimestamp";
   public static final String LIMIT_UNCONFIRMED_TRANSACTIONS_RETRIEVED_PARAMETER = "limitUnconfirmedTransactionsRetrieved";
+  public static final String RECEIVER_ID_PARAMETER = "receiverId";
+  public static final String FEE_SUGGESTION_TYPE_PARAMETER = "feeSuggestionType";
+  public static final String IMMUTABLE_PARAMETER = "immutable";
 
   public static final String FEE_SUGGESTION_RESPONSE = "feeSuggestion";
 
