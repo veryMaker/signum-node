@@ -264,15 +264,17 @@ public final class Peers {
         BlockchainProcessor blockchainProcessor, PropertyService propertyService, ThreadPool threadPool) {
       if (Peers.shareMyAddress) {
         if (useUpnp) {
+          port = propertyService.getInt(Props.P2P_PORT);
+          GatewayDiscover gatewayDiscover = new GatewayDiscover();
+          gatewayDiscover.setTimeout(2000);
+          try {
+            gatewayDiscover.discover();
+          } catch (IOException | SAXException | ParserConfigurationException e) {
+          }
+          logger.trace("Looking for Gateway Devices");
+          gateway = gatewayDiscover.getValidGateway();
+
           Runnable GwDiscover = () -> {
-            GatewayDiscover gatewayDiscover = new GatewayDiscover();
-            gatewayDiscover.setTimeout(2000);
-            try {
-              gatewayDiscover.discover();
-            } catch (IOException | SAXException | ParserConfigurationException e) {
-            }
-            logger.trace("Looking for Gateway Devices");
-            gateway = gatewayDiscover.getValidGateway();
             if (gateway != null) {
               gateway.setHttpReadTimeout(2000);
               try {
@@ -285,11 +287,13 @@ public final class Peers {
                   logger.info("Port was already mapped. Aborting test.");
                 } else {
                   if (gateway.addPortMapping(port, port, localAddress.getHostAddress(), "TCP", "burstcoin")) {
-                    logger.info("UPNP Mapping successful");
+                    logger.info("UPnP Mapping successful");
+                  } else {
+                    logger.warn("UPnP Mapping was denied!");
                   }
                 }
               } catch (IOException | SAXException e) {
-                logger.error("Can't start UPNP", e);
+                logger.error("Can't start UPnP", e);
               }
             }
           };
