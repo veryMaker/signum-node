@@ -38,22 +38,22 @@
               <label for="transfer_alias_encrypt_message" style="font-weight:normal;color:#666"><input type="checkbox" name="encrypt_message" id="transfer_alias_encrypt_message" value="1" data-default="checked" checked="checked" /> <span data-i18n="encrypt_message">Encrypt Message</span></label>
             </div>
           </div>
-          <div class="row advanced">
-            <div class="col-xs-6 col-sm-6 col-md-6">
-              <div class="form-group">
-                <label for="transfer_alias_fee" data-i18n="fee">FEE</label>
-                <div class="input-group">
-                  <input type="number" name="feeNXT" id="transfer_alias_fee" class="form-control" step="any" min="0.00735" placeholder="Fee" data-i18n="[placeholder]fee" data-default="0.1" value="0.1" tabindex="4">
-                  <span class="input-group-addon">BURST</span>
-                </div>
-              </div>
+          <div class="form-group">
+            <label for="transfer_alias_fee" data-i18n="fee">FEE</label>
+            <div class="input-group">
+              <input type="number" name="feeNXT" id="transfer_alias_fee" class="form-control" step="any" min="0.00735" placeholder="Fee" data-i18n="[placeholder]fee" data-default="0.1" value="0.1" tabindex="4">
+              <span class="input-group-addon">BURST</span>
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-6">
-              <div class="form-group">
-                <label for="transfer_alias_deadline" data-i18n="deadline_hours">DEADLINE (HOURS)</label>
-                <input type="number" name="deadline" id="transfer_alias_deadline" class="form-control" placeholder="Deadline" data-i18n="[placeholder]deadline" min="1" data-default="24" value="24" tabindex="5">
-              </div>
+            <div class="padding-top-5 padding-bottom-5 font-size-14">
+              <span class="suggested_fee" data-i18n="[title]click_to_refresh"><a href="#" class="btn btn-suggested-fee btn-xs" id="suggested_fee_alias_transfer" data-i18n="suggested_fee">Suggested fee:</a></span>
+              <span id="suggested_fee_response_alias_transfer" class="suggested_fee margin-left-5"></span>
+              <span class="suggested_fee margin-left-10" data-toggle="tooltip" data-placement="top" data-html="true"  data-i18n="[title]suggested_fee_help"><i class="fa fa-info" aria-hidden="true"></i></span>
+              <span class="suggested_fee margin-left-10 suggested_fee_spinner_display_none" name="suggested_fee_spinner"><i class="fa fa-spinner fa-spin fa-fw text-danger"></i></span>
             </div>
+          </div>
+          <div class="form-group" advanced>
+            <label for="transfer_alias_deadline" data-i18n="deadline_hours">DEADLINE (HOURS)</label>
+            <input type="number" name="deadline" id="transfer_alias_deadline" class="form-control" placeholder="Deadline" data-i18n="[placeholder]deadline" min="1" data-default="24" value="24" tabindex="5">
           </div>
           <div class="form-group secret_phrase">
             <label for="transfer_alias_password" data-i18n="passphrase">PASSPHRASE</label>
@@ -193,6 +193,23 @@
           <div class="form-group">
             <input type="checkbox" name="add_message" id="buy_alias_add_message" class="add_message" tabindex="6" /> <label for="buy_alias_add_message" style="font-weight:normal;margin-bottom:0;"> <span data-i18n="add_message_q">Add a Message?</span></label>
           </div>
+          <div class="form-group">
+            <label for="buy_alias_fee" data-i18n="fee">FEE</label>
+            <div class="input-group">
+              <input type="number" name="feeNXT" id="buy_alias_fee" class="form-control" step="any" min="0.00735" placeholder="Fee" data-i18n="[placeholder]fee" data-default="0.1" value="0.1" tabindex="2">
+              <span class="input-group-addon">BURST</span>
+            </div>
+          </div>
+          <div class="row margin-bottom-5">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+              <div class="padding-top-5 padding-bottom-5 font-size-14">
+                <span class="suggested_fee" data-i18n="[title]click_to_refresh"><a href="#" class="btn btn-suggested-fee btn-xs" id="suggested_fee_alias_buy" data-i18n="suggested_fee">Suggested fee:</a></span>
+                <span id="suggested_fee_response_alias_buy" class="suggested_fee margin-left-5"></span>
+                <span class="suggested_fee margin-left-10" data-toggle="tooltip" data-placement="top" data-html="true"  data-i18n="[title]suggested_fee_help"><i class="fa fa-info" aria-hidden="true"></i></span>
+                <span class="suggested_fee margin-left-10 suggested_fee_spinner_display_none" name="suggested_fee_spinner"><i class="fa fa-spinner fa-spin fa-fw text-danger"></i></span>
+              </div>
+            </div>
+          </div>
           <div class="form-group optional_message">
             <label for="buy_alias_message" data-i18n="message">MESSAGE</label>
             <textarea class="form-control" id="buy_alias_message" name="message" rows="4" tabindex="7"></textarea>
@@ -200,22 +217,9 @@
               <label for="buy_alias_encrypt_message" style="font-weight:normal;color:#666"><input type="checkbox" name="encrypt_message" id="buy_alias_encrypt_message" value="1" data-default="checked" checked="checked" /> <span data-i18n="encrypt_message">Encrypt Message</span></label>
             </div>
           </div>
-          <div class="row advanced">
-            <div class="col-xs-6 col-sm-6 col-md-6">
-              <div class="form-group">
-                <label for="buy_alias_fee" data-i18n="fee">FEE</label>
-                <div class="input-group">
-                  <input type="number" name="feeNXT" id="buy_alias_fee" class="form-control" step="any" min="0.00735" placeholder="Fee" data-i18n="[placeholder]fee" data-default="0.1" value="0.1" tabindex="2">
-                  <span class="input-group-addon">BURST</span>
-                </div>
-              </div>
-            </div>
-            <div class="col-xs-6 col-sm-6 col-md-6">
-              <div class="form-group">
-                <label for="buy_alias_deadline" data-i18n="deadline_hours">DEADLINE (HOURS)</label>
-                <input type="number" name="deadline" id="buy_alias_deadline" class="form-control" placeholder="Deadline" data-i18n="deadline" min="1" data-default="24" value="24" tabindex="3">
-              </div>
-            </div>
+          <div class="form-group advanced">
+            <label for="buy_alias_deadline" data-i18n="deadline_hours">DEADLINE (HOURS)</label>
+            <input type="number" name="deadline" id="buy_alias_deadline" class="form-control" placeholder="Deadline" data-i18n="deadline" min="1" data-default="24" value="24" tabindex="3">
           </div>
           <div class="form-group secret_phrase">
             <label for="buy_alias_password" data-i18n="passphrase">PASSPHRASE</label>
@@ -283,34 +287,38 @@
             <label for="sell_alias_recipient_public_key" data-i18n="recipient_public_key">Recipient Public Key</label>
             <input type="text" class="form-control" name="recipientPublicKey" id="sell_alias_recipient_public_key" placeholder="Public Key" data-i18n="[placeholder]public_key" tabindex="2" spellcheck="false" />
           </div>
-          <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 advanced_extend" data-normal="12" data-advanced="6">
-              <div class="form-group">
-                <label for="sell_alias_price" data-i18n="price">PRICE</label>
-                <div class="input-group">
-                  <input type="text" name="priceNXT" id="sell_alias_price" step="any" min="0" class="form-control" placeholder="Price" tabindex="3">
-                  <span class="input-group-addon">BURST</span>
-                </div>
-              </div>
+          <div class="form-group">
+            <label for="sell_alias_price" data-i18n="price">PRICE</label>
+            <div class="input-group">
+              <input type="text" name="priceNXT" id="sell_alias_price" step="any" min="0" class="form-control" placeholder="Price" tabindex="3">
+              <span class="input-group-addon">BURST</span>
             </div>
-            <div class="col-xs-3 col-sm-3 col-md-3 advanced">
-              <div class="form-group">
+          </div>
+          <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+              <div class="form-group padding-left-5 padding-right-5">
                 <label for="sell_alias_fee" data-i18n="fee">FEE</label>
                 <div class="input-group">
                   <input type="number" name="feeNXT" id="sell_alias_fee" class="form-control" step="any" min="0.00735" placeholder="Fee" data-i18n="[placeholder]fee" data-default="0.1" value="0.1" tabindex="4">
                   <span class="input-group-addon">BURST</span>
                 </div>
-              </div>
-            </div>
-            <div class="col-xs-3 col-sm-3 col-md-3 advanced">
-              <div class="form-group">
-                <label for="sell_alias_deadline" data-i18n="deadline_hours">DEADLINE (HOURS)</label>
-                <input type="number" name="deadline" id="sell_alias_deadline" class="form-control" placeholder="Deadline" data-i18n="[placeholder]deadline" min="1" data-default="24" value="24" tabindex="5">
+                <div class="padding-top-5 padding-bottom-5 font-size-14">
+                  <span class="suggested_fee" data-i18n="[title]click_to_refresh"><a href="#" class="btn btn-suggested-fee btn-xs" id="suggested_fee_alias_sell" data-i18n="suggested_fee">Suggested fee:</a></span>
+                  <span id="suggested_fee_response_alias_sell" class="suggested_fee margin-left-5"></span>
+                  <span class="suggested_fee margin-left-10" data-toggle="tooltip" data-placement="top" data-html="true"  data-i18n="[title]suggested_fee_help"><i class="fa fa-info" aria-hidden="true"></i></span>
+                  <span class="suggested_fee margin-left-10 suggested_fee_spinner_display_none" name="suggested_fee_spinner"><i class="fa fa-spinner fa-spin fa-fw text-danger"></i></span>
+                </div>
               </div>
             </div>
           </div>
+            <div class="form-group advanced">
+                <label for="sell_alias_deadline" data-i18n="deadline_hours">DEADLINE (HOURS)</label>
+                <input type="number" name="deadline" id="sell_alias_deadline" class="form-control" placeholder="Deadline" data-i18n="[placeholder]deadline" min="1" data-default="24" value="24" tabindex="5">
+            </div>
           <div class="form-group add_message_container">
-            <input type="checkbox" name="add_message" id="sell_alias_add_message" class="add_message" tabindex="6" /> <label for="sell_alias_add_message" style="font-weight:normal;margin-bottom:0;"> <span data-i18n="add_message_q">Add a Message?</span></label>
+            <div class="checkbox">
+              <label for="sell_alias_add_message" style="font-weight:normal;margin-bottom:0;"><input type="checkbox" name="add_message" id="sell_alias_add_message" class="add_message" tabindex="6" />  <span data-i18n="add_message_q">Add a Message?</span></label>
+              </div>
           </div>
           <div class="form-group optional_message">
             <label for="sell_alias_message" data-i18n="message">MESSAGE</label>
