@@ -467,7 +467,7 @@
     "hub_announcement": "Hub Announcement",
     "import_contact": "Import Contacts",
     "immutable": "Immutable",
-    "immutable_title": "If Immutable is checked, sender would not be able to change an amount before signing a transaction.",
+    "immutable_title": "If Immutable is checked, sender would not be able to change an amount or a fee before signing a transaction.",
     "includes_feedback": "Includes feedback",
     "incorrectly_typed_passphrase": "You have not typed the passphrase correctly, please try again!",
     "incorrect_purchase": "Incorrect purchase.",
