@@ -18,8 +18,9 @@ var BRS = (function(BRS, $, undefined) {
               }
     });
         $("#request_burst_amount").change(function() {
-           $("#request_burst_amount").val(Number($("#request_burst_amount").val()));
-           if(Number($("#request_burst_amount").val()) >= 0.00000001)
+           var amount = Number($("#request_burst_amount").val());
+           $("#request_burst_amount").val(amount);
+           if(amount >= 0.00000001 || (!$("#request_burst_immutable").is(':checked') && (!amount || amount == 0)))
            {
                $("#request_burst_amount_div").toggleClass("has-error",false);
                $("#request_burst_amount_div").toggleClass("has-success",true);
@@ -32,8 +33,9 @@ var BRS = (function(BRS, $, undefined) {
          });
 
        $("#request_burst_fee").change(function() {
-         $("#request_burst_fee").val(Number($("#request_burst_fee").val()));
-         if(Number($("#request_burst_fee").val()) >= 0.00735)
+         var fee = Number($("#request_burst_fee").val());
+         $("#request_burst_fee").val(fee);
+         if(fee >= 0.00735)
          {
              for(var i = 0; i < radio.length; i++) {
                radio[i].checked = false;
@@ -48,14 +50,48 @@ var BRS = (function(BRS, $, undefined) {
          }
        });
 
+       $('#request_burst_immutable').change(function() {
+        var amount = Number($("#request_burst_amount").val());
+        if($(this).is(":checked")) {
+             if(amount >= 0.00000001){
+                $("#request_burst_amount_div").toggleClass("has-error",false);
+                $("#request_burst_amount_div").toggleClass("has-success",true);
+             }
+             else
+             {
+                $("#request_burst_amount_div").toggleClass("has-success",false);
+                $("#request_burst_amount_div").toggleClass("has-error",true);
+             }
+
+           }
+           else
+           {
+            if(amount >= 0.00000001 || (!amount || amount == 0)){
+                $("#request_burst_amount_div").toggleClass("has-error",false);
+                $("#request_burst_amount_div").toggleClass("has-success",true);
+            }
+            else
+            {
+                $("#request_burst_amount_div").toggleClass("has-success",false);
+                $("#request_burst_amount_div").toggleClass("has-error",true);
+            }
+
+           }
+       });
+
          $("#generate_qr_button").on("click", function(e) {
             e.preventDefault();
             var amount = Number($("#request_burst_amount").val());
-            if(!amount || amount < 0.00000001)
+            if(((!amount || amount < 0.00000001) && $("#request_burst_immutable").is(':checked')) || (amount && amount < 0.00000001))
             {
               $("#request_burst_amount_div").toggleClass("has-success",false);
               $("#request_burst_amount_div").toggleClass("has-error",true);
               return;
+            }
+            else
+            {
+              $("#request_burst_amount_div").toggleClass("has-error",false);
+              $("#request_burst_amount_div").toggleClass("has-success",true);
             }
             var fee = Number($("#request_burst_fee").val());
             for(var i = 0; i < radio.length; i++) {
@@ -67,6 +103,11 @@ var BRS = (function(BRS, $, undefined) {
               $("#request_burst_fee_div").toggleClass("has-success",false);
               $("#request_burst_fee_div").toggleClass("has-error",true);
               return;
+            }
+            else
+            {
+              $("#request_burst_fee_div").toggleClass("has-error",false);
+              $("#request_burst_fee_div").toggleClass("has-success",true);
             }
             var amountNQT =  amount * 100000000;
             var feeNQT = fee * 100000000;
@@ -131,7 +172,7 @@ var BRS = (function(BRS, $, undefined) {
         for(var i = 0; i < radio.length; i++) {
          radio[i].checked = false;
         }
-        $("#request_burst_immutable").prop('checked', false);
+        $("#request_burst_immutable").prop('checked', true);
         $("#cancel_button").html('Cancel');
         $("#generate_qr_button").show();
         $("#new_qr_button").hide();
