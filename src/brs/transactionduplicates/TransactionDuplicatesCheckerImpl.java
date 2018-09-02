@@ -3,8 +3,12 @@ package brs.transactionduplicates;
 import brs.Transaction;
 import brs.TransactionType;
 import java.util.HashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TransactionDuplicatesCheckerImpl {
+
+  private final Logger logger = LoggerFactory.getLogger(TransactionDuplicatesCheckerImpl.class);
 
   private final HashMap<TransactionType, HashMap<String, Transaction>> duplicates = new HashMap<>();
 
@@ -16,6 +20,7 @@ public class TransactionDuplicatesCheckerImpl {
     final TransactionDuplicationKey transactionDuplicateKey = transaction.getDuplicationKey();
 
     if (transactionDuplicateKey.equals(TransactionDuplicationKey.IS_ALWAYS_DUPLICATE)) {
+      logger.debug("Transaction {}: Is always a duplicate (Type: {})", transaction.getId(), transaction.getType().toString());
       return new TransactionDuplicationResult(true, null);
     } else if (transactionDuplicateKey.equals(TransactionDuplicationKey.IS_NEVER_DUPLICATE)) {
       return new TransactionDuplicationResult(false, null);
@@ -28,6 +33,7 @@ public class TransactionDuplicatesCheckerImpl {
     final Transaction possiblyExistingTransaction = transactionOverview.get(transactionDuplicateKey.key);
 
     if (possiblyExistingTransaction != null && possiblyExistingTransaction.getFeeNQT() >= transaction.getFeeNQT()) {
+      logger.debug("Transaction {}: is a duplicate of {} (Type: {})", transaction.getId(), possiblyExistingTransaction.getId(), transaction.getType());
       return new TransactionDuplicationResult(true, transaction);
     } else {
       transactionOverview.put(transactionDuplicateKey.key, transaction);
