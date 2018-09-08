@@ -2,6 +2,7 @@ package brs.unconfirmedtransactions;
 
 import static brs.Attachment.ORDINARY_PAYMENT;
 import static brs.Constants.FEE_QUANT;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -214,7 +215,13 @@ public class UnconfirmedTransactionStoreTest {
     Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 1, Constants.MAX_BALANCE_NQT, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
         .id(1).senderId(123L).build();
     transaction.sign(TestConstants.TEST_SECRET_PHRASE);
-    t.put(transaction);
+
+    try {
+      t.put(transaction);
+    } catch (NotCurrentlyValidException ex) {
+      assertTrue(t.getAll(Integer.MAX_VALUE).getTransactions().isEmpty());
+      throw ex;
+    }
   }
 
   @DisplayName("When adding the same unconfirmed transaction, nothing changes")
@@ -295,6 +302,28 @@ public class UnconfirmedTransactionStoreTest {
     assertNotNull(t.get(cheap.getId()));
 
     t.put(expensive);
+
+    assertEquals(1, t.getAll(100).getTransactions().size());
+    assertNull(t.get(cheap.getId()));
+    assertNotNull(t.get(expensive.getId()));
+  }
+
+  @Test
+  public void cheaperDuplicateTransactionNeverGetsAdded() throws ValidationException {
+    Transaction cheap = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT, timeService.getEpochTime() + 50000, (short) 500,
+        new MessagingAliasSell("aliasName", 123, 5))
+        .id(1).senderId(123L).build();
+
+    Transaction expensive = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT * 2, timeService.getEpochTime() + 50000, (short) 500,
+        new MessagingAliasSell("aliasName", 123, 5))
+        .id(2).senderId(123L).build();
+
+    t.put(expensive);
+
+    assertEquals(1, t.getAll(100).getTransactions().size());
+    assertNotNull(t.get(expensive.getId()));
+
+    t.put(cheap);
 
     assertEquals(1, t.getAll(100).getTransactions().size());
     assertNull(t.get(cheap.getId()));
