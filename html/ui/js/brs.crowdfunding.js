@@ -352,25 +352,25 @@ var BRS = (function(BRS, $, undefined) {
         html = html + '</div>' + '</div>' + '</div>' + '</div>';
         $('.at-block').append(html);
     }
+    const searchHandler = function (e) {
+        e.preventDefault();
+        var query = $.trim($(this).parent().parent().find('input').val()).toLowerCase();
+        $('div.col-lg-4 div.crowdbox .crowdtext').each(function () {
+            var $this = $(this);
+            var h2Text = $this.closest('div.crowdbox').parent().find('h2');
+            if ($this.text().toLowerCase().indexOf(query) === -1 && h2Text.text().toLowerCase().indexOf(query) === -1) {
+                $this.closest('div.crowdbox').parent().fadeOut();
+                $this.closest('div.crowdbox').parent().css('display', 'none');
+            }
+            else {
+                $this.closest('div.crowdbox').parent().fadeIn();
+                $this.closest('div.crowdbox').parent().css('display', 'visible');
+            }
+        });
+    };
     $(document).ready(function(e) {
-        $('.form-search').on('submit', function() {
-            return false;
-        });
-        $('#search-btn').on('click', function(e) {
-            var query = $.trim($(this).parent().prevAll('.search-query').val()).toLowerCase();
-            $('div.col-lg-4 div.crowdbox .crowdtext').each(function() {
-                var $this = $(this);
-                var h2Text = $this.closest('div.crowdbox').parent().find('h2');
-                if ($this.text().toLowerCase().indexOf(query) === -1 && h2Text.text().toLowerCase().indexOf(query) === -1) {
-                    $this.closest('div.crowdbox').parent().fadeOut();
-                    $this.closest('div.crowdbox').parent().css('display', 'none');
-                }
-                else {
-                    $this.closest('div.crowdbox').parent().fadeIn();
-                    $this.closest('div.crowdbox').parent().css('display', 'visible');
-                }
-            });
-        });
+
+        $('#search-btn').on('click', searchHandler);
 
         /**
          * Ceowd funding tab click event
@@ -438,6 +438,7 @@ var BRS = (function(BRS, $, undefined) {
         $(".sidebar-menu").on("click", function(e){
             if (!$("li#sidebar_crowdfunding").hasClass('active')){
                 $("#new-project").hide();
+                $('#search-btn').off('click', searchHandler);
             }
         });
 
