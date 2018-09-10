@@ -5,6 +5,7 @@ var BRS = (function(BRS, $, undefined) {
     var radio = document.request_burst_form.request_burst_suggested_fee;
     $('#request_burst_qr_modal').on('show.bs.modal', function (e) {
        $("#new_qr_button").hide();
+       $("#request_burst_immutable").prop('checked', true);
        $("#request_burst_account_id").val(String(BRS.accountRS).escapeHTML());
 
               var array = ["standard","cheap","priority"];
@@ -16,6 +17,24 @@ var BRS = (function(BRS, $, undefined) {
                        $("#request_burst_fee_div").toggleClass("has-success",false);
                   };
               }
+
+        BRS.sendRequest("suggestFee", {
+                 }, function(response) {
+                     if (!response.errorCode) {
+                         $("#standard_fee_response").html("<span class='margin-left-5'>(<a href='#' class='btn-fee-response' name='fee_value' data-i18n='[title]click_to_apply'>" +(response.standard/100000000).toFixed(8)+ "</a>)</span>");
+                         $("#cheap_fee_response").html("<span class='margin-left-5'>(<a href='#' class='btn-fee-response' name='fee_value' data-i18n='[title]click_to_apply'>" + (response.cheap/100000000).toFixed(8)+ "</a>)</span>");
+                         $("#priority_fee_response").html("<span class='margin-left-5'>(<a href='#' class='btn-fee-response' name='fee_value' data-i18n='[title]click_to_apply'>" +(response.priority/100000000).toFixed(8)+ "</a>)</span>");
+                         $("[name='fee_value']").i18n(); // apply locale to DOM after ajax call
+                         $("[name='fee_value']").on("click", function(e) {
+                                   e.preventDefault();
+                                   $("#request_burst_fee").val($(this).text());
+                            });
+                     }
+                     else {
+                      $("#suggested_fee_response").html(response.errorDescription);
+                      $("[name='suggested_fee_spinner']").addClass("suggested_fee_spinner_display_none");
+                      }
+                 });
     });
         $("#request_burst_amount").change(function() {
            var amount = Number($("#request_burst_amount").val());
@@ -132,6 +151,7 @@ var BRS = (function(BRS, $, undefined) {
             $("#new_qr_button").show();
             $("#cancel_button").html('Close');
             $("#request_burst_recipient_response").html(receiverId);
+            if($("#request_burst_amount").val())
             $("#request_burst_amount_response").html($("#request_burst_amount").val() + " BURST");
             $("#request_burst_div").removeClass("display-visible");
             $("#request_burst_div").addClass("display-none");
