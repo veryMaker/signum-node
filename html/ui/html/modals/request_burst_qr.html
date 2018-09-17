@@ -40,25 +40,26 @@
                                                 <div class="radio">
                                                     <label>
                                                         <input type="radio" name="request_burst_suggested_fee" value="standard" tabindex="3">
-                                                        <span data-i18n="standard">Standard</span>
+                                                        <span data-i18n="standard">Standard</span><span id="standard_fee_response"></span>*
                                                     </label>
                                                 </div>
                                                 <div class="radio">
                                                     <label>
                                                         <input type="radio" name="request_burst_suggested_fee" value="cheap" tabindex="4">
-                                                        <span data-i18n="cheap">Cheap</span>
+                                                        <span data-i18n="cheap">Cheap</span><span id="cheap_fee_response"></span>*
                                                     </label>
                                                 </div>
                                                 <div class="radio">
                                                     <label>
                                                         <input type="radio" name="request_burst_suggested_fee" value="priority" tabindex="5">
-                                                        <span data-i18n="priority">Priority</span>
+                                                        <span data-i18n="priority">Priority</span><span id="priority_fee_response"></span>*
                                                     </label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                <span data-18n="request_fee_explanation_text">*<em>Fees are calculated for the current blockchain usage and are shown only as an example. Selecting one of the options would ensure that the desired type of fee would be calculated and applied when a transaction is being sent.</em></span>
                             </div>
                             <hr />
                             <div class="row">
