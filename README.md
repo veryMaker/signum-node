@@ -65,11 +65,9 @@ Use it to connect to the newly created mariaDb server and create a new DB called
 
 #### MacOS
 
-Plase use beatsbears' comfortable script <https://github.com/beatsbears/macos_burst/>
-to install and maintain the Burst wallet on your Mac.
-An older howto at ecomineearth
-<https://ecomine.earth/macoswalletinstallguide/> basically describes
-the manual steps the script above does for you.
+BRS can be installed using a [Homebrew](https://brew.sh/) [formula](https://github.com/nixops/homebrew-burstcoind). A short tutorial on how to install BRS using homebrew can be found at [ecomine.earth/macos](https://ecomine.earth/macos/).
+
+A number of other Hombrew formulas (written by [Nixops](https://github.com/nixops)) are also available for plotters and miners.
 
 #### Other Unix-like systems
 
