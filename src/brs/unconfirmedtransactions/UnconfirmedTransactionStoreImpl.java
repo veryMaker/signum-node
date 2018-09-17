@@ -75,15 +75,30 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
       if (transactionCanBeAddedToCache(transaction)) {
         final TransactionDuplicationResult duplicationInformation = transactionDuplicatesChecker.removeCheaperDuplicate(transaction);
 
-        if(duplicationInformation.isDuplicate() && duplicationInformation.getTransaction() != transaction) {
-          removeTransaction(duplicationInformation.getTransaction());
-        }
+        if(duplicationInformation.isDuplicate()) {
+          final Transaction duplicatedTransaction = duplicationInformation.getTransaction();
 
-        addTransaction(transaction, timeService.getEpochTimeMillis());
+          if(duplicatedTransaction != null && duplicatedTransaction != transaction) {
+            logger.debug("Transaction {}: Adding more expensive duplicate transaction", transaction.getId());
+            removeTransaction(duplicationInformation.getTransaction());
 
-        if (totalSize > maxSize) {
-          removeCheapestFirstToExpireTransaction();
+            addTransaction(transaction, timeService.getEpochTimeMillis());
+
+            if (totalSize > maxSize) {
+              removeCheapestFirstToExpireTransaction();
+            }
+          } else {
+            logger.debug("Transaction {}: Will not add a cheaper duplicate UT", transaction.getId());
+          }
+        } else {
+          addTransaction(transaction, timeService.getEpochTimeMillis());
+          logger.debug("Cache size: " + totalSize + "/" + maxSize+ " Added UT " + transaction.getId() + " " + transaction.getSenderId() + " " + transaction.getAmountNQT() + " " + transaction.getFeeNQT());
+          if (totalSize > maxSize) {
+            removeCheapestFirstToExpireTransaction();
+          }
         }
+      } else {
+        logger.debug("Transaction {}: Will not add UT due to duplication, or too full", transaction.getId());
       }
     }
   }
@@ -188,6 +203,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   @Override
   public void remove(Transaction transaction) {
     synchronized (internalStore) {
+      logger.debug("Removing " + transaction.getId());
       if (exists(transaction.getId())) {
         removeTransaction(transaction);
       }
@@ -197,6 +213,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   @Override
   public void clear() {
     synchronized (internalStore) {
+      logger.debug("Clearing UTStore");
       totalSize = 0;
       internalStore.clear();
       reservedBalanceCache.clear();
@@ -210,6 +227,8 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   private void addTransaction(Transaction transaction, long time) throws ValidationException {
+    this.reservedBalanceCache.reserveBalanceAndPut(transaction);
+
     final List<UnconfirmedTransactionTiming> slot = getOrCreateAmountSlotForTransaction(transaction);
     slot.add(new UnconfirmedTransactionTiming(transaction, time));
     totalSize++;
@@ -217,8 +236,6 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     if(! StringUtils.isEmpty(transaction.getReferencedTransactionFullHash())) {
       numberUnconfirmedTransactionsFullHash++;
     }
-
-    this.reservedBalanceCache.reserveBalanceAndPut(transaction);
   }
 
   private List<UnconfirmedTransactionTiming> getOrCreateAmountSlotForTransaction(Transaction transaction) {
@@ -244,7 +261,12 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   private boolean transactionIsCurrentlyValid(Transaction transaction) {
-    return timeService.getEpochTime() < transaction.getExpiration();
+    if(timeService.getEpochTime() < transaction.getExpiration()) {
+      return true;
+    } else {
+      logger.debug("Transaction {} past expiration: {}", transaction.getId(), transaction.getExpiration());
+      return false;
+    }
   }
 
   private void removeTransaction(Transaction transaction) {

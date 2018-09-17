@@ -7,6 +7,7 @@ import brs.GeneratorImpl.MockGeneratorImpl;
 import brs.assetexchange.AssetExchange;
 import brs.assetexchange.AssetExchangeImpl;
 import brs.blockchainlistener.DevNullListener;
+import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
 import brs.props.Props;
 import brs.db.BlockDb;
@@ -61,7 +62,7 @@ import org.slf4j.LoggerFactory;
 
 public final class Burst {
 
-  public static final String VERSION     = "2.2.2";
+  public static final String VERSION     = "2.2.3";
   public static final String APPLICATION = "BRS";
   public static final String LEGACY_APP  = "NRS";
   public static final String LEGACY_VER  = "1.2.9";
@@ -234,6 +235,8 @@ public final class Burst {
 
       generator.generateForBlockchainProcessor(threadPool, blockchainProcessor);
 
+      final DeeplinkQRCodeGenerator deepLinkQRCodeGenerator = new DeeplinkQRCodeGenerator();
+
       final ParameterService parameterService = new ParameterServiceImpl(accountService, aliasService, assetExchange,
           digitalGoodsStoreService, blockchain, blockchainProcessor, transactionProcessor, atService);
 
@@ -248,7 +251,7 @@ public final class Burst {
       api = new API(transactionProcessor, blockchain, blockchainProcessor, parameterService,
           accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
           subscriptionService, atService, timeService, economicClustering, propertyService, threadPool,
-          transactionService, blockService, generator, apiTransactionManager, feeSuggestionCalculator);
+          transactionService, blockService, generator, apiTransactionManager, feeSuggestionCalculator, deepLinkQRCodeGenerator);
 
       DebugTrace.init(propertyService, blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService);
 

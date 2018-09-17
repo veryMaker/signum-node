@@ -12,6 +12,7 @@ import brs.EconomicClustering;
 import brs.Generator;
 import brs.TransactionProcessor;
 import brs.assetexchange.AssetExchange;
+import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
 import brs.props.Props;
 import brs.services.ATService;
@@ -53,12 +54,14 @@ public final class APIServlet extends HttpServlet {
       AccountService accountService, AliasService aliasService, AssetExchange assetExchange,
       EscrowService escrowService, DGSGoodsStoreService digitalGoodsStoreService,
       SubscriptionService subscriptionService, ATService atService, TimeService timeService, EconomicClustering economicClustering, TransactionService transactionService,
-      BlockService blockService, Generator generator, PropertyService propertyService, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator) {
+      BlockService blockService, Generator generator, PropertyService propertyService, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator,
+      DeeplinkQRCodeGenerator deeplinkQRCodeGenerator) {
 
     enforcePost = propertyService.getBoolean(Props.API_SERVER_ENFORCE_POST);
     acceptSurplusParams = propertyService.getBoolean(Props.API_ACCEPT_SURPLUS_PARAMS);
     
     final Map<String, APIRequestHandler> map = new HashMap<>();
+    final Map<String, PrimitiveRequestHandler> primitiveMap = new HashMap<>();
 
     map.put("broadcastTransaction", new BroadcastTransaction(transactionProcessor, parameterService, transactionService));
     map.put("calculateFullHash", new CalculateFullHash());
@@ -177,6 +180,8 @@ public final class APIServlet extends HttpServlet {
     map.put("getATLong", GetATLong.instance);
     map.put("getAccountATs", new GetAccountATs(parameterService, atService, accountService));
 
+    primitiveMap.put("generateSendTransactionQRCode", new GenerateDeeplinkQRCode(deeplinkQRCodeGenerator));
+
     if (API.enableDebugAPI) {
       map.put("clearUnconfirmedTransactions", new ClearUnconfirmedTransactions(transactionProcessor));
       map.put("fullReset", new FullReset(blockchainProcessor));
@@ -185,6 +190,7 @@ public final class APIServlet extends HttpServlet {
     }
 
     apiRequestHandlers = Collections.unmodifiableMap(map);
+    primitiveRequestHandlers = Collections.unmodifiableMap(primitiveMap);
   }
 
   private static boolean acceptSurplusParams;
@@ -230,9 +236,25 @@ public final class APIServlet extends HttpServlet {
 
   }
 
+  abstract static class PrimitiveRequestHandler {
+
+    public abstract void processRequest(HttpServletRequest req, HttpServletResponse resp);
+
+    public void addErrorMessage(HttpServletResponse resp, JSONStreamAware msg) throws IOException {
+      try (Writer writer = resp.getWriter()) {
+        resp.setContentType("text/plain; charset=UTF-8");
+        resp.setStatus(500);
+
+        msg.writeJSONString(writer);
+      }
+    }
+
+  }
+
   private static boolean enforcePost;
 
   static Map<String, APIRequestHandler> apiRequestHandlers;
+  static Map<String, PrimitiveRequestHandler> primitiveRequestHandlers;
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -279,7 +301,13 @@ public final class APIServlet extends HttpServlet {
 
       APIRequestHandler apiRequestHandler = apiRequestHandlers.get(requestType);
       if (apiRequestHandler == null) {
-        response = ERROR_INCORRECT_REQUEST;
+        final PrimitiveRequestHandler primitiveRequestHandler = primitiveRequestHandlers.get(req.getParameter("requestType"));
+
+        if(primitiveRequestHandler != null) {
+          primitiveRequestHandler.processRequest(req, resp);
+        } else {
+          response = ERROR_INCORRECT_REQUEST;
+        }
         return;
       }
 
@@ -310,9 +338,11 @@ public final class APIServlet extends HttpServlet {
       }
 
     } finally {
-      resp.setContentType("text/plain; charset=UTF-8");
-      try (Writer writer = resp.getWriter()) {
-        response.writeJSONString(writer);
+      if(resp.getContentType() == null || resp.getContentType().isEmpty()) {
+        resp.setContentType("text/plain; charset=UTF-8");
+        try (Writer writer = resp.getWriter()) {
+          response.writeJSONString(writer);
+        }
       }
     }
 
