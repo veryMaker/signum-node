@@ -12,10 +12,10 @@ var BRS = (function(BRS, $, undefined) {
         e.preventDefault();
         BRS.showFeeSuggestions("#dgs_listing_fee", "#suggested_fee_response_dgs_list_product_for_sale");
     });
-    $('#dgs_listing_modal').on('show.bs.modal', function (e) {
+    $('#dgs_delisting_modal').on('show.bs.modal', function (e) {
         BRS.showFeeSuggestions("#dgs_delisting_fee", "#suggested_fee_response_dgs_delisting_modal");
     });
-    $("#suggested_fee_dgs_delisting_fee").on("click", function(e) {
+    $("#suggested_fee_dgs_delisting_modal").on("click", function(e) {
         e.preventDefault();
         BRS.showFeeSuggestions("#dgs_delisting_fee", "#suggested_fee_response_dgs_delisting_modal");
     });
