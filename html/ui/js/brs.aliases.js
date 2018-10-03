@@ -32,11 +32,11 @@ BRS = (function (BRS, $, undefined) {
             BRS.showFeeSuggestions("#buy_alias_fee", "#suggested_fee_response_alias_buy");
         });
         var is_loading_aliases = false;
-
+        var alias_page_elements = 500;
         $(window).scroll(function() {
            if($(window).scrollTop() + $(window).height() > $(document).height() - 100 &&  is_loading_aliases == false) {
                var aliases =  $("#aliases_table tbody");
-                    if(aliases[0].childElementCount >= 50)
+                    if(aliases[0].childElementCount >= alias_page_elements;
                     {
                       is_loading_aliases = true;
                       $("#loading_aliases").html('<span data-i18n="loading_aliases">Loading aliases</span>... <i class="fa fa-spinner fa-pulse fa-fw" style="color:red;"></i>');
@@ -44,7 +44,7 @@ BRS = (function (BRS, $, undefined) {
                                   "account": BRS.account,
                                   "timestamp": 0,
                                   "firstIndex":aliases[0].childElementCount,
-                                  "lastIndex":aliases[0].childElementCount + 49
+                                  "lastIndex":aliases[0].childElementCount + alias_page_elements - 1
                               }, function (response) {
                                   is_loading_aliases = false;
                                   $("#loading_aliases").empty();
@@ -242,8 +242,8 @@ BRS = (function (BRS, $, undefined) {
                 BRS.sendRequest("getAliases+", {
                     "account": BRS.account,
                     "timestamp": 0,
-                    "firstIndex":0,
-                    "lastIndex":49
+                    "firstIndex": 0,
+                    "lastIndex": alias_page_elements - 1
                 }, function (response) {
                     if (response.aliases && response.aliases.length) {
                         var aliases = response.aliases;
