@@ -36,7 +36,7 @@ BRS = (function (BRS, $, undefined) {
         $(window).scroll(function() {
            if($(window).scrollTop() + $(window).height() > $(document).height() - 100 &&  is_loading_aliases == false) {
                var aliases =  $("#aliases_table tbody");
-                    if(aliases[0].childElementCount >= alias_page_elements;
+                    if(aliases[0].childElementCount >= alias_page_elements)
                     {
                       is_loading_aliases = true;
                       $("#loading_aliases").html('<span data-i18n="loading_aliases">Loading aliases</span>... <i class="fa fa-spinner fa-pulse fa-fw" style="color:red;"></i>');
