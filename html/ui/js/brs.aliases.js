@@ -2,6 +2,9 @@
  * @depends {brs.js}
  */
 var BRS;
+var alias_page_elements = 500;
+var is_loading_aliases = false;
+var prev_search_length = 0;
 BRS = (function (BRS, $, undefined) {
         $('#register_alias_modal').on('show.bs.modal', function (e) {
             BRS.showFeeSuggestions("#register_alias_fee", "#suggested_fee_response_alias_register");
@@ -31,15 +34,295 @@ BRS = (function (BRS, $, undefined) {
             e.preventDefault();
             BRS.showFeeSuggestions("#buy_alias_fee", "#suggested_fee_response_alias_buy");
         });
-        var is_loading_aliases = false;
-        var alias_page_elements = 500;
+        $("#search_aliases").on("keyup", function(e) {
+            var value = $(this).val();
+            if(value.length > 0 && is_loading_aliases == false)
+            {
+             is_loading_aliases = true;
+             $("#loading_aliases").html('<span data-i18n="loading_aliases">Loading aliases</span>... <i class="fa fa-spinner fa-pulse fa-fw" style="color:red;"></i>');
+               BRS.sendRequest("getAliases+", {
+                         "account": BRS.account,
+                         "timestamp": 0,
+                         "firstIndex": 0
+                     }, function (response) {
+                         is_loading_aliases = false;
+                         $("#loading_aliases").empty();
+                         if (response.aliases && response.aliases.length) {
+                             var aliases = response.aliases;
+
+                             if (BRS.unconfirmedTransactions.length) {
+                                 for (var i = 0; i < BRS.unconfirmedTransactions.length; i++) {
+                                     var unconfirmedTransaction = BRS.unconfirmedTransactions[i];
+
+                                     if (unconfirmedTransaction.type === 1 && (unconfirmedTransaction.subtype === 1 || unconfirmedTransaction.subtype === 7)) {
+                                         var found = false;
+
+                                         for (var j = 0; j < aliases.length; j++) {
+                                             if (aliases[j].aliasName === unconfirmedTransaction.attachment.alias) {
+                                                 aliases[j].aliasURI = unconfirmedTransaction.attachment.uri;
+                                                 aliases[j].tentative = true;
+                                                 found = true;
+                                                 break;
+                                             }
+                                         }
+
+                                         if (!found) {
+                                             aliases.push({
+                                                 "aliasName": unconfirmedTransaction.attachment.alias,
+                                                 "aliasURI": (unconfirmedTransaction.attachment.uri ? unconfirmedTransaction.attachment.uri : ""),
+                                                 "tentative": true
+                                             });
+                                         }
+                                     }
+                                 }
+                             }
+                             aliases.sort(function (a, b) {
+                                 var a_low = a.aliasName.toLowerCase(),
+                                     b_low = b.aliasName.toLowerCase();
+                                 if (a_low > b_low)
+                                     return 1;
+                                 if (a_low < b_low)
+                                     return -1;
+
+                                 return 0;
+                             });
+                             var rows = "";
+                             var alias_count = aliases.length;
+                             for (var i = 0; i < alias_count; i++) {
+                                 var alias = aliases[i];
+
+                                 alias.status = "/";
+
+                                 var unconfirmedTransaction = BRS.getUnconfirmedTransactionFromCache(1, 6, {
+                                     "alias": alias.aliasName
+                                 });
+
+                                 if (unconfirmedTransaction) {
+                                     alias.tentative = true;
+                                     if (unconfirmedTransaction.recipient) {
+                                         alias.buyer = unconfirmedTransaction.recipient;
+                                     }
+                                     alias.priceNQT = unconfirmedTransaction.priceNQT;
+                                 }
+
+                                 if (!alias.aliasURI) {
+                                     alias.aliasURI = "";
+                                 }
+
+                                 if (alias.aliasURI.length > 100) {
+                                     alias.shortAliasURI = alias.aliasURI.substring(0, 100) + "...";
+                                     alias.shortAliasURI = alias.shortAliasURI.escapeHTML();
+                                 }
+                                 else {
+                                     alias.shortAliasURI = alias.aliasURI.escapeHTML();
+                                 }
+
+                                 alias.aliasURI = alias.aliasURI.escapeHTML();
+
+                                 var allowCancel = false;
+
+                                 if ("priceNQT" in alias) {
+                                     if (alias.priceNQT === "0") {
+                                         if (alias.buyer === BRS.account) {
+                                             alias.status = $.t("cancelling_sale");
+                                         }
+                                         else {
+                                             alias.status = $.t("transfer_in_progress");
+                                         }
+                                     }
+                                     else {
+                                         if (!alias.tentative) {
+                                             allowCancel = true;
+                                         }
+
+                                         if (typeof alias.buyer !== "undefined") {
+                                             alias.status = $.t("for_sale_direct");
+                                         }
+                                         else {
+                                             alias.status = $.t("for_sale_indirect");
+                                         }
+                                     }
+                                 }
+
+                                 if (alias.status !== "/") {
+                                     alias.status = "<span class='label label-small label-info'>" + alias.status + "</span>";
+                                 }
+                                 var aliasName =  String(alias.aliasName).toLowerCase().escapeHTML();
+                                 if(aliasName.includes(value.toLowerCase())){
+                                 rows += "<tr" + (alias.tentative ? " class='tentative'" : "")
+                                     + " data-alias='" + String(alias.aliasName).toLowerCase().escapeHTML()
+                                     + "'><td class='alias'>" + String(alias.aliasName).escapeHTML()
+                                     + "</td><td class='uri'>"
+                                     + (alias.aliasURI.indexOf("http") === 0 ? "<a href='" + alias.aliasURI + "' target='_blank'>" + alias.shortAliasURI + "</a>"
+                                         : alias.shortAliasURI)
+                                     + "</td><td class='status'>" + alias.status
+                                     + "</td><td style='white-space:nowrap'><a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#register_alias_modal' data-alias='"
+                                     + String(alias.aliasName).escapeHTML() + "'>"
+                                     + $.t("edit")
+                                     + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#transfer_alias_modal' data-alias='"
+                                     + String(alias.aliasName).escapeHTML() + "'>"
+                                     + $.t("transfer")
+                                     + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#sell_alias_modal' data-alias='"
+                                     + String(alias.aliasName).escapeHTML() + "'>"
+                                     + $.t("sell")
+                                     + "</a>" + (allowCancel ? " <a class='btn btn-xs btn-default cancel_alias_sale' href='#' data-toggle='modal' data-target='#cancel_alias_sale_modal' data-alias='" + String(alias.aliasName).escapeHTML() + "'>" + $.t("cancel_sale") + "</a>" : "")
+                                     + "</td></tr>";
+                                 }
+                             }
+
+                             $("#aliases_table tbody").html(rows);
+                         }
+                     });
+
+
+            }
+            else if( value.length == 0 && prev_search_length == 1 && is_loading_aliases == false)
+            {
+                BRS.sendRequest("getAliases+", {
+                          "account": BRS.account,
+                          "timestamp": 0,
+                          "firstIndex":0,
+                          "lastIndex": alias_page_elements - 1
+                      }, function (response) {
+                          is_loading_aliases = false;
+                          $("#loading_aliases").empty();
+                          if (response.aliases && response.aliases.length) {
+                              var aliases = response.aliases;
+
+                              if (BRS.unconfirmedTransactions.length) {
+                                  for (var i = 0; i < BRS.unconfirmedTransactions.length; i++) {
+                                      var unconfirmedTransaction = BRS.unconfirmedTransactions[i];
+
+                                      if (unconfirmedTransaction.type === 1 && (unconfirmedTransaction.subtype === 1 || unconfirmedTransaction.subtype === 7)) {
+                                          var found = false;
+
+                                          for (var j = 0; j < aliases.length; j++) {
+                                              if (aliases[j].aliasName === unconfirmedTransaction.attachment.alias) {
+                                                  aliases[j].aliasURI = unconfirmedTransaction.attachment.uri;
+                                                  aliases[j].tentative = true;
+                                                  found = true;
+                                                  break;
+                                              }
+                                          }
+
+                                          if (!found) {
+                                              aliases.push({
+                                                  "aliasName": unconfirmedTransaction.attachment.alias,
+                                                  "aliasURI": (unconfirmedTransaction.attachment.uri ? unconfirmedTransaction.attachment.uri : ""),
+                                                  "tentative": true
+                                              });
+                                          }
+                                      }
+                                  }
+                              }
+                              aliases.sort(function (a, b) {
+                                  var a_low = a.aliasName.toLowerCase(),
+                                      b_low = b.aliasName.toLowerCase();
+                                  if (a_low > b_low)
+                                      return 1;
+                                  if (a_low < b_low)
+                                      return -1;
+
+                                  return 0;
+                              });
+                              var rows = "";
+                              var alias_count = aliases.length;
+                              for (var i = 0; i < alias_count; i++) {
+                                  var alias = aliases[i];
+
+                                  alias.status = "/";
+
+                                  var unconfirmedTransaction = BRS.getUnconfirmedTransactionFromCache(1, 6, {
+                                      "alias": alias.aliasName
+                                  });
+
+                                  if (unconfirmedTransaction) {
+                                      alias.tentative = true;
+                                      if (unconfirmedTransaction.recipient) {
+                                          alias.buyer = unconfirmedTransaction.recipient;
+                                      }
+                                      alias.priceNQT = unconfirmedTransaction.priceNQT;
+                                  }
+
+                                  if (!alias.aliasURI) {
+                                      alias.aliasURI = "";
+                                  }
+
+                                  if (alias.aliasURI.length > 100) {
+                                      alias.shortAliasURI = alias.aliasURI.substring(0, 100) + "...";
+                                      alias.shortAliasURI = alias.shortAliasURI.escapeHTML();
+                                  }
+                                  else {
+                                      alias.shortAliasURI = alias.aliasURI.escapeHTML();
+                                  }
+
+                                  alias.aliasURI = alias.aliasURI.escapeHTML();
+
+                                  var allowCancel = false;
+
+                                  if ("priceNQT" in alias) {
+                                      if (alias.priceNQT === "0") {
+                                          if (alias.buyer === BRS.account) {
+                                              alias.status = $.t("cancelling_sale");
+                                          }
+                                          else {
+                                              alias.status = $.t("transfer_in_progress");
+                                          }
+                                      }
+                                      else {
+                                          if (!alias.tentative) {
+                                              allowCancel = true;
+                                          }
+
+                                          if (typeof alias.buyer !== "undefined") {
+                                              alias.status = $.t("for_sale_direct");
+                                          }
+                                          else {
+                                              alias.status = $.t("for_sale_indirect");
+                                          }
+                                      }
+                                  }
+
+                                  if (alias.status !== "/") {
+                                      alias.status = "<span class='label label-small label-info'>" + alias.status + "</span>";
+                                  }
+
+                                  rows += "<tr" + (alias.tentative ? " class='tentative'" : "")
+                                      + " data-alias='" + String(alias.aliasName).toLowerCase().escapeHTML()
+                                      + "'><td class='alias'>" + String(alias.aliasName).escapeHTML()
+                                      + "</td><td class='uri'>"
+                                      + (alias.aliasURI.indexOf("http") === 0 ? "<a href='" + alias.aliasURI + "' target='_blank'>" + alias.shortAliasURI + "</a>"
+                                          : alias.shortAliasURI)
+                                      + "</td><td class='status'>" + alias.status
+                                      + "</td><td style='white-space:nowrap'><a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#register_alias_modal' data-alias='"
+                                      + String(alias.aliasName).escapeHTML() + "'>"
+                                      + $.t("edit")
+                                      + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#transfer_alias_modal' data-alias='"
+                                      + String(alias.aliasName).escapeHTML() + "'>"
+                                      + $.t("transfer")
+                                      + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#sell_alias_modal' data-alias='"
+                                      + String(alias.aliasName).escapeHTML() + "'>"
+                                      + $.t("sell")
+                                      + "</a>" + (allowCancel ? " <a class='btn btn-xs btn-default cancel_alias_sale' href='#' data-toggle='modal' data-target='#cancel_alias_sale_modal' data-alias='" + String(alias.aliasName).escapeHTML() + "'>" + $.t("cancel_sale") + "</a>" : "")
+                                      + "</td></tr>";
+                              }
+
+                              $("#aliases_table tbody").html(rows);
+                          }
+                      });
+            }
+            prev_search_length = value.length;
+        });
+
         $(window).scroll(function() {
-           if($(window).scrollTop() + $(window).height() > $(document).height() - 100 &&  is_loading_aliases == false) {
+           if($(window).scrollTop() + $(window).height() > $(document).height() - 100 &&  is_loading_aliases == false && $("#search_aliases").val().length == 0) {
                var aliases =  $("#aliases_table tbody");
                     if(aliases[0].childElementCount >= alias_page_elements)
                     {
                       is_loading_aliases = true;
                       $("#loading_aliases").html('<span data-i18n="loading_aliases">Loading aliases</span>... <i class="fa fa-spinner fa-pulse fa-fw" style="color:red;"></i>');
+                        if($("#search_aliases").val().length == 0)
+                        {
                         BRS.sendRequest("getAliases+", {
                                   "account": BRS.account,
                                   "timestamp": 0,
@@ -172,7 +455,7 @@ BRS = (function (BRS, $, undefined) {
                                       $("#aliases_table tbody").append(rows);
                                   }
                               });
-
+                        }
                }
            }
         });
