@@ -101,6 +101,27 @@ DB.Username=brs_user
 DB.Password=yourpassword
 ```
 
+## Upgrading
+
+Ensure the PoC-Consortium github is in your list of remotes: 
+```
+git remote -v
+```
+
+If it's not, add it: 
+```
+git remote add pocc https://github.com/PoC-Consortium/burstcoin.git
+```
+
+Replacing `X.X.X` with the latest tag, run these commands:
+
+```
+git fetch --all --tags --prune
+git checkout tags/X.X.X -b X.X.X 
+./burst.sh compile
+./burst.sh
+```
+
 ## Striking Features
 
 - Proof of Capacity - ASIC proof / Energy efficient mining
