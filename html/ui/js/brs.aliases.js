@@ -2,9 +2,6 @@
  * @depends {brs.js}
  */
 var BRS;
-var alias_page_elements = 500;
-var is_loading_aliases = false;
-var prev_search_length = 0;
 BRS = (function (BRS, $, undefined) {
         $('#register_alias_modal').on('show.bs.modal', function (e) {
             BRS.showFeeSuggestions("#register_alias_fee", "#suggested_fee_response_alias_register");
@@ -34,6 +31,9 @@ BRS = (function (BRS, $, undefined) {
             e.preventDefault();
             BRS.showFeeSuggestions("#buy_alias_fee", "#suggested_fee_response_alias_buy");
         });
+        var alias_page_elements = 10;
+        var is_loading_aliases = false;
+        var prev_search_length = 0;
         $("#search_aliases").on("keyup", function(e) {
             var value = $(this).val();
             if(value.length > 0 && is_loading_aliases == false)
@@ -49,7 +49,6 @@ BRS = (function (BRS, $, undefined) {
                          $("#loading_aliases").empty();
                          if (response.aliases && response.aliases.length) {
                              var aliases = response.aliases;
-
                              if (BRS.unconfirmedTransactions.length) {
                                  for (var i = 0; i < BRS.unconfirmedTransactions.length; i++) {
                                      var unconfirmedTransaction = BRS.unconfirmedTransactions[i];
@@ -147,25 +146,25 @@ BRS = (function (BRS, $, undefined) {
                                  if (alias.status !== "/") {
                                      alias.status = "<span class='label label-small label-info'>" + alias.status + "</span>";
                                  }
-                                 var aliasName =  String(alias.aliasName).toLowerCase().escapeHTML();
-                                 if(aliasName.includes(value.toLowerCase())){
+                                 var aliasName =  String(alias.aliasName).escapeHTML();
+                                 if(aliasName.toLowerCase().includes(value.toLowerCase())){
                                  rows += "<tr" + (alias.tentative ? " class='tentative'" : "")
-                                     + " data-alias='" + String(alias.aliasName).toLowerCase().escapeHTML()
-                                     + "'><td class='alias'>" + String(alias.aliasName).escapeHTML()
+                                     + " data-alias='" + aliasName.toLowerCase()
+                                     + "'><td class='alias'>" + aliasName
                                      + "</td><td class='uri'>"
                                      + (alias.aliasURI.indexOf("http") === 0 ? "<a href='" + alias.aliasURI + "' target='_blank'>" + alias.shortAliasURI + "</a>"
                                          : alias.shortAliasURI)
                                      + "</td><td class='status'>" + alias.status
                                      + "</td><td style='white-space:nowrap'><a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#register_alias_modal' data-alias='"
-                                     + String(alias.aliasName).escapeHTML() + "'>"
+                                     + aliasName + "'>"
                                      + $.t("edit")
                                      + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#transfer_alias_modal' data-alias='"
-                                     + String(alias.aliasName).escapeHTML() + "'>"
+                                     + aliasName + "'>"
                                      + $.t("transfer")
                                      + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#sell_alias_modal' data-alias='"
-                                     + String(alias.aliasName).escapeHTML() + "'>"
+                                     + aliasName + "'>"
                                      + $.t("sell")
-                                     + "</a>" + (allowCancel ? " <a class='btn btn-xs btn-default cancel_alias_sale' href='#' data-toggle='modal' data-target='#cancel_alias_sale_modal' data-alias='" + String(alias.aliasName).escapeHTML() + "'>" + $.t("cancel_sale") + "</a>" : "")
+                                     + "</a>" + (allowCancel ? " <a class='btn btn-xs btn-default cancel_alias_sale' href='#' data-toggle='modal' data-target='#cancel_alias_sale_modal' data-alias='" + aliasName + "'>" + $.t("cancel_sale") + "</a>" : "")
                                      + "</td></tr>";
                                  }
                              }
@@ -173,8 +172,6 @@ BRS = (function (BRS, $, undefined) {
                              $("#aliases_table tbody").html(rows);
                          }
                      });
-
-
             }
             else if( value.length == 0 && prev_search_length == 1 && is_loading_aliases == false)
             {
@@ -188,7 +185,6 @@ BRS = (function (BRS, $, undefined) {
                           $("#loading_aliases").empty();
                           if (response.aliases && response.aliases.length) {
                               var aliases = response.aliases;
-
                               if (BRS.unconfirmedTransactions.length) {
                                   for (var i = 0; i < BRS.unconfirmedTransactions.length; i++) {
                                       var unconfirmedTransaction = BRS.unconfirmedTransactions[i];
@@ -286,24 +282,24 @@ BRS = (function (BRS, $, undefined) {
                                   if (alias.status !== "/") {
                                       alias.status = "<span class='label label-small label-info'>" + alias.status + "</span>";
                                   }
-
+                                  var aliasName =  String(alias.aliasName).escapeHTML();
                                   rows += "<tr" + (alias.tentative ? " class='tentative'" : "")
-                                      + " data-alias='" + String(alias.aliasName).toLowerCase().escapeHTML()
-                                      + "'><td class='alias'>" + String(alias.aliasName).escapeHTML()
+                                      + " data-alias='" + aliasName.toLowerCase()
+                                      + "'><td class='alias'>" + aliasName
                                       + "</td><td class='uri'>"
                                       + (alias.aliasURI.indexOf("http") === 0 ? "<a href='" + alias.aliasURI + "' target='_blank'>" + alias.shortAliasURI + "</a>"
                                           : alias.shortAliasURI)
                                       + "</td><td class='status'>" + alias.status
                                       + "</td><td style='white-space:nowrap'><a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#register_alias_modal' data-alias='"
-                                      + String(alias.aliasName).escapeHTML() + "'>"
+                                      + aliasName + "'>"
                                       + $.t("edit")
                                       + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#transfer_alias_modal' data-alias='"
-                                      + String(alias.aliasName).escapeHTML() + "'>"
+                                      + aliasName + "'>"
                                       + $.t("transfer")
                                       + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#sell_alias_modal' data-alias='"
-                                      + String(alias.aliasName).escapeHTML() + "'>"
+                                      + aliasName + "'>"
                                       + $.t("sell")
-                                      + "</a>" + (allowCancel ? " <a class='btn btn-xs btn-default cancel_alias_sale' href='#' data-toggle='modal' data-target='#cancel_alias_sale_modal' data-alias='" + String(alias.aliasName).escapeHTML() + "'>" + $.t("cancel_sale") + "</a>" : "")
+                                      + "</a>" + (allowCancel ? " <a class='btn btn-xs btn-default cancel_alias_sale' href='#' data-toggle='modal' data-target='#cancel_alias_sale_modal' data-alias='" + aliasName + "'>" + $.t("cancel_sale") + "</a>" : "")
                                       + "</td></tr>";
                               }
 
@@ -431,24 +427,24 @@ BRS = (function (BRS, $, undefined) {
                                           if (alias.status !== "/") {
                                               alias.status = "<span class='label label-small label-info'>" + alias.status + "</span>";
                                           }
-
+                                          var aliasName =  String(alias.aliasName).escapeHTML();
                                           rows += "<tr" + (alias.tentative ? " class='tentative'" : "")
-                                              + " data-alias='" + String(alias.aliasName).toLowerCase().escapeHTML()
-                                              + "'><td class='alias'>" + String(alias.aliasName).escapeHTML()
+                                              + " data-alias='" + aliasName.toLowerCase()
+                                              + "'><td class='alias'>" + aliasName
                                               + "</td><td class='uri'>"
                                               + (alias.aliasURI.indexOf("http") === 0 ? "<a href='" + alias.aliasURI + "' target='_blank'>" + alias.shortAliasURI + "</a>"
                                                   : alias.shortAliasURI)
                                               + "</td><td class='status'>" + alias.status
                                               + "</td><td style='white-space:nowrap'><a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#register_alias_modal' data-alias='"
-                                              + String(alias.aliasName).escapeHTML() + "'>"
+                                              + aliasName + "'>"
                                               + $.t("edit")
                                               + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#transfer_alias_modal' data-alias='"
-                                              + String(alias.aliasName).escapeHTML() + "'>"
+                                              + aliasName + "'>"
                                               + $.t("transfer")
                                               + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#sell_alias_modal' data-alias='"
-                                              + String(alias.aliasName).escapeHTML() + "'>"
+                                              + aliasName + "'>"
                                               + $.t("sell")
-                                              + "</a>" + (allowCancel ? " <a class='btn btn-xs btn-default cancel_alias_sale' href='#' data-toggle='modal' data-target='#cancel_alias_sale_modal' data-alias='" + String(alias.aliasName).escapeHTML() + "'>" + $.t("cancel_sale") + "</a>" : "")
+                                              + "</a>" + (allowCancel ? " <a class='btn btn-xs btn-default cancel_alias_sale' href='#' data-toggle='modal' data-target='#cancel_alias_sale_modal' data-alias='" + aliasName + "'>" + $.t("cancel_sale") + "</a>" : "")
                                               + "</td></tr>";
                                       }
 
@@ -636,24 +632,24 @@ BRS = (function (BRS, $, undefined) {
                             if (alias.status !== "/") {
                                 alias.status = "<span class='label label-small label-info'>" + alias.status + "</span>";
                             }
-
+                            var aliasName =  String(alias.aliasName).escapeHTML();
                             rows += "<tr" + (alias.tentative ? " class='tentative'" : "")
-                                + " data-alias='" + String(alias.aliasName).toLowerCase().escapeHTML()
-                                + "'><td class='alias'>" + String(alias.aliasName).escapeHTML()
+                                + " data-alias='" + aliasName.toLowerCase()
+                                + "'><td class='alias'>" + aliasName
                                 + "</td><td class='uri'>"
                                 + (alias.aliasURI.indexOf("http") === 0 ? "<a href='" + alias.aliasURI + "' target='_blank'>" + alias.shortAliasURI + "</a>"
                                     : alias.shortAliasURI)
                                 + "</td><td class='status'>" + alias.status
                                 + "</td><td style='white-space:nowrap'><a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#register_alias_modal' data-alias='"
-                                + String(alias.aliasName).escapeHTML() + "'>"
+                                + aliasName + "'>"
                                 + $.t("edit")
                                 + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#transfer_alias_modal' data-alias='"
-                                + String(alias.aliasName).escapeHTML() + "'>"
+                                + aliasName + "'>"
                                 + $.t("transfer")
                                 + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#sell_alias_modal' data-alias='"
-                                + String(alias.aliasName).escapeHTML() + "'>"
+                                + aliasName + "'>"
                                 + $.t("sell")
-                                + "</a>" + (allowCancel ? " <a class='btn btn-xs btn-default cancel_alias_sale' href='#' data-toggle='modal' data-target='#cancel_alias_sale_modal' data-alias='" + String(alias.aliasName).escapeHTML() + "'>" + $.t("cancel_sale") + "</a>" : "")
+                                + "</a>" + (allowCancel ? " <a class='btn btn-xs btn-default cancel_alias_sale' href='#' data-toggle='modal' data-target='#cancel_alias_sale_modal' data-alias='" + aliasName + "'>" + $.t("cancel_sale") + "</a>" : "")
                                 + "</td></tr>";
 
                             if (!alias.aliasURI) {
@@ -937,8 +933,9 @@ BRS = (function (BRS, $, undefined) {
                 }
                 else {
                     var aliasURI;
-
-                    if (/http:\/\//i.test(response.aliasURI)) {
+                    var keyword = "http:\/\/";
+                    var reg =  new RegExp(keyword,"i");
+                    if (reg.test(response.aliasURI)) {
                         setAliasType("uri", response.aliasURI);
                     }
                     else if ((aliasURI = /acct:(.*)@burst/.exec(response.aliasURI)) || (aliasURI = /nacc:(.*)/.exec(response.aliasURI))) {
@@ -1025,11 +1022,13 @@ BRS = (function (BRS, $, undefined) {
             $("#register_alias_uri.masked").trigger("unmask", true);
             $("#register_alias_uri_label").html($.t("uri"));
             $("#register_alias_uri").prop("placeholder", $.t("uri"));
+            var keyword = "https?:\/\/";
+            var reg =  new RegExp(keyword,"i");
             if (uri) {
                 if (uri === BRS.accountRS) {
                     $("#register_alias_uri").val("http://");
                 }
-                else if (!/https?:\/\//i.test(uri)) {
+                else if (!reg.test(uri)) {
                     $("#register_alias_uri").val("http://" + uri);
                 }
                 else {
