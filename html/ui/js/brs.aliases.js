@@ -31,7 +31,7 @@ BRS = (function (BRS, $, undefined) {
             e.preventDefault();
             BRS.showFeeSuggestions("#buy_alias_fee", "#suggested_fee_response_alias_buy");
         });
-        var alias_page_elements = 10;
+        var alias_page_elements = 500;
         var is_loading_aliases = false;
         var prev_search_length = 0;
         $("#search_aliases").on("keyup", function(e) {
