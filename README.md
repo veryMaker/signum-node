@@ -101,6 +101,56 @@ DB.Username=brs_user
 DB.Password=yourpassword
 ```
 
+### Docker
+
+`latest` : Latest master of the BRS with H2 database  
+`mariadb` : Latest master of the BRS with MariaDB database  
+`2.3.0-h2`, `2.3-h2` : Version 2.3.0 of the BRS with H2 database  
+`2.3.0-mariadb`, `2.3-mariadb` : Version 2.3.0 of the BRS with MariaDB database  
+
+
+**Note (H2 only):**  
+H2 dump username and password has been changed through updates. The current dump has the user 'sa' and password 'sa' which is used in the BRS 2.2.1 image. If you get username errors, please mount your custom config for your H2 file.
+
+Old username and passwords:
+
+- both empty  
+  or
+- burst - burst
+
+---
+##### MariaDB
+
+```
+version: '3'
+
+services:
+  burstcoin:
+    image: burstcoin/core:2.3-mariadb
+    restart: always
+    depends_on:
+     - mariadb
+    ports:
+     - 8123:8123
+     - 8125:8125
+  mariadb:
+    image: mariadb:10
+    environment:
+     - MYSQL_ROOT_PASSWORD=burst
+     - MYSQL_DATABASE=burst
+    command: mysqld --character_set_server=utf8mb4
+    volumes:
+     - ./burst_db:/var/lib/mysql
+```
+
+---
+##### H2
+
+```
+docker run -p 8123:8123 -p 8125:8125 -v "$(pwd)"/burst_db:/db -d burstcoin/core:2.3-h2
+```
+
+
 ## Upgrading
 
 Ensure the PoC-Consortium github is in your list of remotes: 
