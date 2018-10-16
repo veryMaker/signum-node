@@ -103,10 +103,10 @@ DB.Password=yourpassword
 
 ### Docker
 
-`latest` : Latest master of the BRS with H2 database  
-`mariadb` : Latest master of the BRS with MariaDB database  
-`2.3.0-h2`, `2.3-h2` : Version 2.3.0 of the BRS with H2 database  
-`2.3.0-mariadb`, `2.3-mariadb` : Version 2.3.0 of the BRS with MariaDB database  
+`latest` : Latest tag of the BRS with H2 database  
+`mariadb` : Latest tag of the BRS with MariaDB database  
+`2.2.3-h2`, `2.2-h2` : Version 2.2.3 of the BRS with H2 database  
+`2.2.3-mariadb`, `2.2-mariadb` : Version 2.2.3 of the BRS with MariaDB database  
 
 
 **Note (H2 only):**  
@@ -126,7 +126,7 @@ version: '3'
 
 services:
   burstcoin:
-    image: burstcoin/core:2.3-mariadb
+    image: burstcoin/core:2.2-mariadb
     restart: always
     depends_on:
      - mariadb
@@ -147,7 +147,7 @@ services:
 ##### H2
 
 ```
-docker run -p 8123:8123 -p 8125:8125 -v "$(pwd)"/burst_db:/db -d burstcoin/core:2.3-h2
+docker run -p 8123:8123 -p 8125:8125 -v "$(pwd)"/burst_db:/db -d burstcoin/core:2.2-h2
 ```
 
 
