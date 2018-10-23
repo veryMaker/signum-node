@@ -25,14 +25,16 @@ final class GetBlocksFromHeight extends PeerServlet.PeerRequestHandler {
     List<Block> nextBlocks = new ArrayList<>();
     int blockHeight = Convert.parseInteger(request.get("height").toString());
     int numBlocks = 100;
+
     try {
       numBlocks = Convert.parseInteger(request.get("numBlocks").toString());
-    }catch (Exception e) {}
+    } catch (Exception e) {}
+
     //small failsafe
-    if(numBlocks <1 || numBlocks >1400) {
+    if(numBlocks < 1 || numBlocks > 1400) {
     	numBlocks = 100;
     }
-    if(blockHeight <0) {
+    if(blockHeight < 0) {
     	blockHeight = 0;
     }
     	    
