@@ -47,6 +47,7 @@ public final class PeerServlet extends HttpServlet {
     map.put("getInfo", new GetInfo(timeService));
     map.put("getMilestoneBlockIds", new GetMilestoneBlockIds(blockchain));
     map.put("getNextBlockIds", new GetNextBlockIds(blockchain));
+    map.put("getBlocksFromHeight", new GetBlocksFromHeight(blockchain));
     map.put("getNextBlocks", new GetNextBlocks(blockchain));
     map.put("getPeers", GetPeers.instance);
     map.put("getUnconfirmedTransactions", new GetUnconfirmedTransactions(transactionProcessor));

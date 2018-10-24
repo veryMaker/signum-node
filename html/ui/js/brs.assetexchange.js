@@ -152,7 +152,6 @@ var BRS = (function(BRS, $, undefined) {
                     } else {
                         BRS.showModalError($.t("account_no_assets"), $modal);
                     }
-                    //BRS.saveAssetIssuer(data.id);
                 }
             });
         } else {
@@ -168,7 +167,6 @@ var BRS = (function(BRS, $, undefined) {
                         } else {
                             if (response.assets && response.assets[0] && response.assets[0].length) {
                                 BRS.saveAssetBookmarks(response.assets[0], BRS.forms.addAssetBookmarkComplete);
-                                //BRS.saveAssetIssuer(data.id);
                             } else {
                                 BRS.showModalError($.t("no_asset_found"), $modal);
                             }
@@ -310,7 +308,6 @@ var BRS = (function(BRS, $, undefined) {
     BRS.positionAssetSidebar = function() {
         $("#asset_exchange_sidebar").parent().css("position", "relative");
         $("#asset_exchange_sidebar").parent().css("padding-bottom", "5px");
-        //$("#asset_exchange_sidebar_content").height($(window).height() - 120);
         $("#asset_exchange_sidebar").height($(window).height() - 120);
     };
 
@@ -408,7 +405,16 @@ var BRS = (function(BRS, $, undefined) {
                 });
             }
 
-            rows += "<a href='#' class='list-group-item list-group-item-" + (ungrouped ? "ungrouped" : "grouped") + (ownsAsset ? " owns_asset" : " not_owns_asset") + "' data-cache='" + i + "' data-asset='" + String(asset.asset).escapeHTML() + "'" + (!ungrouped ? " data-groupname='" + asset.groupName.escapeHTML() + "'" : "") + (isClosedGroup ? " style='display:none'" : "") + " data-closed='" + isClosedGroup + "'><h4 class='list-group-item-heading'>" + asset.name.escapeHTML() + "</h4><p class='list-group-item-text'>qty: " + BRS.formatQuantity(asset.quantityQNT, asset.decimals) + "</p></a>";
+            rows += "<a href='#' class='list-group-item list-group-item-"
+                + (ungrouped ? "ungrouped" : "grouped")
+                + (ownsAsset ? " owns_asset" : " not_owns_asset")
+                + "' data-cache='" + i
+                + "' data-asset='" + String(asset.asset).escapeHTML() + "'"
+                + (!ungrouped ? " data-groupname='" + asset.groupName.escapeHTML() + "'" : "")
+                + (isClosedGroup ? " style='display:none'" : "")
+                + " data-closed='" + isClosedGroup
+                + "'><h4 class='list-group-item-heading'>" + asset.name.escapeHTML()
+                + "</h4><p class='list-group-item-text'>qty: " + BRS.formatQuantity(asset.quantityQNT, asset.decimals) + "</p></a>";
         }
 
         var active = $("#asset_exchange_sidebar a.active");
@@ -576,7 +582,7 @@ var BRS = (function(BRS, $, undefined) {
             $("#asset_id").html(assetId.escapeHTML());
             $("#asset_decimals").html(String(asset.decimals).escapeHTML());
             $("#asset_name").html(String(asset.name).escapeHTML());
-            $("#asset_description").html(String(asset.description).autoLink());
+            $("#asset_description").html(String(asset.description).escapeHTML());
             $("#asset_quantity").html(BRS.formatQuantity(asset.quantityQNT, asset.decimals));
 
             $(".asset_name").html(String(asset.name).escapeHTML());
@@ -1043,7 +1049,8 @@ var BRS = (function(BRS, $, undefined) {
         }
 
         //numeric characters, left/right key, backspace, delete
-        if (charCode == 8 || charCode == 37 || charCode == 39 || charCode == 46 || (charCode >= 48 && charCode <= 57 && !isNaN(String.fromCharCode(charCode))) || (charCode >= 96 && charCode <= 105)) {
+        if (charCode == 8 || charCode == 37 || charCode == 39 || charCode == 46
+            || (charCode >= 48 && charCode <= 57 && !isNaN(String.fromCharCode(charCode))) || (charCode >= 96 && charCode <= 105)) {
             return;
         } else {
             //comma
@@ -1327,7 +1334,6 @@ var BRS = (function(BRS, $, undefined) {
                 $("#asset_exchange_group_title").html(String(asset.name).escapeHTML());
 
                 BRS.database.select("assets", [], function(error, assets) {
-                    //BRS.database.execute("SELECT DISTINCT groupName FROM assets", [], function(groupNames) {
                     var groupNames = [];
 
                     $.each(assets, function(index, asset) {

@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
 
 public final class Burst {
 
-  public static final String VERSION     = "2.2.3";
+  public static final String VERSION     = "2.2.4";
   public static final String APPLICATION = "BRS";
   public static final String LEGACY_APP  = "NRS";
   public static final String LEGACY_VER  = "1.2.9";
