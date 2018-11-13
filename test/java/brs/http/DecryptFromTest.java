@@ -59,7 +59,7 @@ public class DecryptFromTest {
 
     when(mockParameterService.getAccount(req)).thenReturn(mockAccount);
 
-    assertEquals("", ((JSONObject) t.processRequest(req)).get(DECRYPTED_MESSAGE_RESPONSE));
+    assertEquals("\u0001", ((JSONObject) t.processRequest(req)).get(DECRYPTED_MESSAGE_RESPONSE));
   }
 
   @Test
