@@ -80,12 +80,13 @@ public class APITransactionManagerImpl implements APITransactionManager {
     String referencedTransactionId = Convert.emptyToNull(req.getParameter(REFERENCED_TRANSACTION_PARAMETER));
     String secretPhrase = Convert.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER));
     String publicKeyValue = Convert.emptyToNull(req.getParameter(PUBLIC_KEY_PARAMETER));
+    String recipientPublicKeyValue = Convert.emptyToNull(req.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER));
     boolean broadcast = !Parameters.isFalse(req.getParameter(BROADCAST_PARAMETER));
 
     EncryptedMessage encryptedMessage = null;
 
     if (attachment.getTransactionType().hasRecipient()) {
-      EncryptedData encryptedData = parameterService.getEncryptedMessage(req, accountService.getAccount(recipientId));
+      EncryptedData encryptedData = parameterService.getEncryptedMessage(req, accountService.getAccount(recipientId), Convert.parseHexString(recipientPublicKeyValue));
       if (encryptedData != null) {
         encryptedMessage = new EncryptedMessage(encryptedData, !Parameters.isFalse(req.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER)), blockchainHeight);
       }
