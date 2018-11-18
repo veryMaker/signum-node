@@ -72,12 +72,9 @@ public final class PeerServlet extends HttpServlet {
     UNSUPPORTED_PROTOCOL = JSON.prepare(response);
   }
 
-  private boolean isGzipEnabled;
-
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
-    isGzipEnabled = Boolean.parseBoolean(config.getInitParameter("isGzipEnabled"));
   }
 
   @Override
@@ -117,6 +114,12 @@ public final class PeerServlet extends HttpServlet {
         requestType = "" + request.get("requestType");
         PeerRequestHandler peerRequestHandler = peerRequestHandlers.get(request.get("requestType"));
         if (peerRequestHandler != null) {
+          if ( requestType.equals("processTransactions") ) {
+            if ( ! peer.diffLastDownloadedTransactions(request.toJSONString().getBytes()) ) {
+              // ignore duplicate data
+              return;
+            }
+          }
           response = peerRequestHandler.processRequest(request, peer);
         }
         else {
