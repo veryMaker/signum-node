@@ -1,6 +1,7 @@
 package brs.peer;
 
 import brs.*;
+import brs.crypto.Crypto;
 import brs.props.Props;
 import brs.util.Convert;
 import brs.util.CountingInputStream;
@@ -37,6 +38,7 @@ final class PeerImpl implements Peer {
   private volatile long uploadedVolume;
   private volatile int lastUpdated;
   private volatile Long lastUnconfirmedTransactionTimestamp = null;
+  private volatile byte[] lastDownloadedTransactionsDigest;
 
   PeerImpl(String peerAddress, String announcedAddress) {
     this.peerAddress = peerAddress;
@@ -80,6 +82,15 @@ final class PeerImpl implements Peer {
   @Override
   public long getDownloadedVolume() {
     return downloadedVolume;
+  }
+
+  public boolean diffLastDownloadedTransactions( byte[] data ) {
+    byte[] newDigest = Crypto.sha256().digest(data);
+    if ( lastDownloadedTransactionsDigest != null && Arrays.equals(newDigest, lastDownloadedTransactionsDigest) ) {
+      return false;
+    }
+    lastDownloadedTransactionsDigest = newDigest;
+    return true;
   }
 
   void updateDownloadedVolume(long volume) {
