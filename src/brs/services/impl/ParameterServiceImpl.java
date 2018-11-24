@@ -247,7 +247,7 @@ public class ParameterServiceImpl implements ParameterService {
   }
 
   @Override
-  public EncryptedData getEncryptedMessage(HttpServletRequest req, Account recipientAccount) throws ParameterException {
+  public EncryptedData getEncryptedMessage(HttpServletRequest req, Account recipientAccount, byte[] publicKey) throws ParameterException {
     String data = Convert.emptyToNull(req.getParameter(ENCRYPTED_MESSAGE_DATA_PARAMETER));
     String nonce = Convert.emptyToNull(req.getParameter(ENCRYPTED_MESSAGE_NONCE_PARAMETER));
     if (data != null && nonce != null) {
@@ -261,14 +261,18 @@ public class ParameterServiceImpl implements ParameterService {
     if (plainMessage == null) {
       return null;
     }
-    if (recipientAccount == null) {
-      throw new ParameterException(INCORRECT_RECIPIENT);
-    }
+
     String secretPhrase = getSecretPhrase(req);
     boolean isText = Parameters.isTrue(req.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER));
     try {
       byte[] plainMessageBytes = isText ? Convert.toBytes(plainMessage) : Convert.parseHexString(plainMessage);
-      return recipientAccount.encryptTo(plainMessageBytes, secretPhrase);
+      if(recipientAccount != null && recipientAccount.getPublicKey() != null) {
+        return recipientAccount.encryptTo(plainMessageBytes, secretPhrase);
+      } else if(publicKey != null) {
+        return Account.encryptTo(plainMessageBytes, secretPhrase, publicKey);
+      } else {
+        throw new ParameterException(INCORRECT_RECIPIENT);
+      }
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_PLAIN_MESSAGE);
     }

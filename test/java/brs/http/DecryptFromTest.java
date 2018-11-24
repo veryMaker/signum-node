@@ -1,9 +1,7 @@
 package brs.http;
 
-import static brs.common.TestConstants.TEST_PUBLIC_KEY;
 import static brs.common.TestConstants.TEST_PUBLIC_KEY_BYTES;
 import static brs.common.TestConstants.TEST_SECRET_PHRASE;
-import static brs.http.JSONResponses.DECRYPTION_FAILED;
 import static brs.http.JSONResponses.INCORRECT_ACCOUNT;
 import static brs.http.common.Parameters.DATA_PARAMETER;
 import static brs.http.common.Parameters.DECRYPTED_MESSAGE_IS_TEXT_PARAMETER;
@@ -20,7 +18,6 @@ import brs.Account;
 import brs.BurstException;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
-import brs.common.TestConstants;
 import brs.crypto.EncryptedData;
 import brs.services.ParameterService;
 import javax.servlet.http.HttpServletRequest;
@@ -59,7 +56,7 @@ public class DecryptFromTest {
 
     when(mockParameterService.getAccount(req)).thenReturn(mockAccount);
 
-    assertEquals("", ((JSONObject) t.processRequest(req)).get(DECRYPTED_MESSAGE_RESPONSE));
+    assertEquals("\u0001", ((JSONObject) t.processRequest(req)).get(DECRYPTED_MESSAGE_RESPONSE));
   }
 
   @Test

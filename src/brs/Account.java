@@ -245,6 +245,14 @@ public class Account {
     return EncryptedData.encrypt(data, Crypto.getPrivateKey(senderSecretPhrase), publicKey);
   }
 
+  public static EncryptedData encryptTo(byte[] data, String senderSecretPhrase, byte[] publicKey) {
+    if (publicKey == null) {
+      throw new IllegalArgumentException("public key required");
+    }
+    return EncryptedData.encrypt(data, Crypto.getPrivateKey(senderSecretPhrase), publicKey);
+  }
+
+
   public byte[] decryptFrom(EncryptedData encryptedData, String recipientSecretPhrase) {
     if (getPublicKey() == null) {
       throw new IllegalArgumentException("Sender account doesn't have a public key set");
