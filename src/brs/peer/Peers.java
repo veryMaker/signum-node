@@ -5,6 +5,7 @@ import brs.props.Props;
 import brs.services.AccountService;
 import brs.props.PropertyService;
 import brs.services.TimeService;
+import brs.unconfirmedtransactions.TimedUnconfirmedTransactionOverview;
 import brs.util.*;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -738,6 +739,10 @@ public final class Peers {
     JSONObject request = block.getJSONObject();
     request.put("requestType", "processBlock");
     sendToSomePeers(request, false);
+  }
+
+  public static void sendToSomePeers(Function<Long, TimedUnconfirmedTransactionOverview> retrieveByHeight) {
+
   }
 
   public static void sendToSomePeers(List<Transaction> transactions) {

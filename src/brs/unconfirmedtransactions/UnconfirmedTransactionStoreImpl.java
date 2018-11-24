@@ -71,41 +71,45 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
   @Override
   public void put(Transaction transaction) throws ValidationException {
-    synchronized (internalStore) {
-      if (transactionCanBeAddedToCache(transaction)) {
-        final TransactionDuplicationResult duplicationInformation = transactionDuplicatesChecker.removeCheaperDuplicate(transaction);
+    // Let's do an initial check first, so we can be sure we don't need to sync-lock yet
+    if(transactionCanBeAddedToCache(transaction)) {
+      synchronized (internalStore) {
+        if (transactionCanBeAddedToCache(transaction)) {
+          final TransactionDuplicationResult duplicationInformation = transactionDuplicatesChecker.removeCheaperDuplicate(transaction);
 
-        if(duplicationInformation.isDuplicate()) {
-          final Transaction duplicatedTransaction = duplicationInformation.getTransaction();
+          if (duplicationInformation.isDuplicate()) {
+            final Transaction duplicatedTransaction = duplicationInformation.getTransaction();
 
-          if(duplicatedTransaction != null && duplicatedTransaction != transaction) {
-            logger.debug("Transaction {}: Adding more expensive duplicate transaction", transaction.getId());
-            removeTransaction(duplicationInformation.getTransaction());
+            if (duplicatedTransaction != null && duplicatedTransaction != transaction) {
+              logger.debug("Transaction {}: Adding more expensive duplicate transaction", transaction.getId());
+              removeTransaction(duplicationInformation.getTransaction());
 
+              addTransaction(transaction, timeService.getEpochTimeMillis());
+
+              if (totalSize > maxSize) {
+                removeCheapestFirstToExpireTransaction();
+              }
+            } else {
+              logger.debug("Transaction {}: Will not add a cheaper duplicate UT", transaction.getId());
+            }
+          } else {
             addTransaction(transaction, timeService.getEpochTimeMillis());
-
+            logger.debug(
+                "Cache size: " + totalSize + "/" + maxSize + " Added UT " + transaction.getId() + " " + transaction.getSenderId() + " " + transaction.getAmountNQT() + " " + transaction.getFeeNQT());
             if (totalSize > maxSize) {
               removeCheapestFirstToExpireTransaction();
             }
-          } else {
-            logger.debug("Transaction {}: Will not add a cheaper duplicate UT", transaction.getId());
           }
         } else {
-          addTransaction(transaction, timeService.getEpochTimeMillis());
-          logger.debug("Cache size: " + totalSize + "/" + maxSize+ " Added UT " + transaction.getId() + " " + transaction.getSenderId() + " " + transaction.getAmountNQT() + " " + transaction.getFeeNQT());
-          if (totalSize > maxSize) {
-            removeCheapestFirstToExpireTransaction();
-          }
+          logger.debug("Transaction {}: Will not add UT due to duplication, or too full", transaction.getId());
         }
-      } else {
-        logger.debug("Transaction {}: Will not add UT due to duplication, or too full", transaction.getId());
       }
     }
   }
 
   private boolean transactionCanBeAddedToCache(Transaction transaction) {
-    return transactionIsCurrentlyValid(transaction)
-        && ! transactionIsCurrentlyInCache(transaction)
+    return ! transactionIsCurrentlyInCache(transaction)
+        && transactionIsCurrentlyValid(transaction)
         && ! cacheFullAndTransactionCheaperThanAllTheRest(transaction)
         && ! tooManyTransactionsWithReferencedFullHash(transaction)
         && ! tooManyTransactionsForSlotSize(transaction);
@@ -218,6 +222,13 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
       internalStore.clear();
       reservedBalanceCache.clear();
       transactionDuplicatesChecker.clear();
+    }
+  }
+
+  @Override
+  public List<Transaction> resetAccountBalances() {
+    synchronized (internalStore) {
+      return reservedBalanceCache.rebuild(getAll(Integer.MAX_VALUE).getTransactions());
     }
   }
 

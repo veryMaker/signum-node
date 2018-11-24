@@ -2,6 +2,7 @@ package brs.unconfirmedtransactions;
 
 import brs.BurstException;
 import brs.Transaction;
+import java.util.List;
 import java.util.function.Consumer;
 
 public interface UnconfirmedTransactionStore {
@@ -21,4 +22,12 @@ public interface UnconfirmedTransactionStore {
   void remove(Transaction transaction);
 
   void clear();
+
+
+  /**
+   * Review which transactions are still eligible to stay
+   * @return The list of removed transactions
+   */
+  List<Transaction> resetAccountBalances();
+
 }

@@ -23,6 +23,7 @@ import brs.util.JSON;
 import brs.util.Listener;
 import brs.util.Listeners;
 import brs.util.ThreadPool;
+import java.util.function.Function;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
@@ -30,26 +31,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class TransactionProcessorImpl implements TransactionProcessor {
 
   private static final Logger logger = LoggerFactory.getLogger(TransactionProcessorImpl.class);
 
-  private final boolean enableTransactionRebroadcasting;
+  // private final boolean enableTransactionRebroadcasting;
   private final boolean testUnconfirmedTransactions;
 
-  private final int rebroadcastAfter;
-  private final int rebroadcastEvery;
+  // private final int rebroadcastAfter;
+  // private final int rebroadcastEvery;
 
   private final Object unconfirmedTransactionsSyncObj = new Object();
 
   private int limitUnconfirmedTransactionsToRetrieve;
 
-  private final Set<Transaction> nonBroadcastedTransactions = Collections.newSetFromMap(new ConcurrentHashMap<Transaction,Boolean>());
+  //private final Set<Transaction> nonBroadcastedTransactions = Collections.newSetFromMap(new ConcurrentHashMap<Transaction,Boolean>());
   private final Listeners<List<? extends Transaction>,Event> transactionListeners = new Listeners<>();
-  private final Set<Transaction> lostTransactions = new HashSet<>();
-  private final Map<Long, Integer> lostTransactionHeights = new HashMap<>();
+  //private final Set<Transaction> lostTransactions = new HashSet<>();
+  //private final Map<Long, Integer> lostTransactionHeights = new HashMap<>();
 
   private final EconomicClustering economicClustering;
 
@@ -60,6 +60,9 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   private Blockchain blockchain;
   private AccountService accountService;
   private UnconfirmedTransactionStore unconfirmedTransactionStore;
+  private long limitUnconfirmedTransactionsToPush;
+
+  private Function<Long, TimedUnconfirmedTransactionOverview> retrieveByHeight = height -> unconfirmedTransactionStore.getAllSince(height, limitUnconfirmedTransactionsToPush);
 
   public TransactionProcessorImpl(PropertyService propertyService,
       EconomicClustering economicClustering, Blockchain blockchain, Stores stores, TimeService timeService, Dbs dbs, AccountService accountService,
@@ -75,15 +78,18 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     this.accountService = accountService;
     this.transactionService = transactionService;
 
-    this.enableTransactionRebroadcasting = propertyService.getBoolean(Props.P2P_ENABLE_TX_REBROADCAST);
+    // this.enableTransactionRebroadcasting = propertyService.getBoolean(Props.P2P_ENABLE_TX_REBROADCAST);
     this.testUnconfirmedTransactions = propertyService.getBoolean(Props.BRS_TEST_UNCONFIRMED_TRANSACTIONS);
 
-    this.rebroadcastAfter = propertyService.getInt(Props.P2P_REBROADCAST_AFTER);
-    this.rebroadcastEvery = propertyService.getInt(Props.P2P_REBROADCAST_EVERY);
+    // this.rebroadcastAfter = propertyService.getInt(Props.P2P_REBROADCAST_AFTER);
+    // this.rebroadcastEvery = propertyService.getInt(Props.P2P_REBROADCAST_EVERY);
     this.limitUnconfirmedTransactionsToRetrieve = propertyService.getInt(Props.P2P_LIMIT_UNCONFIRMED_TRANSACTIONS_TO_RETRIEVE);
+    this.limitUnconfirmedTransactionsToPush = propertyService.getInt(Props.P2P_LIMIT_UNCONFIRMED_TRANSACTIONS_TO_PUSH);
 
     this.unconfirmedTransactionStore = stores.getUnconfirmedTransactionStore();
     threadPool.scheduleThread("ProcessTransactions", processTransactionsThread, 5);
+
+    /*
     if (enableTransactionRebroadcasting) {
       threadPool.scheduleThread("RebroadcastTransactions", rebroadcastTransactionsThread, 60);
       threadPool.runAfterStart(() -> {
@@ -92,8 +98,10 @@ public class TransactionProcessorImpl implements TransactionProcessor {
         });
       });
     }
+    */
   }
 
+  /*
   private final Runnable rebroadcastTransactionsThread = () -> {
 
     try {
@@ -123,7 +131,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     }
 
   };
-
+*/
 
   private final Runnable processTransactionsThread = new Runnable() {
 
@@ -150,6 +158,8 @@ public class TransactionProcessorImpl implements TransactionProcessor {
         try {
           try {
             synchronized (unconfirmedTransactionsSyncObj) {
+              /*
+
               if (!lostTransactions.isEmpty()) {
                 List<Transaction> reAdded = processTransactions(lostTransactions, false);
 
@@ -178,6 +188,9 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
                 lostTransactions.clear();
               }
+              */
+
+
               Peer peer = Peers.getAnyPeer(Peer.State.CONNECTED);
               if (peer == null) {
                 return;
@@ -272,21 +285,26 @@ public class TransactionProcessorImpl implements TransactionProcessor {
       logger.info("Transaction " + transaction.getStringId() + " already in blockchain, will not broadcast again");
       return;
     }
+
     if (unconfirmedTransactionStore.exists(transaction.getId())) {
+      /*
       if (enableTransactionRebroadcasting) {
         nonBroadcastedTransactions.add(transaction);
         logger.info("Transaction " + transaction.getStringId() + " already in unconfirmed pool, will re-broadcast");
-      } else {
+      } else {*/
         logger.info("Transaction " + transaction.getStringId() + " already in unconfirmed pool, will not broadcast again");
-      }
+      ///}
       return;
     }
+
     processedTransactions = processTransactions(Collections.singleton(transaction), true);
 
     if (processedTransactions.contains(transaction)) {
+      /*
       if (enableTransactionRebroadcasting) {
         nonBroadcastedTransactions.add(transaction);
       }
+      */
       logger.debug("Accepted new transaction " + transaction.getStringId());
     } else {
       logger.debug("Could not accept new transaction " + transaction.getStringId());
@@ -313,14 +331,10 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   @Override
   public void clearUnconfirmedTransactions() {
     synchronized (unconfirmedTransactionsSyncObj) {
-      List<Transaction> removed = new ArrayList<>();
+      List<Transaction> removed;
       try {
         stores.beginTransaction();
-        unconfirmedTransactionStore.forEach(
-            transaction -> {
-              removed.add(transaction);
-            }
-        );
+        removed = unconfirmedTransactionStore.getAll(Integer.MAX_VALUE).getTransactions();
         accountService.flushAccountTable();
         unconfirmedTransactionStore.clear();
         stores.commitTransaction();
@@ -331,24 +345,17 @@ public class TransactionProcessorImpl implements TransactionProcessor {
       } finally {
         stores.endTransaction();
       }
-      lostTransactions.clear();
+
       transactionListeners.notify(removed, Event.REMOVED_UNCONFIRMED_TRANSACTIONS);
     }
   }
 
   void requeueAllUnconfirmedTransactions() {
     synchronized (unconfirmedTransactionsSyncObj) {
-      List<Transaction> removed = new ArrayList<>();
-      unconfirmedTransactionStore.forEach(
-          transaction -> {
-            removed.add(transaction);
-            lostTransactions.add(transaction);
-          }
-      );
-      unconfirmedTransactionStore.clear();
-      transactionListeners.notify(removed, Event.REMOVED_UNCONFIRMED_TRANSACTIONS);
+      unconfirmedTransactionStore.resetAccountBalances();
     }
   }
+
   int getTransactionVersion(int previousBlockHeight) {
     return Burst.getFluxCapacitor().isActive(FeatureToggle.DIGITAL_GOODS_STORE, previousBlockHeight) ? 1 : 0;
   }
@@ -391,17 +398,15 @@ public class TransactionProcessorImpl implements TransactionProcessor {
         throw e;
       }
     }
-    processTransactions(transactions, true);
-    nonBroadcastedTransactions.removeAll(transactions);
-
+    processTransactions(transactions, false);
   }
 
-  List<Transaction> processTransactions(Collection<Transaction> transactions, final boolean sendToPeers) throws BurstException.ValidationException {
+  List<Transaction> processTransactions(Collection<Transaction> transactions, boolean priorityBroadcast) throws BurstException.ValidationException {
     synchronized (unconfirmedTransactionsSyncObj) {
       if (transactions.isEmpty()) {
         return Collections.emptyList();
       }
-      List<Transaction> sendToPeersTransactions = new ArrayList<>();
+
       List<Transaction> addedUnconfirmedTransactions = new ArrayList<>();
 
       for (Transaction transaction : transactions) {
@@ -435,16 +440,6 @@ public class TransactionProcessorImpl implements TransactionProcessor {
             unconfirmedTransactionStore.put(transaction);
             addedUnconfirmedTransactions.add(transaction);
 
-            if (sendToPeers) {
-              if (nonBroadcastedTransactions.contains(transaction)) {
-                logger.debug("Received back transaction " + transaction.getStringId()
-                    + " that we generated, will not forward to peers");
-                nonBroadcastedTransactions.remove(transaction);
-              } else {
-                sendToPeersTransactions.add(transaction);
-              }
-            }
-
             stores.commitTransaction();
           } catch (Exception e) {
             stores.rollbackTransaction();
@@ -457,11 +452,13 @@ public class TransactionProcessorImpl implements TransactionProcessor {
         }
       }
 
-      if (!sendToPeersTransactions.isEmpty()) {
-        Peers.sendToSomePeers(sendToPeersTransactions);
+      if (priorityBroadcast && ! addedUnconfirmedTransactions.isEmpty()) {
+        Peers.sendToSomePeers(retrieveByHeight);
+      } else {
+
       }
 
-      if (!addedUnconfirmedTransactions.isEmpty()) {
+      if (! addedUnconfirmedTransactions.isEmpty()) {
         transactionListeners.notify(addedUnconfirmedTransactions, Event.ADDED_UNCONFIRMED_TRANSACTIONS);
       }
 
