@@ -1,48 +1,44 @@
 package brs.peer;
 
-import static brs.http.common.Parameters.LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_PARAMETER;
-import static brs.http.common.Parameters.LIMIT_UNCONFIRMED_TRANSACTIONS_RETRIEVED_PARAMETER;
-import static brs.http.common.ResultFields.LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_RESPONSE;
 import static brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE;
 
 import brs.Transaction;
 import brs.TransactionProcessor;
-import brs.db.BurstIterator;
-import brs.unconfirmedtransactions.TimedUnconfirmedTransactionOverview;
-import brs.util.Convert;
+import brs.peer.PeerServlet.ExtendedProcessRequest;
+import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-final class GetUnconfirmedTransactions extends PeerServlet.PeerRequestHandler {
+final class GetUnconfirmedTransactions extends PeerServlet.ExtendedPeerRequestHandler {
 
   private final TransactionProcessor transactionProcessor;
+
+  private final Logger logger = LoggerFactory.getLogger(GetUnconfirmedTransactions.class);
 
   GetUnconfirmedTransactions(TransactionProcessor transactionProcessor) {
     this.transactionProcessor = transactionProcessor;
   }
 
   @Override
-  JSONStreamAware processRequest(JSONObject request, Peer peer) {
-    Object lastUnconfirmedTransactionTimestampParameter = request.get(LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_PARAMETER);
-    Object limitAmountUnconfirmedTransactionsParameter = request.get(LIMIT_UNCONFIRMED_TRANSACTIONS_RETRIEVED_PARAMETER);
-
-    final Long lastUnconfirmedTransactionTimestamp = lastUnconfirmedTransactionTimestampParameter != null ? Convert.parseLong(lastUnconfirmedTransactionTimestampParameter) : null;
-    final Long limitAmountUnconfirmedTransactions = limitAmountUnconfirmedTransactionsParameter != null ? Convert.parseLong(limitAmountUnconfirmedTransactionsParameter) : Long.MAX_VALUE;
-
+  ExtendedProcessRequest extendedProcessRequest(JSONObject request, Peer peer) {
     JSONObject response = new JSONObject();
 
-    final TimedUnconfirmedTransactionOverview unconfirmedTransactionsOverview = transactionProcessor.getAllUnconfirmedTransactions(lastUnconfirmedTransactionTimestamp, limitAmountUnconfirmedTransactions);
+    // TODO Brabantian limit should be passed how? From PeerInfo somehow? Math.min(x, y);
+    final List<Transaction> unconfirmedTransactions = transactionProcessor.getAllUnconfirmedTransactionsFor(peer, 1000L);
+
+    //long newLastUnconfirmedTransactionTimestamp = unconfirmedTransactionsOverview.getTimestamp();
 
     JSONArray transactionsData = new JSONArray();
-    for (Transaction transaction : unconfirmedTransactionsOverview.getTransactions()) {
+    for (Transaction transaction : unconfirmedTransactions) {
       transactionsData.add(transaction.getJSONObject());
     }
 
     response.put(UNCONFIRMED_TRANSACTIONS_RESPONSE, transactionsData);
-    response.put(LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_RESPONSE, unconfirmedTransactionsOverview.getTimestamp());
+    // response.put(LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_RESPONSE, unconfirmedTransactionsOverview.getTimestamp());
 
-    return response;
+    return new ExtendedProcessRequest(response, () -> transactionProcessor.markFingerPrintsOf(peer, unconfirmedTransactions));
   }
 
 }

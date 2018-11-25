@@ -1,11 +1,13 @@
 package brs.peer;
 
+import static brs.http.common.Parameters.LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_PARAMETER;
+
 import brs.*;
 import brs.props.Props;
 import brs.services.AccountService;
 import brs.props.PropertyService;
 import brs.services.TimeService;
-import brs.unconfirmedtransactions.TimedUnconfirmedTransactionOverview;
+import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
 import brs.util.*;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -91,14 +93,17 @@ public final class Peers {
 
   static final Collection<PeerImpl> allPeers = Collections.unmodifiableCollection(peers.values());
 
-  private static final ExecutorService sendToPeersService = Executors.newCachedThreadPool();
-  private static final ExecutorService sendingService = Executors.newFixedThreadPool(10);
+  private static final ExecutorService sendBlocksToPeersService = Executors.newCachedThreadPool();
+  private static final ExecutorService blocksSendingService = Executors.newFixedThreadPool(2);
 
   private static TimeService timeService;
 
+  private static UnconfirmedTransactionStore unconfirmedTransactionStore;
+
   public static void init(TimeService timeService, AccountService accountService, Blockchain blockchain, TransactionProcessor transactionProcessor,
-      BlockchainProcessor blockchainProcessor, PropertyService propertyService, ThreadPool threadPool) {
+      BlockchainProcessor blockchainProcessor, PropertyService propertyService, ThreadPool threadPool, UnconfirmedTransactionStore unconfirmedTransactionStore) {
     Peers.timeService = timeService;
+    Peers.unconfirmedTransactionStore = unconfirmedTransactionStore;
 
     myPlatform = propertyService.getString(Props.P2P_MY_PLATFORM);
     if ( propertyService.getString(Props.P2P_MY_ADDRESS) != null
@@ -205,7 +210,7 @@ public final class Peers {
 
         private void loadPeers(Collection<String> addresses) {
           for (final String address : addresses) {
-            Future<String> unresolvedAddress = sendToPeersService.submit(() -> {
+            Future<String> unresolvedAddress = sendBlocksToPeersService.submit(() -> {
               Peer peer = Peers.addPeer(address);
               return peer == null ? address : null;
             });
@@ -608,7 +613,8 @@ public final class Peers {
       logger.info(buf.toString());
     }
 
-    threadPool.shutdownExecutor(sendToPeersService);
+    threadPool.shutdownExecutor(sendBlocksToPeersService);
+    threadPool.shutdownExecutor(blocksSendingService);
   }
 
   public static boolean addListener(Listener<Peer> listener, Event eventType) {
@@ -738,42 +744,16 @@ public final class Peers {
   public static void sendToSomePeers(Block block) {
     JSONObject request = block.getJSONObject();
     request.put("requestType", "processBlock");
-    sendToSomePeers(request, false);
-  }
 
-  public static void sendToSomePeers(Function<Long, TimedUnconfirmedTransactionOverview> retrieveByHeight) {
-
-  }
-
-  public static void sendToSomePeers(List<Transaction> transactions) {
-    JSONObject request = new JSONObject();
-    JSONArray transactionsData = new JSONArray();
-
-    for (Transaction transaction : transactions) {
-      transactionsData.add(transaction.getJSONObject());
-    }
-
-    request.put("requestType", "processTransactions");
-    request.put("transactions", transactionsData);
-    sendToSomePeers(request, true);
-  }
-
-  private static void sendToSomePeers(final JSONObject request, boolean sendSameBRSclass) {
-    
-
-    sendingService.submit(() -> {
+    blocksSendingService.submit(() -> {
       final JSONStreamAware jsonRequest = JSON.prepareRequest(request);
 
       int successful = 0;
       List<Future<JSONObject>> expectedResponses = new ArrayList<>();
       for (final Peer peer : peers.values()) {
 
-        if (peer.isHigherOrEqualVersionThan(Burst.LEGACY_VER)
-            && ( ! sendSameBRSclass || peer.isAtLeastMyVersion())
-            && !peer.isBlacklisted()
-            && peer.getState() == Peer.State.CONNECTED
-            && peer.getAnnouncedAddress() != null) {
-          Future<JSONObject> futureResponse = sendToPeersService.submit(() -> peer.send(jsonRequest));
+        if (peerEligibleForSending(peer, false)) {
+          Future<JSONObject> futureResponse = sendBlocksToPeersService.submit(() -> peer.send(jsonRequest));
           expectedResponses.add(futureResponse);
         }
         if (expectedResponses.size() >= Peers.sendToPeersLimit - successful) {
@@ -799,6 +779,112 @@ public final class Peers {
     });
   }
 
+  public static void distributeUnconfirmedTransactions() {
+    // Aantal op maximum verwachtte terug op X zetten
+
+    for(Future<Void> possiblyFinishedSending:distributionList) {
+      if(possiblyFinishedSending.isDone() || possiblyFinishedSending.isCancelled()) {
+        distributionList.remove(possiblyFinishedSending);
+      }
+    }
+/*
+    if(distributionList.size() <= sendingServiceMaxThreads * 2) {
+      distributionList.add(distributeUnconfirmedTransactionsToPeers());
+    }
+    */
+  }
+
+  public static List<Future<Void>> distributionList = new ArrayList<>();
+
+  private static Future<Void> distributeUnconfirmedTransactionsToPeers() {
+    /*
+    return sendingService.submit(() -> {
+          for (final Peer peer : peers.values()) {
+
+            if (peerEligibleForSending(peer, true)) {
+              TimedUnconfirmedTransactionOverview unconfirmedTransactions = unconfirmedTransactionStore.getAllSince(peer.getLastUnconfirmedTransactionTimestampGiven());
+
+            }
+        }
+    }
+    */
+
+    return null;
+  }
+/*
+  public static void sendToSomePeers(List<Transaction> transactions) {
+    JSONObject request = new JSONObject();
+    JSONArray transactionsData = new JSONArray();
+
+    for (Transaction transaction : transactions) {
+      transactionsData.add(transaction.getJSONObject());
+    }
+
+    request.put("requestType", "processTransactions");
+    request.put("transactions", transactionsData);
+    sendToSomePeers(request, true);
+  }
+  */
+
+  private static JSONObject sendUnconfirmedTransactionsRequest(List<Transaction> transactions) {
+    JSONObject request = new JSONObject();
+    JSONArray transactionsData = new JSONArray();
+
+    for (Transaction transaction : transactions) {
+      transactionsData.add(transaction.getJSONObject());
+    }
+
+    request.put("requestType", "processTransactions");
+    request.put("transactions", transactionsData);
+
+    return request;
+  }
+/*
+  private static Future<?> sendToSomePeers(final JSONObject request, boolean sendSameBRSclass) {
+    return sendingService.submit(() -> {
+      final JSONStreamAware jsonRequest = JSON.prepareRequest(request);
+
+      int successful = 0;
+      List<Future<JSONObject>> expectedResponses = new ArrayList<>();
+      for (final Peer peer : peers.values()) {
+
+        if (peerEligibleForSending(peer, sendSameBRSclass)) {
+          Future<JSONObject> futureResponse = sendToPeersService.submit(() -> peer.send(jsonRequest));
+          expectedResponses.add(futureResponse);
+        }
+        if (expectedResponses.size() >= Peers.sendToPeersLimit - successful) {
+          for (Future<JSONObject> future : expectedResponses) {
+            try {
+              JSONObject response = future.get();
+              if (response != null && response.get("error") == null) {
+                successful += 1;
+              }
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            } catch (ExecutionException e) {
+              logger.debug("Error in sendToSomePeers", e);
+            }
+
+          }
+          expectedResponses.clear();
+        }
+        if (successful >= Peers.sendToPeersLimit) {
+          return;
+        }
+      }
+    });
+  }
+  */
+
+  private static boolean peerEligibleForSending(Peer peer, boolean sendSameBRSclass) {
+    return peer.isHigherOrEqualVersionThan(Burst.LEGACY_VER)
+        && (! sendSameBRSclass || peer.isAtLeastMyVersion())
+        && !peer.isBlacklisted()
+        && peer.getState() == Peer.State.CONNECTED
+        && peer.getAnnouncedAddress() != null;
+  }
+
+  /*
   public static void rebroadcastTransactions(List<Transaction> transactions) {
     StringBuilder info = new StringBuilder("Rebroadcasting transactions: ");
     for(Transaction tx : transactions) {
@@ -834,7 +920,7 @@ public final class Peers {
 
     sendToSomePeers(request, true); // send to some normal peers too
   }
-
+*/
 
   public static Peer getAnyPeer(Peer.State state) {
 

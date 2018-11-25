@@ -4,13 +4,18 @@ import brs.BurstException.ValidationException;
 import brs.Constants;
 import brs.Transaction;
 import brs.db.store.AccountStore;
+import brs.peer.Peer;
 import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.TimeService;
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
+import brs.transactionduplicates.TransactionDuplicationKey;
 import brs.transactionduplicates.TransactionDuplicationResult;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
@@ -32,7 +37,9 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   private final ReservedBalanceCache reservedBalanceCache;
   private final TransactionDuplicatesCheckerImpl transactionDuplicatesChecker = new TransactionDuplicatesCheckerImpl();
 
-  private final SortedMap<Long, List<UnconfirmedTransactionTiming>> internalStore;
+  private HashMap<Transaction, HashSet<Peer>> fingerPrintsOverview = new HashMap<>();
+
+  private final SortedMap<Long, List<Transaction>> internalStore;
 
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
@@ -46,7 +53,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     @Override
     public void run() {
       synchronized (internalStore) {
-        final List<Transaction> expiredTransactions = getAll(Integer.MAX_VALUE).getTransactions().stream().filter(t -> timeService.getEpochTime() > t.getExpiration()).collect(Collectors.toList());
+        final List<Transaction> expiredTransactions = getAll().stream().filter(t -> timeService.getEpochTime() > t.getExpiration()).collect(Collectors.toList());
 
         expiredTransactions.stream().forEach(t -> removeTransaction(t));
       }
@@ -70,9 +77,14 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   @Override
-  public void put(Transaction transaction) throws ValidationException {
-    // Let's do an initial check first, so we can be sure we don't need to sync-lock yet
-    if(transactionCanBeAddedToCache(transaction)) {
+  public void put(Transaction transaction, Peer peer) throws ValidationException {
+    System.out.println(String.format("Transaction %s from Peer %s", transaction.getId(), peer.getPeerAddress()));
+    if(transactionIsCurrentlyInCache(transaction)) {
+      if(peer != null) {
+        System.out.println("Just added extra fingerprint");
+        fingerPrintsOverview.get(transaction).add(peer);
+      }
+    } else {
       synchronized (internalStore) {
         if (transactionCanBeAddedToCache(transaction)) {
           final TransactionDuplicationResult duplicationInformation = transactionDuplicatesChecker.removeCheaperDuplicate(transaction);
@@ -84,7 +96,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
               logger.debug("Transaction {}: Adding more expensive duplicate transaction", transaction.getId());
               removeTransaction(duplicationInformation.getTransaction());
 
-              addTransaction(transaction, timeService.getEpochTimeMillis());
+              addTransaction(transaction, peer);
 
               if (totalSize > maxSize) {
                 removeCheapestFirstToExpireTransaction();
@@ -93,7 +105,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
               logger.debug("Transaction {}: Will not add a cheaper duplicate UT", transaction.getId());
             }
           } else {
-            addTransaction(transaction, timeService.getEpochTimeMillis());
+            addTransaction(transaction, peer);
             logger.debug(
                 "Cache size: " + totalSize + "/" + maxSize + " Added UT " + transaction.getId() + " " + transaction.getSenderId() + " " + transaction.getAmountNQT() + " " + transaction.getFeeNQT());
             if (totalSize > maxSize) {
@@ -108,8 +120,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   private boolean transactionCanBeAddedToCache(Transaction transaction) {
-    return ! transactionIsCurrentlyInCache(transaction)
-        && transactionIsCurrentlyValid(transaction)
+    return transactionIsCurrentlyValid(transaction)
         && ! cacheFullAndTransactionCheaperThanAllTheRest(transaction)
         && ! tooManyTransactionsWithReferencedFullHash(transaction)
         && ! tooManyTransactionsForSlotSize(transaction);
@@ -132,10 +143,10 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   @Override
   public Transaction get(Long transactionId) {
     synchronized (internalStore) {
-      for (List<UnconfirmedTransactionTiming> amountSlot : internalStore.values()) {
-        for (UnconfirmedTransactionTiming t : amountSlot) {
-          if (t.getTransaction().getId() == transactionId) {
-            return t.getTransaction();
+      for (List<Transaction> amountSlot : internalStore.values()) {
+        for (Transaction t : amountSlot) {
+          if (t.getId() == transactionId) {
+            return t;
           }
         }
       }
@@ -152,17 +163,19 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   @Override
-  public TimedUnconfirmedTransactionOverview getAll(long limit) {
+  public List<Transaction> getAll() {
     synchronized (internalStore) {
-      final ArrayList<UnconfirmedTransactionTiming> flatTransactionList = new ArrayList<>();
+      final ArrayList<Transaction> flatTransactionList = new ArrayList<>();
 
-      for (List<UnconfirmedTransactionTiming> amountSlot : internalStore.values()) {
+      for (List<Transaction> amountSlot : internalStore.values()) {
         flatTransactionList.addAll(amountSlot);
       }
 
+      return flatTransactionList;
+
+      /*
       final List<UnconfirmedTransactionTiming> result = flatTransactionList.stream()
-          .sorted(Comparator.comparingLong(UnconfirmedTransactionTiming::getTimestamp))
-          .limit(limit)
+          //.sorted(Comparator.comparingLong(UnconfirmedTransactionTiming::getTimestamp))
           .collect(Collectors.toList());
 
       if(! result.isEmpty()) {
@@ -170,36 +183,40 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
       } else {
         return new TimedUnconfirmedTransactionOverview(timeService.getEpochTimeMillis(), new ArrayList<>());
       }
+      */
     }
   }
 
   @Override
-  public TimedUnconfirmedTransactionOverview getAllSince(long timestampInMillis, long limit) {
+  public List<Transaction> getAllFor(Peer peer, long limitInBytes) {
     synchronized (internalStore) {
-      final ArrayList<UnconfirmedTransactionTiming> flatTransactionList = new ArrayList<>();
+      final List<Transaction> untouchedTransactions = fingerPrintsOverview.entrySet().stream()
+          .filter(e -> ! e.getValue().contains(peer))
+          .map(e -> e.getKey()).collect(Collectors.toList());
 
-      for (List<UnconfirmedTransactionTiming> amountSlot : internalStore.values()) {
-        flatTransactionList.addAll(amountSlot.stream().filter(t -> t.getTimestamp() > timestampInMillis).collect(Collectors.toList()));
+      final ArrayList<Transaction> resultList = new ArrayList<>();
+
+      long roomLeft = limitInBytes;
+
+      for (Transaction t : untouchedTransactions) {
+        roomLeft -= t.getSize();
+
+        if (roomLeft > 0) {
+          resultList.add(t);
+        } else {
+          break;
+        }
       }
 
-      final List<UnconfirmedTransactionTiming> result = flatTransactionList.stream()
-          .sorted(Comparator.comparingLong(UnconfirmedTransactionTiming::getTimestamp))
-          .limit(limit)
-          .collect(Collectors.toList());
-
-      if(! result.isEmpty()) {
-        return new TimedUnconfirmedTransactionOverview(result.get(result.size() - 1).getTimestamp(), result.stream().map(UnconfirmedTransactionTiming::getTransaction).collect(Collectors.toList()));
-      } else {
-        return new TimedUnconfirmedTransactionOverview(timeService.getEpochTimeMillis(), new ArrayList<>());
-      }
+      return resultList;
     }
   }
 
   @Override
   public void forEach(Consumer<Transaction> consumer) {
     synchronized (internalStore) {
-      for (List<UnconfirmedTransactionTiming> amountSlot : internalStore.values()) {
-        amountSlot.stream().map(UnconfirmedTransactionTiming::getTransaction).forEach(consumer);
+      for (List<Transaction> amountSlot : internalStore.values()) {
+        amountSlot.stream().forEach(consumer);
       }
     }
   }
@@ -228,28 +245,43 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   @Override
   public List<Transaction> resetAccountBalances() {
     synchronized (internalStore) {
-      return reservedBalanceCache.rebuild(getAll(Integer.MAX_VALUE).getTransactions());
+      return reservedBalanceCache.rebuild(getAll());
+    }
+  }
+
+  @Override
+  public void markFingerPrintsOf(Peer peer, List<Transaction> transactions) {
+    synchronized (internalStore) {
+      for (Transaction transaction : transactions) {
+        fingerPrintsOverview.get(transaction).add(peer);
+      }
     }
   }
 
   private boolean transactionIsCurrentlyInCache(Transaction transaction) {
-    final List<UnconfirmedTransactionTiming> amountSlot = internalStore.get(amountSlotForTransaction(transaction));
-    return amountSlot != null && amountSlot.stream().anyMatch(t -> t.getTransaction().getId() == transaction.getId());
+    final List<Transaction> amountSlot = internalStore.get(amountSlotForTransaction(transaction));
+    return amountSlot != null && amountSlot.stream().anyMatch(t -> t.getId() == transaction.getId());
   }
 
-  private void addTransaction(Transaction transaction, long time) throws ValidationException {
+  private void addTransaction(Transaction transaction, Peer peer) throws ValidationException {
     this.reservedBalanceCache.reserveBalanceAndPut(transaction);
 
-    final List<UnconfirmedTransactionTiming> slot = getOrCreateAmountSlotForTransaction(transaction);
-    slot.add(new UnconfirmedTransactionTiming(transaction, time));
+    final List<Transaction> slot = getOrCreateAmountSlotForTransaction(transaction);
+    slot.add(transaction);
     totalSize++;
+
+    fingerPrintsOverview.put(transaction, new HashSet<>());
+
+    if(peer != null) {
+      fingerPrintsOverview.get(transaction).add(peer);
+    }
 
     if(! StringUtils.isEmpty(transaction.getReferencedTransactionFullHash())) {
       numberUnconfirmedTransactionsFullHash++;
     }
   }
 
-  private List<UnconfirmedTransactionTiming> getOrCreateAmountSlotForTransaction(Transaction transaction) {
+  private List<Transaction> getOrCreateAmountSlotForTransaction(Transaction transaction) {
     final long amountSlotNumber = amountSlotForTransaction(transaction);
 
     if (!this.internalStore.containsKey(amountSlotNumber)) {
@@ -266,7 +298,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
   private void removeCheapestFirstToExpireTransaction() {
     this.internalStore.get(this.internalStore.firstKey()).stream()
-        .map(UnconfirmedTransactionTiming::getTransaction)
+        //.map(UnconfirmedTransactionTiming::getTransaction)
         .sorted(Comparator.comparingLong(Transaction::getFeeNQT).thenComparing(Transaction::getExpiration).thenComparing(Transaction::getId))
         .findFirst().ifPresent(t -> removeTransaction(t));
   }
@@ -283,13 +315,15 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   private void removeTransaction(Transaction transaction) {
     final long amountSlotNumber = amountSlotForTransaction(transaction);
 
-    final List<UnconfirmedTransactionTiming> amountSlot = internalStore.get(amountSlotNumber);
+    final List<Transaction> amountSlot = internalStore.get(amountSlotNumber);
 
-    final Iterator<UnconfirmedTransactionTiming> transactionSlotIterator = amountSlot.iterator();
+    final Iterator<Transaction> transactionSlotIterator = amountSlot.iterator();
+
+    fingerPrintsOverview.remove(transaction);
 
     while (transactionSlotIterator.hasNext()) {
-      final UnconfirmedTransactionTiming utt = transactionSlotIterator.next();
-      if (utt.getTransaction().getId() == transaction.getId()) {
+      final Transaction utt = transactionSlotIterator.next();
+      if (utt.getId() == transaction.getId()) {
         transactionSlotIterator.remove();
         transactionDuplicatesChecker.removeTransaction(transaction);
         this.reservedBalanceCache.refundBalance(transaction);

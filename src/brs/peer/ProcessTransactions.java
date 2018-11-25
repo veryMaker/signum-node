@@ -19,7 +19,7 @@ final class ProcessTransactions extends PeerServlet.PeerRequestHandler {
   JSONStreamAware processRequest(JSONObject request, Peer peer) {
 
     try {
-      transactionProcessor.processPeerTransactions(request);
+      transactionProcessor.processPeerTransactions(request, peer);
       return JSON.emptyJSON;
     } catch (RuntimeException | BurstException.ValidationException e) {
       //logger.debug("Failed to parse peer transactions: " + request.toJSONString());

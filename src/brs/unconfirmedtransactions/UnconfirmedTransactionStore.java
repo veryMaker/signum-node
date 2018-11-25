@@ -2,20 +2,24 @@ package brs.unconfirmedtransactions;
 
 import brs.BurstException;
 import brs.Transaction;
+import brs.peer.Peer;
+import brs.schema.tables.UnconfirmedTransaction;
 import java.util.List;
 import java.util.function.Consumer;
 
 public interface UnconfirmedTransactionStore {
 
-  void put(Transaction transaction) throws BurstException.ValidationException;
+  void put(Transaction transaction, Peer peer) throws BurstException.ValidationException;
 
   Transaction get(Long transactionId);
 
   boolean exists(Long transactionId);
 
-  TimedUnconfirmedTransactionOverview getAll(long maxAmount);
+  List<Transaction> getAll();
 
-  TimedUnconfirmedTransactionOverview getAllSince(long timestampInMillis, long maxAmount);
+  List<Transaction> getAllFor(Peer peer, long limitInBytes);
+
+  ///TimedUnconfirmedTransactionOverview getAllSince(long timestampInMillis, long maxAmount);
 
   void forEach(Consumer<Transaction> consumer);
 
@@ -29,5 +33,7 @@ public interface UnconfirmedTransactionStore {
    * @return The list of removed transactions
    */
   List<Transaction> resetAccountBalances();
+
+  void markFingerPrintsOf(Peer peer, List<Transaction> transactions);
 
 }

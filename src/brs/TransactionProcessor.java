@@ -1,6 +1,6 @@
 package brs;
 
-import brs.unconfirmedtransactions.TimedUnconfirmedTransactionOverview;
+import brs.peer.Peer;
 import brs.util.Observable;
 import org.json.simple.JSONObject;
 
@@ -15,7 +15,11 @@ public interface TransactionProcessor extends Observable<List<? extends Transact
     ADDED_DOUBLESPENDING_TRANSACTIONS
   }
 
-  TimedUnconfirmedTransactionOverview getAllUnconfirmedTransactions(Long lastUnconfirmedTransactionTimestamp, Long limit);
+  List<Transaction> getAllUnconfirmedTransactions();
+
+  List<Transaction> getAllUnconfirmedTransactionsFor(Peer peer, long limitInBytes);
+
+  void markFingerPrintsOf(Peer peer, List<Transaction> transactions);
   
   Transaction getUnconfirmedTransaction(long transactionId);
 
@@ -23,7 +27,7 @@ public interface TransactionProcessor extends Observable<List<? extends Transact
 
   void broadcast(Transaction transaction) throws BurstException.ValidationException;
 
-  void processPeerTransactions(JSONObject request) throws BurstException.ValidationException;
+  void processPeerTransactions(JSONObject request, Peer peer) throws BurstException.ValidationException;
 
   Transaction parseTransaction(byte[] bytes) throws BurstException.ValidationException;
 

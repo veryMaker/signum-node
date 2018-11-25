@@ -1142,7 +1142,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         final TransactionDuplicatesCheckerImpl transactionDuplicatesChecker = new TransactionDuplicatesCheckerImpl();
 
-        List<Transaction> unconfirmedTransactionsOrderedByFee = unconfirmedTransactionStore.getAll(Integer.MAX_VALUE).getTransactions().stream().filter(
+        List<Transaction> unconfirmedTransactionsOrderedByFee = unconfirmedTransactionStore.getAll().stream().filter(
             transaction ->
               transaction.getVersion() == transactionProcessor.getTransactionVersion(previousBlock.getHeight())
                   && transaction.getExpiration() >= blockTimestamp

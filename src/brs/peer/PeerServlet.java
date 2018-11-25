@@ -35,6 +35,25 @@ public final class PeerServlet extends HttpServlet {
     abstract JSONStreamAware processRequest(JSONObject request, Peer peer);
   }
 
+  abstract static class ExtendedPeerRequestHandler extends PeerRequestHandler {
+    JSONStreamAware processRequest(JSONObject request, Peer peer) { return null; }
+    abstract ExtendedProcessRequest extendedProcessRequest(JSONObject request, Peer peer);
+  }
+
+  static class ExtendedProcessRequest {
+    JSONStreamAware response;
+    RequestLifecycleHook afterRequestHook;
+
+    public ExtendedProcessRequest(JSONStreamAware response, RequestLifecycleHook afterRequestHook) {
+      this.response = response;
+      this.afterRequestHook = afterRequestHook;
+    }
+  }
+
+  interface RequestLifecycleHook {
+    void run();
+  }
+
   private final Map<String,PeerRequestHandler> peerRequestHandlers;
 
   public PeerServlet(TimeService timeService, AccountService accountService,
@@ -83,6 +102,8 @@ public final class PeerServlet extends HttpServlet {
     PeerImpl peer = null;
     JSONStreamAware response;
 
+    ExtendedProcessRequest extendedProcessRequest = null;
+
     String requestType = "unknown";
     try {
       peer = Peers.addPeer(req.getRemoteAddr(), null);
@@ -114,13 +135,12 @@ public final class PeerServlet extends HttpServlet {
         requestType = "" + request.get("requestType");
         PeerRequestHandler peerRequestHandler = peerRequestHandlers.get(request.get("requestType"));
         if (peerRequestHandler != null) {
-          if ( requestType.equals("processTransactions") ) {
-            if ( ! peer.diffLastDownloadedTransactions(request.toJSONString().getBytes()) ) {
-              // ignore duplicate data
-              return;
-            }
+          if(peerRequestHandler instanceof ExtendedPeerRequestHandler) {
+            extendedProcessRequest = ((ExtendedPeerRequestHandler) peerRequestHandler).extendedProcessRequest(request, peer);
+            response = extendedProcessRequest.response;
+          } else {
+            response = peerRequestHandler.processRequest(request, peer);
           }
-          response = peerRequestHandler.processRequest(request, peer);
         }
         else {
           response = UNSUPPORTED_REQUEST_TYPE;
@@ -155,6 +175,10 @@ public final class PeerServlet extends HttpServlet {
         peer.blacklist(e, "can't respond to requestType=" + requestType);
       }
       throw e;
+    }
+
+    if(extendedProcessRequest != null) {
+      extendedProcessRequest.afterRequestHook.run();
     }
   }
 
