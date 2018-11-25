@@ -1,3 +1,6 @@
+#### API SERVER ####
+API.Listen = 0.0.0.0
+API.allowed = *
 
 #### DATABASE ####
 

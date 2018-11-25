@@ -421,12 +421,13 @@ public class ParameterServiceImplTest {
         new MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "false"));
 
     final Account mockRecipientAccount = mock(Account.class);
+    when(mockRecipientAccount.getPublicKey()).thenReturn(new byte[0]);
 
     EncryptedData encryptedDataMock = mock(EncryptedData.class);
 
     when(mockRecipientAccount.encryptTo(eq(Convert.parseHexString("beef123")), eq(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock);
 
-    assertEquals(encryptedDataMock, t.getEncryptedMessage(req, mockRecipientAccount));
+    assertEquals(encryptedDataMock, t.getEncryptedMessage(req, mockRecipientAccount, null));
   }
 
   @Test(expected = ParameterException.class)
@@ -438,7 +439,7 @@ public class ParameterServiceImplTest {
 
     EncryptedData encryptedDataMock = mock(EncryptedData.class);
 
-    assertEquals(encryptedDataMock, t.getEncryptedMessage(req, null));
+    assertEquals(encryptedDataMock, t.getEncryptedMessage(req, null, null));
   }
 
   @Test
@@ -449,12 +450,13 @@ public class ParameterServiceImplTest {
         new MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "true"));
 
     final Account mockRecipientAccount = mock(Account.class);
+    when(mockRecipientAccount.getPublicKey()).thenReturn(new byte[0]);
 
     EncryptedData encryptedDataMock = mock(EncryptedData.class);
 
     when(mockRecipientAccount.encryptTo(eq(Convert.toBytes("message")), eq(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock);
 
-    assertEquals(encryptedDataMock, t.getEncryptedMessage(req, mockRecipientAccount));
+    assertEquals(encryptedDataMock, t.getEncryptedMessage(req, mockRecipientAccount, null));
   }
 
   @Test
@@ -463,7 +465,7 @@ public class ParameterServiceImplTest {
         new MockParam(ENCRYPTED_MESSAGE_DATA_PARAMETER, "abc"),
         new MockParam(ENCRYPTED_MESSAGE_NONCE_PARAMETER, "123"));
 
-    EncryptedData result = t.getEncryptedMessage(req, null);
+    EncryptedData result = t.getEncryptedMessage(req, null, null);
 
     assertEquals((byte) -85, result.getData()[0]);
     assertEquals((byte) 18, result.getNonce()[0]);
@@ -475,7 +477,7 @@ public class ParameterServiceImplTest {
         new MockParam(ENCRYPTED_MESSAGE_DATA_PARAMETER, "zz"),
         new MockParam(ENCRYPTED_MESSAGE_NONCE_PARAMETER, "123"));
 
-    t.getEncryptedMessage(req, null);
+    t.getEncryptedMessage(req, null, null);
   }
 
   @Test(expected = ParameterException.class)
@@ -488,12 +490,12 @@ public class ParameterServiceImplTest {
     final Account mockAccount = mock(Account.class);
     when(accountServiceMock.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).thenReturn(mockAccount);
 
-    t.getEncryptedMessage(req, mockAccount);
+    t.getEncryptedMessage(req, mockAccount, null);
   }
 
   @Test
   public void getEncryptMessage_messageToSelf_messageNullReturnsNull() throws ParameterException {
-    assertNull(t.getEncryptedMessage(QuickMocker.httpServletRequest(), null));
+    assertNull(t.getEncryptedMessage(QuickMocker.httpServletRequest(), null, null));
   }
 
   @Test
