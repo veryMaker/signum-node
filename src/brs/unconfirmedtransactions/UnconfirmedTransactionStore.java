@@ -3,7 +3,6 @@ package brs.unconfirmedtransactions;
 import brs.BurstException;
 import brs.Transaction;
 import brs.peer.Peer;
-import brs.schema.tables.UnconfirmedTransaction;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -17,7 +16,7 @@ public interface UnconfirmedTransactionStore {
 
   List<Transaction> getAll();
 
-  List<Transaction> getAllFor(Peer peer, long limitInBytes);
+  List<Transaction> getAllFor(Peer peer);
 
   ///TimedUnconfirmedTransactionOverview getAllSince(long timestampInMillis, long maxAmount);
 

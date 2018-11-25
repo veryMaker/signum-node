@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
 
 public final class Burst {
 
-  public static final String VERSION     = "2.3.0";
+  public static final String VERSION     = "2.2.6";
   public static final String APPLICATION = "BRS";
   public static final String LEGACY_APP  = "NRS";
   public static final String LEGACY_VER  = "1.2.9";
@@ -244,7 +244,7 @@ public final class Burst {
 
       final APITransactionManager apiTransactionManager = new APITransactionManagerImpl(parameterService, transactionProcessor, blockchain, accountService, transactionService);
 
-      Peers.init(timeService, accountService, blockchain, transactionProcessor, blockchainProcessor, propertyService, threadPool, stores.getUnconfirmedTransactionStore());
+      Peers.init(timeService, accountService, blockchain, transactionProcessor, blockchainProcessor, propertyService, threadPool);
 
       TransactionType.init(blockchain, fluxCapacitor, accountService, digitalGoodsStoreService, aliasService, assetExchange, subscriptionService, escrowService);
 

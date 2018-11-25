@@ -1,14 +1,12 @@
 package brs.peer;
 
-import static brs.http.common.Parameters.LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_PARAMETER;
-
 import brs.*;
 import brs.props.Props;
 import brs.services.AccountService;
 import brs.props.PropertyService;
 import brs.services.TimeService;
-import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
 import brs.util.*;
+import java.util.function.Function;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
@@ -98,12 +96,9 @@ public final class Peers {
 
   private static TimeService timeService;
 
-  private static UnconfirmedTransactionStore unconfirmedTransactionStore;
-
   public static void init(TimeService timeService, AccountService accountService, Blockchain blockchain, TransactionProcessor transactionProcessor,
-      BlockchainProcessor blockchainProcessor, PropertyService propertyService, ThreadPool threadPool, UnconfirmedTransactionStore unconfirmedTransactionStore) {
+      BlockchainProcessor blockchainProcessor, PropertyService propertyService, ThreadPool threadPool) {
     Peers.timeService = timeService;
-    Peers.unconfirmedTransactionStore = unconfirmedTransactionStore;
 
     myPlatform = propertyService.getString(Props.P2P_MY_PLATFORM);
     if ( propertyService.getString(Props.P2P_MY_ADDRESS) != null
@@ -779,52 +774,51 @@ public final class Peers {
     });
   }
 
-  public static void distributeUnconfirmedTransactions() {
-    // Aantal op maximum verwachtte terug op X zetten
-
-    for(Future<Void> possiblyFinishedSending:distributionList) {
-      if(possiblyFinishedSending.isDone() || possiblyFinishedSending.isCancelled()) {
-        distributionList.remove(possiblyFinishedSending);
-      }
-    }
-/*
-    if(distributionList.size() <= sendingServiceMaxThreads * 2) {
-      distributionList.add(distributeUnconfirmedTransactionsToPeers());
-    }
-    */
-  }
-
-  public static List<Future<Void>> distributionList = new ArrayList<>();
-
-  private static Future<Void> distributeUnconfirmedTransactionsToPeers() {
-    /*
-    return sendingService.submit(() -> {
-          for (final Peer peer : peers.values()) {
-
-            if (peerEligibleForSending(peer, true)) {
-              TimedUnconfirmedTransactionOverview unconfirmedTransactions = unconfirmedTransactionStore.getAllSince(peer.getLastUnconfirmedTransactionTimestampGiven());
-
-            }
-        }
-    }
-    */
-
-    return null;
-  }
-/*
-  public static void sendToSomePeers(List<Transaction> transactions) {
+  private static JSONStreamAware getUnconfirmedTransactionsRequest;
+  static {
     JSONObject request = new JSONObject();
-    JSONArray transactionsData = new JSONArray();
+    request.put("requestType", "getUnconfirmedTransactions");
+    getUnconfirmedTransactionsRequest = JSON.prepareRequest(request);
+  }
 
-    for (Transaction transaction : transactions) {
-      transactionsData.add(transaction.getJSONObject());
+  private static final ExecutorService utReceivingService = Executors.newFixedThreadPool(5);
+
+  public static CompletableFuture<JSONObject> readUnconfirmedTransactionsNonBlocking(Peer peer) {
+    return CompletableFuture.supplyAsync(() -> peer.send(getUnconfirmedTransactionsRequest), utReceivingService);
+  }
+
+  private static final ExecutorService utSendingService = Executors.newFixedThreadPool(10);
+
+  private static final List<Peer> processingQueue = new ArrayList<>();
+  private static final List<Peer> beingProcessed = new ArrayList<>();
+
+  public synchronized static void feedingTime(Peer peer, Function<Peer, List<Transaction>> foodDispenser) {
+    if(! beingProcessed.contains(peer)) {
+      beingProcessed.add(peer);
+
+      CompletableFuture.runAsync(() -> feedPeer(peer, foodDispenser), utSendingService);
+    } else if(! processingQueue.contains(peer)) {
+      processingQueue.add(peer);
+    }
+  }
+
+  private static void feedPeer(Peer peer, Function<Peer, List<Transaction>> foodDispenser) {
+    List<Transaction> transactionsToSend = foodDispenser.apply(peer);
+    if(! transactionsToSend.isEmpty()) {
+      logger.info("Feeding " + peer.getPeerAddress());
+      peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
+    } else {
+      logger.info("No need to feed " + peer.getPeerAddress());
     }
 
-    request.put("requestType", "processTransactions");
-    request.put("transactions", transactionsData);
-    sendToSomePeers(request, true);
+    beingProcessed.remove(peer);
+    if(processingQueue.contains(peer)) {
+      processingQueue.remove(peer);
+      beingProcessed.add(peer);
+      feedPeer(peer, foodDispenser);
+    }
   }
-  */
+
 
   private static JSONObject sendUnconfirmedTransactionsRequest(List<Transaction> transactions) {
     JSONObject request = new JSONObject();
@@ -839,42 +833,6 @@ public final class Peers {
 
     return request;
   }
-/*
-  private static Future<?> sendToSomePeers(final JSONObject request, boolean sendSameBRSclass) {
-    return sendingService.submit(() -> {
-      final JSONStreamAware jsonRequest = JSON.prepareRequest(request);
-
-      int successful = 0;
-      List<Future<JSONObject>> expectedResponses = new ArrayList<>();
-      for (final Peer peer : peers.values()) {
-
-        if (peerEligibleForSending(peer, sendSameBRSclass)) {
-          Future<JSONObject> futureResponse = sendToPeersService.submit(() -> peer.send(jsonRequest));
-          expectedResponses.add(futureResponse);
-        }
-        if (expectedResponses.size() >= Peers.sendToPeersLimit - successful) {
-          for (Future<JSONObject> future : expectedResponses) {
-            try {
-              JSONObject response = future.get();
-              if (response != null && response.get("error") == null) {
-                successful += 1;
-              }
-            } catch (InterruptedException e) {
-              Thread.currentThread().interrupt();
-            } catch (ExecutionException e) {
-              logger.debug("Error in sendToSomePeers", e);
-            }
-
-          }
-          expectedResponses.clear();
-        }
-        if (successful >= Peers.sendToPeersLimit) {
-          return;
-        }
-      }
-    });
-  }
-  */
 
   private static boolean peerEligibleForSending(Peer peer, boolean sendSameBRSclass) {
     return peer.isHigherOrEqualVersionThan(Burst.LEGACY_VER)
@@ -883,44 +841,6 @@ public final class Peers {
         && peer.getState() == Peer.State.CONNECTED
         && peer.getAnnouncedAddress() != null;
   }
-
-  /*
-  public static void rebroadcastTransactions(List<Transaction> transactions) {
-    StringBuilder info = new StringBuilder("Rebroadcasting transactions: ");
-    for(Transaction tx : transactions) {
-      info.append(Convert.toUnsignedLong(tx.getId())).append(" ");
-    }
-    info.append("\n to peers ");
-    for(Peer peer : peers.values()) {
-      if(peer.isRebroadcastTarget()) {
-        info.append(peer.getPeerAddress()).append(" ");
-      }
-    }
-    logger.debug(info.toString());
-
-    JSONObject request = new JSONObject();
-    JSONArray transactionsData = new JSONArray();
-    for (Transaction transaction : transactions) {
-      transactionsData.add(transaction.getJSONObject());
-    }
-    request.put("requestType", "processTransactions");
-    request.put("transactions", transactionsData);
-
-    final JSONObject requestFinal = request;
-
-    sendingService.submit(() -> {
-      final JSONStreamAware jsonRequest = JSON.prepareRequest(requestFinal);
-
-      for (final Peer peer : peers.values()) {
-        if(peer.isRebroadcastTarget()) {
-          sendToPeersService.submit(() -> peer.send(jsonRequest));
-        }
-      }
-    });
-
-    sendToSomePeers(request, true); // send to some normal peers too
-  }
-*/
 
   public static Peer getAnyPeer(Peer.State state) {
 
@@ -950,6 +870,24 @@ public final class Peers {
       return selectedPeers.get(r.nextInt(selectedPeers.size()));
     }
     return null;
+  }
+
+  public static List<Peer> getAllActivePriorityPlusSomeExtraPeers() {
+    final List<Peer> peersActivePriorityPlusSomeExtraPeers = new ArrayList<>();
+    int amountExtrasLeft = 5;
+
+    for(Peer peer : peers.values()) {
+      if(peerEligibleForSending(peer, true)) {
+        if(peer.isRebroadcastTarget()) {
+          peersActivePriorityPlusSomeExtraPeers.add(peer);
+        } else if(amountExtrasLeft > 0) {
+          peersActivePriorityPlusSomeExtraPeers.add(peer);
+          amountExtrasLeft--;
+        }
+      }
+    }
+
+    return peersActivePriorityPlusSomeExtraPeers;
   }
 
   static String normalizeHostAndPort(String address) {

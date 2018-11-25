@@ -125,8 +125,8 @@ public class UnconfirmedTransactionStoreTest {
       t.put(transaction, mockPeer);
     }
 
-    assertEquals(0, t.getAllFor(mockPeer, Long.MAX_VALUE).size());
-    assertEquals(100, t.getAllFor(otherMockPeer, Long.MAX_VALUE).size());
+    assertEquals(0, t.getAllFor(mockPeer).size());
+    assertEquals(100, t.getAllFor(otherMockPeer).size());
   }
 
   @DisplayName("When a transactions got handed by a peer and we mark his fingerprints, he won't get it back a second time")
@@ -143,11 +143,11 @@ public class UnconfirmedTransactionStoreTest {
       t.put(transaction, null);
     }
 
-    List<Transaction> mockPeerObtainedTransactions = t.getAllFor(mockPeer, Long.MAX_VALUE);
+    List<Transaction> mockPeerObtainedTransactions = t.getAllFor(mockPeer);
     assertEquals(100, mockPeerObtainedTransactions.size());
 
     t.markFingerPrintsOf(mockPeer, mockPeerObtainedTransactions);
-    assertEquals(0, t.getAllFor(mockPeer, Long.MAX_VALUE).size());
+    assertEquals(0, t.getAllFor(mockPeer).size());
   }
 
 

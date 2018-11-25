@@ -9,10 +9,8 @@ import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.TimeService;
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
-import brs.transactionduplicates.TransactionDuplicationKey;
 import brs.transactionduplicates.TransactionDuplicationResult;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -78,10 +76,10 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
   @Override
   public void put(Transaction transaction, Peer peer) throws ValidationException {
-    System.out.println(String.format("Transaction %s from Peer %s", transaction.getId(), peer.getPeerAddress()));
+    logger.info("Adding Transaction {} from Peer {}", transaction.getId(), peer.getPeerAddress());
     if(transactionIsCurrentlyInCache(transaction)) {
       if(peer != null) {
-        System.out.println("Just added extra fingerprint");
+        logger.info("Just added extra fingerprint");
         fingerPrintsOverview.get(transaction).add(peer);
       }
     } else {
@@ -188,7 +186,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   @Override
-  public List<Transaction> getAllFor(Peer peer, long limitInBytes) {
+  public List<Transaction> getAllFor(Peer peer) {
     synchronized (internalStore) {
       final List<Transaction> untouchedTransactions = fingerPrintsOverview.entrySet().stream()
           .filter(e -> ! e.getValue().contains(peer))
@@ -196,7 +194,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
       final ArrayList<Transaction> resultList = new ArrayList<>();
 
-      long roomLeft = limitInBytes;
+      long roomLeft = 175000;
 
       for (Transaction t : untouchedTransactions) {
         roomLeft -= t.getSize();

@@ -18,6 +18,8 @@ import brs.util.JSON;
 import brs.util.Listener;
 import brs.util.Listeners;
 import brs.util.ThreadPool;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
@@ -30,20 +32,11 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
   private static final Logger logger = LoggerFactory.getLogger(TransactionProcessorImpl.class);
 
-  // private final boolean enableTransactionRebroadcasting;
   private final boolean testUnconfirmedTransactions;
-
-  // private final int rebroadcastAfter;
-  // private final int rebroadcastEvery;
 
   private final Object unconfirmedTransactionsSyncObj = new Object();
 
-  private int limitUnconfirmedTransactionsToRetrieve;
-
-  //private final Set<Transaction> nonBroadcastedTransactions = Collections.newSetFromMap(new ConcurrentHashMap<Transaction,Boolean>());
   private final Listeners<List<? extends Transaction>,Event> transactionListeners = new Listeners<>();
-  //private final Set<Transaction> lostTransactions = new HashSet<>();
-  //private final Map<Long, Integer> lostTransactionHeights = new HashMap<>();
 
   private final EconomicClustering economicClustering;
 
@@ -54,7 +47,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   private Blockchain blockchain;
   private AccountService accountService;
   private UnconfirmedTransactionStore unconfirmedTransactionStore;
-  private long limitUnconfirmedTransactionsToPush;
+  private Function<Peer, List<Transaction>> foodDispenser = (peer -> unconfirmedTransactionStore.getAllFor(peer));
 
   public TransactionProcessorImpl(PropertyService propertyService,
       EconomicClustering economicClustering, Blockchain blockchain, Stores stores, TimeService timeService, Dbs dbs, AccountService accountService,
@@ -72,106 +65,67 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
     this.testUnconfirmedTransactions = propertyService.getBoolean(Props.BRS_TEST_UNCONFIRMED_TRANSACTIONS);
 
-    this.limitUnconfirmedTransactionsToRetrieve = propertyService.getInt(Props.P2P_LIMIT_UNCONFIRMED_TRANSACTIONS_TO_RETRIEVE);
-    this.limitUnconfirmedTransactionsToPush = propertyService.getInt(Props.P2P_LIMIT_UNCONFIRMED_TRANSACTIONS_TO_PUSH);
-
     this.unconfirmedTransactionStore = stores.getUnconfirmedTransactionStore();
-    threadPool.scheduleThread("ProcessTransactions", processTransactionsThread, 5);
+    threadPool.scheduleThread("PullUnconfirmedTransactions", getUnconfirmedTransactions, 5);
   }
 
-  private final Runnable processTransactionsThread = new Runnable() {
-
-      private final JSONStreamAware getUnconfirmedTransactionsRequest;
-      {
-        JSONObject request = new JSONObject();
-        request.put("requestType", "getUnconfirmedTransactions");
-        getUnconfirmedTransactionsRequest = JSON.prepareRequest(request);
-      }
-/*
-      private JSONStreamAware unconfirmedTransactionRequest(Long lastUnconfirmedTransactionTimestamp) {
-        JSONObject request = new JSONObject();
-        request.put("requestType", "getUnconfirmedTransactions");
-        if(lastUnconfirmedTransactionTimestamp != null) {
-          request.put(LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_PARAMETER, lastUnconfirmedTransactionTimestamp.toString());
-          request.put(LIMIT_UNCONFIRMED_TRANSACTIONS_RETRIEVED_PARAMETER, "" + limitUnconfirmedTransactionsToRetrieve);
-        }
-        return JSON.prepareRequest(request);
-      }
-*/
-      @Override
-      public void run() {
-        try {
-          try {
-            synchronized (unconfirmedTransactionsSyncObj) {
-              /*
-
-              if (!lostTransactions.isEmpty()) {
-                List<Transaction> reAdded = processTransactions(lostTransactions, false);
-
-                if (enableTransactionRebroadcasting && timeService.getEpochTime() - blockchain.getLastBlock().getTimestamp() < 4 * 60) {
-                  List<Transaction> rebroadcastLost = new ArrayList<>();
-                  reAdded.forEach(lost -> {
-                    if (lostTransactionHeights.containsKey(lost.getId())) {
-                      int addedHeight = lostTransactionHeights.get(lost.getId());
-                      if (blockchain.getHeight() - addedHeight >= rebroadcastAfter
-                          && (blockchain.getHeight() - addedHeight - rebroadcastAfter) % rebroadcastEvery == 0) {
-                        rebroadcastLost.add(lost);
-                      }
-                    } else {
-                      lostTransactionHeights.put(lost.getId(), blockchain.getHeight());
-                    }
-                  });
-
-                  for (Transaction lost : rebroadcastLost) {
-                    if (!nonBroadcastedTransactions.contains(lost)) {
-                      nonBroadcastedTransactions.add(lost);
-                    }
-                  }
-
-                  lostTransactionHeights.keySet().removeIf(id -> getUnconfirmedTransaction(id) == null);
-                }
-
-                lostTransactions.clear();
-              }
-              */
-
-
-              Peer peer = Peers.getAnyPeer(Peer.State.CONNECTED);
-              if (peer == null) {
-                return;
-              }
-              JSONObject response = peer.send(getUnconfirmedTransactionsRequest);
-              if (response == null) {
-                return;
-              }
-
-              JSONArray transactionsData = (JSONArray) response.get(UNCONFIRMED_TRANSACTIONS_RESPONSE);
-              //Object lastUnconfirmedTransactionTimeStampResponse = response.get(LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_RESPONSE);
-/*
-              if (lastUnconfirmedTransactionTimeStampResponse != null) {
-                peer.setLastUnconfirmedTransactionTimestamp(Convert.parseLong("" + lastUnconfirmedTransactionTimeStampResponse));
-              }
-*/
-              if (transactionsData == null || transactionsData.isEmpty()) {
-                return;
-              }
-              try {
-                processPeerTransactions(transactionsData, peer);
-              } catch (BurstException.ValidationException | RuntimeException e) {
-                peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions");
-              }
-            }
-          } catch (Exception e) {
-            logger.debug("Error processing unconfirmed transactions", e);
+  private final Runnable getUnconfirmedTransactions = () -> {
+    try {
+      try {
+        synchronized (unconfirmedTransactionsSyncObj) {
+          Peer peer = Peers.getAnyPeer(Peer.State.CONNECTED);
+          if (peer == null) {
+            return;
           }
-         
-        } catch (Throwable t) {
-          logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n" + t.toString(), t);
-          System.exit(1);
+          JSONObject response = Peers.readUnconfirmedTransactionsNonBlocking(peer).get();
+          if (response == null) {
+            return;
+          }
+
+          JSONArray transactionsData = (JSONArray) response.get(UNCONFIRMED_TRANSACTIONS_RESPONSE);
+
+          if (transactionsData == null || transactionsData.isEmpty()) {
+            return;
+          }
+          try {
+            List<Transaction> addedTransactions = processPeerTransactions(transactionsData, peer);
+
+            if(! addedTransactions.isEmpty()) {
+              List<Peer> activePrioPlusExtra = Peers.getAllActivePriorityPlusSomeExtraPeers();
+              activePrioPlusExtra.remove(peer);
+
+              List<CompletableFuture<?>> expectedResults = new ArrayList<>();
+
+              for(Peer otherPeer:activePrioPlusExtra) {
+                CompletableFuture<JSONObject> unconfirmedTransactionsResult = Peers.readUnconfirmedTransactionsNonBlocking(otherPeer);
+
+                unconfirmedTransactionsResult.whenComplete((jsonObject, throwable) -> {
+                  try {
+                    processPeerTransactions(transactionsData, otherPeer);
+                    Peers.feedingTime(otherPeer, foodDispenser);
+                  } catch (ValidationException | RuntimeException e) {
+                    peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions");
+                  }
+                });
+
+                expectedResults.add(unconfirmedTransactionsResult);
+              }
+
+              CompletableFuture.allOf(expectedResults.toArray(new CompletableFuture[expectedResults.size()])).join();
+            }
+          } catch (ValidationException | RuntimeException e) {
+            peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions");
+          }
         }
+      } catch (Exception e) {
+        logger.debug("Error processing unconfirmed transactions", e);
       }
 
-    };
+    } catch (Throwable t) {
+      logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n" + t.toString(), t);
+      System.exit(1);
+    }
+  };
 
   @Override
   public boolean addListener(Listener<List<? extends Transaction>> listener, Event eventType) {
@@ -198,7 +152,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
   @Override
   public List<Transaction> getAllUnconfirmedTransactionsFor(Peer peer, long limitInBytes) {
-    return unconfirmedTransactionStore.getAllFor(peer, limitInBytes);
+    return unconfirmedTransactionStore.getAllFor(peer);
   }
 
   @Override
@@ -212,8 +166,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   }
 
   @Override
-  public Transaction.Builder newTransactionBuilder(byte[] senderPublicKey, long amountNQT, long feeNQT, short deadline,
-                                                   Attachment attachment) {
+  public Transaction.Builder newTransactionBuilder(byte[] senderPublicKey, long amountNQT, long feeNQT, short deadline, Attachment attachment) {
     byte version = (byte) getTransactionVersion(blockchain.getHeight());
     int timestamp = timeService.getEpochTime();
     Transaction.Builder builder = new Transaction.Builder(version, senderPublicKey, amountNQT, feeNQT, timestamp,
@@ -250,6 +203,10 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
     processedTransactions = processTransactions(Collections.singleton(transaction), null);
 
+    if(! processedTransactions.isEmpty()) {
+      broadcastToPeers();
+    }
+
     if (processedTransactions.contains(transaction)) {
       /*
       if (enableTransactionRebroadcasting) {
@@ -266,7 +223,11 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   @Override
   public void processPeerTransactions(JSONObject request, Peer peer) throws BurstException.ValidationException {
     JSONArray transactionsData = (JSONArray)request.get("transactions");
-    processPeerTransactions(transactionsData, peer);
+    List<Transaction> processedTransactions = processPeerTransactions(transactionsData, peer);
+
+    if(! processedTransactions.isEmpty()) {
+      broadcastToPeers();
+    }
   }
 
   @Override
@@ -323,13 +284,12 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     }
   }
 
-  private void processPeerTransactions(JSONArray transactionsData, Peer peer) throws BurstException.ValidationException {
-
-	if (blockchain.getLastBlock().getTimestamp() < timeService.getEpochTime() - 60 * 1440 && ! testUnconfirmedTransactions) {
-      return;
+  private List<Transaction> processPeerTransactions(JSONArray transactionsData, Peer peer) throws BurstException.ValidationException {
+	  if (blockchain.getLastBlock().getTimestamp() < timeService.getEpochTime() - 60 * 1440 && ! testUnconfirmedTransactions) {
+      return new ArrayList<>();
     }
     if (blockchain.getHeight() <= Constants.NQT_BLOCK) {
-      return;
+      return new ArrayList<>();
     }
     List<Transaction> transactions = new ArrayList<>();
     for (Object transactionData : transactionsData) {
@@ -349,10 +309,10 @@ public class TransactionProcessorImpl implements TransactionProcessor {
         throw e;
       }
     }
-    processTransactions(transactions, peer);
+    return processTransactions(transactions, peer);
   }
 
-  List<Transaction> processTransactions(Collection<Transaction> transactions, Peer peer) throws BurstException.ValidationException {
+  private List<Transaction> processTransactions(Collection<Transaction> transactions, Peer peer) throws BurstException.ValidationException {
     synchronized (unconfirmedTransactionsSyncObj) {
       if (transactions.isEmpty()) {
         return Collections.emptyList();
@@ -404,11 +364,16 @@ public class TransactionProcessorImpl implements TransactionProcessor {
       }
 
       if (! addedUnconfirmedTransactions.isEmpty()) {
-        Peers.distributeUnconfirmedTransactions();
         transactionListeners.notify(addedUnconfirmedTransactions, Event.ADDED_UNCONFIRMED_TRANSACTIONS);
       }
 
       return addedUnconfirmedTransactions;
+    }
+  }
+
+  private void broadcastToPeers() {
+    for(Peer p: Peers.getAllActivePriorityPlusSomeExtraPeers()) {
+      Peers.feedingTime(p, foodDispenser);
     }
   }
 
