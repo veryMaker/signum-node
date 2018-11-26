@@ -466,7 +466,7 @@
     "incorrect_purchase": "Netočna kupovina.",
     "info": "Info",
     "info_merchant_message_required": "The recipient account requires you to supply a specially formatted message.",
-    "info_referenced_transaction_hash": "Zbog korištenja hasha referentne transakcije, 50 BURST-a je zadržano dok se transakcija ne potvrdi ili istekne.",
+    "info_referenced_transaction_hash": "Zbog korištenja hasha referentne transakcije, 100 BURST-a je zadržano dok se transakcija ne potvrdi ili istekne.",
     "interface_tutorial": "Priručnik za sučelje",
     "issue_asset": "Izdaj asset",
     "issue_asset_warning": "<strong>Upozorenje<\/strong>: Nakon potvrde više nikad nećete moći promijeniti ovu informaciju. Provjerite njezinu ispravnost.",
