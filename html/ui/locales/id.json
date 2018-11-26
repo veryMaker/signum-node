@@ -466,7 +466,7 @@
     "incorrect_purchase": "Pembelian salah.",
     "info": "Info",
     "info_merchant_message_required": "The recipient account requires you to supply a specially formatted message.",
-    "info_referenced_transaction_hash": "Karena Anda telah menggunakan hash transaksi direferensikan, 50 BURST diadakan dalam tahanan sampai transaksi dikonfirmasi atau kedaluwarsa.",
+    "info_referenced_transaction_hash": "Karena Anda telah menggunakan hash transaksi direferensikan, 100 BURST diadakan dalam tahanan sampai transaksi dikonfirmasi atau kedaluwarsa.",
     "interface_tutorial": "Tutorial Antarmuka",
     "issue_asset": "Masalah Aset",
     "issue_asset_warning": "<strong>Peringatan<\/strong>: Setelah dikirim, anda tidak akan dapat mengubah informasi ini lagi, selamanya. Pastikan data yang dimasukkan benar.",
