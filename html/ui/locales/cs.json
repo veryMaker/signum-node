@@ -466,7 +466,7 @@
    "incorrect_purchase" : "Nesprávný nákup.",
    "info" : "Informace",
    "info_merchant_message_required" : "Účet příjemce vyžaduje, abyste speciálně formátovali zprávy.",
-   "info_referenced_transaction_hash" : "Due to you using a referenced transaction hash, 50 BURST is held in custody until the transaction is confirmed or expired.",
+   "info_referenced_transaction_hash" : "Vzhledem k tomu, že používáte referenční transakční hash, je 100 BURST drženo ve vazbě, dokud nebude transakce potvrzena nebo vyprší.",
    "interface_tutorial" : "Interface Tutorial",
    "issue_asset" : "Issue Asset",
    "issue_asset_warning" : "<strong>Warning</strong>: Once submitted, you will not be able to change this information again, ever. Make sure it is correct.",
