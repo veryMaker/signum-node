@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 public interface UnconfirmedTransactionStore {
 
-  void put(Transaction transaction, Peer peer) throws BurstException.ValidationException;
+  boolean put(Transaction transaction, Peer peer) throws BurstException.ValidationException;
 
   Transaction get(Long transactionId);
 

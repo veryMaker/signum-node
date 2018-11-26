@@ -6,6 +6,7 @@ import brs.services.AccountService;
 import brs.props.PropertyService;
 import brs.services.TimeService;
 import brs.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -792,31 +793,35 @@ public final class Peers {
   private static final List<Peer> processingQueue = new ArrayList<>();
   private static final List<Peer> beingProcessed = new ArrayList<>();
 
-  public synchronized static void feedingTime(Peer peer, Function<Peer, List<Transaction>> foodDispenser) {
+  public synchronized static void feedingTime(Peer peer, Function<Peer, List<Transaction>> foodDispenser, BiConsumer<Peer, List<Transaction>> doneFeedingLog) {
     if(! beingProcessed.contains(peer)) {
       beingProcessed.add(peer);
 
-      CompletableFuture.runAsync(() -> feedPeer(peer, foodDispenser), utSendingService);
+      CompletableFuture.runAsync(() -> feedPeer(peer, foodDispenser, doneFeedingLog), utSendingService);
     } else if(! processingQueue.contains(peer)) {
       processingQueue.add(peer);
     }
   }
 
-  private static void feedPeer(Peer peer, Function<Peer, List<Transaction>> foodDispenser) {
+  private static void feedPeer(Peer peer, Function<Peer, List<Transaction>> foodDispenser, BiConsumer<Peer, List<Transaction>> doneFeedingLog) {
     List<Transaction> transactionsToSend = foodDispenser.apply(peer);
     if(! transactionsToSend.isEmpty()) {
-      logger.info("Feeding " + peer.getPeerAddress());
+      logger.info("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
       peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
     } else {
-      logger.info("No need to feed " + peer.getPeerAddress());
+      logger.info("No need to feed {}", peer.getPeerAddress());
     }
 
     beingProcessed.remove(peer);
+
+    doneFeedingLog.accept(peer, transactionsToSend);
+
     if(processingQueue.contains(peer)) {
       processingQueue.remove(peer);
       beingProcessed.add(peer);
-      feedPeer(peer, foodDispenser);
+      feedPeer(peer, foodDispenser, doneFeedingLog);
     }
+    logger.info("Done feeding {}", peer.getPeerAddress());
   }
 
 

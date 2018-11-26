@@ -75,15 +75,14 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   @Override
-  public void put(Transaction transaction, Peer peer) throws ValidationException {
-    logger.info("Adding Transaction {} from Peer {}", transaction.getId(), peer.getPeerAddress());
-    if(transactionIsCurrentlyInCache(transaction)) {
-      if(peer != null) {
-        logger.info("Just added extra fingerprint");
-        fingerPrintsOverview.get(transaction).add(peer);
-      }
-    } else {
-      synchronized (internalStore) {
+  public boolean put(Transaction transaction, Peer peer) throws ValidationException {
+    synchronized (internalStore) {
+      if(transactionIsCurrentlyInCache(transaction)) {
+        if(peer != null) {
+          logger.info("Transaction {}: Added fingerprint of {}", transaction.getId(), peer.getPeerAddress());
+          fingerPrintsOverview.get(transaction).add(peer);
+        }
+      } else {
         if (transactionCanBeAddedToCache(transaction)) {
           final TransactionDuplicationResult duplicationInformation = transactionDuplicatesChecker.removeCheaperDuplicate(transaction);
 
@@ -91,7 +90,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
             final Transaction duplicatedTransaction = duplicationInformation.getTransaction();
 
             if (duplicatedTransaction != null && duplicatedTransaction != transaction) {
-              logger.debug("Transaction {}: Adding more expensive duplicate transaction", transaction.getId());
+              logger.info("Transaction {}: Adding more expensive duplicate transaction", transaction.getId());
               removeTransaction(duplicationInformation.getTransaction());
 
               addTransaction(transaction, peer);
@@ -100,7 +99,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
                 removeCheapestFirstToExpireTransaction();
               }
             } else {
-              logger.debug("Transaction {}: Will not add a cheaper duplicate UT", transaction.getId());
+              logger.info("Transaction {}: Will not add a cheaper duplicate UT", transaction.getId());
             }
           } else {
             addTransaction(transaction, peer);
@@ -110,10 +109,14 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
               removeCheapestFirstToExpireTransaction();
             }
           }
+
+          return true;
         } else {
-          logger.debug("Transaction {}: Will not add UT due to duplication, or too full", transaction.getId());
+          logger.info("Transaction {}: Will not add UT due to duplication, or too full", transaction.getId());
         }
       }
+
+      return false;
     }
   }
 
@@ -170,18 +173,6 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
       }
 
       return flatTransactionList;
-
-      /*
-      final List<UnconfirmedTransactionTiming> result = flatTransactionList.stream()
-          //.sorted(Comparator.comparingLong(UnconfirmedTransactionTiming::getTimestamp))
-          .collect(Collectors.toList());
-
-      if(! result.isEmpty()) {
-        return new TimedUnconfirmedTransactionOverview(result.get(result.size() - 1).getTimestamp(), result.stream().map(UnconfirmedTransactionTiming::getTransaction).collect(Collectors.toList()));
-      } else {
-        return new TimedUnconfirmedTransactionOverview(timeService.getEpochTimeMillis(), new ArrayList<>());
-      }
-      */
     }
   }
 
@@ -257,8 +248,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   private boolean transactionIsCurrentlyInCache(Transaction transaction) {
-    final List<Transaction> amountSlot = internalStore.get(amountSlotForTransaction(transaction));
-    return amountSlot != null && amountSlot.stream().anyMatch(t -> t.getId() == transaction.getId());
+    return fingerPrintsOverview.containsKey(transaction);
   }
 
   private void addTransaction(Transaction transaction, Peer peer) throws ValidationException {
@@ -273,6 +263,8 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     if(peer != null) {
       fingerPrintsOverview.get(transaction).add(peer);
     }
+
+    logger.info("Adding Transaction {} from Peer {}", transaction.getId(), (peer == null ? "Ourself" : peer.getPeerAddress()));
 
     if(! StringUtils.isEmpty(transaction.getReferencedTransactionFullHash())) {
       numberUnconfirmedTransactionsFullHash++;

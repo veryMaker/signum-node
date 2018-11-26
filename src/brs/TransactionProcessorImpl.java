@@ -14,15 +14,14 @@ import brs.props.PropertyService;
 import brs.services.TimeService;
 import brs.services.TransactionService;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
-import brs.util.JSON;
 import brs.util.Listener;
 import brs.util.Listeners;
 import brs.util.ThreadPool;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +47,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   private AccountService accountService;
   private UnconfirmedTransactionStore unconfirmedTransactionStore;
   private Function<Peer, List<Transaction>> foodDispenser = (peer -> unconfirmedTransactionStore.getAllFor(peer));
+  private BiConsumer<Peer, List<Transaction>> doneFeedingLog = ((peer, transactions) -> unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions));
 
   public TransactionProcessorImpl(PropertyService propertyService,
       EconomicClustering economicClustering, Blockchain blockchain, Stores stores, TimeService timeService, Dbs dbs, AccountService accountService,
@@ -102,7 +102,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
                 unconfirmedTransactionsResult.whenComplete((jsonObject, throwable) -> {
                   try {
                     processPeerTransactions(transactionsData, otherPeer);
-                    Peers.feedingTime(otherPeer, foodDispenser);
+                    Peers.feedingTime(otherPeer, foodDispenser, doneFeedingLog);
                   } catch (ValidationException | RuntimeException e) {
                     peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions");
                   }
@@ -337,6 +337,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
             if (dbs.getTransactionDb().hasTransaction(transaction.getId()) || unconfirmedTransactionStore.exists(transaction.getId())) {
               stores.commitTransaction();
+              unconfirmedTransactionStore.markFingerPrintsOf(peer, Arrays.asList(transaction));
               continue;
             }
 
@@ -348,8 +349,9 @@ public class TransactionProcessorImpl implements TransactionProcessor {
               continue;
             }
 
-            unconfirmedTransactionStore.put(transaction, peer);
-            addedUnconfirmedTransactions.add(transaction);
+            if(unconfirmedTransactionStore.put(transaction, peer)) {
+              addedUnconfirmedTransactions.add(transaction);
+            }
 
             stores.commitTransaction();
           } catch (Exception e) {
@@ -373,7 +375,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
   private void broadcastToPeers() {
     for(Peer p: Peers.getAllActivePriorityPlusSomeExtraPeers()) {
-      Peers.feedingTime(p, foodDispenser);
+      Peers.feedingTime(p, foodDispenser, doneFeedingLog);
     }
   }
 
