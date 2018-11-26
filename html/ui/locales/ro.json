@@ -466,7 +466,7 @@
    "incorrect_purchase" : "Cumpărare incorectă.",
    "info" : "Informaţii",
    "info_merchant_message_required" : "Contul destinatarului îți  solicită trimiterea unui mesaj în format special.",
-   "info_referenced_transaction_hash" : "Datorită folosinței unui hash de tranzacţii referenţiat, valoarea de 50 burst este poprită până când tranzacţia este confirmată sau expiră.",
+   "info_referenced_transaction_hash" : "Datorită folosinței unui hash de tranzacţii referenţiat, valoarea de 100 burst este poprită până când tranzacţia este confirmată sau expiră.",
    "interface_tutorial" : "Tutorial Interfață",
    "issue_asset" : "Emitere Activă",
    "issue_asset_warning" : "Odată înregistrată, această informaţie nu se va mai putea schimba niciodată. Asigură-te că este corectă.",
