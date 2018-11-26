@@ -93,7 +93,7 @@ public final class Peers {
   static final Collection<PeerImpl> allPeers = Collections.unmodifiableCollection(peers.values());
 
   private static final ExecutorService sendBlocksToPeersService = Executors.newCachedThreadPool();
-  private static final ExecutorService blocksSendingService = Executors.newFixedThreadPool(2);
+  private static final ExecutorService blocksSendingService = Executors.newFixedThreadPool(10);
 
   private static TimeService timeService;
 
@@ -782,13 +782,13 @@ public final class Peers {
     getUnconfirmedTransactionsRequest = JSON.prepareRequest(request);
   }
 
-  private static final ExecutorService utReceivingService = Executors.newFixedThreadPool(5);
+  private static final ExecutorService utReceivingService = Executors.newCachedThreadPool();
 
   public static CompletableFuture<JSONObject> readUnconfirmedTransactionsNonBlocking(Peer peer) {
     return CompletableFuture.supplyAsync(() -> peer.send(getUnconfirmedTransactionsRequest), utReceivingService);
   }
 
-  private static final ExecutorService utSendingService = Executors.newFixedThreadPool(10);
+  private static final ExecutorService utSendingService = Executors.newCachedThreadPool();
 
   private static final List<Peer> processingQueue = new ArrayList<>();
   private static final List<Peer> beingProcessed = new ArrayList<>();
