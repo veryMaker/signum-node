@@ -243,7 +243,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     synchronized (internalStore) {
       for (Transaction transaction : transactions) {
         if(fingerPrintsOverview.containsKey(transaction)) {
-          fingerPrintsOverview.put(transaction, new HashSet<>());
+          fingerPrintsOverview.get(transaction).add(peer);
         }
       }
     }
@@ -254,7 +254,6 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     synchronized (internalStore) {
       for(Transaction t:transactions) {
         if(exists(t.getId())) {
-          System.out.println("Removing because of block forge: " + t.getId());
           removeTransaction(t);
         }
       }
@@ -262,7 +261,8 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   private boolean transactionIsCurrentlyInCache(Transaction transaction) {
-    return fingerPrintsOverview.containsKey(transaction);
+    final List<Transaction> amountSlot = internalStore.get(amountSlotForTransaction(transaction));
+    return amountSlot != null && amountSlot.stream().anyMatch(t -> t.getId() == transaction.getId());
   }
 
   private void addTransaction(Transaction transaction, Peer peer) throws ValidationException {

@@ -807,6 +807,8 @@ public final class Peers {
     if(! transactionsToSend.isEmpty()) {
       logger.info("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
       peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
+    } else {
+      logger.info("No need to feed {}", peer.getPeerAddress());
     }
 
     beingProcessed.remove(peer);
