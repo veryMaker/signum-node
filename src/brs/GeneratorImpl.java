@@ -44,7 +44,7 @@ public final class GeneratorImpl implements Generator {
         try {
           long currentBlock = blockchain.getLastBlock().getHeight();
           Iterator<Entry<Long, GeneratorStateImpl>> it = generators.entrySet().iterator();
-          while (it.hasNext()) {
+          while (it.hasNext() && !Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
             Entry<Long, GeneratorStateImpl> generator = it.next();
             if (currentBlock < generator.getValue().getBlock()) {
               generator.getValue().forge(blockchainProcessor);

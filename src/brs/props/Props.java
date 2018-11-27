@@ -38,6 +38,8 @@ public class Props {
   public static final Prop BRS_DEBUG_TRACE_LOG = new Prop("brs.debugTraceLog", "LOG_AccountBalances_trace.csv");
   public static final Prop BRS_COMMUNICATION_LOGGING_MASK = new Prop("brs.communicationLoggingMask", 0);
 
+  public static final Prop BRS_SHUTDOWN_TIMEOUT = new Prop("brs.ShutdownTimeout", 180);
+
   // GPU options
   public static final Prop GPU_ACCELERATION     = new Prop("GPU.Acceleration", false);
   public static final Prop GPU_AUTODETECT       = new Prop("GPU.AutoDetect", true);
