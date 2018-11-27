@@ -989,6 +989,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         blockService.setPrevious(block, previousLastBlock);
         blockListeners.notify(block, Event.BEFORE_BLOCK_ACCEPT);
+        transactionProcessor.removeForgedTransactions(block.getTransactions());
         transactionProcessor.requeueAllUnconfirmedTransactions();
         accountService.flushAccountTable();
         addBlock(block);

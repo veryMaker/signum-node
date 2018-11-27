@@ -796,7 +796,6 @@ public final class Peers {
   public synchronized static void feedingTime(Peer peer, Function<Peer, List<Transaction>> foodDispenser, BiConsumer<Peer, List<Transaction>> doneFeedingLog) {
     if(! beingProcessed.contains(peer)) {
       beingProcessed.add(peer);
-
       CompletableFuture.runAsync(() -> feedPeer(peer, foodDispenser, doneFeedingLog), utSendingService);
     } else if(! processingQueue.contains(peer)) {
       processingQueue.add(peer);
@@ -808,8 +807,6 @@ public final class Peers {
     if(! transactionsToSend.isEmpty()) {
       logger.info("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
       peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
-    } else {
-      logger.info("No need to feed {}", peer.getPeerAddress());
     }
 
     beingProcessed.remove(peer);
@@ -821,7 +818,6 @@ public final class Peers {
       beingProcessed.add(peer);
       feedPeer(peer, foodDispenser, doneFeedingLog);
     }
-    logger.info("Done feeding {}", peer.getPeerAddress());
   }
 
 

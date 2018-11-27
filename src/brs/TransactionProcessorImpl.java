@@ -394,4 +394,8 @@ public class TransactionProcessorImpl implements TransactionProcessor {
       unconfirmedTransactionStore.remove(t);
     }
   }
+
+  public void removeForgedTransactions(List<Transaction> transactions) {
+    this.unconfirmedTransactionStore.removeForgedTransactions(transactions);
+  }
 }

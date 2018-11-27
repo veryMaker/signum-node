@@ -242,7 +242,21 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   public void markFingerPrintsOf(Peer peer, List<Transaction> transactions) {
     synchronized (internalStore) {
       for (Transaction transaction : transactions) {
-        fingerPrintsOverview.get(transaction).add(peer);
+        if(fingerPrintsOverview.containsKey(transaction)) {
+          fingerPrintsOverview.put(transaction, new HashSet<>());
+        }
+      }
+    }
+  }
+
+  @Override
+  public void removeForgedTransactions(List<Transaction> transactions) {
+    synchronized (internalStore) {
+      for(Transaction t:transactions) {
+        if(exists(t.getId())) {
+          System.out.println("Removing because of block forge: " + t.getId());
+          removeTransaction(t);
+        }
       }
     }
   }
@@ -322,7 +336,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
         if(! StringUtils.isEmpty(transaction.getReferencedTransactionFullHash())) {
           numberUnconfirmedTransactionsFullHash--;
         }
-        return;
+        break;
       }
     }
 
