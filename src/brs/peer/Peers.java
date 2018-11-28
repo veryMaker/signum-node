@@ -1,5 +1,8 @@
 package brs.peer;
 
+import static brs.props.Props.P2P_ENABLE_TX_REBROADCAST;
+import static brs.props.Props.P2P_SEND_TO_LIMIT;
+
 import brs.*;
 import brs.props.Props;
 import brs.services.AccountService;
@@ -96,10 +99,12 @@ public final class Peers {
   private static final ExecutorService blocksSendingService = Executors.newFixedThreadPool(10);
 
   private static TimeService timeService;
+  private static PropertyService propertyService;
 
   public static void init(TimeService timeService, AccountService accountService, Blockchain blockchain, TransactionProcessor transactionProcessor,
       BlockchainProcessor blockchainProcessor, PropertyService propertyService, ThreadPool threadPool) {
     Peers.timeService = timeService;
+    Peers.propertyService = propertyService;
 
     myPlatform = propertyService.getString(Props.P2P_MY_PLATFORM);
     if ( propertyService.getString(Props.P2P_MY_ADDRESS) != null
@@ -161,7 +166,12 @@ public final class Peers {
     json.put("requestType", "getInfo");
     myPeerInfoRequest = JSON.prepareRequest(json);
 
-    rebroadcastPeers = Collections.unmodifiableSet(new HashSet<>(propertyService.getStringList(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? Props.DEV_P2P_REBROADCAST_TO : Props.P2P_REBROADCAST_TO)));
+    if(propertyService.getBoolean(P2P_ENABLE_TX_REBROADCAST)) {
+      rebroadcastPeers = Collections
+          .unmodifiableSet(new HashSet<>(propertyService.getStringList(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? Props.DEV_P2P_REBROADCAST_TO : Props.P2P_REBROADCAST_TO)));
+    } else {
+      rebroadcastPeers = Collections.emptySet();
+    }
 
     List<String> wellKnownPeersList = propertyService.getStringList(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? Props.DEV_P2P_BOOTSTRAP_PEERS : Props.P2P_BOOTSTRAP_PEERS);
 
@@ -193,7 +203,7 @@ public final class Peers {
 
     blacklistingPeriod = propertyService.getInt(Props.P2P_BLACKLISTING_TIME_MS);
     communicationLoggingMask = propertyService.getInt(Props.BRS_COMMUNICATION_LOGGING_MASK);
-    sendToPeersLimit = propertyService.getInt(Props.P2P_SEND_TO_LIMIT);
+    sendToPeersLimit = propertyService.getInt(P2P_SEND_TO_LIMIT);
     usePeersDb       = propertyService.getBoolean(Props.P2P_USE_PEERS_DB) && ! Burst.getPropertyService().getBoolean(Props.DEV_OFFLINE);
     savePeers        = usePeersDb && propertyService.getBoolean(Props.P2P_SAVE_PEERS);
     getMorePeers     = propertyService.getBoolean(Props.P2P_GET_MORE_PEERS);
@@ -805,10 +815,10 @@ public final class Peers {
   private static void feedPeer(Peer peer, Function<Peer, List<Transaction>> foodDispenser, BiConsumer<Peer, List<Transaction>> doneFeedingLog) {
     List<Transaction> transactionsToSend = foodDispenser.apply(peer);
     if(! transactionsToSend.isEmpty()) {
-      logger.info("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
+      logger.debug("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
       peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
     } else {
-      logger.info("No need to feed {}", peer.getPeerAddress());
+      logger.debug("No need to feed {}", peer.getPeerAddress());
     }
 
     beingProcessed.remove(peer);
@@ -877,7 +887,7 @@ public final class Peers {
 
   public static List<Peer> getAllActivePriorityPlusSomeExtraPeers() {
     final List<Peer> peersActivePriorityPlusSomeExtraPeers = new ArrayList<>();
-    int amountExtrasLeft = 5;
+    int amountExtrasLeft = propertyService.getInt(P2P_SEND_TO_LIMIT);
 
     for(Peer peer : peers.values()) {
       if(peerEligibleForSending(peer, true)) {

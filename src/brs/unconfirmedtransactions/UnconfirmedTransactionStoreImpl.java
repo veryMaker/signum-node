@@ -278,7 +278,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
       fingerPrintsOverview.get(transaction).add(peer);
     }
 
-    logger.info("Adding Transaction {} from Peer {}", transaction.getId(), (peer == null ? "Ourself" : peer.getPeerAddress()));
+    logger.debug("Adding Transaction {} from Peer {}", transaction.getId(), (peer == null ? "Ourself" : peer.getPeerAddress()));
 
     if(! StringUtils.isEmpty(transaction.getReferencedTransactionFullHash())) {
       numberUnconfirmedTransactionsFullHash++;
