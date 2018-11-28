@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
+import org.ehcache.Status;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
@@ -36,7 +37,9 @@ public class DBCacheManagerImpl {
   }
 
   public void close() {
-    cacheManager.close();
+    if ( cacheManager.getStatus().equals(Status.AVAILABLE) ) {
+      cacheManager.close();
+    }
   }
 
   private Cache getEHCache(String name) {

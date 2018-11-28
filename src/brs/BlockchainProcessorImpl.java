@@ -208,7 +208,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   private final Runnable pocVerificationThread = () -> {
     boolean verifyWithOcl;
     int queueThreshold = oclVerify ? oclUnverifiedQueue : 0;
-    while (true) {
+
+    while (!Thread.interrupted() && ThreadPool.running.get() ) {
       int unVerified = downloadCache.getUnverifiedSize();
       if (unVerified > queueThreshold) { //Is there anything to verify
         if (unVerified >= oclUnverifiedQueue && oclVerify) { //should we use Ocl?
@@ -225,7 +226,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           int pos = 0;
           List<Block> blocks = new LinkedList<>();
           poCVersion = downloadCache.getPoCVersion(downloadCache.getUnverifiedBlockIdFromPos(0));
-          while ((downloadCache.getUnverifiedSize() - 1) > pos && blocks.size() < OCLPoC.getMaxItems()) {
+          while (!Thread.interrupted() && ThreadPool.running.get()
+              && (downloadCache.getUnverifiedSize() - 1) > pos
+              && blocks.size() < OCLPoC.getMaxItems()) {
             long blockId = downloadCache.getUnverifiedBlockIdFromPos(pos);
             if (downloadCache.getPoCVersion(blockId) != poCVersion) {
               break;
@@ -233,7 +236,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             blocks.add(downloadCache.getBlock(blockId));
             pos+=1;
           }
-          
           try {
             OCLPoC.validatePoC(blocks, poCVersion, blockService);
             downloadCache.removeUnverifiedBatch(blocks);
@@ -247,68 +249,49 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           } finally {
             gpuUsage.release();
           }
-          
         }else { //verify using java
           try {
             blockService.preVerify(downloadCache.getFirstUnverifiedBlock());
-          }catch (BlockchainProcessor.BlockNotAcceptedException e) {
+          } catch ( InterruptedException e ) {
+            Thread.currentThread().interrupt();
+          } catch (BlockchainProcessor.BlockNotAcceptedException e) {
             logger.error("Block failed to preverify: ", e);
           }
         }
-       
-      }
-      try {
-        Thread.sleep(10);
-      } catch (InterruptedException ex) {
-        Thread.currentThread().interrupt();
-      }
-      //executor shutdown? 
-      if (Thread.currentThread().isInterrupted()) {
-        return;
       }
     }
   };
-  private final Runnable blockImporterThread = () -> {
-    try {
-      while (true) {
-        while (downloadCache.size() > 0) {
-            Block lastBlock = blockchain.getLastBlock();
-            Long lastId = lastBlock.getId();
-            Block currentBlock = downloadCache.getNextBlock(lastId); /* this should fetch first block in cache */
-            if (currentBlock == null || currentBlock.getHeight() != (lastBlock.getHeight() + 1)) {
-              logger.debug("cache is reset due to orphaned block(s). CacheSize: " + downloadCache.size());
-              downloadCache.resetCache(); //resetting cache because we have blocks that cannot be processed.
-              break;
-            }
-            try {
-              if (!currentBlock.isVerified()) {
-                downloadCache.removeUnverified(currentBlock.getId());
-                blockService.preVerify(currentBlock);
-                logger.debug("block was not preverified");
-              }
-              lastId = currentBlock.getId();
-              pushBlock(currentBlock); //pushblock removes the block from cache.
-            } catch (BlockNotAcceptedException e) {
-              logger.error("Block not accepted", e);
-              blacklistClean(currentBlock, e, "found invalid pull/push data during importing the block");
-              break;
-            }
-        }
 
+  private final Runnable blockImporterThread = () -> {
+    while (!Thread.interrupted() && ThreadPool.running.get() && downloadCache.size() > 0) {
+      try {
+        Block lastBlock = blockchain.getLastBlock();
+        Long lastId = lastBlock.getId();
+        Block currentBlock = downloadCache.getNextBlock(lastId); /* this should fetch first block in cache */
+        if (currentBlock == null || currentBlock.getHeight() != (lastBlock.getHeight() + 1)) {
+          logger.debug("cache is reset due to orphaned block(s). CacheSize: " + downloadCache.size());
+          downloadCache.resetCache(); //resetting cache because we have blocks that cannot be processed.
+          break;
+        }
         try {
-          Thread.sleep(10);
-        } catch (InterruptedException ex) {
-          logger.debug("Blockimporter fires interupt.");
+          if (!currentBlock.isVerified()) {
+            downloadCache.removeUnverified(currentBlock.getId());
+            blockService.preVerify(currentBlock);
+            logger.debug("block was not preverified");
+          }
+          lastId = currentBlock.getId();
+          pushBlock(currentBlock); //pushblock removes the block from cache.
+        } catch ( InterruptedException e ) {
           Thread.currentThread().interrupt();
+        } catch (BlockNotAcceptedException e) {
+          logger.error("Block not accepted", e);
+          blacklistClean(currentBlock, e,
+              "found invalid pull/push data during importing the block");
+          break;
         }
-        //executor shutdown? 
-        if (Thread.currentThread().isInterrupted()) {
-          logger.debug("Blockimporter got interupted.");
-          return;
-        }
+      } catch (Throwable exception) {
+        logger.error("Uncaught exception in blockImporterThread", exception);
       }
-    } catch (Throwable exception) {
-      logger.error("Uncaught exception in blockImporterThread", exception);
     }
   };
 
@@ -338,7 +321,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
     @Override
     public void run() {
-      while (true) {
+      while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
         try {
           try {
             if (!getMoreBlocks) {
@@ -495,10 +478,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 logger.warn("Unhandled exception {}" + e.toString(), e);
                 logger.warn("Unhandled exception trace: " + e.getStackTrace());
               }
-              //executor shutdown? 
-              if (Thread.currentThread().isInterrupted()) {
+              //executor shutdown?
+              if (Thread.currentThread().isInterrupted())
                 return;
-              }
             } // end block loop
 
             logger.trace("Unverified blocks: " + downloadCache.getUnverifiedSize());
@@ -527,23 +509,14 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n" + t.toString(), t);
           System.exit(1);
         } // end first try
-
-        try {
-          Thread.sleep(10);
-        } catch (InterruptedException ex) {
-          Thread.currentThread().interrupt();
-        }
-        if (Thread.currentThread().isInterrupted()) {
-          return;
-        }
       } // end while
     }
 
-    private long getCommonMilestoneBlockId(Peer peer) {
+    private long getCommonMilestoneBlockId(Peer peer) throws InterruptedException {
 
       String lastMilestoneBlockId = null;
 
-      while (true) {
+      while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
         JSONObject milestoneBlockIdsRequest = new JSONObject();
         milestoneBlockIdsRequest.put("requestType", "getMilestoneBlockIds");
         if (lastMilestoneBlockId == null) {
@@ -588,11 +561,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           lastMilestoneBlockId = (String) milestoneBlockId;
         }
       }
+      throw new InterruptedException("interrupted");
     }
 
-    private long getCommonBlockId(Peer peer, long commonBlockId) {
+    private long getCommonBlockId(Peer peer, long commonBlockId) throws InterruptedException {
 
-      while (true) {
+      while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
         JSONObject request = new JSONObject();
         request.put("requestType", "getNextBlockIds");
         request.put("blockId", Convert.toUnsignedLong(commonBlockId));
@@ -619,6 +593,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         }
       }
 
+      throw new InterruptedException("interrupted");
     }
 
     private JSONArray getNextBlocks(Peer peer, long curBlockId) {
@@ -650,7 +625,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   private void processFork(Peer peer, final List<Block> forkBlocks, long forkBlockId) {
     logger.warn("A fork is detected. Waiting for cache to be processed.");
     downloadCache.lockCache(); //dont let anything add to cache!
-    while (true) {
+    while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
       if (downloadCache.size() == 0) {
         break;
       }
@@ -682,6 +657,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 blockService.preVerify(block);
                 pushBlock(block);
                 pushedForkBlocks += 1;
+              } catch ( InterruptedException e ) {
+                Thread.currentThread().interrupt();
               } catch (BlockNotAcceptedException e) {
                 peer.blacklist(e, "during processing a fork");
                 break;
@@ -710,6 +687,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             try {
               blockService.preVerify(block);
               pushBlock(block);
+            } catch ( InterruptedException e ) {
+              Thread.currentThread().interrupt();
             } catch (BlockNotAcceptedException e) {
               logger.warn("Popped off block no longer acceptable: " + block.getJSONObject().toJSONString(), e);
               break;
@@ -1259,6 +1238,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         logger.debug("Account " + Convert.toUnsignedLong(block.getGeneratorId()) + " generated block "
             + block.getStringId() + " at height " + block.getHeight());
         downloadCache.resetCache();
+      } catch ( InterruptedException e ) {
+        Thread.currentThread().interrupt();
       } catch (TransactionNotAcceptedException e) {
         logger.debug("Generate block failed: " + e.getMessage());
         Transaction transaction = e.getTransaction();

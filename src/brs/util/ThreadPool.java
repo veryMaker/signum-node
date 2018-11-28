@@ -2,6 +2,7 @@ package brs.util;
 
 import brs.props.Props;
 import brs.props.PropertyService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public final class ThreadPool {
+
+  public static AtomicBoolean running = new AtomicBoolean(true);
 
   private static final Logger logger = LoggerFactory.getLogger(ThreadPool.class);
 
@@ -132,15 +135,18 @@ public final class ThreadPool {
   }
 
   public void shutdownExecutor(ExecutorService executor) {
-    try {
-      if (!executor.isTerminated()) {
-        executor.shutdownNow(); //Using shutdown now to stop more execution and to signal within threads to exit.
-        if(!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-          logger.info("Termination of threads failed.");
-        }
+    running.lazySet(false);
+    if (!executor.isTerminated()) {
+      executor.shutdown();
+      try {
+        executor.awaitTermination(propertyService.getInt(Props.BRS_SHUTDOWN_TIMEOUT), TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
       }
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
+      if (! executor.isTerminated()) {
+        logger.error("some threads didn't terminate, forcing shutdown");
+        executor.shutdownNow();
+      }
     }
   }
 

@@ -410,7 +410,8 @@ public final class Peers {
          * if we have connected to our target amount we can exit loop.
          * if peers size is equal or below connected value we have nothing to connect to
          */
-        while (numConnectedPeers < maxNumberOfConnectedPublicPeers && peers.size() > numConnectedPeers) {
+        while ( ! Thread.currentThread().isInterrupted() && ThreadPool.running.get()
+               && numConnectedPeers < maxNumberOfConnectedPublicPeers && peers.size() > numConnectedPeers ) {
           PeerImpl peer = (PeerImpl)getAnyPeer(ThreadLocalRandom.current().nextInt(2) == 0 ? Peer.State.NON_CONNECTED : Peer.State.DISCONNECTED);
           if (peer != null) {
             peer.connect(timeService.getEpochTime());
@@ -430,13 +431,12 @@ public final class Peers {
           }
 
           try {
-            Thread.sleep(1000);
+            int i = 1;
+            while ( i++ < 100 ) {
+               Thread.sleep(10 * 1);
+            }
           }
           catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-          }
-          //Executor shutdown?
-          if (Thread.currentThread().isInterrupted()) {
             return;
           }
         }
@@ -610,7 +610,7 @@ public final class Peers {
     }
 
     threadPool.shutdownExecutor(sendBlocksToPeersService);
-    threadPool.shutdownExecutor(blocksSendingService);
+    // threadPool.shutdownExecutor(blocksSendingService);
   }
 
   public static boolean addListener(Listener<Peer> listener, Event eventType) {
