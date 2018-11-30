@@ -71,8 +71,6 @@ public class Props {
   public static final Prop BRS_BLOCK_CACHE_MB = new Prop("brs.blockCacheMB", 40);
 
   // P2P options
-  public static final Prop P2P_REBROADCAST_AFTER = new Prop("P2P.rebroadcastTxAfter", 4);
-  public static final Prop P2P_REBROADCAST_EVERY = new Prop("P2P.rebroadcastTxEvery", 2);
 
   public static final Prop P2P_MY_PLATFORM = new Prop("P2P.myPlatform", "PC");
   public static final Prop P2P_MY_ADDRESS  = new Prop("P2P.myAddress", "");
@@ -99,8 +97,7 @@ public class Props {
 
   public static final Prop P2P_SEND_TO_LIMIT = new Prop("P2P.sendToLimit", 10);
 
-  public static final Prop P2P_MAX_UNCONFIRMED_TRANSACTIONS = new Prop("P2P.maxUnconfirmedTransactions", 32768);
-  public static final Prop P2P_LIMIT_UNCONFIRMED_TRANSACTIONS_TO_RETRIEVE = new Prop("P2P.limitUnconfirmedTransactionsToRetrieve", 1000);
+  public static final Prop P2P_MAX_UNCONFIRMED_TRANSACTIONS = new Prop("P2P.maxUnconfirmedTransactions", 8192);
   public static final Prop P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE = new Prop("P2P.maxUnconfirmedTransactionsFullHashReferencePercentage", 5);
 
   // API options

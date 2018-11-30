@@ -210,6 +210,11 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     int queueThreshold = oclVerify ? oclUnverifiedQueue : 0;
 
     while (!Thread.interrupted() && ThreadPool.running.get() ) {
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
       int unVerified = downloadCache.getUnverifiedSize();
       if (unVerified > queueThreshold) { //Is there anything to verify
         if (unVerified >= oclUnverifiedQueue && oclVerify) { //should we use Ocl?
@@ -968,6 +973,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         blockService.setPrevious(block, previousLastBlock);
         blockListeners.notify(block, Event.BEFORE_BLOCK_ACCEPT);
+        transactionProcessor.removeForgedTransactions(block.getTransactions());
         transactionProcessor.requeueAllUnconfirmedTransactions();
         accountService.flushAccountTable();
         addBlock(block);
@@ -1121,7 +1127,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         final TransactionDuplicatesCheckerImpl transactionDuplicatesChecker = new TransactionDuplicatesCheckerImpl();
 
-        List<Transaction> unconfirmedTransactionsOrderedByFee = unconfirmedTransactionStore.getAll(Integer.MAX_VALUE).getTransactions().stream().filter(
+        List<Transaction> unconfirmedTransactionsOrderedByFee = unconfirmedTransactionStore.getAll().stream().filter(
             transaction ->
               transaction.getVersion() == transactionProcessor.getTransactionVersion(previousBlock.getHeight())
                   && transaction.getExpiration() >= blockTimestamp
