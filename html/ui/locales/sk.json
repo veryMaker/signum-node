@@ -466,7 +466,7 @@
     "incorrect_purchase": "Nesprávny nákup.",
     "info": "Informácie",
     "info_merchant_message_required": "Účet príjemcu vyžaduje zadanie špeciálne formátovanej správy.",
-    "info_referenced_transaction_hash": "Pretože používate odkazovaný hash transakcie, 50 BURST je zadržaných v úschove zatiaľ kým nebude transakcia potvrdená alebo kým nevyprší.",
+    "info_referenced_transaction_hash": "Pretože používate odkazovaný hash transakcie, 100 BURST je zadržaných v úschove zatiaľ kým nebude transakcia potvrdená alebo kým nevyprší.",
     "interface_tutorial": "Pomocník rozhrania",
     "issue_asset": "Vydať majetok",
     "issue_asset_warning": "<strong>Upozornenie<\/strong>: Po odoslaní už nebudete môcť nikdy zmeniť tieto informácie. Skontrolujte, či sú správne.",
