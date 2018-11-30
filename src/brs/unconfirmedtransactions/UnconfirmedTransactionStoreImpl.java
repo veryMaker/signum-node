@@ -79,7 +79,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     synchronized (internalStore) {
       if(transactionIsCurrentlyInCache(transaction)) {
         if(peer != null) {
-          logger.info("Transaction {}: Added fingerprint of {}", transaction.getId(), peer.getPeerAddress());
+          logger.debug("Transaction {}: Added fingerprint of {}", transaction.getId(), peer.getPeerAddress());
           fingerPrintsOverview.get(transaction).add(peer);
         }
       } else {
@@ -90,7 +90,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
             final Transaction duplicatedTransaction = duplicationInformation.getTransaction();
 
             if (duplicatedTransaction != null && duplicatedTransaction != transaction) {
-              logger.info("Transaction {}: Adding more expensive duplicate transaction", transaction.getId());
+              logger.debug("Transaction {}: Adding more expensive duplicate transaction", transaction.getId());
               removeTransaction(duplicationInformation.getTransaction());
 
               addTransaction(transaction, peer);
@@ -99,7 +99,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
                 removeCheapestFirstToExpireTransaction();
               }
             } else {
-              logger.info("Transaction {}: Will not add a cheaper duplicate UT", transaction.getId());
+              logger.debug("Transaction {}: Will not add a cheaper duplicate UT", transaction.getId());
             }
           } else {
             addTransaction(transaction, peer);
