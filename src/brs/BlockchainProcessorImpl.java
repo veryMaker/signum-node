@@ -20,7 +20,6 @@ import brs.services.TransactionService;
 import brs.statistics.StatisticsManagerImpl;
 import brs.services.AccountService;
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
-import brs.transactionduplicates.TransactionDuplicationResult;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
 import brs.util.ThreadPool;
 
@@ -32,11 +31,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
@@ -744,10 +740,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
 
   @Override
-  public void processPeerBlock(JSONObject request) throws BurstException {
+  public void processPeerBlock(JSONObject request, Peer peer) throws BurstException {
     Block newBlock = Block.parseBlock(request, blockchain.getHeight());
     if (newBlock == null) {
-      logger.debug("Peer has announced an unprocessable block.");
+      logger.debug("Peer {} has announced an unprocessable block.", peer.getPeerAddress());
       return;
     }
     /*
@@ -760,10 +756,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       newBlock.setByteLength(newBlock.toString().length());
       blockService.calculateBaseTarget(newBlock, chainblock);
       downloadCache.addBlock(newBlock);
-      logger.debug("Added from Anounce: Id: " +newBlock.getId()+" Height: "+newBlock.getHeight());
+      logger.debug("Peer {} added block from Announce: Id: {} Height: {}", peer.getPeerAddress(), newBlock.getId(), newBlock.getHeight());
     } else {
-      logger.debug("Peer sent us block: " + newBlock.getPreviousBlockId()
-                 + " that does not match our chain.");
+      logger.debug("Peer {} sent us block: {} which is not the follow-up block for {}", peer.getPeerAddress(), newBlock.getPreviousBlockId(), chainblock.getId());
     }
   }
 
