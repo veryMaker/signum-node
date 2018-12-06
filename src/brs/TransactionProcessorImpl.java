@@ -20,6 +20,7 @@ import brs.util.ThreadPool;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -84,11 +85,12 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
           JSONArray transactionsData = (JSONArray) response.get(UNCONFIRMED_TRANSACTIONS_RESPONSE);
 
-          if (transactionsData == null || transactionsData.isEmpty()) {
+          if (transactionsData == null) {
             return;
           }
           try {
             List<Transaction> addedTransactions = processPeerTransactions(transactionsData, peer);
+            Peers.feedingTime(peer, foodDispenser, doneFeedingLog);
 
             if(! addedTransactions.isEmpty()) {
               List<Peer> activePrioPlusExtra = Peers.getAllActivePriorityPlusSomeExtraPeers();
@@ -180,40 +182,25 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   }
 
   @Override
-  public void broadcast(Transaction transaction) throws BurstException.ValidationException {
+  public Integer broadcast(Transaction transaction) throws BurstException.ValidationException {
     if (! transaction.verifySignature()) {
       throw new BurstException.NotValidException("Transaction signature verification failed");
     }
     List<Transaction> processedTransactions;
     if (dbs.getTransactionDb().hasTransaction(transaction.getId())) {
       logger.info("Transaction " + transaction.getStringId() + " already in blockchain, will not broadcast again");
-      return;
+      return null;
     }
 
     if (unconfirmedTransactionStore.exists(transaction.getId())) {
-      /*
-      if (enableTransactionRebroadcasting) {
-        nonBroadcastedTransactions.add(transaction);
-        logger.info("Transaction " + transaction.getStringId() + " already in unconfirmed pool, will re-broadcast");
-      } else {*/
-        logger.info("Transaction " + transaction.getStringId() + " already in unconfirmed pool, will not broadcast again");
-      ///}
-      return;
+      logger.info("Transaction " + transaction.getStringId() + " already in unconfirmed pool, will not broadcast again");
+      return null;
     }
 
     processedTransactions = processTransactions(Collections.singleton(transaction), null);
 
     if(! processedTransactions.isEmpty()) {
-      broadcastToPeers();
-    }
-
-    if (processedTransactions.contains(transaction)) {
-      /*
-      if (enableTransactionRebroadcasting) {
-        nonBroadcastedTransactions.add(transaction);
-      }
-      */
-      logger.debug("Accepted new transaction " + transaction.getStringId());
+      return broadcastToPeers(true);
     } else {
       logger.debug("Could not accept new transaction " + transaction.getStringId());
       throw new BurstException.NotValidException("Invalid transaction " + transaction.getStringId());
@@ -226,7 +213,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     List<Transaction> processedTransactions = processPeerTransactions(transactionsData, peer);
 
     if(! processedTransactions.isEmpty()) {
-      broadcastToPeers();
+      broadcastToPeers(false);
     }
   }
 
@@ -373,10 +360,16 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     }
   }
 
-  private void broadcastToPeers() {
+  private int broadcastToPeers(boolean toAll) {
+    List<? extends Peer> peersToSendTo = toAll ? Peers.getActivePeers().stream().limit(100).collect(Collectors.toList()) : Peers.getAllActivePriorityPlusSomeExtraPeers();
+
+    logger.info("Queueing up {} Peers for feeding", peersToSendTo.size());
+
     for(Peer p: Peers.getAllActivePriorityPlusSomeExtraPeers()) {
       Peers.feedingTime(p, foodDispenser, doneFeedingLog);
     }
+
+    return peersToSendTo.size();
   }
 
   public void revalidateUnconfirmedTransactions() {

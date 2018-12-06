@@ -6,6 +6,7 @@ import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
 import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
 import static brs.http.common.ResultFields.ERROR_RESPONSE;
 import static brs.http.common.ResultFields.FULL_HASH_RESPONSE;
+import static brs.http.common.ResultFields.NUMBER_PEERS_SENT_TO_RESPONSE;
 import static brs.http.common.ResultFields.TRANSACTION_RESPONSE;
 
 import brs.BurstException;
@@ -45,7 +46,7 @@ public final class BroadcastTransaction extends APIServlet.APIRequestHandler {
     JSONObject response = new JSONObject();
     try {
       transactionService.validate(transaction);
-      transactionProcessor.broadcast(transaction);
+      response.put(NUMBER_PEERS_SENT_TO_RESPONSE, transactionProcessor.broadcast(transaction));
       response.put(TRANSACTION_RESPONSE, transaction.getStringId());
       response.put(FULL_HASH_RESPONSE, transaction.getFullHash());
     } catch (BurstException.ValidationException | RuntimeException e) {

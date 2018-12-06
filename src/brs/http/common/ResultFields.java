@@ -21,6 +21,7 @@ public class ResultFields {
   public static final String DONE_RESPONSE = "done";
   public static final String SCAN_TIME_RESPONSE = "scanTime";
   public static final String BROADCASTED_RESPONSE = "broadcasted";
+  public static final String NUMBER_PEERS_SENT_TO_RESPONSE = "numberPeersSentTo";
   public static final String UNSIGNED_TRANSACTION_BYTES_RESPONSE = "unsignedTransactionBytes";
   public static final String TRANSACTION_JSON_RESPONSE = "transactionJSON";
   public static final String TRANSACTION_BYTES_RESPONSE = "transactionBytes";

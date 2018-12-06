@@ -639,7 +639,7 @@ public final class Peers {
     return allPeers;
   }
 
-  public static Collection<? extends Peer> getActivePeers() {
+  public static List<? extends Peer> getActivePeers() {
     List<PeerImpl> activePeers = new ArrayList<>();
     for (PeerImpl peer : peers.values()) {
       if (peer.getState() != Peer.State.NON_CONNECTED) {
