@@ -815,7 +815,7 @@ public final class Peers {
   private static void feedPeer(Peer peer, Function<Peer, List<Transaction>> foodDispenser, BiConsumer<Peer, List<Transaction>> doneFeedingLog) {
     List<Transaction> transactionsToSend = foodDispenser.apply(peer);
     if(! transactionsToSend.isEmpty()) {
-      logger.debug("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
+      logger.info("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
       peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
     } else {
       logger.debug("No need to feed {}", peer.getPeerAddress());
