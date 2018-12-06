@@ -296,7 +296,7 @@ final class PeerImpl implements Peer {
   public int getLastUpdated() {
     return lastUpdated;
   }
-
+/*
   @Override
   public Long getLastUnconfirmedTransactionTimestamp() {
     return this.lastUnconfirmedTransactionTimestamp;
@@ -306,6 +306,7 @@ final class PeerImpl implements Peer {
   public void setLastUnconfirmedTransactionTimestamp(Long lastUnconfirmedTransactionTimestamp) {
     this.lastUnconfirmedTransactionTimestamp = lastUnconfirmedTransactionTimestamp;
   }
+*/
 
   void setLastUpdated(int lastUpdated) {
     this.lastUpdated = lastUpdated;
@@ -343,6 +344,7 @@ final class PeerImpl implements Peer {
       connection.setDoOutput(true);
       connection.setConnectTimeout(Peers.connectTimeout);
       connection.setReadTimeout(Peers.readTimeout);
+      connection.addRequestProperty("User-Agent","BRS/" + Burst.VERSION);
       connection.setRequestProperty("Accept-Encoding", "gzip");
       connection.setRequestProperty("Connection", "close");
 

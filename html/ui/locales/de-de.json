@@ -466,7 +466,7 @@
     "incorrect_purchase": "Ungültiger Kauf.",
     "info": "Info",
     "info_merchant_message_required": "Für das Empfängerkonto müssen Sie eine speziell formatierte Nachricht angeben.",
-    "info_referenced_transaction_hash": "Da Sie den Hash einer Referenztransaktion angeben haben, werden 100 BURST in Verwahrung genommen, bis die Transaktion bestätigt oder abgelaufen ist.",
+    "info_referenced_transaction_hash": "Da Sie den Hash einer Referenztransaktion angeben haben, werden 50 BURST in Verwahrung genommen, bis die Transaktion bestätigt oder abgelaufen ist.",
     "interface_tutorial": "Anleitung zur Benutzeroberfläche",
     "issue_asset": "Asset ausgeben",
     "issue_asset_warning": "<strong>Warnung<\/strong>: Nach dem Absenden können Sie diese Informationen nicht mehr ändern. Stellen Sie sicher, dass sie korrekt sind.",

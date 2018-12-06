@@ -466,7 +466,7 @@
     "incorrect_purchase": "不適切な購入",
     "info": "情報",
     "info_merchant_message_required": "The recipient account requires you to supply a specially formatted message.",
-    "info_referenced_transaction_hash": "あなたが参照先のトランザクションのハッシュを使用するために、トランザクションが確定または期限切れになるまで100 BURSTが一時的に預かりおかれます。",
+    "info_referenced_transaction_hash": "あなたが参照先のトランザクションのハッシュを使用するために、トランザクションが確定または期限切れになるまで50 BURSTが一時的に預かりおかれます。",
     "interface_tutorial": "インターフェイスのチュートリアル",
     "issue_asset": "資産発行",
     "issue_asset_warning": "<strong>警告<\/strong>: 一度送信すると、二度とこの情報を変更することはできません。正しいことを確認してください。",

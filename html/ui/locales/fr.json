@@ -466,7 +466,7 @@
     "incorrect_purchase": "Achat incorrect.",
     "info": "Info",
     "info_merchant_message_required": "Le compte du destinataire vous oblige à fournir un message spécialement formaté.",
-    "info_referenced_transaction_hash": "Étant donné que vous avez utilisé un hachage de transaction déjà référencé, 100 BURST seront détenus jusqu'à ce que la transaction soit confirmée ou expirée.",
+    "info_referenced_transaction_hash": "Étant donné que vous avez utilisé un hachage de transaction déjà référencé, 50 BURST seront détenus jusqu'à ce que la transaction soit confirmée ou expirée.",
     "interface_tutorial": "Tutoriel sur l'interface",
     "issue_asset": "Émettre un actif",
     "issue_asset_warning": "<strong>Attention<\/strong> : une fois soumises, ces informations ne pourront plus jamais être modifiées. Veuillez vous assurer que tout est correct.",

@@ -466,7 +466,7 @@
    "incorrect_purchase" : "ग़लत खरीद।",
    "info" : "जानकारी",
    "info_merchant_message_required" : "The recipient account requires you to supply a specially formatted message.",
-   "info_referenced_transaction_hash" : "Due to you using a referenced transaction hash, 100 BURST is held in custody until the transaction is confirmed or expired.",
+   "info_referenced_transaction_hash" : "Due to you using a referenced transaction hash, 50 BURST is held in custody until the transaction is confirmed or expired.",
    "interface_tutorial" : "इंटरफ़ेस ट्यूटोरियल",
    "issue_asset" : "मुद्दा परिसंपत्ति",
    "issue_asset_warning" : "<strong>Warning</strong>: Once submitted, you will not be able to change this information again, ever. Make sure it is correct.",

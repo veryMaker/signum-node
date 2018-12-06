@@ -466,7 +466,7 @@
     "incorrect_purchase": "Compra incorreta.",
     "info": "Informações",
     "info_merchant_message_required": "The recipient account requires you to supply a specially formatted message.",
-    "info_referenced_transaction_hash": "Devido ao uso do hash de uma transação referenciada, 100 BURST é mantido sob custódia até que a transação é confirmada ou expirada.",
+    "info_referenced_transaction_hash": "Devido ao uso do hash de uma transação referenciada, 50 BURST é mantido sob custódia até que a transação é confirmada ou expirada.",
     "interface_tutorial": "Tutorial do interface",
     "issue_asset": "Emitir Ativo",
     "issue_asset_warning": "<strong>Aviso<\/strong>: Uma vez enviado, você não será capaz de alterar essas informações, nunca mais. Verifique se está correcto.",

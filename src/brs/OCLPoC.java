@@ -337,6 +337,8 @@ final class OCLPoC {
         try {
           scoopsBuffer.get(scoop);
           blockService.preVerify(block, scoop);
+        } catch ( InterruptedException e ) {
+          Thread.currentThread().interrupt();
         } catch (BlockchainProcessor.BlockNotAcceptedException e) {
           throw new PreValidateFailException("Block failed to prevalidate", e, block);
         }

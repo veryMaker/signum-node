@@ -466,7 +466,7 @@
     "incorrect_purchase": "Pogrešna kupovina.",
     "info": "Info",
     "info_merchant_message_required": "The recipient account requires you to supply a specially formatted message.",
-    "info_referenced_transaction_hash": "Pošto koristite Hash referentne transakcije, 100 BURST-a je zamrznuto dok transakcija nije potvrđena ili istekla.",
+    "info_referenced_transaction_hash": "Pošto koristite Hash referentne transakcije, 50 BURST-a je zamrznuto dok transakcija nije potvrđena ili istekla.",
     "interface_tutorial": "Uputstvo za Interfejs",
     "issue_asset": "Izdajte Asset",
     "issue_asset_warning": "<strong>Upozorenje<\/strong>: Nakon potvrde više nikada nećete moći promeniti ovu informaciju. Proverite njenu ispravnost.",

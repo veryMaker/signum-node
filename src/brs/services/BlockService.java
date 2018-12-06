@@ -7,9 +7,9 @@ import brs.BlockchainProcessor.BlockOutOfOrderException;
 
 public interface BlockService {
 
-  void preVerify(Block block) throws BlockchainProcessor.BlockNotAcceptedException;
+  void preVerify(Block block) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException;
 
-  void preVerify(Block block, byte[] scoopData) throws BlockchainProcessor.BlockNotAcceptedException;
+  void preVerify(Block block, byte[] scoopData) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException;
 
   long getBlockReward(Block block);
 

@@ -344,7 +344,7 @@ var BRS = (function(BRS, $, undefined) {
                             accountInputField.val(match[1].escapeHTML());
                             callout.html($.t("alias_account_link", {
                                 "account_id": String(match[1]).escapeHTML()
-                            }) + ". " + $.t("recipient_unknown_pka") + " " + $.t("alias_last_adjusted", {
+                            }) + ". " + $.t("alias_last_adjusted", {
                                 "timestamp": BRS.formatTimestamp(timestamp)
                             })).removeClass(classes).addClass("callout-" + response.type).show();
                         });

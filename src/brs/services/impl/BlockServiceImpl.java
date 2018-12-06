@@ -16,6 +16,7 @@ import brs.services.BlockService;
 import brs.services.TransactionService;
 import brs.util.Convert;
 import brs.util.DownloadCacheImpl;
+import brs.util.ThreadPool;
 import java.math.BigInteger;
 import java.util.Arrays;
 import org.slf4j.Logger;
@@ -103,12 +104,12 @@ public class BlockServiceImpl implements BlockService {
   }
 
   @Override
-  public void preVerify(Block block) throws BlockchainProcessor.BlockNotAcceptedException {
+  public void preVerify(Block block) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException {
     preVerify(block, null);
   }
 
   @Override
-  public void preVerify(Block block, byte[] scoopData) throws BlockchainProcessor.BlockNotAcceptedException {
+  public void preVerify(Block block, byte[] scoopData) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException {
     // Just in case its already verified
     if (block.isVerified()) {
       return;
@@ -134,6 +135,8 @@ public class BlockServiceImpl implements BlockService {
             + Convert.toUnsignedLong(transaction.getId()) + "at block height: " + block.getHeight(),
             transaction);
       }
+      if (Thread.currentThread().isInterrupted() || ! ThreadPool.running.get() )
+        throw new InterruptedException();
     }
 
   }

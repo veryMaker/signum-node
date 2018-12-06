@@ -101,6 +101,77 @@ DB.Username=brs_user
 DB.Password=yourpassword
 ```
 
+### Docker
+
+`latest` : Latest tag of the BRS with H2 database  
+`mariadb` : Latest tag of the BRS with MariaDB database  
+`2.2.3-h2`, `2.2-h2` : Version 2.2.3 of the BRS with H2 database  
+`2.2.3-mariadb`, `2.2-mariadb` : Version 2.2.3 of the BRS with MariaDB database  
+
+
+**Note (H2 only):**  
+H2 dump username and password has been changed through updates. The current dump has the user 'sa' and password 'sa' which is used in the BRS 2.2.1 image. If you get username errors, please mount your custom config for your H2 file.
+
+Old username and passwords:
+
+- both empty  
+  or
+- burst - burst
+
+---
+##### MariaDB
+
+```
+version: '3'
+
+services:
+  burstcoin:
+    image: burstcoin/core:2.2-mariadb
+    restart: always
+    depends_on:
+     - mariadb
+    ports:
+     - 8123:8123
+     - 8125:8125
+  mariadb:
+    image: mariadb:10
+    environment:
+     - MYSQL_ROOT_PASSWORD=burst
+     - MYSQL_DATABASE=burst
+    command: mysqld --character_set_server=utf8mb4
+    volumes:
+     - ./burst_db:/var/lib/mysql
+```
+
+---
+##### H2
+
+```
+docker run -p 8123:8123 -p 8125:8125 -v "$(pwd)"/burst_db:/db -d burstcoin/core:2.2-h2
+```
+
+
+## Upgrading
+
+Ensure the PoC-Consortium github is in your list of remotes: 
+```
+git remote -v
+```
+
+If it's not, add it: 
+```
+git remote add pocc https://github.com/PoC-Consortium/burstcoin.git
+```
+
+Replacing `X.X.X` with the latest tag, run these commands:
+
+```
+git fetch --all --tags --prune
+git checkout tags/X.X.X -b X.X.X 
+./burst.sh compile
+./burst.sh
+```
+
 ## Striking Features
 
 - Proof of Capacity - ASIC proof / Energy efficient mining
