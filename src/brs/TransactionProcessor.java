@@ -25,7 +25,7 @@ public interface TransactionProcessor extends Observable<List<? extends Transact
 
   void clearUnconfirmedTransactions();
 
-  void broadcast(Transaction transaction) throws BurstException.ValidationException;
+  Integer broadcast(Transaction transaction) throws BurstException.ValidationException;
 
   void processPeerTransactions(JSONObject request, Peer peer) throws BurstException.ValidationException;
 

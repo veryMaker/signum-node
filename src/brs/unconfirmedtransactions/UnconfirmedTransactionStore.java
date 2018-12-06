@@ -18,20 +18,15 @@ public interface UnconfirmedTransactionStore {
 
   List<Transaction> getAllFor(Peer peer);
 
-  ///TimedUnconfirmedTransactionOverview getAllSince(long timestampInMillis, long maxAmount);
-
-  void forEach(Consumer<Transaction> consumer);
-
   void remove(Transaction transaction);
 
   void clear();
-
 
   /**
    * Review which transactions are still eligible to stay
    * @return The list of removed transactions
    */
-  List<Transaction> resetAccountBalances();
+  void resetAccountBalances();
 
   void markFingerPrintsOf(Peer peer, List<Transaction> transactions);
 

@@ -639,7 +639,7 @@ public final class Peers {
     return allPeers;
   }
 
-  public static Collection<? extends Peer> getActivePeers() {
+  public static List<? extends Peer> getActivePeers() {
     List<PeerImpl> activePeers = new ArrayList<>();
     for (PeerImpl peer : peers.values()) {
       if (peer.getState() != Peer.State.NON_CONNECTED) {
@@ -815,7 +815,7 @@ public final class Peers {
   private static void feedPeer(Peer peer, Function<Peer, List<Transaction>> foodDispenser, BiConsumer<Peer, List<Transaction>> doneFeedingLog) {
     List<Transaction> transactionsToSend = foodDispenser.apply(peer);
     if(! transactionsToSend.isEmpty()) {
-      logger.debug("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
+      logger.info("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
       peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
     } else {
       logger.debug("No need to feed {}", peer.getPeerAddress());

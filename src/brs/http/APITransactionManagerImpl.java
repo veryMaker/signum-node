@@ -23,6 +23,7 @@ import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
 import static brs.http.common.ResultFields.BROADCASTED_RESPONSE;
 import static brs.http.common.ResultFields.ERROR_RESPONSE;
 import static brs.http.common.ResultFields.FULL_HASH_RESPONSE;
+import static brs.http.common.ResultFields.NUMBER_PEERS_SENT_TO_RESPONSE;
 import static brs.http.common.ResultFields.SIGNATURE_HASH_RESPONSE;
 import static brs.http.common.ResultFields.TRANSACTION_BYTES_RESPONSE;
 import static brs.http.common.ResultFields.TRANSACTION_JSON_RESPONSE;
@@ -38,7 +39,6 @@ import brs.Attachment;
 import brs.Blockchain;
 import brs.Burst;
 import brs.BurstException;
-import brs.Constants;
 import brs.Transaction;
 import brs.Transaction.Builder;
 import brs.TransactionProcessor;
@@ -187,7 +187,7 @@ public class APITransactionManagerImpl implements APITransactionManager {
         response.put(TRANSACTION_BYTES_RESPONSE, Convert.toHexString(transaction.getBytes()));
         response.put(SIGNATURE_HASH_RESPONSE, Convert.toHexString(Crypto.sha256().digest(transaction.getSignature())));
         if (broadcast) {
-          transactionProcessor.broadcast(transaction);
+          response.put(NUMBER_PEERS_SENT_TO_RESPONSE, transactionProcessor.broadcast(transaction));
           response.put(BROADCASTED_RESPONSE, true);
         } else {
           response.put(BROADCASTED_RESPONSE, false);
