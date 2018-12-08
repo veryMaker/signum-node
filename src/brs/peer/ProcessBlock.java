@@ -41,7 +41,7 @@ public final class ProcessBlock extends PeerServlet.PeerRequestHandler {
         // when loading blockchain from scratch
         return NOT_ACCEPTED;
       }
-      blockchainProcessor.processPeerBlock(request);
+      blockchainProcessor.processPeerBlock(request, peer);
       return ACCEPTED;
 
     } catch (BurstException|RuntimeException e) {
