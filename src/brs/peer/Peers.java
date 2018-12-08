@@ -815,19 +815,21 @@ public final class Peers {
 
   private static void feedPeer(Peer peer, Function<Peer, List<Transaction>> foodDispenser, BiConsumer<Peer, List<Transaction>> doneFeedingLog) {
     List<Transaction> transactionsToSend = foodDispenser.apply(peer);
+
     if(! transactionsToSend.isEmpty()) {
       logger.info("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
       JSONObject response = peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
 
       if(response != null && response.get("error") == null) {
-        beingProcessed.remove(peer);
         doneFeedingLog.accept(peer, transactionsToSend);
       } else {
-        logger.error("Error feeding {} transactions: {} error:", peer.getPeerAddress(), transactionsToSend.stream().map(t -> t.getId()), response);
+        logger.error("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(t -> t.getId()), response);
       }
     } else {
-      logger.debug("No need to feed {}", peer.getPeerAddress());
+      logger.info("No need to feed {}", peer.getPeerAddress());
     }
+
+    beingProcessed.remove(peer);
 
     if(processingQueue.contains(peer)) {
       processingQueue.remove(peer);

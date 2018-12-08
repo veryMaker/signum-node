@@ -365,7 +365,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
     logger.info("Queueing up {} Peers for feeding", peersToSendTo.size());
 
-    for(Peer p: Peers.getAllActivePriorityPlusSomeExtraPeers()) {
+    for(Peer p: peersToSendTo) {
       Peers.feedingTime(p, foodDispenser, doneFeedingLog);
     }
 
