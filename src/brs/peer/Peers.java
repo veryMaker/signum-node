@@ -2,6 +2,7 @@ package brs.peer;
 
 import static brs.props.Props.P2P_ENABLE_TX_REBROADCAST;
 import static brs.props.Props.P2P_SEND_TO_LIMIT;
+import static brs.util.JSON.prepareRequest;
 
 import brs.*;
 import brs.props.Props;
@@ -164,7 +165,7 @@ public final class Peers {
     logger.debug("My peer info:\n" + json.toJSONString());
     myPeerInfoResponse = JSON.prepare(json);
     json.put("requestType", "getInfo");
-    myPeerInfoRequest = JSON.prepareRequest(json);
+    myPeerInfoRequest = prepareRequest(json);
 
     if(propertyService.getBoolean(P2P_ENABLE_TX_REBROADCAST)) {
       rebroadcastPeers = Collections
@@ -509,7 +510,7 @@ public final class Peers {
       {
         JSONObject request = new JSONObject();
         request.put("requestType", "getPeers");
-        getPeersRequest = JSON.prepareRequest(request);
+        getPeersRequest = prepareRequest(request);
       }
 
       private volatile boolean addedNewPeer;
@@ -575,7 +576,7 @@ public final class Peers {
               JSONObject request = new JSONObject();
               request.put("requestType", "addPeers");
               request.put("peers", myPeers);
-              peer.send(JSON.prepareRequest(request));
+              peer.send(prepareRequest(request));
             }
 
           } catch (Exception e) {
@@ -752,7 +753,7 @@ public final class Peers {
     request.put("requestType", "processBlock");
 
     blocksSendingService.submit(() -> {
-      final JSONStreamAware jsonRequest = JSON.prepareRequest(request);
+      final JSONStreamAware jsonRequest = prepareRequest(request);
 
       int successful = 0;
       List<Future<JSONObject>> expectedResponses = new ArrayList<>();
@@ -789,7 +790,7 @@ public final class Peers {
   static {
     JSONObject request = new JSONObject();
     request.put("requestType", "getUnconfirmedTransactions");
-    getUnconfirmedTransactionsRequest = JSON.prepareRequest(request);
+    getUnconfirmedTransactionsRequest = prepareRequest(request);
   }
 
   private static final ExecutorService utReceivingService = Executors.newCachedThreadPool();
@@ -814,16 +815,21 @@ public final class Peers {
 
   private static void feedPeer(Peer peer, Function<Peer, List<Transaction>> foodDispenser, BiConsumer<Peer, List<Transaction>> doneFeedingLog) {
     List<Transaction> transactionsToSend = foodDispenser.apply(peer);
+
     if(! transactionsToSend.isEmpty()) {
       logger.info("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
-      peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
+      JSONObject response = peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
+
+      if(response != null && response.get("error") == null) {
+        doneFeedingLog.accept(peer, transactionsToSend);
+      } else {
+        logger.error("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(t -> t.getId()), response);
+      }
     } else {
-      logger.debug("No need to feed {}", peer.getPeerAddress());
+      logger.info("No need to feed {}", peer.getPeerAddress());
     }
 
     beingProcessed.remove(peer);
-
-    doneFeedingLog.accept(peer, transactionsToSend);
 
     if(processingQueue.contains(peer)) {
       processingQueue.remove(peer);
@@ -832,8 +838,7 @@ public final class Peers {
     }
   }
 
-
-  private static JSONObject sendUnconfirmedTransactionsRequest(List<Transaction> transactions) {
+  private static JSONStreamAware sendUnconfirmedTransactionsRequest(List<Transaction> transactions) {
     JSONObject request = new JSONObject();
     JSONArray transactionsData = new JSONArray();
 
@@ -844,7 +849,7 @@ public final class Peers {
     request.put("requestType", "processTransactions");
     request.put("transactions", transactionsData);
 
-    return request;
+    return prepareRequest(request);
   }
 
   private static boolean peerEligibleForSending(Peer peer, boolean sendSameBRSclass) {
