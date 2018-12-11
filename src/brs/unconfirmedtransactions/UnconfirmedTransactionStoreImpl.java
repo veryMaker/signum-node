@@ -43,6 +43,8 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   private int totalSize;
   private final int maxSize;
 
+  private final int maxRawUTBytesToSend;
+
   private int numberUnconfirmedTransactionsFullHash;
   private final int maxPercentageUnconfirmedTransactionsFullHash;
 
@@ -64,6 +66,8 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
     this.maxSize = propertyService.getInt(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS);
     this.totalSize = 0;
+
+    this.maxRawUTBytesToSend = propertyService.getInt(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND);
 
     this.maxPercentageUnconfirmedTransactionsFullHash = propertyService.getInt(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE);
     this.numberUnconfirmedTransactionsFullHash = 0;
@@ -162,7 +166,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
       final ArrayList<Transaction> resultList = new ArrayList<>();
 
-      long roomLeft = 175000;
+      long roomLeft = this.maxRawUTBytesToSend;
 
       for (Transaction t : untouchedTransactions) {
         roomLeft -= t.getSize();

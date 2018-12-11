@@ -12,6 +12,7 @@ import brs.services.TimeService;
 import brs.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
@@ -823,10 +824,10 @@ public final class Peers {
       if(response != null && response.get("error") == null) {
         doneFeedingLog.accept(peer, transactionsToSend);
       } else {
-        logger.error("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(t -> t.getId()), response);
+        logger.error("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(t -> t.getId()).collect(Collectors.toList()), response);
       }
     } else {
-      logger.info("No need to feed {}", peer.getPeerAddress());
+      logger.trace("No need to feed {}", peer.getPeerAddress());
     }
 
     beingProcessed.remove(peer);

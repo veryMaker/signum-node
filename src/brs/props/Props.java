@@ -100,6 +100,8 @@ public class Props {
   public static final Prop P2P_MAX_UNCONFIRMED_TRANSACTIONS = new Prop("P2P.maxUnconfirmedTransactions", 8192);
   public static final Prop P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE = new Prop("P2P.maxUnconfirmedTransactionsFullHashReferencePercentage", 5);
 
+  public static final Prop P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND = new Prop("P2P.maxUTRawSizeBytesToSend", 175000);
+
   // API options
   public static final Prop API_DEBUG   = new Prop("API.Debug", false);
   public static final Prop API_SSL     = new Prop("API.SSL", false);

@@ -153,7 +153,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   }
 
   @Override
-  public List<Transaction> getAllUnconfirmedTransactionsFor(Peer peer, long limitInBytes) {
+  public List<Transaction> getAllUnconfirmedTransactionsFor(Peer peer) {
     return unconfirmedTransactionStore.getAllFor(peer);
   }
 

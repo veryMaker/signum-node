@@ -25,10 +25,7 @@ final class GetUnconfirmedTransactions extends PeerServlet.ExtendedPeerRequestHa
   ExtendedProcessRequest extendedProcessRequest(JSONObject request, Peer peer) {
     JSONObject response = new JSONObject();
 
-    // TODO Brabantian limit should be passed how? From PeerInfo somehow? Math.min(x, y);
-    final List<Transaction> unconfirmedTransactions = transactionProcessor.getAllUnconfirmedTransactionsFor(peer, 1000L);
-
-    //long newLastUnconfirmedTransactionTimestamp = unconfirmedTransactionsOverview.getTimestamp();
+    final List<Transaction> unconfirmedTransactions = transactionProcessor.getAllUnconfirmedTransactionsFor(peer);
 
     JSONArray transactionsData = new JSONArray();
     for (Transaction transaction : unconfirmedTransactions) {
@@ -36,7 +33,6 @@ final class GetUnconfirmedTransactions extends PeerServlet.ExtendedPeerRequestHa
     }
 
     response.put(UNCONFIRMED_TRANSACTIONS_RESPONSE, transactionsData);
-    // response.put(LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_RESPONSE, unconfirmedTransactionsOverview.getTimestamp());
 
     return new ExtendedProcessRequest(response, () -> transactionProcessor.markFingerPrintsOf(peer, unconfirmedTransactions));
   }
