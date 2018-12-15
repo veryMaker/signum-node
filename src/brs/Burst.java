@@ -66,10 +66,8 @@ import org.slf4j.LoggerFactory;
 
 public final class Burst {
 
-  public static final String VERSION     = "2.2.5";
+  public static final String VERSION     = "2.3.0";
   public static final String APPLICATION = "BRS";
-  public static final String LEGACY_APP  = "NRS";
-  public static final String LEGACY_VER  = "1.2.9";
 
   private static final String DEFAULT_PROPERTIES_NAME = "brs-default.properties";
 

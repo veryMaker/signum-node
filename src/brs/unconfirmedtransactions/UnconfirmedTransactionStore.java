@@ -31,4 +31,6 @@ public interface UnconfirmedTransactionStore {
   void markFingerPrintsOf(Peer peer, List<Transaction> transactions);
 
   void removeForgedTransactions(List<Transaction> transactions);
+
+  int getAmount();
 }

@@ -1,5 +1,7 @@
 package brs.peer;
 
+import static brs.Constants.MIN_VERSION;
+import static brs.peer.PeerImpl.isHigherOrEqualVersion;
 import static brs.props.Props.P2P_ENABLE_TX_REBROADCAST;
 import static brs.props.Props.P2P_SEND_TO_LIMIT;
 import static brs.util.JSON.prepareRequest;
@@ -12,6 +14,7 @@ import brs.services.TimeService;
 import brs.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
@@ -43,6 +46,14 @@ import javax.xml.parsers.ParserConfigurationException;
 public final class Peers {
 
   private static final Logger logger = LoggerFactory.getLogger(Peers.class);
+
+  public static boolean isSupportedUserAgent(String header) {
+    if(header == null || header.isEmpty() || ! header.trim().startsWith("BRS/")) {
+      return false;
+    } else {
+      return isHigherOrEqualVersion(MIN_VERSION, header.trim().substring("BRS/".length()));
+    }
+  }
 
   public enum Event {
     BLACKLIST, UNBLACKLIST, DEACTIVATE, REMOVE,
@@ -432,7 +443,7 @@ public final class Peers {
              * if we loose Internet connection
              */
                   
-            if (!peer.isHigherOrEqualVersionThan(Burst.LEGACY_VER)
+            if (!peer.isHigherOrEqualVersionThan(MIN_VERSION)
              || (peer.getState() != Peer.State.CONNECTED && !peer.isBlacklisted() && peers.size() > maxNumberOfConnectedPublicPeers)) {
               removePeer(peer);
             }
@@ -456,7 +467,7 @@ public final class Peers {
         for (PeerImpl peer : peers.values()) {
           if (peer.getState() == Peer.State.CONNECTED && now - peer.getLastUpdated() > 3600) {
             peer.connect(timeService.getEpochTime());
-            if (!peer.isHigherOrEqualVersionThan(Burst.LEGACY_VER) ||
+            if (!peer.isHigherOrEqualVersionThan(MIN_VERSION) ||
                (peer.getState() != Peer.State.CONNECTED && !peer.isBlacklisted() && peers.size() > maxNumberOfConnectedPublicPeers)) {
               removePeer(peer);
             }
@@ -479,7 +490,7 @@ public final class Peers {
         if (peer.getAnnouncedAddress() != null
         && ! peer.isBlacklisted()
         && ! peer.isWellKnown()
-        && peer.isHigherOrEqualVersionThan(Burst.LEGACY_VER)) {
+        && peer.isHigherOrEqualVersionThan(MIN_VERSION)) {
           currentPeers.add(peer.getAnnouncedAddress());
         }
       }
@@ -562,7 +573,7 @@ public final class Peers {
                   && myPeer.getState() == Peer.State.CONNECTED && myPeer.shareAddress()
                   && ! addedAddresses.contains(myPeer.getAnnouncedAddress())
                   && ! myPeer.getAnnouncedAddress().equals(peer.getAnnouncedAddress())
-                  && myPeer.isHigherOrEqualVersionThan(Burst.LEGACY_VER)
+                  && myPeer.isHigherOrEqualVersionThan(MIN_VERSION)
                   ) {
                 myPeers.add(myPeer.getAnnouncedAddress());
               }
@@ -817,16 +828,16 @@ public final class Peers {
     List<Transaction> transactionsToSend = foodDispenser.apply(peer);
 
     if(! transactionsToSend.isEmpty()) {
-      logger.info("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
+      logger.trace("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
       JSONObject response = peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
 
       if(response != null && response.get("error") == null) {
         doneFeedingLog.accept(peer, transactionsToSend);
       } else {
-        logger.error("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(t -> t.getId()), response);
+        logger.warn("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(t -> t.getId()).collect(Collectors.toList()), response);
       }
     } else {
-      logger.info("No need to feed {}", peer.getPeerAddress());
+      logger.trace("No need to feed {}", peer.getPeerAddress());
     }
 
     beingProcessed.remove(peer);
@@ -853,9 +864,9 @@ public final class Peers {
   }
 
   private static boolean peerEligibleForSending(Peer peer, boolean sendSameBRSclass) {
-    return peer.isHigherOrEqualVersionThan(Burst.LEGACY_VER)
+    return peer.isHigherOrEqualVersionThan(MIN_VERSION)
         && (! sendSameBRSclass || peer.isAtLeastMyVersion())
-        && !peer.isBlacklisted()
+        && ! peer.isBlacklisted()
         && peer.getState() == Peer.State.CONNECTED
         && peer.getAnnouncedAddress() != null;
   }
