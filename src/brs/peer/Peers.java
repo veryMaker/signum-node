@@ -818,13 +818,13 @@ public final class Peers {
     List<Transaction> transactionsToSend = foodDispenser.apply(peer);
 
     if(! transactionsToSend.isEmpty()) {
-      logger.info("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
+      logger.trace("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
       JSONObject response = peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
 
       if(response != null && response.get("error") == null) {
         doneFeedingLog.accept(peer, transactionsToSend);
       } else {
-        logger.error("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(t -> t.getId()).collect(Collectors.toList()), response);
+        logger.warn("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(t -> t.getId()).collect(Collectors.toList()), response);
       }
     } else {
       logger.trace("No need to feed {}", peer.getPeerAddress());
