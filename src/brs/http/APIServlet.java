@@ -115,6 +115,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getMyInfo", GetMyInfo.instance);
     //map.put("getNextBlockGenerators", GetNextBlockGenerators.instance);
     map.put("getPeer", GetPeer.instance);
+    map.put("getMyPeerInfo", new GetMyPeerInfo(blockchainProcessor, transactionProcessor));
     map.put("getPeers", GetPeers.instance);
     //map.put("getPoll", GetPoll.instance);
     //map.put("getPollIds", GetPollIds.instance);

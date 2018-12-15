@@ -234,6 +234,11 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     }
   }
 
+  @Override
+  public int getAmount() {
+    return totalSize;
+  }
+
   private boolean transactionIsCurrentlyInCache(Transaction transaction) {
     final List<Transaction> amountSlot = internalStore.get(amountSlotForTransaction(transaction));
     return amountSlot != null && amountSlot.stream().anyMatch(t -> t.getId() == transaction.getId());
