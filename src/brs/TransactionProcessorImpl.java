@@ -368,7 +368,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   private int broadcastToPeers(boolean toAll) {
     List<? extends Peer> peersToSendTo = toAll ? Peers.getActivePeers().stream().limit(100).collect(Collectors.toList()) : Peers.getAllActivePriorityPlusSomeExtraPeers();
 
-    logger.info("Queueing up {} Peers for feeding", peersToSendTo.size());
+    logger.trace("Queueing up {} Peers for feeding", peersToSendTo.size());
 
     for(Peer p: peersToSendTo) {
       Peers.feedingTime(p, foodDispenser, doneFeedingLog);

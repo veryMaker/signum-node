@@ -1,6 +1,6 @@
 package brs.peer;
 
-import static brs.Burst.LEGACY_VER;
+import static brs.Constants.MIN_VERSION;
 import static brs.peer.PeerImpl.isHigherOrEqualVersion;
 import static brs.props.Props.P2P_ENABLE_TX_REBROADCAST;
 import static brs.props.Props.P2P_SEND_TO_LIMIT;
@@ -51,7 +51,7 @@ public final class Peers {
     if(header == null || header.isEmpty() || ! header.trim().startsWith("BRS/")) {
       return false;
     } else {
-      return isHigherOrEqualVersion(LEGACY_VER, header.trim().substring("BRS/".length()));
+      return isHigherOrEqualVersion(MIN_VERSION, header.trim().substring("BRS/".length()));
     }
   }
 
@@ -443,7 +443,7 @@ public final class Peers {
              * if we loose Internet connection
              */
                   
-            if (!peer.isHigherOrEqualVersionThan(LEGACY_VER)
+            if (!peer.isHigherOrEqualVersionThan(MIN_VERSION)
              || (peer.getState() != Peer.State.CONNECTED && !peer.isBlacklisted() && peers.size() > maxNumberOfConnectedPublicPeers)) {
               removePeer(peer);
             }
@@ -467,7 +467,7 @@ public final class Peers {
         for (PeerImpl peer : peers.values()) {
           if (peer.getState() == Peer.State.CONNECTED && now - peer.getLastUpdated() > 3600) {
             peer.connect(timeService.getEpochTime());
-            if (!peer.isHigherOrEqualVersionThan(LEGACY_VER) ||
+            if (!peer.isHigherOrEqualVersionThan(MIN_VERSION) ||
                (peer.getState() != Peer.State.CONNECTED && !peer.isBlacklisted() && peers.size() > maxNumberOfConnectedPublicPeers)) {
               removePeer(peer);
             }
@@ -490,7 +490,7 @@ public final class Peers {
         if (peer.getAnnouncedAddress() != null
         && ! peer.isBlacklisted()
         && ! peer.isWellKnown()
-        && peer.isHigherOrEqualVersionThan(LEGACY_VER)) {
+        && peer.isHigherOrEqualVersionThan(MIN_VERSION)) {
           currentPeers.add(peer.getAnnouncedAddress());
         }
       }
@@ -573,7 +573,7 @@ public final class Peers {
                   && myPeer.getState() == Peer.State.CONNECTED && myPeer.shareAddress()
                   && ! addedAddresses.contains(myPeer.getAnnouncedAddress())
                   && ! myPeer.getAnnouncedAddress().equals(peer.getAnnouncedAddress())
-                  && myPeer.isHigherOrEqualVersionThan(LEGACY_VER)
+                  && myPeer.isHigherOrEqualVersionThan(MIN_VERSION)
                   ) {
                 myPeers.add(myPeer.getAnnouncedAddress());
               }
@@ -864,9 +864,9 @@ public final class Peers {
   }
 
   private static boolean peerEligibleForSending(Peer peer, boolean sendSameBRSclass) {
-    return peer.isHigherOrEqualVersionThan(LEGACY_VER)
+    return peer.isHigherOrEqualVersionThan(MIN_VERSION)
         && (! sendSameBRSclass || peer.isAtLeastMyVersion())
-        && !peer.isBlacklisted()
+        && ! peer.isBlacklisted()
         && peer.getState() == Peer.State.CONNECTED
         && peer.getAnnouncedAddress() != null;
   }
