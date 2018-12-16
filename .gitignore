@@ -5,7 +5,9 @@ burst.jar
 brs.log
 brs.log.*
 /conf/logging.properties
-/conf/brs.properties*
+/conf/brs.properties.MainNet
+/conf/brs.properties.Testnet
+/conf/brs.properties.PrivNet
 _config.yml
 /html/ui/doc/*
 target

@@ -118,10 +118,18 @@ final class PeerImpl implements Peer {
   }
 
   // semantic versioning for peer versions. here: ">=" negate it for "<"
-  public boolean isHigherOrEqualVersionThan(String ComparisonVersion) {
+  public boolean isHigherOrEqualVersionThan(String ourVersion) {
+    return isHigherOrEqualVersion(ourVersion, version);
+  }
+
+  public static boolean isHigherOrEqualVersion(String ourVersion, String possiblyLowerVersion) {
+    if(possiblyLowerVersion == null || possiblyLowerVersion.isEmpty()) {
+      return false;
+    }
+
     Pattern pattern = Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)?");
-    Matcher matchPeer = pattern.matcher(version);
-    Matcher matchCompare = pattern.matcher(ComparisonVersion);
+    Matcher matchPeer = pattern.matcher(possiblyLowerVersion);
+    Matcher matchCompare = pattern.matcher(ourVersion);
 
     if (matchPeer.find() && matchCompare.find()) {  // if both peer version and our comparison version are sane
       // we have simplified versions with 3 limbs: X.Y.Z

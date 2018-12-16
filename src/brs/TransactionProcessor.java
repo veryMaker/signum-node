@@ -17,7 +17,9 @@ public interface TransactionProcessor extends Observable<List<? extends Transact
 
   List<Transaction> getAllUnconfirmedTransactions();
 
-  List<Transaction> getAllUnconfirmedTransactionsFor(Peer peer, long limitInBytes);
+  int getAmountUnconfirmedTransactions();
+
+  List<Transaction> getAllUnconfirmedTransactionsFor(Peer peer);
 
   void markFingerPrintsOf(Peer peer, List<Transaction> transactions);
   

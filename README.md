@@ -35,6 +35,7 @@ If running for the first time,
 
 
 if upgrading your wallet config from 1.3.6cg
+(this feature will be removed in 2.2.8)
 
 ```
 burst.sh upgrade
@@ -105,8 +106,8 @@ DB.Password=yourpassword
 
 `latest` : Latest tag of the BRS with H2 database  
 `mariadb` : Latest tag of the BRS with MariaDB database  
-`2.2.3-h2`, `2.2-h2` : Version 2.2.3 of the BRS with H2 database  
-`2.2.3-mariadb`, `2.2-mariadb` : Version 2.2.3 of the BRS with MariaDB database  
+`2.2.7-h2`, `2.2-h2`, `2-h2` : Version 2.2.7 of the BRS with H2 database  
+`2.2.7-mariadb`, `2.2-mariadb`, `2-mariadb` : Version 2.2.7 of the BRS with MariaDB database  
 
 
 **Note (H2 only):**  
@@ -126,7 +127,7 @@ version: '3'
 
 services:
   burstcoin:
-    image: burstcoin/core:2.2-mariadb
+    image: pocconsortium/burstcoin:2-mariadb
     restart: always
     depends_on:
      - mariadb
@@ -147,7 +148,7 @@ services:
 ##### H2
 
 ```
-docker run -p 8123:8123 -p 8125:8125 -v "$(pwd)"/burst_db:/db -d burstcoin/core:2.2-h2
+docker run -p 8123:8123 -p 8125:8125 -v "$(pwd)"/burst_db:/db -d pocconsortium/burstcoin:2-h2
 ```
 
 

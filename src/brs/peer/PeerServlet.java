@@ -98,6 +98,9 @@ public final class PeerServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    if(! Peers.isSupportedUserAgent(req.getHeader("User-Agent"))) {
+      return;
+    }
 
     PeerImpl peer = null;
     JSONStreamAware response;
