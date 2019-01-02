@@ -12,7 +12,7 @@ public final class GetMyPeerInfo extends APIServlet.APIRequestHandler {
   private final TransactionProcessor transactionProcessor;
 
   public GetMyPeerInfo(BlockchainProcessor blockchainProcessor, TransactionProcessor transactionProcessor) {
-    super(new APITag[]{APITag.INFO});
+    super(new APITag[]{APITag.PEER_INFO});
     this.blockchainProcessor = blockchainProcessor;
     this.transactionProcessor = transactionProcessor;
   }

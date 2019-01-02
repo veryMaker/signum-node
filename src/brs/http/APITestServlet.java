@@ -55,7 +55,7 @@ public class APITestServlet extends HttpServlet {
       + "            }\n"
       + "            $.ajax({\n"
       + "                url: url,\n"
-      + "                type: 'GET',\n"
+      + "                type: 'POST',\n"
       + "            })\n"
       + "            .done(function(result) {\n"
       + "                var resultStr = JSON.stringify(JSON.parse(result), null, 4);\n"
