@@ -189,7 +189,7 @@ var BRS = (function(BRS, $, undefined) {
                 } else {
                     callback({
                         "type": "warning",
-                        "message": $.t("recipient_no_public_key_pka", {
+                        "message": $.t("recipient_no_public_key", {
                             "burst": BRS.formatAmount(response.unconfirmedBalanceNQT, false, true)
                         }),
                         "account": response,
