@@ -262,7 +262,7 @@ public abstract class TransactionType {
     return totalAmountNQT;
   }
 
-  private Long calculateAttachmentTotalAmountNQT(Transaction transaction) {
+  protected Long calculateAttachmentTotalAmountNQT(Transaction transaction) {
     return 0L;
   }
 
@@ -2426,7 +2426,7 @@ public abstract class TransactionType {
     return Convert.safeAdd(fee.getConstantFee(), Convert.safeMultiply(appendagesSize, fee.getAppendagesFee()));
   }
 
-  private Fee getBaselineFee(int height) {
+  protected Fee getBaselineFee(int height) {
     return new Fee((fluxCapacitor.isActive(PRE_DYMAXION, height) ? FEE_QUANT : ONE_BURST), 0);
   }
 

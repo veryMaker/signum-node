@@ -385,7 +385,7 @@ public class AT_Machine_State {
     }
   }
 
-  void clearTransactions() {
+  protected void clearTransactions() {
     transactions.clear();
   }
 

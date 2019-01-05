@@ -89,8 +89,6 @@ public abstract class ValuesSqlTable<T,V> extends DerivedSqlTable implements Val
       for (V v : values) {
         save(ctx, t, v);
       }
-    } catch (SQLException e) {
-      throw new RuntimeException(e.toString(), e);
     }
   }
 

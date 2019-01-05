@@ -6,7 +6,7 @@ public class Props {
   public static final Prop<Boolean> DEV_OFFLINE = new Prop<>("DEV.Offline", false);
   public static final Prop<Boolean> DEV_TESTNET = new Prop<>("DEV.TestNet", false);
 
-  public static final Prop<Boolean> DEV_TIMEWARP    = new Prop<>("DEV.TimeWarp", false);
+  public static final Prop<Integer> DEV_TIMEWARP    = new Prop<>("DEV.TimeWarp", 1);
   public static final Prop<Boolean> DEV_MOCK_MINING = new Prop<>("DEV.mockMining", false);
 
   public static final Prop<String> DEV_DB_URL      = new Prop<>("DEV.DB.Url", "");
@@ -77,7 +77,7 @@ public class Props {
   public static final Prop<String> P2P_MY_PLATFORM = new Prop<>("P2P.myPlatform", "PC");
   public static final Prop<String> P2P_MY_ADDRESS  = new Prop<>("P2P.myAddress", "");
   public static final Prop<String> P2P_LISTEN      = new Prop<>("P2P.Listen", "0.0.0.0");
-  public static final Prop<String> P2P_PORT        = new Prop<>("P2P.Port", "8123");
+  public static final Prop<Integer> P2P_PORT        = new Prop<>("P2P.Port", 8123);
   public static final Prop<Boolean> P2P_UPNP        = new Prop<>("P2P.UPnP", true);
   public static final Prop<Boolean> P2P_SHARE_MY_ADDRESS = new Prop<>("P2P.shareMyAddress", true);
   public static final Prop<Boolean> P2P_ENABLE_TX_REBROADCAST = new Prop<>("P2P.enableTxRebroadcast", true);
@@ -143,8 +143,8 @@ public class Props {
 
   public static final Prop<Boolean> JETTY_P2P_GZIP_FILTER               = new Prop<>("JETTY.P2P.GZIPFilter", false);
   public static final Prop<String> JETTY_P2P_GZIP_FILTER_METHODS       = new Prop<>("JETTY.P2P.GZIPFilter.methods", "GET, POST");
-  public static final Prop<String> JETTY_P2P_GZIP_FILTER_BUFFER_SIZE   = new Prop<>("JETTY.P2P.GZIPFilter.bufferSize", "8192");
-  public static final Prop<String> JETTY_P2P_GZIP_FILTER_MIN_GZIP_SIZE = new Prop<>("JETTY.P2P.GZIPFilter.minGzipSize", "0");
+  public static final Prop<Integer> JETTY_P2P_GZIP_FILTER_BUFFER_SIZE   = new Prop<>("JETTY.P2P.GZIPFilter.bufferSize", 8192);
+  public static final Prop<Integer> JETTY_P2P_GZIP_FILTER_MIN_GZIP_SIZE = new Prop<>("JETTY.P2P.GZIPFilter.minGzipSize", 0);
 
   public static final Prop<Boolean> JETTY_P2P_DOS_FILTER = new Prop<>("JETTY.P2P.DoSFilter", true);
   public static final Prop<String> JETTY_P2P_DOS_FILTER_MAX_REQUESTS_PER_SEC = new Prop<>("JETTY.P2P.DoSFilter.maxRequestsPerSec", "30");

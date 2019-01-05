@@ -103,11 +103,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
   private Integer ttsd;
 
-  private final Runnable debugInfoThread = () -> {
-    logger.info("Unverified blocks: " + downloadCache.getUnverifiedSize());
-    logger.info("Blocks in cache: " + downloadCache.size());
-    logger.info("Bytes in cache: " + downloadCache.getBlockCacheSize());
-  };
+  private final Runnable debugInfoThread;
 
   public final void setOclVerify(Boolean b) {
     oclVerify = b;
@@ -141,6 +137,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     this.statisticsManager = statisticsManager;
     this.dbCacheManager = dbCacheManager;
     this.accountService = accountService;
+
+    this.debugInfoThread = () -> {
+      logger.info("Unverified blocks: " + downloadCache.getUnverifiedSize());
+      logger.info("Blocks in cache: " + downloadCache.size());
+      logger.info("Bytes in cache: " + downloadCache.getBlockCacheSize());
+    };
 
     oclVerify = propertyService.getBoolean(Props.GPU_ACCELERATION); // use GPU acceleration ?
     oclUnverifiedQueue = propertyService.getInt(Props.GPU_UNVERIFIED_QUEUE);

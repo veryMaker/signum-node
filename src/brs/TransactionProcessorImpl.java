@@ -47,13 +47,12 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   private final Blockchain blockchain;
   private final AccountService accountService;
   private final UnconfirmedTransactionStore unconfirmedTransactionStore;
-  private final Function<Peer, List<Transaction>> foodDispenser = (peer -> unconfirmedTransactionStore.getAllFor(peer));
-  private final BiConsumer<Peer, List<Transaction>> doneFeedingLog = ((peer, transactions) -> unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions));
+  private final Function<Peer, List<Transaction>> foodDispenser;
+  private final BiConsumer<Peer, List<Transaction>> doneFeedingLog;
 
   public TransactionProcessorImpl(PropertyService propertyService,
       EconomicClustering economicClustering, Blockchain blockchain, Stores stores, TimeService timeService, Dbs dbs, AccountService accountService,
       TransactionService transactionService, ThreadPool threadPool) {
-
     this.economicClustering = economicClustering;
     this.blockchain = blockchain;
     this.timeService = timeService;
@@ -65,8 +64,11 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     this.transactionService = transactionService;
 
     this.testUnconfirmedTransactions = propertyService.getBoolean(Props.BRS_TEST_UNCONFIRMED_TRANSACTIONS);
-
     this.unconfirmedTransactionStore = stores.getUnconfirmedTransactionStore();
+
+    this.foodDispenser = (unconfirmedTransactionStore::getAllFor);
+    this.doneFeedingLog = (unconfirmedTransactionStore::markFingerPrintsOf);
+
       Runnable getUnconfirmedTransactions = () -> {
           try {
               try {
