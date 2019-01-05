@@ -143,7 +143,6 @@ services:
 docker run -p 8123:8123 -p 8125:8125 -v "$(pwd)"/burst_db:/db -d pocconsortium/burstcoin:2-h2
 ```
 
-
 ## Upgrading
 
 Ensure the PoC-Consortium github is in your list of remotes: 
