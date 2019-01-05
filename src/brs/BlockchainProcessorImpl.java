@@ -725,8 +725,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       logger.debug("Starting preverifier thread in CPU mode.");
       threadPool.scheduleThreadCores("VerifyPoc", pocVerificationThread, 9);
     }
-
-    // ThreadPool.scheduleThread("Info", debugInfoThread, 5);
   }
 
   private void blacklistClean(Block block, Exception e, String description) {
