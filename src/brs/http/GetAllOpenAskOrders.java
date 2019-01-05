@@ -1,9 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.ResultFields.OPEN_ORDERS_RESPONSE;
-
 import brs.Order;
 import brs.assetexchange.AssetExchange;
 import brs.db.BurstIterator;
@@ -12,6 +8,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
+import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
+import static brs.http.common.ResultFields.OPEN_ORDERS_RESPONSE;
 
 public final class GetAllOpenAskOrders extends APIServlet.APIRequestHandler {
 

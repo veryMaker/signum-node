@@ -1,7 +1,5 @@
 package brs.http;
 
-import static brs.http.common.ResultFields.TIME_RESPONSE;
-
 import brs.Block;
 import brs.Blockchain;
 import brs.BlockchainProcessor;
@@ -12,6 +10,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.ResultFields.TIME_RESPONSE;
 
 final class GetBlockchainStatus extends APIServlet.APIRequestHandler {
 

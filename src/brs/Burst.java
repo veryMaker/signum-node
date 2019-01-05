@@ -1,68 +1,46 @@
 package brs;
 
-import static brs.schema.Tables.UNCONFIRMED_TRANSACTION;
-
 import brs.AT.HandleATBlockTransactionsListener;
 import brs.GeneratorImpl.MockGeneratorImpl;
 import brs.assetexchange.AssetExchange;
 import brs.assetexchange.AssetExchangeImpl;
 import brs.blockchainlistener.DevNullListener;
-import brs.deeplink.DeeplinkQRCodeGenerator;
-import brs.feesuggestions.FeeSuggestionCalculator;
-import brs.props.Props;
 import brs.db.BlockDb;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.sql.Db;
-
 import brs.db.store.BlockchainStore;
 import brs.db.store.Dbs;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.Stores;
+import brs.deeplink.DeeplinkQRCodeGenerator;
+import brs.feesuggestions.FeeSuggestionCalculator;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxCapacitorImpl;
 import brs.http.API;
 import brs.http.APITransactionManager;
 import brs.http.APITransactionManagerImpl;
 import brs.peer.Peers;
-import brs.services.ATService;
-import brs.services.AccountService;
-import brs.services.AliasService;
-import brs.services.BlockService;
-import brs.services.DGSGoodsStoreService;
-import brs.services.EscrowService;
-import brs.services.ParameterService;
 import brs.props.PropertyService;
-import brs.services.SubscriptionService;
-import brs.services.TimeService;
-import brs.services.TransactionService;
-import brs.services.impl.ATServiceImpl;
-import brs.services.impl.AccountServiceImpl;
-import brs.services.impl.AliasServiceImpl;
-import brs.services.impl.BlockServiceImpl;
-import brs.services.impl.DGSGoodsStoreServiceImpl;
-import brs.services.impl.EscrowServiceImpl;
-import brs.services.impl.ParameterServiceImpl;
 import brs.props.PropertyServiceImpl;
-import brs.services.impl.SubscriptionServiceImpl;
-import brs.services.impl.TimeServiceImpl;
-import brs.services.impl.TransactionServiceImpl;
+import brs.props.Props;
+import brs.services.*;
+import brs.services.impl.*;
 import brs.statistics.StatisticsManagerImpl;
 import brs.util.DownloadCacheImpl;
 import brs.util.LoggerConfigurator;
 import brs.util.ThreadPool;
 import brs.util.Time;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.jooq.DSLContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
 import java.sql.ResultSet;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jooq.DSLContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static brs.schema.Tables.UNCONFIRMED_TRANSACTION;
 
 public final class Burst {
 
@@ -89,8 +67,6 @@ public final class Burst {
 
   private static API api;
 
-  private static Properties properties;
-
   private static PropertyService loadProperties() {
     final Properties defaultProperties = new Properties();
 
@@ -115,6 +91,7 @@ public final class Burst {
       throw new RuntimeException("Error loading " + DEFAULT_PROPERTIES_NAME, e);
     }
 
+    Properties properties;
     try (InputStream is = ClassLoader.getSystemResourceAsStream("brs.properties")) {
       properties = new Properties(defaultProperties);
       if (is != null) { // parse if brs.properties was loaded

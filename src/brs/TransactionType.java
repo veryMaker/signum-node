@@ -1,9 +1,5 @@
 package brs;
 
-import static brs.Constants.FEE_QUANT;
-import static brs.Constants.ONE_BURST;
-import static brs.fluxcapacitor.FeatureToggle.PRE_DYMAXION;
-
 import brs.Attachment.AbstractAttachment;
 import brs.Attachment.AutomatedTransactionsCreation;
 import brs.BurstException.NotValidException;
@@ -14,19 +10,20 @@ import brs.at.AT_Controller;
 import brs.at.AT_Exception;
 import brs.fluxcapacitor.FeatureToggle;
 import brs.fluxcapacitor.FluxCapacitor;
-import brs.services.AccountService;
-import brs.services.AliasService;
-import brs.services.DGSGoodsStoreService;
-import brs.services.EscrowService;
-import brs.services.SubscriptionService;
+import brs.services.*;
 import brs.transactionduplicates.TransactionDuplicationKey;
 import brs.util.Convert;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collection;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collection;
+
+import static brs.Constants.FEE_QUANT;
+import static brs.Constants.ONE_BURST;
+import static brs.fluxcapacitor.FeatureToggle.PRE_DYMAXION;
 
 public abstract class TransactionType {
 
@@ -283,7 +280,7 @@ public abstract class TransactionType {
 
   abstract void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount);
 
-  public void parseAppendices(Transaction.Builder builder, JSONObject attachmentData) throws BurstException.NotValidException {
+  public void parseAppendices(Transaction.Builder builder, JSONObject attachmentData) {
     builder.message(Appendix.Message.parse(attachmentData));
     builder.encryptedMessage(Appendix.EncryptedMessage.parse(attachmentData));
     builder.publicKeyAnnouncement((Appendix.PublicKeyAnnouncement.parse(attachmentData)));

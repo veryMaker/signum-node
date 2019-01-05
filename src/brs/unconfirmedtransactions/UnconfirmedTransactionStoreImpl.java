@@ -10,15 +10,15 @@ import brs.props.Props;
 import brs.services.TimeService;
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
 import brs.transactionduplicates.TransactionDuplicationResult;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionStore {
 
@@ -40,16 +40,6 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   private int numberUnconfirmedTransactionsFullHash;
   private final int maxPercentageUnconfirmedTransactionsFullHash;
 
-  private final Runnable cleanupExpiredTransactions = new Runnable() {
-    @Override
-    public void run() {
-      synchronized (internalStore) {
-        final List<Transaction> expiredTransactions = getAll().stream().filter(t -> timeService.getEpochTime() > t.getExpiration()).collect(Collectors.toList());
-        expiredTransactions.forEach(t -> removeTransaction(t));
-      }
-    }
-  };
-
   public UnconfirmedTransactionStoreImpl(TimeService timeService, PropertyService propertyService, AccountStore accountStore) {
     this.timeService = timeService;
 
@@ -66,7 +56,13 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     internalStore = new TreeMap<>();
 
       ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-      scheduler.scheduleWithFixedDelay(cleanupExpiredTransactions, 1, 1, TimeUnit.MINUTES);
+    Runnable cleanupExpiredTransactions = () -> {
+      synchronized (internalStore) {
+        final List<Transaction> expiredTransactions = getAll().stream().filter(t -> timeService.getEpochTime() > t.getExpiration()).collect(Collectors.toList());
+        expiredTransactions.forEach(this::removeTransaction);
+      }
+    };
+    scheduler.scheduleWithFixedDelay(cleanupExpiredTransactions, 1, 1, TimeUnit.MINUTES);
   }
 
   @Override

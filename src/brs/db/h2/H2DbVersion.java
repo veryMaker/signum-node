@@ -1,6 +1,7 @@
 package brs.db.h2;
 
 import brs.db.sql.Db;
+import brs.db.sql.SqlBlockDb;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,8 +9,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import brs.db.sql.SqlBlockDb;
 
 final class H2DbVersion {
 

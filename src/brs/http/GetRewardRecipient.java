@@ -1,17 +1,18 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.ResultFields.REWARD_RECIPIENT_RESPONSE;
-
 import brs.Account;
 import brs.Blockchain;
 import brs.BurstException;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
+import static brs.http.common.ResultFields.REWARD_RECIPIENT_RESPONSE;
 
 final class GetRewardRecipient extends APIServlet.APIRequestHandler {
 

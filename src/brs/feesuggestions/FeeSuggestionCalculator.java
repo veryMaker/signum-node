@@ -1,12 +1,12 @@
 package brs.feesuggestions;
 
-import static brs.Constants.FEE_QUANT;
-
 import brs.Block;
 import brs.BlockchainProcessor;
 import brs.BlockchainProcessor.Event;
 import brs.db.store.BlockchainStore;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
+
+import static brs.Constants.FEE_QUANT;
 
 public class FeeSuggestionCalculator {
 

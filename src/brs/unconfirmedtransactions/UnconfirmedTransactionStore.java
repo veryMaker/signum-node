@@ -3,8 +3,8 @@ package brs.unconfirmedtransactions;
 import brs.BurstException;
 import brs.Transaction;
 import brs.peer.Peer;
+
 import java.util.List;
-import java.util.function.Consumer;
 
 public interface UnconfirmedTransactionStore {
 

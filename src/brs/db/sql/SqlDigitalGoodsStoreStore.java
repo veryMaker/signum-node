@@ -1,7 +1,7 @@
 package brs.db.sql;
 
-import brs.DigitalGoodsStore;
 import brs.Burst;
+import brs.DigitalGoodsStore;
 import brs.crypto.EncryptedData;
 import brs.db.BurstIterator;
 import brs.db.BurstKey;
@@ -9,18 +9,16 @@ import brs.db.VersionedEntityTable;
 import brs.db.VersionedValuesTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.DigitalGoodsStoreStore;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.SortField;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jooq.DSLContext;
-import org.jooq.SortField;
-import org.jooq.Field;
-import static brs.schema.Tables.PURCHASE;
-import static brs.schema.Tables.PURCHASE_FEEDBACK;
-import static brs.schema.Tables.PURCHASE_PUBLIC_FEEDBACK;
-import static brs.schema.Tables.GOODS;
-
-import java.sql.*;
+import static brs.schema.Tables.*;
 
 public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
 
@@ -72,7 +70,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, DigitalGoodsStore.Purchase purchase) throws SQLException {
+      protected void save(DSLContext ctx, DigitalGoodsStore.Purchase purchase) {
         savePurchase(ctx, purchase);
       }
 
@@ -147,7 +145,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, DigitalGoodsStore.Goods goods) throws SQLException {
+      protected void save(DSLContext ctx, DigitalGoodsStore.Goods goods) {
         saveGoods(ctx, goods);
       }
 

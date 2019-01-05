@@ -1,22 +1,19 @@
 package brs;
 
+import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxInt;
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import javax.persistence.Entity;
+import brs.peer.Peer;
+import brs.util.Convert;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import brs.crypto.Crypto;
-import brs.peer.Peer;
-import brs.util.Convert;
+
+import javax.persistence.Entity;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.*;
 
 @Entity
 public class Block {

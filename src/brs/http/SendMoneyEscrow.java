@@ -1,9 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.*;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
-
 import brs.*;
 import brs.services.ParameterService;
 import brs.util.Convert;
@@ -12,6 +8,10 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
+import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
 
 final class SendMoneyEscrow extends CreateTransaction {
 	

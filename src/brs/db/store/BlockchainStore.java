@@ -4,11 +4,10 @@ import brs.Account;
 import brs.Block;
 import brs.Transaction;
 import brs.db.BurstIterator;
-
-import java.util.List;
-import java.sql.ResultSet;
-
 import org.jooq.DSLContext;
+
+import java.sql.ResultSet;
+import java.util.List;
 
 /**
  * Store for both BlockchainImpl and BlockchainProcessorImpl

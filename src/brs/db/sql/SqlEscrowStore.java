@@ -1,18 +1,21 @@
 package brs.db.sql;
 
-import brs.*;
+import brs.Burst;
+import brs.Escrow;
+import brs.Transaction;
 import brs.db.BurstIterator;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.EscrowStore;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.jooq.DSLContext;
-import org.jooq.Field;
 
 import static brs.schema.Tables.ESCROW;
 import static brs.schema.Tables.ESCROW_DECISION;
@@ -45,7 +48,7 @@ public class SqlEscrowStore implements EscrowStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Escrow escrow) throws SQLException {
+      protected void save(DSLContext ctx, Escrow escrow) {
         saveEscrow(ctx, escrow);
       }
     };
@@ -57,7 +60,7 @@ public class SqlEscrowStore implements EscrowStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Escrow.Decision decision) throws SQLException {
+      protected void save(DSLContext ctx, Escrow.Decision decision) {
         saveDecision(ctx, decision);
       }
     };

@@ -262,7 +262,7 @@ class AT_Machine_Processor{
             else if (op == OpCode.e_op_code_NOT_DAT) {
               System.out.print("NOT @");
             }
-            System.out.println(String.format("%8", fun.addr1).replace(' ', '0'));
+            System.out.println(String.format("%d", fun.addr1).replace(' ', '0'));
           }
         }
         else {

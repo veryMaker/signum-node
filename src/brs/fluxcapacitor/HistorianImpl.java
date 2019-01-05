@@ -1,7 +1,8 @@
 package brs.fluxcapacitor;
 
-import brs.props.Props;
 import brs.props.PropertyService;
+import brs.props.Props;
+
 import java.util.HashMap;
 import java.util.Map;
 

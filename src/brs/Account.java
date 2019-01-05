@@ -5,6 +5,7 @@ import brs.crypto.EncryptedData;
 import brs.db.BurstKey;
 import brs.db.VersionedBatchEntityTable;
 import brs.util.Convert;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

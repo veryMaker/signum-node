@@ -2,8 +2,8 @@ package brs.http;
 
 import brs.Block;
 import brs.Blockchain;
-import brs.crypto.hash.Shabal256;
 import brs.Burst;
+import brs.crypto.hash.Shabal256;
 import brs.util.Convert;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;

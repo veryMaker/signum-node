@@ -1,8 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.INCLUDE_COUNTS_PARAMETER;
-import static brs.http.common.ResultFields.TIME_RESPONSE;
-
 import brs.*;
 import brs.assetexchange.AssetExchange;
 import brs.db.BurstIterator;
@@ -16,6 +13,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.INCLUDE_COUNTS_PARAMETER;
+import static brs.http.common.ResultFields.TIME_RESPONSE;
 
 final class GetState extends APIServlet.APIRequestHandler {
 

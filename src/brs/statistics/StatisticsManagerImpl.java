@@ -1,11 +1,12 @@
 package brs.statistics;
 
 import brs.services.TimeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class StatisticsManagerImpl {
 

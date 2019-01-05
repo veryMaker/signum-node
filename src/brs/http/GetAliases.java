@@ -1,21 +1,19 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.TIMESTAMP_PARAMETER;
-import static brs.http.common.ResultFields.ALIASES_RESPONSE;
-
 import brs.Alias;
 import brs.Alias.Offer;
 import brs.BurstException;
 import brs.services.AliasService;
 import brs.services.ParameterService;
 import brs.util.FilteringIterator;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.ALIASES_RESPONSE;
 
 public final class GetAliases extends APIServlet.APIRequestHandler {
 

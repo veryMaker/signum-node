@@ -1,23 +1,18 @@
 package brs.db.sql;
 
 import brs.Burst;
-import brs.db.EntityTable;
 import brs.db.BurstIterator;
 import brs.db.BurstKey;
+import brs.db.EntityTable;
 import brs.db.store.DerivedTableManager;
-import java.util.ArrayList;
-import java.util.List;
+import org.jooq.*;
+import org.jooq.impl.DSL;
+import org.jooq.impl.TableImpl;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.jooq.impl.DSL;
-import org.jooq.Condition;
-import org.jooq.DSLContext;
-import org.jooq.Table;
-import org.jooq.SortField;
-import org.jooq.SelectJoinStep;
-import org.jooq.impl.TableImpl;
-import org.jooq.SelectQuery;
-import org.jooq.UpdateQuery;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class EntitySqlTable<T> extends DerivedSqlTable implements EntityTable<T> {
   final DbKey.Factory<T> dbKeyFactory;
@@ -43,7 +38,7 @@ public abstract class EntitySqlTable<T> extends DerivedSqlTable implements Entit
 
   protected abstract T load(DSLContext ctx, ResultSet rs) throws SQLException;
 
-  void save(DSLContext ctx, T t) throws SQLException {
+  void save(DSLContext ctx, T t) {
   }
 
   List<SortField> defaultSort() {
@@ -365,8 +360,6 @@ public abstract class EntitySqlTable<T> extends DerivedSqlTable implements Entit
         query.execute();
       }
       save(ctx, t);
-    } catch (SQLException e) {
-      throw new RuntimeException(e.toString(), e);
     }
   }
 

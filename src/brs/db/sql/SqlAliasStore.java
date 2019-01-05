@@ -7,12 +7,13 @@ import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.AliasStore;
 import brs.db.store.DerivedTableManager;
-import java.util.ArrayList;
-import java.util.List;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import org.jooq.DSLContext;
 import org.jooq.SortField;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static brs.schema.Tables.ALIAS;
 import static brs.schema.Tables.ALIAS_OFFER;
@@ -34,7 +35,7 @@ public class SqlAliasStore implements AliasStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Alias.Offer offer) throws SQLException {
+      protected void save(DSLContext ctx, Alias.Offer offer) {
         saveOffer(offer);
       }
     };

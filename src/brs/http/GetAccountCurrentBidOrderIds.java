@@ -1,11 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.ResultFields.BID_ORDER_IDS_RESPONSE;
-
 import brs.BurstException;
 import brs.Order;
 import brs.assetexchange.AssetExchange;
@@ -17,6 +11,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.BID_ORDER_IDS_RESPONSE;
 
 public final class GetAccountCurrentBidOrderIds extends APIServlet.APIRequestHandler {
 

@@ -1,34 +1,20 @@
 package brs.http;
 
-import static brs.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_DESCRIPTION;
-import static brs.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME;
-import static brs.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME_LENGTH;
-import static brs.http.JSONResponses.MISSING_NAME;
-import static brs.http.common.Parameters.CODE_PARAMETER;
-import static brs.http.common.Parameters.CREATION_BYTES_PARAMETER;
-import static brs.http.common.Parameters.CSPAGES_PARAMETER;
-import static brs.http.common.Parameters.DATA_PARAMETER;
-import static brs.http.common.Parameters.DESCRIPTION_PARAMETER;
-import static brs.http.common.Parameters.DPAGES_PARAMETER;
-import static brs.http.common.Parameters.MIN_ACTIVATION_AMOUNT_NQT_PARAMETER;
-import static brs.http.common.Parameters.NAME_PARAMETER;
-import static brs.http.common.Parameters.USPAGES_PARAMETER;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
-
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
-import brs.Constants;
+import brs.*;
 import brs.at.AT_Constants;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import static brs.http.JSONResponses.*;
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
+import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
 
 final class CreateATProgram extends CreateTransaction {
 

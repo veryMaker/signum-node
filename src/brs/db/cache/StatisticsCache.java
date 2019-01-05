@@ -1,15 +1,16 @@
 package brs.db.cache;
 
 import brs.statistics.StatisticsManagerImpl;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import org.ehcache.Cache;
 import org.ehcache.config.CacheRuntimeConfiguration;
 import org.ehcache.spi.loaderwriter.BulkCacheLoadingException;
 import org.ehcache.spi.loaderwriter.BulkCacheWritingException;
 import org.ehcache.spi.loaderwriter.CacheLoadingException;
 import org.ehcache.spi.loaderwriter.CacheWritingException;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 class StatisticsCache<K, V> implements Cache<K, V> {
 

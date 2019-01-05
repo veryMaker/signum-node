@@ -1,6 +1,9 @@
 package brs.peer;
 
-import brs.*;
+import brs.BlockchainProcessor;
+import brs.Burst;
+import brs.BurstException;
+import brs.Constants;
 import brs.crypto.Crypto;
 import brs.props.Props;
 import brs.util.Convert;

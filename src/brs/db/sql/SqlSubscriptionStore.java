@@ -6,14 +6,15 @@ import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.SubscriptionStore;
-import java.util.ArrayList;
-import java.util.List;
+import org.jooq.Condition;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.SortField;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.jooq.DSLContext;
-import org.jooq.Condition;
-import org.jooq.SortField;
-import org.jooq.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import static brs.schema.Tables.SUBSCRIPTION;
 
@@ -36,7 +37,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Subscription subscription) throws SQLException {
+      protected void save(DSLContext ctx, Subscription subscription) {
         saveSubscription(ctx, subscription);
       }
 

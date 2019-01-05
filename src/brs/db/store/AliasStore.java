@@ -2,8 +2,8 @@ package brs.db.store;
 
 import brs.Alias;
 import brs.db.BurstIterator;
-import brs.db.VersionedEntityTable;
 import brs.db.BurstKey;
+import brs.db.VersionedEntityTable;
 
 public interface AliasStore {
   BurstKey.LongKeyFactory<Alias> getAliasDbKeyFactory();

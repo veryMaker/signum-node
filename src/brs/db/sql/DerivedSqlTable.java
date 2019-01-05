@@ -2,10 +2,10 @@ package brs.db.sql;
 
 import brs.db.DerivedTable;
 import brs.db.store.DerivedTableManager;
+import org.jooq.DSLContext;
+import org.jooq.impl.TableImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.jooq.impl.TableImpl;
-import org.jooq.DSLContext;
 
 public abstract class DerivedSqlTable implements DerivedTable {
   private static final Logger logger = LoggerFactory.getLogger(DerivedSqlTable.class);

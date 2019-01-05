@@ -1,32 +1,35 @@
 package brs;
 
-import static brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE;
-
 import brs.BurstException.ValidationException;
-import brs.props.Props;
 import brs.db.store.Dbs;
 import brs.db.store.Stores;
 import brs.fluxcapacitor.FeatureToggle;
 import brs.peer.Peer;
 import brs.peer.Peers;
-import brs.services.AccountService;
 import brs.props.PropertyService;
+import brs.props.Props;
+import brs.services.AccountService;
 import brs.services.TimeService;
 import brs.services.TransactionService;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
 import brs.util.Listener;
 import brs.util.Listeners;
 import brs.util.ThreadPool;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE;
 
 public class TransactionProcessorImpl implements TransactionProcessor {
 
@@ -112,7 +115,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
                                   expectedResults.add(unconfirmedTransactionsResult);
                               }
 
-                              CompletableFuture.allOf(expectedResults.toArray(new CompletableFuture[expectedResults.size()])).join();
+                              CompletableFuture.allOf(expectedResults.toArray(new CompletableFuture[0])).join();
                           }
                       } catch (ValidationException | RuntimeException e) {
                           peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions");

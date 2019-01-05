@@ -3,8 +3,9 @@ package brs.http;
 import brs.BurstException;
 import brs.http.common.Parameters;
 import brs.services.ParameterService;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
 
 public final class GetBalance extends APIServlet.APIRequestHandler {
 

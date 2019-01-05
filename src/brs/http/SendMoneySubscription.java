@@ -1,20 +1,15 @@
 package brs.http;
-import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
-import static brs.http.common.Parameters.FREQUENCY_PARAMETER;
-import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
 
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.Constants;
-import brs.BurstException;
+import brs.*;
 import brs.services.ParameterService;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
+import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
 
 final class SendMoneySubscription extends CreateTransaction {
 

@@ -1,13 +1,14 @@
 package brs.db.sql;
 
-import java.util.Arrays;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.Record;
+import org.jooq.SelectQuery;
+import org.jooq.impl.TableImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.impl.TableImpl;
-import org.jooq.Field;
-import org.jooq.SelectQuery;
+
+import java.util.Arrays;
 
 public final class DbUtils {
 

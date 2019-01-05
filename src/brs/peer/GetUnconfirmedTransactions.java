@@ -1,15 +1,16 @@
 package brs.peer;
 
-import static brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE;
-
 import brs.Transaction;
 import brs.TransactionProcessor;
 import brs.peer.PeerServlet.ExtendedProcessRequest;
-import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+import static brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE;
 
 final class GetUnconfirmedTransactions extends PeerServlet.ExtendedPeerRequestHandler {
 

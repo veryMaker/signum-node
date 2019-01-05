@@ -1,7 +1,6 @@
 package brs.at;
 
 import brs.Appendix;
-import brs.Constants;
 import brs.Burst;
 import brs.Transaction;
 import brs.crypto.Crypto;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.MessageDigest;
-
 import java.util.Arrays;
 
 //NXT API IMPLEMENTATION

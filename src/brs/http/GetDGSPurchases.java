@@ -1,7 +1,7 @@
 package brs.http;
 
-import brs.DigitalGoodsStore;
 import brs.BurstException;
+import brs.DigitalGoodsStore;
 import brs.db.BurstIterator;
 import brs.http.common.Parameters;
 import brs.services.DGSGoodsStoreService;

@@ -1,10 +1,10 @@
 package brs;
 
+import brs.util.Listener;
 import brs.util.ThreadPool;
+
 import java.math.BigInteger;
 import java.util.Collection;
-
-import brs.util.Listener;
 
 public interface Generator {
 

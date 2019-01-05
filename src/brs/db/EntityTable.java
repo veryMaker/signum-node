@@ -1,11 +1,11 @@
 package brs.db;
 
-import java.util.List;
-
-import org.jooq.DSLContext;
 import org.jooq.Condition;
+import org.jooq.DSLContext;
 import org.jooq.SelectQuery;
 import org.jooq.SortField;
+
+import java.util.List;
 
 public interface EntityTable<T> extends DerivedTable {
   void checkAvailable(int height);

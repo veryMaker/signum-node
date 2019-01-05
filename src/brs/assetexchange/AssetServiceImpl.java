@@ -1,11 +1,7 @@
 package brs.assetexchange;
 
 import brs.Account.AccountAsset;
-import brs.Asset;
-import brs.AssetTransfer;
-import brs.Attachment;
-import brs.Trade;
-import brs.Transaction;
+import brs.*;
 import brs.db.BurstIterator;
 import brs.db.BurstKey;
 import brs.db.sql.EntitySqlTable;

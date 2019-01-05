@@ -4,10 +4,12 @@ import brs.Token;
 import brs.services.TimeService;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
 import javax.servlet.http.HttpServletRequest;
 
+import static brs.Constants.TOKEN;
+import static brs.Constants.WEBSITE;
 import static brs.http.JSONResponses.*;
-import static brs.Constants.*;
 import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
 
 final class GenerateToken extends APIServlet.APIRequestHandler {

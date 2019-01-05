@@ -1,7 +1,5 @@
 package brs.http;
 
-import static brs.http.common.ResultFields.AT_IDS_RESPONSE;
-
 import brs.services.ATService;
 import brs.util.Convert;
 import org.json.simple.JSONArray;
@@ -9,6 +7,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.ResultFields.AT_IDS_RESPONSE;
 
 final class GetATIds extends APIServlet.APIRequestHandler {
 

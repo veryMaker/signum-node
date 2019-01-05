@@ -1,47 +1,16 @@
 package brs.http;
 
-import static brs.http.JSONResponses.INCORRECT_AMOUNT;
-import static brs.http.JSONResponses.INCORRECT_ASSET_QUANTITY;
-import static brs.http.JSONResponses.INCORRECT_CREATION_BYTES;
-import static brs.http.JSONResponses.INCORRECT_DGS_ENCRYPTED_GOODS;
-import static brs.http.JSONResponses.INCORRECT_FEE;
-import static brs.http.JSONResponses.INCORRECT_ORDER;
-import static brs.http.JSONResponses.INCORRECT_PRICE;
-import static brs.http.JSONResponses.INCORRECT_QUANTITY;
-import static brs.http.JSONResponses.INCORRECT_RECIPIENT;
-import static brs.http.JSONResponses.INCORRECT_TIMESTAMP;
-import static brs.http.JSONResponses.MISSING_AMOUNT;
-import static brs.http.JSONResponses.MISSING_FEE;
-import static brs.http.JSONResponses.MISSING_ORDER;
-import static brs.http.JSONResponses.MISSING_PRICE;
-import static brs.http.JSONResponses.MISSING_QUANTITY;
-import static brs.http.JSONResponses.MISSING_RECIPIENT;
-import static brs.http.JSONResponses.MISSING_SECRET_PHRASE;
-import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
-import static brs.http.common.Parameters.BUYER_PARAMETER;
-import static brs.http.common.Parameters.CREATION_BYTES_PARAMETER;
-import static brs.http.common.Parameters.FEE_NQT_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.GOODS_DATA_PARAMETER;
-import static brs.http.common.Parameters.GOODS_NONCE_PARAMETER;
-import static brs.http.common.Parameters.HEX_STRING_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.ORDER_PARAMETER;
-import static brs.http.common.Parameters.PRICE_NQT_PARAMETER;
-import static brs.http.common.Parameters.QUANTITY_PARAMETER;
-import static brs.http.common.Parameters.QUANTITY_QNT_PARAMETER;
-import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
-import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
-import static brs.http.common.Parameters.SELLER_PARAMETER;
-import static brs.http.common.Parameters.TIMESTAMP_PARAMETER;
-
 import brs.Constants;
 import brs.crypto.EncryptedData;
 import brs.http.common.Parameters;
 import brs.util.Convert;
+
+import javax.servlet.http.HttpServletRequest;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.JSONResponses.*;
+import static brs.http.common.Parameters.*;
 
 final class ParameterParser {
 

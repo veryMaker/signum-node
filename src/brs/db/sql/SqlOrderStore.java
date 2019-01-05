@@ -6,15 +6,16 @@ import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.OrderStore;
-import java.util.ArrayList;
-import java.util.List;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.SelectQuery;
+import org.jooq.SortField;
+import org.jooq.impl.TableImpl;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.jooq.impl.TableImpl;
-import org.jooq.DSLContext;
-import org.jooq.SortField;
-import org.jooq.SelectQuery;
-import org.jooq.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SqlOrderStore implements OrderStore {
   private final DbKey.LongKeyFactory<Order.Ask> askOrderDbKeyFactory = new DbKey.LongKeyFactory<Order.Ask>("id") {
@@ -35,7 +36,7 @@ public class SqlOrderStore implements OrderStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Order.Ask ask) throws SQLException {
+      protected void save(DSLContext ctx, Order.Ask ask) {
         saveAsk(ctx, brs.schema.Tables.ASK_ORDER, ask);
       }
 
@@ -55,7 +56,7 @@ public class SqlOrderStore implements OrderStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Order.Bid bid) throws SQLException {
+      protected void save(DSLContext ctx, Order.Bid bid) {
         saveBid(ctx, brs.schema.Tables.BID_ORDER, bid);
       }
 

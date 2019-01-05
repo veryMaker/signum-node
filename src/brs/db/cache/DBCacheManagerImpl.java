@@ -3,8 +3,6 @@ package brs.db.cache;
 import brs.Account;
 import brs.db.sql.DbKey;
 import brs.statistics.StatisticsManagerImpl;
-import java.util.HashMap;
-import java.util.Map;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.Status;
@@ -12,6 +10,9 @@ import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class DBCacheManagerImpl {
 

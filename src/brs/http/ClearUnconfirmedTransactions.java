@@ -1,13 +1,13 @@
 package brs.http;
 
-import static brs.http.common.ResultFields.DONE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_RESPONSE;
-
 import brs.TransactionProcessor;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.ResultFields.DONE_RESPONSE;
+import static brs.http.common.ResultFields.ERROR_RESPONSE;
 
 public final class ClearUnconfirmedTransactions extends APIServlet.APIRequestHandler {
 

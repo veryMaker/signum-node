@@ -1,10 +1,9 @@
 package brs.util;
 
-import brs.Constants;
 import brs.BurstException;
+import brs.Constants;
 import brs.crypto.Crypto;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;

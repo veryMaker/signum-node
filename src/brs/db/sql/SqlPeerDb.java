@@ -4,6 +4,7 @@ import brs.db.PeerDb;
 import brs.schema.tables.records.PeerRecord;
 import org.jooq.DSLContext;
 import org.jooq.Insert;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;

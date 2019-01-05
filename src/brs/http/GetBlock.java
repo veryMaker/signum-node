@@ -10,10 +10,7 @@ import org.json.simple.JSONStreamAware;
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.JSONResponses.*;
-import static brs.http.common.Parameters.BLOCK_PARAMETER;
-import static brs.http.common.Parameters.HEIGHT_PARAMETER;
-import static brs.http.common.Parameters.INCLUDE_TRANSACTIONS_PARAMETER;
-import static brs.http.common.Parameters.TIMESTAMP_PARAMETER;
+import static brs.http.common.Parameters.*;
 
 public final class GetBlock extends APIServlet.APIRequestHandler {
 

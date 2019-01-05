@@ -1,12 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.INCLUDE_ASSET_INFO_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.ResultFields.TRANSFERS_RESPONSE;
-
 import brs.Account;
 import brs.Asset;
 import brs.AssetTransfer;
@@ -18,11 +11,14 @@ import brs.http.common.Parameters;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import javax.servlet.http.HttpServletRequest;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.TRANSFERS_RESPONSE;
 
 public final class GetAssetTransfers extends APIServlet.APIRequestHandler {
 

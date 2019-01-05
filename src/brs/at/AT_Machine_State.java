@@ -8,9 +8,8 @@
 package brs.at;
 
 import brs.Burst;
-import brs.Constants;
-
 import brs.fluxcapacitor.FeatureToggle;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Collection;

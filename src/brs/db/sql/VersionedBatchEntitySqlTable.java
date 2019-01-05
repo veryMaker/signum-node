@@ -2,18 +2,14 @@ package brs.db.sql;
 
 import brs.db.BurstIterator;
 import brs.db.BurstKey;
-import brs.db.cache.DBCacheManagerImpl;
 import brs.db.VersionedBatchEntityTable;
+import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.DerivedTableManager;
-import java.util.*;
 import org.ehcache.Cache;
+import org.jooq.*;
 import org.jooq.impl.TableImpl;
-import org.jooq.Condition;
-import org.jooq.SelectQuery;
-import org.jooq.UpdateQuery;
-import org.jooq.BatchBindStep;
-import org.jooq.DSLContext;
-import org.jooq.SortField;
+
+import java.util.*;
 
 public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySqlTable<T> implements VersionedBatchEntityTable<T> {
 

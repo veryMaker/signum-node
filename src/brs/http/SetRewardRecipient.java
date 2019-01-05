@@ -1,9 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
-
 import brs.Account;
 import brs.Attachment;
 import brs.Blockchain;
@@ -14,6 +10,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
+import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
+import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
 
 public final class SetRewardRecipient extends CreateTransaction {
 

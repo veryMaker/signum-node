@@ -1,20 +1,17 @@
 package brs.peer;
 
-import static brs.Constants.MIN_VERSION;
-import static brs.peer.PeerImpl.isHigherOrEqualVersion;
-import static brs.props.Props.P2P_ENABLE_TX_REBROADCAST;
-import static brs.props.Props.P2P_SEND_TO_LIMIT;
-import static brs.util.JSON.prepareRequest;
-
 import brs.*;
+import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.AccountService;
-import brs.props.PropertyService;
 import brs.services.TimeService;
-import brs.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import brs.util.JSON;
+import brs.util.Listener;
+import brs.util.Listeners;
+import brs.util.ThreadPool;
+import org.bitlet.weupnp.GatewayDevice;
+import org.bitlet.weupnp.GatewayDiscover;
+import org.bitlet.weupnp.PortMappingEntry;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
@@ -28,20 +25,25 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import org.bitlet.weupnp.GatewayDevice;
-import org.bitlet.weupnp.GatewayDiscover;
-import org.bitlet.weupnp.PortMappingEntry;
-import java.io.IOException;
-import org.xml.sax.SAXException;
-import javax.xml.parsers.ParserConfigurationException;
+import static brs.Constants.MIN_VERSION;
+import static brs.peer.PeerImpl.isHigherOrEqualVersion;
+import static brs.props.Props.P2P_ENABLE_TX_REBROADCAST;
+import static brs.props.Props.P2P_SEND_TO_LIMIT;
+import static brs.util.JSON.prepareRequest;
 
 public final class Peers {
 

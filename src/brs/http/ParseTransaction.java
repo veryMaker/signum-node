@@ -1,13 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.TRANSACTION_BYTES_PARAMETER;
-import static brs.http.common.Parameters.TRANSACTION_JSON_PARAMETER;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_RESPONSE;
-import static brs.http.common.ResultFields.VALIDATE_RESPONSE;
-import static brs.http.common.ResultFields.VERIFY_RESPONSE;
-
 import brs.BurstException;
 import brs.Transaction;
 import brs.services.ParameterService;
@@ -19,6 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.TRANSACTION_BYTES_PARAMETER;
+import static brs.http.common.Parameters.TRANSACTION_JSON_PARAMETER;
+import static brs.http.common.ResultFields.*;
 
 final class ParseTransaction extends APIServlet.APIRequestHandler {
 

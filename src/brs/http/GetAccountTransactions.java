@@ -1,14 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER;
-import static brs.http.common.Parameters.SUBTYPE_PARAMETER;
-import static brs.http.common.Parameters.TIMESTAMP_PARAMETER;
-import static brs.http.common.Parameters.TYPE_PARAMETER;
-import static brs.http.common.ResultFields.TRANSACTIONS_RESPONSE;
-
 import brs.Account;
 import brs.Blockchain;
 import brs.BurstException;
@@ -18,7 +9,11 @@ import brs.services.ParameterService;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.TRANSACTIONS_RESPONSE;
 
 final class GetAccountTransactions extends APIServlet.APIRequestHandler {
 

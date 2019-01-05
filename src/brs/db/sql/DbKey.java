@@ -1,15 +1,13 @@
 package brs.db.sql;
 
 import brs.db.BurstKey;
+import org.jooq.Condition;
+import org.jooq.SelectQuery;
+import org.jooq.Table;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import java.util.ArrayList;
-
-import org.jooq.Table;
-import org.jooq.Condition;
-import org.jooq.SelectQuery;
 
 public interface DbKey extends BurstKey {
 

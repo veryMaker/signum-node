@@ -1,13 +1,14 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-
 import brs.Asset;
 import brs.BurstException;
 import brs.assetexchange.AssetExchange;
 import brs.services.ParameterService;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.ASSET_PARAMETER;
 
 public final class GetAsset extends APIServlet.APIRequestHandler {
 

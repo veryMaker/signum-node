@@ -9,18 +9,16 @@ package brs.at;
 
 import brs.Burst;
 import brs.crypto.hash.RIPEMD160;
-import brs.Constants;
-
 import brs.fluxcapacitor.FeatureToggle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AT_API_Impl implements AT_API {
 

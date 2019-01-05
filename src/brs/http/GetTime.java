@@ -1,11 +1,12 @@
 package brs.http;
 
-import static brs.http.common.ResultFields.TIME_RESPONSE;
-
 import brs.services.TimeService;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.ResultFields.TIME_RESPONSE;
 
 public final class GetTime extends APIServlet.APIRequestHandler {
 

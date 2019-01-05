@@ -1,13 +1,9 @@
 package brs.services.impl;
 
-import brs.Account;
-import brs.Appendix;
-import brs.Attachment;
-import brs.Blockchain;
+import brs.*;
 import brs.DigitalGoodsStore.Event;
 import brs.DigitalGoodsStore.Goods;
 import brs.DigitalGoodsStore.Purchase;
-import brs.Transaction;
 import brs.crypto.EncryptedData;
 import brs.db.BurstIterator;
 import brs.db.BurstKey;
@@ -20,6 +16,7 @@ import brs.services.DGSGoodsStoreService;
 import brs.util.Convert;
 import brs.util.Listener;
 import brs.util.Listeners;
+
 import java.util.ArrayList;
 import java.util.List;
 

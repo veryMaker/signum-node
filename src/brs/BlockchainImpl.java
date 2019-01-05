@@ -2,8 +2,8 @@ package brs;
 
 import brs.db.BlockDb;
 import brs.db.BurstIterator;
-
 import brs.db.store.BlockchainStore;
+
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.StampedLock;

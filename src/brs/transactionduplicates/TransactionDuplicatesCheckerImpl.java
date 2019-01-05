@@ -2,9 +2,10 @@ package brs.transactionduplicates;
 
 import brs.Transaction;
 import brs.TransactionType;
-import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
 
 public class TransactionDuplicatesCheckerImpl {
 

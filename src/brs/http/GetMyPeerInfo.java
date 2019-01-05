@@ -2,9 +2,10 @@ package brs.http;
 
 import brs.BlockchainProcessor;
 import brs.TransactionProcessor;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
 
 final class GetMyPeerInfo extends APIServlet.APIRequestHandler {
 

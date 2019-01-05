@@ -9,16 +9,16 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import java.awt.AlphaComposite;
-import java.awt.Graphics2D;
+import org.apache.commons.lang.StringUtils;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import javax.imageio.ImageIO;
-import org.apache.commons.lang.StringUtils;
 
 public class DeeplinkQRCodeGenerator {
 

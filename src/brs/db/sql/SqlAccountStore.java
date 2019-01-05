@@ -3,28 +3,24 @@ package brs.db.sql;
 import brs.Account;
 import brs.Burst;
 import brs.db.BurstIterator;
-import brs.db.cache.DBCacheManagerImpl;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.VersionedEntityTable;
+import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.AccountStore;
 import brs.db.store.DerivedTableManager;
 import brs.schema.tables.records.AccountRecord;
 import brs.util.Convert;
-import java.util.stream.Collectors;
-import org.jooq.BatchBindStep;
-import org.jooq.Cursor;
-import org.jooq.Query;
+import org.jooq.*;
 import org.slf4j.LoggerFactory;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import static brs.schema.Tables.*;
-import org.jooq.DSLContext;
-import org.jooq.SortField;
-import org.jooq.Field;
-import org.jooq.Condition;
 
 public class SqlAccountStore implements AccountStore {
 

@@ -1,10 +1,6 @@
 package brs.http;
 
-import brs.Account;
-import brs.Asset;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
+import brs.*;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import org.json.simple.JSONStreamAware;
@@ -12,9 +8,7 @@ import org.json.simple.JSONStreamAware;
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.JSONResponses.NOT_ENOUGH_ASSETS;
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-import static brs.http.common.Parameters.PRICE_NQT_PARAMETER;
-import static brs.http.common.Parameters.QUANTITY_QNT_PARAMETER;
+import static brs.http.common.Parameters.*;
 
 final class PlaceAskOrder extends CreateTransaction {
 

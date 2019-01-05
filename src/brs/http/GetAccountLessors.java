@@ -1,19 +1,18 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.HEIGHT_PARAMETER;
-import static brs.http.common.ResultFields.ACCOUNT_RESPONSE;
-import static brs.http.common.ResultFields.HEIGHT_RESPONSE;
-import static brs.http.common.ResultFields.LESSORS_RESPONSE;
-
 import brs.Account;
 import brs.Blockchain;
 import brs.BurstException;
 import brs.services.ParameterService;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
+import static brs.http.common.Parameters.HEIGHT_PARAMETER;
+import static brs.http.common.ResultFields.*;
 
 public final class GetAccountLessors extends APIServlet.APIRequestHandler {
 

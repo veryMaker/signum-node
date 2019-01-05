@@ -3,7 +3,6 @@ package brs.at;
 import brs.AT;
 import brs.Account;
 import brs.Burst;
-import brs.Constants;
 import brs.fluxcapacitor.FeatureToggle;
 import brs.util.Convert;
 import org.slf4j.Logger;

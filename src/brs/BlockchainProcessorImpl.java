@@ -1,63 +1,46 @@
 package brs;
 
-import static brs.Constants.FEE_QUANT;
-import static brs.Constants.ONE_BURST;
-import static brs.fluxcapacitor.FeatureToggle.PRE_DYMAXION;
-
-import brs.props.Props;
-import brs.db.cache.DBCacheManagerImpl;
-import brs.db.store.BlockchainStore;
-import brs.db.store.DerivedTableManager;
-import brs.db.store.Stores;
-import brs.fluxcapacitor.FeatureToggle;
-import brs.fluxcapacitor.FluxInt;
-import brs.services.BlockService;
-import brs.services.EscrowService;
-import brs.props.PropertyService;
-import brs.services.SubscriptionService;
-import brs.services.TimeService;
-import brs.services.TransactionService;
-import brs.statistics.StatisticsManagerImpl;
-import brs.services.AccountService;
-import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
-import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
-import brs.util.ThreadPool;
-
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.Semaphore;
-import java.util.stream.Collectors;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import brs.at.AT_Block;
 import brs.at.AT_Controller;
 import brs.at.AT_Exception;
 import brs.crypto.Crypto;
 import brs.db.BlockDb;
 import brs.db.DerivedTable;
+import brs.db.cache.DBCacheManagerImpl;
+import brs.db.sql.Db;
+import brs.db.store.BlockchainStore;
+import brs.db.store.DerivedTableManager;
+import brs.db.store.Stores;
+import brs.fluxcapacitor.FeatureToggle;
+import brs.fluxcapacitor.FluxInt;
 import brs.peer.Peer;
 import brs.peer.Peers;
-import brs.util.Convert;
-import brs.util.DownloadCacheImpl;
-import brs.util.JSON;
-import brs.util.Listener;
-import brs.util.Listeners;
-import brs.db.sql.Db;
+import brs.props.PropertyService;
+import brs.props.Props;
+import brs.services.*;
+import brs.statistics.StatisticsManagerImpl;
+import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
+import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
+import brs.util.*;
 import org.jooq.DSLContext;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONStreamAware;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
+
+import static brs.Constants.FEE_QUANT;
+import static brs.Constants.ONE_BURST;
+import static brs.fluxcapacitor.FeatureToggle.PRE_DYMAXION;
 
 public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
@@ -103,8 +86,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
   private Integer ttsd;
 
-  private final Runnable debugInfoThread;
-
   public final void setOclVerify(Boolean b) {
     oclVerify = b;
   }
@@ -137,12 +118,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     this.statisticsManager = statisticsManager;
     this.dbCacheManager = dbCacheManager;
     this.accountService = accountService;
-
-    this.debugInfoThread = () -> {
-      logger.info("Unverified blocks: " + downloadCache.getUnverifiedSize());
-      logger.info("Blocks in cache: " + downloadCache.size());
-      logger.info("Bytes in cache: " + downloadCache.getBlockCacheSize());
-    };
 
     oclVerify = propertyService.getBoolean(Props.GPU_ACCELERATION); // use GPU acceleration ?
     oclUnverifiedQueue = propertyService.getInt(Props.GPU_UNVERIFIED_QUEUE);
@@ -407,12 +382,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   return;
                 } catch (RuntimeException | BurstException.ValidationException e) {
                   logger.info("Failed to parse block: {}" + e.toString(), e);
-                  logger.info("Failed to parse block trace: " + e.getStackTrace());
+                  logger.info("Failed to parse block trace: " + Arrays.toString(e.getStackTrace()));
                   peer.blacklist(e, "pulled invalid data using getCumulativeDifficulty");
                   return;
                 } catch (Exception e) {
                   logger.warn("Unhandled exception {}" + e.toString(), e);
-                  logger.warn("Unhandled exception trace: " + e.getStackTrace());
+                  logger.warn("Unhandled exception trace: " + Arrays.toString(e.getStackTrace()));
                 }
                 //executor shutdown?
                 if (Thread.currentThread().isInterrupted())
@@ -704,7 +679,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             verifyWithOcl = false;
           }
           if (verifyWithOcl) {
-            int poCVersion = 1;
+            int poCVersion;
             int pos = 0;
             List<Block> blocks = new LinkedList<>();
             poCVersion = downloadCache.getPoCVersion(downloadCache.getUnverifiedBlockIdFromPos(0));
@@ -1198,16 +1173,15 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         final TransactionDuplicatesCheckerImpl transactionDuplicatesChecker = new TransactionDuplicatesCheckerImpl();
 
         List<Transaction> unconfirmedTransactionsOrderedByFee = unconfirmedTransactionStore.getAll().stream().filter(
-            transaction ->
-              transaction.getVersion() == transactionProcessor.getTransactionVersion(previousBlock.getHeight())
-                  && transaction.getExpiration() >= blockTimestamp
-                  && transaction.getTimestamp()  <= blockTimestamp + MAX_TIMESTAMP_DIFFERENCE
-                  && (
-                      ! Burst.getFluxCapacitor().isActive(FeatureToggle.AUTOMATED_TRANSACTION_BLOCK)
-                          || economicClustering.verifyFork(transaction)
-                  )
-        ).collect(Collectors.toList());
-        unconfirmedTransactionsOrderedByFee.sort((o2, o1) -> ((Long) o1.getFeeNQT()).compareTo(o2.getFeeNQT()));
+                transaction ->
+                        transaction.getVersion() == transactionProcessor.getTransactionVersion(previousBlock.getHeight())
+                                && transaction.getExpiration() >= blockTimestamp
+                                && transaction.getTimestamp() <= blockTimestamp + MAX_TIMESTAMP_DIFFERENCE
+                                && (
+                                !Burst.getFluxCapacitor().isActive(FeatureToggle.AUTOMATED_TRANSACTION_BLOCK)
+                                        || economicClustering.verifyFork(transaction)
+                        )
+        ).sorted((o2, o1) -> Long.compare(o1.getFeeNQT(), o2.getFeeNQT())).collect(Collectors.toList());
 
         COLLECT_TRANSACTIONS: for (Transaction transaction : unconfirmedTransactionsOrderedByFee) {
           boolean transactionHasBeenHandled = false;

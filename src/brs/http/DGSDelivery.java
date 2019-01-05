@@ -1,29 +1,17 @@
 package brs.http;
 
-import static brs.http.JSONResponses.ALREADY_DELIVERED;
-import static brs.http.JSONResponses.INCORRECT_DGS_DISCOUNT;
-import static brs.http.JSONResponses.INCORRECT_DGS_GOODS;
-import static brs.http.JSONResponses.INCORRECT_PURCHASE;
-import static brs.http.common.Parameters.DISCOUNT_NQT_PARAMETER;
-import static brs.http.common.Parameters.GOODS_DATA_PARAMETER;
-import static brs.http.common.Parameters.GOODS_IS_TEXT_PARAMETER;
-import static brs.http.common.Parameters.GOODS_NONCE_PARAMETER;
-import static brs.http.common.Parameters.GOODS_TO_ENCRYPT_PARAMETER;
-import static brs.http.common.Parameters.PURCHASE_PARAMETER;
-
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
-import brs.Constants;
-import brs.DigitalGoodsStore;
+import brs.*;
 import brs.crypto.EncryptedData;
 import brs.http.common.Parameters;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.JSONResponses.*;
+import static brs.http.common.Parameters.*;
 
 public final class DGSDelivery extends CreateTransaction {
 

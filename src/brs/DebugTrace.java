@@ -1,10 +1,10 @@
 package brs;
 
 import brs.assetexchange.AssetExchange;
+import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.AccountService;
 import brs.services.DGSGoodsStoreService;
-import brs.props.PropertyService;
 import brs.util.Convert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -5,13 +5,12 @@ package brs.schema.tables.records;
 
 
 import brs.schema.tables.Version;
-
-import javax.annotation.Generated;
-
 import org.jooq.Field;
 import org.jooq.Record1;
 import org.jooq.Row1;
 import org.jooq.impl.TableRecordImpl;
+
+import javax.annotation.Generated;
 
 
 /**

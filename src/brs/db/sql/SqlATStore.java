@@ -9,27 +9,18 @@ import brs.db.store.ATStore;
 import brs.db.store.DerivedTableManager;
 import brs.schema.tables.records.AtRecord;
 import brs.schema.tables.records.AtStateRecord;
-import org.jooq.Cursor;
-import org.jooq.Record;
-import org.jooq.Record1;
+import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-import static brs.schema.Tables.AT;
-import static brs.schema.Tables.AT_STATE;
-import static brs.schema.Tables.TRANSACTION;
-import static brs.schema.Tables.ACCOUNT;
-
-import org.jooq.DSLContext;
-import org.jooq.SelectQuery;
-import org.jooq.SortField;
-import org.jooq.Field;
+import static brs.schema.Tables.*;
 
 public class SqlATStore implements ATStore {
 
@@ -80,7 +71,7 @@ public class SqlATStore implements ATStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, brs.AT.ATState atState) throws SQLException {
+      protected void save(DSLContext ctx, brs.AT.ATState atState) {
         saveATState(ctx, atState);
       }
 

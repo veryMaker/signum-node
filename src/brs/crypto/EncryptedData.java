@@ -12,7 +12,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class EncryptedData {
 
-  private static final ThreadLocal<SecureRandom> secureRandom = ThreadLocal.withInitial(() -> new SecureRandom());
+  private static final ThreadLocal<SecureRandom> secureRandom = ThreadLocal.withInitial(SecureRandom::new);
 
   private static final EncryptedData EMPTY_DATA = new EncryptedData(new byte[0], new byte[0]);
 

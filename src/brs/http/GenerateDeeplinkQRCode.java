@@ -1,19 +1,5 @@
 package brs.http;
 
-import static brs.http.JSONResponses.FEE_OR_FEE_SUGGESTION_REQUIRED;
-import static brs.http.JSONResponses.FEE_SUGGESTION_TYPE_INVALID;
-import static brs.http.JSONResponses.INCORRECT_AMOUNT;
-import static brs.http.JSONResponses.INCORRECT_FEE;
-import static brs.http.JSONResponses.INCORRECT_MESSAGE_LENGTH;
-import static brs.http.JSONResponses.MISSING_AMOUNT;
-import static brs.http.JSONResponses.MISSING_RECEIVER_ID;
-import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
-import static brs.http.common.Parameters.FEE_NQT_PARAMETER;
-import static brs.http.common.Parameters.FEE_SUGGESTION_TYPE_PARAMETER;
-import static brs.http.common.Parameters.IMMUTABLE_PARAMETER;
-import static brs.http.common.Parameters.MESSAGE_PARAMETER;
-import static brs.http.common.Parameters.RECEIVER_ID_PARAMETER;
-
 import brs.Constants;
 import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionType;
@@ -21,14 +7,18 @@ import brs.http.APIServlet.PrimitiveRequestHandler;
 import brs.http.common.Parameters;
 import brs.util.Convert;
 import com.google.zxing.WriterException;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import static brs.http.JSONResponses.*;
+import static brs.http.common.Parameters.*;
 
 public class GenerateDeeplinkQRCode extends PrimitiveRequestHandler {
 

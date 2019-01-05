@@ -1,12 +1,12 @@
 package brs.util;
 
-import static brs.fluxcapacitor.FeatureToggle.POC2;
-
+import brs.crypto.hash.Shabal256;
 import brs.fluxcapacitor.FluxCapacitor;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import brs.crypto.hash.Shabal256;
+import static brs.fluxcapacitor.FeatureToggle.POC2;
 
 public class MiningPlot {
   private static final int HASH_SIZE = 32;
@@ -20,8 +20,7 @@ public class MiningPlot {
   private final byte[] data = new byte[PLOT_SIZE];
 
     public MiningPlot(long addr, long nonce, int blockHeight, FluxCapacitor fluxCapacitor) {
-        FluxCapacitor fluxCapacitor1 = fluxCapacitor;
-    ByteBuffer base_buffer = ByteBuffer.allocate(16);
+      ByteBuffer base_buffer = ByteBuffer.allocate(16);
     base_buffer.putLong(addr);
     base_buffer.putLong(nonce);
     byte[] base = base_buffer.array();

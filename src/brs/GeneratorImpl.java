@@ -1,7 +1,13 @@
 package brs;
 
+import brs.crypto.Crypto;
+import brs.crypto.hash.Shabal256;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.services.TimeService;
+import brs.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -11,17 +17,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import brs.crypto.Crypto;
-import brs.crypto.hash.Shabal256;
-import brs.util.Convert;
-import brs.util.Listener;
-import brs.util.Listeners;
-import brs.util.MiningPlot;
-import brs.util.ThreadPool;
 
 public final class GeneratorImpl implements Generator {
 

@@ -1,18 +1,19 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.ESCROWS_RESPONSE;
-
 import brs.Account;
 import brs.BurstException;
 import brs.Escrow;
 import brs.services.EscrowService;
 import brs.services.ParameterService;
-import java.util.Collection;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
+
+import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
+import static brs.http.common.Parameters.ESCROWS_RESPONSE;
 
 public final class GetAccountEscrowTransactions extends APIServlet.APIRequestHandler {
 

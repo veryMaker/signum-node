@@ -1,9 +1,10 @@
 package brs.http;
 
-import static brs.http.common.Parameters.HEX_STRING_PARAMETER;
+import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONStreamAware;
+
+import static brs.http.common.Parameters.HEX_STRING_PARAMETER;
 
 final class GetATLong extends APIServlet.APIRequestHandler {
 

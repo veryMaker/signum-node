@@ -1,10 +1,6 @@
 package brs.crypto;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Arrays;
-
+import brs.util.Convert;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.AESEngine;
@@ -15,13 +11,16 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import brs.util.Convert;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Arrays;
 
 public final class Crypto {
 
   private static final Logger logger = LoggerFactory.getLogger(Crypto.class);
 
-  private static final ThreadLocal<SecureRandom> secureRandom = ThreadLocal.withInitial(() -> new SecureRandom());
+  private static final ThreadLocal<SecureRandom> secureRandom = ThreadLocal.withInitial(SecureRandom::new);
 
   private Crypto() {
   } //never
