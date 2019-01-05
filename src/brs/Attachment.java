@@ -366,9 +366,7 @@ public interface Attachment extends Appendix {
     @Override
     void putMyJSON(JSONObject attachment) {
       JSONArray recipients = new JSONArray();
-      this.recipients.forEach(a -> {
-        recipients.add(Convert.toUnsignedLong(a));
-      });
+      this.recipients.forEach(a -> recipients.add(Convert.toUnsignedLong(a)));
       attachment.put(RECIPIENTS_RESPONSE, recipients);
     }
 

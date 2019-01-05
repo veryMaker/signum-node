@@ -12,7 +12,7 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class GetGuaranteedBalance extends APIServlet.APIRequestHandler {
+final class GetGuaranteedBalance extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
 

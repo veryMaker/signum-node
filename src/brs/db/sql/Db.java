@@ -175,7 +175,7 @@ public final class Db {
     return new DbConnection(con);
   }
 
-  public static final DSLContext getDSLContext() {
+  public static DSLContext getDSLContext() {
     Connection con    = localConnection.get();
     Settings settings = new Settings();
     settings.setRenderSchema(Boolean.FALSE);
@@ -196,16 +196,14 @@ public final class Db {
     if (!isInTransaction()) {
       throw new IllegalStateException("Not in transaction");
     }
-      Map<DbKey, Object> cacheMap = transactionCaches.get().computeIfAbsent(tableName, k -> new HashMap<>());
-      return cacheMap;
+    return transactionCaches.get().computeIfAbsent(tableName, k -> new HashMap<>());
   }
 
   static Map<DbKey, Object> getBatch(String tableName) {
     if (!isInTransaction()) {
       throw new IllegalStateException("Not in transaction");
     }
-      Map<DbKey, Object> batchMap = transactionBatches.get().computeIfAbsent(tableName, k -> new HashMap<>());
-      return batchMap;
+    return transactionBatches.get().computeIfAbsent(tableName, k -> new HashMap<>());
   }
 
   public static boolean isInTransaction() {

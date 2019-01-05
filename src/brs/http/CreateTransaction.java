@@ -74,7 +74,7 @@ abstract class CreateTransaction extends APIServlet.APIRequestHandler {
     return true;
   }
 
-  long minimumFeeNQT() {
+  private long minimumFeeNQT() {
     return Burst.getFluxCapacitor().isActive(PRE_DYMAXION) ? FEE_QUANT : ONE_BURST;
   }
 

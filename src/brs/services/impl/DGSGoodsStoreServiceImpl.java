@@ -31,7 +31,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
   private final VersionedValuesTable<Purchase, EncryptedData> feedbackTable;
   private final VersionedValuesTable<Purchase, String> publicFeedbackTable;
 
-  private VersionedEntityTable<Goods> goodsTable;
+  private final VersionedEntityTable<Goods> goodsTable;
   private final VersionedEntityTable<Purchase> purchaseTable;
   private final LongKeyFactory<Goods> goodsDbKeyFactory;
   private final LongKeyFactory<Purchase> purchaseDbKeyFactory;

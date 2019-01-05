@@ -14,7 +14,7 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class GetSubscriptionsToAccount extends APIServlet.APIRequestHandler {
+final class GetSubscriptionsToAccount extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final SubscriptionService subscriptionService;

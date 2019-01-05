@@ -16,7 +16,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
-public final class GetAssetAccounts extends APIServlet.APIRequestHandler {
+final class GetAssetAccounts extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final AssetExchange assetExchange;

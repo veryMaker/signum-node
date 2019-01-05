@@ -8,9 +8,9 @@ public class TransactionDuplicationKey {
 
   final String key;
 
-  public static TransactionDuplicationKey IS_ALWAYS_DUPLICATE = new TransactionDuplicationKey(null, "always");
+  public static final TransactionDuplicationKey IS_ALWAYS_DUPLICATE = new TransactionDuplicationKey(null, "always");
 
-  public static TransactionDuplicationKey IS_NEVER_DUPLICATE = new TransactionDuplicationKey(null, "never");
+  public static final TransactionDuplicationKey IS_NEVER_DUPLICATE = new TransactionDuplicationKey(null, "never");
 
   public TransactionDuplicationKey(TransactionType transactionType, String key) {
     this.transactionType = transactionType;

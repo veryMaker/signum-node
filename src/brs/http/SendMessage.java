@@ -10,7 +10,7 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class SendMessage extends CreateTransaction {
+final class SendMessage extends CreateTransaction {
 
   private final ParameterService parameterService;
 

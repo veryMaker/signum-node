@@ -8,7 +8,7 @@ import brs.services.ParameterService;
 import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONStreamAware;
 
-public final class GetAT extends APIServlet.APIRequestHandler {
+final class GetAT extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final AccountService accountService;

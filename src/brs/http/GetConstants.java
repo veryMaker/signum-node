@@ -13,7 +13,7 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class GetConstants extends APIServlet.APIRequestHandler {
+final class GetConstants extends APIServlet.APIRequestHandler {
 
   static final GetConstants instance = new GetConstants();
 

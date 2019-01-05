@@ -22,10 +22,10 @@ import brs.Constants;
 public final class DownloadCacheImpl {
   private final int blockCacheMB;
 
-  protected final Map<Long, Block> blockCache = new LinkedHashMap<>();
-  protected final List<Block> forkCache = new ArrayList<>();
-  protected final Map<Long, Long> reverseCache = new LinkedHashMap<>();
-  protected final List<Long> unverified = new LinkedList<>();
+  private final Map<Long, Block> blockCache = new LinkedHashMap<>();
+  private final List<Block> forkCache = new ArrayList<>();
+  private final Map<Long, Long> reverseCache = new LinkedHashMap<>();
+  private final List<Long> unverified = new LinkedList<>();
 
   private final Logger logger = LoggerFactory.getLogger(DownloadCacheImpl.class);
 
@@ -49,7 +49,7 @@ public final class DownloadCacheImpl {
     this.blockchain = blockchain;
   }
 
-  public int getChainHeight() {
+  private int getChainHeight() {
     long stamp = dcsl.tryOptimisticRead();
     int retVal = lastHeight;
     if (!dcsl.validate(stamp)) {
@@ -87,7 +87,7 @@ public final class DownloadCacheImpl {
 	  }
 	}
 	
-	if(retVal == true) {
+	if(retVal) {
 	  stamp = dcsl.writeLock();
 	  try {
 	    lockedCache = false;

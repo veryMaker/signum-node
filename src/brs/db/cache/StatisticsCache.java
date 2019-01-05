@@ -11,7 +11,7 @@ import org.ehcache.spi.loaderwriter.BulkCacheWritingException;
 import org.ehcache.spi.loaderwriter.CacheLoadingException;
 import org.ehcache.spi.loaderwriter.CacheWritingException;
 
-public class StatisticsCache<K, V> implements Cache<K, V> {
+class StatisticsCache<K, V> implements Cache<K, V> {
 
   private final Cache<K, V> wrappedCache;
   private final StatisticsManagerImpl statisticsManager;
@@ -25,8 +25,7 @@ public class StatisticsCache<K, V> implements Cache<K, V> {
 
   @Override
   public V get(K k) throws CacheLoadingException {
-    final V result = wrappedCache.get(k);
-    return result;
+    return wrappedCache.get(k);
   }
 
   @Override

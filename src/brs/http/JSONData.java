@@ -182,7 +182,7 @@ public final class JSONData {
     return json;
   }
 
-  static JSONObject order(Order order) {
+  private static JSONObject order(Order order) {
     JSONObject json = new JSONObject();
     json.put(ORDER_RESPONSE, Convert.toUnsignedLong(order.getId()));
     json.put(ASSET_RESPONSE, Convert.toUnsignedLong(order.getAssetId()));

@@ -19,9 +19,9 @@ public final class DebugTrace {
 
   static String QUOTE;
   static String SEPARATOR;
-  static boolean LOG_UNCONFIRMED;
+  private static boolean LOG_UNCONFIRMED;
 
-  static DGSGoodsStoreService dgsGoodsStoreService;
+  private static DGSGoodsStoreService dgsGoodsStoreService;
   private static AssetExchange assetExchange;
 
   static void init(PropertyService propertyService, BlockchainProcessor blockchainProcessor,
@@ -54,7 +54,7 @@ public final class DebugTrace {
                                         : String.valueOf(accountIds.size())) + " accounts enabled");
   }
 
-  public static DebugTrace addDebugTrace(Set<Long> accountIds, String logName, BlockchainProcessor blockchainProcessor, AccountService accountService, AssetExchange assetExchange) {
+  private static DebugTrace addDebugTrace(Set<Long> accountIds, String logName, BlockchainProcessor blockchainProcessor, AccountService accountService, AssetExchange assetExchange) {
     final DebugTrace debugTrace = new DebugTrace(accountIds, logName);
     assetExchange.addTradeListener(debugTrace::trace, Trade.Event.TRADE);
     accountService.addListener(account -> debugTrace.trace(account, false), Account.Event.BALANCE);
@@ -96,7 +96,7 @@ public final class DebugTrace {
     resetLog();
   }
 
-  void resetLog() {
+  private void resetLog() {
     if (log != null) {
       log.close();
     }

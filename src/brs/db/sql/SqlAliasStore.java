@@ -46,7 +46,7 @@ public class SqlAliasStore implements AliasStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Alias alias) throws SQLException {
+      protected void save(DSLContext ctx, Alias alias) {
         saveAlias(ctx, alias);
       }
 
@@ -88,7 +88,7 @@ public class SqlAliasStore implements AliasStore {
     }
   }
 
-  protected void saveOffer(Alias.Offer offer) throws SQLException {
+  private void saveOffer(Alias.Offer offer) {
     try (DSLContext ctx = Db.getDSLContext()) {
       ctx.insertInto(
         ALIAS_OFFER,
@@ -119,7 +119,7 @@ public class SqlAliasStore implements AliasStore {
     }
   }
 
-  protected void saveAlias(DSLContext ctx, Alias alias) {
+  private void saveAlias(DSLContext ctx, Alias alias) {
     ctx.insertInto(ALIAS).
       set(ALIAS.ID, alias.getId()).
       set(ALIAS.ACCOUNT_ID, alias.getAccountId()).

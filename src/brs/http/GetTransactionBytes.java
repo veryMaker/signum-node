@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import static brs.http.JSONResponses.*;
 import static brs.http.common.Parameters.TRANSACTION_PARAMETER;
 
-public final class GetTransactionBytes extends APIServlet.APIRequestHandler {
+final class GetTransactionBytes extends APIServlet.APIRequestHandler {
 
   private final Blockchain blockchain;
   private final TransactionProcessor transactionProcessor;

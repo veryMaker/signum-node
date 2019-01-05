@@ -12,14 +12,9 @@ import java.util.zip.GZIPOutputStream;
 
 public class EncryptedData {
 
-  private static final ThreadLocal<SecureRandom> secureRandom = new ThreadLocal<SecureRandom>() {
-      @Override
-      protected SecureRandom initialValue() {
-        return new SecureRandom();
-      }
-    };
+  private static final ThreadLocal<SecureRandom> secureRandom = ThreadLocal.withInitial(() -> new SecureRandom());
 
-  public static final EncryptedData EMPTY_DATA = new EncryptedData(new byte[0], new byte[0]);
+  private static final EncryptedData EMPTY_DATA = new EncryptedData(new byte[0], new byte[0]);
 
   public static EncryptedData encrypt(byte[] plaintext, byte[] myPrivateKey, byte[] theirPublicKey) {
     if (plaintext.length == 0) {

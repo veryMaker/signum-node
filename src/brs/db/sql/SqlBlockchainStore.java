@@ -88,7 +88,7 @@ public class SqlBlockchainStore implements BlockchainStore {
     }
 
       try ( DSLContext ctx = Db.getDSLContext() ) {
-        List<Block> blocksAfter = new ArrayList<Block>();
+        List<Block> blocksAfter = new ArrayList<>();
         try (Cursor<BlockRecord> cursor = ctx.selectFrom(BLOCK).where(BLOCK.HEIGHT.gt( ctx.select(BLOCK.HEIGHT).from(BLOCK).where(BLOCK.ID.eq(blockId)))).orderBy(BLOCK.HEIGHT.asc()).limit(limit).fetchLazy()) {
           while (cursor.hasNext()) {
             blocksAfter.add(blockDb.loadBlock(cursor.fetchNext()));

@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class ThreadPool {
 
-  public static AtomicBoolean running = new AtomicBoolean(true);
+  public static final AtomicBoolean running = new AtomicBoolean(true);
 
   private static final Logger logger = LoggerFactory.getLogger(ThreadPool.class);
 
@@ -114,13 +114,10 @@ public final class ThreadPool {
     backgroundJobsCores.clear();
 
     logger.debug("Starting " + afterStartJobs.size() + " delayed tasks");
-    Thread thread = new Thread() {
-        @Override
-        public void run() {
-          runAll(afterStartJobs);
-          afterStartJobs.clear();
-        }
-      };
+    Thread thread = new Thread(() -> {
+      runAll(afterStartJobs);
+      afterStartJobs.clear();
+    });
     thread.setDaemon(true);
     thread.start();
   }
@@ -154,17 +151,14 @@ public final class ThreadPool {
     List<Thread> threads = new ArrayList<>();
     final StringBuffer errors = new StringBuffer();
     for (final Runnable runnable : jobs) {
-      Thread thread = new Thread() {
-          @Override
-          public void run() {
-            try {
-              runnable.run();
-            } catch (Throwable t) {
-              errors.append(t.getMessage()).append('\n');
-              throw t;
-            }
-          }
-        };
+      Thread thread = new Thread(() -> {
+        try {
+          runnable.run();
+        } catch (Throwable t) {
+          errors.append(t.getMessage()).append('\n');
+          throw t;
+        }
+      });
       thread.setDaemon(true);
       thread.start();
       threads.add(thread);

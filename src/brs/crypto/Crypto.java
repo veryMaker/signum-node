@@ -21,17 +21,12 @@ public final class Crypto {
 
   private static final Logger logger = LoggerFactory.getLogger(Crypto.class);
 
-  private static final ThreadLocal<SecureRandom> secureRandom = new ThreadLocal<SecureRandom>() {
-    @Override
-    protected SecureRandom initialValue() {
-      return new SecureRandom();
-    }
-  };
+  private static final ThreadLocal<SecureRandom> secureRandom = ThreadLocal.withInitial(() -> new SecureRandom());
 
   private Crypto() {
   } //never
 
-  public static MessageDigest getMessageDigest(String algorithm) {
+  private static MessageDigest getMessageDigest(String algorithm) {
     try {
       return MessageDigest.getInstance(algorithm);
     } catch (NoSuchAlgorithmException e) {

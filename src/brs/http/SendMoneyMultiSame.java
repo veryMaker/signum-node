@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
-public final class SendMoneyMultiSame extends CreateTransaction {
+final class SendMoneyMultiSame extends CreateTransaction {
 
   private static final String[] commonParameters = new String[] {
       SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_NQT_PARAMETER,

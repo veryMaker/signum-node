@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
-public final class CreateATProgram extends CreateTransaction {
+final class CreateATProgram extends CreateTransaction {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;

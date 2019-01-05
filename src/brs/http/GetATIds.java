@@ -10,7 +10,7 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class GetATIds extends APIServlet.APIRequestHandler {
+final class GetATIds extends APIServlet.APIRequestHandler {
 
   private final ATService atService;
 

@@ -247,7 +247,7 @@ public interface Appendix {
 
   class EncryptedMessage extends AbstractEncryptedMessage {
 
-    static EncryptedMessage parse(JSONObject attachmentData) throws BurstException.NotValidException {
+    static EncryptedMessage parse(JSONObject attachmentData) {
       if (attachmentData.get("encryptedMessage") == null ) {
         return null;
       }
@@ -258,7 +258,7 @@ public interface Appendix {
       super(buffer, transactionVersion);
     }
 
-    public EncryptedMessage(JSONObject attachmentData) {
+    EncryptedMessage(JSONObject attachmentData) {
       super(attachmentData, (JSONObject)attachmentData.get("encryptedMessage"));
     }
 
@@ -293,7 +293,7 @@ public interface Appendix {
 
   class EncryptToSelfMessage extends AbstractEncryptedMessage {
 
-    static EncryptToSelfMessage parse(JSONObject attachmentData) throws BurstException.NotValidException {
+    static EncryptToSelfMessage parse(JSONObject attachmentData) {
       if (attachmentData.get("encryptToSelfMessage") == null ) {
         return null;
       }
@@ -304,7 +304,7 @@ public interface Appendix {
       super(buffer, transactionVersion);
     }
 
-    public EncryptToSelfMessage(JSONObject attachmentData) {
+    EncryptToSelfMessage(JSONObject attachmentData) {
       super(attachmentData, (JSONObject)attachmentData.get("encryptToSelfMessage"));
     }
 

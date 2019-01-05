@@ -93,7 +93,7 @@ public class EscrowServiceImpl implements EscrowService {
       decisions.add(decision);
     }
 
-    decisions.forEach(decision -> decisionTable.delete(decision));
+    decisions.forEach(decisionTable::delete);
     escrowTable.delete(escrow);
   }
 
@@ -134,9 +134,7 @@ public class EscrowServiceImpl implements EscrowService {
 
     decisionTable.insert(decisionChange);
 
-    if(! updatedEscrowIds.contains(escrow.getId())) {
-      updatedEscrowIds.add(escrow.getId());
-    }
+    updatedEscrowIds.add(escrow.getId());
   }
 
   @Override

@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
-public final class GetMyPeerInfo extends APIServlet.APIRequestHandler {
+final class GetMyPeerInfo extends APIServlet.APIRequestHandler {
 
   private final BlockchainProcessor blockchainProcessor;
   private final TransactionProcessor transactionProcessor;

@@ -33,7 +33,7 @@ public final class EscrowSign extends CreateTransaction {
 	
   @Override
   JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
-    Long escrowId;
+    long escrowId;
     try {
       escrowId = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(ESCROW_PARAMETER)));
     }

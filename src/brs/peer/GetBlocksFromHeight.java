@@ -22,7 +22,6 @@ final class GetBlocksFromHeight extends PeerServlet.PeerRequestHandler {
   @Override
   JSONStreamAware processRequest(JSONObject request, Peer peer) {
     JSONObject response = new JSONObject();
-    List<Block> nextBlocks = new ArrayList<>();
     int blockHeight = Convert.parseInteger(request.get("height").toString());
     int numBlocks = 100;
 
@@ -40,9 +39,7 @@ final class GetBlocksFromHeight extends PeerServlet.PeerRequestHandler {
     	    
     long blockId =  blockchain.getBlockIdAtHeight(blockHeight);
     List<? extends Block> blocks = blockchain.getBlocksAfter(blockId, numBlocks);
-    for (Block block : blocks) {
-      nextBlocks.add(block);
-    }
+    List<Block> nextBlocks = new ArrayList<>(blocks);
 
     JSONArray nextBlocksArray = new JSONArray();
     for (Block nextBlock : nextBlocks) {

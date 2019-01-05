@@ -20,7 +20,7 @@ public interface DbKey extends BurstKey {
     private final String selfJoinClause;
     private final int pkVariables;
 
-    protected Factory(String pkClause, String[] pkColumns, String selfJoinClause) {
+    Factory(String pkClause, String[] pkColumns, String selfJoinClause) {
       this.pkClause = pkClause;
       this.pkColumns = pkColumns;
       this.selfJoinClause = selfJoinClause;

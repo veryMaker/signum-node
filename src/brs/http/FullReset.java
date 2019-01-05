@@ -10,7 +10,7 @@ import static brs.http.common.ResultFields.ERROR_RESPONSE;
 
 public final class FullReset extends APIServlet.APIRequestHandler {
 
-  private BlockchainProcessor blockchainProcessor;
+  private final BlockchainProcessor blockchainProcessor;
 
   FullReset(BlockchainProcessor blockchainProcessor) {
     super(new APITag[]{APITag.DEBUG});

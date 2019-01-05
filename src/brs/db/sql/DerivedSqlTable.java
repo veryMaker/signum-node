@@ -9,10 +9,10 @@ import org.jooq.DSLContext;
 
 public abstract class DerivedSqlTable implements DerivedTable {
   private static final Logger logger = LoggerFactory.getLogger(DerivedSqlTable.class);
-  protected final String table;
-  protected final TableImpl<?> tableClass;
+  final String table;
+  final TableImpl<?> tableClass;
 
-  protected DerivedSqlTable(String table, TableImpl<?> tableClass, DerivedTableManager derivedTableManager) {
+  DerivedSqlTable(String table, TableImpl<?> tableClass, DerivedTableManager derivedTableManager) {
     this.table      = table;
     this.tableClass = tableClass;
     logger.trace("Creating derived table for "+table);

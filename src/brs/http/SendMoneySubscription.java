@@ -16,7 +16,7 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class SendMoneySubscription extends CreateTransaction {
+final class SendMoneySubscription extends CreateTransaction {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;
@@ -31,7 +31,7 @@ public final class SendMoneySubscription extends CreateTransaction {
   JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
     Account sender = parameterService.getSenderAccount(req);
     Long recipient = ParameterParser.getRecipientId(req);
-    Long amountNQT = ParameterParser.getAmountNQT(req);
+    long amountNQT = ParameterParser.getAmountNQT(req);
 		
     int frequency;
     try {

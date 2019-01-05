@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,8 +42,8 @@ public final class PeerServlet extends HttpServlet {
   }
 
   static class ExtendedProcessRequest {
-    JSONStreamAware response;
-    RequestLifecycleHook afterRequestHook;
+    final JSONStreamAware response;
+    final RequestLifecycleHook afterRequestHook;
 
     public ExtendedProcessRequest(JSONStreamAware response, RequestLifecycleHook afterRequestHook) {
       this.response = response;
@@ -119,7 +120,7 @@ public final class PeerServlet extends HttpServlet {
 
       JSONObject request;
       CountingInputStream cis = new CountingInputStream(req.getInputStream());
-      try (Reader reader = new InputStreamReader(cis, "UTF-8")) {
+      try (Reader reader = new InputStreamReader(cis, StandardCharsets.UTF_8)) {
         request = (JSONObject) JSONValue.parse(reader);
       }
       if (request == null) {
@@ -166,7 +167,7 @@ public final class PeerServlet extends HttpServlet {
       long byteCount;
 
       CountingOutputStream cos = new CountingOutputStream(resp.getOutputStream());
-      try (Writer writer = new OutputStreamWriter(cos, "UTF-8")) {
+      try (Writer writer = new OutputStreamWriter(cos, StandardCharsets.UTF_8)) {
         response.writeJSONString(writer);
       }
       byteCount = cos.getCount();

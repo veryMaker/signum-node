@@ -15,7 +15,7 @@ import org.jooq.UpdateQuery;
 public abstract class ValuesSqlTable<T,V> extends DerivedSqlTable implements ValuesTable<T, V> {
 
   private final boolean multiversion;
-  protected final DbKey.Factory<T> dbKeyFactory;
+  final DbKey.Factory<T> dbKeyFactory;
 
   protected ValuesSqlTable(String table, TableImpl<?> tableClass, DbKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
     this(table, tableClass, dbKeyFactory, false, derivedTableManager);
@@ -29,7 +29,7 @@ public abstract class ValuesSqlTable<T,V> extends DerivedSqlTable implements Val
 
   protected abstract V load(DSLContext ctx, ResultSet rs) throws SQLException;
 
-  protected abstract void save(DSLContext ctx, T t, V v) throws SQLException;
+  protected abstract void save(DSLContext ctx, T t, V v);
 
   @Override
   public final List<V> get(BurstKey nxtKey) {

@@ -22,7 +22,7 @@ public abstract class Order {
     this.creationHeight = transaction.getHeight();
   }
 
-  protected Order(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT) {
+  Order(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT) {
     this.id = id;
     this.accountId = accountId;
     this.assetId = assetId;
@@ -74,7 +74,7 @@ public abstract class Order {
       this.dbKey = dbKey;
     }
 
-    public Ask(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT, BurstKey dbKey) {
+    protected Ask(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT, BurstKey dbKey) {
       super(id, accountId, assetId, priceNQT, creationHeight, quantityQNT);
       this.dbKey = dbKey;
     }
@@ -90,7 +90,7 @@ public abstract class Order {
       this.dbKey = dbKey;
     }
 
-    public Bid(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT, BurstKey dbKey) {
+    protected Bid(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT, BurstKey dbKey) {
       super(id, accountId, assetId, priceNQT, creationHeight, quantityQNT);
       this.dbKey = dbKey;
     }

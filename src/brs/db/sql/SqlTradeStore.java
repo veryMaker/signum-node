@@ -33,7 +33,7 @@ public class SqlTradeStore implements TradeStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Trade trade) throws SQLException {
+      protected void save(DSLContext ctx, Trade trade) {
         saveTrade(ctx, trade);
       }
 
@@ -99,7 +99,7 @@ public class SqlTradeStore implements TradeStore {
     return ctx.fetchCount(ctx.selectFrom(TRADE).where(TRADE.ASSET_ID.eq(assetId)));
   }
 
-  protected void saveTrade(DSLContext ctx, Trade trade) {
+  private void saveTrade(DSLContext ctx, Trade trade) {
     ctx.insertInto(
       TRADE,
       TRADE.ASSET_ID, TRADE.BLOCK_ID, TRADE.ASK_ORDER_ID, TRADE.BID_ORDER_ID, TRADE.ASK_ORDER_HEIGHT,

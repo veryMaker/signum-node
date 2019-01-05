@@ -26,7 +26,7 @@ public class AT_API_Impl implements AT_API {
 
   private static final Logger logger = LoggerFactory.getLogger(AT_API_Impl.class);
 
-  AT_API_Platform_Impl platform = AT_API_Platform_Impl.getInstance();
+  private final AT_API_Platform_Impl platform = AT_API_Platform_Impl.getInstance();
 
   @Override
   public long get_A1(AT_Machine_State state) {

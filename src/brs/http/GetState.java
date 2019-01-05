@@ -17,7 +17,7 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class GetState extends APIServlet.APIRequestHandler {
+final class GetState extends APIServlet.APIRequestHandler {
 
   private final Blockchain blockchain;
   private final AssetExchange assetExchange;

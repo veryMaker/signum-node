@@ -96,7 +96,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     removeSubscriptions.forEach(this::removeSubscription);
   }
 
-  public long getFee() {
+  private long getFee() {
     return Constants.ONE_BURST;
   }
 

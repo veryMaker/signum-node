@@ -7,10 +7,10 @@
 
 package brs.at;
 
-public class AT_Machine_Processor{
+class AT_Machine_Processor{
 
-  protected AT_Machine_State machineData;
-  private Fun fun = new Fun();
+  private final AT_Machine_State machineData;
+  private final Fun fun = new Fun();
 
   private int getFun() {
 
@@ -158,7 +158,7 @@ public class AT_Machine_Processor{
     this.machineData = machineData;
   }
 
-  protected int processOp(boolean disassemble,boolean determine_jumps) {
+  int processOp(boolean disassemble, boolean determine_jumps) {
     int rc = 0;
 
     if (machineData.getCsize()<1 || machineData.getMachineState().pc >= machineData.getCsize())
@@ -428,25 +428,19 @@ public class AT_Machine_Processor{
 
         if (rc == 0 || disassemble) {
           rc = 13;
-          if (disassemble) {
-            if (!determine_jumps)
-              System.out.println("");
+          long base = machineData.getAp_data().getLong( addr2*8);
+          long offs = machineData.getAp_data().getLong( fun.addr1*8);
+
+          long addr = base+offs;
+
+          System.out.println(fun.addr1);
+          if (!validAddr((int)addr, false)) {
+            rc = -1;
           }
           else {
-            long base = machineData.getAp_data().getLong( addr2*8);
-            long offs = machineData.getAp_data().getLong( fun.addr1*8);
-
-            long addr = base+offs;
-
-            System.out.println(fun.addr1);
-            if (!validAddr((int)addr, false)) {
-              rc = -1;
-            }
-            else {
-              machineData.getMachineState().pc+=rc;
-              machineData.getAp_data().putLong(addr1*8,machineData.getAp_data().getLong((int)addr*8));
-              machineData.getAp_data().clear();
-            }
+            machineData.getMachineState().pc+=rc;
+            machineData.getAp_data().putLong(addr1*8,machineData.getAp_data().getLong((int)addr*8));
+            machineData.getAp_data().clear();
           }
         }
       }
@@ -1014,8 +1008,6 @@ public class AT_Machine_Processor{
 
             if ( op == OpCode.e_op_code_EXT_FUN_RET_DAT_2 )
               System.out.print(" $"+String.format("%8x", fun.addr1).replace(' ','0'));
-
-            System.out.println("");
           }
         }
         else {

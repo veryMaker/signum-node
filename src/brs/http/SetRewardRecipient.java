@@ -19,7 +19,7 @@ public final class SetRewardRecipient extends CreateTransaction {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;
-  private AccountService accountService;
+  private final AccountService accountService;
 
   public SetRewardRecipient(ParameterService parameterService, Blockchain blockchain, AccountService accountService, APITransactionManager apiTransactionManager) {
     super(new APITag[] {APITag.ACCOUNTS, APITag.MINING, APITag.CREATE_TRANSACTION}, apiTransactionManager, RECIPIENT_PARAMETER);

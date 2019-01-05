@@ -61,7 +61,7 @@ public class SqlATStore implements ATStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, brs.AT at) throws SQLException {
+      protected void save(DSLContext ctx, brs.AT at) {
         saveAT(ctx, at);
       }
 
@@ -95,7 +95,7 @@ public class SqlATStore implements ATStore {
     };
   }
 
-  protected void saveATState(DSLContext ctx, brs.AT.ATState atState) throws SQLException {
+  private void saveATState(DSLContext ctx, brs.AT.ATState atState) {
     brs.schema.tables.records.AtStateRecord atStateRecord = ctx.newRecord(brs.schema.Tables.AT_STATE);
     atStateRecord.setAtId(atState.getATId());
     atStateRecord.setState(brs.AT.compressState(atState.getState()));
@@ -113,7 +113,7 @@ public class SqlATStore implements ATStore {
     );
   }
 
-  protected void saveAT(DSLContext ctx, brs.AT at) {
+  private void saveAT(DSLContext ctx, brs.AT at) {
     ctx.insertInto(
       AT,
       AT.ID, AT.CREATOR_ID, AT.NAME, AT.DESCRIPTION,
@@ -241,39 +241,31 @@ public class SqlATStore implements ATStore {
 
   @Override
   public int findTransactionHeight(Long transactionId, int height, Long atID, long minAmount) {
-    Cursor<Record1<Long>> cursor = null;
-    DSLContext ctx = Db.getDSLContext();
 
-    try {
-      cursor = ctx.select(TRANSACTION.ID).from(TRANSACTION).where(
-        TRANSACTION.HEIGHT.eq(height)
-      ).and(
-        TRANSACTION.RECIPIENT_ID.eq(atID)
-      ).and(
-        TRANSACTION.AMOUNT.greaterOrEqual(minAmount)
-      ).orderBy(
-        TRANSACTION.HEIGHT, TRANSACTION.ID
-      ).fetchLazy();
+    DSLContext ctx = Db.getDSLContext();
+    try (Cursor<Record1<Long>> cursor = ctx.select(TRANSACTION.ID)
+            .from(TRANSACTION)
+            .where(TRANSACTION.HEIGHT.eq(height))
+            .and(TRANSACTION.RECIPIENT_ID.eq(atID))
+            .and(TRANSACTION.AMOUNT.greaterOrEqual(minAmount))
+            .orderBy(TRANSACTION.HEIGHT, TRANSACTION.ID)
+            .fetchLazy()) {
 
       int counter = 0;
       while (cursor.hasNext()) {
         counter++;
-        long currentTransactionId = cursor.fetchNext().getValue(TRANSACTION.ID).longValue();
-        if ( currentTransactionId == transactionId ) {
+        long currentTransactionId = cursor.fetchNext().getValue(TRANSACTION.ID);
+        if (currentTransactionId == transactionId) {
           break;
         }
       }
       return counter;
     } catch (DataAccessException e) {
-        throw new RuntimeException(e.toString(), e);
-    } finally {
-      if (cursor != null) {
-        cursor.close();
-      }
+      throw new RuntimeException(e.toString(), e);
     }
   }
 
-  protected class SqlATState extends brs.AT.ATState {
+  class SqlATState extends brs.AT.ATState {
     private SqlATState(ResultSet rs) throws SQLException {
       super(
             rs.getLong("at_id"),

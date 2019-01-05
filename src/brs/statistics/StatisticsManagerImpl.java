@@ -11,12 +11,12 @@ public class StatisticsManagerImpl {
 
   private final Logger logger = LoggerFactory.getLogger(StatisticsManagerImpl.class);
 
-  private TimeService timeService;
+  private final TimeService timeService;
 
   private int addedBlockCount;
   private int firstBlockAdded;
 
-  private Map<String, CacheStatisticsOverview> cacheStatistics = new HashMap<>();
+  private final Map<String, CacheStatisticsOverview> cacheStatistics = new HashMap<>();
 
   public StatisticsManagerImpl(TimeService timeService) {
     this.timeService = timeService;
@@ -45,7 +45,7 @@ public class StatisticsManagerImpl {
       float blocksPerSecond = 500 / (float) (timeService.getEpochTime() - firstBlockAdded);
 
       final String handleText = "handling {} blocks/s"
-          + cacheStatistics.values().stream().map(cacheInfo -> " " + cacheInfo.getCacheInfoAndReset()).collect(Collectors.joining()).toString();
+          + cacheStatistics.values().stream().map(cacheInfo -> " " + cacheInfo.getCacheInfoAndReset()).collect(Collectors.joining());
 
       logger.info(handleText, String.format("%.2f", blocksPerSecond));
 
@@ -54,7 +54,7 @@ public class StatisticsManagerImpl {
   }
 
   private class CacheStatisticsOverview {
-    private String cacheName;
+    private final String cacheName;
 
     private long cacheHits;
     private long cacheMisses;
@@ -62,7 +62,7 @@ public class StatisticsManagerImpl {
     private long totalCacheHits;
     private long totalCacheMisses;
 
-    public CacheStatisticsOverview(String cacheName) {
+    CacheStatisticsOverview(String cacheName) {
       this.cacheName = cacheName;
     }
 

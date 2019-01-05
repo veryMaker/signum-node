@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class ParseTransaction extends APIServlet.APIRequestHandler {
+final class ParseTransaction extends APIServlet.APIRequestHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(ParseTransaction.class);
 

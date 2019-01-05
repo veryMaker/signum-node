@@ -27,7 +27,7 @@ import static brs.http.common.ResultFields.TRANSACTION_BYTES_RESPONSE;
 import static brs.http.common.ResultFields.TRANSACTION_RESPONSE;
 import static brs.http.common.ResultFields.VERIFY_RESPONSE;
 
-public final class SignTransaction extends APIServlet.APIRequestHandler {
+final class SignTransaction extends APIServlet.APIRequestHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(SignTransaction.class);
 

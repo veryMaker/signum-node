@@ -27,8 +27,8 @@ public class BlockServiceImpl implements BlockService {
   private final AccountService accountService;
   private final TransactionService transactionService;
   private final Blockchain blockchain;
-  private DownloadCacheImpl downloadCache;
-  private Generator generator;
+  private final DownloadCacheImpl downloadCache;
+  private final Generator generator;
 
   private static final Logger logger = LoggerFactory.getLogger(BlockServiceImpl.class);
 

@@ -32,7 +32,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
         }
       };
 
-  protected final BurstKey.LongKeyFactory<DigitalGoodsStore.Purchase> purchaseDbKeyFactory
+  private final BurstKey.LongKeyFactory<DigitalGoodsStore.Purchase> purchaseDbKeyFactory
     = new DbKey.LongKeyFactory<DigitalGoodsStore.Purchase>("id") {
         @Override
         public BurstKey newKey(DigitalGoodsStore.Purchase purchase) {
@@ -45,7 +45,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
   @Deprecated
   private final VersionedValuesTable<DigitalGoodsStore.Purchase, EncryptedData> feedbackTable;
 
-  protected final DbKey.LongKeyFactory<DigitalGoodsStore.Purchase> publicFeedbackDbKeyFactory
+  private final DbKey.LongKeyFactory<DigitalGoodsStore.Purchase> publicFeedbackDbKeyFactory
     = new DbKey.LongKeyFactory<DigitalGoodsStore.Purchase>("id") {
         @Override
         public BurstKey newKey(DigitalGoodsStore.Purchase purchase) {
@@ -124,7 +124,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, DigitalGoodsStore.Purchase purchase, String publicFeedback) throws SQLException {
+      protected void save(DSLContext ctx, DigitalGoodsStore.Purchase purchase, String publicFeedback) {
         brs.schema.tables.records.PurchasePublicFeedbackRecord feedbackRecord = ctx.newRecord(
             PURCHASE_PUBLIC_FEEDBACK
         );
@@ -213,7 +213,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
     return goodsTable;
   }
 
-  protected void saveGoods(DSLContext ctx, DigitalGoodsStore.Goods goods) throws SQLException {
+  private void saveGoods(DSLContext ctx, DigitalGoodsStore.Goods goods) {
     brs.schema.tables.records.GoodsRecord goodsRecord = ctx.newRecord(GOODS);
     goodsRecord.setId(goods.getId());
     goodsRecord.setSellerId(goods.getSellerId());
@@ -232,7 +232,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
     );
   }
 
-  protected void savePurchase(DSLContext ctx, DigitalGoodsStore.Purchase purchase) throws SQLException {
+  private void savePurchase(DSLContext ctx, DigitalGoodsStore.Purchase purchase) {
     byte[] note        = null;
     byte[] nonce       = null;
     byte[] goods       = null;
@@ -353,9 +353,9 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
 
 
 
-  protected class SQLPurchase extends DigitalGoodsStore.Purchase {
+  class SQLPurchase extends DigitalGoodsStore.Purchase {
 
-    public SQLPurchase(ResultSet rs) throws SQLException {
+    SQLPurchase(ResultSet rs) throws SQLException {
       super(
             rs.getLong("id"),
             purchaseDbKeyFactory.newKey(rs.getLong("id")),

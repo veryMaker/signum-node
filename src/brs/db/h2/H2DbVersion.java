@@ -14,9 +14,8 @@ import brs.db.sql.SqlBlockDb;
 final class H2DbVersion {
 
   private static final Logger logger = LoggerFactory.getLogger(H2DbVersion.class);
-  private static int initialDbVersion = 0;
 
-  static void init() {
+    static void init() {
     try (Connection con = Db.beginTransaction(); Statement stmt = con.createStatement()) {
       int nextUpdate = 1;
       try ( ResultSet rs = stmt.executeQuery("SELECT next_update FROM version") ) {
@@ -24,7 +23,7 @@ final class H2DbVersion {
           throw new RuntimeException("Invalid version table");
         }
         nextUpdate       = rs.getInt("next_update");
-        initialDbVersion = nextUpdate - 1;
+          int initialDbVersion = nextUpdate - 1;
         // wallets with DB release 175 had a broken trim function, which deleted way too much data
         if ( initialDbVersion >= 163 && initialDbVersion <= 175 ) {
           throw new RuntimeException("Your database looks inconsistent. Please drop and recreate your database.");

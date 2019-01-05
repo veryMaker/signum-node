@@ -24,7 +24,7 @@ public class AT_API_Platform_Impl extends AT_API_Impl {
   private static final AT_API_Platform_Impl instance = new AT_API_Platform_Impl();
 
 
-  AT_API_Platform_Impl() {
+  private AT_API_Platform_Impl() {
   }
 
   public static AT_API_Platform_Impl getInstance() {
@@ -345,7 +345,7 @@ public class AT_API_Platform_Impl extends AT_API_Impl {
       state.addTransaction( tx );
 			
       state.setG_balance( state.getG_balance() - state.getP_balance() );
-      state.setP_balance( 0l );
+      state.setP_balance( 0L );
     }
   }
 
@@ -372,11 +372,11 @@ public class AT_API_Platform_Impl extends AT_API_Impl {
     return AT_API_Helper.getLongTimestamp( addHeight, numOfTx );
   }
 
-  protected static Long findTransaction(int startHeight, int endHeight, Long atID, int numOfTx, long minAmount){
+  private static Long findTransaction(int startHeight, int endHeight, Long atID, int numOfTx, long minAmount){
     return Burst.getStores().getAtStore().findTransaction(startHeight, endHeight, atID, numOfTx, minAmount);
   }
 
-  protected static int findTransactionHeight(Long transactionId, int height, Long atID, long minAmount){
+  private static int findTransactionHeight(Long transactionId, int height, Long atID, long minAmount){
     return Burst.getStores().getAtStore().findTransactionHeight(transactionId, height,atID, minAmount);
   }
 

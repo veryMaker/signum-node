@@ -21,7 +21,7 @@ public class DBCacheManagerImpl {
 
   private final boolean statisticsEnabled;
 
-  private final HashMap<String, CacheConfiguration> caches = new HashMap<String, CacheConfiguration>();
+  private final HashMap<String, CacheConfiguration> caches = new HashMap<>();
 
   public DBCacheManagerImpl(StatisticsManagerImpl statisticsManager) {
     this.statisticsManager = statisticsManager;

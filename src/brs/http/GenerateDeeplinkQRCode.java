@@ -58,7 +58,7 @@ public class GenerateDeeplinkQRCode extends PrimitiveRequestHandler {
         return;
       }
 
-      final Long amountNQT = Convert.parseLong(amountNQTString);
+      final long amountNQT = Convert.parseLong(amountNQTString);
       if (immutable && (amountNQT < 0 || amountNQT > Constants.MAX_BALANCE_NQT)) {
         addErrorMessage(resp, INCORRECT_AMOUNT);
         return;

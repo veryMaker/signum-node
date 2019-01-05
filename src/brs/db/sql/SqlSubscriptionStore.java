@@ -88,7 +88,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
     return subscriptionTable.getManyBy(getUpdateOnBlockClause(timestamp), 0, -1);
   }
 
-  protected void saveSubscription(DSLContext ctx, Subscription subscription) throws SQLException {
+  private void saveSubscription(DSLContext ctx, Subscription subscription) {
     brs.schema.tables.records.SubscriptionRecord subscriptionRecord = ctx.newRecord(SUBSCRIPTION);
     subscriptionRecord.setId(subscription.id);
     subscriptionRecord.setSenderId(subscription.senderId);
@@ -116,7 +116,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
   }
 
   private class SqlSubscription extends Subscription {
-    public SqlSubscription(ResultSet rs) throws SQLException {
+    SqlSubscription(ResultSet rs) throws SQLException {
       super(
             rs.getLong("sender_id"),
             rs.getLong("recipient_id"),

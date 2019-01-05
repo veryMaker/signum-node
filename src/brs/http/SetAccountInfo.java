@@ -16,7 +16,7 @@ import static brs.http.JSONResponses.INCORRECT_ACCOUNT_NAME_LENGTH;
 import static brs.http.common.Parameters.DESCRIPTION_PARAMETER;
 import static brs.http.common.Parameters.NAME_PARAMETER;
 
-public final class SetAccountInfo extends CreateTransaction {
+final class SetAccountInfo extends CreateTransaction {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;

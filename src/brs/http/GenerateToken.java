@@ -10,7 +10,7 @@ import static brs.http.JSONResponses.*;
 import static brs.Constants.*;
 import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
 
-public final class GenerateToken extends APIServlet.APIRequestHandler {
+final class GenerateToken extends APIServlet.APIRequestHandler {
 
   private final TimeService timeService;
 

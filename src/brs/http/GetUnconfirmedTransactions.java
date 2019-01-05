@@ -13,7 +13,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
-public final class GetUnconfirmedTransactions extends APIServlet.APIRequestHandler {
+final class GetUnconfirmedTransactions extends APIServlet.APIRequestHandler {
 
   private final TransactionProcessor transactionProcessor;
 

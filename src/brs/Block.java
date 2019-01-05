@@ -105,7 +105,7 @@ public class Block {
     this.id = id;
   }
 
-  private final TransactionDb transactionDb() {
+  private TransactionDb transactionDb() {
     return Burst.getDbs().getTransactionDb();
   }
 
@@ -276,7 +276,7 @@ public class Block {
     try {
       int version = ((Long) blockData.get("version")).intValue();
       int timestamp = ((Long) blockData.get("timestamp")).intValue();
-      Long previousBlock = Convert.parseUnsignedLong((String) blockData.get("previousBlock"));
+      long previousBlock = Convert.parseUnsignedLong((String) blockData.get("previousBlock"));
       long totalAmountNQT = Convert.parseLong(blockData.get("totalAmountNQT"));
       long totalFeeNQT = Convert.parseLong(blockData.get("totalFeeNQT"));
       int payloadLength = ((Long) blockData.get("payloadLength")).intValue();
@@ -288,7 +288,7 @@ public class Block {
       byte[] blockSignature = Convert.parseHexString((String) blockData.get("blockSignature"));
       byte[] previousBlockHash =
           version == 1 ? null : Convert.parseHexString((String) blockData.get("previousBlockHash"));
-      Long nonce = Convert.parseUnsignedLong((String) blockData.get("nonce"));
+      long nonce = Convert.parseUnsignedLong((String) blockData.get("nonce"));
 
       SortedMap<Long, Transaction> blockTransactions = new TreeMap<>();
       JSONArray transactionsData = (JSONArray) blockData.get("transactions");

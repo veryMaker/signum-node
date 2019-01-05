@@ -10,7 +10,7 @@ import static brs.http.JSONResponses.MISSING_SECRET_PHRASE;
 import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
 
 
-public final class StopForging extends APIServlet.APIRequestHandler {
+final class StopForging extends APIServlet.APIRequestHandler {
 
   static final StopForging instance = new StopForging();
 

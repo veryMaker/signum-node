@@ -9,7 +9,7 @@ import brs.services.ParameterService;
 import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONStreamAware;
 
-public final class SendMoney extends CreateTransaction {
+final class SendMoney extends CreateTransaction {
 
   private final ParameterService parameterService;
 

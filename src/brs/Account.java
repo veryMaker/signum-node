@@ -14,7 +14,7 @@ public class Account {
 
   public final long id;
   public final BurstKey nxtKey;
-  protected final int creationHeight;
+  private final int creationHeight;
   private byte[] publicKey;
   private int keyHeight;
   protected long balanceNQT;
@@ -167,11 +167,11 @@ public class Account {
 
   }
 
-  protected static final BurstKey.LongKeyFactory<Account> accountBurstKeyFactory() {
+  private static BurstKey.LongKeyFactory<Account> accountBurstKeyFactory() {
     return Burst.getStores().getAccountStore().getAccountKeyFactory();
   }
 
-  private static final VersionedBatchEntityTable<Account> accountTable() {
+  private static VersionedBatchEntityTable<Account> accountTable() {
     return Burst.getStores().getAccountStore().getAccountTable();
   }
 

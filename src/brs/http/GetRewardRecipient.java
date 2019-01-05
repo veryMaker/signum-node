@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
-public final class GetRewardRecipient extends APIServlet.APIRequestHandler {
+final class GetRewardRecipient extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;

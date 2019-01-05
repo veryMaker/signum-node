@@ -20,7 +20,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 import javax.servlet.http.HttpServletRequest;
 
-public final class GetAccountTransactions extends APIServlet.APIRequestHandler {
+final class GetAccountTransactions extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;

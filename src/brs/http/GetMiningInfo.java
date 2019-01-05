@@ -11,7 +11,7 @@ import org.json.simple.JSONStreamAware;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.ByteBuffer;
 
-public final class GetMiningInfo extends APIServlet.APIRequestHandler {
+final class GetMiningInfo extends APIServlet.APIRequestHandler {
 
   private final Blockchain blockchain;
 
@@ -28,7 +28,7 @@ public final class GetMiningInfo extends APIServlet.APIRequestHandler {
 		
     Block lastBlock = blockchain.getLastBlock();
     byte[] lastGenSig = lastBlock.getGenerationSignature();
-    Long lastGenerator = lastBlock.getGeneratorId();
+    long lastGenerator = lastBlock.getGeneratorId();
 		
     ByteBuffer buf = ByteBuffer.allocate(32 + 8);
     buf.put(lastGenSig);

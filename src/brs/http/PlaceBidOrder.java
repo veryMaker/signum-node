@@ -16,7 +16,7 @@ import static brs.http.common.Parameters.ASSET_PARAMETER;
 import static brs.http.common.Parameters.PRICE_NQT_PARAMETER;
 import static brs.http.common.Parameters.QUANTITY_QNT_PARAMETER;
 
-public final class PlaceBidOrder extends CreateTransaction {
+final class PlaceBidOrder extends CreateTransaction {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;

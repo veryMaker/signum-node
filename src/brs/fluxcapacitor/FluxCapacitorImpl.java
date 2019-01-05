@@ -5,7 +5,7 @@ import brs.props.PropertyService;
 
 public class FluxCapacitorImpl implements FluxCapacitor {
 
-  private Blockchain blockchain;
+  private final Blockchain blockchain;
 
   private final FeatureCapacitor featureCapacitor;
   private final TypeCapacitor<Integer> intCapacitor;

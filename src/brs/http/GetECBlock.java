@@ -15,7 +15,7 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class GetECBlock extends APIServlet.APIRequestHandler {
+final class GetECBlock extends APIServlet.APIRequestHandler {
 
   private final Blockchain blockchain;
   private final TimeService timeService;

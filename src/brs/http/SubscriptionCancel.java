@@ -41,7 +41,7 @@ public final class SubscriptionCancel extends CreateTransaction {
       return response;
     }
 
-    Long subscriptionId;
+    long subscriptionId;
     try {
       subscriptionId = Convert.parseUnsignedLong(subscriptionString);
     } catch (Exception e) {

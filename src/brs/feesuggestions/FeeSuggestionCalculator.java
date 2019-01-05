@@ -21,7 +21,7 @@ public class FeeSuggestionCalculator {
 
     this.blockchainStore = blockchainStore;
 
-    blockchainProcessor.addListener(block -> newBlockApplied(block), Event.AFTER_BLOCK_APPLY);
+    blockchainProcessor.addListener(this::newBlockApplied, Event.AFTER_BLOCK_APPLY);
   }
 
   public FeeSuggestion giveFeeSuggestion() {

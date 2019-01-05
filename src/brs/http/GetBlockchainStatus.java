@@ -13,7 +13,7 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class GetBlockchainStatus extends APIServlet.APIRequestHandler {
+final class GetBlockchainStatus extends APIServlet.APIRequestHandler {
 
   private final BlockchainProcessor blockchainProcessor;
   private final Blockchain blockchain;

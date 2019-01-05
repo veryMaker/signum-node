@@ -24,8 +24,8 @@ import org.json.simple.JSONStreamAware;
 
 public final class GetAccount extends APIServlet.APIRequestHandler {
 
-  private ParameterService parameterService;
-  private AccountService accountService;
+  private final ParameterService parameterService;
+  private final AccountService accountService;
 
   GetAccount(ParameterService parameterService, AccountService accountService) {
     super(new APITag[] {APITag.ACCOUNTS}, ACCOUNT_PARAMETER);

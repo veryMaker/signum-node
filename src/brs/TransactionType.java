@@ -253,7 +253,7 @@ public abstract class TransactionType {
     return Convert.safeAdd(calculateTransactionAmountNQT(transaction), calculateAttachmentTotalAmountNQT(transaction));
   }
 
-  public Long calculateTransactionAmountNQT(Transaction transaction) {
+  private Long calculateTransactionAmountNQT(Transaction transaction) {
     long totalAmountNQT = Convert.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT());
     if (transaction.getReferencedTransactionFullHash() != null
         && transaction.getTimestamp() > Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK_TIMESTAMP) {
@@ -262,9 +262,9 @@ public abstract class TransactionType {
     return totalAmountNQT;
   }
 
-  public Long calculateAttachmentTotalAmountNQT(Transaction transaction) {
+  private Long calculateAttachmentTotalAmountNQT(Transaction transaction) {
     return 0L;
-  };
+  }
 
   abstract boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount);
 
@@ -422,7 +422,7 @@ public abstract class TransactionType {
       @Override
       final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.PaymentMultiOutCreation attachment = (Attachment.PaymentMultiOutCreation) transaction.getAttachment();
-        attachment.getRecipients().forEach(a -> { accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(a.get(0)), a.get(1)); });
+        attachment.getRecipients().forEach(a -> accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(a.get(0)), a.get(1)));
       }
 
       @Override
@@ -468,7 +468,7 @@ public abstract class TransactionType {
       final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.PaymentMultiSameOutCreation attachment = (Attachment.PaymentMultiSameOutCreation) transaction.getAttachment();
         final long amountNQT = Convert.safeDivide(transaction.getAmountNQT(), attachment.getRecipients().size());
-        attachment.getRecipients().forEach(a -> { accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(a), amountNQT); });
+        attachment.getRecipients().forEach(a -> accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(a), amountNQT));
       }
 
       @Override
@@ -2312,8 +2312,7 @@ public abstract class TransactionType {
         }
 
         @Override
-        AbstractAttachment parseAttachment(JSONObject attachmentData)
-          throws NotValidException {
+        AbstractAttachment parseAttachment(JSONObject attachmentData) {
           // TODO Auto-generated method stub
           //System.out.println("parsing at attachment");
             //System.out.println("attachment parsed");
@@ -2427,7 +2426,7 @@ public abstract class TransactionType {
     return Convert.safeAdd(fee.getConstantFee(), Convert.safeMultiply(appendagesSize, fee.getAppendagesFee()));
   }
 
-  protected Fee getBaselineFee(int height) {
+  private Fee getBaselineFee(int height) {
     return new Fee((fluxCapacitor.isActive(PRE_DYMAXION, height) ? FEE_QUANT : ONE_BURST), 0);
   }
 
@@ -2435,16 +2434,16 @@ public abstract class TransactionType {
     private final long constantFee;
     private final long appendagesFee;
 
-    public Fee(long constantFee, long appendagesFee) {
+    Fee(long constantFee, long appendagesFee) {
       this.constantFee = constantFee;
       this.appendagesFee = appendagesFee;
     }
 
-    public long getConstantFee() {
+    long getConstantFee() {
       return constantFee;
     }
 
-    public long getAppendagesFee() {
+    long getAppendagesFee() {
       return appendagesFee;
     }
 

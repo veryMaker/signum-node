@@ -32,9 +32,9 @@ public final class GeneratorImpl implements Generator {
   private static final ConcurrentMap<Long, GeneratorStateImpl> generators = new ConcurrentHashMap<>();
   private static final Collection<? extends GeneratorState> allGenerators = Collections.unmodifiableCollection(generators.values());
 
-  private Blockchain blockchain;
+  private final Blockchain blockchain;
 
-  private final Runnable generateBlockThread(BlockchainProcessor blockchainProcessor) {
+  private Runnable generateBlockThread(BlockchainProcessor blockchainProcessor) {
     return () -> {
 
       try {
@@ -62,8 +62,8 @@ public final class GeneratorImpl implements Generator {
 
     };
   }
-  private TimeService timeService;
-  private FluxCapacitor fluxCapacitor;
+  private final TimeService timeService;
+  private final FluxCapacitor fluxCapacitor;
 
   public GeneratorImpl(Blockchain blockchain, TimeService timeService, FluxCapacitor fluxCapacitor) {
     this.blockchain = blockchain;
@@ -98,7 +98,7 @@ public final class GeneratorImpl implements Generator {
   @Override
   public GeneratorState addNonce(String secretPhrase, Long nonce, byte[] publicKey) {
     byte[] publicKeyHash = Crypto.sha256().digest(publicKey);
-    Long id = Convert.fullHashToId(publicKeyHash);
+    long id = Convert.fullHashToId(publicKeyHash);
 
     GeneratorStateImpl generator = new GeneratorStateImpl(secretPhrase, nonce, publicKey, id);
     GeneratorStateImpl curGen = generators.get(id);
@@ -172,7 +172,7 @@ public final class GeneratorImpl implements Generator {
     private final Long accountId;
     private final String secretPhrase;
     private final byte[] publicKey;
-    private volatile BigInteger deadline;
+    private final BigInteger deadline;
     private final long nonce;
     private final long block;
 

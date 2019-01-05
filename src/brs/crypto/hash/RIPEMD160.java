@@ -97,8 +97,8 @@ public class RIPEMD160 extends MDHelper {
    * @param buf   the destination buffer
    * @param off   the destination offset
    */
-  private static final void encodeLEInt(int val, byte[] buf, int off) {
-    buf[off + 0] = (byte)val;
+  private static void encodeLEInt(int val, byte[] buf, int off) {
+    buf[off] = (byte)val;
     buf[off + 1] = (byte)(val >>> 8);
     buf[off + 2] = (byte)(val >>> 16);
     buf[off + 3] = (byte)(val >>> 24);
@@ -112,8 +112,8 @@ public class RIPEMD160 extends MDHelper {
    * @param off   the source offset
    * @return  the decoded value
    */
-  private static final int decodeLEInt(byte[] buf, int off) {
-    return (buf[off + 0] & 0xFF)
+  private static int decodeLEInt(byte[] buf, int off) {
+    return (buf[off] & 0xFF)
         | ((buf[off + 1] & 0xFF) << 8)
         | ((buf[off + 2] & 0xFF) << 16)
         | ((buf[off + 3] & 0xFF) << 24);
@@ -128,7 +128,7 @@ public class RIPEMD160 extends MDHelper {
    * @param n   the rotation count (between 1 and 31)
    * @return  the rotated value
    */
-  private static final int circularLeft(int x, int n) {
+  private static int circularLeft(int x, int n) {
     return (x << n) | (x >>> (32 - n));
   }
 
@@ -188,28 +188,28 @@ public class RIPEMD160 extends MDHelper {
     }
     for (int i = 16; i < 32; i ++) {
       int T1 = A1 + (((C1 ^ D1) & B1) ^ D1)
-          + X[r1[i]] + (int)0x5A827999;
+          + X[r1[i]] + 0x5A827999;
       T1 = ((T1 << s1[i]) | (T1 >>> (32 - s1[i]))) + E1;
       A1 = E1; E1 = D1; D1 = (C1 << 10) | (C1 >>> 22);
       C1 = B1; B1 = T1;
     }
     for (int i = 32; i < 48; i ++) {
       int T1 = A1 + ((B1 | ~C1) ^ D1)
-          + X[r1[i]] + (int)0x6ED9EBA1;
+          + X[r1[i]] + 0x6ED9EBA1;
       T1 = ((T1 << s1[i]) | (T1 >>> (32 - s1[i]))) + E1;
       A1 = E1; E1 = D1; D1 = (C1 << 10) | (C1 >>> 22);
       C1 = B1; B1 = T1;
     }
     for (int i = 48; i < 64; i ++) {
       int T1 = A1 + (((B1 ^ C1) & D1) ^ C1)
-          + X[r1[i]] + (int)0x8F1BBCDC;
+          + X[r1[i]] + 0x8F1BBCDC;
       T1 = ((T1 << s1[i]) | (T1 >>> (32 - s1[i]))) + E1;
       A1 = E1; E1 = D1; D1 = (C1 << 10) | (C1 >>> 22);
       C1 = B1; B1 = T1;
     }
     for (int i = 64; i < 80; i ++) {
       int T1 = A1 + (B1 ^ (C1 | ~D1))
-          + X[r1[i]] + (int)0xA953FD4E;
+          + X[r1[i]] + 0xA953FD4E;
       T1 = ((T1 << s1[i]) | (T1 >>> (32 - s1[i]))) + E1;
       A1 = E1; E1 = D1; D1 = (C1 << 10) | (C1 >>> 22);
       C1 = B1; B1 = T1;
@@ -217,28 +217,28 @@ public class RIPEMD160 extends MDHelper {
 
     for (int i = 0; i < 16; i ++) {
       int T2 = A2 + (B2 ^ (C2 | ~D2))
-          + X[r2[i]] + (int)0x50A28BE6;
+          + X[r2[i]] + 0x50A28BE6;
       T2 = ((T2 << s2[i]) | (T2 >>> (32 - s2[i]))) + E2;
       A2 = E2; E2 = D2; D2 = (C2 << 10) | (C2 >>> 22);
       C2 = B2; B2 = T2;
     }
     for (int i = 16; i < 32; i ++) {
       int T2 = A2 + (((B2 ^ C2) & D2) ^ C2)
-          + X[r2[i]] + (int)0x5C4DD124;
+          + X[r2[i]] + 0x5C4DD124;
       T2 = ((T2 << s2[i]) | (T2 >>> (32 - s2[i]))) + E2;
       A2 = E2; E2 = D2; D2 = (C2 << 10) | (C2 >>> 22);
       C2 = B2; B2 = T2;
     }
     for (int i = 32; i < 48; i ++) {
       int T2 = A2 + ((B2 | ~C2) ^ D2)
-          + X[r2[i]] + (int)0x6D703EF3;
+          + X[r2[i]] + 0x6D703EF3;
       T2 = ((T2 << s2[i]) | (T2 >>> (32 - s2[i]))) + E2;
       A2 = E2; E2 = D2; D2 = (C2 << 10) | (C2 >>> 22);
       C2 = B2; B2 = T2;
     }
     for (int i = 48; i < 64; i ++) {
       int T2 = A2 + (((C2 ^ D2) & B2) ^ D2)
-          + X[r2[i]] + (int)0x7A6D76E9;
+          + X[r2[i]] + 0x7A6D76E9;
       T2 = ((T2 << s2[i]) | (T2 >>> (32 - s2[i]))) + E2;
       A2 = E2; E2 = D2; D2 = (C2 << 10) | (C2 >>> 22);
       C2 = B2; B2 = T2;

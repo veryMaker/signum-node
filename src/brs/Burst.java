@@ -85,13 +85,11 @@ public final class Burst {
   private static PropertyService propertyService;
   private static FluxCapacitor fluxCapacitor;
 
-  private static EconomicClustering economicClustering;
-
   private static DBCacheManagerImpl dbCacheManager;
 
   private static API api;
 
-  static Properties properties;
+  private static Properties properties;
 
   private static PropertyService loadProperties() {
     final Properties defaultProperties = new Properties();
@@ -173,7 +171,7 @@ public final class Burst {
     loadWallet(new PropertyServiceImpl(customProperties));
   }
 
-  public static void init() {
+  private static void init() {
     loadWallet(loadProperties());
   }
 
@@ -207,7 +205,7 @@ public final class Burst {
       final AliasService aliasService = new AliasServiceImpl(stores.getAliasStore());
       fluxCapacitor = new FluxCapacitorImpl(blockchain, propertyService);
 
-      economicClustering = new EconomicClustering(blockchain);
+      EconomicClustering economicClustering = new EconomicClustering(blockchain);
 
       final Generator generator = propertyService.getBoolean(Props.DEV_MOCK_MINING) ? new MockGeneratorImpl() : new GeneratorImpl(blockchain, timeService, fluxCapacitor);
 
@@ -312,11 +310,11 @@ public final class Burst {
     blockchainProcessor.addListener(devNullListener, BlockchainProcessor.Event.AFTER_BLOCK_APPLY);
   }
 
-  public static void shutdown() {
+  private static void shutdown() {
     shutdown(false);
   }
 
-  public static void commandHandler() {
+  private static void commandHandler() {
     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     try {
       String command;

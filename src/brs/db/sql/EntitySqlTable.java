@@ -20,11 +20,11 @@ import org.jooq.SelectQuery;
 import org.jooq.UpdateQuery;
 
 public abstract class EntitySqlTable<T> extends DerivedSqlTable implements EntityTable<T> {
-  protected final DbKey.Factory<T> dbKeyFactory;
+  final DbKey.Factory<T> dbKeyFactory;
   private final boolean multiversion;
   private final List<SortField> defaultSort;
 
-  protected EntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
+  EntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
     this(table, tableClass, dbKeyFactory, false, derivedTableManager);
   }
 
@@ -43,10 +43,10 @@ public abstract class EntitySqlTable<T> extends DerivedSqlTable implements Entit
 
   protected abstract T load(DSLContext ctx, ResultSet rs) throws SQLException;
 
-  protected void save(DSLContext ctx, T t) throws SQLException {
+  void save(DSLContext ctx, T t) throws SQLException {
   }
 
-  protected List<SortField> defaultSort() {
+  List<SortField> defaultSort() {
     return defaultSort;
   }
 

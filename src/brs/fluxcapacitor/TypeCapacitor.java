@@ -2,11 +2,11 @@ package brs.fluxcapacitor;
 
 import brs.fluxcapacitor.FluxHistory.Element;
 
-public abstract class TypeCapacitor<T> {
+abstract class TypeCapacitor<T> {
 
   private final HistorianImpl historian;
 
-  public TypeCapacitor(HistorianImpl historian) {
+  TypeCapacitor(HistorianImpl historian) {
     this.historian = historian;
   }
 

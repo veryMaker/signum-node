@@ -239,9 +239,9 @@ public final class APIServlet extends HttpServlet {
 
   abstract static class PrimitiveRequestHandler {
 
-    public abstract void processRequest(HttpServletRequest req, HttpServletResponse resp);
+    protected abstract void processRequest(HttpServletRequest req, HttpServletResponse resp);
 
-    public void addErrorMessage(HttpServletResponse resp, JSONStreamAware msg) throws IOException {
+    void addErrorMessage(HttpServletResponse resp, JSONStreamAware msg) throws IOException {
       try (Writer writer = resp.getWriter()) {
         resp.setContentType("text/plain; charset=UTF-8");
         resp.setStatus(500);
@@ -255,7 +255,7 @@ public final class APIServlet extends HttpServlet {
   private static boolean enforcePost;
 
   static Map<String, APIRequestHandler> apiRequestHandlers;
-  static Map<String, PrimitiveRequestHandler> primitiveRequestHandlers;
+  private static Map<String, PrimitiveRequestHandler> primitiveRequestHandlers;
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

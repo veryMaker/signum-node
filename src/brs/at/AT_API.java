@@ -1,6 +1,6 @@
 package brs.at;
 
-public interface AT_API {
+interface AT_API {
   // range 0x0100..0x01ff
   /**
    * sets @addr to A1 (0x0100)

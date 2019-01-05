@@ -13,15 +13,10 @@ import java.util.logging.Logger;
 /**
  * A Java logging formatter that writes more compact output than the default
  */
-public class BriefLogFormatter extends Formatter {
+class BriefLogFormatter extends Formatter {
 
   /** Format used for log messages */
-  private static final ThreadLocal<MessageFormat> messageFormat = new ThreadLocal<MessageFormat>() {
-      @Override
-      protected MessageFormat initialValue() {
-        return new MessageFormat("[{1}] {0,date,yyyy-MM-dd HH:mm:ss} {4} - {2}\n{3}");
-      }
-    };
+  private static final ThreadLocal<MessageFormat> messageFormat = ThreadLocal.withInitial(() -> new MessageFormat("[{1}] {0,date,yyyy-MM-dd HH:mm:ss} {4} - {2}\n{3}"));
 
   /** LoggerConfigurator instance at the top of the name tree */
   private static final Logger logger = Logger.getLogger("");

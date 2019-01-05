@@ -19,7 +19,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
-public final class GetAccountTransactionIds extends APIServlet.APIRequestHandler {
+final class GetAccountTransactionIds extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;

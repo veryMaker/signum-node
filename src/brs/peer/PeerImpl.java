@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -357,7 +358,7 @@ final class PeerImpl implements Peer {
       connection.setRequestProperty("Connection", "close");
 
       CountingOutputStream cos = new CountingOutputStream(connection.getOutputStream());
-      try (Writer writer = new BufferedWriter(new OutputStreamWriter(cos, "UTF-8"))) {
+      try (Writer writer = new BufferedWriter(new OutputStreamWriter(cos, StandardCharsets.UTF_8))) {
         request.writeJSONString(writer);
       } // rico666: no catch?
       updateUploadedVolume(cos.getCount());
@@ -386,7 +387,7 @@ final class PeerImpl implements Peer {
           response = (JSONObject) JSONValue.parse(responseValue);
         }
         else {
-          try (Reader reader = new BufferedReader(new InputStreamReader(responseStream, "UTF-8"))) {
+          try (Reader reader = new BufferedReader(new InputStreamReader(responseStream, StandardCharsets.UTF_8))) {
             response = (JSONObject)JSONValue.parse(reader);
           }
         }

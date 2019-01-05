@@ -33,7 +33,7 @@ public class SqlAssetStore implements AssetStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Asset asset) throws SQLException {
+      protected void save(DSLContext ctx, Asset asset) {
         saveAsset(ctx, asset);
       }
     };

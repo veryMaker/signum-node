@@ -15,7 +15,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
-public final class GetBidOrderIds extends APIServlet.APIRequestHandler {
+final class GetBidOrderIds extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final AssetExchange assetExchange;

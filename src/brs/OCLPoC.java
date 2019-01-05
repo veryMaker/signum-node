@@ -70,10 +70,10 @@ final class OCLPoC {
   private static cl_program program;
   private static cl_kernel genKernel;
   private static cl_kernel getKernel;
-  private static cl_kernel getKernel2;
+  private static final cl_kernel getKernel2;
 
   private static long maxItems;
-  private static long maxGroupItems;
+  private static final long maxGroupItems;
 
   private static final Object oclLock = new Object();
 
@@ -485,8 +485,8 @@ final class OCLPoC {
   }
 
   private static class AutoChooseResult {
-    int platform;
-    int device;
+    final int platform;
+    final int device;
 
     AutoChooseResult(int platform, int device) {
       this.platform = platform;
