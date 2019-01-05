@@ -1,10 +1,7 @@
-<img align="right" width="120" height="120" title="Burst Logo" src="https://raw.githubusercontent.com/PoC-Consortium/Marketing_Resources/master/BURST_LOGO/PNG/icon_blue.png" />
+<img align="right" width="120" height="120" title="Burst Logo" src="https://raw.githubusercontent.com/burst-apps-team/Marketing_Resources/master/BURST_LOGO/PNG/icon_blue.png" />
 
 # Burstcoin Wallet
 
-[![Get Support at https://discord.gg/NKXGM6N](https://img.shields.io/badge/join-discord-blue.svg)](https://discord.gg/NKXGM6N)
-[![Build Status](https://api.travis-ci.org/PoC-Consortium/burstcoin.svg?branch=master)](https://travis-ci.org/PoC-Consortium/burstcoin?branch=master) 
-![Quality Gate](https://sonarqube.com/api/badges/gate?key=burstcoin:burstcoin)
 [![MIT](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.txt)
 
 The world's first HDD-mined cryptocurrency using an energy efficient
@@ -15,10 +12,6 @@ This wallet version is developed and maintained by the PoC consortium
 backends are:
 - MariaDB (recommended)
 - H2 (embedded, easier install)
-
-Other DB backends are supported by the Burstcoin DB manager:
-<https://github.com/PoC-Consortium/burstcoin-db-manager>
-
 
 ### Software Installation
 
