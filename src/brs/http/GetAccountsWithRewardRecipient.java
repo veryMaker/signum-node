@@ -1,8 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNTS_RESPONSE;
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-
 import brs.Account;
 import brs.BurstException;
 import brs.db.BurstIterator;
@@ -14,6 +11,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.ACCOUNTS_RESPONSE;
+import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
 
 public final class GetAccountsWithRewardRecipient extends APIServlet.APIRequestHandler {
 

@@ -1,47 +1,11 @@
 package brs.http;
 
-import static brs.http.JSONResponses.FEATURE_NOT_AVAILABLE;
-import static brs.http.JSONResponses.INCORRECT_ARBITRARY_MESSAGE;
-import static brs.http.JSONResponses.INCORRECT_DEADLINE;
-import static brs.http.JSONResponses.INCORRECT_FEE;
-import static brs.http.JSONResponses.INCORRECT_REFERENCED_TRANSACTION;
-import static brs.http.JSONResponses.MISSING_DEADLINE;
-import static brs.http.JSONResponses.MISSING_SECRET_PHRASE;
-import static brs.http.JSONResponses.NOT_ENOUGH_FUNDS;
-import static brs.http.common.Parameters.BROADCAST_PARAMETER;
-import static brs.http.common.Parameters.COMMENT_PARAMETER;
-import static brs.http.common.Parameters.DEADLINE_PARAMETER;
-import static brs.http.common.Parameters.MESSAGE_IS_TEXT_PARAMETER;
-import static brs.http.common.Parameters.MESSAGE_PARAMETER;
-import static brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER;
-import static brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER;
-import static brs.http.common.Parameters.PUBLIC_KEY_PARAMETER;
-import static brs.http.common.Parameters.RECIPIENT_PUBLIC_KEY_PARAMETER;
-import static brs.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER;
-import static brs.http.common.Parameters.REFERENCED_TRANSACTION_PARAMETER;
-import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
-import static brs.http.common.ResultFields.BROADCASTED_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_RESPONSE;
-import static brs.http.common.ResultFields.FULL_HASH_RESPONSE;
-import static brs.http.common.ResultFields.NUMBER_PEERS_SENT_TO_RESPONSE;
-import static brs.http.common.ResultFields.SIGNATURE_HASH_RESPONSE;
-import static brs.http.common.ResultFields.TRANSACTION_BYTES_RESPONSE;
-import static brs.http.common.ResultFields.TRANSACTION_JSON_RESPONSE;
-import static brs.http.common.ResultFields.TRANSACTION_RESPONSE;
-import static brs.http.common.ResultFields.UNSIGNED_TRANSACTION_BYTES_RESPONSE;
-
-import brs.Account;
+import brs.*;
 import brs.Appendix.EncryptToSelfMessage;
 import brs.Appendix.EncryptedMessage;
 import brs.Appendix.Message;
 import brs.Appendix.PublicKeyAnnouncement;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.Burst;
-import brs.BurstException;
-import brs.Transaction;
 import brs.Transaction.Builder;
-import brs.TransactionProcessor;
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
 import brs.fluxcapacitor.FeatureToggle;
@@ -50,9 +14,15 @@ import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.services.TransactionService;
 import brs.util.Convert;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.JSONResponses.*;
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.*;
+import static brs.http.common.ResultFields.FULL_HASH_RESPONSE;
 
 public class APITransactionManagerImpl implements APITransactionManager {
 

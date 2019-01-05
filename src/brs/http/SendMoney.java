@@ -1,15 +1,16 @@
 package brs.http;
 
-import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
-import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
-
 import brs.Account;
 import brs.BurstException;
 import brs.services.ParameterService;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONStreamAware;
 
-public final class SendMoney extends CreateTransaction {
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
+import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
+
+final class SendMoney extends CreateTransaction {
 
   private final ParameterService parameterService;
 

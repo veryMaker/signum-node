@@ -1,18 +1,21 @@
 package brs.db.sql;
 
-import brs.*;
+import brs.Burst;
+import brs.Escrow;
+import brs.Transaction;
 import brs.db.BurstIterator;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.EscrowStore;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.jooq.DSLContext;
-import org.jooq.Field;
 
 import static brs.schema.Tables.ESCROW;
 import static brs.schema.Tables.ESCROW_DECISION;
@@ -45,7 +48,7 @@ public class SqlEscrowStore implements EscrowStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Escrow escrow) throws SQLException {
+      protected void save(DSLContext ctx, Escrow escrow) {
         saveEscrow(ctx, escrow);
       }
     };
@@ -57,7 +60,7 @@ public class SqlEscrowStore implements EscrowStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Escrow.Decision decision) throws SQLException {
+      protected void save(DSLContext ctx, Escrow.Decision decision) {
         saveDecision(ctx, decision);
       }
     };
@@ -65,7 +68,7 @@ public class SqlEscrowStore implements EscrowStore {
 
 
 
-  protected void saveDecision(DSLContext ctx, Escrow.Decision decision) throws SQLException {
+  private void saveDecision(DSLContext ctx, Escrow.Decision decision) {
     brs.schema.tables.records.EscrowDecisionRecord decisionRecord = ctx.newRecord(ESCROW_DECISION);
     decisionRecord.setEscrowId(decision.escrowId);
     decisionRecord.setAccountId(decision.accountId);
@@ -119,7 +122,7 @@ public class SqlEscrowStore implements EscrowStore {
     return resultTransactions;
   }
 
-  protected void saveEscrow(DSLContext ctx, Escrow escrow) throws SQLException {
+  private void saveEscrow(DSLContext ctx, Escrow escrow) {
     brs.schema.tables.records.EscrowRecord escrowRecord = ctx.newRecord(ESCROW);
     escrowRecord.setId(escrow.id);
     escrowRecord.setSenderId(escrow.senderId);
@@ -127,7 +130,7 @@ public class SqlEscrowStore implements EscrowStore {
     escrowRecord.setAmount(escrow.amountNQT);
     escrowRecord.setRequiredSigners(escrow.requiredSigners);
     escrowRecord.setDeadline(escrow.deadline);
-    escrowRecord.setDeadlineAction(((int) escrow.decisionToByte(escrow.deadlineAction)));
+    escrowRecord.setDeadlineAction(((int) Escrow.decisionToByte(escrow.deadlineAction)));
     escrowRecord.setHeight(Burst.getBlockchain().getHeight());
     escrowRecord.setLatest(true);
     DbUtils.mergeInto(

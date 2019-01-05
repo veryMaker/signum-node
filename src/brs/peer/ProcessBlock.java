@@ -17,14 +17,14 @@ public final class ProcessBlock extends PeerServlet.PeerRequestHandler {
     this.blockchainProcessor = blockchainProcessor;
   }
 
-  public static final JSONStreamAware ACCEPTED;
+  private static final JSONStreamAware ACCEPTED;
   static {
     JSONObject response = new JSONObject();
     response.put("accepted", true);
     ACCEPTED = JSON.prepare(response);
   }
 
-  public static final JSONStreamAware NOT_ACCEPTED;
+  private static final JSONStreamAware NOT_ACCEPTED;
   static {
     JSONObject response = new JSONObject();
     response.put("accepted", false);

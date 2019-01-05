@@ -1,106 +1,12 @@
 package brs.http;
 
-import static brs.http.common.ResultFields.ACCOUNT_RESPONSE;
-import static brs.http.common.ResultFields.ALIAS_NAME_RESPONSE;
-import static brs.http.common.ResultFields.ALIAS_RESPONSE;
-import static brs.http.common.ResultFields.ALIAS_URI_RESPONSE;
-import static brs.http.common.ResultFields.AMOUNT_NQT_RESPONSE;
-import static brs.http.common.ResultFields.ASK_ORDER_HEIGHT_RESPONSE;
-import static brs.http.common.ResultFields.ASK_ORDER_RESPONSE;
-import static brs.http.common.ResultFields.ASSET_RESPONSE;
-import static brs.http.common.ResultFields.ASSET_TRANSFER_RESPONSE;
-import static brs.http.common.ResultFields.ATTACHMENT_RESPONSE;
-import static brs.http.common.ResultFields.BALANCE_NQT_RESPONSE;
-import static brs.http.common.ResultFields.BASE_TARGET_RESPONSE;
-import static brs.http.common.ResultFields.BID_ORDER_HEIGHT_RESPONSE;
-import static brs.http.common.ResultFields.BID_ORDER_RESPONSE;
-import static brs.http.common.ResultFields.BLOCK_RESPONSE;
-import static brs.http.common.ResultFields.BLOCK_REWARD_RESPONSE;
-import static brs.http.common.ResultFields.BLOCK_SIGNATURE_RESPONSE;
-import static brs.http.common.ResultFields.BLOCK_TIMESTAMP_RESPONSE;
-import static brs.http.common.ResultFields.BUYER_RESPONSE;
-import static brs.http.common.ResultFields.CONFIRMATIONS_RESPONSE;
-import static brs.http.common.ResultFields.DATA_RESPONSE;
-import static brs.http.common.ResultFields.DEADLINE_ACTION_RESPONSE;
-import static brs.http.common.ResultFields.DEADLINE_RESPONSE;
-import static brs.http.common.ResultFields.DECIMALS_RESPONSE;
-import static brs.http.common.ResultFields.DECISION_RESPONSE;
-import static brs.http.common.ResultFields.DELISTED_RESPONSE;
-import static brs.http.common.ResultFields.DELIVERY_DEADLINE_TIMESTAMP_RESPONSE;
-import static brs.http.common.ResultFields.DESCRIPTION_RESPONSE;
-import static brs.http.common.ResultFields.DISCOUNT_NQT_RESPONSE;
-import static brs.http.common.ResultFields.EC_BLOCK_HEIGHT_RESPONSE;
-import static brs.http.common.ResultFields.EC_BLOCK_ID_RESPONSE;
-import static brs.http.common.ResultFields.EFFECTIVE_BALANCE_NQT_RESPONSE;
-import static brs.http.common.ResultFields.FEEDBACK_NOTES_RESPONSE;
-import static brs.http.common.ResultFields.FEE_NQT_RESPONSE;
-import static brs.http.common.ResultFields.FORGED_BALANCE_NQT_RESPONSE;
-import static brs.http.common.ResultFields.FREQUENCY_RESPONSE;
-import static brs.http.common.ResultFields.FULL_HASH_RESPONSE;
-import static brs.http.common.ResultFields.GENERATION_SIGNATURE_RESPONSE;
-import static brs.http.common.ResultFields.GENERATOR_PUBLIC_KEY_RESPONSE;
-import static brs.http.common.ResultFields.GENERATOR_RESPONSE;
-import static brs.http.common.ResultFields.GOODS_DATA_RESPONSE;
-import static brs.http.common.ResultFields.GOODS_IS_TEXT_RESPONSE;
-import static brs.http.common.ResultFields.GOODS_RESPONSE;
-import static brs.http.common.ResultFields.GUARANTEED_BALANCE_NQT_RESPONSE;
-import static brs.http.common.ResultFields.HEIGHT_RESPONSE;
-import static brs.http.common.ResultFields.ID_RESPONSE;
-import static brs.http.common.ResultFields.ID_RS_RESPONSE;
-import static brs.http.common.ResultFields.NAME_RESPONSE;
-import static brs.http.common.ResultFields.NEXT_BLOCK_RESPONSE;
-import static brs.http.common.ResultFields.NONCE_RESPONSE;
-import static brs.http.common.ResultFields.NOTE_RESPONSE;
-import static brs.http.common.ResultFields.NUMBER_OF_ACCOUNTS_RESPONSE;
-import static brs.http.common.ResultFields.NUMBER_OF_TRADES_RESPONSE;
-import static brs.http.common.ResultFields.NUMBER_OF_TRANSACTIONS_RESPONSE;
-import static brs.http.common.ResultFields.NUMBER_OF_TRANSFERS_RESPONSE;
-import static brs.http.common.ResultFields.ORDER_RESPONSE;
-import static brs.http.common.ResultFields.PAYLOAD_HASH_RESPONSE;
-import static brs.http.common.ResultFields.PAYLOAD_LENGTH_RESPONSE;
-import static brs.http.common.ResultFields.PENDING_RESPONSE;
-import static brs.http.common.ResultFields.PREVIOUS_BLOCK_HASH_RESPONSE;
-import static brs.http.common.ResultFields.PREVIOUS_BLOCK_RESPONSE;
-import static brs.http.common.ResultFields.PRICE_NQT_RESPONSE;
-import static brs.http.common.ResultFields.PUBLIC_FEEDBACKS_RESPONSE;
-import static brs.http.common.ResultFields.PURCHASE_RESPONSE;
-import static brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE;
-import static brs.http.common.ResultFields.QUANTITY_RESPONSE;
-import static brs.http.common.ResultFields.RECIPIENT_RESPONSE;
-import static brs.http.common.ResultFields.RECIPIENT_RS_RESPONSE;
-import static brs.http.common.ResultFields.REFERENCED_TRANSACTION_FULL_HASH_RESPONSE;
-import static brs.http.common.ResultFields.REFUND_NOTE_RESPONSE;
-import static brs.http.common.ResultFields.REFUND_NQT_RESPONSE;
-import static brs.http.common.ResultFields.REQUIRED_SIGNERS_RESPONSE;
-import static brs.http.common.ResultFields.SCOOP_NUM_RESPONSE;
-import static brs.http.common.ResultFields.SELLER_RESPONSE;
-import static brs.http.common.ResultFields.SENDER_PUBLIC_KEY_RESPONSE;
-import static brs.http.common.ResultFields.SENDER_RESPONSE;
-import static brs.http.common.ResultFields.SENDER_RS_RESPONSE;
-import static brs.http.common.ResultFields.SIGNATURE_HASH_RESPONSE;
-import static brs.http.common.ResultFields.SIGNATURE_RESPONSE;
-import static brs.http.common.ResultFields.SIGNERS_RESPONSE;
-import static brs.http.common.ResultFields.SUBTYPE_RESPONSE;
-import static brs.http.common.ResultFields.TAGS_RESPONSE;
-import static brs.http.common.ResultFields.TIMESTAMP_RESPONSE;
-import static brs.http.common.ResultFields.TIME_NEXT_RESPONSE;
-import static brs.http.common.ResultFields.TOTAL_AMOUNT_NQT_RESPONSE;
-import static brs.http.common.ResultFields.TOTAL_FEE_NQT_RESPONSE;
-import static brs.http.common.ResultFields.TRADE_TYPE_RESPONSE;
-import static brs.http.common.ResultFields.TRANSACTIONS_RESPONSE;
-import static brs.http.common.ResultFields.TRANSACTION_RESPONSE;
-import static brs.http.common.ResultFields.TYPE_RESPONSE;
-import static brs.http.common.ResultFields.UNCONFIRMED_BALANCE_NQT_RESPONSE;
-import static brs.http.common.ResultFields.UNCONFIRMED_QUANTITY_QNT_RESPONSE;
-import static brs.http.common.ResultFields.VERSION_RESPONSE;
-
 import brs.*;
 import brs.Alias.Offer;
 import brs.at.AT_API_Helper;
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
-import brs.peer.Peer;
 import brs.db.BurstIterator;
+import brs.peer.Peer;
 import brs.services.AccountService;
 import brs.util.Convert;
 import org.json.simple.JSONArray;
@@ -108,6 +14,8 @@ import org.json.simple.JSONObject;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+
+import static brs.http.common.ResultFields.*;
 
 public final class JSONData {
 
@@ -182,7 +90,7 @@ public final class JSONData {
     return json;
   }
 
-  static JSONObject order(Order order) {
+  private static JSONObject order(Order order) {
     JSONObject json = new JSONObject();
     json.put(ORDER_RESPONSE, Convert.toUnsignedLong(order.getId()));
     json.put(ASSET_RESPONSE, Convert.toUnsignedLong(order.getAssetId()));

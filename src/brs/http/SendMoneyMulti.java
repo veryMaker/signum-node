@@ -1,31 +1,22 @@
 package brs.http;
 
-import static brs.http.common.Parameters.BROADCAST_PARAMETER;
-import static brs.http.common.Parameters.DEADLINE_PARAMETER;
-import static brs.http.common.Parameters.FEE_NQT_PARAMETER;
-import static brs.http.common.Parameters.PUBLIC_KEY_PARAMETER;
-import static brs.http.common.Parameters.RECIPIENTS_PARAMETER;
-import static brs.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER;
-import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
-
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
-import brs.Constants;
+import brs.*;
 import brs.services.ParameterService;
 import brs.util.Convert;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map.Entry;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
 
-public final class SendMoneyMulti extends CreateTransaction {
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
+import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
+
+final class SendMoneyMulti extends CreateTransaction {
 
   private static final String[] commonParameters = new String[] {
       SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_NQT_PARAMETER,
@@ -69,9 +60,9 @@ public final class SendMoneyMulti extends CreateTransaction {
     try {
       for(String transactionString : transactionArray) {
         String recipientArray[] = transactionString.split(":", 2);
-        Long recipientId = Convert.parseUnsignedLong(recipientArray[0]);
+        long recipientId = Convert.parseUnsignedLong(recipientArray[0]);
         Long amountNQT   = Convert.parseUnsignedLong(recipientArray[1]);
-        recipients.add( new SimpleEntry<String,Long>("" + recipientId, amountNQT) );
+        recipients.add(new SimpleEntry<>("" + recipientId, amountNQT) );
         totalAmountNQT += amountNQT;
       }
     }

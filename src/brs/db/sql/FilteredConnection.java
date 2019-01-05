@@ -5,11 +5,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-public class FilteredConnection implements Connection {
+class FilteredConnection implements Connection {
 
   private final Connection con;
 
-  public FilteredConnection(Connection con) {
+  FilteredConnection(Connection con) {
     this.con = con;
   }
 

@@ -2,9 +2,9 @@ package brs.db.store;
 
 import brs.Account;
 import brs.db.BurstIterator;
+import brs.db.BurstKey;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.VersionedEntityTable;
-import brs.db.BurstKey;
 
 /**
  * Interface for Database operations related to Accounts

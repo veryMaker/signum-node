@@ -1,25 +1,20 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER;
-import static brs.http.common.Parameters.SUBTYPE_PARAMETER;
-import static brs.http.common.Parameters.TIMESTAMP_PARAMETER;
-import static brs.http.common.Parameters.TYPE_PARAMETER;
-
 import brs.Account;
 import brs.Blockchain;
 import brs.BurstException;
 import brs.Transaction;
 import brs.db.BurstIterator;
 import brs.services.ParameterService;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
-public final class GetAccountTransactionIds extends APIServlet.APIRequestHandler {
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.*;
+
+final class GetAccountTransactionIds extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;

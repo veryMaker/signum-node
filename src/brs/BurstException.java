@@ -6,11 +6,11 @@ public abstract class BurstException extends Exception {
     super();
   }
 
-  protected BurstException(String message) {
+  BurstException(String message) {
     super(message);
   }
 
-  protected BurstException(String message, Throwable cause) {
+  BurstException(String message, Throwable cause) {
     super(message, cause);
   }
 

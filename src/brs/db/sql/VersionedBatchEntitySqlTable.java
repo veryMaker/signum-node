@@ -2,24 +2,20 @@ package brs.db.sql;
 
 import brs.db.BurstIterator;
 import brs.db.BurstKey;
-import brs.db.cache.DBCacheManagerImpl;
 import brs.db.VersionedBatchEntityTable;
+import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.DerivedTableManager;
-import java.util.*;
 import org.ehcache.Cache;
+import org.jooq.*;
 import org.jooq.impl.TableImpl;
-import org.jooq.Condition;
-import org.jooq.SelectQuery;
-import org.jooq.UpdateQuery;
-import org.jooq.BatchBindStep;
-import org.jooq.DSLContext;
-import org.jooq.SortField;
+
+import java.util.*;
 
 public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySqlTable<T> implements VersionedBatchEntityTable<T> {
 
-  private DBCacheManagerImpl dbCacheManager;
+  private final DBCacheManagerImpl dbCacheManager;
 
-  protected VersionedBatchEntitySqlTable(String table, TableImpl<?> tableClass, DbKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager, DBCacheManagerImpl dbCacheManager) {
+  VersionedBatchEntitySqlTable(String table, TableImpl<?> tableClass, DbKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager, DBCacheManagerImpl dbCacheManager) {
     super(table, tableClass, dbKeyFactory, derivedTableManager);
     this.dbCacheManager = dbCacheManager;
   }
@@ -49,7 +45,7 @@ public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySql
         return (T)Db.getBatch(table).get(dbKey);
       }
     }
-    T item = (T) super.get(dbKey);
+    T item = super.get(dbKey);
     if ( item != null ) {
       getCache().put(dbKey, item);
     }
@@ -81,12 +77,10 @@ public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySql
       updateQuery.addConditions(tableClass.field("latest", Boolean.class).isTrue());
 
       BatchBindStep updateBatch = ctx.batch(updateQuery);
-      Iterator<DbKey> it = keySet.iterator();
-      while (it.hasNext()) {
-        DbKey dbKey = it.next();
+      for (DbKey dbKey : (Iterable<DbKey>) keySet) {
         ArrayList<Object> bindArgs = new ArrayList<>();
         bindArgs.add(false);
-        Arrays.stream(dbKey.getPKValues()).forEach(pkValue -> bindArgs.add(pkValue));
+        Arrays.stream(dbKey.getPKValues()).forEach(bindArgs::add);
         updateBatch = updateBatch.bind(bindArgs.toArray());
       }
       updateBatch.execute();
@@ -100,7 +94,7 @@ public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySql
       }
     }
     if ( itemOf.size() > 0 ) {
-      bulkInsert(ctx, new ArrayList<T>(itemOf.values()));
+      bulkInsert(ctx, new ArrayList<>(itemOf.values()));
     }
     Db.getBatch(table).clear();
   }

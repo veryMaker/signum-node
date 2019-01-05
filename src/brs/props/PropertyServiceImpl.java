@@ -1,12 +1,13 @@
 package brs.props;
 
 import brs.Burst;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PropertyServiceImpl implements PropertyService {
 

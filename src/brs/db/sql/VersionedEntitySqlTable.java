@@ -4,21 +4,17 @@ import brs.Burst;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
+import org.jooq.*;
+import org.jooq.impl.TableImpl;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.jooq.BatchBindStep;
-import org.jooq.impl.TableImpl;
-import org.jooq.SelectQuery;
-import org.jooq.UpdateQuery;
-import org.jooq.DeleteQuery;
-import org.jooq.DSLContext;
-import org.jooq.Field;
 
 public abstract class VersionedEntitySqlTable<T> extends EntitySqlTable<T> implements VersionedEntityTable<T> {
 
-  protected VersionedEntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
+  VersionedEntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
     super(table, tableClass, dbKeyFactory, true, derivedTableManager);
   }
 
@@ -62,11 +58,7 @@ public abstract class VersionedEntitySqlTable<T> extends EntitySqlTable<T> imple
         deleteQuery.addConditions(dbKey.getPKConditions(tableClass));
         return deleteQuery.execute() > 0;
       }
-    }
-    catch (SQLException e) {
-      throw new RuntimeException(e.toString(), e);
-    }
-    finally {
+    } finally {
       Db.getCache(table).remove(dbKey);
     }
   }

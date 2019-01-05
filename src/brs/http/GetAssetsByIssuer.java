@@ -1,10 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.ResultFields.ASSETS_RESPONSE;
-
 import brs.Account;
 import brs.Asset;
 import brs.assetexchange.AssetExchange;
@@ -16,6 +11,9 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.ASSETS_RESPONSE;
 
 public final class GetAssetsByIssuer extends AbstractAssetsRetrieval {
 

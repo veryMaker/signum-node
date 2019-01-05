@@ -1,10 +1,11 @@
 package brs.db.store;
 
 import brs.db.DerivedTable;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DerivedTableManager {
 

@@ -1,11 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.TIMESTAMP_PARAMETER;
-import static brs.http.common.ResultFields.BLOCK_IDS_RESPONSE;
-
 import brs.Account;
 import brs.Block;
 import brs.Blockchain;
@@ -17,6 +11,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.BLOCK_IDS_RESPONSE;
 
 public final class GetAccountBlockIds extends APIServlet.APIRequestHandler {
 

@@ -7,7 +7,7 @@ import java.util.logging.LogManager;
 /**
  * Java LogManager extension for use with Burst
  */
-public class BurstLogManager extends LogManager {
+class BurstLogManager extends LogManager {
 
   /** Logging reconfiguration in progress */
   private volatile boolean loggingReconfiguration = false;

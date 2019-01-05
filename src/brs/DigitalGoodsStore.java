@@ -17,11 +17,11 @@ public final class DigitalGoodsStore {
 
   public static class Goods {
 
-    private static final BurstKey.LongKeyFactory<Goods> goodsDbKeyFactory() {
+    private static BurstKey.LongKeyFactory<Goods> goodsDbKeyFactory() {
       return Burst.getStores().getDigitalGoodsStoreStore().getGoodsDbKeyFactory();
     }
 
-    private static final VersionedEntityTable<Goods> goodsTable() {
+    private static VersionedEntityTable<Goods> goodsTable() {
       return Burst.getStores().getDigitalGoodsStoreStore().getGoodsTable();
     }
 
@@ -120,23 +120,23 @@ public final class DigitalGoodsStore {
 
   public static class Purchase {
 
-    private static final BurstKey.LongKeyFactory<Purchase> purchaseDbKeyFactory() {
+    private static BurstKey.LongKeyFactory<Purchase> purchaseDbKeyFactory() {
       return Burst.getStores().getDigitalGoodsStoreStore().getPurchaseDbKeyFactory();
     }
 
-    private static final BurstKey.LongKeyFactory<Purchase> feedbackDbKeyFactory() {
+    private static BurstKey.LongKeyFactory<Purchase> feedbackDbKeyFactory() {
       return Burst.getStores().getDigitalGoodsStoreStore().getFeedbackDbKeyFactory();
     }
 
-    private static final VersionedValuesTable<Purchase, EncryptedData> feedbackTable() {
+    private static VersionedValuesTable<Purchase, EncryptedData> feedbackTable() {
       return Burst.getStores().getDigitalGoodsStoreStore().getFeedbackTable();
     }
 
-    private static final BurstKey.LongKeyFactory<Purchase> publicFeedbackDbKeyFactory() {
+    private static BurstKey.LongKeyFactory<Purchase> publicFeedbackDbKeyFactory() {
       return Burst.getStores().getDigitalGoodsStoreStore().getPublicFeedbackDbKeyFactory();
     }
 
-    private static final VersionedValuesTable<Purchase, String> publicFeedbackTable() {
+    private static VersionedValuesTable<Purchase, String> publicFeedbackTable() {
       return Burst.getStores().getDigitalGoodsStoreStore().getPublicFeedbackTable();
     }
 
@@ -316,7 +316,7 @@ public final class DigitalGoodsStore {
     }
   }
 
-  public static Goods getGoods(long goodsId) {
+  private static Goods getGoods(long goodsId) {
     return Goods.goodsTable().get(Goods.goodsDbKeyFactory().newKey(goodsId));
   }
 

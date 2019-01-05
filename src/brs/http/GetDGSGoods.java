@@ -1,13 +1,7 @@
 package brs.http;
 
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.IN_STOCK_ONLY_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.SELLER_PARAMETER;
-import static brs.http.common.ResultFields.GOODS_RESPONSE;
-
-import brs.DigitalGoodsStore;
 import brs.BurstException;
+import brs.DigitalGoodsStore;
 import brs.db.BurstIterator;
 import brs.db.sql.DbUtils;
 import brs.http.common.Parameters;
@@ -17,6 +11,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.GOODS_RESPONSE;
 
 public final class GetDGSGoods extends APIServlet.APIRequestHandler {
 

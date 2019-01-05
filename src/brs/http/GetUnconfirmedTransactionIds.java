@@ -1,19 +1,20 @@
 package brs.http;
 
-import static brs.http.JSONResponses.INCORRECT_ACCOUNT;
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_IDS_RESPONSE;
-
 import brs.Transaction;
 import brs.TransactionProcessor;
 import brs.util.Convert;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
-public final class GetUnconfirmedTransactionIds extends APIServlet.APIRequestHandler {
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
+import static brs.http.JSONResponses.INCORRECT_ACCOUNT;
+import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
+import static brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_IDS_RESPONSE;
+
+final class GetUnconfirmedTransactionIds extends APIServlet.APIRequestHandler {
 
   private final TransactionProcessor transactionProcessor;
 

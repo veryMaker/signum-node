@@ -57,7 +57,7 @@ public interface BlockchainProcessor extends Observable<Block, BlockchainProcess
       this.transaction = transaction;
     }
 
-    public Transaction getTransaction() {
+    Transaction getTransaction() {
       return transaction;
     }
 

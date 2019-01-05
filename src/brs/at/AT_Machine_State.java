@@ -8,9 +8,8 @@
 package brs.at;
 
 import brs.Burst;
-import brs.Constants;
-
 import brs.fluxcapacitor.FeatureToggle;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Collection;
@@ -48,9 +47,9 @@ public class AT_Machine_State {
     private byte[] B3 = new byte[8];
     private byte[] B4 = new byte[8];
 
-    byte[] flags = new byte[2];
+    final byte[] flags = new byte[2];
 
-    TreeSet<Integer> jumps = new TreeSet<>();
+    final TreeSet<Integer> jumps = new TreeSet<>();
 
     Machine_State() {
       pcs = 0;
@@ -95,7 +94,7 @@ public class AT_Machine_State {
       running = true;
       }*/
 
-    protected byte[] getMachineStateBytes() {
+    byte[] getMachineStateBytes() {
       ByteBuffer bytes = ByteBuffer.allocate( getSize() );
       bytes.order( ByteOrder.LITTLE_ENDIAN );
 
@@ -154,7 +153,7 @@ public class AT_Machine_State {
       bf.get( B4, 0, 8 );
     }
 
-    public int getSize() {
+    int getSize() {
       return 2 + 4 + 4 + 4 + 4 + 4 + 4*8 + 4*8;
     }
 
@@ -178,11 +177,11 @@ public class AT_Machine_State {
   private byte[] atID = new byte[ AT_Constants.AT_ID_SIZE ];
   private byte[] creator = new byte[ AT_Constants.AT_ID_SIZE ];
 
-  private int creationBlockHeight;
+  private final int creationBlockHeight;
 
   private int waitForNumberOfBlocks;
 
-  private int sleepBetween;
+  private final int sleepBetween;
 
   private boolean freezeWhenSameBalance;
 
@@ -191,16 +190,16 @@ public class AT_Machine_State {
 
   private transient ByteBuffer ap_data;
 
-  private transient ByteBuffer ap_code;
+  private final transient ByteBuffer ap_code;
 
   private int height;
 
-  private LinkedHashMap<ByteBuffer, AT_Transaction> transactions;
+  private final LinkedHashMap<ByteBuffer, AT_Transaction> transactions;
 
-  public AT_Machine_State (byte[] atId, byte[] creator, short version,
-                           byte[] stateBytes, int csize, int dsize, int c_user_stack_bytes, int c_call_stack_bytes,
-                           int creationBlockHeight, int sleepBetween,
-                           boolean freezeWhenSameBalance, long minActivationAmount, byte[] apCode ) {
+  protected AT_Machine_State(byte[] atId, byte[] creator, short version,
+                             byte[] stateBytes, int csize, int dsize, int c_user_stack_bytes, int c_call_stack_bytes,
+                             int creationBlockHeight, int sleepBetween,
+                             boolean freezeWhenSameBalance, long minActivationAmount, byte[] apCode) {
     this.atID = atId;
     this.creator = creator;
     this.version = version;
@@ -223,7 +222,7 @@ public class AT_Machine_State {
     transactions = new LinkedHashMap<>();
   }
 
-  public AT_Machine_State( byte[] atId, byte[] creator, byte[] creationBytes, int height ) {
+  protected AT_Machine_State(byte[] atId, byte[] creator, byte[] creationBytes, int height) {
     this.version = AT_Constants.getInstance().AT_VERSION( height );
     this.atID = atId;
     this.creator = creator;
@@ -306,71 +305,71 @@ public class AT_Machine_State {
     this.machineState = new Machine_State();
   }
 
-  protected byte[] get_A1() {
+  byte[] get_A1() {
     return machineState.A1;
   }
 
-  protected byte[] get_A2() {
+  byte[] get_A2() {
     return machineState.A2;
   }
 
-  protected byte[] get_A3() {
+  byte[] get_A3() {
     return machineState.A3;
   }
 
-  protected byte[] get_A4() {
+  byte[] get_A4() {
     return machineState.A4;
   }
 
-  protected byte[] get_B1() {
+  byte[] get_B1() {
     return machineState.B1;
   }
 
-  protected byte[] get_B2() {
+  byte[] get_B2() {
     return machineState.B2;
   }
 
-  protected byte[] get_B3() {
+  byte[] get_B3() {
     return machineState.B3;
   }
 
-  protected byte[] get_B4() {
+  byte[] get_B4() {
     return machineState.B4;
   }
 
-  protected void set_A1( byte[] A1 ) {
+  void set_A1(byte[] A1) {
     this.machineState.A1 = A1.clone();
   }
 
-  protected void set_A2( byte[] A2 ){
+  void set_A2(byte[] A2){
     this.machineState.A2 = A2.clone();
   }
 
-  protected void set_A3( byte[] A3 ) {
+  void set_A3(byte[] A3) {
     this.machineState.A3 = A3.clone();
   }
 
-  protected void set_A4( byte[] A4 ) {
+  void set_A4(byte[] A4) {
     this.machineState.A4 = A4.clone();
   }
 
-  protected void set_B1( byte[] B1 ) {
+  void set_B1(byte[] B1) {
     this.machineState.B1 = B1.clone();
   }
 
-  protected void set_B2( byte[] B2 ) {
+  void set_B2(byte[] B2) {
     this.machineState.B2 = B2.clone();
   }
 
-  protected void set_B3( byte[] B3 ) {
+  void set_B3(byte[] B3) {
     this.machineState.B3 = B3.clone();
   }
 
-  protected void set_B4( byte[] B4 ) {
+  void set_B4(byte[] B4) {
     this.machineState.B4 = B4.clone();
   }
 
-  protected void addTransaction(AT_Transaction tx) {
+  void addTransaction(AT_Transaction tx) {
     ByteBuffer recipId = ByteBuffer.wrap(tx.getRecipientId());
     AT_Transaction oldTx = transactions.get(recipId);
     if (oldTx == null) {
@@ -465,7 +464,7 @@ public class AT_Machine_State {
     this.waitForNumberOfBlocks = waitForNumberOfBlocks;
   }
 
-  public int getWaitForNumberOfBlocks() {
+  protected int getWaitForNumberOfBlocks() {
     return this.waitForNumberOfBlocks;
   }
 
@@ -505,7 +504,7 @@ public class AT_Machine_State {
     this.height = height;
   }
 
-  public byte[] getTransactionBytes( ) {
+  private byte[] getTransactionBytes() {
     ByteBuffer b = ByteBuffer.allocate( (creator.length + 8 ) * transactions.size() );
     b.order( ByteOrder.LITTLE_ENDIAN );
     for (AT_Transaction tx : transactions.values() ) {
@@ -515,7 +514,7 @@ public class AT_Machine_State {
     return b.array();
   }
 
-  public byte[] getState() {
+  protected byte[] getState() {
     byte[] stateBytes = machineState.getMachineStateBytes();
     byte[] dataBytes = ap_data.array();
 
@@ -531,7 +530,7 @@ public class AT_Machine_State {
     return b.array();
   }
 
-  public void setState( byte[] state ) {
+  private void setState(byte[] state) {
     ByteBuffer b = ByteBuffer.allocate( state.length );
     b.order( ByteOrder.LITTLE_ENDIAN );
     b.put( state );
@@ -554,7 +553,7 @@ public class AT_Machine_State {
     ap_data.clear();
   }
 
-  protected int getStateSize() {
+  private int getStateSize() {
     return ( this.machineState.getSize() + 8 + 8 + 4 + ap_data.capacity() ) ;
   }
 

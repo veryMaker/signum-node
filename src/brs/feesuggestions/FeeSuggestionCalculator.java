@@ -1,12 +1,12 @@
 package brs.feesuggestions;
 
-import static brs.Constants.FEE_QUANT;
-
 import brs.Block;
 import brs.BlockchainProcessor;
 import brs.BlockchainProcessor.Event;
 import brs.db.store.BlockchainStore;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
+
+import static brs.Constants.FEE_QUANT;
 
 public class FeeSuggestionCalculator {
 
@@ -21,7 +21,7 @@ public class FeeSuggestionCalculator {
 
     this.blockchainStore = blockchainStore;
 
-    blockchainProcessor.addListener(block -> newBlockApplied(block), Event.AFTER_BLOCK_APPLY);
+    blockchainProcessor.addListener(this::newBlockApplied, Event.AFTER_BLOCK_APPLY);
   }
 
   public FeeSuggestion giveFeeSuggestion() {

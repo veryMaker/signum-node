@@ -1,50 +1,28 @@
 package brs.http;
 
-import static brs.http.JSONResponses.ERROR_INCORRECT_REQUEST;
-import static brs.http.JSONResponses.ERROR_NOT_ALLOWED;
-import static brs.http.JSONResponses.POST_REQUIRED;
-
-import brs.Blockchain;
-import brs.BlockchainProcessor;
-import brs.Burst;
-import brs.BurstException;
-import brs.EconomicClustering;
-import brs.Generator;
-import brs.TransactionProcessor;
+import brs.*;
 import brs.assetexchange.AssetExchange;
 import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
-import brs.props.Props;
-import brs.services.ATService;
-import brs.services.AccountService;
-import brs.services.AliasService;
-import brs.services.BlockService;
-import brs.services.DGSGoodsStoreService;
-import brs.services.EscrowService;
-import brs.services.ParameterService;
 import brs.props.PropertyService;
-import brs.services.SubscriptionService;
-import brs.services.TimeService;
-import brs.services.TransactionService;
+import brs.props.Props;
+import brs.services.*;
 import brs.util.JSON;
 import brs.util.Subnet;
-import java.io.IOException;
-import java.io.Writer;
-import java.net.InetAddress;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.Writer;
+import java.net.InetAddress;
+import java.util.*;
+
+import static brs.http.JSONResponses.*;
 
 public final class APIServlet extends HttpServlet {
 
@@ -239,9 +217,9 @@ public final class APIServlet extends HttpServlet {
 
   abstract static class PrimitiveRequestHandler {
 
-    public abstract void processRequest(HttpServletRequest req, HttpServletResponse resp);
+    protected abstract void processRequest(HttpServletRequest req, HttpServletResponse resp);
 
-    public void addErrorMessage(HttpServletResponse resp, JSONStreamAware msg) throws IOException {
+    void addErrorMessage(HttpServletResponse resp, JSONStreamAware msg) throws IOException {
       try (Writer writer = resp.getWriter()) {
         resp.setContentType("text/plain; charset=UTF-8");
         resp.setStatus(500);
@@ -255,7 +233,7 @@ public final class APIServlet extends HttpServlet {
   private static boolean enforcePost;
 
   static Map<String, APIRequestHandler> apiRequestHandlers;
-  static Map<String, PrimitiveRequestHandler> primitiveRequestHandlers;
+  private static Map<String, PrimitiveRequestHandler> primitiveRequestHandlers;
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

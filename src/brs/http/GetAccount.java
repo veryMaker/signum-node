@@ -1,31 +1,24 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.ResultFields.ACCOUNT_RESPONSE;
-import static brs.http.common.ResultFields.ASSET_BALANCES_RESPONSE;
-import static brs.http.common.ResultFields.ASSET_RESPONSE;
-import static brs.http.common.ResultFields.BALANCE_QNT_RESPONSE;
-import static brs.http.common.ResultFields.DESCRIPTION_RESPONSE;
-import static brs.http.common.ResultFields.NAME_RESPONSE;
-import static brs.http.common.ResultFields.PUBLIC_KEY_RESPONSE;
-import static brs.http.common.ResultFields.UNCONFIRMED_ASSET_BALANCES_RESPONSE;
-import static brs.http.common.ResultFields.UNCONFIRMED_BALANCE_QNT_RESPONSE;
-
 import brs.Account;
 import brs.BurstException;
 import brs.db.BurstIterator;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
+import static brs.http.common.ResultFields.*;
+
 public final class GetAccount extends APIServlet.APIRequestHandler {
 
-  private ParameterService parameterService;
-  private AccountService accountService;
+  private final ParameterService parameterService;
+  private final AccountService accountService;
 
   GetAccount(ParameterService parameterService, AccountService accountService) {
     super(new APITag[] {APITag.ACCOUNTS}, ACCOUNT_PARAMETER);

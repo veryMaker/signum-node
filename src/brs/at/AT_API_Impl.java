@@ -9,9 +9,10 @@ package brs.at;
 
 import brs.Burst;
 import brs.crypto.hash.RIPEMD160;
-import brs.Constants;
-
 import brs.fluxcapacitor.FeatureToggle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -19,14 +20,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class AT_API_Impl implements AT_API {
 
   private static final Logger logger = LoggerFactory.getLogger(AT_API_Impl.class);
 
-  AT_API_Platform_Impl platform = AT_API_Platform_Impl.getInstance();
+  private final AT_API_Platform_Impl platform = AT_API_Platform_Impl.getInstance();
 
   @Override
   public long get_A1(AT_Machine_State state) {

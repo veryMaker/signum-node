@@ -2,10 +2,11 @@ package brs.util;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
 import java.io.IOException;
 import java.io.Writer;
 
-import static brs.Constants.*;
+import static brs.Constants.PROTOCOL;
 
 public final class JSON {
 

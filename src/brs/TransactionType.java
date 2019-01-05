@@ -1,9 +1,5 @@
 package brs;
 
-import static brs.Constants.FEE_QUANT;
-import static brs.Constants.ONE_BURST;
-import static brs.fluxcapacitor.FeatureToggle.PRE_DYMAXION;
-
 import brs.Attachment.AbstractAttachment;
 import brs.Attachment.AutomatedTransactionsCreation;
 import brs.BurstException.NotValidException;
@@ -14,19 +10,20 @@ import brs.at.AT_Controller;
 import brs.at.AT_Exception;
 import brs.fluxcapacitor.FeatureToggle;
 import brs.fluxcapacitor.FluxCapacitor;
-import brs.services.AccountService;
-import brs.services.AliasService;
-import brs.services.DGSGoodsStoreService;
-import brs.services.EscrowService;
-import brs.services.SubscriptionService;
+import brs.services.*;
 import brs.transactionduplicates.TransactionDuplicationKey;
 import brs.util.Convert;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collection;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collection;
+
+import static brs.Constants.FEE_QUANT;
+import static brs.Constants.ONE_BURST;
+import static brs.fluxcapacitor.FeatureToggle.PRE_DYMAXION;
 
 public abstract class TransactionType {
 
@@ -253,7 +250,7 @@ public abstract class TransactionType {
     return Convert.safeAdd(calculateTransactionAmountNQT(transaction), calculateAttachmentTotalAmountNQT(transaction));
   }
 
-  public Long calculateTransactionAmountNQT(Transaction transaction) {
+  private Long calculateTransactionAmountNQT(Transaction transaction) {
     long totalAmountNQT = Convert.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT());
     if (transaction.getReferencedTransactionFullHash() != null
         && transaction.getTimestamp() > Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK_TIMESTAMP) {
@@ -262,9 +259,9 @@ public abstract class TransactionType {
     return totalAmountNQT;
   }
 
-  public Long calculateAttachmentTotalAmountNQT(Transaction transaction) {
+  protected Long calculateAttachmentTotalAmountNQT(Transaction transaction) {
     return 0L;
-  };
+  }
 
   abstract boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount);
 
@@ -283,7 +280,7 @@ public abstract class TransactionType {
 
   abstract void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount);
 
-  public void parseAppendices(Transaction.Builder builder, JSONObject attachmentData) throws BurstException.NotValidException {
+  public void parseAppendices(Transaction.Builder builder, JSONObject attachmentData) {
     builder.message(Appendix.Message.parse(attachmentData));
     builder.encryptedMessage(Appendix.EncryptedMessage.parse(attachmentData));
     builder.publicKeyAnnouncement((Appendix.PublicKeyAnnouncement.parse(attachmentData)));
@@ -422,7 +419,7 @@ public abstract class TransactionType {
       @Override
       final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.PaymentMultiOutCreation attachment = (Attachment.PaymentMultiOutCreation) transaction.getAttachment();
-        attachment.getRecipients().forEach(a -> { accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(a.get(0)), a.get(1)); });
+        attachment.getRecipients().forEach(a -> accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(a.get(0)), a.get(1)));
       }
 
       @Override
@@ -468,7 +465,7 @@ public abstract class TransactionType {
       final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.PaymentMultiSameOutCreation attachment = (Attachment.PaymentMultiSameOutCreation) transaction.getAttachment();
         final long amountNQT = Convert.safeDivide(transaction.getAmountNQT(), attachment.getRecipients().size());
-        attachment.getRecipients().forEach(a -> { accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(a), amountNQT); });
+        attachment.getRecipients().forEach(a -> accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(a), amountNQT));
       }
 
       @Override
@@ -2312,8 +2309,7 @@ public abstract class TransactionType {
         }
 
         @Override
-        AbstractAttachment parseAttachment(JSONObject attachmentData)
-          throws NotValidException {
+        AbstractAttachment parseAttachment(JSONObject attachmentData) {
           // TODO Auto-generated method stub
           //System.out.println("parsing at attachment");
             //System.out.println("attachment parsed");
@@ -2435,16 +2431,16 @@ public abstract class TransactionType {
     private final long constantFee;
     private final long appendagesFee;
 
-    public Fee(long constantFee, long appendagesFee) {
+    Fee(long constantFee, long appendagesFee) {
       this.constantFee = constantFee;
       this.appendagesFee = appendagesFee;
     }
 
-    public long getConstantFee() {
+    long getConstantFee() {
       return constantFee;
     }
 
-    public long getAppendagesFee() {
+    long getAppendagesFee() {
       return appendagesFee;
     }
 

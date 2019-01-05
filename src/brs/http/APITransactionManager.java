@@ -3,8 +3,9 @@ package brs.http;
 import brs.Account;
 import brs.Attachment;
 import brs.BurstException;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
 
 public interface APITransactionManager {
 

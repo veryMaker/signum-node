@@ -1,13 +1,13 @@
 package brs.db;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.ehcache.Cache;
-import org.jooq.DSLContext;
 import org.jooq.Condition;
+import org.jooq.DSLContext;
 import org.jooq.SelectQuery;
 import org.jooq.SortField;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public interface VersionedBatchEntityTable<T> extends DerivedTable, EntityTable<T> {
   boolean delete(T t);

@@ -8,6 +8,7 @@ class FluxHistory<T> {
   private final T defaultValue;
   private final List<Element<T>> history;
 
+  @SafeVarargs
   FluxHistory(T defaultValue, Element<T>... history) {
     this.defaultValue = defaultValue;
 

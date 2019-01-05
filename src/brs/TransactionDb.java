@@ -1,11 +1,10 @@
 package brs;
 
 import brs.schema.tables.records.TransactionRecord;
+import org.jooq.DSLContext;
 
 import java.sql.ResultSet;
-
 import java.util.List;
-import org.jooq.DSLContext;
 
 public interface TransactionDb {
   Transaction findTransaction(long transactionId);

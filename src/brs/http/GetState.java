@@ -1,8 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.INCLUDE_COUNTS_PARAMETER;
-import static brs.http.common.ResultFields.TIME_RESPONSE;
-
 import brs.*;
 import brs.assetexchange.AssetExchange;
 import brs.db.BurstIterator;
@@ -17,7 +14,10 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class GetState extends APIServlet.APIRequestHandler {
+import static brs.http.common.Parameters.INCLUDE_COUNTS_PARAMETER;
+import static brs.http.common.ResultFields.TIME_RESPONSE;
+
+final class GetState extends APIServlet.APIRequestHandler {
 
   private final Blockchain blockchain;
   private final AssetExchange assetExchange;

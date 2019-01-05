@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import static brs.http.common.Parameters.*;
 
 
-public final class SubmitNonce extends APIServlet.APIRequestHandler {
+final class SubmitNonce extends APIServlet.APIRequestHandler {
 
   private final AccountService accountService;
   private final Blockchain blockchain;
@@ -70,7 +70,7 @@ public final class SubmitNonce extends APIServlet.APIRequestHandler {
 
       if(genAccount != null) {
         Account.RewardRecipientAssignment assignment = accountService.getRewardRecipientAssignment(genAccount);
-        Long rewardId;
+        long rewardId;
         if(assignment == null) {
           rewardId = genAccount.getId();
         }

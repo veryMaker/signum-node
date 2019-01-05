@@ -1,7 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-
 import brs.Account;
 import brs.BurstException;
 import brs.Subscription;
@@ -14,7 +12,9 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class GetSubscriptionsToAccount extends APIServlet.APIRequestHandler {
+import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
+
+final class GetSubscriptionsToAccount extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final SubscriptionService subscriptionService;

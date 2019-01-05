@@ -11,12 +11,12 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class AT_Transaction {
-  private static SortedMap<Long,SortedMap<Long, AT_Transaction>> all_AT_Txs = new TreeMap<>();
+  private static final SortedMap<Long,SortedMap<Long, AT_Transaction>> all_AT_Txs = new TreeMap<>();
 	
   private byte[] senderId    = new byte[ AT_Constants.AT_ID_SIZE ];
   private byte[] recipientId = new byte[ AT_Constants.AT_ID_SIZE ];
-  private byte[] message;
-  private long amount;
+  private final byte[] message;
+  private final long amount;
 	
   AT_Transaction( byte[] senderId, byte[] recipientId, long amount, byte[] message ) {
     this.senderId    = senderId.clone();

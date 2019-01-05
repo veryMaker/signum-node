@@ -3,38 +3,34 @@ package brs.db.sql;
 import brs.Account;
 import brs.Burst;
 import brs.db.BurstIterator;
-import brs.db.cache.DBCacheManagerImpl;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.VersionedEntityTable;
+import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.AccountStore;
 import brs.db.store.DerivedTableManager;
 import brs.schema.tables.records.AccountRecord;
 import brs.util.Convert;
-import java.util.stream.Collectors;
-import org.jooq.BatchBindStep;
-import org.jooq.Cursor;
-import org.jooq.Query;
+import org.jooq.*;
 import org.slf4j.LoggerFactory;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import static brs.schema.Tables.*;
-import org.jooq.DSLContext;
-import org.jooq.SortField;
-import org.jooq.Field;
-import org.jooq.Condition;
 
 public class SqlAccountStore implements AccountStore {
 
-  protected static final DbKey.LongKeyFactory<Account> accountDbKeyFactory = new DbKey.LongKeyFactory<Account>("id") {
+  private static final DbKey.LongKeyFactory<Account> accountDbKeyFactory = new DbKey.LongKeyFactory<Account>("id") {
       @Override
       public DbKey newKey(Account account) {
         return (DbKey) account.nxtKey;
       }
     };
-  protected static final DbKey.LongKeyFactory<Account.RewardRecipientAssignment> rewardRecipientAssignmentDbKeyFactory
+  private static final DbKey.LongKeyFactory<Account.RewardRecipientAssignment> rewardRecipientAssignmentDbKeyFactory
     = new DbKey.LongKeyFactory<Account.RewardRecipientAssignment>("account_id") {
         @Override
         public DbKey newKey(Account.RewardRecipientAssignment assignment) {
@@ -42,7 +38,7 @@ public class SqlAccountStore implements AccountStore {
         }
       };
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SqlAccountStore.class);
-  protected static final DbKey.LinkKeyFactory<Account.AccountAsset> accountAssetDbKeyFactory
+  private static final DbKey.LinkKeyFactory<Account.AccountAsset> accountAssetDbKeyFactory
     = new DbKey.LinkKeyFactory<Account.AccountAsset>("account_id", "asset_id") {
         @Override
         public DbKey newKey(Account.AccountAsset accountAsset) {
@@ -59,7 +55,7 @@ public class SqlAccountStore implements AccountStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Account.RewardRecipientAssignment assignment) throws SQLException {
+      protected void save(DSLContext ctx, Account.RewardRecipientAssignment assignment) {
         brs.schema.tables.records.RewardRecipAssignRecord rewardRecord = ctx.newRecord(brs.schema.Tables.REWARD_RECIP_ASSIGN);
         rewardRecord.setAccountId(assignment.accountId);
         rewardRecord.setPrevRecipId(assignment.getPrevRecipientId());
@@ -82,7 +78,7 @@ public class SqlAccountStore implements AccountStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Account.AccountAsset accountAsset) throws SQLException {
+      protected void save(DSLContext ctx, Account.AccountAsset accountAsset) {
         brs.schema.tables.records.AccountAssetRecord assetRecord = ctx.newRecord(brs.schema.Tables.ACCOUNT_ASSET);
         assetRecord.setAccountId(accountAsset.accountId);
         assetRecord.setAssetId(accountAsset.assetId);
@@ -116,7 +112,7 @@ public class SqlAccountStore implements AccountStore {
       @Override
       protected void bulkInsert(DSLContext ctx, ArrayList<Account> accounts) {
         if ( ctx.fetchExists(ctx.selectOne().from(ACCOUNT).where(ACCOUNT.HEIGHT.eq(Burst.getBlockchain().getHeight())).limit(1)) ) {
-          ArrayList<Query> accountQueries = new ArrayList<Query>();
+          ArrayList<Query> accountQueries = new ArrayList<>();
           for ( Account account: accounts ) {
             accountQueries.add(
               ctx.mergeInto(ACCOUNT, ACCOUNT.ID, ACCOUNT.HEIGHT, ACCOUNT.CREATION_HEIGHT, ACCOUNT.PUBLIC_KEY, ACCOUNT.KEY_HEIGHT, ACCOUNT.BALANCE,
@@ -147,29 +143,21 @@ public class SqlAccountStore implements AccountStore {
       @Override
       public void fillCache(ArrayList<Long> ids) {
         try ( DSLContext ctx = Db.getDSLContext() ) {
-          Cursor<AccountRecord> cursor = null;
-          try {
-            cursor = ctx.selectFrom(brs.schema.Tables.ACCOUNT).where(
-                brs.schema.Tables.ACCOUNT.LATEST.isTrue()
-            ).and(
-                brs.schema.Tables.ACCOUNT.ID
-                    .in(ids.stream().distinct().collect(Collectors.toList()))
-            ).fetchLazy();
+          try (Cursor<AccountRecord> cursor = ctx.selectFrom(brs.schema.Tables.ACCOUNT).where(
+                  brs.schema.Tables.ACCOUNT.LATEST.isTrue()
+          ).and(
+                  brs.schema.Tables.ACCOUNT.ID
+                          .in(ids.stream().distinct().collect(Collectors.toList()))
+          ).fetchLazy()) {
 
             while (cursor.hasNext()) {
               AccountRecord account = cursor.fetchNext();
               try {
-                DbKey dbKey = (DbKey)accountDbKeyFactory.newKey(account.getId());
+                DbKey dbKey = (DbKey) accountDbKeyFactory.newKey(account.getId());
                 getCache().put(dbKey, new SqlAccount(account.intoResultSet()));
-              }
-              catch ( SQLException e ) {
+              } catch (SQLException e) {
                 // ignore
               }
-            }
-          }
-          finally {
-            if (cursor != null) {
-              cursor.close();
             }
           }
         }
@@ -183,9 +171,9 @@ public class SqlAccountStore implements AccountStore {
 
   private final VersionedEntityTable<Account.AccountAsset> accountAssetTable;
 
-  VersionedEntityTable<Account.RewardRecipientAssignment> rewardRecipientAssignmentTable;
+  private final VersionedEntityTable<Account.RewardRecipientAssignment> rewardRecipientAssignmentTable;
 
-  VersionedBatchEntityTable<Account> accountTable;
+  private final VersionedBatchEntityTable<Account> accountTable;
 
   @Override
   public VersionedBatchEntityTable<Account> getAccountTable() {
@@ -286,8 +274,8 @@ public class SqlAccountStore implements AccountStore {
     return false;
   }
 
-  protected static class SQLAccountAsset extends Account.AccountAsset {
-    public SQLAccountAsset(ResultSet rs) throws SQLException {
+  static class SQLAccountAsset extends Account.AccountAsset {
+    SQLAccountAsset(ResultSet rs) throws SQLException {
       super(rs.getLong("account_id"),
             rs.getLong("asset_id"),
             rs.getLong("quantity"),
@@ -297,12 +285,12 @@ public class SqlAccountStore implements AccountStore {
     }
   }
 
-  protected class SqlAccount extends Account {
+  class SqlAccount extends Account {
     SqlAccount(Long id) {
       super(id);
     }
 
-    public SqlAccount(ResultSet rs) throws SQLException {
+    SqlAccount(ResultSet rs) throws SQLException {
       super(rs.getLong("id"), accountDbKeyFactory.newKey(rs.getLong("id")),
             rs.getInt("creation_height"));
       this.setPublicKey(rs.getBytes("public_key"));
@@ -315,8 +303,8 @@ public class SqlAccountStore implements AccountStore {
     }
   }
 
-  protected class SqlRewardRecipientAssignment extends Account.RewardRecipientAssignment {
-    public SqlRewardRecipientAssignment(ResultSet rs) throws SQLException {
+  class SqlRewardRecipientAssignment extends Account.RewardRecipientAssignment {
+    SqlRewardRecipientAssignment(ResultSet rs) throws SQLException {
       super(
             rs.getLong("account_id"),
             rs.getLong("prev_recip_id"),

@@ -1,25 +1,21 @@
 package brs.http;
 
-import static brs.http.common.Parameters.TRANSACTION_BYTES_PARAMETER;
-import static brs.http.common.Parameters.TRANSACTION_JSON_PARAMETER;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_RESPONSE;
-import static brs.http.common.ResultFields.FULL_HASH_RESPONSE;
-import static brs.http.common.ResultFields.NUMBER_PEERS_SENT_TO_RESPONSE;
-import static brs.http.common.ResultFields.TRANSACTION_RESPONSE;
-
 import brs.BurstException;
 import brs.Transaction;
 import brs.TransactionProcessor;
 import brs.services.ParameterService;
 import brs.services.TransactionService;
 import brs.util.Convert;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static brs.http.common.Parameters.TRANSACTION_BYTES_PARAMETER;
+import static brs.http.common.Parameters.TRANSACTION_JSON_PARAMETER;
+import static brs.http.common.ResultFields.*;
 
 public final class BroadcastTransaction extends APIServlet.APIRequestHandler {
 

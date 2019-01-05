@@ -3,11 +3,10 @@ package brs.db.h2;
 import brs.TransactionDb;
 import brs.db.BlockDb;
 import brs.db.PeerDb;
-import brs.db.store.Dbs;
-
 import brs.db.sql.SqlBlockDb;
-import brs.db.sql.SqlTransactionDb;
 import brs.db.sql.SqlPeerDb;
+import brs.db.sql.SqlTransactionDb;
+import brs.db.store.Dbs;
 
 /**
  * Db-Classes are necessary for the instanciation of some stores and have to be handled separately. In the original version these were static

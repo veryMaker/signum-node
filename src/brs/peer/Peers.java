@@ -1,20 +1,17 @@
 package brs.peer;
 
-import static brs.Constants.MIN_VERSION;
-import static brs.peer.PeerImpl.isHigherOrEqualVersion;
-import static brs.props.Props.P2P_ENABLE_TX_REBROADCAST;
-import static brs.props.Props.P2P_SEND_TO_LIMIT;
-import static brs.util.JSON.prepareRequest;
-
 import brs.*;
+import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.AccountService;
-import brs.props.PropertyService;
 import brs.services.TimeService;
-import brs.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import brs.util.JSON;
+import brs.util.Listener;
+import brs.util.Listeners;
+import brs.util.ThreadPool;
+import org.bitlet.weupnp.GatewayDevice;
+import org.bitlet.weupnp.GatewayDiscover;
+import org.bitlet.weupnp.PortMappingEntry;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
@@ -28,20 +25,25 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import org.bitlet.weupnp.GatewayDevice;
-import org.bitlet.weupnp.GatewayDiscover;
-import org.bitlet.weupnp.PortMappingEntry;
-import java.io.IOException;
-import org.xml.sax.SAXException;
-import javax.xml.parsers.ParserConfigurationException;
+import static brs.Constants.MIN_VERSION;
+import static brs.peer.PeerImpl.isHigherOrEqualVersion;
+import static brs.props.Props.P2P_ENABLE_TX_REBROADCAST;
+import static brs.props.Props.P2P_SEND_TO_LIMIT;
+import static brs.util.JSON.prepareRequest;
 
 public final class Peers {
 
@@ -105,7 +107,7 @@ public final class Peers {
   private static final ConcurrentMap<String, PeerImpl> peers = new ConcurrentHashMap<>();
   private static final ConcurrentMap<String, String> announcedAddresses = new ConcurrentHashMap<>();
 
-  static final Collection<PeerImpl> allPeers = Collections.unmodifiableCollection(peers.values());
+  private static final Collection<PeerImpl> allPeers = Collections.unmodifiableCollection(peers.values());
 
   private static final ExecutorService sendBlocksToPeersService = Executors.newCachedThreadPool();
   private static final ExecutorService blocksSendingService = Executors.newFixedThreadPool(10);
@@ -222,7 +224,7 @@ public final class Peers {
     getMorePeersThreshold = propertyService.getInt(Props.P2P_GET_MORE_PEERS_THRESHOLD);
     dumpPeersVersion = propertyService.getString(Props.DEV_DUMP_PEERS_VERSION);
 
-    final List<Future<String>> unresolvedPeers = Collections.synchronizedList(new ArrayList<Future<String>>());
+    final List<Future<String>> unresolvedPeers = Collections.synchronizedList(new ArrayList<>());
 
     threadPool.runBeforeStart(new Runnable() {
 
@@ -300,7 +302,7 @@ public final class Peers {
 
           Runnable GwDiscover = () -> {
             if (gateway != null) {
-              gateway.setHttpReadTimeout(2000);
+              GatewayDevice.setHttpReadTimeout(2000);
               try {
                 InetAddress localAddress = gateway.getLocalAddress();
                 String externalIPAddress = gateway.getExternalIPAddress();
@@ -376,19 +378,16 @@ public final class Peers {
           peerServer.setHandler(peerHandler);
         }
         peerServer.setStopAtShutdown(true);
-        threadPool.runBeforeStart(new Runnable() {
-            @Override
-            public void run() {
-              try {
-                peerServer.start();
-                logger.info("Started peer networking server at " + host + ":" + port);
-              }
-              catch (Exception e) {
-                logger.error("Failed to start peer networking server", e);
-                throw new RuntimeException(e.toString(), e);
-              }
-            }
-          }, true);
+        threadPool.runBeforeStart(() -> {
+          try {
+            peerServer.start();
+            logger.info("Started peer networking server at " + host + ":" + port);
+          }
+          catch (Exception e) {
+            logger.error("Failed to start peer networking server", e);
+            throw new RuntimeException(e.toString(), e);
+          }
+        }, true);
       }
       else {
         peerServer = null;
@@ -455,7 +454,7 @@ public final class Peers {
           try {
             int i = 1;
             while ( i++ < 100 ) {
-               Thread.sleep(10 * 1);
+               Thread.sleep(10);
             }
           }
           catch (InterruptedException ex) {
@@ -635,7 +634,7 @@ public final class Peers {
     // threadPool.shutdownExecutor(blocksSendingService);
   }
 
-  public static boolean addListener(Listener<Peer> listener, Event eventType) {
+  private static boolean addListener(Listener<Peer> listener, Event eventType) {
     return Peers.listeners.addListener(listener, eventType);
   }
 
@@ -797,7 +796,7 @@ public final class Peers {
     });
   }
 
-  private static JSONStreamAware getUnconfirmedTransactionsRequest;
+  private static final JSONStreamAware getUnconfirmedTransactionsRequest;
   static {
     JSONObject request = new JSONObject();
     request.put("requestType", "getUnconfirmedTransactions");
@@ -834,7 +833,7 @@ public final class Peers {
       if(response != null && response.get("error") == null) {
         doneFeedingLog.accept(peer, transactionsToSend);
       } else {
-        logger.warn("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(t -> t.getId()).collect(Collectors.toList()), response);
+        logger.warn("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(Transaction::getId).collect(Collectors.toList()), response);
       }
     } else {
       logger.trace("No need to feed {}", peer.getPeerAddress());

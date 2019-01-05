@@ -1,14 +1,13 @@
 package brs.http;
 
-import static brs.http.common.ResultFields.CHEAP_FEE_RESPONSE;
-import static brs.http.common.ResultFields.STANDARD_FEE_RESPONSE;
-import static brs.http.common.ResultFields.PRIORITY_FEE_RESPONSE;
-
 import brs.feesuggestions.FeeSuggestion;
 import brs.feesuggestions.FeeSuggestionCalculator;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.ResultFields.*;
 
 public class SuggestFee extends APIServlet.APIRequestHandler {
 

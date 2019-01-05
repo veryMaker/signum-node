@@ -1,11 +1,12 @@
 package brs.http;
 
-import static brs.http.common.Parameters.HEX_STRING_PARAMETER;
-
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONStreamAware;
 
-public final class GetATLong extends APIServlet.APIRequestHandler {
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.HEX_STRING_PARAMETER;
+
+final class GetATLong extends APIServlet.APIRequestHandler {
 
   static final GetATLong instance = new GetATLong();
 

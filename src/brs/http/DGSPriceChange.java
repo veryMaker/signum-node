@@ -1,17 +1,14 @@
 package brs.http;
 
+import brs.*;
+import brs.services.ParameterService;
+import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+
 import static brs.http.JSONResponses.UNKNOWN_GOODS;
 import static brs.http.common.Parameters.GOODS_PARAMETER;
 import static brs.http.common.Parameters.PRICE_NQT_PARAMETER;
-
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
-import brs.DigitalGoodsStore;
-import brs.services.ParameterService;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONStreamAware;
 
 public final class DGSPriceChange extends CreateTransaction {
 

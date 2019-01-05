@@ -1,12 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.HEIGHT_PARAMETER;
-import static brs.http.common.Parameters.NUM_BLOCKS_PARAMETER;
-import static brs.http.common.Parameters.VALIDATE_PARAMETER;
-import static brs.http.common.ResultFields.DONE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_RESPONSE;
-import static brs.http.common.ResultFields.SCAN_TIME_RESPONSE;
-
 import brs.Blockchain;
 import brs.BlockchainProcessor;
 import brs.http.common.Parameters;
@@ -15,7 +8,10 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class Scan extends APIServlet.APIRequestHandler {
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.*;
+
+final class Scan extends APIServlet.APIRequestHandler {
 
   private final BlockchainProcessor blockchainProcessor;
   private final Blockchain blockchain;

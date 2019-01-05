@@ -1,20 +1,18 @@
 package brs.http;
 
-import static brs.http.JSONResponses.INCORRECT_RECIPIENT;
-import static brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER;
-import static brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER;
-import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
-import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
-
 import brs.Account;
 import brs.BurstException;
 import brs.crypto.EncryptedData;
 import brs.services.AccountService;
 import brs.services.ParameterService;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONStreamAware;
 
-public final class EncryptTo extends APIServlet.APIRequestHandler {
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.JSONResponses.INCORRECT_RECIPIENT;
+import static brs.http.common.Parameters.*;
+
+final class EncryptTo extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final AccountService accountService;

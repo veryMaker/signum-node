@@ -3,12 +3,13 @@ package brs.db.cache;
 import brs.Transaction;
 import brs.util.Time;
 import org.ehcache.expiry.ExpiryPolicy;
+
 import java.time.Duration;
 import java.util.function.Supplier;
 
-public class TransactionExpiry implements ExpiryPolicy<Long, Transaction> {
+class TransactionExpiry implements ExpiryPolicy<Long, Transaction> {
 
-  private static volatile Time time = new Time.EpochTime();
+  private static final Time time = new Time.EpochTime();
 
   @Override
   public Duration getExpiryForCreation(Long key, Transaction value) {

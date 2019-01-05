@@ -1,34 +1,27 @@
 package brs.services.impl;
 
-import brs.Account;
-import brs.Block;
-import brs.Blockchain;
-import brs.BlockchainProcessor;
+import brs.*;
 import brs.BlockchainProcessor.BlockOutOfOrderException;
-import brs.Constants;
-import brs.Generator;
-import brs.Genesis;
-import brs.Transaction;
 import brs.crypto.Crypto;
-
 import brs.services.AccountService;
 import brs.services.BlockService;
 import brs.services.TransactionService;
 import brs.util.Convert;
 import brs.util.DownloadCacheImpl;
 import brs.util.ThreadPool;
-import java.math.BigInteger;
-import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
+import java.util.Arrays;
 
 public class BlockServiceImpl implements BlockService {
 
   private final AccountService accountService;
   private final TransactionService transactionService;
   private final Blockchain blockchain;
-  private DownloadCacheImpl downloadCache;
-  private Generator generator;
+  private final DownloadCacheImpl downloadCache;
+  private final Generator generator;
 
   private static final Logger logger = LoggerFactory.getLogger(BlockServiceImpl.class);
 

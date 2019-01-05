@@ -1,14 +1,16 @@
 package brs.http;
 
-import static brs.http.common.Parameters.*;
-import static brs.http.JSONResponses.*;
-
 import brs.crypto.Crypto;
 import brs.util.Convert;
-import java.security.MessageDigest;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+import java.security.MessageDigest;
+
+import static brs.http.JSONResponses.MISSING_SIGNATURE_HASH;
+import static brs.http.JSONResponses.MISSING_UNSIGNED_BYTES;
+import static brs.http.common.Parameters.*;
 
 public final class CalculateFullHash extends APIServlet.APIRequestHandler {
 

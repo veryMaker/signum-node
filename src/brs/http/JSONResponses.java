@@ -147,7 +147,7 @@ public final class JSONResponses {
     ERROR_INCORRECT_REQUEST = JSON.prepare(response);
   }
 
-  public static final JSONStreamAware NOT_FORGING;
+  private static final JSONStreamAware NOT_FORGING;
   static {
     JSONObject response = new JSONObject();
     response.put(ERROR_CODE_RESPONSE, 5);

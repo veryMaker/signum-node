@@ -1,10 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.HEIGHT_PARAMETER;
-import static brs.http.common.Parameters.NUM_BLOCKS_PARAMETER;
-import static brs.http.common.ResultFields.BLOCKS_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_RESPONSE;
-
 import brs.Block;
 import brs.Blockchain;
 import brs.BlockchainProcessor;
@@ -16,7 +11,12 @@ import org.json.simple.JSONStreamAware;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-public final class PopOff extends APIServlet.APIRequestHandler {
+import static brs.http.common.Parameters.HEIGHT_PARAMETER;
+import static brs.http.common.Parameters.NUM_BLOCKS_PARAMETER;
+import static brs.http.common.ResultFields.BLOCKS_RESPONSE;
+import static brs.http.common.ResultFields.ERROR_RESPONSE;
+
+final class PopOff extends APIServlet.APIRequestHandler {
 
   private final BlockchainProcessor blockchainProcessor;
   private final Blockchain blockchain;

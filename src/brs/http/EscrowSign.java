@@ -1,15 +1,6 @@
 package brs.http;
 
-import static brs.http.common.Parameters.DECISION_PARAMETER;
-import static brs.http.common.Parameters.ESCROW_PARAMETER;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
-
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.Escrow;
-import brs.BurstException;
+import brs.*;
 import brs.services.EscrowService;
 import brs.services.ParameterService;
 import brs.util.Convert;
@@ -17,6 +8,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.DECISION_PARAMETER;
+import static brs.http.common.Parameters.ESCROW_PARAMETER;
+import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
+import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
 
 public final class EscrowSign extends CreateTransaction {
 	
@@ -33,7 +29,7 @@ public final class EscrowSign extends CreateTransaction {
 	
   @Override
   JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
-    Long escrowId;
+    long escrowId;
     try {
       escrowId = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(ESCROW_PARAMETER)));
     }

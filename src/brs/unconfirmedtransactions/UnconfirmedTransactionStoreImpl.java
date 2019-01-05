@@ -10,21 +10,15 @@ import brs.props.Props;
 import brs.services.TimeService;
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
 import brs.transactionduplicates.TransactionDuplicationResult;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionStore {
 
@@ -34,30 +28,17 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   private final ReservedBalanceCache reservedBalanceCache;
   private final TransactionDuplicatesCheckerImpl transactionDuplicatesChecker = new TransactionDuplicatesCheckerImpl();
 
-  private HashMap<Transaction, HashSet<Peer>> fingerPrintsOverview = new HashMap<>();
+  private final HashMap<Transaction, HashSet<Peer>> fingerPrintsOverview = new HashMap<>();
 
   private final SortedMap<Long, List<Transaction>> internalStore;
 
-  private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-  private int totalSize;
+    private int totalSize;
   private final int maxSize;
 
   private final int maxRawUTBytesToSend;
 
   private int numberUnconfirmedTransactionsFullHash;
   private final int maxPercentageUnconfirmedTransactionsFullHash;
-
-  final Runnable cleanupExpiredTransactions = new Runnable() {
-    @Override
-    public void run() {
-      synchronized (internalStore) {
-        final List<Transaction> expiredTransactions = getAll().stream().filter(t -> timeService.getEpochTime() > t.getExpiration()).collect(Collectors.toList());
-
-        expiredTransactions.stream().forEach(t -> removeTransaction(t));
-      }
-    }
-  };
 
   public UnconfirmedTransactionStoreImpl(TimeService timeService, PropertyService propertyService, AccountStore accountStore) {
     this.timeService = timeService;
@@ -74,6 +55,13 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
     internalStore = new TreeMap<>();
 
+      ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    Runnable cleanupExpiredTransactions = () -> {
+      synchronized (internalStore) {
+        final List<Transaction> expiredTransactions = getAll().stream().filter(t -> timeService.getEpochTime() > t.getExpiration()).collect(Collectors.toList());
+        expiredTransactions.forEach(this::removeTransaction);
+      }
+    };
     scheduler.scheduleWithFixedDelay(cleanupExpiredTransactions, 1, 1, TimeUnit.MINUTES);
   }
 
@@ -162,7 +150,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     synchronized (internalStore) {
       final List<Transaction> untouchedTransactions = fingerPrintsOverview.entrySet().stream()
           .filter(e -> !e.getValue().contains(peer))
-          .map(e -> e.getKey()).collect(Collectors.toList());
+          .map(Map.Entry::getKey).collect(Collectors.toList());
 
       final ArrayList<Transaction> resultList = new ArrayList<>();
 
@@ -289,7 +277,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     }
   }
 
-  private void addTransaction(Transaction transaction, Peer peer) throws ValidationException {
+  private void addTransaction(Transaction transaction, Peer peer) {
     final List<Transaction> slot = getOrCreateAmountSlotForTransaction(transaction);
     slot.add(transaction);
     totalSize++;

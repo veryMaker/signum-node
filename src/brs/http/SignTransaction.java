@@ -15,19 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
 import static brs.http.JSONResponses.MISSING_SECRET_PHRASE;
-import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
-import static brs.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER;
-import static brs.http.common.Parameters.UNSIGNED_TRANSACTION_JSON_PARAMETER;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_RESPONSE;
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.*;
 import static brs.http.common.ResultFields.FULL_HASH_RESPONSE;
-import static brs.http.common.ResultFields.SIGNATURE_HASH_RESPONSE;
-import static brs.http.common.ResultFields.TRANSACTION_BYTES_RESPONSE;
-import static brs.http.common.ResultFields.TRANSACTION_RESPONSE;
-import static brs.http.common.ResultFields.VERIFY_RESPONSE;
 
-public final class SignTransaction extends APIServlet.APIRequestHandler {
+final class SignTransaction extends APIServlet.APIRequestHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(SignTransaction.class);
 

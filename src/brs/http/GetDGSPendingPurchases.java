@@ -1,7 +1,7 @@
 package brs.http;
 
-import brs.DigitalGoodsStore;
 import brs.BurstException;
+import brs.DigitalGoodsStore;
 import brs.db.BurstIterator;
 import brs.services.DGSGoodsStoreService;
 import org.json.simple.JSONArray;
@@ -11,9 +11,7 @@ import org.json.simple.JSONStreamAware;
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.JSONResponses.MISSING_SELLER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.SELLER_PARAMETER;
+import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.PURCHASES_RESPONSE;
 
 public final class GetDGSPendingPurchases extends APIServlet.APIRequestHandler {

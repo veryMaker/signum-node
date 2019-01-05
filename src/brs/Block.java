@@ -1,22 +1,19 @@
 package brs;
 
+import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxInt;
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import javax.persistence.Entity;
+import brs.peer.Peer;
+import brs.util.Convert;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import brs.crypto.Crypto;
-import brs.peer.Peer;
-import brs.util.Convert;
+
+import javax.persistence.Entity;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.*;
 
 @Entity
 public class Block {
@@ -105,7 +102,7 @@ public class Block {
     this.id = id;
   }
 
-  private final TransactionDb transactionDb() {
+  private TransactionDb transactionDb() {
     return Burst.getDbs().getTransactionDb();
   }
 
@@ -276,7 +273,7 @@ public class Block {
     try {
       int version = ((Long) blockData.get("version")).intValue();
       int timestamp = ((Long) blockData.get("timestamp")).intValue();
-      Long previousBlock = Convert.parseUnsignedLong((String) blockData.get("previousBlock"));
+      long previousBlock = Convert.parseUnsignedLong((String) blockData.get("previousBlock"));
       long totalAmountNQT = Convert.parseLong(blockData.get("totalAmountNQT"));
       long totalFeeNQT = Convert.parseLong(blockData.get("totalFeeNQT"));
       int payloadLength = ((Long) blockData.get("payloadLength")).intValue();
@@ -288,7 +285,7 @@ public class Block {
       byte[] blockSignature = Convert.parseHexString((String) blockData.get("blockSignature"));
       byte[] previousBlockHash =
           version == 1 ? null : Convert.parseHexString((String) blockData.get("previousBlockHash"));
-      Long nonce = Convert.parseUnsignedLong((String) blockData.get("nonce"));
+      long nonce = Convert.parseUnsignedLong((String) blockData.get("nonce"));
 
       SortedMap<Long, Transaction> blockTransactions = new TreeMap<>();
       JSONArray transactionsData = (JSONArray) blockData.get("transactions");

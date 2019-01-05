@@ -1,7 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
-
 import brs.Account;
 import brs.Attachment;
 import brs.BurstException;
@@ -10,7 +8,9 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class SendMessage extends CreateTransaction {
+import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
+
+final class SendMessage extends CreateTransaction {
 
   private final ParameterService parameterService;
 

@@ -1,21 +1,20 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-
 import brs.BurstException;
 import brs.Order;
 import brs.assetexchange.AssetExchange;
 import brs.db.BurstIterator;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
-public final class GetBidOrderIds extends APIServlet.APIRequestHandler {
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.*;
+
+final class GetBidOrderIds extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final AssetExchange assetExchange;

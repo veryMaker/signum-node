@@ -1,12 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.INCLUDE_ASSET_INFO_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.ResultFields.TRADES_RESPONSE;
-
 import brs.Account;
 import brs.Asset;
 import brs.BurstException;
@@ -22,6 +15,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.TRADES_RESPONSE;
 
 public final class GetTrades extends APIServlet.APIRequestHandler {
 

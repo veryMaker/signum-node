@@ -70,22 +70,22 @@ abstract class MDHelper extends DigestEngine {
    *                       be at least 8)
    * @param fbyte          the first padding byte
    */
-  MDHelper(boolean littleEndian, int lenlen, byte fbyte)
+  private MDHelper(boolean littleEndian, int lenlen, byte fbyte)
   {
     this.littleEndian = littleEndian;
     countBuf = new byte[lenlen];
     this.fbyte = fbyte;
   }
 
-  private boolean littleEndian;
-  private byte[] countBuf;
-  private byte fbyte;
+  private final boolean littleEndian;
+  private final byte[] countBuf;
+  private final byte fbyte;
 
   /**
    * Compute the padding. The padding data is input into the engine,
    * which is flushed.
    */
-  protected void makeMDPadding()
+  void makeMDPadding()
   {
     int dataLen = flush();
     int blen = getBlockLength();
@@ -101,7 +101,7 @@ abstract class MDHelper extends DigestEngine {
       encodeBEInt((int)currentLength,
                   countBuf, lenlen - 4);
     }
-    int endLen = (dataLen + lenlen + blen) & ~(blen - 1);
+    int endLen = (dataLen + lenlen + blen) & -blen;
     update(fbyte);
     for (int i = dataLen + 1; i < endLen - lenlen; i ++)
       update((byte)0);
@@ -125,9 +125,9 @@ abstract class MDHelper extends DigestEngine {
    * @param buf   the destination buffer
    * @param off   the destination offset
    */
-  private static final void encodeLEInt(int val, byte[] buf, int off)
+  private static void encodeLEInt(int val, byte[] buf, int off)
   {
-    buf[off + 0] = (byte)val;
+    buf[off] = (byte)val;
     buf[off + 1] = (byte)(val >>> 8);
     buf[off + 2] = (byte)(val >>> 16);
     buf[off + 3] = (byte)(val >>> 24);
@@ -142,9 +142,9 @@ abstract class MDHelper extends DigestEngine {
    * @param buf   the destination buffer
    * @param off   the destination offset
    */
-  private static final void encodeBEInt(int val, byte[] buf, int off)
+  private static void encodeBEInt(int val, byte[] buf, int off)
   {
-    buf[off + 0] = (byte)(val >>> 24);
+    buf[off] = (byte)(val >>> 24);
     buf[off + 1] = (byte)(val >>> 16);
     buf[off + 2] = (byte)(val >>> 8);
     buf[off + 3] = (byte)val;

@@ -3,7 +3,6 @@ package brs.at;
 import brs.AT;
 import brs.Account;
 import brs.Burst;
-import brs.Constants;
 import brs.fluxcapacitor.FeatureToggle;
 import brs.util.Convert;
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ public abstract class AT_Controller {
 
   private static final Logger logger = LoggerFactory.getLogger(AT_Controller.class);
 
-  public static int runSteps( AT_Machine_State state ) {
+  private static int runSteps(AT_Machine_State state) {
     state.getMachineState().running = true;
     state.getMachineState().stopped = false;
     state.getMachineState().finished = false;
@@ -85,7 +84,7 @@ public abstract class AT_Controller {
     return 5;
   }
 
-  public static int getNumSteps(byte op, int height) {
+  private static int getNumSteps(byte op, int height) {
     if (op >= 0x32 && op < 0x38)
       return (int)AT_Constants.getInstance().API_STEP_MULTIPLIER(height);
 
@@ -97,7 +96,7 @@ public abstract class AT_Controller {
     listCode( state, true, true );
   }
 
-  public static void listCode( AT_Machine_State state, boolean disassembly, boolean determine_jumps ) {
+  private static void listCode(AT_Machine_State state, boolean disassembly, boolean determine_jumps) {
 
     AT_Machine_Processor machineProcessor = new AT_Machine_Processor( state );
 
@@ -165,7 +164,6 @@ public abstract class AT_Controller {
 
       long minActivationAmount = b.getLong();
 
-      //System.out.println("codePages: " + codePages );
       int codeLen;
       if ( codePages * 256 < 257 ) {
         codeLen = b.get();
@@ -389,7 +387,7 @@ public abstract class AT_Controller {
       return new AT_Block( totalFee, totalAmount, new byte[ 1 ], validated );
   }
 
-  public static LinkedHashMap< ByteBuffer, byte[] > getATsFromBlock( byte[] blockATs ) throws AT_Exception {
+  private static LinkedHashMap< ByteBuffer, byte[] > getATsFromBlock(byte[] blockATs) throws AT_Exception {
     if ( blockATs.length > 0 ) {
       if ( blockATs.length % (getCostOfOneAT() ) != 0 ) {
         throw new AT_Exception("blockATs must be a multiple of cost of one AT ( " + getCostOfOneAT() +" )" );

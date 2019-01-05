@@ -1,17 +1,18 @@
 package brs.http;
 
+import brs.Asset;
+import brs.assetexchange.AssetExchange;
+import brs.util.Convert;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONStreamAware;
+
+import javax.servlet.http.HttpServletRequest;
+
 import static brs.http.JSONResponses.INCORRECT_ASSET;
 import static brs.http.JSONResponses.UNKNOWN_ASSET;
 import static brs.http.common.Parameters.ASSETS_PARAMETER;
 import static brs.http.common.ResultFields.ASSETS_RESPONSE;
-
-import brs.Asset;
-import brs.assetexchange.AssetExchange;
-import brs.util.Convert;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
 
 public final class GetAssets extends APIServlet.APIRequestHandler {
 

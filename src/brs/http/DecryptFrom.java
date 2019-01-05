@@ -1,25 +1,22 @@
 package brs.http;
 
-import static brs.http.JSONResponses.DECRYPTION_FAILED;
-import static brs.http.JSONResponses.INCORRECT_ACCOUNT;
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.DATA_PARAMETER;
-import static brs.http.common.Parameters.DECRYPTED_MESSAGE_IS_TEXT_PARAMETER;
-import static brs.http.common.Parameters.NONCE_PARAMETER;
-import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
-import static brs.http.common.ResultFields.DECRYPTED_MESSAGE_RESPONSE;
-
 import brs.Account;
 import brs.BurstException;
 import brs.crypto.EncryptedData;
 import brs.http.common.Parameters;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.JSONResponses.DECRYPTION_FAILED;
+import static brs.http.JSONResponses.INCORRECT_ACCOUNT;
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.DECRYPTED_MESSAGE_RESPONSE;
 
 public final class DecryptFrom extends APIServlet.APIRequestHandler {
 

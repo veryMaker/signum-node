@@ -1,9 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
-
 import brs.Account;
 import brs.Attachment;
 import brs.Blockchain;
@@ -15,11 +11,15 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
+import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
+import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
+
 public final class SetRewardRecipient extends CreateTransaction {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;
-  private AccountService accountService;
+  private final AccountService accountService;
 
   public SetRewardRecipient(ParameterService parameterService, Blockchain blockchain, AccountService accountService, APITransactionManager apiTransactionManager) {
     super(new APITag[] {APITag.ACCOUNTS, APITag.MINING, APITag.CREATE_TRANSACTION}, apiTransactionManager, RECIPIENT_PARAMETER);

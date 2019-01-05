@@ -3,19 +3,20 @@ package brs.db.sql;
 import brs.db.BurstKey;
 import brs.db.ValuesTable;
 import brs.db.store.DerivedTableManager;
+import org.jooq.DSLContext;
+import org.jooq.SelectQuery;
+import org.jooq.UpdateQuery;
+import org.jooq.impl.TableImpl;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.jooq.impl.TableImpl;
-import org.jooq.DSLContext;
-import org.jooq.SelectQuery;
-import org.jooq.UpdateQuery;
 
 public abstract class ValuesSqlTable<T,V> extends DerivedSqlTable implements ValuesTable<T, V> {
 
   private final boolean multiversion;
-  protected final DbKey.Factory<T> dbKeyFactory;
+  final DbKey.Factory<T> dbKeyFactory;
 
   protected ValuesSqlTable(String table, TableImpl<?> tableClass, DbKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
     this(table, tableClass, dbKeyFactory, false, derivedTableManager);
@@ -29,7 +30,7 @@ public abstract class ValuesSqlTable<T,V> extends DerivedSqlTable implements Val
 
   protected abstract V load(DSLContext ctx, ResultSet rs) throws SQLException;
 
-  protected abstract void save(DSLContext ctx, T t, V v) throws SQLException;
+  protected abstract void save(DSLContext ctx, T t, V v);
 
   @Override
   public final List<V> get(BurstKey nxtKey) {
@@ -89,8 +90,6 @@ public abstract class ValuesSqlTable<T,V> extends DerivedSqlTable implements Val
       for (V v : values) {
         save(ctx, t, v);
       }
-    } catch (SQLException e) {
-      throw new RuntimeException(e.toString(), e);
     }
   }
 

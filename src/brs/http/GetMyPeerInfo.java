@@ -2,17 +2,18 @@ package brs.http;
 
 import brs.BlockchainProcessor;
 import brs.TransactionProcessor;
-import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
-public final class GetMyPeerInfo extends APIServlet.APIRequestHandler {
+import javax.servlet.http.HttpServletRequest;
+
+final class GetMyPeerInfo extends APIServlet.APIRequestHandler {
 
   private final BlockchainProcessor blockchainProcessor;
   private final TransactionProcessor transactionProcessor;
 
   public GetMyPeerInfo(BlockchainProcessor blockchainProcessor, TransactionProcessor transactionProcessor) {
-    super(new APITag[]{APITag.INFO});
+    super(new APITag[]{APITag.PEER_INFO});
     this.blockchainProcessor = blockchainProcessor;
     this.transactionProcessor = transactionProcessor;
   }

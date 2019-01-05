@@ -1,10 +1,6 @@
 package brs.http;
 
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.Constants;
-import brs.BurstException;
+import brs.*;
 import brs.services.ParameterService;
 import brs.util.Convert;
 import org.json.simple.JSONStreamAware;
@@ -16,7 +12,7 @@ import static brs.http.JSONResponses.INCORRECT_ACCOUNT_NAME_LENGTH;
 import static brs.http.common.Parameters.DESCRIPTION_PARAMETER;
 import static brs.http.common.Parameters.NAME_PARAMETER;
 
-public final class SetAccountInfo extends CreateTransaction {
+final class SetAccountInfo extends CreateTransaction {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;

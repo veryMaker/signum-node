@@ -12,7 +12,7 @@ import static brs.http.common.Parameters.SUBSCRIPTION_PARAMETER;
 import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
 import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
 
-public final class GetSubscription extends APIServlet.APIRequestHandler {
+final class GetSubscription extends APIServlet.APIRequestHandler {
 	
   private final SubscriptionService subscriptionService;
 
@@ -23,7 +23,7 @@ public final class GetSubscription extends APIServlet.APIRequestHandler {
 	
   @Override
   JSONStreamAware processRequest(HttpServletRequest req) {
-    Long subscriptionId;
+    long subscriptionId;
     try {
       subscriptionId = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(SUBSCRIPTION_PARAMETER)));
     }

@@ -8,10 +8,7 @@ import org.json.simple.JSONStreamAware;
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.JSONResponses.*;
-import static brs.http.common.Parameters.ALIAS_NAME_PARAMETER;
-import static brs.http.common.Parameters.ALIAS_PARAMETER;
-import static brs.http.common.Parameters.PRICE_NQT_PARAMETER;
-import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
+import static brs.http.common.Parameters.*;
 
 public final class SellAlias extends CreateTransaction {
 

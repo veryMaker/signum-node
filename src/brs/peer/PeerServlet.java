@@ -8,24 +8,24 @@ import brs.services.TimeService;
 import brs.util.CountingInputStream;
 import brs.util.CountingOutputStream;
 import brs.util.JSON;
-import org.eclipse.jetty.server.Response;
-import javax.servlet.http.HttpServletResponseWrapper;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 import org.json.simple.JSONValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static brs.Constants.*;
+import static brs.Constants.PROTOCOL;
 
 public final class PeerServlet extends HttpServlet {
 
@@ -41,8 +41,8 @@ public final class PeerServlet extends HttpServlet {
   }
 
   static class ExtendedProcessRequest {
-    JSONStreamAware response;
-    RequestLifecycleHook afterRequestHook;
+    final JSONStreamAware response;
+    final RequestLifecycleHook afterRequestHook;
 
     public ExtendedProcessRequest(JSONStreamAware response, RequestLifecycleHook afterRequestHook) {
       this.response = response;
@@ -119,7 +119,7 @@ public final class PeerServlet extends HttpServlet {
 
       JSONObject request;
       CountingInputStream cis = new CountingInputStream(req.getInputStream());
-      try (Reader reader = new InputStreamReader(cis, "UTF-8")) {
+      try (Reader reader = new InputStreamReader(cis, StandardCharsets.UTF_8)) {
         request = (JSONObject) JSONValue.parse(reader);
       }
       if (request == null) {
@@ -166,7 +166,7 @@ public final class PeerServlet extends HttpServlet {
       long byteCount;
 
       CountingOutputStream cos = new CountingOutputStream(resp.getOutputStream());
-      try (Writer writer = new OutputStreamWriter(cos, "UTF-8")) {
+      try (Writer writer = new OutputStreamWriter(cos, StandardCharsets.UTF_8)) {
         response.writeJSONString(writer);
       }
       byteCount = cos.getCount();

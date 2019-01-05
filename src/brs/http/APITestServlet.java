@@ -1,6 +1,8 @@
 package brs.http;
 
 import brs.util.Convert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -8,9 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class APITestServlet extends HttpServlet {
 
@@ -55,7 +54,7 @@ public class APITestServlet extends HttpServlet {
       + "            }\n"
       + "            $.ajax({\n"
       + "                url: url,\n"
-      + "                type: 'GET',\n"
+      + "                type: 'POST',\n"
       + "            })\n"
       + "            .done(function(result) {\n"
       + "                var resultStr = JSON.stringify(JSON.parse(result), null, 4);\n"

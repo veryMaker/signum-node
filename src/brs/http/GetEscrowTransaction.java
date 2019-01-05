@@ -12,7 +12,7 @@ import static brs.http.common.Parameters.ESCROW_PARAMETER;
 import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
 import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
 
-public final class GetEscrowTransaction extends APIServlet.APIRequestHandler {
+final class GetEscrowTransaction extends APIServlet.APIRequestHandler {
 	
   private final EscrowService escrowService;
 	
@@ -23,7 +23,7 @@ public final class GetEscrowTransaction extends APIServlet.APIRequestHandler {
 	
   @Override
   JSONStreamAware processRequest(HttpServletRequest req) {
-    Long escrowId;
+    long escrowId;
     try {
       escrowId = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(ESCROW_PARAMETER)));
     } catch(Exception e) {

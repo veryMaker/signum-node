@@ -79,14 +79,17 @@ public abstract class DigestEngine implements Digest {
    */
   protected abstract void doInit();
 
-  private int digestLen, blockLen, inputLen;
-  private byte[] inputBuf, outputBuf;
+  private int digestLen;
+    private final int blockLen;
+    private int inputLen;
+  private final byte[] inputBuf;
+    private byte[] outputBuf;
   private long blockCount;
 
   /**
    * Instantiate the engine.
    */
-  public DigestEngine() {
+  DigestEngine() {
     doInit();
     digestLen = getDigestLength();
     blockLen = getInternalBlockLength();
@@ -142,7 +145,7 @@ public abstract class DigestEngine implements Digest {
 
   /** @see Digest */
   public void update(byte input) {
-    inputBuf[inputLen ++] = (byte)input;
+    inputBuf[inputLen ++] = input;
     if (inputLen == blockLen) {
       processBlock(inputBuf);
       blockCount ++;
@@ -185,7 +188,7 @@ public abstract class DigestEngine implements Digest {
    *
    * @return  the internal block length (in bytes)
    */
-  protected int getInternalBlockLength() {
+  private int getInternalBlockLength() {
     return getBlockLength();
   }
 
@@ -195,7 +198,7 @@ public abstract class DigestEngine implements Digest {
    *
    * @return  the number of bytes still unprocessed after the flush
    */
-  protected final int flush() {
+  final int flush() {
     return inputLen;
   }
 
@@ -223,7 +226,7 @@ public abstract class DigestEngine implements Digest {
    *
    * @return  the block count
    */
-  protected long getBlockCount() {
+  long getBlockCount() {
     return blockCount;
   }
 
@@ -237,7 +240,7 @@ public abstract class DigestEngine implements Digest {
    * @param dest   the copy
    * @return  the value {@code dest}
    */
-  protected Digest copyState(DigestEngine dest) {
+  Digest copyState(DigestEngine dest) {
     dest.inputLen = inputLen;
     dest.blockCount = blockCount;
     System.arraycopy(inputBuf, 0, dest.inputBuf, 0,

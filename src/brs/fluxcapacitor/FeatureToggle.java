@@ -13,7 +13,7 @@ public enum FeatureToggle {
   PRE_DYMAXION(new FluxHistory<>(false, new Element<>(HistoricalMoments.PRE_DYMAXION, true))),
   DYMAXION(new FluxHistory<>(false, new Element<>(HistoricalMoments.DYMAXION, true)));
 
-  private FluxHistory<Boolean> flux;
+  private final FluxHistory<Boolean> flux;
 
   FeatureToggle(FluxHistory<Boolean> flux) {
     this.flux = flux;

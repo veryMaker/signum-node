@@ -1,9 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.*;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
-
 import brs.*;
 import brs.services.ParameterService;
 import brs.util.Convert;
@@ -13,7 +9,11 @@ import org.json.simple.JSONStreamAware;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 
-public final class SendMoneyEscrow extends CreateTransaction {
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
+import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
+
+final class SendMoneyEscrow extends CreateTransaction {
 	
   private final ParameterService parameterService;
   private final Blockchain blockchain;
@@ -31,7 +31,7 @@ public final class SendMoneyEscrow extends CreateTransaction {
     Long amountNQT = ParameterParser.getAmountNQT(req);
     String signerString = Convert.emptyToNull(req.getParameter(SIGNERS_PARAMETER));
 		
-    Long requiredSigners;
+    long requiredSigners;
     try {
       requiredSigners = Convert.parseLong(req.getParameter(REQUIRED_SIGNERS_PARAMETER));
       if(requiredSigners < 1 || requiredSigners > 10) {
@@ -79,7 +79,7 @@ public final class SendMoneyEscrow extends CreateTransaction {
       return response;
     }
 		
-    Long totalAmountNQT = Convert.safeAdd(amountNQT, signers.size() * Constants.ONE_BURST);
+    long totalAmountNQT = Convert.safeAdd(amountNQT, signers.size() * Constants.ONE_BURST);
     if(sender.getBalanceNQT() < totalAmountNQT) {
       JSONObject response = new JSONObject();
       response.put(ERROR_CODE_RESPONSE, 6);
@@ -87,7 +87,7 @@ public final class SendMoneyEscrow extends CreateTransaction {
       return response;
     }
 		
-    Long deadline;
+    long deadline;
     try {
       deadline = Convert.parseLong(req.getParameter(ESCROW_DEADLINE_PARAMETER));
       if(deadline < 1 || deadline > 7776000) {
@@ -112,7 +112,7 @@ public final class SendMoneyEscrow extends CreateTransaction {
       return response;
     }
 		
-    Attachment.AdvancedPaymentEscrowCreation attachment = new Attachment.AdvancedPaymentEscrowCreation(amountNQT, deadline.intValue(), deadlineAction, requiredSigners.intValue(), signers, blockchain.getHeight());
+    Attachment.AdvancedPaymentEscrowCreation attachment = new Attachment.AdvancedPaymentEscrowCreation(amountNQT, (int) deadline, deadlineAction, (int) requiredSigners, signers, blockchain.getHeight());
 		
     return createTransaction(req, sender, recipient, 0, attachment);
   }

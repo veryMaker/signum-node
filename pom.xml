@@ -485,7 +485,7 @@
             <driver>org.mariadb.jdbc.Driver</driver>
             <url>jdbc:mysql://localhost:3306/burstwallet</url>
             <user>root</user>
-            <password></password>
+            <password />
           </jdbc>
           <generator>
             <name>org.jooq.util.JavaGenerator</name>
@@ -494,7 +494,7 @@
               <inputSchema>burstwallet</inputSchema>
               <outputSchema>DB</outputSchema>
               <includes>.*</includes>
-              <excludes></excludes>
+              <excludes />
               <forcedTypes>
                 <forcedType>
                   <name>BOOLEAN</name>

@@ -1,7 +1,7 @@
 package brs.at;
 
-public class AT_API_Controller {
-  static AT_API_Impl atApi = new AT_API_Impl();
+class AT_API_Controller {
+  private static final AT_API_Impl atApi = new AT_API_Impl();
 
   public static long func (int func_num, AT_Machine_State state) {
 

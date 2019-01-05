@@ -1,89 +1,19 @@
 package brs;
 
-import static brs.http.common.Parameters.ALIAS_PARAMETER;
-import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-import static brs.http.common.Parameters.COMMENT_PARAMETER;
-import static brs.http.common.Parameters.CREATION_BYTES_PARAMETER;
-import static brs.http.common.Parameters.DEADLINE_ACTION_PARAMETER;
-import static brs.http.common.Parameters.DEADLINE_PARAMETER;
-import static brs.http.common.Parameters.DECIMALS_PARAMETER;
-import static brs.http.common.Parameters.DECISION_PARAMETER;
-import static brs.http.common.Parameters.DELIVERY_DEADLINE_TIMESTAMP_PARAMETER;
-import static brs.http.common.Parameters.DELTA_QUANTITY_PARAMETER;
-import static brs.http.common.Parameters.DESCRIPTION_PARAMETER;
-import static brs.http.common.Parameters.DISCOUNT_NQT_PARAMETER;
-import static brs.http.common.Parameters.ESCROW_ID_PARAMETER;
-import static brs.http.common.Parameters.FREQUENCY_PARAMETER;
-import static brs.http.common.Parameters.GOODS_DATA_PARAMETER;
-import static brs.http.common.Parameters.GOODS_IS_TEXT_PARAMETER;
-import static brs.http.common.Parameters.GOODS_NONCE_PARAMETER;
-import static brs.http.common.Parameters.GOODS_PARAMETER;
-import static brs.http.common.Parameters.NAME_PARAMETER;
-import static brs.http.common.Parameters.ORDER_PARAMETER;
-import static brs.http.common.Parameters.PERIOD_PARAMETER;
-import static brs.http.common.Parameters.PRICE_NQT_PARAMETER;
-import static brs.http.common.Parameters.PURCHASE_PARAMETER;
-import static brs.http.common.Parameters.QUANTITY_PARAMETER;
-import static brs.http.common.Parameters.QUANTITY_QNT_PARAMETER;
-import static brs.http.common.Parameters.RECIPIENTS_PARAMETER;
-import static brs.http.common.Parameters.RECIPIENTS_RESPONSE;
-import static brs.http.common.Parameters.REFUND_NQT_PARAMETER;
-import static brs.http.common.Parameters.REQUIRED_SIGNERS_PARAMETER;
-import static brs.http.common.Parameters.SIGNERS_PARAMETER;
-import static brs.http.common.Parameters.SUBSCRIPTION_ID_PARAMETER;
-import static brs.http.common.Parameters.URI_PARAMETER;
-import static brs.http.common.ResultFields.ALIAS_RESPONSE;
-import static brs.http.common.ResultFields.AMOUNT_NQT_RESPONSE;
-import static brs.http.common.ResultFields.ASSET_RESPONSE;
-import static brs.http.common.ResultFields.COMMENT_RESPONSE;
-import static brs.http.common.ResultFields.CREATION_BYTES_RESPONSE;
-import static brs.http.common.ResultFields.DEADLINE_ACTION_RESPONSE;
-import static brs.http.common.ResultFields.DEADLINE_RESPONSE;
-import static brs.http.common.ResultFields.DECIMALS_RESPONSE;
-import static brs.http.common.ResultFields.DECISION_RESPONSE;
-import static brs.http.common.ResultFields.DELIVERY_DEADLINE_TIMESTAMP_RESPONSE;
-import static brs.http.common.ResultFields.DELTA_QUANTITY_RESPONSE;
-import static brs.http.common.ResultFields.DESCRIPTION_RESPONSE;
-import static brs.http.common.ResultFields.DISCOUNT_NQT_RESPONSE;
-import static brs.http.common.ResultFields.ESCROW_ID_RESPONSE;
-import static brs.http.common.ResultFields.FREQUENCY_RESPONSE;
-import static brs.http.common.ResultFields.GOODS_DATA_RESPONSE;
-import static brs.http.common.ResultFields.GOODS_IS_TEXT_RESPONSE;
-import static brs.http.common.ResultFields.GOODS_NONCE_RESPONSE;
-import static brs.http.common.ResultFields.GOODS_RESPONSE;
-import static brs.http.common.ResultFields.NAME_RESPONSE;
-import static brs.http.common.ResultFields.ORDER_RESPONSE;
-import static brs.http.common.ResultFields.PERIOD_RESPONSE;
-import static brs.http.common.ResultFields.PRICE_NQT_RESPONSE;
-import static brs.http.common.ResultFields.PURCHASE_RESPONSE;
-import static brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE;
-import static brs.http.common.ResultFields.QUANTITY_RESPONSE;
-import static brs.http.common.ResultFields.REFUND_NQT_RESPONSE;
-import static brs.http.common.ResultFields.REQUIRED_SIGNERS_RESPONSE;
-import static brs.http.common.ResultFields.SIGNERS_RESPONSE;
-import static brs.http.common.ResultFields.SUBSCRIPTION_ID_RESPONSE;
-import static brs.http.common.ResultFields.TAGS_RESPONSE;
-import static brs.http.common.ResultFields.URI_RESPONSE;
-
 import brs.TransactionType.Payment;
+import brs.at.AT_Constants;
 import brs.crypto.EncryptedData;
 import brs.util.Convert;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map.Entry;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.Map.Entry;
 
-import brs.at.AT_Constants;
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.*;
 
 public interface Attachment extends Appendix {
 
@@ -194,15 +124,15 @@ public interface Attachment extends Appendix {
       JSONArray recipients = (JSONArray)attachmentData.get(RECIPIENTS_PARAMETER);
       HashMap<Long,Boolean> recipientOf = new HashMap<>();
 
-      for (int i = 0; i < recipients.size(); i++) {
-        JSONArray recipient = (JSONArray) recipients.get(i);
+      for (Object recipientObject : recipients) {
+        JSONArray recipient = (JSONArray) recipientObject;
 
         long recipientId = new BigInteger((String) recipient.get(0)).longValue();
-        long amountNQT   = Convert.parseLong(recipient.get(1));
+        long amountNQT = Convert.parseLong(recipient.get(1));
         if (recipientOf.containsKey(recipientId))
           throw new BurstException.NotValidException("Duplicate recipient on multi out transaction");
 
-        if (amountNQT <= 0)
+        if (amountNQT  <=0)
           throw new BurstException.NotValidException("Insufficient amountNQT on multi out transaction");
 
         recipientOf.put(recipientId, true);
@@ -316,8 +246,8 @@ public interface Attachment extends Appendix {
       JSONArray recipients = (JSONArray)attachmentData.get(RECIPIENTS_PARAMETER);
       HashMap<Long,Boolean> recipientOf = new HashMap<>();
 
-      for (int i = 0; i < recipients.size(); i++) {
-        long recipientId = new BigInteger((String) recipients.get(i)).longValue();
+      for (Object recipient : recipients) {
+        long recipientId = new BigInteger((String) recipient).longValue();
         if (recipientOf.containsKey(recipientId))
           throw new BurstException.NotValidException("Duplicate recipient on multi same out transaction");
 
@@ -366,9 +296,7 @@ public interface Attachment extends Appendix {
     @Override
     void putMyJSON(JSONObject attachment) {
       JSONArray recipients = new JSONArray();
-      this.recipients.forEach(a -> {
-        recipients.add(Convert.toUnsignedLong(a));
-      });
+      this.recipients.forEach(a -> recipients.add(Convert.toUnsignedLong(a)));
       attachment.put(RECIPIENTS_RESPONSE, recipients);
     }
 
@@ -1639,8 +1567,8 @@ public interface Attachment extends Appendix {
         throw new BurstException.NotValidException("Invalid number of signers listed on create escrow transaction");
       }
       JSONArray signersJson = (JSONArray)attachmentData.get(SIGNERS_PARAMETER);
-      for(int i = 0; i < signersJson.size(); i++) {
-        this.signers.add(Convert.parseUnsignedLong((String)signersJson.get(i)));
+      for (Object aSignersJson : signersJson) {
+        this.signers.add(Convert.parseUnsignedLong((String) aSignersJson));
       }
       if(this.signers.size() != ((JSONArray)attachmentData.get(SIGNERS_PARAMETER)).size()) {
         throw new BurstException.NotValidException("Duplicate signer on escrow creation");

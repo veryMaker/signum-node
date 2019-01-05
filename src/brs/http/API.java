@@ -1,10 +1,6 @@
 package brs.http;
 
-import brs.Blockchain;
-import brs.BlockchainProcessor;
-import brs.EconomicClustering;
-import brs.Generator;
-import brs.TransactionProcessor;
+import brs.*;
 import brs.assetexchange.AssetExchange;
 import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
@@ -14,9 +10,15 @@ import brs.services.*;
 import brs.util.Subnet;
 import brs.util.ThreadPool;
 import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.*;
-import org.eclipse.jetty.servlet.*;
-import org.eclipse.jetty.servlets.*;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.eclipse.jetty.servlets.DoSFilter;
+import org.eclipse.jetty.servlets.GzipFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,19 +168,16 @@ public final class API {
       apiServer.setHandler(apiHandlers);
       apiServer.setStopAtShutdown(true);
 
-      threadPool.runBeforeStart(new Runnable() {
-          @Override
-          public void run() {
-            try {
-              apiServer.start();
-              logger.info("Started API server at " + host + ":" + port);
-            } catch (Exception e) {
-              logger.error("Failed to start API server", e);
-              throw new RuntimeException(e.toString(), e);
-            }
+      threadPool.runBeforeStart(() -> {
+        try {
+          apiServer.start();
+          logger.info("Started API server at " + host + ":" + port);
+        } catch (Exception e) {
+          logger.error("Failed to start API server", e);
+          throw new RuntimeException(e.toString(), e);
+        }
 
-          }
-        }, true);
+      }, true);
 
     } else {
       apiServer = null;
