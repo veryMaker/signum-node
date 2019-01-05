@@ -13,8 +13,6 @@ backends are:
 - MariaDB (recommended)
 - H2 (embedded, easier install)
 
-
-
 ### Software Installation
 
 #### Linux (Debian, Ubuntu)
