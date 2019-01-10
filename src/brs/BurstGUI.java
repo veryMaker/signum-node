@@ -15,12 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.io.*;
-import java.lang.reflect.Method;
+import java.io.FileDescriptor;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.Permission;
 
 public class BurstGUI extends Application {
@@ -36,7 +35,6 @@ public class BurstGUI extends Application {
 
     public static void main(String[] args) {
         BurstGUI.args = args;
-        addToClasspath("./conf");
         System.setSecurityManager(new BurstGUISecurityManager());
         Platform.setImplicitExit(false);
         launch(args);
@@ -53,20 +51,6 @@ public class BurstGUI extends Application {
         stage = primaryStage;
         showTrayIcon();
         new Thread(BurstGUI::runBrs).start();
-    }
-
-    public static void addToClasspath(String path) {
-        try {
-            File f = new File(path);
-            URI u = f.toURI();
-            URLClassLoader urlClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-            Class<URLClassLoader> urlClass = URLClassLoader.class;
-            Method method = urlClass.getDeclaredMethod("addURL", URL.class);
-            method.setAccessible(true);
-            method.invoke(urlClassLoader, u.toURL());
-        } catch (Exception e) {
-            LOGGER.error("Could not add path \"" + path + "\" to classpath", e);
-        }
     }
 
     private static void shutdown() {
@@ -163,12 +147,12 @@ public class BurstGUI extends Application {
     }
 
     private static void onTestNetEnabled() {
-        stage.setTitle(stage.getTitle() + " (TESTNET)");
+        Platform.runLater(() -> stage.setTitle(stage.getTitle() + " (TESTNET)"));
         trayIcon.setToolTip(trayIcon.getToolTip() + " (TESTNET)");
     }
 
     private static void onBrsStopped() {
-        stage.setTitle(stage.getTitle() + " (STOPPED)");
+        Platform.runLater(() -> stage.setTitle(stage.getTitle() + " (STOPPED)"));
         trayIcon.setToolTip(trayIcon.getToolTip() + " (STOPPED)");
     }
 
