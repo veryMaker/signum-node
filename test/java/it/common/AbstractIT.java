@@ -1,14 +1,10 @@
 package it.common;
 
-import static org.junit.Assert.assertEquals;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-
 import brs.Burst;
-import brs.props.Props;
 import brs.common.TestInfrastructure;
 import brs.peer.Peers;
 import brs.peer.ProcessBlock;
-import java.util.Properties;
+import brs.props.Props;
 import org.json.simple.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -16,6 +12,10 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.Properties;
+
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Peers.class)
@@ -42,14 +42,15 @@ public abstract class AbstractIT {
   private Properties testProperties() {
     final Properties props = new Properties();
 
+    props.setProperty(Props.DEV_TESTNET.getName(), "true");
     props.setProperty(Props.DEV_OFFLINE.getName(), "true");
-    props.setProperty(Props.DB_URL.getName(), TestInfrastructure.IN_MEMORY_DB_URL);
+    props.setProperty(Props.DEV_DB_URL.getName(), TestInfrastructure.IN_MEMORY_DB_URL);
     props.setProperty(Props.DB_MAX_ROLLBACK.getName(), "1440");
     props.setProperty(Props.DB_CONNECTIONS.getName(), "1");
 
     props.setProperty(Props.API_SERVER.getName(), "on");
     props.setProperty(Props.API_LISTEN.getName(), "127.0.0.1");
-    props.setProperty(Props.API_PORT.getName(),   "" + TestInfrastructure.TEST_API_PORT);
+    props.setProperty(Props.DEV_API_PORT.getName(),   "" + TestInfrastructure.TEST_API_PORT);
     props.setProperty(Props.API_ALLOWED.getName(),   "*");
     props.setProperty(Props.API_UI_DIR.getName(), "html/ui");
 
