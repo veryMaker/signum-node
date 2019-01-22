@@ -1,17 +1,19 @@
 package brs.peer;
 
+import brs.Block;
+import brs.Blockchain;
+import brs.common.QuickMocker;
+import brs.util.JSON;
+import com.google.gson.JsonObject;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.math.BigInteger;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import brs.Block;
-import brs.Blockchain;
-import brs.common.QuickMocker;
-import java.math.BigInteger;
-import org.json.simple.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
 
 public class GetCumulativeDifficultyTest {
 
@@ -31,7 +33,7 @@ public class GetCumulativeDifficultyTest {
     final BigInteger cumulativeDifficulty = BigInteger.TEN;
     final int blockchainHeight = 50;
 
-    final JSONObject request = QuickMocker.jsonObject();
+    final JsonObject request = QuickMocker.jsonObject();
 
     final Block mockLastBlock = mock(Block.class);
     when(mockLastBlock.getHeight()).thenReturn(blockchainHeight);
@@ -39,11 +41,11 @@ public class GetCumulativeDifficultyTest {
 
     when(mockBlockchain.getLastBlock()).thenReturn(mockLastBlock);
 
-    final JSONObject result = (JSONObject) t.processRequest(request, mock(Peer.class));
+    final JsonObject result = (JsonObject) t.processRequest(request, mock(Peer.class));
     assertNotNull(result);
 
-    assertEquals(cumulativeDifficulty.toString(), result.get("cumulativeDifficulty"));
-    assertEquals(blockchainHeight, result.get("blockchainHeight"));
+    assertEquals(cumulativeDifficulty.toString(), JSON.getAsString(result.get("cumulativeDifficulty")));
+    assertEquals(blockchainHeight, JSON.getAsInt(result.get("blockchainHeight")));
   }
 
 }

@@ -1,28 +1,24 @@
 package brs.http;
 
-import static brs.http.common.ResultFields.DELISTED_RESPONSE;
-import static brs.http.common.ResultFields.DESCRIPTION_RESPONSE;
-import static brs.http.common.ResultFields.GOODS_RESPONSE;
-import static brs.http.common.ResultFields.NAME_RESPONSE;
-import static brs.http.common.ResultFields.PRICE_NQT_RESPONSE;
-import static brs.http.common.ResultFields.QUANTITY_RESPONSE;
-import static brs.http.common.ResultFields.TAGS_RESPONSE;
-import static brs.http.common.ResultFields.TIMESTAMP_RESPONSE;
+import brs.BurstException;
+import brs.DigitalGoodsStore;
+import brs.common.QuickMocker;
+import brs.services.ParameterService;
+import brs.util.JSON;
+import com.google.gson.JsonObject;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.ResultFields.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import brs.BurstException;
-import brs.DigitalGoodsStore;
-import brs.common.QuickMocker;
-import brs.services.ParameterService;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
-import org.junit.Before;
-import org.junit.Test;
+;
 
 public class GetDGSGoodTest {
 
@@ -53,16 +49,16 @@ public class GetDGSGoodTest {
 
     when(mockParameterService.getGoods(eq(req))).thenReturn(mockGoods);
 
-    final JSONObject result = (JSONObject) t.processRequest(req);
+    final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);
 
-    assertEquals("" + mockGoods.getId(), result.get(GOODS_RESPONSE));
-    assertEquals(mockGoods.getName(), result.get(NAME_RESPONSE));
-    assertEquals(mockGoods.getDescription(), result.get(DESCRIPTION_RESPONSE));
-    assertEquals(mockGoods.getQuantity(), result.get(QUANTITY_RESPONSE));
-    assertEquals("" + mockGoods.getPriceNQT(), result.get(PRICE_NQT_RESPONSE));
-    assertEquals(mockGoods.getTags(), result.get(TAGS_RESPONSE));
-    assertEquals(mockGoods.isDelisted(), result.get(DELISTED_RESPONSE));
-    assertEquals(mockGoods.getTimestamp(), result.get(TIMESTAMP_RESPONSE));
+    assertEquals("" + mockGoods.getId(), JSON.getAsString(result.get(GOODS_RESPONSE)));
+    assertEquals(mockGoods.getName(), JSON.getAsString(result.get(NAME_RESPONSE)));
+    assertEquals(mockGoods.getDescription(), JSON.getAsString(result.get(DESCRIPTION_RESPONSE)));
+    assertEquals(mockGoods.getQuantity(), JSON.getAsInt(result.get(QUANTITY_RESPONSE)));
+    assertEquals("" + mockGoods.getPriceNQT(), JSON.getAsString(result.get(PRICE_NQT_RESPONSE)));
+    assertEquals(mockGoods.getTags(), JSON.getAsString(result.get(TAGS_RESPONSE)));
+    assertEquals(mockGoods.isDelisted(), JSON.getAsBoolean(result.get(DELISTED_RESPONSE)));
+    assertEquals(mockGoods.getTimestamp(), JSON.getAsInt(result.get(TIMESTAMP_RESPONSE)));
   }
 }

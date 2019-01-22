@@ -5,7 +5,7 @@ import brs.common.TestInfrastructure;
 import brs.peer.Peers;
 import brs.peer.ProcessBlock;
 import brs.props.Props;
-import org.json.simple.JSONObject;
+import com.google.gson.JsonObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -57,7 +57,7 @@ public abstract class AbstractIT {
     return props;
   }
 
-  public void processBlock(JSONObject jsonFirstBlock) {
+  public void processBlock(JsonObject jsonFirstBlock) {
     processBlock.processRequest(jsonFirstBlock, null);
   }
 }

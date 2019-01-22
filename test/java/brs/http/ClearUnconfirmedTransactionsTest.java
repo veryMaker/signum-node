@@ -1,18 +1,20 @@
 package brs.http;
 
+import brs.TransactionProcessor;
+import brs.common.QuickMocker;
+import brs.util.JSON;
+import com.google.gson.JsonObject;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.servlet.http.HttpServletRequest;
+
 import static brs.http.common.ResultFields.DONE_RESPONSE;
 import static brs.http.common.ResultFields.ERROR_RESPONSE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-
-import brs.TransactionProcessor;
-import brs.common.QuickMocker;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
 
 public class ClearUnconfirmedTransactionsTest {
 
@@ -31,9 +33,9 @@ public class ClearUnconfirmedTransactionsTest {
   public void processRequest() {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
-    final JSONObject result = ((JSONObject) t.processRequest(req));
+    final JsonObject result = ((JsonObject) t.processRequest(req));
 
-    assertEquals(true, result.get(DONE_RESPONSE));
+    assertEquals(true, JSON.getAsBoolean(result.get(DONE_RESPONSE)));
   }
 
   @Test
@@ -42,9 +44,9 @@ public class ClearUnconfirmedTransactionsTest {
 
     doThrow(new RuntimeException("errorMessage")).when(transactionProcessorMock).clearUnconfirmedTransactions();
 
-    final JSONObject result = ((JSONObject) t.processRequest(req));
+    final JsonObject result = ((JsonObject) t.processRequest(req));
 
-    assertEquals("java.lang.RuntimeException: errorMessage", result.get(ERROR_RESPONSE));
+    assertEquals("java.lang.RuntimeException: errorMessage", JSON.getAsString(result.get(ERROR_RESPONSE)));
   }
 
   @Test

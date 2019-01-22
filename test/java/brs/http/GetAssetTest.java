@@ -1,20 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-import static brs.http.common.ResultFields.ASSET_RESPONSE;
-import static brs.http.common.ResultFields.DECIMALS_RESPONSE;
-import static brs.http.common.ResultFields.DESCRIPTION_RESPONSE;
-import static brs.http.common.ResultFields.NAME_RESPONSE;
-import static brs.http.common.ResultFields.NUMBER_OF_ACCOUNTS_RESPONSE;
-import static brs.http.common.ResultFields.NUMBER_OF_TRADES_RESPONSE;
-import static brs.http.common.ResultFields.NUMBER_OF_TRANSFERS_RESPONSE;
-import static brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import brs.Asset;
 import brs.BurstException;
 import brs.assetexchange.AssetExchange;
@@ -22,10 +7,20 @@ import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.services.ParameterService;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONObject;
+import brs.util.JSON;
+import com.google.gson.JsonObject;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.ASSET_PARAMETER;
+import static brs.http.common.ResultFields.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class GetAssetTest extends AbstractUnitTest {
 
@@ -66,16 +61,16 @@ public class GetAssetTest extends AbstractUnitTest {
     when(mockAssetExchange.getTransferCount(eq(assetId))).thenReturn(transferCount);
     when(mockAssetExchange.getAssetAccountsCount(eq(assetId))).thenReturn(assetAccountsCount);
 
-    final JSONObject result = (JSONObject) t.processRequest(req);
+    final JsonObject result = (JsonObject) t.processRequest(req);
 
     assertNotNull(result);
-    assertEquals(asset.getName(), result.get(NAME_RESPONSE));
-    assertEquals(asset.getDescription(), result.get(DESCRIPTION_RESPONSE));
-    assertEquals(asset.getDecimals(), result.get(DECIMALS_RESPONSE));
-    assertEquals("" + asset.getQuantityQNT(), result.get(QUANTITY_QNT_RESPONSE));
-    assertEquals("" + asset.getId(), result.get(ASSET_RESPONSE));
-    assertEquals(tradeCount, result.get(NUMBER_OF_TRADES_RESPONSE));
-    assertEquals(transferCount, result.get(NUMBER_OF_TRANSFERS_RESPONSE));
-    assertEquals(assetAccountsCount, result.get(NUMBER_OF_ACCOUNTS_RESPONSE));
+    assertEquals(asset.getName(), JSON.getAsString(result.get(NAME_RESPONSE)));
+    assertEquals(asset.getDescription(), JSON.getAsString(result.get(DESCRIPTION_RESPONSE)));
+    assertEquals(asset.getDecimals(), JSON.getAsInt(result.get(DECIMALS_RESPONSE)));
+    assertEquals("" + asset.getQuantityQNT(), JSON.getAsString(result.get(QUANTITY_QNT_RESPONSE)));
+    assertEquals("" + asset.getId(), JSON.getAsString(result.get(ASSET_RESPONSE)));
+    assertEquals(tradeCount, JSON.getAsInt(result.get(NUMBER_OF_TRADES_RESPONSE)));
+    assertEquals(transferCount, JSON.getAsInt(result.get(NUMBER_OF_TRANSFERS_RESPONSE)));
+    assertEquals(assetAccountsCount, JSON.getAsInt(result.get(NUMBER_OF_ACCOUNTS_RESPONSE)));
   }
 }
