@@ -96,11 +96,19 @@ public final class PeerServlet extends HttpServlet {
   }
 
   @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    if(! Peers.isSupportedUserAgent(req.getHeader("User-Agent"))) {
-      return;
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    try {
+      if (!Peers.isSupportedUserAgent(req.getHeader("User-Agent"))) {
+        return;
+      }
+      process(req, resp);
+    } catch (Exception e) { // We don't want to send exception information to client...
+      resp.setStatus(500);
+      logger.warn("Error handling peer request", e);
     }
+  }
 
+  private void process(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     PeerImpl peer = null;
     JsonElement response;
 
@@ -109,10 +117,7 @@ public final class PeerServlet extends HttpServlet {
     String requestType = "unknown";
     try {
       peer = Peers.addPeer(req.getRemoteAddr(), null);
-      if (peer == null) {
-        return;
-      }
-      if (peer.isBlacklisted()) {
+      if (peer == null || peer.isBlacklisted()) {
         return;
       }
 
@@ -176,7 +181,7 @@ public final class PeerServlet extends HttpServlet {
       if (peer != null) {
         peer.blacklist(e, "can't respond to requestType=" + requestType);
       }
-      throw e;
+      return;
     }
 
     if(extendedProcessRequest != null) {
