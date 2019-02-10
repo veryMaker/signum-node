@@ -1,12 +1,10 @@
 package brs.util;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
 import java.util.Map;
 
@@ -23,12 +21,16 @@ public final class JSON {
         return json;
     }
 
-    public static JsonElement parse(String json) {
-        return new JsonParser().parse(json);
+    public static JsonElement parse(String jsonString) {
+        return parse(new StringReader(jsonString));
     }
 
-    public static JsonElement parse(Reader json) {
-        return new JsonParser().parse(json);
+    public static JsonElement parse(Reader jsonReader) {
+        JsonElement json = new JsonParser().parse(jsonReader);
+        if (json.isJsonPrimitive()) {
+            throw new JsonParseException("Json is primitive, was probably bad json interpreted as string");
+        }
+        return json;
     }
 
     public static JsonElement cloneJson(JsonElement json) {
@@ -51,7 +53,7 @@ public final class JSON {
     }
 
     public static JsonObject getAsJsonObject(JsonElement jsonElement) {
-        return jsonElement != null /*&& jsonElement.isJsonPrimitive()*/ ? jsonElement.getAsJsonObject() : new JsonObject();
+        return jsonElement != null && jsonElement.isJsonObject() ? jsonElement.getAsJsonObject() : new JsonObject();
     }
 
     public static JsonArray getAsJsonArray(JsonElement jsonElement) {

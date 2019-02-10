@@ -12,9 +12,6 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 
-;
-;
-
 final class GetNextBlocks extends PeerServlet.PeerRequestHandler {
 
   private final Blockchain blockchain;
@@ -31,7 +28,7 @@ final class GetNextBlocks extends PeerServlet.PeerRequestHandler {
 
     List<Block> nextBlocks = new ArrayList<>();
     int totalLength = 0;
-    long blockId = Convert.parseUnsignedLong(JSON.toJsonString(request.get("blockId")));
+    long blockId = Convert.parseUnsignedLong(JSON.getAsString(request.get("blockId")));
     List<? extends Block> blocks = blockchain.getBlocksAfter(blockId, 100);
 
     for (Block block : blocks) {
