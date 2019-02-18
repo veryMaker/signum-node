@@ -2,9 +2,12 @@ package brs;
 
 import brs.crypto.EncryptedData;
 import brs.fluxcapacitor.FeatureToggle;
+import brs.grpc.proto.BrsApi;
 import brs.util.Convert;
 import brs.util.JSON;
 import com.google.gson.JsonObject;
+import com.google.protobuf.Any;
+import com.google.protobuf.ByteString;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -15,6 +18,7 @@ public interface Appendix {
   void putBytes(ByteBuffer buffer);
   JsonObject getJsonObject();
   byte getVersion();
+  Any getProtobufMessage();
 
   abstract class AbstractAppendix implements Appendix {
 
@@ -172,6 +176,15 @@ public interface Appendix {
     public boolean isText() {
       return isText;
     }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.MessageAppendix.newBuilder()
+              .setVersion(super.getVersion())
+              .setMessage(ByteString.copyFrom(message))
+              .setIsText(isText)
+              .build());
+    }
   }
 
   abstract class AbstractEncryptedMessage extends AbstractAppendix {
@@ -223,6 +236,16 @@ public interface Appendix {
     }
 
     @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.EncryptedMessageAppendix.newBuilder()
+              .setVersion(super.getVersion())
+              .setData(ByteString.copyFrom(encryptedData.getData()))
+              .setNonce(ByteString.copyFrom(encryptedData.getNonce()))
+              .setType(getType())
+              .build());
+    }
+
+    @Override
     public void validate(Transaction transaction) throws BurstException.ValidationException {
       if (encryptedData.getData().length > Constants.MAX_ENCRYPTED_MESSAGE_LENGTH) {
         throw new BurstException.NotValidException("Max encrypted message length exceeded");
@@ -243,6 +266,7 @@ public interface Appendix {
       return isText;
     }
 
+    protected abstract BrsApi.EncryptedMessageAppendix.Type getType();
   }
 
   class EncryptedMessage extends AbstractEncryptedMessage {
@@ -289,6 +313,11 @@ public interface Appendix {
       }
     }
 
+    @Override
+    protected BrsApi.EncryptedMessageAppendix.Type getType() {
+      return BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT;
+    }
+
   }
 
   class EncryptToSelfMessage extends AbstractEncryptedMessage {
@@ -330,6 +359,11 @@ public interface Appendix {
       if (transaction.getVersion() == 0) {
         throw new BurstException.NotValidException("Encrypt-to-self message attachments not enabled for version 0 transactions");
       }
+    }
+
+    @Override
+    protected BrsApi.EncryptedMessageAppendix.Type getType() {
+      return BrsApi.EncryptedMessageAppendix.Type.TO_SELF;
     }
 
   }
@@ -413,6 +447,12 @@ public interface Appendix {
       return publicKey;
     }
 
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.PublicKeyAnnouncementAppendix.newBuilder()
+              .setVersion(super.getVersion())
+              .setRecipientPublicKey(ByteString.copyFrom(publicKey))
+              .build());
+    }
   }
-
 }
