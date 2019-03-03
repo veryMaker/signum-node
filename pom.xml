@@ -466,6 +466,10 @@
                 <copy file="${project.basedir}/target/${project.build.finalName}-jar-with-dependencies.jar"
                   tofile="${project.basedir}/dist/tmp/burst.jar"/>
 
+                <!-- copy config -->
+                <copy file="${project.basedir}/conf/brs-testnet.properties"
+                      toFile="${project.basedir}/dist/tmp/conf/brs.properties" />
+
                 <!-- copy html dir -->
                 <copy todir="${project.basedir}/dist/tmp/html">
                   <fileset dir="${project.basedir}/html">

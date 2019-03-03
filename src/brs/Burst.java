@@ -46,7 +46,7 @@ import static brs.schema.Tables.UNCONFIRMED_TRANSACTION;
 
 public final class Burst {
 
-  public static final Version VERSION = Version.parse("v2.3.0-dev");
+  public static final Version VERSION = Version.parse("v2.3.0-rc1");
   public static final String APPLICATION = "BRS";
 
   private static final String DEFAULT_PROPERTIES_NAME = "brs-default.properties";
