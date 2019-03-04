@@ -47,7 +47,7 @@ var BRS = (function(BRS, $, undefined) {
                                     connected++;
                                 }
 
-                                var versionToCompare = (!BRS.isTestNet ? BRS.normalVersion.versionNr : BRS.state.version);
+                                var versionToCompare = BRS.state.version;
 
                                 if (BRS.versionCompare(peer.version, versionToCompare)) {
                                     upToDate++;
