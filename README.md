@@ -2,7 +2,7 @@
 
 # Burstcoin Wallet
 [![Build Status](https://travis-ci.com/burst-apps-team/burstcoin.svg?branch=develop)](https://travis-ci.com/burst-apps-team/burstcoin)
-[![MIT](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.txt)
+[![GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.txt)
 [![Get Support at https://discord.gg/ms6eagX](https://img.shields.io/badge/join-discord-blue.svg)](https://discord.gg/ms6eagX)
 
 The world's first HDD-mined cryptocurrency using an energy efficient
