@@ -1,20 +1,20 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-
 import brs.Account;
 import brs.BurstException;
 import brs.Subscription;
 import brs.db.BurstIterator;
 import brs.services.ParameterService;
 import brs.services.SubscriptionService;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class GetSubscriptionsToAccount extends APIServlet.APIRequestHandler {
+import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
+
+final class GetSubscriptionsToAccount extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final SubscriptionService subscriptionService;
@@ -26,12 +26,12 @@ public final class GetSubscriptionsToAccount extends APIServlet.APIRequestHandle
   }
 	
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final Account account = parameterService.getAccount(req);
 		
-    JSONObject response = new JSONObject();
+    JsonObject response = new JsonObject();
 		
-    JSONArray subscriptions = new JSONArray();
+    JsonArray subscriptions = new JsonArray();
 
     BurstIterator<Subscription> accountSubscriptions = subscriptionService.getSubscriptionsToId(account.getId());
 		
@@ -39,7 +39,7 @@ public final class GetSubscriptionsToAccount extends APIServlet.APIRequestHandle
       subscriptions.add(JSONData.subscription(accountSubscriptions.next()));
     }
 		
-    response.put("subscriptions", subscriptions);
+    response.add("subscriptions", subscriptions);
     return response;
   }
 }

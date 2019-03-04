@@ -1,11 +1,12 @@
 package brs.http;
 
-import static brs.http.common.Parameters.HEX_STRING_PARAMETER;
+import com.google.gson.JsonElement;
 
 import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONStreamAware;
 
-public final class GetATLong extends APIServlet.APIRequestHandler {
+import static brs.http.common.Parameters.HEX_STRING_PARAMETER;
+
+final class GetATLong extends APIServlet.APIRequestHandler {
 
   static final GetATLong instance = new GetATLong();
 
@@ -14,7 +15,7 @@ public final class GetATLong extends APIServlet.APIRequestHandler {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) {
+  JsonElement processRequest(HttpServletRequest req) {
     return JSONData.hex2long(ParameterParser.getATLong(req));
   }
 

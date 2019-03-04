@@ -1,7 +1,6 @@
 package brs.db.store;
 
 import brs.Transaction;
-import brs.db.BurstIterator;
 import brs.db.BurstKey;
 import brs.db.sql.EntitySqlTable;
 

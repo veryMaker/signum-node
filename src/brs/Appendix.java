@@ -2,8 +2,12 @@ package brs;
 
 import brs.crypto.EncryptedData;
 import brs.fluxcapacitor.FeatureToggle;
+import brs.grpc.proto.BrsApi;
 import brs.util.Convert;
-import org.json.simple.JSONObject;
+import brs.util.JSON;
+import com.google.gson.JsonObject;
+import com.google.protobuf.Any;
+import com.google.protobuf.ByteString;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -12,16 +16,16 @@ public interface Appendix {
 
   int getSize();
   void putBytes(ByteBuffer buffer);
-  JSONObject getJSONObject();
+  JsonObject getJsonObject();
   byte getVersion();
+  Any getProtobufMessage();
 
   abstract class AbstractAppendix implements Appendix {
 
     private final byte version;
 
-    AbstractAppendix(JSONObject attachmentData) {
-      Long l = (Long) attachmentData.get("version." + getAppendixName());
-      version = (byte) (l == null ? 0 : l);
+    AbstractAppendix(JsonObject attachmentData) {
+      version = JSON.getAsByte(attachmentData.get("version." + getAppendixName()));
     }
 
     AbstractAppendix(ByteBuffer buffer, byte transactionVersion) {
@@ -56,16 +60,16 @@ public interface Appendix {
     abstract void putMyBytes(ByteBuffer buffer);
 
     @Override
-    public final JSONObject getJSONObject() {
-      JSONObject json = new JSONObject();
+    public final JsonObject getJsonObject() {
+      JsonObject json = new JsonObject();
       if (version > 0) {
-        json.put("version." + getAppendixName(), version);
+        json.addProperty("version." + getAppendixName(), version);
       }
       putMyJSON(json);
       return json;
     }
 
-    abstract void putMyJSON(JSONObject json);
+    abstract void putMyJSON(JsonObject json);
 
     @Override
     public final byte getVersion() {
@@ -84,7 +88,7 @@ public interface Appendix {
 
   class Message extends AbstractAppendix {
 
-    static Message parse(JSONObject attachmentData) {
+    static Message parse(JsonObject attachmentData) {
       if (attachmentData.get("message") == null) {
         return null;
       }
@@ -108,10 +112,10 @@ public interface Appendix {
       buffer.get(this.message);
     }
 
-    Message(JSONObject attachmentData) {
+    Message(JsonObject attachmentData) {
       super(attachmentData);
-      String messageString = (String)attachmentData.get("message");
-      this.isText = Boolean.TRUE.equals(attachmentData.get("messageIsText"));
+      String messageString = JSON.getAsString(attachmentData.get("message"));
+      this.isText = Boolean.TRUE.equals(JSON.getAsBoolean(attachmentData.get("messageIsText")));
       this.message = isText ? Convert.toBytes(messageString) : Convert.parseHexString(messageString);
     }
 
@@ -144,9 +148,9 @@ public interface Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject json) {
-      json.put("message", isText ? Convert.toString(message) : Convert.toHexString(message));
-      json.put("messageIsText", isText);
+    void putMyJSON(JsonObject json) {
+      json.addProperty("message", isText ? Convert.toString(message) : Convert.toHexString(message));
+      json.addProperty("messageIsText", isText);
     }
 
     @Override
@@ -172,6 +176,15 @@ public interface Appendix {
     public boolean isText() {
       return isText;
     }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.MessageAppendix.newBuilder()
+              .setVersion(super.getVersion())
+              .setMessage(ByteString.copyFrom(message))
+              .setIsText(isText)
+              .build());
+    }
   }
 
   abstract class AbstractEncryptedMessage extends AbstractAppendix {
@@ -189,12 +202,12 @@ public interface Appendix {
       this.encryptedData = EncryptedData.readEncryptedData(buffer, length, Constants.MAX_ENCRYPTED_MESSAGE_LENGTH);
     }
 
-    private AbstractEncryptedMessage(JSONObject attachmentJSON, JSONObject encryptedMessageJSON) {
+    private AbstractEncryptedMessage(JsonObject attachmentJSON, JsonObject encryptedMessageJSON) {
       super(attachmentJSON);
-      byte[] data = Convert.parseHexString((String)encryptedMessageJSON.get("data"));
-      byte[] nonce = Convert.parseHexString((String)encryptedMessageJSON.get("nonce"));
+      byte[] data = Convert.parseHexString(JSON.getAsString(encryptedMessageJSON.get("data")));
+      byte[] nonce = Convert.parseHexString(JSON.getAsString(encryptedMessageJSON.get("nonce")));
       this.encryptedData = new EncryptedData(data, nonce);
-      this.isText = Boolean.TRUE.equals(encryptedMessageJSON.get("isText"));
+      this.isText = Boolean.TRUE.equals(JSON.getAsBoolean(encryptedMessageJSON.get("isText")));
     }
 
     private AbstractEncryptedMessage(EncryptedData encryptedData, boolean isText, int blockchainHeight) {
@@ -216,10 +229,20 @@ public interface Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject json) {
-      json.put("data", Convert.toHexString(encryptedData.getData()));
-      json.put("nonce", Convert.toHexString(encryptedData.getNonce()));
-      json.put("isText", isText);
+    void putMyJSON(JsonObject json) {
+      json.addProperty("data", Convert.toHexString(encryptedData.getData()));
+      json.addProperty("nonce", Convert.toHexString(encryptedData.getNonce()));
+      json.addProperty("isText", isText);
+    }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.EncryptedMessageAppendix.newBuilder()
+              .setVersion(super.getVersion())
+              .setData(ByteString.copyFrom(encryptedData.getData()))
+              .setNonce(ByteString.copyFrom(encryptedData.getNonce()))
+              .setType(getType())
+              .build());
     }
 
     @Override
@@ -243,11 +266,12 @@ public interface Appendix {
       return isText;
     }
 
+    protected abstract BrsApi.EncryptedMessageAppendix.Type getType();
   }
 
   class EncryptedMessage extends AbstractEncryptedMessage {
 
-    static EncryptedMessage parse(JSONObject attachmentData) throws BurstException.NotValidException {
+    static EncryptedMessage parse(JsonObject attachmentData) {
       if (attachmentData.get("encryptedMessage") == null ) {
         return null;
       }
@@ -258,8 +282,8 @@ public interface Appendix {
       super(buffer, transactionVersion);
     }
 
-    public EncryptedMessage(JSONObject attachmentData) {
-      super(attachmentData, (JSONObject)attachmentData.get("encryptedMessage"));
+    EncryptedMessage(JsonObject attachmentData) {
+      super(attachmentData, JSON.getAsJsonObject(attachmentData.get("encryptedMessage")));
     }
 
     public EncryptedMessage(EncryptedData encryptedData, boolean isText, int blockchainHeight) {
@@ -272,10 +296,10 @@ public interface Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject json) {
-      JSONObject encryptedMessageJSON = new JSONObject();
+    void putMyJSON(JsonObject json) {
+      JsonObject encryptedMessageJSON = new JsonObject();
       super.putMyJSON(encryptedMessageJSON);
-      json.put("encryptedMessage", encryptedMessageJSON);
+      json.add("encryptedMessage", encryptedMessageJSON);
     }
 
     @Override
@@ -289,11 +313,16 @@ public interface Appendix {
       }
     }
 
+    @Override
+    protected BrsApi.EncryptedMessageAppendix.Type getType() {
+      return BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT;
+    }
+
   }
 
   class EncryptToSelfMessage extends AbstractEncryptedMessage {
 
-    static EncryptToSelfMessage parse(JSONObject attachmentData) throws BurstException.NotValidException {
+    static EncryptToSelfMessage parse(JsonObject attachmentData) {
       if (attachmentData.get("encryptToSelfMessage") == null ) {
         return null;
       }
@@ -304,8 +333,8 @@ public interface Appendix {
       super(buffer, transactionVersion);
     }
 
-    public EncryptToSelfMessage(JSONObject attachmentData) {
-      super(attachmentData, (JSONObject)attachmentData.get("encryptToSelfMessage"));
+    EncryptToSelfMessage(JsonObject attachmentData) {
+      super(attachmentData, JSON.getAsJsonObject(attachmentData.get("encryptToSelfMessage")));
     }
 
     public EncryptToSelfMessage(EncryptedData encryptedData, boolean isText, int blockchainHeight) {
@@ -318,10 +347,10 @@ public interface Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject json) {
-      JSONObject encryptToSelfMessageJSON = new JSONObject();
+    void putMyJSON(JsonObject json) {
+      JsonObject encryptToSelfMessageJSON = new JsonObject();
       super.putMyJSON(encryptToSelfMessageJSON);
-      json.put("encryptToSelfMessage", encryptToSelfMessageJSON);
+      json.add("encryptToSelfMessage", encryptToSelfMessageJSON);
     }
 
     @Override
@@ -332,11 +361,16 @@ public interface Appendix {
       }
     }
 
+    @Override
+    protected BrsApi.EncryptedMessageAppendix.Type getType() {
+      return BrsApi.EncryptedMessageAppendix.Type.TO_SELF;
+    }
+
   }
 
   class PublicKeyAnnouncement extends AbstractAppendix {
 
-    static PublicKeyAnnouncement parse(JSONObject attachmentData) {
+    static PublicKeyAnnouncement parse(JsonObject attachmentData) {
       if (attachmentData.get("recipientPublicKey") == null) {
         return null;
       }
@@ -351,9 +385,9 @@ public interface Appendix {
       buffer.get(this.publicKey);
     }
 
-    PublicKeyAnnouncement(JSONObject attachmentData) {
+    PublicKeyAnnouncement(JsonObject attachmentData) {
       super(attachmentData);
-      this.publicKey = Convert.parseHexString((String)attachmentData.get("recipientPublicKey"));
+      this.publicKey = Convert.parseHexString(JSON.getAsString(attachmentData.get("recipientPublicKey")));
     }
 
     public PublicKeyAnnouncement(byte[] publicKey, int blockchainHeight) {
@@ -377,8 +411,8 @@ public interface Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject json) {
-      json.put("recipientPublicKey", Convert.toHexString(publicKey));
+    void putMyJSON(JsonObject json) {
+      json.addProperty("recipientPublicKey", Convert.toHexString(publicKey));
     }
 
     @Override
@@ -413,6 +447,12 @@ public interface Appendix {
       return publicKey;
     }
 
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.PublicKeyAnnouncementAppendix.newBuilder()
+              .setVersion(super.getVersion())
+              .setRecipientPublicKey(ByteString.copyFrom(publicKey))
+              .build());
+    }
   }
-
 }

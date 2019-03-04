@@ -1,20 +1,20 @@
 package brs.peer;
 
-import static brs.Constants.MIN_VERSION;
-import static brs.peer.PeerImpl.isHigherOrEqualVersion;
-import static brs.props.Props.P2P_ENABLE_TX_REBROADCAST;
-import static brs.props.Props.P2P_SEND_TO_LIMIT;
-import static brs.util.JSON.prepareRequest;
-
 import brs.*;
+import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.AccountService;
-import brs.props.PropertyService;
 import brs.services.TimeService;
-import brs.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import brs.util.JSON;
+import brs.util.Listener;
+import brs.util.Listeners;
+import brs.util.ThreadPool;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.bitlet.weupnp.GatewayDevice;
+import org.bitlet.weupnp.GatewayDiscover;
+import org.bitlet.weupnp.PortMappingEntry;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
@@ -23,25 +23,28 @@ import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.DoSFilter;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import org.bitlet.weupnp.GatewayDevice;
-import org.bitlet.weupnp.GatewayDiscover;
-import org.bitlet.weupnp.PortMappingEntry;
-import java.io.IOException;
-import org.xml.sax.SAXException;
-import javax.xml.parsers.ParserConfigurationException;
+import static brs.Constants.MIN_VERSION;
+import static brs.peer.PeerImpl.isHigherOrEqualVersion;
+import static brs.props.Props.P2P_ENABLE_TX_REBROADCAST;
+import static brs.props.Props.P2P_SEND_TO_LIMIT;
+import static brs.util.JSON.prepareRequest;
 
 public final class Peers {
 
@@ -51,7 +54,11 @@ public final class Peers {
     if(header == null || header.isEmpty() || ! header.trim().startsWith("BRS/")) {
       return false;
     } else {
-      return isHigherOrEqualVersion(MIN_VERSION, header.trim().substring("BRS/".length()));
+      try {
+        return isHigherOrEqualVersion(MIN_VERSION, Version.parse(header.trim().substring("BRS/".length())));
+      } catch (IllegalArgumentException e) {
+          return false;
+      }
     }
   }
 
@@ -97,15 +104,17 @@ public final class Peers {
   private static String dumpPeersVersion;
   private static int lastSavedPeers;
 
-  static JSONStreamAware myPeerInfoRequest;
-  static JSONStreamAware myPeerInfoResponse;
+  static JsonElement myPeerInfoRequest;
+  static JsonElement myPeerInfoRequestBackwardsCompatible;
+  static JsonElement myPeerInfoResponse;
+  static JsonElement myPeerInfoResponseBackwardsCompatible;
 
   private static final Listeners<Peer,Event> listeners = new Listeners<>();
 
   private static final ConcurrentMap<String, PeerImpl> peers = new ConcurrentHashMap<>();
   private static final ConcurrentMap<String, String> announcedAddresses = new ConcurrentHashMap<>();
 
-  static final Collection<PeerImpl> allPeers = Collections.unmodifiableCollection(peers.values());
+  private static final Collection<PeerImpl> allPeers = Collections.unmodifiableCollection(peers.values());
 
   private static final ExecutorService sendBlocksToPeersService = Executors.newCachedThreadPool();
   private static final ExecutorService blocksSendingService = Executors.newFixedThreadPool(10);
@@ -145,7 +154,7 @@ public final class Peers {
     useUpnp = propertyService.getBoolean(Props.P2P_UPNP);
     shareMyAddress = propertyService.getBoolean(Props.P2P_SHARE_MY_ADDRESS) && ! Burst.getPropertyService().getBoolean(Props.DEV_OFFLINE);
 
-    JSONObject json = new JSONObject();
+    JsonObject json = new JsonObject();
     if (myAddress != null && ! myAddress.isEmpty()) {
       try {
         URI uri = new URI("http://" + myAddress.trim());
@@ -153,14 +162,14 @@ public final class Peers {
         int port = uri.getPort();
         if (!Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
           if (port >= 0) {
-            json.put("announcedAddress", myAddress);
+            json.addProperty("announcedAddress", myAddress);
           }
           else {
-            json.put("announcedAddress", host + (myPeerServerPort != DEFAULT_PEER_PORT ? ":" + myPeerServerPort : ""));
+            json.addProperty("announcedAddress", host + (myPeerServerPort != DEFAULT_PEER_PORT ? ":" + myPeerServerPort : ""));
           }
         }
         else {
-          json.put("announcedAddress", host);
+          json.addProperty("announcedAddress", host);
         }
       }
       catch (URISyntaxException e) {
@@ -169,14 +178,18 @@ public final class Peers {
       }
     }
 
-    json.put("application",  Burst.APPLICATION);
-    json.put("version",      Burst.VERSION);
-    json.put("platform",     Peers.myPlatform);
-    json.put("shareAddress", Peers.shareMyAddress);
-    logger.debug("My peer info:\n" + json.toJSONString());
-    myPeerInfoResponse = JSON.prepare(json);
-    json.put("requestType", "getInfo");
+    json.addProperty("application",  Burst.APPLICATION);
+    json.addProperty("version",      Burst.VERSION.toBackwardsCompatibleString());
+    json.addProperty("platform",     Peers.myPlatform);
+    json.addProperty("shareAddress", Peers.shareMyAddress);
+    logger.debug("My peer info:\n" + JSON.toJsonString(json));
+    myPeerInfoResponseBackwardsCompatible = JSON.cloneJson(json);
+    json.addProperty("requestType", "getInfo");
+    myPeerInfoRequestBackwardsCompatible = prepareRequest(JSON.getAsJsonObject(JSON.cloneJson(json)));
+    json.addProperty("version", Burst.VERSION.toString());
+    myPeerInfoResponse = json;
     myPeerInfoRequest = prepareRequest(json);
+
 
     if(propertyService.getBoolean(P2P_ENABLE_TX_REBROADCAST)) {
       rebroadcastPeers = Collections
@@ -222,7 +235,7 @@ public final class Peers {
     getMorePeersThreshold = propertyService.getInt(Props.P2P_GET_MORE_PEERS_THRESHOLD);
     dumpPeersVersion = propertyService.getString(Props.DEV_DUMP_PEERS_VERSION);
 
-    final List<Future<String>> unresolvedPeers = Collections.synchronizedList(new ArrayList<Future<String>>());
+    final List<Future<String>> unresolvedPeers = Collections.synchronizedList(new ArrayList<>());
 
     threadPool.runBeforeStart(new Runnable() {
 
@@ -300,7 +313,7 @@ public final class Peers {
 
           Runnable GwDiscover = () -> {
             if (gateway != null) {
-              gateway.setHttpReadTimeout(2000);
+              GatewayDevice.setHttpReadTimeout(2000);
               try {
                 InetAddress localAddress = gateway.getLocalAddress();
                 String externalIPAddress = gateway.getExternalIPAddress();
@@ -376,19 +389,16 @@ public final class Peers {
           peerServer.setHandler(peerHandler);
         }
         peerServer.setStopAtShutdown(true);
-        threadPool.runBeforeStart(new Runnable() {
-            @Override
-            public void run() {
-              try {
-                peerServer.start();
-                logger.info("Started peer networking server at " + host + ":" + port);
-              }
-              catch (Exception e) {
-                logger.error("Failed to start peer networking server", e);
-                throw new RuntimeException(e.toString(), e);
-              }
-            }
-          }, true);
+        threadPool.runBeforeStart(() -> {
+          try {
+            peerServer.start();
+            logger.info("Started peer networking server at " + host + ":" + port);
+          }
+          catch (Exception e) {
+            logger.error("Failed to start peer networking server", e);
+            throw new RuntimeException(e.toString(), e);
+          }
+        }, true);
       }
       else {
         peerServer = null;
@@ -415,7 +425,7 @@ public final class Peers {
       } catch (Exception e) {
         logger.debug("Error un-blacklisting peer", e);
       }
-    } catch (Throwable t) {
+    } catch (Exception t) {
       logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n" + t.toString(), t);
       System.exit(1);
     }
@@ -455,10 +465,11 @@ public final class Peers {
           try {
             int i = 1;
             while ( i++ < 100 ) {
-               Thread.sleep(10 * 1);
+               Thread.sleep(10);
             }
           }
           catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
             return;
           }
         }
@@ -517,21 +528,16 @@ public final class Peers {
 
   private static final Runnable getMorePeersThread = new Runnable() {
 
-      private final JSONStreamAware getPeersRequest;
+      private final JsonElement getPeersRequest;
       {
-        JSONObject request = new JSONObject();
-        request.put("requestType", "getPeers");
+        JsonObject request = new JsonObject();
+        request.addProperty("requestType", "getPeers");
         getPeersRequest = prepareRequest(request);
       }
 
-      private volatile boolean addedNewPeer;
+      private final AtomicBoolean addedNewPeer = new AtomicBoolean(false);
       {
-        Peers.addListener(new Listener<Peer>() {
-            @Override
-            public void notify(Peer peer) {
-              addedNewPeer = true;
-            }
-          }, Event.NEW_PEER);
+        Peers.addListener(peer -> addedNewPeer.set(true), Event.NEW_PEER);
       }
 
       @Override
@@ -550,24 +556,24 @@ public final class Peers {
             if (peer == null) {
               return;
             }
-            JSONObject response = peer.send(getPeersRequest);
+            JsonObject response = peer.send(getPeersRequest);
             if (response == null) {
               return;
             }
-            JSONArray peers = (JSONArray)response.get("peers");
+            JsonArray peers = JSON.getAsJsonArray(response.get("peers"));
             Set<String> addedAddresses = new HashSet<>();
             if (peers != null) {
-              for (Object announcedAddress : peers) {
-                if (addPeer((String) announcedAddress) != null) {
-                  addedAddresses.add((String) announcedAddress);
+              for (JsonElement announcedAddress : peers) {
+                if (addPeer(JSON.getAsString(announcedAddress)) != null) {
+                  addedAddresses.add(JSON.getAsString(announcedAddress));
                 }
               }
-              if (savePeers && addedNewPeer) {
-                addedNewPeer = false;
+              if (savePeers && addedNewPeer.get()) {
+                addedNewPeer.set(false);
               }
             }
 
-            JSONArray myPeers = new JSONArray();
+            JsonArray myPeers = new JsonArray();
             for (Peer myPeer : Peers.getAllPeers()) {
               if (! myPeer.isBlacklisted() && myPeer.getAnnouncedAddress() != null
                   && myPeer.getState() == Peer.State.CONNECTED && myPeer.shareAddress()
@@ -584,16 +590,16 @@ public final class Peers {
             }
 
             if (myPeers.size() > 0) {
-              JSONObject request = new JSONObject();
-              request.put("requestType", "addPeers");
-              request.put("peers", myPeers);
+              JsonObject request = new JsonObject();
+              request.addProperty("requestType", "addPeers");
+              request.add("peers", myPeers);
               peer.send(prepareRequest(request));
             }
 
           } catch (Exception e) {
             logger.debug("Error requesting peers from a peer", e);
           }
-        } catch (Throwable t) {
+        } catch (Exception t) {
           logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n" + t.toString(), t);
           System.exit(1);
         }
@@ -624,7 +630,7 @@ public final class Peers {
         Peer peer = peers.get(entry.getValue());
         if (peer != null && peer.getState() == Peer.State.CONNECTED && peer.shareAddress() && !peer.isBlacklisted()
             && peer.getVersion() != null
-            && peer.getVersion().startsWith(dumpPeersVersion)) {
+            && peer.getVersion().toString().startsWith(dumpPeersVersion)) {
           buf.append("('").append(entry.getKey()).append("'), ");
         }
       }
@@ -635,7 +641,7 @@ public final class Peers {
     // threadPool.shutdownExecutor(blocksSendingService);
   }
 
-  public static boolean addListener(Listener<Peer> listener, Event eventType) {
+  private static boolean addListener(Listener<Peer> listener, Event eventType) {
     return Peers.listeners.addListener(listener, eventType);
   }
 
@@ -760,24 +766,24 @@ public final class Peers {
   }
 
   public static void sendToSomePeers(Block block) {
-    JSONObject request = block.getJSONObject();
-    request.put("requestType", "processBlock");
+    JsonObject request = block.getJsonObject();
+    request.addProperty("requestType", "processBlock");
 
     blocksSendingService.submit(() -> {
-      final JSONStreamAware jsonRequest = prepareRequest(request);
+      final JsonElement jsonRequest = prepareRequest(request);
 
       int successful = 0;
-      List<Future<JSONObject>> expectedResponses = new ArrayList<>();
+      List<Future<JsonObject>> expectedResponses = new ArrayList<>();
       for (final Peer peer : peers.values()) {
 
         if (peerEligibleForSending(peer, false)) {
-          Future<JSONObject> futureResponse = sendBlocksToPeersService.submit(() -> peer.send(jsonRequest));
+          Future<JsonObject> futureResponse = sendBlocksToPeersService.submit(() -> peer.send(jsonRequest));
           expectedResponses.add(futureResponse);
         }
         if (expectedResponses.size() >= Peers.sendToPeersLimit - successful) {
-          for (Future<JSONObject> future : expectedResponses) {
+          for (Future<JsonObject> future : expectedResponses) {
             try {
-              JSONObject response = future.get();
+              JsonObject response = future.get();
               if (response != null && response.get("error") == null) {
                 successful += 1;
               }
@@ -797,16 +803,16 @@ public final class Peers {
     });
   }
 
-  private static JSONStreamAware getUnconfirmedTransactionsRequest;
+  private static final JsonElement getUnconfirmedTransactionsRequest;
   static {
-    JSONObject request = new JSONObject();
-    request.put("requestType", "getUnconfirmedTransactions");
+    JsonObject request = new JsonObject();
+    request.addProperty("requestType", "getUnconfirmedTransactions");
     getUnconfirmedTransactionsRequest = prepareRequest(request);
   }
 
   private static final ExecutorService utReceivingService = Executors.newCachedThreadPool();
 
-  public static CompletableFuture<JSONObject> readUnconfirmedTransactionsNonBlocking(Peer peer) {
+  public static CompletableFuture<JsonObject> readUnconfirmedTransactionsNonBlocking(Peer peer) {
     return CompletableFuture.supplyAsync(() -> peer.send(getUnconfirmedTransactionsRequest), utReceivingService);
   }
 
@@ -829,12 +835,12 @@ public final class Peers {
 
     if(! transactionsToSend.isEmpty()) {
       logger.trace("Feeding {} {} transactions", peer.getPeerAddress(), transactionsToSend.size());
-      JSONObject response = peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
+      JsonObject response = peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend));
 
       if(response != null && response.get("error") == null) {
         doneFeedingLog.accept(peer, transactionsToSend);
       } else {
-        logger.warn("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(t -> t.getId()).collect(Collectors.toList()), response);
+        logger.warn("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(Transaction::getId).collect(Collectors.toList()), response);
       }
     } else {
       logger.trace("No need to feed {}", peer.getPeerAddress());
@@ -849,16 +855,16 @@ public final class Peers {
     }
   }
 
-  private static JSONStreamAware sendUnconfirmedTransactionsRequest(List<Transaction> transactions) {
-    JSONObject request = new JSONObject();
-    JSONArray transactionsData = new JSONArray();
+  private static JsonElement sendUnconfirmedTransactionsRequest(List<Transaction> transactions) {
+    JsonObject request = new JsonObject();
+    JsonArray transactionsData = new JsonArray();
 
     for (Transaction transaction : transactions) {
-      transactionsData.add(transaction.getJSONObject());
+      transactionsData.add(transaction.getJsonObject());
     }
 
-    request.put("requestType", "processTransactions");
-    request.put("transactions", transactionsData);
+    request.addProperty("requestType", "processTransactions");
+    request.add("transactions", transactionsData);
 
     return prepareRequest(request);
   }

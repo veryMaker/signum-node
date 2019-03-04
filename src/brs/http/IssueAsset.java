@@ -1,24 +1,15 @@
 package brs.http;
 
-import static brs.http.JSONResponses.INCORRECT_ASSET_DESCRIPTION;
-import static brs.http.JSONResponses.INCORRECT_ASSET_NAME;
-import static brs.http.JSONResponses.INCORRECT_ASSET_NAME_LENGTH;
-import static brs.http.JSONResponses.INCORRECT_DECIMALS;
-import static brs.http.JSONResponses.MISSING_NAME;
-import static brs.http.common.Parameters.DECIMALS_PARAMETER;
-import static brs.http.common.Parameters.DESCRIPTION_PARAMETER;
-import static brs.http.common.Parameters.NAME_PARAMETER;
-import static brs.http.common.Parameters.QUANTITY_QNT_PARAMETER;
-
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
-import brs.Constants;
+import brs.*;
 import brs.services.ParameterService;
 import brs.util.Convert;
+import brs.util.TextUtils;
+import com.google.gson.JsonElement;
+
 import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONStreamAware;
+
+import static brs.http.JSONResponses.*;
+import static brs.http.common.Parameters.*;
 
 public final class IssueAsset extends CreateTransaction {
 
@@ -33,7 +24,7 @@ public final class IssueAsset extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     String name = req.getParameter(NAME_PARAMETER);
     String description = req.getParameter(DESCRIPTION_PARAMETER);
@@ -47,11 +38,9 @@ public final class IssueAsset extends CreateTransaction {
     if (name.length() < Constants.MIN_ASSET_NAME_LENGTH || name.length() > Constants.MAX_ASSET_NAME_LENGTH) {
       return INCORRECT_ASSET_NAME_LENGTH;
     }
-    String normalizedName = name.toLowerCase();
-    for (int i = 0; i < normalizedName.length(); i++) {
-      if (Constants.ALPHABET.indexOf(normalizedName.charAt(i)) < 0) {
-        return INCORRECT_ASSET_NAME;
-      }
+
+    if (!TextUtils.isInAlphabet(name)) {
+      return INCORRECT_ASSET_NAME;
     }
 
     if (description != null && description.length() > Constants.MAX_ASSET_DESCRIPTION_LENGTH) {

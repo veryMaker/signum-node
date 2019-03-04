@@ -1,113 +1,91 @@
 package brs;
 
-import static brs.Constants.FEE_QUANT;
-import static brs.Constants.ONE_BURST;
-import static brs.fluxcapacitor.FeatureToggle.PRE_DYMAXION;
-
-import brs.props.Props;
-import brs.db.cache.DBCacheManagerImpl;
-import brs.db.store.BlockchainStore;
-import brs.db.store.DerivedTableManager;
-import brs.db.store.Stores;
-import brs.fluxcapacitor.FeatureToggle;
-import brs.fluxcapacitor.FluxInt;
-import brs.services.BlockService;
-import brs.services.EscrowService;
-import brs.props.PropertyService;
-import brs.services.SubscriptionService;
-import brs.services.TimeService;
-import brs.services.TransactionService;
-import brs.statistics.StatisticsManagerImpl;
-import brs.services.AccountService;
-import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
-import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
-import brs.util.ThreadPool;
-
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.Semaphore;
-import java.util.stream.Collectors;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import brs.at.AT_Block;
 import brs.at.AT_Controller;
 import brs.at.AT_Exception;
 import brs.crypto.Crypto;
 import brs.db.BlockDb;
 import brs.db.DerivedTable;
+import brs.db.cache.DBCacheManagerImpl;
+import brs.db.store.BlockchainStore;
+import brs.db.store.DerivedTableManager;
+import brs.db.store.Stores;
+import brs.fluxcapacitor.FeatureToggle;
+import brs.fluxcapacitor.FluxInt;
 import brs.peer.Peer;
 import brs.peer.Peers;
-import brs.util.Convert;
-import brs.util.DownloadCacheImpl;
-import brs.util.JSON;
-import brs.util.Listener;
-import brs.util.Listeners;
-import brs.db.sql.Db;
-import org.jooq.DSLContext;
+import brs.props.PropertyService;
+import brs.props.Props;
+import brs.services.*;
+import brs.statistics.StatisticsManagerImpl;
+import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
+import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
+import brs.util.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
+import static brs.Constants.FEE_QUANT;
+import static brs.Constants.ONE_BURST;
+import static brs.fluxcapacitor.FeatureToggle.PRE_DYMAXION;
 
 public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
   private final Logger logger = LoggerFactory.getLogger(BlockchainProcessorImpl.class);
   private final Stores stores;
-  private BlockchainImpl blockchain;
-  private BlockService blockService;
-  private AccountService accountService;
+  private final BlockchainImpl blockchain;
+  private final BlockService blockService;
+  private final AccountService accountService;
   private final SubscriptionService subscriptionService;
   private final EscrowService escrowService;
   private final TimeService timeService;
   private final TransactionService transactionService;
-  private TransactionProcessorImpl transactionProcessor;
-  private EconomicClustering economicClustering;
-  private BlockchainStore blockchainStore;
-  private BlockDb blockDb;
-  private TransactionDb transactionDb;
-  private DownloadCacheImpl downloadCache;
-  private DerivedTableManager derivedTableManager;
+  private final TransactionProcessorImpl transactionProcessor;
+  private final EconomicClustering economicClustering;
+  private final BlockchainStore blockchainStore;
+  private final BlockDb blockDb;
+  private final TransactionDb transactionDb;
+  private final DownloadCacheImpl downloadCache;
+  private final DerivedTableManager derivedTableManager;
   private final StatisticsManagerImpl statisticsManager;
-  private Generator generator;
+  private final Generator generator;
   private final DBCacheManagerImpl dbCacheManager;
 
-  public static final int MAX_TIMESTAMP_DIFFERENCE = 15;
+  private static final int MAX_TIMESTAMP_DIFFERENCE = 15;
   private boolean oclVerify;
-  private int oclUnverifiedQueue;
+  private final int oclUnverifiedQueue;
 
   private final Semaphore gpuUsage = new Semaphore(2);
 
-  private boolean trimDerivedTables;
-  private volatile int lastTrimHeight;
+  private final boolean trimDerivedTables;
+  private final AtomicInteger lastTrimHeight = new AtomicInteger();
 
   private final Listeners<Block, Event> blockListeners = new Listeners<>();
-  private volatile Peer lastBlockchainFeeder;
-  private volatile int lastBlockchainFeederHeight;
-  private volatile boolean getMoreBlocks = true;
+  private final AtomicReference<Peer> lastBlockchainFeeder = new AtomicReference<>();
+  private final AtomicInteger lastBlockchainFeederHeight = new AtomicInteger();
+  private final AtomicBoolean getMoreBlocks = new AtomicBoolean(true);
 
-  private volatile boolean isScanning;
+  private final AtomicBoolean isScanning = new AtomicBoolean(false);
   private boolean forceScan;
   private boolean validateAtScan;
 
-  private boolean forgeFatBlocks;
+  private final boolean forgeFatBlocks;
 
   private Integer ttsd;
-
-  private final Runnable debugInfoThread = () -> {
-    logger.info("Unverified blocks: " + downloadCache.getUnverifiedSize());
-    logger.info("Blocks in cache: " + downloadCache.size());
-    logger.info("Bytes in cache: " + downloadCache.getBlockCacheSize());
-  };
 
   public final void setOclVerify(Boolean b) {
     oclVerify = b;
@@ -168,16 +146,14 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       }
     }, Event.BLOCK_PUSHED);
 
-    blockListeners.addListener(block -> {
-      transactionProcessor.revalidateUnconfirmedTransactions();
-    }, Event.BLOCK_PUSHED);
+    blockListeners.addListener(block -> transactionProcessor.revalidateUnconfirmedTransactions(), Event.BLOCK_PUSHED);
 
     if (trimDerivedTables) {
       blockListeners.addListener(block -> {
         if (block.getHeight() % 1440 == 0) {
-          lastTrimHeight = Math.max(block.getHeight() - Constants.MAX_ROLLBACK, 0);
-          if (lastTrimHeight > 0) {
-            this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight));
+          lastTrimHeight.set(Math.max(block.getHeight() - Constants.MAX_ROLLBACK, 0));
+          if (lastTrimHeight.get() > 0) {
+            this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get()));
           }
         }
       }, Event.AFTER_BLOCK_APPLY);
@@ -197,8 +173,551 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       }
     }, false);
 
+    //unlocking cache for writing.
+    //This must be done before we query where to add blocks.
+    //We sync the cache in event of popoff
+    // logger.debug("Peer Response is null");
+    /* Cache now contains Cumulative Difficulty */
+    // logger.debug("Peer has lower chain or is on bad fork.");
+    // logger.debug("We are on same height.");
+    // Now we will find the highest common block between ourself and our peer
+    /*
+     * if we did not get the last block in chain as common block we will be downloading a
+     * fork. however if it is to far off we cannot process it anyway. canBeFork will check
+     * where in chain this common block is fitting and return true if it is worth to
+     * continue.
+     */
+    // the fork is not that old. Lets see if we can get more precise.
+    //   List<Block> forkBlocks = new ArrayList<>();
+    // download blocks from peer
+    // loop blocks and make sure they fit in chain
+    // Make sure it maps back to chain
+    // set height and cumulative difficulty to block
+    //still maps back? we might have got announced/forged blocks
+    //we stop the loop since cahce has been locked
+    //executor shutdown?
+    // end block loop
+    /*
+     * Since we cannot rely on peers reported cumulative difficulty we do
+     * a final check to see that the CumulativeDifficulty actually is bigger
+     * before we do a popOff and switch chain.
+     */
+    // end second try
+    // end first try
+    // end while
+    // prevent overloading with blockIds
+    // prevent overloading with blockIds
+    // prevent overloading with blocks
+    //dont let anything add to cache!
+    // we read the current cumulative difficulty
+    // We remove blocks from chain back to where we start our fork
+    // and save it in a list if we need to restore
+    // now we check that our chain is popped off.
+    // If all seems ok is we try to push fork.
+    /*
+     * we check if we succeeded to push any block. if we did we check against cumulative
+     * difficulty If it is lower we blacklist peer and set chain to be processed later.
+     */
+    // if we did not push any blocks we try to restore chain.
+    // Reset and set cached vars to chaindata.
+    Runnable getMoreBlocksThread = new Runnable() {
+      private final JsonElement getCumulativeDifficultyRequest;
+
+      {
+        JsonObject request = new JsonObject();
+        request.addProperty("requestType", "getCumulativeDifficulty");
+        getCumulativeDifficultyRequest = JSON.prepareRequest(request);
+      }
+
+      private boolean peerHasMore;
+
+      @Override
+      public void run() {
+        while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
+          try {
+            try {
+              if (!getMoreBlocks.get()) {
+                return;
+              }
+              //unlocking cache for writing.
+              //This must be done before we query where to add blocks.
+              //We sync the cache in event of popoff
+              synchronized (BlockchainProcessorImpl.this.downloadCache) {
+                downloadCache.unlockCache();
+              }
+
+
+              if (downloadCache.isFull()) {
+                return;
+              }
+              peerHasMore = true;
+              Peer peer = Peers.getAnyPeer(Peer.State.CONNECTED);
+              if (peer == null) {
+                logger.debug("No peer connected.");
+                return;
+              }
+              JsonObject response = peer.send(getCumulativeDifficultyRequest);
+              if (response == null) {
+                // logger.debug("Peer Response is null");
+                return;
+              }
+              if (response.get("blockchainHeight") != null) {
+                lastBlockchainFeeder.set(peer);
+                lastBlockchainFeederHeight.set(JSON.getAsInt(response.get("blockchainHeight")));
+              } else {
+                logger.debug("Peer has no chainheight");
+                return;
+              }
+
+              /* Cache now contains Cumulative Difficulty */
+
+              BigInteger curCumulativeDifficulty = downloadCache.getCumulativeDifficulty();
+              String peerCumulativeDifficulty = JSON.getAsString(response.get("cumulativeDifficulty"));
+              if (peerCumulativeDifficulty == null) {
+                logger.debug("Peer CumulativeDifficulty is null");
+                return;
+              }
+              BigInteger betterCumulativeDifficulty = new BigInteger(peerCumulativeDifficulty);
+              if (betterCumulativeDifficulty.compareTo(curCumulativeDifficulty) < 0) {
+                // logger.debug("Peer has lower chain or is on bad fork.");
+                return;
+              }
+              if (betterCumulativeDifficulty.equals(curCumulativeDifficulty)) {
+                // logger.debug("We are on same height.");
+                return;
+              }
+
+              long commonBlockId = Genesis.GENESIS_BLOCK_ID;
+              long cacheLastBlockId = downloadCache.getLastBlockId();
+
+              // Now we will find the highest common block between ourself and our peer
+              if (cacheLastBlockId != Genesis.GENESIS_BLOCK_ID) {
+                commonBlockId = getCommonMilestoneBlockId(peer);
+                if (commonBlockId == 0 || !peerHasMore) {
+                  logger.debug("We could not get a common milestone block from peer.");
+                  return;
+                }
+              }
+
+              /*
+               * if we did not get the last block in chain as common block we will be downloading a
+               * fork. however if it is to far off we cannot process it anyway. canBeFork will check
+               * where in chain this common block is fitting and return true if it is worth to
+               * continue.
+               */
+
+              boolean saveInCache = true;
+              if (commonBlockId != cacheLastBlockId) {
+                if (downloadCache.canBeFork(commonBlockId)) {
+                  // the fork is not that old. Lets see if we can get more precise.
+                  commonBlockId = getCommonBlockId(peer, commonBlockId);
+                  if (commonBlockId == 0 || !peerHasMore) {
+                    logger.debug("Trying to get a more precise common block resulted in an error.");
+                    return;
+                  }
+                  saveInCache = false;
+                  downloadCache.resetForkBlocks();
+                } else {
+                  logger.warn("Our peer want to feed us a fork that is more than "
+                          + Constants.MAX_ROLLBACK + " blocks old.");
+                  return;
+                }
+              }
+
+              //   List<Block> forkBlocks = new ArrayList<>();
+              JsonArray nextBlocks = getNextBlocks(peer, commonBlockId);
+              if (nextBlocks == null || nextBlocks.size() == 0) {
+                logger.debug("Peer did not feed us any blocks");
+                return;
+              }
+
+              // download blocks from peer
+              Block lastBlock = downloadCache.getBlock(commonBlockId);
+              if (lastBlock == null) {
+                logger.info("Error: lastBlock is null");
+                return;
+              }
+              // loop blocks and make sure they fit in chain
+
+              Block block;
+              JsonObject blockData;
+              List<Block> blocks = new ArrayList<>();
+
+              for (JsonElement o : nextBlocks) {
+                int height = lastBlock.getHeight() + 1;
+                blockData = JSON.getAsJsonObject(o);
+                try {
+                  block = Block.parseBlock(blockData, height);
+                  if (block == null) {
+                    logger.debug("Unable to process downloaded blocks.");
+                    return;
+                  }
+                  // Make sure it maps back to chain
+                  if (lastBlock.getId() != block.getPreviousBlockId()) {
+                    logger.debug("Discarding downloaded data. Last downloaded blocks is rubbish");
+                    logger.debug("DB blockID: " + lastBlock.getId() + " DB blockheight:"
+                            + lastBlock.getHeight() + " Downloaded previd:"
+                            + block.getPreviousBlockId());
+                    return;
+                  }
+                  // set height and cumulative difficulty to block
+                  block.setHeight(height);
+                  block.setPeer(peer);
+                  block.setByteLength(JSON.toJsonString(blockData).length());
+                  blockService.calculateBaseTarget(block, lastBlock);
+                  if (saveInCache) {
+                    if (downloadCache.getLastBlockId() == block.getPreviousBlockId()) { //still maps back? we might have got announced/forged blocks
+                      if (!downloadCache.addBlock(block)) {
+                        //we stop the loop since cahce has been locked
+                        return;
+                      }
+                      logger.debug("Added from download: Id: " + block.getId() + " Height: " + block.getHeight());
+                    }
+                  } else {
+                    downloadCache.addForkBlock(block);
+                  }
+                  lastBlock = block;
+                } catch (BlockOutOfOrderException e) {
+                  logger.info(e.toString() + " - autoflushing cache to get rid of it", e);
+                  downloadCache.resetCache();
+                  return;
+                } catch (RuntimeException | BurstException.ValidationException e) {
+                  logger.info("Failed to parse block: {}" + e.toString(), e);
+                  logger.info("Failed to parse block trace: " + Arrays.toString(e.getStackTrace()));
+                  peer.blacklist(e, "pulled invalid data using getCumulativeDifficulty");
+                  return;
+                } catch (Exception e) {
+                  logger.warn("Unhandled exception {}" + e.toString(), e);
+                  logger.warn("Unhandled exception trace: " + Arrays.toString(e.getStackTrace()));
+                }
+                //executor shutdown?
+                if (Thread.currentThread().isInterrupted())
+                  return;
+              } // end block loop
+
+              logger.trace("Unverified blocks: " + downloadCache.getUnverifiedSize());
+              logger.trace("Blocks in cache: {}", downloadCache.size());
+              logger.trace("Bytes in cache: " + downloadCache.getBlockCacheSize());
+              if (!saveInCache) {
+                /*
+                 * Since we cannot rely on peers reported cumulative difficulty we do
+                 * a final check to see that the CumulativeDifficulty actually is bigger
+                 * before we do a popOff and switch chain.
+                 */
+                if (lastBlock.getCumulativeDifficulty().compareTo(curCumulativeDifficulty) < 0) {
+                  peer.blacklist("peer claimed to have bigger cumulative difficulty but in reality it did not.");
+                  downloadCache.resetForkBlocks();
+                  break;
+                }
+                processFork(peer, downloadCache.getForkList(), commonBlockId);
+              }
+
+            } catch (BurstException.StopException e) {
+              logger.info("Blockchain download stopped: " + e.getMessage());
+            } catch (Exception e) {
+              logger.info("Error in blockchain download thread", e);
+            } // end second try
+          } catch (Exception t) {
+            logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n" + t.toString(), t);
+            System.exit(1);
+          } // end first try
+        } // end while
+      }
+
+      private long getCommonMilestoneBlockId(Peer peer) throws InterruptedException {
+
+        String lastMilestoneBlockId = null;
+
+        while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
+          JsonObject milestoneBlockIdsRequest = new JsonObject();
+          milestoneBlockIdsRequest.addProperty("requestType", "getMilestoneBlockIds");
+          if (lastMilestoneBlockId == null) {
+            milestoneBlockIdsRequest.addProperty("lastBlockId",
+                    Convert.toUnsignedLong(downloadCache.getLastBlockId()));
+          } else {
+            milestoneBlockIdsRequest.addProperty("lastMilestoneBlockId", lastMilestoneBlockId);
+          }
+
+          JsonObject response = peer.send(JSON.prepareRequest(milestoneBlockIdsRequest));
+          if (response == null) {
+            logger.debug("Got null response in getCommonMilestoneBlockId");
+            return 0;
+          }
+          JsonArray milestoneBlockIds = JSON.getAsJsonArray(response.get("milestoneBlockIds"));
+          if (milestoneBlockIds == null) {
+            logger.debug("MilestoneArray is null");
+            return 0;
+          }
+          if (milestoneBlockIds.size() == 0) {
+            return Genesis.GENESIS_BLOCK_ID;
+          }
+          // prevent overloading with blockIds
+          if (milestoneBlockIds.size() > 20) {
+            peer.blacklist("obsolete or rogue peer sends too many milestoneBlockIds");
+            return 0;
+          }
+          if (Boolean.TRUE.equals(JSON.getAsBoolean(response.get("last")))) {
+            peerHasMore = false;
+          }
+
+          for (JsonElement milestoneBlockId : milestoneBlockIds) {
+            long blockId = Convert.parseUnsignedLong(JSON.getAsString(milestoneBlockId));
+
+            if (downloadCache.hasBlock(blockId)) {
+              if (lastMilestoneBlockId == null && milestoneBlockIds.size() > 1) {
+                peerHasMore = false;
+                logger.debug("Peer dont have more (cache)");
+              }
+              return blockId;
+            }
+            lastMilestoneBlockId = JSON.getAsString(milestoneBlockId);
+          }
+        }
+        throw new InterruptedException("interrupted");
+      }
+
+      private long getCommonBlockId(Peer peer, long commonBlockId) throws InterruptedException {
+
+        while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
+          JsonObject request = new JsonObject();
+          request.addProperty("requestType", "getNextBlockIds");
+          request.addProperty("blockId", Convert.toUnsignedLong(commonBlockId));
+          JsonObject response = peer.send(JSON.prepareRequest(request));
+          if (response == null) {
+            return 0;
+          }
+          JsonArray nextBlockIds = JSON.getAsJsonArray(response.get("nextBlockIds"));
+          if (nextBlockIds == null || nextBlockIds.size() == 0) {
+            return 0;
+          }
+          // prevent overloading with blockIds
+          if (nextBlockIds.size() > 1440) {
+            peer.blacklist("obsolete or rogue peer sends too many nextBlocks");
+            return 0;
+          }
+
+          for (JsonElement nextBlockId : nextBlockIds) {
+            long blockId = Convert.parseUnsignedLong(JSON.getAsString(nextBlockId));
+            if (!downloadCache.hasBlock(blockId)) {
+              return commonBlockId;
+            }
+            commonBlockId = blockId;
+          }
+        }
+
+        throw new InterruptedException("interrupted");
+      }
+
+      private JsonArray getNextBlocks(Peer peer, long curBlockId) {
+
+        JsonObject request = new JsonObject();
+        request.addProperty("requestType", "getNextBlocks");
+        request.addProperty("blockId", Convert.toUnsignedLong(curBlockId));
+        logger.debug("Getting next Blocks after " + curBlockId + " from " + peer.getPeerAddress());
+        JsonObject response = peer.send(JSON.prepareRequest(request));
+        if (response == null) {
+          return null;
+        }
+
+        JsonArray nextBlocks = JSON.getAsJsonArray(response.get("nextBlocks"));
+        if (nextBlocks == null) {
+          return null;
+        }
+        // prevent overloading with blocks
+        if (nextBlocks.size() > 1440) {
+          peer.blacklist("obsolete or rogue peer sends too many nextBlocks");
+          return null;
+        }
+        logger.debug("Got " + nextBlocks.size() + " Blocks after " + curBlockId + " from "
+                + peer.getPeerAddress());
+        return nextBlocks;
+
+      }
+
+      private void processFork(Peer peer, final List<Block> forkBlocks, long forkBlockId) {
+        logger.warn("A fork is detected. Waiting for cache to be processed.");
+        downloadCache.lockCache(); //dont let anything add to cache!
+        while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
+          if (downloadCache.size() == 0) {
+            break;
+          }
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+          }
+        }
+        synchronized (BlockchainProcessorImpl.this.downloadCache) {
+          synchronized (transactionProcessor.getUnconfirmedTransactionsSyncObj()) {
+            logger.warn("Cache is now processed. Starting to process fork.");
+            Block forkBlock = blockchain.getBlock(forkBlockId);
+
+            // we read the current cumulative difficulty
+            BigInteger curCumulativeDifficulty = blockchain.getLastBlock().getCumulativeDifficulty();
+
+            // We remove blocks from chain back to where we start our fork
+            // and save it in a list if we need to restore
+            List<Block> myPoppedOffBlocks = popOffTo(forkBlock);
+
+            // now we check that our chain is popped off.
+            // If all seems ok is we try to push fork.
+            int pushedForkBlocks = 0;
+            if (blockchain.getLastBlock().getId() == forkBlockId) {
+              for (Block block : forkBlocks) {
+                if (blockchain.getLastBlock().getId() == block.getPreviousBlockId()) {
+                  try {
+                    blockService.preVerify(block);
+                    pushBlock(block);
+                    pushedForkBlocks += 1;
+                  } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                  } catch (BlockNotAcceptedException e) {
+                    peer.blacklist(e, "during processing a fork");
+                    break;
+                  }
+                }
+              }
+            }
+
+            /*
+             * we check if we succeeded to push any block. if we did we check against cumulative
+             * difficulty If it is lower we blacklist peer and set chain to be processed later.
+             */
+            if (pushedForkBlocks > 0 && blockchain.getLastBlock().getCumulativeDifficulty()
+                    .compareTo(curCumulativeDifficulty) < 0) {
+              logger.warn("Fork was bad and Pop off was caused by peer " + peer.getPeerAddress() + ", blacklisting");
+              peer.blacklist("got a bad fork");
+              List<Block> peerPoppedOffBlocks = popOffTo(forkBlock);
+              pushedForkBlocks = 0;
+              peerPoppedOffBlocks.forEach(block -> transactionProcessor.processLater(block.getTransactions()));
+            }
+
+            // if we did not push any blocks we try to restore chain.
+            if (pushedForkBlocks == 0) {
+              for (int i = myPoppedOffBlocks.size() - 1; i >= 0; i--) {
+                Block block = myPoppedOffBlocks.remove(i);
+                try {
+                  blockService.preVerify(block);
+                  pushBlock(block);
+                } catch (InterruptedException e) {
+                  Thread.currentThread().interrupt();
+                } catch (BlockNotAcceptedException e) {
+                  logger.warn("Popped off block no longer acceptable: " + JSON.toJsonString(block.getJsonObject()), e);
+                  break;
+                }
+              }
+            } else {
+              myPoppedOffBlocks.forEach(block -> transactionProcessor.processLater(block.getTransactions()));
+              logger.warn("Successfully switched to better chain.");
+            }
+            logger.warn("Forkprocessing complete.");
+            downloadCache.resetForkBlocks();
+            downloadCache.resetCache(); // Reset and set cached vars to chaindata.
+          }
+        }
+      }
+    };
     threadPool.scheduleThread("GetMoreBlocks", getMoreBlocksThread, 2);
+    /* this should fetch first block in cache */
+    //resetting cache because we have blocks that cannot be processed.
+    //pushblock removes the block from cache.
+    Runnable blockImporterThread = () -> {
+      while (!Thread.interrupted() && ThreadPool.running.get() && downloadCache.size() > 0) {
+        try {
+          Block lastBlock = blockchain.getLastBlock();
+          Long lastId = lastBlock.getId();
+          Block currentBlock = downloadCache.getNextBlock(lastId); /* this should fetch first block in cache */
+          if (currentBlock == null || currentBlock.getHeight() != (lastBlock.getHeight() + 1)) {
+            logger.debug("cache is reset due to orphaned block(s). CacheSize: " + downloadCache.size());
+            downloadCache.resetCache(); //resetting cache because we have blocks that cannot be processed.
+            break;
+          }
+          try {
+            if (!currentBlock.isVerified()) {
+              downloadCache.removeUnverified(currentBlock.getId());
+              blockService.preVerify(currentBlock);
+              logger.debug("block was not preverified");
+            }
+            pushBlock(currentBlock); //pushblock removes the block from cache.
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          } catch (BlockNotAcceptedException e) {
+            logger.error("Block not accepted", e);
+            blacklistClean(currentBlock, e,
+                    "found invalid pull/push data during importing the block");
+            break;
+          }
+        } catch (Exception exception) {
+          logger.error("Uncaught exception in blockImporterThread", exception);
+        }
+      }
+    };
     threadPool.scheduleThread("ImportBlocks", blockImporterThread, 10);
+    //Is there anything to verify
+    //should we use Ocl?
+    //is Ocl ready ?
+    //verify using java
+    Runnable pocVerificationThread = () -> {
+      boolean verifyWithOcl;
+      int queueThreshold = oclVerify ? oclUnverifiedQueue : 0;
+
+      while (!Thread.interrupted() && ThreadPool.running.get()) {
+        try {
+          Thread.sleep(10);
+        } catch (InterruptedException ex) {
+          Thread.currentThread().interrupt();
+        }
+        int unVerified = downloadCache.getUnverifiedSize();
+        if (unVerified > queueThreshold) { //Is there anything to verify
+          if (unVerified >= oclUnverifiedQueue && oclVerify) { //should we use Ocl?
+            verifyWithOcl = true;
+            if (!gpuUsage.tryAcquire()) { //is Ocl ready ?
+              logger.debug("already max locked");
+              verifyWithOcl = false;
+            }
+          } else {
+            verifyWithOcl = false;
+          }
+          if (verifyWithOcl) {
+            int poCVersion;
+            int pos = 0;
+            List<Block> blocks = new LinkedList<>();
+            poCVersion = downloadCache.getPoCVersion(downloadCache.getUnverifiedBlockIdFromPos(0));
+            while (!Thread.interrupted() && ThreadPool.running.get()
+                    && (downloadCache.getUnverifiedSize() - 1) > pos
+                    && blocks.size() < OCLPoC.getMaxItems()) {
+              long blockId = downloadCache.getUnverifiedBlockIdFromPos(pos);
+              if (downloadCache.getPoCVersion(blockId) != poCVersion) {
+                break;
+              }
+              blocks.add(downloadCache.getBlock(blockId));
+              pos += 1;
+            }
+            try {
+              OCLPoC.validatePoC(blocks, poCVersion, blockService);
+              downloadCache.removeUnverifiedBatch(blocks);
+            } catch (OCLPoC.PreValidateFailException e) {
+              logger.info(e.toString(), e);
+              blacklistClean(e.getBlock(), e, "found invalid pull/push data during processing the pocVerification");
+            } catch (OCLPoC.OCLCheckerException e) {
+              logger.info("Open CL error. slow verify will occur for the next " + oclUnverifiedQueue + " Blocks", e);
+            } catch (Exception e) {
+              logger.info("Unspecified Open CL error: ", e);
+            } finally {
+              gpuUsage.release();
+            }
+          } else { //verify using java
+            try {
+              blockService.preVerify(downloadCache.getFirstUnverifiedBlock());
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            } catch (BlockNotAcceptedException e) {
+              logger.error("Block failed to preverify: ", e);
+            }
+          }
+        }
+      }
+    };
     if (propertyService.getBoolean(Props.GPU_ACCELERATION)) {
       logger.debug("Starting preverifier thread in Open CL mode.");
       threadPool.scheduleThread("VerifyPoc", pocVerificationThread, 9);
@@ -206,104 +725,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       logger.debug("Starting preverifier thread in CPU mode.");
       threadPool.scheduleThreadCores("VerifyPoc", pocVerificationThread, 9);
     }
-
-    // ThreadPool.scheduleThread("Info", debugInfoThread, 5);
   }
-
-  private final Runnable pocVerificationThread = () -> {
-    boolean verifyWithOcl;
-    int queueThreshold = oclVerify ? oclUnverifiedQueue : 0;
-
-    while (!Thread.interrupted() && ThreadPool.running.get() ) {
-      try {
-        Thread.sleep(10);
-      } catch (InterruptedException ex) {
-        Thread.currentThread().interrupt();
-      }
-      int unVerified = downloadCache.getUnverifiedSize();
-      if (unVerified > queueThreshold) { //Is there anything to verify
-        if (unVerified >= oclUnverifiedQueue && oclVerify) { //should we use Ocl?
-          verifyWithOcl = true;
-          if (!gpuUsage.tryAcquire()) { //is Ocl ready ?
-            logger.debug("already max locked");
-            verifyWithOcl = false;
-          }
-        }else {
-          verifyWithOcl = false;
-        }
-        if(verifyWithOcl) {
-          int poCVersion = 1;
-          int pos = 0;
-          List<Block> blocks = new LinkedList<>();
-          poCVersion = downloadCache.getPoCVersion(downloadCache.getUnverifiedBlockIdFromPos(0));
-          while (!Thread.interrupted() && ThreadPool.running.get()
-              && (downloadCache.getUnverifiedSize() - 1) > pos
-              && blocks.size() < OCLPoC.getMaxItems()) {
-            long blockId = downloadCache.getUnverifiedBlockIdFromPos(pos);
-            if (downloadCache.getPoCVersion(blockId) != poCVersion) {
-              break;
-            }
-            blocks.add(downloadCache.getBlock(blockId));
-            pos+=1;
-          }
-          try {
-            OCLPoC.validatePoC(blocks, poCVersion, blockService);
-            downloadCache.removeUnverifiedBatch(blocks);
-          } catch (OCLPoC.PreValidateFailException e) {
-            logger.info(e.toString(), e);
-            blacklistClean(e.getBlock(), e, "found invalid pull/push data during processing the pocVerification");
-          } catch (OCLPoC.OCLCheckerException e) {
-            logger.info("Open CL error. slow verify will occur for the next "+oclUnverifiedQueue+" Blocks", e);
-          } catch (Exception e) {
-            logger.info("Unspecified Open CL error: ", e);
-          } finally {
-            gpuUsage.release();
-          }
-        }else { //verify using java
-          try {
-            blockService.preVerify(downloadCache.getFirstUnverifiedBlock());
-          } catch ( InterruptedException e ) {
-            Thread.currentThread().interrupt();
-          } catch (BlockchainProcessor.BlockNotAcceptedException e) {
-            logger.error("Block failed to preverify: ", e);
-          }
-        }
-      }
-    }
-  };
-
-  private final Runnable blockImporterThread = () -> {
-    while (!Thread.interrupted() && ThreadPool.running.get() && downloadCache.size() > 0) {
-      try {
-        Block lastBlock = blockchain.getLastBlock();
-        Long lastId = lastBlock.getId();
-        Block currentBlock = downloadCache.getNextBlock(lastId); /* this should fetch first block in cache */
-        if (currentBlock == null || currentBlock.getHeight() != (lastBlock.getHeight() + 1)) {
-          logger.debug("cache is reset due to orphaned block(s). CacheSize: " + downloadCache.size());
-          downloadCache.resetCache(); //resetting cache because we have blocks that cannot be processed.
-          break;
-        }
-        try {
-          if (!currentBlock.isVerified()) {
-            downloadCache.removeUnverified(currentBlock.getId());
-            blockService.preVerify(currentBlock);
-            logger.debug("block was not preverified");
-          }
-          lastId = currentBlock.getId();
-          pushBlock(currentBlock); //pushblock removes the block from cache.
-        } catch ( InterruptedException e ) {
-          Thread.currentThread().interrupt();
-        } catch (BlockNotAcceptedException e) {
-          logger.error("Block not accepted", e);
-          blacklistClean(currentBlock, e,
-              "found invalid pull/push data during importing the block");
-          break;
-        }
-      } catch (Throwable exception) {
-        logger.error("Uncaught exception in blockImporterThread", exception);
-      }
-    }
-  };
 
   private void blacklistClean(Block block, Exception e, String description) {
     logger.debug("Blacklisting peer and cleaning cache queue");
@@ -318,404 +740,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     logger.debug("Blacklisted peer and cleaned queue");
   }
 
-  private final Runnable getMoreBlocksThread = new Runnable() {
-    private final JSONStreamAware getCumulativeDifficultyRequest;
-
-    {
-      JSONObject request = new JSONObject();
-      request.put("requestType", "getCumulativeDifficulty");
-      getCumulativeDifficultyRequest = JSON.prepareRequest(request);
-    }
-
-    private boolean peerHasMore;
-
-    @Override
-    public void run() {
-      while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
-        try {
-          try {
-            if (!getMoreBlocks) {
-              return;
-            }
-            //unlocking cache for writing.
-            //This must be done before we query where to add blocks.
-            //We sync the cache in event of popoff
-            synchronized (downloadCache){
-              downloadCache.unlockCache();
-            }
-            
-            
-            if (downloadCache.isFull()) {
-              return;
-            }
-            peerHasMore = true;
-            Peer peer = Peers.getAnyPeer(Peer.State.CONNECTED);
-            if (peer == null) {
-              logger.debug("No peer connected.");
-              return;
-            }
-            JSONObject response = peer.send(getCumulativeDifficultyRequest);
-            if (response == null) {
-              // logger.debug("Peer Response is null");
-              return;
-            }
-            if (response.get("blockchainHeight") != null) {
-              lastBlockchainFeeder = peer;
-              lastBlockchainFeederHeight = ((Long) response.get("blockchainHeight")).intValue();
-            } else {
-              logger.debug("Peer has no chainheight");
-              return;
-            }
-
-            /* Cache now contains Cumulative Difficulty */
-
-            BigInteger curCumulativeDifficulty = downloadCache.getCumulativeDifficulty();
-            String peerCumulativeDifficulty = (String) response.get("cumulativeDifficulty");
-            if (peerCumulativeDifficulty == null) {
-              logger.debug("Peer CumulativeDifficulty is null");
-              return;
-            }
-            BigInteger betterCumulativeDifficulty = new BigInteger(peerCumulativeDifficulty);
-            if (betterCumulativeDifficulty.compareTo(curCumulativeDifficulty) < 0) {
-              // logger.debug("Peer has lower chain or is on bad fork.");
-              return;
-            }
-            if (betterCumulativeDifficulty.equals(curCumulativeDifficulty)) {
-              // logger.debug("We are on same height.");
-              return;
-            }
-
-            long commonBlockId = Genesis.GENESIS_BLOCK_ID;
-            long cacheLastBlockId = downloadCache.getLastBlockId();
-
-            // Now we will find the highest common block between ourself and our peer
-            if (cacheLastBlockId != Genesis.GENESIS_BLOCK_ID) {
-              commonBlockId = getCommonMilestoneBlockId(peer);
-              if (commonBlockId == 0 || !peerHasMore) {
-                logger.debug("We could not get a common milestone block from peer.");
-                return;
-              }
-            }
-
-            /*
-             * if we did not get the last block in chain as common block we will be downloading a
-             * fork. however if it is to far off we cannot process it anyway. canBeFork will check
-             * where in chain this common block is fitting and return true if it is worth to
-             * continue.
-             */
-
-            boolean saveInCache = true;
-            if (commonBlockId != cacheLastBlockId) {
-              if (downloadCache.canBeFork(commonBlockId)) {
-                // the fork is not that old. Lets see if we can get more precise.
-                commonBlockId = getCommonBlockId(peer, commonBlockId);
-                if (commonBlockId == 0 || !peerHasMore) {
-                  logger.debug("Trying to get a more precise common block resulted in an error.");
-                  return;
-                }
-                saveInCache = false;
-                downloadCache.resetForkBlocks();
-              } else {
-                logger.warn("Our peer want to feed us a fork that is more than "
-                    + Constants.MAX_ROLLBACK + " blocks old.");
-                return;
-              }
-            }
-
-         //   List<Block> forkBlocks = new ArrayList<>();
-            JSONArray nextBlocks = getNextBlocks(peer, commonBlockId);
-            if (nextBlocks == null || nextBlocks.isEmpty()) {
-              logger.debug("Peer did not feed us any blocks");
-              return;
-            }
-
-            // download blocks from peer
-            Block lastBlock = downloadCache.getBlock(commonBlockId);
-            if(lastBlock == null) {
-              logger.info("Error: lastBlock is null");
-              return;
-            }
-            // loop blocks and make sure they fit in chain
-                       
-            Block block;
-            JSONObject blockData;
-            List<Block> blocks = new ArrayList<>();
-              
-            for (Object o : nextBlocks) {
-              int height = lastBlock.getHeight() + 1;
-              blockData = (JSONObject) o;
-              try {
-                block = Block.parseBlock(blockData, height);
-                if (block == null) {
-                  logger.debug("Unable to process downloaded blocks.");
-                  return;
-                }
-                // Make sure it maps back to chain
-                if (lastBlock.getId() != block.getPreviousBlockId()) {
-                  logger.debug("Discarding downloaded data. Last downloaded blocks is rubbish");
-                  logger.debug("DB blockID: " + lastBlock.getId() + " DB blockheight:"
-                      + lastBlock.getHeight() + " Downloaded previd:"
-                      + block.getPreviousBlockId());
-                  return;
-                }
-                // set height and cumulative difficulty to block
-                block.setHeight(height);
-                block.setPeer(peer);
-                block.setByteLength(blockData.toString().length());
-                blockService.calculateBaseTarget(block, lastBlock);
-                if (saveInCache) {
-                  if (downloadCache.getLastBlockId() == block.getPreviousBlockId()) { //still maps back? we might have got announced/forged blocks
-                    if(! downloadCache.addBlock(block)) {
-                      //we stop the loop since cahce has been locked
-                      return;
-                    }
-                    logger.debug("Added from download: Id: " +block.getId()+" Height: "+block.getHeight());
-                  }
-                } else {
-                  downloadCache.addForkBlock(block);
-                }
-                lastBlock = block;
-              } catch (BlockOutOfOrderException e) {
-                logger.info(e.toString() + " - autoflushing cache to get rid of it", e);
-                downloadCache.resetCache();
-                return;
-              } catch (RuntimeException | BurstException.ValidationException e) {
-                logger.info("Failed to parse block: {}" + e.toString(), e);
-                logger.info("Failed to parse block trace: " + e.getStackTrace());
-                peer.blacklist(e, "pulled invalid data using getCumulativeDifficulty");
-                return;
-              } catch (Exception e) {
-                logger.warn("Unhandled exception {}" + e.toString(), e);
-                logger.warn("Unhandled exception trace: " + e.getStackTrace());
-              }
-              //executor shutdown?
-              if (Thread.currentThread().isInterrupted())
-                return;
-            } // end block loop
-
-            logger.trace("Unverified blocks: " + downloadCache.getUnverifiedSize());
-            logger.trace("Blocks in cache: {}", downloadCache.size());
-            logger.trace("Bytes in cache: " + downloadCache.getBlockCacheSize());
-            if (!saveInCache) {
-              /*
-               * Since we cannot rely on peers reported cumulative difficulty we do
-               * a final check to see that the CumulativeDifficulty actually is bigger
-               * before we do a popOff and switch chain.
-               */
-              if(lastBlock.getCumulativeDifficulty().compareTo(curCumulativeDifficulty) < 0) {
-                peer.blacklist("peer claimed to have bigger cumulative difficulty but in reality it did not.");
-                downloadCache.resetForkBlocks();
-                break;
-              }
-              processFork(peer, downloadCache.getForkList(), commonBlockId);
-            }
-
-          } catch (BurstException.StopException e) {
-            logger.info("Blockchain download stopped: " + e.getMessage());
-          } catch (Exception e) {
-            logger.info("Error in blockchain download thread", e);
-          } // end second try
-        } catch (Throwable t) {
-          logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n" + t.toString(), t);
-          System.exit(1);
-        } // end first try
-      } // end while
-    }
-
-    private long getCommonMilestoneBlockId(Peer peer) throws InterruptedException {
-
-      String lastMilestoneBlockId = null;
-
-      while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
-        JSONObject milestoneBlockIdsRequest = new JSONObject();
-        milestoneBlockIdsRequest.put("requestType", "getMilestoneBlockIds");
-        if (lastMilestoneBlockId == null) {
-          milestoneBlockIdsRequest.put("lastBlockId",
-              Convert.toUnsignedLong(downloadCache.getLastBlockId()));
-        } else {
-          milestoneBlockIdsRequest.put("lastMilestoneBlockId", lastMilestoneBlockId);
-        }
-
-        JSONObject response = peer.send(JSON.prepareRequest(milestoneBlockIdsRequest));
-        if (response == null) {
-          logger.debug("Got null response in getCommonMilestoneBlockId");
-          return 0;
-        }
-        JSONArray milestoneBlockIds = (JSONArray) response.get("milestoneBlockIds");
-        if (milestoneBlockIds == null) {
-          logger.debug("MilestoneArray is null");
-          return 0;
-        }
-        if (milestoneBlockIds.isEmpty()) {
-          return Genesis.GENESIS_BLOCK_ID;
-        }
-        // prevent overloading with blockIds
-        if (milestoneBlockIds.size() > 20) {
-          peer.blacklist("obsolete or rogue peer sends too many milestoneBlockIds");
-          return 0;
-        }
-        if (Boolean.TRUE.equals(response.get("last"))) {
-          peerHasMore = false;
-        }
-
-        for (Object milestoneBlockId : milestoneBlockIds) {
-          long blockId = Convert.parseUnsignedLong((String) milestoneBlockId);
-
-          if (downloadCache.hasBlock(blockId)) {
-            if (lastMilestoneBlockId == null && milestoneBlockIds.size() > 1) {
-              peerHasMore = false;
-              logger.debug("Peer dont have more (cache)");
-            }
-            return blockId;
-          }
-          lastMilestoneBlockId = (String) milestoneBlockId;
-        }
-      }
-      throw new InterruptedException("interrupted");
-    }
-
-    private long getCommonBlockId(Peer peer, long commonBlockId) throws InterruptedException {
-
-      while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
-        JSONObject request = new JSONObject();
-        request.put("requestType", "getNextBlockIds");
-        request.put("blockId", Convert.toUnsignedLong(commonBlockId));
-        JSONObject response = peer.send(JSON.prepareRequest(request));
-        if (response == null) {
-          return 0;
-        }
-        JSONArray nextBlockIds = (JSONArray) response.get("nextBlockIds");
-        if (nextBlockIds == null || nextBlockIds.isEmpty()) {
-          return 0;
-        }
-        // prevent overloading with blockIds
-        if (nextBlockIds.size() > 1440) {
-          peer.blacklist("obsolete or rogue peer sends too many nextBlocks");
-          return 0;
-        }
-
-        for (Object nextBlockId : nextBlockIds) {
-          long blockId = Convert.parseUnsignedLong((String) nextBlockId);
-          if (!downloadCache.hasBlock(blockId)) {
-            return commonBlockId;
-          }
-          commonBlockId = blockId;
-        }
-      }
-
-      throw new InterruptedException("interrupted");
-    }
-
-    private JSONArray getNextBlocks(Peer peer, long curBlockId) {
-
-      JSONObject request = new JSONObject();
-      request.put("requestType", "getNextBlocks");
-      request.put("blockId", Convert.toUnsignedLong(curBlockId));
-      logger.debug("Getting next Blocks after " + curBlockId + " from " + peer.getPeerAddress());
-      JSONObject response = peer.send(JSON.prepareRequest(request));
-      if (response == null) {
-        return null;
-      }
-
-      JSONArray nextBlocks = (JSONArray) response.get("nextBlocks");
-      if (nextBlocks == null) {
-        return null;
-      }
-      // prevent overloading with blocks
-      if (nextBlocks.size() > 1440) {
-        peer.blacklist("obsolete or rogue peer sends too many nextBlocks");
-        return null;
-      }
-      logger.debug("Got " + nextBlocks.size() + " Blocks after " + curBlockId + " from "
-          + peer.getPeerAddress());
-      return nextBlocks;
-
-    }
-
-  private void processFork(Peer peer, final List<Block> forkBlocks, long forkBlockId) {
-    logger.warn("A fork is detected. Waiting for cache to be processed.");
-    downloadCache.lockCache(); //dont let anything add to cache!
-    while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
-      if (downloadCache.size() == 0) {
-        break;
-      }
-      try {
-        Thread.sleep(1000);
-      } catch (InterruptedException ex) {
-        Thread.currentThread().interrupt();
-      }
-    }
-    synchronized (downloadCache) {
-      synchronized (transactionProcessor.getUnconfirmedTransactionsSyncObj()) {
-        logger.warn("Cache is now processed. Starting to process fork.");
-        Block forkBlock = blockchain.getBlock(forkBlockId);
-
-        // we read the current cumulative difficulty
-        BigInteger curCumulativeDifficulty = blockchain.getLastBlock().getCumulativeDifficulty();
-
-        // We remove blocks from chain back to where we start our fork
-        // and save it in a list if we need to restore
-        List<Block> myPoppedOffBlocks = popOffTo(forkBlock);
-
-        // now we check that our chain is popped off.
-        // If all seems ok is we try to push fork.
-        int pushedForkBlocks = 0;
-        if (blockchain.getLastBlock().getId() == forkBlockId) {
-          for (Block block : forkBlocks) {
-            if (blockchain.getLastBlock().getId() == block.getPreviousBlockId()) {
-              try {
-                blockService.preVerify(block);
-                pushBlock(block);
-                pushedForkBlocks += 1;
-              } catch ( InterruptedException e ) {
-                Thread.currentThread().interrupt();
-              } catch (BlockNotAcceptedException e) {
-                peer.blacklist(e, "during processing a fork");
-                break;
-              }
-            }
-          }
-        }
-
-        /*
-         * we check if we succeeded to push any block. if we did we check against cumulative
-         * difficulty If it is lower we blacklist peer and set chain to be processed later.
-         */
-        if (pushedForkBlocks > 0 && blockchain.getLastBlock().getCumulativeDifficulty()
-            .compareTo(curCumulativeDifficulty) < 0) {
-          logger.warn("Fork was bad and Pop off was caused by peer " + peer.getPeerAddress() + ", blacklisting");
-          peer.blacklist("got a bad fork");
-          List<Block> peerPoppedOffBlocks = popOffTo(forkBlock);
-          pushedForkBlocks = 0;
-          peerPoppedOffBlocks.forEach(block -> transactionProcessor.processLater(block.getTransactions()));
-        }
-
-        // if we did not push any blocks we try to restore chain.
-        if (pushedForkBlocks == 0) {
-          for (int i = myPoppedOffBlocks.size() - 1; i >= 0; i--) {
-            Block block = myPoppedOffBlocks.remove(i);
-            try {
-              blockService.preVerify(block);
-              pushBlock(block);
-            } catch ( InterruptedException e ) {
-              Thread.currentThread().interrupt();
-            } catch (BlockNotAcceptedException e) {
-              logger.warn("Popped off block no longer acceptable: " + block.getJSONObject().toJSONString(), e);
-              break;
-            }
-          }
-        } else {
-          myPoppedOffBlocks.forEach(block -> transactionProcessor.processLater(block.getTransactions()));
-          logger.warn("Successfully switched to better chain.");
-        }
-        logger.warn("Forkprocessing complete.");
-        downloadCache.resetForkBlocks();
-        downloadCache.resetCache(); // Reset and set cached vars to chaindata.
-      }
-    }
-  }
-};
-
 
   @Override
   public boolean addListener(Listener<Block> listener, BlockchainProcessor.Event eventType) {
@@ -729,27 +753,29 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
   @Override
   public Peer getLastBlockchainFeeder() {
-    return lastBlockchainFeeder;
+    return lastBlockchainFeeder.get();
   }
 
   @Override
   public int getLastBlockchainFeederHeight() {
-    return lastBlockchainFeederHeight;
+    return lastBlockchainFeederHeight.get();
   }
 
   @Override
   public boolean isScanning() {
-    return isScanning;
+    return isScanning.get();
   }
 
   @Override
   public int getMinRollbackHeight() {
-    return trimDerivedTables ? (lastTrimHeight > 0 ? lastTrimHeight
-        : Math.max(blockchain.getHeight() - Constants.MAX_ROLLBACK, 0)) : 0;
+    int trimHeight = (lastTrimHeight.get() > 0
+            ? lastTrimHeight.get()
+            : Math.max(blockchain.getHeight() - Constants.MAX_ROLLBACK, 0));
+    return trimDerivedTables ? trimHeight : 0;
   }
 
   @Override
-  public void processPeerBlock(JSONObject request, Peer peer) throws BurstException {
+  public void processPeerBlock(JsonObject request, Peer peer) throws BurstException {
     Block newBlock = Block.parseBlock(request, blockchain.getHeight());
     if (newBlock == null) {
       logger.debug("Peer {} has announced an unprocessable block.", peer.getPeerAddress());
@@ -802,7 +828,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
 
   void setGetMoreBlocks(boolean getMoreBlocks) {
-    this.getMoreBlocks = getMoreBlocks;
+    this.getMoreBlocks.set(getMoreBlocks);
   }
 
   private void addBlock(Block block) {
@@ -895,17 +921,15 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         long calculatedTotalFee = 0;
         MessageDigest digest = Crypto.sha256();
 
-        ArrayList<Long> accountIds = new ArrayList<Long>();
-        try (DSLContext ctx = Db.getDSLContext()) {
-          block.getTransactions().forEach(t -> {
-            if (t.getRecipientId() != 0L)
-              accountIds.add(t.getRecipientId());
-            if (t.getSenderId() != 0L)
-              accountIds.add(t.getSenderId());
-          });
-          if (!accountIds.isEmpty()) {
-            stores.getAccountStore().getAccountTable().fillCache(accountIds);
-          }
+        ArrayList<Long> accountIds = new ArrayList<>();
+        block.getTransactions().forEach(t -> {
+          if (t.getRecipientId() != 0L)
+            accountIds.add(t.getRecipientId());
+          if (t.getSenderId() != 0L)
+            accountIds.add(t.getSenderId());
+        });
+        if (!accountIds.isEmpty()) {
+          stores.getAccountStore().getAccountTable().fillCache(accountIds);
         }
 
         for (Transaction transaction : block.getTransactions()) {
@@ -996,7 +1020,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         transactionProcessor.requeueAllUnconfirmedTransactions();
         accountService.flushAccountTable();
         addBlock(block);
-        downloadCache.removeBlock(block); //We make sure downloadCache do not have this block anymore.
+        downloadCache.removeBlock(block); // We make sure downloadCache do not have this block anymore.
         accept(block, remainingAmount, remainingFee);
         derivedTableManager.getDerivedTables().forEach(DerivedTable::finish);
         stores.commitTransaction();
@@ -1117,7 +1141,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     return previousBlock;
   }
 
-  int getBlockVersion() {
+  private int getBlockVersion() {
     return 3;
   }
 
@@ -1147,16 +1171,15 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         final TransactionDuplicatesCheckerImpl transactionDuplicatesChecker = new TransactionDuplicatesCheckerImpl();
 
         List<Transaction> unconfirmedTransactionsOrderedByFee = unconfirmedTransactionStore.getAll().stream().filter(
-            transaction ->
-              transaction.getVersion() == transactionProcessor.getTransactionVersion(previousBlock.getHeight())
-                  && transaction.getExpiration() >= blockTimestamp
-                  && transaction.getTimestamp()  <= blockTimestamp + MAX_TIMESTAMP_DIFFERENCE
-                  && (
-                      ! Burst.getFluxCapacitor().isActive(FeatureToggle.AUTOMATED_TRANSACTION_BLOCK)
-                          || economicClustering.verifyFork(transaction)
-                  )
-        ).collect(Collectors.toList());
-        unconfirmedTransactionsOrderedByFee.sort((o2, o1) -> ((Long) o1.getFeeNQT()).compareTo(o2.getFeeNQT()));
+                transaction ->
+                        transaction.getVersion() == transactionProcessor.getTransactionVersion(previousBlock.getHeight())
+                                && transaction.getExpiration() >= blockTimestamp
+                                && transaction.getTimestamp() <= blockTimestamp + MAX_TIMESTAMP_DIFFERENCE
+                                && (
+                                !Burst.getFluxCapacitor().isActive(FeatureToggle.AUTOMATED_TRANSACTION_BLOCK)
+                                        || economicClustering.verifyFork(transaction)
+                        )
+        ).sorted((o2, o1) -> Long.compare(o1.getFeeNQT(), o2.getFeeNQT())).collect(Collectors.toList());
 
         COLLECT_TRANSACTIONS: for (Transaction transaction : unconfirmedTransactionsOrderedByFee) {
           boolean transactionHasBeenHandled = false;
@@ -1168,7 +1191,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               continue COLLECT_TRANSACTIONS;
             }
 
-            Long slotFee = Burst.getFluxCapacitor().isActive(PRE_DYMAXION) ? (forgeFatBlocks ? 1 : blockSize) * FEE_QUANT : ONE_BURST;
+            long slotFee = Burst.getFluxCapacitor().isActive(PRE_DYMAXION) ? (forgeFatBlocks ? 1 : blockSize) * FEE_QUANT : ONE_BURST;
             if (transaction.getFeeNQT() >= slotFee) {
               // transaction can only be handled if all referenced ones exist
               if (hasAllReferencedTransactions(transaction, transaction.getTimestamp(), 0)) {

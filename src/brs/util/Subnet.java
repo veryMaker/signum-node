@@ -19,7 +19,7 @@ public class Subnet
    * @param subnetAddress java.net.InetAddress (IP address)
    * @param bits          subnet mask in /bits notation
    */
-  public Subnet(final InetAddress subnetAddress, final int bits)
+  private Subnet(final InetAddress subnetAddress, final int bits)
   {
     this.bytesSubnetCount = subnetAddress.getAddress().length; // 4 or 16
     this.bigMask = BigInteger.valueOf(-1).shiftLeft(this.bytesSubnetCount * 8 - bits); // mask = -1 << 32 - bits
@@ -31,7 +31,7 @@ public class Subnet
    * @param subnetAddress java.net.InetAddress (IP address)
    * @param mask          java.net.InetAddress (IP address, here used as network mask)
    */
-  public Subnet(final InetAddress subnetAddress, final InetAddress mask)
+  private Subnet(final InetAddress subnetAddress, final InetAddress mask)
   {
     this.bytesSubnetCount = subnetAddress.getAddress().length;
     this.bigMask = null == mask ? BigInteger.valueOf(-1) : new BigInteger(mask.getAddress()); // no mask given case is handled here.

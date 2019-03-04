@@ -1,20 +1,19 @@
 package brs;
 
 import brs.schema.tables.records.TransactionRecord;
+import org.jooq.DSLContext;
 
 import java.sql.ResultSet;
-
 import java.util.List;
-import org.jooq.DSLContext;
 
 public interface TransactionDb {
   Transaction findTransaction(long transactionId);
 
-  Transaction findTransactionByFullHash(String fullHash);
+  Transaction findTransactionByFullHash(String fullHash); // TODO add byte[] method
 
   boolean hasTransaction(long transactionId);
 
-  boolean hasTransactionByFullHash(String fullHash);
+  boolean hasTransactionByFullHash(String fullHash); // TODO add byte[] method
 
   Transaction loadTransaction(TransactionRecord transactionRecord) throws BurstException.ValidationException;
 

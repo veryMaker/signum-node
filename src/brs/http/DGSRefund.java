@@ -4,7 +4,7 @@ import brs.*;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -26,7 +26,7 @@ public final class DGSRefund extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     Account sellerAccount = parameterService.getSenderAccount(req);
     DigitalGoodsStore.Purchase purchase = parameterService.getPurchase(req);
 

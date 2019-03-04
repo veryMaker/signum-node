@@ -2,7 +2,7 @@ package brs.http;
 
 import brs.BurstException;
 import brs.services.ParameterService;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,7 +18,7 @@ public final class GetDGSPurchase extends APIServlet.APIRequestHandler {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     return JSONData.purchase(parameterService.getPurchase(req));
   }
 

@@ -1,17 +1,18 @@
 package brs.http;
 
+import brs.Asset;
+import brs.assetexchange.AssetExchange;
+import brs.util.Convert;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import javax.servlet.http.HttpServletRequest;
+
 import static brs.http.JSONResponses.INCORRECT_ASSET;
 import static brs.http.JSONResponses.UNKNOWN_ASSET;
 import static brs.http.common.Parameters.ASSETS_PARAMETER;
 import static brs.http.common.ResultFields.ASSETS_RESPONSE;
-
-import brs.Asset;
-import brs.assetexchange.AssetExchange;
-import brs.util.Convert;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
 
 public final class GetAssets extends APIServlet.APIRequestHandler {
 
@@ -23,13 +24,13 @@ public final class GetAssets extends APIServlet.APIRequestHandler {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) {
+  JsonElement processRequest(HttpServletRequest req) {
 
     String[] assets = req.getParameterValues(ASSETS_PARAMETER);
 
-    JSONObject response = new JSONObject();
-    JSONArray assetsJSONArray = new JSONArray();
-    response.put(ASSETS_RESPONSE, assetsJSONArray);
+    JsonObject response = new JsonObject();
+    JsonArray assetsJsonArray = new JsonArray();
+    response.add(ASSETS_RESPONSE, assetsJsonArray);
     for (String assetIdString : assets) {
       if (assetIdString == null || assetIdString.isEmpty()) {
         continue;
@@ -44,7 +45,7 @@ public final class GetAssets extends APIServlet.APIRequestHandler {
         int transferCount = assetExchange.getTransferCount(asset.getId());
         int accountsCount = assetExchange.getAssetAccountsCount(asset.getId());
 
-        assetsJSONArray.add(JSONData.asset(asset, tradeCount, transferCount, accountsCount));
+        assetsJsonArray.add(JSONData.asset(asset, tradeCount, transferCount, accountsCount));
       } catch (RuntimeException e) {
         return INCORRECT_ASSET;
       }

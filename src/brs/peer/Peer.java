@@ -1,7 +1,8 @@
 package brs.peer;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+import brs.Version;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public interface Peer extends Comparable<Peer> {
 
@@ -15,7 +16,7 @@ public interface Peer extends Comparable<Peer> {
 
   State getState();
 
-  String getVersion();
+  Version getVersion();
 
   String getApplication();
 
@@ -33,7 +34,7 @@ public interface Peer extends Comparable<Peer> {
 
   boolean isAtLeastMyVersion();
 
-  boolean isHigherOrEqualVersionThan(String version);
+  boolean isHigherOrEqualVersionThan(Version version);
 
   void blacklist(Exception cause, String description);
 
@@ -55,6 +56,6 @@ public interface Peer extends Comparable<Peer> {
 
   // void setLastUnconfirmedTransactionTimestamp(Long lastUnconfirmedTransactionTimestamp);
 
-  JSONObject send(JSONStreamAware request);
+  JsonObject send(JsonElement request);
 
 }

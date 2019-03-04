@@ -1,25 +1,20 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER;
-import static brs.http.common.Parameters.SUBTYPE_PARAMETER;
-import static brs.http.common.Parameters.TIMESTAMP_PARAMETER;
-import static brs.http.common.Parameters.TYPE_PARAMETER;
-
 import brs.Account;
 import brs.Blockchain;
 import brs.BurstException;
 import brs.Transaction;
 import brs.db.BurstIterator;
 import brs.services.ParameterService;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-public final class GetAccountTransactionIds extends APIServlet.APIRequestHandler {
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.*;
+
+final class GetAccountTransactionIds extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;
@@ -32,7 +27,7 @@ public final class GetAccountTransactionIds extends APIServlet.APIRequestHandler
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     Account account = parameterService.getAccount(req);
     int timestamp = ParameterParser.getTimestamp(req);
@@ -54,7 +49,7 @@ public final class GetAccountTransactionIds extends APIServlet.APIRequestHandler
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);
 
-    JSONArray transactionIds = new JSONArray();
+    JsonArray transactionIds = new JsonArray();
     try (BurstIterator<? extends Transaction> iterator = blockchain.getTransactions(account, numberOfConfirmations, type, subtype, timestamp,
         firstIndex, lastIndex)) {
       while (iterator.hasNext()) {
@@ -63,8 +58,8 @@ public final class GetAccountTransactionIds extends APIServlet.APIRequestHandler
       }
     }
 
-    JSONObject response = new JSONObject();
-    response.put("transactionIds", transactionIds);
+    JsonObject response = new JsonObject();
+    response.add("transactionIds", transactionIds);
     return response;
 
   }

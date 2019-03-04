@@ -2,8 +2,8 @@ package brs.props;
 
 public class Prop<T> {
 
-  String name;
-  T defaultValue;
+  final String name;
+  final T defaultValue;
 
   public Prop(String name, T defaultValue) {
     this.name = name;

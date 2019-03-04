@@ -1,18 +1,14 @@
 package brs.assetexchange;
 
 import brs.Account.AccountAsset;
-import brs.Asset;
-import brs.AssetTransfer;
+import brs.*;
 import brs.Attachment.ColoredCoinsAskOrderPlacement;
 import brs.Attachment.ColoredCoinsAssetIssuance;
 import brs.Attachment.ColoredCoinsAssetTransfer;
 import brs.Attachment.ColoredCoinsBidOrderPlacement;
-import brs.Order;
 import brs.Order.Ask;
 import brs.Order.Bid;
-import brs.Trade;
 import brs.Trade.Event;
-import brs.Transaction;
 import brs.db.BurstIterator;
 import brs.util.Listener;
 

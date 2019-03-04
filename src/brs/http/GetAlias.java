@@ -1,15 +1,15 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ALIAS_NAME_PARAMETER;
-import static brs.http.common.Parameters.ALIAS_PARAMETER;
-
 import brs.Alias;
 import brs.Alias.Offer;
 import brs.services.AliasService;
 import brs.services.ParameterService;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.ALIAS_NAME_PARAMETER;
+import static brs.http.common.Parameters.ALIAS_PARAMETER;
 
 public final class GetAlias extends APIServlet.APIRequestHandler {
 
@@ -23,7 +23,7 @@ public final class GetAlias extends APIServlet.APIRequestHandler {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws ParameterException {
+  JsonElement processRequest(HttpServletRequest req) throws ParameterException {
     final Alias alias = parameterService.getAlias(req);
     final Offer offer = aliasService.getOffer(alias);
 

@@ -5,6 +5,7 @@ import brs.Block;
 import brs.Escrow;
 import brs.Escrow.DecisionType;
 import brs.db.BurstIterator;
+
 import java.util.Collection;
 
 public interface EscrowService {

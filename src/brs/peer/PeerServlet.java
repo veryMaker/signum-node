@@ -8,43 +8,42 @@ import brs.services.TimeService;
 import brs.util.CountingInputStream;
 import brs.util.CountingOutputStream;
 import brs.util.JSON;
-import org.eclipse.jetty.server.Response;
-import javax.servlet.http.HttpServletResponseWrapper;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
-import org.json.simple.JSONValue;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static brs.Constants.*;
+import static brs.Constants.PROTOCOL;
 
 public final class PeerServlet extends HttpServlet {
 
   private static final Logger logger = LoggerFactory.getLogger(PeerServlet.class);
 
   abstract static class PeerRequestHandler {
-    abstract JSONStreamAware processRequest(JSONObject request, Peer peer);
+    abstract JsonElement processRequest(JsonObject request, Peer peer);
   }
 
   abstract static class ExtendedPeerRequestHandler extends PeerRequestHandler {
-    JSONStreamAware processRequest(JSONObject request, Peer peer) { return null; }
-    abstract ExtendedProcessRequest extendedProcessRequest(JSONObject request, Peer peer);
+    JsonElement processRequest(JsonObject request, Peer peer) { return null; }
+    abstract ExtendedProcessRequest extendedProcessRequest(JsonObject request, Peer peer);
   }
 
   static class ExtendedProcessRequest {
-    JSONStreamAware response;
-    RequestLifecycleHook afterRequestHook;
+    final JsonElement response;
+    final RequestLifecycleHook afterRequestHook;
 
-    public ExtendedProcessRequest(JSONStreamAware response, RequestLifecycleHook afterRequestHook) {
+    public ExtendedProcessRequest(JsonElement response, RequestLifecycleHook afterRequestHook) {
       this.response = response;
       this.afterRequestHook = afterRequestHook;
     }
@@ -77,18 +76,18 @@ public final class PeerServlet extends HttpServlet {
     peerRequestHandlers = Collections.unmodifiableMap(map);
   }
 
-  private static final JSONStreamAware UNSUPPORTED_REQUEST_TYPE;
+  private static final JsonElement UNSUPPORTED_REQUEST_TYPE;
   static {
-    final JSONObject response = new JSONObject();
-    response.put("error", "Unsupported request type!");
-    UNSUPPORTED_REQUEST_TYPE = JSON.prepare(response);
+    final JsonObject response = new JsonObject();
+    response.addProperty("error", "Unsupported request type!");
+    UNSUPPORTED_REQUEST_TYPE = response;
   }
 
-  private static final JSONStreamAware UNSUPPORTED_PROTOCOL;
+  private static final JsonElement UNSUPPORTED_PROTOCOL;
   static {
-    final JSONObject response = new JSONObject();
-    response.put("error", "Unsupported protocol!");
-    UNSUPPORTED_PROTOCOL = JSON.prepare(response);
+    final JsonObject response = new JsonObject();
+    response.addProperty("error", "Unsupported protocol!");
+    UNSUPPORTED_PROTOCOL = response;
   }
 
   @Override
@@ -97,30 +96,35 @@ public final class PeerServlet extends HttpServlet {
   }
 
   @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    if(! Peers.isSupportedUserAgent(req.getHeader("User-Agent"))) {
-      return;
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    try {
+      if (!Peers.isSupportedUserAgent(req.getHeader("User-Agent"))) {
+        return;
+      }
+      process(req, resp);
+    } catch (Exception e) { // We don't want to send exception information to client...
+      resp.setStatus(500);
+      logger.warn("Error handling peer request", e);
     }
+  }
 
+  private void process(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     PeerImpl peer = null;
-    JSONStreamAware response;
+    JsonElement response;
 
     ExtendedProcessRequest extendedProcessRequest = null;
 
     String requestType = "unknown";
     try {
       peer = Peers.addPeer(req.getRemoteAddr(), null);
-      if (peer == null) {
-        return;
-      }
-      if (peer.isBlacklisted()) {
+      if (peer == null || peer.isBlacklisted()) {
         return;
       }
 
-      JSONObject request;
+      JsonObject request;
       CountingInputStream cis = new CountingInputStream(req.getInputStream());
-      try (Reader reader = new InputStreamReader(cis, "UTF-8")) {
-        request = (JSONObject) JSONValue.parse(reader);
+      try (Reader reader = new InputStreamReader(cis, StandardCharsets.UTF_8)) {
+        request = JSON.getAsJsonObject(JSON.parse(reader));
       }
       if (request == null) {
         return;
@@ -134,9 +138,9 @@ public final class PeerServlet extends HttpServlet {
       }
       peer.updateDownloadedVolume(cis.getCount());
 
-      if (request.get(PROTOCOL) != null && request.get(PROTOCOL).equals("B1")) {
-        requestType = "" + request.get("requestType");
-        PeerRequestHandler peerRequestHandler = peerRequestHandlers.get(request.get("requestType"));
+      if (request.get(PROTOCOL) != null && JSON.getAsString(request.get(PROTOCOL)).equals("B1")) {
+        requestType = "" + JSON.getAsString(request.get("requestType"));
+        PeerRequestHandler peerRequestHandler = peerRequestHandlers.get(JSON.getAsString(request.get("requestType")));
         if (peerRequestHandler != null) {
           if(peerRequestHandler instanceof ExtendedPeerRequestHandler) {
             extendedProcessRequest = ((ExtendedPeerRequestHandler) peerRequestHandler).extendedProcessRequest(request, peer);
@@ -150,14 +154,14 @@ public final class PeerServlet extends HttpServlet {
         }
       }
       else {
-        logger.debug("Unsupported protocol " + request.get(PROTOCOL));
+        logger.debug("Unsupported protocol " + JSON.getAsString(request.get(PROTOCOL)));
         response = UNSUPPORTED_PROTOCOL;
       }
 
     } catch (RuntimeException e) {
       logger.debug("Error processing POST request", e);
-      JSONObject json = new JSONObject();
-      json.put("error", e.toString());
+      JsonObject json = new JsonObject();
+      json.addProperty("error", e.toString());
       response = json;
     }
 
@@ -166,8 +170,8 @@ public final class PeerServlet extends HttpServlet {
       long byteCount;
 
       CountingOutputStream cos = new CountingOutputStream(resp.getOutputStream());
-      try (Writer writer = new OutputStreamWriter(cos, "UTF-8")) {
-        response.writeJSONString(writer);
+      try (Writer writer = new OutputStreamWriter(cos, StandardCharsets.UTF_8)) {
+        JSON.writeTo(response, writer);
       }
       byteCount = cos.getCount();
       if (peer != null) {
@@ -177,7 +181,7 @@ public final class PeerServlet extends HttpServlet {
       if (peer != null) {
         peer.blacklist(e, "can't respond to requestType=" + requestType);
       }
-      throw e;
+      return;
     }
 
     if(extendedProcessRequest != null) {

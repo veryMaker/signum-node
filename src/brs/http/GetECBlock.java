@@ -1,21 +1,19 @@
 package brs.http;
 
-import static brs.http.common.Parameters.TIMESTAMP_PARAMETER;
-import static brs.http.common.ResultFields.EC_BLOCK_HEIGHT_RESPONSE;
-import static brs.http.common.ResultFields.EC_BLOCK_ID_RESPONSE;
-import static brs.http.common.ResultFields.TIMESTAMP_RESPONSE;
-
 import brs.Block;
 import brs.Blockchain;
-import brs.EconomicClustering;
 import brs.BurstException;
+import brs.EconomicClustering;
 import brs.services.TimeService;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class GetECBlock extends APIServlet.APIRequestHandler {
+import static brs.http.common.Parameters.TIMESTAMP_PARAMETER;
+import static brs.http.common.ResultFields.*;
+
+final class GetECBlock extends APIServlet.APIRequestHandler {
 
   private final Blockchain blockchain;
   private final TimeService timeService;
@@ -29,7 +27,7 @@ public final class GetECBlock extends APIServlet.APIRequestHandler {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     int timestamp = ParameterParser.getTimestamp(req);
     if (timestamp == 0) {
       timestamp = timeService.getEpochTime();
@@ -38,10 +36,10 @@ public final class GetECBlock extends APIServlet.APIRequestHandler {
       return JSONResponses.INCORRECT_TIMESTAMP;
     }
     Block ecBlock = economicClustering.getECBlock(timestamp);
-    JSONObject response = new JSONObject();
-    response.put(EC_BLOCK_ID_RESPONSE, ecBlock.getStringId());
-    response.put(EC_BLOCK_HEIGHT_RESPONSE, ecBlock.getHeight());
-    response.put(TIMESTAMP_RESPONSE, timestamp);
+    JsonObject response = new JsonObject();
+    response.addProperty(EC_BLOCK_ID_RESPONSE, ecBlock.getStringId());
+    response.addProperty(EC_BLOCK_HEIGHT_RESPONSE, ecBlock.getHeight());
+    response.addProperty(TIMESTAMP_RESPONSE, timestamp);
     return response;
   }
 

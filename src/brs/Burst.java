@@ -1,72 +1,52 @@
 package brs;
 
-import static brs.schema.Tables.UNCONFIRMED_TRANSACTION;
-
 import brs.AT.HandleATBlockTransactionsListener;
-import brs.GeneratorImpl.MockGeneratorImpl;
 import brs.assetexchange.AssetExchange;
 import brs.assetexchange.AssetExchangeImpl;
 import brs.blockchainlistener.DevNullListener;
-import brs.deeplink.DeeplinkQRCodeGenerator;
-import brs.feesuggestions.FeeSuggestionCalculator;
-import brs.props.Props;
 import brs.db.BlockDb;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.sql.Db;
-
 import brs.db.store.BlockchainStore;
 import brs.db.store.Dbs;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.Stores;
+import brs.deeplink.DeeplinkQRCodeGenerator;
+import brs.feesuggestions.FeeSuggestionCalculator;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxCapacitorImpl;
+import brs.grpc.proto.BrsService;
 import brs.http.API;
 import brs.http.APITransactionManager;
 import brs.http.APITransactionManagerImpl;
 import brs.peer.Peers;
-import brs.services.ATService;
-import brs.services.AccountService;
-import brs.services.AliasService;
-import brs.services.BlockService;
-import brs.services.DGSGoodsStoreService;
-import brs.services.EscrowService;
-import brs.services.ParameterService;
 import brs.props.PropertyService;
-import brs.services.SubscriptionService;
-import brs.services.TimeService;
-import brs.services.TransactionService;
-import brs.services.impl.ATServiceImpl;
-import brs.services.impl.AccountServiceImpl;
-import brs.services.impl.AliasServiceImpl;
-import brs.services.impl.BlockServiceImpl;
-import brs.services.impl.DGSGoodsStoreServiceImpl;
-import brs.services.impl.EscrowServiceImpl;
-import brs.services.impl.ParameterServiceImpl;
 import brs.props.PropertyServiceImpl;
-import brs.services.impl.SubscriptionServiceImpl;
-import brs.services.impl.TimeServiceImpl;
-import brs.services.impl.TransactionServiceImpl;
+import brs.props.Props;
+import brs.services.*;
+import brs.services.impl.*;
 import brs.statistics.StatisticsManagerImpl;
 import brs.util.DownloadCacheImpl;
 import brs.util.LoggerConfigurator;
 import brs.util.ThreadPool;
 import brs.util.Time;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.ResultSet;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
 import org.jooq.DSLContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
+import java.sql.ResultSet;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static brs.schema.Tables.UNCONFIRMED_TRANSACTION;
+
 public final class Burst {
 
-  public static final String VERSION     = "2.3.0";
+  public static final Version VERSION = Version.parse("v2.3.0");
   public static final String APPLICATION = "BRS";
 
   private static final String DEFAULT_PROPERTIES_NAME = "brs-default.properties";
@@ -85,13 +65,10 @@ public final class Burst {
   private static PropertyService propertyService;
   private static FluxCapacitor fluxCapacitor;
 
-  private static EconomicClustering economicClustering;
-
   private static DBCacheManagerImpl dbCacheManager;
 
   private static API api;
-
-  static Properties properties;
+  private static Server apiV2Server;
 
   private static PropertyService loadProperties() {
     final Properties defaultProperties = new Properties();
@@ -117,6 +94,7 @@ public final class Burst {
       throw new RuntimeException("Error loading " + DEFAULT_PROPERTIES_NAME, e);
     }
 
+    Properties properties;
     try (InputStream is = ClassLoader.getSystemResourceAsStream("brs.properties")) {
       properties = new Properties(defaultProperties);
       if (is != null) { // parse if brs.properties was loaded
@@ -153,31 +131,27 @@ public final class Burst {
   }
 
   public static void main(String[] args) {
-    validateVersionNotDev(VERSION);
     Runtime.getRuntime().addShutdownHook(new Thread(Burst::shutdown));
     init();
   }
 
-  private static void validateVersionNotDev(String version) {
-    if(isDevVersion(version) && System.getProperty("dev") == null) {
+  private static void validateVersionNotDev(PropertyService propertyService) {
+    if(VERSION.isPrelease() && !propertyService.getBoolean(Props.DEV_TESTNET)) {
       logger.error("THIS IS A DEVELOPMENT WALLET, PLEASE DO NOT USE THIS");
       System.exit(0);
     }
-  }
-
-  private static boolean isDevVersion(String version) {
-    return Integer.parseInt(version.split("\\.")[1]) % 2 != 0;
   }
 
   public static void init(Properties customProperties) {
     loadWallet(new PropertyServiceImpl(customProperties));
   }
 
-  public static void init() {
+  private static void init() {
     loadWallet(loadProperties());
   }
 
   private static void loadWallet(PropertyService propertyService) {
+    validateVersionNotDev(propertyService);
     Burst.propertyService = propertyService;
 
     try {
@@ -207,9 +181,9 @@ public final class Burst {
       final AliasService aliasService = new AliasServiceImpl(stores.getAliasStore());
       fluxCapacitor = new FluxCapacitorImpl(blockchain, propertyService);
 
-      economicClustering = new EconomicClustering(blockchain);
+      EconomicClustering economicClustering = new EconomicClustering(blockchain);
 
-      final Generator generator = propertyService.getBoolean(Props.DEV_MOCK_MINING) ? new MockGeneratorImpl() : new GeneratorImpl(blockchain, timeService, fluxCapacitor);
+      final Generator generator = propertyService.getBoolean(Props.DEV_MOCK_MINING) ? new GeneratorImpl.MockGenerator(propertyService, blockchain, timeService, fluxCapacitor) : new GeneratorImpl(blockchain, timeService, fluxCapacitor);
 
       final AccountService accountService = new AccountServiceImpl(stores.getAccountStore(), stores.getAssetTransferStore());
 
@@ -254,6 +228,15 @@ public final class Burst {
           accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
           subscriptionService, atService, timeService, economicClustering, propertyService, threadPool,
           transactionService, blockService, generator, apiTransactionManager, feeSuggestionCalculator, deepLinkQRCodeGenerator);
+
+      if (propertyService.getBoolean(Props.API_V2_SERVER)) {
+          int port = propertyService.getBoolean(Props.DEV_TESTNET) ? propertyService.getInt(Props.DEV_API_V2_PORT) : propertyService.getInt(Props.API_V2_PORT);
+          logger.info("Starting V2 API Server on port {}", port);
+          BrsService apiV2 = new BrsService(blockchainProcessor, blockchain, blockService, accountService, generator, transactionProcessor);
+          apiV2Server = ServerBuilder.forPort(port).addService(apiV2).build().start();
+      } else {
+          logger.info("Not starting V2 API Server - it is disabled.");
+      }
 
       DebugTrace.init(propertyService, blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService);
 
@@ -312,11 +295,11 @@ public final class Burst {
     blockchainProcessor.addListener(devNullListener, BlockchainProcessor.Event.AFTER_BLOCK_APPLY);
   }
 
-  public static void shutdown() {
+  private static void shutdown() {
     shutdown(false);
   }
 
-  public static void commandHandler() {
+  private static void commandHandler() {
     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     try {
       String command;
@@ -345,6 +328,8 @@ public final class Burst {
     logger.info("Shutting down...");
     if (api != null)
       api.shutdown();
+    if (apiV2Server != null)
+      apiV2Server.shutdownNow();
     Peers.shutdown(threadPool);
     threadPool.shutdown();
     if(! ignoreDBShutdown) {

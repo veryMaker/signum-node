@@ -1,18 +1,16 @@
 package brs.db.sql;
 
 import brs.*;
+import brs.Transaction;
 import brs.db.BlockDb;
 import brs.db.BurstIterator;
 import brs.db.store.BlockchainStore;
 import brs.schema.tables.records.BlockRecord;
+import org.jooq.*;
+
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-import org.jooq.Cursor;
-import org.jooq.DSLContext;
-import org.jooq.Condition;
-import org.jooq.SelectConditionStep;
-import org.jooq.SelectQuery;
 
 import static brs.schema.Tables.BLOCK;
 import static brs.schema.Tables.TRANSACTION;
@@ -88,7 +86,7 @@ public class SqlBlockchainStore implements BlockchainStore {
     }
 
       try ( DSLContext ctx = Db.getDSLContext() ) {
-        List<Block> blocksAfter = new ArrayList<Block>();
+        List<Block> blocksAfter = new ArrayList<>();
         try (Cursor<BlockRecord> cursor = ctx.selectFrom(BLOCK).where(BLOCK.HEIGHT.gt( ctx.select(BLOCK.HEIGHT).from(BLOCK).where(BLOCK.ID.eq(blockId)))).orderBy(BLOCK.HEIGHT.asc()).limit(limit).fetchLazy()) {
           while (cursor.hasNext()) {
             blocksAfter.add(blockDb.loadBlock(cursor.fetchNext()));

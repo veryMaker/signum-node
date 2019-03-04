@@ -8,12 +8,12 @@
   <artifactId>burstcoin</artifactId>
   <version>2.3.0</version>
   <name>Burstcoin Reference Software</name>
-  <url>https://github.com/PoC-Consortium/burstcoin</url>
+  <url>https://github.com/burst-apps-team/burstcoin</url>
 
   <scm>
-    <connection>scm:git:git@github.com:PoC-Consortium/burstcoin.git</connection>
-    <developerConnection>scm:git:git@github.com:PoC-Consortium/burstcoin.git</developerConnection>
-    <url>https://github.com/PoC-Consortium/burstcoin</url>
+    <connection>scm:git:git@github.com:burst-apps-team/burstcoin.git</connection>
+    <developerConnection>scm:git:git@github.com:burst-apps-team/burstcoin.git</developerConnection>
+    <url>https://github.com/burst-apps-team/burstcoin</url>
   </scm>
 
   <packaging>jar</packaging>
@@ -24,7 +24,7 @@
     <jocl.version>2.0.0</jocl.version>
     <bcprov-jdk15on.version>1.59</bcprov-jdk15on.version>
     <jetty.version>9.4.8.v20171121</jetty.version>
-    <json-simple.version>1.1.1</json-simple.version>
+    <gson.version>2.8.5</gson.version>
     <javax.servlet-api.version>4.0.0</javax.servlet-api.version>
     <slf4j.version>1.7.25</slf4j.version>
     <mariadb.version>2.2.3</mariadb.version>
@@ -42,6 +42,7 @@
     <ehcache.version>3.5.0</ehcache.version>
     <apachehttpclient.version>4.5.2</apachehttpclient.version>
     <xzing.version>3.3.0</xzing.version>
+    <flywaydb.version>5.2.4</flywaydb.version>
 
     <junit-jupiter.version>5.2.0</junit-jupiter.version>
     <junit-platform.version>1.2.0</junit-platform.version>
@@ -54,21 +55,9 @@
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <sonar.sources>src</sonar.sources>
-
     <skip.jooq.generation>true</skip.jooq.generation>
-    <sonar.tests>test/java</sonar.tests>
 
-    <!-- For Java -->
-    <sonar.junit.reportPath>${project.build.directory}/reports/java/surefire-reports</sonar.junit.reportPath>
-    <sonar.jacoco.reportsPath>${project.build.directory}/reports/java/jacoco.exec</sonar.jacoco.reportsPath>
-    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-    <sonar.language>java</sonar.language>
-
-    <!-- For JavaScript -->
-    <!--
-    <sonar.javascript.lcov.reportPath>reports/js/lcov.dat</sonar.javascript.lcov.reportPath>
-    -->
+    <grpc.source.dir>src/brs/grpc</grpc.source.dir>
 
   </properties>
 
@@ -105,9 +94,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-      <version>${json-simple.version}</version>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>${gson.version}</version>
     </dependency>
 
     <dependency>
@@ -302,7 +291,100 @@
       <version>${apachehttpclient.version}</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty-shaded</artifactId>
+      <version>1.18.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
+      <version>1.18.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+      <version>1.18.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+      <version>${flywaydb.version}</version>
+    </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>normalBuild</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.xolstice.maven.plugins</groupId>
+            <artifactId>protobuf-maven-plugin</artifactId>
+            <version>0.5.1</version>
+            <configuration>
+              <protoSourceRoot>${grpc.source.dir}</protoSourceRoot>
+              <protocArtifact>com.google.protobuf:protoc:3.5.1-1:exe:${os.detected.classifier}</protocArtifact>
+              <pluginId>grpc-java</pluginId>
+              <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.18.0:exe:${os.detected.classifier}</pluginArtifact>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>compile</goal>
+                  <goal>compile-custom</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>headlessBuild</id>
+      <activation>
+        <property>
+          <name>os.detected.release</name>
+          <value>alpine</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.xolstice.maven.plugins</groupId>
+            <artifactId>protobuf-maven-plugin</artifactId>
+            <version>0.5.1</version>
+            <configuration>
+              <protoSourceRoot>${grpc.source.dir}</protoSourceRoot>
+              <pluginId>grpc-java</pluginId>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>compile</goal>
+                  <goal>compile-custom</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.0</version>
+            <configuration>
+              <excludes>
+                <exclude>brs/BurstGUI.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -314,15 +396,14 @@
       </testResource>
     </testResources>
 
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.sonarsource.scanner.maven</groupId>
-          <artifactId>sonar-maven-plugin</artifactId>
-          <version>3.3.0.603</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.5.0.Final</version>
+      </extension>
+    </extensions>
+
     <plugins>
 
       <plugin>
@@ -336,7 +417,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass>brs.Burst</mainClass>
+              <mainClass>brs.BurstLauncher</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -382,7 +463,7 @@
             <configuration>
               <target>
                 <!-- copy jar -->
-                <move file="${project.basedir}/target/${project.build.finalName}-jar-with-dependencies.jar"
+                <copy file="${project.basedir}/target/${project.build.finalName}-jar-with-dependencies.jar"
                   tofile="${project.basedir}/dist/tmp/burst.jar"/>
 
                 <!-- copy html dir -->
@@ -442,30 +523,6 @@
       </plugin>
 
       <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>${jacoco.version}</version>
-        <executions>
-          <execution>
-            <id>pre-unit-test</id>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-            <configuration>
-              <destFile>${sonar.jacoco.reportsPath}</destFile>
-              <propertyName>surefireArgLine</propertyName>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!--plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.20.1</version>
-      </plugin-->
-
-      <plugin>
         <groupId>org.jooq</groupId>
         <artifactId>jooq-codegen-maven</artifactId>
         <version>${jooq.version}</version>
@@ -485,7 +542,7 @@
             <driver>org.mariadb.jdbc.Driver</driver>
             <url>jdbc:mysql://localhost:3306/burstwallet</url>
             <user>root</user>
-            <password></password>
+            <password />
           </jdbc>
           <generator>
             <name>org.jooq.util.JavaGenerator</name>
@@ -494,7 +551,7 @@
               <inputSchema>burstwallet</inputSchema>
               <outputSchema>DB</outputSchema>
               <includes>.*</includes>
-              <excludes></excludes>
+              <excludes />
               <forcedTypes>
                 <forcedType>
                   <name>BOOLEAN</name>

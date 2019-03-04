@@ -2,8 +2,8 @@ package brs.at;
 
 import brs.Burst;
 import brs.Constants;
-
 import brs.fluxcapacitor.FluxInt;
+
 import java.util.HashMap;
 import java.util.NavigableMap;
 import java.util.TreeMap;

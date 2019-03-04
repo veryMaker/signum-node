@@ -45,7 +45,7 @@ public class AT_API_Helper {
     return buffer.getInt(0);
   }
 
-  protected static long getLongTimestamp(int height, int numOfTx) {
+  static long getLongTimestamp(int height, int numOfTx) {
     ByteBuffer buffer = ByteBuffer.allocate(8);
     buffer.order(ByteOrder.LITTLE_ENDIAN);
     buffer.putInt(4, height);

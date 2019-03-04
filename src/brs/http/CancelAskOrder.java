@@ -1,17 +1,14 @@
 package brs.http;
 
-import static brs.http.JSONResponses.UNKNOWN_ORDER;
-import static brs.http.common.Parameters.ORDER_PARAMETER;
-
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
-import brs.Order;
+import brs.*;
 import brs.assetexchange.AssetExchange;
 import brs.services.ParameterService;
+import com.google.gson.JsonElement;
+
 import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONStreamAware;
+
+import static brs.http.JSONResponses.UNKNOWN_ORDER;
+import static brs.http.common.Parameters.ORDER_PARAMETER;
 
 public final class CancelAskOrder extends CreateTransaction {
 
@@ -27,7 +24,7 @@ public final class CancelAskOrder extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long orderId = ParameterParser.getOrderId(req);
     Account account = parameterService.getSenderAccount(req);
     Order.Ask orderData = assetExchange.getAskOrder(orderId);

@@ -1,24 +1,14 @@
 package brs.http;
 
-import static brs.http.JSONResponses.INCORRECT_DGS_LISTING_DESCRIPTION;
-import static brs.http.JSONResponses.INCORRECT_DGS_LISTING_NAME;
-import static brs.http.JSONResponses.INCORRECT_DGS_LISTING_TAGS;
-import static brs.http.JSONResponses.MISSING_NAME;
-import static brs.http.common.Parameters.DESCRIPTION_PARAMETER;
-import static brs.http.common.Parameters.NAME_PARAMETER;
-import static brs.http.common.Parameters.PRICE_NQT_PARAMETER;
-import static brs.http.common.Parameters.QUANTITY_PARAMETER;
-import static brs.http.common.Parameters.TAGS_PARAMETER;
-
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
-import brs.Constants;
+import brs.*;
 import brs.services.ParameterService;
 import brs.util.Convert;
+import com.google.gson.JsonElement;
+
 import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONStreamAware;
+
+import static brs.http.JSONResponses.*;
+import static brs.http.common.Parameters.*;
 
 public final class DGSListing extends CreateTransaction {
 
@@ -32,7 +22,7 @@ public final class DGSListing extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     String name = Convert.emptyToNull(req.getParameter(NAME_PARAMETER));
     String description = Convert.nullToEmpty(req.getParameter(DESCRIPTION_PARAMETER));

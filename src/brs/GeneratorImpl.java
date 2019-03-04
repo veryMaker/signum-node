@@ -1,7 +1,15 @@
 package brs;
 
+import brs.crypto.Crypto;
+import brs.crypto.hash.Shabal256;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.props.PropertyService;
+import brs.props.Props;
 import brs.services.TimeService;
+import brs.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -12,18 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import brs.crypto.Crypto;
-import brs.crypto.hash.Shabal256;
-import brs.util.Convert;
-import brs.util.Listener;
-import brs.util.Listeners;
-import brs.util.MiningPlot;
-import brs.util.ThreadPool;
-
-public final class GeneratorImpl implements Generator {
+public class GeneratorImpl implements Generator {
 
   private static final Logger logger = LoggerFactory.getLogger(GeneratorImpl.class);
 
@@ -32,9 +29,9 @@ public final class GeneratorImpl implements Generator {
   private static final ConcurrentMap<Long, GeneratorStateImpl> generators = new ConcurrentHashMap<>();
   private static final Collection<? extends GeneratorState> allGenerators = Collections.unmodifiableCollection(generators.values());
 
-  private Blockchain blockchain;
+  private final Blockchain blockchain;
 
-  private final Runnable generateBlockThread(BlockchainProcessor blockchainProcessor) {
+  private Runnable generateBlockThread(BlockchainProcessor blockchainProcessor) {
     return () -> {
 
       try {
@@ -55,15 +52,15 @@ public final class GeneratorImpl implements Generator {
         } catch (BlockchainProcessor.BlockNotAcceptedException e) {
           logger.debug("Error in block generation thread", e);
         }
-      } catch (Throwable t) {
+      } catch (Exception t) {
         logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n" + t.toString(), t);
         System.exit(1);
       }
 
     };
   }
-  private TimeService timeService;
-  private FluxCapacitor fluxCapacitor;
+  private final TimeService timeService;
+  private final FluxCapacitor fluxCapacitor;
 
   public GeneratorImpl(Blockchain blockchain, TimeService timeService, FluxCapacitor fluxCapacitor) {
     this.blockchain = blockchain;
@@ -98,13 +95,13 @@ public final class GeneratorImpl implements Generator {
   @Override
   public GeneratorState addNonce(String secretPhrase, Long nonce, byte[] publicKey) {
     byte[] publicKeyHash = Crypto.sha256().digest(publicKey);
-    Long id = Convert.fullHashToId(publicKeyHash);
+    long id = Convert.fullHashToId(publicKeyHash);
 
     GeneratorStateImpl generator = new GeneratorStateImpl(secretPhrase, nonce, publicKey, id);
     GeneratorStateImpl curGen = generators.get(id);
     if (curGen == null || generator.getBlock() > curGen.getBlock() || generator.getDeadline().compareTo(curGen.getDeadline()) < 0) {
       generators.put(id, generator);
-      listeners.notify(generator, Event.START_FORGING);
+      listeners.notify(generator, Event.NONCE_SUBMITTED);
       logger.debug("Account " + Convert.toUnsignedLong(id) + " started mining, deadline " + generator.getDeadline() + " seconds");
     } else {
       logger.debug("Account " + Convert.toUnsignedLong(id) + " already has better nonce");
@@ -172,7 +169,7 @@ public final class GeneratorImpl implements Generator {
     private final Long accountId;
     private final String secretPhrase;
     private final byte[] publicKey;
-    private volatile BigInteger deadline;
+    private final BigInteger deadline;
     private final long nonce;
     private final long block;
 
@@ -227,94 +224,26 @@ public final class GeneratorImpl implements Generator {
     }
   }
 
-  public static class MockGeneratorImpl implements Generator {
-
-    private final Listeners<GeneratorState, Event> listeners = new Listeners<>();
-
-    private BlockchainProcessor blockchainProcessor;
-
-    @Override
-    public void generateForBlockchainProcessor(ThreadPool threadPool, BlockchainProcessor blockchainProcessor) {
-      this.blockchainProcessor = blockchainProcessor;
-    }
-
-    @Override
-    public boolean addListener(Listener<GeneratorState> listener, Event eventType) {
-      return listeners.addListener(listener, eventType);
-    }
-
-    @Override
-    public boolean removeListener(Listener<GeneratorState> listener, Event eventType) {
-      return listeners.removeListener(listener, eventType);
-    }
-
-    @Override
-    public GeneratorState addNonce(String secretPhrase, Long nonce) {
-      byte[] publicKey = Crypto.getPublicKey(secretPhrase);
-      return addNonce(secretPhrase, nonce, publicKey);
-    }
-
-    @Override
-    public GeneratorState addNonce(String secretPhrase, Long nonce, byte[] publicKey) {
-      try {
-        blockchainProcessor.generateBlock(secretPhrase, publicKey, nonce);
-      } catch (BlockchainProcessor.BlockNotAcceptedException e) {
-        logger.info(e.getMessage(), e);
-      }
-      return new MockGeneratorStateImpl();
-    }
-
-    @Override
-    public Collection<? extends GeneratorState> getAllGenerators() {
-      return Collections.EMPTY_LIST;
-    }
-
-    @Override
-    public byte[] calculateGenerationSignature(byte[] lastGenSig, long lastGenId) {
-      return new byte[32];
-    }
-
-    @Override
-    public int calculateScoop(byte[] genSig, long height) {
-      return 0;
+  public static class MockGenerator extends GeneratorImpl {
+    private final PropertyService propertyService;
+    public MockGenerator(PropertyService propertyService, Blockchain blockchain, TimeService timeService, FluxCapacitor fluxCapacitor) {
+      super(blockchain, timeService, fluxCapacitor);
+      this.propertyService = propertyService;
     }
 
     @Override
     public BigInteger calculateHit(long accountId, long nonce, byte[] genSig, int scoop, int blockHeight) {
-      return BigInteger.valueOf(0);
+      return BigInteger.valueOf(propertyService.getInt(Props.DEV_MOCK_MINING_DEADLINE));
     }
 
     @Override
     public BigInteger calculateHit(long accountId, long nonce, byte[] genSig, byte[] scoopData) {
-      return BigInteger.ZERO;
+      return BigInteger.valueOf(propertyService.getInt(Props.DEV_MOCK_MINING_DEADLINE));
     }
 
     @Override
     public BigInteger calculateDeadline(long accountId, long nonce, byte[] genSig, int scoop, long baseTarget, int blockHeight) {
-      return BigInteger.valueOf(0);
-    }
-
-    public class MockGeneratorStateImpl implements GeneratorState {
-
-      @Override
-      public byte[] getPublicKey() {
-        return new byte[32];
-      }
-
-      @Override
-      public Long getAccountId() {
-        return 0L;
-      }
-
-      @Override
-      public BigInteger getDeadline() {
-        return new BigInteger("0");
-      }
-
-      @Override
-      public long getBlock() {
-        return 0;
-      }
+      return BigInteger.valueOf(propertyService.getInt(Props.DEV_MOCK_MINING_DEADLINE));
     }
   }
 }

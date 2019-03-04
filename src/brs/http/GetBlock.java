@@ -5,15 +5,12 @@ import brs.Blockchain;
 import brs.http.common.Parameters;
 import brs.services.BlockService;
 import brs.util.Convert;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
 
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.JSONResponses.*;
-import static brs.http.common.Parameters.BLOCK_PARAMETER;
-import static brs.http.common.Parameters.HEIGHT_PARAMETER;
-import static brs.http.common.Parameters.INCLUDE_TRANSACTIONS_PARAMETER;
-import static brs.http.common.Parameters.TIMESTAMP_PARAMETER;
+import static brs.http.common.Parameters.*;
 
 public final class GetBlock extends APIServlet.APIRequestHandler {
 
@@ -28,7 +25,7 @@ public final class GetBlock extends APIServlet.APIRequestHandler {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) {
+  JsonElement processRequest(HttpServletRequest req) {
     String blockValue = Convert.emptyToNull(req.getParameter(BLOCK_PARAMETER));
     String heightValue = Convert.emptyToNull(req.getParameter(HEIGHT_PARAMETER));
     String timestampValue = Convert.emptyToNull(req.getParameter(TIMESTAMP_PARAMETER));

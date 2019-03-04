@@ -4,9 +4,9 @@ import brs.Transaction;
 
 public class TransactionDuplicationResult {
 
-  boolean duplicate;
+  final boolean duplicate;
 
-  Transaction transaction;
+  final Transaction transaction;
 
   public TransactionDuplicationResult(boolean duplicate, Transaction transaction) {
     this.duplicate = duplicate;

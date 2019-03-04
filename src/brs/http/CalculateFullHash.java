@@ -1,14 +1,16 @@
 package brs.http;
 
-import static brs.http.common.Parameters.*;
-import static brs.http.JSONResponses.*;
-
 import brs.crypto.Crypto;
 import brs.util.Convert;
-import java.security.MessageDigest;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+import java.security.MessageDigest;
+
+import static brs.http.JSONResponses.MISSING_SIGNATURE_HASH;
+import static brs.http.JSONResponses.MISSING_UNSIGNED_BYTES;
+import static brs.http.common.Parameters.*;
 
 public final class CalculateFullHash extends APIServlet.APIRequestHandler {
 
@@ -17,7 +19,7 @@ public final class CalculateFullHash extends APIServlet.APIRequestHandler {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) {
+  JsonElement processRequest(HttpServletRequest req) {
 
     String unsignedBytesString = Convert.emptyToNull(req.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER));
     String signatureHashString = Convert.emptyToNull(req.getParameter(SIGNATURE_HASH_PARAMETER));
@@ -31,8 +33,8 @@ public final class CalculateFullHash extends APIServlet.APIRequestHandler {
     MessageDigest digest = Crypto.sha256();
     digest.update(Convert.parseHexString(unsignedBytesString));
     byte[] fullHash = digest.digest(Convert.parseHexString(signatureHashString));
-    JSONObject response = new JSONObject();
-    response.put(FULL_HASH_RESPONSE, Convert.toHexString(fullHash));
+    JsonObject response = new JsonObject();
+    response.addProperty(FULL_HASH_RESPONSE, Convert.toHexString(fullHash));
 
     return response;
 

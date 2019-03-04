@@ -9,16 +9,16 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import java.awt.AlphaComposite;
-import java.awt.Graphics2D;
+import org.apache.commons.lang.StringUtils;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import javax.imageio.ImageIO;
-import org.apache.commons.lang.StringUtils;
 
 public class DeeplinkQRCodeGenerator {
 
@@ -27,7 +27,6 @@ public class DeeplinkQRCodeGenerator {
   private final Optional<BufferedImage> overlay;
 
   private static final String OVERLAY_LOCATION = "resources/images/burst_overlay_logo.png";
-
 
   public DeeplinkQRCodeGenerator() {
     hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
@@ -39,20 +38,20 @@ public class DeeplinkQRCodeGenerator {
       throws WriterException {
     final StringBuilder deeplinkBuilder = new StringBuilder("burst://requestBurst");
 
-    deeplinkBuilder.append("&receiver=" + receiverId);
-    deeplinkBuilder.append("&amountNQT=" + amountNQT);
+    deeplinkBuilder.append("&receiver=").append(receiverId);
+    deeplinkBuilder.append("&amountNQT=").append(amountNQT);
 
     if (feeNQT != null) {
-      deeplinkBuilder.append("&feeNQT=" + feeNQT);
+      deeplinkBuilder.append("&feeNQT=").append(feeNQT);
     } else {
-      deeplinkBuilder.append("&feeSuggestionType=" + feeSuggestionType.getType());
+      deeplinkBuilder.append("&feeSuggestionType=").append(feeSuggestionType.getType());
     }
 
     if (!StringUtils.isEmpty(message)) {
-      deeplinkBuilder.append("&message=" + message);
+      deeplinkBuilder.append("&message=").append(message);
     }
 
-    deeplinkBuilder.append("&immutable=" + immutable);
+    deeplinkBuilder.append("&immutable=").append(immutable);
 
     return generateBurstQRCode(deeplinkBuilder.toString());
   }
@@ -73,7 +72,7 @@ public class DeeplinkQRCodeGenerator {
       g.drawImage(qrImage, 0, 0, null);
       g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 
-      g.drawImage(overlayImage, Math.round(deltaWidth / 2), Math.round(deltaHeight / 2), null);
+      g.drawImage(overlayImage, Math.round(deltaWidth / 2f), Math.round(deltaHeight / 2f), null);
 
       g.dispose();
       return combined;

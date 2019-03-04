@@ -1,18 +1,19 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.ESCROWS_RESPONSE;
-
 import brs.Account;
 import brs.BurstException;
 import brs.Escrow;
 import brs.services.EscrowService;
 import brs.services.ParameterService;
-import java.util.Collection;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+import java.util.Collection;
+
+import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
+import static brs.http.common.Parameters.ESCROWS_RESPONSE;
 
 public final class GetAccountEscrowTransactions extends APIServlet.APIRequestHandler {
 
@@ -27,20 +28,20 @@ public final class GetAccountEscrowTransactions extends APIServlet.APIRequestHan
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final Account account = parameterService.getAccount(req);
 
     Collection<Escrow> accountEscrows = escrowService.getEscrowTransactionsByParticipant(account.getId());
 
-    JSONObject response = new JSONObject();
+    JsonObject response = new JsonObject();
 
-    JSONArray escrows = new JSONArray();
+    JsonArray escrows = new JsonArray();
 
     for (Escrow escrow : accountEscrows) {
       escrows.add(JSONData.escrowTransaction(escrow));
     }
 
-    response.put(ESCROWS_RESPONSE, escrows);
+    response.add(ESCROWS_RESPONSE, escrows);
     return response;
   }
 }

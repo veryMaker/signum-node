@@ -24,9 +24,9 @@ public class Trade {
   private final long priceNQT;
   private final boolean isBuy;
 
-  public Trade(int timestamp, long assetId, long blockId, int height,
-               long askOrderId, long bidOrderId, int askOrderHeight, int bidOrderHeight,
-               long sellerId, long buyerId, BurstKey dbKey, long quantityQNT, long priceNQT) {
+  protected Trade(int timestamp, long assetId, long blockId, int height,
+                  long askOrderId, long bidOrderId, int askOrderHeight, int bidOrderHeight,
+                  long sellerId, long buyerId, BurstKey dbKey, long quantityQNT, long priceNQT) {
     this.timestamp = timestamp;
     this.assetId = assetId;
     this.blockId = blockId;

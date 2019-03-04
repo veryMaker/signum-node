@@ -1,5 +1,21 @@
 package brs.http;
 
+import brs.*;
+import brs.common.QuickMocker;
+import brs.common.QuickMocker.MockParam;
+import brs.fluxcapacitor.FluxCapacitor;
+import brs.services.ParameterService;
+import brs.services.SubscriptionService;
+import brs.util.JSON;
+import com.google.gson.JsonObject;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import javax.servlet.http.HttpServletRequest;
+
 import static brs.TransactionType.AdvancedPayment.SUBSCRIPTION_CANCEL;
 import static brs.fluxcapacitor.FeatureToggle.DIGITAL_GOODS_STORE;
 import static brs.http.common.Parameters.SUBSCRIPTION_PARAMETER;
@@ -10,25 +26,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
-
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.Burst;
-import brs.BurstException;
-import brs.Subscription;
-import brs.common.QuickMocker;
-import brs.common.QuickMocker.MockParam;
-import brs.fluxcapacitor.FluxCapacitor;
-import brs.services.ParameterService;
-import brs.services.SubscriptionService;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Burst.class)
@@ -85,10 +82,10 @@ public class SubscriptionCancelTest extends AbstractTransactionTest {
   public void processRequest_missingSubscriptionParameter() throws BurstException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
-    final JSONObject response = (JSONObject) t.processRequest(req);
+    final JsonObject response = (JsonObject) t.processRequest(req);
     assertNotNull(response);
 
-    assertEquals(3, response.get(ERROR_CODE_RESPONSE));
+    assertEquals(3, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)));
   }
 
   @Test
@@ -97,10 +94,10 @@ public class SubscriptionCancelTest extends AbstractTransactionTest {
       new MockParam(SUBSCRIPTION_PARAMETER, "notALong")
     );
 
-    final JSONObject response = (JSONObject) t.processRequest(req);
+    final JsonObject response = (JsonObject) t.processRequest(req);
     assertNotNull(response);
 
-    assertEquals(4, response.get(ERROR_CODE_RESPONSE));
+    assertEquals(4, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)));
   }
 
   @Test
@@ -113,10 +110,10 @@ public class SubscriptionCancelTest extends AbstractTransactionTest {
 
     when(subscriptionServiceMock.getSubscription(eq(subscriptionId))).thenReturn(null);
 
-    final JSONObject response = (JSONObject) t.processRequest(req);
+    final JsonObject response = (JsonObject) t.processRequest(req);
     assertNotNull(response);
 
-    assertEquals(5, response.get(ERROR_CODE_RESPONSE));
+    assertEquals(5, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)));
   }
 
   @Test
@@ -137,9 +134,9 @@ public class SubscriptionCancelTest extends AbstractTransactionTest {
     when(parameterServiceMock.getSenderAccount(eq(req))).thenReturn(mockSender);
     when(subscriptionServiceMock.getSubscription(eq(subscriptionId))).thenReturn(mockSubscription);
 
-    final JSONObject response = (JSONObject) t.processRequest(req);
+    final JsonObject response = (JsonObject) t.processRequest(req);
     assertNotNull(response);
 
-    assertEquals(7, response.get(ERROR_CODE_RESPONSE));
+    assertEquals(7, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)));
   }
 }

@@ -1,62 +1,22 @@
 package brs;
 
-import static org.jocl.CL.CL_CONTEXT_PLATFORM;
-import static org.jocl.CL.CL_DEVICE_AVAILABLE;
-import static org.jocl.CL.CL_DEVICE_ENDIAN_LITTLE;
-import static org.jocl.CL.CL_DEVICE_GLOBAL_MEM_SIZE;
-import static org.jocl.CL.CL_DEVICE_MAX_CLOCK_FREQUENCY;
-import static org.jocl.CL.CL_DEVICE_MAX_COMPUTE_UNITS;
-import static org.jocl.CL.CL_DEVICE_MAX_MEM_ALLOC_SIZE;
-import static org.jocl.CL.CL_DEVICE_TYPE_GPU;
-import static org.jocl.CL.CL_KERNEL_WORK_GROUP_SIZE;
-import static org.jocl.CL.CL_MEM_COPY_HOST_PTR;
-import static org.jocl.CL.CL_MEM_READ_ONLY;
-import static org.jocl.CL.CL_MEM_READ_WRITE;
-import static org.jocl.CL.CL_PLATFORM_NAME;
-import static org.jocl.CL.clBuildProgram;
-import static org.jocl.CL.clCreateBuffer;
-import static org.jocl.CL.clCreateCommandQueue;
-import static org.jocl.CL.clCreateContext;
-import static org.jocl.CL.clCreateKernel;
-import static org.jocl.CL.clCreateProgramWithSource;
-import static org.jocl.CL.clEnqueueNDRangeKernel;
-import static org.jocl.CL.clEnqueueReadBuffer;
-import static org.jocl.CL.clGetDeviceIDs;
-import static org.jocl.CL.clGetDeviceInfo;
-import static org.jocl.CL.clGetKernelWorkGroupInfo;
-import static org.jocl.CL.clGetPlatformIDs;
-import static org.jocl.CL.clGetPlatformInfo;
-import static org.jocl.CL.clReleaseCommandQueue;
-import static org.jocl.CL.clReleaseContext;
-import static org.jocl.CL.clReleaseKernel;
-import static org.jocl.CL.clReleaseMemObject;
-import static org.jocl.CL.clReleaseProgram;
-import static org.jocl.CL.clSetKernelArg;
-import static org.jocl.CL.setExceptionsEnabled;
-
+import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.BlockService;
+import brs.util.MiningPlot;
+import org.jocl.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
-import org.jocl.CLException;
-import org.jocl.Pointer;
-import org.jocl.Sizeof;
-import brs.props.PropertyService;
-import org.jocl.cl_command_queue;
-import org.jocl.cl_context;
-import org.jocl.cl_context_properties;
-import org.jocl.cl_device_id;
-import org.jocl.cl_kernel;
-import org.jocl.cl_mem;
-import org.jocl.cl_platform_id;
-import org.jocl.cl_program;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import brs.util.MiningPlot;
+import java.util.Locale;
+
+import static org.jocl.CL.*;
 
 final class OCLPoC {
 
@@ -70,10 +30,10 @@ final class OCLPoC {
   private static cl_program program;
   private static cl_kernel genKernel;
   private static cl_kernel getKernel;
-  private static cl_kernel getKernel2;
+  private static final cl_kernel getKernel2;
 
   private static long maxItems;
-  private static long maxGroupItems;
+  private static final long maxGroupItems;
 
   private static final Object oclLock = new Object();
 
@@ -458,7 +418,7 @@ final class OCLPoC {
           continue;
         }
 
-        if (bestResult != null && platformName.toLowerCase().contains("intel")) {
+        if (bestResult != null && platformName.toLowerCase(Locale.ENGLISH).contains("intel")) {
           continue;
         }
 
@@ -474,7 +434,7 @@ final class OCLPoC {
         if (bestResult == null || score > bestScore || intel) {
           bestResult = new AutoChooseResult(pfi, dvi);
           bestScore = score;
-          if (platformName.toLowerCase().contains("intel")) {
+          if (platformName.toLowerCase(Locale.ENGLISH).contains("intel")) {
             intel = true;
           }
         }
@@ -485,8 +445,8 @@ final class OCLPoC {
   }
 
   private static class AutoChooseResult {
-    int platform;
-    int device;
+    final int platform;
+    final int device;
 
     AutoChooseResult(int platform, int device) {
       this.platform = platform;

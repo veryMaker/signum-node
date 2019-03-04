@@ -1,6 +1,7 @@
 package brs;
 
 import brs.props.Props;
+
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -8,7 +9,6 @@ public final class Constants {
 
   public static final int BURST_DIFF_ADJUST_CHANGE_BLOCK = 2700;
 
-  public static final long BURST_REWARD_RECIPIENT_ASSIGNMENT_START_BLOCK = 6500;
   public static final long BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME = 4;
 
   // not sure when these were enabled, but they each do an alias lookup every block if greater than the current height
@@ -67,7 +67,9 @@ public final class Constants {
   public static final int MAX_AUTOMATED_TRANSACTION_NAME_LENGTH = 30;
   public static final int MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH = 1000;
 
-  public static final String MIN_VERSION = "2.2.6";
+  public static final String HTTP = "http://";
+
+  public static final Version MIN_VERSION = Version.parse("2.2.6");
 
   static final long UNCONFIRMED_POOL_DEPOSIT_NQT = (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? 50 : 100) * ONE_BURST;
 

@@ -1,14 +1,13 @@
 package brs.http;
 
-import static brs.http.common.ResultFields.CHEAP_FEE_RESPONSE;
-import static brs.http.common.ResultFields.STANDARD_FEE_RESPONSE;
-import static brs.http.common.ResultFields.PRIORITY_FEE_RESPONSE;
-
 import brs.feesuggestions.FeeSuggestion;
 import brs.feesuggestions.FeeSuggestionCalculator;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+
+import static brs.http.common.ResultFields.*;
 
 public class SuggestFee extends APIServlet.APIRequestHandler {
 
@@ -20,14 +19,14 @@ public class SuggestFee extends APIServlet.APIRequestHandler {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) {
+  JsonElement processRequest(HttpServletRequest req) {
     final FeeSuggestion feeSuggestion = feeSuggestionCalculator.giveFeeSuggestion();
 
-    final JSONObject response = new JSONObject();
+    final JsonObject response = new JsonObject();
 
-    response.put(CHEAP_FEE_RESPONSE, feeSuggestion.getCheapFee());
-    response.put(STANDARD_FEE_RESPONSE, feeSuggestion.getStandardFee());
-    response.put(PRIORITY_FEE_RESPONSE, feeSuggestion.getPriorityFee());
+    response.addProperty(CHEAP_FEE_RESPONSE, feeSuggestion.getCheapFee());
+    response.addProperty(STANDARD_FEE_RESPONSE, feeSuggestion.getStandardFee());
+    response.addProperty(PRIORITY_FEE_RESPONSE, feeSuggestion.getPriorityFee());
 
     return response;
   }

@@ -35,9 +35,9 @@ package brs.crypto.hash;
 
 public class ShabalGeneric implements Digest {
 
-  private byte[] buf;
+  private final byte[] buf;
   private int ptr;
-  private int[] state;
+  private final int[] state;
   private long W;
 
   private ShabalGeneric() {
@@ -50,7 +50,7 @@ public class ShabalGeneric implements Digest {
    *
    * @param outSize   dummy
    */
-  public ShabalGeneric(int outSize) {
+  ShabalGeneric(int outSize) {
     this();
 
     reset();
@@ -221,14 +221,14 @@ public class ShabalGeneric implements Digest {
 
   private int[] M = new int[16];
 
-  private static final int decodeLEInt(byte[] data, int off) {
+  private static int decodeLEInt(byte[] data, int off) {
     return (data[off]     & 0xFF)
         | ((data[off + 1] & 0xFF) << 8)
         | ((data[off + 2] & 0xFF) << 16)
         | ((data[off + 3] & 0xFF) << 24);
   }
 
-  private final void core(byte[] data, int off, int num) {
+  private void core(byte[] data, int off, int num) {
     int A0 = state[ 0];
     int A1 = state[ 1];
     int A2 = state[ 2];
@@ -556,7 +556,7 @@ public class ShabalGeneric implements Digest {
     state[43] = CF;
   }
 
-  private final void core1(byte[] data) {
+  private void core1(byte[] data) {
     int A0 = state[ 0];
     int A1 = state[ 1];
     int A2 = state[ 2];

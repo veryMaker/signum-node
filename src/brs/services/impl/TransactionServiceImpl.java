@@ -1,13 +1,6 @@
 package brs.services.impl;
 
-import brs.Account;
-import brs.Appendix;
-import brs.Blockchain;
-import brs.Burst;
-import brs.BurstException;
-import brs.Constants;
-import brs.Transaction;
-
+import brs.*;
 import brs.services.AccountService;
 import brs.services.TransactionService;
 
@@ -44,7 +37,7 @@ public class TransactionServiceImpl implements TransactionService {
           transaction.getFeeNQT(), minimumFeeNQT, blockchain.getHeight()));
     }
     if (blockchain.getHeight() >= Constants.PUBLIC_KEY_ANNOUNCEMENT_BLOCK) {
-      if (transaction.getType().hasRecipient() && transaction.getRecipientId()!= 0) {
+      if (transaction.getType().hasRecipient() && transaction.getRecipientId() != 0) {
         Account recipientAccount = accountService.getAccount(transaction.getRecipientId());
         if ((recipientAccount == null || recipientAccount.getPublicKey() == null) && transaction.getPublicKeyAnnouncement() == null) {
           throw new BurstException.NotCurrentlyValidException("Recipient account does not have a public key, must attach a public key announcement");

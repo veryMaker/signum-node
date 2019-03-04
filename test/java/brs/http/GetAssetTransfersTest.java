@@ -1,18 +1,5 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.INCLUDE_ASSET_INFO_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.ResultFields.ASSET_RESPONSE;
-import static brs.http.common.ResultFields.NAME_RESPONSE;
-import static brs.http.common.ResultFields.TRANSFERS_RESPONSE;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import brs.Account;
 import brs.Asset;
 import brs.AssetTransfer;
@@ -24,11 +11,23 @@ import brs.common.QuickMocker.MockParam;
 import brs.db.BurstIterator;
 import brs.services.AccountService;
 import brs.services.ParameterService;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import brs.util.JSON;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+;
 
 public class GetAssetTransfersTest extends AbstractUnitTest {
 
@@ -71,7 +70,7 @@ public class GetAssetTransfersTest extends AbstractUnitTest {
 
     when(mockAssetExchange.getAssetTransfers(eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetTransferIterator);
 
-    final JSONObject result = (JSONObject) t.processRequest(req);
+    final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);
   }
 
@@ -99,7 +98,7 @@ public class GetAssetTransfersTest extends AbstractUnitTest {
 
     when(mockAccountService.getAssetTransfers(eq(accountId), eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetTransferIterator);
 
-    final JSONObject result = (JSONObject) t.processRequest(req);
+    final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);
   }
 
@@ -137,16 +136,16 @@ public class GetAssetTransfersTest extends AbstractUnitTest {
 
     when(mockAssetExchange.getAccountAssetTransfers(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetTransferIterator);
 
-    final JSONObject result = (JSONObject) t.processRequest(req);
+    final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);
 
-    final JSONArray resultList = (JSONArray) result.get(TRANSFERS_RESPONSE);
+    final JsonArray resultList = (JsonArray) result.get(TRANSFERS_RESPONSE);
     assertNotNull(resultList);
     assertEquals(1, resultList.size());
 
-    final JSONObject transferInfoResult = (JSONObject) resultList.get(0);
-    assertEquals("" + assetId, transferInfoResult.get(ASSET_RESPONSE));
-    assertEquals(mockAsset.getName(), transferInfoResult.get(NAME_RESPONSE));
+    final JsonObject transferInfoResult = (JsonObject) resultList.get(0);
+    assertEquals("" + assetId, JSON.getAsString(transferInfoResult.get(ASSET_RESPONSE)));
+    assertEquals(mockAsset.getName(), JSON.getAsString(transferInfoResult.get(NAME_RESPONSE)));
   }
 
 }

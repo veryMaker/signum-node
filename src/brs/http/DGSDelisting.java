@@ -1,16 +1,13 @@
 package brs.http;
 
+import brs.*;
+import brs.services.ParameterService;
+import com.google.gson.JsonElement;
+
+import javax.servlet.http.HttpServletRequest;
+
 import static brs.http.JSONResponses.UNKNOWN_GOODS;
 import static brs.http.common.Parameters.GOODS_PARAMETER;
-
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
-import brs.DigitalGoodsStore;
-import brs.services.ParameterService;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONStreamAware;
 
 public final class DGSDelisting extends CreateTransaction {
 
@@ -24,7 +21,7 @@ public final class DGSDelisting extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     Account account = parameterService.getSenderAccount(req);
     DigitalGoodsStore.Goods goods = parameterService.getGoods(req);
     if (goods.isDelisted() || goods.getSellerId() != account.getId()) {

@@ -8,10 +8,10 @@
 package brs.at;
 
 public class AT_Block {	
-  long totalFees;
-  long totalAmount;
-  byte[] bytesForBlock;
-  boolean validated;
+  private final long totalFees;
+  private final long totalAmount;
+  private final byte[] bytesForBlock;
+  private final boolean validated;
 	
   AT_Block( long totalFees, long totalAmount,  byte[] bytesForBlock ) {
     this.totalFees = totalFees;

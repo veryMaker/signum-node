@@ -2,11 +2,12 @@ package brs.http;
 
 import brs.BlockchainProcessor;
 import brs.TransactionProcessor;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-public final class GetMyPeerInfo extends APIServlet.APIRequestHandler {
+import javax.servlet.http.HttpServletRequest;
+
+final class GetMyPeerInfo extends APIServlet.APIRequestHandler {
 
   private final BlockchainProcessor blockchainProcessor;
   private final TransactionProcessor transactionProcessor;
@@ -18,11 +19,11 @@ public final class GetMyPeerInfo extends APIServlet.APIRequestHandler {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) {
+  JsonElement processRequest(HttpServletRequest req) {
 
-    JSONObject response = new JSONObject();
-    response.put("walletTTSD", blockchainProcessor.getWalletTTSD());
-    response.put("utsInStore", transactionProcessor.getAmountUnconfirmedTransactions());
+    JsonObject response = new JsonObject();
+    response.addProperty("walletTTSD", blockchainProcessor.getWalletTTSD());
+    response.addProperty("utsInStore", transactionProcessor.getAmountUnconfirmedTransactions());
     return response;
   }
 

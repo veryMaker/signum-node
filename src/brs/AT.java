@@ -13,15 +13,18 @@ import brs.at.AT_Machine_State;
 import brs.at.AT_Transaction;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
-
 import brs.services.AccountService;
 import brs.util.Listener;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -173,49 +176,49 @@ public class AT extends AT_Machine_State {
       return minActivationAmount;
     }
 
-    public void setState(byte[] newState) {
+    void setState(byte[] newState) {
       state = newState;
     }
 
-    public void setPrevHeight(int prevHeight){
+    void setPrevHeight(int prevHeight){
       this.prevHeight = prevHeight;
     }
 
-    public void setNextHeight(int newNextHeight) {
+    void setNextHeight(int newNextHeight) {
       nextHeight = newNextHeight;
     }
 
-    public void setSleepBetween(int newSleepBetween) {
+    void setSleepBetween(int newSleepBetween) {
       this.sleepBetween = newSleepBetween;
     }
 
-    public void setPrevBalance(long newPrevBalance) {
+    void setPrevBalance(long newPrevBalance) {
       this.prevBalance = newPrevBalance;
     }
 
-    public void setFreezeWhenSameBalance(boolean newFreezeWhenSameBalance) {
+    void setFreezeWhenSameBalance(boolean newFreezeWhenSameBalance) {
       this.freezeWhenSameBalance = newFreezeWhenSameBalance;
     }
 
-    public void setMinActivationAmount(long newMinActivationAmount) {
+    void setMinActivationAmount(long newMinActivationAmount) {
       this.minActivationAmount = newMinActivationAmount;
     }
   }
 
-  private static final BurstKey.LongKeyFactory<AT> atDbKeyFactory() {
+  private static BurstKey.LongKeyFactory<AT> atDbKeyFactory() {
     return Burst.getStores().getAtStore().getAtDbKeyFactory();
   }
 
-  private static final VersionedEntityTable<AT> atTable() {
+  private static VersionedEntityTable<AT> atTable() {
     return Burst.getStores().getAtStore().getAtTable();
   }
 
 
-  private static final BurstKey.LongKeyFactory<ATState> atStateDbKeyFactory() {
+  private static BurstKey.LongKeyFactory<ATState> atStateDbKeyFactory() {
     return Burst.getStores().getAtStore().getAtStateDbKeyFactory();
   }
 
-  private static final VersionedEntityTable<ATState> atStateTable() {
+  private static VersionedEntityTable<ATState> atStateTable() {
     return Burst.getStores().getAtStore().getAtStateTable();
   }
 

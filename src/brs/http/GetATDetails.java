@@ -3,13 +3,13 @@ package brs.http;
 import brs.BurstException;
 import brs.services.AccountService;
 import brs.services.ParameterService;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
 
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.Parameters.AT_PARAMETER;
 
-public class GetATDetails extends APIServlet.APIRequestHandler {
+class GetATDetails extends APIServlet.APIRequestHandler {
 
   private final ParameterService parameterService;
   private final AccountService accountService;
@@ -21,7 +21,7 @@ public class GetATDetails extends APIServlet.APIRequestHandler {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     return JSONData.at(parameterService.getAT(req), accountService);
   }
 }

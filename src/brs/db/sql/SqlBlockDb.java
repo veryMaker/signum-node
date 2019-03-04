@@ -1,29 +1,26 @@
 package brs.db.sql;
 
 import brs.Block;
-import brs.Blockchain;
+import brs.Burst;
+import brs.BurstException;
+import brs.db.BlockDb;
+import brs.schema.tables.records.BlockRecord;
+import org.jooq.DSLContext;
+import org.jooq.DeleteQuery;
+import org.jooq.SelectQuery;
+import org.jooq.impl.TableImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.jooq.DSLContext;
-import org.jooq.DeleteQuery;
-import org.jooq.SelectQuery;
-import org.jooq.UpdateQuery;
-import org.jooq.impl.TableImpl;
-
 import java.util.Optional;
-import java.math.BigInteger;
-import brs.db.BlockDb;
-import brs.BurstException;
-import brs.Burst;
 
 import static brs.schema.Tables.BLOCK;
-import brs.schema.tables.records.BlockRecord;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SqlBlockDb implements BlockDb {
 

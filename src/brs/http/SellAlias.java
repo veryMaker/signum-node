@@ -3,15 +3,12 @@ package brs.http;
 import brs.*;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
 
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.JSONResponses.*;
-import static brs.http.common.Parameters.ALIAS_NAME_PARAMETER;
-import static brs.http.common.Parameters.ALIAS_PARAMETER;
-import static brs.http.common.Parameters.PRICE_NQT_PARAMETER;
-import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
+import static brs.http.common.Parameters.*;
 
 public final class SellAlias extends CreateTransaction {
 
@@ -25,7 +22,7 @@ public final class SellAlias extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     Alias alias = parameterService.getAlias(req);
     Account owner = parameterService.getSenderAccount(req);
 

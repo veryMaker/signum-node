@@ -5,16 +5,17 @@ import brs.db.BurstIterator;
 import brs.db.BurstKey;
 import brs.db.store.AssetTransferStore;
 import brs.db.store.DerivedTableManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import org.jooq.DSLContext;
 import org.jooq.SelectQuery;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import static brs.schema.Tables.ASSET_TRANSFER;
 
 public class SqlAssetTransferStore implements AssetTransferStore {
 
-  protected static final BurstKey.LongKeyFactory<AssetTransfer> transferDbKeyFactory = new DbKey.LongKeyFactory<AssetTransfer>("id") {
+  private static final BurstKey.LongKeyFactory<AssetTransfer> transferDbKeyFactory = new DbKey.LongKeyFactory<AssetTransfer>("id") {
 
       @Override
       public BurstKey newKey(AssetTransfer assetTransfer) {
@@ -32,13 +33,13 @@ public class SqlAssetTransferStore implements AssetTransferStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, AssetTransfer assetTransfer) throws SQLException {
+      protected void save(DSLContext ctx, AssetTransfer assetTransfer) {
         saveAssetTransfer(assetTransfer);
       }
     };
   }
 
-  private void saveAssetTransfer(AssetTransfer assetTransfer) throws SQLException {
+  private void saveAssetTransfer(AssetTransfer assetTransfer) {
     try ( DSLContext ctx = Db.getDSLContext() ) {
       ctx.insertInto(
         ASSET_TRANSFER,
@@ -113,9 +114,9 @@ public class SqlAssetTransferStore implements AssetTransferStore {
     return ctx.fetchCount(ctx.selectFrom(ASSET_TRANSFER).where(ASSET_TRANSFER.ASSET_ID.eq(assetId)));
   }
 
-  protected class SqlAssetTransfer extends AssetTransfer {
+  class SqlAssetTransfer extends AssetTransfer {
 
-    public SqlAssetTransfer(ResultSet rs) throws SQLException {
+    SqlAssetTransfer(ResultSet rs) throws SQLException {
       super(rs.getLong("id"),
             transferDbKeyFactory.newKey(rs.getLong("id")),
             rs.getLong("asset_id"),

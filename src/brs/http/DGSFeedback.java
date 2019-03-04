@@ -1,13 +1,9 @@
 package brs.http;
 
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.DigitalGoodsStore;
-import brs.BurstException;
+import brs.*;
 import brs.services.AccountService;
 import brs.services.ParameterService;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -29,7 +25,7 @@ public final class DGSFeedback extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     DigitalGoodsStore.Purchase purchase = parameterService.getPurchase(req);
     Account buyerAccount = parameterService.getSenderAccount(req);
 

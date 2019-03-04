@@ -1,6 +1,6 @@
 package brs.fluxcapacitor;
 
-public class FeatureDuration {
+class FeatureDuration {
 
   private final Integer startHeight;
   private final Integer endHeight;

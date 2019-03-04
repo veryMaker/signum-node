@@ -1,22 +1,16 @@
 package brs.http;
 
-import brs.Account;
-import brs.Asset;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
+import brs.*;
 import brs.services.AccountService;
 import brs.services.ParameterService;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
 
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.JSONResponses.NOT_ENOUGH_ASSETS;
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-import static brs.http.common.Parameters.PRICE_NQT_PARAMETER;
-import static brs.http.common.Parameters.QUANTITY_QNT_PARAMETER;
+import static brs.http.common.Parameters.*;
 
-public final class PlaceAskOrder extends CreateTransaction {
+final class PlaceAskOrder extends CreateTransaction {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;
@@ -30,7 +24,7 @@ public final class PlaceAskOrder extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     final Asset asset = parameterService.getAsset(req);
     final long priceNQT = ParameterParser.getPriceNQT(req);

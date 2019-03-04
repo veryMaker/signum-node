@@ -1,13 +1,14 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-
 import brs.Asset;
 import brs.BurstException;
 import brs.assetexchange.AssetExchange;
 import brs.services.ParameterService;
+import com.google.gson.JsonElement;
+
 import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONStreamAware;
+
+import static brs.http.common.Parameters.ASSET_PARAMETER;
 
 public final class GetAsset extends APIServlet.APIRequestHandler {
 
@@ -21,7 +22,7 @@ public final class GetAsset extends APIServlet.APIRequestHandler {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final Asset asset = parameterService.getAsset(req);
 
     int tradeCount = assetExchange.getTradeCount(asset.getId());

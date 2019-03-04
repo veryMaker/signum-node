@@ -2,15 +2,18 @@ package brs.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.LogManager;
 
 /**
  * Java LogManager extension for use with Burst
  */
-public class BurstLogManager extends LogManager {
+class BurstLogManager extends LogManager {
 
-  /** Logging reconfiguration in progress */
-  private volatile boolean loggingReconfiguration = false;
+  /**
+   * Logging reconfiguration in progress
+   */
+  private final AtomicBoolean loggingReconfiguration = new AtomicBoolean(false);
 
   /**
    * Create the Burst log manager
@@ -33,9 +36,9 @@ public class BurstLogManager extends LogManager {
    */
   @Override
   public void readConfiguration(InputStream inStream) throws IOException, SecurityException {
-    loggingReconfiguration = true;
+    loggingReconfiguration.set(true);
     super.readConfiguration(inStream);
-    loggingReconfiguration = false;
+    loggingReconfiguration.set(false);
   }
 
   /**
@@ -47,7 +50,7 @@ public class BurstLogManager extends LogManager {
    */
   @Override
   public void reset() {
-    if (loggingReconfiguration)
+    if (loggingReconfiguration.get())
       super.reset();
   }
 

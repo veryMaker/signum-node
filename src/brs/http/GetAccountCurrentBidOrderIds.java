@@ -1,22 +1,19 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.ResultFields.BID_ORDER_IDS_RESPONSE;
-
 import brs.BurstException;
 import brs.Order;
 import brs.assetexchange.AssetExchange;
 import brs.db.BurstIterator;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.BID_ORDER_IDS_RESPONSE;
 
 public final class GetAccountCurrentBidOrderIds extends APIServlet.APIRequestHandler {
 
@@ -30,7 +27,7 @@ public final class GetAccountCurrentBidOrderIds extends APIServlet.APIRequestHan
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     long accountId = parameterService.getAccount(req).getId();
     long assetId = 0;
@@ -48,7 +45,7 @@ public final class GetAccountCurrentBidOrderIds extends APIServlet.APIRequestHan
     } else {
       bidOrders = assetExchange.getBidOrdersByAccountAsset(accountId, assetId, firstIndex, lastIndex);
     }
-    JSONArray orderIds = new JSONArray();
+    JsonArray orderIds = new JsonArray();
     try {
       while (bidOrders.hasNext()) {
         orderIds.add(Convert.toUnsignedLong(bidOrders.next().getId()));
@@ -56,8 +53,8 @@ public final class GetAccountCurrentBidOrderIds extends APIServlet.APIRequestHan
     } finally {
       bidOrders.close();
     }
-    JSONObject response = new JSONObject();
-    response.put(BID_ORDER_IDS_RESPONSE, orderIds);
+    JsonObject response = new JsonObject();
+    response.add(BID_ORDER_IDS_RESPONSE, orderIds);
     return response;
   }
 

@@ -1,25 +1,28 @@
 package brs.http;
 
-import static brs.http.common.ResultFields.ACCOUNT_RESPONSE;
-import static brs.http.common.ResultFields.LESSORS_RESPONSE;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import brs.Account;
 import brs.Blockchain;
 import brs.BurstException;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.services.ParameterService;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import brs.util.JSON;
+import com.google.gson.JsonObject;
+import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static brs.http.common.ResultFields.ACCOUNT_RESPONSE;
+import static brs.http.common.ResultFields.LESSORS_RESPONSE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+;
 
 public class GetAccountLessorsTest extends AbstractUnitTest {
 
@@ -46,11 +49,11 @@ public class GetAccountLessorsTest extends AbstractUnitTest {
     when(parameterServiceMock.getAccount(eq(req))).thenReturn(mockAccount);
     when(parameterServiceMock.getHeight(eq(req))).thenReturn(0);
 
-    final JSONObject result = (JSONObject) t.processRequest(req);
+    final JsonObject result = JSON.getAsJsonObject(t.processRequest(req));
 
     assertNotNull(result);
-    assertEquals("" + mockAccount.getId(), result.get(ACCOUNT_RESPONSE));
-    assertTrue(((JSONArray) result.get(LESSORS_RESPONSE)).isEmpty());
+    assertEquals("" + mockAccount.getId(), JSON.getAsString(result.get(ACCOUNT_RESPONSE)));
+    TestCase.assertEquals(0, JSON.getAsJsonArray(result.get(LESSORS_RESPONSE)).size());
   }
 
 }

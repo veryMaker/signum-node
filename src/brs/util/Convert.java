@@ -1,18 +1,19 @@
 package brs.util;
 
-import brs.Constants;
 import brs.BurstException;
+import brs.Constants;
 import brs.crypto.Crypto;
+import org.bouncycastle.util.encoders.DecoderException;
+import org.bouncycastle.util.encoders.Hex;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 
 public final class Convert {
 
-  private static final char[] hexChars = { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f' };
   private static final long[] multipliers = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
 
   public static final BigInteger two64 = new BigInteger("18446744073709551616");
@@ -20,76 +21,31 @@ public final class Convert {
   private Convert() {} //never
 
   public static byte[] parseHexString(String hex) {
-    if (hex == null) {
-      return null;
-    }
-    byte[] bytes = new byte[hex.length() / 2];
-    for (int i = 0; i < bytes.length; i++) {
-      int char1 = hex.charAt(i * 2);
-      char1 = char1 > 0x60 ? char1 - 0x57 : char1 - 0x30;
-      int char2 = hex.charAt(i * 2 + 1);
-      char2 = char2 > 0x60 ? char2 - 0x57 : char2 - 0x30;
-      if (char1 < 0 || char2 < 0 || char1 > 15 || char2 > 15) {
-        throw new NumberFormatException("Invalid hex number: " + hex);
+    if (hex == null) return null;
+    try {
+      if (hex.length() % 2 != 0) {
+        hex = hex.substring(0, hex.length() - 1);
       }
-      bytes[i] = (byte)((char1 << 4) + char2);
+      return Hex.decode(hex);
+    } catch (DecoderException e) {
+      throw new RuntimeException("Could not parse hex string " + hex, e);
     }
-    return bytes;
   }
 
   public static String toHexString(byte[] bytes) {
-    if (bytes == null) {
-      return null;
-    }
-    char[] chars = new char[bytes.length * 2];
-    for (int i = 0; i < bytes.length; i++) {
-      chars[i * 2] = hexChars[((bytes[i] >> 4) & 0xF)];
-      chars[i * 2 + 1] = hexChars[(bytes[i] & 0xF)];
-    }
-    return String.valueOf(chars);
+    if (bytes == null) return null;
+    return Hex.toHexString(bytes);
   }
 
   public static String toUnsignedLong(long objectId) {
-    if (objectId >= 0) {
-      return String.valueOf(objectId);
-    }
-    BigInteger id = BigInteger.valueOf(objectId).add(two64);
-    return id.toString();
+    return Long.toUnsignedString(objectId);
   }
 
   public static long parseUnsignedLong(String number) {
     if (number == null) {
       return 0;
     }
-    BigInteger bigInt = new BigInteger(number.trim());
-    if (bigInt.signum() < 0 || bigInt.compareTo(two64) > -1) {
-      throw new IllegalArgumentException("overflow: " + number);
-    }
-    return bigInt.longValue();
-  }
-
-  public static long parseLong(Object o) {
-    if (o == null) {
-      return 0;
-    } else if (o instanceof Long) {
-      return ((Long)o);
-    } else if (o instanceof String) {
-      return Long.parseLong((String)o);
-    } else {
-      throw new IllegalArgumentException("Not a long: " + o);
-    }
-  }
-
-  public static int parseInteger(Object o) {
-    if (o == null) {
-      return 0;
-    } else if (o instanceof Integer) {
-      return ((Integer)o);
-    } else if (o instanceof String) {
-      return Integer.parseInt((String)o);
-    } else {
-      throw new IllegalArgumentException("Not an Integer: " + o);
-    }
+    return Long.parseUnsignedLong(number);
   }
 
   public static long parseAccountId(String account) {
@@ -112,8 +68,12 @@ public final class Convert {
     if (hash == null || hash.length < 8) {
       throw new IllegalArgumentException("Invalid hash: " + Arrays.toString(hash));
     }
-    BigInteger bigInteger = new BigInteger(1, new byte[] {hash[7], hash[6], hash[5], hash[4], hash[3], hash[2], hash[1], hash[0]});
-    return bigInteger.longValue();
+    long result = 0;
+    for (int i = 0; i < 8; i++) {
+      result <<= 8;
+      result |= (hash[7-i] & 0xFF);
+    }
+    return result;
   }
 
   public static long fullHashToId(String hash) {
@@ -148,19 +108,11 @@ public final class Convert {
   }
 
   public static byte[] toBytes(String s) {
-    try {
-      return s.getBytes("UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e.toString(), e);
-    }
+    return s.getBytes(StandardCharsets.UTF_8);
   }
 
   public static String toString(byte[] bytes) {
-    try {
-      return new String(bytes, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e.toString(), e);
-    }
+    return new String(bytes, StandardCharsets.UTF_8);
   }
 
   public static String readString(ByteBuffer buffer, int numBytes, int maxLength) throws BurstException.NotValidException {

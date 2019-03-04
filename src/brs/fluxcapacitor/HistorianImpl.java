@@ -1,7 +1,8 @@
 package brs.fluxcapacitor;
 
-import brs.props.Props;
 import brs.props.PropertyService;
+import brs.props.Props;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +38,10 @@ public class HistorianImpl {
 
   public boolean hasHappened(HistoricalMoments moment, int currentBlockHeight) {
     return currentBlockHeight >= startingHeights.get(moment);
+  }
+
+  public Integer getStartingHeight(HistoricalMoments historicalMoments) {
+    return startingHeights.get(historicalMoments);
   }
 
 }

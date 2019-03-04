@@ -1,50 +1,28 @@
 package brs.http;
 
-import static brs.http.JSONResponses.ERROR_INCORRECT_REQUEST;
-import static brs.http.JSONResponses.ERROR_NOT_ALLOWED;
-import static brs.http.JSONResponses.POST_REQUIRED;
-
-import brs.Blockchain;
-import brs.BlockchainProcessor;
-import brs.Burst;
-import brs.BurstException;
-import brs.EconomicClustering;
-import brs.Generator;
-import brs.TransactionProcessor;
+import brs.*;
 import brs.assetexchange.AssetExchange;
 import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
-import brs.props.Props;
-import brs.services.ATService;
-import brs.services.AccountService;
-import brs.services.AliasService;
-import brs.services.BlockService;
-import brs.services.DGSGoodsStoreService;
-import brs.services.EscrowService;
-import brs.services.ParameterService;
 import brs.props.PropertyService;
-import brs.services.SubscriptionService;
-import brs.services.TimeService;
-import brs.services.TransactionService;
+import brs.props.Props;
+import brs.services.*;
 import brs.util.JSON;
 import brs.util.Subnet;
-import java.io.IOException;
-import java.io.Writer;
-import java.net.InetAddress;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.io.Writer;
+import java.net.InetAddress;
+import java.util.*;
+
+import static brs.http.JSONResponses.*;
 
 public final class APIServlet extends HttpServlet {
 
@@ -67,8 +45,6 @@ public final class APIServlet extends HttpServlet {
     map.put("calculateFullHash", new CalculateFullHash());
     map.put("cancelAskOrder", new CancelAskOrder(parameterService, blockchain, assetExchange, apiTransactionManager));
     map.put("cancelBidOrder", new CancelBidOrder(parameterService, blockchain, assetExchange, apiTransactionManager));
-    //map.put("castVote", CastVote.instance);
-    //map.put("createPoll", CreatePoll.instance);
     map.put("decryptFrom", new DecryptFrom(parameterService));
     map.put("dgsListing", new DGSListing(parameterService, blockchain, apiTransactionManager));
     map.put("dgsDelisting", new DGSDelisting(parameterService, blockchain, apiTransactionManager));
@@ -78,10 +54,10 @@ public final class APIServlet extends HttpServlet {
     map.put("dgsPurchase", new DGSPurchase(parameterService, blockchain, accountService, timeService, apiTransactionManager));
     map.put("dgsQuantityChange", new DGSQuantityChange(parameterService, blockchain, apiTransactionManager));
     map.put("dgsRefund", new DGSRefund(parameterService, blockchain, accountService, apiTransactionManager));
-    //map.put("decodeToken", new DecodeToken());
     map.put("encryptTo", new EncryptTo(parameterService, accountService));
     map.put("generateToken", new GenerateToken(timeService));
     map.put("getAccount", new GetAccount(parameterService, accountService));
+    map.put("getAccountsWithName", new GetAccountsWithName(accountService));
     map.put("getAccountBlockIds", new GetAccountBlockIds(parameterService, blockchain));
     map.put("getAccountBlocks", new GetAccountBlocks(blockchain, parameterService, blockService));
     map.put("getAccountId", new GetAccountId());
@@ -110,15 +86,11 @@ public final class APIServlet extends HttpServlet {
     map.put("getDGSPurchases", new GetDGSPurchases(digitalGoodsStoreService));
     map.put("getDGSPurchase", new GetDGSPurchase(parameterService));
     map.put("getDGSPendingPurchases", new GetDGSPendingPurchases(digitalGoodsStoreService));
-    map.put("getGuaranteedBalance", new GetGuaranteedBalance(parameterService));
     map.put("getECBlock", new GetECBlock(blockchain, timeService, economicClustering));
     map.put("getMyInfo", GetMyInfo.instance);
-    //map.put("getNextBlockGenerators", GetNextBlockGenerators.instance);
     map.put("getPeer", GetPeer.instance);
     map.put("getMyPeerInfo", new GetMyPeerInfo(blockchainProcessor, transactionProcessor));
     map.put("getPeers", GetPeers.instance);
-    //map.put("getPoll", GetPoll.instance);
-    //map.put("getPollIds", GetPollIds.instance);
     map.put("getState", new GetState(blockchain, assetExchange, accountService, escrowService, aliasService, timeService, generator));
     map.put("getTime", new GetTime(timeService));
     map.put("getTrades", new GetTrades(parameterService, assetExchange));
@@ -142,7 +114,6 @@ public final class APIServlet extends HttpServlet {
     map.put("getBidOrders", new GetBidOrders(parameterService, assetExchange));
     map.put("suggestFee", new SuggestFee(feeSuggestionCalculator));
     map.put("issueAsset", new IssueAsset(parameterService, blockchain, apiTransactionManager));
-    // map.put("leaseBalance", new LeaseBalance(parameterService, blockchain, accountService, apiTransactionManager));
     map.put("longConvert", LongConvert.instance);
     map.put("parseTransaction", new ParseTransaction(parameterService, transactionService));
     map.put("placeAskOrder", new PlaceAskOrder(parameterService, blockchain, apiTransactionManager, accountService));
@@ -156,9 +127,6 @@ public final class APIServlet extends HttpServlet {
     map.put("setAccountInfo", new SetAccountInfo(parameterService, blockchain, apiTransactionManager));
     map.put("setAlias", new SetAlias(parameterService, blockchain, aliasService, apiTransactionManager));
     map.put("signTransaction", new SignTransaction(parameterService, transactionService));
-    //map.put("startForging", StartForging.instance);
-    //map.put("stopForging", StopForging.instance);
-    //map.put("getForging", GetForging.instance);
     map.put("transferAsset", new TransferAsset(parameterService, blockchain, apiTransactionManager, accountService));
     map.put("getMiningInfo", new GetMiningInfo(blockchain));
     map.put("submitNonce", new SubmitNonce(accountService, blockchain, generator));
@@ -214,7 +182,7 @@ public final class APIServlet extends HttpServlet {
       return apiTags;
     }
 
-    abstract JSONStreamAware processRequest(HttpServletRequest request) throws BurstException;
+    abstract JsonElement processRequest(HttpServletRequest request) throws BurstException;
 
     final void validateRequest(HttpServletRequest req) throws ParameterException {
       if (acceptSurplusParams) {
@@ -239,14 +207,13 @@ public final class APIServlet extends HttpServlet {
 
   abstract static class PrimitiveRequestHandler {
 
-    public abstract void processRequest(HttpServletRequest req, HttpServletResponse resp);
+    protected abstract void processRequest(HttpServletRequest req, HttpServletResponse resp);
 
-    public void addErrorMessage(HttpServletResponse resp, JSONStreamAware msg) throws IOException {
+    void addErrorMessage(HttpServletResponse resp, JsonElement msg) throws IOException {
       try (Writer writer = resp.getWriter()) {
         resp.setContentType("text/plain; charset=UTF-8");
         resp.setStatus(500);
-
-        msg.writeJSONString(writer);
+        JSON.writeTo(msg, writer);
       }
     }
 
@@ -254,17 +221,27 @@ public final class APIServlet extends HttpServlet {
 
   private static boolean enforcePost;
 
-  static Map<String, APIRequestHandler> apiRequestHandlers;
-  static Map<String, PrimitiveRequestHandler> primitiveRequestHandlers;
+  public static Map<String, APIRequestHandler> apiRequestHandlers;
+  private static Map<String, PrimitiveRequestHandler> primitiveRequestHandlers;
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    process(req, resp);
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    try {
+      process(req, resp);
+    } catch (Exception e) { // We don't want to send exception information to client...
+      resp.setStatus(500);
+      logger.warn("Error handling GET request", e);
+    }
   }
 
   @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    process(req, resp);
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    try {
+      process(req, resp);
+    } catch (Exception e) { // We don't want to send exception information to client...
+      resp.setStatus(500);
+      logger.warn("Error handling GET request", e);
+    }
   }
 
   private void process(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -273,7 +250,7 @@ public final class APIServlet extends HttpServlet {
     resp.setHeader("Pragma", "no-cache");
     resp.setDateHeader("Expires", 0);
 
-    JSONStreamAware response = JSON.emptyJSON;
+    JsonElement response = JSON.emptyJSON;
 
     try {
 
@@ -334,15 +311,15 @@ public final class APIServlet extends HttpServlet {
         }
       }
 
-      if (response instanceof JSONObject) {
-        ((JSONObject) response).put("requestProcessingTime", System.currentTimeMillis() - startTime);
+      if (response instanceof JsonObject) {
+        JSON.getAsJsonObject(response).addProperty("requestProcessingTime", System.currentTimeMillis() - startTime);
       }
 
     } finally {
       if(resp.getContentType() == null || resp.getContentType().isEmpty()) {
         resp.setContentType("text/plain; charset=UTF-8");
         try (Writer writer = resp.getWriter()) {
-          response.writeJSONString(writer);
+          JSON.writeTo(response, writer);
         }
       }
     }

@@ -43,7 +43,6 @@ var BRS = (function(BRS, $, undefined) {
 
     BRS.isTestNet = false;
     BRS.isLocalHost = false;
-    BRS.isForging = false;
 
     BRS.lastBlockHeight = 0;
     BRS.downloadingBlockchain = false;
@@ -81,7 +80,6 @@ var BRS = (function(BRS, $, undefined) {
         if (!BRS.server) {
             var hostName = window.location.hostname.toLowerCase();
             BRS.isLocalHost = hostName === "localhost" || hostName === "127.0.0.1" || BRS.isPrivateIP(hostName);
-            BRS.isLocalHost = true;
         }
 
         if (!BRS.isLocalHost) {
@@ -98,12 +96,7 @@ var BRS = (function(BRS, $, undefined) {
             BRS.getSettings();
         });
 
-        BRS.getState(function() {
-            setTimeout(function() {
-                BRS.checkAliasVersions();
-            }, 5000);
-        });
-
+        BRS.getState(null);
         BRS.showLockscreen();
 
         if ( BRS.getCookie("remember_passphrase") ) {
@@ -152,10 +145,6 @@ var BRS = (function(BRS, $, undefined) {
         }
 
         BRS.setStateInterval(30);
-
-        if (!BRS.isTestNet) {
-            setInterval(BRS.checkAliasVersions, 1000 * 60 * 60);
-        }
 
         BRS.allowLoginViaEnter();
 
@@ -713,14 +702,6 @@ var BRS = (function(BRS, $, undefined) {
             }
         });
     };
-
-    if (BRS.accountInfo.effectiveBalanceBURST === 0) {
-        $("#forging_indicator").removeClass("forging");
-        $("#forging_indicator span").html($.t("not_forging")).attr("data-i18n", "not_forging");
-        $("#forging_indicator").show();
-        BRS.isForging = false;
-    }
-    var rows = "";
 
     BRS.checkAssetDifferences = function(current_balances, previous_balances) {
         var current_balances_ = {};

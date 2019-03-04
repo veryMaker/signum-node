@@ -1,21 +1,19 @@
 package brs.http;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
-import static brs.http.common.ResultFields.ASSETS_RESPONSE;
-
 import brs.Account;
 import brs.Asset;
 import brs.assetexchange.AssetExchange;
 import brs.db.BurstIterator;
 import brs.services.ParameterService;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.ASSETS_RESPONSE;
 
 public final class GetAssetsByIssuer extends AbstractAssetsRetrieval {
 
@@ -29,17 +27,17 @@ public final class GetAssetsByIssuer extends AbstractAssetsRetrieval {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws ParameterException {
+  JsonElement processRequest(HttpServletRequest req) throws ParameterException {
     List<Account> accounts = parameterService.getAccounts(req);
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);
 
-    JSONObject response = new JSONObject();
-    JSONArray accountsJSONArray = new JSONArray();
-    response.put(ASSETS_RESPONSE, accountsJSONArray);
+    JsonObject response = new JsonObject();
+    JsonArray accountsJsonArray = new JsonArray();
+    response.add(ASSETS_RESPONSE, accountsJsonArray);
     for (Account account : accounts) {
       try (BurstIterator<Asset> assets = assetExchange.getAssetsIssuedBy(account.getId(), firstIndex, lastIndex)) {
-        accountsJSONArray.add(assetsToJson(assets));
+        accountsJsonArray.add(assetsToJson(assets));
       }
     }
     return response;

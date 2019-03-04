@@ -7,8 +7,8 @@ import brs.Transaction;
 import brs.crypto.Crypto;
 import brs.services.AccountService;
 import brs.util.Convert;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +18,7 @@ import static brs.http.JSONResponses.*;
 import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
 import static brs.http.common.Parameters.TRANSACTION_PARAMETER;
 
-public final class ReadMessage extends APIServlet.APIRequestHandler {
+final class ReadMessage extends APIServlet.APIRequestHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(ReadMessage.class);
 
@@ -33,7 +33,7 @@ public final class ReadMessage extends APIServlet.APIRequestHandler {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) {
+  JsonElement processRequest(HttpServletRequest req) {
 
     String transactionIdString = Convert.emptyToNull(req.getParameter(TRANSACTION_PARAMETER));
     if (transactionIdString == null) {
@@ -50,7 +50,7 @@ public final class ReadMessage extends APIServlet.APIRequestHandler {
       return INCORRECT_TRANSACTION;
     }
 
-    JSONObject response = new JSONObject();
+    JsonObject response = new JsonObject();
     Account senderAccount = accountService.getAccount(transaction.getSenderId());
     Appendix.Message message = transaction.getMessage();
     Appendix.EncryptedMessage encryptedMessage = transaction.getEncryptedMessage();
@@ -59,7 +59,7 @@ public final class ReadMessage extends APIServlet.APIRequestHandler {
       return NO_MESSAGE;
     }
     if (message != null) {
-      response.put("message", message.isText() ? Convert.toString(message.getMessage()) : Convert.toHexString(message.getMessage()));
+      response.addProperty("message", message.isText() ? Convert.toString(message.getMessage()) : Convert.toHexString(message.getMessage()));
     }
     String secretPhrase = Convert.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER));
     if (secretPhrase != null) {
@@ -69,7 +69,7 @@ public final class ReadMessage extends APIServlet.APIRequestHandler {
         if (account != null) {
           try {
             byte[] decrypted = account.decryptFrom(encryptedMessage.getEncryptedData(), secretPhrase);
-            response.put("decryptedMessage", encryptedMessage.isText() ? Convert.toString(decrypted) : Convert.toHexString(decrypted));
+            response.addProperty("decryptedMessage", encryptedMessage.isText() ? Convert.toString(decrypted) : Convert.toHexString(decrypted));
           } catch (RuntimeException e) {
             logger.debug("Decryption of message to recipient failed: " + e.toString());
           }
@@ -80,7 +80,7 @@ public final class ReadMessage extends APIServlet.APIRequestHandler {
         if (account != null) {
           try {
             byte[] decrypted = account.decryptFrom(encryptToSelfMessage.getEncryptedData(), secretPhrase);
-            response.put("decryptedMessageToSelf", encryptToSelfMessage.isText() ? Convert.toString(decrypted) : Convert.toHexString(decrypted));
+            response.addProperty("decryptedMessageToSelf", encryptToSelfMessage.isText() ? Convert.toString(decrypted) : Convert.toHexString(decrypted));
           } catch (RuntimeException e) {
             logger.debug("Decryption of message to self failed: " + e.toString());
           }

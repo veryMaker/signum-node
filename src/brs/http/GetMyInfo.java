@@ -1,11 +1,11 @@
 package brs.http;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
 
-public final class GetMyInfo extends APIServlet.APIRequestHandler {
+final class GetMyInfo extends APIServlet.APIRequestHandler {
 
   static final GetMyInfo instance = new GetMyInfo();
 
@@ -14,11 +14,11 @@ public final class GetMyInfo extends APIServlet.APIRequestHandler {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) {
+  JsonElement processRequest(HttpServletRequest req) {
 
-    JSONObject response = new JSONObject();
-    response.put("host", req.getRemoteHost());
-    response.put("address", req.getRemoteAddr());
+    JsonObject response = new JsonObject();
+    response.addProperty("host", req.getRemoteHost());
+    response.addProperty("address", req.getRemoteAddr());
     return response;
   }
 

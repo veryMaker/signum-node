@@ -1,31 +1,27 @@
 package brs.util;
 
-import static brs.fluxcapacitor.FeatureToggle.POC2;
-
 import brs.Block;
 import brs.Blockchain;
-import brs.props.Props;
+import brs.Constants;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.props.PropertyService;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.StampedLock;
+import brs.props.Props;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import brs.Constants;
+
+import java.math.BigInteger;
+import java.util.*;
+import java.util.concurrent.locks.StampedLock;
+
+import static brs.fluxcapacitor.FeatureToggle.POC2;
 
 public final class DownloadCacheImpl {
   private final int blockCacheMB;
 
-  protected final Map<Long, Block> blockCache = new LinkedHashMap<>();
-  protected final List<Block> forkCache = new ArrayList<>();
-  protected final Map<Long, Long> reverseCache = new LinkedHashMap<>();
-  protected final List<Long> unverified = new LinkedList<>();
+  private final Map<Long, Block> blockCache = new LinkedHashMap<>();
+  private final List<Block> forkCache = new ArrayList<>();
+  private final Map<Long, Long> reverseCache = new LinkedHashMap<>();
+  private final List<Long> unverified = new LinkedList<>();
 
   private final Logger logger = LoggerFactory.getLogger(DownloadCacheImpl.class);
 
@@ -49,7 +45,7 @@ public final class DownloadCacheImpl {
     this.blockchain = blockchain;
   }
 
-  public int getChainHeight() {
+  private int getChainHeight() {
     long stamp = dcsl.tryOptimisticRead();
     int retVal = lastHeight;
     if (!dcsl.validate(stamp)) {
@@ -87,7 +83,7 @@ public final class DownloadCacheImpl {
 	  }
 	}
 	
-	if(retVal == true) {
+	if(retVal) {
 	  stamp = dcsl.writeLock();
 	  try {
 	    lockedCache = false;

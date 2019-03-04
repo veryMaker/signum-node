@@ -6,18 +6,19 @@ import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.OrderStore;
-import java.util.ArrayList;
-import java.util.List;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.SelectQuery;
+import org.jooq.SortField;
+import org.jooq.impl.TableImpl;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.jooq.impl.TableImpl;
-import org.jooq.DSLContext;
-import org.jooq.SortField;
-import org.jooq.SelectQuery;
-import org.jooq.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SqlOrderStore implements OrderStore {
-  protected DbKey.LongKeyFactory<Order.Ask> askOrderDbKeyFactory = new DbKey.LongKeyFactory<Order.Ask>("id") {
+  private final DbKey.LongKeyFactory<Order.Ask> askOrderDbKeyFactory = new DbKey.LongKeyFactory<Order.Ask>("id") {
 
       @Override
       public BurstKey newKey(Order.Ask ask) {
@@ -25,7 +26,7 @@ public class SqlOrderStore implements OrderStore {
       }
 
     };
-  protected VersionedEntityTable<Order.Ask> askOrderTable;
+  private final VersionedEntityTable<Order.Ask> askOrderTable;
 
   public SqlOrderStore(DerivedTableManager derivedTableManager) {
     askOrderTable = new VersionedEntitySqlTable<Order.Ask>("ask_order", brs.schema.Tables.ASK_ORDER, askOrderDbKeyFactory, derivedTableManager) {
@@ -35,7 +36,7 @@ public class SqlOrderStore implements OrderStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Order.Ask ask) throws SQLException {
+      protected void save(DSLContext ctx, Order.Ask ask) {
         saveAsk(ctx, brs.schema.Tables.ASK_ORDER, ask);
       }
 
@@ -55,7 +56,7 @@ public class SqlOrderStore implements OrderStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Order.Bid bid) throws SQLException {
+      protected void save(DSLContext ctx, Order.Bid bid) {
         saveBid(ctx, brs.schema.Tables.BID_ORDER, bid);
       }
 
@@ -70,7 +71,7 @@ public class SqlOrderStore implements OrderStore {
 
   }
 
-  private DbKey.LongKeyFactory<Order.Bid> bidOrderDbKeyFactory = new DbKey.LongKeyFactory<Order.Bid>("id") {
+  private final DbKey.LongKeyFactory<Order.Bid> bidOrderDbKeyFactory = new DbKey.LongKeyFactory<Order.Bid>("id") {
 
       @Override
       public BurstKey newKey(Order.Bid bid) {
@@ -78,7 +79,7 @@ public class SqlOrderStore implements OrderStore {
       }
 
     };
-  protected VersionedEntityTable<Order.Bid> bidOrderTable;
+  private final VersionedEntityTable<Order.Bid> bidOrderTable;
 
   @Override
   public VersionedEntityTable<Order.Bid> getBidOrderTable() {
@@ -135,7 +136,7 @@ public class SqlOrderStore implements OrderStore {
     return askOrderTable.getManyBy(brs.schema.Tables.ASK_ORDER.ASSET_ID.eq(assetId), from, to);
   }
 
-  private void saveAsk(DSLContext ctx, TableImpl table, Order.Ask ask) throws SQLException {
+  private void saveAsk(DSLContext ctx, TableImpl table, Order.Ask ask) {
     brs.schema.tables.records.AskOrderRecord askOrderRecord = ctx.newRecord(brs.schema.Tables.ASK_ORDER);
     askOrderRecord.setId(ask.getId());
     askOrderRecord.setAccountId(ask.getAccountId());
@@ -211,7 +212,7 @@ public class SqlOrderStore implements OrderStore {
     }
   }
 
-  private void saveBid(DSLContext ctx, TableImpl table, Order.Bid bid) throws SQLException {
+  private void saveBid(DSLContext ctx, TableImpl table, Order.Bid bid) {
     brs.schema.tables.records.BidOrderRecord bidOrderRecord = ctx.newRecord(brs.schema.Tables.BID_ORDER);
     bidOrderRecord.setId(bid.getId());
     bidOrderRecord.setAccountId(bid.getAccountId());
@@ -227,7 +228,7 @@ public class SqlOrderStore implements OrderStore {
     );
   }
 
-  protected class SqlAsk extends Order.Ask {
+  class SqlAsk extends Order.Ask {
     private SqlAsk(ResultSet rs) throws SQLException {
       super(
             rs.getLong("id"),
@@ -241,7 +242,7 @@ public class SqlOrderStore implements OrderStore {
     }
   }
 
-  protected class SqlBid extends Order.Bid {
+  class SqlBid extends Order.Bid {
     private SqlBid(ResultSet rs) throws SQLException {
       super(
             rs.getLong("id"),

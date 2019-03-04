@@ -1,89 +1,25 @@
 package brs;
 
-import static brs.http.common.Parameters.ALIAS_PARAMETER;
-import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-import static brs.http.common.Parameters.COMMENT_PARAMETER;
-import static brs.http.common.Parameters.CREATION_BYTES_PARAMETER;
-import static brs.http.common.Parameters.DEADLINE_ACTION_PARAMETER;
-import static brs.http.common.Parameters.DEADLINE_PARAMETER;
-import static brs.http.common.Parameters.DECIMALS_PARAMETER;
-import static brs.http.common.Parameters.DECISION_PARAMETER;
-import static brs.http.common.Parameters.DELIVERY_DEADLINE_TIMESTAMP_PARAMETER;
-import static brs.http.common.Parameters.DELTA_QUANTITY_PARAMETER;
-import static brs.http.common.Parameters.DESCRIPTION_PARAMETER;
-import static brs.http.common.Parameters.DISCOUNT_NQT_PARAMETER;
-import static brs.http.common.Parameters.ESCROW_ID_PARAMETER;
-import static brs.http.common.Parameters.FREQUENCY_PARAMETER;
-import static brs.http.common.Parameters.GOODS_DATA_PARAMETER;
-import static brs.http.common.Parameters.GOODS_IS_TEXT_PARAMETER;
-import static brs.http.common.Parameters.GOODS_NONCE_PARAMETER;
-import static brs.http.common.Parameters.GOODS_PARAMETER;
-import static brs.http.common.Parameters.NAME_PARAMETER;
-import static brs.http.common.Parameters.ORDER_PARAMETER;
-import static brs.http.common.Parameters.PERIOD_PARAMETER;
-import static brs.http.common.Parameters.PRICE_NQT_PARAMETER;
-import static brs.http.common.Parameters.PURCHASE_PARAMETER;
-import static brs.http.common.Parameters.QUANTITY_PARAMETER;
-import static brs.http.common.Parameters.QUANTITY_QNT_PARAMETER;
-import static brs.http.common.Parameters.RECIPIENTS_PARAMETER;
-import static brs.http.common.Parameters.RECIPIENTS_RESPONSE;
-import static brs.http.common.Parameters.REFUND_NQT_PARAMETER;
-import static brs.http.common.Parameters.REQUIRED_SIGNERS_PARAMETER;
-import static brs.http.common.Parameters.SIGNERS_PARAMETER;
-import static brs.http.common.Parameters.SUBSCRIPTION_ID_PARAMETER;
-import static brs.http.common.Parameters.URI_PARAMETER;
-import static brs.http.common.ResultFields.ALIAS_RESPONSE;
-import static brs.http.common.ResultFields.AMOUNT_NQT_RESPONSE;
-import static brs.http.common.ResultFields.ASSET_RESPONSE;
-import static brs.http.common.ResultFields.COMMENT_RESPONSE;
-import static brs.http.common.ResultFields.CREATION_BYTES_RESPONSE;
-import static brs.http.common.ResultFields.DEADLINE_ACTION_RESPONSE;
-import static brs.http.common.ResultFields.DEADLINE_RESPONSE;
-import static brs.http.common.ResultFields.DECIMALS_RESPONSE;
-import static brs.http.common.ResultFields.DECISION_RESPONSE;
-import static brs.http.common.ResultFields.DELIVERY_DEADLINE_TIMESTAMP_RESPONSE;
-import static brs.http.common.ResultFields.DELTA_QUANTITY_RESPONSE;
-import static brs.http.common.ResultFields.DESCRIPTION_RESPONSE;
-import static brs.http.common.ResultFields.DISCOUNT_NQT_RESPONSE;
-import static brs.http.common.ResultFields.ESCROW_ID_RESPONSE;
-import static brs.http.common.ResultFields.FREQUENCY_RESPONSE;
-import static brs.http.common.ResultFields.GOODS_DATA_RESPONSE;
-import static brs.http.common.ResultFields.GOODS_IS_TEXT_RESPONSE;
-import static brs.http.common.ResultFields.GOODS_NONCE_RESPONSE;
-import static brs.http.common.ResultFields.GOODS_RESPONSE;
-import static brs.http.common.ResultFields.NAME_RESPONSE;
-import static brs.http.common.ResultFields.ORDER_RESPONSE;
-import static brs.http.common.ResultFields.PERIOD_RESPONSE;
-import static brs.http.common.ResultFields.PRICE_NQT_RESPONSE;
-import static brs.http.common.ResultFields.PURCHASE_RESPONSE;
-import static brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE;
-import static brs.http.common.ResultFields.QUANTITY_RESPONSE;
-import static brs.http.common.ResultFields.REFUND_NQT_RESPONSE;
-import static brs.http.common.ResultFields.REQUIRED_SIGNERS_RESPONSE;
-import static brs.http.common.ResultFields.SIGNERS_RESPONSE;
-import static brs.http.common.ResultFields.SUBSCRIPTION_ID_RESPONSE;
-import static brs.http.common.ResultFields.TAGS_RESPONSE;
-import static brs.http.common.ResultFields.URI_RESPONSE;
-
 import brs.TransactionType.Payment;
-import brs.crypto.EncryptedData;
-import brs.util.Convert;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map.Entry;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import brs.at.AT_Constants;
+import brs.crypto.EncryptedData;
+import brs.grpc.proto.BrsApi;
+import brs.util.Convert;
+import brs.util.JSON;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.protobuf.Any;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.Empty;
+
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.Map.Entry;
+
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.*;
 
 public interface Attachment extends Appendix {
 
@@ -95,7 +31,7 @@ public interface Attachment extends Appendix {
       super(buffer, transactionVersion);
     }
 
-    private AbstractAttachment(JSONObject attachmentData) {
+    private AbstractAttachment(JsonObject attachmentData) {
       super(attachmentData);
     }
 
@@ -135,7 +71,12 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    final void putMyJSON(JSONObject json) {
+    final void putMyJSON(JsonObject json) {
+    }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(Empty.newBuilder().build());
     }
 
     @Override
@@ -147,17 +88,17 @@ public interface Attachment extends Appendix {
 
   EmptyAttachment ORDINARY_PAYMENT = new EmptyAttachment() {
 
-      @Override
-      String getAppendixName() {
-        return "OrdinaryPayment";
-      }
+    @Override
+    String getAppendixName() {
+      return "OrdinaryPayment";
+    }
 
-      @Override
-      public TransactionType getTransactionType() {
-        return TransactionType.Payment.ORDINARY;
-      }
+    @Override
+    public TransactionType getTransactionType() {
+      return TransactionType.Payment.ORDINARY;
+    }
 
-    };
+  };
 
   final class PaymentMultiOutCreation extends AbstractAttachment {
 
@@ -188,29 +129,28 @@ public interface Attachment extends Appendix {
       }
     }
 
-    PaymentMultiOutCreation(JSONObject attachmentData) throws BurstException.NotValidException {
+    PaymentMultiOutCreation(JsonObject attachmentData) throws BurstException.NotValidException {
       super(attachmentData);
 
-      JSONArray recipients = (JSONArray)attachmentData.get(RECIPIENTS_PARAMETER);
+      JsonArray recipients = JSON.getAsJsonArray(attachmentData.get(RECIPIENTS_PARAMETER));
       HashMap<Long,Boolean> recipientOf = new HashMap<>();
 
-      for (int i = 0; i < recipients.size(); i++) {
-        JSONArray recipient = (JSONArray) recipients.get(i);
+      for (JsonElement recipientObject : recipients) {
+        JsonArray recipient = JSON.getAsJsonArray(recipientObject);
 
-        long recipientId = new BigInteger((String) recipient.get(0)).longValue();
-        long amountNQT   = Convert.parseLong(recipient.get(1));
+        long recipientId = new BigInteger(JSON.getAsString(recipient.get(0))).longValue();
+        long amountNQT = JSON.getAsLong(recipient.get(1));
         if (recipientOf.containsKey(recipientId))
           throw new BurstException.NotValidException("Duplicate recipient on multi out transaction");
 
-        if (amountNQT <= 0)
+        if (amountNQT  <=0)
           throw new BurstException.NotValidException("Insufficient amountNQT on multi out transaction");
 
         recipientOf.put(recipientId, true);
         this.recipients.add(new ArrayList<>(Arrays.asList(recipientId, amountNQT)));
       }
       if (recipients.size() > Constants.MAX_MULTI_OUT_RECIPIENTS || recipients.size() <= 1) {
-        throw new BurstException.NotValidException(
-            "Invalid number of recipients listed on multi out transaction");
+        throw new BurstException.NotValidException("Invalid number of recipients listed on multi out transaction");
       }
     }
 
@@ -231,8 +171,7 @@ public interface Attachment extends Appendix {
         this.recipients.add(new ArrayList<>(Arrays.asList(recipientId, amountNQT)));
       }
       if (recipients.size() > Constants.MAX_MULTI_OUT_RECIPIENTS || recipients.size() <= 1) {
-        throw new BurstException.NotValidException(
-            "Invalid number of recipients listed on multi out transaction");
+        throw new BurstException.NotValidException("Invalid number of recipients listed on multi out transaction");
       }
     }
 
@@ -253,18 +192,18 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      final JSONArray recipientsJSON = new JSONArray();
+    void putMyJSON(JsonObject attachment) {
+      final JsonArray recipientsJSON = new JsonArray();
 
       this.recipients.stream()
         .map(recipient -> {
-          final JSONArray recipientJSON = new JSONArray();
+          final JsonArray recipientJSON = new JsonArray();
           recipientJSON.add(Convert.toUnsignedLong(recipient.get(0)));
           recipientJSON.add(recipient.get(1).toString());
           return recipientJSON;
         }).forEach(recipientsJSON::add);
 
-      attachment.put(RECIPIENTS_RESPONSE, recipientsJSON);
+      attachment.add(RECIPIENTS_RESPONSE, recipientsJSON);
     }
 
     @Override
@@ -282,6 +221,18 @@ public interface Attachment extends Appendix {
 
     public Collection<ArrayList<Long>> getRecipients() {
       return Collections.unmodifiableCollection(recipients);
+    }
+
+    @Override
+    public Any getProtobufMessage() {
+      BrsApi.MultiOutAttachment.Builder builder =  BrsApi.MultiOutAttachment.newBuilder()
+              .setVersion(getVersion());
+      for (ArrayList<Long> recipient : recipients) {
+        builder.addRecipients(BrsApi.MultiOutAttachment.MultiOutRecipient.newBuilder()
+                .setRecipient(recipient.get(0))
+                .setAmount(recipient.get(1)));
+      }
+      return Any.pack(builder.build());
     }
   }
 
@@ -310,14 +261,14 @@ public interface Attachment extends Appendix {
       }
     }
 
-    PaymentMultiSameOutCreation(JSONObject attachmentData) throws BurstException.NotValidException {
+    PaymentMultiSameOutCreation(JsonObject attachmentData) throws BurstException.NotValidException {
       super(attachmentData);
 
-      JSONArray recipients = (JSONArray)attachmentData.get(RECIPIENTS_PARAMETER);
+      JsonArray recipients = JSON.getAsJsonArray(attachmentData.get(RECIPIENTS_PARAMETER));
       HashMap<Long,Boolean> recipientOf = new HashMap<>();
 
-      for (int i = 0; i < recipients.size(); i++) {
-        long recipientId = new BigInteger((String) recipients.get(i)).longValue();
+      for (JsonElement recipient : recipients) {
+        long recipientId = new BigInteger(JSON.getAsString(recipient)).longValue();
         if (recipientOf.containsKey(recipientId))
           throw new BurstException.NotValidException("Duplicate recipient on multi same out transaction");
 
@@ -364,12 +315,10 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      JSONArray recipients = new JSONArray();
-      this.recipients.forEach(a -> {
-        recipients.add(Convert.toUnsignedLong(a));
-      });
-      attachment.put(RECIPIENTS_RESPONSE, recipients);
+    void putMyJSON(JsonObject attachment) {
+      JsonArray recipients = new JsonArray();
+      this.recipients.forEach(a -> recipients.add(Convert.toUnsignedLong(a)));
+      attachment.add(RECIPIENTS_RESPONSE, recipients);
     }
 
     @Override
@@ -379,6 +328,14 @@ public interface Attachment extends Appendix {
 
     public Collection<Long> getRecipients() {
       return Collections.unmodifiableCollection(recipients);
+    }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.MultiOutSameAttachment.newBuilder()
+              .setVersion(getVersion())
+              .addAllRecipients(recipients)
+              .build());
     }
   }
 
@@ -423,10 +380,10 @@ public interface Attachment extends Appendix {
       aliasURI = Convert.readString(buffer, buffer.getShort(), Constants.MAX_ALIAS_URI_LENGTH).trim();
     }
 
-    MessagingAliasAssignment(JSONObject attachmentData) {
+    MessagingAliasAssignment(JsonObject attachmentData) {
       super(attachmentData);
-      aliasName = (Convert.nullToEmpty((String) attachmentData.get(ALIAS_PARAMETER))).trim();
-      aliasURI = (Convert.nullToEmpty((String) attachmentData.get(URI_PARAMETER))).trim();
+      aliasName = (Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)))).trim();
+      aliasURI = (Convert.nullToEmpty(JSON.getAsString(attachmentData.get(URI_PARAMETER)))).trim();
     }
 
     public MessagingAliasAssignment(String aliasName, String aliasURI, int blockchainHeight) {
@@ -456,9 +413,9 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(ALIAS_RESPONSE, aliasName);
-      attachment.put(URI_RESPONSE, aliasURI);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(ALIAS_RESPONSE, aliasName);
+      attachment.addProperty(URI_RESPONSE, aliasURI);
     }
 
     @Override
@@ -473,6 +430,15 @@ public interface Attachment extends Appendix {
     public String getAliasURI() {
       return aliasURI;
     }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.AliasAssignmentAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setName(aliasName)
+              .setUri(aliasURI)
+              .build());
+    }
   }
 
   class MessagingAliasSell extends AbstractAttachment {
@@ -486,10 +452,10 @@ public interface Attachment extends Appendix {
       this.priceNQT = buffer.getLong();
     }
 
-    MessagingAliasSell(JSONObject attachmentData) {
+    MessagingAliasSell(JsonObject attachmentData) {
       super(attachmentData);
-      this.aliasName = Convert.nullToEmpty((String) attachmentData.get(ALIAS_PARAMETER));
-      this.priceNQT = Convert.parseLong(attachmentData.get(PRICE_NQT_PARAMETER));
+      this.aliasName = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)));
+      this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER));
     }
 
     public MessagingAliasSell(String aliasName, long priceNQT, int blockchainHeight) {
@@ -522,9 +488,9 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(ALIAS_RESPONSE, aliasName);
-      attachment.put(PRICE_NQT_RESPONSE, priceNQT);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(ALIAS_RESPONSE, aliasName);
+      attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT);
     }
 
     public String getAliasName(){
@@ -533,6 +499,15 @@ public interface Attachment extends Appendix {
 
     public long getPriceNQT(){
       return priceNQT;
+    }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.AliasSellAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setName(aliasName)
+              .setPrice(priceNQT)
+              .build());
     }
   }
 
@@ -545,9 +520,9 @@ public interface Attachment extends Appendix {
       this.aliasName = Convert.readString(buffer, buffer.get(), Constants.MAX_ALIAS_LENGTH);
     }
 
-    MessagingAliasBuy(JSONObject attachmentData) {
+    MessagingAliasBuy(JsonObject attachmentData) {
       super(attachmentData);
-      this.aliasName = Convert.nullToEmpty((String) attachmentData.get(ALIAS_PARAMETER));
+      this.aliasName = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)));
     }
 
     public MessagingAliasBuy(String aliasName, int blockchainHeight) {
@@ -578,12 +553,20 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(ALIAS_RESPONSE, aliasName);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(ALIAS_RESPONSE, aliasName);
     }
 
     public String getAliasName(){
       return aliasName;
+    }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.AliasBuyAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setName(aliasName)
+              .build());
     }
   }
 
@@ -598,10 +581,10 @@ public interface Attachment extends Appendix {
       this.description = Convert.readString(buffer, buffer.getShort(), Constants.MAX_ACCOUNT_DESCRIPTION_LENGTH);
     }
 
-    MessagingAccountInfo(JSONObject attachmentData) {
+    MessagingAccountInfo(JsonObject attachmentData) {
       super(attachmentData);
-      this.name = Convert.nullToEmpty((String) attachmentData.get(NAME_PARAMETER));
-      this.description = Convert.nullToEmpty((String) attachmentData.get(DESCRIPTION_PARAMETER));
+      this.name = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(NAME_PARAMETER)));
+      this.description = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER)));
     }
 
     public MessagingAccountInfo(String name, String description, int blockchainHeight) {
@@ -631,9 +614,9 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(NAME_RESPONSE, name);
-      attachment.put(DESCRIPTION_RESPONSE, description);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(NAME_RESPONSE, name);
+      attachment.addProperty(DESCRIPTION_RESPONSE, description);
     }
 
     @Override
@@ -649,6 +632,14 @@ public interface Attachment extends Appendix {
       return description;
     }
 
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.AccountInfoAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setName(name)
+              .setDescription(description)
+              .build());
+    }
   }
 
   class ColoredCoinsAssetIssuance extends AbstractAttachment {
@@ -666,12 +657,12 @@ public interface Attachment extends Appendix {
       this.decimals = buffer.get();
     }
 
-    ColoredCoinsAssetIssuance(JSONObject attachmentData) {
+    ColoredCoinsAssetIssuance(JsonObject attachmentData) {
       super(attachmentData);
-      this.name = (String) attachmentData.get(NAME_PARAMETER);
-      this.description = Convert.nullToEmpty((String) attachmentData.get(DESCRIPTION_PARAMETER));
-      this.quantityQNT = Convert.parseLong(attachmentData.get(QUANTITY_QNT_PARAMETER));
-      this.decimals = ((Long) attachmentData.get(DECIMALS_PARAMETER)).byteValue();
+      this.name = JSON.getAsString(attachmentData.get(NAME_PARAMETER));
+      this.description = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER)));
+      this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER));
+      this.decimals = JSON.getAsByte(attachmentData.get(DECIMALS_PARAMETER));
     }
 
     public ColoredCoinsAssetIssuance(String name, String description, long quantityQNT, byte decimals, int blockchainHeight) {
@@ -705,11 +696,11 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(NAME_RESPONSE, name);
-      attachment.put(DESCRIPTION_RESPONSE, description);
-      attachment.put(QUANTITY_QNT_RESPONSE, quantityQNT);
-      attachment.put(DECIMALS_RESPONSE, decimals);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(NAME_RESPONSE, name);
+      attachment.addProperty(DESCRIPTION_RESPONSE, description);
+      attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT);
+      attachment.addProperty(DECIMALS_RESPONSE, decimals);
     }
 
     @Override
@@ -732,6 +723,17 @@ public interface Attachment extends Appendix {
     public byte getDecimals() {
       return decimals;
     }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.AssetIssuanceAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setName(name)
+              .setDescription(description)
+              .setQuantity(quantityQNT)
+              .setDecimals(decimals)
+              .build());
+    }
   }
 
   final class ColoredCoinsAssetTransfer extends AbstractAttachment {
@@ -747,11 +749,11 @@ public interface Attachment extends Appendix {
       this.comment = getVersion() == 0 ? Convert.readString(buffer, buffer.getShort(), Constants.MAX_ASSET_TRANSFER_COMMENT_LENGTH) : null;
     }
 
-    ColoredCoinsAssetTransfer(JSONObject attachmentData) {
+    ColoredCoinsAssetTransfer(JsonObject attachmentData) {
       super(attachmentData);
-      this.assetId = Convert.parseUnsignedLong((String) attachmentData.get(ASSET_PARAMETER));
-      this.quantityQNT = Convert.parseLong(attachmentData.get(QUANTITY_QNT_PARAMETER));
-      this.comment = getVersion() == 0 ? Convert.nullToEmpty((String) attachmentData.get(COMMENT_PARAMETER)) : null;
+      this.assetId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ASSET_PARAMETER)));
+      this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER));
+      this.comment = getVersion() == 0 ? Convert.nullToEmpty(JSON.getAsString(attachmentData.get(COMMENT_PARAMETER))) : null;
     }
 
     public ColoredCoinsAssetTransfer(long assetId, long quantityQNT, int blockchainHeight) {
@@ -783,11 +785,11 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(ASSET_RESPONSE, Convert.toUnsignedLong(assetId));
-      attachment.put(QUANTITY_QNT_RESPONSE, quantityQNT);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetId));
+      attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT);
       if (getVersion() == 0) {
-        attachment.put(COMMENT_RESPONSE, comment);
+        attachment.addProperty(COMMENT_RESPONSE, comment);
       }
     }
 
@@ -808,6 +810,15 @@ public interface Attachment extends Appendix {
       return comment;
     }
 
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.AssetTransferAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setId(assetId)
+              .setQuantity(quantityQNT)
+              .setComment(comment)
+              .build());
+    }
   }
 
   abstract class ColoredCoinsOrderPlacement extends AbstractAttachment {
@@ -823,11 +834,11 @@ public interface Attachment extends Appendix {
       this.priceNQT = buffer.getLong();
     }
 
-    private ColoredCoinsOrderPlacement(JSONObject attachmentData) {
+    private ColoredCoinsOrderPlacement(JsonObject attachmentData) {
       super(attachmentData);
-      this.assetId = Convert.parseUnsignedLong((String) attachmentData.get(ASSET_PARAMETER));
-      this.quantityQNT = Convert.parseLong(attachmentData.get(QUANTITY_QNT_PARAMETER));
-      this.priceNQT = Convert.parseLong(attachmentData.get(PRICE_NQT_PARAMETER));
+      this.assetId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ASSET_PARAMETER)));
+      this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER));
+      this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER));
     }
 
     private ColoredCoinsOrderPlacement(long assetId, long quantityQNT, long priceNQT, int blockchainHeight) {
@@ -850,10 +861,21 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(ASSET_RESPONSE, Convert.toUnsignedLong(assetId));
-      attachment.put(QUANTITY_QNT_RESPONSE, quantityQNT);
-      attachment.put(PRICE_NQT_RESPONSE, priceNQT);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetId));
+      attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT);
+      attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT);
+    }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.AssetOrderPlacementAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setId(assetId)
+              .setQuantity(quantityQNT)
+              .setPrice(priceNQT)
+              .setType(getType())
+              .build());
     }
 
     public long getAssetId() {
@@ -867,6 +889,8 @@ public interface Attachment extends Appendix {
     public long getPriceNQT() {
       return priceNQT;
     }
+
+    protected abstract BrsApi.AssetOrderPlacementAttachment.Type getType();
   }
 
   final class ColoredCoinsAskOrderPlacement extends ColoredCoinsOrderPlacement {
@@ -875,12 +899,17 @@ public interface Attachment extends Appendix {
       super(buffer, transactionVersion);
     }
 
-    ColoredCoinsAskOrderPlacement(JSONObject attachmentData) {
+    ColoredCoinsAskOrderPlacement(JsonObject attachmentData) {
       super(attachmentData);
     }
 
     public ColoredCoinsAskOrderPlacement(long assetId, long quantityQNT, long priceNQT, int blockchainHeight) {
       super(assetId, quantityQNT, priceNQT, blockchainHeight);
+    }
+
+    @Override
+    protected BrsApi.AssetOrderPlacementAttachment.Type getType() {
+      return BrsApi.AssetOrderPlacementAttachment.Type.ASK;
     }
 
     @Override
@@ -901,12 +930,17 @@ public interface Attachment extends Appendix {
       super(buffer, transactionVersion);
     }
 
-    ColoredCoinsBidOrderPlacement(JSONObject attachmentData) {
+    ColoredCoinsBidOrderPlacement(JsonObject attachmentData) {
       super(attachmentData);
     }
 
     public ColoredCoinsBidOrderPlacement(long assetId, long quantityQNT, long priceNQT, int blockchainHeight) {
       super(assetId, quantityQNT, priceNQT, blockchainHeight);
+    }
+
+    @Override
+    protected BrsApi.AssetOrderPlacementAttachment.Type getType() {
+      return BrsApi.AssetOrderPlacementAttachment.Type.BID;
     }
 
     @Override
@@ -930,9 +964,9 @@ public interface Attachment extends Appendix {
       this.orderId = buffer.getLong();
     }
 
-    private ColoredCoinsOrderCancellation(JSONObject attachmentData) {
+    private ColoredCoinsOrderCancellation(JsonObject attachmentData) {
       super(attachmentData);
-      this.orderId = Convert.parseUnsignedLong((String) attachmentData.get(ORDER_PARAMETER));
+      this.orderId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ORDER_PARAMETER)));
     }
 
     private ColoredCoinsOrderCancellation(long orderId, int blockchainHeight) {
@@ -951,13 +985,24 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(ORDER_RESPONSE, Convert.toUnsignedLong(orderId));
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(ORDER_RESPONSE, Convert.toUnsignedLong(orderId));
+    }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.AssetOrderCancellationAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setOrderId(orderId)
+              .setType(getType())
+              .build());
     }
 
     public long getOrderId() {
       return orderId;
     }
+
+    protected abstract BrsApi.AssetOrderCancellationAttachment.Type getType();
   }
 
   final class ColoredCoinsAskOrderCancellation extends ColoredCoinsOrderCancellation {
@@ -966,12 +1011,17 @@ public interface Attachment extends Appendix {
       super(buffer, transactionVersion);
     }
 
-    ColoredCoinsAskOrderCancellation(JSONObject attachmentData) {
+    ColoredCoinsAskOrderCancellation(JsonObject attachmentData) {
       super(attachmentData);
     }
 
     public ColoredCoinsAskOrderCancellation(long orderId, int blockchainHeight) {
       super(orderId, blockchainHeight);
+    }
+
+    @Override
+    protected BrsApi.AssetOrderCancellationAttachment.Type getType() {
+      return BrsApi.AssetOrderCancellationAttachment.Type.ASK;
     }
 
     @Override
@@ -992,12 +1042,17 @@ public interface Attachment extends Appendix {
       super(buffer, transactionVersion);
     }
 
-    ColoredCoinsBidOrderCancellation(JSONObject attachmentData) {
+    ColoredCoinsBidOrderCancellation(JsonObject attachmentData) {
       super(attachmentData);
     }
 
     public ColoredCoinsBidOrderCancellation(long orderId, int blockchainHeight) {
       super(orderId, blockchainHeight);
+    }
+
+    @Override
+    protected BrsApi.AssetOrderCancellationAttachment.Type getType() {
+      return BrsApi.AssetOrderCancellationAttachment.Type.BID;
     }
 
     @Override
@@ -1029,13 +1084,13 @@ public interface Attachment extends Appendix {
       this.priceNQT = buffer.getLong();
     }
 
-    DigitalGoodsListing(JSONObject attachmentData) {
+    DigitalGoodsListing(JsonObject attachmentData) {
       super(attachmentData);
-      this.name = (String) attachmentData.get(NAME_RESPONSE);
-      this.description = (String) attachmentData.get(DESCRIPTION_RESPONSE);
-      this.tags = (String) attachmentData.get(TAGS_RESPONSE);
-      this.quantity = ((Long) attachmentData.get(QUANTITY_RESPONSE)).intValue();
-      this.priceNQT = Convert.parseLong(attachmentData.get(PRICE_NQT_PARAMETER));
+      this.name = JSON.getAsString(attachmentData.get(NAME_RESPONSE));
+      this.description = JSON.getAsString(attachmentData.get(DESCRIPTION_RESPONSE));
+      this.tags = JSON.getAsString(attachmentData.get(TAGS_RESPONSE));
+      this.quantity = JSON.getAsInt(attachmentData.get(QUANTITY_RESPONSE));
+      this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER));
     }
 
     public DigitalGoodsListing(String name, String description, String tags, int quantity, long priceNQT, int blockchainHeight) {
@@ -1074,12 +1129,12 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(NAME_RESPONSE, name);
-      attachment.put(DESCRIPTION_RESPONSE, description);
-      attachment.put(TAGS_RESPONSE, tags);
-      attachment.put(QUANTITY_RESPONSE, quantity);
-      attachment.put(PRICE_NQT_RESPONSE, priceNQT);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(NAME_RESPONSE, name);
+      attachment.addProperty(DESCRIPTION_RESPONSE, description);
+      attachment.addProperty(TAGS_RESPONSE, tags);
+      attachment.addProperty(QUANTITY_RESPONSE, quantity);
+      attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT);
     }
 
     @Override
@@ -1097,6 +1152,17 @@ public interface Attachment extends Appendix {
 
     public long getPriceNQT() { return priceNQT; }
 
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.DigitalGoodsListingAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setName(name)
+              .setDescription(description)
+              .setTags(tags)
+              .setQuantity(quantity)
+              .setPrice(priceNQT)
+              .build());
+    }
   }
 
   final class DigitalGoodsDelisting extends AbstractAttachment {
@@ -1108,9 +1174,9 @@ public interface Attachment extends Appendix {
       this.goodsId = buffer.getLong();
     }
 
-    DigitalGoodsDelisting(JSONObject attachmentData) {
+    DigitalGoodsDelisting(JsonObject attachmentData) {
       super(attachmentData);
-      this.goodsId = Convert.parseUnsignedLong((String)attachmentData.get(GOODS_PARAMETER));
+      this.goodsId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(GOODS_PARAMETER)));
     }
 
     public DigitalGoodsDelisting(long goodsId, int blockchainHeight) {
@@ -1134,8 +1200,8 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId));
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId));
     }
 
     @Override
@@ -1145,6 +1211,13 @@ public interface Attachment extends Appendix {
 
     public long getGoodsId() { return goodsId; }
 
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.DigitalGoodsDelistingAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setGoodsId(goodsId)
+              .build());
+    }
   }
 
   final class DigitalGoodsPriceChange extends AbstractAttachment {
@@ -1158,10 +1231,10 @@ public interface Attachment extends Appendix {
       this.priceNQT = buffer.getLong();
     }
 
-    DigitalGoodsPriceChange(JSONObject attachmentData) {
+    DigitalGoodsPriceChange(JsonObject attachmentData) {
       super(attachmentData);
-      this.goodsId = Convert.parseUnsignedLong((String)attachmentData.get(GOODS_PARAMETER));
-      this.priceNQT = Convert.parseLong(attachmentData.get(PRICE_NQT_PARAMETER));
+      this.goodsId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(GOODS_PARAMETER)));
+      this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER));
     }
 
     public DigitalGoodsPriceChange(long goodsId, long priceNQT, int blockchainHeight) {
@@ -1187,9 +1260,9 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId));
-      attachment.put(PRICE_NQT_RESPONSE, priceNQT);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId));
+      attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT);
     }
 
     @Override
@@ -1201,6 +1274,14 @@ public interface Attachment extends Appendix {
 
     public long getPriceNQT() { return priceNQT; }
 
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.DigitalGoodsPriceChangeAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setGoodsId(goodsId)
+              .setPrice(priceNQT)
+              .build());
+    }
   }
 
   final class DigitalGoodsQuantityChange extends AbstractAttachment {
@@ -1214,10 +1295,10 @@ public interface Attachment extends Appendix {
       this.deltaQuantity = buffer.getInt();
     }
 
-    DigitalGoodsQuantityChange(JSONObject attachmentData) {
+    DigitalGoodsQuantityChange(JsonObject attachmentData) {
       super(attachmentData);
-      this.goodsId = Convert.parseUnsignedLong((String)attachmentData.get(GOODS_PARAMETER));
-      this.deltaQuantity = ((Long)attachmentData.get(DELTA_QUANTITY_PARAMETER)).intValue();
+      this.goodsId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(GOODS_PARAMETER)));
+      this.deltaQuantity = JSON.getAsInt(attachmentData.get(DELTA_QUANTITY_PARAMETER));
     }
 
     public DigitalGoodsQuantityChange(long goodsId, int deltaQuantity, int blockchainHeight) {
@@ -1243,9 +1324,9 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId));
-      attachment.put(DELTA_QUANTITY_RESPONSE, deltaQuantity);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId));
+      attachment.addProperty(DELTA_QUANTITY_RESPONSE, deltaQuantity);
     }
 
     @Override
@@ -1257,6 +1338,14 @@ public interface Attachment extends Appendix {
 
     public int getDeltaQuantity() { return deltaQuantity; }
 
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.DigitalGoodsQuantityChangeAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setGoodsId(goodsId)
+              .setDeltaQuantity(deltaQuantity)
+              .build());
+    }
   }
 
   final class DigitalGoodsPurchase extends AbstractAttachment {
@@ -1274,12 +1363,12 @@ public interface Attachment extends Appendix {
       this.deliveryDeadlineTimestamp = buffer.getInt();
     }
 
-    DigitalGoodsPurchase(JSONObject attachmentData) {
+    DigitalGoodsPurchase(JsonObject attachmentData) {
       super(attachmentData);
-      this.goodsId = Convert.parseUnsignedLong((String)attachmentData.get(GOODS_PARAMETER));
-      this.quantity = ((Long)attachmentData.get(QUANTITY_PARAMETER)).intValue();
-      this.priceNQT = Convert.parseLong(attachmentData.get(PRICE_NQT_PARAMETER));
-      this.deliveryDeadlineTimestamp = ((Long)attachmentData.get(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER)).intValue();
+      this.goodsId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(GOODS_PARAMETER)));
+      this.quantity = JSON.getAsInt(attachmentData.get(QUANTITY_PARAMETER));
+      this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER));
+      this.deliveryDeadlineTimestamp = JSON.getAsInt(attachmentData.get(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER));
     }
 
     public DigitalGoodsPurchase(long goodsId, int quantity, long priceNQT, int deliveryDeadlineTimestamp, int blockchainHeight) {
@@ -1309,11 +1398,11 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId));
-      attachment.put(QUANTITY_RESPONSE, quantity);
-      attachment.put(PRICE_NQT_RESPONSE, priceNQT);
-      attachment.put(DELIVERY_DEADLINE_TIMESTAMP_RESPONSE, deliveryDeadlineTimestamp);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId));
+      attachment.addProperty(QUANTITY_RESPONSE, quantity);
+      attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT);
+      attachment.addProperty(DELIVERY_DEADLINE_TIMESTAMP_RESPONSE, deliveryDeadlineTimestamp);
     }
 
     @Override
@@ -1329,6 +1418,16 @@ public interface Attachment extends Appendix {
 
     public int getDeliveryDeadlineTimestamp() { return deliveryDeadlineTimestamp; }
 
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.DigitalGoodsPurchaseAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setGoodsId(goodsId)
+              .setQuantity(quantity)
+              .setPrice(priceNQT)
+              .setDeliveryDeadlineTimestmap(deliveryDeadlineTimestamp)
+              .build());
+    }
   }
 
   final class DigitalGoodsDelivery extends AbstractAttachment {
@@ -1350,13 +1449,13 @@ public interface Attachment extends Appendix {
       this.discountNQT = buffer.getLong();
     }
 
-    DigitalGoodsDelivery(JSONObject attachmentData) {
+    DigitalGoodsDelivery(JsonObject attachmentData) {
       super(attachmentData);
-      this.purchaseId = Convert.parseUnsignedLong((String)attachmentData.get(PURCHASE_PARAMETER));
-      this.goods = new EncryptedData(Convert.parseHexString((String)attachmentData.get(GOODS_DATA_PARAMETER)),
-                                     Convert.parseHexString((String)attachmentData.get(GOODS_NONCE_PARAMETER)));
-      this.discountNQT = Convert.parseLong(attachmentData.get(DISCOUNT_NQT_PARAMETER));
-      this.goodsIsText = Boolean.TRUE.equals(attachmentData.get(GOODS_IS_TEXT_PARAMETER));
+      this.purchaseId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)));
+      this.goods = new EncryptedData(Convert.parseHexString(JSON.getAsString(attachmentData.get(GOODS_DATA_PARAMETER))),
+                                     Convert.parseHexString(JSON.getAsString(attachmentData.get(GOODS_NONCE_PARAMETER))));
+      this.discountNQT = JSON.getAsLong(attachmentData.get(DISCOUNT_NQT_PARAMETER));
+      this.goodsIsText = Boolean.TRUE.equals(JSON.getAsBoolean(attachmentData.get(GOODS_IS_TEXT_PARAMETER)));
     }
 
     public DigitalGoodsDelivery(long purchaseId, EncryptedData goods, boolean goodsIsText, long discountNQT, int blockchainHeight) {
@@ -1387,12 +1486,12 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchaseId));
-      attachment.put(GOODS_DATA_RESPONSE, Convert.toHexString(goods.getData()));
-      attachment.put(GOODS_NONCE_RESPONSE, Convert.toHexString(goods.getNonce()));
-      attachment.put(DISCOUNT_NQT_RESPONSE, discountNQT);
-      attachment.put(GOODS_IS_TEXT_RESPONSE, goodsIsText);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchaseId));
+      attachment.addProperty(GOODS_DATA_RESPONSE, Convert.toHexString(goods.getData()));
+      attachment.addProperty(GOODS_NONCE_RESPONSE, Convert.toHexString(goods.getNonce()));
+      attachment.addProperty(DISCOUNT_NQT_RESPONSE, discountNQT);
+      attachment.addProperty(GOODS_IS_TEXT_RESPONSE, goodsIsText);
     }
 
     @Override
@@ -1410,6 +1509,17 @@ public interface Attachment extends Appendix {
       return goodsIsText;
     }
 
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.DigitalGoodsDeliveryAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setPurchaseId(purchaseId)
+              .setDiscount(discountNQT)
+              .setData(ByteString.copyFrom(goods.getData()))
+              .setNonce(ByteString.copyFrom(goods.getNonce()))
+              .setIsText(goodsIsText)
+              .build());
+    }
   }
 
   final class DigitalGoodsFeedback extends AbstractAttachment {
@@ -1421,9 +1531,9 @@ public interface Attachment extends Appendix {
       this.purchaseId = buffer.getLong();
     }
 
-    DigitalGoodsFeedback(JSONObject attachmentData) {
+    DigitalGoodsFeedback(JsonObject attachmentData) {
       super(attachmentData);
-      this.purchaseId = Convert.parseUnsignedLong((String)attachmentData.get(PURCHASE_PARAMETER));
+      this.purchaseId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)));
     }
 
     public DigitalGoodsFeedback(long purchaseId, int blockchainHeight) {
@@ -1447,8 +1557,8 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchaseId));
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchaseId));
     }
 
     @Override
@@ -1458,6 +1568,13 @@ public interface Attachment extends Appendix {
 
     public long getPurchaseId() { return purchaseId; }
 
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.DigitalGoodsFeedbackAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setPurchaseId(purchaseId)
+              .build());
+    }
   }
 
   final class DigitalGoodsRefund extends AbstractAttachment {
@@ -1471,10 +1588,10 @@ public interface Attachment extends Appendix {
       this.refundNQT = buffer.getLong();
     }
 
-    DigitalGoodsRefund(JSONObject attachmentData) {
+    DigitalGoodsRefund(JsonObject attachmentData) {
       super(attachmentData);
-      this.purchaseId = Convert.parseUnsignedLong((String)attachmentData.get(PURCHASE_PARAMETER));
-      this.refundNQT = Convert.parseLong(attachmentData.get(REFUND_NQT_PARAMETER));
+      this.purchaseId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)));
+      this.refundNQT = JSON.getAsLong(attachmentData.get(REFUND_NQT_PARAMETER));
     }
 
     public DigitalGoodsRefund(long purchaseId, long refundNQT, int blockchainHeight) {
@@ -1500,9 +1617,9 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchaseId));
-      attachment.put(REFUND_NQT_RESPONSE, refundNQT);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchaseId));
+      attachment.addProperty(REFUND_NQT_RESPONSE, refundNQT);
     }
 
     @Override
@@ -1514,6 +1631,14 @@ public interface Attachment extends Appendix {
 
     public long getRefundNQT() { return refundNQT; }
 
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.DigitalGoodsRefundAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setPurchaseId(purchaseId)
+              .setRefund(refundNQT)
+              .build());
+    }
   }
 
   final class AccountControlEffectiveBalanceLeasing extends AbstractAttachment {
@@ -1525,9 +1650,9 @@ public interface Attachment extends Appendix {
       this.period = buffer.getShort();
     }
 
-    AccountControlEffectiveBalanceLeasing(JSONObject attachmentData) {
+    AccountControlEffectiveBalanceLeasing(JsonObject attachmentData) {
       super(attachmentData);
-      this.period = ((Long) attachmentData.get(PERIOD_PARAMETER)).shortValue();
+      this.period = JSON.getAsShort(attachmentData.get(PERIOD_PARAMETER));
     }
 
     public AccountControlEffectiveBalanceLeasing(short period, int blockchainHeight) {
@@ -1551,8 +1676,8 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(PERIOD_RESPONSE, period);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(PERIOD_RESPONSE, period);
     }
 
     @Override
@@ -1563,6 +1688,14 @@ public interface Attachment extends Appendix {
     public short getPeriod() {
       return period;
     }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.EffectiveBalanceLeasingAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setPeriod(period)
+              .build());
+    }
   }
 
   final class BurstMiningRewardRecipientAssignment extends AbstractAttachment {
@@ -1571,7 +1704,7 @@ public interface Attachment extends Appendix {
       super(buffer, transactionVersion);
     }
 
-    BurstMiningRewardRecipientAssignment(JSONObject attachmentData) {
+    BurstMiningRewardRecipientAssignment(JsonObject attachmentData) {
       super(attachmentData);
     }
 
@@ -1594,12 +1727,19 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
+    void putMyJSON(JsonObject attachment) {
     }
 
     @Override
     public TransactionType getTransactionType() {
       return TransactionType.BurstMining.REWARD_RECIPIENT_ASSIGNMENT;
+    }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.RewardRecipientAssignmentAttachment.newBuilder()
+              .setVersion(getVersion())
+              .build());
     }
   }
 
@@ -1628,21 +1768,21 @@ public interface Attachment extends Appendix {
       }
     }
 
-    AdvancedPaymentEscrowCreation(JSONObject attachmentData) throws BurstException.NotValidException {
+    AdvancedPaymentEscrowCreation(JsonObject attachmentData) throws BurstException.NotValidException {
       super(attachmentData);
-      this.amountNQT = Convert.parseUnsignedLong((String)attachmentData.get(AMOUNT_NQT_PARAMETER));
-      this.deadline = ((Long)attachmentData.get(DEADLINE_PARAMETER)).intValue();
-      this.deadlineAction = Escrow.stringToDecision((String)attachmentData.get(DEADLINE_ACTION_PARAMETER));
-      this.requiredSigners = ((Long)attachmentData.get(REQUIRED_SIGNERS_PARAMETER)).byteValue();
-      int totalSigners = ((JSONArray)attachmentData.get(SIGNERS_PARAMETER)).size();
+      this.amountNQT = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(AMOUNT_NQT_PARAMETER)));
+      this.deadline = JSON.getAsInt(attachmentData.get(DEADLINE_PARAMETER));
+      this.deadlineAction = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DEADLINE_ACTION_PARAMETER)));
+      this.requiredSigners = JSON.getAsByte(attachmentData.get(REQUIRED_SIGNERS_PARAMETER));
+      int totalSigners = (JSON.getAsJsonArray(attachmentData.get(SIGNERS_PARAMETER))).size();
       if(totalSigners > 10 || totalSigners <= 0) {
         throw new BurstException.NotValidException("Invalid number of signers listed on create escrow transaction");
       }
-      JSONArray signersJson = (JSONArray)attachmentData.get(SIGNERS_PARAMETER);
-      for(int i = 0; i < signersJson.size(); i++) {
-        this.signers.add(Convert.parseUnsignedLong((String)signersJson.get(i)));
+      JsonArray signersJson = JSON.getAsJsonArray(attachmentData.get(SIGNERS_PARAMETER));
+      for (JsonElement aSignersJson : signersJson) {
+        this.signers.add(Convert.parseUnsignedLong(JSON.getAsString(aSignersJson)));
       }
-      if(this.signers.size() != ((JSONArray)attachmentData.get(SIGNERS_PARAMETER)).size()) {
+      if(this.signers.size() != (JSON.getAsJsonArray(attachmentData.get(SIGNERS_PARAMETER))).size()) {
         throw new BurstException.NotValidException("Duplicate signer on escrow creation");
       }
     }
@@ -1687,16 +1827,16 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(this.amountNQT));
-      attachment.put(DEADLINE_RESPONSE, this.deadline);
-      attachment.put(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(this.deadlineAction));
-      attachment.put(REQUIRED_SIGNERS_RESPONSE, (int)this.requiredSigners);
-      JSONArray ids = new JSONArray();
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(this.amountNQT));
+      attachment.addProperty(DEADLINE_RESPONSE, this.deadline);
+      attachment.addProperty(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(this.deadlineAction));
+      attachment.addProperty(REQUIRED_SIGNERS_RESPONSE, (int)this.requiredSigners);
+      JsonArray ids = new JsonArray();
       for(Long signer : this.signers) {
         ids.add(Convert.toUnsignedLong(signer));
       }
-      attachment.put(SIGNERS_RESPONSE, ids);
+      attachment.add(SIGNERS_RESPONSE, ids);
     }
 
     @Override
@@ -1715,6 +1855,18 @@ public interface Attachment extends Appendix {
     public Collection<Long> getSigners() { return Collections.unmodifiableCollection(signers); }
 
     public int getTotalSigners() { return signers.size(); }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.EscrowCreationAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setAmount(amountNQT)
+              .setRequiredSigners(requiredSigners)
+              .addAllSigners(signers)
+              .setDeadline(deadline)
+              .setDeadlineAction(Escrow.decisionToProtobuf(deadlineAction))
+              .build());
+    }
   }
 
   final class AdvancedPaymentEscrowSign extends AbstractAttachment {
@@ -1728,10 +1880,10 @@ public interface Attachment extends Appendix {
       this.decision = Escrow.byteToDecision(buffer.get());
     }
 
-    AdvancedPaymentEscrowSign(JSONObject attachmentData) {
+    AdvancedPaymentEscrowSign(JsonObject attachmentData) {
       super(attachmentData);
-      this.escrowId = Convert.parseUnsignedLong((String)attachmentData.get(ESCROW_ID_PARAMETER));
-      this.decision = Escrow.stringToDecision((String)attachmentData.get(DECISION_PARAMETER));
+      this.escrowId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ESCROW_ID_PARAMETER)));
+      this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER)));
     }
 
     public AdvancedPaymentEscrowSign(Long escrowId, Escrow.DecisionType decision, int blockchainHeight) {
@@ -1757,9 +1909,9 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(ESCROW_ID_RESPONSE, Convert.toUnsignedLong(this.escrowId));
-      attachment.put(DECISION_RESPONSE, Escrow.decisionToString(this.decision));
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(ESCROW_ID_RESPONSE, Convert.toUnsignedLong(this.escrowId));
+      attachment.addProperty(DECISION_RESPONSE, Escrow.decisionToString(this.decision));
     }
 
     @Override
@@ -1770,6 +1922,15 @@ public interface Attachment extends Appendix {
     public Long getEscrowId() { return this.escrowId; }
 
     public Escrow.DecisionType getDecision() { return this.decision; }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.EscrowSignAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setEscrowId(escrowId)
+              .setDecision(Escrow.decisionToProtobuf(decision))
+              .build());
+    }
   }
 
   final class AdvancedPaymentEscrowResult extends AbstractAttachment {
@@ -1783,10 +1944,10 @@ public interface Attachment extends Appendix {
       this.decision = Escrow.byteToDecision(buffer.get());
     }
 
-    AdvancedPaymentEscrowResult(JSONObject attachmentData) {
+    AdvancedPaymentEscrowResult(JsonObject attachmentData) {
       super(attachmentData);
-      this.escrowId = Convert.parseUnsignedLong((String) attachmentData.get(ESCROW_ID_PARAMETER));
-      this.decision = Escrow.stringToDecision((String)attachmentData.get(DECISION_PARAMETER));
+      this.escrowId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ESCROW_ID_PARAMETER)));
+      this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER)));
     }
 
     public AdvancedPaymentEscrowResult(Long escrowId, Escrow.DecisionType decision, int blockchainHeight) {
@@ -1812,14 +1973,23 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(ESCROW_ID_RESPONSE, Convert.toUnsignedLong(this.escrowId));
-      attachment.put(DECISION_RESPONSE, Escrow.decisionToString(this.decision));
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(ESCROW_ID_RESPONSE, Convert.toUnsignedLong(this.escrowId));
+      attachment.addProperty(DECISION_RESPONSE, Escrow.decisionToString(this.decision));
     }
 
     @Override
     public TransactionType getTransactionType() {
       return TransactionType.AdvancedPayment.ESCROW_RESULT;
+    }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.EscrowResultAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setEscrowId(2)
+              .setDecision(Escrow.decisionToProtobuf(decision))
+              .build());
     }
   }
 
@@ -1832,9 +2002,9 @@ public interface Attachment extends Appendix {
       this.frequency = buffer.getInt();
     }
 
-    AdvancedPaymentSubscriptionSubscribe(JSONObject attachmentData) {
+    AdvancedPaymentSubscriptionSubscribe(JsonObject attachmentData) {
       super(attachmentData);
-      this.frequency = ((Long)attachmentData.get(FREQUENCY_PARAMETER)).intValue();
+      this.frequency = JSON.getAsInt(attachmentData.get(FREQUENCY_PARAMETER));
     }
 
     public AdvancedPaymentSubscriptionSubscribe(int frequency, int blockchainHeight) {
@@ -1858,8 +2028,8 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(FREQUENCY_RESPONSE, this.frequency);
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(FREQUENCY_RESPONSE, this.frequency);
     }
 
     @Override
@@ -1868,6 +2038,14 @@ public interface Attachment extends Appendix {
     }
 
     public Integer getFrequency() { return this.frequency; }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.SubscriptionSubscribeAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setFrequency(frequency)
+              .build());
+    }
   }
 
   final class AdvancedPaymentSubscriptionCancel extends AbstractAttachment {
@@ -1879,9 +2057,9 @@ public interface Attachment extends Appendix {
       this.subscriptionId = buffer.getLong();
     }
 
-    AdvancedPaymentSubscriptionCancel(JSONObject attachmentData) {
+    AdvancedPaymentSubscriptionCancel(JsonObject attachmentData) {
       super(attachmentData);
-      this.subscriptionId = Convert.parseUnsignedLong((String)attachmentData.get(SUBSCRIPTION_ID_PARAMETER));
+      this.subscriptionId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(SUBSCRIPTION_ID_PARAMETER)));
     }
 
     public AdvancedPaymentSubscriptionCancel(Long subscriptionId, int blockchainHeight) {
@@ -1905,8 +2083,8 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(SUBSCRIPTION_ID_RESPONSE, Convert.toUnsignedLong(this.subscriptionId));
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(SUBSCRIPTION_ID_RESPONSE, Convert.toUnsignedLong(this.subscriptionId));
     }
 
     @Override
@@ -1915,6 +2093,14 @@ public interface Attachment extends Appendix {
     }
 
     public Long getSubscriptionId() { return this.subscriptionId; }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.SubscriptionCancelAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setSubscriptionId(subscriptionId)
+              .build());
+    }
   }
 
   final class AdvancedPaymentSubscriptionPayment extends AbstractAttachment {
@@ -1926,9 +2112,9 @@ public interface Attachment extends Appendix {
       this.subscriptionId = buffer.getLong();
     }
 
-    AdvancedPaymentSubscriptionPayment(JSONObject attachmentData) {
+    AdvancedPaymentSubscriptionPayment(JsonObject attachmentData) {
       super(attachmentData);
-      this.subscriptionId = Convert.parseUnsignedLong((String) attachmentData.get(SUBSCRIPTION_ID_PARAMETER));
+      this.subscriptionId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(SUBSCRIPTION_ID_PARAMETER)));
     }
 
     public AdvancedPaymentSubscriptionPayment(Long subscriptionId, int blockchainHeight) {
@@ -1952,13 +2138,21 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(SUBSCRIPTION_ID_RESPONSE, Convert.toUnsignedLong(this.subscriptionId));
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(SUBSCRIPTION_ID_RESPONSE, Convert.toUnsignedLong(this.subscriptionId));
     }
 
     @Override
     public TransactionType getTransactionType() {
       return TransactionType.AdvancedPayment.SUBSCRIPTION_PAYMENT;
+    }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.SubscriptionPaymentAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setSucscriptionId(subscriptionId)
+              .build());
     }
   }
 
@@ -2031,13 +2225,13 @@ public interface Attachment extends Appendix {
       this.creationBytes = dst;
     }
 
-    AutomatedTransactionsCreation(JSONObject attachmentData) {
+    AutomatedTransactionsCreation(JsonObject attachmentData) {
       super(attachmentData);
 
-      this.name = ( String ) attachmentData.get(NAME_PARAMETER);
-      this.description = ( String ) attachmentData.get(DESCRIPTION_PARAMETER);
+      this.name = JSON.getAsString(attachmentData.get(NAME_PARAMETER));
+      this.description = JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER));
 
-      this.creationBytes = Convert.parseHexString( (String) attachmentData.get(CREATION_BYTES_PARAMETER));
+      this.creationBytes = Convert.parseHexString(JSON.getAsString(attachmentData.get(CREATION_BYTES_PARAMETER)));
 
     }
 
@@ -2075,10 +2269,10 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    void putMyJSON(JSONObject attachment) {
-      attachment.put(NAME_RESPONSE, name);
-      attachment.put(DESCRIPTION_RESPONSE, description);
-      attachment.put(CREATION_BYTES_RESPONSE, Convert.toHexString( creationBytes ) );
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(NAME_RESPONSE, name);
+      attachment.addProperty(DESCRIPTION_RESPONSE, description);
+      attachment.addProperty(CREATION_BYTES_RESPONSE, Convert.toHexString( creationBytes ) );
     }
 
     public String getName() { return name; }
@@ -2090,6 +2284,15 @@ public interface Attachment extends Appendix {
     }
 
 
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.ATCreationAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setName(name)
+              .setDescription(description)
+              .setCreationBytes(ByteString.copyFrom(creationBytes))
+              .build());
+    }
   }
 
 }

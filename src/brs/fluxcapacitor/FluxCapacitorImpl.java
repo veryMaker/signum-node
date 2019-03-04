@@ -5,7 +5,7 @@ import brs.props.PropertyService;
 
 public class FluxCapacitorImpl implements FluxCapacitor {
 
-  private Blockchain blockchain;
+  private final Blockchain blockchain;
 
   private final FeatureCapacitor featureCapacitor;
   private final TypeCapacitor<Integer> intCapacitor;
@@ -37,6 +37,11 @@ public class FluxCapacitorImpl implements FluxCapacitor {
   @Override
   public Integer getInt(FluxInt fluxInt, int height) {
     return intCapacitor.getValueAtHeight(fluxInt.getFlux(), height);
+  }
+
+  @Override
+  public Integer getStartingHeight(FeatureToggle featureToggle) {
+    return featureCapacitor.getStartingHeight(featureToggle.getFlux());
   }
 
 }

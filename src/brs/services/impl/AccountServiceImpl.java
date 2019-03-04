@@ -20,7 +20,10 @@ import brs.services.AccountService;
 import brs.util.Convert;
 import brs.util.Listener;
 import brs.util.Listeners;
+
 import java.util.Arrays;
+
+import static brs.schema.Tables.ACCOUNT;
 
 public class AccountServiceImpl implements AccountService {
 
@@ -97,6 +100,11 @@ public class AccountServiceImpl implements AccountService {
   @Override
   public BurstIterator<RewardRecipientAssignment> getAccountsWithRewardRecipient(Long recipientId) {
     return accountStore.getAccountsWithRewardRecipient(recipientId);
+  }
+
+  @Override
+  public BurstIterator<Account> getAccountsWithName(String name) {
+    return accountTable.getManyBy(ACCOUNT.NAME.equalIgnoreCase(name), 0, -1);
   }
 
   @Override

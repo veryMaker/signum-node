@@ -1,13 +1,9 @@
 package brs.http;
 
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
-import brs.Order;
+import brs.*;
 import brs.assetexchange.AssetExchange;
 import brs.services.ParameterService;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -28,7 +24,7 @@ public final class CancelBidOrder extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long orderId = ParameterParser.getOrderId(req);
     Account account = parameterService.getSenderAccount(req);
     Order.Bid orderData = assetExchange.getBidOrder(orderId);

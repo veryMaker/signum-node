@@ -1,15 +1,15 @@
 package brs;
 
+import brs.util.Listener;
 import brs.util.ThreadPool;
+
 import java.math.BigInteger;
 import java.util.Collection;
-
-import brs.util.Listener;
 
 public interface Generator {
 
   enum Event {
-    GENERATION_DEADLINE, START_FORGING, STOP_FORGING
+    GENERATION_DEADLINE, NONCE_SUBMITTED
   }
 
   void generateForBlockchainProcessor(ThreadPool threadPool, BlockchainProcessor blockchainProcessor);

@@ -5,10 +5,11 @@ import brs.db.BurstIterator;
 import brs.db.BurstKey;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.TradeStore;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import org.jooq.DSLContext;
 import org.jooq.SelectQuery;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import static brs.schema.Tables.TRADE;
 
@@ -33,7 +34,7 @@ public class SqlTradeStore implements TradeStore {
       }
 
       @Override
-      protected void save(DSLContext ctx, Trade trade) throws SQLException {
+      protected void save(DSLContext ctx, Trade trade) {
         saveTrade(ctx, trade);
       }
 
@@ -99,7 +100,7 @@ public class SqlTradeStore implements TradeStore {
     return ctx.fetchCount(ctx.selectFrom(TRADE).where(TRADE.ASSET_ID.eq(assetId)));
   }
 
-  protected void saveTrade(DSLContext ctx, Trade trade) {
+  private void saveTrade(DSLContext ctx, Trade trade) {
     ctx.insertInto(
       TRADE,
       TRADE.ASSET_ID, TRADE.BLOCK_ID, TRADE.ASK_ORDER_ID, TRADE.BID_ORDER_ID, TRADE.ASK_ORDER_HEIGHT,

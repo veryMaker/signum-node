@@ -1,21 +1,15 @@
 package brs.http;
 
-import static brs.http.JSONResponses.INCORRECT_DELTA_QUANTITY;
-import static brs.http.JSONResponses.MISSING_DELTA_QUANTITY;
-import static brs.http.JSONResponses.UNKNOWN_GOODS;
-import static brs.http.common.Parameters.DELTA_QUANTITY_PARAMETER;
-import static brs.http.common.Parameters.GOODS_PARAMETER;
-
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
-import brs.Constants;
-import brs.DigitalGoodsStore;
+import brs.*;
 import brs.services.ParameterService;
 import brs.util.Convert;
+import com.google.gson.JsonElement;
+
 import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONStreamAware;
+
+import static brs.http.JSONResponses.*;
+import static brs.http.common.Parameters.DELTA_QUANTITY_PARAMETER;
+import static brs.http.common.Parameters.GOODS_PARAMETER;
 
 public final class DGSQuantityChange extends CreateTransaction {
 
@@ -30,7 +24,7 @@ public final class DGSQuantityChange extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     Account account = parameterService.getSenderAccount(req);
     DigitalGoodsStore.Goods goods = parameterService.getGoods(req);

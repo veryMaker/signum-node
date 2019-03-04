@@ -1,20 +1,8 @@
 package brs.services.impl;
 
-import static brs.schema.Tables.ESCROW;
-
-import brs.Account;
-import brs.Alias;
-import brs.Attachment;
-import brs.Block;
-import brs.Blockchain;
-import brs.Burst;
-import brs.BurstException;
-import brs.Constants;
-import brs.Escrow;
+import brs.*;
 import brs.Escrow.Decision;
 import brs.Escrow.DecisionType;
-import brs.Genesis;
-import brs.Transaction;
 import brs.db.BurstIterator;
 import brs.db.BurstKey;
 import brs.db.BurstKey.LongKeyFactory;
@@ -24,11 +12,14 @@ import brs.db.store.EscrowStore;
 import brs.services.AccountService;
 import brs.services.AliasService;
 import brs.services.EscrowService;
+import org.jooq.Condition;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
-import org.jooq.Condition;
+
+import static brs.schema.Tables.ESCROW;
 
 public class EscrowServiceImpl implements EscrowService {
 
@@ -93,7 +84,7 @@ public class EscrowServiceImpl implements EscrowService {
       decisions.add(decision);
     }
 
-    decisions.forEach(decision -> decisionTable.delete(decision));
+    decisions.forEach(decisionTable::delete);
     escrowTable.delete(escrow);
   }
 
@@ -134,9 +125,7 @@ public class EscrowServiceImpl implements EscrowService {
 
     decisionTable.insert(decisionChange);
 
-    if(! updatedEscrowIds.contains(escrow.getId())) {
-      updatedEscrowIds.add(escrow.getId());
-    }
+    updatedEscrowIds.add(escrow.getId());
   }
 
   @Override

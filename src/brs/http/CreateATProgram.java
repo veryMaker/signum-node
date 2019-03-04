@@ -1,36 +1,23 @@
 package brs.http;
 
-import static brs.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_DESCRIPTION;
-import static brs.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME;
-import static brs.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME_LENGTH;
-import static brs.http.JSONResponses.MISSING_NAME;
-import static brs.http.common.Parameters.CODE_PARAMETER;
-import static brs.http.common.Parameters.CREATION_BYTES_PARAMETER;
-import static brs.http.common.Parameters.CSPAGES_PARAMETER;
-import static brs.http.common.Parameters.DATA_PARAMETER;
-import static brs.http.common.Parameters.DESCRIPTION_PARAMETER;
-import static brs.http.common.Parameters.DPAGES_PARAMETER;
-import static brs.http.common.Parameters.MIN_ACTIVATION_AMOUNT_NQT_PARAMETER;
-import static brs.http.common.Parameters.NAME_PARAMETER;
-import static brs.http.common.Parameters.USPAGES_PARAMETER;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
-
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
-import brs.Constants;
+import brs.*;
 import brs.at.AT_Constants;
 import brs.services.ParameterService;
 import brs.util.Convert;
+import brs.util.TextUtils;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import javax.servlet.http.HttpServletRequest;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
 
-public final class CreateATProgram extends CreateTransaction {
+import static brs.http.JSONResponses.*;
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
+import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
+
+final class CreateATProgram extends CreateTransaction {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;
@@ -43,7 +30,7 @@ public final class CreateATProgram extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     //String atVersion = req.getParameter("atVersion");		
     String name = req.getParameter(NAME_PARAMETER);
     String description = req.getParameter(DESCRIPTION_PARAMETER);
@@ -56,11 +43,9 @@ public final class CreateATProgram extends CreateTransaction {
     if (name.length() > Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH) {
       return INCORRECT_AUTOMATED_TRANSACTION_NAME_LENGTH;
     }
-    String normalizedName = name.toLowerCase();
-    for (int i = 0; i < normalizedName.length(); i++) {
-      if (Constants.ALPHABET.indexOf(normalizedName.charAt(i)) < 0) {
-        return INCORRECT_AUTOMATED_TRANSACTION_NAME;
-      }
+
+    if (!TextUtils.isInAlphabet(name)) {
+      return INCORRECT_AUTOMATED_TRANSACTION_NAME;
     }
 
     if (description != null && description.length() > Constants.MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH) {
@@ -138,9 +123,9 @@ public final class CreateATProgram extends CreateTransaction {
         creationBytes = creation.array();
       } catch (Exception e) {
         e.printStackTrace(System.out);
-        JSONObject response = new JSONObject();
-        response.put(ERROR_CODE_RESPONSE, 5);
-        response.put(ERROR_DESCRIPTION_RESPONSE, "Invalid or not specified parameters");
+        JsonObject response = new JsonObject();
+        response.addProperty(ERROR_CODE_RESPONSE, 5);
+        response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Invalid or not specified parameters");
         return response;
       }
     }

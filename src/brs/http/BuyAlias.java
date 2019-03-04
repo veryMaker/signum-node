@@ -1,19 +1,14 @@
 package brs.http;
 
-import static brs.http.JSONResponses.INCORRECT_ALIAS_NOTFORSALE;
-import static brs.http.common.Parameters.ALIAS_NAME_PARAMETER;
-import static brs.http.common.Parameters.ALIAS_PARAMETER;
-import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
-
-import brs.Account;
-import brs.Alias;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.BurstException;
+import brs.*;
 import brs.services.AliasService;
 import brs.services.ParameterService;
+import com.google.gson.JsonElement;
+
 import javax.servlet.http.HttpServletRequest;
-import org.json.simple.JSONStreamAware;
+
+import static brs.http.JSONResponses.INCORRECT_ALIAS_NOTFORSALE;
+import static brs.http.common.Parameters.*;
 
 public final class BuyAlias extends CreateTransaction {
 
@@ -29,7 +24,7 @@ public final class BuyAlias extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     Account buyer = parameterService.getSenderAccount(req);
     Alias alias = parameterService.getAlias(req);
     long amountNQT = ParameterParser.getAmountNQT(req);

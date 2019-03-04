@@ -3,19 +3,24 @@ package brs;
 import brs.Appendix.AbstractAppendix;
 import brs.TransactionType.Payment;
 import brs.crypto.Crypto;
-import brs.db.BurstKey;
 import brs.fluxcapacitor.FeatureToggle;
 import brs.transactionduplicates.TransactionDuplicationKey;
 import brs.util.Convert;
-import org.json.simple.JSONObject;
+import brs.util.JSON;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.MessageDigest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Transaction implements Comparable<Transaction> {
 
@@ -175,16 +180,15 @@ public class Transaction implements Comparable<Transaction> {
   private final List<? extends Appendix.AbstractAppendix> appendages;
   private final int appendagesSize;
 
-  private volatile int height;
-  private volatile long blockId;
-  private volatile Block block;
+  private final AtomicInteger height = new AtomicInteger();
+  private final AtomicLong blockId = new AtomicLong();
+  private final AtomicReference<Block> block = new AtomicReference<>();
   private volatile byte[] signature;
-  private volatile int blockTimestamp;
-  private volatile long id;
-  private volatile String stringId;
-  private volatile long senderId;
-  private volatile String fullHash;
-  private volatile BurstKey dbKey;
+  private final AtomicInteger blockTimestamp = new AtomicInteger();
+  private final AtomicLong id = new AtomicLong();
+  private final AtomicReference<String> stringId = new AtomicReference<>();
+  private final AtomicLong senderId = new AtomicLong();
+  private final AtomicReference<String> fullHash = new AtomicReference<>();
 
   private Transaction(Builder builder) throws BurstException.NotValidException {
 
@@ -197,12 +201,12 @@ public class Transaction implements Comparable<Transaction> {
     this.signature = builder.signature;
     this.type = builder.type;
     this.version = builder.version;
-    this.blockId = builder.blockId;
-    this.height = builder.height;
-    this.id = builder.id;
-    this.senderId = builder.senderId;
-    this.blockTimestamp = builder.blockTimestamp;
-    this.fullHash = builder.fullHash;
+    this.blockId.set(builder.blockId);
+    this.height.set(builder.height);
+    this.id.set(builder.id);
+    this.senderId.set(builder.senderId);
+    this.blockTimestamp.set(builder.blockTimestamp);
+    this.fullHash.set(builder.fullHash);
     this.ecBlockHeight = builder.ecBlockHeight;
     this.ecBlockId = builder.ecBlockId;
 
@@ -228,7 +232,7 @@ public class Transaction implements Comparable<Transaction> {
       countAppendeges += appendage.getSize();
     }
     this.appendagesSize = countAppendeges;
-    int effectiveHeight = (height < Integer.MAX_VALUE ? height : Burst.getBlockchain().getHeight());
+    int effectiveHeight = (height.get() < Integer.MAX_VALUE ? height.get() : Burst.getBlockchain().getHeight());
     long minimumFeeNQT = type.minimumFeeNQT(effectiveHeight, countAppendeges);
     if(type == null || type.isSigned()) {
       if (builder.feeNQT > 0 && builder.feeNQT < minimumFeeNQT) {
@@ -300,11 +304,11 @@ public class Transaction implements Comparable<Transaction> {
   }
 
   public int getHeight() {
-    return height;
+    return height.get();
   }
 
   public void setHeight(int height) {
-    this.height = height;
+    this.height.set(height);
   }
 
   public byte[] getSignature() {
@@ -320,20 +324,20 @@ public class Transaction implements Comparable<Transaction> {
   }
 
   public long getBlockId() {
-    return blockId;
+    return blockId.get();
   }
 
   public void setBlock(Block block) {
-    this.block = block;
-    this.blockId = block.getId();
-    this.height = block.getHeight();
-    this.blockTimestamp = block.getTimestamp();
+    this.block.set(block);
+    this.blockId.set(block.getId());
+    this.height.set(block.getHeight());
+    this.blockTimestamp.set(block.getTimestamp());
   }
 
   void unsetBlock() {
-    this.block = null;
-    this.blockId = 0;
-    this.blockTimestamp = -1;
+    this.block.set(null);
+    this.blockId.set(0);
+    this.blockTimestamp.set(-1);
     // must keep the height set, as transactions already having been included in a popped-off block before
     // get priority when sorted for inclusion in a new block
   }
@@ -343,7 +347,7 @@ public class Transaction implements Comparable<Transaction> {
   }
 
   public int getBlockTimestamp() {
-    return blockTimestamp;
+    return blockTimestamp.get();
   }
 
   public int getExpiration() {
@@ -359,7 +363,7 @@ public class Transaction implements Comparable<Transaction> {
   }
 
   public long getId() {
-    if (id == 0) {
+    if (id.get() == 0) {
       if (signature == null && type.isSigned()) {
         throw new IllegalStateException("Transaction is not signed yet");
       }
@@ -373,36 +377,36 @@ public class Transaction implements Comparable<Transaction> {
       } else {
         hash = Crypto.sha256().digest(getBytes());
       }
-      BigInteger bigInteger = new BigInteger(1, new byte[] {hash[7], hash[6], hash[5], hash[4], hash[3], hash[2], hash[1], hash[0]});
-      id = bigInteger.longValue();
-      stringId = bigInteger.toString();
-      fullHash = Convert.toHexString(hash);
+      long longId = Convert.fullHashToId(hash);
+      id.set(longId);
+      stringId.set(Convert.toUnsignedLong(longId));
+      fullHash.set(Convert.toHexString(hash));
     }
-    return id;
+    return id.get();
   }
 
   public String getStringId() {
-    if (stringId == null) {
+    if (stringId.get() == null) {
       getId();
-      if (stringId == null) {
-        stringId = Convert.toUnsignedLong(id);
+      if (stringId.get() == null) {
+        stringId.set(Convert.toUnsignedLong(id.get()));
       }
     }
-    return stringId;
+    return stringId.get();
   }
 
   public String getFullHash() {
-    if (fullHash == null) {
+    if (fullHash.get() == null) {
       getId();
     }
-    return fullHash;
+    return fullHash.get();
   }
 
   public long getSenderId() {
-    if (senderId == 0 && (type == null || type.isSigned())) {
-      senderId = Account.getId(senderPublicKey);
+    if (senderId.get() == 0 && (type == null || type.isSigned())) {
+      senderId.set(Account.getId(senderPublicKey));
     }
-    return senderId;
+    return senderId.get();
   }
 
   public Appendix.Message getMessage() {
@@ -433,7 +437,7 @@ public class Transaction implements Comparable<Transaction> {
         buffer.put(senderPublicKey);
       }
       else {
-        buffer.putLong(senderId);
+        buffer.putLong(senderId.get());
         buffer.put(new byte[24]);
       }
       buffer.putLong(type.hasRecipient() ? recipientId : Genesis.CREATOR_ID);
@@ -463,7 +467,7 @@ public class Transaction implements Comparable<Transaction> {
       appendages.forEach(appendage -> appendage.putBytes(buffer));
       return buffer.array();
     } catch (RuntimeException e) {
-      logger.debug("Failed to get transaction bytes for transaction: " + getJSONObject().toJSONString());
+      logger.debug("Failed to get transaction bytes for transaction: " + JSON.toJsonString(getJsonObject()));
       throw e;
     }
   }
@@ -536,50 +540,46 @@ public class Transaction implements Comparable<Transaction> {
     }
   */
 
-  public JSONObject getJSONObject() {
-    JSONObject json = new JSONObject();
-    json.put("type", type.getType());
-    json.put("subtype", type.getSubtype());
-    json.put("timestamp", timestamp);
-    json.put("deadline", deadline);
-    json.put("senderPublicKey", Convert.toHexString(senderPublicKey));
+  public JsonObject getJsonObject() {
+    JsonObject json = new JsonObject();
+    json.addProperty("type", type.getType());
+    json.addProperty("subtype", type.getSubtype());
+    json.addProperty("timestamp", timestamp);
+    json.addProperty("deadline", deadline);
+    json.addProperty("senderPublicKey", Convert.toHexString(senderPublicKey));
     if (type.hasRecipient()) {
-      json.put("recipient", Convert.toUnsignedLong(recipientId));
+      json.addProperty("recipient", Convert.toUnsignedLong(recipientId));
     }
-    json.put("amountNQT", amountNQT);
-    json.put("feeNQT", feeNQT);
+    json.addProperty("amountNQT", amountNQT);
+    json.addProperty("feeNQT", feeNQT);
     if (referencedTransactionFullHash != null) {
-      json.put("referencedTransactionFullHash", referencedTransactionFullHash);
+      json.addProperty("referencedTransactionFullHash", referencedTransactionFullHash);
     }
-    json.put("ecBlockHeight", ecBlockHeight);
-    json.put("ecBlockId", Convert.toUnsignedLong(ecBlockId));
-    json.put("signature", Convert.toHexString(signature));
-    JSONObject attachmentJSON = new JSONObject();
-    appendages.forEach(appendage -> attachmentJSON.putAll(appendage.getJSONObject()));
+    json.addProperty("ecBlockHeight", ecBlockHeight);
+    json.addProperty("ecBlockId", Convert.toUnsignedLong(ecBlockId));
+    json.addProperty("signature", Convert.toHexString(signature));
+    JsonObject attachmentJSON = new JsonObject();
+    appendages.forEach(appendage -> JSON.addAll(attachmentJSON, appendage.getJsonObject()));
     //if (! attachmentJSON.isEmpty()) {
-    json.put("attachment", attachmentJSON);
+    json.add("attachment", attachmentJSON);
     //}
-    json.put("version", version);
+    json.addProperty("version", version);
     return json;
   }
 
-  static Transaction parseTransaction(JSONObject transactionData, int height) throws BurstException.NotValidException {
+  static Transaction parseTransaction(JsonObject transactionData, int height) throws BurstException.NotValidException {
     try {
-      byte type = ((Long) transactionData.get("type")).byteValue();
-      byte subtype = ((Long) transactionData.get("subtype")).byteValue();
-      int timestamp = ((Long) transactionData.get("timestamp")).intValue();
-      short deadline = ((Long) transactionData.get("deadline")).shortValue();
-      byte[] senderPublicKey = Convert.parseHexString((String) transactionData.get("senderPublicKey"));
-      long amountNQT = Convert.parseLong(transactionData.get("amountNQT"));
-      long feeNQT = Convert.parseLong(transactionData.get("feeNQT"));
-      String referencedTransactionFullHash = (String) transactionData.get("referencedTransactionFullHash");
-      byte[] signature = Convert.parseHexString((String) transactionData.get("signature"));
-      Long versionValue = (Long) transactionData.get("version");
-      byte version = versionValue == null ? 0 : versionValue.byteValue();
-      JSONObject attachmentData = (JSONObject) transactionData.get("attachment");
-      if(attachmentData == null) {
-        attachmentData = new JSONObject();
-      }
+      byte type = JSON.getAsByte(transactionData.get("type"));
+      byte subtype = JSON.getAsByte(transactionData.get("subtype"));
+      int timestamp = JSON.getAsInt(transactionData.get("timestamp"));
+      short deadline = JSON.getAsShort(transactionData.get("deadline"));
+      byte[] senderPublicKey = Convert.parseHexString(JSON.getAsString(transactionData.get("senderPublicKey")));
+      long amountNQT = JSON.getAsLong(transactionData.get("amountNQT"));
+      long feeNQT = JSON.getAsLong(transactionData.get("feeNQT"));
+      String referencedTransactionFullHash = JSON.getAsString(transactionData.get("referencedTransactionFullHash"));
+      byte[] signature = Convert.parseHexString(JSON.getAsString(transactionData.get("signature")));
+      byte version = JSON.getAsByte(transactionData.get("version"));
+      JsonObject attachmentData = JSON.getAsJsonObject(transactionData.get("attachment"));
 
       TransactionType transactionType = TransactionType.findTransactionType(type, subtype);
       if (transactionType == null) {
@@ -592,19 +592,19 @@ public class Transaction implements Comparable<Transaction> {
           .signature(signature)
           .height(height);
       if (transactionType.hasRecipient()) {
-        long recipientId = Convert.parseUnsignedLong((String) transactionData.get("recipient"));
+        long recipientId = Convert.parseUnsignedLong(JSON.getAsString(transactionData.get("recipient")));
         builder.recipientId(recipientId);
       }
 
       transactionType.parseAppendices(builder, attachmentData);
 
       if (version > 0) {
-        builder.ecBlockHeight(((Long) transactionData.get("ecBlockHeight")).intValue());
-        builder.ecBlockId(Convert.parseUnsignedLong((String) transactionData.get("ecBlockId")));
+        builder.ecBlockHeight(JSON.getAsInt(transactionData.get("ecBlockHeight")));
+        builder.ecBlockId(Convert.parseUnsignedLong(JSON.getAsString(transactionData.get("ecBlockId"))));
       }
       return builder.build();
     } catch (BurstException.NotValidException|RuntimeException e) {
-      logger.debug("Failed to parse transaction: " + transactionData.toJSONString());
+      logger.debug("Failed to parse transaction: " + JSON.toJsonString(transactionData));
       throw e;
     }
   }
@@ -657,8 +657,8 @@ public class Transaction implements Comparable<Transaction> {
   }
 
   private boolean useNQT() {
-    return this.height > Constants.NQT_BLOCK
-        && (this.height < Integer.MAX_VALUE
+    return this.height.get() > Constants.NQT_BLOCK
+        && (this.height.get() < Integer.MAX_VALUE
             || Burst.getBlockchain().getHeight() >= Constants.NQT_BLOCK);
   }
 

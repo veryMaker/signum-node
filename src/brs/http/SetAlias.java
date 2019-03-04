@@ -4,8 +4,9 @@ import brs.*;
 import brs.services.AliasService;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONStreamAware;
+import brs.util.TextUtils;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -29,7 +30,7 @@ public final class SetAlias extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
     String aliasName = Convert.emptyToNull(req.getParameter(ALIAS_NAME_PARAMETER));
     String aliasURI = Convert.nullToEmpty(req.getParameter(ALIAS_URI_PARAMETER));
 
@@ -42,11 +43,8 @@ public final class SetAlias extends CreateTransaction {
       return INCORRECT_ALIAS_LENGTH;
     }
 
-    String normalizedAlias = aliasName.toLowerCase();
-    for (int i = 0; i < normalizedAlias.length(); i++) {
-      if (Constants.ALPHABET.indexOf(normalizedAlias.charAt(i)) < 0) {
-        return INCORRECT_ALIAS_NAME;
-      }
+    if (!TextUtils.isInAlphabet(aliasName)) {
+      return INCORRECT_ALIAS_NAME;
     }
 
     aliasURI = aliasURI.trim();
@@ -56,11 +54,11 @@ public final class SetAlias extends CreateTransaction {
 
     Account account = parameterService.getSenderAccount(req);
 
-    Alias alias = aliasService.getAlias(normalizedAlias);
+    Alias alias = aliasService.getAlias(aliasName);
     if (alias != null && alias.getAccountId() != account.getId()) {
-      JSONObject response = new JSONObject();
-      response.put(ERROR_CODE_RESPONSE, 8);
-      response.put(ERROR_DESCRIPTION_RESPONSE, "\"" + aliasName + "\" is already used");
+      JsonObject response = new JsonObject();
+      response.addProperty(ERROR_CODE_RESPONSE, 8);
+      response.addProperty(ERROR_DESCRIPTION_RESPONSE, "\"" + aliasName + "\" is already used");
       return response;
     }
 

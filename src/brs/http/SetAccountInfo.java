@@ -1,13 +1,9 @@
 package brs.http;
 
-import brs.Account;
-import brs.Attachment;
-import brs.Blockchain;
-import brs.Constants;
-import brs.BurstException;
+import brs.*;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import org.json.simple.JSONStreamAware;
+import com.google.gson.JsonElement;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,7 +12,7 @@ import static brs.http.JSONResponses.INCORRECT_ACCOUNT_NAME_LENGTH;
 import static brs.http.common.Parameters.DESCRIPTION_PARAMETER;
 import static brs.http.common.Parameters.NAME_PARAMETER;
 
-public final class SetAccountInfo extends CreateTransaction {
+final class SetAccountInfo extends CreateTransaction {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;
@@ -28,7 +24,7 @@ public final class SetAccountInfo extends CreateTransaction {
   }
 
   @Override
-  JSONStreamAware processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     String name = Convert.nullToEmpty(req.getParameter(NAME_PARAMETER)).trim();
     String description = Convert.nullToEmpty(req.getParameter(DESCRIPTION_PARAMETER)).trim();
