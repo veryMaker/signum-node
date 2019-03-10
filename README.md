@@ -141,7 +141,7 @@ services:
 ##### H2
 
 ```
-docker run -p 8123:8123 -p 8125:8125 -v "$(pwd)"/burst_db:/db -d burstappsteam/burstcoin:2-h2
+docker run -p 8123:8123 -p 8125:8125 -d burstappsteam/burstcoin:2-h2
 ```
 
 ## Upgrading
