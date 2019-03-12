@@ -1,5 +1,6 @@
 package brs.grpc;
 
+import brs.grpc.proto.ProtoBuilder;
 import io.grpc.stub.StreamObserver;
 
 public interface StreamResponseGrpcApiHandler<Request, Response> extends GrpcApiHandler<Request, Response> {
@@ -16,7 +17,7 @@ public interface StreamResponseGrpcApiHandler<Request, Response> extends GrpcApi
         try {
             handleStreamRequest(request, responseObserver);
         } catch (Exception e) {
-            responseObserver.onError(e);
+            responseObserver.onError(ProtoBuilder.buildError(e));
         }
     }
 }

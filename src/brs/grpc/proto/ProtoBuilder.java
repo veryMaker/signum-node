@@ -6,12 +6,20 @@ import brs.services.AccountService;
 import brs.services.BlockService;
 import brs.util.Convert;
 import com.google.protobuf.ByteString;
+import com.google.rpc.Code;
+import com.google.rpc.Status;
+import io.grpc.StatusException;
+import io.grpc.protobuf.StatusProto;
 
 import java.util.stream.Collectors;
 
 public final class ProtoBuilder {
 
     private ProtoBuilder() {
+    }
+
+    public static StatusException buildError(Throwable t) {
+        return StatusProto.toStatusException(Status.newBuilder().setCode(Code.ABORTED_VALUE).setMessage(t.getMessage()).build());
     }
 
     public static BrsApi.Account buildAccount(Account account, AccountService accountService) {

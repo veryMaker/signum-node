@@ -44,7 +44,7 @@ public class BrsService extends BrsApiServiceGrpc.BrsApiServiceImplBase {
         try {
             getHandler(GetMiningInfoHandler.class).handleRequest(request, responseObserver);
         } catch (HandlerNotFoundException e) {
-            responseObserver.onError(e);
+            responseObserver.onError(ProtoBuilder.buildError(e));
         }
     }
 
@@ -53,7 +53,7 @@ public class BrsService extends BrsApiServiceGrpc.BrsApiServiceImplBase {
         try {
             getHandler(SubmitNonceHandler.class).handleRequest(request, responseObserver);
         } catch (HandlerNotFoundException e) {
-            responseObserver.onError(e);
+            responseObserver.onError(ProtoBuilder.buildError(e));
         }
     }
 
@@ -62,7 +62,7 @@ public class BrsService extends BrsApiServiceGrpc.BrsApiServiceImplBase {
         try {
             getHandler(GetAccountHandler.class).handleRequest(request, responseObserver);
         } catch (HandlerNotFoundException e) {
-            responseObserver.onError(e);
+            responseObserver.onError(ProtoBuilder.buildError(e));
         }
     }
 
@@ -71,7 +71,7 @@ public class BrsService extends BrsApiServiceGrpc.BrsApiServiceImplBase {
         try {
             getHandler(GetAccountsHandler.class).handleRequest(request, responseObserver);
         } catch (HandlerNotFoundException e) {
-            responseObserver.onError(e);
+            responseObserver.onError(ProtoBuilder.buildError(e));
         }
     }
 
@@ -80,7 +80,7 @@ public class BrsService extends BrsApiServiceGrpc.BrsApiServiceImplBase {
         try {
             getHandler(GetBlockHandler.class).handleRequest(request, responseObserver);
         } catch (HandlerNotFoundException e) {
-            responseObserver.onError(e);
+            responseObserver.onError(ProtoBuilder.buildError(e));
         }
     }
 
@@ -89,7 +89,7 @@ public class BrsService extends BrsApiServiceGrpc.BrsApiServiceImplBase {
         try {
             getHandler(GetTransactionHandler.class).handleRequest(request, responseObserver);
         } catch (HandlerNotFoundException e) {
-            responseObserver.onError(e);
+            responseObserver.onError(ProtoBuilder.buildError(e));
         }
     }
 
@@ -98,7 +98,7 @@ public class BrsService extends BrsApiServiceGrpc.BrsApiServiceImplBase {
         try {
             getHandler(GetTransactionBytesHandler.class).handleRequest(request, responseObserver);
         } catch (HandlerNotFoundException e) {
-            responseObserver.onError(e);
+            responseObserver.onError(ProtoBuilder.buildError(e));
         }
     }
 
