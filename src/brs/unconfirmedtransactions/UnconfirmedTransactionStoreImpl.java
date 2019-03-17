@@ -96,7 +96,11 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
           }
         } else {
           addTransaction(transaction, peer);
-          logger.info("Cache size: {}/{} added {} from sender {}", totalSize, maxSize, transaction.getId(), transaction.getSenderId());
+          if (totalSize % 128 == 0) {
+            logger.info("Cache size: {}/{} added {} from sender {}", totalSize, maxSize, transaction.getId(), transaction.getSenderId());
+          } else {
+            logger.debug("Cache size: {}/{} added {} from sender {}", totalSize, maxSize, transaction.getId(), transaction.getSenderId());
+          }
         }
 
         if (totalSize > maxSize) {
