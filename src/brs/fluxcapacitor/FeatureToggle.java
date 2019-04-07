@@ -12,7 +12,7 @@ public enum FeatureToggle {
   AT_FIX_BLOCK_4(new FluxHistory<>(false, new Element<>(HistoricalMoments.AT_FIX_BLOCK_4, true))),
   POC2(new FluxHistory<>(false, new Element<>(HistoricalMoments.POC2, true))),
   PRE_DYMAXION(new FluxHistory<>(false, new Element<>(HistoricalMoments.PRE_DYMAXION, true))),
-  DYMAXION(new FluxHistory<>(false, new Element<>(HistoricalMoments.DYMAXION, true)));
+  NEXT_FORK(new FluxHistory<>(false, new Element<>(HistoricalMoments.NEXT_FORK, true)));
 
   private final FluxHistory<Boolean> flux;
 
