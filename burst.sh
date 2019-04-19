@@ -322,11 +322,11 @@ if [[ $# -gt 0 ]] ; then
                     if [ "${useCurrentConfig}" == "1" ]
                     then
                         BRS=$(<$CONF_FILE)
-                        if [[ $BRS =~ DB.Url=jdbc:mariadb://([0-9a-zA-Z]+):[0-9]+/([0-9a-zA-Z]+) ]]
+                        if [[ $BRS =~ DB.Url=jdbc:mariadb://([0-9a-zA-Z]+):[0-9]+/([0-9a-zA-Z_]+) ]]
                         then
                             P_HOST="${BASH_REMATCH[1]}"
                             P_DATA="${BASH_REMATCH[2]}"
-                            if [[ $BRS =~ DB.Username=([0-9a-zA-Z]+) ]]
+                            if [[ $BRS =~ DB.Username=([0-9a-zA-Z_]+) ]]
                             then
                                 P_USER="${BASH_REMATCH[1]}"
                             else
