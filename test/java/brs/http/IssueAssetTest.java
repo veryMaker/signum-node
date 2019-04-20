@@ -4,7 +4,6 @@ import static brs.Constants.MAX_ASSET_DESCRIPTION_LENGTH;
 import static brs.Constants.MAX_ASSET_NAME_LENGTH;
 import static brs.Constants.MIN_ASSET_NAME_LENGTH;
 import static brs.TransactionType.ColoredCoins.ASSET_ISSUANCE;
-import static brs.fluxcapacitor.FeatureToggle.DIGITAL_GOODS_STORE;
 import static brs.http.JSONResponses.INCORRECT_ASSET_DESCRIPTION;
 import static brs.http.JSONResponses.INCORRECT_ASSET_NAME;
 import static brs.http.JSONResponses.INCORRECT_ASSET_NAME_LENGTH;
@@ -27,6 +26,7 @@ import brs.BurstException;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.ParameterService;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
@@ -69,7 +69,7 @@ public class IssueAssetTest extends AbstractTransactionTest {
     );
 
     mockStatic(Burst.class);
-    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(DIGITAL_GOODS_STORE);
+    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
     when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
 
     final Attachment.ColoredCoinsAssetIssuance attachment = (Attachment.ColoredCoinsAssetIssuance) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);

@@ -1,7 +1,6 @@
 package brs.http;
 
 import static brs.TransactionType.DigitalGoods.FEEDBACK;
-import static brs.fluxcapacitor.FeatureToggle.DIGITAL_GOODS_STORE;
 import static brs.http.JSONResponses.GOODS_NOT_DELIVERED;
 import static brs.http.JSONResponses.INCORRECT_PURCHASE;
 import static org.junit.Assert.assertEquals;
@@ -20,6 +19,7 @@ import brs.DigitalGoodsStore.Purchase;
 import brs.common.QuickMocker;
 import brs.crypto.EncryptedData;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import javax.servlet.http.HttpServletRequest;
@@ -71,7 +71,7 @@ public class DGSFeedbackTest extends AbstractTransactionTest {
     when(mockPurchase.getSellerId()).thenReturn(2L);
 
     mockStatic(Burst.class);
-    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(DIGITAL_GOODS_STORE);
+    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
     when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
 
     final Attachment.DigitalGoodsFeedback attachment = (Attachment.DigitalGoodsFeedback) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);

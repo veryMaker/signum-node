@@ -4,7 +4,7 @@ import brs.Constants;
 import brs.Genesis;
 import brs.TransactionType;
 import brs.fluxcapacitor.FluxCapacitor;
-import brs.fluxcapacitor.FluxInt;
+import brs.fluxcapacitor.FluxValues;
 import brs.grpc.GrpcApiHandler;
 import brs.grpc.proto.BrsApi;
 import com.google.protobuf.Empty;
@@ -35,7 +35,7 @@ public class GetConstantsHandler implements GrpcApiHandler<Empty, BrsApi.Constan
         this.constants =  BrsApi.Constants.newBuilder()
                 .setGenesisBlock(Genesis.GENESIS_BLOCK_ID)
                 .setGenesisAccount(Genesis.CREATOR_ID)
-                .setMaxBlockPayloadLength(fluxCapacitor.getInt(FluxInt.MAX_PAYLOAD_LENGTH))
+                .setMaxBlockPayloadLength(fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH))
                 .setMaxArbitraryMessageLength(Constants.MAX_ARBITRARY_MESSAGE_LENGTH)
                 .addAllTransactionTypes(transactionTypes)
                 .build();

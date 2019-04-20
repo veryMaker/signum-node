@@ -1,7 +1,7 @@
 package brs;
 
 import brs.crypto.Crypto;
-import brs.fluxcapacitor.FluxInt;
+import brs.fluxcapacitor.FluxValues;
 import brs.peer.Peer;
 import brs.util.Convert;
 import brs.util.JSON;
@@ -59,7 +59,7 @@ public class Block {
       byte[] blockSignature, byte[] previousBlockHash, List<Transaction> transactions,
       long nonce, byte[] blockATs, int height) throws BurstException.ValidationException {
 
-    if (payloadLength > Burst.getFluxCapacitor().getInt(FluxInt.MAX_PAYLOAD_LENGTH, height) || payloadLength < 0) {
+    if (payloadLength > Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH, height) || payloadLength < 0) {
       throw new BurstException.NotValidException(
           "attempted to create a block with payloadLength " + payloadLength + " height " + height + "previd " + previousBlockId);
     }
@@ -78,7 +78,7 @@ public class Block {
     this.previousBlockHash = previousBlockHash;
     if (transactions != null) {
       this.blockTransactions.set(Collections.unmodifiableList(transactions));
-      if (blockTransactions.get().size() > (Burst.getFluxCapacitor().getInt(FluxInt.MAX_NUMBER_TRANSACTIONS, height))) {
+      if (blockTransactions.get().size() > (Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, height))) {
         throw new BurstException.NotValidException(
             "attempted to create a block with " + blockTransactions.get().size() + " transactions");
       }

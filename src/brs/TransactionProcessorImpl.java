@@ -3,7 +3,7 @@ package brs;
 import brs.BurstException.ValidationException;
 import brs.db.store.Dbs;
 import brs.db.store.Stores;
-import brs.fluxcapacitor.FeatureToggle;
+import brs.fluxcapacitor.FluxValues;
 import brs.peer.Peer;
 import brs.peer.Peers;
 import brs.props.PropertyService;
@@ -268,7 +268,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
   @Override
   public int getTransactionVersion(int previousBlockHeight) {
-    return Burst.getFluxCapacitor().isActive(FeatureToggle.DIGITAL_GOODS_STORE, previousBlockHeight) ? 1 : 0;
+    return Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, previousBlockHeight) ? 1 : 0;
   }
 
   // Watch: This is not really clean

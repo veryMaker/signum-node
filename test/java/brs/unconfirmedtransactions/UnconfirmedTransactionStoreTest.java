@@ -10,8 +10,8 @@ import brs.db.BurstKey;
 import brs.db.BurstKey.LongKeyFactory;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.store.AccountStore;
-import brs.fluxcapacitor.FeatureToggle;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValues;
 import brs.peer.Peer;
 import brs.props.PropertyService;
 import brs.props.Props;
@@ -76,9 +76,9 @@ public class UnconfirmedTransactionStoreTest {
     when(mockAccount.getUnconfirmedBalanceNQT()).thenReturn(Constants.MAX_BALANCE_NQT);
 
     FluxCapacitor mockFluxCapacitor = mock(FluxCapacitor.class);
-    when(mockFluxCapacitor.isActive(eq(FeatureToggle.PRE_DYMAXION))).thenReturn(true);
-    when(mockFluxCapacitor.isActive(eq(FeatureToggle.PRE_DYMAXION), anyInt())).thenReturn(true);
-    when(mockFluxCapacitor.isActive(eq(FeatureToggle.DIGITAL_GOODS_STORE), anyInt())).thenReturn(true);
+    when(mockFluxCapacitor.getValue(eq(FluxValues.PRE_DYMAXION))).thenReturn(true);
+    when(mockFluxCapacitor.getValue(eq(FluxValues.PRE_DYMAXION), anyInt())).thenReturn(true);
+    when(mockFluxCapacitor.getValue(eq(FluxValues.DIGITAL_GOODS_STORE), anyInt())).thenReturn(true);
 
     when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
 

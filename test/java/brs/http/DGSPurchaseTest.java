@@ -1,7 +1,6 @@
 package brs.http;
 
 import static brs.TransactionType.DigitalGoods.PURCHASE;
-import static brs.fluxcapacitor.FeatureToggle.DIGITAL_GOODS_STORE;
 import static brs.http.JSONResponses.INCORRECT_DELIVERY_DEADLINE_TIMESTAMP;
 import static brs.http.JSONResponses.INCORRECT_PURCHASE_PRICE;
 import static brs.http.JSONResponses.INCORRECT_PURCHASE_QUANTITY;
@@ -26,6 +25,7 @@ import brs.DigitalGoodsStore.Goods;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.services.TimeService;
@@ -88,7 +88,7 @@ public class DGSPurchaseTest extends AbstractTransactionTest {
     when(mockAccountService.getAccount(eq(mockSellerId))).thenReturn(mockSellerAccount);
 
     mockStatic(Burst.class);
-    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(DIGITAL_GOODS_STORE);
+    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
     when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
 
     final Attachment.DigitalGoodsPurchase attachment = (Attachment.DigitalGoodsPurchase) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);

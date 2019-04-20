@@ -9,7 +9,7 @@ package brs.at;
 
 import brs.Burst;
 import brs.crypto.hash.RIPEMD160;
-import brs.fluxcapacitor.FeatureToggle;
+import brs.fluxcapacitor.FluxValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -536,7 +536,7 @@ public class AT_API_Impl implements AT_API {
 
   @Override
   public long check_MD5_A_with_B(AT_Machine_State state) {
-    if (Burst.getFluxCapacitor().isActive(FeatureToggle.AT_FIX_BLOCK_3)) {
+    if (Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_3)) {
       ByteBuffer b = ByteBuffer.allocate( 16 );
       b.order( ByteOrder.LITTLE_ENDIAN );
 
@@ -584,7 +584,7 @@ public class AT_API_Impl implements AT_API {
 
   @Override
   public long check_HASH160_A_with_B(AT_Machine_State state) {
-    if ( Burst.getFluxCapacitor().isActive(FeatureToggle.AT_FIX_BLOCK_3) ) {
+    if ( Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_3) ) {
       ByteBuffer b = ByteBuffer.allocate( 32 );
       b.order( ByteOrder.LITTLE_ENDIAN );
 
@@ -637,7 +637,7 @@ public class AT_API_Impl implements AT_API {
 
   @Override
   public long check_SHA256_A_with_B(AT_Machine_State state) {
-    if ( Burst.getFluxCapacitor().isActive(FeatureToggle.AT_FIX_BLOCK_3) ) {
+    if ( Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_3) ) {
       ByteBuffer b = ByteBuffer.allocate(32);
       b.order( ByteOrder.LITTLE_ENDIAN );
 

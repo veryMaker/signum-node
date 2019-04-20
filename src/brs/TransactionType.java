@@ -8,8 +8,9 @@ import brs.assetexchange.AssetExchange;
 import brs.at.AT_Constants;
 import brs.at.AT_Controller;
 import brs.at.AT_Exception;
-import brs.fluxcapacitor.FeatureToggle;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValue;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.*;
 import brs.transactionduplicates.TransactionDuplicationKey;
 import brs.util.Convert;
@@ -24,7 +25,6 @@ import java.util.*;
 
 import static brs.Constants.FEE_QUANT;
 import static brs.Constants.ONE_BURST;
-import static brs.fluxcapacitor.FeatureToggle.PRE_DYMAXION;
 
 public abstract class TransactionType {
 
@@ -394,7 +394,7 @@ public abstract class TransactionType {
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        if (!fluxCapacitor.isActive(FeatureToggle.PRE_DYMAXION, transaction.getHeight())) {
+        if (!fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, transaction.getHeight())) {
           throw new BurstException.NotCurrentlyValidException("Multi Out Payments are not allowed before the Pre Dymaxion block");
         }
 
@@ -448,7 +448,7 @@ public abstract class TransactionType {
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        if (!fluxCapacitor.isActive(FeatureToggle.PRE_DYMAXION, transaction.getHeight())) {
+        if (!fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, transaction.getHeight())) {
           throw new BurstException.NotCurrentlyValidException("Multi Same Out Payments are not allowed before the Pre Dymaxion block");
         }
 
@@ -530,7 +530,7 @@ public abstract class TransactionType {
         if (transaction.getAmountNQT() != 0) {
           throw new BurstException.NotValidException("Invalid arbitrary message: " + JSON.toJsonString(attachment.getJsonObject()));
         }
-        if (! fluxCapacitor.isActive(FeatureToggle.DIGITAL_GOODS_STORE) && transaction.getMessage() == null) {
+        if (! fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE) && transaction.getMessage() == null) {
           throw new BurstException.NotCurrentlyValidException("Missing message appendix not allowed before DGS block");
         }
       }
@@ -658,7 +658,7 @@ public abstract class TransactionType {
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        if (! fluxCapacitor.isActive(FeatureToggle.DIGITAL_GOODS_STORE, blockchain.getLastBlock().getHeight())) {
+        if (! fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchain.getLastBlock().getHeight())) {
           throw new BurstException.NotYetEnabledException("Alias transfer not yet enabled at height " + blockchain.getLastBlock().getHeight());
         }
         if (transaction.getAmountNQT() != 0) {
@@ -735,7 +735,7 @@ public abstract class TransactionType {
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        if (! fluxCapacitor.isActive(FeatureToggle.DIGITAL_GOODS_STORE, blockchain.getLastBlock().getHeight())) {
+        if (! fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchain.getLastBlock().getHeight())) {
           throw new BurstException.NotYetEnabledException("Alias transfer not yet enabled at height " + blockchain.getLastBlock().getHeight());
         }
         final Attachment.MessagingAliasBuy attachment =
@@ -1237,7 +1237,7 @@ public abstract class TransactionType {
 
     @Override
     final void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-      if (! fluxCapacitor.isActive(FeatureToggle.DIGITAL_GOODS_STORE, blockchain.getLastBlock().getHeight())) {
+      if (! fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchain.getLastBlock().getHeight())) {
         throw new BurstException.NotYetEnabledException("Digital goods listing not yet enabled at height " + blockchain.getLastBlock().getHeight());
       }
       if (transaction.getAmountNQT() != 0) {
@@ -1873,7 +1873,7 @@ public abstract class TransactionType {
 
       @Override
       public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
-        if (! fluxCapacitor.isActive(FeatureToggle.DIGITAL_GOODS_STORE)) {
+        if (! fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE)) {
           return TransactionDuplicationKey.IS_NEVER_DUPLICATE; // sync fails after 7007 without this
         }
 
@@ -1898,7 +1898,7 @@ public abstract class TransactionType {
           throw new BurstException.NotValidException("Reward recipient must have public key saved in blockchain: " + JSON.toJsonString(transaction.getJsonObject()));
         }
 
-        if (fluxCapacitor.isActive(PRE_DYMAXION)) {
+        if (fluxCapacitor.getValue(FluxValues.PRE_DYMAXION)) {
           if (transaction.getAmountNQT() != 0 || transaction.getFeeNQT() < FEE_QUANT) {
             throw new BurstException.NotValidException("Reward recipient assignment transaction must have 0 send amount and at least minimum fee: " + JSON.toJsonString(transaction.getJsonObject()));
           }
@@ -1908,8 +1908,8 @@ public abstract class TransactionType {
           }
         }
 
-        if (!Burst.getFluxCapacitor().isActive(FeatureToggle.REWARD_RECIPIENT_ENABLE, height)) {
-          throw new BurstException.NotCurrentlyValidException("Reward recipient assignment not allowed before block " + Burst.getFluxCapacitor().getStartingHeight(FeatureToggle.REWARD_RECIPIENT_ENABLE));
+        if (!Burst.getFluxCapacitor().getValue(FluxValues.REWARD_RECIPIENT_ENABLE, height)) {
+          throw new BurstException.NotCurrentlyValidException("Reward recipient assignment not allowed before block " + Burst.getFluxCapacitor().getStartingHeight(FluxValues.REWARD_RECIPIENT_ENABLE));
         }
       }
 
@@ -2443,7 +2443,7 @@ public abstract class TransactionType {
       void doValidateAttachment(Transaction transaction)
               throws ValidationException {
         //System.out.println("validating attachment");
-        if (! fluxCapacitor.isActive(FeatureToggle.AUTOMATED_TRANSACTION_BLOCK, blockchain.getLastBlock().getHeight())) {
+        if (! fluxCapacitor.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK, blockchain.getLastBlock().getHeight())) {
           throw new BurstException.NotYetEnabledException("Automated Transactions not yet enabled at height " + blockchain.getLastBlock().getHeight());
         }
         if (transaction.getSignature() != null && accountService.getAccount(transaction.getId()) != null) {
@@ -2463,7 +2463,7 @@ public abstract class TransactionType {
         if (transaction.getFeeNQT() <  requiredFee){
           throw new BurstException.NotValidException("Insufficient fee for AT creation. Minimum: " + Convert.toUnsignedLong(requiredFee / Constants.ONE_BURST));
         }
-        if (fluxCapacitor.isActive(FeatureToggle.AT_FIX_BLOCK_3)) {
+        if (fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
           if (attachment.getName().length() > Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH) {
             throw new BurstException.NotValidException("Name of automated transaction over size limit");
           }
@@ -2552,7 +2552,7 @@ public abstract class TransactionType {
   }
 
   protected Fee getBaselineFee(int height) {
-    return new Fee((fluxCapacitor.isActive(PRE_DYMAXION, height) ? FEE_QUANT : ONE_BURST), 0);
+    return new Fee((fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, height) ? FEE_QUANT : ONE_BURST), 0);
   }
 
   public static final class Fee {
