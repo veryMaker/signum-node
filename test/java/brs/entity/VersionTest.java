@@ -62,15 +62,4 @@ public class VersionTest {
         assertTrue(higherPreRelease.isPrelease());
         assertTrue(higherPreRelease.isGreaterThanOrEqualTo(higherPreRelease));
     }
-
-    @Test
-    public void testBackwardsCompatibility() {
-        Version version = Version.parse("v2.3.0");
-        assertTrue(Version.EMPTY.backwardsCompatibilityNeeded());
-        assertTrue(Version.parse("v2.2.7").backwardsCompatibilityNeeded());
-        assertFalse(Version.parse("v2.3.0").backwardsCompatibilityNeeded());
-        assertEquals("2.3.0", version.toBackwardsCompatibleString());
-        assertEquals("2.3.0", version.toBackwardsCompatibleStringIfNeeded(Version.parse("v2.2.7")));
-        assertEquals("v2.3.0", version.toBackwardsCompatibleStringIfNeeded(Version.parse("v2.3.0")));
-    }
 }
