@@ -1,9 +1,10 @@
 package brs;
 
+import brs.common.QuickMocker;
 import brs.common.TestConstants;
 import brs.crypto.hash.ShabalProvider;
-import brs.fluxcapacitor.FeatureToggle;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.TimeService;
 import brs.util.Convert;
 import org.junit.Before;
@@ -36,8 +37,7 @@ public class GeneratorImplTest {
 
         TimeService timeService = mock(TimeService.class);
 
-        FluxCapacitor fluxCapacitor = mock(FluxCapacitor.class);
-        when(fluxCapacitor.isActive(eq(FeatureToggle.POC2), anyInt())).thenReturn(true);
+        FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2);
 
         generator = new GeneratorImpl(blockchain, timeService, fluxCapacitor);
     }

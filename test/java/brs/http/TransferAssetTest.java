@@ -1,7 +1,6 @@
 package brs.http;
 
 import static brs.TransactionType.ColoredCoins.ASSET_TRANSFER;
-import static brs.fluxcapacitor.FeatureToggle.DIGITAL_GOODS_STORE;
 import static brs.http.JSONResponses.NOT_ENOUGH_ASSETS;
 import static brs.http.common.Parameters.ASSET_PARAMETER;
 import static brs.http.common.Parameters.QUANTITY_QNT_PARAMETER;
@@ -24,6 +23,7 @@ import brs.TransactionProcessor;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import javax.servlet.http.HttpServletRequest;
@@ -79,7 +79,7 @@ public class TransferAssetTest extends AbstractTransactionTest {
     when(parameterServiceMock.getSenderAccount(eq(req))).thenReturn(mockSenderAccount);
 
     mockStatic(Burst.class);
-    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(DIGITAL_GOODS_STORE);
+    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
     when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
 
     final Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);

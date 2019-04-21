@@ -1,6 +1,5 @@
 package brs.transactionduplicates;
 
-import static brs.fluxcapacitor.FeatureToggle.PRE_DYMAXION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -21,8 +20,10 @@ import brs.BurstException.NotValidException;
 import brs.Escrow.DecisionType;
 import brs.Transaction;
 import brs.TransactionType;
+import brs.common.QuickMocker;
 import brs.common.TestConstants;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValues;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -40,9 +41,8 @@ public class TransactionDuplicatesCheckerImplTest {
   public void setUp() {
     mockStatic(Burst.class);
 
-    final FluxCapacitor mockFluxCapacitor = mock(FluxCapacitor.class);
+    final FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION);
     when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
-    when(mockFluxCapacitor.isActive(eq(PRE_DYMAXION), anyInt())).thenReturn(true);
     BlockchainImpl mockBlockchain = mock(BlockchainImpl.class);
     when(mockBlockchain.getHeight()).thenReturn(4);
     when(Burst.getBlockchain()).thenReturn(mockBlockchain);

@@ -1,15 +1,12 @@
 package brs.fluxcapacitor;
 
-import static brs.fluxcapacitor.FeatureToggle.POC2;
-import static brs.fluxcapacitor.FeatureToggle.PRE_DYMAXION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import brs.Blockchain;
@@ -30,6 +27,7 @@ public class FluxCapacitorImplTest {
   public void setUp() {
     blockchainMock = mock(Blockchain.class);
     propertyServiceMock = mock(PropertyService.class);
+    reset(blockchainMock, propertyServiceMock);
   }
 
   @DisplayName("Feature is active on ProdNet")
@@ -40,7 +38,7 @@ public class FluxCapacitorImplTest {
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
 
-    assertTrue(t.isActive(PRE_DYMAXION));
+    assertTrue(t.getValue(FluxValues.PRE_DYMAXION));
   }
 
   @DisplayName("Feature is not active on ProdNet")
@@ -51,7 +49,7 @@ public class FluxCapacitorImplTest {
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
 
-    assertFalse(t.isActive(POC2));
+    assertFalse(t.getValue(FluxValues.POC2));
   }
 
   @DisplayName("Feature is active on TestNet")
@@ -63,11 +61,11 @@ public class FluxCapacitorImplTest {
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
 
-    assertTrue(t.isActive(POC2));
+    assertTrue(t.getValue(FluxValues.POC2));
 
     when(blockchainMock.getHeight()).thenReturn(30000);
 
-    assertFalse(t.isActive(POC2));
+    assertFalse(t.getValue(FluxValues.POC2));
   }
 
   @DisplayName("FluxInt gives its default value when no historical moments changed it yet")
@@ -78,7 +76,7 @@ public class FluxCapacitorImplTest {
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
 
-    assertEquals((Integer) 255, t.getInt(FluxInt.MAX_NUMBER_TRANSACTIONS));
+    assertEquals((Integer) 255, t.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS));
   }
 
   @DisplayName("FluxInt gives a new value when a historical moment has passed")
@@ -89,7 +87,7 @@ public class FluxCapacitorImplTest {
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
 
-    assertEquals((Integer) 1020, t.getInt(FluxInt.MAX_NUMBER_TRANSACTIONS));
+    assertEquals((Integer) 1020, t.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS));
   }
 
   @DisplayName("FluxInt on TestNet gives its default value when no historical moments changed it yet")
@@ -102,19 +100,20 @@ public class FluxCapacitorImplTest {
 
     when(blockchainMock.getHeight()).thenReturn(5);
 
-    assertEquals((Integer) 255, t.getInt(FluxInt.MAX_NUMBER_TRANSACTIONS));
+    assertEquals((Integer) 255, t.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS));
   }
 
   @DisplayName("FluxInt on TestNet gives a new value when a historical moment has passed")
   @Test
   public void fluxIntTestNetHistoricalValue() {
     when(propertyServiceMock.getBoolean(eq(Props.DEV_TESTNET))).thenReturn(true);
+    when(propertyServiceMock.getInt(any())).thenReturn(-1);
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
 
     when(blockchainMock.getHeight()).thenReturn(88000);
 
-    assertEquals((Integer) 1020, t.getInt(FluxInt.MAX_NUMBER_TRANSACTIONS));
+    assertEquals((Integer) 1020, t.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS));
   }
 
   @DisplayName("FluxInt on TestNet gives a different value because the historical moment configuration is different")
@@ -125,8 +124,7 @@ public class FluxCapacitorImplTest {
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
 
-    assertEquals((Integer) 255, t.getInt(FluxInt.MAX_NUMBER_TRANSACTIONS, 12344));
-    assertEquals((Integer) 1020, t.getInt(FluxInt.MAX_NUMBER_TRANSACTIONS, 12345));
+    assertEquals((Integer) 255, t.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, 12344));
+    assertEquals((Integer) 1020, t.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, 12345));
   }
-
 }

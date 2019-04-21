@@ -3,7 +3,6 @@ package brs.http;
 import static brs.Constants.MAX_BALANCE_NQT;
 import static brs.TransactionType.Messaging.ALIAS_BUY;
 import static brs.TransactionType.Messaging.ALIAS_SELL;
-import static brs.fluxcapacitor.FeatureToggle.DIGITAL_GOODS_STORE;
 import static brs.http.JSONResponses.INCORRECT_ALIAS_OWNER;
 import static brs.http.JSONResponses.INCORRECT_PRICE;
 import static brs.http.JSONResponses.INCORRECT_RECIPIENT;
@@ -25,6 +24,7 @@ import brs.BurstException;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.ParameterService;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
@@ -73,7 +73,7 @@ public class SellAliasTest extends AbstractTransactionTest {
     when(parameterServiceMock.getAlias(req)).thenReturn(mockAlias);
 
     mockStatic(Burst.class);
-    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(DIGITAL_GOODS_STORE);
+    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
     when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
 
     final Attachment.MessagingAliasSell attachment = (Attachment.MessagingAliasSell) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);

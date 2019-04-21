@@ -5,13 +5,15 @@ import brs.Attachment.MessagingAliasSell;
 import brs.BurstException.NotCurrentlyValidException;
 import brs.BurstException.ValidationException;
 import brs.Transaction.Builder;
+import brs.common.QuickMocker;
 import brs.common.TestConstants;
 import brs.db.BurstKey;
 import brs.db.BurstKey.LongKeyFactory;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.store.AccountStore;
-import brs.fluxcapacitor.FeatureToggle;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValue;
+import brs.fluxcapacitor.FluxValues;
 import brs.peer.Peer;
 import brs.props.PropertyService;
 import brs.props.Props;
@@ -75,10 +77,7 @@ public class UnconfirmedTransactionStoreTest {
     when(accountTableMock.get(eq(mockAccountKey))).thenReturn(mockAccount);
     when(mockAccount.getUnconfirmedBalanceNQT()).thenReturn(Constants.MAX_BALANCE_NQT);
 
-    FluxCapacitor mockFluxCapacitor = mock(FluxCapacitor.class);
-    when(mockFluxCapacitor.isActive(eq(FeatureToggle.PRE_DYMAXION))).thenReturn(true);
-    when(mockFluxCapacitor.isActive(eq(FeatureToggle.PRE_DYMAXION), anyInt())).thenReturn(true);
-    when(mockFluxCapacitor.isActive(eq(FeatureToggle.DIGITAL_GOODS_STORE), anyInt())).thenReturn(true);
+    FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION, FluxValues.DIGITAL_GOODS_STORE);
 
     when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
 

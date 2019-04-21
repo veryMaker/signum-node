@@ -1,7 +1,6 @@
 package brs.http;
 
 import static brs.TransactionType.Messaging.ALIAS_BUY;
-import static brs.fluxcapacitor.FeatureToggle.DIGITAL_GOODS_STORE;
 import static brs.http.JSONResponses.INCORRECT_ALIAS_NOTFORSALE;
 import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
 import static org.junit.Assert.assertEquals;
@@ -21,6 +20,7 @@ import brs.Constants;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.AliasService;
 import brs.services.ParameterService;
 import javax.servlet.http.HttpServletRequest;
@@ -70,7 +70,7 @@ public class BuyAliasTest extends AbstractTransactionTest {
     when(parameterServiceMock.getAlias(eq(req))).thenReturn(mockAlias);
 
     mockStatic(Burst.class);
-    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(DIGITAL_GOODS_STORE);
+    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
     when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
 
     final Attachment.MessagingAliasBuy attachment = (Attachment.MessagingAliasBuy) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);

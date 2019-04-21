@@ -4,7 +4,7 @@ import brs.Burst;
 import brs.Constants;
 import brs.Genesis;
 import brs.TransactionType;
-import brs.fluxcapacitor.FluxInt;
+import brs.fluxcapacitor.FluxValues;
 import brs.util.Convert;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
@@ -24,7 +24,7 @@ final class GetConstants extends APIServlet.APIRequestHandler {
         JsonObject response = new JsonObject();
         response.addProperty("genesisBlockId", Convert.toUnsignedLong(Genesis.GENESIS_BLOCK_ID));
         response.addProperty("genesisAccountId", Convert.toUnsignedLong(Genesis.CREATOR_ID));
-        response.addProperty("maxBlockPayloadLength", (Burst.getFluxCapacitor().getInt(FluxInt.MAX_PAYLOAD_LENGTH)));
+        response.addProperty("maxBlockPayloadLength", (Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH)));
         response.addProperty("maxArbitraryMessageLength", Constants.MAX_ARBITRARY_MESSAGE_LENGTH);
 
         JsonArray transactionTypes = new JsonArray();

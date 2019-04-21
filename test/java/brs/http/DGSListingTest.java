@@ -1,6 +1,5 @@
 package brs.http;
 
-import static brs.fluxcapacitor.FeatureToggle.DIGITAL_GOODS_STORE;
 import static brs.http.JSONResponses.INCORRECT_DGS_LISTING_DESCRIPTION;
 import static brs.http.JSONResponses.INCORRECT_DGS_LISTING_NAME;
 import static brs.http.JSONResponses.INCORRECT_DGS_LISTING_TAGS;
@@ -26,6 +25,7 @@ import brs.TransactionType.DigitalGoods;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.ParameterService;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
@@ -74,7 +74,7 @@ public class DGSListingTest extends AbstractTransactionTest {
     when(mockParameterService.getSenderAccount(eq(req))).thenReturn(mockAccount);
 
     mockStatic(Burst.class);
-    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(DIGITAL_GOODS_STORE);
+    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
     when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
 
     final Attachment.DigitalGoodsListing attachment = (Attachment.DigitalGoodsListing) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);

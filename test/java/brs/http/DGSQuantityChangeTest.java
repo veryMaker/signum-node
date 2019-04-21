@@ -1,6 +1,5 @@
 package brs.http;
 
-import static brs.fluxcapacitor.FeatureToggle.DIGITAL_GOODS_STORE;
 import static brs.http.JSONResponses.INCORRECT_DELTA_QUANTITY;
 import static brs.http.JSONResponses.MISSING_DELTA_QUANTITY;
 import static brs.http.JSONResponses.UNKNOWN_GOODS;
@@ -21,6 +20,7 @@ import brs.DigitalGoodsStore.Goods;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.ParameterService;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
@@ -68,7 +68,7 @@ public class DGSQuantityChangeTest extends AbstractTransactionTest {
     when(mockParameterService.getGoods(eq(req))).thenReturn(mockGoods);
 
     mockStatic(Burst.class);
-    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(DIGITAL_GOODS_STORE);
+    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
     when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
 
     final Attachment.DigitalGoodsQuantityChange attachment = (Attachment.DigitalGoodsQuantityChange) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);

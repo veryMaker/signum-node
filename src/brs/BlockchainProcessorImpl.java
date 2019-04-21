@@ -10,8 +10,7 @@ import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.BlockchainStore;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.Stores;
-import brs.fluxcapacitor.FeatureToggle;
-import brs.fluxcapacitor.FluxInt;
+import brs.fluxcapacitor.FluxValues;
 import brs.peer.Peer;
 import brs.peer.Peers;
 import brs.props.PropertyService;
@@ -41,7 +40,6 @@ import java.util.stream.Collectors;
 
 import static brs.Constants.FEE_QUANT;
 import static brs.Constants.ONE_BURST;
-import static brs.fluxcapacitor.FeatureToggle.PRE_DYMAXION;
 
 public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
@@ -974,7 +972,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 + transaction.getStringId() + " at height " + previousLastBlock.getHeight(),
                 transaction);
           }
-          if (Burst.getFluxCapacitor().isActive(FeatureToggle.AUTOMATED_TRANSACTION_BLOCK)) {
+          if (Burst.getFluxCapacitor().getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK)) {
             if (!economicClustering.verifyFork(transaction)) {
               logger.debug("Block " + block.getStringId() + " height "
                   + (previousLastBlock.getHeight() + 1)
@@ -1155,8 +1153,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       UnconfirmedTransactionStore unconfirmedTransactionStore = stores.getUnconfirmedTransactionStore();
       SortedSet<Transaction> orderedBlockTransactions = new TreeSet<>();
 
-      int blockSize   = Burst.getFluxCapacitor().getInt(FluxInt.MAX_NUMBER_TRANSACTIONS);
-      int payloadSize = Burst.getFluxCapacitor().getInt(FluxInt.MAX_PAYLOAD_LENGTH);
+      int blockSize   = Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS);
+      int payloadSize = Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH);
 
       long totalAmountNQT = 0;
       long totalFeeNQT = 0;
@@ -1179,7 +1177,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                                 && transaction.getExpiration() >= blockTimestamp
                                 && transaction.getTimestamp() <= blockTimestamp + MAX_TIMESTAMP_DIFFERENCE
                                 && (
-                                !Burst.getFluxCapacitor().isActive(FeatureToggle.AUTOMATED_TRANSACTION_BLOCK)
+                                !Burst.getFluxCapacitor().getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK)
                                         || economicClustering.verifyFork(transaction)
                         )
         ).sorted((o2, o1) -> Long.compare(o1.getFeeNQT(), o2.getFeeNQT())).collect(Collectors.toList());
@@ -1194,7 +1192,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               continue COLLECT_TRANSACTIONS;
             }
 
-            long slotFee = Burst.getFluxCapacitor().isActive(PRE_DYMAXION) ? (forgeFatBlocks ? 1 : blockSize) * FEE_QUANT : ONE_BURST;
+            long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_DYMAXION) ? (forgeFatBlocks ? 1 : blockSize) * FEE_QUANT : ONE_BURST;
             if (transaction.getFeeNQT() >= slotFee) {
               // transaction can only be handled if all referenced ones exist
               if (hasAllReferencedTransactions(transaction, transaction.getTimestamp(), 0)) {
@@ -1270,7 +1268,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       byte[] previousBlockHash = Crypto.sha256().digest(previousBlock.getBytes());
       try {
         block = new Block(getBlockVersion(), blockTimestamp,
-            previousBlock.getId(), totalAmountNQT, totalFeeNQT, Burst.getFluxCapacitor().getInt(FluxInt.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
+            previousBlock.getId(), totalAmountNQT, totalFeeNQT, Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
             generationSignature, null, previousBlockHash, new ArrayList<>(orderedBlockTransactions), nonce,
             byteATs, previousBlock.getHeight());
 
