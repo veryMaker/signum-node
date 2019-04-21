@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import brs.Blockchain;
@@ -26,6 +27,7 @@ public class FluxCapacitorImplTest {
   public void setUp() {
     blockchainMock = mock(Blockchain.class);
     propertyServiceMock = mock(PropertyService.class);
+    reset(blockchainMock, propertyServiceMock);
   }
 
   @DisplayName("Feature is active on ProdNet")
@@ -105,6 +107,7 @@ public class FluxCapacitorImplTest {
   @Test
   public void fluxIntTestNetHistoricalValue() {
     when(propertyServiceMock.getBoolean(eq(Props.DEV_TESTNET))).thenReturn(true);
+    when(propertyServiceMock.getInt(any())).thenReturn(-1);
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
 
@@ -124,5 +127,4 @@ public class FluxCapacitorImplTest {
     assertEquals((Integer) 255, t.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, 12344));
     assertEquals((Integer) 1020, t.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, 12345));
   }
-
 }

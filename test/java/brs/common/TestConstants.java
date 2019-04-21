@@ -1,10 +1,7 @@
 package brs.common;
 
-import static brs.Constants.FEE_QUANT;
 import static brs.Constants.ONE_BURST;
-import static brs.fluxcapacitor.FeatureToggle.PRE_DYMAXION;
 
-import brs.Burst;
 import brs.crypto.Crypto;
 
 public class TestConstants {

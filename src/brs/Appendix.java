@@ -39,7 +39,7 @@ public interface Appendix {
     }
 
     AbstractAppendix(int blockchainHeight) {
-      this.version = (byte)(Burst.getFluxCapacitor().isActive(FeatureToggle.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0);
+      this.version = (byte)(Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0);
     }
 
     abstract String getAppendixName();
