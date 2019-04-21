@@ -20,6 +20,7 @@ import brs.BurstException.NotValidException;
 import brs.Escrow.DecisionType;
 import brs.Transaction;
 import brs.TransactionType;
+import brs.common.QuickMocker;
 import brs.common.TestConstants;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxValues;
@@ -40,9 +41,8 @@ public class TransactionDuplicatesCheckerImplTest {
   public void setUp() {
     mockStatic(Burst.class);
 
-    final FluxCapacitor mockFluxCapacitor = mock(FluxCapacitor.class);
+    final FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION);
     when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
-    when(mockFluxCapacitor.getValue(eq(FluxValues.PRE_DYMAXION), anyInt())).thenReturn(true);
     BlockchainImpl mockBlockchain = mock(BlockchainImpl.class);
     when(mockBlockchain.getHeight()).thenReturn(4);
     when(Burst.getBlockchain()).thenReturn(mockBlockchain);

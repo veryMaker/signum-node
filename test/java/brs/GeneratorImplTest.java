@@ -1,5 +1,6 @@
 package brs;
 
+import brs.common.QuickMocker;
 import brs.common.TestConstants;
 import brs.crypto.hash.ShabalProvider;
 import brs.fluxcapacitor.FluxCapacitor;
@@ -36,8 +37,7 @@ public class GeneratorImplTest {
 
         TimeService timeService = mock(TimeService.class);
 
-        FluxCapacitor fluxCapacitor = mock(FluxCapacitor.class);
-        when(fluxCapacitor.getValue(eq(FluxValues.POC2), anyInt())).thenReturn(true);
+        FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2);
 
         generator = new GeneratorImpl(blockchain, timeService, fluxCapacitor);
     }
