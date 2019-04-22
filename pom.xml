@@ -19,7 +19,6 @@
   <packaging>jar</packaging>
 
   <properties>
-
     <java.version>1.8</java.version>
     <jocl.version>2.0.1</jocl.version>
     <bcprov-jdk15on.version>1.61</bcprov-jdk15on.version>
@@ -29,7 +28,7 @@
     <slf4j.version>1.7.26</slf4j.version>
     <mariadb.version>2.4.1</mariadb.version>
     <hikaricp.version>3.3.1</hikaricp.version>
-    <h2.version>1.4.196</h2.version>
+    <h2.version>1.4.199</h2.version>
     <jna.version>5.3.0</jna.version>
     <reflections.version>0.9.11</reflections.version>
     <kryo.version>4.0.2</kryo.version>
