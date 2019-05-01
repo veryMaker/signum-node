@@ -33,6 +33,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -623,7 +624,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         }
       }
     };
-    threadPool.scheduleThread("GetMoreBlocks", getMoreBlocksThread, 2);
+    threadPool.scheduleThread("GetMoreBlocks", getMoreBlocksThread, Constants.BLOCK_PROCESS_THREAD_DELAY, TimeUnit.MILLISECONDS);
     /* this should fetch first block in cache */
     //resetting cache because we have blocks that cannot be processed.
     //pushblock removes the block from cache.
@@ -658,7 +659,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         }
       }
     };
-    threadPool.scheduleThread("ImportBlocks", blockImporterThread, 10);
+    threadPool.scheduleThread("ImportBlocks", blockImporterThread, Constants.BLOCK_PROCESS_THREAD_DELAY, TimeUnit.MILLISECONDS);
     //Is there anything to verify
     //should we use Ocl?
     //is Ocl ready ?
@@ -726,10 +727,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     };
     if (propertyService.getBoolean(Props.GPU_ACCELERATION)) {
       logger.debug("Starting preverifier thread in Open CL mode.");
-      threadPool.scheduleThread("VerifyPoc", pocVerificationThread, 9);
+      threadPool.scheduleThread("VerifyPoc", pocVerificationThread, Constants.BLOCK_PROCESS_THREAD_DELAY, TimeUnit.MILLISECONDS);
     } else {
       logger.debug("Starting preverifier thread in CPU mode.");
-      threadPool.scheduleThreadCores("VerifyPoc", pocVerificationThread, 9);
+      threadPool.scheduleThreadCores("VerifyPoc", pocVerificationThread, Constants.BLOCK_PROCESS_THREAD_DELAY, TimeUnit.MILLISECONDS);
     }
   }
 
