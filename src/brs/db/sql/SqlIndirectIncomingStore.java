@@ -1,18 +1,16 @@
 package brs.db.sql;
 
-import brs.db.BurstIterator;
 import brs.db.BurstKey;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.IndirectIncomingStore;
 import brs.schema.tables.records.IndirectIncomingRecord;
 import org.jooq.DSLContext;
 import org.jooq.InsertValuesStep3;
+import org.jooq.Record;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static brs.schema.Tables.INDIRECT_INCOMING;
 
@@ -30,8 +28,8 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
 
         this.indirectIncomingTable = new EntitySqlTable<IndirectIncoming>("indirect_incoming", INDIRECT_INCOMING, indirectIncomingDbKeyFactory, derivedTableManager) {
             @Override
-            protected IndirectIncoming load(DSLContext ctx, ResultSet rs) throws SQLException {
-                return new IndirectIncoming(rs.getLong("account_id"), rs.getLong("transaction_id"), rs.getInt("height"));
+            protected IndirectIncoming load(DSLContext ctx, Record rs) {
+                return new IndirectIncoming(rs.get(INDIRECT_INCOMING.ACCOUNT_ID), rs.get(INDIRECT_INCOMING.TRANSACTION_ID), rs.get(INDIRECT_INCOMING.HEIGHT));
             }
 
             @Override
@@ -61,9 +59,9 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
 
     @Override
     public List<Long> getIndirectIncomings(long accountId, int from, int to) {
-        BurstIterator<IndirectIncoming> result = indirectIncomingTable.getManyBy(INDIRECT_INCOMING.ACCOUNT_ID.eq(accountId), from, to);
-        List<Long> transactionIDs = new ArrayList<>();
-        result.forEachRemaining(indirectIncoming -> transactionIDs.add(indirectIncoming.getTransactionId()));
-        return transactionIDs;
+        return indirectIncomingTable.getManyBy(INDIRECT_INCOMING.ACCOUNT_ID.eq(accountId), from, to)
+                .stream()
+                .map(IndirectIncoming::getTransactionId)
+                .collect(Collectors.toList());
     }
 }

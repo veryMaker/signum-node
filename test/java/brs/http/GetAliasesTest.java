@@ -6,7 +6,6 @@ import brs.Alias.Offer;
 import brs.BurstException;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
-import brs.db.BurstIterator;
 import brs.services.AliasService;
 import brs.services.ParameterService;
 import brs.util.JSON;
@@ -16,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 import static brs.http.common.ResultFields.*;
 import static org.junit.Assert.assertEquals;
@@ -55,7 +55,7 @@ public class GetAliasesTest extends AbstractUnitTest {
     final Offer mockOffer = mock(Offer.class);
     when(mockOffer.getPriceNQT()).thenReturn(234L);
 
-    final BurstIterator<Alias> mockAliasIterator = mockBurstIterator(mockAlias);
+    final Collection<Alias> mockAliasIterator = mockCollection(mockAlias);
 
     when(mockParameterService.getAccount(eq(req))).thenReturn(mockAccount);
 

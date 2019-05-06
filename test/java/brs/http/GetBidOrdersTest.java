@@ -7,7 +7,6 @@ import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
-import brs.db.BurstIterator;
 import brs.services.ParameterService;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
@@ -16,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
 import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
@@ -62,7 +62,7 @@ public class GetBidOrdersTest extends AbstractUnitTest {
     final Bid mockBid = mock(Bid.class);
     when(mockBid.getId()).thenReturn(mockOrderId);
 
-    final BurstIterator<Bid> mockBidIterator = mockBurstIterator(mockBid);
+    final Collection<Bid> mockBidIterator = mockCollection(mockBid);
 
     when(mockParameterService.getAsset(req)).thenReturn(mockAsset);
     when(mockAssetExchange.getSortedBidOrders(eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockBidIterator);

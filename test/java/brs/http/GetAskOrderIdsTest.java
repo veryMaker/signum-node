@@ -7,7 +7,6 @@ import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
-import brs.db.BurstIterator;
 import brs.services.ParameterService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -15,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.ASK_ORDER_IDS_RESPONSE;
@@ -63,7 +63,7 @@ public class GetAskOrderIdsTest extends AbstractUnitTest {
     final Ask askOrder2 = mock(Ask.class);
     when(askOrder1.getId()).thenReturn(6L);
 
-    final BurstIterator<Ask> askIterator = this.mockBurstIterator(askOrder1, askOrder2);
+    final Collection<Ask> askIterator = this.mockCollection(askOrder1, askOrder2);
 
     when(assetExchangeMock.getSortedAskOrders(eq(assetIndex), eq(firstIndex), eq(lastIndex))).thenReturn(askIterator);
 

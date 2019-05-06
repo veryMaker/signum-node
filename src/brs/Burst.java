@@ -24,6 +24,7 @@ import brs.peer.Peers;
 import brs.props.PropertyService;
 import brs.props.PropertyServiceImpl;
 import brs.props.Props;
+import brs.schema.tables.records.UnconfirmedTransactionRecord;
 import brs.services.*;
 import brs.services.impl.*;
 import brs.statistics.StatisticsManagerImpl;
@@ -34,11 +35,11 @@ import brs.util.Time;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.jooq.DSLContext;
+import org.jooq.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.sql.ResultSet;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -243,17 +244,18 @@ public final class Burst {
           logger.info("Not starting V2 API Server - it is disabled.");
       }
 
-      DebugTrace.init(propertyService, blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService);
+      if (propertyService.getBoolean(Props.BRS_DEBUG_TRACE_ENABLED))
+        DebugTrace.init(propertyService, blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService);
 
-      // backward compatibility for those who have some unconfirmed transactions in their db
+      // backward compatibility for those who have some unconfirmed transactions in their db TODO remove
       try {
         stores.beginTransaction();
         try (DSLContext ctx = Db.getDSLContext()) {
-          ResultSet rs = ctx.selectFrom(UNCONFIRMED_TRANSACTION).fetchResultSet();
-          while ( rs.next() ) {
-            byte[] transactionBytes = rs.getBytes("transaction_bytes");
+          Result<UnconfirmedTransactionRecord> rs = ctx.selectFrom(UNCONFIRMED_TRANSACTION).fetch();
+          for (UnconfirmedTransactionRecord r : rs) {
+            byte[] transactionBytes = r.getTransactionBytes();
             Transaction transaction = Transaction.parseTransaction(transactionBytes);
-            transaction.setHeight(rs.getInt("transaction_height"));
+            transaction.setHeight(r.getTransactionHeight());
             transactionService.undoUnconfirmed(transaction);
           }
           ctx.truncate(UNCONFIRMED_TRANSACTION).execute();

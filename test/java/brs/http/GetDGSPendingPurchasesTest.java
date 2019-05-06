@@ -5,7 +5,6 @@ import brs.DigitalGoodsStore.Purchase;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
-import brs.db.BurstIterator;
 import brs.services.DGSGoodsStoreService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -13,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 import static brs.http.JSONResponses.MISSING_SELLER;
 import static brs.http.common.Parameters.*;
@@ -52,7 +52,7 @@ public class GetDGSPendingPurchasesTest extends AbstractUnitTest {
 
     final Purchase mockPurchase = mock(Purchase.class);
 
-    final BurstIterator<Purchase> mockPurchaseIterator = mockBurstIterator(mockPurchase);
+    final Collection<Purchase> mockPurchaseIterator = mockCollection(mockPurchase);
     when(mockDGSGoodStoreService.getPendingSellerPurchases(eq(sellerId), eq(firstIndex), eq(lastIndex))).thenReturn(mockPurchaseIterator);
 
     final JsonObject result = (JsonObject) t.processRequest(req);
