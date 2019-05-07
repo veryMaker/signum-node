@@ -3,9 +3,8 @@ package brs.db.sql;
 import brs.db.BurstKey;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.IndirectIncomingStore;
-import brs.schema.tables.records.IndirectIncomingRecord;
+import org.jooq.BatchBindStep;
 import org.jooq.DSLContext;
-import org.jooq.InsertValuesStep3;
 import org.jooq.Record;
 
 import java.util.Collection;
@@ -34,18 +33,24 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
 
             @Override
             void save(DSLContext ctx, IndirectIncoming indirectIncoming) {
-                ctx.insertInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
+                ctx.mergeInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
+                        .key(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
                         .values(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(), indirectIncoming.getHeight())
                         .execute();
             }
 
             @Override
             void save(DSLContext ctx, IndirectIncoming[] indirectIncomings) {
-                InsertValuesStep3<IndirectIncomingRecord, Long, Long, Integer> insertQuery = ctx.insertInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT);
-                for (IndirectIncoming indirectIncoming : indirectIncomings) {
-                    insertQuery = insertQuery.values(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(), indirectIncoming.getHeight());
+                if (indirectIncomings.length == 0) return;
+                // We don't want to insert an extra value at the beginning of the table with all zero fields so this is a method of avoiding that
+                BatchBindStep batch = ctx.batch(ctx.mergeInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
+                                .key(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
+                                .values(indirectIncomings[0].getAccountId(), indirectIncomings[0].getTransactionId(), indirectIncomings[0].getHeight()));
+                for (int i = 1, indirectIncomingsLength = indirectIncomings.length; i < indirectIncomingsLength; i++) {
+                    IndirectIncoming indirectIncoming = indirectIncomings[i];
+                    batch.bind(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(), indirectIncoming.getHeight());
                 }
-                insertQuery.execute();
+                batch.execute();
             }
         };
     }
