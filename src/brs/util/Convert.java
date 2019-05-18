@@ -100,7 +100,7 @@ public final class Convert {
   }
 
   public static byte[] toBytes(String s) {
-    return s.getBytes(StandardCharsets.UTF_8);
+    return s == null ? new byte[0] : s.getBytes(StandardCharsets.UTF_8);
   }
 
   public static String toString(byte[] bytes) {
