@@ -3,10 +3,11 @@ package brs.db.sql;
 import brs.db.BurstKey;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.IndirectIncomingStore;
-import org.jooq.BatchBindStep;
 import org.jooq.DSLContext;
+import org.jooq.Query;
 import org.jooq.Record;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,26 +32,24 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
                 return new IndirectIncoming(rs.get(INDIRECT_INCOMING.ACCOUNT_ID), rs.get(INDIRECT_INCOMING.TRANSACTION_ID), rs.get(INDIRECT_INCOMING.HEIGHT));
             }
 
+            private Query getQuery(DSLContext ctx, IndirectIncoming indirectIncoming) {
+                return ctx.mergeInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
+                        .key(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
+                        .values(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(), indirectIncoming.getHeight());
+            }
+
             @Override
             void save(DSLContext ctx, IndirectIncoming indirectIncoming) {
-                ctx.mergeInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
-                        .key(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
-                        .values(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(), indirectIncoming.getHeight())
-                        .execute();
+                getQuery(ctx, indirectIncoming).execute();
             }
 
             @Override
             void save(DSLContext ctx, IndirectIncoming[] indirectIncomings) {
-                if (indirectIncomings.length == 0) return;
-                // We don't want to insert an extra value at the beginning of the table with all zero fields so this is a method of avoiding that
-                BatchBindStep batch = ctx.batch(ctx.mergeInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
-                                .key(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
-                                .values(indirectIncomings[0].getAccountId(), indirectIncomings[0].getTransactionId(), indirectIncomings[0].getHeight()));
-                for (int i = 1, indirectIncomingsLength = indirectIncomings.length; i < indirectIncomingsLength; i++) {
-                    IndirectIncoming indirectIncoming = indirectIncomings[i];
-                    batch.bind(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(), indirectIncoming.getHeight());
+                List<Query> queries = new ArrayList<>();
+                for (IndirectIncoming indirectIncoming: indirectIncomings) {
+                    queries.add(getQuery(ctx, indirectIncoming));
                 }
-                batch.execute();
+                ctx.batch(queries).execute();
             }
         };
     }
