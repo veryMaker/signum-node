@@ -15,14 +15,18 @@ import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 import org.jooq.tools.jdbc.JDBCUtils;
+import org.mariadb.jdbc.MariaDbDataSource;
+import org.mariadb.jdbc.UrlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public final class Db {
 
@@ -84,6 +88,24 @@ public final class Db {
           config.addDataSourceProperty("useUnicode", "true");
           config.addDataSourceProperty("useServerPrepStmts", "false");
           config.addDataSourceProperty("rewriteBatchedStatements", "true");
+          MariaDbDataSource flywayDataSource = new MariaDbDataSource(dbUrl) {
+            @Override
+            protected synchronized void initialize() throws SQLException {
+              super.initialize();
+              Properties props = new Properties();
+              props.setProperty("user", dbUsername);
+              props.setProperty("password", dbPassword);
+              props.setProperty("useMysqlMetadata", "true");
+              try {
+                Field f = MariaDbDataSource.class.getDeclaredField("urlParser");
+                f.setAccessible(true);
+                f.set(this, UrlParser.parse(dbUrl, props));
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+            }
+          };
+          flywayBuilder.dataSource(flywayDataSource); // TODO Remove this hack once a stable version of Flyway has this bug fixed
           config.setConnectionInitSql("SET NAMES utf8mb4;");
           break;
         case H2:
@@ -104,7 +126,6 @@ public final class Db {
       if (runFlyway) {
         logger.info("Running flyway migration");
         Flyway flyway = flywayBuilder.load();
-        flyway.repair();
         flyway.migrate();
       }
     } catch (Exception e) {
