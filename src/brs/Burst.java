@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 
 public final class Burst {
 
-  public static final Version VERSION = Version.parse("v2.4.0-dev");
+  public static final Version VERSION = Version.parse("v2.4.0-beta2");
   public static final String APPLICATION = "BRS";
 
   private static final String DEFAULT_PROPERTIES_NAME = "brs-default.properties";
