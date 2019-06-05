@@ -10,7 +10,7 @@ import brs.props.Props;
 import brs.services.TimeService;
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
 import brs.transactionduplicates.TransactionDuplicationResult;
-import org.apache.commons.lang.StringUtils;
+import brs.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +96,11 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
           }
         } else {
           addTransaction(transaction, peer);
-          logger.info("Cache size: {}/{} added {} from sender {}", totalSize, maxSize, transaction.getId(), transaction.getSenderId());
+          if (totalSize % 128 == 0) {
+            logger.info("Cache size: {}/{} added {} from sender {}", totalSize, maxSize, transaction.getId(), transaction.getSenderId());
+          } else {
+            logger.debug("Cache size: {}/{} added {} from sender {}", totalSize, maxSize, transaction.getId(), transaction.getSenderId());
+          }
         }
 
         if (totalSize > maxSize) {

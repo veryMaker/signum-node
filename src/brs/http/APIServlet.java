@@ -33,10 +33,11 @@ public final class APIServlet extends HttpServlet {
       EscrowService escrowService, DGSGoodsStoreService digitalGoodsStoreService,
       SubscriptionService subscriptionService, ATService atService, TimeService timeService, EconomicClustering economicClustering, TransactionService transactionService,
       BlockService blockService, Generator generator, PropertyService propertyService, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator,
-      DeeplinkQRCodeGenerator deeplinkQRCodeGenerator) {
+      DeeplinkQRCodeGenerator deeplinkQRCodeGenerator, IndirectIncomingService indirectIncomingService) {
 
     enforcePost = propertyService.getBoolean(Props.API_SERVER_ENFORCE_POST);
     acceptSurplusParams = propertyService.getBoolean(Props.API_ACCEPT_SURPLUS_PARAMS);
+    allowedOrigins = propertyService.getString(Props.API_ALLOWED_ORIGINS);
     
     final Map<String, APIRequestHandler> map = new HashMap<>();
     final Map<String, PrimitiveRequestHandler> primitiveMap = new HashMap<>();
@@ -89,17 +90,17 @@ public final class APIServlet extends HttpServlet {
     map.put("getECBlock", new GetECBlock(blockchain, timeService, economicClustering));
     map.put("getMyInfo", GetMyInfo.instance);
     map.put("getPeer", GetPeer.instance);
-    map.put("getMyPeerInfo", new GetMyPeerInfo(blockchainProcessor, transactionProcessor));
+    map.put("getMyPeerInfo", new GetMyPeerInfo(transactionProcessor));
     map.put("getPeers", GetPeers.instance);
-    map.put("getState", new GetState(blockchain, assetExchange, accountService, escrowService, aliasService, timeService, generator));
+    map.put("getState", new GetState(blockchain, assetExchange, accountService, escrowService, aliasService, timeService, generator, propertyService));
     map.put("getTime", new GetTime(timeService));
     map.put("getTrades", new GetTrades(parameterService, assetExchange));
     map.put("getAllTrades", new GetAllTrades(assetExchange));
     map.put("getAssetTransfers", new GetAssetTransfers(parameterService, accountService, assetExchange));
     map.put("getTransaction", new GetTransaction(transactionProcessor, blockchain));
     map.put("getTransactionBytes", new GetTransactionBytes(blockchain, transactionProcessor));
-    map.put("getUnconfirmedTransactionIds", new GetUnconfirmedTransactionIds(transactionProcessor));
-    map.put("getUnconfirmedTransactions", new GetUnconfirmedTransactions(transactionProcessor));
+    map.put("getUnconfirmedTransactionIds", new GetUnconfirmedTransactionIds(transactionProcessor, indirectIncomingService, parameterService));
+    map.put("getUnconfirmedTransactions", new GetUnconfirmedTransactions(transactionProcessor, indirectIncomingService, parameterService));
     map.put("getAccountCurrentAskOrderIds", new GetAccountCurrentAskOrderIds(parameterService, assetExchange));
     map.put("getAccountCurrentBidOrderIds", new GetAccountCurrentBidOrderIds(parameterService, assetExchange));
     map.put("getAccountCurrentAskOrders", new GetAccountCurrentAskOrders(parameterService, assetExchange));
@@ -128,7 +129,7 @@ public final class APIServlet extends HttpServlet {
     map.put("setAlias", new SetAlias(parameterService, blockchain, aliasService, apiTransactionManager));
     map.put("signTransaction", new SignTransaction(parameterService, transactionService));
     map.put("transferAsset", new TransferAsset(parameterService, blockchain, apiTransactionManager, accountService));
-    map.put("getMiningInfo", new GetMiningInfo(blockchain));
+    map.put("getMiningInfo", new GetMiningInfo(blockchain, generator));
     map.put("submitNonce", new SubmitNonce(accountService, blockchain, generator));
     map.put("getRewardRecipient", new GetRewardRecipient(parameterService, blockchain, accountService));
     map.put("setRewardRecipient", new SetRewardRecipient(parameterService, blockchain, accountService, apiTransactionManager));
@@ -219,10 +220,11 @@ public final class APIServlet extends HttpServlet {
 
   }
 
-  private static boolean enforcePost;
+  private final boolean enforcePost;
+  private final String allowedOrigins;
 
-  public static Map<String, APIRequestHandler> apiRequestHandlers;
-  private static Map<String, PrimitiveRequestHandler> primitiveRequestHandlers;
+  public final Map<String, APIRequestHandler> apiRequestHandlers;
+  private final Map<String, PrimitiveRequestHandler> primitiveRequestHandlers;
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
@@ -245,7 +247,8 @@ public final class APIServlet extends HttpServlet {
   }
 
   private void process(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-
+    resp.setHeader("Access-Control-Allow-Methods", "GET, POST");
+    resp.setHeader("Access-Control-Allow-Origin", allowedOrigins);
     resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private");
     resp.setHeader("Pragma", "no-cache");
     resp.setDateHeader("Expires", 0);

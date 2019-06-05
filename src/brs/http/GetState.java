@@ -2,9 +2,10 @@ package brs.http;
 
 import brs.*;
 import brs.assetexchange.AssetExchange;
-import brs.db.BurstIterator;
 import brs.peer.Peer;
 import brs.peer.Peers;
+import brs.props.PropertyService;
+import brs.props.Props;
 import brs.services.AccountService;
 import brs.services.AliasService;
 import brs.services.EscrowService;
@@ -26,9 +27,10 @@ final class GetState extends APIServlet.APIRequestHandler {
   private final AliasService aliasService;
   private final TimeService timeService;
   private final Generator generator;
+  private final PropertyService propertyService;
 
   GetState(Blockchain blockchain, AssetExchange assetExchange, AccountService accountService, EscrowService escrowService,
-      AliasService aliasService, TimeService timeService, Generator generator) {
+           AliasService aliasService, TimeService timeService, Generator generator, PropertyService propertyService) {
     super(new APITag[] {APITag.INFO}, INCLUDE_COUNTS_PARAMETER);
     this.blockchain = blockchain;
     this.assetExchange = assetExchange;
@@ -37,6 +39,7 @@ final class GetState extends APIServlet.APIRequestHandler {
     this.aliasService = aliasService;
     this.timeService = timeService;
     this.generator = generator;
+    this.propertyService = propertyService;
   }
 
   @Override
@@ -50,25 +53,19 @@ final class GetState extends APIServlet.APIRequestHandler {
     response.addProperty("lastBlock", blockchain.getLastBlock().getStringId());
     response.addProperty("cumulativeDifficulty", blockchain.getLastBlock().getCumulativeDifficulty().toString());
 
-
-    long totalEffectiveBalance = 0;
-    try (BurstIterator<Account> accounts = accountService.getAllAccounts(0, -1)) {
-      while(accounts.hasNext()) {
-        long effectiveBalanceBURST = accounts.next().getBalanceNQT();
+    if (!"false".equalsIgnoreCase(req.getParameter("includeCounts"))) {
+      long totalEffectiveBalance = 0;
+      for (Account account : accountService.getAllAccounts(0, -1)) {
+        long effectiveBalanceBURST = account.getBalanceNQT();
         if (effectiveBalanceBURST > 0) {
           totalEffectiveBalance += effectiveBalanceBURST;
         }
       }
-    }
-    try(BurstIterator<Escrow> escrows = escrowService.getAllEscrowTransactions()) {
-      while(escrows.hasNext()) {
-        totalEffectiveBalance += escrows.next().getAmountNQT();
+      for (Escrow escrow : escrowService.getAllEscrowTransactions()) {
+        totalEffectiveBalance += escrow.getAmountNQT();
       }
-    }
-    response.addProperty("totalEffectiveBalanceNXT", totalEffectiveBalance / Constants.ONE_BURST);
+      response.addProperty("totalEffectiveBalanceNXT", totalEffectiveBalance / Constants.ONE_BURST);
 
-
-    if (!"false".equalsIgnoreCase(req.getParameter("includeCounts"))) {
       response.addProperty("numberOfBlocks", blockchain.getHeight() + 1);
       response.addProperty("numberOfTransactions", blockchain.getTransactionCount());
       response.addProperty("numberOfAccounts", accountService.getCount());
@@ -81,8 +78,6 @@ final class GetState extends APIServlet.APIRequestHandler {
       response.addProperty("numberOfTrades", assetExchange.getTradesCount());
       response.addProperty("numberOfTransfers", assetExchange.getAssetTransferCount());
       response.addProperty("numberOfAliases", aliasService.getAliasCount());
-      //response.addProperty("numberOfPolls", Poll.getCount());
-      //response.addProperty("numberOfVotes", Vote.getCount());
     }
     response.addProperty("numberOfPeers", Peers.getAllPeers().size());
     response.addProperty("numberOfUnlockedAccounts", generator.getAllGenerators().size());
@@ -94,8 +89,11 @@ final class GetState extends APIServlet.APIRequestHandler {
     response.addProperty("maxMemory", Runtime.getRuntime().maxMemory());
     response.addProperty("totalMemory", Runtime.getRuntime().totalMemory());
     response.addProperty("freeMemory", Runtime.getRuntime().freeMemory());
+    response.addProperty("indirectIncomingServiceEnabled", propertyService.getBoolean(Props.INDIRECT_INCOMING_SERVICE_ENABLE));
+    boolean grpcApiEnabled = propertyService.getBoolean(Props.API_V2_SERVER);
+    response.addProperty("grpcApiEnabled", grpcApiEnabled);
+    if (grpcApiEnabled) response.addProperty("grpcApiPort", propertyService.getInt(propertyService.getBoolean(Props.DEV_TESTNET) ? Props.DEV_API_V2_PORT : Props.API_V2_PORT));
 
     return response;
   }
-
 }

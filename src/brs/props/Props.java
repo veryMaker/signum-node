@@ -32,8 +32,9 @@ public class Props {
   public static final Prop<Integer> DEV_AT_FIX_BLOCK_4_BLOCK_HEIGHT = new Prop<>("DEV.atFixBlock4.startBlock", -1);
   public static final Prop<Integer> DEV_PRE_DYMAXION_BLOCK_HEIGHT = new Prop<>("DEV.preDymaxion.startBlock", -1);
   public static final Prop<Integer> DEV_POC2_BLOCK_HEIGHT = new Prop<>("DEV.poc2.startBlock", -1);
-  public static final Prop<Integer> DEV_DYMAXION_BLOCK_HEIGHT = new Prop<>("DEV.dymaxion.startBlock", -1);
+  public static final Prop<Integer> DEV_NEXT_FORK_BLOCK_HEIGHT = new Prop<>("DEV.nextFork.startBlock", -1);
 
+  public static final Prop<Boolean> BRS_DEBUG_TRACE_ENABLED = new Prop<>("brs.debugTraceEnable", false);
   public static final Prop<String> BRS_DEBUG_TRACE_QUOTE = new Prop<>("brs.debugTraceQuote", "\"");
   public static final Prop<String> BRS_DEBUG_TRACE_SEPARATOR = new Prop<>("brs.debugTraceSeparator", "\t");
   public static final Prop<Boolean> BRS_DEBUG_LOG_CONFIRMED = new Prop<>("brs.debugLogUnconfirmed", false);
@@ -43,8 +44,6 @@ public class Props {
   public static final Prop<Integer> BRS_COMMUNICATION_LOGGING_MASK = new Prop<>("brs.communicationLoggingMask", 0);
 
   public static final Prop<Integer> BRS_SHUTDOWN_TIMEOUT = new Prop<>("brs.ShutdownTimeout", 180);
-
-  public static final Prop<String> BRS_FORGING_STRATEGY = new Prop<>("brs.ForgingStrategy", "slots");
 
   // GPU options
   public static final Prop<Boolean> GPU_ACCELERATION     = new Prop<>("GPU.Acceleration", false);
@@ -122,11 +121,11 @@ public class Props {
   public static final Prop<Integer> API_V2_PORT    = new Prop<>("API.V2.Port", 8121);
 
   public static final Prop<String> API_UI_DIR  = new Prop<>("API.UI_Dir", "html/ui");
-  public static final Prop<Boolean> API_CROSS_ORIGIN_FILTER = new Prop<>("API.CrossOriginFilter", false);
   public static final Prop<String> API_SSL_KEY_STORE_PATH     = new Prop<>("API.SSL_keyStorePath", "keystore");
   public static final Prop<String> API_SSL_KEY_STORE_PASSWORD = new Prop<>("API.SSL_keyStorePassword", "password");
   public static final Prop<Integer> API_SERVER_IDLE_TIMEOUT = new Prop<>("API.ServerIdleTimeout", 30000);
   public static final Prop<Boolean> API_SERVER_ENFORCE_POST = new Prop<>("API.ServerEnforcePOST", true);
+  public static final Prop<String> API_ALLOWED_ORIGINS = new Prop<>("API.AllowedOrigins", "*");
 
   public static final Prop<Boolean> JETTY_API_GZIP_FILTER = new Prop<>("JETTY.API.GzipFilter", true);
   public static final Prop<String> JETTY_API_GZIP_FILTER_METHODS = new Prop<>("JETTY.API.GZIPFilter.methods", "GET, POST");
@@ -165,6 +164,12 @@ public class Props {
   public static final Prop<String> JETTY_P2P_DOS_FILTER_REMOTE_PORT = new Prop<>("JETTY.P2P.DoSFilter.remotePort", "false");
   public static final Prop<String> JETTY_P2P_DOS_FILTER_IP_WHITELIST = new Prop<>("JETTY.P2P.DoSFilter.ipWhitelist", "");
   public static final Prop<String> JETTY_P2P_DOS_FILTER_MANAGED_ATTR = new Prop<>("JETTY.P2P.DoSFilter.managedAttr", "true");
+
+  public static final Prop<Boolean> INDIRECT_INCOMING_SERVICE_ENABLE = new Prop<>("IndirectIncomingService.Enable", true);
+
+  public static final Prop<Boolean> AUTO_POP_OFF_ENABLED = new Prop<>("AutoPopOff.Enable", true);
+
+  public static final Prop<Boolean> ENABLE_AT_DEBUG_LOG = new Prop<>("ATDebugLog.Enable", false);
 
   private Props() { //no need to construct
   }

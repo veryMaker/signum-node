@@ -3,10 +3,12 @@ package brs.at;
 import brs.AT;
 import brs.Account;
 import brs.Burst;
-import brs.fluxcapacitor.FeatureToggle;
+import brs.fluxcapacitor.FluxValues;
+import brs.props.Props;
 import brs.util.Convert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.NOPLogger;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -18,6 +20,8 @@ import java.util.*;
 public abstract class AT_Controller {
 
   private static final Logger logger = LoggerFactory.getLogger(AT_Controller.class);
+  
+  private static final Logger debugLogger = Burst.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG) ? logger : NOPLogger.NOP_LOGGER;
 
   private static int runSteps(AT_Machine_State state) {
     state.getMachineState().running = true;
@@ -26,7 +30,7 @@ public abstract class AT_Controller {
     state.getMachineState().dead = false;
     state.getMachineState().steps = 0;
 
-    AT_Machine_Processor processor = new AT_Machine_Processor( state );
+    AT_Machine_Processor processor = new AT_Machine_Processor(state, Burst.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG));
 
     //int height = Burst.getBlockchain().getHeight();
 
@@ -41,7 +45,7 @@ public abstract class AT_Controller {
             <= AT_Constants.getInstance().MAX_STEPS( state.getHeight() )) {
 
       if ( ( state.getG_balance() < stepFee * numSteps ) ) {
-        //System.out.println( "stopped - not enough balance" );
+        debugLogger.debug( "stopped - not enough balance" );
         state.setFreeze( true );
         return 3;
       }
@@ -52,23 +56,23 @@ public abstract class AT_Controller {
 
       if ( rc >= 0 ) {
         if ( state.getMachineState().stopped ) {
-          //System.out.println( "stopped" );
+          debugLogger.debug( "stopped" );
           state.getMachineState().running = false;
           return 2;
         }
         else if ( state.getMachineState().finished ) {
-          //System.out.println( "finished" );
+          debugLogger.debug( "finished" );
           state.getMachineState().running = false;
           return 1;
         }
       }
       else {
-        /*if ( rc == -1 )
-          System.out.println( "error: overflow" );
+        if ( rc == -1 )
+          debugLogger.debug( "error: overflow" );
           else if ( rc==-2 )
-          System.out.println( "error: invalid code" );
+          debugLogger.debug( "error: invalid code" );
           else
-          System.out.println( "unexpected error" );*/
+          debugLogger.debug( "unexpected error" );
 
         if (state.getMachineState().jumps.contains(state.getMachineState().err)) {
           state.getMachineState().pc = state.getMachineState().err;
@@ -98,7 +102,7 @@ public abstract class AT_Controller {
 
   private static void listCode(AT_Machine_State state, boolean disassembly, boolean determine_jumps) {
 
-    AT_Machine_Processor machineProcessor = new AT_Machine_Processor( state );
+    AT_Machine_Processor machineProcessor = new AT_Machine_Processor(state, Burst.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG));
 
     int opc = state.getMachineState().pc;
     int osteps = state.getMachineState().steps;
@@ -271,7 +275,7 @@ public abstract class AT_Controller {
           at.setP_balance( at.getG_balance() );
 
           long amount = makeTransactions( at );
-          if (! Burst.getFluxCapacitor().isActive(FeatureToggle.AT_FIX_BLOCK_4, blockHeight)) {
+          if (! Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
             totalAmount = amount;
           }
           else {
@@ -288,7 +292,7 @@ public abstract class AT_Controller {
           //at.saveState();
         }
         catch ( Exception e ) {
-          e.printStackTrace(System.out);
+          debugLogger.debug("Error handling AT", e);
         }
       }
     }
@@ -306,12 +310,12 @@ public abstract class AT_Controller {
       return new AT_Block( totalFee, totalAmount, bytesForBlock );
   }
 
-  public static AT_Block validateATs( byte[] blockATs, int blockHeight ) throws NoSuchAlgorithmException, AT_Exception {
+  public static AT_Block validateATs(byte[] blockATs, int blockHeight) throws NoSuchAlgorithmException, AT_Exception {
     if (blockATs == null) {
       return new AT_Block(0, 0, null, true);
     }
 
-    LinkedHashMap< ByteBuffer, byte[] > ats = getATsFromBlock( blockATs );
+    LinkedHashMap<ByteBuffer, byte[]> ats = getATsFromBlock(blockATs);
 
     List< AT > processedATs = new ArrayList< >();
 
@@ -324,7 +328,6 @@ public abstract class AT_Controller {
     for ( ByteBuffer atIdBuffer : ats.keySet() ) {
       byte[] atId = atIdBuffer.array();
       AT at = AT.getAT( atId );
-
       try {
         at.clearTransactions();
         at.setHeight(blockHeight);
@@ -357,7 +360,7 @@ public abstract class AT_Controller {
         }
         at.setP_balance( at.getG_balance() );
 
-        if (! Burst.getFluxCapacitor().isActive(FeatureToggle.AT_FIX_BLOCK_4, blockHeight)) {
+        if (! Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
           totalAmount = makeTransactions( at );
         }
         else {
@@ -367,15 +370,15 @@ public abstract class AT_Controller {
         totalFee += fee;
         AT.addPendingFee(atId, fee);
 
-        processedATs.add( at );
+        processedATs.add(at);
 
-        md5 = digest.digest( at.getBytes() );
-        if ( !Arrays.equals( md5, ats.get( atIdBuffer ) ) ) {
+        md5 = digest.digest(at.getBytes());
+        if (!Arrays.equals(md5, ats.get(atIdBuffer))) {
           throw new AT_Exception( "Calculated md5 and recieved md5 are not matching" );
         }
       }
       catch ( Exception e ) {
-        //e.printStackTrace(System.out);
+        debugLogger.debug("ATs error", e);
         throw new AT_Exception( "ATs error. Block rejected (" + e + ")");
       }
     }
@@ -447,7 +450,7 @@ public abstract class AT_Controller {
   //platform based
   private static long makeTransactions( AT at ) throws AT_Exception {
     long totalAmount = 0;
-    if (! Burst.getFluxCapacitor().isActive(FeatureToggle.AT_FIX_BLOCK_4, at.getHeight())) {
+    if (! Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4, at.getHeight())) {
       for (AT_Transaction tx : at.getTransactions()) {
         if (AT.findPendingTransaction(tx.getRecipientId())) {
           throw new AT_Exception("Conflicting transaction found");

@@ -4,7 +4,6 @@ import brs.Account;
 import brs.Blockchain;
 import brs.BurstException;
 import brs.Transaction;
-import brs.db.BurstIterator;
 import brs.services.ParameterService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -21,7 +20,7 @@ final class GetAccountTransactionIds extends APIServlet.APIRequestHandler {
 
   GetAccountTransactionIds(ParameterService parameterService, Blockchain blockchain) {
     super(new APITag[]{APITag.ACCOUNTS}, ACCOUNT_PARAMETER, TIMESTAMP_PARAMETER, TYPE_PARAMETER, SUBTYPE_PARAMETER, ACCOUNT_PARAMETER, TIMESTAMP_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER,
-        NUMBER_OF_CONFIRMATIONS_PARAMETER);
+        NUMBER_OF_CONFIRMATIONS_PARAMETER, INCLUDE_INDIRECT_PARAMETER);
     this.parameterService = parameterService;
     this.blockchain = blockchain;
   }
@@ -50,12 +49,8 @@ final class GetAccountTransactionIds extends APIServlet.APIRequestHandler {
     int lastIndex = ParameterParser.getLastIndex(req);
 
     JsonArray transactionIds = new JsonArray();
-    try (BurstIterator<? extends Transaction> iterator = blockchain.getTransactions(account, numberOfConfirmations, type, subtype, timestamp,
-        firstIndex, lastIndex)) {
-      while (iterator.hasNext()) {
-        Transaction transaction = iterator.next();
-        transactionIds.add(transaction.getStringId());
-      }
+    for (Transaction transaction : blockchain.getTransactions(account, numberOfConfirmations, type, subtype, timestamp, firstIndex, lastIndex, parameterService.getIncludeIndirect(req))) {
+      transactionIds.add(transaction.getStringId());
     }
 
     JsonObject response = new JsonObject();

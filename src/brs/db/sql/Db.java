@@ -1,6 +1,7 @@
 package brs.db.sql;
 
 import brs.Burst;
+import brs.db.BurstKey;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.Dbs;
 import brs.props.PropertyService;
@@ -14,15 +15,18 @@ import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 import org.jooq.tools.jdbc.JDBCUtils;
+import org.mariadb.jdbc.MariaDbDataSource;
+import org.mariadb.jdbc.UrlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public final class Db {
 
@@ -30,9 +34,9 @@ public final class Db {
 
   private static HikariDataSource cp;
   private static SQLDialect dialect;
-  private static final ThreadLocal<DbConnection> localConnection = new ThreadLocal<>();
-  private static final ThreadLocal<Map<String, Map<DbKey, Object>>> transactionCaches = new ThreadLocal<>();
-  private static final ThreadLocal<Map<String, Map<DbKey, Object>>> transactionBatches = new ThreadLocal<>();
+  private static final ThreadLocal<Connection> localConnection = new ThreadLocal<>();
+  private static final ThreadLocal<Map<String, Map<BurstKey, Object>>> transactionCaches = new ThreadLocal<>();
+  private static final ThreadLocal<Map<String, Map<BurstKey, Object>>> transactionBatches = new ThreadLocal<>();
 
   private static DBCacheManagerImpl dbCacheManager;
 
@@ -84,6 +88,24 @@ public final class Db {
           config.addDataSourceProperty("useUnicode", "true");
           config.addDataSourceProperty("useServerPrepStmts", "false");
           config.addDataSourceProperty("rewriteBatchedStatements", "true");
+          MariaDbDataSource flywayDataSource = new MariaDbDataSource(dbUrl) {
+            @Override
+            protected synchronized void initialize() throws SQLException {
+              super.initialize();
+              Properties props = new Properties();
+              props.setProperty("user", dbUsername);
+              props.setProperty("password", dbPassword);
+              props.setProperty("useMysqlMetadata", "true");
+              try {
+                Field f = MariaDbDataSource.class.getDeclaredField("urlParser");
+                f.setAccessible(true);
+                f.set(this, UrlParser.parse(dbUrl, props));
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+            }
+          };
+          flywayBuilder.dataSource(flywayDataSource); // TODO Remove this hack once a stable version of Flyway has this bug fixed
           config.setConnectionInitSql("SET NAMES utf8mb4;");
           break;
         case H2:
@@ -95,26 +117,15 @@ public final class Db {
           config.addDataSourceProperty("prepStmtCacheSize", "250");
           config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
           config.addDataSourceProperty("DATABASE_TO_UPPER", "false");
+          config.addDataSourceProperty("CASE_INSENSITIVE_IDENTIFIERS", "true");
           break;
       }
-      // config.setLeakDetectionThreshold(2000);
 
       cp = new HikariDataSource(config);
-
-      if (dialect == SQLDialect.H2) {
-        int defaultLockTimeout = propertyService.getInt(Props.DB_LOCK_TIMEOUT) * 1000;
-        try (Connection con = cp.getConnection();
-             PreparedStatement stmt = con.prepareStatement("SET DEFAULT_LOCK_TIMEOUT ?")) {
-          // stmt.executeUpdate(defaultLockTimeout);
-        } catch (SQLException e) {
-          throw new RuntimeException(e.toString(), e);
-        }
-      }
 
       if (runFlyway) {
         logger.info("Running flyway migration");
         Flyway flyway = flywayBuilder.load();
-        flyway.repair();
         flyway.migrate();
       }
     } catch (Exception e) {
@@ -159,7 +170,7 @@ public final class Db {
         logger.info("Database shutdown completed.");
       }
     }
-    if ( ! cp.isClosed() ) {
+    if (cp != null && !cp.isClosed() ) {
       cp.close();
     }
   }
@@ -173,10 +184,11 @@ public final class Db {
     if (con != null) {
       return con;
     }
+
     con = getPooledConnection();
     con.setAutoCommit(true);
 
-    return new DbConnection(con);
+    return con;
   }
 
   public static DSLContext getDSLContext() {
@@ -196,18 +208,20 @@ public final class Db {
     }
   }
 
-  static Map<DbKey, Object> getCache(String tableName) {
+  static <V> Map<BurstKey, V> getCache(String tableName) {
     if (!isInTransaction()) {
       throw new IllegalStateException("Not in transaction");
     }
-    return transactionCaches.get().computeIfAbsent(tableName, k -> new HashMap<>());
+    //noinspection unchecked
+    return (Map<BurstKey, V>) transactionCaches.get().computeIfAbsent(tableName, k -> new HashMap<>());
   }
 
-  static Map<DbKey, Object> getBatch(String tableName) {
+  static <V> Map<BurstKey, V> getBatch(String tableName) {
     if (!isInTransaction()) {
       throw new IllegalStateException("Not in transaction");
     }
-    return transactionBatches.get().computeIfAbsent(tableName, k -> new HashMap<>());
+    //noinspection unchecked
+    return (Map<BurstKey, V>) transactionBatches.get().computeIfAbsent(tableName, k -> new HashMap<>());
   }
 
   public static boolean isInTransaction() {
@@ -222,9 +236,7 @@ public final class Db {
       Connection con = cp.getConnection();
       con.setAutoCommit(false);
 
-      con = new DbConnection(con);
-
-      localConnection.set((DbConnection) con);
+      localConnection.set(con);
       transactionCaches.set(new HashMap<>());
       transactionBatches.set(new HashMap<>());
 
@@ -236,12 +248,12 @@ public final class Db {
   }
 
   public static void commitTransaction() {
-    DbConnection con = localConnection.get();
+    Connection con = localConnection.get();
     if (con == null) {
       throw new IllegalStateException("Not in transaction");
     }
     try {
-      con.doCommit();
+      con.commit();
     }
     catch (SQLException e) {
       throw new RuntimeException(e.toString(), e);
@@ -249,12 +261,12 @@ public final class Db {
   }
 
   public static void rollbackTransaction() {
-    DbConnection con = localConnection.get();
+    Connection con = localConnection.get();
     if (con == null) {
       throw new IllegalStateException("Not in transaction");
     }
     try {
-      con.doRollback();
+      con.rollback();
     }
     catch (SQLException e) {
       throw new RuntimeException(e.toString(), e);
@@ -275,62 +287,5 @@ public final class Db {
     transactionBatches.get().clear();
     transactionBatches.set(null);
     DbUtils.close(con);
-  }
-
-  private static class DbConnection extends FilteredConnection {
-
-    private DbConnection(Connection con) {
-      super(con);
-    }
-
-    @Override
-    public void setAutoCommit(boolean autoCommit) {
-      throw new UnsupportedOperationException("Use Db.beginTransaction() to start a new transaction");
-    }
-
-    @Override
-    public void commit() throws SQLException {
-      if (localConnection.get() == null) {
-        super.commit();
-      }
-      else if (!this.equals(localConnection.get())) {
-        throw new IllegalStateException("Previous connection not committed");
-      }
-      else {
-        throw new UnsupportedOperationException("Use Db.commitTransaction() to commit the transaction");
-      }
-    }
-
-    private void doCommit() throws SQLException {
-      super.commit();
-    }
-
-    @Override
-    public void rollback() throws SQLException {
-      if (localConnection.get() == null) {
-        super.rollback();
-      }
-      else if (!this.equals(localConnection.get())) {
-        throw new IllegalStateException("Previous connection not committed");
-      }
-      else {
-        throw new UnsupportedOperationException("Use Db.rollbackTransaction() to rollback the transaction");
-      }
-    }
-
-    private void doRollback() throws SQLException {
-      super.rollback();
-    }
-
-    @Override
-    public void close() throws SQLException {
-      if (localConnection.get() == null) {
-        super.close();
-      }
-      else if (!this.equals(localConnection.get())) {
-        throw new IllegalStateException("Previous connection not committed");
-      }
-    }
-
   }
 }

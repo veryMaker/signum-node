@@ -9,25 +9,31 @@ import brs.props.Props;
 import brs.services.*;
 import brs.util.Subnet;
 import brs.util.ThreadPool;
+import org.eclipse.jetty.rewrite.handler.RewriteHandler;
+import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
+import org.eclipse.jetty.rewrite.handler.Rule;
 import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.servlets.DoSFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 public final class API {
 
@@ -36,6 +42,9 @@ public final class API {
   private static final Logger logger = LoggerFactory.getLogger(API.class);
   private static Server apiServer;
 
+  private static final String apiPath = "/burst";
+  private static final String apiTestPath = "/test";
+
   public API(TransactionProcessor transactionProcessor,
       Blockchain blockchain, BlockchainProcessor blockchainProcessor, ParameterService parameterService,
       AccountService accountService, AliasService aliasService,
@@ -43,7 +52,7 @@ public final class API {
       SubscriptionService subscriptionService, ATService atService,
       TimeService timeService, EconomicClustering economicClustering, PropertyService propertyService,
       ThreadPool threadPool, TransactionService transactionService, BlockService blockService,
-      Generator generator, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator, DeeplinkQRCodeGenerator deepLinkQRCodeGenerator) {
+      Generator generator, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator, DeeplinkQRCodeGenerator deepLinkQRCodeGenerator, IndirectIncomingService indirectIncomingService) {
 
     enableDebugAPI = propertyService.getBoolean(Props.API_DEBUG);
     List<String> allowedBotHostsList = propertyService.getStringList(Props.API_ALLOWED);
@@ -79,7 +88,7 @@ public final class API {
         https_config.setSecureScheme("https");
         https_config.setSecurePort(port);
         https_config.addCustomizer(new SecureRequestCustomizer());
-        SslContextFactory sslContextFactory = new SslContextFactory();
+        SslContextFactory sslContextFactory = new SslContextFactory.Server();
         sslContextFactory.setKeyStorePath(propertyService.getString(Props.API_SSL_KEY_STORE_PATH));
         sslContextFactory.setKeyStorePassword(propertyService.getString(Props.API_SSL_KEY_STORE_PASSWORD));
         sslContextFactory.setExcludeCipherSuites("SSL_RSA_WITH_DES_CBC_SHA",
@@ -122,14 +131,15 @@ public final class API {
         apiHandler.setWelcomeFiles(new String[]{"index.html"});
       }
 
-      ServletHolder peerServletHolder = new ServletHolder(new APIServlet(transactionProcessor, blockchain, blockchainProcessor, parameterService,
-                                                                         accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
-                                                                         subscriptionService, atService, timeService, economicClustering, transactionService, blockService, generator, propertyService,
-                                                                         apiTransactionManager, feeSuggestionCalculator, deepLinkQRCodeGenerator));
-      apiHandler.addServlet(peerServletHolder, "/burst");
+      APIServlet apiServlet = new APIServlet(transactionProcessor, blockchain, blockchainProcessor, parameterService,
+              accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
+              subscriptionService, atService, timeService, economicClustering, transactionService, blockService, generator, propertyService,
+              apiTransactionManager, feeSuggestionCalculator, deepLinkQRCodeGenerator, indirectIncomingService);
+      ServletHolder apiServletHolder = new ServletHolder(apiServlet);
+      apiHandler.addServlet(apiServletHolder, apiPath);
       
       if (propertyService.getBoolean(Props.JETTY_API_DOS_FILTER)) {
-        FilterHolder dosFilterHolder = apiHandler.addFilter(DoSFilter.class, "/burst", null);
+        FilterHolder dosFilterHolder = apiHandler.addFilter(DoSFilter.class, apiPath, null);
         dosFilterHolder.setInitParameter("maxRequestsPerSec", propertyService.getString(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_PER_SEC));
         dosFilterHolder.setInitParameter("throttledRequests", propertyService.getString(Props.JETTY_API_DOS_FILTER_THROTTLED_REQUESTS));
         dosFilterHolder.setInitParameter("delayMs",           propertyService.getString(Props.JETTY_API_DOS_FILTER_DELAY_MS));
@@ -145,17 +155,20 @@ public final class API {
         dosFilterHolder.setAsyncSupported(true);
       }
 
-      apiHandler.addServlet(APITestServlet.class, "/test");
+      apiHandler.addServlet(new ServletHolder(new APITestServlet(apiServlet)), apiTestPath);
 
-      if (propertyService.getBoolean(Props.API_CROSS_ORIGIN_FILTER)) {
-        FilterHolder filterHolder = apiHandler.addFilter(CrossOriginFilter.class, "/*", null);
-        filterHolder.setInitParameter("allowedHeaders", "*");
-        filterHolder.setAsyncSupported(true);
-      }
+      RewriteHandler rewriteHandler = new RewriteHandler();
+      rewriteHandler.setRewriteRequestURI(true);
+      rewriteHandler.setRewritePathInfo(false);
+      rewriteHandler.setOriginalPathAttribute("requestedPath");
+      rewriteHandler.setHandler(apiHandler);
+      Rule rewriteToRoot = new RegexOrExistsRewriteRule(new File(propertyService.getString(Props.API_UI_DIR)), "^(?!"+regexpEscapeUrl(apiPath)+"|"+regexpEscapeUrl(apiTestPath)+").*$", "/index.html");
+      rewriteHandler.addRule(rewriteToRoot);
+      apiHandlers.addHandler(rewriteHandler);
 
       if (propertyService.getBoolean(Props.JETTY_API_GZIP_FILTER)) {
         GzipHandler gzipHandler = new GzipHandler();
-        gzipHandler.setIncludedPaths("/burst");
+        gzipHandler.setIncludedPaths(apiPath);
         gzipHandler.setIncludedMethodList(propertyService.getString(Props.JETTY_API_GZIP_FILTER_METHODS));
         gzipHandler.setInflateBufferSize(propertyService.getInt(Props.JETTY_API_GZIP_FILTER_BUFFER_SIZE));
         gzipHandler.setMinGzipSize(propertyService.getInt(Props.JETTY_API_GZIP_FILTER_MIN_GZIP_SIZE));
@@ -164,7 +177,6 @@ public final class API {
       } else {
         apiHandlers.addHandler(apiHandler);
       }
-      apiHandlers.addHandler(new DefaultHandler());
 
       apiServer.setHandler(apiHandlers);
       apiServer.setStopAtShutdown(true);
@@ -187,6 +199,10 @@ public final class API {
 
   }
 
+  private String regexpEscapeUrl(String url) {
+    return url.replace("/", "\\/");
+  }
+
   public void shutdown() {
     if (apiServer != null) {
       try {
@@ -197,4 +213,18 @@ public final class API {
     }
   }
 
+  private static class RegexOrExistsRewriteRule extends RewriteRegexRule {
+
+    private final File baseDirectory;
+
+    public RegexOrExistsRewriteRule(File baseDirectory, String regex, String replacement) {
+      super(regex, replacement);
+      this.baseDirectory = baseDirectory;
+    }
+
+    @Override
+    public String apply(String target, HttpServletRequest request, HttpServletResponse response, Matcher matcher) throws IOException {
+      return new File(baseDirectory, target).exists() ? target : super.apply(target, request, response, matcher);
+    }
+  }
 }

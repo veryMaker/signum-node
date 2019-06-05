@@ -60,4 +60,8 @@ public abstract class AbstractIT {
   public void processBlock(JsonObject jsonFirstBlock) {
     processBlock.processRequest(jsonFirstBlock, null);
   }
+
+  public void rollback(int height) {
+    Burst.getBlockchainProcessor().popOffTo(0);
+  }
 }

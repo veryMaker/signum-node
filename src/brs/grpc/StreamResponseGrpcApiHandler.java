@@ -1,8 +1,10 @@
 package brs.grpc;
 
+import brs.grpc.proto.ProtoBuilder;
+import com.google.protobuf.Message;
 import io.grpc.stub.StreamObserver;
 
-public interface StreamResponseGrpcApiHandler<Request, Response> extends GrpcApiHandler<Request, Response> {
+public interface StreamResponseGrpcApiHandler<Request extends Message, Response extends Message> extends GrpcApiHandler<Request, Response> {
 
     @Override
     default Response handleRequest(Request request) {
@@ -16,7 +18,7 @@ public interface StreamResponseGrpcApiHandler<Request, Response> extends GrpcApi
         try {
             handleStreamRequest(request, responseObserver);
         } catch (Exception e) {
-            responseObserver.onError(e);
+            responseObserver.onError(ProtoBuilder.buildError(e));
         }
     }
 }
