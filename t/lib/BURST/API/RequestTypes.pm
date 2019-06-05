@@ -129,7 +129,7 @@ our $reqtypes = [ # we want to define a sequence of tests
         },
         args => {
             recipient              => '15001172709804754727',
-            messageToEncrypt       => 'Hi Gays',
+            messageToEncrypt       => 'Hi Guys',
             messageToEncryptIsText => 'true',
             secretPhrase           => 'Wallet API Test Account',
         },
