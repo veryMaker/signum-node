@@ -102,9 +102,9 @@ public class SqlATStore implements ATStore {
       AT.AP_CODE, AT.HEIGHT
     ).values(
       AtApiHelper.getLong(at.getId()), AtApiHelper.getLong(at.getCreator()), at.getName(), at.getDescription(),
-      at.getVersion(), at.getCsize(), at.getDsize(), at.getC_user_stack_bytes(),
-      at.getC_call_stack_bytes(), at.getCreationBlockHeight(),
-      brs.at.AT.compressState(at.getApCode()), Burst.getBlockchain().getHeight()
+      at.getVersion(), at.getcSize(), at.getdSize(), at.getcUserStackBytes(),
+      at.getcCallStackBytes(), at.getCreationBlockHeight(),
+      brs.at.AT.compressState(at.getApCodeBytes()), Burst.getBlockchain().getHeight()
     ).execute();
   }
 
@@ -129,8 +129,8 @@ public class SqlATStore implements ATStore {
       AT_STATE.NEXT_HEIGHT.lessOrEqual( Burst.getBlockchain().getHeight() + 1)
     ).and(
       ACCOUNT.BALANCE.greaterOrEqual(
-        AtConstants.getInstance().STEP_FEE(Burst.getBlockchain().getHeight())
-        * AtConstants.getInstance().API_STEP_MULTIPLIER(Burst.getBlockchain().getHeight())
+        AtConstants.getInstance().stepFee(Burst.getBlockchain().getHeight())
+        * AtConstants.getInstance().apiStepMultiplier(Burst.getBlockchain().getHeight())
       )
     ).and(
       AT_STATE.FREEZE_WHEN_SAME_BALANCE.isFalse().or(

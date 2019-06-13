@@ -413,10 +413,10 @@ public final class JSONData {
     json.addProperty("description", at.getDescription());
     json.addProperty("creator", Convert.toUnsignedLong(AtApiHelper.getLong(at.getCreator())));
     json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.getCreator())));
-    json.addProperty("machineCode", Convert.toHexString(at.getApCode()));
-    json.addProperty("machineData", Convert.toHexString(at.getApData()));
+    json.addProperty("machineCode", Convert.toHexString(at.getApCodeBytes()));
+    json.addProperty("machineData", Convert.toHexString(at.getApDataBytes()));
     json.addProperty("balanceNQT", Convert.toUnsignedLong(accountService.getAccount(id).getBalanceNQT()));
-    json.addProperty("prevBalanceNQT", Convert.toUnsignedLong(at.getP_balance()));
+    json.addProperty("prevBalanceNQT", Convert.toUnsignedLong(at.getpBalance()));
     json.addProperty("nextBlock", at.nextHeight());
     json.addProperty("frozen", at.freezeOnSameBalance());
     json.addProperty("running", at.getMachineState().isRunning());

@@ -94,7 +94,7 @@ final class CreateATProgram extends CreateTransaction {
 
         ByteBuffer creation = ByteBuffer.allocate(creationLength);
         creation.order(ByteOrder.LITTLE_ENDIAN);
-        creation.putShort(AtConstants.getInstance().AT_VERSION(blockchain.getHeight()));
+        creation.putShort(AtConstants.getInstance().atVersion(blockchain.getHeight()));
         creation.putShort((short) 0);
         creation.putShort((short) cpages);
         creation.putShort((short) dpages);

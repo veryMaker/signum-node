@@ -2472,7 +2472,7 @@ public interface Attachment extends Appendix {
 
       buffer.getShort(); //future: reserved for future needs
 
-      int pageSize = ( int ) AtConstants.getInstance().PAGE_SIZE( Burst.getBlockchain().getHeight() );
+      int pageSize = ( int ) AtConstants.getInstance().pageSize( Burst.getBlockchain().getHeight() );
       short codePages = buffer.getShort();
       short dataPages = buffer.getShort();
       buffer.getShort();

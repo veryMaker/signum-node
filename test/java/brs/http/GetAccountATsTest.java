@@ -4,7 +4,7 @@ import brs.Account;
 import brs.BurstException;
 import brs.at.AT;
 import brs.at.AtConstants;
-import brs.at.AtMachineState.Machine_State;
+import brs.at.AtMachineState;
 import brs.common.QuickMocker;
 import brs.services.ATService;
 import brs.services.AccountService;
@@ -55,7 +55,7 @@ public class GetAccountATsTest {
     final long mockATId = 1L;
     byte[] mockATIDBytes = new byte[ AtConstants.AT_ID_SIZE ];
     byte[] creatorBytes = new byte[]{(byte) 'c', (byte) 'r', (byte) 'e', (byte) 'a', (byte) 't', (byte) 'o', (byte) 'r'};
-    final Machine_State mockMachineState = mock(Machine_State.class);
+    final AtMachineState.MachineState mockMachineState = mock(AtMachineState.MachineState.class);
     final AT mockAT = mock(AT.class);
     when(mockAT.getCreator()).thenReturn(creatorBytes);
     when(mockAT.getId()).thenReturn(mockATIDBytes);

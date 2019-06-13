@@ -2,8 +2,10 @@ package brs.crypto;
 
 import burst.kit.crypto.BurstCrypto;
 import burst.kit.entity.BurstID;
+import org.bouncycastle.jcajce.provider.digest.MD5;
 
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public final class Crypto {
   static final BurstCrypto burstCrypto = BurstCrypto.getInstance();
@@ -21,6 +23,14 @@ public final class Crypto {
 
   public static MessageDigest ripemd160() {
     return burstCrypto.getRipeMD160();
+  }
+
+  public static MessageDigest md5() {// TODO unit test
+    try {
+      return MessageDigest.getInstance("MD5"); // TODO burstkit4j integration
+    } catch (NoSuchAlgorithmException e) {
+      return new MD5.Digest();
+    }
   }
 
   public static byte[] getPublicKey(String secretPhrase) {

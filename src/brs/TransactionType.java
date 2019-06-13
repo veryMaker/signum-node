@@ -2462,7 +2462,7 @@ public abstract class TransactionType {
         catch (AtException e) {
           throw new BurstException.NotCurrentlyValidException("Invalid AT creation bytes", e);
         }
-        long requiredFee = totalPages * AtConstants.getInstance().COST_PER_PAGE( transaction.getHeight() );
+        long requiredFee = totalPages * AtConstants.getInstance().costPerPage( transaction.getHeight() );
         if (transaction.getFeeNQT() <  requiredFee){
           throw new BurstException.NotValidException("Insufficient fee for AT creation. Minimum: " + Convert.toUnsignedLong(requiredFee / Constants.ONE_BURST));
         }
@@ -2474,7 +2474,6 @@ public abstract class TransactionType {
             throw new BurstException.NotValidException("Description of automated transaction over size limit");
           }
         }
-        //System.out.println("validating success");
       }
 
       @Override

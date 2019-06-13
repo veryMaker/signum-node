@@ -31,7 +31,6 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -1073,9 +1072,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     AT.clearPendingTransactions();
     try {
       atBlock = AtController.validateATs(block.getBlockATs(), blockchain.getHeight());
-    } catch (NoSuchAlgorithmException e) {
-      // should never reach that point
-      throw new BlockNotAcceptedException("md5 does not exist for block " + block.getHeight());
     } catch (AtException e) {
       throw new BlockNotAcceptedException("ats are not matching at block height " + blockchain.getHeight() + " (" + e + ")");
     }
