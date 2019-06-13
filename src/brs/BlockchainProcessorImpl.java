@@ -1,8 +1,9 @@
 package brs;
 
-import brs.at.AT_Block;
-import brs.at.AT_Controller;
-import brs.at.AT_Exception;
+import brs.at.AT;
+import brs.at.AtBlock;
+import brs.at.AtController;
+import brs.at.AtException;
 import brs.crypto.Crypto;
 import brs.db.BlockDb;
 import brs.db.DerivedTable;
@@ -1067,15 +1068,15 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     long calculatedRemainingAmount = 0;
     long calculatedRemainingFee = 0;
     // ATs
-    AT_Block atBlock;
+    AtBlock atBlock;
     AT.clearPendingFees();
     AT.clearPendingTransactions();
     try {
-      atBlock = AT_Controller.validateATs(block.getBlockATs(), blockchain.getHeight());
+      atBlock = AtController.validateATs(block.getBlockATs(), blockchain.getHeight());
     } catch (NoSuchAlgorithmException e) {
       // should never reach that point
       throw new BlockNotAcceptedException("md5 does not exist for block " + block.getHeight());
-    } catch (AT_Exception e) {
+    } catch (AtException e) {
       throw new BlockNotAcceptedException("ats are not matching at block height " + blockchain.getHeight() + " (" + e + ")");
     }
     calculatedRemainingAmount += atBlock.getTotalAmount();
@@ -1332,7 +1333,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       // ATs for block
       AT.clearPendingFees();
       AT.clearPendingTransactions();
-      AT_Block atBlock = AT_Controller.getCurrentBlockATs(payloadSize, previousBlock.getHeight() + 1);
+      AtBlock atBlock = AtController.getCurrentBlockATs(payloadSize, previousBlock.getHeight() + 1);
       byte[] byteATs = atBlock.getBytesForBlock();
 
       // digesting AT Bytes

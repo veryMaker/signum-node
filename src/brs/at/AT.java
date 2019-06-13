@@ -4,13 +4,10 @@
  Distributed under the MIT/X11 software license, please refer to the file LICENSE.txt
 */
 
-package brs;
+package brs.at;
 
 
-import brs.at.AT_API_Helper;
-import brs.at.AT_Controller;
-import brs.at.AT_Machine_State;
-import brs.at.AT_Transaction;
+import brs.*;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.services.AccountService;
@@ -28,17 +25,17 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-public class AT extends AT_Machine_State {
+public class AT extends AtMachineState {
     
   private static final LinkedHashMap<Long, Long> pendingFees = new LinkedHashMap<>();
-  private static final List<AT_Transaction> pendingTransactions = new ArrayList<>();
+  private static final List<AtTransaction> pendingTransactions = new ArrayList<>();
 
   public static class HandleATBlockTransactionsListener implements Listener<Block> {
     private final AccountService accountService;
     private final Blockchain blockchain;
     private final TransactionDb transactionDb;
 
-    HandleATBlockTransactionsListener(AccountService accountService, Blockchain blockchain, TransactionDb transactionDb) {
+    public HandleATBlockTransactionsListener(AccountService accountService, Blockchain blockchain, TransactionDb transactionDb) {
       this.accountService = accountService;
       this.blockchain = blockchain;
       this.transactionDb = transactionDb;
@@ -52,15 +49,15 @@ public class AT extends AT_Machine_State {
         });
 
         List<Transaction> transactions = new ArrayList<>();
-        for (AT_Transaction atTransaction : pendingTransactions) {
-          accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getAccount(AT_API_Helper.getLong(atTransaction.getSenderId())), -atTransaction.getAmount());
-          accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(AT_API_Helper.getLong(atTransaction.getRecipientId())), atTransaction.getAmount());
+        for (AtTransaction atTransaction : pendingTransactions) {
+          accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getAccount(AtApiHelper.getLong(atTransaction.getSenderId())), -atTransaction.getAmount());
+          accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.getRecipientId())), atTransaction.getAmount());
 
           Transaction.Builder builder = new Transaction.Builder((byte) 1, Genesis.getCreatorPublicKey(),
               atTransaction.getAmount(), 0L, block.getTimestamp(), (short) 1440, Attachment.AT_PAYMENT);
 
-          builder.senderId(AT_API_Helper.getLong(atTransaction.getSenderId()))
-              .recipientId(AT_API_Helper.getLong(atTransaction.getRecipientId()))
+          builder.senderId(AtApiHelper.getLong(atTransaction.getSenderId()))
+              .recipientId(AtApiHelper.getLong(atTransaction.getRecipientId()))
               .blockId(block.getId())
               .height(block.getHeight())
               .blockTimestamp(block.getTimestamp())
@@ -102,15 +99,15 @@ public class AT extends AT_Machine_State {
   }
 
   public static void addPendingFee(byte[] id, long fee) {
-    addPendingFee(AT_API_Helper.getLong(id), fee);
+    addPendingFee(AtApiHelper.getLong(id), fee);
   }
 
-  public static void addPendingTransaction(AT_Transaction atTransaction) {
+  public static void addPendingTransaction(AtTransaction atTransaction) {
     pendingTransactions.add(atTransaction);
   }
 
   public static boolean findPendingTransaction(byte[] recipientId) {
-    for (AT_Transaction tx : pendingTransactions) {
+    for (AtTransaction tx : pendingTransactions) {
       if (Arrays.equals(recipientId, tx.getRecipientId())) {
         return true;
       }
@@ -223,14 +220,14 @@ public class AT extends AT_Machine_State {
   }
 
   public static AT getAT(byte[] id) {
-    return getAT( AT_API_Helper.getLong( id ) );
+    return getAT( AtApiHelper.getLong( id ) );
   }
 
   public static AT getAT(Long id) {
     return Burst.getStores().getAtStore().getAT(id);
   }
 
-  static void addAT(Long atId, Long senderAccountId, String name, String description, byte[] creationBytes , int height) {
+  public static void addAT(Long atId, Long senderAccountId, String name, String description, byte[] creationBytes , int height) {
 
     ByteBuffer bf = ByteBuffer.allocate( 8 + 8 );
     bf.order( ByteOrder.LITTLE_ENDIAN );
@@ -248,7 +245,7 @@ public class AT extends AT_Machine_State {
 
     AT at = new AT( id , creator , name , description , creationBytes , height );
 
-    AT_Controller.resetMachine(at);
+    AtController.resetMachine(at);
 
     atTable().insert(at);
 
@@ -259,7 +256,7 @@ public class AT extends AT_Machine_State {
   }
 
   public void saveState() {
-    ATState state = atStateTable().get(atStateDbKeyFactory().newKey( AT_API_Helper.getLong( this.getId() ) ) );
+    ATState state = atStateTable().get(atStateDbKeyFactory().newKey( AtApiHelper.getLong( this.getId() ) ) );
     int prevHeight = Burst.getBlockchain().getHeight();
     int newNextHeight = prevHeight + getWaitForNumberOfBlocks();
     if (state != null) {
@@ -272,7 +269,7 @@ public class AT extends AT_Machine_State {
       state.setMinActivationAmount(minActivationAmount());
     }
     else {
-      state = new ATState(AT_API_Helper.getLong( this.getId() ),
+      state = new ATState(AtApiHelper.getLong( this.getId() ),
                           getState(), newNextHeight, getSleepBetween(),
                           getP_balance(), freezeOnSameBalance(), minActivationAmount());
     }
@@ -330,7 +327,7 @@ public class AT extends AT_Machine_State {
     super( atId , creator , creationBytes , height );
     this.name = name;
     this.description = description;
-    dbKey = atDbKeyFactory().newKey(AT_API_Helper.getLong(atId));
+    dbKey = atDbKeyFactory().newKey(AtApiHelper.getLong(atId));
     this.nextHeight = Burst.getBlockchain().getHeight();
   }
 
@@ -344,7 +341,7 @@ public class AT extends AT_Machine_State {
           freezeWhenSameBalance , minActivationAmount , apCode );
     this.name = name;
     this.description = description;
-    dbKey = atDbKeyFactory().newKey(AT_API_Helper.getLong(atId));
+    dbKey = atDbKeyFactory().newKey(AtApiHelper.getLong(atId));
     this.nextHeight = nextHeight;
   }
 

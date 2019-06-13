@@ -2,6 +2,7 @@ package brs.grpc.proto;
 
 import brs.*;
 import brs.assetexchange.AssetExchange;
+import brs.at.AT;
 import brs.crypto.EncryptedData;
 import brs.services.AccountService;
 import brs.services.BlockService;

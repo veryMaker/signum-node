@@ -12,7 +12,7 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class AT_API_Helper {
+public class AtApiHelper {
   //private static ByteBuffer buffer = ByteBuffer.allocate(8);
 
   public static int longToHeight(long x) {

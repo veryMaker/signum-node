@@ -1,9 +1,9 @@
 package brs.at;
 
-class AT_API_Controller {
-  private static final AT_API_Impl atApi = new AT_API_Impl();
+class AtApiController {
+  private static final AtApiImpl atApi = new AtApiImpl();
 
-  public static long func (int func_num, AT_Machine_State state) {
+  public static long func (int func_num, AtMachineState state) {
 
     switch (func_num) {
       case 256: return atApi.get_A1(state);
@@ -133,7 +133,7 @@ class AT_API_Controller {
     return 0;
   }
 
-  public static long func1( int func_num, long val, AT_Machine_State state) {
+  public static long func1( int func_num, long val, AtMachineState state) {
     switch (func_num) {
       case 272:
         atApi.set_A1( val, state);
@@ -175,7 +175,7 @@ class AT_API_Controller {
     return 0;
   }
 
-  public static long func2(int func_num, long val1, long val2, AT_Machine_State state) {
+  public static long func2(int func_num, long val1, long val2, AtMachineState state) {
     switch (func_num) {
       case 276:
         atApi.set_A1_A2(val1, val2, state);

@@ -1,9 +1,9 @@
 package brs.at;
 
-public class AT_Exception extends Exception {
+public class AtException extends Exception {
   private static final long serialVersionUID = 1L;
 
-  public AT_Exception(String message){
+  public AtException(String message){
     super(message);
   }
 }

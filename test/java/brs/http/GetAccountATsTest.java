@@ -1,10 +1,10 @@
 package brs.http;
 
-import brs.AT;
 import brs.Account;
 import brs.BurstException;
-import brs.at.AT_Constants;
-import brs.at.AT_Machine_State.Machine_State;
+import brs.at.AT;
+import brs.at.AtConstants;
+import brs.at.AtMachineState.Machine_State;
 import brs.common.QuickMocker;
 import brs.services.ATService;
 import brs.services.AccountService;
@@ -53,7 +53,7 @@ public class GetAccountATsTest {
     when(mockAccount.getId()).thenReturn(mockAccountId);
 
     final long mockATId = 1L;
-    byte[] mockATIDBytes = new byte[ AT_Constants.AT_ID_SIZE ];
+    byte[] mockATIDBytes = new byte[ AtConstants.AT_ID_SIZE ];
     byte[] creatorBytes = new byte[]{(byte) 'c', (byte) 'r', (byte) 'e', (byte) 'a', (byte) 't', (byte) 'o', (byte) 'r'};
     final Machine_State mockMachineState = mock(Machine_State.class);
     final AT mockAT = mock(AT.class);

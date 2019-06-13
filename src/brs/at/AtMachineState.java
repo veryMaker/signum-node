@@ -17,7 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.TreeSet;
 
 
-public class AT_Machine_State {
+public class AtMachineState {
 
   public class Machine_State {
     transient boolean running;
@@ -174,8 +174,8 @@ public class AT_Machine_State {
   private int c_user_stack_bytes;
   private int c_call_stack_bytes;
 
-  private byte[] atID = new byte[ AT_Constants.AT_ID_SIZE ];
-  private byte[] creator = new byte[ AT_Constants.AT_ID_SIZE ];
+  private byte[] atID = new byte[ AtConstants.AT_ID_SIZE ];
+  private byte[] creator = new byte[ AtConstants.AT_ID_SIZE ];
 
   private final int creationBlockHeight;
 
@@ -194,12 +194,12 @@ public class AT_Machine_State {
 
   private int height;
 
-  private final LinkedHashMap<ByteBuffer, AT_Transaction> transactions;
+  private final LinkedHashMap<ByteBuffer, AtTransaction> transactions;
 
-  protected AT_Machine_State(byte[] atId, byte[] creator, short version,
-                             byte[] stateBytes, int csize, int dsize, int c_user_stack_bytes, int c_call_stack_bytes,
-                             int creationBlockHeight, int sleepBetween,
-                             boolean freezeWhenSameBalance, long minActivationAmount, byte[] apCode) {
+  protected AtMachineState(byte[] atId, byte[] creator, short version,
+                           byte[] stateBytes, int csize, int dsize, int c_user_stack_bytes, int c_call_stack_bytes,
+                           int creationBlockHeight, int sleepBetween,
+                           boolean freezeWhenSameBalance, long minActivationAmount, byte[] apCode) {
     this.atID = atId;
     this.creator = creator;
     this.version = version;
@@ -222,8 +222,8 @@ public class AT_Machine_State {
     transactions = new LinkedHashMap<>();
   }
 
-  protected AT_Machine_State(byte[] atId, byte[] creator, byte[] creationBytes, int height) {
-    this.version = AT_Constants.getInstance().AT_VERSION( height );
+  protected AtMachineState(byte[] atId, byte[] creator, byte[] creationBytes, int height) {
+    this.version = AtConstants.getInstance().AT_VERSION( height );
     this.atID = atId;
     this.creator = creator;
 
@@ -237,7 +237,7 @@ public class AT_Machine_State {
 
     b.getShort(); //future: reserved for future needs
 
-    int pageSize = ( int ) AT_Constants.getInstance().PAGE_SIZE( height );
+    int pageSize = ( int ) AtConstants.getInstance().PAGE_SIZE( height );
     short codePages = b.getShort();
     short dataPages = b.getShort();
     short callStackPages = b.getShort();
@@ -369,14 +369,14 @@ public class AT_Machine_State {
     this.machineState.B4 = B4.clone();
   }
 
-  void addTransaction(AT_Transaction tx) {
+  void addTransaction(AtTransaction tx) {
     ByteBuffer recipId = ByteBuffer.wrap(tx.getRecipientId());
-    AT_Transaction oldTx = transactions.get(recipId);
+    AtTransaction oldTx = transactions.get(recipId);
     if (oldTx == null) {
       transactions.put(recipId, tx);
     }
     else {
-      AT_Transaction newTx = new AT_Transaction(tx.getSenderId(),
+      AtTransaction newTx = new AtTransaction(tx.getSenderId(),
                                                 tx.getRecipientId(),
                                                 oldTx.getAmount() + tx.getAmount(),
                                                 tx.getMessage() != null ? tx.getMessage() : oldTx.getMessage());
@@ -388,7 +388,7 @@ public class AT_Machine_State {
     transactions.clear();
   }
 
-  public Collection<AT_Transaction> getTransactions() {
+  public Collection<AtTransaction> getTransactions() {
     return transactions.values();
   }
 
@@ -507,7 +507,7 @@ public class AT_Machine_State {
   private byte[] getTransactionBytes() {
     ByteBuffer b = ByteBuffer.allocate( (creator.length + 8 ) * transactions.size() );
     b.order( ByteOrder.LITTLE_ENDIAN );
-    for (AT_Transaction tx : transactions.values() ) {
+    for (AtTransaction tx : transactions.values() ) {
         b.put( tx.getRecipientId() );
         b.putLong( tx.getAmount() );
       }

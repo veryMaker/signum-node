@@ -1,7 +1,7 @@
 package brs.http;
 
 import brs.*;
-import brs.at.AT_Constants;
+import brs.at.AtConstants;
 import brs.services.ParameterService;
 import brs.util.Convert;
 import brs.util.TextUtils;
@@ -94,7 +94,7 @@ final class CreateATProgram extends CreateTransaction {
 
         ByteBuffer creation = ByteBuffer.allocate(creationLength);
         creation.order(ByteOrder.LITTLE_ENDIAN);
-        creation.putShort(AT_Constants.getInstance().AT_VERSION(blockchain.getHeight()));
+        creation.putShort(AtConstants.getInstance().AT_VERSION(blockchain.getHeight()));
         creation.putShort((short) 0);
         creation.putShort((short) cpages);
         creation.putShort((short) dpages);

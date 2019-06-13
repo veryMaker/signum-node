@@ -7,7 +7,7 @@ import brs.fluxcapacitor.FluxValues;
 import java.util.HashMap;
 
 
-public class AT_Constants {
+public class AtConstants {
   private static final HashMap< Short, Long > MIN_FEE = new HashMap<>();
   private static final HashMap< Short, Long > STEP_FEE  = new HashMap<>();
   private static final HashMap< Short, Long > MAX_STEPS  = new HashMap<>();
@@ -34,9 +34,9 @@ public class AT_Constants {
   //platform based
   public static final int AT_ID_SIZE = 8;
 	
-  private static final AT_Constants instance = new AT_Constants();
+  private static final AtConstants instance = new AtConstants();
 	
-  private AT_Constants() {
+  private AtConstants() {
     // constants for AT version 1
     MIN_FEE.put( (short) 1, 1000L );
     STEP_FEE.put( (short) 1, Constants.ONE_BURST / 10L );
@@ -84,7 +84,7 @@ public class AT_Constants {
     // end of AT version 2
   }
 	
-  public static AT_Constants getInstance( ){
+  public static AtConstants getInstance( ){
     return instance;
   }
 	

@@ -2,7 +2,8 @@ package brs.http;
 
 import brs.*;
 import brs.Alias.Offer;
-import brs.at.AT_API_Helper;
+import brs.at.AT;
+import brs.at.AtApiHelper;
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
 import brs.peer.Peer;
@@ -410,8 +411,8 @@ public final class JSONData {
     json.addProperty("atVersion", at.getVersion());
     json.addProperty("name", at.getName());
     json.addProperty("description", at.getDescription());
-    json.addProperty("creator", Convert.toUnsignedLong(AT_API_Helper.getLong(at.getCreator())));
-    json.addProperty("creatorRS", Convert.rsAccount(AT_API_Helper.getLong(at.getCreator())));
+    json.addProperty("creator", Convert.toUnsignedLong(AtApiHelper.getLong(at.getCreator())));
+    json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.getCreator())));
     json.addProperty("machineCode", Convert.toHexString(at.getApCode()));
     json.addProperty("machineData", Convert.toHexString(at.getApData()));
     json.addProperty("balanceNQT", Convert.toUnsignedLong(accountService.getAccount(id).getBalanceNQT()));

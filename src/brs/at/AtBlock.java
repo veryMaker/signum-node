@@ -7,20 +7,20 @@
 */
 package brs.at;
 
-public class AT_Block {	
+public class AtBlock {
   private final long totalFees;
   private final long totalAmount;
   private final byte[] bytesForBlock;
   private final boolean validated;
 	
-  AT_Block( long totalFees, long totalAmount,  byte[] bytesForBlock ) {
+  AtBlock(long totalFees, long totalAmount, byte[] bytesForBlock ) {
     this.totalFees = totalFees;
     this.totalAmount = totalAmount;
     this.bytesForBlock = bytesForBlock;
     this.validated = true;
   }
 	
-  AT_Block( long totalFees, long totalAmount,  byte[] bytesForBlock, boolean validated) {
+  AtBlock(long totalFees, long totalAmount, byte[] bytesForBlock, boolean validated) {
     this.totalFees = totalFees;
     this.totalAmount = totalAmount;
     this.bytesForBlock = bytesForBlock;

@@ -1,6 +1,6 @@
 package brs.at;
 
-public enum AT_Error {	
+public enum AtError {
   INCORRECT_VERSION( 1, "The current AT version is not supported." ),
   INCORRECT_CODE_PAGES( 2, "Maximum number of code pages exceeded." ),
   INCORRECT_DATA_PAGES( 3, "Maximum number of data pages exceeded."),
@@ -16,7 +16,7 @@ public enum AT_Error {
   private final int code;
   private final String description;
 	
-  AT_Error(int code, String description) {
+  AtError(int code, String description) {
     this.code = code;
     this.description = description;
   }

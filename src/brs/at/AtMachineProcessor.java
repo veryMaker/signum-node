@@ -11,11 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.NOPLogger;
 
-class AT_Machine_Processor{
+class AtMachineProcessor {
   
   private final Logger logger;
 
-  private final AT_Machine_State machineData;
+  private final AtMachineState machineData;
   private final Fun fun = new Fun();
 
   private int getFun() {
@@ -160,9 +160,9 @@ class AT_Machine_Processor{
     int addr3;
   }
 
-  public AT_Machine_Processor( AT_Machine_State machineData, boolean enableLogger) {
+  public AtMachineProcessor(AtMachineState machineData, boolean enableLogger) {
     this.machineData = machineData;
-    this.logger = enableLogger ? LoggerFactory.getLogger(AT_Machine_Processor.class) : NOPLogger.NOP_LOGGER;
+    this.logger = enableLogger ? LoggerFactory.getLogger(AtMachineProcessor.class) : NOPLogger.NOP_LOGGER;
   }
 
   int processOp(boolean disassemble, boolean determine_jumps) {
@@ -774,7 +774,7 @@ class AT_Machine_Processor{
           int numBlocks = (int)machineData.getAp_data().getLong(fun.addr1 *8);
           if (numBlocks < 0)
             numBlocks = 0;
-          int maxNumBlocks = (int)AT_Constants.getInstance().get_MAX_WAIT_FOR_NUM_OF_BLOCKS(machineData.getCreationBlockHeight());
+          int maxNumBlocks = (int) AtConstants.getInstance().get_MAX_WAIT_FOR_NUM_OF_BLOCKS(machineData.getCreationBlockHeight());
           if (numBlocks > maxNumBlocks)
             numBlocks = maxNumBlocks;
           machineData.setWaitForNumberOfBlocks(numBlocks);
@@ -923,7 +923,7 @@ class AT_Machine_Processor{
         }
         else {
           machineData.getMachineState().pc += rc;
-          AT_API_Controller.func( fun.fun, machineData );
+          AtApiController.func( fun.fun, machineData );
         }
       }
     }
@@ -942,7 +942,7 @@ class AT_Machine_Processor{
         else {
           machineData.getMachineState().pc += rc;
           long val = (machineData.getAp_data()).getLong(fun.addr1 * 8);
-          AT_API_Controller.func1( fun.fun, val, machineData );
+          AtApiController.func1( fun.fun, val, machineData );
         }
       }
     }
@@ -966,7 +966,7 @@ class AT_Machine_Processor{
           long val1 = machineData.getAp_data().getLong((fun.addr3 * 8));
           long val2 = machineData.getAp_data().getLong((fun.addr2 * 8));
 
-          AT_API_Controller.func2(fun.fun, val1, val2, machineData);
+          AtApiController.func2(fun.fun, val1, val2, machineData);
         }
       }
     }
@@ -987,7 +987,7 @@ class AT_Machine_Processor{
         else {
           machineData.getMachineState().pc += rc;
 
-          machineData.getAp_data().putLong( fun.addr1*8,AT_API_Controller.func(fun.fun,machineData));
+          machineData.getAp_data().putLong( fun.addr1*8, AtApiController.func(fun.fun,machineData));
           machineData.getAp_data().clear();
         }
       }
@@ -1022,10 +1022,10 @@ class AT_Machine_Processor{
           long val = machineData.getAp_data().getLong(   ( fun.addr2 * 8 ) );
 
           if ( op != OpCode.e_op_code_EXT_FUN_RET_DAT_2 )
-            machineData.getAp_data().putLong(   ( fun.addr3 * 8 ),AT_API_Controller.func1( fun.fun, val,machineData));
+            machineData.getAp_data().putLong(   ( fun.addr3 * 8 ), AtApiController.func1( fun.fun, val,machineData));
           else {
             long val2 = machineData.getAp_data().getLong(   ( fun.addr1 * 8 ) );
-            machineData.getAp_data().putLong(   ( fun.addr3 * 8 ), AT_API_Controller.func2( fun.fun, val, val2,machineData ));
+            machineData.getAp_data().putLong(   ( fun.addr3 * 8 ), AtApiController.func2( fun.fun, val, val2,machineData ));
           }
           machineData.getAp_data().clear();
         }
