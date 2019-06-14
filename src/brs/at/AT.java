@@ -9,6 +9,7 @@ package brs.at;
 
 import brs.*;
 import brs.db.BurstKey;
+import brs.db.TransactionDb;
 import brs.db.VersionedEntityTable;
 import brs.services.AccountService;
 import brs.util.Listener;
