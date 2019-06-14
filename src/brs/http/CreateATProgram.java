@@ -35,7 +35,6 @@ final class CreateATProgram extends CreateTransaction {
 
   @Override
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
-    //String atVersion = req.getParameter("atVersion");		
     String name = req.getParameter(NAME_PARAMETER);
     String description = req.getParameter(DESCRIPTION_PARAMETER);
 
@@ -126,7 +125,6 @@ final class CreateATProgram extends CreateTransaction {
 
         creationBytes = creation.array();
       } catch (Exception e) {
-        e.printStackTrace(System.out);
         JsonObject response = new JsonObject();
         response.addProperty(ERROR_CODE_RESPONSE, 5);
         response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Invalid or not specified parameters");
@@ -141,7 +139,7 @@ final class CreateATProgram extends CreateTransaction {
     Account account = parameterService.getSenderAccount(req);
     Attachment attachment = new Attachment.AutomatedTransactionsCreation(name, description, creationBytes, blockchain.getHeight());
 
-    logger.debug("AT " + name + " added successfully");
+    logger.debug("AT {} added successfully", name);
     return createTransaction(req, account, attachment);
   }
 
