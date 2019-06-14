@@ -166,41 +166,14 @@ public abstract class AtController {
             // Ignore the minimum activation amount
             b.getLong();
 
-            int codeLen;
-            if (codePages * 256 < 257) {
-                codeLen = b.get();
-                if (codeLen < 0)
-                    codeLen += (Byte.MAX_VALUE + 1) * 2;
-            } else if (codePages * 256 < Short.MAX_VALUE + 1) {
-                codeLen = b.getShort();
-                if (codeLen < 0)
-                    codeLen += (Short.MAX_VALUE + 1) * 2;
-            } else if (codePages * 256 <= Integer.MAX_VALUE) {
-                codeLen = b.getInt();
-            } else {
-                throw new AtException(AtError.INCORRECT_CODE_LENGTH.getDescription());
-            }
-
+            int codeLen = getLength(codePages, b);
             if (codeLen < 1 || codeLen > codePages * 256) {
                 throw new AtException(AtError.INCORRECT_CODE_LENGTH.getDescription());
             }
             byte[] code = new byte[codeLen];
             b.get(code, 0, codeLen);
 
-            int dataLen;
-            if (dataPages * 256 < 257) {
-                dataLen = b.get();
-                if (dataLen < 0)
-                    dataLen += (Byte.MAX_VALUE + 1) * 2;
-            } else if (dataPages * 256 < Short.MAX_VALUE + 1) {
-                dataLen = b.getShort();
-                if (dataLen < 0)
-                    dataLen += (Short.MAX_VALUE + 1) * 2;
-            } else if (dataPages * 256 <= Integer.MAX_VALUE) {
-                dataLen = b.getInt();
-            } else {
-                throw new AtException(AtError.INCORRECT_CODE_LENGTH.getDescription());
-            }
+            int dataLen = getLength(dataPages, b);
             if (dataLen < 0 || dataLen > dataPages * 256) {
                 throw new AtException(AtError.INCORRECT_DATA_LENGTH.getDescription());
             }
@@ -220,6 +193,24 @@ public abstract class AtController {
         }
 
         return totalPages;
+    }
+
+    private static int getLength(int nPages, ByteBuffer buffer) throws AtException {
+        int codeLen;
+        if (nPages * 256 < 257) {
+            codeLen = buffer.get();
+            if (codeLen < 0)
+                codeLen += (Byte.MAX_VALUE + 1) * 2;
+        } else if (nPages * 256 < Short.MAX_VALUE + 1) {
+            codeLen = buffer.getShort();
+            if (codeLen < 0)
+                codeLen += (Short.MAX_VALUE + 1) * 2;
+        } else if (nPages * 256 <= Integer.MAX_VALUE) {
+            codeLen = buffer.getInt();
+        } else {
+            throw new AtException(AtError.INCORRECT_CODE_LENGTH.getDescription());
+        }
+        return codeLen;
     }
 
     public static AtBlock getCurrentBlockATs(int freePayload, int blockHeight) {

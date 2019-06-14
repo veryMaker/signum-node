@@ -100,24 +100,12 @@ final class CreateATProgram extends CreateTransaction {
         creation.putShort((short) cspages);
         creation.putShort((short) uspages);
         creation.putLong(minActivationAmount);
-        if (cpages * 256 <= 256) {
-          creation.put((byte) (code.length() / 2));
-        } else if (cpages * 256 <= 32767) {
-          creation.putShort((short) (code.length() / 2));
-        } else {
-          creation.putInt(code.length() / 2);
-        }
+        putLength(cpages, code, creation);
         byte[] codeBytes = Convert.parseHexString(code);
         if (codeBytes != null) {
           creation.put(codeBytes);
         }
-        if (dpages * 256 <= 256) {
-          creation.put((byte) (data.length() / 2));
-        } else if (dpages * 256 <= 32767) {
-          creation.putShort((short) (data.length() / 2));
-        } else {
-          creation.putInt(data.length() / 2);
-        }
+        putLength(dpages, data, creation);
         byte[] dataBytes = Convert.parseHexString(data);
         if (dataBytes != null) {
           creation.put(dataBytes);
@@ -143,4 +131,13 @@ final class CreateATProgram extends CreateTransaction {
     return createTransaction(req, account, attachment);
   }
 
+    private void putLength(int nPages, String string, ByteBuffer buffer) {
+        if (nPages * 256 <= 256) {
+            buffer.put((byte) (string.length() / 2));
+        } else if (nPages * 256 <= 32767) {
+            buffer.putShort((short) (string.length() / 2));
+        } else {
+            buffer.putInt(string.length() / 2);
+        }
+    }
 }
