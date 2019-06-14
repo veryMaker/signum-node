@@ -6,6 +6,7 @@ import brs.at.AT_Exception;
 import brs.crypto.Crypto;
 import brs.db.BlockDb;
 import brs.db.DerivedTable;
+import brs.db.TransactionDb;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.BlockchainStore;
 import brs.db.store.DerivedTableManager;
@@ -1042,7 +1043,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       } finally {
         stores.endTransaction();
       }
-      logger.debug("Successfully pushed " + block.getId() + " (height " + block.getHeight() + ")");
+      logger.debug("Successfully pushed {} (height {})", block.getId(), block.getHeight());
       statisticsManager.blockAdded();
       blockListeners.notify(block, Event.BLOCK_PUSHED);
       if (block.getTimestamp() >= timeService.getEpochTime() - MAX_TIMESTAMP_DIFFERENCE) {

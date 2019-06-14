@@ -1,10 +1,12 @@
-package brs;
+package brs.db;
 
+import brs.BurstException;
+import brs.Transaction;
 import brs.schema.tables.records.TransactionRecord;
 
 import java.util.List;
 
-public interface TransactionDb {
+public interface TransactionDb extends Table {
   Transaction findTransaction(long transactionId);
 
   Transaction findTransactionByFullHash(String fullHash); // TODO add byte[] method
@@ -18,5 +20,4 @@ public interface TransactionDb {
   List<Transaction> findBlockTransactions(long blockId);
 
   void saveTransactions(List<Transaction> transactions);
-
 }
