@@ -5,6 +5,7 @@ import brs.assetexchange.AssetExchangeImpl;
 import brs.at.AT.HandleATBlockTransactionsListener;
 import brs.blockchainlistener.DevNullListener;
 import brs.db.BlockDb;
+import brs.db.TransactionDb;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.sql.Db;
 import brs.db.store.BlockchainStore;
