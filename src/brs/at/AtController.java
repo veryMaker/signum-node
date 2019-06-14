@@ -280,14 +280,13 @@ public abstract class AtController {
 
     public static AtBlock validateATs(byte[] blockATs, int blockHeight) throws AtException {
         if (blockATs == null) {
-            return new AtBlock(0, 0, null, true);
+            return new AtBlock(0, 0, null);
         }
 
         LinkedHashMap<ByteBuffer, byte[]> ats = getATsFromBlock(blockATs);
 
         List<AT> processedATs = new ArrayList<>();
 
-        boolean validated = true;
         long totalFee = 0;
         MessageDigest digest = Crypto.md5();
         byte[] md5;
@@ -355,7 +354,7 @@ public abstract class AtController {
             at.saveState();
         }
 
-        return new AtBlock(totalFee, totalAmount, new byte[1], validated);
+        return new AtBlock(totalFee, totalAmount, new byte[1]);
     }
 
     private static LinkedHashMap<ByteBuffer, byte[]> getATsFromBlock(byte[] blockATs) throws AtException {
