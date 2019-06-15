@@ -346,7 +346,7 @@ public abstract class AtController {
                 }
             } catch (Exception e) {
                 debugLogger.debug("ATs error", e);
-                throw new AtException("ATs error. Block rejected (" + e + ")");
+                throw new AtException("ATs error. Block rejected", e);
             }
         }
 

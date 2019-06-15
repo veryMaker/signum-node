@@ -2,7 +2,6 @@ package brs.at;
 
 import brs.Account;
 import brs.Burst;
-import brs.common.TestConstants;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,12 +23,13 @@ public class ATTest {
 
     @Test
     public void testAddAt() {
+        AtTestHelper.clearAddedAts();
         AtomicBoolean helloWorldReceived = new AtomicBoolean(false);
         AtTestHelper.setOnAtAdded(at -> {
             assertEquals("HelloWorld", at.getName());
             helloWorldReceived.set(true);
         });
-        AT.addAT(0L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "HelloWorld", "Hello World AT", AtTestHelper.HELLO_WORLD_CREATION_BYTES, Integer.MAX_VALUE);
+        AtTestHelper.addHelloWorldAT();
         assertTrue(helloWorldReceived.get());
 
         AtomicBoolean echoReceived = new AtomicBoolean(false);
@@ -37,7 +37,7 @@ public class ATTest {
             assertEquals("Echo", at.getName());
             echoReceived.set(true);
         });
-        AT.addAT(0L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "Echo", "Message Echo AT", AtTestHelper.ECHO_CREATION_BYTES, Integer.MAX_VALUE);
+        AtTestHelper.addEchoAT();
         assertTrue(echoReceived.get());
 
         AtomicBoolean tipThanksReceived = new AtomicBoolean(false);
@@ -45,7 +45,8 @@ public class ATTest {
             assertEquals("TipThanks", at.getName());
             tipThanksReceived.set(true);
         });
-        AT.addAT(0L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "TipThanks", "Tip Thanks AT", AtTestHelper.TIP_THANKS_CREATION_BYTES, Integer.MAX_VALUE);
+        AtTestHelper.addTipThanksAT();
         assertTrue(tipThanksReceived.get());
+        assertEquals(3, AT.getOrderedATs().size());
     }
 }

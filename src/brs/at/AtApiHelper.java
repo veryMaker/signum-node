@@ -23,10 +23,9 @@ public class AtApiHelper {
         return buffer.getInt(4);
     }
 
-    public static long getLong(byte[] b) {
+    public static long getLong(byte[] b) { // TODO can these be made more efficient?
         ByteBuffer buffer = ByteBuffer.allocate(8);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.position(0);
         buffer.put(b);
         return buffer.getLong(0);
     }
