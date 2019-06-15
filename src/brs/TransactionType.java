@@ -2477,20 +2477,14 @@ public abstract class TransactionType {
       }
 
       @Override
-      void applyAttachment(Transaction transaction,
-                           Account senderAccount, Account recipientAccount) {
-        // TODO Auto-generated method stub
+      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AutomatedTransactionsCreation attachment = (Attachment.AutomatedTransactionsCreation) transaction.getAttachment();
-        Long atId = transaction.getId();
-        //System.out.println("Applying AT attachent");
         AT.addAT( transaction.getId() , transaction.getSenderId() , attachment.getName() , attachment.getDescription() , attachment.getCreationBytes() , transaction.getHeight() );
-        //System.out.println("At with id "+atId+" successfully applied");
       }
 
 
       @Override
       public boolean hasRecipient() {
-        // TODO Auto-generated method stub
         return false;
       }
     };

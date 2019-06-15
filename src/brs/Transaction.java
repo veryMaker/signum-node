@@ -433,10 +433,9 @@ public class Transaction implements Comparable<Transaction> {
       buffer.put((byte) ((version << 4) | ( type.getSubtype() & 0xff ) ));
       buffer.putInt(timestamp);
       buffer.putShort(deadline);
-      if(type.isSigned() || ! Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4)) {
+      if(type.isSigned() || !Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4)) {
         buffer.put(senderPublicKey);
-      }
-      else {
+      } else {
         buffer.putLong(senderId.get());
         buffer.put(new byte[24]);
       }

@@ -107,7 +107,7 @@ public final class Burst {
   private Burst() {
   } // never
 
-  public static BlockchainImpl getBlockchain() {
+  public static Blockchain getBlockchain() {
     return blockchain;
   }
 
