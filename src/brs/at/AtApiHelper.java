@@ -8,91 +8,69 @@
 
 package brs.at;
 
+import org.bouncycastle.util.Arrays;
+
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class AtApiHelper {
     private AtApiHelper() {
     }
 
     public static int longToHeight(long x) {
-        ByteBuffer buffer = ByteBuffer.allocate(8);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.putLong(0, x);
-        return buffer.getInt(4);
+        return (int) (x >> 32);
     }
 
-    public static long getLong(byte[] b) { // TODO can these be made more efficient?
-        ByteBuffer buffer = ByteBuffer.allocate(8);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.put(b);
-        return buffer.getLong(0);
+    public static long getLong(byte[] bytes) {
+        long result = 0L;
+        // TODO use burstkit4j once its method is less bloated
+        for(int i = 0; i < 8; ++i) {
+            result <<= 8;
+            result |= (long)(bytes[7 - i] & 255);
+        }
+        return result;
     }
 
     public static byte[] getByteArray(long l) {
-        ByteBuffer buffer = ByteBuffer.allocate(8);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.clear();
-        buffer.putLong(l);
-        return buffer.array();
+        return new byte[]{
+                (byte) (l & 0xFFL),
+                (byte) ((l & 0xFF00L) >> 8),
+                (byte) ((l & 0xFF0000L) >> 16),
+                (byte) ((l & 0xFF000000L) >> 24),
+                (byte) ((l & 0xFF00000000L) >> 32),
+                (byte) ((l & 0xFF0000000000L) >> 40),
+                (byte) ((l & 0xFF000000000000L) >> 48),
+                (byte) ((l & 0xFF00000000000000L) >> 56),
+        };
     }
 
     public static int longToNumOfTx(long x) {
-        ByteBuffer buffer = ByteBuffer.allocate(8);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.putLong(0, x);
-        return buffer.getInt(0);
+        return (int) x;
     }
 
     static long getLongTimestamp(int height, int numOfTx) {
-        ByteBuffer buffer = ByteBuffer.allocate(8);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.putInt(4, height);
-        buffer.putInt(0, numOfTx);
-        return buffer.getLong(0);
+        return ((long) height) << 32 | numOfTx;
     }
 
     public static BigInteger getBigInteger(byte[] b1, byte[] b2, byte[] b3, byte[] b4) {
-        ByteBuffer buffer = ByteBuffer.allocate(32);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.put(b1);
-        buffer.put(b2);
-        buffer.put(b3);
-        buffer.put(b4);
-
-        byte[] bytes = buffer.array();
-
         return new BigInteger(new byte[]{
-                bytes[31], bytes[30], bytes[29], bytes[28], bytes[27], bytes[26], bytes[25], bytes[24],
-                bytes[23], bytes[22], bytes[21], bytes[20], bytes[19], bytes[18], bytes[17], bytes[16],
-                bytes[15], bytes[14], bytes[13], bytes[12], bytes[11], bytes[10], bytes[9], bytes[8],
-                bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0]
+                b4[7], b4[6], b4[5], b4[4], b4[3], b4[2], b4[1], b4[0],
+                b3[7], b3[6], b3[5], b3[4], b3[3], b3[2], b3[1], b3[0],
+                b2[7], b2[6], b2[5], b2[4], b2[3], b2[2], b2[1], b2[0],
+                b1[7], b1[6], b1[5], b1[4], b1[3], b1[2], b1[1], b1[0],
         });
     }
 
     public static byte[] getByteArray(BigInteger bigInt) {
-        byte[] bigIntBytes = bigInt.toByteArray();
-        ByteBuffer paddedBytesBuffer = ByteBuffer.allocate(32);
-        byte padding;
-        if (bigIntBytes.length < 32) {
-            padding = (byte) (((byte) (bigIntBytes[0] & ((byte) 0x80))) >> 7);
-            for (int i = 0; i < 32 - bigIntBytes.length; i++)
-                paddedBytesBuffer.put(padding);
+        final int resultSize = 32;
+        byte[] bigIntBytes = Arrays.reverse(bigInt.toByteArray());
+        byte[] result = new byte[resultSize];
+        if (bigIntBytes.length < resultSize) {
+            byte padding = (byte) (((byte) (bigIntBytes[bigIntBytes.length-1] & ((byte) 0x80))) >> 7);
+            for (int i = 0, length=resultSize-bigIntBytes.length; i < length; i++) {
+                result[resultSize-1-i] = padding;
+            }
         }
-
-        paddedBytesBuffer.put(bigIntBytes, (32 >= bigIntBytes.length) ? 0
-                        : (bigIntBytes.length - 32),
-                (32 > bigIntBytes.length) ? bigIntBytes.length
-                        : 32
-        );
-        paddedBytesBuffer.clear();
-        byte[] padded = paddedBytesBuffer.array();
-        return new byte[]{
-                padded[31], padded[30], padded[29], padded[28], padded[27], padded[26], padded[25], padded[24],
-                padded[23], padded[22], padded[21], padded[20], padded[19], padded[18], padded[17], padded[16],
-                padded[15], padded[14], padded[13], padded[12], padded[11], padded[10], padded[9], padded[8],
-                padded[7], padded[6], padded[5], padded[4], padded[3], padded[2], padded[1], padded[0]
-        };
+        System.arraycopy(bigIntBytes, 0, result, 0, (resultSize >= bigIntBytes.length) ? bigIntBytes.length : resultSize);
+        return result;
     }
 }

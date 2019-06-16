@@ -50,6 +50,7 @@ public class AtApiHelperTest {
         assertEquals("0123456789ab0000000000000000000000000000000000000000000000000000", Convert.toHexString(AtApiHelper.getByteArray(BigInteger.valueOf(0x0000ab8967452301L))));
         assertEquals("0123456789abcd00000000000000000000000000000000000000000000000000", Convert.toHexString(AtApiHelper.getByteArray(BigInteger.valueOf(0x00cdab8967452301L))));
         assertEquals("0123456789abcdefffffffffffffffffffffffffffffffffffffffffffffffff", Convert.toHexString(AtApiHelper.getByteArray(BigInteger.valueOf(0xefcdab8967452301L))));
+        assertEquals("0123456789abcdef0123456789abcdef00000000000000000000000000000000", Convert.toHexString(AtApiHelper.getByteArray(new BigInteger("efcdab8967452301efcdab8967452301", 16))));
         assertEquals("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", Convert.toHexString(AtApiHelper.getByteArray(new BigInteger("efcdab8967452301efcdab8967452301efcdab8967452301efcdab8967452301", 16))));
     }
 
