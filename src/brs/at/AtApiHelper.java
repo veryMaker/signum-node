@@ -23,9 +23,9 @@ public class AtApiHelper {
     public static long getLong(byte[] bytes) {
         long result = 0L;
         // TODO use burstkit4j once its method is less bloated
-        for(int i = 0; i < 8; ++i) {
+        for(int i = 0, length = Math.min(8, bytes.length)-1; i <= length; ++i) {
             result <<= 8;
-            result |= (long)(bytes[7 - i] & 255);
+            result |= (long)(bytes[length-i] & 255);
         }
         return result;
     }
