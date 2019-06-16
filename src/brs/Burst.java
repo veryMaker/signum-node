@@ -2,6 +2,7 @@ package brs;
 
 import brs.assetexchange.AssetExchange;
 import brs.assetexchange.AssetExchangeImpl;
+import brs.at.AT;
 import brs.db.BlockDb;
 import brs.db.TransactionDb;
 import brs.db.cache.DBCacheManagerImpl;
@@ -263,7 +264,7 @@ public final class Burst {
   private static void addBlockchainListeners(BlockchainProcessor blockchainProcessor, AccountService accountService, DGSGoodsStoreService goodsService, Blockchain blockchain,
       TransactionDb transactionDb) {
 
-    final HandleATBlockTransactionsListener handleATBlockTransactionListener = new HandleATBlockTransactionsListener(accountService, blockchain, transactionDb);
+    final AT.HandleATBlockTransactionsListener handleATBlockTransactionListener = new AT.HandleATBlockTransactionsListener(accountService, blockchain, transactionDb);
     final DGSGoodsStoreServiceImpl.ExpiredPurchaseListener devNullListener = new DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(accountService, goodsService);
 
     blockchainProcessor.addListener(handleATBlockTransactionListener, BlockchainProcessor.Event.AFTER_BLOCK_APPLY);
