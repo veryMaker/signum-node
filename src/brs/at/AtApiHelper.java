@@ -11,6 +11,7 @@ package brs.at;
 import org.bouncycastle.util.Arrays;
 
 import java.math.BigInteger;
+import java.nio.BufferOverflowException;
 
 public class AtApiHelper {
     private AtApiHelper() {
@@ -21,6 +22,9 @@ public class AtApiHelper {
     }
 
     public static long getLong(byte[] bytes) {
+        if (bytes.length > 8) {
+            throw new BufferOverflowException();
+        }
         long result = 0L;
         // TODO use burstkit4j once its method is less bloated
         for(int i = 0, length = Math.min(8, bytes.length)-1; i <= length; ++i) {

@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.math.BigInteger;
+import java.nio.BufferOverflowException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,13 +23,18 @@ public class AtApiHelperTest {
         assertEquals(0x0000ab8967452301L, AtApiHelper.getLong(Convert.parseHexString("0123456789ab0000")));
         assertEquals(0x00cdab8967452301L, AtApiHelper.getLong(Convert.parseHexString("0123456789abcd00")));
         assertEquals(0xefcdab8967452301L, AtApiHelper.getLong(Convert.parseHexString("0123456789abcdef")));
-        assertEquals(0xefcdab8967452301L, AtApiHelper.getLong(Convert.parseHexString("0123456789abcdef0123456789abcdef")));
     }
 
     @Test(expected = NullPointerException.class)
     public void testGetLong_null() {
         //noinspection ConstantConditions,ResultOfMethodCallIgnored
         AtApiHelper.getLong(null);
+    }
+
+    @Test(expected = BufferOverflowException.class)
+    public void testGetLong_overflow() {
+        //noinspection ResultOfMethodCallIgnored
+        AtApiHelper.getLong(Convert.parseHexString("0123456789abcdef0123456789abcdef"));
     }
     
     @Test
