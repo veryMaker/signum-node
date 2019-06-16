@@ -1,6 +1,6 @@
 package brs.db.store;
 
-import brs.AT;
+import brs.at.AT;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 

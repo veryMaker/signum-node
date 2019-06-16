@@ -1,6 +1,5 @@
 package brs;
 
-import brs.AT.HandleATBlockTransactionsListener;
 import brs.assetexchange.AssetExchange;
 import brs.assetexchange.AssetExchangeImpl;
 import brs.db.BlockDb;
@@ -106,7 +105,7 @@ public final class Burst {
   private Burst() {
   } // never
 
-  public static BlockchainImpl getBlockchain() {
+  public static Blockchain getBlockchain() {
     return blockchain;
   }
 

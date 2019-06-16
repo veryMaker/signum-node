@@ -1,7 +1,7 @@
 package brs.http;
 
 import brs.*;
-import brs.at.AT_Constants;
+import brs.at.AtConstants;
 import brs.services.ParameterService;
 import brs.util.Convert;
 import brs.util.TextUtils;
@@ -35,7 +35,6 @@ final class CreateATProgram extends CreateTransaction {
 
   @Override
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
-    //String atVersion = req.getParameter("atVersion");		
     String name = req.getParameter(NAME_PARAMETER);
     String description = req.getParameter(DESCRIPTION_PARAMETER);
 
@@ -94,31 +93,19 @@ final class CreateATProgram extends CreateTransaction {
 
         ByteBuffer creation = ByteBuffer.allocate(creationLength);
         creation.order(ByteOrder.LITTLE_ENDIAN);
-        creation.putShort(AT_Constants.getInstance().AT_VERSION(blockchain.getHeight()));
+        creation.putShort(AtConstants.getInstance().atVersion(blockchain.getHeight()));
         creation.putShort((short) 0);
         creation.putShort((short) cpages);
         creation.putShort((short) dpages);
         creation.putShort((short) cspages);
         creation.putShort((short) uspages);
         creation.putLong(minActivationAmount);
-        if (cpages * 256 <= 256) {
-          creation.put((byte) (code.length() / 2));
-        } else if (cpages * 256 <= 32767) {
-          creation.putShort((short) (code.length() / 2));
-        } else {
-          creation.putInt(code.length() / 2);
-        }
+        putLength(cpages, code, creation);
         byte[] codeBytes = Convert.parseHexString(code);
         if (codeBytes != null) {
           creation.put(codeBytes);
         }
-        if (dpages * 256 <= 256) {
-          creation.put((byte) (data.length() / 2));
-        } else if (dpages * 256 <= 32767) {
-          creation.putShort((short) (data.length() / 2));
-        } else {
-          creation.putInt(data.length() / 2);
-        }
+        putLength(dpages, data, creation);
         byte[] dataBytes = Convert.parseHexString(data);
         if (dataBytes != null) {
           creation.put(dataBytes);
@@ -126,7 +113,6 @@ final class CreateATProgram extends CreateTransaction {
 
         creationBytes = creation.array();
       } catch (Exception e) {
-        e.printStackTrace(System.out);
         JsonObject response = new JsonObject();
         response.addProperty(ERROR_CODE_RESPONSE, 5);
         response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Invalid or not specified parameters");
@@ -141,8 +127,17 @@ final class CreateATProgram extends CreateTransaction {
     Account account = parameterService.getSenderAccount(req);
     Attachment attachment = new Attachment.AutomatedTransactionsCreation(name, description, creationBytes, blockchain.getHeight());
 
-    logger.debug("AT " + name + " added successfully");
+    logger.debug("AT {} added successfully", name);
     return createTransaction(req, account, attachment);
   }
 
+    private void putLength(int nPages, String string, ByteBuffer buffer) {
+        if (nPages * 256 <= 256) {
+            buffer.put((byte) (string.length() / 2));
+        } else if (nPages * 256 <= 32767) {
+            buffer.putShort((short) (string.length() / 2));
+        } else {
+            buffer.putInt(string.length() / 2);
+        }
+    }
 }

@@ -2,6 +2,7 @@ package brs.grpc.proto;
 
 import brs.*;
 import brs.assetexchange.AssetExchange;
+import brs.at.AT;
 import brs.crypto.EncryptedData;
 import brs.services.AccountService;
 import brs.services.BlockService;
@@ -101,7 +102,8 @@ public final class ProtoBuilder {
 
     public static BrsApi.BasicTransaction buildBasicTransaction(Transaction transaction) {
         BrsApi.BasicTransaction.Builder builder = BrsApi.BasicTransaction.newBuilder()
-                .setSender(buildByteString(transaction.getSenderPublicKey()))
+                .setSenderPublicKey(buildByteString(transaction.getSenderPublicKey()))
+                .setSenderId(transaction.getSenderId())
                 .setRecipient(transaction.getRecipientId())
                 .setVersion(transaction.getVersion())
                 .setType(transaction.getType().getType())
@@ -163,10 +165,10 @@ public final class ProtoBuilder {
                 .setVersion(at.getVersion())
                 .setName(at.getName())
                 .setDescription(at.getDescription())
-                .setMachineCode(buildByteString(at.getApCode()))
-                .setMachineData(buildByteString(at.getApData()))
+                .setMachineCode(buildByteString(at.getApCodeBytes()))
+                .setMachineData(buildByteString(at.getApDataBytes()))
                 .setBalance(accountService.getAccount(atId).getBalanceNQT())
-                .setPreviousBalance(at.getP_balance())
+                .setPreviousBalance(at.getpBalance())
                 .setNextBlock(at.nextHeight())
                 .setFrozen(at.freezeOnSameBalance())
                 .setRunning(at.getMachineState().isRunning())
@@ -348,7 +350,8 @@ public final class ProtoBuilder {
 
     public static Transaction parseBasicTransaction(Blockchain blockchain, BrsApi.BasicTransaction basicTransaction) throws ApiException {
         try {
-            Transaction.Builder transactionBuilder = new Transaction.Builder(((byte) basicTransaction.getVersion()), basicTransaction.getSender().toByteArray(), basicTransaction.getAmount(), basicTransaction.getFee(), basicTransaction.getTimestamp(), ((short) basicTransaction.getDeadline()), Attachment.AbstractAttachment.parseProtobufMessage(basicTransaction.getAttachment()))
+            Transaction.Builder transactionBuilder = new Transaction.Builder(((byte) basicTransaction.getVersion()), basicTransaction.getSenderPublicKey().toByteArray(), basicTransaction.getAmount(), basicTransaction.getFee(), basicTransaction.getTimestamp(), ((short) basicTransaction.getDeadline()), Attachment.AbstractAttachment.parseProtobufMessage(basicTransaction.getAttachment()))
+                    .senderId(basicTransaction.getSenderId())
                     .recipientId(basicTransaction.getRecipient());
 
             if (basicTransaction.getReferencedTransactionFullHash().size() > 0) {
@@ -366,8 +369,12 @@ public final class ProtoBuilder {
                         switch (encryptedMessageAppendix.getType()) {
                             case TO_RECIPIENT:
                                 transactionBuilder.encryptedMessage(new Appendix.EncryptedMessage(encryptedMessageAppendix, blockchainHeight));
+                                break;
                             case TO_SELF:
                                 transactionBuilder.encryptToSelfMessage(new Appendix.EncryptToSelfMessage(encryptedMessageAppendix, blockchainHeight));
+                                break;
+                            default:
+                                throw new ApiException("Invalid encrypted message type: " + encryptedMessageAppendix.getType().name());
                         }
                     } else if (appendix.is(BrsApi.PublicKeyAnnouncementAppendix.class)) {
                         transactionBuilder.publicKeyAnnouncement(new Appendix.PublicKeyAnnouncement(appendix.unpack(BrsApi.PublicKeyAnnouncementAppendix.class), blockchainHeight));
@@ -376,7 +383,6 @@ public final class ProtoBuilder {
                     throw new ApiException("Failed to unpack Any: " + e.getMessage());
                 }
             }
-
             return transactionBuilder.build();
         } catch (BurstException.NotValidException e) {
             throw new ApiException("Transaction not valid: " + e.getMessage());

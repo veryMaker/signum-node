@@ -156,7 +156,6 @@ public final class APIServlet extends HttpServlet {
       map.put("clearUnconfirmedTransactions", new ClearUnconfirmedTransactions(transactionProcessor));
       map.put("fullReset", new FullReset(blockchainProcessor));
       map.put("popOff", new PopOff(blockchainProcessor, blockchain, blockService));
-      map.put("scan", new Scan(blockchainProcessor, blockchain));
     }
 
     apiRequestHandlers = Collections.unmodifiableMap(map);

@@ -1,7 +1,7 @@
 package brs;
 
 import brs.TransactionType.Payment;
-import brs.at.AT_Constants;
+import brs.at.AtConstants;
 import brs.crypto.EncryptedData;
 import brs.grpc.proto.BrsApi;
 import brs.grpc.proto.ProtoBuilder;
@@ -2466,13 +2466,13 @@ public interface Attachment extends Appendix {
       this.description = Convert.readString( buffer , buffer.getShort() , Constants.MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH );
 
       // rest of the parsing is at related; code comes from
-      // public AT_Machine_State( byte[] atId, byte[] creator, byte[] creationBytes, int height ) {
+      // public AtMachineState( byte[] atId, byte[] creator, byte[] creationBytes, int height ) {
       int startPosition = buffer.position();
       buffer.getShort();
 
       buffer.getShort(); //future: reserved for future needs
 
-      int pageSize = ( int ) AT_Constants.getInstance().PAGE_SIZE( Burst.getBlockchain().getHeight() );
+      int pageSize = ( int ) AtConstants.getInstance().pageSize( Burst.getBlockchain().getHeight() );
       short codePages = buffer.getShort();
       short dataPages = buffer.getShort();
       buffer.getShort();

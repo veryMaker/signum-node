@@ -81,7 +81,6 @@ public final class Parameters {
   public static final String NUM_BLOCKS_PARAMETER = "numBlocks";
   public static final String BLOCK_PARAMETER = "block";
   public static final String INCLUDE_COUNTS_PARAMETER = "includeCounts";
-  public static final String VALIDATE_PARAMETER = "validate";
   public static final String DEADLINE_PARAMETER = "deadline";
   public static final String REFERENCED_TRANSACTION_FULL_HASH_PARAMETER = "referencedTransactionFullHash";
   public static final String REFERENCED_TRANSACTION_PARAMETER = "referencedTransaction";

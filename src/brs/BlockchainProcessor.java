@@ -31,13 +31,7 @@ public interface BlockchainProcessor extends Observable<Block, BlockchainProcess
   void generateBlock(String secretPhrase, byte[] publicKey, Long nonce)
       throws BlockNotAcceptedException;
 
-  void scan(int height);
-
-  void forceScanAtStart();
-
-  void validateAtNextScan();
-
-  List<? extends Block> popOffTo(int height);
+  List<Block> popOffTo(int height);
 
   class BlockNotAcceptedException extends BurstException {
 

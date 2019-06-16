@@ -18,9 +18,6 @@ public class Props {
 
   public static final Prop<String> DEV_DUMP_PEERS_VERSION = new Prop<>("DEV.dumpPeersVersion", "");
 
-  public static final Prop<Boolean> DEV_FORCE_VALIDATE = new Prop<>("DEV.forceValidate", false);
-  public static final Prop<Boolean> DEV_FORCE_SCAN     = new Prop<>("DEV.forceScan", false);
-
   public static final Prop<String> DEV_P2P_REBROADCAST_TO  = new Prop<>("DEV.P2P.rebroadcastTo", "");
   public static final Prop<String> DEV_P2P_BOOTSTRAP_PEERS = new Prop<>("DEV.P2P.BootstrapPeers", "");
 
