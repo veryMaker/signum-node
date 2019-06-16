@@ -13,7 +13,6 @@ import org.jooq.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import static brs.schema.Tables.BLOCK;
 import static brs.schema.Tables.TRANSACTION;
@@ -69,7 +68,7 @@ public class SqlBlockchainStore implements BlockchainStore {
   }
 
   @Override
-  public List<Long> getBlockIdsAfter(long blockId, int limit) {
+  public Collection<Long> getBlockIdsAfter(long blockId, int limit) {
     if (limit > 1440) {
       throw new IllegalArgumentException("Can't get more than 1440 blocks at a time");
     }
@@ -86,7 +85,7 @@ public class SqlBlockchainStore implements BlockchainStore {
   }
 
   @Override
-  public List<Block> getBlocksAfter(long blockId, int limit) {
+  public Collection<Block> getBlocksAfter(long blockId, int limit) {
     if (limit > 1440) {
       throw new IllegalArgumentException("Can't get more than 1440 blocks at a time");
     }
