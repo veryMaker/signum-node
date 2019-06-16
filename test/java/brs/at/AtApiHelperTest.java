@@ -27,6 +27,7 @@ public class AtApiHelperTest {
 
     @Test(expected = NullPointerException.class)
     public void testGetLong_null() {
+        //noinspection ConstantConditions,ResultOfMethodCallIgnored
         AtApiHelper.getLong(null);
     }
     
@@ -58,6 +59,7 @@ public class AtApiHelperTest {
 
     @Test(expected = NullPointerException.class)
     public void testGetByteArray_null() {
+        //noinspection ConstantConditions
         AtApiHelper.getByteArray(null);
     }
     
