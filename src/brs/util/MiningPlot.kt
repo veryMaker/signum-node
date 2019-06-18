@@ -31,8 +31,8 @@ class MiningPlot(addr: Long, nonce: Long, blockHeight: Int, fluxCapacitor: FluxC
             i -= HASH_SIZE
         }
         val finalhash = shabal256.digest(gendata)
-        for (i in 0 until PLOT_SIZE) {
-            data[i] = (gendata[i] xor finalhash[i % HASH_SIZE])
+        for (index in 0 until PLOT_SIZE) {
+            data[index] = (gendata[index] xor finalhash[index % HASH_SIZE])
         }
         //PoC2 Rearrangement
         if (fluxCapacitor.getValue(FluxValues.POC2, blockHeight)) {
