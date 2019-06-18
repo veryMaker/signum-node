@@ -13,14 +13,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.ResultFields.TIME_RESPONSE;
 
-final class GetBlockchainStatus extends APIServlet.APIRequestHandler {
+final class GetBlockchainStatus extends APIServlet.JsonRequestHandler {
 
   private final BlockchainProcessor blockchainProcessor;
   private final Blockchain blockchain;
   private final TimeService timeService;
 
   GetBlockchainStatus(BlockchainProcessor blockchainProcessor, Blockchain blockchain, TimeService timeService) {
-    super(new APITag[] {APITag.BLOCKS, APITag.INFO});
+    super(new APITag[]{APITag.BLOCKS, APITag.INFO});
     this.blockchainProcessor = blockchainProcessor;
     this.blockchain = blockchain;
     this.timeService = timeService;

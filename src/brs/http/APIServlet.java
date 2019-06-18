@@ -11,6 +11,7 @@ import brs.util.JSON;
 import brs.util.Subnet;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,19 +29,20 @@ public final class APIServlet extends HttpServlet {
 
   private static final Logger logger = LoggerFactory.getLogger(APIServlet.class);
 
+  private final Set<Subnet> allowedBotHosts;
+
   public APIServlet(TransactionProcessor transactionProcessor, Blockchain blockchain, BlockchainProcessor blockchainProcessor, ParameterService parameterService,
-      AccountService accountService, AliasService aliasService, AssetExchange assetExchange,
-      EscrowService escrowService, DGSGoodsStoreService digitalGoodsStoreService,
-      SubscriptionService subscriptionService, ATService atService, TimeService timeService, EconomicClustering economicClustering, TransactionService transactionService,
-      BlockService blockService, Generator generator, PropertyService propertyService, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator,
-      DeeplinkQRCodeGenerator deeplinkQRCodeGenerator, IndirectIncomingService indirectIncomingService) {
+                    AccountService accountService, AliasService aliasService, AssetExchange assetExchange,
+                    EscrowService escrowService, DGSGoodsStoreService digitalGoodsStoreService,
+                    SubscriptionService subscriptionService, ATService atService, TimeService timeService, EconomicClustering economicClustering, TransactionService transactionService,
+                    BlockService blockService, Generator generator, PropertyService propertyService, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator,
+                    DeeplinkQRCodeGenerator deeplinkQRCodeGenerator, IndirectIncomingService indirectIncomingService, Set<Subnet> allowedBotHosts) {
 
     enforcePost = propertyService.getBoolean(Props.API_SERVER_ENFORCE_POST);
-    acceptSurplusParams = propertyService.getBoolean(Props.API_ACCEPT_SURPLUS_PARAMS);
     allowedOrigins = propertyService.getString(Props.API_ALLOWED_ORIGINS);
-    
-    final Map<String, APIRequestHandler> map = new HashMap<>();
-    final Map<String, PrimitiveRequestHandler> primitiveMap = new HashMap<>();
+    this.allowedBotHosts = allowedBotHosts;
+
+    final Map<String, HttpRequestHandler> map = new HashMap<>();
 
     map.put("broadcastTransaction", new BroadcastTransaction(transactionProcessor, parameterService, transactionService));
     map.put("calculateFullHash", new CalculateFullHash());
@@ -150,26 +152,53 @@ public final class APIServlet extends HttpServlet {
     map.put("getATLong", GetATLong.instance);
     map.put("getAccountATs", new GetAccountATs(parameterService, atService, accountService));
     map.put("getGuaranteedBalance", new GetGuaranteedBalance(parameterService));
-    primitiveMap.put("generateSendTransactionQRCode", new GenerateDeeplinkQRCode(deeplinkQRCodeGenerator));
+    map.put("generateSendTransactionQRCode", new GenerateDeeplinkQRCode(deeplinkQRCodeGenerator));
 
-    if (API.enableDebugAPI) {
+    if (propertyService.getBoolean(Props.API_DEBUG)) {
       map.put("clearUnconfirmedTransactions", new ClearUnconfirmedTransactions(transactionProcessor));
       map.put("fullReset", new FullReset(blockchainProcessor));
       map.put("popOff", new PopOff(blockchainProcessor, blockchain, blockService));
     }
 
     apiRequestHandlers = Collections.unmodifiableMap(map);
-    primitiveRequestHandlers = Collections.unmodifiableMap(primitiveMap);
   }
 
-  private static boolean acceptSurplusParams;
+  abstract static class JsonRequestHandler extends HttpRequestHandler {
 
-  abstract static class APIRequestHandler {
+    JsonRequestHandler(APITag[] apiTags, String... parameters) {
+      super(apiTags, parameters);
+    }
+
+    @Override
+    protected void processRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+      long startTime = System.currentTimeMillis();
+
+      JsonElement response;
+      try {
+        response = processRequest(req);
+      } catch (ParameterException e) {
+        response = e.getErrorResponse();
+      } catch (BurstException | RuntimeException e) {
+        logger.debug("Error processing API request", e);
+        response = ERROR_INCORRECT_REQUEST;
+      }
+
+      if (response instanceof JsonObject) {
+        JSON.getAsJsonObject(response).addProperty("requestProcessingTime", System.currentTimeMillis() - startTime);
+      }
+
+      writeJsonToResponse(resp, response);
+    }
+
+    abstract JsonElement processRequest(HttpServletRequest request) throws BurstException;
+  }
+
+  abstract static class HttpRequestHandler {
 
     private final List<String> parameters;
     private final Set<APITag> apiTags;
 
-    APIRequestHandler(APITag[] apiTags, String... parameters) {
+    HttpRequestHandler(APITag[] apiTags, String... parameters) {
       this.parameters = Collections.unmodifiableList(Arrays.asList(parameters));
       this.apiTags = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(apiTags)));
     }
@@ -182,55 +211,35 @@ public final class APIServlet extends HttpServlet {
       return apiTags;
     }
 
-    abstract JsonElement processRequest(HttpServletRequest request) throws BurstException;
+    protected abstract void processRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException;
 
-    final void validateRequest(HttpServletRequest req) throws ParameterException {
-      if (acceptSurplusParams) {
-        return;  // do not validate params if we're told to accept all that's comming our way
-      }
-      for ( String parameter : req.getParameterMap().keySet() ) {
-        // _ is a parameter used in eg. jquery to avoid caching queries
-        if ( ! this.parameters.contains(parameter) && ! parameter.equals("_") && ! parameter.equals("requestType") )
-          throw new ParameterException(JSONResponses.incorrectUnkown(parameter));
-      }
+    void addErrorMessage(HttpServletResponse resp, JsonElement msg) throws IOException {
+      writeJsonToResponse(resp, msg);
     }
 
     boolean requirePost() {
       return false;
     }
-
-    boolean startDbTransaction() {
-      return false;
-    }
-
   }
 
-  abstract static class PrimitiveRequestHandler {
-
-    protected abstract void processRequest(HttpServletRequest req, HttpServletResponse resp);
-
-    void addErrorMessage(HttpServletResponse resp, JsonElement msg) throws IOException {
-      try (Writer writer = resp.getWriter()) {
-        resp.setContentType("text/plain; charset=UTF-8");
-        resp.setStatus(500);
-        JSON.writeTo(msg, writer);
-      }
+  private static void writeJsonToResponse(HttpServletResponse resp, JsonElement msg) throws IOException {
+    try (Writer writer = resp.getWriter()) {
+      resp.setContentType("text/plain; charset=UTF-8");
+      JSON.writeTo(msg, writer);
     }
-
   }
 
   private final boolean enforcePost;
   private final String allowedOrigins;
 
-  public final Map<String, APIRequestHandler> apiRequestHandlers;
-  private final Map<String, PrimitiveRequestHandler> primitiveRequestHandlers;
+  public final Map<String, HttpRequestHandler> apiRequestHandlers;
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
     try {
       process(req, resp);
     } catch (Exception e) { // We don't want to send exception information to client...
-      resp.setStatus(500);
+      resp.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
       logger.warn("Error handling GET request", e);
     }
   }
@@ -240,7 +249,7 @@ public final class APIServlet extends HttpServlet {
     try {
       process(req, resp);
     } catch (Exception e) { // We don't want to send exception information to client...
-      resp.setStatus(500);
+      resp.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
       logger.warn("Error handling GET request", e);
     }
   }
@@ -252,80 +261,48 @@ public final class APIServlet extends HttpServlet {
     resp.setHeader("Pragma", "no-cache");
     resp.setDateHeader("Expires", 0);
 
-    JsonElement response = JSON.emptyJSON;
-
-    try {
-
-      long startTime = System.currentTimeMillis();
-
-      if (API.allowedBotHosts != null) {
-        InetAddress remoteAddress = InetAddress.getByName(req.getRemoteHost());
-        boolean allowed = false;
-        for (Subnet allowedSubnet : API.allowedBotHosts) {
-          if (allowedSubnet.isInNet(remoteAddress)) {
-            allowed = true;
-            break;
-          }
-        }
-        if (!allowed) {
-          response = ERROR_NOT_ALLOWED;
-          return;
+    if (allowedBotHosts != null) {
+      InetAddress remoteAddress = InetAddress.getByName(req.getRemoteHost());
+      boolean allowed = false;
+      for (Subnet allowedSubnet : allowedBotHosts) {
+        if (allowedSubnet.isInNet(remoteAddress)) {
+          allowed = true;
+          break;
         }
       }
-
-      String requestType = req.getParameter("requestType");
-      if (requestType == null) {
-        response = ERROR_INCORRECT_REQUEST;
+      if (!allowed) {
+        resp.setStatus(HttpStatus.FORBIDDEN_403);
+        writeJsonToResponse(resp, ERROR_NOT_ALLOWED);
         return;
-      }
-
-      APIRequestHandler apiRequestHandler = apiRequestHandlers.get(requestType);
-      if (apiRequestHandler == null) {
-        final PrimitiveRequestHandler primitiveRequestHandler = primitiveRequestHandlers.get(req.getParameter("requestType"));
-
-        if(primitiveRequestHandler != null) {
-          primitiveRequestHandler.processRequest(req, resp);
-        } else {
-          response = ERROR_INCORRECT_REQUEST;
-        }
-        return;
-      }
-
-      if (enforcePost && apiRequestHandler.requirePost() && !"POST".equals(req.getMethod())) {
-        response = POST_REQUIRED;
-        return;
-      }
-
-      try {
-        if (apiRequestHandler.startDbTransaction()) {
-          Burst.getStores().beginTransaction();
-        }
-        apiRequestHandler.validateRequest(req);
-        response = apiRequestHandler.processRequest(req);
-      } catch (ParameterException e) {
-        response = e.getErrorResponse();
-      } catch (BurstException | RuntimeException e) {
-        logger.debug("Error processing API request", e);
-        response = ERROR_INCORRECT_REQUEST;
-      } finally {
-        if (apiRequestHandler.startDbTransaction()) {
-          Burst.getStores().endTransaction();
-        }
-      }
-
-      if (response instanceof JsonObject) {
-        JSON.getAsJsonObject(response).addProperty("requestProcessingTime", System.currentTimeMillis() - startTime);
-      }
-
-    } finally {
-      if(resp.getContentType() == null || resp.getContentType().isEmpty()) {
-        resp.setContentType("text/plain; charset=UTF-8");
-        try (Writer writer = resp.getWriter()) {
-          JSON.writeTo(response, writer);
-        }
       }
     }
 
-  }
+    String requestType = req.getParameter("requestType");
+    if (requestType == null) {
+      resp.setStatus(HttpStatus.NOT_FOUND_404);
+      writeJsonToResponse(resp, ERROR_MISSING_REQUEST);
+      return;
+    }
 
+    HttpRequestHandler apiRequestHandler = apiRequestHandlers.get(requestType);
+    if (apiRequestHandler == null) {
+      resp.setStatus(HttpStatus.NOT_FOUND_404);
+      writeJsonToResponse(resp, ERROR_MISSING_REQUEST);
+      return;
+    }
+
+    if (enforcePost && apiRequestHandler.requirePost() && !"POST".equals(req.getMethod())) {
+      resp.setStatus(HttpStatus.METHOD_NOT_ALLOWED_405);
+      writeJsonToResponse(resp, ERROR_NOT_ALLOWED);
+      return;
+    }
+
+    try {
+      apiRequestHandler.processRequest(req, resp);
+    } catch (RuntimeException e) {
+      logger.debug("Error processing API request", e);
+      resp.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
+      writeJsonToResponse(resp, ERROR_INCORRECT_REQUEST);
+    }
+  }
 }

@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import static brs.http.JSONResponses.*;
 import static brs.http.common.Parameters.*;
 
-public final class GetBlock extends APIServlet.APIRequestHandler {
+public final class GetBlock extends APIServlet.JsonRequestHandler {
 
   private final Blockchain blockchain;
 
@@ -68,7 +68,5 @@ public final class GetBlock extends APIServlet.APIRequestHandler {
     boolean includeTransactions = Parameters.isTrue(req.getParameter(INCLUDE_TRANSACTIONS_PARAMETER));
 
     return JSONData.block(blockData, includeTransactions, blockchain.getHeight(), blockService.getBlockReward(blockData), blockService.getScoopNum(blockData));
-
   }
-
 }

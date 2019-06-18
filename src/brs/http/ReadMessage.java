@@ -18,7 +18,7 @@ import static brs.http.JSONResponses.*;
 import static brs.http.common.Parameters.SECRET_PHRASE_PARAMETER;
 import static brs.http.common.Parameters.TRANSACTION_PARAMETER;
 
-final class ReadMessage extends APIServlet.APIRequestHandler {
+final class ReadMessage extends APIServlet.JsonRequestHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(ReadMessage.class);
 
@@ -34,7 +34,6 @@ final class ReadMessage extends APIServlet.APIRequestHandler {
 
   @Override
   JsonElement processRequest(HttpServletRequest req) {
-
     String transactionIdString = Convert.emptyToNull(req.getParameter(TRANSACTION_PARAMETER));
     if (transactionIdString == null) {
       return MISSING_TRANSACTION;
@@ -59,7 +58,7 @@ final class ReadMessage extends APIServlet.APIRequestHandler {
       return NO_MESSAGE;
     }
     if (message != null) {
-      response.addProperty("message", message.isText() ? Convert.toString(message.getMessage()) : Convert.toHexString(message.getMessage()));
+      response.addProperty("message", message.isText() ? Convert.toString(message.getMessageBytes()) : Convert.toHexString(message.getMessageBytes()));
     }
     String secretPhrase = Convert.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER));
     if (secretPhrase != null) {
@@ -71,7 +70,7 @@ final class ReadMessage extends APIServlet.APIRequestHandler {
             byte[] decrypted = account.decryptFrom(encryptedMessage.getEncryptedData(), secretPhrase);
             response.addProperty("decryptedMessage", encryptedMessage.isText() ? Convert.toString(decrypted) : Convert.toHexString(decrypted));
           } catch (RuntimeException e) {
-            logger.debug("Decryption of message to recipient failed: " + e.toString());
+            logger.debug("Decryption of message to recipient failed: {}", e);
           }
         }
       }
@@ -82,7 +81,7 @@ final class ReadMessage extends APIServlet.APIRequestHandler {
             byte[] decrypted = account.decryptFrom(encryptToSelfMessage.getEncryptedData(), secretPhrase);
             response.addProperty("decryptedMessageToSelf", encryptToSelfMessage.isText() ? Convert.toString(decrypted) : Convert.toHexString(decrypted));
           } catch (RuntimeException e) {
-            logger.debug("Decryption of message to self failed: " + e.toString());
+            logger.debug("Decryption of message to self failed: {}", e);
           }
         }
       }

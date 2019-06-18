@@ -18,7 +18,7 @@ import java.util.Collection;
 import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.TRADES_RESPONSE;
 
-public final class GetTrades extends APIServlet.APIRequestHandler {
+public final class GetTrades extends APIServlet.JsonRequestHandler {
 
   private final ParameterService parameterService;
   private final AssetExchange assetExchange;
@@ -61,10 +61,4 @@ public final class GetTrades extends APIServlet.APIRequestHandler {
 
     return response;
   }
-
-  @Override
-  boolean startDbTransaction() {
-    return true;
-  }
-
 }

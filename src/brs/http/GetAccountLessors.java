@@ -14,7 +14,11 @@ import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
 import static brs.http.common.Parameters.HEIGHT_PARAMETER;
 import static brs.http.common.ResultFields.*;
 
-public final class GetAccountLessors extends APIServlet.APIRequestHandler {
+/**
+ * @deprecated This call does nothing. It always returns an empty array.
+ */
+@Deprecated
+public final class GetAccountLessors extends APIServlet.JsonRequestHandler {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;
@@ -39,20 +43,7 @@ public final class GetAccountLessors extends APIServlet.APIRequestHandler {
     response.addProperty(HEIGHT_RESPONSE, height);
     JsonArray lessorsJSON = new JsonArray();
 
-    /*try (DbIterator<Account> lessors = account.getLessors(height)) {
-      if (lessors.hasNext()) {
-      while (lessors.hasNext()) {
-      Account lessor = lessors.next();
-      JsonObject lessorJSON = new JsonObject();
-      JSONData.putAccount(lessorJSON, "lessor", lessor.getId());
-      lessorJSON.put("guaranteedBalanceNQT", String.valueOf(account.getGuaranteedBalanceNQT(1440, height)));
-      lessorsJSON.add(lessorJSON);
-      }
-      }
-      }*/
     response.add(LESSORS_RESPONSE, lessorsJSON);
     return response;
-
   }
-
 }

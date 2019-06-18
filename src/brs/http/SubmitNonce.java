@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import static brs.http.common.Parameters.*;
 
 
-final class SubmitNonce extends APIServlet.APIRequestHandler {
+final class SubmitNonce extends APIServlet.JsonRequestHandler {
 
   private final AccountService accountService;
   private final Blockchain blockchain;
@@ -90,7 +90,6 @@ final class SubmitNonce extends APIServlet.APIRequestHandler {
       return response;
     }
 
-    //response.addProperty("result", "deadline: " + generator.getDeadline());
     response.addProperty("result", "success");
     response.addProperty("deadline", generatorState.getDeadline());
 
