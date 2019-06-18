@@ -6,13 +6,11 @@
 
 package brs.at;
 
-
 import brs.*;
 import brs.db.BurstKey;
 import brs.db.TransactionDb;
 import brs.db.VersionedEntityTable;
 import brs.services.AccountService;
-import brs.util.Listener;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -209,7 +208,7 @@ public class AT extends AtMachineState {
         return nextHeight;
     }
 
-    public static class HandleATBlockTransactionsListener implements Listener<Block> {
+    public static class HandleATBlockTransactionsListener implements Consumer<Block> {
         private final AccountService accountService;
         private final Blockchain blockchain;
         private final TransactionDb transactionDb;
@@ -221,7 +220,7 @@ public class AT extends AtMachineState {
         }
 
         @Override
-        public void notify(Block block) {
+        public void accept(Block block) {
             pendingFees.forEach((key, value) -> {
                 Account atAccount = accountService.getAccount(key);
                 accountService.addToBalanceAndUnconfirmedBalanceNQT(atAccount, -value);

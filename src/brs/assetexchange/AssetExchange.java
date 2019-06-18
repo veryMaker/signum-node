@@ -9,9 +9,9 @@ import brs.Attachment.ColoredCoinsBidOrderPlacement;
 import brs.Order.Ask;
 import brs.Order.Bid;
 import brs.Trade.Event;
-import brs.util.Listener;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public interface AssetExchange {
 
@@ -25,7 +25,7 @@ public interface AssetExchange {
 
   int getAssetAccountsCount(long id);
 
-  void addTradeListener(Listener<Trade> listener, Event trade);
+  void addTradeListener(Consumer<Trade> listener, Event trade);
 
   Ask getAskOrder(long orderId);
 

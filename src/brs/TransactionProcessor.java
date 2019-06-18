@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 
 import java.util.List;
 
-public interface TransactionProcessor extends Observable<List<? extends Transaction>,TransactionProcessor.Event> {
+public interface TransactionProcessor extends Observable<List<? extends Transaction>, TransactionProcessor.Event> {
 
   enum Event {
     REMOVED_UNCONFIRMED_TRANSACTIONS,

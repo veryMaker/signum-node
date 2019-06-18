@@ -14,9 +14,9 @@ import brs.Trade.Event;
 import brs.Transaction;
 import brs.db.store.*;
 import brs.services.AccountService;
-import brs.util.Listener;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public class AssetExchangeImpl implements AssetExchange {
 
@@ -61,7 +61,7 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public void addTradeListener(Listener<Trade> listener, Event eventType) {
+  public void addTradeListener(Consumer<Trade> listener, Event eventType) {
     tradeService.addListener(listener, eventType);
   }
 

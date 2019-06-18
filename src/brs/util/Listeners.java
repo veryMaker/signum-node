@@ -3,21 +3,21 @@ package brs.util;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 public final class Listeners<T,E extends Enum<E>> {
+  private final ConcurrentHashMap<Enum<E>, List<Consumer<T>>> listenersMap = new ConcurrentHashMap<>();
 
-  private final ConcurrentHashMap<Enum<E>, List<Listener<T>>> listenersMap = new ConcurrentHashMap<>();
-
-  public boolean addListener(Listener<T> listener, Enum<E> eventType) {
+  public boolean addListener(Consumer<T> listener, Enum<E> eventType) {
     synchronized (this) {
-        List<Listener<T>> listeners = listenersMap.computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<>());
+        List<Consumer<T>> listeners = listenersMap.computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<>());
         return listeners.add(listener);
     }
   }
 
-  public boolean removeListener(Listener<T> listener, Enum<E> eventType) {
+  public boolean removeListener(Consumer<T> listener, Enum<E> eventType) {
     synchronized (this) {
-      List<Listener<T>> listeners = listenersMap.get(eventType);
+      List<Consumer<T>> listeners = listenersMap.get(eventType);
       if (listeners != null) {
         return listeners.remove(listener);
       }
@@ -25,13 +25,12 @@ public final class Listeners<T,E extends Enum<E>> {
     return false;
   }
 
-  public void notify(T t, Enum<E> eventType) {
-    List<Listener<T>> listeners = listenersMap.get(eventType);
+  public void accept(T t, Enum<E> eventType) {
+    List<Consumer<T>> listeners = listenersMap.get(eventType);
     if (listeners != null) {
-      for (Listener<T> listener : listeners) {
-        listener.notify(t);
+      for (Consumer<T> listener : listeners) {
+        listener.accept(t);
       }
     }
   }
-
 }

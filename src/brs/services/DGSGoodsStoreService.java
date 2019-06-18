@@ -6,19 +6,19 @@ import brs.DigitalGoodsStore.Event;
 import brs.DigitalGoodsStore.Goods;
 import brs.DigitalGoodsStore.Purchase;
 import brs.Transaction;
-import brs.util.Listener;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public interface DGSGoodsStoreService { // TODO Redundant name!
 
-  boolean addGoodsListener(Listener<Goods> listener, Event eventType);
+  boolean addGoodsListener(Consumer<Goods> listener, Event eventType);
 
-  boolean removeGoodsListener(Listener<Goods> listener, Event eventType);
+  boolean removeGoodsListener(Consumer<Goods> listener, Event eventType);
 
-  boolean addPurchaseListener(Listener<Purchase> listener, Event eventType);
+  boolean addPurchaseListener(Consumer<Purchase> listener, Event eventType);
 
-  boolean removePurchaseListener(Listener<Purchase> listener, Event eventType);
+  boolean removePurchaseListener(Consumer<Purchase> listener, Event eventType);
 
   Goods getGoods(long goodsId);
 

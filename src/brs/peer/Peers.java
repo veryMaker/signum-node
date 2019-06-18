@@ -6,7 +6,6 @@ import brs.props.Props;
 import brs.services.AccountService;
 import brs.services.TimeService;
 import brs.util.JSON;
-import brs.util.Listener;
 import brs.util.Listeners;
 import brs.util.ThreadPool;
 import com.google.gson.JsonArray;
@@ -37,6 +36,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -538,7 +538,7 @@ public final class Peers {
       addListener(peer -> addedNewPeer.set(true), Event.NEW_PEER);
     }
 
-    private boolean addListener(Listener<Peer> listener, Event eventType) {
+    private boolean addListener(Consumer<Peer> listener, Event eventType) {
       return Peers.listeners.addListener(listener, eventType);
     }
 
@@ -636,12 +636,12 @@ public final class Peers {
     threadPool.shutdownExecutor(sendBlocksToPeersService);
   }
 
-  public static boolean removeListener(Listener<Peer> listener, Event eventType) {
+  public static boolean removeListener(Consumer<Peer> listener, Event eventType) {
     return Peers.listeners.removeListener(listener, eventType);
   }
 
   static void notifyListeners(Peer peer, Event eventType) {
-    Peers.listeners.notify(peer, eventType);
+    Peers.listeners.accept(peer, eventType);
   }
 
   public static Collection<Peer> getAllPeers() {
@@ -731,7 +731,7 @@ public final class Peers {
     if (announcedAddress != null) {
       updateAddress(peer);
     }
-    listeners.notify(peer, Event.NEW_PEER);
+    listeners.accept(peer, Event.NEW_PEER);
     return peer;
   }
 

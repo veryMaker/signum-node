@@ -17,11 +17,11 @@ import brs.db.store.AccountStore;
 import brs.db.store.AssetTransferStore;
 import brs.services.AccountService;
 import brs.util.Convert;
-import brs.util.Listener;
 import brs.util.Listeners;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import static brs.schema.Tables.ACCOUNT;
 
@@ -52,12 +52,12 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public boolean addListener(Listener<Account> listener, Event eventType) {
+  public boolean addListener(Consumer<Account> listener, Event eventType) {
     return listeners.addListener(listener, eventType);
   }
 
   @Override
-  public boolean addAssetListener(Listener<AccountAsset> listener, Event eventType) {
+  public boolean addAssetListener(Consumer<AccountAsset> listener, Event eventType) {
     return assetListeners.addListener(listener, eventType);
   }
 
@@ -170,8 +170,8 @@ public class AccountServiceImpl implements AccountService {
       accountAsset.setQuantityQNT(assetBalance);
     }
     saveAccountAsset(accountAsset);
-    listeners.notify(account, Event.ASSET_BALANCE);
-    assetListeners.notify(accountAsset, Event.ASSET_BALANCE);
+    listeners.accept(account, Event.ASSET_BALANCE);
+    assetListeners.accept(accountAsset, Event.ASSET_BALANCE);
   }
 
   @Override
@@ -190,8 +190,8 @@ public class AccountServiceImpl implements AccountService {
       accountAsset.setUnconfirmedQuantityQNT(unconfirmedAssetBalance);
     }
     saveAccountAsset(accountAsset);
-    listeners.notify(account, Event.UNCONFIRMED_ASSET_BALANCE);
-    assetListeners.notify(accountAsset, Event.UNCONFIRMED_ASSET_BALANCE);
+    listeners.accept(account, Event.UNCONFIRMED_ASSET_BALANCE);
+    assetListeners.accept(accountAsset, Event.UNCONFIRMED_ASSET_BALANCE);
   }
 
   @Override
@@ -213,10 +213,10 @@ public class AccountServiceImpl implements AccountService {
       accountAsset.setUnconfirmedQuantityQNT(unconfirmedAssetBalance);
     }
     saveAccountAsset(accountAsset);
-    listeners.notify(account, Event.ASSET_BALANCE);
-    listeners.notify(account, Event.UNCONFIRMED_ASSET_BALANCE);
-    assetListeners.notify(accountAsset, Event.ASSET_BALANCE);
-    assetListeners.notify(accountAsset, Event.UNCONFIRMED_ASSET_BALANCE);
+    listeners.accept(account, Event.ASSET_BALANCE);
+    listeners.accept(account, Event.UNCONFIRMED_ASSET_BALANCE);
+    assetListeners.accept(accountAsset, Event.ASSET_BALANCE);
+    assetListeners.accept(accountAsset, Event.UNCONFIRMED_ASSET_BALANCE);
   }
 
   @Override
@@ -227,7 +227,7 @@ public class AccountServiceImpl implements AccountService {
     account.setBalanceNQT(Convert.safeAdd(account.getBalanceNQT(), amountNQT));
     account.checkBalance();
     accountTable.insert(account);
-    listeners.notify(account, Event.BALANCE);
+    listeners.accept(account, Event.BALANCE);
   }
 
   @Override
@@ -238,7 +238,7 @@ public class AccountServiceImpl implements AccountService {
     account.setUnconfirmedBalanceNQT(Convert.safeAdd(account.getUnconfirmedBalanceNQT(), amountNQT));
     account.checkBalance();
     accountTable.insert(account);
-    listeners.notify(account, Event.UNCONFIRMED_BALANCE);
+    listeners.accept(account, Event.UNCONFIRMED_BALANCE);
   }
 
   @Override
@@ -250,8 +250,8 @@ public class AccountServiceImpl implements AccountService {
     account.setUnconfirmedBalanceNQT(Convert.safeAdd(account.getUnconfirmedBalanceNQT(), amountNQT));
     account.checkBalance();
     accountTable.insert(account);
-    listeners.notify(account, Event.BALANCE);
-    listeners.notify(account, Event.UNCONFIRMED_BALANCE);
+    listeners.accept(account, Event.BALANCE);
+    listeners.accept(account, Event.UNCONFIRMED_BALANCE);
   }
 
   @Override

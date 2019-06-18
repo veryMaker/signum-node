@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
@@ -694,12 +695,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
 
   @Override
-  public boolean addListener(Listener<Block> listener, BlockchainProcessor.Event eventType) {
+  public boolean addListener(Consumer<Block> listener, BlockchainProcessor.Event eventType) {
     return blockListeners.addListener(listener, eventType);
   }
 
   @Override
-  public boolean removeListener(Listener<Block> listener, Event eventType) {
+  public boolean removeListener(Consumer<Block> listener, Event eventType) {
     return blockListeners.removeListener(listener, eventType);
   }
 
@@ -930,7 +931,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         long remainingFee = Convert.safeSubtract(block.getTotalFeeNQT(), calculatedTotalFee);
 
         blockService.setPrevious(block, previousLastBlock);
-        blockListeners.notify(block, Event.BEFORE_BLOCK_ACCEPT);
+        blockListeners.accept(block, Event.BEFORE_BLOCK_ACCEPT);
         transactionProcessor.removeForgedTransactions(block.getTransactions());
         transactionProcessor.requeueAllUnconfirmedTransactions();
         accountService.flushAccountTable();
@@ -949,7 +950,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       }
       logger.debug("Successfully pushed {} (height {})", block.getId(), block.getHeight());
       statisticsManager.blockAdded();
-      blockListeners.notify(block, Event.BLOCK_PUSHED);
+      blockListeners.accept(block, Event.BLOCK_PUSHED);
       if (block.getTimestamp() >= timeService.getEpochTime() - MAX_TIMESTAMP_DIFFERENCE) {
         Peers.sendToSomePeers(block);
       }
@@ -992,13 +993,13 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     if (remainingFee != null && remainingFee != calculatedRemainingFee) {
       throw new BlockNotAcceptedException("Calculated remaining fee doesn't add up for block " + block.getHeight());
     }
-    blockListeners.notify(block, Event.BEFORE_BLOCK_APPLY);
+    blockListeners.accept(block, Event.BEFORE_BLOCK_APPLY);
     blockService.apply(block);
     subscriptionService.applyConfirmed(block, blockchain.getHeight());
     if (escrowService.isEnabled()) {
       escrowService.updateOnBlock(block, blockchain.getHeight());
     }
-    blockListeners.notify(block, Event.AFTER_BLOCK_APPLY);
+    blockListeners.accept(block, Event.AFTER_BLOCK_APPLY);
     if (! block.getTransactions().isEmpty()) {
       transactionProcessor.notifyListeners(block.getTransactions(),
           TransactionProcessor.Event.ADDED_CONFIRMED_TRANSACTIONS);
@@ -1050,7 +1051,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     blockchain.setLastBlock(block, previousBlock);
     block.getTransactions().forEach(Transaction::unsetBlock);
     blockDb.deleteBlocksFrom(block.getId());
-    blockListeners.notify(block, Event.BLOCK_POPPED);
+    blockListeners.accept(block, Event.BLOCK_POPPED);
     return previousBlock;
   }
 
@@ -1265,7 +1266,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       try {
         blockService.preVerify(block);
         pushBlock(block);
-        blockListeners.notify(block, Event.BLOCK_GENERATED);
+        blockListeners.accept(block, Event.BLOCK_GENERATED);
         if (logger.isDebugEnabled()) {
             logger.debug("Account {} generated block {} at height {}", Convert.toUnsignedLong(block.getGeneratorId()), block.getStringId(), block.getHeight());
         }

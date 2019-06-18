@@ -8,10 +8,10 @@ import brs.db.BurstKey;
 import brs.db.BurstKey.LinkKeyFactory;
 import brs.db.sql.EntitySqlTable;
 import brs.db.store.TradeStore;
-import brs.util.Listener;
 import brs.util.Listeners;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 class TradeServiceImpl {
 
@@ -52,11 +52,11 @@ class TradeServiceImpl {
     return tradeTable.getAll(from, to);
   }
 
-  public boolean addListener(Listener<Trade> listener, Event eventType) {
+  public boolean addListener(Consumer<Trade> listener, Event eventType) {
     return listeners.addListener(listener, eventType);
   }
 
-  public boolean removeListener(Listener<Trade> listener, Event eventType) {
+  public boolean removeListener(Consumer<Trade> listener, Event eventType) {
     return listeners.removeListener(listener, eventType);
   }
 
@@ -64,7 +64,7 @@ class TradeServiceImpl {
     BurstKey dbKey = tradeDbKeyFactory.newKey(askOrder.getId(), bidOrder.getId());
     Trade trade = new Trade(dbKey, assetId, block, askOrder, bidOrder);
     tradeTable.insert(trade);
-    listeners.notify(trade, Event.TRADE);
+    listeners.accept(trade, Event.TRADE);
     return trade;
   }
 }

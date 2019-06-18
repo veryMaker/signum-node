@@ -1,22 +1,18 @@
 package brs;
 
-import brs.util.Listener;
+import brs.util.Observable;
 import brs.util.ThreadPool;
 
 import java.math.BigInteger;
 import java.util.Collection;
 
-public interface Generator {
+public interface Generator extends Observable<Generator.GeneratorState, Generator.Event> {
 
   enum Event {
     GENERATION_DEADLINE, NONCE_SUBMITTED
   }
 
   void generateForBlockchainProcessor(ThreadPool threadPool, BlockchainProcessor blockchainProcessor);
-
-  boolean addListener(Listener<GeneratorState> listener, Event eventType);
-
-  boolean removeListener(Listener<GeneratorState> listener, Event eventType);
 
   GeneratorState addNonce(String secretPhrase, Long nonce);
 

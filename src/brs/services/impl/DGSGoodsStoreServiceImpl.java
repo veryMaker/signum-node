@@ -13,12 +13,12 @@ import brs.db.store.DigitalGoodsStoreStore;
 import brs.services.AccountService;
 import brs.services.DGSGoodsStoreService;
 import brs.util.Convert;
-import brs.util.Listener;
 import brs.util.Listeners;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
 
@@ -51,22 +51,22 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
   }
 
   @Override
-  public boolean addGoodsListener(Listener<Goods> listener, Event eventType) {
+  public boolean addGoodsListener(Consumer<Goods> listener, Event eventType) {
     return goodsListeners.addListener(listener, eventType);
   }
 
   @Override
-  public boolean removeGoodsListener(Listener<Goods> listener, Event eventType) {
+  public boolean removeGoodsListener(Consumer<Goods> listener, Event eventType) {
     return goodsListeners.removeListener(listener, eventType);
   }
 
   @Override
-  public boolean addPurchaseListener(Listener<Purchase> listener, Event eventType) {
+  public boolean addPurchaseListener(Consumer<Purchase> listener, Event eventType) {
     return purchaseListeners.addListener(listener, eventType);
   }
 
   @Override
-  public boolean removePurchaseListener(Listener<Purchase> listener, Event eventType) {
+  public boolean removePurchaseListener(Consumer<Purchase> listener, Event eventType) {
     return purchaseListeners.removeListener(listener, eventType);
   }
 
@@ -126,7 +126,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
     if (allowDelisted || ! goods.isDelisted()) {
       goods.changeQuantity(deltaQuantity);
       goodsTable.insert(goods);
-      goodsListeners.notify(goods, Event.GOODS_QUANTITY_CHANGE);
+      goodsListeners.accept(goods, Event.GOODS_QUANTITY_CHANGE);
     } else {
       throw new IllegalStateException("Can't change quantity of delisted goods");
     }
@@ -150,7 +150,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
   public void addPurchase(Transaction transaction, Attachment.DigitalGoodsPurchase attachment, long sellerId) {
     Purchase purchase = new Purchase(transaction, attachment, sellerId);
     purchaseTable.insert(purchase);
-    purchaseListeners.notify(purchase, Event.PURCHASE);
+    purchaseListeners.accept(purchase, Event.PURCHASE);
   }
 
   @Override
@@ -158,7 +158,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
     BurstKey dbKey = goodsDbKeyFactory.newKey(transaction.getId());
     Goods goods = new Goods(dbKey, transaction, attachment);
     goodsTable.insert(goods);
-    goodsListeners.notify(goods, Event.GOODS_LISTED);
+    goodsListeners.accept(goods, Event.GOODS_LISTED);
   }
 
   @Override
@@ -167,7 +167,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
     if (! goods.isDelisted()) {
       goods.setDelisted(true);
       goodsTable.insert(goods);
-      goodsListeners.notify(goods, Event.GOODS_DELISTED);
+      goodsListeners.accept(goods, Event.GOODS_DELISTED);
     } else {
       throw new IllegalStateException("Goods already delisted");
     }
@@ -184,7 +184,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
     if (message != null) {
       addPublicFeedback(purchase, Convert.toString(message.getMessageBytes()));
     }
-    purchaseListeners.notify(purchase, Event.FEEDBACK);
+    purchaseListeners.accept(purchase, Event.FEEDBACK);
   }
 
   private void addPublicFeedback(Purchase purchase, String publicFeedback) {
@@ -211,7 +211,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
     }
     purchase.setRefundNQT(refundNQT);
     purchaseTable.insert(purchase);
-    purchaseListeners.notify(purchase, Event.REFUND);
+    purchaseListeners.accept(purchase, Event.REFUND);
   }
 
   @Override
@@ -225,7 +225,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
     if (! goods.isDelisted()) {
       goods.changePrice(priceNQT);
       goodsTable.insert(goods);
-      goodsListeners.notify(goods, Event.GOODS_PRICE_CHANGE);
+      goodsListeners.accept(goods, Event.GOODS_PRICE_CHANGE);
     } else {
       throw new IllegalStateException("Can't change price of delisted goods");
     }
@@ -248,7 +248,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
     purchaseTable.insert(purchase);
     purchase.setDiscountNQT(attachment.getDiscountNQT());
     purchaseTable.insert(purchase);
-    purchaseListeners.notify(purchase, Event.DELIVERY);
+    purchaseListeners.accept(purchase, Event.DELIVERY);
   }
 
   @Override
@@ -263,7 +263,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
     purchaseTable.insert(purchase);
   }
 
-  public static class ExpiredPurchaseListener implements Listener<Block> {
+  public static class ExpiredPurchaseListener implements Consumer<Block> {
 
     private final AccountService accountService;
     private final DGSGoodsStoreService goodsService;
@@ -274,7 +274,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
     }
 
     @Override
-    public void notify(Block block) {
+    public void accept(Block block) {
       for (Purchase purchase : goodsService.getExpiredPendingPurchases(block.getTimestamp())) {
         Account buyer = accountService.getAccount(purchase.getBuyerId());
         accountService.addToUnconfirmedBalanceNQT(buyer, Convert.safeMultiply(purchase.getQuantity(), purchase.getPriceNQT()));

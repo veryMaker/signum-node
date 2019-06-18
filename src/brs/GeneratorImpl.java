@@ -5,7 +5,10 @@ import brs.fluxcapacitor.FluxCapacitor;
 import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.TimeService;
-import brs.util.*;
+import brs.util.Convert;
+import brs.util.Listeners;
+import brs.util.MiningPlot;
+import brs.util.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +22,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class GeneratorImpl implements Generator {
   private static final Logger logger = LoggerFactory.getLogger(GeneratorImpl.class);
@@ -69,12 +73,12 @@ public class GeneratorImpl implements Generator {
   }
 
   @Override
-  public boolean addListener(Listener<GeneratorState> listener, Event eventType) {
+  public boolean addListener(Consumer<GeneratorState> listener, Event eventType) {
     return listeners.addListener(listener, eventType);
   }
 
   @Override
-  public boolean removeListener(Listener<GeneratorState> listener, Event eventType) {
+  public boolean removeListener(Consumer<GeneratorState> listener, Event eventType) {
     return listeners.removeListener(listener, eventType);
   }
 
@@ -93,7 +97,7 @@ public class GeneratorImpl implements Generator {
     GeneratorStateImpl curGen = generators.get(id);
     if (curGen == null || generator.getBlock() > curGen.getBlock() || generator.getDeadline().compareTo(curGen.getDeadline()) < 0) {
       generators.put(id, generator);
-      listeners.notify(generator, Event.NONCE_SUBMITTED);
+      listeners.accept(generator, Event.NONCE_SUBMITTED);
       if (logger.isDebugEnabled()) {
         logger.debug("Account {} started mining, deadline {} seconds", Convert.toUnsignedLong(id), generator.getDeadline());
       }

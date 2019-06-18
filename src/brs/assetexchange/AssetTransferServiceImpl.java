@@ -8,10 +8,10 @@ import brs.db.BurstKey;
 import brs.db.BurstKey.LongKeyFactory;
 import brs.db.sql.EntitySqlTable;
 import brs.db.store.AssetTransferStore;
-import brs.util.Listener;
 import brs.util.Listeners;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 class AssetTransferServiceImpl {
 
@@ -28,11 +28,11 @@ class AssetTransferServiceImpl {
     this.transferDbKeyFactory = assetTransferStore.getTransferDbKeyFactory();
   }
 
-  public boolean addListener(Listener<AssetTransfer> listener, Event eventType) {
+  public boolean addListener(Consumer<AssetTransfer> listener, Event eventType) {
     return listeners.addListener(listener, eventType);
   }
 
-  public boolean removeListener(Listener<AssetTransfer> listener, Event eventType) {
+  public boolean removeListener(Consumer<AssetTransfer> listener, Event eventType) {
     return listeners.removeListener(listener, eventType);
   }
 
@@ -56,7 +56,7 @@ class AssetTransferServiceImpl {
     BurstKey dbKey = transferDbKeyFactory.newKey(transaction.getId());
     AssetTransfer assetTransfer = new AssetTransfer(dbKey, transaction, attachment);
     assetTransferTable.insert(assetTransfer);
-    listeners.notify(assetTransfer, Event.ASSET_TRANSFER);
+    listeners.accept(assetTransfer, Event.ASSET_TRANSFER);
     return assetTransfer;
   }
 

@@ -48,7 +48,7 @@ public class ExpiredPurchaseListenerTest extends AbstractUnitTest {
     final Collection<Purchase> mockIterator = mockCollection(expiredPurchase);
     when(dgsGoodsStoreServiceMock.getExpiredPendingPurchases(eq(blockTimestamp))).thenReturn(mockIterator);
 
-    t.notify(block);
+    t.accept(block);
 
     verify(accountServiceMock).addToUnconfirmedBalanceNQT(eq(purchaseBuyer), eq(15000L));
 

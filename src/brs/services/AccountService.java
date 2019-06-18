@@ -5,15 +5,15 @@ import brs.Account.AccountAsset;
 import brs.Account.Event;
 import brs.Account.RewardRecipientAssignment;
 import brs.AssetTransfer;
-import brs.util.Listener;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public interface AccountService {
 
-  boolean addListener(Listener<Account> listener, Event eventType);
+  boolean addListener(Consumer<Account> listener, Event eventType);
 
-  boolean addAssetListener(Listener<AccountAsset> listener, Event eventType);
+  boolean addAssetListener(Consumer<AccountAsset> listener, Event eventType);
 
   Account getAccount(long id);
 

@@ -13,7 +13,6 @@ import brs.services.TimeService;
 import brs.services.TransactionService;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
 import brs.util.JSON;
-import brs.util.Listener;
 import brs.util.Listeners;
 import brs.util.ThreadPool;
 import com.google.gson.JsonArray;
@@ -28,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -136,17 +136,17 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   }
 
     @Override
-  public boolean addListener(Listener<List<? extends Transaction>> listener, Event eventType) {
+  public boolean addListener(Consumer<List<? extends Transaction>> listener, Event eventType) {
     return transactionListeners.addListener(listener, eventType);
   }
 
   @Override
-  public boolean removeListener(Listener<List<? extends Transaction>> listener, Event eventType) {
+  public boolean removeListener(Consumer<List<? extends Transaction>> listener, Event eventType) {
     return transactionListeners.removeListener(listener, eventType);
   }
 
   void notifyListeners(List<? extends Transaction> transactions, Event eventType) {
-    transactionListeners.notify(transactions, eventType);
+    transactionListeners.accept(transactions, eventType);
   }
 
   public Object getUnconfirmedTransactionsSyncObj() {
@@ -262,7 +262,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
         stores.endTransaction();
       }
 
-      transactionListeners.notify(removed, Event.REMOVED_UNCONFIRMED_TRANSACTIONS);
+      transactionListeners.accept(removed, Event.REMOVED_UNCONFIRMED_TRANSACTIONS);
     }
   }
 
@@ -370,7 +370,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
       }
 
       if (! addedUnconfirmedTransactions.isEmpty()) {
-        transactionListeners.notify(addedUnconfirmedTransactions, Event.ADDED_UNCONFIRMED_TRANSACTIONS);
+        transactionListeners.accept(addedUnconfirmedTransactions, Event.ADDED_UNCONFIRMED_TRANSACTIONS);
       }
 
       return addedUnconfirmedTransactions;
