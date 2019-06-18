@@ -35,5 +35,4 @@ public final class GetAccountPublicKey extends APIServlet.JsonRequestHandler {
       return JSON.emptyJSON;
     }
   }
-
 }

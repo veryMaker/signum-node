@@ -19,6 +19,7 @@
   <packaging>jar</packaging>
 
   <properties>
+    <kotlin.version>1.3.31</kotlin.version>
     <bcprov-jdk15on.version>1.62</bcprov-jdk15on.version>
     <burstkit4j.version>v0.10-beta1</burstkit4j.version>
     <ehcache.version>3.7.1</ehcache.version>
@@ -53,6 +54,9 @@
     <skip.jooq.generation>true</skip.jooq.generation>
 
     <grpc.source.dir>src/brs/grpc</grpc.source.dir>
+
+    <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
+    <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
   </properties>
 
   <repositories>
@@ -63,6 +67,12 @@
   </repositories>
 
   <dependencies>
+
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib-jdk8</artifactId>
+      <version>${kotlin.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.github.burst-apps-team</groupId>
@@ -352,6 +362,34 @@
     </extensions>
 
     <plugins>
+
+      <plugin>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-maven-plugin</artifactId>
+        <version>${kotlin.version}</version>
+        <executions>
+          <execution>
+            <id>compile</id>
+            <goals> <goal>compile</goal> </goals>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>${project.basedir}/src/main/java</sourceDir>
+              </sourceDirs>
+            </configuration>
+          </execution>
+          <execution>
+            <id>test-compile</id>
+            <goals>
+              <goal>test-compile</goal>
+            </goals>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>${project.basedir}/src/test/java</sourceDir>
+              </sourceDirs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
