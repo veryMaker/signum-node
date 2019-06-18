@@ -57,6 +57,11 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
+  public boolean removeListener(Consumer<Account> listener, Event eventType) {
+    return listeners.removeListener(listener, eventType);
+  }
+
+  @Override
   public boolean addAssetListener(Consumer<AccountAsset> listener, Event eventType) {
     return assetListeners.addListener(listener, eventType);
   }

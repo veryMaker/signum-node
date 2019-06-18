@@ -373,7 +373,7 @@
             <goals> <goal>compile</goal> </goals>
             <configuration>
               <sourceDirs>
-                <sourceDir>${project.basedir}/src/main/java</sourceDir>
+                <sourceDir>${project.basedir}/src</sourceDir>
               </sourceDirs>
             </configuration>
           </execution>
@@ -384,7 +384,7 @@
             </goals>
             <configuration>
               <sourceDirs>
-                <sourceDir>${project.basedir}/src/test/java</sourceDir>
+                <sourceDir>${project.basedir}/test</sourceDir>
               </sourceDirs>
             </configuration>
           </execution>

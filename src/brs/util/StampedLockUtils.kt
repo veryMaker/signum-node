@@ -5,7 +5,7 @@ import java.util.function.Supplier
 
 object StampedLockUtils {
     @JvmStatic
-    fun <T> stampedLockRead(lock: StampedLock, supplier: Supplier<T>): T {
+    fun <T> stampedLockRead(lock: StampedLock, supplier: Supplier<T?>): T? {
         var stamp = lock.tryOptimisticRead()
         var retVal = supplier.get()
         if (!lock.validate(stamp)) {
