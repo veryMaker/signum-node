@@ -26,6 +26,7 @@ import static brs.http.common.Parameters.*;
 final class SubmitNonce extends APIServlet.JsonRequestHandler {
 
   private final Map<Long, String> passphrases;
+  private final boolean allowOtherSoloMiners;
   private final AccountService accountService;
   private final Blockchain blockchain;
   private final Generator generator;
@@ -36,6 +37,7 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
     this.passphrases = propertyService.getStringList(Props.SOLO_MINING_PASSPHRASES)
             .stream()
             .collect(Collectors.toMap(passphrase -> burstCrypto.getBurstAddressFromPassphrase(passphrase).getBurstID().getSignedLongId(), Function.identity()));
+    this.allowOtherSoloMiners = propertyService.getBoolean(Props.ALLOW_OTHER_SOLO_MINERS);
 
     this.accountService = accountService;
     this.blockchain = blockchain;
@@ -82,7 +84,7 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
       }
     }
 
-    if (!passphrases.containsValue(secret)) {
+    if (!allowOtherSoloMiners && !passphrases.containsValue(secret)) {
       response.addProperty("result", "This account is not allowed to mine on this node as the whitelist is enabled and it is not whitelisted.");
       return response;
     }
