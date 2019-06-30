@@ -7,10 +7,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
-final class GetBlocksFromHeight extends PeerServlet.PeerRequestHandler {
+final class GetBlocksFromHeight implements PeerServlet.PeerRequestHandler {
 
   private final Blockchain blockchain;
 
@@ -20,14 +19,15 @@ final class GetBlocksFromHeight extends PeerServlet.PeerRequestHandler {
 
 
   @Override
-  JsonElement processRequest(JsonObject request, Peer peer) {
+  public JsonElement processRequest(JsonObject request, Peer peer) {
     JsonObject response = new JsonObject();
     int blockHeight = JSON.getAsInt(request.get("height"));
     int numBlocks = 100;
 
     try {
       numBlocks = JSON.getAsInt(request.get("numBlocks"));
-    } catch (Exception e) {}
+    } catch (Exception ignored) {
+    }
 
     //small failsafe
     if(numBlocks < 1 || numBlocks > 1400) {
@@ -38,11 +38,9 @@ final class GetBlocksFromHeight extends PeerServlet.PeerRequestHandler {
     }
     	    
     long blockId =  blockchain.getBlockIdAtHeight(blockHeight);
-    List<? extends Block> blocks = blockchain.getBlocksAfter(blockId, numBlocks);
-    List<Block> nextBlocks = new ArrayList<>(blocks);
-
+    Collection<? extends Block> blocks = blockchain.getBlocksAfter(blockId, numBlocks);
     JsonArray nextBlocksArray = new JsonArray();
-    for (Block nextBlock : nextBlocks) {
+    for (Block nextBlock : blocks) {
       nextBlocksArray.add(nextBlock.getJsonObject());
     }
     response.add("nextBlocks", nextBlocksArray);

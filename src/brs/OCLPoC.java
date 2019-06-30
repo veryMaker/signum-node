@@ -19,10 +19,12 @@ import java.util.Locale;
 import static org.jocl.CL.*;
 
 final class OCLPoC {
+  private OCLPoC() {
+  }
 
   private static final Logger logger = LoggerFactory.getLogger(OCLPoC.class);
 
-  private static final int hashesPerEnqueue;
+  private static final int HASHES_PER_ENQUEUE;
   private static final int MEM_PERCENT;
 
   private static cl_context ctx;
@@ -33,21 +35,20 @@ final class OCLPoC {
   private static final cl_kernel getKernel2;
 
   private static long maxItems;
-  private static final long maxGroupItems;
+  private static final long MAX_GROUP_ITEMS;
 
   private static final Object oclLock = new Object();
 
-  private static final long bufferPerItem = (long) MiningPlot.PLOT_SIZE + 16;
-  private static final long memPerItem = 8 // id
+  private static final long BUFFER_PER_ITEM = (long) MiningPlot.PLOT_SIZE + 16;
+  private static final long MEM_PER_ITEM = 8 // id
       + 8 // nonce
-      + bufferPerItem // buffer
+      + BUFFER_PER_ITEM // buffer
       + 4 // scoop num
       + MiningPlot.SCOOP_SIZE; // output scoop
 
-  static void init() {}
   static {
     PropertyService propertyService = Burst.getPropertyService();
-    hashesPerEnqueue = propertyService.getInt(Props.GPU_HASHES_PER_BATCH);
+    HASHES_PER_ENQUEUE = propertyService.getInt(Props.GPU_HASHES_PER_BATCH);
     MEM_PERCENT = propertyService.getInt(Props.GPU_MEM_PERCENT);
     
     try {
@@ -63,7 +64,7 @@ final class OCLPoC {
         }
         platformIndex = ac.getPlatform();
         deviceIndex = ac.getDevice();
-        logger.info("Choosing Platform " + platformIndex + " - DeviceId: " + deviceIndex);
+        logger.info("Choosing Platform {} - DeviceId: {}", platformIndex, deviceIndex);
       } else {
         platformIndex = propertyService.getInt(Props.GPU_PLATFORM_IDX);
         deviceIndex = propertyService.getInt(Props.GPU_DEVICE_IDX);
@@ -136,28 +137,30 @@ final class OCLPoC {
       clGetKernelWorkGroupInfo(getKernel, device, CL_KERNEL_WORK_GROUP_SIZE, 8,
           Pointer.to(getGroupSize), null);
 
-      maxGroupItems = Math.min(genGroupSize[0], getGroupSize[0]);
+      MAX_GROUP_ITEMS = Math.min(genGroupSize[0], getGroupSize[0]);
 
-      if (maxGroupItems <= 0) {
+      if (MAX_GROUP_ITEMS <= 0) {
         throw new OCLCheckerException(
-            "OpenCL init error. Invalid max group items: " + maxGroupItems);
+            "OpenCL init error. Invalid max group items: " + MAX_GROUP_ITEMS);
       }
 
-      long maxItemsByComputeUnits = getComputeUnits(device) * maxGroupItems;
+      long maxItemsByComputeUnits = getComputeUnits(device) * MAX_GROUP_ITEMS;
 
       maxItems = Math.min(calculateMaxItemsByMem(device), maxItemsByComputeUnits);
 
-      if (maxItems % maxGroupItems != 0) {
-        maxItems -= (maxItems % maxGroupItems);
+      if (maxItems % MAX_GROUP_ITEMS != 0) {
+        maxItems -= (maxItems % MAX_GROUP_ITEMS);
       }
 
       if (maxItems <= 0) {
         throw new OCLCheckerException(
             "OpenCL init error. Invalid calculated max items: " + maxItems);
       }
-      logger.info("OCL max items: " + maxItems);
+      logger.info("OCL max items: {}", maxItems);
     } catch (CLException e) {
-      logger.info("OpenCL exception: " + e.getMessage(), e);
+      if (logger.isInfoEnabled()) {
+        logger.info("OpenCL exception: {}", e.getMessage(), e);
+      }
       destroy();
       throw new OCLCheckerException("OpenCL exception", e);
     }
@@ -167,21 +170,21 @@ final class OCLPoC {
     return maxItems;
   }
 
-  public static void validatePoC(Collection<Block> blocks, int PoCVersion, BlockService blockService) {
+  public static void validatePoC(Collection<Block> blocks, int pocVersion, BlockService blockService) {
     try {
-      // logger.debug("starting ocl verify for: " + blocks.size());
-
+      if (logger.isDebugEnabled()) {
+        logger.debug("starting ocl verify for: {}", blocks.size());
+      }
       byte[] scoopsOut = new byte[MiningPlot.SCOOP_SIZE * blocks.size()];
 
       long jobSize = blocks.size();
-      if (jobSize % maxGroupItems != 0) {
-        jobSize += (maxGroupItems - (jobSize % maxGroupItems));
+      if (jobSize % MAX_GROUP_ITEMS != 0) {
+        jobSize += (MAX_GROUP_ITEMS - (jobSize % MAX_GROUP_ITEMS));
       }
 
       if (jobSize > maxItems) {
         throw new IllegalStateException("Attempted to validate too many blocks at once with OCL");
       }
-      // logger.debug("ocl blocks: " + blocks.size() + " jobSize: " + jobSize);
 
       long[] ids = new long[blocks.size()];
       long[] nonces = new long[blocks.size()];
@@ -201,7 +204,9 @@ final class OCLPoC {
         scoopNums[i] = blockService.getScoopNum(block);
         i++;
       }
-      // logger.debug("finished preprocessing: " + blocks.size());
+      if (logger.isDebugEnabled()) {
+        logger.debug("finished preprocessing: {}", blocks.size());
+      }
 
       synchronized (oclLock) {
         if (ctx == null) {
@@ -234,7 +239,7 @@ final class OCLPoC {
           clSetKernelArg(genKernel, 5, Sizeof.cl_int, Pointer.to(totalSize));
 
           int c = 0;
-          int step = hashesPerEnqueue;
+          int step = HASHES_PER_ENQUEUE;
           int[] cur = new int[1];
           int[] st = new int[1];
           while (c < 8192) {
@@ -243,25 +248,25 @@ final class OCLPoC {
             clSetKernelArg(genKernel, 3, Sizeof.cl_int, Pointer.to(cur));
             clSetKernelArg(genKernel, 4, Sizeof.cl_int, Pointer.to(st));
             clEnqueueNDRangeKernel(queue, genKernel, 1, null, new long[] {jobSize},
-                new long[] {maxGroupItems}, 0, null, null);
+                new long[] {MAX_GROUP_ITEMS}, 0, null, null);
 
             c += st[0];
           }
 
-          if (PoCVersion == 2) {
+          if (pocVersion == 2) {
             clSetKernelArg(getKernel2, 0, Sizeof.cl_mem, Pointer.to(scoopNumMem));
             clSetKernelArg(getKernel2, 1, Sizeof.cl_mem, Pointer.to(bufferMem));
             clSetKernelArg(getKernel2, 2, Sizeof.cl_mem, Pointer.to(scoopOutMem));
             clSetKernelArg(getKernel2, 3, Sizeof.cl_int, Pointer.to(totalSize));
             clEnqueueNDRangeKernel(queue, getKernel2, 1, null, new long[] {jobSize},
-                new long[] {maxGroupItems}, 0, null, null);
+                new long[] {MAX_GROUP_ITEMS}, 0, null, null);
           } else {
             clSetKernelArg(getKernel, 0, Sizeof.cl_mem, Pointer.to(scoopNumMem));
             clSetKernelArg(getKernel, 1, Sizeof.cl_mem, Pointer.to(bufferMem));
             clSetKernelArg(getKernel, 2, Sizeof.cl_mem, Pointer.to(scoopOutMem));
             clSetKernelArg(getKernel, 3, Sizeof.cl_int, Pointer.to(totalSize));
             clEnqueueNDRangeKernel(queue, getKernel, 1, null, new long[] {jobSize},
-                new long[] {maxGroupItems}, 0, null, null);
+                new long[] {MAX_GROUP_ITEMS}, 0, null, null);
           }
 
           clEnqueueReadBuffer(queue, scoopOutMem, true, 0,
@@ -288,12 +293,14 @@ final class OCLPoC {
         }
       }
 
-    //  logger.debug("finished ocl, doing rest: " + blocks.size());
+      if (logger.isDebugEnabled()) {
+        logger.debug("finished ocl, doing rest: {}", blocks.size());
+      }
 
       ByteBuffer scoopsBuffer = ByteBuffer.wrap(scoopsOut);
       byte[] scoop = new byte[MiningPlot.SCOOP_SIZE];
 
-      blocks.forEach((block) -> {
+      blocks.forEach(block -> {
         try {
           scoopsBuffer.get(scoop);
           blockService.preVerify(block, scoop);
@@ -303,7 +310,9 @@ final class OCLPoC {
           throw new PreValidateFailException("Block failed to prevalidate", e, block);
         }
       });
-      // logger.debug("finished rest: " + blocks.size());
+      if (logger.isDebugEnabled()) {
+        logger.debug("finished rest: {}", blocks.size());
+      }
     } catch (CLException e) {
       // intentionally leave out of unverified cache. It won't slow it that much on one failure and
       // avoids infinite looping on repeat failed attempts.
@@ -364,13 +373,13 @@ final class OCLPoC {
     clGetDeviceInfo(device, CL_DEVICE_GLOBAL_MEM_SIZE, 8, Pointer.to(globalMemSize), null);
     clGetDeviceInfo(device, CL_DEVICE_MAX_MEM_ALLOC_SIZE, 8, Pointer.to(maxMemAllocSize), null);
 
-    long maxItemsByGlobalMemSize = (globalMemSize[0] * MEM_PERCENT / 100) / memPerItem;
-    long maxItemsByMaxAllocSize = (maxMemAllocSize[0] * MEM_PERCENT / 100) / bufferPerItem;
+    long maxItemsByGlobalMemSize = (globalMemSize[0] * MEM_PERCENT / 100) / MEM_PER_ITEM;
+    long maxItemsByMaxAllocSize = (maxMemAllocSize[0] * MEM_PERCENT / 100) / BUFFER_PER_ITEM;
 
-    logger.debug("Global Memory:" + globalMemSize[0]);
-    logger.debug("Max alloc Memory:" + maxMemAllocSize[0]);
-    logger.debug("maxItemsByGlobalMemSize:" + maxItemsByGlobalMemSize);
-    logger.debug("maxItemsByMaxAllocSize:" + maxItemsByMaxAllocSize);
+    logger.debug("Global Memory: {}", globalMemSize[0]);
+    logger.debug("Max alloc Memory: {}", maxMemAllocSize[0]);
+    logger.debug("maxItemsByGlobalMemSize: {}", maxItemsByGlobalMemSize);
+    logger.debug("maxItemsByMaxAllocSize: {}", maxItemsByMaxAllocSize);
 
     return Math.min(maxItemsByGlobalMemSize, maxItemsByMaxAllocSize);
   }
@@ -397,7 +406,7 @@ final class OCLPoC {
           Pointer.to(platformNameChars), null);
       String platformName = new String(platformNameChars);
 
-      logger.info("Platform " + pfi + ": " + platformName);
+      logger.info("Platform {}: {}", pfi, platformName);
 
       int[] numDevices = new int[1];
       clGetDeviceIDs(platforms[pfi], CL_DEVICE_TYPE_GPU, 0, null, numDevices);
@@ -473,12 +482,7 @@ final class OCLPoC {
   }
 
   public static class PreValidateFailException extends RuntimeException {
-    final Block block;
-
-    PreValidateFailException(String message, Block block) {
-      super(message);
-      this.block = block;
-    }
+    transient final Block block;
 
     PreValidateFailException(String message, Throwable cause, Block block) {
       super(message, cause);

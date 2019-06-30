@@ -40,14 +40,16 @@ final class PeerImpl implements Peer {
   private final AtomicLong downloadedVolume = new AtomicLong();
   private final AtomicLong uploadedVolume = new AtomicLong();
   private final AtomicInteger lastUpdated = new AtomicInteger();
-  private volatile byte[] lastDownloadedTransactionsDigest;
+  private byte[] lastDownloadedTransactionsDigest;
+  private final Object lastDownloadedTransactionsLock = new Object();
 
   PeerImpl(String peerAddress, String announcedAddress) {
     this.peerAddress = peerAddress;
     this.announcedAddress.set(announcedAddress);
     try {
       this.port.set(new URL(Constants.HTTP + announcedAddress).getPort());
-    } catch (MalformedURLException ignore) {}
+    } catch (MalformedURLException ignored) {
+    }
     this.state.set(State.NON_CONNECTED);
     this.version.set(Version.EMPTY); //not null
     this.shareAddress.set(true);
@@ -63,11 +65,13 @@ final class PeerImpl implements Peer {
     return state.get();
   }
 
-  public boolean isState(State cmp_state) {
-    return state.get() == cmp_state;
+  @Override
+  public boolean isState(State cmpState) {
+    return state.get() == cmpState;
   }
 
-  void setState(State state) {
+  @Override
+  public void setState(State state) {
     if (this.state.get() == state) {
       return;
     }
@@ -87,15 +91,18 @@ final class PeerImpl implements Peer {
   }
 
   public boolean diffLastDownloadedTransactions( byte[] data ) {
-    byte[] newDigest = Crypto.sha256().digest(data);
-    if ( lastDownloadedTransactionsDigest != null && Arrays.equals(newDigest, lastDownloadedTransactionsDigest) ) {
-      return false;
+    synchronized (lastDownloadedTransactionsLock) {
+      byte[] newDigest = Crypto.sha256().digest(data);
+      if (lastDownloadedTransactionsDigest != null && Arrays.equals(newDigest, lastDownloadedTransactionsDigest)) {
+        return false;
+      }
+      lastDownloadedTransactionsDigest = newDigest;
+      return true;
     }
-    lastDownloadedTransactionsDigest = newDigest;
-    return true;
   }
 
-  void updateDownloadedVolume(long volume) {
+  @Override
+  public void updateDownloadedVolume(long volume) {
     synchronized (this) {
       downloadedVolume.addAndGet(volume);
     }
@@ -107,7 +114,8 @@ final class PeerImpl implements Peer {
     return uploadedVolume.get();
   }
 
-  void updateUploadedVolume(long volume) {
+  @Override
+  public void updateUploadedVolume(long volume) {
     synchronized (this) {
       uploadedVolume.addAndGet(volume);
     }
@@ -119,17 +127,9 @@ final class PeerImpl implements Peer {
     return version.get();
   }
 
-  // semantic versioning for peer versions. here: ">=" negate it for "<"
+  @Override
   public boolean isHigherOrEqualVersionThan(Version ourVersion) {
-    return isHigherOrEqualVersion(ourVersion, version.get());
-  }
-
-  public static boolean isHigherOrEqualVersion(Version ourVersion, Version possiblyLowerVersion) {
-    if (ourVersion == null || possiblyLowerVersion == null) {
-      return false;
-    }
-
-    return possiblyLowerVersion.isGreaterThanOrEqualTo(ourVersion);
+    return Peer.isHigherOrEqualVersion(ourVersion, version.get());
   }
 
   public boolean isAtLeastMyVersion() {
@@ -194,11 +194,13 @@ final class PeerImpl implements Peer {
       this.announcedAddress.set(announcedPeerAddress);
       try {
         this.port.set(new URL(Constants.HTTP + announcedPeerAddress).getPort());
-      } catch (MalformedURLException ignore) {}
+      } catch (MalformedURLException ignored) {
+      }
     }
   }
 
-  int getPort() {
+  @Override
+  public int getPort() {
     return port.get();
   }
 
@@ -214,7 +216,6 @@ final class PeerImpl implements Peer {
 
   @Override
   public boolean isBlacklisted() {
-    // logger.debug("isBlacklisted - BL time: " + blacklistingTime + " Oldvers: " + isOldVersion + " PeerAddr: " + peerAddress);
     return blacklistingTime.get() > 0 || isOldVersion.get() || Peers.knownBlacklistedPeers.contains(peerAddress);
   }
 
@@ -234,8 +235,8 @@ final class PeerImpl implements Peer {
       boolean alreadyBlacklisted = isBlacklisted();
       logger.error("Reason for following blacklist: " + cause.getMessage(), cause);
       blacklist(description); // refresh blacklist expiry
-      if ( ! alreadyBlacklisted ) {
-        logger.debug("... because of: " + cause.toString(), cause);
+      if (!alreadyBlacklisted) {
+        logger.debug("... because of: {}", cause, cause);
       }
     }
   }
@@ -243,7 +244,9 @@ final class PeerImpl implements Peer {
   @Override
   public void blacklist(String description) {
     if (! isBlacklisted() ) {
-      logger.info("Blacklisting " + peerAddress + " (" + getVersion() + ") because of: " + description);
+      if (logger.isInfoEnabled()) {
+        logger.info("Blacklisting {} ({}) because of: {}", peerAddress, getVersion(), description);
+      }
     }
     blacklist();
   }
@@ -262,7 +265,8 @@ final class PeerImpl implements Peer {
     Peers.notifyListeners(this, Peers.Event.UNBLACKLIST);
   }
 
-  void updateBlacklistedStatus(long curTime) {
+  @Override
+  public void updateBlacklistedStatus(long curTime) {
     if (blacklistingTime.get() > 0 && blacklistingTime.get() + Peers.blacklistingPeriod <= curTime) {
       unBlacklist();
     }
@@ -278,18 +282,6 @@ final class PeerImpl implements Peer {
   public int getLastUpdated() {
     return lastUpdated.get();
   }
-/*
-  @Override
-  public Long getLastUnconfirmedTransactionTimestamp() {
-    return this.lastUnconfirmedTransactionTimestamp;
-  }
-
-  @Override
-  public void setLastUnconfirmedTransactionTimestamp(Long lastUnconfirmedTransactionTimestamp) {
-    this.lastUnconfirmedTransactionTimestamp = lastUnconfirmedTransactionTimestamp;
-  }
-*/
-
   void setLastUpdated(int lastUpdated) {
     this.lastUpdated.set(lastUpdated);
   }
@@ -417,7 +409,8 @@ final class PeerImpl implements Peer {
     return 0;
   }
 
-  void connect(int currentTime) {
+  @Override
+  public void connect(int currentTime) {
     JsonObject response = send(Peers.myPeerInfoRequest);
     if (response != null) {
       application.set(JSON.getAsString(response.get("application")));
@@ -433,7 +426,6 @@ final class PeerImpl implements Peer {
       }
       if (announcedAddress.get() == null) {
         setAnnouncedAddress(peerAddress);
-        //logger.debug("Connected to peer without announced address, setting to " + peerAddress);
       }
 
       setState(State.CONNECTED);

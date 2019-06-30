@@ -60,15 +60,15 @@ public final class ThreadPool {
     if (!propertyService.getBoolean("brs.disable" + name + "Thread", false)) {
       backgroundJobs.put(runnable, timeUnit.toMillis(delay));
     } else {
-      logger.info("Will not run " + name + " thread");
+      logger.info("Will not run {} thread", name);
     }
   }
 
-  public void scheduleThreadCores(String name, Runnable runnable, int delay) {
-    scheduleThreadCores(name, runnable, delay, TimeUnit.SECONDS);
+  public void scheduleThreadCores(Runnable runnable, int delay) {
+    scheduleThreadCores(runnable, delay, TimeUnit.SECONDS);
   }
 
-  public synchronized void scheduleThreadCores(String name, Runnable runnable, int delay, TimeUnit timeUnit) {
+  public synchronized void scheduleThreadCores(Runnable runnable, int delay, TimeUnit timeUnit) {
     if (scheduledThreadPool != null) {
       throw new IllegalStateException("Executor service already started, no new jobs accepted");
     }
@@ -80,11 +80,11 @@ public final class ThreadPool {
       throw new IllegalStateException("Executor service already started");
     }
 
-    logger.debug("Running " + beforeStartJobs.size() + " tasks...");
+    logger.debug("Running {} tasks...", beforeStartJobs.size());
     runAll(beforeStartJobs);
     beforeStartJobs.clear();
 
-    logger.debug("Running " + lastBeforeStartJobs.size() + " final tasks...");
+    logger.debug("Running {} final tasks...", lastBeforeStartJobs.size());
     runAll(lastBeforeStartJobs);
     lastBeforeStartJobs.clear();
 
@@ -94,7 +94,7 @@ public final class ThreadPool {
         cores = Runtime.getRuntime().availableProcessors();
       }
     int totalThreads = backgroundJobs.size() + backgroundJobsCores.size() * cores;
-    logger.debug("Starting " + String.valueOf(totalThreads) + " background jobs");
+    logger.debug("Starting {} background jobs", totalThreads);
     scheduledThreadPool = Executors.newScheduledThreadPool(totalThreads);
     for (Map.Entry<Runnable,Long> entry : backgroundJobs.entrySet()) {
       final Runnable inner = entry.getKey();
@@ -117,7 +117,9 @@ public final class ThreadPool {
     }
     backgroundJobsCores.clear();
 
-    logger.debug("Starting " + afterStartJobs.size() + " delayed tasks");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Starting {} delayed tasks", afterStartJobs.size());
+    }
     Thread thread = new Thread(() -> {
       runAll(afterStartJobs);
       afterStartJobs.clear();

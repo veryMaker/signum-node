@@ -19,7 +19,7 @@
   <packaging>jar</packaging>
 
   <properties>
-    <bcprov-jdk15on.version>1.61</bcprov-jdk15on.version>
+    <bcprov-jdk15on.version>1.62</bcprov-jdk15on.version>
     <burstkit4j.version>v0.10-beta1</burstkit4j.version>
     <ehcache.version>3.7.1</ehcache.version>
     <flywaydb.version>5.2.4</flywaydb.version>
@@ -28,10 +28,10 @@
     <h2.version>1.4.199</h2.version>
     <hikaricp.version>3.3.1</hikaricp.version>
     <java.version>1.8</java.version>
-    <jetty.version>9.4.18.v20190429</jetty.version>
+    <jetty.version>9.4.19.v20190610</jetty.version>
     <jocl.version>2.0.1</jocl.version>
     <jooq.version>3.11.11</jooq.version>
-    <mariadb.version>2.4.1</mariadb.version>
+    <mariadb.version>2.4.2</mariadb.version>
     <owasp.version>1.2.2</owasp.version>
     <slf4j.version>1.7.26</slf4j.version>
     <weupnp.version>0.1.4</weupnp.version>
@@ -42,7 +42,7 @@
     <junit-vintage.version>5.4.2</junit-vintage.version>
     <mockito.version>2.28.2</mockito.version>
     <powermock.version>2.0.2</powermock.version>
-    <apachehttpclient.version>4.5.8</apachehttpclient.version>
+    <apachehttpclient.version>4.5.9</apachehttpclient.version>
     <jacoco.version>0.8.4</jacoco.version>
 
     <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -174,6 +174,12 @@
     </dependency>
 
     <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-testing</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
       <version>${flywaydb.version}</version>
@@ -290,9 +296,9 @@
             <version>0.6.1</version>
             <configuration>
               <protoSourceRoot>${grpc.source.dir}</protoSourceRoot>
-              <protocArtifact>com.google.protobuf:protoc:3.5.1-1:exe:${os.detected.classifier}</protocArtifact>
+              <protocArtifact>com.google.protobuf:protoc:3.7.1:exe:${os.detected.classifier}</protocArtifact>
               <pluginId>grpc-java</pluginId>
-              <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.18.0:exe:${os.detected.classifier}</pluginArtifact>
+              <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
               <outputDirectory>src/</outputDirectory>
               <clearOutputDirectory>false</clearOutputDirectory>
             </configuration>
@@ -304,6 +310,23 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>headless</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <configuration>
+              <excludes>
+                <exclude>brs/BurstGUI.java</exclude>
+              </excludes>
+            </configuration>
           </plugin>
         </plugins>
       </build>

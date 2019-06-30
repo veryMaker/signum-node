@@ -1,7 +1,6 @@
 package brs;
 
 import brs.util.Convert;
-import brs.util.LoggerConfigurator;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -148,17 +147,13 @@ public final class VerifyTrace {
     }
   }
 
-  static {
-    LoggerConfigurator.init();
-  }
-
-  private static final String beginQuote = "^" + DebugTrace.QUOTE;
-  private static final String endQuote = DebugTrace.QUOTE + "$";
+  private static final String BEGIN_QUOTE = "^" + DebugTrace.QUOTE;
+  private static final String END_QUOTE = DebugTrace.QUOTE + "$";
 
   private static String[] unquote(String[] values) {
     String[] result = new String[values.length];
     for (int i = 0; i < values.length; i++) {
-      result[i] = values[i].replaceFirst(beginQuote, "").replaceFirst(endQuote, "");
+      result[i] = values[i].replaceFirst(BEGIN_QUOTE, "").replaceFirst(END_QUOTE, "");
     }
     return result;
   }

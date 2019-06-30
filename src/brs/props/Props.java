@@ -18,9 +18,6 @@ public class Props {
 
   public static final Prop<String> DEV_DUMP_PEERS_VERSION = new Prop<>("DEV.dumpPeersVersion", "");
 
-  public static final Prop<Boolean> DEV_FORCE_VALIDATE = new Prop<>("DEV.forceValidate", false);
-  public static final Prop<Boolean> DEV_FORCE_SCAN     = new Prop<>("DEV.forceScan", false);
-
   public static final Prop<String> DEV_P2P_REBROADCAST_TO  = new Prop<>("DEV.P2P.rebroadcastTo", "");
   public static final Prop<String> DEV_P2P_BOOTSTRAP_PEERS = new Prop<>("DEV.P2P.BootstrapPeers", "");
 
@@ -114,8 +111,6 @@ public class Props {
   public static final Prop<Boolean> API_V2_SERVER  = new Prop<>("API.V2.Server", true);
   public static final Prop<String> API_ALLOWED = new Prop<>("API.allowed", "127.0.0.1; localhost; [0:0:0:0:0:0:0:1];");
 
-  public static final Prop<Boolean> API_ACCEPT_SURPLUS_PARAMS = new Prop<>("API.AcceptSurplusParams", false);
-
   public static final Prop<String> API_LISTEN  = new Prop<>("API.Listen", "127.0.0.1");
   public static final Prop<Integer> API_PORT    = new Prop<>("API.Port", 8125);
   public static final Prop<Integer> API_V2_PORT    = new Prop<>("API.V2.Port", 8121);
@@ -170,6 +165,9 @@ public class Props {
   public static final Prop<Boolean> AUTO_POP_OFF_ENABLED = new Prop<>("AutoPopOff.Enable", true);
 
   public static final Prop<Boolean> ENABLE_AT_DEBUG_LOG = new Prop<>("ATDebugLog.Enable", false);
+
+  public static final Prop<String> SOLO_MINING_PASSPHRASES = new Prop<>("SoloMiningPassphrases", "");
+  public static final Prop<Boolean> ALLOW_OTHER_SOLO_MINERS = new Prop<>("AllowOtherSoloMiners", false);
 
   private Props() { //no need to construct
   }

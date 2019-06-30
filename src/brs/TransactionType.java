@@ -5,9 +5,10 @@ import brs.Attachment.AutomatedTransactionsCreation;
 import brs.BurstException.NotValidException;
 import brs.BurstException.ValidationException;
 import brs.assetexchange.AssetExchange;
-import brs.at.AT_Constants;
-import brs.at.AT_Controller;
-import brs.at.AT_Exception;
+import brs.at.AT;
+import brs.at.AtConstants;
+import brs.at.AtController;
+import brs.at.AtException;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxValues;
 import brs.services.*;
@@ -29,7 +30,7 @@ public abstract class TransactionType {
 
   private static final Logger logger = LoggerFactory.getLogger(TransactionType.class);
 
-  public static final Map<Byte, Map<Byte, TransactionType>> TRANSACTION_TYPES = new HashMap<>();
+  private static final Map<Byte, Map<Byte, TransactionType>> TRANSACTION_TYPES = new HashMap<>();
 
   private static final byte TYPE_PAYMENT = 0;
   private static final byte TYPE_MESSAGING = 1;
@@ -192,6 +193,10 @@ public abstract class TransactionType {
     }
   }
 
+  public static Map<Byte, Map<Byte, TransactionType>> getTransactionTypes() {
+    return Collections.unmodifiableMap(TRANSACTION_TYPES);
+  }
+
   private TransactionType() {
   }
 
@@ -210,13 +215,17 @@ public abstract class TransactionType {
   // return false if double spending
   public final boolean applyUnconfirmed(Transaction transaction, Account senderAccount) {
     long totalAmountNQT = calculateTransactionAmountNQT(transaction);
-    logger.trace("applyUnconfirmed: " + senderAccount.getUnconfirmedBalanceNQT() + " < totalamount: " + totalAmountNQT + " = false");
+    if (logger.isTraceEnabled()) {
+      logger.trace("applyUnconfirmed: {} < totalamount: {} = false", senderAccount.getUnconfirmedBalanceNQT(), totalAmountNQT);
+    }
     if (senderAccount.getUnconfirmedBalanceNQT() < totalAmountNQT) {
       return false;
     }
     accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
     if (!applyAttachmentUnconfirmed(transaction, senderAccount)) {
-      logger.trace("!applyAttachmentUnconfirmed(" + transaction + ", " + senderAccount.getId() );
+      if (logger.isTraceEnabled()) {
+        logger.trace("!applyAttachmentUnconfirmed({}, {})", transaction, senderAccount.getId());
+      }
       accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT);
       return false;
     }
@@ -251,7 +260,9 @@ public abstract class TransactionType {
     if (recipientAccount != null) {
       accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, transaction.getAmountNQT());
     }
-    logger.trace("applying transaction - id:" + transaction.getId() + ", type: " + transaction.getType());
+    if (logger.isTraceEnabled()) {
+      logger.trace("applying transaction - id: {}, type: {}", transaction.getId(), transaction.getType());
+    }
     applyAttachment(transaction, senderAccount, recipientAccount);
   }
 
@@ -309,7 +320,7 @@ public abstract class TransactionType {
     return "type: " + getType() + ", subtype: " + getSubtype();
   }
 
-  public static abstract class Payment extends TransactionType {
+  public abstract static class Payment extends TransactionType {
 
     private Payment() {
     }
@@ -418,10 +429,14 @@ public abstract class TransactionType {
       }
 
       @Override
-      public void parseAppendices(Transaction.Builder builder, JsonObject attachmentData) {}
+      public void parseAppendices(Transaction.Builder builder, JsonObject attachmentData) {
+        // No appendices
+      }
 
       @Override
-      public void parseAppendices(Transaction.Builder builder, int flags, byte version, ByteBuffer buffer) {}
+      public void parseAppendices(Transaction.Builder builder, int flags, byte version, ByteBuffer buffer) {
+        // No appendices
+      }
     };
 
     public static final TransactionType MULTI_SAME_OUT = new Payment() {
@@ -469,15 +484,19 @@ public abstract class TransactionType {
       }
 
       @Override
-      public void parseAppendices(Transaction.Builder builder, JsonObject attachmentData) {}
+      public void parseAppendices(Transaction.Builder builder, JsonObject attachmentData) {
+        // No appendices
+      }
 
       @Override
-      public void parseAppendices(Transaction.Builder builder, int flags, byte version, ByteBuffer buffer) {}
+      public void parseAppendices(Transaction.Builder builder, int flags, byte version, ByteBuffer buffer) {
+        // No appendices
+      }
     };
 
   }
 
-  public static abstract class Messaging extends TransactionType {
+  public abstract static class Messaging extends TransactionType {
 
     private Messaging() {
     }
@@ -520,6 +539,7 @@ public abstract class TransactionType {
 
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+        // No appendices
       }
 
       @Override
@@ -816,7 +836,7 @@ public abstract class TransactionType {
 
   }
 
-  public static abstract class ColoredCoins extends TransactionType {
+  public abstract static class ColoredCoins extends TransactionType {
 
     private ColoredCoins() {}
 
@@ -867,6 +887,7 @@ public abstract class TransactionType {
 
       @Override
       void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        // Nothing to undo
       }
 
       @Override
@@ -996,7 +1017,7 @@ public abstract class TransactionType {
 
     }
 
-    public static final TransactionType ASK_ORDER_PLACEMENT = new ColoredCoins.ColoredCoinsOrderPlacement() {
+    public static final TransactionType ASK_ORDER_PLACEMENT = new ColoredCoinsOrderPlacement() {
 
       @Override
       public final byte getSubtype() {
@@ -1046,7 +1067,7 @@ public abstract class TransactionType {
 
     };
 
-    public static final TransactionType BID_ORDER_PLACEMENT = new ColoredCoins.ColoredCoinsOrderPlacement() {
+    public static final TransactionType BID_ORDER_PLACEMENT = new ColoredCoinsOrderPlacement() {
 
       @Override
       public final byte getSubtype() {
@@ -1119,7 +1140,7 @@ public abstract class TransactionType {
 
     }
 
-    public static final TransactionType ASK_ORDER_CANCELLATION = new ColoredCoins.ColoredCoinsOrderCancellation() {
+    public static final TransactionType ASK_ORDER_CANCELLATION = new ColoredCoinsOrderCancellation() {
 
       @Override
       public final byte getSubtype() {
@@ -1166,7 +1187,7 @@ public abstract class TransactionType {
 
     };
 
-    public static final TransactionType BID_ORDER_CANCELLATION = new ColoredCoins.ColoredCoinsOrderCancellation() {
+    public static final TransactionType BID_ORDER_CANCELLATION = new ColoredCoinsOrderCancellation() {
 
       @Override
       public final byte getSubtype() {
@@ -1214,7 +1235,7 @@ public abstract class TransactionType {
     };
   }
 
-  public static abstract class DigitalGoods extends TransactionType {
+  public abstract static class DigitalGoods extends TransactionType {
 
     private DigitalGoods() {
     }
@@ -1751,7 +1772,7 @@ public abstract class TransactionType {
 
   }
 
-  public static abstract class AccountControl extends TransactionType {
+  public abstract static class AccountControl extends TransactionType {
 
     private AccountControl() {
     }
@@ -1794,8 +1815,6 @@ public abstract class TransactionType {
 
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
-        Attachment.AccountControlEffectiveBalanceLeasing attachment = (Attachment.AccountControlEffectiveBalanceLeasing) transaction.getAttachment();
-        //Account.getAccount(transaction.getSenderId()).leaseEffectiveBalance(transaction.getRecipientId(), attachment.getPeriod());
         // TODO: check if anyone's used this or if it's even possible to use this, and eliminate it if possible
       }
 
@@ -1824,7 +1843,7 @@ public abstract class TransactionType {
 
   }
 
-  public static abstract class BurstMining extends TransactionType {
+  public abstract static class BurstMining extends TransactionType {
 
     private BurstMining() {}
 
@@ -1918,7 +1937,7 @@ public abstract class TransactionType {
     };
   }
 
-  public static abstract class AdvancedPayment extends TransactionType {
+  public abstract static class AdvancedPayment extends TransactionType {
 
     private AdvancedPayment() {}
 
@@ -2078,6 +2097,7 @@ public abstract class TransactionType {
 
       @Override
       final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        // Nothing to undo.
       }
 
       @Override
@@ -2152,10 +2172,12 @@ public abstract class TransactionType {
 
       @Override
       final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+        // Nothing to apply.
       }
 
       @Override
       final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        // Nothing to undo.
       }
 
       @Override
@@ -2214,6 +2236,7 @@ public abstract class TransactionType {
 
       @Override
       final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        // Nothing to undo.
       }
 
       @Override
@@ -2284,6 +2307,7 @@ public abstract class TransactionType {
 
       @Override
       final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        // Nothing to undo.
       }
 
       @Override
@@ -2349,10 +2373,12 @@ public abstract class TransactionType {
 
       @Override
       final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+        // Nothing to apply.
       }
 
       @Override
       final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        // Nothing to undo.
       }
 
       @Override
@@ -2377,7 +2403,7 @@ public abstract class TransactionType {
     };
   }
 
-  public static abstract class AutomatedTransactions extends TransactionType{
+  public abstract static class AutomatedTransactions extends TransactionType{
     private AutomatedTransactions() {
 
     }
@@ -2423,24 +2449,17 @@ public abstract class TransactionType {
       @Override
       public AbstractAttachment parseAttachment(ByteBuffer buffer,
                                                 byte transactionVersion) throws NotValidException {
-        // TODO Auto-generated method stub
-        //System.out.println("parsing byte AT attachment");
-        //System.out.println("byte AT attachment parsed");
         return new AutomatedTransactionsCreation(buffer,transactionVersion);
       }
 
       @Override
       AbstractAttachment parseAttachment(JsonObject attachmentData) {
-        // TODO Auto-generated method stub
-        //System.out.println("parsing at attachment");
-        //System.out.println("attachment parsed");
         return new AutomatedTransactionsCreation(attachmentData);
       }
 
       @Override
       void doValidateAttachment(Transaction transaction)
               throws ValidationException {
-        //System.out.println("validating attachment");
         if (! fluxCapacitor.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK, blockchain.getLastBlock().getHeight())) {
           throw new BurstException.NotYetEnabledException("Automated Transactions not yet enabled at height " + blockchain.getLastBlock().getHeight());
         }
@@ -2452,12 +2471,12 @@ public abstract class TransactionType {
         Attachment.AutomatedTransactionsCreation attachment = (Attachment.AutomatedTransactionsCreation) transaction.getAttachment();
         long totalPages;
         try {
-          totalPages = AT_Controller.checkCreationBytes(attachment.getCreationBytes(), blockchain.getHeight());
+          totalPages = AtController.checkCreationBytes(attachment.getCreationBytes(), blockchain.getHeight());
         }
-        catch (AT_Exception e) {
+        catch (AtException e) {
           throw new BurstException.NotCurrentlyValidException("Invalid AT creation bytes", e);
         }
-        long requiredFee = totalPages * AT_Constants.getInstance().COST_PER_PAGE( transaction.getHeight() );
+        long requiredFee = totalPages * AtConstants.getInstance().costPerPage( transaction.getHeight() );
         if (transaction.getFeeNQT() <  requiredFee){
           throw new BurstException.NotValidException("Insufficient fee for AT creation. Minimum: " + Convert.toUnsignedLong(requiredFee / Constants.ONE_BURST));
         }
@@ -2469,24 +2488,17 @@ public abstract class TransactionType {
             throw new BurstException.NotValidException("Description of automated transaction over size limit");
           }
         }
-        //System.out.println("validating success");
       }
 
       @Override
-      void applyAttachment(Transaction transaction,
-                           Account senderAccount, Account recipientAccount) {
-        // TODO Auto-generated method stub
+      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AutomatedTransactionsCreation attachment = (Attachment.AutomatedTransactionsCreation) transaction.getAttachment();
-        Long atId = transaction.getId();
-        //System.out.println("Applying AT attachent");
         AT.addAT( transaction.getId() , transaction.getSenderId() , attachment.getName() , attachment.getDescription() , attachment.getCreationBytes() , transaction.getHeight() );
-        //System.out.println("At with id "+atId+" successfully applied");
       }
 
 
       @Override
       public boolean hasRecipient() {
-        // TODO Auto-generated method stub
         return false;
       }
     };
@@ -2514,17 +2526,13 @@ public abstract class TransactionType {
 
       @Override
       void doValidateAttachment(Transaction transaction) throws BurstException.ValidationException {
-          /*if (transaction.getAmountNQT() <= 0 || transaction.getAmountNQT() >= Constants.MAX_BALANCE_NQT) {
-            throw new BurstException.NotValidException("Invalid ordinary payment");
-            }*/
         throw new BurstException.NotValidException("AT payment never validates");
       }
 
       @Override
       void applyAttachment(Transaction transaction,
                            Account senderAccount, Account recipientAccount) {
-        // TODO Auto-generated method stub
-
+        // Nothing to apply
       }
 
 

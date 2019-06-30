@@ -10,9 +10,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-final class GetNextBlocks extends PeerServlet.PeerRequestHandler {
+final class GetNextBlocks implements PeerServlet.PeerRequestHandler {
 
   private final Blockchain blockchain;
 
@@ -22,14 +23,14 @@ final class GetNextBlocks extends PeerServlet.PeerRequestHandler {
 
 
   @Override
-  JsonElement processRequest(JsonObject request, Peer peer) {
+  public JsonElement processRequest(JsonObject request, Peer peer) {
 
     JsonObject response = new JsonObject();
 
     List<Block> nextBlocks = new ArrayList<>();
     int totalLength = 0;
     long blockId = Convert.parseUnsignedLong(JSON.getAsString(request.get("blockId")));
-    List<? extends Block> blocks = blockchain.getBlocksAfter(blockId, 100);
+    Collection<? extends Block> blocks = blockchain.getBlocksAfter(blockId, 100);
 
     for (Block block : blocks) {
       int length = Constants.BLOCK_HEADER_LENGTH + block.getPayloadLength();

@@ -122,10 +122,10 @@ public class BlockServiceImpl implements BlockService {
 
     for (Transaction transaction : block.getTransactions()) {
       if (!transaction.verifySignature()) {
-        logger.info("Bad transaction signature during block pre-verification for tx: {} at block height: {}",
-            Convert.toUnsignedLong(transaction.getId()), block.getHeight());
-        throw new BlockchainProcessor.TransactionNotAcceptedException("Invalid signature for tx: "
-            + Convert.toUnsignedLong(transaction.getId()) + " at block height: " + block.getHeight(),
+        if (logger.isInfoEnabled()) {
+          logger.info("Bad transaction signature during block pre-verification for tx: {} at block height: {}", Convert.toUnsignedLong(transaction.getId()), block.getHeight());
+        }
+        throw new BlockchainProcessor.TransactionNotAcceptedException("Invalid signature for tx: " + Convert.toUnsignedLong(transaction.getId()) + " at block height: " + block.getHeight(),
             transaction);
       }
       if (Thread.currentThread().isInterrupted() || ! ThreadPool.running.get() )

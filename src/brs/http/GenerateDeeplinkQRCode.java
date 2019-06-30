@@ -3,11 +3,12 @@ package brs.http;
 import brs.Constants;
 import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionType;
-import brs.http.APIServlet.PrimitiveRequestHandler;
+import brs.http.APIServlet.HttpRequestHandler;
 import brs.http.common.Parameters;
 import brs.util.Convert;
 import brs.util.StringUtils;
 import com.google.zxing.WriterException;
+import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,13 +21,14 @@ import java.io.IOException;
 import static brs.http.JSONResponses.*;
 import static brs.http.common.Parameters.*;
 
-public class GenerateDeeplinkQRCode extends PrimitiveRequestHandler {
+public class GenerateDeeplinkQRCode extends HttpRequestHandler {
 
   private final Logger logger = LoggerFactory.getLogger(GenerateDeeplinkQRCode.class);
 
   private final DeeplinkQRCodeGenerator deeplinkQRCodeGenerator;
 
   public GenerateDeeplinkQRCode(DeeplinkQRCodeGenerator deeplinkQRCodeGenerator) {
+    super(new APITag[]{APITag.CREATE_TRANSACTION, APITag.TRANSACTIONS}, IMMUTABLE_PARAMETER, RECEIVER_ID_PARAMETER, AMOUNT_NQT_PARAMETER, FEE_NQT_PARAMETER, FEE_SUGGESTION_TYPE_PARAMETER, MESSAGE_PARAMETER);
     this.deeplinkQRCodeGenerator = deeplinkQRCodeGenerator;
   }
 
@@ -61,7 +63,7 @@ public class GenerateDeeplinkQRCode extends PrimitiveRequestHandler {
       if (!StringUtils.isEmpty(feeNQTString)) {
         feeNQT = Long.parseLong(feeNQTString);
 
-        if (feeNQT != null && (feeNQT <= 0 || feeNQT >= Constants.MAX_BALANCE_NQT)) {
+        if (feeNQT <= 0 || feeNQT >= Constants.MAX_BALANCE_NQT) {
           addErrorMessage(resp, INCORRECT_FEE);
           return;
         }
@@ -99,10 +101,9 @@ public class GenerateDeeplinkQRCode extends PrimitiveRequestHandler {
       resp.getOutputStream().close();
     } catch (WriterException | IOException e) {
       logger.error("Could not generate Deeplink QR code", e);
-      resp.setStatus(500);
+      resp.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
     } catch (IllegalArgumentException e) {
       logger.error("Problem with arguments", e);
-      resp.setStatus(500);
     }
   }
 }

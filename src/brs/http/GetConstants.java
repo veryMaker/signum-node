@@ -13,11 +13,11 @@ import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
 
-final class GetConstants extends APIServlet.APIRequestHandler {
+final class GetConstants extends APIServlet.JsonRequestHandler {
 
     static final GetConstants instance = new GetConstants();
 
-    private final JsonElement CONSTANTS;
+    private final JsonElement constants;
 
     private GetConstants() {
         super(new APITag[] {APITag.INFO});
@@ -28,7 +28,7 @@ final class GetConstants extends APIServlet.APIRequestHandler {
         response.addProperty("maxArbitraryMessageLength", Constants.MAX_ARBITRARY_MESSAGE_LENGTH);
 
         JsonArray transactionTypes = new JsonArray();
-        TransactionType.TRANSACTION_TYPES
+        TransactionType.getTransactionTypes()
                 .forEach((key, value) -> {
                     JsonObject transactionType = new JsonObject();
                     transactionType.addProperty("value", key);
@@ -62,20 +62,15 @@ final class GetConstants extends APIServlet.APIRequestHandler {
         peerStates.add(peerState);
         response.add("peerStates", peerStates);
 
-        JsonObject requestTypes = new JsonObject();
-        // for (Map.Entry<String, APIServlet.APIRequestHandler> handlerEntry : APIServlet.apiRequestHandlers.entrySet()) {
-        //     JsonObject handlerJSON = JSONData.apiRequestHandler(handlerEntry.getValue());
-        //     handlerJSON.addProperty("enabled", true);
-        //     requestTypes.addProperty(handlerEntry.getKey(), handlerJSON);
-        // }
-        response.add("requestTypes", requestTypes);
+        // TODO remove this always empty field
+        response.add("requestTypes", new JsonObject());
 
-        CONSTANTS = response;
+        constants = response;
     }
 
     @Override
     JsonElement processRequest(HttpServletRequest req) {
-        return CONSTANTS;
+        return constants;
     }
 
 }

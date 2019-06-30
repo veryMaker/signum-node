@@ -16,7 +16,7 @@ import static brs.http.common.Parameters.NUM_BLOCKS_PARAMETER;
 import static brs.http.common.ResultFields.BLOCKS_RESPONSE;
 import static brs.http.common.ResultFields.ERROR_RESPONSE;
 
-final class PopOff extends APIServlet.APIRequestHandler {
+final class PopOff extends APIServlet.JsonRequestHandler {
 
   private final BlockchainProcessor blockchainProcessor;
   private final Blockchain blockchain;
@@ -36,11 +36,11 @@ final class PopOff extends APIServlet.APIRequestHandler {
     int numBlocks = 0;
     try {
       numBlocks = Integer.parseInt(req.getParameter(NUM_BLOCKS_PARAMETER));
-    } catch (NumberFormatException e) {}
+    } catch (NumberFormatException ignored) {}
     int height = 0;
     try {
       height = Integer.parseInt(req.getParameter(HEIGHT_PARAMETER));
-    } catch (NumberFormatException e) {}
+    } catch (NumberFormatException ignored) {}
 
     List<? extends Block> blocks;
     JsonArray blocksJSON = new JsonArray();

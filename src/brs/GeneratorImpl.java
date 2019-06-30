@@ -21,44 +21,11 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 public class GeneratorImpl implements Generator {
-
   private static final Logger logger = LoggerFactory.getLogger(GeneratorImpl.class);
 
-  private static final Listeners<GeneratorState, Event> listeners = new Listeners<>();
-
-  private static final ConcurrentMap<Long, GeneratorStateImpl> generators = new ConcurrentHashMap<>();
-  private static final Collection<? extends GeneratorState> allGenerators = Collections.unmodifiableCollection(generators.values());
-
+  private final Listeners<GeneratorState, Event> listeners = new Listeners<>();
+  private final ConcurrentMap<Long, GeneratorStateImpl> generators = new ConcurrentHashMap<>();
   private final Blockchain blockchain;
-
-  private Runnable generateBlockThread(BlockchainProcessor blockchainProcessor) {
-    return () -> {
-
-      try {
-        if (blockchainProcessor.isScanning()) {
-          return;
-        }
-        try {
-          long currentBlock = blockchain.getLastBlock().getHeight();
-          Iterator<Entry<Long, GeneratorStateImpl>> it = generators.entrySet().iterator();
-          while (it.hasNext() && !Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
-            Entry<Long, GeneratorStateImpl> generator = it.next();
-            if (currentBlock < generator.getValue().getBlock()) {
-              generator.getValue().forge(blockchainProcessor);
-            } else {
-              it.remove();
-            }
-          }
-        } catch (BlockchainProcessor.BlockNotAcceptedException e) {
-          logger.debug("Error in block generation thread", e);
-        }
-      } catch (Exception t) {
-        logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n" + t.toString(), t);
-        System.exit(1);
-      }
-
-    };
-  }
   private final TimeService timeService;
   private final FluxCapacitor fluxCapacitor;
 
@@ -68,12 +35,31 @@ public class GeneratorImpl implements Generator {
     this.fluxCapacitor = fluxCapacitor;
   }
 
+  private Runnable generateBlockThread(BlockchainProcessor blockchainProcessor) {
+    return () -> {
+      if (blockchainProcessor.isScanning()) {
+        return;
+      }
+      try {
+        long currentBlock = blockchain.getLastBlock().getHeight();
+        Iterator<Entry<Long, GeneratorStateImpl>> it = generators.entrySet().iterator();
+        while (it.hasNext() && !Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
+          Entry<Long, GeneratorStateImpl> generator = it.next();
+          if (currentBlock < generator.getValue().getBlock()) {
+            generator.getValue().forge(blockchainProcessor);
+          } else {
+            it.remove();
+          }
+        }
+      } catch (BlockchainProcessor.BlockNotAcceptedException e) {
+        logger.debug("Error in block generation thread", e);
+      }
+    };
+  }
+
   @Override
   public void generateForBlockchainProcessor(ThreadPool threadPool, BlockchainProcessor blockchainProcessor) {
     threadPool.scheduleThread("GenerateBlocks", generateBlockThread(blockchainProcessor), 500, TimeUnit.MILLISECONDS);
-  }
-
-  void clear() {
   }
 
   @Override
@@ -102,17 +88,21 @@ public class GeneratorImpl implements Generator {
     if (curGen == null || generator.getBlock() > curGen.getBlock() || generator.getDeadline().compareTo(curGen.getDeadline()) < 0) {
       generators.put(id, generator);
       listeners.notify(generator, Event.NONCE_SUBMITTED);
-      logger.debug("Account " + Convert.toUnsignedLong(id) + " started mining, deadline " + generator.getDeadline() + " seconds");
+      if (logger.isDebugEnabled()) {
+        logger.debug("Account {} started mining, deadline {} seconds", Convert.toUnsignedLong(id), generator.getDeadline());
+      }
     } else {
-      logger.debug("Account " + Convert.toUnsignedLong(id) + " already has better nonce");
+      if (logger.isDebugEnabled()) {
+        logger.debug("Account {} already has a better nonce", Convert.toUnsignedLong(id));
+      }
     }
 
     return generator;
   }
 
   @Override
-  public Collection<? extends GeneratorState> getAllGenerators() {
-    return allGenerators;
+  public Collection<GeneratorState> getAllGenerators() {
+    return Collections.unmodifiableCollection(generators.values());
   }
 
   @Override

@@ -1,10 +1,10 @@
 package brs;
 
-import brs.AT.HandleATBlockTransactionsListener;
 import brs.assetexchange.AssetExchange;
 import brs.assetexchange.AssetExchangeImpl;
-import brs.blockchainlistener.DevNullListener;
+import brs.at.AT;
 import brs.db.BlockDb;
+import brs.db.TransactionDb;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.sql.Db;
 import brs.db.store.BlockchainStore;
@@ -106,7 +106,7 @@ public final class Burst {
   private Burst() {
   } // never
 
-  public static BlockchainImpl getBlockchain() {
+  public static Blockchain getBlockchain() {
     return blockchain;
   }
 
@@ -167,7 +167,7 @@ public final class Burst {
       Db.init(propertyService, dbCacheManager);
       dbs = Db.getDbsByDatabaseType();
 
-      stores = new Stores(derivedTableManager, dbCacheManager, timeService, propertyService);
+      stores = new Stores(derivedTableManager, dbCacheManager, timeService, propertyService, dbs.getTransactionDb());
 
       final TransactionDb transactionDb = dbs.getTransactionDb();
       final BlockDb blockDb =  dbs.getBlockDb();
@@ -244,12 +244,12 @@ public final class Burst {
       threadPool.start(timeMultiplier);
       if (timeMultiplier > 1) {
         timeService.setTime(new Time.FasterTime(Math.max(timeService.getEpochTime(), getBlockchain().getLastBlock().getTimestamp()), timeMultiplier));
-        logger.info("TIME WILL FLOW " + timeMultiplier + " TIMES FASTER!");
+        logger.info("TIME WILL FLOW {} TIMES FASTER!", timeMultiplier);
       }
 
       long currentTime = System.currentTimeMillis();
-      logger.info("Initialization took " + (currentTime - startTime) + " ms");
-      logger.info("BRS " + VERSION + " started successfully.");
+      logger.info("Initialization took {} ms", currentTime - startTime);
+      logger.info("BRS {} started successfully.", VERSION);
 
       if (propertyService.getBoolean(Props.DEV_TESTNET)) {
         logger.info("RUNNING ON TESTNET - DO NOT USE REAL ACCOUNTS!");
@@ -264,8 +264,8 @@ public final class Burst {
   private static void addBlockchainListeners(BlockchainProcessor blockchainProcessor, AccountService accountService, DGSGoodsStoreService goodsService, Blockchain blockchain,
       TransactionDb transactionDb) {
 
-    final HandleATBlockTransactionsListener handleATBlockTransactionListener = new HandleATBlockTransactionsListener(accountService, blockchain, transactionDb);
-    final DevNullListener devNullListener = new DevNullListener(accountService, goodsService);
+    final AT.HandleATBlockTransactionsListener handleATBlockTransactionListener = new AT.HandleATBlockTransactionsListener(accountService, blockchain, transactionDb);
+    final DGSGoodsStoreServiceImpl.ExpiredPurchaseListener devNullListener = new DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(accountService, goodsService);
 
     blockchainProcessor.addListener(handleATBlockTransactionListener, BlockchainProcessor.Event.AFTER_BLOCK_APPLY);
     blockchainProcessor.addListener(devNullListener, BlockchainProcessor.Event.AFTER_BLOCK_APPLY);
@@ -280,7 +280,7 @@ public final class Burst {
     try {
       String command;
       while ( ( command = reader.readLine() ) != null){
-        logger.debug("received command: >" + command + "<");
+        logger.debug("received command: >{}<", command);
         if ( command.equals(".shutdown") ) {
           shutdown(false);
           System.exit(0);
@@ -315,7 +315,7 @@ public final class Burst {
     if (blockchainProcessor != null && blockchainProcessor.getOclVerify()) {
       OCLPoC.destroy();
     }
-    logger.info("BRS " + VERSION + " stopped.");
+    logger.info("BRS {} stopped.", VERSION);
     LoggerConfigurator.shutdown();
   }
 

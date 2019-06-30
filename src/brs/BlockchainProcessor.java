@@ -31,13 +31,7 @@ public interface BlockchainProcessor extends Observable<Block, BlockchainProcess
   void generateBlock(String secretPhrase, byte[] publicKey, Long nonce)
       throws BlockNotAcceptedException;
 
-  void scan(int height);
-
-  void forceScanAtStart();
-
-  void validateAtNextScan();
-
-  List<? extends Block> popOffTo(int height);
+  List<Block> popOffTo(int height);
 
   class BlockNotAcceptedException extends BurstException {
 
@@ -49,7 +43,7 @@ public interface BlockchainProcessor extends Observable<Block, BlockchainProcess
 
   class TransactionNotAcceptedException extends BlockNotAcceptedException {
 
-    private final Transaction transaction;
+    private final transient Transaction transaction;
 
     public TransactionNotAcceptedException(String message, Transaction transaction) {
       super(message  + " transaction: " + JSON.toJsonString(transaction.getJsonObject()));

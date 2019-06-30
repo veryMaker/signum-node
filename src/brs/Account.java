@@ -185,7 +185,7 @@ public class Account {
     return Convert.fullHashToId(publicKeyHash);
   }
 
-  static Account getOrAddAccount(long id) {
+  public static Account getOrAddAccount(long id) {
     Account account = getAccount(id);
     if (account == null) {
       account = new Account(id);

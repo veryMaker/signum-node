@@ -182,7 +182,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
       feedbackTable.insert(purchase, purchase.getFeedbackNotes());
     }
     if (message != null) {
-      addPublicFeedback(purchase, Convert.toString(message.getMessage()));
+      addPublicFeedback(purchase, Convert.toString(message.getMessageBytes()));
     }
     purchaseListeners.notify(purchase, Event.FEEDBACK);
   }
@@ -261,6 +261,27 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
   public void setPending(Purchase purchase, boolean pendingValue) {
     purchase.setPending(pendingValue);
     purchaseTable.insert(purchase);
+  }
+
+  public static class ExpiredPurchaseListener implements Listener<Block> {
+
+    private final AccountService accountService;
+    private final DGSGoodsStoreService goodsService;
+
+    public ExpiredPurchaseListener(AccountService accountService, DGSGoodsStoreService goodsService) {
+      this.accountService = accountService;
+      this.goodsService = goodsService;
+    }
+
+    @Override
+    public void notify(Block block) {
+      for (Purchase purchase : goodsService.getExpiredPendingPurchases(block.getTimestamp())) {
+        Account buyer = accountService.getAccount(purchase.getBuyerId());
+        accountService.addToUnconfirmedBalanceNQT(buyer, Convert.safeMultiply(purchase.getQuantity(), purchase.getPriceNQT()));
+        goodsService.changeQuantity(purchase.getGoodsId(), purchase.getQuantity(), true);
+        goodsService.setPending(purchase, false);
+      }
+    }
   }
 
 }
