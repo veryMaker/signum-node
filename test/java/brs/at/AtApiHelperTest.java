@@ -39,7 +39,7 @@ public class AtApiHelperTest {
     
     @Test
     public void testGetByteArray_long() {
-        assertEquals("0100000000000000", Convert.toHexString(AtApiHelper.getByteArray(0x0000000000000001L)));
+        assertEquals("0100000000000000", Convert.toHexString(AtApiHelper.getByteArray(0x0000000000000001L))); // TODO this fails.
         assertEquals("0123000000000000", Convert.toHexString(AtApiHelper.getByteArray(0x0000000000002301L)));
         assertEquals("0123450000000000", Convert.toHexString(AtApiHelper.getByteArray(0x0000000000452301L)));
         assertEquals("0123456700000000", Convert.toHexString(AtApiHelper.getByteArray(0x0000000067452301L)));
