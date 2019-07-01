@@ -7,6 +7,7 @@ import brs.grpc.GrpcApiHandler;
 import brs.grpc.proto.ApiException;
 import brs.grpc.proto.BrsApi;
 import brs.services.TimeService;
+import burst.kit.crypto.BurstCrypto;
 import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -27,6 +28,12 @@ public class CompleteBasicTransactionHandler implements GrpcApiHandler<BrsApi.Ba
         try {
             BrsApi.BasicTransaction.Builder builder = basicTransaction.toBuilder();
             Attachment.AbstractAttachment attachment = Attachment.AbstractAttachment.parseProtobufMessage(basicTransaction.getAttachment());
+            if (builder.getDeadline() == 0) {
+                builder.setDeadline(1440);
+            }
+            if (builder.getSenderId() == 0) {
+                builder.setSenderId(BurstCrypto.getInstance().getBurstAddressFromPublic(builder.getSenderPublicKey().toByteArray()).getBurstID().getSignedLongId());
+            }
             builder.setVersion(transactionProcessor.getTransactionVersion(blockchain.getHeight()));
             builder.setType(attachment.getTransactionType().getType());
             builder.setSubtype(attachment.getTransactionType().getSubtype());
