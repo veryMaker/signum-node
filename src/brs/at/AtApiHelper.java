@@ -32,7 +32,7 @@ public class AtApiHelper {
     }
 
     public static byte[] getByteArray(long l) {
-        return burstCrypto.longToBytes(l);
+        return Arrays.reverse(burstCrypto.longToBytes(l));
     }
 
     public static int longToNumOfTx(long x) {
