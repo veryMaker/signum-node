@@ -8,6 +8,7 @@
 
 package brs.at;
 
+import burst.kit.crypto.BurstCrypto;
 import org.bouncycastle.util.Arrays;
 
 import java.math.BigInteger;
@@ -17,6 +18,8 @@ public class AtApiHelper {
     private AtApiHelper() {
     }
 
+    private static final BurstCrypto burstCrypto = BurstCrypto.getInstance();
+
     public static int longToHeight(long x) {
         return (int) (x >> 32);
     }
@@ -25,26 +28,11 @@ public class AtApiHelper {
         if (bytes.length > 8) {
             throw new BufferOverflowException();
         }
-        long result = 0L;
-        // TODO use burstkit4j once its method is less bloated
-        for(int i = 0, length = Math.min(8, bytes.length)-1; i <= length; ++i) {
-            result <<= 8;
-            result |= (long)(bytes[length-i] & 255);
-        }
-        return result;
+        return burstCrypto.bytesToLong(bytes);
     }
 
     public static byte[] getByteArray(long l) {
-        return new byte[]{
-                (byte) (l & 0xFFL),
-                (byte) ((l & 0xFF00L) >> 8),
-                (byte) ((l & 0xFF0000L) >> 16),
-                (byte) ((l & 0xFF000000L) >> 24),
-                (byte) ((l & 0xFF00000000L) >> 32),
-                (byte) ((l & 0xFF0000000000L) >> 40),
-                (byte) ((l & 0xFF000000000000L) >> 48),
-                (byte) ((l & 0xFF00000000000000L) >> 56),
-        };
+        return Arrays.reverse(burstCrypto.longToBytes(l));
     }
 
     public static int longToNumOfTx(long x) {
