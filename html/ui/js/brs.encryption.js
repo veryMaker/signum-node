@@ -19,8 +19,8 @@ var BRS = (function(BRS, $, undefined) {
 	    if (BRS.rememberPassword) {
 		secretPhrase = _password;
 	    }
-            else {
-		throw $.t("error_generate_public_key_no_password");
+        else {
+		    throw $.t("error_generate_public_key_no_password");
 	    }
 	}
 
