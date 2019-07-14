@@ -6,7 +6,7 @@
 
   <groupId>burstcoin</groupId>
   <artifactId>burstcoin</artifactId>
-  <version>2.4.0</version>
+  <version>2.4.1</version>
   <name>Burstcoin Reference Software</name>
   <url>https://github.com/burst-apps-team/burstcoin</url>
 
@@ -20,10 +20,11 @@
 
   <properties>
     <bcprov-jdk15on.version>1.62</bcprov-jdk15on.version>
-    <burstkit4j.version>v0.10-beta1</burstkit4j.version>
+    <burstkit4j.version>v0.12.2</burstkit4j.version>
+    <rxjava.version>2.2.10</rxjava.version>
     <ehcache.version>3.7.1</ehcache.version>
     <flywaydb.version>5.2.4</flywaydb.version>
-    <grpc.version>1.21.0</grpc.version>
+    <grpc.version>1.22.1</grpc.version>
     <gson.version>2.8.5</gson.version>
     <h2.version>1.4.199</h2.version>
     <hikaricp.version>3.3.1</hikaricp.version>
@@ -36,11 +37,11 @@
     <slf4j.version>1.7.26</slf4j.version>
     <weupnp.version>0.1.4</weupnp.version>
     <xzing.version>3.4.0</xzing.version>
-
-    <junit-jupiter.version>5.4.2</junit-jupiter.version>
+    <junit-jupiter.version>5.5.0</junit-jupiter.version>
+    <junit-platform.version>1.5.0</junit-platform.version>
     <junit-platform.version>1.4.2</junit-platform.version>
-    <junit-vintage.version>5.4.2</junit-vintage.version>
-    <mockito.version>2.28.2</mockito.version>
+    <junit-vintage.version>5.5.0</junit-vintage.version>
+    <mockito.version>3.0.0</mockito.version>
     <powermock.version>2.0.2</powermock.version>
     <apachehttpclient.version>4.5.9</apachehttpclient.version>
     <jacoco.version>0.8.4</jacoco.version>
@@ -68,6 +69,12 @@
       <groupId>com.github.burst-apps-team</groupId>
       <artifactId>burstkit4j</artifactId>
       <version>${burstkit4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.reactivex.rxjava2</groupId>
+      <artifactId>rxjava</artifactId>
+      <version>${rxjava.version}</version>
     </dependency>
 
     <dependency>
@@ -456,7 +463,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.1</version>
         <configuration>
           <doclint>none</doclint>
           <show>private</show>

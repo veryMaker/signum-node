@@ -73,7 +73,7 @@ public final class ProtoBuilder {
                 .setNumberOfTransactions(block.getTransactions().size())
                 .setTotalAmount(block.getTotalAmountNQT())
                 .setTotalFee(block.getTotalFeeNQT())
-                .setBlockReward(blockService.getBlockReward(block) * Constants.ONE_BURST)
+                .setBlockReward(blockService.getBlockReward(block))
                 .setPayloadLength(block.getPayloadLength())
                 .setVersion(block.getVersion())
                 .setBaseTarget(block.getBaseTarget())

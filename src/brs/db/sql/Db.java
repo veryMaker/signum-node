@@ -8,11 +8,15 @@ import brs.props.PropertyService;
 import brs.props.Props;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.reactivex.Completable;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
+import org.jooq.conf.StatementType;
 import org.jooq.impl.DSL;
 import org.jooq.tools.jdbc.JDBCUtils;
 import org.mariadb.jdbc.MariaDbDataSource;
@@ -27,6 +31,8 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public final class Db {
 
@@ -82,12 +88,18 @@ public final class Db {
           runFlyway = true;
           config.setAutoCommit(true);
           config.addDataSourceProperty("cachePrepStmts", "true");
-          config.addDataSourceProperty("prepStmtCacheSize", "250");
-          config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+          config.addDataSourceProperty("prepStmtCacheSize", "512");
+          config.addDataSourceProperty("prepStmtCacheSqlLimit", "4096");
           config.addDataSourceProperty("characterEncoding", "utf8mb4");
+          config.addDataSourceProperty("cacheServerConfiguration", "true");
+          config.addDataSourceProperty("useLocalSessionState", "true");
+          config.addDataSourceProperty("useLocalTransactionState", "true");
           config.addDataSourceProperty("useUnicode", "true");
-          config.addDataSourceProperty("useServerPrepStmts", "false");
+          config.addDataSourceProperty("useServerPrepStmts", "true");
           config.addDataSourceProperty("rewriteBatchedStatements", "true");
+          config.addDataSourceProperty("maintainTimeStats", "false");
+          config.addDataSourceProperty("useUnbufferedIO", "false");
+          config.addDataSourceProperty("useReadAheadInput", "false");
           MariaDbDataSource flywayDataSource = new MariaDbDataSource(dbUrl) {
             @Override
             protected synchronized void initialize() throws SQLException {
@@ -123,7 +135,7 @@ public final class Db {
           break;
       }
 
-      cp = new HikariDataSource(config);
+        cp = new HikariDataSource(config);
 
       if (runFlyway) {
         logger.info("Running flyway migration");
@@ -193,17 +205,30 @@ public final class Db {
     return con;
   }
 
-  public static DSLContext getDSLContext() {
+  public static <T> T useDSLContext(Function<DSLContext, T> function) {
+      try (DSLContext context = getDSLContext()) {
+          return function.apply(context);
+      }
+  }
+
+  public static void useDSLContext(Consumer<DSLContext> consumer) { // TODO RxJava
+    try (DSLContext context = getDSLContext()) {
+      consumer.accept(context);
+    }
+  }
+
+  private static DSLContext getDSLContext() {
     Connection con    = localConnection.get();
     Settings settings = new Settings();
     settings.setRenderSchema(Boolean.FALSE);
 
-    if ( con == null ) {
+    if (con == null) {
       try ( DSLContext ctx = DSL.using(cp, dialect, settings) ) {
         return ctx;
       }
     }
     else {
+      settings.setStatementType(StatementType.STATIC_STATEMENT);
       try ( DSLContext ctx = DSL.using(con, dialect, settings) ) {
         return ctx;
       }
@@ -256,9 +281,8 @@ public final class Db {
     }
     try {
       con.commit();
-    }
-    catch (SQLException e) {
-      throw new RuntimeException(e.toString(), e);
+    } catch (SQLException e) {
+        throw new RuntimeException(e.toString(), e);
     }
   }
 
@@ -292,18 +316,19 @@ public final class Db {
   }
 
   public static void optimizeTable(String tableName) {
-    DSLContext ctx = getDSLContext();
-    try {
-      switch (ctx.dialect()) {
-        case MYSQL:
-        case MARIADB:
-          ctx.execute("OPTIMIZE NO_WRITE_TO_BINLOG TABLE " + tableName);
-          break;
-        default:
+    useDSLContext(ctx -> {
+      try {
+        switch (ctx.dialect()) {
+          case MYSQL:
+          case MARIADB:
+            ctx.execute("OPTIMIZE NO_WRITE_TO_BINLOG TABLE " + tableName);
             break;
+          default:
+            break;
+        }
+      } catch (Exception e) {
+        logger.debug("Failed to optimize table {}", tableName, e);
       }
-    } catch (Exception e) {
-      logger.debug("Failed to optimize table {}", tableName, e);
-    }
+    });
   }
 }

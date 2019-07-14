@@ -247,7 +247,7 @@ public final class JSONResponses {
     return response;
   }
 
-  public static JsonElement incorrectUnkown(String paramName) {
+  public static JsonElement incorrectUnknown(String paramName) {
     return incorrect(paramName, "param not known");
   }
 

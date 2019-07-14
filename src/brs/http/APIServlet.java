@@ -30,6 +30,7 @@ public final class APIServlet extends HttpServlet {
   private static final Logger logger = LoggerFactory.getLogger(APIServlet.class);
 
   private final Set<Subnet> allowedBotHosts;
+  private final boolean acceptSurplusParams;
 
   public APIServlet(TransactionProcessor transactionProcessor, Blockchain blockchain, BlockchainProcessor blockchainProcessor, ParameterService parameterService,
                     AccountService accountService, AliasService aliasService, AssetExchange assetExchange,
@@ -41,6 +42,7 @@ public final class APIServlet extends HttpServlet {
     enforcePost = propertyService.getBoolean(Props.API_SERVER_ENFORCE_POST);
     allowedOrigins = propertyService.getString(Props.API_ALLOWED_ORIGINS);
     this.allowedBotHosts = allowedBotHosts;
+    this.acceptSurplusParams = propertyService.getBoolean(Props.API_ACCEPT_SURPLUS_PARAMS);
 
     final Map<String, HttpRequestHandler> map = new HashMap<>();
 
@@ -217,6 +219,14 @@ public final class APIServlet extends HttpServlet {
       writeJsonToResponse(resp, msg);
     }
 
+    final void validateParams(HttpServletRequest req) throws ParameterException {
+      for (String parameter : req.getParameterMap().keySet()) {
+        // _ is a parameter used in eg. jquery to avoid caching queries
+        if (!this.parameters.contains(parameter) && !parameter.equals("_") && ! parameter.equals("requestType"))
+          throw new ParameterException(JSONResponses.incorrectUnknown(parameter));
+      }
+    }
+
     boolean requirePost() {
       return false;
     }
@@ -298,7 +308,10 @@ public final class APIServlet extends HttpServlet {
     }
 
     try {
+      if (!acceptSurplusParams) apiRequestHandler.validateParams(req);
       apiRequestHandler.processRequest(req, resp);
+    } catch (ParameterException e) {
+      writeJsonToResponse(resp, e.getErrorResponse());
     } catch (RuntimeException e) {
       logger.debug("Error processing API request", e);
       resp.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);

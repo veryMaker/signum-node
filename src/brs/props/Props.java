@@ -111,8 +111,11 @@ public class Props {
   public static final Prop<Boolean> API_V2_SERVER  = new Prop<>("API.V2.Server", true);
   public static final Prop<String> API_ALLOWED = new Prop<>("API.allowed", "127.0.0.1; localhost; [0:0:0:0:0:0:0:1];");
 
+  public static final Prop<Boolean> API_ACCEPT_SURPLUS_PARAMS = new Prop<>("API.AcceptSurplusParams", false);
+
   public static final Prop<String> API_LISTEN  = new Prop<>("API.Listen", "127.0.0.1");
   public static final Prop<Integer> API_PORT    = new Prop<>("API.Port", 8125);
+  public static final Prop<String> API_V2_LISTEN  = new Prop<>("API.V2.Listen", "0.0.0.0");
   public static final Prop<Integer> API_V2_PORT    = new Prop<>("API.V2.Port", 8121);
 
   public static final Prop<String> API_UI_DIR  = new Prop<>("API.UI_Dir", "html/ui");
@@ -167,7 +170,7 @@ public class Props {
   public static final Prop<Boolean> ENABLE_AT_DEBUG_LOG = new Prop<>("ATDebugLog.Enable", false);
 
   public static final Prop<String> SOLO_MINING_PASSPHRASES = new Prop<>("SoloMiningPassphrases", "");
-  public static final Prop<Boolean> ALLOW_OTHER_SOLO_MINERS = new Prop<>("AllowOtherSoloMiners", false);
+  public static final Prop<Boolean> ALLOW_OTHER_SOLO_MINERS = new Prop<>("AllowOtherSoloMiners", true);
 
   private Props() { //no need to construct
   }

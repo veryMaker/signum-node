@@ -68,7 +68,7 @@ public class BrsService extends BrsApiServiceGrpc.BrsApiServiceImplBase {
         handlerMap.put(GetTransactionHandler.class, new GetTransactionHandler(blockchain, transactionProcessor));
         handlerMap.put(GetUnconfirmedTransactionsHandler.class, new GetUnconfirmedTransactionsHandler(indirectIncomingService, transactionProcessor));
         handlerMap.put(ParseTransactionHandler.class, new ParseTransactionHandler());
-        handlerMap.put(SubmitNonceHandler.class, new SubmitNonceHandler(blockchain, accountService, generator));
+        handlerMap.put(SubmitNonceHandler.class, new SubmitNonceHandler(propertyService, blockchain, accountService, generator));
         handlerMap.put(SuggestFeeHandler.class, new SuggestFeeHandler(feeSuggestionCalculator));
         this.handlers = Collections.unmodifiableMap(handlerMap);
     }

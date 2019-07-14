@@ -2,16 +2,19 @@ package brs;
 
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValues;
 import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.TimeService;
-import brs.util.*;
+import brs.util.Convert;
+import brs.util.Listener;
+import brs.util.Listeners;
+import brs.util.ThreadPool;
+import burst.kit.crypto.BurstCrypto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -25,6 +28,7 @@ public class GeneratorImpl implements Generator {
 
   private final Listeners<GeneratorState, Event> listeners = new Listeners<>();
   private final ConcurrentMap<Long, GeneratorStateImpl> generators = new ConcurrentHashMap<>();
+  private final BurstCrypto burstCrypto = BurstCrypto.getInstance();
   private final Blockchain blockchain;
   private final TimeService timeService;
   private final FluxCapacitor fluxCapacitor;
@@ -107,44 +111,31 @@ public class GeneratorImpl implements Generator {
 
   @Override
   public byte[] calculateGenerationSignature(byte[] lastGenSig, long lastGenId) {
-    ByteBuffer gensigbuf = ByteBuffer.allocate(32 + 8);
-    gensigbuf.put(lastGenSig);
-    gensigbuf.putLong(lastGenId);
-    return Crypto.shabal256().digest(gensigbuf.array());
+    return burstCrypto.calculateGenerationSignature(lastGenSig, lastGenId);
   }
 
   @Override
   public int calculateScoop(byte[] genSig, long height) {
-    ByteBuffer posbuf = ByteBuffer.allocate(32 + 8);
-    posbuf.put(genSig);
-    posbuf.putLong(height);
-    BigInteger hashnum = new BigInteger(1, Crypto.shabal256().digest(posbuf.array()));
-    return hashnum.mod(BigInteger.valueOf(MiningPlot.SCOOPS_PER_PLOT)).intValue();
+    return burstCrypto.calculateScoop(genSig, height);
+  }
+
+  private int getPocVersion(int blockHeight) {
+    return fluxCapacitor.getValue(FluxValues.POC2, blockHeight) ? 2 : 1;
   }
 
   @Override
   public BigInteger calculateHit(long accountId, long nonce, byte[] genSig, int scoop, int blockHeight) {
-    MiningPlot plot = new MiningPlot(accountId, nonce, blockHeight, fluxCapacitor);
-    MessageDigest shabal256 = Crypto.shabal256();
-    shabal256.update(genSig);
-    plot.hashScoop(shabal256, scoop);
-    byte[] hash = shabal256.digest();
-    return new BigInteger(1, new byte[] { hash[7], hash[6], hash[5], hash[4], hash[3], hash[2], hash[1], hash[0] });
+    return burstCrypto.calculateHit(accountId, nonce, genSig, scoop, getPocVersion(blockHeight));
   }
 
   @Override
   public BigInteger calculateHit(long accountId, long nonce, byte[] genSig, byte[] scoopData) {
-    MessageDigest shabal256 = Crypto.shabal256();
-    shabal256.update(genSig);
-    shabal256.update(scoopData);
-    byte[] hash = shabal256.digest();
-    return new BigInteger(1, new byte[] { hash[7], hash[6], hash[5], hash[4], hash[3], hash[2], hash[1], hash[0] });
+    return burstCrypto.calculateHit(accountId, nonce, genSig, scoopData);
   }
 
   @Override
   public BigInteger calculateDeadline(long accountId, long nonce, byte[] genSig, int scoop, long baseTarget, int blockHeight) {
-    BigInteger hit = calculateHit(accountId, nonce, genSig, scoop, blockHeight);
-    return hit.divide(BigInteger.valueOf(baseTarget));
+    return burstCrypto.calculateDeadline(accountId, nonce, genSig, scoop, baseTarget, getPocVersion(blockHeight));
   }
 
   public class GeneratorStateImpl implements GeneratorState {

@@ -17,6 +17,7 @@ import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -68,7 +69,7 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
       }
     }
 
-    if(secret == null) {
+    if (secret == null || Objects.equals(secret, "")) {
       long accountIdLong;
       try {
         accountIdLong = BurstAddress.fromEither(accountId).getBurstID().getSignedLongId();

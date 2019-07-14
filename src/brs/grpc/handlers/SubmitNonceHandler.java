@@ -7,20 +7,32 @@ import brs.crypto.Crypto;
 import brs.grpc.GrpcApiHandler;
 import brs.grpc.proto.ApiException;
 import brs.grpc.proto.BrsApi;
+import brs.props.PropertyService;
+import brs.props.Props;
 import brs.services.AccountService;
+import burst.kit.crypto.BurstCrypto;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class SubmitNonceHandler implements GrpcApiHandler<BrsApi.SubmitNonceRequest, BrsApi.SubmitNonceResponse> {
-
     private final Blockchain blockchain;
     private final AccountService accountService;
     private final Generator generator;
+    private final Map<Long, String> passphrases;
+    private final boolean allowOtherSoloMiners;
 
-    public SubmitNonceHandler(Blockchain blockchain, AccountService accountService, Generator generator) {
+    public SubmitNonceHandler(PropertyService propertyService, Blockchain blockchain, AccountService accountService, Generator generator) {
         this.blockchain = blockchain;
         this.accountService = accountService;
         this.generator = generator;
+
+        this.passphrases = propertyService.getStringList(Props.SOLO_MINING_PASSPHRASES)
+                .stream()
+                .collect(Collectors.toMap(passphrase -> BurstCrypto.getInstance().getBurstAddressFromPassphrase(passphrase).getBurstID().getSignedLongId(), Function.identity()));
+        this.allowOtherSoloMiners = propertyService.getBoolean(Props.ALLOW_OTHER_SOLO_MINERS);
     }
 
     @Override
@@ -35,7 +47,15 @@ public class SubmitNonceHandler implements GrpcApiHandler<BrsApi.SubmitNonceRequ
         }
 
         if (Objects.equals(secret, "")) {
-            throw new ApiException("Missing Passphrase");
+            if (passphrases.containsKey(accountId)) {
+                secret = passphrases.get(accountId);
+            } else {
+                throw new ApiException("Missing Passphrase and account passphrase not in solo mining config");
+            }
+        }
+
+        if (!allowOtherSoloMiners && !passphrases.containsValue(secret)) {
+            throw new ApiException("This account is not allowed to mine on this node as the whitelist is enabled and it is not whitelisted.");
         }
 
         byte[] secretPublicKey = Crypto.getPublicKey(secret);
