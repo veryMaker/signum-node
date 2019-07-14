@@ -234,19 +234,21 @@ var BRS = (function(BRS, $, undefined) {
             }
         }
 
-        if (BRS.rememberPassword) {
-            secretPhrase = _password;
-        } else {
-            secretPhrase = data.secretPhrase;
-        }
+        if (type == "POST") {
+            if (BRS.rememberPassword) {
+                secretPhrase = _password;
+            } else {
+                secretPhrase = data.secretPhrase;
+            }
 
-        delete data.secretPhrase;
+            delete data.secretPhrase;
 
-        if (BRS.accountInfo && BRS.accountInfo.publicKey) {
-            data.publicKey = BRS.accountInfo.publicKey;
-        } else {
-            data.publicKey = BRS.generatePublicKey(secretPhrase);
-            BRS.accountInfo.publicKey = data.publicKey;
+            if (BRS.accountInfo && BRS.accountInfo.publicKey) {
+                data.publicKey = BRS.accountInfo.publicKey;
+            } else {
+                data.publicKey = BRS.generatePublicKey(secretPhrase);
+                BRS.accountInfo.publicKey = data.publicKey;
+            }
         }
 
         $.support.cors = true;
