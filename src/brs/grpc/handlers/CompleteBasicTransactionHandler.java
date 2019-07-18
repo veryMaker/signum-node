@@ -27,7 +27,7 @@ public class CompleteBasicTransactionHandler implements GrpcApiHandler<BrsApi.Ba
     public BrsApi.BasicTransaction handleRequest(BrsApi.BasicTransaction basicTransaction) throws Exception {
         try {
             BrsApi.BasicTransaction.Builder builder = basicTransaction.toBuilder();
-            Attachment.AbstractAttachment attachment = Attachment.AbstractAttachment.parseProtobufMessage(basicTransaction.getAttachment());
+            Attachment.AbstractAttachment attachment = Attachment.AbstractAttachment.Companion.parseProtobufMessage(basicTransaction.getAttachment());
             if (builder.getDeadline() == 0) {
                 builder.setDeadline(1440);
             }
@@ -39,7 +39,7 @@ public class CompleteBasicTransactionHandler implements GrpcApiHandler<BrsApi.Ba
             builder.setSubtype(attachment.getTransactionType().getSubtype());
             builder.setTimestamp(timeService.getEpochTime());
             if (builder.getAttachment().equals(Any.getDefaultInstance())) {
-                builder.setAttachment(Attachment.ORDINARY_PAYMENT.getProtobufMessage());
+                builder.setAttachment(Attachment.Companion.getORDINARY_PAYMENT().getProtobufMessage());
             }
             return builder.build();
         } catch (InvalidProtocolBufferException e) {

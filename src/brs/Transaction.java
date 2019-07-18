@@ -81,7 +81,7 @@ public class Transaction implements Comparable<Transaction> {
 
     public Builder referencedTransactionFullHash(byte[] referencedTransactionFullHash) {
       if (referencedTransactionFullHash != null) {
-        this.referencedTransactionFullHash = Convert.toHexString(referencedTransactionFullHash);
+        this.referencedTransactionFullHash = Convert.INSTANCE.toHexString(referencedTransactionFullHash);
       }
       return this;
     }
@@ -138,7 +138,7 @@ public class Transaction implements Comparable<Transaction> {
 
     public Builder fullHash(byte[] fullHash) {
       if (fullHash != null) {
-        this.fullHash = Convert.toHexString(fullHash);
+        this.fullHash = Convert.INSTANCE.toHexString(fullHash);
       }
       return this;
     }
@@ -267,7 +267,7 @@ public class Transaction implements Comparable<Transaction> {
     }
 
     for (Appendix.AbstractAppendix appendage : appendages) {
-      if (! appendage.verifyVersion(this.version)) {
+      if (!appendage.verifyVersion(this.version)) {
         throw new BurstException.NotValidException("Invalid attachment version " + appendage.getVersion()
                                                  + " for transaction version " + this.version);
       }
@@ -373,10 +373,10 @@ public class Transaction implements Comparable<Transaction> {
       } else {
         hash = Crypto.sha256().digest(getBytes());
       }
-      long longId = Convert.fullHashToId(hash);
+      long longId = Convert.INSTANCE.fullHashToId(hash);
       id.set(longId);
-      stringId.set(Convert.toUnsignedLong(longId));
-      fullHash.set(Convert.toHexString(hash));
+      stringId.set(Convert.INSTANCE.toUnsignedLong(longId));
+      fullHash.set(Convert.INSTANCE.toHexString(hash));
     }
     return id.get();
   }
@@ -385,7 +385,7 @@ public class Transaction implements Comparable<Transaction> {
     if (stringId.get() == null) {
       getId();
       if (stringId.get() == null) {
-        stringId.set(Convert.toUnsignedLong(id.get()));
+        stringId.set(Convert.INSTANCE.toUnsignedLong(id.get()));
       }
     }
     return stringId.get();
@@ -440,7 +440,7 @@ public class Transaction implements Comparable<Transaction> {
         buffer.putLong(amountNQT);
         buffer.putLong(feeNQT);
         if (referencedTransactionFullHash != null) {
-          buffer.put(Convert.parseHexString(referencedTransactionFullHash));
+          buffer.put(Convert.INSTANCE.parseHexString(referencedTransactionFullHash));
         } else {
           buffer.put(new byte[32]);
         }
@@ -448,7 +448,7 @@ public class Transaction implements Comparable<Transaction> {
         buffer.putInt((int) (amountNQT / Constants.ONE_BURST));
         buffer.putInt((int) (feeNQT / Constants.ONE_BURST));
         if (referencedTransactionFullHash != null) {
-          buffer.putLong(Convert.fullHashToId(Convert.parseHexString(referencedTransactionFullHash)));
+          buffer.putLong(Convert.INSTANCE.fullHashToId(Convert.INSTANCE.parseHexString(referencedTransactionFullHash)));
         } else {
           buffer.putLong(0L);
         }
@@ -487,12 +487,12 @@ public class Transaction implements Comparable<Transaction> {
       String referencedTransactionFullHash = null;
       byte[] referencedTransactionFullHashBytes = new byte[32];
       buffer.get(referencedTransactionFullHashBytes);
-      if (Convert.emptyToNull(referencedTransactionFullHashBytes) != null) {
-        referencedTransactionFullHash = Convert.toHexString(referencedTransactionFullHashBytes);
+      if (Convert.INSTANCE.emptyToNull(referencedTransactionFullHashBytes) != null) {
+        referencedTransactionFullHash = Convert.INSTANCE.toHexString(referencedTransactionFullHashBytes);
       }
       byte[] signature = new byte[64];
       buffer.get(signature);
-      signature = Convert.emptyToNull(signature);
+      signature = Convert.INSTANCE.emptyToNull(signature);
       int flags = 0;
       int ecBlockHeight = 0;
       long ecBlockId = 0;
@@ -517,7 +517,7 @@ public class Transaction implements Comparable<Transaction> {
       return builder.build();
     } catch (BurstException.NotValidException|RuntimeException e) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Failed to parse transaction bytes: {}", Convert.toHexString(bytes));
+        logger.debug("Failed to parse transaction bytes: {}", Convert.INSTANCE.toHexString(bytes));
       }
       throw e;
     }
@@ -533,9 +533,9 @@ public class Transaction implements Comparable<Transaction> {
     json.addProperty("subtype", type.getSubtype());
     json.addProperty("timestamp", timestamp);
     json.addProperty("deadline", deadline);
-    json.addProperty("senderPublicKey", Convert.toHexString(senderPublicKey));
+    json.addProperty("senderPublicKey", Convert.INSTANCE.toHexString(senderPublicKey));
     if (type.hasRecipient()) {
-      json.addProperty("recipient", Convert.toUnsignedLong(recipientId));
+      json.addProperty("recipient", Convert.INSTANCE.toUnsignedLong(recipientId));
     }
     json.addProperty("amountNQT", amountNQT);
     json.addProperty("feeNQT", feeNQT);
@@ -543,8 +543,8 @@ public class Transaction implements Comparable<Transaction> {
       json.addProperty("referencedTransactionFullHash", referencedTransactionFullHash);
     }
     json.addProperty("ecBlockHeight", ecBlockHeight);
-    json.addProperty("ecBlockId", Convert.toUnsignedLong(ecBlockId));
-    json.addProperty("signature", Convert.toHexString(signature.get()));
+    json.addProperty("ecBlockId", Convert.INSTANCE.toUnsignedLong(ecBlockId));
+    json.addProperty("signature", Convert.INSTANCE.toHexString(signature.get()));
     JsonObject attachmentJSON = new JsonObject();
     appendages.forEach(appendage -> JSON.addAll(attachmentJSON, appendage.getJsonObject()));
     json.add("attachment", attachmentJSON);
@@ -558,11 +558,11 @@ public class Transaction implements Comparable<Transaction> {
       byte subtype = JSON.getAsByte(transactionData.get("subtype"));
       int timestamp = JSON.getAsInt(transactionData.get("timestamp"));
       short deadline = JSON.getAsShort(transactionData.get("deadline"));
-      byte[] senderPublicKey = Convert.parseHexString(JSON.getAsString(transactionData.get("senderPublicKey")));
+      byte[] senderPublicKey = Convert.INSTANCE.parseHexString(JSON.getAsString(transactionData.get("senderPublicKey")));
       long amountNQT = JSON.getAsLong(transactionData.get("amountNQT"));
       long feeNQT = JSON.getAsLong(transactionData.get("feeNQT"));
       String referencedTransactionFullHash = JSON.getAsString(transactionData.get("referencedTransactionFullHash"));
-      byte[] signature = Convert.parseHexString(JSON.getAsString(transactionData.get("signature")));
+      byte[] signature = Convert.INSTANCE.parseHexString(JSON.getAsString(transactionData.get("signature")));
       byte version = JSON.getAsByte(transactionData.get("version"));
       JsonObject attachmentData = JSON.getAsJsonObject(transactionData.get("attachment"));
 
@@ -577,7 +577,7 @@ public class Transaction implements Comparable<Transaction> {
           .signature(signature)
           .height(height);
       if (transactionType.hasRecipient()) {
-        long recipientId = Convert.parseUnsignedLong(JSON.getAsString(transactionData.get("recipient")));
+        long recipientId = Convert.INSTANCE.parseUnsignedLong(JSON.getAsString(transactionData.get("recipient")));
         builder.recipientId(recipientId);
       }
 
@@ -585,7 +585,7 @@ public class Transaction implements Comparable<Transaction> {
 
       if (version > 0) {
         builder.ecBlockHeight(JSON.getAsInt(transactionData.get("ecBlockHeight")));
-        builder.ecBlockId(Convert.parseUnsignedLong(JSON.getAsString(transactionData.get("ecBlockId"))));
+        builder.ecBlockId(Convert.INSTANCE.parseUnsignedLong(JSON.getAsString(transactionData.get("ecBlockId"))));
       }
       return builder.build();
     } catch (BurstException.NotValidException|RuntimeException e) {

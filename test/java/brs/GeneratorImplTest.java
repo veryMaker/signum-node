@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 public class GeneratorImplTest {
     private Generator generator;
 
-    private static final byte[] exampleGenSig = Convert.parseHexString("6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0");
+    private static final byte[] exampleGenSig = Convert.INSTANCE.parseHexString("6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0");
     private static final long exampleBaseTarget = 70312;
     private static final int exampleHeight = 500000;
 
@@ -44,7 +44,7 @@ public class GeneratorImplTest {
     @Test
     public void testGeneratorCalculateGenerationSignature() {
         byte[] genSig = generator.calculateGenerationSignature(exampleGenSig, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED);
-        assertEquals("ba6f11e2fd1d1eb0a956f92d090da1dd3595c3d888a4ff3b3222c913be6f45b5", Convert.toHexString(genSig));
+        assertEquals("ba6f11e2fd1d1eb0a956f92d090da1dd3595c3d888a4ff3b3222c913be6f45b5", Convert.INSTANCE.toHexString(genSig));
     }
 
     @Test
@@ -57,7 +57,7 @@ public class GeneratorImplTest {
     public void testGeneratorCalculateHit() {
         assertEquals(new BigInteger("14592422770739690569"), generator.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, 0, exampleHeight));
         // Scoop data is the generation signature repeated - not intended to be acutal scoop data for the purpose of this test. It is twice as long as the gensig as this is the expected scoop size.
-        assertEquals(new BigInteger("16142911724569013009"), generator.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, Convert.parseHexString("6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d06ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0")));
+        assertEquals(new BigInteger("16142911724569013009"), generator.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, Convert.INSTANCE.parseHexString("6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d06ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0")));
     }
 
     @Test

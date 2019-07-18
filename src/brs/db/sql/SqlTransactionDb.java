@@ -34,7 +34,7 @@ public class SqlTransactionDb implements TransactionDb {
   public Transaction findTransactionByFullHash(String fullHash) {
     return Db.useDSLContext(ctx -> {
       try {
-        TransactionRecord transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(Convert.parseHexString(fullHash))).fetchOne();
+        TransactionRecord transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(Convert.INSTANCE.parseHexString(fullHash))).fetchOne();
         return loadTransaction(transactionRecord);
       } catch (BurstException.ValidationException e) {
         throw new RuntimeException("Transaction already in database, full_hash = " + fullHash + ", does not pass validation!", e);
@@ -52,7 +52,7 @@ public class SqlTransactionDb implements TransactionDb {
   @Override
   public boolean hasTransactionByFullHash(String fullHash) {
     return Db.useDSLContext(ctx -> {
-      return ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(Convert.parseHexString(fullHash))));
+      return ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(Convert.INSTANCE.parseHexString(fullHash))));
     });
   }
 
@@ -113,7 +113,7 @@ public class SqlTransactionDb implements TransactionDb {
                 try {
                   return loadTransaction(record);
                 } catch (BurstException.ValidationException e) {
-                  throw new RuntimeException("Transaction already in database for block_id = " + Convert.toUnsignedLong(blockId) + " does not pass validation!", e);
+                  throw new RuntimeException("Transaction already in database for block_id = " + Convert.INSTANCE.toUnsignedLong(blockId) + " does not pass validation!", e);
                 }
               });
     });
@@ -161,7 +161,7 @@ public class SqlTransactionDb implements TransactionDb {
               (transaction.getRecipientId() == 0 ? null : transaction.getRecipientId()),
               transaction.getAmountNQT(),
               transaction.getFeeNQT(),
-              Convert.parseHexString(transaction.getReferencedTransactionFullHash()),
+              Convert.INSTANCE.parseHexString(transaction.getReferencedTransactionFullHash()),
               transaction.getHeight(),
               transaction.getBlockId(),
               transaction.getSignature(),
@@ -171,7 +171,7 @@ public class SqlTransactionDb implements TransactionDb {
               transaction.getSenderId(),
               getAttachmentBytes(transaction),
               transaction.getBlockTimestamp(),
-              Convert.parseHexString(transaction.getFullHash()),
+              Convert.INSTANCE.parseHexString(transaction.getFullHash()),
               transaction.getVersion(),
               transaction.getMessage() != null,
               transaction.getEncryptedMessage() != null,

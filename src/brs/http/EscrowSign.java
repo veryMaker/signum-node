@@ -31,7 +31,7 @@ public final class EscrowSign extends CreateTransaction {
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long escrowId;
     try {
-      escrowId = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(ESCROW_PARAMETER)));
+      escrowId = Convert.INSTANCE.parseUnsignedLong(Convert.INSTANCE.emptyToNull(req.getParameter(ESCROW_PARAMETER)));
     }
     catch(Exception e) {
       JsonObject response = new JsonObject();

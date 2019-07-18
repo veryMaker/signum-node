@@ -28,10 +28,10 @@ public class GetAccountBalance implements PeerServlet.PeerRequestHandler {
 
     JsonObject response = new JsonObject();
 
-    Long accountId = Convert.parseAccountId(JSON.getAsString(request.get(ACCOUNT_ID_PARAMETER_FIELD)));
+    Long accountId = Convert.INSTANCE.parseAccountId(JSON.getAsString(request.get(ACCOUNT_ID_PARAMETER_FIELD)));
     Account account = accountService.getAccount(accountId);
     if (account != null) {
-      response.addProperty(BALANCE_NQT_RESPONSE_FIELD, Convert.toUnsignedLong(account.getBalanceNQT()));
+      response.addProperty(BALANCE_NQT_RESPONSE_FIELD, Convert.INSTANCE.toUnsignedLong(account.getBalanceNQT()));
     } else {
       response.addProperty(BALANCE_NQT_RESPONSE_FIELD, "0");
     }

@@ -40,7 +40,7 @@ public final class DGSRefund extends CreateTransaction {
       return GOODS_NOT_DELIVERED;
     }
 
-    String refundValueNQT = Convert.emptyToNull(req.getParameter(REFUND_NQT_PARAMETER));
+    String refundValueNQT = Convert.INSTANCE.emptyToNull(req.getParameter(REFUND_NQT_PARAMETER));
     long refundNQT = 0;
     try {
       if (refundValueNQT != null) {

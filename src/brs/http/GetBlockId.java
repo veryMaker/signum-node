@@ -25,7 +25,7 @@ final class GetBlockId extends APIServlet.JsonRequestHandler {
 
     int height;
     try {
-      String heightValue = Convert.emptyToNull(req.getParameter(HEIGHT_PARAMETER));
+      String heightValue = Convert.INSTANCE.emptyToNull(req.getParameter(HEIGHT_PARAMETER));
       if (heightValue == null) {
         return MISSING_HEIGHT;
       }
@@ -36,7 +36,7 @@ final class GetBlockId extends APIServlet.JsonRequestHandler {
 
     try {
       JsonObject response = new JsonObject();
-      response.addProperty("block", Convert.toUnsignedLong(blockchain.getBlockIdAtHeight(height)));
+      response.addProperty("block", Convert.INSTANCE.toUnsignedLong(blockchain.getBlockIdAtHeight(height)));
       return response;
     } catch (RuntimeException e) {
       return INCORRECT_HEIGHT;

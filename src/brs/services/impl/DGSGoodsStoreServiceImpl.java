@@ -141,7 +141,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
       addPurchase(transaction, attachment, goods.getSellerId());
     } else {
       Account buyer = accountService.getAccount(transaction.getSenderId());
-      accountService.addToUnconfirmedBalanceNQT(buyer, Convert.safeMultiply(attachment.getQuantity(), attachment.getPriceNQT()));
+      accountService.addToUnconfirmedBalanceNQT(buyer, Convert.INSTANCE.safeMultiply(attachment.getQuantity(), attachment.getPriceNQT()));
       // restoring the unconfirmed balance if purchase not successful, however buyer still lost the transaction fees
     }
   }
@@ -182,7 +182,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
       feedbackTable.insert(purchase, purchase.getFeedbackNotes());
     }
     if (message != null) {
-      addPublicFeedback(purchase, Convert.toString(message.getMessageBytes()));
+      addPublicFeedback(purchase, Convert.INSTANCE.toString(message.getMessageBytes()));
     }
     purchaseListeners.accept(purchase, Event.FEEDBACK);
   }
@@ -238,12 +238,12 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
       throw new RuntimeException("cant find purchase with id " + attachment.getPurchaseId());
     }
     setPending(purchase, false);
-    long totalWithoutDiscount = Convert.safeMultiply(purchase.getQuantity(), purchase.getPriceNQT());
+    long totalWithoutDiscount = Convert.INSTANCE.safeMultiply(purchase.getQuantity(), purchase.getPriceNQT());
     Account buyer = accountService.getAccount(purchase.getBuyerId());
-    accountService.addToBalanceNQT(buyer, Convert.safeSubtract(attachment.getDiscountNQT(), totalWithoutDiscount));
+    accountService.addToBalanceNQT(buyer, Convert.INSTANCE.safeSubtract(attachment.getDiscountNQT(), totalWithoutDiscount));
     accountService.addToUnconfirmedBalanceNQT(buyer, attachment.getDiscountNQT());
     Account seller = accountService.getAccount(transaction.getSenderId());
-    accountService.addToBalanceAndUnconfirmedBalanceNQT(seller, Convert.safeSubtract(totalWithoutDiscount, attachment.getDiscountNQT()));
+    accountService.addToBalanceAndUnconfirmedBalanceNQT(seller, Convert.INSTANCE.safeSubtract(totalWithoutDiscount, attachment.getDiscountNQT()));
     purchase.setEncryptedGoods(attachment.getGoods(), attachment.goodsIsText());
     purchaseTable.insert(purchase);
     purchase.setDiscountNQT(attachment.getDiscountNQT());
@@ -277,7 +277,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
     public void accept(Block block) {
       for (Purchase purchase : goodsService.getExpiredPendingPurchases(block.getTimestamp())) {
         Account buyer = accountService.getAccount(purchase.getBuyerId());
-        accountService.addToUnconfirmedBalanceNQT(buyer, Convert.safeMultiply(purchase.getQuantity(), purchase.getPriceNQT()));
+        accountService.addToUnconfirmedBalanceNQT(buyer, Convert.INSTANCE.safeMultiply(purchase.getQuantity(), purchase.getPriceNQT()));
         goodsService.changeQuantity(purchase.getGoodsId(), purchase.getQuantity(), true);
         goodsService.setPending(purchase, false);
       }

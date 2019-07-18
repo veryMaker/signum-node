@@ -32,7 +32,7 @@ public final class GetAccountCurrentAskOrders extends APIServlet.JsonRequestHand
 
     long assetId = 0;
     try {
-      assetId = Convert.parseUnsignedLong(req.getParameter(ASSET_PARAMETER));
+      assetId = Convert.INSTANCE.parseUnsignedLong(req.getParameter(ASSET_PARAMETER));
     } catch (RuntimeException e) {
       // ignore
     }

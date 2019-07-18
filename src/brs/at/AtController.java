@@ -426,7 +426,7 @@ public abstract class AtController {
             totalAmount += tx.getAmount();
             AT.addPendingTransaction(tx);
             if (logger.isDebugEnabled()) {
-                logger.debug("Transaction to {}, amount {}", Convert.toUnsignedLong(AtApiHelper.getLong(tx.getRecipientId())), tx.getAmount());
+                logger.debug("Transaction to {}, amount {}", Convert.INSTANCE.toUnsignedLong(AtApiHelper.getLong(tx.getRecipientId())), tx.getAmount());
             }
         }
         return totalAmount;

@@ -35,7 +35,7 @@ final class SendMoneyMultiSame extends CreateTransaction {
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long amountNQT = ParameterParser.getAmountNQT(req);
     Account sender = parameterService.getSenderAccount(req);
-    String recipientString = Convert.emptyToNull(req.getParameter(RECIPIENTS_PARAMETER));
+    String recipientString = Convert.INSTANCE.emptyToNull(req.getParameter(RECIPIENTS_PARAMETER));
 
 
     if(recipientString == null) {
@@ -59,7 +59,7 @@ final class SendMoneyMultiSame extends CreateTransaction {
     long totalAmountNQT = amountNQT * recipientsArray.length;
     try {
       for(String recipientId : recipientsArray) {
-        recipients.add(Convert.parseUnsignedLong(recipientId));
+        recipients.add(Convert.INSTANCE.parseUnsignedLong(recipientId));
       }
     }
     catch(Exception e) {

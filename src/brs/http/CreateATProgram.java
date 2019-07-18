@@ -81,7 +81,7 @@ final class CreateATProgram extends CreateTransaction {
           throw new IllegalArgumentException();
         }
 
-        long minActivationAmount = Convert.parseUnsignedLong(req.getParameter(MIN_ACTIVATION_AMOUNT_NQT_PARAMETER));
+        long minActivationAmount = Convert.INSTANCE.parseUnsignedLong(req.getParameter(MIN_ACTIVATION_AMOUNT_NQT_PARAMETER));
 
         int creationLength = 4; // version + reserved
         creationLength += 8; // pages
@@ -101,12 +101,12 @@ final class CreateATProgram extends CreateTransaction {
         creation.putShort((short) uspages);
         creation.putLong(minActivationAmount);
         putLength(cpages, code, creation);
-        byte[] codeBytes = Convert.parseHexString(code);
+        byte[] codeBytes = Convert.INSTANCE.parseHexString(code);
         if (codeBytes != null) {
           creation.put(codeBytes);
         }
         putLength(dpages, data, creation);
-        byte[] dataBytes = Convert.parseHexString(data);
+        byte[] dataBytes = Convert.INSTANCE.parseHexString(data);
         if (dataBytes != null) {
           creation.put(dataBytes);
         }

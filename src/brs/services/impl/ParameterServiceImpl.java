@@ -51,12 +51,12 @@ public class ParameterServiceImpl implements ParameterService {
 
   @Override
   public Account getAccount(HttpServletRequest req) throws BurstException {
-    String accountId = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
+    String accountId = Convert.INSTANCE.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
     if (accountId == null) {
       throw new ParameterException(MISSING_ACCOUNT);
     }
     try {
-      Account account = accountService.getAccount(Convert.parseAccountId(accountId));
+      Account account = accountService.getAccount(Convert.INSTANCE.parseAccountId(accountId));
       if (account == null) {
         throw new ParameterException(UNKNOWN_ACCOUNT);
       }
@@ -78,7 +78,7 @@ public class ParameterServiceImpl implements ParameterService {
         continue;
       }
       try {
-        Account account = accountService.getAccount(Convert.parseAccountId(accountValue));
+        Account account = accountService.getAccount(Convert.INSTANCE.parseAccountId(accountValue));
         if (account == null) {
           throw new ParameterException(UNKNOWN_ACCOUNT);
         }
@@ -93,13 +93,13 @@ public class ParameterServiceImpl implements ParameterService {
   @Override
   public Account getSenderAccount(HttpServletRequest req) throws ParameterException {
     Account account;
-    String secretPhrase = Convert.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER));
-    String publicKeyString = Convert.emptyToNull(req.getParameter(PUBLIC_KEY_PARAMETER));
+    String secretPhrase = Convert.INSTANCE.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER));
+    String publicKeyString = Convert.INSTANCE.emptyToNull(req.getParameter(PUBLIC_KEY_PARAMETER));
     if (secretPhrase != null) {
       account = accountService.getAccount(Crypto.getPublicKey(secretPhrase));
     } else if (publicKeyString != null) {
       try {
-        account = accountService.getAccount(Convert.parseHexString(publicKeyString));
+        account = accountService.getAccount(Convert.INSTANCE.parseHexString(publicKeyString));
       } catch (RuntimeException e) {
         throw new ParameterException(INCORRECT_PUBLIC_KEY);
       }
@@ -116,11 +116,11 @@ public class ParameterServiceImpl implements ParameterService {
   public Alias getAlias(HttpServletRequest req) throws ParameterException {
     long aliasId;
     try {
-      aliasId = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(ALIAS_PARAMETER)));
+      aliasId = Convert.INSTANCE.parseUnsignedLong(Convert.INSTANCE.emptyToNull(req.getParameter(ALIAS_PARAMETER)));
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_ALIAS);
     }
-    String aliasName = Convert.emptyToNull(req.getParameter(ALIAS_NAME_PARAMETER));
+    String aliasName = Convert.INSTANCE.emptyToNull(req.getParameter(ALIAS_NAME_PARAMETER));
     Alias alias;
     if (aliasId != 0) {
       alias = aliasService.getAlias(aliasId);
@@ -137,13 +137,13 @@ public class ParameterServiceImpl implements ParameterService {
 
   @Override
   public Asset getAsset(HttpServletRequest req) throws ParameterException {
-    String assetValue = Convert.emptyToNull(req.getParameter(ASSET_PARAMETER));
+    String assetValue = Convert.INSTANCE.emptyToNull(req.getParameter(ASSET_PARAMETER));
     if (assetValue == null) {
       throw new ParameterException(MISSING_ASSET);
     }
     Asset asset;
     try {
-      long assetId = Convert.parseUnsignedLong(assetValue);
+      long assetId = Convert.INSTANCE.parseUnsignedLong(assetValue);
       asset = assetExchange.getAsset(assetId);
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_ASSET);
@@ -156,13 +156,13 @@ public class ParameterServiceImpl implements ParameterService {
 
   @Override
   public DigitalGoodsStore.Goods getGoods(HttpServletRequest req) throws ParameterException {
-    String goodsValue = Convert.emptyToNull(req.getParameter(GOODS_PARAMETER));
+    String goodsValue = Convert.INSTANCE.emptyToNull(req.getParameter(GOODS_PARAMETER));
     if (goodsValue == null) {
       throw new ParameterException(MISSING_GOODS);
     }
 
     try {
-      long goodsId = Convert.parseUnsignedLong(goodsValue);
+      long goodsId = Convert.INSTANCE.parseUnsignedLong(goodsValue);
       DigitalGoodsStore.Goods goods = dgsGoodsStoreService.getGoods(goodsId);
       if (goods == null) {
         throw new ParameterException(UNKNOWN_GOODS);
@@ -175,12 +175,12 @@ public class ParameterServiceImpl implements ParameterService {
 
   @Override
   public DigitalGoodsStore.Purchase getPurchase(HttpServletRequest req) throws ParameterException {
-    String purchaseIdString = Convert.emptyToNull(req.getParameter(PURCHASE_PARAMETER));
+    String purchaseIdString = Convert.INSTANCE.emptyToNull(req.getParameter(PURCHASE_PARAMETER));
     if (purchaseIdString == null) {
       throw new ParameterException(MISSING_PURCHASE);
     }
     try {
-      DigitalGoodsStore.Purchase purchase = dgsGoodsStoreService.getPurchase(Convert.parseUnsignedLong(purchaseIdString));
+      DigitalGoodsStore.Purchase purchase = dgsGoodsStoreService.getPurchase(Convert.INSTANCE.parseUnsignedLong(purchaseIdString));
       if (purchase == null) {
         throw new ParameterException(INCORRECT_PURCHASE);
       }
@@ -192,16 +192,16 @@ public class ParameterServiceImpl implements ParameterService {
 
   @Override
   public EncryptedData getEncryptedMessage(HttpServletRequest req, Account recipientAccount, byte[] publicKey) throws ParameterException {
-    String data = Convert.emptyToNull(req.getParameter(ENCRYPTED_MESSAGE_DATA_PARAMETER));
-    String nonce = Convert.emptyToNull(req.getParameter(ENCRYPTED_MESSAGE_NONCE_PARAMETER));
+    String data = Convert.INSTANCE.emptyToNull(req.getParameter(ENCRYPTED_MESSAGE_DATA_PARAMETER));
+    String nonce = Convert.INSTANCE.emptyToNull(req.getParameter(ENCRYPTED_MESSAGE_NONCE_PARAMETER));
     if (data != null && nonce != null) {
       try {
-        return new EncryptedData(Convert.parseHexString(data), Convert.parseHexString(nonce));
+        return new EncryptedData(Convert.INSTANCE.parseHexString(data), Convert.INSTANCE.parseHexString(nonce));
       } catch (RuntimeException e) {
         throw new ParameterException(INCORRECT_ENCRYPTED_MESSAGE);
       }
     }
-    String plainMessage = Convert.emptyToNull(req.getParameter(MESSAGE_TO_ENCRYPT_PARAMETER));
+    String plainMessage = Convert.INSTANCE.emptyToNull(req.getParameter(MESSAGE_TO_ENCRYPT_PARAMETER));
     if (plainMessage == null) {
       return null;
     }
@@ -209,7 +209,7 @@ public class ParameterServiceImpl implements ParameterService {
     String secretPhrase = getSecretPhrase(req);
     boolean isText = Parameters.isTrue(req.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER));
     try {
-      byte[] plainMessageBytes = isText ? Convert.toBytes(plainMessage) : Convert.parseHexString(plainMessage);
+      byte[] plainMessageBytes = isText ? Convert.INSTANCE.toBytes(plainMessage) : Convert.INSTANCE.parseHexString(plainMessage);
       if(recipientAccount != null && recipientAccount.getPublicKey() != null) {
         return recipientAccount.encryptTo(plainMessageBytes, secretPhrase);
       } else if(publicKey != null) {
@@ -224,16 +224,16 @@ public class ParameterServiceImpl implements ParameterService {
 
   @Override
   public EncryptedData getEncryptToSelfMessage(HttpServletRequest req) throws ParameterException {
-    String data = Convert.emptyToNull(req.getParameter(ENCRYPT_TO_SELF_MESSAGE_DATA));
-    String nonce = Convert.emptyToNull(req.getParameter(ENCRYPT_TO_SELF_MESSAGE_NONCE));
+    String data = Convert.INSTANCE.emptyToNull(req.getParameter(ENCRYPT_TO_SELF_MESSAGE_DATA));
+    String nonce = Convert.INSTANCE.emptyToNull(req.getParameter(ENCRYPT_TO_SELF_MESSAGE_NONCE));
     if (data != null && nonce != null) {
       try {
-        return new EncryptedData(Convert.parseHexString(data), Convert.parseHexString(nonce));
+        return new EncryptedData(Convert.INSTANCE.parseHexString(data), Convert.INSTANCE.parseHexString(nonce));
       } catch (RuntimeException e) {
         throw new ParameterException(INCORRECT_ENCRYPTED_MESSAGE);
       }
     }
-    String plainMessage = Convert.emptyToNull(req.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER));
+    String plainMessage = Convert.INSTANCE.emptyToNull(req.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER));
     if (plainMessage == null) {
       return null;
     }
@@ -241,7 +241,7 @@ public class ParameterServiceImpl implements ParameterService {
     Account senderAccount = accountService.getAccount(Crypto.getPublicKey(secretPhrase));
     boolean isText = !Parameters.isFalse(req.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER));
     try {
-      byte[] plainMessageBytes = isText ? Convert.toBytes(plainMessage) : Convert.parseHexString(plainMessage);
+      byte[] plainMessageBytes = isText ? Convert.INSTANCE.toBytes(plainMessage) : Convert.INSTANCE.parseHexString(plainMessage);
       return senderAccount.encryptTo(plainMessageBytes, secretPhrase);
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_PLAIN_MESSAGE);
@@ -250,7 +250,7 @@ public class ParameterServiceImpl implements ParameterService {
 
   @Override
   public String getSecretPhrase(HttpServletRequest req) throws ParameterException {
-    String secretPhrase = Convert.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER));
+    String secretPhrase = Convert.INSTANCE.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER));
     if (secretPhrase == null) {
       throw new ParameterException(MISSING_SECRET_PHRASE);
     }
@@ -259,7 +259,7 @@ public class ParameterServiceImpl implements ParameterService {
 
   @Override
   public int getNumberOfConfirmations(HttpServletRequest req) throws ParameterException {
-    String numberOfConfirmationsValue = Convert.emptyToNull(req.getParameter(NUMBER_OF_CONFIRMATIONS_PARAMETER));
+    String numberOfConfirmationsValue = Convert.INSTANCE.emptyToNull(req.getParameter(NUMBER_OF_CONFIRMATIONS_PARAMETER));
     if (numberOfConfirmationsValue != null) {
       try {
         int numberOfConfirmations = Integer.parseInt(numberOfConfirmationsValue);
@@ -276,7 +276,7 @@ public class ParameterServiceImpl implements ParameterService {
 
   @Override
   public int getHeight(HttpServletRequest req) throws ParameterException {
-    String heightValue = Convert.emptyToNull(req.getParameter(HEIGHT_PARAMETER));
+    String heightValue = Convert.INSTANCE.emptyToNull(req.getParameter(HEIGHT_PARAMETER));
     if (heightValue != null) {
       try {
         int height = Integer.parseInt(heightValue);
@@ -301,7 +301,7 @@ public class ParameterServiceImpl implements ParameterService {
     }
     if (transactionBytes != null) {
       try {
-        byte[] bytes = Convert.parseHexString(transactionBytes);
+        byte[] bytes = Convert.INSTANCE.parseHexString(transactionBytes);
         return transactionProcessor.parseTransaction(bytes);
       } catch (BurstException.ValidationException | RuntimeException e) {
           logger.debug(e.getMessage(), e); // TODO remove?
@@ -326,13 +326,13 @@ public class ParameterServiceImpl implements ParameterService {
 
   @Override
   public AT getAT(HttpServletRequest req) throws ParameterException {
-    String atValue = Convert.emptyToNull(req.getParameter(AT_PARAMETER));
+    String atValue = Convert.INSTANCE.emptyToNull(req.getParameter(AT_PARAMETER));
     if (atValue == null) {
       throw new ParameterException(MISSING_AT);
     }
     AT at;
     try {
-      Long atId = Convert.parseUnsignedLong(atValue);
+      Long atId = Convert.INSTANCE.parseUnsignedLong(atValue);
       at = atService.getAT(atId);
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_AT);

@@ -27,7 +27,7 @@ public class GetAccountRecentTransactions implements PeerServlet.PeerRequestHand
   @Override
   public JsonElement processRequest(JsonObject request, Peer peer) {
     JsonObject response = new JsonObject();
-    Long accountId = Convert.parseAccountId(JSON.getAsString(request.get("account")));
+    Long accountId = Convert.INSTANCE.parseAccountId(JSON.getAsString(request.get("account")));
     Account account = accountService.getAccount(accountId);
     JsonArray transactions = new JsonArray();
     if(account != null) {

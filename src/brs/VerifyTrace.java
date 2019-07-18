@@ -65,7 +65,7 @@ public final class VerifyTrace {
             accountTotals.put(header, Long.parseLong(value));
           } else if (isDelta(header)) {
             long previousValue = nullToZero(accountTotals.get(header));
-            accountTotals.put(header, Convert.safeAdd(previousValue, Long.parseLong(value)));
+            accountTotals.put(header, Convert.INSTANCE.safeAdd(previousValue, Long.parseLong(value)));
           } else if (isAssetQuantity(header)) {
             String assetId = valueMap.get("asset");
             Map<String, Long> assetTotals = accountAssetMap.computeIfAbsent(assetId, k -> new HashMap<>());
@@ -74,7 +74,7 @@ public final class VerifyTrace {
             String assetId = valueMap.get("asset");
             Map<String, Long> assetTotals = accountAssetMap.computeIfAbsent(assetId, k -> new HashMap<>());
             long previousValue = nullToZero(assetTotals.get(header));
-            assetTotals.put(header, Convert.safeAdd(previousValue, Long.parseLong(value)));
+            assetTotals.put(header, Convert.INSTANCE.safeAdd(previousValue, Long.parseLong(value)));
           }
         }
       }
@@ -89,7 +89,7 @@ public final class VerifyTrace {
         long totalDelta = 0;
         for (String header : deltaHeaders) {
           long delta = nullToZero(accountValues.get(header));
-          totalDelta = Convert.safeAdd(totalDelta, delta);
+          totalDelta = Convert.INSTANCE.safeAdd(totalDelta, delta);
           System.out.println(header + ": " + delta);
         }
         System.out.println("total confirmed balance change: " + totalDelta);
@@ -105,7 +105,7 @@ public final class VerifyTrace {
           long totalAssetDelta = 0;
           for (String header : deltaAssetQuantityHeaders) {
             long delta = nullToZero(assetValues.get(header));
-            totalAssetDelta = Convert.safeAdd(totalAssetDelta, delta);
+            totalAssetDelta = Convert.INSTANCE.safeAdd(totalAssetDelta, delta);
           }
           System.out.println("total confirmed asset quantity change: " + totalAssetDelta);
           long assetBalance = assetValues.get("asset balance");
@@ -114,7 +114,7 @@ public final class VerifyTrace {
             failed.add(accountId);
           }
           long previousAssetQuantity = nullToZero(accountAssetQuantities.get(assetId));
-          accountAssetQuantities.put(assetId, Convert.safeAdd(previousAssetQuantity, assetBalance));
+          accountAssetQuantities.put(assetId, Convert.INSTANCE.safeAdd(previousAssetQuantity, assetBalance));
         });
         System.out.println();
       }

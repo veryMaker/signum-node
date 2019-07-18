@@ -36,14 +36,14 @@ public final class DecryptFrom extends APIServlet.JsonRequestHandler {
       return INCORRECT_ACCOUNT;
     }
     String secretPhrase = ParameterParser.getSecretPhrase(req);
-    byte[] data = Convert.parseHexString(Convert.nullToEmpty(req.getParameter(DATA_PARAMETER)));
-    byte[] nonce = Convert.parseHexString(Convert.nullToEmpty(req.getParameter(NONCE_PARAMETER)));
+    byte[] data = Convert.INSTANCE.parseHexString(Convert.INSTANCE.nullToEmpty(req.getParameter(DATA_PARAMETER)));
+    byte[] nonce = Convert.INSTANCE.parseHexString(Convert.INSTANCE.nullToEmpty(req.getParameter(NONCE_PARAMETER)));
     EncryptedData encryptedData = new EncryptedData(data, nonce);
     boolean isText = !Parameters.isFalse(req.getParameter(DECRYPTED_MESSAGE_IS_TEXT_PARAMETER));
     try {
       byte[] decrypted = account.decryptFrom(encryptedData, secretPhrase);
       JsonObject response = new JsonObject();
-      response.addProperty(DECRYPTED_MESSAGE_RESPONSE, isText ? Convert.toString(decrypted) : Convert.toHexString(decrypted));
+      response.addProperty(DECRYPTED_MESSAGE_RESPONSE, isText ? Convert.INSTANCE.toString(decrypted) : Convert.INSTANCE.toHexString(decrypted));
       return response;
     } catch (RuntimeException e) {
       logger.debug(e.toString());

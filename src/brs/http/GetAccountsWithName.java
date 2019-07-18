@@ -29,7 +29,7 @@ public class GetAccountsWithName extends APIServlet.JsonRequestHandler {
         JsonArray accountIds = new JsonArray();
 
         for (Account account : accounts) {
-            accountIds.add(Convert.toUnsignedLong(account.id));
+            accountIds.add(Convert.INSTANCE.toUnsignedLong(account.id));
         }
 
         JsonObject response = new JsonObject();

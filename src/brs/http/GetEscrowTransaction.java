@@ -25,7 +25,7 @@ final class GetEscrowTransaction extends APIServlet.JsonRequestHandler {
   JsonElement processRequest(HttpServletRequest req) {
     long escrowId;
     try {
-      escrowId = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(ESCROW_PARAMETER)));
+      escrowId = Convert.INSTANCE.parseUnsignedLong(Convert.INSTANCE.emptyToNull(req.getParameter(ESCROW_PARAMETER)));
     } catch(Exception e) {
       JsonObject response = new JsonObject();
       response.addProperty(ERROR_CODE_RESPONSE, 3);

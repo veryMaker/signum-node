@@ -20,12 +20,12 @@ final class RSConvert extends APIServlet.JsonRequestHandler {
 
   @Override
   JsonElement processRequest(HttpServletRequest req) {
-    String accountValue = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
+    String accountValue = Convert.INSTANCE.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
     if (accountValue == null) {
       return MISSING_ACCOUNT;
     }
     try {
-      long accountId = Convert.parseAccountId(accountValue);
+      long accountId = Convert.INSTANCE.parseAccountId(accountValue);
       if (accountId == 0) {
         return INCORRECT_ACCOUNT;
       }

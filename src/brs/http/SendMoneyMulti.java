@@ -36,7 +36,7 @@ final class SendMoneyMulti extends CreateTransaction {
   @Override
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     Account sender = parameterService.getSenderAccount(req);
-    String recipientString = Convert.emptyToNull(req.getParameter(RECIPIENTS_PARAMETER));
+    String recipientString = Convert.INSTANCE.emptyToNull(req.getParameter(RECIPIENTS_PARAMETER));
 
     if(recipientString == null) {
       JsonObject response = new JsonObject();
@@ -60,8 +60,8 @@ final class SendMoneyMulti extends CreateTransaction {
     try {
       for(String transactionString : transactionArray) {
         String[] recipientArray = transactionString.split(":", 2);
-        long recipientId = Convert.parseUnsignedLong(recipientArray[0]);
-        Long amountNQT   = Convert.parseUnsignedLong(recipientArray[1]);
+        long recipientId = Convert.INSTANCE.parseUnsignedLong(recipientArray[0]);
+        Long amountNQT   = Convert.INSTANCE.parseUnsignedLong(recipientArray[1]);
         recipients.add(new SimpleEntry<>("" + recipientId, amountNQT) );
         totalAmountNQT += amountNQT;
       }

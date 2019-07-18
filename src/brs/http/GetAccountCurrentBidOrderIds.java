@@ -32,7 +32,7 @@ public final class GetAccountCurrentBidOrderIds extends APIServlet.JsonRequestHa
     long accountId = parameterService.getAccount(req).getId();
     long assetId = 0;
     try {
-      assetId = Convert.parseUnsignedLong(req.getParameter(ASSET_PARAMETER));
+      assetId = Convert.INSTANCE.parseUnsignedLong(req.getParameter(ASSET_PARAMETER));
     } catch (RuntimeException e) {
       // ignore
     }
@@ -47,7 +47,7 @@ public final class GetAccountCurrentBidOrderIds extends APIServlet.JsonRequestHa
     }
     JsonArray orderIds = new JsonArray();
     for (Order.Bid bidOrder : bidOrders) {
-      orderIds.add(Convert.toUnsignedLong(bidOrder.getId()));
+      orderIds.add(Convert.INSTANCE.toUnsignedLong(bidOrder.getId()));
     }
     JsonObject response = new JsonObject();
     response.add(BID_ORDER_IDS_RESPONSE, orderIds);

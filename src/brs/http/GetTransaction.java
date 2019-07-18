@@ -26,8 +26,8 @@ final class GetTransaction extends APIServlet.JsonRequestHandler {
   @Override
   JsonElement processRequest(HttpServletRequest req) {
 
-    String transactionIdString = Convert.emptyToNull(req.getParameter(TRANSACTION_PARAMETER));
-    String transactionFullHash = Convert.emptyToNull(req.getParameter(FULL_HASH_PARAMETER));
+    String transactionIdString = Convert.INSTANCE.emptyToNull(req.getParameter(TRANSACTION_PARAMETER));
+    String transactionFullHash = Convert.INSTANCE.emptyToNull(req.getParameter(FULL_HASH_PARAMETER));
     if (transactionIdString == null && transactionFullHash == null) {
       return MISSING_TRANSACTION;
     }
@@ -36,7 +36,7 @@ final class GetTransaction extends APIServlet.JsonRequestHandler {
     Transaction transaction;
     try {
       if (transactionIdString != null) {
-        transactionId = Convert.parseUnsignedLong(transactionIdString);
+        transactionId = Convert.INSTANCE.parseUnsignedLong(transactionIdString);
         transaction = blockchain.getTransaction(transactionId);
       } else {
         transaction = blockchain.getTransactionByFullHash(transactionFullHash);

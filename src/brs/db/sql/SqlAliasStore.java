@@ -86,7 +86,7 @@ public class SqlAliasStore implements AliasStore {
 
   private class SqlOffer extends Alias.Offer {
     private SqlOffer(Record record) {
-      super(record.get(ALIAS_OFFER.ID), record.get(ALIAS_OFFER.PRICE), Convert.nullToZero(record.get(ALIAS_OFFER.BUYER_ID)), offerDbKeyFactory.newKey(record.get(ALIAS_OFFER.ID)));
+      super(record.get(ALIAS_OFFER.ID), record.get(ALIAS_OFFER.PRICE), Convert.INSTANCE.nullToZero(record.get(ALIAS_OFFER.BUYER_ID)), offerDbKeyFactory.newKey(record.get(ALIAS_OFFER.ID)));
     }
   }
 

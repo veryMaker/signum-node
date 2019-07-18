@@ -20,23 +20,23 @@ final class LongConvert extends APIServlet.JsonRequestHandler {
 
   @Override
   JsonElement processRequest(HttpServletRequest req) {
-    String id = Convert.emptyToNull(req.getParameter(ID_PARAMETER));
+    String id = Convert.INSTANCE.emptyToNull(req.getParameter(ID_PARAMETER));
     if (id == null) {
       return JSON.emptyJSON;
     }
     JsonObject response = new JsonObject();
     BigInteger bigInteger = new BigInteger(id);
     if (bigInteger.signum() < 0) {
-      if (bigInteger.negate().compareTo(Convert.two64) > 0) {
+      if (bigInteger.negate().compareTo(Convert.INSTANCE.getTwo64()) > 0) {
         response.addProperty("error", "overflow");
       }
       else {
-        response.addProperty("stringId", bigInteger.add(Convert.two64).toString());
+        response.addProperty("stringId", bigInteger.add(Convert.INSTANCE.getTwo64()).toString());
         response.addProperty("longId",   String.valueOf(bigInteger.longValue()));
       }
     }
     else {
-      if (bigInteger.compareTo(Convert.two64) >= 0) {
+      if (bigInteger.compareTo(Convert.INSTANCE.getTwo64()) >= 0) {
         response.addProperty("error", "overflow");
       }
       else {

@@ -64,8 +64,8 @@ public abstract class Order {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " id: " + Convert.toUnsignedLong(id) + " account: " + Convert.toUnsignedLong(accountId)
-        + " asset: " + Convert.toUnsignedLong(assetId) + " price: " + priceNQT + " quantity: " + quantityQNT + " height: " + creationHeight;
+    return getClass().getSimpleName() + " id: " + Convert.INSTANCE.toUnsignedLong(id) + " account: " + Convert.INSTANCE.toUnsignedLong(accountId)
+        + " asset: " + Convert.INSTANCE.toUnsignedLong(assetId) + " price: " + priceNQT + " quantity: " + quantityQNT + " height: " + creationHeight;
   }
 
   public static class Ask extends Order {

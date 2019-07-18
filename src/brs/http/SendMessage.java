@@ -23,7 +23,7 @@ final class SendMessage extends CreateTransaction {
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long recipient = ParameterParser.getRecipientId(req);
     Account account = parameterService.getSenderAccount(req);
-    return createTransaction(req, account, recipient, 0, Attachment.ARBITRARY_MESSAGE);
+    return createTransaction(req, account, recipient, 0, Attachment.Companion.getARBITRARY_MESSAGE());
   }
 
 }

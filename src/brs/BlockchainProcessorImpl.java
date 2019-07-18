@@ -363,7 +363,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           milestoneBlockIdsRequest.addProperty("requestType", "getMilestoneBlockIds");
           if (lastMilestoneBlockId == null) {
             milestoneBlockIdsRequest.addProperty("lastBlockId",
-                    Convert.toUnsignedLong(downloadCache.getLastBlockId()));
+                    Convert.INSTANCE.toUnsignedLong(downloadCache.getLastBlockId()));
           } else {
             milestoneBlockIdsRequest.addProperty("lastMilestoneBlockId", lastMilestoneBlockId);
           }
@@ -391,7 +391,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           }
 
           for (JsonElement milestoneBlockId : milestoneBlockIds) {
-            long blockId = Convert.parseUnsignedLong(JSON.getAsString(milestoneBlockId));
+            long blockId = Convert.INSTANCE.parseUnsignedLong(JSON.getAsString(milestoneBlockId));
 
             if (downloadCache.hasBlock(blockId)) {
               if (lastMilestoneBlockId == null && milestoneBlockIds.size() > 1) {
@@ -411,7 +411,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
           JsonObject request = new JsonObject();
           request.addProperty("requestType", "getNextBlockIds");
-          request.addProperty("blockId", Convert.toUnsignedLong(commonBlockId));
+          request.addProperty("blockId", Convert.INSTANCE.toUnsignedLong(commonBlockId));
           JsonObject response = peer.send(JSON.prepareRequest(request));
           if (response == null) {
             return 0;
@@ -427,7 +427,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           }
 
           for (JsonElement nextBlockId : nextBlockIds) {
-            long blockId = Convert.parseUnsignedLong(JSON.getAsString(nextBlockId));
+            long blockId = Convert.INSTANCE.parseUnsignedLong(JSON.getAsString(nextBlockId));
             if (!downloadCache.hasBlock(blockId)) {
               return commonBlockId;
             }
@@ -442,7 +442,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         JsonObject request = new JsonObject();
         request.addProperty("requestType", "getNextBlocks");
-        request.addProperty("blockId", Convert.toUnsignedLong(curBlockId));
+        request.addProperty("blockId", Convert.INSTANCE.toUnsignedLong(curBlockId));
         if (logger.isDebugEnabled()) {
           logger.debug("Getting next Blocks after {} from {}", curBlockId, peer.getPeerAddress());
         }
@@ -861,7 +861,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           }
             if (transaction.getReferencedTransactionFullHash() != null && ((previousLastBlock.getHeight() < Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK
                     && !transactionDb.hasTransaction(
-                    Convert.fullHashToId(transaction.getReferencedTransactionFullHash())))
+                    Convert.INSTANCE.fullHashToId(transaction.getReferencedTransactionFullHash())))
                     || (previousLastBlock
                     .getHeight() >= Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK
                     && !hasAllReferencedTransactions(transaction, transaction.getTimestamp(), 0)))) {
@@ -882,7 +882,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           }
             if (Burst.getFluxCapacitor().getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) && !economicClustering.verifyFork(transaction)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Block {} height {} contains transaction that was generated on a fork: {} ecBlockId {} ecBlockHeight {}", block.getStringId(), previousLastBlock.getHeight() + 1, transaction.getStringId(), transaction.getECBlockHeight(), Convert.toUnsignedLong(transaction.getECBlockId()));
+                    logger.debug("Block {} height {} contains transaction that was generated on a fork: {} ecBlockId {} ecBlockHeight {}", block.getStringId(), previousLastBlock.getHeight() + 1, transaction.getStringId(), transaction.getECBlockHeight(), Convert.INSTANCE.toUnsignedLong(transaction.getECBlockId()));
                 }
                 throw new TransactionNotAcceptedException("Transaction belongs to a different fork",
                         transaction);
@@ -927,8 +927,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           throw new BlockNotAcceptedException("Payload hash doesn't match for block " + block.getHeight());
         }
 
-        long remainingAmount = Convert.safeSubtract(block.getTotalAmountNQT(), calculatedTotalAmount);
-        long remainingFee = Convert.safeSubtract(block.getTotalFeeNQT(), calculatedTotalFee);
+        long remainingAmount = Convert.INSTANCE.safeSubtract(block.getTotalAmountNQT(), calculatedTotalAmount);
+        long remainingFee = Convert.INSTANCE.safeSubtract(block.getTotalFeeNQT(), calculatedTotalFee);
 
         blockService.setPrevious(block, previousLastBlock);
         blockListeners.accept(block, Event.BEFORE_BLOCK_ACCEPT);
@@ -1267,7 +1267,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         pushBlock(block);
         blockListeners.accept(block, Event.BLOCK_GENERATED);
         if (logger.isDebugEnabled()) {
-            logger.debug("Account {} generated block {} at height {}", Convert.toUnsignedLong(block.getGeneratorId()), block.getStringId(), block.getHeight());
+            logger.debug("Account {} generated block {} at height {}", Convert.INSTANCE.toUnsignedLong(block.getGeneratorId()), block.getStringId(), block.getHeight());
         }
         downloadCache.resetCache();
       } catch ( InterruptedException e ) {

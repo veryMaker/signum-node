@@ -34,11 +34,11 @@ public final class GetAccountsWithRewardRecipient extends APIServlet.JsonRequest
     JsonArray accounts = new JsonArray();
 
     for (Account.RewardRecipientAssignment assignment : accountService.getAccountsWithRewardRecipient(targetAccount.getId())) {
-      accounts.add(Convert.toUnsignedLong(assignment.getAccountId()));
+      accounts.add(Convert.INSTANCE.toUnsignedLong(assignment.getAccountId()));
     }
 
     if(accountService.getRewardRecipientAssignment(targetAccount) == null) {
-      accounts.add(Convert.toUnsignedLong(targetAccount.getId()));
+      accounts.add(Convert.INSTANCE.toUnsignedLong(targetAccount.getId()));
     }
 		
     response.add(ACCOUNTS_RESPONSE, accounts);

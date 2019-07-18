@@ -126,16 +126,16 @@ class OrderServiceImpl {
 
       Trade trade = tradeService.addTrade(assetId, Burst.getBlockchain().getLastBlock(), askOrder, bidOrder);
 
-      askOrderUpdateQuantityQNT(askOrder, Convert.safeSubtract(askOrder.getQuantityQNT(), trade.getQuantityQNT()));
+      askOrderUpdateQuantityQNT(askOrder, Convert.INSTANCE.safeSubtract(askOrder.getQuantityQNT(), trade.getQuantityQNT()));
       Account askAccount = accountService.getAccount(askOrder.getAccountId());
-      accountService.addToBalanceAndUnconfirmedBalanceNQT(askAccount, Convert.safeMultiply(trade.getQuantityQNT(), trade.getPriceNQT()));
+      accountService.addToBalanceAndUnconfirmedBalanceNQT(askAccount, Convert.INSTANCE.safeMultiply(trade.getQuantityQNT(), trade.getPriceNQT()));
       accountService.addToAssetBalanceQNT(askAccount, assetId, -trade.getQuantityQNT());
 
-      bidOrderUpdateQuantityQNT(bidOrder, Convert.safeSubtract(bidOrder.getQuantityQNT(), trade.getQuantityQNT()));
+      bidOrderUpdateQuantityQNT(bidOrder, Convert.INSTANCE.safeSubtract(bidOrder.getQuantityQNT(), trade.getQuantityQNT()));
       Account bidAccount = accountService.getAccount(bidOrder.getAccountId());
       accountService.addToAssetAndUnconfirmedAssetBalanceQNT(bidAccount, assetId, trade.getQuantityQNT());
-      accountService.addToBalanceNQT(bidAccount, -Convert.safeMultiply(trade.getQuantityQNT(), trade.getPriceNQT()));
-      accountService.addToUnconfirmedBalanceNQT(bidAccount, Convert.safeMultiply(trade.getQuantityQNT(), (bidOrder.getPriceNQT() - trade.getPriceNQT())));
+      accountService.addToBalanceNQT(bidAccount, -Convert.INSTANCE.safeMultiply(trade.getQuantityQNT(), trade.getPriceNQT()));
+      accountService.addToUnconfirmedBalanceNQT(bidAccount, Convert.INSTANCE.safeMultiply(trade.getQuantityQNT(), (bidOrder.getPriceNQT() - trade.getPriceNQT())));
 
     }
 
@@ -149,7 +149,7 @@ class OrderServiceImpl {
       askOrderTable.delete(askOrder);
     } else {
       throw new IllegalArgumentException("Negative quantity: " + quantityQNT
-          + " for order: " + Convert.toUnsignedLong(askOrder.getId()));
+          + " for order: " + Convert.INSTANCE.toUnsignedLong(askOrder.getId()));
     }
   }
 
@@ -161,7 +161,7 @@ class OrderServiceImpl {
       bidOrderTable.delete(bidOrder);
     } else {
       throw new IllegalArgumentException("Negative quantity: " + quantityQNT
-          + " for order: " + Convert.toUnsignedLong(bidOrder.getId()));
+          + " for order: " + Convert.INSTANCE.toUnsignedLong(bidOrder.getId()));
     }
   }
 

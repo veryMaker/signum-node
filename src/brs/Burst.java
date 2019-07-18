@@ -165,7 +165,7 @@ public final class Burst {
 
       threadPool = new ThreadPool(propertyService);
 
-      LoggerConfigurator.init();
+      LoggerConfigurator.INSTANCE.init();
 
       Db.init(propertyService, dbCacheManager);
       dbs = Db.getDbsByDatabaseType();
@@ -324,7 +324,7 @@ public final class Burst {
       OCLPoC.destroy();
     }
     logger.info("BRS {} stopped.", VERSION);
-    LoggerConfigurator.shutdown();
+    LoggerConfigurator.INSTANCE.shutdown();
   }
 
   public static PropertyService getPropertyService() {

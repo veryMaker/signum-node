@@ -180,7 +180,7 @@ public class APITestServlet extends HttpServlet {
 
   private String buildLinks(HttpServletRequest req) {
     final StringBuilder buf = new StringBuilder();
-    final String requestTag = Convert.nullToEmpty(req.getParameter("requestTag"));
+    final String requestTag = Convert.INSTANCE.nullToEmpty(req.getParameter("requestTag"));
     buf.append("<li");
     if (requestTag.equals("")) {
       buf.append(" class=\"active\"");
@@ -221,7 +221,7 @@ public class APITestServlet extends HttpServlet {
         writer.print(HEADER_1);
         writer.print(buildLinks(req));
         writer.print(HEADER_2);
-        String requestType = Convert.nullToEmpty(Encode.forHtml(req.getParameter("requestType")));
+        String requestType = Convert.INSTANCE.nullToEmpty(Encode.forHtml(req.getParameter("requestType")));
         APIServlet.HttpRequestHandler requestHandler = apiRequestHandlers.get(requestType);
         StringBuilder bufJSCalls = new StringBuilder();
         if (requestHandler != null) {
@@ -229,7 +229,7 @@ public class APITestServlet extends HttpServlet {
           bufJSCalls.append("apiCalls.push(\"").append(requestType).append("\");\n");
         }
         else {
-          String requestTag = Convert.nullToEmpty(req.getParameter("requestTag"));
+          String requestTag = Convert.INSTANCE.nullToEmpty(req.getParameter("requestTag"));
           Set<String> taggedTypes = requestTags.get(requestTag);
           for (String type : (taggedTypes != null ? taggedTypes : requestTypes)) {
             requestHandler = apiRequestHandlers.get(type);

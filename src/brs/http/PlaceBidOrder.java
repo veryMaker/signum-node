@@ -31,7 +31,7 @@ final class PlaceBidOrder extends CreateTransaction {
     Account account = parameterService.getSenderAccount(req);
 
     try {
-      if (Convert.safeAdd(feeNQT, Convert.safeMultiply(priceNQT, quantityQNT)) > account.getUnconfirmedBalanceNQT()) {
+      if (Convert.INSTANCE.safeAdd(feeNQT, Convert.INSTANCE.safeMultiply(priceNQT, quantityQNT)) > account.getUnconfirmedBalanceNQT()) {
         return NOT_ENOUGH_FUNDS;
       }
     } catch (ArithmeticException e) {

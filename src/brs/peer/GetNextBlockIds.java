@@ -24,11 +24,11 @@ final class GetNextBlockIds implements PeerServlet.PeerRequestHandler {
     JsonObject response = new JsonObject();
 
     JsonArray nextBlockIds = new JsonArray();
-    long blockId = Convert.parseUnsignedLong(JSON.getAsString(request.get("blockId")));
+    long blockId = Convert.INSTANCE.parseUnsignedLong(JSON.getAsString(request.get("blockId")));
     Collection<Long> ids = blockchain.getBlockIdsAfter(blockId, 100);
 
     for (Long id : ids) {
-      nextBlockIds.add(Convert.toUnsignedLong(id));
+      nextBlockIds.add(Convert.INSTANCE.toUnsignedLong(id));
     }
 
     response.add("nextBlockIds", nextBlockIds);

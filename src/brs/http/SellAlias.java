@@ -26,7 +26,7 @@ public final class SellAlias extends CreateTransaction {
     Alias alias = parameterService.getAlias(req);
     Account owner = parameterService.getSenderAccount(req);
 
-    String priceValueNQT = Convert.emptyToNull(req.getParameter(PRICE_NQT_PARAMETER));
+    String priceValueNQT = Convert.INSTANCE.emptyToNull(req.getParameter(PRICE_NQT_PARAMETER));
     if (priceValueNQT == null) {
       return MISSING_PRICE;
     }
@@ -40,11 +40,11 @@ public final class SellAlias extends CreateTransaction {
       throw new ParameterException(INCORRECT_PRICE);
     }
 
-    String recipientValue = Convert.emptyToNull(req.getParameter(RECIPIENT_PARAMETER));
+    String recipientValue = Convert.INSTANCE.emptyToNull(req.getParameter(RECIPIENT_PARAMETER));
     long recipientId = 0;
     if (recipientValue != null) {
       try {
-        recipientId = Convert.parseAccountId(recipientValue);
+        recipientId = Convert.INSTANCE.parseAccountId(recipientValue);
       } catch (RuntimeException e) {
         return INCORRECT_RECIPIENT;
       }

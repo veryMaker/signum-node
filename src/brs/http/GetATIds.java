@@ -24,7 +24,7 @@ final class GetATIds extends APIServlet.JsonRequestHandler {
 
     JsonArray atIds = new JsonArray();
     for (Long id : atService.getAllATIds()) {
-      atIds.add(Convert.toUnsignedLong(id));
+      atIds.add(Convert.INSTANCE.toUnsignedLong(id));
     }
 
     JsonObject response = new JsonObject();

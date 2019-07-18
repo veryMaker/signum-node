@@ -25,7 +25,7 @@ final class GetSubscription extends APIServlet.JsonRequestHandler {
   JsonElement processRequest(HttpServletRequest req) {
     long subscriptionId;
     try {
-      subscriptionId = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(SUBSCRIPTION_PARAMETER)));
+      subscriptionId = Convert.INSTANCE.parseUnsignedLong(Convert.INSTANCE.emptyToNull(req.getParameter(SUBSCRIPTION_PARAMETER)));
     }
     catch(Exception e) {
       JsonObject response = new JsonObject();

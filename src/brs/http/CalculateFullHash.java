@@ -21,8 +21,8 @@ public final class CalculateFullHash extends APIServlet.JsonRequestHandler {
   @Override
   JsonElement processRequest(HttpServletRequest req) {
 
-    String unsignedBytesString = Convert.emptyToNull(req.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER));
-    String signatureHashString = Convert.emptyToNull(req.getParameter(SIGNATURE_HASH_PARAMETER));
+    String unsignedBytesString = Convert.INSTANCE.emptyToNull(req.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER));
+    String signatureHashString = Convert.INSTANCE.emptyToNull(req.getParameter(SIGNATURE_HASH_PARAMETER));
 
     if (unsignedBytesString == null) {
       return MISSING_UNSIGNED_BYTES;
@@ -31,10 +31,10 @@ public final class CalculateFullHash extends APIServlet.JsonRequestHandler {
     }
 
     MessageDigest digest = Crypto.sha256();
-    digest.update(Convert.parseHexString(unsignedBytesString));
-    byte[] fullHash = digest.digest(Convert.parseHexString(signatureHashString));
+    digest.update(Convert.INSTANCE.parseHexString(unsignedBytesString));
+    byte[] fullHash = digest.digest(Convert.INSTANCE.parseHexString(signatureHashString));
     JsonObject response = new JsonObject();
-    response.addProperty(FULL_HASH_RESPONSE, Convert.toHexString(fullHash));
+    response.addProperty(FULL_HASH_RESPONSE, Convert.INSTANCE.toHexString(fullHash));
 
     return response;
 

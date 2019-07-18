@@ -48,11 +48,11 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
   @Override
   JsonElement processRequest(HttpServletRequest req) {
     String secret = req.getParameter(SECRET_PHRASE_PARAMETER);
-    long nonce = Convert.parseUnsignedLong(req.getParameter(NONCE_PARAMETER));
+    long nonce = Convert.INSTANCE.parseUnsignedLong(req.getParameter(NONCE_PARAMETER));
 
     String accountId = req.getParameter(ACCOUNT_ID_PARAMETER);
 
-    String submissionHeight = Convert.emptyToNull(req.getParameter(BLOCK_HEIGHT_PARAMETER));
+    String submissionHeight = Convert.INSTANCE.emptyToNull(req.getParameter(BLOCK_HEIGHT_PARAMETER));
 
     JsonObject response = new JsonObject();
 
@@ -94,7 +94,7 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
     Account secretAccount = accountService.getAccount(secretPublicKey);
     if(secretAccount != null) {
       try {
-        SubmitNonceHandler.verifySecretAccount(accountService, blockchain, secretAccount, Convert.parseUnsignedLong(accountId));
+        SubmitNonceHandler.verifySecretAccount(accountService, blockchain, secretAccount, Convert.INSTANCE.parseUnsignedLong(accountId));
       } catch (ApiException e) {
         response.addProperty("result", e.getMessage());
         return response;
@@ -106,7 +106,7 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
       generatorState = generator.addNonce(secret, nonce);
     }
     else {
-      Account genAccount = accountService.getAccount(Convert.parseUnsignedLong(accountId));
+      Account genAccount = accountService.getAccount(Convert.INSTANCE.parseUnsignedLong(accountId));
       if(genAccount == null || genAccount.getPublicKey() == null) {
         response.addProperty("result", "Passthrough mining requires public key in blockchain");
       }

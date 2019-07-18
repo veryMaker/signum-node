@@ -32,14 +32,14 @@ final class GetUnconfirmedTransactionIds extends APIServlet.JsonRequestHandler {
 
   @Override
   JsonElement processRequest(HttpServletRequest req) {
-    final String accountIdString = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
+    final String accountIdString = Convert.INSTANCE.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
     boolean includeIndirect = parameterService.getIncludeIndirect(req);
 
     long accountId = 0;
 
     if (accountIdString != null) {
       try {
-        accountId = Convert.parseAccountId(accountIdString);
+        accountId = Convert.INSTANCE.parseAccountId(accountIdString);
       } catch (RuntimeException e) {
         return INCORRECT_ACCOUNT;
       }

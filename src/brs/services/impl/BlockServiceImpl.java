@@ -123,9 +123,9 @@ public class BlockServiceImpl implements BlockService {
     for (Transaction transaction : block.getTransactions()) {
       if (!transaction.verifySignature()) {
         if (logger.isInfoEnabled()) {
-          logger.info("Bad transaction signature during block pre-verification for tx: {} at block height: {}", Convert.toUnsignedLong(transaction.getId()), block.getHeight());
+          logger.info("Bad transaction signature during block pre-verification for tx: {} at block height: {}", Convert.INSTANCE.toUnsignedLong(transaction.getId()), block.getHeight());
         }
-        throw new BlockchainProcessor.TransactionNotAcceptedException("Invalid signature for tx: " + Convert.toUnsignedLong(transaction.getId()) + " at block height: " + block.getHeight(),
+        throw new BlockchainProcessor.TransactionNotAcceptedException("Invalid signature for tx: " + Convert.INSTANCE.toUnsignedLong(transaction.getId()) + " at block height: " + block.getHeight(),
             transaction);
       }
       if (Thread.currentThread().isInterrupted() || ! ThreadPool.running.get() )
@@ -198,7 +198,7 @@ public class BlockServiceImpl implements BlockService {
       block.setCumulativeDifficulty(BigInteger.ZERO);
     } else if (block.getHeight() < 4) {
       block.setBaseTarget(Constants.INITIAL_BASE_TARGET);
-      block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(Convert.two64.divide(BigInteger.valueOf(Constants.INITIAL_BASE_TARGET))));
+      block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(Convert.INSTANCE.getTwo64().divide(BigInteger.valueOf(Constants.INITIAL_BASE_TARGET))));
     } else if (block.getHeight() < Constants.BURST_DIFF_ADJUST_CHANGE_BLOCK) {
       Block itBlock = previousBlock;
       BigInteger avgBaseTarget = BigInteger.valueOf(itBlock.getBaseTarget());
@@ -229,7 +229,7 @@ public class BlockServiceImpl implements BlockService {
         newBaseTarget = twofoldCurBaseTarget;
       }
       block.setBaseTarget(newBaseTarget);
-      block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(Convert.two64.divide(BigInteger.valueOf(newBaseTarget))));
+      block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(Convert.INSTANCE.getTwo64().divide(BigInteger.valueOf(newBaseTarget))));
     } else {
       Block itBlock = previousBlock;
       BigInteger avgBaseTarget = BigInteger.valueOf(itBlock.getBaseTarget());
@@ -277,7 +277,7 @@ public class BlockServiceImpl implements BlockService {
       }
 
       block.setBaseTarget(newBaseTarget);
-      block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(Convert.two64.divide(BigInteger.valueOf(newBaseTarget))));
+      block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(Convert.INSTANCE.getTwo64().divide(BigInteger.valueOf(newBaseTarget))));
     }
   }
 

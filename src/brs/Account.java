@@ -105,9 +105,9 @@ public class Account {
     @Override
     public String toString() {
       return "AccountAsset account_id: "
-          + Convert.toUnsignedLong(accountId)
+          + Convert.INSTANCE.toUnsignedLong(accountId)
           + " asset_id: "
-          + Convert.toUnsignedLong(assetId)
+          + Convert.INSTANCE.toUnsignedLong(assetId)
           + " quantity: "
           + quantityQNT
           + " unconfirmedQuantity: "
@@ -182,7 +182,7 @@ public class Account {
 
   public static long getId(byte[] publicKey) {
     byte[] publicKeyHash = Crypto.sha256().digest(publicKey);
-    return Convert.fullHashToId(publicKeyHash);
+    return Convert.INSTANCE.fullHashToId(publicKeyHash);
   }
 
   public static Account getOrAddAccount(long id) {
@@ -286,7 +286,7 @@ public class Account {
       throw new IllegalStateException("Public key mismatch");
     }
     if (this.publicKey == null) {
-      throw new IllegalStateException("Public key has not been set for account " + Convert.toUnsignedLong(id)
+      throw new IllegalStateException("Public key has not been set for account " + Convert.INSTANCE.toUnsignedLong(id)
           + " at height " + height + ", key height is " + keyHeight);
     }
     if (this.keyHeight == -1 || this.keyHeight > height) {
@@ -300,13 +300,13 @@ public class Account {
       throw new DoubleSpendingException("Negative balance or quantity ("
                                         + confirmed
                                         + ") for account "
-                                        + Convert.toUnsignedLong(accountId));
+                                        + Convert.INSTANCE.toUnsignedLong(accountId));
     }
     if (unconfirmed < 0) {
       throw new DoubleSpendingException("Negative unconfirmed balance or quantity ("
                                         + unconfirmed
                                         + ") for account "
-                                        + Convert.toUnsignedLong(accountId));
+                                        + Convert.INSTANCE.toUnsignedLong(accountId));
     }
     if (unconfirmed > confirmed) {
       throw new DoubleSpendingException("Unconfirmed ("
@@ -314,7 +314,7 @@ public class Account {
                                         + ") exceeds confirmed ("
                                         + confirmed
                                         + ") balance or quantity for account "
-                                        + Convert.toUnsignedLong(accountId));
+                                        + Convert.INSTANCE.toUnsignedLong(accountId));
     }
   }
 

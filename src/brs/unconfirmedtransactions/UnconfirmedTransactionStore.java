@@ -28,7 +28,7 @@ public interface UnconfirmedTransactionStore {
    */
   void resetAccountBalances();
 
-  void markFingerPrintsOf(Peer peer, List<Transaction> transactions);
+  void markFingerPrintsOf(Peer peer, List<? extends Transaction> transactions);
 
   void removeForgedTransactions(List<Transaction> transactions);
 

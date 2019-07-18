@@ -46,7 +46,7 @@ public final class DebugTrace {
         accountIds.clear();
         break;
       }
-      accountIds.add(Convert.parseUnsignedLong(accountId));
+      accountIds.add(Convert.INSTANCE.parseUnsignedLong(accountId));
     }
     final DebugTrace debugTrace = addDebugTrace(accountIds, logName, blockchainProcessor, accountService, assetExchange);
     blockchainProcessor.addListener(block -> debugTrace.resetLog(), BlockchainProcessor.Event.RESCAN_BEGIN);
@@ -182,9 +182,9 @@ public final class DebugTrace {
 
   private Map<String,String> lessorGuaranteedBalance(Account account, long lesseeId) {
     Map<String,String> map = new HashMap<>();
-    map.put("account", Convert.toUnsignedLong(account.getId()));
+    map.put("account", Convert.INSTANCE.toUnsignedLong(account.getId()));
     map.put("lessor guaranteed balance", String.valueOf(account.getBalanceNQT()));
-    map.put("lessee", Convert.toUnsignedLong(lesseeId));
+    map.put("lessee", Convert.INSTANCE.toUnsignedLong(lesseeId));
     map.put("timestamp", String.valueOf(Burst.getBlockchain().getLastBlock().getTimestamp()));
     map.put("height", String.valueOf(Burst.getBlockchain().getHeight()));
     map.put("event", "lessor guaranteed balance");
@@ -193,7 +193,7 @@ public final class DebugTrace {
 
   private Map<String,String> getValues(long accountId, boolean unconfirmed) {
     Map<String,String> map = new HashMap<>();
-    map.put("account", Convert.toUnsignedLong(accountId));
+    map.put("account", Convert.INSTANCE.toUnsignedLong(accountId));
     Account account = Account.getAccount(accountId);
     map.put("balance", String.valueOf(account != null ? account.getBalanceNQT() : 0));
     map.put("unconfirmed balance", String.valueOf(account != null ? account.getUnconfirmedBalanceNQT() : 0));
@@ -205,10 +205,10 @@ public final class DebugTrace {
 
   private Map<String,String> getValues(long accountId, Trade trade, boolean isAsk) {
     Map<String,String> map = getValues(accountId, false);
-    map.put("asset", Convert.toUnsignedLong(trade.getAssetId()));
+    map.put("asset", Convert.INSTANCE.toUnsignedLong(trade.getAssetId()));
     map.put("trade quantity", String.valueOf(isAsk ? - trade.getQuantityQNT() : trade.getQuantityQNT()));
     map.put("trade price", String.valueOf(trade.getPriceNQT()));
-    long tradeCost = Convert.safeMultiply(trade.getQuantityQNT(), trade.getPriceNQT());
+    long tradeCost = Convert.INSTANCE.safeMultiply(trade.getQuantityQNT(), trade.getPriceNQT());
     map.put("trade cost", String.valueOf((isAsk ? tradeCost : - tradeCost)));
     map.put("event", "trade");
     return map;
@@ -232,9 +232,9 @@ public final class DebugTrace {
     map.put("transaction fee", String.valueOf(fee));
     map.put("transaction", transaction.getStringId());
     if (isRecipient) {
-      map.put("sender", Convert.toUnsignedLong(transaction.getSenderId()));
+      map.put("sender", Convert.INSTANCE.toUnsignedLong(transaction.getSenderId()));
     } else {
-      map.put("recipient", Convert.toUnsignedLong(transaction.getRecipientId()));
+      map.put("recipient", Convert.INSTANCE.toUnsignedLong(transaction.getRecipientId()));
     }
     map.put("event", "transaction");
     return map;
@@ -256,8 +256,8 @@ public final class DebugTrace {
 
   private Map<String,String> getValues(long accountId, Account.AccountAsset accountAsset, boolean unconfirmed) {
     Map<String,String> map = new HashMap<>();
-    map.put("account", Convert.toUnsignedLong(accountId));
-    map.put("asset", Convert.toUnsignedLong(accountAsset.getAssetId()));
+    map.put("account", Convert.INSTANCE.toUnsignedLong(accountId));
+    map.put("asset", Convert.INSTANCE.toUnsignedLong(accountAsset.getAssetId()));
     if (unconfirmed) {
       map.put("unconfirmed asset balance", String.valueOf(accountAsset.getUnconfirmedQuantityQNT()));
     } else {
@@ -277,7 +277,7 @@ public final class DebugTrace {
       }
       Attachment.ColoredCoinsOrderPlacement orderPlacement = (Attachment.ColoredCoinsOrderPlacement)attachment;
       boolean isAsk = orderPlacement instanceof Attachment.ColoredCoinsAskOrderPlacement;
-      map.put("asset", Convert.toUnsignedLong(orderPlacement.getAssetId()));
+      map.put("asset", Convert.INSTANCE.toUnsignedLong(orderPlacement.getAssetId()));
       map.put("order", transaction.getStringId());
       map.put("order price", String.valueOf(orderPlacement.getPriceNQT()));
       long quantity = orderPlacement.getQuantityQNT();
@@ -304,7 +304,7 @@ public final class DebugTrace {
     }
     else if (attachment instanceof Attachment.ColoredCoinsAssetTransfer) {
       Attachment.ColoredCoinsAssetTransfer assetTransfer = (Attachment.ColoredCoinsAssetTransfer)attachment;
-      map.put("asset", Convert.toUnsignedLong(assetTransfer.getAssetId()));
+      map.put("asset", Convert.INSTANCE.toUnsignedLong(assetTransfer.getAssetId()));
       long quantity = assetTransfer.getQuantityQNT();
       if (! isRecipient) {
         quantity = - quantity;
@@ -314,7 +314,7 @@ public final class DebugTrace {
     }
     else if (attachment instanceof Attachment.ColoredCoinsOrderCancellation) {
       Attachment.ColoredCoinsOrderCancellation orderCancellation = (Attachment.ColoredCoinsOrderCancellation)attachment;
-      map.put("order", Convert.toUnsignedLong(orderCancellation.getOrderId()));
+      map.put("order", Convert.INSTANCE.toUnsignedLong(orderCancellation.getOrderId()));
       map.put("event", "order cancel");
     }
     else if (attachment instanceof Attachment.DigitalGoodsPurchase) {
@@ -332,11 +332,11 @@ public final class DebugTrace {
         map = getValues(purchase.getBuyerId(), false);
       }
       map.put("event", "delivery");
-      map.put("purchase", Convert.toUnsignedLong(delivery.getPurchaseId()));
+      map.put("purchase", Convert.INSTANCE.toUnsignedLong(delivery.getPurchaseId()));
       long discount = delivery.getDiscountNQT();
       map.put("purchase price", String.valueOf(purchase.getPriceNQT()));
       map.put("purchase quantity", String.valueOf(purchase.getQuantity()));
-      long cost = Convert.safeMultiply(purchase.getPriceNQT(), purchase.getQuantity());
+      long cost = Convert.INSTANCE.safeMultiply(purchase.getPriceNQT(), purchase.getQuantity());
       if (isRecipient) {
         cost = - cost;
       }
@@ -352,24 +352,24 @@ public final class DebugTrace {
         map = getValues(dgsGoodsStoreService.getPurchase(refund.getPurchaseId()).getBuyerId(), false);
       }
       map.put("event", "refund");
-      map.put("purchase", Convert.toUnsignedLong(refund.getPurchaseId()));
+      map.put("purchase", Convert.INSTANCE.toUnsignedLong(refund.getPurchaseId()));
       long refundNQT = refund.getRefundNQT();
       if (! isRecipient) {
         refundNQT = - refundNQT;
       }
       map.put("refund", String.valueOf(refundNQT));
     }
-    else if (attachment == Attachment.ARBITRARY_MESSAGE) {
+    else if (attachment == Attachment.Companion.getARBITRARY_MESSAGE()) {
       map = new HashMap<>();
-      map.put("account", Convert.toUnsignedLong(accountId));
+      map.put("account", Convert.INSTANCE.toUnsignedLong(accountId));
       map.put("timestamp", String.valueOf(Burst.getBlockchain().getLastBlock().getTimestamp()));
       map.put("height", String.valueOf(Burst.getBlockchain().getHeight()));
       map.put("event", "message");
       if (isRecipient) {
-        map.put("sender", Convert.toUnsignedLong(transaction.getSenderId()));
+        map.put("sender", Convert.INSTANCE.toUnsignedLong(transaction.getSenderId()));
       }
       else {
-        map.put("recipient", Convert.toUnsignedLong(transaction.getRecipientId()));
+        map.put("recipient", Convert.INSTANCE.toUnsignedLong(transaction.getRecipientId()));
       }
     }
     else {

@@ -30,7 +30,7 @@ final class GetMiningInfo extends APIServlet.JsonRequestHandler {
     Block lastBlock = blockchain.getLastBlock();
     byte[] newGenSig = generator.calculateGenerationSignature(lastBlock.getGenerationSignature(), lastBlock.getGeneratorId());
 		
-    response.addProperty("generationSignature", Convert.toHexString(newGenSig));
+    response.addProperty("generationSignature", Convert.INSTANCE.toHexString(newGenSig));
     response.addProperty("baseTarget", Long.toString(lastBlock.getBaseTarget()));
 		
     return response;

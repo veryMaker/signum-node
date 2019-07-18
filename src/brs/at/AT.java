@@ -232,7 +232,7 @@ public class AT extends AtMachineState {
                 accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.getRecipientId())), atTransaction.getAmount());
 
                 Transaction.Builder builder = new Transaction.Builder((byte) 1, Genesis.getCreatorPublicKey(),
-                        atTransaction.getAmount(), 0L, block.getTimestamp(), (short) 1440, Attachment.AT_PAYMENT);
+                        atTransaction.getAmount(), 0L, block.getTimestamp(), (short) 1440, Attachment.Companion.getAT_PAYMENT());
 
                 builder.senderId(AtApiHelper.getLong(atTransaction.getSenderId()))
                         .recipientId(AtApiHelper.getLong(atTransaction.getRecipientId()))

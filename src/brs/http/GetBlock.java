@@ -26,14 +26,14 @@ public final class GetBlock extends APIServlet.JsonRequestHandler {
 
   @Override
   JsonElement processRequest(HttpServletRequest req) {
-    String blockValue = Convert.emptyToNull(req.getParameter(BLOCK_PARAMETER));
-    String heightValue = Convert.emptyToNull(req.getParameter(HEIGHT_PARAMETER));
-    String timestampValue = Convert.emptyToNull(req.getParameter(TIMESTAMP_PARAMETER));
+    String blockValue = Convert.INSTANCE.emptyToNull(req.getParameter(BLOCK_PARAMETER));
+    String heightValue = Convert.INSTANCE.emptyToNull(req.getParameter(HEIGHT_PARAMETER));
+    String timestampValue = Convert.INSTANCE.emptyToNull(req.getParameter(TIMESTAMP_PARAMETER));
 
     Block blockData;
     if (blockValue != null) {
       try {
-        blockData = blockchain.getBlock(Convert.parseUnsignedLong(blockValue));
+        blockData = blockchain.getBlock(Convert.INSTANCE.parseUnsignedLong(blockValue));
       } catch (RuntimeException e) {
         return INCORRECT_BLOCK;
       }

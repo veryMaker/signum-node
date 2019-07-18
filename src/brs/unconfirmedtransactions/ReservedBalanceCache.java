@@ -34,7 +34,7 @@ class ReservedBalanceCache {
       senderAccount = accountStore.getAccountTable().get(accountStore.getAccountKeyFactory().newKey(transaction.getSenderId()));
     }
 
-    final Long amountNQT = Convert.safeAdd(
+    final Long amountNQT = Convert.INSTANCE.safeAdd(
         reservedBalanceCache.getOrDefault(transaction.getSenderId(), 0L),
         transaction.getType().calculateTotalAmountNQT(transaction)
     );
@@ -57,7 +57,7 @@ class ReservedBalanceCache {
   }
 
   void refundBalance(Transaction transaction) {
-    Long amountNQT = Convert.safeSubtract(
+    Long amountNQT = Convert.INSTANCE.safeSubtract(
         reservedBalanceCache.getOrDefault(transaction.getSenderId(), 0L),
         transaction.getType().calculateTotalAmountNQT(transaction)
     );

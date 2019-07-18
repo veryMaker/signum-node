@@ -39,7 +39,7 @@ public final class DGSDelivery extends CreateTransaction {
       return ALREADY_DELIVERED;
     }
 
-    String discountValueNQT = Convert.emptyToNull(req.getParameter(DISCOUNT_NQT_PARAMETER));
+    String discountValueNQT = Convert.INSTANCE.emptyToNull(req.getParameter(DISCOUNT_NQT_PARAMETER));
     long discountNQT = 0;
     try {
       if (discountValueNQT != null) {
@@ -50,7 +50,7 @@ public final class DGSDelivery extends CreateTransaction {
     }
     if (discountNQT < 0
         || discountNQT > Constants.MAX_BALANCE_NQT
-        || discountNQT > Convert.safeMultiply(purchase.getPriceNQT(), purchase.getQuantity())) {
+        || discountNQT > Convert.INSTANCE.safeMultiply(purchase.getPriceNQT(), purchase.getQuantity())) {
       return INCORRECT_DGS_DISCOUNT;
     }
 
@@ -62,11 +62,11 @@ public final class DGSDelivery extends CreateTransaction {
       String secretPhrase = ParameterParser.getSecretPhrase(req);
       byte[] goodsBytes;
       try {
-        String plainGoods = Convert.nullToEmpty(req.getParameter(GOODS_TO_ENCRYPT_PARAMETER));
+        String plainGoods = Convert.INSTANCE.nullToEmpty(req.getParameter(GOODS_TO_ENCRYPT_PARAMETER));
         if (plainGoods.isEmpty()) {
           return INCORRECT_DGS_GOODS;
         }
-        goodsBytes = goodsIsText ? Convert.toBytes(plainGoods) : Convert.parseHexString(plainGoods);
+        goodsBytes = goodsIsText ? Convert.INSTANCE.toBytes(plainGoods) : Convert.INSTANCE.parseHexString(plainGoods);
       } catch (RuntimeException e) {
         return INCORRECT_DGS_GOODS;
       }

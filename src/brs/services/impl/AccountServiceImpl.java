@@ -88,8 +88,8 @@ public class AccountServiceImpl implements AccountService {
       return account;
     }
 
-    throw new RuntimeException("DUPLICATE KEY for account " + Convert.toUnsignedLong(account.getId())
-        + " existing key " + Convert.toHexString(account.getPublicKey()) + " new key " + Convert.toHexString(publicKey));
+    throw new RuntimeException("DUPLICATE KEY for account " + Convert.INSTANCE.toUnsignedLong(account.getId())
+        + " existing key " + Convert.INSTANCE.toHexString(account.getPublicKey()) + " new key " + Convert.INSTANCE.toHexString(publicKey));
   }
 
   @Override
@@ -129,7 +129,7 @@ public class AccountServiceImpl implements AccountService {
 
   public static long getId(byte[] publicKey) {
     byte[] publicKeyHash = Crypto.sha256().digest(publicKey);
-    return Convert.fullHashToId(publicKeyHash);
+    return Convert.INSTANCE.fullHashToId(publicKeyHash);
   }
 
   @Override
@@ -147,14 +147,14 @@ public class AccountServiceImpl implements AccountService {
     if (amountNQT == 0) {
       return;
     }
-    account.setForgedBalanceNQT(Convert.safeAdd(account.getForgedBalanceNQT(), amountNQT));
+    account.setForgedBalanceNQT(Convert.INSTANCE.safeAdd(account.getForgedBalanceNQT(), amountNQT));
     accountTable.insert(account);
   }
 
   @Override
   public void setAccountInfo(Account account, String name, String description) {
-    account.setName(Convert.emptyToNull(name.trim()));
-    account.setDescription(Convert.emptyToNull(description.trim()));
+    account.setName(Convert.INSTANCE.emptyToNull(name.trim()));
+    account.setDescription(Convert.INSTANCE.emptyToNull(description.trim()));
     accountTable.insert(account);
   }
 
@@ -168,7 +168,7 @@ public class AccountServiceImpl implements AccountService {
     BurstKey newKey = accountAssetKeyFactory.newKey(account.getId(), assetId);
     accountAsset = accountAssetTable.get(newKey);
     long assetBalance = accountAsset == null ? 0 : accountAsset.getQuantityQNT();
-    assetBalance = Convert.safeAdd(assetBalance, quantityQNT);
+    assetBalance = Convert.INSTANCE.safeAdd(assetBalance, quantityQNT);
     if (accountAsset == null) {
       accountAsset = new AccountAsset(newKey, account.getId(), assetId, assetBalance, 0);
     } else {
@@ -188,7 +188,7 @@ public class AccountServiceImpl implements AccountService {
     BurstKey newKey = accountAssetKeyFactory.newKey(account.getId(), assetId);
     accountAsset = accountAssetTable.get(newKey);
     long unconfirmedAssetBalance = accountAsset == null ? 0 : accountAsset.getUnconfirmedQuantityQNT();
-    unconfirmedAssetBalance = Convert.safeAdd(unconfirmedAssetBalance, quantityQNT);
+    unconfirmedAssetBalance = Convert.INSTANCE.safeAdd(unconfirmedAssetBalance, quantityQNT);
     if (accountAsset == null) {
       accountAsset = new AccountAsset(newKey, account.getId(), assetId, 0, unconfirmedAssetBalance);
     } else {
@@ -208,9 +208,9 @@ public class AccountServiceImpl implements AccountService {
     BurstKey newKey = accountAssetKeyFactory.newKey(account.getId(), assetId);
     accountAsset = accountAssetTable.get(newKey);
     long assetBalance = accountAsset == null ? 0 : accountAsset.getQuantityQNT();
-    assetBalance = Convert.safeAdd(assetBalance, quantityQNT);
+    assetBalance = Convert.INSTANCE.safeAdd(assetBalance, quantityQNT);
     long unconfirmedAssetBalance = accountAsset == null ? 0 : accountAsset.getUnconfirmedQuantityQNT();
-    unconfirmedAssetBalance = Convert.safeAdd(unconfirmedAssetBalance, quantityQNT);
+    unconfirmedAssetBalance = Convert.INSTANCE.safeAdd(unconfirmedAssetBalance, quantityQNT);
     if (accountAsset == null) {
       accountAsset = new AccountAsset(newKey, account.getId(), assetId, assetBalance, unconfirmedAssetBalance);
     } else {
@@ -229,7 +229,7 @@ public class AccountServiceImpl implements AccountService {
     if (amountNQT == 0) {
       return;
     }
-    account.setBalanceNQT(Convert.safeAdd(account.getBalanceNQT(), amountNQT));
+    account.setBalanceNQT(Convert.INSTANCE.safeAdd(account.getBalanceNQT(), amountNQT));
     account.checkBalance();
     accountTable.insert(account);
     listeners.accept(account, Event.BALANCE);
@@ -240,7 +240,7 @@ public class AccountServiceImpl implements AccountService {
     if (amountNQT == 0) {
       return;
     }
-    account.setUnconfirmedBalanceNQT(Convert.safeAdd(account.getUnconfirmedBalanceNQT(), amountNQT));
+    account.setUnconfirmedBalanceNQT(Convert.INSTANCE.safeAdd(account.getUnconfirmedBalanceNQT(), amountNQT));
     account.checkBalance();
     accountTable.insert(account);
     listeners.accept(account, Event.UNCONFIRMED_BALANCE);
@@ -251,8 +251,8 @@ public class AccountServiceImpl implements AccountService {
     if (amountNQT == 0) {
       return;
     }
-    account.setBalanceNQT(Convert.safeAdd(account.getBalanceNQT(), amountNQT));
-    account.setUnconfirmedBalanceNQT(Convert.safeAdd(account.getUnconfirmedBalanceNQT(), amountNQT));
+    account.setBalanceNQT(Convert.INSTANCE.safeAdd(account.getBalanceNQT(), amountNQT));
+    account.setUnconfirmedBalanceNQT(Convert.INSTANCE.safeAdd(account.getUnconfirmedBalanceNQT(), amountNQT));
     account.checkBalance();
     accountTable.insert(account);
     listeners.accept(account, Event.BALANCE);

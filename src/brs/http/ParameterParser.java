@@ -15,7 +15,7 @@ import static brs.http.common.Parameters.*;
 final class ParameterParser {
 
   static long getFeeNQT(HttpServletRequest req) throws ParameterException {
-    String feeValueNQT = Convert.emptyToNull(req.getParameter(FEE_NQT_PARAMETER));
+    String feeValueNQT = Convert.INSTANCE.emptyToNull(req.getParameter(FEE_NQT_PARAMETER));
     if (feeValueNQT == null) {
       throw new ParameterException(MISSING_FEE);
     }
@@ -32,7 +32,7 @@ final class ParameterParser {
   }
 
   static long getPriceNQT(HttpServletRequest req) throws ParameterException {
-    String priceValueNQT = Convert.emptyToNull(req.getParameter(PRICE_NQT_PARAMETER));
+    String priceValueNQT = Convert.INSTANCE.emptyToNull(req.getParameter(PRICE_NQT_PARAMETER));
     if (priceValueNQT == null) {
       throw new ParameterException(MISSING_PRICE);
     }
@@ -49,7 +49,7 @@ final class ParameterParser {
   }
 
   static long getQuantityQNT(HttpServletRequest req) throws ParameterException {
-    String quantityValueQNT = Convert.emptyToNull(req.getParameter(QUANTITY_QNT_PARAMETER));
+    String quantityValueQNT = Convert.INSTANCE.emptyToNull(req.getParameter(QUANTITY_QNT_PARAMETER));
     if (quantityValueQNT == null) {
       throw new ParameterException(MISSING_QUANTITY);
     }
@@ -66,19 +66,19 @@ final class ParameterParser {
   }
 
   static long getOrderId(HttpServletRequest req) throws ParameterException {
-    String orderValue = Convert.emptyToNull(req.getParameter(ORDER_PARAMETER));
+    String orderValue = Convert.INSTANCE.emptyToNull(req.getParameter(ORDER_PARAMETER));
     if (orderValue == null) {
       throw new ParameterException(MISSING_ORDER);
     }
     try {
-      return Convert.parseUnsignedLong(orderValue);
+      return Convert.INSTANCE.parseUnsignedLong(orderValue);
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_ORDER);
     }
   }
 
   static int getGoodsQuantity(HttpServletRequest req) throws ParameterException {
-    String quantityString = Convert.emptyToNull(req.getParameter(QUANTITY_PARAMETER));
+    String quantityString = Convert.INSTANCE.emptyToNull(req.getParameter(QUANTITY_PARAMETER));
     try {
       int quantity = Integer.parseInt(quantityString);
       if (quantity < 0 || quantity > Constants.MAX_DGS_LISTING_QUANTITY) {
@@ -91,11 +91,11 @@ final class ParameterParser {
   }
 
   static EncryptedData getEncryptedGoods(HttpServletRequest req) throws ParameterException {
-    String data = Convert.emptyToNull(req.getParameter(GOODS_DATA_PARAMETER));
-    String nonce = Convert.emptyToNull(req.getParameter(GOODS_NONCE_PARAMETER));
+    String data = Convert.INSTANCE.emptyToNull(req.getParameter(GOODS_DATA_PARAMETER));
+    String nonce = Convert.INSTANCE.emptyToNull(req.getParameter(GOODS_NONCE_PARAMETER));
     if (data != null && nonce != null) {
       try {
-        return new EncryptedData(Convert.parseHexString(data), Convert.parseHexString(nonce));
+        return new EncryptedData(Convert.INSTANCE.parseHexString(data), Convert.INSTANCE.parseHexString(nonce));
       } catch (RuntimeException e) {
         throw new ParameterException(INCORRECT_DGS_ENCRYPTED_GOODS);
       }
@@ -104,7 +104,7 @@ final class ParameterParser {
   }
 
   static String getSecretPhrase(HttpServletRequest req) throws ParameterException {
-    String secretPhrase = Convert.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER));
+    String secretPhrase = Convert.INSTANCE.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER));
     if (secretPhrase == null) {
       throw new ParameterException(MISSING_SECRET_PHRASE);
     }
@@ -112,7 +112,7 @@ final class ParameterParser {
   }
 
   static int getTimestamp(HttpServletRequest req) throws ParameterException {
-    String timestampValue = Convert.emptyToNull(req.getParameter(TIMESTAMP_PARAMETER));
+    String timestampValue = Convert.INSTANCE.emptyToNull(req.getParameter(TIMESTAMP_PARAMETER));
     if (timestampValue == null) {
       return 0;
     }
@@ -129,13 +129,13 @@ final class ParameterParser {
   }
 
   static long getRecipientId(HttpServletRequest req) throws ParameterException {
-    String recipientValue = Convert.emptyToNull(req.getParameter(RECIPIENT_PARAMETER));
+    String recipientValue = Convert.INSTANCE.emptyToNull(req.getParameter(RECIPIENT_PARAMETER));
     if (recipientValue == null || Parameters.isZero(recipientValue)) {
       throw new ParameterException(MISSING_RECIPIENT);
     }
     long recipientId;
     try {
-      recipientId = Convert.parseAccountId(recipientValue);
+      recipientId = Convert.INSTANCE.parseAccountId(recipientValue);
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_RECIPIENT);
     }
@@ -146,18 +146,18 @@ final class ParameterParser {
   }
 
   static long getSellerId(HttpServletRequest req) throws ParameterException {
-    String sellerIdValue = Convert.emptyToNull(req.getParameter(SELLER_PARAMETER));
+    String sellerIdValue = Convert.INSTANCE.emptyToNull(req.getParameter(SELLER_PARAMETER));
     try {
-      return Convert.parseAccountId(sellerIdValue);
+      return Convert.INSTANCE.parseAccountId(sellerIdValue);
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_RECIPIENT);
     }
   }
 
   static long getBuyerId(HttpServletRequest req) throws ParameterException {
-    String buyerIdValue = Convert.emptyToNull(req.getParameter(BUYER_PARAMETER));
+    String buyerIdValue = Convert.INSTANCE.emptyToNull(req.getParameter(BUYER_PARAMETER));
     try {
-      return Convert.parseAccountId(buyerIdValue);
+      return Convert.INSTANCE.parseAccountId(buyerIdValue);
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_RECIPIENT);
     }
@@ -194,7 +194,7 @@ final class ParameterParser {
 
   public static byte[] getCreationBytes(HttpServletRequest req) throws ParameterException {
     try {
-      return Convert.parseHexString(req.getParameter(CREATION_BYTES_PARAMETER));
+      return Convert.INSTANCE.parseHexString(req.getParameter(CREATION_BYTES_PARAMETER));
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_CREATION_BYTES);
     }
@@ -206,13 +206,13 @@ final class ParameterParser {
     String hex = req.getParameter(HEX_STRING_PARAMETER);
     ByteBuffer bf = ByteBuffer.allocate(8);
     bf.order(ByteOrder.LITTLE_ENDIAN);
-    bf.put(Convert.parseHexString(hex));
+    bf.put(Convert.INSTANCE.parseHexString(hex));
 
-      return Convert.toUnsignedLong(bf.getLong(0));
+      return Convert.INSTANCE.toUnsignedLong(bf.getLong(0));
   }
 
   public static long getAmountNQT(HttpServletRequest req) throws ParameterException {
-    String amountValueNQT = Convert.emptyToNull(req.getParameter(AMOUNT_NQT_PARAMETER));
+    String amountValueNQT = Convert.INSTANCE.emptyToNull(req.getParameter(AMOUNT_NQT_PARAMETER));
     if (amountValueNQT == null) {
       throw new ParameterException(MISSING_AMOUNT);
     }

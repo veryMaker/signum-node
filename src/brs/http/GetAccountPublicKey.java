@@ -29,7 +29,7 @@ public final class GetAccountPublicKey extends APIServlet.JsonRequestHandler {
 
     if (account.getPublicKey() != null) {
       JsonObject response = new JsonObject();
-      response.addProperty(PUBLIC_KEY_RESPONSE, Convert.toHexString(account.getPublicKey()));
+      response.addProperty(PUBLIC_KEY_RESPONSE, Convert.INSTANCE.toHexString(account.getPublicKey()));
       return response;
     } else {
       return JSON.emptyJSON;

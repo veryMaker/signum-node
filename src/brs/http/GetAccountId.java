@@ -26,14 +26,14 @@ public final class GetAccountId extends APIServlet.JsonRequestHandler {
   JsonElement processRequest(HttpServletRequest req) {
 
     long accountId;
-    String secretPhrase = Convert.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER));
-    String publicKeyString = Convert.emptyToNull(req.getParameter(PUBLIC_KEY_PARAMETER));
+    String secretPhrase = Convert.INSTANCE.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER));
+    String publicKeyString = Convert.INSTANCE.emptyToNull(req.getParameter(PUBLIC_KEY_PARAMETER));
     if (secretPhrase != null) {
       byte[] publicKey = Crypto.getPublicKey(secretPhrase);
       accountId = Account.getId(publicKey);
-      publicKeyString = Convert.toHexString(publicKey);
+      publicKeyString = Convert.INSTANCE.toHexString(publicKey);
     } else if (publicKeyString != null) {
-      accountId = Account.getId(Convert.parseHexString(publicKeyString));
+      accountId = Account.getId(Convert.INSTANCE.parseHexString(publicKeyString));
     } else {
       return MISSING_SECRET_PHRASE_OR_PUBLIC_KEY;
     }

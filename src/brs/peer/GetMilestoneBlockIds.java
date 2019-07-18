@@ -30,7 +30,7 @@ final class GetMilestoneBlockIds implements PeerServlet.PeerRequestHandler {
 
       String lastBlockIdString = JSON.getAsString(request.get("lastBlockId"));
       if (lastBlockIdString != null) {
-        long lastBlockId = Convert.parseUnsignedLong(lastBlockIdString);
+        long lastBlockId = Convert.INSTANCE.parseUnsignedLong(lastBlockIdString);
         long myLastBlockId = blockchain.getLastBlock().getId();
         if (myLastBlockId == lastBlockId || blockchain.hasBlock(lastBlockId)) {
           milestoneBlockIds.add(lastBlockIdString);
@@ -49,7 +49,7 @@ final class GetMilestoneBlockIds implements PeerServlet.PeerRequestHandler {
       int blockchainHeight = blockchain.getHeight();
       String lastMilestoneBlockIdString = JSON.getAsString(request.get("lastMilestoneBlockId"));
       if (lastMilestoneBlockIdString != null) {
-        Block lastMilestoneBlock = blockchain.getBlock(Convert.parseUnsignedLong(lastMilestoneBlockIdString));
+        Block lastMilestoneBlock = blockchain.getBlock(Convert.INSTANCE.parseUnsignedLong(lastMilestoneBlockIdString));
         if (lastMilestoneBlock == null) {
           throw new IllegalStateException("Don't have block " + lastMilestoneBlockIdString);
         }
@@ -67,7 +67,7 @@ final class GetMilestoneBlockIds implements PeerServlet.PeerRequestHandler {
       blockId = blockchain.getBlockIdAtHeight(height);
 
       while (height > 0 && limit-- > 0) {
-        milestoneBlockIds.add(Convert.toUnsignedLong(blockId));
+        milestoneBlockIds.add(Convert.INSTANCE.toUnsignedLong(blockId));
         blockId = blockchain.getBlockIdAtHeight(height);
         height = height - jump;
       }

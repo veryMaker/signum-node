@@ -34,7 +34,7 @@ public final class GetAskOrderIds extends APIServlet.JsonRequestHandler {
 
     JsonArray orderIds = new JsonArray();
     for (Order.Ask askOrder : assetExchange.getSortedAskOrders(assetId, firstIndex, lastIndex)) {
-      orderIds.add(Convert.toUnsignedLong(askOrder.getId()));
+      orderIds.add(Convert.INSTANCE.toUnsignedLong(askOrder.getId()));
     }
 
     JsonObject response = new JsonObject();

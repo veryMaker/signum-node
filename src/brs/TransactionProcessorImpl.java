@@ -18,6 +18,7 @@ import brs.util.ThreadPool;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -169,7 +170,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   }
 
   @Override
-  public void markFingerPrintsOf(Peer peer, List<Transaction> transactions) {
+  public void markFingerPrintsOf(@NotNull Peer peer, List<? extends Transaction> transactions) {
     unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions);
   }
 

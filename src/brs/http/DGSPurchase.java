@@ -45,7 +45,7 @@ public final class DGSPurchase extends CreateTransaction {
       return INCORRECT_PURCHASE_PRICE;
     }
 
-    String deliveryDeadlineString = Convert.emptyToNull(req.getParameter(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER));
+    String deliveryDeadlineString = Convert.INSTANCE.emptyToNull(req.getParameter(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER));
     if (deliveryDeadlineString == null) {
       return MISSING_DELIVERY_DEADLINE_TIMESTAMP;
     }

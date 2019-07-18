@@ -210,7 +210,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   @Override
-  public void markFingerPrintsOf(Peer peer, List<Transaction> transactions) {
+  public void markFingerPrintsOf(Peer peer, List<? extends Transaction> transactions) {
     synchronized (internalStore) {
       for (Transaction transaction : transactions) {
         if (fingerPrintsOverview.containsKey(transaction)) {

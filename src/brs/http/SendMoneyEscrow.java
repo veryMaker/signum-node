@@ -29,7 +29,7 @@ final class SendMoneyEscrow extends CreateTransaction {
     Account sender = parameterService.getSenderAccount(req);
     Long recipient = ParameterParser.getRecipientId(req);
     Long amountNQT = ParameterParser.getAmountNQT(req);
-    String signerString = Convert.emptyToNull(req.getParameter(SIGNERS_PARAMETER));
+    String signerString = Convert.INSTANCE.emptyToNull(req.getParameter(SIGNERS_PARAMETER));
 		
     long requiredSigners;
     try {
@@ -68,7 +68,7 @@ final class SendMoneyEscrow extends CreateTransaction {
 		
     try {
       for(String signer : signersArray) {
-        long id = Convert.parseAccountId(signer);
+        long id = Convert.INSTANCE.parseAccountId(signer);
         signers.add(id);
       }
     }
@@ -79,7 +79,7 @@ final class SendMoneyEscrow extends CreateTransaction {
       return response;
     }
 		
-    long totalAmountNQT = Convert.safeAdd(amountNQT, signers.size() * Constants.ONE_BURST);
+    long totalAmountNQT = Convert.INSTANCE.safeAdd(amountNQT, signers.size() * Constants.ONE_BURST);
     if(sender.getBalanceNQT() < totalAmountNQT) {
       JsonObject response = new JsonObject();
       response.addProperty(ERROR_CODE_RESPONSE, 6);

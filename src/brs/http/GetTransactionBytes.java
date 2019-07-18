@@ -34,7 +34,7 @@ final class GetTransactionBytes extends APIServlet.JsonRequestHandler {
     long transactionId;
     Transaction transaction;
     try {
-      transactionId = Convert.parseUnsignedLong(transactionValue);
+      transactionId = Convert.INSTANCE.parseUnsignedLong(transactionValue);
     } catch (RuntimeException e) {
       return INCORRECT_TRANSACTION;
     }
@@ -50,8 +50,8 @@ final class GetTransactionBytes extends APIServlet.JsonRequestHandler {
       response.addProperty("confirmations", blockchain.getHeight() - transaction.getHeight());
     }
 
-    response.addProperty("transactionBytes", Convert.toHexString(transaction.getBytes()));
-    response.addProperty("unsignedTransactionBytes", Convert.toHexString(transaction.getUnsignedBytes()));
+    response.addProperty("transactionBytes", Convert.INSTANCE.toHexString(transaction.getBytes()));
+    response.addProperty("unsignedTransactionBytes", Convert.INSTANCE.toHexString(transaction.getUnsignedBytes()));
 
     return response;
   }

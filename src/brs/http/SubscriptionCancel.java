@@ -30,7 +30,7 @@ public final class SubscriptionCancel extends CreateTransaction {
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final Account sender = parameterService.getSenderAccount(req);
 
-    String subscriptionString = Convert.emptyToNull(req.getParameter(SUBSCRIPTION_PARAMETER));
+    String subscriptionString = Convert.INSTANCE.emptyToNull(req.getParameter(SUBSCRIPTION_PARAMETER));
     if (subscriptionString == null) {
       JsonObject response = new JsonObject();
       response.addProperty(ERROR_CODE_RESPONSE, 3);
@@ -40,7 +40,7 @@ public final class SubscriptionCancel extends CreateTransaction {
 
     long subscriptionId;
     try {
-      subscriptionId = Convert.parseUnsignedLong(subscriptionString);
+      subscriptionId = Convert.INSTANCE.parseUnsignedLong(subscriptionString);
     } catch (Exception e) {
       JsonObject response = new JsonObject();
       response.addProperty(ERROR_CODE_RESPONSE, 4);

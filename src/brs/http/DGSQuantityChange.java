@@ -34,7 +34,7 @@ public final class DGSQuantityChange extends CreateTransaction {
 
     int deltaQuantity;
     try {
-      String deltaQuantityString = Convert.emptyToNull(req.getParameter(DELTA_QUANTITY_PARAMETER));
+      String deltaQuantityString = Convert.INSTANCE.emptyToNull(req.getParameter(DELTA_QUANTITY_PARAMETER));
       if (deltaQuantityString == null) {
         return MISSING_DELTA_QUANTITY;
       }

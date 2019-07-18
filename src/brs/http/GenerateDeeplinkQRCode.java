@@ -37,14 +37,14 @@ public class GenerateDeeplinkQRCode extends HttpRequestHandler {
     try {
       final boolean immutable = Parameters.isTrue(req.getParameter(IMMUTABLE_PARAMETER));
 
-      final String receiverId = Convert.emptyToNull(req.getParameter(RECEIVER_ID_PARAMETER));
+      final String receiverId = Convert.INSTANCE.emptyToNull(req.getParameter(RECEIVER_ID_PARAMETER));
 
       if (StringUtils.isEmpty(receiverId)) {
         addErrorMessage(resp, MISSING_RECEIVER_ID);
         return;
       }
 
-      final String amountNQTString = Convert.emptyToNull(req.getParameter(AMOUNT_NQT_PARAMETER));
+      final String amountNQTString = Convert.INSTANCE.emptyToNull(req.getParameter(AMOUNT_NQT_PARAMETER));
       if (immutable && StringUtils.isEmpty(amountNQTString)) {
         addErrorMessage(resp, MISSING_AMOUNT);
         return;
@@ -56,7 +56,7 @@ public class GenerateDeeplinkQRCode extends HttpRequestHandler {
         return;
       }
 
-      final String feeNQTString = Convert.emptyToNull(req.getParameter(FEE_NQT_PARAMETER));
+      final String feeNQTString = Convert.INSTANCE.emptyToNull(req.getParameter(FEE_NQT_PARAMETER));
 
       Long feeNQT = null;
 
@@ -72,7 +72,7 @@ public class GenerateDeeplinkQRCode extends HttpRequestHandler {
       FeeSuggestionType feeSuggestionType = null;
 
       if (feeNQT == null) {
-        final String feeSuggestionTypeString = Convert.emptyToNull(req.getParameter(FEE_SUGGESTION_TYPE_PARAMETER));
+        final String feeSuggestionTypeString = Convert.INSTANCE.emptyToNull(req.getParameter(FEE_SUGGESTION_TYPE_PARAMETER));
 
         if (StringUtils.isEmpty(feeSuggestionTypeString)) {
           addErrorMessage(resp, FEE_OR_FEE_SUGGESTION_REQUIRED);
@@ -87,7 +87,7 @@ public class GenerateDeeplinkQRCode extends HttpRequestHandler {
         }
       }
 
-      final String message = Convert.emptyToNull(req.getParameter(MESSAGE_PARAMETER));
+      final String message = Convert.INSTANCE.emptyToNull(req.getParameter(MESSAGE_PARAMETER));
 
       if (!StringUtils.isEmpty(message) && message.length() > Constants.MAX_ARBITRARY_MESSAGE_LENGTH) {
         addErrorMessage(resp, INCORRECT_MESSAGE_LENGTH);

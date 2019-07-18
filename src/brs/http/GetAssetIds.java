@@ -30,7 +30,7 @@ public final class GetAssetIds extends APIServlet.JsonRequestHandler {
 
     JsonArray assetIds = new JsonArray();
     for (Asset asset : assetExchange.getAllAssets(firstIndex, lastIndex)) {
-      assetIds.add(Convert.toUnsignedLong(asset.getId()));
+      assetIds.add(Convert.INSTANCE.toUnsignedLong(asset.getId()));
     }
     JsonObject response = new JsonObject();
     response.add(ASSET_IDS_RESPONSE, assetIds);

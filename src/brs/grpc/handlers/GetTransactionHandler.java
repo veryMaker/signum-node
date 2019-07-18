@@ -29,7 +29,7 @@ public class GetTransactionHandler implements GrpcApiHandler<BrsApi.GetTransacti
         byte[] fullHash = request.getFullHash().toByteArray();
         Transaction transaction;
         if (fullHash.length > 0) {
-            transaction = blockchain.getTransactionByFullHash(Convert.toHexString(fullHash));
+            transaction = blockchain.getTransactionByFullHash(Convert.INSTANCE.toHexString(fullHash));
         } else if (id != 0) {
             transaction = blockchain.getTransaction(id);
             if (transaction == null) transaction = transactionProcessor.getUnconfirmedTransaction(id);

@@ -100,8 +100,8 @@ public class Trade {
 
   @Override
   public String toString() {
-    return "Trade asset: " + Convert.toUnsignedLong(assetId) + " ask: " + Convert.toUnsignedLong(askOrderId)
-        + " bid: " + Convert.toUnsignedLong(bidOrderId) + " price: " + priceNQT + " quantity: " + quantityQNT + " height: " + height;
+    return "Trade asset: " + Convert.INSTANCE.toUnsignedLong(assetId) + " ask: " + Convert.INSTANCE.toUnsignedLong(askOrderId)
+        + " bid: " + Convert.INSTANCE.toUnsignedLong(bidOrderId) + " price: " + priceNQT + " quantity: " + quantityQNT + " height: " + height;
   }
 
 }

@@ -211,9 +211,9 @@ public class Block {
         throw new IllegalStateException("Block is not signed yet");
       }
       byte[] hash = Crypto.sha256().digest(getBytes());
-      long longId = Convert.fullHashToId(hash);
+      long longId = Convert.INSTANCE.fullHashToId(hash);
       id.set(longId);
-      stringId.set(Convert.toUnsignedLong(longId));
+      stringId.set(Convert.INSTANCE.toUnsignedLong(longId));
     }
     return id.get();
   }
@@ -222,7 +222,7 @@ public class Block {
     if (stringId.get() == null) {
       getId();
       if (stringId.get() == null) {
-        stringId.set(Convert.toUnsignedLong(id.get()));
+        stringId.set(Convert.INSTANCE.toUnsignedLong(id.get()));
       }
     }
     return stringId.get();
@@ -251,22 +251,22 @@ public class Block {
     JsonObject json = new JsonObject();
     json.addProperty("version", version);
     json.addProperty("timestamp", timestamp);
-    json.addProperty("previousBlock", Convert.toUnsignedLong(previousBlockId));
+    json.addProperty("previousBlock", Convert.INSTANCE.toUnsignedLong(previousBlockId));
     json.addProperty("totalAmountNQT", totalAmountNQT);
     json.addProperty("totalFeeNQT", totalFeeNQT);
     json.addProperty("payloadLength", payloadLength);
-    json.addProperty("payloadHash", Convert.toHexString(payloadHash));
-    json.addProperty("generatorPublicKey", Convert.toHexString(generatorPublicKey));
-    json.addProperty("generationSignature", Convert.toHexString(generationSignature));
+    json.addProperty("payloadHash", Convert.INSTANCE.toHexString(payloadHash));
+    json.addProperty("generatorPublicKey", Convert.INSTANCE.toHexString(generatorPublicKey));
+    json.addProperty("generationSignature", Convert.INSTANCE.toHexString(generationSignature));
     if (version > 1) {
-      json.addProperty("previousBlockHash", Convert.toHexString(previousBlockHash));
+      json.addProperty("previousBlockHash", Convert.INSTANCE.toHexString(previousBlockHash));
     }
-    json.addProperty("blockSignature", Convert.toHexString(blockSignature));
+    json.addProperty("blockSignature", Convert.INSTANCE.toHexString(blockSignature));
     JsonArray transactionsData = new JsonArray();
     getTransactions().forEach(transaction -> transactionsData.add(transaction.getJsonObject()));
     json.add("transactions", transactionsData);
-    json.addProperty("nonce", Convert.toUnsignedLong(nonce));
-    json.addProperty("blockATs", Convert.toHexString(blockATs));
+    json.addProperty("nonce", Convert.INSTANCE.toUnsignedLong(nonce));
+    json.addProperty("blockATs", Convert.INSTANCE.toHexString(blockATs));
     return json;
   }
 
@@ -274,16 +274,16 @@ public class Block {
     try {
       int version = JSON.getAsInt(blockData.get("version"));
       int timestamp = JSON.getAsInt(blockData.get("timestamp"));
-      long previousBlock = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("previousBlock")));
+      long previousBlock = Convert.INSTANCE.parseUnsignedLong(JSON.getAsString(blockData.get("previousBlock")));
       long totalAmountNQT = JSON.getAsLong(blockData.get("totalAmountNQT"));
       long totalFeeNQT = JSON.getAsLong(blockData.get("totalFeeNQT"));
       int payloadLength = JSON.getAsInt(blockData.get("payloadLength"));
-      byte[] payloadHash = Convert.parseHexString(JSON.getAsString(blockData.get("payloadHash")));
-      byte[] generatorPublicKey = Convert.parseHexString(JSON.getAsString(blockData.get("generatorPublicKey")));
-      byte[] generationSignature = Convert.parseHexString(JSON.getAsString(blockData.get("generationSignature")));
-      byte[] blockSignature = Convert.parseHexString(JSON.getAsString(blockData.get("blockSignature")));
-      byte[] previousBlockHash = version == 1 ? null : Convert.parseHexString(JSON.getAsString(blockData.get("previousBlockHash")));
-      long nonce = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("nonce")));
+      byte[] payloadHash = Convert.INSTANCE.parseHexString(JSON.getAsString(blockData.get("payloadHash")));
+      byte[] generatorPublicKey = Convert.INSTANCE.parseHexString(JSON.getAsString(blockData.get("generatorPublicKey")));
+      byte[] generationSignature = Convert.INSTANCE.parseHexString(JSON.getAsString(blockData.get("generationSignature")));
+      byte[] blockSignature = Convert.INSTANCE.parseHexString(JSON.getAsString(blockData.get("blockSignature")));
+      byte[] previousBlockHash = version == 1 ? null : Convert.INSTANCE.parseHexString(JSON.getAsString(blockData.get("previousBlockHash")));
+      long nonce = Convert.INSTANCE.parseUnsignedLong(JSON.getAsString(blockData.get("nonce")));
 
       SortedMap<Long, Transaction> blockTransactions = new TreeMap<>();
       JsonArray transactionsData = JSON.getAsJsonArray(blockData.get("transactions"));
@@ -295,7 +295,7 @@ public class Block {
         }
       }
     
-      byte[] blockATs = Convert.parseHexString(JSON.getAsString(blockData.get("blockATs")));
+      byte[] blockATs = Convert.INSTANCE.parseHexString(JSON.getAsString(blockData.get("blockATs")));
       return new Block(version, timestamp, previousBlock, totalAmountNQT, totalFeeNQT,
           payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature,
           previousBlockHash, new ArrayList<>(blockTransactions.values()), nonce, blockATs, height);

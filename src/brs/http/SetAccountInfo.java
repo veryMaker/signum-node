@@ -26,8 +26,8 @@ final class SetAccountInfo extends CreateTransaction {
   @Override
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
-    String name = Convert.nullToEmpty(req.getParameter(NAME_PARAMETER)).trim();
-    String description = Convert.nullToEmpty(req.getParameter(DESCRIPTION_PARAMETER)).trim();
+    String name = Convert.INSTANCE.nullToEmpty(req.getParameter(NAME_PARAMETER)).trim();
+    String description = Convert.INSTANCE.nullToEmpty(req.getParameter(DESCRIPTION_PARAMETER)).trim();
 
     if (name.length() > Constants.MAX_ACCOUNT_NAME_LENGTH) {
       return INCORRECT_ACCOUNT_NAME_LENGTH;

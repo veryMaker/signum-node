@@ -31,7 +31,7 @@ public final class GetAccountCurrentAskOrderIds extends APIServlet.JsonRequestHa
     long accountId = parameterService.getAccount(req).getId();
     long assetId = 0;
     try {
-      assetId = Convert.parseUnsignedLong(req.getParameter(ASSET_PARAMETER));
+      assetId = Convert.INSTANCE.parseUnsignedLong(req.getParameter(ASSET_PARAMETER));
     } catch (RuntimeException e) {
       // ignore
     }
@@ -46,7 +46,7 @@ public final class GetAccountCurrentAskOrderIds extends APIServlet.JsonRequestHa
     }
     JsonArray orderIds = new JsonArray();
     for (Order.Ask askOrder : askOrders) {
-      orderIds.add(Convert.toUnsignedLong(askOrder.getId()));
+      orderIds.add(Convert.INSTANCE.toUnsignedLong(askOrder.getId()));
     }
     JsonObject response = new JsonObject();
     response.add(ASK_ORDER_IDS_RESPONSE, orderIds);

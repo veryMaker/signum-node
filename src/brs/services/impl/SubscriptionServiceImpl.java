@@ -112,7 +112,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
     if (! appliedUnconfirmedSubscriptions.isEmpty()) {
       for (Subscription subscription : appliedUnconfirmedSubscriptions) {
-        totalFeeNQT = Convert.safeAdd(totalFeeNQT, getFee());
+        totalFeeNQT = Convert.INSTANCE.safeAdd(totalFeeNQT, getFee());
         undoUnconfirmed(subscription);
       }
     }
@@ -149,7 +149,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
   private boolean applyUnconfirmed(Subscription subscription) {
     Account sender = accountService.getAccount(subscription.getSenderId());
-    long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee());
+    long totalAmountNQT = Convert.INSTANCE.safeAdd(subscription.getAmountNQT(), getFee());
 
     if (sender == null || sender.getUnconfirmedBalanceNQT() < totalAmountNQT) {
       return false;
@@ -162,7 +162,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
   private void undoUnconfirmed(Subscription subscription) {
     Account sender = accountService.getAccount(subscription.getSenderId());
-    long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee());
+    long totalAmountNQT = Convert.INSTANCE.safeAdd(subscription.getAmountNQT(), getFee());
 
     if (sender != null) {
       accountService.addToUnconfirmedBalanceNQT(sender, totalAmountNQT);
@@ -173,7 +173,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     Account sender = accountService.getAccount(subscription.getSenderId());
     Account recipient = accountService.getAccount(subscription.getRecipientId());
 
-    long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee());
+    long totalAmountNQT = Convert.INSTANCE.safeAdd(subscription.getAmountNQT(), getFee());
 
     accountService.addToBalanceNQT(sender, -totalAmountNQT);
     accountService.addToBalanceAndUnconfirmedBalanceNQT(recipient, subscription.getAmountNQT());

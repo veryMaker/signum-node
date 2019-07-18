@@ -7,7 +7,7 @@ public final class Token {
 
   public static String generateToken(String secretPhrase, String websiteString, int timestamp) {
 
-    byte[] website = Convert.toBytes(websiteString);
+    byte[] website = Convert.INSTANCE.toBytes(websiteString);
     byte[] data = new byte[website.length + 32 + 4];
     System.arraycopy(website, 0, data, 0, website.length);
     System.arraycopy(Crypto.getPublicKey(secretPhrase), 0, data, website.length, 32);
@@ -52,7 +52,7 @@ public final class Token {
 
   public static Token parseToken(String tokenString, String website) {
 
-    byte[] websiteBytes = Convert.toBytes(website);
+    byte[] websiteBytes = Convert.INSTANCE.toBytes(website);
     byte[] tokenBytes = new byte[100];
     int i = 0;
     int j = 0;

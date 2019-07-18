@@ -112,7 +112,7 @@ public final class ProtoBuilder {
                 .setFee(transaction.getFeeNQT())
                 .setTimestamp(transaction.getTimestamp())
                 .setDeadline(transaction.getDeadline())
-                .setReferencedTransactionFullHash(buildByteString(Convert.parseHexString(transaction.getReferencedTransactionFullHash())))
+                .setReferencedTransactionFullHash(buildByteString(Convert.INSTANCE.parseHexString(transaction.getReferencedTransactionFullHash())))
                 .addAllAppendages(transaction.getAppendages()
                         .stream()
                         .map(Appendix::getProtobufMessage)
@@ -135,7 +135,7 @@ public final class ProtoBuilder {
                 .setBlockHeight(transaction.getHeight())
                 .setBlockTimestamp(transaction.getBlockTimestamp())
                 .setSignature(buildByteString(transaction.getSignature()))
-                .setFullHash(buildByteString(Convert.parseHexString(transaction.getFullHash())))
+                .setFullHash(buildByteString(Convert.INSTANCE.parseHexString(transaction.getFullHash())))
                 .setConfirmations(currentHeight - transaction.getHeight())
                 .build();
     }
@@ -146,7 +146,7 @@ public final class ProtoBuilder {
             .setTransactionBytes(buildByteString(transaction.getBytes()))
             .setBlockHeight(transaction.getHeight())
             .setSignature(buildByteString(transaction.getSignature()))
-            .setFullHash(buildByteString(Convert.parseHexString(transaction.getFullHash())))
+            .setFullHash(buildByteString(Convert.INSTANCE.parseHexString(transaction.getFullHash())))
             .build();
     }
 
@@ -350,7 +350,7 @@ public final class ProtoBuilder {
 
     public static Transaction parseBasicTransaction(Blockchain blockchain, BrsApi.BasicTransaction basicTransaction) throws ApiException {
         try {
-            Transaction.Builder transactionBuilder = new Transaction.Builder(((byte) basicTransaction.getVersion()), basicTransaction.getSenderPublicKey().toByteArray(), basicTransaction.getAmount(), basicTransaction.getFee(), basicTransaction.getTimestamp(), ((short) basicTransaction.getDeadline()), Attachment.AbstractAttachment.parseProtobufMessage(basicTransaction.getAttachment()))
+            Transaction.Builder transactionBuilder = new Transaction.Builder(((byte) basicTransaction.getVersion()), basicTransaction.getSenderPublicKey().toByteArray(), basicTransaction.getAmount(), basicTransaction.getFee(), basicTransaction.getTimestamp(), ((short) basicTransaction.getDeadline()), Attachment.AbstractAttachment.Companion.parseProtobufMessage(basicTransaction.getAttachment()))
                     .senderId(basicTransaction.getSenderId())
                     .recipientId(basicTransaction.getRecipient());
 

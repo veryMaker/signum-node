@@ -35,11 +35,11 @@ final class SignTransaction extends APIServlet.JsonRequestHandler {
   @Override
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
-    String transactionBytes = Convert.emptyToNull(req.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER));
-    String transactionJSON = Convert.emptyToNull(req.getParameter(UNSIGNED_TRANSACTION_JSON_PARAMETER));
+    String transactionBytes = Convert.INSTANCE.emptyToNull(req.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER));
+    String transactionJSON = Convert.INSTANCE.emptyToNull(req.getParameter(UNSIGNED_TRANSACTION_JSON_PARAMETER));
     Transaction transaction = parameterService.parseTransaction(transactionBytes, transactionJSON);
 
-    String secretPhrase = Convert.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER));
+    String secretPhrase = Convert.INSTANCE.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER));
     if (secretPhrase == null) {
       return MISSING_SECRET_PHRASE;
     }
@@ -60,8 +60,8 @@ final class SignTransaction extends APIServlet.JsonRequestHandler {
       transaction.sign(secretPhrase);
       response.addProperty(TRANSACTION_RESPONSE, transaction.getStringId());
       response.addProperty(FULL_HASH_RESPONSE, transaction.getFullHash());
-      response.addProperty(TRANSACTION_BYTES_RESPONSE, Convert.toHexString(transaction.getBytes()));
-      response.addProperty(SIGNATURE_HASH_RESPONSE, Convert.toHexString(Crypto.sha256().digest(transaction.getSignature())));
+      response.addProperty(TRANSACTION_BYTES_RESPONSE, Convert.INSTANCE.toHexString(transaction.getBytes()));
+      response.addProperty(SIGNATURE_HASH_RESPONSE, Convert.INSTANCE.toHexString(Crypto.sha256().digest(transaction.getSignature())));
       response.addProperty(VERIFY_RESPONSE, transaction.verifySignature() && transactionService.verifyPublicKey(transaction));
     } catch (BurstException.ValidationException|RuntimeException e) {
       logger.debug(e.getMessage(), e);

@@ -24,7 +24,7 @@ final class GetPeers extends APIServlet.JsonRequestHandler {
   JsonElement processRequest(HttpServletRequest req) {
 
     boolean active = "true".equalsIgnoreCase(req.getParameter(ACTIVE_PARAMETER));
-    String stateValue = Convert.emptyToNull(req.getParameter(STATE_PARAMETER));
+    String stateValue = Convert.INSTANCE.emptyToNull(req.getParameter(STATE_PARAMETER));
 
     JsonArray peers = new JsonArray();
     for (Peer peer : active ? Peers.getActivePeers() : stateValue != null ? Peers.getPeers(Peer.State.valueOf(stateValue)) : Peers.getAllPeers()) {

@@ -32,7 +32,7 @@ final class GetBidOrderIds extends APIServlet.JsonRequestHandler {
 
     JsonArray orderIds = new JsonArray();
     for (Order.Bid bidOrder : assetExchange.getSortedBidOrders(assetId, firstIndex, lastIndex)) {
-      orderIds.add(Convert.toUnsignedLong(bidOrder.getId()));
+      orderIds.add(Convert.INSTANCE.toUnsignedLong(bidOrder.getId()));
     }
     JsonObject response = new JsonObject();
     response.add("bidOrderIds", orderIds);

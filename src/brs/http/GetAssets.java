@@ -36,7 +36,7 @@ public final class GetAssets extends APIServlet.JsonRequestHandler {
         continue;
       }
       try {
-        Asset asset = assetExchange.getAsset(Convert.parseUnsignedLong(assetIdString));
+        Asset asset = assetExchange.getAsset(Convert.INSTANCE.parseUnsignedLong(assetIdString));
         if (asset == null) {
           return UNKNOWN_ASSET;
         }

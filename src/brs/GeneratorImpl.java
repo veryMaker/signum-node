@@ -89,7 +89,7 @@ public class GeneratorImpl implements Generator {
   @Override
   public GeneratorState addNonce(String secretPhrase, Long nonce, byte[] publicKey) {
     byte[] publicKeyHash = Crypto.sha256().digest(publicKey);
-    long id = Convert.fullHashToId(publicKeyHash);
+    long id = Convert.INSTANCE.fullHashToId(publicKeyHash);
 
     GeneratorStateImpl generator = new GeneratorStateImpl(secretPhrase, nonce, publicKey, id);
     GeneratorStateImpl curGen = generators.get(id);
@@ -97,11 +97,11 @@ public class GeneratorImpl implements Generator {
       generators.put(id, generator);
       listeners.accept(generator, Event.NONCE_SUBMITTED);
       if (logger.isDebugEnabled()) {
-        logger.debug("Account {} started mining, deadline {} seconds", Convert.toUnsignedLong(id), generator.getDeadline());
+        logger.debug("Account {} started mining, deadline {} seconds", Convert.INSTANCE.toUnsignedLong(id), generator.getDeadline());
       }
     } else {
       if (logger.isDebugEnabled()) {
-        logger.debug("Account {} already has a better nonce", Convert.toUnsignedLong(id));
+        logger.debug("Account {} already has a better nonce", Convert.INSTANCE.toUnsignedLong(id));
       }
     }
 

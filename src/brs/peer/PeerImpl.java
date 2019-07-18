@@ -169,9 +169,9 @@ final class PeerImpl implements Peer {
 
   @Override
   public String getSoftware() {
-    return Convert.truncate(application.get(), "?", 10, false)
-        + " (" + Convert.truncate(version.toString(), "?", 10, false) + ")"
-        + " @ " + Convert.truncate(platform.get(), "?", 10, false);
+    return Convert.INSTANCE.truncate(application.get(), "?", 10, false)
+        + " (" + Convert.INSTANCE.truncate(version.toString(), "?", 10, false) + ")"
+        + " @ " + Convert.INSTANCE.truncate(platform.get(), "?", 10, false);
   }
 
   @Override
@@ -417,7 +417,7 @@ final class PeerImpl implements Peer {
       setVersion(JSON.getAsString(response.get("version")));
       platform.set(JSON.getAsString(response.get("platform")));
       shareAddress.set(Boolean.TRUE.equals(JSON.getAsBoolean(response.get("shareAddress"))));
-      String newAnnouncedAddress = Convert.emptyToNull(JSON.getAsString(response.get("announcedAddress")));
+      String newAnnouncedAddress = Convert.INSTANCE.emptyToNull(JSON.getAsString(response.get("announcedAddress")));
       if (newAnnouncedAddress != null && ! newAnnouncedAddress.equals(announcedAddress.get())) {
         // force verification of changed announced address
         setState(Peer.State.NON_CONNECTED);

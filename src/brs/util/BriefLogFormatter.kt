@@ -1,0 +1,65 @@
+package brs.util
+
+import java.io.PrintWriter
+import java.io.StringWriter
+import java.io.Writer
+import java.text.MessageFormat
+import java.util.Date
+import java.util.logging.Formatter
+import java.util.logging.Handler
+import java.util.logging.LogRecord
+import java.util.logging.Logger
+
+/**
+ * A Java logging formatter that writes more compact output than the default
+ */
+internal class BriefLogFormatter private constructor() : Formatter() {
+    /**
+     * Format the log record as follows:
+     *
+     * Date Level Message ExceptionTrace
+     *
+     * @param       logRecord       The log record
+     * @return                      The formatted string
+     */
+    override fun format(logRecord: LogRecord): String {
+        val arguments = arrayOfNulls<Any>(5)
+        arguments[0] = Date(logRecord.millis)
+        arguments[1] = logRecord.level.name
+        arguments[2] = logRecord.message
+        arguments[4] = logRecord.loggerName
+
+        val exc = logRecord.thrown
+        if (exc != null) {
+            val result = StringWriter()
+            exc.printStackTrace(PrintWriter(result))
+            arguments[3] = result.toString()
+        } else {
+            arguments[3] = ""
+        }
+
+        arguments[4] = logRecord.loggerName
+
+        return messageFormat.get().format(arguments)
+    }
+
+    companion object {
+        /** Format used for log messages  */
+        private val messageFormat = ThreadLocal.withInitial { MessageFormat("[{1}] {0,date,yyyy-MM-dd HH:mm:ss} {4} - {2}\n{3}") }
+
+        /** LoggerConfigurator instance at the top of the name tree  */
+        private val logger = Logger.getLogger("")
+
+        /** singleton BriefLogFormatter instance  */
+        private val briefLogFormatter = BriefLogFormatter()
+
+        /**
+         * Configures JDK logging to use this class for everything
+         */
+        fun init() {
+            val handlers = logger.handlers
+            for (handler in handlers)
+                handler.formatter = briefLogFormatter
+        }
+    }
+}

@@ -27,12 +27,12 @@ public final class JSONData {
     json.addProperty(ALIAS_NAME_RESPONSE, alias.getAliasName());
     json.addProperty(ALIAS_URI_RESPONSE, alias.getAliasURI());
     json.addProperty(TIMESTAMP_RESPONSE, alias.getTimestamp());
-    json.addProperty(ALIAS_RESPONSE, Convert.toUnsignedLong(alias.getId()));
+    json.addProperty(ALIAS_RESPONSE, Convert.INSTANCE.toUnsignedLong(alias.getId()));
 
     if (offer != null) {
       json.addProperty(PRICE_NQT_RESPONSE, String.valueOf(offer.getPriceNQT()));
       if (offer.getBuyerId() != 0) {
-        json.addProperty(BUYER_RESPONSE, Convert.toUnsignedLong(offer.getBuyerId()));
+        json.addProperty(BUYER_RESPONSE, Convert.INSTANCE.toUnsignedLong(offer.getBuyerId()));
       }
     }
     return json;
@@ -64,7 +64,7 @@ public final class JSONData {
     json.addProperty(DESCRIPTION_RESPONSE, asset.getDescription());
     json.addProperty(DECIMALS_RESPONSE, asset.getDecimals());
     json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(asset.getQuantityQNT()));
-    json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(asset.getId()));
+    json.addProperty(ASSET_RESPONSE, Convert.INSTANCE.toUnsignedLong(asset.getId()));
     json.addProperty(NUMBER_OF_TRADES_RESPONSE, tradeCount);
     json.addProperty(NUMBER_OF_TRANSFERS_RESPONSE, transferCount);
     json.addProperty(NUMBER_OF_ACCOUNTS_RESPONSE, assetAccountsCount);
@@ -74,7 +74,7 @@ public final class JSONData {
   static JsonObject accountAsset(Account.AccountAsset accountAsset) {
     JsonObject json = new JsonObject();
     putAccount(json, ACCOUNT_RESPONSE, accountAsset.getAccountId());
-    json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.getAssetId()));
+    json.addProperty(ASSET_RESPONSE, Convert.INSTANCE.toUnsignedLong(accountAsset.getAssetId()));
     json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(accountAsset.getQuantityQNT()));
     json.addProperty(UNCONFIRMED_QUANTITY_QNT_RESPONSE, String.valueOf(accountAsset.getUnconfirmedQuantityQNT()));
     return json;
@@ -94,8 +94,8 @@ public final class JSONData {
 
   private static JsonObject order(Order order) {
     JsonObject json = new JsonObject();
-    json.addProperty(ORDER_RESPONSE, Convert.toUnsignedLong(order.getId()));
-    json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(order.getAssetId()));
+    json.addProperty(ORDER_RESPONSE, Convert.INSTANCE.toUnsignedLong(order.getId()));
+    json.addProperty(ASSET_RESPONSE, Convert.INSTANCE.toUnsignedLong(order.getAssetId()));
     putAccount(json, ACCOUNT_RESPONSE, order.getAccountId());
     json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(order.getQuantityQNT()));
     json.addProperty(PRICE_NQT_RESPONSE, String.valueOf(order.getPriceNQT()));
@@ -108,41 +108,41 @@ public final class JSONData {
     json.addProperty(BLOCK_RESPONSE, block.getStringId());
     json.addProperty(HEIGHT_RESPONSE, block.getHeight());
     putAccount(json, GENERATOR_RESPONSE, block.getGeneratorId());
-    json.addProperty(GENERATOR_PUBLIC_KEY_RESPONSE, Convert.toHexString(block.getGeneratorPublicKey()));
-    json.addProperty(NONCE_RESPONSE, Convert.toUnsignedLong(block.getNonce()));
+    json.addProperty(GENERATOR_PUBLIC_KEY_RESPONSE, Convert.INSTANCE.toHexString(block.getGeneratorPublicKey()));
+    json.addProperty(NONCE_RESPONSE, Convert.INSTANCE.toUnsignedLong(block.getNonce()));
     json.addProperty(SCOOP_NUM_RESPONSE, scoopNum);
     json.addProperty(TIMESTAMP_RESPONSE, block.getTimestamp());
     json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, block.getTransactions().size());
     json.addProperty(TOTAL_AMOUNT_NQT_RESPONSE, String.valueOf(block.getTotalAmountNQT()));
     json.addProperty(TOTAL_FEE_NQT_RESPONSE, String.valueOf(block.getTotalFeeNQT()));
-    json.addProperty(BLOCK_REWARD_RESPONSE, Convert.toUnsignedLong(blockReward / Constants.ONE_BURST));
+    json.addProperty(BLOCK_REWARD_RESPONSE, Convert.INSTANCE.toUnsignedLong(blockReward / Constants.ONE_BURST));
     json.addProperty(PAYLOAD_LENGTH_RESPONSE, block.getPayloadLength());
     json.addProperty(VERSION_RESPONSE, block.getVersion());
-    json.addProperty(BASE_TARGET_RESPONSE, Convert.toUnsignedLong(block.getBaseTarget()));
+    json.addProperty(BASE_TARGET_RESPONSE, Convert.INSTANCE.toUnsignedLong(block.getBaseTarget()));
 
     if (block.getPreviousBlockId() != 0) {
-      json.addProperty(PREVIOUS_BLOCK_RESPONSE, Convert.toUnsignedLong(block.getPreviousBlockId()));
+      json.addProperty(PREVIOUS_BLOCK_RESPONSE, Convert.INSTANCE.toUnsignedLong(block.getPreviousBlockId()));
     }
 
     if (block.getNextBlockId() != 0) {
-      json.addProperty(NEXT_BLOCK_RESPONSE, Convert.toUnsignedLong(block.getNextBlockId()));
+      json.addProperty(NEXT_BLOCK_RESPONSE, Convert.INSTANCE.toUnsignedLong(block.getNextBlockId()));
     }
 
-    json.addProperty(PAYLOAD_HASH_RESPONSE, Convert.toHexString(block.getPayloadHash()));
-    json.addProperty(GENERATION_SIGNATURE_RESPONSE, Convert.toHexString(block.getGenerationSignature()));
+    json.addProperty(PAYLOAD_HASH_RESPONSE, Convert.INSTANCE.toHexString(block.getPayloadHash()));
+    json.addProperty(GENERATION_SIGNATURE_RESPONSE, Convert.INSTANCE.toHexString(block.getGenerationSignature()));
 
     if (block.getVersion() > 1) {
-      json.addProperty(PREVIOUS_BLOCK_HASH_RESPONSE, Convert.toHexString(block.getPreviousBlockHash()));
+      json.addProperty(PREVIOUS_BLOCK_HASH_RESPONSE, Convert.INSTANCE.toHexString(block.getPreviousBlockHash()));
     }
 
-    json.addProperty(BLOCK_SIGNATURE_RESPONSE, Convert.toHexString(block.getBlockSignature()));
+    json.addProperty(BLOCK_SIGNATURE_RESPONSE, Convert.INSTANCE.toHexString(block.getBlockSignature()));
 
     JsonArray transactions = new JsonArray();
     for (Transaction transaction : block.getTransactions()) {
       if (includeTransactions) {
         transactions.add(transaction(transaction, currentBlockchainHeight));
       } else {
-        transactions.add(Convert.toUnsignedLong(transaction.getId()));
+        transactions.add(Convert.INSTANCE.toUnsignedLong(transaction.getId()));
       }
     }
     json.add(TRANSACTIONS_RESPONSE, transactions);
@@ -151,19 +151,19 @@ public final class JSONData {
 
   static JsonObject encryptedData(EncryptedData encryptedData) {
     JsonObject json = new JsonObject();
-    json.addProperty(DATA_RESPONSE, Convert.toHexString(encryptedData.getData()));
-    json.addProperty(NONCE_RESPONSE, Convert.toHexString(encryptedData.getNonce()));
+    json.addProperty(DATA_RESPONSE, Convert.INSTANCE.toHexString(encryptedData.getData()));
+    json.addProperty(NONCE_RESPONSE, Convert.INSTANCE.toHexString(encryptedData.getNonce()));
     return json;
   }
 
   static JsonObject escrowTransaction(Escrow escrow) {
     JsonObject json = new JsonObject();
-    json.addProperty(ID_RESPONSE, Convert.toUnsignedLong(escrow.getId()));
-    json.addProperty(SENDER_RESPONSE, Convert.toUnsignedLong(escrow.getSenderId()));
-    json.addProperty(SENDER_RS_RESPONSE, Convert.rsAccount(escrow.getSenderId()));
-    json.addProperty(RECIPIENT_RESPONSE, Convert.toUnsignedLong(escrow.getRecipientId()));
-    json.addProperty(RECIPIENT_RS_RESPONSE, Convert.rsAccount(escrow.getRecipientId()));
-    json.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(escrow.getAmountNQT()));
+    json.addProperty(ID_RESPONSE, Convert.INSTANCE.toUnsignedLong(escrow.getId()));
+    json.addProperty(SENDER_RESPONSE, Convert.INSTANCE.toUnsignedLong(escrow.getSenderId()));
+    json.addProperty(SENDER_RS_RESPONSE, Convert.INSTANCE.rsAccount(escrow.getSenderId()));
+    json.addProperty(RECIPIENT_RESPONSE, Convert.INSTANCE.toUnsignedLong(escrow.getRecipientId()));
+    json.addProperty(RECIPIENT_RS_RESPONSE, Convert.INSTANCE.rsAccount(escrow.getRecipientId()));
+    json.addProperty(AMOUNT_NQT_RESPONSE, Convert.INSTANCE.toUnsignedLong(escrow.getAmountNQT()));
     json.addProperty(REQUIRED_SIGNERS_RESPONSE, escrow.getRequiredSigners());
     json.addProperty(DEADLINE_RESPONSE, escrow.getDeadline());
     json.addProperty(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(escrow.getDeadlineAction()));
@@ -175,8 +175,8 @@ public final class JSONData {
         continue;
       }
       JsonObject signerDetails = new JsonObject();
-      signerDetails.addProperty(ID_RESPONSE, Convert.toUnsignedLong(decision.getAccountId()));
-      signerDetails.addProperty(ID_RS_RESPONSE, Convert.rsAccount(decision.getAccountId()));
+      signerDetails.addProperty(ID_RESPONSE, Convert.INSTANCE.toUnsignedLong(decision.getAccountId()));
+      signerDetails.addProperty(ID_RS_RESPONSE, Convert.INSTANCE.rsAccount(decision.getAccountId()));
       signerDetails.addProperty(DECISION_RESPONSE, Escrow.decisionToString(decision.getDecision()));
       signers.add(signerDetails);
     }
@@ -186,7 +186,7 @@ public final class JSONData {
 
   static JsonObject goods(DigitalGoodsStore.Goods goods) {
     JsonObject json = new JsonObject();
-    json.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goods.getId()));
+    json.addProperty(GOODS_RESPONSE, Convert.INSTANCE.toUnsignedLong(goods.getId()));
     json.addProperty(NAME_RESPONSE, goods.getName());
     json.addProperty(DESCRIPTION_RESPONSE, goods.getDescription());
     json.addProperty(QUANTITY_RESPONSE, goods.getQuantity());
@@ -223,8 +223,8 @@ public final class JSONData {
 
   static JsonObject purchase(DigitalGoodsStore.Purchase purchase) {
     JsonObject json = new JsonObject();
-    json.addProperty(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchase.getId()));
-    json.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(purchase.getGoodsId()));
+    json.addProperty(PURCHASE_RESPONSE, Convert.INSTANCE.toUnsignedLong(purchase.getId()));
+    json.addProperty(GOODS_RESPONSE, Convert.INSTANCE.toUnsignedLong(purchase.getGoodsId()));
     json.addProperty(NAME_RESPONSE, purchase.getName());
     putAccount(json, SELLER_RESPONSE, purchase.getSellerId());
     json.addProperty(PRICE_NQT_RESPONSE, String.valueOf(purchase.getPriceNQT()));
@@ -268,10 +268,10 @@ public final class JSONData {
 
   static JsonObject subscription(Subscription subscription) {
     JsonObject json = new JsonObject();
-    json.addProperty(ID_RESPONSE, Convert.toUnsignedLong(subscription.getId()));
+    json.addProperty(ID_RESPONSE, Convert.INSTANCE.toUnsignedLong(subscription.getId()));
     putAccount(json, SENDER_RESPONSE, subscription.getSenderId());
     putAccount(json, RECIPIENT_RESPONSE, subscription.getRecipientId());
-    json.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(subscription.getAmountNQT()));
+    json.addProperty(AMOUNT_NQT_RESPONSE, Convert.INSTANCE.toUnsignedLong(subscription.getAmountNQT()));
     json.addProperty(FREQUENCY_RESPONSE, subscription.getFrequency());
     json.addProperty(TIME_NEXT_RESPONSE, subscription.getTimeNext());
     return json;
@@ -282,14 +282,14 @@ public final class JSONData {
     json.addProperty(TIMESTAMP_RESPONSE, trade.getTimestamp());
     json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(trade.getQuantityQNT()));
     json.addProperty(PRICE_NQT_RESPONSE, String.valueOf(trade.getPriceNQT()));
-    json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(trade.getAssetId()));
-    json.addProperty(ASK_ORDER_RESPONSE, Convert.toUnsignedLong(trade.getAskOrderId()));
-    json.addProperty(BID_ORDER_RESPONSE, Convert.toUnsignedLong(trade.getBidOrderId()));
+    json.addProperty(ASSET_RESPONSE, Convert.INSTANCE.toUnsignedLong(trade.getAssetId()));
+    json.addProperty(ASK_ORDER_RESPONSE, Convert.INSTANCE.toUnsignedLong(trade.getAskOrderId()));
+    json.addProperty(BID_ORDER_RESPONSE, Convert.INSTANCE.toUnsignedLong(trade.getBidOrderId()));
     json.addProperty(ASK_ORDER_HEIGHT_RESPONSE, trade.getAskOrderHeight());
     json.addProperty(BID_ORDER_HEIGHT_RESPONSE, trade.getBidOrderHeight());
     putAccount(json, SELLER_RESPONSE, trade.getSellerId());
     putAccount(json, BUYER_RESPONSE, trade.getBuyerId());
-    json.addProperty(BLOCK_RESPONSE, Convert.toUnsignedLong(trade.getBlockId()));
+    json.addProperty(BLOCK_RESPONSE, Convert.INSTANCE.toUnsignedLong(trade.getBlockId()));
     json.addProperty(HEIGHT_RESPONSE, trade.getHeight());
     json.addProperty(TRADE_TYPE_RESPONSE, trade.isBuy() ? "buy" : "sell");
     if (asset != null) {
@@ -301,8 +301,8 @@ public final class JSONData {
 
   static JsonObject assetTransfer(AssetTransfer assetTransfer, Asset asset) {
     JsonObject json = new JsonObject();
-    json.addProperty(ASSET_TRANSFER_RESPONSE, Convert.toUnsignedLong(assetTransfer.getId()));
-    json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetTransfer.getAssetId()));
+    json.addProperty(ASSET_TRANSFER_RESPONSE, Convert.INSTANCE.toUnsignedLong(assetTransfer.getId()));
+    json.addProperty(ASSET_RESPONSE, Convert.INSTANCE.toUnsignedLong(assetTransfer.getAssetId()));
     putAccount(json, SENDER_RESPONSE, assetTransfer.getSenderId());
     putAccount(json, RECIPIENT_RESPONSE, assetTransfer.getRecipientId());
     json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(assetTransfer.getQuantityQNT()));
@@ -322,7 +322,7 @@ public final class JSONData {
     json.addProperty(SUBTYPE_RESPONSE, transaction.getType().getSubtype());
     json.addProperty(TIMESTAMP_RESPONSE, transaction.getTimestamp());
     json.addProperty(DEADLINE_RESPONSE, transaction.getDeadline());
-    json.addProperty(SENDER_PUBLIC_KEY_RESPONSE, Convert.toHexString(transaction.getSenderPublicKey()));
+    json.addProperty(SENDER_PUBLIC_KEY_RESPONSE, Convert.INSTANCE.toHexString(transaction.getSenderPublicKey()));
     if (transaction.getRecipientId() != 0) {
       putAccount(json, RECIPIENT_RESPONSE, transaction.getRecipientId());
     }
@@ -331,10 +331,10 @@ public final class JSONData {
     if (transaction.getReferencedTransactionFullHash() != null) {
       json.addProperty(REFERENCED_TRANSACTION_FULL_HASH_RESPONSE, transaction.getReferencedTransactionFullHash());
     }
-    byte[] signature = Convert.emptyToNull(transaction.getSignature());
+    byte[] signature = Convert.INSTANCE.emptyToNull(transaction.getSignature());
     if (signature != null) {
-      json.addProperty(SIGNATURE_RESPONSE, Convert.toHexString(signature));
-      json.addProperty(SIGNATURE_HASH_RESPONSE, Convert.toHexString(Crypto.sha256().digest(signature)));
+      json.addProperty(SIGNATURE_RESPONSE, Convert.INSTANCE.toHexString(signature));
+      json.addProperty(SIGNATURE_HASH_RESPONSE, Convert.INSTANCE.toHexString(Crypto.sha256().digest(signature)));
       json.addProperty(FULL_HASH_RESPONSE, transaction.getFullHash());
       json.addProperty(TRANSACTION_RESPONSE, transaction.getStringId());
     }
@@ -354,7 +354,7 @@ public final class JSONData {
     json.addProperty(HEIGHT_RESPONSE, transaction.getHeight());
     json.addProperty(VERSION_RESPONSE, transaction.getVersion());
     if (transaction.getVersion() > 0) {
-      json.addProperty(EC_BLOCK_ID_RESPONSE, Convert.toUnsignedLong(transaction.getECBlockId()));
+      json.addProperty(EC_BLOCK_ID_RESPONSE, Convert.INSTANCE.toUnsignedLong(transaction.getECBlockId()));
       json.addProperty(EC_BLOCK_HEIGHT_RESPONSE, transaction.getECBlockHeight());
     }
 
@@ -363,7 +363,7 @@ public final class JSONData {
 
   public static JsonObject transaction(Transaction transaction, int currentBlockchainHeight) {
     JsonObject json = unconfirmedTransaction(transaction);
-    json.addProperty(BLOCK_RESPONSE, Convert.toUnsignedLong(transaction.getBlockId()));
+    json.addProperty(BLOCK_RESPONSE, Convert.INSTANCE.toUnsignedLong(transaction.getBlockId()));
     json.addProperty(CONFIRMATIONS_RESPONSE, currentBlockchainHeight - transaction.getHeight());
     json.addProperty(BLOCK_TIMESTAMP_RESPONSE, transaction.getBlockTimestamp());
     return json;
@@ -390,8 +390,8 @@ public final class JSONData {
   }
 
   static void putAccount(JsonObject json, String name, long accountId) {
-    json.addProperty(name, Convert.toUnsignedLong(accountId));
-    json.addProperty(name + "RS", Convert.rsAccount(accountId));
+    json.addProperty(name, Convert.INSTANCE.toUnsignedLong(accountId));
+    json.addProperty(name + "RS", Convert.INSTANCE.rsAccount(accountId));
   }
 
   //TODO refactor the accountservice out of this :-)
@@ -406,24 +406,24 @@ public final class JSONData {
     bf.clear();
     bf.put( at.getId() , 0 , 8 );
     long id = bf.getLong(0);
-    json.addProperty("at", Convert.toUnsignedLong( id ));
-    json.addProperty("atRS", Convert.rsAccount(id));
+    json.addProperty("at", Convert.INSTANCE.toUnsignedLong( id ));
+    json.addProperty("atRS", Convert.INSTANCE.rsAccount(id));
     json.addProperty("atVersion", at.getVersion());
     json.addProperty("name", at.getName());
     json.addProperty("description", at.getDescription());
-    json.addProperty("creator", Convert.toUnsignedLong(AtApiHelper.getLong(at.getCreator())));
-    json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.getCreator())));
-    json.addProperty("machineCode", Convert.toHexString(at.getApCodeBytes()));
-    json.addProperty("machineData", Convert.toHexString(at.getApDataBytes()));
-    json.addProperty("balanceNQT", Convert.toUnsignedLong(accountService.getAccount(id).getBalanceNQT()));
-    json.addProperty("prevBalanceNQT", Convert.toUnsignedLong(at.getpBalance()));
+    json.addProperty("creator", Convert.INSTANCE.toUnsignedLong(AtApiHelper.getLong(at.getCreator())));
+    json.addProperty("creatorRS", Convert.INSTANCE.rsAccount(AtApiHelper.getLong(at.getCreator())));
+    json.addProperty("machineCode", Convert.INSTANCE.toHexString(at.getApCodeBytes()));
+    json.addProperty("machineData", Convert.INSTANCE.toHexString(at.getApDataBytes()));
+    json.addProperty("balanceNQT", Convert.INSTANCE.toUnsignedLong(accountService.getAccount(id).getBalanceNQT()));
+    json.addProperty("prevBalanceNQT", Convert.INSTANCE.toUnsignedLong(at.getpBalance()));
     json.addProperty("nextBlock", at.nextHeight());
     json.addProperty("frozen", at.freezeOnSameBalance());
     json.addProperty("running", at.getMachineState().isRunning());
     json.addProperty("stopped", at.getMachineState().isStopped());
     json.addProperty("finished", at.getMachineState().isFinished());
     json.addProperty("dead", at.getMachineState().isDead());
-    json.addProperty("minActivation", Convert.toUnsignedLong(at.minActivationAmount()));
+    json.addProperty("minActivation", Convert.INSTANCE.toUnsignedLong(at.minActivationAmount()));
     json.addProperty("creationBlock", at.getCreationBlockHeight());
     return json;
   }

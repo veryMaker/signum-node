@@ -34,7 +34,7 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
     JSONData.putAccount(response, ACCOUNT_RESPONSE, account.getId());
 
     if (account.getPublicKey() != null) {
-      response.addProperty(PUBLIC_KEY_RESPONSE, Convert.toHexString(account.getPublicKey()));
+      response.addProperty(PUBLIC_KEY_RESPONSE, Convert.INSTANCE.toHexString(account.getPublicKey()));
     }
     if (account.getName() != null) {
       response.addProperty(NAME_RESPONSE, account.getName());
@@ -48,11 +48,11 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
 
     for (Account.AccountAsset accountAsset : accountService.getAssets(account.getId(), 0, -1)) {
       JsonObject assetBalance = new JsonObject();
-      assetBalance.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.getAssetId()));
+      assetBalance.addProperty(ASSET_RESPONSE, Convert.INSTANCE.toUnsignedLong(accountAsset.getAssetId()));
       assetBalance.addProperty(BALANCE_QNT_RESPONSE, String.valueOf(accountAsset.getQuantityQNT()));
       assetBalances.add(assetBalance);
       JsonObject unconfirmedAssetBalance = new JsonObject();
-      unconfirmedAssetBalance.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.getAssetId()));
+      unconfirmedAssetBalance.addProperty(ASSET_RESPONSE, Convert.INSTANCE.toUnsignedLong(accountAsset.getAssetId()));
       unconfirmedAssetBalance.addProperty(UNCONFIRMED_BALANCE_QNT_RESPONSE, String.valueOf(accountAsset.getUnconfirmedQuantityQNT()));
       unconfirmedAssetBalances.add(unconfirmedAssetBalance);
     }

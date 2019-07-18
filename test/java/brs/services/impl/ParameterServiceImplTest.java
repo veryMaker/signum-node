@@ -207,7 +207,7 @@ public class ParameterServiceImplTest {
 
     final Account mockAccount = mock(Account.class);
 
-    when(accountServiceMock.getAccount(eq(Convert.parseHexString(publicKey)))).thenReturn(mockAccount);
+    when(accountServiceMock.getAccount(eq(Convert.INSTANCE.parseHexString(publicKey)))).thenReturn(mockAccount);
 
     assertEquals(mockAccount, t.getSenderAccount(req));
   }
@@ -217,7 +217,7 @@ public class ParameterServiceImplTest {
     final String publicKey = "123";
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(PUBLIC_KEY_PARAMETER, publicKey));
 
-    when(accountServiceMock.getAccount(eq(Convert.parseHexString(publicKey)))).thenThrow(new RuntimeException());
+    when(accountServiceMock.getAccount(eq(Convert.INSTANCE.parseHexString(publicKey)))).thenThrow(new RuntimeException());
 
     t.getSenderAccount(req);
   }
@@ -233,7 +233,7 @@ public class ParameterServiceImplTest {
     final String publicKey = "123";
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(PUBLIC_KEY_PARAMETER, publicKey));
 
-    when(accountServiceMock.getAccount(eq(Convert.parseHexString(publicKey)))).thenReturn(null);
+    when(accountServiceMock.getAccount(eq(Convert.INSTANCE.parseHexString(publicKey)))).thenReturn(null);
 
     t.getSenderAccount(req);
   }
@@ -398,7 +398,7 @@ public class ParameterServiceImplTest {
 
     EncryptedData encryptedDataMock = mock(EncryptedData.class);
 
-    when(mockRecipientAccount.encryptTo(eq(Convert.parseHexString("beef123")), eq(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock);
+    when(mockRecipientAccount.encryptTo(eq(Convert.INSTANCE.parseHexString("beef123")), eq(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock);
 
     assertEquals(encryptedDataMock, t.getEncryptedMessage(req, mockRecipientAccount, null));
   }
@@ -427,7 +427,7 @@ public class ParameterServiceImplTest {
 
     EncryptedData encryptedDataMock = mock(EncryptedData.class);
 
-    when(mockRecipientAccount.encryptTo(eq(Convert.toBytes("message")), eq(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock);
+    when(mockRecipientAccount.encryptTo(eq(Convert.INSTANCE.toBytes("message")), eq(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock);
 
     assertEquals(encryptedDataMock, t.getEncryptedMessage(req, mockRecipientAccount, null));
   }
@@ -483,7 +483,7 @@ public class ParameterServiceImplTest {
 
     EncryptedData encryptedDataMock = mock(EncryptedData.class);
 
-    when(mockAccount.encryptTo(eq(Convert.parseHexString("beef123")), eq(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock);
+    when(mockAccount.encryptTo(eq(Convert.INSTANCE.parseHexString("beef123")), eq(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock);
 
     assertEquals(encryptedDataMock, t.getEncryptToSelfMessage(req));
   }
@@ -500,7 +500,7 @@ public class ParameterServiceImplTest {
 
     EncryptedData encryptedDataMock = mock(EncryptedData.class);
 
-    when(mockAccount.encryptTo(eq(Convert.parseHexString("beef123")), eq(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock);
+    when(mockAccount.encryptTo(eq(Convert.INSTANCE.parseHexString("beef123")), eq(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock);
 
     assertEquals(encryptedDataMock, t.getEncryptToSelfMessage(req));
   }
@@ -517,7 +517,7 @@ public class ParameterServiceImplTest {
 
     EncryptedData encryptedDataMock = mock(EncryptedData.class);
 
-    when(mockAccount.encryptTo(eq(Convert.toBytes("message")), eq(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock);
+    when(mockAccount.encryptTo(eq(Convert.INSTANCE.toBytes("message")), eq(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock);
 
     assertEquals(encryptedDataMock, t.getEncryptToSelfMessage(req));
   }
