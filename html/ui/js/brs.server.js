@@ -234,7 +234,7 @@ var BRS = (function(BRS, $, undefined) {
             }
         }
 
-        if (!BRS.isLocalHost && type == "POST") {
+        if (type == "POST") {
             if (BRS.rememberPassword) {
                 secretPhrase = _password;
             } else {
@@ -249,8 +249,6 @@ var BRS = (function(BRS, $, undefined) {
                 data.publicKey = BRS.generatePublicKey(secretPhrase);
                 BRS.accountInfo.publicKey = data.publicKey;
             }
-        } else if (type == "POST" && BRS.rememberPassword) {
-            data.secretPhrase = _password;
         }
 
         $.support.cors = true;
