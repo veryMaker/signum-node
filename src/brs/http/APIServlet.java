@@ -85,18 +85,18 @@ public final class APIServlet extends HttpServlet {
     map.put("getBlockId", new GetBlockId(blockchain));
     map.put("getBlocks", new GetBlocks(blockchain, blockService));
     map.put("getBlockchainStatus", new GetBlockchainStatus(blockchainProcessor, blockchain, timeService));
-    map.put("getConstants", GetConstants.instance);
+    map.put("getConstants", GetConstants.Companion.getInstance());
     map.put("getDGSGoods", new GetDGSGoods(digitalGoodsStoreService));
     map.put("getDGSGood", new GetDGSGood(parameterService));
     map.put("getDGSPurchases", new GetDGSPurchases(digitalGoodsStoreService));
     map.put("getDGSPurchase", new GetDGSPurchase(parameterService));
     map.put("getDGSPendingPurchases", new GetDGSPendingPurchases(digitalGoodsStoreService));
     map.put("getECBlock", new GetECBlock(blockchain, timeService, economicClustering));
-    map.put("getMyInfo", GetMyInfo.instance);
-    map.put("getPeer", GetPeer.instance);
+    map.put("getMyInfo", GetMyInfo.Companion.getInstance());
+    map.put("getPeer", GetPeer.Companion.getInstance());
     map.put("getMyPeerInfo", new GetMyPeerInfo(transactionProcessor));
-    map.put("getPeers", GetPeers.instance);
-    map.put("getState", new GetState(blockchain, assetExchange, accountService, escrowService, aliasService, timeService, generator, propertyService));
+    map.put("getPeers", GetPeers.Companion.getInstance());
+    map.put("getState", new GetState(blockchain, blockchainProcessor, assetExchange, accountService, escrowService, aliasService, timeService, generator, propertyService));
     map.put("getTime", new GetTime(timeService));
     map.put("getTrades", new GetTrades(parameterService, assetExchange));
     map.put("getAllTrades", new GetAllTrades(assetExchange));
@@ -119,11 +119,11 @@ public final class APIServlet extends HttpServlet {
     map.put("getBidOrders", new GetBidOrders(parameterService, assetExchange));
     map.put("suggestFee", new SuggestFee(feeSuggestionCalculator));
     map.put("issueAsset", new IssueAsset(parameterService, blockchain, apiTransactionManager));
-    map.put("longConvert", LongConvert.instance);
+    map.put("longConvert", LongConvert.Companion.getInstance());
     map.put("parseTransaction", new ParseTransaction(parameterService, transactionService));
     map.put("placeAskOrder", new PlaceAskOrder(parameterService, blockchain, apiTransactionManager, accountService));
     map.put("placeBidOrder", new PlaceBidOrder(parameterService, blockchain, apiTransactionManager));
-    map.put("rsConvert", RSConvert.instance);
+    map.put("rsConvert", RSConvert.Companion.getInstance());
     map.put("readMessage", new ReadMessage(blockchain, accountService));
     map.put("sendMessage", new SendMessage(parameterService, apiTransactionManager));
     map.put("sendMoney", new SendMoney(parameterService, apiTransactionManager));
@@ -151,7 +151,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getAT", new GetAT(parameterService, accountService));
     map.put("getATDetails", new GetATDetails(parameterService, accountService));
     map.put("getATIds", new GetATIds(atService));
-    map.put("getATLong", GetATLong.instance);
+    map.put("getATLong", GetATLong.Companion.getInstance());
     map.put("getAccountATs", new GetAccountATs(parameterService, atService, accountService));
     map.put("getGuaranteedBalance", new GetGuaranteedBalance(parameterService));
     map.put("generateSendTransactionQRCode", new GenerateDeeplinkQRCode(deeplinkQRCodeGenerator));
@@ -182,7 +182,7 @@ public final class APIServlet extends HttpServlet {
         response = e.getErrorResponse();
       } catch (BurstException | RuntimeException e) {
         logger.debug("Error processing API request", e);
-        response = ERROR_INCORRECT_REQUEST;
+        response = INSTANCE.getERROR_INCORRECT_REQUEST();
       }
 
       if (response instanceof JsonObject) {
@@ -223,7 +223,7 @@ public final class APIServlet extends HttpServlet {
       for (String parameter : req.getParameterMap().keySet()) {
         // _ is a parameter used in eg. jquery to avoid caching queries
         if (!this.parameters.contains(parameter) && !parameter.equals("_") && ! parameter.equals("requestType"))
-          throw new ParameterException(JSONResponses.incorrectUnknown(parameter));
+          throw new ParameterException(JSONResponses.INSTANCE.incorrectUnknown(parameter));
       }
     }
 
@@ -282,7 +282,7 @@ public final class APIServlet extends HttpServlet {
       }
       if (!allowed) {
         resp.setStatus(HttpStatus.FORBIDDEN_403);
-        writeJsonToResponse(resp, ERROR_NOT_ALLOWED);
+        writeJsonToResponse(resp, INSTANCE.getERROR_NOT_ALLOWED());
         return;
       }
     }
@@ -290,20 +290,20 @@ public final class APIServlet extends HttpServlet {
     String requestType = req.getParameter("requestType");
     if (requestType == null) {
       resp.setStatus(HttpStatus.NOT_FOUND_404);
-      writeJsonToResponse(resp, ERROR_MISSING_REQUEST);
+      writeJsonToResponse(resp, INSTANCE.getERROR_MISSING_REQUEST());
       return;
     }
 
     HttpRequestHandler apiRequestHandler = apiRequestHandlers.get(requestType);
     if (apiRequestHandler == null) {
       resp.setStatus(HttpStatus.NOT_FOUND_404);
-      writeJsonToResponse(resp, ERROR_MISSING_REQUEST);
+      writeJsonToResponse(resp, INSTANCE.getERROR_MISSING_REQUEST());
       return;
     }
 
     if (enforcePost && apiRequestHandler.requirePost() && !"POST".equals(req.getMethod())) {
       resp.setStatus(HttpStatus.METHOD_NOT_ALLOWED_405);
-      writeJsonToResponse(resp, ERROR_NOT_ALLOWED);
+      writeJsonToResponse(resp, INSTANCE.getERROR_NOT_ALLOWED());
       return;
     }
 
@@ -315,7 +315,7 @@ public final class APIServlet extends HttpServlet {
     } catch (RuntimeException e) {
       logger.debug("Error processing API request", e);
       resp.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
-      writeJsonToResponse(resp, ERROR_INCORRECT_REQUEST);
+      writeJsonToResponse(resp, INSTANCE.getERROR_INCORRECT_REQUEST());
     }
   }
 }

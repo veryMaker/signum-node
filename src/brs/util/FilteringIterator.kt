@@ -2,15 +2,11 @@ package brs.util
 
 import java.util.*
 
-class FilteringIterator<T> @JvmOverloads constructor(collection: Collection<T>, private val filter: Filter<T>, private val from: Int = 0, private val to: Int = Integer.MAX_VALUE) : MutableIterator<T> {
+class FilteringIterator<T> @JvmOverloads constructor(collection: Collection<T>, private val filter: (T?) -> Boolean, private val from: Int = 0, private val to: Int = Integer.MAX_VALUE) : MutableIterator<T> {
     private val dbIterator: Iterator<T> = collection.iterator()
     private var next: T? = null
     private var hasNext: Boolean = false
     private var count: Int = 0
-
-    interface Filter<T> {
-        fun ok(t: T?): Boolean
-    }
 
     override fun hasNext(): Boolean {
         if (hasNext) {
@@ -18,7 +14,7 @@ class FilteringIterator<T> @JvmOverloads constructor(collection: Collection<T>, 
         }
         while (dbIterator.hasNext() && count <= to) {
             next = dbIterator.next()
-            if (filter.ok(next)) {
+            if (filter(next)) {
                 if (count >= from) {
                     count += 1
                     hasNext = true
@@ -39,7 +35,7 @@ class FilteringIterator<T> @JvmOverloads constructor(collection: Collection<T>, 
         }
         while (dbIterator.hasNext() && count <= to) {
             next = dbIterator.next()
-            if (filter.ok(next)) {
+            if (filter(next)) {
                 if (count >= from) {
                     count += 1
                     hasNext = false

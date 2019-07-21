@@ -7,7 +7,7 @@ import com.google.gson.JsonObject
 
 interface BlockchainProcessor : Observable<Block, BlockchainProcessor.Event> {
 
-    val lastBlockchainFeeder: Peer
+    val lastBlockchainFeeder: Peer?
 
     val lastBlockchainFeederHeight: Int
 

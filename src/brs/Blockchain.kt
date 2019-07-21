@@ -10,11 +10,11 @@ interface Blockchain {
 
     val allTransactions: Collection<Transaction>
 
-    fun getLastBlock(timestamp: Int): Block
+    fun getLastBlock(timestamp: Int): Block?
 
-    fun getBlock(blockImplId: Long): Block
+    fun getBlock(blockId: Long): Block?
 
-    fun getBlockAtHeight(height: Int): Block
+    fun getBlockAtHeight(height: Int): Block?
 
     fun hasBlock(blockImplId: Long): Boolean
 
@@ -30,9 +30,9 @@ interface Blockchain {
 
     fun getBlockIdAtHeight(height: Int): Long
 
-    fun getTransaction(transactionId: Long): Transaction
+    fun getTransaction(transactionId: Long): Transaction?
 
-    fun getTransactionByFullHash(fullHash: String): Transaction  // TODO add byte[] method
+    fun getTransactionByFullHash(fullHash: String): Transaction?  // TODO add byte[] method
 
     fun hasTransaction(transactionId: Long): Boolean
 

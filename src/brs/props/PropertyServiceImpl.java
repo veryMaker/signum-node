@@ -1,6 +1,7 @@
 package brs.props;
 
 import brs.Burst;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,11 @@ public class PropertyServiceImpl implements PropertyService {
 
   public PropertyServiceImpl(Properties properties) {
     this.properties = properties;
+  }
+
+  @Override
+  public <T> T get(@NotNull Prop<T> prop) {
+    return null;
   }
 
   @Override

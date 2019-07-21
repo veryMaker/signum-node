@@ -102,7 +102,7 @@ object JSON {
 
     @JvmStatic
     fun <T : JsonElement> jsonArrayCollector(): Collector<T, *, JsonArray> {
-        return Collector.of(Supplier<JsonArray> { JsonArray() }, BiConsumer<JsonArray, T> { obj, element -> obj.add(element) }, BinaryOperator<JsonArray> { left: JsonArray, right: JsonArray ->
+        return Collector.of(Supplier<JsonArray> { JsonArray() }, BiConsumer<JsonArray, T> { obj, element -> obj.add(element) }, BinaryOperator { left: JsonArray, right: JsonArray ->
             left.addAll(right)
             left
         })
