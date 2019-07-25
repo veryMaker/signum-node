@@ -233,8 +233,8 @@ public final class APIServlet extends HttpServlet {
   }
 
   private static void writeJsonToResponse(HttpServletResponse resp, JsonElement msg) throws IOException {
+    resp.setContentType("text/plain; charset=UTF-8");
     try (Writer writer = resp.getWriter()) {
-      resp.setContentType("text/plain; charset=UTF-8");
       JSON.writeTo(msg, writer);
     }
   }
