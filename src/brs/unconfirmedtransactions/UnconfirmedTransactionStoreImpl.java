@@ -46,12 +46,12 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
     this.reservedBalanceCache = new ReservedBalanceCache(accountStore);
 
-    this.maxSize = propertyService.getInt(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS);
+    this.maxSize = propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS);
     this.totalSize = 0;
 
-    this.maxRawUTBytesToSend = propertyService.getInt(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND);
+    this.maxRawUTBytesToSend = propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND);
 
-    this.maxPercentageUnconfirmedTransactionsFullHash = propertyService.getInt(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE);
+    this.maxPercentageUnconfirmedTransactionsFullHash = propertyService.get(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE);
     this.numberUnconfirmedTransactionsFullHash = 0;
 
     internalStore = new TreeMap<>();

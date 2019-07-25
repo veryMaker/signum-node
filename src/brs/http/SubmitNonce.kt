@@ -31,10 +31,10 @@ internal class SubmitNonce(propertyService: PropertyService, private val account
 
     init {
         val burstCrypto = BurstCrypto.getInstance()
-        this.passphrases = propertyService.getStringList(Props.SOLO_MINING_PASSPHRASES)
-                .stream()
-                .collect<Map<Long, String>, Any>(Collectors.toMap(Function<String, Long> { passphrase -> burstCrypto.getBurstAddressFromPassphrase(passphrase).burstID.signedLongId }, Function.identity()))
-        this.allowOtherSoloMiners = propertyService.getBoolean(Props.ALLOW_OTHER_SOLO_MINERS)!!
+        this.passphrases = propertyService.get(Props.SOLO_MINING_PASSPHRASES)
+                .map { burstCrypto.getBurstAddressFromPassphrase(it).burstID.signedLongId to it}
+                .toMap()
+        this.allowOtherSoloMiners = propertyService.get(Props.ALLOW_OTHER_SOLO_MINERS)!!
     }
 
     internal override fun processRequest(req: HttpServletRequest): JsonElement {

@@ -57,7 +57,7 @@ public final class ThreadPool {
     if (scheduledThreadPool != null) {
       throw new IllegalStateException("Executor service already started, no new jobs accepted");
     }
-    if (!propertyService.getBoolean("brs.disable" + name + "Thread", false)) {
+    if (!propertyService.get("brs.disable" + name + "Thread", false)) {
       backgroundJobs.put(runnable, timeUnit.toMillis(delay));
     } else {
       logger.info("Will not run {} thread", name);
@@ -88,7 +88,7 @@ public final class ThreadPool {
     runAll(lastBeforeStartJobs);
     lastBeforeStartJobs.clear();
 
-    int cores = propertyService.getInt(Props.CPU_NUM_CORES);
+    int cores = propertyService.get(Props.CPU_NUM_CORES);
     if (cores <= 0) {
         logger.warn("Cannot use 0 cores - defaulting to all available");
         cores = Runtime.getRuntime().availableProcessors();
@@ -142,7 +142,7 @@ public final class ThreadPool {
     if (!executor.isTerminated()) {
       executor.shutdown();
       try {
-        executor.awaitTermination(propertyService.getInt(Props.BRS_SHUTDOWN_TIMEOUT), TimeUnit.SECONDS);
+        executor.awaitTermination(propertyService.get(Props.BRS_SHUTDOWN_TIMEOUT), TimeUnit.SECONDS);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }

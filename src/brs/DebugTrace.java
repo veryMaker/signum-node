@@ -28,15 +28,15 @@ public final class DebugTrace {
                    AccountService accountService, AssetExchange assetExchange,
                    DGSGoodsStoreService dgsGoodsStoreService) {
 
-    QUOTE           = propertyService.getString(Props.BRS_DEBUG_TRACE_QUOTE);
-    SEPARATOR       = propertyService.getString(Props.BRS_DEBUG_TRACE_SEPARATOR);
-    LOG_UNCONFIRMED = propertyService.getBoolean(Props.BRS_DEBUG_LOG_CONFIRMED);
+    QUOTE           = propertyService.get(Props.BRS_DEBUG_TRACE_QUOTE);
+    SEPARATOR       = propertyService.get(Props.BRS_DEBUG_TRACE_SEPARATOR);
+    LOG_UNCONFIRMED = propertyService.get(Props.BRS_DEBUG_LOG_CONFIRMED);
 
     DebugTrace.assetExchange = assetExchange;
     DebugTrace.dgsGoodsStoreService = dgsGoodsStoreService;
 
-    List<String> accountIdStrings = propertyService.getStringList(Props.BRS_DEBUG_TRACE_ACCOUNTS);
-    String logName = propertyService.getString(Props.BRS_DEBUG_TRACE_LOG);
+    List<String> accountIdStrings = propertyService.get(Props.BRS_DEBUG_TRACE_ACCOUNTS);
+    String logName = propertyService.get(Props.BRS_DEBUG_TRACE_LOG);
     if (accountIdStrings.isEmpty() || logName == null) {
       return;
     }

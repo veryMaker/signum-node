@@ -125,12 +125,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     this.accountService = accountService;
     this.indirectIncomingService = indirectIncomingService;
 
-    autoPopOffEnabled = propertyService.getBoolean(Props.AUTO_POP_OFF_ENABLED);
+    autoPopOffEnabled = propertyService.get(Props.AUTO_POP_OFF_ENABLED);
 
-    oclVerify = propertyService.getBoolean(Props.GPU_ACCELERATION); // use GPU acceleration ?
-    oclUnverifiedQueue = propertyService.getInt(Props.GPU_UNVERIFIED_QUEUE);
+    oclVerify = propertyService.get(Props.GPU_ACCELERATION); // use GPU acceleration ?
+    oclUnverifiedQueue = propertyService.get(Props.GPU_UNVERIFIED_QUEUE);
 
-    trimDerivedTables = propertyService.getBoolean(Props.DB_TRIM_DERIVED_TABLES);
+    trimDerivedTables = propertyService.get(Props.DB_TRIM_DERIVED_TABLES);
 
     blockListeners.addListener(block -> {
       if (block.getHeight() % 5000 == 0) {
@@ -167,7 +167,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
       @Override
       public void run() {
-        if (propertyService.getBoolean(Props.DEV_OFFLINE)) return;
+        if (propertyService.get(Props.DEV_OFFLINE)) return;
         if (getCumulativeDifficultyRequest == null) {
             JsonObject request = new JsonObject();
             request.addProperty("requestType", "getCumulativeDifficulty");
@@ -651,7 +651,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         }
       }
     };
-    if (propertyService.getBoolean(Props.GPU_ACCELERATION)) {
+    if (propertyService.get(Props.GPU_ACCELERATION)) {
       logger.debug("Starting preverifier thread in Open CL mode.");
       threadPool.scheduleThread("VerifyPoc", pocVerificationThread, Constants.BLOCK_PROCESS_THREAD_DELAY, TimeUnit.MILLISECONDS);
     } else {

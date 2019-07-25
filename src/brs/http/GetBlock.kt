@@ -1,12 +1,10 @@
 package brs.http
 
-import brs.Block
 import brs.Blockchain
 import brs.http.JSONResponses.INCORRECT_BLOCK
 import brs.http.JSONResponses.INCORRECT_HEIGHT
 import brs.http.JSONResponses.INCORRECT_TIMESTAMP
 import brs.http.JSONResponses.UNKNOWN_BLOCK
-import brs.http.common.Parameters
 import brs.services.BlockService
 import brs.util.Convert
 import com.google.gson.JsonElement
@@ -23,10 +21,9 @@ internal class GetBlock internal constructor(private val blockchain: Blockchain,
         val heightValue = Convert.emptyToNull(req.getParameter(HEIGHT_PARAMETER))
         val timestampValue = Convert.emptyToNull(req.getParameter(TIMESTAMP_PARAMETER))
 
-        val blockData: Block?
-        when {
+        val blockData = when {
             blockValue != null -> try {
-                blockData = blockchain.getBlock(Convert.parseUnsignedLong(blockValue))
+                blockchain.getBlock(Convert.parseUnsignedLong(blockValue))
             } catch (e: RuntimeException) {
                 return INCORRECT_BLOCK
             }
@@ -35,7 +32,7 @@ internal class GetBlock internal constructor(private val blockchain: Blockchain,
                 if (height < 0 || height > blockchain.height) {
                     return INCORRECT_HEIGHT
                 }
-                blockData = blockchain.getBlockAtHeight(height)
+                blockchain.getBlockAtHeight(height)
             } catch (e: RuntimeException) {
                 return INCORRECT_HEIGHT
             }
@@ -44,12 +41,12 @@ internal class GetBlock internal constructor(private val blockchain: Blockchain,
                 if (timestamp < 0) {
                     return INCORRECT_TIMESTAMP
                 }
-                blockData = blockchain.getLastBlock(timestamp)
+                blockchain.getLastBlock(timestamp)
             } catch (e: RuntimeException) {
                 return INCORRECT_TIMESTAMP
             }
-            else -> blockData = blockchain.lastBlock
-        }
+            else -> blockchain.lastBlock
+        } ?: return UNKNOWN_BLOCK
 
         val includeTransactions = isTrue(req.getParameter(INCLUDE_TRANSACTIONS_PARAMETER))
 

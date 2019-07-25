@@ -48,11 +48,11 @@ final class OCLPoC {
 
   static {
     PropertyService propertyService = Burst.getPropertyService();
-    HASHES_PER_ENQUEUE = propertyService.getInt(Props.GPU_HASHES_PER_BATCH);
-    MEM_PERCENT = propertyService.getInt(Props.GPU_MEM_PERCENT);
+    HASHES_PER_ENQUEUE = propertyService.get(Props.GPU_HASHES_PER_BATCH);
+    MEM_PERCENT = propertyService.get(Props.GPU_MEM_PERCENT);
     
     try {
-      boolean autoChoose = propertyService.getBoolean(Props.GPU_AUTODETECT);
+      boolean autoChoose = propertyService.get(Props.GPU_AUTODETECT);
       setExceptionsEnabled(true);
 
       int platformIndex;
@@ -66,8 +66,8 @@ final class OCLPoC {
         deviceIndex = ac.getDevice();
         logger.info("Choosing Platform {} - DeviceId: {}", platformIndex, deviceIndex);
       } else {
-        platformIndex = propertyService.getInt(Props.GPU_PLATFORM_IDX);
-        deviceIndex = propertyService.getInt(Props.GPU_DEVICE_IDX);
+        platformIndex = propertyService.get(Props.GPU_PLATFORM_IDX);
+        deviceIndex = propertyService.get(Props.GPU_DEVICE_IDX);
       }
 
       int[] numPlatforms = new int[1];

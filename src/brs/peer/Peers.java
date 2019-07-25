@@ -125,9 +125,9 @@ public final class Peers {
     Peers.timeService = timeService;
     Peers.propertyService = propertyService;
 
-    myPlatform = propertyService.getString(Props.P2P_MY_PLATFORM);
-    if ( propertyService.getString(Props.P2P_MY_ADDRESS) != null
-            && propertyService.getString(Props.P2P_MY_ADDRESS).trim().isEmpty()
+    myPlatform = propertyService.get(Props.P2P_MY_PLATFORM);
+    if ( propertyService.get(Props.P2P_MY_ADDRESS) != null
+            && propertyService.get(Props.P2P_MY_ADDRESS).trim().isEmpty()
             && Init.gateway != null ) {
       String externalIPAddress = null;
       try {
@@ -139,18 +139,18 @@ public final class Peers {
       myAddress = externalIPAddress;
     }
     else {
-      myAddress = propertyService.getString(Props.P2P_MY_ADDRESS);
+      myAddress = propertyService.get(Props.P2P_MY_ADDRESS);
     }
 
-    if (myAddress != null && myAddress.endsWith(":" + TESTNET_PEER_PORT) && !Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
+    if (myAddress != null && myAddress.endsWith(":" + TESTNET_PEER_PORT) && !Burst.getPropertyService().get(Props.DEV_TESTNET)) {
       throw new RuntimeException("Port " + TESTNET_PEER_PORT + " should only be used for testnet!!!");
     }
-    myPeerServerPort = propertyService.getInt(Props.P2P_PORT);
-    if (myPeerServerPort == TESTNET_PEER_PORT && !Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
+    myPeerServerPort = propertyService.get(Props.P2P_PORT);
+    if (myPeerServerPort == TESTNET_PEER_PORT && !Burst.getPropertyService().get(Props.DEV_TESTNET)) {
       throw new RuntimeException("Port " + TESTNET_PEER_PORT + " should only be used for testnet!!!");
     }
-    useUpnp = propertyService.getBoolean(Props.P2P_UPNP);
-    shareMyAddress = propertyService.getBoolean(Props.P2P_SHARE_MY_ADDRESS) && ! Burst.getPropertyService().getBoolean(Props.DEV_OFFLINE);
+    useUpnp = propertyService.get(Props.P2P_UPNP);
+    shareMyAddress = propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && ! Burst.getPropertyService().get(Props.DEV_OFFLINE);
 
     JsonObject json = new JsonObject();
     if (myAddress != null && ! myAddress.isEmpty()) {
@@ -158,7 +158,7 @@ public final class Peers {
         URI uri = new URI("http://" + myAddress.trim());
         String host = uri.getHost();
         int port = uri.getPort();
-        if (!Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
+        if (!Burst.getPropertyService().get(Props.DEV_TESTNET)) {
           if (port >= 0) {
             json.addProperty("announcedAddress", myAddress);
           }
@@ -188,30 +188,30 @@ public final class Peers {
     myPeerInfoRequest = prepareRequest(json);
 
 
-    if(propertyService.getBoolean(P2P_ENABLE_TX_REBROADCAST)) {
+    if(propertyService.get(P2P_ENABLE_TX_REBROADCAST)) {
       rebroadcastPeers = Collections
-              .unmodifiableSet(new HashSet<>(propertyService.getStringList(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? Props.DEV_P2P_REBROADCAST_TO : Props.P2P_REBROADCAST_TO)));
+              .unmodifiableSet(new HashSet<>(propertyService.get(Burst.getPropertyService().get(Props.DEV_TESTNET) ? Props.DEV_P2P_REBROADCAST_TO : Props.P2P_REBROADCAST_TO)));
     } else {
       rebroadcastPeers = Collections.emptySet();
     }
 
-    List<String> wellKnownPeersList = propertyService.getStringList(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? Props.DEV_P2P_BOOTSTRAP_PEERS : Props.P2P_BOOTSTRAP_PEERS);
+    List<String> wellKnownPeersList = propertyService.get(Burst.getPropertyService().get(Props.DEV_TESTNET) ? Props.DEV_P2P_BOOTSTRAP_PEERS : Props.P2P_BOOTSTRAP_PEERS);
 
     for(String rePeer : rebroadcastPeers) {
       if(!wellKnownPeersList.contains(rePeer)) {
         wellKnownPeersList.add(rePeer);
       }
     }
-    if (wellKnownPeersList.isEmpty() || Burst.getPropertyService().getBoolean(Props.DEV_OFFLINE)) {
+    if (wellKnownPeersList.isEmpty() || Burst.getPropertyService().get(Props.DEV_OFFLINE)) {
       wellKnownPeers = Collections.emptySet();
     } else {
       wellKnownPeers = Collections.unmodifiableSet(new HashSet<>(wellKnownPeersList));
     }
 
-    connectWellKnownFirst = propertyService.getInt(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS);
+    connectWellKnownFirst = propertyService.get(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS);
     connectWellKnownFinished = (connectWellKnownFirst == 0);
 
-    List<String> knownBlacklistedPeersList = propertyService.getStringList(Props.P2P_BLACKLISTED_PEERS);
+    List<String> knownBlacklistedPeersList = propertyService.get(Props.P2P_BLACKLISTED_PEERS);
     if (knownBlacklistedPeersList.isEmpty()) {
       knownBlacklistedPeers = Collections.emptySet();
     }
@@ -219,18 +219,18 @@ public final class Peers {
       knownBlacklistedPeers = Collections.unmodifiableSet(new HashSet<>(knownBlacklistedPeersList));
     }
 
-    maxNumberOfConnectedPublicPeers = propertyService.getInt(Props.P2P_MAX_CONNECTIONS);
-    connectTimeout = propertyService.getInt(Props.P2P_TIMEOUT_CONNECT_MS);
-    readTimeout = propertyService.getInt(Props.P2P_TIMEOUT_READ_MS);
+    maxNumberOfConnectedPublicPeers = propertyService.get(Props.P2P_MAX_CONNECTIONS);
+    connectTimeout = propertyService.get(Props.P2P_TIMEOUT_CONNECT_MS);
+    readTimeout = propertyService.get(Props.P2P_TIMEOUT_READ_MS);
 
-    blacklistingPeriod = propertyService.getInt(Props.P2P_BLACKLISTING_TIME_MS);
-    communicationLoggingMask = propertyService.getInt(Props.BRS_COMMUNICATION_LOGGING_MASK);
-    sendToPeersLimit = propertyService.getInt(P2P_SEND_TO_LIMIT);
-    usePeersDb       = propertyService.getBoolean(Props.P2P_USE_PEERS_DB) && ! Burst.getPropertyService().getBoolean(Props.DEV_OFFLINE);
-    savePeers        = usePeersDb && propertyService.getBoolean(Props.P2P_SAVE_PEERS);
-    getMorePeers     = propertyService.getBoolean(Props.P2P_GET_MORE_PEERS);
-    getMorePeersThreshold = propertyService.getInt(Props.P2P_GET_MORE_PEERS_THRESHOLD);
-    dumpPeersVersion = propertyService.getString(Props.DEV_DUMP_PEERS_VERSION);
+    blacklistingPeriod = propertyService.get(Props.P2P_BLACKLISTING_TIME_MS);
+    communicationLoggingMask = propertyService.get(Props.BRS_COMMUNICATION_LOGGING_MASK);
+    sendToPeersLimit = propertyService.get(P2P_SEND_TO_LIMIT);
+    usePeersDb       = propertyService.get(Props.P2P_USE_PEERS_DB) && ! Burst.getPropertyService().get(Props.DEV_OFFLINE);
+    savePeers        = usePeersDb && propertyService.get(Props.P2P_SAVE_PEERS);
+    getMorePeers     = propertyService.get(Props.P2P_GET_MORE_PEERS);
+    getMorePeersThreshold = propertyService.get(Props.P2P_GET_MORE_PEERS_THRESHOLD);
+    dumpPeersVersion = propertyService.get(Props.DEV_DUMP_PEERS_VERSION);
 
     final List<Future<String>> unresolvedPeers = Collections.synchronizedList(new ArrayList<>());
 
@@ -280,7 +280,7 @@ public final class Peers {
 
     Init.init(timeService, accountService, blockchain, transactionProcessor, blockchainProcessor, propertyService, threadPool);
 
-    if (! Burst.getPropertyService().getBoolean(Props.DEV_OFFLINE)) {
+    if (! Burst.getPropertyService().get(Props.DEV_OFFLINE)) {
       threadPool.scheduleThread("PeerConnecting", Peers.peerConnectingThread, 5);
       threadPool.scheduleThread("PeerUnBlacklisting", Peers.peerUnBlacklistingThread, 1);
       if (Peers.getMorePeers) {
@@ -300,7 +300,7 @@ public final class Peers {
                      BlockchainProcessor blockchainProcessor, PropertyService propertyService, ThreadPool threadPool) {
       if (Peers.shareMyAddress) {
         if (useUpnp) {
-          port = propertyService.getInt(Props.P2P_PORT);
+          port = propertyService.get(Props.P2P_PORT);
           GatewayDiscover gatewayDiscover = new GatewayDiscover();
           gatewayDiscover.setTimeout(2000);
           try {
@@ -343,44 +343,44 @@ public final class Peers {
 
         peerServer = new Server();
         ServerConnector connector = new ServerConnector(peerServer);
-        port = Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? TESTNET_PEER_PORT : Peers.myPeerServerPort;
+        port = Burst.getPropertyService().get(Props.DEV_TESTNET) ? TESTNET_PEER_PORT : Peers.myPeerServerPort;
         connector.setPort(port);
-        final String host = propertyService.getString(Props.P2P_LISTEN);
+        final String host = propertyService.get(Props.P2P_LISTEN);
         connector.setHost(host);
-        connector.setIdleTimeout(propertyService.getInt(Props.P2P_TIMEOUT_IDLE_MS));
+        connector.setIdleTimeout(propertyService.get(Props.P2P_TIMEOUT_IDLE_MS));
         connector.setReuseAddress(true);
         peerServer.addConnector(connector);
 
         ServletHolder peerServletHolder = new ServletHolder(new PeerServlet(timeService, accountService, blockchain,
                 transactionProcessor, blockchainProcessor));
-        boolean isGzipEnabled = propertyService.getBoolean(Props.JETTY_P2P_GZIP_FILTER);
+        boolean isGzipEnabled = propertyService.get(Props.JETTY_P2P_GZIP_FILTER);
         peerServletHolder.setInitParameter("isGzipEnabled", Boolean.toString(isGzipEnabled));
 
         ServletHandler peerHandler = new ServletHandler();
         peerHandler.addServletWithMapping(peerServletHolder, "/*");
 
-        if (propertyService.getBoolean(Props.JETTY_P2P_DOS_FILTER)) {
+        if (propertyService.get(Props.JETTY_P2P_DOS_FILTER)) {
           FilterHolder dosFilterHolder = peerHandler.addFilterWithMapping(DoSFilter.class, "/*", FilterMapping.DEFAULT);
-          dosFilterHolder.setInitParameter("maxRequestsPerSec", propertyService.getString(Props.JETTY_P2P_DOS_FILTER_MAX_REQUESTS_PER_SEC));
-          dosFilterHolder.setInitParameter("throttledRequests", propertyService.getString(Props.JETTY_P2P_DOS_FILTER_THROTTLED_REQUESTS));
-          dosFilterHolder.setInitParameter("delayMs",           propertyService.getString(Props.JETTY_P2P_DOS_FILTER_DELAY_MS));
-          dosFilterHolder.setInitParameter("maxWaitMs",         propertyService.getString(Props.JETTY_P2P_DOS_FILTER_MAX_WAIT_MS));
-          dosFilterHolder.setInitParameter("maxRequestMs",      propertyService.getString(Props.JETTY_P2P_DOS_FILTER_MAX_REQUEST_MS));
-          dosFilterHolder.setInitParameter("maxthrottleMs",     propertyService.getString(Props.JETTY_P2P_DOS_FILTER_THROTTLE_MS));
-          dosFilterHolder.setInitParameter("maxIdleTrackerMs",  propertyService.getString(Props.JETTY_P2P_DOS_FILTER_MAX_IDLE_TRACKER_MS));
-          dosFilterHolder.setInitParameter("trackSessions",     propertyService.getString(Props.JETTY_P2P_DOS_FILTER_TRACK_SESSIONS));
-          dosFilterHolder.setInitParameter("insertHeaders",     propertyService.getString(Props.JETTY_P2P_DOS_FILTER_INSERT_HEADERS));
-          dosFilterHolder.setInitParameter("remotePort",        propertyService.getString(Props.JETTY_P2P_DOS_FILTER_REMOTE_PORT));
-          dosFilterHolder.setInitParameter("ipWhitelist",       propertyService.getString(Props.JETTY_P2P_DOS_FILTER_IP_WHITELIST));
-          dosFilterHolder.setInitParameter("managedAttr",       propertyService.getString(Props.JETTY_P2P_DOS_FILTER_MANAGED_ATTR));
+          dosFilterHolder.setInitParameter("maxRequestsPerSec", propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_REQUESTS_PER_SEC));
+          dosFilterHolder.setInitParameter("throttledRequests", propertyService.get(Props.JETTY_P2P_DOS_FILTER_THROTTLED_REQUESTS));
+          dosFilterHolder.setInitParameter("delayMs",           propertyService.get(Props.JETTY_P2P_DOS_FILTER_DELAY_MS));
+          dosFilterHolder.setInitParameter("maxWaitMs",         propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_WAIT_MS));
+          dosFilterHolder.setInitParameter("maxRequestMs",      propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_REQUEST_MS));
+          dosFilterHolder.setInitParameter("maxthrottleMs",     propertyService.get(Props.JETTY_P2P_DOS_FILTER_THROTTLE_MS));
+          dosFilterHolder.setInitParameter("maxIdleTrackerMs",  propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_IDLE_TRACKER_MS));
+          dosFilterHolder.setInitParameter("trackSessions",     propertyService.get(Props.JETTY_P2P_DOS_FILTER_TRACK_SESSIONS));
+          dosFilterHolder.setInitParameter("insertHeaders",     propertyService.get(Props.JETTY_P2P_DOS_FILTER_INSERT_HEADERS));
+          dosFilterHolder.setInitParameter("remotePort",        propertyService.get(Props.JETTY_P2P_DOS_FILTER_REMOTE_PORT));
+          dosFilterHolder.setInitParameter("ipWhitelist",       propertyService.get(Props.JETTY_P2P_DOS_FILTER_IP_WHITELIST));
+          dosFilterHolder.setInitParameter("managedAttr",       propertyService.get(Props.JETTY_P2P_DOS_FILTER_MANAGED_ATTR));
           dosFilterHolder.setAsyncSupported(true);
         }
 
         if (isGzipEnabled) {
           GzipHandler gzipHandler = new GzipHandler();
-          gzipHandler.setIncludedMethods(propertyService.getString(Props.JETTY_P2P_GZIP_FILTER_METHODS));
-          gzipHandler.setInflateBufferSize(propertyService.getInt(Props.JETTY_P2P_GZIP_FILTER_BUFFER_SIZE));
-          gzipHandler.setMinGzipSize(propertyService.getInt(Props.JETTY_P2P_GZIP_FILTER_MIN_GZIP_SIZE));
+          gzipHandler.setIncludedMethods(propertyService.get(Props.JETTY_P2P_GZIP_FILTER_METHODS));
+          gzipHandler.setInflateBufferSize(propertyService.get(Props.JETTY_P2P_GZIP_FILTER_BUFFER_SIZE));
+          gzipHandler.setMinGzipSize(propertyService.get(Props.JETTY_P2P_GZIP_FILTER_MIN_GZIP_SIZE));
           gzipHandler.setIncludedMimeTypes("text/plain");
           gzipHandler.setHandler(peerHandler);
           peerServer.setHandler(gzipHandler);
@@ -723,7 +723,7 @@ public final class Peers {
     }
 
     peer = new PeerImpl(peerAddress, announcedPeerAddress);
-    if (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) && peer.getPort() > 0 && peer.getPort() != TESTNET_PEER_PORT) {
+    if (Burst.getPropertyService().get(Props.DEV_TESTNET) && peer.getPort() > 0 && peer.getPort() != TESTNET_PEER_PORT) {
       logger.debug("Peer {} on testnet port is not using port {}, ignoring", peerAddress, TESTNET_PEER_PORT);
       return null;
     }
@@ -896,7 +896,7 @@ public final class Peers {
 
   public static List<Peer> getAllActivePriorityPlusSomeExtraPeers() {
     final List<Peer> peersActivePriorityPlusSomeExtraPeers = new ArrayList<>();
-    int amountExtrasLeft = propertyService.getInt(P2P_SEND_TO_LIMIT);
+    int amountExtrasLeft = propertyService.get(P2P_SEND_TO_LIMIT);
 
     for(Peer peer : peers.values()) {
       if(peerEligibleForSending(peer, true)) {

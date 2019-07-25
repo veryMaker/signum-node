@@ -477,7 +477,7 @@ public class Transaction implements Comparable<Transaction> {
       byte subtype = buffer.get();
       byte version = (byte) ((subtype & 0xF0) >> 4);
       subtype = (byte) (subtype & 0x0F);
-      int timestamp = buffer.getInt();
+      int timestamp = buffer.get();
       short deadline = buffer.getShort();
       byte[] senderPublicKey = new byte[32];
       buffer.get(senderPublicKey);
@@ -497,8 +497,8 @@ public class Transaction implements Comparable<Transaction> {
       int ecBlockHeight = 0;
       long ecBlockId = 0;
       if (version > 0) {
-        flags = buffer.getInt();
-        ecBlockHeight = buffer.getInt();
+        flags = buffer.get();
+        ecBlockHeight = buffer.get();
         ecBlockId = buffer.getLong();
       }
       TransactionType transactionType = TransactionType.findTransactionType(type, subtype);

@@ -210,17 +210,17 @@ public class GeneratorImpl implements Generator {
 
     @Override
     public BigInteger calculateHit(long accountId, long nonce, byte[] genSig, int scoop, int blockHeight) {
-      return BigInteger.valueOf(propertyService.getInt(Props.DEV_MOCK_MINING_DEADLINE));
+      return BigInteger.valueOf(propertyService.get(Props.DEV_MOCK_MINING_DEADLINE));
     }
 
     @Override
     public BigInteger calculateHit(long accountId, long nonce, byte[] genSig, byte[] scoopData) {
-      return BigInteger.valueOf(propertyService.getInt(Props.DEV_MOCK_MINING_DEADLINE));
+      return BigInteger.valueOf(propertyService.get(Props.DEV_MOCK_MINING_DEADLINE));
     }
 
     @Override
     public BigInteger calculateDeadline(long accountId, long nonce, byte[] genSig, int scoop, long baseTarget, int blockHeight) {
-      return BigInteger.valueOf(propertyService.getInt(Props.DEV_MOCK_MINING_DEADLINE));
+      return BigInteger.valueOf(propertyService.get(Props.DEV_MOCK_MINING_DEADLINE));
     }
   }
 }

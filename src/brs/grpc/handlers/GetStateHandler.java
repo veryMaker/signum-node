@@ -47,7 +47,7 @@ public class GetStateHandler implements GrpcApiHandler<Empty, BrsApi.State> {
                 .setMaxMemory(Runtime.getRuntime().maxMemory())
                 .setTotalMemory(Runtime.getRuntime().totalMemory())
                 .setFreeMemory(Runtime.getRuntime().freeMemory())
-                .setIndirectIncomingServiceEnabled(propertyService.getBoolean(Props.INDIRECT_INCOMING_SERVICE_ENABLE))
+                .setIndirectIncomingServiceEnabled(propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE))
                 .build();
     }
 }

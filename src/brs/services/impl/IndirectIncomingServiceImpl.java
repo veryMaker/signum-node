@@ -23,7 +23,7 @@ public class IndirectIncomingServiceImpl implements IndirectIncomingService {
 
     public IndirectIncomingServiceImpl(IndirectIncomingStore indirectIncomingStore, PropertyService propertyService) {
         this.indirectIncomingStore = indirectIncomingStore;
-        this.disabled = !propertyService.getBoolean(Props.INDIRECT_INCOMING_SERVICE_ENABLE);
+        this.disabled = !propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE);
         if (disabled) {
             LOGGER.warn("Indirect Incoming Service Disabled!");
         }

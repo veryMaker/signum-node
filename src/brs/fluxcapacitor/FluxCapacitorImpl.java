@@ -31,8 +31,8 @@ public class FluxCapacitorImpl implements FluxCapacitor {
     }
 
     private int getHistoricalMomentHeight(HistoricalMoments historicalMoment) {
-        if (propertyService.getBoolean(Props.DEV_TESTNET)) {
-            int overridingHeight = propertyService.getInt(historicalMoment.getOverridingProperty());
+        if (propertyService.get(Props.DEV_TESTNET)) {
+            int overridingHeight = propertyService.get(historicalMoment.getOverridingProperty());
             return overridingHeight >= 0 ? overridingHeight : historicalMoment.getTestnetHeight();
         } else {
             return historicalMoment.getMainnetHeight();

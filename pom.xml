@@ -43,7 +43,8 @@
     <junit-platform.version>1.4.2</junit-platform.version>
     <junit-vintage.version>5.5.0</junit-vintage.version>
     <mockito.version>3.0.0</mockito.version>
-    <powermock.version>2.0.2</powermock.version>
+    <mockito-kotlin.version>2.1.0</mockito-kotlin.version>
+    <mockk.version>1.9.3</mockk.version>
     <apachehttpclient.version>4.5.9</apachehttpclient.version>
     <jacoco.version>0.8.4</jacoco.version>
 
@@ -56,7 +57,7 @@
 
     <grpc.source.dir>src/brs/grpc</grpc.source.dir>
 
-    <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
+    <kotlin.compiler.incremental>false</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
   </properties>
 
@@ -274,16 +275,23 @@
     </dependency>
 
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>${powermock.version}</version>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-inline</artifactId>
+      <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito2</artifactId>
-      <version>${powermock.version}</version>
+      <groupId>com.nhaarman.mockitokotlin2</groupId>
+      <artifactId>mockito-kotlin</artifactId>
+      <version>${mockito-kotlin.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.mockk</groupId>
+      <artifactId>mockk</artifactId>
+      <version>${mockk.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -352,7 +360,9 @@
 
   <build>
     <sourceDirectory>src</sourceDirectory>
-    <resources><resource><directory>resources</directory></resource></resources>
+    <resources>
+      <resource><directory>resources</directory></resource>
+    </resources>
     <testSourceDirectory>test/java</testSourceDirectory>
     <testResources>
       <testResource>

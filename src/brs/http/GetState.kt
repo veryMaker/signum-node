@@ -65,10 +65,10 @@ internal class GetState(private val blockchain: Blockchain, private val blockcha
         response.addProperty("maxMemory", Runtime.getRuntime().maxMemory())
         response.addProperty("totalMemory", Runtime.getRuntime().totalMemory())
         response.addProperty("freeMemory", Runtime.getRuntime().freeMemory())
-        response.addProperty("indirectIncomingServiceEnabled", propertyService.getBoolean(Props.INDIRECT_INCOMING_SERVICE_ENABLE))
-        val grpcApiEnabled = propertyService.getBoolean(Props.API_V2_SERVER)!!
+        response.addProperty("indirectIncomingServiceEnabled", propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE))
+        val grpcApiEnabled = propertyService.get(Props.API_V2_SERVER)!!
         response.addProperty("grpcApiEnabled", grpcApiEnabled)
-        if (grpcApiEnabled) response.addProperty("grpcApiPort", propertyService.getInt(if (propertyService.getBoolean(Props.DEV_TESTNET)) Props.DEV_API_V2_PORT else Props.API_V2_PORT))
+        if (grpcApiEnabled) response.addProperty("grpcApiPort", propertyService.get(if (propertyService.get(Props.DEV_TESTNET)) Props.DEV_API_V2_PORT else Props.API_V2_PORT))
 
         return response
     }

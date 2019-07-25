@@ -124,8 +124,8 @@ public class BurstGUI extends Application {
     private void openWebUi() {
         try {
             PropertyService propertyService = Burst.getPropertyService();
-            int port = propertyService.getBoolean(Props.DEV_TESTNET) ? propertyService.getInt(Props.DEV_API_PORT) : propertyService.getInt(Props.API_PORT);
-            String httpPrefix = propertyService.getBoolean(Props.API_SSL) ? "https://" : "http://";
+            int port = propertyService.get(Props.DEV_TESTNET) ? propertyService.get(Props.DEV_API_PORT) : propertyService.get(Props.API_PORT);
+            String httpPrefix = propertyService.get(Props.API_SSL) ? "https://" : "http://";
             String address = httpPrefix + "localhost:" + port;
             try {
                 Desktop.getDesktop().browse(new URI(address));
@@ -143,7 +143,7 @@ public class BurstGUI extends Application {
         try {
             Burst.main(args);
             try {
-                if (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
+                if (Burst.getPropertyService().get(Props.DEV_TESTNET)) {
                     onTestNetEnabled();
                 }
             } catch (Exception t) {

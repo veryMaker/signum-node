@@ -22,7 +22,7 @@ public abstract class AtController {
 
     private static final Logger logger = LoggerFactory.getLogger(AtController.class);
 
-    private static final Logger debugLogger = Burst.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG) ? logger : NOPLogger.NOP_LOGGER;
+    private static final Logger debugLogger = Burst.getPropertyService().get(Props.ENABLE_AT_DEBUG_LOG) ? logger : NOPLogger.NOP_LOGGER;
 
     private static int runSteps(AtMachineState state) {
         state.getMachineState().running = true;
@@ -31,7 +31,7 @@ public abstract class AtController {
         state.getMachineState().dead = false;
         state.getMachineState().steps = 0;
 
-        AtMachineProcessor processor = new AtMachineProcessor(state, Burst.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG));
+        AtMachineProcessor processor = new AtMachineProcessor(state, Burst.getPropertyService().get(Props.ENABLE_AT_DEBUG_LOG));
 
         state.setFreeze(false);
 
@@ -98,7 +98,7 @@ public abstract class AtController {
 
     private static void listCode(AtMachineState state, boolean disassembly, boolean determineJumps) {
 
-        AtMachineProcessor machineProcessor = new AtMachineProcessor(state, Burst.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG));
+        AtMachineProcessor machineProcessor = new AtMachineProcessor(state, Burst.getPropertyService().get(Props.ENABLE_AT_DEBUG_LOG));
 
         int opc = state.getMachineState().pc;
         int osteps = state.getMachineState().steps;

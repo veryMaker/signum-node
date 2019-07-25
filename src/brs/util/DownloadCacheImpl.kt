@@ -15,7 +15,7 @@ import java.util.concurrent.locks.StampedLock
 import java.util.function.Supplier
 
 class DownloadCacheImpl(propertyService: PropertyService, private val fluxCapacitor: FluxCapacitor, private val blockchain: Blockchain) {
-    private val blockCacheMB = propertyService.getInt(Props.BRS_BLOCK_CACHE_MB)
+    private val blockCacheMB = propertyService.get(Props.BRS_BLOCK_CACHE_MB)
 
     private val blockCache = LinkedHashMap<Long, Block>()
     private val forkCache = ArrayList<Block>()

@@ -293,7 +293,7 @@ interface Attachment : Appendix {
         }
     }
 
-    class PaymentMultiSameOutCreation : AbstractAttachment {
+    open class PaymentMultiSameOutCreation : AbstractAttachment {
 
         private val recipients = ArrayList<Long>()
 

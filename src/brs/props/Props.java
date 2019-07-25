@@ -1,5 +1,9 @@
 package brs.props;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class Props {
 
   // DEV options
@@ -18,8 +22,8 @@ public class Props {
 
   public static final Prop<String> DEV_DUMP_PEERS_VERSION = new Prop<>("DEV.dumpPeersVersion", "");
 
-  public static final Prop<String> DEV_P2P_REBROADCAST_TO  = new Prop<>("DEV.P2P.rebroadcastTo", "");
-  public static final Prop<String> DEV_P2P_BOOTSTRAP_PEERS = new Prop<>("DEV.P2P.BootstrapPeers", "");
+  public static final Prop<List<String>> DEV_P2P_REBROADCAST_TO  = new Prop<>("DEV.P2P.rebroadcastTo", Collections.emptyList());
+  public static final Prop<List<String>> DEV_P2P_BOOTSTRAP_PEERS = new Prop<>("DEV.P2P.BootstrapPeers", Collections.emptyList());
 
   public static final Prop<Integer> DEV_REWARD_RECIPIENT_ENABLE_BLOCK_HEIGHT = new Prop<>("DEV.rewardRecipient.startBlock", -1);
   public static final Prop<Integer> DEV_DIGITAL_GOODS_STORE_BLOCK_HEIGHT = new Prop<>("DEV.digitalGoodsStore.startBlock", -1);
@@ -35,7 +39,7 @@ public class Props {
   public static final Prop<String> BRS_DEBUG_TRACE_QUOTE = new Prop<>("brs.debugTraceQuote", "\"");
   public static final Prop<String> BRS_DEBUG_TRACE_SEPARATOR = new Prop<>("brs.debugTraceSeparator", "\t");
   public static final Prop<Boolean> BRS_DEBUG_LOG_CONFIRMED = new Prop<>("brs.debugLogUnconfirmed", false);
-  public static final Prop<String> BRS_DEBUG_TRACE_ACCOUNTS = new Prop<>("brs.debugTraceAccounts", "");
+  public static final Prop<List<String>> BRS_DEBUG_TRACE_ACCOUNTS = new Prop<>("brs.debugTraceAccounts", Collections.emptyList());
 
   public static final Prop<String> BRS_DEBUG_TRACE_LOG = new Prop<>("brs.debugTraceLog", "LOG_AccountBalances_trace.csv");
   public static final Prop<Integer> BRS_COMMUNICATION_LOGGING_MASK = new Prop<>("brs.communicationLoggingMask", 0);
@@ -81,10 +85,10 @@ public class Props {
   public static final Prop<Boolean> P2P_UPNP        = new Prop<>("P2P.UPnP", true);
   public static final Prop<Boolean> P2P_SHARE_MY_ADDRESS = new Prop<>("P2P.shareMyAddress", true);
   public static final Prop<Boolean> P2P_ENABLE_TX_REBROADCAST = new Prop<>("P2P.enableTxRebroadcast", true);
-  public static final Prop<String> P2P_REBROADCAST_TO  = new Prop<>("P2P.rebroadcastTo", "");
-  public static final Prop<String> P2P_BOOTSTRAP_PEERS = new Prop<>("P2P.BootstrapPeers", "");
+  public static final Prop<List<String>> P2P_REBROADCAST_TO  = new Prop<>("P2P.rebroadcastTo", Collections.emptyList());
+  public static final Prop<List<String>> P2P_BOOTSTRAP_PEERS = new Prop<>("P2P.BootstrapPeers", Collections.emptyList());
   public static final Prop<Integer> P2P_NUM_BOOTSTRAP_CONNECTIONS = new Prop<>("P2P.NumBootstrapConnections", 4);
-  public static final Prop<String> P2P_BLACKLISTED_PEERS = new Prop<>("P2P.BlacklistedPeers", "");
+  public static final Prop<List<String>> P2P_BLACKLISTED_PEERS = new Prop<>("P2P.BlacklistedPeers", Collections.emptyList());
   public static final Prop<Integer> P2P_MAX_CONNECTIONS = new Prop<>("P2P.MaxConnections", 20);
   public static final Prop<Integer> P2P_TIMEOUT_CONNECT_MS = new Prop<>("P2P.TimeoutConnect_ms", 4000);
   public static final Prop<Integer> P2P_TIMEOUT_READ_MS = new Prop<>("P2P.TimeoutRead_ms", 8000);
@@ -109,7 +113,7 @@ public class Props {
   public static final Prop<Boolean> API_SSL     = new Prop<>("API.SSL", false);
   public static final Prop<Boolean> API_SERVER  = new Prop<>("API.Server", true);
   public static final Prop<Boolean> API_V2_SERVER  = new Prop<>("API.V2.Server", true);
-  public static final Prop<String> API_ALLOWED = new Prop<>("API.allowed", "127.0.0.1; localhost; [0:0:0:0:0:0:0:1];");
+  public static final Prop<List<String>> API_ALLOWED = new Prop<>("API.allowed", Arrays.asList("127.0.0.1", "localhost", "[0:0:0:0:0:0:0:1]"));
 
   public static final Prop<Boolean> API_ACCEPT_SURPLUS_PARAMS = new Prop<>("API.AcceptSurplusParams", false);
 
@@ -169,7 +173,7 @@ public class Props {
 
   public static final Prop<Boolean> ENABLE_AT_DEBUG_LOG = new Prop<>("ATDebugLog.Enable", false);
 
-  public static final Prop<String> SOLO_MINING_PASSPHRASES = new Prop<>("SoloMiningPassphrases", "");
+  public static final Prop<List<String>> SOLO_MINING_PASSPHRASES = new Prop<>("SoloMiningPassphrases", Collections.emptyList());
   public static final Prop<Boolean> ALLOW_OTHER_SOLO_MINERS = new Prop<>("AllowOtherSoloMiners", true);
 
   private Props() { //no need to construct

@@ -39,10 +39,10 @@ public final class APIServlet extends HttpServlet {
                     BlockService blockService, Generator generator, PropertyService propertyService, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator,
                     DeeplinkQRCodeGenerator deeplinkQRCodeGenerator, IndirectIncomingService indirectIncomingService, Set<Subnet> allowedBotHosts) {
 
-    enforcePost = propertyService.getBoolean(Props.API_SERVER_ENFORCE_POST);
-    allowedOrigins = propertyService.getString(Props.API_ALLOWED_ORIGINS);
+    enforcePost = propertyService.get(Props.API_SERVER_ENFORCE_POST);
+    allowedOrigins = propertyService.get(Props.API_ALLOWED_ORIGINS);
     this.allowedBotHosts = allowedBotHosts;
-    this.acceptSurplusParams = propertyService.getBoolean(Props.API_ACCEPT_SURPLUS_PARAMS);
+    this.acceptSurplusParams = propertyService.get(Props.API_ACCEPT_SURPLUS_PARAMS);
 
     final Map<String, HttpRequestHandler> map = new HashMap<>();
 
@@ -156,7 +156,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getGuaranteedBalance", new GetGuaranteedBalance(parameterService));
     map.put("generateSendTransactionQRCode", new GenerateDeeplinkQRCode(deeplinkQRCodeGenerator));
 
-    if (propertyService.getBoolean(Props.API_DEBUG)) {
+    if (propertyService.get(Props.API_DEBUG)) {
       map.put("clearUnconfirmedTransactions", new ClearUnconfirmedTransactions(transactionProcessor));
       map.put("fullReset", new FullReset(blockchainProcessor));
       map.put("popOff", new PopOff(blockchainProcessor, blockchain, blockService));

@@ -69,7 +69,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     this.accountService = accountService;
     this.transactionService = transactionService;
 
-    this.testUnconfirmedTransactions = propertyService.getBoolean(Props.BRS_TEST_UNCONFIRMED_TRANSACTIONS);
+    this.testUnconfirmedTransactions = propertyService.get(Props.BRS_TEST_UNCONFIRMED_TRANSACTIONS);
     this.unconfirmedTransactionStore = stores.getUnconfirmedTransactionStore();
 
     this.foodDispenser = (unconfirmedTransactionStore::getAllFor);

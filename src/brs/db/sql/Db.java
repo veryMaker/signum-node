@@ -50,15 +50,15 @@ public final class Db {
     String dbUsername;
     String dbPassword;
 
-    if (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
-      dbUrl = propertyService.getString(Props.DEV_DB_URL);
-      dbUsername = propertyService.getString(Props.DEV_DB_USERNAME);
-      dbPassword = propertyService.getString(Props.DEV_DB_PASSWORD);
+    if (Burst.getPropertyService().get(Props.DEV_TESTNET)) {
+      dbUrl = propertyService.get(Props.DEV_DB_URL);
+      dbUsername = propertyService.get(Props.DEV_DB_USERNAME);
+      dbPassword = propertyService.get(Props.DEV_DB_PASSWORD);
     }
     else {
-      dbUrl = propertyService.getString(Props.DB_URL);
-      dbUsername = propertyService.getString(Props.DB_USERNAME);
-      dbPassword = propertyService.getString(Props.DB_PASSWORD);
+      dbUrl = propertyService.get(Props.DB_URL);
+      dbUsername = propertyService.get(Props.DB_USERNAME);
+      dbPassword = propertyService.get(Props.DB_PASSWORD);
     }
     dialect = JDBCUtils.dialect(dbUrl);
 
@@ -71,7 +71,7 @@ public final class Db {
       if (dbPassword != null)
         config.setPassword(dbPassword);
 
-      config.setMaximumPoolSize(propertyService.getInt(Props.DB_CONNECTIONS));
+      config.setMaximumPoolSize(propertyService.get(Props.DB_CONNECTIONS));
 
       FluentConfiguration flywayBuilder = Flyway.configure()
               .dataSource(dbUrl, dbUsername, dbPassword)
@@ -168,7 +168,7 @@ public final class Db {
     if (dialect == SQLDialect.H2) {
       try ( Connection con = cp.getConnection(); Statement stmt = con.createStatement() ) {
         // COMPACT is not giving good result.
-        if(Burst.getPropertyService().getBoolean(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
+        if(Burst.getPropertyService().get(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
           stmt.execute("SHUTDOWN DEFRAG");
         } else {
           stmt.execute("SHUTDOWN");

@@ -27,7 +27,7 @@ public final class Constants {
   public static final long MAX_BALANCE_NQT = MAX_BALANCE_BURST * ONE_BURST;
   public static final long INITIAL_BASE_TARGET = 18325193796L;
   public static final long MAX_BASE_TARGET = 18325193796L;
-  public static final int MAX_ROLLBACK = Burst.getPropertyService().getInt(Props.DB_MAX_ROLLBACK);
+  public static final int MAX_ROLLBACK = Burst.getPropertyService().get(Props.DB_MAX_ROLLBACK);
 
   public static final int MAX_ALIAS_URI_LENGTH = 1000;
   public static final int MAX_ALIAS_LENGTH = 100;
@@ -70,7 +70,7 @@ public final class Constants {
 
   public static final Version MIN_VERSION = Version.parse("v2.3.0");
 
-  static final long UNCONFIRMED_POOL_DEPOSIT_NQT = (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? 50 : 100) * ONE_BURST;
+  static final long UNCONFIRMED_POOL_DEPOSIT_NQT = (Burst.getPropertyService().get(Props.DEV_TESTNET) ? 50 : 100) * ONE_BURST;
 
   // TODO burstkit4j integration
   public static final long EPOCH_BEGINNING;

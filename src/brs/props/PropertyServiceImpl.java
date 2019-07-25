@@ -6,11 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 
 public class PropertyServiceImpl implements PropertyService {
 
   private final Logger logger = LoggerFactory.getLogger(Burst.class);
   private static final String LOG_UNDEF_NAME_DEFAULT = "{} undefined. Default: >{}<";
+  private final Map<Class<?>, Function<String, ?>> parsers;
 
   private final Properties properties;
 
@@ -18,78 +20,75 @@ public class PropertyServiceImpl implements PropertyService {
 
   public PropertyServiceImpl(Properties properties) {
     this.properties = properties;
+    this.parsers = new HashMap<>();
+    parsers.put(String.class, this::getString);
+    parsers.put(Integer.class, this::getInt);
+    parsers.put(Boolean.class, this::getBoolean);
+    parsers.put(List.class, this::getStringList);
   }
 
   @Override
   public <T> T get(@NotNull Prop<T> prop) {
-    return null;
+    return get(prop.name, prop.defaultValue);
   }
 
   @Override
-  public Boolean getBoolean(String name, boolean assume) {
-    String value = properties.getProperty(name);
-
-    if (value != null) {
-      if (value.matches("(?i)^1|active|true|yes|on$")) {
-        logOnce(name, true, "{} = 'true'", name);
-        return true;
-      }
-
-      if (value.matches("(?i)^0|false|no|off$")) {
-        logOnce(name, true, "{} = 'false'", name);
-        return false;
-      }
-    }
-
-    logOnce(name, false, LOG_UNDEF_NAME_DEFAULT, name, assume);
-    return assume;
-  }
-
-  @Override
-  public Boolean getBoolean(Prop<Boolean> prop) {
-    return getBoolean(prop.name, prop.defaultValue);
-  }
-
-  @Override
-  public int getInt(Prop<Integer> prop) {
+  public <T> T get(@NotNull String propName, T defaultValue) {
+    String value = properties.getProperty(propName);
+    if (value == null) return defaultValue;
     try {
-      String value = properties.getProperty(prop.name);
-      int radix = 10;
-
-      if (value != null && value.matches("(?i)^0x.+$")) {
-        value = value.replaceFirst("^0x", "");
-        radix = 16;
-      } else if (value != null && value.matches("(?i)^0b[01]+$")) {
-        value = value.replaceFirst("^0b", "");
-        radix = 2;
+      for (Map.Entry<Class<?>, Function<String, ?>> entry : parsers.entrySet()) {
+        if (entry.getKey().equals(defaultValue.getClass())) {
+          Object parsed = entry.getValue().apply(value);
+          if (!defaultValue.getClass().isInstance(parsed)) {
+            throw new RuntimeException("Property parser returned type " + parsed.getClass() + ", was looking for type " + defaultValue.getClass());
+          }
+          logOnce(propName, false, "{}: {}", propName, parsed.toString());
+          //noinspection unchecked
+          return (T) parsed;
+        }
       }
-
-      int result = Integer.parseInt(value, radix);
-      logOnce(prop.name, true, "{} = '{}'", prop.name, result);
-      return result;
-    } catch (NumberFormatException e) {
-      logOnce(prop.name, false, LOG_UNDEF_NAME_DEFAULT, prop.name, prop.defaultValue);
-      return prop.defaultValue;
+    } catch (Exception e) {
+      logger.info("Failed to parse property {}, using default value {}", propName, defaultValue.toString(), e);
     }
+    return defaultValue;
   }
 
-  @Override
-  public String getString(Prop<String> prop) {
-    String value = properties.getProperty(prop.name);
-    if (value != null && ! value.isEmpty()) {
-      logOnce(prop.name, true, prop.name + " = \"" + value + "\"");
+  public Boolean getBoolean(String value) {
+    if (value.matches("(?i)^1|active|true|yes|on$")) {
+      return true;
+    }
+
+    if (value.matches("(?i)^0|false|no|off$")) {
+      return false;
+    }
+    throw new IllegalArgumentException();
+  }
+
+  public int getInt(String value) {
+    int radix = 10;
+
+    if (value != null && value.matches("(?i)^0x.+$")) {
+      value = value.replaceFirst("^0x", "");
+      radix = 16;
+    } else if (value != null && value.matches("(?i)^0b[01]+$")) {
+      value = value.replaceFirst("^0b", "");
+      radix = 2;
+    }
+
+    return Integer.parseInt(value, radix);
+  }
+
+  public String getString(String value) {
+    if (!value.isEmpty()) {
       return value;
     }
 
-    logOnce(prop.name, false, LOG_UNDEF_NAME_DEFAULT, prop.name, prop.defaultValue);
-
-    return prop.defaultValue;
+    throw new IllegalArgumentException();
   }
 
-  @Override
-  public List<String> getStringList(Prop<String> name) {
-    String value = getString(name);
-    if (value == null || value.isEmpty()) {
+  public List<String> getStringList(String value) {
+    if (value.isEmpty()) {
       return Collections.emptyList();
     }
     List<String> result = new ArrayList<>();
@@ -113,5 +112,4 @@ public class PropertyServiceImpl implements PropertyService {
       this.alreadyLoggedProperties.add(propertyName);
     }
   }
-
 }

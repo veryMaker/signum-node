@@ -29,10 +29,10 @@ public class SubmitNonceHandler implements GrpcApiHandler<BrsApi.SubmitNonceRequ
         this.accountService = accountService;
         this.generator = generator;
 
-        this.passphrases = propertyService.getStringList(Props.SOLO_MINING_PASSPHRASES)
+        this.passphrases = propertyService.get(Props.SOLO_MINING_PASSPHRASES)
                 .stream()
                 .collect(Collectors.toMap(passphrase -> BurstCrypto.getInstance().getBurstAddressFromPassphrase(passphrase).getBurstID().getSignedLongId(), Function.identity()));
-        this.allowOtherSoloMiners = propertyService.getBoolean(Props.ALLOW_OTHER_SOLO_MINERS);
+        this.allowOtherSoloMiners = propertyService.get(Props.ALLOW_OTHER_SOLO_MINERS);
     }
 
     @Override

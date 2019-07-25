@@ -8,7 +8,6 @@ import brs.fluxcapacitor.FluxValues
 import com.google.gson.JsonElement
 
 import javax.servlet.http.HttpServletRequest
-import java.util.Arrays
 
 import brs.Constants.FEE_QUANT
 import brs.Constants.ONE_BURST

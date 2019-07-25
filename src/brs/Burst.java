@@ -135,7 +135,7 @@ public final class Burst {
   }
 
   private static void validateVersionNotDev(PropertyService propertyService) {
-    if(VERSION.isPrelease() && !propertyService.getBoolean(Props.DEV_TESTNET)) {
+    if(VERSION.isPrelease() && !propertyService.get(Props.DEV_TESTNET)) {
       logger.error("THIS IS A DEVELOPMENT WALLET, PLEASE DO NOT USE THIS");
       System.exit(0);
     }
@@ -182,7 +182,7 @@ public final class Burst {
 
       EconomicClustering economicClustering = new EconomicClustering(blockchain);
 
-      final Generator generator = propertyService.getBoolean(Props.DEV_MOCK_MINING) ? new GeneratorImpl.MockGenerator(propertyService, blockchain, timeService, fluxCapacitor) : new GeneratorImpl(blockchain, timeService, fluxCapacitor);
+      final Generator generator = propertyService.get(Props.DEV_MOCK_MINING) ? new GeneratorImpl.MockGenerator(propertyService, blockchain, timeService, fluxCapacitor) : new GeneratorImpl(blockchain, timeService, fluxCapacitor);
 
       final AccountService accountService = new AccountServiceImpl(stores.getAccountStore(), stores.getAssetTransferStore());
 
@@ -230,11 +230,11 @@ public final class Burst {
           subscriptionService, atService, timeService, economicClustering, propertyService, threadPool,
           transactionService, blockService, generator, apiTransactionManager, feeSuggestionCalculator, deepLinkQRCodeGenerator, indirectIncomingService);
 
-      if (propertyService.getBoolean(Props.API_V2_SERVER)) {
-          int port = propertyService.getBoolean(Props.DEV_TESTNET) ? propertyService.getInt(Props.DEV_API_V2_PORT) : propertyService.getInt(Props.API_V2_PORT);
+      if (propertyService.get(Props.API_V2_SERVER)) {
+          int port = propertyService.get(Props.DEV_TESTNET) ? propertyService.get(Props.DEV_API_V2_PORT) : propertyService.get(Props.API_V2_PORT);
           logger.info("Starting V2 API Server on port {}", port);
           BrsService apiV2 = new BrsService(blockchainProcessor, blockchain, blockService, accountService, generator, transactionProcessor, timeService, feeSuggestionCalculator, atService, aliasService, indirectIncomingService, fluxCapacitor, escrowService, assetExchange, subscriptionService, digitalGoodsStoreService, propertyService);
-          String hostname = propertyService.getString(Props.API_V2_LISTEN);
+          String hostname = propertyService.get(Props.API_V2_LISTEN);
           if (Objects.equals(hostname, "0.0.0.0")) {
               apiV2Server = ServerBuilder.forPort(port).addService(apiV2).build().start();
           } else {
@@ -244,10 +244,10 @@ public final class Burst {
           logger.info("Not starting V2 API Server - it is disabled.");
       }
 
-      if (propertyService.getBoolean(Props.BRS_DEBUG_TRACE_ENABLED))
+      if (propertyService.get(Props.BRS_DEBUG_TRACE_ENABLED))
         DebugTrace.init(propertyService, blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService);
 
-      int timeMultiplier = (propertyService.getBoolean(Props.DEV_TESTNET) && propertyService.getBoolean(Props.DEV_OFFLINE)) ? Math.max(propertyService.getInt(Props.DEV_TIMEWARP), 1) : 1;
+      int timeMultiplier = (propertyService.get(Props.DEV_TESTNET) && propertyService.get(Props.DEV_OFFLINE)) ? Math.max(propertyService.get(Props.DEV_TIMEWARP), 1) : 1;
 
       threadPool.start(timeMultiplier);
       if (timeMultiplier > 1) {
@@ -259,7 +259,7 @@ public final class Burst {
       logger.info("Initialization took {} ms", currentTime - startTime);
       logger.info("BRS {} started successfully.", VERSION);
 
-      if (propertyService.getBoolean(Props.DEV_TESTNET)) {
+      if (propertyService.get(Props.DEV_TESTNET)) {
         logger.info("RUNNING ON TESTNET - DO NOT USE REAL ACCOUNTS!");
       }
     } catch (Exception e) {
