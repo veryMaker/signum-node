@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.PURCHASES_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -46,11 +47,11 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
         )
 
         val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.isPending).thenReturn(false)
+        whenever(mockPurchase.isPending).doReturn(false)
 
         val mockGoodsIterator = mockCollection<Purchase>(mockPurchase)
 
-        whenever(mockDGSGoodsStoreService!!.getAllPurchases(eq(0), eq(-1))).thenReturn(mockGoodsIterator)
+        whenever(mockDGSGoodsStoreService!!.getAllPurchases(eq(0), eq(-1))).doReturn(mockGoodsIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)
@@ -72,11 +73,11 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
         )
 
         val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.isPending).thenReturn(false)
+        whenever(mockPurchase.isPending).doReturn(false)
 
         val mockGoodsIterator = mockCollection<Purchase>(mockPurchase)
 
-        whenever(mockDGSGoodsStoreService!!.getSellerPurchases(eq(1L), eq(0), eq(-1))).thenReturn(mockGoodsIterator)
+        whenever(mockDGSGoodsStoreService!!.getSellerPurchases(eq(1L), eq(0), eq(-1))).doReturn(mockGoodsIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)
@@ -98,11 +99,11 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
         )
 
         val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.isPending).thenReturn(false)
+        whenever(mockPurchase.isPending).doReturn(false)
 
         val mockGoodsIterator = mockCollection<Purchase>(mockPurchase)
 
-        whenever(mockDGSGoodsStoreService!!.getBuyerPurchases(eq(1L), eq(0), eq(-1))).thenReturn(mockGoodsIterator)
+        whenever(mockDGSGoodsStoreService!!.getBuyerPurchases(eq(1L), eq(0), eq(-1))).doReturn(mockGoodsIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)
@@ -124,11 +125,11 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
         )
 
         val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.isPending).thenReturn(false)
+        whenever(mockPurchase.isPending).doReturn(false)
 
         val mockGoodsIterator = mockCollection<Purchase>(mockPurchase)
 
-        whenever(mockDGSGoodsStoreService!!.getSellerBuyerPurchases(eq(1L), eq(2L), eq(0), eq(-1))).thenReturn(mockGoodsIterator)
+        whenever(mockDGSGoodsStoreService!!.getSellerBuyerPurchases(eq(1L), eq(2L), eq(0), eq(-1))).doReturn(mockGoodsIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

@@ -18,9 +18,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.TransactionType.BurstMining.REWARD_RECIPIENT_ASSIGNMENT
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.runners.JUnit4
@@ -38,6 +36,7 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
     @Before
     fun setUp() {
         parameterServiceMock = mock<ParameterService>()
+        whenever(parameterServiceMock!!.getSenderAccount(any())).doReturn(mock())
         blockchainMock = mock<Blockchain>()
         accountServiceMock = mock<AccountService>()
         apiTransactionManagerMock = mock<APITransactionManager>()
@@ -52,10 +51,10 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         val mockRecipientAccount = mock<Account>()
 
-        whenever(mockRecipientAccount.publicKey).thenReturn(Crypto.getPublicKey(TestConstants.TEST_SECRET_PHRASE))
+        whenever(mockRecipientAccount.publicKey).doReturn(Crypto.getPublicKey(TestConstants.TEST_SECRET_PHRASE))
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockSenderAccount)
-        whenever(accountServiceMock!!.getAccount(eq(123L))).thenReturn(mockRecipientAccount)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
+        whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(mockRecipientAccount)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
@@ -71,7 +70,7 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
         val req = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockSenderAccount)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
 
         assertEquals(8, JSONTestHelper.errorCode(t!!.processRequest(req)).toLong())
     }
@@ -83,8 +82,8 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         val mockRecipientAccount = mock<Account>()
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockSenderAccount)
-        whenever(accountServiceMock!!.getAccount(eq(123L))).thenReturn(mockRecipientAccount)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
+        whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(mockRecipientAccount)
 
         assertEquals(8, JSONTestHelper.errorCode(t!!.processRequest(req)).toLong())
     }

@@ -50,19 +50,19 @@ class GetAllTradesTest : AbstractUnitTest() {
         val mockAssetId = 123L
         val mockAssetName = "mockAssetName"
         val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).thenReturn(mockAssetId)
-        whenever(mockAsset.name).thenReturn(mockAssetName)
+        whenever(mockAsset.id).doReturn(mockAssetId)
+        whenever(mockAsset.name).doReturn(mockAssetName)
 
         val priceNQT = 123L
         val mockTrade = mock<Trade>()
-        whenever(mockTrade.priceNQT).thenReturn(priceNQT)
-        whenever(mockTrade.timestamp).thenReturn(2)
-        whenever(mockTrade.assetId).thenReturn(mockAssetId)
+        whenever(mockTrade.priceNQT).doReturn(priceNQT)
+        whenever(mockTrade.timestamp).doReturn(2)
+        whenever(mockTrade.assetId).doReturn(mockAssetId)
 
         val mockTradeIterator = mockCollection<Trade>(mockTrade)
 
-        whenever(mockAssetExchange!!.getAllTrades(eq(0), eq(-1))).thenReturn(mockTradeIterator)
-        whenever(mockAssetExchange!!.getAsset(eq(mockAssetId))).thenReturn(mockAsset)
+        whenever(mockAssetExchange!!.getAllTrades(eq(0), eq(-1))).doReturn(mockTradeIterator)
+        whenever(mockAssetExchange!!.getAsset(eq(mockAssetId))).doReturn(mockAsset)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)
@@ -96,13 +96,13 @@ class GetAllTradesTest : AbstractUnitTest() {
         val mockAssetId = 123L
         val priceNQT = 123L
         val mockTrade = mock<Trade>()
-        whenever(mockTrade.priceNQT).thenReturn(priceNQT)
-        whenever(mockTrade.timestamp).thenReturn(2)
-        whenever(mockTrade.assetId).thenReturn(mockAssetId)
+        whenever(mockTrade.priceNQT).doReturn(priceNQT)
+        whenever(mockTrade.timestamp).doReturn(2)
+        whenever(mockTrade.assetId).doReturn(mockAssetId)
 
         val mockTradeIterator = mockCollection<Trade>(mockTrade)
 
-        whenever(mockAssetExchange!!.getAllTrades(eq(0), eq(-1))).thenReturn(mockTradeIterator)
+        whenever(mockAssetExchange!!.getAllTrades(eq(0), eq(-1))).doReturn(mockTradeIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

@@ -22,9 +22,7 @@ import brs.http.JSONResponses.INCORRECT_DGS_DISCOUNT
 import brs.http.JSONResponses.INCORRECT_DGS_GOODS
 import brs.http.JSONResponses.INCORRECT_PURCHASE
 import brs.http.common.Parameters.*
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import io.mockk.every
 import io.mockk.mockkStatic
 import org.junit.Assert.assertEquals
@@ -65,17 +63,18 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockBuyerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).thenReturn(1L)
-        whenever(mockPurchase.sellerId).thenReturn(1L)
-        whenever(mockPurchase.buyerId).thenReturn(2L)
-        whenever(mockPurchase.quantity).thenReturn(9)
-        whenever(mockPurchase.priceNQT).thenReturn(1L)
+        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockPurchase.sellerId).doReturn(1L)
+        whenever(mockPurchase.buyerId).doReturn(2L)
+        whenever(mockPurchase.quantity).doReturn(9)
+        whenever(mockPurchase.priceNQT).doReturn(1L)
 
-        whenever(mockPurchase.isPending).thenReturn(true)
+        whenever(mockPurchase.isPending).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).thenReturn(mockPurchase)
-        whenever(accountServiceMock!!.getAccount(eq(mockPurchase.buyerId))).thenReturn(mockBuyerAccount)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(accountServiceMock!!.getAccount(eq(mockPurchase.buyerId))).doReturn(mockBuyerAccount)
+        whenever(mockBuyerAccount.encryptTo(any(), any())).doReturn(mock())
 
         mockkStatic(Burst::class)
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
@@ -96,11 +95,11 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).thenReturn(1L)
-        whenever(mockPurchase.sellerId).thenReturn(2L)
+        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockPurchase.sellerId).doReturn(2L)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).thenReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
 
         assertEquals(INCORRECT_PURCHASE, t!!.processRequest(req))
     }
@@ -113,13 +112,13 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).thenReturn(1L)
-        whenever(mockPurchase.sellerId).thenReturn(1L)
+        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockPurchase.sellerId).doReturn(1L)
 
-        whenever(mockPurchase.isPending).thenReturn(false)
+        whenever(mockPurchase.isPending).doReturn(false)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).thenReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
 
         assertEquals(ALREADY_DELIVERED, t!!.processRequest(req))
     }
@@ -134,13 +133,13 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).thenReturn(1L)
-        whenever(mockPurchase.sellerId).thenReturn(1L)
+        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockPurchase.sellerId).doReturn(1L)
 
-        whenever(mockPurchase.isPending).thenReturn(true)
+        whenever(mockPurchase.isPending).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).thenReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
 
         assertEquals(INCORRECT_DGS_DISCOUNT, t!!.processRequest(req))
     }
@@ -155,13 +154,13 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).thenReturn(1L)
-        whenever(mockPurchase.sellerId).thenReturn(1L)
+        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockPurchase.sellerId).doReturn(1L)
 
-        whenever(mockPurchase.isPending).thenReturn(true)
+        whenever(mockPurchase.isPending).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).thenReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
 
         assertEquals(INCORRECT_DGS_DISCOUNT, t!!.processRequest(req))
     }
@@ -176,13 +175,13 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).thenReturn(1L)
-        whenever(mockPurchase.sellerId).thenReturn(1L)
+        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockPurchase.sellerId).doReturn(1L)
 
-        whenever(mockPurchase.isPending).thenReturn(true)
+        whenever(mockPurchase.isPending).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).thenReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
 
         assertEquals(INCORRECT_DGS_DISCOUNT, t!!.processRequest(req))
     }
@@ -197,15 +196,15 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).thenReturn(1L)
-        whenever(mockPurchase.sellerId).thenReturn(1L)
-        whenever(mockPurchase.quantity).thenReturn(999999999)
-        whenever(mockPurchase.priceNQT).thenReturn(1L)
+        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockPurchase.sellerId).doReturn(1L)
+        whenever(mockPurchase.quantity).doReturn(999999999)
+        whenever(mockPurchase.priceNQT).doReturn(1L)
 
-        whenever(mockPurchase.isPending).thenReturn(true)
+        whenever(mockPurchase.isPending).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).thenReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
 
         assertEquals(INCORRECT_DGS_DISCOUNT, t!!.processRequest(req))
     }
@@ -222,15 +221,15 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).thenReturn(1L)
-        whenever(mockPurchase.sellerId).thenReturn(1L)
-        whenever(mockPurchase.quantity).thenReturn(9)
-        whenever(mockPurchase.priceNQT).thenReturn(1L)
+        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockPurchase.sellerId).doReturn(1L)
+        whenever(mockPurchase.quantity).doReturn(9)
+        whenever(mockPurchase.priceNQT).doReturn(1L)
 
-        whenever(mockPurchase.isPending).thenReturn(true)
+        whenever(mockPurchase.isPending).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).thenReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
 
         assertEquals(INCORRECT_DGS_GOODS, t!!.processRequest(req))
     }

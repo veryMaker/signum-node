@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest
 import brs.TransactionType.ColoredCoins.BID_ORDER_CANCELLATION
 import brs.http.JSONResponses.UNKNOWN_ORDER
 import brs.http.common.Parameters.ORDER_PARAMETER
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -57,12 +58,12 @@ class CancelBidOrderTest : AbstractTransactionTest() {
         )
 
         val mockBidOrder = mock<Bid>()
-        whenever(mockBidOrder.accountId).thenReturn(orderAccountId)
-        whenever(assetExchangeMock!!.getBidOrder(eq(123L))).thenReturn(mockBidOrder)
+        whenever(mockBidOrder.accountId).doReturn(orderAccountId)
+        whenever(assetExchangeMock!!.getBidOrder(eq(123L))).doReturn(mockBidOrder)
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(orderAccountId)
-        whenever(parameterServiceMock!!.getSenderAccount(eq(req))).thenReturn(mockAccount)
+        whenever(mockAccount.getId()).doReturn(orderAccountId)
+        whenever(parameterServiceMock!!.getSenderAccount(eq(req))).doReturn(mockAccount)
 
         mockkStatic(Burst::class)
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
@@ -89,7 +90,7 @@ class CancelBidOrderTest : AbstractTransactionTest() {
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        whenever(assetExchangeMock!!.getBidOrder(eq(123L))).thenReturn(null)
+        whenever(assetExchangeMock!!.getBidOrder(eq(123L))).doReturn(null)
 
         assertEquals(UNKNOWN_ORDER, t!!.processRequest(req))
     }
@@ -106,13 +107,13 @@ class CancelBidOrderTest : AbstractTransactionTest() {
         )
 
         val mockBidOrder = mock<Bid>()
-        whenever(mockBidOrder.accountId).thenReturn(orderAccountId)
-        whenever(assetExchangeMock!!.getBidOrder(eq(123L))).thenReturn(mockBidOrder)
+        whenever(mockBidOrder.accountId).doReturn(orderAccountId)
+        whenever(assetExchangeMock!!.getBidOrder(eq(123L))).doReturn(mockBidOrder)
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(senderAccountId)
+        whenever(mockAccount.getId()).doReturn(senderAccountId)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
         assertEquals(UNKNOWN_ORDER, t!!.processRequest(req))
     }

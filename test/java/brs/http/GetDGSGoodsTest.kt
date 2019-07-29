@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -58,7 +59,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val mockGoodIterator = mockCollection<Goods>(mockGood)
 
         whenever(mockDGSGoodsStoreService!!.getSellerGoods(eq(sellerId), eq(true), eq(firstIndex), eq(lastIndex)))
-                .thenReturn(mockGoodIterator)
+                .doReturn(mockGoodIterator)
 
         val fullResult = t!!.processRequest(req) as JsonObject
         assertNotNull(fullResult)
@@ -99,7 +100,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val mockGoodIterator = mockCollection<Goods>(mockGood)
 
         whenever(mockDGSGoodsStoreService!!.getAllGoods(eq(firstIndex), eq(lastIndex)))
-                .thenReturn(mockGoodIterator)
+                .doReturn(mockGoodIterator)
 
         val fullResult = t!!.processRequest(req) as JsonObject
         assertNotNull(fullResult)
@@ -140,7 +141,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val mockGoodIterator = mockCollection<Goods>(mockGood)
 
         whenever(mockDGSGoodsStoreService!!.getGoodsInStock(eq(firstIndex), eq(lastIndex)))
-                .thenReturn(mockGoodIterator)
+                .doReturn(mockGoodIterator)
 
         val fullResult = t!!.processRequest(req) as JsonObject
         assertNotNull(fullResult)
@@ -166,15 +167,15 @@ class GetDGSGoodsTest : AbstractUnitTest() {
     private fun mockGood(): DigitalGoodsStore.Goods {
         val mockGood = mock<DigitalGoodsStore.Goods>()
 
-        whenever(mockGood.id).thenReturn(1L)
-        whenever(mockGood.name).thenReturn("name")
-        whenever(mockGood.description).thenReturn("description")
-        whenever(mockGood.quantity).thenReturn(2)
-        whenever(mockGood.priceNQT).thenReturn(3L)
-        whenever(mockGood.sellerId).thenReturn(4L)
-        whenever(mockGood.tags).thenReturn("tags")
-        whenever(mockGood.isDelisted).thenReturn(true)
-        whenever(mockGood.timestamp).thenReturn(5)
+        whenever(mockGood.id).doReturn(1L)
+        whenever(mockGood.name).doReturn("name")
+        whenever(mockGood.description).doReturn("description")
+        whenever(mockGood.quantity).doReturn(2)
+        whenever(mockGood.priceNQT).doReturn(3L)
+        whenever(mockGood.sellerId).doReturn(4L)
+        whenever(mockGood.tags).doReturn("tags")
+        whenever(mockGood.isDelisted).doReturn(true)
+        whenever(mockGood.timestamp).doReturn(5)
 
         return mockGood
     }

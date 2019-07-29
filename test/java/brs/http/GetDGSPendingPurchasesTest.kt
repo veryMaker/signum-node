@@ -14,6 +14,7 @@ import org.junit.Test
 import brs.http.JSONResponses.MISSING_SELLER
 import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.PURCHASES_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -49,7 +50,7 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
         val mockPurchase = mock<Purchase>()
 
         val mockPurchaseIterator = mockCollection<Purchase>(mockPurchase)
-        whenever(mockDGSGoodStoreService!!.getPendingSellerPurchases(eq(sellerId), eq(firstIndex), eq(lastIndex))).thenReturn(mockPurchaseIterator)
+        whenever(mockDGSGoodStoreService!!.getPendingSellerPurchases(eq(sellerId), eq(firstIndex), eq(lastIndex))).doReturn(mockPurchaseIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

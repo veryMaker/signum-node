@@ -8,6 +8,7 @@ import brs.db.VersionedEntityTable
 import brs.db.store.EscrowStore
 import brs.services.AccountService
 import brs.services.AliasService
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -37,8 +38,8 @@ class EscrowServiceImplTest {
         aliasServiceMock = mock()
         accountServiceMock = mock<AccountService>()
 
-        whenever(mockEscrowStore!!.escrowTable).thenReturn(mockEscrowTable)
-        whenever(mockEscrowStore!!.escrowDbKeyFactory).thenReturn(mockEscrowDbKeyFactory)
+        whenever(mockEscrowStore!!.escrowTable).doReturn(mockEscrowTable)
+        whenever(mockEscrowStore!!.escrowDbKeyFactory).doReturn(mockEscrowDbKeyFactory)
 
         t = EscrowServiceImpl(mockEscrowStore!!, blockchainMock, aliasServiceMock, accountServiceMock)
     }
@@ -48,7 +49,7 @@ class EscrowServiceImplTest {
     fun getAllEscrowTransactions() {
         val mockEscrowIterator = mock<Collection<Escrow>>()
 
-        whenever(mockEscrowTable!!.getAll(eq(0), eq(-1))).thenReturn(mockEscrowIterator)
+        whenever(mockEscrowTable!!.getAll(eq(0), eq(-1))).doReturn(mockEscrowIterator)
 
         assertEquals(mockEscrowIterator, t!!.allEscrowTransactions)
     }
@@ -60,8 +61,8 @@ class EscrowServiceImplTest {
         val mockEscrowKey = mock<BurstKey>()
         val mockEscrow = mock<Escrow>()
 
-        whenever(mockEscrowDbKeyFactory!!.newKey(eq(escrowId))).thenReturn(mockEscrowKey)
-        whenever(mockEscrowTable!!.get(eq(mockEscrowKey))).thenReturn(mockEscrow)
+        whenever(mockEscrowDbKeyFactory!!.newKey(eq(escrowId))).doReturn(mockEscrowKey)
+        whenever(mockEscrowTable!!.get(eq(mockEscrowKey))).doReturn(mockEscrow)
 
         assertEquals(mockEscrow, t!!.getEscrowTransaction(escrowId))
     }

@@ -7,6 +7,7 @@ import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedEntityTable
 import brs.db.store.OrderStore
 import brs.services.AccountService
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -39,10 +40,10 @@ class OrderServiceImplTest {
         accountServiceMock = mock<AccountService>()
         tradeServiceMock = mock<TradeServiceImpl>()
 
-        whenever(orderStoreMock!!.askOrderTable).thenReturn(mockAskOrderTable)
-        whenever(orderStoreMock!!.askOrderDbKeyFactory).thenReturn(mockAskOrderDbKeyFactory)
-        whenever(orderStoreMock!!.bidOrderTable).thenReturn(mockBidOrderTable)
-        whenever(orderStoreMock!!.bidOrderDbKeyFactory).thenReturn(mockBidOrderDbKeyFactory)
+        whenever(orderStoreMock!!.askOrderTable).doReturn(mockAskOrderTable)
+        whenever(orderStoreMock!!.askOrderDbKeyFactory).doReturn(mockAskOrderDbKeyFactory)
+        whenever(orderStoreMock!!.bidOrderTable).doReturn(mockBidOrderTable)
+        whenever(orderStoreMock!!.bidOrderDbKeyFactory).doReturn(mockBidOrderDbKeyFactory)
 
         t = OrderServiceImpl(orderStoreMock!!, accountServiceMock, tradeServiceMock)
     }
@@ -54,8 +55,8 @@ class OrderServiceImplTest {
 
         val askKey = 123L
 
-        whenever(mockAskOrderDbKeyFactory!!.newKey(eq(askKey))).thenReturn(mockAskKey)
-        whenever(mockAskOrderTable!!.get(eq(mockAskKey))).thenReturn(mockAsk)
+        whenever(mockAskOrderDbKeyFactory!!.newKey(eq(askKey))).doReturn(mockAskKey)
+        whenever(mockAskOrderTable!!.get(eq(mockAskKey))).doReturn(mockAsk)
 
         assertEquals(mockAsk, t!!.getAskOrder(askKey))
     }
@@ -67,8 +68,8 @@ class OrderServiceImplTest {
 
         val bidKey = 123L
 
-        whenever(mockBidOrderDbKeyFactory!!.newKey(eq(bidKey))).thenReturn(mockBidKey)
-        whenever(mockBidOrderTable!!.get(eq(mockBidKey))).thenReturn(mockBid)
+        whenever(mockBidOrderDbKeyFactory!!.newKey(eq(bidKey))).doReturn(mockBidKey)
+        whenever(mockBidOrderTable!!.get(eq(mockBidKey))).doReturn(mockBid)
 
         assertEquals(mockBid, t!!.getBidOrder(bidKey))
     }
@@ -80,7 +81,7 @@ class OrderServiceImplTest {
 
         val mockAskIterator = mock<Collection<Ask>>()
 
-        whenever(mockAskOrderTable!!.getAll(eq(from), eq(to))).thenReturn(mockAskIterator)
+        whenever(mockAskOrderTable!!.getAll(eq(from), eq(to))).doReturn(mockAskIterator)
 
         assertEquals(mockAskIterator, t!!.getAllAskOrders(from, to))
     }
@@ -92,7 +93,7 @@ class OrderServiceImplTest {
 
         val mockBidIterator = mock<Collection<Bid>>()
 
-        whenever(mockBidOrderTable!!.getAll(eq(from), eq(to))).thenReturn(mockBidIterator)
+        whenever(mockBidOrderTable!!.getAll(eq(from), eq(to))).doReturn(mockBidIterator)
 
         assertEquals(mockBidIterator, t!!.getAllBidOrders(from, to))
     }
@@ -105,7 +106,7 @@ class OrderServiceImplTest {
 
         val mockBidIterator = mock<Collection<Bid>>()
 
-        whenever(orderStoreMock!!.getSortedBids(eq(assetId), eq(from), eq(to))).thenReturn(mockBidIterator)
+        whenever(orderStoreMock!!.getSortedBids(eq(assetId), eq(from), eq(to))).doReturn(mockBidIterator)
 
         assertEquals(mockBidIterator, t!!.getSortedBidOrders(assetId, from, to))
     }
@@ -118,7 +119,7 @@ class OrderServiceImplTest {
 
         val mockAskIterator = mock<Collection<Ask>>()
 
-        whenever(orderStoreMock!!.getAskOrdersByAccount(eq(accountId), eq(from), eq(to))).thenReturn(mockAskIterator)
+        whenever(orderStoreMock!!.getAskOrdersByAccount(eq(accountId), eq(from), eq(to))).doReturn(mockAskIterator)
 
         assertEquals(mockAskIterator, t!!.getAskOrdersByAccount(accountId, from, to))
     }
@@ -132,7 +133,7 @@ class OrderServiceImplTest {
 
         val mockAskIterator = mock<Collection<Ask>>()
 
-        whenever(orderStoreMock!!.getAskOrdersByAccountAsset(eq(accountId), eq(assetId), eq(from), eq(to))).thenReturn(mockAskIterator)
+        whenever(orderStoreMock!!.getAskOrdersByAccountAsset(eq(accountId), eq(assetId), eq(from), eq(to))).doReturn(mockAskIterator)
 
         assertEquals(mockAskIterator, t!!.getAskOrdersByAccountAsset(accountId, assetId, from, to))
     }
@@ -145,21 +146,21 @@ class OrderServiceImplTest {
 
         val mockAskIterator = mock<Collection<Ask>>()
 
-        whenever(orderStoreMock!!.getSortedAsks(eq(assetId), eq(from), eq(to))).thenReturn(mockAskIterator)
+        whenever(orderStoreMock!!.getSortedAsks(eq(assetId), eq(from), eq(to))).doReturn(mockAskIterator)
 
         assertEquals(mockAskIterator, t!!.getSortedAskOrders(assetId, from, to))
     }
 
     @Test
     fun getBidCount() {
-        whenever(mockBidOrderTable!!.count).thenReturn(5)
+        whenever(mockBidOrderTable!!.count).doReturn(5)
 
         assertEquals(5, t!!.bidCount.toLong())
     }
 
     @Test
     fun getAskCount() {
-        whenever(mockAskOrderTable!!.count).thenReturn(5)
+        whenever(mockAskOrderTable!!.count).doReturn(5)
 
         assertEquals(5, t!!.askCount.toLong())
     }
@@ -172,7 +173,7 @@ class OrderServiceImplTest {
 
         val mockBidIterator = mock<Collection<Bid>>()
 
-        whenever(orderStoreMock!!.getBidOrdersByAccount(eq(accountId), eq(from), eq(to))).thenReturn(mockBidIterator)
+        whenever(orderStoreMock!!.getBidOrdersByAccount(eq(accountId), eq(from), eq(to))).doReturn(mockBidIterator)
 
         assertEquals(mockBidIterator, t!!.getBidOrdersByAccount(accountId, from, to))
     }
@@ -186,7 +187,7 @@ class OrderServiceImplTest {
 
         val mockBidIterator = mock<Collection<Bid>>()
 
-        whenever(orderStoreMock!!.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(from), eq(to))).thenReturn(mockBidIterator)
+        whenever(orderStoreMock!!.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(from), eq(to))).doReturn(mockBidIterator)
 
         assertEquals(mockBidIterator, t!!.getBidOrdersByAccountAsset(accountId, assetId, from, to))
     }

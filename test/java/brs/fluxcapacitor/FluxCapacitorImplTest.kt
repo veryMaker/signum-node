@@ -1,6 +1,7 @@
 package brs.fluxcapacitor
 
 import brs.Blockchain
+import brs.common.QuickMocker
 import brs.props.Prop
 import brs.props.PropertyService
 import brs.props.Props
@@ -21,17 +22,14 @@ class FluxCapacitorImplTest {
     @BeforeEach
     fun setUp() {
         blockchainMock = mock()
-        propertyServiceMock = mock {
-            onGeneric { get(any<Prop<Boolean>>()) } doReturn false
-            onGeneric { get(any<Prop<Int>>()) } doReturn -1
-        }
+        propertyServiceMock = QuickMocker.defaultPropertyService()
     }
 
     @DisplayName("Feature is active on ProdNet")
     @Test
     fun featureIsActiveOnProdNet() {
-        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).thenReturn(false)
-        whenever(blockchainMock!!.height).thenReturn(500000)
+        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(false)
+        whenever(blockchainMock!!.height).doReturn(500000)
 
         t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
 
@@ -41,8 +39,8 @@ class FluxCapacitorImplTest {
     @DisplayName("Feature is not active on ProdNet")
     @Test
     fun featureIsInactiveProdNet() {
-        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).thenReturn(false)
-        whenever(blockchainMock!!.height).thenReturn(499999)
+        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(false)
+        whenever(blockchainMock!!.height).doReturn(499999)
 
         t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
 
@@ -52,14 +50,14 @@ class FluxCapacitorImplTest {
     @DisplayName("Feature is active on TestNet")
     @Test
     fun featureIsActiveTestNet() {
-        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).thenReturn(true)
-        whenever(blockchainMock!!.height).thenReturn(88999)
+        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(true)
+        whenever(blockchainMock!!.height).doReturn(88999)
 
         t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
 
         assertTrue(t!!.getValue(FluxValues.POC2))
 
-        whenever(blockchainMock!!.height).thenReturn(30000)
+        whenever(blockchainMock!!.height).doReturn(30000)
 
         assertFalse(t!!.getValue(FluxValues.POC2))
     }
@@ -67,8 +65,8 @@ class FluxCapacitorImplTest {
     @DisplayName("FluxInt gives its default value when no historical moments changed it yet")
     @Test
     fun fluxIntDefaultValue() {
-        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).thenReturn(false)
-        whenever(blockchainMock!!.height).thenReturn(88000)
+        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(false)
+        whenever(blockchainMock!!.height).doReturn(88000)
 
         t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
 
@@ -78,8 +76,8 @@ class FluxCapacitorImplTest {
     @DisplayName("FluxInt gives a new value when a historical moment has passed")
     @Test
     fun fluxIntHistoricalValue() {
-        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).thenReturn(false)
-        whenever(blockchainMock!!.height).thenReturn(500000)
+        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(false)
+        whenever(blockchainMock!!.height).doReturn(500000)
 
         t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
 
@@ -89,11 +87,11 @@ class FluxCapacitorImplTest {
     @DisplayName("FluxInt on TestNet gives its default value when no historical moments changed it yet")
     @Test
     fun fluxIntTestNetDefaultValue() {
-        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).thenReturn(true)
+        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(true)
 
         t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
 
-        whenever(blockchainMock!!.height).thenReturn(5)
+        whenever(blockchainMock!!.height).doReturn(5)
 
         assertEquals(255, t!!.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS))
     }
@@ -101,11 +99,11 @@ class FluxCapacitorImplTest {
     @DisplayName("FluxInt on TestNet gives a new value when a historical moment has passed")
     @Test
     fun fluxIntTestNetHistoricalValue() {
-        whenever(propertyServiceMock!!.get(eq<Prop<Boolean>>(Props.DEV_TESTNET))).thenReturn(true)
+        whenever(propertyServiceMock!!.get(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(true)
 
         t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
 
-        whenever(blockchainMock!!.height).thenReturn(88000)
+        whenever(blockchainMock!!.height).doReturn(88000)
 
         assertEquals(1020, t!!.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS))
     }
@@ -113,8 +111,8 @@ class FluxCapacitorImplTest {
     @DisplayName("FluxInt on TestNet gives a different value because the historical moment configuration is different")
     @Test
     fun fluxIntTestNetHistoricalMomentChangedThroughProperty() {
-        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).thenReturn(true)
-        whenever(propertyServiceMock!!.get<Int>(eq<Prop<Int>>(Props.DEV_PRE_DYMAXION_BLOCK_HEIGHT))).thenReturn(12345)
+        whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(true)
+        whenever(propertyServiceMock!!.get<Int>(eq<Prop<Int>>(Props.DEV_PRE_DYMAXION_BLOCK_HEIGHT))).doReturn(12345)
 
         t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
 

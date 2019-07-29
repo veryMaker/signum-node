@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest
 import java.util.Arrays
 
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -41,32 +42,32 @@ class GetDGSPurchaseTest {
 
         val mockEncryptedData = mock<EncryptedData>()
 
-        whenever(mockEncryptedData.data).thenReturn(byteArrayOf(1.toByte()))
-        whenever(mockEncryptedData.nonce).thenReturn(byteArrayOf(1.toByte()))
+        whenever(mockEncryptedData.data).doReturn(byteArrayOf(1.toByte()))
+        whenever(mockEncryptedData.nonce).doReturn(byteArrayOf(1.toByte()))
 
         val mockEncryptedDataList = Arrays.asList(mockEncryptedData)
 
         val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.id).thenReturn(1L)
-        whenever(mockPurchase.goodsId).thenReturn(2L)
-        whenever(mockPurchase.name).thenReturn("name")
-        whenever(mockPurchase.sellerId).thenReturn(3L)
-        whenever(mockPurchase.priceNQT).thenReturn(4L)
-        whenever(mockPurchase.quantity).thenReturn(5)
-        whenever(mockPurchase.buyerId).thenReturn(6L)
-        whenever(mockPurchase.timestamp).thenReturn(7)
-        whenever(mockPurchase.deliveryDeadlineTimestamp).thenReturn(8)
-        whenever(mockPurchase.isPending).thenReturn(true)
-        whenever(mockPurchase.goodsIsText()).thenReturn(true)
-        whenever(mockPurchase.discountNQT).thenReturn(8L)
-        whenever(mockPurchase.refundNQT).thenReturn(9L)
-        whenever(mockPurchase.encryptedGoods).thenReturn(mockEncryptedData)
-        whenever(mockPurchase.feedbackNotes).thenReturn(mockEncryptedDataList)
-        whenever(mockPurchase.refundNote).thenReturn(mockEncryptedData)
-        whenever(mockPurchase.note).thenReturn(mockEncryptedData)
-        whenever(mockPurchase.publicFeedback).thenReturn(listOf("feedback"))
+        whenever(mockPurchase.id).doReturn(1L)
+        whenever(mockPurchase.goodsId).doReturn(2L)
+        whenever(mockPurchase.name).doReturn("name")
+        whenever(mockPurchase.sellerId).doReturn(3L)
+        whenever(mockPurchase.priceNQT).doReturn(4L)
+        whenever(mockPurchase.quantity).doReturn(5)
+        whenever(mockPurchase.buyerId).doReturn(6L)
+        whenever(mockPurchase.timestamp).doReturn(7)
+        whenever(mockPurchase.deliveryDeadlineTimestamp).doReturn(8)
+        whenever(mockPurchase.isPending).doReturn(true)
+        whenever(mockPurchase.goodsIsText()).doReturn(true)
+        whenever(mockPurchase.discountNQT).doReturn(8L)
+        whenever(mockPurchase.refundNQT).doReturn(9L)
+        whenever(mockPurchase.encryptedGoods).doReturn(mockEncryptedData)
+        whenever(mockPurchase.feedbackNotes).doReturn(mockEncryptedDataList)
+        whenever(mockPurchase.refundNote).doReturn(mockEncryptedData)
+        whenever(mockPurchase.note).doReturn(mockEncryptedData)
+        whenever(mockPurchase.publicFeedback).doReturn(listOf("feedback"))
 
-        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(req))).thenReturn(mockPurchase)
+        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
 
         val result = t!!.processRequest(req) as JsonObject
 

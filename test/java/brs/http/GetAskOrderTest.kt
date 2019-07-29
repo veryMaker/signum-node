@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.JSONResponses.UNKNOWN_ORDER
 import brs.http.common.Parameters.ORDER_PARAMETER
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -39,7 +40,7 @@ class GetAskOrderTest {
 
         val mockOrder = mock<Ask>()
 
-        whenever(mockAssetExchange!!.getAskOrder(eq(orderId))).thenReturn(mockOrder)
+        whenever(mockAssetExchange!!.getAskOrder(eq(orderId))).doReturn(mockOrder)
 
         val req = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)
@@ -54,7 +55,7 @@ class GetAskOrderTest {
     fun processRequest_unknownOrder() {
         val orderId = 123L
 
-        whenever(mockAssetExchange!!.getAskOrder(eq(orderId))).thenReturn(null)
+        whenever(mockAssetExchange!!.getAskOrder(eq(orderId))).doReturn(null)
 
         val req = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)

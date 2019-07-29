@@ -39,8 +39,8 @@ class AssetServiceImplTest : AbstractUnitTest() {
         assetTableMock = mock()
         assetDbKeyFactoryMock = mock()
 
-        whenever(assetStoreMock!!.assetTable).thenReturn(assetTableMock)
-        whenever(assetStoreMock!!.assetDbKeyFactory).thenReturn(assetDbKeyFactoryMock)
+        whenever(assetStoreMock!!.assetTable).doReturn(assetTableMock)
+        whenever(assetStoreMock!!.assetDbKeyFactory).doReturn(assetDbKeyFactoryMock)
 
         t = AssetServiceImpl(assetAccountServiceMock, tradeServiceMock, assetStoreMock!!, assetTransferServicMock)
     }
@@ -51,8 +51,8 @@ class AssetServiceImplTest : AbstractUnitTest() {
         val mockAsset = mock<Asset>()
         val assetKeyMock = mock<BurstKey>()
 
-        whenever(assetDbKeyFactoryMock!!.newKey(eq(assetId))).thenReturn(assetKeyMock)
-        whenever(assetTableMock!!.get(eq(assetKeyMock))).thenReturn(mockAsset)
+        whenever(assetDbKeyFactoryMock!!.newKey(eq(assetId))).doReturn(assetKeyMock)
+        whenever(assetTableMock!!.get(eq(assetKeyMock))).doReturn(mockAsset)
 
         assertEquals(mockAsset, t!!.getAsset(assetId))
     }
@@ -65,7 +65,7 @@ class AssetServiceImplTest : AbstractUnitTest() {
 
         val mockAccountAssetIterator = mock<Collection<AccountAsset>>()
 
-        whenever(assetAccountServiceMock!!.getAssetAccounts(eq(assetId), eq(from), eq(to))).thenReturn(mockAccountAssetIterator)
+        whenever(assetAccountServiceMock!!.getAssetAccounts(eq(assetId), eq(from), eq(to))).doReturn(mockAccountAssetIterator)
 
         assertEquals(mockAccountAssetIterator, t!!.getAccounts(assetId, from, to))
     }
@@ -79,7 +79,7 @@ class AssetServiceImplTest : AbstractUnitTest() {
 
         val mockAccountAssetIterator = mock<Collection<AccountAsset>>()
 
-        whenever(assetAccountServiceMock!!.getAssetAccounts(eq(assetId), eq(height), eq(from), eq(to))).thenReturn(mockAccountAssetIterator)
+        whenever(assetAccountServiceMock!!.getAssetAccounts(eq(assetId), eq(height), eq(from), eq(to))).doReturn(mockAccountAssetIterator)
 
         assertEquals(mockAccountAssetIterator, t!!.getAccounts(assetId, height, from, to))
     }
@@ -93,7 +93,7 @@ class AssetServiceImplTest : AbstractUnitTest() {
 
         val mockAccountAssetIterator = mock<Collection<AccountAsset>>()
 
-        whenever(assetAccountServiceMock!!.getAssetAccounts(eq(assetId), eq(from), eq(to))).thenReturn(mockAccountAssetIterator)
+        whenever(assetAccountServiceMock!!.getAssetAccounts(eq(assetId), eq(from), eq(to))).doReturn(mockAccountAssetIterator)
 
         assertEquals(mockAccountAssetIterator, t!!.getAccounts(assetId, height, from, to))
     }
@@ -106,7 +106,7 @@ class AssetServiceImplTest : AbstractUnitTest() {
 
         val mockTradeIterator = mock<Collection<Trade>>()
 
-        whenever(tradeServiceMock!!.getAssetTrades(eq(assetId), eq(from), eq(to))).thenReturn(mockTradeIterator)
+        whenever(tradeServiceMock!!.getAssetTrades(eq(assetId), eq(from), eq(to))).doReturn(mockTradeIterator)
 
         assertEquals(mockTradeIterator, t!!.getTrades(assetId, from, to))
     }
@@ -119,7 +119,7 @@ class AssetServiceImplTest : AbstractUnitTest() {
 
         val mockTransferIterator = mock<Collection<AssetTransfer>>()
 
-        whenever(assetTransferServicMock!!.getAssetTransfers(eq(assetId), eq(from), eq(to))).thenReturn(mockTransferIterator)
+        whenever(assetTransferServicMock!!.getAssetTransfers(eq(assetId), eq(from), eq(to))).doReturn(mockTransferIterator)
 
         assertEquals(mockTransferIterator, t!!.getAssetTransfers(assetId, from, to))
     }
@@ -131,7 +131,7 @@ class AssetServiceImplTest : AbstractUnitTest() {
 
         val mockTradeIterator = mock<Collection<Asset>>()
 
-        whenever(assetTableMock!!.getAll(eq(from), eq(to))).thenReturn(mockTradeIterator)
+        whenever(assetTableMock!!.getAll(eq(from), eq(to))).doReturn(mockTradeIterator)
 
         assertEquals(mockTradeIterator, t!!.getAllAssets(from, to))
     }
@@ -143,14 +143,14 @@ class AssetServiceImplTest : AbstractUnitTest() {
         val to = 2
 
         val mockAssetIterator = mockCollection<Asset>()
-        whenever(assetStoreMock!!.getAssetsIssuedBy(eq(accountId), eq(from), eq(to))).thenReturn(mockAssetIterator)
+        whenever(assetStoreMock!!.getAssetsIssuedBy(eq(accountId), eq(from), eq(to))).doReturn(mockAssetIterator)
 
         assertEquals(mockAssetIterator, t!!.getAssetsIssuedBy(accountId, from, to))
     }
 
     @Test
     fun getCount() {
-        whenever(assetTableMock!!.count).thenReturn(5)
+        whenever(assetTableMock!!.count).doReturn(5)
 
         assertEquals(5, t!!.assetsCount.toLong())
     }
@@ -161,12 +161,12 @@ class AssetServiceImplTest : AbstractUnitTest() {
 
         val transactionId = 123L
 
-        whenever(assetDbKeyFactoryMock!!.newKey(eq(transactionId))).thenReturn(assetKey)
+        whenever(assetDbKeyFactoryMock!!.newKey(eq(transactionId))).doReturn(assetKey)
 
         val savedAssetCaptor = argumentCaptor<Asset>()
 
         val transaction = mock<Transaction>()
-        whenever(transaction.id).thenReturn(transactionId)
+        whenever(transaction.id).doReturn(transactionId)
 
         val attachment = mock<ColoredCoinsAssetIssuance>()
         t!!.addAsset(transaction, attachment)

@@ -150,7 +150,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     if (trimDerivedTables) {
       blockListeners.addListener(block -> {
         if (block.getHeight() % 1440 == 0) {
-          lastTrimHeight.set(Math.max(block.getHeight() - Constants.MAX_ROLLBACK, 0));
+          lastTrimHeight.set(Math.max(block.getHeight() - Burst.getPropertyService().get(Props.DB_MAX_ROLLBACK), 0));
           if (lastTrimHeight.get() > 0) {
             this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get()));
           }
@@ -253,7 +253,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   downloadCache.resetForkBlocks();
                 } else {
                   logger.warn("Our peer want to feed us a fork that is more than "
-                          + Constants.MAX_ROLLBACK + " blocks old.");
+                          + Burst.getPropertyService().get(Props.DB_MAX_ROLLBACK) + " blocks old.");
                   return;
                 }
               }
@@ -723,7 +723,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   public int getMinRollbackHeight() {
     int trimHeight = (lastTrimHeight.get() > 0
             ? lastTrimHeight.get()
-            : Math.max(blockchain.getHeight() - Constants.MAX_ROLLBACK, 0));
+            : Math.max(blockchain.getHeight() - Burst.getPropertyService().get(Props.DB_MAX_ROLLBACK), 0));
     return trimDerivedTables ? trimHeight : 0;
   }
 

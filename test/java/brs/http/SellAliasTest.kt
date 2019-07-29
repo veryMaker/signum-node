@@ -20,6 +20,7 @@ import brs.http.JSONResponses.INCORRECT_RECIPIENT
 import brs.http.JSONResponses.MISSING_PRICE
 import brs.http.common.Parameters.PRICE_NQT_PARAMETER
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
@@ -57,13 +58,14 @@ class SellAliasTest : AbstractTransactionTest() {
 
         val aliasAccountId = 1L
         val mockAlias = mock<Alias>()
-        whenever(mockAlias.accountId).thenReturn(aliasAccountId)
+        whenever(mockAlias.accountId).doReturn(aliasAccountId)
+        whenever(mockAlias.aliasName).doReturn("")
 
         val mockSender = mock<Account>()
-        whenever(mockSender.getId()).thenReturn(aliasAccountId)
+        whenever(mockSender.getId()).doReturn(aliasAccountId)
 
-        whenever(parameterServiceMock!!.getSenderAccount(req)).thenReturn(mockSender)
-        whenever(parameterServiceMock!!.getAlias(req)).thenReturn(mockAlias)
+        whenever(parameterServiceMock!!.getSenderAccount(req)).doReturn(mockSender)
+        whenever(parameterServiceMock!!.getAlias(req)).doReturn(mockAlias)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
@@ -152,14 +154,14 @@ class SellAliasTest : AbstractTransactionTest() {
 
         val aliasAccountId = 1L
         val mockAlias = mock<Alias>()
-        whenever(mockAlias.accountId).thenReturn(aliasAccountId)
+        whenever(mockAlias.accountId).doReturn(aliasAccountId)
 
         val mockSenderId = 2L
         val mockSender = mock<Account>()
-        whenever(mockSender.getId()).thenReturn(mockSenderId)
+        whenever(mockSender.getId()).doReturn(mockSenderId)
 
-        whenever(parameterServiceMock!!.getSenderAccount(req)).thenReturn(mockSender)
-        whenever(parameterServiceMock!!.getAlias(req)).thenReturn(mockAlias)
+        whenever(parameterServiceMock!!.getSenderAccount(req)).doReturn(mockSender)
+        whenever(parameterServiceMock!!.getAlias(req)).doReturn(mockAlias)
 
         assertEquals(INCORRECT_ALIAS_OWNER, t!!.processRequest(req))
     }

@@ -15,6 +15,7 @@ import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
 import brs.http.common.Parameters.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -46,7 +47,7 @@ class GetBlockTest {
 
         val mockBlock = mock<Block>()
 
-        whenever(blockchainMock!!.getBlock(eq(blockId))).thenReturn(mockBlock)
+        whenever(blockchainMock!!.getBlock(eq(blockId))).doReturn(mockBlock)
 
         val result = t!!.processRequest(req) as JsonObject
 
@@ -72,8 +73,8 @@ class GetBlockTest {
 
         val mockBlock = mock<Block>()
 
-        whenever(blockchainMock!!.height).thenReturn(100)
-        whenever(blockchainMock!!.getBlockAtHeight(eq(blockHeight))).thenReturn(mockBlock)
+        whenever(blockchainMock!!.height).doReturn(100)
+        whenever(blockchainMock!!.getBlockAtHeight(eq(blockHeight))).doReturn(mockBlock)
 
         val result = t!!.processRequest(req) as JsonObject
 
@@ -108,7 +109,7 @@ class GetBlockTest {
                 MockParam(HEIGHT_PARAMETER, heightValue)
         )
 
-        whenever(blockchainMock!!.height).thenReturn(5)
+        whenever(blockchainMock!!.height).doReturn(5)
 
         assertEquals(INCORRECT_HEIGHT, t!!.processRequest(req))
     }
@@ -123,7 +124,7 @@ class GetBlockTest {
 
         val mockBlock = mock<Block>()
 
-        whenever(blockchainMock!!.getLastBlock(eq(timestamp))).thenReturn(mockBlock)
+        whenever(blockchainMock!!.getLastBlock(eq(timestamp))).doReturn(mockBlock)
 
         val result = t!!.processRequest(req) as JsonObject
 

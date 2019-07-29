@@ -12,6 +12,7 @@ import brs.services.AccountService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -47,11 +48,11 @@ class GetAccountRecentTransactionsTest : AbstractUnitTest() {
         val mockAccount = mock<Account>()
 
         val mockTransaction = mock<Transaction>()
-        whenever(mockTransaction.type).thenReturn(DigitalGoods.DELISTING)
+        whenever(mockTransaction.type).doReturn(DigitalGoods.DELISTING)
         val transactionsIterator = mockCollection<Transaction>(mockTransaction)
 
-        whenever<Account>(mockAccountService!!.getAccount(eq(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED))).thenReturn(mockAccount)
-        whenever(mockBlockchain!!.getTransactions(eq(mockAccount), eq(0), eq((-1).toByte()), eq(0.toByte()), eq(0), eq(0), eq(9), eq(false))).thenReturn(transactionsIterator)
+        whenever(mockAccountService!!.getAccount(eq(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED))).doReturn(mockAccount)
+        whenever(mockBlockchain!!.getTransactions(eq(mockAccount), eq(0), eq((-1).toByte()), eq(0.toByte()), eq(0), eq(0), eq(9), eq(false))).doReturn(transactionsIterator)
 
         val result = t!!.processRequest(request, peerMock) as JsonObject
         assertNotNull(result)

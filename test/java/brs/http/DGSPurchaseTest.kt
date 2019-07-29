@@ -22,9 +22,7 @@ import brs.http.JSONResponses.INCORRECT_PURCHASE_QUANTITY
 import brs.http.JSONResponses.MISSING_DELIVERY_DEADLINE_TIMESTAMP
 import brs.http.JSONResponses.UNKNOWN_GOODS
 import brs.http.common.Parameters.*
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import io.mockk.every
 import io.mockk.mockkStatic
 import org.junit.Assert.assertEquals
@@ -43,6 +41,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     @Before
     fun setUp() {
         mockParameterService = mock<ParameterService>()
+        whenever(mockParameterService!!.getSenderAccount(any())).doReturn(mock())
         mockBlockchain = mock<Blockchain>()
         mockAccountService = mock<AccountService>()
         mockTimeService = mock<TimeService>()
@@ -67,18 +66,18 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         val mockSellerId = 123L
         val mockGoodsId = 123L
         val mockGoods = mock<Goods>()
-        whenever(mockGoods.id).thenReturn(mockGoodsId)
-        whenever(mockGoods.isDelisted).thenReturn(false)
-        whenever(mockGoods.quantity).thenReturn(10)
-        whenever(mockGoods.priceNQT).thenReturn(10L)
-        whenever(mockGoods.sellerId).thenReturn(mockSellerId)
+        whenever(mockGoods.id).doReturn(mockGoodsId)
+        whenever(mockGoods.isDelisted).doReturn(false)
+        whenever(mockGoods.quantity).doReturn(10)
+        whenever(mockGoods.priceNQT).doReturn(10L)
+        whenever(mockGoods.sellerId).doReturn(mockSellerId)
 
         val mockSellerAccount = mock<Account>()
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
-        whenever(mockTimeService!!.epochTime).thenReturn(10)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockTimeService!!.epochTime).doReturn(10)
 
-        whenever(mockAccountService!!.getAccount(eq(mockSellerId))).thenReturn(mockSellerAccount)
+        whenever(mockAccountService!!.getAccount(eq(mockSellerId))).doReturn(mockSellerAccount)
 
         mockkStatic(Burst::class)
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
@@ -100,9 +99,9 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         val req = QuickMocker.httpServletRequest()
 
         val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).thenReturn(true)
+        whenever(mockGoods.isDelisted).doReturn(true)
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
 
         assertEquals(UNKNOWN_GOODS, t!!.processRequest(req))
     }
@@ -117,10 +116,10 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         )
 
         val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).thenReturn(false)
-        whenever(mockGoods.quantity).thenReturn(4)
+        whenever(mockGoods.isDelisted).doReturn(false)
+        whenever(mockGoods.quantity).doReturn(4)
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
 
         assertEquals(INCORRECT_PURCHASE_QUANTITY, t!!.processRequest(req))
     }
@@ -137,11 +136,11 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         )
 
         val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).thenReturn(false)
-        whenever(mockGoods.quantity).thenReturn(10)
-        whenever(mockGoods.priceNQT).thenReturn(10L)
+        whenever(mockGoods.isDelisted).doReturn(false)
+        whenever(mockGoods.quantity).doReturn(10)
+        whenever(mockGoods.priceNQT).doReturn(10L)
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
 
         assertEquals(INCORRECT_PURCHASE_PRICE, t!!.processRequest(req))
     }
@@ -159,11 +158,11 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         )
 
         val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).thenReturn(false)
-        whenever(mockGoods.quantity).thenReturn(10)
-        whenever(mockGoods.priceNQT).thenReturn(10L)
+        whenever(mockGoods.isDelisted).doReturn(false)
+        whenever(mockGoods.quantity).doReturn(10)
+        whenever(mockGoods.priceNQT).doReturn(10L)
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
 
         assertEquals(MISSING_DELIVERY_DEADLINE_TIMESTAMP, t!!.processRequest(req))
     }
@@ -181,11 +180,11 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         )
 
         val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).thenReturn(false)
-        whenever(mockGoods.quantity).thenReturn(10)
-        whenever(mockGoods.priceNQT).thenReturn(10L)
+        whenever(mockGoods.isDelisted).doReturn(false)
+        whenever(mockGoods.quantity).doReturn(10)
+        whenever(mockGoods.priceNQT).doReturn(10L)
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
 
         assertEquals(INCORRECT_DELIVERY_DEADLINE_TIMESTAMP, t!!.processRequest(req))
     }
@@ -204,12 +203,12 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         )
 
         val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).thenReturn(false)
-        whenever(mockGoods.quantity).thenReturn(10)
-        whenever(mockGoods.priceNQT).thenReturn(10L)
+        whenever(mockGoods.isDelisted).doReturn(false)
+        whenever(mockGoods.quantity).doReturn(10)
+        whenever(mockGoods.priceNQT).doReturn(10L)
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
-        whenever(mockTimeService!!.epochTime).thenReturn(1000)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockTimeService!!.epochTime).doReturn(1000)
 
         assertEquals(INCORRECT_DELIVERY_DEADLINE_TIMESTAMP, t!!.processRequest(req))
     }

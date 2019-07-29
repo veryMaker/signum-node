@@ -2,6 +2,7 @@ package brs.grpc
 
 import brs.*
 import brs.assetexchange.AssetExchange
+import brs.common.QuickMocker
 import brs.feesuggestions.FeeSuggestionCalculator
 import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxCapacitorImpl
@@ -11,10 +12,7 @@ import brs.props.Prop
 import brs.props.PropertyService
 import brs.props.Props
 import brs.services.*
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import io.grpc.Context
 import io.grpc.ManagedChannel
 import io.grpc.Server
@@ -54,10 +52,7 @@ abstract class AbstractGrpcTest {
         val assetExchange = mock<AssetExchange>()
         val subscriptionService = mock<SubscriptionService>()
         val dgsGoodsStoreService = mock<DGSGoodsStoreService>()
-        val propertyService = mock<PropertyService> {
-            onGeneric { get(any<Prop<Boolean>>()) } doReturn false
-            onGeneric { get(any<Prop<Int>>()) } doReturn -1
-        }
+        val propertyService = QuickMocker.defaultPropertyService()
 
         // Returns
         doReturn(Integer.MAX_VALUE).whenever(blockchain).height

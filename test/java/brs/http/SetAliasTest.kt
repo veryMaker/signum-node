@@ -23,6 +23,7 @@ import brs.http.JSONResponses.INCORRECT_URI_LENGTH
 import brs.http.JSONResponses.MISSING_ALIAS_NAME
 import brs.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.http.common.Parameters.ALIAS_URI_PARAMETER
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
@@ -42,6 +43,7 @@ class SetAliasTest : AbstractTransactionTest() {
     @Before
     fun setUp() {
         parameterServiceMock = mock()
+        whenever(parameterServiceMock!!.getSenderAccount(any())).thenReturn(mock())
         blockchainMock = mock()
         aliasServiceMock = mock()
         apiTransactionManagerMock = mock()

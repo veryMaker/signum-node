@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -53,23 +54,23 @@ class GetAskOrdersTest : AbstractUnitTest() {
         )
 
         val asset = mock<Asset>()
-        whenever(asset.id).thenReturn(assetIndex)
+        whenever(asset.id).doReturn(assetIndex)
 
-        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(req))).thenReturn(asset)
+        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(req))).doReturn(asset)
 
         val askOrder1 = mock<Ask>()
-        whenever(askOrder1.id).thenReturn(3L)
-        whenever(askOrder1.assetId).thenReturn(assetIndex)
-        whenever(askOrder1.quantityQNT).thenReturn(56L)
-        whenever(askOrder1.priceNQT).thenReturn(45L)
-        whenever(askOrder1.height).thenReturn(32)
+        whenever(askOrder1.id).doReturn(3L)
+        whenever(askOrder1.assetId).doReturn(assetIndex)
+        whenever(askOrder1.quantityQNT).doReturn(56L)
+        whenever(askOrder1.priceNQT).doReturn(45L)
+        whenever(askOrder1.height).doReturn(32)
 
         val askOrder2 = mock<Ask>()
-        whenever(askOrder1.id).thenReturn(4L)
+        whenever(askOrder1.id).doReturn(4L)
 
         val askIterator = this.mockCollection<Ask>(askOrder1, askOrder2)
 
-        whenever(assetExchangeMock!!.getSortedAskOrders(eq(assetIndex), eq(firstIndex), eq(lastIndex))).thenReturn(askIterator)
+        whenever(assetExchangeMock!!.getSortedAskOrders(eq(assetIndex), eq(firstIndex), eq(lastIndex))).doReturn(askIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

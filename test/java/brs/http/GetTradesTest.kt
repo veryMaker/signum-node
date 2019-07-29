@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.TRADES_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -55,13 +56,13 @@ class GetTradesTest : AbstractUnitTest() {
         )
 
         val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).thenReturn(assetId)
+        whenever(mockAsset.id).doReturn(assetId)
 
         val mockTrade = mock<Trade>()
         val mockTradesIterator = mockCollection<Trade>(mockTrade)
 
-        whenever(mockParameterService!!.getAsset(eq<HttpServletRequest>(req))).thenReturn(mockAsset)
-        whenever(mockAssetExchange!!.getTrades(eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockTradesIterator)
+        whenever(mockParameterService!!.getAsset(eq<HttpServletRequest>(req))).doReturn(mockAsset)
+        whenever(mockAssetExchange!!.getTrades(eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockTradesIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)
@@ -90,13 +91,13 @@ class GetTradesTest : AbstractUnitTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(accountId)
+        whenever(mockAccount.getId()).doReturn(accountId)
 
         val mockTrade = mock<Trade>()
         val mockTradesIterator = mockCollection<Trade>(mockTrade)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
-        whenever(mockAssetExchange!!.getAccountTrades(eq(accountId), eq(firstIndex), eq(lastIndex))).thenReturn(mockTradesIterator)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockAssetExchange!!.getAccountTrades(eq(accountId), eq(firstIndex), eq(lastIndex))).doReturn(mockTradesIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)
@@ -127,17 +128,17 @@ class GetTradesTest : AbstractUnitTest() {
         )
 
         val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).thenReturn(assetId)
+        whenever(mockAsset.id).doReturn(assetId)
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(accountId)
+        whenever(mockAccount.getId()).doReturn(accountId)
 
         val mockTrade = mock<Trade>()
         val mockTradesIterator = mockCollection<Trade>(mockTrade)
 
-        whenever(mockParameterService!!.getAsset(eq<HttpServletRequest>(req))).thenReturn(mockAsset)
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
-        whenever(mockAssetExchange!!.getAccountAssetTrades(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockTradesIterator)
+        whenever(mockParameterService!!.getAsset(eq<HttpServletRequest>(req))).doReturn(mockAsset)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockAssetExchange!!.getAccountAssetTrades(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockTradesIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

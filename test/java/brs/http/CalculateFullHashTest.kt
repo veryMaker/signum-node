@@ -12,6 +12,7 @@ import brs.http.JSONResponses.MISSING_UNSIGNED_BYTES
 import brs.http.common.Parameters.SIGNATURE_HASH_PARAMETER
 import brs.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
 import brs.http.common.ResultFields.FULL_HASH_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -35,8 +36,8 @@ class CalculateFullHashTest {
 
         val req = mock<HttpServletRequest>()
 
-        whenever(req.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER))).thenReturn(mockUnsignedTransactionBytes)
-        whenever(req.getParameter(eq(SIGNATURE_HASH_PARAMETER))).thenReturn(mockSignatureHash)
+        whenever(req.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER))).doReturn(mockUnsignedTransactionBytes)
+        whenever(req.getParameter(eq(SIGNATURE_HASH_PARAMETER))).doReturn(mockSignatureHash)
 
         val result = JSON.getAsJsonObject(t!!.processRequest(req))
         assertEquals(expectedFullHash, JSON.getAsString(result.get(FULL_HASH_RESPONSE)))
@@ -52,7 +53,7 @@ class CalculateFullHashTest {
         val mockUnsignedTransactionBytes = "mockUnsignedTransactionBytes"
         val req = mock<HttpServletRequest>()
 
-        whenever(req.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER))).thenReturn(mockUnsignedTransactionBytes)
+        whenever(req.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER))).doReturn(mockUnsignedTransactionBytes)
 
         assertEquals(MISSING_SIGNATURE_HASH, t!!.processRequest(req))
     }

@@ -16,10 +16,7 @@ import javax.servlet.http.HttpServletRequest
 import brs.TransactionType.ColoredCoins.ASSET_TRANSFER
 import brs.http.JSONResponses.NOT_ENOUGH_ASSETS
 import brs.http.common.Parameters.*
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.runners.JUnit4
@@ -61,13 +58,13 @@ class TransferAssetTest : AbstractTransactionTest() {
 
         val mockAsset = mock<Asset>()
 
-        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(req))).thenReturn(mockAsset)
-        whenever(mockAsset.id).thenReturn(assetIdParameter)
+        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(req))).doReturn(mockAsset)
+        whenever(mockAsset.id).doReturn(assetIdParameter)
 
         val mockSenderAccount = mock<Account>()
-        whenever(accountServiceMock!!.getUnconfirmedAssetBalanceQNT(eq(mockSenderAccount), eq(assetIdParameter))).thenReturn(500L)
+        whenever(accountServiceMock!!.getUnconfirmedAssetBalanceQNT(eq(mockSenderAccount), eq(assetIdParameter))).doReturn(500L)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq(req))).thenReturn(mockSenderAccount)
+        whenever(parameterServiceMock!!.getSenderAccount(eq(req))).doReturn(mockSenderAccount)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
@@ -90,13 +87,13 @@ class TransferAssetTest : AbstractTransactionTest() {
 
         val mockAsset = mock<Asset>()
 
-        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(req))).thenReturn(mockAsset)
-        whenever(mockAsset.id).thenReturn(456L)
+        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(req))).doReturn(mockAsset)
+        whenever(mockAsset.id).doReturn(456L)
 
         val mockSenderAccount = mock<Account>()
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockSenderAccount)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
 
-        whenever(accountServiceMock!!.getUnconfirmedAssetBalanceQNT(eq(mockSenderAccount), any())).thenReturn(2L)
+        whenever(accountServiceMock!!.getUnconfirmedAssetBalanceQNT(eq(mockSenderAccount), any())).doReturn(2L)
 
         assertEquals(NOT_ENOUGH_ASSETS, t!!.processRequest(req))
     }

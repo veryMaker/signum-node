@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.Parameters.SUBSCRIPTIONS_RESPONSE
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -50,17 +51,17 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
         )
 
         val account = mock<Account>()
-        whenever(account.getId()).thenReturn(userId)
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(account)
+        whenever(account.getId()).doReturn(userId)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(account)
 
         val subscription = mock<Subscription>()
-        whenever(subscription.getId()).thenReturn(1L)
-        whenever(subscription.getAmountNQT()).thenReturn(2L)
-        whenever(subscription.getFrequency()).thenReturn(3)
-        whenever(subscription.timeNext).thenReturn(4)
+        whenever(subscription.getId()).doReturn(1L)
+        whenever(subscription.getAmountNQT()).doReturn(2L)
+        whenever(subscription.getFrequency()).doReturn(3)
+        whenever(subscription.timeNext).doReturn(4)
 
         val subscriptionIterator = this.mockCollection<Subscription>(subscription)
-        whenever(subscriptionServiceMock!!.getSubscriptionsByParticipant(eq(userId))).thenReturn(subscriptionIterator)
+        whenever(subscriptionServiceMock!!.getSubscriptionsByParticipant(eq(userId))).doReturn(subscriptionIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

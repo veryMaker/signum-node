@@ -3,6 +3,7 @@ package brs.assetexchange
 import brs.AssetTransfer
 import brs.db.sql.EntitySqlTable
 import brs.db.store.AssetTransferStore
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -23,7 +24,7 @@ class AssetTransferServiceImplTest {
         mockAssetTransferStore = mock()
         mockAssetTransferTable = mock()
 
-        whenever(mockAssetTransferStore!!.assetTransferTable).thenReturn(mockAssetTransferTable)
+        whenever(mockAssetTransferStore!!.assetTransferTable).doReturn(mockAssetTransferTable)
 
         t = AssetTransferServiceImpl(mockAssetTransferStore!!)
     }
@@ -36,7 +37,7 @@ class AssetTransferServiceImplTest {
 
         val mockAssetTransferIterator = mock<Collection<AssetTransfer>>()
 
-        whenever(mockAssetTransferStore!!.getAssetTransfers(eq(assetId), eq(from), eq(to))).thenReturn(mockAssetTransferIterator)
+        whenever(mockAssetTransferStore!!.getAssetTransfers(eq(assetId), eq(from), eq(to))).doReturn(mockAssetTransferIterator)
 
         assertEquals(mockAssetTransferIterator, t!!.getAssetTransfers(assetId, from, to))
     }
@@ -50,21 +51,21 @@ class AssetTransferServiceImplTest {
 
         val mockAccountAssetTransferIterator = mock<Collection<AssetTransfer>>()
 
-        whenever(mockAssetTransferStore!!.getAccountAssetTransfers(eq(accountId), eq(assetId), eq(from), eq(to))).thenReturn(mockAccountAssetTransferIterator)
+        whenever(mockAssetTransferStore!!.getAccountAssetTransfers(eq(accountId), eq(assetId), eq(from), eq(to))).doReturn(mockAccountAssetTransferIterator)
 
         assertEquals(mockAccountAssetTransferIterator, t!!.getAccountAssetTransfers(accountId, assetId, from, to))
     }
 
     @Test
     fun getTransferCount() {
-        whenever(mockAssetTransferStore!!.getTransferCount(eq(123L))).thenReturn(5)
+        whenever(mockAssetTransferStore!!.getTransferCount(eq(123L))).doReturn(5)
 
         assertEquals(5, t!!.getTransferCount(123L).toLong())
     }
 
     @Test
     fun getAssetTransferCount() {
-        whenever(mockAssetTransferTable!!.count).thenReturn(5)
+        whenever(mockAssetTransferTable!!.count).doReturn(5)
 
         assertEquals(5, t!!.assetTransferCount.toLong())
     }

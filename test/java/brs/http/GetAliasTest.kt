@@ -13,6 +13,7 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -38,16 +39,16 @@ class GetAliasTest {
     @Throws(ParameterException::class)
     fun processRequest() {
         val mockAlias = mock<Alias>()
-        whenever(mockAlias.aliasName).thenReturn("mockAliasName")
+        whenever(mockAlias.aliasName).doReturn("mockAliasName")
 
         val mockOffer = mock<Offer>()
-        whenever(mockOffer.priceNQT).thenReturn(123L)
-        whenever(mockOffer.buyerId).thenReturn(345L)
+        whenever(mockOffer.priceNQT).doReturn(123L)
+        whenever(mockOffer.buyerId).doReturn(345L)
 
         val req = QuickMocker.httpServletRequest()
 
-        whenever(mockParameterService!!.getAlias(eq<HttpServletRequest>(req))).thenReturn(mockAlias)
-        whenever(mockAliasService!!.getOffer(eq(mockAlias))).thenReturn(mockOffer)
+        whenever(mockParameterService!!.getAlias(eq<HttpServletRequest>(req))).doReturn(mockAlias)
+        whenever(mockAliasService!!.getOffer(eq(mockAlias))).doReturn(mockOffer)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

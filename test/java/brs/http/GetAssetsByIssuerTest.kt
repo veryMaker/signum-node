@@ -19,6 +19,7 @@ import java.util.Arrays
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -53,25 +54,25 @@ class GetAssetsByIssuerTest : AbstractUnitTest() {
 
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(1L)
-        whenever(mockParameterService!!.getAccounts(eq<HttpServletRequest>(req))).thenReturn(Arrays.asList(mockAccount))
+        whenever(mockAccount.getId()).doReturn(1L)
+        whenever(mockParameterService!!.getAccounts(eq<HttpServletRequest>(req))).doReturn(Arrays.asList(mockAccount))
 
         val mockAssetId: Long = 1
 
         val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).thenReturn(1L)
-        whenever(mockAsset.id).thenReturn(mockAssetId)
-        whenever(mockAsset.name).thenReturn("name")
-        whenever(mockAsset.description).thenReturn("description")
-        whenever(mockAsset.decimals).thenReturn(1.toByte())
-        whenever(mockAsset.quantityQNT).thenReturn(2L)
+        whenever(mockAsset.id).doReturn(1L)
+        whenever(mockAsset.id).doReturn(mockAssetId)
+        whenever(mockAsset.name).doReturn("name")
+        whenever(mockAsset.description).doReturn("description")
+        whenever(mockAsset.decimals).doReturn(1.toByte())
+        whenever(mockAsset.quantityQNT).doReturn(2L)
 
         val mockAssetIterator = mockCollection<Asset>(mockAsset)
 
-        whenever(mockAssetExchange!!.getAssetsIssuedBy(eq(mockAccount.getId()), eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetIterator)
-        whenever(mockAssetExchange!!.getAssetAccountsCount(eq(mockAssetId))).thenReturn(1)
-        whenever(mockAssetExchange!!.getTransferCount(eq(mockAssetId))).thenReturn(2)
-        whenever(mockAssetExchange!!.getTradeCount(eq(mockAssetId))).thenReturn(3)
+        whenever(mockAssetExchange!!.getAssetsIssuedBy(eq(mockAccount.getId()), eq(firstIndex), eq(lastIndex))).doReturn(mockAssetIterator)
+        whenever(mockAssetExchange!!.getAssetAccountsCount(eq(mockAssetId))).doReturn(1)
+        whenever(mockAssetExchange!!.getTransferCount(eq(mockAssetId))).doReturn(2)
+        whenever(mockAssetExchange!!.getTradeCount(eq(mockAssetId))).doReturn(3)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

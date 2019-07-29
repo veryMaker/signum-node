@@ -16,6 +16,7 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -51,19 +52,19 @@ class GetAccountTest : AbstractUnitTest() {
         val req = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(mockAccountId)
-        whenever(mockAccount.publicKey).thenReturn(byteArrayOf(1.toByte()))
-        whenever(mockAccount.name).thenReturn(mockAccountName)
-        whenever(mockAccount.description).thenReturn(mockAccountDescription)
+        whenever(mockAccount.getId()).doReturn(mockAccountId)
+        whenever(mockAccount.publicKey).doReturn(byteArrayOf(1.toByte()))
+        whenever(mockAccount.name).doReturn(mockAccountName)
+        whenever(mockAccount.description).doReturn(mockAccountDescription)
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
         val mockAccountAsset = mock<AccountAsset>()
-        whenever(mockAccountAsset.getAssetId()).thenReturn(mockAssetId)
-        whenever(mockAccountAsset.unconfirmedQuantityQNT).thenReturn(mockUnconfirmedQuantityNQT)
-        whenever(mockAccountAsset.quantityQNT).thenReturn(balanceNQT)
+        whenever(mockAccountAsset.getAssetId()).doReturn(mockAssetId)
+        whenever(mockAccountAsset.unconfirmedQuantityQNT).doReturn(mockUnconfirmedQuantityNQT)
+        whenever(mockAccountAsset.quantityQNT).doReturn(balanceNQT)
         val mockAssetOverview = mockCollection<AccountAsset>(mockAccountAsset)
-        whenever(accountServiceMock!!.getAssets(eq(mockAccountId), eq(0), eq(-1))).thenReturn(mockAssetOverview)
+        whenever(accountServiceMock!!.getAssets(eq(mockAccountId), eq(0), eq(-1))).doReturn(mockAssetOverview)
 
         val response = t!!.processRequest(req) as JsonObject
         assertEquals("01", JSON.getAsString(response.get(PUBLIC_KEY_RESPONSE)))

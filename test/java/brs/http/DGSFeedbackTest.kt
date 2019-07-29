@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest
 import brs.TransactionType.DigitalGoods.FEEDBACK
 import brs.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.http.JSONResponses.INCORRECT_PURCHASE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -51,19 +52,19 @@ class DGSFeedbackTest : AbstractTransactionTest() {
 
         val mockPurchaseId = 123L
         val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.id).thenReturn(mockPurchaseId)
+        whenever(mockPurchase.id).doReturn(mockPurchaseId)
         val mockAccount = mock<Account>()
         val mockSellerAccount = mock<Account>()
         val mockEncryptedGoods = mock<EncryptedData>()
 
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).thenReturn(mockPurchase)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
-        whenever(accountServiceMock!!.getAccount(eq(2L))).thenReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(accountServiceMock!!.getAccount(eq(2L))).doReturn(mockSellerAccount)
 
-        whenever(mockAccount.getId()).thenReturn(1L)
-        whenever(mockPurchase.buyerId).thenReturn(1L)
-        whenever(mockPurchase.encryptedGoods).thenReturn(mockEncryptedGoods)
-        whenever(mockPurchase.sellerId).thenReturn(2L)
+        whenever(mockAccount.getId()).doReturn(1L)
+        whenever(mockPurchase.buyerId).doReturn(1L)
+        whenever(mockPurchase.encryptedGoods).doReturn(mockEncryptedGoods)
+        whenever(mockPurchase.sellerId).doReturn(2L)
 
         mockkStatic(Burst::class)
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
@@ -84,11 +85,11 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         val mockPurchase = mock<Purchase>()
         val mockAccount = mock<Account>()
 
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).thenReturn(mockPurchase)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
-        whenever(mockAccount.getId()).thenReturn(1L)
-        whenever(mockPurchase.buyerId).thenReturn(2L)
+        whenever(mockAccount.getId()).doReturn(1L)
+        whenever(mockPurchase.buyerId).doReturn(2L)
 
         assertEquals(INCORRECT_PURCHASE, t!!.processRequest(req))
     }
@@ -101,12 +102,12 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         val mockPurchase = mock<Purchase>()
         val mockAccount = mock<Account>()
 
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).thenReturn(mockPurchase)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
-        whenever(mockAccount.getId()).thenReturn(1L)
-        whenever(mockPurchase.buyerId).thenReturn(1L)
-        whenever(mockPurchase.encryptedGoods).thenReturn(null)
+        whenever(mockAccount.getId()).doReturn(1L)
+        whenever(mockPurchase.buyerId).doReturn(1L)
+        whenever(mockPurchase.encryptedGoods).doReturn(null)
 
         assertEquals(GOODS_NOT_DELIVERED, t!!.processRequest(req))
     }

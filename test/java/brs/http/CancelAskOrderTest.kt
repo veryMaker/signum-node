@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest
 import brs.TransactionType.ColoredCoins.ASK_ORDER_CANCELLATION
 import brs.http.JSONResponses.UNKNOWN_ORDER
 import brs.http.common.Parameters.ORDER_PARAMETER
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -55,13 +56,13 @@ class CancelAskOrderTest : AbstractTransactionTest() {
         )
 
         val sellerAccount = mock<Account>()
-        whenever(sellerAccount.getId()).thenReturn(sellerId)
+        whenever(sellerAccount.getId()).doReturn(sellerId)
 
         val order = mock<Ask>()
-        whenever(order.accountId).thenReturn(sellerId)
+        whenever(order.accountId).doReturn(sellerId)
 
-        whenever(assetExchangeMock!!.getAskOrder(eq(orderId))).thenReturn(order)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(sellerAccount)
+        whenever(assetExchangeMock!!.getAskOrder(eq(orderId))).doReturn(order)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(sellerAccount)
 
         mockkStatic(Burst::class)
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
@@ -84,7 +85,7 @@ class CancelAskOrderTest : AbstractTransactionTest() {
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        whenever(assetExchangeMock!!.getAskOrder(eq(orderId).toLong())).thenReturn(null)
+        whenever(assetExchangeMock!!.getAskOrder(eq(orderId).toLong())).doReturn(null)
 
         assertEquals(UNKNOWN_ORDER, t!!.processRequest(req))
     }
@@ -101,13 +102,13 @@ class CancelAskOrderTest : AbstractTransactionTest() {
         )
 
         val sellerAccount = mock<Account>()
-        whenever(sellerAccount.getId()).thenReturn(accountId)
+        whenever(sellerAccount.getId()).doReturn(accountId)
 
         val order = mock<Ask>()
-        whenever(order.accountId).thenReturn(otherAccountId)
+        whenever(order.accountId).doReturn(otherAccountId)
 
-        whenever(assetExchangeMock!!.getAskOrder(eq(orderId))).thenReturn(order)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(sellerAccount)
+        whenever(assetExchangeMock!!.getAskOrder(eq(orderId))).doReturn(order)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(sellerAccount)
 
         assertEquals(UNKNOWN_ORDER, t!!.processRequest(req))
     }

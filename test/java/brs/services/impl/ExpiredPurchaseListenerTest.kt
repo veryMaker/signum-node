@@ -6,10 +6,7 @@ import brs.DigitalGoodsStore.Purchase
 import brs.common.AbstractUnitTest
 import brs.services.AccountService
 import brs.services.DGSGoodsStoreService
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import org.junit.Before
 import org.junit.Test
 
@@ -33,20 +30,20 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
     fun notify_processesExpiredPurchases() {
         val blockTimestamp = 123
         val block = mock<Block>()
-        whenever(block.timestamp).thenReturn(blockTimestamp)
+        whenever(block.timestamp).doReturn(blockTimestamp)
 
         val purchaseBuyerId: Long = 34
         val purchaseBuyer = mock<Account>()
-        whenever(purchaseBuyer.getId()).thenReturn(purchaseBuyerId)
-        whenever(accountServiceMock!!.getAccount(eq(purchaseBuyer.getId()))).thenReturn(purchaseBuyer)
+        whenever(purchaseBuyer.getId()).doReturn(purchaseBuyerId)
+        whenever(accountServiceMock!!.getAccount(eq(purchaseBuyer.getId()))).doReturn(purchaseBuyer)
 
         val expiredPurchase = mock<Purchase>()
-        whenever(expiredPurchase.quantity).thenReturn(5)
-        whenever(expiredPurchase.priceNQT).thenReturn(3000L)
-        whenever(expiredPurchase.buyerId).thenReturn(purchaseBuyerId)
+        whenever(expiredPurchase.quantity).doReturn(5)
+        whenever(expiredPurchase.priceNQT).doReturn(3000L)
+        whenever(expiredPurchase.buyerId).doReturn(purchaseBuyerId)
 
         val mockIterator = mockCollection(expiredPurchase)
-        whenever(dgsGoodsStoreServiceMock!!.getExpiredPendingPurchases(eq(blockTimestamp))).thenReturn(mockIterator)
+        whenever(dgsGoodsStoreServiceMock!!.getExpiredPendingPurchases(eq(blockTimestamp))).doReturn(mockIterator)
 
         t!!.accept(block)
 

@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest
 import brs.TransactionType.Messaging.ALIAS_BUY
 import brs.http.JSONResponses.INCORRECT_ALIAS_NOTFORSALE
 import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -53,14 +54,16 @@ class BuyAliasTest : AbstractTransactionTest() {
 
         val mockAliasName = "mockAliasName"
         val mockAlias = mock<Alias>()
+        val mockAccount = mock<Account>()
         val mockSellerId = 123L
 
-        whenever(mockAlias.accountId).thenReturn(mockSellerId)
-        whenever(mockAlias.aliasName).thenReturn(mockAliasName)
+        whenever(mockAlias.accountId).doReturn(mockSellerId)
+        whenever(mockAlias.aliasName).doReturn(mockAliasName)
 
-        whenever(aliasService!!.getOffer(eq(mockAlias))).thenReturn(mockOfferOnAlias)
+        whenever(aliasService!!.getOffer(eq(mockAlias))).doReturn(mockOfferOnAlias)
 
-        whenever(parameterServiceMock!!.getAlias(eq(req))).thenReturn(mockAlias)
+        whenever(parameterServiceMock!!.getAlias(eq(req))).doReturn(mockAlias)
+        whenever(parameterServiceMock!!.getSenderAccount(eq(req))).doReturn(mockAccount)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
@@ -77,9 +80,9 @@ class BuyAliasTest : AbstractTransactionTest() {
         val req = QuickMocker.httpServletRequest(MockParam(AMOUNT_NQT_PARAMETER, "3"))
         val mockAlias = mock<Alias>()
 
-        whenever(parameterServiceMock!!.getAlias(eq<HttpServletRequest>(req))).thenReturn(mockAlias)
+        whenever(parameterServiceMock!!.getAlias(eq<HttpServletRequest>(req))).doReturn(mockAlias)
 
-        whenever(aliasService!!.getOffer(eq(mockAlias))).thenReturn(null)
+        whenever(aliasService!!.getOffer(eq(mockAlias))).doReturn(null)
 
         assertEquals(INCORRECT_ALIAS_NOTFORSALE, t!!.processRequest(req))
     }

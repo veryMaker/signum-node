@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.TransactionType.DigitalGoods.DELISTING
 import brs.http.JSONResponses.UNKNOWN_GOODS
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -47,12 +48,12 @@ class DGSDelistingTest : AbstractTransactionTest() {
         val mockAccount = mock<Account>()
         val mockGoods = mock<Goods>()
 
-        whenever(mockGoods.isDelisted).thenReturn(false)
-        whenever(mockGoods.sellerId).thenReturn(1L)
-        whenever(mockAccount.getId()).thenReturn(1L)
+        whenever(mockGoods.isDelisted).doReturn(false)
+        whenever(mockGoods.sellerId).doReturn(1L)
+        whenever(mockAccount.getId()).doReturn(1L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
@@ -71,10 +72,10 @@ class DGSDelistingTest : AbstractTransactionTest() {
         val mockAccount = mock<Account>()
         val mockGoods = mock<Goods>()
 
-        whenever(mockGoods.isDelisted).thenReturn(true)
+        whenever(mockGoods.isDelisted).doReturn(true)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
 
         assertEquals(UNKNOWN_GOODS, t!!.processRequest(req))
     }
@@ -87,12 +88,12 @@ class DGSDelistingTest : AbstractTransactionTest() {
         val mockAccount = mock<Account>()
         val mockGoods = mock<Goods>()
 
-        whenever(mockGoods.isDelisted).thenReturn(false)
-        whenever(mockGoods.sellerId).thenReturn(1L)
-        whenever(mockAccount.getId()).thenReturn(2L)
+        whenever(mockGoods.isDelisted).doReturn(false)
+        whenever(mockGoods.sellerId).doReturn(1L)
+        whenever(mockAccount.getId()).doReturn(2L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
 
         assertEquals(UNKNOWN_GOODS, t!!.processRequest(req))
     }

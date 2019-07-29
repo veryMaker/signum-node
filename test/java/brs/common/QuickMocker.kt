@@ -21,6 +21,18 @@ import io.mockk.mockkStatic
 
 object QuickMocker {
 
+    fun defaultPropertyService() = mock<PropertyService> {
+        onGeneric { get(any<Prop<Any>>()) } doAnswer {
+            when (it.getArgument<Prop<Any>>(0).defaultValue) {
+                is Boolean -> return@doAnswer false
+                is Int -> return@doAnswer -1
+                is String -> return@doAnswer ""
+                is List<*> -> return@doAnswer emptyList<String>()
+                else -> null
+            }
+        }
+    }
+
     fun fluxCapacitorEnabledFunctionalities(vararg enabledToggles: FluxEnable): FluxCapacitor {
         mockkStatic(Burst::class)
         val mockCapacitor = mock<FluxCapacitor> {
@@ -28,8 +40,8 @@ object QuickMocker {
             on { it.getValue(any<FluxValue<Boolean>>(), any()) } doReturn false
         }
         for (ft in enabledToggles) {
-            whenever(mockCapacitor.getValue(eq(ft))).thenReturn(true)
-            whenever(mockCapacitor.getValue(eq(ft), any())).thenReturn(true)
+            whenever(mockCapacitor.getValue(eq(ft))).doReturn(true)
+            whenever(mockCapacitor.getValue(eq(ft), any())).doReturn(true)
         }
         every { Burst.getFluxCapacitor() } returns mockCapacitor
         return mockCapacitor
@@ -38,8 +50,8 @@ object QuickMocker {
     fun latestValueFluxCapacitor(): FluxCapacitor {
         val blockchain = mock<Blockchain>()
         val propertyService = mock<PropertyService>()
-        whenever(blockchain.height).thenReturn(Integer.MAX_VALUE)
-        whenever(propertyService.get(eq(Props.DEV_TESTNET))).thenReturn(false)
+        whenever(blockchain.height).doReturn(Integer.MAX_VALUE)
+        whenever(propertyService.get(eq(Props.DEV_TESTNET))).doReturn(false)
         return FluxCapacitorImpl(blockchain, propertyService)
     }
 
@@ -47,7 +59,7 @@ object QuickMocker {
         val mockedRequest = mock<HttpServletRequest>()
 
         for (mp in parameters) {
-            whenever(mockedRequest.getParameter(mp.key)).thenReturn(mp.value)
+            whenever(mockedRequest.getParameter(mp.key)).doReturn(mp.value)
         }
 
         return mockedRequest

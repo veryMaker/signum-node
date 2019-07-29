@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.BLOCK_IDS_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -56,12 +57,12 @@ class GetAccountBlockIdsTest : AbstractUnitTest() {
 
         val mockBlockStringId = "mockBlockStringId"
         val mockBlock = mock<Block>()
-        whenever(mockBlock.stringId).thenReturn(mockBlockStringId)
+        whenever(mockBlock.stringId).doReturn(mockBlockStringId)
         val mockBlocksIterator = mockCollection<Block>(mockBlock)
 
-        whenever(mockParameterService!!.getAccount(req)).thenReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(req)).doReturn(mockAccount)
         whenever(mockBlockchain!!.getBlocks(eq(mockAccount), eq(timestamp), eq(firstIndex), eq(lastIndex)))
-                .thenReturn(mockBlocksIterator)
+                .doReturn(mockBlocksIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

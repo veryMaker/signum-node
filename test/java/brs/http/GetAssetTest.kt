@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.ASSET_PARAMETER
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -47,20 +48,20 @@ class GetAssetTest : AbstractUnitTest() {
         )
 
         val asset = mock<Asset>()
-        whenever(asset.id).thenReturn(assetId)
-        whenever(asset.name).thenReturn("assetName")
-        whenever(asset.description).thenReturn("assetDescription")
-        whenever(asset.decimals).thenReturn(3)
+        whenever(asset.id).doReturn(assetId)
+        whenever(asset.name).doReturn("assetName")
+        whenever(asset.description).doReturn("assetDescription")
+        whenever(asset.decimals).doReturn(3)
 
-        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(req))).thenReturn(asset)
+        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(req))).doReturn(asset)
 
         val tradeCount = 1
         val transferCount = 2
         val assetAccountsCount = 3
 
-        whenever(mockAssetExchange!!.getTradeCount(eq(assetId))).thenReturn(tradeCount)
-        whenever(mockAssetExchange!!.getTransferCount(eq(assetId))).thenReturn(transferCount)
-        whenever(mockAssetExchange!!.getAssetAccountsCount(eq(assetId))).thenReturn(assetAccountsCount)
+        whenever(mockAssetExchange!!.getTradeCount(eq(assetId))).doReturn(tradeCount)
+        whenever(mockAssetExchange!!.getTransferCount(eq(assetId))).doReturn(transferCount)
+        whenever(mockAssetExchange!!.getAssetAccountsCount(eq(assetId))).doReturn(assetAccountsCount)
 
         val result = t!!.processRequest(req) as JsonObject
 

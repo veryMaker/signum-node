@@ -15,6 +15,7 @@ import brs.http.JSONResponses.INCORRECT_ASSET
 import brs.http.JSONResponses.UNKNOWN_ASSET
 import brs.http.common.Parameters.ASSETS_PARAMETER
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -39,20 +40,20 @@ class GetAssetsTest {
         val assetId = 123L
 
         val req = QuickMocker.httpServletRequest()
-        whenever<Array<String>>(req.getParameterValues(eq(ASSETS_PARAMETER))).thenReturn(arrayOf("" + assetId, ""))
+        whenever(req.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf("" + assetId, ""))
 
         val mockTradeCount = 1
         val mockTransferCount = 2
         val mockAccountsCount = 3
 
         val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).thenReturn(assetId)
+        whenever(mockAsset.id).doReturn(assetId)
 
-        whenever(mockAssetExchange!!.getAsset(eq(assetId))).thenReturn(mockAsset)
+        whenever(mockAssetExchange!!.getAsset(eq(assetId))).doReturn(mockAsset)
 
-        whenever(mockAssetExchange!!.getTradeCount(eq(assetId))).thenReturn(mockTradeCount)
-        whenever(mockAssetExchange!!.getTransferCount(eq(assetId))).thenReturn(mockTransferCount)
-        whenever(mockAssetExchange!!.getAssetAccountsCount(eq(assetId))).thenReturn(mockAccountsCount)
+        whenever(mockAssetExchange!!.getTradeCount(eq(assetId))).doReturn(mockTradeCount)
+        whenever(mockAssetExchange!!.getTransferCount(eq(assetId))).doReturn(mockTransferCount)
+        whenever(mockAssetExchange!!.getAssetAccountsCount(eq(assetId))).doReturn(mockAccountsCount)
 
         val response = t!!.processRequest(req) as JsonObject
         assertNotNull(response)
@@ -73,9 +74,9 @@ class GetAssetsTest {
         val assetId = 123L
 
         val req = QuickMocker.httpServletRequest()
-        whenever<Array<String>>(req.getParameterValues(eq(ASSETS_PARAMETER))).thenReturn(arrayOf("" + assetId))
+        whenever(req.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf(assetId.toString()))
 
-        whenever(mockAssetExchange!!.getAsset(eq(assetId))).thenReturn(null)
+        whenever(mockAssetExchange!!.getAsset(eq(assetId))).doReturn(null)
 
         assertEquals(UNKNOWN_ASSET, t!!.processRequest(req))
     }
@@ -84,7 +85,7 @@ class GetAssetsTest {
     fun processRequest_incorrectAsset() {
         val req = QuickMocker.httpServletRequest()
 
-        whenever<Array<String>>(req.getParameterValues(eq(ASSETS_PARAMETER))).thenReturn(arrayOf("unParsable"))
+        whenever(req.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf("unParsable"))
 
         assertEquals(INCORRECT_ASSET, t!!.processRequest(req))
     }

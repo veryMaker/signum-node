@@ -13,4 +13,8 @@ public class Prop<T> {
   public String getName() {
     return name;
   }
+
+  public T getDefaultValue() {
+    return defaultValue;
+  }
 }

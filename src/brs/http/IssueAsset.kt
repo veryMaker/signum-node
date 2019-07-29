@@ -59,7 +59,5 @@ internal class IssueAsset internal constructor(private val parameterService: Par
         val account = parameterService.getSenderAccount(req)
         val attachment = Attachment.ColoredCoinsAssetIssuance(name, description!!, quantityQNT, decimals, blockchain.height)
         return createTransaction(req, account, attachment)
-
     }
-
 }

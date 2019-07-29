@@ -13,6 +13,7 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.ResultFields.PUBLIC_KEY_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -38,9 +39,9 @@ class GetAccountPublicKeyTest {
         val req = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.publicKey).thenReturn(TestConstants.TEST_PUBLIC_KEY_BYTES)
+        whenever(mockAccount.publicKey).doReturn(TestConstants.TEST_PUBLIC_KEY_BYTES)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)
@@ -54,9 +55,9 @@ class GetAccountPublicKeyTest {
         val req = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.publicKey).thenReturn(null)
+        whenever(mockAccount.publicKey).doReturn(null)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
         assertEquals(JSON.emptyJSON, t!!.processRequest(req))
     }

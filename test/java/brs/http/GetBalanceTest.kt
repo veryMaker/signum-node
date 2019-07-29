@@ -12,6 +12,7 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import com.nhaarman.mockitokotlin2.mock
@@ -35,11 +36,11 @@ class GetBalanceTest {
         val req = QuickMocker.httpServletRequest()
         val mockAccount = mock<Account>()
 
-        whenever(mockAccount.balanceNQT).thenReturn(1L)
-        whenever(mockAccount.unconfirmedBalanceNQT).thenReturn(2L)
-        whenever(mockAccount.forgedBalanceNQT).thenReturn(3L)
+        whenever(mockAccount.balanceNQT).doReturn(1L)
+        whenever(mockAccount.unconfirmedBalanceNQT).doReturn(2L)
+        whenever(mockAccount.forgedBalanceNQT).doReturn(3L)
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
         val result = t!!.processRequest(req) as JsonObject
 
@@ -55,7 +56,7 @@ class GetBalanceTest {
     fun processRequest_noAccountFound() {
         val req = QuickMocker.httpServletRequest()
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(null)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(null)
 
         val result = t!!.processRequest(req) as JsonObject
 

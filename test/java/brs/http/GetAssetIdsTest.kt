@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.ASSET_IDS_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -41,12 +42,12 @@ class GetAssetIdsTest : AbstractUnitTest() {
         val lastIndex = 2
 
         val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).thenReturn(5L)
+        whenever(mockAsset.id).doReturn(5L)
 
         val mockAssetIterator = mockCollection<Asset>(mockAsset)
 
         whenever(mockAssetExchange!!.getAllAssets(eq(firstIndex), eq(lastIndex)))
-                .thenReturn(mockAssetIterator)
+                .doReturn(mockAssetIterator)
 
         val req = QuickMocker.httpServletRequest(
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),

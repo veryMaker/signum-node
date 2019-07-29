@@ -75,10 +75,10 @@ object AtTestHelper {
             }
             null
         }.whenever(mockAtTable).insert(any())
-        whenever(mockAccount.balanceNQT).thenReturn(TestConstants.TEN_BURST)
-        whenever(mockAccountStore.accountTable).thenReturn(mockAccountTable)
+        whenever(mockAccount.balanceNQT).doReturn(TestConstants.TEN_BURST)
+        whenever(mockAccountStore.accountTable).doReturn(mockAccountTable)
         whenever(mockAccountStore.setOrVerify(any(), any(), any()))
-                .thenReturn(true)
+                .doReturn(true)
         doAnswer {
             addedAts.map { it.id }
                     .map { AtApiHelper.getLong(it) }
@@ -93,21 +93,21 @@ object AtTestHelper {
             }
             null
         }.whenever(mockAtStore).getAT(any())
-        whenever(mockAtTable.getAll(any(), any())).thenReturn(addedAts)
+        whenever(mockAtTable.getAll(any(), any())).doReturn(addedAts)
         every { Account.getOrAddAccount(any()) } returns mockAccount
         every { Account.getAccount(any()) } returns mockAccount
-        whenever(mockAccountTable.get(any())).thenReturn(mockAccount)
-        whenever(mockStores.accountStore).thenReturn(mockAccountStore)
-        whenever(mockAccountStore.accountKeyFactory).thenReturn(mockAccountKeyFactory)
-        whenever(mockAtStore.atStateTable).thenReturn(mockAtStateTable)
-        whenever(mockPropertyService.get(eq(Props.ENABLE_AT_DEBUG_LOG))).thenReturn(true)
-        whenever(mockAtStore.atTable).thenReturn(mockAtTable)
+        whenever(mockAccountTable.get(any())).doReturn(mockAccount)
+        whenever(mockStores.accountStore).doReturn(mockAccountStore)
+        whenever(mockAccountStore.accountKeyFactory).doReturn(mockAccountKeyFactory)
+        whenever(mockAtStore.atStateTable).doReturn(mockAtStateTable)
+        whenever(mockPropertyService.get(eq(Props.ENABLE_AT_DEBUG_LOG))).doReturn(true)
+        whenever(mockAtStore.atTable).doReturn(mockAtTable)
         every { Burst.getPropertyService() } returns mockPropertyService
         every { Burst.getBlockchain() } returns mockBlockchain
-        whenever(mockBlockchain.height).thenReturn(Integer.MAX_VALUE)
-        whenever(mockAtStore.atDbKeyFactory).thenReturn(atLongKeyFactory)
-        whenever(mockAtStore.atStateDbKeyFactory).thenReturn(atStateLongKeyFactory)
-        whenever(mockStores.atStore).thenReturn(mockAtStore)
+        whenever(mockBlockchain.height).doReturn(Integer.MAX_VALUE)
+        whenever(mockAtStore.atDbKeyFactory).doReturn(atLongKeyFactory)
+        whenever(mockAtStore.atStateDbKeyFactory).doReturn(atStateLongKeyFactory)
+        whenever(mockStores.atStore).doReturn(mockAtStore)
         every { Burst.getStores() } returns mockStores
         every { Burst.getFluxCapacitor() } returns mockFluxCapacitor
     }

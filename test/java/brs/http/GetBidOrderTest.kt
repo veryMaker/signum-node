@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest
 import brs.http.JSONResponses.UNKNOWN_ORDER
 import brs.http.common.Parameters.ORDER_PARAMETER
 import brs.http.common.ResultFields.ORDER_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -39,9 +40,9 @@ class GetBidOrderTest {
     fun processRequest() {
         val bidOrderId = 123L
         val mockBid = mock<Bid>()
-        whenever(mockBid.id).thenReturn(bidOrderId)
+        whenever(mockBid.id).doReturn(bidOrderId)
 
-        whenever(mockAssetExchange!!.getBidOrder(eq(bidOrderId))).thenReturn(mockBid)
+        whenever(mockAssetExchange!!.getBidOrder(eq(bidOrderId))).doReturn(mockBid)
 
         val req = QuickMocker.httpServletRequest(MockParam(ORDER_PARAMETER, bidOrderId))
 

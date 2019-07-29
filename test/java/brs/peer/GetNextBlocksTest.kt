@@ -6,10 +6,7 @@ import brs.Genesis
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,12 +28,12 @@ class GetNextBlocksTest {
         mockBlockchain = mock<Blockchain>()
         mockPeer = mock<Peer>()
         val mockBlock = mock<Block>()
-        whenever(mockBlock.jsonObject).thenReturn(JsonObject())
+        whenever(mockBlock.jsonObject).doReturn(JsonObject())
         val blocks = ArrayList<Block>()
         for (i in 0..99) {
             blocks.add(mockBlock)
         }
-        whenever(mockBlockchain!!.getBlocksAfter(eq(Genesis.GENESIS_BLOCK_ID), any())).thenReturn(blocks)
+        whenever(mockBlockchain!!.getBlocksAfter(eq(Genesis.GENESIS_BLOCK_ID), any())).doReturn(blocks)
         getNextBlocks = GetNextBlocks(mockBlockchain)
     }
 

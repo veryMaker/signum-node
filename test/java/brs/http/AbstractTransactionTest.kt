@@ -12,7 +12,7 @@ abstract class AbstractTransactionTest : AbstractUnitTest() {
     protected fun attachmentCreatedTransaction(r: () -> Any, apiTransactionManagerMock: APITransactionManager): Attachment? {
         val ac = argumentCaptor<Attachment>()
 
-        whenever(apiTransactionManagerMock.createTransaction(any(), any(), anyOrNull(), any(), ac.capture(), any())).thenReturn(JsonPrimitive("hi"))
+        whenever(apiTransactionManagerMock.createTransaction(any(), any(), anyOrNull(), any(), ac.capture(), any())).doReturn(JsonPrimitive("hi"))
 
         r()
 

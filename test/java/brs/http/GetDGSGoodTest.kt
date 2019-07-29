@@ -12,6 +12,7 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -35,18 +36,18 @@ class GetDGSGoodTest {
     @Throws(BurstException::class)
     fun processRequest() {
         val mockGoods = mock<DigitalGoodsStore.Goods>()
-        whenever(mockGoods.id).thenReturn(1L)
-        whenever(mockGoods.name).thenReturn("name")
-        whenever(mockGoods.description).thenReturn("description")
-        whenever(mockGoods.quantity).thenReturn(2)
-        whenever(mockGoods.priceNQT).thenReturn(3L)
-        whenever(mockGoods.tags).thenReturn("tags")
-        whenever(mockGoods.isDelisted).thenReturn(true)
-        whenever(mockGoods.timestamp).thenReturn(12345)
+        whenever(mockGoods.id).doReturn(1L)
+        whenever(mockGoods.name).doReturn("name")
+        whenever(mockGoods.description).doReturn("description")
+        whenever(mockGoods.quantity).doReturn(2)
+        whenever(mockGoods.priceNQT).doReturn(3L)
+        whenever(mockGoods.tags).doReturn("tags")
+        whenever(mockGoods.isDelisted).doReturn(true)
+        whenever(mockGoods.timestamp).doReturn(12345)
 
         val req = QuickMocker.httpServletRequest()
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

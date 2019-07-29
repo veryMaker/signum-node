@@ -2,6 +2,7 @@ package brs.services.impl
 
 import brs.at.AT
 import brs.db.store.ATStore
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -27,7 +28,7 @@ class ATServiceImplTest {
     fun getAllATIds() {
         val mockATCollection = mock<Collection<Long>>()
 
-        whenever(mockATStore!!.allATIds).thenReturn(mockATCollection)
+        whenever(mockATStore!!.allATIds).doReturn(mockATCollection)
 
         assertEquals(mockATCollection, t!!.allATIds)
     }
@@ -38,7 +39,7 @@ class ATServiceImplTest {
 
         val mockATsIssuedByAccount = mock<List<Long>>()
 
-        whenever(mockATStore!!.getATsIssuedBy(eq(accountId))).thenReturn(mockATsIssuedByAccount)
+        whenever(mockATStore!!.getATsIssuedBy(eq(accountId))).doReturn(mockATsIssuedByAccount)
 
         assertEquals(mockATsIssuedByAccount, t!!.getATsIssuedBy(accountId))
     }
@@ -49,7 +50,7 @@ class ATServiceImplTest {
 
         val mockAT = mock<AT>()
 
-        whenever(mockATStore!!.getAT(eq(atId))).thenReturn(mockAT)
+        whenever(mockATStore!!.getAT(eq(atId))).doReturn(mockAT)
 
         assertEquals(mockAT, t!!.getAT(atId))
     }

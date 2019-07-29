@@ -1,6 +1,6 @@
 package brs.props
 
 interface PropertyService {
-    fun <T> get(prop: Prop<T>): T
-    fun <T> get(propName: String, defaultValue: T): T
+    fun <T: Any> get(prop: Prop<T>): T = get(prop.name, prop.defaultValue)
+    fun <T: Any> get(propName: String, defaultValue: T): T
 }

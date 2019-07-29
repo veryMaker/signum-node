@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.ACCOUNTS_RESPONSE
 import brs.http.common.Parameters.NAME_PARAMETER
+import com.nhaarman.mockitokotlin2.doReturn
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
@@ -43,12 +44,12 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
         )
 
         val targetAccount = mock<Account>()
-        whenever(targetAccount.getId()).thenReturn(targetAccountId)
-        whenever(targetAccount.name).thenReturn(targetAccountName)
+        whenever(targetAccount.getId()).doReturn(targetAccountId)
+        whenever(targetAccount.name).doReturn(targetAccountName)
 
         val mockIterator = mockCollection<Account>(targetAccount)
 
-        whenever(accountService!!.getAccountsWithName(targetAccountName)).thenReturn(mockIterator)
+        whenever(accountService!!.getAccountsWithName(targetAccountName)).doReturn(mockIterator)
 
         val resultOverview = t!!.processRequest(req) as JsonObject
         assertNotNull(resultOverview)
@@ -69,7 +70,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
 
         val mockIterator = mockCollection<Account>()
 
-        whenever(accountService!!.getAccountsWithName(targetAccountName)).thenReturn(mockIterator)
+        whenever(accountService!!.getAccountsWithName(targetAccountName)).doReturn(mockIterator)
 
         val resultOverview = t!!.processRequest(req) as JsonObject
         assertNotNull(resultOverview)

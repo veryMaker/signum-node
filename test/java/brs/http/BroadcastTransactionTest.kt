@@ -47,13 +47,13 @@ class BroadcastTransactionTest {
         val req = mock<HttpServletRequest>()
         val mockTransaction = mock<Transaction>()
 
-        whenever(mockTransaction.stringId).thenReturn(mockTransactionStringId)
-        whenever(mockTransaction.fullHash).thenReturn(mockTransactionFullHash)
+        whenever(mockTransaction.stringId).doReturn(mockTransactionStringId)
+        whenever(mockTransaction.fullHash).doReturn(mockTransactionFullHash)
 
-        whenever(req.getParameter(TRANSACTION_BYTES_PARAMETER)).thenReturn(mockTransactionBytesParameter)
-        whenever(req.getParameter(TRANSACTION_JSON_PARAMETER)).thenReturn(mockTransactionJson)
+        whenever(req.getParameter(TRANSACTION_BYTES_PARAMETER)).doReturn(mockTransactionBytesParameter)
+        whenever(req.getParameter(TRANSACTION_JSON_PARAMETER)).doReturn(mockTransactionJson)
 
-        whenever(parameterServiceMock!!.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson))).thenReturn(mockTransaction)
+        whenever(parameterServiceMock!!.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson))).doReturn(mockTransaction)
 
         val result = t!!.processRequest(req) as JsonObject
 
@@ -72,10 +72,10 @@ class BroadcastTransactionTest {
         val req = mock<HttpServletRequest>()
         val mockTransaction = mock<Transaction>()
 
-        whenever(req.getParameter(TRANSACTION_BYTES_PARAMETER)).thenReturn(mockTransactionBytesParameter)
-        whenever(req.getParameter(TRANSACTION_JSON_PARAMETER)).thenReturn(mockTransactionJson)
+        whenever(req.getParameter(TRANSACTION_BYTES_PARAMETER)).doReturn(mockTransactionBytesParameter)
+        whenever(req.getParameter(TRANSACTION_JSON_PARAMETER)).doReturn(mockTransactionJson)
 
-        whenever(parameterServiceMock!!.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson))).thenReturn(mockTransaction)
+        whenever(parameterServiceMock!!.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson))).doReturn(mockTransaction)
 
         doThrow(BurstException.NotCurrentlyValidException::class).whenever(transactionServiceMock!!).validate(eq(mockTransaction))
 

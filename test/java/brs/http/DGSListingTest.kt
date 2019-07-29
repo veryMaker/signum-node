@@ -17,6 +17,7 @@ import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 import brs.http.common.Parameters.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -59,7 +60,7 @@ class DGSListingTest : AbstractTransactionTest() {
                 MockParam(TAGS_PARAMETER, tags)
         )
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 

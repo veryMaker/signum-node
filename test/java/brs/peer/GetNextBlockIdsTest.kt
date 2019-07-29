@@ -5,10 +5,7 @@ import brs.Genesis
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,7 +30,7 @@ class GetNextBlockIdsTest {
         for (i in 0..99) {
             blocks.add((i + 1).toLong())
         }
-        whenever(mockBlockchain!!.getBlockIdsAfter(eq(Genesis.GENESIS_BLOCK_ID), any())).thenReturn(blocks)
+        whenever(mockBlockchain!!.getBlockIdsAfter(eq(Genesis.GENESIS_BLOCK_ID), any())).doReturn(blocks)
         getNextBlockIds = GetNextBlockIds(mockBlockchain)
     }
 

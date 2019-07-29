@@ -1,9 +1,6 @@
 package brs.util
 
-import brs.Block
-import brs.Blockchain
-import brs.Constants
-import brs.Genesis
+import brs.*
 import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.props.PropertyService
@@ -348,7 +345,7 @@ class DownloadCacheImpl(propertyService: PropertyService, private val fluxCapaci
         }
         return if (block == null) {
             false
-        } else curHeight - block.height <= Constants.MAX_ROLLBACK
+        } else curHeight - block.height <= Burst.getPropertyService().get(Props.DB_MAX_ROLLBACK)
     }
 
     fun addBlock(block: Block): Boolean {

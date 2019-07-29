@@ -27,7 +27,7 @@ class IndirectIncomingServiceImplTest {
     fun setUpIndirectIncomingServiceImplTest() {
         val propertyService = mock<PropertyService>()
         val indirectIncomingStore = mock<IndirectIncomingStore>()
-        whenever(propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE)).thenReturn(true)
+        whenever(propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE)).doReturn(true)
         doAnswer { invocation ->
             addIndirectIncomingsRunnable.get().accept(invocation.getArgument(0))
             null
@@ -70,10 +70,10 @@ class IndirectIncomingServiceImplTest {
         recipients.add(3L)
         recipients.add(4L)
         val attachment = mock<Attachment.PaymentMultiSameOutCreation>()
-        whenever(attachment.getRecipients()).thenReturn(recipients)
+        whenever(attachment.getRecipients()).doReturn(recipients)
         val multiOutSame = mock<Transaction>()
-        whenever(multiOutSame.type).thenReturn(TransactionType.Payment.MULTI_SAME_OUT)
-        whenever(multiOutSame.attachment).thenReturn(attachment)
+        whenever(multiOutSame.type).doReturn(TransactionType.Payment.MULTI_SAME_OUT)
+        whenever(multiOutSame.attachment).doReturn(attachment)
         indirectIncomingService!!.processTransaction(multiOutSame)
     }
 
@@ -81,8 +81,8 @@ class IndirectIncomingServiceImplTest {
     fun testIndirectIncomingServiceImplTestOrdinaryTransaction() {
         addIndirectIncomingsRunnable.set(Consumer { indirectIncomings -> assertEquals(0, indirectIncomings.size.toLong()) })
         val ordinaryTransaction = mock<Transaction>()
-        whenever(ordinaryTransaction.attachment).thenReturn(Attachment.ORDINARY_PAYMENT)
-        whenever(ordinaryTransaction.type).thenReturn(TransactionType.Payment.ORDINARY)
+        whenever(ordinaryTransaction.attachment).doReturn(Attachment.ORDINARY_PAYMENT)
+        whenever(ordinaryTransaction.type).doReturn(TransactionType.Payment.ORDINARY)
         indirectIncomingService!!.processTransaction(ordinaryTransaction)
     }
 }

@@ -12,6 +12,7 @@ import brs.TransactionType
 import brs.common.QuickMocker
 import brs.common.TestConstants
 import brs.fluxcapacitor.FluxValues
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.mockk.every
@@ -35,7 +36,7 @@ class TransactionDuplicatesCheckerImplTest {
         mockkStatic(Burst::class)
         val mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION)
         val mockBlockchain = mock<BlockchainImpl>()
-        whenever(mockBlockchain.height).thenReturn(4)
+        whenever(mockBlockchain.height).doReturn(4)
         every { Burst.getBlockchain() } returns mockBlockchain
 
         TransactionType.init(mockBlockchain, mockFluxCapacitor, null, null, null, null, null, null)

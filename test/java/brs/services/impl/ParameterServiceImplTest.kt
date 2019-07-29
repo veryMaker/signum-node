@@ -22,10 +22,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.common.TestConstants.TEST_SECRET_PHRASE
 import brs.http.common.Parameters.*
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
 
 class ParameterServiceImplTest {
@@ -63,7 +60,7 @@ class ParameterServiceImplTest {
 
         val req = QuickMocker.httpServletRequest(MockParam(ACCOUNT_PARAMETER, accountId))
 
-        whenever(accountServiceMock!!.getAccount(eq(123L))).thenReturn(mockAccount)
+        whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(mockAccount)
 
         assertEquals(mockAccount, t!!.getAccount(req))
     }
@@ -81,7 +78,7 @@ class ParameterServiceImplTest {
         val accountId = "123"
         val req = QuickMocker.httpServletRequest(MockParam(ACCOUNT_PARAMETER, accountId))
 
-        whenever(accountServiceMock!!.getAccount(eq(123L))).thenReturn(null)
+        whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(null)
 
         t!!.getAccount(req)
     }
@@ -105,13 +102,13 @@ class ParameterServiceImplTest {
         val accountID2 = "321"
         val accountIds = arrayOf(accountID1, accountID2)
 
-        whenever<Array<String>>(req.getParameterValues(eq(ACCOUNT_PARAMETER))).thenReturn(accountIds)
+        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
 
         val mockAccount1 = mock<Account>()
         val mockAccount2 = mock<Account>()
 
-        whenever(accountServiceMock!!.getAccount(eq(123L))).thenReturn(mockAccount1)
-        whenever(accountServiceMock!!.getAccount(eq(321L))).thenReturn(mockAccount2)
+        whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(mockAccount1)
+        whenever(accountServiceMock!!.getAccount(eq(321L))).doReturn(mockAccount2)
 
         val result = t!!.getAccounts(req)
 
@@ -127,7 +124,7 @@ class ParameterServiceImplTest {
         val req = QuickMocker.httpServletRequest()
         val accountIds = arrayOf("")
 
-        whenever<Array<String>>(req.getParameterValues(eq(ACCOUNT_PARAMETER))).thenReturn(accountIds)
+        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
 
         val result = t!!.getAccounts(req)
 
@@ -141,7 +138,7 @@ class ParameterServiceImplTest {
         val req = QuickMocker.httpServletRequest()
         val accountIds = arrayOfNulls<String>(1)
 
-        whenever<Array<String?>>(req.getParameterValues(eq(ACCOUNT_PARAMETER))).thenReturn(accountIds)
+        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
 
         val result = t!!.getAccounts(req)
 
@@ -154,7 +151,7 @@ class ParameterServiceImplTest {
     @Throws(ParameterException::class)
     fun getAccounts_missingAccountWhenNoParametersNull() {
         val req = QuickMocker.httpServletRequest()
-        whenever<Array<String>>(req.getParameterValues(eq(ACCOUNT_PARAMETER))).thenReturn(null)
+        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(null)
 
         t!!.getAccounts(req)
     }
@@ -165,7 +162,7 @@ class ParameterServiceImplTest {
         val req = QuickMocker.httpServletRequest()
         val accountIds = arrayOfNulls<String>(0)
 
-        whenever<Array<String?>>(req.getParameterValues(eq(ACCOUNT_PARAMETER))).thenReturn(accountIds)
+        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
 
         t!!.getAccounts(req)
     }
@@ -177,9 +174,9 @@ class ParameterServiceImplTest {
         val accountID1 = "123"
         val accountIds = arrayOf(accountID1)
 
-        whenever<Array<String>>(req.getParameterValues(eq(ACCOUNT_PARAMETER))).thenReturn(accountIds)
+        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
 
-        whenever(accountServiceMock!!.getAccount(eq(123L))).thenReturn(null)
+        whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(null)
 
         t!!.getAccounts(req)
     }
@@ -191,7 +188,7 @@ class ParameterServiceImplTest {
         val accountID1 = "123"
         val accountIds = arrayOf(accountID1)
 
-        whenever<Array<String>>(req.getParameterValues(eq(ACCOUNT_PARAMETER))).thenReturn(accountIds)
+        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
 
         whenever(accountServiceMock!!.getAccount(eq(123L))).thenThrow(RuntimeException())
 
@@ -206,7 +203,7 @@ class ParameterServiceImplTest {
 
         val mockAccount = mock<Account>()
 
-        whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(secretPhrase)))).thenReturn(mockAccount)
+        whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(secretPhrase)))).doReturn(mockAccount)
 
         assertEquals(mockAccount, t!!.getSenderAccount(req))
     }
@@ -219,7 +216,7 @@ class ParameterServiceImplTest {
 
         val mockAccount = mock<Account>()
 
-        whenever(accountServiceMock!!.getAccount(eq(Convert.parseHexString(publicKey)))).thenReturn(mockAccount)
+        whenever(accountServiceMock!!.getAccount(eq(Convert.parseHexString(publicKey)))).doReturn(mockAccount)
 
         assertEquals(mockAccount, t!!.getSenderAccount(req))
     }
@@ -248,7 +245,7 @@ class ParameterServiceImplTest {
         val publicKey = "123"
         val req = QuickMocker.httpServletRequest(MockParam(PUBLIC_KEY_PARAMETER, publicKey))
 
-        whenever(accountServiceMock!!.getAccount(eq(Convert.parseHexString(publicKey)))).thenReturn(null)
+        whenever(accountServiceMock!!.getAccount(eq(Convert.parseHexString(publicKey)))).doReturn(null)
 
         t!!.getSenderAccount(req)
     }
@@ -260,7 +257,7 @@ class ParameterServiceImplTest {
 
         val req = QuickMocker.httpServletRequest(MockParam(ALIAS_PARAMETER, "123"))
 
-        whenever(aliasServiceMock!!.getAlias(eq(123L))).thenReturn(mockAlias)
+        whenever(aliasServiceMock!!.getAlias(eq(123L))).doReturn(mockAlias)
 
         assertEquals(mockAlias, t!!.getAlias(req))
     }
@@ -272,7 +269,7 @@ class ParameterServiceImplTest {
 
         val req = QuickMocker.httpServletRequest(MockParam(ALIAS_NAME_PARAMETER, "aliasName"))
 
-        whenever(aliasServiceMock!!.getAlias(eq("aliasName"))).thenReturn(mockAlias)
+        whenever(aliasServiceMock!!.getAlias(eq("aliasName"))).doReturn(mockAlias)
 
         assertEquals(mockAlias, t!!.getAlias(req))
     }
@@ -297,7 +294,7 @@ class ParameterServiceImplTest {
 
         val req = QuickMocker.httpServletRequest(MockParam(ALIAS_PARAMETER, "123"))
 
-        whenever(aliasServiceMock!!.getAlias(eq(123L))).thenReturn(null)
+        whenever(aliasServiceMock!!.getAlias(eq(123L))).doReturn(null)
 
         assertEquals(mockAlias, t!!.getAlias(req))
     }
@@ -309,7 +306,7 @@ class ParameterServiceImplTest {
 
         val mockAsset = mock<Asset>()
 
-        whenever(assetExchangeMock!!.getAsset(eq(123L))).thenReturn(mockAsset)
+        whenever(assetExchangeMock!!.getAsset(eq(123L))).doReturn(mockAsset)
 
         assertEquals(mockAsset, t!!.getAsset(req))
     }
@@ -329,7 +326,7 @@ class ParameterServiceImplTest {
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getAsset_assetNotFoundIsUnknownAsset() {
-        whenever(assetExchangeMock!!.getAsset(eq(123L))).thenReturn(null)
+        whenever(assetExchangeMock!!.getAsset(eq(123L))).doReturn(null)
 
         t!!.getAsset(QuickMocker.httpServletRequest(MockParam(ASSET_PARAMETER, "123")))
     }
@@ -343,7 +340,7 @@ class ParameterServiceImplTest {
 
         val mockGoods = mock<DigitalGoodsStore.Goods>()
 
-        whenever(dgsGoodsStoreServiceMock!!.getGoods(eq(1L))).thenReturn(mockGoods)
+        whenever(dgsGoodsStoreServiceMock!!.getGoods(eq(1L))).doReturn(mockGoods)
 
         assertEquals(mockGoods, t!!.getGoods(req))
     }
@@ -361,7 +358,7 @@ class ParameterServiceImplTest {
                 MockParam(GOODS_PARAMETER, "1")
         )
 
-        whenever(dgsGoodsStoreServiceMock!!.getGoods(eq(1L))).thenReturn(null)
+        whenever(dgsGoodsStoreServiceMock!!.getGoods(eq(1L))).doReturn(null)
 
         t!!.getGoods(req)
     }
@@ -385,7 +382,7 @@ class ParameterServiceImplTest {
 
         val mockPurchase = mock<DigitalGoodsStore.Purchase>()
 
-        whenever(dgsGoodsStoreServiceMock!!.getPurchase(eq(1L))).thenReturn(mockPurchase)
+        whenever(dgsGoodsStoreServiceMock!!.getPurchase(eq(1L))).doReturn(mockPurchase)
 
         assertEquals(mockPurchase, t!!.getPurchase(req))
     }
@@ -403,7 +400,7 @@ class ParameterServiceImplTest {
                 MockParam(PURCHASE_PARAMETER, "1")
         )
 
-        whenever(dgsGoodsStoreServiceMock!!.getPurchase(eq(1L))).thenReturn(null)
+        whenever(dgsGoodsStoreServiceMock!!.getPurchase(eq(1L))).doReturn(null)
 
         t!!.getPurchase(req)
     }
@@ -427,11 +424,11 @@ class ParameterServiceImplTest {
                 MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "false"))
 
         val mockRecipientAccount = mock<Account>()
-        whenever(mockRecipientAccount.publicKey).thenReturn(ByteArray(0))
+        whenever(mockRecipientAccount.publicKey).doReturn(ByteArray(0))
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        whenever(mockRecipientAccount.encryptTo(eq(Convert.parseHexString("beef123")), eq<String>(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock)
+        whenever(mockRecipientAccount.encryptTo(eq(Convert.parseHexString("beef123")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t!!.getEncryptedMessage(req, mockRecipientAccount, null))
     }
@@ -458,11 +455,11 @@ class ParameterServiceImplTest {
                 MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "true"))
 
         val mockRecipientAccount = mock<Account>()
-        whenever(mockRecipientAccount.publicKey).thenReturn(ByteArray(0))
+        whenever(mockRecipientAccount.publicKey).doReturn(ByteArray(0))
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        whenever(mockRecipientAccount.encryptTo(eq(Convert.toBytes("message")), eq<String>(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock)
+        whenever(mockRecipientAccount.encryptTo(eq(Convert.toBytes("message")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t!!.getEncryptedMessage(req, mockRecipientAccount, null))
     }
@@ -499,7 +496,7 @@ class ParameterServiceImplTest {
                 MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "false"))
 
         val mockAccount = mock<Account>()
-        whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).thenReturn(mockAccount)
+        whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).doReturn(mockAccount)
 
         t!!.getEncryptedMessage(req, mockAccount, null)
     }
@@ -519,11 +516,11 @@ class ParameterServiceImplTest {
                 MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, "false"))
 
         val mockAccount = mock<Account>()
-        whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).thenReturn(mockAccount)
+        whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).doReturn(mockAccount)
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        whenever(mockAccount.encryptTo(eq(Convert.parseHexString("beef123")), eq<String>(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock)
+        whenever(mockAccount.encryptTo(eq(Convert.parseHexString("beef123")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t!!.getEncryptToSelfMessage(req))
     }
@@ -537,11 +534,11 @@ class ParameterServiceImplTest {
                 MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, "false"))
 
         val mockAccount = mock<Account>()
-        whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).thenReturn(mockAccount)
+        whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).doReturn(mockAccount)
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        whenever(mockAccount.encryptTo(eq(Convert.parseHexString("beef123")), eq<String>(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock)
+        whenever(mockAccount.encryptTo(eq(Convert.parseHexString("beef123")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t!!.getEncryptToSelfMessage(req))
     }
@@ -555,11 +552,11 @@ class ParameterServiceImplTest {
                 MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, "true"))
 
         val mockAccount = mock<Account>()
-        whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).thenReturn(mockAccount)
+        whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).doReturn(mockAccount)
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        whenever(mockAccount.encryptTo(eq(Convert.toBytes("message")), eq<String>(TEST_SECRET_PHRASE))).thenReturn(encryptedDataMock)
+        whenever(mockAccount.encryptTo(eq(Convert.toBytes("message")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t!!.getEncryptToSelfMessage(req))
     }
@@ -596,7 +593,7 @@ class ParameterServiceImplTest {
                 MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, "false"))
 
         val mockAccount = mock<Account>()
-        whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).thenReturn(mockAccount)
+        whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).doReturn(mockAccount)
 
         t!!.getEncryptToSelfMessage(req)
     }
@@ -624,7 +621,7 @@ class ParameterServiceImplTest {
     @Test
     @Throws(ParameterException::class)
     fun getNumberOfConfirmations() {
-        whenever(blockchainMock!!.height).thenReturn(6)
+        whenever(blockchainMock!!.height).doReturn(6)
         assertEquals(5, t!!.getNumberOfConfirmations(QuickMocker.httpServletRequest(MockParam(NUMBER_OF_CONFIRMATIONS_PARAMETER, "5"))).toLong())
     }
 
@@ -643,15 +640,15 @@ class ParameterServiceImplTest {
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getNumberOfConfirmations_numberOfConfirmationsBiggerThanBlockchainHeightParameterException() {
-        whenever(blockchainMock!!.height).thenReturn(4)
+        whenever(blockchainMock!!.height).doReturn(4)
         assertEquals(5, t!!.getNumberOfConfirmations(QuickMocker.httpServletRequest(MockParam(NUMBER_OF_CONFIRMATIONS_PARAMETER, "5"))).toLong())
     }
 
     @Test
     @Throws(ParameterException::class)
     fun getHeight() {
-        whenever(blockchainMock!!.height).thenReturn(6)
-        whenever(blockchainProcessorMock!!.minRollbackHeight).thenReturn(4)
+        whenever(blockchainMock!!.height).doReturn(6)
+        whenever(blockchainProcessorMock!!.minRollbackHeight).doReturn(4)
         assertEquals(5, t!!.getHeight(QuickMocker.httpServletRequest(MockParam(HEIGHT_PARAMETER, "5"))).toLong())
     }
 
@@ -676,15 +673,15 @@ class ParameterServiceImplTest {
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getHeight_heightGreaterThanBlockchainHeightParameterException() {
-        whenever(blockchainMock!!.height).thenReturn(5)
+        whenever(blockchainMock!!.height).doReturn(5)
         t!!.getHeight(QuickMocker.httpServletRequest(MockParam(HEIGHT_PARAMETER, "6")))
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getHeight_heightUnderMinRollbackHeightParameterException() {
-        whenever(blockchainMock!!.height).thenReturn(10)
-        whenever(blockchainProcessorMock!!.minRollbackHeight).thenReturn(12)
+        whenever(blockchainMock!!.height).doReturn(10)
+        whenever(blockchainProcessorMock!!.minRollbackHeight).doReturn(12)
         t!!.getHeight(QuickMocker.httpServletRequest(MockParam(HEIGHT_PARAMETER, "10")))
     }
 
@@ -693,7 +690,7 @@ class ParameterServiceImplTest {
     fun parseTransaction_transactionBytes() {
         val mockTransaction = mock<Transaction>()
 
-        whenever(transactionProcessorMock!!.parseTransaction(any<ByteArray>())).thenReturn(mockTransaction)
+        whenever(transactionProcessorMock!!.parseTransaction(any<ByteArray>())).doReturn(mockTransaction)
 
         assertEquals(mockTransaction, t!!.parseTransaction("123", null))
     }
@@ -717,7 +714,7 @@ class ParameterServiceImplTest {
     fun parseTransaction_transactionJSON() {
         val mockTransaction = mock<Transaction>()
 
-        whenever(transactionProcessorMock!!.parseTransaction(any<JsonObject>())).thenReturn(mockTransaction)
+        whenever(transactionProcessorMock!!.parseTransaction(any<JsonObject>())).doReturn(mockTransaction)
 
         assertEquals(mockTransaction, t!!.parseTransaction(null, "{}"))
     }
@@ -761,7 +758,7 @@ class ParameterServiceImplTest {
 
         val mockAT = mock<AT>()
 
-        whenever(atServiceMock!!.getAT(eq(atId))).thenReturn(mockAT)
+        whenever(atServiceMock!!.getAT(eq(atId))).doReturn(mockAT)
 
         assertEquals(mockAT, t!!.getAT(req))
     }
@@ -793,7 +790,7 @@ class ParameterServiceImplTest {
                 MockParam(AT_PARAMETER, atId)
         )
 
-        whenever(atServiceMock!!.getAT(eq(atId))).thenReturn(null)
+        whenever(atServiceMock!!.getAT(eq(atId))).doReturn(null)
 
         t!!.getAT(req)
     }

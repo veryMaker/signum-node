@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -59,14 +60,14 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         )
 
         val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).thenReturn(assetId)
+        whenever(mockAsset.id).doReturn(assetId)
 
         val mockAssetTransfer = mock<AssetTransfer>()
         val mockAssetTransferIterator = mockCollection<AssetTransfer>(mockAssetTransfer)
 
-        whenever(mockParameterService!!.getAsset(eq<HttpServletRequest>(req))).thenReturn(mockAsset)
+        whenever(mockParameterService!!.getAsset(eq<HttpServletRequest>(req))).doReturn(mockAsset)
 
-        whenever(mockAssetExchange!!.getAssetTransfers(eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetTransferIterator)
+        whenever(mockAssetExchange!!.getAssetTransfers(eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockAssetTransferIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)
@@ -88,14 +89,14 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(accountId)
+        whenever(mockAccount.getId()).doReturn(accountId)
 
         val mockAssetTransfer = mock<AssetTransfer>()
         val mockAssetTransferIterator = mockCollection<AssetTransfer>(mockAssetTransfer)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
-        whenever(mockAccountService!!.getAssetTransfers(eq(accountId), eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetTransferIterator)
+        whenever(mockAccountService!!.getAssetTransfers(eq(accountId), eq(firstIndex), eq(lastIndex))).doReturn(mockAssetTransferIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)
@@ -119,22 +120,22 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         )
 
         val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).thenReturn(assetId)
-        whenever(mockAsset.name).thenReturn("assetName")
+        whenever(mockAsset.id).doReturn(assetId)
+        whenever(mockAsset.name).doReturn("assetName")
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(accountId)
+        whenever(mockAccount.getId()).doReturn(accountId)
 
         val mockAssetTransfer = mock<AssetTransfer>()
-        whenever(mockAssetTransfer.assetId).thenReturn(assetId)
+        whenever(mockAssetTransfer.assetId).doReturn(assetId)
         val mockAssetTransferIterator = mockCollection<AssetTransfer>(mockAssetTransfer)
 
-        whenever(mockParameterService!!.getAsset(eq<HttpServletRequest>(req))).thenReturn(mockAsset)
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
+        whenever(mockParameterService!!.getAsset(eq<HttpServletRequest>(req))).doReturn(mockAsset)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
-        whenever(mockAssetExchange!!.getAsset(eq(mockAssetTransfer.assetId))).thenReturn(mockAsset)
+        whenever(mockAssetExchange!!.getAsset(eq(mockAssetTransfer.assetId))).doReturn(mockAsset)
 
-        whenever(mockAssetExchange!!.getAccountAssetTransfers(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetTransferIterator)
+        whenever(mockAssetExchange!!.getAccountAssetTransfers(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockAssetTransferIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

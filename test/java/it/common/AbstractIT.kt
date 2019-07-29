@@ -7,6 +7,7 @@ import brs.peer.ProcessBlock
 import brs.props.Props
 import com.google.gson.JsonObject
 import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -24,6 +25,7 @@ abstract class AbstractIT {
     @Before
     fun setUp() {
         mockkStatic(Peers::class)
+        unmockkStatic(Burst::class)
         Burst.init(testProperties())
 
         processBlock = ProcessBlock(Burst.getBlockchain(), Burst.getBlockchainProcessor())

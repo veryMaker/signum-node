@@ -14,6 +14,7 @@ import org.junit.Test
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -36,18 +37,18 @@ class GetAllOpenAskOrdersTest : AbstractUnitTest() {
     @Test
     fun processRequest() {
         val mockAskOrder = mock<Ask>()
-        whenever(mockAskOrder.id).thenReturn(1L)
-        whenever(mockAskOrder.assetId).thenReturn(2L)
-        whenever(mockAskOrder.quantityQNT).thenReturn(3L)
-        whenever(mockAskOrder.priceNQT).thenReturn(4L)
-        whenever(mockAskOrder.height).thenReturn(5)
+        whenever(mockAskOrder.id).doReturn(1L)
+        whenever(mockAskOrder.assetId).doReturn(2L)
+        whenever(mockAskOrder.quantityQNT).doReturn(3L)
+        whenever(mockAskOrder.priceNQT).doReturn(4L)
+        whenever(mockAskOrder.height).doReturn(5)
 
         val firstIndex = 1
         val lastIndex = 2
 
         val mockIterator = mockCollection<Ask>(mockAskOrder)
         whenever(mockAssetExchange!!.getAllAskOrders(eq(firstIndex), eq(lastIndex)))
-                .thenReturn(mockIterator)
+                .doReturn(mockIterator)
 
         val result = t!!.processRequest(QuickMocker.httpServletRequest(
                 MockParam(FIRST_INDEX_PARAMETER, "" + firstIndex),

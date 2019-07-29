@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -48,19 +49,19 @@ class GetAllAssetsTest : AbstractUnitTest() {
         val mockAssetId: Long = 1
 
         val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).thenReturn(1L)
-        whenever(mockAsset.id).thenReturn(mockAssetId)
-        whenever(mockAsset.name).thenReturn("name")
-        whenever(mockAsset.description).thenReturn("description")
-        whenever(mockAsset.decimals).thenReturn(1.toByte())
-        whenever(mockAsset.quantityQNT).thenReturn(2L)
+        whenever(mockAsset.id).doReturn(1L)
+        whenever(mockAsset.id).doReturn(mockAssetId)
+        whenever(mockAsset.name).doReturn("name")
+        whenever(mockAsset.description).doReturn("description")
+        whenever(mockAsset.decimals).doReturn(1.toByte())
+        whenever(mockAsset.quantityQNT).doReturn(2L)
 
         val mockAssetIterator = mockCollection<Asset>(mockAsset)
 
-        whenever(assetExchange!!.getAllAssets(eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetIterator)
-        whenever(assetExchange!!.getAssetAccountsCount(eq(mockAssetId))).thenReturn(1)
-        whenever(assetExchange!!.getTransferCount(eq(mockAssetId))).thenReturn(2)
-        whenever(assetExchange!!.getTradeCount(eq(mockAssetId))).thenReturn(3)
+        whenever(assetExchange!!.getAllAssets(eq(firstIndex), eq(lastIndex))).doReturn(mockAssetIterator)
+        whenever(assetExchange!!.getAssetAccountsCount(eq(mockAssetId))).doReturn(1)
+        whenever(assetExchange!!.getTransferCount(eq(mockAssetId))).doReturn(2)
+        whenever(assetExchange!!.getTradeCount(eq(mockAssetId))).doReturn(3)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

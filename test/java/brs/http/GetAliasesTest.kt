@@ -17,6 +17,7 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.ResultFields.*
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -45,20 +46,20 @@ class GetAliasesTest : AbstractUnitTest() {
         val req = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(accountId)
+        whenever(mockAccount.getId()).doReturn(accountId)
 
         val mockAlias = mock<Alias>()
-        whenever(mockAlias.id).thenReturn(567L)
+        whenever(mockAlias.id).doReturn(567L)
 
         val mockOffer = mock<Offer>()
-        whenever(mockOffer.priceNQT).thenReturn(234L)
+        whenever(mockOffer.priceNQT).doReturn(234L)
 
         val mockAliasIterator = mockCollection<Alias>(mockAlias)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
-        whenever(mockAliasService!!.getAliasesByOwner(eq(accountId), eq(0), eq(-1))).thenReturn(mockAliasIterator)
-        whenever(mockAliasService!!.getOffer(eq(mockAlias))).thenReturn(mockOffer)
+        whenever(mockAliasService!!.getAliasesByOwner(eq(accountId), eq(0), eq(-1))).doReturn(mockAliasIterator)
+        whenever(mockAliasService!!.getOffer(eq(mockAlias))).doReturn(mockOffer)
 
         val resultOverview = t!!.processRequest(req) as JsonObject
         assertNotNull(resultOverview)

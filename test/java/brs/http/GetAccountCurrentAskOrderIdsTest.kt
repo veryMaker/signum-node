@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.ASK_ORDER_IDS_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
@@ -53,15 +54,15 @@ class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(accountId)
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
+        whenever(mockAccount.getId()).doReturn(accountId)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
         val mockAsk = mock<Ask>()
-        whenever(mockAsk.id).thenReturn(1L)
+        whenever(mockAsk.id).doReturn(1L)
 
         val mockAskIterator = mockCollection<Ask>(mockAsk)
 
-        whenever(mockAssetExchange!!.getAskOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).thenReturn(mockAskIterator)
+        whenever(mockAssetExchange!!.getAskOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).doReturn(mockAskIterator)
 
         val result = t!!.processRequest(req) as JsonObject
 
@@ -90,15 +91,15 @@ class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(accountId)
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
+        whenever(mockAccount.getId()).doReturn(accountId)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
         val mockAsk = mock<Ask>()
-        whenever(mockAsk.id).thenReturn(1L)
+        whenever(mockAsk.id).doReturn(1L)
 
         val mockAskIterator = mockCollection<Ask>(mockAsk)
 
-        whenever(mockAssetExchange!!.getAskOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockAskIterator)
+        whenever(mockAssetExchange!!.getAskOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockAskIterator)
 
         val result = t!!.processRequest(req) as JsonObject
 

@@ -18,10 +18,7 @@ import javax.servlet.http.HttpServletRequest
 import java.util.Arrays
 
 import brs.http.common.ResultFields.ATS_RESPONSE
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 
@@ -49,23 +46,23 @@ class GetAccountATsTest {
 
         val mockAccountId = 123L
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(mockAccountId)
+        whenever(mockAccount.getId()).doReturn(mockAccountId)
 
         val mockATId = 1L
         val mockATIDBytes = ByteArray(AtConstants.AT_ID_SIZE)
         val creatorBytes = byteArrayOf('c'.toByte(), 'r'.toByte(), 'e'.toByte(), 'a'.toByte(), 't'.toByte(), 'o'.toByte(), 'r'.toByte())
         val mockMachineState = mock<AtMachineState.MachineState>()
         val mockAT = mock<AT>()
-        whenever(mockAT.creator).thenReturn(creatorBytes)
-        whenever(mockAT.id).thenReturn(mockATIDBytes)
-        whenever(mockAT.machineState).thenReturn(mockMachineState)
+        whenever(mockAT.creator).doReturn(creatorBytes)
+        whenever(mockAT.id).doReturn(mockATIDBytes)
+        whenever(mockAT.machineState).doReturn(mockMachineState)
 
-        whenever(mockParameterService!!.getAccount(eq(req))).thenReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq(req))).doReturn(mockAccount)
 
-        whenever(mockAccountService!!.getAccount(any<Long>())).thenReturn(mockAccount)
+        whenever(mockAccountService!!.getAccount(any<Long>())).doReturn(mockAccount)
 
-        whenever(mockATService!!.getATsIssuedBy(eq(mockAccountId))).thenReturn(Arrays.asList(mockATId))
-        whenever(mockATService!!.getAT(eq(mockATId))).thenReturn(mockAT)
+        whenever(mockATService!!.getATsIssuedBy(eq(mockAccountId))).doReturn(Arrays.asList(mockATId))
+        whenever(mockATService!!.getAT(eq(mockATId))).doReturn(mockAT)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

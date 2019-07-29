@@ -48,7 +48,7 @@ internal class DGSDelivery internal constructor(private val parameterService: Pa
         }
 
         val buyerAccount = accountService.getAccount(purchase.buyerId)
-        val goodsIsText = !Parameters.isFalse(req.getParameter(GOODS_IS_TEXT_PARAMETER))
+        val goodsIsText = !isFalse(req.getParameter(GOODS_IS_TEXT_PARAMETER))
         var encryptedGoods = ParameterParser.getEncryptedGoods(req)
 
         if (encryptedGoods == null) {

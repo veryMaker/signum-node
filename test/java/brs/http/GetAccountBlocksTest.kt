@@ -16,6 +16,7 @@ import org.junit.Test
 
 import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.BLOCKS_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -56,10 +57,10 @@ class GetAccountBlocksTest : AbstractUnitTest() {
         val mockBlock = mock<Block>()
 
 
-        whenever(parameterServiceMock!!.getAccount(req)).thenReturn(mockAccount)
+        whenever(parameterServiceMock!!.getAccount(req)).doReturn(mockAccount)
 
         val mockBlockIterator = mockCollection<Block>(mockBlock)
-        whenever(blockchainMock!!.getBlocks(eq(mockAccount), eq(mockTimestamp), eq(mockFirstIndex), eq(mockLastIndex))).thenReturn(mockBlockIterator)
+        whenever(blockchainMock!!.getBlocks(eq(mockAccount), eq(mockTimestamp), eq(mockFirstIndex), eq(mockLastIndex))).doReturn(mockBlockIterator)
 
         val result = t!!.processRequest(req) as JsonObject
 

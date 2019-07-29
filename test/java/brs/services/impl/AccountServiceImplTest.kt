@@ -29,8 +29,8 @@ class AccountServiceImplTest {
         accountBurstKeyFactoryMock = mock()
         assetTransferStoreMock = mock()
 
-        whenever(accountStoreMock!!.accountTable).thenReturn(accountTableMock)
-        whenever(accountStoreMock!!.accountKeyFactory).thenReturn(accountBurstKeyFactoryMock)
+        whenever(accountStoreMock!!.accountTable).doReturn(accountTableMock)
+        whenever(accountStoreMock!!.accountKeyFactory).doReturn(accountBurstKeyFactoryMock)
 
         t = AccountServiceImpl(accountStoreMock!!, assetTransferStoreMock)
     }
@@ -41,8 +41,8 @@ class AccountServiceImplTest {
         val mockKey = mock<BurstKey>()
         val mockResultAccount = mock<Account>()
 
-        whenever(accountBurstKeyFactoryMock!!.newKey(eq(mockId))).thenReturn(mockKey)
-        whenever(accountTableMock!!.get(eq(mockKey))).thenReturn(mockResultAccount)
+        whenever(accountBurstKeyFactoryMock!!.newKey(eq(mockId))).doReturn(mockKey)
+        whenever(accountTableMock!!.get(eq(mockKey))).doReturn(mockResultAccount)
 
         assertEquals(mockResultAccount, t!!.getAccount(mockId))
     }
@@ -59,8 +59,8 @@ class AccountServiceImplTest {
         val mockKey = mock<BurstKey>()
         val mockResultAccount = mock<Account>()
 
-        whenever(accountBurstKeyFactoryMock!!.newKey(eq(id))).thenReturn(mockKey)
-        whenever(accountTableMock!!.get(eq(mockKey), eq(height))).thenReturn(mockResultAccount)
+        whenever(accountBurstKeyFactoryMock!!.newKey(eq(id))).doReturn(mockKey)
+        whenever(accountTableMock!!.get(eq(mockKey), eq(height))).doReturn(mockResultAccount)
 
         assertEquals(mockResultAccount, t!!.getAccount(id, height))
     }
@@ -78,10 +78,10 @@ class AccountServiceImplTest {
         val mockKey = mock<BurstKey>()
         val mockAccount = mock<Account>()
 
-        whenever(accountBurstKeyFactoryMock!!.newKey(any<Long>())).thenReturn(mockKey)
-        whenever(accountTableMock!!.get(mockKey)).thenReturn(mockAccount)
+        whenever(accountBurstKeyFactoryMock!!.newKey(any<Long>())).doReturn(mockKey)
+        whenever(accountTableMock!!.get(mockKey)).doReturn(mockAccount)
 
-        whenever(mockAccount.publicKey).thenReturn(publicKey)
+        whenever(mockAccount.publicKey).doReturn(publicKey)
 
         assertEquals(mockAccount, t!!.getAccount(publicKey))
     }
@@ -94,10 +94,10 @@ class AccountServiceImplTest {
         val mockKey = mock<BurstKey>()
         val mockAccount = mock<Account>()
 
-        whenever(accountBurstKeyFactoryMock!!.newKey(any<Long>())).thenReturn(mockKey)
-        whenever(accountTableMock!!.get(mockKey)).thenReturn(mockAccount)
+        whenever(accountBurstKeyFactoryMock!!.newKey(any<Long>())).doReturn(mockKey)
+        whenever(accountTableMock!!.get(mockKey)).doReturn(mockAccount)
 
-        whenever(mockAccount.publicKey).thenReturn(null)
+        whenever(mockAccount.publicKey).doReturn(null)
 
         assertEquals(mockAccount, t!!.getAccount(publicKey))
     }
@@ -107,8 +107,8 @@ class AccountServiceImplTest {
         val publicKey = ByteArray(0)
         val mockKey = mock<BurstKey>()
 
-        whenever(accountBurstKeyFactoryMock!!.newKey(any<Long>())).thenReturn(mockKey)
-        whenever(accountTableMock!!.get(mockKey)).thenReturn(null)
+        whenever(accountBurstKeyFactoryMock!!.newKey(any<Long>())).doReturn(mockKey)
+        whenever(accountTableMock!!.get(mockKey)).doReturn(null)
 
         assertNull(t!!.getAccount(publicKey))
     }
@@ -123,10 +123,10 @@ class AccountServiceImplTest {
         val mockKey = mock<BurstKey>()
         val mockAccount = mock<Account>()
 
-        whenever(accountBurstKeyFactoryMock!!.newKey(any<Long>())).thenReturn(mockKey)
-        whenever(accountTableMock!!.get(mockKey)).thenReturn(mockAccount)
+        whenever(accountBurstKeyFactoryMock!!.newKey(any<Long>())).doReturn(mockKey)
+        whenever(accountTableMock!!.get(mockKey)).doReturn(mockAccount)
 
-        whenever(mockAccount.publicKey).thenReturn(otherPublicKey)
+        whenever(mockAccount.publicKey).doReturn(otherPublicKey)
 
         t!!.getAccount(publicKey)
     }
@@ -158,7 +158,7 @@ class AccountServiceImplTest {
         val recipientId = 123L
         val mockAccountsIterator = mock<Collection<RewardRecipientAssignment>>()
 
-        whenever(accountStoreMock!!.getAccountsWithRewardRecipient(eq<Long>(recipientId))).thenReturn(mockAccountsIterator)
+        whenever(accountStoreMock!!.getAccountsWithRewardRecipient(eq<Long>(recipientId))).doReturn(mockAccountsIterator)
 
         assertEquals(mockAccountsIterator, t!!.getAccountsWithRewardRecipient(recipientId))
     }
@@ -169,7 +169,7 @@ class AccountServiceImplTest {
         val to = 5
         val mockAccountsIterator = mock<Collection<Account>>()
 
-        whenever(accountTableMock!!.getAll(eq(from), eq(to))).thenReturn(mockAccountsIterator)
+        whenever(accountTableMock!!.getAll(eq(from), eq(to))).doReturn(mockAccountsIterator)
 
         assertEquals(mockAccountsIterator, t!!.getAllAccounts(from, to))
     }
@@ -187,8 +187,8 @@ class AccountServiceImplTest {
 
         val mockKey = mock<BurstKey>()
 
-        whenever(accountBurstKeyFactoryMock!!.newKey(eq(accountId))).thenReturn(mockKey)
-        whenever(accountTableMock!!.get(eq(mockKey))).thenReturn(null)
+        whenever(accountBurstKeyFactoryMock!!.newKey(eq(accountId))).doReturn(mockKey)
+        whenever(accountTableMock!!.get(eq(mockKey))).doReturn(null)
 
         val createdAccount = t!!.getOrAddAccount(accountId)
 
@@ -205,8 +205,8 @@ class AccountServiceImplTest {
         val mockKey = mock<BurstKey>()
         val mockAccount = mock<Account>()
 
-        whenever(accountBurstKeyFactoryMock!!.newKey(eq(accountId))).thenReturn(mockKey)
-        whenever(accountTableMock!!.get(eq(mockKey))).thenReturn(mockAccount)
+        whenever(accountBurstKeyFactoryMock!!.newKey(eq(accountId))).doReturn(mockKey)
+        whenever(accountTableMock!!.get(eq(mockKey))).doReturn(mockAccount)
 
         val retrievedAccount = t!!.getOrAddAccount(accountId)
 
@@ -225,7 +225,7 @@ class AccountServiceImplTest {
     fun getCount() {
         val count = 5
 
-        whenever(accountTableMock!!.count).thenReturn(count)
+        whenever(accountTableMock!!.count).doReturn(count)
 
         assertEquals(count.toLong(), t!!.count.toLong())
     }

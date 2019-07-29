@@ -4,6 +4,7 @@ import brs.Trade
 import brs.common.AbstractUnitTest
 import brs.db.sql.EntitySqlTable
 import brs.db.store.TradeStore
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -24,7 +25,7 @@ class TradeServiceImplTest : AbstractUnitTest() {
         mockTradeStore = mock<TradeStore>()
         mockTradeTable = mock()
 
-        whenever(mockTradeStore!!.tradeTable).thenReturn(mockTradeTable)
+        whenever(mockTradeStore!!.tradeTable).doReturn(mockTradeTable)
 
         t = TradeServiceImpl(mockTradeStore!!)
     }
@@ -37,7 +38,7 @@ class TradeServiceImplTest : AbstractUnitTest() {
 
         val mockTradesIterator = mock<Collection<Trade>>()
 
-        whenever(mockTradeStore!!.getAssetTrades(eq(assetId), eq(from), eq(to))).thenReturn(mockTradesIterator)
+        whenever(mockTradeStore!!.getAssetTrades(eq(assetId), eq(from), eq(to))).doReturn(mockTradesIterator)
 
         assertEquals(mockTradesIterator, t!!.getAssetTrades(assetId, from, to))
     }
@@ -51,7 +52,7 @@ class TradeServiceImplTest : AbstractUnitTest() {
 
         val mockAccountAssetTradesIterator = mock<Collection<Trade>>()
 
-        whenever(mockTradeStore!!.getAccountAssetTrades(eq(accountId), eq(assetId), eq(from), eq(to))).thenReturn(mockAccountAssetTradesIterator)
+        whenever(mockTradeStore!!.getAccountAssetTrades(eq(accountId), eq(assetId), eq(from), eq(to))).doReturn(mockAccountAssetTradesIterator)
 
         assertEquals(mockAccountAssetTradesIterator, t!!.getAccountAssetTrades(accountId, assetId, from, to))
     }
@@ -64,7 +65,7 @@ class TradeServiceImplTest : AbstractUnitTest() {
 
         val mockTradesIterator = mock<Collection<Trade>>()
 
-        whenever(mockTradeStore!!.getAccountTrades(eq(accountId), eq(from), eq(to))).thenReturn(mockTradesIterator)
+        whenever(mockTradeStore!!.getAccountTrades(eq(accountId), eq(from), eq(to))).doReturn(mockTradesIterator)
 
         assertEquals(mockTradesIterator, t!!.getAccountTrades(accountId, from, to))
     }
@@ -73,7 +74,7 @@ class TradeServiceImplTest : AbstractUnitTest() {
     fun getCount() {
         val count = 5
 
-        whenever(mockTradeTable!!.count).thenReturn(count)
+        whenever(mockTradeTable!!.count).doReturn(count)
 
         assertEquals(count.toLong(), t!!.count.toLong())
     }
@@ -83,7 +84,7 @@ class TradeServiceImplTest : AbstractUnitTest() {
         val assetId = 123L
         val count = 5
 
-        whenever(mockTradeStore!!.getTradeCount(eq(assetId))).thenReturn(count)
+        whenever(mockTradeStore!!.getTradeCount(eq(assetId))).doReturn(count)
 
         assertEquals(count.toLong(), t!!.getTradeCount(assetId).toLong())
     }
@@ -95,7 +96,7 @@ class TradeServiceImplTest : AbstractUnitTest() {
 
         val mockTradeIterator = mockCollection<Trade>()
 
-        whenever(mockTradeTable!!.getAll(eq(from), eq(to))).thenReturn(mockTradeIterator)
+        whenever(mockTradeTable!!.getAll(eq(from), eq(to))).doReturn(mockTradeIterator)
 
         assertEquals(mockTradeIterator, t!!.getAllTrades(from, to))
     }

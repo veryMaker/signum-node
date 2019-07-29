@@ -5,6 +5,7 @@ import brs.Blockchain
 import brs.common.QuickMocker
 import brs.util.JSON
 import com.google.gson.JsonObject
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Before
@@ -36,10 +37,10 @@ class GetCumulativeDifficultyTest {
         val request = QuickMocker.jsonObject()
 
         val mockLastBlock = mock<Block>()
-        whenever(mockLastBlock.height).thenReturn(blockchainHeight)
-        whenever(mockLastBlock.cumulativeDifficulty).thenReturn(cumulativeDifficulty)
+        whenever(mockLastBlock.height).doReturn(blockchainHeight)
+        whenever(mockLastBlock.cumulativeDifficulty).doReturn(cumulativeDifficulty)
 
-        whenever(mockBlockchain!!.lastBlock).thenReturn(mockLastBlock)
+        whenever(mockBlockchain!!.lastBlock).doReturn(mockLastBlock)
 
         val result = t!!.processRequest(request, mock<Peer>()) as JsonObject
         assertNotNull(result)

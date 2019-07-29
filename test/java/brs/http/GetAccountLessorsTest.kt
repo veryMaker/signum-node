@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.ResultFields.ACCOUNT_RESPONSE
 import brs.http.common.ResultFields.LESSORS_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -41,12 +42,12 @@ class GetAccountLessorsTest : AbstractUnitTest() {
     @Throws(BurstException::class)
     fun processRequest() {
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(123L)
+        whenever(mockAccount.getId()).doReturn(123L)
 
         val req = QuickMocker.httpServletRequest()
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
-        whenever(parameterServiceMock!!.getHeight(eq<HttpServletRequest>(req))).thenReturn(0)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getHeight(eq<HttpServletRequest>(req))).doReturn(0)
 
         val result = JSON.getAsJsonObject(t!!.processRequest(req))
 

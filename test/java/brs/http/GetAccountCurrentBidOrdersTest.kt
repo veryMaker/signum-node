@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest
 import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.BID_ORDERS_RESPONSE
 import brs.http.common.ResultFields.ORDER_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -54,16 +55,16 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(accountId)
+        whenever(mockAccount.getId()).doReturn(accountId)
 
         val mockBidId = 456L
         val bid = mock<Bid>()
-        whenever(bid.id).thenReturn(mockBidId)
+        whenever(bid.id).doReturn(mockBidId)
 
         val mockBidIterator = mockCollection<Bid>(bid)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
-        whenever(mockAssetExchange!!.getBidOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).thenReturn(mockBidIterator)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockAssetExchange!!.getBidOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)
@@ -93,16 +94,16 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(accountId)
+        whenever(mockAccount.getId()).doReturn(accountId)
 
         val mockBidId = 456L
         val bid = mock<Bid>()
-        whenever(bid.id).thenReturn(mockBidId)
+        whenever(bid.id).doReturn(mockBidId)
 
         val mockBidIterator = mockCollection<Bid>(bid)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
-        whenever(mockAssetExchange!!.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockBidIterator)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockAssetExchange!!.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

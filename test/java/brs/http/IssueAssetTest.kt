@@ -23,6 +23,8 @@ import brs.http.JSONResponses.INCORRECT_ASSET_NAME_LENGTH
 import brs.http.JSONResponses.INCORRECT_DECIMALS
 import brs.http.JSONResponses.MISSING_NAME
 import brs.http.common.Parameters.*
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
@@ -41,6 +43,7 @@ class IssueAssetTest : AbstractTransactionTest() {
     @Before
     fun setUp() {
         mockParameterService = mock<ParameterService>()
+        whenever(mockParameterService!!.getSenderAccount(any())).doReturn(mock())
         mockBlockchain = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 

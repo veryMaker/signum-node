@@ -20,6 +20,7 @@ import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.BID_ORDERS_RESPONSE
 import brs.http.common.ResultFields.ORDER_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -54,16 +55,16 @@ class GetBidOrdersTest : AbstractUnitTest() {
         )
 
         val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).thenReturn(assetId)
+        whenever(mockAsset.id).doReturn(assetId)
 
         val mockOrderId = 345L
         val mockBid = mock<Bid>()
-        whenever(mockBid.id).thenReturn(mockOrderId)
+        whenever(mockBid.id).doReturn(mockOrderId)
 
         val mockBidIterator = mockCollection<Bid>(mockBid)
 
-        whenever(mockParameterService!!.getAsset(req)).thenReturn(mockAsset)
-        whenever(mockAssetExchange!!.getSortedBidOrders(eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockBidIterator)
+        whenever(mockParameterService!!.getAsset(req)).doReturn(mockAsset)
+        whenever(mockAssetExchange!!.getSortedBidOrders(eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
 
         val result = t!!.processRequest(req) as JsonObject
         assertNotNull(result)

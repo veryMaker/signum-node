@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest
 import brs.TransactionType.DigitalGoods.PRICE_CHANGE
 import brs.http.JSONResponses.UNKNOWN_GOODS
 import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -51,16 +52,16 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(1L)
+        whenever(mockAccount.getId()).doReturn(1L)
 
         val mockGoodsId: Long = 123
         val mockGoods = mock<Goods>()
-        whenever(mockGoods.id).thenReturn(mockGoodsId)
-        whenever(mockGoods.sellerId).thenReturn(1L)
-        whenever(mockGoods.isDelisted).thenReturn(false)
+        whenever(mockGoods.id).doReturn(mockGoodsId)
+        whenever(mockGoods.sellerId).doReturn(1L)
+        whenever(mockGoods.isDelisted).doReturn(false)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
-        whenever(parameterServiceMock!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
@@ -82,10 +83,10 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
         val mockAccount = mock<Account>()
 
         val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).thenReturn(true)
+        whenever(mockGoods.isDelisted).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
-        whenever(parameterServiceMock!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
 
         assertEquals(UNKNOWN_GOODS, t!!.processRequest(req))
     }
@@ -98,14 +99,14 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).thenReturn(1L)
+        whenever(mockAccount.getId()).doReturn(1L)
 
         val mockGoods = mock<Goods>()
-        whenever(mockGoods.sellerId).thenReturn(2L)
-        whenever(mockGoods.isDelisted).thenReturn(false)
+        whenever(mockGoods.sellerId).doReturn(2L)
+        whenever(mockGoods.isDelisted).doReturn(false)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).thenReturn(mockAccount)
-        whenever(parameterServiceMock!!.getGoods(eq<HttpServletRequest>(req))).thenReturn(mockGoods)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
 
         assertEquals(UNKNOWN_GOODS, t!!.processRequest(req))
     }

@@ -10,6 +10,7 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.ResultFields.TIME_RESPONSE
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
@@ -33,7 +34,7 @@ class GetTimeTest {
 
         val currentEpochTime = 123
 
-        whenever(mockTimeService!!.epochTime).thenReturn(currentEpochTime)
+        whenever(mockTimeService!!.epochTime).doReturn(currentEpochTime)
 
         val result = t!!.processRequest(req) as JsonObject
 
