@@ -182,10 +182,10 @@ final class ParameterParser {
     try {
       lastIndex = Integer.parseInt(req.getParameter(LAST_INDEX_PARAMETER));
       if (lastIndex < 0) {
-        lastIndex = getFirstIndex(req) + Constants.MAX_API_RETURNED_ITEMS;
+        lastIndex = firstIndex + Constants.MAX_API_RETURNED_ITEMS;
       }
     } catch (NumberFormatException e) {
-      lastIndex = getFirstIndex(req) + Constants.MAX_API_RETURNED_ITEMS;
+      lastIndex = firstIndex + Constants.MAX_API_RETURNED_ITEMS;
     }
 
     if (firstIndex > lastIndex) {
@@ -193,7 +193,7 @@ final class ParameterParser {
     }
     if (lastIndex - firstIndex >= Constants.MAX_API_RETURNED_ITEMS) {
       // Don't reject the request, just limit it.
-      lastIndex = firstIndex + Constants.MAX_API_RETURNED_ITEMS;
+      lastIndex = firstIndex + Constants.MAX_API_RETURNED_ITEMS - 1;
     }
     return lastIndex;
   }

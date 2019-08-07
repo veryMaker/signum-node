@@ -286,6 +286,12 @@ final class PeerImpl implements Peer {
     this.lastUpdated.set(lastUpdated);
   }
 
+  private JsonObject error(String message) {
+    JsonObject object = new JsonObject();
+    object.addProperty("error", message);
+    return object;
+  }
+
   @Override
   public JsonObject send(final JsonElement request) {
 
@@ -369,7 +375,7 @@ final class PeerImpl implements Peer {
         } else {
           setState(State.NON_CONNECTED);
         }
-        response = null;
+        response = error("Peer responded with HTTP " + connection.getResponseCode());
       }
 
     } catch (RuntimeException|IOException e) {
@@ -383,7 +389,7 @@ final class PeerImpl implements Peer {
       if (state.get() == State.CONNECTED) {
         setState(State.DISCONNECTED);
       }
-      response = null;
+      response = error("Error getting response from peer: " + e.getClass().toString() + ": " + e.getMessage());
     }
 
     if (showLog) {

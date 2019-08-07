@@ -66,6 +66,9 @@ public final class Constants {
   public static final int MAX_AUTOMATED_TRANSACTION_NAME_LENGTH = 30;
   public static final int MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH = 1000;
 
+  /**
+   * Must be >= 1.
+   */
   public static final int MAX_API_RETURNED_ITEMS = 100;
 
   public static final String HTTP = "http://";
