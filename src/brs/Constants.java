@@ -69,7 +69,7 @@ public final class Constants {
   /**
    * Must be >= 1.
    */
-  public static final int MAX_API_RETURNED_ITEMS = 100;
+  public static final int MAX_API_RETURNED_ITEMS = 500;
 
   public static final String HTTP = "http://";
 
