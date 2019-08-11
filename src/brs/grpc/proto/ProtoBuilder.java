@@ -41,15 +41,19 @@ public final class ProtoBuilder {
     }
 
     public static BrsApi.Account buildAccount(Account account, AccountService accountService) {
+        byte[] publicKey = account.getPublicKey();
+        String name = account.getName();
+        String description = account.getDescription();
+        Account.RewardRecipientAssignment rewardRecipient = accountService.getRewardRecipientAssignment(account);
         return BrsApi.Account.newBuilder()
                 .setId(account.getId())
-                .setPublicKey(buildByteString(account.getPublicKey()))
+                .setPublicKey(publicKey == null ? ByteString.EMPTY : buildByteString(publicKey))
                 .setBalance(account.getBalanceNQT())
                 .setUnconfirmedBalance(account.getUnconfirmedBalanceNQT())
                 .setForgedBalance(account.getForgedBalanceNQT())
-                .setName(account.getName())
-                .setDescription(account.getDescription())
-                .setRewardRecipient(accountService.getRewardRecipientAssignment(account).accountId)
+                .setName(name == null ? "" : name)
+                .setDescription(description == null ? "" : description)
+                .setRewardRecipient(rewardRecipient == null || rewardRecipient.accountId == null ? 0 : rewardRecipient.accountId)
                 .addAllAssetBalances(accountService.getAssets(account.id, 0, -1)
                         .stream()
                         .map(ProtoBuilder::buildAssetBalance)
