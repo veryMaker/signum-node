@@ -31,14 +31,10 @@ import brs.util.LoggerConfigurator;
 import brs.util.ThreadPool;
 import brs.util.Time;
 import io.grpc.Server;
-import io.grpc.ServerBuilder;
-import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.InetSocketAddress;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -233,13 +229,8 @@ public final class Burst {
       if (propertyService.getBoolean(Props.API_V2_SERVER)) {
           int port = propertyService.getBoolean(Props.DEV_TESTNET) ? propertyService.getInt(Props.DEV_API_V2_PORT) : propertyService.getInt(Props.API_V2_PORT);
           logger.info("Starting V2 API Server on port {}", port);
-          BrsService apiV2 = new BrsService(blockchainProcessor, blockchain, blockService, accountService, generator, transactionProcessor, timeService, feeSuggestionCalculator, atService, aliasService, indirectIncomingService, fluxCapacitor, escrowService, assetExchange, subscriptionService, digitalGoodsStoreService, propertyService);
           String hostname = propertyService.getString(Props.API_V2_LISTEN);
-          if (Objects.equals(hostname, "0.0.0.0")) {
-              apiV2Server = ServerBuilder.forPort(port).addService(apiV2).build().start();
-          } else {
-              apiV2Server = NettyServerBuilder.forAddress(new InetSocketAddress(hostname, port)).addService(apiV2).build().start();
-          }
+          apiV2Server = new BrsService(blockchainProcessor, blockchain, blockService, accountService, generator, transactionProcessor, timeService, feeSuggestionCalculator, atService, aliasService, indirectIncomingService, fluxCapacitor, escrowService, assetExchange, subscriptionService, digitalGoodsStoreService, propertyService).start(hostname, port);
       } else {
           logger.info("Not starting V2 API Server - it is disabled.");
       }
