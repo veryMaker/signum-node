@@ -21,8 +21,8 @@
   <properties>
     <bcprov-jdk15on.version>1.62</bcprov-jdk15on.version>
     <burstkit4j.version>v0.12.2</burstkit4j.version>
-    <rxjava.version>2.2.10</rxjava.version>
-    <ehcache.version>3.7.1</ehcache.version>
+    <rxjava.version>2.2.11</rxjava.version>
+    <ehcache.version>3.8.0</ehcache.version>
     <flywaydb.version>5.2.4</flywaydb.version>
     <grpc.version>1.22.1</grpc.version>
     <gson.version>2.8.5</gson.version>
@@ -32,15 +32,15 @@
     <jetty.version>9.4.19.v20190610</jetty.version>
     <jocl.version>2.0.1</jocl.version>
     <jooq.version>3.11.11</jooq.version>
-    <mariadb.version>2.4.2</mariadb.version>
+    <mariadb.version>2.4.3</mariadb.version>
     <owasp.version>1.2.2</owasp.version>
-    <slf4j.version>1.7.26</slf4j.version>
+    <slf4j.version>1.7.28</slf4j.version>
     <weupnp.version>0.1.4</weupnp.version>
     <xzing.version>3.4.0</xzing.version>
-    <junit-jupiter.version>5.5.0</junit-jupiter.version>
-    <junit-platform.version>1.5.0</junit-platform.version>
+    <junit-jupiter.version>5.5.1</junit-jupiter.version>
+    <junit-platform.version>1.5.1</junit-platform.version>
     <junit-platform.version>1.4.2</junit-platform.version>
-    <junit-vintage.version>5.5.0</junit-vintage.version>
+    <junit-vintage.version>5.5.1</junit-vintage.version>
     <mockito.version>3.0.0</mockito.version>
     <powermock.version>2.0.2</powermock.version>
     <apachehttpclient.version>4.5.9</apachehttpclient.version>

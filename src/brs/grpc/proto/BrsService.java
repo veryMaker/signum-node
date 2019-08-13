@@ -13,11 +13,17 @@ import brs.props.PropertyService;
 import brs.services.*;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Message;
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
+import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class BrsService extends BrsApiServiceGrpc.BrsApiServiceImplBase {
 
@@ -71,6 +77,14 @@ public class BrsService extends BrsApiServiceGrpc.BrsApiServiceImplBase {
         handlerMap.put(SubmitNonceHandler.class, new SubmitNonceHandler(propertyService, blockchain, accountService, generator));
         handlerMap.put(SuggestFeeHandler.class, new SuggestFeeHandler(feeSuggestionCalculator));
         this.handlers = Collections.unmodifiableMap(handlerMap);
+    }
+
+    public Server start(String hostname, int port) throws IOException {
+        if (Objects.equals(hostname, "0.0.0.0")) {
+            return ServerBuilder.forPort(port).addService(this).build().start();
+        } else {
+            return NettyServerBuilder.forAddress(new InetSocketAddress(hostname, port)).addService(this).build().start();
+        }
     }
 
     private <H extends GrpcApiHandler<R, S>, R extends Message, S extends Message> void handleRequest(Class<H> handlerClass, R request, StreamObserver<S> response) {

@@ -177,14 +177,23 @@ final class ParameterParser {
   }
 
   static int getLastIndex(HttpServletRequest req) {
+    int firstIndex = getFirstIndex(req);
     int lastIndex;
     try {
       lastIndex = Integer.parseInt(req.getParameter(LAST_INDEX_PARAMETER));
       if (lastIndex < 0) {
-        return Integer.MAX_VALUE;
+        lastIndex = firstIndex + Constants.MAX_API_RETURNED_ITEMS;
       }
     } catch (NumberFormatException e) {
-      return Integer.MAX_VALUE;
+      lastIndex = firstIndex + Constants.MAX_API_RETURNED_ITEMS;
+    }
+
+    if (firstIndex > lastIndex) {
+      throw new IllegalArgumentException("lastIndex must be greater than or equal to firstIndex");
+    }
+    if (lastIndex - firstIndex >= Constants.MAX_API_RETURNED_ITEMS) {
+      // Don't reject the request, just limit it.
+      lastIndex = firstIndex + Constants.MAX_API_RETURNED_ITEMS - 1;
     }
     return lastIndex;
   }
