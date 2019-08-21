@@ -13,18 +13,18 @@ import brs.db.BurstKey.LongKeyFactory
 import brs.db.TransactionDb
 import brs.db.VersionedBatchEntityTable
 import brs.db.store.AccountStore
+import brs.fluxcapacitor.FluxCapacitor
+import brs.fluxcapacitor.FluxEnable
 import brs.fluxcapacitor.FluxValues
 import brs.peer.Peer
 import brs.props.Prop
 import brs.props.PropertyService
 import brs.props.Props
 import brs.services.impl.TimeServiceImpl
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import io.mockk.every
 import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -86,6 +86,8 @@ class UnconfirmedTransactionStoreTest {
     fun transactionsCanGetRetrievedAfterAddingThemToStore() {
 
         whenever(mockBlockChain!!.height).doReturn(20)
+        mockkStatic(Burst::class)
+        every { Burst.getBlockchain() } returns mockBlockChain
 
         for (i in 1..100) {
             val transaction = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT * 100, timeService.epochTime + 50000, 500.toShort(), Attachment.ORDINARY_PAYMENT)
@@ -96,6 +98,7 @@ class UnconfirmedTransactionStoreTest {
 
         assertEquals(100, t!!.all.size)
         assertNotNull(t!!.get(1L))
+        unmockkStatic(Burst::class)
     }
 
 
@@ -107,6 +110,8 @@ class UnconfirmedTransactionStoreTest {
         val otherMockPeer = mock<Peer>()
 
         whenever(mockBlockChain!!.height).doReturn(20)
+        mockkStatic(Burst::class)
+        every { Burst.getBlockchain() } returns mockBlockChain
 
         for (i in 1..100) {
             val transaction = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT * 100, timeService.epochTime + 50000, 500.toShort(), Attachment.ORDINARY_PAYMENT)
@@ -117,6 +122,7 @@ class UnconfirmedTransactionStoreTest {
 
         assertEquals(0, t!!.getAllFor(mockPeer).size)
         assertEquals(100, t!!.getAllFor(otherMockPeer).size)
+        unmockkStatic(Burst::class)
     }
 
     @DisplayName("When a transactions got handed by a peer and we mark his fingerprints, he won't get it back a second time")
@@ -126,6 +132,8 @@ class UnconfirmedTransactionStoreTest {
         val mockPeer = mock<Peer>()
 
         whenever(mockBlockChain!!.height).doReturn(20)
+        mockkStatic(Burst::class)
+        every { Burst.getBlockchain() } returns mockBlockChain
 
         for (i in 1..100) {
             val transaction = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT * 100, timeService.epochTime + 50000, 500.toShort(), Attachment.ORDINARY_PAYMENT)
@@ -139,6 +147,7 @@ class UnconfirmedTransactionStoreTest {
 
         t!!.markFingerPrintsOf(mockPeer, mockPeerObtainedTransactions)
         assertEquals(0, t!!.getAllFor(mockPeer).size)
+        unmockkStatic(Burst::class)
     }
 
 
@@ -148,6 +157,8 @@ class UnconfirmedTransactionStoreTest {
     fun numberOfUnconfirmedTransactionsOfSameSlotExceedsMaxSizeAddAnotherThenCacheSizeStaysMaxSize() {
 
         whenever(mockBlockChain!!.height).doReturn(20)
+        mockkStatic(Burst::class)
+        every { Burst.getBlockchain() } returns mockBlockChain
 
         for (i in 1..8192) {
             val transaction = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT * 100, timeService.epochTime + 50000, 500.toShort(), Attachment.ORDINARY_PAYMENT)
@@ -166,6 +177,7 @@ class UnconfirmedTransactionStoreTest {
 
         assertEquals(8192, t!!.all.size)
         assertNull(t!!.get(1L))
+        unmockkStatic(Burst::class)
     }
 
     @DisplayName("When the amount of unconfirmed transactions exceeds max size, and adding another of a higher slot, the cache size stays the same, and a lower slot transaction gets removed")
@@ -174,6 +186,8 @@ class UnconfirmedTransactionStoreTest {
     fun numberOfUnconfirmedTransactionsOfSameSlotExceedsMaxSizeAddAnotherThenCacheSizeStaysMaxSizeAndLowerSlotTransactionGetsRemoved() {
 
         whenever(mockBlockChain!!.height).doReturn(20)
+        mockkStatic(Burst::class)
+        every { Burst.getBlockchain() } returns mockBlockChain
 
         for (i in 1..8192) {
             val transaction = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT * 100, timeService.epochTime + 50000, 500.toShort(), Attachment.ORDINARY_PAYMENT)
@@ -194,6 +208,7 @@ class UnconfirmedTransactionStoreTest {
         assertEquals(8192, t!!.all.size)
         assertEquals((8192 - 1).toLong(), t!!.all.stream().filter { t -> t.feeNQT == FEE_QUANT * 100 }.count())
         assertEquals(1, t!!.all.stream().filter { t -> t.feeNQT == FEE_QUANT * 200 }.count())
+        unmockkStatic(Burst::class)
     }
 
     @DisplayName("The unconfirmed transaction gets denied in case the account is unknown")
@@ -201,11 +216,14 @@ class UnconfirmedTransactionStoreTest {
     @Throws(ValidationException::class)
     fun unconfirmedTransactionGetsDeniedForUnknownAccount() {
         whenever(mockBlockChain!!.height).doReturn(20)
+        mockkStatic(Burst::class)
+        every { Burst.getBlockchain() } returns mockBlockChain
 
         val transaction = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, 735000, timeService.epochTime + 50000, 500.toShort(), Attachment.ORDINARY_PAYMENT)
                 .id(1).senderId(124L).build()
         transaction.sign(TestConstants.TEST_SECRET_PHRASE)
         t!!.put(transaction, null)
+        unmockkStatic(Burst::class)
     }
 
     @DisplayName("The unconfirmed transaction gets denied in case the account does not have enough unconfirmed balance")
@@ -213,6 +231,8 @@ class UnconfirmedTransactionStoreTest {
     @Throws(ValidationException::class)
     fun unconfirmedTransactionGetsDeniedForNotEnoughUnconfirmedBalance() {
         whenever(mockBlockChain!!.height).doReturn(20)
+        mockkStatic(Burst::class)
+        every { Burst.getBlockchain() } returns mockBlockChain
 
         val transaction = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, Constants.MAX_BALANCE_NQT, timeService.epochTime + 50000, 500.toShort(), Attachment.ORDINARY_PAYMENT)
                 .id(1).senderId(123L).build()
@@ -224,7 +244,7 @@ class UnconfirmedTransactionStoreTest {
             assertTrue(t!!.all.isEmpty())
             throw ex
         }
-
+        unmockkStatic(Burst::class)
     }
 
     @DisplayName("When adding the same unconfirmed transaction, nothing changes")
@@ -232,6 +252,8 @@ class UnconfirmedTransactionStoreTest {
     @Throws(ValidationException::class)
     fun addingNewUnconfirmedTransactionWithSameIDResultsInNothingChanging() {
         whenever(mockBlockChain!!.height).doReturn(20)
+        mockkStatic(Burst::class)
+        every { Burst.getBlockchain() } returns mockBlockChain
 
         val mockPeer = mock<Peer>()
 
@@ -251,6 +273,7 @@ class UnconfirmedTransactionStoreTest {
         t!!.put(transaction2, mockPeer)
 
         assertEquals(1, t!!.all.size)
+        unmockkStatic(Burst::class)
     }
 
     @DisplayName("When the maximum number of transactions with full hash reference is reached, following ones are ignored")
@@ -259,6 +282,8 @@ class UnconfirmedTransactionStoreTest {
     fun whenMaximumNumberOfTransactionsWithFullHashReferenceIsReachedFollowingOnesAreIgnored() {
 
         whenever(mockBlockChain!!.height).doReturn(20)
+        mockkStatic(Burst::class)
+        every { Burst.getBlockchain() } returns mockBlockChain
 
         for (i in 1..414) {
             val transaction = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT * 2, timeService.epochTime + 50000, 500.toShort(), Attachment.ORDINARY_PAYMENT)
@@ -268,6 +293,7 @@ class UnconfirmedTransactionStoreTest {
         }
 
         assertEquals(409, t!!.all.size)
+        unmockkStatic(Burst::class)
     }
 
     @DisplayName("When the maximum number of transactions for a slot size is reached, following ones are ignored")
@@ -276,6 +302,8 @@ class UnconfirmedTransactionStoreTest {
     fun whenMaximumNumberOfTransactionsForSlotSizeIsReachedFollowingOnesAreIgnored() {
 
         whenever(mockBlockChain!!.height).doReturn(20)
+        mockkStatic(Burst::class)
+        every { Burst.getBlockchain() } returns mockBlockChain
 
         for (i in 1..365) {
             val transaction = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT, timeService.epochTime + 50000, 500.toShort(), Attachment.ORDINARY_PAYMENT)
@@ -294,11 +322,16 @@ class UnconfirmedTransactionStoreTest {
         }
 
         assertEquals(1080, t!!.all.size)
+        unmockkStatic(Burst::class)
     }
 
     @Test
     @Throws(ValidationException::class)
     fun cheaperDuplicateTransactionGetsRemoved() {
+        val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION, FluxValues.DIGITAL_GOODS_STORE)
+        mockkStatic(Burst::class)
+        every { Burst.getBlockchain() } returns mockBlockChain
+        every { Burst.getFluxCapacitor() } returns fluxCapacitor
         val cheap = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT, timeService.epochTime + 50000, 500.toShort(),
                 MessagingAliasSell("aliasName", 123, 5))
                 .id(1).senderId(123L).build()
@@ -317,11 +350,16 @@ class UnconfirmedTransactionStoreTest {
         assertEquals(1, t!!.all.size)
         assertNull(t!!.get(cheap.id))
         assertNotNull(t!!.get(expensive.id))
+        unmockkStatic(Burst::class)
     }
 
     @Test
     @Throws(ValidationException::class)
     fun cheaperDuplicateTransactionNeverGetsAdded() {
+        val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION, FluxValues.DIGITAL_GOODS_STORE)
+        mockkStatic(Burst::class)
+        every { Burst.getBlockchain() } returns mockBlockChain
+        every { Burst.getFluxCapacitor() } returns fluxCapacitor
         val cheap = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT, timeService.epochTime + 50000, 500.toShort(),
                 MessagingAliasSell("aliasName", 123, 5))
                 .id(1).senderId(123L).build()
@@ -340,6 +378,7 @@ class UnconfirmedTransactionStoreTest {
         assertEquals(1, t!!.all.size)
         assertNull(t!!.get(cheap.id))
         assertNotNull(t!!.get(expensive.id))
+        unmockkStatic(Burst::class)
     }
 
 }

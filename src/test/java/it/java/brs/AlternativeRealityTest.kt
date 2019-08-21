@@ -7,6 +7,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import it.common.AbstractIT
 import org.junit.Test
+import java.io.BufferedInputStream
 
 import java.io.IOException
 import java.nio.file.Files
@@ -29,9 +30,10 @@ class AlternativeRealityTest : AbstractIT() {
     fun getReality(realityName: String): List<JsonObject> {
         val parser = JsonParser()
 
-        val path = Paths.get("test/resources/alternatereality/$realityName")
+        val inputStream = BufferedInputStream(javaClass.getResourceAsStream("/alternatereality/$realityName"))
+        val inputFileContent = String(inputStream.readBytes())
+        inputStream.close()
 
-        val inputFileContent = String(Files.readAllBytes(path))
         val array = parser.parse(inputFileContent) as JsonArray
 
         val result = ArrayList<JsonObject>()

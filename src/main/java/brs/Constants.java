@@ -69,7 +69,7 @@ public final class Constants {
 
   public static final Version MIN_VERSION = Version.parse("v2.3.0");
 
-  static final long UNCONFIRMED_POOL_DEPOSIT_NQT = (Burst.getPropertyService().get(Props.DEV_TESTNET) ? 50 : 100) * ONE_BURST;
+  static final long UNCONFIRMED_POOL_DEPOSIT_NQT = ((Burst.getPropertyService() != null ? Burst.getPropertyService().get(Props.DEV_TESTNET) : false) ? 50 : 100) * ONE_BURST;
 
   // TODO burstkit4j integration
   public static final long EPOCH_BEGINNING;
@@ -85,7 +85,8 @@ public final class Constants {
     calendar.set(Calendar.MILLISECOND, 0);
     EPOCH_BEGINNING = calendar.getTimeInMillis();
 
-    if (Burst.getPropertyService().get(Props.DB_MAX_ROLLBACK) < 1440) {
+    long dbRollback = Burst.getPropertyService() != null ? Burst.getPropertyService().get(Props.DB_MAX_ROLLBACK) : 1440;
+    if (dbRollback < 1440) {
       throw new IllegalArgumentException("brs.maxRollback must be at least 1440");
     }
   }
