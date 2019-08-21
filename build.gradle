@@ -108,7 +108,6 @@ dependencies {
 sourceSets {
     main {
         java {
-            srcDir "src/"
             exclude { fileTreeElement ->
                 System.getProperty("headless") == "true" && fileTreeElement.file == ("$projectDir/src/brs/BurstGUI.java" as File)
             }
@@ -142,7 +141,7 @@ protobuf {
             }
         }
     }
-    generatedFilesBaseDir = "$projectDir/src/"
+    generatedFilesBaseDir = "$projectDir/src/main/java"
 }
 
 def dbUrl = "jdbc:mariadb://localhost:3306/burstwallet"
@@ -179,7 +178,7 @@ jooq {
             }
             target {
                 packageName = "brs.schema"
-                directory = "src"
+                directory = "src/main/java"
             }
         }
     }

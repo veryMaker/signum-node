@@ -164,6 +164,8 @@ Please see the [Wiki article](https://burstwiki.org/en/testnet/) for details on 
 
 2. Run jOOQ generator: `gradlew -DrunJooq=true ...`
 
+3. Run headless build (if you do not have JavaFX): `gradlew -Dheadless=true ///p                                                                                                              `
+
 ## Building the latest stable release
 
 Run these commands (`master` is always the latest stable release):
