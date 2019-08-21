@@ -156,38 +156,13 @@ Once you have done this, look through the existing properties if there is anythi
 
 Please see the [Wiki article](https://burstwiki.org/en/testnet/) for details on how to setup a testnet node.
 
-### Private Chains
-
-In order to run a private chain, you need the following properties:
-
-```properties
-DEV.DB.Url=(Your Database URL)
-DEV.DB.Username=(Your Database Username)
-DEV.DB.Password=(Your Database Password2)
-API.Listen = 0.0.0.0
-API.allowed = *
-DEV.TestNet = yes
-DEV.Offline = yes
-DEV.digitalGoodsStore.startBlock = 0
-DEV.automatedTransactions.startBlock = 0
-DEV.atFixBlock2.startBlock = 0
-DEV.atFixBlock3.startBlock = 0
-DEV.atFixBlock4.startBlock = 0
-DEV.preDymaxion.startBlock = 0
-DEV.poc2.startBlock = 0
-DEV.rewardRecipient.startBlock = 0
-```
-
-Optionally, if you want to be able to forge blocks faster, you can add the following properties:
-
-```properties
-DEV.mockMining = true
-DEV.mockMining.deadline = 10
-```
-
-This will cause a block to be forged every 10 seconds. Note that P2P is disabled when running a private chain and is incompatible with mock mining.
-
 # Building
+
+## Build options
+
+1. Run Protobuf Compiler: `gradlew -DrunProtoc=true ...`
+
+2. Run jOOQ generator: `gradlew -DrunJooq=true ...`
 
 ## Building the latest stable release
 
@@ -196,7 +171,7 @@ Run these commands (`master` is always the latest stable release):
 ```bash
 git fetch --all --tags --prune
 git checkout origin/master
-mvn package
+gradlew buildPackage
 ```
 
 Your packaged release will now be available in `dist/burstcoin-2.4.0.zip`
@@ -208,7 +183,7 @@ Run these commands (`develop` is always the latest stable release):
 ```bash
 git fetch --all --tags --prune
 git checkout origin/develop
-mvn package
+gradlew buildPackage
 ```
 
 Your packaged release will now be available in `dist/burstcoin-2.4.0.zip`.
