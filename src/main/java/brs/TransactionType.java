@@ -4,14 +4,11 @@ import brs.Attachment.AbstractAttachment;
 import brs.Attachment.AutomatedTransactionsCreation;
 import brs.BurstException.NotValidException;
 import brs.BurstException.ValidationException;
-import brs.assetexchange.AssetExchange;
 import brs.at.AT;
 import brs.at.AtConstants;
 import brs.at.AtController;
 import brs.at.AtException;
-import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxValues;
-import brs.services.*;
 import brs.transactionduplicates.TransactionDuplicationKey;
 import brs.util.Convert;
 import brs.util.JSON;
@@ -84,28 +81,12 @@ public abstract class TransactionType {
   private static final int BASELINE_FEE_HEIGHT = 1; // At release time must be less than current block - 1440
   private static final Fee BASELINE_ASSET_ISSUANCE_FEE = new Fee(Constants.ASSET_ISSUANCE_FEE_NQT, 0);
 
-  private static Blockchain blockchain;
-  private static FluxCapacitor fluxCapacitor;
-  private static AccountService accountService;
-  private static DGSGoodsStoreService dgsGoodsStoreService;
-  private static AliasService aliasService;
-  private static AssetExchange assetExchange;
-  private static SubscriptionService subscriptionService;
-  private static EscrowService escrowService;
+  // TODO don't store a static instance!
+  private static DependencyProvider dp;
 
   // TODO Temporary...
-  public static void init(Blockchain blockchain, FluxCapacitor fluxCapacitor,
-                          AccountService accountService, DGSGoodsStoreService dgsGoodsStoreService,
-                          AliasService aliasService, AssetExchange assetExchange,
-                          SubscriptionService subscriptionService, EscrowService escrowService) {
-    TransactionType.blockchain = blockchain;
-    TransactionType.fluxCapacitor = fluxCapacitor;
-    TransactionType.accountService = accountService;
-    TransactionType.dgsGoodsStoreService = dgsGoodsStoreService;
-    TransactionType.aliasService = aliasService;
-    TransactionType.assetExchange = assetExchange;
-    TransactionType.subscriptionService = subscriptionService;
-    TransactionType.escrowService = escrowService;
+  public static void init(DependencyProvider dp) {
+    TransactionType.dp = dp;
 
     Map<Byte, TransactionType> paymentTypes = new HashMap<>();
     paymentTypes.put(SUBTYPE_PAYMENT_ORDINARY_PAYMENT, Payment.ORDINARY);
@@ -221,12 +202,12 @@ public abstract class TransactionType {
     if (senderAccount.getUnconfirmedBalanceNQT() < totalAmountNQT) {
       return false;
     }
-    accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
+    dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
     if (!applyAttachmentUnconfirmed(transaction, senderAccount)) {
       if (logger.isTraceEnabled()) {
         logger.trace("!applyAttachmentUnconfirmed({}, {})", transaction, senderAccount.getId());
       }
-      accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT);
+      dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT);
       return false;
     }
     return true;
@@ -252,13 +233,13 @@ public abstract class TransactionType {
   abstract boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount);
 
   final void apply(Transaction transaction, Account senderAccount, Account recipientAccount) {
-    accountService.addToBalanceNQT(senderAccount, - (Convert.INSTANCE.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT())));
+    dp.accountService.addToBalanceNQT(senderAccount, - (Convert.INSTANCE.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT())));
     if (transaction.getReferencedTransactionFullHash() != null
             && transaction.getTimestamp() > Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK_TIMESTAMP) {
-      accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT);
+      dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT);
     }
     if (recipientAccount != null) {
-      accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, transaction.getAmountNQT());
+      dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, transaction.getAmountNQT());
     }
     if (logger.isTraceEnabled()) {
       logger.trace("applying transaction - id: {}, type: {}", transaction.getId(), transaction.getType());
@@ -296,10 +277,10 @@ public abstract class TransactionType {
 
   public final void undoUnconfirmed(Transaction transaction, Account senderAccount) {
     undoAttachmentUnconfirmed(transaction, senderAccount);
-    accountService.addToUnconfirmedBalanceNQT(senderAccount, Convert.INSTANCE.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT()));
+    dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, Convert.INSTANCE.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT()));
     if (transaction.getReferencedTransactionFullHash() != null
             && transaction.getTimestamp() > Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK_TIMESTAMP) {
-      accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT);
+      dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT);
     }
   }
 
@@ -401,7 +382,7 @@ public abstract class TransactionType {
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        if (!fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, transaction.getHeight())) {
+        if (!dp.fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, transaction.getHeight())) {
           throw new BurstException.NotCurrentlyValidException("Multi Out Payments are not allowed before the Pre Dymaxion block");
         }
 
@@ -419,7 +400,7 @@ public abstract class TransactionType {
       final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.PaymentMultiOutCreation attachment = (Attachment.PaymentMultiOutCreation) transaction.getAttachment();
         for (List<Long> recipient : attachment.getRecipients()) {
-          accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(recipient.get(0)), recipient.get(1));
+          dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getOrAddAccount(recipient.get(0)), recipient.get(1));
         }
       }
 
@@ -461,7 +442,7 @@ public abstract class TransactionType {
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        if (!fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, transaction.getHeight())) {
+        if (!dp.fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, transaction.getHeight())) {
           throw new BurstException.NotCurrentlyValidException("Multi Same Out Payments are not allowed before the Pre Dymaxion block");
         }
 
@@ -475,7 +456,7 @@ public abstract class TransactionType {
       final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.PaymentMultiSameOutCreation attachment = (Attachment.PaymentMultiSameOutCreation) transaction.getAttachment();
         final long amountNQT = Convert.INSTANCE.safeDivide(transaction.getAmountNQT(), attachment.getRecipients().size());
-        attachment.getRecipients().forEach(a -> accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(a), amountNQT));
+        attachment.getRecipients().forEach(a -> dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getOrAddAccount(a), amountNQT));
       }
 
       @Override
@@ -548,7 +529,7 @@ public abstract class TransactionType {
         if (transaction.getAmountNQT() != 0) {
           throw new BurstException.NotValidException("Invalid arbitrary message: " + JSON.toJsonString(attachment.getJsonObject()));
         }
-        if (! fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE) && transaction.getMessage() == null) {
+        if (! dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE) && transaction.getMessage() == null) {
           throw new BurstException.NotCurrentlyValidException("Missing message appendix not allowed before DGS block");
         }
       }
@@ -605,7 +586,7 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.MessagingAliasAssignment attachment = (Attachment.MessagingAliasAssignment) transaction.getAttachment();
-        aliasService.addOrUpdateAlias(transaction, attachment);
+        dp.aliasService.addOrUpdateAlias(transaction, attachment);
       }
 
       @Override
@@ -625,7 +606,7 @@ public abstract class TransactionType {
         if (!TextUtils.isInAlphabet(attachment.getAliasName())) {
           throw new BurstException.NotValidException("Invalid alias name: " + attachment.getAliasName());
         }
-        Alias alias = aliasService.getAlias(attachment.getAliasName());
+        Alias alias = dp.aliasService.getAlias(attachment.getAliasName());
         if (alias != null && alias.getAccountId() != transaction.getSenderId()) {
           throw new BurstException.NotCurrentlyValidException("Alias already owned by another account: " + attachment.getAliasName());
         }
@@ -664,7 +645,7 @@ public abstract class TransactionType {
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         final Attachment.MessagingAliasSell attachment =
                 (Attachment.MessagingAliasSell) transaction.getAttachment();
-        aliasService.sellAlias(transaction, attachment);
+        dp.aliasService.sellAlias(transaction, attachment);
       }
 
       @Override
@@ -676,8 +657,8 @@ public abstract class TransactionType {
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        if (! fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchain.getLastBlock().getHeight())) {
-          throw new BurstException.NotYetEnabledException("Alias transfer not yet enabled at height " + blockchain.getLastBlock().getHeight());
+        if (! dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, dp.blockchain.getLastBlock().getHeight())) {
+          throw new BurstException.NotYetEnabledException("Alias transfer not yet enabled at height " + dp.blockchain.getLastBlock().getHeight());
         }
         if (transaction.getAmountNQT() != 0) {
           throw new BurstException.NotValidException("Invalid sell alias transaction: " + JSON.toJsonString(transaction.getJsonObject()));
@@ -699,7 +680,7 @@ public abstract class TransactionType {
             throw new BurstException.NotValidException("Missing alias transfer recipient");
           }
         }
-        final Alias alias = aliasService.getAlias(aliasName);
+        final Alias alias = dp.aliasService.getAlias(aliasName);
         if (alias == null) {
           throw new BurstException.NotCurrentlyValidException("Alias hasn't been registered yet: " + aliasName);
         } else if (alias.getAccountId() != transaction.getSenderId()) {
@@ -741,7 +722,7 @@ public abstract class TransactionType {
         final Attachment.MessagingAliasBuy attachment =
                 (Attachment.MessagingAliasBuy) transaction.getAttachment();
         final String aliasName = attachment.getAliasName();
-        aliasService.changeOwner(transaction.getSenderId(), aliasName, transaction.getBlockTimestamp());
+        dp.aliasService.changeOwner(transaction.getSenderId(), aliasName, transaction.getBlockTimestamp());
       }
 
       @Override
@@ -753,20 +734,20 @@ public abstract class TransactionType {
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        if (! fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchain.getLastBlock().getHeight())) {
-          throw new BurstException.NotYetEnabledException("Alias transfer not yet enabled at height " + blockchain.getLastBlock().getHeight());
+        if (!dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, dp.blockchain.getLastBlock().getHeight())) {
+          throw new BurstException.NotYetEnabledException("Alias transfer not yet enabled at height " + dp.blockchain.getLastBlock().getHeight());
         }
         final Attachment.MessagingAliasBuy attachment =
                 (Attachment.MessagingAliasBuy) transaction.getAttachment();
         final String aliasName = attachment.getAliasName();
-        final Alias alias = aliasService.getAlias(aliasName);
+        final Alias alias = dp.aliasService.getAlias(aliasName);
         if (alias == null) {
           throw new BurstException.NotCurrentlyValidException("Alias hasn't been registered yet: " + aliasName);
         } else if (alias.getAccountId() != transaction.getRecipientId()) {
           throw new BurstException.NotCurrentlyValidException("Alias is owned by account other than recipient: "
                   + Convert.INSTANCE.toUnsignedLong(alias.getAccountId()));
         }
-        Alias.Offer offer = aliasService.getOffer(alias);
+        Alias.Offer offer = dp.aliasService.getOffer(alias);
         if (offer == null) {
           throw new BurstException.NotCurrentlyValidException("Alias is not for sale: " + aliasName);
         }
@@ -824,7 +805,7 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.MessagingAccountInfo attachment = (Attachment.MessagingAccountInfo) transaction.getAttachment();
-        accountService.setAccountInfo(senderAccount, attachment.getName(), attachment.getDescription());
+        dp.accountService.setAccountInfo(senderAccount, attachment.getName(), attachment.getDescription());
       }
 
       @Override
@@ -881,8 +862,8 @@ public abstract class TransactionType {
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAssetIssuance attachment = (Attachment.ColoredCoinsAssetIssuance) transaction.getAttachment();
         long assetId = transaction.getId();
-        assetExchange.addAsset(transaction, attachment);
-        accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, assetId, attachment.getQuantityQNT());
+        dp.assetExchange.addAsset(transaction, attachment);
+        dp.accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, assetId, attachment.getQuantityQNT());
       }
 
       @Override
@@ -940,9 +921,9 @@ public abstract class TransactionType {
       boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType ASSET_TRANSFER");
         Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer) transaction.getAttachment();
-        long unconfirmedAssetBalance = accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId());
+        long unconfirmedAssetBalance = dp.accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId());
         if (unconfirmedAssetBalance >= 0 && unconfirmedAssetBalance >= attachment.getQuantityQNT()) {
-          accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), -attachment.getQuantityQNT());
+          dp.accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), -attachment.getQuantityQNT());
           return true;
         }
         return false;
@@ -951,15 +932,15 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer) transaction.getAttachment();
-        accountService.addToAssetBalanceQNT(senderAccount, attachment.getAssetId(), -attachment.getQuantityQNT());
-        accountService.addToAssetAndUnconfirmedAssetBalanceQNT(recipientAccount, attachment.getAssetId(), attachment.getQuantityQNT());
-        assetExchange.addAssetTransfer(transaction, attachment);
+        dp.accountService.addToAssetBalanceQNT(senderAccount, attachment.getAssetId(), -attachment.getQuantityQNT());
+        dp.accountService.addToAssetAndUnconfirmedAssetBalanceQNT(recipientAccount, attachment.getAssetId(), attachment.getQuantityQNT());
+        dp.assetExchange.addAssetTransfer(transaction, attachment);
       }
 
       @Override
       void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer) transaction.getAttachment();
-        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount,attachment.getAssetId(), attachment.getQuantityQNT());
+        dp.accountService.addToUnconfirmedAssetBalanceQNT(senderAccount,attachment.getAssetId(), attachment.getQuantityQNT());
       }
 
       @Override
@@ -974,7 +955,7 @@ public abstract class TransactionType {
           throw new BurstException.NotValidException("Asset transfer comments no longer allowed, use message " +
                   "or encrypted message appendix instead");
         }
-        Asset asset = assetExchange.getAsset(attachment.getAssetId());
+        Asset asset = dp.assetExchange.getAsset(attachment.getAssetId());
         if (attachment.getQuantityQNT() <= 0 || (asset != null && attachment.getQuantityQNT() > asset.getQuantityQNT())) {
           throw new BurstException.NotValidException("Invalid asset transfer asset or quantity: " + JSON.toJsonString(attachment.getJsonObject()));
         }
@@ -1000,7 +981,7 @@ public abstract class TransactionType {
                 || attachment.getAssetId() == 0) {
           throw new BurstException.NotValidException("Invalid asset order placement: " + JSON.toJsonString(attachment.getJsonObject()));
         }
-        Asset asset = assetExchange.getAsset(attachment.getAssetId());
+        Asset asset = dp.assetExchange.getAsset(attachment.getAssetId());
         if (attachment.getQuantityQNT() <= 0 || (asset != null && attachment.getQuantityQNT() > asset.getQuantityQNT())) {
           throw new BurstException.NotValidException("Invalid asset order placement asset or quantity: " + JSON.toJsonString(attachment.getJsonObject()));
         }
@@ -1043,9 +1024,9 @@ public abstract class TransactionType {
       boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType ASK_ORDER_PLACEMENT");
         Attachment.ColoredCoinsAskOrderPlacement attachment = (Attachment.ColoredCoinsAskOrderPlacement) transaction.getAttachment();
-        long unconfirmedAssetBalance = accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId());
+        long unconfirmedAssetBalance = dp.accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId());
         if (unconfirmedAssetBalance >= 0 && unconfirmedAssetBalance >= attachment.getQuantityQNT()) {
-          accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), -attachment.getQuantityQNT());
+          dp.accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), -attachment.getQuantityQNT());
           return true;
         }
         return false;
@@ -1054,15 +1035,15 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAskOrderPlacement attachment = (Attachment.ColoredCoinsAskOrderPlacement) transaction.getAttachment();
-        if (assetExchange.getAsset(attachment.getAssetId()) != null) {
-          assetExchange.addAskOrder(transaction, attachment);
+        if (dp.assetExchange.getAsset(attachment.getAssetId()) != null) {
+          dp.assetExchange.addAskOrder(transaction, attachment);
         }
       }
 
       @Override
       void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         Attachment.ColoredCoinsAskOrderPlacement attachment = (Attachment.ColoredCoinsAskOrderPlacement) transaction.getAttachment();
-        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), attachment.getQuantityQNT());
+        dp.accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), attachment.getQuantityQNT());
       }
 
     };
@@ -1094,7 +1075,7 @@ public abstract class TransactionType {
         logger.trace("TransactionType BID_ORDER_PLACEMENT");
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
         if (senderAccount.getUnconfirmedBalanceNQT() >= totalAmountNQT ) {
-          accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
+          dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
           return true;
         }
         return false;
@@ -1109,15 +1090,15 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsBidOrderPlacement attachment = (Attachment.ColoredCoinsBidOrderPlacement) transaction.getAttachment();
-        if (assetExchange.getAsset(attachment.getAssetId()) != null) {
-          assetExchange.addBidOrder(transaction, attachment);
+        if (dp.assetExchange.getAsset(attachment.getAssetId()) != null) {
+          dp.assetExchange.addBidOrder(transaction, attachment);
         }
       }
 
       @Override
       void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
-        accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT);
+        dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT);
       }
 
     };
@@ -1165,17 +1146,17 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAskOrderCancellation attachment = (Attachment.ColoredCoinsAskOrderCancellation) transaction.getAttachment();
-        Order order = assetExchange.getAskOrder(attachment.getOrderId());
-        assetExchange.removeAskOrder(attachment.getOrderId());
+        Order order = dp.assetExchange.getAskOrder(attachment.getOrderId());
+        dp.assetExchange.removeAskOrder(attachment.getOrderId());
         if (order != null) {
-          accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, order.getAssetId(), order.getQuantityQNT());
+          dp.accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, order.getAssetId(), order.getQuantityQNT());
         }
       }
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.ColoredCoinsAskOrderCancellation attachment = (Attachment.ColoredCoinsAskOrderCancellation) transaction.getAttachment();
-        Order ask = assetExchange.getAskOrder(attachment.getOrderId());
+        Order ask = dp.assetExchange.getAskOrder(attachment.getOrderId());
         if (ask == null) {
           throw new BurstException.NotCurrentlyValidException("Invalid ask order: " + Convert.INSTANCE.toUnsignedLong(attachment.getOrderId()));
         }
@@ -1212,17 +1193,17 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsBidOrderCancellation attachment = (Attachment.ColoredCoinsBidOrderCancellation) transaction.getAttachment();
-        Order order = assetExchange.getBidOrder(attachment.getOrderId());
-        assetExchange.removeBidOrder(attachment.getOrderId());
+        Order order = dp.assetExchange.getBidOrder(attachment.getOrderId());
+        dp.assetExchange.removeBidOrder(attachment.getOrderId());
         if (order != null) {
-          accountService.addToUnconfirmedBalanceNQT(senderAccount, Convert.INSTANCE.safeMultiply(order.getQuantityQNT(), order.getPriceNQT()));
+          dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, Convert.INSTANCE.safeMultiply(order.getQuantityQNT(), order.getPriceNQT()));
         }
       }
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.ColoredCoinsBidOrderCancellation attachment = (Attachment.ColoredCoinsBidOrderCancellation) transaction.getAttachment();
-        Order bid = assetExchange.getBidOrder(attachment.getOrderId());
+        Order bid = dp.assetExchange.getBidOrder(attachment.getOrderId());
         if (bid == null) {
           throw new BurstException.NotCurrentlyValidException("Invalid bid order: " + Convert.INSTANCE.toUnsignedLong(attachment.getOrderId()));
         }
@@ -1256,8 +1237,8 @@ public abstract class TransactionType {
 
     @Override
     final void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-      if (! fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchain.getLastBlock().getHeight())) {
-        throw new BurstException.NotYetEnabledException("Digital goods listing not yet enabled at height " + blockchain.getLastBlock().getHeight());
+      if (! dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, dp.blockchain.getLastBlock().getHeight())) {
+        throw new BurstException.NotYetEnabledException("Digital goods listing not yet enabled at height " + dp.blockchain.getLastBlock().getHeight());
       }
       if (transaction.getAmountNQT() != 0) {
         throw new BurstException.NotValidException("Invalid digital goods transaction");
@@ -1293,7 +1274,7 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsListing attachment = (Attachment.DigitalGoodsListing) transaction.getAttachment();
-        dgsGoodsStoreService.listGoods(transaction, attachment);
+        dp.digitalGoodsStoreService.listGoods(transaction, attachment);
       }
 
       @Override
@@ -1341,13 +1322,13 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsDelisting attachment = (Attachment.DigitalGoodsDelisting) transaction.getAttachment();
-        dgsGoodsStoreService.delistGoods(attachment.getGoodsId());
+        dp.digitalGoodsStoreService.delistGoods(attachment.getGoodsId());
       }
 
       @Override
       void doValidateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.DigitalGoodsDelisting attachment = (Attachment.DigitalGoodsDelisting) transaction.getAttachment();
-        DigitalGoodsStore.Goods goods = dgsGoodsStoreService.getGoods(attachment.getGoodsId());
+        DigitalGoodsStore.Goods goods = dp.digitalGoodsStoreService.getGoods(attachment.getGoodsId());
         if (goods != null && transaction.getSenderId() != goods.getSellerId()) {
           throw new BurstException.NotValidException("Invalid digital goods delisting - seller is different: " + JSON.toJsonString(attachment.getJsonObject()));
         }
@@ -1395,13 +1376,13 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsPriceChange attachment = (Attachment.DigitalGoodsPriceChange) transaction.getAttachment();
-        dgsGoodsStoreService.changePrice(attachment.getGoodsId(), attachment.getPriceNQT());
+        dp.digitalGoodsStoreService.changePrice(attachment.getGoodsId(), attachment.getPriceNQT());
       }
 
       @Override
       void doValidateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.DigitalGoodsPriceChange attachment = (Attachment.DigitalGoodsPriceChange) transaction.getAttachment();
-        DigitalGoodsStore.Goods goods = dgsGoodsStoreService.getGoods(attachment.getGoodsId());
+        DigitalGoodsStore.Goods goods = dp.digitalGoodsStoreService.getGoods(attachment.getGoodsId());
         if (attachment.getPriceNQT() <= 0 || attachment.getPriceNQT() > Constants.MAX_BALANCE_NQT
                 || (goods != null && transaction.getSenderId() != goods.getSellerId())) {
           throw new BurstException.NotValidException("Invalid digital goods price change: " + JSON.toJsonString(attachment.getJsonObject()));
@@ -1451,13 +1432,13 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsQuantityChange attachment = (Attachment.DigitalGoodsQuantityChange) transaction.getAttachment();
-        dgsGoodsStoreService.changeQuantity(attachment.getGoodsId(), attachment.getDeltaQuantity(), false);
+        dp.digitalGoodsStoreService.changeQuantity(attachment.getGoodsId(), attachment.getDeltaQuantity(), false);
       }
 
       @Override
       void doValidateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.DigitalGoodsQuantityChange attachment = (Attachment.DigitalGoodsQuantityChange) transaction.getAttachment();
-        DigitalGoodsStore.Goods goods = dgsGoodsStoreService.getGoods(attachment.getGoodsId());
+        DigitalGoodsStore.Goods goods = dp.digitalGoodsStoreService.getGoods(attachment.getGoodsId());
         if (attachment.getDeltaQuantity() < -Constants.MAX_DGS_LISTING_QUANTITY
                 || attachment.getDeltaQuantity() > Constants.MAX_DGS_LISTING_QUANTITY
                 || (goods != null && transaction.getSenderId() != goods.getSellerId())) {
@@ -1510,7 +1491,7 @@ public abstract class TransactionType {
         logger.trace("TransactionType PURCHASE");
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
         if (senderAccount.getUnconfirmedBalanceNQT() >= totalAmountNQT) {
-          accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
+          dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
           return true;
         }
         return false;
@@ -1524,19 +1505,19 @@ public abstract class TransactionType {
 
       @Override
       void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
-        accountService.addToUnconfirmedBalanceNQT(senderAccount, calculateAttachmentTotalAmountNQT(transaction));
+        dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, calculateAttachmentTotalAmountNQT(transaction));
       }
 
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsPurchase attachment = (Attachment.DigitalGoodsPurchase) transaction.getAttachment();
-        dgsGoodsStoreService.purchase(transaction, attachment);
+        dp.digitalGoodsStoreService.purchase(transaction, attachment);
       }
 
       @Override
       void doValidateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.DigitalGoodsPurchase attachment = (Attachment.DigitalGoodsPurchase) transaction.getAttachment();
-        DigitalGoodsStore.Goods goods = dgsGoodsStoreService.getGoods(attachment.getGoodsId());
+        DigitalGoodsStore.Goods goods = dp.digitalGoodsStoreService.getGoods(attachment.getGoodsId());
         if (attachment.getQuantity() <= 0 || attachment.getQuantity() > Constants.MAX_DGS_LISTING_QUANTITY
                 || attachment.getPriceNQT() <= 0 || attachment.getPriceNQT() > Constants.MAX_BALANCE_NQT
                 || (goods != null && goods.getSellerId() != transaction.getRecipientId())) {
@@ -1552,7 +1533,7 @@ public abstract class TransactionType {
         if (attachment.getQuantity() > goods.getQuantity() || attachment.getPriceNQT() != goods.getPriceNQT()) {
           throw new BurstException.NotCurrentlyValidException("Goods price or quantity changed: " + JSON.toJsonString(attachment.getJsonObject()));
         }
-        if (attachment.getDeliveryDeadlineTimestamp() <= blockchain.getLastBlock().getTimestamp()) {
+        if (attachment.getDeliveryDeadlineTimestamp() <= dp.blockchain.getLastBlock().getTimestamp()) {
           throw new BurstException.NotCurrentlyValidException("Delivery deadline has already expired: " + attachment.getDeliveryDeadlineTimestamp());
         }
       }
@@ -1589,13 +1570,13 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsDelivery attachment = (Attachment.DigitalGoodsDelivery)transaction.getAttachment();
-        dgsGoodsStoreService.deliver(transaction, attachment);
+        dp.digitalGoodsStoreService.deliver(transaction, attachment);
       }
 
       @Override
       void doValidateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.DigitalGoodsDelivery attachment = (Attachment.DigitalGoodsDelivery) transaction.getAttachment();
-        DigitalGoodsStore.Purchase purchase = dgsGoodsStoreService.getPendingPurchase(attachment.getPurchaseId());
+        DigitalGoodsStore.Purchase purchase = dp.digitalGoodsStoreService.getPendingPurchase(attachment.getPurchaseId());
         if (attachment.getGoods().getData().length > Constants.MAX_DGS_GOODS_LENGTH
                 || attachment.getGoods().getData().length == 0
                 || attachment.getGoods().getNonce().length != 32
@@ -1649,13 +1630,13 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsFeedback attachment = (Attachment.DigitalGoodsFeedback)transaction.getAttachment();
-        dgsGoodsStoreService.feedback(attachment.getPurchaseId(), transaction.getEncryptedMessage(), transaction.getMessage());
+        dp.digitalGoodsStoreService.feedback(attachment.getPurchaseId(), transaction.getEncryptedMessage(), transaction.getMessage());
       }
 
       @Override
       void doValidateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.DigitalGoodsFeedback attachment = (Attachment.DigitalGoodsFeedback) transaction.getAttachment();
-        DigitalGoodsStore.Purchase purchase = dgsGoodsStoreService.getPurchase(attachment.getPurchaseId());
+        DigitalGoodsStore.Purchase purchase = dp.digitalGoodsStoreService.getPurchase(attachment.getPurchaseId());
         if (purchase != null &&
                 (purchase.getSellerId() != transaction.getRecipientId()
                         || transaction.getSenderId() != purchase.getBuyerId())) {
@@ -1715,7 +1696,7 @@ public abstract class TransactionType {
         logger.trace("TransactionType REFUND");
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
         if (senderAccount.getUnconfirmedBalanceNQT() >= totalAmountNQT) {
-          accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
+          dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
           return true;
         }
         return false;
@@ -1729,20 +1710,20 @@ public abstract class TransactionType {
 
       @Override
       void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
-        accountService.addToUnconfirmedBalanceNQT(senderAccount, calculateAttachmentTotalAmountNQT(transaction));
+        dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, calculateAttachmentTotalAmountNQT(transaction));
       }
 
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsRefund attachment = (Attachment.DigitalGoodsRefund) transaction.getAttachment();
-        dgsGoodsStoreService.refund(transaction.getSenderId(), attachment.getPurchaseId(),
+        dp.digitalGoodsStoreService.refund(transaction.getSenderId(), attachment.getPurchaseId(),
                 attachment.getRefundNQT(), transaction.getEncryptedMessage());
       }
 
       @Override
       void doValidateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.DigitalGoodsRefund attachment = (Attachment.DigitalGoodsRefund) transaction.getAttachment();
-        DigitalGoodsStore.Purchase purchase = dgsGoodsStoreService.getPurchase(attachment.getPurchaseId());
+        DigitalGoodsStore.Purchase purchase = dp.digitalGoodsStoreService.getPurchase(attachment.getPurchaseId());
         if (attachment.getRefundNQT() < 0 || attachment.getRefundNQT() > Constants.MAX_BALANCE_NQT
                 || (purchase != null &&
                 (purchase.getBuyerId() != transaction.getRecipientId()
@@ -1821,7 +1802,7 @@ public abstract class TransactionType {
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.AccountControlEffectiveBalanceLeasing attachment = (Attachment.AccountControlEffectiveBalanceLeasing)transaction.getAttachment();
-        Account recipientAccount = accountService.getAccount(transaction.getRecipientId());
+        Account recipientAccount = dp.accountService.getAccount(transaction.getRecipientId());
         if (transaction.getSenderId() == transaction.getRecipientId()
                 || transaction.getAmountNQT() != 0
                 || attachment.getPeriod() < 1440) {
@@ -1885,12 +1866,12 @@ public abstract class TransactionType {
 
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
-        accountService.setRewardRecipientAssignment(senderAccount, recipientAccount.getId());
+        dp.accountService.setRewardRecipientAssignment(senderAccount, recipientAccount.getId());
       }
 
       @Override
       public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
-        if (! fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE)) {
+        if (! dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE)) {
           return TransactionDuplicationKey.IS_NEVER_DUPLICATE; // sync fails after 7007 without this
         }
 
@@ -1899,23 +1880,23 @@ public abstract class TransactionType {
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        int height = blockchain.getLastBlock().getHeight() + 1;
-        Account sender = accountService.getAccount(transaction.getSenderId());
+        int height = dp.blockchain.getLastBlock().getHeight() + 1;
+        Account sender = dp.accountService.getAccount(transaction.getSenderId());
 
         if (sender == null) {
           throw new BurstException.NotCurrentlyValidException("Sender not yet known ?!");
         }
 
-        Account.RewardRecipientAssignment rewardAssignment = accountService.getRewardRecipientAssignment(sender);
+        Account.RewardRecipientAssignment rewardAssignment = dp.accountService.getRewardRecipientAssignment(sender);
         if (rewardAssignment != null && rewardAssignment.getFromHeight() >= height) {
           throw new BurstException.NotCurrentlyValidException("Cannot reassign reward recipient before previous goes into effect: " + JSON.toJsonString(transaction.getJsonObject()));
         }
-        Account recip = accountService.getAccount(transaction.getRecipientId());
+        Account recip = dp.accountService.getAccount(transaction.getRecipientId());
         if (recip == null || recip.getPublicKey() == null) {
-          throw new BurstException.NotValidException("Reward recipient must have public key saved in blockchain: " + JSON.toJsonString(transaction.getJsonObject()));
+          throw new BurstException.NotValidException("Reward recipient must have public key saved in dp.blockchain: " + JSON.toJsonString(transaction.getJsonObject()));
         }
 
-        if (fluxCapacitor.getValue(FluxValues.PRE_DYMAXION)) {
+        if (dp.fluxCapacitor.getValue(FluxValues.PRE_DYMAXION)) {
           if (transaction.getAmountNQT() != 0 || transaction.getFeeNQT() < FEE_QUANT) {
             throw new BurstException.NotValidException("Reward recipient assignment transaction must have 0 send amount and at least minimum fee: " + JSON.toJsonString(transaction.getJsonObject()));
           }
@@ -1925,8 +1906,8 @@ public abstract class TransactionType {
           }
         }
 
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.REWARD_RECIPIENT_ENABLE, height)) {
-          throw new BurstException.NotCurrentlyValidException("Reward recipient assignment not allowed before block " + Burst.getFluxCapacitor().getStartingHeight(FluxValues.REWARD_RECIPIENT_ENABLE));
+        if (!dp.fluxCapacitor.getValue(FluxValues.REWARD_RECIPIENT_ENABLE, height)) {
+          throw new BurstException.NotCurrentlyValidException("Reward recipient assignment not allowed before block " + dp.fluxCapacitor.getStartingHeight(FluxValues.REWARD_RECIPIENT_ENABLE));
         }
       }
 
@@ -1975,7 +1956,7 @@ public abstract class TransactionType {
         if (senderAccount.getUnconfirmedBalanceNQT() < totalAmountNQT) {
           return false;
         }
-        accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
+        dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
         return true;
       }
 
@@ -1989,10 +1970,10 @@ public abstract class TransactionType {
       final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AdvancedPaymentEscrowCreation attachment = (Attachment.AdvancedPaymentEscrowCreation) transaction.getAttachment();
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
-        accountService.addToBalanceNQT(senderAccount, -totalAmountNQT);
+        dp.accountService.addToBalanceNQT(senderAccount, -totalAmountNQT);
         Collection<Long> signers = attachment.getSigners();
-        signers.forEach(signer -> accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(signer), Constants.ONE_BURST));
-        escrowService.addEscrowTransaction(senderAccount,
+        signers.forEach(signer -> dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getOrAddAccount(signer), Constants.ONE_BURST));
+        dp.escrowService.addEscrowTransaction(senderAccount,
                 recipientAccount,
                 transaction.getId(),
                 attachment.getAmountNQT(),
@@ -2004,7 +1985,7 @@ public abstract class TransactionType {
 
       @Override
       final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
-        accountService.addToUnconfirmedBalanceNQT(senderAccount, calculateAttachmentTotalAmountNQT(transaction));
+        dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, calculateAttachmentTotalAmountNQT(transaction));
       }
 
       @Override
@@ -2050,7 +2031,7 @@ public abstract class TransactionType {
                 attachment.getSigners().contains(transaction.getRecipientId())) {
           throw new BurstException.NotValidException("Escrow sender and recipient cannot be signers");
         }
-        if (!escrowService.isEnabled()) {
+        if (!dp.escrowService.isEnabled()) {
           throw new BurstException.NotYetEnabledException("Escrow not yet enabled");
         }
       }
@@ -2091,8 +2072,8 @@ public abstract class TransactionType {
       @Override
       final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AdvancedPaymentEscrowSign attachment = (Attachment.AdvancedPaymentEscrowSign) transaction.getAttachment();
-        Escrow escrow = escrowService.getEscrowTransaction(attachment.getEscrowId());
-        escrowService.sign(senderAccount.getId(), attachment.getDecision(), escrow);
+        Escrow escrow = dp.escrowService.getEscrowTransaction(attachment.getEscrowId());
+        dp.escrowService.sign(senderAccount.getId(), attachment.getDecision(), escrow);
       }
 
       @Override
@@ -2117,11 +2098,11 @@ public abstract class TransactionType {
         if (attachment.getEscrowId() == null || attachment.getDecision() == null) {
           throw new BurstException.NotValidException("Escrow signing requires escrow id and decision set");
         }
-        Escrow escrow = escrowService.getEscrowTransaction(attachment.getEscrowId());
+        Escrow escrow = dp.escrowService.getEscrowTransaction(attachment.getEscrowId());
         if (escrow == null) {
           throw new BurstException.NotValidException("Escrow transaction not found");
         }
-        if (!escrowService.isIdSigner(transaction.getSenderId(), escrow) &&
+        if (!dp.escrowService.isIdSigner(transaction.getSenderId(), escrow) &&
                 !escrow.getSenderId().equals(transaction.getSenderId()) &&
                 !escrow.getRecipientId().equals(transaction.getSenderId())) {
           throw new BurstException.NotValidException("Sender is not a participant in specified escrow");
@@ -2132,7 +2113,7 @@ public abstract class TransactionType {
         if (escrow.getRecipientId().equals(transaction.getSenderId()) && attachment.getDecision() != Escrow.DecisionType.REFUND) {
           throw new BurstException.NotValidException("Escrow recipient can only refund");
         }
-        if (!escrowService.isEnabled()) {
+        if (!dp.escrowService.isEnabled()) {
           throw new BurstException.NotYetEnabledException("Escrow not yet enabled");
         }
       }
@@ -2231,7 +2212,7 @@ public abstract class TransactionType {
       @Override
       final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AdvancedPaymentSubscriptionSubscribe attachment = (Attachment.AdvancedPaymentSubscriptionSubscribe) transaction.getAttachment();
-        subscriptionService.addSubscription(senderAccount, recipientAccount, transaction.getId(), transaction.getAmountNQT(), transaction.getTimestamp(), attachment.getFrequency());
+        dp.subscriptionService.addSubscription(senderAccount, recipientAccount, transaction.getId(), transaction.getAmountNQT(), transaction.getTimestamp(), attachment.getFrequency());
       }
 
       @Override
@@ -2258,7 +2239,7 @@ public abstract class TransactionType {
         if (transaction.getSenderId() == transaction.getRecipientId()) {
           throw new BurstException.NotValidException("Cannot create subscription to same address");
         }
-        if (!subscriptionService.isEnabled()) {
+        if (!dp.subscriptionService.isEnabled()) {
           throw new BurstException.NotYetEnabledException("Subscriptions not yet enabled");
         }
       }
@@ -2295,14 +2276,14 @@ public abstract class TransactionType {
       final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType SUBSCRIPTION_CANCEL");
         Attachment.AdvancedPaymentSubscriptionCancel attachment = (Attachment.AdvancedPaymentSubscriptionCancel) transaction.getAttachment();
-        subscriptionService.addRemoval(attachment.getSubscriptionId());
+        dp.subscriptionService.addRemoval(attachment.getSubscriptionId());
         return true;
       }
 
       @Override
       final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AdvancedPaymentSubscriptionCancel attachment = (Attachment.AdvancedPaymentSubscriptionCancel) transaction.getAttachment();
-        subscriptionService.removeSubscription(attachment.getSubscriptionId());
+        dp.subscriptionService.removeSubscription(attachment.getSubscriptionId());
       }
 
       @Override
@@ -2323,7 +2304,7 @@ public abstract class TransactionType {
           throw new BurstException.NotValidException("Subscription cancel must include subscription id");
         }
 
-        Subscription subscription = subscriptionService.getSubscription(attachment.getSubscriptionId());
+        Subscription subscription = dp.subscriptionService.getSubscription(attachment.getSubscriptionId());
         if (subscription == null) {
           throw new BurstException.NotValidException("Subscription cancel must contain current subscription id");
         }
@@ -2333,7 +2314,7 @@ public abstract class TransactionType {
           throw new BurstException.NotValidException("Subscription cancel can only be done by participants");
         }
 
-        if (!subscriptionService.isEnabled()) {
+        if (!dp.subscriptionService.isEnabled()) {
           throw new BurstException.NotYetEnabledException("Subscription cancel not yet enabled");
         }
       }
@@ -2460,18 +2441,18 @@ public abstract class TransactionType {
       @Override
       void doValidateAttachment(Transaction transaction)
               throws ValidationException {
-        if (! fluxCapacitor.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK, blockchain.getLastBlock().getHeight())) {
-          throw new BurstException.NotYetEnabledException("Automated Transactions not yet enabled at height " + blockchain.getLastBlock().getHeight());
+        if (! dp.fluxCapacitor.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK, dp.blockchain.getLastBlock().getHeight())) {
+          throw new BurstException.NotYetEnabledException("Automated Transactions not yet enabled at height " + dp.blockchain.getLastBlock().getHeight());
         }
-        if (transaction.getSignature() != null && accountService.getAccount(transaction.getId()) != null) {
-          Account existingAccount = accountService.getAccount(transaction.getId());
+        if (transaction.getSignature() != null && dp.accountService.getAccount(transaction.getId()) != null) {
+          Account existingAccount = dp.accountService.getAccount(transaction.getId());
           if (existingAccount.getPublicKey() != null && !Arrays.equals(existingAccount.getPublicKey(), new byte[32]))
             throw new BurstException.NotValidException("Account with id already exists");
         }
         Attachment.AutomatedTransactionsCreation attachment = (Attachment.AutomatedTransactionsCreation) transaction.getAttachment();
         long totalPages;
         try {
-          totalPages = AtController.checkCreationBytes(attachment.getCreationBytes(), blockchain.getHeight());
+          totalPages = AtController.INSTANCE.checkCreationBytes(attachment.getCreationBytes(), dp.blockchain.getHeight());
         }
         catch (AtException e) {
           throw new BurstException.NotCurrentlyValidException("Invalid AT creation bytes", e);
@@ -2480,7 +2461,7 @@ public abstract class TransactionType {
         if (transaction.getFeeNQT() <  requiredFee){
           throw new BurstException.NotValidException("Insufficient fee for AT creation. Minimum: " + Convert.INSTANCE.toUnsignedLong(requiredFee / Constants.ONE_BURST));
         }
-        if (fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
+        if (dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
           if (attachment.getName().length() > Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH) {
             throw new BurstException.NotValidException("Name of automated transaction over size limit");
           }
@@ -2493,7 +2474,7 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AutomatedTransactionsCreation attachment = (Attachment.AutomatedTransactionsCreation) transaction.getAttachment();
-        AT.addAT( transaction.getId() , transaction.getSenderId() , attachment.getName() , attachment.getDescription() , attachment.getCreationBytes() , transaction.getHeight() );
+        AT.addAT(dp, transaction.getId() , transaction.getSenderId() , attachment.getName() , attachment.getDescription() , attachment.getCreationBytes() , transaction.getHeight() );
       }
 
 
@@ -2558,7 +2539,7 @@ public abstract class TransactionType {
   }
 
   protected Fee getBaselineFee(int height) {
-    return new Fee((fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, height) ? FEE_QUANT : ONE_BURST), 0);
+    return new Fee((dp.fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, height) ? FEE_QUANT : ONE_BURST), 0);
   }
 
   public static final class Fee {

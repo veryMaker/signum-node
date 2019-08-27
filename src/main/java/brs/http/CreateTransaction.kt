@@ -1,9 +1,6 @@
 package brs.http
 
-import brs.Account
-import brs.Attachment
-import brs.Burst
-import brs.BurstException
+import brs.*
 import brs.fluxcapacitor.FluxValues
 import com.google.gson.JsonElement
 
@@ -14,15 +11,14 @@ import brs.Constants.ONE_BURST
 import brs.http.common.Parameters.*
 
 internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
+    private val dp: DependencyProvider
 
-    private val apiTransactionManager: APITransactionManager
-
-    constructor(apiTags: Array<APITag>, apiTransactionManager: APITransactionManager, replaceParameters: Boolean, vararg parameters: String) : super(apiTags, *if (replaceParameters) parameters else addCommonParameters(*parameters)) {
-        this.apiTransactionManager = apiTransactionManager
+    constructor(dp: DependencyProvider, apiTags: Array<APITag>, replaceParameters: Boolean, vararg parameters: String) : super(apiTags, *if (replaceParameters) parameters else addCommonParameters(*parameters)) {
+        this.dp = dp
     }
 
-    constructor(apiTags: Array<APITag>, apiTransactionManager: APITransactionManager, vararg parameters: String) : super(apiTags, *addCommonParameters(*parameters)) {
-        this.apiTransactionManager = apiTransactionManager
+    constructor(dp: DependencyProvider, apiTags: Array<APITag>, vararg parameters: String) : super(apiTags, *addCommonParameters(*parameters)) {
+        this.dp = dp
     }
 
     @Throws(BurstException::class)
@@ -33,7 +29,7 @@ internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
     @Throws(BurstException::class)
     @JvmOverloads
     fun createTransaction(req: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment = Attachment.ORDINARY_PAYMENT): JsonElement {
-        return apiTransactionManager.createTransaction(req, senderAccount, recipientId, amountNQT, attachment, minimumFeeNQT())
+        return dp.apiTransactionManager.createTransaction(req, senderAccount, recipientId, amountNQT, attachment, minimumFeeNQT())
     }
 
     internal override fun requirePost(): Boolean {
@@ -41,7 +37,7 @@ internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
     }
 
     private fun minimumFeeNQT(): Long {
-        return if (Burst.getFluxCapacitor().getValue(FluxValues.PRE_DYMAXION)) FEE_QUANT else ONE_BURST
+        return if (dp.fluxCapacitor.getValue(FluxValues.PRE_DYMAXION)) FEE_QUANT else ONE_BURST
     }
 
     companion object {

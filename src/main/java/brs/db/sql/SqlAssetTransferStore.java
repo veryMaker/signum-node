@@ -1,6 +1,7 @@
 package brs.db.sql;
 
 import brs.AssetTransfer;
+import brs.DependencyProvider;
 import brs.db.BurstKey;
 import brs.db.store.AssetTransferStore;
 import brs.db.store.DerivedTableManager;
@@ -24,8 +25,8 @@ public class SqlAssetTransferStore implements AssetTransferStore {
     };
   private final EntitySqlTable<AssetTransfer> assetTransferTable;
 
-  public SqlAssetTransferStore(DerivedTableManager derivedTableManager) {
-    assetTransferTable = new EntitySqlTable<AssetTransfer>("asset_transfer", brs.schema.Tables.ASSET_TRANSFER, transferDbKeyFactory, derivedTableManager) {
+  public SqlAssetTransferStore(DependencyProvider dp) {
+    assetTransferTable = new EntitySqlTable<AssetTransfer>("asset_transfer", brs.schema.Tables.ASSET_TRANSFER, transferDbKeyFactory, dp) {
 
       @Override
       protected AssetTransfer load(DSLContext ctx, Record record) {

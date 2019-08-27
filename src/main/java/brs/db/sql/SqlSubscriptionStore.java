@@ -1,6 +1,7 @@
 package brs.db.sql;
 
 import brs.Burst;
+import brs.DependencyProvider;
 import brs.Subscription;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
@@ -18,6 +19,7 @@ import java.util.List;
 import static brs.schema.Tables.SUBSCRIPTION;
 
 public class SqlSubscriptionStore implements SubscriptionStore {
+  private final DependencyProvider dp;
 
   private final BurstKey.LongKeyFactory<Subscription> subscriptionDbKeyFactory = new DbKey.LongKeyFactory<Subscription>(SUBSCRIPTION.ID) {
       @Override
@@ -28,8 +30,9 @@ public class SqlSubscriptionStore implements SubscriptionStore {
 
   private final VersionedEntityTable<Subscription> subscriptionTable;
 
-  public SqlSubscriptionStore(DerivedTableManager derivedTableManager) {
-    subscriptionTable = new VersionedEntitySqlTable<Subscription>("subscription", brs.schema.Tables.SUBSCRIPTION, subscriptionDbKeyFactory, derivedTableManager) {
+  public SqlSubscriptionStore(DependencyProvider dp) {
+    this.dp = dp;
+    subscriptionTable = new VersionedEntitySqlTable<Subscription>("subscription", brs.schema.Tables.SUBSCRIPTION, subscriptionDbKeyFactory, dp) {
       @Override
       protected Subscription load(DSLContext ctx, Record rs) {
         return new SqlSubscription(rs);
@@ -91,7 +94,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
   private void saveSubscription(DSLContext ctx, Subscription subscription) {
     ctx.mergeInto(SUBSCRIPTION, SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
             .key(SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
-            .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency, subscription.getTimeNext(), Burst.getBlockchain().getHeight(), true)
+            .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency, subscription.getTimeNext(), dp.blockchain.getHeight(), true)
             .execute();
   }
 

@@ -1,9 +1,6 @@
 package brs.http
 
-import brs.Burst
-import brs.Constants
-import brs.Genesis
-import brs.TransactionType
+import brs.*
 import brs.fluxcapacitor.FluxValues
 import brs.util.Convert
 import brs.util.JSON
@@ -14,7 +11,7 @@ import java.util.stream.Collector
 
 import javax.servlet.http.HttpServletRequest
 
-internal class GetConstants private constructor() : APIServlet.JsonRequestHandler(arrayOf(APITag.INFO)) {
+internal class GetConstants(dp: DependencyProvider) : APIServlet.JsonRequestHandler(arrayOf(APITag.INFO)) {
 
     private val constants: JsonElement
 
@@ -22,7 +19,7 @@ internal class GetConstants private constructor() : APIServlet.JsonRequestHandle
         val response = JsonObject()
         response.addProperty("genesisBlockId", Convert.toUnsignedLong(Genesis.GENESIS_BLOCK_ID))
         response.addProperty("genesisAccountId", Convert.toUnsignedLong(Genesis.CREATOR_ID))
-        response.addProperty("maxBlockPayloadLength", Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH))
+        response.addProperty("maxBlockPayloadLength", dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH))
         response.addProperty("maxArbitraryMessageLength", Constants.MAX_ARBITRARY_MESSAGE_LENGTH)
 
         val transactionTypes = JsonArray()
@@ -69,10 +66,4 @@ internal class GetConstants private constructor() : APIServlet.JsonRequestHandle
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
         return constants
     }
-
-    companion object {
-
-        val instance = GetConstants()
-    }
-
 }

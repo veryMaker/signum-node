@@ -6,8 +6,10 @@ import com.google.gson.JsonObject
 
 interface TransactionProcessor : Observable<List<Transaction>, TransactionProcessor.Event> {
 
+    @Deprecated("Just use UTStore directly")
     val allUnconfirmedTransactions: List<Transaction>
 
+    @Deprecated("Just use UTStore directly")
     val amountUnconfirmedTransactions: Int
 
     enum class Event {
@@ -17,12 +19,19 @@ interface TransactionProcessor : Observable<List<Transaction>, TransactionProces
         ADDED_DOUBLESPENDING_TRANSACTIONS
     }
 
+    @Deprecated("Just use UTStore directly")
+    fun revalidateUnconfirmedTransactions()
+
+    @Deprecated("Just use UTStore directly")
     fun getAllUnconfirmedTransactionsFor(peer: Peer): List<Transaction>
 
+    @Deprecated("Just use UTStore directly")
     fun markFingerPrintsOf(peer: Peer, transactions: List<Transaction>)
 
+    @Deprecated("Just use UTStore directly")
     fun getUnconfirmedTransaction(transactionId: Long): Transaction
 
+    @Deprecated("Just use UTStore directly")
     fun clearUnconfirmedTransactions()
 
     @Throws(BurstException.ValidationException::class)
@@ -40,4 +49,16 @@ interface TransactionProcessor : Observable<List<Transaction>, TransactionProces
     fun newTransactionBuilder(senderPublicKey: ByteArray, amountNQT: Long, feeNQT: Long, deadline: Short, attachment: Attachment): Transaction.Builder
 
     fun getTransactionVersion(blockHeight: Int): Int
+
+    fun processLater(transactions: Collection<Transaction>)
+
+    fun getUnconfirmedTransactionsSyncObj(): Any
+
+    @Deprecated("Just use UTStore directly")
+    fun requeueAllUnconfirmedTransactions()
+
+    @Deprecated("Just use UTStore directly")
+    fun removeForgedTransactions(transactions: MutableList<Transaction>)
+
+    fun notifyListeners(transactions: List<Transaction>, eventType: Event)
 }

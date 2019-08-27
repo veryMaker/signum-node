@@ -11,12 +11,12 @@ import brs.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.http.JSONResponses.INCORRECT_PURCHASE
 import brs.http.common.Parameters.PURCHASE_PARAMETER
 
-internal class DGSFeedback internal constructor(private val parameterService: ParameterService, private val blockchain: Blockchain, private val accountService: AccountService, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), apiTransactionManager, PURCHASE_PARAMETER) {
+internal class DGSFeedback internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), PURCHASE_PARAMETER) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val purchase = parameterService.getPurchase(req)
-        val buyerAccount = parameterService.getSenderAccount(req)
+        val purchase = dp.parameterService.getPurchase(req)
+        val buyerAccount = dp.parameterService.getSenderAccount(req)
 
         if (buyerAccount.getId() != purchase.buyerId) {
             return INCORRECT_PURCHASE
@@ -25,8 +25,8 @@ internal class DGSFeedback internal constructor(private val parameterService: Pa
             return GOODS_NOT_DELIVERED
         }
 
-        val sellerAccount = accountService.getAccount(purchase.sellerId)
-        val attachment = Attachment.DigitalGoodsFeedback(purchase.id, blockchain.height)
+        val sellerAccount = dp.accountService.getAccount(purchase.sellerId)
+        val attachment = Attachment.DigitalGoodsFeedback(purchase.id, dp.blockchain.height)
 
         return createTransaction(req, buyerAccount, sellerAccount.getId(), 0, attachment)
     }

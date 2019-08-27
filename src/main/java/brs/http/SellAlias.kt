@@ -14,12 +14,12 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.*
 
-internal class SellAlias internal constructor(private val parameterService: ParameterService, private val blockchain: Blockchain, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION), apiTransactionManager, ALIAS_PARAMETER, ALIAS_NAME_PARAMETER, RECIPIENT_PARAMETER, PRICE_NQT_PARAMETER) {
+internal class SellAlias internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION), ALIAS_PARAMETER, ALIAS_NAME_PARAMETER, RECIPIENT_PARAMETER, PRICE_NQT_PARAMETER) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val alias = parameterService.getAlias(req)
-        val owner = parameterService.getSenderAccount(req)
+        val alias = dp.parameterService.getAlias(req)
+        val owner = dp.parameterService.getSenderAccount(req)
 
         val priceValueNQT = Convert.emptyToNull(req.getParameter(PRICE_NQT_PARAMETER)) ?: return MISSING_PRICE
         val priceNQT: Long
@@ -51,7 +51,7 @@ internal class SellAlias internal constructor(private val parameterService: Para
             return INCORRECT_ALIAS_OWNER
         }
 
-        val attachment = Attachment.MessagingAliasSell(alias.aliasName, priceNQT, blockchain.height)
+        val attachment = Attachment.MessagingAliasSell(alias.aliasName, priceNQT, dp.blockchain.height)
         return createTransaction(req, owner, recipientId, 0, attachment)
     }
 }

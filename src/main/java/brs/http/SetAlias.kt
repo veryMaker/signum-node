@@ -20,7 +20,7 @@ import brs.http.common.Parameters.ALIAS_URI_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
-internal class SetAlias(private val parameterService: ParameterService, private val blockchain: Blockchain, private val aliasService: AliasService, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION), apiTransactionManager, ALIAS_NAME_PARAMETER, ALIAS_URI_PARAMETER) {
+internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION), ALIAS_NAME_PARAMETER, ALIAS_URI_PARAMETER) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
@@ -45,9 +45,9 @@ internal class SetAlias(private val parameterService: ParameterService, private 
             return INCORRECT_URI_LENGTH
         }
 
-        val account = parameterService.getSenderAccount(req)
+        val account = dp.parameterService.getSenderAccount(req)
 
-        val alias = aliasService.getAlias(aliasName)
+        val alias = dp.aliasService.getAlias(aliasName)
         if (alias != null && alias.accountId != account.getId()) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 8)
@@ -55,7 +55,7 @@ internal class SetAlias(private val parameterService: ParameterService, private 
             return response
         }
 
-        val attachment = Attachment.MessagingAliasAssignment(aliasName, aliasURI, blockchain.height)
+        val attachment = Attachment.MessagingAliasAssignment(aliasName, aliasURI, dp.blockchain.height)
         return createTransaction(req, account, attachment)
 
     }

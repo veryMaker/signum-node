@@ -1,5 +1,6 @@
 package brs.db.sql;
 
+import brs.DependencyProvider;
 import brs.db.BurstKey;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.cache.DBCacheManagerImpl;
@@ -12,12 +13,12 @@ import java.util.*;
 
 public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySqlTable<T> implements VersionedBatchEntityTable<T> {
 
-  private final DBCacheManagerImpl dbCacheManager;
+  private final DependencyProvider dp;
   private final Class<T> tClass;
 
-  VersionedBatchEntitySqlTable(String table, TableImpl<?> tableClass, DbKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager, DBCacheManagerImpl dbCacheManager, Class<T> tClass) {
-    super(table, tableClass, dbKeyFactory, derivedTableManager);
-    this.dbCacheManager = dbCacheManager;
+  VersionedBatchEntitySqlTable(String table, TableImpl<?> tableClass, DbKey.Factory<T> dbKeyFactory, Class<T> tClass, DependencyProvider dp) {
+    super(table, tableClass, dbKeyFactory, dp);
+    this.dp = dp;
     this.tClass = tClass;
   }
   
@@ -85,15 +86,13 @@ public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySql
 
       BatchBindStep updateBatch = ctx.batch(updateQuery);
       for (BurstKey dbKey : keySet) {
-        List<Object> bindArgs = new ArrayList<>();
-        bindArgs.add(false);
-        for (long pkValue : dbKey.getPKValues()) {
-          bindArgs.add(pkValue);
-        }
-        updateBatch.bind(bindArgs.toArray());
+        long[] pkValues = dbKey.getPKValues();
+        Object[] bindArgs = new Object[pkValues.length + 1];
+        bindArgs[0] = false;
+        System.arraycopy(pkValues, 0, bindArgs, 1, pkValues.length);
+        updateBatch.bind(bindArgs); // TODO once in kotlin just do bind(false, *pkValues)
       }
       updateBatch.execute();
-
       bulkInsert(ctx, getBatch().values());
       getBatch().clear();
     });
@@ -202,7 +201,7 @@ public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySql
 
   @Override
   public Cache<BurstKey, T> getCache() {
-    return dbCacheManager.getCache(table, tClass);
+    return dp.dbCacheManager.getCache(table, tClass);
   }
 
   @Override

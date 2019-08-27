@@ -1,6 +1,7 @@
 package brs.db.sql;
 
 import brs.Burst;
+import brs.DependencyProvider;
 import brs.Order;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
@@ -22,6 +23,8 @@ import static brs.schema.Tables.ASK_ORDER;
 import static brs.schema.Tables.BID_ORDER;
 
 public class SqlOrderStore implements OrderStore {
+  private final DependencyProvider dp;
+
   private final DbKey.LongKeyFactory<Order.Ask> askOrderDbKeyFactory = new DbKey.LongKeyFactory<Order.Ask>(ASK_ORDER.ID) {
 
     @Override
@@ -40,8 +43,9 @@ public class SqlOrderStore implements OrderStore {
 
   };
 
-  public SqlOrderStore(DerivedTableManager derivedTableManager) {
-    askOrderTable = new VersionedEntitySqlTable<Order.Ask>("ask_order", ASK_ORDER, askOrderDbKeyFactory, derivedTableManager) {
+  public SqlOrderStore(DependencyProvider dp) {
+    this.dp = dp;
+    askOrderTable = new VersionedEntitySqlTable<Order.Ask>("ask_order", ASK_ORDER, askOrderDbKeyFactory, dp) {
       @Override
       protected Order.Ask load(DSLContext ctx, Record record) {
         return new SqlAsk(record);
@@ -60,7 +64,7 @@ public class SqlOrderStore implements OrderStore {
       }
     };
 
-    bidOrderTable = new VersionedEntitySqlTable<Order.Bid>("bid_order", BID_ORDER, bidOrderDbKeyFactory, derivedTableManager) {
+    bidOrderTable = new VersionedEntitySqlTable<Order.Bid>("bid_order", BID_ORDER, bidOrderDbKeyFactory, dp) {
 
       @Override
       protected Order.Bid load(DSLContext ctx, Record rs) {
@@ -142,7 +146,7 @@ public class SqlOrderStore implements OrderStore {
   private void saveAsk(DSLContext ctx, Order.Ask ask) {
     ctx.mergeInto(ASK_ORDER, ASK_ORDER.ID, ASK_ORDER.ACCOUNT_ID, ASK_ORDER.ASSET_ID, ASK_ORDER.PRICE, ASK_ORDER.QUANTITY, ASK_ORDER.CREATION_HEIGHT, ASK_ORDER.HEIGHT, ASK_ORDER.LATEST)
             .key(ASK_ORDER.ID, ASK_ORDER.HEIGHT)
-            .values(ask.getId(), ask.getAccountId(), ask.getAssetId(), ask.getPriceNQT(), ask.getQuantityQNT(), ask.getHeight(), Burst.getBlockchain().getHeight(), true)
+            .values(ask.getId(), ask.getAccountId(), ask.getAssetId(), ask.getPriceNQT(), ask.getQuantityQNT(), ask.getHeight(), dp.blockchain.getHeight(), true)
             .execute();
   }
 
@@ -210,7 +214,7 @@ public class SqlOrderStore implements OrderStore {
   private void saveBid(DSLContext ctx, Order.Bid bid) {
     ctx.mergeInto(BID_ORDER, BID_ORDER.ID, BID_ORDER.ACCOUNT_ID, BID_ORDER.ASSET_ID, BID_ORDER.PRICE, BID_ORDER.QUANTITY, BID_ORDER.CREATION_HEIGHT, BID_ORDER.HEIGHT, BID_ORDER.LATEST)
             .key(BID_ORDER.ID, BID_ORDER.HEIGHT)
-            .values(bid.getId(), bid.getAccountId(), bid.getAssetId(), bid.getPriceNQT(), bid.getQuantityQNT(), bid.getHeight(), Burst.getBlockchain().getHeight(), true)
+            .values(bid.getId(), bid.getAccountId(), bid.getAssetId(), bid.getPriceNQT(), bid.getQuantityQNT(), bid.getHeight(), dp.blockchain.getHeight(), true)
             .execute();
   }
 

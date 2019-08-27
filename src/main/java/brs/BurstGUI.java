@@ -29,14 +29,14 @@ public class BurstGUI extends Application {
     private static final int OUTPUT_MAX_LINES = 500;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BurstGUI.class);
-    private static String[] args;
 
     private boolean userClosed = false;
     private Stage stage;
     private TrayIcon trayIcon = null;
 
+    private Burst burst = null;
+
     public static void main(String[] args) {
-        BurstGUI.args = args;
         Platform.setImplicitExit(false);
         launch(args);
     }
@@ -123,7 +123,11 @@ public class BurstGUI extends Application {
 
     private void openWebUi() {
         try {
-            PropertyService propertyService = Burst.getPropertyService();
+            if (burst == null) {
+                showMessage("BRS has not been initialized - cannot open Web UI");
+                return;
+            }
+            PropertyService propertyService = burst.dp.propertyService;
             int port = propertyService.get(Props.DEV_TESTNET) ? propertyService.get(Props.DEV_API_PORT) : propertyService.get(Props.API_PORT);
             String httpPrefix = propertyService.get(Props.API_SSL) ? "https://" : "http://";
             String address = httpPrefix + "localhost:" + port;
@@ -141,9 +145,9 @@ public class BurstGUI extends Application {
 
     private void runBrs() {
         try {
-            Burst.main(args);
+            burst = Burst.Companion.init(true); // TODO what should addShutdownHook be?
             try {
-                if (Burst.getPropertyService().get(Props.DEV_TESTNET)) {
+                if (burst.dp.propertyService.get(Props.DEV_TESTNET)) {
                     onTestNetEnabled();
                 }
             } catch (Exception t) {

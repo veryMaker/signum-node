@@ -1,6 +1,6 @@
 package brs.util;
 
-import brs.props.PropertyService;
+import brs.DependencyProvider;
 import brs.props.Props;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +28,10 @@ public final class ThreadPool {
   private final List<Runnable> lastBeforeStartJobs = new ArrayList<>();
   private final List<Runnable> afterStartJobs = new ArrayList<>();
 
-  private final PropertyService propertyService;
+  private final DependencyProvider dp;
 
-  public ThreadPool(PropertyService propertyService) {
-    this.propertyService = propertyService;
+  public ThreadPool(DependencyProvider dp) {
+    this.dp = dp;
   }
 
   public synchronized void runBeforeStart(Runnable runnable, boolean runLast) {
@@ -57,7 +57,7 @@ public final class ThreadPool {
     if (scheduledThreadPool != null) {
       throw new IllegalStateException("Executor service already started, no new jobs accepted");
     }
-    if (!propertyService.get("brs.disable" + name + "Thread", false)) {
+    if (!dp.propertyService.get("brs.disable" + name + "Thread", false)) {
       backgroundJobs.put(runnable, timeUnit.toMillis(delay));
     } else {
       logger.info("Will not run {} thread", name);
@@ -88,7 +88,7 @@ public final class ThreadPool {
     runAll(lastBeforeStartJobs);
     lastBeforeStartJobs.clear();
 
-    int cores = propertyService.get(Props.CPU_NUM_CORES);
+    int cores = dp.propertyService.get(Props.CPU_NUM_CORES);
     if (cores <= 0) {
         logger.warn("Cannot use 0 cores - defaulting to all available");
         cores = Runtime.getRuntime().availableProcessors();
@@ -142,7 +142,7 @@ public final class ThreadPool {
     if (!executor.isTerminated()) {
       executor.shutdown();
       try {
-        executor.awaitTermination(propertyService.get(Props.BRS_SHUTDOWN_TIMEOUT), TimeUnit.SECONDS);
+        executor.awaitTermination(dp.propertyService.get(Props.BRS_SHUTDOWN_TIMEOUT), TimeUnit.SECONDS);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }

@@ -102,14 +102,14 @@ object AtTestHelper {
         whenever(mockAtStore.atStateTable).doReturn(mockAtStateTable)
         whenever(mockPropertyService.get(eq(Props.ENABLE_AT_DEBUG_LOG))).doReturn(true)
         whenever(mockAtStore.atTable).doReturn(mockAtTable)
-        every { Burst.getPropertyService() } returns mockPropertyService
+        every { Burst.propertyService } returns mockPropertyService
         every { Burst.getBlockchain() } returns mockBlockchain
         whenever(mockBlockchain.height).doReturn(Integer.MAX_VALUE)
         whenever(mockAtStore.atDbKeyFactory).doReturn(atLongKeyFactory)
         whenever(mockAtStore.atStateDbKeyFactory).doReturn(atStateLongKeyFactory)
         whenever(mockStores.atStore).doReturn(mockAtStore)
-        every { Burst.getStores() } returns mockStores
-        every { Burst.getFluxCapacitor() } returns mockFluxCapacitor
+        every { Burst.stores } returns mockStores
+        every { Burst.fluxCapacitor } returns mockFluxCapacitor
     }
 
     internal fun clearAddedAts() {

@@ -1,5 +1,6 @@
 package brs.db.sql;
 
+import brs.DependencyProvider;
 import brs.db.BlockDb;
 import brs.db.PeerDb;
 import brs.db.TransactionDb;
@@ -11,9 +12,9 @@ public class SqlDbs implements Dbs {
   private final TransactionDb transactionDb;
   private final PeerDb peerDb;
 
-  public SqlDbs() {
-    this.blockDb       = new SqlBlockDb();
-    this.transactionDb = new SqlTransactionDb();
+  public SqlDbs(DependencyProvider dp) {
+    this.blockDb       = new SqlBlockDb(dp);
+    this.transactionDb = new SqlTransactionDb(dp);
     this.peerDb        = new SqlPeerDb();
   }
 

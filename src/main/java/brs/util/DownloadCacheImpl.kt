@@ -11,8 +11,8 @@ import java.util.*
 import java.util.concurrent.locks.StampedLock
 import java.util.function.Supplier
 
-class DownloadCacheImpl(propertyService: PropertyService, private val fluxCapacitor: FluxCapacitor, private val blockchain: Blockchain) {
-    private val blockCacheMB = propertyService.get(Props.BRS_BLOCK_CACHE_MB)
+class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
+    private val blockCacheMB = dp.propertyService.get(Props.BRS_BLOCK_CACHE_MB)
 
     private val blockCache = LinkedHashMap<Long, Block>()
     private val forkCache = ArrayList<Block>()
@@ -45,7 +45,7 @@ class DownloadCacheImpl(propertyService: PropertyService, private val fluxCapaci
             }
             return if (retVal > -1) {
                 retVal
-            } else blockchain.height
+            } else dp.blockchain.height
         }
     private val lockState: Boolean
         get() {
@@ -165,7 +165,7 @@ class DownloadCacheImpl(propertyService: PropertyService, private val fluxCapaci
             val iLd = lastCacheId
             return if (iLd != null && blockCache.containsKey(iLd)) {
                 dcslRead(Supplier { blockCache[iLd] })
-            } else blockchain.lastBlock
+            } else dp.blockchain.lastBlock
         }
 
 
@@ -288,8 +288,8 @@ class DownloadCacheImpl(propertyService: PropertyService, private val fluxCapaci
         if (retVal != null) {
             return retVal
         }
-        return if (blockchain.hasBlock(blockId)) {
-            blockchain.getBlock(blockId)
+        return if (dp.blockchain.hasBlock(blockId)) {
+            dp.blockchain.getBlock(blockId)
         } else null
     }
 
@@ -334,18 +334,18 @@ class DownloadCacheImpl(propertyService: PropertyService, private val fluxCapaci
         }
         return if (retVal) {
             true
-        } else blockchain.hasBlock(blockId)
+        } else dp.blockchain.hasBlock(blockId)
     }
 
     fun canBeFork(oldBlockId: Long): Boolean {
         val curHeight = chainHeight
         var block: Block? = dcslRead(Supplier { getBlockInt(oldBlockId) })
-        if (block == null && blockchain.hasBlock(oldBlockId)) {
-            block = blockchain.getBlock(oldBlockId)
+        if (block == null && dp.blockchain.hasBlock(oldBlockId)) {
+            block = dp.blockchain.getBlock(oldBlockId)
         }
         return if (block == null) {
             false
-        } else curHeight - block.height <= Burst.getPropertyService().get(Props.DB_MAX_ROLLBACK)
+        } else curHeight - block.height <= dp.propertyService.get(Props.DB_MAX_ROLLBACK)
     }
 
     fun addBlock(block: Block): Boolean {
@@ -409,12 +409,12 @@ class DownloadCacheImpl(propertyService: PropertyService, private val fluxCapaci
 
     fun getPoCVersion(blockId: Long): Int {
         val blockImpl = getBlock(blockId)
-        return if (blockImpl == null || !fluxCapacitor.getValue(FluxValues.POC2, blockImpl.height)) 1 else 2
+        return if (blockImpl == null || !dp.fluxCapacitor.getValue(FluxValues.POC2, blockImpl.height)) 1 else 2
     }
 
     fun getLastBlockId(): Long {
         val lId = lastCacheId
-        return lId ?: blockchain.lastBlock.id
+        return lId ?: dp.blockchain.lastBlock.id
     }
 
     private fun <T> dcslRead(supplier: Supplier<T?>): T? {
@@ -448,9 +448,9 @@ class DownloadCacheImpl(propertyService: PropertyService, private val fluxCapaci
                 logger.debug("Cache set to CacheData")
                 printLastVars()
             } else {
-                lastBlockId = blockchain.lastBlock.id
-                lastHeight = blockchain.height
-                highestCumulativeDifficulty = blockchain.lastBlock.cumulativeDifficulty
+                lastBlockId = dp.blockchain.lastBlock.id
+                lastHeight = dp.blockchain.height
+                highestCumulativeDifficulty = dp.blockchain.lastBlock.cumulativeDifficulty
                 logger.debug("Cache set to ChainData")
                 printLastVars()
             }

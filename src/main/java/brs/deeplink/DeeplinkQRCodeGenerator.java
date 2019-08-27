@@ -14,7 +14,7 @@ import java.awt.image.BufferedImage;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class DeeplinkQRCodeGenerator {
+public class DeeplinkQRCodeGenerator { // TODO interface
 
   private final QRCodeWriter qrCodeWriter = new QRCodeWriter();
   private final Map<EncodeHintType, ErrorCorrectionLevel> hints = new EnumMap<>(EncodeHintType.class);

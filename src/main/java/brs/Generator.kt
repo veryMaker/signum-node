@@ -12,7 +12,7 @@ interface Generator : Observable<Generator.GeneratorState, Generator.Event> {
         GENERATION_DEADLINE, NONCE_SUBMITTED
     }
 
-    fun generateForBlockchainProcessor(threadPool: ThreadPool, blockchainProcessor: BlockchainProcessor)
+    fun generateForBlockchainProcessor(dp: DependencyProvider)
 
     fun addNonce(secretPhrase: String, nonce: Long?): GeneratorState
 

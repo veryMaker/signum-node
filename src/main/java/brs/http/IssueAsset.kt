@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.*
 
-internal class IssueAsset internal constructor(private val parameterService: ParameterService, private val blockchain: Blockchain, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), apiTransactionManager, NAME_PARAMETER, DESCRIPTION_PARAMETER, QUANTITY_QNT_PARAMETER, DECIMALS_PARAMETER) {
+internal class IssueAsset internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, QUANTITY_QNT_PARAMETER, DECIMALS_PARAMETER) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
@@ -56,8 +56,8 @@ internal class IssueAsset internal constructor(private val parameterService: Par
         }
 
         val quantityQNT = ParameterParser.getQuantityQNT(req)
-        val account = parameterService.getSenderAccount(req)
-        val attachment = Attachment.ColoredCoinsAssetIssuance(name, description!!, quantityQNT, decimals, blockchain.height)
+        val account = dp.parameterService.getSenderAccount(req)
+        val attachment = Attachment.ColoredCoinsAssetIssuance(name, description!!, quantityQNT, decimals, dp.blockchain.height)
         return createTransaction(req, account, attachment)
     }
 }

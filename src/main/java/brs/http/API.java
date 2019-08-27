@@ -1,10 +1,6 @@
 package brs.http;
 
 import brs.*;
-import brs.assetexchange.AssetExchange;
-import brs.deeplink.DeeplinkQRCodeGenerator;
-import brs.feesuggestions.FeeSuggestionCalculator;
-import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.*;
 import brs.util.Subnet;
@@ -46,16 +42,8 @@ public final class API {
 
   private final Server apiServer;
 
-  public API(TransactionProcessor transactionProcessor,
-      Blockchain blockchain, BlockchainProcessor blockchainProcessor, ParameterService parameterService,
-      AccountService accountService, AliasService aliasService,
-      AssetExchange assetExchange, EscrowService escrowService, DGSGoodsStoreService digitalGoodsStoreService,
-      SubscriptionService subscriptionService, ATService atService,
-      TimeService timeService, EconomicClustering economicClustering, PropertyService propertyService,
-      ThreadPool threadPool, TransactionService transactionService, BlockService blockService,
-      Generator generator, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator, DeeplinkQRCodeGenerator deepLinkQRCodeGenerator, IndirectIncomingService indirectIncomingService) {
-
-    List<String> allowedBotHostsList = propertyService.get(Props.API_ALLOWED);
+  public API(DependencyProvider dp) {
+    List<String> allowedBotHostsList = dp.propertyService.get(Props.API_ALLOWED);
     Set<Subnet> allowedBotHosts;
     if (!allowedBotHostsList.contains("*")) {
       // Temp hashset to store allowed subnets
@@ -75,14 +63,14 @@ public final class API {
       allowedBotHosts = null;
     }
 
-    boolean enableAPIServer = propertyService.get(Props.API_SERVER);
+    boolean enableAPIServer = dp.propertyService.get(Props.API_SERVER);
     if (enableAPIServer) {
-      final String host = propertyService.get(Props.API_LISTEN);
-      final int    port = propertyService.get(Props.DEV_TESTNET) ? propertyService.get(Props.DEV_API_PORT) : propertyService.get(Props.API_PORT);
+      final String host = dp.propertyService.get(Props.API_LISTEN);
+      final int    port = dp.propertyService.get(Props.DEV_TESTNET) ? dp.propertyService.get(Props.DEV_API_PORT) : dp.propertyService.get(Props.API_PORT);
       apiServer = new Server();
       ServerConnector connector;
 
-      boolean enableSSL = propertyService.get(Props.API_SSL);
+      boolean enableSSL = dp.propertyService.get(Props.API_SSL);
       if (enableSSL) {
         logger.info("Using SSL (https) for the API server");
         HttpConfiguration httpsConfig = new HttpConfiguration();
@@ -90,8 +78,8 @@ public final class API {
         httpsConfig.setSecurePort(port);
         httpsConfig.addCustomizer(new SecureRequestCustomizer());
         SslContextFactory sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setKeyStorePath(propertyService.get(Props.API_SSL_KEY_STORE_PATH));
-        sslContextFactory.setKeyStorePassword(propertyService.get(Props.API_SSL_KEY_STORE_PASSWORD));
+        sslContextFactory.setKeyStorePath(dp.propertyService.get(Props.API_SSL_KEY_STORE_PATH));
+        sslContextFactory.setKeyStorePassword(dp.propertyService.get(Props.API_SSL_KEY_STORE_PASSWORD));
         sslContextFactory.setExcludeCipherSuites("SSL_RSA_WITH_DES_CBC_SHA",
                                                  "SSL_DHE_RSA_WITH_DES_CBC_SHA",
                                                  "SSL_DHE_DSS_WITH_DES_CBC_SHA",
@@ -109,7 +97,7 @@ public final class API {
 
       connector.setHost(host);
       connector.setPort(port);
-      connector.setIdleTimeout(propertyService.get(Props.API_SERVER_IDLE_TIMEOUT));
+      connector.setIdleTimeout(dp.propertyService.get(Props.API_SERVER_IDLE_TIMEOUT));
       // defaultProtocol
       // stopTimeout
       // acceptQueueSize
@@ -120,7 +108,7 @@ public final class API {
       HandlerList apiHandlers = new HandlerList();
 
       ServletContextHandler apiHandler = new ServletContextHandler();
-      String apiResourceBase = propertyService.get(Props.API_UI_DIR);
+      String apiResourceBase = dp.propertyService.get(Props.API_UI_DIR);
       if (apiResourceBase != null) {
         ServletHolder defaultServletHolder = new ServletHolder(new DefaultServlet());
         defaultServletHolder.setInitParameter("resourceBase",    apiResourceBase);
@@ -132,27 +120,24 @@ public final class API {
         apiHandler.setWelcomeFiles(new String[]{"index.html"});
       }
 
-      APIServlet apiServlet = new APIServlet(transactionProcessor, blockchain, blockchainProcessor, parameterService,
-              accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
-              subscriptionService, atService, timeService, economicClustering, transactionService, blockService, generator, propertyService,
-              apiTransactionManager, feeSuggestionCalculator, deepLinkQRCodeGenerator, indirectIncomingService, allowedBotHosts);
+      APIServlet apiServlet = new APIServlet(dp, allowedBotHosts);
       ServletHolder apiServletHolder = new ServletHolder(apiServlet);
       apiHandler.addServlet(apiServletHolder, API_PATH);
       
-      if (propertyService.get(Props.JETTY_API_DOS_FILTER)) {
+      if (dp.propertyService.get(Props.JETTY_API_DOS_FILTER)) {
         FilterHolder dosFilterHolder = apiHandler.addFilter(DoSFilter.class, API_PATH, null);
-        dosFilterHolder.setInitParameter("maxRequestsPerSec", propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_PER_SEC));
-        dosFilterHolder.setInitParameter("throttledRequests", propertyService.get(Props.JETTY_API_DOS_FILTER_THROTTLED_REQUESTS));
-        dosFilterHolder.setInitParameter("delayMs",           propertyService.get(Props.JETTY_API_DOS_FILTER_DELAY_MS));
-        dosFilterHolder.setInitParameter("maxWaitMs",         propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_WAIT_MS));
-        dosFilterHolder.setInitParameter("maxRequestMs",      propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_MS));
-        dosFilterHolder.setInitParameter("maxthrottleMs",     propertyService.get(Props.JETTY_API_DOS_FILTER_THROTTLE_MS));
-        dosFilterHolder.setInitParameter("maxIdleTrackerMs",  propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_IDLE_TRACKER_MS));
-        dosFilterHolder.setInitParameter("trackSessions",     propertyService.get(Props.JETTY_API_DOS_FILTER_TRACK_SESSIONS));
-        dosFilterHolder.setInitParameter("insertHeaders",     propertyService.get(Props.JETTY_API_DOS_FILTER_INSERT_HEADERS));
-        dosFilterHolder.setInitParameter("remotePort",        propertyService.get(Props.JETTY_API_DOS_FILTER_REMOTE_PORT));
-        dosFilterHolder.setInitParameter("ipWhitelist",       propertyService.get(Props.JETTY_API_DOS_FILTER_IP_WHITELIST));
-        dosFilterHolder.setInitParameter("managedAttr",       propertyService.get(Props.JETTY_API_DOS_FILTER_MANAGED_ATTR));
+        dosFilterHolder.setInitParameter("maxRequestsPerSec", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_PER_SEC));
+        dosFilterHolder.setInitParameter("throttledRequests", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_THROTTLED_REQUESTS));
+        dosFilterHolder.setInitParameter("delayMs",           dp.propertyService.get(Props.JETTY_API_DOS_FILTER_DELAY_MS));
+        dosFilterHolder.setInitParameter("maxWaitMs",         dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_WAIT_MS));
+        dosFilterHolder.setInitParameter("maxRequestMs",      dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_MS));
+        dosFilterHolder.setInitParameter("maxthrottleMs",     dp.propertyService.get(Props.JETTY_API_DOS_FILTER_THROTTLE_MS));
+        dosFilterHolder.setInitParameter("maxIdleTrackerMs",  dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_IDLE_TRACKER_MS));
+        dosFilterHolder.setInitParameter("trackSessions",     dp.propertyService.get(Props.JETTY_API_DOS_FILTER_TRACK_SESSIONS));
+        dosFilterHolder.setInitParameter("insertHeaders",     dp.propertyService.get(Props.JETTY_API_DOS_FILTER_INSERT_HEADERS));
+        dosFilterHolder.setInitParameter("remotePort",        dp.propertyService.get(Props.JETTY_API_DOS_FILTER_REMOTE_PORT));
+        dosFilterHolder.setInitParameter("ipWhitelist",       dp.propertyService.get(Props.JETTY_API_DOS_FILTER_IP_WHITELIST));
+        dosFilterHolder.setInitParameter("managedAttr",       dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MANAGED_ATTR));
         dosFilterHolder.setAsyncSupported(true);
       }
 
@@ -163,16 +148,16 @@ public final class API {
       rewriteHandler.setRewritePathInfo(false);
       rewriteHandler.setOriginalPathAttribute("requestedPath");
       rewriteHandler.setHandler(apiHandler);
-      Rule rewriteToRoot = new RegexOrExistsRewriteRule(new File(propertyService.get(Props.API_UI_DIR)), "^(?!"+regexpEscapeUrl(API_PATH)+"|"+regexpEscapeUrl(API_TEST_PATH)+").*$", "/index.html");
+      Rule rewriteToRoot = new RegexOrExistsRewriteRule(new File(dp.propertyService.get(Props.API_UI_DIR)), "^(?!"+regexpEscapeUrl(API_PATH)+"|"+regexpEscapeUrl(API_TEST_PATH)+").*$", "/index.html");
       rewriteHandler.addRule(rewriteToRoot);
       apiHandlers.addHandler(rewriteHandler);
 
-      if (propertyService.get(Props.JETTY_API_GZIP_FILTER)) {
+      if (dp.propertyService.get(Props.JETTY_API_GZIP_FILTER)) {
         GzipHandler gzipHandler = new GzipHandler();
         gzipHandler.setIncludedPaths(API_PATH);
-        gzipHandler.setIncludedMethodList(propertyService.get(Props.JETTY_API_GZIP_FILTER_METHODS));
-        gzipHandler.setInflateBufferSize(propertyService.get(Props.JETTY_API_GZIP_FILTER_BUFFER_SIZE));
-        gzipHandler.setMinGzipSize(propertyService.get(Props.JETTY_API_GZIP_FILTER_MIN_GZIP_SIZE));
+        gzipHandler.setIncludedMethodList(dp.propertyService.get(Props.JETTY_API_GZIP_FILTER_METHODS));
+        gzipHandler.setInflateBufferSize(dp.propertyService.get(Props.JETTY_API_GZIP_FILTER_BUFFER_SIZE));
+        gzipHandler.setMinGzipSize(dp.propertyService.get(Props.JETTY_API_GZIP_FILTER_MIN_GZIP_SIZE));
         gzipHandler.setHandler(apiHandler);
         apiHandlers.addHandler(gzipHandler);
       } else {
@@ -182,7 +167,7 @@ public final class API {
       apiServer.setHandler(apiHandlers);
       apiServer.setStopAtShutdown(true);
 
-      threadPool.runBeforeStart(() -> {
+      dp.threadPool.runBeforeStart(() -> {
         try {
           apiServer.start();
           logger.info("Started API server at {}:{}", host,    port);

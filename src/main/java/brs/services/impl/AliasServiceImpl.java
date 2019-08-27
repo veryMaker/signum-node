@@ -3,6 +3,7 @@ package brs.services.impl;
 import brs.Alias;
 import brs.Alias.Offer;
 import brs.Attachment;
+import brs.DependencyProvider;
 import brs.Transaction;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
@@ -19,8 +20,8 @@ public class AliasServiceImpl implements AliasService {
   private final VersionedEntityTable<Offer> offerTable;
   private final BurstKey.LongKeyFactory<Offer> offerDbKeyFactory;
 
-  public AliasServiceImpl(AliasStore aliasStore) {
-    this.aliasStore = aliasStore;
+  public AliasServiceImpl(DependencyProvider dp) {
+    this.aliasStore = dp.aliasStore;
     this.aliasTable = aliasStore.getAliasTable();
     this.aliasDbKeyFactory = aliasStore.getAliasDbKeyFactory();
     this.offerTable = aliasStore.getOfferTable();

@@ -1,6 +1,7 @@
 package brs.db.sql;
 
 import brs.Burst;
+import brs.DependencyProvider;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
@@ -12,9 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class VersionedEntitySqlTable<T> extends EntitySqlTable<T> implements VersionedEntityTable<T> {
+  private final DependencyProvider dp;
 
-  VersionedEntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
-    super(table, tableClass, dbKeyFactory, true, derivedTableManager);
+  VersionedEntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, DependencyProvider dp) {
+    super(table, tableClass, dbKeyFactory, true, dp);
+    this.dp = dp;
   }
 
   @Override
@@ -127,7 +130,7 @@ public abstract class VersionedEntitySqlTable<T> extends EntitySqlTable<T> imple
         SelectQuery<Record> countQuery = ctx.selectQuery();
         countQuery.addFrom(tableClass);
         countQuery.addConditions(dbKey.getPKConditions(tableClass));
-        countQuery.addConditions(heightField.lt(Burst.getBlockchain().getHeight()));
+        countQuery.addConditions(heightField.lt(dp.blockchain.getHeight()));
         if (ctx.fetchCount(countQuery) > 0) {
           UpdateQuery updateQuery = ctx.updateQuery(tableClass);
           updateQuery.addValue(

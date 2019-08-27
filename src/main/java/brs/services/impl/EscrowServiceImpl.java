@@ -20,27 +20,20 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import static brs.schema.Tables.ESCROW;
 
 public class EscrowServiceImpl implements EscrowService {
-
+  private final DependencyProvider dp;
   private final VersionedEntityTable<Escrow> escrowTable;
   private final LongKeyFactory<Escrow> escrowDbKeyFactory;
   private final VersionedEntityTable<Decision> decisionTable;
   private final LinkKeyFactory<Decision> decisionDbKeyFactory;
-  private final EscrowStore escrowStore;
-  private final Blockchain blockchain;
-  private final AliasService aliasService;
-  private final AccountService accountService;
   private final List<Transaction> resultTransactions;
 
-  public EscrowServiceImpl(EscrowStore escrowStore, Blockchain blockchain, AliasService aliasService, AccountService accountService) {
-    this.escrowStore = escrowStore;
-    this.escrowTable = escrowStore.getEscrowTable();
-    this.escrowDbKeyFactory = escrowStore.getEscrowDbKeyFactory();
-    this.decisionTable = escrowStore.getDecisionTable();
-    this.decisionDbKeyFactory = escrowStore.getDecisionDbKeyFactory();
-    this.resultTransactions = escrowStore.getResultTransactions();
-    this.blockchain = blockchain;
-    this.aliasService = aliasService;
-    this.accountService = accountService;
+  public EscrowServiceImpl(DependencyProvider dp) {
+    this.dp = dp;
+    this.escrowTable = dp.escrowStore.getEscrowTable();
+    this.escrowDbKeyFactory = dp.escrowStore.getEscrowDbKeyFactory();
+    this.decisionTable = dp.escrowStore.getDecisionTable();
+    this.decisionDbKeyFactory = dp.escrowStore.getDecisionDbKeyFactory();
+    this.resultTransactions = dp.escrowStore.getResultTransactions();
   }
 
   @Override
@@ -55,16 +48,16 @@ public class EscrowServiceImpl implements EscrowService {
 
   @Override
   public Collection<Escrow> getEscrowTransactionsByParticipant(Long accountId) {
-    return escrowStore.getEscrowTransactionsByParticipant(accountId);
+    return dp.escrowStore.getEscrowTransactionsByParticipant(accountId);
   }
 
   @Override
   public boolean isEnabled() {
-    if(blockchain.getLastBlock().getHeight() >= Constants.BURST_ESCROW_START_BLOCK) {
+    if(dp.blockchain.getLastBlock().getHeight() >= Constants.BURST_ESCROW_START_BLOCK) {
       return true;
     }
 
-    Alias escrowEnabled = aliasService.getAlias("featureescrow");
+    Alias escrowEnabled = dp.aliasService.getAlias("featureescrow");
     return escrowEnabled != null && escrowEnabled.getAliasURI().equals("enabled");
   }
 
@@ -82,7 +75,7 @@ public class EscrowServiceImpl implements EscrowService {
   @Override
   public void addEscrowTransaction(Account sender, Account recipient, Long id, Long amountNQT, int requiredSigners, Collection<Long> signers, int deadline, DecisionType deadlineAction) {
     final BurstKey dbKey = escrowDbKeyFactory.newKey(id);
-    Escrow newEscrowTransaction = new Escrow(dbKey, sender, recipient, id, amountNQT, requiredSigners, deadline, deadlineAction);
+    Escrow newEscrowTransaction = new Escrow(dp, dbKey, sender, recipient, id, amountNQT, requiredSigners, deadline, deadlineAction);
     escrowTable.insert(newEscrowTransaction);
     BurstKey senderDbKey = decisionDbKeyFactory.newKey(id, sender.getId());
     Decision senderDecision = new Decision(senderDbKey, id, sender.getId(), DecisionType.UNDECIDED);
@@ -133,7 +126,7 @@ public class EscrowServiceImpl implements EscrowService {
     int countRefund = 0;
     int countSplit = 0;
 
-    for (Decision decision : Burst.getStores().getEscrowStore().getDecisions(escrow.getId())) {
+    for (Decision decision : dp.escrowStore.getDecisions(escrow.getId())) {
       if(decision.getAccountId().equals(escrow.getSenderId()) ||
           decision.getAccountId().equals(escrow.getRecipientId())) {
         continue;
@@ -193,7 +186,7 @@ public class EscrowServiceImpl implements EscrowService {
         }
       }
       if (!resultTransactions.isEmpty()) {
-        Burst.getDbs().getTransactionDb().saveTransactions( resultTransactions);
+        dp.dbs.getTransactionDb().saveTransactions( resultTransactions);
       }
       updatedEscrowIds.clear();
     }
@@ -203,17 +196,17 @@ public class EscrowServiceImpl implements EscrowService {
   public synchronized void doPayout(DecisionType result, Block block, int blockchainHeight, Escrow escrow) {
     switch(result) {
       case RELEASE:
-        accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getAccount(escrow.getRecipientId()), escrow.getAmountNQT());
+        dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(escrow.getRecipientId()), escrow.getAmountNQT());
         saveResultTransaction(block, escrow.getId(), escrow.getRecipientId(), escrow.getAmountNQT(), DecisionType.RELEASE, blockchainHeight);
         break;
       case REFUND:
-        accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getAccount(escrow.getSenderId()), escrow.getAmountNQT());
+        dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(escrow.getSenderId()), escrow.getAmountNQT());
         saveResultTransaction(block, escrow.getId(), escrow.getSenderId(), escrow.getAmountNQT(), DecisionType.REFUND, blockchainHeight);
         break;
       case SPLIT:
         Long halfAmountNQT = escrow.getAmountNQT() / 2;
-        accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getAccount(escrow.getRecipientId()), halfAmountNQT);
-        accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getAccount(escrow.getSenderId()), escrow.getAmountNQT() - halfAmountNQT);
+        dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(escrow.getRecipientId()), halfAmountNQT);
+        dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(escrow.getSenderId()), escrow.getAmountNQT() - halfAmountNQT);
         saveResultTransaction(block, escrow.getId(), escrow.getRecipientId(), halfAmountNQT, DecisionType.SPLIT, blockchainHeight);
         saveResultTransaction(block, escrow.getId(), escrow.getSenderId(), escrow.getAmountNQT() - halfAmountNQT, DecisionType.SPLIT, blockchainHeight);
         break;
@@ -230,7 +223,7 @@ public class EscrowServiceImpl implements EscrowService {
   @Override
   public void saveResultTransaction(Block block, Long escrowId, Long recipientId, Long amountNQT, DecisionType decision, int blockchainHeight) {
     Attachment.AbstractAttachment attachment = new Attachment.AdvancedPaymentEscrowResult(escrowId, decision, blockchainHeight);
-    Transaction.Builder builder = new Transaction.Builder((byte)1, Genesis.getCreatorPublicKey(),
+    Transaction.Builder builder = new Transaction.Builder(dp, (byte)1, Genesis.getCreatorPublicKey(),
         amountNQT, 0L, block.getTimestamp(), (short)1440, attachment);
     builder.senderId(0L)
         .recipientId(recipientId)
@@ -248,7 +241,7 @@ public class EscrowServiceImpl implements EscrowService {
       throw new RuntimeException(e.toString(), e);
     }
 
-    if(!Burst.getDbs().getTransactionDb().hasTransaction(transaction.getId())) {
+    if(!dp.dbs.getTransactionDb().hasTransaction(transaction.getId())) {
       resultTransactions.add(transaction);
     }
   }

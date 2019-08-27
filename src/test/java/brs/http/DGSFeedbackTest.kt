@@ -68,7 +68,7 @@ class DGSFeedbackTest : AbstractTransactionTest() {
 
         mockkStatic(Burst::class)
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
-        every { Burst.getFluxCapacitor() } returns fluxCapacitor
+        every { Burst.fluxCapacitor } returns fluxCapacitor
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsFeedback
         assertNotNull(attachment)

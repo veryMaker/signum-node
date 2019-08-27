@@ -55,7 +55,7 @@ class UnconfirmedTransactionStoreTest {
         whenever(mockPropertyService.get(eq<Prop<Int>>(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS))).doReturn(8192)
         whenever(mockPropertyService.get(eq<Prop<Int>>(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE))).doReturn(5)
         whenever(mockPropertyService.get(eq<Prop<Int>>(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND))).doReturn(175000)
-        every { Burst.getPropertyService() } returns mockPropertyService
+        every { Burst.propertyService } returns mockPropertyService
 
         mockBlockChain = mock()
         every { Burst.getBlockchain() } returns mockBlockChain
@@ -331,7 +331,7 @@ class UnconfirmedTransactionStoreTest {
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION, FluxValues.DIGITAL_GOODS_STORE)
         mockkStatic(Burst::class)
         every { Burst.getBlockchain() } returns mockBlockChain
-        every { Burst.getFluxCapacitor() } returns fluxCapacitor
+        every { Burst.fluxCapacitor } returns fluxCapacitor
         val cheap = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT, timeService.epochTime + 50000, 500.toShort(),
                 MessagingAliasSell("aliasName", 123, 5))
                 .id(1).senderId(123L).build()
@@ -359,7 +359,7 @@ class UnconfirmedTransactionStoreTest {
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION, FluxValues.DIGITAL_GOODS_STORE)
         mockkStatic(Burst::class)
         every { Burst.getBlockchain() } returns mockBlockChain
-        every { Burst.getFluxCapacitor() } returns fluxCapacitor
+        every { Burst.fluxCapacitor } returns fluxCapacitor
         val cheap = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT, timeService.epochTime + 50000, 500.toShort(),
                 MessagingAliasSell("aliasName", 123, 5))
                 .id(1).senderId(123L).build()

@@ -30,12 +30,11 @@ import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.*
 import brs.http.common.ResultFields.FULL_HASH_RESPONSE
 
-class APITransactionManagerImpl(private val parameterService: ParameterService, private val transactionProcessor: TransactionProcessor, private val blockchain: Blockchain, private val accountService: AccountService,
-                                private val transactionService: TransactionService) : APITransactionManager {
+class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransactionManager {
 
     @Throws(BurstException::class)
     override fun createTransaction(req: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment, minimumFeeNQT: Long): JsonElement {
-        val blockchainHeight = blockchain.height
+        val blockchainHeight = dp.blockchain.height
         val deadlineValue = req.getParameter(DEADLINE_PARAMETER)
         val referencedTransactionFullHash = Convert.emptyToNull(req.getParameter(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER))
         val referencedTransactionId = Convert.emptyToNull(req.getParameter(REFERENCED_TRANSACTION_PARAMETER))
@@ -47,38 +46,38 @@ class APITransactionManagerImpl(private val parameterService: ParameterService, 
         var encryptedMessage: EncryptedMessage? = null
 
         if (attachment.transactionType.hasRecipient()) {
-            val encryptedData = parameterService.getEncryptedMessage(req, accountService.getAccount(recipientId!!), Convert.parseHexString(recipientPublicKeyValue))
+            val encryptedData = dp.parameterService.getEncryptedMessage(req, dp.accountService.getAccount(recipientId!!), Convert.parseHexString(recipientPublicKeyValue))
             if (encryptedData != null) {
                 encryptedMessage = EncryptedMessage(encryptedData, !Parameters.isFalse(req.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER)), blockchainHeight)
             }
         }
 
         var encryptToSelfMessage: EncryptToSelfMessage? = null
-        val encryptedToSelfData = parameterService.getEncryptToSelfMessage(req)
+        val encryptedToSelfData = dp.parameterService.getEncryptToSelfMessage(req)
         if (encryptedToSelfData != null) {
             encryptToSelfMessage = EncryptToSelfMessage(encryptedToSelfData, !Parameters.isFalse(req.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER)), blockchainHeight)
         }
         var message: Message? = null
         val messageValue = Convert.emptyToNull(req.getParameter(MESSAGE_PARAMETER))
         if (messageValue != null) {
-            val messageIsText = Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) && !Parameters.isFalse(req.getParameter(MESSAGE_IS_TEXT_PARAMETER))
+            val messageIsText = dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) && !Parameters.isFalse(req.getParameter(MESSAGE_IS_TEXT_PARAMETER))
             try {
                 message = if (messageIsText) Message(messageValue, blockchainHeight) else Message(Convert.parseHexString(messageValue)!!, blockchainHeight)
             } catch (e: RuntimeException) {
                 throw ParameterException(INCORRECT_ARBITRARY_MESSAGE)
             }
 
-        } else if (attachment is Attachment.ColoredCoinsAssetTransfer && Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
+        } else if (attachment is Attachment.ColoredCoinsAssetTransfer && dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
             val commentValue = Convert.emptyToNull(req.getParameter(COMMENT_PARAMETER))
             if (commentValue != null) {
                 message = Message(commentValue, blockchainHeight)
             }
-        } else if (attachment === Attachment.ARBITRARY_MESSAGE && !Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
+        } else if (attachment === Attachment.ARBITRARY_MESSAGE && !dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
             message = Message(ByteArray(0), blockchainHeight)
         }
         var publicKeyAnnouncement: PublicKeyAnnouncement? = null
         val recipientPublicKey = Convert.emptyToNull(req.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER))
-        if (recipientPublicKey != null && Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
+        if (recipientPublicKey != null && dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
             publicKeyAnnouncement = PublicKeyAnnouncement(Convert.parseHexString(recipientPublicKey)!!, blockchainHeight)
         }
 
@@ -121,7 +120,7 @@ class APITransactionManagerImpl(private val parameterService: ParameterService, 
         val publicKey = if (secretPhrase != null) Crypto.getPublicKey(secretPhrase) else Convert.parseHexString(publicKeyValue)
 
         try {
-            val builder = transactionProcessor.newTransactionBuilder(publicKey!!, amountNQT, feeNQT, deadline, attachment).referencedTransactionFullHash(referencedTransactionFullHash)
+            val builder = dp.transactionProcessor.newTransactionBuilder(publicKey!!, amountNQT, feeNQT, deadline, attachment).referencedTransactionFullHash(referencedTransactionFullHash)
             if (attachment.transactionType.hasRecipient()) {
                 builder.recipientId(recipientId!!)
             }
@@ -138,17 +137,17 @@ class APITransactionManagerImpl(private val parameterService: ParameterService, 
                 builder.encryptToSelfMessage(encryptToSelfMessage)
             }
             val transaction = builder.build()
-            transactionService.validate(transaction)
+            dp.transactionService.validate(transaction)
 
             if (secretPhrase != null) {
                 transaction.sign(secretPhrase)
-                transactionService.validate(transaction) // 2nd validate may be needed if validation requires id to be known
+                dp.transactionService.validate(transaction) // 2nd validate may be needed if validation requires id to be known
                 response.addProperty(TRANSACTION_RESPONSE, transaction.stringId)
                 response.addProperty(FULL_HASH_RESPONSE, transaction.fullHash)
                 response.addProperty(TRANSACTION_BYTES_RESPONSE, Convert.toHexString(transaction.bytes))
                 response.addProperty(SIGNATURE_HASH_RESPONSE, Convert.toHexString(Crypto.sha256().digest(transaction.signature)))
                 if (broadcast) {
-                    response.addProperty(NUMBER_PEERS_SENT_TO_RESPONSE, transactionProcessor.broadcast(transaction))
+                    response.addProperty(NUMBER_PEERS_SENT_TO_RESPONSE, dp.transactionProcessor.broadcast(transaction))
                     response.addProperty(BROADCASTED_RESPONSE, true)
                 } else {
                     response.addProperty(BROADCASTED_RESPONSE, false)

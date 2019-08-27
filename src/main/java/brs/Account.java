@@ -168,16 +168,17 @@ public class Account {
 
   }
 
-  private static BurstKey.LongKeyFactory<Account> accountBurstKeyFactory() {
-    return Burst.getStores().getAccountStore().getAccountKeyFactory();
+  // TODO refactor methods that take dp
+  private static BurstKey.LongKeyFactory<Account> accountBurstKeyFactory(DependencyProvider dp) {
+    return dp.accountStore.getAccountKeyFactory();
   }
 
-  private static VersionedBatchEntityTable<Account> accountTable() {
-    return Burst.getStores().getAccountStore().getAccountTable();
+  private static VersionedBatchEntityTable<Account> accountTable(DependencyProvider dp) {
+    return dp.accountStore.getAccountTable();
   }
 
-  public static Account getAccount(long id) {
-    return id == 0 ? null : accountTable().get(accountBurstKeyFactory().newKey(id));
+  public static Account getAccount(DependencyProvider dp, long id) {
+    return id == 0 ? null : accountTable(dp).get(accountBurstKeyFactory(dp).newKey(id));
   }
 
   public static long getId(byte[] publicKey) {
@@ -185,22 +186,22 @@ public class Account {
     return Convert.INSTANCE.fullHashToId(publicKeyHash);
   }
 
-  public static Account getOrAddAccount(long id) {
-    Account account = getAccount(id);
+  public static Account getOrAddAccount(DependencyProvider dp, long id) {
+    Account account = getAccount(dp, id);
     if (account == null) {
-      account = new Account(id);
-      accountTable().insert(account);
+      account = new Account(dp, id);
+      accountTable(dp).insert(account);
     }
     return account;
   }
 
-  public Account(long id) {
+  public Account(DependencyProvider dp, long id) {
     if (id != Crypto.rsDecode(Crypto.rsEncode(id))) {
       logger.log(Level.INFO, "CRITICAL ERROR: Reed-Solomon encoding fails for {0}", id);
     }
     this.id = id;
-    this.nxtKey = accountBurstKeyFactory().newKey(this.id);
-    this.creationHeight = Burst.getBlockchain().getHeight();
+    this.nxtKey = accountBurstKeyFactory(dp).newKey(this.id);
+    this.creationHeight = dp.blockchain.getHeight();
   }
 
   protected Account(long id, BurstKey burstKey, int creationHeight) {
@@ -277,12 +278,12 @@ public class Account {
   // this.publicKey is set to null (in which case this.publicKey also gets set to key)
   // or
   // this.publicKey is already set to an array equal to key
-  public boolean setOrVerify(byte[] key, int height) {
-    return Burst.getStores().getAccountStore().setOrVerify(this, key, height);
+  public boolean setOrVerify(DependencyProvider dp, byte[] key, int height) {
+    return dp.accountStore.setOrVerify(this, key, height);
   }
 
-  public void apply(byte[] key, int height) {
-    if (!setOrVerify(key, this.creationHeight)) {
+  public void apply(DependencyProvider dp, byte[] key, int height) {
+    if (!setOrVerify(dp, key, this.creationHeight)) {
       throw new IllegalStateException("Public key mismatch");
     }
     if (this.publicKey == null) {
@@ -291,7 +292,7 @@ public class Account {
     }
     if (this.keyHeight == -1 || this.keyHeight > height) {
       this.keyHeight = height;
-      accountTable().insert(this);
+      accountTable(dp).insert(this);
     }
   }
 

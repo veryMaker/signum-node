@@ -1,5 +1,6 @@
 package brs.statistics;
 
+import brs.DependencyProvider;
 import brs.services.TimeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,19 +9,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class StatisticsManagerImpl {
+public class StatisticsManagerImpl { // TODO interface
 
   private final Logger logger = LoggerFactory.getLogger(StatisticsManagerImpl.class);
 
-  private final TimeService timeService;
+  private final DependencyProvider dp;
 
   private int addedBlockCount;
   private int firstBlockAdded;
 
   private final Map<String, CacheStatisticsOverview> cacheStatistics = new HashMap<>();
 
-  public StatisticsManagerImpl(TimeService timeService) {
-    this.timeService = timeService;
+  public StatisticsManagerImpl(DependencyProvider dp) {
+    this.dp = dp;
   }
 
   public void foundObjectInCache(String cacheName) {
@@ -41,9 +42,9 @@ public class StatisticsManagerImpl {
 
   public void blockAdded() {
     if (addedBlockCount++ == 0 ) {
-      firstBlockAdded = timeService.getEpochTime();
+      firstBlockAdded = dp.timeService.getEpochTime();
     } else if ( addedBlockCount % 500 == 0 ) {
-      float blocksPerSecond = 500 / (float) (timeService.getEpochTime() - firstBlockAdded);
+      float blocksPerSecond = 500 / (float) (dp.timeService.getEpochTime() - firstBlockAdded);
 
       if (logger.isInfoEnabled()) {
         final String handleText = "handling {} blocks/s" + cacheStatistics.values().stream().map(cacheInfo -> " " + cacheInfo.getCacheInfoAndReset()).collect(Collectors.joining());

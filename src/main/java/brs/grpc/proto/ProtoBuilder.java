@@ -348,9 +348,9 @@ public final class ProtoBuilder {
                 .build();
     }
 
-    public static Transaction parseBasicTransaction(Blockchain blockchain, BrsApi.BasicTransaction basicTransaction) throws ApiException {
+    public static Transaction parseBasicTransaction(DependencyProvider dp, BrsApi.BasicTransaction basicTransaction) throws ApiException {
         try {
-            Transaction.Builder transactionBuilder = new Transaction.Builder(((byte) basicTransaction.getVersion()), basicTransaction.getSenderPublicKey().toByteArray(), basicTransaction.getAmount(), basicTransaction.getFee(), basicTransaction.getTimestamp(), ((short) basicTransaction.getDeadline()), Attachment.AbstractAttachment.Companion.parseProtobufMessage(basicTransaction.getAttachment()))
+            Transaction.Builder transactionBuilder = new Transaction.Builder(dp, ((byte) basicTransaction.getVersion()), basicTransaction.getSenderPublicKey().toByteArray(), basicTransaction.getAmount(), basicTransaction.getFee(), basicTransaction.getTimestamp(), ((short) basicTransaction.getDeadline()), Attachment.AbstractAttachment.Companion.parseProtobufMessage(basicTransaction.getAttachment()))
                     .senderId(basicTransaction.getSenderId())
                     .recipientId(basicTransaction.getRecipient());
 
@@ -358,7 +358,7 @@ public final class ProtoBuilder {
                 transactionBuilder.referencedTransactionFullHash(basicTransaction.getReferencedTransactionFullHash().toByteArray());
             }
 
-            int blockchainHeight = blockchain.getHeight();
+            int blockchainHeight = dp.blockchain.getHeight();
 
             for (Any appendix : basicTransaction.getAppendagesList()) {
                 try {

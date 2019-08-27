@@ -136,6 +136,7 @@ public class Escrow {
     }
   }
 
+  private final DependencyProvider dp;
   public final Long senderId;
   public final Long recipientId;
   public final Long id;
@@ -145,13 +146,14 @@ public class Escrow {
   public final int deadline;
   public final DecisionType deadlineAction;
 
-  public Escrow(BurstKey dbKey, Account sender,
+  public Escrow(DependencyProvider dp, BurstKey dbKey, Account sender,
       Account recipient,
       Long id,
       Long amountNQT,
       int requiredSigners,
       int deadline,
       DecisionType deadlineAction) {
+    this.dp = dp;
     this.dbKey = dbKey;
     this.senderId = sender.getId();
     this.recipientId = recipient.getId();
@@ -162,8 +164,9 @@ public class Escrow {
     this.deadlineAction = deadlineAction;
   }
 
-  protected Escrow(Long id, Long senderId, Long recipientId, BurstKey dbKey, Long amountNQT,
+  protected Escrow(DependencyProvider dp, Long id, Long senderId, Long recipientId, BurstKey dbKey, Long amountNQT,
       int requiredSigners, int deadline, DecisionType deadlineAction) {
+    this.dp = dp;
     this.senderId = senderId;
     this.recipientId = recipientId;
     this.id = id;
@@ -195,7 +198,7 @@ public class Escrow {
   }
 
   public Collection<Decision> getDecisions() {
-    return Burst.getStores().getEscrowStore().getDecisions(id);
+    return dp.escrowStore.getDecisions(id);
   }
 
   public int getDeadline() {

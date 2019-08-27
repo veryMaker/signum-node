@@ -1,8 +1,8 @@
 package brs.db.sql;
 
 import brs.Block;
-import brs.Burst;
 import brs.BurstException;
+import brs.DependencyProvider;
 import brs.db.BlockDb;
 import brs.schema.tables.records.BlockRecord;
 import org.jooq.DSLContext;
@@ -23,7 +23,13 @@ import static brs.schema.Tables.BLOCK;
 
 public class SqlBlockDb implements BlockDb {
 
+  private final DependencyProvider dp;
+
   private static final Logger logger = LoggerFactory.getLogger(BlockDb.class);
+
+  public SqlBlockDb(DependencyProvider dp) {
+    this.dp = dp;
+  }
 
   public Block findBlock(long blockId) {
     return Db.useDSLContext(ctx -> {
@@ -106,11 +112,12 @@ public class SqlBlockDb implements BlockDb {
     long nonce                      = r.getNonce();
     byte[] blockATs                 = r.getAts();
 
-    return new Block(version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, payloadLength, payloadHash,
+    return new Block(dp, version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, payloadLength, payloadHash,
                          generatorPublicKey, generationSignature, blockSignature, previousBlockHash,
                          cumulativeDifficulty, baseTarget, nextBlockId, height, id, nonce, blockATs);
   }
 
+  @Override
   public void saveBlock(DSLContext ctx, Block block) {
       ctx.insertInto(BLOCK, BLOCK.ID, BLOCK.VERSION, BLOCK.TIMESTAMP, BLOCK.PREVIOUS_BLOCK_ID,
               BLOCK.TOTAL_AMOUNT, BLOCK.TOTAL_FEE, BLOCK.PAYLOAD_LENGTH, BLOCK.GENERATOR_PUBLIC_KEY,
@@ -126,7 +133,7 @@ public class SqlBlockDb implements BlockDb {
                       block.getGeneratorId(), block.getNonce(), block.getBlockATs())
               .execute();
 
-    Burst.getDbs().getTransactionDb().saveTransactions(block.getTransactions());
+    dp.dbs.getTransactionDb().saveTransactions(block.getTransactions());
 
     if (block.getPreviousBlockId() != 0) {
       ctx.update(BLOCK)

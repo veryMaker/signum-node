@@ -27,6 +27,7 @@ public class Transaction implements Comparable<Transaction> {
   private static final Logger logger = LoggerFactory.getLogger(Transaction.class);
 
   public static class Builder {
+    private final DependencyProvider dp;
 
     private final short deadline;
     private final byte[] senderPublicKey;
@@ -53,8 +54,9 @@ public class Transaction implements Comparable<Transaction> {
     private int ecBlockHeight;
     private long ecBlockId;
 
-    public Builder(byte version, byte[] senderPublicKey, long amountNQT, long feeNQT, int timestamp, short deadline,
+    public Builder(DependencyProvider dp, byte version, byte[] senderPublicKey, long amountNQT, long feeNQT, int timestamp, short deadline,
                        Attachment.AbstractAttachment attachment) {
+      this.dp = dp;
       this.version = version;
       this.timestamp = timestamp;
       this.deadline = deadline;
@@ -66,7 +68,7 @@ public class Transaction implements Comparable<Transaction> {
     }
 
     public Transaction build() throws BurstException.NotValidException {
-      return new Transaction(this);
+      return new Transaction(dp, this);
     }
 
     public Builder recipientId(long recipientId) {
@@ -160,6 +162,8 @@ public class Transaction implements Comparable<Transaction> {
 
   }
 
+  private final DependencyProvider dp;
+
   private final short deadline;
   private final byte[] senderPublicKey;
   private final long recipientId;
@@ -190,8 +194,8 @@ public class Transaction implements Comparable<Transaction> {
   private final AtomicLong senderId = new AtomicLong();
   private final AtomicReference<String> fullHash = new AtomicReference<>();
 
-  private Transaction(Builder builder) throws BurstException.NotValidException {
-
+  private Transaction(DependencyProvider dp, Builder builder) throws BurstException.NotValidException {
+    this.dp = dp;
     this.timestamp = builder.timestamp;
     this.deadline = builder.deadline;
     this.senderPublicKey = builder.senderPublicKey;
@@ -232,7 +236,7 @@ public class Transaction implements Comparable<Transaction> {
       countAppendeges += appendage.getSize();
     }
     this.appendagesSize = countAppendeges;
-    int effectiveHeight = (height.get() < Integer.MAX_VALUE ? height.get() : Burst.getBlockchain().getHeight());
+    int effectiveHeight = (height.get() < Integer.MAX_VALUE ? height.get() : dp.blockchain.getHeight());
     long minimumFeeNQT = type.minimumFeeNQT(effectiveHeight, countAppendeges);
     if(type == null || type.isSigned()) {
       if (builder.feeNQT > 0 && builder.feeNQT < minimumFeeNQT) {
@@ -429,7 +433,7 @@ public class Transaction implements Comparable<Transaction> {
       buffer.put((byte) ((version << 4) | ( type.getSubtype() & 0xff ) ));
       buffer.putInt(timestamp);
       buffer.putShort(deadline);
-      if(type.isSigned() || !Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4)) {
+      if(type.isSigned() || !dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4)) {
         buffer.put(senderPublicKey);
       } else {
         buffer.putLong(senderId.get());
@@ -469,7 +473,7 @@ public class Transaction implements Comparable<Transaction> {
     }
   }
 
-  public static Transaction parseTransaction(byte[] bytes) throws BurstException.ValidationException {
+  public static Transaction parseTransaction(DependencyProvider dp, byte[] bytes) throws BurstException.ValidationException {
     try {
       ByteBuffer buffer = ByteBuffer.wrap(bytes);
       buffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -502,8 +506,7 @@ public class Transaction implements Comparable<Transaction> {
         ecBlockId = buffer.getLong();
       }
       TransactionType transactionType = TransactionType.findTransactionType(type, subtype);
-      Transaction.Builder builder = new Transaction.Builder(version, senderPublicKey, amountNQT, feeNQT,
-                                                                            timestamp, deadline, transactionType.parseAttachment(buffer, version))
+      Transaction.Builder builder = new Transaction.Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType.parseAttachment(buffer, version))
           .referencedTransactionFullHash(referencedTransactionFullHash)
           .signature(signature)
           .ecBlockHeight(ecBlockHeight)
@@ -552,7 +555,7 @@ public class Transaction implements Comparable<Transaction> {
     return json;
   }
 
-  static Transaction parseTransaction(JsonObject transactionData, int height) throws BurstException.NotValidException {
+  static Transaction parseTransaction(DependencyProvider dp, JsonObject transactionData, int height) throws BurstException.NotValidException {
     try {
       byte type = JSON.getAsByte(transactionData.get("type"));
       byte subtype = JSON.getAsByte(transactionData.get("subtype"));
@@ -570,9 +573,7 @@ public class Transaction implements Comparable<Transaction> {
       if (transactionType == null) {
         throw new BurstException.NotValidException("Invalid transaction type: " + type + ", " + subtype);
       }
-      Transaction.Builder builder = new Builder(version, senderPublicKey,
-                                                                            amountNQT, feeNQT, timestamp, deadline,
-                                                                            transactionType.parseAttachment(attachmentData))
+      Transaction.Builder builder = new Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType.parseAttachment(attachmentData))
           .referencedTransactionFullHash(referencedTransactionFullHash)
           .signature(signature)
           .height(height);
@@ -646,7 +647,7 @@ public class Transaction implements Comparable<Transaction> {
   private boolean useNQT() {
     return this.height.get() > Constants.NQT_BLOCK
         && (this.height.get() < Integer.MAX_VALUE
-            || Burst.getBlockchain().getHeight() >= Constants.NQT_BLOCK);
+            || dp.blockchain.getHeight() >= Constants.NQT_BLOCK);
   }
 
   private byte[] zeroSignature(byte[] data) {

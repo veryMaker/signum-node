@@ -14,11 +14,9 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.*
 
-internal class DGSListing internal constructor(private val parameterService: ParameterService, private val blockchain: Blockchain, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), apiTransactionManager, NAME_PARAMETER, DESCRIPTION_PARAMETER, TAGS_PARAMETER, QUANTITY_PARAMETER, PRICE_NQT_PARAMETER) {
-
+internal class DGSListing internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, TAGS_PARAMETER, QUANTITY_PARAMETER, PRICE_NQT_PARAMETER) {
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
-
         var name = Convert.emptyToNull(req.getParameter(NAME_PARAMETER))
         val description = Convert.nullToEmpty(req.getParameter(DESCRIPTION_PARAMETER))
         val tags = Convert.nullToEmpty(req.getParameter(TAGS_PARAMETER))
@@ -41,10 +39,8 @@ internal class DGSListing internal constructor(private val parameterService: Par
             return INCORRECT_DGS_LISTING_TAGS
         }
 
-        val account = parameterService.getSenderAccount(req)
-        val attachment = Attachment.DigitalGoodsListing(name, description, tags, quantity, priceNQT, blockchain.height)
+        val account = dp.parameterService.getSenderAccount(req)
+        val attachment = Attachment.DigitalGoodsListing(name, description, tags, quantity, priceNQT, dp.blockchain.height)
         return createTransaction(req, account, attachment)
-
     }
-
 }

@@ -1,6 +1,7 @@
 package brs.db.sql;
 
 import brs.Burst;
+import brs.DependencyProvider;
 import brs.db.BurstKey;
 import brs.db.EntityTable;
 import brs.db.store.DerivedTableManager;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class EntitySqlTable<T> extends DerivedSqlTable implements EntityTable<T> {
+  private final DependencyProvider dp;
   final DbKey.Factory<T> dbKeyFactory;
   private final boolean multiversion;
   private final List<SortField<?>> defaultSort;
@@ -21,12 +23,13 @@ public abstract class EntitySqlTable<T> extends DerivedSqlTable implements Entit
   final Field<Integer> heightField;
   final Field<Boolean> latestField;
 
-  EntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
-    this(table, tableClass, dbKeyFactory, false, derivedTableManager);
+  EntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, DependencyProvider dp) {
+    this(table, tableClass, dbKeyFactory, false, dp);
   }
 
-  EntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, boolean multiversion, DerivedTableManager derivedTableManager) {
-    super(table, tableClass, derivedTableManager);
+  EntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, boolean multiversion, DependencyProvider dp) {
+    super(table, tableClass, dp);
+    this.dp = dp;
     this.dbKeyFactory = (DbKey.Factory<T>) dbKeyFactory;
     this.multiversion = multiversion;
     this.defaultSort  = new ArrayList<>();
@@ -61,7 +64,7 @@ public abstract class EntitySqlTable<T> extends DerivedSqlTable implements Entit
 
   @Override
   public final void checkAvailable(int height) {
-    if (multiversion && height < Burst.getBlockchainProcessor().getMinRollbackHeight()) {
+    if (multiversion && height < dp.blockchainProcessor.getMinRollbackHeight()) {
       throw new IllegalArgumentException("Historical data as of height " + height + " not available, set brs.trimDerivedTables=false and re-scan");
     }
   }

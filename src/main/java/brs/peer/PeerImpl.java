@@ -27,6 +27,7 @@ final class PeerImpl implements Peer {
 
   private static final Logger logger = LoggerFactory.getLogger(PeerImpl.class);
 
+  private final DependencyProvider dp;
   private final String peerAddress;
   private final AtomicReference<String> announcedAddress = new AtomicReference<>();
   private final AtomicInteger port = new AtomicInteger();
@@ -43,7 +44,8 @@ final class PeerImpl implements Peer {
   private byte[] lastDownloadedTransactionsDigest;
   private final Object lastDownloadedTransactionsLock = new Object();
 
-  PeerImpl(String peerAddress, String announcedAddress) {
+  PeerImpl(DependencyProvider dp, String peerAddress, String announcedAddress) {
+    this.dp = dp;
     this.peerAddress = peerAddress;
     this.announcedAddress.set(announcedAddress);
     try {
@@ -51,7 +53,7 @@ final class PeerImpl implements Peer {
     } catch (MalformedURLException ignored) {
     }
     this.state.set(State.NON_CONNECTED);
-    this.version.set(Version.EMPTY); //not null
+    this.version.set(Version.Companion.getEMPTY()); //not null
     this.shareAddress.set(true);
   }
 
@@ -137,11 +139,11 @@ final class PeerImpl implements Peer {
   }
   
   void setVersion(String version) {
-    this.version.set(Version.EMPTY);
+    this.version.set(Version.Companion.getEMPTY());
     isOldVersion.set(false);
     if (Burst.APPLICATION.equals(getApplication()) && version != null) {
       try {
-        this.version.set(Version.parse(version));
+        this.version.set(Version.Companion.parse(version));
         isOldVersion.set(Constants.MIN_VERSION.isGreaterThan(this.version.get()));
       } catch (IllegalArgumentException e) {
         isOldVersion.set(true);
@@ -302,7 +304,7 @@ final class PeerImpl implements Peer {
       buf.append(address);
       if (port.get() <= 0) {
         buf.append(':');
-        buf.append(Burst.getPropertyService().get(Props.DEV_TESTNET) ? Peers.TESTNET_PEER_PORT : Peers.DEFAULT_PEER_PORT);
+        buf.append(dp.propertyService.get(Props.DEV_TESTNET) ? Peers.TESTNET_PEER_PORT : Peers.DEFAULT_PEER_PORT);
       }
       buf.append("/burst");
       URL url = new URL(buf.toString());

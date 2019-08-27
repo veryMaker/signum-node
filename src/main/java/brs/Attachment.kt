@@ -1,5 +1,6 @@
 package brs
 
+import brs.Appendix.Companion.dp
 import brs.TransactionType.Payment
 import brs.at.AtConstants
 import brs.crypto.EncryptedData
@@ -134,7 +135,7 @@ interface Attachment : Appendix {
 
         override fun putMyBytes(buffer: ByteBuffer) {}
 
-        override fun putMyJSON(json: JsonObject) {}
+        override fun putMyJSON(attachment: JsonObject) {}
 
         override fun verifyVersion(transactionVersion: Byte): Boolean {
             return true
@@ -1906,7 +1907,7 @@ interface Attachment : Appendix {
 
             buffer.short //future: reserved for future needs
 
-            val pageSize = AtConstants.getInstance().pageSize(Burst.getBlockchain().height).toInt()
+            val pageSize = AtConstants.getInstance().pageSize(dp.blockchain.height).toInt()
             val codePages = buffer.short
             val dataPages = buffer.short
             buffer.short

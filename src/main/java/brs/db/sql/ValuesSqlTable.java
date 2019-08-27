@@ -1,5 +1,6 @@
 package brs.db.sql;
 
+import brs.DependencyProvider;
 import brs.db.BurstKey;
 import brs.db.ValuesTable;
 import brs.db.store.DerivedTableManager;
@@ -15,12 +16,12 @@ public abstract class ValuesSqlTable<T,V> extends DerivedSqlTable implements Val
   private final boolean multiversion;
   final DbKey.Factory<T> dbKeyFactory;
 
-  protected ValuesSqlTable(String table, TableImpl<?> tableClass, DbKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
-    this(table, tableClass, dbKeyFactory, false, derivedTableManager);
+  protected ValuesSqlTable(String table, TableImpl<?> tableClass, DbKey.Factory<T> dbKeyFactory, DependencyProvider dp) {
+    this(table, tableClass, dbKeyFactory, false, dp);
   }
 
-  ValuesSqlTable(String table, TableImpl<?> tableClass, DbKey.Factory<T> dbKeyFactory, boolean multiversion, DerivedTableManager derivedTableManager) {
-    super(table, tableClass, derivedTableManager);
+  ValuesSqlTable(String table, TableImpl<?> tableClass, DbKey.Factory<T> dbKeyFactory, boolean multiversion, DependencyProvider dp) {
+    super(table, tableClass, dp);
     this.dbKeyFactory = dbKeyFactory;
     this.multiversion = multiversion;
   }

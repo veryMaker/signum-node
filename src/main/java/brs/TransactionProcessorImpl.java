@@ -1,8 +1,8 @@
 package brs;
 
 import brs.BurstException.ValidationException;
+import brs.db.sql.Db;
 import brs.db.store.Dbs;
-import brs.db.store.Stores;
 import brs.fluxcapacitor.FluxValues;
 import brs.peer.Peer;
 import brs.peer.Peers;
@@ -41,39 +41,18 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   private final boolean testUnconfirmedTransactions;
 
   private final Object unconfirmedTransactionsSyncObj = new Object();
-
+  private final DependencyProvider dp;
   private final Listeners<List<? extends Transaction>,Event> transactionListeners = new Listeners<>();
-
-  private final EconomicClustering economicClustering;
-
-  private final Stores stores;
-  private final TimeService timeService;
-  private final TransactionService transactionService;
-  private final Dbs dbs;
-  private final Blockchain blockchain;
-  private final AccountService accountService;
-  private final UnconfirmedTransactionStore unconfirmedTransactionStore;
   private final Function<Peer, List<Transaction>> foodDispenser;
   private final BiConsumer<Peer, List<Transaction>> doneFeedingLog;
 
-  public TransactionProcessorImpl(PropertyService propertyService,
-      EconomicClustering economicClustering, Blockchain blockchain, Stores stores, TimeService timeService, Dbs dbs, AccountService accountService,
-      TransactionService transactionService, ThreadPool threadPool) {
-    this.economicClustering = economicClustering;
-    this.blockchain = blockchain;
-    this.timeService = timeService;
+  public TransactionProcessorImpl(DependencyProvider dp) {
+    this.dp = dp;
 
-    this.stores = stores;
-    this.dbs = dbs;
+    this.testUnconfirmedTransactions = dp.propertyService.get(Props.BRS_TEST_UNCONFIRMED_TRANSACTIONS);
 
-    this.accountService = accountService;
-    this.transactionService = transactionService;
-
-    this.testUnconfirmedTransactions = propertyService.get(Props.BRS_TEST_UNCONFIRMED_TRANSACTIONS);
-    this.unconfirmedTransactionStore = stores.getUnconfirmedTransactionStore();
-
-    this.foodDispenser = (unconfirmedTransactionStore::getAllFor);
-    this.doneFeedingLog = (unconfirmedTransactionStore::markFingerPrintsOf);
+    this.foodDispenser = (dp.unconfirmedTransactionStore::getAllFor);
+    this.doneFeedingLog = (dp.unconfirmedTransactionStore::markFingerPrintsOf);
 
       Runnable getUnconfirmedTransactions = () -> {
           try {
@@ -90,9 +69,10 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
                       JsonArray transactionsData = JSON.getAsJsonArray(response.get(UNCONFIRMED_TRANSACTIONS_RESPONSE));
 
-                      if (transactionsData == null) {
+                      if (transactionsData == null || transactionsData.size() == 0) {
                           return;
                       }
+
                       try {
                           List<Transaction> addedTransactions = processPeerTransactions(transactionsData, peer);
                           Peers.feedingTime(peer, foodDispenser, doneFeedingLog);
@@ -133,7 +113,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
               System.exit(1);
           }
       };
-      threadPool.scheduleThread("PullUnconfirmedTransactions", getUnconfirmedTransactions, 5);
+    dp.threadPool.scheduleThread("PullUnconfirmedTransactions", getUnconfirmedTransactions, 5);
   }
 
     @Override
@@ -146,7 +126,8 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     return transactionListeners.removeListener(listener, eventType);
   }
 
-  void notifyListeners(List<? extends Transaction> transactions, Event eventType) {
+  @Override
+  public void notifyListeners(List<? extends Transaction> transactions, Event eventType) {
     transactionListeners.accept(transactions, eventType);
   }
 
@@ -156,37 +137,36 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
   @Override
   public List<Transaction> getAllUnconfirmedTransactions() {
-    return unconfirmedTransactionStore.getAll();
+    return dp.unconfirmedTransactionStore.getAll();
   }
 
   @Override
   public int getAmountUnconfirmedTransactions() {
-    return unconfirmedTransactionStore.getAmount();
+    return dp.unconfirmedTransactionStore.getAmount();
   }
 
   @Override
   public List<Transaction> getAllUnconfirmedTransactionsFor(Peer peer) {
-    return unconfirmedTransactionStore.getAllFor(peer);
+    return dp.unconfirmedTransactionStore.getAllFor(peer);
   }
 
   @Override
   public void markFingerPrintsOf(@NotNull Peer peer, List<? extends Transaction> transactions) {
-    unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions);
+    dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions);
   }
 
   @Override
   public Transaction getUnconfirmedTransaction(long transactionId) {
-    return unconfirmedTransactionStore.get(transactionId);
+    return dp.unconfirmedTransactionStore.get(transactionId);
   }
 
   @Override
   public Transaction.Builder newTransactionBuilder(byte[] senderPublicKey, long amountNQT, long feeNQT, short deadline, Attachment attachment) {
-    byte version = (byte) getTransactionVersion(blockchain.getHeight());
-    int timestamp = timeService.getEpochTime();
-    Transaction.Builder builder = new Transaction.Builder(version, senderPublicKey, amountNQT, feeNQT, timestamp,
-                                                                          deadline, (Attachment.AbstractAttachment)attachment);
+    byte version = (byte) getTransactionVersion(dp.blockchain.getHeight());
+    int timestamp = dp.timeService.getEpochTime();
+    Transaction.Builder builder = new Transaction.Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, (Attachment.AbstractAttachment)attachment);
     if (version > 0) {
-      Block ecBlock = this.economicClustering.getECBlock(timestamp);
+      Block ecBlock = dp.economicClustering.getECBlock(timestamp);
       builder.ecBlockHeight(ecBlock.getHeight());
       builder.ecBlockId(ecBlock.getId());
     }
@@ -199,14 +179,14 @@ public class TransactionProcessorImpl implements TransactionProcessor {
       throw new BurstException.NotValidException("Transaction signature verification failed");
     }
     List<Transaction> processedTransactions;
-    if (dbs.getTransactionDb().hasTransaction(transaction.getId())) {
+    if (dp.dbs.getTransactionDb().hasTransaction(transaction.getId())) {
       if (logger.isInfoEnabled()) {
         logger.info("Transaction {} already in blockchain, will not broadcast again", transaction.getStringId());
       }
       return null;
     }
 
-    if (unconfirmedTransactionStore.exists(transaction.getId())) {
+    if (dp.unconfirmedTransactionStore.exists(transaction.getId())) {
       if (logger.isInfoEnabled()) {
         logger.info("Transaction {} already in unconfirmed pool, will not broadcast again", transaction.getStringId());
       }
@@ -237,12 +217,12 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
   @Override
   public Transaction parseTransaction(byte[] bytes) throws BurstException.ValidationException {
-    return Transaction.parseTransaction(bytes);
+    return Transaction.parseTransaction(dp, bytes);
   }
 
   @Override
   public Transaction parseTransaction(JsonObject transactionData) throws BurstException.NotValidException {
-    return Transaction.parseTransaction(transactionData, blockchain.getHeight());
+    return Transaction.parseTransaction(dp, transactionData, dp.blockchain.getHeight());
   }
     
   @Override
@@ -250,39 +230,41 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     synchronized (unconfirmedTransactionsSyncObj) {
       List<Transaction> removed;
       try {
-        stores.beginTransaction();
-        removed = unconfirmedTransactionStore.getAll();
-        accountService.flushAccountTable();
-        unconfirmedTransactionStore.clear();
-        stores.commitTransaction();
+        Db.beginTransaction();
+        removed = dp.unconfirmedTransactionStore.getAll();
+        dp.accountService.flushAccountTable();
+        dp.unconfirmedTransactionStore.clear();
+        Db.commitTransaction();
       } catch (Exception e) {
         logger.error(e.toString(), e);
-        stores.rollbackTransaction();
+        Db.rollbackTransaction();
         throw e;
       } finally {
-        stores.endTransaction();
+        Db.endTransaction();
       }
 
       transactionListeners.accept(removed, Event.REMOVED_UNCONFIRMED_TRANSACTIONS);
     }
   }
 
-  void requeueAllUnconfirmedTransactions() {
+  @Override
+  public void requeueAllUnconfirmedTransactions() {
     synchronized (unconfirmedTransactionsSyncObj) {
-      unconfirmedTransactionStore.resetAccountBalances();
+      dp.unconfirmedTransactionStore.resetAccountBalances();
     }
   }
 
   @Override
   public int getTransactionVersion(int previousBlockHeight) {
-    return Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, previousBlockHeight) ? 1 : 0;
+    return dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, previousBlockHeight) ? 1 : 0;
   }
 
   // Watch: This is not really clean
-  void processLater(Collection<Transaction> transactions) {
+  @Override
+  public void processLater(Collection<? extends Transaction> transactions) {
     for ( Transaction transaction : transactions ) {
       try {
-        unconfirmedTransactionStore.put(transaction, null);
+        dp.unconfirmedTransactionStore.put(transaction, null);
       }
       catch ( BurstException.ValidationException e ) {
         logger.debug("Discarding invalid transaction in for later processing: " + JSON.toJsonString(transaction.getJsonObject()), e);
@@ -291,18 +273,18 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   }
 
   private List<Transaction> processPeerTransactions(JsonArray transactionsData, Peer peer) throws BurstException.ValidationException {
-	  if (blockchain.getLastBlock().getTimestamp() < timeService.getEpochTime() - 60 * 1440 && ! testUnconfirmedTransactions) {
+	  if (dp.blockchain.getLastBlock().getTimestamp() < dp.timeService.getEpochTime() - 60 * 1440 && ! testUnconfirmedTransactions) {
       return new ArrayList<>();
     }
-    if (blockchain.getHeight() <= Constants.NQT_BLOCK) {
+    if (dp.blockchain.getHeight() <= Constants.NQT_BLOCK) {
       return new ArrayList<>();
     }
     List<Transaction> transactions = new ArrayList<>();
     for (JsonElement transactionData : transactionsData) {
       try {
         Transaction transaction = parseTransaction(JSON.getAsJsonObject(transactionData));
-        transactionService.validate(transaction);
-        if(!this.economicClustering.verifyFork(transaction)) {
+        dp.transactionService.validate(transaction);
+        if(!dp.economicClustering.verifyFork(transaction)) {
           continue;
         }
         transactions.add(transaction);
@@ -328,49 +310,39 @@ public class TransactionProcessorImpl implements TransactionProcessor {
       for (Transaction transaction : transactions) {
 
         try {
-          int curTime = timeService.getEpochTime();
+          int curTime = dp.timeService.getEpochTime();
           if (transaction.getTimestamp() > curTime + 15 || transaction.getExpiration() < curTime
               || transaction.getDeadline() > 1440) {
             continue;
           }
 
+          Db.beginTransaction();
+          if (dp.blockchain.getHeight() < Constants.NQT_BLOCK) {
+            break; // not ready to process transactions
+          }
           try {
-            stores.beginTransaction();
-            if (blockchain.getHeight() < Constants.NQT_BLOCK) {
-              break; // not ready to process transactions
-            }
-
-            if (dbs.getTransactionDb().hasTransaction(transaction.getId()) || unconfirmedTransactionStore.exists(transaction.getId())) {
-              stores.commitTransaction();
-              unconfirmedTransactionStore.markFingerPrintsOf(peer, Collections.singletonList(transaction));
-              continue;
-            }
-
-            if (!(transaction.verifySignature() && transactionService.verifyPublicKey(transaction))) {
-              if (accountService.getAccount(transaction.getSenderId()) != null && logger.isDebugEnabled()) {
+            if (dp.dbs.getTransactionDb().hasTransaction(transaction.getId()) || dp.unconfirmedTransactionStore.exists(transaction.getId())) {
+              dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, Collections.singletonList(transaction));
+            } else if (!(transaction.verifySignature() && dp.transactionService.verifyPublicKey(transaction))) {
+              if (dp.accountService.getAccount(transaction.getSenderId()) != null && logger.isDebugEnabled()) {
                 logger.debug("Transaction {} failed to verify", JSON.toJsonString(transaction.getJsonObject()));
               }
-              stores.commitTransaction();
-              continue;
-            }
-
-            if(unconfirmedTransactionStore.put(transaction, peer)) {
+            } else if (dp.unconfirmedTransactionStore.put(transaction, peer)) {
               addedUnconfirmedTransactions.add(transaction);
             }
-
-            stores.commitTransaction();
+            Db.commitTransaction();
           } catch (Exception e) {
-            stores.rollbackTransaction();
+            Db.rollbackTransaction();
             throw e;
           } finally {
-            stores.endTransaction();
+            Db.endTransaction();
           }
         } catch (RuntimeException e) {
           logger.info("Error processing transaction", e);
         }
       }
 
-      if (! addedUnconfirmedTransactions.isEmpty()) {
+      if (!addedUnconfirmedTransactions.isEmpty()) {
         transactionListeners.accept(addedUnconfirmedTransactions, Event.ADDED_UNCONFIRMED_TRANSACTIONS);
       }
 
@@ -393,20 +365,20 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   public void revalidateUnconfirmedTransactions() {
     final List<Transaction> invalidTransactions = new ArrayList<>();
 
-    for(Transaction t: unconfirmedTransactionStore.getAll()) {
+    for(Transaction t: dp.unconfirmedTransactionStore.getAll()) {
       try {
-        this.transactionService.validate(t);
+        dp.transactionService.validate(t);
       } catch (ValidationException e) {
         invalidTransactions.add(t);
       }
     }
 
     for(Transaction t:invalidTransactions) {
-      unconfirmedTransactionStore.remove(t);
+      dp.unconfirmedTransactionStore.remove(t);
     }
   }
 
   public void removeForgedTransactions(List<Transaction> transactions) {
-    this.unconfirmedTransactionStore.removeForgedTransactions(transactions);
+    dp.unconfirmedTransactionStore.removeForgedTransactions(transactions);
   }
 }

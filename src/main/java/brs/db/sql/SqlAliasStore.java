@@ -2,6 +2,7 @@ package brs.db.sql;
 
 import brs.Alias;
 import brs.Burst;
+import brs.DependencyProvider;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.AliasStore;
@@ -20,6 +21,7 @@ import static brs.schema.Tables.ALIAS;
 import static brs.schema.Tables.ALIAS_OFFER;
 
 public class SqlAliasStore implements AliasStore {
+  private final DependencyProvider dp;
 
   private static final DbKey.LongKeyFactory<Alias.Offer> offerDbKeyFactory = new DbKey.LongKeyFactory<Alias.Offer>(ALIAS_OFFER.ID) {
       @Override
@@ -28,8 +30,9 @@ public class SqlAliasStore implements AliasStore {
       }
     };
 
-  public SqlAliasStore(DerivedTableManager derivedTableManager) {
-    offerTable = new VersionedEntitySqlTable<Alias.Offer>("alias_offer", ALIAS_OFFER, offerDbKeyFactory, derivedTableManager) {
+  public SqlAliasStore(DependencyProvider dp) {
+    this.dp = dp;
+    offerTable = new VersionedEntitySqlTable<Alias.Offer>("alias_offer", ALIAS_OFFER, offerDbKeyFactory, dp) {
       @Override
       protected Alias.Offer load(DSLContext ctx, Record record) {
         return new SqlOffer(record);
@@ -41,7 +44,7 @@ public class SqlAliasStore implements AliasStore {
       }
     };
 
-    aliasTable = new VersionedEntitySqlTable<Alias>("alias", brs.schema.Tables.ALIAS, aliasDbKeyFactory, derivedTableManager) {
+    aliasTable = new VersionedEntitySqlTable<Alias>("alias", brs.schema.Tables.ALIAS, aliasDbKeyFactory, dp) {
       @Override
       protected Alias load(DSLContext ctx, Record record) {
         return new SqlAlias(record);
@@ -93,7 +96,7 @@ public class SqlAliasStore implements AliasStore {
   private void saveOffer(Alias.Offer offer) {
     Db.useDSLContext(ctx -> {
       ctx.insertInto(ALIAS_OFFER, ALIAS_OFFER.ID, ALIAS_OFFER.PRICE, ALIAS_OFFER.BUYER_ID, ALIAS_OFFER.HEIGHT)
-              .values(offer.getId(), offer.getPriceNQT(), (offer.getBuyerId() == 0 ? null : offer.getBuyerId()), Burst.getBlockchain().getHeight())
+              .values(offer.getId(), offer.getPriceNQT(), (offer.getBuyerId() == 0 ? null : offer.getBuyerId()), dp.blockchain.getHeight())
               .execute();
     });
   }
@@ -126,7 +129,7 @@ public class SqlAliasStore implements AliasStore {
       set(ALIAS.ALIAS_NAME_LOWER, alias.getAliasName().toLowerCase(Locale.ENGLISH)).
       set(ALIAS.ALIAS_URI, alias.getAliasURI()).
       set(ALIAS.TIMESTAMP, alias.getTimestamp()).
-      set(ALIAS.HEIGHT, Burst.getBlockchain().getHeight()).execute();
+      set(ALIAS.HEIGHT, dp.blockchain.getHeight()).execute();
   }
 
   private final VersionedEntityTable<Alias> aliasTable;

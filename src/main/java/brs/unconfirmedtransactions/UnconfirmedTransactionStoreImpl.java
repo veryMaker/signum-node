@@ -2,6 +2,7 @@ package brs.unconfirmedtransactions;
 
 import brs.BurstException.ValidationException;
 import brs.Constants;
+import brs.DependencyProvider;
 import brs.Transaction;
 import brs.db.TransactionDb;
 import brs.db.store.AccountStore;
@@ -22,10 +23,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionStore {
-
   private static final Logger logger = LoggerFactory.getLogger(UnconfirmedTransactionStoreImpl.class);
 
-  private final TimeService timeService;
+  private final DependencyProvider dp;
   private final ReservedBalanceCache reservedBalanceCache;
   private final TransactionDuplicatesCheckerImpl transactionDuplicatesChecker = new TransactionDuplicatesCheckerImpl();
 
@@ -41,17 +41,16 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   private int numberUnconfirmedTransactionsFullHash;
   private final int maxPercentageUnconfirmedTransactionsFullHash;
 
-  public UnconfirmedTransactionStoreImpl(TimeService timeService, PropertyService propertyService, AccountStore accountStore, TransactionDb transactionDb) {
-    this.timeService = timeService;
+  public UnconfirmedTransactionStoreImpl(DependencyProvider dp) {
+    this.dp = dp;
+    this.reservedBalanceCache = new ReservedBalanceCache(dp.accountStore);
 
-    this.reservedBalanceCache = new ReservedBalanceCache(accountStore);
-
-    this.maxSize = propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS);
+    this.maxSize = dp.propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS);
     this.totalSize = 0;
 
-    this.maxRawUTBytesToSend = propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND);
+    this.maxRawUTBytesToSend = dp.propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND);
 
-    this.maxPercentageUnconfirmedTransactionsFullHash = propertyService.get(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE);
+    this.maxPercentageUnconfirmedTransactionsFullHash = dp.propertyService.get(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE);
     this.numberUnconfirmedTransactionsFullHash = 0;
 
     internalStore = new TreeMap<>();
@@ -61,7 +60,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
       synchronized (internalStore) {
         final List<Transaction> expiredTransactions = getAll()
                 .stream()
-                .filter(t -> timeService.getEpochTime() > t.getExpiration() || transactionDb.hasTransaction(t.getId()))
+                .filter(t -> dp.timeService.getEpochTime() > t.getExpiration() || dp.dbs.getTransactionDb().hasTransaction(t.getId()))
                 .collect(Collectors.toList());
         expiredTransactions.forEach(this::removeTransaction);
       }
@@ -276,7 +275,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   private boolean transactionIsCurrentlyNotExpired(Transaction transaction) {
-    if (timeService.getEpochTime() < transaction.getExpiration()) {
+    if (dp.timeService.getEpochTime() < transaction.getExpiration()) {
       return true;
     } else {
       logger.info("Transaction {} past expiration: {}", transaction.getId(), transaction.getExpiration());

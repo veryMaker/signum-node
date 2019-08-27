@@ -2,6 +2,7 @@ package brs.db.sql;
 
 import brs.Account;
 import brs.Burst;
+import brs.DependencyProvider;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.VersionedEntityTable;
 import brs.db.cache.DBCacheManagerImpl;
@@ -16,6 +17,7 @@ import java.util.*;
 import static brs.schema.Tables.*;
 
 public class SqlAccountStore implements AccountStore {
+  private final DependencyProvider dp;
 
   private static final DbKey.LongKeyFactory<Account> accountDbKeyFactory = new DbKey.LongKeyFactory<Account>(ACCOUNT.ID) {
       @Override
@@ -39,8 +41,9 @@ public class SqlAccountStore implements AccountStore {
         }
     };
 
-  public SqlAccountStore(DerivedTableManager derivedTableManager, DBCacheManagerImpl dbCacheManager) {
-    rewardRecipientAssignmentTable = new VersionedEntitySqlTable<Account.RewardRecipientAssignment>("reward_recip_assign", brs.schema.Tables.REWARD_RECIP_ASSIGN, rewardRecipientAssignmentDbKeyFactory, derivedTableManager) {
+  public SqlAccountStore(DependencyProvider dp) {
+    this.dp = dp;
+    rewardRecipientAssignmentTable = new VersionedEntitySqlTable<Account.RewardRecipientAssignment>("reward_recip_assign", brs.schema.Tables.REWARD_RECIP_ASSIGN, rewardRecipientAssignmentDbKeyFactory, dp) {
 
       @Override
       protected Account.RewardRecipientAssignment load(DSLContext ctx, Record rs) {
@@ -51,12 +54,12 @@ public class SqlAccountStore implements AccountStore {
       protected void save(DSLContext ctx, Account.RewardRecipientAssignment assignment) {
         ctx.mergeInto(REWARD_RECIP_ASSIGN, REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.PREV_RECIP_ID, REWARD_RECIP_ASSIGN.RECIP_ID, REWARD_RECIP_ASSIGN.FROM_HEIGHT, REWARD_RECIP_ASSIGN.HEIGHT, REWARD_RECIP_ASSIGN.LATEST)
                 .key(REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.HEIGHT)
-                .values(assignment.accountId, assignment.getPrevRecipientId(), assignment.getRecipientId(), assignment.getFromHeight(), Burst.getBlockchain().getHeight(), true)
+                .values(assignment.accountId, assignment.getPrevRecipientId(), assignment.getRecipientId(), assignment.getFromHeight(), dp.blockchain.getHeight(), true)
                 .execute();
       }
     };
 
-    accountAssetTable = new VersionedEntitySqlTable<Account.AccountAsset>("account_asset", brs.schema.Tables.ACCOUNT_ASSET, accountAssetDbKeyFactory, derivedTableManager) {
+    accountAssetTable = new VersionedEntitySqlTable<Account.AccountAsset>("account_asset", brs.schema.Tables.ACCOUNT_ASSET, accountAssetDbKeyFactory, dp) {
       private final List<SortField<?>> sort = initializeSort();
 
       private List<SortField<?>> initializeSort() {
@@ -76,7 +79,7 @@ public class SqlAccountStore implements AccountStore {
       protected void save(DSLContext ctx, Account.AccountAsset accountAsset) {
         ctx.mergeInto(ACCOUNT_ASSET, ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.QUANTITY, ACCOUNT_ASSET.UNCONFIRMED_QUANTITY, ACCOUNT_ASSET.HEIGHT, ACCOUNT_ASSET.LATEST)
                 .key(ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.HEIGHT)
-                .values(accountAsset.accountId, accountAsset.assetId, accountAsset.getQuantityQNT(), accountAsset.getUnconfirmedQuantityQNT(), Burst.getBlockchain().getHeight(), true)
+                .values(accountAsset.accountId, accountAsset.assetId, accountAsset.getQuantityQNT(), accountAsset.getUnconfirmedQuantityQNT(), dp.blockchain.getHeight(), true)
                 .execute();
       }
 
@@ -86,7 +89,7 @@ public class SqlAccountStore implements AccountStore {
       }
     };
 
-    accountTable = new VersionedBatchEntitySqlTable<Account>("account", brs.schema.Tables.ACCOUNT, accountDbKeyFactory, derivedTableManager, dbCacheManager, Account.class) {
+    accountTable = new VersionedBatchEntitySqlTable<Account>("account", brs.schema.Tables.ACCOUNT, accountDbKeyFactory, Account.class, dp) {
       @Override
       protected Account load(DSLContext ctx, Record rs) {
         return new SqlAccount(rs);
@@ -95,7 +98,7 @@ public class SqlAccountStore implements AccountStore {
       @Override
       protected void bulkInsert(DSLContext ctx, Collection<Account> accounts) {
         List<Query> accountQueries = new ArrayList<>();
-        int height = Burst.getBlockchain().getHeight();
+        int height = dp.blockchain.getHeight();
         for (Account account: accounts) {
           if (account == null) continue;
           accountQueries.add(
@@ -160,7 +163,7 @@ public class SqlAccountStore implements AccountStore {
 
   @Override
   public Collection<Account.RewardRecipientAssignment> getAccountsWithRewardRecipient(Long recipientId) {
-    return getRewardRecipientAssignmentTable().getManyBy(getAccountsWithRewardRecipientClause(recipientId, Burst.getBlockchain().getHeight() + 1), 0, -1);
+    return getRewardRecipientAssignmentTable().getManyBy(getAccountsWithRewardRecipientClause(recipientId, dp.blockchain.getHeight() + 1), 0, -1);
   }
 
   @Override

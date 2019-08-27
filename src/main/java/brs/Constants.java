@@ -58,18 +58,19 @@ public final class Constants {
   public static final int MAX_DGS_LISTING_TAGS_LENGTH = 100;
   public static final int MAX_DGS_GOODS_LENGTH = 10240;
 
-  public static final int NQT_BLOCK = 0;
-  public static final int REFERENCED_TRANSACTION_FULL_HASH_BLOCK = 0;
-  public static final int REFERENCED_TRANSACTION_FULL_HASH_BLOCK_TIMESTAMP = 0;
+  public static final int NQT_BLOCK = 0; // TODO remove
+  public static final int REFERENCED_TRANSACTION_FULL_HASH_BLOCK = 0; // TODO remove
+  public static final int REFERENCED_TRANSACTION_FULL_HASH_BLOCK_TIMESTAMP = 0; // TODO remove
 
   public static final int MAX_AUTOMATED_TRANSACTION_NAME_LENGTH = 30;
   public static final int MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH = 1000;
 
+  public static final int FEE_SUGGESTION_MAX_HISTORY_LENGTH = 10;
+
   public static final String HTTP = "http://";
 
-  public static final Version MIN_VERSION = Version.parse("v2.3.0");
-
-  static final long UNCONFIRMED_POOL_DEPOSIT_NQT = ((Burst.getPropertyService() != null ? Burst.getPropertyService().get(Props.DEV_TESTNET) : false) ? 50 : 100) * ONE_BURST;
+  public static final Version MIN_VERSION = Version.Companion.parse("v2.3.0");
+  static long UNCONFIRMED_POOL_DEPOSIT_NQT;
 
   // TODO burstkit4j integration
   public static final long EPOCH_BEGINNING;
@@ -84,11 +85,14 @@ public final class Constants {
     calendar.set(Calendar.SECOND, 0);
     calendar.set(Calendar.MILLISECOND, 0);
     EPOCH_BEGINNING = calendar.getTimeInMillis();
+  }
 
-    long dbRollback = Burst.getPropertyService() != null ? Burst.getPropertyService().get(Props.DB_MAX_ROLLBACK) : 1440;
+  public static void init(DependencyProvider dp) {
+    long dbRollback = dp.propertyService.get(Props.DB_MAX_ROLLBACK);
     if (dbRollback < 1440) {
       throw new IllegalArgumentException("brs.maxRollback must be at least 1440");
     }
+    UNCONFIRMED_POOL_DEPOSIT_NQT = dp.propertyService.get(Props.DEV_TESTNET) ? 50 : 100;
   }
 
   public static final String ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";

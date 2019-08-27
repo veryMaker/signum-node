@@ -21,6 +21,15 @@ interface Appendix {
     val protobufMessage: Any
     fun putBytes(buffer: ByteBuffer)
 
+    companion object {
+        // TODO remove static dp
+        internal lateinit var dp: DependencyProvider
+
+        fun init(dp: DependencyProvider) {
+            this.dp = dp
+        }
+    }
+
     abstract class AbstractAppendix : Appendix {
 
         final override val version: Byte
@@ -55,7 +64,7 @@ interface Appendix {
         }
 
         internal constructor(blockchainHeight: Int) {
-            this.version = (if (Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) 1 else 0).toByte()
+            this.version = (if (dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) 1 else 0).toByte()
         }
 
         override fun putBytes(buffer: ByteBuffer) {
@@ -387,15 +396,15 @@ interface Appendix {
             if (transaction.version.toInt() == 0) {
                 throw BurstException.NotValidException("Public key announcements not enabled for version 0 transactions")
             }
-            val recipientAccount = Account.getAccount(recipientId)
+            val recipientAccount = Account.getAccount(dp, recipientId)
             if (recipientAccount != null && recipientAccount.publicKey != null && !Arrays.equals(publicKey, recipientAccount.publicKey)) {
                 throw BurstException.NotCurrentlyValidException("A different public key for this account has already been announced")
             }
         }
 
         override fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
-            if (recipientAccount.setOrVerify(publicKey, transaction.height)) {
-                recipientAccount.apply(this.publicKey, transaction.height)
+            if (recipientAccount.setOrVerify(dp, publicKey, transaction.height)) {
+                recipientAccount.apply(dp, this.publicKey, transaction.height)
             }
         }
 

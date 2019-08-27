@@ -2,6 +2,7 @@ package brs.db.sql;
 
 import brs.Asset;
 import brs.Burst;
+import brs.DependencyProvider;
 import brs.db.BurstKey;
 import brs.db.store.AssetStore;
 import brs.db.store.DerivedTableManager;
@@ -13,6 +14,7 @@ import java.util.Collection;
 import static brs.schema.tables.Asset.ASSET;
 
 public class SqlAssetStore implements AssetStore {
+  private final DependencyProvider dp;
 
   private final BurstKey.LongKeyFactory<Asset> assetDbKeyFactory = new DbKey.LongKeyFactory<Asset>(ASSET.ID) {
 
@@ -24,8 +26,9 @@ public class SqlAssetStore implements AssetStore {
     };
   private final EntitySqlTable<Asset> assetTable;
 
-  public SqlAssetStore(DerivedTableManager derivedTableManager) {
-    assetTable = new EntitySqlTable<Asset>("asset", brs.schema.Tables.ASSET, assetDbKeyFactory, derivedTableManager) {
+  public SqlAssetStore(DependencyProvider dp) {
+    this.dp = dp;
+    assetTable = new EntitySqlTable<Asset>("asset", brs.schema.Tables.ASSET, assetDbKeyFactory, dp) {
 
       @Override
       protected Asset load(DSLContext ctx, Record record) {
@@ -47,7 +50,7 @@ public class SqlAssetStore implements AssetStore {
       set(ASSET.DESCRIPTION, asset.getDescription()).
       set(ASSET.QUANTITY, asset.getQuantityQNT()).
       set(ASSET.DECIMALS, asset.getDecimals()).
-      set(ASSET.HEIGHT, Burst.getBlockchain().getHeight()).execute();
+      set(ASSET.HEIGHT, dp.blockchain.getHeight()).execute();
   }
 
   @Override

@@ -15,11 +15,11 @@ import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
-internal class SendMoneyMulti(private val parameterService: ParameterService, private val blockchain: Blockchain, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf<APITag>(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), apiTransactionManager, true, *commonParameters) {
+internal class SendMoneyMulti(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf<APITag>(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), true, *commonParameters) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val sender = parameterService.getSenderAccount(req)
+        val sender = dp.parameterService.getSenderAccount(req)
         val recipientString = Convert.emptyToNull(req.getParameter(RECIPIENTS_PARAMETER))
 
         if (recipientString == null) {
@@ -63,7 +63,7 @@ internal class SendMoneyMulti(private val parameterService: ParameterService, pr
             return response
         }
 
-        val attachment = Attachment.PaymentMultiOutCreation(recipients, blockchain.height)
+        val attachment = Attachment.PaymentMultiOutCreation(recipients, dp.blockchain.height)
 
         return createTransaction(req, sender, null, attachment.amountNQT!!, attachment)
     }

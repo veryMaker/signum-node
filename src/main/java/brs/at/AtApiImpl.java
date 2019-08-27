@@ -8,6 +8,7 @@
 package brs.at;
 
 import brs.Burst;
+import brs.DependencyProvider;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
 
@@ -18,6 +19,13 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 
 public class AtApiImpl implements AtApi {
+    // TODO remove static dp
+    private static DependencyProvider dp;
+
+    public static void init(DependencyProvider dp) {
+        AtApiImpl.dp = dp;
+    }
+
     private final AtApiPlatformImpl platform = AtApiPlatformImpl.getInstance();
 
     @Override
@@ -532,7 +540,7 @@ public class AtApiImpl implements AtApi {
 
     @Override
     public long checkMd5AWithB(AtMachineState state) {
-        if (Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_3)) {
+        if (dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
             ByteBuffer b = ByteBuffer.allocate(16);
             b.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -571,7 +579,7 @@ public class AtApiImpl implements AtApi {
 
     @Override
     public long checkHash160AWithB(AtMachineState state) {
-        if (Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_3)) {
+        if (dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
             ByteBuffer b = ByteBuffer.allocate(32);
             b.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -616,7 +624,7 @@ public class AtApiImpl implements AtApi {
 
     @Override
     public long checkSha256AWithB(AtMachineState state) {
-        if (Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_3)) {
+        if (dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
             ByteBuffer b = ByteBuffer.allocate(32);
             b.order(ByteOrder.LITTLE_ENDIAN);
 

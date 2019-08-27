@@ -2,12 +2,15 @@ package brs.at;
 
 import brs.Burst;
 import brs.Constants;
+import brs.DependencyProvider;
 import brs.fluxcapacitor.FluxValues;
 
 import java.util.HashMap;
 
 
 public class AtConstants {
+    private final DependencyProvider dp;
+
     //platform based
     public static final int AT_ID_SIZE = 8;
     private static final HashMap<Short, Long> MIN_FEE = new HashMap<>();
@@ -25,9 +28,14 @@ public class AtConstants {
     private static final HashMap<Short, Long> BLOCKS_FOR_RANDOM = new HashMap<>();
     private static final HashMap<Short, Long> MAX_PAYLOAD_FOR_BLOCK = new HashMap<>();
     private static final HashMap<Short, Long> AVERAGE_BLOCK_MINUTES = new HashMap<>();
-    private static final AtConstants instance = new AtConstants();
+    private static AtConstants instance;
 
-    private AtConstants() {
+    public static void init(DependencyProvider dp) {
+        instance = new AtConstants(dp);
+    }
+
+    private AtConstants(DependencyProvider dp) {
+        this.dp = dp;
         // constants for AT version 1
         MIN_FEE.put((short) 1, 1000L);
         STEP_FEE.put((short) 1, Constants.ONE_BURST / 10L);
@@ -47,7 +55,7 @@ public class AtConstants {
         MAX_MACHINE_CALL_STACK_PAGES.put((short) 1, 10L);
 
         BLOCKS_FOR_RANDOM.put((short) 1, 15L); //for testing 2 -> normally 1440
-        MAX_PAYLOAD_FOR_BLOCK.put((short) 1, (Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH)) / 2L); //use at max half size of the block.
+        MAX_PAYLOAD_FOR_BLOCK.put((short) 1, (dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH)) / 2L); //use at max half size of the block.
         AVERAGE_BLOCK_MINUTES.put((short) 1, 4L);
         // end of AT version 1
 
@@ -70,7 +78,7 @@ public class AtConstants {
         MAX_MACHINE_CALL_STACK_PAGES.put((short) 2, 10L);
 
         BLOCKS_FOR_RANDOM.put((short) 2, 15L); //for testing 2 -> normally 1440
-        MAX_PAYLOAD_FOR_BLOCK.put((short) 2, (Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH)) / 2L); //use at max half size of the block.
+        MAX_PAYLOAD_FOR_BLOCK.put((short) 2, (dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH)) / 2L); //use at max half size of the block.
         AVERAGE_BLOCK_MINUTES.put((short) 2, 4L);
         // end of AT version 2
     }
@@ -80,7 +88,7 @@ public class AtConstants {
     }
 
     public short atVersion(int blockHeight) {
-        return Burst.getFluxCapacitor().getValue(FluxValues.AT_VERSION, blockHeight);
+        return dp.fluxCapacitor.getValue(FluxValues.AT_VERSION, blockHeight);
     }
 
     public long stepFee(int height) {

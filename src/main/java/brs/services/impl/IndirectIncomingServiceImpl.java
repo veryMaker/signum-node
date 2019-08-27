@@ -1,6 +1,7 @@
 package brs.services.impl;
 
 import brs.Attachment;
+import brs.DependencyProvider;
 import brs.Transaction;
 import brs.TransactionType;
 import brs.db.store.IndirectIncomingStore;
@@ -18,12 +19,12 @@ import java.util.stream.Collectors;
 public class IndirectIncomingServiceImpl implements IndirectIncomingService {
     private static final Logger LOGGER = LoggerFactory.getLogger(IndirectIncomingServiceImpl.class);
 
-    private final IndirectIncomingStore indirectIncomingStore;
+    private final DependencyProvider dp;
     private final boolean disabled;
 
-    public IndirectIncomingServiceImpl(IndirectIncomingStore indirectIncomingStore, PropertyService propertyService) {
-        this.indirectIncomingStore = indirectIncomingStore;
-        this.disabled = !propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE);
+    public IndirectIncomingServiceImpl(DependencyProvider dp) {
+        this.dp = dp;
+        this.disabled = !dp.propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE);
         if (disabled) {
             LOGGER.warn("Indirect Incoming Service Disabled!");
         }
@@ -32,7 +33,7 @@ public class IndirectIncomingServiceImpl implements IndirectIncomingService {
     @Override
     public void processTransaction(Transaction transaction) {
         if (disabled) return;
-        indirectIncomingStore.addIndirectIncomings(getIndirectIncomings(transaction).stream()
+        dp.indirectIncomingStore.addIndirectIncomings(getIndirectIncomings(transaction).stream()
                 .map(account -> new IndirectIncomingStore.IndirectIncoming(account, transaction.getId(), transaction.getHeight()))
                 .collect(Collectors.toList()));
     }

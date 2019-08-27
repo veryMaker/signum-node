@@ -45,16 +45,14 @@ import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
-class ParameterServiceImpl(private val accountService: AccountService, private val aliasService: AliasService, private val assetExchange: AssetExchange, private val dgsGoodsStoreService: DGSGoodsStoreService, private val blockchain: Blockchain,
-                           private val blockchainProcessor: BlockchainProcessor,
-                           private val transactionProcessor: TransactionProcessor, private val atService: ATService) : ParameterService {
+class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterService {
 
     @Throws(BurstException::class)
     override fun getAccount(req: HttpServletRequest): Account {
         val accountId = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER))
                 ?: throw ParameterException(MISSING_ACCOUNT)
         try {
-            return accountService.getAccount(Convert.parseAccountId(accountId))
+            return dp.accountService.getAccount(Convert.parseAccountId(accountId))
                     ?: throw ParameterException(UNKNOWN_ACCOUNT)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_ACCOUNT)
@@ -74,7 +72,7 @@ class ParameterServiceImpl(private val accountService: AccountService, private v
                 continue
             }
             try {
-                val account = accountService.getAccount(Convert.parseAccountId(accountValue))
+                val account = dp.accountService.getAccount(Convert.parseAccountId(accountValue))
                         ?: throw ParameterException(UNKNOWN_ACCOUNT)
                 result.add(account)
             } catch (e: RuntimeException) {
@@ -90,9 +88,9 @@ class ParameterServiceImpl(private val accountService: AccountService, private v
         val secretPhrase = Convert.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER))
         val publicKeyString = Convert.emptyToNull(req.getParameter(PUBLIC_KEY_PARAMETER))
         return when {
-            secretPhrase != null -> accountService.getAccount(Crypto.getPublicKey(secretPhrase))
+            secretPhrase != null -> dp.accountService.getAccount(Crypto.getPublicKey(secretPhrase))
             publicKeyString != null -> try {
-                accountService.getAccount(Convert.parseHexString(publicKeyString))
+                dp.accountService.getAccount(Convert.parseHexString(publicKeyString))
             } catch (e: RuntimeException) {
                 throw ParameterException(INCORRECT_PUBLIC_KEY)
             }
@@ -111,8 +109,8 @@ class ParameterServiceImpl(private val accountService: AccountService, private v
 
         val aliasName = Convert.emptyToNull(req.getParameter(ALIAS_NAME_PARAMETER))
         return when {
-            aliasId != 0L -> aliasService.getAlias(aliasId)
-            aliasName != null -> aliasService.getAlias(aliasName)
+            aliasId != 0L -> dp.aliasService.getAlias(aliasId)
+            aliasName != null -> dp.aliasService.getAlias(aliasName)
             else -> throw ParameterException(MISSING_ALIAS_OR_ALIAS_NAME)
         } ?: throw ParameterException(UNKNOWN_ALIAS)
     }
@@ -124,7 +122,7 @@ class ParameterServiceImpl(private val accountService: AccountService, private v
         val asset: Asset?
         try {
             val assetId = Convert.parseUnsignedLong(assetValue)
-            asset = assetExchange.getAsset(assetId)
+            asset = dp.assetExchange.getAsset(assetId)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_ASSET)
         }
@@ -142,7 +140,7 @@ class ParameterServiceImpl(private val accountService: AccountService, private v
 
         try {
             val goodsId = Convert.parseUnsignedLong(goodsValue)
-            return dgsGoodsStoreService.getGoods(goodsId) ?: throw ParameterException(UNKNOWN_GOODS)
+            return dp.digitalGoodsStoreService.getGoods(goodsId) ?: throw ParameterException(UNKNOWN_GOODS)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_GOODS)
         }
@@ -154,7 +152,7 @@ class ParameterServiceImpl(private val accountService: AccountService, private v
         val purchaseIdString = Convert.emptyToNull(req.getParameter(PURCHASE_PARAMETER))
                 ?: throw ParameterException(MISSING_PURCHASE)
         try {
-            return dgsGoodsStoreService.getPurchase(Convert.parseUnsignedLong(purchaseIdString))
+            return dp.digitalGoodsStoreService.getPurchase(Convert.parseUnsignedLong(purchaseIdString))
                     ?: throw ParameterException(INCORRECT_PURCHASE)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_PURCHASE)
@@ -207,7 +205,7 @@ class ParameterServiceImpl(private val accountService: AccountService, private v
         }
         val plainMessage = Convert.emptyToNull(req.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER)) ?: return null
         val secretPhrase = getSecretPhrase(req)
-        val senderAccount = accountService.getAccount(Crypto.getPublicKey(secretPhrase))
+        val senderAccount = dp.accountService.getAccount(Crypto.getPublicKey(secretPhrase))
         val isText = !isFalse(req.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER))
         try {
             val plainMessageBytes = if (isText) Convert.toBytes(plainMessage) else Convert.parseHexString(plainMessage)
@@ -230,7 +228,7 @@ class ParameterServiceImpl(private val accountService: AccountService, private v
         if (numberOfConfirmationsValue != null) {
             try {
                 val numberOfConfirmations = Integer.parseInt(numberOfConfirmationsValue)
-                if (numberOfConfirmations <= blockchain.height) {
+                if (numberOfConfirmations <= dp.blockchain.height) {
                     return numberOfConfirmations
                 }
                 throw ParameterException(INCORRECT_NUMBER_OF_CONFIRMATIONS)
@@ -248,10 +246,10 @@ class ParameterServiceImpl(private val accountService: AccountService, private v
         if (heightValue != null) {
             try {
                 val height = Integer.parseInt(heightValue)
-                if (height < 0 || height > blockchain.height) {
+                if (height < 0 || height > dp.blockchain.height) {
                     throw ParameterException(INCORRECT_HEIGHT)
                 }
-                if (height < blockchainProcessor.minRollbackHeight) {
+                if (height < dp.blockchainProcessor.minRollbackHeight) {
                     throw ParameterException(HEIGHT_NOT_AVAILABLE)
                 }
                 return height
@@ -271,7 +269,7 @@ class ParameterServiceImpl(private val accountService: AccountService, private v
         return if (transactionBytes != null) {
             try {
                 val bytes = Convert.parseHexString(transactionBytes)
-                transactionProcessor.parseTransaction(bytes!!)
+                dp.transactionProcessor.parseTransaction(bytes!!)
             } catch (e: BurstException.ValidationException) {
                 logger.debug(e.message, e) // TODO remove?
                 val response = JsonObject()
@@ -289,7 +287,7 @@ class ParameterServiceImpl(private val accountService: AccountService, private v
         } else {
             try {
                 val json = JSON.getAsJsonObject(JSON.parse(transactionJSON!!))
-                transactionProcessor.parseTransaction(json)
+                dp.transactionProcessor.parseTransaction(json)
             } catch (e: BurstException.ValidationException) {
                 logger.debug(e.message, e)
                 val response = JsonObject()
@@ -313,7 +311,7 @@ class ParameterServiceImpl(private val accountService: AccountService, private v
         val at: AT?
         try {
             val atId = Convert.parseUnsignedLong(atValue)
-            at = atService.getAT(atId)
+            at = dp.atService.getAT(atId)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_AT)
         }

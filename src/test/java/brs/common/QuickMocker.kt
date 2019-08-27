@@ -43,7 +43,7 @@ object QuickMocker {
             whenever(mockCapacitor.getValue(eq(ft))).doReturn(true)
             whenever(mockCapacitor.getValue(eq(ft), any())).doReturn(true)
         }
-        every { Burst.getFluxCapacitor() } returns mockCapacitor
+        every { Burst.fluxCapacitor } returns mockCapacitor
         return mockCapacitor
     }
 

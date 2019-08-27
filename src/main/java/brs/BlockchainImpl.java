@@ -12,16 +12,12 @@ import java.util.function.Supplier;
 
 public class BlockchainImpl implements Blockchain {
 
-  private final TransactionDb transactionDb;
-  private final BlockDb blockDb;
-  private final BlockchainStore blockchainStore;
+  private final DependencyProvider dp;
   
   private final StampedLock bcsl;
   
-  BlockchainImpl(TransactionDb transactionDb, BlockDb blockDb, BlockchainStore blockchainStore) {
-    this.transactionDb = transactionDb;
-    this.blockDb = blockDb;
-    this.blockchainStore = blockchainStore;
+  BlockchainImpl(DependencyProvider dp) {
+    this.dp = dp;
     this.bcsl = new StampedLock();
   }
 
@@ -46,7 +42,8 @@ public class BlockchainImpl implements Blockchain {
     }
   }
 
-  void setLastBlock(Block previousBlock, Block block) {
+  @Override
+  public void setLastBlock(Block previousBlock, Block block) {
     long stamp = bcsl.writeLock();
     try {
       if (! lastBlock.compareAndSet(previousBlock, block)) {
@@ -69,7 +66,7 @@ public class BlockchainImpl implements Blockchain {
     if (timestamp >= block.getTimestamp()) {
       return block;
     }
-    return blockDb.findLastBlock(timestamp);
+    return dp.dbs.getBlockDb().findLastBlock(timestamp);
   }
 
   @Override
@@ -78,17 +75,17 @@ public class BlockchainImpl implements Blockchain {
     if (block.getId() == blockId) {
       return block;
     }
-    return blockDb.findBlock(blockId);
+    return dp.dbs.getBlockDb().findBlock(blockId);
   }
 
   @Override
   public boolean hasBlock(long blockId) {
-    return getLastBlock().getId() == blockId || blockDb.hasBlock(blockId);
+    return getLastBlock().getId() == blockId || dp.dbs.getBlockDb().hasBlock(blockId);
   }
 
   @Override
   public Collection<Block> getBlocks(int from, int to) {
-    return blockchainStore.getBlocks(from, to);
+    return dp.blockchainStore.getBlocks(from, to);
   }
 
   @Override
@@ -98,17 +95,17 @@ public class BlockchainImpl implements Blockchain {
 
   @Override
   public Collection<Block> getBlocks(Account account, int timestamp, int from, int to) {
-    return blockchainStore.getBlocks(account, timestamp, from, to);
+    return dp.blockchainStore.getBlocks(account, timestamp, from, to);
   }
 
   @Override
   public Collection<Long> getBlockIdsAfter(long blockId, int limit) {
-    return blockchainStore.getBlockIdsAfter(blockId, limit);
+    return dp.blockchainStore.getBlockIdsAfter(blockId, limit);
   }
 
   @Override
   public Collection<Block> getBlocksAfter(long blockId, int limit) {
-    return blockchainStore.getBlocksAfter(blockId, limit);
+    return dp.blockchainStore.getBlocksAfter(blockId, limit);
   }
 
   @Override
@@ -120,7 +117,7 @@ public class BlockchainImpl implements Blockchain {
     if (height == block.getHeight()) {
       return block.getId();
     }
-    return blockDb.findBlockIdAtHeight(height);
+    return dp.dbs.getBlockDb().findBlockIdAtHeight(height);
   }
 
   @Override
@@ -132,37 +129,37 @@ public class BlockchainImpl implements Blockchain {
     if (height == block.getHeight()) {
       return block;
     }
-    return blockDb.findBlockAtHeight(height);
+    return dp.dbs.getBlockDb().findBlockAtHeight(height);
   }
 
   @Override
   public Transaction getTransaction(long transactionId) {
-    return transactionDb.findTransaction(transactionId);
+    return dp.dbs.getTransactionDb().findTransaction(transactionId);
   }
 
   @Override
   public Transaction getTransactionByFullHash(String fullHash) {
-    return transactionDb.findTransactionByFullHash(fullHash);
+    return dp.dbs.getTransactionDb().findTransactionByFullHash(fullHash);
   }
 
   @Override
   public boolean hasTransaction(long transactionId) {
-    return transactionDb.hasTransaction(transactionId);
+    return dp.dbs.getTransactionDb().hasTransaction(transactionId);
   }
 
   @Override
   public boolean hasTransactionByFullHash(String fullHash) {
-    return transactionDb.hasTransactionByFullHash(fullHash);
+    return dp.dbs.getTransactionDb().hasTransactionByFullHash(fullHash);
   }
 
   @Override
   public int getTransactionCount() {
-    return blockchainStore.getTransactionCount();
+    return dp.blockchainStore.getTransactionCount();
   }
 
   @Override
   public Collection<Transaction> getAllTransactions() {
-    return blockchainStore.getAllTransactions();
+    return dp.blockchainStore.getAllTransactions();
   }
 
   @Override
@@ -173,6 +170,6 @@ public class BlockchainImpl implements Blockchain {
   @Override
   public Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype,
                                                  int blockTimestamp, int from, int to, boolean includeIndirectIncoming) {
-    return blockchainStore.getTransactions(account, numberOfConfirmations, type, subtype, blockTimestamp, from, to, includeIndirectIncoming);
+    return dp.blockchainStore.getTransactions(account, numberOfConfirmations, type, subtype, blockTimestamp, from, to, includeIndirectIncoming);
   }
 }

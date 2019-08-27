@@ -45,10 +45,10 @@ public class BurstLauncher {
                         .invoke(null, (Object) args);
             } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 logger.warn("Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless...");
-                Burst.main(args);
+                Burst.Companion.init(true);
             }
         } else {
-            Burst.main(args);
+            Burst.Companion.init(true);
         }
     }
 

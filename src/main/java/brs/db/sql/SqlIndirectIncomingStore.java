@@ -1,5 +1,6 @@
 package brs.db.sql;
 
+import brs.DependencyProvider;
 import brs.db.BurstKey;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.IndirectIncomingStore;
@@ -18,7 +19,7 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
 
     private final EntitySqlTable<IndirectIncoming> indirectIncomingTable;
 
-    public SqlIndirectIncomingStore(DerivedTableManager derivedTableManager) {
+    public SqlIndirectIncomingStore(DependencyProvider dp) {
         BurstKey.LinkKeyFactory<IndirectIncoming> indirectIncomingDbKeyFactory = new DbKey.LinkKeyFactory<IndirectIncoming>("account_id", "transaction_id") {
             @Override
             public BurstKey newKey(IndirectIncoming indirectIncoming) {
@@ -26,7 +27,7 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
             }
         };
 
-        this.indirectIncomingTable = new EntitySqlTable<IndirectIncoming>("indirect_incoming", INDIRECT_INCOMING, indirectIncomingDbKeyFactory, derivedTableManager) {
+        this.indirectIncomingTable = new EntitySqlTable<IndirectIncoming>("indirect_incoming", INDIRECT_INCOMING, indirectIncomingDbKeyFactory, dp) {
             @Override
             protected IndirectIncoming load(DSLContext ctx, Record rs) {
                 return new IndirectIncoming(rs.get(INDIRECT_INCOMING.ACCOUNT_ID), rs.get(INDIRECT_INCOMING.TRANSACTION_ID), rs.get(INDIRECT_INCOMING.HEIGHT));

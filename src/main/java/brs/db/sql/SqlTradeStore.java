@@ -1,5 +1,6 @@
 package brs.db.sql;
 
+import brs.DependencyProvider;
 import brs.Trade;
 import brs.db.BurstKey;
 import brs.db.store.DerivedTableManager;
@@ -25,8 +26,8 @@ public class SqlTradeStore implements TradeStore {
 
   private final EntitySqlTable<Trade> tradeTable;
 
-  public SqlTradeStore(DerivedTableManager derivedTableManager) {
-    tradeTable = new EntitySqlTable<Trade>("trade", TRADE, tradeDbKeyFactory, derivedTableManager) {
+  public SqlTradeStore(DependencyProvider dp) {
+    tradeTable = new EntitySqlTable<Trade>("trade", TRADE, tradeDbKeyFactory, dp) {
 
       @Override
       protected Trade load(DSLContext ctx, Record record) {

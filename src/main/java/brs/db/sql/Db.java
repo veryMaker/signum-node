@@ -1,6 +1,7 @@
 package brs.db.sql;
 
 import brs.Burst;
+import brs.DependencyProvider;
 import brs.db.BurstKey;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.Dbs;
@@ -31,6 +32,7 @@ import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+// TODO refactor this so that it is not all static
 public final class Db {
 
   private static final Logger logger = LoggerFactory.getLogger(Db.class);
@@ -41,24 +43,24 @@ public final class Db {
   private static final ThreadLocal<Map<String, Map<BurstKey, Object>>> transactionCaches = new ThreadLocal<>();
   private static final ThreadLocal<Map<String, Map<BurstKey, Object>>> transactionBatches = new ThreadLocal<>();
 
-  private static DBCacheManagerImpl dbCacheManager;
+  private static DependencyProvider dp;
 
-  public static void init(PropertyService propertyService, DBCacheManagerImpl dbCacheManager) {
-    Db.dbCacheManager = dbCacheManager;
+  public static void init(DependencyProvider dp) {
+    Db.dp = dp;
 
     String dbUrl;
     String dbUsername;
     String dbPassword;
 
-    if (Burst.getPropertyService().get(Props.DEV_TESTNET)) {
-      dbUrl = propertyService.get(Props.DEV_DB_URL);
-      dbUsername = propertyService.get(Props.DEV_DB_USERNAME);
-      dbPassword = propertyService.get(Props.DEV_DB_PASSWORD);
+    if (dp.propertyService.get(Props.DEV_TESTNET)) {
+      dbUrl = dp.propertyService.get(Props.DEV_DB_URL);
+      dbUsername = dp.propertyService.get(Props.DEV_DB_USERNAME);
+      dbPassword = dp.propertyService.get(Props.DEV_DB_PASSWORD);
     }
     else {
-      dbUrl = propertyService.get(Props.DB_URL);
-      dbUsername = propertyService.get(Props.DB_USERNAME);
-      dbPassword = propertyService.get(Props.DB_PASSWORD);
+      dbUrl = dp.propertyService.get(Props.DB_URL);
+      dbUsername = dp.propertyService.get(Props.DB_USERNAME);
+      dbPassword = dp.propertyService.get(Props.DB_PASSWORD);
     }
     dialect = JDBCUtils.dialect(dbUrl);
 
@@ -71,7 +73,7 @@ public final class Db {
       if (dbPassword != null)
         config.setPassword(dbPassword);
 
-      config.setMaximumPoolSize(propertyService.get(Props.DB_CONNECTIONS));
+      config.setMaximumPoolSize(dp.propertyService.get(Props.DB_CONNECTIONS));
 
       FluentConfiguration flywayBuilder = Flyway.configure()
               .dataSource(dbUrl, dbUsername, dbPassword)
@@ -149,7 +151,7 @@ public final class Db {
 
   public static Dbs getDbsByDatabaseType() {
     logger.info("Using SQL Backend with Dialect {}", dialect.getName());
-    return new SqlDbs();
+    return new SqlDbs(dp);
   }
 
 
@@ -168,7 +170,7 @@ public final class Db {
     if (dialect == SQLDialect.H2) {
       try ( Connection con = cp.getConnection(); Statement stmt = con.createStatement() ) {
         // COMPACT is not giving good result.
-        if(Burst.getPropertyService().get(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
+        if(dp.propertyService.get(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
           stmt.execute("SHUTDOWN DEFRAG");
         } else {
           stmt.execute("SHUTDOWN");
@@ -296,7 +298,7 @@ public final class Db {
     }
     transactionCaches.get().clear();
     transactionBatches.get().clear();
-    dbCacheManager.flushCache();
+    dp.dbCacheManager.flushCache();
   }
 
   public static void endTransaction() {
@@ -304,11 +306,11 @@ public final class Db {
     if (con == null) {
       throw new IllegalStateException("Not in transaction");
     }
-    localConnection.set(null);
+    localConnection.remove();
     transactionCaches.get().clear();
-    transactionCaches.set(null);
+    transactionCaches.remove();
     transactionBatches.get().clear();
-    transactionBatches.set(null);
+    transactionBatches.remove();
     DbUtils.close(con);
   }
 

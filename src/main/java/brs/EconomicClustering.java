@@ -1,5 +1,6 @@
 package brs;
 
+import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxValues;
 import brs.util.JSON;
 import org.slf4j.Logger;
@@ -23,20 +24,20 @@ public final class EconomicClustering {
 
   private static final Logger logger = LoggerFactory.getLogger(EconomicClustering.class);
 
-  private final Blockchain blockchain;
+  private final DependencyProvider dp;
 
-  public EconomicClustering(Blockchain blockchain) {
-    this.blockchain = blockchain;
+  public EconomicClustering(DependencyProvider dp) {
+    this.dp = dp;
   }
 
   public Block getECBlock(int timestamp) {
-    Block block = blockchain.getLastBlock();
+    Block block = dp.blockchain.getLastBlock();
     if (timestamp < block.getTimestamp() - 15) {
       throw new IllegalArgumentException("Timestamp cannot be more than 15 s earlier than last block timestamp: " + block.getTimestamp());
     }
     int distance = 0;
     while (block.getTimestamp() > timestamp - Constants.EC_RULE_TERMINATOR && distance < Constants.EC_BLOCK_DISTANCE_LIMIT) {
-      block = blockchain.getBlock(block.getPreviousBlockId());
+      block = dp.blockchain.getBlock(block.getPreviousBlockId());
       distance += 1;
     }
     return block;
@@ -44,16 +45,16 @@ public final class EconomicClustering {
 
   public boolean verifyFork(Transaction transaction) {
     try {
-      if (!Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE)) {
+      if (!dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE)) {
         return true;
       }
       if (transaction.getReferencedTransactionFullHash() != null) {
         return true;
       }
-      if (blockchain.getHeight() < Constants.EC_CHANGE_BLOCK_1 && blockchain.getHeight() - transaction.getECBlockHeight() > Constants.EC_BLOCK_DISTANCE_LIMIT) {
+      if (dp.blockchain.getHeight() < Constants.EC_CHANGE_BLOCK_1 && dp.blockchain.getHeight() - transaction.getECBlockHeight() > Constants.EC_BLOCK_DISTANCE_LIMIT) {
         return false;
       }
-      Block ecBlock = blockchain.getBlock(transaction.getECBlockId());
+      Block ecBlock = dp.blockchain.getBlock(transaction.getECBlockId());
       return ecBlock != null && ecBlock.getHeight() == transaction.getECBlockHeight();
     }
     catch ( NullPointerException e ) {
@@ -63,5 +64,4 @@ public final class EconomicClustering {
       throw e;
     }
   }
-
 }

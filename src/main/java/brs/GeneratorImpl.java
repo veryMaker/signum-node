@@ -33,14 +33,10 @@ public class GeneratorImpl implements Generator {
   private final Listeners<GeneratorState, Event> listeners = new Listeners<>();
   private final ConcurrentMap<Long, GeneratorStateImpl> generators = new ConcurrentHashMap<>();
   private final BurstCrypto burstCrypto = BurstCrypto.getInstance();
-  private final Blockchain blockchain;
-  private final TimeService timeService;
-  private final FluxCapacitor fluxCapacitor;
+  private final DependencyProvider dp;
 
-  public GeneratorImpl(Blockchain blockchain, TimeService timeService, FluxCapacitor fluxCapacitor) {
-    this.blockchain = blockchain;
-    this.timeService = timeService;
-    this.fluxCapacitor = fluxCapacitor;
+  public GeneratorImpl(DependencyProvider dp) {
+    this.dp = dp;
   }
 
   private Runnable generateBlockThread(BlockchainProcessor blockchainProcessor) {
@@ -49,7 +45,7 @@ public class GeneratorImpl implements Generator {
         return;
       }
       try {
-        long currentBlock = blockchain.getLastBlock().getHeight();
+        long currentBlock = dp.blockchain.getLastBlock().getHeight();
         Iterator<Entry<Long, GeneratorStateImpl>> it = generators.entrySet().iterator();
         while (it.hasNext() && !Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
           Entry<Long, GeneratorStateImpl> generator = it.next();
@@ -66,8 +62,8 @@ public class GeneratorImpl implements Generator {
   }
 
   @Override
-  public void generateForBlockchainProcessor(ThreadPool threadPool, BlockchainProcessor blockchainProcessor) {
-    threadPool.scheduleThread("GenerateBlocks", generateBlockThread(blockchainProcessor), 500, TimeUnit.MILLISECONDS);
+  public void generateForBlockchainProcessor(DependencyProvider dp) {
+    dp.threadPool.scheduleThread("GenerateBlocks", generateBlockThread(dp.blockchainProcessor), 500, TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -124,7 +120,7 @@ public class GeneratorImpl implements Generator {
   }
 
   private int getPocVersion(int blockHeight) {
-    return fluxCapacitor.getValue(FluxValues.POC2, blockHeight) ? 2 : 1;
+    return dp.fluxCapacitor.getValue(FluxValues.POC2, blockHeight) ? 2 : 1;
   }
 
   @Override
@@ -157,7 +153,7 @@ public class GeneratorImpl implements Generator {
       this.accountId = account;
       this.nonce = nonce;
 
-      Block lastBlock = blockchain.getLastBlock();
+      Block lastBlock = dp.blockchain.getLastBlock();
 
       this.block = (long) lastBlock.getHeight() + 1;
 
@@ -192,9 +188,9 @@ public class GeneratorImpl implements Generator {
     }
 
     private void forge(BlockchainProcessor blockchainProcessor) throws BlockchainProcessor.BlockNotAcceptedException {
-      Block lastBlock = blockchain.getLastBlock();
+      Block lastBlock = dp.blockchain.getLastBlock();
 
-      int elapsedTime = timeService.getEpochTime() - lastBlock.getTimestamp();
+      int elapsedTime = dp.timeService.getEpochTime() - lastBlock.getTimestamp();
       if (BigInteger.valueOf(elapsedTime).compareTo(deadline) > 0) {
         blockchainProcessor.generateBlock(secretPhrase, publicKey, nonce);
       }
@@ -202,25 +198,25 @@ public class GeneratorImpl implements Generator {
   }
 
   public static class MockGenerator extends GeneratorImpl {
-    private final PropertyService propertyService;
-    public MockGenerator(PropertyService propertyService, Blockchain blockchain, TimeService timeService, FluxCapacitor fluxCapacitor) {
-      super(blockchain, timeService, fluxCapacitor);
-      this.propertyService = propertyService;
+    private final DependencyProvider dp;
+    public MockGenerator(DependencyProvider dp) {
+      super(dp);
+      this.dp = dp;
     }
 
     @Override
     public BigInteger calculateHit(long accountId, long nonce, byte[] genSig, int scoop, int blockHeight) {
-      return BigInteger.valueOf(propertyService.get(Props.DEV_MOCK_MINING_DEADLINE));
+      return BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE));
     }
 
     @Override
     public BigInteger calculateHit(long accountId, long nonce, byte[] genSig, byte[] scoopData) {
-      return BigInteger.valueOf(propertyService.get(Props.DEV_MOCK_MINING_DEADLINE));
+      return BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE));
     }
 
     @Override
     public BigInteger calculateDeadline(long accountId, long nonce, byte[] genSig, int scoop, long baseTarget, int blockHeight) {
-      return BigInteger.valueOf(propertyService.get(Props.DEV_MOCK_MINING_DEADLINE));
+      return BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE));
     }
   }
 }

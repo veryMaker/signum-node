@@ -12,7 +12,7 @@ import brs.http.JSONResponses.INCORRECT_ACCOUNT_NAME_LENGTH
 import brs.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.http.common.Parameters.NAME_PARAMETER
 
-internal class SetAccountInfo(private val parameterService: ParameterService, private val blockchain: Blockchain, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.ACCOUNTS, APITag.CREATE_TRANSACTION), apiTransactionManager, NAME_PARAMETER, DESCRIPTION_PARAMETER) {
+internal class SetAccountInfo(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ACCOUNTS, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
@@ -28,8 +28,8 @@ internal class SetAccountInfo(private val parameterService: ParameterService, pr
             return INCORRECT_ACCOUNT_DESCRIPTION_LENGTH
         }
 
-        val account = parameterService.getSenderAccount(req)
-        val attachment = Attachment.MessagingAccountInfo(name, description, blockchain.height)
+        val account = dp.parameterService.getSenderAccount(req)
+        val attachment = Attachment.MessagingAccountInfo(name, description, dp.blockchain.height)
         return createTransaction(req, account, attachment)
 
     }

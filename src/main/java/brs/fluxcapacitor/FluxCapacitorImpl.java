@@ -1,6 +1,7 @@
 package brs.fluxcapacitor;
 
 import brs.Blockchain;
+import brs.DependencyProvider;
 import brs.props.PropertyService;
 import brs.props.Props;
 
@@ -15,9 +16,9 @@ public class FluxCapacitorImpl implements FluxCapacitor {
     // Map of Flux Value -> Change Height -> Index of ValueChange in FluxValue. Used as a cache.
     private final Map<FluxValue<?>, Map<Integer, Integer>> valueChangesPerFluxValue = new HashMap<>();
 
-    public FluxCapacitorImpl(Blockchain blockchain, PropertyService propertyService) {
-        this.propertyService = propertyService;
-        this.blockchain = blockchain;
+    public FluxCapacitorImpl(DependencyProvider dp) {
+        this.propertyService = dp.propertyService;
+        this.blockchain = dp.blockchain;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package brs.db.sql;
 
+import brs.DependencyProvider;
 import brs.db.DerivedTable;
 import brs.db.store.DerivedTableManager;
 import org.jooq.Field;
@@ -15,11 +16,11 @@ public abstract class DerivedSqlTable implements DerivedTable {
   final Field<Integer> heightField;
   final Field<Boolean> latestField;
 
-  DerivedSqlTable(String table, TableImpl<?> tableClass, DerivedTableManager derivedTableManager) {
+  DerivedSqlTable(String table, TableImpl<?> tableClass, DependencyProvider dp) {
     this.table      = table;
     this.tableClass = tableClass;
     logger.trace("Creating derived table for {}", table);
-    derivedTableManager.registerDerivedTable(this);
+    dp.derivedTableManager.registerDerivedTable(this);
     this.heightField = tableClass.field("height", Integer.class);
     this.latestField = tableClass.field("latest", Boolean.class);
   }

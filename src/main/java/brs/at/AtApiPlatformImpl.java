@@ -2,6 +2,7 @@ package brs.at;
 
 import brs.Appendix;
 import brs.Burst;
+import brs.DependencyProvider;
 import brs.Transaction;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
@@ -19,6 +20,12 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
     private static final AtApiPlatformImpl instance = new AtApiPlatformImpl();
 
+    // TODO don't store static dp
+    private static DependencyProvider dp;
+
+    public static void init(DependencyProvider dp) {
+        AtApiPlatformImpl.dp = dp;
+    }
 
     private AtApiPlatformImpl() {
     }
@@ -27,12 +34,13 @@ public class AtApiPlatformImpl extends AtApiImpl {
         return instance;
     }
 
-    private static Long findTransaction(int startHeight, int endHeight, Long atID, int numOfTx, long minAmount) {
-        return Burst.getStores().getAtStore().findTransaction(startHeight, endHeight, atID, numOfTx, minAmount);
+    // TODO remove methods taking dp
+    private static Long findTransaction(DependencyProvider dp, int startHeight, int endHeight, Long atID, int numOfTx, long minAmount) {
+        return dp.atStore.findTransaction(startHeight, endHeight, atID, numOfTx, minAmount);
     }
 
-    private static int findTransactionHeight(Long transactionId, int height, Long atID, long minAmount) {
-        return Burst.getStores().getAtStore().findTransactionHeight(transactionId, height, atID, minAmount);
+    private static int findTransactionHeight(DependencyProvider dp, Long transactionId, int height, Long atID, long minAmount) {
+        return dp.atStore.findTransactionHeight(transactionId, height, atID, minAmount);
     }
 
     @Override
@@ -57,7 +65,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
         ByteBuffer b = ByteBuffer.allocate(state.getA1().length * 4);
         b.order(ByteOrder.LITTLE_ENDIAN);
 
-        b.put(Burst.getBlockchain().getBlockAtHeight(state.getHeight() - 1).getBlockHash());
+        b.put(dp.blockchain.getBlockAtHeight(state.getHeight() - 1).getBlockHash());
 
         b.clear();
 
@@ -84,7 +92,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
         byte[] b = state.getId();
 
-        long tx = findTransaction(height, state.getHeight(), AtApiHelper.getLong(b), numOfTx, state.minActivationAmount());
+        long tx = findTransaction(dp, height, state.getHeight(), AtApiHelper.getLong(b), numOfTx, state.minActivationAmount());
         logger.debug("tx with id {} found", tx);
         clearA(state);
         state.setA1(AtApiHelper.getByteArray(tx));
@@ -95,7 +103,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
     public long getTypeForTxInA(AtMachineState state) {
         long txid = AtApiHelper.getLong(state.getA1());
 
-        Transaction tx = Burst.getBlockchain().getTransaction(txid);
+        Transaction tx = dp.blockchain.getTransaction(txid);
 
         if (tx == null || (tx.getHeight() >= state.getHeight())) {
             return -1;
@@ -112,13 +120,13 @@ public class AtApiPlatformImpl extends AtApiImpl {
     public long getAmountForTxInA(AtMachineState state) {
         long txId = AtApiHelper.getLong(state.getA1());
 
-        Transaction tx = Burst.getBlockchain().getTransaction(txId);
+        Transaction tx = dp.blockchain.getTransaction(txId);
 
         if (tx == null || (tx.getHeight() >= state.getHeight())) {
             return -1;
         }
 
-        if ((tx.getMessage() == null || Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) && state.minActivationAmount() <= tx.getAmountNQT()) {
+        if ((tx.getMessage() == null || dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) && state.minActivationAmount() <= tx.getAmountNQT()) {
             return tx.getAmountNQT() - state.minActivationAmount();
         }
 
@@ -129,7 +137,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
     public long getTimestampForTxInA(AtMachineState state) {
         long txId = AtApiHelper.getLong(state.getA1());
         logger.debug("get timestamp for tx with id {} found", txId);
-        Transaction tx = Burst.getBlockchain().getTransaction(txId);
+        Transaction tx = dp.blockchain.getTransaction(txId);
 
         if (tx == null || (tx.getHeight() >= state.getHeight())) {
             return -1;
@@ -137,7 +145,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
         byte[] b = state.getId();
         int blockHeight = tx.getHeight();
-        int txHeight = findTransactionHeight(txId, blockHeight, AtApiHelper.getLong(b), state.minActivationAmount());
+        int txHeight = findTransactionHeight(dp, txId, blockHeight, AtApiHelper.getLong(b), state.minActivationAmount());
 
         return AtApiHelper.getLongTimestamp(blockHeight, txHeight);
     }
@@ -146,7 +154,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
     public long getRandomIdForTxInA(AtMachineState state) {
         long txId = AtApiHelper.getLong(state.getA1());
 
-        Transaction tx = Burst.getBlockchain().getTransaction(txId);
+        Transaction tx = dp.blockchain.getTransaction(txId);
 
         if (tx == null || (tx.getHeight() >= state.getHeight())) {
             return -1;
@@ -168,7 +176,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
         ByteBuffer bf = ByteBuffer.allocate(32 + Long.SIZE + senderPublicKey.length);
         bf.order(ByteOrder.LITTLE_ENDIAN);
-        bf.put(Burst.getBlockchain().getBlockAtHeight(blockHeight - 1).getGenerationSignature());
+        bf.put(dp.blockchain.getBlockAtHeight(blockHeight - 1).getGenerationSignature());
         bf.putLong(tx.getId());
         bf.put(senderPublicKey);
 
@@ -182,7 +190,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
     public void messageFromTxInAToB(AtMachineState state) {
         long txid = AtApiHelper.getLong(state.getA1());
 
-        Transaction tx = Burst.getBlockchain().getTransaction(txid);
+        Transaction tx = dp.blockchain.getTransaction(txid);
         if (tx != null && tx.getHeight() >= state.getHeight()) {
             tx = null;
         }
@@ -223,7 +231,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
         clearB(state);
 
-        Transaction tx = Burst.getBlockchain().getTransaction(txId);
+        Transaction tx = dp.blockchain.getTransaction(txId);
         if (tx != null && tx.getHeight() >= state.getHeight()) {
             tx = null;
         }
@@ -248,7 +256,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
         ByteBuffer b = ByteBuffer.allocate(state.getA1().length * 4);
         b.order(ByteOrder.LITTLE_ENDIAN);
 
-        b.put(Burst.getBlockchain().getBlockAtHeight(state.getHeight() - 1).getGenerationSignature());
+        b.put(dp.blockchain.getBlockAtHeight(state.getHeight() - 1).getGenerationSignature());
 
         byte[] temp = new byte[8];
 
@@ -267,7 +275,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
     @Override
     public long getCurrentBalance(AtMachineState state) {
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) {
+        if (!dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) {
             return 0;
         }
 
@@ -276,7 +284,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
     @Override
     public long getPreviousBalance(AtMachineState state) {
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) {
+        if (!dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) {
             return 0;
         }
 

@@ -1,6 +1,7 @@
 package brs.db.cache;
 
 import brs.Account;
+import brs.DependencyProvider;
 import brs.db.BurstKey;
 import brs.statistics.StatisticsManagerImpl;
 import org.ehcache.Cache;
@@ -14,18 +15,14 @@ import org.ehcache.config.builders.ResourcePoolsBuilder;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DBCacheManagerImpl {
-
+public class DBCacheManagerImpl { // TODO interface
   private final CacheManager cacheManager;
-
-  private final StatisticsManagerImpl statisticsManager;
-
+  private final DependencyProvider dp;
   private final boolean statisticsEnabled;
-
   private final HashMap<String, CacheConfiguration<BurstKey, ?>> caches = new HashMap<>();
 
-  public DBCacheManagerImpl(StatisticsManagerImpl statisticsManager) {
-    this.statisticsManager = statisticsManager;
+  public DBCacheManagerImpl(DependencyProvider dp) {
+    this.dp = dp;
     statisticsEnabled = true;
 
     caches.put("account", CacheConfigurationBuilder.newCacheConfigurationBuilder(BurstKey.class, Account.class, ResourcePoolsBuilder.heap(8192)).build());
@@ -49,7 +46,7 @@ public class DBCacheManagerImpl {
 
   public <V> Cache<BurstKey, V> getCache(String name, Class<V> valueClass) {
     Cache<BurstKey, V> cache = getEHCache(name, valueClass);
-    return statisticsEnabled ? new StatisticsCache<>(cache, name, statisticsManager) : cache;
+    return statisticsEnabled ? new StatisticsCache<>(cache, name, dp.statisticsManager) : cache;
   }
 
   public void flushCache() {

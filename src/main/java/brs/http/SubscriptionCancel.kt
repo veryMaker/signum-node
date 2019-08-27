@@ -13,11 +13,11 @@ import brs.http.common.Parameters.SUBSCRIPTION_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
-internal class SubscriptionCancel(private val parameterService: ParameterService, private val subscriptionService: SubscriptionService, private val blockchain: Blockchain, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), apiTransactionManager, SUBSCRIPTION_PARAMETER) {
+internal class SubscriptionCancel(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), SUBSCRIPTION_PARAMETER) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val sender = parameterService.getSenderAccount(req)
+        val sender = dp.parameterService.getSenderAccount(req)
 
         val subscriptionString = Convert.emptyToNull(req.getParameter(SUBSCRIPTION_PARAMETER))
         if (subscriptionString == null) {
@@ -37,7 +37,7 @@ internal class SubscriptionCancel(private val parameterService: ParameterService
             return response
         }
 
-        val subscription = subscriptionService.getSubscription(subscriptionId)
+        val subscription = dp.subscriptionService.getSubscription(subscriptionId)
         if (subscription == null) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 5)
@@ -52,7 +52,7 @@ internal class SubscriptionCancel(private val parameterService: ParameterService
             return response
         }
 
-        val attachment = Attachment.AdvancedPaymentSubscriptionCancel(subscription.getId(), blockchain.height)
+        val attachment = Attachment.AdvancedPaymentSubscriptionCancel(subscription.getId(), dp.blockchain.height)
 
         return createTransaction(req, sender, null, 0, attachment)
     }

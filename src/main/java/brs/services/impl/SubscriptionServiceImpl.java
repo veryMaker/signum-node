@@ -16,28 +16,19 @@ import java.util.*;
 
 public class SubscriptionServiceImpl implements SubscriptionService {
 
-  private final SubscriptionStore subscriptionStore;
+  private final DependencyProvider dp;
+
   private final VersionedEntityTable<Subscription> subscriptionTable;
   private final LongKeyFactory<Subscription> subscriptionDbKeyFactory;
-
-  private final Blockchain blockchain;
-  private final AliasService aliasService;
-  private final AccountService accountService;
-
-  private final TransactionDb transactionDb;
 
   private static final List<Transaction> paymentTransactions = new ArrayList<>();
   private static final List<Subscription> appliedSubscriptions = new ArrayList<>();
   private static final Set<Long> removeSubscriptions = new HashSet<>();
 
-  public SubscriptionServiceImpl(SubscriptionStore subscriptionStore, TransactionDb transactionDb, Blockchain blockchain, AliasService aliasService, AccountService accountService) {
-    this.subscriptionStore = subscriptionStore;
-    this.subscriptionTable = subscriptionStore.getSubscriptionTable();
-    this.subscriptionDbKeyFactory = subscriptionStore.getSubscriptionDbKeyFactory();
-    this.transactionDb = transactionDb;
-    this.blockchain = blockchain;
-    this.aliasService = aliasService;
-    this.accountService = accountService;
+  public SubscriptionServiceImpl(DependencyProvider dp) {
+    this.dp = dp;
+    this.subscriptionTable = dp.subscriptionStore.getSubscriptionTable();
+    this.subscriptionDbKeyFactory = dp.subscriptionStore.getSubscriptionDbKeyFactory();
   }
 
   @Override
@@ -47,12 +38,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
   @Override
   public Collection<Subscription> getSubscriptionsByParticipant(Long accountId) {
-    return subscriptionStore.getSubscriptionsByParticipant(accountId);
+    return dp.subscriptionStore.getSubscriptionsByParticipant(accountId);
   }
 
   @Override
   public Collection<Subscription> getSubscriptionsToId(Long accountId) {
-    return subscriptionStore.getSubscriptionsToId(accountId);
+    return dp.subscriptionStore.getSubscriptionsToId(accountId);
   }
 
   @Override
@@ -65,11 +56,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
   @Override
   public boolean isEnabled() {
-    if (blockchain.getLastBlock().getHeight() >= Constants.BURST_SUBSCRIPTION_START_BLOCK) {
+    if (dp.blockchain.getLastBlock().getHeight() >= Constants.BURST_SUBSCRIPTION_START_BLOCK) {
       return true;
     }
 
-    final Alias subscriptionEnabled = aliasService.getAlias("featuresubscription");
+    final Alias subscriptionEnabled = dp.aliasService.getAlias("featuresubscription");
     return subscriptionEnabled != null && subscriptionEnabled.getAliasURI().equals("enabled");
   }
 
@@ -80,8 +71,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
       apply(block, blockchainHeight, subscription);
       subscriptionTable.insert(subscription);
     }
-    if (! paymentTransactions.isEmpty()) {
-      transactionDb.saveTransactions(paymentTransactions);
+    if (!paymentTransactions.isEmpty()) {
+      dp.dbs.getTransactionDb().saveTransactions(paymentTransactions);
     }
     removeSubscriptions.forEach(this::removeSubscription);
   }
@@ -102,7 +93,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   public long calculateFees(int timestamp) {
     long totalFeeNQT = 0;
     List<Subscription> appliedUnconfirmedSubscriptions = new ArrayList<>();
-    for (Subscription subscription : subscriptionStore.getUpdateSubscriptions(timestamp)){
+    for (Subscription subscription : dp.subscriptionStore.getUpdateSubscriptions(timestamp)){
       if (removeSubscriptions.contains(subscription.getId())) {
         continue;
       }
@@ -133,7 +124,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   public long applyUnconfirmed(int timestamp) {
     appliedSubscriptions.clear();
     long totalFees = 0;
-    for (Subscription subscription : subscriptionStore.getUpdateSubscriptions(timestamp)) {
+    for (Subscription subscription : dp.subscriptionStore.getUpdateSubscriptions(timestamp)) {
       if (removeSubscriptions.contains(subscription.getId())) {
         continue;
       }
@@ -148,38 +139,38 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   private boolean applyUnconfirmed(Subscription subscription) {
-    Account sender = accountService.getAccount(subscription.getSenderId());
+    Account sender = dp.accountService.getAccount(subscription.getSenderId());
     long totalAmountNQT = Convert.INSTANCE.safeAdd(subscription.getAmountNQT(), getFee());
 
     if (sender == null || sender.getUnconfirmedBalanceNQT() < totalAmountNQT) {
       return false;
     }
 
-    accountService.addToUnconfirmedBalanceNQT(sender, -totalAmountNQT);
+    dp.accountService.addToUnconfirmedBalanceNQT(sender, -totalAmountNQT);
 
     return true;
   }
 
   private void undoUnconfirmed(Subscription subscription) {
-    Account sender = accountService.getAccount(subscription.getSenderId());
+    Account sender = dp.accountService.getAccount(subscription.getSenderId());
     long totalAmountNQT = Convert.INSTANCE.safeAdd(subscription.getAmountNQT(), getFee());
 
     if (sender != null) {
-      accountService.addToUnconfirmedBalanceNQT(sender, totalAmountNQT);
+      dp.accountService.addToUnconfirmedBalanceNQT(sender, totalAmountNQT);
     }
   }
 
   private void apply(Block block, int blockchainHeight, Subscription subscription) {
-    Account sender = accountService.getAccount(subscription.getSenderId());
-    Account recipient = accountService.getAccount(subscription.getRecipientId());
+    Account sender = dp.accountService.getAccount(subscription.getSenderId());
+    Account recipient = dp.accountService.getAccount(subscription.getRecipientId());
 
     long totalAmountNQT = Convert.INSTANCE.safeAdd(subscription.getAmountNQT(), getFee());
 
-    accountService.addToBalanceNQT(sender, -totalAmountNQT);
-    accountService.addToBalanceAndUnconfirmedBalanceNQT(recipient, subscription.getAmountNQT());
+    dp.accountService.addToBalanceNQT(sender, -totalAmountNQT);
+    dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(recipient, subscription.getAmountNQT());
 
     Attachment.AbstractAttachment attachment = new Attachment.AdvancedPaymentSubscriptionPayment(subscription.getId(), blockchainHeight);
-    Transaction.Builder builder = new Transaction.Builder((byte) 1,
+    Transaction.Builder builder = new Transaction.Builder(dp, (byte) 1,
         sender.getPublicKey(), subscription.getAmountNQT(),
         getFee(),
         subscription.getTimeNext(), (short) 1440, attachment);
@@ -193,7 +184,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
           .ecBlockHeight(0)
           .ecBlockId(0L);
       Transaction transaction = builder.build();
-      if (!transactionDb.hasTransaction(transaction.getId())) {
+      if (!dp.dbs.getTransactionDb().hasTransaction(transaction.getId())) {
         paymentTransactions.add(transaction);
       }
     } catch (NotValidException e) {

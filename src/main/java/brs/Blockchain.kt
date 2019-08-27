@@ -41,4 +41,6 @@ interface Blockchain {
     fun getTransactions(account: Account, type: Byte, subtype: Byte, blockImplTimestamp: Int, includeIndirectIncoming: Boolean): Collection<Transaction>
 
     fun getTransactions(account: Account, numberOfConfirmations: Int, type: Byte, subtype: Byte, blockImplTimestamp: Int, from: Int, to: Int, includeIndirectIncoming: Boolean): Collection<Transaction>
+
+    fun setLastBlock(previousBlock: Block, block: Block)
 }

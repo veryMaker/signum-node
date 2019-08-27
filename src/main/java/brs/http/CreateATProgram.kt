@@ -23,7 +23,7 @@ import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
-internal class CreateATProgram(private val parameterService: ParameterService, private val blockchain: Blockchain, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.AT, APITag.CREATE_TRANSACTION), apiTransactionManager, NAME_PARAMETER, DESCRIPTION_PARAMETER, CREATION_BYTES_PARAMETER, CODE_PARAMETER, DATA_PARAMETER, DPAGES_PARAMETER, CSPAGES_PARAMETER, USPAGES_PARAMETER, MIN_ACTIVATION_AMOUNT_NQT_PARAMETER) {
+internal class CreateATProgram(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AT, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, CREATION_BYTES_PARAMETER, CODE_PARAMETER, DATA_PARAMETER, DPAGES_PARAMETER, CSPAGES_PARAMETER, USPAGES_PARAMETER, MIN_ACTIVATION_AMOUNT_NQT_PARAMETER) {
 
     private val logger = LoggerFactory.getLogger(CreateATProgram::class.java)
 
@@ -87,7 +87,7 @@ internal class CreateATProgram(private val parameterService: ParameterService, p
 
                 val creation = ByteBuffer.allocate(creationLength)
                 creation.order(ByteOrder.LITTLE_ENDIAN)
-                creation.putShort(AtConstants.getInstance().atVersion(blockchain.height))
+                creation.putShort(AtConstants.getInstance().atVersion(dp.blockchain.height))
                 creation.putShort(0.toShort())
                 creation.putShort(cpages.toShort())
                 creation.putShort(dpages.toShort())
@@ -119,8 +119,8 @@ internal class CreateATProgram(private val parameterService: ParameterService, p
             creationBytes = ParameterParser.getCreationBytes(req)
         }
 
-        val account = parameterService.getSenderAccount(req)
-        val attachment = Attachment.AutomatedTransactionsCreation(name, description!!, creationBytes!!, blockchain.height)
+        val account = dp.parameterService.getSenderAccount(req)
+        val attachment = Attachment.AutomatedTransactionsCreation(name, description!!, creationBytes!!, dp.blockchain.height)
 
         logger.debug("AT {} added successfully", name)
         return createTransaction(req, account, attachment)

@@ -14,7 +14,7 @@ import brs.http.common.Parameters.ESCROW_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
-internal class EscrowSign internal constructor(private val parameterService: ParameterService, private val blockchain: Blockchain, private val escrowService: EscrowService, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), apiTransactionManager, ESCROW_PARAMETER, DECISION_PARAMETER) {
+internal class EscrowSign internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), ESCROW_PARAMETER, DECISION_PARAMETER) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
@@ -28,7 +28,7 @@ internal class EscrowSign internal constructor(private val parameterService: Par
             return response
         }
 
-        val escrow = escrowService.getEscrowTransaction(escrowId)
+        val escrow = dp.escrowService.getEscrowTransaction(escrowId)
         if (escrow == null) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 5)
@@ -44,7 +44,7 @@ internal class EscrowSign internal constructor(private val parameterService: Par
             return response
         }
 
-        val sender = parameterService.getSenderAccount(req)
+        val sender = dp.parameterService.getSenderAccount(req)
         if (!isValidUser(escrow, sender)) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 5)
@@ -66,7 +66,7 @@ internal class EscrowSign internal constructor(private val parameterService: Par
             return response
         }
 
-        val attachment = Attachment.AdvancedPaymentEscrowSign(escrow.getId(), decision, blockchain.height)
+        val attachment = Attachment.AdvancedPaymentEscrowSign(escrow.getId(), decision, dp.blockchain.height)
 
         return createTransaction(req, sender, null, 0, attachment)
     }
@@ -74,6 +74,6 @@ internal class EscrowSign internal constructor(private val parameterService: Par
     private fun isValidUser(escrow: Escrow, sender: Account): Boolean {
         return escrow.getSenderId() == sender.getId() ||
                 escrow.getRecipientId() == sender.getId() ||
-                escrowService.isIdSigner(sender.getId(), escrow)
+                dp.escrowService.isIdSigner(sender.getId(), escrow)
     }
 }

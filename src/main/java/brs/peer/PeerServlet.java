@@ -2,6 +2,7 @@ package brs.peer;
 
 import brs.Blockchain;
 import brs.BlockchainProcessor;
+import brs.DependencyProvider;
 import brs.TransactionProcessor;
 import brs.services.AccountService;
 import brs.services.TimeService;
@@ -56,24 +57,21 @@ public final class PeerServlet extends HttpServlet {
 
   private final Map<String,PeerRequestHandler> peerRequestHandlers;
 
-  public PeerServlet(TimeService timeService, AccountService accountService,
-                     Blockchain blockchain,
-                     TransactionProcessor transactionProcessor,
-                     BlockchainProcessor blockchainProcessor) {
+  public PeerServlet(DependencyProvider dp) { // TODO each one should take dp
     final Map<String,PeerRequestHandler> map = new HashMap<>();
     map.put("addPeers", AddPeers.instance);
-    map.put("getCumulativeDifficulty", new GetCumulativeDifficulty(blockchain));
-    map.put("getInfo", new GetInfo(timeService));
-    map.put("getMilestoneBlockIds", new GetMilestoneBlockIds(blockchain));
-    map.put("getNextBlockIds", new GetNextBlockIds(blockchain));
-    map.put("getBlocksFromHeight", new GetBlocksFromHeight(blockchain));
-    map.put("getNextBlocks", new GetNextBlocks(blockchain));
+    map.put("getCumulativeDifficulty", new GetCumulativeDifficulty(dp.blockchain));
+    map.put("getInfo", new GetInfo(dp.timeService));
+    map.put("getMilestoneBlockIds", new GetMilestoneBlockIds(dp.blockchain));
+    map.put("getNextBlockIds", new GetNextBlockIds(dp.blockchain));
+    map.put("getBlocksFromHeight", new GetBlocksFromHeight(dp.blockchain));
+    map.put("getNextBlocks", new GetNextBlocks(dp.blockchain));
     map.put("getPeers", GetPeers.instance);
-    map.put("getUnconfirmedTransactions", new GetUnconfirmedTransactions(transactionProcessor));
-    map.put("processBlock", new ProcessBlock(blockchain, blockchainProcessor));
-    map.put("processTransactions", new ProcessTransactions(transactionProcessor));
-    map.put("getAccountBalance", new GetAccountBalance(accountService));
-    map.put("getAccountRecentTransactions", new GetAccountRecentTransactions(accountService, blockchain));
+    map.put("getUnconfirmedTransactions", new GetUnconfirmedTransactions(dp.transactionProcessor));
+    map.put("processBlock", new ProcessBlock(dp.blockchain, dp.blockchainProcessor));
+    map.put("processTransactions", new ProcessTransactions(dp.transactionProcessor));
+    map.put("getAccountBalance", new GetAccountBalance(dp.accountService));
+    map.put("getAccountRecentTransactions", new GetAccountRecentTransactions(dp.accountService, dp.blockchain));
     peerRequestHandlers = Collections.unmodifiableMap(map);
   }
 

@@ -1,17 +1,14 @@
 package brs.assetexchange;
 
+import brs.*;
 import brs.Account.AccountAsset;
-import brs.Asset;
-import brs.AssetTransfer;
 import brs.Attachment.ColoredCoinsAskOrderPlacement;
 import brs.Attachment.ColoredCoinsAssetIssuance;
 import brs.Attachment.ColoredCoinsAssetTransfer;
 import brs.Attachment.ColoredCoinsBidOrderPlacement;
 import brs.Order.Ask;
 import brs.Order.Bid;
-import brs.Trade;
 import brs.Trade.Event;
-import brs.Transaction;
 import brs.db.store.*;
 import brs.services.AccountService;
 
@@ -27,12 +24,12 @@ public class AssetExchangeImpl implements AssetExchange {
   private final OrderServiceImpl orderService;
 
 
-  public AssetExchangeImpl(AccountService accountService, TradeStore tradeStore, AccountStore accountStore, AssetTransferStore assetTransferStore, AssetStore assetStore, OrderStore orderStore) {
-    this.tradeService = new TradeServiceImpl(tradeStore);
-    this.assetAccountService = new AssetAccountServiceImpl(accountStore);
-    this.assetTransferService = new AssetTransferServiceImpl(assetTransferStore);
-    this.assetService = new AssetServiceImpl(this.assetAccountService, tradeService, assetStore, assetTransferService);
-    this.orderService = new OrderServiceImpl(orderStore, accountService, tradeService);
+  public AssetExchangeImpl(DependencyProvider dp) {
+    this.tradeService = new TradeServiceImpl(dp.tradeStore);
+    this.assetAccountService = new AssetAccountServiceImpl(dp.accountStore);
+    this.assetTransferService = new AssetTransferServiceImpl(dp.assetTransferStore);
+    this.assetService = new AssetServiceImpl(this.assetAccountService, tradeService, dp.assetStore, assetTransferService);
+    this.orderService = new OrderServiceImpl(dp, tradeService);
   }
 
   @Override

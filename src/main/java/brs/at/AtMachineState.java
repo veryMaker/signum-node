@@ -8,6 +8,7 @@
 package brs.at;
 
 import brs.Burst;
+import brs.DependencyProvider;
 import brs.fluxcapacitor.FluxValues;
 
 import java.nio.ByteBuffer;
@@ -18,7 +19,7 @@ import java.util.TreeSet;
 
 
 public class AtMachineState {
-
+    protected final DependencyProvider dp;
     private final int creationBlockHeight;
     private final int sleepBetween;
     private final ByteBuffer apCode;
@@ -39,10 +40,11 @@ public class AtMachineState {
     private ByteBuffer apData;
     private int height;
 
-    protected AtMachineState(byte[] atId, byte[] creator, short version,
+    protected AtMachineState(DependencyProvider dp, byte[] atId, byte[] creator, short version,
                              byte[] stateBytes, int cSize, int dSize, int cUserStackBytes, int cCallStackBytes,
                              int creationBlockHeight, int sleepBetween,
                              boolean freezeWhenSameBalance, long minActivationAmount, byte[] apCode) {
+        this.dp = dp;
         this.atID = atId;
         this.creator = creator;
         this.version = version;
@@ -65,7 +67,8 @@ public class AtMachineState {
         transactions = new LinkedHashMap<>();
     }
 
-    protected AtMachineState(byte[] atId, byte[] creator, byte[] creationBytes, int height) {
+    protected AtMachineState(DependencyProvider dp, byte[] atId, byte[] creator, byte[] creationBytes, int height) {
+        this.dp = dp;
         this.version = AtConstants.getInstance().atVersion(height);
         this.atID = atId;
         this.creator = creator;
@@ -489,7 +492,7 @@ public class AtMachineState {
             ByteBuffer bytes = ByteBuffer.allocate(getSize());
             bytes.order(ByteOrder.LITTLE_ENDIAN);
 
-            if (Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2)) {
+            if (dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_2)) {
                 flags[0] = (byte) ((running ? 1 : 0)
                         | (stopped ? 1 : 0) << 1
                         | (finished ? 1 : 0) << 2

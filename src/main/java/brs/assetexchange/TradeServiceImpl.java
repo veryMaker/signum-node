@@ -13,7 +13,7 @@ import brs.util.Listeners;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-class TradeServiceImpl {
+class TradeServiceImpl { // TODO add interface
 
   private final Listeners<Trade,Event> listeners = new Listeners<>();
 

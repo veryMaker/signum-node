@@ -14,13 +14,13 @@ import javax.servlet.http.HttpServletRequest
 import brs.http.common.Parameters.DELTA_QUANTITY_PARAMETER
 import brs.http.common.Parameters.GOODS_PARAMETER
 
-internal class DGSQuantityChange internal constructor(private val parameterService: ParameterService, private val blockchain: Blockchain, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), apiTransactionManager, GOODS_PARAMETER, DELTA_QUANTITY_PARAMETER) {
+internal class DGSQuantityChange internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, DELTA_QUANTITY_PARAMETER) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
 
-        val account = parameterService.getSenderAccount(req)
-        val goods = parameterService.getGoods(req)
+        val account = dp.parameterService.getSenderAccount(req)
+        val goods = dp.parameterService.getGoods(req)
         if (goods.isDelisted || goods.sellerId != account.getId()) {
             return UNKNOWN_GOODS
         }
@@ -37,7 +37,7 @@ internal class DGSQuantityChange internal constructor(private val parameterServi
             return INCORRECT_DELTA_QUANTITY
         }
 
-        val attachment = Attachment.DigitalGoodsQuantityChange(goods.id, deltaQuantity, blockchain.height)
+        val attachment = Attachment.DigitalGoodsQuantityChange(goods.id, deltaQuantity, dp.blockchain.height)
         return createTransaction(req, account, attachment)
 
     }

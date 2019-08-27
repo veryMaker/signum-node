@@ -19,38 +19,15 @@ import java.util.Locale;
 import static org.jocl.CL.*;
 
 final class OCLPoC {
-  private OCLPoC() {
-  }
+  // TODO remove static dp
+  private static DependencyProvider dp;
 
-  private static final Logger logger = LoggerFactory.getLogger(OCLPoC.class);
-
-  private static final int HASHES_PER_ENQUEUE;
-  private static final int MEM_PERCENT;
-
-  private static cl_context ctx;
-  private static cl_command_queue queue;
-  private static cl_program program;
-  private static cl_kernel genKernel;
-  private static cl_kernel getKernel;
-  private static final cl_kernel getKernel2;
-
-  private static long maxItems;
-  private static final long MAX_GROUP_ITEMS;
-
-  private static final Object oclLock = new Object();
-
-  private static final long BUFFER_PER_ITEM = (long) MiningPlot.PLOT_SIZE + 16;
-  private static final long MEM_PER_ITEM = 8 // id
-      + 8 // nonce
-      + BUFFER_PER_ITEM // buffer
-      + 4 // scoop num
-      + MiningPlot.SCOOP_SIZE; // output scoop
-
-  static {
-    PropertyService propertyService = Burst.getPropertyService();
+  public static void init(DependencyProvider dp) {
+    OCLPoC.dp = dp;
+    PropertyService propertyService = dp.propertyService;
     HASHES_PER_ENQUEUE = propertyService.get(Props.GPU_HASHES_PER_BATCH);
     MEM_PERCENT = propertyService.get(Props.GPU_MEM_PERCENT);
-    
+
     try {
       boolean autoChoose = propertyService.get(Props.GPU_AUTODETECT);
       setExceptionsEnabled(true);
@@ -133,15 +110,15 @@ final class OCLPoC {
       long[] genGroupSize = new long[1];
       long[] getGroupSize = new long[1];
       clGetKernelWorkGroupInfo(genKernel, device, CL_KERNEL_WORK_GROUP_SIZE, 8,
-          Pointer.to(genGroupSize), null);
+              Pointer.to(genGroupSize), null);
       clGetKernelWorkGroupInfo(getKernel, device, CL_KERNEL_WORK_GROUP_SIZE, 8,
-          Pointer.to(getGroupSize), null);
+              Pointer.to(getGroupSize), null);
 
       MAX_GROUP_ITEMS = Math.min(genGroupSize[0], getGroupSize[0]);
 
       if (MAX_GROUP_ITEMS <= 0) {
         throw new OCLCheckerException(
-            "OpenCL init error. Invalid max group items: " + MAX_GROUP_ITEMS);
+                "OpenCL init error. Invalid max group items: " + MAX_GROUP_ITEMS);
       }
 
       long maxItemsByComputeUnits = getComputeUnits(device) * MAX_GROUP_ITEMS;
@@ -154,7 +131,7 @@ final class OCLPoC {
 
       if (maxItems <= 0) {
         throw new OCLCheckerException(
-            "OpenCL init error. Invalid calculated max items: " + maxItems);
+                "OpenCL init error. Invalid calculated max items: " + maxItems);
       }
       logger.info("OCL max items: {}", maxItems);
     } catch (CLException e) {
@@ -165,6 +142,33 @@ final class OCLPoC {
       throw new OCLCheckerException("OpenCL exception", e);
     }
   }
+
+  private OCLPoC() {
+  }
+
+  private static final Logger logger = LoggerFactory.getLogger(OCLPoC.class);
+
+  private static int HASHES_PER_ENQUEUE;
+  private static int MEM_PERCENT;
+
+  private static cl_context ctx;
+  private static cl_command_queue queue;
+  private static cl_program program;
+  private static cl_kernel genKernel;
+  private static cl_kernel getKernel;
+  private static cl_kernel getKernel2;
+
+  private static long maxItems;
+  private static long MAX_GROUP_ITEMS;
+
+  private static final Object oclLock = new Object();
+
+  private static final long BUFFER_PER_ITEM = (long) MiningPlot.PLOT_SIZE + 16;
+  private static final long MEM_PER_ITEM = 8 // id
+      + 8 // nonce
+      + BUFFER_PER_ITEM // buffer
+      + 4 // scoop num
+      + MiningPlot.SCOOP_SIZE; // output scoop
 
   public static long getMaxItems() {
     return maxItems;

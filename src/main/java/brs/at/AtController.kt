@@ -1,445 +1,446 @@
-package brs.at;
+package brs.at
 
-import brs.Account;
-import brs.Burst;
-import brs.crypto.Crypto;
-import brs.fluxcapacitor.FluxValues;
-import brs.props.Props;
-import brs.util.Convert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.NOPLogger;
+import brs.Account
+import brs.Burst
+import brs.DependencyProvider
+import brs.crypto.Crypto
+import brs.fluxcapacitor.FluxValues
+import brs.props.Props
+import brs.util.Convert
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.slf4j.helpers.NOPLogger
 
-import java.nio.BufferUnderflowException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.security.MessageDigest;
-import java.util.*;
+import java.nio.BufferUnderflowException
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.security.MessageDigest
+import java.util.*
 
-public abstract class AtController {
-    private AtController() {
+object AtController {
+    // TODO remove static dp
+    private var dp: DependencyProvider? = null
+
+    private val logger = LoggerFactory.getLogger(AtController::class.java)
+
+    private val debugLogger by lazy { if (dp!!.propertyService.get(Props.ENABLE_AT_DEBUG_LOG)) logger else NOPLogger.NOP_LOGGER }
+
+    private val costOfOneAT: Int
+        get() = AtConstants.AT_ID_SIZE + 16
+
+    fun init(dp: DependencyProvider) {
+        AtController.dp = dp
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(AtController.class);
+    private fun runSteps(state: AtMachineState): Int {
+        state.machineState.running = true
+        state.machineState.stopped = false
+        state.machineState.finished = false
+        state.machineState.dead = false
+        state.machineState.steps = 0
 
-    private static final Logger debugLogger = Burst.getPropertyService().get(Props.ENABLE_AT_DEBUG_LOG) ? logger : NOPLogger.NOP_LOGGER;
+        val processor = AtMachineProcessor(state, dp!!.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
 
-    private static int runSteps(AtMachineState state) {
-        state.getMachineState().running = true;
-        state.getMachineState().stopped = false;
-        state.getMachineState().finished = false;
-        state.getMachineState().dead = false;
-        state.getMachineState().steps = 0;
+        state.setFreeze(false)
 
-        AtMachineProcessor processor = new AtMachineProcessor(state, Burst.getPropertyService().get(Props.ENABLE_AT_DEBUG_LOG));
+        val stepFee = AtConstants.getInstance().stepFee(state.creationBlockHeight)
 
-        state.setFreeze(false);
+        var numSteps = getNumSteps(state.apCode.get(state.machineState.pc), state.creationBlockHeight)
 
-        long stepFee = AtConstants.getInstance().stepFee(state.getCreationBlockHeight());
+        while (state.machineState.steps + numSteps <= AtConstants.getInstance().maxSteps(state.height)) {
 
-        int numSteps = 0;
-
-        while (state.getMachineState().steps +
-                (numSteps = getNumSteps(state.getApCode().get(state.getMachineState().pc), state.getCreationBlockHeight()))
-                <= AtConstants.getInstance().maxSteps(state.getHeight())) {
-
-            if ((state.getgBalance() < stepFee * numSteps)) {
-                debugLogger.debug("stopped - not enough balance");
-                state.setFreeze(true);
-                return 3;
+            if (state.getgBalance() < stepFee * numSteps) {
+                debugLogger.debug("stopped - not enough balance")
+                state.setFreeze(true)
+                return 3
             }
 
-            state.setgBalance(state.getgBalance() - (stepFee * numSteps));
-            state.getMachineState().steps += numSteps;
-            int rc = processor.processOp(false, false);
+            state.setgBalance(state.getgBalance()!! - stepFee * numSteps)
+            state.machineState.steps += numSteps
+            val rc = processor.processOp(false, false)
 
             if (rc >= 0) {
-                if (state.getMachineState().stopped) {
-                    debugLogger.debug("stopped");
-                    state.getMachineState().running = false;
-                    return 2;
-                } else if (state.getMachineState().finished) {
-                    debugLogger.debug("finished");
-                    state.getMachineState().running = false;
-                    return 1;
+                if (state.machineState.stopped) {
+                    debugLogger.debug("stopped")
+                    state.machineState.running = false
+                    return 2
+                } else if (state.machineState.finished) {
+                    debugLogger.debug("finished")
+                    state.machineState.running = false
+                    return 1
                 }
             } else {
                 if (rc == -1)
-                    debugLogger.debug("error: overflow");
+                    debugLogger.debug("error: overflow")
                 else if (rc == -2)
-                    debugLogger.debug("error: invalid code");
+                    debugLogger.debug("error: invalid code")
                 else
-                    debugLogger.debug("unexpected error");
+                    debugLogger.debug("unexpected error")
 
-                if (state.getMachineState().jumps.contains(state.getMachineState().err)) {
-                    state.getMachineState().pc = state.getMachineState().err;
+                if (state.machineState.jumps.contains(state.machineState.err)) {
+                    state.machineState.pc = state.machineState.err
                 } else {
-                    state.getMachineState().dead = true;
-                    state.getMachineState().running = false;
-                    return 0;
+                    state.machineState.dead = true
+                    state.machineState.running = false
+                    return 0
                 }
             }
+            numSteps = getNumSteps(state.apCode.get(state.machineState.pc), state.creationBlockHeight)
         }
 
-        return 5;
+        return 5
     }
 
-    private static int getNumSteps(byte op, int height) {
-        if (op >= 0x32 && op < 0x38)
-            return (int) AtConstants.getInstance().apiStepMultiplier(height);
+    private fun getNumSteps(op: Byte, height: Int): Int {
+        return if (op >= 0x32 && op < 0x38) AtConstants.getInstance().apiStepMultiplier(height).toInt() else 1
 
-        return 1;
     }
 
-    public static void resetMachine(AtMachineState state) {
-        state.getMachineState().reset();
-        listCode(state, true, true);
+    fun resetMachine(state: AtMachineState) {
+        state.machineState.reset()
+        listCode(state, true, true)
     }
 
-    private static void listCode(AtMachineState state, boolean disassembly, boolean determineJumps) {
+    private fun listCode(state: AtMachineState, disassembly: Boolean, determineJumps: Boolean) {
 
-        AtMachineProcessor machineProcessor = new AtMachineProcessor(state, Burst.getPropertyService().get(Props.ENABLE_AT_DEBUG_LOG));
+        val machineProcessor = AtMachineProcessor(state, dp!!.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
 
-        int opc = state.getMachineState().pc;
-        int osteps = state.getMachineState().steps;
+        val opc = state.machineState.pc
+        val osteps = state.machineState.steps
 
-        state.getApCode().order(ByteOrder.LITTLE_ENDIAN);
-        state.getApData().order(ByteOrder.LITTLE_ENDIAN);
+        state.apCode.order(ByteOrder.LITTLE_ENDIAN)
+        state.apData.order(ByteOrder.LITTLE_ENDIAN)
 
-        state.getMachineState().pc = 0;
-        state.getMachineState().opc = opc;
+        state.machineState.pc = 0
+        state.machineState.opc = opc
 
         while (true) {
 
-            int rc = machineProcessor.processOp(disassembly, determineJumps);
-            if (rc <= 0) break;
+            val rc = machineProcessor.processOp(disassembly, determineJumps)
+            if (rc <= 0) break
 
-            state.getMachineState().pc += rc;
+            state.machineState.pc += rc
         }
 
-        state.getMachineState().steps = osteps;
-        state.getMachineState().pc = opc;
+        state.machineState.steps = osteps
+        state.machineState.pc = opc
     }
 
-    public static int checkCreationBytes(byte[] creation, int height) throws AtException {
+    @Throws(AtException::class)
+    fun checkCreationBytes(creation: ByteArray?, height: Int): Int {
         if (creation == null)
-            throw new AtException("Creation bytes cannot be null");
+            throw AtException("Creation bytes cannot be null")
 
-        int totalPages;
+        val totalPages: Int
         try {
-            ByteBuffer b = ByteBuffer.allocate(creation.length);
-            b.order(ByteOrder.LITTLE_ENDIAN);
+            val b = ByteBuffer.allocate(creation.size)
+            b.order(ByteOrder.LITTLE_ENDIAN)
 
-            b.put(creation);
-            b.clear();
+            b.put(creation)
+            b.clear()
 
-            AtConstants instance = AtConstants.getInstance();
+            val instance = AtConstants.getInstance()
 
-            short version = b.getShort();
+            val version = b.short
             if (version != instance.atVersion(height)) {
-                throw new AtException(AtError.INCORRECT_VERSION.getDescription());
+                throw AtException(AtError.INCORRECT_VERSION.description)
             }
 
             // Ignore reserved bytes
-            b.getShort(); //future: reserved for future needs
+            b.short //future: reserved for future needs
 
-            short codePages = b.getShort();
+            val codePages = b.short
             if (codePages > instance.maxMachineCodePages(height) || codePages < 1) {
-                throw new AtException(AtError.INCORRECT_CODE_PAGES.getDescription());
+                throw AtException(AtError.INCORRECT_CODE_PAGES.description)
             }
 
-            short dataPages = b.getShort();
+            val dataPages = b.short
             if (dataPages > instance.maxMachineDataPages(height) || dataPages < 0) {
-                throw new AtException(AtError.INCORRECT_DATA_PAGES.getDescription());
+                throw AtException(AtError.INCORRECT_DATA_PAGES.description)
             }
 
-            short callStackPages = b.getShort();
+            val callStackPages = b.short
             if (callStackPages > instance.maxMachineCallStackPages(height) || callStackPages < 0) {
-                throw new AtException(AtError.INCORRECT_CALL_PAGES.getDescription());
+                throw AtException(AtError.INCORRECT_CALL_PAGES.description)
             }
 
-            short userStackPages = b.getShort();
+            val userStackPages = b.short
             if (userStackPages > instance.maxMachineUserStackPages(height) || userStackPages < 0) {
-                throw new AtException(AtError.INCORRECT_USER_PAGES.getDescription());
+                throw AtException(AtError.INCORRECT_USER_PAGES.description)
             }
 
             // Ignore the minimum activation amount
-            b.getLong();
+            b.long
 
-            int codeLen = getLength(codePages, b);
+            val codeLen = getLength(codePages.toInt(), b)
             if (codeLen < 1 || codeLen > codePages * 256) {
-                throw new AtException(AtError.INCORRECT_CODE_LENGTH.getDescription());
+                throw AtException(AtError.INCORRECT_CODE_LENGTH.description)
             }
-            byte[] code = new byte[codeLen];
-            b.get(code, 0, codeLen);
+            val code = ByteArray(codeLen)
+            b.get(code, 0, codeLen)
 
-            int dataLen = getLength(dataPages, b);
+            val dataLen = getLength(dataPages.toInt(), b)
             if (dataLen < 0 || dataLen > dataPages * 256) {
-                throw new AtException(AtError.INCORRECT_DATA_LENGTH.getDescription());
+                throw AtException(AtError.INCORRECT_DATA_LENGTH.description)
             }
-            byte[] data = new byte[dataLen];
-            b.get(data, 0, dataLen);
+            val data = ByteArray(dataLen)
+            b.get(data, 0, dataLen)
 
-            totalPages = codePages + dataPages + userStackPages + callStackPages;
+            totalPages = codePages.toInt() + dataPages.toInt() + userStackPages.toInt() + callStackPages.toInt()
 
             if (b.position() != b.capacity()) {
-                throw new AtException(AtError.INCORRECT_CREATION_TX.getDescription());
+                throw AtException(AtError.INCORRECT_CREATION_TX.description)
             }
 
             //TODO note: run code in demo mode for checking if is valid
 
-        } catch (BufferUnderflowException e) {
-            throw new AtException(AtError.INCORRECT_CREATION_TX.getDescription());
+        } catch (e: BufferUnderflowException) {
+            throw AtException(AtError.INCORRECT_CREATION_TX.description)
         }
 
-        return totalPages;
+        return totalPages
     }
 
-    private static int getLength(int nPages, ByteBuffer buffer) throws AtException {
-        int codeLen;
+    @Throws(AtException::class)
+    private fun getLength(nPages: Int, buffer: ByteBuffer): Int {
+        var codeLen: Int
         if (nPages * 256 < 257) {
-            codeLen = buffer.get();
+            codeLen = buffer.get().toInt()
             if (codeLen < 0)
-                codeLen += (Byte.MAX_VALUE + 1) * 2;
-        } else if (nPages * 256 < Short.MAX_VALUE + 1) {
-            codeLen = buffer.getShort();
+                codeLen += (java.lang.Byte.MAX_VALUE + 1) * 2
+        } else if (nPages * 256 < java.lang.Short.MAX_VALUE + 1) {
+            codeLen = buffer.short.toInt()
             if (codeLen < 0)
-                codeLen += (Short.MAX_VALUE + 1) * 2;
+                codeLen += (java.lang.Short.MAX_VALUE + 1) * 2
         } else if (nPages * 256 <= Integer.MAX_VALUE) {
-            codeLen = buffer.getInt();
+            codeLen = buffer.int
         } else {
-            throw new AtException(AtError.INCORRECT_CODE_LENGTH.getDescription());
+            throw AtException(AtError.INCORRECT_CODE_LENGTH.description)
         }
-        return codeLen;
+        return codeLen
     }
 
-    public static AtBlock getCurrentBlockATs(int freePayload, int blockHeight) {
-        List<Long> orderedATs = AT.getOrderedATs();
-        Iterator<Long> keys = orderedATs.iterator();
+    fun getCurrentBlockATs(freePayload: Int, blockHeight: Int): AtBlock {
+        val orderedATs = AT.getOrderedATs(dp!!)
+        val keys = orderedATs.iterator()
 
-        List<AT> processedATs = new ArrayList<>();
+        val processedATs = ArrayList<AT>()
 
-        int costOfOneAT = getCostOfOneAT();
-        int payload = 0;
-        long totalFee = 0;
-        long totalAmount = 0;
+        val costOfOneAT = costOfOneAT
+        var payload = 0
+        var totalFee: Long = 0
+        var totalAmount: Long = 0
 
         while (payload <= freePayload - costOfOneAT && keys.hasNext()) {
-            Long id = keys.next();
-            AT at = AT.getAT(id);
+            val id = keys.next()
+            val at = AT.getAT(dp!!, id)
 
-            long atAccountBalance = getATAccountBalance(id);
-            long atStateBalance = at.getgBalance();
+            val atAccountBalance = getATAccountBalance(id)
+            val atStateBalance = at.getgBalance()!!
 
-            if (at.freezeOnSameBalance() && (atAccountBalance - atStateBalance < at.minActivationAmount())) {
-                continue;
+            if (at.freezeOnSameBalance() && atAccountBalance - atStateBalance < at.minActivationAmount()) {
+                continue
             }
 
-            if (atAccountBalance >= AtConstants.getInstance().stepFee(at.getCreationBlockHeight())
-                    * AtConstants.getInstance().apiStepMultiplier(at.getCreationBlockHeight())) {
+            if (atAccountBalance >= AtConstants.getInstance().stepFee(at.creationBlockHeight) * AtConstants.getInstance().apiStepMultiplier(at.creationBlockHeight)) {
                 try {
-                    at.setgBalance(atAccountBalance);
-                    at.setHeight(blockHeight);
-                    at.clearTransactions();
-                    at.setWaitForNumberOfBlocks(at.getSleepBetween());
-                    listCode(at, true, true);
-                    runSteps(at);
+                    at.setgBalance(atAccountBalance)
+                    at.height = blockHeight
+                    at.clearTransactions()
+                    at.waitForNumberOfBlocks = at.sleepBetween
+                    listCode(at, true, true)
+                    runSteps(at)
 
-                    long fee = at.getMachineState().steps * AtConstants.getInstance().stepFee(at.getCreationBlockHeight());
-                    if (at.getMachineState().dead) {
-                        fee += at.getgBalance();
-                        at.setgBalance(0L);
+                    var fee = at.machineState.steps * AtConstants.getInstance().stepFee(at.creationBlockHeight)
+                    if (at.machineState.dead) {
+                        fee += at.getgBalance()!!
+                        at.setgBalance(0L)
                     }
-                    at.setpBalance(at.getgBalance());
+                    at.setpBalance(at.getgBalance())
 
-                    long amount = makeTransactions(at);
-                    if (!Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
-                        totalAmount = amount;
+                    val amount = makeTransactions(at)
+                    if (!dp!!.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
+                        totalAmount = amount
                     } else {
-                        totalAmount += amount;
+                        totalAmount += amount
                     }
 
-                    totalFee += fee;
-                    AT.addPendingFee(id, fee);
+                    totalFee += fee
+                    AT.addPendingFee(id!!, fee)
 
-                    payload += costOfOneAT;
+                    payload += costOfOneAT
 
-                    processedATs.add(at);
-                } catch (Exception e) {
-                    debugLogger.debug("Error handling AT", e);
+                    processedATs.add(at)
+                } catch (e: Exception) {
+                    debugLogger.debug("Error handling AT", e)
                 }
+
             }
         }
 
-        byte[] bytesForBlock;
+        val bytesForBlock: ByteArray?
 
-        bytesForBlock = getBlockATBytes(processedATs, payload);
+        bytesForBlock = getBlockATBytes(processedATs, payload)
 
-        return new AtBlock(totalFee, totalAmount, bytesForBlock);
+        return AtBlock(totalFee, totalAmount, bytesForBlock)
     }
 
-    public static AtBlock validateATs(byte[] blockATs, int blockHeight) throws AtException {
+    @Throws(AtException::class)
+    fun validateATs(blockATs: ByteArray?, blockHeight: Int): AtBlock {
         if (blockATs == null) {
-            return new AtBlock(0, 0, null);
+            return AtBlock(0, 0, null)
         }
 
-        LinkedHashMap<ByteBuffer, byte[]> ats = getATsFromBlock(blockATs);
+        val ats = getATsFromBlock(blockATs)
 
-        List<AT> processedATs = new ArrayList<>();
+        val processedATs = ArrayList<AT>()
 
-        long totalFee = 0;
-        MessageDigest digest = Crypto.md5();
-        byte[] md5;
-        long totalAmount = 0;
+        var totalFee: Long = 0
+        val digest = Crypto.md5()
+        var md5: ByteArray
+        var totalAmount: Long = 0
 
-        for (Map.Entry<ByteBuffer, byte[]> entry : ats.entrySet()) {
-            ByteBuffer atIdBuffer = entry.getKey();
-            byte[] receivedMd5 = entry.getValue();
-            byte[] atId = atIdBuffer.array();
-            AT at = AT.getAT(atId);
+        for ((atIdBuffer, receivedMd5) in ats) {
+            val atId = atIdBuffer.array()
+            val at = AT.getAT(dp, atId)
             try {
-                at.clearTransactions();
-                at.setHeight(blockHeight);
-                at.setWaitForNumberOfBlocks(at.getSleepBetween());
+                at.clearTransactions()
+                at.height = blockHeight
+                at.waitForNumberOfBlocks = at.sleepBetween
 
-                long atAccountBalance = getATAccountBalance(AtApiHelper.getLong(atId));
-                if (atAccountBalance < AtConstants.getInstance().stepFee(at.getCreationBlockHeight())
-                        * AtConstants.getInstance().apiStepMultiplier(at.getCreationBlockHeight())) {
-                    throw new AtException("AT has insufficient balance to run");
+                val atAccountBalance = getATAccountBalance(AtApiHelper.getLong(atId))
+                if (atAccountBalance < AtConstants.getInstance().stepFee(at.creationBlockHeight) * AtConstants.getInstance().apiStepMultiplier(at.creationBlockHeight)) {
+                    throw AtException("AT has insufficient balance to run")
                 }
 
-                if (at.freezeOnSameBalance() && (atAccountBalance - at.getgBalance() < at.minActivationAmount())) {
-                    throw new AtException("AT should be frozen due to unchanged balance");
+                if (at.freezeOnSameBalance() && atAccountBalance - at.getgBalance()!! < at.minActivationAmount()) {
+                    throw AtException("AT should be frozen due to unchanged balance")
                 }
 
                 if (at.nextHeight() > blockHeight) {
-                    throw new AtException("AT not allowed to run again yet");
+                    throw AtException("AT not allowed to run again yet")
                 }
 
-                at.setgBalance(atAccountBalance);
+                at.setgBalance(atAccountBalance)
 
-                listCode(at, true, true);
+                listCode(at, true, true)
 
-                runSteps(at);
+                runSteps(at)
 
-                long fee = at.getMachineState().steps * AtConstants.getInstance().stepFee(at.getCreationBlockHeight());
-                if (at.getMachineState().dead) {
-                    fee += at.getgBalance();
-                    at.setgBalance(0L);
+                var fee = at.machineState.steps * AtConstants.getInstance().stepFee(at.creationBlockHeight)
+                if (at.machineState.dead) {
+                    fee += at.getgBalance()!!
+                    at.setgBalance(0L)
                 }
-                at.setpBalance(at.getgBalance());
+                at.setpBalance(at.getgBalance())
 
-                if (!Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
-                    totalAmount = makeTransactions(at);
+                if (!dp!!.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
+                    totalAmount = makeTransactions(at)
                 } else {
-                    totalAmount += makeTransactions(at);
+                    totalAmount += makeTransactions(at)
                 }
 
-                totalFee += fee;
-                AT.addPendingFee(atId, fee);
+                totalFee += fee
+                AT.addPendingFee(atId, fee)
 
-                processedATs.add(at);
+                processedATs.add(at)
 
-                md5 = digest.digest(at.getBytes());
+                md5 = digest.digest(at.bytes)
                 if (!Arrays.equals(md5, receivedMd5)) {
-                    throw new AtException("Calculated md5 and received md5 are not matching");
+                    throw AtException("Calculated md5 and received md5 are not matching")
                 }
-            } catch (Exception e) {
-                debugLogger.debug("ATs error", e);
-                throw new AtException("ATs error. Block rejected", e);
+            } catch (e: Exception) {
+                debugLogger.debug("ATs error", e)
+                throw AtException("ATs error. Block rejected", e)
             }
+
         }
 
-        for (AT at : processedATs) {
-            at.saveState();
+        for (at in processedATs) {
+            at.saveState()
         }
 
-        return new AtBlock(totalFee, totalAmount, new byte[1]);
+        return AtBlock(totalFee, totalAmount, ByteArray(1))
     }
 
-    private static LinkedHashMap<ByteBuffer, byte[]> getATsFromBlock(byte[] blockATs) throws AtException {
-        if (blockATs.length > 0 && blockATs.length % (getCostOfOneAT()) != 0) {
-            throw new AtException("blockATs must be a multiple of cost of one AT ( " + getCostOfOneAT() + " )");
+    @Throws(AtException::class)
+    private fun getATsFromBlock(blockATs: ByteArray): LinkedHashMap<ByteBuffer, ByteArray> {
+        if (blockATs.size > 0 && blockATs.size % costOfOneAT != 0) {
+            throw AtException("blockATs must be a multiple of cost of one AT ( $costOfOneAT )")
         }
 
-        ByteBuffer b = ByteBuffer.wrap(blockATs);
-        b.order(ByteOrder.LITTLE_ENDIAN);
+        val b = ByteBuffer.wrap(blockATs)
+        b.order(ByteOrder.LITTLE_ENDIAN)
 
-        byte[] temp = new byte[AtConstants.AT_ID_SIZE];
+        val temp = ByteArray(AtConstants.AT_ID_SIZE)
 
-        LinkedHashMap<ByteBuffer, byte[]> ats = new LinkedHashMap<>();
+        val ats = LinkedHashMap<ByteBuffer, ByteArray>()
 
         while (b.position() < b.capacity()) {
-            b.get(temp, 0, temp.length);
-            byte[] md5 = new byte[16];
-            b.get(md5, 0, md5.length);
-            ByteBuffer atId = ByteBuffer.allocate(AtConstants.AT_ID_SIZE);
-            atId.put(temp);
-            atId.clear();
+            b.get(temp, 0, temp.size)
+            val md5 = ByteArray(16)
+            b.get(md5, 0, md5.size)
+            val atId = ByteBuffer.allocate(AtConstants.AT_ID_SIZE)
+            atId.put(temp)
+            atId.clear()
             if (ats.containsKey(atId)) {
-                throw new AtException("AT included in block multiple times");
+                throw AtException("AT included in block multiple times")
             }
-            ats.put(atId, md5);
+            ats[atId] = md5
         }
 
         if (b.position() != b.capacity()) {
-            throw new AtException("bytebuffer not matching");
+            throw AtException("bytebuffer not matching")
         }
 
-        return ats;
+        return ats
     }
 
-    private static byte[] getBlockATBytes(List<AT> processedATs, int payload) {
+    private fun getBlockATBytes(processedATs: List<AT>, payload: Int): ByteArray? {
         if (payload <= 0) {
-            return null;
+            return null
         }
 
-        ByteBuffer b = ByteBuffer.allocate(payload);
-        b.order(ByteOrder.LITTLE_ENDIAN);
+        val b = ByteBuffer.allocate(payload)
+        b.order(ByteOrder.LITTLE_ENDIAN)
 
-        MessageDigest digest = Crypto.md5();
-        for (AT at : processedATs) {
-            b.put(at.getId());
-            digest.update(at.getBytes());
-            b.put(digest.digest());
+        val digest = Crypto.md5()
+        for (at in processedATs) {
+            b.put(at.id)
+            digest.update(at.bytes)
+            b.put(digest.digest())
         }
 
-        return b.array();
-    }
-
-    private static int getCostOfOneAT() {
-        return AtConstants.AT_ID_SIZE + 16;
+        return b.array()
     }
 
     //platform based implementations
     //platform based
-    private static long makeTransactions(AT at) throws AtException {
-        long totalAmount = 0;
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4, at.getHeight())) {
-            for (AtTransaction tx : at.getTransactions()) {
-                if (AT.findPendingTransaction(tx.getRecipientId())) {
-                    throw new AtException("Conflicting transaction found");
+    @Throws(AtException::class)
+    private fun makeTransactions(at: AT): Long {
+        var totalAmount: Long = 0
+        if (!dp!!.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, at.height)) {
+            for (tx in at.transactions) {
+                if (AT.findPendingTransaction(tx.recipientId)) {
+                    throw AtException("Conflicting transaction found")
                 }
             }
         }
-        for (AtTransaction tx : at.getTransactions()) {
-            totalAmount += tx.getAmount();
-            AT.addPendingTransaction(tx);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Transaction to {}, amount {}", Convert.INSTANCE.toUnsignedLong(AtApiHelper.getLong(tx.getRecipientId())), tx.getAmount());
+        for (tx in at.transactions) {
+            totalAmount += tx.amount!!
+            AT.addPendingTransaction(tx)
+            if (logger.isDebugEnabled) {
+                logger.debug("Transaction to {}, amount {}", Convert.toUnsignedLong(AtApiHelper.getLong(tx.recipientId)), tx.amount)
             }
         }
-        return totalAmount;
+        return totalAmount
     }
 
     //platform based
-    private static long getATAccountBalance(Long id) {
-        Account atAccount = Account.getAccount(id);
+    private fun getATAccountBalance(id: Long?): Long {
+        val atAccount = Account.getAccount(dp, id!!)
 
-        if (atAccount != null) {
-            return atAccount.getBalanceNQT();
-        }
+        return atAccount?.balanceNQT ?: 0
 
-        return 0;
     }
 }

@@ -13,11 +13,11 @@ import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
-internal class SendMoneyEscrow(private val parameterService: ParameterService, private val blockchain: Blockchain, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), apiTransactionManager, RECIPIENT_PARAMETER, AMOUNT_NQT_PARAMETER, ESCROW_DEADLINE_PARAMETER, SIGNERS_PARAMETER, REQUIRED_SIGNERS_PARAMETER, DEADLINE_ACTION_PARAMETER) {
+internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, AMOUNT_NQT_PARAMETER, ESCROW_DEADLINE_PARAMETER, SIGNERS_PARAMETER, REQUIRED_SIGNERS_PARAMETER, DEADLINE_ACTION_PARAMETER) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val sender = parameterService.getSenderAccount(req)
+        val sender = dp.parameterService.getSenderAccount(req)
         val recipient = ParameterParser.getRecipientId(req)
         val amountNQT = ParameterParser.getAmountNQT(req)
         val signerString = Convert.emptyToNull(req.getParameter(SIGNERS_PARAMETER))
@@ -100,7 +100,7 @@ internal class SendMoneyEscrow(private val parameterService: ParameterService, p
             return response
         }
 
-        val attachment = Attachment.AdvancedPaymentEscrowCreation(amountNQT, deadline.toInt(), deadlineAction, requiredSigners.toInt(), signers, blockchain.height)
+        val attachment = Attachment.AdvancedPaymentEscrowCreation(amountNQT, deadline.toInt(), deadlineAction, requiredSigners.toInt(), signers, dp.blockchain.height)
 
         return createTransaction(req, sender, recipient, 0, attachment)
     }

@@ -10,17 +10,17 @@ import javax.servlet.http.HttpServletRequest
 import brs.http.JSONResponses.UNKNOWN_ORDER
 import brs.http.common.Parameters.ORDER_PARAMETER
 
-internal class CancelAskOrder(private val parameterService: ParameterService, private val blockchain: Blockchain, private val assetExchange: AssetExchange, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), apiTransactionManager, ORDER_PARAMETER) {
+internal class CancelAskOrder(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), ORDER_PARAMETER) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
         val orderId = ParameterParser.getOrderId(req)
-        val account = parameterService.getSenderAccount(req)
-        val orderData = assetExchange.getAskOrder(orderId)
+        val account = dp.parameterService.getSenderAccount(req)
+        val orderData = dp.assetExchange.getAskOrder(orderId)
         if (orderData == null || orderData.accountId != account.getId()) {
             return UNKNOWN_ORDER
         }
-        val attachment = Attachment.ColoredCoinsAskOrderCancellation(orderId, blockchain.height)
+        val attachment = Attachment.ColoredCoinsAskOrderCancellation(orderId, dp.blockchain.height)
         return createTransaction(req, account, attachment)
     }
 

@@ -16,12 +16,12 @@ import javax.servlet.http.HttpServletRequest
 import brs.http.common.Parameters.PURCHASE_PARAMETER
 import brs.http.common.Parameters.REFUND_NQT_PARAMETER
 
-internal class DGSRefund internal constructor(private val parameterService: ParameterService, private val blockchain: Blockchain, private val accountService: AccountService, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), apiTransactionManager, PURCHASE_PARAMETER, REFUND_NQT_PARAMETER) {
+internal class DGSRefund internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), PURCHASE_PARAMETER, REFUND_NQT_PARAMETER) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val sellerAccount = parameterService.getSenderAccount(req)
-        val purchase = parameterService.getPurchase(req)
+        val sellerAccount = dp.parameterService.getSenderAccount(req)
+        val purchase = dp.parameterService.getPurchase(req)
 
         if (sellerAccount.getId() != purchase.sellerId) {
             return INCORRECT_PURCHASE
@@ -47,11 +47,9 @@ internal class DGSRefund internal constructor(private val parameterService: Para
             return INCORRECT_DGS_REFUND
         }
 
-        val buyerAccount = accountService.getAccount(purchase.buyerId)
+        val buyerAccount = dp.accountService.getAccount(purchase.buyerId)
 
-        val attachment = Attachment.DigitalGoodsRefund(purchase.id, refundNQT, blockchain.height)
+        val attachment = Attachment.DigitalGoodsRefund(purchase.id, refundNQT, dp.blockchain.height)
         return createTransaction(req, sellerAccount, buyerAccount.getId(), 0, attachment)
-
     }
-
 }

@@ -1,12 +1,9 @@
 package brs.services.impl;
 
-import brs.Account;
+import brs.*;
 import brs.Account.AccountAsset;
 import brs.Account.Event;
 import brs.Account.RewardRecipientAssignment;
-import brs.AssetTransfer;
-import brs.Burst;
-import brs.Constants;
 import brs.crypto.Crypto;
 import brs.db.BurstKey;
 import brs.db.BurstKey.LinkKeyFactory;
@@ -27,6 +24,7 @@ import static brs.schema.Tables.ACCOUNT;
 
 public class AccountServiceImpl implements AccountService {
 
+  private final DependencyProvider dp;
   private final AccountStore accountStore;
   private final VersionedBatchEntityTable<Account> accountTable;
   private final LongKeyFactory<Account> accountBurstKeyFactory;
@@ -40,11 +38,13 @@ public class AccountServiceImpl implements AccountService {
   private final Listeners<Account, Event> listeners = new Listeners<>();
   private final Listeners<AccountAsset, Event> assetListeners = new Listeners<>();
 
-  public AccountServiceImpl(AccountStore accountStore, AssetTransferStore assetTransferStore) {
+  public AccountServiceImpl(DependencyProvider dp) { // TODO don't hold references to dependency instances
+    this.dp = dp;
+    AccountStore accountStore = dp.accountStore;
     this.accountStore = accountStore;
     this.accountTable = accountStore.getAccountTable();
     this.accountBurstKeyFactory = accountStore.getAccountKeyFactory();
-    this.assetTransferStore = assetTransferStore;
+    this.assetTransferStore = dp.assetTransferStore;
     this.accountAssetTable = accountStore.getAccountAssetTable();
     this.accountAssetKeyFactory = accountStore.getAccountAssetKeyFactory();
     this.rewardRecipientAssignmentTable = accountStore.getRewardRecipientAssignmentTable();
@@ -121,7 +121,7 @@ public class AccountServiceImpl implements AccountService {
   public Account getOrAddAccount(long id) {
     Account account = accountTable.get(accountBurstKeyFactory.newKey(id));
     if (account == null) {
-      account = new Account(id);
+      account = new Account(dp, id);
       accountTable.insert(account);
     }
     return account;
@@ -270,7 +270,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public void setRewardRecipientAssignment(Account account, Long recipient) {
-    int currentHeight = Burst.getBlockchain().getLastBlock().getHeight();
+    int currentHeight = dp.blockchain.getHeight();
     RewardRecipientAssignment assignment = getRewardRecipientAssignment(account.getId());
     if (assignment == null) {
       BurstKey burstKey = rewardRecipientAssignmentKeyFactory.newKey(account.getId());
@@ -283,7 +283,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public long getUnconfirmedAssetBalanceQNT(Account account, long assetId) {
-    BurstKey newKey = Burst.getStores().getAccountStore().getAccountAssetKeyFactory().newKey(account.getId(), assetId);
+    BurstKey newKey = accountAssetKeyFactory.newKey(account.getId(), assetId);
     AccountAsset accountAsset = accountAssetTable.get(newKey);
     return accountAsset == null ? 0 : accountAsset.getUnconfirmedQuantityQNT();
   }

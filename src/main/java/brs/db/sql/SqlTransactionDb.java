@@ -1,9 +1,6 @@
 package brs.db.sql;
 
-import brs.Appendix;
-import brs.BurstException;
-import brs.Transaction;
-import brs.TransactionType;
+import brs.*;
 import brs.db.TransactionDb;
 import brs.schema.tables.records.TransactionRecord;
 import brs.util.Convert;
@@ -17,6 +14,11 @@ import java.util.Optional;
 import static brs.schema.Tables.TRANSACTION;
 
 public class SqlTransactionDb implements TransactionDb {
+  private final DependencyProvider dp;
+
+  public SqlTransactionDb(DependencyProvider dp) {
+    this.dp = dp;
+  }
 
   @Override
   public Transaction findTransaction(long transactionId) {
@@ -69,7 +71,7 @@ public class SqlTransactionDb implements TransactionDb {
     }
 
     TransactionType transactionType = TransactionType.findTransactionType(tr.getType(), tr.getSubtype());
-    Transaction.Builder builder = new Transaction.Builder(tr.getVersion(), tr.getSenderPublicKey(),
+    Transaction.Builder builder = new Transaction.Builder(dp, tr.getVersion(), tr.getSenderPublicKey(),
             tr.getAmount(), tr.getFee(), tr.getTimestamp(), tr.getDeadline(),
             transactionType.parseAttachment(buffer, tr.getVersion()))
             .referencedTransactionFullHash(tr.getReferencedTransactionFullhash())

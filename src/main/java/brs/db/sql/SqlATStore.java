@@ -1,6 +1,7 @@
 package brs.db.sql;
 
 import brs.Burst;
+import brs.DependencyProvider;
 import brs.at.AT;
 import brs.at.AtApiHelper;
 import brs.at.AtConstants;
@@ -21,6 +22,7 @@ import java.util.List;
 import static brs.schema.Tables.*;
 
 public class SqlATStore implements ATStore {
+  private final DependencyProvider dp;
 
   private final BurstKey.LongKeyFactory<brs.at.AT> atDbKeyFactory = new DbKey.LongKeyFactory<brs.at.AT>(AT.ID) {
       @Override
@@ -39,8 +41,9 @@ public class SqlATStore implements ATStore {
 
   private final VersionedEntityTable<brs.at.AT.ATState> atStateTable;
 
-  public SqlATStore(DerivedTableManager derivedTableManager) {
-    atTable = new VersionedEntitySqlTable<brs.at.AT>("at", brs.schema.Tables.AT, atDbKeyFactory, derivedTableManager) {
+  public SqlATStore(DependencyProvider dp) {
+    this.dp = dp;
+    atTable = new VersionedEntitySqlTable<brs.at.AT>("at", brs.schema.Tables.AT, atDbKeyFactory, dp) {
       @Override
       protected brs.at.AT load(DSLContext ctx, Record rs) {
         throw new RuntimeException("AT attempted to be created with atTable.load");
@@ -59,10 +62,10 @@ public class SqlATStore implements ATStore {
       }
     };
 
-    atStateTable = new VersionedEntitySqlTable<brs.at.AT.ATState>("at_state", brs.schema.Tables.AT_STATE, atStateDbKeyFactory, derivedTableManager) {
+    atStateTable = new VersionedEntitySqlTable<brs.at.AT.ATState>("at_state", brs.schema.Tables.AT_STATE, atStateDbKeyFactory, dp) {
       @Override
       protected brs.at.AT.ATState load(DSLContext ctx, Record rs) {
-        return new SqlATState(rs);
+        return new SqlATState(dp, rs);
       }
 
       @Override
@@ -84,7 +87,7 @@ public class SqlATStore implements ATStore {
   private void saveATState(DSLContext ctx, brs.at.AT.ATState atState) {
     ctx.mergeInto(AT_STATE, AT_STATE.AT_ID, AT_STATE.STATE, AT_STATE.PREV_HEIGHT, AT_STATE.NEXT_HEIGHT, AT_STATE.SLEEP_BETWEEN, AT_STATE.PREV_BALANCE, AT_STATE.FREEZE_WHEN_SAME_BALANCE, AT_STATE.MIN_ACTIVATE_AMOUNT, AT_STATE.HEIGHT, AT_STATE.LATEST)
             .key(AT_STATE.AT_ID, AT_STATE.HEIGHT)
-            .values(atState.getATId(), brs.at.AT.compressState(atState.getState()), atState.getPrevHeight(), atState.getNextHeight(), atState.getSleepBetween(), atState.getPrevBalance(), atState.getFreezeWhenSameBalance(), atState.getMinActivationAmount(), Burst.getBlockchain().getHeight(), true)
+            .values(atState.getATId(), brs.at.AT.compressState(atState.getState()), atState.getPrevHeight(), atState.getNextHeight(), atState.getSleepBetween(), atState.getPrevBalance(), atState.getFreezeWhenSameBalance(), atState.getMinActivationAmount(), dp.blockchain.getHeight(), true)
             .execute();
   }
 
@@ -99,7 +102,7 @@ public class SqlATStore implements ATStore {
       AtApiHelper.getLong(at.getId()), AtApiHelper.getLong(at.getCreator()), at.getName(), at.getDescription(),
       at.getVersion(), at.getcSize(), at.getdSize(), at.getcUserStackBytes(),
       at.getcCallStackBytes(), at.getCreationBlockHeight(),
-      brs.at.AT.compressState(at.getApCodeBytes()), Burst.getBlockchain().getHeight()
+      brs.at.AT.compressState(at.getApCodeBytes()), dp.blockchain.getHeight()
     ).execute();
   }
 
@@ -122,11 +125,11 @@ public class SqlATStore implements ATStore {
       ).and(
               ACCOUNT.LATEST.isTrue()
       ).and(
-              AT_STATE.NEXT_HEIGHT.lessOrEqual(Burst.getBlockchain().getHeight() + 1)
+              AT_STATE.NEXT_HEIGHT.lessOrEqual(dp.blockchain.getHeight() + 1)
       ).and(
               ACCOUNT.BALANCE.greaterOrEqual(
-                      AtConstants.getInstance().stepFee(Burst.getBlockchain().getHeight())
-                              * AtConstants.getInstance().apiStepMultiplier(Burst.getBlockchain().getHeight())
+                      AtConstants.getInstance().stepFee(dp.blockchain.getHeight())
+                              * AtConstants.getInstance().apiStepMultiplier(dp.blockchain.getHeight())
               )
       ).and(
               AT_STATE.FREEZE_WHEN_SAME_BALANCE.isFalse().or(
@@ -152,12 +155,12 @@ public class SqlATStore implements ATStore {
       AtRecord at = record.into(AT);
       AtStateRecord atState = record.into(AT_STATE);
 
-      return createAT(at, atState);
+      return createAT(dp, at, atState);
     });
   }
 
-  private brs.at.AT createAT(AtRecord at, AtStateRecord atState) {
-    return new AT(AtApiHelper.getByteArray(at.getId()), AtApiHelper.getByteArray(at.getCreatorId()), at.getName(), at.getDescription(), at.getVersion(),
+  private brs.at.AT createAT(DependencyProvider dp, AtRecord at, AtStateRecord atState) {
+    return new AT(dp, AtApiHelper.getByteArray(at.getId()), AtApiHelper.getByteArray(at.getCreatorId()), at.getName(), at.getDescription(), at.getVersion(),
             brs.at.AT.decompressState(atState.getState()), at.getCsize(), at.getDsize(), at.getCUserStackBytes(), at.getCCallStackBytes(), at.getCreationHeight(), atState.getSleepBetween(), atState.getNextHeight(),
             atState.getFreezeWhenSameBalance(), atState.getMinActivateAmount(), brs.at.AT.decompressState(at.getApCode()));
   }
@@ -240,8 +243,8 @@ public class SqlATStore implements ATStore {
   }
 
   class SqlATState extends brs.at.AT.ATState {
-    private SqlATState(Record record) {
-      super(
+    private SqlATState(DependencyProvider dp, Record record) {
+      super(dp,
             record.get(AT_STATE.AT_ID),
             record.get(AT_STATE.STATE),
             record.get(AT_STATE.NEXT_HEIGHT),

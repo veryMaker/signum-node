@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Block {
+  private final DependencyProvider dp;
 
   private static final Logger logger = LoggerFactory.getLogger(Block.class);
   private final int version;
@@ -53,12 +54,12 @@ public class Block {
   private Peer downloadedFrom = null;
   private int byteLength = 0;
 
-  Block(int version, int timestamp, long previousBlockId, long totalAmountNQT, long totalFeeNQT,
+  Block(DependencyProvider dp, int version, int timestamp, long previousBlockId, long totalAmountNQT, long totalFeeNQT,
       int payloadLength, byte[] payloadHash, byte[] generatorPublicKey, byte[] generationSignature,
       byte[] blockSignature, byte[] previousBlockHash, List<Transaction> transactions,
       long nonce, byte[] blockATs, int height) throws BurstException.ValidationException {
-
-    if (payloadLength > Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH, height) || payloadLength < 0) {
+    this.dp = dp;
+    if (payloadLength > dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH, height) || payloadLength < 0) {
       throw new BurstException.NotValidException(
           "attempted to create a block with payloadLength " + payloadLength + " height " + height + "previd " + previousBlockId);
     }
@@ -77,7 +78,7 @@ public class Block {
     this.previousBlockHash = previousBlockHash;
     if (transactions != null) {
       this.blockTransactions.set(Collections.unmodifiableList(transactions));
-      if (blockTransactions.get().size() > (Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, height))) {
+      if (blockTransactions.get().size() > (dp.fluxCapacitor.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, height))) {
         throw new BurstException.NotValidException(
             "attempted to create a block with " + blockTransactions.get().size() + " transactions");
       }
@@ -93,10 +94,10 @@ public class Block {
     this.blockATs = blockATs;
   }
 
-  public Block(int version, int timestamp, long previousBlockId, long totalAmountNQT, long totalFeeNQT, int payloadLength, byte[] payloadHash, byte[] generatorPublicKey, byte[] generationSignature, byte[] blockSignature, byte[] previousBlockHash, BigInteger cumulativeDifficulty, long baseTarget,
+  public Block(DependencyProvider dp, int version, int timestamp, long previousBlockId, long totalAmountNQT, long totalFeeNQT, int payloadLength, byte[] payloadHash, byte[] generatorPublicKey, byte[] generationSignature, byte[] blockSignature, byte[] previousBlockHash, BigInteger cumulativeDifficulty, long baseTarget,
       long nextBlockId, int height, Long id, long nonce, byte[] blockATs) throws BurstException.ValidationException {
 
-    this(version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature, previousBlockHash, null, nonce, blockATs, height);
+    this(dp, version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature, previousBlockHash, null, nonce, blockATs, height);
 
     this.cumulativeDifficulty = cumulativeDifficulty == null ? BigInteger.ZERO : cumulativeDifficulty;
     this.baseTarget = baseTarget;
@@ -106,7 +107,7 @@ public class Block {
   }
 
   private TransactionDb transactionDb() {
-    return Burst.getDbs().getTransactionDb();
+    return dp.dbs.getTransactionDb();
   }
 
   public boolean isVerified() {
@@ -270,7 +271,7 @@ public class Block {
     return json;
   }
 
-  static Block parseBlock(JsonObject blockData, int height) throws BurstException.ValidationException {
+  static Block parseBlock(DependencyProvider dp, JsonObject blockData, int height) throws BurstException.ValidationException {
     try {
       int version = JSON.getAsInt(blockData.get("version"));
       int timestamp = JSON.getAsInt(blockData.get("timestamp"));
@@ -289,14 +290,14 @@ public class Block {
       JsonArray transactionsData = JSON.getAsJsonArray(blockData.get("transactions"));
     
       for (JsonElement transactionData : transactionsData) {
-        Transaction transaction = Transaction.parseTransaction(JSON.getAsJsonObject(transactionData), height);
+        Transaction transaction = Transaction.parseTransaction(dp, JSON.getAsJsonObject(transactionData), height);
         if (transaction.getSignature() != null && blockTransactions.put(transaction.getId(), transaction) != null) {
           throw new BurstException.NotValidException("Block contains duplicate transactions: " + transaction.getStringId());
         }
       }
     
       byte[] blockATs = Convert.INSTANCE.parseHexString(JSON.getAsString(blockData.get("blockATs")));
-      return new Block(version, timestamp, previousBlock, totalAmountNQT, totalFeeNQT,
+      return new Block(dp, version, timestamp, previousBlock, totalAmountNQT, totalFeeNQT,
           payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature,
           previousBlockHash, new ArrayList<>(blockTransactions.values()), nonce, blockATs, height);
     } catch (BurstException.ValidationException | RuntimeException e) {

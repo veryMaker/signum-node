@@ -13,12 +13,12 @@ import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
-internal class SendMoneyMultiSame(private val parameterService: ParameterService, private val blockchain: Blockchain, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf<APITag>(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), apiTransactionManager, true, *commonParameters) {
+internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf<APITag>(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), true, *commonParameters) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
         val amountNQT = ParameterParser.getAmountNQT(req)
-        val sender = parameterService.getSenderAccount(req)
+        val sender = dp.parameterService.getSenderAccount(req)
         val recipientString = Convert.emptyToNull(req.getParameter(RECIPIENTS_PARAMETER))
 
 
@@ -59,7 +59,7 @@ internal class SendMoneyMultiSame(private val parameterService: ParameterService
             return response
         }
 
-        val attachment = Attachment.PaymentMultiSameOutCreation(recipients, blockchain.height)
+        val attachment = Attachment.PaymentMultiSameOutCreation(recipients, dp.blockchain.height)
 
         return createTransaction(req, sender, null, totalAmountNQT, attachment)
     }

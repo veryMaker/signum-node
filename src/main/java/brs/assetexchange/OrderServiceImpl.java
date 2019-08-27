@@ -13,24 +13,20 @@ import brs.util.Convert;
 import java.util.Collection;
 
 class OrderServiceImpl {
-
-  private final OrderStore orderStore;
+  private final DependencyProvider dp;
+  private final TradeServiceImpl tradeService;
   private final VersionedEntityTable<Ask> askOrderTable;
   private final LongKeyFactory<Ask> askOrderDbKeyFactory;
   private final VersionedEntityTable<Bid> bidOrderTable;
   private final LongKeyFactory<Bid> bidOrderDbKeyFactory;
-  private final AccountService accountService;
-  private final TradeServiceImpl tradeService;
 
-  public OrderServiceImpl(OrderStore orderStore, AccountService accountService, TradeServiceImpl tradeService) {
-    this.orderStore = orderStore;
-    this.askOrderTable = orderStore.getAskOrderTable();
-    this.askOrderDbKeyFactory = orderStore.getAskOrderDbKeyFactory();
-    this.bidOrderTable = orderStore.getBidOrderTable();
-    this.bidOrderDbKeyFactory = orderStore.getBidOrderDbKeyFactory();
-
-    this.accountService = accountService;
+  public OrderServiceImpl(DependencyProvider dp, TradeServiceImpl tradeService) {
+    this.dp = dp;
     this.tradeService = tradeService;
+    this.askOrderTable = dp.orderStore.getAskOrderTable();
+    this.askOrderDbKeyFactory = dp.orderStore.getAskOrderDbKeyFactory();
+    this.bidOrderTable = dp.orderStore.getBidOrderTable();
+    this.bidOrderDbKeyFactory = dp.orderStore.getBidOrderDbKeyFactory();
   }
 
   public Ask getAskOrder(long orderId) {
@@ -50,19 +46,19 @@ class OrderServiceImpl {
   }
 
   public Collection<Bid> getSortedBidOrders(long assetId, int from, int to) {
-    return orderStore.getSortedBids(assetId, from, to);
+    return dp.orderStore.getSortedBids(assetId, from, to);
   }
 
   public Collection<Ask> getAskOrdersByAccount(long accountId, int from, int to) {
-    return orderStore.getAskOrdersByAccount(accountId, from, to);
+    return dp.orderStore.getAskOrdersByAccount(accountId, from, to);
   }
 
   public Collection<Ask> getAskOrdersByAccountAsset(final long accountId, final long assetId, int from, int to) {
-    return orderStore.getAskOrdersByAccountAsset(accountId, assetId, from, to);
+    return dp.orderStore.getAskOrdersByAccountAsset(accountId, assetId, from, to);
   }
 
   public Collection<Ask> getSortedAskOrders(long assetId, int from, int to) {
-    return orderStore.getSortedAsks(assetId, from, to);
+    return dp.orderStore.getSortedAsks(assetId, from, to);
   }
 
   public int getBidCount() {
@@ -74,11 +70,11 @@ class OrderServiceImpl {
   }
 
   public Collection<Bid> getBidOrdersByAccount(long accountId, int from, int to) {
-    return orderStore.getBidOrdersByAccount(accountId, from, to);
+    return dp.orderStore.getBidOrdersByAccount(accountId, from, to);
   }
 
   public Collection<Bid> getBidOrdersByAccountAsset(final long accountId, final long assetId, int from, int to) {
-    return orderStore.getBidOrdersByAccountAsset(accountId, assetId, from, to);
+    return dp.orderStore.getBidOrdersByAccountAsset(accountId, assetId, from, to);
   }
 
   public void removeBidOrder(long orderId) {
@@ -104,11 +100,11 @@ class OrderServiceImpl {
   }
 
   private Ask getNextAskOrder(long assetId) {
-    return Burst.getStores().getOrderStore().getNextOrder(assetId);
+    return dp.orderStore.getNextOrder(assetId);
   }
 
   private Bid getNextBidOrder(long assetId) {
-    return Burst.getStores().getOrderStore().getNextBid(assetId);
+    return dp.orderStore.getNextBid(assetId);
   }
 
   private void matchOrders(long assetId) {
@@ -124,21 +120,19 @@ class OrderServiceImpl {
       }
 
 
-      Trade trade = tradeService.addTrade(assetId, Burst.getBlockchain().getLastBlock(), askOrder, bidOrder);
+      Trade trade = tradeService.addTrade(assetId, dp.blockchain.getLastBlock(), askOrder, bidOrder);
 
       askOrderUpdateQuantityQNT(askOrder, Convert.INSTANCE.safeSubtract(askOrder.getQuantityQNT(), trade.getQuantityQNT()));
-      Account askAccount = accountService.getAccount(askOrder.getAccountId());
-      accountService.addToBalanceAndUnconfirmedBalanceNQT(askAccount, Convert.INSTANCE.safeMultiply(trade.getQuantityQNT(), trade.getPriceNQT()));
-      accountService.addToAssetBalanceQNT(askAccount, assetId, -trade.getQuantityQNT());
+      Account askAccount = dp.accountService.getAccount(askOrder.getAccountId());
+      dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(askAccount, Convert.INSTANCE.safeMultiply(trade.getQuantityQNT(), trade.getPriceNQT()));
+      dp.accountService.addToAssetBalanceQNT(askAccount, assetId, -trade.getQuantityQNT());
 
       bidOrderUpdateQuantityQNT(bidOrder, Convert.INSTANCE.safeSubtract(bidOrder.getQuantityQNT(), trade.getQuantityQNT()));
-      Account bidAccount = accountService.getAccount(bidOrder.getAccountId());
-      accountService.addToAssetAndUnconfirmedAssetBalanceQNT(bidAccount, assetId, trade.getQuantityQNT());
-      accountService.addToBalanceNQT(bidAccount, -Convert.INSTANCE.safeMultiply(trade.getQuantityQNT(), trade.getPriceNQT()));
-      accountService.addToUnconfirmedBalanceNQT(bidAccount, Convert.INSTANCE.safeMultiply(trade.getQuantityQNT(), (bidOrder.getPriceNQT() - trade.getPriceNQT())));
-
+      Account bidAccount = dp.accountService.getAccount(bidOrder.getAccountId());
+      dp.accountService.addToAssetAndUnconfirmedAssetBalanceQNT(bidAccount, assetId, trade.getQuantityQNT());
+      dp.accountService.addToBalanceNQT(bidAccount, -Convert.INSTANCE.safeMultiply(trade.getQuantityQNT(), trade.getPriceNQT()));
+      dp.accountService.addToUnconfirmedBalanceNQT(bidAccount, Convert.INSTANCE.safeMultiply(trade.getQuantityQNT(), (bidOrder.getPriceNQT() - trade.getPriceNQT())));
     }
-
   }
 
   private void askOrderUpdateQuantityQNT(Ask askOrder, long quantityQNT) {
@@ -164,6 +158,4 @@ class OrderServiceImpl {
           + " for order: " + Convert.INSTANCE.toUnsignedLong(bidOrder.getId()));
     }
   }
-
-
 }

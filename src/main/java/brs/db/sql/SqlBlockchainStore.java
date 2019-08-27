@@ -18,19 +18,16 @@ import static brs.schema.Tables.BLOCK;
 import static brs.schema.Tables.TRANSACTION;
 
 public class SqlBlockchainStore implements BlockchainStore {
+  private final DependencyProvider dp;
 
-  private final TransactionDb transactionDb = Burst.getDbs().getTransactionDb();
-  private final BlockDb blockDb = Burst.getDbs().getBlockDb();
-  private final IndirectIncomingStore indirectIncomingStore;
-
-  public SqlBlockchainStore(IndirectIncomingStore indirectIncomingStore) {
-    this.indirectIncomingStore = indirectIncomingStore;
+  public SqlBlockchainStore(DependencyProvider dp) {
+    this.dp = dp;
   }
 
   @Override
   public Collection<Block> getBlocks(int from, int to) {
     return Db.useDSLContext(ctx -> {
-      int blockchainHeight = Burst.getBlockchain().getHeight();
+      int blockchainHeight = dp.blockchain.getHeight();
       return
         getBlocks(ctx.selectFrom(BLOCK)
                 .where(BLOCK.HEIGHT.between(to > 0 ? blockchainHeight - to : 0).and(blockchainHeight - Math.max(from, 0)))
@@ -54,7 +51,7 @@ public class SqlBlockchainStore implements BlockchainStore {
   public Collection<Block> getBlocks(Result<BlockRecord> blockRecords) {
     return blockRecords.map(blockRecord -> {
       try {
-        return blockDb.loadBlock(blockRecord);
+        return dp.dbs.getBlockDb().loadBlock(blockRecord);
       } catch (BurstException.ValidationException e) {
         throw new RuntimeException(e);
       }
@@ -89,7 +86,7 @@ public class SqlBlockchainStore implements BlockchainStore {
               .limit(limit)
               .fetch(result -> {
                 try {
-                  return blockDb.loadBlock(result);
+                  return dp.dbs.getBlockDb().loadBlock(result);
                 } catch (BurstException.ValidationException e) {
                   throw new RuntimeException(e.toString(), e);
                 }
@@ -114,9 +111,9 @@ public class SqlBlockchainStore implements BlockchainStore {
 
   @Override
   public Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype, int blockTimestamp, int from, int to, boolean includeIndirectIncoming) {
-    int height = numberOfConfirmations > 0 ? Burst.getBlockchain().getHeight() - numberOfConfirmations : Integer.MAX_VALUE;
+    int height = numberOfConfirmations > 0 ? dp.blockchain.getHeight() - numberOfConfirmations : Integer.MAX_VALUE;
     if (height < 0) {
-      throw new IllegalArgumentException("Number of confirmations required " + numberOfConfirmations + " exceeds current blockchain height " + Burst.getBlockchain().getHeight());
+      throw new IllegalArgumentException("Number of confirmations required " + numberOfConfirmations + " exceeds current blockchain height " + dp.blockchain.getHeight());
     }
     return Db.useDSLContext(ctx -> {
       ArrayList<Condition> conditions = new ArrayList<>();
@@ -146,7 +143,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       if (includeIndirectIncoming) {
         select = select.unionAll(ctx.selectFrom(TRANSACTION)
                 .where(conditions)
-                .and(TRANSACTION.ID.in(indirectIncomingStore.getIndirectIncomings(account.getId(), from, to))));
+                .and(TRANSACTION.ID.in(dp.indirectIncomingStore.getIndirectIncomings(account.getId(), from, to))));
       }
 
       SelectQuery<TransactionRecord> selectQuery = select
@@ -163,7 +160,7 @@ public class SqlBlockchainStore implements BlockchainStore {
   public Collection<Transaction> getTransactions(DSLContext ctx, Result<TransactionRecord> rs) {
     return rs.map(r -> {
       try {
-        return transactionDb.loadTransaction(r);
+        return dp.dbs.getTransactionDb().loadTransaction(r);
       } catch (BurstException.ValidationException e) {
         throw new RuntimeException(e);
       }
@@ -173,13 +170,13 @@ public class SqlBlockchainStore implements BlockchainStore {
   @Override
   public void addBlock(Block block) {
     Db.useDSLContext(ctx -> {
-      blockDb.saveBlock(ctx, block);
+      dp.dbs.getBlockDb().saveBlock(ctx, block);
     });
   }
 
   @Override
   public Collection<Block> getLatestBlocks(int amountBlocks) {
-    final int latestBlockHeight = blockDb.findLastBlock().getHeight();
+    final int latestBlockHeight = dp.dbs.getBlockDb().findLastBlock().getHeight();
 
     final int firstLatestBlockHeight = Math.max(0, latestBlockHeight - amountBlocks);
 

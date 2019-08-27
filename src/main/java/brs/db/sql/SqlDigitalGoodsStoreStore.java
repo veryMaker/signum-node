@@ -1,6 +1,7 @@
 package brs.db.sql;
 
 import brs.Burst;
+import brs.DependencyProvider;
 import brs.DigitalGoodsStore;
 import brs.crypto.EncryptedData;
 import brs.db.BurstKey;
@@ -20,6 +21,7 @@ import java.util.List;
 import static brs.schema.Tables.*;
 
 public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
+  private final DependencyProvider dp;
 
   private static final DbKey.LongKeyFactory<DigitalGoodsStore.Purchase> feedbackDbKeyFactory
     = new DbKey.LongKeyFactory<DigitalGoodsStore.Purchase>(PURCHASE.ID) {
@@ -61,8 +63,9 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
 
   private final VersionedEntityTable<DigitalGoodsStore.Goods> goodsTable;
 
-  public SqlDigitalGoodsStoreStore(DerivedTableManager derivedTableManager) {
-    purchaseTable = new VersionedEntitySqlTable<DigitalGoodsStore.Purchase>("purchase", brs.schema.Tables.PURCHASE, purchaseDbKeyFactory, derivedTableManager) {
+  public SqlDigitalGoodsStoreStore(DependencyProvider dp) {
+    this.dp = dp;
+    purchaseTable = new VersionedEntitySqlTable<DigitalGoodsStore.Purchase>("purchase", brs.schema.Tables.PURCHASE, purchaseDbKeyFactory, dp) {
       @Override
       protected DigitalGoodsStore.Purchase load(DSLContext ctx, Record rs) {
         return new SQLPurchase(rs);
@@ -82,7 +85,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
       }
     };
 
-    feedbackTable = new VersionedValuesSqlTable<DigitalGoodsStore.Purchase, EncryptedData>("purchase_feedback", brs.schema.Tables.PURCHASE_FEEDBACK, feedbackDbKeyFactory, derivedTableManager) {
+    feedbackTable = new VersionedValuesSqlTable<DigitalGoodsStore.Purchase, EncryptedData>("purchase_feedback", brs.schema.Tables.PURCHASE_FEEDBACK, feedbackDbKeyFactory, dp) {
 
       @Override
       protected EncryptedData load(DSLContext ctx, Record record) {
@@ -107,13 +110,13 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
         ).values(
             purchase.getId(),
             data, nonce,
-            brs.Burst.getBlockchain().getHeight(), true
+            dp.blockchain.getHeight(), true
         ).execute();
       }
     };
 
     publicFeedbackTable
-        = new VersionedValuesSqlTable<DigitalGoodsStore.Purchase, String>("purchase_public_feedback", brs.schema.Tables.PURCHASE_PUBLIC_FEEDBACK, publicFeedbackDbKeyFactory, derivedTableManager) {
+        = new VersionedValuesSqlTable<DigitalGoodsStore.Purchase, String>("purchase_public_feedback", brs.schema.Tables.PURCHASE_PUBLIC_FEEDBACK, publicFeedbackDbKeyFactory, dp) {
 
       @Override
       protected String load(DSLContext ctx, Record record) {
@@ -124,12 +127,12 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
       protected void save(DSLContext ctx, DigitalGoodsStore.Purchase purchase, String publicFeedback) {
         ctx.mergeInto(PURCHASE_PUBLIC_FEEDBACK, PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK, PURCHASE_PUBLIC_FEEDBACK.HEIGHT, PURCHASE_PUBLIC_FEEDBACK.LATEST)
                 .key(PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.HEIGHT)
-                .values(purchase.getId(), publicFeedback, Burst.getBlockchain().getHeight(), true)
+                .values(purchase.getId(), publicFeedback, dp.blockchain.getHeight(), true)
                 .execute();
       }
     };
 
-    goodsTable = new VersionedEntitySqlTable<DigitalGoodsStore.Goods>("goods", brs.schema.Tables.GOODS, goodsDbKeyFactory, derivedTableManager) {
+    goodsTable = new VersionedEntitySqlTable<DigitalGoodsStore.Goods>("goods", brs.schema.Tables.GOODS, goodsDbKeyFactory, dp) {
 
       @Override
       protected DigitalGoodsStore.Goods load(DSLContext ctx, Record rs) {
@@ -206,7 +209,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
   private void saveGoods(DSLContext ctx, DigitalGoodsStore.Goods goods) {
     ctx.mergeInto(GOODS, GOODS.ID, GOODS.SELLER_ID, GOODS.NAME, GOODS.DESCRIPTION, GOODS.TAGS, GOODS.TIMESTAMP, GOODS.QUANTITY, GOODS.PRICE, GOODS.DELISTED, GOODS.HEIGHT, GOODS.LATEST)
             .key(GOODS.ID, GOODS.HEIGHT)
-            .values(goods.getId(), goods.getSellerId(), goods.getName(), goods.getDescription(), goods.getTags(), goods.getTimestamp(), goods.getQuantity(), goods.getPriceNQT(), goods.isDelisted(), Burst.getBlockchain().getHeight(), true)
+            .values(goods.getId(), goods.getSellerId(), goods.getName(), goods.getDescription(), goods.getTags(), goods.getTimestamp(), goods.getQuantity(), goods.getPriceNQT(), goods.isDelisted(), dp.blockchain.getHeight(), true)
             .execute();
   }
 
@@ -231,7 +234,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
     }
     ctx.mergeInto(PURCHASE, PURCHASE.ID, PURCHASE.BUYER_ID, PURCHASE.GOODS_ID, PURCHASE.SELLER_ID, PURCHASE.QUANTITY, PURCHASE.PRICE, PURCHASE.DEADLINE, PURCHASE.NOTE, PURCHASE.NONCE, PURCHASE.TIMESTAMP, PURCHASE.PENDING, PURCHASE.GOODS, PURCHASE.GOODS_NONCE, PURCHASE.REFUND_NOTE, PURCHASE.REFUND_NONCE, PURCHASE.HAS_FEEDBACK_NOTES, PURCHASE.HAS_PUBLIC_FEEDBACKS, PURCHASE.DISCOUNT, PURCHASE.REFUND, PURCHASE.HEIGHT, PURCHASE.LATEST)
             .key(PURCHASE.ID, PURCHASE.HEIGHT)
-            .values(purchase.getId(), purchase.getBuyerId(), purchase.getGoodsId(), purchase.getSellerId(), purchase.getQuantity(), purchase.getPriceNQT(), purchase.getDeliveryDeadlineTimestamp(), note, nonce, purchase.getTimestamp(), purchase.isPending(), goods, goodsNonce, refundNote, refundNonce, purchase.getFeedbackNotes() != null && !purchase.getFeedbackNotes().isEmpty(), !purchase.getPublicFeedback().isEmpty(), purchase.getDiscountNQT(), purchase.getRefundNQT(), Burst.getBlockchain().getHeight(), true)
+            .values(purchase.getId(), purchase.getBuyerId(), purchase.getGoodsId(), purchase.getSellerId(), purchase.getQuantity(), purchase.getPriceNQT(), purchase.getDeliveryDeadlineTimestamp(), note, nonce, purchase.getTimestamp(), purchase.isPending(), goods, goodsNonce, refundNote, refundNonce, purchase.getFeedbackNotes() != null && !purchase.getFeedbackNotes().isEmpty(), !purchase.getPublicFeedback().isEmpty(), purchase.getDiscountNQT(), purchase.getRefundNQT(), dp.blockchain.getHeight(), true)
             .execute();
   }
 
@@ -309,7 +312,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
   class SQLPurchase extends DigitalGoodsStore.Purchase {
 
     SQLPurchase(Record record) {
-      super(
+      super(dp,
             record.get(PURCHASE.ID),
             purchaseDbKeyFactory.newKey(record.get(PURCHASE.ID)),
             record.get(PURCHASE.BUYER_ID),

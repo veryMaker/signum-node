@@ -28,7 +28,7 @@ abstract class AbstractIT {
         unmockkStatic(Burst::class)
         Burst.init(testProperties())
 
-        processBlock = ProcessBlock(Burst.getBlockchain(), Burst.getBlockchainProcessor())
+        processBlock = ProcessBlock(Burst.getBlockchain(), Burst.blockchainProcessor)
     }
 
     @After
@@ -59,6 +59,6 @@ abstract class AbstractIT {
     }
 
     fun rollback(height: Int) {
-        Burst.getBlockchainProcessor().popOffTo(0)
+        Burst.blockchainProcessor.popOffTo(0)
     }
 }

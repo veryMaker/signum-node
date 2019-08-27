@@ -3,25 +3,25 @@ package brs.feesuggestions;
 import brs.Block;
 import brs.BlockchainProcessor;
 import brs.BlockchainProcessor.Event;
+import brs.Constants;
+import brs.DependencyProvider;
 import brs.db.store.BlockchainStore;
 
 import java.util.Arrays;
 
 import static brs.Constants.FEE_QUANT;
 
-public class FeeSuggestionCalculator {
+public class FeeSuggestionCalculator { // TODO interface
 
   // index 0 = oldest, length-1 = newest
   private final Block[] latestBlocks;
-
-  private final BlockchainStore blockchainStore;
-
+  private final DependencyProvider dp;
   private FeeSuggestion feeSuggestion = new FeeSuggestion(FEE_QUANT, FEE_QUANT, FEE_QUANT);
 
-  public FeeSuggestionCalculator(BlockchainProcessor blockchainProcessor, BlockchainStore blockchainStore, int historyLength) {
-    latestBlocks = new Block[historyLength];
-    this.blockchainStore = blockchainStore;
-    blockchainProcessor.addListener(this::newBlockApplied, Event.AFTER_BLOCK_APPLY);
+  public FeeSuggestionCalculator(DependencyProvider dp) {
+    this.dp = dp;
+    latestBlocks = new Block[Constants.FEE_SUGGESTION_MAX_HISTORY_LENGTH];
+    dp.blockchainProcessor.addListener(this::newBlockApplied, Event.AFTER_BLOCK_APPLY);
   }
 
   public FeeSuggestion giveFeeSuggestion() {
@@ -43,7 +43,7 @@ public class FeeSuggestionCalculator {
   }
 
   private void fillInitialHistory() {
-    blockchainStore.getLatestBlocks(latestBlocks.length).forEach(this::pushNewBlock);
+    dp.blockchainStore.getLatestBlocks(latestBlocks.length).forEach(this::pushNewBlock);
   }
 
   private boolean latestBlocksIsEmpty() {

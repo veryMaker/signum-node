@@ -17,13 +17,13 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.*
 
-internal class DGSDelivery internal constructor(private val parameterService: ParameterService, private val blockchain: Blockchain, private val accountService: AccountService, apiTransactionManager: APITransactionManager) : CreateTransaction(arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), apiTransactionManager, PURCHASE_PARAMETER, DISCOUNT_NQT_PARAMETER, GOODS_TO_ENCRYPT_PARAMETER, GOODS_IS_TEXT_PARAMETER, GOODS_DATA_PARAMETER, GOODS_NONCE_PARAMETER) {
+internal class DGSDelivery internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), PURCHASE_PARAMETER, DISCOUNT_NQT_PARAMETER, GOODS_TO_ENCRYPT_PARAMETER, GOODS_IS_TEXT_PARAMETER, GOODS_DATA_PARAMETER, GOODS_NONCE_PARAMETER) {
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
 
-        val sellerAccount = parameterService.getSenderAccount(req)
-        val purchase = parameterService.getPurchase(req)
+        val sellerAccount = dp.parameterService.getSenderAccount(req)
+        val purchase = dp.parameterService.getPurchase(req)
         if (sellerAccount.getId() != purchase.sellerId) {
             return INCORRECT_PURCHASE
         }
@@ -47,7 +47,7 @@ internal class DGSDelivery internal constructor(private val parameterService: Pa
             return INCORRECT_DGS_DISCOUNT
         }
 
-        val buyerAccount = accountService.getAccount(purchase.buyerId)
+        val buyerAccount = dp.accountService.getAccount(purchase.buyerId)
         val goodsIsText = !isFalse(req.getParameter(GOODS_IS_TEXT_PARAMETER))
         var encryptedGoods = ParameterParser.getEncryptedGoods(req)
 
@@ -67,7 +67,7 @@ internal class DGSDelivery internal constructor(private val parameterService: Pa
             encryptedGoods = buyerAccount.encryptTo(goodsBytes, secretPhrase)
         }
 
-        val attachment = Attachment.DigitalGoodsDelivery(purchase.id, encryptedGoods!!, goodsIsText, discountNQT, blockchain.height)
+        val attachment = Attachment.DigitalGoodsDelivery(purchase.id, encryptedGoods!!, goodsIsText, discountNQT, dp.blockchain.height)
         return createTransaction(req, sellerAccount, buyerAccount.getId(), 0, attachment)
 
     }

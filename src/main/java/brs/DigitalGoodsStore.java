@@ -18,12 +18,12 @@ public final class DigitalGoodsStore {
 
   public static class Goods {
 
-    private static BurstKey.LongKeyFactory<Goods> goodsDbKeyFactory() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getGoodsDbKeyFactory();
+    private static BurstKey.LongKeyFactory<Goods> goodsDbKeyFactory(DependencyProvider dp) {
+      return dp.digitalGoodsStoreStore.getGoodsDbKeyFactory();
     }
 
-    private static VersionedEntityTable<Goods> goodsTable() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getGoodsTable();
+    private static VersionedEntityTable<Goods> goodsTable(DependencyProvider dp) {
+      return dp.digitalGoodsStoreStore.getGoodsTable();
     }
 
     private final long id;
@@ -121,25 +121,27 @@ public final class DigitalGoodsStore {
 
   public static class Purchase {
 
-    private static BurstKey.LongKeyFactory<Purchase> purchaseDbKeyFactory() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getPurchaseDbKeyFactory();
+    private static BurstKey.LongKeyFactory<Purchase> purchaseDbKeyFactory(DependencyProvider dp) {
+      return dp.digitalGoodsStoreStore.getPurchaseDbKeyFactory();
     }
 
-    private static BurstKey.LongKeyFactory<Purchase> feedbackDbKeyFactory() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getFeedbackDbKeyFactory();
+    private static BurstKey.LongKeyFactory<Purchase> feedbackDbKeyFactory(DependencyProvider dp) {
+      return dp.digitalGoodsStoreStore.getFeedbackDbKeyFactory();
     }
 
-    private static VersionedValuesTable<Purchase, EncryptedData> feedbackTable() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getFeedbackTable();
+    private static VersionedValuesTable<Purchase, EncryptedData> feedbackTable(DependencyProvider dp) {
+      return dp.digitalGoodsStoreStore.getFeedbackTable();
     }
 
-    private static BurstKey.LongKeyFactory<Purchase> publicFeedbackDbKeyFactory() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getPublicFeedbackDbKeyFactory();
+    private static BurstKey.LongKeyFactory<Purchase> publicFeedbackDbKeyFactory(DependencyProvider dp) {
+      return dp.digitalGoodsStoreStore.getPublicFeedbackDbKeyFactory();
     }
 
-    private static VersionedValuesTable<Purchase, String> publicFeedbackTable() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getPublicFeedbackTable();
+    private static VersionedValuesTable<Purchase, String> publicFeedbackTable(DependencyProvider dp) {
+      return dp.digitalGoodsStoreStore.getPublicFeedbackTable();
     }
+
+    private final DependencyProvider dp;
 
     private final long id;
     public final BurstKey dbKey;
@@ -162,9 +164,10 @@ public final class DigitalGoodsStore {
     private long discountNQT;
     private long refundNQT;
 
-    public Purchase(Transaction transaction, Attachment.DigitalGoodsPurchase attachment, long sellerId) {
+    public Purchase(DependencyProvider dp, Transaction transaction, Attachment.DigitalGoodsPurchase attachment, long sellerId) {
+      this.dp = dp;
       this.id = transaction.getId();
-      this.dbKey = purchaseDbKeyFactory().newKey(this.id);
+      this.dbKey = purchaseDbKeyFactory(dp).newKey(this.id);
       this.buyerId = transaction.getSenderId();
       this.goodsId = attachment.getGoodsId();
       this.sellerId = sellerId;
@@ -176,11 +179,12 @@ public final class DigitalGoodsStore {
       this.isPending = true;
     }
 
-    protected Purchase(long id, BurstKey dbKey, long buyerId, long goodsId, long sellerId, int quantity,
+    protected Purchase(DependencyProvider dp, long id, BurstKey dbKey, long buyerId, long goodsId, long sellerId, int quantity,
                        long priceNQT, int deadline, EncryptedData note, int timestamp, boolean isPending,
                        EncryptedData encryptedGoods,EncryptedData refundNote,
                        boolean hasFeedbackNotes, boolean hasPublicFeedbacks,
                        long discountNQT, long refundNQT) {
+      this.dp = dp;
       this.id = id;
       this.dbKey = dbKey;
       this.buyerId = buyerId;
@@ -244,7 +248,7 @@ public final class DigitalGoodsStore {
     }
 
     public String getName() {
-      return getGoods(goodsId).getName();
+      return getGoods(dp, goodsId).getName();
     }
 
     public EncryptedData getEncryptedGoods() {
@@ -272,7 +276,7 @@ public final class DigitalGoodsStore {
       if (!hasFeedbackNotes) {
         return null;
       }
-      feedbackNotes = feedbackTable().get(feedbackDbKeyFactory().newKey(this));
+      feedbackNotes = feedbackTable(dp).get(feedbackDbKeyFactory(dp).newKey(this));
       return feedbackNotes;
     }
 
@@ -288,7 +292,7 @@ public final class DigitalGoodsStore {
       if (!hasPublicFeedbacks) {
         return Collections.emptyList();
       }
-      publicFeedbacks =  publicFeedbackTable().get(publicFeedbackDbKeyFactory().newKey(this));
+      publicFeedbacks =  publicFeedbackTable(dp).get(publicFeedbackDbKeyFactory(dp).newKey(this));
       return publicFeedbacks;
     }
 
@@ -317,8 +321,8 @@ public final class DigitalGoodsStore {
     }
   }
 
-  private static Goods getGoods(long goodsId) {
-    return Goods.goodsTable().get(Goods.goodsDbKeyFactory().newKey(goodsId));
+  private static Goods getGoods(DependencyProvider dp, long goodsId) {
+    return Goods.goodsTable(dp).get(Goods.goodsDbKeyFactory(dp).newKey(goodsId));
   }
 
 }

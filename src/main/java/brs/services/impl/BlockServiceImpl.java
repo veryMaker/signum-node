@@ -18,26 +18,18 @@ import java.util.Arrays;
 
 public class BlockServiceImpl implements BlockService {
 
-  private final AccountService accountService;
-  private final TransactionService transactionService;
-  private final Blockchain blockchain;
-  private final DownloadCacheImpl downloadCache;
-  private final Generator generator;
+  private final DependencyProvider dp;
 
   private static final Logger logger = LoggerFactory.getLogger(BlockServiceImpl.class);
 
-  public BlockServiceImpl(AccountService accountService, TransactionService transactionService, Blockchain blockchain, DownloadCacheImpl downloadCache, Generator generator) {
-    this.accountService = accountService;
-    this.transactionService = transactionService;
-    this.blockchain = blockchain;
-    this.downloadCache = downloadCache;
-    this.generator = generator;
+  public BlockServiceImpl(DependencyProvider dp) {
+    this.dp = dp;
   }
 
   @Override
   public boolean verifyBlockSignature(Block block) throws BlockchainProcessor.BlockOutOfOrderException {
     try {
-      Block previousBlock = blockchain.getBlock(block.getPreviousBlockId());
+      Block previousBlock = dp.blockchain.getBlock(block.getPreviousBlockId());
       if (previousBlock == null) {
         throw new BlockchainProcessor.BlockOutOfOrderException(
             "Can't verify signature because previous block is missing");
@@ -48,16 +40,16 @@ public class BlockServiceImpl implements BlockService {
       System.arraycopy(data, 0, data2, 0, data2.length);
 
       byte[] publicKey;
-      Account genAccount = accountService.getAccount(block.getGeneratorPublicKey());
+      Account genAccount = dp.accountService.getAccount(block.getGeneratorPublicKey());
       Account.RewardRecipientAssignment rewardAssignment;
-      rewardAssignment = genAccount == null ? null : accountService.getRewardRecipientAssignment(genAccount);
-      if (genAccount == null || rewardAssignment == null || !Burst.getFluxCapacitor().getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
+      rewardAssignment = genAccount == null ? null : dp.accountService.getRewardRecipientAssignment(genAccount);
+      if (genAccount == null || rewardAssignment == null || !dp.fluxCapacitor.getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
         publicKey = block.getGeneratorPublicKey();
       } else {
         if (previousBlock.getHeight() + 1 >= rewardAssignment.getFromHeight()) {
-          publicKey = accountService.getAccount(rewardAssignment.getRecipientId()).getPublicKey();
+          publicKey = dp.accountService.getAccount(rewardAssignment.getRecipientId()).getPublicKey();
         } else {
-          publicKey = accountService.getAccount(rewardAssignment.getPrevRecipientId()).getPublicKey();
+          publicKey = dp.accountService.getAccount(rewardAssignment.getPrevRecipientId()).getPublicKey();
         }
       }
 
@@ -75,14 +67,14 @@ public class BlockServiceImpl implements BlockService {
   @Override
   public boolean verifyGenerationSignature(final Block block) throws BlockchainProcessor.BlockNotAcceptedException {
     try {
-      Block previousBlock = blockchain.getBlock(block.getPreviousBlockId());
+      Block previousBlock = dp.blockchain.getBlock(block.getPreviousBlockId());
 
       if (previousBlock == null) {
         throw new BlockchainProcessor.BlockOutOfOrderException(
             "Can't verify generation signature because previous block is missing");
       }
 
-      byte[] correctGenerationSignature = generator.calculateGenerationSignature(
+      byte[] correctGenerationSignature = dp.generator.calculateGenerationSignature(
           previousBlock.getGenerationSignature(), previousBlock.getGeneratorId());
       if (!Arrays.equals(block.getGenerationSignature(), correctGenerationSignature)) {
         return false;
@@ -111,9 +103,9 @@ public class BlockServiceImpl implements BlockService {
     try {
       // Pre-verify poc:
       if (scoopData == null) {
-        block.setPocTime(generator.calculateHit(block.getGeneratorId(), block.getNonce(), block.getGenerationSignature(), getScoopNum(block), block.getHeight()));
+        block.setPocTime(dp.generator.calculateHit(block.getGeneratorId(), block.getNonce(), block.getGenerationSignature(), getScoopNum(block), block.getHeight()));
       } else {
-        block.setPocTime(generator.calculateHit(block.getGeneratorId(), block.getNonce(), block.getGenerationSignature(), scoopData));
+        block.setPocTime(dp.generator.calculateHit(block.getGeneratorId(), block.getNonce(), block.getGenerationSignature(), scoopData));
       }
     } catch (RuntimeException e) {
       logger.info("Error pre-verifying block generation signature", e);
@@ -136,27 +128,27 @@ public class BlockServiceImpl implements BlockService {
 
   @Override
   public void apply(Block block) {
-    Account generatorAccount = accountService.getOrAddAccount(block.getGeneratorId());
-    generatorAccount.apply(block.getGeneratorPublicKey(), block.getHeight());
-    if (!Burst.getFluxCapacitor().getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
-      accountService.addToBalanceAndUnconfirmedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + getBlockReward(block));
-      accountService.addToForgedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + getBlockReward(block));
+    Account generatorAccount = dp.accountService.getOrAddAccount(block.getGeneratorId());
+    generatorAccount.apply(dp, block.getGeneratorPublicKey(), block.getHeight());
+    if (!dp.fluxCapacitor.getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
+      dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + getBlockReward(block));
+      dp.accountService.addToForgedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + getBlockReward(block));
     } else {
       Account rewardAccount;
-      Account.RewardRecipientAssignment rewardAssignment = accountService.getRewardRecipientAssignment(generatorAccount);
+      Account.RewardRecipientAssignment rewardAssignment = dp.accountService.getRewardRecipientAssignment(generatorAccount);
       if (rewardAssignment == null) {
         rewardAccount = generatorAccount;
       } else if (block.getHeight() >= rewardAssignment.getFromHeight()) {
-        rewardAccount = accountService.getAccount(rewardAssignment.getRecipientId());
+        rewardAccount = dp.accountService.getAccount(rewardAssignment.getRecipientId());
       } else {
-        rewardAccount = accountService.getAccount(rewardAssignment.getPrevRecipientId());
+        rewardAccount = dp.accountService.getAccount(rewardAssignment.getPrevRecipientId());
       }
-      accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + getBlockReward(block));
-      accountService.addToForgedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + getBlockReward(block));
+      dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + getBlockReward(block));
+      dp.accountService.addToForgedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + getBlockReward(block));
     }
 
     for(Transaction transaction : block.getTransactions()) {
-      transactionService.apply(transaction);
+      dp.transactionService.apply(transaction);
     }
   }
 
@@ -203,7 +195,7 @@ public class BlockServiceImpl implements BlockService {
       Block itBlock = previousBlock;
       BigInteger avgBaseTarget = BigInteger.valueOf(itBlock.getBaseTarget());
       do {
-        itBlock = downloadCache.getBlock(itBlock.getPreviousBlockId());
+        itBlock = dp.downloadCache.getBlock(itBlock.getPreviousBlockId());
         avgBaseTarget = avgBaseTarget.add(BigInteger.valueOf(itBlock.getBaseTarget()));
       } while (itBlock.getHeight() > block.getHeight() - 4);
       avgBaseTarget = avgBaseTarget.divide(BigInteger.valueOf(4));
@@ -236,7 +228,7 @@ public class BlockServiceImpl implements BlockService {
       int blockCounter = 1;
       do {
         int previousHeight = itBlock.getHeight();
-        itBlock = downloadCache.getBlock(itBlock.getPreviousBlockId());
+        itBlock = dp.downloadCache.getBlock(itBlock.getPreviousBlockId());
         if (itBlock == null) {
           throw new BlockOutOfOrderException("Previous block does no longer exist for block height " + previousHeight);
         }
@@ -283,6 +275,6 @@ public class BlockServiceImpl implements BlockService {
 
   @Override
   public int getScoopNum(Block block) {
-    return generator.calculateScoop(block.getGenerationSignature(), block.getHeight());
+    return dp.generator.calculateScoop(block.getGenerationSignature(), block.getHeight());
   }
 }
