@@ -193,7 +193,7 @@ class AccountServiceImplTest {
         val createdAccount = t!!.getOrAddAccount(accountId)
 
         assertNotNull(createdAccount)
-        assertEquals(accountId, createdAccount.getId())
+        assertEquals(accountId, createdAccount.id)
 
         verify(accountTableMock!!).insert(eq(createdAccount))
     }

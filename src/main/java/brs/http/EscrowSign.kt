@@ -52,28 +52,28 @@ internal class EscrowSign internal constructor(private val dp: DependencyProvide
             return response
         }
 
-        if (escrow.getSenderId() == sender.getId() && decision != Escrow.DecisionType.RELEASE) {
+        if (escrow.senderId == sender.id && decision != Escrow.DecisionType.RELEASE) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 4)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Sender can only release")
             return response
         }
 
-        if (escrow.getRecipientId() == sender.getId() && decision != Escrow.DecisionType.REFUND) {
+        if (escrow.recipientId == sender.id && decision != Escrow.DecisionType.REFUND) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 4)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Recipient can only refund")
             return response
         }
 
-        val attachment = Attachment.AdvancedPaymentEscrowSign(escrow.getId(), decision, dp.blockchain.height)
+        val attachment = Attachment.AdvancedPaymentEscrowSign(escrow.id, decision, dp.blockchain.height)
 
         return createTransaction(req, sender, null, 0, attachment)
     }
 
     private fun isValidUser(escrow: Escrow, sender: Account): Boolean {
-        return escrow.getSenderId() == sender.getId() ||
-                escrow.getRecipientId() == sender.getId() ||
-                dp.escrowService.isIdSigner(sender.getId(), escrow)
+        return escrow.senderId == sender.id ||
+                escrow.recipientId == sender.id ||
+                dp.escrowService.isIdSigner(sender.id, escrow)
     }
 }

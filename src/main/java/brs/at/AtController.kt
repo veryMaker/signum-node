@@ -1,25 +1,22 @@
 package brs.at
 
 import brs.Account
-import brs.Burst
 import brs.DependencyProvider
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
 import brs.props.Props
 import brs.util.Convert
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.helpers.NOPLogger
 
 import java.nio.BufferUnderflowException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.security.MessageDigest
 import java.util.*
 
 object AtController {
     // TODO remove static dp
-    private var dp: DependencyProvider? = null
+    private lateinit var dp: DependencyProvider
 
     private val logger = LoggerFactory.getLogger(AtController::class.java)
 
@@ -43,11 +40,11 @@ object AtController {
 
         state.setFreeze(false)
 
-        val stepFee = AtConstants.getInstance().stepFee(state.creationBlockHeight)
+        val stepFee = AtConstants.stepFee(state.creationBlockHeight)
 
         var numSteps = getNumSteps(state.apCode.get(state.machineState.pc), state.creationBlockHeight)
 
-        while (state.machineState.steps + numSteps <= AtConstants.getInstance().maxSteps(state.height)) {
+        while (state.machineState.steps + numSteps <= AtConstants.maxSteps(state.height)) {
 
             if (state.getgBalance() < stepFee * numSteps) {
                 debugLogger.debug("stopped - not enough balance")
@@ -92,7 +89,7 @@ object AtController {
     }
 
     private fun getNumSteps(op: Byte, height: Int): Int {
-        return if (op >= 0x32 && op < 0x38) AtConstants.getInstance().apiStepMultiplier(height).toInt() else 1
+        return if (op >= 0x32 && op < 0x38) AtConstants.apiStepMultiplier(height).toInt() else 1
 
     }
 
@@ -139,7 +136,7 @@ object AtController {
             b.put(creation)
             b.clear()
 
-            val instance = AtConstants.getInstance()
+            val instance = AtConstants
 
             val version = b.short
             if (version != instance.atVersion(height)) {
@@ -242,7 +239,7 @@ object AtController {
                 continue
             }
 
-            if (atAccountBalance >= AtConstants.getInstance().stepFee(at.creationBlockHeight) * AtConstants.getInstance().apiStepMultiplier(at.creationBlockHeight)) {
+            if (atAccountBalance >= AtConstants.stepFee(at.creationBlockHeight) * AtConstants.apiStepMultiplier(at.creationBlockHeight)) {
                 try {
                     at.setgBalance(atAccountBalance)
                     at.height = blockHeight
@@ -251,7 +248,7 @@ object AtController {
                     listCode(at, true, true)
                     runSteps(at)
 
-                    var fee = at.machineState.steps * AtConstants.getInstance().stepFee(at.creationBlockHeight)
+                    var fee = at.machineState.steps * AtConstants.stepFee(at.creationBlockHeight)
                     if (at.machineState.dead) {
                         fee += at.getgBalance()!!
                         at.setgBalance(0L)
@@ -309,7 +306,7 @@ object AtController {
                 at.waitForNumberOfBlocks = at.sleepBetween
 
                 val atAccountBalance = getATAccountBalance(AtApiHelper.getLong(atId))
-                if (atAccountBalance < AtConstants.getInstance().stepFee(at.creationBlockHeight) * AtConstants.getInstance().apiStepMultiplier(at.creationBlockHeight)) {
+                if (atAccountBalance < AtConstants.stepFee(at.creationBlockHeight) * AtConstants.apiStepMultiplier(at.creationBlockHeight)) {
                     throw AtException("AT has insufficient balance to run")
                 }
 
@@ -327,7 +324,7 @@ object AtController {
 
                 runSteps(at)
 
-                var fee = at.machineState.steps * AtConstants.getInstance().stepFee(at.creationBlockHeight)
+                var fee = at.machineState.steps * AtConstants.stepFee(at.creationBlockHeight)
                 if (at.machineState.dead) {
                     fee += at.getgBalance()!!
                     at.setgBalance(0L)
@@ -420,14 +417,14 @@ object AtController {
     private fun makeTransactions(at: AT): Long {
         var totalAmount: Long = 0
         if (!dp!!.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, at.height)) {
-            for (tx in at.transactions) {
+            for (tx in at.transactions.values) {
                 if (AT.findPendingTransaction(tx.recipientId)) {
                     throw AtException("Conflicting transaction found")
                 }
             }
         }
-        for (tx in at.transactions) {
-            totalAmount += tx.amount!!
+        for (tx in at.transactions.values) {
+            totalAmount += tx.amount
             AT.addPendingTransaction(tx)
             if (logger.isDebugEnabled) {
                 logger.debug("Transaction to {}, amount {}", Convert.toUnsignedLong(AtApiHelper.getLong(tx.recipientId)), tx.amount)

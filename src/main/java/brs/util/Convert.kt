@@ -20,8 +20,8 @@ object Convert {
 
     val two64: BigInteger = BigInteger.valueOf(2).pow(64)
 
-    fun parseHexString(hexString: String?): ByteArray? {
-        var hex = hexString ?: return null
+    fun parseHexString(hexString: String): ByteArray {
+        var hex = hexString
         try {
             if (hex.length % 2 != 0) {
                 hex = hex.substring(0, hex.length - 1)
@@ -33,8 +33,8 @@ object Convert {
 
     }
 
-    fun toHexString(bytes: ByteArray?): String? {
-        return if (bytes == null) null else Hex.toHexString(bytes)
+    fun toHexString(bytes: ByteArray): String {
+        return Hex.toHexString(bytes)
     }
 
     fun toUnsignedLong(objectId: Long): String {

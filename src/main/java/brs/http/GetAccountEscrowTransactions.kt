@@ -20,7 +20,7 @@ internal class GetAccountEscrowTransactions internal constructor(private val par
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(req)
 
-        val accountEscrows = escrowService.getEscrowTransactionsByParticipant(account.getId())
+        val accountEscrows = escrowService.getEscrowTransactionsByParticipant(account.id)
 
         val response = JsonObject()
 

@@ -20,7 +20,7 @@ internal class GetAccountATs internal constructor(private val parameterService: 
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(req) // TODO this is super redundant
 
-        val atIds = atService.getATsIssuedBy(account.getId())
+        val atIds = atService.getATsIssuedBy(account.id)
         val ats = JsonArray()
         for (atId in atIds) {
             ats.add(JSONData.at(atService.getAT(atId), accountService))

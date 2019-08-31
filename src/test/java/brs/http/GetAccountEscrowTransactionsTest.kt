@@ -54,29 +54,29 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
         )
 
         val account = mock<Account>()
-        whenever(account.getId()).doReturn(accountId)
+        whenever(account.id).doReturn(accountId)
         whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(account)
 
         val escrow = mock<Escrow>()
-        whenever(escrow.getId()).doReturn(1L)
-        whenever(escrow.getSenderId()).doReturn(2L)
-        whenever(escrow.getRecipientId()).doReturn(3L)
-        whenever(escrow.getAmountNQT()).doReturn(4L)
-        whenever(escrow.getRequiredSigners()).doReturn(5)
-        whenever(escrow.getDeadlineAction()).doReturn(DecisionType.UNDECIDED)
+        whenever(escrow.id).doReturn(1L)
+        whenever(escrow.senderId).doReturn(2L)
+        whenever(escrow.recipientId).doReturn(3L)
+        whenever(escrow.amountNQT).doReturn(4L)
+        whenever(escrow.requiredSigners).doReturn(5)
+        whenever(escrow.deadlineAction).doReturn(DecisionType.UNDECIDED)
 
         val decision = mock<Decision>()
-        whenever(decision.getAccountId()).doReturn(3L)
+        whenever(decision.accountId).doReturn(3L)
         whenever(decision.decision).doReturn(DecisionType.UNDECIDED)
 
         val skippedDecision = mock<Decision>()
-        whenever(skippedDecision.getAccountId()).doReturn(5L)
+        whenever(skippedDecision.accountId).doReturn(5L)
 
         val otherSkippedDecision = mock<Decision>()
-        whenever(otherSkippedDecision.getAccountId()).doReturn(6L)
+        whenever(otherSkippedDecision.accountId).doReturn(6L)
 
-        whenever(escrow.getRecipientId()).doReturn(5L)
-        whenever(escrow.getSenderId()).doReturn(6L)
+        whenever(escrow.recipientId).doReturn(5L)
+        whenever(escrow.senderId).doReturn(6L)
 
         val decisionsIterator = mockCollection<Decision>(decision, skippedDecision, otherSkippedDecision)
         whenever(escrow.decisions).doReturn(decisionsIterator)
@@ -94,21 +94,21 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
         val result = resultList.get(0) as JsonObject
         assertNotNull(result)
 
-        assertEquals("" + escrow.getId()!!, JSON.getAsString(result.get(ID_RESPONSE)))
-        assertEquals("" + escrow.getSenderId()!!, JSON.getAsString(result.get(SENDER_RESPONSE)))
+        assertEquals("" + escrow.id!!, JSON.getAsString(result.get(ID_RESPONSE)))
+        assertEquals("" + escrow.senderId!!, JSON.getAsString(result.get(SENDER_RESPONSE)))
         assertEquals("BURST-2228-2222-BMNG-22222", JSON.getAsString(result.get(SENDER_RS_RESPONSE)))
-        assertEquals("" + escrow.getRecipientId()!!, JSON.getAsString(result.get(RECIPIENT_RESPONSE)))
+        assertEquals("" + escrow.recipientId!!, JSON.getAsString(result.get(RECIPIENT_RESPONSE)))
         assertEquals("BURST-2227-2222-ZAYB-22222", JSON.getAsString(result.get(RECIPIENT_RS_RESPONSE)))
-        assertEquals("" + escrow.getAmountNQT()!!, JSON.getAsString(result.get(AMOUNT_NQT_RESPONSE)))
-        assertEquals(escrow.getRequiredSigners().toLong(), JSON.getAsInt(result.get(REQUIRED_SIGNERS_RESPONSE)).toLong())
-        assertEquals(escrow.getDeadline().toLong(), JSON.getAsInt(result.get(DEADLINE_RESPONSE)).toLong())
+        assertEquals("" + escrow.amountNQT!!, JSON.getAsString(result.get(AMOUNT_NQT_RESPONSE)))
+        assertEquals(escrow.requiredSigners.toLong(), JSON.getAsInt(result.get(REQUIRED_SIGNERS_RESPONSE)).toLong())
+        assertEquals(escrow.deadline.toLong(), JSON.getAsInt(result.get(DEADLINE_RESPONSE)).toLong())
         assertEquals("undecided", JSON.getAsString(result.get(DEADLINE_ACTION_RESPONSE)))
 
         val signersResult = result.get(SIGNERS_RESPONSE) as JsonArray
         assertEquals(1, signersResult.size().toLong())
 
         val signer = signersResult.get(0) as JsonObject
-        assertEquals("" + decision.getAccountId()!!, JSON.getAsString(signer.get(ID_RESPONSE)))
+        assertEquals("" + decision.accountId!!, JSON.getAsString(signer.get(ID_RESPONSE)))
         assertEquals("BURST-2225-2222-QVC9-22222", JSON.getAsString(signer.get(ID_RS_RESPONSE)))
         assertEquals("undecided", JSON.getAsString(signer.get(DECISION_RESPONSE)))
     }

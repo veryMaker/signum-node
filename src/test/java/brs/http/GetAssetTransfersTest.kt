@@ -89,7 +89,7 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(accountId)
+        whenever(mockAccount.id).doReturn(accountId)
 
         val mockAssetTransfer = mock<AssetTransfer>()
         val mockAssetTransferIterator = mockCollection<AssetTransfer>(mockAssetTransfer)
@@ -124,7 +124,7 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         whenever(mockAsset.name).doReturn("assetName")
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(accountId)
+        whenever(mockAccount.id).doReturn(accountId)
 
         val mockAssetTransfer = mock<AssetTransfer>()
         whenever(mockAssetTransfer.assetId).doReturn(assetId)

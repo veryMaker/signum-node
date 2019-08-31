@@ -44,7 +44,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
         )
 
         val targetAccount = mock<Account>()
-        whenever(targetAccount.getId()).doReturn(targetAccountId)
+        whenever(targetAccount.id).doReturn(targetAccountId)
         whenever(targetAccount.name).doReturn(targetAccountName)
 
         val mockIterator = mockCollection<Account>(targetAccount)

@@ -52,7 +52,7 @@ class GetAccountTest : AbstractUnitTest() {
         val req = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(mockAccountId)
+        whenever(mockAccount.id).doReturn(mockAccountId)
         whenever(mockAccount.publicKey).doReturn(byteArrayOf(1.toByte()))
         whenever(mockAccount.name).doReturn(mockAccountName)
         whenever(mockAccount.description).doReturn(mockAccountDescription)
@@ -60,7 +60,7 @@ class GetAccountTest : AbstractUnitTest() {
         whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
         val mockAccountAsset = mock<AccountAsset>()
-        whenever(mockAccountAsset.getAssetId()).doReturn(mockAssetId)
+        whenever(mockAccountAsset.assetId).doReturn(mockAssetId)
         whenever(mockAccountAsset.unconfirmedQuantityQNT).doReturn(mockUnconfirmedQuantityNQT)
         whenever(mockAccountAsset.quantityQNT).doReturn(balanceNQT)
         val mockAssetOverview = mockCollection<AccountAsset>(mockAccountAsset)

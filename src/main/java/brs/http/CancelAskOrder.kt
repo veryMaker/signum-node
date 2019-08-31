@@ -17,7 +17,7 @@ internal class CancelAskOrder(private val dp: DependencyProvider) : CreateTransa
         val orderId = ParameterParser.getOrderId(req)
         val account = dp.parameterService.getSenderAccount(req)
         val orderData = dp.assetExchange.getAskOrder(orderId)
-        if (orderData == null || orderData.accountId != account.getId()) {
+        if (orderData == null || orderData.accountId != account.id) {
             return UNKNOWN_ORDER
         }
         val attachment = Attachment.ColoredCoinsAskOrderCancellation(orderId, dp.blockchain.height)

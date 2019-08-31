@@ -34,8 +34,8 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
 
         val purchaseBuyerId: Long = 34
         val purchaseBuyer = mock<Account>()
-        whenever(purchaseBuyer.getId()).doReturn(purchaseBuyerId)
-        whenever(accountServiceMock!!.getAccount(eq(purchaseBuyer.getId()))).doReturn(purchaseBuyer)
+        whenever(purchaseBuyer.id).doReturn(purchaseBuyerId)
+        whenever(accountServiceMock!!.getAccount(eq(purchaseBuyer.id))).doReturn(purchaseBuyer)
 
         val expiredPurchase = mock<Purchase>()
         whenever(expiredPurchase.quantity).doReturn(5)

@@ -18,7 +18,7 @@ internal class GetAccountCurrentAskOrders internal constructor(private val param
 
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val accountId = parameterService.getAccount(req).getId()
+        val accountId = parameterService.getAccount(req).id
 
         var assetId: Long = 0
         try {

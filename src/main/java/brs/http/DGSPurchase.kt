@@ -54,7 +54,7 @@ internal class DGSPurchase internal constructor(private val dp: DependencyProvid
 
         val attachment = Attachment.DigitalGoodsPurchase(goods.id, quantity, priceNQT,
                 deliveryDeadline, dp.blockchain.height)
-        return createTransaction(req, buyerAccount, sellerAccount.getId(), 0, attachment)
+        return createTransaction(req, buyerAccount, sellerAccount.id, 0, attachment)
 
     }
 

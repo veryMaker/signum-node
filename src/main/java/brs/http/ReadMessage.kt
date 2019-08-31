@@ -53,7 +53,7 @@ internal class ReadMessage(private val blockchain: Blockchain, private val accou
         if (secretPhrase != null) {
             if (encryptedMessage != null) {
                 val readerAccountId = Account.getId(Crypto.getPublicKey(secretPhrase))
-                val account = if (senderAccount.getId() == readerAccountId) accountService.getAccount(transaction.recipientId) else senderAccount
+                val account = if (senderAccount.id == readerAccountId) accountService.getAccount(transaction.recipientId) else senderAccount
                 if (account != null) {
                     try {
                         val decrypted = account.decryptFrom(encryptedMessage.encryptedData, secretPhrase)

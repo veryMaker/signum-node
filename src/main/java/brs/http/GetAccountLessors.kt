@@ -28,7 +28,7 @@ internal class GetAccountLessors internal constructor(private val parameterServi
         }
 
         val response = JsonObject()
-        JSONData.putAccount(response, ACCOUNT_RESPONSE, account.getId())
+        JSONData.putAccount(response, ACCOUNT_RESPONSE, account.id)
         response.addProperty(HEIGHT_RESPONSE, height)
         val lessorsJSON = JsonArray()
 

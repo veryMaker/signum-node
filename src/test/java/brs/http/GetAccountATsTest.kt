@@ -46,7 +46,7 @@ class GetAccountATsTest {
 
         val mockAccountId = 123L
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(mockAccountId)
+        whenever(mockAccount.id).doReturn(mockAccountId)
 
         val mockATId = 1L
         val mockATIDBytes = ByteArray(AtConstants.AT_ID_SIZE)

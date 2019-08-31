@@ -42,7 +42,7 @@ class GetAccountLessorsTest : AbstractUnitTest() {
     @Throws(BurstException::class)
     fun processRequest() {
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(123L)
+        whenever(mockAccount.id).doReturn(123L)
 
         val req = QuickMocker.httpServletRequest()
 
@@ -52,7 +52,7 @@ class GetAccountLessorsTest : AbstractUnitTest() {
         val result = JSON.getAsJsonObject(t!!.processRequest(req))
 
         assertNotNull(result)
-        assertEquals("" + mockAccount.getId(), JSON.getAsString(result.get(ACCOUNT_RESPONSE)))
+        assertEquals("" + mockAccount.id, JSON.getAsString(result.get(ACCOUNT_RESPONSE)))
         TestCase.assertEquals(0, JSON.getAsJsonArray(result.get(LESSORS_RESPONSE)).size())
     }
 

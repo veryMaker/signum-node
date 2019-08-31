@@ -17,7 +17,7 @@ internal class GetAliases internal constructor(private val parameterService: Par
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
         val timestamp = ParameterParser.getTimestamp(req)
-        val accountId = parameterService.getAccount(req).getId()
+        val accountId = parameterService.getAccount(req).id
         val firstIndex = ParameterParser.getFirstIndex(req)
         val lastIndex = ParameterParser.getLastIndex(req)
 

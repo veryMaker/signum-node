@@ -52,7 +52,7 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(1L)
+        whenever(mockAccount.id).doReturn(1L)
 
         val mockGoodsId: Long = 123
         val mockGoods = mock<Goods>()
@@ -99,7 +99,7 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(1L)
+        whenever(mockAccount.id).doReturn(1L)
 
         val mockGoods = mock<Goods>()
         whenever(mockGoods.sellerId).doReturn(2L)

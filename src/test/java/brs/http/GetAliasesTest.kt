@@ -46,7 +46,7 @@ class GetAliasesTest : AbstractUnitTest() {
         val req = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(accountId)
+        whenever(mockAccount.id).doReturn(accountId)
 
         val mockAlias = mock<Alias>()
         whenever(mockAlias.id).doReturn(567L)

@@ -24,7 +24,7 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
 
         val sellerAccount = dp.parameterService.getSenderAccount(req)
         val purchase = dp.parameterService.getPurchase(req)
-        if (sellerAccount.getId() != purchase.sellerId) {
+        if (sellerAccount.id != purchase.sellerId) {
             return INCORRECT_PURCHASE
         }
         if (!purchase.isPending) {
@@ -68,7 +68,7 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
         }
 
         val attachment = Attachment.DigitalGoodsDelivery(purchase.id, encryptedGoods!!, goodsIsText, discountNQT, dp.blockchain.height)
-        return createTransaction(req, sellerAccount, buyerAccount.getId(), 0, attachment)
+        return createTransaction(req, sellerAccount, buyerAccount.id, 0, attachment)
 
     }
 

@@ -22,7 +22,7 @@ internal class GetAccount internal constructor(private val parameterService: Par
         val account = parameterService.getAccount(req)
 
         val response = JSONData.accountBalance(account)
-        JSONData.putAccount(response, ACCOUNT_RESPONSE, account.getId())
+        JSONData.putAccount(response, ACCOUNT_RESPONSE, account.id)
 
         if (account.publicKey != null) {
             response.addProperty(PUBLIC_KEY_RESPONSE, Convert.toHexString(account.publicKey))
@@ -37,13 +37,13 @@ internal class GetAccount internal constructor(private val parameterService: Par
         val assetBalances = JsonArray()
         val unconfirmedAssetBalances = JsonArray()
 
-        for (accountAsset in accountService.getAssets(account.getId(), 0, -1)) {
+        for (accountAsset in accountService.getAssets(account.id, 0, -1)) {
             val assetBalance = JsonObject()
-            assetBalance.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.getAssetId()))
+            assetBalance.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.assetId))
             assetBalance.addProperty(BALANCE_QNT_RESPONSE, accountAsset.quantityQNT.toString())
             assetBalances.add(assetBalance)
             val unconfirmedAssetBalance = JsonObject()
-            unconfirmedAssetBalance.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.getAssetId()))
+            unconfirmedAssetBalance.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.assetId))
             unconfirmedAssetBalance.addProperty(UNCONFIRMED_BALANCE_QNT_RESPONSE, accountAsset.unconfirmedQuantityQNT.toString())
             unconfirmedAssetBalances.add(unconfirmedAssetBalance)
         }

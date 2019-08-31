@@ -45,14 +45,14 @@ internal class SubscriptionCancel(private val dp: DependencyProvider) : CreateTr
             return response
         }
 
-        if (sender.getId() != subscription.getSenderId() && sender.getId() != subscription.getRecipientId()) {
+        if (sender.id != subscription.senderId && sender.id != subscription.recipientId) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 7)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Must be sender or recipient to cancel subscription")
             return response
         }
 
-        val attachment = Attachment.AdvancedPaymentSubscriptionCancel(subscription.getId(), dp.blockchain.height)
+        val attachment = Attachment.AdvancedPaymentSubscriptionCancel(subscription.id, dp.blockchain.height)
 
         return createTransaction(req, sender, null, 0, attachment)
     }

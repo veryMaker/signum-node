@@ -56,7 +56,7 @@ class CancelAskOrderTest : AbstractTransactionTest() {
         )
 
         val sellerAccount = mock<Account>()
-        whenever(sellerAccount.getId()).doReturn(sellerId)
+        whenever(sellerAccount.id).doReturn(sellerId)
 
         val order = mock<Ask>()
         whenever(order.accountId).doReturn(sellerId)
@@ -102,7 +102,7 @@ class CancelAskOrderTest : AbstractTransactionTest() {
         )
 
         val sellerAccount = mock<Account>()
-        whenever(sellerAccount.getId()).doReturn(accountId)
+        whenever(sellerAccount.id).doReturn(accountId)
 
         val order = mock<Ask>()
         whenever(order.accountId).doReturn(otherAccountId)

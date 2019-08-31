@@ -25,7 +25,7 @@ internal class GetAccountSubscriptions internal constructor(private val paramete
 
         val subscriptions = JsonArray()
 
-        val accountSubscriptions = subscriptionService.getSubscriptionsByParticipant(account.getId())
+        val accountSubscriptions = subscriptionService.getSubscriptionsByParticipant(account.id)
 
         for (accountSubscription in accountSubscriptions) {
             subscriptions.add(JSONData.subscription(accountSubscription))

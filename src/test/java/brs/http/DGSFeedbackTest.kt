@@ -61,7 +61,7 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
         whenever(accountServiceMock!!.getAccount(eq(2L))).doReturn(mockSellerAccount)
 
-        whenever(mockAccount.getId()).doReturn(1L)
+        whenever(mockAccount.id).doReturn(1L)
         whenever(mockPurchase.buyerId).doReturn(1L)
         whenever(mockPurchase.encryptedGoods).doReturn(mockEncryptedGoods)
         whenever(mockPurchase.sellerId).doReturn(2L)
@@ -88,7 +88,7 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
         whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
-        whenever(mockAccount.getId()).doReturn(1L)
+        whenever(mockAccount.id).doReturn(1L)
         whenever(mockPurchase.buyerId).doReturn(2L)
 
         assertEquals(INCORRECT_PURCHASE, t!!.processRequest(req))
@@ -105,7 +105,7 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
         whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
-        whenever(mockAccount.getId()).doReturn(1L)
+        whenever(mockAccount.id).doReturn(1L)
         whenever(mockPurchase.buyerId).doReturn(1L)
         whenever(mockPurchase.encryptedGoods).doReturn(null)
 

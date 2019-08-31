@@ -62,16 +62,16 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
     }
 
     private fun trace(account: Account, unconfirmed: Boolean) {
-        if (include(account.getId())) {
-            log(getValues(account.getId(), unconfirmed))
+        if (include(account.id)) {
+            log(getValues(account.id, unconfirmed))
         }
     }
 
     private fun trace(accountAsset: Account.AccountAsset, unconfirmed: Boolean) {
-        if (!include(accountAsset.getAccountId())) {
+        if (!include(accountAsset.accountId)) {
             return
         }
-        log(getValues(accountAsset.getAccountId(), accountAsset, unconfirmed))
+        log(getValues(accountAsset.accountId, accountAsset, unconfirmed))
     }
 
 
@@ -104,8 +104,8 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
 
     private fun lessorGuaranteedBalance(account: Account, lesseeId: Long): Map<String, String> {
         val map = HashMap<String, String>()
-        map["account"] = Convert.toUnsignedLong(account.getId())
-        map["lessor guaranteed balance"] = account.getBalanceNQT().toString()
+        map["account"] = Convert.toUnsignedLong(account.id)
+        map["lessor guaranteed balance"] = account.balanceNQT.toString()
         map["lessee"] = Convert.toUnsignedLong(lesseeId)
         map["timestamp"] = dp.blockchain.lastBlock.timestamp.toString()
         map["height"] = dp.blockchain.height.toString()
@@ -117,8 +117,8 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
         val map = HashMap<String, String>()
         map["account"] = Convert.toUnsignedLong(accountId)
         val account = Account.getAccount(dp, accountId)
-        map["balance"] = (account?.getBalanceNQT() ?: 0).toString()
-        map["unconfirmed balance"] = (account?.getUnconfirmedBalanceNQT() ?: 0).toString()
+        map["balance"] = (account?.balanceNQT ?: 0).toString()
+        map["unconfirmed balance"] = (account?.unconfirmedBalanceNQT ?: 0).toString()
         map["timestamp"] = dp.blockchain.lastBlock.timestamp.toString()
         map["height"] = dp.blockchain.height.toString()
         map["event"] = if (unconfirmed) "unconfirmed balance" else "balance"
@@ -179,7 +179,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
     private fun getValues(accountId: Long, accountAsset: Account.AccountAsset, unconfirmed: Boolean): Map<String, String> {
         val map = HashMap<String, String>()
         map["account"] = Convert.toUnsignedLong(accountId)
-        map["asset"] = Convert.toUnsignedLong(accountAsset.getAssetId())
+        map["asset"] = Convert.toUnsignedLong(accountAsset.assetId)
         if (unconfirmed) {
             map["unconfirmed asset balance"] = accountAsset.unconfirmedQuantityQNT.toString()
         } else {

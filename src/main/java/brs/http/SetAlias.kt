@@ -48,7 +48,7 @@ internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(
         val account = dp.parameterService.getSenderAccount(req)
 
         val alias = dp.aliasService.getAlias(aliasName)
-        if (alias != null && alias.accountId != account.getId()) {
+        if (alias != null && alias.accountId != account.id) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 8)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "\"$aliasName\" is already used")

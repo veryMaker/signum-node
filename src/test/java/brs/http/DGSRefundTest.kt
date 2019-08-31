@@ -59,7 +59,7 @@ class DGSRefundTest : AbstractTransactionTest() {
         )
 
         val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
 
         val mockPurchaseId = 123L
         val mockPurchase = mock<Purchase>()
@@ -92,7 +92,7 @@ class DGSRefundTest : AbstractTransactionTest() {
         val req = QuickMocker.httpServletRequest()
 
         val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
 
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.sellerId).doReturn(2L)
@@ -109,7 +109,7 @@ class DGSRefundTest : AbstractTransactionTest() {
         val req = QuickMocker.httpServletRequest()
 
         val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
 
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.sellerId).doReturn(1L)
@@ -127,7 +127,7 @@ class DGSRefundTest : AbstractTransactionTest() {
         val req = QuickMocker.httpServletRequest()
 
         val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
 
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.sellerId).doReturn(1L)
@@ -148,7 +148,7 @@ class DGSRefundTest : AbstractTransactionTest() {
         )
 
         val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
 
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.sellerId).doReturn(1L)
@@ -169,7 +169,7 @@ class DGSRefundTest : AbstractTransactionTest() {
         )
 
         val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
 
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.sellerId).doReturn(1L)
@@ -190,7 +190,7 @@ class DGSRefundTest : AbstractTransactionTest() {
         )
 
         val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
 
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.sellerId).doReturn(1L)

@@ -19,8 +19,71 @@ import java.nio.ByteBuffer
 import java.util.*
 import kotlin.collections.Map.Entry
 
-import brs.http.common.Parameters.*
-import brs.http.common.ResultFields.*
+import brs.http.common.Parameters.ALIAS_PARAMETER
+import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.ASSET_PARAMETER
+import brs.http.common.Parameters.COMMENT_PARAMETER
+import brs.http.common.Parameters.CREATION_BYTES_PARAMETER
+import brs.http.common.Parameters.DEADLINE_ACTION_PARAMETER
+import brs.http.common.Parameters.DEADLINE_PARAMETER
+import brs.http.common.Parameters.DECIMALS_PARAMETER
+import brs.http.common.Parameters.DECISION_PARAMETER
+import brs.http.common.Parameters.DELIVERY_DEADLINE_TIMESTAMP_PARAMETER
+import brs.http.common.Parameters.DELTA_QUANTITY_PARAMETER
+import brs.http.common.Parameters.DESCRIPTION_PARAMETER
+import brs.http.common.Parameters.DISCOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.ESCROW_ID_PARAMETER
+import brs.http.common.Parameters.FREQUENCY_PARAMETER
+import brs.http.common.Parameters.GOODS_DATA_PARAMETER
+import brs.http.common.Parameters.GOODS_IS_TEXT_PARAMETER
+import brs.http.common.Parameters.GOODS_NONCE_PARAMETER
+import brs.http.common.Parameters.GOODS_PARAMETER
+import brs.http.common.Parameters.NAME_PARAMETER
+import brs.http.common.Parameters.ORDER_PARAMETER
+import brs.http.common.Parameters.PERIOD_PARAMETER
+import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.http.common.Parameters.PURCHASE_PARAMETER
+import brs.http.common.Parameters.QUANTITY_PARAMETER
+import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
+import brs.http.common.Parameters.RECIPIENTS_PARAMETER
+import brs.http.common.Parameters.RECIPIENTS_RESPONSE
+import brs.http.common.Parameters.REFUND_NQT_PARAMETER
+import brs.http.common.Parameters.REQUIRED_SIGNERS_PARAMETER
+import brs.http.common.Parameters.SIGNERS_PARAMETER
+import brs.http.common.Parameters.SUBSCRIPTION_ID_PARAMETER
+import brs.http.common.Parameters.URI_PARAMETER
+import brs.http.common.ResultFields.ALIAS_RESPONSE
+import brs.http.common.ResultFields.AMOUNT_NQT_RESPONSE
+import brs.http.common.ResultFields.ASSET_RESPONSE
+import brs.http.common.ResultFields.COMMENT_RESPONSE
+import brs.http.common.ResultFields.CREATION_BYTES_RESPONSE
+import brs.http.common.ResultFields.DEADLINE_ACTION_RESPONSE
+import brs.http.common.ResultFields.DEADLINE_RESPONSE
+import brs.http.common.ResultFields.DECIMALS_RESPONSE
+import brs.http.common.ResultFields.DECISION_RESPONSE
+import brs.http.common.ResultFields.DELIVERY_DEADLINE_TIMESTAMP_RESPONSE
+import brs.http.common.ResultFields.DELTA_QUANTITY_RESPONSE
+import brs.http.common.ResultFields.DESCRIPTION_RESPONSE
+import brs.http.common.ResultFields.DISCOUNT_NQT_RESPONSE
+import brs.http.common.ResultFields.ESCROW_ID_RESPONSE
+import brs.http.common.ResultFields.FREQUENCY_RESPONSE
+import brs.http.common.ResultFields.GOODS_DATA_RESPONSE
+import brs.http.common.ResultFields.GOODS_IS_TEXT_RESPONSE
+import brs.http.common.ResultFields.GOODS_NONCE_RESPONSE
+import brs.http.common.ResultFields.GOODS_RESPONSE
+import brs.http.common.ResultFields.NAME_RESPONSE
+import brs.http.common.ResultFields.ORDER_RESPONSE
+import brs.http.common.ResultFields.PERIOD_RESPONSE
+import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.PURCHASE_RESPONSE
+import brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE
+import brs.http.common.ResultFields.QUANTITY_RESPONSE
+import brs.http.common.ResultFields.REFUND_NQT_RESPONSE
+import brs.http.common.ResultFields.REQUIRED_SIGNERS_RESPONSE
+import brs.http.common.ResultFields.SIGNERS_RESPONSE
+import brs.http.common.ResultFields.SUBSCRIPTION_ID_RESPONSE
+import brs.http.common.ResultFields.TAGS_RESPONSE
+import brs.http.common.ResultFields.URI_RESPONSE
 import java.util.function.Consumer
 
 interface Attachment : Appendix {
@@ -156,7 +219,7 @@ interface Attachment : Appendix {
         override val transactionType: TransactionType
             get() = Payment.MULTI_OUT
 
-        val amountNQT: Long?
+        val amountNQT: Long
             get() {
                 var amountNQT: Long = 0
                 for (recipient in recipients) {
@@ -1874,7 +1937,7 @@ interface Attachment : Appendix {
 
         val name: String?
         val description: String?
-        val creationBytes: ByteArray?
+        val creationBytes: ByteArray
 
         override val transactionType: TransactionType
             get() = TransactionType.AutomatedTransactions.AUTOMATED_TRANSACTION_CREATION
@@ -1907,7 +1970,7 @@ interface Attachment : Appendix {
 
             buffer.short //future: reserved for future needs
 
-            val pageSize = AtConstants.getInstance().pageSize(dp.blockchain.height).toInt()
+            val pageSize = AtConstants.pageSize(dp.blockchain.height).toInt()
             val codePages = buffer.short
             val dataPages = buffer.short
             buffer.short
@@ -2002,7 +2065,7 @@ interface Attachment : Appendix {
                 get() = "OrdinaryPayment"
 
             override val transactionType: TransactionType
-                get() = TransactionType.Payment.ORDINARY
+                get() = Payment.ORDINARY
 
         }
 

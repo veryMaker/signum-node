@@ -37,11 +37,11 @@ internal class GetAssetTransfers internal constructor(private val parameterServi
             transfers = assetExchange.getAssetTransfers(asset.id, firstIndex, lastIndex)
         } else if (assetId == null) {
             val account = parameterService.getAccount(req)
-            transfers = accountService.getAssetTransfers(account.getId(), firstIndex, lastIndex)
+            transfers = accountService.getAssetTransfers(account.id, firstIndex, lastIndex)
         } else {
             val asset = parameterService.getAsset(req)
             val account = parameterService.getAccount(req)
-            transfers = assetExchange.getAccountAssetTransfers(account.getId(), asset.id, firstIndex, lastIndex)
+            transfers = assetExchange.getAccountAssetTransfers(account.id, asset.id, firstIndex, lastIndex)
         }
         for (transfer in transfers) {
             val asset = if (includeAssetInfo) assetExchange.getAsset(transfer.assetId) else null

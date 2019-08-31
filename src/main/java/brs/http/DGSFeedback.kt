@@ -18,7 +18,7 @@ internal class DGSFeedback internal constructor(private val dp: DependencyProvid
         val purchase = dp.parameterService.getPurchase(req)
         val buyerAccount = dp.parameterService.getSenderAccount(req)
 
-        if (buyerAccount.getId() != purchase.buyerId) {
+        if (buyerAccount.id != purchase.buyerId) {
             return INCORRECT_PURCHASE
         }
         if (purchase.encryptedGoods == null) {
@@ -28,7 +28,7 @@ internal class DGSFeedback internal constructor(private val dp: DependencyProvid
         val sellerAccount = dp.accountService.getAccount(purchase.sellerId)
         val attachment = Attachment.DigitalGoodsFeedback(purchase.id, dp.blockchain.height)
 
-        return createTransaction(req, buyerAccount, sellerAccount.getId(), 0, attachment)
+        return createTransaction(req, buyerAccount, sellerAccount.id, 0, attachment)
     }
 
 }

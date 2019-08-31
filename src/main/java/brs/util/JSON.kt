@@ -71,8 +71,8 @@ object JSON {
     }
 
     @JvmStatic
-    fun getAsString(jsonElement: JsonElement?): String? {
-        return if (jsonElement != null && jsonElement.isJsonPrimitive) jsonElement.asString else null
+    fun getAsString(jsonElement: JsonElement?): String {
+        return if (jsonElement != null && jsonElement.isJsonPrimitive) jsonElement.asString else ""
     }
 
     @JvmStatic

@@ -63,7 +63,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockBuyerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
         whenever(mockPurchase.sellerId).doReturn(1L)
         whenever(mockPurchase.buyerId).doReturn(2L)
         whenever(mockPurchase.quantity).doReturn(9)
@@ -95,7 +95,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
         whenever(mockPurchase.sellerId).doReturn(2L)
 
         whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
@@ -112,7 +112,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
         whenever(mockPurchase.sellerId).doReturn(1L)
 
         whenever(mockPurchase.isPending).doReturn(false)
@@ -133,7 +133,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
         whenever(mockPurchase.sellerId).doReturn(1L)
 
         whenever(mockPurchase.isPending).doReturn(true)
@@ -154,7 +154,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
         whenever(mockPurchase.sellerId).doReturn(1L)
 
         whenever(mockPurchase.isPending).doReturn(true)
@@ -175,7 +175,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
         whenever(mockPurchase.sellerId).doReturn(1L)
 
         whenever(mockPurchase.isPending).doReturn(true)
@@ -196,7 +196,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
         whenever(mockPurchase.sellerId).doReturn(1L)
         whenever(mockPurchase.quantity).doReturn(999999999)
         whenever(mockPurchase.priceNQT).doReturn(1L)
@@ -221,7 +221,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
 
-        whenever(mockSellerAccount.getId()).doReturn(1L)
+        whenever(mockSellerAccount.id).doReturn(1L)
         whenever(mockPurchase.sellerId).doReturn(1L)
         whenever(mockPurchase.quantity).doReturn(9)
         whenever(mockPurchase.priceNQT).doReturn(1L)

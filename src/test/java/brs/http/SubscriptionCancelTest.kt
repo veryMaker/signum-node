@@ -56,12 +56,12 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         )
 
         val mockSender = mock<Account>()
-        whenever(mockSender.getId()).doReturn(1L)
+        whenever(mockSender.id).doReturn(1L)
 
         val mockSubscription = mock<Subscription>()
-        whenever(mockSubscription.getId()).doReturn(subscriptionIdParameter)
-        whenever(mockSubscription.getSenderId()).doReturn(1L)
-        whenever(mockSubscription.getRecipientId()).doReturn(2L)
+        whenever(mockSubscription.id).doReturn(subscriptionIdParameter)
+        whenever(mockSubscription.senderId).doReturn(1L)
+        whenever(mockSubscription.recipientId).doReturn(2L)
 
         whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSender)
         whenever(subscriptionServiceMock!!.getSubscription(eq<Long>(subscriptionIdParameter))).doReturn(mockSubscription)
@@ -126,11 +126,11 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         )
 
         val mockSender = mock<Account>()
-        whenever(mockSender.getId()).doReturn(1L)
+        whenever(mockSender.id).doReturn(1L)
 
         val mockSubscription = mock<Subscription>()
-        whenever(mockSubscription.getSenderId()).doReturn(2L)
-        whenever(mockSubscription.getRecipientId()).doReturn(3L)
+        whenever(mockSubscription.senderId).doReturn(2L)
+        whenever(mockSubscription.recipientId).doReturn(3L)
 
         whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSender)
         whenever(subscriptionServiceMock!!.getSubscription(eq(subscriptionId))).doReturn(mockSubscription)

@@ -90,7 +90,7 @@ interface Appendix {
 
     class Message : AbstractAppendix {
 
-        val messageBytes: ByteArray?
+        val messageBytes: ByteArray
         val isText: Boolean
 
         override val appendixName: String
@@ -169,7 +169,6 @@ interface Appendix {
         }
 
         companion object {
-
             fun parse(attachmentData: JsonObject): Message? {
                 return if (attachmentData.get("message") == null) {
                     null
@@ -342,7 +341,7 @@ interface Appendix {
 
     class PublicKeyAnnouncement : AbstractAppendix {
 
-        val publicKey: ByteArray?
+        val publicKey: ByteArray
 
         override val appendixName: String
             get() = "PublicKeyAnnouncement"
@@ -403,8 +402,8 @@ interface Appendix {
         }
 
         override fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
-            if (recipientAccount.setOrVerify(dp, publicKey, transaction.height)) {
-                recipientAccount.apply(dp, this.publicKey, transaction.height)
+            if (recipientAccount.setOrVerify(dp, publicKey, transaction.height.get())) {
+                recipientAccount.apply(dp, this.publicKey, transaction.height.get())
             }
         }
 

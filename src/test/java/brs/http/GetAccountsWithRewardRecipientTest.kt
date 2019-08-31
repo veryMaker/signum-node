@@ -49,7 +49,7 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
         )
 
         val targetAccount = mock<Account>()
-        whenever(targetAccount.getId()).doReturn(targetAccountId)
+        whenever(targetAccount.id).doReturn(targetAccountId)
 
         whenever(parameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(targetAccount)
 
@@ -78,7 +78,7 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
         )
 
         val targetAccount = mock<Account>()
-        whenever(targetAccount.getId()).doReturn(targetAccountId)
+        whenever(targetAccount.id).doReturn(targetAccountId)
 
         whenever(parameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(targetAccount)
 

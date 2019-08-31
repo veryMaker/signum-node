@@ -24,7 +24,7 @@ internal class GetAssetsByIssuer internal constructor(private val parameterServi
         val accountsJsonArray = JsonArray()
         response.add(ASSETS_RESPONSE, accountsJsonArray)
         for (account in accounts) {
-            accountsJsonArray.add(assetsToJson(assetExchange.getAssetsIssuedBy(account.getId(), firstIndex, lastIndex).iterator()))
+            accountsJsonArray.add(assetsToJson(assetExchange.getAssetsIssuedBy(account.id, firstIndex, lastIndex).iterator()))
         }
         return response
     }

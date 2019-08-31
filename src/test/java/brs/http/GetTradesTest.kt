@@ -91,7 +91,7 @@ class GetTradesTest : AbstractUnitTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(accountId)
+        whenever(mockAccount.id).doReturn(accountId)
 
         val mockTrade = mock<Trade>()
         val mockTradesIterator = mockCollection<Trade>(mockTrade)
@@ -131,7 +131,7 @@ class GetTradesTest : AbstractUnitTest() {
         whenever(mockAsset.id).doReturn(assetId)
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(accountId)
+        whenever(mockAccount.id).doReturn(accountId)
 
         val mockTrade = mock<Trade>()
         val mockTradesIterator = mockCollection<Trade>(mockTrade)

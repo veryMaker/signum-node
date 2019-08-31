@@ -21,7 +21,7 @@ internal class DGSQuantityChange internal constructor(private val dp: Dependency
 
         val account = dp.parameterService.getSenderAccount(req)
         val goods = dp.parameterService.getGoods(req)
-        if (goods.isDelisted || goods.sellerId != account.getId()) {
+        if (goods.isDelisted || goods.sellerId != account.id) {
             return UNKNOWN_GOODS
         }
 

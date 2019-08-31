@@ -15,7 +15,7 @@ internal class DGSDelisting(private val dp: DependencyProvider) : CreateTransact
     internal override fun processRequest(req: HttpServletRequest): JsonElement {
         val account = dp.parameterService.getSenderAccount(req)
         val goods = dp.parameterService.getGoods(req)
-        if (goods.isDelisted || goods.sellerId != account.getId()) {
+        if (goods.isDelisted || goods.sellerId != account.id) {
             return UNKNOWN_GOODS
         }
         val attachment = Attachment.DigitalGoodsDelisting(goods.id, dp.blockchain.height)

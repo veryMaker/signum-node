@@ -19,7 +19,15 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 
-import brs.http.common.Parameters.*
+import brs.http.common.Parameters.CODE_PARAMETER
+import brs.http.common.Parameters.CREATION_BYTES_PARAMETER
+import brs.http.common.Parameters.CSPAGES_PARAMETER
+import brs.http.common.Parameters.DATA_PARAMETER
+import brs.http.common.Parameters.DESCRIPTION_PARAMETER
+import brs.http.common.Parameters.DPAGES_PARAMETER
+import brs.http.common.Parameters.MIN_ACTIVATION_AMOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.NAME_PARAMETER
+import brs.http.common.Parameters.USPAGES_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
@@ -87,7 +95,7 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
 
                 val creation = ByteBuffer.allocate(creationLength)
                 creation.order(ByteOrder.LITTLE_ENDIAN)
-                creation.putShort(AtConstants.getInstance().atVersion(dp.blockchain.height))
+                creation.putShort(AtConstants.atVersion(dp.blockchain.height))
                 creation.putShort(0.toShort())
                 creation.putShort(cpages.toShort())
                 creation.putShort(dpages.toShort())

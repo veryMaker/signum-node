@@ -62,7 +62,7 @@ class SellAliasTest : AbstractTransactionTest() {
         whenever(mockAlias.aliasName).doReturn("")
 
         val mockSender = mock<Account>()
-        whenever(mockSender.getId()).doReturn(aliasAccountId)
+        whenever(mockSender.id).doReturn(aliasAccountId)
 
         whenever(parameterServiceMock!!.getSenderAccount(req)).doReturn(mockSender)
         whenever(parameterServiceMock!!.getAlias(req)).doReturn(mockAlias)
@@ -158,7 +158,7 @@ class SellAliasTest : AbstractTransactionTest() {
 
         val mockSenderId = 2L
         val mockSender = mock<Account>()
-        whenever(mockSender.getId()).doReturn(mockSenderId)
+        whenever(mockSender.id).doReturn(mockSenderId)
 
         whenever(parameterServiceMock!!.getSenderAccount(req)).doReturn(mockSender)
         whenever(parameterServiceMock!!.getAlias(req)).doReturn(mockAlias)

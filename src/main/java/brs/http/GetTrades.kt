@@ -34,11 +34,11 @@ internal class GetTrades internal constructor(private val parameterService: Para
             trades = assetExchange.getTrades(asset.id, firstIndex, lastIndex)
         } else if (assetId == null) {
             val account = parameterService.getAccount(req)
-            trades = assetExchange.getAccountTrades(account.getId(), firstIndex, lastIndex)
+            trades = assetExchange.getAccountTrades(account.id, firstIndex, lastIndex)
         } else {
             val asset = parameterService.getAsset(req)
             val account = parameterService.getAccount(req)
-            trades = assetExchange.getAccountAssetTrades(account.getId(), asset.id, firstIndex, lastIndex)
+            trades = assetExchange.getAccountAssetTrades(account.id, asset.id, firstIndex, lastIndex)
         }
         for (trade in trades) {
             val asset = if (includeAssetInfo) assetExchange.getAsset(trade.assetId) else null

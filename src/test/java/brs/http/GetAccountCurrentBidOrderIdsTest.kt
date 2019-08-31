@@ -54,7 +54,7 @@ class GetAccountCurrentBidOrderIdsTest : AbstractUnitTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(accountId)
+        whenever(mockAccount.id).doReturn(accountId)
 
         val mockBidId = 456L
         val bid = mock<Bid>()
@@ -90,7 +90,7 @@ class GetAccountCurrentBidOrderIdsTest : AbstractUnitTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(accountId)
+        whenever(mockAccount.id).doReturn(accountId)
 
         val mockBidId = 456L
         val bid = mock<Bid>()

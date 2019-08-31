@@ -53,7 +53,7 @@ class GetAccountCurrentAskOrdersTest : AbstractUnitTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(accountId)
+        whenever(mockAccount.id).doReturn(accountId)
         whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
         val mockAsk = mock<Ask>()
@@ -86,7 +86,7 @@ class GetAccountCurrentAskOrdersTest : AbstractUnitTest() {
         )
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(accountId)
+        whenever(mockAccount.id).doReturn(accountId)
         whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 
         val mockAsk = mock<Ask>()

@@ -54,7 +54,7 @@ class GetAssetsByIssuerTest : AbstractUnitTest() {
 
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(1L)
+        whenever(mockAccount.id).doReturn(1L)
         whenever(mockParameterService!!.getAccounts(eq<HttpServletRequest>(req))).doReturn(Arrays.asList(mockAccount))
 
         val mockAssetId: Long = 1
@@ -69,7 +69,7 @@ class GetAssetsByIssuerTest : AbstractUnitTest() {
 
         val mockAssetIterator = mockCollection<Asset>(mockAsset)
 
-        whenever(mockAssetExchange!!.getAssetsIssuedBy(eq(mockAccount.getId()), eq(firstIndex), eq(lastIndex))).doReturn(mockAssetIterator)
+        whenever(mockAssetExchange!!.getAssetsIssuedBy(eq(mockAccount.id), eq(firstIndex), eq(lastIndex))).doReturn(mockAssetIterator)
         whenever(mockAssetExchange!!.getAssetAccountsCount(eq(mockAssetId))).doReturn(1)
         whenever(mockAssetExchange!!.getTransferCount(eq(mockAssetId))).doReturn(2)
         whenever(mockAssetExchange!!.getTradeCount(eq(mockAssetId))).doReturn(3)

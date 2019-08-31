@@ -1,0 +1,216 @@
+package brs
+
+import brs.crypto.EncryptedData
+import brs.db.BurstKey
+import brs.db.VersionedEntityTable
+import brs.db.VersionedValuesTable
+
+import java.util.ArrayList
+import java.util.Collections
+
+object DigitalGoodsStore {
+
+    enum class Event {
+        GOODS_LISTED, GOODS_DELISTED, GOODS_PRICE_CHANGE, GOODS_QUANTITY_CHANGE,
+        PURCHASE, DELIVERY, REFUND, FEEDBACK
+    }
+
+    open class Goods {
+
+        val id: Long
+        val dbKey: BurstKey
+        val sellerId: Long
+        val name: String?
+        val description: String?
+        val tags: String?
+        val timestamp: Int
+        var quantity: Int = 0
+            private set
+        var priceNQT: Long = 0
+            private set
+        var isDelisted: Boolean = false
+
+        private fun goodsDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<Goods> {
+            return dp.digitalGoodsStoreStore.goodsDbKeyFactory
+        }
+
+        private fun goodsTable(dp: DependencyProvider): VersionedEntityTable<Goods> {
+            return dp.digitalGoodsStoreStore.goodsTable
+        }
+
+        protected constructor(id: Long, dbKey: BurstKey, sellerId: Long, name: String, description: String, tags: String, timestamp: Int,
+                              quantity: Int, priceNQT: Long, delisted: Boolean) {
+            this.id = id
+            this.dbKey = dbKey
+            this.sellerId = sellerId
+            this.name = name
+            this.description = description
+            this.tags = tags
+            this.timestamp = timestamp
+            this.quantity = quantity
+            this.priceNQT = priceNQT
+            this.isDelisted = delisted
+        }
+
+        constructor(dbKey: BurstKey, transaction: Transaction, attachment: Attachment.DigitalGoodsListing) {
+            this.dbKey = dbKey
+            this.id = transaction.id
+            this.sellerId = transaction.senderId
+            this.name = attachment.name
+            this.description = attachment.description
+            this.tags = attachment.tags
+            this.quantity = attachment.quantity
+            this.priceNQT = attachment.priceNQT
+            this.isDelisted = false
+            this.timestamp = transaction.timestamp
+        }
+
+        fun changeQuantity(deltaQuantity: Int) {
+            quantity += deltaQuantity
+            if (quantity < 0) {
+                quantity = 0
+            } else if (quantity > Constants.MAX_DGS_LISTING_QUANTITY) {
+                quantity = Constants.MAX_DGS_LISTING_QUANTITY
+            }
+        }
+
+        fun changePrice(priceNQT: Long) {
+            this.priceNQT = priceNQT
+        }
+
+    }
+
+    open class Purchase {
+
+        private val dp: DependencyProvider
+
+        val id: Long
+        val dbKey: BurstKey
+        val buyerId: Long
+        val goodsId: Long
+        val sellerId: Long
+        val quantity: Int
+        val priceNQT: Long
+        val deliveryDeadlineTimestamp: Int
+        val note: EncryptedData?
+        val timestamp: Int
+        var isPending: Boolean = false
+        var encryptedGoods: EncryptedData? = null
+            private set
+        private var goodsIsText: Boolean = false
+        var refundNote: EncryptedData? = null
+        private var hasFeedbackNotes: Boolean = false
+        private var feedbackNotes: MutableList<EncryptedData>? = null
+        private var hasPublicFeedbacks: Boolean = false
+        var publicFeedbacks: List<String>? = null
+            private set
+        var discountNQT: Long = 0
+        var refundNQT: Long = 0
+
+        val name: String?
+            get() = getGoods(dp, goodsId).name
+
+        val publicFeedback: List<String>?
+            get() {
+                if (!hasPublicFeedbacks) {
+                    return emptyList()
+                }
+                publicFeedbacks = publicFeedbackTable(dp).get(publicFeedbackDbKeyFactory(dp).newKey(this))
+                return publicFeedbacks
+            }
+
+        private fun purchaseDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<Purchase> {
+            return dp.digitalGoodsStoreStore.purchaseDbKeyFactory
+        }
+
+        private fun feedbackDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<Purchase> {
+            return dp.digitalGoodsStoreStore.feedbackDbKeyFactory
+        }
+
+        private fun feedbackTable(dp: DependencyProvider): VersionedValuesTable<Purchase, EncryptedData> {
+            return dp.digitalGoodsStoreStore.feedbackTable
+        }
+
+        private fun publicFeedbackDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<Purchase> {
+            return dp.digitalGoodsStoreStore.publicFeedbackDbKeyFactory
+        }
+
+        private fun publicFeedbackTable(dp: DependencyProvider): VersionedValuesTable<Purchase, String> {
+            return dp.digitalGoodsStoreStore.publicFeedbackTable
+        }
+
+        constructor(dp: DependencyProvider, transaction: Transaction, attachment: Attachment.DigitalGoodsPurchase, sellerId: Long) {
+            this.dp = dp
+            this.id = transaction.id
+            this.dbKey = purchaseDbKeyFactory(dp).newKey(this.id)
+            this.buyerId = transaction.senderId
+            this.goodsId = attachment.goodsId
+            this.sellerId = sellerId
+            this.quantity = attachment.quantity
+            this.priceNQT = attachment.priceNQT
+            this.deliveryDeadlineTimestamp = attachment.deliveryDeadlineTimestamp
+            this.note = if (transaction.encryptedMessage == null) null else transaction.encryptedMessage!!.encryptedData
+            this.timestamp = transaction.timestamp
+            this.isPending = true
+        }
+
+        protected constructor(dp: DependencyProvider, id: Long, dbKey: BurstKey, buyerId: Long, goodsId: Long, sellerId: Long, quantity: Int,
+                              priceNQT: Long, deadline: Int, note: EncryptedData, timestamp: Int, isPending: Boolean,
+                              encryptedGoods: EncryptedData, refundNote: EncryptedData,
+                              hasFeedbackNotes: Boolean, hasPublicFeedbacks: Boolean,
+                              discountNQT: Long, refundNQT: Long) {
+            this.dp = dp
+            this.id = id
+            this.dbKey = dbKey
+            this.buyerId = buyerId
+            this.goodsId = goodsId
+            this.sellerId = sellerId
+            this.quantity = quantity
+            this.priceNQT = priceNQT
+            this.deliveryDeadlineTimestamp = deadline
+            this.note = note
+            this.timestamp = timestamp
+            this.isPending = isPending
+            this.encryptedGoods = encryptedGoods
+            this.refundNote = refundNote
+            this.hasFeedbackNotes = hasFeedbackNotes
+            this.hasPublicFeedbacks = hasPublicFeedbacks
+            this.discountNQT = discountNQT
+            this.refundNQT = refundNQT
+        }
+
+        fun goodsIsText(): Boolean {
+            return goodsIsText
+        }
+
+        fun setEncryptedGoods(encryptedGoods: EncryptedData, goodsIsText: Boolean) {
+            this.encryptedGoods = encryptedGoods
+            this.goodsIsText = goodsIsText
+        }
+
+        fun getFeedbackNotes(): List<EncryptedData>? {
+            if (!hasFeedbackNotes) {
+                return null
+            }
+            feedbackNotes = feedbackTable(dp).get(feedbackDbKeyFactory(dp).newKey(this))
+            return feedbackNotes
+        }
+
+        fun addFeedbackNote(feedbackNote: EncryptedData) {
+            if (feedbackNotes == null) {
+                feedbackNotes = ArrayList()
+            }
+            feedbackNotes!!.add(feedbackNote)
+            this.hasFeedbackNotes = true
+        }
+
+        fun setHasPublicFeedbacks(hasPublicFeedbacks: Boolean) {
+            this.hasPublicFeedbacks = hasPublicFeedbacks
+        }
+    }
+
+    private fun getGoods(dp: DependencyProvider, goodsId: Long): Goods {
+        return Goods.goodsTable(dp).get(Goods.goodsDbKeyFactory(dp).newKey(goodsId))
+    }
+
+}

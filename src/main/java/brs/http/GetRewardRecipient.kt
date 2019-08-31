@@ -24,7 +24,7 @@ internal class GetRewardRecipient(private val parameterService: ParameterService
         val assignment = accountService.getRewardRecipientAssignment(account)
         val height = blockchain.lastBlock.height.toLong()
         if (assignment == null) {
-            response.addProperty(REWARD_RECIPIENT_RESPONSE, Convert.toUnsignedLong(account.getId()))
+            response.addProperty(REWARD_RECIPIENT_RESPONSE, Convert.toUnsignedLong(account.id))
         } else if (assignment.fromHeight > height + 1) {
             response.addProperty(REWARD_RECIPIENT_RESPONSE, Convert.toUnsignedLong(assignment.prevRecipientId))
         } else {

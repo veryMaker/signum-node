@@ -51,13 +51,13 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
         )
 
         val account = mock<Account>()
-        whenever(account.getId()).doReturn(userId)
+        whenever(account.id).doReturn(userId)
         whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(account)
 
         val subscription = mock<Subscription>()
-        whenever(subscription.getId()).doReturn(1L)
-        whenever(subscription.getAmountNQT()).doReturn(2L)
-        whenever(subscription.getFrequency()).doReturn(3)
+        whenever(subscription.id).doReturn(1L)
+        whenever(subscription.amountNQT).doReturn(2L)
+        whenever(subscription.frequency).doReturn(3)
         whenever(subscription.timeNext).doReturn(4)
 
         val subscriptionIterator = this.mockCollection<Subscription>(subscription)
@@ -73,9 +73,9 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
         val resultSubscription = resultSubscriptions.get(0) as JsonObject
         assertNotNull(resultSubscription)
 
-        assertEquals("" + subscription.getId()!!, JSON.getAsString(resultSubscription.get(ID_RESPONSE)))
-        assertEquals("" + subscription.getAmountNQT()!!, JSON.getAsString(resultSubscription.get(AMOUNT_NQT_RESPONSE)))
-        assertEquals(subscription.getFrequency().toLong(), JSON.getAsInt(resultSubscription.get(FREQUENCY_RESPONSE)).toLong())
+        assertEquals("" + subscription.id!!, JSON.getAsString(resultSubscription.get(ID_RESPONSE)))
+        assertEquals("" + subscription.amountNQT!!, JSON.getAsString(resultSubscription.get(AMOUNT_NQT_RESPONSE)))
+        assertEquals(subscription.frequency.toLong(), JSON.getAsInt(resultSubscription.get(FREQUENCY_RESPONSE)).toLong())
         assertEquals(subscription.timeNext.toLong(), JSON.getAsInt(resultSubscription.get(TIME_NEXT_RESPONSE)).toLong())
     }
 

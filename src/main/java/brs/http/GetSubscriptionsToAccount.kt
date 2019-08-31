@@ -23,7 +23,7 @@ internal class GetSubscriptionsToAccount(private val parameterService: Parameter
 
         val subscriptions = JsonArray()
 
-        for (subscription in subscriptionService.getSubscriptionsToId(account.getId())) {
+        for (subscription in subscriptionService.getSubscriptionsToId(account.id)) {
             subscriptions.add(JSONData.subscription(subscription))
         }
 

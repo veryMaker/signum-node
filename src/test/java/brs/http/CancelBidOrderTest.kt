@@ -62,7 +62,7 @@ class CancelBidOrderTest : AbstractTransactionTest() {
         whenever(assetExchangeMock!!.getBidOrder(eq(123L))).doReturn(mockBidOrder)
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(orderAccountId)
+        whenever(mockAccount.id).doReturn(orderAccountId)
         whenever(parameterServiceMock!!.getSenderAccount(eq(req))).doReturn(mockAccount)
 
         mockkStatic(Burst::class)
@@ -111,7 +111,7 @@ class CancelBidOrderTest : AbstractTransactionTest() {
         whenever(assetExchangeMock!!.getBidOrder(eq(123L))).doReturn(mockBidOrder)
 
         val mockAccount = mock<Account>()
-        whenever(mockAccount.getId()).doReturn(senderAccountId)
+        whenever(mockAccount.id).doReturn(senderAccountId)
 
         whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
 

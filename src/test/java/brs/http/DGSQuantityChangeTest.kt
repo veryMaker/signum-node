@@ -57,7 +57,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         whenever(mockGoods.sellerId).doReturn(1L)
 
         val mockSenderAccount = mock<Account>()
-        whenever(mockSenderAccount.getId()).doReturn(1L)
+        whenever(mockSenderAccount.id).doReturn(1L)
 
         whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
         whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
@@ -98,7 +98,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         whenever(mockGoods.sellerId).doReturn(1L)
 
         val mockSenderAccount = mock<Account>()
-        whenever(mockSenderAccount.getId()).doReturn(2L)
+        whenever(mockSenderAccount.id).doReturn(2L)
 
         whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
         whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
@@ -118,7 +118,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         whenever(mockGoods.sellerId).doReturn(1L)
 
         val mockSenderAccount = mock<Account>()
-        whenever(mockSenderAccount.getId()).doReturn(1L)
+        whenever(mockSenderAccount.id).doReturn(1L)
 
         whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
         whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
@@ -138,7 +138,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         whenever(mockGoods.sellerId).doReturn(1L)
 
         val mockSenderAccount = mock<Account>()
-        whenever(mockSenderAccount.getId()).doReturn(1L)
+        whenever(mockSenderAccount.id).doReturn(1L)
 
         whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
         whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
@@ -158,7 +158,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         whenever(mockGoods.sellerId).doReturn(1L)
 
         val mockSenderAccount = mock<Account>()
-        whenever(mockSenderAccount.getId()).doReturn(1L)
+        whenever(mockSenderAccount.id).doReturn(1L)
 
         whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
         whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
@@ -178,7 +178,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         whenever(mockGoods.sellerId).doReturn(1L)
 
         val mockSenderAccount = mock<Account>()
-        whenever(mockSenderAccount.getId()).doReturn(1L)
+        whenever(mockSenderAccount.id).doReturn(1L)
 
         whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
         whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)

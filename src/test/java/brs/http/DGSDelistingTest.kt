@@ -50,7 +50,7 @@ class DGSDelistingTest : AbstractTransactionTest() {
 
         whenever(mockGoods.isDelisted).doReturn(false)
         whenever(mockGoods.sellerId).doReturn(1L)
-        whenever(mockAccount.getId()).doReturn(1L)
+        whenever(mockAccount.id).doReturn(1L)
 
         whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
         whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
@@ -90,7 +90,7 @@ class DGSDelistingTest : AbstractTransactionTest() {
 
         whenever(mockGoods.isDelisted).doReturn(false)
         whenever(mockGoods.sellerId).doReturn(1L)
-        whenever(mockAccount.getId()).doReturn(2L)
+        whenever(mockAccount.id).doReturn(2L)
 
         whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
         whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)

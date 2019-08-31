@@ -47,7 +47,7 @@ internal class SellAlias internal constructor(private val dp: DependencyProvider
             }
         }
 
-        if (alias.accountId != owner.getId()) {
+        if (alias.accountId != owner.id) {
             return INCORRECT_ALIAS_OWNER
         }
 

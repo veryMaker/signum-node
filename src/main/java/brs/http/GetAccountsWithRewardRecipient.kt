@@ -24,12 +24,12 @@ internal class GetAccountsWithRewardRecipient internal constructor(private val p
 
         val accounts = JsonArray()
 
-        for (assignment in accountService.getAccountsWithRewardRecipient(targetAccount.getId())) {
+        for (assignment in accountService.getAccountsWithRewardRecipient(targetAccount.id)) {
             accounts.add(Convert.toUnsignedLong(assignment.getAccountId()))
         }
 
         if (accountService.getRewardRecipientAssignment(targetAccount) == null) {
-            accounts.add(Convert.toUnsignedLong(targetAccount.getId()))
+            accounts.add(Convert.toUnsignedLong(targetAccount.id))
         }
 
         response.add(ACCOUNTS_RESPONSE, accounts)

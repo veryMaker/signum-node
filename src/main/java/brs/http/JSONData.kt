@@ -11,13 +11,10 @@ import brs.services.AccountService
 import brs.util.Convert
 import brs.util.JSON
 import com.google.gson.JsonArray
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-
-import brs.http.common.ResultFields.*
 
 object JSONData {
 
@@ -72,8 +69,8 @@ object JSONData {
 
     internal fun accountAsset(accountAsset: Account.AccountAsset): JsonObject {
         val json = JsonObject()
-        putAccount(json, ACCOUNT_RESPONSE, accountAsset.getAccountId())
-        json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.getAssetId()))
+        putAccount(json, ACCOUNT_RESPONSE, accountAsset.accountId)
+        json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.assetId))
         json.addProperty(QUANTITY_QNT_RESPONSE, accountAsset.quantityQNT.toString())
         json.addProperty(UNCONFIRMED_QUANTITY_QNT_RESPONSE, accountAsset.unconfirmedQuantityQNT.toString())
         return json
@@ -157,24 +154,24 @@ object JSONData {
 
     internal fun escrowTransaction(escrow: Escrow): JsonObject {
         val json = JsonObject()
-        json.addProperty(ID_RESPONSE, Convert.toUnsignedLong(escrow.getId()!!))
-        json.addProperty(SENDER_RESPONSE, Convert.toUnsignedLong(escrow.getSenderId()!!))
-        json.addProperty(SENDER_RS_RESPONSE, Convert.rsAccount(escrow.getSenderId()!!))
-        json.addProperty(RECIPIENT_RESPONSE, Convert.toUnsignedLong(escrow.getRecipientId()!!))
-        json.addProperty(RECIPIENT_RS_RESPONSE, Convert.rsAccount(escrow.getRecipientId()!!))
-        json.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(escrow.getAmountNQT()!!))
-        json.addProperty(REQUIRED_SIGNERS_RESPONSE, escrow.getRequiredSigners())
-        json.addProperty(DEADLINE_RESPONSE, escrow.getDeadline())
-        json.addProperty(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(escrow.getDeadlineAction()))
+        json.addProperty(ID_RESPONSE, Convert.toUnsignedLong(escrow.id!!))
+        json.addProperty(SENDER_RESPONSE, Convert.toUnsignedLong(escrow.senderId!!))
+        json.addProperty(SENDER_RS_RESPONSE, Convert.rsAccount(escrow.senderId!!))
+        json.addProperty(RECIPIENT_RESPONSE, Convert.toUnsignedLong(escrow.recipientId!!))
+        json.addProperty(RECIPIENT_RS_RESPONSE, Convert.rsAccount(escrow.recipientId!!))
+        json.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(escrow.amountNQT!!))
+        json.addProperty(REQUIRED_SIGNERS_RESPONSE, escrow.requiredSigners)
+        json.addProperty(DEADLINE_RESPONSE, escrow.deadline)
+        json.addProperty(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(escrow.deadlineAction))
 
         val signers = JsonArray()
         for (decision in escrow.decisions) {
-            if (decision.getAccountId() == escrow.getSenderId() || decision.getAccountId() == escrow.getRecipientId()) {
+            if (decision.accountId == escrow.senderId || decision.accountId == escrow.recipientId) {
                 continue
             }
             val signerDetails = JsonObject()
-            signerDetails.addProperty(ID_RESPONSE, Convert.toUnsignedLong(decision.getAccountId()!!))
-            signerDetails.addProperty(ID_RS_RESPONSE, Convert.rsAccount(decision.getAccountId()!!))
+            signerDetails.addProperty(ID_RESPONSE, Convert.toUnsignedLong(decision.accountId!!))
+            signerDetails.addProperty(ID_RS_RESPONSE, Convert.rsAccount(decision.accountId!!))
             signerDetails.addProperty(DECISION_RESPONSE, Escrow.decisionToString(decision.decision))
             signers.add(signerDetails)
         }
@@ -266,11 +263,11 @@ object JSONData {
 
     internal fun subscription(subscription: Subscription): JsonObject {
         val json = JsonObject()
-        json.addProperty(ID_RESPONSE, Convert.toUnsignedLong(subscription.getId()!!))
-        putAccount(json, SENDER_RESPONSE, subscription.getSenderId()!!)
-        putAccount(json, RECIPIENT_RESPONSE, subscription.getRecipientId()!!)
-        json.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(subscription.getAmountNQT()!!))
-        json.addProperty(FREQUENCY_RESPONSE, subscription.getFrequency())
+        json.addProperty(ID_RESPONSE, Convert.toUnsignedLong(subscription.id!!))
+        putAccount(json, SENDER_RESPONSE, subscription.senderId!!)
+        putAccount(json, RECIPIENT_RESPONSE, subscription.recipientId!!)
+        json.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(subscription.amountNQT!!))
+        json.addProperty(FREQUENCY_RESPONSE, subscription.frequency)
         json.addProperty(TIME_NEXT_RESPONSE, subscription.timeNext)
         return json
     }
@@ -416,10 +413,10 @@ object JSONData {
         json.addProperty("prevBalanceNQT", Convert.toUnsignedLong(at.getpBalance()!!))
         json.addProperty("nextBlock", at.nextHeight())
         json.addProperty("frozen", at.freezeOnSameBalance())
-        json.addProperty("running", at.machineState.isRunning)
-        json.addProperty("stopped", at.machineState.isStopped)
-        json.addProperty("finished", at.machineState.isFinished)
-        json.addProperty("dead", at.machineState.isDead)
+        json.addProperty("running", at.machineState.running)
+        json.addProperty("stopped", at.machineState.stopped)
+        json.addProperty("finished", at.machineState.finished)
+        json.addProperty("dead", at.machineState.dead)
         json.addProperty("minActivation", Convert.toUnsignedLong(at.minActivationAmount()))
         json.addProperty("creationBlock", at.creationBlockHeight)
         return json
