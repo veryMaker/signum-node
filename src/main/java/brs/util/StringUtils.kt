@@ -8,7 +8,7 @@ object StringUtils {
 
     @JvmStatic
     fun countMatches(str: String, sub: String): Int {
-        return if (!isEmpty(str) && !isEmpty(sub)) {
+        return if (str.isNotEmpty() && sub.isNotEmpty()) {
             var count = 0
 
             var idx = 0

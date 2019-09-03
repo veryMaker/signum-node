@@ -9,6 +9,7 @@ interface EntityTable<T> : DerivedTable {
     val rowCount: Int
     fun checkAvailable(height: Int)
 
+    // TODO nullability?
     operator fun get(dbKey: BurstKey): T
 
     operator fun get(dbKey: BurstKey, height: Int): T

@@ -55,21 +55,21 @@ class AT : AtMachineState {
     }
 
     fun saveState() {
-        var state: ATState? = atStateTable().get(atStateDbKeyFactory(dp).newKey(AtApiHelper.getLong(this.id!!)))
+        var state: ATState? = atStateTable()[atStateDbKeyFactory(dp).newKey(AtApiHelper.getLong(this.id!!))]
         val prevHeight = dp.blockchain.height
         val newNextHeight = prevHeight + waitForNumberOfBlocks
         if (state != null) {
-            state.state = state
+            state.state = this.state
             state.prevHeight = prevHeight
             state.nextHeight = newNextHeight
-            state.sleepBetween = sleepBetween
+            state.sleepBetween = this.sleepBetween
             state.prevBalance = getpBalance()
             state.freezeWhenSameBalance = freezeOnSameBalance()
             state.minActivationAmount = minActivationAmount()
         } else {
             state = ATState(dp, AtApiHelper.getLong(this.id!!),
-                    state, newNextHeight, sleepBetween,
-                    getpBalance()!!, freezeOnSameBalance(), minActivationAmount())
+                    this.state, newNextHeight, sleepBetween,
+                    getpBalance(), freezeOnSameBalance(), minActivationAmount())
         }
         atStateTable().insert(state)
     }
@@ -78,15 +78,14 @@ class AT : AtMachineState {
         return nextHeight
     }
 
-    class HandleATBlockTransactionsListener(private val dp: DependencyProvider) : Consumer<Block> {
-
-        override fun accept(block: Block) {
+    class HandleATBlockTransactionsListener(private val dp: DependencyProvider) : (Block) -> Unit {
+        override fun invoke(block: Block) {
             pendingFees.forEach { (key, value) ->
                 val atAccount = dp.accountService.getAccount(key)
                 dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(atAccount, -value)
             }
 
-            val transactions = ArrayList<Transaction>()
+            val transactions = mutableListOf<Transaction>()
             for (atTransaction in pendingTransactions) {
                 dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(AtApiHelper.getLong(atTransaction.senderId)), -atTransaction.amount)
                 dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.recipientId)), atTransaction.amount!!)
@@ -125,39 +124,14 @@ class AT : AtMachineState {
         }
     }
 
-    open class ATState(dp: DependencyProvider, val atId: Long, state: ByteArray,
-                       nextHeight: Int, sleepBetween: Int, prevBalance: Long, freezeWhenSameBalance: Boolean, minActivationAmount: Long) {
-
-        val dbKey: BurstKey
-        var state: ByteArray? = null
-            internal set
+    open class ATState(dp: DependencyProvider, val atId: Long, var state: ByteArray, var nextHeight: Int, var sleepBetween: Int, var prevBalance: Long, var freezeWhenSameBalance: Boolean, var minActivationAmount: Long) {
+        val dbKey = atStateDbKeyFactory(dp).newKey(this.atId)
         var prevHeight: Int = 0
-            internal set
-        var nextHeight: Int = 0
-            internal set
-        var sleepBetween: Int = 0
-            internal set
-        var prevBalance: Long = 0
-            internal set
-        var freezeWhenSameBalance: Boolean = false
-            internal set
-        var minActivationAmount: Long = 0
-            internal set
-
-        init {
-            this.dbKey = atStateDbKeyFactory(dp).newKey(this.atId)
-            this.state = state
-            this.nextHeight = nextHeight
-            this.sleepBetween = sleepBetween
-            this.prevBalance = prevBalance
-            this.freezeWhenSameBalance = freezeWhenSameBalance
-            this.minActivationAmount = minActivationAmount
-        }
     }
 
     companion object {
-        private val pendingFees = LinkedHashMap<Long, Long>()
-        private val pendingTransactions = ArrayList<AtTransaction>()
+        private val pendingFees = mutableMapOf<Long, Long>()
+        private val pendingTransactions = mutableListOf<AtTransaction>()
 
         fun clearPendingFees() {
             pendingFees.clear()
@@ -262,7 +236,7 @@ class AT : AtMachineState {
         }
 
         fun decompressState(stateBytes: ByteArray?): ByteArray? {
-            if (stateBytes == null || stateBytes.size == 0) {
+            if (stateBytes == null || stateBytes.isEmpty()) {
                 return null
             }
 
@@ -270,12 +244,7 @@ class AT : AtMachineState {
                 ByteArrayInputStream(stateBytes).use { bis ->
                     GZIPInputStream(bis).use { gzip ->
                         ByteArrayOutputStream().use { bos ->
-                            val buffer = ByteArray(256)
-                            var read: Int
-                            while ((read = gzip.read(buffer, 0, buffer.size)) > 0) {
-                                bos.write(buffer, 0, read)
-                            }
-                            bos.flush()
+                            gzip.copyTo(bos, 256)
                             return bos.toByteArray()
                         }
                     }

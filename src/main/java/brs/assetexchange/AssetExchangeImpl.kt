@@ -65,7 +65,7 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
         return assetAccountService.getAssetAccountsCount(assetId)
     }
 
-    override fun addTradeListener(listener: Consumer<Trade>, eventType: Event) {
+    override fun addTradeListener(listener: (Trade) -> Unit, eventType: Event) {
         tradeService.addListener(listener, eventType)
     }
 

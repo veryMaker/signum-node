@@ -74,7 +74,7 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
             }
 
             override fun defaultSort(): List<SortField<*>> {
-                val sort = ArrayList<SortField<*>>()
+                val sort = mutableListOf<SortField<*>>()
                 sort.add(tableClass.field("id", Long::class.java).asc())
                 return sort
             }
@@ -90,7 +90,7 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
             }
 
             override fun defaultSort(): List<SortField<*>> {
-                val sort = ArrayList<SortField<*>>()
+                val sort = mutableListOf<SortField<*>>()
                 sort.add(tableClass.field("prev_height", Int::class.java).asc())
                 sort.add(heightField.asc())
                 sort.add(tableClass.field("at_id", Long::class.java).asc())

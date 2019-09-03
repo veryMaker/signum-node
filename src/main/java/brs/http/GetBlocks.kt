@@ -10,8 +10,6 @@ import com.google.gson.JsonObject
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.http.common.Parameters.*
-
 internal class GetBlocks(private val blockchain: Blockchain, private val blockService: BlockService) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS), FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, INCLUDE_TRANSACTIONS_PARAMETER) {
 
     internal override fun processRequest(req: HttpServletRequest): JsonElement {

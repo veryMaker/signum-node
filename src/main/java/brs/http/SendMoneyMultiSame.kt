@@ -8,8 +8,6 @@ import com.google.gson.JsonObject
 
 import javax.servlet.http.HttpServletRequest
 import java.util.ArrayList
-
-import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
@@ -38,7 +36,7 @@ internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTr
             return response
         }
 
-        val recipients = ArrayList<Long>()
+        val recipients = mutableListOf<Long>()
 
         val totalAmountNQT = amountNQT * recipientsArray.size
         try {

@@ -57,7 +57,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.threadPool = ThreadPool(dp)
             LoggerConfigurator.init()
             Db.init(dp)
-            dp.dbs = Db.getDbsByDatabaseType()
+            dp.dbs = Db.dbsByDatabaseType
             dp.accountStore = SqlAccountStore(dp)
             dp.aliasStore = SqlAliasStore(dp)
             dp.assetStore = SqlAssetStore(dp)

@@ -36,7 +36,7 @@ class AlternativeRealityTest : AbstractIT() {
 
         val array = parser.parse(inputFileContent) as JsonArray
 
-        val result = ArrayList<JsonObject>()
+        val result = mutableListOf<JsonObject>()
 
         for (obj in array) {
             result.add(JSON.getAsJsonObject(obj))

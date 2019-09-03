@@ -8,8 +8,6 @@ import com.google.gson.JsonObject
 
 import javax.servlet.http.HttpServletRequest
 import java.util.ArrayList
-
-import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
@@ -47,14 +45,14 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
 
         val signersArray = signerString.split(";".toRegex(), 10).toTypedArray()
 
-        if (signersArray.size < 1 || signersArray.size > 10 || signersArray.size < requiredSigners) {
+        if (signersArray.isEmpty() || signersArray.size > 10 || signersArray.size < requiredSigners) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 4)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Invalid number of signers")
             return response
         }
 
-        val signers = ArrayList<Long>()
+        val signers = mutableListOf<Long>()
 
         try {
             for (signer in signersArray) {

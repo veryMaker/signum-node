@@ -30,7 +30,7 @@ class SqlIndirectIncomingStore(dp: DependencyProvider) : IndirectIncomingStore {
             }
 
             private fun getQuery(ctx: DSLContext, indirectIncoming: IndirectIncomingStore.IndirectIncoming): Query {
-                return ctx.mergeInto<IndirectIncomingRecord, Long, Long, Int>(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
+                return ctx.mergeInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
                         .key(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
                         .values(indirectIncoming.accountId, indirectIncoming.transactionId, indirectIncoming.height)
             }
@@ -40,7 +40,7 @@ class SqlIndirectIncomingStore(dp: DependencyProvider) : IndirectIncomingStore {
             }
 
             internal override fun save(ctx: DSLContext, indirectIncomings: Array<IndirectIncomingStore.IndirectIncoming>) {
-                val queries = ArrayList<Query>()
+                val queries = mutableListOf<Query>()
                 for (indirectIncoming in indirectIncomings) {
                     queries.add(getQuery(ctx, indirectIncoming))
                 }
@@ -50,13 +50,11 @@ class SqlIndirectIncomingStore(dp: DependencyProvider) : IndirectIncomingStore {
     }
 
     override fun addIndirectIncomings(indirectIncomings: Collection<IndirectIncomingStore.IndirectIncoming>) {
-        Db.useDSLContext { ctx -> indirectIncomingTable.save(ctx, indirectIncomings.toTypedArray<IndirectIncoming>()) }
+        Db.useDSLContext { ctx -> indirectIncomingTable.save(ctx, indirectIncomings.toTypedArray()) }
     }
 
     override fun getIndirectIncomings(accountId: Long, from: Int, to: Int): List<Long> {
         return indirectIncomingTable.getManyBy(INDIRECT_INCOMING.ACCOUNT_ID.eq(accountId), from, to)
-                .stream()
-                .map<Long>(Function<IndirectIncoming, Long> { it.getTransactionId() })
-                .collect<List<Long>, Any>(Collectors.toList())
+                .map { it.transactionId }
     }
 }

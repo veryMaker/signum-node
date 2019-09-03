@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest
 import java.util.Arrays
 
 import brs.http.JSONResponses.MISSING_SECRET_PHRASE
-import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.*
 import brs.http.common.ResultFields.FULL_HASH_RESPONSE
 

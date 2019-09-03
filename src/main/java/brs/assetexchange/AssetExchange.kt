@@ -12,7 +12,6 @@ import brs.Trade.Event
 import java.util.function.Consumer
 
 interface AssetExchange {
-
     val assetsCount: Int
 
     val askCount: Int
@@ -25,7 +24,7 @@ interface AssetExchange {
 
     fun getAllAssets(from: Int, to: Int): Collection<Asset>
 
-    fun getAsset(assetId: Long): Asset
+    fun getAsset(assetId: Long): Asset?
 
     fun getTradeCount(assetId: Long): Int
 
@@ -33,9 +32,9 @@ interface AssetExchange {
 
     fun getAssetAccountsCount(id: Long): Int
 
-    fun addTradeListener(listener: Consumer<Trade>, trade: Event)
+    fun addTradeListener(listener: (Trade) -> Unit, trade: Event)
 
-    fun getAskOrder(orderId: Long): Ask
+    fun getAskOrder(orderId: Long): Ask?
 
     fun addAsset(transaction: Transaction, attachment: ColoredCoinsAssetIssuance)
 
@@ -47,7 +46,7 @@ interface AssetExchange {
 
     fun removeAskOrder(orderId: Long)
 
-    fun getBidOrder(orderId: Long): Order.Bid
+    fun getBidOrder(orderId: Long): Bid?
 
     fun removeBidOrder(orderId: Long)
 
@@ -82,5 +81,4 @@ interface AssetExchange {
     fun getSortedAskOrders(assetId: Long, from: Int, to: Int): Collection<Ask>
 
     fun getSortedBidOrders(assetId: Long, from: Int, to: Int): Collection<Bid>
-
 }

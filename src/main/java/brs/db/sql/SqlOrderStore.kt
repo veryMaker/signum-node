@@ -49,7 +49,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             }
 
             override fun defaultSort(): List<SortField<*>> {
-                val sort = ArrayList<SortField<*>>()
+                val sort = mutableListOf<SortField<*>>()
                 sort.add(tableClass.field("creation_height", Int::class.java).desc())
                 return sort
             }
@@ -66,7 +66,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             }
 
             override fun defaultSort(): List<SortField<*>> {
-                val sort = ArrayList<SortField<*>>()
+                val sort = mutableListOf<SortField<*>>()
                 sort.add(tableClass.field("creation_height", Int::class.java).desc())
                 return sort
             }
@@ -86,7 +86,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
     }
 
     override fun getSortedAsks(assetId: Long, from: Int, to: Int): Collection<Order.Ask> {
-        val sort = ArrayList<SortField<*>>()
+        val sort = mutableListOf<SortField<*>>()
         sort.add(ASK_ORDER.field("price", Long::class.java).asc())
         sort.add(ASK_ORDER.field("creation_height", Int::class.java).asc())
         sort.add(ASK_ORDER.field("id", Long::class.java).asc())
@@ -145,7 +145,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
     }
 
     override fun getSortedBids(assetId: Long, from: Int, to: Int): Collection<Order.Bid> {
-        val sort = ArrayList<SortField<*>>()
+        val sort = mutableListOf<SortField<*>>()
         sort.add(BID_ORDER.field("price", Long::class.java).desc())
         sort.add(BID_ORDER.field("creation_height", Int::class.java).asc())
         sort.add(BID_ORDER.field("id", Long::class.java).asc())

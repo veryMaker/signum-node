@@ -26,11 +26,11 @@ internal class AssetTransferServiceImpl(private val assetTransferStore: AssetTra
         this.transferDbKeyFactory = assetTransferStore.transferDbKeyFactory
     }
 
-    fun addListener(listener: Consumer<AssetTransfer>, eventType: Event): Boolean {
+    fun addListener(listener: (AssetTransfer) -> Unit, eventType: Event): Boolean {
         return listeners.addListener(listener, eventType)
     }
 
-    fun removeListener(listener: Consumer<AssetTransfer>, eventType: Event): Boolean {
+    fun removeListener(listener: (AssetTransfer) -> Unit, eventType: Event): Boolean {
         return listeners.removeListener(listener, eventType)
     }
 

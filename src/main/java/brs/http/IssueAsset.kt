@@ -13,9 +13,6 @@ import com.google.gson.JsonElement
 
 import javax.servlet.http.HttpServletRequest
 
-
-import brs.http.common.Parameters.*
-
 internal class IssueAsset internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, QUANTITY_QNT_PARAMETER, DECIMALS_PARAMETER) {
 
     @Throws(BurstException::class)

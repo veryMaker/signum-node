@@ -33,6 +33,7 @@ object Convert {
 
     }
 
+    // TODO these should be extension functions
     fun toHexString(bytes: ByteArray): String {
         return Hex.toHexString(bytes)
     }
@@ -201,4 +202,4 @@ object Convert {
         return Math.abs(a)
     }
 
-}//never
+}

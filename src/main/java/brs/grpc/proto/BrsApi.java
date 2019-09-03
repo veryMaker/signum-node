@@ -5856,7 +5856,7 @@ public final class BrsApi {
             case 130: {
               java.lang.String s = input.readStringRequireUtf8();
               if (!((mutable_bitField0_ & 0x00008000) != 0)) {
-                publicFeedback_ = new com.google.protobuf.LazyStringArrayList();
+                publicFeedback_ = new com.google.protobuf.LazyStringmutableListOf();
                 mutable_bitField0_ |= 0x00008000;
               }
               publicFeedback_.add(s);
@@ -43203,7 +43203,7 @@ public final class BrsApi {
             case 10: {
               java.lang.String s = input.readStringRequireUtf8();
               if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                peerAddresses_ = new com.google.protobuf.LazyStringArrayList();
+                peerAddresses_ = new com.google.protobuf.LazyStringmutableListOf();
                 mutable_bitField0_ |= 0x00000001;
               }
               peerAddresses_.add(s);

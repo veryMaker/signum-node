@@ -97,7 +97,7 @@ class Subnet {
                     buf.append(':')
                 else if (0 < i && isIPv4)
                     buf.append('.')
-                integer = 0xFF and if (i < diffLen) fillByte else bytes[i - diffLen]
+                integer = 0xFF and if (i < diffLen) fillByte.toInt() else bytes[i - diffLen].toInt()
                 if (!isIPv4 && 0x10 > integer)
                     buf.append('0')
                 buf.append(if (isIPv4) integer else Integer.toHexString(integer))

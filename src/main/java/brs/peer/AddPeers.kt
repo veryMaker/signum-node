@@ -6,7 +6,6 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 internal class AddPeers private constructor() : PeerServlet.PeerRequestHandler {
-
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         val peers = JSON.getAsJsonArray(request.get("peers"))
         if (peers != null && Peers.getMorePeers) {

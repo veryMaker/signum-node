@@ -2043,7 +2043,7 @@ abstract class TransactionType private constructor() {
 
         private val logger = LoggerFactory.getLogger(TransactionType::class.java)
 
-        private val TRANSACTION_TYPES = HashMap<Byte, Map<Byte, TransactionType>>()
+        private val TRANSACTION_TYPES = mutableMapOf<Byte, Map<Byte, TransactionType>>>()
 
         private val TYPE_PAYMENT: Byte = 0
         private val TYPE_MESSAGING: Byte = 1
@@ -2104,19 +2104,19 @@ abstract class TransactionType private constructor() {
         fun init(dp: DependencyProvider) {
             TransactionType.dp = dp
 
-            val paymentTypes = HashMap<Byte, TransactionType>()
+            val paymentTypes = mutableMapOf<Byte, TransactionType>>()
             paymentTypes[SUBTYPE_PAYMENT_ORDINARY_PAYMENT] = Payment.ORDINARY
             paymentTypes[SUBTYPE_PAYMENT_ORDINARY_PAYMENT_MULTI_OUT] = Payment.MULTI_OUT
             paymentTypes[SUBTYPE_PAYMENT_ORDINARY_PAYMENT_MULTI_SAME_OUT] = Payment.MULTI_SAME_OUT
 
-            val messagingTypes = HashMap<Byte, TransactionType>()
+            val messagingTypes = mutableMapOf<Byte, TransactionType>>()
             messagingTypes[SUBTYPE_MESSAGING_ARBITRARY_MESSAGE] = Messaging.ARBITRARY_MESSAGE
             messagingTypes[SUBTYPE_MESSAGING_ALIAS_ASSIGNMENT] = Messaging.ALIAS_ASSIGNMENT
             messagingTypes[SUBTYPE_MESSAGING_ACCOUNT_INFO] = Messaging.ACCOUNT_INFO
             messagingTypes[SUBTYPE_MESSAGING_ALIAS_BUY] = Messaging.ALIAS_BUY
             messagingTypes[SUBTYPE_MESSAGING_ALIAS_SELL] = Messaging.ALIAS_SELL
 
-            val coloredCoinsTypes = HashMap<Byte, TransactionType>()
+            val coloredCoinsTypes = mutableMapOf<Byte, TransactionType>>()
             coloredCoinsTypes[SUBTYPE_COLORED_COINS_ASSET_ISSUANCE] = ColoredCoins.ASSET_ISSUANCE
             coloredCoinsTypes[SUBTYPE_COLORED_COINS_ASSET_TRANSFER] = ColoredCoins.ASSET_TRANSFER
             coloredCoinsTypes[SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT] = ColoredCoins.ASK_ORDER_PLACEMENT
@@ -2124,7 +2124,7 @@ abstract class TransactionType private constructor() {
             coloredCoinsTypes[SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION] = ColoredCoins.ASK_ORDER_CANCELLATION
             coloredCoinsTypes[SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION] = ColoredCoins.BID_ORDER_CANCELLATION
 
-            val digitalGoodsTypes = HashMap<Byte, TransactionType>()
+            val digitalGoodsTypes = mutableMapOf<Byte, TransactionType>>()
             digitalGoodsTypes[SUBTYPE_DIGITAL_GOODS_LISTING] = DigitalGoods.LISTING
             digitalGoodsTypes[SUBTYPE_DIGITAL_GOODS_DELISTING] = DigitalGoods.DELISTING
             digitalGoodsTypes[SUBTYPE_DIGITAL_GOODS_PRICE_CHANGE] = DigitalGoods.PRICE_CHANGE
@@ -2134,17 +2134,17 @@ abstract class TransactionType private constructor() {
             digitalGoodsTypes[SUBTYPE_DIGITAL_GOODS_FEEDBACK] = DigitalGoods.FEEDBACK
             digitalGoodsTypes[SUBTYPE_DIGITAL_GOODS_REFUND] = DigitalGoods.REFUND
 
-            val atTypes = HashMap<Byte, TransactionType>()
+            val atTypes = mutableMapOf<Byte, TransactionType>>()
             atTypes[SUBTYPE_AT_CREATION] = AutomatedTransactions.AUTOMATED_TRANSACTION_CREATION
             atTypes[SUBTYPE_AT_NXT_PAYMENT] = AutomatedTransactions.AT_PAYMENT
 
-            val accountControlTypes = HashMap<Byte, TransactionType>()
+            val accountControlTypes = mutableMapOf<Byte, TransactionType>>()
             accountControlTypes[SUBTYPE_ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING] = AccountControl.EFFECTIVE_BALANCE_LEASING
 
-            val burstMiningTypes = HashMap<Byte, TransactionType>()
+            val burstMiningTypes = mutableMapOf<Byte, TransactionType>>()
             burstMiningTypes[SUBTYPE_BURST_MINING_REWARD_RECIPIENT_ASSIGNMENT] = BurstMining.REWARD_RECIPIENT_ASSIGNMENT
 
-            val advancedPaymentTypes = HashMap<Byte, TransactionType>()
+            val advancedPaymentTypes = mutableMapOf<Byte, TransactionType>>()
             advancedPaymentTypes[SUBTYPE_ADVANCED_PAYMENT_ESCROW_CREATION] = AdvancedPayment.ESCROW_CREATION
             advancedPaymentTypes[SUBTYPE_ADVANCED_PAYMENT_ESCROW_SIGN] = AdvancedPayment.ESCROW_SIGN
             advancedPaymentTypes[SUBTYPE_ADVANCED_PAYMENT_ESCROW_RESULT] = AdvancedPayment.ESCROW_RESULT

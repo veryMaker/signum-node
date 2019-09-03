@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.Asset
 import brs.assetexchange.AssetExchange
 import brs.util.Convert
 import com.google.gson.JsonArray
@@ -15,10 +14,10 @@ import brs.http.common.ResultFields.ASSET_IDS_RESPONSE
 
 internal class GetAssetIds(private val assetExchange: AssetExchange) : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER) {
 
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val firstIndex = ParameterParser.getFirstIndex(req)
-        val lastIndex = ParameterParser.getLastIndex(req)
+        val firstIndex = ParameterParser.getFirstIndex(request)
+        val lastIndex = ParameterParser.getLastIndex(request)
 
         val assetIds = JsonArray()
         for (asset in assetExchange.getAllAssets(firstIndex, lastIndex)) {

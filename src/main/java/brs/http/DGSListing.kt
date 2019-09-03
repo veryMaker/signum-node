@@ -11,9 +11,6 @@ import com.google.gson.JsonElement
 
 import javax.servlet.http.HttpServletRequest
 
-
-import brs.http.common.Parameters.*
-
 internal class DGSListing internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, TAGS_PARAMETER, QUANTITY_PARAMETER, PRICE_NQT_PARAMETER) {
     @Throws(BurstException::class)
     internal override fun processRequest(req: HttpServletRequest): JsonElement {

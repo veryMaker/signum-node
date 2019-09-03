@@ -178,7 +178,7 @@ class BurstGUI : Application() {
         }
     }
 
-    private class TextAreaOutputStream private constructor(private val textArea: TextArea?, private val actualOutput: PrintStream) : OutputStream() {
+    private class TextAreaOutputStream internal constructor(private val textArea: TextArea?, private val actualOutput: PrintStream) : OutputStream() {
 
         private val lineBuilder = StringBuilder()
 
@@ -321,11 +321,11 @@ class BurstGUI : Application() {
     }
 
     companion object {
-        private val ICON_LOCATION = "/images/burst_overlay_logo.png"
-        private val FAILED_TO_START_MESSAGE = "BurstGUI caught exception starting BRS"
-        private val UNEXPECTED_EXIT_MESSAGE = "BRS Quit unexpectedly! Exit code "
+        private const val ICON_LOCATION = "/images/burst_overlay_logo.png"
+        private const val FAILED_TO_START_MESSAGE = "BurstGUI caught exception starting BRS"
+        private const val UNEXPECTED_EXIT_MESSAGE = "BRS Quit unexpectedly! Exit code "
 
-        private val OUTPUT_MAX_LINES = 500
+        private const val OUTPUT_MAX_LINES = 500
 
         private val LOGGER = LoggerFactory.getLogger(BurstGUI::class.java)
 

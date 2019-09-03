@@ -26,7 +26,7 @@ class GetNextBlockIdsTest {
     fun setUpGetNextBlocksTest() {
         mockBlockchain = mock<Blockchain>()
         mockPeer = mock<Peer>()
-        val blocks = ArrayList<Long>()
+        val blocks = mutableListOf<Long>()
         for (i in 0..99) {
             blocks.add((i + 1).toLong())
         }

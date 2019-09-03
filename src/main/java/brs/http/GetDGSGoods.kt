@@ -9,8 +9,6 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.GOODS_RESPONSE
 
 internal class GetDGSGoods(private val digitalGoodsStoreService: DGSGoodsStoreService) : APIServlet.JsonRequestHandler(arrayOf(APITag.DGS), SELLER_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, IN_STOCK_ONLY_PARAMETER) {

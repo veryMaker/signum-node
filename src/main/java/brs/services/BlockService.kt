@@ -18,7 +18,7 @@ interface BlockService {
     @Throws(BlockOutOfOrderException::class)
     fun calculateBaseTarget(block: Block, lastBlock: Block)
 
-    fun setPrevious(block: Block, previousBlock: Block)
+    fun setPrevious(block: Block, previousBlock: Block?)
 
     @Throws(BlockNotAcceptedException::class)
     fun verifyGenerationSignature(block: Block): Boolean

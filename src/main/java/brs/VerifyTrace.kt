@@ -42,20 +42,20 @@ object VerifyTrace {
                 var line = reader.readLine()
                 val headers = unquote(line.split(DebugTrace.SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
 
-                val totals = HashMap<String, Map<String, Long>>()
-                val accountAssetTotals = HashMap<String, Map<String, Map<String, Long>>>()
-                val issuedAssetQuantities = HashMap<String, Long>()
-                val accountAssetQuantities = HashMap<String, Long>()
+                val totals = mutableMapOf<String, Map<String, Long>>>()
+                val accountAssetTotals = mutableMapOf<String, Map<String, Map<String, Long>>>>()
+                val issuedAssetQuantities = mutableMapOf<String, Long>>()
+                val accountAssetQuantities = mutableMapOf<String, Long>>()
 
                 while ((line = reader.readLine()) != null) {
                     val values = unquote(line.split(DebugTrace.SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
-                    val valueMap = HashMap<String, String>()
+                    val valueMap = mutableMapOf<String, String>>()
                     for (i in headers.indices) {
                         valueMap[headers[i]] = values[i]
                     }
                     val accountId = valueMap["account"]
-                    val accountTotals = (totals as java.util.Map<String, Map<String, Long>>).computeIfAbsent(accountId) { k -> HashMap() }
-                    val accountAssetMap = (accountAssetTotals as java.util.Map<String, Map<String, Map<String, Long>>>).computeIfAbsent(accountId) { k -> HashMap() }
+                    val accountTotals = (totals as java.util.Map<String, Map<String, Long>>).computeIfAbsent(accountId) { k -> mutableMapOf() }
+                    val accountAssetMap = (accountAssetTotals as java.util.Map<String, Map<String, Map<String, Long>>>).computeIfAbsent(accountId) { k -> mutableMapOf() }
                     if ("asset issuance" == valueMap["event"]) {
                         val assetId = valueMap["asset"]
                         issuedAssetQuantities[assetId] = java.lang.Long.parseLong(valueMap["asset quantity"])
@@ -71,11 +71,11 @@ object VerifyTrace {
                             accountTotals.put(header, Convert.safeAdd(previousValue, java.lang.Long.parseLong(value)))
                         } else if (isAssetQuantity(header)) {
                             val assetId = valueMap["asset"]
-                            val assetTotals = (accountAssetMap as java.util.Map<String, Map<String, Long>>).computeIfAbsent(assetId) { k -> HashMap() }
+                            val assetTotals = (accountAssetMap as java.util.Map<String, Map<String, Long>>).computeIfAbsent(assetId) { k -> mutableMapOf() }
                             assetTotals.put(header, java.lang.Long.parseLong(value))
                         } else if (isDeltaAssetQuantity(header)) {
                             val assetId = valueMap["asset"]
-                            val assetTotals = (accountAssetMap as java.util.Map<String, Map<String, Long>>).computeIfAbsent(assetId) { k -> HashMap() }
+                            val assetTotals = (accountAssetMap as java.util.Map<String, Map<String, Long>>).computeIfAbsent(assetId) { k -> mutableMapOf() }
                             val previousValue = nullToZero(assetTotals[header])
                             assetTotals.put(header, Convert.safeAdd(previousValue, java.lang.Long.parseLong(value)))
                         }

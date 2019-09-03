@@ -10,8 +10,6 @@ import javax.servlet.http.HttpServletRequest
 import java.util.AbstractMap.SimpleEntry
 import java.util.ArrayList
 import kotlin.collections.Map.Entry
-
-import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
@@ -38,7 +36,7 @@ internal class SendMoneyMulti(private val dp: DependencyProvider) : CreateTransa
             return response
         }
 
-        val recipients = ArrayList<Entry<String, Long>>()
+        val recipients = mutableListOf<Entry<String, Long>>()
 
         var totalAmountNQT: Long = 0
         try {

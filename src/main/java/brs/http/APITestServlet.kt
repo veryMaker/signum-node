@@ -15,23 +15,21 @@ import java.util.*
 
 class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Subnet>?) : HttpServlet() {
     private val requestTypes: List<String>
-    private val apiRequestHandlers: Map<String, APIServlet.HttpRequestHandler>
-    private val requestTags: SortedMap<String, SortedSet<String>>
+    private val apiRequestHandlers = apiServlet.apiRequestHandlers
+    private val requestTags: Map<String, Set<String>>
 
     init {
-        apiRequestHandlers = apiServlet.apiRequestHandlers
         requestTags = buildRequestTags()
-        requestTypes = ArrayList(apiRequestHandlers.keys)
-        Collections.sort(requestTypes)
+        requestTypes = apiRequestHandlers.keys.sorted()
     }
 
 
-    private fun buildRequestTags(): SortedMap<String, SortedSet<String>> {
-        val r = TreeMap<String, SortedSet<String>>()
+    private fun buildRequestTags(): Map<String, Set<String>> {
+        val r = mutableMapOf<String, MutableSet<String>>()
         for ((requestType, value) in apiRequestHandlers) {
             val apiTags = value.apiTags
             for (apiTag in apiTags) {
-                val set = (r as java.util.Map<String, SortedSet<String>>).computeIfAbsent(apiTag.name) { k -> TreeSet() }
+                val set = r.computeIfAbsent(apiTag.name) { mutableSetOf() }
                 set.add(requestType)
             }
         }
@@ -91,8 +89,7 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
                     val taggedTypes = requestTags[requestTag]
                     for (type in taggedTypes ?: requestTypes) {
                         requestHandler = apiRequestHandlers[type]
-                        writer.print(form(type, false, requestHandler!!.javaClass.name, apiRequestHandlers[type].parameters,
-                                apiRequestHandlers[type].requirePost()))
+                        writer.print(form(type, false, requestHandler!!.javaClass.name, apiRequestHandlers[type].parameters, apiRequestHandlers[type].requirePost()))
                         bufJSCalls.append("apiCalls.push(\"").append(type).append("\");\n")
                     }
                 }

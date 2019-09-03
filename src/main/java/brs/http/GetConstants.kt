@@ -4,6 +4,7 @@ import brs.*
 import brs.fluxcapacitor.FluxValues
 import brs.util.Convert
 import brs.util.JSON
+import brs.util.toJsonArray
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -23,20 +24,18 @@ internal class GetConstants(dp: DependencyProvider) : APIServlet.JsonRequestHand
         response.addProperty("maxArbitraryMessageLength", Constants.MAX_ARBITRARY_MESSAGE_LENGTH)
 
         val transactionTypes = JsonArray()
-        TransactionType.getTransactionTypes()
+        TransactionType.transactionTypes
                 .forEach { (key, value) ->
                     val transactionType = JsonObject()
                     transactionType.addProperty("value", key)
                     transactionType.addProperty("description", TransactionType.getTypeDescription(key!!))
                     val transactionSubtypes = JsonArray()
-                    transactionSubtypes.addAll(value.entries.stream()
-                            .map { entry ->
+                    transactionSubtypes.addAll(value.entries.map { entry ->
                                 val transactionSubtype = JsonObject()
                                 transactionSubtype.addProperty("value", entry.key)
                                 transactionSubtype.addProperty("description", entry.value.description)
                                 transactionSubtype
-                            }
-                            .collect(JSON.jsonArrayCollector<JsonObject>() as Collector<JsonObject, Any, JsonArray>)) // TODO unchecked cast
+                            }.toJsonArray())
                     transactionType.add("subtypes", transactionSubtypes)
                     transactionTypes.add(transactionType)
                 }
@@ -63,7 +62,7 @@ internal class GetConstants(dp: DependencyProvider) : APIServlet.JsonRequestHand
         constants = response
     }
 
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
+    override fun processRequest(req: HttpServletRequest): JsonElement {
         return constants
     }
 }

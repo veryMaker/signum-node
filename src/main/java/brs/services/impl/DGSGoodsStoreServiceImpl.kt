@@ -40,19 +40,19 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
         this.publicFeedbackTable = dp.digitalGoodsStoreStore.publicFeedbackTable
     }
 
-    override fun addGoodsListener(listener: Consumer<Goods>, eventType: Event): Boolean {
+    override fun addGoodsListener(listener: (Goods) -> Unit, eventType: Event): Boolean {
         return goodsListeners.addListener(listener, eventType)
     }
 
-    override fun removeGoodsListener(listener: Consumer<Goods>, eventType: Event): Boolean {
+    override fun removeGoodsListener(listener: (Goods) -> Unit, eventType: Event): Boolean {
         return goodsListeners.removeListener(listener, eventType)
     }
 
-    override fun addPurchaseListener(listener: Consumer<Purchase>, eventType: Event): Boolean {
+    override fun addPurchaseListener(listener: (Purchase) -> Unit, eventType: Event): Boolean {
         return purchaseListeners.addListener(listener, eventType)
     }
 
-    override fun removePurchaseListener(listener: Consumer<Purchase>, eventType: Event): Boolean {
+    override fun removePurchaseListener(listener: (Purchase) -> Unit, eventType: Event): Boolean {
         return purchaseListeners.removeListener(listener, eventType)
     }
 
@@ -160,7 +160,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
     private fun addPublicFeedback(purchase: Purchase, publicFeedback: String) {
         var publicFeedbacks: MutableList<String>? = purchase.publicFeedbacks
         if (publicFeedbacks == null) {
-            publicFeedbacks = ArrayList()
+            publicFeedbacks = mutableListOf()
         }
         publicFeedbacks.add(publicFeedback)
         purchase.setHasPublicFeedbacks(true)
@@ -225,7 +225,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
         purchaseTable.insert(purchase)
     }
 
-    class ExpiredPurchaseListener(private val dp: DependencyProvider) : Consumer<Block> {
+    class ExpiredPurchaseListener(private val dp: DependencyProvider) : (Block) -> Unit {
 
         override fun accept(block: Block) {
             for (purchase in dp.digitalGoodsStoreService.getExpiredPendingPurchases(block.timestamp)) {

@@ -15,8 +15,6 @@ import org.junit.Before
 import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.BID_ORDERS_RESPONSE
 import brs.http.common.ResultFields.ORDER_RESPONSE
 import com.nhaarman.mockitokotlin2.doReturn

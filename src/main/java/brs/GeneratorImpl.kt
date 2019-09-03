@@ -25,13 +25,13 @@ import java.util.function.Consumer
 open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
 
     private val listeners = Listeners<Generator.GeneratorState, Generator.Event>()
-    private val generators = ConcurrentHashMap<Long, GeneratorStateImpl>()
+    private val generators = ConcurrentmutableMapOf<Long, GeneratorStateImpl>>()
     private val burstCrypto = BurstCrypto.getInstance()
 
     override val allGenerators: Collection<Generator.GeneratorState>
         get() = Collections.unmodifiableCollection<Generator.GeneratorState>(generators.values)
 
-    private fun generateBlockThread(blockchainProcessor: BlockchainProcessor): Runnable {
+    private fun generateBlockThread(blockchainProcessor: BlockchainProcessor): () -> Unit {
         return {
             if (blockchainProcessor.isScanning) {
                 return
@@ -57,11 +57,11 @@ open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
         dp.threadPool.scheduleThread("GenerateBlocks", generateBlockThread(dp.blockchainProcessor), 500, TimeUnit.MILLISECONDS)
     }
 
-    override fun addListener(listener: Consumer<Generator.GeneratorState>, eventType: Generator.Event): Boolean {
+    override fun addListener(listener: (Generator.GeneratorState) -> Unit, eventType: Generator.Event): Boolean {
         return listeners.addListener(listener, eventType)
     }
 
-    override fun removeListener(listener: Consumer<Generator.GeneratorState>, eventType: Generator.Event): Boolean {
+    override fun removeListener(listener: (Generator.GeneratorState) -> Unit, eventType: Generator.Event): Boolean {
         return listeners.removeListener(listener, eventType)
     }
 

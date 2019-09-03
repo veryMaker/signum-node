@@ -4,7 +4,6 @@ import brs.db.BurstKey
 import brs.grpc.proto.BrsApi
 
 open class Escrow {
-
     private val dp: DependencyProvider
     val senderId: Long?
     val recipientId: Long?
@@ -45,8 +44,7 @@ open class Escrow {
         this.deadlineAction = deadlineAction
     }
 
-    protected constructor(dp: DependencyProvider, id: Long?, senderId: Long?, recipientId: Long?, dbKey: BurstKey, amountNQT: Long?,
-                          requiredSigners: Int, deadline: Int, deadlineAction: DecisionType) {
+    protected constructor(dp: DependencyProvider, id: Long?, senderId: Long?, recipientId: Long?, dbKey: BurstKey, amountNQT: Long?, requiredSigners: Int, deadline: Int, deadlineAction: DecisionType) {
         this.dp = dp
         this.senderId = senderId
         this.recipientId = recipientId
@@ -59,65 +57,60 @@ open class Escrow {
     }
 
     companion object {
-
         fun decisionToString(decision: DecisionType): String? {
-            when (decision) {
-                Escrow.DecisionType.UNDECIDED -> return "undecided"
-                Escrow.DecisionType.RELEASE -> return "release"
-                Escrow.DecisionType.REFUND -> return "refund"
-                Escrow.DecisionType.SPLIT -> return "split"
+            return when (decision) {
+                DecisionType.UNDECIDED -> "undecided"
+                DecisionType.RELEASE -> "release"
+                DecisionType.REFUND -> "refund"
+                DecisionType.SPLIT -> "split"
             }
-
-            return null
         }
 
         fun stringToDecision(decision: String): DecisionType? {
-            when (decision) {
-                "undecided" -> return DecisionType.UNDECIDED
-                "release" -> return DecisionType.RELEASE
-                "refund" -> return DecisionType.REFUND
-                "split" -> return DecisionType.SPLIT
-                else -> return null
+            return when (decision) {
+                "undecided" -> DecisionType.UNDECIDED
+                "release" -> DecisionType.RELEASE
+                "refund" -> DecisionType.REFUND
+                "split" -> DecisionType.SPLIT
+                else -> null
             }
         }
 
         fun decisionToByte(decision: DecisionType): Byte? {
-            when (decision) {
-                Escrow.DecisionType.UNDECIDED -> return 0
-                Escrow.DecisionType.RELEASE -> return 1
-                Escrow.DecisionType.REFUND -> return 2
-                Escrow.DecisionType.SPLIT -> return 3
-                else -> return null
+            return when (decision) {
+                DecisionType.UNDECIDED -> 0
+                DecisionType.RELEASE -> 1
+                DecisionType.REFUND -> 2
+                DecisionType.SPLIT -> 3
             }
         }
 
         fun byteToDecision(decision: Byte): DecisionType? {
-            when (decision) {
-                0 -> return DecisionType.UNDECIDED
-                1 -> return DecisionType.RELEASE
-                2 -> return DecisionType.REFUND
-                3 -> return DecisionType.SPLIT
-                else -> return null
+            return when (decision.toInt()) {
+                0 -> DecisionType.UNDECIDED
+                1 -> DecisionType.RELEASE
+                2 -> DecisionType.REFUND
+                3 -> DecisionType.SPLIT
+                else -> null
             }
         }
 
         fun decisionToProtobuf(decision: DecisionType): BrsApi.EscrowDecisionType {
-            when (decision) {
-                Escrow.DecisionType.UNDECIDED -> return BrsApi.EscrowDecisionType.UNDECIDED
-                Escrow.DecisionType.RELEASE -> return BrsApi.EscrowDecisionType.RELEASE
-                Escrow.DecisionType.REFUND -> return BrsApi.EscrowDecisionType.REFUND
-                Escrow.DecisionType.SPLIT -> return BrsApi.EscrowDecisionType.SPLIT
-                else -> return BrsApi.EscrowDecisionType.EscrowDecisionType_UNSET
+            return when (decision) {
+                DecisionType.UNDECIDED -> BrsApi.EscrowDecisionType.UNDECIDED
+                DecisionType.RELEASE -> BrsApi.EscrowDecisionType.RELEASE
+                DecisionType.REFUND -> BrsApi.EscrowDecisionType.REFUND
+                DecisionType.SPLIT -> BrsApi.EscrowDecisionType.SPLIT
             }
         }
 
         fun protoBufToDecision(decision: BrsApi.EscrowDecisionType): DecisionType? {
-            when (decision) {
-                BrsApi.EscrowDecisionType.UNDECIDED -> return DecisionType.UNDECIDED
-                BrsApi.EscrowDecisionType.RELEASE -> return DecisionType.RELEASE
-                BrsApi.EscrowDecisionType.REFUND -> return DecisionType.REFUND
-                BrsApi.EscrowDecisionType.SPLIT -> return DecisionType.SPLIT
-                else -> return null
+            return when (decision) {
+                BrsApi.EscrowDecisionType.UNDECIDED -> DecisionType.UNDECIDED
+                BrsApi.EscrowDecisionType.RELEASE -> DecisionType.RELEASE
+                BrsApi.EscrowDecisionType.REFUND -> DecisionType.REFUND
+                BrsApi.EscrowDecisionType.SPLIT -> DecisionType.SPLIT
+                else -> null
             }
         }
     }

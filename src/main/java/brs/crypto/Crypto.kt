@@ -74,4 +74,4 @@ object Crypto {
     fun rsDecode(rsString: String): Long {
         return burstCrypto.rsDecode(rsString).signedLongId
     }
-}//never
+}

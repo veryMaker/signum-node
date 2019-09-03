@@ -197,7 +197,7 @@ class UnconfirmedTransactionStoreTest {
         }
 
         assertEquals(8192, t!!.all.size)
-        assertEquals(8192, t!!.all.stream().filter { t -> t.feeNQT == FEE_QUANT * 100 }.count())
+        assertEquals(8192, t!!.all.filter { t -> t.feeNQT == FEE_QUANT * 100 }.count())
         assertNotNull(t!!.get(1L))
 
         val oneTransactionTooMany = Transaction.Builder(1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 9999, FEE_QUANT * 200, timeService.epochTime + 50000, 500.toShort(), Attachment.ORDINARY_PAYMENT)
@@ -206,8 +206,8 @@ class UnconfirmedTransactionStoreTest {
         t!!.put(oneTransactionTooMany, null)
 
         assertEquals(8192, t!!.all.size)
-        assertEquals((8192 - 1).toLong(), t!!.all.stream().filter { t -> t.feeNQT == FEE_QUANT * 100 }.count())
-        assertEquals(1, t!!.all.stream().filter { t -> t.feeNQT == FEE_QUANT * 200 }.count())
+        assertEquals((8192 - 1).toLong(), t!!.all.filter { t -> t.feeNQT == FEE_QUANT * 100 }.count())
+        assertEquals(1, t!!.all.filter { t -> t.feeNQT == FEE_QUANT * 200 }.count())
         unmockkStatic(Burst::class)
     }
 

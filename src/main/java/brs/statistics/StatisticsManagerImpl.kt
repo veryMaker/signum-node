@@ -15,7 +15,7 @@ class StatisticsManagerImpl(private val dp: DependencyProvider) { // TODO interf
     private var addedBlockCount: Int = 0
     private var firstBlockAdded: Int = 0
 
-    private val cacheStatistics = HashMap<String, CacheStatisticsOverview>()
+    private val cacheStatistics = mutableMapOf<String, CacheStatisticsOverview>()
 
     fun foundObjectInCache(cacheName: String) {
         getCacheStatisticsOverview(cacheName).cacheHit()
@@ -30,7 +30,7 @@ class StatisticsManagerImpl(private val dp: DependencyProvider) { // TODO interf
             this.cacheStatistics[cacheName] = CacheStatisticsOverview(cacheName)
         }
 
-        return cacheStatistics[cacheName]
+        return cacheStatistics[cacheName]!!
     }
 
     fun blockAdded() {
@@ -40,7 +40,7 @@ class StatisticsManagerImpl(private val dp: DependencyProvider) { // TODO interf
             val blocksPerSecond = 500 / (dp.timeService.epochTime - firstBlockAdded).toFloat()
 
             if (logger.isInfoEnabled) {
-                val handleText = "handling {} blocks/s" + cacheStatistics.values.stream().map { cacheInfo -> " " + cacheInfo.cacheInfoAndReset }.collect<String, *>(Collectors.joining())
+                val handleText = "handling {} blocks/s" + cacheStatistics.values.map { cacheInfo -> " " + cacheInfo.cacheInfoAndReset }.joinToString()
                 logger.info(handleText, String.format("%.2f", blocksPerSecond))
             }
 
@@ -56,7 +56,7 @@ class StatisticsManagerImpl(private val dp: DependencyProvider) { // TODO interf
         private var totalCacheHits: Long = 0
         private var totalCacheMisses: Long = 0
 
-        private val cacheInfoAndReset: String
+        internal val cacheInfoAndReset: String
             get() {
                 val hitRatio = if (cacheHits + cacheMisses > 0) cacheHits.toFloat() / (cacheHits + cacheMisses) else null
                 val totalHitRatio = if (totalCacheHits + totalCacheMisses > 0) totalCacheHits.toFloat() / (totalCacheHits + totalCacheMisses) else null
@@ -67,12 +67,12 @@ class StatisticsManagerImpl(private val dp: DependencyProvider) { // TODO interf
                 return String.format("%s cache hit ratio now/total:%.2f%%/%.2f%%", cacheName, hitRatio!! * 100, totalHitRatio!! * 100)
             }
 
-        private fun cacheHit() {
+        internal fun cacheHit() {
             cacheHits++
             totalCacheHits++
         }
 
-        private fun cacheMiss() {
+        internal fun cacheMiss() {
             cacheMisses++
             totalCacheMisses++
         }

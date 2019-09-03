@@ -16,14 +16,10 @@ import java.util.HashMap
 
 class DBCacheManagerImpl(private val dp: DependencyProvider) { // TODO interface
     private val cacheManager: CacheManager
-    private val statisticsEnabled: Boolean
-    private val caches = HashMap<String, CacheConfiguration<BurstKey, *>>()
+    private val caches = mutableMapOf<String, CacheConfiguration<BurstKey, *>>>()
 
     init {
-        statisticsEnabled = true
-
         caches["account"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(BurstKey::class.java, Account::class.java, ResourcePoolsBuilder.heap(8192)).build()
-
         var cacheBuilder: CacheManagerBuilder<*> = CacheManagerBuilder.newCacheManagerBuilder()
         for ((key, value) in caches) {
             cacheBuilder = cacheBuilder.withCache(key, value)
@@ -41,14 +37,14 @@ class DBCacheManagerImpl(private val dp: DependencyProvider) { // TODO interface
         return cacheManager.getCache(name, BurstKey::class.java, valueClass)
     }
 
-    fun <V> getCache(name: String, valueClass: Class<V>): Cache<BurstKey, V> {
-        val cache = getEHCache(name, valueClass)
-        return if (statisticsEnabled) StatisticsCache(cache, name, dp.statisticsManager) else cache
+    fun <V> getCache(name: String, valueClass: Class<V>): Cache<BurstKey, V>? {
+        val cache = getEHCache(name, valueClass) ?: return null
+        return StatisticsCache(cache, name, dp.statisticsManager)
     }
 
     fun flushCache() {
         for ((key, value) in caches) {
-            val cache = getEHCache<*>(key, value.valueType)
+            val cache = getEHCache(key, value.valueType)
             cache?.clear()
         }
     }

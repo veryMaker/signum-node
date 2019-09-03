@@ -85,7 +85,7 @@ interface DbKey : BurstKey {
         }
 
         override fun getPKConditions(tableClass: Table<*>): Collection<Condition> {
-            val conditions = ArrayList<Condition>()
+            val conditions = mutableListOf<Condition>()
             conditions.add(tableClass.field(idColumn, Long::class.java).eq(id))
             return conditions
         }
@@ -106,7 +106,7 @@ interface DbKey : BurstKey {
         }
 
         override fun getPKConditions(tableClass: Table<*>): Collection<Condition> {
-            val conditions = ArrayList<Condition>()
+            val conditions = mutableListOf<Condition>()
             conditions.add(tableClass.field(idColumnA, Long::class.java).eq(idA))
             conditions.add(tableClass.field(idColumnB, Long::class.java).eq(idB))
             return conditions

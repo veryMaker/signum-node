@@ -24,7 +24,7 @@ class FeeSuggestionCalculatorTest : AbstractUnitTest() {
     private var blockchainProcessorMock: BlockchainProcessor? = null
     private var blockchainStoreMock: BlockchainStore? = null
 
-    private var listenerArgumentCaptor: KArgumentCaptor<Consumer<Block>>? = null
+    private var listenerArgumentCaptor: KArgumentCaptor<(Block) -> Unit>? = null
 
     @Before
     fun setUp() {
@@ -40,7 +40,7 @@ class FeeSuggestionCalculatorTest : AbstractUnitTest() {
     @Test
     fun getFeeSuggestion() {
         val mockBlock1 = mock<Block>()
-        whenever(mockBlock1.transactions).doReturn(ArrayList())
+        whenever(mockBlock1.transactions).doReturn(mutableListOf())
         val mockBlock2 = mock<Block>()
         whenever(mockBlock2.transactions).doReturn(listOf(mock<Transaction>()))
         val mockBlock3 = mock<Block>()

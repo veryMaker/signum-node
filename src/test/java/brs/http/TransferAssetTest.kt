@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.TransactionType.ColoredCoins.ASSET_TRANSFER
 import brs.http.JSONResponses.NOT_ENOUGH_ASSETS
-import brs.http.common.Parameters.*
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

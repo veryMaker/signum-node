@@ -49,7 +49,7 @@ class PeerServlet(dp: DependencyProvider) : HttpServlet() {
     }
 
     init { // TODO each one should take dp
-        val map = HashMap<String, PeerRequestHandler>()
+        val map = mutableMapOf<String, PeerRequestHandler>>()
         map["addPeers"] = AddPeers.instance
         map["getCumulativeDifficulty"] = GetCumulativeDifficulty(dp.blockchain)
         map["getInfo"] = GetInfo(dp.timeService)

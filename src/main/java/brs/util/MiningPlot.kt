@@ -50,7 +50,7 @@ class MiningPlot(addr: Long, nonce: Long, blockHeight: Int, fluxCapacitor: FluxC
     }
 
     fun getScoop(pos: Int): ByteArray {
-        return Arrays.copyOfRange(data, pos * SCOOP_SIZE, (pos + 1) * SCOOP_SIZE)
+        return data.copyOfRange(pos * SCOOP_SIZE, (pos + 1) * SCOOP_SIZE)
     }
 
     fun hashScoop(shabal256: MessageDigest, pos: Int) {

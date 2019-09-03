@@ -21,7 +21,6 @@ import brs.http.JSONResponses.ALREADY_DELIVERED
 import brs.http.JSONResponses.INCORRECT_DGS_DISCOUNT
 import brs.http.JSONResponses.INCORRECT_DGS_GOODS
 import brs.http.JSONResponses.INCORRECT_PURCHASE
-import brs.http.common.Parameters.*
 import com.nhaarman.mockitokotlin2.*
 import io.mockk.every
 import io.mockk.mockkStatic

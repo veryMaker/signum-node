@@ -16,7 +16,7 @@ public interface GrpcApiHandler<R extends Message, S extends Message> {
             responseObserver.onNext(handleRequest(request));
             responseObserver.onCompleted();
         } catch (Exception e) {
-            responseObserver.onError(ProtoBuilder.buildError(e));
+            responseObserver.onError(ProtoBuilder.INSTANCE.buildError(e));
         }
     }
 }

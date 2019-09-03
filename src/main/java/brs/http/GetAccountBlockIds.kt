@@ -10,8 +10,6 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.BLOCK_IDS_RESPONSE
 
 internal class GetAccountBlockIds internal constructor(private val parameterService: ParameterService, private val blockchain: Blockchain) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER, TIMESTAMP_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER) {

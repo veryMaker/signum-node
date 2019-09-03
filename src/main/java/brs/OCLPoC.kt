@@ -191,8 +191,8 @@ internal object OCLPoC {
             val buffer = ByteBuffer.allocate(16)
             for ((i, block) in blocks.withIndex()) {
                 buffer.order(ByteOrder.LITTLE_ENDIAN)
-                buffer.putLong(block.generatorId.get())
-                buffer.putLong(block.nonce!!)
+                buffer.putLong(block.generatorId)
+                buffer.putLong(block.nonce)
                 buffer.flip()
                 buffer.order(ByteOrder.BIG_ENDIAN)
                 ids[i] = buffer.long

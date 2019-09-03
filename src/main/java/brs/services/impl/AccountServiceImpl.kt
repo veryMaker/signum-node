@@ -50,15 +50,15 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         this.rewardRecipientAssignmentKeyFactory = accountStore.rewardRecipientAssignmentKeyFactory
     }
 
-    override fun addListener(listener: Consumer<Account>, eventType: Event): Boolean {
+    override fun addListener(listener: (Account) -> Unit, eventType: Event): Boolean {
         return listeners.addListener(listener, eventType)
     }
 
-    override fun removeListener(listener: Consumer<Account>, eventType: Event): Boolean {
+    override fun removeListener(listener: (Account) -> Unit, eventType: Event): Boolean {
         return listeners.removeListener(listener, eventType)
     }
 
-    override fun addAssetListener(listener: Consumer<AccountAsset>, eventType: Event): Boolean {
+    override fun addAssetListener(listener: (AccountAsset) -> Unit, eventType: Event): Boolean {
         return assetListeners.addListener(listener, eventType)
     }
 

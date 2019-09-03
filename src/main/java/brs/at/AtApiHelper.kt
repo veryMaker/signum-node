@@ -13,6 +13,7 @@ import org.bouncycastle.util.Arrays
 
 import java.math.BigInteger
 import java.nio.BufferOverflowException
+import kotlin.experimental.and
 
 object AtApiHelper {
 
@@ -38,7 +39,7 @@ object AtApiHelper {
     }
 
     internal fun getLongTimestamp(height: Int, numOfTx: Int): Long {
-        return height.toLong() shl 32 or numOfTx
+        return height.toLong() shl 32 or numOfTx.toLong()
     }
 
     fun getBigInteger(b1: ByteArray, b2: ByteArray, b3: ByteArray, b4: ByteArray): BigInteger {
@@ -50,7 +51,7 @@ object AtApiHelper {
         val bigIntBytes = Arrays.reverse(bigInt.toByteArray())
         val result = ByteArray(resultSize)
         if (bigIntBytes.size < resultSize) {
-            val padding = ((bigIntBytes[bigIntBytes.size - 1] and 0x80.toByte()).toByte() shr 7).toByte()
+            val padding = ((bigIntBytes[bigIntBytes.size - 1] and 0x80.toByte()).toInt() shr 7).toByte()
             var i = 0
             val length = resultSize - bigIntBytes.size
             while (i < length) {

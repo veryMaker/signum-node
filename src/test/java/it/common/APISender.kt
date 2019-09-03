@@ -17,8 +17,6 @@ import java.io.IOException
 import java.util.ArrayList
 import java.util.Arrays
 
-import brs.http.common.Parameters.*
-
 class APISender {
 
     private val httpclient: HttpClient
@@ -32,7 +30,7 @@ class APISender {
     fun retrieve(requestType: String, extraParams: List<BasicNameValuePair>): JsonObject {
         val post = HttpPost("/burst")
 
-        val urlParameters = ArrayList<NameValuePair>()
+        val urlParameters = mutableListOf<NameValuePair>()
         urlParameters.add(BasicNameValuePair("requestType", requestType))
         urlParameters.add(BasicNameValuePair("random", "0.7113466594385798"))
         urlParameters.addAll(extraParams)

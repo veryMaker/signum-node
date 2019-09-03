@@ -21,7 +21,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
         trim(tableClass, heightField, height, dbKeyFactory)
     }
 
-    override fun delete(t: T?): Boolean {
+    override fun delete(t: T): Boolean {
         if (t == null) {
             return false
         }
@@ -130,7 +130,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
                 for (record in selectMaxHeightQuery.fetch()) {
                     val dbKey = dbKeyFactory.newKey(record) as DbKey
                     val maxHeight = record.get("max_height", Int::class.java)
-                    val bindValues = ArrayList<Long>()
+                    val bindValues = mutableListOf<Long>()
                     bindValues.add(maxHeight.toLong())
                     for (pkValue in dbKey.pkValues) {
                         bindValues.add(pkValue)

@@ -11,8 +11,6 @@ import com.google.gson.JsonObject
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.http.common.Parameters.*
-
 internal class GetBidOrderIds(private val parameterService: ParameterService, private val assetExchange: AssetExchange) : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), ASSET_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER) {
 
     @Throws(BurstException::class)

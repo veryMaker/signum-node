@@ -11,7 +11,7 @@ interface VersionedBatchEntityTable<T> : DerivedTable, EntityTable<T> {
 
     val batch: Map<BurstKey, T>
 
-    val cache: Cache<*, *>
+    val cache: Cache<BurstKey, T>?
     fun delete(t: T): Boolean
 
     override fun get(dbKey: BurstKey): T

@@ -6,9 +6,8 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 internal class GetInfo(private val timeService: TimeService) : PeerServlet.PeerRequestHandler {
-
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
-        val peerImpl = peer as PeerImpl
+        val peerImpl = peer as PeerImpl // TODO :(
         var announcedAddress = JSON.getAsString(request.get("announcedAddress"))
         if (announcedAddress != null) {
             announcedAddress = announcedAddress.trim { it <= ' ' }

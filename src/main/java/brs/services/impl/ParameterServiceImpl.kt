@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory
 
 import javax.servlet.http.HttpServletRequest
 import java.util.ArrayList
-import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
@@ -66,7 +65,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         if (accountIDs == null || accountIDs.isEmpty()) {
             throw ParameterException(MISSING_ACCOUNT)
         }
-        val result = ArrayList<Account>()
+        val result = mutableListOf<Account>()
         for (accountValue in accountIDs) {
             if (accountValue == null || accountValue.isEmpty()) {
                 continue

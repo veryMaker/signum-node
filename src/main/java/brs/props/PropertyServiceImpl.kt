@@ -11,7 +11,7 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
     private val logger = LoggerFactory.getLogger(Burst::class.java)
     private val parsers: Map<KClass<*>, Function<String, *>>
 
-    private val alreadyLoggedProperties = ArrayList<String>()
+    private val alreadyLoggedProperties = mutableListOf<String>()
 
     init {
         val parsers = mutableMapOf<KClass<*>, Function<String, *>>()
@@ -77,11 +77,11 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
         throw IllegalArgumentException()
     }
 
-    fun getStringList(value: String): List<String> {
+    private fun getStringList(value: String): List<String> {
         if (value.isEmpty()) {
             return emptyList()
         }
-        val result = ArrayList<String>()
+        val result = mutableListOf<String>()
         for (s in value.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
             val s1 = s.trim { it <= ' ' }
             if (s1.isNotEmpty()) {
@@ -92,7 +92,7 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
     }
 
     private fun logOnce(propertyName: String, debugLevel: Boolean, logText: String, vararg arguments: Any) {
-        if (propertyName == Props.SOLO_MINING_PASSPHRASES.getName()) return
+        if (propertyName == Props.SOLO_MINING_PASSPHRASES.name) return
         if (!this.alreadyLoggedProperties.contains(propertyName)) {
             if (debugLevel) {
                 this.logger.debug(logText, *arguments)

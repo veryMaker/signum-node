@@ -22,7 +22,6 @@ import brs.http.JSONResponses.INCORRECT_ASSET_NAME
 import brs.http.JSONResponses.INCORRECT_ASSET_NAME_LENGTH
 import brs.http.JSONResponses.INCORRECT_DECIMALS
 import brs.http.JSONResponses.MISSING_NAME
-import brs.http.common.Parameters.*
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock

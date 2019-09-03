@@ -22,7 +22,7 @@ class ATTest {
     fun testAddAt() {
         AtTestHelper.clearAddedAts()
         val helloWorldReceived = AtomicBoolean(false)
-        AtTestHelper.setOnAtAdded(Consumer { at ->
+        AtTestHelper.setOnAtAdded({ at ->
             assertEquals("HelloWorld", at.name)
             helloWorldReceived.set(true)
         })
@@ -30,7 +30,7 @@ class ATTest {
         assertTrue(helloWorldReceived.get())
 
         val echoReceived = AtomicBoolean(false)
-        AtTestHelper.setOnAtAdded(Consumer { at ->
+        AtTestHelper.setOnAtAdded({ at ->
             assertEquals("Echo", at.name)
             echoReceived.set(true)
         })
@@ -38,7 +38,7 @@ class ATTest {
         assertTrue(echoReceived.get())
 
         val tipThanksReceived = AtomicBoolean(false)
-        AtTestHelper.setOnAtAdded(Consumer { at ->
+        AtTestHelper.setOnAtAdded({ at ->
             assertEquals("TipThanks", at.name)
             tipThanksReceived.set(true)
         })

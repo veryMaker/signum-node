@@ -29,7 +29,7 @@ interface BlockchainProcessor : Observable<Block, BlockchainProcessor.Event> {
 
     fun fullReset()
 
-    @Throws(BlockchainProcessor.BlockNotAcceptedException::class)
+    @Throws(BlockNotAcceptedException::class)
     fun generateBlock(secretPhrase: String, publicKey: ByteArray, nonce: Long?)
 
     fun popOffTo(height: Int): List<Block>

@@ -19,6 +19,7 @@ import java.util.Arrays
 import java.util.Optional
 
 import brs.schema.Tables.BLOCK
+import org.jooq.impl.UpdatableRecordImpl
 
 class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
 
@@ -174,7 +175,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
         }
         logger.info("Deleting blockchain...")
         Db.useDSLContext { ctx ->
-            val tables = ArrayList<TableImpl<*>>(Arrays.asList<TableImpl<out UpdatableRecordImpl<out UpdatableRecordImpl<*>>>>(brs.schema.Tables.ACCOUNT,
+            val tables = mutableListOf<TableImpl<*>>(brs.schema.Tables.ACCOUNT,
                     brs.schema.Tables.ACCOUNT_ASSET, brs.schema.Tables.ALIAS, brs.schema.Tables.ALIAS_OFFER,
                     brs.schema.Tables.ASK_ORDER, brs.schema.Tables.ASSET, brs.schema.Tables.ASSET_TRANSFER,
                     brs.schema.Tables.AT, brs.schema.Tables.AT_STATE, brs.schema.Tables.BID_ORDER,
@@ -183,10 +184,10 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
                     brs.schema.Tables.PURCHASE_FEEDBACK, brs.schema.Tables.PURCHASE_PUBLIC_FEEDBACK,
                     brs.schema.Tables.REWARD_RECIP_ASSIGN, brs.schema.Tables.SUBSCRIPTION,
                     brs.schema.Tables.TRADE, brs.schema.Tables.TRANSACTION,
-                    brs.schema.Tables.UNCONFIRMED_TRANSACTION))
+                    brs.schema.Tables.UNCONFIRMED_TRANSACTION)
             for (table in tables) {
                 try {
-                    ctx.truncate<*>(table).execute()
+                    ctx.truncate(table).execute()
                 } catch (e: org.jooq.exception.DataAccessException) {
                     if (force) {
                         logger.trace("exception during truncate {0}", table, e)

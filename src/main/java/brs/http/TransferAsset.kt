@@ -8,7 +8,6 @@ import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 import brs.http.JSONResponses.NOT_ENOUGH_ASSETS
-import brs.http.common.Parameters.*
 
 internal class TransferAsset(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, ASSET_PARAMETER, QUANTITY_QNT_PARAMETER) {
 

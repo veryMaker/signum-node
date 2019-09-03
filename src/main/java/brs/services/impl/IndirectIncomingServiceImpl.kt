@@ -15,10 +15,9 @@ import java.util.Objects
 import java.util.stream.Collectors
 
 class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : IndirectIncomingService {
-    private val disabled: Boolean
+    private val disabled = !dp.propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE)
 
     init {
-        this.disabled = !dp.propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE)
         if (disabled) {
             LOGGER.warn("Indirect Incoming Service Disabled!")
         }
@@ -26,14 +25,13 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
 
     override fun processTransaction(transaction: Transaction) {
         if (disabled) return
-        dp.indirectIncomingStore.addIndirectIncomings(getIndirectIncomings(transaction).stream()
-                .map { account -> IndirectIncomingStore.IndirectIncoming(account!!, transaction.id, transaction.height) }
-                .collect<List<IndirectIncoming>, Any>(Collectors.toList<IndirectIncoming>()))
+        dp.indirectIncomingStore.addIndirectIncomings(getIndirectIncomings(transaction)
+                .map { account -> IndirectIncomingStore.IndirectIncoming(account!!, transaction.id, transaction.height) })
     }
 
     override fun isIndirectlyReceiving(transaction: Transaction, accountId: Long): Boolean {
         // It would be confusing to have inconsistent behaviour so even when not loading from database we should disable when told to do so.
-        return if (disabled) false else getIndirectIncomings(transaction).contains(accountId)
+        return !disabled && getIndirectIncomings(transaction).contains(accountId)
     }
 
     private fun getIndirectIncomings(transaction: Transaction): Collection<Long> {
@@ -50,9 +48,8 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
         require(!(transaction.type != TransactionType.Payment.MULTI_OUT || transaction.attachment !is Attachment.PaymentMultiOutCreation)) { "Wrong transaction type" }
 
         val attachment = transaction.attachment as Attachment.PaymentMultiOutCreation
-        return attachment.getRecipients().stream()
+        return attachment.getRecipients()
                 .map { recipient -> recipient[0] }
-                .collect<List<Long>, Any>(Collectors.toList())
     }
 
     private fun getMultiOutSameRecipients(transaction: Transaction): Collection<Long> {

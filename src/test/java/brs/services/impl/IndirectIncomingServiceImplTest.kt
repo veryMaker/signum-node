@@ -38,11 +38,11 @@ class IndirectIncomingServiceImplTest {
     @Test
     @Throws(BurstException.NotValidException::class)
     fun testIndirectIncomingServiceImplTestMultiOutTransaction() {
-        addIndirectIncomingsRunnable.set(Consumer { indirectIncomings ->
+        addIndirectIncomingsRunnable.set({ indirectIncomings ->
             assertEquals(4, indirectIncomings.size.toLong())
             assertEquals(HashSet(indirectIncomings).size.toLong(), indirectIncomings.size.toLong()) // Assert that there are no duplicates
         })
-        val recipients = ArrayList<List<Long>>()
+        val recipients = mutableListOf<List<Long>>()
         recipients.add(listOf(1L, Constants.ONE_BURST))
         recipients.add(listOf(2L, Constants.ONE_BURST))
         recipients.add(listOf(3L, Constants.ONE_BURST))
@@ -60,11 +60,11 @@ class IndirectIncomingServiceImplTest {
     @Test
     @Throws(BurstException.NotValidException::class)
     fun testIndirectIncomingServiceImplTestMultiOutSameTransaction() {
-        addIndirectIncomingsRunnable.set(Consumer { indirectIncomings ->
+        addIndirectIncomingsRunnable.set({ indirectIncomings ->
             assertEquals(4, indirectIncomings.size.toLong())
             assertEquals(HashSet(indirectIncomings).size.toLong(), indirectIncomings.size.toLong()) // Assert that there are no duplicates
         })
-        val recipients = ArrayList<Long>()
+        val recipients = mutableListOf<Long>()
         recipients.add(1L)
         recipients.add(2L)
         recipients.add(3L)
@@ -79,7 +79,7 @@ class IndirectIncomingServiceImplTest {
 
     @Test
     fun testIndirectIncomingServiceImplTestOrdinaryTransaction() {
-        addIndirectIncomingsRunnable.set(Consumer { indirectIncomings -> assertEquals(0, indirectIncomings.size.toLong()) })
+        addIndirectIncomingsRunnable.set({ indirectIncomings -> assertEquals(0, indirectIncomings.size.toLong()) })
         val ordinaryTransaction = mock<Transaction>()
         whenever(ordinaryTransaction.attachment).doReturn(Attachment.ORDINARY_PAYMENT)
         whenever(ordinaryTransaction.type).doReturn(TransactionType.Payment.ORDINARY)

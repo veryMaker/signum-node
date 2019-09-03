@@ -14,9 +14,6 @@ import com.google.gson.JsonElement
 
 import javax.servlet.http.HttpServletRequest
 
-
-import brs.http.common.Parameters.*
-
 internal class DGSPurchase internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, PRICE_NQT_PARAMETER, QUANTITY_PARAMETER, DELIVERY_DEADLINE_TIMESTAMP_PARAMETER) {
 
     @Throws(BurstException::class)

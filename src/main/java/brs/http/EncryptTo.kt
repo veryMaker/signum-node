@@ -10,7 +10,6 @@ import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 import brs.http.JSONResponses.INCORRECT_RECIPIENT
-import brs.http.common.Parameters.*
 
 internal class EncryptTo(private val parameterService: ParameterService, private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.MESSAGES), RECIPIENT_PARAMETER, MESSAGE_TO_ENCRYPT_PARAMETER, MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, SECRET_PHRASE_PARAMETER) {
 

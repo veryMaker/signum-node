@@ -11,8 +11,7 @@ import brs.db.store.AliasStore
 import brs.services.AliasService
 
 class AliasServiceImpl(dp: DependencyProvider) : AliasService {
-
-    private val aliasStore: AliasStore
+    private val aliasStore = dp.aliasStore
     private val aliasTable: VersionedEntityTable<Alias>
     private val aliasDbKeyFactory: BurstKey.LongKeyFactory<Alias>
     private val offerTable: VersionedEntityTable<Offer>
@@ -22,7 +21,6 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
         get() = aliasTable.count.toLong()
 
     init {
-        this.aliasStore = dp.aliasStore
         this.aliasTable = aliasStore.aliasTable
         this.aliasDbKeyFactory = aliasStore.aliasDbKeyFactory
         this.offerTable = aliasStore.offerTable
@@ -33,12 +31,12 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
         return aliasStore.getAlias(aliasName)
     }
 
-    override fun getAlias(id: Long): Alias {
-        return aliasTable.get(aliasDbKeyFactory.newKey(id))
+    override fun getAlias(aliasId: Long): Alias {
+        return aliasTable[aliasDbKeyFactory.newKey(aliasId)]
     }
 
     override fun getOffer(alias: Alias): Offer? {
-        return offerTable.get(offerDbKeyFactory.newKey(alias.id))
+        return offerTable[offerDbKeyFactory.newKey(alias.id)]
     }
 
     override fun getAliasesByOwner(accountId: Long, from: Int, to: Int): Collection<Alias> {
@@ -85,6 +83,8 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
         aliasTable.insert(alias)
 
         val offer = getOffer(alias)
-        offerTable.delete(offer)
+        if (offer != null) {
+            offerTable.delete(offer)
+        }
     }
 }

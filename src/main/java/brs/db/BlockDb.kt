@@ -6,7 +6,7 @@ import brs.schema.tables.records.BlockRecord
 import org.jooq.DSLContext
 
 interface BlockDb : Table {
-    fun findBlock(blockId: Long): Block
+    fun findBlock(blockId: Long): Block?
 
     fun hasBlock(blockId: Long): Boolean
 
@@ -14,12 +14,12 @@ interface BlockDb : Table {
 
     fun findBlockAtHeight(height: Int): Block
 
-    fun findLastBlock(): Block
+    fun findLastBlock(): Block?
 
-    fun findLastBlock(timestamp: Int): Block
+    fun findLastBlock(timestamp: Int): Block?
 
     @Throws(BurstException.ValidationException::class)
-    fun loadBlock(r: BlockRecord): Block
+    fun loadBlock(r: BlockRecord): Block?
 
     fun saveBlock(ctx: DSLContext, block: Block)
 

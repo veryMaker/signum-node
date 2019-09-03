@@ -18,7 +18,7 @@ public interface StreamResponseGrpcApiHandler<R extends Message, S extends Messa
         try {
             handleStreamRequest(request, responseObserver);
         } catch (Exception e) {
-            responseObserver.onError(ProtoBuilder.buildError(e));
+            responseObserver.onError(ProtoBuilder.INSTANCE.buildError(e));
         }
     }
 }

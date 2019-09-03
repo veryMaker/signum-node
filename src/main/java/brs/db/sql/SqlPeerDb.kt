@@ -23,8 +23,7 @@ class SqlPeerDb : PeerDb {
 
     override fun addPeers(peers: Collection<String>) {
         Db.useDSLContext { ctx ->
-            val inserts = peers.stream().map<InsertSetMoreStep<PeerRecord>> { peer -> ctx.insertInto(PEER).set(PEER.ADDRESS, peer) }.collect<List<Insert<PeerRecord>>, Any>(Collectors.toList())
-            ctx.batch(inserts).execute()
+            ctx.batch(peers.map { peer -> ctx.insertInto(PEER).set(PEER.ADDRESS, peer) }).execute()
         }
     }
 

@@ -8,7 +8,9 @@ import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 import brs.http.JSONResponses.INCORRECT_ALIAS_NOTFORSALE
-import brs.http.common.Parameters.*
+import brs.http.common.Parameters.ALIAS_NAME_PARAMETER
+import brs.http.common.Parameters.ALIAS_PARAMETER
+import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
 
 internal class BuyAlias(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION), ALIAS_PARAMETER, ALIAS_NAME_PARAMETER, AMOUNT_NQT_PARAMETER) {
 

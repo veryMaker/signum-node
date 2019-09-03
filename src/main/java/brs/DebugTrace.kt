@@ -103,7 +103,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
     }
 
     private fun lessorGuaranteedBalance(account: Account, lesseeId: Long): Map<String, String> {
-        val map = HashMap<String, String>()
+        val map = mutableMapOf<String, String>>()
         map["account"] = Convert.toUnsignedLong(account.id)
         map["lessor guaranteed balance"] = account.balanceNQT.toString()
         map["lessee"] = Convert.toUnsignedLong(lesseeId)
@@ -114,7 +114,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
     }
 
     private fun getValues(accountId: Long, unconfirmed: Boolean): MutableMap<String, String> {
-        val map = HashMap<String, String>()
+        val map = mutableMapOf<String, String>>()
         map["account"] = Convert.toUnsignedLong(accountId)
         val account = Account.getAccount(dp, accountId)
         map["balance"] = (account?.balanceNQT ?: 0).toString()
@@ -177,7 +177,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
     }
 
     private fun getValues(accountId: Long, accountAsset: Account.AccountAsset, unconfirmed: Boolean): Map<String, String> {
-        val map = HashMap<String, String>()
+        val map = mutableMapOf<String, String>>()
         map["account"] = Convert.toUnsignedLong(accountId)
         map["asset"] = Convert.toUnsignedLong(accountAsset.assetId)
         if (unconfirmed) {
@@ -271,7 +271,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
             }
             map["refund"] = refundNQT.toString()
         } else if (attachment === Attachment.ARBITRARY_MESSAGE) {
-            map = HashMap()
+            map = mutableMapOf()
             map["account"] = Convert.toUnsignedLong(accountId)
             map["timestamp"] = dp.blockchain.lastBlock.timestamp.toString()
             map["height"] = dp.blockchain.height.toString()
@@ -324,7 +324,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
 
             val accountIdStrings = dp.propertyService.get(Props.BRS_DEBUG_TRACE_ACCOUNTS)
             val logName = dp.propertyService.get(Props.BRS_DEBUG_TRACE_LOG)
-            if (accountIdStrings.isEmpty() || logName == null) {
+            if (accountIdStrings.isEmpty()) {
                 return
             }
             val accountIds = HashSet<Long>()
@@ -336,7 +336,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
                 accountIds.add(Convert.parseUnsignedLong(accountId))
             }
             val debugTrace = addDebugTrace(accountIds, logName)
-            dp.blockchainProcessor.addListener(Consumer { debugTrace.resetLog() }, BlockchainProcessor.Event.RESCAN_BEGIN)
+            dp.blockchainProcessor.addListener({ debugTrace.resetLog() }, BlockchainProcessor.Event.RESCAN_BEGIN)
             logger.debug("Debug tracing of " + (if (accountIdStrings.contains("*"))
                 "ALL"
             else
@@ -346,22 +346,22 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
         private fun addDebugTrace(accountIds: Set<Long>, logName: String): DebugTrace {
             val debugTrace = DebugTrace(accountIds, logName)
             dp.assetExchange.addTradeListener({ debugTrace.trace(it) }, Trade.Event.TRADE)
-            dp.accountService.addListener(Consumer { account -> debugTrace.trace(account, false) }, Account.Event.BALANCE)
+            dp.accountService.addListener({ account -> debugTrace.trace(account, false) }, Account.Event.BALANCE)
             if (LOG_UNCONFIRMED) {
-                dp.accountService.addListener(Consumer { account -> debugTrace.trace(account, true) }, Account.Event.UNCONFIRMED_BALANCE)
+                dp.accountService.addListener({ account -> debugTrace.trace(account, true) }, Account.Event.UNCONFIRMED_BALANCE)
             }
             dp.accountService.addAssetListener({ accountAsset -> debugTrace.trace(accountAsset, false) }, Account.Event.ASSET_BALANCE)
             if (LOG_UNCONFIRMED) {
                 dp.accountService.addAssetListener({ accountAsset -> debugTrace.trace(accountAsset, true) }, Account.Event.UNCONFIRMED_ASSET_BALANCE)
             }
-            dp.blockchainProcessor.addListener(Consumer { debugTrace.traceBeforeAccept(it) }, BlockchainProcessor.Event.BEFORE_BLOCK_ACCEPT)
-            dp.blockchainProcessor.addListener(Consumer { debugTrace.trace(it) }, BlockchainProcessor.Event.BEFORE_BLOCK_APPLY)
+            dp.blockchainProcessor.addListener({ debugTrace.traceBeforeAccept(it) }, BlockchainProcessor.Event.BEFORE_BLOCK_ACCEPT)
+            dp.blockchainProcessor.addListener({ debugTrace.trace(it) }, BlockchainProcessor.Event.BEFORE_BLOCK_APPLY)
             return debugTrace
         }
 
         private val columns = arrayOf("height", "event", "account", "asset", "balance", "unconfirmed balance", "asset balance", "unconfirmed asset balance", "transaction amount", "transaction fee", "generation fee", "effective balance", "order", "order price", "order quantity", "order cost", "trade price", "trade quantity", "trade cost", "asset quantity", "transaction", "lessee", "lessor guaranteed balance", "purchase", "purchase price", "purchase quantity", "purchase cost", "discount", "refund", "sender", "recipient", "block", "timestamp")
 
-        private val headers = HashMap<String, String>()
+        private val headers = mutableMapOf<String, String>>()
 
         init {
             for (entry in columns) {

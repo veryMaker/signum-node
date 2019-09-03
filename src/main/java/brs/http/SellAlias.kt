@@ -11,9 +11,6 @@ import com.google.gson.JsonElement
 
 import javax.servlet.http.HttpServletRequest
 
-
-import brs.http.common.Parameters.*
-
 internal class SellAlias internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION), ALIAS_PARAMETER, ALIAS_NAME_PARAMETER, RECIPIENT_PARAMETER, PRICE_NQT_PARAMETER) {
 
     @Throws(BurstException::class)

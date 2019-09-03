@@ -99,12 +99,10 @@ object JSON {
     fun getAsBoolean(jsonElement: JsonElement?): Boolean {
         return jsonElement != null && jsonElement.isJsonPrimitive && jsonElement.asBoolean
     }
+}
 
-    @JvmStatic
-    fun <T : JsonElement> jsonArrayCollector(): Collector<T, *, JsonArray> {
-        return Collector.of(Supplier<JsonArray> { JsonArray() }, BiConsumer<JsonArray, T> { obj, element -> obj.add(element) }, BinaryOperator { left: JsonArray, right: JsonArray ->
-            left.addAll(right)
-            left
-        })
-    }
+fun <T: JsonElement> Iterable<T>.toJsonArray(): JsonArray {
+    val jsonArray = JsonArray()
+    for (item in this) jsonArray.add(item)
+    return jsonArray
 }

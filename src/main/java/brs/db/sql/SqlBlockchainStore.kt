@@ -94,7 +94,7 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
         val height = if (numberOfConfirmations > 0) dp.blockchain.height - numberOfConfirmations else Integer.MAX_VALUE
         require(height >= 0) { "Number of confirmations required " + numberOfConfirmations + " exceeds current blockchain height " + dp.blockchain.height }
         return Db.useDSLContext<Collection<Transaction>> { ctx ->
-            val conditions = ArrayList<Condition>()
+            val conditions = mutableListOf<Condition>()
             if (blockTimestamp > 0) {
                 conditions.add(TRANSACTION.BLOCK_TIMESTAMP.ge(blockTimestamp))
             }

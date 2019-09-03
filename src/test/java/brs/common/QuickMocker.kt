@@ -3,6 +3,10 @@ package brs.common
 import brs.Blockchain
 import brs.Burst
 import brs.fluxcapacitor.*
+import brs.http.common.Parameters.DEADLINE_PARAMETER
+import brs.http.common.Parameters.FEE_NQT_PARAMETER
+import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
+import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.props.PropertyService
 import brs.props.Props
 import com.google.gson.JsonElement
@@ -12,8 +16,6 @@ import org.mockito.ArgumentMatchers
 import javax.servlet.http.HttpServletRequest
 import java.util.ArrayList
 import java.util.Arrays
-
-import brs.http.common.Parameters.*
 import brs.props.Prop
 import com.nhaarman.mockitokotlin2.*
 import io.mockk.every
@@ -66,11 +68,11 @@ object QuickMocker {
     }
 
     fun httpServletRequestDefaultKeys(vararg parameters: MockParam): HttpServletRequest {
-        val paramsWithKeys = ArrayList(listOf(MockParam(SECRET_PHRASE_PARAMETER, TestConstants.TEST_SECRET_PHRASE), MockParam(PUBLIC_KEY_PARAMETER, TestConstants.TEST_PUBLIC_KEY), MockParam(DEADLINE_PARAMETER, TestConstants.DEADLINE), MockParam(FEE_NQT_PARAMETER, TestConstants.FEE)))
+        val paramsWithKeys = mutableListOf(listOf(MockParam(SECRET_PHRASE_PARAMETER, TestConstants.TEST_SECRET_PHRASE), MockParam(PUBLIC_KEY_PARAMETER, TestConstants.TEST_PUBLIC_KEY), MockParam(DEADLINE_PARAMETER, TestConstants.DEADLINE), MockParam(FEE_NQT_PARAMETER, TestConstants.FEE)))
 
-        paramsWithKeys.addAll(listOf(*parameters))
+        paramsWithKeys.addAll(listOf(parameters.toList()))
 
-        return httpServletRequest(*paramsWithKeys.toTypedArray())
+        return httpServletRequest(*paramsWithKeys.flatten().toTypedArray())
     }
 
     fun jsonObject(vararg parameters: JSONParam): JsonObject {

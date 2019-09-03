@@ -14,5 +14,5 @@ interface AliasStore {
 
     fun getAliasesByOwner(accountId: Long, from: Int, to: Int): Collection<Alias>
 
-    fun getAlias(aliasName: String): Alias
+    fun getAlias(aliasName: String): Alias?
 }

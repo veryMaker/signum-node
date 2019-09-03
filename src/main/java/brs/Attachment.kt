@@ -207,8 +207,7 @@ interface Attachment : Appendix {
     }
 
     class PaymentMultiOutCreation : AbstractAttachment {
-
-        private val recipients = ArrayList<ArrayList<Long>>()
+        private val recipients = mutableListOf<List<Long>>()
 
         override val appendixName: String
             get() = "MultiOutCreation"
@@ -244,7 +243,7 @@ interface Attachment : Appendix {
         internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
 
             val numberOfRecipients = java.lang.Byte.toUnsignedInt(buffer.get())
-            val recipientOf = HashMap<Long, Boolean>(numberOfRecipients)
+            val recipientOf = mutableMapOf<Long, Boolean>>(numberOfRecipients)
 
             for (i in 0 until numberOfRecipients) {
                 val recipientId = buffer.long
@@ -257,7 +256,7 @@ interface Attachment : Appendix {
                     throw BurstException.NotValidException("Insufficient amountNQT on multi out transaction")
 
                 recipientOf[recipientId] = true
-                this.recipients.add(ArrayList(Arrays.asList(recipientId, amountNQT)))
+                this.recipients.add(listOf(recipientId, amountNQT))
             }
             if (recipients.size > Constants.MAX_MULTI_OUT_RECIPIENTS || recipients.size <= 1) {
                 throw BurstException.NotValidException(
@@ -269,7 +268,7 @@ interface Attachment : Appendix {
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
 
             val receipientsJson = JSON.getAsJsonArray(attachmentData.get(RECIPIENTS_PARAMETER))
-            val recipientOf = HashMap<Long, Boolean>()
+            val recipientOf = mutableMapOf<Long, Boolean>>()
 
             for (recipientObject in receipientsJson) {
                 val recipient = JSON.getAsJsonArray(recipientObject)
@@ -283,7 +282,7 @@ interface Attachment : Appendix {
                     throw BurstException.NotValidException("Insufficient amountNQT on multi out transaction")
 
                 recipientOf[recipientId] = true
-                this.recipients.add(ArrayList(Arrays.asList(recipientId, amountNQT)))
+                this.recipients.add(listOf(recipientId, amountNQT))
             }
             if (receipientsJson.size() > Constants.MAX_MULTI_OUT_RECIPIENTS || receipientsJson.size() <= 1) {
                 throw BurstException.NotValidException("Invalid number of recipients listed on multi out transaction")
@@ -293,7 +292,7 @@ interface Attachment : Appendix {
         @Throws(BurstException.NotValidException::class)
         constructor(recipients: Collection<Entry<String, Long>>, blockchainHeight: Int) : super(blockchainHeight) {
 
-            val recipientOf = HashMap<Long, Boolean>()
+            val recipientOf = mutableMapOf<Long, Boolean>>()
             for ((key, amountNQT) in recipients) {
                 val recipientId = BigInteger(key).toLong()
                 if (recipientOf.containsKey(recipientId))
@@ -303,7 +302,7 @@ interface Attachment : Appendix {
                     throw BurstException.NotValidException("Insufficient amountNQT on multi out transaction")
 
                 recipientOf[recipientId] = true
-                this.recipients.add(ArrayList(Arrays.asList(recipientId, amountNQT)))
+                this.recipients.add(listOf(recipientId, amountNQT))
             }
             if (recipients.size > Constants.MAX_MULTI_OUT_RECIPIENTS || recipients.size <= 1) {
                 throw BurstException.NotValidException("Invalid number of recipients listed on multi out transaction")
@@ -312,7 +311,7 @@ interface Attachment : Appendix {
 
         @Throws(BurstException.NotValidException::class)
         internal constructor(attachment: BrsApi.MultiOutAttachment) : super(attachment.version.toByte()) {
-            val recipientOf = HashMap<Long, Boolean>()
+            val recipientOf = mutableMapOf<Long, Boolean>>()
             for (recipient in attachment.recipientsList) {
                 val recipientId = recipient.recipient
                 val amountNQT = recipient.amount
@@ -323,7 +322,7 @@ interface Attachment : Appendix {
                     throw BurstException.NotValidException("Insufficient amountNQT on multi out transaction")
 
                 recipientOf[recipientId] = true
-                this.recipients.add(ArrayList(Arrays.asList(recipientId, amountNQT)))
+                this.recipients.add(listOf(recipientId, amountNQT))
             }
             if (recipients.size > Constants.MAX_MULTI_OUT_RECIPIENTS || recipients.size <= 1) {
                 throw BurstException.NotValidException("Invalid number of recipients listed on multi out transaction")
@@ -341,25 +340,24 @@ interface Attachment : Appendix {
         override fun putMyJSON(attachment: JsonObject) {
             val recipientsJSON = JsonArray()
 
-            this.recipients.stream()
-                    .map { recipient ->
+            this.recipients.map { recipient ->
                         val recipientJSON = JsonArray()
                         recipientJSON.add(Convert.toUnsignedLong(recipient[0]))
                         recipientJSON.add(recipient[1].toString())
                         recipientJSON
-                    }.forEach(Consumer<JsonArray> { recipientsJSON.add(it) })
+                    }.forEach { recipientsJSON.add(it) }
 
             attachment.add(RECIPIENTS_RESPONSE, recipientsJSON)
         }
 
         fun getRecipients(): Collection<List<Long>> {
-            return Collections.unmodifiableCollection<List<Long>>(recipients)
+            return recipients
         }
     }
 
     open class PaymentMultiSameOutCreation : AbstractAttachment {
 
-        private val recipients = ArrayList<Long>()
+        private val recipients = mutableListOf<Long>()
 
         override val appendixName: String
             get() = "MultiSameOutCreation"
@@ -380,7 +378,7 @@ interface Attachment : Appendix {
         internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
 
             val numberOfRecipients = java.lang.Byte.toUnsignedInt(buffer.get())
-            val recipientOf = HashMap<Long, Boolean>(numberOfRecipients)
+            val recipientOf = mutableMapOf<Long, Boolean>>(numberOfRecipients)
 
             for (i in 0 until numberOfRecipients) {
                 val recipientId = buffer.long
@@ -392,8 +390,7 @@ interface Attachment : Appendix {
                 this.recipients.add(recipientId)
             }
             if (recipients.size > Constants.MAX_MULTI_SAME_OUT_RECIPIENTS || recipients.size <= 1) {
-                throw BurstException.NotValidException(
-                        "Invalid number of recipients listed on multi same out transaction")
+                throw BurstException.NotValidException("Invalid number of recipients listed on multi same out transaction")
             }
         }
 
@@ -401,10 +398,10 @@ interface Attachment : Appendix {
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
 
             val recipientsJson = JSON.getAsJsonArray(attachmentData.get(RECIPIENTS_PARAMETER))
-            val recipientOf = HashMap<Long, Boolean>()
+            val recipientOf = mutableMapOf<Long, Boolean>>()
 
             for (recipient in recipientsJson) {
-                val recipientId = BigInteger(JSON.getAsString(recipient)!!).toLong()
+                val recipientId = BigInteger(JSON.getAsString(recipient)).toLong()
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi same out transaction")
 
@@ -420,7 +417,7 @@ interface Attachment : Appendix {
         @Throws(BurstException.NotValidException::class)
         constructor(recipients: Collection<Long>, blockchainHeight: Int) : super(blockchainHeight) {
 
-            val recipientOf = HashMap<Long, Boolean>()
+            val recipientOf = mutableMapOf<Long, Boolean>>()
             for (recipientId in recipients) {
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi same out transaction")
@@ -436,7 +433,7 @@ interface Attachment : Appendix {
 
         @Throws(BurstException.NotValidException::class)
         internal constructor(attachment: BrsApi.MultiOutSameAttachment) : super(attachment.version.toByte()) {
-            val recipientOf = HashMap<Long, Boolean>()
+            val recipientOf = mutableMapOf<Long, Boolean>>()
             for (recipientId in attachment.recipientsList) {
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi same out transaction")
@@ -452,7 +449,7 @@ interface Attachment : Appendix {
 
         override fun putMyBytes(buffer: ByteBuffer) {
             buffer.put(this.recipients.size.toByte())
-            this.recipients.forEach(Consumer<Long> { buffer.putLong(it) })
+            this.recipients.forEach { buffer.putLong(it) }
         }
 
         override fun putMyJSON(attachment: JsonObject) {
@@ -1673,7 +1670,7 @@ interface Attachment : Appendix {
             buffer.put(this.requiredSigners)
             val totalSigners = this.signers.size.toByte()
             buffer.put(totalSigners)
-            this.signers.forEach(Consumer<Long> { buffer.putLong(it) })
+            this.signers.forEach { buffer.putLong(it) }
         }
 
         override fun putMyJSON(attachment: JsonObject) {

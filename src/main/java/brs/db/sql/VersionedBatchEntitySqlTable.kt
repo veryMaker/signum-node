@@ -26,10 +26,10 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
         }
 
     override val batch: MutableMap<BurstKey, T>
-        get() = Db.getBatch(table)
+        get() = Db.getBatch<T>(table)
 
-    override val cache: Cache<BurstKey, T>?
-        get() = dp.dbCacheManager.getCache(table, tClass)
+    override val cache: Cache<BurstKey, T>
+        get() = dp.dbCacheManager.getCache(table, tClass)!!
 
     private fun assertInTransaction() {
         check(!Db.isInTransaction) { "Cannot use in batch table transaction" }

@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.Constants.FEE_QUANT
 import brs.Constants.ONE_BURST
-import brs.http.common.Parameters.*
 
 internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
     private val dp: DependencyProvider

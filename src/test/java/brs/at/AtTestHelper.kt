@@ -32,8 +32,8 @@ import org.junit.Assert.assertEquals
 
 object AtTestHelper {
 
-    private val addedAts = ArrayList<AT>()
-    private var onAtAdded: Consumer<AT>? = null
+    private val addedAts = mutableListOf<AT>()
+    private var onAtAdded: (AT) -> Unit? = null
 
     // Hello World example compiled with BlockTalk v0.0.0
     internal var HELLO_WORLD_CREATION_BYTES = getCreationBytes(1, Convert.parseHexString("3033040300000000350001010000001e0100000007283507030000000012270000001a0100000033100101000000320a03350401020000001002000000110200000033160102000000010200000048656c6c6f2c20573310010200000001020000006f726c6400000000331101020000000102000000000000000000000033120102000000010200000000000000000000003313010200000032050413")!!)
@@ -117,7 +117,7 @@ object AtTestHelper {
         assertEquals(0, AT.getOrderedATs().size.toLong())
     }
 
-    internal fun setOnAtAdded(onAtAdded: Consumer<AT>) {
+    internal fun setOnAtAdded(onAtAdded: (AT) -> Unit) {
         AtTestHelper.onAtAdded = onAtAdded
     }
 

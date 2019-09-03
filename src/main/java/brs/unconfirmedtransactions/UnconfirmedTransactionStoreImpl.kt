@@ -20,19 +20,19 @@ import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+import java.util.function.ToLongFunction
 import java.util.stream.Collectors
 
 class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : UnconfirmedTransactionStore {
-    private val reservedBalanceCache: ReservedBalanceCache
+    private val reservedBalanceCache = ReservedBalanceCache(dp.accountStore)
     private val transactionDuplicatesChecker = TransactionDuplicatesCheckerImpl()
 
-    private val fingerPrintsOverview = HashMap<Transaction, HashSet<Peer>>()
+    private val fingerPrintsOverview = mutableMapOf<Transaction, HashSet<Peer>>()
 
-    private val internalStore: SortedMap<Long, List<Transaction>>
+    private val internalStore: SortedMap<Long, MutableList<Transaction>>
 
     override var amount: Int = 0
-        private set
-    private val maxSize: Int
+    private val maxSize = dp.propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS)
 
     private val maxRawUTBytesToSend: Int
 
@@ -41,7 +41,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
 
     override val all: List<Transaction>
         get() = synchronized(internalStore) {
-            val flatTransactionList = ArrayList<Transaction>()
+            val flatTransactionList = mutableListOf<Transaction>()
 
             for (amountSlot in internalStore.values) {
                 flatTransactionList.addAll(amountSlot)
@@ -51,9 +51,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         }
 
     init {
-        this.reservedBalanceCache = ReservedBalanceCache(dp.accountStore)
 
-        this.maxSize = dp.propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS)
         this.amount = 0
 
         this.maxRawUTBytesToSend = dp.propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND)
@@ -66,11 +64,8 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         val scheduler = Executors.newSingleThreadScheduledExecutor()
         val cleanupExpiredTransactions = {
             synchronized(internalStore) {
-                val expiredTransactions = all
-                        .stream()
-                        .filter { t -> dp.timeService.epochTime > t.expiration || dp.dbs.transactionDb.hasTransaction(t.id) }
-                        .collect<List<Transaction>, Any>(Collectors.toList())
-                expiredTransactions.forEach(Consumer<Transaction> { this.removeTransaction(it) })
+                all.filter { t -> dp.timeService.epochTime > t.expiration || dp.dbs.transactionDb.hasTransaction(t.id) }
+                        .forEach { this.removeTransaction(it) }
             }
         }
         scheduler.scheduleWithFixedDelay(cleanupExpiredTransactions, 1, 1, TimeUnit.MINUTES)
@@ -82,7 +77,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
             if (transactionIsCurrentlyInCache(transaction)) {
                 if (peer != null) {
                     logger.info("Transaction {}: Added fingerprint of {}", transaction.id, peer.peerAddress)
-                    fingerPrintsOverview[transaction].add(peer)
+                    fingerPrintsOverview[transaction]!!.add(peer)
                 }
             } else if (transactionCanBeAddedToCache(transaction)) {
                 this.reservedBalanceCache.reserveBalanceAndPut(transaction)
@@ -146,25 +141,17 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
 
     override fun getAllFor(peer: Peer): List<Transaction> {
         synchronized(internalStore) {
-            val untouchedTransactions = fingerPrintsOverview.entries.stream()
-                    .filter { e -> !e.value.contains(peer) }
-                    .map<Transaction>(Function<Entry<Transaction, HashSet<Peer>>, Transaction> { it.key }).collect<List<Transaction>, Any>(Collectors.toList())
-
-            val resultList = ArrayList<Transaction>()
-
             var roomLeft = this.maxRawUTBytesToSend.toLong()
-
-            for (t in untouchedTransactions) {
-                roomLeft -= t.size.toLong()
-
-                if (roomLeft > 0) {
-                    resultList.add(t)
-                } else {
-                    break
-                }
-            }
-
-            return resultList
+            return fingerPrintsOverview.entries
+                    .asSequence()
+                    .filter { e -> !e.value.contains(peer) }
+                    .map { it.key }
+                    .toList()
+                    .filter {
+                        roomLeft -= it.size.toLong()
+                        return@filter roomLeft > 0
+                    }
+                    .toList()
         }
     }
 
@@ -201,7 +188,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         synchronized(internalStore) {
             for (transaction in transactions) {
                 if (fingerPrintsOverview.containsKey(transaction)) {
-                    fingerPrintsOverview[transaction].add(peer)
+                    fingerPrintsOverview[transaction]!!.add(peer)
                 }
             }
         }
@@ -217,7 +204,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
 
     private fun transactionIsCurrentlyInCache(transaction: Transaction): Boolean {
         val amountSlot = internalStore[amountSlotForTransaction(transaction)]
-        return amountSlot != null && amountSlot.stream().anyMatch { t -> t.id == transaction.id }
+        return amountSlot != null && amountSlot.any { t -> t.id == transaction.id }
     }
 
     private fun transactionCanBeAddedToCache(transaction: Transaction): Boolean {
@@ -230,7 +217,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
     private fun tooManyTransactionsForSlotSize(transaction: Transaction): Boolean {
         val slotHeight = this.amountSlotForTransaction(transaction)
 
-        if (this.internalStore.containsKey(slotHeight) && this.internalStore[slotHeight].size.toLong() == slotHeight * 360) {
+        if (this.internalStore.containsKey(slotHeight) && this.internalStore[slotHeight]!!.size.toLong() == slotHeight * 360) {
             logger.info("Transaction {}: Not added because slot {} is full", transaction.id, slotHeight)
             return true
         }
@@ -273,7 +260,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         fingerPrintsOverview[transaction] = HashSet()
 
         if (peer != null) {
-            fingerPrintsOverview[transaction].add(peer)
+            fingerPrintsOverview[transaction]!!.add(peer)
         }
 
         if (logger.isDebugEnabled) {
@@ -293,10 +280,10 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         val amountSlotNumber = amountSlotForTransaction(transaction)
 
         if (!this.internalStore.containsKey(amountSlotNumber)) {
-            this.internalStore[amountSlotNumber] = ArrayList()
+            this.internalStore[amountSlotNumber] = mutableListOf()
         }
 
-        return this.internalStore[amountSlotNumber]
+        return this.internalStore[amountSlotNumber]!!
     }
 
 
@@ -305,13 +292,14 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
     }
 
     private fun removeCheapestFirstToExpireTransaction() {
-        val cheapestFirstToExpireTransaction = this.internalStore[this.internalStore.firstKey()].stream()
-                .sorted(Comparator.comparingLong<Transaction>(ToLongFunction<Transaction> { it.getFeeNQT() }).thenComparing<Int>(Function<Transaction, Int> { it.getExpiration() }).thenComparing<Long>(Function<Transaction, Long> { it.getId() }))
-                .findFirst()
-
-        if (cheapestFirstToExpireTransaction.isPresent) {
-            reservedBalanceCache.refundBalance(cheapestFirstToExpireTransaction.get())
-            removeTransaction(cheapestFirstToExpireTransaction.get())
+        val cheapestFirstToExpireTransaction = this.internalStore[this.internalStore.firstKey()]!!
+                .sortedWith(Comparator.comparingLong<Transaction> { it.feeNQT }
+                        .thenComparing<Int> { it.expiration }
+                        .thenComparing<Long> { it.id })
+                .firstOrNull()
+        if (cheapestFirstToExpireTransaction != null) {
+            reservedBalanceCache.refundBalance(cheapestFirstToExpireTransaction)
+            removeTransaction(cheapestFirstToExpireTransaction)
         }
     }
 
@@ -319,7 +307,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         if (transaction == null) return
         val amountSlotNumber = amountSlotForTransaction(transaction)
 
-        val amountSlot = internalStore[amountSlotNumber]
+        val amountSlot = internalStore[amountSlotNumber]!!
 
         fingerPrintsOverview.remove(transaction)
         amountSlot.remove(transaction)

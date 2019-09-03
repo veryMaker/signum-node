@@ -13,8 +13,8 @@ import brs.http.common.Parameters.ORDER_PARAMETER
 internal class GetAskOrder internal constructor(private val assetExchange: AssetExchange) : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), ORDER_PARAMETER) {
 
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val orderId = ParameterParser.getOrderId(req)
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+        val orderId = ParameterParser.getOrderId(request)
         val askOrder = assetExchange.getAskOrder(orderId) ?: return UNKNOWN_ORDER
         return JSONData.askOrder(askOrder)
     }

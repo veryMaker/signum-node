@@ -198,7 +198,7 @@ object DigitalGoodsStore {
 
         fun addFeedbackNote(feedbackNote: EncryptedData) {
             if (feedbackNotes == null) {
-                feedbackNotes = ArrayList()
+                feedbackNotes = mutableListOf()
             }
             feedbackNotes!!.add(feedbackNote)
             this.hasFeedbackNotes = true

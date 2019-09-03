@@ -32,7 +32,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         allowedOrigins = dp.propertyService.get(Props.API_ALLOWED_ORIGINS)
         this.acceptSurplusParams = dp.propertyService.get(Props.API_ACCEPT_SURPLUS_PARAMS)
 
-        val map = HashMap<String, HttpRequestHandler>()
+        val map = mutableMapOf<String, HttpRequestHandler>>()
 
         map["broadcastTransaction"] = BroadcastTransaction(dp.transactionProcessor, dp.parameterService, dp.transactionService)
         map["calculateFullHash"] = CalculateFullHash()
@@ -210,7 +210,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             }
         }
 
-        fun requirePost(): Boolean {
+        open fun requirePost(): Boolean {
             return false
         }
     }

@@ -80,7 +80,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                                 val activePrioPlusExtra = Peers.allActivePriorityPlusSomeExtraPeers
                                 activePrioPlusExtra.remove(peer)
 
-                                val expectedResults = ArrayList<CompletableFuture<*>>()
+                                val expectedResults = mutableListOf<CompletableFuture<*>>()
 
                                 for (otherPeer in activePrioPlusExtra) {
                                     val unconfirmedTransactionsResult = Peers.readUnconfirmedTransactionsNonBlocking(otherPeer)
@@ -258,12 +258,12 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
     @Throws(BurstException.ValidationException::class)
     private fun processPeerTransactions(transactionsData: JsonArray, peer: Peer): List<Transaction> {
         if (dp.blockchain.lastBlock.timestamp < dp.timeService.epochTime - 60 * 1440 && !testUnconfirmedTransactions) {
-            return ArrayList()
+            return mutableListOf()
         }
         if (dp.blockchain.height <= Constants.NQT_BLOCK) {
-            return ArrayList()
+            return mutableListOf()
         }
-        val transactions = ArrayList<Transaction>()
+        val transactions = mutableListOf<Transaction>()
         for (transactionData in transactionsData) {
             try {
                 val transaction = parseTransaction(JSON.getAsJsonObject(transactionData))
@@ -291,7 +291,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                 return emptyList()
             }
 
-            val addedUnconfirmedTransactions = ArrayList<Transaction>()
+            val addedUnconfirmedTransactions = mutableListOf<Transaction>()
 
             for (transaction in transactions) {
 
@@ -338,7 +338,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
     }
 
     private fun broadcastToPeers(toAll: Boolean): Int {
-        val peersToSendTo = if (toAll) Peers.activePeers.stream().limit(100).collect(Collectors.toList<Peer>()) else Peers.allActivePriorityPlusSomeExtraPeers
+        val peersToSendTo = if (toAll) Peers.activePeers.take(100) else Peers.allActivePriorityPlusSomeExtraPeers
 
         logger.trace("Queueing up {} Peers for feeding", peersToSendTo.size)
 
@@ -350,7 +350,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
     }
 
     override fun revalidateUnconfirmedTransactions() {
-        val invalidTransactions = ArrayList<Transaction>()
+        val invalidTransactions = mutableListOf<Transaction>()
 
         for (t in dp.unconfirmedTransactionStore.all) {
             try {

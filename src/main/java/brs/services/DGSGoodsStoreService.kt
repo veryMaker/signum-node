@@ -10,13 +10,13 @@ import java.util.function.Consumer
 
 interface DGSGoodsStoreService { // TODO Redundant name!
 
-    fun addGoodsListener(listener: Consumer<Goods>, eventType: Event): Boolean
+    fun addGoodsListener(listener: (Goods) -> Unit, eventType: Event): Boolean
 
-    fun removeGoodsListener(listener: Consumer<Goods>, eventType: Event): Boolean
+    fun removeGoodsListener(listener: (Goods) -> Unit, eventType: Event): Boolean
 
-    fun addPurchaseListener(listener: Consumer<Purchase>, eventType: Event): Boolean
+    fun addPurchaseListener(listener: (Purchase) -> Unit, eventType: Event): Boolean
 
-    fun removePurchaseListener(listener: Consumer<Purchase>, eventType: Event): Boolean
+    fun removePurchaseListener(listener: (Purchase) -> Unit, eventType: Event): Boolean
 
     fun getGoods(goodsId: Long): Goods
 

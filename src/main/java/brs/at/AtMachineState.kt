@@ -22,7 +22,7 @@ open class AtMachineState {
     val creationBlockHeight: Int
     val sleepBetween: Int
     val apCode: ByteBuffer
-    internal val transactions: LinkedHashMap<ByteBuffer, AtTransaction>
+    internal val transactions: MutableMap<ByteBuffer, AtTransaction>
     var version: Short = 0
         private set
     private var gBalance: Long = 0
@@ -189,7 +189,7 @@ open class AtMachineState {
         this.apCode.put(apCode)
         this.apCode.clear()
 
-        transactions = LinkedHashMap()
+        transactions = LinkedmutableMapOf()
     }
 
     protected constructor(dp: DependencyProvider, atId: ByteArray, creator: ByteArray, creationBytes: ByteArray, height: Int) {
@@ -266,7 +266,7 @@ open class AtMachineState {
         this.waitForNumberOfBlocks = 0
         this.sleepBetween = 0
         this.freezeWhenSameBalance = false
-        this.transactions = LinkedHashMap()
+        this.transactions = LinkedmutableMapOf()
         this.gBalance = 0
         this.pBalance = 0
         this.machineState = MachineState()

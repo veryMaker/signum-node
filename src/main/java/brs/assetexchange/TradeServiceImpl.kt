@@ -14,17 +14,12 @@ import java.util.function.Consumer
 internal class TradeServiceImpl(private val tradeStore: TradeStore) { // TODO add interface
 
     private val listeners = Listeners<Trade, Event>()
-    private val tradeTable: EntitySqlTable<Trade>
-    private val tradeDbKeyFactory: LinkKeyFactory<Trade>
+    private val tradeTable = tradeStore.tradeTable
+    private val tradeDbKeyFactory = tradeStore.tradeDbKeyFactory
 
     val count: Int
         get() = tradeTable.count
 
-
-    init {
-        this.tradeTable = tradeStore.tradeTable
-        this.tradeDbKeyFactory = tradeStore.tradeDbKeyFactory
-    }
 
     fun getAssetTrades(assetId: Long, from: Int, to: Int): Collection<Trade> {
         return tradeStore.getAssetTrades(assetId, from, to)
@@ -46,11 +41,11 @@ internal class TradeServiceImpl(private val tradeStore: TradeStore) { // TODO ad
         return tradeTable.getAll(from, to)
     }
 
-    fun addListener(listener: Consumer<Trade>, eventType: Event): Boolean {
+    fun addListener(listener: (Trade) -> Unit, eventType: Event): Boolean {
         return listeners.addListener(listener, eventType)
     }
 
-    fun removeListener(listener: Consumer<Trade>, eventType: Event): Boolean {
+    fun removeListener(listener: (Trade) -> Unit, eventType: Event): Boolean {
         return listeners.removeListener(listener, eventType)
     }
 

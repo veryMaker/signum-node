@@ -8,7 +8,6 @@ import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 import brs.http.JSONResponses.NOT_ENOUGH_FUNDS
-import brs.http.common.Parameters.*
 
 internal class PlaceBidOrder(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), ASSET_PARAMETER, QUANTITY_QNT_PARAMETER, PRICE_NQT_PARAMETER) {
     @Throws(BurstException::class)

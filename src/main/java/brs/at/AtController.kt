@@ -221,7 +221,7 @@ object AtController {
         val orderedATs = AT.getOrderedATs(dp!!)
         val keys = orderedATs.iterator()
 
-        val processedATs = ArrayList<AT>()
+        val processedATs = mutableListOf<AT>()
 
         val costOfOneAT = costOfOneAT
         var payload = 0
@@ -283,14 +283,10 @@ object AtController {
     }
 
     @Throws(AtException::class)
-    fun validateATs(blockATs: ByteArray?, blockHeight: Int): AtBlock {
-        if (blockATs == null) {
-            return AtBlock(0, 0, null)
-        }
-
+    fun validateATs(blockATs: ByteArray, blockHeight: Int): AtBlock {
         val ats = getATsFromBlock(blockATs)
 
-        val processedATs = ArrayList<AT>()
+        val processedATs = mutableListOf<AT>()
 
         var totalFee: Long = 0
         val digest = Crypto.md5()
@@ -361,8 +357,8 @@ object AtController {
     }
 
     @Throws(AtException::class)
-    private fun getATsFromBlock(blockATs: ByteArray): LinkedHashMap<ByteBuffer, ByteArray> {
-        if (blockATs.size > 0 && blockATs.size % costOfOneAT != 0) {
+    private fun getATsFromBlock(blockATs: ByteArray): Map<ByteBuffer, ByteArray> {
+        if (blockATs.isNotEmpty() && blockATs.size % costOfOneAT != 0) {
             throw AtException("blockATs must be a multiple of cost of one AT ( $costOfOneAT )")
         }
 
@@ -371,7 +367,7 @@ object AtController {
 
         val temp = ByteArray(AtConstants.AT_ID_SIZE)
 
-        val ats = LinkedHashMap<ByteBuffer, ByteArray>()
+        val ats = LinkedmutableMapOf<ByteBuffer, ByteArray>>()
 
         while (b.position() < b.capacity()) {
             b.get(temp, 0, temp.size)

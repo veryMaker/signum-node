@@ -65,7 +65,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         if (!paymentTransactions.isEmpty()) {
             dp.dbs.transactionDb.saveTransactions(paymentTransactions)
         }
-        removeSubscriptions.forEach(Consumer<Long> { this.removeSubscription(it) })
+        removeSubscriptions.forEach((Long) -> Unit { this.removeSubscription(it) })
     }
 
     override fun removeSubscription(id: Long?) {
@@ -77,7 +77,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
 
     override fun calculateFees(timestamp: Int): Long {
         var totalFeeNQT: Long = 0
-        val appliedUnconfirmedSubscriptions = ArrayList<Subscription>()
+        val appliedUnconfirmedSubscriptions = mutableListOf<Subscription>()
         for (subscription in dp.subscriptionStore.getUpdateSubscriptions(timestamp)) {
             if (removeSubscriptions.contains(subscription.id)) {
                 continue
@@ -178,8 +178,8 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
 
     companion object {
 
-        private val paymentTransactions = ArrayList<Transaction>()
-        private val appliedSubscriptions = ArrayList<Subscription>()
+        private val paymentTransactions = mutableListOf<Transaction>()
+        private val appliedSubscriptions = mutableListOf<Subscription>()
         private val removeSubscriptions = HashSet<Long>()
     }
 

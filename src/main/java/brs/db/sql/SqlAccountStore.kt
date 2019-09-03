@@ -52,7 +52,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             private val sort = initializeSort()
 
             private fun initializeSort(): List<SortField<*>> {
-                val sort = ArrayList<SortField<*>>()
+                val sort = mutableListOf<SortField<*>>()
                 sort.add(tableClass.field("quantity", Long::class.java).desc())
                 sort.add(tableClass.field("account_id", Long::class.java).asc())
                 sort.add(tableClass.field("asset_id", Long::class.java).asc())
@@ -81,7 +81,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             }
 
             override fun bulkInsert(ctx: DSLContext, accounts: Collection<Account>) {
-                val accountQueries = ArrayList<Query>()
+                val accountQueries = mutableListOf<Query>()
                 val height = dp.blockchain.height
                 for (account in accounts) {
                     if (account == null) continue
@@ -111,7 +111,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
     }
 
     override fun getAssetAccounts(assetId: Long, from: Int, to: Int): Collection<Account.AccountAsset> {
-        val sort = ArrayList<SortField<*>>()
+        val sort = mutableListOf<SortField<*>>()
         sort.add(ACCOUNT_ASSET.field("quantity", Long::class.java).desc())
         sort.add(ACCOUNT_ASSET.field("account_id", Long::class.java).asc())
         return accountAssetTable.getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), from, to, sort)
@@ -122,7 +122,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             return getAssetAccounts(assetId, from, to)
         }
 
-        val sort = ArrayList<SortField<*>>()
+        val sort = mutableListOf<SortField<*>>()
         sort.add(ACCOUNT_ASSET.field("quantity", Long::class.java).desc())
         sort.add(ACCOUNT_ASSET.field("account_id", Long::class.java).asc())
         return accountAssetTable.getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), height, from, to, sort)

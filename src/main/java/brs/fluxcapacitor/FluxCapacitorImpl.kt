@@ -9,16 +9,11 @@ import java.util.HashMap
 
 class FluxCapacitorImpl(dp: DependencyProvider) : FluxCapacitor {
 
-    private val propertyService: PropertyService
-    private val blockchain: Blockchain
+    private val propertyService = dp.propertyService
+    private val blockchain = dp.blockchain
 
     // Map of Flux Value -> Change Height -> Index of ValueChange in FluxValue. Used as a cache.
-    private val valueChangesPerFluxValue = HashMap<FluxValue<*>, Map<Int, Int>>()
-
-    init {
-        this.propertyService = dp.propertyService
-        this.blockchain = dp.blockchain
-    }
+    private val valueChangesPerFluxValue = mutableMapOf<FluxValue<*>, Map<Int, Int>>()
 
     override fun <T> getValue(fluxValue: FluxValue<T>): T {
         return getValueAt(fluxValue, blockchain.height)
@@ -29,18 +24,18 @@ class FluxCapacitorImpl(dp: DependencyProvider) : FluxCapacitor {
     }
 
     private fun getHistoricalMomentHeight(historicalMoment: HistoricalMoments): Int {
-        if (propertyService.get(Props.DEV_TESTNET)) {
+        return if (propertyService.get(Props.DEV_TESTNET)) {
             val overridingHeight = propertyService.get(historicalMoment.overridingProperty)
-            return if (overridingHeight >= 0) overridingHeight else historicalMoment.testnetHeight
+            if (overridingHeight >= 0) overridingHeight else historicalMoment.testnetHeight
         } else {
-            return historicalMoment.mainnetHeight
+            historicalMoment.mainnetHeight
         }
     }
 
     private fun <T> computeValuesAtHeights(fluxValue: FluxValue<T>): Map<Int, Int> {
-        return (valueChangesPerFluxValue as java.util.Map<FluxValue<*>, Map<Int, Int>>).computeIfAbsent(fluxValue) { fv ->
-            val valueChangeIndexAtHeight = HashMap<Int, Int>()
-            val valueChanges = fluxValue.valueChanges
+        return valueChangesPerFluxValue.computeIfAbsent(fluxValue) {
+            val valueChangeIndexAtHeight = mutableMapOf<Int, Int>>()
+            val valueChanges = it.valueChanges
             for (i in valueChanges.indices) {
                 valueChangeIndexAtHeight[getHistoricalMomentHeight(valueChanges[i].historicalMoment)] = i
             }
@@ -52,7 +47,7 @@ class FluxCapacitorImpl(dp: DependencyProvider) : FluxCapacitor {
         var mostRecentValue = fluxValue.defaultValue
         var mostRecentChangeHeight = 0
         for ((entryHeight, value) in computeValuesAtHeights(fluxValue)) {
-            if (entryHeight <= height && entryHeight >= mostRecentChangeHeight) {
+            if (entryHeight in mostRecentChangeHeight..height) {
                 mostRecentValue = fluxValue.valueChanges[value].newValue
                 mostRecentChangeHeight = entryHeight
             }

@@ -60,11 +60,11 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
     private val lastTrimHeight = AtomicInteger()
 
     private val blockListeners = Listeners<Block, BlockchainProcessor.Event>()
-    private val lastBlockchainFeeder = AtomicReference<Peer>()
-    private val lastBlockchainFeederHeight = AtomicInteger()
+    override val lastBlockchainFeeder = AtomicReference<Peer>()
+    override val lastBlockchainFeederHeight = AtomicInteger()
     private val getMoreBlocks = AtomicBoolean(true)
 
-    private val isScanning = AtomicBoolean(false)
+    override val isScanning = AtomicBoolean(false)
 
     private val autoPopOffEnabled: Boolean
     private var autoPopOffLastStuckHeight = 0
@@ -100,7 +100,6 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         blockListeners.addListener({ block ->
             if (block.height % 5000 == 0) {
                 logger.info("processed block {}", block.height)
-                // Db.analyzeTables(); no-op
             }
         }, BlockchainProcessor.Event.BLOCK_PUSHED)
 
@@ -655,24 +654,12 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    override fun addListener(listener: Consumer<Block>, eventType: BlockchainProcessor.Event): Boolean {
+    override fun addListener(listener: (Block) -> Unit, eventType: BlockchainProcessor.Event): Boolean {
         return blockListeners.addListener(listener, eventType)
     }
 
-    override fun removeListener(listener: Consumer<Block>, eventType: BlockchainProcessor.Event): Boolean {
+    override fun removeListener(listener: (Block) -> Unit, eventType: BlockchainProcessor.Event): Boolean {
         return blockListeners.removeListener(listener, eventType)
-    }
-
-    override fun getLastBlockchainFeeder(): Peer? {
-        return lastBlockchainFeeder.get()
-    }
-
-    override fun getLastBlockchainFeederHeight(): Int {
-        return lastBlockchainFeederHeight.get()
-    }
-
-    override fun isScanning(): Boolean {
-        return isScanning.get()
     }
 
     @Throws(BurstException::class)
@@ -721,15 +708,12 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
         logger.info("Genesis block not in database, starting from scratch")
         try {
-            val transactions = ArrayList<Transaction>()
-            val digest = Crypto.sha256()
-            transactions.forEach { transaction -> digest.update(transaction.bytes) }
             val bf = ByteBuffer.allocate(0)
             bf.order(ByteOrder.LITTLE_ENDIAN)
             val byteATs = bf.array()
-            val genesisBlock = Block(dp, -1, 0, 0, 0, 0, transactions.size * 128,
-                    digest.digest(), Genesis.creatorPublicKey, ByteArray(32),
-                    Genesis.genesisBlockSignature, null, transactions, 0, byteATs, -1)
+            val genesisBlock = Block(dp, -1, 0, 0, 0, 0, 0,
+                    Crypto.sha256().digest(), Genesis.creatorPublicKey, ByteArray(32),
+                    Genesis.genesisBlockSignature, null, emptyList(), 0, byteATs, -1)
             dp.blockService.setPrevious(genesisBlock, null)
             addBlock(genesisBlock)
         } catch (e: BurstException.ValidationException) {
@@ -879,7 +863,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 addBlock(block)
                 dp.downloadCache.removeBlock(block) // We make sure downloadCache do not have this block anymore.
                 accept(block, remainingAmount, remainingFee)
-                dp.derivedTableManager.derivedTables.forEach(Consumer { it.finish() })
+                dp.derivedTableManager.derivedTables.forEach { it.finish() }
                 Db.commitTransaction()
             } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
                 Db.rollbackTransaction()
@@ -951,14 +935,13 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    private fun popOffTo(commonBlock: Block): MutableList<Block> {
-
+    private fun popOffTo(commonBlock: Block): List<Block> {
         require(commonBlock.height >= minRollbackHeight) { "Rollback to height " + commonBlock.height + " not suppported, " + "current height " + dp.blockchain.height }
         if (!dp.blockchain.hasBlock(commonBlock.id)) {
             logger.debug("Block {} not found in blockchain, nothing to pop off", commonBlock.stringId)
             return emptyList<Block>()
         }
-        val poppedOffBlocks = ArrayList<Block>()
+        val poppedOffBlocks = mutableListOf<Block>()
         synchronized(dp.downloadCache) {
             synchronized(dp.transactionProcessor.getUnconfirmedTransactionsSyncObj()) {
                 try {
@@ -992,7 +975,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
         val previousBlock = dp.dbs.blockDb.findBlock(block.previousBlockId)
         dp.blockchain.setLastBlock(block, previousBlock)
-        block.transactions.forEach(Consumer { it.unsetBlock() })
+        block.transactions.forEach { it.unsetBlock() }
         dp.dbs.blockDb.deleteBlocksFrom(block.id)
         blockListeners.accept(block, BlockchainProcessor.Event.BLOCK_POPPED)
         return previousBlock
@@ -1030,7 +1013,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 Db.beginTransaction()
                 val transactionDuplicatesChecker = TransactionDuplicatesCheckerImpl()
 
-                val priorityCalculator = { transaction ->
+                val priorityCalculator = { transaction: Transaction ->
                     var age = blockTimestamp + 1 - transaction.timestamp
                     if (age < 0) age = 1
                     age.toLong() * transaction.feeNQT
@@ -1038,23 +1021,22 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
                 // Map of slot number -> transaction
                 val transactionsToBeIncluded: Map<Long, Transaction>
-                val inclusionCandidates = unconfirmedTransactionStore.all.stream()
-                        .filter { transaction ->
-                            // Normal filtering
-                            (transaction.version.toInt() == dp.transactionProcessor.getTransactionVersion(previousBlock.height)
+                val inclusionCandidates = unconfirmedTransactionStore.all
+                        .filter { transaction -> // Normal filtering
+                            transaction.version.toInt() == dp.transactionProcessor.getTransactionVersion(previousBlock.height)
                                     && transaction.expiration >= blockTimestamp
                                     && transaction.timestamp <= blockTimestamp + MAX_TIMESTAMP_DIFFERENCE
-                                    && (!dp.fluxCapacitor.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) || dp.economicClustering.verifyFork(transaction)))
+                                    && (!dp.fluxCapacitor.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) || dp.economicClustering.verifyFork(transaction))
                         }
                         .filter { transaction -> preCheckUnconfirmedTransaction(transactionDuplicatesChecker, unconfirmedTransactionStore, transaction) } // Extra check for transactions that are to be considered
 
                 if (dp.fluxCapacitor.getValue(FluxValues.PRE_DYMAXION)) {
                     // In this step we get all unconfirmed transactions and then sort them by slot, followed by priority
-                    val unconfirmedTransactionsOrderedBySlotThenPriority = HashMap<Long, Map<Long, Transaction>>()
-                    inclusionCandidates.collect<Map<Transaction, Long>, Any>(Collectors.toMap(Function.identity(), Function { priorityCalculator.applyAsLong(it) })).forEach { (transaction, priority) ->
+                    val unconfirmedTransactionsOrderedBySlotThenPriority = mutableMapOf<Long, MutableMap<Long, Transaction>>()
+                    inclusionCandidates.associateBy({ it }, priorityCalculator).forEach { (transaction, priority) ->
                         val slot = (transaction.feeNQT - transaction.feeNQT % FEE_QUANT) / FEE_QUANT
-                        (unconfirmedTransactionsOrderedBySlotThenPriority as java.util.Map<Long, Map<Long, Transaction>>).computeIfAbsent(slot) { k -> HashMap() }
-                        unconfirmedTransactionsOrderedBySlotThenPriority[slot].put(priority, transaction)
+                        unconfirmedTransactionsOrderedBySlotThenPriority.computeIfAbsent(slot) { mutableMapOf() }
+                        unconfirmedTransactionsOrderedBySlotThenPriority[slot]!![priority] = transaction
                     }
 
                     // In this step we sort through each slot and find the highest priority transaction in each.
@@ -1065,55 +1047,53 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                                     highestSlot.set(slot)
                                 }
                             }
-                    val slotsWithNoTransactions = ArrayList<Long>()
+                    val slotsWithNoTransactions = mutableListOf<Long>()
                     for (slot in 1..highestSlot.get()) {
                         val transactions = unconfirmedTransactionsOrderedBySlotThenPriority[slot]
-                        if (transactions == null || transactions.size == 0) {
+                        if (transactions.isNullOrEmpty()) {
                             slotsWithNoTransactions.add(slot)
                         }
                     }
-                    val unconfirmedTransactionsOrderedBySlot = HashMap<Long, Transaction>()
+                    val unconfirmedTransactionsOrderedBySlot = mutableMapOf<Long, Transaction>()
                     unconfirmedTransactionsOrderedBySlotThenPriority.forEach { (slot, transactions) ->
-                        val highestPriority = AtomicLong()
+                        var highestPriority = 0L
                         transactions.keys.forEach { priority ->
-                            if (highestPriority.get() < priority) {
-                                highestPriority.set(priority)
+                            if (highestPriority < priority) {
+                                highestPriority = priority
                             }
                         }
-                        unconfirmedTransactionsOrderedBySlot[slot] = transactions[highestPriority.get()]
-                        transactions.remove(highestPriority.get()) // This is to help with filling slots with no transactions
+                        unconfirmedTransactionsOrderedBySlot[slot] = transactions[highestPriority]!!
+                        transactions.remove(highestPriority) // This is to help with filling slots with no transactions
                     }
 
                     // If a slot does not have any transactions in it, the next highest priority transaction from the slot above should be used.
-                    slotsWithNoTransactions.sort(Comparator.reverseOrder())
+                    slotsWithNoTransactions.sortedWith(Comparator.reverseOrder())
                     slotsWithNoTransactions.forEach { emptySlot ->
                         var slotNumberToTakeFrom = emptySlot
                         var slotToTakeFrom: MutableMap<Long, Transaction>? = null
-                        while (slotToTakeFrom == null || slotToTakeFrom.size == 0) {
+                        while (slotToTakeFrom.isNullOrEmpty()) {
                             slotNumberToTakeFrom++
-                            if (slotNumberToTakeFrom > highestSlot.get()) return@slotsWithNoTransactions.forEach
+                            if (slotNumberToTakeFrom > highestSlot.get()) return@forEach
                             slotToTakeFrom = unconfirmedTransactionsOrderedBySlotThenPriority[slotNumberToTakeFrom]
                         }
-                        val highestPriority = AtomicLong()
+                        var highestPriority = 0L
                         slotToTakeFrom.keys.forEach { priority ->
-                            if (highestPriority.get() < priority) {
-                                highestPriority.set(priority)
+                            if (highestPriority < priority) {
+                                highestPriority = priority
                             }
                         }
-                        unconfirmedTransactionsOrderedBySlot[emptySlot] = slotToTakeFrom[highestPriority.get()]
-                        slotToTakeFrom.remove(highestPriority.get())
+                        unconfirmedTransactionsOrderedBySlot[emptySlot] = slotToTakeFrom[highestPriority]!!
+                        slotToTakeFrom.remove(highestPriority)
                     }
                     transactionsToBeIncluded = unconfirmedTransactionsOrderedBySlot
                 } else { // Before Pre-Dymaxion HF, just choose highest priority
-                    val transactionsOrderedByPriority = inclusionCandidates.collect<Map<Long, Transaction>, Any>(Collectors.toMap(Function { priorityCalculator.applyAsLong(it) }, Function.identity()))
-                    val transactionsOrderedBySlot = HashMap<Long, Transaction>()
+                    val transactionsOrderedByPriority = inclusionCandidates.associateBy(priorityCalculator, { it })
+                    val transactionsOrderedBySlot = mutableMapOf<Long, Transaction>()
                     val currentSlot = AtomicLong(1)
                     transactionsOrderedByPriority.keys
-                            .stream()
-                            .sorted(Comparator.reverseOrder())
-                            .forEach { // This should do highest priority to lowest priority
-                                priority ->
-                                transactionsOrderedBySlot[currentSlot.get()] = transactionsOrderedByPriority[priority]
+                            .sortedWith(Comparator.reverseOrder())
+                            .forEach { priority -> // This should do highest priority to lowest priority
+                                transactionsOrderedBySlot[currentSlot.get()] = transactionsOrderedByPriority[priority]!!
                                 currentSlot.incrementAndGet()
                             }
                     transactionsToBeIncluded = transactionsOrderedBySlot
@@ -1188,7 +1168,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             try {
                 block = Block(dp, blockVersion, blockTimestamp,
                         previousBlock.id, totalAmountNQT, totalFeeNQT, dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
-                        generationSignature, null, previousBlockHash, ArrayList(orderedBlockTransactions), nonce!!,
+                        generationSignature, null, previousBlockHash, orderedBlockTransactions, nonce!!,
                         byteATs, previousBlock.height)
             } catch (e: BurstException.ValidationException) {
                 // shouldn't happen because all transactions are already validated
@@ -1223,19 +1203,17 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
     }
 
     private fun hasAllReferencedTransactions(transaction: Transaction, timestamp: Int, count: Int): Boolean {
-        var transaction = transaction
         if (transaction.referencedTransactionFullHash == null) {
             return timestamp - transaction.timestamp < 60 * 1440 * 60 && count < 10
         }
-        transaction = dp.dbs.transactionDb.findTransactionByFullHash(transaction.referencedTransactionFullHash)
-        if (!dp.subscriptionService.isEnabled && transaction != null && transaction.signature == null) {
-            transaction = null
+        var foundTransaction = dp.dbs.transactionDb.findTransactionByFullHash(transaction.referencedTransactionFullHash)
+        if (!dp.subscriptionService.isEnabled && foundTransaction != null && transaction.signature == null) {
+            return false
         }
-        return transaction != null && hasAllReferencedTransactions(transaction, timestamp, count + 1)
+        return foundTransaction != null && hasAllReferencedTransactions(foundTransaction, timestamp, count + 1)
     }
 
     companion object {
-
-        private val MAX_TIMESTAMP_DIFFERENCE = 15
+        private const val MAX_TIMESTAMP_DIFFERENCE = 15
     }
 }

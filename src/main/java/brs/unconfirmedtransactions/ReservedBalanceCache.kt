@@ -14,24 +14,19 @@ import java.util.HashMap
 
 internal class ReservedBalanceCache(private val accountStore: AccountStore) {
 
-    private val reservedBalanceCache: HashMap<Long, Long>
+    private val reservedBalanceCache = mutableMapOf<Long, Long>()
 
-    init {
-
-        this.reservedBalanceCache = HashMap()
-    }
-
-    @Throws(BurstException.ValidationException::class)
+    @Throws(ValidationException::class)
     fun reserveBalanceAndPut(transaction: Transaction) {
         var senderAccount: Account? = null
 
         if (transaction.senderId != 0L) {
-            senderAccount = accountStore.accountTable.get(accountStore.accountKeyFactory.newKey(transaction.senderId))
+            senderAccount = accountStore.accountTable[accountStore.accountKeyFactory.newKey(transaction.senderId)]
         }
 
         val amountNQT = Convert.safeAdd(
-                (reservedBalanceCache as java.util.Map<Long, Long>).getOrDefault(transaction.senderId, 0L),
-                transaction.type!!.calculateTotalAmountNQT(transaction)!!
+                (reservedBalanceCache as Map<Long, Long>).getOrDefault(transaction.senderId, 0L),
+                transaction.type.calculateTotalAmountNQT(transaction)!!
         )
 
         if (senderAccount == null) {
@@ -53,8 +48,8 @@ internal class ReservedBalanceCache(private val accountStore: AccountStore) {
 
     fun refundBalance(transaction: Transaction) {
         val amountNQT = Convert.safeSubtract(
-                (reservedBalanceCache as java.util.Map<Long, Long>).getOrDefault(transaction.senderId, 0L),
-                transaction.type!!.calculateTotalAmountNQT(transaction)!!
+                (reservedBalanceCache as Map<Long, Long>).getOrDefault(transaction.senderId, 0L),
+                transaction.type.calculateTotalAmountNQT(transaction)!!
         )
 
         if (amountNQT > 0) {
@@ -67,7 +62,7 @@ internal class ReservedBalanceCache(private val accountStore: AccountStore) {
     fun rebuild(transactions: List<Transaction>): List<Transaction> {
         clear()
 
-        val insufficientFundsTransactions = ArrayList<Transaction>()
+        val insufficientFundsTransactions = mutableListOf<Transaction>()
 
         for (t in transactions) {
             try {

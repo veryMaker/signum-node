@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.Account
 import brs.BurstException
 import brs.services.ParameterService
 import brs.util.Convert
@@ -16,16 +15,16 @@ import brs.http.common.ResultFields.PUBLIC_KEY_RESPONSE
 internal class GetAccountPublicKey internal constructor(private val parameterService: ParameterService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER) {
 
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val account = parameterService.getAccount(req)
+        val account = parameterService.getAccount(request)
 
-        if (account.publicKey != null) {
+        return if (account.publicKey != null) {
             val response = JsonObject()
             response.addProperty(PUBLIC_KEY_RESPONSE, Convert.toHexString(account.publicKey))
-            return response
+            response
         } else {
-            return JSON.emptyJSON
+            JSON.emptyJSON
         }
     }
 }

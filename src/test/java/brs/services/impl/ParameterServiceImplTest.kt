@@ -21,7 +21,6 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 import brs.common.TestConstants.TEST_SECRET_PHRASE
-import brs.http.common.Parameters.*
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
 

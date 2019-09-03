@@ -13,21 +13,21 @@ object AtConstants {
 
     //platform based
     const val AT_ID_SIZE = 8
-    private val MIN_FEE = HashMap<Short, Long>()
-    private val STEP_FEE = HashMap<Short, Long>()
-    private val MAX_STEPS = HashMap<Short, Long>()
-    private val API_STEP_MULTIPLIER = HashMap<Short, Long>()
-    private val COST_PER_PAGE = HashMap<Short, Long>()
-    private val MAX_WAIT_FOR_NUM_OF_BLOCKS = HashMap<Short, Long>()
-    private val MAX_SLEEP_BETWEEN_BLOCKS = HashMap<Short, Long>()
-    private val PAGE_SIZE = HashMap<Short, Long>()
-    private val MAX_MACHINE_CODE_PAGES = HashMap<Short, Long>()
-    private val MAX_MACHINE_DATA_PAGES = HashMap<Short, Long>()
-    private val MAX_MACHINE_USER_STACK_PAGES = HashMap<Short, Long>()
-    private val MAX_MACHINE_CALL_STACK_PAGES = HashMap<Short, Long>()
-    private val BLOCKS_FOR_RANDOM = HashMap<Short, Long>()
-    private val MAX_PAYLOAD_FOR_BLOCK = HashMap<Short, Long>()
-    private val AVERAGE_BLOCK_MINUTES = HashMap<Short, Long>()
+    private val MIN_FEE = mutableMapOf<Short, Long>>()
+    private val STEP_FEE = mutableMapOf<Short, Long>>()
+    private val MAX_STEPS = mutableMapOf<Short, Long>>()
+    private val API_STEP_MULTIPLIER = mutableMapOf<Short, Long>>()
+    private val COST_PER_PAGE = mutableMapOf<Short, Long>>()
+    private val MAX_WAIT_FOR_NUM_OF_BLOCKS = mutableMapOf<Short, Long>>()
+    private val MAX_SLEEP_BETWEEN_BLOCKS = mutableMapOf<Short, Long>>()
+    private val PAGE_SIZE = mutableMapOf<Short, Long>>()
+    private val MAX_MACHINE_CODE_PAGES = mutableMapOf<Short, Long>>()
+    private val MAX_MACHINE_DATA_PAGES = mutableMapOf<Short, Long>>()
+    private val MAX_MACHINE_USER_STACK_PAGES = mutableMapOf<Short, Long>>()
+    private val MAX_MACHINE_CALL_STACK_PAGES = mutableMapOf<Short, Long>>()
+    private val BLOCKS_FOR_RANDOM = mutableMapOf<Short, Long>>()
+    private val MAX_PAYLOAD_FOR_BLOCK = mutableMapOf<Short, Long>>()
+    private val AVERAGE_BLOCK_MINUTES = mutableMapOf<Short, Long>>()
 
     fun init(dp: DependencyProvider) {
         this.dp = dp

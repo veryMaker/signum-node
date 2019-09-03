@@ -10,7 +10,6 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 import brs.http.JSONResponses.MISSING_SELLER
-import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.PURCHASES_RESPONSE
 
 internal class GetDGSPendingPurchases internal constructor(private val dgsGoodStoreService: DGSGoodsStoreService) : APIServlet.JsonRequestHandler(arrayOf(APITag.DGS), SELLER_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER) {

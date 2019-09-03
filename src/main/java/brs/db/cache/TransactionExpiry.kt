@@ -8,7 +8,6 @@ import java.time.Duration
 import java.util.function.Supplier
 
 internal class TransactionExpiry : ExpiryPolicy<Long, Transaction> {
-
     override fun getExpiryForCreation(key: Long?, value: Transaction): Duration {
         return Duration.ofSeconds(value.expiration.toLong() - time.time)
     }
@@ -22,7 +21,6 @@ internal class TransactionExpiry : ExpiryPolicy<Long, Transaction> {
     }
 
     companion object {
-
         private val time = Time.EpochTime()
     }
 }

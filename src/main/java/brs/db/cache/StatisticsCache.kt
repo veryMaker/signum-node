@@ -5,7 +5,6 @@ import org.ehcache.Cache
 import org.ehcache.config.CacheRuntimeConfiguration
 
 internal class StatisticsCache<K, V>(private val wrappedCache: Cache<K, V>, private val cacheName: String, private val statisticsManager: StatisticsManagerImpl) : Cache<K, V> {
-
     override fun get(k: K): V {
         return wrappedCache.get(k)
     }
@@ -66,7 +65,7 @@ internal class StatisticsCache<K, V>(private val wrappedCache: Cache<K, V>, priv
         return wrappedCache.runtimeConfiguration
     }
 
-    override fun iterator(): Iterator<Cache.Entry<K, V>> {
+    override fun iterator(): MutableIterator<Cache.Entry<K, V>> {
         return wrappedCache.iterator()
     }
 }

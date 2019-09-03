@@ -10,16 +10,15 @@ import brs.db.store.BlockchainStore
 import java.util.Arrays
 
 import brs.Constants.FEE_QUANT
+import kotlin.math.ceil
 
 class FeeSuggestionCalculator(private val dp: DependencyProvider) { // TODO interface
-
     // index 0 = oldest, length-1 = newest
-    private val latestBlocks: Array<Block>
+    private val latestBlocks = arrayOfNulls<Block>(Constants.FEE_SUGGESTION_MAX_HISTORY_LENGTH)
     private var feeSuggestion = FeeSuggestion(FEE_QUANT, FEE_QUANT, FEE_QUANT)
 
     init {
-        latestBlocks = arrayOfNulls(Constants.FEE_SUGGESTION_MAX_HISTORY_LENGTH)
-        dp.blockchainProcessor.addListener(Consumer<Block> { this.newBlockApplied(it) }, Event.AFTER_BLOCK_APPLY)
+        dp.blockchainProcessor.addListener({ this.newBlockApplied(it) }, Event.AFTER_BLOCK_APPLY)
     }
 
     fun giveFeeSuggestion(): FeeSuggestion {
@@ -41,7 +40,7 @@ class FeeSuggestionCalculator(private val dp: DependencyProvider) { // TODO inte
     }
 
     private fun fillInitialHistory() {
-        dp.blockchainStore.getLatestBlocks(latestBlocks.size).forEach(Consumer<Block> { this.pushNewBlock(it) })
+        dp.blockchainStore.getLatestBlocks(latestBlocks.size).forEach { this.pushNewBlock(it) }
     }
 
     private fun latestBlocksIsEmpty(): Boolean {
@@ -60,9 +59,12 @@ class FeeSuggestionCalculator(private val dp: DependencyProvider) { // TODO inte
 
     private fun recalculateSuggestion() {
         try {
-            val lowestAmountTransactionsNearHistory = Arrays.stream(latestBlocks).mapToInt { b -> b.transactions.size }.min().orElse(1)
-            val averageAmountTransactionsNearHistory = Math.ceil(Arrays.stream(latestBlocks).mapToInt { b -> b.transactions.size }.average().orElse(1.0)).toInt()
-            val highestAmountTransactionsNearHistory = Arrays.stream(latestBlocks).mapToInt { b -> b.transactions.size }.max().orElse(1)
+            val transactionSizes = latestBlocks
+                    .filterNotNull()
+                    .map { it.transactions.size }
+            val lowestAmountTransactionsNearHistory = transactionSizes.min() ?: 1
+            val averageAmountTransactionsNearHistory = ceil(transactionSizes.average().let { return@let if (it.isNaN()) 1.0 else it }).toLong()
+            val highestAmountTransactionsNearHistory = transactionSizes.max() ?: 1
 
             val cheapFee = (1 + lowestAmountTransactionsNearHistory) * FEE_QUANT
             val standardFee = (1 + averageAmountTransactionsNearHistory) * FEE_QUANT

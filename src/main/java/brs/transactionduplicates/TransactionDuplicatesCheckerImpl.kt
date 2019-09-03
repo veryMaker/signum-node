@@ -12,7 +12,7 @@ class TransactionDuplicatesCheckerImpl {
 
     private val logger = LoggerFactory.getLogger(TransactionDuplicatesCheckerImpl::class.java)
 
-    private val duplicates = HashMap<TransactionType, HashMap<String, Transaction>>()
+    private val duplicates = mutableMapOf<TransactionType, MutableMap<String, Transaction>>()
 
     fun clear() {
         duplicates.clear()
@@ -27,18 +27,18 @@ class TransactionDuplicatesCheckerImpl {
             return TransactionDuplicationResult(false, null)
         }
 
-        (duplicates as java.util.Map<TransactionType, HashMap<String, Transaction>>).computeIfAbsent(transactionDuplicateKey.transactionType) { n -> HashMap() }
+        duplicates.computeIfAbsent(transactionDuplicateKey.transactionType) { mutableMapOf() }
 
-        val transactionOverview = duplicates[transactionDuplicateKey.transactionType]
+        val transactionOverview = duplicates[transactionDuplicateKey.transactionType]!!
 
         val possiblyExistingTransaction = transactionOverview[transactionDuplicateKey.key]
 
-        if (possiblyExistingTransaction != null && possiblyExistingTransaction.feeNQT >= transaction.feeNQT) {
+        return if (possiblyExistingTransaction != null && possiblyExistingTransaction.feeNQT >= transaction.feeNQT) {
             logger.debug("Transaction {}: is a duplicate of {} (Type: {})", transaction.id, possiblyExistingTransaction.id, transaction.type)
-            return TransactionDuplicationResult(true, transaction)
+            TransactionDuplicationResult(true, transaction)
         } else {
             transactionOverview[transactionDuplicateKey.key] = transaction
-            return TransactionDuplicationResult(possiblyExistingTransaction != null, possiblyExistingTransaction)
+            TransactionDuplicationResult(possiblyExistingTransaction != null, possiblyExistingTransaction)
         }
     }
 
@@ -51,15 +51,15 @@ class TransactionDuplicatesCheckerImpl {
             return false
         }
 
-        (duplicates as java.util.Map<TransactionType, HashMap<String, Transaction>>).computeIfAbsent(transactionDuplicateKey.transactionType) { n -> HashMap() }
+        duplicates.computeIfAbsent(transactionDuplicateKey.transactionType) { mutableMapOf() }
 
-        val transactionOverview = duplicates[transactionDuplicateKey.transactionType]
+        val transactionOverview = duplicates[transactionDuplicateKey.transactionType]!!
 
-        if (transactionOverview.containsKey(transactionDuplicateKey.key)) {
-            return true
+        return if (transactionOverview.containsKey(transactionDuplicateKey.key)) {
+            true
         } else {
             transactionOverview[transactionDuplicateKey.key] = transaction
-            return false
+            false
         }
     }
 

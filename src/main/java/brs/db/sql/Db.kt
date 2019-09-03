@@ -33,16 +33,15 @@ import java.util.function.Function
 
 // TODO refactor this so that it is not all static
 object Db {
-
     private val logger = LoggerFactory.getLogger(Db::class.java)
 
-    private var cp: HikariDataSource? = null
-    private var dialect: SQLDialect? = null
+    private lateinit var cp: HikariDataSource
+    private lateinit var dialect: SQLDialect
     private val localConnection = ThreadLocal<Connection>()
-    private val transactionCaches = ThreadLocal<Map<String, Map<BurstKey, Any>>>()
-    private val transactionBatches = ThreadLocal<Map<String, Map<BurstKey, Any>>>()
+    private val transactionCaches = ThreadLocal<MutableMap<String, MutableMap<BurstKey, Any>>>()
+    private val transactionBatches = ThreadLocal<MutableMap<String, MutableMap<BurstKey, Any>>>()
 
-    private var dp: DependencyProvider? = null
+    private lateinit var dp: DependencyProvider
 
     val dbsByDatabaseType: Dbs
         get() {
@@ -68,7 +67,7 @@ object Db {
             return con
         }
 
-    private val dslContext: DSLContext
+    val dslContext: DSLContext
         get() {
             val con = localConnection.get()
             val settings = Settings()
@@ -86,7 +85,7 @@ object Db {
         get() = localConnection.get() != null
 
     fun init(dp: DependencyProvider) {
-        Db.dp = dp
+        this.dp = dp
 
         val dbUrl: String
         val dbUsername: String?
@@ -223,24 +222,22 @@ object Db {
         }
     }
 
-    fun <T> useDSLContext(function: Function<DSLContext, T>): T {
-        dslContext.use { context -> return function.apply(context) }
+    inline fun <T> useDSLContext(function: (DSLContext) -> T): T {
+        dslContext.use { context -> return function(context) }
     }
 
-    fun useDSLContext(consumer: Consumer<DSLContext>) { // TODO RxJava
-        dslContext.use { context -> consumer.accept(context) }
+    inline fun useDSLContext(consumer: (DSLContext) -> Unit) { // TODO parallelize this? maybe we should have a dedicated coroutine that does db operations in sequence?
+        dslContext.use { context -> consumer(context) }
     }
 
     internal fun <V> getCache(tableName: String): Map<BurstKey, V> {
         check(isInTransaction) { "Not in transaction" }
-
-        return (transactionCaches.get() as java.util.Map<String, Map<BurstKey, Any>>).computeIfAbsent(tableName) { k -> HashMap() } as Map<BurstKey, V>
+        return transactionCaches.get().computeIfAbsent(tableName) { mutableMapOf() }
     }
 
-    internal fun <V> getBatch(tableName: String): Map<BurstKey, V> {
+    internal fun <V> getBatch(tableName: String): MutableMap<BurstKey, V> {
         check(isInTransaction) { "Not in transaction" }
-
-        return (transactionBatches.get() as java.util.Map<String, Map<BurstKey, Any>>).computeIfAbsent(tableName) { k -> HashMap() } as Map<BurstKey, V>
+        return transactionBatches.get().computeIfAbsent(tableName) { k -> mutableMapOf() }
     }
 
     fun beginTransaction(): Connection {
@@ -250,8 +247,8 @@ object Db {
             con.autoCommit = false
 
             localConnection.set(con)
-            transactionCaches.set(HashMap())
-            transactionBatches.set(HashMap())
+            transactionCaches.set(mutableMapOf())
+            transactionBatches.set(mutableMapOf())
 
             return con
         } catch (e: Exception) {
@@ -280,7 +277,7 @@ object Db {
 
         transactionCaches.get().clear()
         transactionBatches.get().clear()
-        dp!!.dbCacheManager.flushCache()
+        dp.dbCacheManager.flushCache()
     }
 
     fun endTransaction() {
@@ -294,7 +291,7 @@ object Db {
     }
 
     fun optimizeTable(tableName: String) {
-        useDSLContext({ ctx ->
+        useDSLContext { ctx ->
             try {
                 when (ctx.dialect()) {
                     SQLDialect.MYSQL, SQLDialect.MARIADB -> ctx.execute("OPTIMIZE NO_WRITE_TO_BINLOG TABLE $tableName")
@@ -304,6 +301,6 @@ object Db {
             } catch (e: Exception) {
                 logger.debug("Failed to optimize table {}", tableName, e)
             }
-        })
+        }
     }
-}// never
+}

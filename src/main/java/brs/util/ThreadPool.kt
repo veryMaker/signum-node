@@ -14,14 +14,14 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 class ThreadPool(private val dp: DependencyProvider) {
-    private val backgroundJobs = HashMap<Runnable, Long>()
-    private val backgroundJobsCores = HashMap<Runnable, Long>()
-    private val beforeStartJobs = ArrayList<Runnable>()
-    private val lastBeforeStartJobs = ArrayList<Runnable>()
-    private val afterStartJobs = ArrayList<Runnable>()
+    private val backgroundJobs = mutableMapOf<() -> Unit, Long>()
+    private val backgroundJobsCores = mutableMapOf<() -> Unit, Long>()
+    private val beforeStartJobs = mutableListOf<() -> Unit>()
+    private val lastBeforeStartJobs = mutableListOf<() -> Unit>()
+    private val afterStartJobs = mutableListOf<() -> Unit>()
 
     @Synchronized
-    fun runBeforeStart(runnable: Runnable, runLast: Boolean) {
+    fun runBeforeStart(runnable: () -> Unit, runLast: Boolean) {
         check(scheduledThreadPool == null) { "Executor service already started" }
         if (runLast) {
             lastBeforeStartJobs.add(runnable)
@@ -31,30 +31,30 @@ class ThreadPool(private val dp: DependencyProvider) {
     }
 
     @Synchronized
-    fun runAfterStart(runnable: Runnable) {
+    fun runAfterStart(runnable: () -> Unit) {
         afterStartJobs.add(runnable)
     }
 
-    fun scheduleThread(name: String, runnable: Runnable, delay: Int) {
+    fun scheduleThread(name: String, runnable: () -> Unit, delay: Int) {
         scheduleThread(name, runnable, delay, TimeUnit.SECONDS)
     }
 
     @Synchronized
-    fun scheduleThread(name: String, runnable: Runnable, delay: Int, timeUnit: TimeUnit) {
+    fun scheduleThread(name: String, action: () -> Unit, delay: Int, timeUnit: TimeUnit) {
         check(scheduledThreadPool == null) { "Executor service already started, no new jobs accepted" }
         if (!dp.propertyService.get("brs.disable" + name + "Thread", false)) {
-            backgroundJobs[runnable] = timeUnit.toMillis(delay.toLong())
+            backgroundJobs[action] = timeUnit.toMillis(delay.toLong())
         } else {
             logger.info("Will not run {} thread", name)
         }
     }
 
-    fun scheduleThreadCores(runnable: Runnable, delay: Int) {
+    fun scheduleThreadCores(runnable: () -> Unit, delay: Int) {
         scheduleThreadCores(runnable, delay, TimeUnit.SECONDS)
     }
 
     @Synchronized
-    fun scheduleThreadCores(runnable: Runnable, delay: Int, timeUnit: TimeUnit) {
+    fun scheduleThreadCores(runnable: () -> Unit, delay: Int, timeUnit: TimeUnit) {
         check(scheduledThreadPool == null) { "Executor service already started, no new jobs accepted" }
         backgroundJobsCores[runnable] = timeUnit.toMillis(delay.toLong())
     }
@@ -82,7 +82,7 @@ class ThreadPool(private val dp: DependencyProvider) {
         for ((inner, value) in backgroundJobs) {
             val toRun = {
                 try {
-                    inner.run()
+                    inner()
                 } catch (e: Exception) {
                     logger.warn("Uncaught exception while running background thread " + inner.javaClass.simpleName, e)
                 }
@@ -136,13 +136,13 @@ class ThreadPool(private val dp: DependencyProvider) {
         }
     }
 
-    private fun runAll(jobs: List<Runnable>) {
-        val threads = ArrayList<Thread>()
+    private fun runAll(jobs: List<() -> Unit>) {
+        val threads = mutableListOf<Thread>()
         val errors = StringBuffer()
         for (runnable in jobs) {
             val thread = Thread {
                 try {
-                    runnable.run()
+                    runnable()
                 } catch (t: Exception) {
                     errors.append(t.message).append('\n')
                     throw t

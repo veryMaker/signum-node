@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.JSONResponses.DECRYPTION_FAILED
 import brs.http.JSONResponses.INCORRECT_ACCOUNT
-import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.DECRYPTED_MESSAGE_RESPONSE
 
 internal class DecryptFrom internal constructor(private val parameterService: ParameterService) : APIServlet.JsonRequestHandler(arrayOf(APITag.MESSAGES), ACCOUNT_PARAMETER, DATA_PARAMETER, NONCE_PARAMETER, DECRYPTED_MESSAGE_IS_TEXT_PARAMETER, SECRET_PHRASE_PARAMETER) {

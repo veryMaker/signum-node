@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest
 import brs.common.TestConstants.TEST_PUBLIC_KEY_BYTES
 import brs.common.TestConstants.TEST_SECRET_PHRASE
 import brs.http.JSONResponses.INCORRECT_ACCOUNT
-import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.DECRYPTED_MESSAGE_RESPONSE
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertEquals

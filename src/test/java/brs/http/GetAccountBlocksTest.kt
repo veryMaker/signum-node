@@ -13,8 +13,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.junit.Before
 import org.junit.Test
-
-import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.BLOCKS_RESPONSE
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq

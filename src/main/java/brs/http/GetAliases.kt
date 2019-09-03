@@ -9,8 +9,6 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.Parameters.*
 import brs.http.common.ResultFields.ALIASES_RESPONSE
 
 internal class GetAliases internal constructor(private val parameterService: ParameterService, private val aliasService: AliasService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ALIASES), TIMESTAMP_PARAMETER, ACCOUNT_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER) {

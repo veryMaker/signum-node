@@ -86,7 +86,7 @@ interface Peer : Comparable<Peer> {
 
     fun updateDownloadedVolume(volume: Long)
 
-    fun send(request: JsonElement): JsonObject
+    fun send(request: JsonElement): JsonObject?
 
     companion object {
 

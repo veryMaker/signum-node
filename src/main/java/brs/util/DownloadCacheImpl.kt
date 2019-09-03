@@ -14,10 +14,10 @@ import java.util.function.Supplier
 class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
     private val blockCacheMB = dp.propertyService.get(Props.BRS_BLOCK_CACHE_MB)
 
-    private val blockCache = LinkedHashMap<Long, Block>()
-    private val forkCache = ArrayList<Block>()
-    private val reverseCache = LinkedHashMap<Long, Long>()
-    private val unverified = LinkedList<Long>()
+    private val blockCache = mutableMapOf<Long, Block>()
+    private val forkCache = mutableListOf<Block>()
+    private val reverseCache = mutableMapOf<Long, Long>()
+    private val unverified = mutableListOf<Long>()
 
     private val logger = LoggerFactory.getLogger(DownloadCacheImpl::class.java)
 

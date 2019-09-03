@@ -1,7 +1,6 @@
 package brs.fluxcapacitor
 
 object FluxValues {
-
     val REWARD_RECIPIENT_ENABLE = FluxEnable(HistoricalMoments.REWARD_RECIPIENT_ENABLE)
     val DIGITAL_GOODS_STORE = FluxEnable(HistoricalMoments.DIGITAL_GOODS_STORE_BLOCK)
     val AUTOMATED_TRANSACTION_BLOCK = FluxEnable(HistoricalMoments.AUTOMATED_TRANSACTION_BLOCK)

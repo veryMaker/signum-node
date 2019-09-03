@@ -11,13 +11,13 @@ import java.util.function.Consumer
 interface AccountService : Observable<Account, Event> {
 
     val count: Int
-    fun addAssetListener(listener: Consumer<AccountAsset>, eventType: Event): Boolean
+    fun addAssetListener(listener: (AccountAsset) -> Unit, eventType: Event): Boolean
 
-    fun getAccount(id: Long): Account
+    fun getAccount(id: Long): Account?
 
-    fun getAccount(id: Long, height: Int): Account
+    fun getAccount(id: Long, height: Int): Account?
 
-    fun getAccount(publicKey: ByteArray): Account
+    fun getAccount(publicKey: ByteArray): Account?
 
     fun getAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer>
 
@@ -49,7 +49,7 @@ interface AccountService : Observable<Account, Event> {
 
     fun addToBalanceAndUnconfirmedBalanceNQT(account: Account, amountNQT: Long)
 
-    fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment
+    fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment?
 
     fun setRewardRecipientAssignment(account: Account, recipient: Long?)
 

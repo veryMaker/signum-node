@@ -21,7 +21,6 @@ import brs.http.JSONResponses.INCORRECT_PURCHASE_PRICE
 import brs.http.JSONResponses.INCORRECT_PURCHASE_QUANTITY
 import brs.http.JSONResponses.MISSING_DELIVERY_DEADLINE_TIMESTAMP
 import brs.http.JSONResponses.UNKNOWN_GOODS
-import brs.http.common.Parameters.*
 import com.nhaarman.mockitokotlin2.*
 import io.mockk.every
 import io.mockk.mockkStatic

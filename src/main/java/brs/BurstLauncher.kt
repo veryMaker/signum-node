@@ -20,7 +20,7 @@ object BurstLauncher {
 
         addToClasspath(logger, "./conf")
 
-        if (Arrays.asList(*args).contains("--headless")) {
+        if (args.contains("--headless")) {
             logger.info("Running in headless mode as specified by argument")
             canRunGui = false
         }
@@ -64,7 +64,8 @@ object BurstLauncher {
         }
     }
 
-    fun addToClasspath(logger: Logger, path: String) {
+    // TODO this is broken on some JVMs. We should come up with a better way to do this
+    private fun addToClasspath(logger: Logger, path: String) {
         try {
             val f = File(path)
             val u = f.toURI()

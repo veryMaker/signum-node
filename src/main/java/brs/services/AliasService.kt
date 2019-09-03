@@ -9,11 +9,11 @@ interface AliasService {
 
     val aliasCount: Long
 
-    fun getAlias(aliasId: Long): Alias
+    fun getAlias(aliasId: Long): Alias?
 
-    fun getAlias(aliasName: String): Alias
+    fun getAlias(aliasName: String): Alias?
 
-    fun getOffer(alias: Alias): Offer
+    fun getOffer(alias: Alias): Offer?
 
     fun getAliasesByOwner(accountId: Long, from: Int, to: Int): Collection<Alias>
 

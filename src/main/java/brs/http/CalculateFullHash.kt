@@ -10,7 +10,6 @@ import java.security.MessageDigest
 
 import brs.http.JSONResponses.MISSING_SIGNATURE_HASH
 import brs.http.JSONResponses.MISSING_UNSIGNED_BYTES
-import brs.http.common.Parameters.*
 
 internal class CalculateFullHash : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), UNSIGNED_TRANSACTION_BYTES_PARAMETER, SIGNATURE_HASH_PARAMETER) {
 

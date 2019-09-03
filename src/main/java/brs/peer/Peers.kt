@@ -46,6 +46,7 @@ import brs.peer.Peer.isHigherOrEqualVersion
 import brs.props.Props.P2P_ENABLE_TX_REBROADCAST
 import brs.props.Props.P2P_SEND_TO_LIMIT
 import brs.util.JSON.prepareRequest
+import java.util.function.Supplier
 
 // TODO this whole class needs refactoring.
 // TODO what about next-gen P2P network?
@@ -93,8 +94,8 @@ object Peers {
 
     private val listeners = Listeners<Peer, Event>()
 
-    private val peers = ConcurrentHashMap<String, Peer>()
-    private val announcedAddresses = ConcurrentHashMap<String, String>()
+    private val peers = ConcurrentmutableMapOf<String, Peer>>()
+    private val announcedAddresses = ConcurrentmutableMapOf<String, String>>()
 
     val allPeers = Collections.unmodifiableCollection(peers.values)
 
@@ -231,7 +232,7 @@ object Peers {
             addListener({ peer -> addedNewPeer.set(true) }, Event.NEW_PEER)
         }
 
-        private fun addListener(listener: Consumer<Peer>, eventType: Event): Boolean {
+        private fun addListener(listener: (Peer) -> Unit, eventType: Event): Boolean {
             return Peers.listeners.addListener(listener, eventType)
         }
 
@@ -290,7 +291,7 @@ object Peers {
 
     val activePeers: List<Peer>
         get() {
-            val activePeers = ArrayList<Peer>()
+            val activePeers = mutableListOf<Peer>()
             for (peer in peers.values) {
                 if (peer.state != Peer.State.NON_CONNECTED) {
                     activePeers.add(peer)
@@ -305,12 +306,12 @@ object Peers {
 
     private val utSendingService = Executors.newCachedThreadPool()
 
-    private val processingQueue = ArrayList<Peer>()
-    private val beingProcessed = ArrayList<Peer>()
+    private val processingQueue = mutableListOf<Peer>()
+    private val beingProcessed = mutableListOf<Peer>()
 
     val allActivePriorityPlusSomeExtraPeers: List<Peer>
         get() {
-            val peersActivePriorityPlusSomeExtraPeers = ArrayList<Peer>()
+            val peersActivePriorityPlusSomeExtraPeers = mutableListOf<Peer>()
             var amountExtrasLeft = dp!!.propertyService.get(P2P_SEND_TO_LIMIT)
 
             for (peer in peers.values) {
@@ -454,7 +455,7 @@ object Peers {
         getMorePeersThreshold = dp.propertyService.get(Props.P2P_GET_MORE_PEERS_THRESHOLD)
         dumpPeersVersion = dp.propertyService.get(Props.DEV_DUMP_PEERS_VERSION)
 
-        val unresolvedPeers = Collections.synchronizedList(ArrayList<Future<String>>())
+        val unresolvedPeers = Collections.synchronizedList(mutableListOf<Future<String>>())
 
         dp.threadPool.runBeforeStart(object : Runnable {
 
@@ -668,7 +669,7 @@ object Peers {
         threadPool.shutdownExecutor(sendBlocksToPeersService)
     }
 
-    fun removeListener(listener: Consumer<Peer>, eventType: Event): Boolean {
+    fun removeListener(listener: (Peer) -> Unit, eventType: Event): Boolean {
         return Peers.listeners.removeListener(listener, eventType)
     }
 
@@ -677,7 +678,7 @@ object Peers {
     }
 
     fun getPeers(state: Peer.State): Collection<Peer> {
-        val peerList = ArrayList<Peer>()
+        val peerList = mutableListOf<Peer>()
         for (peer in peers.values) {
             if (peer.state == state) {
                 peerList.add(peer)
@@ -776,7 +777,7 @@ object Peers {
             val jsonRequest = prepareRequest(request)
 
             var successful = 0
-            val expectedResponses = ArrayList<Future<JsonObject>>()
+            val expectedResponses = mutableListOf<Future<JsonObject>>()
             for (peer in peers.values) {
 
                 if (peerEligibleForSending(peer, false)) {
@@ -812,15 +813,17 @@ object Peers {
         getUnconfirmedTransactionsRequest = prepareRequest(request)
     }
 
-    fun readUnconfirmedTransactionsNonBlocking(peer: Peer): CompletableFuture<JsonObject> {
-        return CompletableFuture.supplyAsync({ peer.send(getUnconfirmedTransactionsRequest) }, utReceivingService)
+    fun readUnconfirmedTransactionsNonBlocking(peer: Peer): CompletableFuture<JsonObject?> {
+        // TODO replace CompletableFuture calls
+        return CompletableFuture.supplyAsync(Supplier { peer.send(getUnconfirmedTransactionsRequest) }, utReceivingService)
     }
 
-    @Synchronized
+    @Synchronized // TODO not synchronized
     fun feedingTime(peer: Peer, foodDispenser: Function<Peer, List<Transaction>>, doneFeedingLog: BiConsumer<Peer, List<Transaction>>) {
         if (!beingProcessed.contains(peer)) {
             beingProcessed.add(peer)
-            CompletableFuture.runAsync({ feedPeer(peer, foodDispenser, doneFeedingLog) }, utSendingService)
+            // TODO replace CompletableFuture calls
+            CompletableFuture.runAsync(Runnable { feedPeer(peer, foodDispenser, doneFeedingLog) }, utSendingService)
         } else if (!processingQueue.contains(peer)) {
             processingQueue.add(peer)
         }
@@ -836,7 +839,8 @@ object Peers {
             if (response != null && response.get("error") == null) {
                 doneFeedingLog.accept(peer, transactionsToSend)
             } else {
-                logger.warn("Error feeding {} transactions: {} error: {}", peer.peerAddress, transactionsToSend.stream().map { it.id }.collect<List<Long>, Any>(Collectors.toList()), response)
+                // TODO why does this keep coming up??
+                logger.warn("Error feeding {} transactions: {} error: {}", peer.peerAddress, transactionsToSend.map { it.id }.toList(), response)
             }
         } else {
             logger.trace("No need to feed {}", peer.peerAddress)
@@ -889,7 +893,7 @@ object Peers {
             }
         }
 
-        val selectedPeers = ArrayList<Peer>()
+        val selectedPeers = mutableListOf<Peer>()
         for (peer in peers.values) {
             if (!peer.isBlacklisted && peer.state == state && peer.shareAddress()
                     && (connectWellKnownFinished || peer.state == Peer.State.CONNECTED || peer.isWellKnown)) {

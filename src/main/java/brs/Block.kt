@@ -4,13 +4,12 @@ import brs.crypto.Crypto
 import brs.db.TransactionDb
 import brs.fluxcapacitor.FluxValues
 import brs.peer.Peer
-import brs.util.AtomicLazy
+import brs.util.atomic.AtomicLazy
 import brs.util.Convert
 import brs.util.JSON
+import brs.util.atomic.Atomic
 import com.google.gson.JsonArray
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.math.BigInteger
@@ -23,26 +22,28 @@ import java.util.concurrent.atomic.AtomicReference
 class Block @Throws(BurstException.ValidationException::class)
 internal constructor(private val dp: DependencyProvider, val version: Int, val timestamp: Int, val previousBlockId: Long, val totalAmountNQT: Long, val totalFeeNQT: Long,
                      val payloadLength: Int, val payloadHash: ByteArray, val generatorPublicKey: ByteArray, val generationSignature: ByteArray,
-                     blockSignature: ByteArray, val previousBlockHash: ByteArray?, transactions: List<Transaction>?,
-                     val nonce: Long, val blockATs: ByteArray, height: Int) {
-    private val blockTransactions = AtomicReference<List<Transaction>>()
+                     blockSignature: ByteArray?, val previousBlockHash: ByteArray?, transactions: Collection<Transaction>?,
+                     val nonce: Long, val blockATs: ByteArray?, height: Int) {
+    private var blockTransactions by Atomic<Collection<Transaction>?>()
 
     var blockSignature: ByteArray
 
-    var cumulativeDifficulty = BigInteger.ZERO
+    var cumulativeDifficulty: BigInteger = BigInteger.ZERO
 
     var baseTarget = Constants.INITIAL_BASE_TARGET
-    private val nextBlockId = AtomicLong()
+    var nextBlockId by Atomic<Long>()
     var height = -1
     var id by AtomicLazy {
-        checkNotNull(blockSignature) { "Block is not signed yet" }
-        val hash = Crypto.sha256().digest(bytes)
-        val longId = Convert.fullHashToId(hash)
-        stringId.set(Convert.toUnsignedLong(longId))
-        longId
+        Convert.fullHashToId(hash)
     }
-    val stringId = AtomicReference<String>()
-    val generatorId = AtomicLong()
+    var stringId by AtomicLazy {
+        Convert.toUnsignedLong(id)
+    }
+    var generatorId by Atomic<Long>()
+    var hash by AtomicLazy<ByteArray> {
+        checkNotNull(blockSignature) { "Block is not signed yet" }
+        Crypto.sha256().digest(bytes)
+    }
 
     var pocTime: BigInteger? = null
 
@@ -57,11 +58,11 @@ internal constructor(private val dp: DependencyProvider, val version: Int, val t
 
     val transactions: List<Transaction>
         get() {
-            if (blockTransactions.get() == null) {
-                this.blockTransactions.set(Collections.unmodifiableList(transactionDb().findBlockTransactions(id)))
-                this.blockTransactions.get().forEach { transaction -> transaction.setBlock(this) }
+            if (blockTransactions == null) {
+                this.blockTransactions = Collections.unmodifiableList(transactionDb().findBlockTransactions(id))
+                this.blockTransactions!!.forEach { transaction -> transaction.setBlock(this) }
             }
-            return blockTransactions.get()
+            return blockTransactions!!
         }
 
     val jsonObject: JsonObject
@@ -129,18 +130,18 @@ internal constructor(private val dp: DependencyProvider, val version: Int, val t
         }
         this.blockSignature = blockSignature
         if (transactions != null) {
-            this.blockTransactions.set(Collections.unmodifiableList(transactions))
-            if (blockTransactions.get().size > dp.fluxCapacitor.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, height)) {
+            if (transactions.size > dp.fluxCapacitor.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, height)) {
                 throw BurstException.NotValidException(
-                        "attempted to create a block with " + blockTransactions.get().size + " transactions")
+                        "attempted to create a block with " + transactions.size + " transactions")
             }
             var previousId: Long = 0
-            for (transaction in this.blockTransactions.get()) {
+            transactions.forEach { transaction ->
                 if (transaction.id <= previousId && previousId != 0L) {
                     throw BurstException.NotValidException("Block transactions are not sorted!")
                 }
                 previousId = transaction.id
             }
+            this.blockTransactions = transactions
         }
     }
 
@@ -150,7 +151,7 @@ internal constructor(private val dp: DependencyProvider, val version: Int, val t
 
         this.cumulativeDifficulty = cumulativeDifficulty ?: BigInteger.ZERO
         this.baseTarget = baseTarget
-        this.nextBlockId.set(nextBlockId)
+        this.nextBlockId = nextBlockId
         this.height = height
         this.id = id
     }
@@ -159,25 +160,21 @@ internal constructor(private val dp: DependencyProvider, val version: Int, val t
         return dp.dbs.transactionDb
     }
 
-    fun getNextBlockId(): Long {
-        return nextBlockId.get()
-    }
-
     fun getStringId(): String {
-        if (stringId.get() == null) {
+        if (stringId == null) {
             id
-            if (stringId.get() == null) {
-                stringId.set(Convert.toUnsignedLong(id))
+            if (stringId == null) {
+                stringId = Convert.toUnsignedLong(id)
             }
         }
-        return stringId.get()
+        return stringId
     }
 
     fun getGeneratorId(): Long {
-        if (generatorId.get() == 0L) {
-            generatorId.set(Account.getId(generatorPublicKey))
+        if (generatorId == 0L) {
+            generatorId = Account.getId(generatorPublicKey)
         }
-        return generatorId.get()
+        return generatorId
     }
 
     fun getNonce(): Long? {
@@ -234,7 +231,7 @@ internal constructor(private val dp: DependencyProvider, val version: Int, val t
                 val blockATs = Convert.parseHexString(JSON.getAsString(blockData.get("blockATs")))
                 return Block(dp, version, timestamp, previousBlock, totalAmountNQT, totalFeeNQT,
                         payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature,
-                        previousBlockHash, ArrayList(blockTransactions.values), nonce, blockATs, height)
+                        previousBlockHash, mutableListOf(blockTransactions.values), nonce, blockATs, height)
             } catch (e: BurstException.ValidationException) {
                 if (logger.isDebugEnabled) {
                     logger.debug("Failed to parse block: {}", JSON.toJsonString(blockData))

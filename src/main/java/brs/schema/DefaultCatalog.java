@@ -47,7 +47,7 @@ public class DefaultCatalog extends CatalogImpl {
 
     @Override
     public final List<Schema> getSchemas() {
-        List result = new ArrayList();
+        List result = new mutableListOf();
         result.addAll(getSchemas0());
         return result;
     }

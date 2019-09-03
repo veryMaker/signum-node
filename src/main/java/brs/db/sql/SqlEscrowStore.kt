@@ -31,7 +31,7 @@ class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
         }
     }
     override val decisionTable: VersionedEntityTable<Escrow.Decision>
-    override val resultTransactions: List<Transaction> = ArrayList()
+    override val resultTransactions: List<Transaction> = mutableListOf()
 
 
     init {
@@ -64,7 +64,7 @@ class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
     }
 
     override fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow> {
-        val filtered = ArrayList<Escrow>()
+        val filtered = mutableListOf<Escrow>()
         for (decision in decisionTable.getManyBy(ESCROW_DECISION.ACCOUNT_ID.eq(accountId), 0, -1)) {
             val escrow = escrowTable.get(escrowDbKeyFactory.newKey(decision.escrowId!!))
             if (escrow != null) {

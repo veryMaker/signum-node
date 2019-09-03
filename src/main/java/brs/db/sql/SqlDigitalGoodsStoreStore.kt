@@ -17,6 +17,7 @@ import org.jooq.SortField
 import java.util.ArrayList
 
 import brs.schema.Tables.*
+import brs.schema.tables.records.PurchaseFeedbackRecord
 
 class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoodsStoreStore {
 
@@ -58,7 +59,7 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
             }
 
             override fun defaultSort(): List<SortField<*>> {
-                val sort = ArrayList<SortField<*>>()
+                val sort = mutableListOf<SortField<*>>()
                 sort.add(tableClass.field("timestamp", Int::class.java).desc())
                 sort.add(tableClass.field("id", Long::class.java).asc())
                 return sort
@@ -118,7 +119,7 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
             }
 
             override fun defaultSort(): List<SortField<*>> {
-                val sort = ArrayList<SortField<*>>()
+                val sort = mutableListOf<SortField<*>>()
                 sort.add(brs.schema.Tables.GOODS.field("timestamp", Int::class.java).desc())
                 sort.add(brs.schema.Tables.GOODS.field("id", Long::class.java).asc())
                 return sort
@@ -176,7 +177,7 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
     }
 
     override fun getSellerGoods(sellerId: Long, inStockOnly: Boolean, from: Int, to: Int): Collection<DigitalGoodsStore.Goods> {
-        val sort = ArrayList<SortField<*>>()
+        val sort = mutableListOf<SortField<*>>()
         sort.add(GOODS.field("name", String::class.java).asc())
         sort.add(GOODS.field("timestamp", Int::class.java).desc())
         sort.add(GOODS.field("id", Long::class.java).asc())

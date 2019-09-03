@@ -30,7 +30,7 @@ open class Alias {
     }
 
     constructor(aliasId: Long, dbKey: BurstKey, transaction: Transaction, attachment: Attachment.MessagingAliasAssignment) : this(dbKey, aliasId, transaction.senderId, attachment.aliasName, attachment.aliasURI,
-            transaction.blockTimestamp.get()) {
+            transaction.blockTimestamp) {
     }
 
     open class Offer {

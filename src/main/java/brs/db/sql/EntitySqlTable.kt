@@ -34,7 +34,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
 
     init {
         this.dbKeyFactory = dbKeyFactory as DbKey.Factory<T>
-        this.defaultSort = ArrayList()
+        this.defaultSort = mutableListOf()
         this.heightField = tableClass.field("height", Int::class.java)
         this.latestField = tableClass.field("latest", Boolean::class.java)
         if (multiversion) {

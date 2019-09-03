@@ -12,11 +12,7 @@ open class Subscription(val senderId: Long?,
                         timeNext: Int,
                         val dbKey: BurstKey
 ) {
-    private val timeNext: AtomicInteger
-
-    init {
-        this.timeNext = AtomicInteger(timeNext)
-    }
+    private val timeNext = AtomicInteger(timeNext)
 
     fun getTimeNext(): Int {
         return timeNext.get()

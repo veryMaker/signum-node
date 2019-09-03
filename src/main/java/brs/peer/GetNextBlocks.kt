@@ -18,7 +18,7 @@ internal class GetNextBlocks(private val blockchain: Blockchain) : PeerServlet.P
 
         val response = JsonObject()
 
-        val nextBlocks = ArrayList<Block>()
+        val nextBlocks = mutableListOf<Block>()
         var totalLength = 0
         val blockId = Convert.parseUnsignedLong(JSON.getAsString(request.get("blockId")))
         val blocks = blockchain.getBlocksAfter(blockId, 100)
