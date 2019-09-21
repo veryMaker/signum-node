@@ -1,23 +1,24 @@
 package brs.http
 
-import brs.*
-import brs.services.AccountService
-import brs.services.ParameterService
-import com.google.gson.JsonElement
-
-import javax.servlet.http.HttpServletRequest
-
+import brs.Attachment
+import brs.BurstException
+import brs.DependencyProvider
 import brs.http.JSONResponses.NOT_ENOUGH_ASSETS
+import brs.http.common.Parameters.ASSET_PARAMETER
+import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
+import com.google.gson.JsonElement
+import javax.servlet.http.HttpServletRequest
 
 internal class PlaceAskOrder(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), ASSET_PARAMETER, QUANTITY_QNT_PARAMETER, PRICE_NQT_PARAMETER) {
 
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val asset = dp.parameterService.getAsset(req)
-        val priceNQT = ParameterParser.getPriceNQT(req)
-        val quantityQNT = ParameterParser.getQuantityQNT(req)
-        val account = dp.parameterService.getSenderAccount(req)
+        val asset = dp.parameterService.getAsset(request)
+        val priceNQT = ParameterParser.getPriceNQT(request)
+        val quantityQNT = ParameterParser.getQuantityQNT(request)
+        val account = dp.parameterService.getSenderAccount(request)
 
         val assetBalance = dp.accountService.getUnconfirmedAssetBalanceQNT(account, asset.id)
         if (assetBalance < 0 || quantityQNT > assetBalance) {
@@ -25,6 +26,6 @@ internal class PlaceAskOrder(private val dp: DependencyProvider) : CreateTransac
         }
 
         val attachment = Attachment.ColoredCoinsAskOrderPlacement(asset.id, quantityQNT, priceNQT, dp.blockchain.height)
-        return createTransaction(req, account, attachment)
+        return createTransaction(request, account, attachment)
     }
 }

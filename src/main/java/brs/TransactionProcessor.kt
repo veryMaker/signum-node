@@ -4,10 +4,10 @@ import brs.peer.Peer
 import brs.util.Observable
 import com.google.gson.JsonObject
 
-interface TransactionProcessor : Observable<List<Transaction>, TransactionProcessor.Event> {
+interface TransactionProcessor : Observable<Collection<Transaction>, TransactionProcessor.Event> {
 
     @Deprecated("Just use UTStore directly")
-    val allUnconfirmedTransactions: List<Transaction>
+    val allUnconfirmedTransactions: Collection<Transaction>
 
     @Deprecated("Just use UTStore directly")
     val amountUnconfirmedTransactions: Int
@@ -16,20 +16,19 @@ interface TransactionProcessor : Observable<List<Transaction>, TransactionProces
         REMOVED_UNCONFIRMED_TRANSACTIONS,
         ADDED_UNCONFIRMED_TRANSACTIONS,
         ADDED_CONFIRMED_TRANSACTIONS,
-        ADDED_DOUBLESPENDING_TRANSACTIONS
     }
 
     @Deprecated("Just use UTStore directly")
     fun revalidateUnconfirmedTransactions()
 
     @Deprecated("Just use UTStore directly")
-    fun getAllUnconfirmedTransactionsFor(peer: Peer): List<Transaction>
+    fun getAllUnconfirmedTransactionsFor(peer: Peer): Collection<Transaction>
 
     @Deprecated("Just use UTStore directly")
-    fun markFingerPrintsOf(peer: Peer, transactions: List<Transaction>)
+    fun markFingerPrintsOf(peer: Peer, transactions: Collection<Transaction>)
 
     @Deprecated("Just use UTStore directly")
-    fun getUnconfirmedTransaction(transactionId: Long): Transaction
+    fun getUnconfirmedTransaction(transactionId: Long): Transaction?
 
     @Deprecated("Just use UTStore directly")
     fun clearUnconfirmedTransactions()
@@ -58,7 +57,7 @@ interface TransactionProcessor : Observable<List<Transaction>, TransactionProces
     fun requeueAllUnconfirmedTransactions()
 
     @Deprecated("Just use UTStore directly")
-    fun removeForgedTransactions(transactions: MutableList<Transaction>)
+    fun removeForgedTransactions(transactions: Collection<Transaction>)
 
-    fun notifyListeners(transactions: List<Transaction>, eventType: Event)
+    fun notifyListeners(transactions: Collection<Transaction>, eventType: Event)
 }

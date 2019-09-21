@@ -44,9 +44,9 @@ class GetBidOrderTest {
 
         whenever(mockAssetExchange!!.getBidOrder(eq(bidOrderId))).doReturn(mockBid)
 
-        val req = QuickMocker.httpServletRequest(MockParam(ORDER_PARAMETER, bidOrderId))
+        val request = QuickMocker.httpServletRequest(MockParam(ORDER_PARAMETER, bidOrderId))
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
         assertEquals("" + bidOrderId, JSON.getAsString(result.get(ORDER_RESPONSE)))
     }
@@ -56,9 +56,9 @@ class GetBidOrderTest {
     fun processRequest_orderNotFoundUnknownOrder() {
         val bidOrderId = 123L
 
-        val req = QuickMocker.httpServletRequest(MockParam(ORDER_PARAMETER, bidOrderId))
+        val request = QuickMocker.httpServletRequest(MockParam(ORDER_PARAMETER, bidOrderId))
 
-        assertEquals(UNKNOWN_ORDER, t!!.processRequest(req))
+        assertEquals(UNKNOWN_ORDER, t!!.processRequest(request))
     }
 
 }

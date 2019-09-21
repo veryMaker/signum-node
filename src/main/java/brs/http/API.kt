@@ -48,7 +48,7 @@ class API(dp: DependencyProvider) {
                 }
 
             }
-            allowedBotHosts = Collections.unmodifiableSet(allowedSubnets)
+            allowedBotHosts = allowedSubnets
         } else {
             allowedBotHosts = null
         }

@@ -10,8 +10,6 @@ import org.junit.Before
 import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -45,11 +43,11 @@ class GetDGSGoodTest {
         whenever(mockGoods.isDelisted).doReturn(true)
         whenever(mockGoods.timestamp).doReturn(12345)
 
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         assertEquals("" + mockGoods.id, JSON.getAsString(result.get(GOODS_RESPONSE)))

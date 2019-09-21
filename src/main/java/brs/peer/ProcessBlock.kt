@@ -27,7 +27,6 @@ class ProcessBlock(private val blockchain: Blockchain, private val blockchainPro
             peer.blacklist(e, "received invalid data via requestType=processBlock")
             return NOT_ACCEPTED
         }
-
     }
 
     companion object {

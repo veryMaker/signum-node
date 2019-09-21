@@ -1,20 +1,18 @@
 package brs.db.sql
 
 import brs.Account
-import brs.Burst
 import brs.DependencyProvider
 import brs.db.VersionedBatchEntityTable
 import brs.db.VersionedEntityTable
-import brs.db.cache.DBCacheManagerImpl
 import brs.db.store.AccountStore
-import brs.db.store.DerivedTableManager
-import brs.util.Convert
+import brs.schema.Tables.*
+import brs.schema.tables.records.AccountAssetRecord
+import brs.schema.tables.records.AccountRecord
+import brs.schema.tables.records.RewardRecipAssignRecord
+import brs.util.toUnsignedString
 import org.jooq.*
 import org.slf4j.LoggerFactory
-
 import java.util.*
-
-import brs.schema.Tables.*
 
 class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
 
@@ -56,7 +54,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
                 sort.add(tableClass.field("quantity", Long::class.java).desc())
                 sort.add(tableClass.field("account_id", Long::class.java).asc())
                 sort.add(tableClass.field("asset_id", Long::class.java).asc())
-                return Collections.unmodifiableList(sort)
+                return sort
             }
 
             override fun load(ctx: DSLContext, rs: Record): Account.AccountAsset {
@@ -141,14 +139,14 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
         } else if (acc.keyHeight == -1) {
             if (logger.isInfoEnabled) {
                 logger.info("DUPLICATE KEY!!!")
-                logger.info("Account key for {} was already set to a different one at the same height, current height is {}, rejecting new key", Convert.toUnsignedLong(acc.id), height)
+                logger.info("Account key for {} was already set to a different one at the same height, current height is {}, rejecting new key", acc.id.toUnsignedString(), height)
             }
             return false
         } else if (acc.keyHeight >= height) {
             logger.info("DUPLICATE KEY!!!")
             if (Db.isInTransaction) {
                 if (logger.isInfoEnabled) {
-                    logger.info("Changing key for account {} at height {}, was previously set to a different one at height {}", Convert.toUnsignedLong(acc.id), height, acc.keyHeight)
+                    logger.info("Changing key for account {} at height {}, was previously set to a different one at height {}", acc.id.toUnsignedString(), height, acc.keyHeight)
                 }
                 acc.publicKey = key
                 acc.keyHeight = height
@@ -158,7 +156,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
         }
         if (logger.isInfoEnabled) {
             logger.info("DUPLICATE KEY!!!")
-            logger.info("Invalid key for account {} at height {}, was already set to a different one at height {}", Convert.toUnsignedLong(acc.id), height, acc.keyHeight)
+            logger.info("Invalid key for account {} at height {}, was already set to a different one at height {}", acc.id.toUnsignedString(), height, acc.keyHeight)
         }
         return false
     }

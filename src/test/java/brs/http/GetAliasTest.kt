@@ -11,8 +11,6 @@ import org.junit.Before
 import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
@@ -45,12 +43,12 @@ class GetAliasTest {
         whenever(mockOffer.priceNQT).doReturn(123L)
         whenever(mockOffer.buyerId).doReturn(345L)
 
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
-        whenever(mockParameterService!!.getAlias(eq<HttpServletRequest>(req))).doReturn(mockAlias)
+        whenever(mockParameterService!!.getAlias(eq<HttpServletRequest>(request))).doReturn(mockAlias)
         whenever(mockAliasService!!.getOffer(eq(mockAlias))).doReturn(mockOffer)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
         assertEquals(mockAlias.aliasName, JSON.getAsString(result.get(ALIAS_NAME_RESPONSE)))
         assertEquals("" + mockOffer.priceNQT, JSON.getAsString(result.get(PRICE_NQT_RESPONSE)))

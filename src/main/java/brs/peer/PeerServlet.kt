@@ -1,17 +1,8 @@
 package brs.peer
 
-import brs.Blockchain
-import brs.BlockchainProcessor
 import brs.DependencyProvider
-import brs.TransactionProcessor
-import brs.services.AccountService
-import brs.services.TimeService
-import brs.util.CountingInputStream
-import brs.util.CountingOutputStream
-import brs.util.JSON
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import javax.servlet.ServletConfig
@@ -22,12 +13,12 @@ import javax.servlet.http.HttpServletResponse
 import java.io.*
 import java.nio.charset.StandardCharsets
 import java.util.Collections
-import java.util.HashMap
 
 import brs.Constants.PROTOCOL
+import brs.util.*
+import com.google.gson.JsonNull
 
 class PeerServlet(dp: DependencyProvider) : HttpServlet() {
-
     private val peerRequestHandlers: Map<String, PeerRequestHandler>
 
     internal interface PeerRequestHandler {
@@ -35,35 +26,31 @@ class PeerServlet(dp: DependencyProvider) : HttpServlet() {
     }
 
     internal abstract class ExtendedPeerRequestHandler : PeerRequestHandler {
-        override fun processRequest(request: JsonObject, peer: Peer): JsonElement? {
-            return null
+        override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
+            return JsonNull.INSTANCE
         }
 
         internal abstract fun extendedProcessRequest(request: JsonObject, peer: Peer): ExtendedProcessRequest
     }
 
-    internal class ExtendedProcessRequest(val response: JsonElement, val afterRequestHook: RequestLifecycleHook)
-
-    internal interface RequestLifecycleHook {
-        fun run()
-    }
+    internal class ExtendedProcessRequest(val response: JsonElement, val afterRequestHook: () -> Unit)
 
     init { // TODO each one should take dp
-        val map = mutableMapOf<String, PeerRequestHandler>>()
-        map["addPeers"] = AddPeers.instance
+        val map = mutableMapOf<String, PeerRequestHandler>()
+        map["addPeers"] = AddPeers
         map["getCumulativeDifficulty"] = GetCumulativeDifficulty(dp.blockchain)
         map["getInfo"] = GetInfo(dp.timeService)
         map["getMilestoneBlockIds"] = GetMilestoneBlockIds(dp.blockchain)
         map["getNextBlockIds"] = GetNextBlockIds(dp.blockchain)
         map["getBlocksFromHeight"] = GetBlocksFromHeight(dp.blockchain)
         map["getNextBlocks"] = GetNextBlocks(dp.blockchain)
-        map["getPeers"] = GetPeers.instance
+        map["getPeers"] = GetPeers
         map["getUnconfirmedTransactions"] = GetUnconfirmedTransactions(dp.transactionProcessor)
         map["processBlock"] = ProcessBlock(dp.blockchain, dp.blockchainProcessor)
         map["processTransactions"] = ProcessTransactions(dp.transactionProcessor)
         map["getAccountBalance"] = GetAccountBalance(dp.accountService)
         map["getAccountRecentTransactions"] = GetAccountRecentTransactions(dp.accountService, dp.blockchain)
-        peerRequestHandlers = Collections.unmodifiableMap(map)
+        peerRequestHandlers = map
     }
 
     @Throws(ServletException::class)
@@ -71,12 +58,12 @@ class PeerServlet(dp: DependencyProvider) : HttpServlet() {
         super.init(config)
     }
 
-    override fun doPost(req: HttpServletRequest, resp: HttpServletResponse) {
+    override fun doPost(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
-            if (!Peers.isSupportedUserAgent(req.getHeader("User-Agent"))) {
+            if (!Peers.isSupportedUserAgent(request.getHeader("User-Agent"))) {
                 return
             }
-            process(req, resp)
+            process(request, resp)
         } catch (e: Exception) { // We don't want to send exception information to client...
             resp.status = 500
             logger.warn("Error handling peer request", e)
@@ -85,7 +72,7 @@ class PeerServlet(dp: DependencyProvider) : HttpServlet() {
     }
 
     @Throws(IOException::class)
-    private fun process(req: HttpServletRequest, resp: HttpServletResponse) {
+    private fun process(request: HttpServletRequest, resp: HttpServletResponse) {
         var peer: Peer? = null
         var response: JsonElement
 
@@ -93,19 +80,18 @@ class PeerServlet(dp: DependencyProvider) : HttpServlet() {
 
         var requestType = "unknown"
         try {
-            peer = Peers.addPeer(req.remoteAddr, null)
+            peer = Peers.addPeer(request.remoteAddr, null)
             if (peer == null || peer.isBlacklisted) {
                 return
             }
 
-            var request: JsonObject?
-            val cis = CountingInputStream(req.inputStream)
-            InputStreamReader(cis, StandardCharsets.UTF_8).use { reader -> request = JSON.getAsJsonObject(JSON.parse(reader)) }
-            if (request == null) {
+            val cis = CountingInputStream(request.inputStream)
+            val jsonRequest = InputStreamReader(cis, StandardCharsets.UTF_8).use { reader -> JSON.getAsJsonObject(reader.parseJson()) }
+            if (jsonRequest.isEmpty()) {
                 return
             }
 
-            if (peer.isState(Peer.State.DISCONNECTED)) {
+            if (peer.state == Peer.State.DISCONNECTED) {
                 peer.state = Peer.State.CONNECTED
                 if (peer.announcedAddress != null) {
                     Peers.updateAddress(peer)
@@ -113,22 +99,22 @@ class PeerServlet(dp: DependencyProvider) : HttpServlet() {
             }
             peer.updateDownloadedVolume(cis.count)
 
-            if (request.get(PROTOCOL) != null && JSON.getAsString(request.get(PROTOCOL)) == "B1") {
-                requestType = "" + JSON.getAsString(request.get("requestType"))!!
-                val peerRequestHandler = peerRequestHandlers[JSON.getAsString(request!!.get("requestType"))]
+            if (jsonRequest.get(PROTOCOL) != null && JSON.getAsString(jsonRequest.get(PROTOCOL)) == "B1") {
+                requestType = "" + JSON.getAsString(jsonRequest.get("requestType"))
+                val peerRequestHandler = peerRequestHandlers[JSON.getAsString(jsonRequest.get("requestType"))]
                 if (peerRequestHandler != null) {
                     if (peerRequestHandler is ExtendedPeerRequestHandler) {
-                        extendedProcessRequest = peerRequestHandler.extendedProcessRequest(request, peer)
+                        extendedProcessRequest = peerRequestHandler.extendedProcessRequest(jsonRequest, peer)
                         response = extendedProcessRequest.response
                     } else {
-                        response = peerRequestHandler.processRequest(request, peer)
+                        response = peerRequestHandler.processRequest(jsonRequest, peer)
                     }
                 } else {
                     response = UNSUPPORTED_REQUEST_TYPE
                 }
             } else {
                 if (logger.isDebugEnabled) {
-                    logger.debug("Unsupported protocol {}", JSON.getAsString(request.get(PROTOCOL)))
+                    logger.debug("Unsupported protocol {}", JSON.getAsString(jsonRequest.get(PROTOCOL)))
                 }
                 response = UNSUPPORTED_PROTOCOL
             }
@@ -145,7 +131,7 @@ class PeerServlet(dp: DependencyProvider) : HttpServlet() {
             val byteCount: Long
 
             val cos = CountingOutputStream(resp.outputStream)
-            OutputStreamWriter(cos, StandardCharsets.UTF_8).use { writer -> JSON.writeTo(response, writer) }
+            OutputStreamWriter(cos, StandardCharsets.UTF_8).use { writer -> response.writeTo(writer) }
             byteCount = cos.count
             peer?.updateUploadedVolume(byteCount)
         } catch (e: Exception) {
@@ -153,11 +139,10 @@ class PeerServlet(dp: DependencyProvider) : HttpServlet() {
             return
         }
 
-        extendedProcessRequest?.afterRequestHook?.run()
+        extendedProcessRequest?.afterRequestHook?.invoke()
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(PeerServlet::class.java)
 
         private val UNSUPPORTED_REQUEST_TYPE: JsonElement
@@ -176,5 +161,4 @@ class PeerServlet(dp: DependencyProvider) : HttpServlet() {
             UNSUPPORTED_PROTOCOL = response
         }
     }
-
 }

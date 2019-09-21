@@ -112,7 +112,7 @@ object Props {
     val API_SSL = Prop("API.SSL", false)
     val API_SERVER = Prop("API.Server", true)
     val API_V2_SERVER = Prop("API.V2.Server", true)
-    val API_ALLOWED = Prop("API.allowed", Arrays.asList("127.0.0.1", "localhost", "[0:0:0:0:0:0:0:1]"))
+    val API_ALLOWED = Prop("API.allowed", listOf("127.0.0.1", "localhost", "[0:0:0:0:0:0:0:1]"))
 
     val API_ACCEPT_SURPLUS_PARAMS = Prop("API.AcceptSurplusParams", false)
 

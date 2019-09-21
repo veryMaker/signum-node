@@ -14,8 +14,6 @@ import org.junit.Before
 import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
@@ -49,7 +47,7 @@ class GetAccountTest : AbstractUnitTest() {
         val balanceNQT = 23L
         val mockUnconfirmedQuantityNQT = 12L
 
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
         whenever(mockAccount.id).doReturn(mockAccountId)
@@ -57,7 +55,7 @@ class GetAccountTest : AbstractUnitTest() {
         whenever(mockAccount.name).doReturn(mockAccountName)
         whenever(mockAccount.description).doReturn(mockAccountDescription)
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
 
         val mockAccountAsset = mock<AccountAsset>()
         whenever(mockAccountAsset.assetId).doReturn(mockAssetId)
@@ -66,7 +64,7 @@ class GetAccountTest : AbstractUnitTest() {
         val mockAssetOverview = mockCollection<AccountAsset>(mockAccountAsset)
         whenever(accountServiceMock!!.getAssets(eq(mockAccountId), eq(0), eq(-1))).doReturn(mockAssetOverview)
 
-        val response = t!!.processRequest(req) as JsonObject
+        val response = t!!.processRequest(request) as JsonObject
         assertEquals("01", JSON.getAsString(response.get(PUBLIC_KEY_RESPONSE)))
         assertEquals(mockAccountName, JSON.getAsString(response.get(NAME_RESPONSE)))
         assertEquals(mockAccountDescription, JSON.getAsString(response.get(DESCRIPTION_RESPONSE)))

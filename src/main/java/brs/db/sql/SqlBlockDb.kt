@@ -6,28 +6,21 @@ import brs.DependencyProvider
 import brs.db.BlockDb
 import brs.schema.tables.records.BlockRecord
 import org.jooq.DSLContext
-import org.jooq.DeleteQuery
-import org.jooq.Record
-import org.jooq.SelectQuery
 import org.jooq.impl.TableImpl
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.math.BigInteger
-import java.util.ArrayList
-import java.util.Arrays
 import java.util.Optional
 
 import brs.schema.Tables.BLOCK
-import org.jooq.impl.UpdatableRecordImpl
 
 class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
 
-    override fun findBlock(blockId: Long): Block {
-        return Db.useDSLContext<Block> { ctx ->
+    override fun findBlock(blockId: Long): Block? {
+        return Db.useDSLContext<Block?> { ctx ->
             try {
                 val r = ctx.selectFrom(BLOCK).where(BLOCK.ID.eq(blockId)).fetchAny()
-                return@Db.useDSLContext if (r == null) null else loadBlock(r)
+                return@useDSLContext if (r == null) null else loadBlock(r)
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException("Block already in database, id = $blockId, does not pass validation!", e)
             }
@@ -49,9 +42,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     override fun findBlockAtHeight(height: Int): Block {
         return Db.useDSLContext<Block> { ctx ->
             try {
-                val block = loadBlock(ctx.selectFrom(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchAny())
-                        ?: throw RuntimeException("Block at height $height not found in database!")
-                return@Db.useDSLContext block
+                return@useDSLContext loadBlock(ctx.selectFrom(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchAny() ?: throw RuntimeException("Block at height $height not found in database!"))
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException(e.toString(), e)
             }
@@ -61,7 +52,10 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     override fun findLastBlock(): Block {
         return Db.useDSLContext<Block> { ctx ->
             try {
-                return@Db.useDSLContext loadBlock ctx.selectFrom(BLOCK).orderBy(BLOCK.DB_ID.desc()).limit(1).fetchAny()
+                return@useDSLContext loadBlock(ctx.selectFrom(BLOCK)
+                        .orderBy(BLOCK.DB_ID.desc())
+                        .limit(1)
+                        .fetchAny())
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException("Last block already in database does not pass validation!", e)
             }
@@ -71,7 +65,11 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     override fun findLastBlock(timestamp: Int): Block {
         return Db.useDSLContext<Block> { ctx ->
             try {
-                return@Db.useDSLContext loadBlock ctx.selectFrom(BLOCK).where(BLOCK.TIMESTAMP.lessOrEqual(timestamp)).orderBy(BLOCK.DB_ID.desc()).limit(1).fetchAny()
+                return@useDSLContext loadBlock(ctx.selectFrom(BLOCK)
+                        .where(BLOCK.TIMESTAMP.lessOrEqual(timestamp))
+                        .orderBy(BLOCK.DB_ID.desc())
+                        .limit(1)
+                        .fetchAny())
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException("Block already in database at timestamp $timestamp does not pass validation!", e)
             }
@@ -179,7 +177,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
                     brs.schema.Tables.ACCOUNT_ASSET, brs.schema.Tables.ALIAS, brs.schema.Tables.ALIAS_OFFER,
                     brs.schema.Tables.ASK_ORDER, brs.schema.Tables.ASSET, brs.schema.Tables.ASSET_TRANSFER,
                     brs.schema.Tables.AT, brs.schema.Tables.AT_STATE, brs.schema.Tables.BID_ORDER,
-                    brs.schema.Tables.BLOCK, brs.schema.Tables.ESCROW, brs.schema.Tables.ESCROW_DECISION,
+                    BLOCK, brs.schema.Tables.ESCROW, brs.schema.Tables.ESCROW_DECISION,
                     brs.schema.Tables.GOODS, brs.schema.Tables.PEER, brs.schema.Tables.PURCHASE,
                     brs.schema.Tables.PURCHASE_FEEDBACK, brs.schema.Tables.PURCHASE_PUBLIC_FEEDBACK,
                     brs.schema.Tables.REWARD_RECIP_ASSIGN, brs.schema.Tables.SUBSCRIPTION,
@@ -205,7 +203,6 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(BlockDb::class.java)
     }
 }

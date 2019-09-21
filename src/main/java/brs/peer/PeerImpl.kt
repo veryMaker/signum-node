@@ -3,39 +3,50 @@ package brs.peer
 import brs.*
 import brs.crypto.Crypto
 import brs.props.Props
-import brs.util.Convert
-import brs.util.CountingInputStream
-import brs.util.CountingOutputStream
-import brs.util.JSON
-import brs.util.atomic.Atomic
+import brs.util.*
+import brs.util.delegates.Atomic
+import brs.util.delegates.AtomicWithOverride
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import java.io.*
 import java.net.*
 import java.nio.charset.StandardCharsets
 import java.sql.SQLException
-import java.util.Arrays
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.atomic.AtomicReference
+import java.util.*
 import java.util.zip.GZIPInputStream
 
-internal class PeerImpl(private val dp: DependencyProvider, override val peerAddress: String, announcedAddress: String) : Peer {
-    override var announcedAddress by Atomic<String?>()
+internal class PeerImpl(private val dp: DependencyProvider, override val peerAddress: String, announcedAddress: String?) : Peer {
+    override var announcedAddress by AtomicWithOverride<String?>(setValueDelegate = { announcedAddress, set ->
+        val announcedPeerAddress = Peers.normalizeHostAndPort(announcedAddress)
+        if (announcedPeerAddress != null) {
+            set(announcedPeerAddress)
+            try {
+                this.port = URL(Constants.HTTP + announcedPeerAddress).port
+            } catch (ignored: MalformedURLException) {
+            }
+        }
+    })
     override var port by Atomic<Int>()
-    private var shareAddress by Atomic(false)
+    override var shareAddress by Atomic(false)
     override var platform by Atomic<String>()
     override var application by Atomic<String>()
     override var version by Atomic<Version>()
     private var isOldVersion by Atomic(false)
     private var blacklistingTime by Atomic<Long>()
-    override var state by Atomic<Peer.State>()
-    override val downloadedVolume by Atomic<Long>()
-    override val uploadedVolume by Atomic<Long>()
+    override var state: Peer.State by AtomicWithOverride(setValueDelegate = { newState, set ->
+        if (state != newState) {
+            if (state == Peer.State.NON_CONNECTED) {
+                set(newState)
+                Peers.notifyListeners(this, Peers.Event.ADDED_ACTIVE_PEER)
+            } else if (newState != Peer.State.NON_CONNECTED) {
+                set(newState)
+                Peers.notifyListeners(this, Peers.Event.CHANGED_ACTIVE_PEER)
+            }
+        }
+    })
+    override var downloadedVolume by Atomic<Long>()
+    override var uploadedVolume by Atomic<Long>()
     override var lastUpdated by Atomic<Int>()
     private var lastDownloadedTransactionsDigest: ByteArray? = null
     private val lastDownloadedTransactionsLock = Any()
@@ -49,10 +60,10 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
                 + " @ " + Convert.truncate(platform, "?", 10, false))
 
     override val isWellKnown: Boolean
-        get() = announcedAddress != null && Peers.wellKnownPeers.contains(announcedAddress)
+        get() = announcedAddress != null && Peers.wellKnownPeers.contains(announcedAddress!!)
 
     override val isRebroadcastTarget: Boolean
-        get() = announcedAddress != null && Peers.rebroadcastPeers.contains(announcedAddress)
+        get() = announcedAddress != null && Peers.rebroadcastPeers.contains(announcedAddress!!)
 
     override val isBlacklisted: Boolean
         get() = blacklistingTime > 0 || isOldVersion || Peers.knownBlacklistedPeers.contains(peerAddress)
@@ -69,31 +80,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
         this.shareAddress = true
     }
 
-    override fun getState(): Peer.State {
-        return state
-    }
-
-    override fun isState(cmpState: Peer.State): Boolean {
-        return state == cmpState
-    }
-
-    override fun setState(state: Peer.State) {
-        if (this.state == state) {
-            return
-        }
-        if (this.state == Peer.State.NON_CONNECTED) {
-            this.state = state
-            Peers.notifyListeners(this, Peers.Event.ADDED_ACTIVE_PEER)
-        } else if (state != Peer.State.NON_CONNECTED) {
-            this.state = state
-            Peers.notifyListeners(this, Peers.Event.CHANGED_ACTIVE_PEER)
-        }
-    }
-
-    override fun getDownloadedVolume(): Long {
-        return downloadedVolume
-    }
-
+    // TODO unused
     fun diffLastDownloadedTransactions(data: ByteArray): Boolean {
         synchronized(lastDownloadedTransactionsLock) {
             val newDigest = Crypto.sha256().digest(data)
@@ -107,31 +94,23 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
 
     override fun updateDownloadedVolume(volume: Long) {
         synchronized(this) {
-            downloadedVolume.addAndGet(volume)
+            downloadedVolume += volume
         }
         Peers.notifyListeners(this, Peers.Event.DOWNLOADED_VOLUME)
     }
 
-    override fun getUploadedVolume(): Long {
-        return uploadedVolume
-    }
-
     override fun updateUploadedVolume(volume: Long) {
         synchronized(this) {
-            uploadedVolume.addAndGet(volume)
+            uploadedVolume += volume
         }
         Peers.notifyListeners(this, Peers.Event.UPLOADED_VOLUME)
     }
 
-    override fun isHigherOrEqualVersionThan(ourVersion: Version): Boolean {
-        return Peer.isHigherOrEqualVersion(ourVersion, version)
+    override fun isHigherOrEqualVersionThan(version: Version): Boolean {
+        return Peer.isHigherOrEqualVersion(version, this.version)
     }
 
-    override fun getVersion(): Version {
-        return version
-    }
-
-    fun setVersion(version: String?) {
+    override fun setVersion(version: String?) {
         this.version = Version.EMPTY
         isOldVersion = false
         if (Burst.APPLICATION == application && version != null) {
@@ -140,22 +119,6 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
                 isOldVersion = Constants.MIN_VERSION.isGreaterThan(this.version)
             } catch (e: IllegalArgumentException) {
                 isOldVersion = true
-            }
-
-        }
-    }
-
-    override fun getAnnouncedAddress(): String {
-        return announcedAddress
-    }
-
-    fun setAnnouncedAddress(announcedAddress: String) {
-        val announcedPeerAddress = Peers.normalizeHostAndPort(announcedAddress)
-        if (announcedPeerAddress != null) {
-            this.announcedAddress = announcedPeerAddress
-            try {
-                this.port = URL(Constants.HTTP + announcedPeerAddress).port
-            } catch (ignored: MalformedURLException) {
             }
         }
     }
@@ -181,22 +144,20 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
     }
 
     override fun blacklist(description: String) {
-        if (!isBlacklisted) {
-            if (logger.isInfoEnabled) {
-                logger.info("Blacklisting {} ({}) because of: {}", peerAddress, getVersion(), description)
-            }
+        if (!isBlacklisted && logger.isInfoEnabled) {
+            logger.info("Blacklisting {} ({}) because of: {}", peerAddress, version, description)
         }
         blacklist()
     }
 
     override fun blacklist() {
         blacklistingTime = System.currentTimeMillis()
-        setState(Peer.State.NON_CONNECTED)
+        state = Peer.State.NON_CONNECTED
         Peers.notifyListeners(this, Peers.Event.BLACKLIST)
     }
 
     override fun unBlacklist() {
-        setState(Peer.State.NON_CONNECTED)
+        state = Peer.State.NON_CONNECTED
         blacklistingTime = 0
         Peers.notifyListeners(this, Peers.Event.UNBLACKLIST)
     }
@@ -213,15 +174,12 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
     }
 
     override fun send(request: JsonElement): JsonObject? {
-
-        var response: JsonObject?
-
+        var response: JsonObject? = null
         var log: String? = null
         var showLog = false
         var connection: HttpURLConnection? = null
 
         try {
-
             val address = if (announcedAddress != null) announcedAddress else peerAddress
             val buf = StringBuilder(Constants.HTTP)
             buf.append(address)
@@ -234,7 +192,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
 
             if (Peers.communicationLoggingMask != 0) {
                 val stringWriter = StringWriter()
-                JSON.writeTo(request, stringWriter)
+                request.writeTo(stringWriter)
                 log = "\"$url\": $stringWriter"
             }
 
@@ -248,7 +206,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
             connection.setRequestProperty("Connection", "close")
 
             val cos = CountingOutputStream(connection.outputStream)
-            BufferedWriter(OutputStreamWriter(cos, StandardCharsets.UTF_8)).use { writer -> JSON.writeTo(request, writer) } // rico666: no catch?
+            BufferedWriter(OutputStreamWriter(cos, StandardCharsets.UTF_8)).use { writer -> request.writeTo(writer) } // rico666: no catch?
             updateUploadedVolume(cos.count)
 
             if (connection.responseCode == HttpURLConnection.HTTP_OK) {
@@ -266,9 +224,9 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
                     }
                     log += " >>> $responseValue"
                     showLog = true
-                    response = JSON.getAsJsonObject(JSON.parse(responseValue))
+                    response = JSON.getAsJsonObject(responseValue.parseJson())
                 } else {
-                    BufferedReader(InputStreamReader(responseStream, StandardCharsets.UTF_8)).use { reader -> response = JSON.getAsJsonObject(JSON.parse(reader)) }
+                    BufferedReader(InputStreamReader(responseStream, StandardCharsets.UTF_8)).use { reader -> response = JSON.getAsJsonObject(reader.parseJson()) }
                 }
                 updateDownloadedVolume(cis.count)
             } else {
@@ -276,10 +234,10 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
                     log += " >>> Peer responded with HTTP " + connection.responseCode + " code!"
                     showLog = true
                 }
-                if (state == Peer.State.CONNECTED) {
-                    setState(Peer.State.DISCONNECTED)
+                state = if (state == Peer.State.CONNECTED) {
+                    Peer.State.DISCONNECTED
                 } else {
-                    setState(Peer.State.NON_CONNECTED)
+                    Peer.State.NON_CONNECTED
                 }
                 response = null
             }
@@ -292,7 +250,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
                 showLog = true
             }
             if (state == Peer.State.CONNECTED) {
-                setState(Peer.State.DISCONNECTED)
+                state = Peer.State.DISCONNECTED
             }
             response = null
         } catch (e: IOException) {
@@ -304,7 +262,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
                 showLog = true
             }
             if (state == Peer.State.CONNECTED) {
-                setState(Peer.State.DISCONNECTED)
+                state = Peer.State.DISCONNECTED
             }
             response = null
         }
@@ -338,25 +296,23 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
             val newAnnouncedAddress = Convert.emptyToNull(JSON.getAsString(response.get("announcedAddress")))
             if (newAnnouncedAddress != null && newAnnouncedAddress != announcedAddress) {
                 // force verification of changed announced address
-                setState(Peer.State.NON_CONNECTED)
-                setAnnouncedAddress(newAnnouncedAddress)
+                state = Peer.State.NON_CONNECTED
+                announcedAddress = newAnnouncedAddress
                 return
             }
             if (announcedAddress == null) {
-                setAnnouncedAddress(peerAddress)
+                announcedAddress = peerAddress
             }
 
-            setState(Peer.State.CONNECTED)
+            state = Peer.State.CONNECTED
             Peers.updateAddress(this)
             lastUpdated = currentTime
         } else {
-            setState(Peer.State.NON_CONNECTED)
+            state = Peer.State.NON_CONNECTED
         }
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(PeerImpl::class.java)
     }
-
 }

@@ -34,12 +34,12 @@ class CalculateFullHashTest {
         val mockSignatureHash = "123"
         val expectedFullHash = "fe09cbf95619345cde91e0dee049d55498085a152e19c1009cb8973f9e1b4518"
 
-        val req = mock<HttpServletRequest>()
+        val request = mock<HttpServletRequest>()
 
-        whenever(req.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER))).doReturn(mockUnsignedTransactionBytes)
-        whenever(req.getParameter(eq(SIGNATURE_HASH_PARAMETER))).doReturn(mockSignatureHash)
+        whenever(request.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER))).doReturn(mockUnsignedTransactionBytes)
+        whenever(request.getParameter(eq(SIGNATURE_HASH_PARAMETER))).doReturn(mockSignatureHash)
 
-        val result = JSON.getAsJsonObject(t!!.processRequest(req))
+        val result = JSON.getAsJsonObject(t!!.processRequest(request))
         assertEquals(expectedFullHash, JSON.getAsString(result.get(FULL_HASH_RESPONSE)))
     }
 
@@ -51,10 +51,10 @@ class CalculateFullHashTest {
     @Test
     fun processRequest_missingSignatureHash() {
         val mockUnsignedTransactionBytes = "mockUnsignedTransactionBytes"
-        val req = mock<HttpServletRequest>()
+        val request = mock<HttpServletRequest>()
 
-        whenever(req.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER))).doReturn(mockUnsignedTransactionBytes)
+        whenever(request.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER))).doReturn(mockUnsignedTransactionBytes)
 
-        assertEquals(MISSING_SIGNATURE_HASH, t!!.processRequest(req))
+        assertEquals(MISSING_SIGNATURE_HASH, t!!.processRequest(request))
     }
 }

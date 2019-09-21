@@ -9,11 +9,9 @@ package brs.at
 
 import brs.DependencyProvider
 import brs.fluxcapacitor.FluxValues
-
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.LinkedHashMap
-import java.util.TreeSet
+import java.util.*
 import kotlin.experimental.and
 
 
@@ -189,7 +187,7 @@ open class AtMachineState {
         this.apCode.put(apCode)
         this.apCode.clear()
 
-        transactions = LinkedmutableMapOf()
+        transactions = mutableMapOf()
     }
 
     protected constructor(dp: DependencyProvider, atId: ByteArray, creator: ByteArray, creationBytes: ByteArray, height: Int) {
@@ -266,7 +264,7 @@ open class AtMachineState {
         this.waitForNumberOfBlocks = 0
         this.sleepBetween = 0
         this.freezeWhenSameBalance = false
-        this.transactions = LinkedmutableMapOf()
+        this.transactions = mutableMapOf()
         this.gBalance = 0
         this.pBalance = 0
         this.machineState = MachineState()

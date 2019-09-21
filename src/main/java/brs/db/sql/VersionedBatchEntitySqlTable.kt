@@ -12,7 +12,6 @@ import org.jooq.impl.TableImpl
 import java.util.*
 
 abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: DbKey.Factory<T>, private val tClass: Class<T>, private val dp: DependencyProvider) : VersionedEntitySqlTable<T>(table, tableClass, dbKeyFactory, dp), VersionedBatchEntityTable<T> {
-
     override val count: Int
         get() {
             assertInTransaction()
@@ -41,23 +40,23 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
 
     protected abstract fun bulkInsert(ctx: DSLContext, t: Collection<T>)
 
-    override fun delete(t: T?): Boolean {
+    override fun delete(t: T): Boolean {
         assertNotInTransaction()
         val dbKey = dbKeyFactory.newKey(t) as DbKey
-        cache!!.remove(dbKey)
+        cache.remove(dbKey)
         batch.remove(dbKey)
         return true
     }
 
     override fun get(dbKey: BurstKey): T? {
-        if (cache!!.containsKey(dbKey)) {
-            return cache!!.get(dbKey)
+        if (cache.containsKey(dbKey)) {
+            return cache.get(dbKey)
         } else if (Db.isInTransaction && batch.containsKey(dbKey)) {
             return batch[dbKey]
         }
         val item = super.get(dbKey)
         if (item != null) {
-            cache!!.put(dbKey, item)
+            cache.put(dbKey, item)
         }
         return item
     }
@@ -66,7 +65,7 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
         assertNotInTransaction()
         val key = dbKeyFactory.newKey(t)
         batch[key] = t
-        cache!!.put(key, t)
+        cache.put(key, t)
     }
 
     override fun finish() {
@@ -77,7 +76,7 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
         }
 
         Db.useDSLContext { ctx ->
-            val updateQuery = ctx.updateQuery<*>(tableClass)
+            val updateQuery = ctx.updateQuery(tableClass)
             updateQuery.addValue(latestField, false)
             for (idColumn in dbKeyFactory.pkColumns) {
                 updateQuery.addConditions(tableClass.field(idColumn, Long::class.java).eq(0L))
@@ -90,7 +89,7 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
                 val bindArgs = arrayOfNulls<Any>(pkValues.size + 1)
                 bindArgs[0] = false
                 System.arraycopy(pkValues, 0, bindArgs, 1, pkValues.size)
-                updateBatch.bind(*bindArgs) // TODO once in kotlin just do bind(false, *pkValues)
+                updateBatch.bind(*bindArgs)
             }
             updateBatch.execute()
             bulkInsert(ctx, batch.values)
@@ -98,17 +97,17 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
         }
     }
 
-    override fun get(dbKey: BurstKey, height: Int): T {
+    override fun get(dbKey: BurstKey, height: Int): T? {
         assertInTransaction()
         return super.get(dbKey, height)
     }
 
-    override fun getBy(condition: Condition): T {
+    override fun getBy(condition: Condition): T? {
         assertInTransaction()
         return super.getBy(condition)
     }
 
-    override fun getBy(condition: Condition, height: Int): T {
+    override fun getBy(condition: Condition, height: Int): T? {
         assertInTransaction()
         return super.getBy(condition, height)
     }
@@ -169,6 +168,6 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
     }
 
     override fun flushCache() {
-        cache!!.clear()
+        cache.clear()
     }
 }

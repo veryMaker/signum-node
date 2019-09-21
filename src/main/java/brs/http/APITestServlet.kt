@@ -36,11 +36,11 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
         return r
     }
 
-    private fun buildLinks(req: HttpServletRequest): String {
+    private fun buildLinks(request: HttpServletRequest): String {
         val buf = StringBuilder()
-        val requestTag = Convert.nullToEmpty(req.getParameter("requestTag"))
+        val requestTag = Convert.nullToEmpty(request.getParameter("requestTag"))
         buf.append("<li")
-        if (requestTag == "") {
+        if (requestTag.isEmpty()) {
             buf.append(" class=\"active\"")
         }
         buf.append("><a href=\"/test\">All</a></li>")
@@ -57,13 +57,13 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
         return buf.toString()
     }
 
-    override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
+    override fun doGet(request: HttpServletRequest, resp: HttpServletResponse) {
         resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private")
         resp.setHeader("Pragma", "no-cache")
         resp.setDateHeader("Expires", 0)
         resp.contentType = "text/html; charset=UTF-8"
 
-        if (allowedBotHosts != null && !allowedBotHosts.toString().contains(req.remoteHost)) {
+        if (allowedBotHosts != null && !allowedBotHosts.toString().contains(request.remoteHost)) {
             try {
                 resp.sendError(HttpServletResponse.SC_FORBIDDEN)
             } catch (e: IOException) {
@@ -76,20 +76,20 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
         try {
             resp.writer.use { writer ->
                 writer.print(HEADER_1)
-                writer.print(buildLinks(req))
+                writer.print(buildLinks(request))
                 writer.print(HEADER_2)
-                val requestType = Convert.nullToEmpty(Encode.forHtml(req.getParameter("requestType")))
+                val requestType = Convert.nullToEmpty(Encode.forHtml(request.getParameter("requestType")))
                 var requestHandler: APIServlet.HttpRequestHandler? = apiRequestHandlers[requestType]
                 val bufJSCalls = StringBuilder()
                 if (requestHandler != null) {
                     writer.print(form(requestType, true, requestHandler.javaClass.name, requestHandler.parameters, requestHandler.requirePost()))
                     bufJSCalls.append("apiCalls.push(\"").append(requestType).append("\");\n")
                 } else {
-                    val requestTag = Convert.nullToEmpty(req.getParameter("requestTag"))
+                    val requestTag = Convert.nullToEmpty(request.getParameter("requestTag"))
                     val taggedTypes = requestTags[requestTag]
                     for (type in taggedTypes ?: requestTypes) {
                         requestHandler = apiRequestHandlers[type]
-                        writer.print(form(type, false, requestHandler!!.javaClass.name, apiRequestHandlers[type].parameters, apiRequestHandlers[type].requirePost()))
+                        writer.print(form(type, false, requestHandler!!.javaClass.name, apiRequestHandlers[type]!!.parameters, apiRequestHandlers[type]!!.requirePost()))
                         bufJSCalls.append("apiCalls.push(\"").append(type).append("\");\n")
                     }
                 }
@@ -210,7 +210,7 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
                         + "                type: 'POST',\n"
                         + "            })\n"
                         + "            .done(function(result) {\n"
-                        + "                var resultStr = JSON.stringify(JSON.parse(result), null, 4);\n"
+                        + "                var resultStr = JSON.stringify(result), null, 4.parseJson();\n"
                         + "                form.getElementsByClassName(\"result\")[0].textContent = resultStr;\n"
                         + "            })\n"
                         + "            .fail(function() {\n"

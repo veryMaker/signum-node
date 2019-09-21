@@ -2,15 +2,13 @@ package brs.db.sql
 
 import brs.*
 import brs.db.TransactionDb
+import brs.schema.Tables.TRANSACTION
 import brs.schema.tables.records.TransactionRecord
-import brs.util.Convert
-import org.jooq.BatchBindStep
-
+import brs.util.parseHexString
+import brs.util.toUnsignedString
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.Optional
-
-import brs.schema.Tables.TRANSACTION
+import java.util.*
 
 class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
 
@@ -18,7 +16,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         return Db.useDSLContext<Transaction> { ctx ->
             try {
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId)).fetchOne()
-                return@Db.useDSLContext loadTransaction transactionRecord
+                return@useDSLContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException("Transaction already in database, id = $transactionId, does not pass validation!", e)
             }
@@ -28,8 +26,8 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
     override fun findTransactionByFullHash(fullHash: String): Transaction {
         return Db.useDSLContext<Transaction> { ctx ->
             try {
-                val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(Convert.parseHexString(fullHash))).fetchOne()
-                return@Db.useDSLContext loadTransaction transactionRecord
+                val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash.parseHexString())).fetchOne()
+                return@useDSLContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException("Transaction already in database, full_hash = $fullHash, does not pass validation!", e)
             }
@@ -41,19 +39,17 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
     }
 
     override fun hasTransactionByFullHash(fullHash: String): Boolean {
-        return Db.useDSLContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(Convert.parseHexString(fullHash)))) }
+        return Db.useDSLContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash.parseHexString()))) }
     }
 
     @Throws(BurstException.ValidationException::class)
-    override fun loadTransaction(tr: TransactionRecord?): Transaction? {
-        if (tr == null) {
-            return null
-        }
-
+    override fun loadTransaction(tr: TransactionRecord): Transaction {
         var buffer: ByteBuffer? = null
         if (tr.attachmentBytes != null) {
             buffer = ByteBuffer.wrap(tr.attachmentBytes)
             buffer!!.order(ByteOrder.LITTLE_ENDIAN)
+        } else {
+            buffer = ByteBuffer.allocate(0)
         }
 
         val transactionType = TransactionType.findTransactionType(tr.type!!, tr.subtype!!)
@@ -91,19 +87,16 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         return builder.build()
     }
 
-    override fun findBlockTransactions(blockId: Long): List<Transaction> {
+    override fun findBlockTransactions(blockId: Long): Collection<Transaction> {
         return Db.useDSLContext<List<Transaction>> { ctx ->
             ctx.selectFrom(TRANSACTION)
                     .where(TRANSACTION.BLOCK_ID.eq(blockId))
                     .and(TRANSACTION.SIGNATURE.isNotNull)
                     .fetch { record ->
                         try {
-                            return@ctx.selectFrom(TRANSACTION)
-                                    .where(TRANSACTION.BLOCK_ID.eq(blockId))
-                                    .and(TRANSACTION.SIGNATURE.isNotNull)
-                                    .fetch loadTransaction record
+                            return@fetch loadTransaction(record)
                         } catch (e: BurstException.ValidationException) {
-                            throw RuntimeException("Transaction already in database for block_id = " + Convert.toUnsignedLong(blockId) + " does not pass validation!", e)
+                            throw RuntimeException("Transaction already in database for block_id = ${blockId.toUnsignedString()} does not pass validation!", e)
                         }
                     }
         }
@@ -126,8 +119,8 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         }
     }
 
-    override fun saveTransactions(transactions: List<Transaction>) {
-        if (!transactions.isEmpty()) {
+    override fun saveTransactions(transactions: Collection<Transaction>) {
+        if (transactions.isNotEmpty()) {
             Db.useDSLContext { ctx ->
                 val insertBatch = ctx.batch(
                         ctx.insertInto(TRANSACTION, TRANSACTION.ID, TRANSACTION.DEADLINE,
@@ -140,7 +133,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
                                 TRANSACTION.HAS_MESSAGE, TRANSACTION.HAS_ENCRYPTED_MESSAGE,
                                 TRANSACTION.HAS_PUBLIC_KEY_ANNOUNCEMENT, TRANSACTION.HAS_ENCRYPTTOSELF_MESSAGE,
                                 TRANSACTION.EC_BLOCK_HEIGHT, TRANSACTION.EC_BLOCK_ID)
-                                .values(null!!.toLong(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null))
+                                .values(null as Long?, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null))
                 for (transaction in transactions) {
                     insertBatch.bind(
                             transaction.id,
@@ -149,17 +142,17 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
                             if (transaction.recipientId == 0L) null else transaction.recipientId,
                             transaction.amountNQT,
                             transaction.feeNQT,
-                            Convert.parseHexString(transaction.referencedTransactionFullHash),
+                            transaction.referencedTransactionFullHash?.parseHexString(),
                             transaction.height,
                             transaction.blockId,
                             transaction.signature,
                             transaction.timestamp,
-                            transaction.type!!.type,
-                            transaction.type!!.subtype,
+                            transaction.type.type,
+                            transaction.type.subtype,
                             transaction.senderId,
                             getAttachmentBytes(transaction),
                             transaction.blockTimestamp,
-                            Convert.parseHexString(transaction.fullHash),
+                            transaction.fullHash.parseHexString(),
                             transaction.version,
                             transaction.message != null,
                             transaction.encryptedMessage != null,

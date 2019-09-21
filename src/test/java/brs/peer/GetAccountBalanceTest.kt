@@ -33,8 +33,8 @@ class GetAccountBalanceTest {
 
     @Test
     fun processRequest() {
-        val req = JsonObject()
-        req.addProperty(ACCOUNT_ID_PARAMETER_FIELD, TEST_ACCOUNT_ID)
+        val request = JsonObject()
+        request.addProperty(ACCOUNT_ID_PARAMETER_FIELD, TEST_ACCOUNT_ID)
         val peer = mock<Peer>()
 
         val mockBalanceNQT: Long = 5
@@ -43,20 +43,20 @@ class GetAccountBalanceTest {
 
         whenever(mockAccountService!!.getAccount(eq(TEST_ACCOUNT_NUMERIC_ID_PARSED))).doReturn(mockAccount)
 
-        val result = t!!.processRequest(req, peer) as JsonObject
+        val result = t!!.processRequest(request, peer) as JsonObject
 
         assertEquals("" + mockBalanceNQT, JSON.getAsString(result.get(BALANCE_NQT_RESPONSE_FIELD)))
     }
 
     @Test
     fun processRequest_notExistingAccount() {
-        val req = JsonObject()
-        req.addProperty(ACCOUNT_ID_PARAMETER_FIELD, TEST_ACCOUNT_ID)
+        val request = JsonObject()
+        request.addProperty(ACCOUNT_ID_PARAMETER_FIELD, TEST_ACCOUNT_ID)
         val peer = mock<Peer>()
 
         whenever(mockAccountService!!.getAccount(eq(TEST_ACCOUNT_NUMERIC_ID_PARSED))).doReturn(null)
 
-        val result = t!!.processRequest(req, peer) as JsonObject
+        val result = t!!.processRequest(request, peer) as JsonObject
 
         assertEquals("0", JSON.getAsString(result.get(BALANCE_NQT_RESPONSE_FIELD)))
     }

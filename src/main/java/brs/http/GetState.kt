@@ -2,6 +2,8 @@ package brs.http
 
 import brs.*
 import brs.assetexchange.AssetExchange
+import brs.http.common.Parameters.INCLUDE_COUNTS_PARAMETER
+import brs.http.common.ResultFields.TIME_RESPONSE
 import brs.peer.Peers
 import brs.props.PropertyService
 import brs.props.Props
@@ -11,16 +13,10 @@ import brs.services.EscrowService
 import brs.services.TimeService
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-
 import javax.servlet.http.HttpServletRequest
 
-import brs.http.common.Parameters.INCLUDE_COUNTS_PARAMETER
-import brs.http.common.ResultFields.TIME_RESPONSE
-
-internal class GetState(private val blockchain: Blockchain, private val blockchainProcessor: BlockchainProcessor, private val assetExchange: AssetExchange, private val accountService: AccountService, private val escrowService: EscrowService,
-                        private val aliasService: AliasService, private val timeService: TimeService, private val generator: Generator, private val propertyService: PropertyService) : APIServlet.JsonRequestHandler(arrayOf(APITag.INFO), INCLUDE_COUNTS_PARAMETER) {
-
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
+internal class GetState(private val blockchain: Blockchain, private val blockchainProcessor: BlockchainProcessor, private val assetExchange: AssetExchange, private val accountService: AccountService, private val escrowService: EscrowService, private val aliasService: AliasService, private val timeService: TimeService, private val generator: Generator, private val propertyService: PropertyService) : APIServlet.JsonRequestHandler(arrayOf(APITag.INFO), INCLUDE_COUNTS_PARAMETER) {
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val response = JsonObject()
 
@@ -30,7 +26,7 @@ internal class GetState(private val blockchain: Blockchain, private val blockcha
         response.addProperty("lastBlock", blockchain.lastBlock.stringId)
         response.addProperty("cumulativeDifficulty", blockchain.lastBlock.cumulativeDifficulty.toString())
 
-        if (!"false".equals(req.getParameter("includeCounts"), ignoreCase = true)) {
+        if (!"false".equals(request.getParameter("includeCounts"), ignoreCase = true)) {
             var totalEffectiveBalance: Long = 0
             for (account in accountService.getAllAccounts(0, -1)) {
                 val effectiveBalanceBURST = account.balanceNQT
@@ -39,7 +35,7 @@ internal class GetState(private val blockchain: Blockchain, private val blockcha
                 }
             }
             for (escrow in escrowService.allEscrowTransactions) {
-                totalEffectiveBalance += escrow.getAmountNQT()!!
+                totalEffectiveBalance += escrow.amountNQT!!
             }
             response.addProperty("totalEffectiveBalanceNXT", totalEffectiveBalance / Constants.ONE_BURST)
 
@@ -56,7 +52,7 @@ internal class GetState(private val blockchain: Blockchain, private val blockcha
             response.addProperty("numberOfTransfers", assetExchange.assetTransferCount)
             response.addProperty("numberOfAliases", aliasService.aliasCount)
         }
-        response.addProperty("numberOfPeers", Peers.getAllPeers().size)
+        response.addProperty("numberOfPeers", Peers.allPeers.size)
         response.addProperty("numberOfUnlockedAccounts", generator.allGenerators.size)
         response.addProperty("lastBlockchainFeeder", blockchainProcessor.lastBlockchainFeeder?.announcedAddress)
         response.addProperty("lastBlockchainFeederHeight", blockchainProcessor.lastBlockchainFeederHeight)
@@ -66,7 +62,7 @@ internal class GetState(private val blockchain: Blockchain, private val blockcha
         response.addProperty("totalMemory", Runtime.getRuntime().totalMemory())
         response.addProperty("freeMemory", Runtime.getRuntime().freeMemory())
         response.addProperty("indirectIncomingServiceEnabled", propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE))
-        val grpcApiEnabled = propertyService.get(Props.API_V2_SERVER)!!
+        val grpcApiEnabled = propertyService.get(Props.API_V2_SERVER)
         response.addProperty("grpcApiEnabled", grpcApiEnabled)
         if (grpcApiEnabled) response.addProperty("grpcApiPort", propertyService.get(if (propertyService.get(Props.DEV_TESTNET)) Props.DEV_API_V2_PORT else Props.API_V2_PORT))
 

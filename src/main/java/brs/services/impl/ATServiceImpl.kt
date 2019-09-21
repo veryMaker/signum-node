@@ -2,11 +2,9 @@ package brs.services.impl
 
 import brs.DependencyProvider
 import brs.at.AT
-import brs.db.store.ATStore
 import brs.services.ATService
 
 class ATServiceImpl(private val dp: DependencyProvider) : ATService {
-
     override val allATIds: Collection<Long>
         get() = dp.atStore.allATIds
 
@@ -14,8 +12,7 @@ class ATServiceImpl(private val dp: DependencyProvider) : ATService {
         return dp.atStore.getATsIssuedBy(accountId)
     }
 
-    override fun getAT(id: Long?): AT {
+    override fun getAT(id: Long?): AT? {
         return dp.atStore.getAT(id)
     }
-
 }

@@ -1,23 +1,17 @@
 package brs.db.sql
 
 import brs.*
-import brs.Block
-import brs.Transaction
-import brs.db.BlockDb
-import brs.db.TransactionDb
 import brs.db.store.BlockchainStore
-import brs.db.store.IndirectIncomingStore
-import brs.schema.tables.records.BlockRecord
-import brs.schema.tables.records.TransactionRecord
-import org.jooq.*
-
-import java.util.ArrayList
-
 import brs.schema.Tables.BLOCK
 import brs.schema.Tables.TRANSACTION
+import brs.schema.tables.records.BlockRecord
+import brs.schema.tables.records.TransactionRecord
+import org.jooq.Condition
+import org.jooq.DSLContext
+import org.jooq.Result
+import kotlin.math.max
 
 class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
-
     override val transactionCount: Int
         get() = Db.useDSLContext<Int> { ctx -> ctx.selectCount().from(TRANSACTION).fetchOne(0, Int::class.javaPrimitiveType) }
 
@@ -44,10 +38,10 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
         }
     }
 
-    override fun getBlocks(blockRecords: Result<BlockRecord>): Collection<Block> {
+    override fun getBlocks(blockRecords: Result<BlockRecord>): MutableCollection<Block> {
         return blockRecords.map { blockRecord ->
             try {
-                return@blockRecords.map dp . dbs . blockDb . loadBlock blockRecord
+                return@map dp.dbs.blockDb.loadBlock(blockRecord)
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException(e)
             }
@@ -75,13 +69,7 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
                     .limit(limit)
                     .fetch { result ->
                         try {
-                            return@ctx.selectFrom(BLOCK)
-                                    .where(BLOCK.HEIGHT.gt(ctx.select(BLOCK.HEIGHT)
-                                            .from(BLOCK)
-                                            .where(BLOCK.ID.eq(blockId))))
-                                    .orderBy(BLOCK.HEIGHT.asc())
-                                    .limit(limit)
-                                    .fetch dp . dbs . blockDb . loadBlock result
+                            return@fetch dp.dbs.blockDb.loadBlock(result);
                         } catch (e: BurstException.ValidationException) {
                             throw RuntimeException(e.toString(), e)
                         }
@@ -137,7 +125,7 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
     override fun getTransactions(ctx: DSLContext, rs: Result<TransactionRecord>): Collection<Transaction> {
         return rs.map { r ->
             try {
-                return@rs.map dp . dbs . transactionDb . loadTransaction r
+                return@map dp.dbs.transactionDb.loadTransaction(r)
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException(e)
             }
@@ -149,9 +137,9 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
     }
 
     override fun getLatestBlocks(amountBlocks: Int): Collection<Block> {
-        val latestBlockHeight = dp.dbs.blockDb.findLastBlock().height
+        val latestBlockHeight = dp.dbs.blockDb.findLastBlock()!!.height
 
-        val firstLatestBlockHeight = Math.max(0, latestBlockHeight - amountBlocks)
+        val firstLatestBlockHeight = max(0, latestBlockHeight - amountBlocks)
 
         return Db.useDSLContext<Collection<Block>> { ctx ->
             getBlocks(ctx.selectFrom(BLOCK)

@@ -12,7 +12,6 @@ import org.jooq.impl.TableImpl
 import java.util.ArrayList
 
 abstract class VersionedEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: BurstKey.Factory<T>, private val dp: DependencyProvider) : EntitySqlTable<T>(table, tableClass, dbKeyFactory, true, dp), VersionedEntityTable<T> {
-
     override fun rollback(height: Int) {
         rollback(table, tableClass, heightField, latestField, height, dbKeyFactory)
     }
@@ -22,9 +21,6 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
     }
 
     override fun delete(t: T): Boolean {
-        if (t == null) {
-            return false
-        }
         check(Db.isInTransaction) { "Not in transaction" }
         val dbKey = dbKeyFactory.newKey(t) as DbKey
         return Db.useDSLContext<Boolean> { ctx ->
@@ -34,7 +30,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
                 countQuery.addConditions(dbKey.getPKConditions(tableClass))
                 countQuery.addConditions(heightField.lt(dp.blockchain.height))
                 if (ctx.fetchCount(countQuery) > 0) {
-                    val updateQuery = ctx.updateQuery<*>(tableClass)
+                    val updateQuery = ctx.updateQuery(tableClass)
                     updateQuery.addValue(
                             latestField,
                             false
@@ -47,11 +43,11 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
                     // delete after the save
                     updateQuery.execute()
 
-                    return@Db.useDSLContext true
+                    return@useDSLContext true
                 } else {
-                    val deleteQuery = ctx.deleteQuery<*>(tableClass)
+                    val deleteQuery = ctx.deleteQuery(tableClass)
                     deleteQuery.addConditions(dbKey.getPKConditions(tableClass))
-                    return@Db.useDSLContext deleteQuery . execute () > 0
+                    return@useDSLContext deleteQuery.execute () > 0
                 }
             } finally {
                 Db.getCache<Any>(table).remove(dbKey)
@@ -60,7 +56,6 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
     }
 
     companion object {
-
         internal fun rollback(table: String, tableClass: TableImpl<*>, heightField: Field<Int>, latestField: Field<Boolean>, height: Int, dbKeyFactory: DbKey.Factory<*>) {
             check(Db.isInTransaction) { "Not in transaction" }
 
@@ -77,7 +72,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
                 val dbKeys = selectForDeleteQuery.fetch { r -> dbKeyFactory.newKey(r) as DbKey }
 
                 // delete all entries > height
-                val deleteQuery = ctx.deleteQuery<*>(tableClass)
+                val deleteQuery = ctx.deleteQuery(tableClass)
                 deleteQuery.addConditions(heightField.gt(height))
                 deleteQuery.execute()
 
@@ -90,7 +85,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
                     val maxHeight = selectMaxHeightQuery.fetchOne().get(DSL.max(heightField))
 
                     if (maxHeight != null) {
-                        val setLatestQuery = ctx.updateQuery<*>(tableClass)
+                        val setLatestQuery = ctx.updateQuery(tableClass)
                         setLatestQuery.addConditions(dbKey.getPKConditions(tableClass))
                         setLatestQuery.addConditions(heightField.eq(maxHeight))
                         setLatestQuery.addValue(latestField, true)
@@ -119,11 +114,11 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
                 selectMaxHeightQuery.addHaving(DSL.countDistinct(heightField).gt(1))
 
                 // delete all fetched accounts, except if it's height is the max height we figured out
-                val deleteLowerHeightQuery = ctx.deleteQuery<*>(tableClass)
-                deleteLowerHeightQuery.addConditions(heightField.lt(null!!.toInt()))
+                val deleteLowerHeightQuery = ctx.deleteQuery(tableClass)
+                deleteLowerHeightQuery.addConditions(heightField.lt(null as Int?))
                 for (column in dbKeyFactory.pkColumns) {
                     val pkField = tableClass.field(column, Long::class.java)
-                    deleteLowerHeightQuery.addConditions(pkField.eq(null!!.toLong()))
+                    deleteLowerHeightQuery.addConditions(pkField.eq(null as Long?))
                 }
                 val deleteBatch = ctx.batch(deleteLowerHeightQuery)
 

@@ -49,7 +49,7 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
         return assetService.getAllAssets(from, to)
     }
 
-    override fun getAsset(assetId: Long): Asset {
+    override fun getAsset(assetId: Long): Asset? {
         return assetService.getAsset(assetId)
     }
 
@@ -69,7 +69,7 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
         tradeService.addListener(listener, eventType)
     }
 
-    override fun getAskOrder(orderId: Long): Ask {
+    override fun getAskOrder(orderId: Long): Ask? {
         return orderService.getAskOrder(orderId)
     }
 
@@ -93,7 +93,7 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
         orderService.removeAskOrder(orderId)
     }
 
-    override fun getBidOrder(orderId: Long): Bid {
+    override fun getBidOrder(orderId: Long): Bid? {
         return orderService.getBidOrder(orderId)
     }
 

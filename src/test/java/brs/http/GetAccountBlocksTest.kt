@@ -45,7 +45,7 @@ class GetAccountBlocksTest : AbstractUnitTest() {
         val mockFirstIndex = 2
         val mockLastIndex = 3
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(FIRST_INDEX_PARAMETER, "" + mockFirstIndex),
                 MockParam(LAST_INDEX_PARAMETER, "" + mockLastIndex),
                 MockParam(TIMESTAMP_PARAMETER, "" + mockTimestamp)
@@ -55,12 +55,12 @@ class GetAccountBlocksTest : AbstractUnitTest() {
         val mockBlock = mock<Block>()
 
 
-        whenever(parameterServiceMock!!.getAccount(req)).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getAccount(request)).doReturn(mockAccount)
 
         val mockBlockIterator = mockCollection<Block>(mockBlock)
         whenever(blockchainMock!!.getBlocks(eq(mockAccount), eq(mockTimestamp), eq(mockFirstIndex), eq(mockLastIndex))).doReturn(mockBlockIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         val blocks = result.get(BLOCKS_RESPONSE) as JsonArray
         assertNotNull(blocks)

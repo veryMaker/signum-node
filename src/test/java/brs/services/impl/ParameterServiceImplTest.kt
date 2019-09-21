@@ -57,51 +57,51 @@ class ParameterServiceImplTest {
         val accountId = "123"
         val mockAccount = mock<Account>()
 
-        val req = QuickMocker.httpServletRequest(MockParam(ACCOUNT_PARAMETER, accountId))
+        val request = QuickMocker.httpServletRequest(MockParam(ACCOUNT_PARAMETER, accountId))
 
         whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(mockAccount)
 
-        assertEquals(mockAccount, t!!.getAccount(req))
+        assertEquals(mockAccount, t!!.getAccount(request))
     }
 
     @Test(expected = ParameterException::class)
     @Throws(BurstException::class)
     fun getAccount_MissingAccountWhenNoAccountParameterGiven() {
-        val req = QuickMocker.httpServletRequest()
-        t!!.getAccount(req)
+        val request = QuickMocker.httpServletRequest()
+        t!!.getAccount(request)
     }
 
     @Test(expected = ParameterException::class)
     @Throws(BurstException::class)
     fun getAccount_UnknownAccountWhenIdNotFound() {
         val accountId = "123"
-        val req = QuickMocker.httpServletRequest(MockParam(ACCOUNT_PARAMETER, accountId))
+        val request = QuickMocker.httpServletRequest(MockParam(ACCOUNT_PARAMETER, accountId))
 
         whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(null)
 
-        t!!.getAccount(req)
+        t!!.getAccount(request)
     }
 
     @Test(expected = ParameterException::class)
     @Throws(BurstException::class)
     fun getAccount_IncorrectAccountWhenRuntimeExceptionOccurs() {
         val accountId = "123"
-        val req = QuickMocker.httpServletRequest(MockParam(ACCOUNT_PARAMETER, accountId))
+        val request = QuickMocker.httpServletRequest(MockParam(ACCOUNT_PARAMETER, accountId))
 
         whenever(accountServiceMock!!.getAccount(eq(123L))).thenThrow(RuntimeException())
 
-        t!!.getAccount(req)
+        t!!.getAccount(request)
     }
 
     @Test
     @Throws(ParameterException::class)
     fun getAccounts() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
         val accountID1 = "123"
         val accountID2 = "321"
         val accountIds = arrayOf(accountID1, accountID2)
 
-        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
+        whenever(request.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
 
         val mockAccount1 = mock<Account>()
         val mockAccount2 = mock<Account>()
@@ -109,7 +109,7 @@ class ParameterServiceImplTest {
         whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(mockAccount1)
         whenever(accountServiceMock!!.getAccount(eq(321L))).doReturn(mockAccount2)
 
-        val result = t!!.getAccounts(req)
+        val result = t!!.getAccounts(request)
 
         assertNotNull(result)
         assertEquals(2, result.size.toLong())
@@ -120,12 +120,12 @@ class ParameterServiceImplTest {
     @Test
     @Throws(ParameterException::class)
     fun getAccounts_emptyResultWhenEmptyAccountValueGiven() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
         val accountIds = arrayOf("")
 
-        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
+        whenever(request.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
 
-        val result = t!!.getAccounts(req)
+        val result = t!!.getAccounts(request)
 
         assertNotNull(result)
         assertTrue(result.isEmpty())
@@ -134,12 +134,12 @@ class ParameterServiceImplTest {
     @Test
     @Throws(ParameterException::class)
     fun getAccounts_emptyResultWhenNullAccountValueGiven() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
         val accountIds = arrayOfNulls<String>(1)
 
-        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
+        whenever(request.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
 
-        val result = t!!.getAccounts(req)
+        val result = t!!.getAccounts(request)
 
         assertNotNull(result)
         assertTrue(result.isEmpty())
@@ -149,104 +149,104 @@ class ParameterServiceImplTest {
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getAccounts_missingAccountWhenNoParametersNull() {
-        val req = QuickMocker.httpServletRequest()
-        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(null)
+        val request = QuickMocker.httpServletRequest()
+        whenever(request.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(null)
 
-        t!!.getAccounts(req)
+        t!!.getAccounts(request)
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getAccounts_missingAccountWhenNoParametersGiven() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
         val accountIds = arrayOfNulls<String>(0)
 
-        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
+        whenever(request.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
 
-        t!!.getAccounts(req)
+        t!!.getAccounts(request)
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getAccounts_unknownAccountWhenNotFound() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
         val accountID1 = "123"
         val accountIds = arrayOf(accountID1)
 
-        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
+        whenever(request.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
 
         whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(null)
 
-        t!!.getAccounts(req)
+        t!!.getAccounts(request)
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getAccounts_incorrectAccountWhenRuntimeExceptionOccurs() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
         val accountID1 = "123"
         val accountIds = arrayOf(accountID1)
 
-        whenever(req.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
+        whenever(request.getParameterValues(eq(ACCOUNT_PARAMETER))).doReturn(accountIds)
 
         whenever(accountServiceMock!!.getAccount(eq(123L))).thenThrow(RuntimeException())
 
-        t!!.getAccounts(req)
+        t!!.getAccounts(request)
     }
 
     @Test
     @Throws(ParameterException::class)
     fun getSenderAccount_withSecretPhrase() {
         val secretPhrase = TEST_SECRET_PHRASE
-        val req = QuickMocker.httpServletRequest(MockParam(SECRET_PHRASE_PARAMETER, secretPhrase))
+        val request = QuickMocker.httpServletRequest(MockParam(SECRET_PHRASE_PARAMETER, secretPhrase))
 
         val mockAccount = mock<Account>()
 
         whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(secretPhrase)))).doReturn(mockAccount)
 
-        assertEquals(mockAccount, t!!.getSenderAccount(req))
+        assertEquals(mockAccount, t!!.getSenderAccount(request))
     }
 
     @Test
     @Throws(ParameterException::class)
     fun getSenderAccount_withPublicKey() {
         val publicKey = "123"
-        val req = QuickMocker.httpServletRequest(MockParam(PUBLIC_KEY_PARAMETER, publicKey))
+        val request = QuickMocker.httpServletRequest(MockParam(PUBLIC_KEY_PARAMETER, publicKey))
 
         val mockAccount = mock<Account>()
 
-        whenever(accountServiceMock!!.getAccount(eq(Convert.parseHexString(publicKey)))).doReturn(mockAccount)
+        whenever(accountServiceMock!!.getAccount(eq(Convert.publicKey)))).doReturn(mockAccount.parseHexString()
 
-        assertEquals(mockAccount, t!!.getSenderAccount(req))
+        assertEquals(mockAccount, t!!.getSenderAccount(request))
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getSenderAccount_withPublicKey_runtimeExceptionGivesParameterException() {
         val publicKey = "123"
-        val req = QuickMocker.httpServletRequest(MockParam(PUBLIC_KEY_PARAMETER, publicKey))
+        val request = QuickMocker.httpServletRequest(MockParam(PUBLIC_KEY_PARAMETER, publicKey))
 
-        whenever(accountServiceMock!!.getAccount(eq(Convert.parseHexString(publicKey)))).thenThrow(RuntimeException())
+        whenever(accountServiceMock!!.getAccount(eq(Convert.publicKey)))).thenThrow(RuntimeException().parseHexString()
 
-        t!!.getSenderAccount(req)
+        t!!.getSenderAccount(request)
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getSenderAccount_missingSecretPhraseAndPublicKey() {
-        val req = QuickMocker.httpServletRequest()
-        t!!.getSenderAccount(req)
+        val request = QuickMocker.httpServletRequest()
+        t!!.getSenderAccount(request)
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getSenderAccount_noAccountFoundResultsInUnknownAccount() {
         val publicKey = "123"
-        val req = QuickMocker.httpServletRequest(MockParam(PUBLIC_KEY_PARAMETER, publicKey))
+        val request = QuickMocker.httpServletRequest(MockParam(PUBLIC_KEY_PARAMETER, publicKey))
 
-        whenever(accountServiceMock!!.getAccount(eq(Convert.parseHexString(publicKey)))).doReturn(null)
+        whenever(accountServiceMock!!.getAccount(eq(Convert.publicKey)))).doReturn(null.parseHexString()
 
-        t!!.getSenderAccount(req)
+        t!!.getSenderAccount(request)
     }
 
     @Test
@@ -254,11 +254,11 @@ class ParameterServiceImplTest {
     fun getAliasByAliasId() {
         val mockAlias = mock<Alias>()
 
-        val req = QuickMocker.httpServletRequest(MockParam(ALIAS_PARAMETER, "123"))
+        val request = QuickMocker.httpServletRequest(MockParam(ALIAS_PARAMETER, "123"))
 
         whenever(aliasServiceMock!!.getAlias(eq(123L))).doReturn(mockAlias)
 
-        assertEquals(mockAlias, t!!.getAlias(req))
+        assertEquals(mockAlias, t!!.getAlias(request))
     }
 
     @Test
@@ -266,11 +266,11 @@ class ParameterServiceImplTest {
     fun getAliasByAliasName() {
         val mockAlias = mock<Alias>()
 
-        val req = QuickMocker.httpServletRequest(MockParam(ALIAS_NAME_PARAMETER, "aliasName"))
+        val request = QuickMocker.httpServletRequest(MockParam(ALIAS_NAME_PARAMETER, "aliasName"))
 
         whenever(aliasServiceMock!!.getAlias(eq("aliasName"))).doReturn(mockAlias)
 
-        assertEquals(mockAlias, t!!.getAlias(req))
+        assertEquals(mockAlias, t!!.getAlias(request))
     }
 
     @Test(expected = ParameterException::class)
@@ -282,8 +282,8 @@ class ParameterServiceImplTest {
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getAlias_noAliasOrAliasNameGivenIsMissingAliasOrAliasName() {
-        val req = QuickMocker.httpServletRequest()
-        t!!.getAlias(req)
+        val request = QuickMocker.httpServletRequest()
+        t!!.getAlias(request)
     }
 
     @Test(expected = ParameterException::class)
@@ -291,23 +291,23 @@ class ParameterServiceImplTest {
     fun noAliasFoundIsUnknownAlias() {
         val mockAlias = mock<Alias>()
 
-        val req = QuickMocker.httpServletRequest(MockParam(ALIAS_PARAMETER, "123"))
+        val request = QuickMocker.httpServletRequest(MockParam(ALIAS_PARAMETER, "123"))
 
         whenever(aliasServiceMock!!.getAlias(eq(123L))).doReturn(null)
 
-        assertEquals(mockAlias, t!!.getAlias(req))
+        assertEquals(mockAlias, t!!.getAlias(request))
     }
 
     @Test
     @Throws(ParameterException::class)
     fun getAsset() {
-        val req = QuickMocker.httpServletRequest(MockParam(ASSET_PARAMETER, "123"))
+        val request = QuickMocker.httpServletRequest(MockParam(ASSET_PARAMETER, "123"))
 
         val mockAsset = mock<Asset>()
 
         whenever(assetExchangeMock!!.getAsset(eq(123L))).doReturn(mockAsset)
 
-        assertEquals(mockAsset, t!!.getAsset(req))
+        assertEquals(mockAsset, t!!.getAsset(request))
     }
 
     @Test(expected = ParameterException::class)
@@ -333,7 +333,7 @@ class ParameterServiceImplTest {
     @Test
     @Throws(ParameterException::class)
     fun getGoods() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(GOODS_PARAMETER, "1")
         )
 
@@ -341,7 +341,7 @@ class ParameterServiceImplTest {
 
         whenever(dgsGoodsStoreServiceMock!!.getGoods(eq(1L))).doReturn(mockGoods)
 
-        assertEquals(mockGoods, t!!.getGoods(req))
+        assertEquals(mockGoods, t!!.getGoods(request))
     }
 
     @Test(expected = ParameterException::class)
@@ -353,29 +353,29 @@ class ParameterServiceImplTest {
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getGoods_unknownGoods() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(GOODS_PARAMETER, "1")
         )
 
         whenever(dgsGoodsStoreServiceMock!!.getGoods(eq(1L))).doReturn(null)
 
-        t!!.getGoods(req)
+        t!!.getGoods(request)
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getGoods_incorrectGoods() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(GOODS_PARAMETER, "notANumber")
         )
 
-        t!!.getGoods(req)
+        t!!.getGoods(request)
     }
 
     @Test
     @Throws(ParameterException::class)
     fun getPurchase() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PURCHASE_PARAMETER, "1")
         )
 
@@ -383,7 +383,7 @@ class ParameterServiceImplTest {
 
         whenever(dgsGoodsStoreServiceMock!!.getPurchase(eq(1L))).doReturn(mockPurchase)
 
-        assertEquals(mockPurchase, t!!.getPurchase(req))
+        assertEquals(mockPurchase, t!!.getPurchase(request))
     }
 
     @Test(expected = ParameterException::class)
@@ -395,29 +395,29 @@ class ParameterServiceImplTest {
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getPurchase_unknownPurchase() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PURCHASE_PARAMETER, "1")
         )
 
         whenever(dgsGoodsStoreServiceMock!!.getPurchase(eq(1L))).doReturn(null)
 
-        t!!.getPurchase(req)
+        t!!.getPurchase(request)
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getPurchase_incorrectPurchase() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PURCHASE_PARAMETER, "notANumber")
         )
 
-        t!!.getPurchase(req)
+        t!!.getPurchase(request)
     }
 
     @Test
     @Throws(ParameterException::class)
     fun getEncryptMessage_isNotText() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(MESSAGE_TO_ENCRYPT_PARAMETER, "beef123"),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "false"))
@@ -427,28 +427,28 @@ class ParameterServiceImplTest {
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        whenever(mockRecipientAccount.encryptTo(eq(Convert.parseHexString("beef123")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
+        whenever(mockRecipientAccount.encryptTo(eq(Convert."beef123")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock.parseHexString()
 
-        assertEquals(encryptedDataMock, t!!.getEncryptedMessage(req, mockRecipientAccount, null))
+        assertEquals(encryptedDataMock, t!!.getEncryptedMessage(request, mockRecipientAccount, null))
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getEncryptMessage_missingRecipientParameterException() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(MESSAGE_TO_ENCRYPT_PARAMETER, "beef123"),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "false"))
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        assertEquals(encryptedDataMock, t!!.getEncryptedMessage(req, null, null))
+        assertEquals(encryptedDataMock, t!!.getEncryptedMessage(request, null, null))
     }
 
     @Test
     @Throws(ParameterException::class)
     fun getEncryptMessage_isText() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(MESSAGE_TO_ENCRYPT_PARAMETER, "message"),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "true"))
@@ -460,17 +460,17 @@ class ParameterServiceImplTest {
 
         whenever(mockRecipientAccount.encryptTo(eq(Convert.toBytes("message")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
 
-        assertEquals(encryptedDataMock, t!!.getEncryptedMessage(req, mockRecipientAccount, null))
+        assertEquals(encryptedDataMock, t!!.getEncryptedMessage(request, mockRecipientAccount, null))
     }
 
     @Test
     @Throws(ParameterException::class)
     fun getEncryptMessage_encryptMessageAndNonce() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ENCRYPTED_MESSAGE_DATA_PARAMETER, "abc"),
                 MockParam(ENCRYPTED_MESSAGE_NONCE_PARAMETER, "123"))
 
-        val result = t!!.getEncryptedMessage(req, null, null)
+        val result = t!!.getEncryptedMessage(request, null, null)
 
         assertEquals((-85).toByte().toLong(), result!!.data[0].toLong())
         assertEquals(18.toByte().toLong(), result.nonce[0].toLong())
@@ -479,17 +479,17 @@ class ParameterServiceImplTest {
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getEncryptMessage_encryptMessageAndNonce_runtimeExceptionIncorrectEncryptedMessage() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ENCRYPTED_MESSAGE_DATA_PARAMETER, "zz"),
                 MockParam(ENCRYPTED_MESSAGE_NONCE_PARAMETER, "123"))
 
-        t!!.getEncryptedMessage(req, null, null)
+        t!!.getEncryptedMessage(request, null, null)
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getEncryptMessage_encryptionRuntimeExceptionParameterException() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(MESSAGE_TO_ENCRYPT_PARAMETER, "invalidHexNumber"),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "false"))
@@ -497,7 +497,7 @@ class ParameterServiceImplTest {
         val mockAccount = mock<Account>()
         whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).doReturn(mockAccount)
 
-        t!!.getEncryptedMessage(req, mockAccount, null)
+        t!!.getEncryptedMessage(request, mockAccount, null)
     }
 
     @Test
@@ -509,7 +509,7 @@ class ParameterServiceImplTest {
     @Test
     @Throws(ParameterException::class)
     fun getEncryptToSelfMessage_isNotText() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER, "beef123"),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, "false"))
@@ -519,15 +519,15 @@ class ParameterServiceImplTest {
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        whenever(mockAccount.encryptTo(eq(Convert.parseHexString("beef123")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
+        whenever(mockAccount.encryptTo(eq(Convert."beef123")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock.parseHexString()
 
-        assertEquals(encryptedDataMock, t!!.getEncryptToSelfMessage(req))
+        assertEquals(encryptedDataMock, t!!.getEncryptToSelfMessage(request))
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getEncryptToSelfMessage_isNotText_notHexParameterException() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER, "zzz"),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, "false"))
@@ -537,15 +537,15 @@ class ParameterServiceImplTest {
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        whenever(mockAccount.encryptTo(eq(Convert.parseHexString("beef123")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
+        whenever(mockAccount.encryptTo(eq(Convert."beef123")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock.parseHexString()
 
-        assertEquals(encryptedDataMock, t!!.getEncryptToSelfMessage(req))
+        assertEquals(encryptedDataMock, t!!.getEncryptToSelfMessage(request))
     }
 
     @Test
     @Throws(ParameterException::class)
     fun getEncryptToSelfMessage_encryptMessageToSelf_isText() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER, "message"),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, "true"))
@@ -557,17 +557,17 @@ class ParameterServiceImplTest {
 
         whenever(mockAccount.encryptTo(eq(Convert.toBytes("message")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
 
-        assertEquals(encryptedDataMock, t!!.getEncryptToSelfMessage(req))
+        assertEquals(encryptedDataMock, t!!.getEncryptToSelfMessage(request))
     }
 
     @Test
     @Throws(ParameterException::class)
     fun getEncryptToSelfMessage_encryptMessageAndNonce() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ENCRYPT_TO_SELF_MESSAGE_DATA, "abc"),
                 MockParam(ENCRYPT_TO_SELF_MESSAGE_NONCE, "123"))
 
-        val result = t!!.getEncryptToSelfMessage(req)
+        val result = t!!.getEncryptToSelfMessage(request)
 
         assertEquals((-85).toByte().toLong(), result!!.data[0].toLong())
         assertEquals(18.toByte().toLong(), result.nonce[0].toLong())
@@ -576,17 +576,17 @@ class ParameterServiceImplTest {
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getEncryptToSelfMessage_encryptMessageAndNonce_runtimeExceptionIncorrectEncryptedMessage() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ENCRYPT_TO_SELF_MESSAGE_DATA, "zz"),
                 MockParam(ENCRYPT_TO_SELF_MESSAGE_NONCE, "123"))
 
-        t!!.getEncryptToSelfMessage(req)
+        t!!.getEncryptToSelfMessage(request)
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getEncryptToSelfMessage_encryptionRuntimeExceptionParameterException() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER, "invalidHexNumber"),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, "false"))
@@ -594,7 +594,7 @@ class ParameterServiceImplTest {
         val mockAccount = mock<Account>()
         whenever(accountServiceMock!!.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).doReturn(mockAccount)
 
-        t!!.getEncryptToSelfMessage(req)
+        t!!.getEncryptToSelfMessage(request)
     }
 
     @Test
@@ -606,9 +606,9 @@ class ParameterServiceImplTest {
     @Test
     @Throws(ParameterException::class)
     fun getSecretPhrase() {
-        val req = QuickMocker.httpServletRequest(MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE))
+        val request = QuickMocker.httpServletRequest(MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE))
 
-        assertEquals(TEST_SECRET_PHRASE, t!!.getSecretPhrase(req))
+        assertEquals(TEST_SECRET_PHRASE, t!!.getSecretPhrase(request))
     }
 
     @Test(expected = ParameterException::class)
@@ -751,7 +751,7 @@ class ParameterServiceImplTest {
     fun getAT() {
         val atId = 123L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(AT_PARAMETER, atId)
         )
 
@@ -759,25 +759,25 @@ class ParameterServiceImplTest {
 
         whenever(atServiceMock!!.getAT(eq(atId))).doReturn(mockAT)
 
-        assertEquals(mockAT, t!!.getAT(req))
+        assertEquals(mockAT, t!!.getAT(request))
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getAT_missingAT() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
-        t!!.getAT(req)
+        t!!.getAT(request)
     }
 
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class)
     fun getAT_incorrectAT() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(AT_PARAMETER, "notLongId")
         )
 
-        t!!.getAT(req)
+        t!!.getAT(request)
     }
 
     @Test(expected = ParameterException::class)
@@ -785,13 +785,13 @@ class ParameterServiceImplTest {
     fun getAT_unknownAT() {
         val atId = 123L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(AT_PARAMETER, atId)
         )
 
         whenever(atServiceMock!!.getAT(eq(atId))).doReturn(null)
 
-        t!!.getAT(req)
+        t!!.getAT(request)
     }
 
 }

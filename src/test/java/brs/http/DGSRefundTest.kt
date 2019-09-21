@@ -54,7 +54,7 @@ class DGSRefundTest : AbstractTransactionTest() {
     fun processRequest() {
         val refundNQTParameter: Long = 5
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(REFUND_NQT_PARAMETER, refundNQTParameter)
         )
 
@@ -69,8 +69,8 @@ class DGSRefundTest : AbstractTransactionTest() {
         whenever(mockPurchase.refundNote).doReturn(null)
         whenever(mockPurchase.encryptedGoods).doReturn(mock<EncryptedData>())
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
         val mockBuyerAccount = mock<Account>()
 
@@ -78,7 +78,7 @@ class DGSRefundTest : AbstractTransactionTest() {
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsRefund
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsRefund
         assertNotNull(attachment)
 
         assertEquals(REFUND, attachment.transactionType)
@@ -89,7 +89,7 @@ class DGSRefundTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_incorrectPurchase() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockSellerAccount = mock<Account>()
         whenever(mockSellerAccount.id).doReturn(1L)
@@ -97,16 +97,16 @@ class DGSRefundTest : AbstractTransactionTest() {
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.sellerId).doReturn(2L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        assertEquals(INCORRECT_PURCHASE, t!!.processRequest(req))
+        assertEquals(INCORRECT_PURCHASE, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_duplicateRefund() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockSellerAccount = mock<Account>()
         whenever(mockSellerAccount.id).doReturn(1L)
@@ -115,16 +115,16 @@ class DGSRefundTest : AbstractTransactionTest() {
         whenever(mockPurchase.sellerId).doReturn(1L)
         whenever(mockPurchase.refundNote).doReturn(mock<EncryptedData>())
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        assertEquals(DUPLICATE_REFUND, t!!.processRequest(req))
+        assertEquals(DUPLICATE_REFUND, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_goodsNotDelivered() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockSellerAccount = mock<Account>()
         whenever(mockSellerAccount.id).doReturn(1L)
@@ -134,16 +134,16 @@ class DGSRefundTest : AbstractTransactionTest() {
         whenever(mockPurchase.refundNote).doReturn(null)
         whenever(mockPurchase.encryptedGoods).doReturn(null)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        assertEquals(GOODS_NOT_DELIVERED, t!!.processRequest(req))
+        assertEquals(GOODS_NOT_DELIVERED, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_incorrectDgsRefundWrongFormat() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(REFUND_NQT_PARAMETER, "Bob")
         )
 
@@ -155,16 +155,16 @@ class DGSRefundTest : AbstractTransactionTest() {
         whenever(mockPurchase.refundNote).doReturn(null)
         whenever(mockPurchase.encryptedGoods).doReturn(mock<EncryptedData>())
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        assertEquals(INCORRECT_DGS_REFUND, t!!.processRequest(req))
+        assertEquals(INCORRECT_DGS_REFUND, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_negativeIncorrectDGSRefund() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(REFUND_NQT_PARAMETER, -5L)
         )
 
@@ -176,16 +176,16 @@ class DGSRefundTest : AbstractTransactionTest() {
         whenever(mockPurchase.refundNote).doReturn(null)
         whenever(mockPurchase.encryptedGoods).doReturn(mock<EncryptedData>())
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        assertEquals(INCORRECT_DGS_REFUND, t!!.processRequest(req))
+        assertEquals(INCORRECT_DGS_REFUND, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_overMaxBalanceNQTIncorrectDGSRefund() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(REFUND_NQT_PARAMETER, Constants.MAX_BALANCE_NQT + 1)
         )
 
@@ -197,10 +197,10 @@ class DGSRefundTest : AbstractTransactionTest() {
         whenever(mockPurchase.refundNote).doReturn(null)
         whenever(mockPurchase.encryptedGoods).doReturn(mock<EncryptedData>())
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        assertEquals(INCORRECT_DGS_REFUND, t!!.processRequest(req))
+        assertEquals(INCORRECT_DGS_REFUND, t!!.processRequest(request))
     }
 
 }

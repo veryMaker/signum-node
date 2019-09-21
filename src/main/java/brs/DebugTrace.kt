@@ -1,18 +1,13 @@
 package brs
 
-import brs.assetexchange.AssetExchange
-import brs.props.PropertyService
 import brs.props.Props
-import brs.services.AccountService
-import brs.services.DGSGoodsStoreService
 import brs.util.Convert
-import org.slf4j.Logger
+import brs.util.parseUnsignedLong
+import brs.util.toUnsignedString
 import org.slf4j.LoggerFactory
-
 import java.io.*
 import java.math.BigInteger
 import java.util.*
-import java.util.function.Consumer
 import kotlin.properties.Delegates
 
 class DebugTrace private constructor(private val accountIds: Set<Long>, private val logName: String) {
@@ -42,17 +37,17 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
 
     private fun include(attachment: Attachment): Boolean {
         return when (attachment) {
-            is Attachment.DigitalGoodsPurchase -> include(dp.digitalGoodsStoreService.getGoods(attachment.goodsId).sellerId)
-            is Attachment.DigitalGoodsDelivery -> include(dp.digitalGoodsStoreService.getPurchase(attachment.purchaseId).buyerId)
-            is Attachment.DigitalGoodsRefund -> include(dp.digitalGoodsStoreService.getPurchase(attachment.purchaseId).buyerId)
+            is Attachment.DigitalGoodsPurchase -> include(dp.digitalGoodsStoreService.getGoods(attachment.goodsId)!!.sellerId)
+            is Attachment.DigitalGoodsDelivery -> include(dp.digitalGoodsStoreService.getPurchase(attachment.purchaseId)!!.buyerId)
+            is Attachment.DigitalGoodsRefund -> include(dp.digitalGoodsStoreService.getPurchase(attachment.purchaseId)!!.buyerId)
             else -> false
         }
     }
 
     // Note: Trade events occur before the change in account balances
     private fun trace(trade: Trade) {
-        val askAccountId = dp.assetExchange.getAskOrder(trade.askOrderId).accountId
-        val bidAccountId = dp.assetExchange.getBidOrder(trade.bidOrderId).accountId
+        val askAccountId = dp.assetExchange.getAskOrder(trade.askOrderId)!!.accountId
+        val bidAccountId = dp.assetExchange.getBidOrder(trade.bidOrderId)!!.accountId
         if (include(askAccountId)) {
             log(getValues(askAccountId, trade, true))
         }
@@ -103,10 +98,10 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
     }
 
     private fun lessorGuaranteedBalance(account: Account, lesseeId: Long): Map<String, String> {
-        val map = mutableMapOf<String, String>>()
-        map["account"] = Convert.toUnsignedLong(account.id)
+        val map = mutableMapOf<String, String>()
+        map["account"] = account.id.toUnsignedString()
         map["lessor guaranteed balance"] = account.balanceNQT.toString()
-        map["lessee"] = Convert.toUnsignedLong(lesseeId)
+        map["lessee"] = lesseeId.toUnsignedString()
         map["timestamp"] = dp.blockchain.lastBlock.timestamp.toString()
         map["height"] = dp.blockchain.height.toString()
         map["event"] = "lessor guaranteed balance"
@@ -114,8 +109,8 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
     }
 
     private fun getValues(accountId: Long, unconfirmed: Boolean): MutableMap<String, String> {
-        val map = mutableMapOf<String, String>>()
-        map["account"] = Convert.toUnsignedLong(accountId)
+        val map = mutableMapOf<String, String>()
+        map["account"] = accountId.toUnsignedString()
         val account = Account.getAccount(dp, accountId)
         map["balance"] = (account?.balanceNQT ?: 0).toString()
         map["unconfirmed balance"] = (account?.unconfirmedBalanceNQT ?: 0).toString()
@@ -127,7 +122,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
 
     private fun getValues(accountId: Long, trade: Trade, isAsk: Boolean): Map<String, String> {
         val map = getValues(accountId, false)
-        map["asset"] = Convert.toUnsignedLong(trade.assetId)
+        map["asset"] = trade.assetId.toUnsignedString()
         map["trade quantity"] = (if (isAsk) -trade.quantityQNT else trade.quantityQNT).toString()
         map["trade price"] = trade.priceNQT.toString()
         val tradeCost = Convert.safeMultiply(trade.quantityQNT, trade.priceNQT)
@@ -154,9 +149,9 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
         map["transaction fee"] = fee.toString()
         map["transaction"] = transaction.stringId
         if (isRecipient) {
-            map["sender"] = Convert.toUnsignedLong(transaction.senderId)
+            map["sender"] = transaction.senderId.toUnsignedString()
         } else {
-            map["recipient"] = Convert.toUnsignedLong(transaction.recipientId)
+            map["recipient"] = transaction.recipientId.toUnsignedString()
         }
         map["event"] = "transaction"
         return map
@@ -177,9 +172,9 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
     }
 
     private fun getValues(accountId: Long, accountAsset: Account.AccountAsset, unconfirmed: Boolean): Map<String, String> {
-        val map = mutableMapOf<String, String>>()
-        map["account"] = Convert.toUnsignedLong(accountId)
-        map["asset"] = Convert.toUnsignedLong(accountAsset.assetId)
+        val map = mutableMapOf<String, String>()
+        map["account"] = accountId.toUnsignedString()
+        map["asset"] = accountAsset.assetId.toUnsignedString()
         if (unconfirmed) {
             map["unconfirmed asset balance"] = accountAsset.unconfirmedQuantityQNT.toString()
         } else {
@@ -198,7 +193,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
                 return emptyMap()
             }
             val isAsk = attachment is Attachment.ColoredCoinsAskOrderPlacement
-            map["asset"] = Convert.toUnsignedLong(attachment.assetId)
+            map["asset"] = attachment.assetId.toUnsignedString()
             map["order"] = transaction.stringId
             map["order price"] = attachment.priceNQT.toString()
             var quantity = attachment.quantityQNT
@@ -221,7 +216,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
             map["asset quantity"] = attachment.quantityQNT.toString()
             map["event"] = "asset issuance"
         } else if (attachment is Attachment.ColoredCoinsAssetTransfer) {
-            map["asset"] = Convert.toUnsignedLong(attachment.assetId)
+            map["asset"] = attachment.assetId.toUnsignedString()
             var quantity = attachment.quantityQNT
             if (!isRecipient) {
                 quantity = -quantity
@@ -229,23 +224,23 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
             map["asset quantity"] = quantity.toString()
             map["event"] = "asset transfer"
         } else if (attachment is Attachment.ColoredCoinsOrderCancellation) {
-            map["order"] = Convert.toUnsignedLong(attachment.orderId)
+            map["order"] = attachment.orderId.toUnsignedString()
             map["event"] = "order cancel"
         } else if (attachment is Attachment.DigitalGoodsPurchase) {
             val purchase = transaction.attachment as Attachment.DigitalGoodsPurchase
             if (isRecipient) {
-                map = getValues(dp.digitalGoodsStoreService.getGoods(purchase.goodsId).sellerId, false)
+                map = getValues(dp.digitalGoodsStoreService.getGoods(purchase.goodsId)!!.sellerId, false)
             }
             map["event"] = "purchase"
             map["purchase"] = transaction.stringId
         } else if (attachment is Attachment.DigitalGoodsDelivery) {
             val delivery = transaction.attachment as Attachment.DigitalGoodsDelivery
-            val purchase = dp.digitalGoodsStoreService.getPurchase(delivery.purchaseId)
+            val purchase = dp.digitalGoodsStoreService.getPurchase(delivery.purchaseId)!!
             if (isRecipient) {
                 map = getValues(purchase.buyerId, false)
             }
             map["event"] = "delivery"
-            map["purchase"] = Convert.toUnsignedLong(delivery.purchaseId)
+            map["purchase"] = delivery.purchaseId.toUnsignedString()
             var discount = delivery.discountNQT
             map["purchase price"] = purchase.priceNQT.toString()
             map["purchase quantity"] = purchase.quantity.toString()
@@ -261,10 +256,10 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
         } else if (attachment is Attachment.DigitalGoodsRefund) {
             val refund = transaction.attachment as Attachment.DigitalGoodsRefund
             if (isRecipient) {
-                map = getValues(dp.digitalGoodsStoreService.getPurchase(refund.purchaseId).buyerId, false)
+                map = getValues(dp.digitalGoodsStoreService.getPurchase(refund.purchaseId)!!.buyerId, false)
             }
             map["event"] = "refund"
-            map["purchase"] = Convert.toUnsignedLong(refund.purchaseId)
+            map["purchase"] = refund.purchaseId.toUnsignedString()
             var refundNQT = refund.refundNQT
             if (!isRecipient) {
                 refundNQT = -refundNQT
@@ -272,14 +267,14 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
             map["refund"] = refundNQT.toString()
         } else if (attachment === Attachment.ARBITRARY_MESSAGE) {
             map = mutableMapOf()
-            map["account"] = Convert.toUnsignedLong(accountId)
+            map["account"] = accountId.toUnsignedString()
             map["timestamp"] = dp.blockchain.lastBlock.timestamp.toString()
             map["height"] = dp.blockchain.height.toString()
             map["event"] = "message"
             if (isRecipient) {
-                map["sender"] = Convert.toUnsignedLong(transaction.senderId)
+                map["sender"] = transaction.senderId.toUnsignedString()
             } else {
-                map["recipient"] = Convert.toUnsignedLong(transaction.recipientId)
+                map["recipient"] = transaction.recipientId.toUnsignedString()
             }
         } else {
             return emptyMap()
@@ -333,7 +328,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
                     accountIds.clear()
                     break
                 }
-                accountIds.add(Convert.parseUnsignedLong(accountId))
+                accountIds.add(accountId.parseUnsignedLong())
             }
             val debugTrace = addDebugTrace(accountIds, logName)
             dp.blockchainProcessor.addListener({ debugTrace.resetLog() }, BlockchainProcessor.Event.RESCAN_BEGIN)
@@ -361,7 +356,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
 
         private val columns = arrayOf("height", "event", "account", "asset", "balance", "unconfirmed balance", "asset balance", "unconfirmed asset balance", "transaction amount", "transaction fee", "generation fee", "effective balance", "order", "order price", "order quantity", "order cost", "trade price", "trade quantity", "trade cost", "asset quantity", "transaction", "lessee", "lessor guaranteed balance", "purchase", "purchase price", "purchase quantity", "purchase cost", "discount", "refund", "sender", "recipient", "block", "timestamp")
 
-        private val headers = mutableMapOf<String, String>>()
+        private val headers = mutableMapOf<String, String>()
 
         init {
             for (entry in columns) {

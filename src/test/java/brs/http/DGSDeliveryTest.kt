@@ -52,7 +52,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val discountNQTParameter: Long = 1
         val goodsToEncryptParameter = "beef"
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(DISCOUNT_NQT_PARAMETER, discountNQTParameter),
                 MockParam(GOODS_TO_ENCRYPT_PARAMETER, goodsToEncryptParameter),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE)
@@ -70,8 +70,8 @@ class DGSDeliveryTest : AbstractTransactionTest() {
 
         whenever(mockPurchase.isPending).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
         whenever(accountServiceMock!!.getAccount(eq(mockPurchase.buyerId))).doReturn(mockBuyerAccount)
         whenever(mockBuyerAccount.encryptTo(any(), any())).doReturn(mock())
 
@@ -79,7 +79,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         every { Burst.fluxCapacitor } returns fluxCapacitor
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsDelivery
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsDelivery
         assertNotNull(attachment)
 
         assertEquals(DELIVERY, attachment.transactionType)
@@ -89,7 +89,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_sellerAccountIdDifferentFromAccountSellerIdIsIncorrectPurchase() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
@@ -97,16 +97,16 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         whenever(mockSellerAccount.id).doReturn(1L)
         whenever(mockPurchase.sellerId).doReturn(2L)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        assertEquals(INCORRECT_PURCHASE, t!!.processRequest(req))
+        assertEquals(INCORRECT_PURCHASE, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_purchaseNotPendingIsAlreadyDelivered() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockSellerAccount = mock<Account>()
         val mockPurchase = mock<Purchase>()
@@ -116,16 +116,16 @@ class DGSDeliveryTest : AbstractTransactionTest() {
 
         whenever(mockPurchase.isPending).doReturn(false)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        assertEquals(ALREADY_DELIVERED, t!!.processRequest(req))
+        assertEquals(ALREADY_DELIVERED, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_dgsDiscountNotAValidNumberIsIncorrectDGSDiscount() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(DISCOUNT_NQT_PARAMETER, "Bob")
         )
 
@@ -137,16 +137,16 @@ class DGSDeliveryTest : AbstractTransactionTest() {
 
         whenever(mockPurchase.isPending).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        assertEquals(INCORRECT_DGS_DISCOUNT, t!!.processRequest(req))
+        assertEquals(INCORRECT_DGS_DISCOUNT, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_dgsDiscountNegativeIsIncorrectDGSDiscount() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(DISCOUNT_NQT_PARAMETER, "-1")
         )
 
@@ -158,16 +158,16 @@ class DGSDeliveryTest : AbstractTransactionTest() {
 
         whenever(mockPurchase.isPending).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        assertEquals(INCORRECT_DGS_DISCOUNT, t!!.processRequest(req))
+        assertEquals(INCORRECT_DGS_DISCOUNT, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_dgsDiscountOverMaxBalanceNQTIsIncorrectDGSDiscount() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(DISCOUNT_NQT_PARAMETER, "" + (MAX_BALANCE_NQT + 1))
         )
 
@@ -179,16 +179,16 @@ class DGSDeliveryTest : AbstractTransactionTest() {
 
         whenever(mockPurchase.isPending).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        assertEquals(INCORRECT_DGS_DISCOUNT, t!!.processRequest(req))
+        assertEquals(INCORRECT_DGS_DISCOUNT, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_dgsDiscountNegativeIsNotSafeMultiply() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(DISCOUNT_NQT_PARAMETER, "99999999999")
         )
 
@@ -202,16 +202,16 @@ class DGSDeliveryTest : AbstractTransactionTest() {
 
         whenever(mockPurchase.isPending).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        assertEquals(INCORRECT_DGS_DISCOUNT, t!!.processRequest(req))
+        assertEquals(INCORRECT_DGS_DISCOUNT, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_goodsToEncryptIsEmptyIsIncorrectDGSGoods() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(DISCOUNT_NQT_PARAMETER, "9"),
                 MockParam(GOODS_TO_ENCRYPT_PARAMETER, ""),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE)
@@ -227,10 +227,10 @@ class DGSDeliveryTest : AbstractTransactionTest() {
 
         whenever(mockPurchase.isPending).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSellerAccount)
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        assertEquals(INCORRECT_DGS_GOODS, t!!.processRequest(req))
+        assertEquals(INCORRECT_DGS_GOODS, t!!.processRequest(request))
     }
 
 }

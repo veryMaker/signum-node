@@ -15,7 +15,6 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.ASSET_PARAMETER
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -43,7 +42,7 @@ class GetAssetTest : AbstractUnitTest() {
     fun processRequest() {
         val assetId: Long = 4
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ASSET_PARAMETER, assetId)
         )
 
@@ -53,7 +52,7 @@ class GetAssetTest : AbstractUnitTest() {
         whenever(asset.description).doReturn("assetDescription")
         whenever(asset.decimals).doReturn(3)
 
-        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(req))).doReturn(asset)
+        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(request))).doReturn(asset)
 
         val tradeCount = 1
         val transferCount = 2
@@ -63,7 +62,7 @@ class GetAssetTest : AbstractUnitTest() {
         whenever(mockAssetExchange!!.getTransferCount(eq(assetId))).doReturn(transferCount)
         whenever(mockAssetExchange!!.getAssetAccountsCount(eq(assetId))).doReturn(assetAccountsCount)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertNotNull(result)
         assertEquals(asset.name, JSON.getAsString(result.get(NAME_RESPONSE)))

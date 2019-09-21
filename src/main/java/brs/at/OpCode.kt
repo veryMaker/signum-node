@@ -8,7 +8,6 @@
 package brs.at
 
 internal object OpCode {
-
     val E_OP_CODE_NOP = java.lang.Byte.parseByte("7f", 16)
     val E_OP_CODE_SET_VAL = java.lang.Byte.parseByte("01", 16)
     val E_OP_CODE_SET_DAT = java.lang.Byte.parseByte("02", 16)

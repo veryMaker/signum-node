@@ -13,7 +13,9 @@ interface TransactionDb : Table {
 
     fun hasTransactionByFullHash(fullHash: String): Boolean  // TODO add byte[] method
 
-    fun findBlockTransactions(blockId: Long): List<Transaction>
+    fun findBlockTransactions(blockId: Long): Collection<Transaction>
 
-    fun saveTransactions(transactions: List<Transaction>)
+    fun saveTransactions(transactions: Collection<Transaction>)
+    @Throws(BurstException.ValidationException::class)
+    fun loadTransaction(tr: TransactionRecord): Transaction
 }

@@ -17,7 +17,6 @@ import java.util.logging.LogManager
  * done terminating the Burst processes.
  */
 internal class BurstLogManager : LogManager() {
-
     /**
      * Logging reconfiguration in progress
      */

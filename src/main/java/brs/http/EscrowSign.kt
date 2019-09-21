@@ -1,26 +1,23 @@
 package brs.http
 
 import brs.*
-import brs.services.EscrowService
-import brs.services.ParameterService
-import brs.util.Convert
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-
-import javax.servlet.http.HttpServletRequest
-
 import brs.http.common.Parameters.DECISION_PARAMETER
 import brs.http.common.Parameters.ESCROW_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.util.Convert
+import brs.util.parseUnsignedLong
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import javax.servlet.http.HttpServletRequest
 
 internal class EscrowSign internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), ESCROW_PARAMETER, DECISION_PARAMETER) {
 
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val escrowId: Long
         try {
-            escrowId = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(ESCROW_PARAMETER)))
+            escrowId = Convert.emptyToNull(request.getParameter(ESCROW_PARAMETER)).parseUnsignedLong()
         } catch (e: Exception) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 3)
@@ -36,7 +33,7 @@ internal class EscrowSign internal constructor(private val dp: DependencyProvide
             return response
         }
 
-        val decision = Escrow.stringToDecision(req.getParameter(DECISION_PARAMETER))
+        val decision = Escrow.stringToDecision(request.getParameter(DECISION_PARAMETER))
         if (decision == null) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 5)
@@ -44,7 +41,7 @@ internal class EscrowSign internal constructor(private val dp: DependencyProvide
             return response
         }
 
-        val sender = dp.parameterService.getSenderAccount(req)
+        val sender = dp.parameterService.getSenderAccount(request)
         if (!isValidUser(escrow, sender)) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 5)
@@ -68,7 +65,7 @@ internal class EscrowSign internal constructor(private val dp: DependencyProvide
 
         val attachment = Attachment.AdvancedPaymentEscrowSign(escrow.id, decision, dp.blockchain.height)
 
-        return createTransaction(req, sender, null, 0, attachment)
+        return createTransaction(request, sender, null, 0, attachment)
     }
 
     private fun isValidUser(escrow: Escrow, sender: Account): Boolean {

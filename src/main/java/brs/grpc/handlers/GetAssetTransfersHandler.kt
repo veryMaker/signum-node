@@ -1,9 +1,9 @@
 package brs.grpc.handlers
 
-import brs.Asset
 import brs.AssetTransfer
 import brs.assetexchange.AssetExchange
 import brs.grpc.GrpcApiHandler
+import brs.grpc.proto.ApiException
 import brs.grpc.proto.BrsApi
 import brs.grpc.proto.ProtoBuilder
 import brs.services.AccountService
@@ -19,17 +19,14 @@ class GetAssetTransfersHandler(private val assetExchange: AssetExchange, private
         val lastIndex = indexRange.lastIndex
         val transfers: Collection<AssetTransfer>
         val asset = assetExchange.getAsset(assetId)
-        if (accountId == 0L) {
-            transfers = assetExchange.getAssetTransfers(asset!!.id, firstIndex, lastIndex)
-        } else if (assetId == 0L) {
-            transfers = accountService.getAssetTransfers(accountId, firstIndex, lastIndex)
-        } else {
-            transfers = assetExchange.getAccountAssetTransfers(accountId, assetId, firstIndex, lastIndex)
+        transfers = when {
+            accountId == 0L -> assetExchange.getAssetTransfers(asset!!.id, firstIndex, lastIndex)
+            assetId == 0L -> accountService.getAssetTransfers(accountId, firstIndex, lastIndex)
+            else -> assetExchange.getAccountAssetTransfers(accountId, assetId, firstIndex, lastIndex)
         }
         val builder = BrsApi.AssetTransfers.newBuilder()
         transfers.forEach { transfer ->
-            builder.addAssetTransfers(ProtoBuilder.buildTransfer(transfer, asset
-                    ?: assetExchange.getAsset(transfer.assetId)))
+            builder.addAssetTransfers(ProtoBuilder.buildTransfer(transfer, asset ?: assetExchange.getAsset(transfer.assetId) ?: throw ApiException("Asset not found")))
         }
         return builder.build()
     }

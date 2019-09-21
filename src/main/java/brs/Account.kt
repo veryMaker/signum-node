@@ -2,10 +2,11 @@ package brs
 
 import brs.crypto.Crypto
 import brs.crypto.EncryptedData
+import brs.crypto.rsVerify
 import brs.db.BurstKey
 import brs.db.VersionedBatchEntityTable
 import brs.util.Convert
-
+import brs.util.toUnsignedString
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -61,9 +62,9 @@ open class Account {
 
         override fun toString(): String {
             return ("AccountAsset account_id: "
-                    + Convert.toUnsignedLong(accountId)
+                    + accountId.toUnsignedString()
                     + " asset_id: "
-                    + Convert.toUnsignedLong(assetId)
+                    + assetId.toUnsignedString()
                     + " quantity: "
                     + quantityQNT
                     + " unconfirmedQuantity: "
@@ -71,24 +72,12 @@ open class Account {
         }
     }
 
-    open class RewardRecipientAssignment(val accountId: Long?, private var prevRecipientId: Long?, private var recipientId: Long?, fromHeight: Int, val burstKey: BurstKey) {
+    open class RewardRecipientAssignment(val accountId: Long, var prevRecipientId: Long, var recipientId: Long, fromHeight: Int, val burstKey: BurstKey) {
         var fromHeight: Int = 0
             private set
 
         init {
             this.fromHeight = fromHeight
-        }
-
-        fun getAccountId(): Long {
-            return accountId!!
-        }
-
-        fun getPrevRecipientId(): Long {
-            return prevRecipientId!!
-        }
-
-        fun getRecipientId(): Long {
-            return recipientId!!
         }
 
         fun setRecipient(newRecipientId: Long, fromHeight: Int) {
@@ -101,7 +90,7 @@ open class Account {
     internal class DoubleSpendingException(message: String) : RuntimeException(message)
 
     constructor(dp: DependencyProvider, id: Long) {
-        if (id != Crypto.rsDecode(Crypto.rsEncode(id))) {
+        if (!id.rsVerify()) {
             logger.log(Level.INFO, "CRITICAL ERROR: Reed-Solomon encoding fails for {0}", id)
         }
         this.id = id
@@ -110,7 +99,7 @@ open class Account {
     }
 
     protected constructor(id: Long, burstKey: BurstKey, creationHeight: Int) {
-        if (id != Crypto.rsDecode(Crypto.rsEncode(id))) {
+        if (!id.rsVerify()) {
             logger.log(Level.INFO, "CRITICAL ERROR: Reed-Solomon encoding fails for {0}", id)
         }
         this.id = id
@@ -140,7 +129,7 @@ open class Account {
     fun apply(dp: DependencyProvider, key: ByteArray, height: Int) {
         check(setOrVerify(dp, key, this.creationHeight)) { "Public key mismatch" }
         checkNotNull(this.publicKey) {
-            ("Public key has not been set for account " + Convert.toUnsignedLong(id)
+            ("Public key has not been set for account " + id.toUnsignedString()
                     + " at height " + height + ", key height is " + keyHeight)
         }
         if (this.keyHeight == -1 || this.keyHeight > height) {
@@ -170,6 +159,7 @@ open class Account {
             return if (id == 0L) null else accountTable(dp).get(accountBurstKeyFactory(dp).newKey(id))
         }
 
+        @Deprecated("Just use Crypto/Convert class instead")
         fun getId(publicKey: ByteArray): Long {
             val publicKeyHash = Crypto.sha256().digest(publicKey)
             return Convert.fullHashToId(publicKeyHash)
@@ -194,13 +184,13 @@ open class Account {
                 throw DoubleSpendingException("Negative balance or quantity ("
                         + confirmed
                         + ") for account "
-                        + Convert.toUnsignedLong(accountId))
+                        + accountId.toUnsignedString())
             }
             if (unconfirmed < 0) {
                 throw DoubleSpendingException("Negative unconfirmed balance or quantity ("
                         + unconfirmed
                         + ") for account "
-                        + Convert.toUnsignedLong(accountId))
+                        + accountId.toUnsignedString())
             }
             if (unconfirmed > confirmed) {
                 throw DoubleSpendingException("Unconfirmed ("
@@ -208,7 +198,7 @@ open class Account {
                         + ") exceeds confirmed ("
                         + confirmed
                         + ") balance or quantity for account "
-                        + Convert.toUnsignedLong(accountId))
+                        + accountId.toUnsignedString())
             }
         }
     }

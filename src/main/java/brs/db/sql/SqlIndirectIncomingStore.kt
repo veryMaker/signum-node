@@ -35,11 +35,11 @@ class SqlIndirectIncomingStore(dp: DependencyProvider) : IndirectIncomingStore {
                         .values(indirectIncoming.accountId, indirectIncoming.transactionId, indirectIncoming.height)
             }
 
-            internal override fun save(ctx: DSLContext, indirectIncoming: IndirectIncomingStore.IndirectIncoming) {
+            override fun save(ctx: DSLContext, indirectIncoming: IndirectIncomingStore.IndirectIncoming) {
                 getQuery(ctx, indirectIncoming).execute()
             }
 
-            internal override fun save(ctx: DSLContext, indirectIncomings: Array<IndirectIncomingStore.IndirectIncoming>) {
+            override fun save(ctx: DSLContext, indirectIncomings: Array<IndirectIncomingStore.IndirectIncoming>) {
                 val queries = mutableListOf<Query>()
                 for (indirectIncoming in indirectIncomings) {
                     queries.add(getQuery(ctx, indirectIncoming))

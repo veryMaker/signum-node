@@ -7,8 +7,9 @@ import org.bouncycastle.jcajce.provider.digest.MD5
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
+internal val burstCrypto = BurstCrypto.getInstance()
+
 object Crypto {
-    internal val burstCrypto = BurstCrypto.getInstance()
 
     fun sha256(): MessageDigest {
         return burstCrypto.sha256
@@ -23,12 +24,11 @@ object Crypto {
     }
 
     fun md5(): MessageDigest {// TODO unit test
-        try {
-            return MessageDigest.getInstance("MD5") // TODO burstkit4j integration
+        return try {
+            MessageDigest.getInstance("MD5") // TODO burstkit4j integration
         } catch (e: NoSuchAlgorithmException) {
-            return MD5.Digest()
+            MD5.Digest()
         }
-
     }
 
     fun getPublicKey(secretPhrase: String): ByteArray {
@@ -66,12 +66,19 @@ object Crypto {
     fun getSharedSecret(myPrivateKey: ByteArray, theirPublicKey: ByteArray): ByteArray {
         return burstCrypto.getSharedSecret(myPrivateKey, theirPublicKey)
     }
+}
 
-    fun rsEncode(id: Long): String {
-        return burstCrypto.rsEncode(BurstID.fromLong(id))
-    }
+fun Long.rsEncode(): String {
+    // TODO don't construct BurstID
+    return burstCrypto.rsEncode(BurstID.fromLong(this))
+}
 
-    fun rsDecode(rsString: String): Long {
-        return burstCrypto.rsDecode(rsString).signedLongId
-    }
+fun String.rsDecode(): Long {
+    // TODO don't construct BurstID
+    return burstCrypto.rsDecode(this).signedLongId
+}
+
+fun Long.rsVerify(): Boolean {
+    // TODO is this method necessary? Is it possible that this will ever fail?
+    return this == this.rsEncode().rsDecode()
 }

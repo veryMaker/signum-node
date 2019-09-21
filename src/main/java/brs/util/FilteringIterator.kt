@@ -2,7 +2,7 @@ package brs.util
 
 import java.util.*
 
-class FilteringIterator<T> @JvmOverloads constructor(collection: Collection<T>, private val filter: (T?) -> Boolean, private val from: Int = 0, private val to: Int = Integer.MAX_VALUE) : MutableIterator<T> {
+class FilteringIterator<T> constructor(collection: Collection<T>, private val filter: (T) -> Boolean, private val from: Int = 0, private val to: Int = Integer.MAX_VALUE) : Iterator<T> {
     private val dbIterator: Iterator<T> = collection.iterator()
     private var next: T? = null
     private var hasNext: Boolean = false
@@ -14,7 +14,7 @@ class FilteringIterator<T> @JvmOverloads constructor(collection: Collection<T>, 
         }
         while (dbIterator.hasNext() && count <= to) {
             next = dbIterator.next()
-            if (filter(next)) {
+            if (filter(next ?: continue)) {
                 if (count >= from) {
                     count += 1
                     hasNext = true
@@ -35,7 +35,7 @@ class FilteringIterator<T> @JvmOverloads constructor(collection: Collection<T>, 
         }
         while (dbIterator.hasNext() && count <= to) {
             next = dbIterator.next()
-            if (filter(next)) {
+            if (filter(next ?: continue)) {
                 if (count >= from) {
                     count += 1
                     hasNext = false
@@ -45,9 +45,5 @@ class FilteringIterator<T> @JvmOverloads constructor(collection: Collection<T>, 
             }
         }
         throw NoSuchElementException()
-    }
-
-    override fun remove() {
-        throw UnsupportedOperationException()
     }
 }

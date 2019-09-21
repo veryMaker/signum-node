@@ -1,11 +1,9 @@
 package brs.grpc.handlers
 
-import brs.Account
 import brs.grpc.GrpcApiHandler
 import brs.grpc.proto.BrsApi
 import brs.grpc.proto.ProtoBuilder
 import brs.services.AccountService
-import java.util.Objects
 
 class GetAccountsHandler(private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAccountsRequest, BrsApi.Accounts> {
 
@@ -21,9 +19,9 @@ class GetAccountsHandler(private val accountService: AccountService) : GrpcApiHa
         }
         if (request.rewardRecipient != 0L) {
             val accounts = accountService.getAccountsWithRewardRecipient(request.rewardRecipient)
-            accounts.forEach { assignment -> builder.addIds(assignment.getAccountId()) }
+            accounts.forEach { assignment -> builder.addIds(assignment.accountId) }
             if (request.includeAccounts) {
-                accounts.forEach { assignment -> builder.addAccounts(ProtoBuilder.buildAccount(accountService.getAccount(assignment.getAccountId()), accountService)) }
+                accounts.forEach { assignment -> builder.addAccounts(ProtoBuilder.buildAccount(accountService.getAccount(assignment.accountId) ?: return@forEach, accountService)) }
             }
         }
         return builder.build()

@@ -18,7 +18,7 @@ internal class GetBlocksFromHeight(private val blockchain: Blockchain) : PeerSer
         } catch (ignored: Exception) {
         }
 
-        //small failsafe
+        // Small Failsafe
         if (numBlocks < 1 || numBlocks > 1400) {
             numBlocks = 100
         }

@@ -36,7 +36,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_getAllPurchases() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 0L),
                 MockParam(BUYER_PARAMETER, 0L),
                 MockParam(FIRST_INDEX_PARAMETER, 0L),
@@ -51,7 +51,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
 
         whenever(mockDGSGoodsStoreService!!.getAllPurchases(eq(0), eq(-1))).doReturn(mockGoodsIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val purchasesResult = result.get(PURCHASES_RESPONSE) as JsonArray
@@ -62,7 +62,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_getSellerPurchases() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 1L),
                 MockParam(BUYER_PARAMETER, 0L),
                 MockParam(FIRST_INDEX_PARAMETER, 0L),
@@ -77,7 +77,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
 
         whenever(mockDGSGoodsStoreService!!.getSellerPurchases(eq(1L), eq(0), eq(-1))).doReturn(mockGoodsIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val purchasesResult = result.get(PURCHASES_RESPONSE) as JsonArray
@@ -88,7 +88,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_getBuyerPurchases() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 0L),
                 MockParam(BUYER_PARAMETER, 1L),
                 MockParam(FIRST_INDEX_PARAMETER, 0L),
@@ -103,7 +103,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
 
         whenever(mockDGSGoodsStoreService!!.getBuyerPurchases(eq(1L), eq(0), eq(-1))).doReturn(mockGoodsIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val purchasesResult = result.get(PURCHASES_RESPONSE) as JsonArray
@@ -114,7 +114,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_getSellerBuyerPurchases() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 1L),
                 MockParam(BUYER_PARAMETER, 2L),
                 MockParam(FIRST_INDEX_PARAMETER, 0L),
@@ -129,7 +129,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
 
         whenever(mockDGSGoodsStoreService!!.getSellerBuyerPurchases(eq(1L), eq(2L), eq(0), eq(-1))).doReturn(mockGoodsIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val purchasesResult = result.get(PURCHASES_RESPONSE) as JsonArray

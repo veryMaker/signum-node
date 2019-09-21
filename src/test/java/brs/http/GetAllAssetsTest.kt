@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
@@ -41,7 +40,7 @@ class GetAllAssetsTest : AbstractUnitTest() {
         val firstIndex = 1
         val lastIndex = 2
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
@@ -63,7 +62,7 @@ class GetAllAssetsTest : AbstractUnitTest() {
         whenever(assetExchange!!.getTransferCount(eq(mockAssetId))).doReturn(2)
         whenever(assetExchange!!.getTradeCount(eq(mockAssetId))).doReturn(3)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val assetsResult = result.get(ASSETS_RESPONSE) as JsonArray

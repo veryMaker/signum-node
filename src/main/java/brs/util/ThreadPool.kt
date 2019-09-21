@@ -166,7 +166,6 @@ class ThreadPool(private val dp: DependencyProvider) {
     }
 
     companion object {
-
         val running = AtomicBoolean(true)
 
         private val logger = LoggerFactory.getLogger(ThreadPool::class.java)

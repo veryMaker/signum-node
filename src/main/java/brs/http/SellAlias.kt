@@ -1,24 +1,29 @@
 package brs.http
 
-import brs.*
+import brs.Attachment
+import brs.BurstException
+import brs.Constants
+import brs.DependencyProvider
 import brs.http.JSONResponses.INCORRECT_ALIAS_OWNER
 import brs.http.JSONResponses.INCORRECT_PRICE
 import brs.http.JSONResponses.INCORRECT_RECIPIENT
 import brs.http.JSONResponses.MISSING_PRICE
-import brs.services.ParameterService
+import brs.http.common.Parameters.ALIAS_NAME_PARAMETER
+import brs.http.common.Parameters.ALIAS_PARAMETER
+import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.util.Convert
 import com.google.gson.JsonElement
-
 import javax.servlet.http.HttpServletRequest
 
 internal class SellAlias internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION), ALIAS_PARAMETER, ALIAS_NAME_PARAMETER, RECIPIENT_PARAMETER, PRICE_NQT_PARAMETER) {
 
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val alias = dp.parameterService.getAlias(req)
-        val owner = dp.parameterService.getSenderAccount(req)
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+        val alias = dp.parameterService.getAlias(request)
+        val owner = dp.parameterService.getSenderAccount(request)
 
-        val priceValueNQT = Convert.emptyToNull(req.getParameter(PRICE_NQT_PARAMETER)) ?: return MISSING_PRICE
+        val priceValueNQT = Convert.emptyToNull(request.getParameter(PRICE_NQT_PARAMETER)) ?: return MISSING_PRICE
         val priceNQT: Long
         try {
             priceNQT = java.lang.Long.parseLong(priceValueNQT)
@@ -30,7 +35,7 @@ internal class SellAlias internal constructor(private val dp: DependencyProvider
             throw ParameterException(INCORRECT_PRICE)
         }
 
-        val recipientValue = Convert.emptyToNull(req.getParameter(RECIPIENT_PARAMETER))
+        val recipientValue = Convert.emptyToNull(request.getParameter(RECIPIENT_PARAMETER))
         var recipientId: Long = 0
         if (recipientValue != null) {
             try {
@@ -49,6 +54,6 @@ internal class SellAlias internal constructor(private val dp: DependencyProvider
         }
 
         val attachment = Attachment.MessagingAliasSell(alias.aliasName, priceNQT, dp.blockchain.height)
-        return createTransaction(req, owner, recipientId, 0, attachment)
+        return createTransaction(request, owner, recipientId, 0, attachment)
     }
 }

@@ -16,7 +16,7 @@ interface EscrowStore {
 
     val decisionTable: VersionedEntityTable<Escrow.Decision>
 
-    val resultTransactions: List<Transaction>
+    val resultTransactions: MutableList<Transaction>
 
     fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow>
 

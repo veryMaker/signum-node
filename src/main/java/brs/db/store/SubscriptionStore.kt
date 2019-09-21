@@ -5,7 +5,6 @@ import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 
 interface SubscriptionStore {
-
     val subscriptionDbKeyFactory: BurstKey.LongKeyFactory<Subscription>
 
     val subscriptionTable: VersionedEntityTable<Subscription>

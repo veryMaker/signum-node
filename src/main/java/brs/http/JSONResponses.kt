@@ -1,6 +1,59 @@
 package brs.http
 
 import brs.Constants
+import brs.http.common.Parameters.ACCOUNT_PARAMETER
+import brs.http.common.Parameters.ALIAS_NAME_PARAMETER
+import brs.http.common.Parameters.ALIAS_PARAMETER
+import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.AMOUNT_PARAMETER
+import brs.http.common.Parameters.ASSET_PARAMETER
+import brs.http.common.Parameters.AT_PARAMETER
+import brs.http.common.Parameters.BLOCK_PARAMETER
+import brs.http.common.Parameters.DATE_PARAMETER
+import brs.http.common.Parameters.DEADLINE_PARAMETER
+import brs.http.common.Parameters.DECIMALS_PARAMETER
+import brs.http.common.Parameters.DELIVERY_DEADLINE_TIMESTAMP_PARAMETER
+import brs.http.common.Parameters.DELTA_QUANTITY_PARAMETER
+import brs.http.common.Parameters.DESCRIPTION_PARAMETER
+import brs.http.common.Parameters.DISCOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
+import brs.http.common.Parameters.FEE_NQT_PARAMETER
+import brs.http.common.Parameters.FEE_PARAMETER
+import brs.http.common.Parameters.FEE_SUGGESTION_TYPE_PARAMETER
+import brs.http.common.Parameters.GOODS_DATA_PARAMETER
+import brs.http.common.Parameters.GOODS_PARAMETER
+import brs.http.common.Parameters.GOODS_TO_ENCRYPT_PARAMETER
+import brs.http.common.Parameters.HEIGHT_PARAMETER
+import brs.http.common.Parameters.HOST_PARAMETER
+import brs.http.common.Parameters.MESSAGE_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER
+import brs.http.common.Parameters.NAME_PARAMETER
+import brs.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
+import brs.http.common.Parameters.ORDER_PARAMETER
+import brs.http.common.Parameters.PEER_PARAMETER
+import brs.http.common.Parameters.PERIOD_PARAMETER
+import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.http.common.Parameters.PRICE_PARAMETER
+import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
+import brs.http.common.Parameters.PURCHASE_PARAMETER
+import brs.http.common.Parameters.QUANTITY_PARAMETER
+import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
+import brs.http.common.Parameters.RECEIVER_ID_PARAMETER
+import brs.http.common.Parameters.RECIPIENT_PARAMETER
+import brs.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER
+import brs.http.common.Parameters.REFUND_NQT_PARAMETER
+import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.http.common.Parameters.SELLER_PARAMETER
+import brs.http.common.Parameters.SIGNATURE_HASH_PARAMETER
+import brs.http.common.Parameters.TAGS_PARAMETER
+import brs.http.common.Parameters.TIMESTAMP_PARAMETER
+import brs.http.common.Parameters.TOKEN_PARAMETER
+import brs.http.common.Parameters.TRANSACTION_BYTES_PARAMETER
+import brs.http.common.Parameters.TRANSACTION_JSON_PARAMETER
+import brs.http.common.Parameters.TRANSACTION_PARAMETER
+import brs.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
+import brs.http.common.Parameters.URI_PARAMETER
+import brs.http.common.Parameters.WEBSITE_PARAMETER
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
@@ -9,7 +62,6 @@ import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
 object JSONResponses {
-
     val INCORRECT_ALIAS = incorrect(ALIAS_PARAMETER)
     val INCORRECT_ALIAS_OWNER = incorrect(ALIAS_PARAMETER, "(invalid alias owner)")
     val INCORRECT_ALIAS_LENGTH = incorrect(ALIAS_PARAMETER, "(length must be in [1.." + Constants.MAX_ALIAS_LENGTH + "] range)")
@@ -258,4 +310,4 @@ object JSONResponses {
         return incorrect(paramName, "param not known")
     }
 
-}// never
+}

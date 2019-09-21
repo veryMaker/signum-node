@@ -44,12 +44,12 @@ class GetAccountLessorsTest : AbstractUnitTest() {
         val mockAccount = mock<Account>()
         whenever(mockAccount.id).doReturn(123L)
 
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
-        whenever(parameterServiceMock!!.getHeight(eq<HttpServletRequest>(req))).doReturn(0)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getHeight(eq<HttpServletRequest>(request))).doReturn(0)
 
-        val result = JSON.getAsJsonObject(t!!.processRequest(req))
+        val result = JSON.getAsJsonObject(t!!.processRequest(request))
 
         assertNotNull(result)
         assertEquals("" + mockAccount.id, JSON.getAsString(result.get(ACCOUNT_RESPONSE)))

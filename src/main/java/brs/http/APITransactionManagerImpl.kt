@@ -1,13 +1,11 @@
 package brs.http
 
-import brs.*
-import brs.Appendix.EncryptToSelfMessage
-import brs.Appendix.EncryptedMessage
-import brs.Appendix.Message
-import brs.Appendix.PublicKeyAnnouncement
-import brs.Transaction.Builder
+import brs.Account
+import brs.Appendix.*
+import brs.Attachment
+import brs.BurstException
+import brs.DependencyProvider
 import brs.crypto.Crypto
-import brs.crypto.EncryptedData
 import brs.fluxcapacitor.FluxValues
 import brs.http.JSONResponses.FEATURE_NOT_AVAILABLE
 import brs.http.JSONResponses.INCORRECT_ARBITRARY_MESSAGE
@@ -18,56 +16,73 @@ import brs.http.JSONResponses.MISSING_DEADLINE
 import brs.http.JSONResponses.MISSING_SECRET_PHRASE
 import brs.http.JSONResponses.NOT_ENOUGH_FUNDS
 import brs.http.common.Parameters
-import brs.services.AccountService
-import brs.services.ParameterService
-import brs.services.TransactionService
+import brs.http.common.Parameters.BROADCAST_PARAMETER
+import brs.http.common.Parameters.COMMENT_PARAMETER
+import brs.http.common.Parameters.DEADLINE_PARAMETER
+import brs.http.common.Parameters.MESSAGE_IS_TEXT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER
+import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
+import brs.http.common.Parameters.RECIPIENT_PUBLIC_KEY_PARAMETER
+import brs.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER
+import brs.http.common.Parameters.REFERENCED_TRANSACTION_PARAMETER
+import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.http.common.ResultFields.BROADCASTED_RESPONSE
+import brs.http.common.ResultFields.ERROR_RESPONSE
+import brs.http.common.ResultFields.FULL_HASH_RESPONSE
+import brs.http.common.ResultFields.NUMBER_PEERS_SENT_TO_RESPONSE
+import brs.http.common.ResultFields.SIGNATURE_HASH_RESPONSE
+import brs.http.common.ResultFields.TRANSACTION_BYTES_RESPONSE
+import brs.http.common.ResultFields.TRANSACTION_JSON_RESPONSE
+import brs.http.common.ResultFields.TRANSACTION_RESPONSE
+import brs.http.common.ResultFields.UNSIGNED_TRANSACTION_BYTES_RESPONSE
 import brs.util.Convert
+import brs.util.parseHexString
+import brs.util.toHexString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-
 import javax.servlet.http.HttpServletRequest
-import brs.http.common.ResultFields.*
-import brs.http.common.ResultFields.FULL_HASH_RESPONSE
 
 class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransactionManager {
 
     @Throws(BurstException::class)
-    override fun createTransaction(req: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment, minimumFeeNQT: Long): JsonElement {
+    override fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment, minimumFeeNQT: Long): JsonElement {
         val blockchainHeight = dp.blockchain.height
-        val deadlineValue = req.getParameter(DEADLINE_PARAMETER)
-        val referencedTransactionFullHash = Convert.emptyToNull(req.getParameter(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER))
-        val referencedTransactionId = Convert.emptyToNull(req.getParameter(REFERENCED_TRANSACTION_PARAMETER))
-        val secretPhrase = Convert.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER))
-        val publicKeyValue = Convert.emptyToNull(req.getParameter(PUBLIC_KEY_PARAMETER))
-        val recipientPublicKeyValue = Convert.emptyToNull(req.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER))
-        val broadcast = !Parameters.isFalse(req.getParameter(BROADCAST_PARAMETER))
+        val deadlineValue = request.getParameter(DEADLINE_PARAMETER)
+        val referencedTransactionFullHash = Convert.emptyToNull(request.getParameter(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER))
+        val referencedTransactionId = Convert.emptyToNull(request.getParameter(REFERENCED_TRANSACTION_PARAMETER))
+        val secretPhrase = Convert.emptyToNull(request.getParameter(SECRET_PHRASE_PARAMETER))
+        val publicKeyValue = Convert.emptyToNull(request.getParameter(PUBLIC_KEY_PARAMETER))
+        val recipientPublicKeyValue = Convert.emptyToNull(request.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER))
+        val broadcast = !Parameters.isFalse(request.getParameter(BROADCAST_PARAMETER))
 
         var encryptedMessage: EncryptedMessage? = null
 
         if (attachment.transactionType.hasRecipient()) {
-            val encryptedData = dp.parameterService.getEncryptedMessage(req, dp.accountService.getAccount(recipientId!!), Convert.parseHexString(recipientPublicKeyValue))
+            val encryptedData = dp.parameterService.getEncryptedMessage(request, dp.accountService.getAccount(recipientId!!), recipientPublicKeyValue?.parseHexString())
             if (encryptedData != null) {
-                encryptedMessage = EncryptedMessage(encryptedData, !Parameters.isFalse(req.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER)), blockchainHeight)
+                encryptedMessage = EncryptedMessage(encryptedData, !Parameters.isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER)), blockchainHeight)
             }
         }
 
         var encryptToSelfMessage: EncryptToSelfMessage? = null
-        val encryptedToSelfData = dp.parameterService.getEncryptToSelfMessage(req)
+        val encryptedToSelfData = dp.parameterService.getEncryptToSelfMessage(request)
         if (encryptedToSelfData != null) {
-            encryptToSelfMessage = EncryptToSelfMessage(encryptedToSelfData, !Parameters.isFalse(req.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER)), blockchainHeight)
+            encryptToSelfMessage = EncryptToSelfMessage(encryptedToSelfData, !Parameters.isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER)), blockchainHeight)
         }
         var message: Message? = null
-        val messageValue = Convert.emptyToNull(req.getParameter(MESSAGE_PARAMETER))
+        val messageValue = Convert.emptyToNull(request.getParameter(MESSAGE_PARAMETER))
         if (messageValue != null) {
-            val messageIsText = dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) && !Parameters.isFalse(req.getParameter(MESSAGE_IS_TEXT_PARAMETER))
+            val messageIsText = dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) && !Parameters.isFalse(request.getParameter(MESSAGE_IS_TEXT_PARAMETER))
             try {
-                message = if (messageIsText) Message(messageValue, blockchainHeight) else Message(Convert.parseHexString(messageValue)!!, blockchainHeight)
+                message = if (messageIsText) Message(messageValue, blockchainHeight) else Message(messageValue.parseHexString(), blockchainHeight)
             } catch (e: RuntimeException) {
                 throw ParameterException(INCORRECT_ARBITRARY_MESSAGE)
             }
 
         } else if (attachment is Attachment.ColoredCoinsAssetTransfer && dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
-            val commentValue = Convert.emptyToNull(req.getParameter(COMMENT_PARAMETER))
+            val commentValue = Convert.emptyToNull(request.getParameter(COMMENT_PARAMETER))
             if (commentValue != null) {
                 message = Message(commentValue, blockchainHeight)
             }
@@ -75,9 +90,9 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
             message = Message(ByteArray(0), blockchainHeight)
         }
         var publicKeyAnnouncement: PublicKeyAnnouncement? = null
-        val recipientPublicKey = Convert.emptyToNull(req.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER))
+        val recipientPublicKey = Convert.emptyToNull(request.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER))
         if (recipientPublicKey != null && dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
-            publicKeyAnnouncement = PublicKeyAnnouncement(Convert.parseHexString(recipientPublicKey)!!, blockchainHeight)
+            publicKeyAnnouncement = PublicKeyAnnouncement(recipientPublicKey.parseHexString(), blockchainHeight)
         }
 
         if (secretPhrase == null && publicKeyValue == null) {
@@ -96,7 +111,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
             return INCORRECT_DEADLINE
         }
 
-        val feeNQT = ParameterParser.getFeeNQT(req)
+        val feeNQT = ParameterParser.getFeeNQT(request)
         if (feeNQT < minimumFeeNQT) {
             return INCORRECT_FEE
         }
@@ -116,7 +131,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
         val response = JsonObject()
 
         // shouldn't try to get publicKey from senderAccount as it may have not been set yet
-        val publicKey = if (secretPhrase != null) Crypto.getPublicKey(secretPhrase) else Convert.parseHexString(publicKeyValue)
+        val publicKey = if (secretPhrase != null) Crypto.getPublicKey(secretPhrase) else publicKeyValue?.parseHexString()
 
         try {
             val builder = dp.transactionProcessor.newTransactionBuilder(publicKey!!, amountNQT, feeNQT, deadline, attachment).referencedTransactionFullHash(referencedTransactionFullHash)
@@ -143,8 +158,8 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
                 dp.transactionService.validate(transaction) // 2nd validate may be needed if validation requires id to be known
                 response.addProperty(TRANSACTION_RESPONSE, transaction.stringId)
                 response.addProperty(FULL_HASH_RESPONSE, transaction.fullHash)
-                response.addProperty(TRANSACTION_BYTES_RESPONSE, Convert.toHexString(transaction.bytes))
-                response.addProperty(SIGNATURE_HASH_RESPONSE, Convert.toHexString(Crypto.sha256().digest(transaction.signature)))
+                response.addProperty(TRANSACTION_BYTES_RESPONSE, transaction.bytes.toHexString())
+                response.addProperty(SIGNATURE_HASH_RESPONSE, Crypto.sha256().digest(transaction.signature).toHexString())
                 if (broadcast) {
                     response.addProperty(NUMBER_PEERS_SENT_TO_RESPONSE, dp.transactionProcessor.broadcast(transaction))
                     response.addProperty(BROADCASTED_RESPONSE, true)
@@ -154,7 +169,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
             } else {
                 response.addProperty(BROADCASTED_RESPONSE, false)
             }
-            response.addProperty(UNSIGNED_TRANSACTION_BYTES_RESPONSE, Convert.toHexString(transaction.unsignedBytes))
+            response.addProperty(UNSIGNED_TRANSACTION_BYTES_RESPONSE, transaction.unsignedBytes.toHexString())
             response.add(TRANSACTION_JSON_RESPONSE, JSONData.unconfirmedTransaction(transaction))
 
         } catch (e: BurstException.NotYetEnabledException) {

@@ -1,23 +1,32 @@
 package brs.http
 
-import brs.*
-import brs.services.ParameterService
-import brs.util.Convert
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-
-import javax.servlet.http.HttpServletRequest
-import java.util.ArrayList
+import brs.Attachment
+import brs.BurstException
+import brs.Constants
+import brs.DependencyProvider
+import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.BROADCAST_PARAMETER
+import brs.http.common.Parameters.DEADLINE_PARAMETER
+import brs.http.common.Parameters.FEE_NQT_PARAMETER
+import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
+import brs.http.common.Parameters.RECIPIENTS_PARAMETER
+import brs.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER
+import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.util.Convert
+import brs.util.parseUnsignedLong
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import javax.servlet.http.HttpServletRequest
 
 internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf<APITag>(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), true, *commonParameters) {
 
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val amountNQT = ParameterParser.getAmountNQT(req)
-        val sender = dp.parameterService.getSenderAccount(req)
-        val recipientString = Convert.emptyToNull(req.getParameter(RECIPIENTS_PARAMETER))
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+        val amountNQT = ParameterParser.getAmountNQT(request)
+        val sender = dp.parameterService.getSenderAccount(request)
+        val recipientString = Convert.emptyToNull(request.getParameter(RECIPIENTS_PARAMETER))
 
 
         if (recipientString == null) {
@@ -41,7 +50,7 @@ internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTr
         val totalAmountNQT = amountNQT * recipientsArray.size
         try {
             for (recipientId in recipientsArray) {
-                recipients.add(Convert.parseUnsignedLong(recipientId))
+                recipients.add(recipientId.parseUnsignedLong())
             }
         } catch (e: Exception) {
             val response = JsonObject()
@@ -59,7 +68,7 @@ internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTr
 
         val attachment = Attachment.PaymentMultiSameOutCreation(recipients, dp.blockchain.height)
 
-        return createTransaction(req, sender, null, totalAmountNQT, attachment)
+        return createTransaction(request, sender, null, totalAmountNQT, attachment)
     }
 
     companion object {

@@ -5,14 +5,12 @@ import brs.DependencyProvider
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
 import brs.props.Props
-import brs.util.Convert
+import brs.util.toUnsignedString
 import org.slf4j.LoggerFactory
 import org.slf4j.helpers.NOPLogger
-
 import java.nio.BufferUnderflowException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.*
 
 object AtController {
     // TODO remove static dp
@@ -20,7 +18,7 @@ object AtController {
 
     private val logger = LoggerFactory.getLogger(AtController::class.java)
 
-    private val debugLogger by lazy { if (dp!!.propertyService.get(Props.ENABLE_AT_DEBUG_LOG)) logger else NOPLogger.NOP_LOGGER }
+    private val debugLogger by lazy { if (dp.propertyService.get(Props.ENABLE_AT_DEBUG_LOG)) logger else NOPLogger.NOP_LOGGER }
 
     private val costOfOneAT: Int
         get() = AtConstants.AT_ID_SIZE + 16
@@ -54,7 +52,7 @@ object AtController {
 
             state.setgBalance(state.getgBalance()!! - stepFee * numSteps)
             state.machineState.steps += numSteps
-            val rc = processor.processOp(false, false)
+            val rc = processor.processOp(disassemble = false, determineJumps = false)
 
             if (rc >= 0) {
                 if (state.machineState.stopped) {
@@ -89,18 +87,17 @@ object AtController {
     }
 
     private fun getNumSteps(op: Byte, height: Int): Int {
-        return if (op >= 0x32 && op < 0x38) AtConstants.apiStepMultiplier(height).toInt() else 1
-
+        return if (op in 0x32..55) AtConstants.apiStepMultiplier(height).toInt() else 1
     }
 
     fun resetMachine(state: AtMachineState) {
         state.machineState.reset()
-        listCode(state, true, true)
+        listCode(state, disassembly = true, determineJumps = true)
     }
 
     private fun listCode(state: AtMachineState, disassembly: Boolean, determineJumps: Boolean) {
 
-        val machineProcessor = AtMachineProcessor(state, dp!!.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
+        val machineProcessor = AtMachineProcessor(state, dp.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
 
         val opc = state.machineState.pc
         val osteps = state.machineState.steps
@@ -230,7 +227,7 @@ object AtController {
 
         while (payload <= freePayload - costOfOneAT && keys.hasNext()) {
             val id = keys.next()
-            val at = AT.getAT(dp!!, id)
+            val at = AT.getAT(dp!!, id)!!
 
             val atAccountBalance = getATAccountBalance(id)
             val atStateBalance = at.getgBalance()!!
@@ -295,7 +292,7 @@ object AtController {
 
         for ((atIdBuffer, receivedMd5) in ats) {
             val atId = atIdBuffer.array()
-            val at = AT.getAT(dp, atId)
+            val at = AT.getAT(dp, atId)!!
             try {
                 at.clearTransactions()
                 at.height = blockHeight
@@ -339,7 +336,7 @@ object AtController {
                 processedATs.add(at)
 
                 md5 = digest.digest(at.bytes)
-                if (!Arrays.equals(md5, receivedMd5)) {
+                if (!md5.contentEquals(receivedMd5)) {
                     throw AtException("Calculated md5 and received md5 are not matching")
                 }
             } catch (e: Exception) {
@@ -359,7 +356,7 @@ object AtController {
     @Throws(AtException::class)
     private fun getATsFromBlock(blockATs: ByteArray): Map<ByteBuffer, ByteArray> {
         if (blockATs.isNotEmpty() && blockATs.size % costOfOneAT != 0) {
-            throw AtException("blockATs must be a multiple of cost of one AT ( $costOfOneAT )")
+            throw AtException("blockATs size must be a multiple of cost of one AT ( $costOfOneAT )")
         }
 
         val b = ByteBuffer.wrap(blockATs)
@@ -367,7 +364,7 @@ object AtController {
 
         val temp = ByteArray(AtConstants.AT_ID_SIZE)
 
-        val ats = LinkedmutableMapOf<ByteBuffer, ByteArray>>()
+        val ats = mutableMapOf<ByteBuffer, ByteArray>()
 
         while (b.position() < b.capacity()) {
             b.get(temp, 0, temp.size)
@@ -423,7 +420,7 @@ object AtController {
             totalAmount += tx.amount
             AT.addPendingTransaction(tx)
             if (logger.isDebugEnabled) {
-                logger.debug("Transaction to {}, amount {}", Convert.toUnsignedLong(AtApiHelper.getLong(tx.recipientId)), tx.amount)
+                logger.debug("Transaction to {}, amount {}", AtApiHelper.getLong(tx.recipientId).toUnsignedString(), tx.amount)
             }
         }
         return totalAmount
@@ -432,8 +429,6 @@ object AtController {
     //platform based
     private fun getATAccountBalance(id: Long?): Long {
         val atAccount = Account.getAccount(dp, id!!)
-
         return atAccount?.balanceNQT ?: 0
-
     }
 }

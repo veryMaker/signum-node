@@ -53,7 +53,7 @@ class CancelBidOrderTest : AbstractTransactionTest() {
         val orderId = 123
         val orderAccountId: Long = 1
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
@@ -63,13 +63,13 @@ class CancelBidOrderTest : AbstractTransactionTest() {
 
         val mockAccount = mock<Account>()
         whenever(mockAccount.id).doReturn(orderAccountId)
-        whenever(parameterServiceMock!!.getSenderAccount(eq(req))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getSenderAccount(eq(request))).doReturn(mockAccount)
 
         mockkStatic(Burst::class)
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         every { Burst.fluxCapacitor } returns fluxCapacitor
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) }, apiTransactionManagerMock!!) as Attachment.ColoredCoinsBidOrderCancellation
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.ColoredCoinsBidOrderCancellation
         assertNotNull(attachment)
 
         assertEquals(BID_ORDER_CANCELLATION, attachment.transactionType)
@@ -86,13 +86,13 @@ class CancelBidOrderTest : AbstractTransactionTest() {
     @Throws(BurstException::class)
     fun processRequest_orderDataMissingUnkownOrder() {
         val orderId = 123
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
         whenever(assetExchangeMock!!.getBidOrder(eq(123L))).doReturn(null)
 
-        assertEquals(UNKNOWN_ORDER, t!!.processRequest(req))
+        assertEquals(UNKNOWN_ORDER, t!!.processRequest(request))
     }
 
     @Test
@@ -102,7 +102,7 @@ class CancelBidOrderTest : AbstractTransactionTest() {
         val orderAccountId: Long = 1
         val senderAccountId: Long = 2
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
@@ -113,9 +113,9 @@ class CancelBidOrderTest : AbstractTransactionTest() {
         val mockAccount = mock<Account>()
         whenever(mockAccount.id).doReturn(senderAccountId)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
 
-        assertEquals(UNKNOWN_ORDER, t!!.processRequest(req))
+        assertEquals(UNKNOWN_ORDER, t!!.processRequest(request))
     }
 
 }

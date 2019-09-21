@@ -6,20 +6,20 @@ import brs.at.AT
 import brs.crypto.EncryptedData
 import brs.services.AccountService
 import brs.services.BlockService
-import brs.util.Convert
-import com.google.protobuf.Any
+import brs.util.parseHexString
 import com.google.protobuf.ByteString
 import com.google.protobuf.InvalidProtocolBufferException
 import com.google.rpc.Code
 import com.google.rpc.Status
 import io.grpc.StatusException
 import io.grpc.protobuf.StatusProto
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.stream.Collectors
+
+fun ByteArray?.toByteString(): ByteString {
+    return if (this == null) ByteString.EMPTY else ByteString.copyFrom(this)
+}
 
 object ProtoBuilder {
     private val logger = LoggerFactory.getLogger(ProtoBuilder::class.java)
@@ -32,20 +32,16 @@ object ProtoBuilder {
         return StatusProto.toStatusException(Status.newBuilder().setCode(Code.ABORTED_VALUE).setMessage(message).build())
     }
 
-    private fun buildByteString(data: ByteArray?): ByteString {
-        return if (data == null) ByteString.EMPTY else ByteString.copyFrom(data)
-    }
-
     fun buildAccount(account: Account, accountService: AccountService): BrsApi.Account {
         return BrsApi.Account.newBuilder()
                 .setId(account.id)
-                .setPublicKey(buildByteString(account.publicKey))
+                .setPublicKey(account.publicKey.toByteString())
                 .setBalance(account.balanceNQT)
                 .setUnconfirmedBalance(account.unconfirmedBalanceNQT)
                 .setForgedBalance(account.forgedBalanceNQT)
                 .setName(account.name)
                 .setDescription(account.description)
-                .setRewardRecipient(accountService.getRewardRecipientAssignment(account).accountId!!)
+                .setRewardRecipient(accountService.getRewardRecipientAssignment(account)?.accountId ?: account.id)
                 .addAllAssetBalances(accountService.getAssets(account.id, 0, -1).map { buildAssetBalance(it) })
                 .build()
     }
@@ -72,13 +68,13 @@ object ProtoBuilder {
                 .setBaseTarget(block.baseTarget)
                 .setTimestamp(block.timestamp)
                 .addAllTransactionIds(block.transactions.map { it.id })
-                .setGenerationSignature(buildByteString(block.generationSignature))
-                .setBlockSignature(buildByteString(block.blockSignature))
-                .setPayloadHash(buildByteString(block.payloadHash))
-                .setGeneratorPublicKey(buildByteString(block.generatorPublicKey))
+                .setGenerationSignature(block.generationSignature.toByteString())
+                .setBlockSignature(block.blockSignature.toByteString())
+                .setPayloadHash(block.payloadHash.toByteString())
+                .setGeneratorPublicKey(block.generatorPublicKey.toByteString())
                 .setNonce(block.nonce)
                 .setScoop(blockService.getScoopNum(block))
-                .setPreviousBlockHash(buildByteString(block.previousBlockHash))
+                .setPreviousBlockHash(block.previousBlockHash.toByteString())
                 .setNextBlockId(block.nextBlockId)
 
         if (includeTransactions) {
@@ -92,7 +88,7 @@ object ProtoBuilder {
 
     fun buildBasicTransaction(transaction: Transaction): BrsApi.BasicTransaction {
         return BrsApi.BasicTransaction.newBuilder()
-                .setSenderPublicKey(buildByteString(transaction.senderPublicKey))
+                .setSenderPublicKey(transaction.senderPublicKey.toByteString())
                 .setSenderId(transaction.senderId)
                 .setRecipient(transaction.recipientId)
                 .setVersion(transaction.version.toInt())
@@ -102,12 +98,12 @@ object ProtoBuilder {
                 .setFee(transaction.feeNQT)
                 .setTimestamp(transaction.timestamp)
                 .setDeadline(transaction.deadline.toInt())
-                .setReferencedTransactionFullHash(buildByteString(Convert.parseHexString(transaction.referencedTransactionFullHash!!)))
+                .setReferencedTransactionFullHash(transaction.referencedTransactionFullHash?.parseHexString().toByteString())
                 .setAttachment(transaction.attachment.protobufMessage)
                 .addAllAppendages(transaction.appendages.map { it.protobufMessage })
                 .setEcBlockId(transaction.ecBlockId)
                 .setEcBlockHeight(transaction.ecBlockHeight)
-                .setSignature(buildByteString(transaction.bytes))
+                .setSignature(transaction.bytes.toByteString())
                 .build()
     }
 
@@ -115,12 +111,12 @@ object ProtoBuilder {
         return BrsApi.Transaction.newBuilder()
                 .setTransaction(buildBasicTransaction(transaction))
                 .setId(transaction.id)
-                .setTransactionBytes(buildByteString(transaction.bytes))
+                .setTransactionBytes(transaction.bytes.toByteString())
                 .setBlock(transaction.blockId)
                 .setBlockHeight(transaction.height)
                 .setBlockTimestamp(transaction.blockTimestamp)
-                .setSignature(buildByteString(transaction.signature))
-                .setFullHash(buildByteString(Convert.parseHexString(transaction.fullHash)))
+                .setSignature(transaction.signature.toByteString())
+                .setFullHash(transaction.fullHash.parseHexString().toByteString())
                 .setConfirmations(currentHeight - transaction.height)
                 .build()
     }
@@ -129,10 +125,10 @@ object ProtoBuilder {
         return BrsApi.Transaction.newBuilder()
                 .setTransaction(buildBasicTransaction(transaction))
                 .setId(transaction.id)
-                .setTransactionBytes(buildByteString(transaction.bytes))
+                .setTransactionBytes(transaction.bytes.toByteString())
                 .setBlockHeight(transaction.height)
-                .setSignature(buildByteString(transaction.signature))
-                .setFullHash(buildByteString(Convert.parseHexString(transaction.fullHash)))
+                .setSignature(transaction.signature.toByteString())
+                .setFullHash(transaction.fullHash.parseHexString().toByteString())
                 .build()
     }
 
@@ -151,9 +147,9 @@ object ProtoBuilder {
                 .setVersion(at.version.toInt())
                 .setName(at.name)
                 .setDescription(at.description)
-                .setMachineCode(buildByteString(at.apCodeBytes))
-                .setMachineData(buildByteString(at.apDataBytes))
-                .setBalance(accountService.getAccount(atId).balanceNQT)
+                .setMachineCode(at.apCodeBytes.toByteString())
+                .setMachineData(at.apDataBytes.toByteString())
+                .setBalance(accountService.getAccount(atId)!!.balanceNQT)
                 .setPreviousBalance(at.getpBalance())
                 .setNextBlock(at.nextHeight())
                 .setFrozen(at.freezeOnSameBalance())
@@ -185,8 +181,8 @@ object ProtoBuilder {
 
     fun buildEncryptedData(encryptedData: EncryptedData?): BrsApi.EncryptedData {
         return if (encryptedData == null) BrsApi.EncryptedData.getDefaultInstance() else BrsApi.EncryptedData.newBuilder()
-                .setData(buildByteString(encryptedData.data))
-                .setNonce(buildByteString(encryptedData.nonce))
+                .setData(encryptedData.data.toByteString())
+                .setNonce(encryptedData.nonce.toByteString())
                 .build() // TODO is this needed for all methods?
     }
 
@@ -230,7 +226,7 @@ object ProtoBuilder {
                 .setRecipient(subscription.recipientId!!)
                 .setAmount(subscription.amountNQT!!)
                 .setFrequency(subscription.frequency)
-                .setTimeNext(subscription.getTimeNext())
+                .setTimeNext(subscription.timeNext)
                 .build()
     }
 
@@ -322,7 +318,7 @@ object ProtoBuilder {
                 .setIsPending(purchase.isPending)
                 .setDeliveredData(buildEncryptedData(purchase.encryptedGoods))
                 .setDeliveredDataIsText(purchase.goodsIsText())
-                .addAllFeedback(purchase.getFeedbackNotes()?.map { buildEncryptedData(it) } ?: emptyList())
+                .addAllFeedback(purchase.feedbackNotes?.map { buildEncryptedData(it) } ?: emptyList())
                 .addAllPublicFeedback(purchase.publicFeedback)
                 .setRefundNote(buildEncryptedData(purchase.refundNote))
                 .setDiscount(purchase.discountNQT)
@@ -345,17 +341,17 @@ object ProtoBuilder {
 
             for (appendix in basicTransaction.appendagesList) {
                 try {
-                    if (appendix.`is`(BrsApi.MessageAppendix::class.java)) {
-                        transactionBuilder.message(Appendix.Message(appendix.unpack(BrsApi.MessageAppendix::class.java), blockchainHeight))
-                    } else if (appendix.`is`(BrsApi.EncryptedMessageAppendix::class.java)) {
-                        val encryptedMessageAppendix = appendix.unpack(BrsApi.EncryptedMessageAppendix::class.java)
-                        when (encryptedMessageAppendix.type) {
-                            BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT -> transactionBuilder.encryptedMessage(Appendix.EncryptedMessage(encryptedMessageAppendix, blockchainHeight))
-                            BrsApi.EncryptedMessageAppendix.Type.TO_SELF -> transactionBuilder.encryptToSelfMessage(Appendix.EncryptToSelfMessage(encryptedMessageAppendix, blockchainHeight))
-                            else -> throw ApiException("Invalid encrypted message type: " + encryptedMessageAppendix.type.name)
+                    when {
+                        appendix.`is`(BrsApi.MessageAppendix::class.java) -> transactionBuilder.message(Appendix.Message(appendix.unpack(BrsApi.MessageAppendix::class.java), blockchainHeight))
+                        appendix.`is`(BrsApi.EncryptedMessageAppendix::class.java) -> {
+                            val encryptedMessageAppendix = appendix.unpack(BrsApi.EncryptedMessageAppendix::class.java)
+                            when (encryptedMessageAppendix.type) {
+                                BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT -> transactionBuilder.encryptedMessage(Appendix.EncryptedMessage(encryptedMessageAppendix, blockchainHeight))
+                                BrsApi.EncryptedMessageAppendix.Type.TO_SELF -> transactionBuilder.encryptToSelfMessage(Appendix.EncryptToSelfMessage(encryptedMessageAppendix, blockchainHeight))
+                                else -> throw ApiException("Invalid encrypted message type: " + encryptedMessageAppendix.type.name)
+                            }
                         }
-                    } else if (appendix.`is`(BrsApi.PublicKeyAnnouncementAppendix::class.java)) {
-                        transactionBuilder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(appendix.unpack(BrsApi.PublicKeyAnnouncementAppendix::class.java), blockchainHeight))
+                        appendix.`is`(BrsApi.PublicKeyAnnouncementAppendix::class.java) -> transactionBuilder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(appendix.unpack(BrsApi.PublicKeyAnnouncementAppendix::class.java), blockchainHeight))
                     }
                 } catch (e: InvalidProtocolBufferException) {
                     throw ApiException("Failed to unpack Any: " + e.message)
@@ -368,6 +364,5 @@ object ProtoBuilder {
         } catch (e: InvalidProtocolBufferException) {
             throw ApiException("Could not parse an Any: " + e.message)
         }
-
     }
 }

@@ -10,10 +10,9 @@ import brs.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.http.JSONResponses.MISSING_ACCOUNT
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 
-internal class RSConvert private constructor() : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS, APITag.UTILS), ACCOUNT_PARAMETER) {
-
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val accountValue = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER)) ?: return MISSING_ACCOUNT
+internal object RSConvert : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS, APITag.UTILS), ACCOUNT_PARAMETER) {
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+        val accountValue = Convert.emptyToNull(request.getParameter(ACCOUNT_PARAMETER)) ?: return MISSING_ACCOUNT
         try {
             val accountId = Convert.parseAccountId(accountValue)
             if (accountId == 0L) {
@@ -27,10 +26,4 @@ internal class RSConvert private constructor() : APIServlet.JsonRequestHandler(a
         }
 
     }
-
-    companion object {
-
-        val instance = RSConvert()
-    }
-
 }

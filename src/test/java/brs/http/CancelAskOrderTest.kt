@@ -51,7 +51,7 @@ class CancelAskOrderTest : AbstractTransactionTest() {
         val orderId: Long = 5
         val sellerId: Long = 6
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
@@ -62,13 +62,13 @@ class CancelAskOrderTest : AbstractTransactionTest() {
         whenever(order.accountId).doReturn(sellerId)
 
         whenever(assetExchangeMock!!.getAskOrder(eq(orderId))).doReturn(order)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(sellerAccount)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(sellerAccount)
 
         mockkStatic(Burst::class)
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         every { Burst.fluxCapacitor } returns fluxCapacitor
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) },
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) },
                 apiTransactionManagerMock!!) as brs.Attachment.ColoredCoinsAskOrderCancellation
         assertNotNull(attachment)
 
@@ -81,13 +81,13 @@ class CancelAskOrderTest : AbstractTransactionTest() {
     fun processRequest_orderDataNotFound() {
         val orderId = 5
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
         whenever(assetExchangeMock!!.getAskOrder(eq(orderId).toLong())).doReturn(null)
 
-        assertEquals(UNKNOWN_ORDER, t!!.processRequest(req))
+        assertEquals(UNKNOWN_ORDER, t!!.processRequest(request))
     }
 
     @Test
@@ -97,7 +97,7 @@ class CancelAskOrderTest : AbstractTransactionTest() {
         val accountId: Long = 6
         val otherAccountId: Long = 7
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
@@ -108,8 +108,8 @@ class CancelAskOrderTest : AbstractTransactionTest() {
         whenever(order.accountId).doReturn(otherAccountId)
 
         whenever(assetExchangeMock!!.getAskOrder(eq(orderId))).doReturn(order)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(sellerAccount)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(sellerAccount)
 
-        assertEquals(UNKNOWN_ORDER, t!!.processRequest(req))
+        assertEquals(UNKNOWN_ORDER, t!!.processRequest(request))
     }
 }

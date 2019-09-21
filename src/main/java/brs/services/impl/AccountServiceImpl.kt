@@ -1,25 +1,24 @@
 package brs.services.impl
 
-import brs.*
-import brs.Account.AccountAsset
-import brs.Account.Event
-import brs.Account.RewardRecipientAssignment
+import brs.Account
+import brs.Account.*
+import brs.AssetTransfer
+import brs.Constants
+import brs.DependencyProvider
 import brs.crypto.Crypto
-import brs.db.BurstKey
 import brs.db.BurstKey.LinkKeyFactory
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedBatchEntityTable
 import brs.db.VersionedEntityTable
 import brs.db.store.AccountStore
 import brs.db.store.AssetTransferStore
+import brs.schema.Tables.ACCOUNT
 import brs.services.AccountService
 import brs.util.Convert
 import brs.util.Listeners
-
-import java.util.Arrays
-import java.util.function.Consumer
-
-import brs.schema.Tables.ACCOUNT
+import brs.util.toHexString
+import brs.util.toUnsignedString
+import java.util.*
 
 class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     private val accountStore: AccountStore
@@ -71,14 +70,13 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     }
 
     override fun getAccount(publicKey: ByteArray): Account? {
-        val account = accountTable.get(accountBurstKeyFactory.newKey(getId(publicKey))) ?: return null
+        val account = accountTable[accountBurstKeyFactory.newKey(getId(publicKey))] ?: return null
 
         if (account.publicKey == null || Arrays.equals(account.publicKey, publicKey)) {
             return account
         }
 
-        throw RuntimeException("DUPLICATE KEY for account " + Convert.toUnsignedLong(account.id)
-                + " existing key " + Convert.toHexString(account.publicKey) + " new key " + Convert.toHexString(publicKey))
+        throw RuntimeException("DUPLICATE KEY for account " + account.id.toUnsignedString() + " existing key " + account.publicKey!!.toHexString() + " new key " + publicKey.toHexString())
     }
 
     override fun getAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer> {
@@ -123,8 +121,8 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     }
 
     override fun setAccountInfo(account: Account, name: String, description: String) {
-        account.name = Convert.emptyToNull(name.trim { it <= ' ' })
-        account.description = Convert.emptyToNull(description.trim { it <= ' ' })
+        account.name = name.trim { it <= ' ' }
+        account.description = description.trim { it <= ' ' }
         accountTable.insert(account)
     }
 
@@ -223,29 +221,25 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         listeners.accept(account, Event.UNCONFIRMED_BALANCE)
     }
 
-    override fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment {
-        return getRewardRecipientAssignment(account.id)
+    override fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment? {
+        return rewardRecipientAssignmentTable[rewardRecipientAssignmentKeyFactory.newKey(account.id!!)]
     }
 
-    private fun getRewardRecipientAssignment(id: Long?): RewardRecipientAssignment {
-        return rewardRecipientAssignmentTable.get(rewardRecipientAssignmentKeyFactory.newKey(id!!))
-    }
-
-    override fun setRewardRecipientAssignment(account: Account, recipient: Long?) {
+    override fun setRewardRecipientAssignment(account: Account, recipient: Long) {
         val currentHeight = dp.blockchain.height
-        var assignment: RewardRecipientAssignment? = getRewardRecipientAssignment(account.id)
+        var assignment: RewardRecipientAssignment? = getRewardRecipientAssignment(account)
         if (assignment == null) {
             val burstKey = rewardRecipientAssignmentKeyFactory.newKey(account.id)
             assignment = RewardRecipientAssignment(account.id, account.id, recipient, (currentHeight + Constants.BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME).toInt(), burstKey)
         } else {
-            assignment.setRecipient(recipient!!, (currentHeight + Constants.BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME).toInt())
+            assignment.setRecipient(recipient, (currentHeight + Constants.BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME).toInt())
         }
         rewardRecipientAssignmentTable.insert(assignment)
     }
 
     override fun getUnconfirmedAssetBalanceQNT(account: Account, assetId: Long): Long {
         val newKey = accountAssetKeyFactory.newKey(account.id, assetId)
-        val accountAsset = accountAssetTable.get(newKey)
+        val accountAsset = accountAssetTable[newKey]
         return accountAsset?.unconfirmedQuantityQNT ?: 0
     }
 

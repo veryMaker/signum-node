@@ -15,8 +15,8 @@ object Constants {
     // TODO remove these 0 start blocks
     const val BURST_ESCROW_START_BLOCK: Long = 0
     const val BURST_SUBSCRIPTION_START_BLOCK: Long = 0
-    const val BURST_SUBSCRIPTION_MIN_FREQ = 3600
-    const val BURST_SUBSCRIPTION_MAX_FREQ = 31536000
+    const val BURST_SUBSCRIPTION_MIN_Frequest = 3600
+    const val BURST_SUBSCRIPTION_MAX_Frequest = 31536000
 
     const val BLOCK_HEADER_LENGTH = 232
 
@@ -104,4 +104,4 @@ object Constants {
         require(dbRollback >= 1440) { "brs.maxRollback must be at least 1440" }
         UNCONFIRMED_POOL_DEPOSIT_NQT = (if (dp.propertyService.get(Props.DEV_TESTNET)) 50 else 100).toLong()
     }
-}// never
+}

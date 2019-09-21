@@ -23,9 +23,9 @@ import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION), ALIAS_NAME_PARAMETER, ALIAS_URI_PARAMETER) {
 
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        var aliasName = Convert.emptyToNull(req.getParameter(ALIAS_NAME_PARAMETER))
-        var aliasURI = Convert.nullToEmpty(req.getParameter(ALIAS_URI_PARAMETER))
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+        var aliasName = Convert.emptyToNull(request.getParameter(ALIAS_NAME_PARAMETER))
+        var aliasURI = Convert.nullToEmpty(request.getParameter(ALIAS_URI_PARAMETER))
 
         if (aliasName == null) {
             return MISSING_ALIAS_NAME
@@ -45,7 +45,7 @@ internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(
             return INCORRECT_URI_LENGTH
         }
 
-        val account = dp.parameterService.getSenderAccount(req)
+        val account = dp.parameterService.getSenderAccount(request)
 
         val alias = dp.aliasService.getAlias(aliasName)
         if (alias != null && alias.accountId != account.id) {
@@ -56,7 +56,7 @@ internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(
         }
 
         val attachment = Attachment.MessagingAliasAssignment(aliasName, aliasURI, dp.blockchain.height)
-        return createTransaction(req, account, attachment)
+        return createTransaction(request, account, attachment)
 
     }
 

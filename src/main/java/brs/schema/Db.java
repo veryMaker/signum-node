@@ -178,7 +178,7 @@ public class Db extends SchemaImpl {
 
     @Override
     public final List<Table<?>> getTables() {
-        List result = new mutableListOf();
+        List result = new ArrayList();
         result.addAll(getTables0());
         return result;
     }

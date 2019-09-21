@@ -21,7 +21,6 @@ import java.util.Arrays
 
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.Parameters.ESCROWS_RESPONSE
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
@@ -49,13 +48,13 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
     fun processRequest() {
         val accountId: Long = 5
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ACCOUNT_PARAMETER, accountId)
         )
 
         val account = mock<Account>()
         whenever(account.id).doReturn(accountId)
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(account)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(account)
 
         val escrow = mock<Escrow>()
         whenever(escrow.id).doReturn(1L)
@@ -81,10 +80,10 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
         val decisionsIterator = mockCollection<Decision>(decision, skippedDecision, otherSkippedDecision)
         whenever(escrow.decisions).doReturn(decisionsIterator)
 
-        val escrowCollection = Arrays.asList(escrow)
+        val escrowCollection = listOf(escrow)
         whenever(escrowServiceMock!!.getEscrowTransactionsByParticipant(eq(accountId))).doReturn(escrowCollection)
 
-        val resultOverview = t!!.processRequest(req) as JsonObject
+        val resultOverview = t!!.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
 
         val resultList = resultOverview.get(ESCROWS_RESPONSE) as JsonArray

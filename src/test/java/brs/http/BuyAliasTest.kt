@@ -48,7 +48,7 @@ class BuyAliasTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest() {
-        val req = QuickMocker.httpServletRequestDefaultKeys(MockParam(AMOUNT_NQT_PARAMETER, "" + Constants.ONE_BURST))
+        val request = QuickMocker.httpServletRequestDefaultKeys(MockParam(AMOUNT_NQT_PARAMETER, "" + Constants.ONE_BURST))
 
         val mockOfferOnAlias = mock<Offer>()
 
@@ -62,12 +62,12 @@ class BuyAliasTest : AbstractTransactionTest() {
 
         whenever(aliasService!!.getOffer(eq(mockAlias))).doReturn(mockOfferOnAlias)
 
-        whenever(parameterServiceMock!!.getAlias(eq(req))).doReturn(mockAlias)
-        whenever(parameterServiceMock!!.getSenderAccount(eq(req))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getAlias(eq(request))).doReturn(mockAlias)
+        whenever(parameterServiceMock!!.getSenderAccount(eq(request))).doReturn(mockAccount)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) }, apiTransactionManagerMock!!) as Attachment.MessagingAliasBuy
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.MessagingAliasBuy
         assertNotNull(attachment)
 
         assertEquals(ALIAS_BUY, attachment.transactionType)
@@ -77,14 +77,14 @@ class BuyAliasTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_aliasNotForSale() {
-        val req = QuickMocker.httpServletRequest(MockParam(AMOUNT_NQT_PARAMETER, "3"))
+        val request = QuickMocker.httpServletRequest(MockParam(AMOUNT_NQT_PARAMETER, "3"))
         val mockAlias = mock<Alias>()
 
-        whenever(parameterServiceMock!!.getAlias(eq<HttpServletRequest>(req))).doReturn(mockAlias)
+        whenever(parameterServiceMock!!.getAlias(eq<HttpServletRequest>(request))).doReturn(mockAlias)
 
         whenever(aliasService!!.getOffer(eq(mockAlias))).doReturn(null)
 
-        assertEquals(INCORRECT_ALIAS_NOTFORSALE, t!!.processRequest(req))
+        assertEquals(INCORRECT_ALIAS_NOTFORSALE, t!!.processRequest(request))
     }
 
 }

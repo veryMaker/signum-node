@@ -42,7 +42,7 @@ class GetAccountATsTest {
     @Test
     @Throws(BurstException::class)
     fun processRequest() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockAccountId = 123L
         val mockAccount = mock<Account>()
@@ -57,14 +57,14 @@ class GetAccountATsTest {
         whenever(mockAT.id).doReturn(mockATIDBytes)
         whenever(mockAT.machineState).doReturn(mockMachineState)
 
-        whenever(mockParameterService!!.getAccount(eq(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq(request))).doReturn(mockAccount)
 
         whenever(mockAccountService!!.getAccount(any<Long>())).doReturn(mockAccount)
 
-        whenever(mockATService!!.getATsIssuedBy(eq(mockAccountId))).doReturn(Arrays.asList(mockATId))
+        whenever(mockATService!!.getATsIssuedBy(eq(mockAccountId))).doReturn(listOf(mockATId))
         whenever(mockATService!!.getAT(eq(mockATId))).doReturn(mockAT)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val atsResultList = result.get(ATS_RESPONSE) as JsonArray

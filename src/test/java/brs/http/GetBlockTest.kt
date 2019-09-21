@@ -40,7 +40,7 @@ class GetBlockTest {
     fun processRequest_withBlockId() {
         val blockId = 2L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(BLOCK_PARAMETER, blockId)
         )
 
@@ -48,25 +48,25 @@ class GetBlockTest {
 
         whenever(blockchainMock!!.getBlock(eq(blockId))).doReturn(mockBlock)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertNotNull(result)
     }
 
     @Test
     fun processRequest_withBlockId_incorrectBlock() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(BLOCK_PARAMETER, "notALong")
         )
 
-        assertEquals(INCORRECT_BLOCK, t!!.processRequest(req))
+        assertEquals(INCORRECT_BLOCK, t!!.processRequest(request))
     }
 
     @Test
     fun processRequest_withHeight() {
         val blockHeight = 2
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(HEIGHT_PARAMETER, blockHeight)
         )
 
@@ -75,49 +75,49 @@ class GetBlockTest {
         whenever(blockchainMock!!.height).doReturn(100)
         whenever(blockchainMock!!.getBlockAtHeight(eq(blockHeight))).doReturn(mockBlock)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertNotNull(result)
     }
 
     @Test
     fun processRequest_withHeight_incorrectHeight_unParsable() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(HEIGHT_PARAMETER, "unParsable")
         )
 
-        assertEquals(INCORRECT_HEIGHT, t!!.processRequest(req))
+        assertEquals(INCORRECT_HEIGHT, t!!.processRequest(request))
     }
 
     @Test
     fun processRequest_withHeight_incorrectHeight_isNegative() {
         val heightValue = -1L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(HEIGHT_PARAMETER, heightValue)
         )
 
-        assertEquals(INCORRECT_HEIGHT, t!!.processRequest(req))
+        assertEquals(INCORRECT_HEIGHT, t!!.processRequest(request))
     }
 
     @Test
     fun processRequest_withHeight_incorrectHeight_overCurrentBlockHeight() {
         val heightValue = 10L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(HEIGHT_PARAMETER, heightValue)
         )
 
         whenever(blockchainMock!!.height).doReturn(5)
 
-        assertEquals(INCORRECT_HEIGHT, t!!.processRequest(req))
+        assertEquals(INCORRECT_HEIGHT, t!!.processRequest(request))
     }
 
     @Test
     fun processRequest_withTimestamp() {
         val timestamp = 2
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(TIMESTAMP_PARAMETER, timestamp)
         )
 
@@ -125,37 +125,37 @@ class GetBlockTest {
 
         whenever(blockchainMock!!.getLastBlock(eq(timestamp))).doReturn(mockBlock)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertNotNull(result)
     }
 
     @Test
     fun processRequest_withTimestamp_incorrectTimeStamp_unParsable() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(TIMESTAMP_PARAMETER, "unParsable")
         )
 
-        assertEquals(INCORRECT_TIMESTAMP, t!!.processRequest(req))
+        assertEquals(INCORRECT_TIMESTAMP, t!!.processRequest(request))
     }
 
     @Test
     fun processRequest_withTimestamp_incorrectTimeStamp_negative() {
         val timestamp = -1
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(TIMESTAMP_PARAMETER, timestamp)
         )
 
-        assertEquals(INCORRECT_TIMESTAMP, t!!.processRequest(req))
+        assertEquals(INCORRECT_TIMESTAMP, t!!.processRequest(request))
     }
 
 
     @Test
     fun processRequest_unknownBlock() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
-        assertEquals(UNKNOWN_BLOCK, t!!.processRequest(req))
+        assertEquals(UNKNOWN_BLOCK, t!!.processRequest(request))
     }
 
 }

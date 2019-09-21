@@ -39,7 +39,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
         val targetAccountId = 4L
         val targetAccountName = "exampleAccountName"
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 QuickMocker.MockParam(NAME_PARAMETER, targetAccountName)
         )
 
@@ -51,7 +51,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
 
         whenever(accountService!!.getAccountsWithName(targetAccountName)).doReturn(mockIterator)
 
-        val resultOverview = t!!.processRequest(req) as JsonObject
+        val resultOverview = t!!.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
 
         val resultList = resultOverview.get(ACCOUNTS_RESPONSE) as JsonArray
@@ -64,7 +64,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
     fun processRequest_noAccountFound() {
         val targetAccountName = "exampleAccountName"
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 QuickMocker.MockParam(NAME_PARAMETER, targetAccountName)
         )
 
@@ -72,7 +72,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
 
         whenever(accountService!!.getAccountsWithName(targetAccountName)).doReturn(mockIterator)
 
-        val resultOverview = t!!.processRequest(req) as JsonObject
+        val resultOverview = t!!.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
 
         val resultList = resultOverview.get(ACCOUNTS_RESPONSE) as JsonArray

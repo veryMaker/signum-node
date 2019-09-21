@@ -5,7 +5,6 @@ import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 
 interface ATStore {
-
     val orderedATs: List<Long>
 
     val allATIds: Collection<Long>
@@ -20,7 +19,7 @@ interface ATStore {
 
     fun isATAccountId(id: Long?): Boolean
 
-    fun getAT(id: Long?): AT
+    fun getAT(id: Long?): AT?
 
     fun getATsIssuedBy(accountId: Long?): List<Long>
 

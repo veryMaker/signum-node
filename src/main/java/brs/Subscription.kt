@@ -1,24 +1,20 @@
 package brs
 
 import brs.db.BurstKey
+import brs.util.delegates.Atomic
 
-import java.util.concurrent.atomic.AtomicInteger
-
-open class Subscription(val senderId: Long?,
-                        val recipientId: Long?,
-                        val id: Long?,
-                        val amountNQT: Long?,
+open class Subscription(val senderId: Long,
+                        val recipientId: Long,
+                        val id: Long,
+                        val amountNQT: Long,
                         val frequency: Int,
                         timeNext: Int,
-                        val dbKey: BurstKey
-) {
-    private val timeNext = AtomicInteger(timeNext)
+                        val dbKey: BurstKey) {
+    var timeNext by Atomic(timeNext)
+        private set
 
-    fun getTimeNext(): Int {
-        return timeNext.get()
-    }
-
+    // TODO rename method
     fun timeNextGetAndAdd(frequency: Int) {
-        timeNext.getAndAdd(frequency)
+        timeNext += frequency
     }
 }

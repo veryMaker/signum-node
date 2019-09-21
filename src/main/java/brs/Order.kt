@@ -2,7 +2,7 @@ package brs
 
 import brs.db.BurstKey
 import brs.grpc.proto.BrsApi
-import brs.util.Convert
+import brs.util.toUnsignedString
 
 abstract class Order {
 
@@ -35,8 +35,7 @@ abstract class Order {
     }
 
     override fun toString(): String {
-        return (javaClass.simpleName + " id: " + Convert.toUnsignedLong(id) + " account: " + Convert.toUnsignedLong(accountId)
-                + " asset: " + Convert.toUnsignedLong(assetId) + " price: " + priceNQT + " quantity: " + quantityQNT + " height: " + height)
+        return "${javaClass.simpleName} id: ${id.toUnsignedString()} account: ${accountId.toUnsignedString()} asset: ${assetId.toUnsignedString()} price: $priceNQT quantity: $quantityQNT height: $height"
     }
 
     open class Ask : Order {

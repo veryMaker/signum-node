@@ -4,8 +4,7 @@ import java.io.FilterInputStream
 import java.io.IOException
 import java.io.InputStream
 
-class CountingInputStream(`in`: InputStream) : FilterInputStream(`in`) {
-
+class CountingInputStream(input: InputStream) : FilterInputStream(input) {
     var count: Long = 0
         private set
 
@@ -35,5 +34,4 @@ class CountingInputStream(`in`: InputStream) : FilterInputStream(`in`) {
         }
         return skipped
     }
-
 }

@@ -1,9 +1,11 @@
 package brs.grpc.handlers
 
-import brs.*
+import brs.Blockchain
+import brs.BlockchainProcessor
+import brs.Burst
+import brs.Generator
 import brs.grpc.GrpcApiHandler
 import brs.grpc.proto.BrsApi
-import brs.peer.Peer
 import brs.peer.Peers
 import brs.props.PropertyService
 import brs.props.Props
@@ -27,7 +29,7 @@ class GetStateHandler(private val timeService: TimeService, private val blockcha
                 .setNumberOfActivePeers(Peers.activePeers.size)
                 .setNumberOfForgers(generator.allGenerators.size)
                 .setLastBlockchainFeeder(lastBlockchainFeeder?.announcedAddress ?: "null")
-                .setLastBlockchainFeederHeight(blockchainProcessor.lastBlockchainFeederHeight)
+                .setLastBlockchainFeederHeight(blockchainProcessor.lastBlockchainFeederHeight ?: 0)
                 .setIsScanning(blockchainProcessor.isScanning)
                 .setAvailableProcessors(Runtime.getRuntime().availableProcessors())
                 .setMaxMemory(Runtime.getRuntime().maxMemory())

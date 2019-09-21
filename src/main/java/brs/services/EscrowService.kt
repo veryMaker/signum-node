@@ -6,12 +6,11 @@ import brs.Escrow
 import brs.Escrow.DecisionType
 
 interface EscrowService {
-
     val allEscrowTransactions: Collection<Escrow>
 
     val isEnabled: Boolean
 
-    fun getEscrowTransaction(id: Long?): Escrow
+    fun getEscrowTransaction(id: Long?): Escrow?
 
     fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow>
 
@@ -19,9 +18,9 @@ interface EscrowService {
 
     fun updateOnBlock(block: Block, blockchainHeight: Int)
 
-    fun addEscrowTransaction(sender: Account, recipient: Account, id: Long?, amountNQT: Long?, requiredSigners: Int, signers: Collection<Long>, deadline: Int, deadlineAction: DecisionType)
+    fun addEscrowTransaction(sender: Account, recipient: Account, id: Long, amountNQT: Long, requiredSigners: Int, signers: Collection<Long>, deadline: Int, deadlineAction: DecisionType)
 
-    fun sign(id: Long?, decision: DecisionType, escrow: Escrow)
+    fun sign(id: Long, decision: DecisionType, escrow: Escrow)
 
     fun checkComplete(escrow: Escrow): DecisionType
 

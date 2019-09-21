@@ -31,12 +31,12 @@ class GetAccountIdTest {
 
     @Test
     fun processRequest() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(PUBLIC_KEY_PARAMETER, TEST_PUBLIC_KEY)
         )
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertEquals(TEST_ACCOUNT_NUMERIC_ID, JSON.getAsString(result.get(ACCOUNT_RESPONSE)))
         assertEquals(TEST_PUBLIC_KEY, JSON.getAsString(result.get(PUBLIC_KEY_RESPONSE)))
@@ -44,11 +44,11 @@ class GetAccountIdTest {
 
     @Test
     fun processRequest_missingSecretPhraseUsesPublicKey() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PUBLIC_KEY_PARAMETER, TEST_PUBLIC_KEY)
         )
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertEquals(TEST_ACCOUNT_NUMERIC_ID, JSON.getAsString(result.get(ACCOUNT_RESPONSE)))
         assertEquals(TEST_PUBLIC_KEY, JSON.getAsString(result.get(PUBLIC_KEY_RESPONSE)))

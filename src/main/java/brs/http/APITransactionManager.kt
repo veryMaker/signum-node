@@ -9,5 +9,5 @@ import javax.servlet.http.HttpServletRequest
 
 interface APITransactionManager {
     @Throws(BurstException::class)
-    fun createTransaction(req: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment, minimumFeeNQT: Long): JsonElement
+    fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment, minimumFeeNQT: Long): JsonElement
 }

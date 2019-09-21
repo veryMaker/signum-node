@@ -1,23 +1,20 @@
 package brs.http
 
-import brs.Escrow
-import brs.services.EscrowService
-import brs.util.Convert
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-
-import javax.servlet.http.HttpServletRequest
-
 import brs.http.common.Parameters.ESCROW_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.services.EscrowService
+import brs.util.Convert
+import brs.util.parseUnsignedLong
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import javax.servlet.http.HttpServletRequest
 
 internal class GetEscrowTransaction(private val escrowService: EscrowService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ESCROW_PARAMETER) {
-
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val escrowId: Long
         try {
-            escrowId = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(ESCROW_PARAMETER)))
+            escrowId = Convert.emptyToNull(request.getParameter(ESCROW_PARAMETER)).parseUnsignedLong()
         } catch (e: Exception) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 3)

@@ -20,19 +20,16 @@ class GetDgsPurchasesHandler(private val digitalGoodsStoreService: DGSGoodsStore
 
 
         val purchases: Collection<DigitalGoodsStore.Purchase>
-        if (sellerId == 0L && buyerId == 0L) {
-            purchases = digitalGoodsStoreService.getAllPurchases(firstIndex, lastIndex)
-        } else if (sellerId != 0L && buyerId == 0L) {
-            purchases = digitalGoodsStoreService.getSellerPurchases(sellerId, firstIndex, lastIndex)
-        } else if (sellerId == 0L) {
-            purchases = digitalGoodsStoreService.getBuyerPurchases(buyerId, firstIndex, lastIndex)
-        } else {
-            purchases = digitalGoodsStoreService.getSellerBuyerPurchases(sellerId, buyerId, firstIndex, lastIndex)
+        purchases = when {
+            sellerId == 0L && buyerId == 0L -> digitalGoodsStoreService.getAllPurchases(firstIndex, lastIndex)
+            sellerId != 0L && buyerId == 0L -> digitalGoodsStoreService.getSellerPurchases(sellerId, firstIndex, lastIndex)
+            sellerId == 0L -> digitalGoodsStoreService.getBuyerPurchases(buyerId, firstIndex, lastIndex)
+            else -> digitalGoodsStoreService.getSellerBuyerPurchases(sellerId, buyerId, firstIndex, lastIndex)
         }
 
         val builder = BrsApi.DgsPurchases.newBuilder()
-        FilteringIterator<Purchase>(purchases, { purchase -> !(completed && purchase.isPending) }, firstIndex, lastIndex)
-                .forEachRemaining { purchase -> builder.addDgsPurchases(ProtoBuilder.buildPurchase(purchase, digitalGoodsStoreService.getGoods(purchase.goodsId))) }
+        FilteringIterator(purchases, { purchase -> !(completed && purchase.isPending) }, firstIndex, lastIndex)
+                .forEachRemaining { purchase -> builder.addDgsPurchases(ProtoBuilder.buildPurchase(purchase, digitalGoodsStoreService.getGoods(purchase.goodsId)!!)) }
         return builder.build()
     }
 }

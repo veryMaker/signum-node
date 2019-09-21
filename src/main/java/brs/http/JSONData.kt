@@ -101,8 +101,7 @@ import brs.http.common.ResultFields.UNCONFIRMED_QUANTITY_QNT_RESPONSE
 import brs.http.common.ResultFields.VERSION_RESPONSE
 import brs.peer.Peer
 import brs.services.AccountService
-import brs.util.Convert
-import brs.util.JSON
+import brs.util.*
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 
@@ -117,12 +116,12 @@ object JSONData {
         json.addProperty(ALIAS_NAME_RESPONSE, alias.aliasName)
         json.addProperty(ALIAS_URI_RESPONSE, alias.aliasURI)
         json.addProperty(TIMESTAMP_RESPONSE, alias.timestamp)
-        json.addProperty(ALIAS_RESPONSE, Convert.toUnsignedLong(alias.id))
+        json.addProperty(ALIAS_RESPONSE, alias.id.toUnsignedString())
 
         if (offer != null) {
             json.addProperty(PRICE_NQT_RESPONSE, offer.priceNQT.toString())
             if (offer.buyerId != 0L) {
-                json.addProperty(BUYER_RESPONSE, Convert.toUnsignedLong(offer.buyerId))
+                json.addProperty(BUYER_RESPONSE, offer.buyerId.toUnsignedString())
             }
         }
         return json
@@ -153,7 +152,7 @@ object JSONData {
         json.addProperty(DESCRIPTION_RESPONSE, asset.description)
         json.addProperty(DECIMALS_RESPONSE, asset.decimals)
         json.addProperty(QUANTITY_QNT_RESPONSE, asset.quantityQNT.toString())
-        json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(asset.id))
+        json.addProperty(ASSET_RESPONSE, asset.id.toUnsignedString())
         json.addProperty(NUMBER_OF_TRADES_RESPONSE, tradeCount)
         json.addProperty(NUMBER_OF_TRANSFERS_RESPONSE, transferCount)
         json.addProperty(NUMBER_OF_ACCOUNTS_RESPONSE, assetAccountsCount)
@@ -163,7 +162,7 @@ object JSONData {
     internal fun accountAsset(accountAsset: Account.AccountAsset): JsonObject {
         val json = JsonObject()
         putAccount(json, ACCOUNT_RESPONSE, accountAsset.accountId)
-        json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.assetId))
+        json.addProperty(ASSET_RESPONSE, accountAsset.assetId.toUnsignedString())
         json.addProperty(QUANTITY_QNT_RESPONSE, accountAsset.quantityQNT.toString())
         json.addProperty(UNCONFIRMED_QUANTITY_QNT_RESPONSE, accountAsset.unconfirmedQuantityQNT.toString())
         return json
@@ -183,8 +182,8 @@ object JSONData {
 
     private fun order(order: Order): JsonObject {
         val json = JsonObject()
-        json.addProperty(ORDER_RESPONSE, Convert.toUnsignedLong(order.id))
-        json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(order.assetId))
+        json.addProperty(ORDER_RESPONSE, order.id.toUnsignedString())
+        json.addProperty(ASSET_RESPONSE, order.assetId.toUnsignedString())
         putAccount(json, ACCOUNT_RESPONSE, order.accountId)
         json.addProperty(QUANTITY_QNT_RESPONSE, order.quantityQNT.toString())
         json.addProperty(PRICE_NQT_RESPONSE, order.priceNQT.toString())
@@ -197,41 +196,41 @@ object JSONData {
         json.addProperty(BLOCK_RESPONSE, block.stringId)
         json.addProperty(HEIGHT_RESPONSE, block.height)
         putAccount(json, GENERATOR_RESPONSE, block.generatorId)
-        json.addProperty(GENERATOR_PUBLIC_KEY_RESPONSE, Convert.toHexString(block.generatorPublicKey))
-        json.addProperty(NONCE_RESPONSE, Convert.toUnsignedLong(block.nonce!!))
+        json.addProperty(GENERATOR_PUBLIC_KEY_RESPONSE, block.generatorPublicKey.toHexString())
+        json.addProperty(NONCE_RESPONSE, block.nonce.toUnsignedString())
         json.addProperty(SCOOP_NUM_RESPONSE, scoopNum)
         json.addProperty(TIMESTAMP_RESPONSE, block.timestamp)
         json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, block.transactions.size)
         json.addProperty(TOTAL_AMOUNT_NQT_RESPONSE, block.totalAmountNQT.toString())
         json.addProperty(TOTAL_FEE_NQT_RESPONSE, block.totalFeeNQT.toString())
-        json.addProperty(BLOCK_REWARD_RESPONSE, Convert.toUnsignedLong(blockReward / Constants.ONE_BURST))
+        json.addProperty(BLOCK_REWARD_RESPONSE, (blockReward / Constants.ONE_BURST).toUnsignedString())
         json.addProperty(PAYLOAD_LENGTH_RESPONSE, block.payloadLength)
         json.addProperty(VERSION_RESPONSE, block.version)
-        json.addProperty(BASE_TARGET_RESPONSE, Convert.toUnsignedLong(block.baseTarget))
+        json.addProperty(BASE_TARGET_RESPONSE, block.baseTarget.toUnsignedString())
 
         if (block.previousBlockId != 0L) {
-            json.addProperty(PREVIOUS_BLOCK_RESPONSE, Convert.toUnsignedLong(block.previousBlockId))
+            json.addProperty(PREVIOUS_BLOCK_RESPONSE, block.previousBlockId.toUnsignedString())
         }
 
         if (block.nextBlockId != 0L) {
-            json.addProperty(NEXT_BLOCK_RESPONSE, Convert.toUnsignedLong(block.nextBlockId))
+            json.addProperty(NEXT_BLOCK_RESPONSE, block.nextBlockId.toUnsignedString())
         }
 
-        json.addProperty(PAYLOAD_HASH_RESPONSE, Convert.toHexString(block.payloadHash))
-        json.addProperty(GENERATION_SIGNATURE_RESPONSE, Convert.toHexString(block.generationSignature))
+        json.addProperty(PAYLOAD_HASH_RESPONSE, block.payloadHash.toHexString())
+        json.addProperty(GENERATION_SIGNATURE_RESPONSE, block.generationSignature.toHexString())
 
         if (block.version > 1) {
-            json.addProperty(PREVIOUS_BLOCK_HASH_RESPONSE, Convert.toHexString(block.previousBlockHash))
+            json.addProperty(PREVIOUS_BLOCK_HASH_RESPONSE, block.previousBlockHash?.toHexString() ?: "")
         }
 
-        json.addProperty(BLOCK_SIGNATURE_RESPONSE, Convert.toHexString(block.blockSignature))
+        json.addProperty(BLOCK_SIGNATURE_RESPONSE, block.blockSignature.toHexString())
 
         val transactions = JsonArray()
         for (transaction in block.transactions) {
             if (includeTransactions) {
                 transactions.add(transaction(transaction, currentBlockchainHeight))
             } else {
-                transactions.add(Convert.toUnsignedLong(transaction.id))
+                transactions.add(transaction.id.toUnsignedString())
             }
         }
         json.add(TRANSACTIONS_RESPONSE, transactions)
@@ -240,19 +239,19 @@ object JSONData {
 
     internal fun encryptedData(encryptedData: EncryptedData): JsonObject {
         val json = JsonObject()
-        json.addProperty(DATA_RESPONSE, Convert.toHexString(encryptedData.data))
-        json.addProperty(NONCE_RESPONSE, Convert.toHexString(encryptedData.nonce))
+        json.addProperty(DATA_RESPONSE, encryptedData.data.toHexString())
+        json.addProperty(NONCE_RESPONSE, encryptedData.nonce.toHexString())
         return json
     }
 
     internal fun escrowTransaction(escrow: Escrow): JsonObject {
         val json = JsonObject()
-        json.addProperty(ID_RESPONSE, Convert.toUnsignedLong(escrow.id!!))
-        json.addProperty(SENDER_RESPONSE, Convert.toUnsignedLong(escrow.senderId!!))
+        json.addProperty(ID_RESPONSE, escrow.id!!.toUnsignedString())
+        json.addProperty(SENDER_RESPONSE, escrow.senderId!!.toUnsignedString())
         json.addProperty(SENDER_RS_RESPONSE, Convert.rsAccount(escrow.senderId!!))
-        json.addProperty(RECIPIENT_RESPONSE, Convert.toUnsignedLong(escrow.recipientId!!))
+        json.addProperty(RECIPIENT_RESPONSE, escrow.recipientId!!.toUnsignedString())
         json.addProperty(RECIPIENT_RS_RESPONSE, Convert.rsAccount(escrow.recipientId!!))
-        json.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(escrow.amountNQT!!))
+        json.addProperty(AMOUNT_NQT_RESPONSE, escrow.amountNQT!!.toUnsignedString())
         json.addProperty(REQUIRED_SIGNERS_RESPONSE, escrow.requiredSigners)
         json.addProperty(DEADLINE_RESPONSE, escrow.deadline)
         json.addProperty(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(escrow.deadlineAction))
@@ -263,9 +262,9 @@ object JSONData {
                 continue
             }
             val signerDetails = JsonObject()
-            signerDetails.addProperty(ID_RESPONSE, Convert.toUnsignedLong(decision.accountId!!))
+            signerDetails.addProperty(ID_RESPONSE, decision.accountId!!.toUnsignedString())
             signerDetails.addProperty(ID_RS_RESPONSE, Convert.rsAccount(decision.accountId!!))
-            signerDetails.addProperty(DECISION_RESPONSE, Escrow.decisionToString(decision.decision))
+            signerDetails.addProperty(DECISION_RESPONSE, Escrow.decisionToString(decision.decision!!))
             signers.add(signerDetails)
         }
         json.add(SIGNERS_RESPONSE, signers)
@@ -274,7 +273,7 @@ object JSONData {
 
     internal fun goods(goods: DigitalGoodsStore.Goods): JsonObject {
         val json = JsonObject()
-        json.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goods.id))
+        json.addProperty(GOODS_RESPONSE, goods.id.toUnsignedString())
         json.addProperty(NAME_RESPONSE, goods.name)
         json.addProperty(DESCRIPTION_RESPONSE, goods.description)
         json.addProperty(QUANTITY_RESPONSE, goods.quantity)
@@ -290,7 +289,7 @@ object JSONData {
         val json = JsonObject()
         json.addProperty("state", peer.state.ordinal)
         json.addProperty("announcedAddress", peer.announcedAddress)
-        json.addProperty("shareAddress", peer.shareAddress())
+        json.addProperty("shareAddress", peer.shareAddress)
         json.addProperty("downloadedVolume", peer.downloadedVolume)
         json.addProperty("uploadedVolume", peer.uploadedVolume)
         json.addProperty("application", peer.application)
@@ -303,8 +302,8 @@ object JSONData {
 
     internal fun purchase(purchase: DigitalGoodsStore.Purchase): JsonObject {
         val json = JsonObject()
-        json.addProperty(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchase.id))
-        json.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(purchase.goodsId))
+        json.addProperty(PURCHASE_RESPONSE, purchase.id.toUnsignedString())
+        json.addProperty(GOODS_RESPONSE, purchase.goodsId.toUnsignedString())
         json.addProperty(NAME_RESPONSE, purchase.name)
         putAccount(json, SELLER_RESPONSE, purchase.sellerId)
         json.addProperty(PRICE_NQT_RESPONSE, purchase.priceNQT.toString())
@@ -317,7 +316,7 @@ object JSONData {
         }
         json.addProperty(PENDING_RESPONSE, purchase.isPending)
         if (purchase.encryptedGoods != null) {
-            json.add(GOODS_DATA_RESPONSE, encryptedData(purchase.encryptedGoods))
+            json.add(GOODS_DATA_RESPONSE, encryptedData(purchase.encryptedGoods!!))
             json.addProperty(GOODS_IS_TEXT_RESPONSE, purchase.goodsIsText())
         }
         if (purchase.feedbackNotes != null) {
@@ -327,15 +326,15 @@ object JSONData {
             }
             json.add(FEEDBACK_NOTES_RESPONSE, feedbacks)
         }
-        if (purchase.publicFeedback.isNotEmpty()) {
+        if (purchase.publicFeedback != null && purchase.publicFeedback!!.isNotEmpty()) {
             val publicFeedbacks = JsonArray()
-            for (string in purchase.publicFeedback) {
+            for (string in purchase.publicFeedback!!) {
                 publicFeedbacks.add(string)
             }
             json.add(PUBLIC_FEEDBACKS_RESPONSE, publicFeedbacks)
         }
         if (purchase.refundNote != null) {
-            json.add(REFUND_NOTE_RESPONSE, encryptedData(purchase.refundNote))
+            json.add(REFUND_NOTE_RESPONSE, encryptedData(purchase.refundNote!!))
         }
         if (purchase.discountNQT > 0) {
             json.addProperty(DISCOUNT_NQT_RESPONSE, purchase.discountNQT.toString())
@@ -348,10 +347,10 @@ object JSONData {
 
     internal fun subscription(subscription: Subscription): JsonObject {
         val json = JsonObject()
-        json.addProperty(ID_RESPONSE, Convert.toUnsignedLong(subscription.id!!))
+        json.addProperty(ID_RESPONSE, subscription.id!!.toUnsignedString())
         putAccount(json, SENDER_RESPONSE, subscription.senderId!!)
         putAccount(json, RECIPIENT_RESPONSE, subscription.recipientId!!)
-        json.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(subscription.amountNQT!!))
+        json.addProperty(AMOUNT_NQT_RESPONSE, subscription.amountNQT!!.toUnsignedString())
         json.addProperty(FREQUENCY_RESPONSE, subscription.frequency)
         json.addProperty(TIME_NEXT_RESPONSE, subscription.timeNext)
         return json
@@ -362,14 +361,14 @@ object JSONData {
         json.addProperty(TIMESTAMP_RESPONSE, trade.timestamp)
         json.addProperty(QUANTITY_QNT_RESPONSE, trade.quantityQNT.toString())
         json.addProperty(PRICE_NQT_RESPONSE, trade.priceNQT.toString())
-        json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(trade.assetId))
-        json.addProperty(ASK_ORDER_RESPONSE, Convert.toUnsignedLong(trade.askOrderId))
-        json.addProperty(BID_ORDER_RESPONSE, Convert.toUnsignedLong(trade.bidOrderId))
+        json.addProperty(ASSET_RESPONSE, trade.assetId.toUnsignedString())
+        json.addProperty(ASK_ORDER_RESPONSE, trade.askOrderId.toUnsignedString())
+        json.addProperty(BID_ORDER_RESPONSE, trade.bidOrderId.toUnsignedString())
         json.addProperty(ASK_ORDER_HEIGHT_RESPONSE, trade.askOrderHeight)
         json.addProperty(BID_ORDER_HEIGHT_RESPONSE, trade.bidOrderHeight)
         putAccount(json, SELLER_RESPONSE, trade.sellerId)
         putAccount(json, BUYER_RESPONSE, trade.buyerId)
-        json.addProperty(BLOCK_RESPONSE, Convert.toUnsignedLong(trade.blockId))
+        json.addProperty(BLOCK_RESPONSE, trade.blockId.toUnsignedString())
         json.addProperty(HEIGHT_RESPONSE, trade.height)
         json.addProperty(TRADE_TYPE_RESPONSE, if (trade.isBuy) "buy" else "sell")
         if (asset != null) {
@@ -381,8 +380,8 @@ object JSONData {
 
     internal fun assetTransfer(assetTransfer: AssetTransfer, asset: Asset?): JsonObject {
         val json = JsonObject()
-        json.addProperty(ASSET_TRANSFER_RESPONSE, Convert.toUnsignedLong(assetTransfer.id))
-        json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetTransfer.assetId))
+        json.addProperty(ASSET_TRANSFER_RESPONSE, assetTransfer.id.toUnsignedString())
+        json.addProperty(ASSET_RESPONSE, assetTransfer.assetId.toUnsignedString())
         putAccount(json, SENDER_RESPONSE, assetTransfer.senderId)
         putAccount(json, RECIPIENT_RESPONSE, assetTransfer.recipientId)
         json.addProperty(QUANTITY_QNT_RESPONSE, assetTransfer.quantityQNT.toString())
@@ -402,7 +401,7 @@ object JSONData {
         json.addProperty(SUBTYPE_RESPONSE, transaction.type.subtype)
         json.addProperty(TIMESTAMP_RESPONSE, transaction.timestamp)
         json.addProperty(DEADLINE_RESPONSE, transaction.deadline)
-        json.addProperty(SENDER_PUBLIC_KEY_RESPONSE, Convert.toHexString(transaction.senderPublicKey))
+        json.addProperty(SENDER_PUBLIC_KEY_RESPONSE, transaction.senderPublicKey.toHexString())
         if (transaction.recipientId != 0L) {
             putAccount(json, RECIPIENT_RESPONSE, transaction.recipientId)
         }
@@ -413,8 +412,8 @@ object JSONData {
         }
         val signature = Convert.emptyToNull(transaction.signature)
         if (signature != null) {
-            json.addProperty(SIGNATURE_RESPONSE, Convert.toHexString(signature))
-            json.addProperty(SIGNATURE_HASH_RESPONSE, Convert.toHexString(Crypto.sha256().digest(signature)))
+            json.addProperty(SIGNATURE_RESPONSE, signature.toHexString())
+            json.addProperty(SIGNATURE_HASH_RESPONSE, Crypto.sha256().digest(signature).toHexString())
             json.addProperty(FULL_HASH_RESPONSE, transaction.fullHash)
             json.addProperty(TRANSACTION_RESPONSE, transaction.stringId)
         } else if (!transaction.type.isSigned) {
@@ -423,7 +422,7 @@ object JSONData {
         }
         val attachmentJSON = JsonObject()
         for (appendage in transaction.appendages) {
-            JSON.addAll(attachmentJSON, appendage.jsonObject)
+            attachmentJSON.addAll(appendage.jsonObject)
         }
         if (attachmentJSON.size() > 0) {
             modifyAttachmentJSON(attachmentJSON)
@@ -433,7 +432,7 @@ object JSONData {
         json.addProperty(HEIGHT_RESPONSE, transaction.height)
         json.addProperty(VERSION_RESPONSE, transaction.version)
         if (transaction.version > 0) {
-            json.addProperty(EC_BLOCK_ID_RESPONSE, Convert.toUnsignedLong(transaction.ecBlockId))
+            json.addProperty(EC_BLOCK_ID_RESPONSE, transaction.ecBlockId.toUnsignedString())
             json.addProperty(EC_BLOCK_HEIGHT_RESPONSE, transaction.ecBlockHeight)
         }
 
@@ -442,7 +441,7 @@ object JSONData {
 
     fun transaction(transaction: Transaction, currentBlockchainHeight: Int): JsonObject {
         val json = unconfirmedTransaction(transaction)
-        json.addProperty(BLOCK_RESPONSE, Convert.toUnsignedLong(transaction.blockId))
+        json.addProperty(BLOCK_RESPONSE, transaction.blockId.toUnsignedString())
         json.addProperty(CONFIRMATIONS_RESPONSE, currentBlockchainHeight - transaction.height)
         json.addProperty(BLOCK_TIMESTAMP_RESPONSE, transaction.blockTimestamp)
         return json
@@ -469,7 +468,7 @@ object JSONData {
     }
 
     internal fun putAccount(json: JsonObject, name: String, accountId: Long) {
-        json.addProperty(name, Convert.toUnsignedLong(accountId))
+        json.addProperty(name, accountId.toUnsignedString())
         json.addProperty(name + "RS", Convert.rsAccount(accountId))
     }
 
@@ -485,24 +484,24 @@ object JSONData {
         bf.clear()
         bf.put(at.id, 0, 8)
         val id = bf.getLong(0)
-        json.addProperty("at", Convert.toUnsignedLong(id))
+        json.addProperty("at", id.toUnsignedString())
         json.addProperty("atRS", Convert.rsAccount(id))
         json.addProperty("atVersion", at.version)
         json.addProperty("name", at.name)
         json.addProperty("description", at.description)
-        json.addProperty("creator", Convert.toUnsignedLong(AtApiHelper.getLong(at.creator)))
-        json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.creator)))
-        json.addProperty("machineCode", Convert.toHexString(at.apCodeBytes))
-        json.addProperty("machineData", Convert.toHexString(at.apDataBytes))
-        json.addProperty("balanceNQT", Convert.toUnsignedLong(accountService.getAccount(id).balanceNQT))
-        json.addProperty("prevBalanceNQT", Convert.toUnsignedLong(at.getpBalance()!!))
+        json.addProperty("creator", AtApiHelper.getLong(at.creator!!).toUnsignedString())
+        json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.creator!!)))
+        json.addProperty("machineCode", at.apCodeBytes.toHexString())
+        json.addProperty("machineData", at.apDataBytes.toHexString())
+        json.addProperty("balanceNQT", accountService.getAccount(id)!!.balanceNQT.toUnsignedString())
+        json.addProperty("prevBalanceNQT", at.getpBalance().toUnsignedString())
         json.addProperty("nextBlock", at.nextHeight())
         json.addProperty("frozen", at.freezeOnSameBalance())
         json.addProperty("running", at.machineState.running)
         json.addProperty("stopped", at.machineState.stopped)
         json.addProperty("finished", at.machineState.finished)
         json.addProperty("dead", at.machineState.dead)
-        json.addProperty("minActivation", Convert.toUnsignedLong(at.minActivationAmount()))
+        json.addProperty("minActivation", at.minActivationAmount().toUnsignedString())
         json.addProperty("creationBlock", at.creationBlockHeight)
         return json
     }
@@ -512,5 +511,4 @@ object JSONData {
         json.addProperty("hex2long", longString)
         return json
     }
-
 }

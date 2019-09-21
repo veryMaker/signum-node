@@ -3,7 +3,6 @@ package brs
 import brs.db.BurstKey
 
 open class AssetTransfer {
-
     val id: Long
     val dbKey: BurstKey
     val assetId: Long
@@ -38,5 +37,4 @@ open class AssetTransfer {
         this.quantityQNT = quantityQNT
         this.timestamp = timestamp
     }
-
 }

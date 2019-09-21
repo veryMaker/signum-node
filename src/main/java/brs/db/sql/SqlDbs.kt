@@ -7,7 +7,6 @@ import brs.db.TransactionDb
 import brs.db.store.Dbs
 
 class SqlDbs(dp: DependencyProvider) : Dbs {
-
     override val blockDb: BlockDb
     override val transactionDb: TransactionDb
     override val peerDb: PeerDb

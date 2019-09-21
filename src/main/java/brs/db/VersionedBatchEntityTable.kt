@@ -14,17 +14,17 @@ interface VersionedBatchEntityTable<T> : DerivedTable, EntityTable<T> {
     val cache: Cache<BurstKey, T>?
     fun delete(t: T): Boolean
 
-    override fun get(dbKey: BurstKey): T
+    override fun get(dbKey: BurstKey): T?
 
     override fun insert(t: T)
 
     override fun finish()
 
-    override fun get(dbKey: BurstKey, height: Int): T
+    override fun get(dbKey: BurstKey, height: Int): T?
 
-    override fun getBy(condition: Condition): T
+    override fun getBy(condition: Condition): T?
 
-    override fun getBy(condition: Condition, height: Int): T
+    override fun getBy(condition: Condition, height: Int): T?
 
     override fun getManyBy(condition: Condition, from: Int, to: Int, sort: List<SortField<*>>): Collection<T>
 

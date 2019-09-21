@@ -2,22 +2,13 @@ package brs.services.impl
 
 import brs.*
 import brs.BurstException.NotValidException
-import brs.db.BurstKey
-import brs.db.BurstKey.LongKeyFactory
-import brs.db.TransactionDb
-import brs.db.VersionedEntityTable
-import brs.db.store.SubscriptionStore
-import brs.services.AccountService
-import brs.services.AliasService
 import brs.services.SubscriptionService
 import brs.util.Convert
-
 import java.util.*
 
 class SubscriptionServiceImpl(private val dp: DependencyProvider) : SubscriptionService {
-
-    private val subscriptionTable: VersionedEntityTable<Subscription>
-    private val subscriptionDbKeyFactory: LongKeyFactory<Subscription>
+    private val subscriptionTable = dp.subscriptionStore.subscriptionTable
+    private val subscriptionDbKeyFactory = dp.subscriptionStore.subscriptionDbKeyFactory
 
     override val isEnabled: Boolean
         get() {
@@ -32,13 +23,8 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     private val fee: Long
         get() = Constants.ONE_BURST
 
-    init {
-        this.subscriptionTable = dp.subscriptionStore.subscriptionTable
-        this.subscriptionDbKeyFactory = dp.subscriptionStore.subscriptionDbKeyFactory
-    }
-
-    override fun getSubscription(id: Long?): Subscription {
-        return subscriptionTable.get(subscriptionDbKeyFactory.newKey(id!!))
+    override fun getSubscription(id: Long?): Subscription? {
+        return subscriptionTable[subscriptionDbKeyFactory.newKey(id!!)]
     }
 
     override fun getSubscriptionsByParticipant(accountId: Long?): Collection<Subscription> {
@@ -49,7 +35,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         return dp.subscriptionStore.getSubscriptionsToId(accountId)
     }
 
-    override fun addSubscription(sender: Account, recipient: Account, id: Long?, amountNQT: Long?, startTimestamp: Int, frequency: Int) {
+    override fun addSubscription(sender: Account, recipient: Account, id: Long, amountNQT: Long, startTimestamp: Int, frequency: Int) {
         val dbKey = subscriptionDbKeyFactory.newKey(id!!)
         val subscription = Subscription(sender.id, recipient.id, id, amountNQT, frequency, startTimestamp + frequency, dbKey)
 
@@ -65,11 +51,11 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         if (!paymentTransactions.isEmpty()) {
             dp.dbs.transactionDb.saveTransactions(paymentTransactions)
         }
-        removeSubscriptions.forEach((Long) -> Unit { this.removeSubscription(it) })
+        removeSubscriptions.forEach { this.removeSubscription(it) }
     }
 
-    override fun removeSubscription(id: Long?) {
-        val subscription = subscriptionTable.get(subscriptionDbKeyFactory.newKey(id!!))
+    override fun removeSubscription(id: Long) {
+        val subscription = subscriptionTable[subscriptionDbKeyFactory.newKey(id)]
         if (subscription != null) {
             subscriptionTable.delete(subscription)
         }
@@ -99,7 +85,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         removeSubscriptions.clear()
     }
 
-    override fun addRemoval(id: Long?) {
+    override fun addRemoval(id: Long) {
         removeSubscriptions.add(id)
     }
 
@@ -143,8 +129,8 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     }
 
     private fun apply(block: Block, blockchainHeight: Int, subscription: Subscription) {
-        val sender = dp.accountService.getAccount(subscription.senderId!!)
-        val recipient = dp.accountService.getAccount(subscription.recipientId!!)
+        val sender = dp.accountService.getAccount(subscription.senderId!!)!!
+        val recipient = dp.accountService.getAccount(subscription.recipientId!!)!!
 
         val totalAmountNQT = Convert.safeAdd(subscription.amountNQT!!, fee)
 
@@ -152,10 +138,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(recipient, subscription.amountNQT)
 
         val attachment = Attachment.AdvancedPaymentSubscriptionPayment(subscription.id, blockchainHeight)
-        val builder = Transaction.Builder(dp, 1.toByte(),
-                sender.publicKey, subscription.amountNQT,
-                fee,
-                subscription.timeNext, 1440.toShort(), attachment)
+        val builder = Transaction.Builder(dp, 1.toByte(), sender.publicKey!!, subscription.amountNQT, fee, subscription.timeNext, 1440.toShort(), attachment)
 
         try {
             builder.senderId(subscription.senderId)

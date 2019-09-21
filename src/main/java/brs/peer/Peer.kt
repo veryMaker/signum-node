@@ -9,15 +9,15 @@ interface Peer : Comparable<Peer> {
 
     val peerAddress: String
 
-    val announcedAddress: String
+    var announcedAddress: String?
 
     var state: State
 
     val version: Version
 
-    val application: String
+    var application: String
 
-    val platform: String
+    var platform: String
 
     val software: String
 
@@ -35,7 +35,7 @@ interface Peer : Comparable<Peer> {
 
     val uploadedVolume: Long
 
-    val lastUpdated: Int
+    var lastUpdated: Int
 
     fun connect(currentTime: Int)
 
@@ -66,8 +66,6 @@ interface Peer : Comparable<Peer> {
 
     fun updateUploadedVolume(volume: Long)
 
-    fun shareAddress(): Boolean
-
     fun isHigherOrEqualVersionThan(version: Version): Boolean
 
     fun blacklist(cause: Exception, description: String)
@@ -82,8 +80,6 @@ interface Peer : Comparable<Peer> {
 
     fun remove()
 
-    fun isState(cmpState: State): Boolean
-
     fun updateDownloadedVolume(volume: Long)
 
     fun send(request: JsonElement): JsonObject?
@@ -97,4 +93,8 @@ interface Peer : Comparable<Peer> {
 
         }
     }
+
+    fun setVersion(version: String?)
+
+    var shareAddress: Boolean
 }

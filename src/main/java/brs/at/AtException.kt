@@ -7,6 +7,6 @@ class AtException : Exception {
     constructor(message: String, cause: Throwable) : super(message, cause) {}
 
     companion object {
-        private val serialVersionUID = 1L
+        private const val serialVersionUID = 1L
     }
 }

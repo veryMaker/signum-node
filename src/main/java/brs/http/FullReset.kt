@@ -1,17 +1,14 @@
 package brs.http
 
 import brs.BlockchainProcessor
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-
-import javax.servlet.http.HttpServletRequest
-
 import brs.http.common.ResultFields.DONE_RESPONSE
 import brs.http.common.ResultFields.ERROR_RESPONSE
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import javax.servlet.http.HttpServletRequest
 
 internal class FullReset internal constructor(private val blockchainProcessor: BlockchainProcessor) : APIServlet.JsonRequestHandler(arrayOf(APITag.DEBUG)) {
-
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
         try {
             blockchainProcessor.fullReset()
@@ -26,5 +23,4 @@ internal class FullReset internal constructor(private val blockchainProcessor: B
     internal override fun requirePost(): Boolean {
         return true
     }
-
 }

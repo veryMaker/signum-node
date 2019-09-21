@@ -1,8 +1,8 @@
 package brs
 
 import brs.peer.Peer
-import brs.util.JSON
 import brs.util.Observable
+import brs.util.toJsonString
 import com.google.gson.JsonObject
 
 interface BlockchainProcessor : Observable<Block, BlockchainProcessor.Event> {
@@ -11,17 +11,21 @@ interface BlockchainProcessor : Observable<Block, BlockchainProcessor.Event> {
 
     val lastBlockchainFeeder: Peer?
 
-    val lastBlockchainFeederHeight: Int
+    val lastBlockchainFeederHeight: Int?
 
     val isScanning: Boolean
 
     val minRollbackHeight: Int
 
     enum class Event {
-        BLOCK_PUSHED, BLOCK_POPPED, BLOCK_GENERATED, BLOCK_SCANNED,
-        RESCAN_BEGIN, RESCAN_END,
+        BLOCK_PUSHED,
+        BLOCK_POPPED,
+        BLOCK_GENERATED, BLOCK_SCANNED,
+        RESCAN_BEGIN,
+        RESCAN_END,
         BEFORE_BLOCK_ACCEPT,
-        BEFORE_BLOCK_APPLY, AFTER_BLOCK_APPLY
+        BEFORE_BLOCK_APPLY,
+        AFTER_BLOCK_APPLY
     }
 
     @Throws(BurstException::class)
@@ -36,7 +40,7 @@ interface BlockchainProcessor : Observable<Block, BlockchainProcessor.Event> {
 
     open class BlockNotAcceptedException internal constructor(message: String) : BurstException(message)
 
-    class TransactionNotAcceptedException(message: String, val transaction: Transaction) : BlockNotAcceptedException(message + " transaction: " + JSON.toJsonString(transaction.jsonObject))
+    class TransactionNotAcceptedException(message: String, val transaction: Transaction) : BlockNotAcceptedException(message + " transaction: " + transaction.jsonObject.toJsonString())
 
     class BlockOutOfOrderException(message: String) : BlockNotAcceptedException(message)
 

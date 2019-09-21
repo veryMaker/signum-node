@@ -1,7 +1,8 @@
 package brs.services.impl
 
-import brs.*
-import brs.services.AccountService
+import brs.BurstException
+import brs.DependencyProvider
+import brs.Transaction
 import brs.services.TransactionService
 
 class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionService {
@@ -31,7 +32,7 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
     }
 
     override fun apply(transaction: Transaction) {
-        val senderAccount = dp.accountService.getAccount(transaction.senderId)
+        val senderAccount = dp.accountService.getAccount(transaction.senderId)!!
         senderAccount.apply(dp, transaction.senderPublicKey, transaction.height)
         val recipientAccount = dp.accountService.getOrAddAccount(transaction.recipientId)
         for (appendage in transaction.appendages) {
@@ -40,7 +41,7 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
     }
 
     override fun undoUnconfirmed(transaction: Transaction) {
-        val senderAccount = dp.accountService.getAccount(transaction.senderId)
+        val senderAccount = dp.accountService.getAccount(transaction.senderId)!!
         transaction.type!!.undoUnconfirmed(transaction, senderAccount)
     }
 

@@ -1,22 +1,18 @@
 package brs.db.sql
 
-import brs.Burst
 import brs.DependencyProvider
-import brs.at.AT
 import brs.at.AtApiHelper
 import brs.at.AtConstants
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.db.store.ATStore
-import brs.db.store.DerivedTableManager
+import brs.schema.Tables.*
 import brs.schema.tables.records.AtRecord
 import brs.schema.tables.records.AtStateRecord
-import org.jooq.*
+import org.jooq.DSLContext
+import org.jooq.Record
+import org.jooq.SortField
 import org.jooq.exception.DataAccessException
-
-import java.util.ArrayList
-
-import brs.schema.Tables.*
 
 class SqlATStore(private val dp: DependencyProvider) : ATStore {
 
@@ -37,34 +33,23 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
 
     override val orderedATs: List<Long>
         get() = Db.useDSLContext<List<Long>> { ctx ->
-            ctx.selectFrom(
-                    AT.join(AT_STATE).on(AT.ID.eq(AT_STATE.AT_ID)).join(ACCOUNT).on(AT.ID.eq(ACCOUNT.ID))
-            ).where(
-                    AT.LATEST.isTrue
-            ).and(
-                    AT_STATE.LATEST.isTrue
-            ).and(
-                    ACCOUNT.LATEST.isTrue
-            ).and(
-                    AT_STATE.NEXT_HEIGHT.lessOrEqual(dp.blockchain.height + 1)
-            ).and(
-                    ACCOUNT.BALANCE.greaterOrEqual(
-                            AtConstants.stepFee(dp.blockchain.height) * AtConstants.apiStepMultiplier(dp.blockchain.height)
-                    )
-            ).and(
-                    AT_STATE.FREEZE_WHEN_SAME_BALANCE.isFalse.or(
-                            "account.balance - at_state.prev_balance >= at_state.min_activate_amount"
-                    )
-            ).orderBy(
-                    AT_STATE.PREV_HEIGHT.asc(), AT_STATE.NEXT_HEIGHT.asc(), AT.ID.asc()
-            ).fetch().getValues(AT.ID)
+            ctx.selectFrom(AT.join(AT_STATE).on(AT.ID.eq(AT_STATE.AT_ID)).join(ACCOUNT).on(AT.ID.eq(ACCOUNT.ID)))
+                    .where(AT.LATEST.isTrue)
+                    .and(AT_STATE.LATEST.isTrue)
+                    .and(ACCOUNT.LATEST.isTrue)
+                    .and(AT_STATE.NEXT_HEIGHT.lessOrEqual(dp.blockchain.height + 1))
+                    .and(ACCOUNT.BALANCE.greaterOrEqual(AtConstants.stepFee(dp.blockchain.height) * AtConstants.apiStepMultiplier(dp.blockchain.height)))
+                    .and(AT_STATE.FREEZE_WHEN_SAME_BALANCE.isFalse.or("account.balance - at_state.prev_balance >= at_state.min_activate_amount"))
+                    .orderBy(AT_STATE.PREV_HEIGHT.asc(), AT_STATE.NEXT_HEIGHT.asc(), AT.ID.asc())
+                    .fetch()
+                    .getValues(AT.ID)
         }
 
     override val allATIds: Collection<Long>
         get() = Db.useDSLContext<List<Long>> { ctx -> ctx.selectFrom(AT).where(AT.LATEST.isTrue).fetch().getValues(AT.ID) }
 
     init {
-        atTable = object : VersionedEntitySqlTable<brs.at.AT>("at", brs.schema.Tables.AT, atDbKeyFactory, dp) {
+        atTable = object : VersionedEntitySqlTable<brs.at.AT>("at", AT, atDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, rs: Record): brs.at.AT {
                 throw RuntimeException("AT attempted to be created with atTable.load")
             }
@@ -125,12 +110,15 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
         return Db.useDSLContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectOne().from(AT).where(AT.ID.eq(id)).and(AT.LATEST.isTrue)) }
     }
 
-    override fun getAT(id: Long?): brs.at.AT {
-        return Db.useDSLContext<AT> { ctx ->
-            val record = ctx.select(*AT.fields()).select(*AT_STATE.fields()).from(AT.join(AT_STATE).on(AT.ID.eq(AT_STATE.AT_ID))).where(AT.LATEST.isTrue.and(AT_STATE.LATEST.isTrue).and(AT.ID.eq(id))).fetchOne()
-            if (record == null) {
-                return@Db.useDSLContext null
-            }
+    override fun getAT(id: Long?): brs.at.AT? {
+        return Db.useDSLContext<brs.at.AT?> { ctx ->
+            val record = ctx.select(*AT.fields())
+                    .select(*AT_STATE.fields())
+                    .from(AT.join(AT_STATE).on(AT.ID.eq(AT_STATE.AT_ID)))
+                    .where(AT.LATEST.isTrue
+                            .and(AT_STATE.LATEST.isTrue)
+                            .and(AT.ID.eq(id)))
+                    .fetchOne() ?: return@useDSLContext null
 
             val at = record!!.into(AT)
             val atState = record.into(AT_STATE)
@@ -140,9 +128,9 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
     }
 
     private fun createAT(dp: DependencyProvider, at: AtRecord, atState: AtStateRecord): brs.at.AT {
-        return AT(dp, AtApiHelper.getByteArray(at.id!!), AtApiHelper.getByteArray(at.creatorId!!), at.name, at.description, at.version!!,
-                brs.at.AT.decompressState(atState.state), at.csize!!, at.dsize!!, at.cUserStackBytes!!, at.cCallStackBytes!!, at.creationHeight!!, atState.sleepBetween!!, atState.nextHeight!!,
-                atState.freezeWhenSameBalance!!, atState.minActivateAmount!!, brs.at.AT.decompressState(at.apCode))
+        return brs.at.AT(dp, AtApiHelper.getByteArray(at.id!!), AtApiHelper.getByteArray(at.creatorId!!), at.name, at.description, at.version!!,
+                brs.at.AT.decompressState(atState.state)!!, at.csize!!, at.dsize!!, at.cUserStackBytes!!, at.cCallStackBytes!!, at.creationHeight!!, atState.sleepBetween!!, atState.nextHeight!!,
+                atState.freezeWhenSameBalance!!, atState.minActivateAmount!!, brs.at.AT.decompressState(at.apCode)!!)
     }
 
     override fun getATsIssuedBy(accountId: Long?): List<Long> {
@@ -151,15 +139,13 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
 
     override fun findTransaction(startHeight: Int, endHeight: Int, atID: Long?, numOfTx: Int, minAmount: Long): Long? {
         return Db.useDSLContext<Long> { ctx ->
-            val query = ctx.select(TRANSACTION.ID).from(TRANSACTION).where(
-                    TRANSACTION.HEIGHT.between(startHeight, endHeight - 1)
-            ).and(
-                    TRANSACTION.RECIPIENT_ID.eq(atID)
-            ).and(
-                    TRANSACTION.AMOUNT.greaterOrEqual(minAmount)
-            ).orderBy(
-                    TRANSACTION.HEIGHT, TRANSACTION.ID
-            ).query
+            val query = ctx.select(TRANSACTION.ID)
+                    .from(TRANSACTION)
+                    .where(TRANSACTION.HEIGHT.between(startHeight, endHeight - 1))
+                    .and(TRANSACTION.RECIPIENT_ID.eq(atID))
+                    .and(TRANSACTION.AMOUNT.greaterOrEqual(minAmount))
+                    .orderBy(TRANSACTION.HEIGHT, TRANSACTION.ID)
+                    .query
             DbUtils.applyLimits(query, numOfTx, numOfTx + 1)
             val result = query.fetch()
             if (result.isEmpty()) 0L else result[0].value1()
@@ -183,12 +169,12 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
                     val currentTransactionId = fetch.next().value1()
                     if (currentTransactionId == transactionId) break
                 }
-                return@Db.useDSLContext counter
+                return@useDSLContext counter
             } catch (e: DataAccessException) {
                 throw RuntimeException(e.toString(), e)
             }
         }
     }
 
-    internal inner class SqlATState private constructor(dp: DependencyProvider, record: Record) : brs.at.AT.ATState(dp, record.get(AT_STATE.AT_ID), record.get(AT_STATE.STATE), record.get(AT_STATE.NEXT_HEIGHT), record.get(AT_STATE.SLEEP_BETWEEN), record.get(AT_STATE.PREV_BALANCE), record.get(AT_STATE.FREEZE_WHEN_SAME_BALANCE), record.get(AT_STATE.MIN_ACTIVATE_AMOUNT))
+    internal inner class SqlATState internal constructor(dp: DependencyProvider, record: Record) : brs.at.AT.ATState(dp, record.get(AT_STATE.AT_ID), record.get(AT_STATE.STATE), record.get(AT_STATE.NEXT_HEIGHT), record.get(AT_STATE.SLEEP_BETWEEN), record.get(AT_STATE.PREV_BALANCE), record.get(AT_STATE.FREEZE_WHEN_SAME_BALANCE), record.get(AT_STATE.MIN_ACTIVATE_AMOUNT))
 }

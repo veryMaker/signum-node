@@ -1,11 +1,7 @@
 package brs.fluxcapacitor
 
-import brs.Blockchain
 import brs.DependencyProvider
-import brs.props.PropertyService
 import brs.props.Props
-
-import java.util.HashMap
 
 class FluxCapacitorImpl(dp: DependencyProvider) : FluxCapacitor {
 
@@ -34,7 +30,7 @@ class FluxCapacitorImpl(dp: DependencyProvider) : FluxCapacitor {
 
     private fun <T> computeValuesAtHeights(fluxValue: FluxValue<T>): Map<Int, Int> {
         return valueChangesPerFluxValue.computeIfAbsent(fluxValue) {
-            val valueChangeIndexAtHeight = mutableMapOf<Int, Int>>()
+            val valueChangeIndexAtHeight = mutableMapOf<Int, Int>()
             val valueChanges = it.valueChanges
             for (i in valueChanges.indices) {
                 valueChangeIndexAtHeight[getHistoricalMomentHeight(valueChanges[i].historicalMoment)] = i

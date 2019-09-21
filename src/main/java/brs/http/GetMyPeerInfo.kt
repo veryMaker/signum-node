@@ -7,12 +7,9 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetMyPeerInfo(private val transactionProcessor: TransactionProcessor) : APIServlet.JsonRequestHandler(arrayOf(APITag.PEER_INFO)) {
-
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
-
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
         response.addProperty("utsInStore", transactionProcessor.amountUnconfirmedTransactions)
         return response
     }
-
 }

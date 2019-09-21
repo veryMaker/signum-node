@@ -4,10 +4,9 @@ import brs.DependencyProvider
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
 import org.slf4j.LoggerFactory
-
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.Arrays
+import java.util.*
 
 class AtApiPlatformImpl private constructor() : AtApiImpl() {
 
@@ -309,7 +308,7 @@ class AtApiPlatformImpl private constructor() : AtApiImpl() {
         // TODO don't store static dp
         private var dp: DependencyProvider? = null
 
-        override fun init(dp: DependencyProvider) {
+        fun init(dp: DependencyProvider) {
             AtApiPlatformImpl.dp = dp
         }
 

@@ -12,14 +12,14 @@ import brs.http.common.Parameters.GOODS_PARAMETER
 internal class DGSDelisting(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER) {
 
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val account = dp.parameterService.getSenderAccount(req)
-        val goods = dp.parameterService.getGoods(req)
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+        val account = dp.parameterService.getSenderAccount(request)
+        val goods = dp.parameterService.getGoods(request)
         if (goods.isDelisted || goods.sellerId != account.id) {
             return UNKNOWN_GOODS
         }
         val attachment = Attachment.DigitalGoodsDelisting(goods.id, dp.blockchain.height)
-        return createTransaction(req, account, attachment)
+        return createTransaction(request, account, attachment)
     }
 
 }

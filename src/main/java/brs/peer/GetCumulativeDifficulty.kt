@@ -8,7 +8,6 @@ import com.google.gson.JsonObject
 internal class GetCumulativeDifficulty(private val blockchain: Blockchain) : PeerServlet.PeerRequestHandler {
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         val response = JsonObject()
-
         val lastBlock = blockchain.lastBlock
         response.addProperty("cumulativeDifficulty", lastBlock.cumulativeDifficulty.toString())
         response.addProperty("blockchainHeight", lastBlock.height)

@@ -5,14 +5,9 @@ import brs.DependencyProvider
 import brs.Transaction
 import brs.TransactionType
 import brs.db.store.IndirectIncomingStore
-import brs.props.PropertyService
 import brs.props.Props
 import brs.services.IndirectIncomingService
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.Collections
-import java.util.Objects
-import java.util.stream.Collectors
 
 class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : IndirectIncomingService {
     private val disabled = !dp.propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE)
@@ -47,7 +42,7 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
     private fun getMultiOutRecipients(transaction: Transaction): Collection<Long> {
         require(!(transaction.type != TransactionType.Payment.MULTI_OUT || transaction.attachment !is Attachment.PaymentMultiOutCreation)) { "Wrong transaction type" }
 
-        val attachment = transaction.attachment as Attachment.PaymentMultiOutCreation
+        val attachment = transaction.attachment
         return attachment.getRecipients()
                 .map { recipient -> recipient[0] }
     }
@@ -55,7 +50,7 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
     private fun getMultiOutSameRecipients(transaction: Transaction): Collection<Long> {
         require(!(transaction.type != TransactionType.Payment.MULTI_SAME_OUT || transaction.attachment !is Attachment.PaymentMultiSameOutCreation)) { "Wrong transaction type" }
 
-        val attachment = transaction.attachment as Attachment.PaymentMultiSameOutCreation
+        val attachment = transaction.attachment
         return attachment.getRecipients()
     }
 

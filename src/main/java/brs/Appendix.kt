@@ -4,14 +4,16 @@ import brs.crypto.EncryptedData
 import brs.fluxcapacitor.FluxValues
 import brs.grpc.proto.BrsApi
 import brs.grpc.proto.ProtoBuilder
+import brs.grpc.proto.toByteString
 import brs.util.Convert
 import brs.util.JSON
+import brs.util.parseHexString
+import brs.util.toHexString
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
 import com.google.protobuf.ByteString
-
 import java.nio.ByteBuffer
-import java.util.Arrays
+import java.util.*
 
 interface Appendix {
 
@@ -102,7 +104,7 @@ interface Appendix {
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.MessageAppendix.newBuilder()
                     .setVersion(super.version.toInt())
-                    .setMessage(ByteString.copyFrom(messageBytes!!))
+                    .setMessage(messageBytes.toByteString())
                     .setIsText(isText)
                     .build())
 
@@ -122,8 +124,8 @@ interface Appendix {
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
             val messageString = JSON.getAsString(attachmentData.get("message"))
-            this.isText = java.lang.Boolean.TRUE == JSON.getAsBoolean(attachmentData.get("messageIsText"))
-            this.messageBytes = if (isText) Convert.toBytes(messageString) else Convert.parseHexString(messageString)
+            this.isText = JSON.getAsBoolean(attachmentData.get("messageIsText"))
+            this.messageBytes = if (isText) Convert.toBytes(messageString) else messageString.parseHexString()
         }
 
         constructor(message: ByteArray, blockchainHeight: Int) : super(blockchainHeight) {
@@ -147,7 +149,7 @@ interface Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty("message", if (isText) Convert.toString(messageBytes!!) else Convert.toHexString(messageBytes))
+            attachment.addProperty("message", if (isText) Convert.toString(messageBytes!!) else messageBytes.toHexString())
             attachment.addProperty("messageIsText", isText)
         }
 
@@ -205,10 +207,10 @@ interface Appendix {
         }
 
         constructor(attachmentJSON: JsonObject, encryptedMessageJSON: JsonObject) : super(attachmentJSON) {
-            val data = Convert.parseHexString(JSON.getAsString(encryptedMessageJSON.get("data")))
-            val nonce = Convert.parseHexString(JSON.getAsString(encryptedMessageJSON.get("nonce")))
+            val data = JSON.getAsString(encryptedMessageJSON.get("data")).parseHexString()
+            val nonce = JSON.getAsString(encryptedMessageJSON.get("nonce")).parseHexString()
             this.encryptedData = EncryptedData(data, nonce)
-            this.isText = java.lang.Boolean.TRUE == JSON.getAsBoolean(encryptedMessageJSON.get("isText"))
+            this.isText = JSON.getAsBoolean(encryptedMessageJSON.get("isText"))
         }
 
         constructor(encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(blockchainHeight) {
@@ -228,8 +230,8 @@ interface Appendix {
         }
 
         override fun putMyJSON(json: JsonObject) {
-            json.addProperty("data", Convert.toHexString(encryptedData.data))
-            json.addProperty("nonce", Convert.toHexString(encryptedData.nonce))
+            json.addProperty("data", encryptedData.data.toHexString())
+            json.addProperty("nonce", encryptedData.nonce.toHexString())
             json.addProperty("isText", isText)
         }
 
@@ -352,7 +354,7 @@ interface Appendix {
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.PublicKeyAnnouncementAppendix.newBuilder()
                     .setVersion(super.version.toInt())
-                    .setRecipientPublicKey(ByteString.copyFrom(publicKey!!))
+                    .setRecipientPublicKey(publicKey.toByteString())
                     .build())
 
         constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
@@ -361,7 +363,7 @@ interface Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.publicKey = Convert.parseHexString(JSON.getAsString(attachmentData.get("recipientPublicKey")))
+            this.publicKey = JSON.getAsString(attachmentData.get("recipientPublicKey")).parseHexString()
         }
 
         constructor(publicKey: ByteArray, blockchainHeight: Int) : super(blockchainHeight) {
@@ -377,7 +379,7 @@ interface Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty("recipientPublicKey", Convert.toHexString(publicKey))
+            attachment.addProperty("recipientPublicKey", publicKey.toHexString())
         }
 
         @Throws(BurstException.ValidationException::class)
@@ -386,7 +388,7 @@ interface Appendix {
                 throw BurstException.NotValidException("PublicKeyAnnouncement cannot be attached to transactions with no recipient")
             }
             if (publicKey!!.size != 32) {
-                throw BurstException.NotValidException("Invalid recipient public key length: " + Convert.toHexString(publicKey)!!)
+                throw BurstException.NotValidException("Invalid recipient public key length: " + publicKey.toHexString()!!)
             }
             val recipientId = transaction.recipientId
             if (Account.getId(this.publicKey) != recipientId) {
@@ -402,8 +404,8 @@ interface Appendix {
         }
 
         override fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
-            if (recipientAccount.setOrVerify(dp, publicKey, transaction.height.get())) {
-                recipientAccount.apply(dp, this.publicKey, transaction.height.get())
+            if (recipientAccount.setOrVerify(dp, publicKey, transaction.height)) {
+                recipientAccount.apply(dp, this.publicKey, transaction.height)
             }
         }
 

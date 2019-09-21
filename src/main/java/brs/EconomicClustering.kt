@@ -1,9 +1,7 @@
 package brs
 
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
-import brs.util.JSON
-import org.slf4j.Logger
+import brs.util.toJsonString
 import org.slf4j.LoggerFactory
 
 /**
@@ -48,7 +46,7 @@ class EconomicClustering(private val dp: DependencyProvider) {
             return ecBlock != null && ecBlock.height == transaction.ecBlockHeight
         } catch (e: NullPointerException) {
             if (logger.isDebugEnabled) {
-                logger.debug("caught null pointer exception during verifyFork with transaction: {}", JSON.toJsonString(transaction.jsonObject))
+                logger.debug("caught null pointer exception during verifyFork with transaction: {}", transaction.jsonObject.toJsonString())
             }
             throw e
         }
@@ -56,7 +54,6 @@ class EconomicClustering(private val dp: DependencyProvider) {
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(EconomicClustering::class.java)
     }
 }

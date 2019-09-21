@@ -56,7 +56,6 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
         }
 
         bidOrderTable = object : VersionedEntitySqlTable<Order.Bid>("bid_order", BID_ORDER, bidOrderDbKeyFactory, dp) {
-
             override fun load(ctx: DSLContext, rs: Record): Order.Bid {
                 return SqlBid(rs)
             }
@@ -70,9 +69,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
                 sort.add(tableClass.field("creation_height", Int::class.java).desc())
                 return sort
             }
-
         }
-
     }
 
     override fun getAskOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Order.Ask> {
@@ -93,8 +90,8 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
         return askOrderTable.getManyBy(ASK_ORDER.ASSET_ID.eq(assetId), from, to, sort)
     }
 
-    override fun getNextOrder(assetId: Long): Order.Ask {
-        return Db.useDSLContext<Ask> { ctx ->
+    override fun getNextOrder(assetId: Long): Order.Ask? {
+        return Db.useDSLContext<Order.Ask?> { ctx ->
             val query = ctx.selectFrom(ASK_ORDER)
                     .where(ASK_ORDER.ASSET_ID.eq(assetId).and(ASK_ORDER.LATEST.isTrue))
                     .orderBy(ASK_ORDER.PRICE.asc(),
@@ -152,8 +149,8 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
         return bidOrderTable.getManyBy(BID_ORDER.ASSET_ID.eq(assetId), from, to, sort)
     }
 
-    override fun getNextBid(assetId: Long): Order.Bid {
-        return Db.useDSLContext<Bid> { ctx ->
+    override fun getNextBid(assetId: Long): Order.Bid? {
+        return Db.useDSLContext<Order.Bid?> { ctx ->
             val query = ctx.selectFrom(BID_ORDER)
                     .where(BID_ORDER.ASSET_ID.eq(assetId)
                             .and(BID_ORDER.LATEST.isTrue))
@@ -174,7 +171,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
                 .execute()
     }
 
-    internal inner class SqlAsk private constructor(record: Record) : Order.Ask(record.get(ASK_ORDER.ID), record.get(ASK_ORDER.ACCOUNT_ID), record.get(ASK_ORDER.ASSET_ID), record.get(ASK_ORDER.PRICE), record.get(ASK_ORDER.CREATION_HEIGHT), record.get(ASK_ORDER.QUANTITY), askOrderDbKeyFactory.newKey(record.get(ASK_ORDER.ID)))
+    internal inner class SqlAsk internal constructor(record: Record) : Order.Ask(record.get(ASK_ORDER.ID), record.get(ASK_ORDER.ACCOUNT_ID), record.get(ASK_ORDER.ASSET_ID), record.get(ASK_ORDER.PRICE), record.get(ASK_ORDER.CREATION_HEIGHT), record.get(ASK_ORDER.QUANTITY), askOrderDbKeyFactory.newKey(record.get(ASK_ORDER.ID)))
 
-    internal inner class SqlBid private constructor(record: Record) : Order.Bid(record.get(BID_ORDER.ID), record.get(BID_ORDER.ACCOUNT_ID), record.get(BID_ORDER.ASSET_ID), record.get(BID_ORDER.PRICE), record.get(BID_ORDER.CREATION_HEIGHT), record.get(BID_ORDER.QUANTITY), bidOrderDbKeyFactory.newKey(record.get(BID_ORDER.ID)))
+    internal inner class SqlBid internal constructor(record: Record) : Order.Bid(record.get(BID_ORDER.ID), record.get(BID_ORDER.ACCOUNT_ID), record.get(BID_ORDER.ASSET_ID), record.get(BID_ORDER.PRICE), record.get(BID_ORDER.CREATION_HEIGHT), record.get(BID_ORDER.QUANTITY), bidOrderDbKeyFactory.newKey(record.get(BID_ORDER.ID)))
 }

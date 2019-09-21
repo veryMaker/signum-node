@@ -49,12 +49,12 @@ class GetAssetIdsTest : AbstractUnitTest() {
         whenever(mockAssetExchange!!.getAllAssets(eq(firstIndex), eq(lastIndex)))
                 .doReturn(mockAssetIterator)
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertNotNull(result)
 

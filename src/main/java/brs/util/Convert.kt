@@ -2,16 +2,17 @@ package brs.util
 
 import brs.BurstException
 import brs.Constants
-import brs.crypto.Crypto
+import brs.crypto.burstCrypto
+import brs.crypto.rsEncode
 import burst.kit.crypto.BurstCrypto
 import burst.kit.entity.BurstAddress
 import org.bouncycastle.util.encoders.DecoderException
 import org.bouncycastle.util.encoders.Hex
-
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
-import java.util.Date
+import java.util.*
+import kotlin.math.abs
 
 object Convert {
     private val burstCrypto = BurstCrypto.getInstance()
@@ -20,41 +21,14 @@ object Convert {
 
     val two64: BigInteger = BigInteger.valueOf(2).pow(64)
 
-    fun parseHexString(hexString: String): ByteArray {
-        var hex = hexString
-        try {
-            if (hex.length % 2 != 0) {
-                hex = hex.substring(0, hex.length - 1)
-            }
-            return Hex.decode(hex)
-        } catch (e: DecoderException) {
-            throw RuntimeException("Could not parse hex string $hex", e)
-        }
-
-    }
-
-    // TODO these should be extension functions
-    fun toHexString(bytes: ByteArray): String {
-        return Hex.toHexString(bytes)
-    }
-
-    fun toUnsignedLong(objectId: Long): String {
-        return java.lang.Long.toUnsignedString(objectId)
-    }
-
-    fun parseUnsignedLong(number: String?): Long {
-        return if (number == null) {
-            0
-        } else java.lang.Long.parseUnsignedLong(number)
-    }
-
     fun parseAccountId(account: String): Long {
+        // TODO don't construct BurstAddress
         val address = BurstAddress.fromEither(account)
         return address?.burstID?.signedLongId ?: 0
     }
 
     fun rsAccount(accountId: Long): String {
-        return "BURST-" + Crypto.rsEncode(accountId)
+        return "BURST-${accountId.rsEncode()}"
     }
 
     fun fullHashToId(hash: ByteArray?): Long {
@@ -62,9 +36,7 @@ object Convert {
     }
 
     fun fullHashToId(hash: String?): Long {
-        return if (hash == null) {
-            0
-        } else fullHashToId(parseHexString(hash))
+        return if (hash == null) 0 else fullHashToId(hash.parseHexString())
     }
 
     fun fromEpochTime(epochTime: Int): Date {
@@ -110,15 +82,11 @@ object Convert {
         }
         val bytes = ByteArray(numBytes)
         buffer.get(bytes)
-        return Convert.toString(bytes)
+        return toString(bytes)
     }
 
     fun truncate(s: String?, replaceNull: String, limit: Int, dots: Boolean): String {
         return if (s == null) replaceNull else if (s.length > limit) s.substring(0, if (dots) limit - 3 else limit) + if (dots) "..." else "" else s
-    }
-
-    fun parseNXT(nxt: String): Long {
-        return parseStringFraction(nxt, 8, Constants.MAX_BALANCE_BURST)
     }
 
     private fun parseStringFraction(value: String, decimals: Int, maxValue: Long): Long {
@@ -199,7 +167,31 @@ object Convert {
         if (a == java.lang.Long.MIN_VALUE) {
             throw ArithmeticException("Integer overflow")
         }
-        return Math.abs(a)
+        return abs(a)
     }
+}
 
+fun Long.toUnsignedString(): String {
+    return java.lang.Long.toUnsignedString(this)
+}
+
+fun String?.parseUnsignedLong(): Long {
+    // TODO do we need nullable receiver?
+    return if (this == null) 0 else java.lang.Long.parseUnsignedLong(this)
+}
+
+fun ByteArray?.toHexString(): String {
+    return if (this == null) "" else burstCrypto.toHexString(this)
+}
+
+fun String.parseHexString(): ByteArray {
+    var hex = this
+    try {
+        if (hex.length % 2 != 0) {
+            hex = hex.substring(0, hex.length - 1)
+        }
+        return Hex.decode(hex)
+    } catch (e: DecoderException) {
+        throw RuntimeException("Could not parse hex string $hex", e)
+    }
 }

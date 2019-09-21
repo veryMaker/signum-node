@@ -5,7 +5,6 @@ import java.util.Objects
 import java.util.StringTokenizer
 
 class Version(private val major: Int, private val minor: Int, private val patch: Int, private val prereleaseTag: PrereleaseTag, private val prereleaseIteration: Int) {
-
     val isPrelease: Boolean
         get() = prereleaseTag != PrereleaseTag.NONE
 
@@ -59,7 +58,7 @@ class Version(private val major: Int, private val minor: Int, private val patch:
         return result
     }
 
-    enum class PrereleaseTag private constructor(internal val tag: String) {
+    enum class PrereleaseTag constructor(internal val tag: String) {
         DEVELOPMENT("dev"),
         ALPHA("alpha"),
         BETA("beta"),
@@ -69,7 +68,6 @@ class Version(private val major: Int, private val minor: Int, private val patch:
         internal val priority: Int = ordinal
 
         companion object {
-
             fun withTag(tag: String): PrereleaseTag {
                 for (prereleaseTag in values()) {
                     if (prereleaseTag.tag == tag) {
@@ -107,7 +105,6 @@ class Version(private val major: Int, private val minor: Int, private val patch:
             } catch (e: Exception) {
                 throw IllegalArgumentException("Version not formatted correctly", e)
             }
-
         }
     }
 }

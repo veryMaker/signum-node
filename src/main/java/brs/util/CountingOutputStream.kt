@@ -5,7 +5,6 @@ import java.io.IOException
 import java.io.OutputStream
 
 class CountingOutputStream(out: OutputStream) : FilterOutputStream(out) {
-
     var count: Long = 0
         private set
 

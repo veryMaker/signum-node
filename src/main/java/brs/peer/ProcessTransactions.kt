@@ -22,6 +22,5 @@ internal class ProcessTransactions(private val transactionProcessor: Transaction
             response.addProperty("error", e.toString())
             response
         }
-
     }
 }

@@ -48,7 +48,7 @@ class DGSFeedbackTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockPurchaseId = 123L
         val mockPurchase = mock<Purchase>()
@@ -57,8 +57,8 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         val mockSellerAccount = mock<Account>()
         val mockEncryptedGoods = mock<EncryptedData>()
 
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
         whenever(accountServiceMock!!.getAccount(eq(2L))).doReturn(mockSellerAccount)
 
         whenever(mockAccount.id).doReturn(1L)
@@ -70,7 +70,7 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         every { Burst.fluxCapacitor } returns fluxCapacitor
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsFeedback
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsFeedback
         assertNotNull(attachment)
 
         assertEquals(FEEDBACK, attachment.transactionType)
@@ -80,36 +80,36 @@ class DGSFeedbackTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_incorrectPurchaseWhenOtherBuyerId() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockPurchase = mock<Purchase>()
         val mockAccount = mock<Account>()
 
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
 
         whenever(mockAccount.id).doReturn(1L)
         whenever(mockPurchase.buyerId).doReturn(2L)
 
-        assertEquals(INCORRECT_PURCHASE, t!!.processRequest(req))
+        assertEquals(INCORRECT_PURCHASE, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_goodsNotDeliveredWhenNoEncryptedGoods() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockPurchase = mock<Purchase>()
         val mockAccount = mock<Account>()
 
-        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
 
         whenever(mockAccount.id).doReturn(1L)
         whenever(mockPurchase.buyerId).doReturn(1L)
         whenever(mockPurchase.encryptedGoods).doReturn(null)
 
-        assertEquals(GOODS_NOT_DELIVERED, t!!.processRequest(req))
+        assertEquals(GOODS_NOT_DELIVERED, t!!.processRequest(request))
     }
 
 }

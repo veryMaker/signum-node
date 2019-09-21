@@ -1,370 +1,136 @@
 package brs.util
 
 import brs.*
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
-import brs.props.PropertyService
 import brs.props.Props
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
-import java.util.*
 import java.util.concurrent.locks.StampedLock
-import java.util.function.Supplier
 
 class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
     private val blockCacheMB = dp.propertyService.get(Props.BRS_BLOCK_CACHE_MB)
-
-    private val blockCache = mutableMapOf<Long, Block>()
     private val forkCache = mutableListOf<Block>()
+
+    private val stampedLock = StampedLock() // We use the same lock for all of the variables.
+
+    // All of these should only be accessed using the stampedLock
+    private val blockCache = mutableMapOf<Long, Block>()
     private val reverseCache = mutableMapOf<Long, Long>()
     private val unverified = mutableListOf<Long>()
-
-    private val logger = LoggerFactory.getLogger(DownloadCacheImpl::class.java)
-
-    private var blockCacheSize = 0
-
+    private var blockCacheSizeInternal = 0
     private var lastBlockId: Long? = null
     private var lastHeight = -1
     private var highestCumulativeDifficulty = BigInteger.ZERO
+    private var locked = false
 
-    private val dcsl = StampedLock()
-
-    private var lockedCache = false
-
-    private val chainHeight: Int // TODO replace dcsl usages
-        get() {
-            var stamp = dcsl.tryOptimisticRead()
-            var retVal = lastHeight
-            if (!dcsl.validate(stamp)) {
-                stamp = dcsl.readLock()
-                try {
-                    retVal = lastHeight
-                } finally {
-                    dcsl.unlockRead(stamp)
-                }
-            }
-            return if (retVal > -1) {
-                retVal
-            } else dp.blockchain.height
+    private val chainHeight: Int
+        get() = stampedLock.read {
+            val height = lastHeight
+            return if (height > -1) height else dp.blockchain.height
         }
-    private val lockState: Boolean
-        get() {
-            var stamp = dcsl.tryOptimisticRead()
-            var retVal = lockedCache
-            if (!dcsl.validate(stamp)) {
-                stamp = dcsl.readLock()
-                try {
-                    retVal = lockedCache
-                } finally {
-                    dcsl.unlockRead(stamp)
-                }
-            }
-            return retVal
-        }
-
 
     val isFull: Boolean
-        get() {
-            var stamp = dcsl.tryOptimisticRead()
-            var retVal = blockCacheSize
-            if (!dcsl.validate(stamp)) {
-
-                stamp = dcsl.readLock()
-                try {
-                    retVal = blockCacheSize
-                } finally {
-                    dcsl.unlockRead(stamp)
-                }
-            }
-            return retVal > blockCacheMB * 1024 * 1024
-        }
-
-    val unverifiedSize: Int
-        get() {
-            var stamp = dcsl.tryOptimisticRead()
-            var retVal = unverified.size
-            if (!dcsl.validate(stamp)) {
-                stamp = dcsl.readLock()
-                try {
-                    retVal = unverified.size
-                } finally {
-                    dcsl.unlockRead(stamp)
-                }
-            }
-            return retVal
+        get() = stampedLock.read {
+            blockCacheSizeInternal > blockCacheMB * 1024 * 1024
         }
 
     val cumulativeDifficulty: BigInteger
         get() {
-            var stamp = dcsl.tryOptimisticRead()
-            var lbID = lastBlockId
-            var retVal = highestCumulativeDifficulty
-
-
-            if (!dcsl.validate(stamp)) {
-
-                stamp = dcsl.readLock()
-                try {
-                    lbID = lastBlockId
-                    retVal = highestCumulativeDifficulty
-                } finally {
-                    dcsl.unlockRead(stamp)
-                }
-            }
-            if (lbID != null) {
-                return retVal
-            }
+            if (stampedLock.read { lastBlockId } != null) return stampedLock.read { highestCumulativeDifficulty }
             setLastVars()
-            stamp = dcsl.tryOptimisticRead()
-            retVal = highestCumulativeDifficulty
-            if (!dcsl.validate(stamp)) {
-                stamp = dcsl.readLock()
-                try {
-                    retVal = highestCumulativeDifficulty
-                } finally {
-                    dcsl.unlockRead(stamp)
-                }
-            }
-            return retVal
+            return stampedLock.read { highestCumulativeDifficulty }
         }
 
     val firstUnverifiedBlock: Block?
-        get() {
-            val stamp = dcsl.writeLock()
-            try {
-                val blockId = unverified[0]
-                val block = blockCache[blockId]
-                unverified.remove(blockId)
-                return block
-            } finally {
-                dcsl.unlockWrite(stamp)
-            }
+        get() = stampedLock.writeAndRead {
+            val blockId = unverified[0]
+            val block = blockCache[blockId]
+            unverified.remove(blockId)
+            block
         }
+
+    val unverifiedSize
+        get() = stampedLock.read { unverified.size }
+
+    val blockCacheSize
+        get() = stampedLock.read { blockCacheSizeInternal }
 
     val forkList: List<Block>
         get() = forkCache
 
-    private val lastCacheId: Long?
-        get() {
-            var stamp = dcsl.tryOptimisticRead()
-            var lId = lastBlockId
-            if (!dcsl.validate(stamp)) {
-
-                stamp = dcsl.readLock()
-                try {
-                    lId = lastBlockId
-                } finally {
-                    dcsl.unlockRead(stamp)
-                }
-            }
-            return lId
-        }
-
     val lastBlock: Block?
-        get() {
-            val iLd = lastCacheId
-            return if (iLd != null && blockCache.containsKey(iLd)) {
-                dcslRead(Supplier { blockCache[iLd] })
-            } else dp.blockchain.lastBlock
-        }
-
+        get() = stampedLock.read { blockCache[lastBlockId ?: return@read null] } ?: dp.blockchain.lastBlock
 
     fun lockCache() {
-        val stamp = dcsl.writeLock()
-        try {
-            lockedCache = true
-        } finally {
-            dcsl.unlockWrite(stamp)
+        stampedLock.write {
+            locked = true
         }
         setLastVars()
     }
 
     fun unlockCache() {
-        var stamp = dcsl.tryOptimisticRead()
-        var retVal = lockedCache
-        if (!dcsl.validate(stamp)) {
-            stamp = dcsl.readLock()
-            try {
-                retVal = lockedCache
-            } finally {
-                dcsl.unlockRead(stamp)
-            }
-        }
-
-        if (retVal) {
-            stamp = dcsl.writeLock()
-            try {
-                lockedCache = false
-            } finally {
-                dcsl.unlockWrite(stamp)
-            }
-        }
+        val isLocked = stampedLock.read { locked }
+        if (isLocked) stampedLock.write { locked = false }
     }
 
-    fun getBlockCacheSize(): Int {
-        var stamp = dcsl.tryOptimisticRead()
-        var retVal = blockCacheSize
-        if (!dcsl.validate(stamp)) {
+    fun getUnverifiedBlockIdFromPos(pos: Int) = stampedLock.read { unverified[pos] }
 
-            stamp = dcsl.readLock()
-            try {
-                retVal = blockCacheSize
-            } finally {
-                dcsl.unlockRead(stamp)
-            }
-        }
-        return retVal
+    fun removeUnverified(blockId: Long) = stampedLock.write {
+        unverified.remove(blockId)
     }
 
-    fun getUnverifiedBlockIdFromPos(pos: Int): Long {
-        var stamp = dcsl.tryOptimisticRead()
-        var reVal = unverified[pos]
-
-        if (!dcsl.validate(stamp)) {
-
-            stamp = dcsl.readLock()
-            try {
-                reVal = unverified[pos]
-            } finally {
-                dcsl.unlockRead(stamp)
-            }
-        }
-        return reVal
-    }
-
-    fun removeUnverified(blockId: Long) {
-        val stamp = dcsl.writeLock()
-        try {
-            unverified.remove(blockId)
-        } finally {
-            dcsl.unlockWrite(stamp)
-        }
-    }
-
-    fun removeUnverifiedBatch(blocks: Collection<Block>) {
-        val stamp = dcsl.writeLock()
-        try {
-            for (block in blocks) {
-                unverified.remove(block.id)
-            }
-        } finally {
-            dcsl.unlockWrite(stamp)
+    fun removeUnverifiedBatch(blocks: Collection<Block>) = stampedLock.write {
+        for (block in blocks) {
+            unverified.remove(block.id)
         }
     }
 
     fun resetCache() {
-        val stamp = dcsl.writeLock()
-        try {
+        stampedLock.write {
             blockCache.clear()
             reverseCache.clear()
             unverified.clear()
-            blockCacheSize = 0
-            lockedCache = true
-        } finally {
-            dcsl.unlockWrite(stamp)
+            blockCacheSizeInternal = 0
+            locked = true
         }
         setLastVars()
     }
 
     fun getBlock(blockId: Long): Block? {
-        //search the forkCache if we have a forkList
-        if (!forkCache.isEmpty()) {
+        if (forkCache.isNotEmpty()) {
             for (block in forkCache) {
                 if (block.id == blockId) {
                     return block
                 }
             }
         }
-        var stamp = dcsl.tryOptimisticRead()
-        var retVal = getBlockInt(blockId)
-        if (!dcsl.validate(stamp)) {
-            stamp = dcsl.readLock()
-            try {
-                retVal = getBlockInt(blockId)
-            } finally {
-                dcsl.unlockRead(stamp)
-            }
-        }
-        if (retVal != null) {
-            return retVal
-        }
-        return if (dp.blockchain.hasBlock(blockId)) {
-            dp.blockchain.getBlock(blockId)
-        } else null
+        return stampedLock.read { blockCache[blockId] } ?: if (dp.blockchain.hasBlock(blockId)) dp.blockchain.getBlock(blockId) else null
     }
 
-    private fun getBlockInt(blockId: Long): Block? {
-        return if (blockCache.containsKey(blockId)) {
-            blockCache[blockId]
-        } else null
-    }
+    fun getNextBlock(prevBlockId: Long) = stampedLock.read { blockCache[reverseCache[prevBlockId]] }
 
-    fun getNextBlock(prevBlockId: Long): Block? {
-        var stamp = dcsl.tryOptimisticRead()
-        var retVal = getNextBlockInt(prevBlockId)
-        if (!dcsl.validate(stamp)) {
+    fun hasBlock(blockId: Long) = stampedLock.read { blockCache.containsKey(blockId) } || dp.blockchain.hasBlock(blockId)
 
-            stamp = dcsl.readLock()
-            try {
-                retVal = getNextBlockInt(prevBlockId)
-            } finally {
-                dcsl.unlockRead(stamp)
-            }
-        }
-        return retVal
-    }
-
-    private fun getNextBlockInt(prevBlockId: Long): Block? {
-        return if (reverseCache.containsKey(prevBlockId)) {
-            blockCache[reverseCache[prevBlockId]]
-        } else null
-    }
-
-    fun hasBlock(blockId: Long): Boolean {
-        var stamp = dcsl.tryOptimisticRead()
-        var retVal = blockCache.containsKey(blockId)
-        if (!dcsl.validate(stamp)) {
-
-            stamp = dcsl.readLock()
-            try {
-                retVal = blockCache.containsKey(blockId)
-            } finally {
-                dcsl.unlockRead(stamp)
-            }
-        }
-        return if (retVal) {
-            true
-        } else dp.blockchain.hasBlock(blockId)
-    }
-
-    fun canBeFork(oldBlockId: Long): Boolean {
+    fun canBeFork(oldBlockId: Long) = stampedLock.read {
         val curHeight = chainHeight
-        var block: Block? = dcslRead(Supplier { getBlockInt(oldBlockId) })
+        var block = blockCache[oldBlockId]
         if (block == null && dp.blockchain.hasBlock(oldBlockId)) {
             block = dp.blockchain.getBlock(oldBlockId)
         }
-        return if (block == null) {
-            false
-        } else curHeight - block.height <= dp.propertyService.get(Props.DB_MAX_ROLLBACK)
+        block != null && curHeight - block.height <= dp.propertyService.get(Props.DB_MAX_ROLLBACK)
     }
 
-    fun addBlock(block: Block): Boolean {
-        if (!lockState) {
-            val stamp = dcsl.writeLock()
-            try {
-                blockCache[block.id] = block
-                reverseCache[block.previousBlockId] = block.id
-                unverified.add(block.id)
-                blockCacheSize += block.byteLength
-                lastBlockId = block.id
-                lastHeight = block.height
-                highestCumulativeDifficulty = block.cumulativeDifficulty
-                return true
-            } finally {
-                dcsl.unlockWrite(stamp)
-            }
-        }
-        return false
+    fun addBlock(block: Block) = stampedLock.writeAndRead {
+        if (!locked) {
+            blockCache[block.id] = block
+            reverseCache[block.previousBlockId] = block.id
+            unverified.add(block.id)
+            blockCacheSizeInternal += block.byteLength
+            lastBlockId = block.id
+            lastHeight = block.height
+            highestCumulativeDifficulty = block.cumulativeDifficulty
+            true
+        } else false
     }
 
     fun addForkBlock(block: Block) {
@@ -375,87 +141,46 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
         forkCache.clear()
     }
 
-    fun removeBlock(block: Block): Boolean {
-        var stamp = dcsl.tryOptimisticRead()
-        var chkVal = blockCache.containsKey(block.id)
-        val lastId = lastBlockId
-
-        if (!dcsl.validate(stamp)) {
-            stamp = dcsl.readLock()
-            try {
-                chkVal = blockCache.containsKey(block.id)
-            } finally {
-                dcsl.unlockRead(stamp)
-            }
+    fun removeBlock(block: Block) = stampedLock.write {
+        if (blockCache.containsKey(block.id)) { // make sure there is something to remove
+            unverified.remove(block.id)
+            reverseCache.remove(block.previousBlockId)
+            blockCache.remove(block.id)
+            blockCacheSizeInternal -= block.byteLength
         }
-
-        if (chkVal) { // make sure there is something to remove
-            stamp = dcsl.writeLock()
-            try {
-                unverified.remove(block.id)
-                reverseCache.remove(block.previousBlockId)
-                blockCache.remove(block.id)
-                blockCacheSize -= block.byteLength
-            } finally {
-                dcsl.unlockWrite(stamp)
-            }
-            if (block.id == lastId) {
-                setLastVars()
-            }
-            return true
-        }
-        return false
     }
 
     fun getPoCVersion(blockId: Long): Int {
-        val blockImpl = getBlock(blockId)
-        return if (blockImpl == null || !dp.fluxCapacitor.getValue(FluxValues.POC2, blockImpl.height)) 1 else 2
+        val block = getBlock(blockId)
+        return if (block == null || !dp.fluxCapacitor.getValue(FluxValues.POC2, block.height)) 1 else 2
     }
 
-    fun getLastBlockId(): Long {
-        val lId = lastCacheId
-        return lId ?: dp.blockchain.lastBlock.id
-    }
+    fun getLastBlockId() = stampedLock.read { lastBlockId } ?: dp.blockchain.lastBlock.id
 
-    private fun <T> dcslRead(supplier: Supplier<T?>): T? {
-        return StampedLockUtils.stampedLockRead(dcsl, supplier)
-    }
-
-    fun size(): Int {
-        return dcslRead<Int>(Supplier { blockCache.size }) ?: 0
-    }
-
-    fun printDebug() {
-        logger.info("BlockCache size: {}", blockCache.size)
-        logger.info("Unverified size: {}", unverified.size)
-        logger.info("Verified size: {}", blockCache.size - unverified.size)
-
-    }
+    fun size() = stampedLock.read { blockCache.size }
 
     private fun printLastVars() {
         logger.debug("Cache LastId: {}", lastBlockId)
         logger.debug("Cache lastHeight: {}", lastHeight)
     }
 
-
-    private fun setLastVars() {
-        val stamp = dcsl.writeLock()
-        try {
-            if (!blockCache.isEmpty()) {
-                lastBlockId = blockCache[blockCache.keys.toTypedArray()[blockCache.keys.size - 1]]?.id
-                lastHeight = blockCache[lastBlockId ?: Genesis.GENESIS_BLOCK_ID ]?.height ?: 0
-                highestCumulativeDifficulty = blockCache[lastBlockId ?: Genesis.GENESIS_BLOCK_ID]?.cumulativeDifficulty
-                logger.debug("Cache set to CacheData")
-                printLastVars()
-            } else {
-                lastBlockId = dp.blockchain.lastBlock.id
-                lastHeight = dp.blockchain.height
-                highestCumulativeDifficulty = dp.blockchain.lastBlock.cumulativeDifficulty
-                logger.debug("Cache set to ChainData")
-                printLastVars()
-            }
-        } finally {
-            dcsl.unlockWrite(stamp)
+    private fun setLastVars() = stampedLock.write {
+        if (blockCache.isNotEmpty()) {
+            lastBlockId = blockCache[blockCache.keys.toTypedArray()[blockCache.keys.size - 1]]?.id
+            lastHeight = blockCache[lastBlockId ?: Genesis.GENESIS_BLOCK_ID ]?.height ?: 0
+            highestCumulativeDifficulty = blockCache[lastBlockId ?: Genesis.GENESIS_BLOCK_ID]!!.cumulativeDifficulty
+            logger.debug("Cache set to CacheData")
+            printLastVars() // TODO remove? or compact?
+        } else {
+            lastBlockId = dp.blockchain.lastBlock.id
+            lastHeight = dp.blockchain.height
+            highestCumulativeDifficulty = dp.blockchain.lastBlock.cumulativeDifficulty
+            logger.debug("Cache set to ChainData")
+            printLastVars() // TODO remove? or compact?
         }
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(DownloadCacheImpl::class.java)
     }
 }

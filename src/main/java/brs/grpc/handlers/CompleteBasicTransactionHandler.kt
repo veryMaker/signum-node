@@ -12,8 +12,6 @@ import com.google.protobuf.Any
 import com.google.protobuf.InvalidProtocolBufferException
 
 class CompleteBasicTransactionHandler(private val timeService: TimeService, private val transactionProcessor: TransactionProcessor, private val blockchain: Blockchain) : GrpcApiHandler<BrsApi.BasicTransaction, BrsApi.BasicTransaction> {
-
-    @Throws(Exception::class)
     override fun handleRequest(basicTransaction: BrsApi.BasicTransaction): BrsApi.BasicTransaction {
         try {
             val builder = basicTransaction.toBuilder()
@@ -35,6 +33,5 @@ class CompleteBasicTransactionHandler(private val timeService: TimeService, priv
         } catch (e: InvalidProtocolBufferException) {
             throw ApiException("Could not parse an Any: " + e.message)
         }
-
     }
 }

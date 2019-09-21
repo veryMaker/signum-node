@@ -1,20 +1,18 @@
 package brs.assetexchange
 
-import brs.*
+import brs.Attachment
+import brs.DependencyProvider
 import brs.Order.Ask
 import brs.Order.Bid
-import brs.db.BurstKey
-import brs.db.BurstKey.LongKeyFactory
-import brs.db.VersionedEntityTable
-import brs.db.store.OrderStore
-import brs.services.AccountService
+import brs.Transaction
 import brs.util.Convert
+import brs.util.toUnsignedString
 
 internal class OrderServiceImpl(private val dp: DependencyProvider, private val tradeService: TradeServiceImpl) {
-    private val askOrderTable: VersionedEntityTable<Ask>
-    private val askOrderDbKeyFactory: LongKeyFactory<Ask>
-    private val bidOrderTable: VersionedEntityTable<Bid>
-    private val bidOrderDbKeyFactory: LongKeyFactory<Bid>
+    private val askOrderTable = dp.orderStore.askOrderTable
+    private val askOrderDbKeyFactory = dp.orderStore.askOrderDbKeyFactory
+    private val bidOrderTable = dp.orderStore.bidOrderTable
+    private val bidOrderDbKeyFactory = dp.orderStore.bidOrderDbKeyFactory
 
     val bidCount: Int
         get() = bidOrderTable.count
@@ -22,18 +20,11 @@ internal class OrderServiceImpl(private val dp: DependencyProvider, private val 
     val askCount: Int
         get() = askOrderTable.count
 
-    init {
-        this.askOrderTable = dp.orderStore.askOrderTable
-        this.askOrderDbKeyFactory = dp.orderStore.askOrderDbKeyFactory
-        this.bidOrderTable = dp.orderStore.bidOrderTable
-        this.bidOrderDbKeyFactory = dp.orderStore.bidOrderDbKeyFactory
-    }
-
-    fun getAskOrder(orderId: Long): Ask {
+    fun getAskOrder(orderId: Long): Ask?{
         return askOrderTable.get(askOrderDbKeyFactory.newKey(orderId))
     }
 
-    fun getBidOrder(orderId: Long): Bid {
+    fun getBidOrder(orderId: Long): Bid? {
         return bidOrderTable.get(bidOrderDbKeyFactory.newKey(orderId))
     }
 
@@ -70,11 +61,11 @@ internal class OrderServiceImpl(private val dp: DependencyProvider, private val 
     }
 
     fun removeBidOrder(orderId: Long) {
-        bidOrderTable.delete(getBidOrder(orderId))
+        bidOrderTable.delete(getBidOrder(orderId) ?: return)
     }
 
     fun removeAskOrder(orderId: Long) {
-        askOrderTable.delete(getAskOrder(orderId))
+        askOrderTable.delete(getAskOrder(orderId) ?: return)
     }
 
     fun addAskOrder(transaction: Transaction, attachment: Attachment.ColoredCoinsAskOrderPlacement) {
@@ -91,62 +82,54 @@ internal class OrderServiceImpl(private val dp: DependencyProvider, private val 
         matchOrders(attachment.assetId)
     }
 
-    private fun getNextAskOrder(assetId: Long): Ask {
+    private fun getNextAskOrder(assetId: Long): Ask? {
         return dp.orderStore.getNextOrder(assetId)
     }
 
-    private fun getNextBidOrder(assetId: Long): Bid {
+    private fun getNextBidOrder(assetId: Long): Bid? {
         return dp.orderStore.getNextBid(assetId)
     }
 
     private fun matchOrders(assetId: Long) {
+        var askOrder = getNextAskOrder(assetId)
+        var bidOrder = getNextBidOrder(assetId)
 
-        var askOrder: Order.Ask
-        var bidOrder: Order.Bid
-
-        while ((askOrder = getNextAskOrder(assetId)) != null && (bidOrder = getNextBidOrder(assetId)) != null) {
-
-            if (askOrder.priceNQT > bidOrder.priceNQT) {
-                break
-            }
-
+        while (askOrder != null && bidOrder != null) {
+            if (askOrder.priceNQT > bidOrder.priceNQT) break
 
             val trade = tradeService.addTrade(assetId, dp.blockchain.lastBlock, askOrder, bidOrder)
 
             askOrderUpdateQuantityQNT(askOrder, Convert.safeSubtract(askOrder.quantityQNT, trade.quantityQNT))
-            val askAccount = dp.accountService.getAccount(askOrder.accountId)
+            val askAccount = dp.accountService.getAccount(askOrder.accountId)!!
             dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(askAccount, Convert.safeMultiply(trade.quantityQNT, trade.priceNQT))
             dp.accountService.addToAssetBalanceQNT(askAccount, assetId, -trade.quantityQNT)
 
             bidOrderUpdateQuantityQNT(bidOrder, Convert.safeSubtract(bidOrder.quantityQNT, trade.quantityQNT))
-            val bidAccount = dp.accountService.getAccount(bidOrder.accountId)
+            val bidAccount = dp.accountService.getAccount(bidOrder.accountId)!!
             dp.accountService.addToAssetAndUnconfirmedAssetBalanceQNT(bidAccount, assetId, trade.quantityQNT)
             dp.accountService.addToBalanceNQT(bidAccount, -Convert.safeMultiply(trade.quantityQNT, trade.priceNQT))
             dp.accountService.addToUnconfirmedBalanceNQT(bidAccount, Convert.safeMultiply(trade.quantityQNT, bidOrder.priceNQT - trade.priceNQT))
+
+            askOrder = getNextAskOrder(assetId)
+            bidOrder = getNextBidOrder(assetId)
         }
     }
 
     private fun askOrderUpdateQuantityQNT(askOrder: Ask, quantityQNT: Long) {
         askOrder.quantityQNT = quantityQNT
-        if (quantityQNT > 0) {
-            askOrderTable.insert(askOrder)
-        } else if (quantityQNT == 0L) {
-            askOrderTable.delete(askOrder)
-        } else {
-            throw IllegalArgumentException("Negative quantity: " + quantityQNT
-                    + " for order: " + Convert.toUnsignedLong(askOrder.id))
+        when {
+            quantityQNT > 0 -> askOrderTable.insert(askOrder)
+            quantityQNT == 0L -> askOrderTable.delete(askOrder)
+            else -> throw IllegalArgumentException("Negative quantity: " + quantityQNT + " for order: " + askOrder.id.toUnsignedString())
         }
     }
 
     private fun bidOrderUpdateQuantityQNT(bidOrder: Bid, quantityQNT: Long) {
         bidOrder.quantityQNT = quantityQNT
-        if (quantityQNT > 0) {
-            bidOrderTable.insert(bidOrder)
-        } else if (quantityQNT == 0L) {
-            bidOrderTable.delete(bidOrder)
-        } else {
-            throw IllegalArgumentException("Negative quantity: " + quantityQNT
-                    + " for order: " + Convert.toUnsignedLong(bidOrder.id))
+        when {
+            quantityQNT > 0 -> bidOrderTable.insert(bidOrder)
+            quantityQNT == 0L -> bidOrderTable.delete(bidOrder)
+            else -> throw IllegalArgumentException("Negative quantity: " + quantityQNT + " for order: " + bidOrder.id.toUnsignedString())
         }
     }
 }

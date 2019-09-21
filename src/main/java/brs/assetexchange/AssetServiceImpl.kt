@@ -1,26 +1,17 @@
 package brs.assetexchange
 
-import brs.Account.AccountAsset
 import brs.*
-import brs.db.BurstKey
-import brs.db.sql.EntitySqlTable
+import brs.Account.AccountAsset
 import brs.db.store.AssetStore
 
-internal class AssetServiceImpl(private val assetAccountService: AssetAccountServiceImpl, private val tradeService: TradeServiceImpl, private val assetStore: AssetStore, private val assetTransferService: AssetTransferServiceImpl) {
-
-    private val assetTable: EntitySqlTable<Asset>
-
-    private val assetDbKeyFactory: BurstKey.LongKeyFactory<Asset>
+internal class AssetServiceImpl(private val assetAccountService: AssetAccountServiceImpl, private val tradeService: TradeServiceImpl, private val assetStore: AssetStore, private val assetTransferService: AssetTransferServiceImpl) { // TODO interface
+    private val assetTable = assetStore.assetTable
+    private val assetDbKeyFactory = assetStore.assetDbKeyFactory
 
     val assetsCount: Int
         get() = assetTable.count
 
-    init {
-        this.assetTable = assetStore.assetTable
-        this.assetDbKeyFactory = assetStore.assetDbKeyFactory
-    }
-
-    fun getAsset(id: Long): Asset {
+    fun getAsset(id: Long): Asset? {
         return assetTable.get(assetDbKeyFactory.newKey(id))
     }
 
@@ -54,5 +45,4 @@ internal class AssetServiceImpl(private val assetAccountService: AssetAccountSer
         val dbKey = assetDbKeyFactory.newKey(transaction.id)
         assetTable.insert(Asset(dbKey, transaction, attachment))
     }
-
 }

@@ -1,7 +1,6 @@
 package brs.deeplink
 
 import brs.feesuggestions.FeeSuggestionType
-import brs.util.StringUtils
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.WriterException
@@ -14,7 +13,6 @@ import java.awt.image.BufferedImage
 import java.util.EnumMap
 
 class DeeplinkQRCodeGenerator { // TODO interface
-
     private val qrCodeWriter = QRCodeWriter()
     private val hints = EnumMap<EncodeHintType, ErrorCorrectionLevel>(EncodeHintType::class.java)
 

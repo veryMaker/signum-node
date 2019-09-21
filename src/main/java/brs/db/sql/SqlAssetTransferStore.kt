@@ -14,10 +14,10 @@ import brs.schema.Tables.ASSET_TRANSFER
 
 class SqlAssetTransferStore(dp: DependencyProvider) : AssetTransferStore {
     override val assetTransferTable: EntitySqlTable<AssetTransfer>
+    override val transferDbKeyFactory = Companion.transferDbKeyFactory
 
     init {
         assetTransferTable = object : EntitySqlTable<AssetTransfer>("asset_transfer", brs.schema.Tables.ASSET_TRANSFER, transferDbKeyFactory, dp) {
-
             override fun load(ctx: DSLContext, record: Record): AssetTransfer {
                 return SqlAssetTransfer(record)
             }
@@ -30,19 +30,10 @@ class SqlAssetTransferStore(dp: DependencyProvider) : AssetTransferStore {
 
     private fun saveAssetTransfer(assetTransfer: AssetTransfer) {
         Db.useDSLContext { ctx ->
-            ctx.insertInto(
-                    ASSET_TRANSFER,
-                    ASSET_TRANSFER.ID, ASSET_TRANSFER.ASSET_ID, ASSET_TRANSFER.SENDER_ID, ASSET_TRANSFER.RECIPIENT_ID,
-                    ASSET_TRANSFER.QUANTITY, ASSET_TRANSFER.TIMESTAMP, ASSET_TRANSFER.HEIGHT
-            ).values(
-                    assetTransfer.id, assetTransfer.assetId, assetTransfer.senderId, assetTransfer.recipientId,
-                    assetTransfer.quantityQNT, assetTransfer.timestamp, assetTransfer.height
-            ).execute()
+            ctx.insertInto(ASSET_TRANSFER, ASSET_TRANSFER.ID, ASSET_TRANSFER.ASSET_ID, ASSET_TRANSFER.SENDER_ID, ASSET_TRANSFER.RECIPIENT_ID, ASSET_TRANSFER.QUANTITY, ASSET_TRANSFER.TIMESTAMP, ASSET_TRANSFER.HEIGHT)
+                    .values(assetTransfer.id, assetTransfer.assetId, assetTransfer.senderId, assetTransfer.recipientId, assetTransfer.quantityQNT, assetTransfer.timestamp, assetTransfer.height)
+                    .execute()
         }
-    }
-
-    override fun getTransferDbKeyFactory(): BurstKey.LongKeyFactory<AssetTransfer> {
-        return transferDbKeyFactory
     }
 
     override fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
@@ -50,7 +41,7 @@ class SqlAssetTransferStore(dp: DependencyProvider) : AssetTransferStore {
     }
 
     override fun getAccountAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer> {
-        return Db.useDSLContext<Collection> { ctx ->
+        return Db.useDSLContext<Collection<AssetTransfer>> { ctx ->
             val selectQuery = ctx
                     .selectFrom(ASSET_TRANSFER).where(
                             ASSET_TRANSFER.SENDER_ID.eq(accountId)
@@ -95,14 +86,10 @@ class SqlAssetTransferStore(dp: DependencyProvider) : AssetTransferStore {
     internal inner class SqlAssetTransfer(record: Record) : AssetTransfer(record.get(ASSET_TRANSFER.ID), transferDbKeyFactory.newKey(record.get(ASSET_TRANSFER.ID)), record.get(ASSET_TRANSFER.ASSET_ID), record.get(ASSET_TRANSFER.HEIGHT), record.get(ASSET_TRANSFER.SENDER_ID), record.get(ASSET_TRANSFER.RECIPIENT_ID), record.get(ASSET_TRANSFER.QUANTITY), record.get(ASSET_TRANSFER.TIMESTAMP))
 
     companion object {
-
         private val transferDbKeyFactory = object : DbKey.LongKeyFactory<AssetTransfer>(ASSET_TRANSFER.ID) {
-
             override fun newKey(assetTransfer: AssetTransfer): BurstKey {
                 return assetTransfer.dbKey
             }
         }
     }
-
-
 }

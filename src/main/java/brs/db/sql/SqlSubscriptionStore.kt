@@ -1,20 +1,16 @@
 package brs.db.sql
 
-import brs.Burst
 import brs.DependencyProvider
 import brs.Subscription
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
-import brs.db.store.DerivedTableManager
 import brs.db.store.SubscriptionStore
+import brs.schema.Tables.SUBSCRIPTION
+import brs.schema.tables.records.SubscriptionRecord
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.SortField
-
-import java.util.ArrayList
-
-import brs.schema.Tables.SUBSCRIPTION
 
 class SqlSubscriptionStore(private val dp: DependencyProvider) : SubscriptionStore {
 

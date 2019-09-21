@@ -1,26 +1,31 @@
 package brs.http
 
-import brs.*
+import brs.Attachment
+import brs.BurstException
+import brs.Constants
+import brs.DependencyProvider
 import brs.http.JSONResponses.INCORRECT_ASSET_DESCRIPTION
 import brs.http.JSONResponses.INCORRECT_ASSET_NAME
 import brs.http.JSONResponses.INCORRECT_ASSET_NAME_LENGTH
 import brs.http.JSONResponses.INCORRECT_DECIMALS
 import brs.http.JSONResponses.MISSING_NAME
-import brs.services.ParameterService
+import brs.http.common.Parameters.DECIMALS_PARAMETER
+import brs.http.common.Parameters.DESCRIPTION_PARAMETER
+import brs.http.common.Parameters.NAME_PARAMETER
+import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
 import brs.util.Convert
 import brs.util.TextUtils
 import com.google.gson.JsonElement
-
 import javax.servlet.http.HttpServletRequest
 
 internal class IssueAsset internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, QUANTITY_QNT_PARAMETER, DECIMALS_PARAMETER) {
 
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        var name: String? = req.getParameter(NAME_PARAMETER)
-        val description = req.getParameter(DESCRIPTION_PARAMETER)
-        val decimalsValue = Convert.emptyToNull(req.getParameter(DECIMALS_PARAMETER))
+        var name: String? = request.getParameter(NAME_PARAMETER)
+        val description = request.getParameter(DESCRIPTION_PARAMETER)
+        val decimalsValue = Convert.emptyToNull(request.getParameter(DECIMALS_PARAMETER))
 
         if (name == null) {
             return MISSING_NAME
@@ -52,9 +57,9 @@ internal class IssueAsset internal constructor(private val dp: DependencyProvide
 
         }
 
-        val quantityQNT = ParameterParser.getQuantityQNT(req)
-        val account = dp.parameterService.getSenderAccount(req)
+        val quantityQNT = ParameterParser.getQuantityQNT(request)
+        val account = dp.parameterService.getSenderAccount(request)
         val attachment = Attachment.ColoredCoinsAssetIssuance(name, description!!, quantityQNT, decimals, dp.blockchain.height)
-        return createTransaction(req, account, attachment)
+        return createTransaction(request, account, attachment)
     }
 }

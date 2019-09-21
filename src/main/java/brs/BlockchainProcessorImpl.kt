@@ -5,33 +5,22 @@ import brs.at.AtBlock
 import brs.at.AtController
 import brs.at.AtException
 import brs.crypto.Crypto
-import brs.db.BlockDb
-import brs.db.DerivedTable
-import brs.db.TransactionDb
-import brs.db.cache.DBCacheManagerImpl
 import brs.db.sql.Db
-import brs.db.store.BlockchainStore
-import brs.db.store.DerivedTableManager
 import brs.fluxcapacitor.FluxValues
 import brs.peer.Peer
 import brs.peer.Peers
-import brs.props.PropertyService
 import brs.props.Props
-import brs.services.*
-import brs.statistics.StatisticsManagerImpl
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore
 import brs.util.*
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.security.MessageDigest
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
@@ -39,20 +28,18 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
-import java.util.function.Consumer
-import java.util.function.Function
-import java.util.function.ToLongFunction
-import java.util.stream.Collectors
-import java.util.stream.Stream
 
 import brs.Constants.FEE_QUANT
 import brs.Constants.ONE_BURST
+import brs.util.delegates.Atomic
+import kotlin.math.max
+import kotlin.system.exitProcess
 
 class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainProcessor {
 
     private val logger = LoggerFactory.getLogger(BlockchainProcessorImpl::class.java)
-    override val oclVerify: Boolean
-    private val oclUnverifiedQueue: Int
+    override val oclVerify = dp.propertyService.get(Props.GPU_ACCELERATION)
+    private val oclUnverifiedQueue = dp.propertyService.get(Props.GPU_UNVERIFIED_QUEUE)
 
     private val gpuUsage = Semaphore(2)
 
@@ -60,13 +47,13 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
     private val lastTrimHeight = AtomicInteger()
 
     private val blockListeners = Listeners<Block, BlockchainProcessor.Event>()
-    override val lastBlockchainFeeder = AtomicReference<Peer>()
-    override val lastBlockchainFeederHeight = AtomicInteger()
+    override var lastBlockchainFeeder by Atomic<Peer?>()
+    override var lastBlockchainFeederHeight by Atomic<Int?>()
     private val getMoreBlocks = AtomicBoolean(true)
 
-    override val isScanning = AtomicBoolean(false)
+    override val isScanning by Atomic(false)
 
-    private val autoPopOffEnabled: Boolean
+    private val autoPopOffEnabled = dp.propertyService.get(Props.AUTO_POP_OFF_ENABLED)
     private var autoPopOffLastStuckHeight = 0
     private var autoPopOffNumberOfBlocks = 0
 
@@ -75,7 +62,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             val trimHeight = if (lastTrimHeight.get() > 0)
                 lastTrimHeight.get()
             else
-                Math.max(dp.blockchain.height - dp.propertyService.get(Props.DB_MAX_ROLLBACK), 0)
+                max(dp.blockchain.height - dp.propertyService.get(Props.DB_MAX_ROLLBACK), 0)
             return if (trimDerivedTables) trimHeight else 0
         }
 
@@ -84,10 +71,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
     init {
 
-        autoPopOffEnabled = dp.propertyService.get(Props.AUTO_POP_OFF_ENABLED)
-
-        oclVerify = dp.propertyService.get(Props.GPU_ACCELERATION) // use GPU acceleration ?
-        oclUnverifiedQueue = dp.propertyService.get(Props.GPU_UNVERIFIED_QUEUE)
+        // use GPU acceleration ?
 
         trimDerivedTables = dp.propertyService.get(Props.DB_TRIM_DERIVED_TABLES)
 
@@ -118,18 +102,17 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
         addGenesisBlock()
 
-        val getMoreBlocksThread = object : Runnable {
-            private var getCumulativeDifficultyRequest: JsonElement? = null
+        val getMoreBlocksThread = object : () -> Unit { // TODO refactor these
+            private val getCumulativeDifficultyRequest by lazy {
+                val request = JsonObject()
+                request.addProperty("requestType", "getCumulativeDifficulty")
+                JSON.prepareRequest(request)
+            }
 
             private var peerHasMore: Boolean = false
 
-            override fun run() {
+            override fun invoke() {
                 if (dp.propertyService.get(Props.DEV_OFFLINE)) return
-                if (getCumulativeDifficultyRequest == null) {
-                    val request = JsonObject()
-                    request.addProperty("requestType", "getCumulativeDifficulty")
-                    getCumulativeDifficultyRequest = JSON.prepareRequest(request)
-                }
                 while (!Thread.currentThread().isInterrupted && ThreadPool.running.get()) {
                     try {
                         try {
@@ -155,8 +138,8 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                             }
                             val response = peer.send(getCumulativeDifficultyRequest) ?: return
                             if (response.get("blockchainHeight") != null) {
-                                lastBlockchainFeeder.set(peer)
-                                lastBlockchainFeederHeight.set(JSON.getAsInt(response.get("blockchainHeight")))
+                                lastBlockchainFeeder = peer
+                                lastBlockchainFeederHeight = JSON.getAsInt(response.get("blockchainHeight"))
                             } else {
                                 logger.debug("Peer has no chainheight")
                                 return
@@ -166,12 +149,12 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
                             val curCumulativeDifficulty = dp.downloadCache.cumulativeDifficulty
                             val peerCumulativeDifficulty = JSON.getAsString(response.get("cumulativeDifficulty"))
-                            if (peerCumulativeDifficulty == null) {
+                            if (peerCumulativeDifficulty.isEmpty()) {
                                 logger.debug("Peer CumulativeDifficulty is null")
                                 return
                             }
                             val betterCumulativeDifficulty = BigInteger(peerCumulativeDifficulty)
-                            if (betterCumulativeDifficulty.compareTo(curCumulativeDifficulty) <= 0) {
+                            if (betterCumulativeDifficulty <= curCumulativeDifficulty) {
                                 return
                             }
 
@@ -244,7 +227,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                                     // set height and cumulative difficulty to block
                                     block.height = height
                                     block.peer = peer
-                                    block.byteLength = JSON.toJsonString(blockData).length
+                                    block.byteLength = blockData.toJsonString().length
                                     dp.blockService.calculateBaseTarget(block, lastBlock)
                                     if (saveInCache) {
                                         if (dp.downloadCache.getLastBlockId() == block.previousBlockId) { //still maps back? we might have got announced/forged blocks
@@ -287,15 +270,15 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                             if (logger.isTraceEnabled) {
                                 logger.trace("Unverified blocks: {}", dp.downloadCache.unverifiedSize)
                                 logger.trace("Blocks in cache: {}", dp.downloadCache.size())
-                                logger.trace("Bytes in cache: {}", dp.downloadCache.getBlockCacheSize())
+                                logger.trace("Bytes in cache: {}", dp.downloadCache.blockCacheSize)
                             }
                             if (!saveInCache) {
                                 /*
-                 * Since we cannot rely on peers reported cumulative difficulty we do
-                 * a final check to see that the CumulativeDifficulty actually is bigger
-                 * before we do a popOff and switch chain.
-                 */
-                                if (lastBlock!!.cumulativeDifficulty.compareTo(curCumulativeDifficulty) < 0) {
+                                 * Since we cannot rely on peers reported cumulative difficulty we do
+                                 * a final check to see that the CumulativeDifficulty actually is bigger
+                                 * before we do a popOff and switch chain.
+                                 */
+                                if (lastBlock!!.cumulativeDifficulty < curCumulativeDifficulty) {
                                     peer.blacklist("peer claimed to have bigger cumulative difficulty but in reality it did not.")
                                     dp.downloadCache.resetForkBlocks()
                                     break
@@ -311,10 +294,9 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                         // end second try
                     } catch (t: Exception) {
                         logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n$t", t)
-                        System.exit(1)
+                        exitProcess(1)
                     }
-                    // end first try
-                } // end while
+                }
             }
 
             @Throws(InterruptedException::class)
@@ -327,7 +309,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     milestoneBlockIdsRequest.addProperty("requestType", "getMilestoneBlockIds")
                     if (lastMilestoneBlockId == null) {
                         milestoneBlockIdsRequest.addProperty("lastBlockId",
-                                Convert.toUnsignedLong(dp.downloadCache.getLastBlockId()))
+                                dp.downloadCache.getLastBlockId().toUnsignedString())
                     } else {
                         milestoneBlockIdsRequest.addProperty("lastMilestoneBlockId", lastMilestoneBlockId)
                     }
@@ -338,11 +320,11 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                         return 0
                     }
                     val milestoneBlockIds = JSON.getAsJsonArray(response.get("milestoneBlockIds"))
-                    if (milestoneBlockIds == null || milestoneBlockIds.size() == 0) {
-                        logger.debug("MilestoneArray is null")
+                    if (milestoneBlockIds.isEmpty()) {
+                        logger.debug("MilestoneArray is empty")
                         return 0
                     }
-                    if (milestoneBlockIds.size() == 0) {
+                    if (milestoneBlockIds.isEmpty()) {
                         return Genesis.GENESIS_BLOCK_ID
                     }
                     // prevent overloading with blockIds
@@ -350,12 +332,12 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                         peer.blacklist("obsolete or rogue peer sends too many milestoneBlockIds")
                         return 0
                     }
-                    if (java.lang.Boolean.TRUE == JSON.getAsBoolean(response.get("last"))) {
+                    if (JSON.getAsBoolean(response.get("last"))) {
                         peerHasMore = false
                     }
 
                     for (milestoneBlockId in milestoneBlockIds) {
-                        val blockId = Convert.parseUnsignedLong(JSON.getAsString(milestoneBlockId))
+                        val blockId = JSON.getAsString(milestoneBlockId).parseUnsignedLong()
 
                         if (dp.downloadCache.hasBlock(blockId)) {
                             if (lastMilestoneBlockId == null && milestoneBlockIds.size() > 1) {
@@ -377,7 +359,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 while (!Thread.currentThread().isInterrupted && ThreadPool.running.get()) {
                     val request = JsonObject()
                     request.addProperty("requestType", "getNextBlockIds")
-                    request.addProperty("blockId", Convert.toUnsignedLong(commonBlockId))
+                    request.addProperty("blockId", commonBlockId.toUnsignedString())
                     val response = peer!!.send(JSON.prepareRequest(request)) ?: return 0
                     val nextBlockIds = JSON.getAsJsonArray(response.get("nextBlockIds"))
                     if (nextBlockIds == null || nextBlockIds.size() == 0) {
@@ -390,7 +372,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     }
 
                     for (nextBlockId in nextBlockIds) {
-                        val blockId = Convert.parseUnsignedLong(JSON.getAsString(nextBlockId))
+                        val blockId = JSON.getAsString(nextBlockId).parseUnsignedLong()
                         if (!dp.downloadCache.hasBlock(blockId)) {
                             return commonBlockId
                         }
@@ -405,7 +387,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
                 val request = JsonObject()
                 request.addProperty("requestType", "getNextBlocks")
-                request.addProperty("blockId", Convert.toUnsignedLong(curBlockId))
+                request.addProperty("blockId", curBlockId.toUnsignedString())
                 if (logger.isDebugEnabled) {
                     logger.debug("Getting next Blocks after {} from {}", curBlockId, peer!!.peerAddress)
                 }
@@ -492,7 +474,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                                 } catch (e: InterruptedException) {
                                     Thread.currentThread().interrupt()
                                 } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
-                                    logger.warn("Popped off block no longer acceptable: " + JSON.toJsonString(block.jsonObject), e)
+                                    logger.warn("Popped off block no longer acceptable: " + block.jsonObject.toJsonString(), e)
                                     break
                                 }
 
@@ -575,20 +557,20 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                         verifyWithOcl = false
                     }
                     if (verifyWithOcl) {
-                        val poCVersion: Int
+                        val pocVersion: Int
                         var pos = 0
                         val blocks = LinkedList<Block>()
-                        poCVersion = dp.downloadCache.getPoCVersion(dp.downloadCache.getUnverifiedBlockIdFromPos(0))
+                        pocVersion = dp.downloadCache.getPoCVersion(dp.downloadCache.getUnverifiedBlockIdFromPos(0))
                         while (!Thread.interrupted() && ThreadPool.running.get() && dp.downloadCache.unverifiedSize - 1 > pos && blocks.size < OCLPoC.maxItems) {
                             val blockId = dp.downloadCache.getUnverifiedBlockIdFromPos(pos)
-                            if (dp.downloadCache.getPoCVersion(blockId) != poCVersion) {
+                            if (dp.downloadCache.getPoCVersion(blockId) != pocVersion) {
                                 break
                             }
-                            blocks.add(dp.downloadCache.getBlock(blockId))
+                            blocks.add(dp.downloadCache.getBlock(blockId)!!)
                             pos += 1
                         }
                         try {
-                            OCLPoC.validatePoC(blocks, poCVersion, dp.blockService)
+                            OCLPoC.validatePoC(blocks, pocVersion, dp.blockService)
                             dp.downloadCache.removeUnverifiedBatch(blocks)
                         } catch (e: OCLPoC.PreValidateFailException) {
                             logger.info(e.toString(), e)
@@ -602,7 +584,9 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                         }
                     } else { //verify using java
                         try {
-                            dp.blockService.preVerify(dp.downloadCache.firstUnverifiedBlock)
+                            if (dp.downloadCache.firstUnverifiedBlock != null) {
+                                dp.blockService.preVerify(dp.downloadCache.firstUnverifiedBlock!!)
+                            }
                         } catch (e: InterruptedException) {
                             Thread.currentThread().interrupt()
                         } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
@@ -701,19 +685,16 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
     private fun addGenesisBlock() {
         if (dp.dbs.blockDb.hasBlock(Genesis.GENESIS_BLOCK_ID)) {
             logger.info("Genesis block already in database")
-            val lastBlock = dp.dbs.blockDb.findLastBlock()
+            val lastBlock = dp.dbs.blockDb.findLastBlock()!!
             dp.blockchain.lastBlock = lastBlock
             logger.info("Last block height: {}", lastBlock.height)
             return
         }
         logger.info("Genesis block not in database, starting from scratch")
         try {
-            val bf = ByteBuffer.allocate(0)
-            bf.order(ByteOrder.LITTLE_ENDIAN)
-            val byteATs = bf.array()
             val genesisBlock = Block(dp, -1, 0, 0, 0, 0, 0,
                     Crypto.sha256().digest(), Genesis.creatorPublicKey, ByteArray(32),
-                    Genesis.genesisBlockSignature, null, emptyList(), 0, byteATs, -1)
+                    Genesis.genesisBlockSignature, null, emptyList(), 0, byteArrayOf(), -1)
             dp.blockService.setPrevious(genesisBlock, null)
             addBlock(genesisBlock)
         } catch (e: BurstException.ValidationException) {
@@ -808,7 +789,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     }
                     if (dp.fluxCapacitor.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) && !dp.economicClustering.verifyFork(transaction)) {
                         if (logger.isDebugEnabled) {
-                            logger.debug("Block {} height {} contains transaction that was generated on a fork: {} ecBlockId {} ecBlockHeight {}", block.stringId, previousLastBlock.height + 1, transaction.stringId, transaction.ecBlockHeight, Convert.toUnsignedLong(transaction.ecBlockId))
+                            logger.debug("Block {} height {} contains transaction that was generated on a fork: {} ecBlockId {} ecBlockHeight {}", block.stringId, previousLastBlock.height + 1, transaction.stringId, transaction.ecBlockHeight, transaction.ecBlockId.toUnsignedString())
                         }
                         throw BlockchainProcessor.TransactionNotAcceptedException("Transaction belongs to a different fork",
                                 transaction)
@@ -824,7 +805,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     try {
                         dp.transactionService.validate(transaction)
                     } catch (e: BurstException.ValidationException) {
-                        throw BlockchainProcessor.TransactionNotAcceptedException(e.message, transaction)
+                        throw BlockchainProcessor.TransactionNotAcceptedException(e.message!!, transaction)
                     }
 
                     calculatedTotalAmount += transaction.amountNQT
@@ -867,12 +848,16 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 Db.commitTransaction()
             } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
                 Db.rollbackTransaction()
-                dp.blockchain.lastBlock = previousLastBlock
+                if (previousLastBlock != null) {
+                    dp.blockchain.lastBlock = previousLastBlock
+                }
                 dp.downloadCache.resetCache()
                 throw e
             } catch (e: ArithmeticException) {
                 Db.rollbackTransaction()
-                dp.blockchain.lastBlock = previousLastBlock
+                if (previousLastBlock != null) {
+                    dp.blockchain.lastBlock = previousLastBlock
+                }
                 dp.downloadCache.resetCache()
                 throw e
             } finally {
@@ -906,7 +891,8 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         AT.clearPendingFees()
         AT.clearPendingTransactions()
         try {
-            atBlock = AtController.validateATs(block.blockATs, dp.blockchain.height)
+            // TODO NN Assert might cause problems...
+            atBlock = AtController.validateATs(block.blockATs!!, dp.blockchain.height)
         } catch (e: AtException) {
             throw BlockchainProcessor.BlockNotAcceptedException("ats are not matching at block height " + dp.blockchain.height + " (" + e + ")")
         }
@@ -935,11 +921,11 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    private fun popOffTo(commonBlock: Block): List<Block> {
+    private fun popOffTo(commonBlock: Block): MutableList<Block> {
         require(commonBlock.height >= minRollbackHeight) { "Rollback to height " + commonBlock.height + " not suppported, " + "current height " + dp.blockchain.height }
         if (!dp.blockchain.hasBlock(commonBlock.id)) {
             logger.debug("Block {} not found in blockchain, nothing to pop off", commonBlock.stringId)
-            return emptyList<Block>()
+            return mutableListOf()
         }
         val poppedOffBlocks = mutableListOf<Block>()
         synchronized(dp.downloadCache) {
@@ -973,7 +959,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         if (block.id == Genesis.GENESIS_BLOCK_ID) {
             throw RuntimeException("Cannot pop off genesis block")
         }
-        val previousBlock = dp.dbs.blockDb.findBlock(block.previousBlockId)
+        val previousBlock = dp.dbs.blockDb.findBlock(block.previousBlockId)!!
         dp.blockchain.setLastBlock(block, previousBlock)
         block.transactions.forEach { it.unsetBlock() }
         dp.dbs.blockDb.deleteBlocksFrom(block.id)
@@ -1183,7 +1169,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 pushBlock(block)
                 blockListeners.accept(block, BlockchainProcessor.Event.BLOCK_GENERATED)
                 if (logger.isDebugEnabled) {
-                    logger.debug("Account {} generated block {} at height {}", Convert.toUnsignedLong(block.generatorId), block.stringId, block.height)
+                    logger.debug("Account {} generated block {} at height {}", block.generatorId.toUnsignedString(), block.stringId, block.height)
                 }
                 dp.downloadCache.resetCache()
             } catch (e: InterruptedException) {
@@ -1206,7 +1192,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         if (transaction.referencedTransactionFullHash == null) {
             return timestamp - transaction.timestamp < 60 * 1440 * 60 && count < 10
         }
-        var foundTransaction = dp.dbs.transactionDb.findTransactionByFullHash(transaction.referencedTransactionFullHash)
+        val foundTransaction = dp.dbs.transactionDb.findTransactionByFullHash(transaction.referencedTransactionFullHash)
         if (!dp.subscriptionService.isEnabled && foundTransaction != null && transaction.signature == null) {
             return false
         }

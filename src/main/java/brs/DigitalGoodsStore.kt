@@ -4,12 +4,9 @@ import brs.crypto.EncryptedData
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.db.VersionedValuesTable
-
-import java.util.ArrayList
-import java.util.Collections
+import brs.util.delegates.AtomicLazy
 
 object DigitalGoodsStore {
-
     enum class Event {
         GOODS_LISTED, GOODS_DELISTED, GOODS_PRICE_CHANGE, GOODS_QUANTITY_CHANGE,
         PURCHASE, DELIVERY, REFUND, FEEDBACK
@@ -29,14 +26,6 @@ object DigitalGoodsStore {
         var priceNQT: Long = 0
             private set
         var isDelisted: Boolean = false
-
-        private fun goodsDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<Goods> {
-            return dp.digitalGoodsStoreStore.goodsDbKeyFactory
-        }
-
-        private fun goodsTable(dp: DependencyProvider): VersionedEntityTable<Goods> {
-            return dp.digitalGoodsStoreStore.goodsTable
-        }
 
         protected constructor(id: Long, dbKey: BurstKey, sellerId: Long, name: String, description: String, tags: String, timestamp: Int,
                               quantity: Int, priceNQT: Long, delisted: Boolean) {
@@ -78,11 +67,21 @@ object DigitalGoodsStore {
             this.priceNQT = priceNQT
         }
 
+        companion object {
+            // TODO remove these getters
+            fun goodsDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<Goods> {
+                return dp.digitalGoodsStoreStore.goodsDbKeyFactory
+            }
+
+            // TODO remove these getters
+            fun goodsTable(dp: DependencyProvider): VersionedEntityTable<Goods> {
+                return dp.digitalGoodsStoreStore.goodsTable
+            }
+        }
     }
 
     open class Purchase {
-
-        private val dp: DependencyProvider
+        private lateinit var dp: DependencyProvider
 
         val id: Long
         val dbKey: BurstKey
@@ -100,22 +99,24 @@ object DigitalGoodsStore {
         private var goodsIsText: Boolean = false
         var refundNote: EncryptedData? = null
         private var hasFeedbackNotes: Boolean = false
-        private var feedbackNotes: MutableList<EncryptedData>? = null
+        var feedbackNotes by AtomicLazy {
+            if (!hasFeedbackNotes) null else feedbackTable(dp)[feedbackDbKeyFactory(dp).newKey(this)].toMutableList()
+        }
         private var hasPublicFeedbacks: Boolean = false
-        var publicFeedbacks: List<String>? = null
+        var publicFeedbacks: MutableList<String>? = null
             private set
         var discountNQT: Long = 0
         var refundNQT: Long = 0
 
         val name: String?
-            get() = getGoods(dp, goodsId).name
+            get() = getGoods(dp, goodsId)!!.name
 
         val publicFeedback: List<String>?
             get() {
                 if (!hasPublicFeedbacks) {
                     return emptyList()
                 }
-                publicFeedbacks = publicFeedbackTable(dp).get(publicFeedbackDbKeyFactory(dp).newKey(this))
+                publicFeedbacks = publicFeedbackTable(dp)[publicFeedbackDbKeyFactory(dp).newKey(this)].toMutableList()
                 return publicFeedbacks
             }
 
@@ -155,8 +156,8 @@ object DigitalGoodsStore {
         }
 
         protected constructor(dp: DependencyProvider, id: Long, dbKey: BurstKey, buyerId: Long, goodsId: Long, sellerId: Long, quantity: Int,
-                              priceNQT: Long, deadline: Int, note: EncryptedData, timestamp: Int, isPending: Boolean,
-                              encryptedGoods: EncryptedData, refundNote: EncryptedData,
+                              priceNQT: Long, deadline: Int, note: EncryptedData?, timestamp: Int, isPending: Boolean,
+                              encryptedGoods: EncryptedData?, refundNote: EncryptedData?,
                               hasFeedbackNotes: Boolean, hasPublicFeedbacks: Boolean,
                               discountNQT: Long, refundNQT: Long) {
             this.dp = dp
@@ -188,14 +189,6 @@ object DigitalGoodsStore {
             this.goodsIsText = goodsIsText
         }
 
-        fun getFeedbackNotes(): List<EncryptedData>? {
-            if (!hasFeedbackNotes) {
-                return null
-            }
-            feedbackNotes = feedbackTable(dp).get(feedbackDbKeyFactory(dp).newKey(this))
-            return feedbackNotes
-        }
-
         fun addFeedbackNote(feedbackNote: EncryptedData) {
             if (feedbackNotes == null) {
                 feedbackNotes = mutableListOf()
@@ -209,8 +202,7 @@ object DigitalGoodsStore {
         }
     }
 
-    private fun getGoods(dp: DependencyProvider, goodsId: Long): Goods {
+    private fun getGoods(dp: DependencyProvider, goodsId: Long): Goods? {
         return Goods.goodsTable(dp).get(Goods.goodsDbKeyFactory(dp).newKey(goodsId))
     }
-
 }

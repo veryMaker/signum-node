@@ -17,7 +17,7 @@ interface OrderStore {
 
     fun getSortedAsks(assetId: Long, from: Int, to: Int): Collection<Order.Ask>
 
-    fun getNextOrder(assetId: Long): Order.Ask
+    fun getNextOrder(assetId: Long): Order.Ask?
 
     fun getAll(from: Int, to: Int): Collection<Order.Ask>
 
@@ -33,5 +33,5 @@ interface OrderStore {
 
     fun getSortedBids(assetId: Long, from: Int, to: Int): Collection<Order.Bid>
 
-    fun getNextBid(assetId: Long): Order.Bid
+    fun getNextBid(assetId: Long): Order.Bid?
 }

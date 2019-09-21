@@ -1,15 +1,15 @@
 package brs.http
 
-import brs.*
+import brs.Constants
+import brs.DependencyProvider
+import brs.Genesis
+import brs.TransactionType
 import brs.fluxcapacitor.FluxValues
-import brs.util.Convert
-import brs.util.JSON
 import brs.util.toJsonArray
+import brs.util.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import java.util.stream.Collector
-
 import javax.servlet.http.HttpServletRequest
 
 internal class GetConstants(dp: DependencyProvider) : APIServlet.JsonRequestHandler(arrayOf(APITag.INFO)) {
@@ -18,8 +18,8 @@ internal class GetConstants(dp: DependencyProvider) : APIServlet.JsonRequestHand
 
     init {
         val response = JsonObject()
-        response.addProperty("genesisBlockId", Convert.toUnsignedLong(Genesis.GENESIS_BLOCK_ID))
-        response.addProperty("genesisAccountId", Convert.toUnsignedLong(Genesis.CREATOR_ID))
+        response.addProperty("genesisBlockId", Genesis.GENESIS_BLOCK_ID.toUnsignedString())
+        response.addProperty("genesisAccountId", Genesis.CREATOR_ID.toUnsignedString())
         response.addProperty("maxBlockPayloadLength", dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH))
         response.addProperty("maxArbitraryMessageLength", Constants.MAX_ARBITRARY_MESSAGE_LENGTH)
 
@@ -62,7 +62,7 @@ internal class GetConstants(dp: DependencyProvider) : APIServlet.JsonRequestHand
         constants = response
     }
 
-    override fun processRequest(req: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         return constants
     }
 }

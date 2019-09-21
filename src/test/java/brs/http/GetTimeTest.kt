@@ -30,13 +30,13 @@ class GetTimeTest {
 
     @Test
     fun processRequest() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val currentEpochTime = 123
 
         whenever(mockTimeService!!.epochTime).doReturn(currentEpochTime)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertEquals(currentEpochTime.toLong(), JSON.getAsInt(result.get(TIME_RESPONSE)).toLong())
     }

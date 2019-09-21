@@ -1,4 +1,4 @@
-package brs.util.atomic
+package brs.util.delegates
 
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.properties.ReadWriteProperty

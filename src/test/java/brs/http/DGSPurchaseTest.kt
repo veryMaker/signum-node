@@ -56,7 +56,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         val goodsPrice = 10L
         val deliveryDeadlineTimestamp: Long = 100
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(QUANTITY_PARAMETER, goodsQuantity),
                 MockParam(PRICE_NQT_PARAMETER, goodsPrice),
                 MockParam(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER, deliveryDeadlineTimestamp)
@@ -73,7 +73,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
 
         val mockSellerAccount = mock<Account>()
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
         whenever(mockTimeService!!.epochTime).doReturn(10)
 
         whenever(mockAccountService!!.getAccount(eq(mockSellerId))).doReturn(mockSellerAccount)
@@ -82,7 +82,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         every { Burst.fluxCapacitor } returns fluxCapacitor
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsPurchase
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsPurchase
         assertNotNull(attachment)
 
         assertEquals(PURCHASE, attachment.transactionType)
@@ -95,14 +95,14 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_unknownGoods() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockGoods = mock<Goods>()
         whenever(mockGoods.isDelisted).doReturn(true)
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        assertEquals(UNKNOWN_GOODS, t!!.processRequest(req))
+        assertEquals(UNKNOWN_GOODS, t!!.processRequest(request))
     }
 
     @Test
@@ -110,7 +110,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     fun processRequest_incorrectPurchaseQuantity() {
         val goodsQuantity = 5
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(QUANTITY_PARAMETER, goodsQuantity)
         )
 
@@ -118,9 +118,9 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         whenever(mockGoods.isDelisted).doReturn(false)
         whenever(mockGoods.quantity).doReturn(4)
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        assertEquals(INCORRECT_PURCHASE_QUANTITY, t!!.processRequest(req))
+        assertEquals(INCORRECT_PURCHASE_QUANTITY, t!!.processRequest(request))
     }
 
     @Test
@@ -129,7 +129,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         val goodsQuantity = 5
         val goodsPrice = 5L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(QUANTITY_PARAMETER, goodsQuantity),
                 MockParam(PRICE_NQT_PARAMETER, goodsPrice)
         )
@@ -139,9 +139,9 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         whenever(mockGoods.quantity).doReturn(10)
         whenever(mockGoods.priceNQT).doReturn(10L)
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        assertEquals(INCORRECT_PURCHASE_PRICE, t!!.processRequest(req))
+        assertEquals(INCORRECT_PURCHASE_PRICE, t!!.processRequest(request))
     }
 
 
@@ -151,7 +151,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         val goodsQuantity = 5
         val goodsPrice = 10L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(QUANTITY_PARAMETER, goodsQuantity),
                 MockParam(PRICE_NQT_PARAMETER, goodsPrice)
         )
@@ -161,9 +161,9 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         whenever(mockGoods.quantity).doReturn(10)
         whenever(mockGoods.priceNQT).doReturn(10L)
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        assertEquals(MISSING_DELIVERY_DEADLINE_TIMESTAMP, t!!.processRequest(req))
+        assertEquals(MISSING_DELIVERY_DEADLINE_TIMESTAMP, t!!.processRequest(request))
     }
 
     @Test
@@ -172,7 +172,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         val goodsQuantity = 5
         val goodsPrice = 10L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(QUANTITY_PARAMETER, goodsQuantity),
                 MockParam(PRICE_NQT_PARAMETER, goodsPrice),
                 MockParam(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER, "unParsable")
@@ -183,9 +183,9 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         whenever(mockGoods.quantity).doReturn(10)
         whenever(mockGoods.priceNQT).doReturn(10L)
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        assertEquals(INCORRECT_DELIVERY_DEADLINE_TIMESTAMP, t!!.processRequest(req))
+        assertEquals(INCORRECT_DELIVERY_DEADLINE_TIMESTAMP, t!!.processRequest(request))
     }
 
     @Test
@@ -195,7 +195,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         val goodsPrice = 10L
         val deliveryDeadlineTimestamp: Long = 100
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(QUANTITY_PARAMETER, goodsQuantity),
                 MockParam(PRICE_NQT_PARAMETER, goodsPrice),
                 MockParam(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER, deliveryDeadlineTimestamp)
@@ -206,9 +206,9 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         whenever(mockGoods.quantity).doReturn(10)
         whenever(mockGoods.priceNQT).doReturn(10L)
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
         whenever(mockTimeService!!.epochTime).doReturn(1000)
 
-        assertEquals(INCORRECT_DELIVERY_DEADLINE_TIMESTAMP, t!!.processRequest(req))
+        assertEquals(INCORRECT_DELIVERY_DEADLINE_TIMESTAMP, t!!.processRequest(request))
     }
 }

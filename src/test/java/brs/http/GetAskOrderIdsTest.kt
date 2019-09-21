@@ -44,7 +44,7 @@ class GetAskOrderIdsTest : AbstractUnitTest() {
         val firstIndex = 1
         val lastIndex = 3
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ASSET_PARAMETER, assetIndex),
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
@@ -53,7 +53,7 @@ class GetAskOrderIdsTest : AbstractUnitTest() {
         val asset = mock<Asset>()
         whenever(asset.id).doReturn(assetIndex)
 
-        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(req))).doReturn(asset)
+        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(request))).doReturn(asset)
 
         val askOrder1 = mock<Ask>()
         whenever(askOrder1.id).doReturn(5L)
@@ -64,7 +64,7 @@ class GetAskOrderIdsTest : AbstractUnitTest() {
 
         whenever(assetExchangeMock!!.getSortedAskOrders(eq(assetIndex), eq(firstIndex), eq(lastIndex))).doReturn(askIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val ids = result.get(ASK_ORDER_IDS_RESPONSE) as JsonArray

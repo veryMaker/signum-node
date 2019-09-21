@@ -16,7 +16,7 @@ import java.util.HashMap
 
 class DBCacheManagerImpl(private val dp: DependencyProvider) { // TODO interface
     private val cacheManager: CacheManager
-    private val caches = mutableMapOf<String, CacheConfiguration<BurstKey, *>>>()
+    private val caches = mutableMapOf<String, CacheConfiguration<BurstKey, *>>()
 
     init {
         caches["account"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(BurstKey::class.java, Account::class.java, ResourcePoolsBuilder.heap(8192)).build()

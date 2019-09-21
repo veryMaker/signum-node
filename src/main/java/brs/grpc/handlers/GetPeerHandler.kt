@@ -3,7 +3,6 @@ package brs.grpc.handlers
 import brs.grpc.GrpcApiHandler
 import brs.grpc.proto.ApiException
 import brs.grpc.proto.BrsApi
-import brs.peer.Peer
 import brs.peer.Peers
 
 class GetPeerHandler : GrpcApiHandler<BrsApi.GetPeerRequest, BrsApi.Peer> {
@@ -13,7 +12,7 @@ class GetPeerHandler : GrpcApiHandler<BrsApi.GetPeerRequest, BrsApi.Peer> {
         return BrsApi.Peer.newBuilder()
                 .setState(peer.state.toProtobuf())
                 .setAnnouncedAddress(peer.announcedAddress)
-                .setShareAddress(peer.shareAddress())
+                .setShareAddress(peer.shareAddress)
                 .setDownloadedVolume(peer.downloadedVolume)
                 .setUploadedVolume(peer.uploadedVolume)
                 .setApplication(peer.application)

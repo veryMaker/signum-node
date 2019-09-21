@@ -1,17 +1,15 @@
 package brs.http
 
 import brs.TransactionProcessor
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-
-import javax.servlet.http.HttpServletRequest
-
 import brs.http.common.ResultFields.DONE_RESPONSE
 import brs.http.common.ResultFields.ERROR_RESPONSE
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import javax.servlet.http.HttpServletRequest
 
 internal class ClearUnconfirmedTransactions internal constructor(private val transactionProcessor: TransactionProcessor) : APIServlet.JsonRequestHandler(arrayOf(APITag.DEBUG)) {
 
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
         try {
             transactionProcessor.clearUnconfirmedTransactions()
@@ -23,7 +21,7 @@ internal class ClearUnconfirmedTransactions internal constructor(private val tra
         return response
     }
 
-    internal override fun requirePost(): Boolean {
+    override fun requirePost(): Boolean {
         return true
     }
 

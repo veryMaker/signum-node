@@ -17,12 +17,14 @@ import java.util.Locale
 
 import brs.schema.Tables.ALIAS
 import brs.schema.Tables.ALIAS_OFFER
+import brs.schema.tables.records.AliasOfferRecord
+import brs.schema.tables.records.AliasRecord
 
 class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
-
     override val offerTable: VersionedEntityTable<Alias.Offer>
-
     override val aliasTable: VersionedEntityTable<Alias>
+    override val aliasDbKeyFactory = Companion.aliasDbKeyFactory
+    override val offerDbKeyFactory = Companion.offerDbKeyFactory
 
     init {
         offerTable = object : VersionedEntitySqlTable<Alias.Offer>("alias_offer", ALIAS_OFFER, offerDbKeyFactory, dp) {
@@ -52,15 +54,7 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
         }
     }
 
-    override fun getOfferDbKeyFactory(): BurstKey.LongKeyFactory<Alias.Offer> {
-        return offerDbKeyFactory
-    }
-
-    override fun getAliasDbKeyFactory(): BurstKey.LongKeyFactory<Alias> {
-        return aliasDbKeyFactory
-    }
-
-    private inner class SqlOffer private constructor(record: Record) : Alias.Offer(record.get(ALIAS_OFFER.ID), record.get(ALIAS_OFFER.PRICE), Convert.nullToZero(record.get(ALIAS_OFFER.BUYER_ID)), offerDbKeyFactory.newKey(record.get(ALIAS_OFFER.ID)))
+    private inner class SqlOffer internal constructor(record: Record) : Alias.Offer(record.get(ALIAS_OFFER.ID), record.get(ALIAS_OFFER.PRICE), Convert.nullToZero(record.get(ALIAS_OFFER.BUYER_ID)), offerDbKeyFactory.newKey(record.get(ALIAS_OFFER.ID)))
 
     private fun saveOffer(offer: Alias.Offer) {
         Db.useDSLContext { ctx ->
@@ -70,7 +64,7 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
         }
     }
 
-    private inner class SqlAlias private constructor(record: Record) : Alias(record.get(ALIAS.ID), record.get(ALIAS.ACCOUNT_ID), record.get(ALIAS.ALIAS_NAME), record.get(ALIAS.ALIAS_URI), record.get(ALIAS.TIMESTAMP), aliasDbKeyFactory.newKey(record.get(ALIAS.ID)))
+    private inner class SqlAlias internal constructor(record: Record) : Alias(record.get(ALIAS.ID), record.get(ALIAS.ACCOUNT_ID), record.get(ALIAS.ALIAS_NAME), record.get(ALIAS.ALIAS_URI), record.get(ALIAS.TIMESTAMP), aliasDbKeyFactory.newKey(record.get(ALIAS.ID)))
 
     private fun saveAlias(ctx: DSLContext, alias: Alias) {
         ctx.insertInto<AliasRecord>(ALIAS).set(ALIAS.ID, alias.id).set(ALIAS.ACCOUNT_ID, alias.accountId).set(ALIAS.ALIAS_NAME, alias.aliasName).set(ALIAS.ALIAS_NAME_LOWER, alias.aliasName.toLowerCase(Locale.ENGLISH)).set(ALIAS.ALIAS_URI, alias.aliasURI).set(ALIAS.TIMESTAMP, alias.timestamp).set(ALIAS.HEIGHT, dp.blockchain.height).execute()
@@ -80,12 +74,11 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
         return aliasTable.getManyBy(brs.schema.Tables.ALIAS.ACCOUNT_ID.eq(accountId), from, to)
     }
 
-    override fun getAlias(aliasName: String): Alias {
+    override fun getAlias(aliasName: String): Alias? {
         return aliasTable.getBy(brs.schema.Tables.ALIAS.ALIAS_NAME_LOWER.eq(aliasName.toLowerCase(Locale.ENGLISH)))
     }
 
     companion object {
-
         private val offerDbKeyFactory = object : DbKey.LongKeyFactory<Alias.Offer>(ALIAS_OFFER.ID) {
             override fun newKey(offer: Alias.Offer): BurstKey {
                 return offer.dbKey
@@ -93,11 +86,9 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
         }
 
         private val aliasDbKeyFactory = object : DbKey.LongKeyFactory<Alias>(ALIAS.ID) {
-
             override fun newKey(alias: Alias): BurstKey {
                 return alias.dbKey
             }
         }
     }
-
 }

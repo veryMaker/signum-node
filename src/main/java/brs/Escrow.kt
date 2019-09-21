@@ -5,11 +5,11 @@ import brs.grpc.proto.BrsApi
 
 open class Escrow {
     private val dp: DependencyProvider
-    val senderId: Long?
-    val recipientId: Long?
-    val id: Long?
+    val senderId: Long
+    val recipientId: Long
+    val id: Long
     val dbKey: BurstKey
-    val amountNQT: Long?
+    val amountNQT: Long
     val requiredSigners: Int
     val deadline: Int
     val deadlineAction: DecisionType
@@ -28,8 +28,8 @@ open class Escrow {
 
     constructor(dp: DependencyProvider, dbKey: BurstKey, sender: Account,
                 recipient: Account,
-                id: Long?,
-                amountNQT: Long?,
+                id: Long,
+                amountNQT: Long,
                 requiredSigners: Int,
                 deadline: Int,
                 deadlineAction: DecisionType) {
@@ -44,7 +44,7 @@ open class Escrow {
         this.deadlineAction = deadlineAction
     }
 
-    protected constructor(dp: DependencyProvider, id: Long?, senderId: Long?, recipientId: Long?, dbKey: BurstKey, amountNQT: Long?, requiredSigners: Int, deadline: Int, deadlineAction: DecisionType) {
+    protected constructor(dp: DependencyProvider, id: Long, senderId: Long, recipientId: Long, dbKey: BurstKey, amountNQT: Long, requiredSigners: Int, deadline: Int, deadlineAction: DecisionType) {
         this.dp = dp
         this.senderId = senderId
         this.recipientId = recipientId
@@ -57,7 +57,7 @@ open class Escrow {
     }
 
     companion object {
-        fun decisionToString(decision: DecisionType): String? {
+        fun decisionToString(decision: DecisionType): String {
             return when (decision) {
                 DecisionType.UNDECIDED -> "undecided"
                 DecisionType.RELEASE -> "release"
@@ -76,7 +76,7 @@ open class Escrow {
             }
         }
 
-        fun decisionToByte(decision: DecisionType): Byte? {
+        fun decisionToByte(decision: DecisionType): Byte {
             return when (decision) {
                 DecisionType.UNDECIDED -> 0
                 DecisionType.RELEASE -> 1

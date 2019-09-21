@@ -11,9 +11,6 @@ import brs.props.PropertyService
 import brs.props.Props
 import brs.services.AccountService
 import burst.kit.crypto.BurstCrypto
-import java.util.Objects
-import java.util.function.Function
-import java.util.stream.Collectors
 
 class SubmitNonceHandler(propertyService: PropertyService, private val blockchain: Blockchain, private val accountService: AccountService, private val generator: Generator) : GrpcApiHandler<BrsApi.SubmitNonceRequest, BrsApi.SubmitNonceResponse> {
     private val passphrases: Map<Long, String>
@@ -36,7 +33,7 @@ class SubmitNonceHandler(propertyService: PropertyService, private val blockchai
             throw ApiException("Given block height does not match current blockchain height")
         }
 
-        if (secret == "") {
+        if (secret.isEmpty()) {
             if (passphrases.containsKey(accountId)) {
                 secret = passphrases[accountId]!!
             } else {
@@ -55,15 +52,15 @@ class SubmitNonceHandler(propertyService: PropertyService, private val blockchai
         }
 
         val generatorState: Generator.GeneratorState?
-        if (accountId == 0L || secretAccount == null) {
-            generatorState = generator.addNonce(secret, nonce)
+        generatorState = if (accountId == 0L || secretAccount == null) {
+            generator.addNonce(secret, nonce)
         } else {
             val genAccount = accountService.getAccount(accountId)
-            if (genAccount == null || genAccount.publicKey == null) {
+            if (genAccount?.publicKey == null) {
                 throw ApiException("Passthrough mining requires public key in blockchain")
             } else {
                 val publicKey = genAccount.publicKey
-                generatorState = generator.addNonce(secret, nonce, publicKey!!)
+                generator.addNonce(secret, nonce, publicKey!!)
             }
         }
 
@@ -88,8 +85,8 @@ class SubmitNonceHandler(propertyService: PropertyService, private val blockchai
                 val assignment = accountService.getRewardRecipientAssignment(genAccount)
                 val rewardId = when {
                     assignment == null -> genAccount.id
-                    assignment.fromHeight > blockchain.lastBlock.height + 1 -> assignment.getPrevRecipientId()
-                    else -> assignment.getRecipientId()
+                    assignment.fromHeight > blockchain.lastBlock.height + 1 -> assignment.prevRecipientId
+                    else -> assignment.recipientId
                 }
                 if (rewardId != secretAccount.id) {
                     throw ApiException("Passphrase does not match reward recipient")

@@ -51,7 +51,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     fun processRequest() {
         val subscriptionIdParameter = 123L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SUBSCRIPTION_PARAMETER, subscriptionIdParameter)
         )
 
@@ -63,12 +63,12 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         whenever(mockSubscription.senderId).doReturn(1L)
         whenever(mockSubscription.recipientId).doReturn(2L)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSender)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSender)
         whenever(subscriptionServiceMock!!.getSubscription(eq<Long>(subscriptionIdParameter))).doReturn(mockSubscription)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) }, apiTransactionManagerMock!!) as Attachment.AdvancedPaymentSubscriptionCancel
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.AdvancedPaymentSubscriptionCancel
         assertNotNull(attachment)
 
         assertEquals(SUBSCRIPTION_CANCEL, attachment.transactionType)
@@ -78,9 +78,9 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_missingSubscriptionParameter() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
-        val response = t!!.processRequest(req) as JsonObject
+        val response = t!!.processRequest(request) as JsonObject
         assertNotNull(response)
 
         assertEquals(3, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)).toLong())
@@ -89,11 +89,11 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_failedToParseSubscription() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SUBSCRIPTION_PARAMETER, "notALong")
         )
 
-        val response = t!!.processRequest(req) as JsonObject
+        val response = t!!.processRequest(request) as JsonObject
         assertNotNull(response)
 
         assertEquals(4, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)).toLong())
@@ -104,13 +104,13 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     fun processRequest_subscriptionNotFound() {
         val subscriptionId = 123L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SUBSCRIPTION_PARAMETER, subscriptionId)
         )
 
         whenever(subscriptionServiceMock!!.getSubscription(eq(subscriptionId))).doReturn(null)
 
-        val response = t!!.processRequest(req) as JsonObject
+        val response = t!!.processRequest(request) as JsonObject
         assertNotNull(response)
 
         assertEquals(5, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)).toLong())
@@ -121,7 +121,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     fun processRequest_userIsNotSenderOrRecipient() {
         val subscriptionId = 123L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SUBSCRIPTION_PARAMETER, subscriptionId)
         )
 
@@ -132,10 +132,10 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         whenever(mockSubscription.senderId).doReturn(2L)
         whenever(mockSubscription.recipientId).doReturn(3L)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSender)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSender)
         whenever(subscriptionServiceMock!!.getSubscription(eq(subscriptionId))).doReturn(mockSubscription)
 
-        val response = t!!.processRequest(req) as JsonObject
+        val response = t!!.processRequest(request) as JsonObject
         assertNotNull(response)
 
         assertEquals(7, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)).toLong())

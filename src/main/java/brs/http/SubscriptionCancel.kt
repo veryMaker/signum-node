@@ -12,14 +12,15 @@ import javax.servlet.http.HttpServletRequest
 import brs.http.common.Parameters.SUBSCRIPTION_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.util.parseUnsignedLong
 
 internal class SubscriptionCancel(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), SUBSCRIPTION_PARAMETER) {
 
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val sender = dp.parameterService.getSenderAccount(req)
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+        val sender = dp.parameterService.getSenderAccount(request)
 
-        val subscriptionString = Convert.emptyToNull(req.getParameter(SUBSCRIPTION_PARAMETER))
+        val subscriptionString = Convert.emptyToNull(request.getParameter(SUBSCRIPTION_PARAMETER))
         if (subscriptionString == null) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 3)
@@ -29,7 +30,7 @@ internal class SubscriptionCancel(private val dp: DependencyProvider) : CreateTr
 
         val subscriptionId: Long
         try {
-            subscriptionId = Convert.parseUnsignedLong(subscriptionString)
+            subscriptionId = subscriptionString.parseUnsignedLong()
         } catch (e: Exception) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 4)
@@ -54,6 +55,6 @@ internal class SubscriptionCancel(private val dp: DependencyProvider) : CreateTr
 
         val attachment = Attachment.AdvancedPaymentSubscriptionCancel(subscription.id, dp.blockchain.height)
 
-        return createTransaction(req, sender, null, 0, attachment)
+        return createTransaction(request, sender, null, 0, attachment)
     }
 }

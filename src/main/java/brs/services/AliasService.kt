@@ -6,7 +6,6 @@ import brs.Attachment
 import brs.Transaction
 
 interface AliasService {
-
     val aliasCount: Long
 
     fun getAlias(aliasId: Long): Alias?

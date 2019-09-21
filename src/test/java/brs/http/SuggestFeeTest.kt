@@ -12,7 +12,6 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 import brs.Constants.FEE_QUANT
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -34,7 +33,7 @@ class SuggestFeeTest {
     @Test
     @Throws(BurstException::class)
     fun processRequest() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val cheap = 1 * FEE_QUANT
         val standard = 5 * FEE_QUANT
@@ -43,7 +42,7 @@ class SuggestFeeTest {
 
         whenever(feeSuggestionCalculator!!.giveFeeSuggestion()).doReturn(feeSuggestion)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertEquals(cheap, JSON.getAsLong(result.get(CHEAP_FEE_RESPONSE)))
         assertEquals(standard, JSON.getAsLong(result.get(STANDARD_FEE_RESPONSE)))

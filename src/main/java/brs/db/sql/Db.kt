@@ -71,7 +71,7 @@ object Db {
         get() {
             val con = localConnection.get()
             val settings = Settings()
-            settings.isRenderSchema = java.lang.Boolean.FALSE
+            settings.isRenderSchema = false
 
             if (con == null) {
                 DSL.using(cp, dialect, settings).use { ctx -> return ctx }
@@ -106,11 +106,8 @@ object Db {
         try {
             val config = HikariConfig()
             config.jdbcUrl = dbUrl
-            if (dbUsername != null)
-                config.username = dbUsername
-            if (dbPassword != null)
-                config.password = dbPassword
-
+            if (dbUsername.isNotEmpty()) config.username = dbUsername
+            if (dbPassword.isNotEmpty()) config.password = dbPassword
             config.maximumPoolSize = dp.propertyService.get(Props.DB_CONNECTIONS)
 
             val flywayBuilder = Flyway.configure()
@@ -204,7 +201,7 @@ object Db {
                 cp!!.connection.use { con ->
                     con.createStatement().use { stmt ->
                         // COMPACT is not giving good result.
-                        if (dp!!.propertyService.get(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
+                        if (dp.propertyService.get(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
                             stmt.execute("SHUTDOWN DEFRAG")
                         } else {
                             stmt.execute("SHUTDOWN")
@@ -230,14 +227,14 @@ object Db {
         dslContext.use { context -> consumer(context) }
     }
 
-    internal fun <V> getCache(tableName: String): Map<BurstKey, V> {
+    internal fun <V> getCache(tableName: String): MutableMap<BurstKey, V> {
         check(isInTransaction) { "Not in transaction" }
-        return transactionCaches.get().computeIfAbsent(tableName) { mutableMapOf() }
+        return transactionCaches.get().computeIfAbsent(tableName) { mutableMapOf() } as MutableMap<BurstKey, V>
     }
 
     internal fun <V> getBatch(tableName: String): MutableMap<BurstKey, V> {
         check(isInTransaction) { "Not in transaction" }
-        return transactionBatches.get().computeIfAbsent(tableName) { k -> mutableMapOf() }
+        return transactionBatches.get().computeIfAbsent(tableName) { k -> mutableMapOf() } as MutableMap<BurstKey, V>
     }
 
     fun beginTransaction(): Connection {

@@ -8,12 +8,11 @@ import java.io.IOException
 import java.util.*
 
 object VerifyTrace {
-
-    private val balanceHeaders = Arrays.asList("balance", "unconfirmed balance")
-    private val deltaHeaders = Arrays.asList("transaction amount", "transaction fee",
+    private val balanceHeaders = listOf("balance", "unconfirmed balance")
+    private val deltaHeaders = listOf("transaction amount", "transaction fee",
             "generation fee", "trade cost", "purchase cost", "discount", "refund")
-    private val assetQuantityHeaders = Arrays.asList("asset balance", "unconfirmed asset balance")
-    private val deltaAssetQuantityHeaders = Arrays.asList("asset quantity", "trade quantity")
+    private val assetQuantityHeaders = listOf("asset balance", "unconfirmed asset balance")
+    private val deltaAssetQuantityHeaders = listOf("asset quantity", "trade quantity")
 
     private val BEGIN_QUOTE = "^" + DebugTrace.QUOTE
     private val END_QUOTE = DebugTrace.QUOTE + "$"
@@ -39,45 +38,47 @@ object VerifyTrace {
         val fileName = if (args.size == 1) args[0] else "nxt-trace.csv"
         try {
             BufferedReader(FileReader(fileName)).use { reader ->
-                var line = reader.readLine()
-                val headers = unquote(line.split(DebugTrace.SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
+                val firstLine = reader.readLine()
+                val headers = unquote(firstLine.split(DebugTrace.SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
 
-                val totals = mutableMapOf<String, Map<String, Long>>>()
-                val accountAssetTotals = mutableMapOf<String, Map<String, Map<String, Long>>>>()
-                val issuedAssetQuantities = mutableMapOf<String, Long>>()
-                val accountAssetQuantities = mutableMapOf<String, Long>>()
+                val totals = mutableMapOf<String, MutableMap<String, Long>>()
+                val accountAssetTotals = mutableMapOf<String, MutableMap<String, MutableMap<String, Long>>>()
+                val issuedAssetQuantities = mutableMapOf<String, Long>()
+                val accountAssetQuantities = mutableMapOf<String, Long>()
 
-                while ((line = reader.readLine()) != null) {
+                reader.readLines().forEach { line ->
                     val values = unquote(line.split(DebugTrace.SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
-                    val valueMap = mutableMapOf<String, String>>()
+                    val valueMap = mutableMapOf<String, String>()
                     for (i in headers.indices) {
                         valueMap[headers[i]] = values[i]
                     }
-                    val accountId = valueMap["account"]
-                    val accountTotals = (totals as java.util.Map<String, Map<String, Long>>).computeIfAbsent(accountId) { k -> mutableMapOf() }
-                    val accountAssetMap = (accountAssetTotals as java.util.Map<String, Map<String, Map<String, Long>>>).computeIfAbsent(accountId) { k -> mutableMapOf() }
+                    val accountId = valueMap["account"]!!
+                    val accountTotals = totals.computeIfAbsent(accountId) { mutableMapOf() }
+                    val accountAssetMap = accountAssetTotals.computeIfAbsent(accountId) { mutableMapOf() }
                     if ("asset issuance" == valueMap["event"]) {
-                        val assetId = valueMap["asset"]
-                        issuedAssetQuantities[assetId] = java.lang.Long.parseLong(valueMap["asset quantity"])
+                        val assetId = valueMap["asset"]!!
+                        issuedAssetQuantities[assetId] = valueMap["asset quantity"]!!.toLong()
                     }
                     for ((header, value) in valueMap) {
-                        if (value == null || "" == value.trim { it <= ' ' }) {
+                        if (value.trim { it <= ' ' }.isEmpty()) {
                             continue
                         }
-                        if (isBalance(header)) {
-                            accountTotals.put(header, java.lang.Long.parseLong(value))
-                        } else if (isDelta(header)) {
-                            val previousValue = nullToZero(accountTotals[header])
-                            accountTotals.put(header, Convert.safeAdd(previousValue, java.lang.Long.parseLong(value)))
-                        } else if (isAssetQuantity(header)) {
-                            val assetId = valueMap["asset"]
-                            val assetTotals = (accountAssetMap as java.util.Map<String, Map<String, Long>>).computeIfAbsent(assetId) { k -> mutableMapOf() }
-                            assetTotals.put(header, java.lang.Long.parseLong(value))
-                        } else if (isDeltaAssetQuantity(header)) {
-                            val assetId = valueMap["asset"]
-                            val assetTotals = (accountAssetMap as java.util.Map<String, Map<String, Long>>).computeIfAbsent(assetId) { k -> mutableMapOf() }
-                            val previousValue = nullToZero(assetTotals[header])
-                            assetTotals.put(header, Convert.safeAdd(previousValue, java.lang.Long.parseLong(value)))
+                        when {
+                            isBalance(header) -> accountTotals[header] = java.lang.Long.parseLong(value)
+                            isDelta(header) -> {
+                                accountTotals[header] = Convert.safeAdd(nullToZero(accountTotals[header]), value.toLong())
+                            }
+                            isAssetQuantity(header) -> {
+                                val assetId = valueMap["asset"]!!
+                                val assetTotals = accountAssetMap.computeIfAbsent(assetId) { mutableMapOf() }
+                                assetTotals[header] = java.lang.Long.parseLong(value)
+                            }
+                            isDeltaAssetQuantity(header) -> {
+                                val assetId = valueMap["asset"]!!
+                                val assetTotals = accountAssetMap.computeIfAbsent(assetId) { mutableMapOf() }
+                                val previousValue = nullToZero(assetTotals[header])
+                                assetTotals[header] = Convert.safeAdd(previousValue, java.lang.Long.parseLong(value))
+                            }
                         }
                     }
                 }
@@ -99,7 +100,7 @@ object VerifyTrace {
                         println("ERROR: balance doesn't match total change!!!")
                         failed.add(accountId)
                     }
-                    val accountAssetMap = accountAssetTotals[accountId]
+                    val accountAssetMap = accountAssetTotals[accountId]!!
                     accountAssetMap.forEach { (assetId, assetValues) ->
                         println("asset: $assetId")
                         assetValues.forEach { (key, value) -> println("$key: $value") }
@@ -109,7 +110,7 @@ object VerifyTrace {
                             totalAssetDelta = Convert.safeAdd(totalAssetDelta, delta)
                         }
                         println("total confirmed asset quantity change: $totalAssetDelta")
-                        val assetBalance = assetValues["asset balance"]
+                        val assetBalance = assetValues["asset balance"]!!
                         if (assetBalance != totalAssetDelta) {
                             println("ERROR: asset balance doesn't match total asset quantity change!!!")
                             failed.add(accountId)
@@ -150,11 +151,9 @@ object VerifyTrace {
     }
 
     private fun unquote(values: Array<String>): Array<String> {
-        val result = arrayOfNulls<String>(values.size)
-        for (i in values.indices) {
-            result[i] = values[i].replaceFirst(BEGIN_QUOTE.toRegex(), "").replaceFirst(END_QUOTE.toRegex(), "")
-        }
-        return result
+        return values
+                .map { it.replaceFirst(BEGIN_QUOTE.toRegex(), "").replaceFirst(END_QUOTE.toRegex(), "") }
+                .toTypedArray()
     }
 
     private fun nullToZero(l: Long?): Long {

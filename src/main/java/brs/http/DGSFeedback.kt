@@ -1,22 +1,20 @@
 package brs.http
 
-import brs.*
-import brs.services.AccountService
-import brs.services.ParameterService
-import com.google.gson.JsonElement
-
-import javax.servlet.http.HttpServletRequest
-
+import brs.Attachment
+import brs.BurstException
+import brs.DependencyProvider
 import brs.http.JSONResponses.GOODS_NOT_DELIVERED
+import brs.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.http.JSONResponses.INCORRECT_PURCHASE
 import brs.http.common.Parameters.PURCHASE_PARAMETER
+import com.google.gson.JsonElement
+import javax.servlet.http.HttpServletRequest
 
 internal class DGSFeedback internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), PURCHASE_PARAMETER) {
-
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val purchase = dp.parameterService.getPurchase(req)
-        val buyerAccount = dp.parameterService.getSenderAccount(req)
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+        val purchase = dp.parameterService.getPurchase(request)
+        val buyerAccount = dp.parameterService.getSenderAccount(request)
 
         if (buyerAccount.id != purchase.buyerId) {
             return INCORRECT_PURCHASE
@@ -25,10 +23,9 @@ internal class DGSFeedback internal constructor(private val dp: DependencyProvid
             return GOODS_NOT_DELIVERED
         }
 
-        val sellerAccount = dp.accountService.getAccount(purchase.sellerId)
+        val sellerAccount = dp.accountService.getAccount(purchase.sellerId) ?: return INCORRECT_ACCOUNT
         val attachment = Attachment.DigitalGoodsFeedback(purchase.id, dp.blockchain.height)
 
-        return createTransaction(req, buyerAccount, sellerAccount.id, 0, attachment)
+        return createTransaction(request, buyerAccount, sellerAccount.id, 0, attachment)
     }
-
 }

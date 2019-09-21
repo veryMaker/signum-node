@@ -6,17 +6,16 @@ import brs.BlockchainProcessor.BlockNotAcceptedException
 import brs.BlockchainProcessor.BlockOutOfOrderException
 
 interface BlockService {
-
     @Throws(BlockchainProcessor.BlockNotAcceptedException::class, InterruptedException::class)
     fun preVerify(block: Block)
 
     @Throws(BlockchainProcessor.BlockNotAcceptedException::class, InterruptedException::class)
-    fun preVerify(block: Block, scoopData: ByteArray)
+    fun preVerify(block: Block, scoopData: ByteArray?)
 
     fun getBlockReward(block: Block): Long
 
     @Throws(BlockOutOfOrderException::class)
-    fun calculateBaseTarget(block: Block, lastBlock: Block)
+    fun calculateBaseTarget(block: Block, previousBlock: Block)
 
     fun setPrevious(block: Block, previousBlock: Block?)
 

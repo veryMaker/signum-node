@@ -2,11 +2,7 @@ package brs.transactionduplicates
 
 import brs.Transaction
 import brs.TransactionType
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import java.util.HashMap
-import java.util.Objects
 
 class TransactionDuplicatesCheckerImpl {
 
@@ -21,11 +17,12 @@ class TransactionDuplicatesCheckerImpl {
     fun removeCheaperDuplicate(transaction: Transaction): TransactionDuplicationResult {
         val transactionDuplicateKey = transaction.duplicationKey
 
-        if (transactionDuplicateKey == TransactionDuplicationKey.IS_ALWAYS_DUPLICATE) {
-            return TransactionDuplicationResult(true, null)
-        } else if (transactionDuplicateKey == TransactionDuplicationKey.IS_NEVER_DUPLICATE) {
-            return TransactionDuplicationResult(false, null)
+        when (transactionDuplicateKey) {
+            TransactionDuplicationKey.IS_ALWAYS_DUPLICATE -> return TransactionDuplicationResult(true, null)
+            TransactionDuplicationKey.IS_NEVER_DUPLICATE -> return TransactionDuplicationResult(false, null)
         }
+
+        requireNotNull(transactionDuplicateKey.transactionType) { "Transaction Type of null is only allowed for IS_ALWAYS_DUPLICATE and IS_NEVER_DUPLICATE" }
 
         duplicates.computeIfAbsent(transactionDuplicateKey.transactionType) { mutableMapOf() }
 
@@ -45,11 +42,12 @@ class TransactionDuplicatesCheckerImpl {
     fun hasAnyDuplicate(transaction: Transaction): Boolean {
         val transactionDuplicateKey = transaction.duplicationKey
 
-        if (transactionDuplicateKey == TransactionDuplicationKey.IS_ALWAYS_DUPLICATE) {
-            return true
-        } else if (transactionDuplicateKey == TransactionDuplicationKey.IS_NEVER_DUPLICATE) {
-            return false
+        when (transactionDuplicateKey) {
+            TransactionDuplicationKey.IS_ALWAYS_DUPLICATE -> return true
+            TransactionDuplicationKey.IS_NEVER_DUPLICATE -> return false
         }
+
+        requireNotNull(transactionDuplicateKey.transactionType) { "Transaction Type of null is only allowed for IS_ALWAYS_DUPLICATE and IS_NEVER_DUPLICATE" }
 
         duplicates.computeIfAbsent(transactionDuplicateKey.transactionType) { mutableMapOf() }
 
@@ -65,9 +63,9 @@ class TransactionDuplicatesCheckerImpl {
 
     fun removeTransaction(transaction: Transaction) {
         val transactionDuplicateKey = transaction.duplicationKey
-
-        if (transactionDuplicateKey != TransactionDuplicationKey.IS_ALWAYS_DUPLICATE && transactionDuplicateKey != TransactionDuplicationKey.IS_NEVER_DUPLICATE && duplicates.containsKey(transactionDuplicateKey.transactionType) && duplicates[transactionDuplicateKey.transactionType][transactionDuplicateKey.key] == transaction) {
-            duplicates[transactionDuplicateKey.transactionType].remove(transactionDuplicateKey.key)
+        val map = duplicates[transactionDuplicateKey.transactionType] ?: return
+        if (transactionDuplicateKey != TransactionDuplicationKey.IS_ALWAYS_DUPLICATE && transactionDuplicateKey != TransactionDuplicationKey.IS_NEVER_DUPLICATE && duplicates.containsKey(transactionDuplicateKey.transactionType) && map[transactionDuplicateKey.key] == transaction) {
+            map.remove(transactionDuplicateKey.key)
         }
     }
 }

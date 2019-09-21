@@ -35,7 +35,7 @@ class AtControllerTest {
         val atBlock = AtController.getCurrentBlockATs(Integer.MAX_VALUE, Integer.MAX_VALUE)
         assertNotNull(atBlock)
         assertNotNull(atBlock.bytesForBlock)
-        assertEquals("010000000000000097c1d1e5b25c1d109f2ba522d1dda248020000000000000014ea12712c274caebc49ccd7fff0b0b703000000000000009f1af5443c8d1e7b492f848e91fccb1f", Convert.toHexString(atBlock.bytesForBlock))
+        assertEquals("010000000000000097c1d1e5b25c1d109f2ba522d1dda248020000000000000014ea12712c274caebc49ccd7fff0b0b703000000000000009f1af5443c8d1e7b492f848e91fccb1f", atBlock.bytesForBlock.toHexString())
     }
 
     @Test
@@ -46,7 +46,7 @@ class AtControllerTest {
         AtTestHelper.addEchoAT()
         AtTestHelper.addTipThanksAT()
         assertEquals(3, AT.getOrderedATs().size.toLong())
-        val atBlock = AtController.validateATs(Convert.parseHexString("010000000000000097c1d1e5b25c1d109f2ba522d1dda248020000000000000014ea12712c274caebc49ccd7fff0b0b703000000000000009f1af5443c8d1e7b492f848e91fccb1f"), Integer.MAX_VALUE)
+        val atBlock = AtController.validateATs(Convert."010000000000000097c1d1e5b25c1d109f2ba522d1dda248020000000000000014ea12712c274caebc49ccd7fff0b0b703000000000000009f1af5443c8d1e7b492f848e91fccb1f"), Integer.MAX_VALUE.parseHexString()
         assertNotNull(atBlock)
         assertEquals(0, atBlock.totalAmount)
         assertEquals(5439000, atBlock.totalFees)

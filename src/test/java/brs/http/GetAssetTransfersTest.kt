@@ -17,7 +17,6 @@ import org.junit.Before
 import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
@@ -50,7 +49,7 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         val lastIndex = 1
         val includeAssetInfo = true
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ASSET_PARAMETER, assetId),
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, lastIndex),
@@ -63,11 +62,11 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         val mockAssetTransfer = mock<AssetTransfer>()
         val mockAssetTransferIterator = mockCollection<AssetTransfer>(mockAssetTransfer)
 
-        whenever(mockParameterService!!.getAsset(eq<HttpServletRequest>(req))).doReturn(mockAsset)
+        whenever(mockParameterService!!.getAsset(eq<HttpServletRequest>(request))).doReturn(mockAsset)
 
         whenever(mockAssetExchange!!.getAssetTransfers(eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockAssetTransferIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
     }
 
@@ -79,7 +78,7 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         val lastIndex = 1
         val includeAssetInfo = true
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ACCOUNT_PARAMETER, accountId),
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, lastIndex),
@@ -92,11 +91,11 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         val mockAssetTransfer = mock<AssetTransfer>()
         val mockAssetTransferIterator = mockCollection<AssetTransfer>(mockAssetTransfer)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
 
         whenever(mockAccountService!!.getAssetTransfers(eq(accountId), eq(firstIndex), eq(lastIndex))).doReturn(mockAssetTransferIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
     }
 
@@ -109,7 +108,7 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         val lastIndex = 1
         val includeAssetInfo = true
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ASSET_PARAMETER, assetId),
                 MockParam(ACCOUNT_PARAMETER, accountId),
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
@@ -128,14 +127,14 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         whenever(mockAssetTransfer.assetId).doReturn(assetId)
         val mockAssetTransferIterator = mockCollection<AssetTransfer>(mockAssetTransfer)
 
-        whenever(mockParameterService!!.getAsset(eq<HttpServletRequest>(req))).doReturn(mockAsset)
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getAsset(eq<HttpServletRequest>(request))).doReturn(mockAsset)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
 
         whenever(mockAssetExchange!!.getAsset(eq(mockAssetTransfer.assetId))).doReturn(mockAsset)
 
         whenever(mockAssetExchange!!.getAccountAssetTransfers(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockAssetTransferIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val resultList = result.get(TRANSFERS_RESPONSE) as JsonArray

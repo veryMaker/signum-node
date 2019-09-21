@@ -5,16 +5,14 @@ import brs.TransactionType.Payment
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
 import brs.transactionduplicates.TransactionDuplicationKey
-import brs.util.atomic.Atomic
-import brs.util.atomic.AtomicLazy
-import brs.util.Convert
-import brs.util.JSON
+import brs.util.*
+import brs.util.delegates.Atomic
+import brs.util.delegates.AtomicLazy
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.ArrayList
 import java.util.Collections
 import java.util.Optional
 import kotlin.experimental.and
@@ -27,7 +25,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
     val recipientId: Long
     val amountNQT: Long
     val feeNQT: Long
-    val referencedTransactionFullHash: String?
+    val referencedTransactionFullHash: String? // TODO store as byte[], avoid all of the conversions
     lateinit var type: TransactionType
     val ecBlockHeight: Int
     val ecBlockId: Long
@@ -46,7 +44,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
     var signature by Atomic<ByteArray?>()
     var blockTimestamp by Atomic<Int>()
     var id by AtomicLazy { Convert.fullHashToId(fullHash) }
-    val stringId by AtomicLazy { Convert.toUnsignedLong(id) }
+    val stringId by AtomicLazy { id.toUnsignedString() }
     var senderId by AtomicLazy {
         if (!this::type.isInitialized || type.isSigned) {
             Account.getId(senderPublicKey)
@@ -64,7 +62,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
         } else {
             Crypto.sha256().digest(bytes)
         }
-        Convert.toHexString(bytes)
+        bytes.toHexString()
     }
 
     val expiration: Int
@@ -90,7 +88,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
                     buffer.putLong(amountNQT)
                     buffer.putLong(feeNQT)
                     if (referencedTransactionFullHash != null) {
-                        buffer.put(Convert.parseHexString(referencedTransactionFullHash)!!)
+                        buffer.put(referencedTransactionFullHash.parseHexString())
                     } else {
                         buffer.put(ByteArray(32))
                     }
@@ -98,7 +96,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
                     buffer.putInt((amountNQT / Constants.ONE_BURST).toInt())
                     buffer.putInt((feeNQT / Constants.ONE_BURST).toInt())
                     if (referencedTransactionFullHash != null) {
-                        buffer.putLong(Convert.fullHashToId(Convert.parseHexString(referencedTransactionFullHash)))
+                        buffer.putLong(Convert.fullHashToId(referencedTransactionFullHash.parseHexString()))
                     } else {
                         buffer.putLong(0L)
                     }
@@ -113,7 +111,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
                 return buffer.array()
             } catch (e: RuntimeException) {
                 if (logger.isDebugEnabled) {
-                    logger.debug("Failed to get transaction bytes for transaction: {}", JSON.toJsonString(jsonObject))
+                    logger.debug("Failed to get transaction bytes for transaction: {}", jsonObject.toJsonString())
                 }
                 throw e
             }
@@ -130,9 +128,9 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
             json.addProperty("subtype", type.subtype)
             json.addProperty("timestamp", timestamp)
             json.addProperty("deadline", deadline)
-            json.addProperty("senderPublicKey", Convert.toHexString(senderPublicKey))
+            json.addProperty("senderPublicKey", senderPublicKey.toHexString())
             if (type.hasRecipient()) {
-                json.addProperty("recipient", Convert.toUnsignedLong(recipientId))
+                json.addProperty("recipient", recipientId.toUnsignedString())
             }
             json.addProperty("amountNQT", amountNQT)
             json.addProperty("feeNQT", feeNQT)
@@ -140,10 +138,10 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
                 json.addProperty("referencedTransactionFullHash", referencedTransactionFullHash)
             }
             json.addProperty("ecBlockHeight", ecBlockHeight)
-            json.addProperty("ecBlockId", Convert.toUnsignedLong(ecBlockId))
-            json.addProperty("signature", Convert.toHexString(signature ?: ByteArray(0)))
+            json.addProperty("ecBlockId", ecBlockId.toUnsignedString())
+            json.addProperty("signature", signature?.toHexString() ?: "")
             val attachmentJSON = JsonObject()
-            appendages.forEach { appendage -> JSON.addAll(attachmentJSON, appendage.jsonObject) }
+            appendages.forEach { appendage -> attachmentJSON.addAll(appendage.jsonObject) }
             json.add("attachment", attachmentJSON)
             json.addProperty("version", version)
             return json
@@ -214,7 +212,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
 
         fun referencedTransactionFullHash(referencedTransactionFullHash: ByteArray?): Builder {
             if (referencedTransactionFullHash != null) {
-                this.referencedTransactionFullHash = Convert.toHexString(referencedTransactionFullHash)
+                this.referencedTransactionFullHash = referencedTransactionFullHash.toHexString()
             }
             return this
         }
@@ -271,7 +269,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
 
         fun fullHash(fullHash: ByteArray?): Builder {
             if (fullHash != null) {
-                this.fullHash = Convert.toHexString(fullHash)
+                this.fullHash = fullHash.toHexString()
             }
             return this
         }
@@ -331,7 +329,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
         if (encryptToSelfMessage != null) {
             list.add(this.encryptToSelfMessage)
         }
-        this.appendages = Collections.unmodifiableList(list)
+        this.appendages = list
         var countAppendeges = 0
         for (appendage in appendages) {
             countAppendeges += appendage.size
@@ -456,7 +454,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
                 val referencedTransactionFullHashBytes = ByteArray(32)
                 buffer.get(referencedTransactionFullHashBytes)
                 if (Convert.emptyToNull(referencedTransactionFullHashBytes) != null) {
-                    referencedTransactionFullHash = Convert.toHexString(referencedTransactionFullHashBytes)
+                    referencedTransactionFullHash = referencedTransactionFullHashBytes.toHexString()
                 }
                 var signature: ByteArray? = ByteArray(64)
                 buffer.get(signature!!)
@@ -484,12 +482,12 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
                 return builder.build()
             } catch (e: BurstException.NotValidException) {
                 if (logger.isDebugEnabled) {
-                    logger.debug("Failed to parse transaction bytes: {}", Convert.toHexString(bytes))
+                    logger.debug("Failed to parse transaction bytes: {}", bytes.toHexString())
                 }
                 throw e
             } catch (e: RuntimeException) {
                 if (logger.isDebugEnabled) {
-                    logger.debug("Failed to parse transaction bytes: {}", Convert.toHexString(bytes))
+                    logger.debug("Failed to parse transaction bytes: {}", bytes.toHexString())
                 }
                 throw e
             }
@@ -503,11 +501,11 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
                 val subtype = JSON.getAsByte(transactionData.get("subtype"))
                 val timestamp = JSON.getAsInt(transactionData.get("timestamp"))
                 val deadline = JSON.getAsShort(transactionData.get("deadline"))
-                val senderPublicKey = Convert.parseHexString(JSON.getAsString(transactionData.get("senderPublicKey")))
+                val senderPublicKey = JSON.getAsString(transactionData.get("senderPublicKey")).parseHexString()
                 val amountNQT = JSON.getAsLong(transactionData.get("amountNQT"))
                 val feeNQT = JSON.getAsLong(transactionData.get("feeNQT"))
                 val referencedTransactionFullHash = JSON.getAsString(transactionData.get("referencedTransactionFullHash"))
-                val signature = Convert.parseHexString(JSON.getAsString(transactionData.get("signature")))
+                val signature = JSON.getAsString(transactionData.get("signature")).parseHexString()
                 val version = JSON.getAsByte(transactionData.get("version"))
                 val attachmentData = JSON.getAsJsonObject(transactionData.get("attachment"))
 
@@ -518,7 +516,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
                         .signature(signature)
                         .height(height)
                 if (transactionType.hasRecipient()) {
-                    val recipientId = Convert.parseUnsignedLong(JSON.getAsString(transactionData.get("recipient")))
+                    val recipientId = JSON.getAsString(transactionData.get("recipient")).parseUnsignedLong()
                     builder.recipientId(recipientId)
                 }
 
@@ -526,17 +524,17 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
 
                 if (version > 0) {
                     builder.ecBlockHeight(JSON.getAsInt(transactionData.get("ecBlockHeight")))
-                    builder.ecBlockId(Convert.parseUnsignedLong(JSON.getAsString(transactionData.get("ecBlockId"))))
+                    builder.ecBlockId(JSON.getAsString(transactionData.get("ecBlockId")).parseUnsignedLong())
                 }
                 return builder.build()
             } catch (e: BurstException.NotValidException) {
                 if (logger.isDebugEnabled) {
-                    logger.debug("Failed to parse transaction: {}", JSON.toJsonString(transactionData))
+                    logger.debug("Failed to parse transaction: {}", transactionData.toJsonString())
                 }
                 throw e
             } catch (e: RuntimeException) {
                 if (logger.isDebugEnabled) {
-                    logger.debug("Failed to parse transaction: {}", JSON.toJsonString(transactionData))
+                    logger.debug("Failed to parse transaction: {}", transactionData.toJsonString())
                 }
                 throw e
             }

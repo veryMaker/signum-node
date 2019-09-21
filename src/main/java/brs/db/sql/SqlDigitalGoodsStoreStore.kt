@@ -1,25 +1,28 @@
 package brs.db.sql
 
-import brs.Burst
 import brs.DependencyProvider
 import brs.DigitalGoodsStore
 import brs.crypto.EncryptedData
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.db.VersionedValuesTable
-import brs.db.store.DerivedTableManager
 import brs.db.store.DigitalGoodsStoreStore
+import brs.schema.Tables.*
+import brs.schema.tables.records.GoodsRecord
+import brs.schema.tables.records.PurchaseFeedbackRecord
+import brs.schema.tables.records.PurchasePublicFeedbackRecord
+import brs.schema.tables.records.PurchaseRecord
 import org.jooq.DSLContext
 import org.jooq.Field
 import org.jooq.Record
 import org.jooq.SortField
 
-import java.util.ArrayList
-
-import brs.schema.Tables.*
-import brs.schema.tables.records.PurchaseFeedbackRecord
-
 class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoodsStoreStore {
+    override val feedbackDbKeyFactory = object : DbKey.LongKeyFactory<DigitalGoodsStore.Purchase>(PURCHASE.ID) {
+        override fun newKey(purchase: DigitalGoodsStore.Purchase): BurstKey {
+            return purchase.dbKey
+        }
+    }
 
     override val purchaseDbKeyFactory: BurstKey.LongKeyFactory<DigitalGoodsStore.Purchase> = object : DbKey.LongKeyFactory<DigitalGoodsStore.Purchase>(PURCHASE.ID) {
         override fun newKey(purchase: DigitalGoodsStore.Purchase): BurstKey {
@@ -132,12 +135,8 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
     }
 
     private fun loadEncryptedData(record: Record, dataField: Field<ByteArray>, nonceField: Field<ByteArray>): EncryptedData? {
-        val data = record.get(dataField) ?: return null
+        val data = record.get(dataField) ?: return null // TODO
         return EncryptedData(data, record.get(nonceField))
-    }
-
-    override fun getFeedbackDbKeyFactory(): BurstKey.LongKeyFactory<DigitalGoodsStore.Purchase> {
-        return feedbackDbKeyFactory
     }
 
     private fun saveGoods(ctx: DSLContext, goods: DigitalGoodsStore.Goods) {
@@ -215,18 +214,7 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
         return if (purchase == null || !purchase.isPending) null else purchase
     }
 
+    private inner class SQLGoods internal constructor(record: Record) : DigitalGoodsStore.Goods(record.get(GOODS.ID), goodsDbKeyFactory.newKey(record.get(GOODS.ID)), record.get(GOODS.SELLER_ID), record.get(GOODS.NAME), record.get(GOODS.DESCRIPTION), record.get(GOODS.TAGS), record.get(GOODS.TIMESTAMP), record.get(GOODS.QUANTITY), record.get(GOODS.PRICE), record.get(GOODS.DELISTED))
 
-    private inner class SQLGoods private constructor(record: Record) : DigitalGoodsStore.Goods(record.get(GOODS.ID), goodsDbKeyFactory.newKey(record.get(GOODS.ID)), record.get(GOODS.SELLER_ID), record.get(GOODS.NAME), record.get(GOODS.DESCRIPTION), record.get(GOODS.TAGS), record.get(GOODS.TIMESTAMP), record.get(GOODS.QUANTITY), record.get(GOODS.PRICE), record.get(GOODS.DELISTED))
-
-    internal inner class SQLPurchase(record: Record) : DigitalGoodsStore.Purchase(dp, record.get(PURCHASE.ID), purchaseDbKeyFactory.newKey(record.get(PURCHASE.ID)), record.get(PURCHASE.BUYER_ID), record.get(PURCHASE.GOODS_ID), record.get(PURCHASE.SELLER_ID), record.get(PURCHASE.QUANTITY), record.get(PURCHASE.PRICE), record.get(PURCHASE.DEADLINE), loadEncryptedData(record, PURCHASE.NOTE, PURCHASE.NONCE), record.get(PURCHASE.TIMESTAMP), record.get(PURCHASE.PENDING), loadEncryptedData(record, PURCHASE.GOODS, PURCHASE.GOODS_NONCE), loadEncryptedData(record, PURCHASE.REFUND_NOTE, PURCHASE.REFUND_NONCE), record.get(PURCHASE.HAS_FEEDBACK_NOTES), record.get(PURCHASE.HAS_PUBLIC_FEEDBACKS), record.get(PURCHASE.DISCOUNT), record.get(PURCHASE.REFUND))
-
-    companion object {
-
-        private val feedbackDbKeyFactory = object : DbKey.LongKeyFactory<DigitalGoodsStore.Purchase>(PURCHASE.ID) {
-            override fun newKey(purchase: DigitalGoodsStore.Purchase): BurstKey {
-                return purchase.dbKey
-            }
-        }
-    }
-
+    internal inner class SQLPurchase(record: Record) : DigitalGoodsStore.Purchase(dp, record.get(PURCHASE.ID), purchaseDbKeyFactory.newKey(record.get(PURCHASE.ID)), record.get(PURCHASE.BUYER_ID), record.get(PURCHASE.GOODS_ID), record.get(PURCHASE.SELLER_ID), record.get(PURCHASE.QUANTITY), record.get(PURCHASE.PRICE), record.get(PURCHASE.DEADLINE), loadEncryptedData(record, PURCHASE.NOTE, PURCHASE.NONCE)!! , record.get(PURCHASE.TIMESTAMP), record.get(PURCHASE.PENDING), loadEncryptedData(record, PURCHASE.GOODS, PURCHASE.GOODS_NONCE), loadEncryptedData(record, PURCHASE.REFUND_NOTE, PURCHASE.REFUND_NONCE), record.get(PURCHASE.HAS_FEEDBACK_NOTES), record.get(PURCHASE.HAS_PUBLIC_FEEDBACKS), record.get(PURCHASE.DISCOUNT), record.get(PURCHASE.REFUND))
 }

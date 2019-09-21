@@ -26,4 +26,4 @@ object DbUtils {
             query.addOffset(from)
         }
     }
-}// never
+}

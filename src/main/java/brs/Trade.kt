@@ -1,7 +1,7 @@
 package brs
 
 import brs.db.BurstKey
-import brs.util.Convert
+import brs.util.toUnsignedString
 
 open class Trade {
 
@@ -61,8 +61,7 @@ open class Trade {
     }
 
     override fun toString(): String {
-        return ("Trade asset: " + Convert.toUnsignedLong(assetId) + " ask: " + Convert.toUnsignedLong(askOrderId)
-                + " bid: " + Convert.toUnsignedLong(bidOrderId) + " price: " + priceNQT + " quantity: " + quantityQNT + " height: " + height)
+        return "Trade asset: ${assetId.toUnsignedString()} ask: ${askOrderId.toUnsignedString()} bid: ${bidOrderId.toUnsignedString()} price: $priceNQT quantity: $quantityQNT height: $height"
     }
 
 }

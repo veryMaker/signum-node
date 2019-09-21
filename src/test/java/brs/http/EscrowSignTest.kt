@@ -54,7 +54,7 @@ class EscrowSignTest : AbstractTransactionTest() {
         val escrowId: Long = 5
         val senderId: Long = 6
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ESCROW_PARAMETER, escrowId),
                 MockParam(DECISION_PARAMETER, "release")
         )
@@ -69,9 +69,9 @@ class EscrowSignTest : AbstractTransactionTest() {
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
         whenever(escrowServiceMock!!.getEscrowTransaction(eq(escrowId))).doReturn(escrow)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(sender)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(sender)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) },
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) },
                 apiTransactionManagerMock!!) as Attachment.AdvancedPaymentEscrowSign
         assertNotNull(attachment)
 
@@ -85,7 +85,7 @@ class EscrowSignTest : AbstractTransactionTest() {
         val escrowId: Long = 5
         val senderId: Long = 6
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ESCROW_PARAMETER, escrowId),
                 MockParam(DECISION_PARAMETER, "refund")
         )
@@ -98,11 +98,11 @@ class EscrowSignTest : AbstractTransactionTest() {
         whenever(sender.id).doReturn(senderId)
 
         whenever(escrowServiceMock!!.getEscrowTransaction(eq(escrowId))).doReturn(escrow)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(sender)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(sender)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) },
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) },
                 apiTransactionManagerMock!!) as Attachment.AdvancedPaymentEscrowSign
         assertNotNull(attachment)
 
@@ -116,7 +116,7 @@ class EscrowSignTest : AbstractTransactionTest() {
         val escrowId: Long = 5
         val senderId: Long = 6
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ESCROW_PARAMETER, escrowId),
                 MockParam(DECISION_PARAMETER, "refund")
         )
@@ -133,9 +133,9 @@ class EscrowSignTest : AbstractTransactionTest() {
         whenever(escrowServiceMock!!.isIdSigner(eq(senderId), eq(escrow))).doReturn(true)
 
         whenever(escrowServiceMock!!.getEscrowTransaction(eq(escrowId))).doReturn(escrow)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(sender)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(sender)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) },
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) },
                 apiTransactionManagerMock!!) as Attachment.AdvancedPaymentEscrowSign
         assertNotNull(attachment)
 
@@ -146,11 +146,11 @@ class EscrowSignTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_invalidEscrowId() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ESCROW_PARAMETER, "NotANumber")
         )
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertEquals(3, JSON.getAsInt(result.get(ERROR_CODE_RESPONSE)).toLong())
     }
@@ -160,13 +160,13 @@ class EscrowSignTest : AbstractTransactionTest() {
     fun processRequest_escrowNotFound() {
         val escrowId: Long = 5
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ESCROW_PARAMETER, escrowId)
         )
 
         whenever(escrowServiceMock!!.getEscrowTransaction(eq(escrowId))).doReturn(null)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertEquals(5, JSON.getAsInt(result.get(ERROR_CODE_RESPONSE)).toLong())
     }
@@ -176,7 +176,7 @@ class EscrowSignTest : AbstractTransactionTest() {
     fun processRequest_invalidDecisionType() {
         val escrowId: Long = 5
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ESCROW_PARAMETER, escrowId),
                 MockParam(DECISION_PARAMETER, "notADecisionValue")
         )
@@ -185,7 +185,7 @@ class EscrowSignTest : AbstractTransactionTest() {
 
         whenever(escrowServiceMock!!.getEscrowTransaction(eq(escrowId))).doReturn(escrow)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertEquals(5, JSON.getAsInt(result.get(ERROR_CODE_RESPONSE)).toLong())
     }
@@ -196,7 +196,7 @@ class EscrowSignTest : AbstractTransactionTest() {
         val escrowId: Long = 5
         val senderId: Long = 6
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ESCROW_PARAMETER, escrowId),
                 MockParam(DECISION_PARAMETER, "refund")
         )
@@ -211,9 +211,9 @@ class EscrowSignTest : AbstractTransactionTest() {
         whenever(sender.id).doReturn(senderId)
 
         whenever(escrowServiceMock!!.getEscrowTransaction(eq(escrowId))).doReturn(escrow)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(sender)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(sender)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertEquals(5, JSON.getAsInt(result.get(ERROR_CODE_RESPONSE)).toLong())
     }
@@ -224,7 +224,7 @@ class EscrowSignTest : AbstractTransactionTest() {
         val escrowId: Long = 5
         val senderId: Long = 6
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ESCROW_PARAMETER, escrowId),
                 MockParam(DECISION_PARAMETER, "refund")
         )
@@ -236,9 +236,9 @@ class EscrowSignTest : AbstractTransactionTest() {
         whenever(sender.id).doReturn(senderId)
 
         whenever(escrowServiceMock!!.getEscrowTransaction(eq(escrowId))).doReturn(escrow)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(sender)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(sender)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertEquals(4, JSON.getAsInt(result.get(ERROR_CODE_RESPONSE)).toLong())
     }
@@ -249,7 +249,7 @@ class EscrowSignTest : AbstractTransactionTest() {
         val escrowId: Long = 5
         val senderId: Long = 6
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ESCROW_PARAMETER, escrowId),
                 MockParam(DECISION_PARAMETER, "release")
         )
@@ -261,9 +261,9 @@ class EscrowSignTest : AbstractTransactionTest() {
         whenever(sender.id).doReturn(senderId)
 
         whenever(escrowServiceMock!!.getEscrowTransaction(eq(escrowId))).doReturn(escrow)
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(sender)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(sender)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertEquals(4, JSON.getAsInt(result.get(ERROR_CODE_RESPONSE)).toLong())
     }

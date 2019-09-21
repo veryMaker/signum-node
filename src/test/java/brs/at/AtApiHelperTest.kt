@@ -15,14 +15,14 @@ class AtApiHelperTest {
     @Test
     fun testGetLong() {
         assertEquals(0x0000000000000000L, AtApiHelper.getLong(ByteArray(0)))
-        assertEquals(0x0000000000000001L, AtApiHelper.getLong(Convert.parseHexString("0100000000000000")!!))
-        assertEquals(0x0000000000002301L, AtApiHelper.getLong(Convert.parseHexString("0123000000000000")!!))
-        assertEquals(0x0000000000452301L, AtApiHelper.getLong(Convert.parseHexString("0123450000000000")!!))
-        assertEquals(0x0000000067452301L, AtApiHelper.getLong(Convert.parseHexString("0123456700000000")!!))
-        assertEquals(0x0000008967452301L, AtApiHelper.getLong(Convert.parseHexString("0123456789000000")!!))
-        assertEquals(0x0000ab8967452301L, AtApiHelper.getLong(Convert.parseHexString("0123456789ab0000")!!))
-        assertEquals(0x00cdab8967452301L, AtApiHelper.getLong(Convert.parseHexString("0123456789abcd00")!!))
-        assertEquals(-0x1032547698badcffL, AtApiHelper.getLong(Convert.parseHexString("0123456789abcdef")!!))
+        assertEquals(0x0000000000000001L, AtApiHelper.getLong(Convert."0100000000000000")!!).parseHexString()
+        assertEquals(0x0000000000002301L, AtApiHelper.getLong(Convert."0123000000000000")!!).parseHexString()
+        assertEquals(0x0000000000452301L, AtApiHelper.getLong(Convert."0123450000000000")!!).parseHexString()
+        assertEquals(0x0000000067452301L, AtApiHelper.getLong(Convert."0123456700000000")!!).parseHexString()
+        assertEquals(0x0000008967452301L, AtApiHelper.getLong(Convert."0123456789000000")!!).parseHexString()
+        assertEquals(0x0000ab8967452301L, AtApiHelper.getLong(Convert."0123456789ab0000")!!).parseHexString()
+        assertEquals(0x00cdab8967452301L, AtApiHelper.getLong(Convert."0123456789abcd00")!!).parseHexString()
+        assertEquals(-0x1032547698badcffL, AtApiHelper.getLong(Convert."0123456789abcdef")!!).parseHexString()
     }
 
     @Test(expected = NullPointerException::class)
@@ -34,33 +34,33 @@ class AtApiHelperTest {
     @Test(expected = BufferOverflowException::class)
     fun testGetLong_overflow() {
 
-        AtApiHelper.getLong(Convert.parseHexString("0123456789abcdef0123456789abcdef")!!)
+        AtApiHelper.getLong(Convert."0123456789abcdef0123456789abcdef")!!.parseHexString()
     }
 
     @Test
     fun testGetByteArray_long() {
-        assertEquals("0100000000000000", Convert.toHexString(AtApiHelper.getByteArray(0x0000000000000001L)))
-        assertEquals("0123000000000000", Convert.toHexString(AtApiHelper.getByteArray(0x0000000000002301L)))
-        assertEquals("0123450000000000", Convert.toHexString(AtApiHelper.getByteArray(0x0000000000452301L)))
-        assertEquals("0123456700000000", Convert.toHexString(AtApiHelper.getByteArray(0x0000000067452301L)))
-        assertEquals("0123456789000000", Convert.toHexString(AtApiHelper.getByteArray(0x0000008967452301L)))
-        assertEquals("0123456789ab0000", Convert.toHexString(AtApiHelper.getByteArray(0x0000ab8967452301L)))
-        assertEquals("0123456789abcd00", Convert.toHexString(AtApiHelper.getByteArray(0x00cdab8967452301L)))
-        assertEquals("0123456789abcdef", Convert.toHexString(AtApiHelper.getByteArray(-0x1032547698badcffL)))
+        assertEquals("0100000000000000", AtApiHelper.getByteArray(0x0000000000000001L)).toHexString()
+        assertEquals("0123000000000000", AtApiHelper.getByteArray(0x0000000000002301L)).toHexString()
+        assertEquals("0123450000000000", AtApiHelper.getByteArray(0x0000000000452301L)).toHexString()
+        assertEquals("0123456700000000", AtApiHelper.getByteArray(0x0000000067452301L)).toHexString()
+        assertEquals("0123456789000000", AtApiHelper.getByteArray(0x0000008967452301L)).toHexString()
+        assertEquals("0123456789ab0000", AtApiHelper.getByteArray(0x0000ab8967452301L)).toHexString()
+        assertEquals("0123456789abcd00", AtApiHelper.getByteArray(0x00cdab8967452301L)).toHexString()
+        assertEquals("0123456789abcdef", AtApiHelper.getByteArray(-0x1032547698badcffL)).toHexString()
     }
 
     @Test
     fun testGetByteArray_bigInteger() {
-        assertEquals("0100000000000000000000000000000000000000000000000000000000000000", Convert.toHexString(AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000000001L))))
-        assertEquals("0123000000000000000000000000000000000000000000000000000000000000", Convert.toHexString(AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000002301L))))
-        assertEquals("0123450000000000000000000000000000000000000000000000000000000000", Convert.toHexString(AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000452301L))))
-        assertEquals("0123456700000000000000000000000000000000000000000000000000000000", Convert.toHexString(AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000067452301L))))
-        assertEquals("0123456789000000000000000000000000000000000000000000000000000000", Convert.toHexString(AtApiHelper.getByteArray(BigInteger.valueOf(0x0000008967452301L))))
-        assertEquals("0123456789ab0000000000000000000000000000000000000000000000000000", Convert.toHexString(AtApiHelper.getByteArray(BigInteger.valueOf(0x0000ab8967452301L))))
-        assertEquals("0123456789abcd00000000000000000000000000000000000000000000000000", Convert.toHexString(AtApiHelper.getByteArray(BigInteger.valueOf(0x00cdab8967452301L))))
-        assertEquals("0123456789abcdefffffffffffffffffffffffffffffffffffffffffffffffff", Convert.toHexString(AtApiHelper.getByteArray(BigInteger.valueOf(-0x1032547698badcffL))))
-        assertEquals("0123456789abcdef0123456789abcdef00000000000000000000000000000000", Convert.toHexString(AtApiHelper.getByteArray(BigInteger("efcdab8967452301efcdab8967452301", 16))))
-        assertEquals("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", Convert.toHexString(AtApiHelper.getByteArray(BigInteger("efcdab8967452301efcdab8967452301efcdab8967452301efcdab8967452301", 16))))
+        assertEquals("0100000000000000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000000001L))).toHexString()
+        assertEquals("0123000000000000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000002301L))).toHexString()
+        assertEquals("0123450000000000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000452301L))).toHexString()
+        assertEquals("0123456700000000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000067452301L))).toHexString()
+        assertEquals("0123456789000000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000008967452301L))).toHexString()
+        assertEquals("0123456789ab0000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000ab8967452301L))).toHexString()
+        assertEquals("0123456789abcd00000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x00cdab8967452301L))).toHexString()
+        assertEquals("0123456789abcdefffffffffffffffffffffffffffffffffffffffffffffffff", AtApiHelper.getByteArray(BigInteger.valueOf(-0x1032547698badcffL))).toHexString()
+        assertEquals("0123456789abcdef0123456789abcdef00000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger("efcdab8967452301efcdab8967452301", 16))).toHexString()
+        assertEquals("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", AtApiHelper.getByteArray(BigInteger("efcdab8967452301efcdab8967452301efcdab8967452301efcdab8967452301", 16))).toHexString()
     }
 
     @Test(expected = NullPointerException::class)
@@ -111,44 +111,44 @@ class AtApiHelperTest {
 
     @Test
     fun testGetBigInteger() {
-        assertEquals(BigInteger(Convert.parseHexString("0000000000000000000000000000000000000000000000000000000000000012")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("0000000000000000")!!, Convert.parseHexString("0000000000000000")!!, Convert.parseHexString("0000000000000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000000000000000000000000000000000000000000120000000000000012")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("0000000000000000")!!, Convert.parseHexString("0000000000000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000000000000000000000000001200000000000000120000000000000012")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("0000000000000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000000000012000000000000001200000000000000120000000000000012")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!))
+        assertEquals(BigInteger(Convert."0000000000000000000000000000000000000000000000000000000000000012")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("0000000000000000")!!, Convert.parseHexString("0000000000000000")!!, Convert.parseHexString("0000000000000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000000000000000000000000000000000000000000120000000000000012")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("0000000000000000")!!, Convert.parseHexString("0000000000000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000000000000000000000000001200000000000000120000000000000012")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("0000000000000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000000000012000000000000001200000000000000120000000000000012")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!).parseHexString()
 
-        assertEquals(BigInteger(Convert.parseHexString("0000000000000012000000000000001200000000000000120000000000003412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000000000012000000000000001200000000000034120000000000003412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000000000012000000000000341200000000000034120000000000003412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1200000000000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000000003412000000000000341200000000000034120000000000003412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!))
+        assertEquals(BigInteger(Convert."0000000000000012000000000000001200000000000000120000000000003412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000000000012000000000000001200000000000034120000000000003412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1200000000000000")!!, Convert.parseHexString("1200000000000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000000000012000000000000341200000000000034120000000000003412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1200000000000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000000003412000000000000341200000000000034120000000000003412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!).parseHexString()
 
-        assertEquals(BigInteger(Convert.parseHexString("0000000000003412000000000000341200000000000034120000000000563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000000003412000000000000341200000000005634120000000000563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000000003412000000000056341200000000005634120000000000563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234000000000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000000563412000000000056341200000000005634120000000000563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!))
+        assertEquals(BigInteger(Convert."0000000000003412000000000000341200000000000034120000000000563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000000003412000000000000341200000000005634120000000000563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234000000000000")!!, Convert.parseHexString("1234000000000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000000003412000000000056341200000000005634120000000000563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234000000000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000000563412000000000056341200000000005634120000000000563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!).parseHexString()
 
-        assertEquals(BigInteger(Convert.parseHexString("0000000000563412000000000056341200000000005634120000000078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000000563412000000000056341200000000785634120000000078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000000563412000000007856341200000000785634120000000078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234560000000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000078563412000000007856341200000000785634120000000078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!))
+        assertEquals(BigInteger(Convert."0000000000563412000000000056341200000000005634120000000078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000000563412000000000056341200000000785634120000000078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234560000000000")!!, Convert.parseHexString("1234560000000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000000563412000000007856341200000000785634120000000078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234560000000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000078563412000000007856341200000000785634120000000078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!).parseHexString()
 
-        assertEquals(BigInteger(Convert.parseHexString("0000000078563412000000007856341200000000785634120000009078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000078563412000000007856341200000090785634120000009078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000000078563412000000907856341200000090785634120000009078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567800000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000009078563412000000907856341200000090785634120000009078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!))
+        assertEquals(BigInteger(Convert."0000000078563412000000007856341200000000785634120000009078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000078563412000000007856341200000090785634120000009078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567800000000")!!, Convert.parseHexString("1234567800000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000000078563412000000907856341200000090785634120000009078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567800000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000009078563412000000907856341200000090785634120000009078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!).parseHexString()
 
-        assertEquals(BigInteger(Convert.parseHexString("0000009078563412000000907856341200000090785634120000ab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("000000907856341200000090785634120000ab90785634120000ab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("00000090785634120000ab90785634120000ab90785634120000ab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890000000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000ab90785634120000ab90785634120000ab90785634120000ab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!))
+        assertEquals(BigInteger(Convert."0000009078563412000000907856341200000090785634120000ab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."000000907856341200000090785634120000ab90785634120000ab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890000000")!!, Convert.parseHexString("1234567890000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."00000090785634120000ab90785634120000ab90785634120000ab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890000000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000ab90785634120000ab90785634120000ab90785634120000ab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!).parseHexString()
 
-        assertEquals(BigInteger(Convert.parseHexString("0000ab90785634120000ab90785634120000ab907856341200cdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000ab90785634120000ab907856341200cdab907856341200cdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("0000ab907856341200cdab907856341200cdab907856341200cdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890ab0000")!!))
-        assertEquals(BigInteger(Convert.parseHexString("00cdab907856341200cdab907856341200cdab907856341200cdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!))
+        assertEquals(BigInteger(Convert."0000ab90785634120000ab90785634120000ab907856341200cdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000ab90785634120000ab907856341200cdab907856341200cdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890ab0000")!!, Convert.parseHexString("1234567890ab0000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."0000ab907856341200cdab907856341200cdab907856341200cdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890ab0000")!!).parseHexString()
+        assertEquals(BigInteger(Convert."00cdab907856341200cdab907856341200cdab907856341200cdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!).parseHexString()
 
-        assertEquals(BigInteger(Convert.parseHexString("00cdab907856341200cdab907856341200cdab9078563412efcdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!))
-        assertEquals(BigInteger(Convert.parseHexString("00cdab907856341200cdab9078563412efcdab9078563412efcdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!))
-        assertEquals(BigInteger(Convert.parseHexString("00cdab9078563412efcdab9078563412efcdab9078563412efcdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcd00")!!))
-        assertEquals(BigInteger(Convert.parseHexString("efcdab9078563412efcdab9078563412efcdab9078563412efcdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcdef")!!))
+        assertEquals(BigInteger(Convert."00cdab907856341200cdab907856341200cdab9078563412efcdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!).parseHexString()
+        assertEquals(BigInteger(Convert."00cdab907856341200cdab9078563412efcdab9078563412efcdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcd00")!!, Convert.parseHexString("1234567890abcd00")!!).parseHexString()
+        assertEquals(BigInteger(Convert."00cdab9078563412efcdab9078563412efcdab9078563412efcdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcd00")!!).parseHexString()
+        assertEquals(BigInteger(Convert."efcdab9078563412efcdab9078563412efcdab9078563412efcdab9078563412")!!), AtApiHelper.getBigInteger(Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcdef")!!, Convert.parseHexString("1234567890abcdef")!!).parseHexString()
     }
 }

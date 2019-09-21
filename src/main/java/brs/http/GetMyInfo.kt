@@ -5,19 +5,11 @@ import com.google.gson.JsonObject
 
 import javax.servlet.http.HttpServletRequest
 
-internal class GetMyInfo private constructor() : APIServlet.JsonRequestHandler(arrayOf(APITag.INFO)) {
-
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
-
+internal object GetMyInfo : APIServlet.JsonRequestHandler(arrayOf(APITag.INFO)) {
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
-        response.addProperty("host", req.remoteHost)
-        response.addProperty("address", req.remoteAddr)
+        response.addProperty("host", request.remoteHost)
+        response.addProperty("address", request.remoteAddr)
         return response
     }
-
-    companion object {
-
-        val instance = GetMyInfo()
-    }
-
 }

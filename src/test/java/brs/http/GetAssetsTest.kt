@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest
 import brs.http.JSONResponses.INCORRECT_ASSET
 import brs.http.JSONResponses.UNKNOWN_ASSET
 import brs.http.common.Parameters.ASSETS_PARAMETER
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
@@ -39,8 +38,8 @@ class GetAssetsTest {
     fun processRequest() {
         val assetId = 123L
 
-        val req = QuickMocker.httpServletRequest()
-        whenever(req.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf("" + assetId, ""))
+        val request = QuickMocker.httpServletRequest()
+        whenever(request.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf("" + assetId, ""))
 
         val mockTradeCount = 1
         val mockTransferCount = 2
@@ -55,7 +54,7 @@ class GetAssetsTest {
         whenever(mockAssetExchange!!.getTransferCount(eq(assetId))).doReturn(mockTransferCount)
         whenever(mockAssetExchange!!.getAssetAccountsCount(eq(assetId))).doReturn(mockAccountsCount)
 
-        val response = t!!.processRequest(req) as JsonObject
+        val response = t!!.processRequest(request) as JsonObject
         assertNotNull(response)
 
         val responseList = response.get(ASSETS_RESPONSE) as JsonArray
@@ -73,21 +72,21 @@ class GetAssetsTest {
     fun processRequest_unknownAsset() {
         val assetId = 123L
 
-        val req = QuickMocker.httpServletRequest()
-        whenever(req.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf(assetId.toString()))
+        val request = QuickMocker.httpServletRequest()
+        whenever(request.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf(assetId.toString()))
 
         whenever(mockAssetExchange!!.getAsset(eq(assetId))).doReturn(null)
 
-        assertEquals(UNKNOWN_ASSET, t!!.processRequest(req))
+        assertEquals(UNKNOWN_ASSET, t!!.processRequest(request))
     }
 
     @Test
     fun processRequest_incorrectAsset() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
-        whenever(req.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf("unParsable"))
+        whenever(request.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf("unParsable"))
 
-        assertEquals(INCORRECT_ASSET, t!!.processRequest(req))
+        assertEquals(INCORRECT_ASSET, t!!.processRequest(request))
     }
 
 }

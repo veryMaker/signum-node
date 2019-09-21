@@ -7,40 +7,39 @@ import com.google.gson.JsonObject
 
 internal class GetInfo(private val timeService: TimeService) : PeerServlet.PeerRequestHandler {
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
-        val peerImpl = peer as PeerImpl // TODO :(
         var announcedAddress = JSON.getAsString(request.get("announcedAddress"))
-        if (announcedAddress != null) {
+        if (announcedAddress.isNotEmpty()) {
             announcedAddress = announcedAddress.trim { it <= ' ' }
-            if (!announcedAddress.isEmpty()) {
-                if (peerImpl.announcedAddress != null && announcedAddress != peerImpl.announcedAddress) {
+            if (announcedAddress.isNotEmpty()) {
+                if (peer.announcedAddress != null && announcedAddress != peer.announcedAddress) {
                     // force verification of changed announced address
-                    peerImpl.state = Peer.State.NON_CONNECTED
+                    peer.state = Peer.State.NON_CONNECTED
                 }
-                peerImpl.announcedAddress = announcedAddress
+                peer.announcedAddress = announcedAddress
             }
         }
         var application = JSON.getAsString(request.get("application"))
-        if (application == null) {
+        if (application.isEmpty()) {
             application = "?"
         }
-        peerImpl.application = application.trim { it <= ' ' }
+        peer.application = application.trim { it <= ' ' }
 
         var version = JSON.getAsString(request.get("version"))
-        if (version == null) {
+        if (version.isEmpty()) {
             version = "?"
         }
-        peerImpl.setVersion(version.trim { it <= ' ' })
+        peer.setVersion(version.trim { it <= ' ' })
 
         var platform = JSON.getAsString(request.get("platform"))
-        if (platform == null) {
+        if (platform.isEmpty()) {
             platform = "?"
         }
-        peerImpl.platform = platform.trim { it <= ' ' }
+        peer.platform = platform.trim { it <= ' ' }
 
-        peerImpl.setShareAddress(java.lang.Boolean.TRUE == JSON.getAsBoolean(request.get("shareAddress")))
-        peerImpl.lastUpdated = timeService.epochTime
+        peer.shareAddress = JSON.getAsBoolean(request.get("shareAddress"))
+        peer.lastUpdated = timeService.epochTime
 
-        Peers.notifyListeners(peerImpl, Peers.Event.ADDED_ACTIVE_PEER)
+        Peers.notifyListeners(peer, Peers.Event.ADDED_ACTIVE_PEER)
 
         return Peers.myPeerInfoResponse
     }

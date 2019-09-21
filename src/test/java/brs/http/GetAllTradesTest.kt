@@ -14,7 +14,6 @@ import org.junit.Before
 import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
 
@@ -38,7 +37,7 @@ class GetAllTradesTest : AbstractUnitTest() {
         val firstIndex = 0
         val lastIndex = 1
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(TIMESTAMP_PARAMETER, timestamp),
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, lastIndex),
@@ -62,7 +61,7 @@ class GetAllTradesTest : AbstractUnitTest() {
         whenever(mockAssetExchange!!.getAllTrades(eq(0), eq(-1))).doReturn(mockTradeIterator)
         whenever(mockAssetExchange!!.getAsset(eq(mockAssetId))).doReturn(mockAsset)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val tradesResult = result.get(TRADES_RESPONSE) as JsonArray
@@ -84,7 +83,7 @@ class GetAllTradesTest : AbstractUnitTest() {
         val firstIndex = 0
         val lastIndex = 1
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(TIMESTAMP_PARAMETER, timestamp),
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, lastIndex),
@@ -102,7 +101,7 @@ class GetAllTradesTest : AbstractUnitTest() {
 
         whenever(mockAssetExchange!!.getAllTrades(eq(0), eq(-1))).doReturn(mockTradeIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val tradesResult = result.get(TRADES_RESPONSE) as JsonArray

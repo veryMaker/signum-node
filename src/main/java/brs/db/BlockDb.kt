@@ -19,7 +19,7 @@ interface BlockDb : Table {
     fun findLastBlock(timestamp: Int): Block?
 
     @Throws(BurstException.ValidationException::class)
-    fun loadBlock(r: BlockRecord): Block?
+    fun loadBlock(r: BlockRecord): Block
 
     fun saveBlock(ctx: DSLContext, block: Block)
 

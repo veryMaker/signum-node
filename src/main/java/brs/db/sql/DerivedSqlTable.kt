@@ -9,7 +9,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 abstract class DerivedSqlTable internal constructor(internal val table: String, internal val tableClass: TableImpl<*>, dp: DependencyProvider) : DerivedTable {
-
     internal val heightField: Field<Int>
     internal val latestField: Field<Boolean>
 
@@ -22,20 +21,20 @@ abstract class DerivedSqlTable internal constructor(internal val table: String, 
 
     override fun rollback(height: Int) {
         check(Db.isInTransaction) { "Not in transaction" }
-        Db.useDSLContext { ctx -> ctx.delete<*>(tableClass).where(heightField.gt(height)).execute() }
+        Db.useDSLContext { ctx -> ctx.delete(tableClass).where(heightField.gt(height)).execute() }
     }
 
     override fun truncate() {
         check(Db.isInTransaction) { "Not in transaction" }
-        Db.useDSLContext { ctx -> ctx.delete<*>(tableClass).execute() }
+        Db.useDSLContext { ctx -> ctx.delete(tableClass).execute() }
     }
 
     override fun trim(height: Int) {
-        //nothing to trim
+        // Nothing to trim
     }
 
     override fun finish() {
-
+        // Nothing to finish
     }
 
     override fun optimize() {

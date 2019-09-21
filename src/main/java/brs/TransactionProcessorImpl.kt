@@ -2,43 +2,29 @@ package brs
 
 import brs.BurstException.ValidationException
 import brs.db.sql.Db
-import brs.db.store.Dbs
 import brs.fluxcapacitor.FluxValues
+import brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
 import brs.peer.Peer
 import brs.peer.Peers
-import brs.props.PropertyService
 import brs.props.Props
-import brs.services.AccountService
-import brs.services.TimeService
-import brs.services.TransactionService
-import brs.unconfirmedtransactions.UnconfirmedTransactionStore
 import brs.util.JSON
 import brs.util.Listeners
-import brs.util.ThreadPool
+import brs.util.isEmpty
+import brs.util.toJsonString
 import com.google.gson.JsonArray
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import java.util.ArrayList
-import java.util.Collections
 import java.util.concurrent.CompletableFuture
-import java.util.function.BiConsumer
-import java.util.function.Consumer
-import java.util.function.Function
-import java.util.stream.Collectors
-
-import brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
+import kotlin.system.exitProcess
 
 class TransactionProcessorImpl(private val dp: DependencyProvider) : TransactionProcessor {
 
-    private val testUnconfirmedTransactions: Boolean
+    private val testUnconfirmedTransactions = dp.propertyService.get(Props.BRS_TEST_UNCONFIRMED_TRANSACTIONS)
 
     private val unconfirmedTransactionsSyncObj = Any()
-    private val transactionListeners = Listeners<List<Transaction>, TransactionProcessor.Event>()
-    private val foodDispenser: Function<Peer, List<Transaction>>
-    private val doneFeedingLog: BiConsumer<Peer, List<Transaction>>
+    private val transactionListeners = Listeners<Collection<Transaction>, TransactionProcessor.Event>()
+    private val foodDispenser: (Peer) -> Collection<Transaction> = { dp.unconfirmedTransactionStore.getAllFor(it) }
+    private val doneFeedingLog: (Peer, Collection<Transaction>) -> Unit = { peer, transactions -> dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions) }
 
     override val allUnconfirmedTransactions: List<Transaction>
         get() = dp.unconfirmedTransactionStore.all
@@ -47,36 +33,20 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         get() = dp.unconfirmedTransactionStore.amount
 
     init {
-
-        this.testUnconfirmedTransactions = dp.propertyService.get(Props.BRS_TEST_UNCONFIRMED_TRANSACTIONS)
-
-        this.foodDispenser = Function { dp.unconfirmedTransactionStore.getAllFor(it) }
-        this.doneFeedingLog = BiConsumer { peer, transactions -> dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions) }
-
-        val getUnconfirmedTransactions = {
+        val getUnconfirmedTransactions: () -> Unit = {
             try {
                 try {
                     synchronized(unconfirmedTransactionsSyncObj) {
-                        val peer = Peers.getAnyPeer(Peer.State.CONNECTED)
-                        if (peer == null) {
-                            return
-                        }
-                        val response = Peers.readUnconfirmedTransactionsNonBlocking(peer).get()
-                        if (response == null) {
-                            return
-                        }
-
+                        val peer = Peers.getAnyPeer(Peer.State.CONNECTED) ?: return@synchronized
+                        val response = Peers.readUnconfirmedTransactionsNonBlocking(peer).get() ?: return@synchronized
                         val transactionsData = JSON.getAsJsonArray(response!!.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
-
-                        if (transactionsData == null || transactionsData.size() == 0) {
-                            return
-                        }
+                        if (transactionsData.isEmpty()) return@synchronized
 
                         try {
                             val addedTransactions = processPeerTransactions(transactionsData, peer)
                             Peers.feedingTime(peer, foodDispenser, doneFeedingLog)
 
-                            if (!addedTransactions.isEmpty()) {
+                            if (addedTransactions.isNotEmpty()) {
                                 val activePrioPlusExtra = Peers.allActivePriorityPlusSomeExtraPeers
                                 activePrioPlusExtra.remove(peer)
 
@@ -99,7 +69,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                                     expectedResults.add(unconfirmedTransactionsResult)
                                 }
 
-                                CompletableFuture.allOf(*expectedResults.toTypedArray<CompletableFuture>()).join()
+                                CompletableFuture.allOf(*expectedResults.toTypedArray()).join()
                             }
                         } catch (e: ValidationException) {
                             peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
@@ -114,21 +84,21 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
 
             } catch (t: Exception) {
                 logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n$t", t)
-                System.exit(1)
+                exitProcess(1)
             }
         }
         dp.threadPool.scheduleThread("PullUnconfirmedTransactions", getUnconfirmedTransactions, 5)
     }
 
-    override fun addListener(listener: Consumer<List<Transaction>>, eventType: TransactionProcessor.Event): Boolean {
+    override fun addListener(listener: (Collection<Transaction>) -> Unit, eventType: TransactionProcessor.Event): Boolean {
         return transactionListeners.addListener(listener, eventType)
     }
 
-    override fun removeListener(listener: Consumer<List<Transaction>>, eventType: TransactionProcessor.Event): Boolean {
+    override fun removeListener(listener: (Collection<Transaction>) -> Unit, eventType: TransactionProcessor.Event): Boolean {
         return transactionListeners.removeListener(listener, eventType)
     }
 
-    override fun notifyListeners(transactions: List<Transaction>, eventType: TransactionProcessor.Event) {
+    override fun notifyListeners(transactions: Collection<Transaction>, eventType: TransactionProcessor.Event) {
         transactionListeners.accept(transactions, eventType)
     }
 
@@ -136,16 +106,16 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         return unconfirmedTransactionsSyncObj
     }
 
-    override fun getAllUnconfirmedTransactionsFor(peer: Peer): List<Transaction> {
+    override fun getAllUnconfirmedTransactionsFor(peer: Peer): Collection<Transaction> {
         return dp.unconfirmedTransactionStore.getAllFor(peer)
     }
 
-    override fun markFingerPrintsOf(peer: Peer, transactions: List<Transaction>) {
+    override fun markFingerPrintsOf(peer: Peer, transactions: Collection<Transaction>) {
         dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions)
     }
 
-    override fun getUnconfirmedTransaction(transactionId: Long): Transaction {
-        return dp.unconfirmedTransactionStore.get(transactionId)
+    override fun getUnconfirmedTransaction(transactionId: Long): Transaction? {
+        return dp.unconfirmedTransactionStore[transactionId]
     }
 
     override fun newTransactionBuilder(senderPublicKey: ByteArray, amountNQT: Long, feeNQT: Long, deadline: Short, attachment: Attachment): Transaction.Builder {
@@ -165,7 +135,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         if (!transaction.verifySignature()) {
             throw BurstException.NotValidException("Transaction signature verification failed")
         }
-        val processedTransactions: List<Transaction>
+        val processedTransactions = processTransactions(setOf(transaction), null)
         if (dp.dbs.transactionDb.hasTransaction(transaction.id)) {
             if (logger.isInfoEnabled) {
                 logger.info("Transaction {} already in blockchain, will not broadcast again", transaction.stringId)
@@ -180,9 +150,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
             return null
         }
 
-        processedTransactions = processTransactions(setOf(transaction), null)
-
-        if (!processedTransactions.isEmpty()) {
+        if (processedTransactions.isNotEmpty()) {
             return broadcastToPeers(true)
         } else {
             if (logger.isDebugEnabled) {
@@ -249,14 +217,14 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
             try {
                 dp.unconfirmedTransactionStore.put(transaction, null)
             } catch (e: BurstException.ValidationException) {
-                logger.debug("Discarding invalid transaction in for later processing: " + JSON.toJsonString(transaction.jsonObject), e)
+                logger.debug("Discarding invalid transaction in for later processing: " + transaction.jsonObject.toJsonString(), e)
             }
 
         }
     }
 
     @Throws(BurstException.ValidationException::class)
-    private fun processPeerTransactions(transactionsData: JsonArray, peer: Peer): List<Transaction> {
+    private fun processPeerTransactions(transactionsData: JsonArray, peer: Peer): Collection<Transaction> {
         if (dp.blockchain.lastBlock.timestamp < dp.timeService.epochTime - 60 * 1440 && !testUnconfirmedTransactions) {
             return mutableListOf()
         }
@@ -275,7 +243,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
             } catch (ignore: BurstException.NotCurrentlyValidException) {
             } catch (e: BurstException.NotValidException) {
                 if (logger.isDebugEnabled) {
-                    logger.debug("Invalid transaction from peer: {}", JSON.toJsonString(transactionData))
+                    logger.debug("Invalid transaction from peer: {}", transactionData.toJsonString())
                 }
                 throw e
             }
@@ -285,7 +253,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
     }
 
     @Throws(BurstException.ValidationException::class)
-    private fun processTransactions(transactions: Collection<Transaction>, peer: Peer?): List<Transaction> {
+    private fun processTransactions(transactions: Collection<Transaction>, peer: Peer?): Collection<Transaction> {
         synchronized(unconfirmedTransactionsSyncObj) {
             if (transactions.isEmpty()) {
                 return emptyList()
@@ -311,7 +279,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                             dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, listOf(transaction))
                         } else if (!(transaction.verifySignature() && dp.transactionService.verifyPublicKey(transaction))) {
                             if (dp.accountService.getAccount(transaction.senderId) != null && logger.isDebugEnabled) {
-                                logger.debug("Transaction {} failed to verify", JSON.toJsonString(transaction.jsonObject))
+                                logger.debug("Transaction {} failed to verify", transaction.jsonObject.toJsonString())
                             }
                         } else if (dp.unconfirmedTransactionStore.put(transaction, peer)) {
                             addedUnconfirmedTransactions.add(transaction)
@@ -329,7 +297,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
 
             }
 
-            if (!addedUnconfirmedTransactions.isEmpty()) {
+            if (addedUnconfirmedTransactions.isNotEmpty()) {
                 transactionListeners.accept(addedUnconfirmedTransactions, TransactionProcessor.Event.ADDED_UNCONFIRMED_TRANSACTIONS)
             }
 
@@ -366,7 +334,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         }
     }
 
-    override fun removeForgedTransactions(transactions: MutableList<Transaction>) {
+    override fun removeForgedTransactions(transactions: Collection<Transaction>) {
         dp.unconfirmedTransactionStore.removeForgedTransactions(transactions)
     }
 

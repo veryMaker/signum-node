@@ -10,8 +10,6 @@ import org.junit.Before
 import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
@@ -33,16 +31,16 @@ class GetBalanceTest {
     @Test
     @Throws(BurstException::class)
     fun processRequest() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
         val mockAccount = mock<Account>()
 
         whenever(mockAccount.balanceNQT).doReturn(1L)
         whenever(mockAccount.unconfirmedBalanceNQT).doReturn(2L)
         whenever(mockAccount.forgedBalanceNQT).doReturn(3L)
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertEquals("1", JSON.getAsString(result.get(BALANCE_NQT_RESPONSE)))
         assertEquals("2", JSON.getAsString(result.get(UNCONFIRMED_BALANCE_NQT_RESPONSE)))
@@ -54,11 +52,11 @@ class GetBalanceTest {
     @Test
     @Throws(BurstException::class)
     fun processRequest_noAccountFound() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(null)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(null)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertEquals("0", JSON.getAsString(result.get(BALANCE_NQT_RESPONSE)))
         assertEquals("0", JSON.getAsString(result.get(UNCONFIRMED_BALANCE_NQT_RESPONSE)))

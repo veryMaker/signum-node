@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.Parameters.SUBSCRIPTIONS_RESPONSE
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
@@ -46,13 +45,13 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
     fun processRequest() {
         val userId = 123L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ACCOUNT_PARAMETER, userId)
         )
 
         val account = mock<Account>()
         whenever(account.id).doReturn(userId)
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(account)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(account)
 
         val subscription = mock<Subscription>()
         whenever(subscription.id).doReturn(1L)
@@ -63,7 +62,7 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
         val subscriptionIterator = this.mockCollection<Subscription>(subscription)
         whenever(subscriptionServiceMock!!.getSubscriptionsByParticipant(eq(userId))).doReturn(subscriptionIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val resultSubscriptions = result.get(SUBSCRIPTIONS_RESPONSE) as JsonArray

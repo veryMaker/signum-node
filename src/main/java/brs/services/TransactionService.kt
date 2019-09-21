@@ -4,7 +4,6 @@ import brs.BurstException
 import brs.Transaction
 
 interface TransactionService {
-
     fun verifyPublicKey(transaction: Transaction): Boolean
 
     @Throws(BurstException.ValidationException::class)

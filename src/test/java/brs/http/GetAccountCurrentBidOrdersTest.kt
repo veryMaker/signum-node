@@ -46,7 +46,7 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
         val firstIndex = 0
         val lastIndex = 1
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ACCOUNT_PARAMETER, accountId),
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
@@ -61,10 +61,10 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
 
         val mockBidIterator = mockCollection<Bid>(bid)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
         whenever(mockAssetExchange!!.getBidOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val resultList = result.get(BID_ORDERS_RESPONSE) as JsonArray
@@ -84,7 +84,7 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
         val firstIndex = 0
         val lastIndex = 1
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ACCOUNT_PARAMETER, accountId),
                 MockParam(ASSET_PARAMETER, assetId),
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
@@ -100,10 +100,10 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
 
         val mockBidIterator = mockCollection<Bid>(bid)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
         whenever(mockAssetExchange!!.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val resultList = result.get(BID_ORDERS_RESPONSE) as JsonArray

@@ -1,7 +1,6 @@
 package brs.services.impl
 
 import brs.*
-import brs.assetexchange.AssetExchange
 import brs.at.AT
 import brs.crypto.Crypto
 import brs.crypto.EncryptedData
@@ -33,22 +32,41 @@ import brs.http.JSONResponses.UNKNOWN_ASSET
 import brs.http.JSONResponses.UNKNOWN_AT
 import brs.http.JSONResponses.UNKNOWN_GOODS
 import brs.http.ParameterException
-import brs.services.*
-import brs.util.Convert
-import brs.util.JSON
-import com.google.gson.JsonObject
-import org.slf4j.LoggerFactory
-
-import javax.servlet.http.HttpServletRequest
-import java.util.ArrayList
+import brs.http.common.Parameters.ACCOUNT_PARAMETER
+import brs.http.common.Parameters.ALIAS_NAME_PARAMETER
+import brs.http.common.Parameters.ALIAS_PARAMETER
+import brs.http.common.Parameters.ASSET_PARAMETER
+import brs.http.common.Parameters.AT_PARAMETER
+import brs.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
+import brs.http.common.Parameters.ENCRYPTED_MESSAGE_NONCE_PARAMETER
+import brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_DATA
+import brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_NONCE
+import brs.http.common.Parameters.GOODS_PARAMETER
+import brs.http.common.Parameters.HEIGHT_PARAMETER
+import brs.http.common.Parameters.INCLUDE_INDIRECT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER
+import brs.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
+import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
+import brs.http.common.Parameters.PURCHASE_PARAMETER
+import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.http.common.Parameters.isFalse
+import brs.http.common.Parameters.isTrue
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.services.ParameterService
+import brs.util.*
+import com.google.gson.JsonObject
+import org.slf4j.LoggerFactory
+import javax.servlet.http.HttpServletRequest
 
 class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterService {
 
     @Throws(BurstException::class)
-    override fun getAccount(req: HttpServletRequest): Account {
-        val accountId = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER))
+    override fun getAccount(request: HttpServletRequest): Account {
+        val accountId = Convert.emptyToNull(request.getParameter(ACCOUNT_PARAMETER))
                 ?: throw ParameterException(MISSING_ACCOUNT)
         try {
             return dp.accountService.getAccount(Convert.parseAccountId(accountId))
@@ -60,8 +78,8 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     @Throws(ParameterException::class)
-    override fun getAccounts(req: HttpServletRequest): List<Account> {
-        val accountIDs = req.getParameterValues(ACCOUNT_PARAMETER)
+    override fun getAccounts(request: HttpServletRequest): List<Account> {
+        val accountIDs = request.getParameterValues(ACCOUNT_PARAMETER)
         if (accountIDs == null || accountIDs.isEmpty()) {
             throw ParameterException(MISSING_ACCOUNT)
         }
@@ -83,13 +101,13 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     @Throws(ParameterException::class)
-    override fun getSenderAccount(req: HttpServletRequest): Account {
-        val secretPhrase = Convert.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER))
-        val publicKeyString = Convert.emptyToNull(req.getParameter(PUBLIC_KEY_PARAMETER))
+    override fun getSenderAccount(request: HttpServletRequest): Account {
+        val secretPhrase = Convert.emptyToNull(request.getParameter(SECRET_PHRASE_PARAMETER))
+        val publicKeyString = Convert.emptyToNull(request.getParameter(PUBLIC_KEY_PARAMETER))
         return when {
             secretPhrase != null -> dp.accountService.getAccount(Crypto.getPublicKey(secretPhrase))
             publicKeyString != null -> try {
-                dp.accountService.getAccount(Convert.parseHexString(publicKeyString))
+                dp.accountService.getAccount(publicKeyString.parseHexString())
             } catch (e: RuntimeException) {
                 throw ParameterException(INCORRECT_PUBLIC_KEY)
             }
@@ -98,15 +116,15 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     @Throws(ParameterException::class)
-    override fun getAlias(req: HttpServletRequest): Alias {
+    override fun getAlias(request: HttpServletRequest): Alias {
         val aliasId: Long
         try {
-            aliasId = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(ALIAS_PARAMETER)))
+            aliasId = Convert.emptyToNull(request.getParameter(ALIAS_PARAMETER)).parseUnsignedLong()
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_ALIAS)
         }
 
-        val aliasName = Convert.emptyToNull(req.getParameter(ALIAS_NAME_PARAMETER))
+        val aliasName = Convert.emptyToNull(request.getParameter(ALIAS_NAME_PARAMETER))
         return when {
             aliasId != 0L -> dp.aliasService.getAlias(aliasId)
             aliasName != null -> dp.aliasService.getAlias(aliasName)
@@ -115,12 +133,12 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     @Throws(ParameterException::class)
-    override fun getAsset(req: HttpServletRequest): Asset {
-        val assetValue = Convert.emptyToNull(req.getParameter(ASSET_PARAMETER))
+    override fun getAsset(request: HttpServletRequest): Asset {
+        val assetValue = Convert.emptyToNull(request.getParameter(ASSET_PARAMETER))
                 ?: throw ParameterException(MISSING_ASSET)
         val asset: Asset?
         try {
-            val assetId = Convert.parseUnsignedLong(assetValue)
+            val assetId = assetValue.parseUnsignedLong()
             asset = dp.assetExchange.getAsset(assetId)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_ASSET)
@@ -133,12 +151,12 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     @Throws(ParameterException::class)
-    override fun getGoods(req: HttpServletRequest): DigitalGoodsStore.Goods {
-        val goodsValue = Convert.emptyToNull(req.getParameter(GOODS_PARAMETER))
+    override fun getGoods(request: HttpServletRequest): DigitalGoodsStore.Goods {
+        val goodsValue = Convert.emptyToNull(request.getParameter(GOODS_PARAMETER))
                 ?: throw ParameterException(MISSING_GOODS)
 
         try {
-            val goodsId = Convert.parseUnsignedLong(goodsValue)
+            val goodsId = goodsValue.parseUnsignedLong()
             return dp.digitalGoodsStoreService.getGoods(goodsId) ?: throw ParameterException(UNKNOWN_GOODS)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_GOODS)
@@ -147,11 +165,11 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     @Throws(ParameterException::class)
-    override fun getPurchase(req: HttpServletRequest): DigitalGoodsStore.Purchase {
-        val purchaseIdString = Convert.emptyToNull(req.getParameter(PURCHASE_PARAMETER))
+    override fun getPurchase(request: HttpServletRequest): DigitalGoodsStore.Purchase {
+        val purchaseIdString = Convert.emptyToNull(request.getParameter(PURCHASE_PARAMETER))
                 ?: throw ParameterException(MISSING_PURCHASE)
         try {
-            return dp.digitalGoodsStoreService.getPurchase(Convert.parseUnsignedLong(purchaseIdString))
+            return dp.digitalGoodsStoreService.getPurchase(purchaseIdString.parseUnsignedLong())
                     ?: throw ParameterException(INCORRECT_PURCHASE)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_PURCHASE)
@@ -160,29 +178,27 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     @Throws(ParameterException::class)
-    override fun getEncryptedMessage(req: HttpServletRequest, recipientAccount: Account?, publicKey: ByteArray?): EncryptedData? {
-        val data = Convert.emptyToNull(req.getParameter(ENCRYPTED_MESSAGE_DATA_PARAMETER))
-        val nonce = Convert.emptyToNull(req.getParameter(ENCRYPTED_MESSAGE_NONCE_PARAMETER))
+    override fun getEncryptedMessage(request: HttpServletRequest, recipientAccount: Account?, publicKey: ByteArray?): EncryptedData? {
+        val data = Convert.emptyToNull(request.getParameter(ENCRYPTED_MESSAGE_DATA_PARAMETER))
+        val nonce = Convert.emptyToNull(request.getParameter(ENCRYPTED_MESSAGE_NONCE_PARAMETER))
         if (data != null && nonce != null) {
             try {
-                return EncryptedData(Convert.parseHexString(data), Convert.parseHexString(nonce))
+                return EncryptedData(data.parseHexString(), nonce.parseHexString())
             } catch (e: RuntimeException) {
                 throw ParameterException(INCORRECT_ENCRYPTED_MESSAGE)
             }
 
         }
-        val plainMessage = Convert.emptyToNull(req.getParameter(MESSAGE_TO_ENCRYPT_PARAMETER)) ?: return null
+        val plainMessage = Convert.emptyToNull(request.getParameter(MESSAGE_TO_ENCRYPT_PARAMETER)) ?: return null
 
-        val secretPhrase = getSecretPhrase(req)
-        val isText = isTrue(req.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER))
+        val secretPhrase = getSecretPhrase(request)
+        val isText = isTrue(request.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER))
         try {
-            val plainMessageBytes = if (isText) Convert.toBytes(plainMessage) else Convert.parseHexString(plainMessage)
-            return if (recipientAccount != null && recipientAccount.publicKey != null) {
-                recipientAccount.encryptTo(plainMessageBytes, secretPhrase)
-            } else if (publicKey != null) {
-                Account.encryptTo(plainMessageBytes, secretPhrase, publicKey)
-            } else {
-                throw ParameterException(INCORRECT_RECIPIENT)
+            val plainMessageBytes = if (isText) Convert.toBytes(plainMessage) else plainMessage.parseHexString()
+            return when {
+                recipientAccount?.publicKey != null -> recipientAccount.encryptTo(plainMessageBytes, secretPhrase)
+                publicKey != null -> Account.encryptTo(plainMessageBytes, secretPhrase, publicKey)
+                else -> throw ParameterException(INCORRECT_RECIPIENT)
             }
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_PLAIN_MESSAGE)
@@ -191,24 +207,24 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     @Throws(ParameterException::class)
-    override fun getEncryptToSelfMessage(req: HttpServletRequest): EncryptedData? {
-        val data = Convert.emptyToNull(req.getParameter(ENCRYPT_TO_SELF_MESSAGE_DATA))
-        val nonce = Convert.emptyToNull(req.getParameter(ENCRYPT_TO_SELF_MESSAGE_NONCE))
+    override fun getEncryptToSelfMessage(request: HttpServletRequest): EncryptedData? {
+        val data = Convert.emptyToNull(request.getParameter(ENCRYPT_TO_SELF_MESSAGE_DATA))
+        val nonce = Convert.emptyToNull(request.getParameter(ENCRYPT_TO_SELF_MESSAGE_NONCE))
         if (data != null && nonce != null) {
             try {
-                return EncryptedData(Convert.parseHexString(data), Convert.parseHexString(nonce))
+                return EncryptedData(data.parseHexString(), nonce.parseHexString())
             } catch (e: RuntimeException) {
                 throw ParameterException(INCORRECT_ENCRYPTED_MESSAGE)
             }
 
         }
-        val plainMessage = Convert.emptyToNull(req.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER)) ?: return null
-        val secretPhrase = getSecretPhrase(req)
+        val plainMessage = Convert.emptyToNull(request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER)) ?: return null
+        val secretPhrase = getSecretPhrase(request)
         val senderAccount = dp.accountService.getAccount(Crypto.getPublicKey(secretPhrase))
-        val isText = !isFalse(req.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER))
+        val isText = !isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER))
         try {
-            val plainMessageBytes = if (isText) Convert.toBytes(plainMessage) else Convert.parseHexString(plainMessage)
-            return senderAccount.encryptTo(plainMessageBytes, secretPhrase)
+            val plainMessageBytes = if (isText) Convert.toBytes(plainMessage) else plainMessage.parseHexString()
+            return senderAccount?.encryptTo(plainMessageBytes, secretPhrase)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_PLAIN_MESSAGE)
         }
@@ -216,14 +232,14 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     @Throws(ParameterException::class)
-    override fun getSecretPhrase(req: HttpServletRequest): String {
-        return Convert.emptyToNull(req.getParameter(SECRET_PHRASE_PARAMETER))
+    override fun getSecretPhrase(request: HttpServletRequest): String {
+        return Convert.emptyToNull(request.getParameter(SECRET_PHRASE_PARAMETER))
                 ?: throw ParameterException(MISSING_SECRET_PHRASE)
     }
 
     @Throws(ParameterException::class)
-    override fun getNumberOfConfirmations(req: HttpServletRequest): Int {
-        val numberOfConfirmationsValue = Convert.emptyToNull(req.getParameter(NUMBER_OF_CONFIRMATIONS_PARAMETER))
+    override fun getNumberOfConfirmations(request: HttpServletRequest): Int {
+        val numberOfConfirmationsValue = Convert.emptyToNull(request.getParameter(NUMBER_OF_CONFIRMATIONS_PARAMETER))
         if (numberOfConfirmationsValue != null) {
             try {
                 val numberOfConfirmations = Integer.parseInt(numberOfConfirmationsValue)
@@ -240,8 +256,8 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     @Throws(ParameterException::class)
-    override fun getHeight(req: HttpServletRequest): Int {
-        val heightValue = Convert.emptyToNull(req.getParameter(HEIGHT_PARAMETER))
+    override fun getHeight(request: HttpServletRequest): Int {
+        val heightValue = Convert.emptyToNull(request.getParameter(HEIGHT_PARAMETER))
         if (heightValue != null) {
             try {
                 val height = Integer.parseInt(heightValue)
@@ -267,8 +283,8 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         }
         return if (transactionBytes != null) {
             try {
-                val bytes = Convert.parseHexString(transactionBytes)
-                dp.transactionProcessor.parseTransaction(bytes!!)
+                val bytes = transactionBytes.parseHexString()
+                dp.transactionProcessor.parseTransaction(bytes)
             } catch (e: BurstException.ValidationException) {
                 logger.debug(e.message, e) // TODO remove?
                 val response = JsonObject()
@@ -285,7 +301,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
 
         } else {
             try {
-                val json = JSON.getAsJsonObject(JSON.parse(transactionJSON!!))
+                val json = JSON.getAsJsonObject(transactionJSON!!.parseJson())
                 dp.transactionProcessor.parseTransaction(json)
             } catch (e: BurstException.ValidationException) {
                 logger.debug(e.message, e)
@@ -305,11 +321,11 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     @Throws(ParameterException::class)
-    override fun getAT(req: HttpServletRequest): AT {
-        val atValue = Convert.emptyToNull(req.getParameter(AT_PARAMETER)) ?: throw ParameterException(MISSING_AT)
+    override fun getAT(request: HttpServletRequest): AT {
+        val atValue = Convert.emptyToNull(request.getParameter(AT_PARAMETER)) ?: throw ParameterException(MISSING_AT)
         val at: AT?
         try {
-            val atId = Convert.parseUnsignedLong(atValue)
+            val atId = atValue.parseUnsignedLong()
             at = dp.atService.getAT(atId)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_AT)
@@ -321,8 +337,8 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         return at
     }
 
-    override fun getIncludeIndirect(req: HttpServletRequest): Boolean {
-        return java.lang.Boolean.parseBoolean(req.getParameter(INCLUDE_INDIRECT_PARAMETER))
+    override fun getIncludeIndirect(request: HttpServletRequest): Boolean {
+        return java.lang.Boolean.parseBoolean(request.getParameter(INCLUDE_INDIRECT_PARAMETER))
     }
 
     companion object {

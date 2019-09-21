@@ -9,7 +9,7 @@ class DerivedTableManager {
 
     private val logger = LoggerFactory.getLogger(DerivedTableManager::class.java)
 
-    val derivedTables = CopyOnWritemutableListOf<DerivedTable>()
+    val derivedTables = CopyOnWriteArrayList<DerivedTable>()
 
     fun getDerivedTables(): List<DerivedTable> {
         return derivedTables

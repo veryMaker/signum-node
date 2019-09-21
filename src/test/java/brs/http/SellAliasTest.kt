@@ -51,7 +51,7 @@ class SellAliasTest : AbstractTransactionTest() {
         val priceParameter = 10
         val recipientId = 5
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, priceParameter),
                 MockParam(RECIPIENT_PARAMETER, recipientId)
         )
@@ -64,12 +64,12 @@ class SellAliasTest : AbstractTransactionTest() {
         val mockSender = mock<Account>()
         whenever(mockSender.id).doReturn(aliasAccountId)
 
-        whenever(parameterServiceMock!!.getSenderAccount(req)).doReturn(mockSender)
-        whenever(parameterServiceMock!!.getAlias(req)).doReturn(mockAlias)
+        whenever(parameterServiceMock!!.getSenderAccount(request)).doReturn(mockSender)
+        whenever(parameterServiceMock!!.getAlias(request)).doReturn(mockAlias)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) }, apiTransactionManagerMock!!) as Attachment.MessagingAliasSell
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.MessagingAliasSell
         assertNotNull(attachment)
 
         assertEquals(ALIAS_SELL, attachment.transactionType)
@@ -79,39 +79,39 @@ class SellAliasTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_missingPrice() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
-        assertEquals(MISSING_PRICE, t!!.processRequest(req))
+        assertEquals(MISSING_PRICE, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_incorrectPrice_unParsable() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, "unParsable")
         )
 
-        assertEquals(INCORRECT_PRICE, t!!.processRequest(req))
+        assertEquals(INCORRECT_PRICE, t!!.processRequest(request))
     }
 
     @Test(expected = ParameterException::class)
     @Throws(BurstException::class)
     fun processRequest_incorrectPrice_negative() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, -10L)
         )
 
-        t!!.processRequest(req)
+        t!!.processRequest(request)
     }
 
     @Test(expected = ParameterException::class)
     @Throws(BurstException::class)
     fun processRequest_incorrectPrice_overMaxBalance() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, MAX_BALANCE_NQT + 1)
         )
 
-        t!!.processRequest(req)
+        t!!.processRequest(request)
     }
 
     @Test
@@ -119,12 +119,12 @@ class SellAliasTest : AbstractTransactionTest() {
     fun processRequest_incorrectRecipient_unparsable() {
         val price = 10
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, price),
                 MockParam(RECIPIENT_PARAMETER, "unParsable")
         )
 
-        assertEquals(INCORRECT_RECIPIENT, t!!.processRequest(req))
+        assertEquals(INCORRECT_RECIPIENT, t!!.processRequest(request))
     }
 
     @Test
@@ -133,12 +133,12 @@ class SellAliasTest : AbstractTransactionTest() {
         val price = 10
         val recipientId = 0
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, price),
                 MockParam(RECIPIENT_PARAMETER, recipientId)
         )
 
-        assertEquals(INCORRECT_RECIPIENT, t!!.processRequest(req))
+        assertEquals(INCORRECT_RECIPIENT, t!!.processRequest(request))
     }
 
     @Test
@@ -147,7 +147,7 @@ class SellAliasTest : AbstractTransactionTest() {
         val price = 10
         val recipientId = 5
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, price),
                 MockParam(RECIPIENT_PARAMETER, recipientId)
         )
@@ -160,10 +160,10 @@ class SellAliasTest : AbstractTransactionTest() {
         val mockSender = mock<Account>()
         whenever(mockSender.id).doReturn(mockSenderId)
 
-        whenever(parameterServiceMock!!.getSenderAccount(req)).doReturn(mockSender)
-        whenever(parameterServiceMock!!.getAlias(req)).doReturn(mockAlias)
+        whenever(parameterServiceMock!!.getSenderAccount(request)).doReturn(mockSender)
+        whenever(parameterServiceMock!!.getAlias(request)).doReturn(mockAlias)
 
-        assertEquals(INCORRECT_ALIAS_OWNER, t!!.processRequest(req))
+        assertEquals(INCORRECT_ALIAS_OWNER, t!!.processRequest(request))
     }
 
 }

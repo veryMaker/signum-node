@@ -1,6 +1,9 @@
 package brs.http
 
 import brs.*
+import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.FREQUENCY_PARAMETER
+import brs.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.services.ParameterService
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -12,14 +15,14 @@ import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 internal class SendMoneySubscription(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, AMOUNT_NQT_PARAMETER, FREQUENCY_PARAMETER) {
 
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        val sender = dp.parameterService.getSenderAccount(req)
-        val recipient = ParameterParser.getRecipientId(req)
-        val amountNQT = ParameterParser.getAmountNQT(req)
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+        val sender = dp.parameterService.getSenderAccount(request)
+        val recipient = ParameterParser.getRecipientId(request)
+        val amountNQT = ParameterParser.getAmountNQT(request)
 
         val frequency: Int
         try {
-            frequency = Integer.parseInt(req.getParameter(FREQUENCY_PARAMETER))
+            frequency = Integer.parseInt(request.getParameter(FREQUENCY_PARAMETER))
         } catch (e: Exception) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 4)
@@ -27,7 +30,7 @@ internal class SendMoneySubscription(private val dp: DependencyProvider) : Creat
             return response
         }
 
-        if (frequency < Constants.BURST_SUBSCRIPTION_MIN_FREQ || frequency > Constants.BURST_SUBSCRIPTION_MAX_FREQ) {
+        if (frequency < Constants.BURST_SUBSCRIPTION_MIN_Frequest || frequency > Constants.BURST_SUBSCRIPTION_MAX_Frequest) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 4)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Invalid frequency amount")
@@ -36,6 +39,6 @@ internal class SendMoneySubscription(private val dp: DependencyProvider) : Creat
 
         val attachment = Attachment.AdvancedPaymentSubscriptionSubscribe(frequency, dp.blockchain.height)
 
-        return createTransaction(req, sender, recipient, amountNQT, attachment)
+        return createTransaction(request, sender, recipient, amountNQT, attachment)
     }
 }

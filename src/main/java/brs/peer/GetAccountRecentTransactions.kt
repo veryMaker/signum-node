@@ -14,7 +14,6 @@ import com.google.gson.JsonObject
 
 @Deprecated("This call is no longer made by the other peers so will soon be removed.")
 class GetAccountRecentTransactions internal constructor(private val accountService: AccountService, private val blockchain: Blockchain) : PeerServlet.PeerRequestHandler {
-
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         val response = JsonObject()
         val accountId = Convert.parseAccountId(JSON.getAsString(request.get("account"))!!)
@@ -29,5 +28,4 @@ class GetAccountRecentTransactions internal constructor(private val accountServi
 
         return response
     }
-
 }

@@ -6,19 +6,7 @@ import brs.at.AtConstants
 import brs.crypto.EncryptedData
 import brs.grpc.proto.BrsApi
 import brs.grpc.proto.ProtoBuilder
-import brs.util.Convert
-import brs.util.JSON
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
-import com.google.protobuf.Any
-import com.google.protobuf.ByteString
-import com.google.protobuf.InvalidProtocolBufferException
-
-import java.math.BigInteger
-import java.nio.ByteBuffer
-import java.util.*
-import kotlin.collections.Map.Entry
-
+import brs.grpc.proto.toByteString
 import brs.http.common.Parameters.ALIAS_PARAMETER
 import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
 import brs.http.common.Parameters.ASSET_PARAMETER
@@ -84,7 +72,15 @@ import brs.http.common.ResultFields.SIGNERS_RESPONSE
 import brs.http.common.ResultFields.SUBSCRIPTION_ID_RESPONSE
 import brs.http.common.ResultFields.TAGS_RESPONSE
 import brs.http.common.ResultFields.URI_RESPONSE
-import java.util.function.Consumer
+import brs.util.*
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import com.google.protobuf.Any
+import com.google.protobuf.InvalidProtocolBufferException
+import java.math.BigInteger
+import java.nio.ByteBuffer
+import java.util.*
+import kotlin.collections.Map.Entry
 
 interface Attachment : Appendix {
 
@@ -243,7 +239,7 @@ interface Attachment : Appendix {
         internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
 
             val numberOfRecipients = java.lang.Byte.toUnsignedInt(buffer.get())
-            val recipientOf = mutableMapOf<Long, Boolean>>(numberOfRecipients)
+            val recipientOf = mutableMapOf<Long, Boolean>()
 
             for (i in 0 until numberOfRecipients) {
                 val recipientId = buffer.long
@@ -268,12 +264,12 @@ interface Attachment : Appendix {
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
 
             val receipientsJson = JSON.getAsJsonArray(attachmentData.get(RECIPIENTS_PARAMETER))
-            val recipientOf = mutableMapOf<Long, Boolean>>()
+            val recipientOf = mutableMapOf<Long, Boolean>()
 
             for (recipientObject in receipientsJson) {
                 val recipient = JSON.getAsJsonArray(recipientObject)
 
-                val recipientId = BigInteger(JSON.getAsString(recipient.get(0))!!).toLong()
+                val recipientId = BigInteger(JSON.getAsString(recipient.get(0))).toLong()
                 val amountNQT = JSON.getAsLong(recipient.get(1))
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi out transaction")
@@ -292,7 +288,7 @@ interface Attachment : Appendix {
         @Throws(BurstException.NotValidException::class)
         constructor(recipients: Collection<Entry<String, Long>>, blockchainHeight: Int) : super(blockchainHeight) {
 
-            val recipientOf = mutableMapOf<Long, Boolean>>()
+            val recipientOf = mutableMapOf<Long, Boolean>()
             for ((key, amountNQT) in recipients) {
                 val recipientId = BigInteger(key).toLong()
                 if (recipientOf.containsKey(recipientId))
@@ -311,7 +307,7 @@ interface Attachment : Appendix {
 
         @Throws(BurstException.NotValidException::class)
         internal constructor(attachment: BrsApi.MultiOutAttachment) : super(attachment.version.toByte()) {
-            val recipientOf = mutableMapOf<Long, Boolean>>()
+            val recipientOf = mutableMapOf<Long, Boolean>()
             for (recipient in attachment.recipientsList) {
                 val recipientId = recipient.recipient
                 val amountNQT = recipient.amount
@@ -342,7 +338,7 @@ interface Attachment : Appendix {
 
             this.recipients.map { recipient ->
                         val recipientJSON = JsonArray()
-                        recipientJSON.add(Convert.toUnsignedLong(recipient[0]))
+                        recipientJSON.add(recipient[0].toUnsignedString())
                         recipientJSON.add(recipient[1].toString())
                         recipientJSON
                     }.forEach { recipientsJSON.add(it) }
@@ -378,7 +374,7 @@ interface Attachment : Appendix {
         internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
 
             val numberOfRecipients = java.lang.Byte.toUnsignedInt(buffer.get())
-            val recipientOf = mutableMapOf<Long, Boolean>>(numberOfRecipients)
+            val recipientOf = mutableMapOf<Long, Boolean>()
 
             for (i in 0 until numberOfRecipients) {
                 val recipientId = buffer.long
@@ -398,7 +394,7 @@ interface Attachment : Appendix {
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
 
             val recipientsJson = JSON.getAsJsonArray(attachmentData.get(RECIPIENTS_PARAMETER))
-            val recipientOf = mutableMapOf<Long, Boolean>>()
+            val recipientOf = mutableMapOf<Long, Boolean>()
 
             for (recipient in recipientsJson) {
                 val recipientId = BigInteger(JSON.getAsString(recipient)).toLong()
@@ -417,7 +413,7 @@ interface Attachment : Appendix {
         @Throws(BurstException.NotValidException::class)
         constructor(recipients: Collection<Long>, blockchainHeight: Int) : super(blockchainHeight) {
 
-            val recipientOf = mutableMapOf<Long, Boolean>>()
+            val recipientOf = mutableMapOf<Long, Boolean>()
             for (recipientId in recipients) {
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi same out transaction")
@@ -433,7 +429,7 @@ interface Attachment : Appendix {
 
         @Throws(BurstException.NotValidException::class)
         internal constructor(attachment: BrsApi.MultiOutSameAttachment) : super(attachment.version.toByte()) {
-            val recipientOf = mutableMapOf<Long, Boolean>>()
+            val recipientOf = mutableMapOf<Long, Boolean>()
             for (recipientId in attachment.recipientsList) {
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi same out transaction")
@@ -454,12 +450,12 @@ interface Attachment : Appendix {
 
         override fun putMyJSON(attachment: JsonObject) {
             val recipients = JsonArray()
-            this.recipients.forEach { a -> recipients.add(Convert.toUnsignedLong(a)) }
+            this.recipients.forEach { a -> recipients.add(a.toUnsignedString()) }
             attachment.add(RECIPIENTS_RESPONSE, recipients)
         }
 
         fun getRecipients(): Collection<Long> {
-            return Collections.unmodifiableCollection(recipients)
+            return recipients
         }
     }
 
@@ -783,7 +779,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.assetId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ASSET_PARAMETER)))
+            this.assetId = JSON.getAsString(attachmentData.get(ASSET_PARAMETER)).parseUnsignedLong()
             this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER))
             this.comment = if (version.toInt() == 0) Convert.nullToEmpty(JSON.getAsString(attachmentData.get(COMMENT_PARAMETER))) else null
         }
@@ -811,7 +807,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetId))
+            attachment.addProperty(ASSET_RESPONSE, assetId.toUnsignedString())
             attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT)
             if (version.toInt() == 0) {
                 attachment.addProperty(COMMENT_RESPONSE, comment)
@@ -846,7 +842,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.assetId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ASSET_PARAMETER)))
+            this.assetId = JSON.getAsString(attachmentData.get(ASSET_PARAMETER)).parseUnsignedLong()
             this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER))
             this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
         }
@@ -870,7 +866,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetId))
+            attachment.addProperty(ASSET_RESPONSE, assetId.toUnsignedString())
             attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT)
             attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT)
         }
@@ -943,7 +939,7 @@ interface Attachment : Appendix {
         }
 
         constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.orderId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ORDER_PARAMETER)))
+            this.orderId = JSON.getAsString(attachmentData.get(ORDER_PARAMETER)).parseUnsignedLong()
         }
 
         constructor(orderId: Long, blockchainHeight: Int) : super(blockchainHeight) {
@@ -959,7 +955,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(ORDER_RESPONSE, Convert.toUnsignedLong(orderId))
+            attachment.addProperty(ORDER_RESPONSE, orderId.toUnsignedString())
         }
     }
 
@@ -1117,7 +1113,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.goodsId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(GOODS_PARAMETER)))
+            this.goodsId = JSON.getAsString(attachmentData.get(GOODS_PARAMETER)).parseUnsignedLong()
         }
 
         constructor(goodsId: Long, blockchainHeight: Int) : super(blockchainHeight) {
@@ -1133,7 +1129,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId))
+            attachment.addProperty(GOODS_RESPONSE, goodsId.toUnsignedString())
         }
     }
 
@@ -1164,7 +1160,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.goodsId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(GOODS_PARAMETER)))
+            this.goodsId = JSON.getAsString(attachmentData.get(GOODS_PARAMETER)).parseUnsignedLong()
             this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
         }
 
@@ -1184,7 +1180,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId))
+            attachment.addProperty(GOODS_RESPONSE, goodsId.toUnsignedString())
             attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT)
         }
     }
@@ -1216,7 +1212,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.goodsId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(GOODS_PARAMETER)))
+            this.goodsId = JSON.getAsString(attachmentData.get(GOODS_PARAMETER)).parseUnsignedLong()
             this.deltaQuantity = JSON.getAsInt(attachmentData.get(DELTA_QUANTITY_PARAMETER))
         }
 
@@ -1236,7 +1232,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId))
+            attachment.addProperty(GOODS_RESPONSE, goodsId.toUnsignedString())
             attachment.addProperty(DELTA_QUANTITY_RESPONSE, deltaQuantity)
         }
     }
@@ -1274,7 +1270,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.goodsId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(GOODS_PARAMETER)))
+            this.goodsId = JSON.getAsString(attachmentData.get(GOODS_PARAMETER)).parseUnsignedLong()
             this.quantity = JSON.getAsInt(attachmentData.get(QUANTITY_PARAMETER))
             this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
             this.deliveryDeadlineTimestamp = JSON.getAsInt(attachmentData.get(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER))
@@ -1302,7 +1298,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId))
+            attachment.addProperty(GOODS_RESPONSE, goodsId.toUnsignedString())
             attachment.addProperty(QUANTITY_RESPONSE, quantity)
             attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT)
             attachment.addProperty(DELIVERY_DEADLINE_TIMESTAMP_RESPONSE, deliveryDeadlineTimestamp)
@@ -1347,11 +1343,10 @@ interface Attachment : Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.purchaseId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)))
-            this.goods = EncryptedData(Convert.parseHexString(JSON.getAsString(attachmentData.get(GOODS_DATA_PARAMETER))),
-                    Convert.parseHexString(JSON.getAsString(attachmentData.get(GOODS_NONCE_PARAMETER))))
+            this.purchaseId = JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)).parseUnsignedLong()
+            this.goods = EncryptedData(JSON.getAsString(attachmentData.get(GOODS_DATA_PARAMETER)).parseHexString(), JSON.getAsString(attachmentData.get(GOODS_NONCE_PARAMETER)).parseHexString())
             this.discountNQT = JSON.getAsLong(attachmentData.get(DISCOUNT_NQT_PARAMETER))
-            this.goodsIsText = java.lang.Boolean.TRUE == JSON.getAsBoolean(attachmentData.get(GOODS_IS_TEXT_PARAMETER))
+            this.goodsIsText = JSON.getAsBoolean(attachmentData.get(GOODS_IS_TEXT_PARAMETER))
         }
 
         constructor(purchaseId: Long, goods: EncryptedData, goodsIsText: Boolean, discountNQT: Long, blockchainHeight: Int) : super(blockchainHeight) {
@@ -1377,9 +1372,9 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchaseId))
-            attachment.addProperty(GOODS_DATA_RESPONSE, Convert.toHexString(goods.data))
-            attachment.addProperty(GOODS_NONCE_RESPONSE, Convert.toHexString(goods.nonce))
+            attachment.addProperty(PURCHASE_RESPONSE, purchaseId.toUnsignedString())
+            attachment.addProperty(GOODS_DATA_RESPONSE, goods.data.toHexString())
+            attachment.addProperty(GOODS_NONCE_RESPONSE, goods.nonce.toHexString())
             attachment.addProperty(DISCOUNT_NQT_RESPONSE, discountNQT)
             attachment.addProperty(GOODS_IS_TEXT_RESPONSE, goodsIsText)
         }
@@ -1413,7 +1408,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.purchaseId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)))
+            this.purchaseId = JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)).parseUnsignedLong()
         }
 
         constructor(purchaseId: Long, blockchainHeight: Int) : super(blockchainHeight) {
@@ -1429,7 +1424,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchaseId))
+            attachment.addProperty(PURCHASE_RESPONSE, purchaseId.toUnsignedString())
         }
     }
 
@@ -1460,7 +1455,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.purchaseId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)))
+            this.purchaseId = JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)).parseUnsignedLong()
             this.refundNQT = JSON.getAsLong(attachmentData.get(REFUND_NQT_PARAMETER))
         }
 
@@ -1480,7 +1475,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchaseId))
+            attachment.addProperty(PURCHASE_RESPONSE, purchaseId.toUnsignedString())
             attachment.addProperty(REFUND_NQT_RESPONSE, refundNQT)
         }
     }
@@ -1564,7 +1559,7 @@ interface Attachment : Appendix {
 
     class AdvancedPaymentEscrowCreation : AbstractAttachment {
 
-        val amountNQT: Long?
+        val amountNQT: Long
         private val requiredSigners: Byte
         private val signers = TreeSet<Long>()
         val deadline: Int
@@ -1615,7 +1610,7 @@ interface Attachment : Appendix {
 
         @Throws(BurstException.NotValidException::class)
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.amountNQT = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(AMOUNT_NQT_PARAMETER)))
+            this.amountNQT = JSON.getAsString(attachmentData.get(AMOUNT_NQT_PARAMETER)).parseUnsignedLong()
             this.deadline = JSON.getAsInt(attachmentData.get(DEADLINE_PARAMETER))
             this.deadlineAction = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DEADLINE_ACTION_PARAMETER))!!)
             this.requiredSigners = JSON.getAsByte(attachmentData.get(REQUIRED_SIGNERS_PARAMETER))
@@ -1625,7 +1620,7 @@ interface Attachment : Appendix {
             }
             val signersJson = JSON.getAsJsonArray(attachmentData.get(SIGNERS_PARAMETER))
             for (aSignersJson in signersJson) {
-                this.signers.add(Convert.parseUnsignedLong(JSON.getAsString(aSignersJson)))
+                this.signers.add(JSON.getAsString(aSignersJson).parseUnsignedLong())
             }
             if (this.signers.size != JSON.getAsJsonArray(attachmentData.get(SIGNERS_PARAMETER)).size()) {
                 throw BurstException.NotValidException("Duplicate signer on escrow creation")
@@ -1633,7 +1628,7 @@ interface Attachment : Appendix {
         }
 
         @Throws(BurstException.NotValidException::class)
-        constructor(amountNQT: Long?, deadline: Int, deadlineAction: Escrow.DecisionType,
+        constructor(amountNQT: Long, deadline: Int, deadlineAction: Escrow.DecisionType,
                     requiredSigners: Int, signers: Collection<Long>, blockchainHeight: Int) : super(blockchainHeight) {
             this.amountNQT = amountNQT
             this.deadline = deadline
@@ -1674,13 +1669,13 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(this.amountNQT!!))
+            attachment.addProperty(AMOUNT_NQT_RESPONSE, this.amountNQT!!.toUnsignedString())
             attachment.addProperty(DEADLINE_RESPONSE, this.deadline)
             attachment.addProperty(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(this.deadlineAction!!))
             attachment.addProperty(REQUIRED_SIGNERS_RESPONSE, this.requiredSigners.toInt())
             val ids = JsonArray()
             for (signer in this.signers) {
-                ids.add(Convert.toUnsignedLong(signer))
+                ids.add(signer.toUnsignedString())
             }
             attachment.add(SIGNERS_RESPONSE, ids)
         }
@@ -1690,7 +1685,7 @@ interface Attachment : Appendix {
         }
 
         fun getSigners(): Collection<Long> {
-            return Collections.unmodifiableCollection(signers)
+            return signers
         }
     }
 
@@ -1721,7 +1716,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.escrowId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ESCROW_ID_PARAMETER)))
+            this.escrowId = JSON.getAsString(attachmentData.get(ESCROW_ID_PARAMETER)).parseUnsignedLong()
             this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER))!!)
         }
 
@@ -1741,7 +1736,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(ESCROW_ID_RESPONSE, Convert.toUnsignedLong(this.escrowId!!))
+            attachment.addProperty(ESCROW_ID_RESPONSE, this.escrowId!!.toUnsignedString())
             attachment.addProperty(DECISION_RESPONSE, Escrow.decisionToString(this.decision!!))
         }
     }
@@ -1773,7 +1768,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.escrowId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ESCROW_ID_PARAMETER)))
+            this.escrowId = JSON.getAsString(attachmentData.get(ESCROW_ID_PARAMETER)).parseUnsignedLong()
             this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER))!!)
         }
 
@@ -1793,7 +1788,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(ESCROW_ID_RESPONSE, Convert.toUnsignedLong(this.escrowId!!))
+            attachment.addProperty(ESCROW_ID_RESPONSE, this.escrowId!!.toUnsignedString())
             attachment.addProperty(DECISION_RESPONSE, Escrow.decisionToString(this.decision!!))
         }
     }
@@ -1844,7 +1839,7 @@ interface Attachment : Appendix {
 
     class AdvancedPaymentSubscriptionCancel : AbstractAttachment {
 
-        val subscriptionId: Long?
+        val subscriptionId: Long
 
         override val appendixName: String
             get() = "SubscriptionCancel"
@@ -1866,10 +1861,10 @@ interface Attachment : Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.subscriptionId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(SUBSCRIPTION_ID_PARAMETER)))
+            this.subscriptionId = JSON.getAsString(attachmentData.get(SUBSCRIPTION_ID_PARAMETER)).parseUnsignedLong()
         }
 
-        constructor(subscriptionId: Long?, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(subscriptionId: Long, blockchainHeight: Int) : super(blockchainHeight) {
             this.subscriptionId = subscriptionId
         }
 
@@ -1882,7 +1877,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(SUBSCRIPTION_ID_RESPONSE, Convert.toUnsignedLong(this.subscriptionId!!))
+            attachment.addProperty(SUBSCRIPTION_ID_RESPONSE, this.subscriptionId!!.toUnsignedString())
         }
     }
 
@@ -1910,7 +1905,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.subscriptionId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(SUBSCRIPTION_ID_PARAMETER)))
+            this.subscriptionId = JSON.getAsString(attachmentData.get(SUBSCRIPTION_ID_PARAMETER)).parseUnsignedLong()
         }
 
         constructor(subscriptionId: Long?, blockchainHeight: Int) : super(blockchainHeight) {
@@ -1926,7 +1921,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(SUBSCRIPTION_ID_RESPONSE, Convert.toUnsignedLong(this.subscriptionId!!))
+            attachment.addProperty(SUBSCRIPTION_ID_RESPONSE, this.subscriptionId!!.toUnsignedString())
         }
     }
 
@@ -1950,7 +1945,7 @@ interface Attachment : Appendix {
                     .setVersion(version.toInt())
                     .setName(name)
                     .setDescription(description)
-                    .setCreationBytes(ByteString.copyFrom(creationBytes!!))
+                    .setCreationBytes(creationBytes.toByteString())
                     .build())
 
         @Throws(BurstException.NotValidException::class)
@@ -2017,7 +2012,7 @@ interface Attachment : Appendix {
             this.name = JSON.getAsString(attachmentData.get(NAME_PARAMETER))
             this.description = JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER))
 
-            this.creationBytes = Convert.parseHexString(JSON.getAsString(attachmentData.get(CREATION_BYTES_PARAMETER)))
+            this.creationBytes = JSON.getAsString(attachmentData.get(CREATION_BYTES_PARAMETER)).parseHexString()
 
         }
 
@@ -2047,7 +2042,7 @@ interface Attachment : Appendix {
         override fun putMyJSON(attachment: JsonObject) {
             attachment.addProperty(NAME_RESPONSE, name)
             attachment.addProperty(DESCRIPTION_RESPONSE, description)
-            attachment.addProperty(CREATION_BYTES_RESPONSE, Convert.toHexString(creationBytes))
+            attachment.addProperty(CREATION_BYTES_RESPONSE, creationBytes.toHexString())
         }
     }
 
@@ -2087,7 +2082,6 @@ interface Attachment : Appendix {
 
             override val appendixName: String
                 get() = "AT Payment"
-            
         }
     }
 

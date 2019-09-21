@@ -3,7 +3,6 @@ package brs
 import brs.db.BurstKey
 
 open class Asset {
-
     val id: Long
     val dbKey: BurstKey
     val accountId: Long
@@ -31,5 +30,4 @@ open class Asset {
         this.quantityQNT = attachment.quantityQNT
         this.decimals = attachment.decimals
     }
-
 }

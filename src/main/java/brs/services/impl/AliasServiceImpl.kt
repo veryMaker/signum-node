@@ -7,7 +7,6 @@ import brs.DependencyProvider
 import brs.Transaction
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
-import brs.db.store.AliasStore
 import brs.services.AliasService
 
 class AliasServiceImpl(dp: DependencyProvider) : AliasService {
@@ -27,11 +26,11 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
         this.offerDbKeyFactory = aliasStore.offerDbKeyFactory
     }
 
-    override fun getAlias(aliasName: String): Alias {
+    override fun getAlias(aliasName: String): Alias? {
         return aliasStore.getAlias(aliasName)
     }
 
-    override fun getAlias(aliasId: Long): Alias {
+    override fun getAlias(aliasId: Long): Alias? {
         return aliasTable[aliasDbKeyFactory.newKey(aliasId)]
     }
 
@@ -61,7 +60,7 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
         val priceNQT = attachment.priceNQT
         val buyerId = transaction.recipientId
         if (priceNQT > 0) {
-            val alias = getAlias(aliasName)
+            val alias = getAlias(aliasName)!!
             val offer = getOffer(alias)
             if (offer == null) {
                 val dbKey = offerDbKeyFactory.newKey(alias.id)
@@ -77,7 +76,7 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
     }
 
     override fun changeOwner(newOwnerId: Long, aliasName: String, timestamp: Int) {
-        val alias = getAlias(aliasName)
+        val alias = getAlias(aliasName)!!
         alias.accountId = newOwnerId
         alias.timestamp = timestamp
         aliasTable.insert(alias)

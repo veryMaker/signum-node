@@ -44,14 +44,14 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
     fun processRequest() {
         val targetAccountId = 4L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ACCOUNT_PARAMETER, targetAccountId)
         )
 
         val targetAccount = mock<Account>()
         whenever(targetAccount.id).doReturn(targetAccountId)
 
-        whenever(parameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(targetAccount)
+        whenever(parameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(targetAccount)
 
         val assignment = mock<RewardRecipientAssignment>()
         whenever(assignment.getAccountId()).doReturn(targetAccountId)
@@ -60,7 +60,7 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
 
         whenever(accountService!!.getAccountsWithRewardRecipient(eq(targetAccountId))).doReturn(assignmentIterator)
 
-        val resultOverview = t!!.processRequest(req) as JsonObject
+        val resultOverview = t!!.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
 
         val resultList = resultOverview.get(ACCOUNTS_RESPONSE) as JsonArray
@@ -73,14 +73,14 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
     fun processRequest_withRewardRecipientAssignmentKnown() {
         val targetAccountId = 4L
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ACCOUNT_PARAMETER, targetAccountId)
         )
 
         val targetAccount = mock<Account>()
         whenever(targetAccount.id).doReturn(targetAccountId)
 
-        whenever(parameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(targetAccount)
+        whenever(parameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(targetAccount)
 
         val assignment = mock<RewardRecipientAssignment>()
         whenever(assignment.getAccountId()).doReturn(targetAccountId)
@@ -90,7 +90,7 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
         whenever(accountService!!.getAccountsWithRewardRecipient(eq(targetAccountId))).doReturn(assignmentIterator)
         whenever(accountService!!.getRewardRecipientAssignment(eq(targetAccount))).doReturn(assignment)
 
-        val resultOverview = t!!.processRequest(req) as JsonObject
+        val resultOverview = t!!.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
 
         val resultList = resultOverview.get(ACCOUNTS_RESPONSE) as JsonArray

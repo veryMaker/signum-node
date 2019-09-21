@@ -12,19 +12,19 @@ class EncryptedData(val data: ByteArray, val nonce: ByteArray) {
         get() = data.size + nonce.size
 
     fun decrypt(myPrivateKey: ByteArray, theirPublicKey: ByteArray): ByteArray {
-        return if (data.size == 0) {
+        return if (data.isEmpty()) {
             data
-        } else Crypto.burstCrypto.decryptMessage(BurstEncryptedMessage(data, nonce, false), myPrivateKey, theirPublicKey)
+        } else burstCrypto.decryptMessage(BurstEncryptedMessage(data, nonce, false), myPrivateKey, theirPublicKey)
     }
 
     companion object {
         private val EMPTY_DATA = EncryptedData(ByteArray(0), ByteArray(0))
 
         fun encrypt(plaintext: ByteArray, myPrivateKey: ByteArray, theirPublicKey: ByteArray): EncryptedData {
-            if (plaintext.size == 0) {
+            if (plaintext.isEmpty()) {
                 return EMPTY_DATA
             }
-            val message = Crypto.burstCrypto.encryptBytesMessage(plaintext, myPrivateKey, theirPublicKey)
+            val message = burstCrypto.encryptBytesMessage(plaintext, myPrivateKey, theirPublicKey)
             return EncryptedData(message.data, message.nonce)
         }
 

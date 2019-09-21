@@ -1,39 +1,33 @@
 package brs.http
 
-import brs.*
+import brs.BurstException
+import brs.DependencyProvider
+import brs.http.JSONResponses.ERROR_INCORRECT_REQUEST
+import brs.http.JSONResponses.ERROR_MISSING_REQUEST
+import brs.http.JSONResponses.ERROR_NOT_ALLOWED
 import brs.props.Props
-import brs.services.*
 import brs.util.JSON
 import brs.util.Subnet
+import brs.util.writeTo
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.eclipse.jetty.http.HttpStatus
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
+import java.io.IOException
+import java.net.InetAddress
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import java.io.IOException
-import java.io.Writer
-import java.net.InetAddress
-import java.util.*
 
 class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet>?) : HttpServlet() {
-    private val acceptSurplusParams: Boolean
-
-    private val enforcePost: Boolean
-    private val allowedOrigins: String
+    private val acceptSurplusParams = dp.propertyService.get(Props.API_ACCEPT_SURPLUS_PARAMS)
+    private val enforcePost = dp.propertyService.get(Props.API_SERVER_ENFORCE_POST)
+    private val allowedOrigins = dp.propertyService.get(Props.API_ALLOWED_ORIGINS)
 
     val apiRequestHandlers: Map<String, HttpRequestHandler>
 
     init { // TODO each one should just take dp
-        enforcePost = dp.propertyService.get(Props.API_SERVER_ENFORCE_POST)
-        allowedOrigins = dp.propertyService.get(Props.API_ALLOWED_ORIGINS)
-        this.acceptSurplusParams = dp.propertyService.get(Props.API_ACCEPT_SURPLUS_PARAMS)
-
-        val map = mutableMapOf<String, HttpRequestHandler>>()
-
+        val map = mutableMapOf<String, HttpRequestHandler>()
         map["broadcastTransaction"] = BroadcastTransaction(dp.transactionProcessor, dp.parameterService, dp.transactionService)
         map["calculateFullHash"] = CalculateFullHash()
         map["cancelAskOrder"] = CancelAskOrder(dp)
@@ -48,7 +42,6 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["dgsQuantityChange"] = DGSQuantityChange(dp)
         map["dgsRefund"] = DGSRefund(dp)
         map["encryptTo"] = EncryptTo(dp.parameterService, dp.accountService)
-        map["generateToken"] = GenerateToken(dp.timeService)
         map["getAccount"] = GetAccount(dp.parameterService, dp.accountService)
         map["getAccountsWithName"] = GetAccountsWithName(dp.accountService)
         map["getAccountBlockIds"] = GetAccountBlockIds(dp.parameterService, dp.blockchain)
@@ -57,7 +50,6 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getAccountPublicKey"] = GetAccountPublicKey(dp.parameterService)
         map["getAccountTransactionIds"] = GetAccountTransactionIds(dp.parameterService, dp.blockchain)
         map["getAccountTransactions"] = GetAccountTransactions(dp.parameterService, dp.blockchain)
-        map["getAccountLessors"] = GetAccountLessors(dp.parameterService, dp.blockchain)
         map["sellAlias"] = SellAlias(dp)
         map["buyAlias"] = BuyAlias(dp)
         map["getAlias"] = GetAlias(dp.parameterService, dp.aliasService)
@@ -80,10 +72,10 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getDGSPurchase"] = GetDGSPurchase(dp.parameterService)
         map["getDGSPendingPurchases"] = GetDGSPendingPurchases(dp.digitalGoodsStoreService)
         map["getECBlock"] = GetECBlock(dp.blockchain, dp.timeService, dp.economicClustering)
-        map["getMyInfo"] = GetMyInfo.instance
-        map["getPeer"] = GetPeer.instance
+        map["getMyInfo"] = GetMyInfo
+        map["getPeer"] = GetPeer
         map["getMyPeerInfo"] = GetMyPeerInfo(dp.transactionProcessor)
-        map["getPeers"] = GetPeers.instance
+        map["getPeers"] = GetPeers
         map["getState"] = GetState(dp.blockchain, dp.blockchainProcessor, dp.assetExchange, dp.accountService, dp.escrowService, dp.aliasService, dp.timeService, dp.generator, dp.propertyService)
         map["getTime"] = GetTime(dp.timeService)
         map["getTrades"] = GetTrades(dp.parameterService, dp.assetExchange)
@@ -107,11 +99,11 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getBidOrders"] = GetBidOrders(dp.parameterService, dp.assetExchange)
         map["suggestFee"] = SuggestFee(dp.feeSuggestionCalculator)
         map["issueAsset"] = IssueAsset(dp)
-        map["longConvert"] = LongConvert.instance
+        map["longConvert"] = LongConvert
         map["parseTransaction"] = ParseTransaction(dp.parameterService, dp.transactionService)
         map["placeAskOrder"] = PlaceAskOrder(dp)
         map["placeBidOrder"] = PlaceBidOrder(dp)
-        map["rsConvert"] = RSConvert.instance
+        map["rsConvert"] = RSConvert
         map["readMessage"] = ReadMessage(dp.blockchain, dp.accountService)
         map["sendMessage"] = SendMessage(dp)
         map["sendMoney"] = SendMoney(dp)
@@ -139,37 +131,34 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getAT"] = GetAT(dp.parameterService, dp.accountService)
         map["getATDetails"] = GetATDetails(dp.parameterService, dp.accountService)
         map["getATIds"] = GetATIds(dp.atService)
-        map["getATLong"] = GetATLong.instance
+        map["getATLong"] = GetATLong
         map["getAccountATs"] = GetAccountATs(dp.parameterService, dp.atService, dp.accountService)
         map["getGuaranteedBalance"] = GetGuaranteedBalance(dp.parameterService)
         map["generateSendTransactionQRCode"] = GenerateDeeplinkQRCode(dp.deeplinkQRCodeGenerator)
-
         if (dp.propertyService.get(Props.API_DEBUG)) {
             map["clearUnconfirmedTransactions"] = ClearUnconfirmedTransactions(dp.transactionProcessor)
             map["fullReset"] = FullReset(dp.blockchainProcessor)
             map["popOff"] = PopOff(dp.blockchainProcessor, dp.blockchain, dp.blockService)
         }
-
-        apiRequestHandlers = Collections.unmodifiableMap(map)
+        apiRequestHandlers = map
     }
 
-    internal abstract class JsonRequestHandler(apiTags: Array<APITag>, vararg parameters: String) : HttpRequestHandler(apiTags, parameters) {
-
+    internal abstract class JsonRequestHandler(apiTags: Array<APITag>, vararg parameters: String) : HttpRequestHandler(apiTags, *parameters) {
         @Throws(IOException::class)
-        protected override fun processRequest(req: HttpServletRequest, resp: HttpServletResponse) {
+        override fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
             val startTime = System.currentTimeMillis()
 
             var response: JsonElement
             try {
-                response = processRequest(req)
+                response = processRequest(request)
             } catch (e: ParameterException) {
                 response = e.errorResponse
             } catch (e: BurstException) {
                 logger.debug("Error processing API request", e)
-                response = INSTANCE.ERROR_INCORRECT_REQUEST
+                response = ERROR_INCORRECT_REQUEST
             } catch (e: RuntimeException) {
                 logger.debug("Error processing API request", e)
-                response = INSTANCE.ERROR_INCORRECT_REQUEST
+                response = ERROR_INCORRECT_REQUEST
             }
 
             if (response is JsonObject) {
@@ -183,18 +172,13 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         internal abstract fun processRequest(request: HttpServletRequest): JsonElement
     }
 
-    internal abstract class HttpRequestHandler(apiTags: Array<APITag>, vararg parameters: String) {
+    abstract class HttpRequestHandler(apiTags: Array<APITag>, vararg parameters: String) {
 
-        val parameters: List<String>
-        val apiTags: Set<APITag>
-
-        init {
-            this.parameters = Collections.unmodifiableList(Arrays.asList(*parameters))
-            this.apiTags = Collections.unmodifiableSet(HashSet(Arrays.asList(*apiTags)))
-        }
+        val parameters = parameters.toList()
+        val apiTags = apiTags.toSet()
 
         @Throws(IOException::class)
-        abstract fun processRequest(req: HttpServletRequest, resp: HttpServletResponse)
+        abstract fun processRequest(request: HttpServletRequest, resp: HttpServletResponse)
 
         @Throws(IOException::class)
         fun addErrorMessage(resp: HttpServletResponse, msg: JsonElement) {
@@ -202,22 +186,22 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         }
 
         @Throws(ParameterException::class)
-        fun validateParams(req: HttpServletRequest) {
-            for (parameter in req.parameterMap.keys) {
+        fun validateParams(request: HttpServletRequest) {
+            for (parameter in request.parameterMap.keys) {
                 // _ is a parameter used in eg. jquery to avoid caching queries
                 if (!this.parameters.contains(parameter) && parameter != "_" && parameter != "requestType")
                     throw ParameterException(JSONResponses.incorrectUnknown(parameter))
             }
         }
 
-        open fun requirePost(): Boolean {
+        internal open fun requirePost(): Boolean {
             return false
         }
     }
 
-    override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
+    override fun doGet(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
-            process(req, resp)
+            process(request, resp)
         } catch (e: Exception) { // We don't want to send exception information to client...
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
             logger.warn("Error handling GET request", e)
@@ -225,9 +209,9 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
 
     }
 
-    override fun doPost(req: HttpServletRequest, resp: HttpServletResponse) {
+    override fun doPost(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
-            process(req, resp)
+            process(request, resp)
         } catch (e: Exception) { // We don't want to send exception information to client...
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
             logger.warn("Error handling GET request", e)
@@ -236,7 +220,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
     }
 
     @Throws(IOException::class)
-    private fun process(req: HttpServletRequest, resp: HttpServletResponse) {
+    private fun process(request: HttpServletRequest, resp: HttpServletResponse) {
         resp.setHeader("Access-Control-Allow-Methods", "GET, POST")
         resp.setHeader("Access-Control-Allow-Origin", allowedOrigins)
         resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private")
@@ -244,7 +228,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         resp.setDateHeader("Expires", 0)
 
         if (allowedBotHosts != null) {
-            val remoteAddress = InetAddress.getByName(req.remoteHost)
+            val remoteAddress = InetAddress.getByName(request.remoteHost)
             var allowed = false
             for (allowedSubnet in allowedBotHosts) {
                 if (allowedSubnet.isInNet(remoteAddress)) {
@@ -254,52 +238,51 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             }
             if (!allowed) {
                 resp.status = HttpStatus.FORBIDDEN_403
-                writeJsonToResponse(resp, INSTANCE.ERROR_NOT_ALLOWED)
+                writeJsonToResponse(resp, ERROR_NOT_ALLOWED)
                 return
             }
         }
 
-        val requestType = req.getParameter("requestType")
+        val requestType = request.getParameter("requestType")
         if (requestType == null) {
             resp.status = HttpStatus.NOT_FOUND_404
-            writeJsonToResponse(resp, INSTANCE.ERROR_MISSING_REQUEST)
+            writeJsonToResponse(resp, ERROR_MISSING_REQUEST)
             return
         }
 
         val apiRequestHandler = apiRequestHandlers[requestType]
         if (apiRequestHandler == null) {
             resp.status = HttpStatus.NOT_FOUND_404
-            writeJsonToResponse(resp, INSTANCE.ERROR_MISSING_REQUEST)
+            writeJsonToResponse(resp, ERROR_MISSING_REQUEST)
             return
         }
 
-        if (enforcePost && apiRequestHandler.requirePost() && "POST" != req.method) {
+        if (enforcePost && apiRequestHandler.requirePost() && "POST" != request.method) {
             resp.status = HttpStatus.METHOD_NOT_ALLOWED_405
-            writeJsonToResponse(resp, INSTANCE.ERROR_NOT_ALLOWED)
+            writeJsonToResponse(resp, ERROR_NOT_ALLOWED)
             return
         }
 
         try {
-            if (!acceptSurplusParams) apiRequestHandler.validateParams(req)
-            apiRequestHandler.processRequest(req, resp)
+            if (!acceptSurplusParams) apiRequestHandler.validateParams(request)
+            apiRequestHandler.processRequest(request, resp)
         } catch (e: ParameterException) {
             writeJsonToResponse(resp, e.errorResponse)
         } catch (e: RuntimeException) {
             logger.debug("Error processing API request", e)
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
-            writeJsonToResponse(resp, INSTANCE.ERROR_INCORRECT_REQUEST)
+            writeJsonToResponse(resp, ERROR_INCORRECT_REQUEST)
         }
 
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(APIServlet::class.java)
 
         @Throws(IOException::class)
         private fun writeJsonToResponse(resp: HttpServletResponse, msg: JsonElement) {
             resp.contentType = "text/plain; charset=UTF-8"
-            resp.writer.use { writer -> JSON.writeTo(msg, writer) }
+            resp.writer.use { writer -> msg.writeTo(writer) }
         }
     }
 }

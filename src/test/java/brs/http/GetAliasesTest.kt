@@ -15,8 +15,6 @@ import org.junit.Before
 import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
@@ -43,7 +41,7 @@ class GetAliasesTest : AbstractUnitTest() {
     @Throws(BurstException::class)
     fun processRequest() {
         val accountId = 123L
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
         whenever(mockAccount.id).doReturn(accountId)
@@ -56,12 +54,12 @@ class GetAliasesTest : AbstractUnitTest() {
 
         val mockAliasIterator = mockCollection<Alias>(mockAlias)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
 
         whenever(mockAliasService!!.getAliasesByOwner(eq(accountId), eq(0), eq(-1))).doReturn(mockAliasIterator)
         whenever(mockAliasService!!.getOffer(eq(mockAlias))).doReturn(mockOffer)
 
-        val resultOverview = t!!.processRequest(req) as JsonObject
+        val resultOverview = t!!.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
 
         val resultList = resultOverview.get(ALIASES_RESPONSE) as JsonArray

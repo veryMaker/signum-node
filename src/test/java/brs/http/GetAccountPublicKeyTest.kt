@@ -36,14 +36,14 @@ class GetAccountPublicKeyTest {
     @Test
     @Throws(BurstException::class)
     fun processRequest() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
         whenever(mockAccount.publicKey).doReturn(TestConstants.TEST_PUBLIC_KEY_BYTES)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         assertEquals(TestConstants.TEST_PUBLIC_KEY, JSON.getAsString(result.get(PUBLIC_KEY_RESPONSE)))
@@ -52,14 +52,14 @@ class GetAccountPublicKeyTest {
     @Test
     @Throws(BurstException::class)
     fun processRequest_withoutPublicKey() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
         whenever(mockAccount.publicKey).doReturn(null)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
 
-        assertEquals(JSON.emptyJSON, t!!.processRequest(req))
+        assertEquals(JSON.emptyJSON, t!!.processRequest(request))
     }
 
 }

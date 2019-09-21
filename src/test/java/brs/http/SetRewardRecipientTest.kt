@@ -47,18 +47,18 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest() {
-        val req = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
+        val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()
         val mockRecipientAccount = mock<Account>()
 
         whenever(mockRecipientAccount.publicKey).doReturn(Crypto.getPublicKey(TestConstants.TEST_SECRET_PHRASE))
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
         whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(mockRecipientAccount)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) }, apiTransactionManagerMock!!) as Attachment.BurstMiningRewardRecipientAssignment
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.BurstMiningRewardRecipientAssignment
         assertNotNull(attachment)
 
         assertEquals(REWARD_RECIPIENT_ASSIGNMENT, attachment.transactionType)
@@ -67,24 +67,24 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_recipientAccountDoesNotExist_errorCode8() {
-        val req = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
+        val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
 
-        assertEquals(8, JSONTestHelper.errorCode(t!!.processRequest(req)).toLong())
+        assertEquals(8, JSONTestHelper.errorCode(t!!.processRequest(request)).toLong())
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_recipientAccountDoesNotHavePublicKey_errorCode8() {
-        val req = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
+        val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()
         val mockRecipientAccount = mock<Account>()
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
+        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
         whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(mockRecipientAccount)
 
-        assertEquals(8, JSONTestHelper.errorCode(t!!.processRequest(req)).toLong())
+        assertEquals(8, JSONTestHelper.errorCode(t!!.processRequest(request)).toLong())
     }
 }

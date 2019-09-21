@@ -4,29 +4,29 @@ import brs.crypto.Crypto
 import brs.db.TransactionDb
 import brs.fluxcapacitor.FluxValues
 import brs.peer.Peer
-import brs.util.atomic.AtomicLazy
-import brs.util.Convert
-import brs.util.JSON
-import brs.util.atomic.Atomic
+import brs.util.*
+import brs.util.delegates.Atomic
+import brs.util.delegates.AtomicLazy
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
-
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
-import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.atomic.AtomicReference
 
 class Block @Throws(BurstException.ValidationException::class)
 internal constructor(private val dp: DependencyProvider, val version: Int, val timestamp: Int, val previousBlockId: Long, val totalAmountNQT: Long, val totalFeeNQT: Long,
                      val payloadLength: Int, val payloadHash: ByteArray, val generatorPublicKey: ByteArray, val generationSignature: ByteArray,
                      blockSignature: ByteArray?, val previousBlockHash: ByteArray?, transactions: Collection<Transaction>?,
                      val nonce: Long, val blockATs: ByteArray?, height: Int) {
-    private var blockTransactions by Atomic<Collection<Transaction>?>()
+    var transactions by AtomicLazy<Collection<Transaction>> {
+        val txs = transactionDb().findBlockTransactions(id)
+        txs.forEach { transaction -> transaction.setBlock(this) }
+        txs
+    }
 
-    var blockSignature: ByteArray
+    var blockSignature: ByteArray?
 
     var cumulativeDifficulty: BigInteger = BigInteger.ZERO
 
@@ -37,9 +37,11 @@ internal constructor(private val dp: DependencyProvider, val version: Int, val t
         Convert.fullHashToId(hash)
     }
     var stringId by AtomicLazy {
-        Convert.toUnsignedLong(id)
+        id.toUnsignedString()
     }
-    var generatorId by Atomic<Long>()
+    var generatorId by AtomicLazy {
+        Account.getId(generatorPublicKey)
+    }
     var hash by AtomicLazy<ByteArray> {
         checkNotNull(blockSignature) { "Block is not signed yet" }
         Crypto.sha256().digest(bytes)
@@ -56,36 +58,27 @@ internal constructor(private val dp: DependencyProvider, val version: Int, val t
     val blockHash: ByteArray
         get() = Crypto.sha256().digest(bytes)
 
-    val transactions: List<Transaction>
-        get() {
-            if (blockTransactions == null) {
-                this.blockTransactions = Collections.unmodifiableList(transactionDb().findBlockTransactions(id))
-                this.blockTransactions!!.forEach { transaction -> transaction.setBlock(this) }
-            }
-            return blockTransactions!!
-        }
-
     val jsonObject: JsonObject
         get() {
             val json = JsonObject()
             json.addProperty("version", version)
             json.addProperty("timestamp", timestamp)
-            json.addProperty("previousBlock", Convert.toUnsignedLong(previousBlockId))
+            json.addProperty("previousBlock", previousBlockId.toUnsignedString())
             json.addProperty("totalAmountNQT", totalAmountNQT)
             json.addProperty("totalFeeNQT", totalFeeNQT)
             json.addProperty("payloadLength", payloadLength)
-            json.addProperty("payloadHash", Convert.toHexString(payloadHash))
-            json.addProperty("generatorPublicKey", Convert.toHexString(generatorPublicKey))
-            json.addProperty("generationSignature", Convert.toHexString(generationSignature))
+            json.addProperty("payloadHash", payloadHash.toHexString())
+            json.addProperty("generatorPublicKey", generatorPublicKey.toHexString())
+            json.addProperty("generationSignature", generationSignature.toHexString())
             if (version > 1) {
-                json.addProperty("previousBlockHash", Convert.toHexString(previousBlockHash!!))
+                json.addProperty("previousBlockHash", previousBlockHash!!.toHexString())
             }
-            json.addProperty("blockSignature", Convert.toHexString(blockSignature))
+            json.addProperty("blockSignature", blockSignature?.toHexString())
             val transactionsData = JsonArray()
             transactions.forEach { transaction -> transactionsData.add(transaction.jsonObject) }
             json.add("transactions", transactionsData)
-            json.addProperty("nonce", Convert.toUnsignedLong(nonce))
-            json.addProperty("blockATs", Convert.toHexString(blockATs))
+            json.addProperty("nonce", nonce.toUnsignedString())
+            json.addProperty("blockATs", blockATs?.toHexString() ?: "")
             return json
         }
 
@@ -141,7 +134,7 @@ internal constructor(private val dp: DependencyProvider, val version: Int, val t
                 }
                 previousId = transaction.id
             }
-            this.blockTransactions = transactions
+            this.transactions = transactions
         }
     }
 
@@ -160,29 +153,12 @@ internal constructor(private val dp: DependencyProvider, val version: Int, val t
         return dp.dbs.transactionDb
     }
 
-    fun getStringId(): String {
-        if (stringId == null) {
-            id
-            if (stringId == null) {
-                stringId = Convert.toUnsignedLong(id)
-            }
-        }
-        return stringId
-    }
-
-    fun getGeneratorId(): Long {
-        if (generatorId == 0L) {
-            generatorId = Account.getId(generatorPublicKey)
-        }
-        return generatorId
-    }
-
     fun getNonce(): Long? {
         return nonce
     }
 
-    override fun equals(o: Any?): Boolean {
-        return o is Block && this.id == o.id
+    override fun equals(other: Any?): Boolean {
+        return other is Block && this.id == other.id
     }
 
     override fun hashCode(): Int {
@@ -207,16 +183,16 @@ internal constructor(private val dp: DependencyProvider, val version: Int, val t
             try {
                 val version = JSON.getAsInt(blockData.get("version"))
                 val timestamp = JSON.getAsInt(blockData.get("timestamp"))
-                val previousBlock = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("previousBlock")))
+                val previousBlock = JSON.getAsString(blockData.get("previousBlock")).parseUnsignedLong()
                 val totalAmountNQT = JSON.getAsLong(blockData.get("totalAmountNQT"))
                 val totalFeeNQT = JSON.getAsLong(blockData.get("totalFeeNQT"))
                 val payloadLength = JSON.getAsInt(blockData.get("payloadLength"))
-                val payloadHash = Convert.parseHexString(JSON.getAsString(blockData.get("payloadHash")))
-                val generatorPublicKey = Convert.parseHexString(JSON.getAsString(blockData.get("generatorPublicKey")))
-                val generationSignature = Convert.parseHexString(JSON.getAsString(blockData.get("generationSignature")))
-                val blockSignature = Convert.parseHexString(JSON.getAsString(blockData.get("blockSignature")))
-                val previousBlockHash = if (version == 1) null else Convert.parseHexString(JSON.getAsString(blockData.get("previousBlockHash")))
-                val nonce = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("nonce")))
+                val payloadHash = JSON.getAsString(blockData.get("payloadHash")).parseHexString()
+                val generatorPublicKey = JSON.getAsString(blockData.get("generatorPublicKey")).parseHexString()
+                val generationSignature = JSON.getAsString(blockData.get("generationSignature")).parseHexString()
+                val blockSignature = JSON.getAsString(blockData.get("blockSignature")).parseHexString()
+                val previousBlockHash = if (version == 1) null else JSON.getAsString(blockData.get("previousBlockHash")).parseHexString()
+                val nonce = JSON.getAsString(blockData.get("nonce")).parseUnsignedLong()
 
                 val blockTransactions = TreeMap<Long, Transaction>()
                 val transactionsData = JSON.getAsJsonArray(blockData.get("transactions"))
@@ -228,18 +204,18 @@ internal constructor(private val dp: DependencyProvider, val version: Int, val t
                     }
                 }
 
-                val blockATs = Convert.parseHexString(JSON.getAsString(blockData.get("blockATs")))
+                val blockATs = JSON.getAsString(blockData.get("blockATs")).parseHexString()
                 return Block(dp, version, timestamp, previousBlock, totalAmountNQT, totalFeeNQT,
                         payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature,
-                        previousBlockHash, mutableListOf(blockTransactions.values), nonce, blockATs, height)
+                        previousBlockHash, blockTransactions.values, nonce, blockATs, height)
             } catch (e: BurstException.ValidationException) {
                 if (logger.isDebugEnabled) {
-                    logger.debug("Failed to parse block: {}", JSON.toJsonString(blockData))
+                    logger.debug("Failed to parse block: {}", blockData.toJsonString())
                 }
                 throw e
             } catch (e: RuntimeException) {
                 if (logger.isDebugEnabled) {
-                    logger.debug("Failed to parse block: {}", JSON.toJsonString(blockData))
+                    logger.debug("Failed to parse block: {}", blockData.toJsonString())
                 }
                 throw e
             }

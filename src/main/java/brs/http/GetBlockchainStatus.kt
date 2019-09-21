@@ -1,21 +1,16 @@
 package brs.http
 
-import brs.Block
 import brs.Blockchain
 import brs.BlockchainProcessor
 import brs.Burst
-import brs.peer.Peer
+import brs.http.common.ResultFields.TIME_RESPONSE
 import brs.services.TimeService
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-
 import javax.servlet.http.HttpServletRequest
 
-import brs.http.common.ResultFields.TIME_RESPONSE
-
 internal class GetBlockchainStatus(private val blockchainProcessor: BlockchainProcessor, private val blockchain: Blockchain, private val timeService: TimeService) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS, APITag.INFO)) {
-
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
         response.addProperty("application", Burst.APPLICATION)
         response.addProperty("version", Burst.VERSION.toString())
@@ -30,5 +25,4 @@ internal class GetBlockchainStatus(private val blockchainProcessor: BlockchainPr
         response.addProperty("isScanning", blockchainProcessor.isScanning)
         return response
     }
-
 }

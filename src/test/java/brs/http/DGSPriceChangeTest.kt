@@ -47,7 +47,7 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
     fun processRequest() {
         val priceNQTParameter = 5
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, priceNQTParameter)
         )
 
@@ -60,12 +60,12 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
         whenever(mockGoods.sellerId).doReturn(1L)
         whenever(mockGoods.isDelisted).doReturn(false)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
-        whenever(parameterServiceMock!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsPriceChange
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsPriceChange
         assertNotNull(attachment)
 
         assertEquals(PRICE_CHANGE, attachment.transactionType)
@@ -76,7 +76,7 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_goodsDelistedUnknownGoods() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L)
         )
 
@@ -85,16 +85,16 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
         val mockGoods = mock<Goods>()
         whenever(mockGoods.isDelisted).doReturn(true)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
-        whenever(parameterServiceMock!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        assertEquals(UNKNOWN_GOODS, t!!.processRequest(req))
+        assertEquals(UNKNOWN_GOODS, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_goodsWrongSellerIdUnknownGoods() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L)
         )
 
@@ -105,10 +105,10 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
         whenever(mockGoods.sellerId).doReturn(2L)
         whenever(mockGoods.isDelisted).doReturn(false)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
-        whenever(parameterServiceMock!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
+        whenever(parameterServiceMock!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        assertEquals(UNKNOWN_GOODS, t!!.processRequest(req))
+        assertEquals(UNKNOWN_GOODS, t!!.processRequest(request))
     }
 
 }

@@ -12,8 +12,6 @@ import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
 import java.util.Arrays
-
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals
@@ -38,14 +36,14 @@ class GetDGSPurchaseTest {
     @Test
     @Throws(BurstException::class)
     fun processRequest() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockEncryptedData = mock<EncryptedData>()
 
         whenever(mockEncryptedData.data).doReturn(byteArrayOf(1.toByte()))
         whenever(mockEncryptedData.nonce).doReturn(byteArrayOf(1.toByte()))
 
-        val mockEncryptedDataList = Arrays.asList(mockEncryptedData)
+        val mockEncryptedDataList = listOf(mockEncryptedData)
 
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.id).doReturn(1L)
@@ -67,9 +65,9 @@ class GetDGSPurchaseTest {
         whenever(mockPurchase.note).doReturn(mockEncryptedData)
         whenever(mockPurchase.publicFeedback).doReturn(listOf("feedback"))
 
-        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(req))).doReturn(mockPurchase)
+        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertNotNull(result)
 

@@ -8,6 +8,23 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.Constants.FEE_QUANT
 import brs.Constants.ONE_BURST
+import brs.http.common.Parameters.BROADCAST_PARAMETER
+import brs.http.common.Parameters.DEADLINE_PARAMETER
+import brs.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
+import brs.http.common.Parameters.ENCRYPTED_MESSAGE_NONCE_PARAMETER
+import brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_DATA
+import brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_NONCE
+import brs.http.common.Parameters.FEE_NQT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_IS_TEXT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER
+import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
+import brs.http.common.Parameters.RECIPIENT_PUBLIC_KEY_PARAMETER
+import brs.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER
+import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 
 internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
     private val dp: DependencyProvider
@@ -21,14 +38,13 @@ internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
     }
 
     @Throws(BurstException::class)
-    fun createTransaction(req: HttpServletRequest, senderAccount: Account, attachment: Attachment): JsonElement {
-        return createTransaction(req, senderAccount, null, 0, attachment)
+    fun createTransaction(request: HttpServletRequest, senderAccount: Account, attachment: Attachment): JsonElement {
+        return createTransaction(request, senderAccount, null, 0, attachment)
     }
 
     @Throws(BurstException::class)
-    @JvmOverloads
-    fun createTransaction(req: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment = Attachment.ORDINARY_PAYMENT): JsonElement {
-        return dp.apiTransactionManager.createTransaction(req, senderAccount, recipientId, amountNQT, attachment, minimumFeeNQT())
+    fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment = Attachment.ORDINARY_PAYMENT): JsonElement {
+        return dp.apiTransactionManager.createTransaction(request, senderAccount, recipientId, amountNQT, attachment, minimumFeeNQT())
     }
 
     internal override fun requirePost(): Boolean {

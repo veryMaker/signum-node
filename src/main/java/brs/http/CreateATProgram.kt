@@ -1,24 +1,15 @@
 package brs.http
 
-import brs.*
+
+import brs.Attachment
+import brs.BurstException
+import brs.Constants
+import brs.DependencyProvider
 import brs.at.AtConstants
 import brs.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_DESCRIPTION
 import brs.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME
 import brs.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME_LENGTH
 import brs.http.JSONResponses.MISSING_NAME
-import brs.services.ParameterService
-import brs.util.Convert
-import brs.util.TextUtils
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-import javax.servlet.http.HttpServletRequest
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-
-
 import brs.http.common.Parameters.CODE_PARAMETER
 import brs.http.common.Parameters.CREATION_BYTES_PARAMETER
 import brs.http.common.Parameters.CSPAGES_PARAMETER
@@ -30,15 +21,24 @@ import brs.http.common.Parameters.NAME_PARAMETER
 import brs.http.common.Parameters.USPAGES_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.util.TextUtils
+import brs.util.parseHexString
+import brs.util.parseUnsignedLong
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import org.slf4j.LoggerFactory
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import javax.servlet.http.HttpServletRequest
 
 internal class CreateATProgram(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AT, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, CREATION_BYTES_PARAMETER, CODE_PARAMETER, DATA_PARAMETER, DPAGES_PARAMETER, CSPAGES_PARAMETER, USPAGES_PARAMETER, MIN_ACTIVATION_AMOUNT_NQT_PARAMETER) {
 
     private val logger = LoggerFactory.getLogger(CreateATProgram::class.java)
 
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        var name: String? = req.getParameter(NAME_PARAMETER)
-        val description = req.getParameter(DESCRIPTION_PARAMETER)
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+        var name: String? = request.getParameter(NAME_PARAMETER)
+        val description = request.getParameter(DESCRIPTION_PARAMETER)
 
         if (name == null) {
             return MISSING_NAME
@@ -59,14 +59,14 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
 
         var creationBytes: ByteArray? = null
 
-        if (req.getParameter(CODE_PARAMETER) != null) {
+        if (request.getParameter(CODE_PARAMETER) != null) {
             try {
-                val code = req.getParameter(CODE_PARAMETER)
+                val code = request.getParameter(CODE_PARAMETER)
                 if (code.length and 1 != 0) {
                     throw IllegalArgumentException()
                 }
 
-                var data: String? = req.getParameter(DATA_PARAMETER)
+                var data: String? = request.getParameter(DATA_PARAMETER)
                 if (data == null) {
                     data = ""
                 }
@@ -75,15 +75,15 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
                 }
 
                 val cpages = code.length / 2 / 256 + if (code.length / 2 % 256 != 0) 1 else 0
-                val dpages = Integer.parseInt(req.getParameter(DPAGES_PARAMETER))
-                val cspages = Integer.parseInt(req.getParameter(CSPAGES_PARAMETER))
-                val uspages = Integer.parseInt(req.getParameter(USPAGES_PARAMETER))
+                val dpages = Integer.parseInt(request.getParameter(DPAGES_PARAMETER))
+                val cspages = Integer.parseInt(request.getParameter(CSPAGES_PARAMETER))
+                val uspages = Integer.parseInt(request.getParameter(USPAGES_PARAMETER))
 
                 if (dpages < 0 || cspages < 0 || uspages < 0) {
                     throw IllegalArgumentException()
                 }
 
-                val minActivationAmount = Convert.parseUnsignedLong(req.getParameter(MIN_ACTIVATION_AMOUNT_NQT_PARAMETER))
+                val minActivationAmount = request.getParameter(MIN_ACTIVATION_AMOUNT_NQT_PARAMETER).parseUnsignedLong()
 
                 var creationLength = 4 // version + reserved
                 creationLength += 8 // pages
@@ -103,13 +103,13 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
                 creation.putShort(uspages.toShort())
                 creation.putLong(minActivationAmount)
                 putLength(cpages, code, creation)
-                val codeBytes = Convert.parseHexString(code)
-                if (codeBytes != null) {
+                val codeBytes = code.parseHexString()
+                if (codeBytes != null && codeBytes.isNotEmpty()) {
                     creation.put(codeBytes)
                 }
                 putLength(dpages, data, creation)
-                val dataBytes = Convert.parseHexString(data)
-                if (dataBytes != null) {
+                val dataBytes = data.parseHexString()
+                if (dataBytes != null && dataBytes.isNotEmpty()) {
                     creation.put(dataBytes)
                 }
 
@@ -124,14 +124,14 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
         }
 
         if (creationBytes == null) {
-            creationBytes = ParameterParser.getCreationBytes(req)
+            creationBytes = ParameterParser.getCreationBytes(request)
         }
 
-        val account = dp.parameterService.getSenderAccount(req)
+        val account = dp.parameterService.getSenderAccount(request)
         val attachment = Attachment.AutomatedTransactionsCreation(name, description!!, creationBytes!!, dp.blockchain.height)
 
         logger.debug("AT {} added successfully", name)
-        return createTransaction(req, account, attachment)
+        return createTransaction(request, account, attachment)
     }
 
     private fun putLength(nPages: Int, string: String, buffer: ByteBuffer) {

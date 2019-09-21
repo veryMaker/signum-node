@@ -3,24 +3,20 @@ package brs.services.impl
 import brs.services.TimeService
 import brs.util.Time
 import brs.util.Time.FasterTime
-
-import java.util.concurrent.atomic.AtomicReference
+import brs.util.delegates.Atomic
 
 class TimeServiceImpl : TimeService {
-
     override val epochTime: Int
-        get() = time.get().time
+        get() = time.time
 
     override val epochTimeMillis: Long
-        get() = time.get().timeInMillis
+        get() = time.timeInMillis
 
-    override fun setTime(t: FasterTime) {
-        time.set(t)
+    override fun setTime(fasterTime: FasterTime) {
+        time = fasterTime
     }
 
     companion object {
-
-        private val time = AtomicReference<Time>(Time.EpochTime())
+        private var time by Atomic<Time>(Time.EpochTime())
     }
-
 }

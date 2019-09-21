@@ -7,7 +7,7 @@ import brs.grpc.GrpcApiHandler
 import brs.grpc.proto.ApiException
 import brs.grpc.proto.BrsApi
 import brs.grpc.proto.ProtoBuilder
-import brs.util.Convert
+import brs.util.toHexString
 
 class GetTransactionHandler(private val blockchain: Blockchain, private val transactionProcessor: TransactionProcessor) : GrpcApiHandler<BrsApi.GetTransactionRequest, BrsApi.Transaction> {
 
@@ -24,7 +24,7 @@ class GetTransactionHandler(private val blockchain: Blockchain, private val tran
             val fullHash = request.fullHash.toByteArray()
             var transaction: Transaction?
             if (fullHash.size > 0) {
-                transaction = blockchain.getTransactionByFullHash(Convert.toHexString(fullHash))
+                transaction = blockchain.getTransactionByFullHash(fullHash.toHexString())
             } else if (id != 0L) {
                 transaction = blockchain.getTransaction(id)
                 if (transaction == null) transaction = transactionProcessor.getUnconfirmedTransaction(id)

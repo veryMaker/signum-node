@@ -3,20 +3,18 @@ package brs.db
 import org.jooq.*
 
 interface EntityTable<T> : DerivedTable {
-
     val count: Int
 
     val rowCount: Int
     fun checkAvailable(height: Int)
 
-    // TODO nullability?
-    operator fun get(dbKey: BurstKey): T
+    operator fun get(dbKey: BurstKey): T?
 
-    operator fun get(dbKey: BurstKey, height: Int): T
+    operator fun get(dbKey: BurstKey, height: Int): T?
 
-    fun getBy(condition: Condition): T
+    fun getBy(condition: Condition): T?
 
-    fun getBy(condition: Condition, height: Int): T
+    fun getBy(condition: Condition, height: Int): T?
 
     fun getManyBy(condition: Condition, from: Int, to: Int): Collection<T>
 

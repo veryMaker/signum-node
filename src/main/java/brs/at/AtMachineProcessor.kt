@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory
 import org.slf4j.helpers.NOPLogger
 
 internal class AtMachineProcessor(private val machineData: AtMachineState, enableLogger: Boolean) {
-
     private val logger: Logger
     private val `fun` = Fun()
 
@@ -554,16 +553,12 @@ internal class AtMachineProcessor(private val machineData: AtMachineState, enabl
                 } else {
                     machineData.machineState!!.pc += rc
                     val `val` = machineData.apData!!.getLong(`fun`.addr1 * 8)
-                    var shift = machineData.apData!!.getLong(`fun`.addr2 * 8)
-                    if (shift < 0)
-                        shift = 0
-                    else if (shift > 63)
-                        shift = 63
+                    var shift = machineData.apData!!.getLong(`fun`.addr2 * 8).coerceAtLeast(0).coerceAtMost(63).toInt()
 
                     if (op == OpCode.E_OP_CODE_SHL_DAT)
                         machineData.apData!!.putLong(`fun`.addr1 * 8, `val` shl shift)
                     else
-                        machineData.apData!!.putLong(`fun`.addr1 * 8, `val`.ushr(shift))
+                        machineData.apData!!.putLong(`fun`.addr1 * 8, `val` ushr shift)
                 }
             }
         } else if (op == OpCode.E_OP_CODE_JMP_ADR) {
@@ -872,10 +867,10 @@ internal class AtMachineProcessor(private val machineData: AtMachineState, enabl
     }
 
     private inner class Fun {
-        internal var `fun`: Short = 0
+        internal var `fun`: Short = 0 // TODO
         internal var addr1: Int = 0
         internal var addr2: Int = 0
-        internal var `val`: Long = 0
+        internal var `val`: Long = 0 // TODO
         internal var off: Byte = 0
         internal var addr3: Int = 0
     }

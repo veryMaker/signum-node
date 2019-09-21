@@ -12,40 +12,37 @@ import brs.http.JSONResponses.INCORRECT_MESSAGE_LENGTH
 import brs.http.JSONResponses.MISSING_AMOUNT
 import brs.http.JSONResponses.MISSING_RECEIVER_ID
 import brs.http.common.Parameters
-import brs.util.Convert
-import brs.util.StringUtils
-import com.google.zxing.WriterException
-import org.eclipse.jetty.http.HttpStatus
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-import javax.imageio.ImageIO
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-import java.io.IOException
 import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
 import brs.http.common.Parameters.FEE_NQT_PARAMETER
 import brs.http.common.Parameters.FEE_SUGGESTION_TYPE_PARAMETER
 import brs.http.common.Parameters.IMMUTABLE_PARAMETER
 import brs.http.common.Parameters.MESSAGE_PARAMETER
 import brs.http.common.Parameters.RECEIVER_ID_PARAMETER
+import brs.util.Convert
+import com.google.zxing.WriterException
+import org.eclipse.jetty.http.HttpStatus
+import org.slf4j.LoggerFactory
+import java.io.IOException
+import javax.imageio.ImageIO
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGenerator: DeeplinkQRCodeGenerator) : HttpRequestHandler(arrayOf(APITag.CREATE_TRANSACTION, APITag.TRANSACTIONS), IMMUTABLE_PARAMETER, RECEIVER_ID_PARAMETER, AMOUNT_NQT_PARAMETER, FEE_NQT_PARAMETER, FEE_SUGGESTION_TYPE_PARAMETER, MESSAGE_PARAMETER) {
 
     private val logger = LoggerFactory.getLogger(GenerateDeeplinkQRCode::class.java)
 
-    override fun processRequest(req: HttpServletRequest, resp: HttpServletResponse) {
+    override fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
-            val immutable = Parameters.isTrue(req.getParameter(IMMUTABLE_PARAMETER))
+            val immutable = Parameters.isTrue(request.getParameter(IMMUTABLE_PARAMETER))
 
-            val receiverId = Convert.emptyToNull(req.getParameter(RECEIVER_ID_PARAMETER))
+            val receiverId = Convert.emptyToNull(request.getParameter(RECEIVER_ID_PARAMETER))
 
             if (receiverId.isNullOrBlank()) {
                 addErrorMessage(resp, MISSING_RECEIVER_ID)
                 return
             }
 
-            val amountNQTString = Convert.emptyToNull(req.getParameter(AMOUNT_NQT_PARAMETER))
+            val amountNQTString = Convert.emptyToNull(request.getParameter(AMOUNT_NQT_PARAMETER))
             if (amountNQTString.isNullOrBlank()) {
                 addErrorMessage(resp, MISSING_AMOUNT)
                 return
@@ -57,7 +54,7 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGenerator: Deepl
                 return
             }
 
-            val feeNQTString = Convert.emptyToNull(req.getParameter(FEE_NQT_PARAMETER))
+            val feeNQTString = Convert.emptyToNull(request.getParameter(FEE_NQT_PARAMETER))
 
             var feeNQT: Long? = null
 
@@ -73,7 +70,7 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGenerator: Deepl
             var feeSuggestionType: FeeSuggestionType? = null
 
             if (feeNQT == null) {
-                val feeSuggestionTypeString = Convert.emptyToNull(req.getParameter(FEE_SUGGESTION_TYPE_PARAMETER))
+                val feeSuggestionTypeString = Convert.emptyToNull(request.getParameter(FEE_SUGGESTION_TYPE_PARAMETER))
 
                 if (feeSuggestionTypeString.isNullOrBlank()) {
                     addErrorMessage(resp, FEE_OR_FEE_SUGGESTION_REQUIRED)
@@ -88,7 +85,7 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGenerator: Deepl
                 }
             }
 
-            val message = Convert.emptyToNull(req.getParameter(MESSAGE_PARAMETER))
+            val message = Convert.emptyToNull(request.getParameter(MESSAGE_PARAMETER))
 
             if (!message.isNullOrBlank() && message.length > Constants.MAX_ARBITRARY_MESSAGE_LENGTH) {
                 addErrorMessage(resp, INCORRECT_MESSAGE_LENGTH)

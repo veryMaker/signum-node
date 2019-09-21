@@ -8,48 +8,47 @@ import brs.http.ParameterException
 import javax.servlet.http.HttpServletRequest
 
 interface ParameterService {
-
     @Throws(BurstException::class)
-    fun getAccount(req: HttpServletRequest): Account
+    fun getAccount(request: HttpServletRequest): Account
 
     @Throws(ParameterException::class)
-    fun getAccounts(req: HttpServletRequest): List<Account>
+    fun getAccounts(request: HttpServletRequest): List<Account>
 
     @Throws(ParameterException::class)
-    fun getSenderAccount(req: HttpServletRequest): Account
+    fun getSenderAccount(request: HttpServletRequest): Account // TODO these should be nullable.
 
     @Throws(ParameterException::class)
-    fun getAlias(req: HttpServletRequest): Alias
+    fun getAlias(request: HttpServletRequest): Alias
 
     @Throws(ParameterException::class)
-    fun getAsset(req: HttpServletRequest): Asset
+    fun getAsset(request: HttpServletRequest): Asset
 
     @Throws(ParameterException::class)
-    fun getGoods(req: HttpServletRequest): DigitalGoodsStore.Goods
+    fun getGoods(request: HttpServletRequest): DigitalGoodsStore.Goods
 
     @Throws(ParameterException::class)
-    fun getPurchase(req: HttpServletRequest): DigitalGoodsStore.Purchase
+    fun getPurchase(request: HttpServletRequest): DigitalGoodsStore.Purchase
 
     @Throws(ParameterException::class)
-    fun getEncryptedMessage(req: HttpServletRequest, recipientAccount: Account, publicKey: ByteArray): EncryptedData
+    fun getEncryptedMessage(request: HttpServletRequest, recipientAccount: Account?, publicKey: ByteArray?): EncryptedData?
 
     @Throws(ParameterException::class)
-    fun getEncryptToSelfMessage(req: HttpServletRequest): EncryptedData
+    fun getEncryptToSelfMessage(request: HttpServletRequest): EncryptedData?
 
     @Throws(ParameterException::class)
-    fun getSecretPhrase(req: HttpServletRequest): String
+    fun getSecretPhrase(request: HttpServletRequest): String
 
     @Throws(ParameterException::class)
-    fun getNumberOfConfirmations(req: HttpServletRequest): Int
+    fun getNumberOfConfirmations(request: HttpServletRequest): Int
 
     @Throws(ParameterException::class)
-    fun getHeight(req: HttpServletRequest): Int
+    fun getHeight(request: HttpServletRequest): Int
 
     @Throws(ParameterException::class)
-    fun parseTransaction(transactionBytes: String, transactionJSON: String): Transaction
+    fun parseTransaction(transactionBytes: String?, transactionJSON: String?): Transaction
 
     @Throws(ParameterException::class)
-    fun getAT(req: HttpServletRequest): AT
+    fun getAT(request: HttpServletRequest): AT
 
-    fun getIncludeIndirect(req: HttpServletRequest): Boolean
+    fun getIncludeIndirect(request: HttpServletRequest): Boolean
 }

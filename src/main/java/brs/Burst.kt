@@ -33,7 +33,6 @@ import kotlin.math.max
 import kotlin.system.exitProcess
 
 class Burst(properties: Properties, addShutdownHook: Boolean = true) {
-    @JvmField
     val dp = DependencyProvider()
 
     init {
@@ -175,7 +174,6 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
     }
 
     companion object {
-        @JvmField
         val VERSION = Version.parse("v2.4.0-dev")
         const val APPLICATION = "BRS"
         private const val DEFAULT_PROPERTIES_NAME = "brs-default.properties"

@@ -49,7 +49,7 @@ class GetBidOrdersTest : AbstractUnitTest() {
         val firstIndex = 0
         val lastIndex = 1
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
@@ -63,10 +63,10 @@ class GetBidOrdersTest : AbstractUnitTest() {
 
         val mockBidIterator = mockCollection<Bid>(mockBid)
 
-        whenever(mockParameterService!!.getAsset(req)).doReturn(mockAsset)
+        whenever(mockParameterService!!.getAsset(request)).doReturn(mockAsset)
         whenever(mockAssetExchange!!.getSortedBidOrders(eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val resultBidOrdersList = result.get(BID_ORDERS_RESPONSE) as JsonArray

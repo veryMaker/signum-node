@@ -8,7 +8,6 @@ import java.util.stream.Collectors
 import brs.schema.Tables.PEER
 
 class SqlPeerDb : PeerDb {
-
     override fun loadPeers(): List<String> {
         return Db.useDSLContext<List<String>> { ctx -> ctx.selectFrom(PEER).fetch(PEER.ADDRESS, String::class.java) }
     }

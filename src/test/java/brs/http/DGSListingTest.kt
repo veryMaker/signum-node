@@ -51,7 +51,7 @@ class DGSListingTest : AbstractTransactionTest() {
         val priceNqt = 123
         val quantity = 5
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, priceNqt),
                 MockParam(QUANTITY_PARAMETER, quantity),
                 MockParam(NAME_PARAMETER, dgsName),
@@ -59,11 +59,11 @@ class DGSListingTest : AbstractTransactionTest() {
                 MockParam(TAGS_PARAMETER, tags)
         )
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsListing
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsListing
         assertNotNull(attachment)
 
         assertEquals(DigitalGoods.LISTING, attachment.transactionType)
@@ -77,12 +77,12 @@ class DGSListingTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_missingName() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L),
                 MockParam(QUANTITY_PARAMETER, 1L)
         )
 
-        assertEquals(MISSING_NAME, t!!.processRequest(req))
+        assertEquals(MISSING_NAME, t!!.processRequest(request))
     }
 
     @Test
@@ -94,13 +94,13 @@ class DGSListingTest : AbstractTransactionTest() {
             tooLongName += "a"
         }
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L),
                 MockParam(QUANTITY_PARAMETER, 1L),
                 MockParam(NAME_PARAMETER, tooLongName)
         )
 
-        assertEquals(INCORRECT_DGS_LISTING_NAME, t!!.processRequest(req))
+        assertEquals(INCORRECT_DGS_LISTING_NAME, t!!.processRequest(request))
     }
 
     @Test
@@ -112,14 +112,14 @@ class DGSListingTest : AbstractTransactionTest() {
             tooLongDescription += "a"
         }
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L),
                 MockParam(QUANTITY_PARAMETER, 1L),
                 MockParam(NAME_PARAMETER, "name"),
                 MockParam(DESCRIPTION_PARAMETER, tooLongDescription)
         )
 
-        assertEquals(INCORRECT_DGS_LISTING_DESCRIPTION, t!!.processRequest(req))
+        assertEquals(INCORRECT_DGS_LISTING_DESCRIPTION, t!!.processRequest(request))
     }
 
     @Test
@@ -131,7 +131,7 @@ class DGSListingTest : AbstractTransactionTest() {
             tooLongTags += "a"
         }
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L),
                 MockParam(QUANTITY_PARAMETER, 1L),
                 MockParam(NAME_PARAMETER, "name"),
@@ -139,7 +139,7 @@ class DGSListingTest : AbstractTransactionTest() {
                 MockParam(TAGS_PARAMETER, tooLongTags)
         )
 
-        assertEquals(INCORRECT_DGS_LISTING_TAGS, t!!.processRequest(req))
+        assertEquals(INCORRECT_DGS_LISTING_TAGS, t!!.processRequest(request))
     }
 
 }

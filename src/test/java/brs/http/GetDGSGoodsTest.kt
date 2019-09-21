@@ -16,7 +16,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
-import brs.http.common.ResultFields.*
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -46,7 +45,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val firstIndex = 2
         val lastIndex = 3
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, "" + sellerId),
                 MockParam(FIRST_INDEX_PARAMETER, "" + firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, "" + lastIndex),
@@ -59,7 +58,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         whenever(mockDGSGoodsStoreService!!.getSellerGoods(eq(sellerId), eq(true), eq(firstIndex), eq(lastIndex)))
                 .doReturn(mockGoodIterator)
 
-        val fullResult = t!!.processRequest(req) as JsonObject
+        val fullResult = t!!.processRequest(request) as JsonObject
         assertNotNull(fullResult)
 
         val goodsList = fullResult.get(GOODS_RESPONSE) as JsonArray
@@ -87,7 +86,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val firstIndex = 2
         val lastIndex = 3
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, "" + sellerId),
                 MockParam(FIRST_INDEX_PARAMETER, "" + firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, "" + lastIndex),
@@ -100,7 +99,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         whenever(mockDGSGoodsStoreService!!.getAllGoods(eq(firstIndex), eq(lastIndex)))
                 .doReturn(mockGoodIterator)
 
-        val fullResult = t!!.processRequest(req) as JsonObject
+        val fullResult = t!!.processRequest(request) as JsonObject
         assertNotNull(fullResult)
 
         val goodsList = fullResult.get(GOODS_RESPONSE) as JsonArray
@@ -128,7 +127,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val firstIndex = 2
         val lastIndex = 3
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, "" + sellerId),
                 MockParam(FIRST_INDEX_PARAMETER, "" + firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, "" + lastIndex),
@@ -141,7 +140,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         whenever(mockDGSGoodsStoreService!!.getGoodsInStock(eq(firstIndex), eq(lastIndex)))
                 .doReturn(mockGoodIterator)
 
-        val fullResult = t!!.processRequest(req) as JsonObject
+        val fullResult = t!!.processRequest(request) as JsonObject
         assertNotNull(fullResult)
 
         val goodsList = fullResult.get(GOODS_RESPONSE) as JsonArray

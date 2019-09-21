@@ -4,23 +4,21 @@ import brs.*
 import brs.BlockchainProcessor.BlockOutOfOrderException
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
-import brs.services.AccountService
 import brs.services.BlockService
-import brs.services.TransactionService
 import brs.util.Convert
-import brs.util.DownloadCacheImpl
 import brs.util.ThreadPool
-import org.slf4j.Logger
+import brs.util.toUnsignedString
 import org.slf4j.LoggerFactory
-
 import java.math.BigInteger
-import java.util.Arrays
+import java.util.*
 
 class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
-
     @Throws(BlockchainProcessor.BlockOutOfOrderException::class)
     override fun verifyBlockSignature(block: Block): Boolean {
         try {
+            if (block.blockSignature == null) {
+                return false
+            }
             val previousBlock = dp.blockchain.getBlock(block.previousBlockId)
                     ?: throw BlockchainProcessor.BlockOutOfOrderException(
                             "Can't verify signature because previous block is missing")
@@ -33,17 +31,17 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             val genAccount = dp.accountService.getAccount(block.generatorPublicKey)
             val rewardAssignment: Account.RewardRecipientAssignment?
             rewardAssignment = if (genAccount == null) null else dp.accountService.getRewardRecipientAssignment(genAccount)
-            if (genAccount == null || rewardAssignment == null || !dp.fluxCapacitor.getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
-                publicKey = block.generatorPublicKey
+            publicKey = if (genAccount == null || rewardAssignment == null || !dp.fluxCapacitor.getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
+                block.generatorPublicKey
             } else {
                 if (previousBlock.height + 1 >= rewardAssignment.fromHeight) {
-                    publicKey = dp.accountService.getAccount(rewardAssignment.recipientId).publicKey
+                    dp.accountService.getAccount(rewardAssignment.recipientId)!!.publicKey
                 } else {
-                    publicKey = dp.accountService.getAccount(rewardAssignment.prevRecipientId).publicKey
+                    dp.accountService.getAccount(rewardAssignment.prevRecipientId)!!.publicKey
                 }
             }
 
-            return Crypto.verify(block.blockSignature, data2, publicKey, block.version >= 3)
+            return Crypto.verify(block.blockSignature!!, data2, publicKey!!, block.version >= 3)
 
         } catch (e: RuntimeException) {
 
@@ -68,7 +66,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             }
             val elapsedTime = block.timestamp - previousBlock.timestamp
             val pTime = block.pocTime!!.divide(BigInteger.valueOf(previousBlock.baseTarget))
-            return BigInteger.valueOf(elapsedTime.toLong()).compareTo(pTime) > 0
+            return BigInteger.valueOf(elapsedTime.toLong()) > pTime
         } catch (e: RuntimeException) {
             logger.info("Error verifying block generation signature", e)
             return false
@@ -103,9 +101,9 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         for (transaction in block.transactions) {
             if (!transaction.verifySignature()) {
                 if (logger.isInfoEnabled) {
-                    logger.info("Bad transaction signature during block pre-verification for tx: {} at block height: {}", Convert.toUnsignedLong(transaction.id), block.height)
+                    logger.info("Bad transaction signature during block pre-verification for tx: {} at block height: {}", transaction.id.toUnsignedString(), block.height)
                 }
-                throw BlockchainProcessor.TransactionNotAcceptedException("Invalid signature for tx: " + Convert.toUnsignedLong(transaction.id) + " at block height: " + block.height,
+                throw BlockchainProcessor.TransactionNotAcceptedException("Invalid signature for tx: " + transaction.id.toUnsignedString() + " at block height: " + block.height,
                         transaction)
             }
             if (Thread.currentThread().isInterrupted || !ThreadPool.running.get())
@@ -123,12 +121,10 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         } else {
             val rewardAccount: Account
             val rewardAssignment = dp.accountService.getRewardRecipientAssignment(generatorAccount)
-            if (rewardAssignment == null) {
-                rewardAccount = generatorAccount
-            } else if (block.height >= rewardAssignment.fromHeight) {
-                rewardAccount = dp.accountService.getAccount(rewardAssignment.recipientId)
-            } else {
-                rewardAccount = dp.accountService.getAccount(rewardAssignment.prevRecipientId)
+            when {
+                rewardAssignment == null -> rewardAccount = generatorAccount
+                block.height >= rewardAssignment.fromHeight -> rewardAccount = dp.accountService.getAccount(rewardAssignment.recipientId)!!
+                else -> rewardAccount = dp.accountService.getAccount(rewardAssignment.prevRecipientId)!!
             }
             dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, block.totalFeeNQT + getBlockReward(block))
             dp.accountService.addToForgedBalanceNQT(rewardAccount, block.totalFeeNQT + getBlockReward(block))

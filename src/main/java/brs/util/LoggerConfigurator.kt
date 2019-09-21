@@ -32,19 +32,19 @@ object LoggerConfigurator {
             System.setProperty(managerPackage,
                     oldManager ?: "java.util.logging.LogManager")
         }
-        if (!java.lang.Boolean.getBoolean("brs.doNotConfigureLogging")) {
+        if (System.getProperty("brs.doNotConfigureLogging").toLowerCase() != "true") {
             try {
                 var foundProperties = false
                 val loggingProperties = Properties()
-                ClassLoader.getSystemResourceAsStream("logging-default.properties").use { `is` ->
-                    if (`is` != null) {
-                        loggingProperties.load(`is`)
+                ClassLoader.getSystemResourceAsStream("logging-default.properties").use { input ->
+                    if (input != null) {
+                        loggingProperties.load(input)
                         foundProperties = true
                     }
                 }
-                ClassLoader.getSystemResourceAsStream("logging.properties").use { `is` ->
-                    if (`is` != null) {
-                        loggingProperties.load(`is`)
+                ClassLoader.getSystemResourceAsStream("logging.properties").use { input ->
+                    if (input != null) {
+                        loggingProperties.load(input)
                         foundProperties = true
                     }
                 }
@@ -75,6 +75,3 @@ object LoggerConfigurator {
         }
     }
 }
-/**
- * No constructor
- */

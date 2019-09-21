@@ -8,19 +8,13 @@ package brs.at
 
 import brs.*
 import brs.db.BurstKey
-import brs.db.TransactionDb
 import brs.db.VersionedEntityTable
-import brs.services.AccountService
-
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.LinkedHashMap
-import java.util.function.Consumer
+import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -81,13 +75,13 @@ class AT : AtMachineState {
     class HandleATBlockTransactionsListener(private val dp: DependencyProvider) : (Block) -> Unit {
         override fun invoke(block: Block) {
             pendingFees.forEach { (key, value) ->
-                val atAccount = dp.accountService.getAccount(key)
+                val atAccount = dp.accountService.getAccount(key)!!
                 dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(atAccount, -value)
             }
 
             val transactions = mutableListOf<Transaction>()
             for (atTransaction in pendingTransactions) {
-                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(AtApiHelper.getLong(atTransaction.senderId)), -atTransaction.amount)
+                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(AtApiHelper.getLong(atTransaction.senderId))!!, -atTransaction.amount)
                 dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.recipientId)), atTransaction.amount!!)
 
                 val builder = Transaction.Builder(dp, 1.toByte(), Genesis.creatorPublicKey,
@@ -176,11 +170,11 @@ class AT : AtMachineState {
             return dp.atStore.atStateDbKeyFactory
         }
 
-        fun getAT(dp: DependencyProvider, id: ByteArray): AT {
+        fun getAT(dp: DependencyProvider, id: ByteArray): AT? {
             return getAT(dp, AtApiHelper.getLong(id))
         }
 
-        fun getAT(dp: DependencyProvider, id: Long?): AT {
+        fun getAT(dp: DependencyProvider, id: Long?): AT? {
             return dp.atStore.getAT(id)
         }
 

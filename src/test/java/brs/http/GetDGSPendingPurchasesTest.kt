@@ -40,7 +40,7 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
         val firstIndex = 1
         val lastIndex = 2
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, sellerId),
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
@@ -51,7 +51,7 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
         val mockPurchaseIterator = mockCollection<Purchase>(mockPurchase)
         whenever(mockDGSGoodStoreService!!.getPendingSellerPurchases(eq(sellerId), eq(firstIndex), eq(lastIndex))).doReturn(mockPurchaseIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val resultPurchases = result.get(PURCHASES_RESPONSE) as JsonArray
@@ -63,11 +63,11 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_missingSeller() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 0L)
         )
 
-        assertEquals(MISSING_SELLER, t!!.processRequest(req))
+        assertEquals(MISSING_SELLER, t!!.processRequest(request))
     }
 
 }

@@ -46,7 +46,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     @Throws(BurstException::class)
     fun processRequest() {
         val deltaQualityParameter = 5
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, deltaQualityParameter)
         )
 
@@ -59,12 +59,12 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         whenever(mockSenderAccount.id).doReturn(1L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
         QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(req) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsQuantityChange
+        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsQuantityChange
         assertNotNull(attachment)
 
         attachment.transactionType
@@ -75,23 +75,23 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     @Test
     @Throws(BurstException::class)
     fun processRequest_unknownGoodsBecauseDelisted() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockGoods = mock<Goods>()
         whenever(mockGoods.isDelisted).doReturn(true)
 
         val mockSenderAccount = mock<Account>()
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        assertEquals(UNKNOWN_GOODS, t!!.processRequest(req))
+        assertEquals(UNKNOWN_GOODS, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_unknownGoodsBecauseWrongSellerId() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
         val mockGoods = mock<Goods>()
         whenever(mockGoods.isDelisted).doReturn(false)
@@ -100,16 +100,16 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         whenever(mockSenderAccount.id).doReturn(2L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        assertEquals(UNKNOWN_GOODS, t!!.processRequest(req))
+        assertEquals(UNKNOWN_GOODS, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_missingDeltaQuantity() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, null as String?)
         )
 
@@ -120,16 +120,16 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         whenever(mockSenderAccount.id).doReturn(1L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        assertEquals(MISSING_DELTA_QUANTITY, t!!.processRequest(req))
+        assertEquals(MISSING_DELTA_QUANTITY, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_deltaQuantityWrongFormat() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, "Bob")
         )
 
@@ -140,16 +140,16 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         whenever(mockSenderAccount.id).doReturn(1L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        assertEquals(INCORRECT_DELTA_QUANTITY, t!!.processRequest(req))
+        assertEquals(INCORRECT_DELTA_QUANTITY, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_deltaQuantityOverMaxIncorrectDeltaQuantity() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, Integer.MIN_VALUE)
         )
 
@@ -160,16 +160,16 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         whenever(mockSenderAccount.id).doReturn(1L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        assertEquals(INCORRECT_DELTA_QUANTITY, t!!.processRequest(req))
+        assertEquals(INCORRECT_DELTA_QUANTITY, t!!.processRequest(request))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_deltaQuantityLowerThanNegativeMaxIncorrectDeltaQuantity() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, Integer.MAX_VALUE)
         )
 
@@ -180,10 +180,10 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         whenever(mockSenderAccount.id).doReturn(1L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(req))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(req))).doReturn(mockGoods)
+        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        assertEquals(INCORRECT_DELTA_QUANTITY, t!!.processRequest(req))
+        assertEquals(INCORRECT_DELTA_QUANTITY, t!!.processRequest(request))
     }
 
 }

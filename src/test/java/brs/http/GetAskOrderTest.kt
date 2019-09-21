@@ -42,11 +42,11 @@ class GetAskOrderTest {
 
         whenever(mockAssetExchange!!.getAskOrder(eq(orderId))).doReturn(mockOrder)
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
         assertNotNull(result)
     }
 
@@ -57,11 +57,11 @@ class GetAskOrderTest {
 
         whenever(mockAssetExchange!!.getAskOrder(eq(orderId))).doReturn(null)
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        assertEquals(UNKNOWN_ORDER, t!!.processRequest(req))
+        assertEquals(UNKNOWN_ORDER, t!!.processRequest(request))
     }
 
 }

@@ -13,7 +13,6 @@ import java.util.ArrayList
 import java.util.HashMap
 
 internal class ReservedBalanceCache(private val accountStore: AccountStore) {
-
     private val reservedBalanceCache = mutableMapOf<Long, Long>()
 
     @Throws(ValidationException::class)
@@ -81,7 +80,6 @@ internal class ReservedBalanceCache(private val accountStore: AccountStore) {
     }
 
     companion object {
-
         private val LOGGER = LoggerFactory.getLogger(ReservedBalanceCache::class.java)
     }
 

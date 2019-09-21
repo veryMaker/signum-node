@@ -1,14 +1,14 @@
 package brs.peer
 
 import brs.*
+import brs.Constants.MIN_VERSION
 import brs.db.sql.Db
-import brs.props.PropertyService
+import brs.peer.Peer.Companion.isHigherOrEqualVersion
 import brs.props.Props
-import brs.services.AccountService
-import brs.services.TimeService
-import brs.util.JSON
-import brs.util.Listeners
-import brs.util.ThreadPool
+import brs.props.Props.P2P_ENABLE_TX_REBROADCAST
+import brs.props.Props.P2P_SEND_TO_LIMIT
+import brs.util.*
+import brs.util.JSON.prepareRequest
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -18,16 +18,12 @@ import org.bitlet.weupnp.PortMappingEntry
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.server.handler.gzip.GzipHandler
-import org.eclipse.jetty.servlet.FilterHolder
 import org.eclipse.jetty.servlet.FilterMapping
 import org.eclipse.jetty.servlet.ServletHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.eclipse.jetty.servlets.DoSFilter
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.xml.sax.SAXException
-
-import javax.xml.parsers.ParserConfigurationException
 import java.io.IOException
 import java.net.InetAddress
 import java.net.URI
@@ -36,17 +32,8 @@ import java.net.UnknownHostException
 import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.function.BiConsumer
-import java.util.function.Consumer
-import java.util.function.Function
-import java.util.stream.Collectors
-
-import brs.Constants.MIN_VERSION
-import brs.peer.Peer.isHigherOrEqualVersion
-import brs.props.Props.P2P_ENABLE_TX_REBROADCAST
-import brs.props.Props.P2P_SEND_TO_LIMIT
-import brs.util.JSON.prepareRequest
 import java.util.function.Supplier
+import javax.xml.parsers.ParserConfigurationException
 
 // TODO this whole class needs refactoring.
 // TODO what about next-gen P2P network?
@@ -54,28 +41,28 @@ object Peers {
 
     private val logger = LoggerFactory.getLogger(Peers::class.java)
 
-    internal val LOGGING_MASK_EXCEPTIONS = 1
-    internal val LOGGING_MASK_NON200_RESPONSES = 2
-    internal val LOGGING_MASK_200_RESPONSES = 4
+    internal const val LOGGING_MASK_EXCEPTIONS = 1
+    internal const val LOGGING_MASK_NON200_RESPONSES = 2
+    internal const val LOGGING_MASK_200_RESPONSES = 4
     internal var communicationLoggingMask: Int = 0
 
-    private val r = Random()
+    private val random = Random()
 
-    internal var wellKnownPeers: Set<String>
-    internal var knownBlacklistedPeers: Set<String>
+    internal lateinit var wellKnownPeers: Set<String>
+    internal lateinit var knownBlacklistedPeers: Set<String>
 
     private var connectWellKnownFirst: Int = 0
     private var connectWellKnownFinished: Boolean = false
 
-    internal var rebroadcastPeers: Set<String>
+    internal lateinit var rebroadcastPeers: Set<String>
 
     internal var connectTimeout: Int = 0
     internal var readTimeout: Int = 0
     internal var blacklistingPeriod: Int = 0
     internal var getMorePeers: Boolean = false
 
-    internal val DEFAULT_PEER_PORT = 8123
-    internal val TESTNET_PEER_PORT = 7123
+    internal const val DEFAULT_PEER_PORT = 8123
+    internal const val TESTNET_PEER_PORT = 7123
     private var myPlatform: String? = null
     private var myAddress: String? = null
     private var myPeerServerPort: Int = 0
@@ -89,21 +76,21 @@ object Peers {
     private var dumpPeersVersion: String? = null
     private var lastSavedPeers: Int = 0
 
-    internal var myPeerInfoRequest: JsonElement
-    internal var myPeerInfoResponse: JsonElement
+    internal lateinit var myPeerInfoRequest: JsonElement
+    internal lateinit var myPeerInfoResponse: JsonElement
 
     private val listeners = Listeners<Peer, Event>()
 
-    private val peers = ConcurrentmutableMapOf<String, Peer>>()
-    private val announcedAddresses = ConcurrentmutableMapOf<String, String>>()
+    private val peers = ConcurrentHashMap<String, Peer>()
+    private val announcedAddresses: MutableMap<String?, String> = ConcurrentHashMap()
 
-    val allPeers = Collections.unmodifiableCollection(peers.values)
+    val allPeers: Collection<Peer> = peers.values
 
     private val sendBlocksToPeersService = Executors.newCachedThreadPool()
     private val blocksSendingService = Executors.newFixedThreadPool(10)
 
     // TODO don't store a static instance!
-    private var dp: DependencyProvider? = null
+    private lateinit var dp: DependencyProvider
 
     private val peerUnBlacklistingThread = {
         try {
@@ -118,7 +105,7 @@ object Peers {
         }
     }
 
-    private val peerConnectingThread = object : Runnable {
+    private val peerConnectingThread = object : () -> Unit {
         private val numberOfConnectedPublicPeers: Int
             get() {
                 var numberOfConnectedPeers = 0
@@ -130,7 +117,7 @@ object Peers {
                 return numberOfConnectedPeers
             }
 
-        override fun run() {
+        override fun invoke() {
             try {
                 var numConnectedPeers = numberOfConnectedPublicPeers
                 /*
@@ -142,7 +129,7 @@ object Peers {
                         && numConnectedPeers < maxNumberOfConnectedPublicPeers && peers.size > numConnectedPeers) {
                     val peer = getAnyPeer(if (ThreadLocalRandom.current().nextInt(2) == 0) Peer.State.NON_CONNECTED else Peer.State.DISCONNECTED)
                     if (peer != null) {
-                        peer.connect(dp!!.timeService.epochTime)
+                        peer.connect(dp.timeService.epochTime)
                         /*
              * remove non connected peer. if peer is blacklisted, keep it to maintain blacklist time.
              * Peers should never be removed if total peers are below our target to prevent total erase of peers
@@ -165,10 +152,10 @@ object Peers {
 
                 }
 
-                val now = dp!!.timeService.epochTime
+                val now = dp.timeService.epochTime
                 for (peer in peers.values) {
                     if (peer.state == Peer.State.CONNECTED && now - peer.lastUpdated > 3600) {
-                        peer.connect(dp!!.timeService.epochTime)
+                        peer.connect(dp.timeService.epochTime)
                         if (!peer.isHigherOrEqualVersionThan(MIN_VERSION) || peer.state != Peer.State.CONNECTED && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers) {
                             removePeer(peer)
                         }
@@ -187,23 +174,23 @@ object Peers {
         }
 
         private fun updateSavedPeers() {
-            val oldPeers = HashSet(dp!!.dbs.peerDb.loadPeers())
+            val oldPeers = HashSet(dp.dbs.peerDb.loadPeers())
             val currentPeers = HashSet<String>()
             for (peer in Peers.peers.values) {
                 if (peer.announcedAddress != null
                         && !peer.isBlacklisted
                         && !peer.isWellKnown
                         && peer.isHigherOrEqualVersionThan(MIN_VERSION)) {
-                    currentPeers.add(peer.announcedAddress)
+                    currentPeers.add(peer.announcedAddress!!)
                 }
             }
             val toDelete = HashSet(oldPeers)
             toDelete.removeAll(currentPeers)
             try {
                 Db.beginTransaction()
-                dp!!.dbs.peerDb.deletePeers(toDelete)
+                dp.dbs.peerDb.deletePeers(toDelete)
                 currentPeers.removeAll(oldPeers)
-                dp!!.dbs.peerDb.addPeers(currentPeers)
+                dp.dbs.peerDb.addPeers(currentPeers)
                 Db.commitTransaction()
             } catch (e: Exception) {
                 Db.rollbackTransaction()
@@ -216,7 +203,7 @@ object Peers {
 
     }
 
-    private val getMorePeersThread = object : Runnable {
+    private val getMorePeersThread = object : () -> Unit {
 
         private val getPeersRequest: JsonElement
 
@@ -233,10 +220,10 @@ object Peers {
         }
 
         private fun addListener(listener: (Peer) -> Unit, eventType: Event): Boolean {
-            return Peers.listeners.addListener(listener, eventType)
+            return listeners.addListener(listener, eventType)
         }
 
-        override fun run() {
+        override fun invoke() {
             try {
                 /* We do not want more peers if above Threshold but we need enough to
          * connect to selected number of peers
@@ -249,7 +236,7 @@ object Peers {
                 val response = peer.send(getPeersRequest) ?: return
                 val peersJson = JSON.getAsJsonArray(response.get("peers"))
                 val addedAddresses = HashSet<String>()
-                if (peersJson != null) {
+                if (peersJson != null && !peersJson.isEmpty()) {
                     for (announcedAddress in peersJson) {
                         if (addPeer(JSON.getAsString(announcedAddress)) != null) {
                             addedAddresses.add(JSON.getAsString(announcedAddress))
@@ -263,8 +250,8 @@ object Peers {
                 val myPeers = JsonArray()
                 for (myPeer in Peers.allPeers) {
                     if (!myPeer.isBlacklisted && myPeer.announcedAddress != null
-                            && myPeer.state == Peer.State.CONNECTED && myPeer.shareAddress()
-                            && !addedAddresses.contains(myPeer.announcedAddress)
+                            && myPeer.state == Peer.State.CONNECTED && myPeer.shareAddress
+                            && !addedAddresses.contains(myPeer.announcedAddress!!)
                             && myPeer.announcedAddress != peer.announcedAddress
                             && myPeer.isHigherOrEqualVersionThan(MIN_VERSION)) {
                         myPeers.add(myPeer.announcedAddress)
@@ -309,10 +296,10 @@ object Peers {
     private val processingQueue = mutableListOf<Peer>()
     private val beingProcessed = mutableListOf<Peer>()
 
-    val allActivePriorityPlusSomeExtraPeers: List<Peer>
+    val allActivePriorityPlusSomeExtraPeers: MutableList<Peer>
         get() {
             val peersActivePriorityPlusSomeExtraPeers = mutableListOf<Peer>()
-            var amountExtrasLeft = dp!!.propertyService.get(P2P_SEND_TO_LIMIT)
+            var amountExtrasLeft = dp.propertyService.get(P2P_SEND_TO_LIMIT)
 
             for (peer in peers.values) {
                 if (peerEligibleForSending(peer, true)) {
@@ -342,9 +329,16 @@ object Peers {
     }
 
     enum class Event {
-        BLACKLIST, UNBLACKLIST, DEACTIVATE, REMOVE,
-        DOWNLOADED_VOLUME, UPLOADED_VOLUME, WEIGHT,
-        ADDED_ACTIVE_PEER, CHANGED_ACTIVE_PEER,
+        // TODO remove unused events
+        BLACKLIST,
+        UNBLACKLIST,
+        DEACTIVATE,
+        REMOVE,
+        DOWNLOADED_VOLUME,
+        UPLOADED_VOLUME,
+        WEIGHT,
+        ADDED_ACTIVE_PEER,
+        CHANGED_ACTIVE_PEER,
         NEW_PEER
     }
 
@@ -405,31 +399,30 @@ object Peers {
         json.addProperty("platform", Peers.myPlatform)
         json.addProperty("shareAddress", Peers.shareMyAddress)
         if (logger.isDebugEnabled) {
-            logger.debug("My peer info: {}", JSON.toJsonString(json))
+            logger.debug("My peer info: {}", json.toJsonString())
         }
-        myPeerInfoResponse = JSON.cloneJson(json)
+        myPeerInfoResponse = json.cloneJson()
         json.addProperty("requestType", "getInfo")
         myPeerInfoRequest = prepareRequest(json)
 
 
-        if (dp.propertyService.get(P2P_ENABLE_TX_REBROADCAST)) {
-            rebroadcastPeers = Collections
-                    .unmodifiableSet(HashSet(dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_REBROADCAST_TO else Props.P2P_REBROADCAST_TO)))
+        rebroadcastPeers = if (dp.propertyService.get(P2P_ENABLE_TX_REBROADCAST)) {
+            dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_REBROADCAST_TO else Props.P2P_REBROADCAST_TO).toSet()
         } else {
-            rebroadcastPeers = emptySet()
+            emptySet()
         }
 
-        val wellKnownPeersList = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_BOOTSTRAP_PEERS else Props.P2P_BOOTSTRAP_PEERS)
+        val wellKnownPeersList = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_BOOTSTRAP_PEERS else Props.P2P_BOOTSTRAP_PEERS).toMutableSet()
 
         for (rePeer in rebroadcastPeers) {
             if (!wellKnownPeersList.contains(rePeer)) {
                 wellKnownPeersList.add(rePeer)
             }
         }
-        if (wellKnownPeersList.isEmpty() || dp.propertyService.get(Props.DEV_OFFLINE)) {
-            wellKnownPeers = emptySet()
+        wellKnownPeers = if (wellKnownPeersList.isEmpty() || dp.propertyService.get(Props.DEV_OFFLINE)) {
+            emptySet()
         } else {
-            wellKnownPeers = Collections.unmodifiableSet(HashSet(wellKnownPeersList))
+            wellKnownPeersList.toSet()
         }
 
         connectWellKnownFirst = dp.propertyService.get(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS)
@@ -439,7 +432,7 @@ object Peers {
         if (knownBlacklistedPeersList.isEmpty()) {
             knownBlacklistedPeers = emptySet()
         } else {
-            knownBlacklistedPeers = Collections.unmodifiableSet(HashSet(knownBlacklistedPeersList))
+            knownBlacklistedPeers = knownBlacklistedPeersList.toSet()
         }
 
         maxNumberOfConnectedPublicPeers = dp.propertyService.get(Props.P2P_MAX_CONNECTIONS)
@@ -457,8 +450,7 @@ object Peers {
 
         val unresolvedPeers = Collections.synchronizedList(mutableListOf<Future<String>>())
 
-        dp.threadPool.runBeforeStart(object : Runnable {
-
+        dp.threadPool.runBeforeStart(object : () -> Unit {
             private fun loadPeers(addresses: Collection<String>) {
                 for (address in addresses) {
                     val unresolvedAddress = sendBlocksToPeersService.submit<String> {
@@ -469,8 +461,8 @@ object Peers {
                 }
             }
 
-            override fun run() {
-                if (!wellKnownPeers.isEmpty()) {
+            override fun invoke() {
+                if (wellKnownPeers.isNotEmpty()) {
                     loadPeers(wellKnownPeers)
                 }
                 if (usePeersDb) {
@@ -515,12 +507,13 @@ object Peers {
 
     private object Init {
 
-        private var peerServer: Server? = null
-        private var gateway: GatewayDevice? = null
-        private var port: Int? = null
+        internal var peerServer: Server? = null
+        internal var gateway: GatewayDevice? = null
+        internal var port: Int = -1
 
         internal fun init(dp: DependencyProvider) {
-            if (Peers.shareMyAddress) {
+            port = if (dp.propertyService.get(Props.DEV_TESTNET)) TESTNET_PEER_PORT else myPeerServerPort
+            if (shareMyAddress) {
                 if (useUpnp) {
                     port = dp.propertyService.get(Props.P2P_PORT)
                     val gatewayDiscover = GatewayDiscover()
@@ -533,10 +526,12 @@ object Peers {
                     }
 
                     logger.trace("Looking for Gateway Devices")
-                    gateway = gatewayDiscover.validGateway
+                    if (gatewayDiscover.validGateway != null) {
+                        gateway = gatewayDiscover.validGateway
+                    }
 
                     val gwDiscover = {
-                        if (gateway != null) {
+                        if (this.gateway != null) {
                             GatewayDevice.setHttpReadTimeout(2000)
                             try {
                                 val localAddress = gateway!!.localAddress
@@ -545,7 +540,7 @@ object Peers {
                                     logger.info("Attempting to map {}:{} -> {}:{} on Gateway {} ({})", externalIPAddress, port, localAddress, port, gateway!!.modelName, gateway!!.modelDescription)
                                 }
                                 val portMapping = PortMappingEntry()
-                                if (gateway!!.getSpecificPortMappingEntry(port!!, "TCP", portMapping)) {
+                                if (gateway!!.getSpecificPortMappingEntry(port, "TCP", portMapping)) {
                                     logger.info("Port was already mapped. Aborting test.")
                                 } else {
                                     if (gateway!!.addPortMapping(port!!, port!!, localAddress.hostAddress, "TCP", "burstcoin")) {
@@ -562,7 +557,7 @@ object Peers {
 
                         }
                     }
-                    if (gateway != null) {
+                    if (this.gateway != null) {
                         Thread(gwDiscover).start()
                     } else {
                         logger.warn("Tried to establish UPnP, but it was denied by the network.")
@@ -571,8 +566,7 @@ object Peers {
 
                 peerServer = Server()
                 val connector = ServerConnector(peerServer)
-                port = if (dp.propertyService.get(Props.DEV_TESTNET)) TESTNET_PEER_PORT else Peers.myPeerServerPort
-                connector.port = port!!
+                connector.port = port
                 val host = dp.propertyService.get(Props.P2P_LISTEN)
                 connector.host = host
                 connector.idleTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_IDLE_MS).toLong()
@@ -581,7 +575,7 @@ object Peers {
 
                 val peerServletHolder = ServletHolder(PeerServlet(dp))
                 val isGzipEnabled = dp.propertyService.get(Props.JETTY_P2P_GZIP_FILTER)
-                peerServletHolder.setInitParameter("isGzipEnabled", java.lang.Boolean.toString(isGzipEnabled))
+                peerServletHolder.setInitParameter("isGzipEnabled", isGzipEnabled.toString())
 
                 val peerHandler = ServletHandler()
                 peerHandler.addServletWithMapping(peerServletHolder, "/*")
@@ -625,9 +619,6 @@ object Peers {
                     }
                 }, true)
             } else {
-                peerServer = null
-                gateway = null
-                port = null
                 logger.info("shareMyAddress is disabled, will not start peer networking server")
             }
         }
@@ -655,7 +646,7 @@ object Peers {
             val buf = StringBuilder()
             for ((key, value) in announcedAddresses) {
                 val peer = peers[value]
-                if (peer != null && peer.state == Peer.State.CONNECTED && peer.shareAddress() && !peer.isBlacklisted
+                if (peer != null && peer.state == Peer.State.CONNECTED && peer.shareAddress && !peer.isBlacklisted
                         && peer.version != null
                         && peer.version.toString().startsWith(dumpPeersVersion!!)) {
                     buf.append("('").append(key).append("'), ")
@@ -687,29 +678,31 @@ object Peers {
         return peerList
     }
 
-    fun getPeer(peerAddress: String): Peer {
+    fun getPeer(peerAddress: String): Peer? {
         return peers[peerAddress]
     }
 
     fun addPeer(announcedAddress: String?): Peer? {
-        var announcedAddress: String? = announcedAddress ?: return null
-        announcedAddress = announcedAddress!!.trim { it <= ' ' }
-        var peer: Peer
-        if ((peer = peers[announcedAddress]) != null) {
+        if (announcedAddress == null) return null
+        var cleanAddress = announcedAddress.trim { it <= ' ' }
+        var peer = peers[cleanAddress]
+        if (peer != null) {
             return peer
         }
-        val address: String
-        if ((address = announcedAddresses[announcedAddress]) != null && (peer = peers[address]) != null) {
+        val address = announcedAddresses[cleanAddress]
+        peer = peers[address]
+        if (address != null && peer != null) {
             return peer
         }
         try {
-            val uri = URI("http://$announcedAddress")
+            val uri = URI("http://$cleanAddress")
             val host = uri.host
-            if ((peer = peers[host]) != null) {
+            peer = peers[host]
+            if (peer != null) {
                 return peer
             }
             val inetAddress = InetAddress.getByName(host)
-            return addPeer(inetAddress.hostAddress, announcedAddress)
+            return addPeer(inetAddress.hostAddress, cleanAddress)
         } catch (e: URISyntaxException) {
             return null
         } catch (e: UnknownHostException) {
@@ -724,23 +717,24 @@ object Peers {
         if (cleanAddress.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray().size > 2) {
             cleanAddress = "[$cleanAddress]"
         }
-        var peer: Peer
-        if ((peer = peers[cleanAddress]) != null) {
+        var peer = peers[cleanAddress]
+        if (peer != null) {
             return peer
         }
         val peerAddress = normalizeHostAndPort(cleanAddress) ?: return null
-        if ((peer = peers[peerAddress]) != null) {
+        peer = peers[peerAddress]
+        if (peer != null) {
             return peer
         }
 
         val announcedPeerAddress = if (address == announcedAddress) peerAddress else normalizeHostAndPort(announcedAddress)
 
-        if (Peers.myAddress != null && !Peers.myAddress!!.isEmpty() && Peers.myAddress!!.equals(announcedPeerAddress!!, ignoreCase = true)) {
+        if (!myAddress.isNullOrEmpty() && myAddress!!.equals(announcedPeerAddress, ignoreCase = true)) {
             return null
         }
 
         peer = PeerImpl(dp, peerAddress, announcedPeerAddress)
-        if (dp!!.propertyService.get(Props.DEV_TESTNET) && peer.port > 0 && peer.port != TESTNET_PEER_PORT) {
+        if (dp.propertyService.get(Props.DEV_TESTNET) && peer.port > 0 && peer.port != TESTNET_PEER_PORT) {
             logger.debug("Peer {} on testnet port is not using port {}, ignoring", peerAddress, TESTNET_PEER_PORT)
             return null
         }
@@ -752,11 +746,11 @@ object Peers {
         return peer
     }
 
-    internal fun removePeer(peer: Peer): Peer {
+    internal fun removePeer(peer: Peer) {
         if (peer.announcedAddress != null) {
-            announcedAddresses.remove(peer.announcedAddress)
+            announcedAddresses.remove(peer.announcedAddress!!)
         }
-        return peers.remove(peer.peerAddress)
+        peers.remove(peer.peerAddress)
     }
 
     internal fun updateAddress(peer: Peer) {
@@ -801,7 +795,7 @@ object Peers {
                     expectedResponses.clear()
                 }
                 if (successful >= Peers.sendToPeersLimit) {
-                    return@blocksSendingService.submit
+                    return@submit
                 }
             }
         }
@@ -819,7 +813,7 @@ object Peers {
     }
 
     @Synchronized // TODO not synchronized
-    fun feedingTime(peer: Peer, foodDispenser: Function<Peer, List<Transaction>>, doneFeedingLog: BiConsumer<Peer, List<Transaction>>) {
+    fun feedingTime(peer: Peer, foodDispenser: (Peer) -> Collection<Transaction>, doneFeedingLog: (Peer, Collection<Transaction>) -> Unit) {
         if (!beingProcessed.contains(peer)) {
             beingProcessed.add(peer)
             // TODO replace CompletableFuture calls
@@ -829,15 +823,15 @@ object Peers {
         }
     }
 
-    private fun feedPeer(peer: Peer, foodDispenser: Function<Peer, List<Transaction>>, doneFeedingLog: BiConsumer<Peer, List<Transaction>>) {
-        val transactionsToSend = foodDispenser.apply(peer)
+    private fun feedPeer(peer: Peer, foodDispenser: (Peer) -> Collection<Transaction>, doneFeedingLog: (Peer, Collection<Transaction>) -> Unit) {
+        val transactionsToSend = foodDispenser(peer)
 
-        if (!transactionsToSend.isEmpty()) {
+        if (transactionsToSend.isNotEmpty()) {
             logger.trace("Feeding {} {} transactions", peer.peerAddress, transactionsToSend.size)
             val response = peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend))
 
             if (response != null && response.get("error") == null) {
-                doneFeedingLog.accept(peer, transactionsToSend)
+                doneFeedingLog(peer, transactionsToSend)
             } else {
                 // TODO why does this keep coming up??
                 logger.warn("Error feeding {} transactions: {} error: {}", peer.peerAddress, transactionsToSend.map { it.id }.toList(), response)
@@ -855,7 +849,7 @@ object Peers {
         }
     }
 
-    private fun sendUnconfirmedTransactionsRequest(transactions: List<Transaction>): JsonElement {
+    private fun sendUnconfirmedTransactionsRequest(transactions: Collection<Transaction>): JsonElement {
         val request = JsonObject()
         val transactionsData = JsonArray()
 
@@ -895,14 +889,14 @@ object Peers {
 
         val selectedPeers = mutableListOf<Peer>()
         for (peer in peers.values) {
-            if (!peer.isBlacklisted && peer.state == state && peer.shareAddress()
+            if (!peer.isBlacklisted && peer.state == state && peer.shareAddress
                     && (connectWellKnownFinished || peer.state == Peer.State.CONNECTED || peer.isWellKnown)) {
                 selectedPeers.add(peer)
             }
         }
 
-        return if (!selectedPeers.isEmpty()) {
-            selectedPeers[r.nextInt(selectedPeers.size)]
+        return if (selectedPeers.isNotEmpty()) {
+            selectedPeers[random.nextInt(selectedPeers.size)]
         } else null
     }
 
@@ -913,7 +907,7 @@ object Peers {
             }
             val uri = URI("http://" + address.trim { it <= ' ' })
             val host = uri.host
-            if (host == null || host == "") {
+            if (host == null || host.isEmpty()) {
                 return null
             }
             val inetAddress = InetAddress.getByName(host)
@@ -928,7 +922,5 @@ object Peers {
         } catch (e: UnknownHostException) {
             return null
         }
-
     }
-
-}// never
+}

@@ -35,7 +35,7 @@ class DecryptFromTest {
     @Test
     @Throws(BurstException::class)
     fun processRequest() {
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(DECRYPTED_MESSAGE_IS_TEXT_PARAMETER, "true"),
                 MockParam(DATA_PARAMETER, "abc"),
@@ -49,19 +49,19 @@ class DecryptFromTest {
 
         whenever(mockAccount.publicKey).doReturn(TEST_PUBLIC_KEY_BYTES)
 
-        whenever(mockParameterService!!.getAccount(req)).doReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(request)).doReturn(mockAccount)
 
-        assertEquals("\u0001", JSON.getAsString(JSON.getAsJsonObject(t!!.processRequest(req)).get(DECRYPTED_MESSAGE_RESPONSE)))
+        assertEquals("\u0001", JSON.getAsString(JSON.getAsJsonObject(t!!.processRequest(request)).get(DECRYPTED_MESSAGE_RESPONSE)))
     }
 
     @Test
     @Throws(BurstException::class)
     fun processRequest_accountWithoutPublicKeyIsIncorrectAccount() {
-        val req = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest()
 
-        whenever(mockParameterService!!.getAccount(req)).doReturn(mock<Account>())
+        whenever(mockParameterService!!.getAccount(request)).doReturn(mock<Account>())
 
-        assertEquals(INCORRECT_ACCOUNT, t!!.processRequest(req))
+        assertEquals(INCORRECT_ACCOUNT, t!!.processRequest(request))
     }
 
 }

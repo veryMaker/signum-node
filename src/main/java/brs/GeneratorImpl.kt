@@ -1,54 +1,43 @@
 package brs
 
 import brs.crypto.Crypto
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
-import brs.props.PropertyService
 import brs.props.Props
-import brs.services.TimeService
 import brs.util.Convert
 import brs.util.Listeners
-import brs.util.MiningPlot
 import brs.util.ThreadPool
+import brs.util.toUnsignedString
 import burst.kit.crypto.BurstCrypto
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import java.math.BigInteger
-import java.util.Collections
-import kotlin.collections.Map.Entry
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.TimeUnit
-import java.util.function.Consumer
 
 open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
-
     private val listeners = Listeners<Generator.GeneratorState, Generator.Event>()
-    private val generators = ConcurrentmutableMapOf<Long, GeneratorStateImpl>>()
+    private val generators = ConcurrentHashMap<Long, GeneratorStateImpl>()
     private val burstCrypto = BurstCrypto.getInstance()
 
     override val allGenerators: Collection<Generator.GeneratorState>
-        get() = Collections.unmodifiableCollection<Generator.GeneratorState>(generators.values)
+        get() = generators.values
 
     private fun generateBlockThread(blockchainProcessor: BlockchainProcessor): () -> Unit {
         return {
-            if (blockchainProcessor.isScanning) {
-                return
-            }
-            try {
-                val currentBlock = dp.blockchain.lastBlock.height.toLong()
-                val it = generators.entries.iterator()
-                while (it.hasNext() && !Thread.currentThread().isInterrupted && ThreadPool.running.get()) {
-                    val generator = it.next()
-                    if (currentBlock < generator.value.block) {
-                        generator.value.forge(blockchainProcessor)
-                    } else {
-                        it.remove()
+            if (!blockchainProcessor.isScanning) {
+                try {
+                    val currentBlock = dp.blockchain.lastBlock.height.toLong()
+                    val it = generators.entries.iterator()
+                    while (it.hasNext() && !Thread.currentThread().isInterrupted && ThreadPool.running.get()) {
+                        val generator = it.next()
+                        if (currentBlock < generator.value.block) {
+                            generator.value.forge(blockchainProcessor)
+                        } else {
+                            it.remove()
+                        }
                     }
+                } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
+                    logger.debug("Error in block generation thread", e)
                 }
-            } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
-                logger.debug("Error in block generation thread", e)
             }
         }
     }
@@ -76,15 +65,15 @@ open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
 
         val generator = GeneratorStateImpl(secretPhrase, nonce, publicKey, id)
         val curGen = generators[id]
-        if (curGen == null || generator.block > curGen.block || generator.deadline.compareTo(curGen.deadline) < 0) {
+        if (curGen == null || generator.block > curGen.block || generator.deadline < curGen.deadline) {
             generators[id] = generator
             listeners.accept(generator, Generator.Event.NONCE_SUBMITTED)
             if (logger.isDebugEnabled) {
-                logger.debug("Account {} started mining, deadline {} seconds", Convert.toUnsignedLong(id), generator.deadline)
+                logger.debug("Account {} started mining, deadline {} seconds", id.toUnsignedString(), generator.deadline)
             }
         } else {
             if (logger.isDebugEnabled) {
-                logger.debug("Account {} already has a better nonce", Convert.toUnsignedLong(id))
+                logger.debug("Account {} already has a better nonce", id.toUnsignedString())
             }
         }
 
@@ -115,7 +104,7 @@ open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
         return burstCrypto.calculateDeadline(accountId, nonce, genSig, scoop, baseTarget, getPocVersion(blockHeight))
     }
 
-    inner class GeneratorStateImpl private constructor(private val secretPhrase: String, private val nonce: Long?, override val publicKey: ByteArray, override val accountId: Long?) : Generator.GeneratorState {
+    inner class GeneratorStateImpl internal constructor(private val secretPhrase: String, private val nonce: Long?, override val publicKey: ByteArray, override val accountId: Long?) : Generator.GeneratorState {
         override val deadline: BigInteger
         override val block: Long
 
@@ -136,7 +125,7 @@ open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
         }// need to store publicKey in addition to accountId, because the account may not have had its publicKey set yet
 
         @Throws(BlockchainProcessor.BlockNotAcceptedException::class)
-        private fun forge(blockchainProcessor: BlockchainProcessor) {
+        internal fun forge(blockchainProcessor: BlockchainProcessor) {
             val lastBlock = dp.blockchain.lastBlock
 
             val elapsedTime = dp.timeService.epochTime - lastBlock.timestamp

@@ -17,6 +17,7 @@ import java.util.Locale
 
 import org.jocl.CL.*
 import kotlin.contracts.contract
+import kotlin.math.min
 
 internal object OCLPoC {
     // TODO remove static dp
@@ -40,15 +41,11 @@ internal object OCLPoC {
 
     private val oclLock = Any()
 
-    private val BUFFER_PER_ITEM = MiningPlot.PLOT_SIZE.toLong() + 16
-    private val MEM_PER_ITEM = (8 // id
-
+    private const val BUFFER_PER_ITEM = MiningPlot.PLOT_SIZE.toLong() + 16
+    private const val MEM_PER_ITEM = (8 // id
             + 8 // nonce
-
             + BUFFER_PER_ITEM // buffer
-
             + 4 // scoop num
-
             + MiningPlot.SCOOP_SIZE.toLong()) // output scoop
 
     fun init(dp: DependencyProvider) {
@@ -379,7 +376,7 @@ internal object OCLPoC {
         logger.debug("maxItemsByGlobalMemSize: {}", maxItemsByGlobalMemSize)
         logger.debug("maxItemsByMaxAllocSize: {}", maxItemsByMaxAllocSize)
 
-        return Math.min(maxItemsByGlobalMemSize, maxItemsByMaxAllocSize)
+        return min(maxItemsByGlobalMemSize, maxItemsByMaxAllocSize)
     }
 
     private fun autoChooseDevice(): AutoChooseResult? {
@@ -433,8 +430,7 @@ internal object OCLPoC {
                 clGetDeviceInfo(devices[dvi], CL_DEVICE_MAX_CLOCK_FREQUENCY, Sizeof.cl_long.toLong(),
                         Pointer.to(clock), null)
 
-                val maxItemsAtOnce = Math.min(calculateMaxItemsByMem(devices[dvi]!!),
-                        getComputeUnits(devices[dvi]).toLong() * 256)
+                val maxItemsAtOnce = min(calculateMaxItemsByMem(devices[dvi]!!), getComputeUnits(devices[dvi]).toLong() * 256)
 
                 val score = maxItemsAtOnce * clock[0]
 

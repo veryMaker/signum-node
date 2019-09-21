@@ -9,4 +9,4 @@ object Genesis {
         get() = CREATOR_PUBLIC_KEY.clone()
     val genesisBlockSignature: ByteArray
         get() = GENESIS_BLOCK_SIGNATURE.clone()
-}// never
+}

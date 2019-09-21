@@ -1,23 +1,21 @@
 package brs.http
 
-import brs.Block
 import brs.Blockchain
 import brs.BurstException
 import brs.EconomicClustering
+import brs.http.common.Parameters.TIMESTAMP_PARAMETER
+import brs.http.common.ResultFields.EC_BLOCK_HEIGHT_RESPONSE
+import brs.http.common.ResultFields.EC_BLOCK_ID_RESPONSE
+import brs.http.common.ResultFields.TIMESTAMP_RESPONSE
 import brs.services.TimeService
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-
 import javax.servlet.http.HttpServletRequest
 
-import brs.http.common.Parameters.TIMESTAMP_PARAMETER
-import brs.http.common.ResultFields.*
-
 internal class GetECBlock(private val blockchain: Blockchain, private val timeService: TimeService, private val economicClustering: EconomicClustering) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS), TIMESTAMP_PARAMETER) {
-
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
-        var timestamp = ParameterParser.getTimestamp(req)
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+        var timestamp = ParameterParser.getTimestamp(request)
         if (timestamp == 0) {
             timestamp = timeService.epochTime
         }
@@ -31,5 +29,4 @@ internal class GetECBlock(private val blockchain: Blockchain, private val timeSe
         response.addProperty(TIMESTAMP_RESPONSE, timestamp)
         return response
     }
-
 }

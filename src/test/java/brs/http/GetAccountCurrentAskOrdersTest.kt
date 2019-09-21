@@ -44,7 +44,7 @@ class GetAccountCurrentAskOrdersTest : AbstractUnitTest() {
         val firstIndex = 1
         val lastIndex = 2
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ACCOUNT_PARAMETER, accountId),
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
@@ -52,7 +52,7 @@ class GetAccountCurrentAskOrdersTest : AbstractUnitTest() {
 
         val mockAccount = mock<Account>()
         whenever(mockAccount.id).doReturn(accountId)
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
 
         val mockAsk = mock<Ask>()
         val mockAskId = 1L
@@ -62,7 +62,7 @@ class GetAccountCurrentAskOrdersTest : AbstractUnitTest() {
 
         whenever(mockAssetExchange!!.getAskOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).doReturn(mockAskIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertNotNull(result)
         assertEquals(1, (result.get(ASK_ORDERS_RESPONSE) as JsonArray).size())
@@ -76,7 +76,7 @@ class GetAccountCurrentAskOrdersTest : AbstractUnitTest() {
         val firstIndex = 1
         val lastIndex = 2
 
-        val req = QuickMocker.httpServletRequest(
+        val request = QuickMocker.httpServletRequest(
                 MockParam(ACCOUNT_PARAMETER, accountId),
                 MockParam(ASSET_PARAMETER, assetId),
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),
@@ -85,7 +85,7 @@ class GetAccountCurrentAskOrdersTest : AbstractUnitTest() {
 
         val mockAccount = mock<Account>()
         whenever(mockAccount.id).doReturn(accountId)
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(req))).doReturn(mockAccount)
+        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
 
         val mockAsk = mock<Ask>()
         val mockAskId = 1L
@@ -95,7 +95,7 @@ class GetAccountCurrentAskOrdersTest : AbstractUnitTest() {
 
         whenever(mockAssetExchange!!.getAskOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockAskIterator)
 
-        val result = t!!.processRequest(req) as JsonObject
+        val result = t!!.processRequest(request) as JsonObject
 
         assertNotNull(result)
         assertEquals(1, (result.get(ASK_ORDERS_RESPONSE) as JsonArray).size())

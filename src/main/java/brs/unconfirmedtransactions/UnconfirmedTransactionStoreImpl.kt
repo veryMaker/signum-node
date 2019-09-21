@@ -4,30 +4,19 @@ import brs.BurstException.ValidationException
 import brs.Constants
 import brs.DependencyProvider
 import brs.Transaction
-import brs.db.TransactionDb
-import brs.db.store.AccountStore
 import brs.peer.Peer
-import brs.props.PropertyService
 import brs.props.Props
-import brs.services.TimeService
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl
-import brs.transactionduplicates.TransactionDuplicationResult
-import brs.util.StringUtils
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import java.util.*
 import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-import java.util.function.ToLongFunction
-import java.util.stream.Collectors
 
 class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : UnconfirmedTransactionStore {
     private val reservedBalanceCache = ReservedBalanceCache(dp.accountStore)
     private val transactionDuplicatesChecker = TransactionDuplicatesCheckerImpl()
 
-    private val fingerPrintsOverview = mutableMapOf<Transaction, HashSet<Peer>>()
+    private val fingerPrintsOverview = mutableMapOf<Transaction, HashSet<Peer?>>()
 
     private val internalStore: SortedMap<Long, MutableList<Transaction>>
 
@@ -184,7 +173,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         }
     }
 
-    override fun markFingerPrintsOf(peer: Peer, transactions: List<Transaction>) {
+    override fun markFingerPrintsOf(peer: Peer?, transactions: Collection<Transaction>) {
         synchronized(internalStore) {
             for (transaction in transactions) {
                 if (fingerPrintsOverview.containsKey(transaction)) {
@@ -194,7 +183,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         }
     }
 
-    override fun removeForgedTransactions(transactions: List<Transaction>) {
+    override fun removeForgedTransactions(transactions: Collection<Transaction>) {
         synchronized(internalStore) {
             for (t in transactions) {
                 remove(t)
@@ -226,7 +215,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
     }
 
     private fun tooManyTransactionsWithReferencedFullHash(transaction: Transaction): Boolean {
-        if (!StringUtils.isEmpty(transaction.referencedTransactionFullHash) && maxPercentageUnconfirmedTransactionsFullHash <= (numberUnconfirmedTransactionsFullHash + 1) * 100 / maxSize) {
+        if (!transaction.referencedTransactionFullHash.isNullOrEmpty() && maxPercentageUnconfirmedTransactionsFullHash <= (numberUnconfirmedTransactionsFullHash + 1) * 100 / maxSize) {
             logger.info("Transaction {}: Not added because too many transactions with referenced full hash", transaction.id)
             return true
         }
@@ -271,7 +260,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
             }
         }
 
-        if (!StringUtils.isEmpty(transaction.referencedTransactionFullHash)) {
+        if (!transaction.referencedTransactionFullHash.isNullOrEmpty()) {
             numberUnconfirmedTransactionsFullHash++
         }
     }
@@ -314,7 +303,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         amount--
         transactionDuplicatesChecker.removeTransaction(transaction)
 
-        if (!StringUtils.isEmpty(transaction.referencedTransactionFullHash)) {
+        if (!transaction.referencedTransactionFullHash.isNullOrEmpty()) {
             numberUnconfirmedTransactionsFullHash--
         }
 
@@ -326,5 +315,4 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
     companion object {
         private val logger = LoggerFactory.getLogger(UnconfirmedTransactionStoreImpl::class.java)
     }
-
 }

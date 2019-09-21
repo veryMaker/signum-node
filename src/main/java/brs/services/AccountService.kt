@@ -1,16 +1,13 @@
 package brs.services
 
 import brs.Account
-import brs.Account.AccountAsset
-import brs.Account.Event
-import brs.Account.RewardRecipientAssignment
+import brs.Account.*
 import brs.AssetTransfer
 import brs.util.Observable
-import java.util.function.Consumer
 
 interface AccountService : Observable<Account, Event> {
-
     val count: Int
+
     fun addAssetListener(listener: (AccountAsset) -> Unit, eventType: Event): Boolean
 
     fun getAccount(id: Long): Account?
@@ -33,6 +30,7 @@ interface AccountService : Observable<Account, Event> {
 
     fun flushAccountTable()
 
+    // TODO rename methods
     fun addToForgedBalanceNQT(account: Account, amountNQT: Long)
 
     fun setAccountInfo(account: Account, name: String, description: String)
@@ -51,7 +49,7 @@ interface AccountService : Observable<Account, Event> {
 
     fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment?
 
-    fun setRewardRecipientAssignment(account: Account, recipient: Long?)
+    fun setRewardRecipientAssignment(account: Account, recipient: Long)
 
     fun getUnconfirmedAssetBalanceQNT(account: Account, assetId: Long): Long
 }

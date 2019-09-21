@@ -14,15 +14,19 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.TRANSACTION_BYTES_PARAMETER
 import brs.http.common.Parameters.TRANSACTION_JSON_PARAMETER
-import brs.http.common.ResultFields.*
+import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
+import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.http.common.ResultFields.ERROR_RESPONSE
+import brs.http.common.ResultFields.VALIDATE_RESPONSE
+import brs.http.common.ResultFields.VERIFY_RESPONSE
 
 internal class ParseTransaction(private val parameterService: ParameterService, private val transactionService: TransactionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_BYTES_PARAMETER, TRANSACTION_JSON_PARAMETER) {
 
     @Throws(BurstException::class)
-    internal override fun processRequest(req: HttpServletRequest): JsonElement {
+    internal override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val transactionBytes = Convert.emptyToNull(req.getParameter(TRANSACTION_BYTES_PARAMETER))
-        val transactionJSON = Convert.emptyToNull(req.getParameter(TRANSACTION_JSON_PARAMETER))
+        val transactionBytes = Convert.emptyToNull(request.getParameter(TRANSACTION_BYTES_PARAMETER))
+        val transactionJSON = Convert.emptyToNull(request.getParameter(TRANSACTION_JSON_PARAMETER))
         val transaction = parameterService.parseTransaction(transactionBytes, transactionJSON)
         val response = JSONData.unconfirmedTransaction(transaction)
         try {

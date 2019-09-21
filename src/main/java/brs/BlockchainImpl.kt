@@ -1,24 +1,16 @@
 package brs
 
-import brs.db.BlockDb
-import brs.db.TransactionDb
-import brs.db.store.BlockchainStore
-import brs.util.StampedLockUtils
-import java.util.concurrent.atomic.AtomicReference
+import brs.util.delegates.Atomic
+import brs.util.read
+import brs.util.write
 import java.util.concurrent.locks.StampedLock
-import java.util.function.Supplier
 
 class BlockchainImpl internal constructor(private val dp: DependencyProvider) : Blockchain {
-
-    private val bcsl: StampedLock
-
-    private val lastBlock = AtomicReference<Block>()
+    override var lastBlock by Atomic<Block>() // TODO should this be null?
+    private val lastBlockLock = StampedLock()
 
     override val height: Int
-        get() {
-            val last = getLastBlock()
-            return last?.height ?: 0
-        }
+        get() = lastBlock.height
 
     override val transactionCount: Int
         get() = dp.blockchainStore.transactionCount
@@ -26,52 +18,24 @@ class BlockchainImpl internal constructor(private val dp: DependencyProvider) : 
     override val allTransactions: Collection<Transaction>
         get() = dp.blockchainStore.allTransactions
 
-    init {
-        this.bcsl = StampedLock()
-    }
-
-    private fun <T> bcslRead(supplier: Supplier<T>): T? {
-        return StampedLockUtils.stampedLockRead(bcsl, supplier)
-    }
-
-    override fun getLastBlock(): Block {
-        return bcslRead(Supplier { lastBlock.get() })
-    }
-
-    override fun setLastBlock(block: Block) {
-        val stamp = bcsl.writeLock()
-        try {
-            lastBlock.set(block)
-        } finally {
-            bcsl.unlockWrite(stamp)
-        }
-    }
-
-    override fun setLastBlock(previousBlock: Block, block: Block) {
-        val stamp = bcsl.writeLock()
-        try {
-            check(lastBlock.compareAndSet(previousBlock, block)) { "Last block is no longer previous block" }
-        } finally {
-            bcsl.unlockWrite(stamp)
+    override fun setLastBlock(previousBlock: Block, block: Block) = lastBlockLock.write {
+        if (lastBlock == previousBlock) {
+            lastBlock = block
         }
     }
 
     override fun getLastBlock(timestamp: Int): Block? {
-        val block = getLastBlock()
-        return if (timestamp >= block.timestamp) {
-            block
-        } else dp.dbs.blockDb.findLastBlock(timestamp)
+        val block = lastBlockLock.read { lastBlock }
+        return if (timestamp >= block.timestamp) block else dp.dbs.blockDb.findLastBlock(timestamp)
     }
 
     override fun getBlock(blockId: Long): Block? {
-        val block = getLastBlock()
-        return if (block.id == blockId) {
-            block
-        } else dp.dbs.blockDb.findBlock(blockId)
+        val block = lastBlockLock.read { lastBlock }
+        return if (block.id == blockId) block else dp.dbs.blockDb.findBlock(blockId)
     }
 
     override fun hasBlock(blockId: Long): Boolean {
-        return getLastBlock().id == blockId || dp.dbs.blockDb.hasBlock(blockId)
+        return lastBlockLock.read { lastBlock }.id == blockId || dp.dbs.blockDb.hasBlock(blockId)
     }
 
     override fun getBlocks(from: Int, to: Int): Collection<Block> {
@@ -95,19 +59,15 @@ class BlockchainImpl internal constructor(private val dp: DependencyProvider) : 
     }
 
     override fun getBlockIdAtHeight(height: Int): Long {
-        val block = getLastBlock()
+        val block = lastBlockLock.read { lastBlock }
         require(height <= block.height) { "Invalid height " + height + ", current blockchain is at " + block.height }
-        return if (height == block.height) {
-            block.id
-        } else dp.dbs.blockDb.findBlockIdAtHeight(height)
+        return if (height == block.height) block.id else dp.dbs.blockDb.findBlockIdAtHeight(height)
     }
 
     override fun getBlockAtHeight(height: Int): Block? {
-        val block = getLastBlock()
+        val block = lastBlockLock.read { lastBlock }
         require(height <= block.height) { "Invalid height " + height + ", current blockchain is at " + block.height }
-        return if (height == block.height) {
-            block
-        } else dp.dbs.blockDb.findBlockAtHeight(height)
+        return if (height == block.height) block else dp.dbs.blockDb.findBlockAtHeight(height)
     }
 
     override fun getTransaction(transactionId: Long): Transaction? {
@@ -130,8 +90,7 @@ class BlockchainImpl internal constructor(private val dp: DependencyProvider) : 
         return getTransactions(account, 0, type, subtype, blockTimestamp, 0, -1, includeIndirectIncoming)
     }
 
-    override fun getTransactions(account: Account, numberOfConfirmations: Int, type: Byte, subtype: Byte,
-                                 blockTimestamp: Int, from: Int, to: Int, includeIndirectIncoming: Boolean): Collection<Transaction> {
+    override fun getTransactions(account: Account, numberOfConfirmations: Int, type: Byte, subtype: Byte, blockTimestamp: Int, from: Int, to: Int, includeIndirectIncoming: Boolean): Collection<Transaction> {
         return dp.blockchainStore.getTransactions(account, numberOfConfirmations, type, subtype, blockTimestamp, from, to, includeIndirectIncoming)
     }
 }

@@ -6,10 +6,8 @@ import brs.DigitalGoodsStore.Event
 import brs.DigitalGoodsStore.Goods
 import brs.DigitalGoodsStore.Purchase
 import brs.Transaction
-import java.util.function.Consumer
 
 interface DGSGoodsStoreService { // TODO Redundant name!
-
     fun addGoodsListener(listener: (Goods) -> Unit, eventType: Event): Boolean
 
     fun removeGoodsListener(listener: (Goods) -> Unit, eventType: Event): Boolean
@@ -18,7 +16,7 @@ interface DGSGoodsStoreService { // TODO Redundant name!
 
     fun removePurchaseListener(listener: (Purchase) -> Unit, eventType: Event): Boolean
 
-    fun getGoods(goodsId: Long): Goods
+    fun getGoods(goodsId: Long): Goods?
 
     fun getAllGoods(from: Int, to: Int): Collection<Goods>
 
@@ -36,7 +34,7 @@ interface DGSGoodsStoreService { // TODO Redundant name!
 
     fun getPendingSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<Purchase>
 
-    fun getPurchase(purchaseId: Long): Purchase
+    fun getPurchase(purchaseId: Long): Purchase?
 
     fun changeQuantity(goodsId: Long, deltaQuantity: Int, allowDelisted: Boolean)
 
@@ -48,9 +46,9 @@ interface DGSGoodsStoreService { // TODO Redundant name!
 
     fun delistGoods(goodsId: Long)
 
-    fun feedback(purchaseId: Long, encryptedMessage: Appendix.EncryptedMessage, message: Appendix.Message)
+    fun feedback(purchaseId: Long, encryptedMessage: Appendix.EncryptedMessage?, message: Appendix.Message?)
 
-    fun refund(sellerId: Long, purchaseId: Long, refundNQT: Long, encryptedMessage: Appendix.EncryptedMessage)
+    fun refund(sellerId: Long, purchaseId: Long, refundNQT: Long, encryptedMessage: Appendix.EncryptedMessage?)
 
     fun getExpiredPendingPurchases(timestamp: Int): Collection<Purchase>
 
@@ -58,7 +56,7 @@ interface DGSGoodsStoreService { // TODO Redundant name!
 
     fun deliver(transaction: Transaction, attachment: Attachment.DigitalGoodsDelivery)
 
-    fun getPendingPurchase(purchaseId: Long): Purchase
+    fun getPendingPurchase(purchaseId: Long): Purchase?
 
     fun setPending(purchase: Purchase, pendingValue: Boolean)
 }

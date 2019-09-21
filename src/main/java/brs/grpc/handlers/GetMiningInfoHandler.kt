@@ -6,14 +6,11 @@ import brs.BlockchainProcessor
 import brs.Generator
 import brs.grpc.StreamResponseGrpcApiHandler
 import brs.grpc.proto.BrsApi
-import com.google.protobuf.ByteString
+import brs.grpc.proto.toByteString
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
-
-import java.util.Arrays
-import java.util.HashSet
+import java.util.*
 import java.util.concurrent.atomic.AtomicReference
-import java.util.function.Consumer
 
 class GetMiningInfoHandler(blockchainProcessor: BlockchainProcessor, blockchain: Blockchain, private val generator: Generator) : StreamResponseGrpcApiHandler<Empty, BrsApi.MiningInfo> {
 
@@ -30,11 +27,11 @@ class GetMiningInfoHandler(blockchainProcessor: BlockchainProcessor, blockchain:
 
     private fun onBlock(block: Block) {
         synchronized(currentMiningInfo) {
-            val nextGenSig = generator.calculateGenerationSignature(block.generationSignature, block.getGeneratorId())
+            val nextGenSig = generator.calculateGenerationSignature(block.generationSignature, block.generatorId)
             val miningInfo = currentMiningInfo.get()
             if (miningInfo == null || !Arrays.equals(miningInfo.generationSignature.toByteArray(), nextGenSig) || miningInfo.height - 1 != block.height || miningInfo.baseTarget != block.baseTarget) {
                 currentMiningInfo.set(BrsApi.MiningInfo.newBuilder()
-                        .setGenerationSignature(ByteString.copyFrom(nextGenSig))
+                        .setGenerationSignature(nextGenSig.toByteString())
                         .setHeight(block.height + 1)
                         .setBaseTarget(block.baseTarget)
                         .build())
@@ -68,7 +65,7 @@ class GetMiningInfoHandler(blockchainProcessor: BlockchainProcessor, blockchain:
         }
     }
 
-    override fun handleStreamRequest(input: Empty, responseObserver: StreamObserver<BrsApi.MiningInfo>) {
+    override fun handleStreamRequest(request: Empty, responseObserver: StreamObserver<BrsApi.MiningInfo>) {
         responseObserver.onNext(currentMiningInfo.get())
         addListener { miningInfo ->
             if (miningInfo == null) {
