@@ -48,7 +48,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             AtApiPlatformImpl.init(dp)
             AtController.init(dp)
             AtApiImpl.init(dp)
-            OCLPoC.init(dp)
+            dp.oclPoC = OCLPoC(dp)
             dp.timeService = TimeServiceImpl()
             dp.derivedTableManager = DerivedTableManager()
             dp.statisticsManager = StatisticsManagerImpl(dp)
@@ -166,7 +166,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
         } catch (ignored: UninitializedPropertyAccessException) {}
         try {
             if (dp.blockchainProcessor.oclVerify) {
-                OCLPoC.destroy()
+                dp.oclPoC.destroy()
             }
         } catch (ignored: UninitializedPropertyAccessException) {}
         logger.info("BRS {} stopped.", VERSION)

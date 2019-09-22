@@ -62,4 +62,5 @@ class DependencyProvider {
     lateinit var parameterService: ParameterService
     lateinit var apiTransactionManager: APITransactionManager
     lateinit var peers: Peers
+    lateinit var oclPoC: OCLPoC
 }

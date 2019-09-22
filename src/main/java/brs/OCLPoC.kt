@@ -1,27 +1,20 @@
 package brs
 
-import brs.props.PropertyService
 import brs.props.Props
 import brs.services.BlockService
 import brs.util.MiningPlot
 import org.jocl.*
-import org.slf4j.Logger
+import org.jocl.CL.*
 import org.slf4j.LoggerFactory
-
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.Locale
-
-import org.jocl.CL.*
-import kotlin.contracts.contract
+import java.util.*
 import kotlin.math.min
 
-internal object OCLPoC {
-    // TODO remove static dp
-    private var dp: DependencyProvider? = null
+class OCLPoC(dp: DependencyProvider) {
 
     private val logger = LoggerFactory.getLogger(OCLPoC::class.java)
 
@@ -41,15 +34,7 @@ internal object OCLPoC {
 
     private val oclLock = Any()
 
-    private const val BUFFER_PER_ITEM = MiningPlot.PLOT_SIZE.toLong() + 16
-    private const val MEM_PER_ITEM = (8 // id
-            + 8 // nonce
-            + BUFFER_PER_ITEM // buffer
-            + 4 // scoop num
-            + MiningPlot.SCOOP_SIZE.toLong()) // output scoop
-
-    fun init(dp: DependencyProvider) {
-        OCLPoC.dp = dp
+    init {
         val propertyService = dp.propertyService
         HASHES_PER_ENQUEUE = propertyService.get(Props.GPU_HASHES_PER_BATCH)
         MEM_PERCENT = propertyService.get(Props.GPU_MEM_PERCENT)
@@ -456,4 +441,13 @@ internal object OCLPoC {
     }
 
     class PreValidateFailException internal constructor(message: String, cause: Throwable, @field:Transient val block: Block) : RuntimeException(message, cause)
+
+    companion object {
+        private const val BUFFER_PER_ITEM = MiningPlot.PLOT_SIZE.toLong() + 16
+        private const val MEM_PER_ITEM = (8 // id
+                + 8 // nonce
+                + BUFFER_PER_ITEM // buffer
+                + 4 // scoop num
+                + MiningPlot.SCOOP_SIZE.toLong()) // output scoop
+    }
 }

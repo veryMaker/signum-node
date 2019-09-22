@@ -550,11 +550,10 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                         verifyWithOcl = false
                     }
                     if (verifyWithOcl) {
-                        val pocVersion: Int
+                        val pocVersion = dp.downloadCache.getPoCVersion(dp.downloadCache.getUnverifiedBlockIdFromPos(0))
                         var pos = 0
                         val blocks = LinkedList<Block>()
-                        pocVersion = dp.downloadCache.getPoCVersion(dp.downloadCache.getUnverifiedBlockIdFromPos(0))
-                        while (!Thread.interrupted() && ThreadPool.running.get() && dp.downloadCache.unverifiedSize - 1 > pos && blocks.size < OCLPoC.maxItems) {
+                        while (!Thread.interrupted() && ThreadPool.running.get() && dp.downloadCache.unverifiedSize - 1 > pos && blocks.size < dp.oclPoC.maxItems) {
                             val blockId = dp.downloadCache.getUnverifiedBlockIdFromPos(pos)
                             if (dp.downloadCache.getPoCVersion(blockId) != pocVersion) {
                                 break
@@ -563,7 +562,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                             pos += 1
                         }
                         try {
-                            OCLPoC.validatePoC(blocks, pocVersion, dp.blockService)
+                            dp.oclPoC.validatePoC(blocks, pocVersion, dp.blockService)
                             dp.downloadCache.removeUnverifiedBatch(blocks)
                         } catch (e: OCLPoC.PreValidateFailException) {
                             logger.info(e.toString(), e)
