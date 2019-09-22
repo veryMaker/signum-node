@@ -1,5 +1,6 @@
 package brs
 
+import brs.props.Props
 import brs.util.Convert
 
 import java.io.BufferedReader
@@ -8,14 +9,18 @@ import java.io.IOException
 import java.util.*
 
 object VerifyTrace {
+    // Replace if changed.
+    private val QUOTE = Props.BRS_DEBUG_TRACE_QUOTE.defaultValue
+    private val SEPARATOR = Props.BRS_DEBUG_TRACE_SEPARATOR.defaultValue
+
     private val balanceHeaders = listOf("balance", "unconfirmed balance")
     private val deltaHeaders = listOf("transaction amount", "transaction fee",
             "generation fee", "trade cost", "purchase cost", "discount", "refund")
     private val assetQuantityHeaders = listOf("asset balance", "unconfirmed asset balance")
     private val deltaAssetQuantityHeaders = listOf("asset quantity", "trade quantity")
 
-    private val BEGIN_QUOTE = "^" + DebugTrace.QUOTE
-    private val END_QUOTE = DebugTrace.QUOTE + "$"
+    private val BEGIN_QUOTE = "^$QUOTE"
+    private val END_QUOTE = "$QUOTE$"
 
     private fun isBalance(header: String): Boolean {
         return balanceHeaders.contains(header)
@@ -39,7 +44,7 @@ object VerifyTrace {
         try {
             BufferedReader(FileReader(fileName)).use { reader ->
                 val firstLine = reader.readLine()
-                val headers = unquote(firstLine.split(DebugTrace.SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
+                val headers = unquote(firstLine.split(SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
 
                 val totals = mutableMapOf<String, MutableMap<String, Long>>()
                 val accountAssetTotals = mutableMapOf<String, MutableMap<String, MutableMap<String, Long>>>()
@@ -47,7 +52,7 @@ object VerifyTrace {
                 val accountAssetQuantities = mutableMapOf<String, Long>()
 
                 reader.readLines().forEach { line ->
-                    val values = unquote(line.split(DebugTrace.SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
+                    val values = unquote(line.split(SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
                     val valueMap = mutableMapOf<String, String>()
                     for (i in headers.indices) {
                         valueMap[headers[i]] = values[i]
@@ -159,5 +164,4 @@ object VerifyTrace {
     private fun nullToZero(l: Long?): Long {
         return l ?: 0
     }
-
 }

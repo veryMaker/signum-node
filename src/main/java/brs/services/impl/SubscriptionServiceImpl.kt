@@ -137,7 +137,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         dp.accountService.addToBalanceNQT(sender, -totalAmountNQT)
         dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(recipient, subscription.amountNQT)
 
-        val attachment = Attachment.AdvancedPaymentSubscriptionPayment(subscription.id, blockchainHeight)
+        val attachment = Attachment.AdvancedPaymentSubscriptionPayment(dp, subscription.id, blockchainHeight)
         val builder = Transaction.Builder(dp, 1.toByte(), sender.publicKey!!, subscription.amountNQT, fee, subscription.timeNext, 1440.toShort(), attachment)
 
         try {

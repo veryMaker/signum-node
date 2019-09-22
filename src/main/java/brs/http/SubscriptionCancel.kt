@@ -53,7 +53,7 @@ internal class SubscriptionCancel(private val dp: DependencyProvider) : CreateTr
             return response
         }
 
-        val attachment = Attachment.AdvancedPaymentSubscriptionCancel(subscription.id, dp.blockchain.height)
+        val attachment = Attachment.AdvancedPaymentSubscriptionCancel(dp, subscription.id, dp.blockchain.height)
 
         return createTransaction(request, sender, null, 0, attachment)
     }

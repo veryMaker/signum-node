@@ -7,21 +7,15 @@
 
 package brs.at
 
-import brs.Burst
 import brs.DependencyProvider
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
-
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.security.MessageDigest
-import java.util.Arrays
+import java.util.*
 
-open class AtApiImpl : AtApi {
-
-    private val platform = AtApiPlatformImpl.instance
-
+open class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     override fun getA1(state: AtMachineState): Long {
         return AtApiHelper.getLong(state.a1)
     }
@@ -623,95 +617,114 @@ open class AtApiImpl : AtApi {
         }
     }
 
+    // TODO this entire thing needs refactoring...
+
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun getBlockTimestamp(state: AtMachineState): Long {
-        return platform.getBlockTimestamp(state)
-
+        return dp.atApiPlatformImpl.getBlockTimestamp(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun getCreationTimestamp(state: AtMachineState): Long {
-        return platform.getCreationTimestamp(state)
+        return dp.atApiPlatformImpl.getCreationTimestamp(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun getLastBlockTimestamp(state: AtMachineState): Long {
-        return platform.getLastBlockTimestamp(state)
+        return dp.atApiPlatformImpl.getLastBlockTimestamp(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun putLastBlockHashInA(state: AtMachineState) {
-        platform.putLastBlockHashInA(state)
+        dp.atApiPlatformImpl.putLastBlockHashInA(state)
 
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun aToTxAfterTimestamp(`val`: Long, state: AtMachineState) {
-        platform.aToTxAfterTimestamp(`val`, state)
-
+        dp.atApiPlatformImpl.aToTxAfterTimestamp(`val`, state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun getTypeForTxInA(state: AtMachineState): Long {
-        return platform.getTypeForTxInA(state)
+        return dp.atApiPlatformImpl.getTypeForTxInA(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun getAmountForTxInA(state: AtMachineState): Long {
-        return platform.getAmountForTxInA(state)
+        return dp.atApiPlatformImpl.getAmountForTxInA(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun getTimestampForTxInA(state: AtMachineState): Long {
-        return platform.getTimestampForTxInA(state)
+        return dp.atApiPlatformImpl.getTimestampForTxInA(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun getRandomIdForTxInA(state: AtMachineState): Long {
-        return platform.getRandomIdForTxInA(state)
+        return dp.atApiPlatformImpl.getRandomIdForTxInA(state)
     }
 
     override fun messageFromTxInAToB(state: AtMachineState) {
-        platform.messageFromTxInAToB(state)
+        dp.atApiPlatformImpl.messageFromTxInAToB(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun bToAddressOfTxInA(state: AtMachineState) {
-
-        platform.bToAddressOfTxInA(state)
+        dp.atApiPlatformImpl.bToAddressOfTxInA(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun bToAddressOfCreator(state: AtMachineState) {
-        platform.bToAddressOfCreator(state)
-
+        dp.atApiPlatformImpl.bToAddressOfCreator(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun getCurrentBalance(state: AtMachineState): Long {
-        return platform.getCurrentBalance(state)
+        return dp.atApiPlatformImpl.getCurrentBalance(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun getPreviousBalance(state: AtMachineState): Long {
-        return platform.getPreviousBalance(state)
+        return dp.atApiPlatformImpl.getPreviousBalance(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun sendToAddressInB(`val`: Long, state: AtMachineState) {
-        platform.sendToAddressInB(`val`, state)
+        dp.atApiPlatformImpl.sendToAddressInB(`val`, state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun sendAllToAddressInB(state: AtMachineState) {
-        platform.sendAllToAddressInB(state)
+        dp.atApiPlatformImpl.sendAllToAddressInB(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun sendOldToAddressInB(state: AtMachineState) {
-        platform.sendOldToAddressInB(state)
+        dp.atApiPlatformImpl.sendOldToAddressInB(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun sendAToAddressInB(state: AtMachineState) {
-        platform.sendAToAddressInB(state)
+        dp.atApiPlatformImpl.sendAToAddressInB(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun addMinutesToTimestamp(val1: Long, val2: Long, state: AtMachineState): Long {
-        return platform.addMinutesToTimestamp(val1, val2, state)
+        return dp.atApiPlatformImpl.addMinutesToTimestamp(val1, val2, state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun setMinActivationAmount(`val`: Long, state: AtMachineState) {
         state.setMinActivationAmount(`val`)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun putLastBlockGenerationSignatureInA(state: AtMachineState) {
-        platform.putLastBlockGenerationSignatureInA(state)
+        dp.atApiPlatformImpl.putLastBlockGenerationSignatureInA(state)
     }
 
+    @Deprecated("Use dp.atApiPlatformImpl instead")
     override fun sha256ToB(val1: Long, val2: Long, state: AtMachineState) {
         if (val1 < 0 || val2 < 0 ||
                 val1 + val2 - 1 < 0 ||
@@ -731,14 +744,5 @@ open class AtApiImpl : AtApi {
         state.b2 = AtApiHelper.getByteArray(shab.getLong(8))
         state.b3 = AtApiHelper.getByteArray(shab.getLong(16))
         state.b4 = AtApiHelper.getByteArray(shab.getLong(24))
-    }
-
-    companion object {
-        // TODO remove static dp
-        private var dp: DependencyProvider? = null
-
-        fun init(dp: DependencyProvider) {
-            AtApiImpl.dp = dp
-        }
     }
 }

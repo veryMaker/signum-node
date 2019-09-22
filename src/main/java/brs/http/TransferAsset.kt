@@ -1,16 +1,14 @@
 package brs.http
 
-import brs.*
-import brs.services.AccountService
-import brs.services.ParameterService
-import com.google.gson.JsonElement
-
-import javax.servlet.http.HttpServletRequest
-
+import brs.Attachment
+import brs.BurstException
+import brs.DependencyProvider
 import brs.http.JSONResponses.NOT_ENOUGH_ASSETS
 import brs.http.common.Parameters.ASSET_PARAMETER
 import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
+import com.google.gson.JsonElement
+import javax.servlet.http.HttpServletRequest
 
 internal class TransferAsset(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, ASSET_PARAMETER, QUANTITY_QNT_PARAMETER) {
     @Throws(BurstException::class)
@@ -26,7 +24,7 @@ internal class TransferAsset(private val dp: DependencyProvider) : CreateTransac
             return NOT_ENOUGH_ASSETS
         }
 
-        val attachment = Attachment.ColoredCoinsAssetTransfer(asset.id, quantityQNT, dp.blockchain.height)
+        val attachment = Attachment.ColoredCoinsAssetTransfer(dp, asset.id, quantityQNT, dp.blockchain.height)
         return createTransaction(request, account, recipient, 0, attachment)
     }
 }

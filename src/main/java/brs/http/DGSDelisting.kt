@@ -1,13 +1,12 @@
 package brs.http
 
-import brs.*
-import brs.services.ParameterService
-import com.google.gson.JsonElement
-
-import javax.servlet.http.HttpServletRequest
-
+import brs.Attachment
+import brs.BurstException
+import brs.DependencyProvider
 import brs.http.JSONResponses.UNKNOWN_GOODS
 import brs.http.common.Parameters.GOODS_PARAMETER
+import com.google.gson.JsonElement
+import javax.servlet.http.HttpServletRequest
 
 internal class DGSDelisting(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER) {
 
@@ -18,7 +17,7 @@ internal class DGSDelisting(private val dp: DependencyProvider) : CreateTransact
         if (goods.isDelisted || goods.sellerId != account.id) {
             return UNKNOWN_GOODS
         }
-        val attachment = Attachment.DigitalGoodsDelisting(goods.id, dp.blockchain.height)
+        val attachment = Attachment.DigitalGoodsDelisting(dp, goods.id, dp.blockchain.height)
         return createTransaction(request, account, attachment)
     }
 

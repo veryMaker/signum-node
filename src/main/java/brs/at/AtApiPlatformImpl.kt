@@ -8,7 +8,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
 
-class AtApiPlatformImpl private constructor() : AtApiImpl() {
+class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiImpl(dp) {
 
     override fun getBlockTimestamp(state: AtMachineState): Long {
         val height = state.height
@@ -119,8 +119,8 @@ class AtApiPlatformImpl private constructor() : AtApiImpl() {
         val txBlockHeight = tx.height
         val blockHeight = state.height
 
-        if (blockHeight - txBlockHeight < AtConstants.blocksForRandom(blockHeight)) { //for tests - for real case 1440
-            state.waitForNumberOfBlocks = AtConstants.blocksForRandom(blockHeight).toInt() - (blockHeight - txBlockHeight)
+        if (blockHeight - txBlockHeight < dp.atConstants.blocksForRandom(blockHeight)) { //for tests - for real case 1440
+            state.waitForNumberOfBlocks = dp.atConstants.blocksForRandom(blockHeight).toInt() - (blockHeight - txBlockHeight)
             state.machineState!!.pc -= 7
             state.machineState!!.stopped = true
             return 0
@@ -294,7 +294,7 @@ class AtApiPlatformImpl private constructor() : AtApiImpl() {
     override fun addMinutesToTimestamp(val1: Long, val2: Long, state: AtMachineState): Long {
         val height = AtApiHelper.longToHeight(val1)
         val numOfTx = AtApiHelper.longToNumOfTx(val1)
-        val addHeight = height + (val2 / AtConstants.averageBlockMinutes(state.height)).toInt()
+        val addHeight = height + (val2 / dp.atConstants.averageBlockMinutes(state.height)).toInt()
 
         return AtApiHelper.getLongTimestamp(addHeight, numOfTx)
     }
@@ -302,15 +302,6 @@ class AtApiPlatformImpl private constructor() : AtApiImpl() {
     companion object {
 
         private val logger = LoggerFactory.getLogger(AtApiPlatformImpl::class.java)
-
-        val instance = AtApiPlatformImpl()
-
-        // TODO don't store static dp
-        private var dp: DependencyProvider? = null
-
-        fun init(dp: DependencyProvider) {
-            AtApiPlatformImpl.dp = dp
-        }
 
         // TODO remove methods taking dp
         private fun findTransaction(dp: DependencyProvider, startHeight: Int, endHeight: Int, atID: Long?, numOfTx: Int, minAmount: Long): Long? {

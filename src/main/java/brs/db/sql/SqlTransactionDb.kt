@@ -44,7 +44,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
 
     @Throws(BurstException.ValidationException::class)
     override fun loadTransaction(tr: TransactionRecord): Transaction {
-        var buffer: ByteBuffer? = null
+        val buffer: ByteBuffer
         if (tr.attachmentBytes != null) {
             buffer = ByteBuffer.wrap(tr.attachmentBytes)
             buffer!!.order(ByteOrder.LITTLE_ENDIAN)
@@ -74,7 +74,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
             builder.encryptedMessage(Appendix.EncryptedMessage(buffer!!, tr.version!!))
         }
         if (tr.hasPublicKeyAnnouncement!!) {
-            builder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(buffer!!, tr.version!!))
+            builder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(dp, buffer!!, tr.version!!))
         }
         if (tr.hasEncrypttoselfMessage!!) {
             builder.encryptToSelfMessage(Appendix.EncryptToSelfMessage(buffer!!, tr.version!!))

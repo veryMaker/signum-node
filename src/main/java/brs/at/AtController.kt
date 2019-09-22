@@ -34,15 +34,15 @@ object AtController {
         state.machineState.dead = false
         state.machineState.steps = 0
 
-        val processor = AtMachineProcessor(state, dp!!.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
+        val processor = AtMachineProcessor(dp, state, dp!!.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
 
         state.setFreeze(false)
 
-        val stepFee = AtConstants.stepFee(state.creationBlockHeight)
+        val stepFee = dp.atConstants.stepFee(state.creationBlockHeight)
 
         var numSteps = getNumSteps(state.apCode.get(state.machineState.pc), state.creationBlockHeight)
 
-        while (state.machineState.steps + numSteps <= AtConstants.maxSteps(state.height)) {
+        while (state.machineState.steps + numSteps <= dp.atConstants.maxSteps(state.height)) {
 
             if (state.getgBalance() < stepFee * numSteps) {
                 debugLogger.debug("stopped - not enough balance")
@@ -87,7 +87,7 @@ object AtController {
     }
 
     private fun getNumSteps(op: Byte, height: Int): Int {
-        return if (op in 0x32..55) AtConstants.apiStepMultiplier(height).toInt() else 1
+        return if (op in 0x32..55) dp.atConstants.apiStepMultiplier(height).toInt() else 1
     }
 
     fun resetMachine(state: AtMachineState) {
@@ -97,7 +97,7 @@ object AtController {
 
     private fun listCode(state: AtMachineState, disassembly: Boolean, determineJumps: Boolean) {
 
-        val machineProcessor = AtMachineProcessor(state, dp.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
+        val machineProcessor = AtMachineProcessor(dp, state, dp.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
 
         val opc = state.machineState.pc
         val osteps = state.machineState.steps
@@ -133,10 +133,8 @@ object AtController {
             b.put(creation)
             b.clear()
 
-            val instance = AtConstants
-
             val version = b.short
-            if (version != instance.atVersion(height)) {
+            if (version != dp.atConstants.atVersion(height)) {
                 throw AtException(AtError.INCORRECT_VERSION.description)
             }
 
@@ -144,22 +142,22 @@ object AtController {
             b.short //future: reserved for future needs
 
             val codePages = b.short
-            if (codePages > instance.maxMachineCodePages(height) || codePages < 1) {
+            if (codePages > dp.atConstants.maxMachineCodePages(height) || codePages < 1) {
                 throw AtException(AtError.INCORRECT_CODE_PAGES.description)
             }
 
             val dataPages = b.short
-            if (dataPages > instance.maxMachineDataPages(height) || dataPages < 0) {
+            if (dataPages > dp.atConstants.maxMachineDataPages(height) || dataPages < 0) {
                 throw AtException(AtError.INCORRECT_DATA_PAGES.description)
             }
 
             val callStackPages = b.short
-            if (callStackPages > instance.maxMachineCallStackPages(height) || callStackPages < 0) {
+            if (callStackPages > dp.atConstants.maxMachineCallStackPages(height) || callStackPages < 0) {
                 throw AtException(AtError.INCORRECT_CALL_PAGES.description)
             }
 
             val userStackPages = b.short
-            if (userStackPages > instance.maxMachineUserStackPages(height) || userStackPages < 0) {
+            if (userStackPages > dp.atConstants.maxMachineUserStackPages(height) || userStackPages < 0) {
                 throw AtException(AtError.INCORRECT_USER_PAGES.description)
             }
 
@@ -236,7 +234,7 @@ object AtController {
                 continue
             }
 
-            if (atAccountBalance >= AtConstants.stepFee(at.creationBlockHeight) * AtConstants.apiStepMultiplier(at.creationBlockHeight)) {
+            if (atAccountBalance >= dp.atConstants.stepFee(at.creationBlockHeight) * dp.atConstants.apiStepMultiplier(at.creationBlockHeight)) {
                 try {
                     at.setgBalance(atAccountBalance)
                     at.height = blockHeight
@@ -245,7 +243,7 @@ object AtController {
                     listCode(at, true, true)
                     runSteps(at)
 
-                    var fee = at.machineState.steps * AtConstants.stepFee(at.creationBlockHeight)
+                    var fee = at.machineState.steps * dp.atConstants.stepFee(at.creationBlockHeight)
                     if (at.machineState.dead) {
                         fee += at.getgBalance()!!
                         at.setgBalance(0L)
@@ -299,7 +297,7 @@ object AtController {
                 at.waitForNumberOfBlocks = at.sleepBetween
 
                 val atAccountBalance = getATAccountBalance(AtApiHelper.getLong(atId))
-                if (atAccountBalance < AtConstants.stepFee(at.creationBlockHeight) * AtConstants.apiStepMultiplier(at.creationBlockHeight)) {
+                if (atAccountBalance < dp.atConstants.stepFee(at.creationBlockHeight) * dp.atConstants.apiStepMultiplier(at.creationBlockHeight)) {
                     throw AtException("AT has insufficient balance to run")
                 }
 
@@ -317,7 +315,7 @@ object AtController {
 
                 runSteps(at)
 
-                var fee = at.machineState.steps * AtConstants.stepFee(at.creationBlockHeight)
+                var fee = at.machineState.steps * dp.atConstants.stepFee(at.creationBlockHeight)
                 if (at.machineState.dead) {
                     fee += at.getgBalance()!!
                     at.setgBalance(0L)

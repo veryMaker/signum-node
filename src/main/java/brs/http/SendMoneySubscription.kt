@@ -37,7 +37,7 @@ internal class SendMoneySubscription(private val dp: DependencyProvider) : Creat
             return response
         }
 
-        val attachment = Attachment.AdvancedPaymentSubscriptionSubscribe(frequency, dp.blockchain.height)
+        val attachment = Attachment.AdvancedPaymentSubscriptionSubscribe(dp, frequency, dp.blockchain.height)
 
         return createTransaction(request, sender, recipient, amountNQT, attachment)
     }

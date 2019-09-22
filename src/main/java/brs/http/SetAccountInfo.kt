@@ -29,7 +29,7 @@ internal class SetAccountInfo(private val dp: DependencyProvider) : CreateTransa
         }
 
         val account = dp.parameterService.getSenderAccount(request)
-        val attachment = Attachment.MessagingAccountInfo(name, description, dp.blockchain.height)
+        val attachment = Attachment.MessagingAccountInfo(dp, name, description, dp.blockchain.height)
         return createTransaction(request, account, attachment)
     }
 }

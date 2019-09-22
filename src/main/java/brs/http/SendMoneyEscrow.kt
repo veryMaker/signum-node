@@ -104,7 +104,7 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
             return response
         }
 
-        val attachment = Attachment.AdvancedPaymentEscrowCreation(amountNQT, deadline.toInt(), deadlineAction, requiredSigners.toInt(), signers, dp.blockchain.height)
+        val attachment = Attachment.AdvancedPaymentEscrowCreation(dp, amountNQT, deadline.toInt(), deadlineAction, requiredSigners.toInt(), signers, dp.blockchain.height)
 
         return createTransaction(request, sender, recipient, 0, attachment)
     }

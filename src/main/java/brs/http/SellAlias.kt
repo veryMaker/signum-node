@@ -53,7 +53,7 @@ internal class SellAlias internal constructor(private val dp: DependencyProvider
             return INCORRECT_ALIAS_OWNER
         }
 
-        val attachment = Attachment.MessagingAliasSell(alias.aliasName, priceNQT, dp.blockchain.height)
+        val attachment = Attachment.MessagingAliasSell(dp, alias.aliasName, priceNQT, dp.blockchain.height)
         return createTransaction(request, owner, recipientId, 0, attachment)
     }
 }

@@ -1,6 +1,9 @@
 package brs
 
 import brs.assetexchange.AssetExchange
+import brs.at.AtApiController
+import brs.at.AtApiPlatformImpl
+import brs.at.AtConstants
 import brs.db.cache.DBCacheManagerImpl
 import brs.db.store.*
 import brs.deeplink.DeeplinkQRCodeGenerator
@@ -63,4 +66,7 @@ class DependencyProvider {
     lateinit var apiTransactionManager: APITransactionManager
     lateinit var peers: Peers
     lateinit var oclPoC: OCLPoC
+    lateinit var atConstants: AtConstants
+    lateinit var atApiPlatformImpl: AtApiPlatformImpl
+    lateinit var atApiController: AtApiController
 }

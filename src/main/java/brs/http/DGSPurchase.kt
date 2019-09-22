@@ -52,7 +52,7 @@ internal class DGSPurchase internal constructor(private val dp: DependencyProvid
         val buyerAccount = dp.parameterService.getSenderAccount(request)
         val sellerAccount = dp.accountService.getAccount(goods.sellerId) ?: return INCORRECT_ACCOUNT
 
-        val attachment = Attachment.DigitalGoodsPurchase(goods.id, quantity, priceNQT,
+        val attachment = Attachment.DigitalGoodsPurchase(dp, goods.id, quantity, priceNQT,
                 deliveryDeadline, dp.blockchain.height)
         return createTransaction(request, buyerAccount, sellerAccount.id, 0, attachment)
 

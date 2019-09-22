@@ -23,7 +23,7 @@ internal class BuyAlias(private val dp: DependencyProvider) : CreateTransaction(
         }
 
         val sellerId = alias.accountId
-        val attachment = Attachment.MessagingAliasBuy(alias.aliasName, dp.blockchain.height)
+        val attachment = Attachment.MessagingAliasBuy(dp, alias.aliasName, dp.blockchain.height)
         return createTransaction(request, buyer, sellerId, amountNQT, attachment)
     }
 }

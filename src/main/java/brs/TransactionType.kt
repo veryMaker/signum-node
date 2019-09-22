@@ -7,7 +7,6 @@ import brs.BurstException.ValidationException
 import brs.Constants.FEE_QUANT
 import brs.Constants.ONE_BURST
 import brs.at.AT
-import brs.at.AtConstants
 import brs.at.AtController
 import brs.at.AtException
 import brs.fluxcapacitor.FluxValues
@@ -21,7 +20,7 @@ import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 import java.util.*
 
-abstract class TransactionType private constructor() {
+abstract class TransactionType private constructor(dp: DependencyProvider) {
 
     abstract val type: Byte
 
@@ -105,7 +104,7 @@ abstract class TransactionType private constructor() {
     open fun parseAppendices(builder: Transaction.Builder, attachmentData: JsonObject) {
         builder.message(Appendix.Message.parse(attachmentData))
         builder.encryptedMessage(Appendix.EncryptedMessage.parse(attachmentData))
-        builder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement.parse(attachmentData))
+        builder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement.parse(dp, attachmentData))
         builder.encryptToSelfMessage(Appendix.EncryptToSelfMessage.parse(attachmentData))
     }
 
@@ -121,7 +120,7 @@ abstract class TransactionType private constructor() {
         }
         position = position shl 1
         if (flags and position != 0) {
-            builder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(buffer, version))
+            builder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(dp, buffer, version))
         }
         position = position shl 1
         if (flags and position != 0) {
@@ -152,7 +151,7 @@ abstract class TransactionType private constructor() {
         return "type: $type, subtype: $subtype"
     }
 
-    abstract class Payment private constructor() : TransactionType() {
+    abstract class Payment private constructor() : TransactionType(dp) {
 
         override val type: Byte
             get() = TYPE_PAYMENT
@@ -335,7 +334,7 @@ abstract class TransactionType private constructor() {
 
     }
 
-    abstract class Messaging private constructor() : TransactionType() {
+    abstract class Messaging private constructor() : TransactionType(dp) {
 
         override val type: Byte
             get() = TYPE_MESSAGING
@@ -404,7 +403,7 @@ abstract class TransactionType private constructor() {
                     }
                     position = position shl 1
                     if (flags and position != 0) {
-                        builder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(buffer, version))
+                        builder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(dp, buffer, version))
                     }
                     position = position shl 1
                     if (flags and position != 0) {
@@ -668,7 +667,7 @@ abstract class TransactionType private constructor() {
         }
     }
 
-    abstract class ColoredCoins private constructor() : TransactionType() {
+    abstract class ColoredCoins private constructor() : TransactionType(dp) {
 
         override val type: Byte
             get() = TYPE_COLORED_COINS
@@ -1083,7 +1082,7 @@ abstract class TransactionType private constructor() {
         }
     }
 
-    abstract class DigitalGoods private constructor() : TransactionType() {
+    abstract class DigitalGoods private constructor() : TransactionType(dp) {
 
         override val type: Byte
             get() = TYPE_DIGITAL_GOODS
@@ -1621,7 +1620,7 @@ abstract class TransactionType private constructor() {
 
     }
 
-    abstract class AccountControl private constructor() : TransactionType() {
+    abstract class AccountControl private constructor() : TransactionType(dp) {
 
         override val type: Byte
             get() = TYPE_ACCOUNT_CONTROL
@@ -1688,7 +1687,7 @@ abstract class TransactionType private constructor() {
 
     }
 
-    abstract class BurstMining private constructor() : TransactionType() {
+    abstract class BurstMining private constructor() : TransactionType(dp) {
 
         override val type: Byte
             get() = TYPE_BURST_MINING
@@ -1779,7 +1778,7 @@ abstract class TransactionType private constructor() {
         }
     }
 
-    abstract class AdvancedPayment private constructor() : TransactionType() {
+    abstract class AdvancedPayment private constructor() : TransactionType(dp) {
 
         override val type: Byte
             get() = TYPE_ADVANCED_PAYMENT
@@ -2237,7 +2236,7 @@ abstract class TransactionType private constructor() {
         }
     }
 
-    abstract class AutomatedTransactions private constructor() : TransactionType() {
+    abstract class AutomatedTransactions private constructor() : TransactionType(dp) {
 
         override val type: Byte
             get() = TYPE_AUTOMATED_TRANSACTIONS
@@ -2277,7 +2276,7 @@ abstract class TransactionType private constructor() {
                     buffer: ByteBuffer,
                     transactionVersion: Byte
                 ): AbstractAttachment {
-                    return AutomatedTransactionsCreation(buffer, transactionVersion)
+                    return AutomatedTransactionsCreation(dp, buffer, transactionVersion)
                 }
 
                 override fun parseAttachment(attachmentData: JsonObject): AbstractAttachment {
@@ -2312,7 +2311,7 @@ abstract class TransactionType private constructor() {
                         throw BurstException.NotCurrentlyValidException("Invalid AT creation bytes", e)
                     }
 
-                    val requiredFee = totalPages * AtConstants.costPerPage(transaction.height)
+                    val requiredFee = totalPages * dp.atConstants.costPerPage(transaction.height)
                     if (transaction.feeNQT < requiredFee) {
                         throw NotValidException("Insufficient fee for AT creation. Minimum: " + (requiredFee / ONE_BURST).toUnsignedString())
                     }

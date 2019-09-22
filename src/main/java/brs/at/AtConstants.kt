@@ -5,11 +5,8 @@ import brs.DependencyProvider
 import brs.fluxcapacitor.FluxValues
 
 
-object AtConstants {
-    lateinit var dp: DependencyProvider
-
+class AtConstants(private val dp: DependencyProvider) {
     //platform based
-    const val AT_ID_SIZE = 8
     private val MIN_FEE = mutableMapOf<Short, Long>()
     private val STEP_FEE = mutableMapOf<Short, Long>()
     private val MAX_STEPS = mutableMapOf<Short, Long>()
@@ -27,8 +24,7 @@ object AtConstants {
     private val AVERAGE_BLOCK_MINUTES = mutableMapOf<Short, Long>()
 
 
-    fun init(dp: DependencyProvider) {
-        this.dp = dp
+    init {
         // constants for AT version 1
         MIN_FEE[1.toShort()] = 1000L
         STEP_FEE[1.toShort()] = Constants.ONE_BURST / 10L
@@ -134,5 +130,9 @@ object AtConstants {
 
     fun averageBlockMinutes(height: Int): Long {
         return AVERAGE_BLOCK_MINUTES[atVersion(height)]!!
+    }
+
+    companion object {
+        const val AT_ID_SIZE = 8
     }
 }

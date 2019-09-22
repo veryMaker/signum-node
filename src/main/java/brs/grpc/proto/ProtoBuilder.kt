@@ -342,16 +342,16 @@ object ProtoBuilder {
             for (appendix in basicTransaction.appendagesList) {
                 try {
                     when {
-                        appendix.`is`(BrsApi.MessageAppendix::class.java) -> transactionBuilder.message(Appendix.Message(appendix.unpack(BrsApi.MessageAppendix::class.java), blockchainHeight))
+                        appendix.`is`(BrsApi.MessageAppendix::class.java) -> transactionBuilder.message(Appendix.Message(dp, appendix.unpack(BrsApi.MessageAppendix::class.java), blockchainHeight))
                         appendix.`is`(BrsApi.EncryptedMessageAppendix::class.java) -> {
                             val encryptedMessageAppendix = appendix.unpack(BrsApi.EncryptedMessageAppendix::class.java)
                             when (encryptedMessageAppendix.type) {
-                                BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT -> transactionBuilder.encryptedMessage(Appendix.EncryptedMessage(encryptedMessageAppendix, blockchainHeight))
-                                BrsApi.EncryptedMessageAppendix.Type.TO_SELF -> transactionBuilder.encryptToSelfMessage(Appendix.EncryptToSelfMessage(encryptedMessageAppendix, blockchainHeight))
+                                BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT -> transactionBuilder.encryptedMessage(Appendix.EncryptedMessage(dp, encryptedMessageAppendix, blockchainHeight))
+                                BrsApi.EncryptedMessageAppendix.Type.TO_SELF -> transactionBuilder.encryptToSelfMessage(Appendix.EncryptToSelfMessage(dp, encryptedMessageAppendix, blockchainHeight))
                                 else -> throw ApiException("Invalid encrypted message type: " + encryptedMessageAppendix.type.name)
                             }
                         }
-                        appendix.`is`(BrsApi.PublicKeyAnnouncementAppendix::class.java) -> transactionBuilder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(appendix.unpack(BrsApi.PublicKeyAnnouncementAppendix::class.java), blockchainHeight))
+                        appendix.`is`(BrsApi.PublicKeyAnnouncementAppendix::class.java) -> transactionBuilder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(dp, appendix.unpack(BrsApi.PublicKeyAnnouncementAppendix::class.java), blockchainHeight))
                     }
                 } catch (e: InvalidProtocolBufferException) {
                     throw ApiException("Failed to unpack Any: " + e.message)

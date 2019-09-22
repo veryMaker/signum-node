@@ -23,7 +23,7 @@ internal class SetRewardRecipient(private val dp: DependencyProvider) : CreateTr
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "recipient account does not have public key")
             return response
         }
-        val attachment = Attachment.BurstMiningRewardRecipientAssignment(dp.blockchain.height)
+        val attachment = Attachment.BurstMiningRewardRecipientAssignment(dp, dp.blockchain.height)
         return createTransaction(request, account, recipient, 0, attachment)
     }
 

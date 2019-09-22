@@ -1,23 +1,19 @@
 package brs
 
-import brs.props.Props
 import brs.util.Convert
-import brs.util.parseUnsignedLong
 import brs.util.toUnsignedString
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.math.BigInteger
-import java.util.*
-import kotlin.properties.Delegates
 
-class DebugTrace private constructor(private val accountIds: Set<Long>, private val logName: String) {
+class DebugTrace internal constructor(private val dp: DependencyProvider, private val quote: String, private val separator: String, private val logUnconfirmed: Boolean, private val columns: Array<String>, private val headers: Map<String, String>, private val accountIds: Set<Long>, private val logName: String) {
     private var log: PrintWriter? = null
 
     init {
         resetLog()
     }
 
-    private fun resetLog() {
+    internal fun resetLog() {
         if (log != null) {
             log!!.close()
         }
@@ -45,7 +41,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
     }
 
     // Note: Trade events occur before the change in account balances
-    private fun trace(trade: Trade) {
+    internal fun trace(trade: Trade) {
         val askAccountId = dp.assetExchange.getAskOrder(trade.askOrderId)!!.accountId
         val bidAccountId = dp.assetExchange.getBidOrder(trade.bidOrderId)!!.accountId
         if (include(askAccountId)) {
@@ -56,13 +52,13 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
         }
     }
 
-    private fun trace(account: Account, unconfirmed: Boolean) {
+    internal fun trace(account: Account, unconfirmed: Boolean) {
         if (include(account.id)) {
             log(getValues(account.id, unconfirmed))
         }
     }
 
-    private fun trace(accountAsset: Account.AccountAsset, unconfirmed: Boolean) {
+    internal fun trace(accountAsset: Account.AccountAsset, unconfirmed: Boolean) {
         if (!include(accountAsset.accountId)) {
             return
         }
@@ -70,14 +66,14 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
     }
 
 
-    private fun traceBeforeAccept(block: Block) {
+    internal fun traceBeforeAccept(block: Block) {
         val generatorId = block.generatorId
         if (include(generatorId)) {
             log(getValues(generatorId, block))
         }
     }
 
-    private fun trace(block: Block) {
+    internal fun trace(block: Block) {
         for (transaction in block.transactions) {
             val senderId = transaction.senderId
             if (include(senderId)) {
@@ -97,7 +93,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
         }
     }
 
-    private fun lessorGuaranteedBalance(account: Account, lesseeId: Long): Map<String, String> {
+    internal fun lessorGuaranteedBalance(account: Account, lesseeId: Long): Map<String, String> {
         val map = mutableMapOf<String, String>()
         map["account"] = account.id.toUnsignedString()
         map["lessor guaranteed balance"] = account.balanceNQT.toString()
@@ -108,7 +104,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
         return map
     }
 
-    private fun getValues(accountId: Long, unconfirmed: Boolean): MutableMap<String, String> {
+    internal fun getValues(accountId: Long, unconfirmed: Boolean): MutableMap<String, String> {
         val map = mutableMapOf<String, String>()
         map["account"] = accountId.toUnsignedString()
         val account = Account.getAccount(dp, accountId)
@@ -120,7 +116,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
         return map
     }
 
-    private fun getValues(accountId: Long, trade: Trade, isAsk: Boolean): Map<String, String> {
+    internal fun getValues(accountId: Long, trade: Trade, isAsk: Boolean): Map<String, String> {
         val map = getValues(accountId, false)
         map["asset"] = trade.assetId.toUnsignedString()
         map["trade quantity"] = (if (isAsk) -trade.quantityQNT else trade.quantityQNT).toString()
@@ -131,7 +127,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
         return map
     }
 
-    private fun getValues(accountId: Long, transaction: Transaction, isRecipient: Boolean): Map<String, String> {
+    internal fun getValues(accountId: Long, transaction: Transaction, isRecipient: Boolean): Map<String, String> {
         var amount = transaction.amountNQT
         var fee = transaction.feeNQT
         if (isRecipient) {
@@ -157,7 +153,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
         return map
     }
 
-    private fun getValues(accountId: Long, block: Block): Map<String, String> {
+    internal fun getValues(accountId: Long, block: Block): Map<String, String> {
         val fee = block.totalFeeNQT
         if (fee == 0L) {
             return emptyMap()
@@ -171,7 +167,7 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
         return map
     }
 
-    private fun getValues(accountId: Long, accountAsset: Account.AccountAsset, unconfirmed: Boolean): Map<String, String> {
+    internal fun getValues(accountId: Long, accountAsset: Account.AccountAsset, unconfirmed: Boolean): Map<String, String> {
         val map = mutableMapOf<String, String>()
         map["account"] = accountId.toUnsignedString()
         map["asset"] = accountAsset.assetId.toUnsignedString()
@@ -282,86 +278,25 @@ class DebugTrace private constructor(private val accountIds: Set<Long>, private 
         return map
     }
 
-    private fun log(map: Map<String, String>) {
+    internal fun log(map: Map<String, String>) {
         if (map.isEmpty()) {
             return
         }
         val buf = StringBuilder()
         for (column in columns) {
-            if (!LOG_UNCONFIRMED && column.startsWith("unconfirmed")) {
+            if (!logUnconfirmed && column.startsWith("unconfirmed")) {
                 continue
             }
             val value = map[column]
             if (value != null) {
-                buf.append(QUOTE).append(value).append(QUOTE)
+                buf.append(quote).append(value).append(quote)
             }
-            buf.append(SEPARATOR)
+            buf.append(separator)
         }
         log!!.println(buf.toString())
     }
-
+    
     companion object {
         private val logger = LoggerFactory.getLogger(DebugTrace::class.java)
-
-        internal lateinit var QUOTE: String
-        internal lateinit var SEPARATOR: String
-        private var LOG_UNCONFIRMED: Boolean by Delegates.notNull() // Cannot use lateinit on primitives
-
-        // TODO remove static DP
-        private lateinit var dp: DependencyProvider
-
-        internal fun init(dp: DependencyProvider) {
-            this.dp = dp
-
-            QUOTE = dp.propertyService.get(Props.BRS_DEBUG_TRACE_QUOTE)
-            SEPARATOR = dp.propertyService.get(Props.BRS_DEBUG_TRACE_SEPARATOR)
-            LOG_UNCONFIRMED = dp.propertyService.get(Props.BRS_DEBUG_LOG_CONFIRMED)
-
-            val accountIdStrings = dp.propertyService.get(Props.BRS_DEBUG_TRACE_ACCOUNTS)
-            val logName = dp.propertyService.get(Props.BRS_DEBUG_TRACE_LOG)
-            if (accountIdStrings.isEmpty()) {
-                return
-            }
-            val accountIds = HashSet<Long>()
-            for (accountId in accountIdStrings) {
-                if ("*" == accountId) {
-                    accountIds.clear()
-                    break
-                }
-                accountIds.add(accountId.parseUnsignedLong())
-            }
-            val debugTrace = addDebugTrace(accountIds, logName)
-            dp.blockchainProcessor.addListener({ debugTrace.resetLog() }, BlockchainProcessor.Event.RESCAN_BEGIN)
-            logger.debug("Debug tracing of " + (if (accountIdStrings.contains("*"))
-                "ALL"
-            else
-                accountIds.size.toString()) + " accounts enabled")
-        }
-
-        private fun addDebugTrace(accountIds: Set<Long>, logName: String): DebugTrace {
-            val debugTrace = DebugTrace(accountIds, logName)
-            dp.assetExchange.addTradeListener({ debugTrace.trace(it) }, Trade.Event.TRADE)
-            dp.accountService.addListener({ account -> debugTrace.trace(account, false) }, Account.Event.BALANCE)
-            if (LOG_UNCONFIRMED) {
-                dp.accountService.addListener({ account -> debugTrace.trace(account, true) }, Account.Event.UNCONFIRMED_BALANCE)
-            }
-            dp.accountService.addAssetListener({ accountAsset -> debugTrace.trace(accountAsset, false) }, Account.Event.ASSET_BALANCE)
-            if (LOG_UNCONFIRMED) {
-                dp.accountService.addAssetListener({ accountAsset -> debugTrace.trace(accountAsset, true) }, Account.Event.UNCONFIRMED_ASSET_BALANCE)
-            }
-            dp.blockchainProcessor.addListener({ debugTrace.traceBeforeAccept(it) }, BlockchainProcessor.Event.BEFORE_BLOCK_ACCEPT)
-            dp.blockchainProcessor.addListener({ debugTrace.trace(it) }, BlockchainProcessor.Event.BEFORE_BLOCK_APPLY)
-            return debugTrace
-        }
-
-        private val columns = arrayOf("height", "event", "account", "asset", "balance", "unconfirmed balance", "asset balance", "unconfirmed asset balance", "transaction amount", "transaction fee", "generation fee", "effective balance", "order", "order price", "order quantity", "order cost", "trade price", "trade quantity", "trade cost", "asset quantity", "transaction", "lessee", "lessor guaranteed balance", "purchase", "purchase price", "purchase quantity", "purchase cost", "discount", "refund", "sender", "recipient", "block", "timestamp")
-
-        private val headers = mutableMapOf<String, String>()
-
-        init {
-            for (entry in columns) {
-                headers[entry] = entry
-            }
-        }
     }
 }

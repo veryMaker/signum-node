@@ -36,7 +36,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
     private val gpuUsage = Semaphore(2)
 
-    private val trimDerivedTables: Boolean
+    private val trimDerivedTables = dp.propertyService.get(Props.DB_TRIM_DERIVED_TABLES)
     private val lastTrimHeight = AtomicInteger()
 
     private val blockListeners = Listeners<Block, BlockchainProcessor.Event>()
@@ -65,8 +65,6 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
     init {
 
         // use GPU acceleration ?
-
-        trimDerivedTables = dp.propertyService.get(Props.DB_TRIM_DERIVED_TABLES)
 
         blockListeners.addListener({ block ->
             if (block.height % 5000 == 0) {

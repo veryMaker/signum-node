@@ -19,7 +19,7 @@ internal class DGSPriceChange internal constructor(private val dp: DependencyPro
         if (goods.isDelisted || goods.sellerId != account.id) {
             return UNKNOWN_GOODS
         }
-        val attachment = Attachment.DigitalGoodsPriceChange(goods.id, priceNQT, dp.blockchain.height)
+        val attachment = Attachment.DigitalGoodsPriceChange(dp, goods.id, priceNQT, dp.blockchain.height)
         return createTransaction(request, account, attachment)
     }
 

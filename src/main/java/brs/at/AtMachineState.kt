@@ -192,7 +192,7 @@ open class AtMachineState {
 
     protected constructor(dp: DependencyProvider, atId: ByteArray, creator: ByteArray, creationBytes: ByteArray, height: Int) {
         this.dp = dp
-        this.version = AtConstants.atVersion(height)
+        this.version = dp.atConstants.atVersion(height)
         this.id = atId
         this.creator = creator
 
@@ -206,7 +206,7 @@ open class AtMachineState {
 
         b.short //future: reserved for future needs
 
-        val pageSize = AtConstants.pageSize(height).toInt()
+        val pageSize = dp.atConstants.pageSize(height).toInt()
         val codePages = b.short
         val dataPages = b.short
         val callStackPages = b.short

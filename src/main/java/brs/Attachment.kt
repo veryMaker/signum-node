@@ -1,6 +1,5 @@
 package brs
 
-import brs.Appendix.Companion.dp
 import brs.TransactionType.Payment
 import brs.at.AtConstants
 import brs.crypto.EncryptedData
@@ -94,7 +93,7 @@ interface Attachment : Appendix {
 
         internal constructor(version: Byte) : super(version)
 
-        internal constructor(blockchainHeight: Int) : super(blockchainHeight)
+        internal constructor(dp: DependencyProvider, blockchainHeight: Int) : super(dp, blockchainHeight)
 
         @Throws(BurstException.ValidationException::class)
         override fun validate(transaction: Transaction) {
@@ -286,7 +285,7 @@ interface Attachment : Appendix {
         }
 
         @Throws(BurstException.NotValidException::class)
-        constructor(recipients: Collection<Entry<String, Long>>, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, recipients: Collection<Entry<String, Long>>, blockchainHeight: Int) : super(dp, blockchainHeight) {
 
             val recipientOf = mutableMapOf<Long, Boolean>()
             for ((key, amountNQT) in recipients) {
@@ -411,7 +410,7 @@ interface Attachment : Appendix {
         }
 
         @Throws(BurstException.NotValidException::class)
-        constructor(recipients: Collection<Long>, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, recipients: Collection<Long>, blockchainHeight: Int) : super(dp, blockchainHeight) {
 
             val recipientOf = mutableMapOf<Long, Boolean>()
             for (recipientId in recipients) {
@@ -491,7 +490,7 @@ interface Attachment : Appendix {
             aliasURI = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(URI_PARAMETER))).trim { it <= ' ' }
         }
 
-        constructor(aliasName: String, aliasURI: String, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, aliasName: String, aliasURI: String, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.aliasName = aliasName.trim { it <= ' ' }
             this.aliasURI = aliasURI.trim { it <= ' ' }
         }
@@ -548,7 +547,7 @@ interface Attachment : Appendix {
             this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
         }
 
-        constructor(aliasName: String, priceNQT: Long, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, aliasName: String, priceNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.aliasName = aliasName
             this.priceNQT = priceNQT
         }
@@ -599,7 +598,7 @@ interface Attachment : Appendix {
             this.aliasName = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)))
         }
 
-        constructor(aliasName: String, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, aliasName: String, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.aliasName = aliasName
         }
 
@@ -650,7 +649,7 @@ interface Attachment : Appendix {
             this.description = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER)))
         }
 
-        constructor(name: String, description: String, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, name: String, description: String, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.name = name
             this.description = description
         }
@@ -715,7 +714,7 @@ interface Attachment : Appendix {
             this.decimals = JSON.getAsByte(attachmentData.get(DECIMALS_PARAMETER))
         }
 
-        constructor(name: String, description: String, quantityQNT: Long, decimals: Byte, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, name: String, description: String, quantityQNT: Long, decimals: Byte, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.name = name
             this.description = Convert.nullToEmpty(description)
             this.quantityQNT = quantityQNT
@@ -784,7 +783,7 @@ interface Attachment : Appendix {
             this.comment = if (version.toInt() == 0) Convert.nullToEmpty(JSON.getAsString(attachmentData.get(COMMENT_PARAMETER))) else null
         }
 
-        constructor(assetId: Long, quantityQNT: Long, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, assetId: Long, quantityQNT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.assetId = assetId
             this.quantityQNT = quantityQNT
             this.comment = null
@@ -847,7 +846,7 @@ interface Attachment : Appendix {
             this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
         }
 
-        constructor(assetId: Long, quantityQNT: Long, priceNQT: Long, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, assetId: Long, quantityQNT: Long, priceNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.assetId = assetId
             this.quantityQNT = quantityQNT
             this.priceNQT = priceNQT
@@ -887,10 +886,10 @@ interface Attachment : Appendix {
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData)
 
-        constructor(assetId: Long, quantityQNT: Long, priceNQT: Long, blockchainHeight: Int) : super(assetId, quantityQNT, priceNQT, blockchainHeight)
+        constructor(dp: DependencyProvider, assetId: Long, quantityQNT: Long, priceNQT: Long, blockchainHeight: Int) : super(dp, assetId, quantityQNT, priceNQT, blockchainHeight)
 
         internal constructor(attachment: BrsApi.AssetOrderPlacementAttachment) : super(attachment) {
-            if (attachment.type != type) throw IllegalArgumentException("Type does not match")
+            require(attachment.type == type) { "Type does not match" }
         }
 
     }
@@ -910,7 +909,7 @@ interface Attachment : Appendix {
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData)
 
-        constructor(assetId: Long, quantityQNT: Long, priceNQT: Long, blockchainHeight: Int) : super(assetId, quantityQNT, priceNQT, blockchainHeight)
+        constructor(dp: DependencyProvider, assetId: Long, quantityQNT: Long, priceNQT: Long, blockchainHeight: Int) : super(dp, assetId, quantityQNT, priceNQT, blockchainHeight)
 
         internal constructor(attachment: BrsApi.AssetOrderPlacementAttachment) : super(attachment) {
             if (attachment.type != type) throw IllegalArgumentException("Type does not match")
@@ -942,7 +941,7 @@ interface Attachment : Appendix {
             this.orderId = JSON.getAsString(attachmentData.get(ORDER_PARAMETER)).parseUnsignedLong()
         }
 
-        constructor(orderId: Long, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, orderId: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.orderId = orderId
         }
 
@@ -974,7 +973,7 @@ interface Attachment : Appendix {
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData)
 
-        constructor(orderId: Long, blockchainHeight: Int) : super(orderId, blockchainHeight)
+        constructor(dp: DependencyProvider, orderId: Long, blockchainHeight: Int) : super(dp, orderId, blockchainHeight)
 
         internal constructor(attachment: BrsApi.AssetOrderCancellationAttachment) : super(attachment) {
             if (attachment.type != type) throw IllegalArgumentException("Type does not match")
@@ -997,10 +996,10 @@ interface Attachment : Appendix {
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData)
 
-        constructor(orderId: Long, blockchainHeight: Int) : super(orderId, blockchainHeight)
+        constructor(dp: DependencyProvider, orderId: Long, blockchainHeight: Int) : super(dp, orderId, blockchainHeight)
 
         internal constructor(attachment: BrsApi.AssetOrderCancellationAttachment) : super(attachment) {
-            if (attachment.type != type) throw IllegalArgumentException("Type does not match")
+            require(attachment.type == type) { "Type does not match" }
         }
 
     }
@@ -1050,7 +1049,7 @@ interface Attachment : Appendix {
             this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
         }
 
-        constructor(name: String, description: String, tags: String, quantity: Int, priceNQT: Long, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, name: String, description: String, tags: String, quantity: Int, priceNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.name = name
             this.description = description
             this.tags = tags
@@ -1116,7 +1115,7 @@ interface Attachment : Appendix {
             this.goodsId = JSON.getAsString(attachmentData.get(GOODS_PARAMETER)).parseUnsignedLong()
         }
 
-        constructor(goodsId: Long, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, goodsId: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.goodsId = goodsId
         }
 
@@ -1164,7 +1163,7 @@ interface Attachment : Appendix {
             this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
         }
 
-        constructor(goodsId: Long, priceNQT: Long, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, goodsId: Long, priceNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.goodsId = goodsId
             this.priceNQT = priceNQT
         }
@@ -1216,7 +1215,7 @@ interface Attachment : Appendix {
             this.deltaQuantity = JSON.getAsInt(attachmentData.get(DELTA_QUANTITY_PARAMETER))
         }
 
-        constructor(goodsId: Long, deltaQuantity: Int, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, goodsId: Long, deltaQuantity: Int, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.goodsId = goodsId
             this.deltaQuantity = deltaQuantity
         }
@@ -1276,7 +1275,7 @@ interface Attachment : Appendix {
             this.deliveryDeadlineTimestamp = JSON.getAsInt(attachmentData.get(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER))
         }
 
-        constructor(goodsId: Long, quantity: Int, priceNQT: Long, deliveryDeadlineTimestamp: Int, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, goodsId: Long, quantity: Int, priceNQT: Long, deliveryDeadlineTimestamp: Int, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.goodsId = goodsId
             this.quantity = quantity
             this.priceNQT = priceNQT
@@ -1349,7 +1348,7 @@ interface Attachment : Appendix {
             this.goodsIsText = JSON.getAsBoolean(attachmentData.get(GOODS_IS_TEXT_PARAMETER))
         }
 
-        constructor(purchaseId: Long, goods: EncryptedData, goodsIsText: Boolean, discountNQT: Long, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, purchaseId: Long, goods: EncryptedData, goodsIsText: Boolean, discountNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.purchaseId = purchaseId
             this.goods = goods
             this.discountNQT = discountNQT
@@ -1411,7 +1410,7 @@ interface Attachment : Appendix {
             this.purchaseId = JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)).parseUnsignedLong()
         }
 
-        constructor(purchaseId: Long, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, purchaseId: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.purchaseId = purchaseId
         }
 
@@ -1459,7 +1458,7 @@ interface Attachment : Appendix {
             this.refundNQT = JSON.getAsLong(attachmentData.get(REFUND_NQT_PARAMETER))
         }
 
-        constructor(purchaseId: Long, refundNQT: Long, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, purchaseId: Long, refundNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.purchaseId = purchaseId
             this.refundNQT = refundNQT
         }
@@ -1507,7 +1506,7 @@ interface Attachment : Appendix {
             this.period = JSON.getAsShort(attachmentData.get(PERIOD_PARAMETER))
         }
 
-        constructor(period: Short, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, period: Short, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.period = period
         }
 
@@ -1544,7 +1543,7 @@ interface Attachment : Appendix {
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData)
 
-        constructor(blockchainHeight: Int) : super(blockchainHeight)
+        constructor(dp: DependencyProvider, blockchainHeight: Int) : super(dp, blockchainHeight)
 
         internal constructor(attachment: BrsApi.RewardRecipientAssignmentAttachment) : super(attachment.version.toByte())
 
@@ -1628,8 +1627,7 @@ interface Attachment : Appendix {
         }
 
         @Throws(BurstException.NotValidException::class)
-        constructor(amountNQT: Long, deadline: Int, deadlineAction: Escrow.DecisionType,
-                    requiredSigners: Int, signers: Collection<Long>, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, amountNQT: Long, deadline: Int, deadlineAction: Escrow.DecisionType, requiredSigners: Int, signers: Collection<Long>, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.amountNQT = amountNQT
             this.deadline = deadline
             this.deadlineAction = deadlineAction
@@ -1720,7 +1718,7 @@ interface Attachment : Appendix {
             this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER))!!)
         }
 
-        constructor(escrowId: Long?, decision: Escrow.DecisionType, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, escrowId: Long?, decision: Escrow.DecisionType, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.escrowId = escrowId
             this.decision = decision
         }
@@ -1772,7 +1770,7 @@ interface Attachment : Appendix {
             this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER))!!)
         }
 
-        constructor(escrowId: Long?, decision: Escrow.DecisionType, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, escrowId: Long?, decision: Escrow.DecisionType, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.escrowId = escrowId
             this.decision = decision
         }
@@ -1820,7 +1818,7 @@ interface Attachment : Appendix {
             this.frequency = JSON.getAsInt(attachmentData.get(FREQUENCY_PARAMETER))
         }
 
-        constructor(frequency: Int, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, frequency: Int, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.frequency = frequency
         }
 
@@ -1864,7 +1862,7 @@ interface Attachment : Appendix {
             this.subscriptionId = JSON.getAsString(attachmentData.get(SUBSCRIPTION_ID_PARAMETER)).parseUnsignedLong()
         }
 
-        constructor(subscriptionId: Long, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, subscriptionId: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.subscriptionId = subscriptionId
         }
 
@@ -1908,7 +1906,7 @@ interface Attachment : Appendix {
             this.subscriptionId = JSON.getAsString(attachmentData.get(SUBSCRIPTION_ID_PARAMETER)).parseUnsignedLong()
         }
 
-        constructor(subscriptionId: Long?, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, subscriptionId: Long?, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.subscriptionId = subscriptionId
         }
 
@@ -1949,7 +1947,7 @@ interface Attachment : Appendix {
                     .build())
 
         @Throws(BurstException.NotValidException::class)
-        internal constructor(buffer: ByteBuffer,
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer,
                              transactionVersion: Byte) : super(buffer, transactionVersion) {
 
             this.name = Convert.readString(buffer, buffer.get().toInt(), Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH)
@@ -1962,7 +1960,7 @@ interface Attachment : Appendix {
 
             buffer.short //future: reserved for future needs
 
-            val pageSize = AtConstants.pageSize(dp.blockchain.height).toInt()
+            val pageSize = dp.atConstants.pageSize(dp.blockchain.height).toInt()
             val codePages = buffer.short
             val dataPages = buffer.short
             buffer.short
@@ -2016,7 +2014,7 @@ interface Attachment : Appendix {
 
         }
 
-        constructor(name: String, description: String, creationBytes: ByteArray, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, name: String, description: String, creationBytes: ByteArray, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.name = name
             this.description = description
             this.creationBytes = creationBytes

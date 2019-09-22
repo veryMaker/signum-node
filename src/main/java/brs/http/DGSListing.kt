@@ -43,7 +43,7 @@ internal class DGSListing internal constructor(private val dp: DependencyProvide
         }
 
         val account = dp.parameterService.getSenderAccount(request)
-        val attachment = Attachment.DigitalGoodsListing(name, description, tags, quantity, priceNQT, dp.blockchain.height)
+        val attachment = Attachment.DigitalGoodsListing(dp, name, description, tags, quantity, priceNQT, dp.blockchain.height)
         return createTransaction(request, account, attachment)
     }
 }

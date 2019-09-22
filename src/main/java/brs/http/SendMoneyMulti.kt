@@ -69,7 +69,7 @@ internal class SendMoneyMulti(private val dp: DependencyProvider) : CreateTransa
             return response
         }
 
-        val attachment = Attachment.PaymentMultiOutCreation(recipients, dp.blockchain.height)
+        val attachment = Attachment.PaymentMultiOutCreation(dp, recipients, dp.blockchain.height)
 
         return createTransaction(request, sender, null, attachment.amountNQT!!, attachment)
     }

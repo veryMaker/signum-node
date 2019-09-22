@@ -97,7 +97,7 @@ class AT : AtMachineState {
 
                 val message = atTransaction.message
                 if (message != null) {
-                    builder.message(Appendix.Message(message, dp.blockchain.height))
+                    builder.message(Appendix.Message(dp, message, dp.blockchain.height))
                 }
 
                 try {

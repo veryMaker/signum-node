@@ -25,7 +25,7 @@ internal class PlaceAskOrder(private val dp: DependencyProvider) : CreateTransac
             return NOT_ENOUGH_ASSETS
         }
 
-        val attachment = Attachment.ColoredCoinsAskOrderPlacement(asset.id, quantityQNT, priceNQT, dp.blockchain.height)
+        val attachment = Attachment.ColoredCoinsAskOrderPlacement(dp, asset.id, quantityQNT, priceNQT, dp.blockchain.height)
         return createTransaction(request, account, attachment)
     }
 }

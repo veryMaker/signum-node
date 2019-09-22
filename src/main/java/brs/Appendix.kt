@@ -11,7 +11,6 @@ import brs.util.parseHexString
 import brs.util.toHexString
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
-import com.google.protobuf.ByteString
 import java.nio.ByteBuffer
 import java.util.*
 
@@ -22,15 +21,6 @@ interface Appendix {
     val version: Byte
     val protobufMessage: Any
     fun putBytes(buffer: ByteBuffer)
-
-    companion object {
-        // TODO remove static dp
-        internal lateinit var dp: DependencyProvider
-
-        fun init(dp: DependencyProvider) {
-            this.dp = dp
-        }
-    }
 
     abstract class AbstractAppendix : Appendix {
 
@@ -65,7 +55,7 @@ interface Appendix {
             this.version = version
         }
 
-        internal constructor(blockchainHeight: Int) {
+        internal constructor(dp: DependencyProvider, blockchainHeight: Int) {
             this.version = (if (dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) 1 else 0).toByte()
         }
 
@@ -128,17 +118,17 @@ interface Appendix {
             this.messageBytes = if (isText) Convert.toBytes(messageString) else messageString.parseHexString()
         }
 
-        constructor(message: ByteArray, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, message: ByteArray, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.messageBytes = message
             this.isText = false
         }
 
-        constructor(string: String, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, string: String, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.messageBytes = Convert.toBytes(string)
             this.isText = true
         }
 
-        constructor(messageAppendix: BrsApi.MessageAppendix, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, messageAppendix: BrsApi.MessageAppendix, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.messageBytes = messageAppendix.message.toByteArray()
             this.isText = messageAppendix.isText
         }
@@ -213,12 +203,12 @@ interface Appendix {
             this.isText = JSON.getAsBoolean(encryptedMessageJSON.get("isText"))
         }
 
-        constructor(encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.encryptedData = encryptedData
             this.isText = isText
         }
 
-        constructor(encryptedMessageAppendix: BrsApi.EncryptedMessageAppendix, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, encryptedMessageAppendix: BrsApi.EncryptedMessageAppendix, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.encryptedData = ProtoBuilder.parseEncryptedData(encryptedMessageAppendix.encryptedData)
             this.isText = encryptedMessageAppendix.isText
         }
@@ -263,10 +253,10 @@ interface Appendix {
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData, JSON.getAsJsonObject(attachmentData.get("encryptedMessage"))) {}
 
-        constructor(encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(encryptedData, isText, blockchainHeight) {}
+        constructor(dp: DependencyProvider, encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(dp, encryptedData, isText, blockchainHeight) {}
 
-        constructor(encryptedMessageAppendix: BrsApi.EncryptedMessageAppendix, blockchainHeight: Int) : super(encryptedMessageAppendix, blockchainHeight) {
-            if (encryptedMessageAppendix.type != BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT) throw IllegalArgumentException()
+        constructor(dp: DependencyProvider, encryptedMessageAppendix: BrsApi.EncryptedMessageAppendix, blockchainHeight: Int) : super(dp, encryptedMessageAppendix, blockchainHeight) {
+            require(encryptedMessageAppendix.type == BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT)
         }
 
         override fun putMyJSON(json: JsonObject) {
@@ -311,10 +301,10 @@ interface Appendix {
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData, JSON.getAsJsonObject(attachmentData.get("encryptToSelfMessage"))) {}
 
-        constructor(encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(encryptedData, isText, blockchainHeight) {}
+        constructor(dp: DependencyProvider, encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(dp, encryptedData, isText, blockchainHeight) {}
 
-        constructor(encryptedMessageAppendix: BrsApi.EncryptedMessageAppendix, blockchainHeight: Int) : super(encryptedMessageAppendix, blockchainHeight) {
-            if (encryptedMessageAppendix.type != BrsApi.EncryptedMessageAppendix.Type.TO_SELF) throw IllegalArgumentException()
+        constructor(dp: DependencyProvider, encryptedMessageAppendix: BrsApi.EncryptedMessageAppendix, blockchainHeight: Int) : super(dp, encryptedMessageAppendix, blockchainHeight) {
+            require(encryptedMessageAppendix.type == BrsApi.EncryptedMessageAppendix.Type.TO_SELF)
         }
 
         override fun putMyJSON(json: JsonObject) {
@@ -343,6 +333,7 @@ interface Appendix {
 
     class PublicKeyAnnouncement : AbstractAppendix {
 
+        private val dp: DependencyProvider
         val publicKey: ByteArray
 
         override val appendixName: String
@@ -357,21 +348,25 @@ interface Appendix {
                     .setRecipientPublicKey(publicKey.toByteString())
                     .build())
 
-        constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
             this.publicKey = ByteArray(32)
+            this.dp = dp
             buffer.get(this.publicKey)
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(attachmentData) {
             this.publicKey = JSON.getAsString(attachmentData.get("recipientPublicKey")).parseHexString()
+            this.dp = dp
         }
 
-        constructor(publicKey: ByteArray, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, publicKey: ByteArray, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.publicKey = publicKey
+            this.dp = dp
         }
 
-        constructor(publicKeyAnnouncementAppendix: BrsApi.PublicKeyAnnouncementAppendix, blockchainHeight: Int) : super(blockchainHeight) {
+        constructor(dp: DependencyProvider, publicKeyAnnouncementAppendix: BrsApi.PublicKeyAnnouncementAppendix, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.publicKey = publicKeyAnnouncementAppendix.recipientPublicKey.toByteArray()
+            this.dp = dp
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
@@ -410,10 +405,10 @@ interface Appendix {
         }
 
         companion object {
-            fun parse(attachmentData: JsonObject): PublicKeyAnnouncement? {
+            fun parse(dp: DependencyProvider, attachmentData: JsonObject): PublicKeyAnnouncement? {
                 return if (attachmentData.get("recipientPublicKey") == null) {
                     null
-                } else PublicKeyAnnouncement(attachmentData)
+                } else PublicKeyAnnouncement(dp, attachmentData)
             }
         }
     }

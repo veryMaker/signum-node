@@ -63,7 +63,7 @@ internal class EscrowSign internal constructor(private val dp: DependencyProvide
             return response
         }
 
-        val attachment = Attachment.AdvancedPaymentEscrowSign(escrow.id, decision, dp.blockchain.height)
+        val attachment = Attachment.AdvancedPaymentEscrowSign(dp, escrow.id, decision, dp.blockchain.height)
 
         return createTransaction(request, sender, null, 0, attachment)
     }

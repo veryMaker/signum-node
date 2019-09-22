@@ -49,7 +49,7 @@ internal class DGSRefund internal constructor(private val dp: DependencyProvider
 
         val buyerAccount = dp.accountService.getAccount(purchase.buyerId) ?: return INCORRECT_ACCOUNT
 
-        val attachment = Attachment.DigitalGoodsRefund(purchase.id, refundNQT, dp.blockchain.height)
+        val attachment = Attachment.DigitalGoodsRefund(dp, purchase.id, refundNQT, dp.blockchain.height)
         return createTransaction(request, sellerAccount, buyerAccount.id, 0, attachment)
     }
 }

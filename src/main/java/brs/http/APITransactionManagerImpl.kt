@@ -62,21 +62,21 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
         if (attachment.transactionType.hasRecipient()) {
             val encryptedData = dp.parameterService.getEncryptedMessage(request, dp.accountService.getAccount(recipientId!!), recipientPublicKeyValue?.parseHexString())
             if (encryptedData != null) {
-                encryptedMessage = EncryptedMessage(encryptedData, !Parameters.isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER)), blockchainHeight)
+                encryptedMessage = EncryptedMessage(dp, encryptedData, !Parameters.isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER)), blockchainHeight)
             }
         }
 
         var encryptToSelfMessage: EncryptToSelfMessage? = null
         val encryptedToSelfData = dp.parameterService.getEncryptToSelfMessage(request)
         if (encryptedToSelfData != null) {
-            encryptToSelfMessage = EncryptToSelfMessage(encryptedToSelfData, !Parameters.isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER)), blockchainHeight)
+            encryptToSelfMessage = EncryptToSelfMessage(dp, encryptedToSelfData, !Parameters.isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER)), blockchainHeight)
         }
         var message: Message? = null
         val messageValue = Convert.emptyToNull(request.getParameter(MESSAGE_PARAMETER))
         if (messageValue != null) {
             val messageIsText = dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) && !Parameters.isFalse(request.getParameter(MESSAGE_IS_TEXT_PARAMETER))
             try {
-                message = if (messageIsText) Message(messageValue, blockchainHeight) else Message(messageValue.parseHexString(), blockchainHeight)
+                message = if (messageIsText) Message(dp, messageValue, blockchainHeight) else Message(dp, messageValue.parseHexString(), blockchainHeight)
             } catch (e: RuntimeException) {
                 throw ParameterException(INCORRECT_ARBITRARY_MESSAGE)
             }
@@ -84,15 +84,15 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
         } else if (attachment is Attachment.ColoredCoinsAssetTransfer && dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
             val commentValue = Convert.emptyToNull(request.getParameter(COMMENT_PARAMETER))
             if (commentValue != null) {
-                message = Message(commentValue, blockchainHeight)
+                message = Message(dp, commentValue, blockchainHeight)
             }
         } else if (attachment === Attachment.ARBITRARY_MESSAGE && !dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
-            message = Message(ByteArray(0), blockchainHeight)
+            message = Message(dp, ByteArray(0), blockchainHeight)
         }
         var publicKeyAnnouncement: PublicKeyAnnouncement? = null
         val recipientPublicKey = Convert.emptyToNull(request.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER))
         if (recipientPublicKey != null && dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
-            publicKeyAnnouncement = PublicKeyAnnouncement(recipientPublicKey.parseHexString(), blockchainHeight)
+            publicKeyAnnouncement = PublicKeyAnnouncement(dp, recipientPublicKey.parseHexString(), blockchainHeight)
         }
 
         if (secretPhrase == null && publicKeyValue == null) {

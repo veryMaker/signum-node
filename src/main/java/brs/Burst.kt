@@ -44,10 +44,10 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
         try {
             val startTime = System.currentTimeMillis()
             Constants.init(dp)
-            Appendix.init(dp)
-            AtApiPlatformImpl.init(dp)
+            dp.atApiPlatformImpl = AtApiPlatformImpl(dp)
+            dp.atApiController = AtApiController(dp)
             AtController.init(dp)
-            AtApiImpl.init(dp)
+            val atApiImpl = AtApiImpl(dp)
             dp.oclPoC = OCLPoC(dp)
             dp.timeService = TimeServiceImpl()
             dp.derivedTableManager = DerivedTableManager()
@@ -75,7 +75,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.fluxCapacitor = FluxCapacitorImpl(dp)
             dp.blockService = BlockServiceImpl(dp)
             dp.blockchainProcessor = BlockchainProcessorImpl(dp)
-            AtConstants.init(dp)
+            dp.atConstants = AtConstants(dp)
             dp.economicClustering = EconomicClustering(dp)
             dp.generator = if (dp.propertyService.get(Props.DEV_MOCK_MINING)) GeneratorImpl.MockGenerator(dp) else GeneratorImpl(dp)
             dp.accountService = AccountServiceImpl(dp)
@@ -109,8 +109,9 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
                 logger.info("Not starting V2 API Server - it is disabled.")
             }
 
-            if (dp.propertyService.get(Props.BRS_DEBUG_TRACE_ENABLED))
-                DebugTrace.init(dp)
+            if (dp.propertyService.get(Props.BRS_DEBUG_TRACE_ENABLED)) {
+                val debugTraceManager = DebugTraceManager(dp)
+            }
 
             val timeMultiplier = if (dp.propertyService.get(Props.DEV_TESTNET) && dp.propertyService.get(Props.DEV_OFFLINE)) dp.propertyService.get(Props.DEV_TIMEWARP).coerceAtLeast(1) else 1
 

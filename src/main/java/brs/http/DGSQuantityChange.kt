@@ -37,7 +37,7 @@ internal class DGSQuantityChange internal constructor(private val dp: Dependency
             return INCORRECT_DELTA_QUANTITY
         }
 
-        val attachment = Attachment.DigitalGoodsQuantityChange(goods.id, deltaQuantity, dp.blockchain.height)
+        val attachment = Attachment.DigitalGoodsQuantityChange(dp, goods.id, deltaQuantity, dp.blockchain.height)
         return createTransaction(request, account, attachment)
 
     }

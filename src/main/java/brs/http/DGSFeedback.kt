@@ -24,7 +24,7 @@ internal class DGSFeedback internal constructor(private val dp: DependencyProvid
         }
 
         val sellerAccount = dp.accountService.getAccount(purchase.sellerId) ?: return INCORRECT_ACCOUNT
-        val attachment = Attachment.DigitalGoodsFeedback(purchase.id, dp.blockchain.height)
+        val attachment = Attachment.DigitalGoodsFeedback(dp, purchase.id, dp.blockchain.height)
 
         return createTransaction(request, buyerAccount, sellerAccount.id, 0, attachment)
     }

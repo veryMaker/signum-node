@@ -1,7 +1,9 @@
 package brs.at
 
-internal object AtApiController {
-    private val atApi = AtApiImpl()
+import brs.DependencyProvider
+
+class AtApiController(dp: DependencyProvider) {
+    private val atApi = AtApiImpl(dp)
 
     fun func(funcNum: Int, state: AtMachineState): Long {
         when (funcNum) {

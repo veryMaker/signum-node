@@ -95,7 +95,7 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
 
                 val creation = ByteBuffer.allocate(creationLength)
                 creation.order(ByteOrder.LITTLE_ENDIAN)
-                creation.putShort(AtConstants.atVersion(dp.blockchain.height))
+                creation.putShort(dp.atConstants.atVersion(dp.blockchain.height))
                 creation.putShort(0.toShort())
                 creation.putShort(cpages.toShort())
                 creation.putShort(dpages.toShort())
@@ -128,7 +128,7 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
         }
 
         val account = dp.parameterService.getSenderAccount(request)
-        val attachment = Attachment.AutomatedTransactionsCreation(name, description!!, creationBytes!!, dp.blockchain.height)
+        val attachment = Attachment.AutomatedTransactionsCreation(dp, name, description!!, creationBytes!!, dp.blockchain.height)
 
         logger.debug("AT {} added successfully", name)
         return createTransaction(request, account, attachment)

@@ -38,7 +38,7 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
                     .and(AT_STATE.LATEST.isTrue)
                     .and(ACCOUNT.LATEST.isTrue)
                     .and(AT_STATE.NEXT_HEIGHT.lessOrEqual(dp.blockchain.height + 1))
-                    .and(ACCOUNT.BALANCE.greaterOrEqual(AtConstants.stepFee(dp.blockchain.height) * AtConstants.apiStepMultiplier(dp.blockchain.height)))
+                    .and(ACCOUNT.BALANCE.greaterOrEqual(dp.atConstants.stepFee(dp.blockchain.height) * dp.atConstants.apiStepMultiplier(dp.blockchain.height)))
                     .and(AT_STATE.FREEZE_WHEN_SAME_BALANCE.isFalse.or("account.balance - at_state.prev_balance >= at_state.min_activate_amount"))
                     .orderBy(AT_STATE.PREV_HEIGHT.asc(), AT_STATE.NEXT_HEIGHT.asc(), AT.ID.asc())
                     .fetch()
