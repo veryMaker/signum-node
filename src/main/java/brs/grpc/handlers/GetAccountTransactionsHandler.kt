@@ -10,7 +10,6 @@ import brs.services.AccountService
 
 class GetAccountTransactionsHandler(private val blockchain: Blockchain, private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAccountTransactionsRequest, BrsApi.Transactions> {
 
-    @Throws(Exception::class)
     override fun handleRequest(request: BrsApi.GetAccountTransactionsRequest): BrsApi.Transactions {
         val accountId = request.accountId
         val timestamp = request.timestamp

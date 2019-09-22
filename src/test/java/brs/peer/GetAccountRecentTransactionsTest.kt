@@ -3,7 +3,7 @@ package brs.peer
 import brs.Account
 import brs.Blockchain
 import brs.Transaction
-import brs.TransactionType.DigitalGoods
+import brs.transaction.TransactionType.DigitalGoods
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.JSONParam

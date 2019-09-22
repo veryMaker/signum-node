@@ -6,7 +6,6 @@ import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.common.TestConstants
 import brs.crypto.Crypto
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.AccountService
 import brs.services.ParameterService
@@ -16,7 +15,7 @@ import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.TransactionType.BurstMining.REWARD_RECIPIENT_ASSIGNMENT
+import brs.transaction.TransactionType.BurstMining.REWARD_RECIPIENT_ASSIGNMENT
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertEquals
@@ -45,7 +44,6 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()
@@ -65,7 +63,6 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_recipientAccountDoesNotExist_errorCode8() {
         val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()
@@ -76,7 +73,6 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_recipientAccountDoesNotHavePublicKey_errorCode8() {
         val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()

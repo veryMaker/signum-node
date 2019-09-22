@@ -9,7 +9,6 @@ import java.io.IOException
 
 class GetBlockHandlerTest : AbstractGrpcTest() {
     @Before
-    @Throws(IOException::class)
     fun setupGetBlockHandlerTest() {
         defaultBrsService()
     }

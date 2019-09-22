@@ -33,16 +33,12 @@ interface TransactionProcessor : Observable<Collection<Transaction>, Transaction
     @Deprecated("Just use UTStore directly")
     fun clearUnconfirmedTransactions()
 
-    @Throws(BurstException.ValidationException::class)
     fun broadcast(transaction: Transaction): Int?
 
-    @Throws(BurstException.ValidationException::class)
     fun processPeerTransactions(request: JsonObject, peer: Peer)
 
-    @Throws(BurstException.ValidationException::class)
     fun parseTransaction(bytes: ByteArray): Transaction
 
-    @Throws(BurstException.ValidationException::class)
     fun parseTransaction(json: JsonObject): Transaction
 
     fun newTransactionBuilder(senderPublicKey: ByteArray, amountNQT: Long, feeNQT: Long, deadline: Short, attachment: Attachment): Transaction.Builder

@@ -34,7 +34,6 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_getAllPurchases() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 0L),
@@ -60,7 +59,6 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_getSellerPurchases() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 1L),
@@ -86,7 +84,6 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_getBuyerPurchases() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 0L),
@@ -112,7 +109,6 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_getSellerBuyerPurchases() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 1L),

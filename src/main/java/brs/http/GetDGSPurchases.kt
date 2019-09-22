@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetDGSPurchases(private val dgsGoodsStoreService: DGSGoodsStoreService) : APIServlet.JsonRequestHandler(arrayOf(APITag.DGS), SELLER_PARAMETER, BUYER_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, COMPLETED_PARAMETER) {
 
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val sellerId = ParameterParser.getSellerId(request)
         val buyerId = ParameterParser.getBuyerId(request)

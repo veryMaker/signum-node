@@ -12,7 +12,6 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetAssetsByIssuer internal constructor(private val parameterService: ParameterService, private val assetExchange: AssetExchange) : AbstractAssetsRetrieval(arrayOf(APITag.AE, APITag.ACCOUNTS), assetExchange, ACCOUNT_PARAMETER, ACCOUNT_PARAMETER, ACCOUNT_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER) {
-    @Throws(ParameterException::class)
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val accounts = parameterService.getAccounts(request)
         val firstIndex = ParameterParser.getFirstIndex(request)

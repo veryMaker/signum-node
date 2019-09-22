@@ -34,7 +34,6 @@ class GetAliasTest {
     }
 
     @Test
-    @Throws(ParameterException::class)
     fun processRequest() {
         val mockAlias = mock<Alias>()
         whenever(mockAlias.aliasName).doReturn("mockAliasName")

@@ -44,7 +44,6 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val accountId: Long = 5
 

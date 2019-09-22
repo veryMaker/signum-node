@@ -174,7 +174,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
         return decisionTable[decisionDbKeyFactory.newKey(escrow.id!!, id!!)] != null
     }
 
-    override fun saveResultTransaction(block: Block, escrowId: Long?, recipientId: Long?, amountNQT: Long?, decision: DecisionType, blockchainHeight: Int) {
+    override fun saveResultTransaction(block: Block, escrowId: Long, recipientId: Long, amountNQT: Long, decision: DecisionType, blockchainHeight: Int) {
         val attachment = Attachment.AdvancedPaymentEscrowResult(dp, escrowId, decision, blockchainHeight)
         val builder = Transaction.Builder(dp, 1.toByte(), Genesis.creatorPublicKey,
                 amountNQT!!, 0L, block.timestamp, 1440.toShort(), attachment)

@@ -29,7 +29,6 @@ class GetBalanceTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
         val mockAccount = mock<Account>()
@@ -50,7 +49,6 @@ class GetBalanceTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_noAccountFound() {
         val request = QuickMocker.httpServletRequest()
 

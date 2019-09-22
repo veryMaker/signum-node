@@ -43,7 +43,6 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val deltaQualityParameter = 5
         val request = QuickMocker.httpServletRequest(
@@ -73,7 +72,6 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_unknownGoodsBecauseDelisted() {
         val request = QuickMocker.httpServletRequest()
 
@@ -89,7 +87,6 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_unknownGoodsBecauseWrongSellerId() {
         val request = QuickMocker.httpServletRequest()
 
@@ -107,7 +104,6 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_missingDeltaQuantity() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, null as String?)
@@ -127,7 +123,6 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_deltaQuantityWrongFormat() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, "Bob")
@@ -147,7 +142,6 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_deltaQuantityOverMaxIncorrectDeltaQuantity() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, Integer.MIN_VALUE)
@@ -167,7 +161,6 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_deltaQuantityLowerThanNegativeMaxIncorrectDeltaQuantity() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, Integer.MAX_VALUE)

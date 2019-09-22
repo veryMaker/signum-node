@@ -34,7 +34,6 @@ class GetAskOrderTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val orderId = 123L
 
@@ -51,7 +50,6 @@ class GetAskOrderTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_unknownOrder() {
         val orderId = 123L
 

@@ -1,7 +1,5 @@
 package brs
 
-import brs.TransactionType.Payment
-import brs.at.AtConstants
 import brs.crypto.EncryptedData
 import brs.grpc.proto.BrsApi
 import brs.grpc.proto.ProtoBuilder
@@ -27,7 +25,6 @@ import brs.http.common.Parameters.GOODS_NONCE_PARAMETER
 import brs.http.common.Parameters.GOODS_PARAMETER
 import brs.http.common.Parameters.NAME_PARAMETER
 import brs.http.common.Parameters.ORDER_PARAMETER
-import brs.http.common.Parameters.PERIOD_PARAMETER
 import brs.http.common.Parameters.PRICE_NQT_PARAMETER
 import brs.http.common.Parameters.PURCHASE_PARAMETER
 import brs.http.common.Parameters.QUANTITY_PARAMETER
@@ -60,7 +57,6 @@ import brs.http.common.ResultFields.GOODS_NONCE_RESPONSE
 import brs.http.common.ResultFields.GOODS_RESPONSE
 import brs.http.common.ResultFields.NAME_RESPONSE
 import brs.http.common.ResultFields.ORDER_RESPONSE
-import brs.http.common.ResultFields.PERIOD_RESPONSE
 import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
 import brs.http.common.ResultFields.PURCHASE_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE
@@ -71,6 +67,7 @@ import brs.http.common.ResultFields.SIGNERS_RESPONSE
 import brs.http.common.ResultFields.SUBSCRIPTION_ID_RESPONSE
 import brs.http.common.ResultFields.TAGS_RESPONSE
 import brs.http.common.ResultFields.URI_RESPONSE
+import brs.transaction.TransactionType
 import brs.util.*
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -86,16 +83,24 @@ interface Attachment : Appendix {
     val transactionType: TransactionType
 
     abstract class AbstractAttachment : Appendix.AbstractAppendix, Attachment {
+        private val dp: DependencyProvider
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion)
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+            this.dp = dp
+        }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData)
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(attachmentData) {
+            this.dp = dp
+        }
 
-        internal constructor(version: Byte) : super(version)
+        internal constructor(dp: DependencyProvider, version: Byte) : super(version) {
+            this.dp = dp
+        }
 
-        internal constructor(dp: DependencyProvider, blockchainHeight: Int) : super(dp, blockchainHeight)
+        internal constructor(dp: DependencyProvider, blockchainHeight: Int) : super(dp, blockchainHeight) {
+            this.dp = dp
+        }
 
-        @Throws(BurstException.ValidationException::class)
         override fun validate(transaction: Transaction) {
             transactionType.validateAttachment(transaction)
         }
@@ -104,89 +109,70 @@ interface Attachment : Appendix {
             transactionType.apply(transaction, senderAccount, recipientAccount)
         }
 
-        companion object {
+        // TODO this is super inefficient. All of the validation etc. Functions should be moved into the attachment
+        final override val transactionType: TransactionType
+            get() {
+                val type = transactionTypeAndSubtype
+                return dp.transactionTypes[type.first]!![type.second]!!
+            }
 
+        abstract val transactionTypeAndSubtype: Pair<Byte, Byte>
+
+        companion object {
             @Throws(InvalidProtocolBufferException::class, BurstException.NotValidException::class)
-            fun parseProtobufMessage(attachment: Any): AbstractAttachment {
+            fun parseProtobufMessage(dp: DependencyProvider, attachment: Any): AbstractAttachment {
                 // Yes, this is fairly horrible. I wish there was a better way to do this but any does not let us switch on its contained class.
-                if (attachment.`is`(BrsApi.OrdinaryPaymentAttachment::class.java)) {
-                    return ORDINARY_PAYMENT
-                } else if (attachment.`is`(BrsApi.ArbitraryMessageAttachment::class.java)) {
-                    return ARBITRARY_MESSAGE
-                } else if (attachment.`is`(BrsApi.ATPaymentAttachment::class.java)) {
-                    return AT_PAYMENT
-                } else if (attachment.`is`(BrsApi.MultiOutAttachment::class.java)) {
-                    return PaymentMultiOutCreation(attachment.unpack(BrsApi.MultiOutAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.MultiOutSameAttachment::class.java)) {
-                    return PaymentMultiSameOutCreation(attachment.unpack(BrsApi.MultiOutSameAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.AliasAssignmentAttachment::class.java)) {
-                    return MessagingAliasAssignment(attachment.unpack(BrsApi.AliasAssignmentAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.AliasSellAttachment::class.java)) {
-                    return MessagingAliasSell(attachment.unpack(BrsApi.AliasSellAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.AliasBuyAttachment::class.java)) {
-                    return MessagingAliasBuy(attachment.unpack(BrsApi.AliasBuyAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.AccountInfoAttachment::class.java)) {
-                    return MessagingAccountInfo(attachment.unpack(BrsApi.AccountInfoAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.AssetIssuanceAttachment::class.java)) {
-                    return ColoredCoinsAssetIssuance(attachment.unpack(BrsApi.AssetIssuanceAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.AssetTransferAttachment::class.java)) {
-                    return ColoredCoinsAssetTransfer(attachment.unpack(BrsApi.AssetTransferAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.AssetOrderPlacementAttachment::class.java)) {
-                    val placementAttachment = attachment.unpack(BrsApi.AssetOrderPlacementAttachment::class.java)
-                    if (placementAttachment.type == BrsApi.OrderType.ASK) {
-                        return ColoredCoinsAskOrderPlacement(placementAttachment)
-                    } else if (placementAttachment.type == BrsApi.OrderType.BID) {
-                        return ColoredCoinsBidOrderPlacement(placementAttachment)
+                return when {
+                    attachment.`is`(BrsApi.OrdinaryPaymentAttachment::class.java) -> return OrdinaryPayment(dp)
+                    attachment.`is`(BrsApi.ArbitraryMessageAttachment::class.java) -> return ArbitraryMessage(dp)
+                    attachment.`is`(BrsApi.ATPaymentAttachment::class.java) -> return AtPayment(dp)
+                    attachment.`is`(BrsApi.MultiOutAttachment::class.java) -> return PaymentMultiOutCreation(dp, attachment.unpack(BrsApi.MultiOutAttachment::class.java))
+                    attachment.`is`(BrsApi.MultiOutSameAttachment::class.java) -> return PaymentMultiSameOutCreation(dp, attachment.unpack(BrsApi.MultiOutSameAttachment::class.java))
+                    attachment.`is`(BrsApi.AliasAssignmentAttachment::class.java) -> return MessagingAliasAssignment(dp, attachment.unpack(BrsApi.AliasAssignmentAttachment::class.java))
+                    attachment.`is`(BrsApi.AliasSellAttachment::class.java) -> return MessagingAliasSell(dp, attachment.unpack(BrsApi.AliasSellAttachment::class.java))
+                    attachment.`is`(BrsApi.AliasBuyAttachment::class.java) -> return MessagingAliasBuy(dp, attachment.unpack(BrsApi.AliasBuyAttachment::class.java))
+                    attachment.`is`(BrsApi.AccountInfoAttachment::class.java) -> return MessagingAccountInfo(dp, attachment.unpack(BrsApi.AccountInfoAttachment::class.java))
+                    attachment.`is`(BrsApi.AssetIssuanceAttachment::class.java) -> return ColoredCoinsAssetIssuance(dp, attachment.unpack(BrsApi.AssetIssuanceAttachment::class.java))
+                    attachment.`is`(BrsApi.AssetTransferAttachment::class.java) -> return ColoredCoinsAssetTransfer(dp, attachment.unpack(BrsApi.AssetTransferAttachment::class.java))
+                    attachment.`is`(BrsApi.AssetOrderPlacementAttachment::class.java) -> {
+                        val placementAttachment = attachment.unpack(BrsApi.AssetOrderPlacementAttachment::class.java)
+                        return when {
+                            placementAttachment.type == BrsApi.OrderType.ASK -> ColoredCoinsAskOrderPlacement(dp, placementAttachment)
+                            placementAttachment.type == BrsApi.OrderType.BID -> ColoredCoinsBidOrderPlacement(dp, placementAttachment)
+                            else -> throw IllegalArgumentException("Attachment type must be ASK or BID")
+                        }
                     }
-                } else if (attachment.`is`(BrsApi.AssetOrderCancellationAttachment::class.java)) {
-                    val placementAttachment = attachment.unpack(BrsApi.AssetOrderCancellationAttachment::class.java)
-                    if (placementAttachment.type == BrsApi.OrderType.ASK) {
-                        return ColoredCoinsAskOrderCancellation(placementAttachment)
-                    } else if (placementAttachment.type == BrsApi.OrderType.BID) {
-                        return ColoredCoinsBidOrderCancellation(placementAttachment)
+                    attachment.`is`(BrsApi.AssetOrderCancellationAttachment::class.java) -> {
+                        val placementAttachment = attachment.unpack(BrsApi.AssetOrderCancellationAttachment::class.java)
+                        return when {
+                            placementAttachment.type == BrsApi.OrderType.ASK -> ColoredCoinsAskOrderCancellation(dp, placementAttachment)
+                            placementAttachment.type == BrsApi.OrderType.BID -> ColoredCoinsBidOrderCancellation(dp, placementAttachment)
+                            else -> throw IllegalArgumentException("Attachment type must be ASK or BID")
+                        }
                     }
-                } else if (attachment.`is`(BrsApi.DigitalGoodsListingAttachment::class.java)) {
-                    return DigitalGoodsListing(attachment.unpack(BrsApi.DigitalGoodsListingAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.DigitalGoodsDelistingAttachment::class.java)) {
-                    return DigitalGoodsDelisting(attachment.unpack(BrsApi.DigitalGoodsDelistingAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.DigitalGoodsPriceChangeAttachment::class.java)) {
-                    return DigitalGoodsPriceChange(attachment.unpack(BrsApi.DigitalGoodsPriceChangeAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.DigitalGoodsQuantityChangeAttachment::class.java)) {
-                    return DigitalGoodsQuantityChange(attachment.unpack(BrsApi.DigitalGoodsQuantityChangeAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.DigitalGoodsPurchaseAttachment::class.java)) {
-                    return DigitalGoodsPurchase(attachment.unpack(BrsApi.DigitalGoodsPurchaseAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.DigitalGoodsDeliveryAttachment::class.java)) {
-                    return DigitalGoodsDelivery(attachment.unpack(BrsApi.DigitalGoodsDeliveryAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.DigitalGoodsFeedbackAttachment::class.java)) {
-                    return DigitalGoodsFeedback(attachment.unpack(BrsApi.DigitalGoodsFeedbackAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.DigitalGoodsRefundAttachment::class.java)) {
-                    return DigitalGoodsRefund(attachment.unpack(BrsApi.DigitalGoodsRefundAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.EffectiveBalanceLeasingAttachment::class.java)) {
-                    return AccountControlEffectiveBalanceLeasing(attachment.unpack(BrsApi.EffectiveBalanceLeasingAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.RewardRecipientAssignmentAttachment::class.java)) {
-                    return BurstMiningRewardRecipientAssignment(attachment.unpack(BrsApi.RewardRecipientAssignmentAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.EscrowCreationAttachment::class.java)) {
-                    return AdvancedPaymentEscrowCreation(attachment.unpack(BrsApi.EscrowCreationAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.EscrowSignAttachment::class.java)) {
-                    return AdvancedPaymentEscrowSign(attachment.unpack(BrsApi.EscrowSignAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.EscrowResultAttachment::class.java)) {
-                    return AdvancedPaymentEscrowResult(attachment.unpack(BrsApi.EscrowResultAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.SubscriptionSubscribeAttachment::class.java)) {
-                    return AdvancedPaymentSubscriptionSubscribe(attachment.unpack(BrsApi.SubscriptionSubscribeAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.SubscriptionCancelAttachment::class.java)) {
-                    return AdvancedPaymentSubscriptionCancel(attachment.unpack(BrsApi.SubscriptionCancelAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.SubscriptionPaymentAttachment::class.java)) {
-                    return AdvancedPaymentSubscriptionPayment(attachment.unpack(BrsApi.SubscriptionPaymentAttachment::class.java))
-                } else if (attachment.`is`(BrsApi.ATCreationAttachment::class.java)) {
-                    return AutomatedTransactionsCreation(attachment.unpack(BrsApi.ATCreationAttachment::class.java))
+                    attachment.`is`(BrsApi.DigitalGoodsListingAttachment::class.java) -> return DigitalGoodsListing(dp, attachment.unpack(BrsApi.DigitalGoodsListingAttachment::class.java))
+                    attachment.`is`(BrsApi.DigitalGoodsDelistingAttachment::class.java) -> return DigitalGoodsDelisting(dp, attachment.unpack(BrsApi.DigitalGoodsDelistingAttachment::class.java))
+                    attachment.`is`(BrsApi.DigitalGoodsPriceChangeAttachment::class.java) -> return DigitalGoodsPriceChange(dp, attachment.unpack(BrsApi.DigitalGoodsPriceChangeAttachment::class.java))
+                    attachment.`is`(BrsApi.DigitalGoodsQuantityChangeAttachment::class.java) -> return DigitalGoodsQuantityChange(dp, attachment.unpack(BrsApi.DigitalGoodsQuantityChangeAttachment::class.java))
+                    attachment.`is`(BrsApi.DigitalGoodsPurchaseAttachment::class.java) -> return DigitalGoodsPurchase(dp, attachment.unpack(BrsApi.DigitalGoodsPurchaseAttachment::class.java))
+                    attachment.`is`(BrsApi.DigitalGoodsDeliveryAttachment::class.java) -> return DigitalGoodsDelivery(dp, attachment.unpack(BrsApi.DigitalGoodsDeliveryAttachment::class.java))
+                    attachment.`is`(BrsApi.DigitalGoodsFeedbackAttachment::class.java) -> return DigitalGoodsFeedback(dp, attachment.unpack(BrsApi.DigitalGoodsFeedbackAttachment::class.java))
+                    attachment.`is`(BrsApi.DigitalGoodsRefundAttachment::class.java) -> return DigitalGoodsRefund(dp, attachment.unpack(BrsApi.DigitalGoodsRefundAttachment::class.java))
+                    attachment.`is`(BrsApi.RewardRecipientAssignmentAttachment::class.java) -> return BurstMiningRewardRecipientAssignment(dp, attachment.unpack(BrsApi.RewardRecipientAssignmentAttachment::class.java))
+                    attachment.`is`(BrsApi.EscrowCreationAttachment::class.java) -> return AdvancedPaymentEscrowCreation(dp, attachment.unpack(BrsApi.EscrowCreationAttachment::class.java))
+                    attachment.`is`(BrsApi.EscrowSignAttachment::class.java) -> return AdvancedPaymentEscrowSign(dp, attachment.unpack(BrsApi.EscrowSignAttachment::class.java))
+                    attachment.`is`(BrsApi.EscrowResultAttachment::class.java) -> return AdvancedPaymentEscrowResult(dp, attachment.unpack(BrsApi.EscrowResultAttachment::class.java))
+                    attachment.`is`(BrsApi.SubscriptionSubscribeAttachment::class.java) -> return AdvancedPaymentSubscriptionSubscribe(dp, attachment.unpack(BrsApi.SubscriptionSubscribeAttachment::class.java))
+                    attachment.`is`(BrsApi.SubscriptionCancelAttachment::class.java) -> return AdvancedPaymentSubscriptionCancel(dp, attachment.unpack(BrsApi.SubscriptionCancelAttachment::class.java))
+                    attachment.`is`(BrsApi.SubscriptionPaymentAttachment::class.java) -> return AdvancedPaymentSubscriptionPayment(dp, attachment.unpack(BrsApi.SubscriptionPaymentAttachment::class.java))
+                    attachment.`is`(BrsApi.ATCreationAttachment::class.java) -> return AutomatedTransactionsCreation(dp, attachment.unpack(BrsApi.ATCreationAttachment::class.java))
+                    else -> OrdinaryPayment(dp)
                 }
-                // Default to ordinary payment
-                return ORDINARY_PAYMENT
             }
         }
     }
 
-    abstract class EmptyAttachment internal constructor() : AbstractAttachment(0.toByte()) {
+    abstract class EmptyAttachment internal constructor(dp: DependencyProvider) : AbstractAttachment(dp, 0.toByte()) {
 
         override val mySize: Int
             get() = 0
@@ -210,9 +196,6 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 1 + recipients.size * 16
 
-        override val transactionType: TransactionType
-            get() = Payment.MULTI_OUT
-
         val amountNQT: Long
             get() {
                 var amountNQT: Long = 0
@@ -234,8 +217,7 @@ interface Attachment : Appendix {
                 return Any.pack(builder.build())
             }
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
 
             val numberOfRecipients = java.lang.Byte.toUnsignedInt(buffer.get())
             val recipientOf = mutableMapOf<Long, Boolean>()
@@ -259,8 +241,7 @@ interface Attachment : Appendix {
             }
         }
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
 
             val receipientsJson = JSON.getAsJsonArray(attachmentData.get(RECIPIENTS_PARAMETER))
             val recipientOf = mutableMapOf<Long, Boolean>()
@@ -284,7 +265,6 @@ interface Attachment : Appendix {
             }
         }
 
-        @Throws(BurstException.NotValidException::class)
         constructor(dp: DependencyProvider, recipients: Collection<Entry<String, Long>>, blockchainHeight: Int) : super(dp, blockchainHeight) {
 
             val recipientOf = mutableMapOf<Long, Boolean>()
@@ -304,8 +284,7 @@ interface Attachment : Appendix {
             }
         }
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(attachment: BrsApi.MultiOutAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.MultiOutAttachment) : super(dp, attachment.version.toByte()) {
             val recipientOf = mutableMapOf<Long, Boolean>()
             for (recipient in attachment.recipientsList) {
                 val recipientId = recipient.recipient
@@ -345,6 +324,9 @@ interface Attachment : Appendix {
             attachment.add(RECIPIENTS_RESPONSE, recipientsJSON)
         }
 
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_PAYMENT, TransactionType.SUBTYPE_PAYMENT_ORDINARY_PAYMENT_MULTI_OUT)
+
         fun getRecipients(): Collection<List<Long>> {
             return recipients
         }
@@ -360,8 +342,7 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 1 + recipients.size * 8
 
-        override val transactionType: TransactionType
-            get() = Payment.MULTI_SAME_OUT
+        override val transactionTypeAndSubtype = Pair(TransactionType.TYPE_PAYMENT, TransactionType.SUBTYPE_PAYMENT_ORDINARY_PAYMENT_MULTI_SAME_OUT)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.MultiOutSameAttachment.newBuilder()
@@ -369,8 +350,7 @@ interface Attachment : Appendix {
                     .addAllRecipients(recipients)
                     .build())
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
 
             val numberOfRecipients = java.lang.Byte.toUnsignedInt(buffer.get())
             val recipientOf = mutableMapOf<Long, Boolean>()
@@ -389,8 +369,7 @@ interface Attachment : Appendix {
             }
         }
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
 
             val recipientsJson = JSON.getAsJsonArray(attachmentData.get(RECIPIENTS_PARAMETER))
             val recipientOf = mutableMapOf<Long, Boolean>()
@@ -409,7 +388,6 @@ interface Attachment : Appendix {
             }
         }
 
-        @Throws(BurstException.NotValidException::class)
         constructor(dp: DependencyProvider, recipients: Collection<Long>, blockchainHeight: Int) : super(dp, blockchainHeight) {
 
             val recipientOf = mutableMapOf<Long, Boolean>()
@@ -426,8 +404,7 @@ interface Attachment : Appendix {
             }
         }
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(attachment: BrsApi.MultiOutSameAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.MultiOutSameAttachment) : super(dp, attachment.version.toByte()) {
             val recipientOf = mutableMapOf<Long, Boolean>()
             for (recipientId in attachment.recipientsList) {
                 if (recipientOf.containsKey(recipientId))
@@ -469,8 +446,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 1 + Convert.toBytes(aliasName).size + 2 + Convert.toBytes(aliasURI).size
 
-        override val transactionType: TransactionType
-            get() = TransactionType.Messaging.ALIAS_ASSIGNMENT
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_MESSAGING, TransactionType.SUBTYPE_MESSAGING_ALIAS_ASSIGNMENT)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.AliasAssignmentAttachment.newBuilder()
@@ -479,13 +456,12 @@ interface Attachment : Appendix {
                     .setUri(aliasURI)
                     .build())
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             aliasName = Convert.readString(buffer, buffer.get().toInt(), Constants.MAX_ALIAS_LENGTH).trim { it <= ' ' }
             aliasURI = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_ALIAS_URI_LENGTH).trim { it <= ' ' }
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             aliasName = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER))).trim { it <= ' ' }
             aliasURI = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(URI_PARAMETER))).trim { it <= ' ' }
         }
@@ -495,7 +471,7 @@ interface Attachment : Appendix {
             this.aliasURI = aliasURI.trim { it <= ' ' }
         }
 
-        internal constructor(attachment: BrsApi.AliasAssignmentAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.AliasAssignmentAttachment) : super(dp, attachment.version.toByte()) {
             this.aliasName = attachment.name
             this.aliasURI = attachment.uri
         }
@@ -523,8 +499,8 @@ interface Attachment : Appendix {
         override val appendixName: String
             get() = "AliasSell"
 
-        override val transactionType: TransactionType
-            get() = TransactionType.Messaging.ALIAS_SELL
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_MESSAGING, TransactionType.SUBTYPE_MESSAGING_ALIAS_SELL)
 
         override val mySize: Int
             get() = 1 + Convert.toBytes(aliasName).size + 8
@@ -536,13 +512,12 @@ interface Attachment : Appendix {
                     .setPrice(priceNQT)
                     .build())
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.aliasName = Convert.readString(buffer, buffer.get().toInt(), Constants.MAX_ALIAS_LENGTH)
             this.priceNQT = buffer.long
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.aliasName = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)))
             this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
         }
@@ -552,7 +527,7 @@ interface Attachment : Appendix {
             this.priceNQT = priceNQT
         }
 
-        internal constructor(attachment: BrsApi.AliasSellAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.AliasSellAttachment) : super(dp, attachment.version.toByte()) {
             this.aliasName = attachment.name
             this.priceNQT = attachment.price
         }
@@ -577,8 +552,8 @@ interface Attachment : Appendix {
         override val appendixName: String
             get() = "AliasBuy"
 
-        override val transactionType: TransactionType
-            get() = TransactionType.Messaging.ALIAS_BUY
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_MESSAGING, TransactionType.SUBTYPE_MESSAGING_ALIAS_BUY)
 
         override val mySize: Int
             get() = 1 + Convert.toBytes(aliasName).size
@@ -589,12 +564,11 @@ interface Attachment : Appendix {
                     .setName(aliasName)
                     .build())
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.aliasName = Convert.readString(buffer, buffer.get().toInt(), Constants.MAX_ALIAS_LENGTH)
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.aliasName = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)))
         }
 
@@ -602,7 +576,7 @@ interface Attachment : Appendix {
             this.aliasName = aliasName
         }
 
-        internal constructor(attachment: BrsApi.AliasBuyAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.AliasBuyAttachment) : super(dp, attachment.version.toByte()) {
             this.aliasName = attachment.name
         }
 
@@ -628,8 +602,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 1 + Convert.toBytes(name).size + 2 + Convert.toBytes(description).size
 
-        override val transactionType: TransactionType
-            get() = TransactionType.Messaging.ACCOUNT_INFO
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_MESSAGING, TransactionType.SUBTYPE_MESSAGING_ACCOUNT_INFO)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.AccountInfoAttachment.newBuilder()
@@ -638,13 +612,12 @@ interface Attachment : Appendix {
                     .setDescription(description)
                     .build())
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.name = Convert.readString(buffer, buffer.get().toInt(), Constants.MAX_ACCOUNT_NAME_LENGTH)
             this.description = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_ACCOUNT_DESCRIPTION_LENGTH)
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.name = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(NAME_PARAMETER)))
             this.description = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER)))
         }
@@ -654,7 +627,7 @@ interface Attachment : Appendix {
             this.description = description
         }
 
-        internal constructor(attachment: BrsApi.AccountInfoAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.AccountInfoAttachment) : super(dp, attachment.version.toByte()) {
             this.name = attachment.name
             this.description = attachment.description
         }
@@ -687,8 +660,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 1 + Convert.toBytes(name).size + 2 + Convert.toBytes(description).size + 8 + 1
 
-        override val transactionType: TransactionType
-            get() = TransactionType.ColoredCoins.ASSET_ISSUANCE
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_COLORED_COINS, TransactionType.SUBTYPE_COLORED_COINS_ASSET_ISSUANCE)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.AssetIssuanceAttachment.newBuilder()
@@ -699,15 +672,14 @@ interface Attachment : Appendix {
                     .setDecimals(decimals.toInt())
                     .build())
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.name = Convert.readString(buffer, buffer.get().toInt(), Constants.MAX_ASSET_NAME_LENGTH)
             this.description = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_ASSET_DESCRIPTION_LENGTH)
             this.quantityQNT = buffer.long
             this.decimals = buffer.get()
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.name = JSON.getAsString(attachmentData.get(NAME_PARAMETER))
             this.description = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER)))
             this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER))
@@ -721,7 +693,7 @@ interface Attachment : Appendix {
             this.decimals = decimals
         }
 
-        internal constructor(attachment: BrsApi.AssetIssuanceAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.AssetIssuanceAttachment) : super(dp, attachment.version.toByte()) {
             this.name = attachment.name
             this.description = attachment.description
             this.quantityQNT = attachment.quantity
@@ -759,8 +731,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 8 + 8 + if (version.toInt() == 0) 2 + Convert.toBytes(comment).size else 0
 
-        override val transactionType: TransactionType
-            get() = TransactionType.ColoredCoins.ASSET_TRANSFER
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_COLORED_COINS, TransactionType.SUBTYPE_COLORED_COINS_ASSET_TRANSFER)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.AssetTransferAttachment.newBuilder()
@@ -770,14 +742,13 @@ interface Attachment : Appendix {
                     .setComment(comment)
                     .build())
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.assetId = buffer.long
             this.quantityQNT = buffer.long
             this.comment = if (version.toInt() == 0) Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_ASSET_TRANSFER_COMMENT_LENGTH) else null
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.assetId = JSON.getAsString(attachmentData.get(ASSET_PARAMETER)).parseUnsignedLong()
             this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER))
             this.comment = if (version.toInt() == 0) Convert.nullToEmpty(JSON.getAsString(attachmentData.get(COMMENT_PARAMETER))) else null
@@ -789,7 +760,7 @@ interface Attachment : Appendix {
             this.comment = null
         }
 
-        internal constructor(attachment: BrsApi.AssetTransferAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.AssetTransferAttachment) : super(dp, attachment.version.toByte()) {
             this.assetId = attachment.asset
             this.quantityQNT = attachment.quantity
             this.comment = attachment.comment
@@ -834,13 +805,13 @@ interface Attachment : Appendix {
 
         protected abstract val type: BrsApi.OrderType
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.assetId = buffer.long
             this.quantityQNT = buffer.long
             this.priceNQT = buffer.long
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.assetId = JSON.getAsString(attachmentData.get(ASSET_PARAMETER)).parseUnsignedLong()
             this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER))
             this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
@@ -852,7 +823,7 @@ interface Attachment : Appendix {
             this.priceNQT = priceNQT
         }
 
-        internal constructor(attachment: BrsApi.AssetOrderPlacementAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.AssetOrderPlacementAttachment) : super(dp, attachment.version.toByte()) {
             this.assetId = attachment.asset
             this.quantityQNT = attachment.quantity
             this.priceNQT = attachment.price
@@ -879,19 +850,18 @@ interface Attachment : Appendix {
         override val appendixName: String
             get() = "AskOrderPlacement"
 
-        override val transactionType: TransactionType
-            get() = TransactionType.ColoredCoins.ASK_ORDER_PLACEMENT
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_COLORED_COINS, TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT)
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion)
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion)
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData)
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData)
 
         constructor(dp: DependencyProvider, assetId: Long, quantityQNT: Long, priceNQT: Long, blockchainHeight: Int) : super(dp, assetId, quantityQNT, priceNQT, blockchainHeight)
 
-        internal constructor(attachment: BrsApi.AssetOrderPlacementAttachment) : super(attachment) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.AssetOrderPlacementAttachment) : super(dp, attachment) {
             require(attachment.type == type) { "Type does not match" }
         }
-
     }
 
     class ColoredCoinsBidOrderPlacement : ColoredCoinsOrderPlacement {
@@ -902,17 +872,17 @@ interface Attachment : Appendix {
         override val appendixName: String
             get() = "BidOrderPlacement"
 
-        override val transactionType: TransactionType
-            get() = TransactionType.ColoredCoins.BID_ORDER_PLACEMENT
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_COLORED_COINS, TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT)
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion)
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion)
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData)
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData)
 
         constructor(dp: DependencyProvider, assetId: Long, quantityQNT: Long, priceNQT: Long, blockchainHeight: Int) : super(dp, assetId, quantityQNT, priceNQT, blockchainHeight)
 
-        internal constructor(attachment: BrsApi.AssetOrderPlacementAttachment) : super(attachment) {
-            if (attachment.type != type) throw IllegalArgumentException("Type does not match")
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.AssetOrderPlacementAttachment) : super(dp, attachment) {
+            require(attachment.type == type) { "Type does not match" }
         }
 
     }
@@ -933,11 +903,11 @@ interface Attachment : Appendix {
 
         protected abstract val type: BrsApi.OrderType
 
-        constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.orderId = buffer.long
         }
 
-        constructor(attachmentData: JsonObject) : super(attachmentData) {
+        constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.orderId = JSON.getAsString(attachmentData.get(ORDER_PARAMETER)).parseUnsignedLong()
         }
 
@@ -945,7 +915,7 @@ interface Attachment : Appendix {
             this.orderId = orderId
         }
 
-        constructor(attachment: BrsApi.AssetOrderCancellationAttachment) : super(attachment.version.toByte()) {
+        constructor(dp: DependencyProvider, attachment: BrsApi.AssetOrderCancellationAttachment) : super(dp, attachment.version.toByte()) {
             this.orderId = attachment.order
         }
 
@@ -966,17 +936,17 @@ interface Attachment : Appendix {
         override val appendixName: String
             get() = "AskOrderCancellation"
 
-        override val transactionType: TransactionType
-            get() = TransactionType.ColoredCoins.ASK_ORDER_CANCELLATION
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_COLORED_COINS, TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION)
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion)
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion)
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData)
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData)
 
         constructor(dp: DependencyProvider, orderId: Long, blockchainHeight: Int) : super(dp, orderId, blockchainHeight)
 
-        internal constructor(attachment: BrsApi.AssetOrderCancellationAttachment) : super(attachment) {
-            if (attachment.type != type) throw IllegalArgumentException("Type does not match")
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.AssetOrderCancellationAttachment) : super(dp, attachment) {
+            require(attachment.type == type) { "Type does not match" }
         }
 
     }
@@ -989,16 +959,16 @@ interface Attachment : Appendix {
         override val appendixName: String
             get() = "BidOrderCancellation"
 
-        override val transactionType: TransactionType
-            get() = TransactionType.ColoredCoins.BID_ORDER_CANCELLATION
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_COLORED_COINS, TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION)
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion)
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion)
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData)
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData)
 
         constructor(dp: DependencyProvider, orderId: Long, blockchainHeight: Int) : super(dp, orderId, blockchainHeight)
 
-        internal constructor(attachment: BrsApi.AssetOrderCancellationAttachment) : super(attachment) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.AssetOrderCancellationAttachment) : super(dp, attachment) {
             require(attachment.type == type) { "Type does not match" }
         }
 
@@ -1019,8 +989,8 @@ interface Attachment : Appendix {
             get() = (2 + Convert.toBytes(name).size + 2 + Convert.toBytes(description).size + 2
                     + Convert.toBytes(tags).size + 4 + 8)
 
-        override val transactionType: TransactionType
-            get() = TransactionType.DigitalGoods.LISTING
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_DIGITAL_GOODS, TransactionType.SUBTYPE_DIGITAL_GOODS_LISTING)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.DigitalGoodsListingAttachment.newBuilder()
@@ -1032,8 +1002,7 @@ interface Attachment : Appendix {
                     .setPrice(priceNQT)
                     .build())
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.name = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_DGS_LISTING_NAME_LENGTH)
             this.description = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_DGS_LISTING_DESCRIPTION_LENGTH)
             this.tags = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_DGS_LISTING_TAGS_LENGTH)
@@ -1041,7 +1010,7 @@ interface Attachment : Appendix {
             this.priceNQT = buffer.long
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.name = JSON.getAsString(attachmentData.get(NAME_RESPONSE))
             this.description = JSON.getAsString(attachmentData.get(DESCRIPTION_RESPONSE))
             this.tags = JSON.getAsString(attachmentData.get(TAGS_RESPONSE))
@@ -1057,7 +1026,7 @@ interface Attachment : Appendix {
             this.priceNQT = priceNQT
         }
 
-        internal constructor(attachment: BrsApi.DigitalGoodsListingAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.DigitalGoodsListingAttachment) : super(dp, attachment.version.toByte()) {
             this.name = attachment.name
             this.description = attachment.description
             this.tags = attachment.tags
@@ -1098,8 +1067,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 8
 
-        override val transactionType: TransactionType
-            get() = TransactionType.DigitalGoods.DELISTING
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_DIGITAL_GOODS, TransactionType.SUBTYPE_DIGITAL_GOODS_DELISTING)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.DigitalGoodsDelistingAttachment.newBuilder()
@@ -1107,11 +1076,11 @@ interface Attachment : Appendix {
                     .setGoods(goodsId)
                     .build())
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.goodsId = buffer.long
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.goodsId = JSON.getAsString(attachmentData.get(GOODS_PARAMETER)).parseUnsignedLong()
         }
 
@@ -1119,7 +1088,7 @@ interface Attachment : Appendix {
             this.goodsId = goodsId
         }
 
-        internal constructor(attachment: BrsApi.DigitalGoodsDelistingAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.DigitalGoodsDelistingAttachment) : super(dp, attachment.version.toByte()) {
             this.goodsId = attachment.goods
         }
 
@@ -1143,8 +1112,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 8 + 8
 
-        override val transactionType: TransactionType
-            get() = TransactionType.DigitalGoods.PRICE_CHANGE
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_DIGITAL_GOODS, TransactionType.SUBTYPE_DIGITAL_GOODS_PRICE_CHANGE)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.DigitalGoodsPriceChangeAttachment.newBuilder()
@@ -1153,12 +1122,12 @@ interface Attachment : Appendix {
                     .setPrice(priceNQT)
                     .build())
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.goodsId = buffer.long
             this.priceNQT = buffer.long
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.goodsId = JSON.getAsString(attachmentData.get(GOODS_PARAMETER)).parseUnsignedLong()
             this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
         }
@@ -1168,7 +1137,7 @@ interface Attachment : Appendix {
             this.priceNQT = priceNQT
         }
 
-        internal constructor(attachment: BrsApi.DigitalGoodsPriceChangeAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.DigitalGoodsPriceChangeAttachment) : super(dp, attachment.version.toByte()) {
             this.goodsId = attachment.goods
             this.priceNQT = attachment.price
         }
@@ -1195,8 +1164,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 8 + 4
 
-        override val transactionType: TransactionType
-            get() = TransactionType.DigitalGoods.QUANTITY_CHANGE
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_DIGITAL_GOODS, TransactionType.SUBTYPE_DIGITAL_GOODS_QUANTITY_CHANGE)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.DigitalGoodsQuantityChangeAttachment.newBuilder()
@@ -1205,12 +1174,12 @@ interface Attachment : Appendix {
                     .setDeltaQuantity(deltaQuantity)
                     .build())
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.goodsId = buffer.long
             this.deltaQuantity = buffer.int
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.goodsId = JSON.getAsString(attachmentData.get(GOODS_PARAMETER)).parseUnsignedLong()
             this.deltaQuantity = JSON.getAsInt(attachmentData.get(DELTA_QUANTITY_PARAMETER))
         }
@@ -1220,7 +1189,7 @@ interface Attachment : Appendix {
             this.deltaQuantity = deltaQuantity
         }
 
-        internal constructor(attachment: BrsApi.DigitalGoodsQuantityChangeAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.DigitalGoodsQuantityChangeAttachment) : super(dp, attachment.version.toByte()) {
             this.goodsId = attachment.goods
             this.deltaQuantity = attachment.deltaQuantity
         }
@@ -1249,8 +1218,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 8 + 4 + 8 + 4
 
-        override val transactionType: TransactionType
-            get() = TransactionType.DigitalGoods.PURCHASE
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_DIGITAL_GOODS, TransactionType.SUBTYPE_DIGITAL_GOODS_PURCHASE)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.DigitalGoodsPurchaseAttachment.newBuilder()
@@ -1261,14 +1230,14 @@ interface Attachment : Appendix {
                     .setDeliveryDeadlineTimestmap(deliveryDeadlineTimestamp)
                     .build())
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.goodsId = buffer.long
             this.quantity = buffer.int
             this.priceNQT = buffer.long
             this.deliveryDeadlineTimestamp = buffer.int
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.goodsId = JSON.getAsString(attachmentData.get(GOODS_PARAMETER)).parseUnsignedLong()
             this.quantity = JSON.getAsInt(attachmentData.get(QUANTITY_PARAMETER))
             this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
@@ -1282,7 +1251,7 @@ interface Attachment : Appendix {
             this.deliveryDeadlineTimestamp = deliveryDeadlineTimestamp
         }
 
-        internal constructor(attachment: BrsApi.DigitalGoodsPurchaseAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.DigitalGoodsPurchaseAttachment) : super(dp, attachment.version.toByte()) {
             this.goodsId = attachment.goods
             this.quantity = attachment.quantity
             this.priceNQT = attachment.price
@@ -1317,8 +1286,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 8 + 4 + goods.size + 8
 
-        override val transactionType: TransactionType
-            get() = TransactionType.DigitalGoods.DELIVERY
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_DIGITAL_GOODS, TransactionType.SUBTYPE_DIGITAL_GOODS_DELIVERY)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.DigitalGoodsDeliveryAttachment.newBuilder()
@@ -1329,8 +1298,7 @@ interface Attachment : Appendix {
                     .setIsText(goodsIsText)
                     .build())
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.purchaseId = buffer.long
             var length = buffer.int
             goodsIsText = length < 0
@@ -1341,7 +1309,7 @@ interface Attachment : Appendix {
             this.discountNQT = buffer.long
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.purchaseId = JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)).parseUnsignedLong()
             this.goods = EncryptedData(JSON.getAsString(attachmentData.get(GOODS_DATA_PARAMETER)).parseHexString(), JSON.getAsString(attachmentData.get(GOODS_NONCE_PARAMETER)).parseHexString())
             this.discountNQT = JSON.getAsLong(attachmentData.get(DISCOUNT_NQT_PARAMETER))
@@ -1355,7 +1323,7 @@ interface Attachment : Appendix {
             this.goodsIsText = goodsIsText
         }
 
-        internal constructor(attachment: BrsApi.DigitalGoodsDeliveryAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.DigitalGoodsDeliveryAttachment) : super(dp, attachment.version.toByte()) {
             this.purchaseId = attachment.purchase
             this.goods = ProtoBuilder.parseEncryptedData(attachment.goods)
             this.goodsIsText = attachment.isText
@@ -1393,8 +1361,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 8
 
-        override val transactionType: TransactionType
-            get() = TransactionType.DigitalGoods.FEEDBACK
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_DIGITAL_GOODS, TransactionType.SUBTYPE_DIGITAL_GOODS_FEEDBACK)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.DigitalGoodsFeedbackAttachment.newBuilder()
@@ -1402,11 +1370,11 @@ interface Attachment : Appendix {
                     .setPurchase(purchaseId)
                     .build())
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.purchaseId = buffer.long
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.purchaseId = JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)).parseUnsignedLong()
         }
 
@@ -1414,7 +1382,7 @@ interface Attachment : Appendix {
             this.purchaseId = purchaseId
         }
 
-        internal constructor(attachment: BrsApi.DigitalGoodsFeedbackAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.DigitalGoodsFeedbackAttachment) : super(dp, attachment.version.toByte()) {
             this.purchaseId = attachment.purchase
         }
 
@@ -1438,8 +1406,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 8 + 8
 
-        override val transactionType: TransactionType
-            get() = TransactionType.DigitalGoods.REFUND
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_DIGITAL_GOODS, TransactionType.SUBTYPE_DIGITAL_GOODS_REFUND)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.DigitalGoodsRefundAttachment.newBuilder()
@@ -1448,12 +1416,12 @@ interface Attachment : Appendix {
                     .setRefund(refundNQT)
                     .build())
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.purchaseId = buffer.long
             this.refundNQT = buffer.long
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.purchaseId = JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)).parseUnsignedLong()
             this.refundNQT = JSON.getAsLong(attachmentData.get(REFUND_NQT_PARAMETER))
         }
@@ -1463,7 +1431,7 @@ interface Attachment : Appendix {
             this.refundNQT = refundNQT
         }
 
-        internal constructor(attachment: BrsApi.DigitalGoodsRefundAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.DigitalGoodsRefundAttachment) : super(dp, attachment.version.toByte()) {
             this.purchaseId = attachment.purchase
             this.refundNQT = attachment.refund
         }
@@ -1479,50 +1447,6 @@ interface Attachment : Appendix {
         }
     }
 
-    class AccountControlEffectiveBalanceLeasing : AbstractAttachment {
-
-        val period: Short
-
-        override val appendixName: String
-            get() = "EffectiveBalanceLeasing"
-
-        override val mySize: Int
-            get() = 2
-
-        override val transactionType: TransactionType
-            get() = TransactionType.AccountControl.EFFECTIVE_BALANCE_LEASING
-
-        override val protobufMessage: Any
-            get() = Any.pack(BrsApi.EffectiveBalanceLeasingAttachment.newBuilder()
-                    .setVersion(version.toInt())
-                    .setPeriod(period.toInt())
-                    .build())
-
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
-            this.period = buffer.short
-        }
-
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            this.period = JSON.getAsShort(attachmentData.get(PERIOD_PARAMETER))
-        }
-
-        constructor(dp: DependencyProvider, period: Short, blockchainHeight: Int) : super(dp, blockchainHeight) {
-            this.period = period
-        }
-
-        internal constructor(attachment: BrsApi.EffectiveBalanceLeasingAttachment) : super(attachment.version.toByte()) {
-            this.period = attachment.period.toShort()
-        }
-
-        override fun putMyBytes(buffer: ByteBuffer) {
-            buffer.putShort(period)
-        }
-
-        override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(PERIOD_RESPONSE, period)
-        }
-    }
-
     class BurstMiningRewardRecipientAssignment : AbstractAttachment {
 
         override val appendixName: String
@@ -1531,21 +1455,21 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 0
 
-        override val transactionType: TransactionType
-            get() = TransactionType.BurstMining.REWARD_RECIPIENT_ASSIGNMENT
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_BURST_MINING, TransactionType.SUBTYPE_BURST_MINING_REWARD_RECIPIENT_ASSIGNMENT)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.RewardRecipientAssignmentAttachment.newBuilder()
                     .setVersion(version.toInt())
                     .build())
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion)
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion)
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData)
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData)
 
         constructor(dp: DependencyProvider, blockchainHeight: Int) : super(dp, blockchainHeight)
 
-        internal constructor(attachment: BrsApi.RewardRecipientAssignmentAttachment) : super(attachment.version.toByte())
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.RewardRecipientAssignmentAttachment) : super(dp, attachment.version.toByte())
 
         override fun putMyBytes(buffer: ByteBuffer) {
             // Reward recipient does not have additional data.
@@ -1574,8 +1498,8 @@ interface Attachment : Appendix {
                 return size
             }
 
-        override val transactionType: TransactionType
-            get() = TransactionType.AdvancedPayment.ESCROW_CREATION
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_ADVANCED_PAYMENT, TransactionType.SUBTYPE_ADVANCED_PAYMENT_ESCROW_CREATION)
 
         val totalSigners: Int
             get() = signers.size
@@ -1590,8 +1514,7 @@ interface Attachment : Appendix {
                     .setDeadlineAction(Escrow.decisionToProtobuf(deadlineAction!!))
                     .build())
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.amountNQT = buffer.long
             this.deadline = buffer.int
             this.deadlineAction = Escrow.byteToDecision(buffer.get())
@@ -1607,8 +1530,7 @@ interface Attachment : Appendix {
             }
         }
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.amountNQT = JSON.getAsString(attachmentData.get(AMOUNT_NQT_PARAMETER)).parseUnsignedLong()
             this.deadline = JSON.getAsInt(attachmentData.get(DEADLINE_PARAMETER))
             this.deadlineAction = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DEADLINE_ACTION_PARAMETER))!!)
@@ -1626,7 +1548,6 @@ interface Attachment : Appendix {
             }
         }
 
-        @Throws(BurstException.NotValidException::class)
         constructor(dp: DependencyProvider, amountNQT: Long, deadline: Int, deadlineAction: Escrow.DecisionType, requiredSigners: Int, signers: Collection<Long>, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.amountNQT = amountNQT
             this.deadline = deadline
@@ -1641,8 +1562,7 @@ interface Attachment : Appendix {
             }
         }
 
-        @Throws(BurstException.NotValidException::class)
-        internal constructor(attachment: BrsApi.EscrowCreationAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.EscrowCreationAttachment) : super(dp, attachment.version.toByte()) {
             this.amountNQT = attachment.amount
             this.requiredSigners = attachment.requiredSigners.toByte()
             this.deadline = attachment.deadline
@@ -1698,8 +1618,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 8 + 1
 
-        override val transactionType: TransactionType
-            get() = TransactionType.AdvancedPayment.ESCROW_SIGN
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_ADVANCED_PAYMENT, TransactionType.SUBTYPE_ADVANCED_PAYMENT_ESCROW_SIGN)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.EscrowSignAttachment.newBuilder()
@@ -1708,12 +1628,12 @@ interface Attachment : Appendix {
                     .setDecision(Escrow.decisionToProtobuf(decision!!))
                     .build())
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.escrowId = buffer.long
             this.decision = Escrow.byteToDecision(buffer.get())
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.escrowId = JSON.getAsString(attachmentData.get(ESCROW_ID_PARAMETER)).parseUnsignedLong()
             this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER))!!)
         }
@@ -1723,7 +1643,7 @@ interface Attachment : Appendix {
             this.decision = decision
         }
 
-        internal constructor(attachment: BrsApi.EscrowSignAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.EscrowSignAttachment) : super(dp, attachment.version.toByte()) {
             this.escrowId = attachment.escrow
             this.decision = Escrow.protoBufToDecision(attachment.decision)
         }
@@ -1741,7 +1661,7 @@ interface Attachment : Appendix {
 
     class AdvancedPaymentEscrowResult : AbstractAttachment {
 
-        private val escrowId: Long?
+        private val escrowId: Long
         private val decision: Escrow.DecisionType?
 
         override val appendixName: String
@@ -1750,32 +1670,32 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 8 + 1
 
-        override val transactionType: TransactionType
-            get() = TransactionType.AdvancedPayment.ESCROW_RESULT
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_ADVANCED_PAYMENT, TransactionType.SUBTYPE_ADVANCED_PAYMENT_ESCROW_RESULT)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.EscrowResultAttachment.newBuilder()
                     .setVersion(version.toInt())
-                    .setEscrow(2)
+                    .setEscrow(escrowId)
                     .setDecision(Escrow.decisionToProtobuf(decision!!))
                     .build())
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.escrowId = buffer.long
             this.decision = Escrow.byteToDecision(buffer.get())
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.escrowId = JSON.getAsString(attachmentData.get(ESCROW_ID_PARAMETER)).parseUnsignedLong()
             this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER))!!)
         }
 
-        constructor(dp: DependencyProvider, escrowId: Long?, decision: Escrow.DecisionType, blockchainHeight: Int) : super(dp, blockchainHeight) {
+        constructor(dp: DependencyProvider, escrowId: Long, decision: Escrow.DecisionType, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.escrowId = escrowId
             this.decision = decision
         }
 
-        internal constructor(attachment: BrsApi.EscrowResultAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.EscrowResultAttachment) : super(dp, attachment.version.toByte()) {
             this.escrowId = attachment.escrow
             this.decision = Escrow.protoBufToDecision(attachment.decision)
         }
@@ -1801,8 +1721,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 4
 
-        override val transactionType: TransactionType
-            get() = TransactionType.AdvancedPayment.SUBSCRIPTION_SUBSCRIBE
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_ADVANCED_PAYMENT, TransactionType.SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_SUBSCRIBE)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.SubscriptionSubscribeAttachment.newBuilder()
@@ -1810,11 +1730,11 @@ interface Attachment : Appendix {
                     .setFrequency(frequency!!)
                     .build())
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.frequency = buffer.int
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.frequency = JSON.getAsInt(attachmentData.get(FREQUENCY_PARAMETER))
         }
 
@@ -1822,7 +1742,7 @@ interface Attachment : Appendix {
             this.frequency = frequency
         }
 
-        internal constructor(attachment: BrsApi.SubscriptionSubscribeAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.SubscriptionSubscribeAttachment) : super(dp, attachment.version.toByte()) {
             this.frequency = attachment.frequency
         }
 
@@ -1845,8 +1765,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 8
 
-        override val transactionType: TransactionType
-            get() = TransactionType.AdvancedPayment.SUBSCRIPTION_CANCEL
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_ADVANCED_PAYMENT, TransactionType.SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_CANCEL)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.SubscriptionCancelAttachment.newBuilder()
@@ -1854,11 +1774,11 @@ interface Attachment : Appendix {
                     .setSubscription(subscriptionId!!)
                     .build())
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.subscriptionId = buffer.long
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.subscriptionId = JSON.getAsString(attachmentData.get(SUBSCRIPTION_ID_PARAMETER)).parseUnsignedLong()
         }
 
@@ -1866,7 +1786,7 @@ interface Attachment : Appendix {
             this.subscriptionId = subscriptionId
         }
 
-        internal constructor(attachment: BrsApi.SubscriptionCancelAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.SubscriptionCancelAttachment) : super(dp, attachment.version.toByte()) {
             this.subscriptionId = attachment.subscription
         }
 
@@ -1889,8 +1809,8 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 8
 
-        override val transactionType: TransactionType
-            get() = TransactionType.AdvancedPayment.SUBSCRIPTION_PAYMENT
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_ADVANCED_PAYMENT, TransactionType.SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_PAYMENT)
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.SubscriptionPaymentAttachment.newBuilder()
@@ -1898,11 +1818,11 @@ interface Attachment : Appendix {
                     .setSubscription(subscriptionId!!)
                     .build())
 
-        internal constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
+        internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.subscriptionId = buffer.long
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.subscriptionId = JSON.getAsString(attachmentData.get(SUBSCRIPTION_ID_PARAMETER)).parseUnsignedLong()
         }
 
@@ -1910,7 +1830,7 @@ interface Attachment : Appendix {
             this.subscriptionId = subscriptionId
         }
 
-        internal constructor(attachment: BrsApi.SubscriptionPaymentAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.SubscriptionPaymentAttachment) : super(dp, attachment.version.toByte()) {
             this.subscriptionId = attachment.subscription
         }
 
@@ -1929,8 +1849,8 @@ interface Attachment : Appendix {
         val description: String?
         val creationBytes: ByteArray
 
-        override val transactionType: TransactionType
-            get() = TransactionType.AutomatedTransactions.AUTOMATED_TRANSACTION_CREATION
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_AUTOMATED_TRANSACTIONS, TransactionType.SUBTYPE_AT_CREATION)
 
         override val appendixName: String
             get() = "AutomatedTransactionsCreation"
@@ -1946,9 +1866,8 @@ interface Attachment : Appendix {
                     .setCreationBytes(creationBytes.toByteString())
                     .build())
 
-        @Throws(BurstException.NotValidException::class)
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer,
-                             transactionVersion: Byte) : super(buffer, transactionVersion) {
+                             transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
 
             this.name = Convert.readString(buffer, buffer.get().toInt(), Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH)
             this.description = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH)
@@ -2005,7 +1924,7 @@ interface Attachment : Appendix {
             this.creationBytes = dst
         }
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData) {
+        internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
 
             this.name = JSON.getAsString(attachmentData.get(NAME_PARAMETER))
             this.description = JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER))
@@ -2020,7 +1939,7 @@ interface Attachment : Appendix {
             this.creationBytes = creationBytes
         }
 
-        internal constructor(attachment: BrsApi.ATCreationAttachment) : super(attachment.version.toByte()) {
+        internal constructor(dp: DependencyProvider, attachment: BrsApi.ATCreationAttachment) : super(dp, attachment.version.toByte()) {
             this.name = attachment.name
             this.description = attachment.description
             this.creationBytes = attachment.creationBytes.toByteArray()
@@ -2044,43 +1963,36 @@ interface Attachment : Appendix {
         }
     }
 
-    companion object {
+    class OrdinaryPayment(dp: DependencyProvider) : EmptyAttachment(dp) {
+        override val protobufMessage: Any
+            get() = Any.pack(BrsApi.OrdinaryPaymentAttachment.getDefaultInstance())
 
-        val ORDINARY_PAYMENT: EmptyAttachment = object : EmptyAttachment() {
+        override val appendixName: String
+            get() = "OrdinaryPayment"
 
-            override val protobufMessage: Any
-                get() = Any.pack(BrsApi.OrdinaryPaymentAttachment.getDefaultInstance())
-
-            override val appendixName: String
-                get() = "OrdinaryPayment"
-
-            override val transactionType: TransactionType
-                get() = Payment.ORDINARY
-
-        }
-
-        // the message payload is in the Appendix
-        val ARBITRARY_MESSAGE: EmptyAttachment = object : EmptyAttachment() {
-
-            override val protobufMessage = Any.pack(BrsApi.ArbitraryMessageAttachment.getDefaultInstance())
-
-            override val appendixName = "ArbitraryMessage"
-
-            override val transactionType = TransactionType.Messaging.ARBITRARY_MESSAGE
-
-        }
-
-        val AT_PAYMENT: EmptyAttachment = object : EmptyAttachment() {
-
-            override val protobufMessage: Any
-                get() = Any.pack(BrsApi.ATPaymentAttachment.getDefaultInstance())
-
-            override val transactionType: TransactionType
-                get() = TransactionType.AutomatedTransactions.AT_PAYMENT
-
-            override val appendixName: String
-                get() = "AT Payment"
-        }
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_PAYMENT, TransactionType.SUBTYPE_PAYMENT_ORDINARY_PAYMENT)
     }
 
+    // the message payload is in the Appendix
+    class ArbitraryMessage(dp: DependencyProvider) : EmptyAttachment(dp) {
+
+        override val protobufMessage = Any.pack(BrsApi.ArbitraryMessageAttachment.getDefaultInstance())
+
+        override val appendixName = "ArbitraryMessage"
+
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_MESSAGING, TransactionType.SUBTYPE_MESSAGING_ARBITRARY_MESSAGE)
+    }
+
+    class AtPayment(dp: DependencyProvider) : EmptyAttachment(dp) {
+        override val protobufMessage: Any
+            get() = Any.pack(BrsApi.ATPaymentAttachment.getDefaultInstance())
+
+        override val transactionTypeAndSubtype: Pair<Byte, Byte>
+            get() = Pair(TransactionType.TYPE_AUTOMATED_TRANSACTIONS, TransactionType.SUBTYPE_AT_PAYMENT)
+
+        override val appendixName: String
+            get() = "AT Payment"
+    }
 }

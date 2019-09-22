@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetAccountATs internal constructor(private val parameterService: ParameterService, private val atService: ATService, private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.AT, APITag.ACCOUNTS), ACCOUNT_PARAMETER) {
 
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request) // TODO this is super redundant
 

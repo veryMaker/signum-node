@@ -12,7 +12,6 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetRewardRecipient(private val parameterService: ParameterService, private val blockchain: Blockchain, private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS, APITag.MINING, APITag.INFO), ACCOUNT_PARAMETER) {
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
 

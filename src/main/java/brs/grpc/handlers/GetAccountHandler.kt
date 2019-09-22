@@ -9,7 +9,6 @@ import brs.services.AccountService
 
 class GetAccountHandler(private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAccountRequest, BrsApi.Account> {
 
-    @Throws(Exception::class)
     override fun handleRequest(request: BrsApi.GetAccountRequest): BrsApi.Account {
         val account: Account?
         try {

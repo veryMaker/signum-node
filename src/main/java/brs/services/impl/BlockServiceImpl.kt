@@ -13,7 +13,6 @@ import java.math.BigInteger
 import java.util.*
 
 class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
-    @Throws(BlockchainProcessor.BlockOutOfOrderException::class)
     override fun verifyBlockSignature(block: Block): Boolean {
         try {
             if (block.blockSignature == null) {
@@ -52,7 +51,6 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
 
     }
 
-    @Throws(BlockchainProcessor.BlockNotAcceptedException::class)
     override fun verifyGenerationSignature(block: Block): Boolean {
         try {
             val previousBlock = dp.blockchain.getBlock(block.previousBlockId)
@@ -164,7 +162,6 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         block.transactions.forEach { transaction -> transaction.setBlock(block) }
     }
 
-    @Throws(BlockOutOfOrderException::class)
     override fun calculateBaseTarget(block: Block, previousBlock: Block) {
         if (block.id == Genesis.GENESIS_BLOCK_ID && block.previousBlockId == 0L) {
             block.baseTarget = Constants.INITIAL_BASE_TARGET

@@ -31,7 +31,6 @@ class SuggestFeeTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
 

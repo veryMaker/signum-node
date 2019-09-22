@@ -1,9 +1,13 @@
 package brs.db.sql
 
-import brs.*
+import brs.Appendix
+import brs.BurstException
+import brs.DependencyProvider
+import brs.Transaction
 import brs.db.TransactionDb
 import brs.schema.Tables.TRANSACTION
 import brs.schema.tables.records.TransactionRecord
+import brs.transaction.TransactionType
 import brs.util.parseHexString
 import brs.util.toUnsignedString
 import java.nio.ByteBuffer
@@ -42,7 +46,6 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         return Db.useDSLContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash.parseHexString()))) }
     }
 
-    @Throws(BurstException.ValidationException::class)
     override fun loadTransaction(tr: TransactionRecord): Transaction {
         val buffer: ByteBuffer
         if (tr.attachmentBytes != null) {
@@ -52,7 +55,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
             buffer = ByteBuffer.allocate(0)
         }
 
-        val transactionType = TransactionType.findTransactionType(tr.type!!, tr.subtype!!)
+        val transactionType = TransactionType.findTransactionType(dp, tr.type!!, tr.subtype!!)
         val builder = Transaction.Builder(dp, tr.version!!, tr.senderPublicKey,
                 tr.amount!!, tr.fee!!, tr.timestamp!!, tr.deadline!!,
                 transactionType!!.parseAttachment(buffer, tr.version!!))

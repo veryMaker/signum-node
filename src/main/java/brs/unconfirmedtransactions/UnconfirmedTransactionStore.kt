@@ -9,7 +9,6 @@ interface UnconfirmedTransactionStore {
 
     val amount: Int
 
-    @Throws(BurstException.ValidationException::class)
     fun put(transaction: Transaction, peer: Peer?): Boolean
 
     operator fun get(transactionId: Long?): Transaction?

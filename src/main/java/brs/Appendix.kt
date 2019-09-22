@@ -74,7 +74,6 @@ interface Appendix {
             return if (transactionVersion.toInt() == 0) version.toInt() == 0 else version > 0
         }
 
-        @Throws(BurstException.ValidationException::class)
         abstract fun validate(transaction: Transaction)
 
         abstract fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account)
@@ -98,7 +97,6 @@ interface Appendix {
                     .setIsText(isText)
                     .build())
 
-        @Throws(BurstException.NotValidException::class)
         constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
             var messageLength = buffer.int
             this.isText = messageLength < 0 // ugly hack
@@ -143,12 +141,11 @@ interface Appendix {
             attachment.addProperty("messageIsText", isText)
         }
 
-        @Throws(BurstException.ValidationException::class)
         override fun validate(transaction: Transaction) {
             if (this.isText && transaction.version.toInt() == 0) {
                 throw BurstException.NotValidException("Text messages not yet enabled")
             }
-            if (transaction.version.toInt() == 0 && transaction.attachment !== Attachment.ARBITRARY_MESSAGE) {
+            if (transaction.version.toInt() == 0 && transaction.attachment !is Attachment.ArbitraryMessage) {
                 throw BurstException.NotValidException("Message attachments not enabled for version 0 transactions")
             }
             if (messageBytes!!.size > Constants.MAX_ARBITRARY_MESSAGE_LENGTH) {
@@ -186,7 +183,6 @@ interface Appendix {
 
         protected abstract val type: BrsApi.EncryptedMessageAppendix.Type
 
-        @Throws(BurstException.NotValidException::class)
         constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
             var length = buffer.int
             this.isText = length < 0
@@ -225,7 +221,6 @@ interface Appendix {
             json.addProperty("isText", isText)
         }
 
-        @Throws(BurstException.ValidationException::class)
         override fun validate(transaction: Transaction) {
             if (encryptedData.data.size > Constants.MAX_ENCRYPTED_MESSAGE_LENGTH) {
                 throw BurstException.NotValidException("Max encrypted message length exceeded")
@@ -247,7 +242,6 @@ interface Appendix {
         override val type: BrsApi.EncryptedMessageAppendix.Type
             get() = BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT
 
-        @Throws(BurstException.ValidationException::class)
         constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
         }
 
@@ -265,7 +259,6 @@ interface Appendix {
             json.add("encryptedMessage", encryptedMessageJSON)
         }
 
-        @Throws(BurstException.ValidationException::class)
         override fun validate(transaction: Transaction) {
             super.validate(transaction)
             if (!transaction.type.hasRecipient()) {
@@ -295,7 +288,6 @@ interface Appendix {
         override val type: BrsApi.EncryptedMessageAppendix.Type
             get() = BrsApi.EncryptedMessageAppendix.Type.TO_SELF
 
-        @Throws(BurstException.ValidationException::class)
         constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
         }
 
@@ -313,7 +305,6 @@ interface Appendix {
             json.add("encryptToSelfMessage", encryptToSelfMessageJSON)
         }
 
-        @Throws(BurstException.ValidationException::class)
         override fun validate(transaction: Transaction) {
             super.validate(transaction)
             if (transaction.version.toInt() == 0) {
@@ -377,7 +368,6 @@ interface Appendix {
             attachment.addProperty("recipientPublicKey", publicKey.toHexString())
         }
 
-        @Throws(BurstException.ValidationException::class)
         override fun validate(transaction: Transaction) {
             if (!transaction.type.hasRecipient()) {
                 throw BurstException.NotValidException("PublicKeyAnnouncement cannot be attached to transactions with no recipient")

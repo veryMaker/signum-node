@@ -17,6 +17,7 @@ import brs.props.PropertyServiceImpl
 import brs.props.Props
 import brs.services.impl.*
 import brs.statistics.StatisticsManagerImpl
+import brs.transaction.TransactionType
 import brs.unconfirmedtransactions.UnconfirmedTransactionStoreImpl
 import brs.util.DownloadCacheImpl
 import brs.util.LoggerConfigurator
@@ -46,7 +47,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             Constants.init(dp)
             dp.atApiPlatformImpl = AtApiPlatformImpl(dp)
             dp.atApiController = AtApiController(dp)
-            AtController.init(dp)
+            dp.atController = AtController(dp)
             val atApiImpl = AtApiImpl(dp)
             dp.oclPoC = OCLPoC(dp)
             dp.timeService = TimeServiceImpl()
@@ -73,6 +74,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.blockchain = BlockchainImpl(dp)
             dp.aliasService = AliasServiceImpl(dp)
             dp.fluxCapacitor = FluxCapacitorImpl(dp)
+            dp.transactionTypes = TransactionType.getTransactionTypes(dp)
             dp.blockService = BlockServiceImpl(dp)
             dp.blockchainProcessor = BlockchainProcessorImpl(dp)
             dp.atConstants = AtConstants(dp)
@@ -96,7 +98,6 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.blockchainProcessor.addListener(DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(dp), BlockchainProcessor.Event.AFTER_BLOCK_APPLY)
             dp.apiTransactionManager = APITransactionManagerImpl(dp)
             dp.peers = Peers(dp)
-            TransactionType.init(dp)
             dp.api = API(dp)
 
             if (dp.propertyService.get(Props.API_V2_SERVER)) {

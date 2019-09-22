@@ -25,7 +25,6 @@ class ProcessASingleBlockTest : AbstractIT() {
                 .toJson()
 
     @Test
-    @Throws(InterruptedException::class)
     fun canProcessASingleBlock() {
         super.processBlock(jsonFirstBlock)
 
@@ -33,7 +32,6 @@ class ProcessASingleBlockTest : AbstractIT() {
     }
 
     @Test
-    @Throws(InterruptedException::class)
     fun canRollback() {
         super.processBlock(jsonFirstBlock)
         Thread.sleep(200)

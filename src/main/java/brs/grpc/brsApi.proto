@@ -724,11 +724,6 @@ message DigitalGoodsRefundAttachment {
     uint64 refund = 3;
 }
 
-message EffectiveBalanceLeasingAttachment {
-    uint32 version = 1;
-    uint32 period = 2;
-}
-
 message RewardRecipientAssignmentAttachment {
     uint32 version = 1;
 }

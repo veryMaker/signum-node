@@ -42,7 +42,6 @@ class GetAssetTransfersTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_byAsset() {
         val assetId = 123L
         val firstIndex = 0
@@ -71,7 +70,6 @@ class GetAssetTransfersTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_byAccount() {
         val accountId = 234L
         val firstIndex = 0
@@ -100,7 +98,6 @@ class GetAssetTransfersTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_byAccountAndAsset() {
         val assetId = 123L
         val accountId = 234L

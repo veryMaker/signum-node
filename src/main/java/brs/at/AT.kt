@@ -85,7 +85,7 @@ class AT : AtMachineState {
                 dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.recipientId)), atTransaction.amount!!)
 
                 val builder = Transaction.Builder(dp, 1.toByte(), Genesis.creatorPublicKey,
-                        atTransaction.amount!!, 0L, block.timestamp, 1440.toShort(), Attachment.AT_PAYMENT)
+                        atTransaction.amount!!, 0L, block.timestamp, 1440.toShort(), Attachment.AtPayment(dp))
 
                 builder.senderId(AtApiHelper.getLong(atTransaction.senderId))
                         .recipientId(AtApiHelper.getLong(atTransaction.recipientId))
@@ -195,7 +195,7 @@ class AT : AtMachineState {
 
             val at = AT(dp, id, creator, name, description, creationBytes, height)
 
-            AtController.resetMachine(at)
+            dp.atController.resetMachine(at)
 
             atTable(dp).insert(at)
 

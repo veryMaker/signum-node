@@ -76,7 +76,6 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
         }
     }
 
-    @Throws(BurstException.ValidationException::class)
     override fun loadBlock(r: BlockRecord): Block {
         val version = r.version!!
         val timestamp = r.timestamp!!

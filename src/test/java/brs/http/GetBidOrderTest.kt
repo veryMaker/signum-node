@@ -36,7 +36,6 @@ class GetBidOrderTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val bidOrderId = 123L
         val mockBid = mock<Bid>()
@@ -52,7 +51,6 @@ class GetBidOrderTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_orderNotFoundUnknownOrder() {
         val bidOrderId = 123L
 

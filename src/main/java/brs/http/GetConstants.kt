@@ -3,8 +3,8 @@ package brs.http
 import brs.Constants
 import brs.DependencyProvider
 import brs.Genesis
-import brs.TransactionType
 import brs.fluxcapacitor.FluxValues
+import brs.transaction.TransactionType
 import brs.util.toJsonArray
 import brs.util.toUnsignedString
 import com.google.gson.JsonArray
@@ -24,7 +24,7 @@ internal class GetConstants(dp: DependencyProvider) : APIServlet.JsonRequestHand
         response.addProperty("maxArbitraryMessageLength", Constants.MAX_ARBITRARY_MESSAGE_LENGTH)
 
         val transactionTypes = JsonArray()
-        TransactionType.transactionTypes
+        dp.transactionTypes
                 .forEach { (key, value) ->
                     val transactionType = JsonObject()
                     transactionType.addProperty("value", key)

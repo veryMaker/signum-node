@@ -22,7 +22,6 @@ import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 
 internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION), ALIAS_NAME_PARAMETER, ALIAS_URI_PARAMETER) {
 
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         var aliasName = Convert.emptyToNull(request.getParameter(ALIAS_NAME_PARAMETER))
         var aliasURI = Convert.nullToEmpty(request.getParameter(ALIAS_URI_PARAMETER))

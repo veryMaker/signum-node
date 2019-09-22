@@ -2,11 +2,9 @@ package brs.http
 
 import brs.Attachment
 import brs.Blockchain
-import brs.Burst
 import brs.BurstException
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.AliasService
 import brs.services.ParameterService
@@ -14,9 +12,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-import javax.servlet.http.HttpServletRequest
-
-import brs.TransactionType.Messaging.ALIAS_ASSIGNMENT
+import brs.transaction.TransactionType.Messaging.ALIAS_ASSIGNMENT
 import brs.http.JSONResponses.INCORRECT_ALIAS_LENGTH
 import brs.http.JSONResponses.INCORRECT_ALIAS_NAME
 import brs.http.JSONResponses.INCORRECT_URI_LENGTH
@@ -52,7 +48,6 @@ class SetAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val aliasNameParameter = "aliasNameParameter"
         val aliasUrl = "aliasUrl"
@@ -73,7 +68,6 @@ class SetAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_missingAliasName() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(ALIAS_NAME_PARAMETER, null as String?),
@@ -84,7 +78,6 @@ class SetAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectAliasLength_nameOnlySpaces() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(ALIAS_NAME_PARAMETER, "  "),
@@ -96,7 +89,6 @@ class SetAliasTest : AbstractTransactionTest() {
 
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectAliasLength_incorrectAliasName() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(ALIAS_NAME_PARAMETER, "[]"),
@@ -107,7 +99,6 @@ class SetAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectUriLengthWhenOver1000Characters() {
         val uriOver1000Characters = StringBuilder()
 

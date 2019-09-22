@@ -4,25 +4,21 @@ import brs.*
 import brs.Alias.Offer
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.AliasService
 import brs.services.ParameterService
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.TransactionType.Messaging.ALIAS_BUY
+import brs.transaction.TransactionType.Messaging.ALIAS_BUY
 import brs.http.JSONResponses.INCORRECT_ALIAS_NOTFORSALE
 import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import io.mockk.every
-import io.mockk.mockkStatic
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 
@@ -46,7 +42,6 @@ class BuyAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val request = QuickMocker.httpServletRequestDefaultKeys(MockParam(AMOUNT_NQT_PARAMETER, "" + Constants.ONE_BURST))
 
@@ -75,7 +70,6 @@ class BuyAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_aliasNotForSale() {
         val request = QuickMocker.httpServletRequest(MockParam(AMOUNT_NQT_PARAMETER, "3"))
         val mockAlias = mock<Alias>()

@@ -8,7 +8,6 @@ import brs.services.AccountService
 
 class GetAccountATsHandler(private val atService: ATService, private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAccountRequest, BrsApi.AccountATs> {
 
-    @Throws(Exception::class)
     override fun handleRequest(request: BrsApi.GetAccountRequest): BrsApi.AccountATs {
         return BrsApi.AccountATs.newBuilder()
                 .addAllAts(atService.getATsIssuedBy(request.accountId)

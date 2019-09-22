@@ -52,7 +52,6 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
         peerRequestHandlers = map
     }
 
-    @Throws(ServletException::class)
     override fun init(config: ServletConfig) {
         super.init(config)
     }
@@ -70,7 +69,6 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
 
     }
 
-    @Throws(IOException::class)
     private fun process(request: HttpServletRequest, resp: HttpServletResponse) {
         var peer: Peer? = null
         var response: JsonElement

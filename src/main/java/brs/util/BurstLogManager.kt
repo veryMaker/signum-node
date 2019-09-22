@@ -29,7 +29,6 @@ internal class BurstLogManager : LogManager() {
      * @throws      IOException         Error reading input stream
      * @throws      SecurityException   Caller does not have LoggingPermission("control")
      */
-    @Throws(IOException::class)
     override fun readConfiguration(inStream: InputStream) {
         loggingReconfiguration.set(true)
         super.readConfiguration(inStream)

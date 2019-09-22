@@ -3,10 +3,11 @@ package brs.services.impl
 import brs.Attachment
 import brs.DependencyProvider
 import brs.Transaction
-import brs.TransactionType
 import brs.db.store.IndirectIncomingStore
 import brs.props.Props
 import brs.services.IndirectIncomingService
+import brs.transaction.payment.MultiOutPayment
+import brs.transaction.payment.MultiOutSamePayment
 import org.slf4j.LoggerFactory
 
 class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : IndirectIncomingService {
@@ -30,9 +31,9 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
     }
 
     private fun getIndirectIncomings(transaction: Transaction): Collection<Long> {
-        return if (transaction.type == TransactionType.Payment.MULTI_OUT) {
+        return if (transaction.type is MultiOutPayment) {
             getMultiOutRecipients(transaction)
-        } else if (transaction.type == TransactionType.Payment.MULTI_SAME_OUT) {
+        } else if (transaction.type is MultiOutSamePayment) {
             getMultiOutSameRecipients(transaction)
         } else {
             emptyList()
@@ -40,7 +41,7 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
     }
 
     private fun getMultiOutRecipients(transaction: Transaction): Collection<Long> {
-        require(!(transaction.type != TransactionType.Payment.MULTI_OUT || transaction.attachment !is Attachment.PaymentMultiOutCreation)) { "Wrong transaction type" }
+        require(transaction.type is MultiOutPayment && transaction.attachment is Attachment.PaymentMultiOutCreation) { "Wrong transaction type" }
 
         val attachment = transaction.attachment
         return attachment.getRecipients()
@@ -48,7 +49,7 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
     }
 
     private fun getMultiOutSameRecipients(transaction: Transaction): Collection<Long> {
-        require(!(transaction.type != TransactionType.Payment.MULTI_SAME_OUT || transaction.attachment !is Attachment.PaymentMultiSameOutCreation)) { "Wrong transaction type" }
+        require(transaction.type is MultiOutSamePayment && transaction.attachment is Attachment.PaymentMultiSameOutCreation) { "Wrong transaction type" }
 
         val attachment = transaction.attachment
         return attachment.getRecipients()

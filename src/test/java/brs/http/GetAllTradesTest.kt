@@ -31,7 +31,6 @@ class GetAllTradesTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_withAssetsInformation() {
         val timestamp = 1
         val firstIndex = 0
@@ -77,7 +76,6 @@ class GetAllTradesTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_withoutAssetsInformation() {
         val timestamp = 1
         val firstIndex = 0

@@ -15,7 +15,6 @@ import java.util.HashMap
 internal class ReservedBalanceCache(private val accountStore: AccountStore) {
     private val reservedBalanceCache = mutableMapOf<Long, Long>()
 
-    @Throws(ValidationException::class)
     fun reserveBalanceAndPut(transaction: Transaction) {
         var senderAccount: Account? = null
 

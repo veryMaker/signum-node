@@ -40,7 +40,6 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val targetAccountId = 4L
 
@@ -69,7 +68,6 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_withRewardRecipientAssignmentKnown() {
         val targetAccountId = 4L
 

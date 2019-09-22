@@ -185,7 +185,6 @@ class API(dp: DependencyProvider) {
 
     private class RegexOrExistsRewriteRule internal constructor(private val baseDirectory: File, regex: String, replacement: String) : RewriteRegexRule(regex, replacement) {
 
-        @Throws(IOException::class)
         override fun apply(target: String?, request: HttpServletRequest, response: HttpServletResponse?, matcher: Matcher): String {
             return if (File(baseDirectory, target!!).exists()) target else super.apply(target, request, response, matcher)
         }

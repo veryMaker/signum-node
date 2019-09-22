@@ -41,7 +41,6 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val userId = 123L
 

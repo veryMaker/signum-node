@@ -22,7 +22,6 @@ class DeeplinkQRCodeGeneratorTest {
     }
 
     @Test
-    @Throws(WriterException::class)
     fun testDeeplinkQrCodeGenerator() {
         val image = deeplinkQRCodeGenerator!!.generateRequestBurstDeepLinkQRCode(TestConstants.TEST_ACCOUNT_NUMERIC_ID, TestConstants.TEN_BURST, FeeSuggestionType.STANDARD, 0L, "Test!", true)
         assertNotNull(image)

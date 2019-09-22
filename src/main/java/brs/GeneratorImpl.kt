@@ -124,7 +124,6 @@ open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
             deadline = calculateDeadline(accountId!!, nonce!!, newGenSig, scoopNum, lastBlock.baseTarget, lastBlock.height + 1)
         }// need to store publicKey in addition to accountId, because the account may not have had its publicKey set yet
 
-        @Throws(BlockchainProcessor.BlockNotAcceptedException::class)
         internal fun forge(blockchainProcessor: BlockchainProcessor) {
             val lastBlock = dp.blockchain.lastBlock
 

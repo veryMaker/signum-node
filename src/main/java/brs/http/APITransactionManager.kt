@@ -8,6 +8,5 @@ import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 interface APITransactionManager {
-    @Throws(BurstException::class)
     fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment, minimumFeeNQT: Long): JsonElement
 }

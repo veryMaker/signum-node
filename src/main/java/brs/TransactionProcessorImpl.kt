@@ -129,7 +129,6 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         return builder
     }
 
-    @Throws(BurstException.ValidationException::class)
     override fun broadcast(transaction: Transaction): Int? {
         if (!transaction.verifySignature()) {
             throw BurstException.NotValidException("Transaction signature verification failed")
@@ -159,7 +158,6 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         }
     }
 
-    @Throws(BurstException.ValidationException::class)
     override fun processPeerTransactions(request: JsonObject, peer: Peer) {
         val transactionsData = JSON.getAsJsonArray(request.get("transactions"))
         val processedTransactions = processPeerTransactions(transactionsData, peer)
@@ -169,12 +167,10 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         }
     }
 
-    @Throws(BurstException.ValidationException::class)
     override fun parseTransaction(bytes: ByteArray): Transaction {
         return Transaction.parseTransaction(dp, bytes)
     }
 
-    @Throws(BurstException.NotValidException::class)
     override fun parseTransaction(transactionData: JsonObject): Transaction {
         return Transaction.parseTransaction(dp, transactionData, dp.blockchain.height)
     }
@@ -222,7 +218,6 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         }
     }
 
-    @Throws(BurstException.ValidationException::class)
     private fun processPeerTransactions(transactionsData: JsonArray, peer: Peer): Collection<Transaction> {
         if (dp.blockchain.lastBlock.timestamp < dp.timeService.epochTime - 60 * 1440 && !testUnconfirmedTransactions) {
             return mutableListOf()
@@ -251,7 +246,6 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         return processTransactions(transactions, peer)
     }
 
-    @Throws(BurstException.ValidationException::class)
     private fun processTransactions(transactions: Collection<Transaction>, peer: Peer?): Collection<Transaction> {
         synchronized(unconfirmedTransactionsSyncObj) {
             if (transactions.isEmpty()) {

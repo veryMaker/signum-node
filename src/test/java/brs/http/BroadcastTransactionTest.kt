@@ -35,7 +35,6 @@ class BroadcastTransactionTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val mockTransactionBytesParameter = "mockTransactionBytesParameter"
         val mockTransactionJson = "mockTransactionJson"
@@ -63,7 +62,6 @@ class BroadcastTransactionTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_validationException() {
         val mockTransactionBytesParameter = "mockTransactionBytesParameter"
         val mockTransactionJson = "mockTransactionJson"

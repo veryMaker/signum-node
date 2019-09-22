@@ -10,7 +10,6 @@ import brs.services.AccountService
 
 class GetATHandler(private val atService: ATService, private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetByIdRequest, BrsApi.AT> {
 
-    @Throws(Exception::class)
     override fun handleRequest(getATRequest: BrsApi.GetByIdRequest): BrsApi.AT {
         val at = atService.getAT(getATRequest.id) ?: throw ApiException("AT not found")
         return ProtoBuilder.buildAT(accountService, at)

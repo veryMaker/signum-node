@@ -15,8 +15,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
 
-class Block @Throws(BurstException.ValidationException::class)
-internal constructor(private val dp: DependencyProvider, val version: Int, val timestamp: Int, val previousBlockId: Long, val totalAmountNQT: Long, val totalFeeNQT: Long,
+class Block internal constructor(private val dp: DependencyProvider, val version: Int, val timestamp: Int, val previousBlockId: Long, val totalAmountNQT: Long, val totalFeeNQT: Long,
                      val payloadLength: Int, val payloadHash: ByteArray, val generatorPublicKey: ByteArray, val generationSignature: ByteArray,
                      blockSignature: ByteArray?, val previousBlockHash: ByteArray?, transactions: Collection<Transaction>?,
                      val nonce: Long, val blockATs: ByteArray?, height: Int) {
@@ -138,7 +137,6 @@ internal constructor(private val dp: DependencyProvider, val version: Int, val t
         }
     }
 
-    @Throws(BurstException.ValidationException::class)
     constructor(dp: DependencyProvider, version: Int, timestamp: Int, previousBlockId: Long, totalAmountNQT: Long, totalFeeNQT: Long, payloadLength: Int, payloadHash: ByteArray, generatorPublicKey: ByteArray, generationSignature: ByteArray, blockSignature: ByteArray, previousBlockHash: ByteArray?, cumulativeDifficulty: BigInteger?, baseTarget: Long,
                 nextBlockId: Long, height: Int, id: Long, nonce: Long, blockATs: ByteArray) : this(dp, version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature, previousBlockHash, null, nonce, blockATs, height) {
 
@@ -178,7 +176,6 @@ internal constructor(private val dp: DependencyProvider, val version: Int, val t
 
         private val logger = LoggerFactory.getLogger(Block::class.java)
 
-        @Throws(BurstException.ValidationException::class)
         internal fun parseBlock(dp: DependencyProvider, blockData: JsonObject, height: Int): Block {
             try {
                 val version = JSON.getAsInt(blockData.get("version"))

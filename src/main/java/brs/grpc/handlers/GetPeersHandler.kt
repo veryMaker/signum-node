@@ -7,7 +7,6 @@ import brs.grpc.proto.BrsApi
 import brs.peer.Peer
 
 class GetPeersHandler(private val dp: DependencyProvider) : GrpcApiHandler<BrsApi.GetPeersRequest, BrsApi.Peers> {
-    @Throws(Exception::class)
     override fun handleRequest(request: BrsApi.GetPeersRequest): BrsApi.Peers {
         val active = request.active
         val peerState = request.state

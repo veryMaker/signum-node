@@ -8,7 +8,6 @@ class CountingInputStream(input: InputStream) : FilterInputStream(input) {
     var count: Long = 0
         private set
 
-    @Throws(IOException::class)
     override fun read(): Int {
         val read = super.read()
         if (read >= 0) {
@@ -17,7 +16,6 @@ class CountingInputStream(input: InputStream) : FilterInputStream(input) {
         return read
     }
 
-    @Throws(IOException::class)
     override fun read(b: ByteArray, off: Int, len: Int): Int {
         val read = super.read(b, off, len)
         if (read >= 0) {
@@ -26,7 +24,6 @@ class CountingInputStream(input: InputStream) : FilterInputStream(input) {
         return read
     }
 
-    @Throws(IOException::class)
     override fun skip(n: Long): Long {
         val skipped = super.skip(n)
         if (skipped >= 0) {

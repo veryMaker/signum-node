@@ -37,7 +37,6 @@ class GetAccountTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val mockAccountId = 123L
         val mockAccountName = "accountName"

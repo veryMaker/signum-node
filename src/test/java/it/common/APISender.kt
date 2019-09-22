@@ -26,7 +26,6 @@ class APISender {
         httpclient = HttpClientBuilder.create().build()
     }
 
-    @Throws(IOException::class)
     fun retrieve(requestType: String, extraParams: List<BasicNameValuePair>): JsonObject {
         val post = HttpPost("/burst")
 
@@ -42,7 +41,6 @@ class APISender {
         return parser.parse(EntityUtils.toString(result.entity, "UTF-8")) as JsonObject
     }
 
-    @Throws(IOException::class)
     fun getAccount(accountName: String): JsonObject {
         return retrieve("getAccount", listOf(BasicNameValuePair(ACCOUNT_PARAMETER, accountName), BasicNameValuePair(FIRST_INDEX_PARAMETER, "0"), BasicNameValuePair(LAST_INDEX_PARAMETER, "100"))
         )

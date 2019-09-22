@@ -39,7 +39,6 @@ class GetDGSGoodsTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_getSellerGoods() {
         val sellerId = 1L
         val firstIndex = 2
@@ -80,7 +79,6 @@ class GetDGSGoodsTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_getAllGoods() {
         val sellerId = 0L
         val firstIndex = 2
@@ -121,7 +119,6 @@ class GetDGSGoodsTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_getGoodsInStock() {
         val sellerId = 0L
         val firstIndex = 2

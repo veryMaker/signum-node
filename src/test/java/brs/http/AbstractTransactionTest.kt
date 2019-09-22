@@ -8,7 +8,6 @@ import com.google.gson.JsonPrimitive
 import com.nhaarman.mockitokotlin2.*
 
 abstract class AbstractTransactionTest : AbstractUnitTest() {
-    @Throws(BurstException::class)
     protected fun attachmentCreatedTransaction(r: () -> Any, apiTransactionManagerMock: APITransactionManager): Attachment? {
         val ac = argumentCaptor<Attachment>()
 

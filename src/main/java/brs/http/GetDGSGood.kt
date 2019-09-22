@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetDGSGood internal constructor(private val parameterService: ParameterService) : APIServlet.JsonRequestHandler(arrayOf(APITag.DGS), GOODS_PARAMETER) {
 
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         return JSONData.goods(parameterService.getGoods(request))
     }

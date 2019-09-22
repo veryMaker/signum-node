@@ -4,24 +4,18 @@ import brs.*
 import brs.assetexchange.AssetExchange
 import brs.common.QuickMocker
 import brs.feesuggestions.FeeSuggestionCalculator
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxCapacitorImpl
 import brs.grpc.proto.BrsApiServiceGrpc
 import brs.grpc.proto.BrsService
-import brs.props.Prop
-import brs.props.PropertyService
 import brs.props.Props
 import brs.services.*
+import brs.transaction.TransactionType
 import com.nhaarman.mockitokotlin2.*
 import io.grpc.Context
-import io.grpc.ManagedChannel
-import io.grpc.Server
 import io.grpc.inprocess.InProcessChannelBuilder
 import io.grpc.inprocess.InProcessServerBuilder
 import io.grpc.testing.GrpcCleanupRule
 import org.junit.Rule
-import org.mockito.Answers
-import org.mockito.ArgumentMatchers
 
 import java.io.IOException
 
@@ -33,7 +27,6 @@ abstract class AbstractGrpcTest {
 
     protected var brsService: BrsApiServiceGrpc.BrsApiServiceBlockingStub? = null
 
-    @Throws(IOException::class)
     protected fun defaultBrsService() {
         // Mocks
         val latestBlock = mock<Block>()
@@ -70,7 +63,6 @@ abstract class AbstractGrpcTest {
         setUpBrsService(BrsService(blockchainProcessor, blockchain, blockService, accountService, generator, transactionProcessor, timeService, feeSuggestionCalculator, atService, aliasService, indirectIncomingService, fluxCapacitor, escrowService, assetExchange, subscriptionService, dgsGoodsStoreService, propertyService))
     }
 
-    @Throws(IOException::class)
     protected fun setUpBrsService(brsService: BrsService) {
         val serverName = InProcessServerBuilder.generateName()
         grpcCleanup.register(InProcessServerBuilder.forName(serverName).directExecutor().addService(brsService).build().start())

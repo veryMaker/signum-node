@@ -13,14 +13,13 @@ import brs.db.BurstKey.LongKeyFactory
 import brs.db.TransactionDb
 import brs.db.VersionedBatchEntityTable
 import brs.db.store.AccountStore
-import brs.fluxcapacitor.FluxCapacitor
-import brs.fluxcapacitor.FluxEnable
 import brs.fluxcapacitor.FluxValues
 import brs.peer.Peer
 import brs.props.Prop
 import brs.props.PropertyService
 import brs.props.Props
 import brs.services.impl.TimeServiceImpl
+import brs.transaction.TransactionType
 import com.nhaarman.mockitokotlin2.*
 import io.mockk.every
 import io.mockk.mockkStatic
@@ -82,7 +81,6 @@ class UnconfirmedTransactionStoreTest {
 
     @DisplayName("When we add Unconfirmed Transactions to the store, they can be retrieved")
     @Test
-    @Throws(ValidationException::class)
     fun transactionsCanGetRetrievedAfterAddingThemToStore() {
 
         whenever(mockBlockChain!!.height).doReturn(20)
@@ -104,7 +102,6 @@ class UnconfirmedTransactionStoreTest {
 
     @DisplayName("When a transaction got added by a peer, he won't get it reflected at him when getting unconfirmed transactions")
     @Test
-    @Throws(ValidationException::class)
     fun transactionsGivenByPeerWontGetReturnedToPeer() {
         val mockPeer = mock<Peer>()
         val otherMockPeer = mock<Peer>()
@@ -127,7 +124,6 @@ class UnconfirmedTransactionStoreTest {
 
     @DisplayName("When a transactions got handed by a peer and we mark his fingerprints, he won't get it back a second time")
     @Test
-    @Throws(ValidationException::class)
     fun transactionsMarkedWithPeerFingerPrintsWontGetReturnedToPeer() {
         val mockPeer = mock<Peer>()
 
@@ -153,7 +149,6 @@ class UnconfirmedTransactionStoreTest {
 
     @DisplayName("When The amount of unconfirmed transactions exceeds max size, and adding another then the cache size stays the same")
     @Test
-    @Throws(ValidationException::class)
     fun numberOfUnconfirmedTransactionsOfSameSlotExceedsMaxSizeAddAnotherThenCacheSizeStaysMaxSize() {
 
         whenever(mockBlockChain!!.height).doReturn(20)
@@ -182,7 +177,6 @@ class UnconfirmedTransactionStoreTest {
 
     @DisplayName("When the amount of unconfirmed transactions exceeds max size, and adding another of a higher slot, the cache size stays the same, and a lower slot transaction gets removed")
     @Test
-    @Throws(ValidationException::class)
     fun numberOfUnconfirmedTransactionsOfSameSlotExceedsMaxSizeAddAnotherThenCacheSizeStaysMaxSizeAndLowerSlotTransactionGetsRemoved() {
 
         whenever(mockBlockChain!!.height).doReturn(20)
@@ -213,7 +207,6 @@ class UnconfirmedTransactionStoreTest {
 
     @DisplayName("The unconfirmed transaction gets denied in case the account is unknown")
     @Test(expected = NotCurrentlyValidException::class)
-    @Throws(ValidationException::class)
     fun unconfirmedTransactionGetsDeniedForUnknownAccount() {
         whenever(mockBlockChain!!.height).doReturn(20)
         mockkStatic(Burst::class)
@@ -228,7 +221,6 @@ class UnconfirmedTransactionStoreTest {
 
     @DisplayName("The unconfirmed transaction gets denied in case the account does not have enough unconfirmed balance")
     @Test(expected = NotCurrentlyValidException::class)
-    @Throws(ValidationException::class)
     fun unconfirmedTransactionGetsDeniedForNotEnoughUnconfirmedBalance() {
         whenever(mockBlockChain!!.height).doReturn(20)
         mockkStatic(Burst::class)
@@ -249,7 +241,6 @@ class UnconfirmedTransactionStoreTest {
 
     @DisplayName("When adding the same unconfirmed transaction, nothing changes")
     @Test
-    @Throws(ValidationException::class)
     fun addingNewUnconfirmedTransactionWithSameIDResultsInNothingChanging() {
         whenever(mockBlockChain!!.height).doReturn(20)
         mockkStatic(Burst::class)
@@ -278,7 +269,6 @@ class UnconfirmedTransactionStoreTest {
 
     @DisplayName("When the maximum number of transactions with full hash reference is reached, following ones are ignored")
     @Test
-    @Throws(ValidationException::class)
     fun whenMaximumNumberOfTransactionsWithFullHashReferenceIsReachedFollowingOnesAreIgnored() {
 
         whenever(mockBlockChain!!.height).doReturn(20)
@@ -298,7 +288,6 @@ class UnconfirmedTransactionStoreTest {
 
     @DisplayName("When the maximum number of transactions for a slot size is reached, following ones are ignored")
     @Test
-    @Throws(ValidationException::class)
     fun whenMaximumNumberOfTransactionsForSlotSizeIsReachedFollowingOnesAreIgnored() {
 
         whenever(mockBlockChain!!.height).doReturn(20)
@@ -326,7 +315,6 @@ class UnconfirmedTransactionStoreTest {
     }
 
     @Test
-    @Throws(ValidationException::class)
     fun cheaperDuplicateTransactionGetsRemoved() {
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION, FluxValues.DIGITAL_GOODS_STORE)
         mockkStatic(Burst::class)
@@ -354,7 +342,6 @@ class UnconfirmedTransactionStoreTest {
     }
 
     @Test
-    @Throws(ValidationException::class)
     fun cheaperDuplicateTransactionNeverGetsAdded() {
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION, FluxValues.DIGITAL_GOODS_STORE)
         mockkStatic(Burst::class)

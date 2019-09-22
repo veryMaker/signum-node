@@ -9,7 +9,6 @@ import brs.util.FilteringIterator
 
 class GetDgsPurchasesHandler(private val digitalGoodsStoreService: DGSGoodsStoreService) : GrpcApiHandler<BrsApi.GetDgsPurchasesRequest, BrsApi.DgsPurchases> {
 
-    @Throws(Exception::class)
     override fun handleRequest(request: BrsApi.GetDgsPurchasesRequest): BrsApi.DgsPurchases {
         val sellerId = request.seller
         val buyerId = request.buyer

@@ -4,7 +4,6 @@ import brs.*
 import brs.DigitalGoodsStore.Goods
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.ParameterService
 import org.junit.Before
@@ -13,7 +12,7 @@ import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.TransactionType.DigitalGoods.PRICE_CHANGE
+import brs.transaction.TransactionType.DigitalGoods.PRICE_CHANGE
 import brs.http.JSONResponses.UNKNOWN_GOODS
 import brs.http.common.Parameters.PRICE_NQT_PARAMETER
 import com.nhaarman.mockitokotlin2.doReturn
@@ -43,7 +42,6 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val priceNQTParameter = 5
 
@@ -74,7 +72,6 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_goodsDelistedUnknownGoods() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L)
@@ -92,7 +89,6 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_goodsWrongSellerIdUnknownGoods() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L)

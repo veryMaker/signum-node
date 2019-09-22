@@ -39,7 +39,6 @@ class GetTradesTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_withAssetId() {
         val assetId = 123L
         val firstIndex = 0
@@ -74,7 +73,6 @@ class GetTradesTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_withAccountId() {
         val accountId = 321L
         val firstIndex = 0
@@ -109,7 +107,6 @@ class GetTradesTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_withAssetIdAndAccountId() {
         val assetId = 123L
         val accountId = 321L

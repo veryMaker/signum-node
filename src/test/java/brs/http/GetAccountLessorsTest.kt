@@ -39,7 +39,6 @@ class GetAccountLessorsTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val mockAccount = mock<Account>()
         whenever(mockAccount.id).doReturn(123L)

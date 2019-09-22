@@ -3,17 +3,14 @@ package brs.http
 import brs.*
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.ParameterService
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-import javax.servlet.http.HttpServletRequest
-
 import brs.Constants.MAX_BALANCE_NQT
-import brs.TransactionType.Messaging.ALIAS_SELL
+import brs.transaction.TransactionType.Messaging.ALIAS_SELL
 import brs.http.JSONResponses.INCORRECT_ALIAS_OWNER
 import brs.http.JSONResponses.INCORRECT_PRICE
 import brs.http.JSONResponses.INCORRECT_RECIPIENT
@@ -46,7 +43,6 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val priceParameter = 10
         val recipientId = 5
@@ -77,7 +73,6 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_missingPrice() {
         val request = QuickMocker.httpServletRequest()
 
@@ -85,7 +80,6 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectPrice_unParsable() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, "unParsable")
@@ -95,7 +89,6 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test(expected = ParameterException::class)
-    @Throws(BurstException::class)
     fun processRequest_incorrectPrice_negative() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, -10L)
@@ -105,7 +98,6 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test(expected = ParameterException::class)
-    @Throws(BurstException::class)
     fun processRequest_incorrectPrice_overMaxBalance() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, MAX_BALANCE_NQT + 1)
@@ -115,7 +107,6 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectRecipient_unparsable() {
         val price = 10
 
@@ -128,7 +119,6 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectRecipient_zero() {
         val price = 10
         val recipientId = 0
@@ -142,7 +132,6 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectAliasOwner() {
         val price = 10
         val recipientId = 5

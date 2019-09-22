@@ -8,7 +8,6 @@ import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 internal class GetBidOrder internal constructor(private val assetExchange: AssetExchange) : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), ORDER_PARAMETER) {
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val orderId = ParameterParser.getOrderId(request)
         val bidOrder = assetExchange.getBidOrder(orderId) ?: return UNKNOWN_ORDER

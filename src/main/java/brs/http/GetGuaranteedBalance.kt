@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest
 internal class GetGuaranteedBalance @Deprecated("")
 internal constructor(private val parameterService: ParameterService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER, NUMBER_OF_CONFIRMATIONS_PARAMETER) {
 
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request)
         val response = JsonObject()

@@ -31,7 +31,6 @@ class GetDGSGoodTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val mockGoods = mock<DigitalGoodsStore.Goods>()
         whenever(mockGoods.id).doReturn(1L)

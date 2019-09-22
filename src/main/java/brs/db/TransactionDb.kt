@@ -16,6 +16,5 @@ interface TransactionDb : Table {
     fun findBlockTransactions(blockId: Long): Collection<Transaction>
 
     fun saveTransactions(transactions: Collection<Transaction>)
-    @Throws(BurstException.ValidationException::class)
     fun loadTransaction(tr: TransactionRecord): Transaction
 }

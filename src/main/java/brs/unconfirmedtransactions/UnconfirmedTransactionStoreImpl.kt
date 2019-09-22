@@ -60,7 +60,6 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         scheduler.scheduleWithFixedDelay(cleanupExpiredTransactions, 1, 1, TimeUnit.MINUTES)
     }
 
-    @Throws(ValidationException::class)
     override fun put(transaction: Transaction, peer: Peer?): Boolean {
         synchronized(internalStore) {
             if (transactionIsCurrentlyInCache(transaction)) {

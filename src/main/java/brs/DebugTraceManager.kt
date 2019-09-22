@@ -5,15 +5,12 @@ import brs.util.parseUnsignedLong
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class DebugTraceManager(dp: DependencyProvider) {
+class DebugTraceManager(private val dp: DependencyProvider) {
     private var QUOTE: String
     private var SEPARATOR: String
     private var LOG_UNCONFIRMED: Boolean
     private val columns = arrayOf("height", "event", "account", "asset", "balance", "unconfirmed balance", "asset balance", "unconfirmed asset balance", "transaction amount", "transaction fee", "generation fee", "effective balance", "order", "order price", "order quantity", "order cost", "trade price", "trade quantity", "trade cost", "asset quantity", "transaction", "lessee", "lessor guaranteed balance", "purchase", "purchase price", "purchase quantity", "purchase cost", "discount", "refund", "sender", "recipient", "block", "timestamp")
     private val headers = mutableMapOf<String, String>()
-
-    // TODO remove static DP
-    private lateinit var dp: DependencyProvider
 
     init {
         for (entry in columns) {

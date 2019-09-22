@@ -46,7 +46,6 @@ import javax.servlet.http.HttpServletRequest
 
 class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransactionManager {
 
-    @Throws(BurstException::class)
     override fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment, minimumFeeNQT: Long): JsonElement {
         val blockchainHeight = dp.blockchain.height
         val deadlineValue = request.getParameter(DEADLINE_PARAMETER)
@@ -86,7 +85,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
             if (commentValue != null) {
                 message = Message(dp, commentValue, blockchainHeight)
             }
-        } else if (attachment === Attachment.ARBITRARY_MESSAGE && !dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
+        } else if (attachment is Attachment.ArbitraryMessage && !dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
             message = Message(dp, ByteArray(0), blockchainHeight)
         }
         var publicKeyAnnouncement: PublicKeyAnnouncement? = null

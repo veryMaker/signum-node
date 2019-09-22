@@ -34,7 +34,6 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val sellerId = 123L
         val firstIndex = 1
@@ -61,7 +60,6 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_missingSeller() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 0L)

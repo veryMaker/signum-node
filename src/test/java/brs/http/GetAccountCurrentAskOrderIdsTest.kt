@@ -39,7 +39,6 @@ class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_getAskOrdersByAccount() {
         val accountId = 2L
         val firstIndex = 1
@@ -74,7 +73,6 @@ class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_getAskOrdersByAccountAsset() {
         val assetId = 1L
         val accountId = 2L

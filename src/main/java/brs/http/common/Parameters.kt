@@ -64,7 +64,6 @@ object Parameters {
     val ESCROW_PARAMETER = "escrow"
     val DECISION_PARAMETER = "decision"
     val DECIMALS_PARAMETER = "decimals"
-    val PERIOD_PARAMETER = "period"
     val ESCROW_DEADLINE_PARAMETER = "escrowDeadline"
     val DEADLINE_ACTION_PARAMETER = "deadlineAction"
     val REQUIRED_SIGNERS_PARAMETER = "requiredSigners"

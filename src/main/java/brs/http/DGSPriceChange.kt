@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest
 
 internal class DGSPriceChange internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, PRICE_NQT_PARAMETER) {
 
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = dp.parameterService.getSenderAccount(request)
         val goods = dp.parameterService.getGoods(request)

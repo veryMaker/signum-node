@@ -1,25 +1,24 @@
 package brs
 
 import brs.Appendix.AbstractAppendix
-import brs.TransactionType.Payment
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
+import brs.transaction.TransactionType
+import brs.transaction.payment.MultiOutPayment
+import brs.transaction.payment.MultiOutSamePayment
 import brs.transactionduplicates.TransactionDuplicationKey
 import brs.util.*
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLazy
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
-
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.Collections
-import java.util.Optional
+import java.util.*
 import kotlin.experimental.and
 import kotlin.experimental.or
 
-class Transaction @Throws(BurstException.NotValidException::class)
-private constructor(private val dp: DependencyProvider, builder: Builder) : Comparable<Transaction> {
+class Transaction private constructor(private val dp: DependencyProvider, builder: Builder) : Comparable<Transaction> {
     val deadline: Short
     lateinit var senderPublicKey: ByteArray
     val recipientId: Long
@@ -195,7 +194,6 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
         internal var ecBlockHeight: Int = 0
         internal var ecBlockId: Long = 0
 
-        @Throws(BurstException.NotValidException::class)
         fun build(): Transaction {
             return Transaction(dp, this)
         }
@@ -363,7 +361,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
             throw BurstException.NotValidException("Invalid attachment $attachment for transaction of type $type")
         }
 
-        if (!type.hasRecipient() && attachment.transactionType !== Payment.MULTI_OUT && attachment.transactionType !== Payment.MULTI_SAME_OUT && (recipientId != 0L || amountNQT != 0L)) {
+        if (!type.hasRecipient() && attachment.transactionType !is MultiOutPayment && attachment.transactionType !is MultiOutSamePayment && (recipientId != 0L || amountNQT != 0L)) {
             throw BurstException.NotValidException("Transactions of this type must have recipient == Genesis, amount == 0")
         }
 
@@ -434,7 +432,6 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
     companion object {
         private val logger = LoggerFactory.getLogger(Transaction::class.java)
 
-        @Throws(BurstException.ValidationException::class)
         fun parseTransaction(dp: DependencyProvider, bytes: ByteArray): Transaction {
             try {
                 val buffer = ByteBuffer.wrap(bytes)
@@ -467,7 +464,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
                     ecBlockHeight = buffer.get().toInt()
                     ecBlockId = buffer.long
                 }
-                val transactionType = TransactionType.findTransactionType(type, subtype)
+                val transactionType = TransactionType.findTransactionType(dp, type, subtype)
                 val builder = Transaction.Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType!!.parseAttachment(buffer, version))
                         .referencedTransactionFullHash(referencedTransactionFullHash)
                         .signature(signature)
@@ -494,7 +491,6 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
 
         }
 
-        @Throws(BurstException.NotValidException::class)
         internal fun parseTransaction(dp: DependencyProvider, transactionData: JsonObject, height: Int): Transaction {
             try {
                 val type = JSON.getAsByte(transactionData.get("type"))
@@ -509,7 +505,7 @@ private constructor(private val dp: DependencyProvider, builder: Builder) : Comp
                 val version = JSON.getAsByte(transactionData.get("version"))
                 val attachmentData = JSON.getAsJsonObject(transactionData.get("attachment"))
 
-                val transactionType = TransactionType.findTransactionType(type, subtype)
+                val transactionType = TransactionType.findTransactionType(dp, type, subtype)
                         ?: throw BurstException.NotValidException("Invalid transaction type: $type, $subtype")
                 val builder = Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType.parseAttachment(attachmentData))
                         .referencedTransactionFullHash(referencedTransactionFullHash)

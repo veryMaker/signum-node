@@ -50,11 +50,9 @@ object Db {
         }
 
     private val pooledConnection: Connection
-        @Throws(SQLException::class)
         get() = cp!!.connection
 
     val connection: Connection
-        @Throws(SQLException::class)
         get() {
             var con: Connection? = localConnection.get()
             if (con != null) {
@@ -135,7 +133,6 @@ object Db {
                     config.addDataSourceProperty("useReadAheadInput", "false")
                     val flywayDataSource = object : MariaDbDataSource(dbUrl) {
                         @Synchronized
-                        @Throws(SQLException::class)
                         override fun initialize() {
                             super.initialize()
                             val props = Properties()

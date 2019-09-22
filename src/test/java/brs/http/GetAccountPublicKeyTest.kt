@@ -34,7 +34,6 @@ class GetAccountPublicKeyTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
 
@@ -50,7 +49,6 @@ class GetAccountPublicKeyTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_withoutPublicKey() {
         val request = QuickMocker.httpServletRequest()
 

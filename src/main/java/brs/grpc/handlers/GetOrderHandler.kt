@@ -9,7 +9,6 @@ import brs.grpc.proto.ProtoBuilder
 
 class GetOrderHandler(private val assetExchange: AssetExchange) : GrpcApiHandler<BrsApi.GetOrderRequest, BrsApi.Order> {
 
-    @Throws(Exception::class)
     override fun handleRequest(request: BrsApi.GetOrderRequest): BrsApi.Order {
         val order: Order?
         when (request.orderType) {

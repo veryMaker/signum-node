@@ -3,7 +3,6 @@ package brs.http
 import brs.*
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.AccountService
 import brs.services.ParameterService
@@ -13,7 +12,7 @@ import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.TransactionType.ColoredCoins.ASSET_TRANSFER
+import brs.transaction.TransactionType.ColoredCoins.ASSET_TRANSFER
 import brs.http.JSONResponses.NOT_ENOUGH_ASSETS
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertEquals
@@ -43,7 +42,6 @@ class TransferAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val recipientParameter = 34L
         val assetIdParameter = 456L
@@ -76,7 +74,6 @@ class TransferAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_assetBalanceLowerThanQuantityNQTParameter() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(RECIPIENT_PARAMETER, "123"),

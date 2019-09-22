@@ -8,7 +8,6 @@ import brs.grpc.proto.ProtoBuilder
 
 class GetOrdersHandler(private val assetExchange: AssetExchange) : GrpcApiHandler<BrsApi.GetOrdersRequest, BrsApi.Orders> {
 
-    @Throws(Exception::class)
     override fun handleRequest(request: BrsApi.GetOrdersRequest): BrsApi.Orders {
         val builder = BrsApi.Orders.newBuilder()
         val assetId = request.asset

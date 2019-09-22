@@ -261,7 +261,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
                 refundNQT = -refundNQT
             }
             map["refund"] = refundNQT.toString()
-        } else if (attachment === Attachment.ARBITRARY_MESSAGE) {
+        } else if (attachment is Attachment.ArbitraryMessage) {
             map = mutableMapOf()
             map["account"] = accountId.toUnsignedString()
             map["timestamp"] = dp.blockchain.lastBlock.timestamp.toString()

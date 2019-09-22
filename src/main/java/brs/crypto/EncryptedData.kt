@@ -28,7 +28,6 @@ class EncryptedData(val data: ByteArray, val nonce: ByteArray) {
             return EncryptedData(message.data, message.nonce)
         }
 
-        @Throws(BurstException.NotValidException::class)
         fun readEncryptedData(buffer: ByteBuffer, length: Int, maxLength: Int): EncryptedData {
             if (length == 0) {
                 return EMPTY_DATA

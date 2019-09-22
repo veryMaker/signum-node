@@ -28,5 +28,5 @@ interface EscrowService {
 
     fun isIdSigner(id: Long?, escrow: Escrow): Boolean
 
-    fun saveResultTransaction(block: Block, escrowId: Long?, recipientId: Long?, amountNQT: Long?, decision: DecisionType, blockchainHeight: Int)
+    fun saveResultTransaction(block: Block, escrowId: Long, recipientId: Long, amountNQT: Long, decision: DecisionType, blockchainHeight: Int)
 }

@@ -8,7 +8,6 @@ import brs.services.DGSGoodsStoreService
 
 class GetDgsPendingPurchasesHandler(private val digitalGoodsStoreService: DGSGoodsStoreService) : GrpcApiHandler<BrsApi.GetDgsPendingPurchasesRequest, BrsApi.DgsPurchases> {
 
-    @Throws(Exception::class)
     override fun handleRequest(request: BrsApi.GetDgsPendingPurchasesRequest): BrsApi.DgsPurchases {
         val sellerId = request.seller
         val indexRange = ProtoBuilder.sanitizeIndexRange(request.indexRange)

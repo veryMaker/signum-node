@@ -11,14 +11,12 @@ import brs.util.toHexString
 
 class GetTransactionHandler(private val blockchain: Blockchain, private val transactionProcessor: TransactionProcessor) : GrpcApiHandler<BrsApi.GetTransactionRequest, BrsApi.Transaction> {
 
-    @Throws(Exception::class)
     override fun handleRequest(request: BrsApi.GetTransactionRequest): BrsApi.Transaction {
         return ProtoBuilder.buildTransaction(getTransaction(blockchain, transactionProcessor, request), blockchain.height)
     }
 
     companion object {
 
-        @Throws(ApiException::class)
         fun getTransaction(blockchain: Blockchain, transactionProcessor: TransactionProcessor, request: BrsApi.GetTransactionRequest): Transaction {
             val id = request.transactionId
             val fullHash = request.fullHash.toByteArray()

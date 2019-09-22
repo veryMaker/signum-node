@@ -326,10 +326,9 @@ object ProtoBuilder {
                 .build()
     }
 
-    @Throws(ApiException::class)
     fun parseBasicTransaction(dp: DependencyProvider, basicTransaction: BrsApi.BasicTransaction): Transaction {
         try {
-            val transactionBuilder = Transaction.Builder(dp, basicTransaction.version.toByte(), basicTransaction.senderPublicKey.toByteArray(), basicTransaction.amount, basicTransaction.fee, basicTransaction.timestamp, basicTransaction.deadline.toShort(), Attachment.AbstractAttachment.parseProtobufMessage(basicTransaction.attachment))
+            val transactionBuilder = Transaction.Builder(dp, basicTransaction.version.toByte(), basicTransaction.senderPublicKey.toByteArray(), basicTransaction.amount, basicTransaction.fee, basicTransaction.timestamp, basicTransaction.deadline.toShort(), Attachment.AbstractAttachment.parseProtobufMessage(dp, basicTransaction.attachment))
                     .senderId(basicTransaction.senderId)
                     .recipientId(basicTransaction.recipient)
 

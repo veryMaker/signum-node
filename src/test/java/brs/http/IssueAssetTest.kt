@@ -2,21 +2,16 @@ package brs.http
 
 import brs.Attachment
 import brs.Blockchain
-import brs.Burst
 import brs.BurstException
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.ParameterService
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-import javax.servlet.http.HttpServletRequest
-
-import brs.Constants.*
-import brs.TransactionType.ColoredCoins.ASSET_ISSUANCE
+import brs.transaction.TransactionType.ColoredCoins.ASSET_ISSUANCE
 import brs.http.JSONResponses.INCORRECT_ASSET_DESCRIPTION
 import brs.http.JSONResponses.INCORRECT_ASSET_NAME
 import brs.http.JSONResponses.INCORRECT_ASSET_NAME_LENGTH
@@ -50,7 +45,6 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val nameParameter = stringWithLength(MIN_ASSET_NAME_LENGTH + 1)
         val descriptionParameter = stringWithLength(MAX_ASSET_DESCRIPTION_LENGTH - 1)
@@ -77,7 +71,6 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_missingName() {
         val request = QuickMocker.httpServletRequest()
 
@@ -85,7 +78,6 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectAssetNameLength_smallerThanMin() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH - 1))
@@ -95,7 +87,6 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectAssetNameLength_largerThanMax() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MAX_ASSET_NAME_LENGTH + 1))
@@ -105,7 +96,6 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectAssetName() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1) + "[")
@@ -115,7 +105,6 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectAssetDescription() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1)),
@@ -126,7 +115,6 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectDecimals_unParsable() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1)),
@@ -138,7 +126,6 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectDecimals_negativeNumber() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1)),
@@ -150,7 +137,6 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectDecimals_moreThan8() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1)),

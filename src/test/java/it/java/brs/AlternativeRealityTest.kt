@@ -26,7 +26,6 @@ class AlternativeRealityTest : AbstractIT() {
         }
     }
 
-    @Throws(IOException::class)
     fun getReality(realityName: String): List<JsonObject> {
         val parser = JsonParser()
 

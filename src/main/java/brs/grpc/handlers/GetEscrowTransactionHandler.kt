@@ -9,7 +9,6 @@ import brs.services.EscrowService
 
 class GetEscrowTransactionHandler(private val escrowService: EscrowService) : GrpcApiHandler<BrsApi.GetByIdRequest, BrsApi.EscrowTransaction> {
 
-    @Throws(Exception::class)
     override fun handleRequest(request: BrsApi.GetByIdRequest): BrsApi.EscrowTransaction {
         val escrowId = request.id
         val escrow = escrowService.getEscrowTransaction(escrowId) ?: throw ApiException("Could not find escrow")

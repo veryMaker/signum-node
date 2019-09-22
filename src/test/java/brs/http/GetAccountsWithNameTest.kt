@@ -34,7 +34,6 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val targetAccountId = 4L
         val targetAccountName = "exampleAccountName"
@@ -60,7 +59,6 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_noAccountFound() {
         val targetAccountName = "exampleAccountName"
 

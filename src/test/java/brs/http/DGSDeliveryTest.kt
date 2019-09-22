@@ -4,18 +4,16 @@ import brs.*
 import brs.DigitalGoodsStore.Purchase
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.AccountService
 import brs.services.ParameterService
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 
 import brs.Constants.MAX_BALANCE_NQT
-import brs.TransactionType.DigitalGoods.DELIVERY
+import brs.transaction.TransactionType.DigitalGoods.DELIVERY
 import brs.common.TestConstants.TEST_SECRET_PHRASE
 import brs.http.JSONResponses.ALREADY_DELIVERED
 import brs.http.JSONResponses.INCORRECT_DGS_DISCOUNT
@@ -47,7 +45,6 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val discountNQTParameter: Long = 1
         val goodsToEncryptParameter = "beef"
@@ -87,7 +84,6 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_sellerAccountIdDifferentFromAccountSellerIdIsIncorrectPurchase() {
         val request = QuickMocker.httpServletRequest()
 
@@ -104,7 +100,6 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_purchaseNotPendingIsAlreadyDelivered() {
         val request = QuickMocker.httpServletRequest()
 
@@ -123,7 +118,6 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_dgsDiscountNotAValidNumberIsIncorrectDGSDiscount() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(DISCOUNT_NQT_PARAMETER, "Bob")
@@ -144,7 +138,6 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_dgsDiscountNegativeIsIncorrectDGSDiscount() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(DISCOUNT_NQT_PARAMETER, "-1")
@@ -165,7 +158,6 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_dgsDiscountOverMaxBalanceNQTIsIncorrectDGSDiscount() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(DISCOUNT_NQT_PARAMETER, "" + (MAX_BALANCE_NQT + 1))
@@ -186,7 +178,6 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_dgsDiscountNegativeIsNotSafeMultiply() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(DISCOUNT_NQT_PARAMETER, "99999999999")
@@ -209,7 +200,6 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_goodsToEncryptIsEmptyIsIncorrectDGSGoods() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(DISCOUNT_NQT_PARAMETER, "9"),

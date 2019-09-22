@@ -290,7 +290,6 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 }
             }
 
-            @Throws(InterruptedException::class)
             private fun getCommonMilestoneBlockId(peer: Peer?): Long {
 
                 var lastMilestoneBlockId: String? = null
@@ -343,7 +342,6 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 throw InterruptedException("interrupted")
             }
 
-            @Throws(InterruptedException::class)
             private fun getCommonBlockId(peer: Peer?, commonBlockId: Long): Long {
                 var commonBlockId = commonBlockId
 
@@ -636,7 +634,6 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         return blockListeners.removeListener(listener, eventType)
     }
 
-    @Throws(BurstException::class)
     override fun processPeerBlock(request: JsonObject, peer: Peer) {
         val newBlock = Block.parseBlock(dp, request, dp.blockchain.height)
         //* This process takes care of the blocks that is announced by peers We do not want to be fed forks.
@@ -694,7 +691,6 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
     }
 
-    @Throws(BlockchainProcessor.BlockNotAcceptedException::class)
     private fun pushBlock(block: Block) {
         synchronized(dp.transactionProcessor.getUnconfirmedTransactionsSyncObj()) {
             Db.beginTransaction()
@@ -865,7 +861,6 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    @Throws(BlockchainProcessor.BlockNotAcceptedException::class)
     private fun accept(block: Block, remainingAmount: Long?, remainingFee: Long?) {
         dp.subscriptionService.clearRemovals()
         for (transaction in block.transactions) {
@@ -882,7 +877,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         AT.clearPendingTransactions()
         try {
             // TODO NN Assert might cause problems...
-            atBlock = AtController.validateATs(block.blockATs!!, dp.blockchain.height)
+            atBlock = dp.atController.validateATs(block.blockATs!!, dp.blockchain.height)
         } catch (e: AtException) {
             throw BlockchainProcessor.BlockNotAcceptedException("ats are not matching at block height " + dp.blockchain.height + " (" + e + ")")
         }
@@ -965,7 +960,6 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         return ok
     }
 
-    @Throws(BlockchainProcessor.BlockNotAcceptedException::class)
     override fun generateBlock(secretPhrase: String, publicKey: ByteArray, nonce: Long?) {
         synchronized(dp.downloadCache) {
             dp.downloadCache.lockCache() //stop all incoming blocks.
@@ -1122,7 +1116,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             // ATs for block
             AT.clearPendingFees()
             AT.clearPendingTransactions()
-            val atBlock = AtController.getCurrentBlockATs(payloadSize, previousBlock.height + 1)
+            val atBlock = dp.atController.getCurrentBlockATs(payloadSize, previousBlock.height + 1)
             val byteATs = atBlock.bytesForBlock
 
             // digesting AT Bytes

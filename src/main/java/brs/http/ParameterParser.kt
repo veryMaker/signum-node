@@ -47,7 +47,6 @@ import javax.servlet.http.HttpServletRequest
 
 internal object ParameterParser {
 
-    @Throws(ParameterException::class)
     fun getFeeNQT(request: HttpServletRequest): Long {
         val feeValueNQT = Convert.emptyToNull(request.getParameter(FEE_NQT_PARAMETER))
                 ?: throw ParameterException(MISSING_FEE)
@@ -64,7 +63,6 @@ internal object ParameterParser {
         return feeNQT
     }
 
-    @Throws(ParameterException::class)
     fun getPriceNQT(request: HttpServletRequest): Long {
         val priceValueNQT = Convert.emptyToNull(request.getParameter(PRICE_NQT_PARAMETER))
                 ?: throw ParameterException(MISSING_PRICE)
@@ -81,7 +79,6 @@ internal object ParameterParser {
         return priceNQT
     }
 
-    @Throws(ParameterException::class)
     fun getQuantityQNT(request: HttpServletRequest): Long {
         val quantityValueQNT = Convert.emptyToNull(request.getParameter(QUANTITY_QNT_PARAMETER))
                 ?: throw ParameterException(MISSING_QUANTITY)
@@ -98,7 +95,6 @@ internal object ParameterParser {
         return quantityQNT
     }
 
-    @Throws(ParameterException::class)
     fun getOrderId(request: HttpServletRequest): Long {
         val orderValue = Convert.emptyToNull(request.getParameter(ORDER_PARAMETER))
                 ?: throw ParameterException(MISSING_ORDER)
@@ -110,7 +106,6 @@ internal object ParameterParser {
 
     }
 
-    @Throws(ParameterException::class)
     fun getGoodsQuantity(request: HttpServletRequest): Int {
         val quantityString = Convert.emptyToNull(request.getParameter(QUANTITY_PARAMETER))
         try {
@@ -125,7 +120,6 @@ internal object ParameterParser {
 
     }
 
-    @Throws(ParameterException::class)
     fun getEncryptedGoods(request: HttpServletRequest): EncryptedData? {
         val data = Convert.emptyToNull(request.getParameter(GOODS_DATA_PARAMETER))
         val nonce = Convert.emptyToNull(request.getParameter(GOODS_NONCE_PARAMETER))
@@ -140,13 +134,11 @@ internal object ParameterParser {
         return null
     }
 
-    @Throws(ParameterException::class)
     fun getSecretPhrase(request: HttpServletRequest): String {
         return Convert.emptyToNull(request.getParameter(SECRET_PHRASE_PARAMETER))
                 ?: throw ParameterException(MISSING_SECRET_PHRASE)
     }
 
-    @Throws(ParameterException::class)
     fun getTimestamp(request: HttpServletRequest): Int {
         val timestampValue = Convert.emptyToNull(request.getParameter(TIMESTAMP_PARAMETER)) ?: return 0
         val timestamp: Int
@@ -162,7 +154,6 @@ internal object ParameterParser {
         return timestamp
     }
 
-    @Throws(ParameterException::class)
     fun getRecipientId(request: HttpServletRequest): Long {
         val recipientValue = Convert.emptyToNull(request.getParameter(RECIPIENT_PARAMETER))
         if (recipientValue == null || Parameters.isZero(recipientValue)) {
@@ -181,7 +172,6 @@ internal object ParameterParser {
         return recipientId
     }
 
-    @Throws(ParameterException::class)
     fun getSellerId(request: HttpServletRequest): Long {
         val sellerIdValue = Convert.emptyToNull(request.getParameter(SELLER_PARAMETER))
         try {
@@ -192,7 +182,6 @@ internal object ParameterParser {
 
     }
 
-    @Throws(ParameterException::class)
     fun getBuyerId(request: HttpServletRequest): Long {
         val buyerIdValue = Convert.emptyToNull(request.getParameter(BUYER_PARAMETER))
         try {
@@ -231,7 +220,6 @@ internal object ParameterParser {
         return lastIndex
     }
 
-    @Throws(ParameterException::class)
     fun getCreationBytes(request: HttpServletRequest): ByteArray? {
         try {
             return request.getParameter(CREATION_BYTES_PARAMETER).parseHexString()
@@ -250,7 +238,6 @@ internal object ParameterParser {
         return bf.getLong(0).toUnsignedString()
     }
 
-    @Throws(ParameterException::class)
     fun getAmountNQT(request: HttpServletRequest): Long {
         val amountValueNQT = Convert.emptyToNull(request.getParameter(AMOUNT_NQT_PARAMETER))
                 ?: throw ParameterException(MISSING_AMOUNT)

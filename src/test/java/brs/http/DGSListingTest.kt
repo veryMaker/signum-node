@@ -1,10 +1,9 @@
 package brs.http
 
 import brs.*
-import brs.TransactionType.DigitalGoods
+import brs.transaction.TransactionType.DigitalGoods
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.http.JSONResponses.INCORRECT_DGS_LISTING_DESCRIPTION
 import brs.http.JSONResponses.INCORRECT_DGS_LISTING_NAME
@@ -13,7 +12,6 @@ import brs.http.JSONResponses.MISSING_NAME
 import brs.services.ParameterService
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 import com.nhaarman.mockitokotlin2.doReturn
@@ -41,7 +39,6 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val mockAccount = mock<Account>()
 
@@ -75,7 +72,6 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_missingName() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L),
@@ -86,7 +82,6 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectDGSListingName() {
         var tooLongName = ""
 
@@ -104,7 +99,6 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectDgsListingDescription() {
         var tooLongDescription = ""
 
@@ -123,7 +117,6 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectDgsListingTags() {
         var tooLongTags = ""
 

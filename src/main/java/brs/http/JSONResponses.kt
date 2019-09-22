@@ -31,7 +31,6 @@ import brs.http.common.Parameters.NAME_PARAMETER
 import brs.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
 import brs.http.common.Parameters.ORDER_PARAMETER
 import brs.http.common.Parameters.PEER_PARAMETER
-import brs.http.common.Parameters.PERIOD_PARAMETER
 import brs.http.common.Parameters.PRICE_NQT_PARAMETER
 import brs.http.common.Parameters.PRICE_PARAMETER
 import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
@@ -54,12 +53,11 @@ import brs.http.common.Parameters.TRANSACTION_PARAMETER
 import brs.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
 import brs.http.common.Parameters.URI_PARAMETER
 import brs.http.common.Parameters.WEBSITE_PARAMETER
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-
-import java.util.Arrays
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import java.util.*
 
 object JSONResponses {
     val INCORRECT_ALIAS = incorrect(ALIAS_PARAMETER)
@@ -121,8 +119,6 @@ object JSONResponses {
     val INCORRECT_AMOUNT = incorrect(AMOUNT_PARAMETER)
     val INCORRECT_ACCOUNT_NAME_LENGTH = incorrect(NAME_PARAMETER, "(length must be less than " + Constants.MAX_ACCOUNT_NAME_LENGTH + " characters)")
     val INCORRECT_ACCOUNT_DESCRIPTION_LENGTH = incorrect(DESCRIPTION_PARAMETER, "(length must be less than " + Constants.MAX_ACCOUNT_DESCRIPTION_LENGTH + " characters)")
-    val MISSING_PERIOD = missing(PERIOD_PARAMETER)
-    val INCORRECT_PERIOD = incorrect(PERIOD_PARAMETER, "(period must be at least 1440 blocks)")
     val MISSING_UNSIGNED_BYTES = missing(UNSIGNED_TRANSACTION_BYTES_PARAMETER)
     val MISSING_SIGNATURE_HASH = missing(SIGNATURE_HASH_PARAMETER)
     val INCORRECT_DGS_LISTING_NAME = incorrect(NAME_PARAMETER, "(length must be not longer than " + Constants.MAX_DGS_LISTING_NAME_LENGTH + " characters)")

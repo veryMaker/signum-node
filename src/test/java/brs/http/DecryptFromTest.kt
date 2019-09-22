@@ -33,7 +33,6 @@ class DecryptFromTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
@@ -55,7 +54,6 @@ class DecryptFromTest {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_accountWithoutPublicKeyIsIncorrectAccount() {
         val request = QuickMocker.httpServletRequest()
 

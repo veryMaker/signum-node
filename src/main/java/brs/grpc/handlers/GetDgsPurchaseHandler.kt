@@ -8,7 +8,6 @@ import brs.services.DGSGoodsStoreService
 
 class GetDgsPurchaseHandler(private val digitalGoodsStoreService: DGSGoodsStoreService) : GrpcApiHandler<BrsApi.GetByIdRequest, BrsApi.DgsPurchase> {
 
-    @Throws(Exception::class)
     override fun handleRequest(request: BrsApi.GetByIdRequest): BrsApi.DgsPurchase {
         val purchase = digitalGoodsStoreService.getPurchase(request.id) ?: throw ApiException("Could not find purchase")
         return ProtoBuilder.buildPurchase(purchase, digitalGoodsStoreService.getGoods(purchase.goodsId)!!)

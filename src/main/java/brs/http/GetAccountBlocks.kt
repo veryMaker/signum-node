@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetAccountBlocks internal constructor(private val blockchain: Blockchain, private val parameterService: ParameterService, private val blockService: BlockService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER, TIMESTAMP_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, INCLUDE_TRANSACTIONS_PARAMETER) {
 
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val account = parameterService.getAccount(request)

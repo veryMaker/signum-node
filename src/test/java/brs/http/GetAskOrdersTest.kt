@@ -38,7 +38,6 @@ class GetAskOrdersTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val assetIndex: Long = 5
         val firstIndex = 1

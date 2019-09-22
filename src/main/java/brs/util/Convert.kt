@@ -75,7 +75,6 @@ object Convert {
         return String(bytes, StandardCharsets.UTF_8)
     }
 
-    @Throws(BurstException.NotValidException::class)
     fun readString(buffer: ByteBuffer, numBytes: Int, maxLength: Int): String {
         if (numBytes > 3 * maxLength) {
             throw BurstException.NotValidException("Max parameter length exceeded")
@@ -112,7 +111,6 @@ object Convert {
     }
 
     // overflow checking based on https://www.securecoding.cert.org/confluence/display/java/NUM00-J.+Detect+or+prevent+integer+overflow
-    @Throws(ArithmeticException::class)
     fun safeAdd(left: Long, right: Long): Long {
         if (if (right > 0)
                     left > java.lang.Long.MAX_VALUE - right
@@ -123,7 +121,6 @@ object Convert {
         return left + right
     }
 
-    @Throws(ArithmeticException::class)
     fun safeSubtract(left: Long, right: Long): Long {
         if (if (right > 0)
                     left < java.lang.Long.MIN_VALUE + right
@@ -134,7 +131,6 @@ object Convert {
         return left - right
     }
 
-    @Throws(ArithmeticException::class)
     fun safeMultiply(left: Long, right: Long): Long {
         if (when {
             right > 0 -> left > java.lang.Long.MAX_VALUE / right || left < java.lang.Long.MIN_VALUE / right
@@ -146,7 +142,6 @@ object Convert {
         return left * right
     }
 
-    @Throws(ArithmeticException::class)
     fun safeDivide(left: Long, right: Long): Long {
         if (left == java.lang.Long.MIN_VALUE && right == -1L) {
             throw ArithmeticException("Integer overflow")
@@ -154,7 +149,6 @@ object Convert {
         return left / right
     }
 
-    @Throws(ArithmeticException::class)
     fun safeNegate(a: Long): Long {
         if (a == java.lang.Long.MIN_VALUE) {
             throw ArithmeticException("Integer overflow")
@@ -162,7 +156,6 @@ object Convert {
         return -a
     }
 
-    @Throws(ArithmeticException::class)
     fun safeAbs(a: Long): Long {
         if (a == java.lang.Long.MIN_VALUE) {
             throw ArithmeticException("Integer overflow")

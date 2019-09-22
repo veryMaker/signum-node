@@ -7,7 +7,6 @@ import com.google.protobuf.Empty
 
 class GetATIdsHandler(private val atService: ATService) : GrpcApiHandler<Empty, BrsApi.ATIds> {
 
-    @Throws(Exception::class)
     override fun handleRequest(empty: Empty): BrsApi.ATIds {
         return BrsApi.ATIds.newBuilder()
                 .addAllIds(atService.allATIds)

@@ -12,7 +12,6 @@ import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 internal class PlaceBidOrder(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), ASSET_PARAMETER, QUANTITY_QNT_PARAMETER, PRICE_NQT_PARAMETER) {
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val asset = dp.parameterService.getAsset(request)

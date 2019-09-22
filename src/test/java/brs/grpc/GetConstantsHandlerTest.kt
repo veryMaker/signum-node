@@ -1,7 +1,7 @@
 package brs.grpc
 
 import brs.Genesis
-import brs.TransactionType
+import brs.transaction.TransactionType
 import com.google.protobuf.Empty
 import org.junit.Before
 import org.junit.Test
@@ -17,7 +17,6 @@ import org.junit.Assert.assertNotNull
 class GetConstantsHandlerTest : AbstractGrpcTest() {
 
     @Before
-    @Throws(IOException::class)
     fun setUpGetConstantsHandlerTest() {
         defaultBrsService()
     }

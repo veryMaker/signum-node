@@ -14,7 +14,6 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
         } else account.setOrVerify(dp, transaction.senderPublicKey, transaction.height)
     }
 
-    @Throws(BurstException.ValidationException::class)
     override fun validate(transaction: Transaction) {
         for (appendage in transaction.appendages) {
             appendage.validate(transaction)

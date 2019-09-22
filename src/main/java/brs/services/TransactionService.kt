@@ -6,7 +6,6 @@ import brs.Transaction
 interface TransactionService {
     fun verifyPublicKey(transaction: Transaction): Boolean
 
-    @Throws(BurstException.ValidationException::class)
     fun validate(transaction: Transaction)
 
     fun applyUnconfirmed(transaction: Transaction): Boolean

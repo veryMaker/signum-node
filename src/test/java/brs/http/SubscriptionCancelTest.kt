@@ -3,7 +3,6 @@ package brs.http
 import brs.*
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.ParameterService
 import brs.services.SubscriptionService
@@ -15,7 +14,7 @@ import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.TransactionType.AdvancedPayment.SUBSCRIPTION_CANCEL
+import brs.transaction.TransactionType.AdvancedPayment.SUBSCRIPTION_CANCEL
 import brs.http.common.Parameters.SUBSCRIPTION_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import com.nhaarman.mockitokotlin2.doReturn
@@ -47,7 +46,6 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val subscriptionIdParameter = 123L
 
@@ -76,7 +74,6 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_missingSubscriptionParameter() {
         val request = QuickMocker.httpServletRequest()
 
@@ -87,7 +84,6 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_failedToParseSubscription() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SUBSCRIPTION_PARAMETER, "notALong")
@@ -100,7 +96,6 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_subscriptionNotFound() {
         val subscriptionId = 123L
 
@@ -117,7 +112,6 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_userIsNotSenderOrRecipient() {
         val subscriptionId = 123L
 

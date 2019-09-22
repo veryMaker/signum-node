@@ -9,7 +9,6 @@ interface StreamResponseGrpcApiHandler<R : Message, S : Message> : GrpcApiHandle
         throw UnsupportedOperationException("Cannot return single value from stream response")
     }
 
-    @Throws(Exception::class)
     fun handleStreamRequest(request: R, responseObserver: StreamObserver<S>)
 
     override fun handleRequest(request: R, responseObserver: StreamObserver<S>) {

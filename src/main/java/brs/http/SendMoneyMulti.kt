@@ -23,7 +23,6 @@ import kotlin.collections.Map.Entry
 
 internal class SendMoneyMulti(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf<APITag>(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), true, *commonParameters) {
 
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)
         val recipientString = Convert.emptyToNull(request.getParameter(RECIPIENTS_PARAMETER))

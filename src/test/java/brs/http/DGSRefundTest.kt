@@ -5,7 +5,6 @@ import brs.DigitalGoodsStore.Purchase
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.crypto.EncryptedData
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.AccountService
 import brs.services.ParameterService
@@ -15,7 +14,7 @@ import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.TransactionType.DigitalGoods.REFUND
+import brs.transaction.TransactionType.DigitalGoods.REFUND
 import brs.http.JSONResponses.DUPLICATE_REFUND
 import brs.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.http.JSONResponses.INCORRECT_DGS_REFUND
@@ -50,7 +49,6 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val refundNQTParameter: Long = 5
 
@@ -87,7 +85,6 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectPurchase() {
         val request = QuickMocker.httpServletRequest()
 
@@ -104,7 +101,6 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_duplicateRefund() {
         val request = QuickMocker.httpServletRequest()
 
@@ -122,7 +118,6 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_goodsNotDelivered() {
         val request = QuickMocker.httpServletRequest()
 
@@ -141,7 +136,6 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectDgsRefundWrongFormat() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(REFUND_NQT_PARAMETER, "Bob")
@@ -162,7 +156,6 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_negativeIncorrectDGSRefund() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(REFUND_NQT_PARAMETER, -5L)
@@ -183,7 +176,6 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_overMaxBalanceNQTIncorrectDGSRefund() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(REFUND_NQT_PARAMETER, Constants.MAX_BALANCE_NQT + 1)

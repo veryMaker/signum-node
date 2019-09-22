@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetSubscriptionsToAccount(private val parameterService: ParameterService, private val subscriptionService: SubscriptionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER) {
 
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request)
 

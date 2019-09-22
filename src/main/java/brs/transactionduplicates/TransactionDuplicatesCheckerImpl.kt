@@ -1,14 +1,15 @@
 package brs.transactionduplicates
 
 import brs.Transaction
-import brs.TransactionType
+import brs.transaction.TransactionType
 import org.slf4j.LoggerFactory
+import kotlin.reflect.KClass
 
 class TransactionDuplicatesCheckerImpl {
 
     private val logger = LoggerFactory.getLogger(TransactionDuplicatesCheckerImpl::class.java)
 
-    private val duplicates = mutableMapOf<TransactionType, MutableMap<String, Transaction>>()
+    private val duplicates = mutableMapOf< KClass<out TransactionType>, MutableMap<String, Transaction>>()
 
     fun clear() {
         duplicates.clear()

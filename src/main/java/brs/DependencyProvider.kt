@@ -4,6 +4,7 @@ import brs.assetexchange.AssetExchange
 import brs.at.AtApiController
 import brs.at.AtApiPlatformImpl
 import brs.at.AtConstants
+import brs.at.AtController
 import brs.db.cache.DBCacheManagerImpl
 import brs.db.store.*
 import brs.deeplink.DeeplinkQRCodeGenerator
@@ -15,6 +16,7 @@ import brs.peer.Peers
 import brs.props.PropertyService
 import brs.services.*
 import brs.statistics.StatisticsManagerImpl
+import brs.transaction.TransactionType
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore
 import brs.util.DownloadCacheImpl
 import brs.util.ThreadPool
@@ -69,4 +71,6 @@ class DependencyProvider {
     lateinit var atConstants: AtConstants
     lateinit var atApiPlatformImpl: AtApiPlatformImpl
     lateinit var atApiController: AtApiController
+    lateinit var atController: AtController
+    lateinit var transactionTypes: Map<Byte, Map<Byte, TransactionType>>
 }

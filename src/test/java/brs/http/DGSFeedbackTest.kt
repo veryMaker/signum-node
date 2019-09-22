@@ -4,17 +4,15 @@ import brs.*
 import brs.DigitalGoodsStore.Purchase
 import brs.common.QuickMocker
 import brs.crypto.EncryptedData
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.AccountService
 import brs.services.ParameterService
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.TransactionType.DigitalGoods.FEEDBACK
+import brs.transaction.TransactionType.DigitalGoods.FEEDBACK
 import brs.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.http.JSONResponses.INCORRECT_PURCHASE
 import com.nhaarman.mockitokotlin2.doReturn
@@ -46,7 +44,6 @@ class DGSFeedbackTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
 
@@ -78,7 +75,6 @@ class DGSFeedbackTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectPurchaseWhenOtherBuyerId() {
         val request = QuickMocker.httpServletRequest()
 
@@ -95,7 +91,6 @@ class DGSFeedbackTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_goodsNotDeliveredWhenNoEncryptedGoods() {
         val request = QuickMocker.httpServletRequest()
 

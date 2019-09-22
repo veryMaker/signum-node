@@ -41,7 +41,6 @@ class GetAssetsByIssuerTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(ParameterException::class)
     fun processRequest() {
         val firstIndex = 1
         val lastIndex = 2

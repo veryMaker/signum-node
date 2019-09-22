@@ -38,7 +38,6 @@ class GetAssetTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val assetId: Long = 4
 

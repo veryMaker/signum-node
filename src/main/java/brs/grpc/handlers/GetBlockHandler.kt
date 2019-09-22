@@ -10,7 +10,6 @@ import brs.services.BlockService
 
 class GetBlockHandler(private val blockchain: Blockchain, private val blockService: BlockService) : GrpcApiHandler<BrsApi.GetBlockRequest, BrsApi.Block> {
 
-    @Throws(Exception::class)
     override fun handleRequest(request: BrsApi.GetBlockRequest): BrsApi.Block {
         val blockId = request.blockId
         val blockHeight = request.height

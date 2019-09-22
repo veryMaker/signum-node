@@ -43,7 +43,6 @@ class GetBidOrdersTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val assetId = 123L
         val firstIndex = 0

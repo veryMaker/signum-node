@@ -7,7 +7,6 @@ import com.google.protobuf.Empty
 
 class GetCountsHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empty, BrsApi.Counts> {
 
-    @Throws(Exception::class)
     override fun handleRequest(empty: Empty): BrsApi.Counts {
         var totalEffectiveBalance: Long = 0
         val numberOfBlocks = dp.blockchain.height + 1 // Height + genesis

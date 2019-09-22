@@ -4,18 +4,16 @@ import brs.*
 import brs.DigitalGoodsStore.Goods
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.AccountService
 import brs.services.ParameterService
 import brs.services.TimeService
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.TransactionType.DigitalGoods.PURCHASE
+import brs.transaction.TransactionType.DigitalGoods.PURCHASE
 import brs.http.JSONResponses.INCORRECT_DELIVERY_DEADLINE_TIMESTAMP
 import brs.http.JSONResponses.INCORRECT_PURCHASE_PRICE
 import brs.http.JSONResponses.INCORRECT_PURCHASE_QUANTITY
@@ -50,7 +48,6 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val goodsQuantity = 5
         val goodsPrice = 10L
@@ -93,7 +90,6 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_unknownGoods() {
         val request = QuickMocker.httpServletRequest()
 
@@ -106,7 +102,6 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectPurchaseQuantity() {
         val goodsQuantity = 5
 
@@ -124,7 +119,6 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectPurchasePrice() {
         val goodsQuantity = 5
         val goodsPrice = 5L
@@ -146,7 +140,6 @@ class DGSPurchaseTest : AbstractTransactionTest() {
 
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_missingDeliveryDeadlineTimestamp() {
         val goodsQuantity = 5
         val goodsPrice = 10L
@@ -167,7 +160,6 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectDeliveryDeadlineTimestamp_unParsable() {
         val goodsQuantity = 5
         val goodsPrice = 10L
@@ -189,7 +181,6 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_incorrectDeliveryDeadlineTimestamp_beforeCurrentTime() {
         val goodsQuantity = 5
         val goodsPrice = 10L

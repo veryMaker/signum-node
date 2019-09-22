@@ -20,7 +20,6 @@ class DeeplinkQRCodeGenerator { // TODO interface
         hints[EncodeHintType.ERROR_CORRECTION] = ErrorCorrectionLevel.L
     }
 
-    @Throws(WriterException::class)
     fun generateRequestBurstDeepLinkQRCode(receiverId: String, amountNQT: Long, feeSuggestionType: FeeSuggestionType?, feeNQT: Long?, message: String?, immutable: Boolean): BufferedImage {
         val deeplinkBuilder = StringBuilder("burst://requestBurst")
 
@@ -42,7 +41,6 @@ class DeeplinkQRCodeGenerator { // TODO interface
         return generateBurstQRCode(deeplinkBuilder.toString())
     }
 
-    @Throws(WriterException::class)
     private fun generateBurstQRCode(url: String): BufferedImage {
         return MatrixToImageWriter.toBufferedImage(qrCodeWriter.encode(url, BarcodeFormat.QR_CODE, 350, 350, hints), MatrixToImageConfig())
     }

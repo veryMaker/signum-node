@@ -144,7 +144,6 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
     }
 
     internal abstract class JsonRequestHandler(apiTags: Array<APITag>, vararg parameters: String) : HttpRequestHandler(apiTags, *parameters) {
-        @Throws(IOException::class)
         override fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
             val startTime = System.currentTimeMillis()
 
@@ -168,7 +167,6 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             writeJsonToResponse(resp, response)
         }
 
-        @Throws(BurstException::class)
         internal abstract fun processRequest(request: HttpServletRequest): JsonElement
     }
 
@@ -177,15 +175,12 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         val parameters = parameters.toList()
         val apiTags = apiTags.toSet()
 
-        @Throws(IOException::class)
         abstract fun processRequest(request: HttpServletRequest, resp: HttpServletResponse)
 
-        @Throws(IOException::class)
         fun addErrorMessage(resp: HttpServletResponse, msg: JsonElement) {
             writeJsonToResponse(resp, msg)
         }
 
-        @Throws(ParameterException::class)
         fun validateParams(request: HttpServletRequest) {
             for (parameter in request.parameterMap.keys) {
                 // _ is a parameter used in eg. jquery to avoid caching queries
@@ -219,7 +214,6 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
 
     }
 
-    @Throws(IOException::class)
     private fun process(request: HttpServletRequest, resp: HttpServletResponse) {
         resp.setHeader("Access-Control-Allow-Methods", "GET, POST")
         resp.setHeader("Access-Control-Allow-Origin", allowedOrigins)
@@ -279,7 +273,6 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
     companion object {
         private val logger = LoggerFactory.getLogger(APIServlet::class.java)
 
-        @Throws(IOException::class)
         private fun writeJsonToResponse(resp: HttpServletResponse, msg: JsonElement) {
             resp.contentType = "text/plain; charset=UTF-8"
             resp.writer.use { writer -> msg.writeTo(writer) }

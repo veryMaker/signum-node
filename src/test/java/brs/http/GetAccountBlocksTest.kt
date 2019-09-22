@@ -39,7 +39,6 @@ class GetAccountBlocksTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val mockTimestamp = 1
         val mockFirstIndex = 2

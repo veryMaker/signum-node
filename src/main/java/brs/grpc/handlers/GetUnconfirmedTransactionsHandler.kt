@@ -9,7 +9,6 @@ import brs.services.IndirectIncomingService
 import java.util.stream.Collectors
 
 class GetUnconfirmedTransactionsHandler(private val indirectIncomingService: IndirectIncomingService, private val transactionProcessor: TransactionProcessor) : GrpcApiHandler<BrsApi.GetAccountRequest, BrsApi.UnconfirmedTransactions> {
-    @Throws(Exception::class)
     override fun handleRequest(getAccountRequest: BrsApi.GetAccountRequest): BrsApi.UnconfirmedTransactions {
         return BrsApi.UnconfirmedTransactions.newBuilder()
                 .addAllUnconfirmedTransactions(transactionProcessor.allUnconfirmedTransactions

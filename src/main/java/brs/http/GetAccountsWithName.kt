@@ -11,7 +11,6 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetAccountsWithName internal constructor(private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), NAME_PARAMETER) {
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val accounts = accountService.getAccountsWithName(request.getParameter(NAME_PARAMETER))
         val accountIds = JsonArray()

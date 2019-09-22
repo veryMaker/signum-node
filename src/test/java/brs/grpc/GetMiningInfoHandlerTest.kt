@@ -14,7 +14,6 @@ import org.junit.Assert.*
 @RunWith(JUnit4::class)
 class GetMiningInfoHandlerTest : AbstractGrpcTest() {
     @Before
-    @Throws(IOException::class)
     fun setUpGetMiningInfoHandlerTest() {
         defaultBrsService()
     }

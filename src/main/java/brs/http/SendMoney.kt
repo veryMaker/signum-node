@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest
 
 internal class SendMoney(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ACCOUNTS, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, AMOUNT_NQT_PARAMETER) {
 
-    @Throws(BurstException::class)
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val recipient = ParameterParser.getRecipientId(request)
         val amountNQT = ParameterParser.getAmountNQT(request)

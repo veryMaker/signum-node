@@ -5,7 +5,6 @@ import brs.Order.Bid
 import brs.assetexchange.AssetExchange
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.ParameterService
 import org.junit.Before
@@ -14,7 +13,7 @@ import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.TransactionType.ColoredCoins.BID_ORDER_CANCELLATION
+import brs.transaction.TransactionType.ColoredCoins.BID_ORDER_CANCELLATION
 import brs.http.JSONResponses.UNKNOWN_ORDER
 import brs.http.common.Parameters.ORDER_PARAMETER
 import com.nhaarman.mockitokotlin2.doReturn
@@ -48,7 +47,6 @@ class CancelBidOrderTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val orderId = 123
         val orderAccountId: Long = 1
@@ -77,13 +75,11 @@ class CancelBidOrderTest : AbstractTransactionTest() {
     }
 
     @Test(expected = ParameterException::class)
-    @Throws(BurstException::class)
     fun processRequest_orderParameterMissing() {
         t!!.processRequest(QuickMocker.httpServletRequest())
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_orderDataMissingUnkownOrder() {
         val orderId = 123
         val request = QuickMocker.httpServletRequest(
@@ -96,7 +92,6 @@ class CancelBidOrderTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_accountIdNotSameAsOrder() {
         val orderId = 123
         val orderAccountId: Long = 1

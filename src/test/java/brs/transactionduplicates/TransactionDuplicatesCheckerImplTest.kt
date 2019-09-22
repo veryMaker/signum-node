@@ -8,7 +8,7 @@ import brs.Burst
 import brs.BurstException.NotValidException
 import brs.Escrow.DecisionType
 import brs.Transaction
-import brs.TransactionType
+import brs.transaction.TransactionType
 import brs.common.QuickMocker
 import brs.common.TestConstants
 import brs.fluxcapacitor.FluxValues
@@ -46,7 +46,6 @@ class TransactionDuplicatesCheckerImplTest {
 
     @DisplayName("First transaction is never a duplicate when checking for any duplicate")
     @Test
-    @Throws(NotValidException::class)
     fun firstTransactionIsNeverADuplicateWhenCheckingForAnyDuplicate() {
         val transaction = Transaction.Builder(0.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, 99999999, 50000, 500.toShort(),
                 MessagingAliasSell("aliasName", 123, 5))
@@ -57,7 +56,6 @@ class TransactionDuplicatesCheckerImplTest {
 
     @DisplayName("Adding same transaction twice counts as a duplicate")
     @Test
-    @Throws(NotValidException::class)
     fun addingSameTransactionTwiceCountsAsADuplicate() {
         val transaction = Transaction.Builder(0.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, 99999999, 50000, 500.toShort(),
                 MessagingAliasSell("aliasName", 123, 5))
@@ -70,7 +68,6 @@ class TransactionDuplicatesCheckerImplTest {
 
     @DisplayName("Duplicate transaction is duplicate when checking for any duplicate")
     @Test
-    @Throws(NotValidException::class)
     fun duplicateTransactionIsDuplicateWhenCheckingForAnyDuplicate() {
         val transaction = Transaction.Builder(0.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, 99999999, 50000, 500.toShort(),
                 MessagingAliasSell("aliasName", 123, 5))
@@ -86,7 +83,6 @@ class TransactionDuplicatesCheckerImplTest {
 
     @DisplayName("Duplicate transaction removes cheaper duplicate when checking for cheapest duplicate")
     @Test
-    @Throws(NotValidException::class)
     fun duplicateTransactionRemovesCheaperDuplicateWhenCheckingForCheapestDuplicate() {
         val cheaper = Transaction.Builder(0.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, 999999, 50000, 500.toShort(),
                 MessagingAliasSell("aliasName", 123, 5))
@@ -113,7 +109,6 @@ class TransactionDuplicatesCheckerImplTest {
 
     @DisplayName("Some transactions are always a duplicate")
     @Test
-    @Throws(NotValidException::class)
     fun someTransactionsAreAlwaysADuplicate() {
         val transaction = Transaction.Builder(0.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, 99999999, 50000, 500.toShort(),
                 AdvancedPaymentEscrowResult(123L, DecisionType.REFUND, 5))
@@ -126,7 +121,6 @@ class TransactionDuplicatesCheckerImplTest {
 
     @DisplayName("Some transaction are never a duplicate")
     @Test
-    @Throws(NotValidException::class)
     fun someTransactionsAreNeverADuplicate() {
         val transaction = Transaction.Builder(0.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, 99999999, 50000, 500.toShort(),
                 AdvancedPaymentSubscriptionSubscribe(123, 5))
@@ -139,7 +133,6 @@ class TransactionDuplicatesCheckerImplTest {
 
     @DisplayName("Removing transaction makes it not a duplicate anymore")
     @Test
-    @Throws(NotValidException::class)
     fun removingTransactionMakesItNotADuplicateAnymore() {
         val transaction = Transaction.Builder(0.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, 99999999, 50000, 500.toShort(),
                 MessagingAliasSell("aliasName", 123, 5))
@@ -159,7 +152,6 @@ class TransactionDuplicatesCheckerImplTest {
 
     @DisplayName("Clearing removes all transactions")
     @Test
-    @Throws(NotValidException::class)
     fun clearingRemovesAllTransactions() {
         val transaction = Transaction.Builder(0.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, 99999999, 50000, 500.toShort(),
                 MessagingAliasSell("aliasName", 123, 5))

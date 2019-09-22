@@ -9,7 +9,6 @@ import brs.services.DGSGoodsStoreService
 
 class GetDgsGoodHandler(private val digitalGoodsStoreService: DGSGoodsStoreService) : GrpcApiHandler<BrsApi.GetByIdRequest, BrsApi.DgsGood> {
 
-    @Throws(Exception::class)
     override fun handleRequest(request: BrsApi.GetByIdRequest): BrsApi.DgsGood {
         val goodsId = request.id
         val goods = digitalGoodsStoreService.getGoods(goodsId) ?: throw ApiException("Could not find goods")

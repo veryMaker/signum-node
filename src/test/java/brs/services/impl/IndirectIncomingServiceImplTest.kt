@@ -4,14 +4,13 @@ import brs.*
 import brs.db.store.IndirectIncomingStore
 import brs.props.PropertyService
 import brs.props.Props
+import brs.transaction.TransactionType
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-import java.util.ArrayList
-import java.util.Arrays
 import java.util.HashSet
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Consumer
@@ -36,7 +35,6 @@ class IndirectIncomingServiceImplTest {
     }
 
     @Test
-    @Throws(BurstException.NotValidException::class)
     fun testIndirectIncomingServiceImplTestMultiOutTransaction() {
         addIndirectIncomingsRunnable.set({ indirectIncomings ->
             assertEquals(4, indirectIncomings.size.toLong())
@@ -58,7 +56,6 @@ class IndirectIncomingServiceImplTest {
     }
 
     @Test
-    @Throws(BurstException.NotValidException::class)
     fun testIndirectIncomingServiceImplTestMultiOutSameTransaction() {
         addIndirectIncomingsRunnable.set({ indirectIncomings ->
             assertEquals(4, indirectIncomings.size.toLong())

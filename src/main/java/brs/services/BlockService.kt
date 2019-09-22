@@ -14,15 +14,12 @@ interface BlockService {
 
     fun getBlockReward(block: Block): Long
 
-    @Throws(BlockOutOfOrderException::class)
     fun calculateBaseTarget(block: Block, previousBlock: Block)
 
     fun setPrevious(block: Block, previousBlock: Block?)
 
-    @Throws(BlockNotAcceptedException::class)
     fun verifyGenerationSignature(block: Block): Boolean
 
-    @Throws(BlockOutOfOrderException::class)
     fun verifyBlockSignature(block: Block): Boolean
 
     fun apply(block: Block)

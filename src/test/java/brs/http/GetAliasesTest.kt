@@ -38,7 +38,6 @@ class GetAliasesTest : AbstractUnitTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val accountId = 123L
         val request = QuickMocker.httpServletRequest()

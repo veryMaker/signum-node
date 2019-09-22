@@ -28,12 +28,10 @@ interface BlockchainProcessor : Observable<Block, BlockchainProcessor.Event> {
         AFTER_BLOCK_APPLY
     }
 
-    @Throws(BurstException::class)
     fun processPeerBlock(request: JsonObject, peer: Peer)
 
     fun fullReset()
 
-    @Throws(BlockNotAcceptedException::class)
     fun generateBlock(secretPhrase: String, publicKey: ByteArray, nonce: Long?)
 
     fun popOffTo(height: Int): List<Block>

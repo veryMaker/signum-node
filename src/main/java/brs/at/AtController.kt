@@ -12,9 +12,7 @@ import java.nio.BufferUnderflowException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-object AtController {
-    // TODO remove static dp
-    private lateinit var dp: DependencyProvider
+class AtController(private val dp: DependencyProvider) {
 
     private val logger = LoggerFactory.getLogger(AtController::class.java)
 
@@ -22,10 +20,6 @@ object AtController {
 
     private val costOfOneAT: Int
         get() = AtConstants.AT_ID_SIZE + 16
-
-    fun init(dp: DependencyProvider) {
-        AtController.dp = dp
-    }
 
     private fun runSteps(state: AtMachineState): Int {
         state.machineState.running = true
@@ -120,7 +114,6 @@ object AtController {
         state.machineState.pc = opc
     }
 
-    @Throws(AtException::class)
     fun checkCreationBytes(creation: ByteArray?, height: Int): Int {
         if (creation == null)
             throw AtException("Creation bytes cannot be null")
@@ -193,7 +186,6 @@ object AtController {
         return totalPages
     }
 
-    @Throws(AtException::class)
     private fun getLength(nPages: Int, buffer: ByteBuffer): Int {
         var codeLen: Int
         if (nPages * 256 < 257) {
@@ -277,7 +269,6 @@ object AtController {
         return AtBlock(totalFee, totalAmount, bytesForBlock)
     }
 
-    @Throws(AtException::class)
     fun validateATs(blockATs: ByteArray, blockHeight: Int): AtBlock {
         val ats = getATsFromBlock(blockATs)
 
@@ -351,7 +342,6 @@ object AtController {
         return AtBlock(totalFee, totalAmount, ByteArray(1))
     }
 
-    @Throws(AtException::class)
     private fun getATsFromBlock(blockATs: ByteArray): Map<ByteBuffer, ByteArray> {
         if (blockATs.isNotEmpty() && blockATs.size % costOfOneAT != 0) {
             throw AtException("blockATs size must be a multiple of cost of one AT ( $costOfOneAT )")
@@ -404,7 +394,6 @@ object AtController {
 
     //platform based implementations
     //platform based
-    @Throws(AtException::class)
     private fun makeTransactions(at: AT): Long {
         var totalAmount: Long = 0
         if (!dp!!.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, at.height)) {

@@ -3,23 +3,19 @@ package brs.http
 import brs.*
 import brs.DigitalGoodsStore.Goods
 import brs.common.QuickMocker
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.ParameterService
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.TransactionType.DigitalGoods.DELISTING
+import brs.transaction.TransactionType.DigitalGoods.DELISTING
 import brs.http.JSONResponses.UNKNOWN_GOODS
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import io.mockk.every
-import io.mockk.mockkStatic
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 
@@ -41,7 +37,6 @@ class DGSDelistingTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
 
@@ -65,7 +60,6 @@ class DGSDelistingTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_goodsDelistedUnknownGoods() {
         val request = QuickMocker.httpServletRequest()
 
@@ -81,7 +75,6 @@ class DGSDelistingTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_otherSellerIdUnknownGoods() {
         val request = QuickMocker.httpServletRequest()
 

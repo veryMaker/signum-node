@@ -4,7 +4,6 @@ import brs.*
 import brs.Escrow.DecisionType
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.EscrowService
 import brs.services.ParameterService
@@ -16,7 +15,7 @@ import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.TransactionType.AdvancedPayment.ESCROW_SIGN
+import brs.transaction.TransactionType.AdvancedPayment.ESCROW_SIGN
 import brs.http.common.Parameters.DECISION_PARAMETER
 import brs.http.common.Parameters.ESCROW_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
@@ -49,7 +48,6 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_positiveAsEscrowSender() {
         val escrowId: Long = 5
         val senderId: Long = 6
@@ -80,7 +78,6 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_positiveAsEscrowRecipient() {
         val escrowId: Long = 5
         val senderId: Long = 6
@@ -111,7 +108,6 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_positiveAsEscrowSigner() {
         val escrowId: Long = 5
         val senderId: Long = 6
@@ -144,7 +140,6 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_invalidEscrowId() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(ESCROW_PARAMETER, "NotANumber")
@@ -156,7 +151,6 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_escrowNotFound() {
         val escrowId: Long = 5
 
@@ -172,7 +166,6 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_invalidDecisionType() {
         val escrowId: Long = 5
 
@@ -191,7 +184,6 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_invalidSender() {
         val escrowId: Long = 5
         val senderId: Long = 6
@@ -219,7 +211,6 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_senderCanOnlyRelease() {
         val escrowId: Long = 5
         val senderId: Long = 6
@@ -244,7 +235,6 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    @Throws(BurstException::class)
     fun processRequest_recipientCanOnlyRefund() {
         val escrowId: Long = 5
         val senderId: Long = 6
