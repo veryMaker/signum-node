@@ -1,11 +1,11 @@
 package brs.peer
 
-import brs.services.TimeService
+import brs.DependencyProvider
 import brs.util.JSON
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
-internal class GetInfo(private val timeService: TimeService) : PeerServlet.PeerRequestHandler {
+internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerRequestHandler {
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         var announcedAddress = JSON.getAsString(request.get("announcedAddress"))
         if (announcedAddress.isNotEmpty()) {
@@ -37,10 +37,10 @@ internal class GetInfo(private val timeService: TimeService) : PeerServlet.PeerR
         peer.platform = platform.trim { it <= ' ' }
 
         peer.shareAddress = JSON.getAsBoolean(request.get("shareAddress"))
-        peer.lastUpdated = timeService.epochTime
+        peer.lastUpdated = dp.timeService.epochTime
 
-        Peers.notifyListeners(peer, Peers.Event.ADDED_ACTIVE_PEER)
+        dp.peers.notifyListeners(peer, Peers.Event.ADDED_ACTIVE_PEER)
 
-        return Peers.myPeerInfoResponse
+        return dp.peers.myPeerInfoResponse
     }
 }

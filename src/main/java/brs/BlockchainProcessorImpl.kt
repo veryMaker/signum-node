@@ -1,5 +1,7 @@
 package brs
 
+import brs.Constants.FEE_QUANT
+import brs.Constants.ONE_BURST
 import brs.at.AT
 import brs.at.AtBlock
 import brs.at.AtController
@@ -8,30 +10,21 @@ import brs.crypto.Crypto
 import brs.db.sql.Db
 import brs.fluxcapacitor.FluxValues
 import brs.peer.Peer
-import brs.peer.Peers
 import brs.props.Props
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore
 import brs.util.*
+import brs.util.delegates.Atomic
 import com.google.gson.JsonArray
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
-
 import java.math.BigInteger
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.atomic.AtomicReference
-
-import brs.Constants.FEE_QUANT
-import brs.Constants.ONE_BURST
-import brs.util.delegates.Atomic
 import kotlin.math.max
 import kotlin.system.exitProcess
 
@@ -131,15 +124,15 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                                 return
                             }
                             peerHasMore = true
-                            val peer = Peers.getAnyPeer(Peer.State.CONNECTED)
+                            val peer = dp.peers.getAnyPeer(Peer.State.CONNECTED)
                             if (peer == null) {
                                 logger.debug("No peer connected.")
                                 return
                             }
                             val response = peer.send(getCumulativeDifficultyRequest) ?: return
-                            if (response.get("blockchainHeight") != null) {
+                            if (response["blockchainHeight"] != null) {
                                 lastBlockchainFeeder = peer
-                                lastBlockchainFeederHeight = JSON.getAsInt(response.get("blockchainHeight"))
+                                lastBlockchainFeederHeight = JSON.getAsInt(response["blockchainHeight"])
                             } else {
                                 logger.debug("Peer has no chainheight")
                                 return
@@ -867,7 +860,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             dp.statisticsManager.blockAdded()
             blockListeners.accept(block, BlockchainProcessor.Event.BLOCK_PUSHED)
             if (block.timestamp >= dp.timeService.epochTime - MAX_TIMESTAMP_DIFFERENCE) {
-                Peers.sendToSomePeers(block)
+                dp.peers.sendToSomePeers(block)
             }
             if (block.height >= autoPopOffLastStuckHeight) {
                 autoPopOffNumberOfBlocks = 0

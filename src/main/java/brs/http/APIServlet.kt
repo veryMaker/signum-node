@@ -73,10 +73,10 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getDGSPendingPurchases"] = GetDGSPendingPurchases(dp.digitalGoodsStoreService)
         map["getECBlock"] = GetECBlock(dp.blockchain, dp.timeService, dp.economicClustering)
         map["getMyInfo"] = GetMyInfo
-        map["getPeer"] = GetPeer
+        map["getPeer"] = GetPeer(dp)
         map["getMyPeerInfo"] = GetMyPeerInfo(dp.transactionProcessor)
-        map["getPeers"] = GetPeers
-        map["getState"] = GetState(dp.blockchain, dp.blockchainProcessor, dp.assetExchange, dp.accountService, dp.escrowService, dp.aliasService, dp.timeService, dp.generator, dp.propertyService)
+        map["getPeers"] = GetPeers(dp)
+        map["getState"] = GetState(dp)
         map["getTime"] = GetTime(dp.timeService)
         map["getTrades"] = GetTrades(dp.parameterService, dp.assetExchange)
         map["getAllTrades"] = GetAllTrades(dp.assetExchange)

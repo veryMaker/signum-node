@@ -1,24 +1,23 @@
 package brs.peer
 
+import brs.Constants.PROTOCOL
 import brs.DependencyProvider
+import brs.util.*
 import com.google.gson.JsonElement
+import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
-
+import java.io.IOException
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
+import java.nio.charset.StandardCharsets
 import javax.servlet.ServletConfig
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import java.io.*
-import java.nio.charset.StandardCharsets
-import java.util.Collections
 
-import brs.Constants.PROTOCOL
-import brs.util.*
-import com.google.gson.JsonNull
-
-class PeerServlet(dp: DependencyProvider) : HttpServlet() {
+class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
     private val peerRequestHandlers: Map<String, PeerRequestHandler>
 
     internal interface PeerRequestHandler {
@@ -37,14 +36,14 @@ class PeerServlet(dp: DependencyProvider) : HttpServlet() {
 
     init { // TODO each one should take dp
         val map = mutableMapOf<String, PeerRequestHandler>()
-        map["addPeers"] = AddPeers
+        map["addPeers"] = AddPeers(dp)
         map["getCumulativeDifficulty"] = GetCumulativeDifficulty(dp.blockchain)
-        map["getInfo"] = GetInfo(dp.timeService)
+        map["getInfo"] = GetInfo(dp)
         map["getMilestoneBlockIds"] = GetMilestoneBlockIds(dp.blockchain)
         map["getNextBlockIds"] = GetNextBlockIds(dp.blockchain)
         map["getBlocksFromHeight"] = GetBlocksFromHeight(dp.blockchain)
         map["getNextBlocks"] = GetNextBlocks(dp.blockchain)
-        map["getPeers"] = GetPeers
+        map["getPeers"] = GetPeers(dp)
         map["getUnconfirmedTransactions"] = GetUnconfirmedTransactions(dp.transactionProcessor)
         map["processBlock"] = ProcessBlock(dp.blockchain, dp.blockchainProcessor)
         map["processTransactions"] = ProcessTransactions(dp.transactionProcessor)
@@ -60,7 +59,7 @@ class PeerServlet(dp: DependencyProvider) : HttpServlet() {
 
     override fun doPost(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
-            if (!Peers.isSupportedUserAgent(request.getHeader("User-Agent"))) {
+            if (!dp.peers.isSupportedUserAgent(request.getHeader("User-Agent"))) {
                 return
             }
             process(request, resp)
@@ -80,7 +79,7 @@ class PeerServlet(dp: DependencyProvider) : HttpServlet() {
 
         var requestType = "unknown"
         try {
-            peer = Peers.addPeer(request.remoteAddr, null)
+            peer = dp.peers.addPeer(request.remoteAddr, null)
             if (peer == null || peer.isBlacklisted) {
                 return
             }
@@ -94,7 +93,7 @@ class PeerServlet(dp: DependencyProvider) : HttpServlet() {
             if (peer.state == Peer.State.DISCONNECTED) {
                 peer.state = Peer.State.CONNECTED
                 if (peer.announcedAddress != null) {
-                    Peers.updateAddress(peer)
+                    dp.peers.updateAddress(peer)
                 }
             }
             peer.updateDownloadedVolume(cis.count)

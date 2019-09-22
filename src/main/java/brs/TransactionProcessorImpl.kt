@@ -5,7 +5,6 @@ import brs.db.sql.Db
 import brs.fluxcapacitor.FluxValues
 import brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
 import brs.peer.Peer
-import brs.peer.Peers
 import brs.props.Props
 import brs.util.JSON
 import brs.util.Listeners
@@ -37,28 +36,28 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
             try {
                 try {
                     synchronized(unconfirmedTransactionsSyncObj) {
-                        val peer = Peers.getAnyPeer(Peer.State.CONNECTED) ?: return@synchronized
-                        val response = Peers.readUnconfirmedTransactionsNonBlocking(peer).get() ?: return@synchronized
+                        val peer = dp.peers.getAnyPeer(Peer.State.CONNECTED) ?: return@synchronized
+                        val response = dp.peers.readUnconfirmedTransactionsNonBlocking(peer).get() ?: return@synchronized
                         val transactionsData = JSON.getAsJsonArray(response!!.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
                         if (transactionsData.isEmpty()) return@synchronized
 
                         try {
                             val addedTransactions = processPeerTransactions(transactionsData, peer)
-                            Peers.feedingTime(peer, foodDispenser, doneFeedingLog)
+                            dp.peers.feedingTime(peer, foodDispenser, doneFeedingLog)
 
                             if (addedTransactions.isNotEmpty()) {
-                                val activePrioPlusExtra = Peers.allActivePriorityPlusSomeExtraPeers
+                                val activePrioPlusExtra = dp.peers.allActivePriorityPlusSomeExtraPeers
                                 activePrioPlusExtra.remove(peer)
 
                                 val expectedResults = mutableListOf<CompletableFuture<*>>()
 
                                 for (otherPeer in activePrioPlusExtra) {
-                                    val unconfirmedTransactionsResult = Peers.readUnconfirmedTransactionsNonBlocking(otherPeer)
+                                    val unconfirmedTransactionsResult = dp.peers.readUnconfirmedTransactionsNonBlocking(otherPeer)
 
                                     unconfirmedTransactionsResult.whenComplete { jsonObject, throwable ->
                                         try {
                                             processPeerTransactions(transactionsData, otherPeer)
-                                            Peers.feedingTime(otherPeer, foodDispenser, doneFeedingLog)
+                                            dp.peers.feedingTime(otherPeer, foodDispenser, doneFeedingLog)
                                         } catch (e: ValidationException) {
                                             peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
                                         } catch (e: RuntimeException) {
@@ -306,12 +305,12 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
     }
 
     private fun broadcastToPeers(toAll: Boolean): Int {
-        val peersToSendTo = if (toAll) Peers.activePeers.take(100) else Peers.allActivePriorityPlusSomeExtraPeers
+        val peersToSendTo = if (toAll) dp.peers.activePeers.take(100) else dp.peers.allActivePriorityPlusSomeExtraPeers
 
         logger.trace("Queueing up {} Peers for feeding", peersToSendTo.size)
 
         for (p in peersToSendTo) {
-            Peers.feedingTime(p, foodDispenser, doneFeedingLog)
+            dp.peers.feedingTime(p, foodDispenser, doneFeedingLog)
         }
 
         return peersToSendTo.size

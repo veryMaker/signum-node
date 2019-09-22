@@ -1,42 +1,34 @@
 package brs.grpc.handlers
 
-import brs.Account
-import brs.Blockchain
-import brs.Escrow
-import brs.Generator
-import brs.assetexchange.AssetExchange
+import brs.DependencyProvider
 import brs.grpc.GrpcApiHandler
 import brs.grpc.proto.BrsApi
-import brs.peer.Peers
-import brs.services.AccountService
-import brs.services.AliasService
-import brs.services.EscrowService
 import com.google.protobuf.Empty
 
-class GetCountsHandler(private val accountService: AccountService, private val escrowService: EscrowService, private val blockchain: Blockchain, private val assetExchange: AssetExchange, private val aliasService: AliasService, private val generator: Generator) : GrpcApiHandler<Empty, BrsApi.Counts> {
+class GetCountsHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empty, BrsApi.Counts> {
 
     @Throws(Exception::class)
     override fun handleRequest(empty: Empty): BrsApi.Counts {
         var totalEffectiveBalance: Long = 0
-        val numberOfBlocks = blockchain.height + 1 // Height + genesis
-        val numberOfTransactions = blockchain.transactionCount
-        val numberOfAccounts = accountService.count
-        val numberOfAssets = assetExchange.assetsCount
-        val numberOfAskOrders = assetExchange.askCount
-        val numberOfBidOrders = assetExchange.bidCount
+        val numberOfBlocks = dp.blockchain.height + 1 // Height + genesis
+        val numberOfTransactions = dp.blockchain.transactionCount
+        val numberOfAccounts = dp.accountService.count
+        val numberOfAssets = dp.assetExchange.assetsCount
+        val numberOfAskOrders = dp.assetExchange.askCount
+        val numberOfBidOrders = dp.assetExchange.bidCount
         val numberOfOrders = numberOfAskOrders + numberOfBidOrders
-        val numberOfTrades = assetExchange.tradesCount
-        val numberOfTransfers = assetExchange.assetTransferCount
-        val numberOfAliases = aliasService.aliasCount
-        val numberOfPeers = Peers.allPeers.size
-        val numberOfGenerators = generator.allGenerators.size
-        for (account in accountService.getAllAccounts(0, -1)) {
+        val numberOfTrades = dp.assetExchange.tradesCount
+        val numberOfTransfers = dp.assetExchange.assetTransferCount
+        val numberOfAliases = dp.aliasService.aliasCount
+        val numberOfPeers = dp.peers.allPeers.size
+        val numberOfGenerators = dp.generator.allGenerators.size
+        for (account in dp.accountService.getAllAccounts(0, -1)) {
             val effectiveBalanceBURST = account.balanceNQT
             if (effectiveBalanceBURST > 0) {
                 totalEffectiveBalance += effectiveBalanceBURST
             }
         }
-        for (escrow in escrowService.allEscrowTransactions) {
+        for (escrow in dp.escrowService.allEscrowTransactions) {
             totalEffectiveBalance += escrow.amountNQT!!
         }
 

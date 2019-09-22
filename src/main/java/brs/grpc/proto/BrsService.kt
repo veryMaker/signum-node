@@ -1,14 +1,11 @@
 package brs.grpc.proto
 
-import brs.*
+import brs.DependencyProvider
 import brs.grpc.GrpcApiHandler
 import brs.grpc.handlers.*
 import com.google.protobuf.Empty
 import com.google.protobuf.Message
 import io.grpc.stub.StreamObserver
-
-import java.util.Collections
-import java.util.HashMap
 import kotlin.reflect.KClass
 
 class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBase() {
@@ -41,7 +38,7 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handlerMap[GetBlockHandler::class] = GetBlockHandler(dp.blockchain, dp.blockService)
         handlerMap[GetBlocksHandler::class] = GetBlocksHandler(dp.blockchain, dp.blockService)
         handlerMap[GetConstantsHandler::class] = GetConstantsHandler(dp.fluxCapacitor)
-        handlerMap[GetCountsHandler::class] = GetCountsHandler(dp.accountService, dp.escrowService, dp.blockchain, dp.assetExchange, dp.aliasService, dp.generator)
+        handlerMap[GetCountsHandler::class] = GetCountsHandler(dp)
         handlerMap[GetCurrentTimeHandler::class] = GetCurrentTimeHandler(dp.timeService)
         handlerMap[GetDgsGoodHandler::class] = GetDgsGoodHandler(dp.digitalGoodsStoreService)
         handlerMap[GetDgsGoodsHandler::class] = GetDgsGoodsHandler(dp.digitalGoodsStoreService)
@@ -52,8 +49,9 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handlerMap[GetMiningInfoHandler::class] = GetMiningInfoHandler(dp.blockchainProcessor, dp.blockchain, dp.generator)
         handlerMap[GetOrderHandler::class] = GetOrderHandler(dp.assetExchange)
         handlerMap[GetOrdersHandler::class] = GetOrdersHandler(dp.assetExchange)
-        handlerMap[GetPeersHandler::class] = GetPeersHandler()
-        handlerMap[GetStateHandler::class] = GetStateHandler(dp.timeService, dp.blockchain, dp.generator, dp.blockchainProcessor, dp.propertyService)
+        handlerMap[GetPeerHandler::class] = GetPeerHandler(dp)
+        handlerMap[GetPeersHandler::class] = GetPeersHandler(dp)
+        handlerMap[GetStateHandler::class] = GetStateHandler(dp)
         handlerMap[GetSubscriptionHandler::class] = GetSubscriptionHandler(dp.subscriptionService)
         handlerMap[GetSubscriptionsToAccountHandler::class] = GetSubscriptionsToAccountHandler(dp.subscriptionService)
         handlerMap[GetTransactionBytesHandler::class] = GetTransactionBytesHandler(dp)

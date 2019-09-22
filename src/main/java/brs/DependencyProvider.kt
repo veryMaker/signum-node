@@ -8,6 +8,7 @@ import brs.feesuggestions.FeeSuggestionCalculator
 import brs.fluxcapacitor.FluxCapacitor
 import brs.http.API
 import brs.http.APITransactionManager
+import brs.peer.Peers
 import brs.props.PropertyService
 import brs.services.*
 import brs.statistics.StatisticsManagerImpl
@@ -15,8 +16,6 @@ import brs.unconfirmedtransactions.UnconfirmedTransactionStore
 import brs.util.DownloadCacheImpl
 import brs.util.ThreadPool
 import io.grpc.Server
-import kotlin.reflect.KMutableProperty
-import kotlin.reflect.KProperty
 
 class DependencyProvider {
     lateinit var accountStore: AccountStore
@@ -62,4 +61,5 @@ class DependencyProvider {
     lateinit var deeplinkQRCodeGenerator: DeeplinkQRCodeGenerator
     lateinit var parameterService: ParameterService
     lateinit var apiTransactionManager: APITransactionManager
+    lateinit var peers: Peers
 }

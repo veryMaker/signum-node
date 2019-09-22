@@ -95,7 +95,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.blockchainProcessor.addListener(AT.HandleATBlockTransactionsListener(dp), BlockchainProcessor.Event.AFTER_BLOCK_APPLY)
             dp.blockchainProcessor.addListener(DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(dp), BlockchainProcessor.Event.AFTER_BLOCK_APPLY)
             dp.apiTransactionManager = APITransactionManagerImpl(dp)
-            Peers.init(dp)
+            dp.peers = Peers(dp)
             TransactionType.init(dp)
             dp.api = API(dp)
 
@@ -153,7 +153,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.apiV2Server.shutdownNow()
         } catch (ignored: UninitializedPropertyAccessException) {}
         try {
-            Peers.shutdown(dp.threadPool)
+            dp.peers.shutdown(dp.threadPool)
         } catch (ignored: UninitializedPropertyAccessException) {}
         try {
             dp.threadPool.shutdown()
