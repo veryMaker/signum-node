@@ -1,30 +1,25 @@
 package brs.db.sql
 
 import brs.Alias
-import brs.Burst
 import brs.DependencyProvider
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.db.store.AliasStore
-import brs.db.store.DerivedTableManager
-import brs.util.Convert
-import org.jooq.DSLContext
-import org.jooq.Record
-import org.jooq.SortField
-
-import java.util.ArrayList
-import java.util.Locale
-
 import brs.schema.Tables.ALIAS
 import brs.schema.Tables.ALIAS_OFFER
 import brs.schema.tables.records.AliasOfferRecord
 import brs.schema.tables.records.AliasRecord
+import brs.util.Convert
+import org.jooq.DSLContext
+import org.jooq.Record
+import org.jooq.SortField
+import java.util.*
 
 class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
     override val offerTable: VersionedEntityTable<Alias.Offer>
     override val aliasTable: VersionedEntityTable<Alias>
-    override val aliasDbKeyFactory = Companion.aliasDbKeyFactory
-    override val offerDbKeyFactory = Companion.offerDbKeyFactory
+    override val aliasDbKeyFactory = AliasDbKeyFactory
+    override val offerDbKeyFactory = OfferDbKeyFactory
 
     init {
         offerTable = object : VersionedEntitySqlTable<Alias.Offer>("alias_offer", ALIAS_OFFER, offerDbKeyFactory, dp) {
@@ -79,13 +74,13 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
     }
 
     companion object {
-        private val offerDbKeyFactory = object : DbKey.LongKeyFactory<Alias.Offer>(ALIAS_OFFER.ID) {
+        object OfferDbKeyFactory : DbKey.LongKeyFactory<Alias.Offer>(ALIAS_OFFER.ID) {
             override fun newKey(offer: Alias.Offer): BurstKey {
                 return offer.dbKey
             }
         }
 
-        private val aliasDbKeyFactory = object : DbKey.LongKeyFactory<Alias>(ALIAS.ID) {
+        object AliasDbKeyFactory : DbKey.LongKeyFactory<Alias>(ALIAS.ID) {
             override fun newKey(alias: Alias): BurstKey {
                 return alias.dbKey
             }

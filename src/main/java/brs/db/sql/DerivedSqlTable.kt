@@ -2,15 +2,13 @@ package brs.db.sql
 
 import brs.DependencyProvider
 import brs.db.DerivedTable
-import brs.db.store.DerivedTableManager
 import org.jooq.Field
 import org.jooq.impl.TableImpl
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 abstract class DerivedSqlTable internal constructor(internal val table: String, internal val tableClass: TableImpl<*>, dp: DependencyProvider) : DerivedTable {
     internal val heightField: Field<Int>
-    internal val latestField: Field<Boolean>
+    internal val latestField: Field<Boolean>?
 
     init {
         logger.trace("Creating derived table for {}", table)

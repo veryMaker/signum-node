@@ -3,13 +3,9 @@ package brs.db.sql
 import brs.DependencyProvider
 import brs.db.BurstKey
 import brs.db.VersionedBatchEntityTable
-import brs.db.cache.DBCacheManagerImpl
-import brs.db.store.DerivedTableManager
 import org.ehcache.Cache
 import org.jooq.*
 import org.jooq.impl.TableImpl
-
-import java.util.*
 
 abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: DbKey.Factory<T>, private val tClass: Class<T>, private val dp: DependencyProvider) : VersionedEntitySqlTable<T>(table, tableClass, dbKeyFactory, dp), VersionedBatchEntityTable<T> {
     override val count: Int
@@ -81,7 +77,7 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
             for (idColumn in dbKeyFactory.pkColumns) {
                 updateQuery.addConditions(tableClass.field(idColumn, Long::class.java).eq(0L))
             }
-            updateQuery.addConditions(latestField.isTrue)
+            updateQuery.addConditions(latestField?.isTrue)
 
             val updateBatch = ctx.batch(updateQuery)
             for (dbKey in keySet) {

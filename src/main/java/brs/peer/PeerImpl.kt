@@ -33,7 +33,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
     override var application by Atomic<String>()
     override var version by Atomic<Version>()
     private var isOldVersion by Atomic(false)
-    private var blacklistingTime by Atomic<Long>()
+    private var blacklistingTime by Atomic<Long>(0)
     override var state: Peer.State by AtomicWithOverride(setValueDelegate = { newState, set ->
         if (state != newState) {
             if (state == Peer.State.NON_CONNECTED) {

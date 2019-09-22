@@ -3,8 +3,7 @@ package brs.util
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.io.InputStream
-import java.util.Properties
+import java.util.*
 import java.util.logging.LogManager
 import java.util.logging.Logger
 
@@ -32,7 +31,7 @@ object LoggerConfigurator {
             System.setProperty(managerPackage,
                     oldManager ?: "java.util.logging.LogManager")
         }
-        if (System.getProperty("brs.doNotConfigureLogging").toLowerCase() != "true") {
+        if (System.getProperty("brs.doNotConfigureLogging")?.toLowerCase() != "true") {
             try {
                 var foundProperties = false
                 val loggingProperties = Properties()

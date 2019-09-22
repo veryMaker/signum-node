@@ -1,11 +1,8 @@
 package brs.at
 
-import brs.Burst
 import brs.Constants
 import brs.DependencyProvider
 import brs.fluxcapacitor.FluxValues
-
-import java.util.HashMap
 
 
 object AtConstants {
@@ -29,11 +26,9 @@ object AtConstants {
     private val MAX_PAYLOAD_FOR_BLOCK = mutableMapOf<Short, Long>()
     private val AVERAGE_BLOCK_MINUTES = mutableMapOf<Short, Long>()
 
+
     fun init(dp: DependencyProvider) {
         this.dp = dp
-    }
-
-    init {
         // constants for AT version 1
         MIN_FEE[1.toShort()] = 1000L
         STEP_FEE[1.toShort()] = Constants.ONE_BURST / 10L

@@ -2,16 +2,13 @@ package brs.util
 
 import brs.DependencyProvider
 import brs.props.Props
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import java.util.ArrayList
-import java.util.HashMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.max
 
 class ThreadPool(private val dp: DependencyProvider) {
     private val backgroundJobs = mutableMapOf<() -> Unit, Long>()
@@ -87,14 +84,14 @@ class ThreadPool(private val dp: DependencyProvider) {
                     logger.warn("Uncaught exception while running background thread " + inner.javaClass.simpleName, e)
                 }
             }
-            scheduledThreadPool!!.scheduleWithFixedDelay(toRun, 0, Math.max(value / timeMultiplier, 1), TimeUnit.MILLISECONDS)
+            scheduledThreadPool!!.scheduleWithFixedDelay(toRun, 0, max(value / timeMultiplier, 1), TimeUnit.MILLISECONDS)
         }
         backgroundJobs.clear()
 
         // Starting multicore-Threads:
         for ((key, value) in backgroundJobsCores) {
             for (i in 0 until cores)
-                scheduledThreadPool!!.scheduleWithFixedDelay(key, 0, Math.max(value / timeMultiplier, 1), TimeUnit.MILLISECONDS)
+                scheduledThreadPool!!.scheduleWithFixedDelay(key, 0, max(value / timeMultiplier, 1), TimeUnit.MILLISECONDS)
         }
         backgroundJobsCores.clear()
 

@@ -1,15 +1,11 @@
 package brs.db.sql
 
-import brs.Burst
 import brs.DependencyProvider
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
-import brs.db.store.DerivedTableManager
-import org.jooq.*
+import org.jooq.Field
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
-
-import java.util.ArrayList
 
 abstract class VersionedEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: BurstKey.Factory<T>, private val dp: DependencyProvider) : EntitySqlTable<T>(table, tableClass, dbKeyFactory, true, dp), VersionedEntityTable<T> {
     override fun rollback(height: Int) {
@@ -36,7 +32,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
                             false
                     )
                     updateQuery.addConditions(dbKey.getPKConditions(tableClass))
-                    updateQuery.addConditions(latestField.isTrue)
+                    updateQuery.addConditions(latestField?.isTrue)
 
                     updateQuery.execute()
                     save(ctx, t)
@@ -56,7 +52,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
     }
 
     companion object {
-        internal fun rollback(table: String, tableClass: TableImpl<*>, heightField: Field<Int>, latestField: Field<Boolean>, height: Int, dbKeyFactory: DbKey.Factory<*>) {
+        internal fun rollback(table: String, tableClass: TableImpl<*>, heightField: Field<Int>, latestField: Field<Boolean>?, height: Int, dbKeyFactory: DbKey.Factory<*>) {
             check(Db.isInTransaction) { "Not in transaction" }
 
             Db.useDSLContext { ctx ->

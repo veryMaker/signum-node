@@ -6,6 +6,8 @@ import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.TimeService
 import brs.util.Convert
+import brs.util.parseHexString
+import brs.util.toHexString
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -54,7 +56,7 @@ class GeneratorImplTest {
     fun testGeneratorCalculateHit() {
         assertEquals(BigInteger("14592422770739690569"), generator!!.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig!!, 0, exampleHeight))
         // Scoop data is the generation signature repeated - not intended to be acutal scoop data for the purpose of this test. It is twice as long as the gensig as this is the expected scoop size.
-        assertEquals(BigInteger("16142911724569013009"), generator!!.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, Convert."6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d06ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0")!!).parseHexString()
+        assertEquals(BigInteger("16142911724569013009"), generator!!.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, "6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d06ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0".parseHexString()))
     }
 
     @Test
@@ -72,8 +74,8 @@ class GeneratorImplTest {
 
     companion object {
 
-        private val exampleGenSig = Convert."6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0".parseHexString()
-        private val exampleBaseTarget: Long = 70312
-        private val exampleHeight = 500000
+        private val exampleGenSig = "6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0".parseHexString()
+        private const val exampleBaseTarget: Long = 70312
+        private const val exampleHeight = 500000
     }
 }

@@ -2,10 +2,9 @@ package brs.util
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.function.Consumer
 
 class Listeners<T, E : Enum<E>> {
-    private val listenersMap = ConcurrentHashMap<Enum<E>, MutableList<(T) -> Unit>>()
+    private val listenersMap = ConcurrentHashMap<Enum<E>, MutableList<(T) -> Unit>>() // Remember, this map type cannot take null keys.
 
     fun addListener(listener: (T) -> Unit, eventType: Enum<E>): Boolean {
         synchronized(this) {

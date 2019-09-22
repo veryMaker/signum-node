@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
     private val listeners = Listeners<Generator.GeneratorState, Generator.Event>()
-    private val generators = ConcurrentHashMap<Long, GeneratorStateImpl>()
+    private val generators = ConcurrentHashMap<Long, GeneratorStateImpl>() // Remember, this map type cannot take null keys.
     private val burstCrypto = BurstCrypto.getInstance()
 
     override val allGenerators: Collection<Generator.GeneratorState>
@@ -129,7 +129,7 @@ open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
             val lastBlock = dp.blockchain.lastBlock
 
             val elapsedTime = dp.timeService.epochTime - lastBlock.timestamp
-            if (BigInteger.valueOf(elapsedTime.toLong()).compareTo(deadline) > 0) {
+            if (BigInteger.valueOf(elapsedTime.toLong()) > deadline) {
                 blockchainProcessor.generateBlock(secretPhrase, publicKey, nonce)
             }
         }

@@ -4,17 +4,13 @@ import brs.AssetTransfer
 import brs.DependencyProvider
 import brs.db.BurstKey
 import brs.db.store.AssetTransferStore
-import brs.db.store.DerivedTableManager
-import brs.schema.tables.records.AssetTransferRecord
+import brs.schema.Tables.ASSET_TRANSFER
 import org.jooq.DSLContext
 import org.jooq.Record
-import org.jooq.SelectQuery
-
-import brs.schema.Tables.ASSET_TRANSFER
 
 class SqlAssetTransferStore(dp: DependencyProvider) : AssetTransferStore {
     override val assetTransferTable: EntitySqlTable<AssetTransfer>
-    override val transferDbKeyFactory = Companion.transferDbKeyFactory
+    override val transferDbKeyFactory = TransferDbKeyFactory
 
     init {
         assetTransferTable = object : EntitySqlTable<AssetTransfer>("asset_transfer", brs.schema.Tables.ASSET_TRANSFER, transferDbKeyFactory, dp) {
@@ -86,7 +82,7 @@ class SqlAssetTransferStore(dp: DependencyProvider) : AssetTransferStore {
     internal inner class SqlAssetTransfer(record: Record) : AssetTransfer(record.get(ASSET_TRANSFER.ID), transferDbKeyFactory.newKey(record.get(ASSET_TRANSFER.ID)), record.get(ASSET_TRANSFER.ASSET_ID), record.get(ASSET_TRANSFER.HEIGHT), record.get(ASSET_TRANSFER.SENDER_ID), record.get(ASSET_TRANSFER.RECIPIENT_ID), record.get(ASSET_TRANSFER.QUANTITY), record.get(ASSET_TRANSFER.TIMESTAMP))
 
     companion object {
-        private val transferDbKeyFactory = object : DbKey.LongKeyFactory<AssetTransfer>(ASSET_TRANSFER.ID) {
+        object TransferDbKeyFactory : DbKey.LongKeyFactory<AssetTransfer>(ASSET_TRANSFER.ID) {
             override fun newKey(assetTransfer: AssetTransfer): BurstKey {
                 return assetTransfer.dbKey
             }

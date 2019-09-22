@@ -81,8 +81,8 @@ object Peers {
 
     private val listeners = Listeners<Peer, Event>()
 
-    private val peers = ConcurrentHashMap<String, Peer>()
-    private val announcedAddresses: MutableMap<String?, String> = ConcurrentHashMap()
+    private val peers = ConcurrentHashMap<String, Peer>() // Remember, this map type cannot take null keys.
+    private val announcedAddresses: MutableMap<String?, String> = ConcurrentHashMap() // Remember, this map type cannot take null keys.
 
     val allPeers: Collection<Peer> = peers.values
 
@@ -454,7 +454,7 @@ object Peers {
             private fun loadPeers(addresses: Collection<String>) {
                 for (address in addresses) {
                     val unresolvedAddress = sendBlocksToPeersService.submit<String> {
-                        val peer = Peers.addPeer(address)
+                        val peer = addPeer(address)
                         if (peer == null) address else null
                     }
                     unresolvedPeers.add(unresolvedAddress)
@@ -690,9 +690,11 @@ object Peers {
             return peer
         }
         val address = announcedAddresses[cleanAddress]
-        peer = peers[address]
-        if (address != null && peer != null) {
-            return peer
+        if (address != null) {
+            peer = peers[address]
+            if (peer != null) {
+                return peer
+            }
         }
         try {
             val uri = URI("http://$cleanAddress")

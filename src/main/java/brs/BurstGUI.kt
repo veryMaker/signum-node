@@ -1,18 +1,14 @@
 package brs
 
-import brs.props.PropertyService
 import brs.props.Props
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
-import javafx.scene.control.Dialog
 import javafx.scene.control.TextArea
 import javafx.stage.Stage
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import java.awt.*
 import java.io.FileDescriptor
 import java.io.OutputStream
@@ -32,16 +28,7 @@ class BurstGUI : Application() {
     override fun start(primaryStage: Stage) {
         System.setSecurityManager(BurstGUISecurityManager())
         primaryStage.title = "Burst Reference Software version " + Burst.VERSION
-        val textArea = object : TextArea() {
-            override fun replaceText(start: Int, end: Int, text: String) {
-                super.replaceText(start, end, text)
-                while (getText().split("\n".toRegex()).toTypedArray().size > OUTPUT_MAX_LINES) {
-                    val fle = getText().indexOf('\n')
-                    super.replaceText(0, fle + 1, "")
-                }
-                positionCaret(getText().length)
-            }
-        }
+        val textArea = LimitedTextArea(OUTPUT_MAX_LINES)
         textArea.isEditable = false
         sendJavaOutputToTextArea(textArea)
         primaryStage.scene = Scene(textArea, 800.0, 450.0)
@@ -334,5 +321,16 @@ class BurstGUI : Application() {
             Platform.setImplicitExit(false)
             Application.launch(*args)
         }
+    }
+}
+
+class LimitedTextArea(private val maxNumberOfLines: Int) : TextArea() {
+    override fun replaceText(start: Int, end: Int, text: String) {
+        super.replaceText(start, end, text)
+        while (getText().split("\n".toRegex()).toTypedArray().size > maxNumberOfLines) {
+            val fle = getText().indexOf('\n')
+            super.replaceText(0, fle + 1, "")
+        }
+        positionCaret(getText().length)
     }
 }

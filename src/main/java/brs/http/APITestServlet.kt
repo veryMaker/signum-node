@@ -3,15 +3,11 @@ package brs.http
 import brs.util.Convert
 import brs.util.Subnet
 import org.owasp.encoder.Encode
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
+import java.io.IOException
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import java.io.IOException
-import java.io.PrintWriter
-import java.util.*
 
 class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Subnet>?) : HttpServlet() {
     private val requestTypes: List<String>
@@ -100,7 +96,6 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
         } catch (e: IOException) {
             logger.debug("IOException: ", e)
         }
-
     }
 
     private fun form(requestType: String, singleView: Boolean, className: String, parameters: List<String>, requirePost: Boolean): String {

@@ -25,10 +25,10 @@ import brs.util.Time
 import io.grpc.ServerBuilder
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder
 import org.slf4j.LoggerFactory
-
-import java.io.*
+import java.io.FileInputStream
+import java.io.IOException
 import java.net.InetSocketAddress
-import java.util.Properties
+import java.util.*
 import kotlin.math.max
 import kotlin.system.exitProcess
 
@@ -73,6 +73,8 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.blockchain = BlockchainImpl(dp)
             dp.aliasService = AliasServiceImpl(dp)
             dp.fluxCapacitor = FluxCapacitorImpl(dp)
+            dp.blockService = BlockServiceImpl(dp)
+            dp.blockchainProcessor = BlockchainProcessorImpl(dp)
             AtConstants.init(dp)
             dp.economicClustering = EconomicClustering(dp)
             dp.generator = if (dp.propertyService.get(Props.DEV_MOCK_MINING)) GeneratorImpl.MockGenerator(dp) else GeneratorImpl(dp)
@@ -86,8 +88,6 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.assetExchange = AssetExchangeImpl(dp)
             dp.downloadCache = DownloadCacheImpl(dp)
             dp.indirectIncomingService = IndirectIncomingServiceImpl(dp)
-            dp.blockService = BlockServiceImpl(dp)
-            dp.blockchainProcessor = BlockchainProcessorImpl(dp)
             dp.feeSuggestionCalculator = FeeSuggestionCalculator(dp)
             dp.generator.generateForBlockchainProcessor(dp)
             dp.deeplinkQRCodeGenerator = DeeplinkQRCodeGenerator()
@@ -174,7 +174,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
     }
 
     companion object {
-        val VERSION = Version.parse("v2.4.0-dev")
+        val VERSION = Version.parse("v3.0.0-dev")
         const val APPLICATION = "BRS"
         private const val DEFAULT_PROPERTIES_NAME = "brs-default.properties"
         private val logger = LoggerFactory.getLogger(Burst::class.java)

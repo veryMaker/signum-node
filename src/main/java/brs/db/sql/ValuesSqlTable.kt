@@ -27,7 +27,7 @@ abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableCla
             }
             values = ctx.selectFrom(tableClass)
                     .where(key.getPKConditions(tableClass))
-                    .and(if (multiversion) latestField.isTrue else DSL.noCondition())
+                    .and(if (multiversion) latestField?.isTrue ?: DSL.noCondition() else DSL.noCondition())
                     .orderBy(tableClass.field("db_id").desc())
                     .fetch { record -> load(ctx, record) }
             if (Db.isInTransaction) {
@@ -46,7 +46,7 @@ abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableCla
                 ctx.update(tableClass)
                         .set(latestField, false)
                         .where(dbKey.getPKConditions(tableClass))
-                        .and(latestField.isTrue)
+                        .and(latestField?.isTrue)
                         .execute()
             }
             for (v in values) {

@@ -1,33 +1,26 @@
 package brs.http
 
-import brs.*
+import brs.DependencyProvider
 import brs.props.Props
-import brs.services.*
 import brs.util.Subnet
-import brs.util.ThreadPool
 import org.eclipse.jetty.rewrite.handler.RewriteHandler
 import org.eclipse.jetty.rewrite.handler.RewriteRegexRule
-import org.eclipse.jetty.rewrite.handler.Rule
 import org.eclipse.jetty.server.*
 import org.eclipse.jetty.server.handler.HandlerList
 import org.eclipse.jetty.server.handler.gzip.GzipHandler
 import org.eclipse.jetty.servlet.DefaultServlet
-import org.eclipse.jetty.servlet.FilterHolder
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.eclipse.jetty.servlets.DoSFilter
 import org.eclipse.jetty.util.ssl.SslContextFactory
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 import java.io.File
 import java.io.IOException
 import java.net.UnknownHostException
-import java.util.Collections
-import java.util.HashSet
+import java.util.*
 import java.util.regex.Matcher
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 class API(dp: DependencyProvider) {
 
@@ -202,7 +195,7 @@ class API(dp: DependencyProvider) {
 
         private val logger = LoggerFactory.getLogger(API::class.java)
 
-        private val API_PATH = "/burst"
-        private val API_TEST_PATH = "/test"
+        private const val API_PATH = "/burst"
+        private const val API_TEST_PATH = "/test"
     }
 }

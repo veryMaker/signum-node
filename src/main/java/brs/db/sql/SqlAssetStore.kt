@@ -1,15 +1,12 @@
 package brs.db.sql
 
 import brs.Asset
-import brs.Burst
 import brs.DependencyProvider
 import brs.db.BurstKey
 import brs.db.store.AssetStore
-import brs.db.store.DerivedTableManager
+import brs.schema.Tables.ASSET
 import org.jooq.DSLContext
 import org.jooq.Record
-
-import brs.schema.tables.Asset.ASSET
 
 class SqlAssetStore(private val dp: DependencyProvider) : AssetStore {
     override val assetDbKeyFactory: BurstKey.LongKeyFactory<Asset> = object : DbKey.LongKeyFactory<Asset>(ASSET.ID) {

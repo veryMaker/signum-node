@@ -17,7 +17,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
     override val count: Int
         get() = Db.useDSLContext<Int> { ctx ->
             val r = ctx.selectCount().from(tableClass)
-            (if (multiversion) r.where(latestField.isTrue) else r).fetchOne(0, Int::class.javaPrimitiveType)
+            (if (multiversion) r.where(latestField?.isTrue) else r).fetchOne(0, Int::class.javaPrimitiveType)
         }
 
     override val rowCount: Int
@@ -34,7 +34,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         defaultSort.add(heightField.desc())
     }
 
-    protected abstract fun load(ctx: DSLContext, rs: Record): T
+    protected abstract fun load(ctx: DSLContext, record: Record): T
 
     internal open fun save(ctx: DSLContext, t: T) {
 
@@ -67,7 +67,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
             query.addFrom(tableClass)
             query.addConditions(key.getPKConditions(tableClass))
             if (multiversion) {
-                query.addConditions(latestField.isTrue)
+                query.addConditions(latestField?.isTrue)
             }
             query.addLimit(1)
 
@@ -89,7 +89,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
                 val innerQuery = ctx.selectQuery()
                 innerQuery.addConditions(innerTable.field("height", Int::class.java).gt(height))
                 innerQuery.addConditions(key.getPKConditions(innerTable))
-                query.addConditions(latestField.isTrue.or(DSL.field(DSL.exists(innerQuery))))
+                query.addConditions(latestField?.isTrue?.or(DSL.field(DSL.exists(innerQuery))))
             }
             query.addOrderBy(heightField.desc())
             query.addLimit(1)
@@ -104,7 +104,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
             query.addFrom(tableClass)
             query.addConditions(condition)
             if (multiversion) {
-                query.addConditions(latestField.isTrue)
+                query.addConditions(latestField?.isTrue)
             }
             query.addLimit(1)
 
@@ -124,7 +124,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
                 val innerQuery = ctx.selectQuery()
                 innerQuery.addConditions(innerTable.field("height", Int::class.java).gt(height))
                 dbKeyFactory.applySelfJoin(innerQuery, innerTable, tableClass)
-                query.addConditions(latestField.isTrue.or(DSL.field(DSL.exists(innerQuery))))
+                query.addConditions(latestField?.isTrue?.or(DSL.field(DSL.exists(innerQuery))))
             }
             query.addOrderBy(heightField.desc())
             query.addLimit(1)
@@ -163,7 +163,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
             query.addConditions(condition)
             query.addOrderBy(sort)
             if (multiversion) {
-                query.addConditions(latestField.isTrue())
+                query.addConditions(latestField?.isTrue())
             }
             DbUtils.applyLimits(query, from, to)
             getManyBy(ctx, query, true)
@@ -197,7 +197,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
                 dbKeyFactory.applySelfJoin(innerQueryC, innerTableC, tableClass)
 
                 query.addConditions(
-                        latestField.isTrue().or(
+                        latestField?.isTrue?.or(
                                 DSL.field(
                                         DSL.exists(innerQueryB).and(DSL.notExists(innerQueryC))
                                 )
@@ -239,7 +239,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             if (multiversion) {
-                query.addConditions(latestField.isTrue)
+                query.addConditions(latestField?.isTrue)
             }
             query.addOrderBy(sort)
             DbUtils.applyLimits(query, from, to)
@@ -268,7 +268,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
                 innerQueryC.addConditions(innerTableC.field("height", Int::class.java).le(height).and(innerTableC.field("height", Int::class.java).gt(heightField)))
                 dbKeyFactory.applySelfJoin(innerQueryC, innerTableC, tableClass)
 
-                query.addConditions(latestField.isTrue.or(DSL.field(DSL.exists(innerQueryB).and(DSL.notExists(innerQueryC)))))
+                query.addConditions(latestField?.isTrue?.or(DSL.field(DSL.exists(innerQueryB).and(DSL.notExists(innerQueryC)))))
             }
             query.addOrderBy(sort)
             query.addLimit(from, to)
@@ -293,7 +293,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
                         false
                 )
                 query.addConditions(dbKey.getPKConditions(tableClass))
-                query.addConditions(latestField.isTrue)
+                query.addConditions(latestField?.isTrue)
                 query.execute()
             }
             save(ctx, t)
