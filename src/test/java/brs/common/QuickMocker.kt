@@ -18,27 +18,42 @@ import brs.props.Props
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
-import org.junit.Assert.assertTrue
 import javax.servlet.http.HttpServletRequest
 import kotlin.reflect.KMutableProperty
+import kotlin.reflect.KType
 import kotlin.reflect.full.createType
+import kotlin.reflect.full.isSupertypeOf
+
+fun main() {
+    val dp = QuickMocker.dependencyProvider(mock<PropertyServiceImpl>(), mock<TradeStore>(), mock<FluxEnable>(), "")
+    println(dp)
+}
 
 object QuickMocker {
     fun dependencyProvider(vararg dependencies: Any): DependencyProvider {
         val classToDependency = dependencies
             .map { it::class.createType() to it }
             .toMap()
-            .toMutableMap()
-        assertTrue("Duplicate dependencies found (two or more dependencies of the same type were provided)", dependencies.size == classToDependency.size)
+        require(dependencies.size == classToDependency.size) { "Duplicate dependencies found (two or more dependencies of the same type were provided)" }
 
         val dp = DependencyProvider()
+        val insertedDependencies = mutableListOf<KType>()
+
         dp::class.members.forEach { member ->
             if (member is KMutableProperty<*>) {
-                member.setter.call(dp, classToDependency[member.returnType] ?: return@forEach)
-                classToDependency.remove(member.returnType)
+                classToDependency.forEach { (dependencyType, dependency) ->
+                    if (member.returnType == dependencyType || member.returnType.isSupertypeOf(dependencyType)) {
+                        member.setter.call(dp, dependency)
+                        insertedDependencies.add(dependencyType)
+                    }
+                }
             }
         }
-        assertTrue("Not all dependencies can go into dependency provider, these can't: ${classToDependency.keys}", classToDependency.isEmpty())
+        require(insertedDependencies.size == classToDependency.size) {
+            val notInsertedDependencies = classToDependency.keys.toMutableList()
+            notInsertedDependencies.removeAll(insertedDependencies)
+            "Not all dependencies can go into dependency provider, these types can't: $notInsertedDependencies"
+        }
         return dp
     }
 
