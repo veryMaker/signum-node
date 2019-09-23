@@ -1,36 +1,35 @@
 package brs.http
 
-import brs.*
+import brs.Account
+import brs.Attachment
+import brs.Blockchain
 import brs.DigitalGoodsStore.Goods
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
-import brs.services.ParameterService
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import javax.servlet.http.HttpServletRequest
-
-import brs.transaction.TransactionType.DigitalGoods.PRICE_CHANGE
 import brs.http.JSONResponses.UNKNOWN_GOODS
 import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.services.ParameterService
+import brs.transaction.digitalGoods.DigitalGoodsPriceChange
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import javax.servlet.http.HttpServletRequest
 
 @RunWith(JUnit4::class)
 class DGSPriceChangeTest : AbstractTransactionTest() {
 
-    private var t: DGSPriceChange? = null
+    private lateinit var t: DGSPriceChange
 
-    private var parameterServiceMock: ParameterService? = null
-    private var blockchainMock: Blockchain? = null
-    private var apiTransactionManagerMock: APITransactionManager? = null
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var blockchainMock: Blockchain
+    private lateinit var apiTransactionManagerMock: APITransactionManager
 
     @Before
     fun setUp() {
@@ -38,7 +37,7 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
         blockchainMock = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 
-        t = DGSPriceChange(parameterServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!)
+        t = DGSPriceChange(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!))
     }
 
     @Test
@@ -66,7 +65,7 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsPriceChange
         assertNotNull(attachment)
 
-        assertEquals(PRICE_CHANGE, attachment.transactionType)
+        assertTrue(attachment.transactionType is DigitalGoodsPriceChange)
         assertEquals(mockGoodsId, attachment.goodsId)
         assertEquals(priceNQTParameter.toLong(), attachment.priceNQT)
     }

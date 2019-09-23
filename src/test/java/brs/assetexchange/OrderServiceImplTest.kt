@@ -2,6 +2,7 @@ package brs.assetexchange
 
 import brs.Order.Ask
 import brs.Order.Bid
+import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedEntityTable
@@ -11,10 +12,9 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-
-import org.junit.Assert.assertEquals
 
 class OrderServiceImplTest {
 
@@ -40,12 +40,12 @@ class OrderServiceImplTest {
         accountServiceMock = mock<AccountService>()
         tradeServiceMock = mock<TradeServiceImpl>()
 
-        whenever(orderStoreMock!!.askOrderTable).doReturn(mockAskOrderTable)
-        whenever(orderStoreMock!!.askOrderDbKeyFactory).doReturn(mockAskOrderDbKeyFactory)
-        whenever(orderStoreMock!!.bidOrderTable).doReturn(mockBidOrderTable)
-        whenever(orderStoreMock!!.bidOrderDbKeyFactory).doReturn(mockBidOrderDbKeyFactory)
+        whenever(orderStoreMock!!.askOrderTable).doReturn(mockAskOrderTable!!)
+        whenever(orderStoreMock!!.askOrderDbKeyFactory).doReturn(mockAskOrderDbKeyFactory!!)
+        whenever(orderStoreMock!!.bidOrderTable).doReturn(mockBidOrderTable!!)
+        whenever(orderStoreMock!!.bidOrderDbKeyFactory).doReturn(mockBidOrderDbKeyFactory!!)
 
-        t = OrderServiceImpl(orderStoreMock!!, accountServiceMock, tradeServiceMock)
+        t = OrderServiceImpl(QuickMocker.dependencyProvider(orderStoreMock!!, accountServiceMock!!), tradeServiceMock!!)
     }
 
     @Test

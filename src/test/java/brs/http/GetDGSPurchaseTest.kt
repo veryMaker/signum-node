@@ -4,6 +4,18 @@ import brs.BurstException
 import brs.DigitalGoodsStore.Purchase
 import brs.common.QuickMocker
 import brs.crypto.EncryptedData
+import brs.http.common.ResultFields.BUYER_RESPONSE
+import brs.http.common.ResultFields.DELIVERY_DEADLINE_TIMESTAMP_RESPONSE
+import brs.http.common.ResultFields.DISCOUNT_NQT_RESPONSE
+import brs.http.common.ResultFields.GOODS_RESPONSE
+import brs.http.common.ResultFields.NAME_RESPONSE
+import brs.http.common.ResultFields.PENDING_RESPONSE
+import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.PURCHASE_RESPONSE
+import brs.http.common.ResultFields.QUANTITY_RESPONSE
+import brs.http.common.ResultFields.REFUND_NQT_RESPONSE
+import brs.http.common.ResultFields.SELLER_RESPONSE
+import brs.http.common.ResultFields.TIMESTAMP_RESPONSE
 import brs.services.ParameterService
 import brs.util.JSON
 import com.google.gson.JsonObject
@@ -42,7 +54,7 @@ class GetDGSPurchaseTest {
         whenever(mockEncryptedData.data).doReturn(byteArrayOf(1.toByte()))
         whenever(mockEncryptedData.nonce).doReturn(byteArrayOf(1.toByte()))
 
-        val mockEncryptedDataList = listOf(mockEncryptedData)
+        val mockEncryptedDataList = mutableListOf(mockEncryptedData)
 
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.id).doReturn(1L)

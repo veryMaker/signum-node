@@ -5,6 +5,14 @@ import brs.Account.AccountAsset
 import brs.BurstException
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
+import brs.http.common.ResultFields.ASSET_BALANCES_RESPONSE
+import brs.http.common.ResultFields.ASSET_RESPONSE
+import brs.http.common.ResultFields.BALANCE_QNT_RESPONSE
+import brs.http.common.ResultFields.DESCRIPTION_RESPONSE
+import brs.http.common.ResultFields.NAME_RESPONSE
+import brs.http.common.ResultFields.PUBLIC_KEY_RESPONSE
+import brs.http.common.ResultFields.UNCONFIRMED_ASSET_BALANCES_RESPONSE
+import brs.http.common.ResultFields.UNCONFIRMED_BALANCE_QNT_RESPONSE
 import brs.services.AccountService
 import brs.services.ParameterService
 import brs.util.JSON

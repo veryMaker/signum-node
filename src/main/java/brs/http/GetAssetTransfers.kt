@@ -35,12 +35,12 @@ internal class GetAssetTransfers internal constructor(private val parameterServi
                 assetExchange.getAssetTransfers(asset.id, firstIndex, lastIndex)
             }
             assetId == null -> {
-                val account = parameterService.getAccount(request)
+                val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
                 accountService.getAssetTransfers(account.id, firstIndex, lastIndex)
             }
             else -> {
                 val asset = parameterService.getAsset(request)
-                val account = parameterService.getAccount(request)
+                val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
                 assetExchange.getAccountAssetTransfers(account.id, asset.id, firstIndex, lastIndex)
             }
         }

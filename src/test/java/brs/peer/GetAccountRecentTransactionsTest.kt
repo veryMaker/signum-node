@@ -2,13 +2,15 @@ package brs.peer
 
 import brs.Account
 import brs.Blockchain
+import brs.DependencyProvider
 import brs.Transaction
-import brs.transaction.TransactionType.DigitalGoods
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.JSONParam
 import brs.common.TestConstants
 import brs.services.AccountService
+import brs.transaction.digitalGoods.DigitalGoods
+import brs.transaction.digitalGoods.DigitalGoodsDelisting
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
@@ -28,13 +30,15 @@ class GetAccountRecentTransactionsTest : AbstractUnitTest() {
 
     private var mockAccountService: AccountService? = null
     private var mockBlockchain: Blockchain? = null
+    private lateinit var dp: DependencyProvider
 
     @Before
     fun setUp() {
         mockAccountService = mock<AccountService>()
         mockBlockchain = mock<Blockchain>()
+        dp = QuickMocker.dependencyProvider(mockAccountService!!, mockBlockchain!!)
 
-        t = GetAccountRecentTransactions(mockAccountService, mockBlockchain)
+        t = GetAccountRecentTransactions(mockAccountService!!, mockBlockchain!!)
     }
 
     @Test
@@ -48,7 +52,7 @@ class GetAccountRecentTransactionsTest : AbstractUnitTest() {
         val mockAccount = mock<Account>()
 
         val mockTransaction = mock<Transaction>()
-        whenever(mockTransaction.type).doReturn(DigitalGoods.DELISTING)
+        whenever(mockTransaction.type).doReturn(DigitalGoodsDelisting(dp))
         val transactionsIterator = mockCollection<Transaction>(mockTransaction)
 
         whenever(mockAccountService!!.getAccount(eq(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED))).doReturn(mockAccount)

@@ -2,27 +2,24 @@ package brs.http
 
 import brs.Account
 import brs.Account.RewardRecipientAssignment
-import brs.BurstException
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
+import brs.http.common.Parameters.ACCOUNTS_RESPONSE
+import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.services.AccountService
 import brs.services.ParameterService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.Parameters.ACCOUNTS_RESPONSE
-import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
 
@@ -53,7 +50,7 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
         whenever(parameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(targetAccount)
 
         val assignment = mock<RewardRecipientAssignment>()
-        whenever(assignment.getAccountId()).doReturn(targetAccountId)
+        whenever(assignment.accountId).doReturn(targetAccountId)
 
         val assignmentIterator = mockCollection<RewardRecipientAssignment>(assignment)
 
@@ -81,7 +78,7 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
         whenever(parameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(targetAccount)
 
         val assignment = mock<RewardRecipientAssignment>()
-        whenever(assignment.getAccountId()).doReturn(targetAccountId)
+        whenever(assignment.accountId).doReturn(targetAccountId)
 
         val assignmentIterator = mockCollection<RewardRecipientAssignment>(assignment)
 

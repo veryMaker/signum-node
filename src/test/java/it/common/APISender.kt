@@ -1,10 +1,12 @@
 package it.common
 
 import brs.common.TestInfrastructure
+import brs.http.common.Parameters.ACCOUNT_PARAMETER
+import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
+import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import org.apache.http.HttpHost
-import org.apache.http.HttpResponse
 import org.apache.http.NameValuePair
 import org.apache.http.client.HttpClient
 import org.apache.http.client.entity.UrlEncodedFormEntity
@@ -12,10 +14,6 @@ import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.message.BasicNameValuePair
 import org.apache.http.util.EntityUtils
-
-import java.io.IOException
-import java.util.ArrayList
-import java.util.Arrays
 
 class APISender {
 

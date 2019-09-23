@@ -3,25 +3,25 @@ package brs.http
 import brs.Account
 import brs.Block
 import brs.Blockchain
-import brs.BurstException
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
+import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
+import brs.http.common.Parameters.LAST_INDEX_PARAMETER
+import brs.http.common.Parameters.TIMESTAMP_PARAMETER
+import brs.http.common.ResultFields.BLOCK_IDS_RESPONSE
 import brs.services.ParameterService
 import brs.util.JSON
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-import brs.http.common.ResultFields.BLOCK_IDS_RESPONSE
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
 
 class GetAccountBlockIdsTest : AbstractUnitTest() {
 

@@ -8,13 +8,11 @@ import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Before
-import org.junit.Test
-
-import java.math.BigInteger
-
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import java.math.BigInteger
 
 class GetCumulativeDifficultyTest {
 
@@ -26,7 +24,7 @@ class GetCumulativeDifficultyTest {
     fun setUp() {
         mockBlockchain = mock<Blockchain>()
 
-        t = GetCumulativeDifficulty(mockBlockchain)
+        t = GetCumulativeDifficulty(mockBlockchain!!)
     }
 
     @Test

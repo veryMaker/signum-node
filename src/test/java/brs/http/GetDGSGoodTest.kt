@@ -1,21 +1,27 @@
 package brs.http
 
-import brs.BurstException
 import brs.DigitalGoodsStore
 import brs.common.QuickMocker
+import brs.http.common.ResultFields.DELISTED_RESPONSE
+import brs.http.common.ResultFields.DESCRIPTION_RESPONSE
+import brs.http.common.ResultFields.GOODS_RESPONSE
+import brs.http.common.ResultFields.NAME_RESPONSE
+import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.QUANTITY_RESPONSE
+import brs.http.common.ResultFields.TAGS_RESPONSE
+import brs.http.common.ResultFields.TIMESTAMP_RESPONSE
 import brs.services.ParameterService
 import brs.util.JSON
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class GetDGSGoodTest {
 

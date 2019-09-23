@@ -1,39 +1,40 @@
 package brs.http
 
-import brs.*
+import brs.Account
+import brs.Attachment
+import brs.Blockchain
+import brs.DigitalGoodsStore
 import brs.DigitalGoodsStore.Goods
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
-import brs.services.AccountService
-import brs.services.ParameterService
-import brs.services.TimeService
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
-import brs.transaction.TransactionType.DigitalGoods.PURCHASE
 import brs.http.JSONResponses.INCORRECT_DELIVERY_DEADLINE_TIMESTAMP
 import brs.http.JSONResponses.INCORRECT_PURCHASE_PRICE
 import brs.http.JSONResponses.INCORRECT_PURCHASE_QUANTITY
 import brs.http.JSONResponses.MISSING_DELIVERY_DEADLINE_TIMESTAMP
 import brs.http.JSONResponses.UNKNOWN_GOODS
+import brs.http.common.Parameters.DELIVERY_DEADLINE_TIMESTAMP_PARAMETER
+import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.http.common.Parameters.QUANTITY_PARAMETER
+import brs.services.AccountService
+import brs.services.ParameterService
+import brs.services.TimeService
 import com.nhaarman.mockitokotlin2.*
-import io.mockk.every
-import io.mockk.mockkStatic
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class DGSPurchaseTest : AbstractTransactionTest() {
 
-    private var t: DGSPurchase? = null
+    private lateinit var t: DGSPurchase
 
-    private var mockParameterService: ParameterService? = null
-    private var mockBlockchain: Blockchain? = null
-    private var mockAccountService: AccountService? = null
-    private var mockTimeService: TimeService? = null
-    private var apiTransactionManagerMock: APITransactionManager? = null
+    private lateinit var mockParameterService: ParameterService
+    private lateinit var mockBlockchain: Blockchain
+    private lateinit var mockAccountService: AccountService
+    private lateinit var mockTimeService: TimeService
+    private lateinit var apiTransactionManagerMock: APITransactionManager
 
     @Before
     fun setUp() {
@@ -44,7 +45,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         mockTimeService = mock<TimeService>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 
-        t = DGSPurchase(mockParameterService!!, mockBlockchain!!, mockAccountService!!, mockTimeService!!, apiTransactionManagerMock!!)
+        t = DGSPurchase(QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, mockAccountService!!, mockTimeService!!, apiTransactionManagerMock!!))
     }
 
     @Test
@@ -74,15 +75,12 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         whenever(mockTimeService!!.epochTime).doReturn(10)
 
         whenever(mockAccountService!!.getAccount(eq(mockSellerId))).doReturn(mockSellerAccount)
-
-        mockkStatic(Burst::class)
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
-        every { Burst.fluxCapacitor } returns fluxCapacitor
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsPurchase
         assertNotNull(attachment)
 
-        assertEquals(PURCHASE, attachment.transactionType)
+        assertEquals(DigitalGoodsStore.Event.PURCHASE, attachment.transactionType)
         assertEquals(goodsQuantity.toLong(), attachment.quantity.toLong())
         assertEquals(goodsPrice, attachment.priceNQT)
         assertEquals(deliveryDeadlineTimestamp, attachment.deliveryDeadlineTimestamp.toLong())

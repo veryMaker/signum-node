@@ -15,10 +15,10 @@ import org.junit.Assert.assertEquals
 
 class TradeServiceImplTest : AbstractUnitTest() {
 
-    private var t: TradeServiceImpl? = null
+    private lateinit var t: TradeServiceImpl
 
-    private var mockTradeStore: TradeStore? = null
-    private var mockTradeTable: EntitySqlTable<Trade>? = null
+    private lateinit var mockTradeStore: TradeStore
+    private lateinit var mockTradeTable: EntitySqlTable<Trade>
 
     @Before
     fun setUp() {

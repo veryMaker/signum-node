@@ -11,12 +11,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
-
-import brs.transaction.TransactionType.ColoredCoins.ASSET_TRANSFER
 import brs.http.JSONResponses.NOT_ENOUGH_ASSETS
+import brs.http.common.Parameters.ASSET_PARAMETER
+import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
+import brs.http.common.Parameters.RECIPIENT_PARAMETER
+import brs.transaction.coloredCoins.AssetTransfer
 import com.nhaarman.mockitokotlin2.*
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
@@ -38,7 +39,7 @@ class TransferAssetTest : AbstractTransactionTest() {
         transactionProcessorMock = mock<TransactionProcessor>()
         accountServiceMock = mock<AccountService>()
 
-        t = TransferAsset(parameterServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!, accountServiceMock!!)
+        t = TransferAsset(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!, accountServiceMock!!))
     }
 
     @Test
@@ -68,7 +69,7 @@ class TransferAssetTest : AbstractTransactionTest() {
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.ColoredCoinsAssetTransfer
         assertNotNull(attachment)
 
-        assertEquals(ASSET_TRANSFER, attachment.transactionType)
+        assertTrue(attachment.transactionType is AssetTransfer)
         assertEquals(assetIdParameter, attachment.assetId)
         assertEquals(quantityQNTParameter, attachment.quantityQNT)
     }

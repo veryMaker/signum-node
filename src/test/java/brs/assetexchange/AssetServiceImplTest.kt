@@ -20,14 +20,14 @@ import org.junit.Assert.assertNotNull
 
 class AssetServiceImplTest : AbstractUnitTest() {
 
-    private var t: AssetServiceImpl? = null
+    private lateinit var t: AssetServiceImpl
 
-    private var assetAccountServiceMock: AssetAccountServiceImpl? = null
-    private var assetTransferServicMock: AssetTransferServiceImpl? = null
-    private var tradeServiceMock: TradeServiceImpl? = null
-    private var assetStoreMock: AssetStore? = null
-    private var assetTableMock: EntitySqlTable<Asset>? = null
-    private var assetDbKeyFactoryMock: LongKeyFactory<Asset>? = null
+    private lateinit var assetAccountServiceMock: AssetAccountServiceImpl
+    private lateinit var assetTransferServicMock: AssetTransferServiceImpl
+    private lateinit var tradeServiceMock: TradeServiceImpl
+    private lateinit var assetStoreMock: AssetStore
+    private lateinit var assetTableMock: EntitySqlTable<Asset>
+    private lateinit var assetDbKeyFactoryMock: LongKeyFactory<Asset>
 
     @Before
     fun setUp() {

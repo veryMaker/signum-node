@@ -3,12 +3,10 @@ package brs.services
 import brs.*
 import brs.at.AT
 import brs.crypto.EncryptedData
-import brs.http.ParameterException
-
 import javax.servlet.http.HttpServletRequest
 
 interface ParameterService {
-    fun getAccount(request: HttpServletRequest): Account
+    fun getAccount(request: HttpServletRequest): Account?
 
     fun getAccounts(request: HttpServletRequest): List<Account>
 

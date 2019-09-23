@@ -1,7 +1,8 @@
 package brs.http
 
-import brs.*
-import brs.transaction.TransactionType.DigitalGoods
+import brs.Account
+import brs.Attachment
+import brs.Blockchain
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
@@ -9,25 +10,29 @@ import brs.http.JSONResponses.INCORRECT_DGS_LISTING_DESCRIPTION
 import brs.http.JSONResponses.INCORRECT_DGS_LISTING_NAME
 import brs.http.JSONResponses.INCORRECT_DGS_LISTING_TAGS
 import brs.http.JSONResponses.MISSING_NAME
+import brs.http.common.Parameters.DESCRIPTION_PARAMETER
+import brs.http.common.Parameters.NAME_PARAMETER
+import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.http.common.Parameters.QUANTITY_PARAMETER
+import brs.http.common.Parameters.TAGS_PARAMETER
 import brs.services.ParameterService
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
+import brs.transaction.digitalGoods.DigitalGoodsListing
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class DGSListingTest : AbstractTransactionTest() {
 
-    private var t: DGSListing? = null
+    private lateinit var t: DGSListing
 
-    private var mockParameterService: ParameterService? = null
-    private var mockBlockchain: Blockchain? = null
-    private var apiTransactionManagerMock: APITransactionManager? = null
+    private lateinit var mockParameterService: ParameterService
+    private lateinit var mockBlockchain: Blockchain
+    private lateinit var apiTransactionManagerMock: APITransactionManager
 
     @Before
     fun setUp() {
@@ -35,7 +40,7 @@ class DGSListingTest : AbstractTransactionTest() {
         mockBlockchain = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 
-        t = DGSListing(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!)
+        t = DGSListing(QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!))
     }
 
     @Test
@@ -63,7 +68,7 @@ class DGSListingTest : AbstractTransactionTest() {
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsListing
         assertNotNull(attachment)
 
-        assertEquals(DigitalGoods.LISTING, attachment.transactionType)
+        assertTrue(attachment.transactionType is DigitalGoodsListing)
         assertEquals(dgsName, attachment.name)
         assertEquals(dgsDescription, attachment.description)
         assertEquals(tags, attachment.tags)

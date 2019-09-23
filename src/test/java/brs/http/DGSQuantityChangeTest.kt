@@ -27,11 +27,11 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class DGSQuantityChangeTest : AbstractTransactionTest() {
 
-    private var t: DGSQuantityChange? = null
+    private lateinit var t: DGSQuantityChange
 
-    private var mockParameterService: ParameterService? = null
-    private var mockBlockchain: Blockchain? = null
-    private var apiTransactionManagerMock: APITransactionManager? = null
+    private lateinit var mockParameterService: ParameterService
+    private lateinit var mockBlockchain: Blockchain
+    private lateinit var apiTransactionManagerMock: APITransactionManager
 
     @Before
     fun setUp() {
@@ -39,7 +39,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         mockBlockchain = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 
-        t = DGSQuantityChange(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!)
+        t = DGSQuantityChange(QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!))
     }
 
     @Test

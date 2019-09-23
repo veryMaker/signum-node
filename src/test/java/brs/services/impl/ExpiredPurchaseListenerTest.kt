@@ -4,6 +4,7 @@ import brs.Account
 import brs.Block
 import brs.DigitalGoodsStore.Purchase
 import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
 import brs.services.AccountService
 import brs.services.DGSGoodsStoreService
 import com.nhaarman.mockitokotlin2.*
@@ -23,7 +24,7 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
         accountServiceMock = mock<AccountService>()
         dgsGoodsStoreServiceMock = mock<DGSGoodsStoreService>()
 
-        t = DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(accountServiceMock, dgsGoodsStoreServiceMock)
+        t = DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(QuickMocker.dependencyProvider(accountServiceMock!!, dgsGoodsStoreServiceMock!!))
     }
 
     @Test
@@ -45,7 +46,7 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
         val mockIterator = mockCollection(expiredPurchase)
         whenever(dgsGoodsStoreServiceMock!!.getExpiredPendingPurchases(eq(blockTimestamp))).doReturn(mockIterator)
 
-        t!!.accept(block)
+        t!!(block)
 
         verify(accountServiceMock!!).addToUnconfirmedBalanceNQT(eq(purchaseBuyer), eq(15000L))
 

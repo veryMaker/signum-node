@@ -1,20 +1,23 @@
 package brs.http
 
 import brs.Account
-import brs.BurstException
 import brs.common.QuickMocker
+import brs.http.common.ResultFields.BALANCE_NQT_RESPONSE
+import brs.http.common.ResultFields.EFFECTIVE_BALANCE_NQT_RESPONSE
+import brs.http.common.ResultFields.FORGED_BALANCE_NQT_RESPONSE
+import brs.http.common.ResultFields.GUARANTEED_BALANCE_NQT_RESPONSE
+import brs.http.common.ResultFields.UNCONFIRMED_BALANCE_NQT_RESPONSE
 import brs.services.ParameterService
 import brs.util.JSON
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class GetBalanceTest {
 

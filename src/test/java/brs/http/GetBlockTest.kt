@@ -8,6 +8,9 @@ import brs.http.JSONResponses.INCORRECT_BLOCK
 import brs.http.JSONResponses.INCORRECT_HEIGHT
 import brs.http.JSONResponses.INCORRECT_TIMESTAMP
 import brs.http.JSONResponses.UNKNOWN_BLOCK
+import brs.http.common.Parameters.BLOCK_PARAMETER
+import brs.http.common.Parameters.HEIGHT_PARAMETER
+import brs.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.services.BlockService
 import com.google.gson.JsonObject
 import org.junit.Before

@@ -6,6 +6,7 @@ import brs.peer.Peers
 import brs.peer.ProcessBlock
 import brs.props.Props
 import com.google.gson.JsonObject
+import com.nhaarman.mockitokotlin2.mock
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import org.junit.After
@@ -21,19 +22,20 @@ abstract class AbstractIT {
     private var processBlock: ProcessBlock? = null
 
     protected var apiSender = APISender()
+    private lateinit var burst: Burst
 
     @Before
     fun setUp() {
         mockkStatic(Peers::class)
         unmockkStatic(Burst::class)
-        Burst.init(testProperties())
+        burst = Burst(testProperties(), false)
 
-        processBlock = ProcessBlock(Burst.getBlockchain(), Burst.blockchainProcessor)
+        processBlock = ProcessBlock(burst.dp.blockchain, burst.dp.blockchainProcessor)
     }
 
     @After
     fun shutdown() {
-        Burst.shutdown(true)
+        burst.shutdown(false)
     }
 
     private fun testProperties(): Properties {
@@ -55,10 +57,10 @@ abstract class AbstractIT {
     }
 
     fun processBlock(jsonFirstBlock: JsonObject) {
-        processBlock!!.processRequest(jsonFirstBlock, null)
+        processBlock!!.processRequest(jsonFirstBlock, mock())
     }
 
     fun rollback(height: Int) {
-        Burst.blockchainProcessor.popOffTo(0)
+        burst.dp.blockchainProcessor.popOffTo(0)
     }
 }

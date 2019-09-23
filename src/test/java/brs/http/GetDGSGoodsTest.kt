@@ -1,27 +1,35 @@
 package brs.http
 
-import brs.BurstException
 import brs.DigitalGoodsStore
 import brs.DigitalGoodsStore.Goods
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.db.sql.DbUtils
+import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
+import brs.http.common.Parameters.IN_STOCK_ONLY_PARAMETER
+import brs.http.common.Parameters.LAST_INDEX_PARAMETER
+import brs.http.common.Parameters.SELLER_PARAMETER
+import brs.http.common.ResultFields.DELISTED_RESPONSE
+import brs.http.common.ResultFields.DESCRIPTION_RESPONSE
+import brs.http.common.ResultFields.GOODS_RESPONSE
+import brs.http.common.ResultFields.NAME_RESPONSE
+import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.QUANTITY_RESPONSE
+import brs.http.common.ResultFields.TAGS_RESPONSE
+import brs.http.common.ResultFields.TIMESTAMP_RESPONSE
 import brs.services.DGSGoodsStoreService
 import brs.util.JSON
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import javax.servlet.http.HttpServletRequest
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)

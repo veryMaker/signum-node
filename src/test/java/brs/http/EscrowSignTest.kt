@@ -14,8 +14,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
-
-import brs.transaction.TransactionType.AdvancedPayment.ESCROW_SIGN
 import brs.http.common.Parameters.DECISION_PARAMETER
 import brs.http.common.Parameters.ESCROW_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
@@ -23,19 +21,18 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class EscrowSignTest : AbstractTransactionTest() {
 
-    private var parameterServiceMock: ParameterService? = null
-    private var blockchainMock: Blockchain? = null
-    private var escrowServiceMock: EscrowService? = null
-    private var apiTransactionManagerMock: APITransactionManager? = null
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var blockchainMock: Blockchain
+    private lateinit var escrowServiceMock: EscrowService
+    private lateinit var apiTransactionManagerMock: APITransactionManager
 
-    private var t: EscrowSign? = null
+    private lateinit var t: EscrowSign
 
     @Before
     fun setUp() {
@@ -44,7 +41,7 @@ class EscrowSignTest : AbstractTransactionTest() {
         escrowServiceMock = mock<EscrowService>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 
-        t = EscrowSign(parameterServiceMock!!, blockchainMock!!, escrowServiceMock!!, apiTransactionManagerMock!!)
+        t = EscrowSign(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, escrowServiceMock!!, apiTransactionManagerMock!!))
     }
 
     @Test
@@ -73,7 +70,7 @@ class EscrowSignTest : AbstractTransactionTest() {
                 apiTransactionManagerMock!!) as Attachment.AdvancedPaymentEscrowSign
         assertNotNull(attachment)
 
-        assertEquals(ESCROW_SIGN, attachment.transactionType)
+        assertTrue(attachment.transactionType is brs.transaction.advancedPayment.EscrowSign)
         assertEquals(DecisionType.RELEASE, attachment.decision)
     }
 
@@ -103,7 +100,7 @@ class EscrowSignTest : AbstractTransactionTest() {
                 apiTransactionManagerMock!!) as Attachment.AdvancedPaymentEscrowSign
         assertNotNull(attachment)
 
-        assertEquals(ESCROW_SIGN, attachment.transactionType)
+        assertTrue(attachment.transactionType is brs.transaction.advancedPayment.EscrowSign)
         assertEquals(DecisionType.REFUND, attachment.decision)
     }
 
@@ -135,7 +132,7 @@ class EscrowSignTest : AbstractTransactionTest() {
                 apiTransactionManagerMock!!) as Attachment.AdvancedPaymentEscrowSign
         assertNotNull(attachment)
 
-        assertEquals(ESCROW_SIGN, attachment.transactionType)
+        assertTrue(attachment.transactionType is brs.transaction.advancedPayment.EscrowSign)
         assertEquals(DecisionType.REFUND, attachment.decision)
     }
 

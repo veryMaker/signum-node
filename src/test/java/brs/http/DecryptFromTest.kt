@@ -1,23 +1,22 @@
 package brs.http
 
 import brs.Account
-import brs.BurstException
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.crypto.EncryptedData
-import brs.services.ParameterService
-import brs.util.JSON
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
 import brs.common.TestConstants.TEST_PUBLIC_KEY_BYTES
 import brs.common.TestConstants.TEST_SECRET_PHRASE
 import brs.http.JSONResponses.INCORRECT_ACCOUNT
+import brs.http.common.Parameters.DATA_PARAMETER
+import brs.http.common.Parameters.DECRYPTED_MESSAGE_IS_TEXT_PARAMETER
+import brs.http.common.Parameters.NONCE_PARAMETER
+import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.http.common.ResultFields.DECRYPTED_MESSAGE_RESPONSE
+import brs.services.ParameterService
+import brs.util.JSON
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Test
 
 class DecryptFromTest {
 

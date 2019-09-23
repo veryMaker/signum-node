@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.http.common.Parameters.ACCOUNTS_RESPONSE
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.services.AccountService
@@ -15,7 +14,7 @@ internal class GetAccountsWithRewardRecipient internal constructor(private val p
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
 
-        val targetAccount = parameterService.getAccount(request)
+        val targetAccount = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
 
         val accounts = JsonArray()
 

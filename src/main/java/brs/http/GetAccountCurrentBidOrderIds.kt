@@ -20,7 +20,7 @@ internal class GetAccountCurrentBidOrderIds internal constructor(private val par
 
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val accountId = parameterService.getAccount(request).id
+        val accountId = parameterService.getAccount(request)?.id ?: return JSONResponses.INCORRECT_ACCOUNT
         var assetId: Long = 0
         try {
             assetId = request.getParameter(ASSET_PARAMETER).parseUnsignedLong()

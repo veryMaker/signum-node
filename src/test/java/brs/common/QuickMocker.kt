@@ -1,27 +1,46 @@
 package brs.common
 
 import brs.Blockchain
-import brs.Burst
-import brs.fluxcapacitor.*
+import brs.DependencyProvider
+import brs.db.store.TradeStore
+import brs.fluxcapacitor.FluxCapacitor
+import brs.fluxcapacitor.FluxCapacitorImpl
+import brs.fluxcapacitor.FluxEnable
+import brs.fluxcapacitor.FluxValue
 import brs.http.common.Parameters.DEADLINE_PARAMETER
 import brs.http.common.Parameters.FEE_NQT_PARAMETER
 import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.props.Prop
 import brs.props.PropertyService
+import brs.props.PropertyServiceImpl
 import brs.props.Props
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import org.mockito.ArgumentMatchers
-
-import javax.servlet.http.HttpServletRequest
-import java.util.ArrayList
-import java.util.Arrays
-import brs.props.Prop
 import com.nhaarman.mockitokotlin2.*
-import io.mockk.every
-import io.mockk.mockkStatic
+import org.junit.Assert.assertTrue
+import javax.servlet.http.HttpServletRequest
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.full.createType
 
 object QuickMocker {
+    fun dependencyProvider(vararg dependencies: Any): DependencyProvider {
+        val classToDependency = dependencies
+            .map { it::class.createType() to it }
+            .toMap()
+            .toMutableMap()
+        assertTrue("Duplicate dependencies found (two or more dependencies of the same type were provided)", dependencies.size == classToDependency.size)
+
+        val dp = DependencyProvider()
+        dp::class.members.forEach { member ->
+            if (member is KMutableProperty<*>) {
+                member.setter.call(dp, classToDependency[member.returnType] ?: return@forEach)
+                classToDependency.remove(member.returnType)
+            }
+        }
+        assertTrue("Not all dependencies can go into dependency provider, these can't: ${classToDependency.keys}", classToDependency.isEmpty())
+        return dp
+    }
 
     fun defaultPropertyService() = mock<PropertyService> {
         onGeneric { get(any<Prop<Any>>()) } doAnswer {
@@ -36,7 +55,6 @@ object QuickMocker {
     }
 
     fun fluxCapacitorEnabledFunctionalities(vararg enabledToggles: FluxEnable): FluxCapacitor {
-        mockkStatic(Burst::class)
         val mockCapacitor = mock<FluxCapacitor> {
             on { it.getValue(any<FluxValue<Boolean>>()) } doReturn false
             on { it.getValue(any<FluxValue<Boolean>>(), any()) } doReturn false
@@ -45,7 +63,6 @@ object QuickMocker {
             whenever(mockCapacitor.getValue(eq(ft))).doReturn(true)
             whenever(mockCapacitor.getValue(eq(ft), any())).doReturn(true)
         }
-        every { Burst.fluxCapacitor } returns mockCapacitor
         return mockCapacitor
     }
 
@@ -54,7 +71,7 @@ object QuickMocker {
         val propertyService = mock<PropertyService>()
         whenever(blockchain.height).doReturn(Integer.MAX_VALUE)
         whenever(propertyService.get(eq(Props.DEV_TESTNET))).doReturn(false)
-        return FluxCapacitorImpl(blockchain, propertyService)
+        return FluxCapacitorImpl(dependencyProvider(blockchain, propertyService))
     }
 
     fun httpServletRequest(vararg parameters: MockParam): HttpServletRequest {

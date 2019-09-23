@@ -14,6 +14,10 @@ import javax.servlet.http.HttpServletRequest
 import brs.http.JSONResponses.INCORRECT_ASSET
 import brs.http.JSONResponses.UNKNOWN_ASSET
 import brs.http.common.Parameters.ASSETS_PARAMETER
+import brs.http.common.ResultFields.ASSETS_RESPONSE
+import brs.http.common.ResultFields.NUMBER_OF_ACCOUNTS_RESPONSE
+import brs.http.common.ResultFields.NUMBER_OF_TRADES_RESPONSE
+import brs.http.common.ResultFields.NUMBER_OF_TRANSFERS_RESPONSE
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import org.junit.Assert.assertEquals

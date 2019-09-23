@@ -1,29 +1,30 @@
 package brs.http
 
 import brs.Account
-import brs.BurstException
 import brs.Subscription
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
+import brs.http.common.Parameters.ACCOUNT_PARAMETER
+import brs.http.common.Parameters.SUBSCRIPTIONS_RESPONSE
+import brs.http.common.ResultFields.AMOUNT_NQT_RESPONSE
+import brs.http.common.ResultFields.FREQUENCY_RESPONSE
+import brs.http.common.ResultFields.ID_RESPONSE
+import brs.http.common.ResultFields.TIME_NEXT_RESPONSE
 import brs.services.ParameterService
 import brs.services.SubscriptionService
 import brs.util.JSON
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.Parameters.ACCOUNT_PARAMETER
-import brs.http.common.Parameters.SUBSCRIPTIONS_RESPONSE
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class GetAccountSubscriptionsTest : AbstractUnitTest() {
 

@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.crypto.EncryptedData
 import brs.http.JSONResponses.DECRYPTION_FAILED
 import brs.http.JSONResponses.INCORRECT_ACCOUNT
@@ -23,7 +22,7 @@ import javax.servlet.http.HttpServletRequest
 internal class DecryptFrom internal constructor(private val parameterService: ParameterService) : APIServlet.JsonRequestHandler(arrayOf(APITag.MESSAGES), ACCOUNT_PARAMETER, DATA_PARAMETER, NONCE_PARAMETER, DECRYPTED_MESSAGE_IS_TEXT_PARAMETER, SECRET_PHRASE_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        val account = parameterService.getAccount(request)
+        val account = parameterService.getAccount(request) ?: return INCORRECT_ACCOUNT
         if (account.publicKey == null) {
             return INCORRECT_ACCOUNT
         }

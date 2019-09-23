@@ -1,24 +1,26 @@
 package brs.http
 
-import brs.BurstException
 import brs.DigitalGoodsStore.Purchase
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
+import brs.http.common.Parameters.BUYER_PARAMETER
+import brs.http.common.Parameters.COMPLETED_PARAMETER
+import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
+import brs.http.common.Parameters.LAST_INDEX_PARAMETER
+import brs.http.common.Parameters.SELLER_PARAMETER
+import brs.http.common.ResultFields.PURCHASES_RESPONSE
 import brs.services.DGSGoodsStoreService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-import brs.http.common.ResultFields.PURCHASES_RESPONSE
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
 
 class GetDGSPurchasesTest : AbstractUnitTest() {
 

@@ -5,6 +5,7 @@ import brs.DigitalGoodsStore
 import brs.DigitalGoodsStore.Goods
 import brs.DigitalGoodsStore.Purchase
 import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedEntityTable
@@ -14,10 +15,9 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-
-import org.junit.Assert.assertEquals
 
 class DGSGoodsStoreServiceImplTest : AbstractUnitTest() {
 
@@ -41,11 +41,11 @@ class DGSGoodsStoreServiceImplTest : AbstractUnitTest() {
         mockGoodsDbKeyFactory = mock()
         mockAccountService = mock()
 
-        whenever(mockDigitalGoodsStoreStore!!.goodsTable).doReturn(mockGoodsTable)
-        whenever(mockDigitalGoodsStoreStore!!.purchaseTable).doReturn(mockPurchaseTable)
-        whenever(mockDigitalGoodsStoreStore!!.goodsDbKeyFactory).doReturn(mockGoodsDbKeyFactory)
+        whenever(mockDigitalGoodsStoreStore!!.goodsTable).doReturn(mockGoodsTable!!)
+        whenever(mockDigitalGoodsStoreStore!!.purchaseTable).doReturn(mockPurchaseTable!!)
+        whenever(mockDigitalGoodsStoreStore!!.goodsDbKeyFactory).doReturn(mockGoodsDbKeyFactory!!)
 
-        t = DGSGoodsStoreServiceImpl(blockchain, mockDigitalGoodsStoreStore!!, mockAccountService)
+        t = DGSGoodsStoreServiceImpl(QuickMocker.dependencyProvider(blockchain!!, mockDigitalGoodsStoreStore!!, mockAccountService!!))
     }
 
     @Test
@@ -54,7 +54,7 @@ class DGSGoodsStoreServiceImplTest : AbstractUnitTest() {
         val mockGoods = mock<Goods>()
 
         whenever(mockGoodsDbKeyFactory!!.newKey(eq(1L))).doReturn(mockKey)
-        whenever(mockGoodsTable!!.get(eq(mockKey))).doReturn(mockGoods)
+        whenever(mockGoodsTable!![eq(mockKey)]).doReturn(mockGoods)
 
         assertEquals(mockGoods, t!!.getGoods(1L))
     }

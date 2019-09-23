@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.http.JSONResponses.INCORRECT_AT
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.ResultFields.ATS_RESPONSE
@@ -15,7 +14,7 @@ import javax.servlet.http.HttpServletRequest
 internal class GetAccountATs internal constructor(private val parameterService: ParameterService, private val atService: ATService, private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.AT, APITag.ACCOUNTS), ACCOUNT_PARAMETER) {
 
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
-        val account = parameterService.getAccount(request) // TODO this is super redundant
+        val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT // TODO this is super redundant
 
         val atIds = atService.getATsIssuedBy(account.id)
         val ats = JsonArray()

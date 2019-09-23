@@ -5,20 +5,25 @@ import brs.assetexchange.AssetExchange
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
+import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
+import brs.http.common.Parameters.LAST_INDEX_PARAMETER
+import brs.http.common.ResultFields.ASSET_RESPONSE
+import brs.http.common.ResultFields.HEIGHT_RESPONSE
+import brs.http.common.ResultFields.OPEN_ORDERS_RESPONSE
+import brs.http.common.ResultFields.ORDER_RESPONSE
+import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE
 import brs.util.JSON
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
-import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
 
 class GetAllOpenAskOrdersTest : AbstractUnitTest() {
 

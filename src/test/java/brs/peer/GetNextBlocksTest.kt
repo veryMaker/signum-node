@@ -34,14 +34,14 @@ class GetNextBlocksTest {
             blocks.add(mockBlock)
         }
         whenever(mockBlockchain!!.getBlocksAfter(eq(Genesis.GENESIS_BLOCK_ID), any())).doReturn(blocks)
-        getNextBlocks = GetNextBlocks(mockBlockchain)
+        getNextBlocks = GetNextBlocks(mockBlockchain!!)
     }
 
     @Test
     fun testGetNextBlocks() {
         val request = JsonObject()
         request.addProperty("blockId", java.lang.Long.toUnsignedString(Genesis.GENESIS_BLOCK_ID))
-        val responseElement = getNextBlocks!!.processRequest(request, mockPeer)
+        val responseElement = getNextBlocks!!.processRequest(request, mockPeer!!)
         assertNotNull(responseElement)
         assertTrue(responseElement.isJsonObject)
         val response = responseElement.asJsonObject
@@ -60,7 +60,7 @@ class GetNextBlocksTest {
     @Test
     fun testGetNextBlocks_noIdSpecified() {
         val request = JsonObject()
-        val responseElement = getNextBlocks!!.processRequest(request, mockPeer)
+        val responseElement = getNextBlocks!!.processRequest(request, mockPeer!!)
         assertNotNull(responseElement)
         assertTrue(responseElement is JsonObject)
         val response = responseElement.asJsonObject

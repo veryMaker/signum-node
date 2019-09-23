@@ -9,8 +9,8 @@ import org.junit.Test
 
 import brs.common.TestConstants.TEST_ACCOUNT_ID
 import brs.common.TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED
-import brs.peer.GetAccountBalance.ACCOUNT_ID_PARAMETER_FIELD
-import brs.peer.GetAccountBalance.BALANCE_NQT_RESPONSE_FIELD
+import brs.peer.GetAccountBalance.Companion.ACCOUNT_ID_PARAMETER_FIELD
+import brs.peer.GetAccountBalance.Companion.BALANCE_NQT_RESPONSE_FIELD
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -28,7 +28,7 @@ class GetAccountBalanceTest {
     fun setUp() {
         mockAccountService = mock<AccountService>()
 
-        t = GetAccountBalance(mockAccountService)
+        t = GetAccountBalance(mockAccountService!!)
     }
 
     @Test

@@ -2,7 +2,7 @@ package brs.at
 
 import brs.Account
 import brs.Blockchain
-import brs.Burst
+import brs.DependencyProvider
 import brs.common.QuickMocker
 import brs.common.TestConstants
 import brs.db.BurstKey
@@ -10,49 +10,37 @@ import brs.db.VersionedBatchEntityTable
 import brs.db.VersionedEntityTable
 import brs.db.store.ATStore
 import brs.db.store.AccountStore
-import brs.db.store.Stores
-import brs.fluxcapacitor.FluxCapacitor
-import brs.props.Prop
 import brs.props.PropertyService
 import brs.props.Props
-import brs.schema.tables.AtState
-import brs.util.Convert
+import brs.util.parseHexString
 import com.nhaarman.mockitokotlin2.*
 import io.mockk.every
 import io.mockk.mockkStatic
-import org.mockito.ArgumentMatchers
-
+import org.junit.Assert.assertEquals
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.ArrayList
-import java.util.function.Consumer
-import java.util.stream.Collectors
-
-import org.junit.Assert.assertEquals
 
 object AtTestHelper {
 
     private val addedAts = mutableListOf<AT>()
-    private var onAtAdded: (AT) -> Unit? = null
+    private var onAtAdded: ((AT) -> Unit)? = null
 
     // Hello World example compiled with BlockTalk v0.0.0
-    internal var HELLO_WORLD_CREATION_BYTES = getCreationBytes(1, Convert."3033040300000000350001010000001e0100000007283507030000000012270000001a0100000033100101000000320a03350401020000001002000000110200000033160102000000010200000048656c6c6f2c20573310010200000001020000006f726c6400000000331101020000000102000000000000000000000033120102000000010200000000000000000000003313010200000032050413")!!.parseHexString()
+    internal var HELLO_WORLD_CREATION_BYTES = getCreationBytes(1, "3033040300000000350001010000001e0100000007283507030000000012270000001a0100000033100101000000320a03350401020000001002000000110200000033160102000000010200000048656c6c6f2c20573310010200000001020000006f726c6400000000331101020000000102000000000000000000000033120102000000010200000000000000000000003313010200000032050413".parseHexString())
 
     // Echo example compiled with BlockTalk v0.0.0
-    internal var ECHO_CREATION_BYTES = getCreationBytes(1, Convert."3033040300000000350001010000001e0100000007283507030000000012270000001a010000003310010100000032090335040102000000100200000035050102000000100200000035060102000000100200000035070102000000100200000033100101000000320a0335040102000000100200000011020000003316010200000011020000003313010200000011020000003312010200000011020000003311010200000011020000003310010200000032050413")!!.parseHexString()
+    internal var ECHO_CREATION_BYTES = getCreationBytes(1, "3033040300000000350001010000001e0100000007283507030000000012270000001a010000003310010100000032090335040102000000100200000035050102000000100200000035060102000000100200000035070102000000100200000033100101000000320a0335040102000000100200000011020000003316010200000011020000003313010200000011020000003312010200000011020000003311010200000011020000003310010200000032050413".parseHexString())
 
     // Tip Thanks example compiled with BlockTalk v0.0.0
-    internal var TIP_THANKS_CREATION_BYTES = getCreationBytes(2, Convert."12fb0000003033040301000000350001020000001e02000000072835070301000000122c0000001a0600000033100102000000320a0335040103000000100300000011030000003316010300000001030000005468616e6b20796f33100103000000010300000075210000000000003311010300000001030000000000000000000000331201030000000103000000000000000000000033130103000000320504350004030000001003000000010300000000e87648170000001003000000110400000011030000000703000000040000001003000000110300000003040000001f03000000040000000f1afa00000033160100000000320304130103000000d70faeecffc5c4e41003000000110000000013")!!.parseHexString()
+    internal var TIP_THANKS_CREATION_BYTES = getCreationBytes(2, "12fb0000003033040301000000350001020000001e02000000072835070301000000122c0000001a0600000033100102000000320a0335040103000000100300000011030000003316010300000001030000005468616e6b20796f33100103000000010300000075210000000000003311010300000001030000000000000000000000331201030000000103000000000000000000000033130103000000320504350004030000001003000000010300000000e87648170000001003000000110400000011030000000703000000040000001003000000110300000003040000001f03000000040000000f1afa00000033160100000000320304130103000000d70faeecffc5c4e41003000000110000000013".parseHexString())
 
-    internal fun setupMocks() {
-        val mockStores = mock<Stores>()
+    internal fun setupMocks(): DependencyProvider {
         val mockAtStore = mock<ATStore>()
         val mockFluxCapacitor = QuickMocker.latestValueFluxCapacitor()
 
         val atLongKeyFactory = mock<BurstKey.LongKeyFactory<AT>>()
 
         val atStateLongKeyFactory = mock<BurstKey.LongKeyFactory<AT.ATState>>()
-        mockkStatic(Burst::class)
         val mockBlockchain = mock<Blockchain>()
         val mockPropertyService = mock<PropertyService>()
 
@@ -71,7 +59,7 @@ object AtTestHelper {
             val at = invoke.getArgument<AT>(0)
             addedAts.add(at)
             if (onAtAdded != null) {
-                onAtAdded!!.accept(at)
+                onAtAdded!!(at)
             }
             null
         }.whenever(mockAtTable).insert(any())
@@ -81,40 +69,36 @@ object AtTestHelper {
                 .doReturn(true)
         doAnswer {
             addedAts.map { it.id }
-                    .map { AtApiHelper.getLong(it) }
+                    .map { AtApiHelper.getLong(it!!) }
                     .toList()
         }.whenever(mockAtStore).orderedATs
         doAnswer { invoke ->
             val atId = invoke.getArgument<Long>(0)
             for (addedAt in addedAts) {
-                if (AtApiHelper.getLong(addedAt.id) == atId) {
+                if (AtApiHelper.getLong(addedAt.id ?: continue) == atId) {
                     return@doAnswer addedAt
                 }
             }
             null
         }.whenever(mockAtStore).getAT(any())
+        // TODO fix this
         whenever(mockAtTable.getAll(any(), any())).doReturn(addedAts)
-        every { Account.getOrAddAccount(any()) } returns mockAccount
-        every { Account.getAccount(any()) } returns mockAccount
-        whenever(mockAccountTable.get(any())).doReturn(mockAccount)
-        whenever(mockStores.accountStore).doReturn(mockAccountStore)
+        every { Account.getOrAddAccount(any(), any()) } returns mockAccount
+        every { Account.getAccount(any(), any()) } returns mockAccount
+        whenever(mockAccountTable[any()]).doReturn(mockAccount)
         whenever(mockAccountStore.accountKeyFactory).doReturn(mockAccountKeyFactory)
         whenever(mockAtStore.atStateTable).doReturn(mockAtStateTable)
         whenever(mockPropertyService.get(eq(Props.ENABLE_AT_DEBUG_LOG))).doReturn(true)
         whenever(mockAtStore.atTable).doReturn(mockAtTable)
-        every { Burst.propertyService } returns mockPropertyService
-        every { Burst.getBlockchain() } returns mockBlockchain
         whenever(mockBlockchain.height).doReturn(Integer.MAX_VALUE)
         whenever(mockAtStore.atDbKeyFactory).doReturn(atLongKeyFactory)
         whenever(mockAtStore.atStateDbKeyFactory).doReturn(atStateLongKeyFactory)
-        whenever(mockStores.atStore).doReturn(mockAtStore)
-        every { Burst.stores } returns mockStores
-        every { Burst.fluxCapacitor } returns mockFluxCapacitor
+        return QuickMocker.dependencyProvider(mockAtTable, mockAccountTable, mockAccountStore, mockAtStore, mockBlockchain, mockFluxCapacitor)
     }
 
-    internal fun clearAddedAts() {
+    internal fun clearAddedAts(dp: DependencyProvider) {
         addedAts.clear()
-        assertEquals(0, AT.getOrderedATs().size.toLong())
+        assertEquals(0, AT.getOrderedATs(dp).size.toLong())
     }
 
     internal fun setOnAtAdded(onAtAdded: (AT) -> Unit) {
@@ -166,15 +150,15 @@ object AtTestHelper {
         return creation.array()
     }
 
-    fun addHelloWorldAT() {
-        AT.addAT(1L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "HelloWorld", "Hello World AT", HELLO_WORLD_CREATION_BYTES, Integer.MAX_VALUE)
+    fun addHelloWorldAT(dp: DependencyProvider) {
+        AT.addAT(dp, 1L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "HelloWorld", "Hello World AT", HELLO_WORLD_CREATION_BYTES, Integer.MAX_VALUE)
     }
 
-    fun addEchoAT() {
-        AT.addAT(2L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "Echo", "Message Echo AT", ECHO_CREATION_BYTES, Integer.MAX_VALUE)
+    fun addEchoAT(dp: DependencyProvider) {
+        AT.addAT(dp, 2L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "Echo", "Message Echo AT", ECHO_CREATION_BYTES, Integer.MAX_VALUE)
     }
 
-    fun addTipThanksAT() {
-        AT.addAT(3L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "TipThanks", "Tip Thanks AT", TIP_THANKS_CREATION_BYTES, Integer.MAX_VALUE)
+    fun addTipThanksAT(dp: DependencyProvider) {
+        AT.addAT(dp, 3L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "TipThanks", "Tip Thanks AT", TIP_THANKS_CREATION_BYTES, Integer.MAX_VALUE)
     }
 }

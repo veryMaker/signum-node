@@ -2,28 +2,25 @@ package brs.http
 
 import brs.Attachment
 import brs.Blockchain
-import brs.BurstException
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
-import brs.services.AliasService
-import brs.services.ParameterService
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import brs.transaction.TransactionType.Messaging.ALIAS_ASSIGNMENT
 import brs.http.JSONResponses.INCORRECT_ALIAS_LENGTH
 import brs.http.JSONResponses.INCORRECT_ALIAS_NAME
 import brs.http.JSONResponses.INCORRECT_URI_LENGTH
 import brs.http.JSONResponses.MISSING_ALIAS_NAME
 import brs.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.http.common.Parameters.ALIAS_URI_PARAMETER
+import brs.services.AliasService
+import brs.services.ParameterService
+import brs.transaction.messaging.AliasAssignment
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
@@ -44,7 +41,7 @@ class SetAliasTest : AbstractTransactionTest() {
         aliasServiceMock = mock()
         apiTransactionManagerMock = mock()
 
-        t = SetAlias(parameterServiceMock!!, blockchainMock!!, aliasServiceMock!!, apiTransactionManagerMock!!)
+        t = SetAlias(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, aliasServiceMock!!, apiTransactionManagerMock!!))
     }
 
     @Test
@@ -62,7 +59,7 @@ class SetAliasTest : AbstractTransactionTest() {
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.MessagingAliasAssignment
         assertNotNull(attachment)
 
-        assertEquals(ALIAS_ASSIGNMENT, attachment.transactionType)
+        assertTrue(attachment.transactionType is AliasAssignment)
         assertEquals(aliasNameParameter, attachment.aliasName)
         assertEquals(aliasUrl, attachment.aliasURI)
     }

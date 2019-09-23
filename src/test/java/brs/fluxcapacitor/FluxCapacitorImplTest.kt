@@ -14,10 +14,10 @@ import org.junit.Assert.*
 
 class FluxCapacitorImplTest {
 
-    private var blockchainMock: Blockchain? = null
-    private var propertyServiceMock: PropertyService? = null
+    private lateinit var blockchainMock: Blockchain
+    private lateinit var propertyServiceMock: PropertyService
 
-    private var t: FluxCapacitorImpl? = null
+    private lateinit var t: FluxCapacitorImpl
 
     @BeforeEach
     fun setUp() {
@@ -31,7 +31,7 @@ class FluxCapacitorImplTest {
         whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(false)
         whenever(blockchainMock!!.height).doReturn(500000)
 
-        t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
+        t = FluxCapacitorImpl(QuickMocker.dependencyProvider(blockchainMock, propertyServiceMock))
 
         assertTrue(t!!.getValue(FluxValues.PRE_DYMAXION))
     }
@@ -42,7 +42,7 @@ class FluxCapacitorImplTest {
         whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(false)
         whenever(blockchainMock!!.height).doReturn(499999)
 
-        t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
+        t = FluxCapacitorImpl(QuickMocker.dependencyProvider(blockchainMock, propertyServiceMock))
 
         assertFalse(t!!.getValue(FluxValues.POC2))
     }
@@ -53,7 +53,7 @@ class FluxCapacitorImplTest {
         whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(true)
         whenever(blockchainMock!!.height).doReturn(88999)
 
-        t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
+        t = FluxCapacitorImpl(QuickMocker.dependencyProvider(blockchainMock, propertyServiceMock))
 
         assertTrue(t!!.getValue(FluxValues.POC2))
 
@@ -68,7 +68,7 @@ class FluxCapacitorImplTest {
         whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(false)
         whenever(blockchainMock!!.height).doReturn(88000)
 
-        t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
+        t = FluxCapacitorImpl(QuickMocker.dependencyProvider(blockchainMock, propertyServiceMock))
 
         assertEquals(255, t!!.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS))
     }
@@ -79,7 +79,7 @@ class FluxCapacitorImplTest {
         whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(false)
         whenever(blockchainMock!!.height).doReturn(500000)
 
-        t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
+        t = FluxCapacitorImpl(QuickMocker.dependencyProvider(blockchainMock, propertyServiceMock))
 
         assertEquals(1020, t!!.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS))
     }
@@ -89,7 +89,7 @@ class FluxCapacitorImplTest {
     fun fluxIntTestNetDefaultValue() {
         whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(true)
 
-        t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
+        t = FluxCapacitorImpl(QuickMocker.dependencyProvider(blockchainMock, propertyServiceMock))
 
         whenever(blockchainMock!!.height).doReturn(5)
 
@@ -101,7 +101,7 @@ class FluxCapacitorImplTest {
     fun fluxIntTestNetHistoricalValue() {
         whenever(propertyServiceMock!!.get(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(true)
 
-        t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
+        t = FluxCapacitorImpl(QuickMocker.dependencyProvider(blockchainMock, propertyServiceMock))
 
         whenever(blockchainMock!!.height).doReturn(88000)
 
@@ -114,7 +114,7 @@ class FluxCapacitorImplTest {
         whenever(propertyServiceMock!!.get<Boolean>(eq<Prop<Boolean>>(Props.DEV_TESTNET))).doReturn(true)
         whenever(propertyServiceMock!!.get<Int>(eq<Prop<Int>>(Props.DEV_PRE_DYMAXION_BLOCK_HEIGHT))).doReturn(12345)
 
-        t = FluxCapacitorImpl(blockchainMock, propertyServiceMock)
+        t = FluxCapacitorImpl(QuickMocker.dependencyProvider(blockchainMock, propertyServiceMock))
 
         assertEquals(255, t!!.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, 12344))
         assertEquals(1020, t!!.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, 12345))

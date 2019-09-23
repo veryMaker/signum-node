@@ -1,7 +1,6 @@
 package brs.http
 
 import brs.Blockchain
-import brs.BurstException
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.ResultFields.REWARD_RECIPIENT_RESPONSE
 import brs.services.AccountService
@@ -15,7 +14,7 @@ internal class GetRewardRecipient(private val parameterService: ParameterService
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
 
-        val account = parameterService.getAccount(request)
+        val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
         val assignment = accountService.getRewardRecipientAssignment(account)
         val height = blockchain.lastBlock.height.toLong()
         when {

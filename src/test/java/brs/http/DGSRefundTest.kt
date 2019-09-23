@@ -1,42 +1,42 @@
 package brs.http
 
-import brs.*
+import brs.Account
+import brs.Attachment
+import brs.Blockchain
+import brs.Constants
 import brs.DigitalGoodsStore.Purchase
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.crypto.EncryptedData
 import brs.fluxcapacitor.FluxValues
-import brs.services.AccountService
-import brs.services.ParameterService
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import javax.servlet.http.HttpServletRequest
-
-import brs.transaction.TransactionType.DigitalGoods.REFUND
 import brs.http.JSONResponses.DUPLICATE_REFUND
 import brs.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.http.JSONResponses.INCORRECT_DGS_REFUND
 import brs.http.JSONResponses.INCORRECT_PURCHASE
 import brs.http.common.Parameters.REFUND_NQT_PARAMETER
+import brs.services.AccountService
+import brs.services.ParameterService
+import brs.transaction.digitalGoods.DigitalGoodsRefund
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import javax.servlet.http.HttpServletRequest
 
 @RunWith(JUnit4::class)
 class DGSRefundTest : AbstractTransactionTest() {
 
-    private var t: DGSRefund? = null
+    private lateinit var t: DGSRefund
 
-    private var mockParameterService: ParameterService? = null
-    private var mockBlockchain: Blockchain? = null
-    private var mockAccountService: AccountService? = null
-    private var apiTransactionManagerMock: APITransactionManager? = null
+    private lateinit var mockParameterService: ParameterService
+    private lateinit var mockBlockchain: Blockchain
+    private lateinit var mockAccountService: AccountService
+    private lateinit var apiTransactionManagerMock: APITransactionManager
 
     @Before
     fun setUp() {
@@ -45,7 +45,7 @@ class DGSRefundTest : AbstractTransactionTest() {
         mockAccountService = mock<AccountService>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 
-        t = DGSRefund(mockParameterService!!, mockBlockchain!!, mockAccountService!!, apiTransactionManagerMock!!)
+        t = DGSRefund(QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, mockAccountService!!, apiTransactionManagerMock!!))
     }
 
     @Test
@@ -79,7 +79,7 @@ class DGSRefundTest : AbstractTransactionTest() {
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsRefund
         assertNotNull(attachment)
 
-        assertEquals(REFUND, attachment.transactionType)
+        assertTrue(attachment.transactionType is DigitalGoodsRefund)
         assertEquals(refundNQTParameter, attachment.refundNQT)
         assertEquals(mockPurchaseId, attachment.purchaseId)
     }

@@ -20,7 +20,7 @@ internal class GetAccountBlocks internal constructor(private val blockchain: Blo
 
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val account = parameterService.getAccount(request)
+        val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
         val timestamp = ParameterParser.getTimestamp(request)
         val firstIndex = ParameterParser.getFirstIndex(request)
         val lastIndex = ParameterParser.getLastIndex(request)

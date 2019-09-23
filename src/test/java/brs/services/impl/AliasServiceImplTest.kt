@@ -6,16 +6,15 @@ import brs.Attachment.MessagingAliasAssignment
 import brs.Attachment.MessagingAliasSell
 import brs.Transaction
 import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
 import brs.db.BurstKey
-import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedEntityTable
 import brs.db.store.AliasStore
 import com.nhaarman.mockitokotlin2.*
-import org.junit.Before
-import org.junit.Test
-
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
 
 class AliasServiceImplTest : AbstractUnitTest() {
 
@@ -35,12 +34,12 @@ class AliasServiceImplTest : AbstractUnitTest() {
         offerTableMock = mock()
         offerDbKeyFactoryMock = mock()
 
-        whenever(aliasStoreMock!!.aliasTable).doReturn(aliasTableMock)
-        whenever(aliasStoreMock!!.aliasDbKeyFactory).doReturn(aliasDbKeyFactoryMock)
-        whenever(aliasStoreMock!!.offerTable).doReturn(offerTableMock)
-        whenever(aliasStoreMock!!.offerDbKeyFactory).doReturn(offerDbKeyFactoryMock)
+        whenever(aliasStoreMock!!.aliasTable).doReturn(aliasTableMock!!)
+        whenever(aliasStoreMock!!.aliasDbKeyFactory).doReturn(aliasDbKeyFactoryMock!!)
+        whenever(aliasStoreMock!!.offerTable).doReturn(offerTableMock!!)
+        whenever(aliasStoreMock!!.offerDbKeyFactory).doReturn(offerDbKeyFactoryMock!!)
 
-        t = AliasServiceImpl(aliasStoreMock!!)
+        t = AliasServiceImpl(QuickMocker.dependencyProvider(aliasStoreMock!!))
     }
 
     @Test

@@ -10,22 +10,21 @@ import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.transaction.TransactionType.DigitalGoods.DELISTING
 import brs.http.JSONResponses.UNKNOWN_GOODS
+import brs.transaction.digitalGoods.DigitalGoodsDelisting
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
 
 class DGSDelistingTest : AbstractTransactionTest() {
 
-    private var t: DGSDelisting? = null
+    private lateinit var t: DGSDelisting
 
-    private var mockParameterService: ParameterService? = null
-    private var mockBlockchain: Blockchain? = null
-    private var apiTransactionManagerMock: APITransactionManager? = null
+    private lateinit var mockParameterService: ParameterService
+    private lateinit var mockBlockchain: Blockchain
+    private lateinit var apiTransactionManagerMock: APITransactionManager
 
     @Before
     fun setUp() {
@@ -33,7 +32,7 @@ class DGSDelistingTest : AbstractTransactionTest() {
         mockBlockchain = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 
-        t = DGSDelisting(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!)
+        t = DGSDelisting(QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!))
     }
 
     @Test
@@ -55,7 +54,7 @@ class DGSDelistingTest : AbstractTransactionTest() {
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsDelisting
         assertNotNull(attachment)
 
-        assertEquals(DELISTING, attachment.transactionType)
+        assertTrue(attachment.transactionType is DigitalGoodsDelisting)
         assertEquals(mockGoods.id, attachment.goodsId)
     }
 

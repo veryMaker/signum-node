@@ -7,6 +7,9 @@ import brs.assetexchange.AssetExchange
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
+import brs.http.common.Parameters.ASSET_PARAMETER
+import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
+import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.services.ParameterService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject

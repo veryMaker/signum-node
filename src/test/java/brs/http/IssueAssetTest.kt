@@ -2,27 +2,31 @@ package brs.http
 
 import brs.Attachment
 import brs.Blockchain
-import brs.BurstException
+import brs.Constants.MAX_ASSET_DESCRIPTION_LENGTH
+import brs.Constants.MAX_ASSET_NAME_LENGTH
+import brs.Constants.MIN_ASSET_NAME_LENGTH
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
-import brs.services.ParameterService
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import brs.transaction.TransactionType.ColoredCoins.ASSET_ISSUANCE
 import brs.http.JSONResponses.INCORRECT_ASSET_DESCRIPTION
 import brs.http.JSONResponses.INCORRECT_ASSET_NAME
 import brs.http.JSONResponses.INCORRECT_ASSET_NAME_LENGTH
 import brs.http.JSONResponses.INCORRECT_DECIMALS
 import brs.http.JSONResponses.MISSING_NAME
+import brs.http.common.Parameters.DECIMALS_PARAMETER
+import brs.http.common.Parameters.DESCRIPTION_PARAMETER
+import brs.http.common.Parameters.NAME_PARAMETER
+import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
+import brs.services.ParameterService
+import brs.transaction.coloredCoins.AssetIssuance
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
@@ -41,7 +45,7 @@ class IssueAssetTest : AbstractTransactionTest() {
         mockBlockchain = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 
-        t = IssueAsset(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!)
+        t = IssueAsset(QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!))
     }
 
     @Test
@@ -63,7 +67,7 @@ class IssueAssetTest : AbstractTransactionTest() {
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.ColoredCoinsAssetIssuance
         assertNotNull(attachment)
 
-        assertEquals(ASSET_ISSUANCE, attachment.transactionType)
+        assertTrue(attachment.transactionType is AssetIssuance)
         assertEquals(nameParameter, attachment.name)
         assertEquals(descriptionParameter, attachment.description)
         assertEquals(decimalsParameter.toLong(), attachment.decimals.toLong())
@@ -146,5 +150,4 @@ class IssueAssetTest : AbstractTransactionTest() {
 
         assertEquals(INCORRECT_DECIMALS, t!!.processRequest(request))
     }
-
 }

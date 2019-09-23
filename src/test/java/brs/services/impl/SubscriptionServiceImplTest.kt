@@ -3,6 +3,7 @@ package brs.services.impl
 import brs.Blockchain
 import brs.Subscription
 import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.TransactionDb
@@ -14,10 +15,9 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-
-import org.junit.Assert.assertEquals
 
 class SubscriptionServiceImplTest : AbstractUnitTest() {
 
@@ -38,10 +38,10 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
         mockSubscriptionTable = mock()
         mockSubscriptionDbKeyFactory = mock()
 
-        whenever(mockSubscriptionStore!!.subscriptionTable).doReturn(mockSubscriptionTable)
-        whenever(mockSubscriptionStore!!.subscriptionDbKeyFactory).doReturn(mockSubscriptionDbKeyFactory)
+        whenever(mockSubscriptionStore!!.subscriptionTable).doReturn(mockSubscriptionTable!!)
+        whenever(mockSubscriptionStore!!.subscriptionDbKeyFactory).doReturn(mockSubscriptionDbKeyFactory!!)
 
-        t = SubscriptionServiceImpl(mockSubscriptionStore!!, transactionDb, blockchain, aliasService, accountService)
+        t = SubscriptionServiceImpl(QuickMocker.dependencyProvider(mockSubscriptionStore!!, transactionDb!!, blockchain!!, aliasService!!, accountService!!))
     }
 
     @Test

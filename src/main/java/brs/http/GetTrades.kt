@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.Trade
 import brs.assetexchange.AssetExchange
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
@@ -31,16 +30,16 @@ internal class GetTrades internal constructor(private val parameterService: Para
         val response = JsonObject()
         val tradesData = JsonArray()
         val trades: Collection<Trade>
-        if (accountId == null) {
+        trades = if (accountId == null) {
             val asset = parameterService.getAsset(request)
-            trades = assetExchange.getTrades(asset.id, firstIndex, lastIndex)
+            assetExchange.getTrades(asset.id, firstIndex, lastIndex)
         } else if (assetId == null) {
-            val account = parameterService.getAccount(request)
-            trades = assetExchange.getAccountTrades(account.id, firstIndex, lastIndex)
+            val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
+            assetExchange.getAccountTrades(account.id, firstIndex, lastIndex)
         } else {
             val asset = parameterService.getAsset(request)
-            val account = parameterService.getAccount(request)
-            trades = assetExchange.getAccountAssetTrades(account.id, asset.id, firstIndex, lastIndex)
+            val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
+            assetExchange.getAccountAssetTrades(account.id, asset.id, firstIndex, lastIndex)
         }
         for (trade in trades) {
             val asset = if (includeAssetInfo) assetExchange.getAsset(trade.assetId) else null

@@ -14,12 +14,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
-
-import brs.transaction.TransactionType.BurstMining.REWARD_RECIPIENT_ASSIGNMENT
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
+import brs.transaction.burstMining.RewardRecipientAssignment
 import com.nhaarman.mockitokotlin2.*
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
@@ -40,7 +38,7 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
         accountServiceMock = mock<AccountService>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 
-        t = SetRewardRecipient(parameterServiceMock!!, blockchainMock!!, accountServiceMock!!, apiTransactionManagerMock!!)
+        t = SetRewardRecipient(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, accountServiceMock!!, apiTransactionManagerMock!!))
     }
 
     @Test
@@ -59,7 +57,7 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.BurstMiningRewardRecipientAssignment
         assertNotNull(attachment)
 
-        assertEquals(REWARD_RECIPIENT_ASSIGNMENT, attachment.transactionType)
+        assertTrue(attachment.transactionType is RewardRecipientAssignment)
     }
 
     @Test

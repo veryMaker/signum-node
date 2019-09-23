@@ -14,7 +14,7 @@ internal class GetAccountPublicKey internal constructor(private val parameterSer
 
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val account = parameterService.getAccount(request)
+        val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
 
         return if (account.publicKey != null) {
             val response = JsonObject()

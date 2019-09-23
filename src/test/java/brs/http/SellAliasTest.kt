@@ -10,18 +10,17 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import brs.Constants.MAX_BALANCE_NQT
-import brs.transaction.TransactionType.Messaging.ALIAS_SELL
 import brs.http.JSONResponses.INCORRECT_ALIAS_OWNER
 import brs.http.JSONResponses.INCORRECT_PRICE
 import brs.http.JSONResponses.INCORRECT_RECIPIENT
 import brs.http.JSONResponses.MISSING_PRICE
 import brs.http.common.Parameters.PRICE_NQT_PARAMETER
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
+import brs.transaction.messaging.AliasSell
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
@@ -39,7 +38,7 @@ class SellAliasTest : AbstractTransactionTest() {
         blockchainMock = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 
-        t = SellAlias(parameterServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!)
+        t = SellAlias(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!))
     }
 
     @Test
@@ -68,7 +67,7 @@ class SellAliasTest : AbstractTransactionTest() {
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.MessagingAliasSell
         assertNotNull(attachment)
 
-        assertEquals(ALIAS_SELL, attachment.transactionType)
+        assertTrue(attachment.transactionType is AliasSell)
         assertEquals(priceParameter.toLong(), attachment.priceNQT)
     }
 

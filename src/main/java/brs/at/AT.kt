@@ -158,22 +158,27 @@ class AT : AtMachineState {
 
         // TODO stop passing dp around, fix this code to be organized properly!!!
 
+        @Deprecated("Use dp.atStore.atDbKeyFactory instead")
         private fun atDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<AT> {
             return dp.atStore.atDbKeyFactory
         }
 
+        @Deprecated("Use dp.atStore.atTable instead")
         private fun atTable(dp: DependencyProvider): VersionedEntityTable<AT> {
             return dp.atStore.atTable
         }
 
+        @Deprecated("Use dp.atStore.atStateDbKeyFactory instead")
         private fun atStateDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<ATState> {
             return dp.atStore.atStateDbKeyFactory
         }
 
+        @Deprecated("Use dp.atStore.getAT(AtApiHelper.getLong(id)) instead")
         fun getAT(dp: DependencyProvider, id: ByteArray): AT? {
             return getAT(dp, AtApiHelper.getLong(id))
         }
 
+        @Deprecated("Use dp.atStore.getAT(id) instead")
         fun getAT(dp: DependencyProvider, id: Long?): AT? {
             return dp.atStore.getAT(id)
         }
@@ -206,6 +211,7 @@ class AT : AtMachineState {
         }
 
         // TODO just do it yourself! or add a utils class or something... same goes for all of the methods around here doing this
+        @Deprecated("Use dp.atStore.orderedATs instead")
         fun getOrderedATs(dp: DependencyProvider): List<Long> {
             return dp.atStore.orderedATs
         }
@@ -246,7 +252,6 @@ class AT : AtMachineState {
             } catch (e: IOException) {
                 throw RuntimeException(e.message, e)
             }
-
         }
     }
 }

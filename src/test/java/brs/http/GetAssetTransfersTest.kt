@@ -8,6 +8,14 @@ import brs.assetexchange.AssetExchange
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
+import brs.http.common.Parameters.ACCOUNT_PARAMETER
+import brs.http.common.Parameters.ASSET_PARAMETER
+import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
+import brs.http.common.Parameters.INCLUDE_ASSET_INFO_PARAMETER
+import brs.http.common.Parameters.LAST_INDEX_PARAMETER
+import brs.http.common.ResultFields.ASSET_RESPONSE
+import brs.http.common.ResultFields.NAME_RESPONSE
+import brs.http.common.ResultFields.TRANSFERS_RESPONSE
 import brs.services.AccountService
 import brs.services.ParameterService
 import brs.util.JSON

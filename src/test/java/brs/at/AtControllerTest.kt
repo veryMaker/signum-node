@@ -1,24 +1,25 @@
 package brs.at
 
-import brs.Account
-import brs.Burst
-import brs.util.Convert
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-
+import brs.DependencyProvider
+import brs.util.parseHexString
+import brs.util.toHexString
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
 
 class AtControllerTest {
+    private lateinit var dp: DependencyProvider
+    
     @Before
     fun setUp() {
-        AtTestHelper.setupMocks()
+        dp = AtTestHelper.setupMocks()
+        dp.atController = AtController(dp)
     }
 
     @Test
     fun testCheckCreationBytes() {
-        AtTestHelper.clearAddedAts()
+        AtTestHelper.clearAddedAts(dp)
         assertEquals(4, dp.atController.checkCreationBytes(AtTestHelper.HELLO_WORLD_CREATION_BYTES, Integer.MAX_VALUE).toLong())
         assertEquals(4, dp.atController.checkCreationBytes(AtTestHelper.ECHO_CREATION_BYTES, Integer.MAX_VALUE).toLong())
         assertEquals(5, dp.atController.checkCreationBytes(AtTestHelper.TIP_THANKS_CREATION_BYTES, Integer.MAX_VALUE).toLong())
@@ -26,11 +27,11 @@ class AtControllerTest {
 
     @Test
     fun testRunSteps() {
-        AtTestHelper.clearAddedAts()
-        AtTestHelper.addHelloWorldAT()
-        AtTestHelper.addEchoAT()
-        AtTestHelper.addTipThanksAT()
-        assertEquals(3, AT.getOrderedATs().size.toLong())
+        AtTestHelper.clearAddedAts(dp)
+        AtTestHelper.addHelloWorldAT(dp)
+        AtTestHelper.addEchoAT(dp)
+        AtTestHelper.addTipThanksAT(dp)
+        assertEquals(3, AT.getOrderedATs(dp).size.toLong())
         val atBlock = dp.atController.getCurrentBlockATs(Integer.MAX_VALUE, Integer.MAX_VALUE)
         assertNotNull(atBlock)
         assertNotNull(atBlock.bytesForBlock)
@@ -39,12 +40,12 @@ class AtControllerTest {
 
     @Test
     fun testValidateAts() {
-        AtTestHelper.clearAddedAts()
-        AtTestHelper.addHelloWorldAT()
-        AtTestHelper.addEchoAT()
-        AtTestHelper.addTipThanksAT()
-        assertEquals(3, AT.getOrderedATs().size.toLong())
-        val atBlock = dp.atController.validateATs(Convert."010000000000000097c1d1e5b25c1d109f2ba522d1dda248020000000000000014ea12712c274caebc49ccd7fff0b0b703000000000000009f1af5443c8d1e7b492f848e91fccb1f"), Integer.MAX_VALUE.parseHexString()
+        AtTestHelper.clearAddedAts(dp)
+        AtTestHelper.addHelloWorldAT(dp)
+        AtTestHelper.addEchoAT(dp)
+        AtTestHelper.addTipThanksAT(dp)
+        assertEquals(3, AT.getOrderedATs(dp).size.toLong())
+        val atBlock = dp.atController.validateATs("010000000000000097c1d1e5b25c1d109f2ba522d1dda248020000000000000014ea12712c274caebc49ccd7fff0b0b703000000000000009f1af5443c8d1e7b492f848e91fccb1f".parseHexString(), Integer.MAX_VALUE)
         assertNotNull(atBlock)
         assertEquals(0, atBlock.totalAmount)
         assertEquals(5439000, atBlock.totalFees)

@@ -1,15 +1,15 @@
 package brs.services.impl
 
 import brs.at.AT
+import brs.common.QuickMocker
 import brs.db.store.ATStore
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-
-import org.junit.Assert.assertEquals
 
 class ATServiceImplTest {
 
@@ -21,7 +21,7 @@ class ATServiceImplTest {
     fun setUp() {
         mockATStore = mock()
 
-        t = ATServiceImpl(mockATStore)
+        t = ATServiceImpl(QuickMocker.dependencyProvider(mockATStore!!))
     }
 
     @Test

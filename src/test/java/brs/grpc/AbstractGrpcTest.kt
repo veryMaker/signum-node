@@ -10,14 +10,15 @@ import brs.grpc.proto.BrsService
 import brs.props.Props
 import brs.services.*
 import brs.transaction.TransactionType
-import com.nhaarman.mockitokotlin2.*
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import io.grpc.Context
 import io.grpc.inprocess.InProcessChannelBuilder
 import io.grpc.inprocess.InProcessServerBuilder
 import io.grpc.testing.GrpcCleanupRule
 import org.junit.Rule
-
-import java.io.IOException
 
 
 abstract class AbstractGrpcTest {
@@ -25,7 +26,8 @@ abstract class AbstractGrpcTest {
     @get:Rule
     val grpcCleanup = GrpcCleanupRule()
 
-    protected var brsService: BrsApiServiceGrpc.BrsApiServiceBlockingStub? = null
+    protected lateinit var dp: DependencyProvider
+    protected lateinit var brsService: BrsApiServiceGrpc.BrsApiServiceBlockingStub
 
     protected fun defaultBrsService() {
         // Mocks
@@ -57,10 +59,11 @@ abstract class AbstractGrpcTest {
         doReturn(emptyList<String>()).whenever(propertyService).get(Props.SOLO_MINING_PASSPHRASES)
 
         // Real classes
-        val fluxCapacitor = FluxCapacitorImpl(blockchain, propertyService)
-        TransactionType.init(blockchain, fluxCapacitor, accountService, dgsGoodsStoreService, aliasService, assetExchange, subscriptionService, escrowService)
+        dp = QuickMocker.dependencyProvider(blockchainProcessor, blockchain, blockService, accountService, generator, transactionProcessor, timeService, feeSuggestionCalculator, atService, aliasService, indirectIncomingService, escrowService, assetExchange, subscriptionService, dgsGoodsStoreService, propertyService)
+        dp.fluxCapacitor = FluxCapacitorImpl(dp)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        setUpBrsService(BrsService(blockchainProcessor, blockchain, blockService, accountService, generator, transactionProcessor, timeService, feeSuggestionCalculator, atService, aliasService, indirectIncomingService, fluxCapacitor, escrowService, assetExchange, subscriptionService, dgsGoodsStoreService, propertyService))
+        setUpBrsService(BrsService(dp))
     }
 
     protected fun setUpBrsService(brsService: BrsService) {

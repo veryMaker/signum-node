@@ -12,24 +12,23 @@ import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
 
-import brs.transaction.TransactionType.Messaging.ALIAS_BUY
 import brs.http.JSONResponses.INCORRECT_ALIAS_NOTFORSALE
 import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
+import brs.transaction.messaging.AliasBuy
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
 
 class BuyAliasTest : AbstractTransactionTest() {
 
-    private var t: BuyAlias? = null
+    private lateinit var t: BuyAlias
 
-    private var parameterServiceMock: ParameterService? = null
-    private var blockchain: Blockchain? = null
-    private var aliasService: AliasService? = null
-    private var apiTransactionManagerMock: APITransactionManager? = null
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var blockchain: Blockchain
+    private lateinit var aliasService: AliasService
+    private lateinit var apiTransactionManagerMock: APITransactionManager
 
     @Before
     fun init() {
@@ -38,7 +37,7 @@ class BuyAliasTest : AbstractTransactionTest() {
         aliasService = mock<AliasService>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 
-        t = BuyAlias(parameterServiceMock!!, blockchain!!, aliasService!!, apiTransactionManagerMock!!)
+        t = BuyAlias(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchain!!, aliasService!!, apiTransactionManagerMock))
     }
 
     @Test
@@ -65,7 +64,7 @@ class BuyAliasTest : AbstractTransactionTest() {
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.MessagingAliasBuy
         assertNotNull(attachment)
 
-        assertEquals(ALIAS_BUY, attachment.transactionType)
+        assertTrue(attachment.transactionType is AliasBuy)
         assertEquals(mockAliasName, attachment.aliasName)
     }
 

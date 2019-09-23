@@ -2,16 +2,16 @@ package brs.services.impl
 
 import brs.Account
 import brs.Account.RewardRecipientAssignment
+import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedBatchEntityTable
 import brs.db.store.AccountStore
 import brs.db.store.AssetTransferStore
 import com.nhaarman.mockitokotlin2.*
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-
-import org.junit.Assert.*
 
 class AccountServiceImplTest {
 
@@ -29,10 +29,10 @@ class AccountServiceImplTest {
         accountBurstKeyFactoryMock = mock()
         assetTransferStoreMock = mock()
 
-        whenever(accountStoreMock!!.accountTable).doReturn(accountTableMock)
-        whenever(accountStoreMock!!.accountKeyFactory).doReturn(accountBurstKeyFactoryMock)
+        whenever(accountStoreMock!!.accountTable).doReturn(accountTableMock!!)
+        whenever(accountStoreMock!!.accountKeyFactory).doReturn(accountBurstKeyFactoryMock!!)
 
-        t = AccountServiceImpl(accountStoreMock!!, assetTransferStoreMock)
+        t = AccountServiceImpl(QuickMocker.dependencyProvider(accountStoreMock!!, assetTransferStoreMock!!))
     }
 
     @Test
@@ -188,7 +188,7 @@ class AccountServiceImplTest {
         val mockKey = mock<BurstKey>()
 
         whenever(accountBurstKeyFactoryMock!!.newKey(eq(accountId))).doReturn(mockKey)
-        whenever(accountTableMock!!.get(eq(mockKey))).doReturn(null)
+        whenever(accountTableMock!![eq(mockKey)]).doReturn(null)
 
         val createdAccount = t!!.getOrAddAccount(accountId)
 

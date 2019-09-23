@@ -21,6 +21,26 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 import brs.common.TestConstants.TEST_SECRET_PHRASE
+import brs.http.common.Parameters.ACCOUNT_PARAMETER
+import brs.http.common.Parameters.ALIAS_NAME_PARAMETER
+import brs.http.common.Parameters.ALIAS_PARAMETER
+import brs.http.common.Parameters.ASSET_PARAMETER
+import brs.http.common.Parameters.AT_PARAMETER
+import brs.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
+import brs.http.common.Parameters.ENCRYPTED_MESSAGE_NONCE_PARAMETER
+import brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_DATA
+import brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_NONCE
+import brs.http.common.Parameters.GOODS_PARAMETER
+import brs.http.common.Parameters.HEIGHT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER
+import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER
+import brs.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
+import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
+import brs.http.common.Parameters.PURCHASE_PARAMETER
+import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.util.parseHexString
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
 
@@ -48,7 +68,7 @@ class ParameterServiceImplTest {
         transactionProcessorMock = mock()
         atServiceMock = mock()
 
-        t = ParameterServiceImpl(accountServiceMock!!, aliasServiceMock!!, assetExchangeMock!!, dgsGoodsStoreServiceMock!!, blockchainMock!!, blockchainProcessorMock!!, transactionProcessorMock!!, atServiceMock!!)
+        t = ParameterServiceImpl(QuickMocker.dependencyProvider(accountServiceMock!!, aliasServiceMock!!, assetExchangeMock!!, dgsGoodsStoreServiceMock!!, blockchainMock!!, blockchainProcessorMock!!, transactionProcessorMock!!, atServiceMock!!))
     }
 
     @Test
@@ -202,7 +222,7 @@ class ParameterServiceImplTest {
 
         val mockAccount = mock<Account>()
 
-        whenever(accountServiceMock!!.getAccount(eq(Convert.publicKey)))).doReturn(mockAccount.parseHexString()
+        whenever(accountServiceMock!!.getAccount(eq(publicKey.parseHexString()))).doReturn(mockAccount)
 
         assertEquals(mockAccount, t!!.getSenderAccount(request))
     }
@@ -212,7 +232,7 @@ class ParameterServiceImplTest {
         val publicKey = "123"
         val request = QuickMocker.httpServletRequest(MockParam(PUBLIC_KEY_PARAMETER, publicKey))
 
-        whenever(accountServiceMock!!.getAccount(eq(Convert.publicKey)))).thenThrow(RuntimeException().parseHexString()
+        whenever(accountServiceMock!!.getAccount(eq(publicKey.parseHexString()))).thenThrow(RuntimeException())
 
         t!!.getSenderAccount(request)
     }
@@ -228,7 +248,7 @@ class ParameterServiceImplTest {
         val publicKey = "123"
         val request = QuickMocker.httpServletRequest(MockParam(PUBLIC_KEY_PARAMETER, publicKey))
 
-        whenever(accountServiceMock!!.getAccount(eq(Convert.publicKey)))).doReturn(null.parseHexString()
+        whenever(accountServiceMock!!.getAccount(eq(publicKey.parseHexString()))).doReturn(null)
 
         t!!.getSenderAccount(request)
     }
@@ -393,7 +413,7 @@ class ParameterServiceImplTest {
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        whenever(mockRecipientAccount.encryptTo(eq(Convert."beef123")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock.parseHexString()
+        whenever(mockRecipientAccount.encryptTo(eq("beef123".parseHexString()), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t!!.getEncryptedMessage(request, mockRecipientAccount, null))
     }
@@ -478,7 +498,7 @@ class ParameterServiceImplTest {
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        whenever(mockAccount.encryptTo(eq(Convert."beef123")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock.parseHexString()
+        whenever(mockAccount.encryptTo(eq("beef123".parseHexString()), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t!!.getEncryptToSelfMessage(request))
     }
@@ -495,7 +515,7 @@ class ParameterServiceImplTest {
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        whenever(mockAccount.encryptTo(eq(Convert."beef123")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock.parseHexString()
+        whenever(mockAccount.encryptTo(eq("beef123".parseHexString()), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t!!.getEncryptToSelfMessage(request))
     }

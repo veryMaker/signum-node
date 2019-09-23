@@ -14,6 +14,10 @@ import javax.servlet.http.HttpServletRequest
 
 import brs.http.common.Parameters.TRANSACTION_BYTES_PARAMETER
 import brs.http.common.Parameters.TRANSACTION_JSON_PARAMETER
+import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
+import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.http.common.ResultFields.FULL_HASH_RESPONSE
+import brs.http.common.ResultFields.TRANSACTION_RESPONSE
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
 

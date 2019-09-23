@@ -14,17 +14,18 @@ import java.util.Arrays
 import java.util.function.Consumer
 
 import brs.Constants.FEE_QUANT
+import brs.common.QuickMocker
 import com.nhaarman.mockitokotlin2.*
 import org.junit.jupiter.api.Assertions.assertEquals
 
 class FeeSuggestionCalculatorTest : AbstractUnitTest() {
 
-    private var t: FeeSuggestionCalculator? = null
+    private lateinit var t: FeeSuggestionCalculator
 
-    private var blockchainProcessorMock: BlockchainProcessor? = null
-    private var blockchainStoreMock: BlockchainStore? = null
+    private lateinit var blockchainProcessorMock: BlockchainProcessor
+    private lateinit var blockchainStoreMock: BlockchainStore
 
-    private var listenerArgumentCaptor: KArgumentCaptor<(Block) -> Unit>? = null
+    private lateinit var listenerArgumentCaptor: KArgumentCaptor<(Block) -> Unit>
 
     @Before
     fun setUp() {
@@ -34,7 +35,7 @@ class FeeSuggestionCalculatorTest : AbstractUnitTest() {
         listenerArgumentCaptor = argumentCaptor()
         whenever(blockchainProcessorMock!!.addListener(listenerArgumentCaptor!!.capture(), eq(Event.AFTER_BLOCK_APPLY))).doReturn(true)
 
-        t = FeeSuggestionCalculator(blockchainProcessorMock!!, blockchainStoreMock, 5)
+        t = FeeSuggestionCalculator(QuickMocker.dependencyProvider(blockchainProcessorMock!!, blockchainStoreMock, 5))
     }
 
     @Test
@@ -53,11 +54,11 @@ class FeeSuggestionCalculatorTest : AbstractUnitTest() {
         val mockBlocksIterator = mockCollection<Block>(mockBlock1, mockBlock2, mockBlock3, mockBlock4, mockBlock5)
         whenever(blockchainStoreMock!!.getLatestBlocks(eq(5))).doReturn(mockBlocksIterator)
 
-        listenerArgumentCaptor!!.firstValue.accept(mockBlock1)
-        listenerArgumentCaptor!!.firstValue.accept(mockBlock2)
-        listenerArgumentCaptor!!.firstValue.accept(mockBlock3)
-        listenerArgumentCaptor!!.firstValue.accept(mockBlock4)
-        listenerArgumentCaptor!!.firstValue.accept(mockBlock5)
+        listenerArgumentCaptor!!.firstValue(mockBlock1)
+        listenerArgumentCaptor!!.firstValue(mockBlock2)
+        listenerArgumentCaptor!!.firstValue(mockBlock3)
+        listenerArgumentCaptor!!.firstValue(mockBlock4)
+        listenerArgumentCaptor!!.firstValue(mockBlock5)
 
         val feeSuggestionOne = t!!.giveFeeSuggestion()
         assertEquals(1 * FEE_QUANT, feeSuggestionOne.cheapFee)
@@ -71,19 +72,19 @@ class FeeSuggestionCalculatorTest : AbstractUnitTest() {
         val mockBlock8 = mock<Block>()
         whenever(mockBlock8.transactions).doReturn(listOf(mock<Transaction>(), mock<Transaction>(), mock<Transaction>(), mock<Transaction>(), mock<Transaction>()))
 
-        listenerArgumentCaptor!!.firstValue.accept(mockBlock6)
+        listenerArgumentCaptor!!.firstValue(mockBlock6)
         val feeSuggestionTwo = t!!.giveFeeSuggestion()
         assertEquals(2 * FEE_QUANT, feeSuggestionTwo.cheapFee)
         assertEquals(3 * FEE_QUANT, feeSuggestionTwo.standardFee)
         assertEquals(5 * FEE_QUANT, feeSuggestionTwo.priorityFee)
 
-        listenerArgumentCaptor!!.firstValue.accept(mockBlock7)
+        listenerArgumentCaptor!!.firstValue(mockBlock7)
         val feeSuggestionThree = t!!.giveFeeSuggestion()
         assertEquals(2 * FEE_QUANT, feeSuggestionThree.cheapFee)
         assertEquals(4 * FEE_QUANT, feeSuggestionThree.standardFee)
         assertEquals(5 * FEE_QUANT, feeSuggestionThree.priorityFee)
 
-        listenerArgumentCaptor!!.firstValue.accept(mockBlock8)
+        listenerArgumentCaptor!!.firstValue(mockBlock8)
         val feeSuggestionFour = t!!.giveFeeSuggestion()
         assertEquals(2 * FEE_QUANT, feeSuggestionFour.cheapFee)
         assertEquals(4 * FEE_QUANT, feeSuggestionFour.standardFee)

@@ -3,20 +3,22 @@ package brs.http
 import brs.Alias
 import brs.Alias.Offer
 import brs.common.QuickMocker
+import brs.http.common.ResultFields.ALIAS_NAME_RESPONSE
+import brs.http.common.ResultFields.BUYER_RESPONSE
+import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
 import brs.services.AliasService
 import brs.services.ParameterService
 import brs.util.JSON
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class GetAliasTest {
 

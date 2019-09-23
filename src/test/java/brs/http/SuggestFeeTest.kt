@@ -1,21 +1,20 @@
 package brs.http
 
-import brs.BurstException
+import brs.Constants.FEE_QUANT
 import brs.common.QuickMocker
 import brs.feesuggestions.FeeSuggestion
 import brs.feesuggestions.FeeSuggestionCalculator
+import brs.http.common.ResultFields.CHEAP_FEE_RESPONSE
+import brs.http.common.ResultFields.PRIORITY_FEE_RESPONSE
+import brs.http.common.ResultFields.STANDARD_FEE_RESPONSE
 import brs.util.JSON
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
-import brs.Constants.FEE_QUANT
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Test
 
 class SuggestFeeTest {
 

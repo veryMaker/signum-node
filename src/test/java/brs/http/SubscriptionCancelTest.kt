@@ -13,16 +13,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import javax.servlet.http.HttpServletRequest
-
-import brs.transaction.TransactionType.AdvancedPayment.SUBSCRIPTION_CANCEL
 import brs.http.common.Parameters.SUBSCRIPTION_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
@@ -42,7 +39,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         blockchainMock = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 
-        t = SubscriptionCancel(parameterServiceMock!!, subscriptionServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!)
+        t = SubscriptionCancel(QuickMocker.dependencyProvider(parameterServiceMock!!, subscriptionServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!))
     }
 
     @Test
@@ -69,7 +66,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.AdvancedPaymentSubscriptionCancel
         assertNotNull(attachment)
 
-        assertEquals(SUBSCRIPTION_CANCEL, attachment.transactionType)
+        assertTrue(attachment.transactionType is brs.transaction.advancedPayment.SubscriptionCancel)
         assertEquals(subscriptionIdParameter, attachment.subscriptionId)
     }
 

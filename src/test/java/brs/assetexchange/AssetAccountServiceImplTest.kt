@@ -6,21 +6,19 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-
-import org.junit.Assert.assertEquals
 
 class AssetAccountServiceImplTest {
 
     private var t: AssetAccountServiceImpl? = null
 
-    private var mockAccountStore: AccountStore? = null
+    private lateinit var mockAccountStore: AccountStore
 
     @Before
     fun setUp() {
         mockAccountStore = mock()
-
         t = AssetAccountServiceImpl(mockAccountStore)
     }
 

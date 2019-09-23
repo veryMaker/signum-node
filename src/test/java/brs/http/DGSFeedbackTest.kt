@@ -1,37 +1,34 @@
 package brs.http
 
-import brs.*
+import brs.Account
+import brs.Attachment
+import brs.Blockchain
 import brs.DigitalGoodsStore.Purchase
 import brs.common.QuickMocker
 import brs.crypto.EncryptedData
 import brs.fluxcapacitor.FluxValues
-import brs.services.AccountService
-import brs.services.ParameterService
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
-import brs.transaction.TransactionType.DigitalGoods.FEEDBACK
 import brs.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.http.JSONResponses.INCORRECT_PURCHASE
+import brs.services.AccountService
+import brs.services.ParameterService
+import brs.transaction.digitalGoods.DigitalGoodsFeedback
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import io.mockk.every
-import io.mockk.mockkStatic
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class DGSFeedbackTest : AbstractTransactionTest() {
 
-    private var t: DGSFeedback? = null
+    private lateinit var t: DGSFeedback
 
-    private var parameterServiceMock: ParameterService? = null
-    private var accountServiceMock: AccountService? = null
-    private var blockchainMock: Blockchain? = null
-    private var apiTransactionManagerMock: APITransactionManager? = null
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var accountServiceMock: AccountService
+    private lateinit var blockchainMock: Blockchain
+    private lateinit var apiTransactionManagerMock: APITransactionManager
 
     @Before
     fun setUp() {
@@ -40,7 +37,7 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         blockchainMock = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
 
-        t = DGSFeedback(parameterServiceMock!!, blockchainMock!!, accountServiceMock!!, apiTransactionManagerMock!!)
+        t = DGSFeedback(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, accountServiceMock!!, apiTransactionManagerMock!!))
     }
 
     @Test
@@ -62,15 +59,12 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         whenever(mockPurchase.buyerId).doReturn(1L)
         whenever(mockPurchase.encryptedGoods).doReturn(mockEncryptedGoods)
         whenever(mockPurchase.sellerId).doReturn(2L)
-
-        mockkStatic(Burst::class)
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
-        every { Burst.fluxCapacitor } returns fluxCapacitor
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsFeedback
         assertNotNull(attachment)
 
-        assertEquals(FEEDBACK, attachment.transactionType)
+        assertTrue(attachment.transactionType is DigitalGoodsFeedback)
         assertEquals(mockPurchaseId, attachment.purchaseId)
     }
 
