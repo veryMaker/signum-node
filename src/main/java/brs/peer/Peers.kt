@@ -867,8 +867,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
 
         val selectedPeers = mutableListOf<Peer>()
         for (peer in peers.values) {
-            if (!peer.isBlacklisted && peer.state == state && peer.shareAddress
-                    && (connectWellKnownFinished || peer.state == Peer.State.CONNECTED || peer.isWellKnown)) {
+            if (!peer.isBlacklisted && peer.state == state && peer.shareAddress && (connectWellKnownFinished || peer.state == Peer.State.CONNECTED || peer.isWellKnown)) {
                 selectedPeers.add(peer)
             }
         }

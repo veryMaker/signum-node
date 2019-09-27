@@ -28,13 +28,13 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
         }
     })
     override var port by Atomic<Int>()
-    override var shareAddress by Atomic(false)
+    override var shareAddress by Atomic(true)
     override var platform by Atomic<String>()
     override var application by Atomic<String>()
-    override var version by Atomic<Version>()
+    override var version by Atomic<Version>(Version.EMPTY)
     private var isOldVersion by Atomic(false)
     private var blacklistingTime by Atomic<Long>(0)
-    override var state: Peer.State by AtomicWithOverride(setValueDelegate = { newState, set ->
+    override var state: Peer.State by AtomicWithOverride(initialValue = Peer.State.NON_CONNECTED, setValueDelegate = { newState, set ->
         if (state != newState) {
             if (state == Peer.State.NON_CONNECTED) {
                 set(newState)
@@ -45,8 +45,8 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
             }
         }
     })
-    override var downloadedVolume by Atomic<Long>()
-    override var uploadedVolume by Atomic<Long>()
+    override var downloadedVolume by Atomic<Long>(0L)
+    override var uploadedVolume by Atomic<Long>(0L)
     override var lastUpdated by Atomic<Int>()
     private var lastDownloadedTransactionsDigest: ByteArray? = null
     private val lastDownloadedTransactionsLock = Any()
@@ -74,10 +74,6 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
             this.port = URL(Constants.HTTP + announcedAddress).port
         } catch (ignored: MalformedURLException) {
         }
-
-        this.state = Peer.State.NON_CONNECTED
-        this.version = Version.EMPTY //not null
-        this.shareAddress = true
     }
 
     // TODO unused
