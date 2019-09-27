@@ -755,9 +755,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                                 "Transaction " + transaction.stringId + " is already in the blockchain",
                                 transaction)
                     }
-                    if (transaction.referencedTransactionFullHash != null && (previousLastBlock.height < Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK && !dp.transactionDb.hasTransaction(
-                                    Convert.fullHashToId(transaction.referencedTransactionFullHash)) || previousLastBlock
-                                    .height >= Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK && !hasAllReferencedTransactions(transaction, transaction.timestamp, 0))) {
+                    if (transaction.referencedTransactionFullHash != null && !hasAllReferencedTransactions(transaction, transaction.timestamp, 0)) {
                         throw BlockchainProcessor.TransactionNotAcceptedException("Missing or invalid referenced transaction "
                                 + transaction.referencedTransactionFullHash + " for transaction "
                                 + transaction.stringId, transaction)

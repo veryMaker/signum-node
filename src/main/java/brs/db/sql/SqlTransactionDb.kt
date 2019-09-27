@@ -8,7 +8,6 @@ import brs.db.TransactionDb
 import brs.schema.Tables.TRANSACTION
 import brs.schema.tables.records.TransactionRecord
 import brs.transaction.TransactionType
-import brs.util.parseHexString
 import brs.util.toUnsignedString
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -27,10 +26,10 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         }
     }
 
-    override fun findTransactionByFullHash(fullHash: String): Transaction {
+    override fun findTransactionByFullHash(fullHash: ByteArray): Transaction {
         return Db.useDSLContext<Transaction> { ctx ->
             try {
-                val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash.parseHexString())).fetchOne()
+                val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash)).fetchOne()
                 return@useDSLContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException("Transaction already in database, full_hash = $fullHash, does not pass validation!", e)
@@ -42,8 +41,8 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         return Db.useDSLContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId))) }
     }
 
-    override fun hasTransactionByFullHash(fullHash: String): Boolean {
-        return Db.useDSLContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash.parseHexString()))) }
+    override fun hasTransactionByFullHash(fullHash: ByteArray): Boolean {
+        return Db.useDSLContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash))) }
     }
 
     override fun loadTransaction(tr: TransactionRecord): Transaction {
@@ -145,7 +144,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
                             if (transaction.recipientId == 0L) null else transaction.recipientId,
                             transaction.amountNQT,
                             transaction.feeNQT,
-                            transaction.referencedTransactionFullHash?.parseHexString(),
+                            transaction.referencedTransactionFullHash,
                             transaction.height,
                             transaction.blockId,
                             transaction.signature,
@@ -155,7 +154,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
                             transaction.senderId,
                             getAttachmentBytes(transaction),
                             transaction.blockTimestamp,
-                            transaction.fullHash.parseHexString(),
+                            transaction.fullHash,
                             transaction.version,
                             transaction.message != null,
                             transaction.encryptedMessage != null,

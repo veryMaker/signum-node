@@ -32,11 +32,11 @@ interface Blockchain {
 
     fun getTransaction(transactionId: Long): Transaction?
 
-    fun getTransactionByFullHash(fullHash: String): Transaction?  // TODO change to byte[] method
+    fun getTransactionByFullHash(fullHash: ByteArray): Transaction?
 
     fun hasTransaction(transactionId: Long): Boolean
 
-    fun hasTransactionByFullHash(fullHash: String): Boolean  // TODO change to byte[] method
+    fun hasTransactionByFullHash(fullHash: ByteArray): Boolean
 
     fun getTransactions(account: Account, type: Byte, subtype: Byte, blockTimestamp: Int, includeIndirectIncoming: Boolean): Collection<Transaction>
 

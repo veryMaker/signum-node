@@ -9,14 +9,13 @@ import brs.http.JSONResponses.UNKNOWN_TRANSACTION
 import brs.http.common.Parameters.FULL_HASH_PARAMETER
 import brs.http.common.Parameters.TRANSACTION_PARAMETER
 import brs.util.Convert
+import brs.util.parseHexString
 import brs.util.parseUnsignedLong
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 internal class GetTransaction(private val transactionProcessor: TransactionProcessor, private val blockchain: Blockchain) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_PARAMETER, FULL_HASH_PARAMETER) {
-
     internal override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val transactionIdString = Convert.emptyToNull(request.getParameter(TRANSACTION_PARAMETER))
         val transactionFullHash = Convert.emptyToNull(request.getParameter(FULL_HASH_PARAMETER))
         if (transactionIdString == null && transactionFullHash == null) {
@@ -24,30 +23,21 @@ internal class GetTransaction(private val transactionProcessor: TransactionProce
         }
 
         var transactionId: Long = 0
-        var transaction: Transaction?
+        var transaction: Transaction? = null
         try {
             if (transactionIdString != null) {
                 transactionId = transactionIdString.parseUnsignedLong()
                 transaction = blockchain.getTransaction(transactionId)
-            } else {
-                transaction = blockchain.getTransactionByFullHash(transactionFullHash!!)
-                if (transaction == null) {
-                    return UNKNOWN_TRANSACTION
-                }
+            } else if (transactionFullHash != null) {
+                transaction = blockchain.getTransactionByFullHash(transactionFullHash.parseHexString())
+            }
+            if (transaction == null) {
+                return UNKNOWN_TRANSACTION
             }
         } catch (e: RuntimeException) {
             return INCORRECT_TRANSACTION
         }
 
-        if (transaction == null) {
-            transaction = transactionProcessor.getUnconfirmedTransaction(transactionId)
-            return if (transaction == null) {
-                UNKNOWN_TRANSACTION
-            } else JSONData.unconfirmedTransaction(transaction)
-        } else {
-            return JSONData.transaction(transaction, blockchain.height)
-        }
-
+        return JSONData.transaction(transaction, blockchain.height)
     }
-
 }

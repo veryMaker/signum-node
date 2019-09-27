@@ -1,6 +1,5 @@
 package brs.unconfirmedtransactions
 
-import brs.BurstException.ValidationException
 import brs.Constants
 import brs.DependencyProvider
 import brs.Transaction
@@ -214,7 +213,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
     }
 
     private fun tooManyTransactionsWithReferencedFullHash(transaction: Transaction): Boolean {
-        if (!transaction.referencedTransactionFullHash.isNullOrEmpty() && maxPercentageUnconfirmedTransactionsFullHash <= (numberUnconfirmedTransactionsFullHash + 1) * 100 / maxSize) {
+        if (transaction.referencedTransactionFullHash != null && maxPercentageUnconfirmedTransactionsFullHash <= (numberUnconfirmedTransactionsFullHash + 1) * 100 / maxSize) {
             logger.info("Transaction {}: Not added because too many transactions with referenced full hash", transaction.id)
             return true
         }
@@ -232,11 +231,11 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
     }
 
     private fun transactionIsCurrentlyNotExpired(transaction: Transaction): Boolean {
-        if (dp.timeService.epochTime < transaction.expiration) {
-            return true
+        return if (dp.timeService.epochTime < transaction.expiration) {
+            true
         } else {
             logger.info("Transaction {} past expiration: {}", transaction.id, transaction.expiration)
-            return false
+            false
         }
     }
 
@@ -259,7 +258,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
             }
         }
 
-        if (!transaction.referencedTransactionFullHash.isNullOrEmpty()) {
+        if (transaction.referencedTransactionFullHash != null) {
             numberUnconfirmedTransactionsFullHash++
         }
     }
@@ -302,7 +301,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         amount--
         transactionDuplicatesChecker.removeTransaction(transaction)
 
-        if (!transaction.referencedTransactionFullHash.isNullOrEmpty()) {
+        if (transaction.referencedTransactionFullHash != null) {
             numberUnconfirmedTransactionsFullHash--
         }
 

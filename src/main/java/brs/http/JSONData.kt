@@ -101,10 +101,12 @@ import brs.http.common.ResultFields.UNCONFIRMED_QUANTITY_QNT_RESPONSE
 import brs.http.common.ResultFields.VERSION_RESPONSE
 import brs.peer.Peer
 import brs.services.AccountService
-import brs.util.*
+import brs.util.Convert
+import brs.util.addAll
+import brs.util.toHexString
+import brs.util.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -408,16 +410,16 @@ object JSONData {
         json.addProperty(AMOUNT_NQT_RESPONSE, transaction.amountNQT.toString())
         json.addProperty(FEE_NQT_RESPONSE, transaction.feeNQT.toString())
         if (transaction.referencedTransactionFullHash != null) {
-            json.addProperty(REFERENCED_TRANSACTION_FULL_HASH_RESPONSE, transaction.referencedTransactionFullHash)
+            json.addProperty(REFERENCED_TRANSACTION_FULL_HASH_RESPONSE, transaction.referencedTransactionFullHash.toHexString())
         }
         val signature = Convert.emptyToNull(transaction.signature)
         if (signature != null) {
             json.addProperty(SIGNATURE_RESPONSE, signature.toHexString())
             json.addProperty(SIGNATURE_HASH_RESPONSE, Crypto.sha256().digest(signature).toHexString())
-            json.addProperty(FULL_HASH_RESPONSE, transaction.fullHash)
+            json.addProperty(FULL_HASH_RESPONSE, transaction.fullHash.toHexString())
             json.addProperty(TRANSACTION_RESPONSE, transaction.stringId)
         } else if (!transaction.type.isSigned) {
-            json.addProperty(FULL_HASH_RESPONSE, transaction.fullHash)
+            json.addProperty(FULL_HASH_RESPONSE, transaction.fullHash.toHexString())
             json.addProperty(TRANSACTION_RESPONSE, transaction.stringId)
         }
         val attachmentJSON = JsonObject()

@@ -133,7 +133,10 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
         val publicKey = if (secretPhrase != null) Crypto.getPublicKey(secretPhrase) else publicKeyValue?.parseHexString()
 
         try {
-            val builder = dp.transactionProcessor.newTransactionBuilder(publicKey!!, amountNQT, feeNQT, deadline, attachment).referencedTransactionFullHash(referencedTransactionFullHash)
+            val builder = dp.transactionProcessor.newTransactionBuilder(publicKey!!, amountNQT, feeNQT, deadline, attachment)
+            if (!referencedTransactionFullHash.isNullOrEmpty()) {
+                builder.referencedTransactionFullHash(referencedTransactionFullHash.parseHexString())
+            }
             if (attachment.transactionType.hasRecipient()) {
                 builder.recipientId(recipientId!!)
             }
@@ -156,7 +159,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
                 transaction.sign(secretPhrase)
                 dp.transactionService.validate(transaction) // 2nd validate may be needed if validation requires id to be known
                 response.addProperty(TRANSACTION_RESPONSE, transaction.stringId)
-                response.addProperty(FULL_HASH_RESPONSE, transaction.fullHash)
+                response.addProperty(FULL_HASH_RESPONSE, transaction.fullHash.toHexString())
                 response.addProperty(TRANSACTION_BYTES_RESPONSE, transaction.bytes.toHexString())
                 response.addProperty(SIGNATURE_HASH_RESPONSE, Crypto.sha256().digest(transaction.signature).toHexString())
                 if (broadcast) {

@@ -66,7 +66,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
 
     private fun calculateTransactionAmountNQT(transaction: Transaction): Long? {
         var totalAmountNQT = Convert.safeAdd(transaction.amountNQT, transaction.feeNQT)
-        if (transaction.referencedTransactionFullHash != null && transaction.timestamp > Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK_TIMESTAMP) {
+        if (transaction.referencedTransactionFullHash != null) {
             totalAmountNQT = Convert.safeAdd(totalAmountNQT, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT)
         }
         return totalAmountNQT
@@ -80,7 +80,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
 
     internal fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         dp.accountService.addToBalanceNQT(senderAccount, -Convert.safeAdd(transaction.amountNQT, transaction.feeNQT))
-        if (transaction.referencedTransactionFullHash != null && transaction.timestamp > Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK_TIMESTAMP) {
+        if (transaction.referencedTransactionFullHash != null) {
             dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT)
         }
         if (recipientAccount != null) {
@@ -126,7 +126,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
             senderAccount,
             Convert.safeAdd(transaction.amountNQT, transaction.feeNQT)
         )
-        if (transaction.referencedTransactionFullHash != null && transaction.timestamp > Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK_TIMESTAMP) {
+        if (transaction.referencedTransactionFullHash != null) {
             dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT)
         }
     }

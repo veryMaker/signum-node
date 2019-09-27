@@ -74,7 +74,7 @@ class BlockchainImpl internal constructor(private val dp: DependencyProvider) : 
         return dp.transactionDb.findTransaction(transactionId)
     }
 
-    override fun getTransactionByFullHash(fullHash: String): Transaction? {
+    override fun getTransactionByFullHash(fullHash: ByteArray): Transaction? {
         return dp.transactionDb.findTransactionByFullHash(fullHash)
     }
 
@@ -82,7 +82,7 @@ class BlockchainImpl internal constructor(private val dp: DependencyProvider) : 
         return dp.transactionDb.hasTransaction(transactionId)
     }
 
-    override fun hasTransactionByFullHash(fullHash: String): Boolean {
+    override fun hasTransactionByFullHash(fullHash: ByteArray): Boolean {
         return dp.transactionDb.hasTransactionByFullHash(fullHash)
     }
 

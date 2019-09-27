@@ -98,7 +98,7 @@ object ProtoBuilder {
                 .setFee(transaction.feeNQT)
                 .setTimestamp(transaction.timestamp)
                 .setDeadline(transaction.deadline.toInt())
-                .setReferencedTransactionFullHash(transaction.referencedTransactionFullHash?.parseHexString().toByteString())
+                .setReferencedTransactionFullHash(transaction.referencedTransactionFullHash.toByteString())
                 .setAttachment(transaction.attachment.protobufMessage)
                 .addAllAppendages(transaction.appendages.map { it.protobufMessage })
                 .setEcBlockId(transaction.ecBlockId)
@@ -116,7 +116,7 @@ object ProtoBuilder {
                 .setBlockHeight(transaction.height)
                 .setBlockTimestamp(transaction.blockTimestamp)
                 .setSignature(transaction.signature.toByteString())
-                .setFullHash(transaction.fullHash.parseHexString().toByteString())
+                .setFullHash(transaction.fullHash.toByteString())
                 .setConfirmations(currentHeight - transaction.height)
                 .build()
     }
@@ -128,7 +128,7 @@ object ProtoBuilder {
                 .setTransactionBytes(transaction.bytes.toByteString())
                 .setBlockHeight(transaction.height)
                 .setSignature(transaction.signature.toByteString())
-                .setFullHash(transaction.fullHash.parseHexString().toByteString())
+                .setFullHash(transaction.fullHash.toByteString())
                 .build()
     }
 

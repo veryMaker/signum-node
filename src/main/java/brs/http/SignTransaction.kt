@@ -48,7 +48,7 @@ internal class SignTransaction(private val parameterService: ParameterService, p
             }
             transaction.sign(secretPhrase)
             response.addProperty(TRANSACTION_RESPONSE, transaction.stringId)
-            response.addProperty(FULL_HASH_RESPONSE, transaction.fullHash)
+            response.addProperty(FULL_HASH_RESPONSE, transaction.fullHash.toHexString())
             response.addProperty(TRANSACTION_BYTES_RESPONSE, transaction.bytes.toHexString())
             response.addProperty(SIGNATURE_HASH_RESPONSE, Crypto.sha256().digest(transaction.signature).toHexString())
             response.addProperty(VERIFY_RESPONSE, transaction.verifySignature() && transactionService.verifyPublicKey(transaction))

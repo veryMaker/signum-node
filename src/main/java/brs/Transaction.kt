@@ -24,7 +24,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     val recipientId: Long
     val amountNQT: Long
     val feeNQT: Long
-    val referencedTransactionFullHash: String? // TODO store as byte[], avoid all of the conversions
+    val referencedTransactionFullHash: ByteArray?
     lateinit var type: TransactionType
     val ecBlockHeight: Int
     val ecBlockId: Long
@@ -52,16 +52,11 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     // TODO just store it as bytes...
     var fullHash by AtomicLazy {
         check(!(signature == null && type.isSigned)) { "Transaction is not signed yet" }
-        val bytes = if (useNQT()) {
-            val data = zeroSignature(bytes)
-            val signatureHash = Crypto.sha256().digest(if (signature != null) signature else ByteArray(64))
-            val digest = Crypto.sha256()
-            digest.update(data)
-            digest.digest(signatureHash)
-        } else {
-            Crypto.sha256().digest(bytes)
-        }
-        bytes.toHexString()
+        val data = zeroSignature(bytes)
+        val signatureHash = Crypto.sha256().digest(if (signature != null) signature else ByteArray(64))
+        val digest = Crypto.sha256()
+        digest.update(data)
+        digest.digest(signatureHash)
     }
 
     val expiration: Int
@@ -83,22 +78,12 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                     buffer.put(ByteArray(24))
                 }
                 buffer.putLong(if (type.hasRecipient()) recipientId else Genesis.CREATOR_ID)
-                if (useNQT()) {
-                    buffer.putLong(amountNQT)
-                    buffer.putLong(feeNQT)
-                    if (referencedTransactionFullHash != null) {
-                        buffer.put(referencedTransactionFullHash.parseHexString())
-                    } else {
-                        buffer.put(ByteArray(32))
-                    }
+                buffer.putLong(amountNQT)
+                buffer.putLong(feeNQT)
+                if (referencedTransactionFullHash != null) {
+                    buffer.put(referencedTransactionFullHash)
                 } else {
-                    buffer.putInt((amountNQT / Constants.ONE_BURST).toInt())
-                    buffer.putInt((feeNQT / Constants.ONE_BURST).toInt())
-                    if (referencedTransactionFullHash != null) {
-                        buffer.putLong(Convert.fullHashToId(referencedTransactionFullHash.parseHexString()))
-                    } else {
-                        buffer.putLong(0L)
-                    }
+                    buffer.put(ByteArray(32))
                 }
                 buffer.put(if (signature != null) signature else ByteArray(64))
                 if (version > 0) {
@@ -134,7 +119,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
             json.addProperty("amountNQT", amountNQT)
             json.addProperty("feeNQT", feeNQT)
             if (referencedTransactionFullHash != null) {
-                json.addProperty("referencedTransactionFullHash", referencedTransactionFullHash)
+                json.addProperty("referencedTransactionFullHash", referencedTransactionFullHash.toHexString())
             }
             json.addProperty("ecBlockHeight", ecBlockHeight)
             json.addProperty("ecBlockId", ecBlockId.toUnsignedString())
@@ -178,19 +163,19 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                   internal val attachment: Attachment.AbstractAttachment) {
         internal val type = attachment.transactionType
 
-        internal var recipientId: Long = 0
-        internal var referencedTransactionFullHash: String? = null
+        internal var recipientId: Long? = null
+        internal var referencedTransactionFullHash: ByteArray? = null
         internal var signature: ByteArray? = null
         internal var message: Appendix.Message? = null
         internal var encryptedMessage: Appendix.EncryptedMessage? = null
         internal var encryptToSelfMessage: Appendix.EncryptToSelfMessage? = null
         internal var publicKeyAnnouncement: Appendix.PublicKeyAnnouncement? = null
-        internal var blockId: Long = 0
+        internal var blockId: Long? = null
         internal var height = Integer.MAX_VALUE
-        internal var id: Long = 0
-        internal var senderId: Long = 0
-        internal var blockTimestamp = -1
-        internal var fullHash: String = ""
+        internal var id: Long? = null
+        internal var senderId: Long? = null
+        internal var blockTimestamp: Int? = null
+        internal var fullHash: ByteArray? = null
         internal var ecBlockHeight: Int = 0
         internal var ecBlockId: Long = 0
 
@@ -203,15 +188,8 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
             return this
         }
 
-        fun referencedTransactionFullHash(referencedTransactionFullHash: String?): Builder {
+        fun referencedTransactionFullHash(referencedTransactionFullHash: ByteArray): Builder {
             this.referencedTransactionFullHash = referencedTransactionFullHash
-            return this
-        }
-
-        fun referencedTransactionFullHash(referencedTransactionFullHash: ByteArray?): Builder {
-            if (referencedTransactionFullHash != null) {
-                this.referencedTransactionFullHash = referencedTransactionFullHash.toHexString()
-            }
             return this
         }
 
@@ -260,15 +238,8 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
             return this
         }
 
-        internal fun fullHash(fullHash: String): Builder {
+        fun fullHash(fullHash: ByteArray): Builder {
             this.fullHash = fullHash
-            return this
-        }
-
-        fun fullHash(fullHash: ByteArray?): Builder {
-            if (fullHash != null) {
-                this.fullHash = fullHash.toHexString()
-            }
             return this
         }
 
@@ -286,7 +257,6 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
             this.ecBlockId = blockId
             return this
         }
-
     }
 
     init {
@@ -299,14 +269,14 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         this.signature = builder.signature
         this.type = builder.type
         this.version = builder.version
-        this.blockId = builder.blockId
+        if (builder.blockId != null) this.blockId = builder.blockId!!
         this.height = builder.height
-        this.id = builder.id
-        this.senderId = builder.senderId
-        this.blockTimestamp = builder.blockTimestamp
-        this.fullHash = builder.fullHash
-        this.ecBlockHeight = builder.ecBlockHeight
-        this.ecBlockId = builder.ecBlockId
+        if (builder.id != null) if (builder.id != null) this.id = builder.id!!
+        if (builder.senderId != null) this.senderId = builder.senderId!!
+        if (builder.blockTimestamp != null) this.blockTimestamp = builder.blockTimestamp!!
+        if (builder.fullHash != null) this.fullHash = builder.fullHash!!
+        this.ecBlockHeight = builder.ecBlockHeight!!
+        this.ecBlockId = builder.ecBlockId!!
 
         val list = mutableListOf<AbstractAppendix>()
         this.attachment = builder.attachment
@@ -409,16 +379,11 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     fun verifySignature(): Boolean {
         val data = zeroSignature(bytes)
         if (signature == null) return false
-        return Crypto.verify(signature!!, data, senderPublicKey, useNQT())
+        return Crypto.verify(signature!!, data, senderPublicKey, true)
     }
 
     private fun signatureOffset(): Int {
-        return 1 + 1 + 4 + 2 + 32 + 8 + if (useNQT()) 8 + 8 + 32 else 4 + 4 + 8
-    }
-
-    // TODO this is always true...
-    private fun useNQT(): Boolean {
-        return this.height > Constants.NQT_BLOCK && (this.height < Integer.MAX_VALUE || dp.blockchain.height >= Constants.NQT_BLOCK)
+        return 1 + 1 + 4 + 2 + 32 + 8 + (8 + 8 + 32)
     }
 
     private fun zeroSignature(data: ByteArray): ByteArray {
@@ -447,12 +412,8 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 val recipientId = buffer.long
                 val amountNQT = buffer.long
                 val feeNQT = buffer.long
-                var referencedTransactionFullHash: String? = null
-                val referencedTransactionFullHashBytes = ByteArray(32)
-                buffer.get(referencedTransactionFullHashBytes)
-                if (Convert.emptyToNull(referencedTransactionFullHashBytes) != null) {
-                    referencedTransactionFullHash = referencedTransactionFullHashBytes.toHexString()
-                }
+                val referencedTransactionFullHash = ByteArray(32)
+                buffer.get(referencedTransactionFullHash)
                 var signature: ByteArray? = ByteArray(64)
                 buffer.get(signature!!)
                 signature = Convert.emptyToNull(signature)
@@ -466,16 +427,16 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 }
                 val transactionType = TransactionType.findTransactionType(dp, type, subtype)
                 val builder = Transaction.Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType!!.parseAttachment(buffer, version))
-                        .referencedTransactionFullHash(referencedTransactionFullHash)
                         .signature(signature)
                         .ecBlockHeight(ecBlockHeight)
                         .ecBlockId(ecBlockId)
+                if (!referencedTransactionFullHash.isZero()) {
+                    builder.referencedTransactionFullHash(referencedTransactionFullHash)
+                }
                 if (transactionType.hasRecipient()) {
                     builder.recipientId(recipientId)
                 }
-
                 transactionType.parseAppendices(builder, flags, version, buffer)
-
                 return builder.build()
             } catch (e: BurstException.NotValidException) {
                 if (logger.isDebugEnabled) {
@@ -508,9 +469,11 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 val transactionType = TransactionType.findTransactionType(dp, type, subtype)
                         ?: throw BurstException.NotValidException("Invalid transaction type: $type, $subtype")
                 val builder = Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType.parseAttachment(attachmentData))
-                        .referencedTransactionFullHash(referencedTransactionFullHash)
                         .signature(signature)
                         .height(height)
+                if (!referencedTransactionFullHash.isNullOrEmpty()) {
+                    builder.referencedTransactionFullHash(referencedTransactionFullHash.parseHexString())
+                }
                 if (transactionType.hasRecipient()) {
                     val recipientId = JSON.getAsString(transactionData.get("recipient")).parseUnsignedLong()
                     builder.recipientId(recipientId)

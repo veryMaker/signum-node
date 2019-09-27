@@ -222,9 +222,6 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         if (dp.blockchain.lastBlock.timestamp < dp.timeService.epochTime - 60 * 1440 && !testUnconfirmedTransactions) {
             return mutableListOf()
         }
-        if (dp.blockchain.height <= Constants.NQT_BLOCK) {
-            return mutableListOf()
-        }
         val transactions = mutableListOf<Transaction>()
         for (transactionData in transactionsData) {
             try {
@@ -264,9 +261,6 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                     }
 
                     Db.beginTransaction()
-                    if (dp.blockchain.height < Constants.NQT_BLOCK) {
-                        break // not ready to process transactions
-                    }
                     try {
                         if (dp.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionStore.exists(transaction.id)) {
                             dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, listOf(transaction))

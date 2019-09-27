@@ -1,18 +1,7 @@
 package brs.http
 
 import brs.BurstException
-import brs.Transaction
 import brs.TransactionProcessor
-import brs.services.ParameterService
-import brs.services.TransactionService
-import brs.util.Convert
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-
-import javax.servlet.http.HttpServletRequest
-import java.util.logging.Level
-import java.util.logging.Logger
-
 import brs.http.common.Parameters.TRANSACTION_BYTES_PARAMETER
 import brs.http.common.Parameters.TRANSACTION_JSON_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
@@ -21,6 +10,15 @@ import brs.http.common.ResultFields.ERROR_RESPONSE
 import brs.http.common.ResultFields.FULL_HASH_RESPONSE
 import brs.http.common.ResultFields.NUMBER_PEERS_SENT_TO_RESPONSE
 import brs.http.common.ResultFields.TRANSACTION_RESPONSE
+import brs.services.ParameterService
+import brs.services.TransactionService
+import brs.util.Convert
+import brs.util.toHexString
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import java.util.logging.Level
+import java.util.logging.Logger
+import javax.servlet.http.HttpServletRequest
 
 internal class BroadcastTransaction(private val transactionProcessor: TransactionProcessor, private val parameterService: ParameterService, private val transactionService: TransactionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_BYTES_PARAMETER, TRANSACTION_JSON_PARAMETER) {
 
@@ -34,7 +32,7 @@ internal class BroadcastTransaction(private val transactionProcessor: Transactio
             transactionService.validate(transaction)
             response.addProperty(NUMBER_PEERS_SENT_TO_RESPONSE, transactionProcessor.broadcast(transaction))
             response.addProperty(TRANSACTION_RESPONSE, transaction.stringId)
-            response.addProperty(FULL_HASH_RESPONSE, transaction.fullHash)
+            response.addProperty(FULL_HASH_RESPONSE, transaction.fullHash.toHexString())
         } catch (e: BurstException.ValidationException) {
             logger.log(Level.INFO, e.message, e)
             response.addProperty(ERROR_CODE_RESPONSE, 4)
