@@ -21,15 +21,15 @@ import org.junit.Test
 
 class SubscriptionServiceImplTest : AbstractUnitTest() {
 
-    private var t: SubscriptionServiceImpl? = null
+    private lateinit var t: SubscriptionServiceImpl
 
-    private var mockSubscriptionStore: SubscriptionStore? = null
-    private var mockSubscriptionTable: VersionedEntityTable<Subscription>? = null
-    private var mockSubscriptionDbKeyFactory: LongKeyFactory<Subscription>? = null
-    private val transactionDb: TransactionDb? = null
-    private val blockchain: Blockchain? = null
-    private val aliasService: AliasService? = null
-    private val accountService: AccountService? = null
+    private lateinit var mockSubscriptionStore: SubscriptionStore
+    private lateinit var mockSubscriptionTable: VersionedEntityTable<Subscription>
+    private lateinit var mockSubscriptionDbKeyFactory: LongKeyFactory<Subscription>
+    private lateinit var transactionDb: TransactionDb
+    private lateinit var blockchain: Blockchain
+    private lateinit var aliasService: AliasService
+    private lateinit var accountService: AccountService
 
 
     @Before
@@ -37,6 +37,10 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
         mockSubscriptionStore = mock()
         mockSubscriptionTable = mock()
         mockSubscriptionDbKeyFactory = mock()
+        transactionDb = mock()
+        blockchain = mock()
+        aliasService = mock()
+        accountService = mock()
 
         whenever(mockSubscriptionStore!!.subscriptionTable).doReturn(mockSubscriptionTable!!)
         whenever(mockSubscriptionStore!!.subscriptionDbKeyFactory).doReturn(mockSubscriptionDbKeyFactory!!)

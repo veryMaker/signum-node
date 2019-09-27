@@ -167,8 +167,8 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         }
 
         private fun updateSavedPeers() {
-            val oldPeers = HashSet(dp.dbs.peerDb.loadPeers())
-            val currentPeers = HashSet<String>()
+            val oldPeers = dp.peerDb.loadPeers().toSet()
+            val currentPeers = mutableSetOf<String>()
             for (peer in peers.values) {
                 if (peer.announcedAddress != null
                         && !peer.isBlacklisted
@@ -177,13 +177,13 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
                     currentPeers.add(peer.announcedAddress!!)
                 }
             }
-            val toDelete = HashSet(oldPeers)
+            val toDelete = oldPeers.toMutableSet()
             toDelete.removeAll(currentPeers)
             try {
                 Db.beginTransaction()
-                dp.dbs.peerDb.deletePeers(toDelete)
+                dp.peerDb.deletePeers(toDelete)
                 currentPeers.removeAll(oldPeers)
-                dp.dbs.peerDb.addPeers(currentPeers)
+                dp.peerDb.addPeers(currentPeers)
                 Db.commitTransaction()
             } catch (e: Exception) {
                 Db.rollbackTransaction()
@@ -192,8 +192,6 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
                 Db.endTransaction()
             }
         }
-
-
     }
 
     private val getMorePeersThread = object : () -> Unit {
@@ -457,7 +455,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
                 }
                 if (usePeersDb) {
                     logger.debug("Loading known peers from the database...")
-                    loadPeers(dp.dbs.peerDb.loadPeers())
+                    loadPeers(dp.peerDb.loadPeers())
                 }
                 lastSavedPeers = peers.size
             }

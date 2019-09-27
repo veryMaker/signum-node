@@ -3,23 +3,21 @@ package brs.http
 import brs.BurstException
 import brs.Transaction
 import brs.TransactionProcessor
-import brs.services.ParameterService
-import brs.services.TransactionService
-import brs.util.JSON
-import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
 import brs.http.common.Parameters.TRANSACTION_BYTES_PARAMETER
 import brs.http.common.Parameters.TRANSACTION_JSON_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.http.common.ResultFields.FULL_HASH_RESPONSE
 import brs.http.common.ResultFields.TRANSACTION_RESPONSE
+import brs.services.ParameterService
+import brs.services.TransactionService
+import brs.util.JSON
+import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class BroadcastTransactionTest {
 
@@ -78,7 +76,7 @@ class BroadcastTransactionTest {
 
         whenever(parameterServiceMock!!.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson))).doReturn(mockTransaction)
 
-        doThrow(BurstException.NotCurrentlyValidException::class).whenever(transactionServiceMock!!).validate(eq(mockTransaction))
+        doAnswer { throw BurstException.NotCurrentlyValidException("") }.whenever(transactionServiceMock!!).validate(eq(mockTransaction))
 
         val result = t!!.processRequest(request) as JsonObject
 

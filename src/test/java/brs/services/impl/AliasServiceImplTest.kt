@@ -38,6 +38,7 @@ class AliasServiceImplTest : AbstractUnitTest() {
         whenever(aliasStoreMock!!.aliasDbKeyFactory).doReturn(aliasDbKeyFactoryMock!!)
         whenever(aliasStoreMock!!.offerTable).doReturn(offerTableMock!!)
         whenever(aliasStoreMock!!.offerDbKeyFactory).doReturn(offerDbKeyFactoryMock!!)
+        whenever(aliasDbKeyFactoryMock!!.newKey(any<Long>())).doReturn(mock())
 
         t = AliasServiceImpl(QuickMocker.dependencyProvider(aliasStoreMock!!))
     }
@@ -105,6 +106,8 @@ class AliasServiceImplTest : AbstractUnitTest() {
 
         val attachment = mock<MessagingAliasAssignment>()
         whenever(attachment.aliasURI).doReturn("aliasURI")
+        whenever(attachment.aliasName).doReturn("")
+        whenever(attachment.aliasName).doReturn("")
 
         t!!.addOrUpdateAlias(transaction, attachment)
 

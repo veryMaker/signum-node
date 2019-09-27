@@ -15,7 +15,7 @@ import brs.props.Props
 import brs.util.parseHexString
 import com.nhaarman.mockitokotlin2.*
 import io.mockk.every
-import io.mockk.mockkStatic
+import io.mockk.mockkObject
 import org.junit.Assert.assertEquals
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -53,7 +53,6 @@ object AtTestHelper {
 
         val mockAccountKeyFactory = mock<BurstKey.LongKeyFactory<Account>>()
         val mockAccount = mock<Account>()
-        mockkStatic(Account::class)
 
         doAnswer { invoke ->
             val at = invoke.getArgument<AT>(0)
@@ -81,8 +80,8 @@ object AtTestHelper {
             }
             null
         }.whenever(mockAtStore).getAT(any())
-        // TODO fix this
         whenever(mockAtTable.getAll(any(), any())).doReturn(addedAts)
+        mockkObject(Account.Companion)
         every { Account.getOrAddAccount(any(), any()) } returns mockAccount
         every { Account.getAccount(any(), any()) } returns mockAccount
         whenever(mockAccountTable[any()]).doReturn(mockAccount)
@@ -93,7 +92,12 @@ object AtTestHelper {
         whenever(mockBlockchain.height).doReturn(Integer.MAX_VALUE)
         whenever(mockAtStore.atDbKeyFactory).doReturn(atLongKeyFactory)
         whenever(mockAtStore.atStateDbKeyFactory).doReturn(atStateLongKeyFactory)
-        return QuickMocker.dependencyProvider(mockAtTable, mockAccountTable, mockAccountStore, mockAtStore, mockBlockchain, mockFluxCapacitor)
+        val dp = QuickMocker.dependencyProvider(mockAccountStore, mockAtStore, mockBlockchain, mockFluxCapacitor, mockPropertyService)
+        dp.atConstants = AtConstants(dp)
+        dp.atApiController = AtApiController(dp)
+        dp.atApiPlatformImpl = AtApiPlatformImpl(dp)
+        dp.atController = AtController(dp)
+        return dp
     }
 
     internal fun clearAddedAts(dp: DependencyProvider) {

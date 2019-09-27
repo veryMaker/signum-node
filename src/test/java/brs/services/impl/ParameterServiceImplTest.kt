@@ -6,21 +6,10 @@ import brs.assetexchange.AssetExchange
 import brs.at.AT
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
+import brs.common.TestConstants.TEST_SECRET_PHRASE
 import brs.crypto.Crypto
 import brs.crypto.EncryptedData
 import brs.http.ParameterException
-import brs.services.ATService
-import brs.services.AccountService
-import brs.services.AliasService
-import brs.services.DGSGoodsStoreService
-import brs.util.Convert
-import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
-import brs.common.TestConstants.TEST_SECRET_PHRASE
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.http.common.Parameters.ALIAS_PARAMETER
@@ -40,22 +29,30 @@ import brs.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
 import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.http.common.Parameters.PURCHASE_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.services.ATService
+import brs.services.AccountService
+import brs.services.AliasService
+import brs.services.DGSGoodsStoreService
+import brs.util.Convert
 import brs.util.parseHexString
+import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
 
 class ParameterServiceImplTest {
 
-    private var t: ParameterServiceImpl? = null
+    private lateinit var t: ParameterServiceImpl
 
-    private var accountServiceMock: AccountService? = null
-    private var aliasServiceMock: AliasService? = null
-    private var assetExchangeMock: AssetExchange? = null
-    private var dgsGoodsStoreServiceMock: DGSGoodsStoreService? = null
-    private var blockchainMock: Blockchain? = null
-    private var blockchainProcessorMock: BlockchainProcessor? = null
-    private var transactionProcessorMock: TransactionProcessor? = null
-    private var atServiceMock: ATService? = null
+    private lateinit var accountServiceMock: AccountService
+    private lateinit var aliasServiceMock: AliasService
+    private lateinit var assetExchangeMock: AssetExchange
+    private lateinit var dgsGoodsStoreServiceMock: DGSGoodsStoreService
+    private lateinit var blockchainMock: Blockchain
+    private lateinit var blockchainProcessorMock: BlockchainProcessor
+    private lateinit var transactionProcessorMock: TransactionProcessor
+    private lateinit var atServiceMock: ATService
 
     @Before
     fun setUp() {
@@ -681,7 +678,7 @@ class ParameterServiceImplTest {
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class, ValidationException::class)
     fun parseTransaction_transactionJSON_validationExceptionOccurs() {
-        whenever(transactionProcessorMock!!.parseTransaction(any<JsonObject>())).thenThrow(BurstException.NotValidException(""))
+        whenever(transactionProcessorMock!!.parseTransaction(any<JsonObject>())).thenAnswer { throw BurstException.NotValidException("") }
 
         t!!.parseTransaction(null, "{}")
     }

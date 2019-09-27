@@ -1,34 +1,36 @@
 package brs.http
 
-import brs.*
+import brs.Account
+import brs.Attachment
+import brs.Blockchain
+import brs.DependencyProvider
 import brs.DigitalGoodsStore.Goods
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.http.JSONResponses.INCORRECT_DELTA_QUANTITY
 import brs.http.JSONResponses.MISSING_DELTA_QUANTITY
 import brs.http.JSONResponses.UNKNOWN_GOODS
-import brs.services.ParameterService
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import javax.servlet.http.HttpServletRequest
 import brs.http.common.Parameters.DELTA_QUANTITY_PARAMETER
+import brs.services.ParameterService
+import brs.transaction.TransactionType
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import javax.servlet.http.HttpServletRequest
 
 @RunWith(JUnit4::class)
 class DGSQuantityChangeTest : AbstractTransactionTest() {
 
     private lateinit var t: DGSQuantityChange
-
+    private lateinit var dp: DependencyProvider
     private lateinit var mockParameterService: ParameterService
     private lateinit var mockBlockchain: Blockchain
     private lateinit var apiTransactionManagerMock: APITransactionManager
@@ -38,8 +40,8 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         mockParameterService = mock<ParameterService>()
         mockBlockchain = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
-
-        t = DGSQuantityChange(QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!))
+        dp = QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!)
+        t = DGSQuantityChange(dp)
     }
 
     @Test
@@ -60,8 +62,8 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
 
         whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
         whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
-
-        QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsQuantityChange
         assertNotNull(attachment)

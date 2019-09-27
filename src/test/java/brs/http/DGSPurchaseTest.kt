@@ -3,7 +3,7 @@ package brs.http
 import brs.Account
 import brs.Attachment
 import brs.Blockchain
-import brs.DigitalGoodsStore
+import brs.DependencyProvider
 import brs.DigitalGoodsStore.Goods
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
@@ -19,9 +19,10 @@ import brs.http.common.Parameters.QUANTITY_PARAMETER
 import brs.services.AccountService
 import brs.services.ParameterService
 import brs.services.TimeService
+import brs.transaction.TransactionType
+import brs.transaction.digitalGoods.DigitalGoodsPurchase
 import com.nhaarman.mockitokotlin2.*
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import javax.servlet.http.HttpServletRequest
@@ -29,7 +30,7 @@ import javax.servlet.http.HttpServletRequest
 class DGSPurchaseTest : AbstractTransactionTest() {
 
     private lateinit var t: DGSPurchase
-
+    private lateinit var dp: DependencyProvider
     private lateinit var mockParameterService: ParameterService
     private lateinit var mockBlockchain: Blockchain
     private lateinit var mockAccountService: AccountService
@@ -44,8 +45,8 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         mockAccountService = mock<AccountService>()
         mockTimeService = mock<TimeService>()
         apiTransactionManagerMock = mock<APITransactionManager>()
-
-        t = DGSPurchase(QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, mockAccountService!!, mockTimeService!!, apiTransactionManagerMock!!))
+        dp = QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, mockAccountService!!, mockTimeService!!, apiTransactionManagerMock!!)
+        t = DGSPurchase(dp)
     }
 
     @Test
@@ -75,12 +76,13 @@ class DGSPurchaseTest : AbstractTransactionTest() {
         whenever(mockTimeService!!.epochTime).doReturn(10)
 
         whenever(mockAccountService!!.getAccount(eq(mockSellerId))).doReturn(mockSellerAccount)
-        val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsPurchase
         assertNotNull(attachment)
 
-        assertEquals(DigitalGoodsStore.Event.PURCHASE, attachment.transactionType)
+        assertTrue(attachment.transactionType is DigitalGoodsPurchase)
         assertEquals(goodsQuantity.toLong(), attachment.quantity.toLong())
         assertEquals(goodsPrice, attachment.priceNQT)
         assertEquals(deliveryDeadlineTimestamp, attachment.deliveryDeadlineTimestamp.toLong())

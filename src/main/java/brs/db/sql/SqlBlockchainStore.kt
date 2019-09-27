@@ -41,7 +41,7 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
     override fun getBlocks(blockRecords: Result<BlockRecord>): MutableCollection<Block> {
         return blockRecords.map { blockRecord ->
             try {
-                return@map dp.dbs.blockDb.loadBlock(blockRecord)
+                return@map dp.blockDb.loadBlock(blockRecord)
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException(e)
             }
@@ -69,7 +69,7 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
                     .limit(limit)
                     .fetch { result ->
                         try {
-                            return@fetch dp.dbs.blockDb.loadBlock(result);
+                            return@fetch dp.blockDb.loadBlock(result);
                         } catch (e: BurstException.ValidationException) {
                             throw RuntimeException(e.toString(), e)
                         }
@@ -125,7 +125,7 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
     override fun getTransactions(ctx: DSLContext, rs: Result<TransactionRecord>): Collection<Transaction> {
         return rs.map { r ->
             try {
-                return@map dp.dbs.transactionDb.loadTransaction(r)
+                return@map dp.transactionDb.loadTransaction(r)
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException(e)
             }
@@ -133,11 +133,11 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
     }
 
     override fun addBlock(block: Block) {
-        Db.useDSLContext { ctx -> dp.dbs.blockDb.saveBlock(ctx, block) }
+        Db.useDSLContext { ctx -> dp.blockDb.saveBlock(ctx, block) }
     }
 
     override fun getLatestBlocks(amountBlocks: Int): Collection<Block> {
-        val latestBlockHeight = dp.dbs.blockDb.findLastBlock()!!.height
+        val latestBlockHeight = dp.blockDb.findLastBlock()!!.height
 
         val firstLatestBlockHeight = max(0, latestBlockHeight - amountBlocks)
 

@@ -5,6 +5,7 @@ import brs.Blockchain
 import brs.Constants.MAX_ASSET_DESCRIPTION_LENGTH
 import brs.Constants.MAX_ASSET_NAME_LENGTH
 import brs.Constants.MIN_ASSET_NAME_LENGTH
+import brs.DependencyProvider
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
@@ -18,6 +19,7 @@ import brs.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.http.common.Parameters.NAME_PARAMETER
 import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
 import brs.services.ParameterService
+import brs.transaction.TransactionType
 import brs.transaction.coloredCoins.AssetIssuance
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
@@ -33,7 +35,7 @@ import org.junit.runners.JUnit4
 class IssueAssetTest : AbstractTransactionTest() {
 
     private var t: IssueAsset? = null
-
+    private lateinit var dp: DependencyProvider
     private var mockParameterService: ParameterService? = null
     private var mockBlockchain: Blockchain? = null
     private var apiTransactionManagerMock: APITransactionManager? = null
@@ -44,8 +46,8 @@ class IssueAssetTest : AbstractTransactionTest() {
         whenever(mockParameterService!!.getSenderAccount(any())).doReturn(mock())
         mockBlockchain = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
-
-        t = IssueAsset(QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!))
+        dp = QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!)
+        t = IssueAsset(dp)
     }
 
     @Test
@@ -62,7 +64,8 @@ class IssueAssetTest : AbstractTransactionTest() {
                 MockParam(QUANTITY_QNT_PARAMETER, quantityQNTParameter)
         )
 
-        QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.ColoredCoinsAssetIssuance
         assertNotNull(attachment)

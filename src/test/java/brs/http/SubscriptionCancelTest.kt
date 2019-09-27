@@ -4,29 +4,29 @@ import brs.*
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
-import brs.services.ParameterService
-import brs.services.SubscriptionService
-import brs.util.JSON
-import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import javax.servlet.http.HttpServletRequest
 import brs.http.common.Parameters.SUBSCRIPTION_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
+import brs.services.ParameterService
+import brs.services.SubscriptionService
+import brs.transaction.TransactionType
+import brs.util.JSON
+import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import javax.servlet.http.HttpServletRequest
 
 @RunWith(JUnit4::class)
 class SubscriptionCancelTest : AbstractTransactionTest() {
 
     private var t: SubscriptionCancel? = null
-
+    private lateinit var dp: DependencyProvider
     private var parameterServiceMock: ParameterService? = null
     private var subscriptionServiceMock: SubscriptionService? = null
     private var blockchainMock: Blockchain? = null
@@ -38,8 +38,8 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         subscriptionServiceMock = mock<SubscriptionService>()
         blockchainMock = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
-
-        t = SubscriptionCancel(QuickMocker.dependencyProvider(parameterServiceMock!!, subscriptionServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!))
+        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, subscriptionServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!)
+        t = SubscriptionCancel(dp)
     }
 
     @Test
@@ -61,7 +61,8 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSender)
         whenever(subscriptionServiceMock!!.getSubscription(eq<Long>(subscriptionIdParameter))).doReturn(mockSubscription)
 
-        QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.AdvancedPaymentSubscriptionCancel
         assertNotNull(attachment)

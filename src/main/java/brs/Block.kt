@@ -148,7 +148,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
     }
 
     private fun transactionDb(): TransactionDb {
-        return dp.dbs.transactionDb
+        return dp.transactionDb
     }
 
     fun getNonce(): Long? {

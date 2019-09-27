@@ -134,7 +134,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
             throw BurstException.NotValidException("Transaction signature verification failed")
         }
         val processedTransactions = processTransactions(setOf(transaction), null)
-        if (dp.dbs.transactionDb.hasTransaction(transaction.id)) {
+        if (dp.transactionDb.hasTransaction(transaction.id)) {
             if (logger.isInfoEnabled) {
                 logger.info("Transaction {} already in blockchain, will not broadcast again", transaction.stringId)
             }
@@ -268,7 +268,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                         break // not ready to process transactions
                     }
                     try {
-                        if (dp.dbs.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionStore.exists(transaction.id)) {
+                        if (dp.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionStore.exists(transaction.id)) {
                             dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, listOf(transaction))
                         } else if (!(transaction.verifySignature() && dp.transactionService.verifyPublicKey(transaction))) {
                             if (dp.accountService.getAccount(transaction.senderId) != null && logger.isDebugEnabled) {

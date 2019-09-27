@@ -2,7 +2,6 @@ package brs.common
 
 import brs.Blockchain
 import brs.DependencyProvider
-import brs.db.store.TradeStore
 import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxCapacitorImpl
 import brs.fluxcapacitor.FluxEnable
@@ -13,7 +12,6 @@ import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.props.Prop
 import brs.props.PropertyService
-import brs.props.PropertyServiceImpl
 import brs.props.Props
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -23,11 +21,6 @@ import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSupertypeOf
-
-fun main() {
-    val dp = QuickMocker.dependencyProvider(mock<PropertyServiceImpl>(), mock<TradeStore>(), mock<FluxEnable>(), "")
-    println(dp)
-}
 
 object QuickMocker {
     fun dependencyProvider(vararg dependencies: Any): DependencyProvider {
@@ -71,8 +64,8 @@ object QuickMocker {
 
     fun fluxCapacitorEnabledFunctionalities(vararg enabledToggles: FluxEnable): FluxCapacitor {
         val mockCapacitor = mock<FluxCapacitor> {
-            on { it.getValue(any<FluxValue<Boolean>>()) } doReturn false
-            on { it.getValue(any<FluxValue<Boolean>>(), any()) } doReturn false
+            onGeneric { it.getValue(any<FluxValue<Boolean>>()) } doReturn false
+            onGeneric { it.getValue(any<FluxValue<Boolean>>(), any()) } doReturn false
         }
         for (ft in enabledToggles) {
             whenever(mockCapacitor.getValue(eq(ft))).doReturn(true)

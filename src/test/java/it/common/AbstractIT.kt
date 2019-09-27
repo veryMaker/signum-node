@@ -2,19 +2,15 @@ package it.common
 
 import brs.Burst
 import brs.common.TestInfrastructure
-import brs.peer.Peers
 import brs.peer.ProcessBlock
 import brs.props.Props
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.mock
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-
-import java.util.Properties
+import java.util.*
 
 @RunWith(JUnit4::class)
 abstract class AbstractIT {
@@ -26,10 +22,7 @@ abstract class AbstractIT {
 
     @Before
     fun setUp() {
-        mockkStatic(Peers::class)
-        unmockkStatic(Burst::class)
         burst = Burst(testProperties(), false)
-
         processBlock = ProcessBlock(burst.dp.blockchain, burst.dp.blockchainProcessor)
     }
 

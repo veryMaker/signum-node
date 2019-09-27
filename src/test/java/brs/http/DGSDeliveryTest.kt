@@ -1,19 +1,15 @@
 package brs.http
 
-import brs.*
+import brs.Account
+import brs.Attachment
+import brs.Blockchain
+import brs.Constants.MAX_BALANCE_NQT
+import brs.DependencyProvider
 import brs.DigitalGoodsStore.Purchase
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.fluxcapacitor.FluxValues
-import brs.services.AccountService
-import brs.services.ParameterService
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
-import brs.Constants.MAX_BALANCE_NQT
 import brs.common.TestConstants.TEST_SECRET_PHRASE
+import brs.fluxcapacitor.FluxValues
 import brs.http.JSONResponses.ALREADY_DELIVERED
 import brs.http.JSONResponses.INCORRECT_DGS_DISCOUNT
 import brs.http.JSONResponses.INCORRECT_DGS_GOODS
@@ -21,16 +17,20 @@ import brs.http.JSONResponses.INCORRECT_PURCHASE
 import brs.http.common.Parameters.DISCOUNT_NQT_PARAMETER
 import brs.http.common.Parameters.GOODS_TO_ENCRYPT_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.services.AccountService
+import brs.services.ParameterService
+import brs.transaction.TransactionType
 import brs.transaction.digitalGoods.DigitalGoodsDelivery
 import com.nhaarman.mockitokotlin2.*
-import io.mockk.every
-import io.mockk.mockkStatic
 import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class DGSDeliveryTest : AbstractTransactionTest() {
 
     private lateinit var t: DGSDelivery
-
+    private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService
     private lateinit var blockchainMock: Blockchain
     private lateinit var accountServiceMock: AccountService
@@ -42,8 +42,8 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         blockchainMock = mock<Blockchain>()
         accountServiceMock = mock<AccountService>()
         apiTransactionManagerMock = mock<APITransactionManager>()
-
-        t = DGSDelivery(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, accountServiceMock!!, apiTransactionManagerMock!!))
+        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, accountServiceMock!!, apiTransactionManagerMock!!)
+        t = DGSDelivery(dp)
     }
 
     @Test
@@ -73,7 +73,8 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
         whenever(accountServiceMock!!.getAccount(eq(mockPurchase.buyerId))).doReturn(mockBuyerAccount)
         whenever(mockBuyerAccount.encryptTo(any(), any())).doReturn(mock())
-        val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsDelivery
         assertNotNull(attachment)
@@ -211,15 +212,16 @@ class DGSDeliveryTest : AbstractTransactionTest() {
 
         whenever(mockSellerAccount.id).doReturn(1L)
         whenever(mockPurchase.sellerId).doReturn(1L)
+        whenever(mockPurchase.buyerId).doReturn(2L)
         whenever(mockPurchase.quantity).doReturn(9)
         whenever(mockPurchase.priceNQT).doReturn(1L)
 
         whenever(mockPurchase.isPending).doReturn(true)
 
         whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSellerAccount)
+        whenever(accountServiceMock!!.getAccount(eq(mockPurchase.buyerId))).doReturn(mock())
         whenever(parameterServiceMock!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
 
         assertEquals(INCORRECT_DGS_GOODS, t!!.processRequest(request))
     }
-
 }

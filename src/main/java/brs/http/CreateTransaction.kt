@@ -1,13 +1,11 @@
 package brs.http
 
-import brs.*
-import brs.fluxcapacitor.FluxValues
-import com.google.gson.JsonElement
-
-import javax.servlet.http.HttpServletRequest
-
+import brs.Account
+import brs.Attachment
 import brs.Constants.FEE_QUANT
 import brs.Constants.ONE_BURST
+import brs.DependencyProvider
+import brs.fluxcapacitor.FluxValues
 import brs.http.common.Parameters.BROADCAST_PARAMETER
 import brs.http.common.Parameters.DEADLINE_PARAMETER
 import brs.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
@@ -25,6 +23,8 @@ import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.http.common.Parameters.RECIPIENT_PUBLIC_KEY_PARAMETER
 import brs.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import com.google.gson.JsonElement
+import javax.servlet.http.HttpServletRequest
 
 internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
     private val dp: DependencyProvider
@@ -54,12 +54,10 @@ internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
     }
 
     companion object {
-
         private val commonParameters = arrayOf(SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_NQT_PARAMETER, DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER, MESSAGE_PARAMETER, MESSAGE_IS_TEXT_PARAMETER, MESSAGE_TO_ENCRYPT_PARAMETER, MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, ENCRYPTED_MESSAGE_DATA_PARAMETER, ENCRYPTED_MESSAGE_NONCE_PARAMETER, MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER, MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, ENCRYPT_TO_SELF_MESSAGE_DATA, ENCRYPT_TO_SELF_MESSAGE_NONCE, RECIPIENT_PUBLIC_KEY_PARAMETER)
 
         private fun addCommonParameters(vararg parameters: String): Array<String> {
             return commonParameters + parameters
         }
     }
-
 }

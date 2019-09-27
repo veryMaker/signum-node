@@ -102,7 +102,7 @@ class AT : AtMachineState {
 
                 try {
                     val transaction = builder.build()
-                    if (!dp.dbs.transactionDb.hasTransaction(transaction.id)) {
+                    if (!dp.transactionDb.hasTransaction(transaction.id)) {
                         transactions.add(transaction)
                     }
                 } catch (e: BurstException.NotValidException) {
@@ -113,7 +113,7 @@ class AT : AtMachineState {
 
             if (!transactions.isEmpty()) {
                 // WATCH: Replace after transactions are converted!
-                dp.dbs.transactionDb.saveTransactions(transactions)
+                dp.transactionDb.saveTransactions(transactions)
             }
         }
     }

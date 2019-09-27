@@ -296,7 +296,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         this.recipientId = Optional.ofNullable(builder.recipientId).orElse(0L)
         this.amountNQT = builder.amountNQT
         this.referencedTransactionFullHash = builder.referencedTransactionFullHash
-        this.signature = builder.signature ?: ByteArray(0)
+        this.signature = builder.signature
         this.type = builder.type
         this.version = builder.version
         this.blockId = builder.blockId

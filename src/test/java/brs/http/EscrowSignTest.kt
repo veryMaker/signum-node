@@ -5,24 +5,24 @@ import brs.Escrow.DecisionType
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
-import brs.services.EscrowService
-import brs.services.ParameterService
-import brs.util.JSON
-import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import javax.servlet.http.HttpServletRequest
 import brs.http.common.Parameters.DECISION_PARAMETER
 import brs.http.common.Parameters.ESCROW_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
+import brs.services.EscrowService
+import brs.services.ParameterService
+import brs.transaction.TransactionType
+import brs.util.JSON
+import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import javax.servlet.http.HttpServletRequest
 
 @RunWith(JUnit4::class)
 class EscrowSignTest : AbstractTransactionTest() {
@@ -31,7 +31,7 @@ class EscrowSignTest : AbstractTransactionTest() {
     private lateinit var blockchainMock: Blockchain
     private lateinit var escrowServiceMock: EscrowService
     private lateinit var apiTransactionManagerMock: APITransactionManager
-
+    private lateinit var dp: DependencyProvider
     private lateinit var t: EscrowSign
 
     @Before
@@ -40,8 +40,8 @@ class EscrowSignTest : AbstractTransactionTest() {
         blockchainMock = mock<Blockchain>()
         escrowServiceMock = mock<EscrowService>()
         apiTransactionManagerMock = mock<APITransactionManager>()
-
-        t = EscrowSign(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, escrowServiceMock!!, apiTransactionManagerMock!!))
+        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, escrowServiceMock!!, apiTransactionManagerMock!!)
+        t = EscrowSign(dp)
     }
 
     @Test
@@ -60,8 +60,8 @@ class EscrowSignTest : AbstractTransactionTest() {
 
         val sender = mock<Account>()
         whenever(sender.id).doReturn(senderId)
-
-        QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         whenever(escrowServiceMock!!.getEscrowTransaction(eq(escrowId))).doReturn(escrow)
         whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(sender)
@@ -93,8 +93,8 @@ class EscrowSignTest : AbstractTransactionTest() {
 
         whenever(escrowServiceMock!!.getEscrowTransaction(eq(escrowId))).doReturn(escrow)
         whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(sender)
-
-        QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) },
                 apiTransactionManagerMock!!) as Attachment.AdvancedPaymentEscrowSign
@@ -120,8 +120,8 @@ class EscrowSignTest : AbstractTransactionTest() {
 
         val sender = mock<Account>()
         whenever(sender.id).doReturn(senderId)
-
-        QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         whenever(escrowServiceMock!!.isIdSigner(eq(senderId), eq(escrow))).doReturn(true)
 

@@ -1,9 +1,6 @@
 package brs.http
 
-import brs.Account
-import brs.Attachment
-import brs.Blockchain
-import brs.Constants
+import brs.*
 import brs.DigitalGoodsStore.Purchase
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
@@ -16,6 +13,7 @@ import brs.http.JSONResponses.INCORRECT_PURCHASE
 import brs.http.common.Parameters.REFUND_NQT_PARAMETER
 import brs.services.AccountService
 import brs.services.ParameterService
+import brs.transaction.TransactionType
 import brs.transaction.digitalGoods.DigitalGoodsRefund
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -32,7 +30,7 @@ import javax.servlet.http.HttpServletRequest
 class DGSRefundTest : AbstractTransactionTest() {
 
     private lateinit var t: DGSRefund
-
+    private lateinit var dp: DependencyProvider
     private lateinit var mockParameterService: ParameterService
     private lateinit var mockBlockchain: Blockchain
     private lateinit var mockAccountService: AccountService
@@ -44,8 +42,8 @@ class DGSRefundTest : AbstractTransactionTest() {
         mockBlockchain = mock<Blockchain>()
         mockAccountService = mock<AccountService>()
         apiTransactionManagerMock = mock<APITransactionManager>()
-
-        t = DGSRefund(QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, mockAccountService!!, apiTransactionManagerMock!!))
+        dp = QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, mockAccountService!!, apiTransactionManagerMock!!)
+        t = DGSRefund(dp)
     }
 
     @Test
@@ -73,8 +71,8 @@ class DGSRefundTest : AbstractTransactionTest() {
         val mockBuyerAccount = mock<Account>()
 
         whenever(mockAccountService!!.getAccount(eq(mockPurchase.buyerId))).doReturn(mockBuyerAccount)
-
-        QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsRefund
         assertNotNull(attachment)

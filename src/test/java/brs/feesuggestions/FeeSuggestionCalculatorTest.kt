@@ -3,19 +3,14 @@ package brs.feesuggestions
 import brs.Block
 import brs.BlockchainProcessor
 import brs.BlockchainProcessor.Event
+import brs.Constants.FEE_QUANT
 import brs.Transaction
 import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
 import brs.db.store.BlockchainStore
+import com.nhaarman.mockitokotlin2.*
 import org.junit.Before
 import org.junit.Test
-
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.function.Consumer
-
-import brs.Constants.FEE_QUANT
-import brs.common.QuickMocker
-import com.nhaarman.mockitokotlin2.*
 import org.junit.jupiter.api.Assertions.assertEquals
 
 class FeeSuggestionCalculatorTest : AbstractUnitTest() {
@@ -35,7 +30,7 @@ class FeeSuggestionCalculatorTest : AbstractUnitTest() {
         listenerArgumentCaptor = argumentCaptor()
         whenever(blockchainProcessorMock!!.addListener(listenerArgumentCaptor!!.capture(), eq(Event.AFTER_BLOCK_APPLY))).doReturn(true)
 
-        t = FeeSuggestionCalculator(QuickMocker.dependencyProvider(blockchainProcessorMock!!, blockchainStoreMock, 5))
+        t = FeeSuggestionCalculator(QuickMocker.dependencyProvider(blockchainProcessorMock!!, blockchainStoreMock), 5)
     }
 
     @Test

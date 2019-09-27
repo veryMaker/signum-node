@@ -2,6 +2,7 @@ package brs.http
 
 import brs.Attachment
 import brs.Blockchain
+import brs.DependencyProvider
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
@@ -13,6 +14,7 @@ import brs.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.http.common.Parameters.ALIAS_URI_PARAMETER
 import brs.services.AliasService
 import brs.services.ParameterService
+import brs.transaction.TransactionType
 import brs.transaction.messaging.AliasAssignment
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -27,7 +29,7 @@ import org.junit.runners.JUnit4
 class SetAliasTest : AbstractTransactionTest() {
 
     private var t: SetAlias? = null
-
+    private lateinit var dp: DependencyProvider
     private var parameterServiceMock: ParameterService? = null
     private var blockchainMock: Blockchain? = null
     private var aliasServiceMock: AliasService? = null
@@ -40,8 +42,8 @@ class SetAliasTest : AbstractTransactionTest() {
         blockchainMock = mock()
         aliasServiceMock = mock()
         apiTransactionManagerMock = mock()
-
-        t = SetAlias(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, aliasServiceMock!!, apiTransactionManagerMock!!))
+        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, aliasServiceMock!!, apiTransactionManagerMock!!)
+        t = SetAlias(dp)
     }
 
     @Test
@@ -54,7 +56,8 @@ class SetAliasTest : AbstractTransactionTest() {
                 MockParam(ALIAS_URI_PARAMETER, aliasUrl)
         )
 
-        QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.MessagingAliasAssignment
         assertNotNull(attachment)

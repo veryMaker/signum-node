@@ -3,6 +3,7 @@ package brs.http
 import brs.Account
 import brs.Attachment
 import brs.Blockchain
+import brs.DependencyProvider
 import brs.DigitalGoodsStore.Goods
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
@@ -10,6 +11,7 @@ import brs.fluxcapacitor.FluxValues
 import brs.http.JSONResponses.UNKNOWN_GOODS
 import brs.http.common.Parameters.PRICE_NQT_PARAMETER
 import brs.services.ParameterService
+import brs.transaction.TransactionType
 import brs.transaction.digitalGoods.DigitalGoodsPriceChange
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -26,7 +28,7 @@ import javax.servlet.http.HttpServletRequest
 class DGSPriceChangeTest : AbstractTransactionTest() {
 
     private lateinit var t: DGSPriceChange
-
+    private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService
     private lateinit var blockchainMock: Blockchain
     private lateinit var apiTransactionManagerMock: APITransactionManager
@@ -36,8 +38,8 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
         parameterServiceMock = mock<ParameterService>()
         blockchainMock = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
-
-        t = DGSPriceChange(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!))
+        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!)
+        t = DGSPriceChange(dp)
     }
 
     @Test
@@ -60,7 +62,8 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
         whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
         whenever(parameterServiceMock!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
 
-        QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsPriceChange
         assertNotNull(attachment)

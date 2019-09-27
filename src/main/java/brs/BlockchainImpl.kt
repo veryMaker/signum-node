@@ -26,16 +26,16 @@ class BlockchainImpl internal constructor(private val dp: DependencyProvider) : 
 
     override fun getLastBlock(timestamp: Int): Block? {
         val block = lastBlockLock.read { lastBlock }
-        return if (timestamp >= block.timestamp) block else dp.dbs.blockDb.findLastBlock(timestamp)
+        return if (timestamp >= block.timestamp) block else dp.blockDb.findLastBlock(timestamp)
     }
 
     override fun getBlock(blockId: Long): Block? {
         val block = lastBlockLock.read { lastBlock }
-        return if (block.id == blockId) block else dp.dbs.blockDb.findBlock(blockId)
+        return if (block.id == blockId) block else dp.blockDb.findBlock(blockId)
     }
 
     override fun hasBlock(blockId: Long): Boolean {
-        return lastBlockLock.read { lastBlock }.id == blockId || dp.dbs.blockDb.hasBlock(blockId)
+        return lastBlockLock.read { lastBlock }.id == blockId || dp.blockDb.hasBlock(blockId)
     }
 
     override fun getBlocks(from: Int, to: Int): Collection<Block> {
@@ -61,29 +61,29 @@ class BlockchainImpl internal constructor(private val dp: DependencyProvider) : 
     override fun getBlockIdAtHeight(height: Int): Long {
         val block = lastBlockLock.read { lastBlock }
         require(height <= block.height) { "Invalid height " + height + ", current blockchain is at " + block.height }
-        return if (height == block.height) block.id else dp.dbs.blockDb.findBlockIdAtHeight(height)
+        return if (height == block.height) block.id else dp.blockDb.findBlockIdAtHeight(height)
     }
 
     override fun getBlockAtHeight(height: Int): Block? {
         val block = lastBlockLock.read { lastBlock }
         require(height <= block.height) { "Invalid height " + height + ", current blockchain is at " + block.height }
-        return if (height == block.height) block else dp.dbs.blockDb.findBlockAtHeight(height)
+        return if (height == block.height) block else dp.blockDb.findBlockAtHeight(height)
     }
 
     override fun getTransaction(transactionId: Long): Transaction? {
-        return dp.dbs.transactionDb.findTransaction(transactionId)
+        return dp.transactionDb.findTransaction(transactionId)
     }
 
     override fun getTransactionByFullHash(fullHash: String): Transaction? {
-        return dp.dbs.transactionDb.findTransactionByFullHash(fullHash)
+        return dp.transactionDb.findTransactionByFullHash(fullHash)
     }
 
     override fun hasTransaction(transactionId: Long): Boolean {
-        return dp.dbs.transactionDb.hasTransaction(transactionId)
+        return dp.transactionDb.hasTransaction(transactionId)
     }
 
     override fun hasTransactionByFullHash(fullHash: String): Boolean {
-        return dp.dbs.transactionDb.hasTransactionByFullHash(fullHash)
+        return dp.transactionDb.hasTransactionByFullHash(fullHash)
     }
 
     override fun getTransactions(account: Account, type: Byte, subtype: Byte, blockTimestamp: Int, includeIndirectIncoming: Boolean): Collection<Transaction> {

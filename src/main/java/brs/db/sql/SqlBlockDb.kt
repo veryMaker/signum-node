@@ -116,7 +116,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
                         block.generatorId, block.nonce, block.blockATs)
                 .execute()
 
-        dp.dbs.transactionDb.saveTransactions(block.transactions)
+        dp.transactionDb.saveTransactions(block.transactions)
 
         if (block.previousBlockId != 0L) {
             ctx.update(BLOCK)

@@ -4,7 +4,7 @@ import brs.db.BlockDb
 import brs.db.PeerDb
 import brs.db.TransactionDb
 
-interface Dbs { // TODO remove, integrate with dependencyProvider
+interface Dbs { // TODO remove
     val blockDb: BlockDb
 
     val transactionDb: TransactionDb

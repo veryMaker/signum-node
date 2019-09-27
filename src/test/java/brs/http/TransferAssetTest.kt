@@ -4,27 +4,27 @@ import brs.*
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
-import brs.services.AccountService
-import brs.services.ParameterService
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import javax.servlet.http.HttpServletRequest
 import brs.http.JSONResponses.NOT_ENOUGH_ASSETS
 import brs.http.common.Parameters.ASSET_PARAMETER
 import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
+import brs.services.AccountService
+import brs.services.ParameterService
+import brs.transaction.TransactionType
 import brs.transaction.coloredCoins.AssetTransfer
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import javax.servlet.http.HttpServletRequest
 
 @RunWith(JUnit4::class)
 class TransferAssetTest : AbstractTransactionTest() {
 
     private var t: TransferAsset? = null
-
+    private lateinit var dp: DependencyProvider
     private var parameterServiceMock: ParameterService? = null
     private var blockchainMock: Blockchain? = null
     private var transactionProcessorMock: TransactionProcessor? = null
@@ -38,8 +38,8 @@ class TransferAssetTest : AbstractTransactionTest() {
         apiTransactionManagerMock = mock<APITransactionManager>()
         transactionProcessorMock = mock<TransactionProcessor>()
         accountServiceMock = mock<AccountService>()
-
-        t = TransferAsset(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!, accountServiceMock!!))
+        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!, accountServiceMock!!)
+        t = TransferAsset(dp)
     }
 
     @Test
@@ -64,7 +64,8 @@ class TransferAssetTest : AbstractTransactionTest() {
 
         whenever(parameterServiceMock!!.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
 
-        QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.ColoredCoinsAssetTransfer
         assertNotNull(attachment)

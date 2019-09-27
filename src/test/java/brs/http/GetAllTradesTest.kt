@@ -1,7 +1,6 @@
 package brs.http
 
 import brs.Asset
-import brs.BurstException
 import brs.Trade
 import brs.assetexchange.AssetExchange
 import brs.common.AbstractUnitTest
@@ -18,12 +17,11 @@ import brs.http.common.ResultFields.TRADES_RESPONSE
 import brs.util.JSON
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.nhaarman.mockitokotlin2.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-import com.nhaarman.mockitokotlin2.*
-import org.junit.Assert.*
 
 class GetAllTradesTest : AbstractUnitTest() {
 
@@ -119,7 +117,7 @@ class GetAllTradesTest : AbstractUnitTest() {
 
         assertEquals("" + priceNQT, JSON.getAsString(tradeAssetInfoResult.get(PRICE_NQT_RESPONSE)))
         assertEquals("" + mockAssetId, JSON.getAsString(tradeAssetInfoResult.get(ASSET_RESPONSE)))
-        assertNull(JSON.getAsString(tradeAssetInfoResult.get(NAME_RESPONSE)))
+        assertEquals("", JSON.getAsString(tradeAssetInfoResult.get(NAME_RESPONSE)))
 
         verify(mockAssetExchange!!, never()).getAsset(eq(mockAssetId))
     }

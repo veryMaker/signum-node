@@ -170,7 +170,7 @@ fun Long.toUnsignedString(): String {
 
 fun String?.parseUnsignedLong(): Long {
     // TODO do we need nullable receiver?
-    return if (this == null) 0 else java.lang.Long.parseUnsignedLong(this)
+    return if (this.isNullOrEmpty()) 0 else java.lang.Long.parseUnsignedLong(this)
 }
 
 fun ByteArray?.toHexString(): String {

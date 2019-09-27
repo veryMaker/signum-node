@@ -53,7 +53,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         val scheduler = Executors.newSingleThreadScheduledExecutor()
         val cleanupExpiredTransactions = {
             synchronized(internalStore) {
-                all.filter { t -> dp.timeService.epochTime > t.expiration || dp.dbs.transactionDb.hasTransaction(t.id) }
+                all.filter { t -> dp.timeService.epochTime > t.expiration || dp.transactionDb.hasTransaction(t.id) }
                         .forEach { this.removeTransaction(it) }
             }
         }

@@ -49,7 +49,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
             subscriptionTable.insert(subscription)
         }
         if (!paymentTransactions.isEmpty()) {
-            dp.dbs.transactionDb.saveTransactions(paymentTransactions)
+            dp.transactionDb.saveTransactions(paymentTransactions)
         }
         removeSubscriptions.forEach { this.removeSubscription(it) }
     }
@@ -149,7 +149,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
                     .ecBlockHeight(0)
                     .ecBlockId(0L)
             val transaction = builder.build()
-            if (!dp.dbs.transactionDb.hasTransaction(transaction.id)) {
+            if (!dp.transactionDb.hasTransaction(transaction.id)) {
                 paymentTransactions.add(transaction)
             }
         } catch (e: NotValidException) {

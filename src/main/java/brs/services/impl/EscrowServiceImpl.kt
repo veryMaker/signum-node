@@ -143,7 +143,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
                 }
             }
             if (resultTransactions.isNotEmpty()) {
-                dp.dbs.transactionDb.saveTransactions(resultTransactions)
+                dp.transactionDb.saveTransactions(resultTransactions)
             }
             updatedEscrowIds.clear()
         }
@@ -193,7 +193,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
             throw RuntimeException(e.toString(), e)
         }
 
-        if (!dp.dbs.transactionDb.hasTransaction(transaction.id)) {
+        if (!dp.transactionDb.hasTransaction(transaction.id)) {
             resultTransactions.add(transaction)
         }
     }

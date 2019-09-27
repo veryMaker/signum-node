@@ -3,6 +3,7 @@ package brs.http
 import brs.Account
 import brs.Attachment
 import brs.Blockchain
+import brs.DependencyProvider
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
@@ -16,6 +17,7 @@ import brs.http.common.Parameters.PRICE_NQT_PARAMETER
 import brs.http.common.Parameters.QUANTITY_PARAMETER
 import brs.http.common.Parameters.TAGS_PARAMETER
 import brs.services.ParameterService
+import brs.transaction.TransactionType
 import brs.transaction.digitalGoods.DigitalGoodsListing
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -29,7 +31,7 @@ import javax.servlet.http.HttpServletRequest
 class DGSListingTest : AbstractTransactionTest() {
 
     private lateinit var t: DGSListing
-
+    private lateinit var dp: DependencyProvider
     private lateinit var mockParameterService: ParameterService
     private lateinit var mockBlockchain: Blockchain
     private lateinit var apiTransactionManagerMock: APITransactionManager
@@ -39,8 +41,8 @@ class DGSListingTest : AbstractTransactionTest() {
         mockParameterService = mock<ParameterService>()
         mockBlockchain = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
-
-        t = DGSListing(QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!))
+        dp = QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!)
+        t = DGSListing(dp)
     }
 
     @Test
@@ -62,8 +64,8 @@ class DGSListingTest : AbstractTransactionTest() {
         )
 
         whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
-
-        QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsListing
         assertNotNull(attachment)

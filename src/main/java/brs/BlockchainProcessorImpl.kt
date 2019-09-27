@@ -654,7 +654,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
     }
 
     override fun fullReset() {
-        dp.dbs.blockDb.deleteAll(false)
+        dp.blockDb.deleteAll(false)
         dp.dbCacheManager.flushCache()
         dp.downloadCache.resetCache()
         addGenesisBlock()
@@ -670,9 +670,9 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
     }
 
     private fun addGenesisBlock() {
-        if (dp.dbs.blockDb.hasBlock(Genesis.GENESIS_BLOCK_ID)) {
+        if (dp.blockDb.hasBlock(Genesis.GENESIS_BLOCK_ID)) {
             logger.info("Genesis block already in database")
-            val lastBlock = dp.dbs.blockDb.findLastBlock()!!
+            val lastBlock = dp.blockDb.findLastBlock()!!
             dp.blockchain.lastBlock = lastBlock
             logger.info("Last block height: {}", lastBlock.height)
             return
@@ -721,7 +721,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                             + " current time is " + curTime
                             + ", previous block timestamp is " + previousLastBlock.timestamp)
                 }
-                if (block.id == 0L || dp.dbs.blockDb.hasBlock(block.id)) {
+                if (block.id == 0L || dp.blockDb.hasBlock(block.id)) {
                     throw BlockchainProcessor.BlockNotAcceptedException("Duplicate block or invalid id for block " + block.height)
                 }
                 if (!dp.blockService.verifyGenerationSignature(block)) {
@@ -750,12 +750,12 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                                 + ", current time is " + curTime + ", block timestamp is " + block.timestamp,
                                 transaction)
                     }
-                    if (dp.dbs.transactionDb.hasTransaction(transaction.id)) {
+                    if (dp.transactionDb.hasTransaction(transaction.id)) {
                         throw BlockchainProcessor.TransactionNotAcceptedException(
                                 "Transaction " + transaction.stringId + " is already in the blockchain",
                                 transaction)
                     }
-                    if (transaction.referencedTransactionFullHash != null && (previousLastBlock.height < Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK && !dp.dbs.transactionDb.hasTransaction(
+                    if (transaction.referencedTransactionFullHash != null && (previousLastBlock.height < Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK && !dp.transactionDb.hasTransaction(
                                     Convert.fullHashToId(transaction.referencedTransactionFullHash)) || previousLastBlock
                                     .height >= Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK && !hasAllReferencedTransactions(transaction, transaction.timestamp, 0))) {
                         throw BlockchainProcessor.TransactionNotAcceptedException("Missing or invalid referenced transaction "
@@ -944,10 +944,10 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         if (block.id == Genesis.GENESIS_BLOCK_ID) {
             throw RuntimeException("Cannot pop off genesis block")
         }
-        val previousBlock = dp.dbs.blockDb.findBlock(block.previousBlockId)!!
+        val previousBlock = dp.blockDb.findBlock(block.previousBlockId)!!
         dp.blockchain.setLastBlock(block, previousBlock)
         block.transactions.forEach { it.unsetBlock() }
-        dp.dbs.blockDb.deleteBlocksFrom(block.id)
+        dp.blockDb.deleteBlocksFrom(block.id)
         blockListeners.accept(block, BlockchainProcessor.Event.BLOCK_POPPED)
         return previousBlock
     }
@@ -955,7 +955,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
     private fun preCheckUnconfirmedTransaction(transactionDuplicatesChecker: TransactionDuplicatesCheckerImpl, unconfirmedTransactionStore: UnconfirmedTransactionStore, transaction: Transaction): Boolean {
         val ok = (hasAllReferencedTransactions(transaction, transaction.timestamp, 0)
                 && !transactionDuplicatesChecker.hasAnyDuplicate(transaction)
-                && !dp.dbs.transactionDb.hasTransaction(transaction.id))
+                && !dp.transactionDb.hasTransaction(transaction.id))
         if (!ok) unconfirmedTransactionStore.remove(transaction)
         return ok
     }
@@ -1176,7 +1176,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         if (transaction.referencedTransactionFullHash == null) {
             return timestamp - transaction.timestamp < 60 * 1440 * 60 && count < 10
         }
-        val foundTransaction = dp.dbs.transactionDb.findTransactionByFullHash(transaction.referencedTransactionFullHash)
+        val foundTransaction = dp.transactionDb.findTransactionByFullHash(transaction.referencedTransactionFullHash)
         if (!dp.subscriptionService.isEnabled && foundTransaction != null && transaction.signature == null) {
             return false
         }

@@ -5,6 +5,9 @@ import brs.at.AtApiController
 import brs.at.AtApiPlatformImpl
 import brs.at.AtConstants
 import brs.at.AtController
+import brs.db.BlockDb
+import brs.db.PeerDb
+import brs.db.TransactionDb
 import brs.db.cache.DBCacheManagerImpl
 import brs.db.store.*
 import brs.deeplink.DeeplinkQRCodeGenerator
@@ -36,7 +39,9 @@ class DependencyProvider {
     lateinit var subscriptionStore: SubscriptionStore
     lateinit var unconfirmedTransactionStore: UnconfirmedTransactionStore
     lateinit var indirectIncomingStore: IndirectIncomingStore
-    lateinit var dbs: Dbs
+    lateinit var blockDb: BlockDb
+    lateinit var transactionDb: TransactionDb
+    lateinit var peerDb: PeerDb
     lateinit var blockchain: Blockchain
     lateinit var blockchainProcessor: BlockchainProcessor
     lateinit var transactionProcessor: TransactionProcessor

@@ -5,26 +5,25 @@ import brs.Alias.Offer
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
-import brs.services.AliasService
-import brs.services.ParameterService
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
 import brs.http.JSONResponses.INCORRECT_ALIAS_NOTFORSALE
 import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
+import brs.services.AliasService
+import brs.services.ParameterService
+import brs.transaction.TransactionType
 import brs.transaction.messaging.AliasBuy
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class BuyAliasTest : AbstractTransactionTest() {
 
     private lateinit var t: BuyAlias
-
+    private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService
     private lateinit var blockchain: Blockchain
     private lateinit var aliasService: AliasService
@@ -36,8 +35,8 @@ class BuyAliasTest : AbstractTransactionTest() {
         blockchain = mock<Blockchain>()
         aliasService = mock<AliasService>()
         apiTransactionManagerMock = mock<APITransactionManager>()
-
-        t = BuyAlias(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchain!!, aliasService!!, apiTransactionManagerMock))
+        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchain!!, aliasService!!, apiTransactionManagerMock)
+        t = BuyAlias(dp)
     }
 
     @Test
@@ -58,8 +57,8 @@ class BuyAliasTest : AbstractTransactionTest() {
 
         whenever(parameterServiceMock!!.getAlias(eq(request))).doReturn(mockAlias)
         whenever(parameterServiceMock!!.getSenderAccount(eq(request))).doReturn(mockAccount)
-
-        QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.MessagingAliasBuy
         assertNotNull(attachment)

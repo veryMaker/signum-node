@@ -1,32 +1,31 @@
 package brs.http
 
-import brs.*
+import brs.Account
+import brs.Blockchain
+import brs.DependencyProvider
 import brs.Order.Ask
 import brs.assetexchange.AssetExchange
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
-import brs.services.ParameterService
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
 import brs.http.JSONResponses.UNKNOWN_ORDER
 import brs.http.common.Parameters.ORDER_PARAMETER
+import brs.services.ParameterService
+import brs.transaction.TransactionType
 import brs.transaction.coloredCoins.AskOrderCancellation
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import io.mockk.every
-import io.mockk.mockkStatic
 import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class CancelAskOrderTest : AbstractTransactionTest() {
 
     private lateinit var t: CancelAskOrder
-
+    private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService
     private lateinit var blockchainMock: Blockchain
     private lateinit var assetExchangeMock: AssetExchange
@@ -38,8 +37,8 @@ class CancelAskOrderTest : AbstractTransactionTest() {
         blockchainMock = mock<Blockchain>()
         assetExchangeMock = mock<AssetExchange>()
         apiTransactionManagerMock = mock<APITransactionManager>()
-
-        t = CancelAskOrder(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, assetExchangeMock!!, apiTransactionManagerMock!!))
+        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, assetExchangeMock!!, apiTransactionManagerMock!!)
+        t = CancelAskOrder(dp)
     }
 
     @Test
@@ -59,7 +58,8 @@ class CancelAskOrderTest : AbstractTransactionTest() {
 
         whenever(assetExchangeMock!!.getAskOrder(eq(orderId))).doReturn(order)
         whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(sellerAccount)
-        val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) },
                 apiTransactionManagerMock!!) as brs.Attachment.ColoredCoinsAskOrderCancellation

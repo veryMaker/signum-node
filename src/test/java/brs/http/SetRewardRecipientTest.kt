@@ -1,30 +1,33 @@
 package brs.http
 
-import brs.*
+import brs.Account
+import brs.Attachment
+import brs.Blockchain
+import brs.DependencyProvider
 import brs.common.JSONTestHelper
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.common.TestConstants
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
+import brs.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.services.AccountService
 import brs.services.ParameterService
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import javax.servlet.http.HttpServletRequest
-import brs.http.common.Parameters.RECIPIENT_PARAMETER
+import brs.transaction.TransactionType
 import brs.transaction.burstMining.RewardRecipientAssignment
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import javax.servlet.http.HttpServletRequest
 
 @RunWith(JUnit4::class)
 class SetRewardRecipientTest : AbstractTransactionTest() {
 
     private var t: SetRewardRecipient? = null
-
+    private lateinit var dp: DependencyProvider
     private var parameterServiceMock: ParameterService? = null
     private var blockchainMock: Blockchain? = null
     private var accountServiceMock: AccountService? = null
@@ -37,8 +40,8 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
         blockchainMock = mock<Blockchain>()
         accountServiceMock = mock<AccountService>()
         apiTransactionManagerMock = mock<APITransactionManager>()
-
-        t = SetRewardRecipient(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, accountServiceMock!!, apiTransactionManagerMock!!))
+        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, accountServiceMock!!, apiTransactionManagerMock!!)
+        t = SetRewardRecipient(dp)
     }
 
     @Test
@@ -52,7 +55,8 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
         whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
         whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(mockRecipientAccount)
 
-        QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.BurstMiningRewardRecipientAssignment
         assertNotNull(attachment)

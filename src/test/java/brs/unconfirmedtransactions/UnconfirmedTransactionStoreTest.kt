@@ -23,7 +23,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import io.mockk.unmockkStatic
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -93,7 +92,6 @@ class UnconfirmedTransactionStoreTest {
 
         assertEquals(100, t!!.all.size)
         assertNotNull(t!!.get(1L))
-        unmockkStatic(Burst::class)
     }
 
 
@@ -114,7 +112,6 @@ class UnconfirmedTransactionStoreTest {
 
         assertEquals(0, t!!.getAllFor(mockPeer).size)
         assertEquals(100, t!!.getAllFor(otherMockPeer).size)
-        unmockkStatic(Burst::class)
     }
 
     @DisplayName("When a transactions got handed by a peer and we mark his fingerprints, he won't get it back a second time")
@@ -136,7 +133,6 @@ class UnconfirmedTransactionStoreTest {
 
         t!!.markFingerPrintsOf(mockPeer, mockPeerObtainedTransactions)
         assertEquals(0, t!!.getAllFor(mockPeer).size)
-        unmockkStatic(Burst::class)
     }
 
 
@@ -163,7 +159,6 @@ class UnconfirmedTransactionStoreTest {
 
         assertEquals(8192, t!!.all.size)
         assertNull(t!!.get(1L))
-        unmockkStatic(Burst::class)
     }
 
     @DisplayName("When the amount of unconfirmed transactions exceeds max size, and adding another of a higher slot, the cache size stays the same, and a lower slot transaction gets removed")
@@ -189,9 +184,8 @@ class UnconfirmedTransactionStoreTest {
         t!!.put(oneTransactionTooMany, null)
 
         assertEquals(8192, t!!.all.size)
-        assertEquals((8192 - 1).toLong(), t!!.all.filter { t -> t.feeNQT == FEE_QUANT * 100 }.count())
+        assertEquals(8192 - 1, t!!.all.filter { t -> t.feeNQT == FEE_QUANT * 100 }.count())
         assertEquals(1, t!!.all.filter { t -> t.feeNQT == FEE_QUANT * 200 }.count())
-        unmockkStatic(Burst::class)
     }
 
     @DisplayName("The unconfirmed transaction gets denied in case the account is unknown")
@@ -203,7 +197,6 @@ class UnconfirmedTransactionStoreTest {
                 .id(1).senderId(124L).build()
         transaction.sign(TestConstants.TEST_SECRET_PHRASE)
         t!!.put(transaction, null)
-        unmockkStatic(Burst::class)
     }
 
     @DisplayName("The unconfirmed transaction gets denied in case the account does not have enough unconfirmed balance")
@@ -221,7 +214,6 @@ class UnconfirmedTransactionStoreTest {
             assertTrue(t!!.all.isEmpty())
             throw ex
         }
-        unmockkStatic(Burst::class)
     }
 
     @DisplayName("When adding the same unconfirmed transaction, nothing changes")
@@ -247,7 +239,6 @@ class UnconfirmedTransactionStoreTest {
         t!!.put(transaction2, mockPeer)
 
         assertEquals(1, t!!.all.size)
-        unmockkStatic(Burst::class)
     }
 
     @DisplayName("When the maximum number of transactions with full hash reference is reached, following ones are ignored")
@@ -264,7 +255,6 @@ class UnconfirmedTransactionStoreTest {
         }
 
         assertEquals(409, t!!.all.size)
-        unmockkStatic(Burst::class)
     }
 
     @DisplayName("When the maximum number of transactions for a slot size is reached, following ones are ignored")
@@ -290,7 +280,6 @@ class UnconfirmedTransactionStoreTest {
         }
 
         assertEquals(1080, t!!.all.size)
-        unmockkStatic(Burst::class)
     }
 
     @Test
@@ -314,7 +303,6 @@ class UnconfirmedTransactionStoreTest {
         assertEquals(1, t!!.all.size)
         assertNull(t!!.get(cheap.id))
         assertNotNull(t!!.get(expensive.id))
-        unmockkStatic(Burst::class)
     }
 
     @Test
@@ -338,7 +326,6 @@ class UnconfirmedTransactionStoreTest {
         assertEquals(1, t!!.all.size)
         assertNull(t!!.get(cheap.id))
         assertNotNull(t!!.get(expensive.id))
-        unmockkStatic(Burst::class)
     }
 
 }

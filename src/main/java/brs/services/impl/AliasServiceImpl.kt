@@ -43,7 +43,7 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
     }
 
     override fun addOrUpdateAlias(transaction: Transaction, attachment: Attachment.MessagingAliasAssignment) {
-        var alias: Alias? = getAlias(attachment.aliasName)
+        var alias = getAlias(attachment.aliasName)
         if (alias == null) {
             val aliasDBId = aliasDbKeyFactory.newKey(transaction.id)
             alias = Alias(transaction.id, aliasDBId, transaction, attachment)

@@ -3,6 +3,7 @@ package brs.http
 import brs.Account
 import brs.Attachment
 import brs.Blockchain
+import brs.DependencyProvider
 import brs.DigitalGoodsStore.Purchase
 import brs.common.QuickMocker
 import brs.crypto.EncryptedData
@@ -11,6 +12,7 @@ import brs.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.http.JSONResponses.INCORRECT_PURCHASE
 import brs.services.AccountService
 import brs.services.ParameterService
+import brs.transaction.TransactionType
 import brs.transaction.digitalGoods.DigitalGoodsFeedback
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -24,7 +26,7 @@ import javax.servlet.http.HttpServletRequest
 class DGSFeedbackTest : AbstractTransactionTest() {
 
     private lateinit var t: DGSFeedback
-
+    private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService
     private lateinit var accountServiceMock: AccountService
     private lateinit var blockchainMock: Blockchain
@@ -36,8 +38,8 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         accountServiceMock = mock<AccountService>()
         blockchainMock = mock<Blockchain>()
         apiTransactionManagerMock = mock<APITransactionManager>()
-
-        t = DGSFeedback(QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, accountServiceMock!!, apiTransactionManagerMock!!))
+        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, accountServiceMock!!, apiTransactionManagerMock!!)
+        t = DGSFeedback(dp)
     }
 
     @Test
@@ -59,7 +61,8 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         whenever(mockPurchase.buyerId).doReturn(1L)
         whenever(mockPurchase.encryptedGoods).doReturn(mockEncryptedGoods)
         whenever(mockPurchase.sellerId).doReturn(2L)
-        val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
+        dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
         val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsFeedback
         assertNotNull(attachment)

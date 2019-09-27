@@ -1,20 +1,15 @@
 package brs.feesuggestions
 
 import brs.Block
-import brs.BlockchainProcessor
 import brs.BlockchainProcessor.Event
 import brs.Constants
-import brs.DependencyProvider
-import brs.db.store.BlockchainStore
-
-import java.util.Arrays
-
 import brs.Constants.FEE_QUANT
+import brs.DependencyProvider
 import kotlin.math.ceil
 
-class FeeSuggestionCalculator(private val dp: DependencyProvider) { // TODO interface
+class FeeSuggestionCalculator(private val dp: DependencyProvider, maxHistoryLength: Int = Constants.FEE_SUGGESTION_MAX_HISTORY_LENGTH) { // TODO interface
     // index 0 = oldest, length-1 = newest
-    private val latestBlocks = arrayOfNulls<Block>(Constants.FEE_SUGGESTION_MAX_HISTORY_LENGTH)
+    private val latestBlocks = arrayOfNulls<Block>(maxHistoryLength)
     private var feeSuggestion = FeeSuggestion(FEE_QUANT, FEE_QUANT, FEE_QUANT)
 
     init {
