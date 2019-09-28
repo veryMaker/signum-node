@@ -377,7 +377,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 request.addProperty("requestType", "getNextBlocks")
                 request.addProperty("blockId", curBlockId.toUnsignedString())
                 if (logger.isDebugEnabled) {
-                    logger.debug("Getting next Blocks after {} from {}", curBlockId, peer!!.peerAddress)
+                    logger.debug("Getting next Blocks after {} from {}", curBlockId.toUnsignedString(), peer!!.peerAddress)
                 }
                 val response = peer!!.send(JSON.prepareRequest(request)) ?: return null
 
@@ -545,7 +545,8 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                         verifyWithOcl = false
                     }
                     if (verifyWithOcl) {
-                        val pocVersion = dp.downloadCache.getPoCVersion(dp.downloadCache.getUnverifiedBlockIdFromPos(0))
+                        val pocVersion =
+                            dp.downloadCache.getPoCVersion(dp.downloadCache.getUnverifiedBlockIdFromPos(0))
                         var pos = 0
                         val blocks = LinkedList<Block>()
                         while (!Thread.interrupted() && ThreadPool.running.get() && dp.downloadCache.unverifiedSize - 1 > pos && blocks.size < dp.oclPoC.maxItems) {
@@ -561,9 +562,16 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                             dp.downloadCache.removeUnverifiedBatch(blocks)
                         } catch (e: OCLPoC.PreValidateFailException) {
                             logger.info(e.toString(), e)
-                            blacklistClean(e.block, e, "found invalid pull/push data during processing the pocVerification")
+                            blacklistClean(
+                                e.block,
+                                e,
+                                "found invalid pull/push data during processing the pocVerification"
+                            )
                         } catch (e: OCLPoC.OCLCheckerException) {
-                            logger.info("Open CL error. slow verify will occur for the next $oclUnverifiedQueue Blocks", e)
+                            logger.info(
+                                "Open CL error. slow verify will occur for the next $oclUnverifiedQueue Blocks",
+                                e
+                            )
                         } catch (e: Exception) {
                             logger.info("Unspecified Open CL error: ", e)
                         } finally {
@@ -571,15 +579,15 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                         }
                     } else { //verify using java
                         try {
-                            if (dp.downloadCache.firstUnverifiedBlock != null) {
-                                dp.blockService.preVerify(dp.downloadCache.firstUnverifiedBlock!!)
+                            val unverifiedBlock = dp.downloadCache.firstUnverifiedBlock
+                            if (unverifiedBlock != null) {
+                                dp.blockService.preVerify(unverifiedBlock)
                             }
                         } catch (e: InterruptedException) {
                             Thread.currentThread().interrupt()
                         } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
                             logger.error("Block failed to preverify: ", e)
                         }
-
                     }
                 }
             }

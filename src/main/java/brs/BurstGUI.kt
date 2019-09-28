@@ -319,7 +319,7 @@ class BurstGUI : Application() {
         @JvmStatic
         fun main(args: Array<String>) {
             Platform.setImplicitExit(false)
-            Application.launch(*args)
+            launch(BurstGUI::class.java, *args)
         }
     }
 }

@@ -660,7 +660,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
 
     fun addPeer(announcedAddress: String?): Peer? {
         if (announcedAddress == null) return null
-        var cleanAddress = announcedAddress.trim { it <= ' ' }
+        val cleanAddress = announcedAddress.trim { it <= ' ' }
         var peer = peers[cleanAddress]
         if (peer != null) {
             return peer
@@ -674,7 +674,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         }
         try {
             val uri = URI("http://$cleanAddress")
-            val host = uri.host
+            val host = uri.host ?: return null
             peer = peers[host]
             if (peer != null) {
                 return peer

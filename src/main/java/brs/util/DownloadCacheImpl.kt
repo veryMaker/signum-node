@@ -1,6 +1,8 @@
 package brs.util
 
-import brs.*
+import brs.Block
+import brs.DependencyProvider
+import brs.Genesis
 import brs.fluxcapacitor.FluxValues
 import brs.props.Props
 import org.slf4j.LoggerFactory
@@ -43,6 +45,7 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
 
     val firstUnverifiedBlock: Block?
         get() = stampedLock.writeAndRead {
+            if (unverified.isEmpty()) return@writeAndRead null
             val blockId = unverified[0]
             val block = blockCache[blockId]
             unverified.remove(blockId)
@@ -160,7 +163,7 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
     fun size() = stampedLock.read { blockCache.size }
 
     private fun printLastVars() {
-        logger.debug("Cache LastId: {}", lastBlockId)
+        logger.debug("Cache LastId: {}", lastBlockId?.toUnsignedString())
         logger.debug("Cache lastHeight: {}", lastHeight)
     }
 

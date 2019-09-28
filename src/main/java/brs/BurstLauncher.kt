@@ -2,15 +2,11 @@ package brs
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import java.awt.*
+import java.awt.GraphicsEnvironment
 import java.io.File
 import java.lang.reflect.InvocationTargetException
-import java.lang.reflect.Method
-import java.net.URI
 import java.net.URL
 import java.net.URLClassLoader
-import java.util.Arrays
 
 object BurstLauncher {
     @JvmStatic
@@ -58,7 +54,6 @@ object BurstLauncher {
                 logger.warn("Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless...")
                 Burst.init(true)
             }
-
         } else {
             Burst.init(true)
         }

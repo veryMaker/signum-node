@@ -449,7 +449,6 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 }
                 throw e
             }
-
         }
 
         internal fun parseTransaction(dp: DependencyProvider, transactionData: JsonObject, height: Int): Transaction {
@@ -471,7 +470,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 val builder = Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType.parseAttachment(attachmentData))
                         .signature(signature)
                         .height(height)
-                if (!referencedTransactionFullHash.isNullOrEmpty()) {
+                if (referencedTransactionFullHash.isNotEmpty()) {
                     builder.referencedTransactionFullHash(referencedTransactionFullHash.parseHexString())
                 }
                 if (transactionType.hasRecipient()) {
