@@ -58,7 +58,6 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         val builder = Transaction.Builder(dp, tr.version!!, tr.senderPublicKey,
                 tr.amount!!, tr.fee!!, tr.timestamp!!, tr.deadline!!,
                 transactionType!!.parseAttachment(buffer, tr.version!!))
-                .referencedTransactionFullHash(tr.referencedTransactionFullhash)
                 .signature(tr.signature)
                 .blockId(tr.blockId!!)
                 .height(tr.height!!)
@@ -66,6 +65,10 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
                 .senderId(tr.senderId!!)
                 .blockTimestamp(tr.blockTimestamp!!)
                 .fullHash(tr.fullHash)
+        val referencedTransactionFullHash = tr.referencedTransactionFullhash
+        if (referencedTransactionFullHash != null) {
+            builder.referencedTransactionFullHash(referencedTransactionFullHash)
+        }
         if (transactionType.hasRecipient()) {
             builder.recipientId(Optional.ofNullable(tr.recipientId).orElse(0L))
         }

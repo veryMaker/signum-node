@@ -84,8 +84,10 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
                 val pkValues = dbKey.pkValues
                 val bindArgs = arrayOfNulls<Any>(pkValues.size + 1)
                 bindArgs[0] = false
-                System.arraycopy(pkValues, 0, bindArgs, 1, pkValues.size)
-                updateBatch.bind(*bindArgs)
+                for (i in pkValues.indices) {
+                    bindArgs[i+1] = pkValues[i]
+                }
+                updateBatch.bind(bindArgs)
             }
             updateBatch.execute()
             bulkInsert(ctx, batch.values)

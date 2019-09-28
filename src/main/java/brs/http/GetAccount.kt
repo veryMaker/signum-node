@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.ResultFields.ACCOUNT_RESPONSE
 import brs.http.common.ResultFields.ASSET_BALANCES_RESPONSE
@@ -32,10 +31,10 @@ internal class GetAccount internal constructor(private val parameterService: Par
         if (account.publicKey != null) {
             response.addProperty(PUBLIC_KEY_RESPONSE, account.publicKey!!.toHexString())
         }
-        if (account.name.isNotEmpty()) {
+        if (!account.name.isNullOrEmpty()) {
             response.addProperty(NAME_RESPONSE, account.name)
         }
-        if (account.description.isNotEmpty()) {
+        if (!account.description.isNullOrEmpty()) {
             response.addProperty(DESCRIPTION_RESPONSE, account.description)
         }
 
@@ -62,5 +61,4 @@ internal class GetAccount internal constructor(private val parameterService: Par
 
         return response
     }
-
 }

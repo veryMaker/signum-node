@@ -126,7 +126,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
                     for (pkValue in dbKey.pkValues) {
                         bindValues.add(pkValue)
                     }
-                    deleteBatch.bind(*bindValues.toTypedArray())
+                    deleteBatch.bind(bindValues.toTypedArray())
                 }
                 if (deleteBatch.size() > 0) {
                     deleteBatch.execute()

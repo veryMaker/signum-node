@@ -4,7 +4,6 @@ import brs.Constants.FEE_QUANT
 import brs.Constants.ONE_BURST
 import brs.at.AT
 import brs.at.AtBlock
-import brs.at.AtController
 import brs.at.AtException
 import brs.crypto.Crypto
 import brs.db.sql.Db

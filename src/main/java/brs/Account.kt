@@ -15,22 +15,20 @@ open class Account {
     val id: Long
     val nxtKey: BurstKey
     val creationHeight: Int
-    var publicKey: ByteArray? = null
-        get() = if (this.keyHeight == -1) {
-                null
-            } else publicKey
+    private var publicKeyInternal: ByteArray? = null
+    var publicKey: ByteArray?
+        get() = if (this.keyHeight == -1) { null } else publicKeyInternal
+        set(v) { publicKeyInternal = v }
     var keyHeight: Int = 0
     var balanceNQT: Long = 0
     var unconfirmedBalanceNQT: Long = 0
     var forgedBalanceNQT: Long = 0
 
-    lateinit var name: String
-    lateinit var description: String
+    var name: String? = null
+    var description: String? = null
 
     enum class Event {
-        BALANCE, UNCONFIRMED_BALANCE, ASSET_BALANCE, UNCONFIRMED_ASSET_BALANCE,
-        LEASE_SCHEDULED, LEASE_STARTED, LEASE_ENDED
-
+        BALANCE, UNCONFIRMED_BALANCE, ASSET_BALANCE, UNCONFIRMED_ASSET_BALANCE
     }
 
     open class AccountAsset {
@@ -118,17 +116,17 @@ open class Account {
         return encryptedData.decrypt(Crypto.getPrivateKey(recipientSecretPhrase), publicKey!!)
     }
 
-    // returns true iff:
+    // returns true if:
     // this.publicKey is set to null (in which case this.publicKey also gets set to key)
     // or
     // this.publicKey is already set to an array equal to key
-    fun setOrVerify(dp: DependencyProvider, key: ByteArray, height: Int): Boolean {
+    fun setOrVerify(dp: DependencyProvider, key: ByteArray, height: Int): Boolean { // TODO should we deprecate?
         return dp.accountStore.setOrVerify(this, key, height)
     }
 
     fun apply(dp: DependencyProvider, key: ByteArray, height: Int) {
         check(setOrVerify(dp, key, this.creationHeight)) { "Public key mismatch" }
-        checkNotNull(this.publicKey) {
+        checkNotNull(this.publicKeyInternal) {
             ("Public key has not been set for account " + id.toUnsignedString()
                     + " at height " + height + ", key height is " + keyHeight)
         }
@@ -202,5 +200,4 @@ open class Account {
             }
         }
     }
-
 }

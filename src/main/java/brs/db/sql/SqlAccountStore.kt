@@ -82,7 +82,6 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
                 val accountQueries = mutableListOf<Query>()
                 val height = dp.blockchain.height
                 for (account in accounts) {
-                    if (account == null) continue
                     accountQueries.add(
                             ctx.mergeInto<AccountRecord, Long, Int, Int, ByteArray, Int, Long, Long, Long, String, String, Boolean>(ACCOUNT, ACCOUNT.ID, ACCOUNT.HEIGHT, ACCOUNT.CREATION_HEIGHT, ACCOUNT.PUBLIC_KEY, ACCOUNT.KEY_HEIGHT, ACCOUNT.BALANCE,
                                     ACCOUNT.UNCONFIRMED_BALANCE, ACCOUNT.FORGED_BALANCE, ACCOUNT.NAME, ACCOUNT.DESCRIPTION, ACCOUNT.LATEST)
@@ -127,36 +126,39 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
     }
 
     override fun setOrVerify(acc: Account, key: ByteArray, height: Int): Boolean {
-        if (acc.publicKey == null) {
-            if (Db.isInTransaction) {
-                acc.publicKey = key
-                acc.keyHeight = -1
-                accountTable.insert(acc)
-            }
-            return true
-        } else if (Arrays.equals(acc.publicKey, key)) {
-            return true
-        } else if (acc.keyHeight == -1) {
-            if (logger.isInfoEnabled) {
-                logger.info("DUPLICATE KEY!!!")
-                logger.info("Account key for {} was already set to a different one at the same height, current height is {}, rejecting new key", acc.id.toUnsignedString(), height)
-            }
-            return false
-        } else if (acc.keyHeight >= height) {
-            logger.info("DUPLICATE KEY!!!")
-            if (Db.isInTransaction) {
-                if (logger.isInfoEnabled) {
-                    logger.info("Changing key for account {} at height {}, was previously set to a different one at height {}", acc.id.toUnsignedString(), height, acc.keyHeight)
+        when {
+            acc.publicKey == null -> {
+                if (Db.isInTransaction) {
+                    acc.publicKey = key
+                    acc.keyHeight = -1
+                    accountTable.insert(acc)
                 }
-                acc.publicKey = key
-                acc.keyHeight = height
-                accountTable.insert(acc)
+                return true
             }
-            return true
-        }
-        if (logger.isInfoEnabled) {
-            logger.info("DUPLICATE KEY!!!")
-            logger.info("Invalid key for account {} at height {}, was already set to a different one at height {}", acc.id.toUnsignedString(), height, acc.keyHeight)
+            Arrays.equals(acc.publicKey, key) -> return true
+            acc.keyHeight == -1 -> {
+                if (logger.isInfoEnabled) {
+                    logger.info("DUPLICATE KEY!!!")
+                    logger.info("Account key for {} was already set to a different one at the same height, current height is {}, rejecting new key", acc.id.toUnsignedString(), height)
+                }
+                return false
+            }
+            acc.keyHeight >= height -> {
+                logger.info("DUPLICATE KEY!!!")
+                if (Db.isInTransaction) {
+                    if (logger.isInfoEnabled) {
+                        logger.info("Changing key for account {} at height {}, was previously set to a different one at height {}", acc.id.toUnsignedString(), height, acc.keyHeight)
+                    }
+                    acc.publicKey = key
+                    acc.keyHeight = height
+                    accountTable.insert(acc)
+                }
+                return true
+            }
+            logger.isInfoEnabled -> {
+                logger.info("DUPLICATE KEY!!!")
+                logger.info("Invalid key for account {} at height {}, was already set to a different one at height {}", acc.id.toUnsignedString(), height, acc.keyHeight)
+            }
         }
         return false
     }
@@ -200,6 +202,4 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             return REWARD_RECIP_ASSIGN.RECIP_ID.eq(id).and(REWARD_RECIP_ASSIGN.FROM_HEIGHT.le(height))
         }
     }
-
-
 }
