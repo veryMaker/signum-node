@@ -140,7 +140,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
     private fun validateVersionNotDev(propertyService: PropertyService) {
         if (VERSION.isPrelease && !propertyService.get(Props.DEV_TESTNET)) {
             logger.error("THIS IS A DEVELOPMENT WALLET, PLEASE DO NOT USE THIS")
-            exitProcess(0)
+            //exitProcess(0)
         }
     }
 

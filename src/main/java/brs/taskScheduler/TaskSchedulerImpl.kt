@@ -1,17 +1,22 @@
 package brs.taskScheduler
 
+import brs.Constants
 import brs.DependencyProvider
 import brs.util.delegates.Atomic
+import kotlinx.coroutines.*
 
 class TaskSchedulerImpl(dp: DependencyProvider): TaskScheduler {
-    val started by Atomic(false)
+    private val scope = CoroutineScope(Dispatchers.Default)
+    private var started by Atomic(false) // Stays true after shutdown
 
-    val beforeStartTasks = mutableListOf<Task>()
-    val beforeStartTasksLock = Any()
-    val afterStartTasks = mutableListOf<Task>()
-    val afterStartTasksLock = Any()
-
-    val repeatingTasks = mutableListOf<RepeatingTask>()
+    private val beforeStartTasks = mutableListOf<Task>()
+    private val beforeStartTasksLock = Any()
+    private val afterStartTasks = mutableListOf<Task>()
+    private val afterStartTasksLock = Any()
+    private val scheduledTasks = mutableListOf<RepeatingTask>()
+    private val scheduledTasksLock = Any()
+    private val scheduledParallelTasks = mutableMapOf<RepeatingTask, Int>()
+    private val scheduledParallelTasksLock = Any()
 
     private fun requireStarted() {
         require(started) { "Task Scheduler has not yet started" }
@@ -23,7 +28,7 @@ class TaskSchedulerImpl(dp: DependencyProvider): TaskScheduler {
 
     override fun run(task: Task) {
         requireStarted()
-        // TODO run task
+        scope.launch(block = task)
     }
 
     override fun runBeforeStart(task: Task) {
@@ -42,21 +47,64 @@ class TaskSchedulerImpl(dp: DependencyProvider): TaskScheduler {
 
     override fun scheduleTask(task: RepeatingTask) {
         requireNotStarted()
-        // TODO schedule the task
+        synchronized(scheduledTasksLock) {
+            scheduledTasks.add(task)
+        }
     }
 
     override fun scheduleTask(numberOfInstances: Int, task: RepeatingTask) {
-        // TODO schedule the task
         requireNotStarted()
+        synchronized(scheduledParallelTasksLock) {
+            scheduledParallelTasks[task] = numberOfInstances
+        }
     }
 
-    override fun start() {
+    private fun runRepeatingTask(task: RepeatingTask): suspend CoroutineScope.() -> Unit = {
+        while (true) {
+            if (!task()) delay(Constants.TASK_FAILURE_DELAY_MS)
+        }
+        // TODO cancellation?
+    }
+
+    override fun start() = runBlocking {
         requireNotStarted()
-        // TODO start the scheduler
+        started = true
+        // TODO locks?
+        // Run before start tasks
+        val beforeStartJobs = mutableListOf<Job>()
+        beforeStartTasks.forEach {
+            beforeStartJobs.add(scope.launch(block = it))
+        }
+        beforeStartJobs.forEach {
+            it.join()
+        }
+
+        // Start regular scheduled tasks
+        scheduledTasks.forEach {
+            scope.launch(block = runRepeatingTask(it))
+        }
+        // Start parallel scheduled tasks
+        scheduledParallelTasks.forEach {(task, numberOfInstances) ->
+            val runner = runRepeatingTask(task)
+            repeat(numberOfInstances) {
+                scope.launch(block = runner)
+            }
+        }
+
+        // Run after start tasks
+        val afterStartJobs = mutableListOf<Job>()
+        afterStartTasks.forEach {
+            afterStartJobs.add(scope.launch(block = it))
+        }
+        afterStartJobs.forEach {
+            it.join()
+        }
     }
 
     override fun shutdown() {
         if (!started) return
-        // TODO stop the scheduler
+        try {
+            scope.cancel()
+        } catch (ignored: IllegalStateException) {}
     }
 }

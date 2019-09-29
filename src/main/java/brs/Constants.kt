@@ -81,7 +81,7 @@ object Constants {
     const val WEBSITE = "website"
     const val PROTOCOL = "protocol"
 
-    const val BLOCK_PROCESS_THREAD_DELAY = 500 // Milliseconds
+    const val TASK_FAILURE_DELAY_MS = 500L
 
     init {
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
