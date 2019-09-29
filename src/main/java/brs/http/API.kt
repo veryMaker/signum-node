@@ -15,7 +15,6 @@ import org.eclipse.jetty.servlets.DoSFilter
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.io.IOException
 import java.net.UnknownHostException
 import java.util.*
 import java.util.regex.Matcher
@@ -91,7 +90,7 @@ class API(dp: DependencyProvider) {
 
             val apiHandler = ServletContextHandler()
             val apiResourceBase = dp.propertyService.get(Props.API_UI_DIR)
-            if (apiResourceBase != null) {
+            if (apiResourceBase.isNotEmpty()) {
                 val defaultServletHolder = ServletHolder(DefaultServlet())
                 defaultServletHolder.setInitParameter("resourceBase", apiResourceBase)
                 defaultServletHolder.setInitParameter("dirAllowed", "false")
@@ -149,7 +148,7 @@ class API(dp: DependencyProvider) {
             apiServer.handler = apiHandlers
             apiServer.stopAtShutdown = true
 
-            dp.threadPool.runBeforeStart({
+            dp.taskScheduler.runBeforeStart {
                 try {
                     apiServer.start()
                     logger.info("Started API server at {}:{}", host, port)
@@ -157,9 +156,7 @@ class API(dp: DependencyProvider) {
                     logger.error("Failed to start API server", e)
                     throw RuntimeException(e.toString(), e)
                 }
-
-
-            }, true)
+            }
 
         } else {
             apiServer = null

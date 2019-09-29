@@ -50,7 +50,6 @@ internal class GetState(private val dp: DependencyProvider) : APIServlet.JsonReq
         response.addProperty("numberOfUnlockedAccounts", dp.generator.allGenerators.size)
         response.addProperty("lastBlockchainFeeder", dp.blockchainProcessor.lastBlockchainFeeder?.announcedAddress)
         response.addProperty("lastBlockchainFeederHeight", dp.blockchainProcessor.lastBlockchainFeederHeight)
-        response.addProperty("isScanning", dp.blockchainProcessor.isScanning)
         response.addProperty("availableProcessors", Runtime.getRuntime().availableProcessors())
         response.addProperty("maxMemory", Runtime.getRuntime().maxMemory())
         response.addProperty("totalMemory", Runtime.getRuntime().totalMemory())

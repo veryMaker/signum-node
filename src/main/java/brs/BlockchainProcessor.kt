@@ -13,8 +13,6 @@ interface BlockchainProcessor : Observable<Block, BlockchainProcessor.Event> {
 
     val lastBlockchainFeederHeight: Int?
 
-    val isScanning: Boolean
-
     val minRollbackHeight: Int
 
     enum class Event {

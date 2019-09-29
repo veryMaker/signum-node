@@ -1,7 +1,6 @@
 package brs
 
 import brs.util.Observable
-import brs.util.ThreadPool
 
 import java.math.BigInteger
 

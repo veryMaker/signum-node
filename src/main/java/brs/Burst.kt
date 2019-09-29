@@ -17,11 +17,11 @@ import brs.props.PropertyServiceImpl
 import brs.props.Props
 import brs.services.impl.*
 import brs.statistics.StatisticsManagerImpl
+import brs.taskScheduler.TaskSchedulerImpl
 import brs.transaction.TransactionType
 import brs.unconfirmedtransactions.UnconfirmedTransactionStoreImpl
 import brs.util.DownloadCacheImpl
 import brs.util.LoggerConfigurator
-import brs.util.ThreadPool
 import brs.util.Time
 import io.grpc.ServerBuilder
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder
@@ -45,16 +45,16 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
         try {
             val startTime = System.currentTimeMillis()
             Constants.init(dp)
+            dp.taskScheduler = TaskSchedulerImpl(dp)
             dp.atApiPlatformImpl = AtApiPlatformImpl(dp)
             dp.atApiController = AtApiController(dp)
             dp.atController = AtController(dp)
-            val atApiImpl = AtApiImpl(dp)
+            val atApiImpl = AtApiImpl(dp) // TODO ??
             dp.oclPoC = OCLPoC(dp)
             dp.timeService = TimeServiceImpl()
             dp.derivedTableManager = DerivedTableManager()
             dp.statisticsManager = StatisticsManagerImpl(dp)
             dp.dbCacheManager = DBCacheManagerImpl(dp)
-            dp.threadPool = ThreadPool(dp)
             LoggerConfigurator.init()
             Db.init(dp)
             val dbs = Db.dbsByDatabaseType
@@ -119,7 +119,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
 
             val timeMultiplier = if (dp.propertyService.get(Props.DEV_TESTNET) && dp.propertyService.get(Props.DEV_OFFLINE)) dp.propertyService.get(Props.DEV_TIMEWARP).coerceAtLeast(1) else 1
 
-            dp.threadPool.start(timeMultiplier)
+            dp.taskScheduler.start()
             if (timeMultiplier > 1) {
                 dp.timeService.setTime(Time.FasterTime(max(dp.timeService.epochTime, dp.blockchain.lastBlock.timestamp), timeMultiplier))
                 logger.info("TIME WILL FLOW {} TIMES FASTER!", timeMultiplier)
@@ -158,10 +158,10 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.apiV2Server.shutdownNow()
         } catch (ignored: UninitializedPropertyAccessException) {}
         try {
-            dp.peers.shutdown(dp.threadPool)
+            dp.peers.shutdown()
         } catch (ignored: UninitializedPropertyAccessException) {}
         try {
-            dp.threadPool.shutdown()
+            dp.taskScheduler.shutdown()
         } catch (ignored: UninitializedPropertyAccessException) {}
         if (!ignoreDBShutdown) {
             Db.shutdown()

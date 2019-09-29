@@ -19,10 +19,10 @@ import brs.peer.Peers
 import brs.props.PropertyService
 import brs.services.*
 import brs.statistics.StatisticsManagerImpl
+import brs.taskScheduler.TaskScheduler
 import brs.transaction.TransactionType
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore
 import brs.util.DownloadCacheImpl
-import brs.util.ThreadPool
 import io.grpc.Server
 
 class DependencyProvider {
@@ -53,7 +53,7 @@ class DependencyProvider {
     lateinit var timeService: TimeService
     lateinit var derivedTableManager: DerivedTableManager
     lateinit var statisticsManager: StatisticsManagerImpl
-    lateinit var threadPool: ThreadPool
+    lateinit var taskScheduler: TaskScheduler
     lateinit var aliasService: AliasService
     lateinit var economicClustering: EconomicClustering
     lateinit var generator: Generator

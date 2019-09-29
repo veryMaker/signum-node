@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
+// TODO enforce kotlin-like "must be initialized or specifically lateinit" style
 open class Atomic<T>(initialValue: T? = null): ReadWriteProperty<Any?, T> {
     protected val ref = AtomicReference<T>()
 

@@ -3,15 +3,14 @@ package brs
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
 import brs.props.Props
+import brs.taskScheduler.RepeatingTask
 import brs.util.Convert
 import brs.util.Listeners
-import brs.util.ThreadPool
 import brs.util.toUnsignedString
 import burst.kit.crypto.BurstCrypto
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
 
 open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
     private val listeners = Listeners<Generator.GeneratorState, Generator.Event>()
@@ -21,29 +20,27 @@ open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
     override val allGenerators: Collection<Generator.GeneratorState>
         get() = generators.values
 
-    private fun generateBlockThread(blockchainProcessor: BlockchainProcessor): () -> Unit {
-        return {
-            if (!blockchainProcessor.isScanning) {
-                try {
-                    val currentBlock = dp.blockchain.lastBlock.height.toLong()
-                    val it = generators.entries.iterator()
-                    while (it.hasNext() && !Thread.currentThread().isInterrupted && ThreadPool.running.get()) {
-                        val generator = it.next()
-                        if (currentBlock < generator.value.block) {
-                            generator.value.forge(blockchainProcessor)
-                        } else {
-                            it.remove()
-                        }
-                    }
-                } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
-                    logger.debug("Error in block generation thread", e)
+    private fun generateBlockThread(blockchainProcessor: BlockchainProcessor): RepeatingTask = {
+        try {
+            val currentBlock = dp.blockchain.lastBlock.height.toLong()
+            val it = generators.entries.iterator()
+            while (it.hasNext()) {
+                val generator = it.next()
+                if (currentBlock < generator.value.block) {
+                    generator.value.forge(blockchainProcessor)
+                } else {
+                    it.remove()
                 }
             }
+            true
+        } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
+            logger.debug("Error in block generation thread", e)
+            false
         }
     }
 
     override fun generateForBlockchainProcessor(dp: DependencyProvider) {
-        dp.threadPool.scheduleThread("GenerateBlocks", generateBlockThread(dp.blockchainProcessor), 500, TimeUnit.MILLISECONDS)
+        dp.taskScheduler.scheduleTask(generateBlockThread(dp.blockchainProcessor))
     }
 
     override fun addListener(listener: (Generator.GeneratorState) -> Unit, eventType: Generator.Event): Boolean {

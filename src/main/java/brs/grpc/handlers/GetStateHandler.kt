@@ -24,7 +24,6 @@ class GetStateHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empty
                 .setNumberOfForgers(dp.generator.allGenerators.size)
                 .setLastBlockchainFeeder(lastBlockchainFeeder?.announcedAddress ?: "null")
                 .setLastBlockchainFeederHeight(dp.blockchainProcessor.lastBlockchainFeederHeight ?: 0)
-                .setIsScanning(dp.blockchainProcessor.isScanning)
                 .setAvailableProcessors(Runtime.getRuntime().availableProcessors())
                 .setMaxMemory(Runtime.getRuntime().maxMemory())
                 .setTotalMemory(Runtime.getRuntime().totalMemory())

@@ -6,7 +6,6 @@ import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
 import brs.services.BlockService
 import brs.util.Convert
-import brs.util.ThreadPool
 import brs.util.toUnsignedString
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
@@ -18,9 +17,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             if (block.blockSignature == null) {
                 return false
             }
-            val previousBlock = dp.blockchain.getBlock(block.previousBlockId)
-                    ?: throw BlockchainProcessor.BlockOutOfOrderException(
-                            "Can't verify signature because previous block is missing")
+            val previousBlock = dp.blockchain.getBlock(block.previousBlockId) ?: throw BlockchainProcessor.BlockOutOfOrderException("Can't verify signature because previous block is missing")
 
             val data = block.bytes
             val data2 = ByteArray(data.size - 64)
@@ -101,11 +98,8 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 if (logger.isInfoEnabled) {
                     logger.info("Bad transaction signature during block pre-verification for tx: {} at block height: {}", transaction.id.toUnsignedString(), block.height)
                 }
-                throw BlockchainProcessor.TransactionNotAcceptedException("Invalid signature for tx " + transaction.id.toUnsignedString() + " at block height: " + block.height,
-                        transaction)
+                throw BlockchainProcessor.TransactionNotAcceptedException("Invalid signature for tx " + transaction.id.toUnsignedString() + " at block height: " + block.height, transaction)
             }
-            if (Thread.currentThread().isInterrupted || !ThreadPool.running.get())
-                throw InterruptedException()
         }
 
     }

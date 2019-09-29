@@ -7,11 +7,15 @@ import brs.peer.Peer.Companion.isHigherOrEqualVersion
 import brs.props.Props
 import brs.props.Props.P2P_ENABLE_TX_REBROADCAST
 import brs.props.Props.P2P_SEND_TO_LIMIT
+import brs.taskScheduler.NoSuspendRepeatingTask
+import brs.taskScheduler.NoSuspendTask
+import brs.taskScheduler.RepeatingTask
 import brs.util.*
 import brs.util.JSON.prepareRequest
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import kotlinx.coroutines.delay
 import org.bitlet.weupnp.GatewayDevice
 import org.bitlet.weupnp.GatewayDiscover
 import org.bitlet.weupnp.PortMappingEntry
@@ -82,119 +86,109 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
 
     val allPeers: Collection<Peer> = peers.values
 
-    private val sendBlocksToPeersService = Executors.newCachedThreadPool()
-    private val blocksSendingService = Executors.newFixedThreadPool(10)
+    private val sendBlocksToPeersService = Executors.newCachedThreadPool() // TODO remove
+    private val blocksSendingService = Executors.newFixedThreadPool(10) // TODO remove
 
-    private val peerUnBlacklistingThread = {
+    private val peerUnBlacklistingThread: RepeatingTask = {
         try {
-
             val curTime = System.currentTimeMillis()
             for (peer in peers.values) {
                 peer.updateBlacklistedStatus(curTime)
             }
-
         } catch (e: Exception) {
             logger.debug("Error un-blacklisting peer", e)
         }
+        true
     }
 
-    private val peerConnectingThread = object : () -> Unit {
-        private val numberOfConnectedPublicPeers: Int
-            get() {
-                var numberOfConnectedPeers = 0
-                for (peer in peers.values) {
-                    if (peer.state == Peer.State.CONNECTED) {
-                        numberOfConnectedPeers++
-                    }
-                }
-                return numberOfConnectedPeers
-            }
-
-        override fun invoke() {
-            try {
-                var numConnectedPeers = numberOfConnectedPublicPeers
-                /*
-         * aggressive connection with while loop.
-         * if we have connected to our target amount we can exit loop.
-         * if peers size is equal or below connected value we have nothing to connect to
-         */
-                while (!Thread.currentThread().isInterrupted && ThreadPool.running.get()
-                        && numConnectedPeers < maxNumberOfConnectedPublicPeers && peers.size > numConnectedPeers) {
-                    val peer = getAnyPeer(if (ThreadLocalRandom.current().nextInt(2) == 0) Peer.State.NON_CONNECTED else Peer.State.DISCONNECTED)
-                    if (peer != null) {
-                        peer.connect(dp.timeService.epochTime)
-                        /*
-             * remove non connected peer. if peer is blacklisted, keep it to maintain blacklist time.
-             * Peers should never be removed if total peers are below our target to prevent total erase of peers
-             * if we loose Internet connection
-             */
-
-                        if (!peer.isHigherOrEqualVersionThan(MIN_VERSION) || peer.state != Peer.State.CONNECTED && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers) {
-                            removePeer(peer)
-                        } else {
-                            numConnectedPeers++
-                        }
-                    }
-
-                    try {
-                        Thread.sleep(1000)
-                    } catch (ex: InterruptedException) {
-                        Thread.currentThread().interrupt()
-                        return
-                    }
-
-                }
-
-                val now = dp.timeService.epochTime
-                for (peer in peers.values) {
-                    if (peer.state == Peer.State.CONNECTED && now - peer.lastUpdated > 3600) {
-                        peer.connect(dp.timeService.epochTime)
-                        if (!peer.isHigherOrEqualVersionThan(MIN_VERSION) || peer.state != Peer.State.CONNECTED && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers) {
-                            removePeer(peer)
-                        }
-                    }
-                }
-
-                if (lastSavedPeers != peers.size) {
-                    lastSavedPeers = peers.size
-                    updateSavedPeers()
-                }
-
-            } catch (e: Exception) {
-                logger.debug("Error connecting to peer", e)
-            }
-
-        }
-
-        private fun updateSavedPeers() {
-            val oldPeers = dp.peerDb.loadPeers().toSet()
-            val currentPeers = mutableSetOf<String>()
+    private val numberOfConnectedPublicPeers: Int
+        get() {
+            var numberOfConnectedPeers = 0
             for (peer in peers.values) {
-                if (peer.announcedAddress != null
-                        && !peer.isBlacklisted
-                        && !peer.isWellKnown
-                        && peer.isHigherOrEqualVersionThan(MIN_VERSION)) {
-                    currentPeers.add(peer.announcedAddress!!)
+                if (peer.state == Peer.State.CONNECTED) {
+                    numberOfConnectedPeers++
                 }
             }
-            val toDelete = oldPeers.toMutableSet()
-            toDelete.removeAll(currentPeers)
-            try {
-                Db.beginTransaction()
-                dp.peerDb.deletePeers(toDelete)
-                currentPeers.removeAll(oldPeers)
-                dp.peerDb.addPeers(currentPeers)
-                Db.commitTransaction()
-            } catch (e: Exception) {
-                Db.rollbackTransaction()
-                throw e
-            } finally {
-                Db.endTransaction()
+            return numberOfConnectedPeers
+        }
+
+    fun updateSavedPeers() {
+        val oldPeers = dp.peerDb.loadPeers().toSet()
+        val currentPeers = mutableSetOf<String>()
+        for (peer in peers.values) {
+            if (peer.announcedAddress != null
+                && !peer.isBlacklisted
+                && !peer.isWellKnown
+                && peer.isHigherOrEqualVersionThan(MIN_VERSION)) {
+                currentPeers.add(peer.announcedAddress!!)
             }
+        }
+        val toDelete = oldPeers.toMutableSet()
+        toDelete.removeAll(currentPeers)
+        try {
+            Db.beginTransaction()
+            dp.peerDb.deletePeers(toDelete)
+            currentPeers.removeAll(oldPeers)
+            dp.peerDb.addPeers(currentPeers)
+            Db.commitTransaction()
+        } catch (e: Exception) {
+            Db.rollbackTransaction()
+            throw e
+        } finally {
+            Db.endTransaction()
         }
     }
 
-    private val getMorePeersThread = object : () -> Unit {
+    private val peerConnectingThread: RepeatingTask = {
+        try {
+            var numConnectedPeers = numberOfConnectedPublicPeers
+            /*
+             * aggressive connection with while loop.
+             * if we have connected to our target amount we can exit loop.
+             * if peers size is equal or below connected value we have nothing to connect to
+             */
+            while (numConnectedPeers < maxNumberOfConnectedPublicPeers && peers.size > numConnectedPeers) {
+                val peer = getAnyPeer(if (ThreadLocalRandom.current().nextInt(2) == 0) Peer.State.NON_CONNECTED else Peer.State.DISCONNECTED)
+                if (peer != null) {
+                    peer.connect(dp.timeService.epochTime)
+                    /*
+                     * remove non connected peer. if peer is blacklisted, keep it to maintain blacklist time.
+                     * Peers should never be removed if total peers are below our target to prevent total erase of peers
+                     * if we loose Internet connection
+                     */
+
+                    if (!peer.isHigherOrEqualVersionThan(MIN_VERSION) || peer.state != Peer.State.CONNECTED && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers) {
+                        removePeer(peer)
+                    } else {
+                        numConnectedPeers++
+                    }
+                }
+
+                delay(1000)
+            }
+
+            val now = dp.timeService.epochTime
+            for (peer in peers.values) {
+                if (peer.state == Peer.State.CONNECTED && now - peer.lastUpdated > 3600) {
+                    peer.connect(dp.timeService.epochTime)
+                    if (!peer.isHigherOrEqualVersionThan(MIN_VERSION) || peer.state != Peer.State.CONNECTED && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers) {
+                        removePeer(peer)
+                    }
+                }
+            }
+
+            if (lastSavedPeers != peers.size) {
+                lastSavedPeers = peers.size
+                updateSavedPeers()
+            }
+
+        } catch (e: Exception) {
+            logger.debug("Error connecting to peer", e)
+        }
+        true
+    }
+
+    private val getMorePeersThread = object : NoSuspendRepeatingTask {
 
         private val getPeersRequest: JsonElement
 
@@ -207,27 +201,27 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         }
 
         init {
-            addListener({ peer -> addedNewPeer.set(true) }, Event.NEW_PEER)
+            addListener({ addedNewPeer.set(true) }, Event.NEW_PEER)
         }
 
         private fun addListener(listener: (Peer) -> Unit, eventType: Event): Boolean {
             return listeners.addListener(listener, eventType)
         }
 
-        override fun invoke() {
+        override fun invoke(): Boolean {
             try {
                 /* We do not want more peers if above Threshold but we need enough to
-         * connect to selected number of peers
-         */
+                 * connect to selected number of peers
+                 */
                 if (peers.size >= getMorePeersThreshold && peers.size > maxNumberOfConnectedPublicPeers) {
-                    return
+                    return false
                 }
 
-                val peer = getAnyPeer(Peer.State.CONNECTED) ?: return
-                val response = peer.send(getPeersRequest) ?: return
+                val peer = getAnyPeer(Peer.State.CONNECTED) ?: return false
+                val response = peer.send(getPeersRequest) ?: return true
                 val peersJson = JSON.getAsJsonArray(response.get("peers"))
                 val addedAddresses = HashSet<String>()
-                if (peersJson != null && !peersJson.isEmpty()) {
+                if (!peersJson.isEmpty()) {
                     for (announcedAddress in peersJson) {
                         if (addPeer(JSON.getAsString(announcedAddress)) != null) {
                             addedAddresses.add(JSON.getAsString(announcedAddress))
@@ -248,10 +242,6 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
                         myPeers.add(myPeer.announcedAddress)
                     }
                 }
-                //executor shutdown?
-                if (Thread.currentThread().isInterrupted) {
-                    return
-                }
 
                 if (myPeers.size() > 0) {
                     val request = JsonObject()
@@ -263,7 +253,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
             } catch (e: Exception) {
                 logger.debug("Error requesting peers from a peer", e)
             }
-
+            return true
         }
     }
 
@@ -438,7 +428,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
 
         val unresolvedPeers = Collections.synchronizedList(mutableListOf<Future<String>>())
 
-        dp.threadPool.runBeforeStart(object : () -> Unit {
+        dp.taskScheduler.runBeforeStartHack(object : NoSuspendTask {
             private fun loadPeers(addresses: Collection<String>) {
                 for (address in addresses) {
                     val unresolvedAddress = sendBlocksToPeersService.submit<String> {
@@ -459,9 +449,9 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
                 }
                 lastSavedPeers = peers.size
             }
-        }, false)
+        })
 
-        dp.threadPool.runAfterStart {
+        dp.taskScheduler.runAfterStart {
             for (unresolvedPeer in unresolvedPeers) {
                 try {
                     val badAddress = unresolvedPeer.get(5, TimeUnit.SECONDS)
@@ -474,7 +464,6 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
                     logger.debug("Failed to add peer", e)
                 } catch (ignored: TimeoutException) {
                 }
-
             }
             if (logger.isDebugEnabled) {
                 logger.debug("Known peers: {}", peers.size)
@@ -578,7 +567,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
                 peerServer!!.handler = peerHandler
             }
             peerServer!!.stopAtShutdown = true
-            dp.threadPool.runBeforeStart({
+            dp.taskScheduler.runBeforeStart {
                 try {
                     peerServer!!.start()
                     logger.info("Started peer networking server at {}:{}", host, port)
@@ -586,22 +575,22 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
                     logger.error("Failed to start peer networking server", e)
                     throw RuntimeException(e.toString(), e)
                 }
-            }, true)
+            }
         } else {
             logger.info("shareMyAddress is disabled, will not start peer networking server")
         }
 
         if (!dp.propertyService.get(Props.DEV_OFFLINE)) {
-            dp.threadPool.scheduleThread("PeerConnecting", this.peerConnectingThread, 5)
-            dp.threadPool.scheduleThread("PeerUnBlacklisting", this.peerUnBlacklistingThread, 1)
+            dp.taskScheduler.scheduleTask(this.peerConnectingThread)
+            dp.taskScheduler.scheduleTask(this.peerUnBlacklistingThread)
             if (getMorePeers) {
-                dp.threadPool.scheduleThread("GetMorePeers", this.getMorePeersThread, 5)
+                dp.taskScheduler.scheduleTaskHack(this.getMorePeersThread)
             }
         }
 
     }
 
-    fun shutdown(threadPool: ThreadPool) {
+    fun shutdown() {
         if (peerServer != null) {
             try {
                 peerServer!!.stop()
@@ -622,9 +611,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
             val buf = StringBuilder()
             for ((key, value) in announcedAddresses) {
                 val peer = peers[value]
-                if (peer != null && peer.state == Peer.State.CONNECTED && peer.shareAddress && !peer.isBlacklisted
-                        && peer.version != null
-                        && peer.version.toString().startsWith(dumpPeersVersion!!)) {
+                if (peer != null && peer.state == Peer.State.CONNECTED && peer.shareAddress && !peer.isBlacklisted && peer.version.toString().startsWith(dumpPeersVersion!!)) {
                     buf.append("('").append(key).append("'), ")
                 }
             }
@@ -633,7 +620,19 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
             }
         }
 
-        threadPool.shutdownExecutor(sendBlocksToPeersService)
+        if (!sendBlocksToPeersService.isTerminated) {
+            sendBlocksToPeersService.shutdown()
+            try {
+                sendBlocksToPeersService.awaitTermination(dp.propertyService.get(Props.BRS_SHUTDOWN_TIMEOUT).toLong(), TimeUnit.SECONDS)
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+            }
+
+            if (!sendBlocksToPeersService.isTerminated) {
+                logger.error("some threads didn't terminate, forcing shutdown")
+                sendBlocksToPeersService.shutdownNow()
+            }
+        }
     }
 
     fun removeListener(listener: (Peer) -> Unit, eventType: Event): Boolean {

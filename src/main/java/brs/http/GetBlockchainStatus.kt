@@ -22,7 +22,6 @@ internal class GetBlockchainStatus(private val blockchainProcessor: BlockchainPr
         val lastBlockchainFeeder = blockchainProcessor.lastBlockchainFeeder
         response.addProperty("lastBlockchainFeeder", lastBlockchainFeeder?.announcedAddress)
         response.addProperty("lastBlockchainFeederHeight", blockchainProcessor.lastBlockchainFeederHeight)
-        response.addProperty("isScanning", blockchainProcessor.isScanning)
         return response
     }
 }

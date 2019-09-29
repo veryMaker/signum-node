@@ -6,6 +6,7 @@ import brs.fluxcapacitor.FluxValues
 import brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
 import brs.peer.Peer
 import brs.props.Props
+import brs.taskScheduler.RepeatingTask
 import brs.util.JSON
 import brs.util.Listeners
 import brs.util.isEmpty
@@ -32,7 +33,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         get() = dp.unconfirmedTransactionStore.amount
 
     init {
-        val getUnconfirmedTransactions: () -> Unit = {
+        val getUnconfirmedTransactions: RepeatingTask = {
             try {
                 try {
                     synchronized(unconfirmedTransactionsSyncObj) {
@@ -85,8 +86,9 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                 logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n$t", t)
                 exitProcess(1)
             }
+            true
         }
-        dp.threadPool.scheduleThread("PullUnconfirmedTransactions", getUnconfirmedTransactions, 5)
+        dp.taskScheduler.scheduleTask(getUnconfirmedTransactions)
     }
 
     override fun addListener(listener: (Collection<Transaction>) -> Unit, eventType: TransactionProcessor.Event): Boolean {
