@@ -157,7 +157,7 @@ class ThreadPool(private val dp: DependencyProvider) {
             }
 
         }
-        if (errors.length > 0) {
+        if (errors.isNotEmpty()) {
             throw RuntimeException("Errors running startup tasks:\n$errors")
         }
     }

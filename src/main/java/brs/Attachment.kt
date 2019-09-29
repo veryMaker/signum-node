@@ -77,6 +77,13 @@ import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.collections.Map.Entry
+import brs.transaction.accountControl.AccountControl
+import brs.util.JSON
+import brs.Attachment.AbstractAttachment
+import brs.http.common.Parameters.PERIOD_PARAMETER
+import brs.http.common.ResultFields.PERIOD_RESPONSE
+import brs.transaction.accountControl.EffectiveBalanceLeasing
+
 
 interface Attachment : Appendix {
 
@@ -158,6 +165,7 @@ interface Attachment : Appendix {
                     attachment.`is`(BrsApi.DigitalGoodsDeliveryAttachment::class.java) -> return DigitalGoodsDelivery(dp, attachment.unpack(BrsApi.DigitalGoodsDeliveryAttachment::class.java))
                     attachment.`is`(BrsApi.DigitalGoodsFeedbackAttachment::class.java) -> return DigitalGoodsFeedback(dp, attachment.unpack(BrsApi.DigitalGoodsFeedbackAttachment::class.java))
                     attachment.`is`(BrsApi.DigitalGoodsRefundAttachment::class.java) -> return DigitalGoodsRefund(dp, attachment.unpack(BrsApi.DigitalGoodsRefundAttachment::class.java))
+                    attachment.`is`(BrsApi.EffectiveBalanceLeasingAttachment::class.java) -> return AccountControlEffectiveBalanceLeasing(dp, attachment.unpack(BrsApi.EffectiveBalanceLeasingAttachment::class.java))
                     attachment.`is`(BrsApi.RewardRecipientAssignmentAttachment::class.java) -> return BurstMiningRewardRecipientAssignment(dp, attachment.unpack(BrsApi.RewardRecipientAssignmentAttachment::class.java))
                     attachment.`is`(BrsApi.EscrowCreationAttachment::class.java) -> return AdvancedPaymentEscrowCreation(dp, attachment.unpack(BrsApi.EscrowCreationAttachment::class.java))
                     attachment.`is`(BrsApi.EscrowSignAttachment::class.java) -> return AdvancedPaymentEscrowSign(dp, attachment.unpack(BrsApi.EscrowSignAttachment::class.java))
@@ -1444,6 +1452,47 @@ interface Attachment : Appendix {
         override fun putMyJSON(attachment: JsonObject) {
             attachment.addProperty(PURCHASE_RESPONSE, purchaseId.toUnsignedString())
             attachment.addProperty(REFUND_NQT_RESPONSE, refundNQT)
+        }
+    }
+
+    class AccountControlEffectiveBalanceLeasing : AbstractAttachment {
+        override val transactionTypeAndSubtype = Pair(TransactionType.TYPE_ACCOUNT_CONTROL, TransactionType.SUBTYPE_ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING)
+
+        val period: Short
+
+        override val appendixName = "EffectiveBalanceLeasing"
+
+        override val mySize = 2
+
+        override val protobufMessage: Any
+            get() = Any.pack(
+                BrsApi.EffectiveBalanceLeasingAttachment.newBuilder()
+                    .setVersion(version.toInt())
+                    .setPeriod(period.toInt())
+                    .build())
+
+        constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
+            this.period = buffer.short
+        }
+
+        constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
+            this.period = JSON.getAsShort(attachmentData.get(PERIOD_PARAMETER))
+        }
+
+        constructor(dp: DependencyProvider, period: Short, blockchainHeight: Int) : super(dp, blockchainHeight) {
+            this.period = period
+        }
+
+        constructor(dp: DependencyProvider, attachment: BrsApi.EffectiveBalanceLeasingAttachment) : super(dp, attachment.version.toByte()) {
+            this.period = attachment.period.toShort()
+        }
+
+        override fun putMyBytes(buffer: ByteBuffer) {
+            buffer.putShort(period)
+        }
+
+        override fun putMyJSON(attachment: JsonObject) {
+            attachment.addProperty(PERIOD_RESPONSE, period)
         }
     }
 

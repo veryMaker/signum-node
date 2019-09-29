@@ -5,6 +5,7 @@ import brs.Attachment.AbstractAttachment
 import brs.Constants.FEE_QUANT
 import brs.Constants.ONE_BURST
 import brs.fluxcapacitor.FluxValues
+import brs.transaction.accountControl.EffectiveBalanceLeasing
 import brs.transaction.advancedPayment.*
 import brs.transaction.automatedTransactions.AtPayment
 import brs.transaction.automatedTransactions.AutomatedTransactionCreation
@@ -177,6 +178,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
         const val TYPE_MESSAGING: Byte = 1
         const val TYPE_COLORED_COINS: Byte = 2
         const val TYPE_DIGITAL_GOODS: Byte = 3
+        const val TYPE_ACCOUNT_CONTROL: Byte = 4
         const val TYPE_BURST_MINING: Byte = 20 // jump some for easier nxt updating
         const val TYPE_ADVANCED_PAYMENT: Byte = 21
         const val TYPE_AUTOMATED_TRANSACTIONS: Byte = 22
@@ -206,6 +208,8 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
         const val SUBTYPE_DIGITAL_GOODS_DELIVERY: Byte = 5
         const val SUBTYPE_DIGITAL_GOODS_FEEDBACK: Byte = 6
         const val SUBTYPE_DIGITAL_GOODS_REFUND: Byte = 7
+
+        const val SUBTYPE_ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING: Byte = 0
 
         const val SUBTYPE_AT_CREATION: Byte = 0
         const val SUBTYPE_AT_PAYMENT: Byte = 1
@@ -254,6 +258,9 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
             digitalGoodsTypes[SUBTYPE_DIGITAL_GOODS_FEEDBACK] = DigitalGoodsFeedback(dp)
             digitalGoodsTypes[SUBTYPE_DIGITAL_GOODS_REFUND] = DigitalGoodsRefund(dp)
 
+            val accountControlTypes = mutableMapOf<Byte, TransactionType>()
+            accountControlTypes[SUBTYPE_ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING] = EffectiveBalanceLeasing(dp)
+
             val atTypes = mutableMapOf<Byte, TransactionType>()
             atTypes[SUBTYPE_AT_CREATION] = AutomatedTransactionCreation(dp)
             atTypes[SUBTYPE_AT_PAYMENT] = AtPayment(dp)
@@ -274,6 +281,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
             transactionTypes[TYPE_MESSAGING] = messagingTypes
             transactionTypes[TYPE_COLORED_COINS] = coloredCoinsTypes
             transactionTypes[TYPE_DIGITAL_GOODS] = digitalGoodsTypes
+            transactionTypes[TYPE_ACCOUNT_CONTROL] = accountControlTypes
             transactionTypes[TYPE_BURST_MINING] = burstMiningTypes
             transactionTypes[TYPE_ADVANCED_PAYMENT] = advancedPaymentTypes
             transactionTypes[TYPE_AUTOMATED_TRANSACTIONS] = atTypes

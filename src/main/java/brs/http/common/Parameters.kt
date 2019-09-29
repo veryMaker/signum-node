@@ -22,6 +22,7 @@ object Parameters {
     const val MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER = "messageToEncryptToSelfIsText"
     const val GOODS_DATA_PARAMETER = "goodsData"
     const val GOODS_NONCE_PARAMETER = "goodsNonce"
+    const val PERIOD_PARAMETER = "period"
     const val PURCHASE_PARAMETER = "purchase"
     const val SECRET_PHRASE_PARAMETER = "secretPhrase"
     const val PUBLIC_KEY_PARAMETER = "publicKey"
