@@ -10,7 +10,6 @@ import brs.db.sql.Db
 import brs.fluxcapacitor.FluxValues
 import brs.peer.Peer
 import brs.props.Props
-import brs.taskScheduler.NoSuspendRepeatingTask
 import brs.taskScheduler.RepeatingTask
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore
@@ -18,6 +17,7 @@ import brs.util.*
 import brs.util.delegates.Atomic
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.*
@@ -47,6 +47,14 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
     private val autoPopOffEnabled = dp.propertyService.get(Props.AUTO_POP_OFF_ENABLED)
     private var autoPopOffLastStuckHeight = 0
     private var autoPopOffNumberOfBlocks = 0
+
+    private var peerHasMore = false
+
+    private val getCumulativeDifficultyRequest by lazy {
+        val request = JsonObject()
+        request.addProperty("requestType", "getCumulativeDifficulty")
+        JSON.prepareRequest(request)
+    }
 
     override val minRollbackHeight: Int
         get() {
@@ -91,21 +99,13 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
         addGenesisBlock()
 
-        val getMoreBlocksTask = object : NoSuspendRepeatingTask { // TODO refactor these
-            private val getCumulativeDifficultyRequest by lazy {
-                val request = JsonObject()
-                request.addProperty("requestType", "getCumulativeDifficulty")
-                JSON.prepareRequest(request)
-            }
-
-            private var peerHasMore: Boolean = false
-
-            override fun invoke(): Boolean {
-                if (dp.propertyService.get(Props.DEV_OFFLINE)) return false
+        val getMoreBlocksTask: RepeatingTask = {
+            run {
+                if (dp.propertyService.get(Props.DEV_OFFLINE)) return@run false
                 try {
                     try {
                         if (!getMoreBlocks.get()) {
-                            return false
+                            return@run false
                         }
                         // unlocking cache for writing.
                         // This must be done before we query where to add blocks.
@@ -116,21 +116,21 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
 
                         if (dp.downloadCache.isFull) {
-                            return false
+                            return@run false
                         }
                         peerHasMore = true
                         val peer = dp.peers.getAnyPeer(Peer.State.CONNECTED)
                         if (peer == null) {
                             logger.debug("No peer connected.")
-                            return false
+                            return@run false
                         }
-                        val response = peer.send(getCumulativeDifficultyRequest) ?: return true
+                        val response = peer.send(getCumulativeDifficultyRequest) ?: return@run true
                         if (response["blockchainHeight"] != null) {
                             lastBlockchainFeeder = peer
                             lastBlockchainFeederHeight = JSON.getAsInt(response["blockchainHeight"])
                         } else {
                             logger.debug("Peer has no chainheight")
-                            return true
+                            return@run true
                         }
 
                         /* Cache now contains Cumulative Difficulty */
@@ -138,11 +138,11 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                         val peerCumulativeDifficulty = JSON.getAsString(response.get("cumulativeDifficulty"))
                         if (peerCumulativeDifficulty.isEmpty()) {
                             logger.debug("Peer CumulativeDifficulty is null")
-                            return true
+                            return@run true
                         }
                         val betterCumulativeDifficulty = BigInteger(peerCumulativeDifficulty)
                         if (betterCumulativeDifficulty <= curCumulativeDifficulty) {
-                            return true
+                            return@run true
                         }
 
                         var commonBlockId = Genesis.GENESIS_BLOCK_ID
@@ -153,7 +153,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                             commonBlockId = getCommonMilestoneBlockId(peer)
                             if (commonBlockId == 0L || !peerHasMore) {
                                 logger.debug("We could not get a common milestone block from peer.")
-                                return true
+                                return@run true
                             }
                         }
 
@@ -170,29 +170,32 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                                 commonBlockId = getCommonBlockId(peer, commonBlockId)
                                 if (commonBlockId == 0L || !peerHasMore) {
                                     logger.debug("Trying to get a more precise common block resulted in an error.")
-                                    return true
+                                    return@run true
                                 }
                                 saveInCache = false
                                 dp.downloadCache.resetForkBlocks()
                             } else {
                                 if (logger.isWarnEnabled) {
-                                    logger.warn("Our peer want to feed us a fork that is more than {} blocks old.", dp.propertyService.get(Props.DB_MAX_ROLLBACK))
+                                    logger.warn(
+                                        "Our peer want to feed us a fork that is more than {} blocks old.",
+                                        dp.propertyService.get(Props.DB_MAX_ROLLBACK)
+                                    )
                                 }
-                                return true
+                                return@run true
                             }
                         }
 
                         val nextBlocks = getNextBlocks(peer, commonBlockId)
                         if (nextBlocks == null || nextBlocks.size() == 0) {
                             logger.debug("Peer did not feed us any blocks")
-                            return true
+                            return@run true
                         }
 
                         // download blocks from peer
                         var lastBlock = dp.downloadCache.getBlock(commonBlockId)
                         if (lastBlock == null) {
                             logger.info("Error: lastBlock is null")
-                            return true
+                            return@run true
                         }
 
                         // loop blocks and make sure they fit in chain
@@ -207,8 +210,13 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                                 // Make sure it maps back to chain
                                 if (lastBlock.id != block.previousBlockId) {
                                     logger.debug("Discarding downloaded data. Last downloaded blocks is rubbish")
-                                    logger.debug("DB blockID: {} DB blockheight: {} Downloaded previd: {}", lastBlock.id, lastBlock.height, block.previousBlockId)
-                                    return true
+                                    logger.debug(
+                                        "DB blockID: {} DB blockheight: {} Downloaded previd: {}",
+                                        lastBlock.id,
+                                        lastBlock.height,
+                                        block.previousBlockId
+                                    )
+                                    return@run true
                                 }
                                 // set height and cumulative difficulty to block
                                 block.height = height
@@ -219,10 +227,14 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                                     if (dp.downloadCache.getLastBlockId() == block.previousBlockId) { //still maps back? we might have got announced/forged blocks
                                         if (!dp.downloadCache.addBlock(block)) {
                                             //we stop the loop since cahce has been locked
-                                            return true
+                                            return@run true
                                         }
                                         if (logger.isDebugEnabled) {
-                                            logger.debug("Added from download: Id: {} Height: {}", block.id, block.height)
+                                            logger.debug(
+                                                "Added from download: Id: {} Height: {}",
+                                                block.id,
+                                                block.height
+                                            )
                                         }
                                     }
                                 } else {
@@ -232,21 +244,21 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                             } catch (e: BlockchainProcessor.BlockOutOfOrderException) {
                                 logger.info("$e - autoflushing cache to get rid of it", e)
                                 dp.downloadCache.resetCache()
-                                return false
+                                return@run false
                             } catch (e: RuntimeException) {
                                 logger.info("Failed to parse block: {}$e", e)
                                 logger.info("Failed to parse block trace: {}", Arrays.toString(e.stackTrace))
                                 peer.blacklist(e, "pulled invalid data using getCumulativeDifficulty")
-                                return false
+                                return@run false
                             } catch (e: BurstException.ValidationException) {
                                 logger.info("Failed to parse block: {}$e", e)
                                 logger.info("Failed to parse block trace: {}", Arrays.toString(e.stackTrace))
                                 peer.blacklist(e, "pulled invalid data using getCumulativeDifficulty")
-                                return false
+                                return@run false
                             } catch (e: Exception) {
                                 logger.warn("Unhandled exception {}$e", e)
                                 logger.warn("Unhandled exception trace: {}", Arrays.toString(e.stackTrace))
-                                return false
+                                return@run false
                             }
                         } // end block loop
 
@@ -257,14 +269,14 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                         }
                         if (!saveInCache) {
                             /*
-                             * Since we cannot rely on peers reported cumulative difficulty we do
-                             * a final check to see that the CumulativeDifficulty actually is bigger
-                             * before we do a popOff and switch chain.
-                             */
+                         * Since we cannot rely on peers reported cumulative difficulty we do
+                         * a final check to see that the CumulativeDifficulty actually is bigger
+                         * before we do a popOff and switch chain.
+                         */
                             if (lastBlock!!.cumulativeDifficulty < curCumulativeDifficulty) {
                                 peer.blacklist("peer claimed to have bigger cumulative difficulty but in reality it did not.")
                                 dp.downloadCache.resetForkBlocks()
-                                return true
+                                return@run true
                             }
                             processFork(peer, dp.downloadCache.forkList, commonBlockId)
                         }
@@ -279,191 +291,11 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n$t", t)
                     exitProcess(1)
                 }
-                return true
-            }
-
-            private fun getCommonMilestoneBlockId(peer: Peer?): Long {
-                var lastMilestoneBlockId: String? = null
-                while (true) {
-                    val milestoneBlockIdsRequest = JsonObject()
-                    milestoneBlockIdsRequest.addProperty("requestType", "getMilestoneBlockIds")
-                    if (lastMilestoneBlockId == null) {
-                        milestoneBlockIdsRequest.addProperty("lastBlockId",
-                                dp.downloadCache.getLastBlockId().toUnsignedString())
-                    } else {
-                        milestoneBlockIdsRequest.addProperty("lastMilestoneBlockId", lastMilestoneBlockId)
-                    }
-
-                    val response = peer!!.send(JSON.prepareRequest(milestoneBlockIdsRequest))
-                    if (response == null) {
-                        logger.debug("Got null response in getCommonMilestoneBlockId")
-                        return 0
-                    }
-                    val milestoneBlockIds = JSON.getAsJsonArray(response.get("milestoneBlockIds"))
-                    if (milestoneBlockIds.isEmpty()) {
-                        logger.debug("MilestoneArray is empty")
-                        return 0
-                    }
-                    if (milestoneBlockIds.isEmpty()) {
-                        return Genesis.GENESIS_BLOCK_ID
-                    }
-                    // prevent overloading with blockIds
-                    if (milestoneBlockIds.size() > 20) {
-                        peer.blacklist("obsolete or rogue peer sends too many milestoneBlockIds")
-                        return 0
-                    }
-                    if (JSON.getAsBoolean(response.get("last"))) {
-                        peerHasMore = false
-                    }
-
-                    for (milestoneBlockId in milestoneBlockIds) {
-                        val blockId = JSON.getAsString(milestoneBlockId).parseUnsignedLong()
-
-                        if (dp.downloadCache.hasBlock(blockId)) {
-                            if (lastMilestoneBlockId == null && milestoneBlockIds.size() > 1) {
-                                peerHasMore = false
-                                logger.debug("Peer dont have more (cache)")
-                            }
-                            return blockId
-                        }
-                        lastMilestoneBlockId = JSON.getAsString(milestoneBlockId)
-                    }
-                }
-            }
-
-            private fun getCommonBlockId(peer: Peer?, commonBlockId: Long): Long {
-                var commonBlockId = commonBlockId
-
-                while (true) { // TODO not while true
-                    val request = JsonObject()
-                    request.addProperty("requestType", "getNextBlockIds")
-                    request.addProperty("blockId", commonBlockId.toUnsignedString())
-                    val response = peer!!.send(JSON.prepareRequest(request)) ?: return 0
-                    val nextBlockIds = JSON.getAsJsonArray(response.get("nextBlockIds"))
-                    if (nextBlockIds.isEmpty()) return 0
-                    // prevent overloading with blockIds
-                    if (nextBlockIds.size() > 1440) { // TODO just truncate
-                        peer.blacklist("obsolete or rogue peer sends too many nextBlocks")
-                        return 0
-                    }
-
-                    for (nextBlockId in nextBlockIds) {
-                        val blockId = JSON.getAsString(nextBlockId).parseUnsignedLong()
-                        if (!dp.downloadCache.hasBlock(blockId)) {
-                            return commonBlockId
-                        }
-                        commonBlockId = blockId
-                    }
-                }
-            }
-
-            private fun getNextBlocks(peer: Peer?, curBlockId: Long): JsonArray? {
-                val request = JsonObject()
-                request.addProperty("requestType", "getNextBlocks")
-                request.addProperty("blockId", curBlockId.toUnsignedString())
-                if (logger.isDebugEnabled) {
-                    logger.debug("Getting next Blocks after {} from {}", curBlockId.toUnsignedString(), peer!!.peerAddress)
-                }
-                val response = peer!!.send(JSON.prepareRequest(request)) ?: return null
-
-                val nextBlocks = JSON.getAsJsonArray(response.get("nextBlocks"))
-                if (nextBlocks.isEmpty()) return null
-                // prevent overloading with blocks
-                if (nextBlocks.size() > 1440) {
-                    peer.blacklist("obsolete or rogue peer sends too many nextBlocks")
-                    return null
-                }
-                logger.debug("Got {} blocks after {} from {}", nextBlocks.size(), curBlockId, peer.peerAddress)
-                return nextBlocks
-
-            }
-
-            private fun processFork(peer: Peer?, forkBlocks: List<Block>, forkBlockId: Long) {
-                logger.warn("A fork is detected. Waiting for cache to be processed.")
-                dp.downloadCache.lockCache() //dont let anything add to cache!
-                while (true) { // TODO not while true
-                    if (dp.downloadCache.size() == 0) {
-                        break
-                    }
-                    try {
-                        Thread.sleep(1000)
-                    } catch (ex: InterruptedException) {
-                        Thread.currentThread().interrupt()
-                    }
-
-                }
-                synchronized(dp.downloadCache) {
-                    synchronized(dp.transactionProcessor.getUnconfirmedTransactionsSyncObj()) {
-                        logger.warn("Cache is now processed. Starting to process fork.")
-                        val forkBlock = dp.blockchain.getBlock(forkBlockId)
-
-                        // we read the current cumulative difficulty
-                        val curCumulativeDifficulty = dp.blockchain.lastBlock.cumulativeDifficulty
-
-                        // We remove blocks from chain back to where we start our fork
-                        // and save it in a list if we need to restore
-                        val myPoppedOffBlocks = popOffTo(forkBlock!!)
-
-                        // now we check that our chain is popped off.
-                        // If all seems ok is we try to push fork.
-                        var pushedForkBlocks = 0
-                        if (dp.blockchain.lastBlock.id == forkBlockId) {
-                            for (block in forkBlocks) {
-                                if (dp.blockchain.lastBlock.id == block.previousBlockId) {
-                                    try {
-                                        dp.blockService.preVerify(block)
-                                        pushBlock(block)
-                                        pushedForkBlocks += 1
-                                    } catch (e: InterruptedException) {
-                                        Thread.currentThread().interrupt()
-                                    } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
-                                        peer!!.blacklist(e, "during processing a fork")
-                                        break
-                                    }
-
-                                }
-                            }
-                        }
-
-                        /*
-                         * we check if we succeeded to push any block. if we did we check against cumulative
-                         * difficulty If it is lower we blacklist peer and set chain to be processed later.
-                         */
-                        if (pushedForkBlocks > 0 && dp.blockchain.lastBlock.cumulativeDifficulty < curCumulativeDifficulty) {
-                            logger.warn("Fork was bad and pop off was caused by peer {}, blacklisting", peer!!.peerAddress)
-                            peer.blacklist("got a bad fork")
-                            val peerPoppedOffBlocks = popOffTo(forkBlock)
-                            pushedForkBlocks = 0
-                            peerPoppedOffBlocks.forEach { block -> dp.transactionProcessor.processLater(block.transactions) }
-                        }
-
-                        // if we did not push any blocks we try to restore chain.
-                        if (pushedForkBlocks == 0) {
-                            for (i in myPoppedOffBlocks.indices.reversed()) {
-                                val block = myPoppedOffBlocks.removeAt(i)
-                                try {
-                                    dp.blockService.preVerify(block)
-                                    pushBlock(block)
-                                } catch (e: InterruptedException) {
-                                    Thread.currentThread().interrupt()
-                                } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
-                                    logger.warn("Popped off block no longer acceptable: " + block.jsonObject.toJsonString(), e)
-                                    break
-                                }
-
-                            }
-                        } else {
-                            myPoppedOffBlocks.forEach { block -> dp.transactionProcessor.processLater(block.transactions) }
-                            logger.warn("Successfully switched to better chain.")
-                        }
-                        logger.warn("Forkprocessing complete.")
-                        dp.downloadCache.resetForkBlocks()
-                        dp.downloadCache.resetCache() // Reset and set cached vars to chaindata.
-                    }
-                }
+                return@run true
             }
         }
-        dp.taskScheduler.scheduleTaskHack(getMoreBlocksTask) // TODO somehow parallelize this task
+
+        dp.taskScheduler.scheduleTask(getMoreBlocksTask) // TODO somehow parallelize this task
         /* this should fetch first block in cache */
         //resetting cache because we have blocks that cannot be processed.
         //pushblock removes the block from cache.
@@ -573,6 +405,173 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         } else {
             logger.debug("Starting preverifier thread in CPU mode.")
             dp.taskScheduler.scheduleTask(4, pocVerificationTask) // TODO property for number of instances
+        }
+    }
+
+    private fun getCommonMilestoneBlockId(peer: Peer?): Long {
+        var lastMilestoneBlockId: String? = null
+        while (true) {
+            val milestoneBlockIdsRequest = JsonObject()
+            milestoneBlockIdsRequest.addProperty("requestType", "getMilestoneBlockIds")
+            if (lastMilestoneBlockId == null) {
+                milestoneBlockIdsRequest.addProperty("lastBlockId",
+                    dp.downloadCache.getLastBlockId().toUnsignedString())
+            } else {
+                milestoneBlockIdsRequest.addProperty("lastMilestoneBlockId", lastMilestoneBlockId)
+            }
+
+            val response = peer!!.send(JSON.prepareRequest(milestoneBlockIdsRequest))
+            if (response == null) {
+                logger.debug("Got null response in getCommonMilestoneBlockId")
+                return 0
+            }
+            val milestoneBlockIds = JSON.getAsJsonArray(response.get("milestoneBlockIds"))
+            if (milestoneBlockIds.isEmpty()) {
+                logger.debug("MilestoneArray is empty")
+                return 0
+            }
+            if (milestoneBlockIds.isEmpty()) {
+                return Genesis.GENESIS_BLOCK_ID
+            }
+            // prevent overloading with blockIds
+            if (milestoneBlockIds.size() > 20) {
+                peer.blacklist("obsolete or rogue peer sends too many milestoneBlockIds")
+                return 0
+            }
+            if (JSON.getAsBoolean(response.get("last"))) {
+                peerHasMore = false
+            }
+
+            for (milestoneBlockId in milestoneBlockIds) {
+                val blockId = JSON.getAsString(milestoneBlockId).parseUnsignedLong()
+
+                if (dp.downloadCache.hasBlock(blockId)) {
+                    if (lastMilestoneBlockId == null && milestoneBlockIds.size() > 1) {
+                        peerHasMore = false
+                        logger.debug("Peer dont have more (cache)")
+                    }
+                    return blockId
+                }
+                lastMilestoneBlockId = JSON.getAsString(milestoneBlockId)
+            }
+        }
+    }
+
+    private fun getCommonBlockId(peer: Peer?, commonBlockId: Long): Long {
+        var commonBlockId = commonBlockId
+
+        while (true) { // TODO not while true
+            val request = JsonObject()
+            request.addProperty("requestType", "getNextBlockIds")
+            request.addProperty("blockId", commonBlockId.toUnsignedString())
+            val response = peer!!.send(JSON.prepareRequest(request)) ?: return 0
+            val nextBlockIds = JSON.getAsJsonArray(response.get("nextBlockIds"))
+            if (nextBlockIds.isEmpty()) return 0
+            // prevent overloading with blockIds
+            if (nextBlockIds.size() > 1440) { // TODO just truncate
+                peer.blacklist("obsolete or rogue peer sends too many nextBlocks")
+                return 0
+            }
+
+            for (nextBlockId in nextBlockIds) {
+                val blockId = JSON.getAsString(nextBlockId).parseUnsignedLong()
+                if (!dp.downloadCache.hasBlock(blockId)) {
+                    return commonBlockId
+                }
+                commonBlockId = blockId
+            }
+        }
+    }
+
+    private fun getNextBlocks(peer: Peer?, curBlockId: Long): JsonArray? {
+        val request = JsonObject()
+        request.addProperty("requestType", "getNextBlocks")
+        request.addProperty("blockId", curBlockId.toUnsignedString())
+        if (logger.isDebugEnabled) {
+            logger.debug("Getting next Blocks after {} from {}", curBlockId.toUnsignedString(), peer!!.peerAddress)
+        }
+        val response = peer!!.send(JSON.prepareRequest(request)) ?: return null
+
+        val nextBlocks = JSON.getAsJsonArray(response.get("nextBlocks"))
+        if (nextBlocks.isEmpty()) return null
+        // prevent overloading with blocks
+        if (nextBlocks.size() > 1440) {
+            peer.blacklist("obsolete or rogue peer sends too many nextBlocks")
+            return null
+        }
+        logger.debug("Got {} blocks after {} from {}", nextBlocks.size(), curBlockId, peer.peerAddress)
+        return nextBlocks
+
+    }
+
+    private suspend fun processFork(peer: Peer?, forkBlocks: List<Block>, forkBlockId: Long) {
+        logger.warn("A fork is detected. Waiting for cache to be processed.")
+        dp.downloadCache.lockCache() //dont let anything add to cache!
+        while (dp.downloadCache.size() != 0) delay(1000)
+        synchronized(dp.downloadCache) {
+            synchronized(dp.transactionProcessor.getUnconfirmedTransactionsSyncObj()) {
+                logger.warn("Cache is now processed. Starting to process fork.")
+                val forkBlock = dp.blockchain.getBlock(forkBlockId)
+
+                // we read the current cumulative difficulty
+                val curCumulativeDifficulty = dp.blockchain.lastBlock.cumulativeDifficulty
+
+                // We remove blocks from chain back to where we start our fork
+                // and save it in a list if we need to restore
+                val myPoppedOffBlocks = popOffTo(forkBlock!!)
+
+                // now we check that our chain is popped off.
+                // If all seems ok is we try to push fork.
+                var pushedForkBlocks = 0
+                if (dp.blockchain.lastBlock.id == forkBlockId) {
+                    for (block in forkBlocks) {
+                        if (dp.blockchain.lastBlock.id == block.previousBlockId) {
+                            try {
+                                dp.blockService.preVerify(block)
+                                pushBlock(block)
+                                pushedForkBlocks += 1
+                            } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
+                                peer!!.blacklist(e, "during processing a fork")
+                                break
+                            }
+
+                        }
+                    }
+                }
+
+                /*
+                 * we check if we succeeded to push any block. if we did we check against cumulative
+                 * difficulty If it is lower we blacklist peer and set chain to be processed later.
+                 */
+                if (pushedForkBlocks > 0 && dp.blockchain.lastBlock.cumulativeDifficulty < curCumulativeDifficulty) {
+                    logger.warn("Fork was bad and pop off was caused by peer {}, blacklisting", peer!!.peerAddress)
+                    peer.blacklist("got a bad fork")
+                    val peerPoppedOffBlocks = popOffTo(forkBlock)
+                    pushedForkBlocks = 0
+                    peerPoppedOffBlocks.forEach { block -> dp.transactionProcessor.processLater(block.transactions) }
+                }
+
+                // if we did not push any blocks we try to restore chain.
+                if (pushedForkBlocks == 0) {
+                    for (i in myPoppedOffBlocks.indices.reversed()) {
+                        val block = myPoppedOffBlocks.removeAt(i)
+                        try {
+                            dp.blockService.preVerify(block)
+                            pushBlock(block)
+                        } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
+                            logger.warn("Popped off block no longer acceptable: " + block.jsonObject.toJsonString(), e)
+                            break
+                        }
+
+                    }
+                } else {
+                    myPoppedOffBlocks.forEach { block -> dp.transactionProcessor.processLater(block.transactions) }
+                    logger.warn("Successfully switched to better chain.")
+                }
+                logger.warn("Forkprocessing complete.")
+                dp.downloadCache.resetForkBlocks()
+                dp.downloadCache.resetCache() // Reset and set cached vars to chaindata.
+            }
         }
     }
 
@@ -1136,8 +1135,6 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     logger.debug("Account {} generated block {} at height {}", block.generatorId.toUnsignedString(), block.stringId, block.height)
                 }
                 dp.downloadCache.resetCache()
-            } catch (e: InterruptedException) {
-                Thread.currentThread().interrupt()
             } catch (e: BlockchainProcessor.TransactionNotAcceptedException) {
                 logger.debug("Generate block failed: {}", e.message)
                 val transaction = e.transaction

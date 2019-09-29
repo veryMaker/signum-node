@@ -3,7 +3,6 @@ package brs
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
 import brs.props.Props
-import brs.taskScheduler.RepeatingTask
 import brs.util.Convert
 import brs.util.Listeners
 import brs.util.toUnsignedString
@@ -20,27 +19,25 @@ open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
     override val allGenerators: Collection<Generator.GeneratorState>
         get() = generators.values
 
-    private fun generateBlockThread(blockchainProcessor: BlockchainProcessor): RepeatingTask = {
-        try {
-            val currentBlock = dp.blockchain.lastBlock.height.toLong()
-            val it = generators.entries.iterator()
-            while (it.hasNext()) {
-                val generator = it.next()
-                if (currentBlock < generator.value.block) {
-                    generator.value.forge(blockchainProcessor)
-                } else {
-                    it.remove()
+    init {
+        dp.taskScheduler.scheduleTask {
+            try {
+                val currentBlock = dp.blockchain.lastBlock.height.toLong()
+                val it = generators.entries.iterator()
+                while (it.hasNext()) {
+                    val generator = it.next()
+                    if (currentBlock < generator.value.block) {
+                        generator.value.forge(dp.blockchainProcessor)
+                    } else {
+                        it.remove()
+                    }
                 }
+                true
+            } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
+                logger.debug("Error in block generation thread", e)
+                false
             }
-            true
-        } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
-            logger.debug("Error in block generation thread", e)
-            false
         }
-    }
-
-    override fun generateForBlockchainProcessor(dp: DependencyProvider) {
-        dp.taskScheduler.scheduleTask(generateBlockThread(dp.blockchainProcessor))
     }
 
     override fun addListener(listener: (Generator.GeneratorState) -> Unit, eventType: Generator.Event): Boolean {

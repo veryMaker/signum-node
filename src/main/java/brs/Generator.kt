@@ -8,10 +8,8 @@ interface Generator : Observable<Generator.GeneratorState, Generator.Event> {
     val allGenerators: Collection<GeneratorState>
 
     enum class Event {
-        GENERATION_DEADLINE, NONCE_SUBMITTED
+        NONCE_SUBMITTED
     }
-
-    fun generateForBlockchainProcessor(dp: DependencyProvider)
 
     fun addNonce(secretPhrase: String, nonce: Long?): GeneratorState
 

@@ -94,7 +94,6 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.downloadCache = DownloadCacheImpl(dp)
             dp.indirectIncomingService = IndirectIncomingServiceImpl(dp)
             dp.feeSuggestionCalculator = FeeSuggestionCalculator(dp)
-            dp.generator.generateForBlockchainProcessor(dp)
             dp.deeplinkQRCodeGenerator = DeeplinkQRCodeGenerator()
             dp.parameterService = ParameterServiceImpl(dp)
             dp.blockchainProcessor.addListener(AT.HandleATBlockTransactionsListener(dp), BlockchainProcessor.Event.AFTER_BLOCK_APPLY)

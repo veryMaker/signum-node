@@ -59,11 +59,4 @@ class TaskSchedulerImpl(dp: DependencyProvider): TaskScheduler {
         if (!started) return
         // TODO stop the scheduler
     }
-
-    // TODO the below is hacky stuff.
-    private fun noSuspendRepeatingToSuspend(noSuspend: NoSuspendRepeatingTask): RepeatingTask = { noSuspend.invoke() }
-    private fun noSuspendToSuspend(noSuspend: NoSuspendTask): Task = { noSuspend.invoke() }
-    override fun runBeforeStartHack(task: NoSuspendTask) = runBeforeStart(noSuspendToSuspend(task))
-    override fun scheduleTaskHack(task: NoSuspendRepeatingTask) = scheduleTask(noSuspendRepeatingToSuspend(task))
-    override fun scheduleTaskHack(numberOfInstances: Int, task: NoSuspendRepeatingTask) = scheduleTask(numberOfInstances, noSuspendRepeatingToSuspend(task))
 }

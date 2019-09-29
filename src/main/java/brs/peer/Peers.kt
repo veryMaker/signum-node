@@ -7,8 +7,6 @@ import brs.peer.Peer.Companion.isHigherOrEqualVersion
 import brs.props.Props
 import brs.props.Props.P2P_ENABLE_TX_REBROADCAST
 import brs.props.Props.P2P_SEND_TO_LIMIT
-import brs.taskScheduler.NoSuspendRepeatingTask
-import brs.taskScheduler.NoSuspendTask
 import brs.taskScheduler.RepeatingTask
 import brs.util.*
 import brs.util.JSON.prepareRequest
@@ -188,37 +186,30 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         true
     }
 
-    private val getMorePeersThread = object : NoSuspendRepeatingTask {
+    private val getPeersRequest by lazy {
+        val request = JsonObject()
+        request.addProperty("requestType", "getPeers")
+        prepareRequest(request)
+    }
 
-        private val getPeersRequest: JsonElement
+    private val addedNewPeer = AtomicBoolean(false) // TODO by Atomic
 
-        private val addedNewPeer = AtomicBoolean(false)
+    init {
+        listeners.addListener({ addedNewPeer.set(true) }, Event.NEW_PEER)
+    }
 
-        init {
-            val request = JsonObject()
-            request.addProperty("requestType", "getPeers")
-            getPeersRequest = prepareRequest(request)
-        }
-
-        init {
-            addListener({ addedNewPeer.set(true) }, Event.NEW_PEER)
-        }
-
-        private fun addListener(listener: (Peer) -> Unit, eventType: Event): Boolean {
-            return listeners.addListener(listener, eventType)
-        }
-
-        override fun invoke(): Boolean {
+    private val getMorePeersThread: RepeatingTask = {
+        run {
             try {
                 /* We do not want more peers if above Threshold but we need enough to
                  * connect to selected number of peers
                  */
                 if (peers.size >= getMorePeersThreshold && peers.size > maxNumberOfConnectedPublicPeers) {
-                    return false
+                    return@run false
                 }
 
-                val peer = getAnyPeer(Peer.State.CONNECTED) ?: return false
-                val response = peer.send(getPeersRequest) ?: return true
+                val peer = getAnyPeer(Peer.State.CONNECTED) ?: return@run false
+                val response = peer.send(getPeersRequest) ?: return@run true
                 val peersJson = JSON.getAsJsonArray(response.get("peers"))
                 val addedAddresses = HashSet<String>()
                 if (!peersJson.isEmpty()) {
@@ -253,7 +244,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
             } catch (e: Exception) {
                 logger.debug("Error requesting peers from a peer", e)
             }
-            return true
+            return@run true
         }
     }
 
@@ -322,6 +313,8 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         CHANGED_ACTIVE_PEER,
         NEW_PEER
     }
+
+    val unresolvedPeers = Collections.synchronizedList(mutableListOf<Future<String>>())
 
     init {
         myPlatform = dp.propertyService.get(Props.P2P_MY_PLATFORM)
@@ -426,30 +419,16 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         getMorePeersThreshold = dp.propertyService.get(Props.P2P_GET_MORE_PEERS_THRESHOLD)
         dumpPeersVersion = dp.propertyService.get(Props.DEV_DUMP_PEERS_VERSION)
 
-        val unresolvedPeers = Collections.synchronizedList(mutableListOf<Future<String>>())
-
-        dp.taskScheduler.runBeforeStartHack(object : NoSuspendTask {
-            private fun loadPeers(addresses: Collection<String>) {
-                for (address in addresses) {
-                    val unresolvedAddress = sendBlocksToPeersService.submit<String> {
-                        val peer = addPeer(address)
-                        if (peer == null) address else null
-                    }
-                    unresolvedPeers.add(unresolvedAddress)
-                }
+        dp.taskScheduler.runBeforeStart {
+            if (wellKnownPeers.isNotEmpty()) {
+                loadPeers(wellKnownPeers)
             }
-
-            override fun invoke() {
-                if (wellKnownPeers.isNotEmpty()) {
-                    loadPeers(wellKnownPeers)
-                }
-                if (usePeersDb) {
-                    logger.debug("Loading known peers from the database...")
-                    loadPeers(dp.peerDb.loadPeers())
-                }
-                lastSavedPeers = peers.size
+            if (usePeersDb) {
+                logger.debug("Loading known peers from the database...")
+                loadPeers(dp.peerDb.loadPeers())
             }
-        })
+            lastSavedPeers = peers.size
+        }
 
         dp.taskScheduler.runAfterStart {
             for (unresolvedPeer in unresolvedPeers) {
@@ -584,10 +563,19 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
             dp.taskScheduler.scheduleTask(this.peerConnectingThread)
             dp.taskScheduler.scheduleTask(this.peerUnBlacklistingThread)
             if (getMorePeers) {
-                dp.taskScheduler.scheduleTaskHack(this.getMorePeersThread)
+                dp.taskScheduler.scheduleTask(this.getMorePeersThread)
             }
         }
+    }
 
+    private fun loadPeers(addresses: Collection<String>) {
+        for (address in addresses) {
+            val unresolvedAddress = sendBlocksToPeersService.submit<String> {
+                val peer = addPeer(address)
+                if (peer == null) address else null
+            }
+            unresolvedPeers.add(unresolvedAddress)
+        }
     }
 
     fun shutdown() {
@@ -622,12 +610,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
 
         if (!sendBlocksToPeersService.isTerminated) {
             sendBlocksToPeersService.shutdown()
-            try {
-                sendBlocksToPeersService.awaitTermination(dp.propertyService.get(Props.BRS_SHUTDOWN_TIMEOUT).toLong(), TimeUnit.SECONDS)
-            } catch (e: InterruptedException) {
-                Thread.currentThread().interrupt()
-            }
-
+            sendBlocksToPeersService.awaitTermination(dp.propertyService.get(Props.BRS_SHUTDOWN_TIMEOUT).toLong(), TimeUnit.SECONDS)
             if (!sendBlocksToPeersService.isTerminated) {
                 logger.error("some threads didn't terminate, forcing shutdown")
                 sendBlocksToPeersService.shutdownNow()
@@ -762,8 +745,6 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
                             if (response != null && response.get("error") == null) {
                                 successful += 1
                             }
-                        } catch (e: InterruptedException) {
-                            Thread.currentThread().interrupt()
                         } catch (e: ExecutionException) {
                             logger.debug("Error in sendToSomePeers", e)
                         }
