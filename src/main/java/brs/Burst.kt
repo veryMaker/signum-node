@@ -17,7 +17,7 @@ import brs.props.PropertyServiceImpl
 import brs.props.Props
 import brs.services.impl.*
 import brs.statistics.StatisticsManagerImpl
-import brs.taskScheduler.RxJavaTaskScheduler
+import brs.taskScheduler.CoroutineTaskScheduler
 import brs.transaction.TransactionType
 import brs.unconfirmedtransactions.UnconfirmedTransactionStoreImpl
 import brs.util.DownloadCacheImpl
@@ -25,6 +25,7 @@ import brs.util.LoggerConfigurator
 import brs.util.Time
 import io.grpc.ServerBuilder
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.io.IOException
@@ -37,103 +38,127 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
     val dp = DependencyProvider()
 
     init {
-        dp.propertyService = PropertyServiceImpl(properties)
-        validateVersionNotDev(dp.propertyService)
+        runBlocking {
+            dp.propertyService = PropertyServiceImpl(properties)
+            validateVersionNotDev(dp.propertyService)
 
-        if (addShutdownHook) Runtime.getRuntime().addShutdownHook(Thread(Runnable { shutdown() }))
+            if (addShutdownHook) Runtime.getRuntime().addShutdownHook(Thread(Runnable { shutdown() }))
 
-        try {
-            val startTime = System.currentTimeMillis()
-            Constants.init(dp)
-            dp.taskScheduler = RxJavaTaskScheduler(dp)
-            dp.atApiPlatformImpl = AtApiPlatformImpl(dp)
-            dp.atApiController = AtApiController(dp)
-            dp.atController = AtController(dp)
-            val atApiImpl = AtApiImpl(dp) // TODO ??
-            dp.oclPoC = OCLPoC(dp)
-            dp.timeService = TimeServiceImpl()
-            dp.derivedTableManager = DerivedTableManager()
-            dp.statisticsManager = StatisticsManagerImpl(dp)
-            dp.dbCacheManager = DBCacheManagerImpl(dp)
-            LoggerConfigurator.init()
-            Db.init(dp)
-            val dbs = Db.dbsByDatabaseType
-            dp.blockDb = dbs.blockDb
-            dp.transactionDb = dbs.transactionDb
-            dp.peerDb = dbs.peerDb
-            dp.accountStore = SqlAccountStore(dp)
-            dp.aliasStore = SqlAliasStore(dp)
-            dp.assetStore = SqlAssetStore(dp)
-            dp.assetTransferStore = SqlAssetTransferStore(dp)
-            dp.atStore = SqlATStore(dp)
-            dp.digitalGoodsStoreStore = SqlDigitalGoodsStoreStore(dp)
-            dp.escrowStore = SqlEscrowStore(dp)
-            dp.orderStore = SqlOrderStore(dp)
-            dp.tradeStore = SqlTradeStore(dp)
-            dp.subscriptionStore = SqlSubscriptionStore(dp)
-            dp.unconfirmedTransactionStore = UnconfirmedTransactionStoreImpl(dp)
-            dp.indirectIncomingStore = SqlIndirectIncomingStore(dp)
-            dp.blockchainStore = SqlBlockchainStore(dp)
-            dp.blockchain = BlockchainImpl(dp)
-            dp.aliasService = AliasServiceImpl(dp)
-            dp.fluxCapacitor = FluxCapacitorImpl(dp)
-            dp.transactionTypes = TransactionType.getTransactionTypes(dp)
-            dp.blockService = BlockServiceImpl(dp)
-            dp.blockchainProcessor = BlockchainProcessorImpl(dp)
-            dp.atConstants = AtConstants(dp)
-            dp.economicClustering = EconomicClustering(dp)
-            dp.generator = if (dp.propertyService.get(Props.DEV_MOCK_MINING)) GeneratorImpl.MockGenerator(dp) else GeneratorImpl(dp)
-            dp.accountService = AccountServiceImpl(dp)
-            dp.transactionService = TransactionServiceImpl(dp)
-            dp.transactionProcessor = TransactionProcessorImpl(dp)
-            dp.atService = ATServiceImpl(dp)
-            dp.subscriptionService = SubscriptionServiceImpl(dp)
-            dp.digitalGoodsStoreService = DGSGoodsStoreServiceImpl(dp)
-            dp.escrowService = EscrowServiceImpl(dp)
-            dp.assetExchange = AssetExchangeImpl(dp)
-            dp.downloadCache = DownloadCacheImpl(dp)
-            dp.indirectIncomingService = IndirectIncomingServiceImpl(dp)
-            dp.feeSuggestionCalculator = FeeSuggestionCalculator(dp)
-            dp.deeplinkQRCodeGenerator = DeeplinkQRCodeGenerator()
-            dp.parameterService = ParameterServiceImpl(dp)
-            dp.blockchainProcessor.addListener(AT.HandleATBlockTransactionsListener(dp), BlockchainProcessor.Event.AFTER_BLOCK_APPLY)
-            dp.blockchainProcessor.addListener(DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(dp), BlockchainProcessor.Event.AFTER_BLOCK_APPLY)
-            dp.apiTransactionManager = APITransactionManagerImpl(dp)
-            dp.peers = Peers(dp)
-            dp.api = API(dp)
+            try {
+                val startTime = System.currentTimeMillis()
+                Constants.init(dp)
+                dp.taskScheduler = CoroutineTaskScheduler(dp)
+                dp.atApiPlatformImpl = AtApiPlatformImpl(dp)
+                dp.atApiController = AtApiController(dp)
+                dp.atController = AtController(dp)
+                val atApiImpl = AtApiImpl(dp) // TODO ??
+                dp.oclPoC = OCLPoC(dp)
+                dp.timeService = TimeServiceImpl()
+                dp.derivedTableManager = DerivedTableManager()
+                dp.statisticsManager = StatisticsManagerImpl(dp)
+                dp.dbCacheManager = DBCacheManagerImpl(dp)
+                LoggerConfigurator.init()
+                Db.init(dp)
+                val dbs = Db.dbsByDatabaseType
+                dp.blockDb = dbs.blockDb
+                dp.transactionDb = dbs.transactionDb
+                dp.peerDb = dbs.peerDb
+                dp.accountStore = SqlAccountStore(dp)
+                dp.aliasStore = SqlAliasStore(dp)
+                dp.assetStore = SqlAssetStore(dp)
+                dp.assetTransferStore = SqlAssetTransferStore(dp)
+                dp.atStore = SqlATStore(dp)
+                dp.digitalGoodsStoreStore = SqlDigitalGoodsStoreStore(dp)
+                dp.escrowStore = SqlEscrowStore(dp)
+                dp.orderStore = SqlOrderStore(dp)
+                dp.tradeStore = SqlTradeStore(dp)
+                dp.subscriptionStore = SqlSubscriptionStore(dp)
+                dp.unconfirmedTransactionStore = UnconfirmedTransactionStoreImpl(dp)
+                dp.indirectIncomingStore = SqlIndirectIncomingStore(dp)
+                dp.blockchainStore = SqlBlockchainStore(dp)
+                dp.blockchain = BlockchainImpl(dp)
+                dp.aliasService = AliasServiceImpl(dp)
+                dp.fluxCapacitor = FluxCapacitorImpl(dp)
+                dp.transactionTypes = TransactionType.getTransactionTypes(dp)
+                dp.blockService = BlockServiceImpl(dp)
+                dp.blockchainProcessor = BlockchainProcessorImpl.new(dp)
+                dp.atConstants = AtConstants(dp)
+                dp.economicClustering = EconomicClustering(dp)
+                dp.generator = if (dp.propertyService.get(Props.DEV_MOCK_MINING)) GeneratorImpl.MockGenerator(dp) else GeneratorImpl.new(dp)
+                dp.accountService = AccountServiceImpl(dp)
+                dp.transactionService = TransactionServiceImpl(dp)
+                dp.transactionProcessor = TransactionProcessorImpl.new(dp)
+                dp.atService = ATServiceImpl(dp)
+                dp.subscriptionService = SubscriptionServiceImpl(dp)
+                dp.digitalGoodsStoreService = DGSGoodsStoreServiceImpl(dp)
+                dp.escrowService = EscrowServiceImpl(dp)
+                dp.assetExchange = AssetExchangeImpl(dp)
+                dp.downloadCache = DownloadCacheImpl(dp)
+                dp.indirectIncomingService = IndirectIncomingServiceImpl(dp)
+                dp.feeSuggestionCalculator = FeeSuggestionCalculator(dp)
+                dp.deeplinkQRCodeGenerator = DeeplinkQRCodeGenerator()
+                dp.parameterService = ParameterServiceImpl(dp)
+                dp.blockchainProcessor.addListener(
+                    AT.HandleATBlockTransactionsListener(dp),
+                    BlockchainProcessor.Event.AFTER_BLOCK_APPLY
+                )
+                dp.blockchainProcessor.addListener(
+                    DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(dp),
+                    BlockchainProcessor.Event.AFTER_BLOCK_APPLY
+                )
+                dp.apiTransactionManager = APITransactionManagerImpl(dp)
+                dp.peers = Peers.new(dp)
+                dp.api = API(dp)
 
-            if (dp.propertyService.get(Props.API_V2_SERVER)) {
-                val port = if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_API_V2_PORT) else dp.propertyService.get(Props.API_V2_PORT)
-                logger.info("Starting V2 API Server on port {}", port)
-                val apiV2 = BrsService(dp)
-                val hostname = dp.propertyService.get(Props.API_V2_LISTEN)
-                dp.apiV2Server = if (hostname == "0.0.0.0") ServerBuilder.forPort(port).addService(apiV2).build().start() else NettyServerBuilder.forAddress(InetSocketAddress(hostname, port)).addService(apiV2).build().start()
-            } else {
-                logger.info("Not starting V2 API Server - it is disabled.")
+                if (dp.propertyService.get(Props.API_V2_SERVER)) {
+                    val port =
+                        if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_API_V2_PORT) else dp.propertyService.get(
+                            Props.API_V2_PORT
+                        )
+                    logger.info("Starting V2 API Server on port {}", port)
+                    val apiV2 = BrsService(dp)
+                    val hostname = dp.propertyService.get(Props.API_V2_LISTEN)
+                    dp.apiV2Server =
+                        if (hostname == "0.0.0.0") ServerBuilder.forPort(port).addService(apiV2).build().start() else NettyServerBuilder.forAddress(
+                            InetSocketAddress(hostname, port)
+                        ).addService(apiV2).build().start()
+                } else {
+                    logger.info("Not starting V2 API Server - it is disabled.")
+                }
+
+                if (dp.propertyService.get(Props.BRS_DEBUG_TRACE_ENABLED)) {
+                    val debugTraceManager = DebugTraceManager(dp)
+                }
+
+                val timeMultiplier =
+                    if (dp.propertyService.get(Props.DEV_TESTNET) && dp.propertyService.get(Props.DEV_OFFLINE)) dp.propertyService.get(
+                        Props.DEV_TIMEWARP
+                    ).coerceAtLeast(1) else 1
+
+                dp.taskScheduler.start()
+                if (timeMultiplier > 1) {
+                    dp.timeService.setTime(
+                        Time.FasterTime(
+                            max(
+                                dp.timeService.epochTime,
+                                dp.blockchain.lastBlock.timestamp
+                            ), timeMultiplier
+                        )
+                    )
+                    logger.info("TIME WILL FLOW {} TIMES FASTER!", timeMultiplier)
+                }
+
+                val currentTime = System.currentTimeMillis()
+                logger.info("Initialization took {} ms", currentTime - startTime)
+                logger.info("BRS {} started successfully.", VERSION)
+
+                if (dp.propertyService.get(Props.DEV_TESTNET)) {
+                    logger.info("RUNNING ON TESTNET - DO NOT USE REAL ACCOUNTS!")
+                }
+            } catch (e: Exception) {
+                logger.error(e.message, e)
+                exitProcess(1)
             }
-
-            if (dp.propertyService.get(Props.BRS_DEBUG_TRACE_ENABLED)) {
-                val debugTraceManager = DebugTraceManager(dp)
-            }
-
-            val timeMultiplier = if (dp.propertyService.get(Props.DEV_TESTNET) && dp.propertyService.get(Props.DEV_OFFLINE)) dp.propertyService.get(Props.DEV_TIMEWARP).coerceAtLeast(1) else 1
-
-            dp.taskScheduler.start()
-            if (timeMultiplier > 1) {
-                dp.timeService.setTime(Time.FasterTime(max(dp.timeService.epochTime, dp.blockchain.lastBlock.timestamp), timeMultiplier))
-                logger.info("TIME WILL FLOW {} TIMES FASTER!", timeMultiplier)
-            }
-
-            val currentTime = System.currentTimeMillis()
-            logger.info("Initialization took {} ms", currentTime - startTime)
-            logger.info("BRS {} started successfully.", VERSION)
-
-            if (dp.propertyService.get(Props.DEV_TESTNET)) {
-                logger.info("RUNNING ON TESTNET - DO NOT USE REAL ACCOUNTS!")
-            }
-        } catch (e: Exception) {
-            logger.error(e.message, e)
-            exitProcess(1)
         }
     }
 

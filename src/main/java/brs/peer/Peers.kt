@@ -8,12 +8,15 @@ import brs.props.Props
 import brs.props.Props.P2P_ENABLE_TX_REBROADCAST
 import brs.props.Props.P2P_SEND_TO_LIMIT
 import brs.taskScheduler.RepeatingTask
+import brs.taskScheduler.Task
 import brs.util.*
 import brs.util.JSON.prepareRequest
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.bitlet.weupnp.GatewayDevice
 import org.bitlet.weupnp.GatewayDiscover
 import org.bitlet.weupnp.PortMappingEntry
@@ -39,39 +42,55 @@ import javax.xml.parsers.ParserConfigurationException
 
 // TODO this whole class needs refactoring.
 // TODO what about next-gen P2P network?
-class Peers(private val dp: DependencyProvider) { // TODO interface
+class Peers private constructor(private val dp: DependencyProvider) { // TODO interface
     internal var communicationLoggingMask: Int = 0
 
     private val random = Random()
+    
+    internal var rebroadcastPeers: Set<String>
+    internal val wellKnownPeers: Set<String>
+    
+    init {
+        val wellKnownPeersList = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_BOOTSTRAP_PEERS else Props.P2P_BOOTSTRAP_PEERS).toMutableSet()
+        if (dp.propertyService.get(P2P_ENABLE_TX_REBROADCAST)) {
+            rebroadcastPeers = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_REBROADCAST_TO else Props.P2P_REBROADCAST_TO).toSet()
 
-    internal var wellKnownPeers: Set<String>
+            for (rePeer in rebroadcastPeers) {
+                if (!wellKnownPeersList.contains(rePeer)) {
+                    wellKnownPeersList.add(rePeer)
+                }
+            }
+        } else {
+            rebroadcastPeers = emptySet()
+        }
+        wellKnownPeers = if (wellKnownPeersList.isEmpty() || dp.propertyService.get(Props.DEV_OFFLINE)) emptySet() else wellKnownPeersList
+    }
+    
     internal var knownBlacklistedPeers: Set<String>
 
-    internal var peerServer: Server? = null
-    internal var gateway: GatewayDevice? = null
-    internal var port: Int = -1
+    private var peerServer: Server? = null
+    private var gateway: GatewayDevice? = null
+    private var port: Int = -1
 
     private var connectWellKnownFirst: Int = 0
     private var connectWellKnownFinished: Boolean = false
 
-    internal var rebroadcastPeers: Set<String>
+    internal val connectTimeout: Int
+    internal val readTimeout: Int
+    internal val blacklistingPeriod: Int
+    internal val getMorePeers: Boolean
 
-    internal var connectTimeout: Int = 0
-    internal var readTimeout: Int = 0
-    internal var blacklistingPeriod: Int = 0
-    internal var getMorePeers: Boolean = false
-
-    private var myPlatform: String? = null
-    private var myAddress: String? = null
-    private var myPeerServerPort: Int = 0
-    private var useUpnp: Boolean = false
-    private var shareMyAddress: Boolean = false
-    private var maxNumberOfConnectedPublicPeers: Int = 0
-    private var sendToPeersLimit: Int = 0
-    private var usePeersDb: Boolean = false
-    private var savePeers: Boolean = false
-    private var getMorePeersThreshold: Int = 0
-    private var dumpPeersVersion: String? = null
+    private val myPlatform: String?
+    private val myAddress: String?
+    private val myPeerServerPort: Int
+    private val useUpnp: Boolean
+    private val shareMyAddress: Boolean
+    private val maxNumberOfConnectedPublicPeers: Int
+    private val sendToPeersLimit: Int
+    private val usePeersDb: Boolean
+    private val savePeers: Boolean
+    private val getMorePeersThreshold: Int
+    private val dumpPeersVersion: String?
     private var lastSavedPeers: Int = 0
 
     internal var myPeerInfoRequest: JsonElement
@@ -87,6 +106,201 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
     private val sendBlocksToPeersService = Executors.newCachedThreadPool() // TODO remove
     private val blocksSendingService = Executors.newFixedThreadPool(10) // TODO remove
 
+    private val unresolvedPeers = mutableListOf<Future<String>>() // TODO don't use futures...
+    private val unresolvedPeersLock = Mutex()
+
+    init {
+        myPlatform = dp.propertyService.get(Props.P2P_MY_PLATFORM)
+        myAddress = if (dp.propertyService.get(Props.P2P_MY_ADDRESS).isNotBlank()
+            && dp.propertyService.get(Props.P2P_MY_ADDRESS).trim { it <= ' ' }.isEmpty()
+            && gateway != null) {
+            var externalIPAddress: String? = null
+            try {
+                externalIPAddress = gateway!!.externalIPAddress
+            } catch (e: IOException) {
+                logger.info("Can't get gateways IP adress")
+            } catch (e: SAXException) {
+                logger.info("Can't get gateways IP adress")
+            }
+
+            externalIPAddress
+        } else dp.propertyService.get(Props.P2P_MY_ADDRESS)
+
+        if (myAddress != null && myAddress!!.endsWith(":$TESTNET_PEER_PORT") && !dp.propertyService.get(Props.DEV_TESTNET)) {
+            throw RuntimeException("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
+        }
+        myPeerServerPort = dp.propertyService.get(Props.P2P_PORT)
+        if (myPeerServerPort == TESTNET_PEER_PORT && !dp.propertyService.get(Props.DEV_TESTNET)) {
+            throw RuntimeException("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
+        }
+        useUpnp = dp.propertyService.get(Props.P2P_UPNP)
+        shareMyAddress = dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE)
+
+        val json = JsonObject()
+        if (myAddress != null && !myAddress!!.isEmpty()) {
+            try {
+                val uri = URI("http://" + myAddress!!.trim { it <= ' ' })
+                val host = uri.host
+                val port = uri.port
+                if (!dp.propertyService.get(Props.DEV_TESTNET)) {
+                    if (port >= 0) {
+                        json.addProperty("announcedAddress", myAddress)
+                    } else {
+                        json.addProperty("announcedAddress", host + if (myPeerServerPort != DEFAULT_PEER_PORT) ":$myPeerServerPort" else "")
+                    }
+                } else {
+                    json.addProperty("announcedAddress", host)
+                }
+            } catch (e: URISyntaxException) {
+                logger.info("Your announce address is invalid: {}", myAddress)
+                throw RuntimeException(e.toString(), e)
+            }
+
+        }
+
+        json.addProperty("application", Burst.APPLICATION)
+        json.addProperty("version", Burst.VERSION.toString())
+        json.addProperty("platform", this.myPlatform)
+        json.addProperty("shareAddress", this.shareMyAddress)
+        if (logger.isDebugEnabled) {
+            logger.debug("My peer info: {}", json.toJsonString())
+        }
+        myPeerInfoResponse = json.cloneJson()
+        json.addProperty("requestType", "getInfo")
+        myPeerInfoRequest = prepareRequest(json)
+
+        connectWellKnownFirst = dp.propertyService.get(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS)
+        connectWellKnownFinished = connectWellKnownFirst == 0
+
+        val knownBlacklistedPeersList = dp.propertyService.get(Props.P2P_BLACKLISTED_PEERS)
+        if (knownBlacklistedPeersList.isEmpty()) {
+            knownBlacklistedPeers = emptySet()
+        } else {
+            knownBlacklistedPeers = knownBlacklistedPeersList.toSet()
+        }
+
+        maxNumberOfConnectedPublicPeers = dp.propertyService.get(Props.P2P_MAX_CONNECTIONS)
+        connectTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_CONNECT_MS)
+        readTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_READ_MS)
+
+        blacklistingPeriod = dp.propertyService.get(Props.P2P_BLACKLISTING_TIME_MS)
+        communicationLoggingMask = dp.propertyService.get(Props.BRS_COMMUNICATION_LOGGING_MASK)
+        sendToPeersLimit = dp.propertyService.get(P2P_SEND_TO_LIMIT)
+        usePeersDb = dp.propertyService.get(Props.P2P_USE_PEERS_DB) && !dp.propertyService.get(Props.DEV_OFFLINE)
+        savePeers = usePeersDb && dp.propertyService.get(Props.P2P_SAVE_PEERS)
+        getMorePeers = dp.propertyService.get(Props.P2P_GET_MORE_PEERS)
+        getMorePeersThreshold = dp.propertyService.get(Props.P2P_GET_MORE_PEERS_THRESHOLD)
+        dumpPeersVersion = dp.propertyService.get(Props.DEV_DUMP_PEERS_VERSION)
+
+        port = if (dp.propertyService.get(Props.DEV_TESTNET)) TESTNET_PEER_PORT else myPeerServerPort
+        if (shareMyAddress) {
+            if (useUpnp) {
+                port = dp.propertyService.get(Props.P2P_PORT)
+                val gatewayDiscover = GatewayDiscover()
+                gatewayDiscover.timeout = 2000
+                try {
+                    gatewayDiscover.discover()
+                } catch (ignored: IOException) {
+                } catch (ignored: SAXException) {
+                } catch (ignored: ParserConfigurationException) {
+                }
+
+                logger.trace("Looking for Gateway Devices")
+                if (gatewayDiscover.validGateway != null) {
+                    gateway = gatewayDiscover.validGateway
+                }
+
+                val gwDiscover = {
+                    if (this.gateway != null) {
+                        GatewayDevice.setHttpReadTimeout(2000)
+                        try {
+                            val localAddress = gateway!!.localAddress
+                            val externalIPAddress = gateway!!.externalIPAddress
+                            if (logger.isInfoEnabled) {
+                                logger.info("Attempting to map {}:{} -> {}:{} on Gateway {} ({})", externalIPAddress, port, localAddress, port, gateway!!.modelName, gateway!!.modelDescription)
+                            }
+                            val portMapping = PortMappingEntry()
+                            if (gateway!!.getSpecificPortMappingEntry(port, "TCP", portMapping)) {
+                                logger.info("Port was already mapped. Aborting test.")
+                            } else {
+                                if (gateway!!.addPortMapping(port!!, port!!, localAddress.hostAddress, "TCP", "burstcoin")) {
+                                    logger.info("UPnP Mapping successful")
+                                } else {
+                                    logger.warn("UPnP Mapping was denied!")
+                                }
+                            }
+                        } catch (e: IOException) {
+                            logger.error("Can't start UPnP", e)
+                        } catch (e: SAXException) {
+                            logger.error("Can't start UPnP", e)
+                        }
+
+                    }
+                }
+                if (this.gateway != null) {
+                    Thread(gwDiscover).start()
+                } else {
+                    logger.warn("Tried to establish UPnP, but it was denied by the network.")
+                }
+            }
+
+            peerServer = Server()
+            val connector = ServerConnector(peerServer)
+            connector.port = port
+            val host = dp.propertyService.get(Props.P2P_LISTEN)
+            connector.host = host
+            connector.idleTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_IDLE_MS).toLong()
+            connector.reuseAddress = true
+            peerServer!!.addConnector(connector)
+
+            val peerServletHolder = ServletHolder(PeerServlet(dp))
+            val isGzipEnabled = dp.propertyService.get(Props.JETTY_P2P_GZIP_FILTER)
+            peerServletHolder.setInitParameter("isGzipEnabled", isGzipEnabled.toString())
+
+            val peerHandler = ServletHandler()
+            peerHandler.addServletWithMapping(peerServletHolder, "/*")
+
+            if (dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER)) {
+                val dosFilterHolder = peerHandler.addFilterWithMapping(DoSFilter::class.java, "/*", FilterMapping.DEFAULT)
+                dosFilterHolder.setInitParameter("maxRequestsPerSec", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_REQUESTS_PER_SEC))
+                dosFilterHolder.setInitParameter("throttledRequests", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_THROTTLED_REQUESTS))
+                dosFilterHolder.setInitParameter("delayMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_DELAY_MS))
+                dosFilterHolder.setInitParameter("maxWaitMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_WAIT_MS))
+                dosFilterHolder.setInitParameter("maxRequestMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_REQUEST_MS))
+                dosFilterHolder.setInitParameter("maxthrottleMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_THROTTLE_MS))
+                dosFilterHolder.setInitParameter("maxIdleTrackerMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_IDLE_TRACKER_MS))
+                dosFilterHolder.setInitParameter("trackSessions", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_TRACK_SESSIONS))
+                dosFilterHolder.setInitParameter("insertHeaders", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_INSERT_HEADERS))
+                dosFilterHolder.setInitParameter("remotePort", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_REMOTE_PORT))
+                dosFilterHolder.setInitParameter("ipWhitelist", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_IP_WHITELIST))
+                dosFilterHolder.setInitParameter("managedAttr", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MANAGED_ATTR))
+                dosFilterHolder.isAsyncSupported = true
+            }
+
+            if (isGzipEnabled) {
+                val gzipHandler = GzipHandler()
+                gzipHandler.setIncludedMethods(dp.propertyService.get(Props.JETTY_P2P_GZIP_FILTER_METHODS))
+                gzipHandler.inflateBufferSize = dp.propertyService.get(Props.JETTY_P2P_GZIP_FILTER_BUFFER_SIZE)
+                gzipHandler.minGzipSize = dp.propertyService.get(Props.JETTY_P2P_GZIP_FILTER_MIN_GZIP_SIZE)
+                gzipHandler.setIncludedMimeTypes("text/plain")
+                gzipHandler.handler = peerHandler
+                peerServer!!.handler = gzipHandler
+            } else {
+                peerServer!!.handler = peerHandler
+            }
+            peerServer!!.stopAtShutdown = true
+            try {
+                peerServer!!.start()
+                logger.info("Started peer networking server at {}:{}", host, port)
+            } catch (e: Exception) {
+                logger.error("Failed to start peer networking server", e)
+                throw RuntimeException(e.toString(), e)
+            }
+        } else {
+            logger.info("shareMyAddress is disabled, will not start peer networking server")
+        }
+    }
+
     private val peerUnBlacklistingThread: RepeatingTask = {
         try {
             val curTime = System.currentTimeMillis()
@@ -97,6 +311,38 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
             logger.debug("Error un-blacklisting peer", e)
         }
         true
+    }
+
+    internal val loadKnownPeersTask: Task = {
+        if (wellKnownPeers.isNotEmpty()) {
+            loadPeers(wellKnownPeers)
+        }
+        if (usePeersDb) {
+            logger.debug("Loading known peers from the database...")
+            loadPeers(dp.peerDb.loadPeers())
+        }
+        lastSavedPeers = peers.size
+    }
+
+    internal val findUnresolvedPeersTask: Task = {
+        unresolvedPeersLock.withLock {
+            for (unresolvedPeer in unresolvedPeers) {
+                try {
+                    val badAddress = unresolvedPeer.get(5, TimeUnit.SECONDS)
+                    if (badAddress != null) {
+                        logger.debug("Failed to resolve peer address: {}", badAddress)
+                    }
+                } catch (e: InterruptedException) {
+                    Thread.currentThread().interrupt()
+                } catch (e: ExecutionException) {
+                    logger.debug("Failed to add peer", e)
+                } catch (ignored: TimeoutException) {
+                }
+            }
+            if (logger.isDebugEnabled) {
+                logger.debug("Known peers: {}", peers.size)
+            }
+        }
     }
 
     private val numberOfConnectedPublicPeers: Int
@@ -312,267 +558,15 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         NEW_PEER
     }
 
-    val unresolvedPeers = Collections.synchronizedList(mutableListOf<Future<String>>())
-
-    init {
-        myPlatform = dp.propertyService.get(Props.P2P_MY_PLATFORM)
-        myAddress = if (dp.propertyService.get(Props.P2P_MY_ADDRESS).isNotBlank()
-            && dp.propertyService.get(Props.P2P_MY_ADDRESS).trim { it <= ' ' }.isEmpty()
-            && gateway != null) {
-            var externalIPAddress: String? = null
-            try {
-                externalIPAddress = gateway!!.externalIPAddress
-            } catch (e: IOException) {
-                logger.info("Can't get gateways IP adress")
-            } catch (e: SAXException) {
-                logger.info("Can't get gateways IP adress")
-            }
-
-            externalIPAddress
-        } else dp.propertyService.get(Props.P2P_MY_ADDRESS)
-
-        if (myAddress != null && myAddress!!.endsWith(":$TESTNET_PEER_PORT") && !dp.propertyService.get(Props.DEV_TESTNET)) {
-            throw RuntimeException("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
-        }
-        myPeerServerPort = dp.propertyService.get(Props.P2P_PORT)
-        if (myPeerServerPort == TESTNET_PEER_PORT && !dp.propertyService.get(Props.DEV_TESTNET)) {
-            throw RuntimeException("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
-        }
-        useUpnp = dp.propertyService.get(Props.P2P_UPNP)
-        shareMyAddress = dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE)
-
-        val json = JsonObject()
-        if (myAddress != null && !myAddress!!.isEmpty()) {
-            try {
-                val uri = URI("http://" + myAddress!!.trim { it <= ' ' })
-                val host = uri.host
-                val port = uri.port
-                if (!dp.propertyService.get(Props.DEV_TESTNET)) {
-                    if (port >= 0) {
-                        json.addProperty("announcedAddress", myAddress)
-                    } else {
-                        json.addProperty("announcedAddress", host + if (myPeerServerPort != DEFAULT_PEER_PORT) ":$myPeerServerPort" else "")
-                    }
-                } else {
-                    json.addProperty("announcedAddress", host)
-                }
-            } catch (e: URISyntaxException) {
-                logger.info("Your announce address is invalid: {}", myAddress)
-                throw RuntimeException(e.toString(), e)
-            }
-
-        }
-
-        json.addProperty("application", Burst.APPLICATION)
-        json.addProperty("version", Burst.VERSION.toString())
-        json.addProperty("platform", this.myPlatform)
-        json.addProperty("shareAddress", this.shareMyAddress)
-        if (logger.isDebugEnabled) {
-            logger.debug("My peer info: {}", json.toJsonString())
-        }
-        myPeerInfoResponse = json.cloneJson()
-        json.addProperty("requestType", "getInfo")
-        myPeerInfoRequest = prepareRequest(json)
-
-
-        rebroadcastPeers = if (dp.propertyService.get(P2P_ENABLE_TX_REBROADCAST)) {
-            dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_REBROADCAST_TO else Props.P2P_REBROADCAST_TO).toSet()
-        } else {
-            emptySet()
-        }
-
-        val wellKnownPeersList = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_BOOTSTRAP_PEERS else Props.P2P_BOOTSTRAP_PEERS).toMutableSet()
-
-        for (rePeer in rebroadcastPeers) {
-            if (!wellKnownPeersList.contains(rePeer)) {
-                wellKnownPeersList.add(rePeer)
-            }
-        }
-        wellKnownPeers = if (wellKnownPeersList.isEmpty() || dp.propertyService.get(Props.DEV_OFFLINE)) {
-            emptySet()
-        } else {
-            wellKnownPeersList.toSet()
-        }
-
-        connectWellKnownFirst = dp.propertyService.get(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS)
-        connectWellKnownFinished = connectWellKnownFirst == 0
-
-        val knownBlacklistedPeersList = dp.propertyService.get(Props.P2P_BLACKLISTED_PEERS)
-        if (knownBlacklistedPeersList.isEmpty()) {
-            knownBlacklistedPeers = emptySet()
-        } else {
-            knownBlacklistedPeers = knownBlacklistedPeersList.toSet()
-        }
-
-        maxNumberOfConnectedPublicPeers = dp.propertyService.get(Props.P2P_MAX_CONNECTIONS)
-        connectTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_CONNECT_MS)
-        readTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_READ_MS)
-
-        blacklistingPeriod = dp.propertyService.get(Props.P2P_BLACKLISTING_TIME_MS)
-        communicationLoggingMask = dp.propertyService.get(Props.BRS_COMMUNICATION_LOGGING_MASK)
-        sendToPeersLimit = dp.propertyService.get(P2P_SEND_TO_LIMIT)
-        usePeersDb = dp.propertyService.get(Props.P2P_USE_PEERS_DB) && !dp.propertyService.get(Props.DEV_OFFLINE)
-        savePeers = usePeersDb && dp.propertyService.get(Props.P2P_SAVE_PEERS)
-        getMorePeers = dp.propertyService.get(Props.P2P_GET_MORE_PEERS)
-        getMorePeersThreshold = dp.propertyService.get(Props.P2P_GET_MORE_PEERS_THRESHOLD)
-        dumpPeersVersion = dp.propertyService.get(Props.DEV_DUMP_PEERS_VERSION)
-
-        dp.taskScheduler.runBeforeStart {
-            if (wellKnownPeers.isNotEmpty()) {
-                loadPeers(wellKnownPeers)
-            }
-            if (usePeersDb) {
-                logger.debug("Loading known peers from the database...")
-                loadPeers(dp.peerDb.loadPeers())
-            }
-            lastSavedPeers = peers.size
-        }
-
-        dp.taskScheduler.runAfterStart {
-            for (unresolvedPeer in unresolvedPeers) {
-                try {
-                    val badAddress = unresolvedPeer.get(5, TimeUnit.SECONDS)
-                    if (badAddress != null) {
-                        logger.debug("Failed to resolve peer address: {}", badAddress)
-                    }
-                } catch (e: InterruptedException) {
-                    Thread.currentThread().interrupt()
-                } catch (e: ExecutionException) {
-                    logger.debug("Failed to add peer", e)
-                } catch (ignored: TimeoutException) {
-                }
-            }
-            if (logger.isDebugEnabled) {
-                logger.debug("Known peers: {}", peers.size)
-            }
-        }
-
-        port = if (dp.propertyService.get(Props.DEV_TESTNET)) TESTNET_PEER_PORT else myPeerServerPort
-        if (shareMyAddress) {
-            if (useUpnp) {
-                port = dp.propertyService.get(Props.P2P_PORT)
-                val gatewayDiscover = GatewayDiscover()
-                gatewayDiscover.timeout = 2000
-                try {
-                    gatewayDiscover.discover()
-                } catch (ignored: IOException) {
-                } catch (ignored: SAXException) {
-                } catch (ignored: ParserConfigurationException) {
-                }
-
-                logger.trace("Looking for Gateway Devices")
-                if (gatewayDiscover.validGateway != null) {
-                    gateway = gatewayDiscover.validGateway
-                }
-
-                val gwDiscover = {
-                    if (this.gateway != null) {
-                        GatewayDevice.setHttpReadTimeout(2000)
-                        try {
-                            val localAddress = gateway!!.localAddress
-                            val externalIPAddress = gateway!!.externalIPAddress
-                            if (logger.isInfoEnabled) {
-                                logger.info("Attempting to map {}:{} -> {}:{} on Gateway {} ({})", externalIPAddress, port, localAddress, port, gateway!!.modelName, gateway!!.modelDescription)
-                            }
-                            val portMapping = PortMappingEntry()
-                            if (gateway!!.getSpecificPortMappingEntry(port, "TCP", portMapping)) {
-                                logger.info("Port was already mapped. Aborting test.")
-                            } else {
-                                if (gateway!!.addPortMapping(port!!, port!!, localAddress.hostAddress, "TCP", "burstcoin")) {
-                                    logger.info("UPnP Mapping successful")
-                                } else {
-                                    logger.warn("UPnP Mapping was denied!")
-                                }
-                            }
-                        } catch (e: IOException) {
-                            logger.error("Can't start UPnP", e)
-                        } catch (e: SAXException) {
-                            logger.error("Can't start UPnP", e)
-                        }
-
-                    }
-                }
-                if (this.gateway != null) {
-                    Thread(gwDiscover).start()
-                } else {
-                    logger.warn("Tried to establish UPnP, but it was denied by the network.")
-                }
-            }
-
-            peerServer = Server()
-            val connector = ServerConnector(peerServer)
-            connector.port = port
-            val host = dp.propertyService.get(Props.P2P_LISTEN)
-            connector.host = host
-            connector.idleTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_IDLE_MS).toLong()
-            connector.reuseAddress = true
-            peerServer!!.addConnector(connector)
-
-            val peerServletHolder = ServletHolder(PeerServlet(dp))
-            val isGzipEnabled = dp.propertyService.get(Props.JETTY_P2P_GZIP_FILTER)
-            peerServletHolder.setInitParameter("isGzipEnabled", isGzipEnabled.toString())
-
-            val peerHandler = ServletHandler()
-            peerHandler.addServletWithMapping(peerServletHolder, "/*")
-
-            if (dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER)) {
-                val dosFilterHolder = peerHandler.addFilterWithMapping(DoSFilter::class.java, "/*", FilterMapping.DEFAULT)
-                dosFilterHolder.setInitParameter("maxRequestsPerSec", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_REQUESTS_PER_SEC))
-                dosFilterHolder.setInitParameter("throttledRequests", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_THROTTLED_REQUESTS))
-                dosFilterHolder.setInitParameter("delayMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_DELAY_MS))
-                dosFilterHolder.setInitParameter("maxWaitMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_WAIT_MS))
-                dosFilterHolder.setInitParameter("maxRequestMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_REQUEST_MS))
-                dosFilterHolder.setInitParameter("maxthrottleMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_THROTTLE_MS))
-                dosFilterHolder.setInitParameter("maxIdleTrackerMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_IDLE_TRACKER_MS))
-                dosFilterHolder.setInitParameter("trackSessions", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_TRACK_SESSIONS))
-                dosFilterHolder.setInitParameter("insertHeaders", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_INSERT_HEADERS))
-                dosFilterHolder.setInitParameter("remotePort", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_REMOTE_PORT))
-                dosFilterHolder.setInitParameter("ipWhitelist", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_IP_WHITELIST))
-                dosFilterHolder.setInitParameter("managedAttr", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MANAGED_ATTR))
-                dosFilterHolder.isAsyncSupported = true
-            }
-
-            if (isGzipEnabled) {
-                val gzipHandler = GzipHandler()
-                gzipHandler.setIncludedMethods(dp.propertyService.get(Props.JETTY_P2P_GZIP_FILTER_METHODS))
-                gzipHandler.inflateBufferSize = dp.propertyService.get(Props.JETTY_P2P_GZIP_FILTER_BUFFER_SIZE)
-                gzipHandler.minGzipSize = dp.propertyService.get(Props.JETTY_P2P_GZIP_FILTER_MIN_GZIP_SIZE)
-                gzipHandler.setIncludedMimeTypes("text/plain")
-                gzipHandler.handler = peerHandler
-                peerServer!!.handler = gzipHandler
-            } else {
-                peerServer!!.handler = peerHandler
-            }
-            peerServer!!.stopAtShutdown = true
-            dp.taskScheduler.runBeforeStart {
-                try {
-                    peerServer!!.start()
-                    logger.info("Started peer networking server at {}:{}", host, port)
-                } catch (e: Exception) {
-                    logger.error("Failed to start peer networking server", e)
-                    throw RuntimeException(e.toString(), e)
-                }
-            }
-        } else {
-            logger.info("shareMyAddress is disabled, will not start peer networking server")
-        }
-
-        if (!dp.propertyService.get(Props.DEV_OFFLINE)) {
-            dp.taskScheduler.scheduleTask(this.peerConnectingThread)
-            dp.taskScheduler.scheduleTask(this.peerUnBlacklistingThread)
-            if (getMorePeers) {
-                dp.taskScheduler.scheduleTask(this.getMorePeersThread)
-            }
-        }
-    }
-
-    private fun loadPeers(addresses: Collection<String>) {
+    private suspend fun loadPeers(addresses: Collection<String>) {
         for (address in addresses) {
             val unresolvedAddress = sendBlocksToPeersService.submit<String> {
                 val peer = addPeer(address)
                 if (peer == null) address else null
             }
-            unresolvedPeers.add(unresolvedAddress)
+            unresolvedPeersLock.withLock {
+                unresolvedPeers.add(unresolvedAddress)
+            }
         }
     }
 
@@ -886,5 +880,22 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         internal const val LOGGING_MASK_200_RESPONSES = 4
         internal const val DEFAULT_PEER_PORT = 8123
         internal const val TESTNET_PEER_PORT = 7123
+        
+        suspend fun new(dp: DependencyProvider): Peers {
+            val peers = Peers(dp)
+
+            dp.taskScheduler.runBeforeStart(peers.loadKnownPeersTask)
+            dp.taskScheduler.runAfterStart(peers.findUnresolvedPeersTask)
+            
+            if (!dp.propertyService.get(Props.DEV_OFFLINE)) {
+                dp.taskScheduler.scheduleTask(peers.peerConnectingThread)
+                dp.taskScheduler.scheduleTask(peers.peerUnBlacklistingThread)
+                if (peers.getMorePeers) {
+                    dp.taskScheduler.scheduleTask(peers.getMorePeersThread)
+                }
+            }
+            
+            return peers
+        }
     }
 }

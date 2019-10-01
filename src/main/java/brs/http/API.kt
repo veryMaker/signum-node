@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 class API(dp: DependencyProvider) {
-
     private val apiServer: Server?
 
     init {
@@ -148,16 +147,12 @@ class API(dp: DependencyProvider) {
             apiServer.handler = apiHandlers
             apiServer.stopAtShutdown = true
 
-            dp.taskScheduler.runBeforeStart {
-                try {
-                    apiServer.start()
-                    logger.info("Started API server at {}:{}", host, port)
-                } catch (e: Exception) {
-                    logger.error("Failed to start API server", e)
-                    throw RuntimeException(e.toString(), e)
-                }
+            try {
+                apiServer.start()
+                logger.info("Started API server at {}:{}", host, port)
+            } catch (e: Exception) {
+                logger.error("Failed to start API server", e)
             }
-
         } else {
             apiServer = null
             logger.info("API server not enabled")
