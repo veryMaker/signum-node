@@ -15,13 +15,12 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
-import kotlin.system.exitProcess
 
 class TransactionProcessorImpl(private val dp: DependencyProvider) : TransactionProcessor {
 
     private val testUnconfirmedTransactions = dp.propertyService.get(Props.BRS_TEST_UNCONFIRMED_TRANSACTIONS)
 
-    private val unconfirmedTransactionsSyncObj = Any()
+    private val unconfirmedTransactionsSyncObj = Any() // TODO too much depends on this. And it should be a mutex.
     private val transactionListeners = Listeners<Collection<Transaction>, TransactionProcessor.Event>()
     private val foodDispenser: (Peer) -> Collection<Transaction> = { dp.unconfirmedTransactionStore.getAllFor(it) }
     private val doneFeedingLog: (Peer, Collection<Transaction>) -> Unit = { peer, transactions -> dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions) }
@@ -34,17 +33,18 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
 
     init {
         val getUnconfirmedTransactions: RepeatingTask = {
-            try {
+            run {
                 try {
-                    synchronized(unconfirmedTransactionsSyncObj) {
-                        val peer = dp.peers.getAnyPeer(Peer.State.CONNECTED) ?: return@synchronized
-                        val response = dp.peers.readUnconfirmedTransactionsNonBlocking(peer).get() ?: return@synchronized
-                        val transactionsData = JSON.getAsJsonArray(response!!.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
-                        if (transactionsData.isEmpty()) return@synchronized
+                    println("GetUnconfirmedTransactions locked sync obj")
+                    val peer = dp.peers.getAnyPeer(Peer.State.CONNECTED) ?: return@run
+                    val response = dp.peers.readUnconfirmedTransactionsNonBlocking(peer).get() ?: return@run
+                    val transactionsData = JSON.getAsJsonArray(response!!.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
+                    if (transactionsData.isEmpty()) return@run
+                    dp.peers.feedingTime(peer, foodDispenser, doneFeedingLog)
 
+                    synchronized(unconfirmedTransactionsSyncObj) { // TODO check whether sync is necessary
                         try {
                             val addedTransactions = processPeerTransactions(transactionsData, peer)
-                            dp.peers.feedingTime(peer, foodDispenser, doneFeedingLog)
 
                             if (addedTransactions.isNotEmpty()) {
                                 val activePrioPlusExtra = dp.peers.allActivePriorityPlusSomeExtraPeers
@@ -69,7 +69,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                                     expectedResults.add(unconfirmedTransactionsResult)
                                 }
 
-                                CompletableFuture.allOf(*expectedResults.toTypedArray()).join()
+                                CompletableFuture.allOf(*expectedResults.toTypedArray()).join() // TODO don't use CompletableFuture
                             }
                         } catch (e: ValidationException) {
                             peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
@@ -81,14 +81,10 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                 } catch (e: Exception) {
                     logger.debug("Error processing unconfirmed transactions", e)
                 }
-
-            } catch (t: Exception) {
-                logger.info("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n$t", t)
-                exitProcess(1)
             }
-            true
+            false // Always false so as to not lock up other tasks, as this task is very low priority
         }
-        dp.taskScheduler.scheduleTask(getUnconfirmedTransactions)
+        dp.taskScheduler.scheduleTask(task = getUnconfirmedTransactions)
     }
 
     override fun addListener(listener: (Collection<Transaction>) -> Unit, eventType: TransactionProcessor.Event): Boolean {
@@ -104,7 +100,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
     }
 
     override fun getUnconfirmedTransactionsSyncObj(): Any {
-        return unconfirmedTransactionsSyncObj
+        return unconfirmedTransactionsSyncObj // TODO make a val, not a fun
     }
 
     override fun getAllUnconfirmedTransactionsFor(peer: Peer): Collection<Transaction> {
@@ -179,6 +175,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
 
     override fun clearUnconfirmedTransactions() {
         synchronized(unconfirmedTransactionsSyncObj) {
+            println("ClearUnconfirmedTransactions locked sync obj")
             val removed: List<Transaction>
             try {
                 Db.beginTransaction()
@@ -200,6 +197,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
 
     override fun requeueAllUnconfirmedTransactions() {
         synchronized(unconfirmedTransactionsSyncObj) {
+            println("RequeueUnconfirmed locked sync obj")
             dp.unconfirmedTransactionStore.resetAccountBalances()
         }
     }
@@ -247,6 +245,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
 
     private fun processTransactions(transactions: Collection<Transaction>, peer: Peer?): Collection<Transaction> {
         synchronized(unconfirmedTransactionsSyncObj) {
+            println("ProcessTransactions locked sync obj")
             if (transactions.isEmpty()) {
                 return emptyList()
             }

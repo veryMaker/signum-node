@@ -295,40 +295,44 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             }
         }
 
-        dp.taskScheduler.scheduleTask(getMoreBlocksTask) // TODO somehow parallelize this task
+        dp.taskScheduler.scheduleTask(task = getMoreBlocksTask) // TODO somehow parallelize this task
         /* this should fetch first block in cache */
         //resetting cache because we have blocks that cannot be processed.
         //pushblock removes the block from cache.
         val blockImporterTask: RepeatingTask = {
-            try {
-                val lastBlock = dp.blockchain.lastBlock
-                val lastId = lastBlock.id
-                val currentBlock = dp.downloadCache.getNextBlock(lastId) /* this should fetch first block in cache */
-                if (currentBlock == null || currentBlock.height != lastBlock.height + 1) {
-                    if (logger.isDebugEnabled) {
-                        logger.debug("cache is reset due to orphaned block(s). CacheSize: {}", dp.downloadCache.size())
-                    }
-                    dp.downloadCache.resetCache() //resetting cache because we have blocks that cannot be processed.
-                    false
-                } else {
-                    try {
-                        if (!currentBlock.isVerified) {
-                            dp.downloadCache.removeUnverified(currentBlock.id)
-                            dp.blockService.preVerify(currentBlock)
-                            logger.debug("block was not preverified")
-                        }
-                        pushBlock(currentBlock) //pushblock removes the block from cache.
-                        true
-                    } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
-                        logger.error("Block not accepted", e)
-                        blacklistClean(currentBlock, e, "found invalid pull/push data during importing the block")
-                        autoPopOff(currentBlock.height)
-                        false
-                    }
-                }
-            } catch (exception: Exception) {
-                logger.error("Uncaught exception in blockImporterThread", exception)
+            if (dp.downloadCache.size() == 0) {
                 false
+            } else {
+                try {
+                    val lastBlock = dp.blockchain.lastBlock
+                    val lastId = lastBlock.id
+                    val currentBlock = dp.downloadCache.getNextBlock(lastId) /* this should fetch first block in cache */
+                    if (currentBlock == null || currentBlock.height != lastBlock.height + 1) {
+                        if (logger.isDebugEnabled) {
+                            logger.debug("cache is reset due to orphaned block(s). CacheSize: {}", dp.downloadCache.size())
+                        }
+                        dp.downloadCache.resetCache() //resetting cache because we have blocks that cannot be processed.
+                        false
+                    } else {
+                        try {
+                            if (!currentBlock.isVerified) {
+                                dp.downloadCache.removeUnverified(currentBlock.id)
+                                dp.blockService.preVerify(currentBlock)
+                                logger.debug("block was not preverified")
+                            }
+                            pushBlock(currentBlock) //pushblock removes the block from cache.
+                            true
+                        } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
+                            logger.error("Block not accepted", e)
+                            blacklistClean(currentBlock, e, "found invalid pull/push data during importing the block")
+                            autoPopOff(currentBlock.height)
+                            false
+                        }
+                    }
+                } catch (exception: Exception) {
+                    logger.error("Uncaught exception in blockImporterThread", exception)
+                    false
+                }
             }
         }
         dp.taskScheduler.scheduleTask(blockImporterTask)
@@ -368,16 +372,9 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                         dp.downloadCache.removeUnverifiedBatch(blocks)
                     } catch (e: OCLPoC.PreValidateFailException) {
                         logger.info(e.toString(), e)
-                        blacklistClean(
-                            e.block,
-                            e,
-                            "found invalid pull/push data during processing the pocVerification"
-                        )
+                        blacklistClean(e.block, e, "found invalid pull/push data during processing the pocVerification")
                     } catch (e: OCLPoC.OCLCheckerException) {
-                        logger.info(
-                            "Open CL error. slow verify will occur for the next $oclUnverifiedQueue Blocks",
-                            e
-                        )
+                        logger.info("Open CL error. slow verify will occur for the next $oclUnverifiedQueue Blocks", e)
                     } catch (e: Exception) {
                         logger.info("Unspecified Open CL error: ", e)
                     } finally {
@@ -507,7 +504,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
     private suspend fun processFork(peer: Peer?, forkBlocks: List<Block>, forkBlockId: Long) {
         logger.warn("A fork is detected. Waiting for cache to be processed.")
         dp.downloadCache.lockCache() //dont let anything add to cache!
-        while (dp.downloadCache.size() != 0) delay(1000)
+        while (dp.downloadCache.size() != 0) delay(1000) // TODO don't do this...
         synchronized(dp.downloadCache) {
             synchronized(dp.transactionProcessor.getUnconfirmedTransactionsSyncObj()) {
                 logger.warn("Cache is now processed. Starting to process fork.")
@@ -592,6 +589,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             return
         }
         synchronized(dp.transactionProcessor.getUnconfirmedTransactionsSyncObj()) {
+            println("Auto Pop Off locked sync obj")
             logger.warn("Auto popping off as failed to push block")
             if (height != autoPopOffLastStuckHeight) {
                 autoPopOffLastStuckHeight = height
@@ -676,16 +674,14 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         synchronized(dp.transactionProcessor.getUnconfirmedTransactionsSyncObj()) {
             Db.beginTransaction()
             val curTime = dp.timeService.epochTime
-
-            var previousLastBlock: Block? = null
+            var lastBlock: Block? = null
             try {
+                lastBlock = dp.blockchain.lastBlock
 
-                previousLastBlock = dp.blockchain.lastBlock
-
-                if (previousLastBlock.id != block.previousBlockId) {
+                if (lastBlock.id != block.previousBlockId) {
                     throw BlockchainProcessor.BlockOutOfOrderException(
                             "Previous block id doesn't match for block " + block.height
-                                    + if (previousLastBlock.height + 1 == block.height) "" else " invalid previous height " + previousLastBlock.height
+                                    + if (lastBlock.height + 1 == block.height) "" else " invalid previous height " + lastBlock.height
                     )
                 }
 
@@ -693,14 +689,14 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     throw BlockchainProcessor.BlockNotAcceptedException("Invalid version " + block.version + " for block " + block.height)
                 }
 
-                if (block.version != 1 && !Arrays.equals(Crypto.sha256().digest(previousLastBlock.bytes),
+                if (block.version != 1 && !Arrays.equals(Crypto.sha256().digest(lastBlock.bytes),
                                 block.previousBlockHash)) {
                     throw BlockchainProcessor.BlockNotAcceptedException("Previous block hash doesn't match for block " + block.height)
                 }
-                if (block.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE || block.timestamp <= previousLastBlock.timestamp) {
+                if (block.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE || block.timestamp <= lastBlock.timestamp) {
                     throw BlockchainProcessor.BlockOutOfOrderException("Invalid timestamp: " + block.timestamp
                             + " current time is " + curTime
-                            + ", previous block timestamp is " + previousLastBlock.timestamp)
+                            + ", previous block timestamp is " + lastBlock.timestamp)
                 }
                 if (block.id == 0L || dp.blockDb.hasBlock(block.id)) {
                     throw BlockchainProcessor.BlockNotAcceptedException("Duplicate block or invalid id for block " + block.height)
@@ -741,20 +737,20 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                                 + transaction.referencedTransactionFullHash + " for transaction "
                                 + transaction.stringId, transaction)
                     }
-                    if (transaction.version.toInt() != dp.transactionProcessor.getTransactionVersion(previousLastBlock.height)) {
+                    if (transaction.version.toInt() != dp.transactionProcessor.getTransactionVersion(lastBlock.height)) {
                         throw BlockchainProcessor.TransactionNotAcceptedException("Invalid transaction version "
-                                + transaction.version + " at height " + previousLastBlock.height,
+                                + transaction.version + " at height " + lastBlock.height,
                                 transaction)
                     }
 
                     if (!dp.transactionService.verifyPublicKey(transaction)) {
                         throw BlockchainProcessor.TransactionNotAcceptedException("Wrong public key in transaction "
-                                + transaction.stringId + " at height " + previousLastBlock.height,
+                                + transaction.stringId + " at height " + lastBlock.height,
                                 transaction)
                     }
                     if (dp.fluxCapacitor.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) && !dp.economicClustering.verifyFork(transaction)) {
                         if (logger.isDebugEnabled) {
-                            logger.debug("Block {} height {} contains transaction that was generated on a fork: {} ecBlockId {} ecBlockHeight {}", block.stringId, previousLastBlock.height + 1, transaction.stringId, transaction.ecBlockHeight, transaction.ecBlockId.toUnsignedString())
+                            logger.debug("Block {} height {} contains transaction that was generated on a fork: {} ecBlockId {} ecBlockHeight {}", block.stringId, lastBlock.height + 1, transaction.stringId, transaction.ecBlockHeight, transaction.ecBlockId.toUnsignedString())
                         }
                         throw BlockchainProcessor.TransactionNotAcceptedException("Transaction belongs to a different fork",
                                 transaction)
@@ -801,7 +797,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 val remainingAmount = Convert.safeSubtract(block.totalAmountNQT, calculatedTotalAmount)
                 val remainingFee = Convert.safeSubtract(block.totalFeeNQT, calculatedTotalFee)
 
-                dp.blockService.setPrevious(block, previousLastBlock)
+                dp.blockService.setPrevious(block, lastBlock)
                 blockListeners.accept(block, BlockchainProcessor.Event.BEFORE_BLOCK_ACCEPT)
                 dp.transactionProcessor.removeForgedTransactions(block.transactions)
                 dp.transactionProcessor.requeueAllUnconfirmedTransactions()
@@ -813,15 +809,15 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 Db.commitTransaction()
             } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
                 Db.rollbackTransaction()
-                if (previousLastBlock != null) {
-                    dp.blockchain.lastBlock = previousLastBlock
+                if (lastBlock != null) {
+                    dp.blockchain.lastBlock = lastBlock
                 }
                 dp.downloadCache.resetCache()
                 throw e
             } catch (e: ArithmeticException) {
                 Db.rollbackTransaction()
-                if (previousLastBlock != null) {
-                    dp.blockchain.lastBlock = previousLastBlock
+                if (lastBlock != null) {
+                    dp.blockchain.lastBlock = lastBlock
                 }
                 dp.downloadCache.resetCache()
                 throw e

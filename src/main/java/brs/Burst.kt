@@ -17,7 +17,7 @@ import brs.props.PropertyServiceImpl
 import brs.props.Props
 import brs.services.impl.*
 import brs.statistics.StatisticsManagerImpl
-import brs.taskScheduler.TaskSchedulerImpl
+import brs.taskScheduler.RxJavaTaskScheduler
 import brs.transaction.TransactionType
 import brs.unconfirmedtransactions.UnconfirmedTransactionStoreImpl
 import brs.util.DownloadCacheImpl
@@ -45,7 +45,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
         try {
             val startTime = System.currentTimeMillis()
             Constants.init(dp)
-            dp.taskScheduler = TaskSchedulerImpl(dp)
+            dp.taskScheduler = RxJavaTaskScheduler(dp)
             dp.atApiPlatformImpl = AtApiPlatformImpl(dp)
             dp.atApiController = AtApiController(dp)
             dp.atController = AtController(dp)

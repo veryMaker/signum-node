@@ -154,14 +154,12 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
                      * Peers should never be removed if total peers are below our target to prevent total erase of peers
                      * if we loose Internet connection
                      */
-
                     if (!peer.isHigherOrEqualVersionThan(MIN_VERSION) || peer.state != Peer.State.CONNECTED && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers) {
                         removePeer(peer)
                     } else {
                         numConnectedPeers++
                     }
                 }
-
                 delay(1000)
             }
 
@@ -765,7 +763,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         getUnconfirmedTransactionsRequest = prepareRequest(request)
     }
 
-    fun readUnconfirmedTransactionsNonBlocking(peer: Peer): CompletableFuture<JsonObject?> {
+    fun readUnconfirmedTransactionsNonBlocking(peer: Peer): CompletableFuture<JsonObject?> { // TODO use suspend or await
         // TODO replace CompletableFuture calls
         return CompletableFuture.supplyAsync(Supplier { peer.send(getUnconfirmedTransactionsRequest) }, utReceivingService)
     }
