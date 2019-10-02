@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class IssueAsset internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, QUANTITY_QNT_PARAMETER, DECIMALS_PARAMETER) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
         var name: String? = request.getParameter(NAME_PARAMETER)
         val description = request.getParameter(DESCRIPTION_PARAMETER)

@@ -9,7 +9,7 @@ import brs.grpc.proto.ProtoBuilder
 
 class GetAssetTradesHandler(private val assetExchange: AssetExchange) : GrpcApiHandler<BrsApi.GetAssetTransfersRequest, BrsApi.AssetTrades> {
 
-    override fun handleRequest(request: BrsApi.GetAssetTransfersRequest): BrsApi.AssetTrades {
+    override suspend fun handleRequest(request: BrsApi.GetAssetTransfersRequest): BrsApi.AssetTrades {
         val accountId = request.account
         val assetId = request.asset
         val indexRange = ProtoBuilder.sanitizeIndexRange(request.indexRange)

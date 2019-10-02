@@ -8,13 +8,9 @@ import brs.DigitalGoodsStore.Purchase
 import brs.Transaction
 
 interface DGSGoodsStoreService { // TODO Redundant name!
-    fun addGoodsListener(listener: (Goods) -> Unit, eventType: Event): Boolean
+    suspend fun addGoodsListener(listener: suspend (Goods) -> Unit, eventType: Event)
 
-    fun removeGoodsListener(listener: (Goods) -> Unit, eventType: Event): Boolean
-
-    fun addPurchaseListener(listener: (Purchase) -> Unit, eventType: Event): Boolean
-
-    fun removePurchaseListener(listener: (Purchase) -> Unit, eventType: Event): Boolean
+    suspend fun addPurchaseListener(listener: suspend (Purchase) -> Unit, eventType: Event)
 
     fun getGoods(goodsId: Long): Goods?
 
@@ -36,25 +32,25 @@ interface DGSGoodsStoreService { // TODO Redundant name!
 
     fun getPurchase(purchaseId: Long): Purchase?
 
-    fun changeQuantity(goodsId: Long, deltaQuantity: Int, allowDelisted: Boolean)
+    suspend fun changeQuantity(goodsId: Long, deltaQuantity: Int, allowDelisted: Boolean)
 
-    fun purchase(transaction: Transaction, attachment: Attachment.DigitalGoodsPurchase)
+    suspend fun purchase(transaction: Transaction, attachment: Attachment.DigitalGoodsPurchase)
 
-    fun addPurchase(transaction: Transaction, attachment: Attachment.DigitalGoodsPurchase, sellerId: Long)
+    suspend fun addPurchase(transaction: Transaction, attachment: Attachment.DigitalGoodsPurchase, sellerId: Long)
 
-    fun listGoods(transaction: Transaction, attachment: Attachment.DigitalGoodsListing)
+    suspend fun listGoods(transaction: Transaction, attachment: Attachment.DigitalGoodsListing)
 
-    fun delistGoods(goodsId: Long)
+    suspend fun delistGoods(goodsId: Long)
 
-    fun feedback(purchaseId: Long, encryptedMessage: Appendix.EncryptedMessage?, message: Appendix.Message?)
+    suspend fun feedback(purchaseId: Long, encryptedMessage: Appendix.EncryptedMessage?, message: Appendix.Message?)
 
-    fun refund(sellerId: Long, purchaseId: Long, refundNQT: Long, encryptedMessage: Appendix.EncryptedMessage?)
+    suspend fun refund(sellerId: Long, purchaseId: Long, refundNQT: Long, encryptedMessage: Appendix.EncryptedMessage?)
 
     fun getExpiredPendingPurchases(timestamp: Int): Collection<Purchase>
 
-    fun changePrice(goodsId: Long, priceNQT: Long)
+    suspend fun changePrice(goodsId: Long, priceNQT: Long)
 
-    fun deliver(transaction: Transaction, attachment: Attachment.DigitalGoodsDelivery)
+    suspend fun deliver(transaction: Transaction, attachment: Attachment.DigitalGoodsDelivery)
 
     fun getPendingPurchase(purchaseId: Long): Purchase?
 

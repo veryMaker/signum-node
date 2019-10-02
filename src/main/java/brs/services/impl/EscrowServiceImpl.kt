@@ -124,7 +124,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
         return ESCROW.DEADLINE.lt(timestamp)
     }
 
-    override fun updateOnBlock(block: Block, blockchainHeight: Int) {
+    override suspend fun updateOnBlock(block: Block, blockchainHeight: Int) {
         resultTransactions.clear()
 
         escrowTable.getManyBy(getUpdateOnBlockClause(block.timestamp), 0, -1).forEach { escrow -> updatedEscrowIds.add(escrow.id) }
@@ -150,7 +150,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
     }
 
     @Synchronized
-    override fun doPayout(result: DecisionType, block: Block, blockchainHeight: Int, escrow: Escrow) {
+    override suspend fun doPayout(result: DecisionType, block: Block, blockchainHeight: Int, escrow: Escrow) {
         when (result) {
             Escrow.DecisionType.RELEASE -> {
                 dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(escrow.recipientId!!)!!, escrow.amountNQT!!)

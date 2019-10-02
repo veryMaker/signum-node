@@ -72,52 +72,6 @@ class AT : AtMachineState {
         return nextHeight
     }
 
-    class HandleATBlockTransactionsListener(private val dp: DependencyProvider) : (Block) -> Unit {
-        override fun invoke(block: Block) {
-            pendingFees.forEach { (key, value) ->
-                val atAccount = dp.accountService.getAccount(key)!!
-                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(atAccount, -value)
-            }
-
-            val transactions = mutableListOf<Transaction>()
-            for (atTransaction in pendingTransactions) {
-                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(AtApiHelper.getLong(atTransaction.senderId))!!, -atTransaction.amount)
-                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.recipientId)), atTransaction.amount!!)
-
-                val builder = Transaction.Builder(dp, 1.toByte(), Genesis.creatorPublicKey,
-                        atTransaction.amount!!, 0L, block.timestamp, 1440.toShort(), Attachment.AtPayment(dp))
-
-                builder.senderId(AtApiHelper.getLong(atTransaction.senderId))
-                        .recipientId(AtApiHelper.getLong(atTransaction.recipientId))
-                        .blockId(block.id)
-                        .height(block.height)
-                        .blockTimestamp(block.timestamp)
-                        .ecBlockHeight(0)
-                        .ecBlockId(0L)
-
-                val message = atTransaction.message
-                if (message != null) {
-                    builder.message(Appendix.Message(dp, message, dp.blockchain.height))
-                }
-
-                try {
-                    val transaction = builder.build()
-                    if (!dp.transactionDb.hasTransaction(transaction.id)) {
-                        transactions.add(transaction)
-                    }
-                } catch (e: BurstException.NotValidException) {
-                    throw RuntimeException("Failed to construct AT payment transaction", e)
-                }
-
-            }
-
-            if (!transactions.isEmpty()) {
-                // WATCH: Replace after transactions are converted!
-                dp.transactionDb.saveTransactions(transactions)
-            }
-        }
-    }
-
     open class ATState(dp: DependencyProvider, val atId: Long, var state: ByteArray, var nextHeight: Int, var sleepBetween: Int, var prevBalance: Long, var freezeWhenSameBalance: Boolean, var minActivationAmount: Long) {
         val dbKey = atStateDbKeyFactory(dp).newKey(this.atId)
         var prevHeight: Int = 0
@@ -251,6 +205,50 @@ class AT : AtMachineState {
                 }
             } catch (e: IOException) {
                 throw RuntimeException(e.message, e)
+            }
+        }
+
+        fun handleATBlockTransactionsListener(dp: DependencyProvider): suspend (Block) -> Unit = { block ->
+            pendingFees.forEach { (key, value) ->
+                val atAccount = dp.accountService.getAccount(key)!!
+                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(atAccount, -value)
+            }
+
+            val transactions = mutableListOf<Transaction>()
+            for (atTransaction in pendingTransactions) {
+                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(AtApiHelper.getLong(atTransaction.senderId))!!, -atTransaction.amount)
+                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.recipientId)), atTransaction.amount!!)
+
+                val builder = Transaction.Builder(dp, 1.toByte(), Genesis.creatorPublicKey,
+                    atTransaction.amount, 0L, block.timestamp, 1440.toShort(), Attachment.AtPayment(dp))
+
+                builder.senderId(AtApiHelper.getLong(atTransaction.senderId))
+                    .recipientId(AtApiHelper.getLong(atTransaction.recipientId))
+                    .blockId(block.id)
+                    .height(block.height)
+                    .blockTimestamp(block.timestamp)
+                    .ecBlockHeight(0)
+                    .ecBlockId(0L)
+
+                val message = atTransaction.message
+                if (message != null) {
+                    builder.message(Appendix.Message(dp, message, dp.blockchain.height))
+                }
+
+                try {
+                    val transaction = builder.build()
+                    if (!dp.transactionDb.hasTransaction(transaction.id)) {
+                        transactions.add(transaction)
+                    }
+                } catch (e: BurstException.NotValidException) {
+                    throw RuntimeException("Failed to construct AT payment transaction", e)
+                }
+
+            }
+
+            if (transactions.isNotEmpty()) {
+                // WATCH: Replace after transactions are converted!
+                dp.transactionDb.saveTransactions(transactions)
             }
         }
     }

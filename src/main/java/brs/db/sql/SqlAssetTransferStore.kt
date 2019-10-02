@@ -8,7 +8,7 @@ import brs.schema.Tables.ASSET_TRANSFER
 import org.jooq.DSLContext
 import org.jooq.Record
 
-class SqlAssetTransferStore(dp: DependencyProvider) : AssetTransferStore {
+class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferStore {
     override val assetTransferTable: EntitySqlTable<AssetTransfer>
     override val transferDbKeyFactory = TransferDbKeyFactory
 
@@ -25,7 +25,7 @@ class SqlAssetTransferStore(dp: DependencyProvider) : AssetTransferStore {
     }
 
     private fun saveAssetTransfer(assetTransfer: AssetTransfer) {
-        Db.useDSLContext { ctx ->
+        dp.db.useDslContext { ctx ->
             ctx.insertInto(ASSET_TRANSFER, ASSET_TRANSFER.ID, ASSET_TRANSFER.ASSET_ID, ASSET_TRANSFER.SENDER_ID, ASSET_TRANSFER.RECIPIENT_ID, ASSET_TRANSFER.QUANTITY, ASSET_TRANSFER.TIMESTAMP, ASSET_TRANSFER.HEIGHT)
                     .values(assetTransfer.id, assetTransfer.assetId, assetTransfer.senderId, assetTransfer.recipientId, assetTransfer.quantityQNT, assetTransfer.timestamp, assetTransfer.height)
                     .execute()
@@ -37,7 +37,7 @@ class SqlAssetTransferStore(dp: DependencyProvider) : AssetTransferStore {
     }
 
     override fun getAccountAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer> {
-        return Db.useDSLContext<Collection<AssetTransfer>> { ctx ->
+        return dp.db.useDslContext<Collection<AssetTransfer>> { ctx ->
             val selectQuery = ctx
                     .selectFrom(ASSET_TRANSFER).where(
                             ASSET_TRANSFER.SENDER_ID.eq(accountId)
@@ -56,7 +56,7 @@ class SqlAssetTransferStore(dp: DependencyProvider) : AssetTransferStore {
     }
 
     override fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
-        return Db.useDSLContext<Collection<AssetTransfer>> { ctx ->
+        return dp.db.useDslContext<Collection<AssetTransfer>> { ctx ->
             val selectQuery = ctx
                     .selectFrom(ASSET_TRANSFER).where(
                             ASSET_TRANSFER.SENDER_ID.eq(accountId).and(ASSET_TRANSFER.ASSET_ID.eq(assetId))
@@ -76,7 +76,7 @@ class SqlAssetTransferStore(dp: DependencyProvider) : AssetTransferStore {
     }
 
     override fun getTransferCount(assetId: Long): Int {
-        return Db.useDSLContext<Int> { ctx -> ctx.fetchCount(ctx.selectFrom(ASSET_TRANSFER).where(ASSET_TRANSFER.ASSET_ID.eq(assetId))) }
+        return dp.db.useDslContext<Int> { ctx -> ctx.fetchCount(ctx.selectFrom(ASSET_TRANSFER).where(ASSET_TRANSFER.ASSET_ID.eq(assetId))) }
     }
 
     internal inner class SqlAssetTransfer(record: Record) : AssetTransfer(record.get(ASSET_TRANSFER.ID), transferDbKeyFactory.newKey(record.get(ASSET_TRANSFER.ID)), record.get(ASSET_TRANSFER.ASSET_ID), record.get(ASSET_TRANSFER.HEIGHT), record.get(ASSET_TRANSFER.SENDER_ID), record.get(ASSET_TRANSFER.RECIPIENT_ID), record.get(ASSET_TRANSFER.QUANTITY), record.get(ASSET_TRANSFER.TIMESTAMP))

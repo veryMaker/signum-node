@@ -15,7 +15,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 internal class GetMilestoneBlockIds(private val blockchain: Blockchain) : PeerServlet.PeerRequestHandler {
-    override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
+    override suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         val response = JsonObject()
         try {
             val milestoneBlockIds = JsonArray()

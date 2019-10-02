@@ -1,15 +1,14 @@
 package brs.assetexchange
 
 import brs.Account.AccountAsset
-import brs.*
-import brs.Attachment.ColoredCoinsAskOrderPlacement
-import brs.Attachment.ColoredCoinsAssetIssuance
-import brs.Attachment.ColoredCoinsAssetTransfer
-import brs.Attachment.ColoredCoinsBidOrderPlacement
+import brs.Asset
+import brs.AssetTransfer
+import brs.Attachment.*
 import brs.Order.Ask
 import brs.Order.Bid
+import brs.Trade
 import brs.Trade.Event
-import java.util.function.Consumer
+import brs.Transaction
 
 interface AssetExchange {
     val assetsCount: Int
@@ -28,21 +27,21 @@ interface AssetExchange {
 
     fun getTradeCount(assetId: Long): Int
 
-    fun getTransferCount(id: Long): Int
+    fun getTransferCount(assetId: Long): Int
 
-    fun getAssetAccountsCount(id: Long): Int
+    fun getAssetAccountsCount(assetId: Long): Int
 
-    fun addTradeListener(listener: (Trade) -> Unit, trade: Event)
+    suspend fun addTradeListener(eventType: Event, listener: suspend (Trade) -> Unit)
 
     fun getAskOrder(orderId: Long): Ask?
 
     fun addAsset(transaction: Transaction, attachment: ColoredCoinsAssetIssuance)
 
-    fun addAssetTransfer(transaction: Transaction, attachment: ColoredCoinsAssetTransfer)
+    suspend fun addAssetTransfer(transaction: Transaction, attachment: ColoredCoinsAssetTransfer)
 
-    fun addAskOrder(transaction: Transaction, attachment: ColoredCoinsAskOrderPlacement)
+    suspend fun addAskOrder(transaction: Transaction, attachment: ColoredCoinsAskOrderPlacement)
 
-    fun addBidOrder(transaction: Transaction, attachment: ColoredCoinsBidOrderPlacement)
+    suspend fun addBidOrder(transaction: Transaction, attachment: ColoredCoinsBidOrderPlacement)
 
     fun removeAskOrder(orderId: Long)
 

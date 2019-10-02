@@ -6,7 +6,7 @@ import org.jooq.Field
 import org.jooq.impl.TableImpl
 import org.slf4j.LoggerFactory
 
-abstract class DerivedSqlTable internal constructor(internal val table: String, internal val tableClass: TableImpl<*>, dp: DependencyProvider) : DerivedTable {
+abstract class DerivedSqlTable internal constructor(internal val table: String, internal val tableClass: TableImpl<*>, private val dp: DependencyProvider) : DerivedTable {
     internal val heightField: Field<Int>
     internal val latestField: Field<Boolean>?
 
@@ -18,13 +18,13 @@ abstract class DerivedSqlTable internal constructor(internal val table: String, 
     }
 
     override fun rollback(height: Int) {
-        check(Db.isInTransaction) { "Not in transaction" }
-        Db.useDSLContext { ctx -> ctx.delete(tableClass).where(heightField.gt(height)).execute() }
+        check(dp.db.isInTransaction) { "Not in transaction" }
+        dp.db.useDslContext { ctx -> ctx.delete(tableClass).where(heightField.gt(height)).execute() }
     }
 
     override fun truncate() {
-        check(Db.isInTransaction) { "Not in transaction" }
-        Db.useDSLContext { ctx -> ctx.delete(tableClass).execute() }
+        check(dp.db.isInTransaction) { "Not in transaction" }
+        dp.db.useDslContext { ctx -> ctx.delete(tableClass).execute() }
     }
 
     override fun trim(height: Int) {
@@ -36,7 +36,7 @@ abstract class DerivedSqlTable internal constructor(internal val table: String, 
     }
 
     override fun optimize() {
-        Db.optimizeTable(table)
+        dp.db.optimizeTable(table)
     }
 
     companion object {

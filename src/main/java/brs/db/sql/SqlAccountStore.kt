@@ -96,7 +96,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
     }
 
     override fun getAssetAccountsCount(assetId: Long): Int {
-        return Db.useDSLContext<Int> { ctx -> ctx.selectCount().from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(assetId)).and(ACCOUNT_ASSET.LATEST.isTrue).fetchOne(0, Int::class.javaPrimitiveType) }
+        return dp.db.useDslContext<Int> { ctx -> ctx.selectCount().from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(assetId)).and(ACCOUNT_ASSET.LATEST.isTrue).fetchOne(0, Int::class.javaPrimitiveType) }
     }
 
     override fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<Account.RewardRecipientAssignment> {
@@ -128,7 +128,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
     override fun setOrVerify(acc: Account, key: ByteArray, height: Int): Boolean {
         when {
             acc.publicKey == null -> {
-                if (Db.isInTransaction) {
+                if (dp.db.isInTransaction) {
                     acc.publicKey = key
                     acc.keyHeight = -1
                     accountTable.insert(acc)
@@ -145,7 +145,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             }
             acc.keyHeight >= height -> {
                 logger.info("DUPLICATE KEY!!!")
-                if (Db.isInTransaction) {
+                if (dp.db.isInTransaction) {
                     if (logger.isInfoEnabled) {
                         logger.info("Changing key for account {} at height {}, was previously set to a different one at height {}", acc.id.toUnsignedString(), height, acc.keyHeight)
                     }

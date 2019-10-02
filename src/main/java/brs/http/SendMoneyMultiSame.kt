@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf<APITag>(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), true, *commonParameters) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val amountNQT = ParameterParser.getAmountNQT(request)
         val sender = dp.parameterService.getSenderAccount(request)
         val recipientString = Convert.emptyToNull(request.getParameter(RECIPIENTS_PARAMETER))

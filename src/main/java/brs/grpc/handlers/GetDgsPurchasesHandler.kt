@@ -9,7 +9,7 @@ import brs.util.FilteringIterator
 
 class GetDgsPurchasesHandler(private val digitalGoodsStoreService: DGSGoodsStoreService) : GrpcApiHandler<BrsApi.GetDgsPurchasesRequest, BrsApi.DgsPurchases> {
 
-    override fun handleRequest(request: BrsApi.GetDgsPurchasesRequest): BrsApi.DgsPurchases {
+    override suspend fun handleRequest(request: BrsApi.GetDgsPurchasesRequest): BrsApi.DgsPurchases {
         val sellerId = request.seller
         val buyerId = request.buyer
         val indexRange = ProtoBuilder.sanitizeIndexRange(request.indexRange)

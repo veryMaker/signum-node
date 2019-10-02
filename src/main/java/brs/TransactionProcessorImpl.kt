@@ -1,41 +1,41 @@
 package brs
 
 import brs.BurstException.ValidationException
-import brs.db.sql.Db
 import brs.fluxcapacitor.FluxValues
 import brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
 import brs.peer.Peer
 import brs.props.Props
-import brs.taskScheduler.RepeatingTask
+import brs.taskScheduler.Task
 import brs.util.JSON
 import brs.util.Listeners
 import brs.util.isEmpty
 import brs.util.toJsonString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.slf4j.LoggerFactory
-import java.util.concurrent.CompletableFuture
 
 class TransactionProcessorImpl private constructor(private val dp: DependencyProvider) : TransactionProcessor {
-
     private val testUnconfirmedTransactions = dp.propertyService.get(Props.BRS_TEST_UNCONFIRMED_TRANSACTIONS)
 
-    override val unconfirmedTransactionsSyncObj = Mutex() // TODO too much depends on this.
+    override val mutex = Mutex() // TODO too much depends on this.
     private val transactionListeners = Listeners<Collection<Transaction>, TransactionProcessor.Event>()
-    private val foodDispenser: (Peer) -> Collection<Transaction> = { dp.unconfirmedTransactionStore.getAllFor(it) }
-    private val doneFeedingLog: (Peer, Collection<Transaction>) -> Unit = { peer, transactions -> dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions) }
+    private val foodDispenser: suspend (Peer) -> Collection<Transaction> = { dp.unconfirmedTransactionStore.getAllFor(it) }
+    private val doneFeedingLog: suspend (Peer, Collection<Transaction>) -> Unit = { peer, transactions -> dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions) }
 
-    internal val getUnconfirmedTransactionsTask: RepeatingTask = {
+    internal val getUnconfirmedTransactionsTask: Task = {
         run {
             try {
                 val peer = dp.peers.getAnyPeer(Peer.State.CONNECTED) ?: return@run
-                val response = dp.peers.readUnconfirmedTransactionsNonBlocking(peer).get() ?: return@run
+                val response = dp.peers.readUnconfirmedTransactions(peer) ?: return@run
                 val transactionsData = JSON.getAsJsonArray(response!!.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
                 if (transactionsData.isEmpty()) return@run
                 dp.peers.feedingTime(peer, foodDispenser, doneFeedingLog)
 
-                synchronized(unconfirmedTransactionsSyncObj) { // TODO check whether sync is necessary
+                mutex.withLock { // TODO check whether sync is necessary
                     try {
                         val addedTransactions = processPeerTransactions(transactionsData, peer)
 
@@ -43,26 +43,24 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
                             val activePrioPlusExtra = dp.peers.allActivePriorityPlusSomeExtraPeers
                             activePrioPlusExtra.remove(peer)
 
-                            val expectedResults = mutableListOf<CompletableFuture<*>>()
+                            val jobs = mutableListOf<Job>()
 
                             for (otherPeer in activePrioPlusExtra) {
-                                val unconfirmedTransactionsResult = dp.peers.readUnconfirmedTransactionsNonBlocking(otherPeer)
-
-                                unconfirmedTransactionsResult.whenComplete { jsonObject, throwable ->
+                                jobs.add(launch {
                                     try {
-                                        processPeerTransactions(transactionsData, otherPeer)
+                                        val otherPeerResponse = dp.peers.readUnconfirmedTransactions(otherPeer) ?: return@launch
+                                        val otherPeerTransactions = JSON.getAsJsonArray(otherPeerResponse.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
+                                        if (otherPeerTransactions.isEmpty()) return@launch
                                         dp.peers.feedingTime(otherPeer, foodDispenser, doneFeedingLog)
                                     } catch (e: ValidationException) {
                                         peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
                                     } catch (e: RuntimeException) {
                                         peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
                                     }
-                                }
-
-                                expectedResults.add(unconfirmedTransactionsResult)
+                                })
                             }
 
-                            CompletableFuture.allOf(*expectedResults.toTypedArray()).join() // TODO don't use CompletableFuture
+                            jobs.forEach { it.join() }
                         }
                     } catch (e: ValidationException) {
                         peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
@@ -75,7 +73,6 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
                 logger.debug("Error processing unconfirmed transactions", e)
             }
         }
-        false // Always false so as to not lock up other tasks, as this task is very low priority
     }
 
     override val allUnconfirmedTransactions: List<Transaction>
@@ -84,28 +81,24 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
     override val amountUnconfirmedTransactions: Int
         get() = dp.unconfirmedTransactionStore.amount
 
-    override fun addListener(listener: (Collection<Transaction>) -> Unit, eventType: TransactionProcessor.Event): Boolean {
-        return transactionListeners.addListener(listener, eventType)
+    override suspend fun addListener(eventType: TransactionProcessor.Event, listener: suspend (Collection<Transaction>) -> Unit) {
+        return transactionListeners.addListener(eventType, listener)
     }
 
-    override fun removeListener(listener: (Collection<Transaction>) -> Unit, eventType: TransactionProcessor.Event): Boolean {
-        return transactionListeners.removeListener(listener, eventType)
+    override suspend fun notifyListeners(transactions: Collection<Transaction>, eventType: TransactionProcessor.Event) {
+        transactionListeners.accept(eventType, transactions)
     }
 
-    override fun notifyListeners(transactions: Collection<Transaction>, eventType: TransactionProcessor.Event) {
-        transactionListeners.accept(transactions, eventType)
-    }
-
-    override fun getAllUnconfirmedTransactionsFor(peer: Peer): Collection<Transaction> {
+    override suspend fun getAllUnconfirmedTransactionsFor(peer: Peer): Collection<Transaction> {
         return dp.unconfirmedTransactionStore.getAllFor(peer)
     }
 
-    override fun markFingerPrintsOf(peer: Peer, transactions: Collection<Transaction>) {
+    override suspend fun markFingerPrintsOf(peer: Peer, transactions: Collection<Transaction>) {
         dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions)
     }
 
-    override fun getUnconfirmedTransaction(transactionId: Long): Transaction? {
-        return dp.unconfirmedTransactionStore[transactionId]
+    override suspend fun getUnconfirmedTransaction(transactionId: Long): Transaction? {
+        return dp.unconfirmedTransactionStore.get(transactionId)
     }
 
     override fun newTransactionBuilder(senderPublicKey: ByteArray, amountNQT: Long, feeNQT: Long, deadline: Short, attachment: Attachment): Transaction.Builder {
@@ -120,7 +113,7 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
         return builder
     }
 
-    override fun broadcast(transaction: Transaction): Int? {
+    override suspend fun broadcast(transaction: Transaction): Int? {
         if (!transaction.verifySignature()) {
             throw BurstException.NotValidException("Transaction signature verification failed")
         }
@@ -149,7 +142,7 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
         }
     }
 
-    override fun processPeerTransactions(request: JsonObject, peer: Peer) {
+    override suspend fun processPeerTransactions(request: JsonObject, peer: Peer) {
         val transactionsData = JSON.getAsJsonArray(request.get("transactions"))
         val processedTransactions = processPeerTransactions(transactionsData, peer)
 
@@ -166,56 +159,55 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
         return Transaction.parseTransaction(dp, transactionData, dp.blockchain.height)
     }
 
-    override fun clearUnconfirmedTransactions() {
-        synchronized(unconfirmedTransactionsSyncObj) {
+    override suspend fun clearUnconfirmedTransactions() {
+        mutex.withLock {
             val removed: List<Transaction>
             try {
-                Db.beginTransaction()
+                dp.db.beginTransaction()
                 removed = dp.unconfirmedTransactionStore.all
                 dp.accountService.flushAccountTable()
                 dp.unconfirmedTransactionStore.clear()
-                Db.commitTransaction()
+                dp.db.commitTransaction()
             } catch (e: Exception) {
                 logger.error(e.toString(), e)
-                Db.rollbackTransaction()
+                dp.db.rollbackTransaction()
                 throw e
             } finally {
-                Db.endTransaction()
+                dp.db.endTransaction()
             }
 
-            transactionListeners.accept(removed, TransactionProcessor.Event.REMOVED_UNCONFIRMED_TRANSACTIONS)
+            transactionListeners.accept(TransactionProcessor.Event.REMOVED_UNCONFIRMED_TRANSACTIONS, removed)
         }
     }
 
-    override fun requeueAllUnconfirmedTransactions() {
-        synchronized(unconfirmedTransactionsSyncObj) {
+    override suspend fun requeueAllUnconfirmedTransactions() {
+        mutex.withLock {
             dp.unconfirmedTransactionStore.resetAccountBalances()
         }
     }
 
-    override fun getTransactionVersion(previousBlockHeight: Int): Int {
-        return if (dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, previousBlockHeight)) 1 else 0
+    override fun getTransactionVersion(blockHeight: Int): Int {
+        return if (dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockHeight)) 1 else 0
     }
 
     // Watch: This is not really clean
-    override fun processLater(transactions: Collection<Transaction>) {
+    override suspend fun processLater(transactions: Collection<Transaction>) {
         for (transaction in transactions) {
             try {
                 dp.unconfirmedTransactionStore.put(transaction, null)
             } catch (e: BurstException.ValidationException) {
                 logger.debug("Discarding invalid transaction in for later processing: " + transaction.jsonObject.toJsonString(), e)
             }
-
         }
     }
 
-    private fun processPeerTransactions(transactionsData: JsonArray, peer: Peer): Collection<Transaction> {
+    private suspend fun processPeerTransactions(transactionsData: JsonArray, peer: Peer): Collection<Transaction> {
         if (dp.blockchain.lastBlock.timestamp < dp.timeService.epochTime - 60 * 1440 && !testUnconfirmedTransactions) {
             return mutableListOf()
         }
         val transactions = mutableListOf<Transaction>()
-        for (transactionData in transactionsData) {
-            try {
+                for (transactionData in transactionsData) {
+                    try {
                 val transaction = parseTransaction(JSON.getAsJsonObject(transactionData))
                 dp.transactionService.validate(transaction)
                 if (!dp.economicClustering.verifyFork(transaction)) {
@@ -234,8 +226,8 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
         return processTransactions(transactions, peer)
     }
 
-    private fun processTransactions(transactions: Collection<Transaction>, peer: Peer?): Collection<Transaction> {
-        synchronized(unconfirmedTransactionsSyncObj) {
+    private suspend fun processTransactions(transactions: Collection<Transaction>, peer: Peer?): Collection<Transaction> {
+        mutex.withLock {
             if (transactions.isEmpty()) {
                 return emptyList()
             }
@@ -251,7 +243,7 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
                         continue
                     }
 
-                    Db.beginTransaction()
+                    dp.db.beginTransaction()
                     try {
                         if (dp.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionStore.exists(transaction.id)) {
                             dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, listOf(transaction))
@@ -262,12 +254,12 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
                         } else if (dp.unconfirmedTransactionStore.put(transaction, peer)) {
                             addedUnconfirmedTransactions.add(transaction)
                         }
-                        Db.commitTransaction()
+                        dp.db.commitTransaction()
                     } catch (e: Exception) {
-                        Db.rollbackTransaction()
+                        dp.db.rollbackTransaction()
                         throw e
                     } finally {
-                        Db.endTransaction()
+                        dp.db.endTransaction()
                     }
                 } catch (e: RuntimeException) {
                     logger.info("Error processing transaction", e)
@@ -276,14 +268,17 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
             }
 
             if (addedUnconfirmedTransactions.isNotEmpty()) {
-                transactionListeners.accept(addedUnconfirmedTransactions, TransactionProcessor.Event.ADDED_UNCONFIRMED_TRANSACTIONS)
+                transactionListeners.accept(
+                    TransactionProcessor.Event.ADDED_UNCONFIRMED_TRANSACTIONS,
+                    addedUnconfirmedTransactions
+                )
             }
 
             return addedUnconfirmedTransactions
         }
     }
 
-    private fun broadcastToPeers(toAll: Boolean): Int {
+    private suspend fun broadcastToPeers(toAll: Boolean): Int {
         val peersToSendTo = if (toAll) dp.peers.activePeers.take(100) else dp.peers.allActivePriorityPlusSomeExtraPeers
 
         logger.trace("Queueing up {} Peers for feeding", peersToSendTo.size)
@@ -295,7 +290,7 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
         return peersToSendTo.size
     }
 
-    override fun revalidateUnconfirmedTransactions() {
+    override suspend fun revalidateUnconfirmedTransactions() {
         val invalidTransactions = mutableListOf<Transaction>()
 
         for (t in dp.unconfirmedTransactionStore.all) {
@@ -312,7 +307,7 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
         }
     }
 
-    override fun removeForgedTransactions(transactions: Collection<Transaction>) {
+    override suspend fun removeForgedTransactions(transactions: Collection<Transaction>) {
         dp.unconfirmedTransactionStore.removeForgedTransactions(transactions)
     }
 
@@ -321,7 +316,7 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
 
         suspend fun new(dp: DependencyProvider): TransactionProcessor {
             val transactionProcessor = TransactionProcessorImpl(dp)
-            dp.taskScheduler.scheduleTask(transactionProcessor.getUnconfirmedTransactionsTask)
+            dp.taskScheduler.scheduleTaskWithDelay(transactionProcessor.getUnconfirmedTransactionsTask, 0, 10000)
             return transactionProcessor
         }
     }

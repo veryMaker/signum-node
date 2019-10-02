@@ -10,7 +10,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetAccountSubscriptions internal constructor(private val parameterService: ParameterService, private val subscriptionService: SubscriptionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER) {
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
         val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
 

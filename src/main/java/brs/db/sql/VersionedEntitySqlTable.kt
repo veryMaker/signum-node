@@ -9,17 +9,17 @@ import org.jooq.impl.TableImpl
 
 abstract class VersionedEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: BurstKey.Factory<T>, private val dp: DependencyProvider) : EntitySqlTable<T>(table, tableClass, dbKeyFactory, true, dp), VersionedEntityTable<T> {
     override fun rollback(height: Int) {
-        rollback(table, tableClass, heightField, latestField, height, dbKeyFactory)
+        rollback(dp, table, tableClass, heightField, latestField, height, dbKeyFactory)
     }
 
     override fun trim(height: Int) {
-        trim(tableClass, heightField, height, dbKeyFactory)
+        trim(dp, tableClass, heightField, height, dbKeyFactory)
     }
 
     override fun delete(t: T): Boolean {
-        check(Db.isInTransaction) { "Not in transaction" }
+        check(dp.db.isInTransaction) { "Not in transaction" }
         val dbKey = dbKeyFactory.newKey(t) as DbKey
-        return Db.useDSLContext<Boolean> { ctx ->
+        return dp.db.useDslContext<Boolean> { ctx ->
             try {
                 val countQuery = ctx.selectQuery()
                 countQuery.addFrom(tableClass)
@@ -39,23 +39,31 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
                     // delete after the save
                     updateQuery.execute()
 
-                    return@useDSLContext true
+                    return@useDslContext true
                 } else {
                     val deleteQuery = ctx.deleteQuery(tableClass)
                     deleteQuery.addConditions(dbKey.getPKConditions(tableClass))
-                    return@useDSLContext deleteQuery.execute () > 0
+                    return@useDslContext deleteQuery.execute () > 0
                 }
             } finally {
-                Db.getCache<Any>(table).remove(dbKey)
+                dp.db.getCache<Any>(table).remove(dbKey)
             }
         }
     }
 
     companion object {
-        internal fun rollback(table: String, tableClass: TableImpl<*>, heightField: Field<Int>, latestField: Field<Boolean>?, height: Int, dbKeyFactory: DbKey.Factory<*>) {
-            check(Db.isInTransaction) { "Not in transaction" }
+        internal fun rollback(
+            dp: DependencyProvider,
+            table: String,
+            tableClass: TableImpl<*>,
+            heightField: Field<Int>,
+            latestField: Field<Boolean>?,
+            height: Int,
+            dbKeyFactory: DbKey.Factory<*>
+        ) {
+            check(dp.db.isInTransaction) { "Not in transaction" }
 
-            Db.useDSLContext { ctx ->
+            dp.db.useDslContext { ctx ->
                 // get dbKey's for entries whose stuff newer than height would be deleted, to allow fixing
                 // their latest flag of the "potential" remaining newest entry
                 val selectForDeleteQuery = ctx.selectQuery()
@@ -89,15 +97,21 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
                     }
                 }
             }
-            Db.getCache<Any>(table).clear()
+            dp.db.getCache<Any>(table).clear()
         }
 
-        internal fun trim(tableClass: TableImpl<*>, heightField: Field<Int>, height: Int, dbKeyFactory: DbKey.Factory<*>) {
-            check(Db.isInTransaction) { "Not in transaction" }
+        internal fun trim(
+            dp: DependencyProvider,
+            tableClass: TableImpl<*>,
+            heightField: Field<Int>,
+            height: Int,
+            dbKeyFactory: DbKey.Factory<*>
+        ) {
+            check(dp.db.isInTransaction) { "Not in transaction" }
 
             // "accounts" is just an example to make it easier to understand what the code does
             // select all accounts with multiple entries where height < trimToHeight[current height - 1440]
-            Db.useDSLContext { ctx ->
+            dp.db.useDslContext { ctx ->
                 val selectMaxHeightQuery = ctx.selectQuery()
                 selectMaxHeightQuery.addFrom(tableClass)
                 selectMaxHeightQuery.addSelect(DSL.max(heightField).`as`("max_height"))

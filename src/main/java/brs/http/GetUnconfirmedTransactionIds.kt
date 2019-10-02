@@ -14,7 +14,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetUnconfirmedTransactionIds(private val transactionProcessor: TransactionProcessor, private val indirectIncomingService: IndirectIncomingService, private val parameterService: ParameterService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS, APITag.ACCOUNTS), ACCOUNT_PARAMETER, INCLUDE_INDIRECT_PARAMETER) {
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val accountIdString = Convert.emptyToNull(request.getParameter(ACCOUNT_PARAMETER))
         val includeIndirect = parameterService.getIncludeIndirect(request)
 

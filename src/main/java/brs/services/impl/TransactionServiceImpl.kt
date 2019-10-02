@@ -25,12 +25,12 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
         }
     }
 
-    override fun applyUnconfirmed(transaction: Transaction): Boolean {
+    override suspend fun applyUnconfirmed(transaction: Transaction): Boolean {
         val senderAccount = dp.accountService.getAccount(transaction.senderId)
         return senderAccount != null && transaction.type!!.applyUnconfirmed(transaction, senderAccount)
     }
 
-    override fun apply(transaction: Transaction) {
+    override suspend fun apply(transaction: Transaction) {
         val senderAccount = dp.accountService.getAccount(transaction.senderId)!!
         senderAccount.apply(dp, transaction.senderPublicKey, transaction.height)
         val recipientAccount = dp.accountService.getOrAddAccount(transaction.recipientId)
@@ -39,7 +39,7 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
         }
     }
 
-    override fun undoUnconfirmed(transaction: Transaction) {
+    override suspend fun undoUnconfirmed(transaction: Transaction) {
         val senderAccount = dp.accountService.getAccount(transaction.senderId)!!
         transaction.type!!.undoUnconfirmed(transaction, senderAccount)
     }

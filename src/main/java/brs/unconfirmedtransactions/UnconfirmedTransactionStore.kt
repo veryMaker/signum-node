@@ -1,6 +1,5 @@
 package brs.unconfirmedtransactions
 
-import brs.BurstException
 import brs.Transaction
 import brs.peer.Peer
 
@@ -9,26 +8,26 @@ interface UnconfirmedTransactionStore {
 
     val amount: Int
 
-    fun put(transaction: Transaction, peer: Peer?): Boolean
+    suspend fun put(transaction: Transaction, peer: Peer?): Boolean
 
-    operator fun get(transactionId: Long?): Transaction?
+    suspend fun get(transactionId: Long?): Transaction?
 
-    fun exists(transactionId: Long?): Boolean
+    suspend fun exists(transactionId: Long?): Boolean
 
-    fun getAllFor(peer: Peer): Collection<Transaction>
+    suspend fun getAllFor(peer: Peer): Collection<Transaction>
 
-    fun remove(transaction: Transaction)
+    suspend fun remove(transaction: Transaction)
 
-    fun clear()
+    suspend fun clear()
 
     /**
      * Review which transactions are still eligible to stay
      * @return The list of removed transactions
      * TODO rename method
      */
-    fun resetAccountBalances()
+    suspend fun resetAccountBalances()
 
-    fun markFingerPrintsOf(peer: Peer?, transactions: Collection<Transaction>)
+    suspend fun markFingerPrintsOf(peer: Peer?, transactions: Collection<Transaction>)
 
-    fun removeForgedTransactions(transactions: Collection<Transaction>)
+    suspend fun removeForgedTransactions(transactions: Collection<Transaction>)
 }

@@ -9,9 +9,9 @@ import brs.transaction.TransactionType
 abstract class AutomatedTransactions(dp: DependencyProvider) : TransactionType(dp) {
     override val type = TYPE_AUTOMATED_TRANSACTIONS
 
-    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
+    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
 
-    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
+    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
 
     override fun validateAttachment(transaction: Transaction) {
         if (transaction.amountNQT != 0L) {

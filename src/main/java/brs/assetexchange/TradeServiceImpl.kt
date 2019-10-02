@@ -4,14 +4,11 @@ import brs.Block
 import brs.Order
 import brs.Trade
 import brs.Trade.Event
-import brs.db.BurstKey
-import brs.db.BurstKey.LinkKeyFactory
-import brs.db.sql.EntitySqlTable
 import brs.db.store.TradeStore
 import brs.util.Listeners
-import java.util.function.Consumer
+import brs.util.Observable
 
-internal class TradeServiceImpl(private val tradeStore: TradeStore) { // TODO add interface
+internal class TradeServiceImpl(private val tradeStore: TradeStore): Observable<Trade, Event> { // TODO add interface
 
     private val listeners = Listeners<Trade, Event>()
     private val tradeTable = tradeStore.tradeTable
@@ -19,7 +16,6 @@ internal class TradeServiceImpl(private val tradeStore: TradeStore) { // TODO ad
 
     val count: Int
         get() = tradeTable.count
-
 
     fun getAssetTrades(assetId: Long, from: Int, to: Int): Collection<Trade> {
         return tradeStore.getAssetTrades(assetId, from, to)
@@ -41,19 +37,15 @@ internal class TradeServiceImpl(private val tradeStore: TradeStore) { // TODO ad
         return tradeTable.getAll(from, to)
     }
 
-    fun addListener(listener: (Trade) -> Unit, eventType: Event): Boolean {
-        return listeners.addListener(listener, eventType)
+    override suspend fun addListener(eventType: Event, listener: suspend (Trade) -> Unit) {
+        listeners.addListener(eventType, listener)
     }
 
-    fun removeListener(listener: (Trade) -> Unit, eventType: Event): Boolean {
-        return listeners.removeListener(listener, eventType)
-    }
-
-    fun addTrade(assetId: Long, block: Block, askOrder: Order.Ask, bidOrder: Order.Bid): Trade {
+    suspend fun addTrade(assetId: Long, block: Block, askOrder: Order.Ask, bidOrder: Order.Bid): Trade {
         val dbKey = tradeDbKeyFactory.newKey(askOrder.id, bidOrder.id)
         val trade = Trade(dbKey, assetId, block, askOrder, bidOrder)
         tradeTable.insert(trade)
-        listeners.accept(trade, Event.TRADE)
+        listeners.accept(Event.TRADE, trade)
         return trade
     }
 }

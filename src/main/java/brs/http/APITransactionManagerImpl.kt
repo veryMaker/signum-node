@@ -45,8 +45,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransactionManager {
-
-    override fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment, minimumFeeNQT: Long): JsonElement {
+    override suspend fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment, minimumFeeNQT: Long): JsonElement {
         val blockchainHeight = dp.blockchain.height
         val deadlineValue = request.getParameter(DEADLINE_PARAMETER)
         val referencedTransactionFullHash = Convert.emptyToNull(request.getParameter(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER))

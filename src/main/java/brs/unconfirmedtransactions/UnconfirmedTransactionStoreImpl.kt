@@ -5,62 +5,53 @@ import brs.DependencyProvider
 import brs.Transaction
 import brs.peer.Peer
 import brs.props.Props
+import brs.taskScheduler.Task
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.slf4j.LoggerFactory
 import java.util.*
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
-class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : UnconfirmedTransactionStore {
+class UnconfirmedTransactionStoreImpl private constructor(private val dp: DependencyProvider) : UnconfirmedTransactionStore {
     private val reservedBalanceCache = ReservedBalanceCache(dp.accountStore)
     private val transactionDuplicatesChecker = TransactionDuplicatesCheckerImpl()
 
     private val fingerPrintsOverview = mutableMapOf<Transaction, HashSet<Peer?>>()
 
-    private val internalStore: SortedMap<Long, MutableList<Transaction>>
+    private val internalStore: SortedMap<Long, MutableList<Transaction>> = TreeMap()
+    private val internalStoreLock = Mutex()
 
     override var amount: Int = 0
     private val maxSize = dp.propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS)
 
-    private val maxRawUTBytesToSend: Int
+    private val maxRawUTBytesToSend = dp.propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND)
 
+    private val maxPercentageUnconfirmedTransactionsFullHash = dp.propertyService.get(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE)
     private var numberUnconfirmedTransactionsFullHash: Int = 0
-    private val maxPercentageUnconfirmedTransactionsFullHash: Int
 
-    override val all: List<Transaction>
-        get() = synchronized(internalStore) {
-            val flatTransactionList = mutableListOf<Transaction>()
-
-            for (amountSlot in internalStore.values) {
-                flatTransactionList.addAll(amountSlot)
-            }
-
-            return flatTransactionList
+    val cleanupExpiredTransactions: Task = {
+        internalStoreLock.withLock {
+            all.filter { t -> dp.timeService.epochTime > t.expiration || dp.transactionDb.hasTransaction(t.id) }
+                .forEach { removeTransaction(it) }
         }
-
-    init {
-
-        this.amount = 0
-
-        this.maxRawUTBytesToSend = dp.propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND)
-
-        this.maxPercentageUnconfirmedTransactionsFullHash = dp.propertyService.get(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE)
-        this.numberUnconfirmedTransactionsFullHash = 0
-
-        internalStore = TreeMap()
-
-        val scheduler = Executors.newSingleThreadScheduledExecutor()
-        val cleanupExpiredTransactions = {
-            synchronized(internalStore) {
-                all.filter { t -> dp.timeService.epochTime > t.expiration || dp.transactionDb.hasTransaction(t.id) }
-                        .forEach { this.removeTransaction(it) }
-            }
-        }
-        scheduler.scheduleWithFixedDelay(cleanupExpiredTransactions, 1, 1, TimeUnit.MINUTES)
     }
 
-    override fun put(transaction: Transaction, peer: Peer?): Boolean {
-        synchronized(internalStore) {
+    override val all: List<Transaction>
+        get() = runBlocking {
+            internalStoreLock.withLock {
+                val flatTransactionList = mutableListOf<Transaction>()
+
+                for (amountSlot in internalStore.values) {
+                    flatTransactionList.addAll(amountSlot)
+                }
+
+                flatTransactionList
+            }
+        }
+
+    override suspend fun put(transaction: Transaction, peer: Peer?): Boolean {
+        internalStoreLock.withLock {
             if (transactionIsCurrentlyInCache(transaction)) {
                 if (peer != null) {
                     logger.info("Transaction {}: Added fingerprint of {}", transaction.id, peer.peerAddress)
@@ -107,8 +98,8 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         }
     }
 
-    override fun get(transactionId: Long?): Transaction? {
-        synchronized(internalStore) {
+    override suspend fun get(transactionId: Long?): Transaction? {
+        internalStoreLock.withLock {
             for (amountSlot in internalStore.values) {
                 for (t in amountSlot) {
                     if (t.id == transactionId) {
@@ -120,14 +111,14 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         }
     }
 
-    override fun exists(transactionId: Long?): Boolean {
-        synchronized(internalStore) {
+    override suspend fun exists(transactionId: Long?): Boolean {
+        internalStoreLock.withLock {
             return get(transactionId) != null
         }
     }
 
-    override fun getAllFor(peer: Peer): List<Transaction> {
-        synchronized(internalStore) {
+    override suspend fun getAllFor(peer: Peer): List<Transaction> {
+        internalStoreLock.withLock {
             var roomLeft = this.maxRawUTBytesToSend.toLong()
             return fingerPrintsOverview.entries
                     .asSequence()
@@ -142,8 +133,8 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         }
     }
 
-    override fun remove(transaction: Transaction) {
-        synchronized(internalStore) {
+    override suspend fun remove(transaction: Transaction) {
+        internalStoreLock.withLock {
             // Make sure that we are acting on our own copy of the transaction, as this is the one we want to remove.
             val internalTransaction = get(transaction.id)
             if (internalTransaction != null) {
@@ -153,8 +144,8 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         }
     }
 
-    override fun clear() {
-        synchronized(internalStore) {
+    override suspend fun clear() {
+        internalStoreLock.withLock {
             logger.info("Clearing UTStore")
             amount = 0
             internalStore.clear()
@@ -163,16 +154,16 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         }
     }
 
-    override fun resetAccountBalances() {
-        synchronized(internalStore) {
+    override suspend fun resetAccountBalances() {
+        internalStoreLock.withLock {
             for (insufficientFundsTransactions in reservedBalanceCache.rebuild(all)) {
                 this.removeTransaction(insufficientFundsTransactions)
             }
         }
     }
 
-    override fun markFingerPrintsOf(peer: Peer?, transactions: Collection<Transaction>) {
-        synchronized(internalStore) {
+    override suspend fun markFingerPrintsOf(peer: Peer?, transactions: Collection<Transaction>) {
+        internalStoreLock.withLock {
             for (transaction in transactions) {
                 if (fingerPrintsOverview.containsKey(transaction)) {
                     fingerPrintsOverview[transaction]!!.add(peer)
@@ -181,8 +172,8 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         }
     }
 
-    override fun removeForgedTransactions(transactions: Collection<Transaction>) {
-        synchronized(internalStore) {
+    override suspend fun removeForgedTransactions(transactions: Collection<Transaction>) {
+        internalStoreLock.withLock {
             for (t in transactions) {
                 remove(t)
             }
@@ -312,5 +303,13 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
 
     companion object {
         private val logger = LoggerFactory.getLogger(UnconfirmedTransactionStoreImpl::class.java)
+
+        suspend fun new(dp: DependencyProvider): UnconfirmedTransactionStore {
+            val utStore = UnconfirmedTransactionStoreImpl(dp)
+
+            dp.taskScheduler.scheduleTaskWithDelay(utStore.cleanupExpiredTransactions, 10000, 10000)
+
+            return utStore
+        }
     }
 }

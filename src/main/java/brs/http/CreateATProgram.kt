@@ -35,7 +35,7 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
 
     private val logger = LoggerFactory.getLogger(CreateATProgram::class.java)
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         var name: String? = request.getParameter(NAME_PARAMETER)
         val description = request.getParameter(DESCRIPTION_PARAMETER)
 

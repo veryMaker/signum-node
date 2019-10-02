@@ -2,8 +2,6 @@ package brs.services
 
 import brs.Block
 import brs.BlockchainProcessor
-import brs.BlockchainProcessor.BlockNotAcceptedException
-import brs.BlockchainProcessor.BlockOutOfOrderException
 
 interface BlockService {
     @Throws(BlockchainProcessor.BlockNotAcceptedException::class, InterruptedException::class)
@@ -22,7 +20,7 @@ interface BlockService {
 
     fun verifyBlockSignature(block: Block): Boolean
 
-    fun apply(block: Block)
+    suspend fun apply(block: Block)
 
     fun getScoopNum(block: Block): Int
 }

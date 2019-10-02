@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class PopOff(private val blockchainProcessor: BlockchainProcessor, private val blockchain: Blockchain, private val blockService: BlockService) : APIServlet.JsonRequestHandler(arrayOf(APITag.DEBUG), NUM_BLOCKS_PARAMETER, HEIGHT_PARAMETER) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
         val response = JsonObject()
         var numBlocks = 0
@@ -30,15 +30,14 @@ internal class PopOff(private val blockchainProcessor: BlockchainProcessor, priv
         } catch (ignored: NumberFormatException) {
         }
 
-        val blocks: List<Block>
         val blocksJSON = JsonArray()
-        if (numBlocks > 0) {
-            blocks = blockchainProcessor.popOffTo(blockchain.height - numBlocks)
-        } else if (height > 0) {
-            blocks = blockchainProcessor.popOffTo(height)
-        } else {
-            response.addProperty(ERROR_RESPONSE, "invalid numBlocks or height")
-            return response
+        val blocks = when {
+            numBlocks > 0 -> blockchainProcessor.popOffTo(blockchain.height - numBlocks)
+            height > 0 -> blockchainProcessor.popOffTo(height)
+            else -> {
+                response.addProperty(ERROR_RESPONSE, "invalid numBlocks or height")
+                return response
+            }
         }
         for (block in blocks) {
             blocksJSON.add(JSONData.block(block, true, blockchain.height, blockService.getBlockReward(block), blockService.getScoopNum(block)))

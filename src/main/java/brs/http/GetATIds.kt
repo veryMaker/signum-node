@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetATIds(private val atService: ATService) : APIServlet.JsonRequestHandler(arrayOf(APITag.AT)) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
         val atIds = JsonArray()
         for (id in atService.allATIds) {

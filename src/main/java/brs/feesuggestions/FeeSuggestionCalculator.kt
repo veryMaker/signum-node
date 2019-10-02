@@ -5,6 +5,7 @@ import brs.BlockchainProcessor.Event
 import brs.Constants
 import brs.Constants.FEE_QUANT
 import brs.DependencyProvider
+import kotlinx.coroutines.runBlocking
 import kotlin.math.ceil
 
 class FeeSuggestionCalculator(private val dp: DependencyProvider, maxHistoryLength: Int = Constants.FEE_SUGGESTION_MAX_HISTORY_LENGTH) { // TODO interface
@@ -13,7 +14,9 @@ class FeeSuggestionCalculator(private val dp: DependencyProvider, maxHistoryLeng
     private var feeSuggestion = FeeSuggestion(FEE_QUANT, FEE_QUANT, FEE_QUANT)
 
     init {
-        dp.blockchainProcessor.addListener({ this.newBlockApplied(it) }, Event.AFTER_BLOCK_APPLY)
+        runBlocking {
+            dp.blockchainProcessor.addListener(Event.AFTER_BLOCK_APPLY) { newBlockApplied(it) }
+        }
     }
 
     fun giveFeeSuggestion(): FeeSuggestion {

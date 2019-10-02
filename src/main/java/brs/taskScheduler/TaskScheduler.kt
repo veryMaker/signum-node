@@ -23,6 +23,15 @@ interface TaskScheduler {
 
     /**
      * Schedules a task to be repeatedly run forever when the scheduler starts.
+     * The task will be run initialDelayMs milliseconds after scheduler start.
+     * Once the task has completed, it will be run again after delayMs milliseconds.
+     * This process will repeat.
+     * If the scheduler has already started, it throws.
+     */
+    suspend fun scheduleTaskWithDelay(task: Task, initialDelayMs: Long, delayMs: Long)
+
+    /**
+     * Schedules a task to be repeatedly run forever when the scheduler starts.
      * The task returns true if successful (meaning it should be run again ASAP)
      * or false if unsuccessful (meaning it should have a delay before running again)
      * If the scheduler has already started, it throws.

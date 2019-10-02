@@ -2,16 +2,10 @@ package brs.assetexchange
 
 import brs.*
 import brs.Account.AccountAsset
-import brs.Attachment.ColoredCoinsAskOrderPlacement
-import brs.Attachment.ColoredCoinsAssetIssuance
-import brs.Attachment.ColoredCoinsAssetTransfer
-import brs.Attachment.ColoredCoinsBidOrderPlacement
+import brs.Attachment.*
 import brs.Order.Ask
 import brs.Order.Bid
 import brs.Trade.Event
-import brs.db.store.*
-import brs.services.AccountService
-import java.util.function.Consumer
 
 class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
 
@@ -65,8 +59,8 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
         return assetAccountService.getAssetAccountsCount(assetId)
     }
 
-    override fun addTradeListener(listener: (Trade) -> Unit, eventType: Event) {
-        tradeService.addListener(listener, eventType)
+    override suspend fun addTradeListener(eventType: Event, listener: suspend (Trade) -> Unit) {
+        tradeService.addListener(eventType, listener)
     }
 
     override fun getAskOrder(orderId: Long): Ask? {
@@ -77,15 +71,15 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
         assetService.addAsset(transaction, attachment)
     }
 
-    override fun addAssetTransfer(transaction: Transaction, attachment: ColoredCoinsAssetTransfer) {
+    override suspend fun addAssetTransfer(transaction: Transaction, attachment: ColoredCoinsAssetTransfer) {
         assetTransferService.addAssetTransfer(transaction, attachment)
     }
 
-    override fun addAskOrder(transaction: Transaction, attachment: ColoredCoinsAskOrderPlacement) {
+    override suspend fun addAskOrder(transaction: Transaction, attachment: ColoredCoinsAskOrderPlacement) {
         orderService.addAskOrder(transaction, attachment)
     }
 
-    override fun addBidOrder(transaction: Transaction, attachment: ColoredCoinsBidOrderPlacement) {
+    override suspend fun addBidOrder(transaction: Transaction, attachment: ColoredCoinsBidOrderPlacement) {
         orderService.addBidOrder(transaction, attachment)
     }
 

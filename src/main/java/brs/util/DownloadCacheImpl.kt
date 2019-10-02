@@ -5,6 +5,7 @@ import brs.DependencyProvider
 import brs.Genesis
 import brs.fluxcapacitor.FluxValues
 import brs.props.Props
+import kotlinx.coroutines.sync.Mutex
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.concurrent.locks.StampedLock
@@ -24,6 +25,8 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
     private var lastHeight = -1
     private var highestCumulativeDifficulty = BigInteger.ZERO
     private var locked = false
+
+    val mutex = Mutex()
 
     private val chainHeight: Int
         get() = stampedLock.read {

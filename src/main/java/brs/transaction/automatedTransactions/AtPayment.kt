@@ -11,6 +11,6 @@ class AtPayment(dp: DependencyProvider) : AutomatedTransactions(dp) {
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.AtPayment(dp)
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.AtPayment(dp)
     override fun doValidateAttachment(transaction: Transaction) = throw BurstException.NotValidException("AT payment never validates")
-    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) = Unit
+    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) = Unit
     override fun hasRecipient() = true
 }

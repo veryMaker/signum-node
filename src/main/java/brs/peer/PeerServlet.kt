@@ -6,13 +6,12 @@ import brs.util.*
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
-import java.io.IOException
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
 import javax.servlet.ServletConfig
-import javax.servlet.ServletException
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -21,18 +20,18 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
     private val peerRequestHandlers: Map<String, PeerRequestHandler>
 
     internal interface PeerRequestHandler {
-        fun processRequest(request: JsonObject, peer: Peer): JsonElement
+        suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement
     }
 
     internal abstract class ExtendedPeerRequestHandler : PeerRequestHandler {
-        override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
+        override suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement {
             return JsonNull.INSTANCE
         }
 
-        internal abstract fun extendedProcessRequest(request: JsonObject, peer: Peer): ExtendedProcessRequest
+        internal abstract suspend fun extendedProcessRequest(request: JsonObject, peer: Peer): ExtendedProcessRequest
     }
 
-    internal class ExtendedProcessRequest(val response: JsonElement, val afterRequestHook: () -> Unit)
+    internal class ExtendedProcessRequest(val response: JsonElement, val afterRequestHook: suspend () -> Unit)
 
     init { // TODO each one should take dp
         val map = mutableMapOf<String, PeerRequestHandler>()
@@ -61,7 +60,9 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
             if (!dp.peers.isSupportedUserAgent(request.getHeader("User-Agent"))) {
                 return
             }
-            process(request, resp)
+            runBlocking { // TODO
+                process(request, resp)
+            }
         } catch (e: Exception) { // We don't want to send exception information to client...
             resp.status = 500
             logger.warn("Error handling peer request", e)
@@ -69,7 +70,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
 
     }
 
-    private fun process(request: HttpServletRequest, resp: HttpServletResponse) {
+    private suspend fun process(request: HttpServletRequest, resp: HttpServletResponse) {
         var peer: Peer? = null
         var response: JsonElement
 
@@ -104,7 +105,9 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
                         extendedProcessRequest = peerRequestHandler.extendedProcessRequest(jsonRequest, peer)
                         response = extendedProcessRequest.response
                     } else {
-                        response = peerRequestHandler.processRequest(jsonRequest, peer)
+                        response = runBlocking { // TODO
+                            peerRequestHandler.processRequest(jsonRequest, peer)
+                        }
                     }
                 } else {
                     response = UNSUPPORTED_REQUEST_TYPE

@@ -37,7 +37,7 @@ interface Peer : Comparable<Peer> {
 
     var lastUpdated: Int
 
-    fun connect(currentTime: Int)
+    suspend fun connect(currentTime: Int)
 
     enum class State {
         NON_CONNECTED, CONNECTED, DISCONNECTED;
@@ -64,33 +64,29 @@ interface Peer : Comparable<Peer> {
         }
     }
 
-    fun updateUploadedVolume(volume: Long)
+    suspend fun updateUploadedVolume(volume: Long)
 
     fun isHigherOrEqualVersionThan(version: Version): Boolean
 
-    fun blacklist(cause: Exception, description: String)
+    suspend fun blacklist(cause: Exception, description: String)
 
-    fun blacklist(description: String)
+    suspend fun blacklist(description: String)
 
-    fun blacklist()
+    suspend fun blacklist()
 
-    fun unBlacklist()
+    suspend fun unBlacklist()
 
-    fun updateBlacklistedStatus(curTime: Long)
+    suspend fun updateBlacklistedStatus(curTime: Long)
 
-    fun remove()
+    suspend fun remove()
 
-    fun updateDownloadedVolume(volume: Long)
+    suspend fun updateDownloadedVolume(volume: Long)
 
-    fun send(request: JsonElement): JsonObject?
+    suspend fun send(request: JsonElement): JsonObject?
 
     companion object {
-
         fun isHigherOrEqualVersion(ourVersion: Version?, possiblyLowerVersion: Version?): Boolean {
-            return if (ourVersion == null || possiblyLowerVersion == null) {
-                false
-            } else possiblyLowerVersion.isGreaterThanOrEqualTo(ourVersion)
-
+            return if (ourVersion == null || possiblyLowerVersion == null) false else possiblyLowerVersion.isGreaterThanOrEqualTo(ourVersion)
         }
     }
 

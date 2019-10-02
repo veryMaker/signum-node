@@ -37,11 +37,11 @@ internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
         this.dp = dp
     }
 
-    fun createTransaction(request: HttpServletRequest, senderAccount: Account, attachment: Attachment): JsonElement {
+    suspend fun createTransaction(request: HttpServletRequest, senderAccount: Account, attachment: Attachment): JsonElement {
         return createTransaction(request, senderAccount, null, 0, attachment)
     }
 
-    fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment = Attachment.OrdinaryPayment(dp)): JsonElement {
+    suspend fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment = Attachment.OrdinaryPayment(dp)): JsonElement {
         return dp.apiTransactionManager.createTransaction(request, senderAccount, recipientId, amountNQT, attachment, minimumFeeNQT())
     }
 

@@ -21,7 +21,7 @@ class BidOrderCancellation(dp: DependencyProvider) : OrderCancellation(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.ColoredCoinsBidOrderCancellation(dp, attachmentData)
 
-    override fun applyAttachment(
+    override suspend fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?

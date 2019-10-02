@@ -6,7 +6,7 @@ import brs.grpc.proto.ProtoBuilder
 import brs.services.EscrowService
 
 class GetAccountEscrowTransactionsHandler(private val escrowService: EscrowService) : GrpcApiHandler<BrsApi.GetAccountRequest, BrsApi.EscrowTransactions> {
-    override fun handleRequest(request: BrsApi.GetAccountRequest): BrsApi.EscrowTransactions {
+    override suspend fun handleRequest(request: BrsApi.GetAccountRequest): BrsApi.EscrowTransactions {
         val accountId = request.accountId
         val builder = BrsApi.EscrowTransactions.newBuilder()
         escrowService.getEscrowTransactionsByParticipant(accountId)

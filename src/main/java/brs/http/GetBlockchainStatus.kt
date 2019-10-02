@@ -10,7 +10,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetBlockchainStatus(private val blockchainProcessor: BlockchainProcessor, private val blockchain: Blockchain, private val timeService: TimeService) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS, APITag.INFO)) {
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
         response.addProperty("application", Burst.APPLICATION)
         response.addProperty("version", Burst.VERSION.toString())

@@ -9,6 +9,7 @@ import brs.db.BlockDb
 import brs.db.PeerDb
 import brs.db.TransactionDb
 import brs.db.cache.DBCacheManagerImpl
+import brs.db.sql.Db
 import brs.db.store.*
 import brs.deeplink.DeeplinkQRCodeGenerator
 import brs.feesuggestions.FeeSuggestionCalculator
@@ -78,4 +79,5 @@ class DependencyProvider {
     lateinit var atApiController: AtApiController
     lateinit var atController: AtController
     lateinit var transactionTypes: Map<Byte, Map<Byte, TransactionType>>
+    lateinit var db: Db
 }

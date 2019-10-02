@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal object GetATLong: APIServlet.JsonRequestHandler(arrayOf(APITag.AT), HEX_STRING_PARAMETER) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         return JSONData.hex2long(ParameterParser.getATLong(request))
     }
 }

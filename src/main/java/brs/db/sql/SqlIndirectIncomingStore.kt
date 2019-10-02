@@ -2,18 +2,13 @@ package brs.db.sql
 
 import brs.DependencyProvider
 import brs.db.BurstKey
-import brs.db.store.DerivedTableManager
 import brs.db.store.IndirectIncomingStore
+import brs.schema.Tables.INDIRECT_INCOMING
 import org.jooq.DSLContext
 import org.jooq.Query
 import org.jooq.Record
 
-import java.util.ArrayList
-import java.util.stream.Collectors
-
-import brs.schema.Tables.INDIRECT_INCOMING
-
-class SqlIndirectIncomingStore(dp: DependencyProvider) : IndirectIncomingStore {
+class SqlIndirectIncomingStore(private val dp: DependencyProvider) : IndirectIncomingStore {
 
     private val indirectIncomingTable: EntitySqlTable<IndirectIncomingStore.IndirectIncoming>
 
@@ -50,7 +45,7 @@ class SqlIndirectIncomingStore(dp: DependencyProvider) : IndirectIncomingStore {
     }
 
     override fun addIndirectIncomings(indirectIncomings: Collection<IndirectIncomingStore.IndirectIncoming>) {
-        Db.useDSLContext { ctx -> indirectIncomingTable.save(ctx, indirectIncomings.toTypedArray()) }
+        dp.db.useDslContext { ctx -> indirectIncomingTable.save(ctx, indirectIncomings.toTypedArray()) }
     }
 
     override fun getIndirectIncomings(accountId: Long, from: Int, to: Int): List<Long> {

@@ -18,7 +18,7 @@ class EffectiveBalanceLeasing(dp: DependencyProvider) : AccountControl(dp) {
         return Attachment.AccountControlEffectiveBalanceLeasing(dp, attachmentData)
     }
 
-    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         // TODO: check if anyone's used this or if it's even possible to use this, and eliminate it if possible
         // TODO harry1453: people have used this, remove in next fork
     }

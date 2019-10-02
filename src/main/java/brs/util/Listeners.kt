@@ -1,35 +1,19 @@
 package brs.util
 
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.locks.StampedLock
 
 class Listeners<T, E : Enum<E>> {
-    private val listenersMap = ConcurrentHashMap<Enum<E>, MutableList<(T) -> Unit>>() // Remember, this map type cannot take null keys.
+    private val listenersMap = mutableMapOf<Enum<E>, MutableList<suspend (T) -> Unit>>() // Remember, this map type cannot take null keys.
+    private val stampedLock = StampedLock()
 
-    // TODO reverse argument order to allow for Kotlin's special syntax
-    fun addListener(listener: (T) -> Unit, eventType: Enum<E>): Boolean {
-        synchronized(this) {
-            val listeners = listenersMap.computeIfAbsent(eventType) { CopyOnWriteArrayList() }
-            return listeners.add(listener)
+    suspend fun addListener(eventType: Enum<E>, listener: suspend (T) -> Unit) {
+        stampedLock.write {
+            listenersMap.computeIfAbsent(eventType) { mutableListOf() }.add(listener)
         }
     }
 
-    fun removeListener(listener: (T) -> Unit, eventType: Enum<E>): Boolean {
-        synchronized(this) {
-            val listeners = listenersMap[eventType]
-            if (listeners != null) {
-                return listeners.remove(listener)
-            }
-        }
-        return false
-    }
-
-    fun accept(t: T, eventType: Enum<E>) {
-        val listeners = listenersMap[eventType]
-        if (listeners != null) {
-            for (listener in listeners) {
-                listener(t)
-            }
-        }
+    suspend fun accept(eventType: Enum<E>, t: T) {
+        // Read via the stamped lock from the map, return if null, otherwise each listener should accept the value.
+        (stampedLock.read { listenersMap[eventType] } ?: return).forEach { it(t) }
     }
 }

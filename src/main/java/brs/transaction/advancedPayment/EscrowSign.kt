@@ -14,15 +14,15 @@ class EscrowSign(dp: DependencyProvider) : AdvancedPayment(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.AdvancedPaymentEscrowSign(dp, attachmentData)
 
-    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
+    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
 
-    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowSign
         val escrow = dp.escrowService.getEscrowTransaction(attachment.escrowId)!!
         dp.escrowService.sign(senderAccount.id, attachment.decision!!, escrow)
     }
 
-    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
+    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
 
     override fun getDuplicationKey(transaction: Transaction): TransactionDuplicationKey {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowSign

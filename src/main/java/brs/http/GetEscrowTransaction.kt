@@ -11,7 +11,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetEscrowTransaction(private val escrowService: EscrowService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ESCROW_PARAMETER) {
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val escrowId: Long
         try {
             escrowId = Convert.emptyToNull(request.getParameter(ESCROW_PARAMETER)).parseUnsignedLong()

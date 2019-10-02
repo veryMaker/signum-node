@@ -21,17 +21,17 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
         }
 
     override val batch: MutableMap<BurstKey, T>
-        get() = Db.getBatch<T>(table)
+        get() = dp.db.getBatch<T>(table)
 
     override val cache: Cache<BurstKey, T>
         get() = dp.dbCacheManager.getCache(table, tClass)!!
 
     private fun assertInTransaction() {
-        check(!Db.isInTransaction) { "Cannot use in batch table transaction" }
+        check(!dp.db.isInTransaction) { "Cannot use in batch table transaction" }
     }
 
     private fun assertNotInTransaction() {
-        check(Db.isInTransaction) { "Not in transaction" }
+        check(dp.db.isInTransaction) { "Not in transaction" }
     }
 
     protected abstract fun bulkInsert(ctx: DSLContext, t: Collection<T>)
@@ -47,7 +47,7 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
     override fun get(dbKey: BurstKey): T? {
         if (cache.containsKey(dbKey)) {
             return cache.get(dbKey)
-        } else if (Db.isInTransaction && batch.containsKey(dbKey)) {
+        } else if (dp.db.isInTransaction && batch.containsKey(dbKey)) {
             return batch[dbKey]
         }
         val item = super.get(dbKey)
@@ -71,7 +71,7 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
             return
         }
 
-        Db.useDSLContext { ctx ->
+        dp.db.useDslContext { ctx ->
             val updateQuery = ctx.updateQuery(tableClass)
             updateQuery.addValue(latestField, false)
             for (idColumn in dbKeyFactory.pkColumns) {

@@ -3,6 +3,9 @@ package brs
 import brs.props.Props
 import brs.services.BlockService
 import brs.util.MiningPlot
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.jocl.*
 import org.jocl.CL.*
 import org.slf4j.LoggerFactory
@@ -18,8 +21,8 @@ class OCLPoC(dp: DependencyProvider) {
 
     private val logger = LoggerFactory.getLogger(OCLPoC::class.java)
 
-    private var HASHES_PER_ENQUEUE: Int = 0
-    private var MEM_PERCENT: Int = 0
+    private val hashesPerBatch: Int
+    private val memPercent: Int
 
     private var ctx: cl_context? = null
     private var queue: cl_command_queue? = null
@@ -30,14 +33,14 @@ class OCLPoC(dp: DependencyProvider) {
 
     var maxItems: Long = 0
         private set
-    private var MAX_GROUP_ITEMS: Long = 0
+    private val maxGroupItems: Long
 
-    private val oclLock = Any()
+    private val oclLock = Mutex()
 
     init {
         val propertyService = dp.propertyService
-        HASHES_PER_ENQUEUE = propertyService.get(Props.GPU_HASHES_PER_BATCH)
-        MEM_PERCENT = propertyService.get(Props.GPU_MEM_PERCENT)
+        hashesPerBatch = propertyService.get(Props.GPU_HASHES_PER_BATCH)
+        memPercent = propertyService.get(Props.GPU_MEM_PERCENT)
 
         try {
             val autoChoose = propertyService.get(Props.GPU_AUTODETECT)
@@ -122,19 +125,19 @@ class OCLPoC(dp: DependencyProvider) {
             clGetKernelWorkGroupInfo(getKernel, device, CL_KERNEL_WORK_GROUP_SIZE, 8,
                     Pointer.to(getGroupSize), null)
 
-            MAX_GROUP_ITEMS = Math.min(genGroupSize[0], getGroupSize[0])
+            maxGroupItems = Math.min(genGroupSize[0], getGroupSize[0])
 
-            if (MAX_GROUP_ITEMS <= 0) {
+            if (maxGroupItems <= 0) {
                 throw OCLCheckerException(
-                        "OpenCL init error. Invalid max group items: $MAX_GROUP_ITEMS")
+                        "OpenCL init error. Invalid max group items: $maxGroupItems")
             }
 
-            val maxItemsByComputeUnits = getComputeUnits(device) * MAX_GROUP_ITEMS
+            val maxItemsByComputeUnits = getComputeUnits(device) * maxGroupItems
 
             maxItems = Math.min(calculateMaxItemsByMem(device), maxItemsByComputeUnits)
 
-            if (maxItems % MAX_GROUP_ITEMS != 0L) {
-                maxItems -= maxItems % MAX_GROUP_ITEMS
+            if (maxItems % maxGroupItems != 0L) {
+                maxItems -= maxItems % maxGroupItems
             }
 
             if (maxItems <= 0) {
@@ -146,13 +149,13 @@ class OCLPoC(dp: DependencyProvider) {
             if (logger.isInfoEnabled) {
                 logger.info("OpenCL exception: {}", e.message, e)
             }
-            destroy()
+            runBlocking { destroy() }
             throw OCLCheckerException("OpenCL exception", e)
         }
 
     }
 
-    fun validatePoC(blocks: Collection<Block>, pocVersion: Int, blockService: BlockService) {
+    suspend fun validatePoC(blocks: Collection<Block>, pocVersion: Int, blockService: BlockService) {
         try {
             if (logger.isDebugEnabled) {
                 logger.debug("starting ocl verify for: {}", blocks.size)
@@ -160,8 +163,8 @@ class OCLPoC(dp: DependencyProvider) {
             val scoopsOut = ByteArray(MiningPlot.SCOOP_SIZE * blocks.size)
 
             var jobSize = blocks.size.toLong()
-            if (jobSize % MAX_GROUP_ITEMS != 0L) {
-                jobSize += MAX_GROUP_ITEMS - jobSize % MAX_GROUP_ITEMS
+            if (jobSize % maxGroupItems != 0L) {
+                jobSize += maxGroupItems - jobSize % maxGroupItems
             }
 
             check(jobSize <= maxItems) { "Attempted to validate too many blocks at once with OCL" }
@@ -186,7 +189,7 @@ class OCLPoC(dp: DependencyProvider) {
                 logger.debug("finished preprocessing: {}", blocks.size)
             }
 
-            synchronized(oclLock) {
+            oclLock.withLock {
                 if (ctx == null) {
                     throw OCLCheckerException("OCL context no longer exists")
                 }
@@ -217,7 +220,7 @@ class OCLPoC(dp: DependencyProvider) {
                     clSetKernelArg(genKernel, 5, Sizeof.cl_int.toLong(), Pointer.to(totalSize))
 
                     var c = 0
-                    val step = HASHES_PER_ENQUEUE
+                    val step = hashesPerBatch
                     val cur = IntArray(1)
                     val st = IntArray(1)
                     while (c < 8192) {
@@ -226,7 +229,7 @@ class OCLPoC(dp: DependencyProvider) {
                         clSetKernelArg(genKernel, 3, Sizeof.cl_int.toLong(), Pointer.to(cur))
                         clSetKernelArg(genKernel, 4, Sizeof.cl_int.toLong(), Pointer.to(st))
                         clEnqueueNDRangeKernel(queue, genKernel, 1, null, longArrayOf(jobSize),
-                                longArrayOf(MAX_GROUP_ITEMS), 0, null, null)
+                                longArrayOf(maxGroupItems), 0, null, null)
 
                         c += st[0]
                     }
@@ -237,14 +240,14 @@ class OCLPoC(dp: DependencyProvider) {
                         clSetKernelArg(getKernel2, 2, Sizeof.cl_mem.toLong(), Pointer.to(scoopOutMem!!))
                         clSetKernelArg(getKernel2, 3, Sizeof.cl_int.toLong(), Pointer.to(totalSize))
                         clEnqueueNDRangeKernel(queue, getKernel2, 1, null, longArrayOf(jobSize),
-                                longArrayOf(MAX_GROUP_ITEMS), 0, null, null)
+                                longArrayOf(maxGroupItems), 0, null, null)
                     } else {
                         clSetKernelArg(getKernel, 0, Sizeof.cl_mem.toLong(), Pointer.to(scoopNumMem!!))
                         clSetKernelArg(getKernel, 1, Sizeof.cl_mem.toLong(), Pointer.to(bufferMem))
                         clSetKernelArg(getKernel, 2, Sizeof.cl_mem.toLong(), Pointer.to(scoopOutMem!!))
                         clSetKernelArg(getKernel, 3, Sizeof.cl_int.toLong(), Pointer.to(totalSize))
                         clEnqueueNDRangeKernel(queue, getKernel, 1, null, longArrayOf(jobSize),
-                                longArrayOf(MAX_GROUP_ITEMS), 0, null, null)
+                                longArrayOf(maxGroupItems), 0, null, null)
                     }
 
                     clEnqueueReadBuffer(queue, scoopOutMem, true, 0,
@@ -299,8 +302,8 @@ class OCLPoC(dp: DependencyProvider) {
 
     }
 
-    fun destroy() {
-        synchronized(oclLock) {
+    suspend fun destroy() {
+        oclLock.withLock {
             if (program != null) {
                 clReleaseProgram(program)
                 program = null
@@ -353,8 +356,8 @@ class OCLPoC(dp: DependencyProvider) {
         clGetDeviceInfo(device, CL_DEVICE_GLOBAL_MEM_SIZE, 8, Pointer.to(globalMemSize), null)
         clGetDeviceInfo(device, CL_DEVICE_MAX_MEM_ALLOC_SIZE, 8, Pointer.to(maxMemAllocSize), null)
 
-        val maxItemsByGlobalMemSize = globalMemSize[0] * MEM_PERCENT / 100 / MEM_PER_ITEM
-        val maxItemsByMaxAllocSize = maxMemAllocSize[0] * MEM_PERCENT / 100 / BUFFER_PER_ITEM
+        val maxItemsByGlobalMemSize = globalMemSize[0] * memPercent / 100 / MEM_PER_ITEM
+        val maxItemsByMaxAllocSize = maxMemAllocSize[0] * memPercent / 100 / BUFFER_PER_ITEM
 
         logger.debug("Global Memory: {}", globalMemSize[0])
         logger.debug("Max alloc Memory: {}", maxMemAllocSize[0])

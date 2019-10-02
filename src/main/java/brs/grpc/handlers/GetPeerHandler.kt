@@ -6,7 +6,7 @@ import brs.grpc.proto.ApiException
 import brs.grpc.proto.BrsApi
 
 class GetPeerHandler(private val dp: DependencyProvider) : GrpcApiHandler<BrsApi.GetPeerRequest, BrsApi.Peer> {
-    override fun handleRequest(request: BrsApi.GetPeerRequest): BrsApi.Peer {
+    override suspend fun handleRequest(request: BrsApi.GetPeerRequest): BrsApi.Peer {
         val peer = dp.peers.getPeer(request.peerAddress) ?: throw ApiException("Could not find peer")
         return BrsApi.Peer.newBuilder()
                 .setState(peer.state.toProtobuf())

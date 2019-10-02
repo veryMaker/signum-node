@@ -8,7 +8,7 @@ import org.jooq.Record
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 
-abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableClass: TableImpl<*>, internal val dbKeyFactory: DbKey.Factory<T>, private val multiversion: Boolean, dp: DependencyProvider) : DerivedSqlTable(table, tableClass, dp), ValuesTable<T, V> {
+abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableClass: TableImpl<*>, internal val dbKeyFactory: DbKey.Factory<T>, private val multiversion: Boolean, private val dp: DependencyProvider) : DerivedSqlTable(table, tableClass, dp), ValuesTable<T, V> {
     protected constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: DbKey.Factory<T>, dp: DependencyProvider) : this(table, tableClass, dbKeyFactory, false, dp) {}
 
     protected abstract fun load(ctx: DSLContext, record: Record): V
@@ -16,13 +16,13 @@ abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableCla
     protected abstract fun save(ctx: DSLContext, t: T, v: V)
 
     override fun get(dbKey: BurstKey): List<V> {
-        return Db.useDSLContext<List<V>> { ctx ->
+        return dp.db.useDslContext<List<V>> { ctx ->
             val key = dbKey as DbKey
             var values: List<V>?
-            if (Db.isInTransaction) {
-                values = Db.getCache<List<V>>(table)[key]
+            if (dp.db.isInTransaction) {
+                values = dp.db.getCache<List<V>>(table)[key]
                 if (values != null) {
-                    return@useDSLContext values
+                    return@useDslContext values
                 }
             }
             values = ctx.selectFrom(tableClass)
@@ -30,18 +30,18 @@ abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableCla
                     .and(if (multiversion) latestField?.isTrue ?: DSL.noCondition() else DSL.noCondition())
                     .orderBy(tableClass.field("db_id").desc())
                     .fetch { record -> load(ctx, record) }
-            if (Db.isInTransaction) {
-                Db.getCache<Any>(table)[key] = values
+            if (dp.db.isInTransaction) {
+                dp.db.getCache<Any>(table)[key] = values
             }
             values
         }
     }
 
     override fun insert(t: T, values: List<V>) {
-        check(Db.isInTransaction) { "Not in transaction" }
-        Db.useDSLContext { ctx ->
+        check(dp.db.isInTransaction) { "Not in transaction" }
+        dp.db.useDslContext { ctx ->
             val dbKey = dbKeyFactory.newKey(t) as DbKey
-            Db.getCache<Any>(table)[dbKey] = values
+            dp.db.getCache<Any>(table)[dbKey] = values
             if (multiversion) {
                 ctx.update(tableClass)
                         .set(latestField, false)
@@ -57,11 +57,11 @@ abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableCla
 
     override fun rollback(height: Int) {
         super.rollback(height)
-        Db.getCache<Any>(table).clear()
+        dp.db.getCache<Any>(table).clear()
     }
 
     override fun truncate() {
         super.truncate()
-        Db.getCache<Any>(table).clear()
+        dp.db.getCache<Any>(table).clear()
     }
 }

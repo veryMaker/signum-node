@@ -13,7 +13,7 @@ interface TransactionProcessor : Observable<Collection<Transaction>, Transaction
     @Deprecated("Just use UTStore directly")
     val amountUnconfirmedTransactions: Int
 
-    val unconfirmedTransactionsSyncObj: Mutex
+    val mutex: Mutex
 
     enum class Event {
         REMOVED_UNCONFIRMED_TRANSACTIONS,
@@ -22,23 +22,23 @@ interface TransactionProcessor : Observable<Collection<Transaction>, Transaction
     }
 
     @Deprecated("Just use UTStore directly")
-    fun revalidateUnconfirmedTransactions()
+    suspend fun revalidateUnconfirmedTransactions()
 
     @Deprecated("Just use UTStore directly")
-    fun getAllUnconfirmedTransactionsFor(peer: Peer): Collection<Transaction>
+    suspend fun getAllUnconfirmedTransactionsFor(peer: Peer): Collection<Transaction>
 
     @Deprecated("Just use UTStore directly")
-    fun markFingerPrintsOf(peer: Peer, transactions: Collection<Transaction>)
+    suspend fun markFingerPrintsOf(peer: Peer, transactions: Collection<Transaction>)
 
     @Deprecated("Just use UTStore directly")
-    fun getUnconfirmedTransaction(transactionId: Long): Transaction?
+    suspend fun getUnconfirmedTransaction(transactionId: Long): Transaction?
 
     @Deprecated("Just use UTStore directly")
-    fun clearUnconfirmedTransactions()
+    suspend fun clearUnconfirmedTransactions()
 
-    fun broadcast(transaction: Transaction): Int?
+    suspend fun broadcast(transaction: Transaction): Int?
 
-    fun processPeerTransactions(request: JsonObject, peer: Peer)
+    suspend fun processPeerTransactions(request: JsonObject, peer: Peer)
 
     fun parseTransaction(bytes: ByteArray): Transaction
 
@@ -48,13 +48,13 @@ interface TransactionProcessor : Observable<Collection<Transaction>, Transaction
 
     fun getTransactionVersion(blockHeight: Int): Int
 
-    fun processLater(transactions: Collection<Transaction>)
+    suspend fun processLater(transactions: Collection<Transaction>)
 
     @Deprecated("Just use UTStore directly")
-    fun requeueAllUnconfirmedTransactions()
+    suspend fun requeueAllUnconfirmedTransactions()
 
     @Deprecated("Just use UTStore directly")
-    fun removeForgedTransactions(transactions: Collection<Transaction>)
+    suspend fun removeForgedTransactions(transactions: Collection<Transaction>)
 
-    fun notifyListeners(transactions: Collection<Transaction>, eventType: Event)
+    suspend fun notifyListeners(transactions: Collection<Transaction>, eventType: Event)
 }

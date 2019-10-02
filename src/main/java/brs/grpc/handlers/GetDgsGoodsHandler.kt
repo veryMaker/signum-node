@@ -7,7 +7,7 @@ import brs.services.DGSGoodsStoreService
 
 class GetDgsGoodsHandler(private val digitalGoodsStoreService: DGSGoodsStoreService) : GrpcApiHandler<BrsApi.GetDgsGoodsRequest, BrsApi.DgsGoods> {
 
-    override fun handleRequest(request: BrsApi.GetDgsGoodsRequest): BrsApi.DgsGoods {
+    override suspend fun handleRequest(request: BrsApi.GetDgsGoodsRequest): BrsApi.DgsGoods {
         val sellerId = request.seller
         val inStockOnly = request.inStockOnly
         val indexRange = ProtoBuilder.sanitizeIndexRange(request.indexRange)

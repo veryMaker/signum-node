@@ -15,7 +15,7 @@ class ArbitraryMessage(dp: DependencyProvider) : Messaging(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.ArbitraryMessage(dp)
 
-    override fun applyAttachment(
+    override suspend fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?

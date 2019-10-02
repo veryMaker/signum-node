@@ -15,7 +15,7 @@ class DigitalGoodsRefund(dp: DependencyProvider) : DigitalGoods(dp) {
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsRefund(dp, buffer, transactionVersion)
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsRefund(dp, attachmentData)
 
-    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
+    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.trace("TransactionType REFUND")
         val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
         if (senderAccount.unconfirmedBalanceNQT >= totalAmountNQT) {
@@ -30,14 +30,14 @@ class DigitalGoodsRefund(dp: DependencyProvider) : DigitalGoods(dp) {
         return attachment.refundNQT
     }
 
-    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
+    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
         dp.accountService.addToUnconfirmedBalanceNQT(
             senderAccount,
             calculateAttachmentTotalAmountNQT(transaction)
         )
     }
 
-    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsRefund
         dp.digitalGoodsStoreService.refund(
             transaction.senderId,

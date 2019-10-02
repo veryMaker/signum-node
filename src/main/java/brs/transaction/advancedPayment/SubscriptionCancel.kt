@@ -15,19 +15,19 @@ class SubscriptionCancel(dp: DependencyProvider) : AdvancedPayment(dp) {
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.AdvancedPaymentSubscriptionCancel(dp, buffer, transactionVersion)
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.AdvancedPaymentSubscriptionCancel(dp, attachmentData)
 
-    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
+    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.trace("TransactionType SUBSCRIPTION_CANCEL")
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionCancel
         dp.subscriptionService.addRemoval(attachment.subscriptionId)
         return true
     }
 
-    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionCancel
         dp.subscriptionService.removeSubscription(attachment.subscriptionId)
     }
 
-    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
+    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
 
     override fun getDuplicationKey(transaction: Transaction): TransactionDuplicationKey {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionCancel

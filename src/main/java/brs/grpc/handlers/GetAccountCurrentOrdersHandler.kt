@@ -7,7 +7,7 @@ import brs.grpc.proto.BrsApi
 import brs.grpc.proto.ProtoBuilder
 
 class GetAccountCurrentOrdersHandler(private val assetExchange: AssetExchange) : GrpcApiHandler<BrsApi.GetAccountOrdersRequest, BrsApi.Orders> {
-    override fun handleRequest(request: BrsApi.GetAccountOrdersRequest): BrsApi.Orders {
+    override suspend fun handleRequest(request: BrsApi.GetAccountOrdersRequest): BrsApi.Orders {
         val accountId = request.account
         val assetId = request.asset
         val indexRange = ProtoBuilder.sanitizeIndexRange(request.indexRange)

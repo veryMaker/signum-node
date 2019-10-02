@@ -9,7 +9,7 @@ import java.math.BigInteger
 import javax.servlet.http.HttpServletRequest
 
 internal object LongConvert : APIServlet.JsonRequestHandler(arrayOf(APITag.UTILS), ID_PARAMETER) {
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val id = Convert.emptyToNull(request.getParameter(ID_PARAMETER)) ?: return JSON.emptyJSON
         val response = JsonObject()
         val bigInteger = BigInteger(id)

@@ -42,7 +42,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         subscriptionTable.insert(subscription)
     }
 
-    override fun applyConfirmed(block: Block, blockchainHeight: Int) {
+    override suspend fun applyConfirmed(block: Block, blockchainHeight: Int) {
         paymentTransactions.clear()
         for (subscription in appliedSubscriptions) {
             apply(block, blockchainHeight, subscription)
@@ -61,7 +61,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         }
     }
 
-    override fun calculateFees(timestamp: Int): Long {
+    override suspend fun calculateFees(timestamp: Int): Long {
         var totalFeeNQT: Long = 0
         val appliedUnconfirmedSubscriptions = mutableListOf<Subscription>()
         for (subscription in dp.subscriptionStore.getUpdateSubscriptions(timestamp)) {
@@ -89,7 +89,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         removeSubscriptions.add(id)
     }
 
-    override fun applyUnconfirmed(timestamp: Int): Long {
+    override suspend fun applyUnconfirmed(timestamp: Int): Long {
         appliedSubscriptions.clear()
         var totalFees: Long = 0
         for (subscription in dp.subscriptionStore.getUpdateSubscriptions(timestamp)) {
@@ -106,7 +106,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         return totalFees
     }
 
-    private fun applyUnconfirmed(subscription: Subscription): Boolean {
+    private suspend fun applyUnconfirmed(subscription: Subscription): Boolean {
         val sender = dp.accountService.getAccount(subscription.senderId!!)
         val totalAmountNQT = Convert.safeAdd(subscription.amountNQT!!, fee)
 
@@ -119,7 +119,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         return true
     }
 
-    private fun undoUnconfirmed(subscription: Subscription) {
+    private suspend fun undoUnconfirmed(subscription: Subscription) {
         val sender = dp.accountService.getAccount(subscription.senderId!!)
         val totalAmountNQT = Convert.safeAdd(subscription.amountNQT!!, fee)
 
@@ -128,7 +128,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         }
     }
 
-    private fun apply(block: Block, blockchainHeight: Int, subscription: Subscription) {
+    private suspend fun apply(block: Block, blockchainHeight: Int, subscription: Subscription) {
         val sender = dp.accountService.getAccount(subscription.senderId!!)!!
         val recipient = dp.accountService.getAccount(subscription.recipientId!!)!!
 

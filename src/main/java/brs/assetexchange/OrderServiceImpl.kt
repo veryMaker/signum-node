@@ -8,7 +8,7 @@ import brs.Transaction
 import brs.util.Convert
 import brs.util.toUnsignedString
 
-internal class OrderServiceImpl(private val dp: DependencyProvider, private val tradeService: TradeServiceImpl) {
+internal class OrderServiceImpl(private val dp: DependencyProvider, private val tradeService: TradeServiceImpl) { // TODO interface
     private val askOrderTable = dp.orderStore.askOrderTable
     private val askOrderDbKeyFactory = dp.orderStore.askOrderDbKeyFactory
     private val bidOrderTable = dp.orderStore.bidOrderTable
@@ -68,14 +68,14 @@ internal class OrderServiceImpl(private val dp: DependencyProvider, private val 
         askOrderTable.delete(getAskOrder(orderId) ?: return)
     }
 
-    fun addAskOrder(transaction: Transaction, attachment: Attachment.ColoredCoinsAskOrderPlacement) {
+    suspend fun addAskOrder(transaction: Transaction, attachment: Attachment.ColoredCoinsAskOrderPlacement) {
         val dbKey = askOrderDbKeyFactory.newKey(transaction.id)
         val order = Ask(dbKey, transaction, attachment)
         askOrderTable.insert(order)
         matchOrders(attachment.assetId)
     }
 
-    fun addBidOrder(transaction: Transaction, attachment: Attachment.ColoredCoinsBidOrderPlacement) {
+    suspend fun addBidOrder(transaction: Transaction, attachment: Attachment.ColoredCoinsBidOrderPlacement) {
         val dbKey = bidOrderDbKeyFactory.newKey(transaction.id)
         val order = Bid(dbKey, transaction, attachment)
         bidOrderTable.insert(order)
@@ -90,7 +90,7 @@ internal class OrderServiceImpl(private val dp: DependencyProvider, private val 
         return dp.orderStore.getNextBid(assetId)
     }
 
-    private fun matchOrders(assetId: Long) {
+    private suspend fun matchOrders(assetId: Long) {
         var askOrder = getNextAskOrder(assetId)
         var bidOrder = getNextBidOrder(assetId)
 

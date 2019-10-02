@@ -34,7 +34,7 @@ internal class SubmitNonce(propertyService: PropertyService, private val account
         this.allowOtherSoloMiners = propertyService.get(Props.ALLOW_OTHER_SOLO_MINERS)
     }
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         var secret: String? = request.getParameter(SECRET_PHRASE_PARAMETER)
         val nonce = request.getParameter(NONCE_PARAMETER).parseUnsignedLong()
 

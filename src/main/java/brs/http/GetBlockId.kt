@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetBlockId(private val blockchain: Blockchain) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS), HEIGHT_PARAMETER) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
         val height: Int
         try {

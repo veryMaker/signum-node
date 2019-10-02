@@ -15,7 +15,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetTransactionBytes(private val blockchain: Blockchain, private val transactionProcessor: TransactionProcessor) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_PARAMETER) {
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val transactionValue = request.getParameter(TRANSACTION_PARAMETER) ?: return MISSING_TRANSACTION
 
         val transactionId: Long

@@ -11,7 +11,7 @@ import com.google.gson.JsonObject
 
 internal class GetNextBlocks(private val blockchain: Blockchain) : PeerServlet.PeerRequestHandler {
 
-    override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
+    override suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement {
 
         val response = JsonObject()
 

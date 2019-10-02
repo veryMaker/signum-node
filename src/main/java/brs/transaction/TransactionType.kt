@@ -35,7 +35,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
     /**
      * @return false if double spending
      */
-    fun applyUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
+    suspend fun applyUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         val totalAmountNQT = calculateTransactionAmountNQT(transaction)!!
         if (logger.isTraceEnabled) {
             logger.trace(
@@ -77,9 +77,9 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
         return 0L
     }
 
-    internal abstract fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean
+    internal abstract suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean
 
-    internal fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    internal suspend fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         dp.accountService.addToBalanceNQT(senderAccount, -Convert.safeAdd(transaction.amountNQT, transaction.feeNQT))
         if (transaction.referencedTransactionFullHash != null) {
             dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT)
@@ -93,7 +93,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
         applyAttachment(transaction, senderAccount, recipientAccount)
     }
 
-    internal abstract fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?)
+    internal abstract suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?)
 
     open fun parseAppendices(builder: Transaction.Builder, attachmentData: JsonObject) {
         builder.message(Appendix.Message.parse(attachmentData))
@@ -121,7 +121,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
         }
     }
 
-    fun undoUnconfirmed(transaction: Transaction, senderAccount: Account) {
+    suspend fun undoUnconfirmed(transaction: Transaction, senderAccount: Account) {
         undoAttachmentUnconfirmed(transaction, senderAccount)
         dp.accountService.addToUnconfirmedBalanceNQT(
             senderAccount,
@@ -132,7 +132,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
         }
     }
 
-    internal abstract fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account)
+    internal abstract suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account)
 
     open fun getDuplicationKey(transaction: Transaction): TransactionDuplicationKey {
         return TransactionDuplicationKey.IS_NEVER_DUPLICATE

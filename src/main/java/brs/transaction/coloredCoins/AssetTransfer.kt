@@ -21,7 +21,7 @@ class AssetTransfer(dp: DependencyProvider) : ColoredCoins(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.ColoredCoinsAssetTransfer(dp, attachmentData)
 
-    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
+    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.trace("TransactionType ASSET_TRANSFER")
         val attachment = transaction.attachment as Attachment.ColoredCoinsAssetTransfer
         val unconfirmedAssetBalance =
@@ -37,7 +37,7 @@ class AssetTransfer(dp: DependencyProvider) : ColoredCoins(dp) {
         return false
     }
 
-    override fun applyAttachment(
+    override suspend fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?
@@ -52,7 +52,7 @@ class AssetTransfer(dp: DependencyProvider) : ColoredCoins(dp) {
         dp.assetExchange.addAssetTransfer(transaction, attachment)
     }
 
-    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
+    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsAssetTransfer
         dp.accountService.addToUnconfirmedAssetBalanceQNT(
             senderAccount,

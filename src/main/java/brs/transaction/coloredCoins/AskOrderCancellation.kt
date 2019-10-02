@@ -20,7 +20,7 @@ class AskOrderCancellation(dp: DependencyProvider) : OrderCancellation(dp) {
         return Attachment.ColoredCoinsAskOrderCancellation(dp, attachmentData)
     }
 
-    override fun applyAttachment(
+    override suspend fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?

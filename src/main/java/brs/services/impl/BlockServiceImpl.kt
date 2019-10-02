@@ -104,7 +104,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
 
     }
 
-    override fun apply(block: Block) {
+    override suspend fun apply(block: Block) {
         val generatorAccount = dp.accountService.getOrAddAccount(block.generatorId)
         generatorAccount.apply(dp, block.generatorPublicKey, block.height)
         if (!dp.fluxCapacitor.getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {

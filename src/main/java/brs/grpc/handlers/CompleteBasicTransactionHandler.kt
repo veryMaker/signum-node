@@ -10,7 +10,7 @@ import com.google.protobuf.Any
 import com.google.protobuf.InvalidProtocolBufferException
 
 class CompleteBasicTransactionHandler(private val dp: DependencyProvider) : GrpcApiHandler<BrsApi.BasicTransaction, BrsApi.BasicTransaction> {
-    override fun handleRequest(request: BrsApi.BasicTransaction): BrsApi.BasicTransaction {
+    override suspend fun handleRequest(request: BrsApi.BasicTransaction): BrsApi.BasicTransaction {
         try {
             val builder = request.toBuilder()
             val attachment = Attachment.AbstractAttachment.parseProtobufMessage(dp, request.attachment)

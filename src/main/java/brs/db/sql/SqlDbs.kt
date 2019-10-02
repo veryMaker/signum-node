@@ -14,6 +14,6 @@ class SqlDbs(dp: DependencyProvider) : Dbs {
     init {
         this.blockDb = SqlBlockDb(dp)
         this.transactionDb = SqlTransactionDb(dp)
-        this.peerDb = SqlPeerDb()
+        this.peerDb = SqlPeerDb(dp)
     }
 }

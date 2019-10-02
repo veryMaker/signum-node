@@ -11,7 +11,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetPeers(private val dp: DependencyProvider) : APIServlet.JsonRequestHandler(arrayOf(APITag.INFO), ACTIVE_PARAMETER, STATE_PARAMETER) {
-    override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
         val active = "true".equals(request.getParameter(ACTIVE_PARAMETER), ignoreCase = true)
         val stateValue = Convert.emptyToNull(request.getParameter(STATE_PARAMETER))

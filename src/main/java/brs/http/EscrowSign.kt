@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class EscrowSign internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), ESCROW_PARAMETER, DECISION_PARAMETER) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val escrowId: Long
         try {
             escrowId = Convert.emptyToNull(request.getParameter(ESCROW_PARAMETER)).parseUnsignedLong()

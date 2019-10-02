@@ -1,6 +1,5 @@
 package brs.services
 
-import brs.BurstException
 import brs.Transaction
 
 interface TransactionService {
@@ -8,9 +7,9 @@ interface TransactionService {
 
     fun validate(transaction: Transaction)
 
-    fun applyUnconfirmed(transaction: Transaction): Boolean
+    suspend fun applyUnconfirmed(transaction: Transaction): Boolean
 
-    fun apply(transaction: Transaction)
+    suspend fun apply(transaction: Transaction)
 
-    fun undoUnconfirmed(transaction: Transaction)
+    suspend fun undoUnconfirmed(transaction: Transaction)
 }

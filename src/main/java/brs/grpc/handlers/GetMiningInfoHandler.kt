@@ -9,6 +9,7 @@ import brs.grpc.proto.BrsApi
 import brs.grpc.proto.toByteString
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
+import kotlinx.coroutines.runBlocking
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 
@@ -21,7 +22,9 @@ class GetMiningInfoHandler(blockchainProcessor: BlockchainProcessor, blockchain:
     private val currentMiningInfo = AtomicReference<BrsApi.MiningInfo>()
 
     init {
-        blockchainProcessor.addListener({ block: Block -> this.onBlock(block) }, BlockchainProcessor.Event.BLOCK_PUSHED)
+        runBlocking {
+            blockchainProcessor.addListener(BlockchainProcessor.Event.BLOCK_PUSHED) { block: Block -> onBlock(block) }
+        }
         onBlock(blockchain.lastBlock)
     }
 
@@ -65,7 +68,7 @@ class GetMiningInfoHandler(blockchainProcessor: BlockchainProcessor, blockchain:
         }
     }
 
-    override fun handleStreamRequest(request: Empty, responseObserver: StreamObserver<BrsApi.MiningInfo>) {
+    override suspend fun handleStreamRequest(request: Empty, responseObserver: StreamObserver<BrsApi.MiningInfo>) {
         responseObserver.onNext(currentMiningInfo.get())
         addListener { miningInfo ->
             if (miningInfo == null) {

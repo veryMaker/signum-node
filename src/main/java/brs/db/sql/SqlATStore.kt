@@ -32,7 +32,7 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
     override val atStateTable: VersionedEntityTable<brs.at.AT.ATState>
 
     override val orderedATs: List<Long>
-        get() = Db.useDSLContext<List<Long>> { ctx ->
+        get() = dp.db.useDslContext<List<Long>> { ctx ->
             ctx.selectFrom(AT.join(AT_STATE).on(AT.ID.eq(AT_STATE.AT_ID)).join(ACCOUNT).on(AT.ID.eq(ACCOUNT.ID)))
                     .where(AT.LATEST.isTrue)
                     .and(AT_STATE.LATEST.isTrue)
@@ -46,7 +46,7 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
         }
 
     override val allATIds: Collection<Long>
-        get() = Db.useDSLContext<List<Long>> { ctx -> ctx.selectFrom(AT).where(AT.LATEST.isTrue).fetch().getValues(AT.ID) }
+        get() = dp.db.useDslContext<List<Long>> { ctx -> ctx.selectFrom(AT).where(AT.LATEST.isTrue).fetch().getValues(AT.ID) }
 
     init {
         atTable = object : VersionedEntitySqlTable<brs.at.AT>("at", AT, atDbKeyFactory, dp) {
@@ -107,18 +107,18 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
     }
 
     override fun isATAccountId(id: Long?): Boolean {
-        return Db.useDSLContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectOne().from(AT).where(AT.ID.eq(id)).and(AT.LATEST.isTrue)) }
+        return dp.db.useDslContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectOne().from(AT).where(AT.ID.eq(id)).and(AT.LATEST.isTrue)) }
     }
 
     override fun getAT(id: Long?): brs.at.AT? {
-        return Db.useDSLContext<brs.at.AT?> { ctx ->
+        return dp.db.useDslContext<brs.at.AT?> { ctx ->
             val record = ctx.select(*AT.fields())
                     .select(*AT_STATE.fields())
                     .from(AT.join(AT_STATE).on(AT.ID.eq(AT_STATE.AT_ID)))
                     .where(AT.LATEST.isTrue
                             .and(AT_STATE.LATEST.isTrue)
                             .and(AT.ID.eq(id)))
-                    .fetchOne() ?: return@useDSLContext null
+                    .fetchOne() ?: return@useDslContext null
 
             val at = record!!.into(AT)
             val atState = record.into(AT_STATE)
@@ -134,11 +134,11 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
     }
 
     override fun getATsIssuedBy(accountId: Long?): List<Long> {
-        return Db.useDSLContext<List<Long>> { ctx -> ctx.selectFrom(AT).where(AT.LATEST.isTrue).and(AT.CREATOR_ID.eq(accountId)).orderBy(AT.CREATION_HEIGHT.desc(), AT.ID.asc()).fetch().getValues(AT.ID) }
+        return dp.db.useDslContext<List<Long>> { ctx -> ctx.selectFrom(AT).where(AT.LATEST.isTrue).and(AT.CREATOR_ID.eq(accountId)).orderBy(AT.CREATION_HEIGHT.desc(), AT.ID.asc()).fetch().getValues(AT.ID) }
     }
 
     override fun findTransaction(startHeight: Int, endHeight: Int, atID: Long?, numOfTx: Int, minAmount: Long): Long? {
-        return Db.useDSLContext<Long> { ctx ->
+        return dp.db.useDslContext<Long> { ctx ->
             val query = ctx.select(TRANSACTION.ID)
                     .from(TRANSACTION)
                     .where(TRANSACTION.HEIGHT.between(startHeight, endHeight - 1))
@@ -153,7 +153,7 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
     }
 
     override fun findTransactionHeight(transactionId: Long?, height: Int, atID: Long?, minAmount: Long): Int {
-        return Db.useDSLContext<Int> { ctx ->
+        return dp.db.useDslContext<Int> { ctx ->
             try {
                 val fetch = ctx.select(TRANSACTION.ID)
                         .from(TRANSACTION)
@@ -169,7 +169,7 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
                     val currentTransactionId = fetch.next().value1()
                     if (currentTransactionId == transactionId) break
                 }
-                return@useDSLContext counter
+                return@useDslContext counter
             } catch (e: DataAccessException) {
                 throw RuntimeException(e.toString(), e)
             }

@@ -1,23 +1,15 @@
 package brs.db.sql
 
-import brs.Burst
 import brs.DependencyProvider
 import brs.Order
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
-import brs.db.store.DerivedTableManager
 import brs.db.store.OrderStore
-import brs.schema.tables.records.AskOrderRecord
-import brs.schema.tables.records.BidOrderRecord
-import org.jooq.DSLContext
-import org.jooq.Record
-import org.jooq.SelectQuery
-import org.jooq.SortField
-
-import java.util.ArrayList
-
 import brs.schema.Tables.ASK_ORDER
 import brs.schema.Tables.BID_ORDER
+import org.jooq.DSLContext
+import org.jooq.Record
+import org.jooq.SortField
 
 class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
 
@@ -91,7 +83,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
     }
 
     override fun getNextOrder(assetId: Long): Order.Ask? {
-        return Db.useDSLContext<Order.Ask?> { ctx ->
+        return dp.db.useDslContext<Order.Ask?> { ctx ->
             val query = ctx.selectFrom(ASK_ORDER)
                     .where(ASK_ORDER.ASSET_ID.eq(assetId).and(ASK_ORDER.LATEST.isTrue))
                     .orderBy(ASK_ORDER.PRICE.asc(),
@@ -150,7 +142,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
     }
 
     override fun getNextBid(assetId: Long): Order.Bid? {
-        return Db.useDSLContext<Order.Bid?> { ctx ->
+        return dp.db.useDslContext<Order.Bid?> { ctx ->
             val query = ctx.selectFrom(BID_ORDER)
                     .where(BID_ORDER.ASSET_ID.eq(assetId)
                             .and(BID_ORDER.LATEST.isTrue))

@@ -11,9 +11,9 @@ import brs.util.Subnet
 import brs.util.writeTo
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import kotlinx.coroutines.runBlocking
 import org.eclipse.jetty.http.HttpStatus
 import org.slf4j.LoggerFactory
-import java.io.IOException
 import java.net.InetAddress
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
@@ -144,20 +144,19 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
     }
 
     internal abstract class JsonRequestHandler(apiTags: Array<APITag>, vararg parameters: String) : HttpRequestHandler(apiTags, *parameters) {
-        override fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
+        override suspend fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
             val startTime = System.currentTimeMillis()
 
-            var response: JsonElement
-            try {
-                response = processRequest(request)
+            val response = try {
+                processRequest(request)
             } catch (e: ParameterException) {
-                response = e.errorResponse
+                e.errorResponse
             } catch (e: BurstException) {
                 logger.debug("Error processing API request", e)
-                response = ERROR_INCORRECT_REQUEST
+                ERROR_INCORRECT_REQUEST
             } catch (e: RuntimeException) {
                 logger.debug("Error processing API request", e)
-                response = ERROR_INCORRECT_REQUEST
+                ERROR_INCORRECT_REQUEST
             }
 
             if (response is JsonObject) {
@@ -167,7 +166,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             writeJsonToResponse(resp, response)
         }
 
-        internal abstract fun processRequest(request: HttpServletRequest): JsonElement
+        internal abstract suspend fun processRequest(request: HttpServletRequest): JsonElement
     }
 
     abstract class HttpRequestHandler(apiTags: Array<APITag>, vararg parameters: String) {
@@ -175,7 +174,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         val parameters = parameters.toList()
         val apiTags = apiTags.toSet()
 
-        abstract fun processRequest(request: HttpServletRequest, resp: HttpServletResponse)
+        abstract suspend fun processRequest(request: HttpServletRequest, resp: HttpServletResponse)
 
         fun addErrorMessage(resp: HttpServletResponse, msg: JsonElement) {
             writeJsonToResponse(resp, msg)
@@ -196,7 +195,10 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
 
     override fun doGet(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
-            process(request, resp)
+            runBlocking {
+                // TODO
+                process(request, resp)
+            }
         } catch (e: Exception) { // We don't want to send exception information to client...
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
             logger.warn("Error handling GET request", e)
@@ -206,7 +208,9 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
 
     override fun doPost(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
-            process(request, resp)
+            runBlocking { // TODO
+                process(request, resp)
+            }
         } catch (e: Exception) { // We don't want to send exception information to client...
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
             logger.warn("Error handling GET request", e)
@@ -214,7 +218,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
 
     }
 
-    private fun process(request: HttpServletRequest, resp: HttpServletResponse) {
+    private suspend fun process(request: HttpServletRequest, resp: HttpServletResponse) {
         resp.setHeader("Access-Control-Allow-Methods", "GET, POST")
         resp.setHeader("Access-Control-Allow-Origin", allowedOrigins)
         resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private")

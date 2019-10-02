@@ -11,7 +11,7 @@ import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 internal class TransferAsset(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, ASSET_PARAMETER, QUANTITY_QNT_PARAMETER) {
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val recipient = ParameterParser.getRecipientId(request)
 
         val asset = dp.parameterService.getAsset(request)

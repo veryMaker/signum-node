@@ -32,7 +32,7 @@ class AccountInfo(dp: DependencyProvider) : Messaging(dp) {
         }
     }
 
-    override fun applyAttachment(
+    override suspend fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?

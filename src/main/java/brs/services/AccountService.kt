@@ -8,7 +8,7 @@ import brs.util.Observable
 interface AccountService : Observable<Account, Event> {
     val count: Int
 
-    fun addAssetListener(listener: (AccountAsset) -> Unit, eventType: Event): Boolean
+    suspend fun addAssetListener(eventType: Event, listener: suspend (AccountAsset) -> Unit)
 
     fun getAccount(id: Long): Account?
 
@@ -35,17 +35,17 @@ interface AccountService : Observable<Account, Event> {
 
     fun setAccountInfo(account: Account, name: String, description: String)
 
-    fun addToAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
+    suspend fun addToAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
 
-    fun addToUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
+    suspend fun addToUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
 
-    fun addToAssetAndUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
+    suspend fun addToAssetAndUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
 
-    fun addToBalanceNQT(account: Account, amountNQT: Long)
+    suspend fun addToBalanceNQT(account: Account, amountNQT: Long)
 
-    fun addToUnconfirmedBalanceNQT(account: Account, amountNQT: Long)
+    suspend fun addToUnconfirmedBalanceNQT(account: Account, amountNQT: Long)
 
-    fun addToBalanceAndUnconfirmedBalanceNQT(account: Account, amountNQT: Long)
+    suspend fun addToBalanceAndUnconfirmedBalanceNQT(account: Account, amountNQT: Long)
 
     fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment?
 

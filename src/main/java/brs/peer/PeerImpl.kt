@@ -8,6 +8,7 @@ import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicWithOverride
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.net.*
@@ -38,10 +39,14 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
         if (state != newState) {
             if (state == Peer.State.NON_CONNECTED) {
                 set(newState)
-                dp.peers.notifyListeners(this, Peers.Event.ADDED_ACTIVE_PEER)
+                runBlocking {
+                    dp.peers.notifyListeners(this@PeerImpl, Peers.Event.ADDED_ACTIVE_PEER)
+                }
             } else if (newState != Peer.State.NON_CONNECTED) {
                 set(newState)
-                dp.peers.notifyListeners(this, Peers.Event.CHANGED_ACTIVE_PEER)
+                runBlocking {
+                    dp.peers.notifyListeners(this@PeerImpl, Peers.Event.CHANGED_ACTIVE_PEER)
+                }
             }
         }
     })
@@ -88,14 +93,14 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
         }
     }
 
-    override fun updateDownloadedVolume(volume: Long) {
+    override suspend fun updateDownloadedVolume(volume: Long) {
         synchronized(this) {
             downloadedVolume += volume
         }
         dp.peers.notifyListeners(this, Peers.Event.DOWNLOADED_VOLUME)
     }
 
-    override fun updateUploadedVolume(volume: Long) {
+    override suspend fun updateUploadedVolume(volume: Long) {
         synchronized(this) {
             uploadedVolume += volume
         }
@@ -119,7 +124,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
         }
     }
 
-    override fun blacklist(cause: Exception, description: String) {
+    override suspend fun blacklist(cause: Exception, description: String) {
         if (cause is BurstException.NotCurrentlyValidException || cause is BlockchainProcessor.BlockOutOfOrderException
                 || cause is SQLException || cause.cause is SQLException) {
             // don't blacklist peers just because a feature is not yet enabled, or because of database timeouts
@@ -139,37 +144,37 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
         }
     }
 
-    override fun blacklist(description: String) {
+    override suspend fun blacklist(description: String) {
         if (!isBlacklisted && logger.isInfoEnabled) {
             logger.info("Blacklisting {} ({}) because of: {}", peerAddress, version, description)
         }
         blacklist()
     }
 
-    override fun blacklist() {
+    override suspend fun blacklist() {
         blacklistingTime = System.currentTimeMillis()
         state = Peer.State.NON_CONNECTED
         dp.peers.notifyListeners(this, Peers.Event.BLACKLIST)
     }
 
-    override fun unBlacklist() {
+    override suspend fun unBlacklist() {
         state = Peer.State.NON_CONNECTED
         blacklistingTime = 0
         dp.peers.notifyListeners(this, Peers.Event.UNBLACKLIST)
     }
 
-    override fun updateBlacklistedStatus(curTime: Long) {
+    override suspend fun updateBlacklistedStatus(curTime: Long) {
         if (blacklistingTime > 0 && blacklistingTime + dp.peers.blacklistingPeriod <= curTime) {
             unBlacklist()
         }
     }
 
-    override fun remove() {
+    override suspend fun remove() {
         dp.peers.removePeer(this)
         dp.peers.notifyListeners(this, Peers.Event.REMOVE)
     }
 
-    override fun send(request: JsonElement): JsonObject? {
+    override suspend fun send(request: JsonElement): JsonObject? {
         var response: JsonObject? = null
         var log: String? = null
         var showLog = false
@@ -282,7 +287,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
         return 0
     }
 
-    override fun connect(currentTime: Int) {
+    override suspend fun connect(currentTime: Int) {
         val response = send(dp.peers.myPeerInfoRequest)
         if (response != null) {
             application = JSON.getAsString(response.get("application"))

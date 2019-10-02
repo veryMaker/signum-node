@@ -58,8 +58,8 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
                 dp.statisticsManager = StatisticsManagerImpl(dp)
                 dp.dbCacheManager = DBCacheManagerImpl(dp)
                 LoggerConfigurator.init()
-                Db.init(dp)
-                val dbs = Db.dbsByDatabaseType
+                dp.db = Db(dp)
+                val dbs = dp.db.dbsByDatabaseType
                 dp.blockDb = dbs.blockDb
                 dp.transactionDb = dbs.transactionDb
                 dp.peerDb = dbs.peerDb
@@ -73,7 +73,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
                 dp.orderStore = SqlOrderStore(dp)
                 dp.tradeStore = SqlTradeStore(dp)
                 dp.subscriptionStore = SqlSubscriptionStore(dp)
-                dp.unconfirmedTransactionStore = UnconfirmedTransactionStoreImpl(dp)
+                dp.unconfirmedTransactionStore = UnconfirmedTransactionStoreImpl.new(dp)
                 dp.indirectIncomingStore = SqlIndirectIncomingStore(dp)
                 dp.blockchainStore = SqlBlockchainStore(dp)
                 dp.blockchain = BlockchainImpl(dp)
@@ -98,14 +98,8 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
                 dp.feeSuggestionCalculator = FeeSuggestionCalculator(dp)
                 dp.deeplinkQRCodeGenerator = DeeplinkQRCodeGenerator()
                 dp.parameterService = ParameterServiceImpl(dp)
-                dp.blockchainProcessor.addListener(
-                    AT.HandleATBlockTransactionsListener(dp),
-                    BlockchainProcessor.Event.AFTER_BLOCK_APPLY
-                )
-                dp.blockchainProcessor.addListener(
-                    DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(dp),
-                    BlockchainProcessor.Event.AFTER_BLOCK_APPLY
-                )
+                dp.blockchainProcessor.addListener(BlockchainProcessor.Event.AFTER_BLOCK_APPLY, AT.handleATBlockTransactionsListener(dp))
+                dp.blockchainProcessor.addListener(BlockchainProcessor.Event.AFTER_BLOCK_APPLY, DGSGoodsStoreServiceImpl.expiredPurchaseListener(dp))
                 dp.apiTransactionManager = APITransactionManagerImpl(dp)
                 dp.peers = Peers.new(dp)
                 dp.api = API(dp)
@@ -173,7 +167,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
         shutdown(false)
     }
 
-    fun shutdown(ignoreDBShutdown: Boolean) {
+    fun shutdown(ignoreDBShutdown: Boolean) = runBlocking {
         logger.info("Shutting down...")
         try {
             dp.api.shutdown()
@@ -188,7 +182,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.taskScheduler.shutdown()
         } catch (ignored: UninitializedPropertyAccessException) {}
         if (!ignoreDBShutdown) {
-            Db.shutdown()
+            dp.db.shutdown()
         }
         try {
             dp.dbCacheManager.close()

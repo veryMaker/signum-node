@@ -6,7 +6,6 @@ import brs.util.delegates.Atomic
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.concurrent.atomic.AtomicBoolean
 
 class CoroutineTaskScheduler(dp: DependencyProvider): TaskScheduler {
     private var started by Atomic(false) // Stays true after shutdown
@@ -17,6 +16,8 @@ class CoroutineTaskScheduler(dp: DependencyProvider): TaskScheduler {
     private val beforeStartTasksLock = Mutex()
     private val afterStartTasks = mutableListOf<Task>()
     private val afterStartTasksLock = Mutex()
+    private val scheduledWithDelayTasks = mutableMapOf<Task, Pair<Long, Long>>()
+    private val scheduledWithDelayTasksLock = Mutex()
     private val scheduledTasks = mutableListOf<RepeatingTask>()
     private val scheduledTasksLock = Mutex()
     private val scheduledParallelTasks = mutableMapOf<RepeatingTask, Int>()
@@ -49,6 +50,13 @@ class CoroutineTaskScheduler(dp: DependencyProvider): TaskScheduler {
         }
     }
 
+    override suspend fun scheduleTaskWithDelay(task: Task, initialDelayMs: Long, delayMs: Long) {
+        requireNotStarted()
+        scheduledWithDelayTasksLock.withLock {
+            scheduledWithDelayTasks[task] = Pair(initialDelayMs, delayMs)
+        }
+    }
+
     override suspend fun scheduleTask(task: RepeatingTask) {
         requireNotStarted()
         scheduledTasksLock.withLock {
@@ -71,10 +79,22 @@ class CoroutineTaskScheduler(dp: DependencyProvider): TaskScheduler {
         return task
     }
 
+    private fun delayedTaskToTask(task: Task, initialDelayMs: Long, delayMs: Long): Task {
+        return {
+            val stopped by Atomic(false)
+            delay(initialDelayMs)
+            while (!stopped) {
+                task()
+                delay(delayMs)
+            }
+            // TODO cancel
+        }
+    }
+
     private fun repeatingTaskToTask(task: RepeatingTask): Task { // TODO catch stuff
         return {
-            val stopped = AtomicBoolean(false)
-            while (!stopped.get()) {
+            val stopped by Atomic(false)
+            while (!stopped) {
                 if (!task()) {
                     delay(Constants.TASK_FAILURE_DELAY_MS)
                 }
@@ -105,6 +125,10 @@ class CoroutineTaskScheduler(dp: DependencyProvider): TaskScheduler {
                     runTask(runner)
                 }
             }
+        }
+        // Start delayed scheduled tasks
+        scheduledWithDelayTasksLock.withLock {
+            scheduledWithDelayTasks.forEach { (task, delays) -> runTask(delayedTaskToTask(task, delays.first, delays.second)) }
         }
 
         // Run after start tasks

@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetTime internal constructor(private val timeService: TimeService) : APIServlet.JsonRequestHandler(arrayOf(APITag.INFO)) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
         response.addProperty(TIME_RESPONSE, timeService.epochTime)
 

@@ -1,16 +1,12 @@
 package brs.db.sql
 
-import brs.Burst
 import brs.DependencyProvider
 import brs.db.BurstKey
-import brs.db.cache.DBCacheManagerImpl
 import brs.db.store.Dbs
-import brs.props.PropertyService
 import brs.props.Props
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
-import org.flywaydb.core.api.configuration.FluentConfiguration
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.conf.Settings
@@ -19,29 +15,20 @@ import org.jooq.impl.DSL
 import org.jooq.tools.jdbc.JDBCUtils
 import org.mariadb.jdbc.MariaDbDataSource
 import org.mariadb.jdbc.UrlParser
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import java.lang.reflect.Field
 import java.sql.Connection
 import java.sql.SQLException
-import java.sql.Statement
-import java.util.HashMap
-import java.util.Properties
-import java.util.function.Consumer
-import java.util.function.Function
+import java.util.*
 
 // TODO refactor this so that it is not all static
-object Db {
+class Db(private val dp: DependencyProvider) { // TODO interface
     private val logger = LoggerFactory.getLogger(Db::class.java)
 
-    private lateinit var cp: HikariDataSource
-    private lateinit var dialect: SQLDialect
+    private val cp: HikariDataSource
+    private val dialect: SQLDialect
     private val localConnection = ThreadLocal<Connection>()
     private val transactionCaches = ThreadLocal<MutableMap<String, MutableMap<BurstKey, Any>>>()
     private val transactionBatches = ThreadLocal<MutableMap<String, MutableMap<BurstKey, Any>>>()
-
-    private lateinit var dp: DependencyProvider
 
     val dbsByDatabaseType: Dbs
         get() {
@@ -82,9 +69,7 @@ object Db {
     val isInTransaction: Boolean
         get() = localConnection.get() != null
 
-    fun init(dp: DependencyProvider) {
-        this.dp = dp
-
+    init {
         val dbUrl: String
         val dbUsername: String?
         val dbPassword: String?
@@ -216,11 +201,11 @@ object Db {
         }
     }
 
-    inline fun <T> useDSLContext(function: (DSLContext) -> T): T {
+    inline fun <T> useDslContext(function: (DSLContext) -> T): T {
         dslContext.use { context -> return function(context) }
     }
 
-    inline fun useDSLContext(consumer: (DSLContext) -> Unit) { // TODO parallelize this? maybe we should have a dedicated coroutine that does db operations in sequence?
+    inline fun useDslContext(consumer: (DSLContext) -> Unit) { // TODO parallelize this? maybe we should have a dedicated coroutine that does db operations in sequence?
         dslContext.use { context -> consumer(context) }
     }
 
@@ -285,7 +270,7 @@ object Db {
     }
 
     fun optimizeTable(tableName: String) {
-        useDSLContext { ctx ->
+        useDslContext { ctx ->
             try {
                 when (ctx.dialect()) {
                     SQLDialect.MYSQL, SQLDialect.MARIADB -> ctx.execute("OPTIMIZE NO_WRITE_TO_BINLOG TABLE $tableName")

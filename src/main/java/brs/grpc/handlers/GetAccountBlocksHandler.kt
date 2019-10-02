@@ -12,7 +12,7 @@ import brs.services.BlockService
 import java.util.stream.Collectors
 
 class GetAccountBlocksHandler(private val blockchain: Blockchain, private val blockService: BlockService, private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAccountBlocksRequest, BrsApi.Blocks> {
-    override fun handleRequest(getAccountRequest: BrsApi.GetAccountBlocksRequest): BrsApi.Blocks {
+    override suspend fun handleRequest(getAccountRequest: BrsApi.GetAccountBlocksRequest): BrsApi.Blocks {
         val accountId = getAccountRequest.accountId
         val timestamp = getAccountRequest.timestamp
         val includeTransactions = getAccountRequest.includeTransactions

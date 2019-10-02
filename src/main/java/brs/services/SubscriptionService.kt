@@ -15,15 +15,15 @@ interface SubscriptionService {
 
     fun addSubscription(sender: Account, recipient: Account, id: Long, amountNQT: Long, startTimestamp: Int, frequency: Int)
 
-    fun applyConfirmed(block: Block, blockchainHeight: Int)
+    suspend fun applyConfirmed(block: Block, blockchainHeight: Int)
 
     fun removeSubscription(id: Long)
 
-    fun calculateFees(timestamp: Int): Long
+    suspend fun calculateFees(timestamp: Int): Long
 
     fun clearRemovals()
 
     fun addRemoval(id: Long)
 
-    fun applyUnconfirmed(timestamp: Int): Long
+    suspend fun applyUnconfirmed(timestamp: Int): Long
 }

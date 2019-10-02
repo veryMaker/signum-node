@@ -16,7 +16,7 @@ interface EscrowService {
 
     fun removeEscrowTransaction(id: Long?)
 
-    fun updateOnBlock(block: Block, blockchainHeight: Int)
+    suspend fun updateOnBlock(block: Block, blockchainHeight: Int)
 
     fun addEscrowTransaction(sender: Account, recipient: Account, id: Long, amountNQT: Long, requiredSigners: Int, signers: Collection<Long>, deadline: Int, deadlineAction: DecisionType)
 
@@ -24,7 +24,7 @@ interface EscrowService {
 
     fun checkComplete(escrow: Escrow): DecisionType
 
-    fun doPayout(result: DecisionType, block: Block, blockchainHeight: Int, escrow: Escrow)
+    suspend fun doPayout(result: DecisionType, block: Block, blockchainHeight: Int, escrow: Escrow)
 
     fun isIdSigner(id: Long?, escrow: Escrow): Boolean
 

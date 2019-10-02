@@ -15,7 +15,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetAliases internal constructor(private val parameterService: ParameterService, private val aliasService: AliasService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ALIASES), TIMESTAMP_PARAMETER, ACCOUNT_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER) {
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val timestamp = ParameterParser.getTimestamp(request)
         val accountId = parameterService.getAccount(request)?.id ?: return JSONResponses.INCORRECT_ACCOUNT
         val firstIndex = ParameterParser.getFirstIndex(request)

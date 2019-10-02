@@ -22,7 +22,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.AdvancedPaymentEscrowCreation(dp, attachmentData)
 
-    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
+    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.trace("TransactionType ESCROW_CREATION")
         val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
         if (senderAccount.unconfirmedBalanceNQT < totalAmountNQT) {
@@ -40,7 +40,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
         )
     }
 
-    override fun applyAttachment(
+    override suspend fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?
@@ -68,7 +68,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
         )
     }
 
-    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
+    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
         dp.accountService.addToUnconfirmedBalanceNQT(
             senderAccount,
             calculateAttachmentTotalAmountNQT(transaction)

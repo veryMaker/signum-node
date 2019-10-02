@@ -20,7 +20,6 @@ interface BlockchainProcessor : Observable<Block, BlockchainProcessor.Event> {
         BLOCK_POPPED,
         BLOCK_GENERATED, BLOCK_SCANNED,
         RESCAN_BEGIN,
-        RESCAN_END,
         BEFORE_BLOCK_ACCEPT,
         BEFORE_BLOCK_APPLY,
         AFTER_BLOCK_APPLY
@@ -30,9 +29,9 @@ interface BlockchainProcessor : Observable<Block, BlockchainProcessor.Event> {
 
     fun fullReset()
 
-    fun generateBlock(secretPhrase: String, publicKey: ByteArray, nonce: Long?)
+    suspend fun generateBlock(secretPhrase: String, publicKey: ByteArray, nonce: Long?)
 
-    fun popOffTo(height: Int): List<Block>
+    suspend fun popOffTo(height: Int): List<Block>
 
     open class BlockNotAcceptedException internal constructor(message: String) : BurstException(message)
 

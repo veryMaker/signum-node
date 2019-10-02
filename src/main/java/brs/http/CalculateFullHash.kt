@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class CalculateFullHash : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), UNSIGNED_TRANSACTION_BYTES_PARAMETER, SIGNATURE_HASH_PARAMETER) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
         val unsignedBytesString = Convert.emptyToNull(request.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER))
         val signatureHashString = Convert.emptyToNull(request.getParameter(SIGNATURE_HASH_PARAMETER))

@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class SetRewardRecipient(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ACCOUNTS, APITag.MINING, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val account = dp.parameterService.getSenderAccount(request)
         val recipient = ParameterParser.getRecipientId(request)
         val recipientAccount = dp.accountService.getAccount(recipient)

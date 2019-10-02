@@ -22,7 +22,7 @@ class SubmitNonceHandler(propertyService: PropertyService, private val blockchai
         this.allowOtherSoloMiners = propertyService.get(Props.ALLOW_OTHER_SOLO_MINERS)
     }
 
-    override fun handleRequest(request: BrsApi.SubmitNonceRequest): BrsApi.SubmitNonceResponse {
+    override suspend fun handleRequest(request: BrsApi.SubmitNonceRequest): BrsApi.SubmitNonceResponse {
         var secret: String = request.secretPhrase
         val nonce = request.nonce
         val accountId = request.account

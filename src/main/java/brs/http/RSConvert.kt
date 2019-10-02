@@ -11,7 +11,7 @@ import brs.http.JSONResponses.MISSING_ACCOUNT
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 
 internal object RSConvert : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS, APITag.UTILS), ACCOUNT_PARAMETER) {
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val accountValue = Convert.emptyToNull(request.getParameter(ACCOUNT_PARAMETER)) ?: return MISSING_ACCOUNT
         try {
             val accountId = Convert.parseAccountId(accountValue)

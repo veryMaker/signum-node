@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class PlaceAskOrder(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), ASSET_PARAMETER, QUANTITY_QNT_PARAMETER, PRICE_NQT_PARAMETER) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
         val asset = dp.parameterService.getAsset(request)
         val priceNQT = ParameterParser.getPriceNQT(request)

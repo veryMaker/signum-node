@@ -22,9 +22,9 @@ class AssetIssuance(dp: DependencyProvider) : ColoredCoins(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.ColoredCoinsAssetIssuance(dp, attachmentData)
 
-    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
+    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
 
-    override fun applyAttachment(
+    override suspend fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?
@@ -39,7 +39,7 @@ class AssetIssuance(dp: DependencyProvider) : ColoredCoins(dp) {
         )
     }
 
-    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
+    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
         // Nothing to undo
     }
 

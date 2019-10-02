@@ -15,7 +15,7 @@ import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 internal class GetTransaction(private val transactionProcessor: TransactionProcessor, private val blockchain: Blockchain) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_PARAMETER, FULL_HASH_PARAMETER) {
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val transactionIdString = Convert.emptyToNull(request.getParameter(TRANSACTION_PARAMETER))
         val transactionFullHash = Convert.emptyToNull(request.getParameter(FULL_HASH_PARAMETER))
         if (transactionIdString == null && transactionFullHash == null) {

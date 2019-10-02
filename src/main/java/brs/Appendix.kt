@@ -76,7 +76,7 @@ interface Appendix {
 
         abstract fun validate(transaction: Transaction)
 
-        abstract fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account)
+        abstract suspend fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account)
     }
 
     class Message : AbstractAppendix {
@@ -153,7 +153,7 @@ interface Appendix {
             }
         }
 
-        override fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
+        override suspend fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
             // Do nothing by default
         }
 
@@ -230,7 +230,7 @@ interface Appendix {
             }
         }
 
-        override fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
+        override suspend fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
         }
     }
 
@@ -388,7 +388,7 @@ interface Appendix {
             }
         }
 
-        override fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
+        override suspend fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
             if (recipientAccount.setOrVerify(dp, publicKey, transaction.height)) {
                 recipientAccount.apply(dp, this.publicKey, transaction.height)
             }

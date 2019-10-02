@@ -28,7 +28,7 @@ class FeeSuggestionCalculatorTest : AbstractUnitTest() {
         blockchainStoreMock = mock<BlockchainStore>()
 
         listenerArgumentCaptor = argumentCaptor()
-        whenever(blockchainProcessorMock!!.addListener(listenerArgumentCaptor!!.capture(), eq(Event.AFTER_BLOCK_APPLY))).doReturn(true)
+        whenever(blockchainProcessorMock!!.addListener(eq(Event.AFTER_BLOCK_APPLY), listenerArgumentCaptor!!.capture())).doReturn(true)
 
         t = FeeSuggestionCalculator(QuickMocker.dependencyProvider(blockchainProcessorMock!!, blockchainStoreMock), 5)
     }

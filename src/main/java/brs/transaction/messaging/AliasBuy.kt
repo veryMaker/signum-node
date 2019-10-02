@@ -23,7 +23,7 @@ class AliasBuy(dp: DependencyProvider) : Messaging(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.MessagingAliasBuy(dp, attachmentData)
 
-    override fun applyAttachment(
+    override suspend fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?

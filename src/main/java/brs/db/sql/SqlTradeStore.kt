@@ -3,16 +3,12 @@ package brs.db.sql
 import brs.DependencyProvider
 import brs.Trade
 import brs.db.BurstKey
-import brs.db.store.DerivedTableManager
 import brs.db.store.TradeStore
-import brs.schema.tables.records.TradeRecord
+import brs.schema.Tables.TRADE
 import org.jooq.DSLContext
 import org.jooq.Record
-import org.jooq.SelectQuery
 
-import brs.schema.Tables.TRADE
-
-class SqlTradeStore(dp: DependencyProvider) : TradeStore {
+class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
     override val tradeDbKeyFactory: DbKey.LinkKeyFactory<Trade> = object : DbKey.LinkKeyFactory<Trade>("ask_order_id", "bid_order_id") {
         override fun newKey(trade: Trade): BurstKey {
             return trade.dbKey
@@ -42,7 +38,7 @@ class SqlTradeStore(dp: DependencyProvider) : TradeStore {
     }
 
     override fun getAccountTrades(accountId: Long, from: Int, to: Int): Collection<Trade> {
-        return Db.useDSLContext<Collection<Trade>> { ctx ->
+        return dp.db.useDslContext<Collection<Trade>> { ctx ->
             val selectQuery = ctx
                     .selectFrom(TRADE).where(
                             TRADE.SELLER_ID.eq(accountId)
@@ -63,7 +59,7 @@ class SqlTradeStore(dp: DependencyProvider) : TradeStore {
     }
 
     override fun getAccountAssetTrades(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Trade> {
-        return Db.useDSLContext<Collection<Trade>> { ctx ->
+        return dp.db.useDslContext<Collection<Trade>> { ctx ->
             val selectQuery = ctx
                     .selectFrom(TRADE).where(
                             TRADE.SELLER_ID.eq(accountId).and(TRADE.ASSET_ID.eq(assetId))
@@ -83,7 +79,7 @@ class SqlTradeStore(dp: DependencyProvider) : TradeStore {
     }
 
     override fun getTradeCount(assetId: Long): Int {
-        return Db.useDSLContext<Int> { ctx -> ctx.fetchCount(ctx.selectFrom(TRADE).where(TRADE.ASSET_ID.eq(assetId))) }
+        return dp.db.useDslContext<Int> { ctx -> ctx.fetchCount(ctx.selectFrom(TRADE).where(TRADE.ASSET_ID.eq(assetId))) }
     }
 
     private fun saveTrade(ctx: DSLContext, trade: Trade) {

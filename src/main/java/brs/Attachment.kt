@@ -25,6 +25,7 @@ import brs.http.common.Parameters.GOODS_NONCE_PARAMETER
 import brs.http.common.Parameters.GOODS_PARAMETER
 import brs.http.common.Parameters.NAME_PARAMETER
 import brs.http.common.Parameters.ORDER_PARAMETER
+import brs.http.common.Parameters.PERIOD_PARAMETER
 import brs.http.common.Parameters.PRICE_NQT_PARAMETER
 import brs.http.common.Parameters.PURCHASE_PARAMETER
 import brs.http.common.Parameters.QUANTITY_PARAMETER
@@ -57,6 +58,7 @@ import brs.http.common.ResultFields.GOODS_NONCE_RESPONSE
 import brs.http.common.ResultFields.GOODS_RESPONSE
 import brs.http.common.ResultFields.NAME_RESPONSE
 import brs.http.common.ResultFields.ORDER_RESPONSE
+import brs.http.common.ResultFields.PERIOD_RESPONSE
 import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
 import brs.http.common.ResultFields.PURCHASE_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE
@@ -77,12 +79,6 @@ import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.collections.Map.Entry
-import brs.transaction.accountControl.AccountControl
-import brs.util.JSON
-import brs.Attachment.AbstractAttachment
-import brs.http.common.Parameters.PERIOD_PARAMETER
-import brs.http.common.ResultFields.PERIOD_RESPONSE
-import brs.transaction.accountControl.EffectiveBalanceLeasing
 
 
 interface Attachment : Appendix {
@@ -112,7 +108,7 @@ interface Attachment : Appendix {
             transactionType.validateAttachment(transaction)
         }
 
-        override fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
+        override suspend fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
             transactionType.apply(transaction, senderAccount, recipientAccount)
         }
 

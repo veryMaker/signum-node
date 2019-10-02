@@ -6,6 +6,7 @@ import brs.grpc.handlers.*
 import com.google.protobuf.Empty
 import com.google.protobuf.Message
 import io.grpc.stub.StreamObserver
+import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
 
 class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBase() {
@@ -63,11 +64,12 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         this.handlers = handlerMap
     }
 
-    // TODO can we remove handlerClass? Will it still work?
     private inline fun <reified H : GrpcApiHandler<R, S>, R : Message, S : Message> handleRequest(handlerClass: KClass<H>, request: R, response: StreamObserver<S>) {
-        val handler = handlers[H::class]
+        val handler = handlers[handlerClass]
         if (handler is H) {
-            handler.handleRequest(request, response)
+            runBlocking { // TODO
+                handler.handleRequest(request, response)
+            }
         } else {
             response.onError(ProtoBuilder.buildError(HandlerNotFoundException("H not registered: ${H::class}")))
         }

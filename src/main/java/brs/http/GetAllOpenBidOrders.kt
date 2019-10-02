@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetAllOpenBidOrders internal constructor(private val assetExchange: AssetExchange) : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
         val response = JsonObject()
         val ordersData = JsonArray()

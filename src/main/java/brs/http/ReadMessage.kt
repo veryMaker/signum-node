@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class ReadMessage(private val blockchain: Blockchain, private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.MESSAGES), TRANSACTION_PARAMETER, SECRET_PHRASE_PARAMETER) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val transactionIdString = Convert.emptyToNull(request.getParameter(TRANSACTION_PARAMETER))
                 ?: return MISSING_TRANSACTION
 

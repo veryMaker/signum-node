@@ -9,7 +9,7 @@ import com.google.protobuf.Empty
 
 class GetStateHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empty, BrsApi.State> {
 
-    override fun handleRequest(empty: Empty): BrsApi.State {
+    override suspend fun handleRequest(empty: Empty): BrsApi.State {
         val lastBlock = dp.blockchain.lastBlock
         val lastBlockchainFeeder = dp.blockchainProcessor.lastBlockchainFeeder
         return BrsApi.State.newBuilder()

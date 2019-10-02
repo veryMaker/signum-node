@@ -21,7 +21,7 @@ class RewardRecipientAssignment(dp: DependencyProvider) : BurstMining(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.BurstMiningRewardRecipientAssignment(dp, attachmentData)
 
-    override fun applyAttachment(
+    override suspend fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?

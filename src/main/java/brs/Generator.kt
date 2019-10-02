@@ -11,9 +11,9 @@ interface Generator : Observable<Generator.GeneratorState, Generator.Event> {
         NONCE_SUBMITTED
     }
 
-    fun addNonce(secretPhrase: String, nonce: Long?): GeneratorState
+    suspend fun addNonce(secretPhrase: String, nonce: Long?): GeneratorState
 
-    fun addNonce(secretPhrase: String, nonce: Long?, publicKey: ByteArray): GeneratorState
+    suspend fun addNonce(secretPhrase: String, nonce: Long?, publicKey: ByteArray): GeneratorState
 
     fun calculateGenerationSignature(lastGenSig: ByteArray, lastGenId: Long): ByteArray
 

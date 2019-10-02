@@ -16,10 +16,10 @@ import java.util.*
 class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
 
     override fun findTransaction(transactionId: Long): Transaction {
-        return Db.useDSLContext<Transaction> { ctx ->
+        return dp.db.useDslContext<Transaction> { ctx ->
             try {
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId)).fetchOne()
-                return@useDSLContext loadTransaction(transactionRecord)
+                return@useDslContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException("Transaction already in database, id = $transactionId, does not pass validation!", e)
             }
@@ -27,10 +27,10 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
     }
 
     override fun findTransactionByFullHash(fullHash: ByteArray): Transaction {
-        return Db.useDSLContext<Transaction> { ctx ->
+        return dp.db.useDslContext<Transaction> { ctx ->
             try {
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash)).fetchOne()
-                return@useDSLContext loadTransaction(transactionRecord)
+                return@useDslContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException("Transaction already in database, full_hash = $fullHash, does not pass validation!", e)
             }
@@ -38,11 +38,11 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
     }
 
     override fun hasTransaction(transactionId: Long): Boolean {
-        return Db.useDSLContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId))) }
+        return dp.db.useDslContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId))) }
     }
 
     override fun hasTransactionByFullHash(fullHash: ByteArray): Boolean {
-        return Db.useDSLContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash))) }
+        return dp.db.useDslContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash))) }
     }
 
     override fun loadTransaction(tr: TransactionRecord): Transaction {
@@ -93,7 +93,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
     }
 
     override fun findBlockTransactions(blockId: Long): Collection<Transaction> {
-        return Db.useDSLContext<List<Transaction>> { ctx ->
+        return dp.db.useDslContext<List<Transaction>> { ctx ->
             ctx.selectFrom(TRANSACTION)
                     .where(TRANSACTION.BLOCK_ID.eq(blockId))
                     .and(TRANSACTION.SIGNATURE.isNotNull)
@@ -126,7 +126,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
 
     override fun saveTransactions(transactions: Collection<Transaction>) {
         if (transactions.isNotEmpty()) {
-            Db.useDSLContext { ctx ->
+            dp.db.useDslContext { ctx ->
                 val insertBatch = ctx.batch(
                         ctx.insertInto(TRANSACTION, TRANSACTION.ID, TRANSACTION.DEADLINE,
                                 TRANSACTION.SENDER_PUBLIC_KEY, TRANSACTION.RECIPIENT_ID, TRANSACTION.AMOUNT,
@@ -173,6 +173,6 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
     }
 
     override fun optimize() {
-        Db.optimizeTable(TRANSACTION.name)
+        dp.db.optimizeTable(TRANSACTION.name)
     }
 }

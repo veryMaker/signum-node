@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetAccountPublicKey internal constructor(private val parameterService: ParameterService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER) {
 
-    internal override fun processRequest(request: HttpServletRequest): JsonElement {
+    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
         val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
 
