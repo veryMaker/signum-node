@@ -482,7 +482,7 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
             peer.blacklist("obsolete or rogue peer sends too many nextBlocks")
             return null
         }
-        logger.debug("Got {} blocks after {} from {}", nextBlocks.size(), curBlockId, peer.peerAddress)
+        logger.debug("Got {} blocks after {} from {}", nextBlocks.size(), curBlockId.toUnsignedString(), peer.peerAddress)
         return nextBlocks
 
     }

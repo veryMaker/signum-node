@@ -210,11 +210,11 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
     }
 
     fun getPendingPurchase(purchaseId: Long): DigitalGoodsStore.Purchase? {
-        val purchase = purchaseTable.get(purchaseDbKeyFactory.newKey(purchaseId))
+        val purchase = purchaseTable[purchaseDbKeyFactory.newKey(purchaseId)]
         return if (purchase == null || !purchase.isPending) null else purchase
     }
 
     private inner class SQLGoods internal constructor(record: Record) : DigitalGoodsStore.Goods(record.get(GOODS.ID), goodsDbKeyFactory.newKey(record.get(GOODS.ID)), record.get(GOODS.SELLER_ID), record.get(GOODS.NAME), record.get(GOODS.DESCRIPTION), record.get(GOODS.TAGS), record.get(GOODS.TIMESTAMP), record.get(GOODS.QUANTITY), record.get(GOODS.PRICE), record.get(GOODS.DELISTED))
 
-    internal inner class SQLPurchase(record: Record) : DigitalGoodsStore.Purchase(dp, record.get(PURCHASE.ID), purchaseDbKeyFactory.newKey(record.get(PURCHASE.ID)), record.get(PURCHASE.BUYER_ID), record.get(PURCHASE.GOODS_ID), record.get(PURCHASE.SELLER_ID), record.get(PURCHASE.QUANTITY), record.get(PURCHASE.PRICE), record.get(PURCHASE.DEADLINE), loadEncryptedData(record, PURCHASE.NOTE, PURCHASE.NONCE)!! , record.get(PURCHASE.TIMESTAMP), record.get(PURCHASE.PENDING), loadEncryptedData(record, PURCHASE.GOODS, PURCHASE.GOODS_NONCE), loadEncryptedData(record, PURCHASE.REFUND_NOTE, PURCHASE.REFUND_NONCE), record.get(PURCHASE.HAS_FEEDBACK_NOTES), record.get(PURCHASE.HAS_PUBLIC_FEEDBACKS), record.get(PURCHASE.DISCOUNT), record.get(PURCHASE.REFUND))
+    internal inner class SQLPurchase(record: Record) : DigitalGoodsStore.Purchase(dp, record.get(PURCHASE.ID), purchaseDbKeyFactory.newKey(record.get(PURCHASE.ID)), record.get(PURCHASE.BUYER_ID), record.get(PURCHASE.GOODS_ID), record.get(PURCHASE.SELLER_ID), record.get(PURCHASE.QUANTITY), record.get(PURCHASE.PRICE), record.get(PURCHASE.DEADLINE), loadEncryptedData(record, PURCHASE.NOTE, PURCHASE.NONCE), record.get(PURCHASE.TIMESTAMP), record.get(PURCHASE.PENDING), loadEncryptedData(record, PURCHASE.GOODS, PURCHASE.GOODS_NONCE), loadEncryptedData(record, PURCHASE.REFUND_NOTE, PURCHASE.REFUND_NONCE), record.get(PURCHASE.HAS_FEEDBACK_NOTES), record.get(PURCHASE.HAS_PUBLIC_FEEDBACKS), record.get(PURCHASE.DISCOUNT), record.get(PURCHASE.REFUND))
 }

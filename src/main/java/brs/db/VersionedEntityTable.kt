@@ -1,6 +1,6 @@
 package brs.db
 
-interface VersionedEntityTable<T> : DerivedTable, EntityTable<T> {
+interface VersionedEntityTable<T> : EntityTable<T> {
     override fun rollback(height: Int)
 
     fun delete(t: T): Boolean

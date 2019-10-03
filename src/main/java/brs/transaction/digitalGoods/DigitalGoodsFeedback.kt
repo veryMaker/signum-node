@@ -2,8 +2,8 @@ package brs.transaction.digitalGoods
 
 import brs.*
 import brs.transactionduplicates.TransactionDuplicationKey
-import brs.util.toJsonString
 import brs.util.convert.toUnsignedString
+import brs.util.toJsonString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 
@@ -17,8 +17,8 @@ class DigitalGoodsFeedback(dp: DependencyProvider) : DigitalGoods(dp) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsFeedback
         dp.digitalGoodsStoreService.feedback(
             attachment.purchaseId,
-            transaction.encryptedMessage!!,
-            transaction.message!!
+            transaction.encryptedMessage,
+            transaction.message
         )
     }
 
