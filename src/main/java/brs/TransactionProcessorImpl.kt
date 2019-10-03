@@ -181,9 +181,7 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
     }
 
     override suspend fun requeueAllUnconfirmedTransactions() {
-        mutex.withLock {
-            dp.unconfirmedTransactionStore.resetAccountBalances()
-        }
+        dp.unconfirmedTransactionStore.resetAccountBalances()
     }
 
     override fun getTransactionVersion(blockHeight: Int): Int {

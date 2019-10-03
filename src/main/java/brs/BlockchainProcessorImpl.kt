@@ -796,7 +796,7 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
             } finally {
                 dp.db.endTransaction()
             }
-            logger.debug("Successfully pushed {} (height {})", block.id, block.height)
+            logger.debug("Successfully pushed {} (height {})", block.id.toUnsignedString(), block.height)
             dp.statisticsManager.blockAdded()
             blockListeners.accept(BlockchainProcessor.Event.BLOCK_PUSHED, block)
             if (block.timestamp >= dp.timeService.epochTime - MAX_TIMESTAMP_DIFFERENCE) {

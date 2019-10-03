@@ -32,21 +32,29 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
 
     val cleanupExpiredTransactions: Task = {
         internalStoreLock.withLock {
-            all.filter { t -> dp.timeService.epochTime > t.expiration || dp.transactionDb.hasTransaction(t.id) }
+            getAllNoLock().filter { t -> dp.timeService.epochTime > t.expiration || dp.transactionDb.hasTransaction(t.id) }
                 .forEach { removeTransaction(it) }
         }
     }
 
+    /**
+     * Assumes lcoked.
+     */
+    private fun getAllNoLock(): List<Transaction> {
+        val flatTransactionList = mutableListOf<Transaction>()
+
+        for (amountSlot in internalStore.values) {
+            flatTransactionList.addAll(amountSlot)
+        }
+
+        return flatTransactionList
+    }
+
+
     override val all: List<Transaction>
         get() = runBlocking {
             internalStoreLock.withLock {
-                val flatTransactionList = mutableListOf<Transaction>()
-
-                for (amountSlot in internalStore.values) {
-                    flatTransactionList.addAll(amountSlot)
-                }
-
-                flatTransactionList
+                getAllNoLock()
             }
         }
 
@@ -98,22 +106,29 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
         }
     }
 
-    override suspend fun get(transactionId: Long?): Transaction? {
-        internalStoreLock.withLock {
-            for (amountSlot in internalStore.values) {
-                for (t in amountSlot) {
-                    if (t.id == transactionId) {
-                        return t
-                    }
+    /**
+     * Assumes locked.
+     */
+    private fun getNoLock(transactionId: Long?): Transaction? {
+        for (amountSlot in internalStore.values) {
+            for (t in amountSlot) {
+                if (t.id == transactionId) {
+                    return t
                 }
             }
-            return null
+        }
+        return null
+    }
+
+    override suspend fun get(transactionId: Long?): Transaction? {
+        internalStoreLock.withLock {
+            return getNoLock(transactionId)
         }
     }
 
     override suspend fun exists(transactionId: Long?): Boolean {
         internalStoreLock.withLock {
-            return get(transactionId) != null
+            return getNoLock(transactionId) != null
         }
     }
 
@@ -133,14 +148,21 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
         }
     }
 
+    /**
+     * Assumes locked.
+     */
+    private suspend fun removeNoLock(transaction: Transaction) {
+        // Make sure that we are acting on our own copy of the transaction, as this is the one we want to remove. TODO check this
+        val internalTransaction = getNoLock(transaction.id)
+        if (internalTransaction != null) {
+            logger.debug("Removing {}", transaction.id)
+            removeTransaction(internalTransaction)
+        }
+    }
+
     override suspend fun remove(transaction: Transaction) {
         internalStoreLock.withLock {
-            // Make sure that we are acting on our own copy of the transaction, as this is the one we want to remove.
-            val internalTransaction = get(transaction.id)
-            if (internalTransaction != null) {
-                logger.debug("Removing {}", transaction.id)
-                removeTransaction(internalTransaction)
-            }
+            removeNoLock(transaction)
         }
     }
 
@@ -156,8 +178,8 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
 
     override suspend fun resetAccountBalances() {
         internalStoreLock.withLock {
-            for (insufficientFundsTransactions in reservedBalanceCache.rebuild(all)) {
-                this.removeTransaction(insufficientFundsTransactions)
+            for (insufficientFundsTransactions in reservedBalanceCache.rebuild(getAllNoLock())) {
+                removeTransaction(insufficientFundsTransactions)
             }
         }
     }
@@ -175,7 +197,7 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
     override suspend fun removeForgedTransactions(transactions: Collection<Transaction>) {
         internalStoreLock.withLock {
             for (t in transactions) {
-                remove(t)
+                removeNoLock(t)
             }
         }
     }
@@ -230,6 +252,9 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
         }
     }
 
+    /**
+     * Assumes locked.
+     */
     private fun addTransaction(transaction: Transaction, peer: Peer?) {
         val slot = getOrCreateAmountSlotForTransaction(transaction)
         slot.add(transaction)
@@ -281,6 +306,9 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
         }
     }
 
+    /**
+     * Assumes locked.
+     */
     private fun removeTransaction(transaction: Transaction?) {
         if (transaction == null) return
         val amountSlotNumber = amountSlotForTransaction(transaction)
