@@ -208,8 +208,8 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                     gateway = gatewayDiscover.validGateway
                 }
 
-                val gwDiscover = {
-                    if (this.gateway != null) {
+                val gwDiscover: Task = {
+                    if (gateway != null) {
                         GatewayDevice.setHttpReadTimeout(2000)
                         try {
                             val localAddress = gateway!!.localAddress
@@ -236,7 +236,9 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                     }
                 }
                 if (this.gateway != null) {
-                    Thread(gwDiscover).start()
+                    runBlocking {
+                        dp.taskScheduler.runBeforeStart(gwDiscover)
+                    }
                 } else {
                     logger.warn("Tried to establish UPnP, but it was denied by the network.")
                 }
@@ -455,7 +457,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                 val peer = getAnyPeer(Peer.State.CONNECTED) ?: return@run false
                 val response = peer.send(getPeersRequest) ?: return@run true
                 val peersJson = JSON.getAsJsonArray(response.get("peers"))
-                val addedAddresses = HashSet<String>()
+                val addedAddresses = mutableSetOf<String>()
                 if (!peersJson.isEmpty()) {
                     for (announcedAddress in peersJson) {
                         if (addPeer(JSON.getAsString(announcedAddress)) != null) {
@@ -713,9 +715,9 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                         expectedResponses.add(deferred)
                     }
                     if (expectedResponses.size >= sendToPeersLimit - successful) {
-                        for (future in expectedResponses) {
+                        for (expectedResponse in expectedResponses) {
                             try {
-                                val response = future.await()
+                                val response = expectedResponse.await()
                                 if (response != null && response.get("error") == null) {
                                     successful += 1
                                 }

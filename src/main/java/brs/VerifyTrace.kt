@@ -88,7 +88,7 @@ object VerifyTrace {
                     }
                 }
 
-                val failed = HashSet<String>()
+                val failed = mutableSetOf<String>()
                 for ((accountId, accountValues) in totals) {
                     println("account: $accountId")
                     balanceHeaders.forEach { balanceHeader -> println(balanceHeader + ": " + nullToZero(accountValues[balanceHeader])) }
@@ -125,7 +125,7 @@ object VerifyTrace {
                     }
                     println()
                 }
-                val failedAssets = HashSet<String>()
+                val failedAssets = mutableSetOf<String>()
                 issuedAssetQuantities.forEach { (assetId, value) ->
                     if (value != nullToZero(accountAssetQuantities[assetId])) {
                         println("ERROR: asset " + assetId + " balances don't match, issued: "

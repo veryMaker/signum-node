@@ -10,7 +10,6 @@ import java.security.NoSuchAlgorithmException
 internal val burstCrypto = BurstCrypto.getInstance()
 
 object Crypto {
-
     fun sha256(): MessageDigest {
         return burstCrypto.sha256
     }

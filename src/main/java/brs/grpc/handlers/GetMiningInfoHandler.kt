@@ -7,44 +7,48 @@ import brs.Generator
 import brs.grpc.StreamResponseGrpcApiHandler
 import brs.grpc.proto.BrsApi
 import brs.grpc.proto.toByteString
+import brs.util.delegates.Atomic
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.*
-import java.util.concurrent.atomic.AtomicReference
 
 class GetMiningInfoHandler(blockchainProcessor: BlockchainProcessor, blockchain: Blockchain, private val generator: Generator) : StreamResponseGrpcApiHandler<Empty, BrsApi.MiningInfo> {
-
     /**
      * Listener should close connection if it receives null.
      */
-    private val listeners = HashSet<(BrsApi.MiningInfo?) -> Unit>()
-    private val currentMiningInfo = AtomicReference<BrsApi.MiningInfo>()
+    private val listeners = mutableSetOf<(BrsApi.MiningInfo?) -> Unit>()
+    private val listenersLock = Mutex()
+    private var currentMiningInfo by Atomic<BrsApi.MiningInfo?>()
+    private val miningInfoLock = Mutex()
 
     init {
         runBlocking {
             blockchainProcessor.addListener(BlockchainProcessor.Event.BLOCK_PUSHED) { block: Block -> onBlock(block) }
+            onBlock(blockchain.lastBlock)
         }
-        onBlock(blockchain.lastBlock)
     }
 
-    private fun onBlock(block: Block) {
-        synchronized(currentMiningInfo) {
+    private suspend fun onBlock(block: Block) {
+        miningInfoLock.withLock {
             val nextGenSig = generator.calculateGenerationSignature(block.generationSignature, block.generatorId)
-            val miningInfo = currentMiningInfo.get()
+            val miningInfo = currentMiningInfo
             if (miningInfo == null || !Arrays.equals(miningInfo.generationSignature.toByteArray(), nextGenSig) || miningInfo.height - 1 != block.height || miningInfo.baseTarget != block.baseTarget) {
-                currentMiningInfo.set(BrsApi.MiningInfo.newBuilder()
+                val newMiningInfo = BrsApi.MiningInfo.newBuilder()
                         .setGenerationSignature(nextGenSig.toByteString())
                         .setHeight(block.height + 1)
                         .setBaseTarget(block.baseTarget)
-                        .build())
-                notifyListeners(currentMiningInfo.get())
+                        .build()
+                currentMiningInfo = newMiningInfo
+                notifyListeners(newMiningInfo)
             }
         }
     }
 
-    private fun notifyListeners(miningInfo: BrsApi.MiningInfo) {
-        synchronized(listeners) {
+    private suspend fun notifyListeners(miningInfo: BrsApi.MiningInfo) {
+        listenersLock.withLock {
             listeners.removeIf { listener ->
                 try {
                     listener.invoke(miningInfo)
@@ -62,14 +66,14 @@ class GetMiningInfoHandler(blockchainProcessor: BlockchainProcessor, blockchain:
         }
     }
 
-    private fun addListener(listener: (BrsApi.MiningInfo?) -> Unit) {
-        synchronized(listeners) {
+    private suspend fun addListener(listener: (BrsApi.MiningInfo?) -> Unit) {
+        listenersLock.withLock {
             listeners.add(listener)
         }
     }
 
     override suspend fun handleStreamRequest(request: Empty, responseObserver: StreamObserver<BrsApi.MiningInfo>) {
-        responseObserver.onNext(currentMiningInfo.get())
+        responseObserver.onNext(currentMiningInfo)
         addListener { miningInfo ->
             if (miningInfo == null) {
                 responseObserver.onCompleted()

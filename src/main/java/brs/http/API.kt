@@ -28,8 +28,8 @@ class API(dp: DependencyProvider) {
         val allowedBotHostsList = dp.propertyService.get(Props.API_ALLOWED)
         val allowedBotHosts: Set<Subnet>?
         if (!allowedBotHostsList.contains("*")) {
-            // Temp hashset to store allowed subnets
-            val allowedSubnets = HashSet<Subnet>()
+            // Temporary set to store allowed subnets
+            val allowedSubnets = mutableSetOf<Subnet>()
 
             for (allowedHost in allowedBotHostsList) {
                 try {

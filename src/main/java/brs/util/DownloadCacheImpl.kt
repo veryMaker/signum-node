@@ -127,7 +127,7 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
     }
 
     fun addBlock(block: Block) = stampedLock.writeAndRead {
-        if (!locked) {
+        if (locked) false else {
             blockCache[block.id] = block
             reverseCache[block.previousBlockId] = block.id
             unverified.add(block.id)
@@ -136,7 +136,7 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
             lastHeight = block.height
             highestCumulativeDifficulty = block.cumulativeDifficulty
             true
-        } else false
+        }
     }
 
     fun addForkBlock(block: Block) {

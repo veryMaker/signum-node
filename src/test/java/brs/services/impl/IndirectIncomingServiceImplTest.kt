@@ -1,26 +1,23 @@
 package brs.services.impl
 
-import brs.*
+import brs.Attachment
+import brs.Constants
+import brs.DependencyProvider
+import brs.Transaction
 import brs.common.QuickMocker
 import brs.db.store.IndirectIncomingStore
 import brs.props.PropertyService
 import brs.props.Props
-import brs.transaction.TransactionType
 import brs.transaction.payment.MultiOutPayment
 import brs.transaction.payment.MultiOutSamePayment
 import brs.transaction.payment.OrdinaryPayment
 import brs.util.delegates.Atomic
 import com.nhaarman.mockitokotlin2.*
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-
-import java.util.HashSet
-import java.util.concurrent.atomic.AtomicReference
-import java.util.function.Consumer
-
-import org.junit.Assert.assertEquals
 
 @RunWith(JUnit4::class)
 class IndirectIncomingServiceImplTest {
@@ -45,7 +42,7 @@ class IndirectIncomingServiceImplTest {
     fun testIndirectIncomingServiceImplTestMultiOutTransaction() {
         addIndirectIncomingsRunnable = { indirectIncomings ->
             assertEquals(4, indirectIncomings.size.toLong())
-            assertEquals(HashSet(indirectIncomings).size.toLong(), indirectIncomings.size.toLong()) // Assert that there are no duplicates
+            assertEquals(setOf(indirectIncomings).size.toLong(), indirectIncomings.size.toLong()) // Assert that there are no duplicates
         }
         val recipients = mutableListOf<List<Long>>()
         recipients.add(listOf(1L, Constants.ONE_BURST))
@@ -66,7 +63,7 @@ class IndirectIncomingServiceImplTest {
     fun testIndirectIncomingServiceImplTestMultiOutSameTransaction() {
         addIndirectIncomingsRunnable = { indirectIncomings ->
             assertEquals(4, indirectIncomings.size.toLong())
-            assertEquals(HashSet(indirectIncomings).size.toLong(), indirectIncomings.size.toLong()) // Assert that there are no duplicates
+            assertEquals(setOf(indirectIncomings).size.toLong(), indirectIncomings.size.toLong()) // Assert that there are no duplicates
         }
         val recipients = mutableListOf<Long>()
         recipients.add(1L)

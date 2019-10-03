@@ -1,7 +1,6 @@
 package brs.peer
 
 import brs.*
-import brs.crypto.Crypto
 import brs.props.Props
 import brs.util.*
 import brs.util.delegates.Atomic
@@ -9,12 +8,13 @@ import brs.util.delegates.AtomicWithOverride
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.net.*
 import java.nio.charset.StandardCharsets
 import java.sql.SQLException
-import java.util.*
 import java.util.zip.GZIPInputStream
 
 internal class PeerImpl(private val dp: DependencyProvider, override val peerAddress: String, announcedAddress: String?) : Peer {
@@ -53,8 +53,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
     override var downloadedVolume by Atomic<Long>(0L)
     override var uploadedVolume by Atomic<Long>(0L)
     override var lastUpdated by Atomic<Int>()
-    private var lastDownloadedTransactionsDigest: ByteArray? = null
-    private val lastDownloadedTransactionsLock = Any()
+    private val mutex = Mutex()
 
     override val isAtLeastMyVersion: Boolean
         get() = isHigherOrEqualVersionThan(Burst.VERSION)
@@ -81,27 +80,15 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
         }
     }
 
-    // TODO unused
-    fun diffLastDownloadedTransactions(data: ByteArray): Boolean {
-        synchronized(lastDownloadedTransactionsLock) {
-            val newDigest = Crypto.sha256().digest(data)
-            if (lastDownloadedTransactionsDigest != null && Arrays.equals(newDigest, lastDownloadedTransactionsDigest)) {
-                return false
-            }
-            lastDownloadedTransactionsDigest = newDigest
-            return true
-        }
-    }
-
     override suspend fun updateDownloadedVolume(volume: Long) {
-        synchronized(this) {
+        mutex.withLock {
             downloadedVolume += volume
         }
         dp.peers.notifyListeners(this, Peers.Event.DOWNLOADED_VOLUME)
     }
 
     override suspend fun updateUploadedVolume(volume: Long) {
-        synchronized(this) {
+        mutex.withLock {
             uploadedVolume += volume
         }
         dp.peers.notifyListeners(this, Peers.Event.UPLOADED_VOLUME)

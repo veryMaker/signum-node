@@ -17,7 +17,7 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
     private val reservedBalanceCache = ReservedBalanceCache(dp.accountStore)
     private val transactionDuplicatesChecker = TransactionDuplicatesCheckerImpl()
 
-    private val fingerPrintsOverview = mutableMapOf<Transaction, HashSet<Peer?>>()
+    private val fingerPrintsOverview = mutableMapOf<Transaction, MutableSet<Peer?>>()
 
     private val internalStore: SortedMap<Long, MutableList<Transaction>> = TreeMap()
     private val internalStoreLock = Mutex()
@@ -260,7 +260,7 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
         slot.add(transaction)
         amount++
 
-        fingerPrintsOverview[transaction] = HashSet()
+        fingerPrintsOverview[transaction] = mutableSetOf()
 
         if (peer != null) {
             fingerPrintsOverview[transaction]!!.add(peer)

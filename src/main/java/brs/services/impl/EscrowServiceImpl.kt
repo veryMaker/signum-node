@@ -63,7 +63,6 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
         }
     }
 
-    @Synchronized
     override fun sign(id: Long, decision: DecisionType, escrow: Escrow) {
         if (id == escrow.senderId && decision != DecisionType.RELEASE) {
             return
@@ -149,7 +148,6 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
         }
     }
 
-    @Synchronized
     override suspend fun doPayout(result: DecisionType, block: Block, blockchainHeight: Int, escrow: Escrow) {
         when (result) {
             Escrow.DecisionType.RELEASE -> {

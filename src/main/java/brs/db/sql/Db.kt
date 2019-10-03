@@ -117,7 +117,6 @@ class Db(private val dp: DependencyProvider) { // TODO interface
                     config.addDataSourceProperty("useUnbufferedIO", "false")
                     config.addDataSourceProperty("useReadAheadInput", "false")
                     val flywayDataSource = object : MariaDbDataSource(dbUrl) {
-                        @Synchronized
                         override fun initialize() {
                             super.initialize()
                             val props = Properties()
@@ -131,7 +130,6 @@ class Db(private val dp: DependencyProvider) { // TODO interface
                             } catch (e: Exception) {
                                 throw RuntimeException(e)
                             }
-
                         }
                     }
                     flywayBuilder.dataSource(flywayDataSource) // TODO Remove this hack once a stable version of Flyway has this bug fixed

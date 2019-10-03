@@ -285,8 +285,6 @@ class OCLPoC(dp: DependencyProvider) {
                 try {
                     scoopsBuffer.get(scoop)
                     blockService.preVerify(block, scoop)
-                } catch (e: InterruptedException) {
-                    Thread.currentThread().interrupt()
                 } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
                     throw PreValidateFailException("Block failed to prevalidate", e, block)
                 }

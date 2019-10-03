@@ -1,7 +1,6 @@
 package brs.util
 
 import brs.BurstException
-import brs.Constants
 import brs.crypto.burstCrypto
 import brs.crypto.rsEncode
 import burst.kit.crypto.BurstCrypto
@@ -11,13 +10,10 @@ import org.bouncycastle.util.encoders.Hex
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
-import java.util.*
 import kotlin.math.abs
 
 object Convert {
     private val burstCrypto = BurstCrypto.getInstance()
-
-    private val multipliers = longArrayOf(1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000)
 
     val two64: BigInteger = BigInteger.valueOf(2).pow(64)
 
@@ -33,14 +29,6 @@ object Convert {
 
     fun fullHashToId(hash: ByteArray?): Long {
         return burstCrypto.hashToId(hash).signedLongId
-    }
-
-    fun fullHashToId(hash: String?): Long {
-        return if (hash == null) 0 else fullHashToId(hash.parseHexString())
-    }
-
-    fun fromEpochTime(epochTime: Int): Date {
-        return Date(epochTime * 1000L + Constants.EPOCH_BEGINNING - 500L)
     }
 
     fun emptyToNull(s: String?): String? {
@@ -86,28 +74,6 @@ object Convert {
 
     fun truncate(s: String?, replaceNull: String, limit: Int, dots: Boolean): String {
         return if (s == null) replaceNull else if (s.length > limit) s.substring(0, if (dots) limit - 3 else limit) + if (dots) "..." else "" else s
-    }
-
-    private fun parseStringFraction(value: String, decimals: Int, maxValue: Long): Long {
-        val s = value.trim { it <= ' ' }.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        if (s.isEmpty() || s.size > 2) {
-            throw NumberFormatException("Invalid number: $value")
-        }
-        val wholePart = java.lang.Long.parseLong(s[0])
-        if (wholePart > maxValue) {
-            throw IllegalArgumentException("Whole part of value exceeds maximum possible")
-        }
-        if (s.size == 1) {
-            return wholePart * multipliers[decimals]
-        }
-        var fractionalPart = java.lang.Long.parseLong(s[1])
-        if (fractionalPart >= multipliers[decimals] || s[1].length > decimals) {
-            throw IllegalArgumentException("Fractional part exceeds maximum allowed divisibility")
-        }
-        for (i in s[1].length until decimals) {
-            fractionalPart *= 10
-        }
-        return wholePart * multipliers[decimals] + fractionalPart
     }
 
     // overflow checking based on https://www.securecoding.cert.org/confluence/display/java/NUM00-J.+Detect+or+prevent+integer+overflow

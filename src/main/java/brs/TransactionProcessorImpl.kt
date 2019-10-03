@@ -14,14 +14,11 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.slf4j.LoggerFactory
 
 class TransactionProcessorImpl private constructor(private val dp: DependencyProvider) : TransactionProcessor {
     private val testUnconfirmedTransactions = dp.propertyService.get(Props.BRS_TEST_UNCONFIRMED_TRANSACTIONS)
 
-    override val mutex = Mutex() // TODO too much depends on this.
     private val transactionListeners = Listeners<Collection<Transaction>, TransactionProcessor.Event>()
     private val foodDispenser: suspend (Peer) -> Collection<Transaction> = { dp.unconfirmedTransactionStore.getAllFor(it) }
     private val doneFeedingLog: suspend (Peer, Collection<Transaction>) -> Unit = { peer, transactions -> dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions) }
@@ -31,43 +28,40 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
             try {
                 val peer = dp.peers.getAnyPeer(Peer.State.CONNECTED) ?: return@run
                 val response = dp.peers.readUnconfirmedTransactions(peer) ?: return@run
-                val transactionsData = JSON.getAsJsonArray(response!!.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
+                val transactionsData = JSON.getAsJsonArray(response.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
                 if (transactionsData.isEmpty()) return@run
                 dp.peers.feedingTime(peer, foodDispenser, doneFeedingLog)
 
-                mutex.withLock { // TODO check whether sync is necessary
-                    try {
-                        val addedTransactions = processPeerTransactions(transactionsData, peer)
+                try {
+                    val addedTransactions = processPeerTransactions(transactionsData, peer)
 
-                        if (addedTransactions.isNotEmpty()) {
-                            val activePrioPlusExtra = dp.peers.allActivePriorityPlusSomeExtraPeers
-                            activePrioPlusExtra.remove(peer)
+                    if (addedTransactions.isNotEmpty()) {
+                        val activePrioPlusExtra = dp.peers.allActivePriorityPlusSomeExtraPeers
+                        activePrioPlusExtra.remove(peer)
 
-                            val jobs = mutableListOf<Job>()
+                        val jobs = mutableListOf<Job>()
 
-                            for (otherPeer in activePrioPlusExtra) {
-                                jobs.add(launch {
-                                    try {
-                                        val otherPeerResponse = dp.peers.readUnconfirmedTransactions(otherPeer) ?: return@launch
-                                        val otherPeerTransactions = JSON.getAsJsonArray(otherPeerResponse.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
-                                        if (otherPeerTransactions.isEmpty()) return@launch
-                                        dp.peers.feedingTime(otherPeer, foodDispenser, doneFeedingLog)
-                                    } catch (e: ValidationException) {
-                                        peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
-                                    } catch (e: RuntimeException) {
-                                        peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
-                                    }
-                                })
-                            }
-
-                            jobs.forEach { it.join() }
+                        for (otherPeer in activePrioPlusExtra) {
+                            jobs.add(launch {
+                                try {
+                                    val otherPeerResponse = dp.peers.readUnconfirmedTransactions(otherPeer) ?: return@launch
+                                    val otherPeerTransactions = JSON.getAsJsonArray(otherPeerResponse.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
+                                    if (otherPeerTransactions.isEmpty()) return@launch
+                                    dp.peers.feedingTime(otherPeer, foodDispenser, doneFeedingLog)
+                                } catch (e: ValidationException) {
+                                    peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
+                                } catch (e: RuntimeException) {
+                                    peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
+                                }
+                            })
                         }
-                    } catch (e: ValidationException) {
-                        peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
-                    } catch (e: RuntimeException) {
-                        peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
-                    }
 
+                        jobs.forEach { it.join() }
+                    }
+                } catch (e: ValidationException) {
+                    peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
+                } catch (e: RuntimeException) {
+                    peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
                 }
             } catch (e: Exception) {
                 logger.debug("Error processing unconfirmed transactions", e)
@@ -160,24 +154,22 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
     }
 
     override suspend fun clearUnconfirmedTransactions() {
-        mutex.withLock {
-            val removed: List<Transaction>
-            try {
-                dp.db.beginTransaction()
-                removed = dp.unconfirmedTransactionStore.all
-                dp.accountService.flushAccountTable()
-                dp.unconfirmedTransactionStore.clear()
-                dp.db.commitTransaction()
-            } catch (e: Exception) {
-                logger.error(e.toString(), e)
-                dp.db.rollbackTransaction()
-                throw e
-            } finally {
-                dp.db.endTransaction()
-            }
-
-            transactionListeners.accept(TransactionProcessor.Event.REMOVED_UNCONFIRMED_TRANSACTIONS, removed)
+        val removed: List<Transaction>
+        try {
+            dp.db.beginTransaction()
+            removed = dp.unconfirmedTransactionStore.all
+            dp.accountService.flushAccountTable()
+            dp.unconfirmedTransactionStore.clear()
+            dp.db.commitTransaction()
+        } catch (e: Exception) {
+            logger.error(e.toString(), e)
+            dp.db.rollbackTransaction()
+            throw e
+        } finally {
+            dp.db.endTransaction()
         }
+
+        transactionListeners.accept(TransactionProcessor.Event.REMOVED_UNCONFIRMED_TRANSACTIONS, removed)
     }
 
     override suspend fun requeueAllUnconfirmedTransactions() {
@@ -225,55 +217,53 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
     }
 
     private suspend fun processTransactions(transactions: Collection<Transaction>, peer: Peer?): Collection<Transaction> {
-        mutex.withLock {
-            if (transactions.isEmpty()) {
-                return emptyList()
-            }
+        if (transactions.isEmpty()) {
+            return emptyList()
+        }
 
-            val addedUnconfirmedTransactions = mutableListOf<Transaction>()
+        val addedUnconfirmedTransactions = mutableListOf<Transaction>()
 
-            for (transaction in transactions) {
+        for (transaction in transactions) {
 
-                try {
-                    val curTime = dp.timeService.epochTime
-                    if (transaction.timestamp > curTime + 15 || transaction.expiration < curTime
-                            || transaction.deadline > 1440) {
-                        continue
-                    }
-
-                    dp.db.beginTransaction()
-                    try {
-                        if (dp.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionStore.exists(transaction.id)) {
-                            dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, listOf(transaction))
-                        } else if (!(transaction.verifySignature() && dp.transactionService.verifyPublicKey(transaction))) {
-                            if (dp.accountService.getAccount(transaction.senderId) != null && logger.isDebugEnabled) {
-                                logger.debug("Transaction {} failed to verify", transaction.jsonObject.toJsonString())
-                            }
-                        } else if (dp.unconfirmedTransactionStore.put(transaction, peer)) {
-                            addedUnconfirmedTransactions.add(transaction)
-                        }
-                        dp.db.commitTransaction()
-                    } catch (e: Exception) {
-                        dp.db.rollbackTransaction()
-                        throw e
-                    } finally {
-                        dp.db.endTransaction()
-                    }
-                } catch (e: RuntimeException) {
-                    logger.info("Error processing transaction", e)
+            try {
+                val curTime = dp.timeService.epochTime
+                if (transaction.timestamp > curTime + 15 || transaction.expiration < curTime
+                    || transaction.deadline > 1440) {
+                    continue
                 }
 
+                dp.db.beginTransaction()
+                try {
+                    if (dp.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionStore.exists(transaction.id)) {
+                        dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, listOf(transaction))
+                    } else if (!(transaction.verifySignature() && dp.transactionService.verifyPublicKey(transaction))) {
+                        if (dp.accountService.getAccount(transaction.senderId) != null && logger.isDebugEnabled) {
+                            logger.debug("Transaction {} failed to verify", transaction.jsonObject.toJsonString())
+                        }
+                    } else if (dp.unconfirmedTransactionStore.put(transaction, peer)) {
+                        addedUnconfirmedTransactions.add(transaction)
+                    }
+                    dp.db.commitTransaction()
+                } catch (e: Exception) {
+                    dp.db.rollbackTransaction()
+                    throw e
+                } finally {
+                    dp.db.endTransaction()
+                }
+            } catch (e: RuntimeException) {
+                logger.info("Error processing transaction", e)
             }
 
-            if (addedUnconfirmedTransactions.isNotEmpty()) {
-                transactionListeners.accept(
-                    TransactionProcessor.Event.ADDED_UNCONFIRMED_TRANSACTIONS,
-                    addedUnconfirmedTransactions
-                )
-            }
-
-            return addedUnconfirmedTransactions
         }
+
+        if (addedUnconfirmedTransactions.isNotEmpty()) {
+            transactionListeners.accept(
+                TransactionProcessor.Event.ADDED_UNCONFIRMED_TRANSACTIONS,
+                addedUnconfirmedTransactions
+            )
+        }
+
+        return addedUnconfirmedTransactions
     }
 
     private suspend fun broadcastToPeers(toAll: Boolean): Int {

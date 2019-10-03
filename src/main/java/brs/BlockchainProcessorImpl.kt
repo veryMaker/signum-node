@@ -18,12 +18,12 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.Semaphore
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.max
@@ -37,11 +37,12 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
 
     private val trimDerivedTables = dp.propertyService.get(Props.DB_TRIM_DERIVED_TABLES)
     private val lastTrimHeight = AtomicInteger()
+    
+    private val processMutex = Mutex()
 
     private val blockListeners = Listeners<Block, BlockchainProcessor.Event>()
     override var lastBlockchainFeeder by Atomic<Peer?>()
     override var lastBlockchainFeederHeight by Atomic<Int?>()
-    private val getMoreBlocks = AtomicBoolean(true) // TODO by Atomic
 
     private val autoPopOffEnabled = dp.propertyService.get(Props.AUTO_POP_OFF_ENABLED)
     private var autoPopOffLastStuckHeight = 0
@@ -60,9 +61,6 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
             if (dp.propertyService.get(Props.DEV_OFFLINE)) return@run false
             try {
                 try {
-                    if (!getMoreBlocks.get()) {
-                        return@run false
-                    }
                     // unlocking cache for writing.
                     // This must be done before we query where to add blocks.
                     // We sync the cache in event of pop off
@@ -104,7 +102,7 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
                     var commonBlockId = Genesis.GENESIS_BLOCK_ID
                     val cacheLastBlockId = dp.downloadCache.getLastBlockId()
 
-                    // Now we will find the highest common block between ourself and our peer
+                    // Now we will find the highest common block between us and the peer
                     if (cacheLastBlockId != Genesis.GENESIS_BLOCK_ID) {
                         commonBlockId = getCommonMilestoneBlockId(peer)
                         if (commonBlockId == 0L || !peerHasMore) {
@@ -282,7 +280,7 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
                     }
                 }
             } catch (exception: Exception) {
-                logger.error("Uncaught exception in blockImporterThread", exception)
+                logger.error("Uncaught exception in blockImporterTask", exception)
                 false
             }
         }
@@ -488,7 +486,7 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
         dp.downloadCache.lockCache() //dont let anything add to cache!
         while (dp.downloadCache.size() != 0) delay(1000) // TODO don't do this...
         dp.downloadCache.mutex.withLock {
-            dp.transactionProcessor.mutex.withLock {
+            processMutex.withLock {
                 logger.warn("Cache is now processed. Starting to process fork.")
                 val forkBlock = dp.blockchain.getBlock(forkBlockId)
 
@@ -570,7 +568,7 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
             logger.warn("Not automatically popping off as it is disabled via properties. If your node becomes stuck you will need to manually pop off.")
             return
         }
-        dp.transactionProcessor.mutex.withLock {
+        processMutex.withLock {
             logger.warn("Auto popping off as failed to push block")
             if (height != autoPopOffLastStuckHeight) {
                 autoPopOffLastStuckHeight = height
@@ -616,10 +614,6 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
         addGenesisBlock()
     }
 
-    internal fun setGetMoreBlocks(getMoreBlocks: Boolean) {
-        this.getMoreBlocks.set(getMoreBlocks)
-    }
-
     private fun addBlock(block: Block) {
         dp.blockchainStore.addBlock(block)
         dp.blockchain.lastBlock = block
@@ -647,12 +641,13 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
     }
 
     private suspend fun pushBlock(block: Block) {
-        dp.transactionProcessor.mutex.withLock {
+        processMutex.withLock {
             dp.db.beginTransaction()
             val curTime = dp.timeService.epochTime
             var lastBlock: Block? = null
             try {
                 lastBlock = dp.blockchain.lastBlock
+
 
                 if (lastBlock.id != block.previousBlockId) {
                     throw BlockchainProcessor.BlockOutOfOrderException(
@@ -861,7 +856,7 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
         }
         val poppedOffBlocks = mutableListOf<Block>()
         dp.downloadCache.mutex.withLock {
-            dp.transactionProcessor.mutex.withLock {
+            processMutex.withLock {
                 try {
                     dp.db.beginTransaction()
                     var block = dp.blockchain.lastBlock
@@ -1114,7 +1109,7 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
                 throw e
             }
 
-        } //end synchronized cache
+        }
     }
 
     private fun hasAllReferencedTransactions(transaction: Transaction, timestamp: Int, count: Int): Boolean {

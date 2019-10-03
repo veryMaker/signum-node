@@ -24,7 +24,7 @@ class DebugTraceManager(private val dp: DependencyProvider) {
         val accountIdStrings = dp.propertyService.get(Props.BRS_DEBUG_TRACE_ACCOUNTS)
         val logName = dp.propertyService.get(Props.BRS_DEBUG_TRACE_LOG)
         if (accountIdStrings.isNotEmpty()) {
-            val accountIds = HashSet<Long>()
+            val accountIds = mutableSetOf<Long>()
             for (accountId in accountIdStrings) {
                 if ("*" == accountId) {
                     accountIds.clear()

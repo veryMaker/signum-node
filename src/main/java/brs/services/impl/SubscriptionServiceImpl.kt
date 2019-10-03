@@ -163,7 +163,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
 
         private val paymentTransactions = mutableListOf<Transaction>()
         private val appliedSubscriptions = mutableListOf<Subscription>()
-        private val removeSubscriptions = HashSet<Long>()
+        private val removeSubscriptions = mutableSetOf<Long>()
     }
 
 }

@@ -3,7 +3,6 @@ package brs
 import brs.peer.Peer
 import brs.util.Observable
 import com.google.gson.JsonObject
-import kotlinx.coroutines.sync.Mutex
 
 interface TransactionProcessor : Observable<Collection<Transaction>, TransactionProcessor.Event> {
 
@@ -12,8 +11,6 @@ interface TransactionProcessor : Observable<Collection<Transaction>, Transaction
 
     @Deprecated("Just use UTStore directly")
     val amountUnconfirmedTransactions: Int
-
-    val mutex: Mutex
 
     enum class Event {
         REMOVED_UNCONFIRMED_TRANSACTIONS,
