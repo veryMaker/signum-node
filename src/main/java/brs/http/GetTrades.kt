@@ -10,7 +10,7 @@ import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.Parameters.isFalse
 import brs.http.common.ResultFields.TRADES_RESPONSE
 import brs.services.ParameterService
-import brs.util.Convert
+import brs.util.convert.emptyToNull
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -20,8 +20,8 @@ internal class GetTrades internal constructor(private val parameterService: Para
 
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val assetId = Convert.emptyToNull(request.getParameter(ASSET_PARAMETER))
-        val accountId = Convert.emptyToNull(request.getParameter(ACCOUNT_PARAMETER))
+        val assetId = request.getParameter(ASSET_PARAMETER).emptyToNull()
+        val accountId = request.getParameter(ACCOUNT_PARAMETER).emptyToNull()
 
         val firstIndex = ParameterParser.getFirstIndex(request)
         val lastIndex = ParameterParser.getLastIndex(request)
@@ -30,16 +30,20 @@ internal class GetTrades internal constructor(private val parameterService: Para
         val response = JsonObject()
         val tradesData = JsonArray()
         val trades: Collection<Trade>
-        trades = if (accountId == null) {
-            val asset = parameterService.getAsset(request)
-            assetExchange.getTrades(asset.id, firstIndex, lastIndex)
-        } else if (assetId == null) {
-            val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
-            assetExchange.getAccountTrades(account.id, firstIndex, lastIndex)
-        } else {
-            val asset = parameterService.getAsset(request)
-            val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
-            assetExchange.getAccountAssetTrades(account.id, asset.id, firstIndex, lastIndex)
+        trades = when {
+            accountId == null -> {
+                val asset = parameterService.getAsset(request)
+                assetExchange.getTrades(asset.id, firstIndex, lastIndex)
+            }
+            assetId == null -> {
+                val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
+                assetExchange.getAccountTrades(account.id, firstIndex, lastIndex)
+            }
+            else -> {
+                val asset = parameterService.getAsset(request)
+                val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
+                assetExchange.getAccountAssetTrades(account.id, asset.id, firstIndex, lastIndex)
+            }
         }
         for (trade in trades) {
             val asset = if (includeAssetInfo) assetExchange.getAsset(trade.assetId) else null

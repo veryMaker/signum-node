@@ -1,13 +1,9 @@
 package brs.http
 
 import brs.BurstException
-import brs.Transaction
 import brs.services.ParameterService
 import brs.services.TransactionService
-import brs.util.Convert
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import javax.servlet.http.HttpServletRequest
@@ -19,13 +15,14 @@ import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.http.common.ResultFields.ERROR_RESPONSE
 import brs.http.common.ResultFields.VALIDATE_RESPONSE
 import brs.http.common.ResultFields.VERIFY_RESPONSE
+import brs.util.convert.emptyToNull
 
 internal class ParseTransaction(private val parameterService: ParameterService, private val transactionService: TransactionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_BYTES_PARAMETER, TRANSACTION_JSON_PARAMETER) {
 
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val transactionBytes = Convert.emptyToNull(request.getParameter(TRANSACTION_BYTES_PARAMETER))
-        val transactionJSON = Convert.emptyToNull(request.getParameter(TRANSACTION_JSON_PARAMETER))
+        val transactionBytes = request.getParameter(TRANSACTION_BYTES_PARAMETER).emptyToNull()
+        val transactionJSON = request.getParameter(TRANSACTION_JSON_PARAMETER).emptyToNull()
         val transaction = parameterService.parseTransaction(transactionBytes, transactionJSON)
         val response = JSONData.unconfirmedTransaction(transaction)
         try {

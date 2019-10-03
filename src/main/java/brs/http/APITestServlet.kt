@@ -1,7 +1,6 @@
 package brs.http
-
-import brs.util.Convert
 import brs.util.Subnet
+import brs.util.convert.nullToEmpty
 import org.owasp.encoder.Encode
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -19,7 +18,6 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
         requestTypes = apiRequestHandlers.keys.sorted()
     }
 
-
     private fun buildRequestTags(): Map<String, Set<String>> {
         val r = mutableMapOf<String, MutableSet<String>>()
         for ((requestType, value) in apiRequestHandlers) {
@@ -34,7 +32,7 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
 
     private fun buildLinks(request: HttpServletRequest): String {
         val buf = StringBuilder()
-        val requestTag = Convert.nullToEmpty(request.getParameter("requestTag"))
+        val requestTag = request.getParameter("requestTag").nullToEmpty()
         buf.append("<li")
         if (requestTag.isEmpty()) {
             buf.append(" class=\"active\"")
@@ -74,14 +72,14 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
                 writer.print(HEADER_1)
                 writer.print(buildLinks(request))
                 writer.print(HEADER_2)
-                val requestType = Convert.nullToEmpty(Encode.forHtml(request.getParameter("requestType")))
+                val requestType = Encode.forHtml(request.getParameter("requestType")).nullToEmpty()
                 var requestHandler: APIServlet.HttpRequestHandler? = apiRequestHandlers[requestType]
                 val bufJSCalls = StringBuilder()
                 if (requestHandler != null) {
                     writer.print(form(requestType, true, requestHandler.javaClass.name, requestHandler.parameters, requestHandler.requirePost()))
                     bufJSCalls.append("apiCalls.push(\"").append(requestType).append("\");\n")
                 } else {
-                    val requestTag = Convert.nullToEmpty(request.getParameter("requestTag"))
+                    val requestTag = request.getParameter("requestTag").nullToEmpty()
                     val taggedTypes = requestTags[requestTag]
                     for (type in taggedTypes ?: requestTypes) {
                         requestHandler = apiRequestHandlers[type]

@@ -1,7 +1,7 @@
 package brs
 
 import brs.db.BurstKey
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 
 open class Trade {
 

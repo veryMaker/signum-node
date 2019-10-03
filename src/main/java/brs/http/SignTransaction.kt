@@ -16,8 +16,8 @@ import brs.http.common.ResultFields.TRANSACTION_RESPONSE
 import brs.http.common.ResultFields.VERIFY_RESPONSE
 import brs.services.ParameterService
 import brs.services.TransactionService
-import brs.util.Convert
-import brs.util.toHexString
+import brs.util.convert.emptyToNull
+import brs.util.convert.toHexString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -26,11 +26,11 @@ import javax.servlet.http.HttpServletRequest
 internal class SignTransaction(private val parameterService: ParameterService, private val transactionService: TransactionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), UNSIGNED_TRANSACTION_BYTES_PARAMETER, UNSIGNED_TRANSACTION_JSON_PARAMETER, SECRET_PHRASE_PARAMETER) {
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val transactionBytes = Convert.emptyToNull(request.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER))
-        val transactionJSON = Convert.emptyToNull(request.getParameter(UNSIGNED_TRANSACTION_JSON_PARAMETER))
+        val transactionBytes = request.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER).emptyToNull()
+        val transactionJSON = request.getParameter(UNSIGNED_TRANSACTION_JSON_PARAMETER).emptyToNull()
         val transaction = parameterService.parseTransaction(transactionBytes, transactionJSON)
 
-        val secretPhrase = Convert.emptyToNull(request.getParameter(SECRET_PHRASE_PARAMETER))
+        val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
                 ?: return MISSING_SECRET_PHRASE
 
         val response = JsonObject()

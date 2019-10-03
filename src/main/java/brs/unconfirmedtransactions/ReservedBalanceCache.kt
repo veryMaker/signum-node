@@ -5,12 +5,9 @@ import brs.BurstException
 import brs.BurstException.ValidationException
 import brs.Transaction
 import brs.db.store.AccountStore
-import brs.util.Convert
-import org.slf4j.Logger
+import brs.util.convert.safeAdd
+import brs.util.convert.safeSubtract
 import org.slf4j.LoggerFactory
-
-import java.util.ArrayList
-import java.util.HashMap
 
 internal class ReservedBalanceCache(private val accountStore: AccountStore) {
     private val reservedBalanceCache = mutableMapOf<Long, Long>()
@@ -22,10 +19,7 @@ internal class ReservedBalanceCache(private val accountStore: AccountStore) {
             senderAccount = accountStore.accountTable[accountStore.accountKeyFactory.newKey(transaction.senderId)]
         }
 
-        val amountNQT = Convert.safeAdd(
-                (reservedBalanceCache as Map<Long, Long>).getOrDefault(transaction.senderId, 0L),
-                transaction.type.calculateTotalAmountNQT(transaction)!!
-        )
+        val amountNQT = reservedBalanceCache.getOrDefault(transaction.senderId, 0L).safeAdd(transaction.type.calculateTotalAmountNQT(transaction))
 
         if (senderAccount == null) {
             if (LOGGER.isInfoEnabled) {
@@ -45,10 +39,7 @@ internal class ReservedBalanceCache(private val accountStore: AccountStore) {
     }
 
     fun refundBalance(transaction: Transaction) {
-        val amountNQT = Convert.safeSubtract(
-                (reservedBalanceCache as Map<Long, Long>).getOrDefault(transaction.senderId, 0L),
-                transaction.type.calculateTotalAmountNQT(transaction)!!
-        )
+        val amountNQT = reservedBalanceCache.getOrDefault(transaction.senderId, 0L).safeSubtract(transaction.type.calculateTotalAmountNQT(transaction))
 
         if (amountNQT > 0) {
             reservedBalanceCache[transaction.senderId] = amountNQT

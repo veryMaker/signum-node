@@ -37,9 +37,10 @@ import brs.http.common.ResultFields.TRANSACTION_BYTES_RESPONSE
 import brs.http.common.ResultFields.TRANSACTION_JSON_RESPONSE
 import brs.http.common.ResultFields.TRANSACTION_RESPONSE
 import brs.http.common.ResultFields.UNSIGNED_TRANSACTION_BYTES_RESPONSE
-import brs.util.Convert
-import brs.util.parseHexString
-import brs.util.toHexString
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseHexString
+import brs.util.convert.safeAdd
+import brs.util.convert.toHexString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -48,11 +49,11 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
     override suspend fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment, minimumFeeNQT: Long): JsonElement {
         val blockchainHeight = dp.blockchain.height
         val deadlineValue = request.getParameter(DEADLINE_PARAMETER)
-        val referencedTransactionFullHash = Convert.emptyToNull(request.getParameter(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER))
-        val referencedTransactionId = Convert.emptyToNull(request.getParameter(REFERENCED_TRANSACTION_PARAMETER))
-        val secretPhrase = Convert.emptyToNull(request.getParameter(SECRET_PHRASE_PARAMETER))
-        val publicKeyValue = Convert.emptyToNull(request.getParameter(PUBLIC_KEY_PARAMETER))
-        val recipientPublicKeyValue = Convert.emptyToNull(request.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER))
+        val referencedTransactionFullHash = request.getParameter(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER).emptyToNull()
+        val referencedTransactionId = request.getParameter(REFERENCED_TRANSACTION_PARAMETER).emptyToNull()
+        val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
+        val publicKeyValue = request.getParameter(PUBLIC_KEY_PARAMETER).emptyToNull()
+        val recipientPublicKeyValue = request.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER).emptyToNull()
         val broadcast = !Parameters.isFalse(request.getParameter(BROADCAST_PARAMETER))
 
         var encryptedMessage: EncryptedMessage? = null
@@ -70,7 +71,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
             encryptToSelfMessage = EncryptToSelfMessage(dp, encryptedToSelfData, !Parameters.isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER)), blockchainHeight)
         }
         var message: Message? = null
-        val messageValue = Convert.emptyToNull(request.getParameter(MESSAGE_PARAMETER))
+        val messageValue = request.getParameter(MESSAGE_PARAMETER).emptyToNull()
         if (messageValue != null) {
             val messageIsText = dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) && !Parameters.isFalse(request.getParameter(MESSAGE_IS_TEXT_PARAMETER))
             try {
@@ -80,7 +81,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
             }
 
         } else if (attachment is Attachment.ColoredCoinsAssetTransfer && dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
-            val commentValue = Convert.emptyToNull(request.getParameter(COMMENT_PARAMETER))
+            val commentValue = request.getParameter(COMMENT_PARAMETER).emptyToNull()
             if (commentValue != null) {
                 message = Message(dp, commentValue, blockchainHeight)
             }
@@ -88,7 +89,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
             message = Message(dp, ByteArray(0), blockchainHeight)
         }
         var publicKeyAnnouncement: PublicKeyAnnouncement? = null
-        val recipientPublicKey = Convert.emptyToNull(request.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER))
+        val recipientPublicKey = request.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER).emptyToNull()
         if (recipientPublicKey != null && dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
             publicKeyAnnouncement = PublicKeyAnnouncement(dp, recipientPublicKey.parseHexString(), blockchainHeight)
         }
@@ -115,7 +116,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
         }
 
         try {
-            if (Convert.safeAdd(amountNQT, feeNQT) > senderAccount.unconfirmedBalanceNQT) {
+            if (amountNQT.safeAdd(feeNQT) > senderAccount.unconfirmedBalanceNQT) {
                 return NOT_ENOUGH_FUNDS
             }
         } catch (e: ArithmeticException) {

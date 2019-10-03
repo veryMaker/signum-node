@@ -3,7 +3,8 @@ package brs.transaction.advancedPayment
 import brs.*
 import brs.transaction.TransactionType
 import brs.transactionduplicates.TransactionDuplicationKey
-import brs.util.Convert
+import brs.util.convert.safeAdd
+import brs.util.convert.safeMultiply
 import com.google.gson.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -34,10 +35,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
 
     public override fun calculateAttachmentTotalAmountNQT(transaction: Transaction): Long {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowCreation
-        return Convert.safeAdd(
-            attachment.amountNQT!!,
-            Convert.safeMultiply(attachment.totalSigners.toLong(), Constants.ONE_BURST)
-        )
+        return attachment.amountNQT.safeAdd(attachment.totalSigners.toLong().safeMultiply(Constants.ONE_BURST))
     }
 
     override suspend fun applyAttachment(
@@ -81,11 +79,11 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
 
     override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowCreation
-        var totalAmountNQT: Long? = Convert.safeAdd(attachment.amountNQT!!, transaction.feeNQT)
+        var totalAmountNQT: Long? = attachment.amountNQT!!.safeAdd(transaction.feeNQT)
         if (transaction.senderId == transaction.recipientId) {
             throw BurstException.NotValidException("Escrow must have different sender and recipient")
         }
-        totalAmountNQT = Convert.safeAdd(totalAmountNQT!!, attachment.totalSigners * Constants.ONE_BURST)
+        totalAmountNQT = totalAmountNQT!!.safeAdd(attachment.totalSigners * Constants.ONE_BURST)
         if (transaction.amountNQT != 0L) {
             throw BurstException.NotValidException("Transaction sent amount must be 0 for escrow")
         }

@@ -4,8 +4,8 @@ import brs.Blockchain
 import brs.http.JSONResponses.INCORRECT_HEIGHT
 import brs.http.JSONResponses.MISSING_HEIGHT
 import brs.http.common.Parameters.HEIGHT_PARAMETER
-import brs.util.Convert
-import brs.util.toUnsignedString
+import brs.util.convert.emptyToNull
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -16,7 +16,7 @@ internal class GetBlockId(private val blockchain: Blockchain) : APIServlet.JsonR
 
         val height: Int
         try {
-            val heightValue = Convert.emptyToNull(request.getParameter(HEIGHT_PARAMETER)) ?: return MISSING_HEIGHT
+            val heightValue = request.getParameter(HEIGHT_PARAMETER).emptyToNull() ?: return MISSING_HEIGHT
             height = Integer.parseInt(heightValue)
         } catch (e: RuntimeException) {
             return INCORRECT_HEIGHT

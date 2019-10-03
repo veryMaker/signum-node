@@ -9,7 +9,7 @@ import brs.schema.Tables.*
 import brs.schema.tables.records.AccountAssetRecord
 import brs.schema.tables.records.AccountRecord
 import brs.schema.tables.records.RewardRecipAssignRecord
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import org.jooq.*
 import org.slf4j.LoggerFactory
 import java.util.*

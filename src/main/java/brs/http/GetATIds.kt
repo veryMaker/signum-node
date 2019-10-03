@@ -2,7 +2,7 @@ package brs.http
 
 import brs.http.common.ResultFields.AT_IDS_RESPONSE
 import brs.services.ATService
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

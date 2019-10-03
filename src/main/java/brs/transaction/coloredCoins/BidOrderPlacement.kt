@@ -4,7 +4,7 @@ import brs.Account
 import brs.Attachment
 import brs.DependencyProvider
 import brs.Transaction
-import brs.util.Convert
+import brs.util.convert.safeMultiply
 import com.google.gson.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -39,7 +39,7 @@ class BidOrderPlacement(dp: DependencyProvider) : OrderPlacement(dp) {
 
     public override fun calculateAttachmentTotalAmountNQT(transaction: Transaction): Long {
         val attachment = transaction.attachment as Attachment.ColoredCoinsBidOrderPlacement
-        return Convert.safeMultiply(attachment.quantityQNT, attachment.priceNQT)
+        return attachment.quantityQNT.safeMultiply(attachment.priceNQT)
     }
 
     override suspend fun applyAttachment(

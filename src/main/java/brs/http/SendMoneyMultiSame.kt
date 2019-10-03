@@ -1,7 +1,6 @@
 package brs.http
 
 import brs.Attachment
-import brs.BurstException
 import brs.Constants
 import brs.DependencyProvider
 import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
@@ -14,8 +13,8 @@ import brs.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
-import brs.util.Convert
-import brs.util.parseUnsignedLong
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -25,7 +24,7 @@ internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTr
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val amountNQT = ParameterParser.getAmountNQT(request)
         val sender = dp.parameterService.getSenderAccount(request)
-        val recipientString = Convert.emptyToNull(request.getParameter(RECIPIENTS_PARAMETER))
+        val recipientString = request.getParameter(RECIPIENTS_PARAMETER).emptyToNull()
 
 
         if (recipientString == null) {

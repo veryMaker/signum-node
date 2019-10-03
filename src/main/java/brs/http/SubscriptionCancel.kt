@@ -1,9 +1,6 @@
 package brs.http
 
 import brs.*
-import brs.services.ParameterService
-import brs.services.SubscriptionService
-import brs.util.Convert
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
@@ -12,14 +9,15 @@ import javax.servlet.http.HttpServletRequest
 import brs.http.common.Parameters.SUBSCRIPTION_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
-import brs.util.parseUnsignedLong
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseUnsignedLong
 
 internal class SubscriptionCancel(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), SUBSCRIPTION_PARAMETER) {
 
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)
 
-        val subscriptionString = Convert.emptyToNull(request.getParameter(SUBSCRIPTION_PARAMETER))
+        val subscriptionString = request.getParameter(SUBSCRIPTION_PARAMETER).emptyToNull()
         if (subscriptionString == null) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 3)

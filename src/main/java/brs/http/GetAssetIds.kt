@@ -4,7 +4,7 @@ import brs.assetexchange.AssetExchange
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.ASSET_IDS_RESPONSE
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

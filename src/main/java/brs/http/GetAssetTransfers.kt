@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.assetexchange.AssetExchange
 import brs.http.common.Parameters
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
@@ -11,7 +10,7 @@ import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.TRANSFERS_RESPONSE
 import brs.services.AccountService
 import brs.services.ParameterService
-import brs.util.Convert
+import brs.util.convert.emptyToNull
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -20,8 +19,8 @@ import javax.servlet.http.HttpServletRequest
 internal class GetAssetTransfers internal constructor(private val parameterService: ParameterService, private val accountService: AccountService, private val assetExchange: AssetExchange) : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), ASSET_PARAMETER, ACCOUNT_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, INCLUDE_ASSET_INFO_PARAMETER) {
 
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
-        val assetId = Convert.emptyToNull(request.getParameter(ASSET_PARAMETER))
-        val accountId = Convert.emptyToNull(request.getParameter(ACCOUNT_PARAMETER))
+        val assetId = request.getParameter(ASSET_PARAMETER).emptyToNull()
+        val accountId = request.getParameter(ACCOUNT_PARAMETER).emptyToNull()
 
         val firstIndex = ParameterParser.getFirstIndex(request)
         val lastIndex = ParameterParser.getLastIndex(request)

@@ -1,7 +1,6 @@
 package brs.http
 
 import brs.Attachment
-import brs.BurstException
 import brs.Constants
 import brs.DependencyProvider
 import brs.http.JSONResponses.ALREADY_DELIVERED
@@ -16,8 +15,7 @@ import brs.http.common.Parameters.GOODS_NONCE_PARAMETER
 import brs.http.common.Parameters.GOODS_TO_ENCRYPT_PARAMETER
 import brs.http.common.Parameters.PURCHASE_PARAMETER
 import brs.http.common.Parameters.isFalse
-import brs.util.Convert
-import brs.util.parseHexString
+import brs.util.convert.*
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -34,7 +32,7 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
             return ALREADY_DELIVERED
         }
 
-        val discountValueNQT = Convert.emptyToNull(request.getParameter(DISCOUNT_NQT_PARAMETER))
+        val discountValueNQT = request.getParameter(DISCOUNT_NQT_PARAMETER).emptyToNull()
         var discountNQT: Long = 0
         try {
             if (discountValueNQT != null) {
@@ -46,7 +44,7 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
 
         if (discountNQT < 0
                 || discountNQT > Constants.MAX_BALANCE_NQT
-                || discountNQT > Convert.safeMultiply(purchase.priceNQT, purchase.quantity.toLong())) {
+                || discountNQT > purchase.priceNQT.safeMultiply(purchase.quantity.toLong())) {
             return INCORRECT_DGS_DISCOUNT
         }
 
@@ -58,11 +56,11 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
             val secretPhrase = ParameterParser.getSecretPhrase(request)
             val goodsBytes: ByteArray?
             try {
-                val plainGoods = Convert.nullToEmpty(request.getParameter(GOODS_TO_ENCRYPT_PARAMETER))
+                val plainGoods = request.getParameter(GOODS_TO_ENCRYPT_PARAMETER).nullToEmpty()
                 if (plainGoods.isEmpty()) {
                     return INCORRECT_DGS_GOODS
                 }
-                goodsBytes = if (goodsIsText) Convert.toBytes(plainGoods) else plainGoods.parseHexString()
+                goodsBytes = if (goodsIsText) plainGoods.toBytes() else plainGoods.parseHexString()
             } catch (e: RuntimeException) {
                 return INCORRECT_DGS_GOODS
             }

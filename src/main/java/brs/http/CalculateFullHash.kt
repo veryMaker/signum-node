@@ -6,9 +6,9 @@ import brs.http.JSONResponses.MISSING_UNSIGNED_BYTES
 import brs.http.common.Parameters.FULL_HASH_RESPONSE
 import brs.http.common.Parameters.SIGNATURE_HASH_PARAMETER
 import brs.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
-import brs.util.Convert
-import brs.util.parseHexString
-import brs.util.toHexString
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseHexString
+import brs.util.convert.toHexString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -17,8 +17,8 @@ internal class CalculateFullHash : APIServlet.JsonRequestHandler(arrayOf(APITag.
 
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val unsignedBytesString = Convert.emptyToNull(request.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER))
-        val signatureHashString = Convert.emptyToNull(request.getParameter(SIGNATURE_HASH_PARAMETER))
+        val unsignedBytesString = request.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER).emptyToNull()
+        val signatureHashString = request.getParameter(SIGNATURE_HASH_PARAMETER).emptyToNull()
 
         if (unsignedBytesString == null) {
             return MISSING_UNSIGNED_BYTES

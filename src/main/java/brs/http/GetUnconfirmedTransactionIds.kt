@@ -7,7 +7,8 @@ import brs.http.common.Parameters.INCLUDE_INDIRECT_PARAMETER
 import brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_IDS_RESPONSE
 import brs.services.IndirectIncomingService
 import brs.services.ParameterService
-import brs.util.Convert
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseAccountId
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -15,14 +16,14 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetUnconfirmedTransactionIds(private val transactionProcessor: TransactionProcessor, private val indirectIncomingService: IndirectIncomingService, private val parameterService: ParameterService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS, APITag.ACCOUNTS), ACCOUNT_PARAMETER, INCLUDE_INDIRECT_PARAMETER) {
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
-        val accountIdString = Convert.emptyToNull(request.getParameter(ACCOUNT_PARAMETER))
+        val accountIdString = request.getParameter(ACCOUNT_PARAMETER).emptyToNull()
         val includeIndirect = parameterService.getIncludeIndirect(request)
 
         var accountId: Long = 0
 
         if (accountIdString != null) {
             try {
-                accountId = Convert.parseAccountId(accountIdString)
+                accountId = accountIdString.parseAccountId()
             } catch (e: RuntimeException) {
                 return INCORRECT_ACCOUNT
             }

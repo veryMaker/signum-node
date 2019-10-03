@@ -12,8 +12,8 @@ import brs.http.common.ResultFields.NUMBER_PEERS_SENT_TO_RESPONSE
 import brs.http.common.ResultFields.TRANSACTION_RESPONSE
 import brs.services.ParameterService
 import brs.services.TransactionService
-import brs.util.Convert
-import brs.util.toHexString
+import brs.util.convert.emptyToNull
+import brs.util.convert.toHexString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import java.util.logging.Level
@@ -24,8 +24,8 @@ internal class BroadcastTransaction(private val transactionProcessor: Transactio
 
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val transactionBytes = Convert.emptyToNull(request.getParameter(TRANSACTION_BYTES_PARAMETER))
-        val transactionJSON = Convert.emptyToNull(request.getParameter(TRANSACTION_JSON_PARAMETER))
+        val transactionBytes = request.getParameter(TRANSACTION_BYTES_PARAMETER).emptyToNull()
+        val transactionJSON = request.getParameter(TRANSACTION_JSON_PARAMETER).emptyToNull()
         val transaction = parameterService.parseTransaction(transactionBytes, transactionJSON)
         val response = JsonObject()
         try {

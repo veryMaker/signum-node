@@ -2,12 +2,10 @@ package brs
 
 import brs.common.QuickMocker
 import brs.common.TestConstants
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.services.TimeService
-import brs.util.Convert
-import brs.util.parseHexString
-import brs.util.toHexString
+import brs.util.convert.parseHexString
+import brs.util.convert.toHexString
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever

@@ -8,16 +8,16 @@ import brs.http.JSONResponses.MISSING_TRANSACTION
 import brs.http.JSONResponses.UNKNOWN_TRANSACTION
 import brs.http.common.Parameters.FULL_HASH_PARAMETER
 import brs.http.common.Parameters.TRANSACTION_PARAMETER
-import brs.util.Convert
-import brs.util.parseHexString
-import brs.util.parseUnsignedLong
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseHexString
+import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 internal class GetTransaction(private val transactionProcessor: TransactionProcessor, private val blockchain: Blockchain) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_PARAMETER, FULL_HASH_PARAMETER) {
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
-        val transactionIdString = Convert.emptyToNull(request.getParameter(TRANSACTION_PARAMETER))
-        val transactionFullHash = Convert.emptyToNull(request.getParameter(FULL_HASH_PARAMETER))
+        val transactionIdString = request.getParameter(TRANSACTION_PARAMETER).emptyToNull()
+        val transactionFullHash = request.getParameter(FULL_HASH_PARAMETER).emptyToNull()
         if (transactionIdString == null && transactionFullHash == null) {
             return MISSING_TRANSACTION
         }

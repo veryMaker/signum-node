@@ -1,7 +1,6 @@
 package brs.http
 
 import brs.Attachment
-import brs.BurstException
 import brs.Constants
 import brs.DependencyProvider
 import brs.http.JSONResponses.INCORRECT_ASSET_DESCRIPTION
@@ -13,8 +12,8 @@ import brs.http.common.Parameters.DECIMALS_PARAMETER
 import brs.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.http.common.Parameters.NAME_PARAMETER
 import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
-import brs.util.Convert
 import brs.util.TextUtils
+import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -24,7 +23,7 @@ internal class IssueAsset internal constructor(private val dp: DependencyProvide
 
         var name: String? = request.getParameter(NAME_PARAMETER)
         val description = request.getParameter(DESCRIPTION_PARAMETER)
-        val decimalsValue = Convert.emptyToNull(request.getParameter(DECIMALS_PARAMETER))
+        val decimalsValue = request.getParameter(DECIMALS_PARAMETER).emptyToNull()
 
         if (name == null) {
             return MISSING_NAME

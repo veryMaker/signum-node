@@ -1,7 +1,6 @@
 package brs
-
-import brs.util.Convert
-import brs.util.toUnsignedString
+import brs.util.convert.safeMultiply
+import brs.util.convert.toUnsignedString
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.math.BigInteger
@@ -121,7 +120,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
         map["asset"] = trade.assetId.toUnsignedString()
         map["trade quantity"] = (if (isAsk) -trade.quantityQNT else trade.quantityQNT).toString()
         map["trade price"] = trade.priceNQT.toString()
-        val tradeCost = Convert.safeMultiply(trade.quantityQNT, trade.priceNQT)
+        val tradeCost = trade.quantityQNT.safeMultiply(trade.priceNQT)
         map["trade cost"] = (if (isAsk) tradeCost else -tradeCost).toString()
         map["event"] = "trade"
         return map
@@ -240,7 +239,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
             var discount = delivery.discountNQT
             map["purchase price"] = purchase.priceNQT.toString()
             map["purchase quantity"] = purchase.quantity.toString()
-            var cost = Convert.safeMultiply(purchase.priceNQT, purchase.quantity.toLong())
+            var cost = purchase.priceNQT.safeMultiply(purchase.quantity.toLong())
             if (isRecipient) {
                 cost = -cost
             }

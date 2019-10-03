@@ -6,7 +6,6 @@ import brs.at.AT
 import brs.crypto.EncryptedData
 import brs.services.AccountService
 import brs.services.BlockService
-import brs.util.parseHexString
 import com.google.protobuf.ByteString
 import com.google.protobuf.InvalidProtocolBufferException
 import com.google.rpc.Code

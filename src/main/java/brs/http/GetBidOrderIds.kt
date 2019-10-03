@@ -1,12 +1,11 @@
 package brs.http
 
-import brs.BurstException
 import brs.assetexchange.AssetExchange
 import brs.http.common.Parameters.ASSET_PARAMETER
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.services.ParameterService
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

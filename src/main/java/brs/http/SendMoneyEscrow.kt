@@ -1,21 +1,23 @@
 package brs.http
 
-import brs.*
+import brs.Attachment
+import brs.Constants
+import brs.DependencyProvider
+import brs.Escrow
 import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
 import brs.http.common.Parameters.DEADLINE_ACTION_PARAMETER
 import brs.http.common.Parameters.ESCROW_DEADLINE_PARAMETER
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.http.common.Parameters.REQUIRED_SIGNERS_PARAMETER
 import brs.http.common.Parameters.SIGNERS_PARAMETER
-import brs.services.ParameterService
-import brs.util.Convert
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-
-import javax.servlet.http.HttpServletRequest
-import java.util.ArrayList
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseAccountId
+import brs.util.convert.safeAdd
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import javax.servlet.http.HttpServletRequest
 
 internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, AMOUNT_NQT_PARAMETER, ESCROW_DEADLINE_PARAMETER, SIGNERS_PARAMETER, REQUIRED_SIGNERS_PARAMETER, DEADLINE_ACTION_PARAMETER) {
 
@@ -23,7 +25,7 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
         val sender = dp.parameterService.getSenderAccount(request)
         val recipient = ParameterParser.getRecipientId(request)
         val amountNQT = ParameterParser.getAmountNQT(request)
-        val signerString = Convert.emptyToNull(request.getParameter(SIGNERS_PARAMETER))
+        val signerString = request.getParameter(SIGNERS_PARAMETER).emptyToNull()
 
         val requiredSigners: Long
         try {
@@ -61,7 +63,7 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
 
         try {
             for (signer in signersArray) {
-                val id = Convert.parseAccountId(signer)
+                val id = signer.parseAccountId()
                 signers.add(id)
             }
         } catch (e: Exception) {
@@ -71,7 +73,7 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
             return response
         }
 
-        val totalAmountNQT = Convert.safeAdd(amountNQT, signers.size * Constants.ONE_BURST)
+        val totalAmountNQT = amountNQT.safeAdd(signers.size * Constants.ONE_BURST)
         if (sender.balanceNQT < totalAmountNQT) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 6)

@@ -2,7 +2,7 @@ package brs
 
 import brs.db.BurstKey
 import brs.grpc.proto.BrsApi
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 
 abstract class Order {
 

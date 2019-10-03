@@ -4,7 +4,7 @@ import brs.Block
 import brs.Blockchain
 import brs.Constants
 import brs.util.JSON
-import brs.util.parseUnsignedLong
+import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

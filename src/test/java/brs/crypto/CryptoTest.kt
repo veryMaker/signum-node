@@ -1,16 +1,14 @@
 package brs.crypto
 
 import brs.common.TestConstants
-import brs.util.Convert
-import brs.util.parseHexString
-import brs.util.toHexString
+import brs.util.convert.parseHexString
+import brs.util.convert.toHexString
 import burst.kit.crypto.BurstCrypto
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

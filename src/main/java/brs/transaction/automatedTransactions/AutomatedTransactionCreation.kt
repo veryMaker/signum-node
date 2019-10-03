@@ -4,7 +4,7 @@ import brs.*
 import brs.at.AT
 import brs.at.AtException
 import brs.fluxcapacitor.FluxValues
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 import java.util.*

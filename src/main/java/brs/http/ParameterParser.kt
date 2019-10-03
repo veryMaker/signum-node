@@ -37,10 +37,7 @@ import brs.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.http.common.Parameters.SELLER_PARAMETER
 import brs.http.common.Parameters.TIMESTAMP_PARAMETER
-import brs.util.Convert
-import brs.util.parseHexString
-import brs.util.parseUnsignedLong
-import brs.util.toUnsignedString
+import brs.util.convert.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.servlet.http.HttpServletRequest
@@ -48,7 +45,7 @@ import javax.servlet.http.HttpServletRequest
 internal object ParameterParser {
 
     fun getFeeNQT(request: HttpServletRequest): Long {
-        val feeValueNQT = Convert.emptyToNull(request.getParameter(FEE_NQT_PARAMETER))
+        val feeValueNQT = request.getParameter(FEE_NQT_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_FEE)
         val feeNQT: Long
         try {
@@ -64,7 +61,7 @@ internal object ParameterParser {
     }
 
     fun getPriceNQT(request: HttpServletRequest): Long {
-        val priceValueNQT = Convert.emptyToNull(request.getParameter(PRICE_NQT_PARAMETER))
+        val priceValueNQT = request.getParameter(PRICE_NQT_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_PRICE)
         val priceNQT: Long
         try {
@@ -80,7 +77,7 @@ internal object ParameterParser {
     }
 
     fun getQuantityQNT(request: HttpServletRequest): Long {
-        val quantityValueQNT = Convert.emptyToNull(request.getParameter(QUANTITY_QNT_PARAMETER))
+        val quantityValueQNT = request.getParameter(QUANTITY_QNT_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_QUANTITY)
         val quantityQNT: Long
         try {
@@ -96,7 +93,7 @@ internal object ParameterParser {
     }
 
     fun getOrderId(request: HttpServletRequest): Long {
-        val orderValue = Convert.emptyToNull(request.getParameter(ORDER_PARAMETER))
+        val orderValue = request.getParameter(ORDER_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_ORDER)
         try {
             return orderValue.parseUnsignedLong()
@@ -107,7 +104,7 @@ internal object ParameterParser {
     }
 
     fun getGoodsQuantity(request: HttpServletRequest): Int {
-        val quantityString = Convert.emptyToNull(request.getParameter(QUANTITY_PARAMETER))
+        val quantityString = request.getParameter(QUANTITY_PARAMETER).emptyToNull()
         try {
             val quantity = Integer.parseInt(quantityString!!)
             if (quantity < 0 || quantity > Constants.MAX_DGS_LISTING_QUANTITY) {
@@ -121,8 +118,8 @@ internal object ParameterParser {
     }
 
     fun getEncryptedGoods(request: HttpServletRequest): EncryptedData? {
-        val data = Convert.emptyToNull(request.getParameter(GOODS_DATA_PARAMETER))
-        val nonce = Convert.emptyToNull(request.getParameter(GOODS_NONCE_PARAMETER))
+        val data = request.getParameter(GOODS_DATA_PARAMETER).emptyToNull()
+        val nonce = request.getParameter(GOODS_NONCE_PARAMETER).emptyToNull()
         if (data != null && nonce != null) {
             try {
                 return EncryptedData(data.parseHexString(), nonce.parseHexString())
@@ -135,12 +132,12 @@ internal object ParameterParser {
     }
 
     fun getSecretPhrase(request: HttpServletRequest): String {
-        return Convert.emptyToNull(request.getParameter(SECRET_PHRASE_PARAMETER))
+        return request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_SECRET_PHRASE)
     }
 
     fun getTimestamp(request: HttpServletRequest): Int {
-        val timestampValue = Convert.emptyToNull(request.getParameter(TIMESTAMP_PARAMETER)) ?: return 0
+        val timestampValue = request.getParameter(TIMESTAMP_PARAMETER).emptyToNull() ?: return 0
         val timestamp: Int
         try {
             timestamp = Integer.parseInt(timestampValue)
@@ -155,13 +152,13 @@ internal object ParameterParser {
     }
 
     fun getRecipientId(request: HttpServletRequest): Long {
-        val recipientValue = Convert.emptyToNull(request.getParameter(RECIPIENT_PARAMETER))
+        val recipientValue = request.getParameter(RECIPIENT_PARAMETER).emptyToNull()
         if (recipientValue == null || Parameters.isZero(recipientValue)) {
             throw ParameterException(MISSING_RECIPIENT)
         }
         val recipientId: Long
         try {
-            recipientId = Convert.parseAccountId(recipientValue)
+            recipientId = recipientValue.parseAccountId()
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_RECIPIENT)
         }
@@ -173,9 +170,9 @@ internal object ParameterParser {
     }
 
     fun getSellerId(request: HttpServletRequest): Long {
-        val sellerIdValue = Convert.emptyToNull(request.getParameter(SELLER_PARAMETER))
+        val sellerIdValue = request.getParameter(SELLER_PARAMETER).emptyToNull()
         try {
-            return Convert.parseAccountId(sellerIdValue!!)
+            return sellerIdValue!!.parseAccountId()
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_RECIPIENT)
         }
@@ -183,9 +180,9 @@ internal object ParameterParser {
     }
 
     fun getBuyerId(request: HttpServletRequest): Long {
-        val buyerIdValue = Convert.emptyToNull(request.getParameter(BUYER_PARAMETER))
+        val buyerIdValue = request.getParameter(BUYER_PARAMETER).emptyToNull()
         try {
-            return Convert.parseAccountId(buyerIdValue!!)
+            return buyerIdValue!!.parseAccountId()
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_RECIPIENT)
         }
@@ -239,7 +236,7 @@ internal object ParameterParser {
     }
 
     fun getAmountNQT(request: HttpServletRequest): Long {
-        val amountValueNQT = Convert.emptyToNull(request.getParameter(AMOUNT_NQT_PARAMETER))
+        val amountValueNQT = request.getParameter(AMOUNT_NQT_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_AMOUNT)
         val amountNQT: Long
         try {

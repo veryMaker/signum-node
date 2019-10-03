@@ -5,8 +5,9 @@ import brs.DependencyProvider
 import brs.Order.Ask
 import brs.Order.Bid
 import brs.Transaction
-import brs.util.Convert
-import brs.util.toUnsignedString
+import brs.util.convert.safeMultiply
+import brs.util.convert.safeSubtract
+import brs.util.convert.toUnsignedString
 
 internal class OrderServiceImpl(private val dp: DependencyProvider, private val tradeService: TradeServiceImpl) { // TODO interface
     private val askOrderTable = dp.orderStore.askOrderTable
@@ -99,16 +100,16 @@ internal class OrderServiceImpl(private val dp: DependencyProvider, private val 
 
             val trade = tradeService.addTrade(assetId, dp.blockchain.lastBlock, askOrder, bidOrder)
 
-            askOrderUpdateQuantityQNT(askOrder, Convert.safeSubtract(askOrder.quantityQNT, trade.quantityQNT))
+            askOrderUpdateQuantityQNT(askOrder, askOrder.quantityQNT.safeSubtract(trade.quantityQNT))
             val askAccount = dp.accountService.getAccount(askOrder.accountId)!!
-            dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(askAccount, Convert.safeMultiply(trade.quantityQNT, trade.priceNQT))
+            dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(askAccount, trade.quantityQNT.safeMultiply(trade.priceNQT))
             dp.accountService.addToAssetBalanceQNT(askAccount, assetId, -trade.quantityQNT)
 
-            bidOrderUpdateQuantityQNT(bidOrder, Convert.safeSubtract(bidOrder.quantityQNT, trade.quantityQNT))
+            bidOrderUpdateQuantityQNT(bidOrder, bidOrder.quantityQNT.safeSubtract(trade.quantityQNT))
             val bidAccount = dp.accountService.getAccount(bidOrder.accountId)!!
             dp.accountService.addToAssetAndUnconfirmedAssetBalanceQNT(bidAccount, assetId, trade.quantityQNT)
-            dp.accountService.addToBalanceNQT(bidAccount, -Convert.safeMultiply(trade.quantityQNT, trade.priceNQT))
-            dp.accountService.addToUnconfirmedBalanceNQT(bidAccount, Convert.safeMultiply(trade.quantityQNT, bidOrder.priceNQT - trade.priceNQT))
+            dp.accountService.addToBalanceNQT(bidAccount, -trade.quantityQNT.safeMultiply(trade.priceNQT))
+            dp.accountService.addToUnconfirmedBalanceNQT(bidAccount, trade.quantityQNT.safeMultiply(bidOrder.priceNQT - trade.priceNQT))
 
             askOrder = getNextAskOrder(assetId)
             bidOrder = getNextBidOrder(assetId)

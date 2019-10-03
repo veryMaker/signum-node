@@ -5,10 +5,11 @@ import brs.fluxcapacitor.FluxValues
 import brs.grpc.proto.BrsApi
 import brs.grpc.proto.ProtoBuilder
 import brs.grpc.proto.toByteString
-import brs.util.Convert
 import brs.util.JSON
-import brs.util.parseHexString
-import brs.util.toHexString
+import brs.util.convert.parseHexString
+import brs.util.convert.toBytes
+import brs.util.convert.toHexString
+import brs.util.convert.toUtf8String
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
 import java.nio.ByteBuffer
@@ -113,7 +114,7 @@ interface Appendix {
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
             val messageString = JSON.getAsString(attachmentData.get("message"))
             this.isText = JSON.getAsBoolean(attachmentData.get("messageIsText"))
-            this.messageBytes = if (isText) Convert.toBytes(messageString) else messageString.parseHexString()
+            this.messageBytes = if (isText) messageString.toBytes() else messageString.parseHexString()
         }
 
         constructor(dp: DependencyProvider, message: ByteArray, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -122,7 +123,7 @@ interface Appendix {
         }
 
         constructor(dp: DependencyProvider, string: String, blockchainHeight: Int) : super(dp, blockchainHeight) {
-            this.messageBytes = Convert.toBytes(string)
+            this.messageBytes = string.toBytes()
             this.isText = true
         }
 
@@ -137,7 +138,7 @@ interface Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty("message", if (isText) Convert.toString(messageBytes!!) else messageBytes.toHexString())
+            attachment.addProperty("message", if (isText) messageBytes!!.toUtf8String() else messageBytes.toHexString())
             attachment.addProperty("messageIsText", isText)
         }
 

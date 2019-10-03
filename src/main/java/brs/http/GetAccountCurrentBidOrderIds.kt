@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.Order
 import brs.assetexchange.AssetExchange
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
@@ -9,8 +8,8 @@ import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.BID_ORDER_IDS_RESPONSE
 import brs.services.ParameterService
-import brs.util.parseUnsignedLong
-import brs.util.toUnsignedString
+import brs.util.convert.parseUnsignedLong
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

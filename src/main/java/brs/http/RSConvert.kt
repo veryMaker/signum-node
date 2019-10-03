@@ -1,20 +1,19 @@
 package brs.http
 
-import brs.util.Convert
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-
-import javax.servlet.http.HttpServletRequest
-
 import brs.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.http.JSONResponses.MISSING_ACCOUNT
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseAccountId
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import javax.servlet.http.HttpServletRequest
 
 internal object RSConvert : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS, APITag.UTILS), ACCOUNT_PARAMETER) {
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
-        val accountValue = Convert.emptyToNull(request.getParameter(ACCOUNT_PARAMETER)) ?: return MISSING_ACCOUNT
+        val accountValue = request.getParameter(ACCOUNT_PARAMETER).emptyToNull() ?: return MISSING_ACCOUNT
         try {
-            val accountId = Convert.parseAccountId(accountValue)
+            val accountId = accountValue.parseAccountId()
             if (accountId == 0L) {
                 return INCORRECT_ACCOUNT
             }

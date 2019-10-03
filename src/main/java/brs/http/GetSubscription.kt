@@ -4,8 +4,8 @@ import brs.http.common.Parameters.SUBSCRIPTION_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.services.SubscriptionService
-import brs.util.Convert
-import brs.util.parseUnsignedLong
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -15,7 +15,7 @@ internal class GetSubscription(private val subscriptionService: SubscriptionServ
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val subscriptionId: Long
         try {
-            subscriptionId = Convert.emptyToNull(request.getParameter(SUBSCRIPTION_PARAMETER)).parseUnsignedLong()
+            subscriptionId = request.getParameter(SUBSCRIPTION_PARAMETER).emptyToNull().parseUnsignedLong()
         } catch (e: Exception) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 3)

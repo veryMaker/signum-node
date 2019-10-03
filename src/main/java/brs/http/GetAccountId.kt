@@ -7,9 +7,9 @@ import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.http.common.ResultFields.ACCOUNT_RESPONSE
 import brs.http.common.ResultFields.PUBLIC_KEY_RESPONSE
-import brs.util.Convert
-import brs.util.parseHexString
-import brs.util.toHexString
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseHexString
+import brs.util.convert.toHexString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -18,8 +18,8 @@ internal class GetAccountId : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOU
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
         val accountId: Long
-        val secretPhrase = Convert.emptyToNull(request.getParameter(SECRET_PHRASE_PARAMETER))
-        var publicKeyString = Convert.emptyToNull(request.getParameter(PUBLIC_KEY_PARAMETER))
+        val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
+        var publicKeyString = request.getParameter(PUBLIC_KEY_PARAMETER).emptyToNull()
         when {
             secretPhrase != null -> {
                 val publicKey = Crypto.getPublicKey(secretPhrase)

@@ -5,6 +5,7 @@ import brs.DependencyProvider
 import brs.Genesis
 import brs.fluxcapacitor.FluxValues
 import brs.props.Props
+import brs.util.convert.toUnsignedString
 import kotlinx.coroutines.sync.Mutex
 import org.slf4j.LoggerFactory
 import java.math.BigInteger

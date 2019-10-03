@@ -3,6 +3,8 @@ package brs.peer
 import brs.*
 import brs.props.Props
 import brs.util.*
+import brs.util.convert.emptyToNull
+import brs.util.convert.truncate
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicWithOverride
 import com.google.gson.JsonElement
@@ -59,9 +61,9 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
         get() = isHigherOrEqualVersionThan(Burst.VERSION)
 
     override val software: String
-        get() = (Convert.truncate(application, "?", 10, false)
-                + " (" + Convert.truncate(version.toString(), "?", 10, false) + ")"
-                + " @ " + Convert.truncate(platform, "?", 10, false))
+        get() = (application.truncate("?", 10, false)
+                + " (" + version.toString().truncate("?", 10, false) + ")"
+                + " @ " + platform.truncate("?", 10, false))
 
     override val isWellKnown: Boolean
         get() = announcedAddress != null && dp.peers.wellKnownPeers.contains(announcedAddress!!)
@@ -281,7 +283,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
             setVersion(JSON.getAsString(response.get("version")))
             platform = JSON.getAsString(response.get("platform"))
             shareAddress = JSON.getAsBoolean(response.get("shareAddress")) == true
-            val newAnnouncedAddress = Convert.emptyToNull(JSON.getAsString(response.get("announcedAddress")))
+            val newAnnouncedAddress = JSON.getAsString(response.get("announcedAddress")).emptyToNull()
             if (newAnnouncedAddress != null && newAnnouncedAddress != announcedAddress) {
                 // force verification of changed announced address
                 state = Peer.State.NON_CONNECTED

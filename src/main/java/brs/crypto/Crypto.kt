@@ -22,7 +22,7 @@ object Crypto {
         return burstCrypto.ripeMD160
     }
 
-    fun md5(): MessageDigest {// TODO unit test
+    fun md5(): MessageDigest { // TODO unit test
         return try {
             MessageDigest.getInstance("MD5") // TODO burstkit4j integration
         } catch (e: NoSuchAlgorithmException) {
@@ -37,34 +37,14 @@ object Crypto {
     fun getPrivateKey(secretPhrase: String): ByteArray {
         return burstCrypto.getPrivateKey(secretPhrase)
     }
+}
 
-    fun sign(message: ByteArray, secretPhrase: String): ByteArray {
-        return burstCrypto.sign(message, secretPhrase)
-    }
+fun ByteArray.verifySignature(signature: ByteArray, publicKey: ByteArray, enforceCanonical: Boolean): Boolean {
+    return burstCrypto.verify(signature, this, publicKey, enforceCanonical)
+}
 
-    fun verify(signature: ByteArray, message: ByteArray, publicKey: ByteArray, enforceCanonical: Boolean): Boolean {
-        return burstCrypto.verify(signature, message, publicKey, enforceCanonical)
-    }
-
-    fun aesEncrypt(plaintext: ByteArray, myPrivateKey: ByteArray, theirPublicKey: ByteArray): ByteArray {
-        return burstCrypto.aesSharedEncrypt(plaintext, myPrivateKey, theirPublicKey)
-    }
-
-    fun aesEncrypt(plaintext: ByteArray, myPrivateKey: ByteArray, theirPublicKey: ByteArray, nonce: ByteArray): ByteArray {
-        return burstCrypto.aesSharedEncrypt(plaintext, myPrivateKey, theirPublicKey, nonce)
-    }
-
-    fun aesDecrypt(ivCiphertext: ByteArray, myPrivateKey: ByteArray, theirPublicKey: ByteArray): ByteArray {
-        return burstCrypto.aesSharedDecrypt(ivCiphertext, myPrivateKey, theirPublicKey)
-    }
-
-    fun aesDecrypt(ivCiphertext: ByteArray, myPrivateKey: ByteArray, theirPublicKey: ByteArray, nonce: ByteArray): ByteArray {
-        return burstCrypto.aesSharedDecrypt(ivCiphertext, myPrivateKey, theirPublicKey, nonce)
-    }
-
-    fun getSharedSecret(myPrivateKey: ByteArray, theirPublicKey: ByteArray): ByteArray {
-        return burstCrypto.getSharedSecret(myPrivateKey, theirPublicKey)
-    }
+fun ByteArray.signUsing(secretPhrase: String): ByteArray {
+    return burstCrypto.sign(this, secretPhrase)
 }
 
 fun Long.rsEncode(): String {

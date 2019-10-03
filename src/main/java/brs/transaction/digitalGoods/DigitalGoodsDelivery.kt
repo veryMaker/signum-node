@@ -2,9 +2,9 @@ package brs.transaction.digitalGoods
 
 import brs.*
 import brs.transactionduplicates.TransactionDuplicationKey
-import brs.util.Convert
+import brs.util.convert.safeMultiply
+import brs.util.convert.toUnsignedString
 import brs.util.toJsonString
-import brs.util.toUnsignedString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 
@@ -26,13 +26,10 @@ class DigitalGoodsDelivery(dp: DependencyProvider) : DigitalGoods(dp) {
             || attachment.goods.data.isEmpty()
             || attachment.goods.nonce.size != 32
             || attachment.discountNQT < 0 || attachment.discountNQT > Constants.MAX_BALANCE_NQT
-            || purchase != null && (purchase.buyerId != transaction.recipientId
+            || purchase != null
+            && (purchase.buyerId != transaction.recipientId
                     || transaction.senderId != purchase.sellerId
-                    || attachment.discountNQT > Convert.safeMultiply(
-                purchase.priceNQT,
-                purchase.quantity.toLong()
-            ))
-        ) {
+                    || attachment.discountNQT > purchase.priceNQT.safeMultiply(purchase.quantity.toLong()))) {
             throw BurstException.NotValidException("Invalid digital goods delivery: " + attachment.jsonObject.toJsonString())
         }
         if (purchase == null || purchase.encryptedGoods != null) {

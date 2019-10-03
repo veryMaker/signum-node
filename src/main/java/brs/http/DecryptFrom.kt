@@ -11,9 +11,10 @@ import brs.http.common.Parameters.NONCE_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.http.common.ResultFields.DECRYPTED_MESSAGE_RESPONSE
 import brs.services.ParameterService
-import brs.util.Convert
-import brs.util.parseHexString
-import brs.util.toHexString
+import brs.util.convert.nullToEmpty
+import brs.util.convert.parseHexString
+import brs.util.convert.toHexString
+import brs.util.convert.toUtf8String
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -27,14 +28,14 @@ internal class DecryptFrom internal constructor(private val parameterService: Pa
             return INCORRECT_ACCOUNT
         }
         val secretPhrase = ParameterParser.getSecretPhrase(request)
-        val data = Convert.nullToEmpty(request.getParameter(DATA_PARAMETER)).parseHexString()
-        val nonce = Convert.nullToEmpty(request.getParameter(NONCE_PARAMETER)).parseHexString()
+        val data = request.getParameter(DATA_PARAMETER).nullToEmpty().parseHexString()
+        val nonce = request.getParameter(NONCE_PARAMETER).nullToEmpty().parseHexString()
         val encryptedData = EncryptedData(data, nonce)
         val isText = !Parameters.isFalse(request.getParameter(DECRYPTED_MESSAGE_IS_TEXT_PARAMETER))
         return try {
             val decrypted = account.decryptFrom(encryptedData, secretPhrase)
             val response = JsonObject()
-            response.addProperty(DECRYPTED_MESSAGE_RESPONSE, if (isText) Convert.toString(decrypted) else decrypted.toHexString())
+            response.addProperty(DECRYPTED_MESSAGE_RESPONSE, if (isText) decrypted.toUtf8String() else decrypted.toHexString())
             response
         } catch (e: RuntimeException) {
             logger.debug(e.toString())

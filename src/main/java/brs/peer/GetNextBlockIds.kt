@@ -2,8 +2,8 @@ package brs.peer
 
 import brs.Blockchain
 import brs.util.JSON
-import brs.util.parseUnsignedLong
-import brs.util.toUnsignedString
+import brs.util.convert.parseUnsignedLong
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

@@ -4,9 +4,9 @@ import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
 import brs.props.Props
 import brs.taskScheduler.RepeatingTask
-import brs.util.Convert
 import brs.util.Listeners
-import brs.util.toUnsignedString
+import brs.util.convert.fullHashToId
+import brs.util.convert.toUnsignedString
 import burst.kit.crypto.BurstCrypto
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
@@ -50,7 +50,7 @@ open class GeneratorImpl private constructor(private val dp: DependencyProvider)
 
     override suspend fun addNonce(secretPhrase: String, nonce: Long?, publicKey: ByteArray): Generator.GeneratorState {
         val publicKeyHash = Crypto.sha256().digest(publicKey)
-        val id = Convert.fullHashToId(publicKeyHash)
+        val id = publicKeyHash.fullHashToId()
 
         val generator = GeneratorStateImpl(secretPhrase, nonce, publicKey, id)
         val curGen = generators[id]

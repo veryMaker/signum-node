@@ -6,7 +6,7 @@ import brs.Genesis
 import brs.fluxcapacitor.FluxValues
 import brs.transaction.TransactionType
 import brs.util.toJsonArray
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

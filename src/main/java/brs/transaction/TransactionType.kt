@@ -18,7 +18,8 @@ import brs.transaction.payment.MultiOutPayment
 import brs.transaction.payment.MultiOutSamePayment
 import brs.transaction.payment.OrdinaryPayment
 import brs.transactionduplicates.TransactionDuplicationKey
-import brs.util.Convert
+import brs.util.convert.safeAdd
+import brs.util.convert.safeMultiply
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
@@ -58,17 +59,14 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
         return true
     }
 
-    fun calculateTotalAmountNQT(transaction: Transaction): Long? {
-        return Convert.safeAdd(
-            calculateTransactionAmountNQT(transaction)!!,
-            calculateAttachmentTotalAmountNQT(transaction)!!
-        )
+    fun calculateTotalAmountNQT(transaction: Transaction): Long {
+        return calculateTransactionAmountNQT(transaction).safeAdd(calculateAttachmentTotalAmountNQT(transaction)!!)
     }
 
-    private fun calculateTransactionAmountNQT(transaction: Transaction): Long? {
-        var totalAmountNQT = Convert.safeAdd(transaction.amountNQT, transaction.feeNQT)
+    private fun calculateTransactionAmountNQT(transaction: Transaction): Long {
+        var totalAmountNQT = transaction.amountNQT.safeAdd(transaction.feeNQT)
         if (transaction.referencedTransactionFullHash != null) {
-            totalAmountNQT = Convert.safeAdd(totalAmountNQT, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT)
+            totalAmountNQT = totalAmountNQT.safeAdd(Constants.UNCONFIRMED_POOL_DEPOSIT_NQT)
         }
         return totalAmountNQT
     }
@@ -80,7 +78,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
     internal abstract suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean
 
     internal suspend fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
-        dp.accountService.addToBalanceNQT(senderAccount, -Convert.safeAdd(transaction.amountNQT, transaction.feeNQT))
+        dp.accountService.addToBalanceNQT(senderAccount, -transaction.amountNQT.safeAdd(transaction.feeNQT))
         if (transaction.referencedTransactionFullHash != null) {
             dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT)
         }
@@ -125,7 +123,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
         undoAttachmentUnconfirmed(transaction, senderAccount)
         dp.accountService.addToUnconfirmedBalanceNQT(
             senderAccount,
-            Convert.safeAdd(transaction.amountNQT, transaction.feeNQT)
+            transaction.amountNQT.safeAdd(transaction.feeNQT)
         )
         if (transaction.referencedTransactionFullHash != null) {
             dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT)
@@ -149,7 +147,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
             return 0 // No need to validate fees before baseline block
         }
         val fee = getBaselineFee(height)
-        return Convert.safeAdd(fee.constantFee, Convert.safeMultiply(appendagesSize.toLong(), fee.appendagesFee))
+        return fee.constantFee.safeAdd(fee.appendagesFee.safeMultiply(appendagesSize.toLong()))
     }
 
     protected open fun getBaselineFee(height: Int): Fee {

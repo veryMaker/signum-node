@@ -3,7 +3,7 @@ package brs.transaction.digitalGoods
 import brs.*
 import brs.transactionduplicates.TransactionDuplicationKey
 import brs.util.toJsonString
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

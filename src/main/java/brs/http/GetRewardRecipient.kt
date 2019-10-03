@@ -5,7 +5,7 @@ import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.ResultFields.REWARD_RECIPIENT_RESPONSE
 import brs.services.AccountService
 import brs.services.ParameterService
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest

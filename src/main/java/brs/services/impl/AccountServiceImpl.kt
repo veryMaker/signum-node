@@ -14,10 +14,11 @@ import brs.db.store.AccountStore
 import brs.db.store.AssetTransferStore
 import brs.schema.Tables.ACCOUNT
 import brs.services.AccountService
-import brs.util.Convert
 import brs.util.Listeners
-import brs.util.toHexString
-import brs.util.toUnsignedString
+import brs.util.convert.fullHashToId
+import brs.util.convert.safeAdd
+import brs.util.convert.toHexString
+import brs.util.convert.toUnsignedString
 import java.util.*
 
 class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
@@ -115,7 +116,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         if (amountNQT == 0L) {
             return
         }
-        account.forgedBalanceNQT = Convert.safeAdd(account.forgedBalanceNQT, amountNQT)
+        account.forgedBalanceNQT = account.forgedBalanceNQT.safeAdd(amountNQT)
         accountTable.insert(account)
     }
 
@@ -134,7 +135,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         val newKey = accountAssetKeyFactory.newKey(account.id, assetId)
         accountAsset = accountAssetTable.get(newKey)
         var assetBalance = accountAsset?.quantityQNT ?: 0
-        assetBalance = Convert.safeAdd(assetBalance, quantityQNT)
+        assetBalance = assetBalance.safeAdd(quantityQNT)
         if (accountAsset == null) {
             accountAsset = AccountAsset(newKey, account.id, assetId, assetBalance, 0)
         } else {
@@ -153,7 +154,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         val newKey = accountAssetKeyFactory.newKey(account.id, assetId)
         accountAsset = accountAssetTable.get(newKey)
         var unconfirmedAssetBalance = accountAsset?.unconfirmedQuantityQNT ?: 0
-        unconfirmedAssetBalance = Convert.safeAdd(unconfirmedAssetBalance, quantityQNT)
+        unconfirmedAssetBalance = unconfirmedAssetBalance.safeAdd(quantityQNT)
         if (accountAsset == null) {
             accountAsset = AccountAsset(newKey, account.id, assetId, 0, unconfirmedAssetBalance)
         } else {
@@ -172,9 +173,9 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         val newKey = accountAssetKeyFactory.newKey(account.id, assetId)
         accountAsset = accountAssetTable.get(newKey)
         var assetBalance = accountAsset?.quantityQNT ?: 0
-        assetBalance = Convert.safeAdd(assetBalance, quantityQNT)
+        assetBalance = assetBalance.safeAdd(quantityQNT)
         var unconfirmedAssetBalance = accountAsset?.unconfirmedQuantityQNT ?: 0
-        unconfirmedAssetBalance = Convert.safeAdd(unconfirmedAssetBalance, quantityQNT)
+        unconfirmedAssetBalance = unconfirmedAssetBalance.safeAdd(quantityQNT)
         if (accountAsset == null) {
             accountAsset = AccountAsset(newKey, account.id, assetId, assetBalance, unconfirmedAssetBalance)
         } else {
@@ -192,7 +193,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         if (amountNQT == 0L) {
             return
         }
-        account.balanceNQT = Convert.safeAdd(account.balanceNQT, amountNQT)
+        account.balanceNQT = account.balanceNQT.safeAdd(amountNQT)
         account.checkBalance()
         accountTable.insert(account)
         listeners.accept(Event.BALANCE, account)
@@ -202,7 +203,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         if (amountNQT == 0L) {
             return
         }
-        account.unconfirmedBalanceNQT = Convert.safeAdd(account.unconfirmedBalanceNQT, amountNQT)
+        account.unconfirmedBalanceNQT = account.unconfirmedBalanceNQT.safeAdd(amountNQT)
         account.checkBalance()
         accountTable.insert(account)
         listeners.accept(Event.UNCONFIRMED_BALANCE, account)
@@ -212,8 +213,8 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         if (amountNQT == 0L) {
             return
         }
-        account.balanceNQT = Convert.safeAdd(account.balanceNQT, amountNQT)
-        account.unconfirmedBalanceNQT = Convert.safeAdd(account.unconfirmedBalanceNQT, amountNQT)
+        account.balanceNQT = account.balanceNQT.safeAdd(amountNQT)
+        account.unconfirmedBalanceNQT = account.unconfirmedBalanceNQT.safeAdd(amountNQT)
         account.checkBalance()
         accountTable.insert(account)
         listeners.accept(Event.BALANCE, account)
@@ -256,7 +257,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
 
         fun getId(publicKey: ByteArray): Long {
             val publicKeyHash = Crypto.sha256().digest(publicKey)
-            return Convert.fullHashToId(publicKeyHash)
+            return publicKeyHash.fullHashToId()
         }
     }
 }

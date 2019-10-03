@@ -101,12 +101,11 @@ import brs.http.common.ResultFields.UNCONFIRMED_QUANTITY_QNT_RESPONSE
 import brs.http.common.ResultFields.VERSION_RESPONSE
 import brs.peer.Peer
 import brs.services.AccountService
-import brs.util.Convert
 import brs.util.addAll
-import brs.util.toHexString
-import brs.util.toUnsignedString
+import brs.util.convert.*
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import org.jooq.tools.Convert
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -250,9 +249,9 @@ object JSONData {
         val json = JsonObject()
         json.addProperty(ID_RESPONSE, escrow.id!!.toUnsignedString())
         json.addProperty(SENDER_RESPONSE, escrow.senderId!!.toUnsignedString())
-        json.addProperty(SENDER_RS_RESPONSE, Convert.rsAccount(escrow.senderId!!))
+        json.addProperty(SENDER_RS_RESPONSE, escrow.senderId!!.rsAccount())
         json.addProperty(RECIPIENT_RESPONSE, escrow.recipientId!!.toUnsignedString())
-        json.addProperty(RECIPIENT_RS_RESPONSE, Convert.rsAccount(escrow.recipientId!!))
+        json.addProperty(RECIPIENT_RS_RESPONSE, escrow.recipientId!!.rsAccount())
         json.addProperty(AMOUNT_NQT_RESPONSE, escrow.amountNQT!!.toUnsignedString())
         json.addProperty(REQUIRED_SIGNERS_RESPONSE, escrow.requiredSigners)
         json.addProperty(DEADLINE_RESPONSE, escrow.deadline)
@@ -265,7 +264,7 @@ object JSONData {
             }
             val signerDetails = JsonObject()
             signerDetails.addProperty(ID_RESPONSE, decision.accountId!!.toUnsignedString())
-            signerDetails.addProperty(ID_RS_RESPONSE, Convert.rsAccount(decision.accountId!!))
+            signerDetails.addProperty(ID_RS_RESPONSE, decision.accountId!!.rsAccount())
             signerDetails.addProperty(DECISION_RESPONSE, Escrow.decisionToString(decision.decision!!))
             signers.add(signerDetails)
         }
@@ -412,7 +411,7 @@ object JSONData {
         if (transaction.referencedTransactionFullHash != null) {
             json.addProperty(REFERENCED_TRANSACTION_FULL_HASH_RESPONSE, transaction.referencedTransactionFullHash.toHexString())
         }
-        val signature = Convert.emptyToNull(transaction.signature)
+        val signature = transaction.signature.emptyToNull()
         if (signature != null) {
             json.addProperty(SIGNATURE_RESPONSE, signature.toHexString())
             json.addProperty(SIGNATURE_HASH_RESPONSE, Crypto.sha256().digest(signature).toHexString())
@@ -471,7 +470,7 @@ object JSONData {
 
     internal fun putAccount(json: JsonObject, name: String, accountId: Long) {
         json.addProperty(name, accountId.toUnsignedString())
-        json.addProperty(name + "RS", Convert.rsAccount(accountId))
+        json.addProperty(name + "RS", accountId.rsAccount())
     }
 
     //TODO refactor the accountservice out of this :-)
@@ -487,12 +486,12 @@ object JSONData {
         bf.put(at.id, 0, 8)
         val id = bf.getLong(0)
         json.addProperty("at", id.toUnsignedString())
-        json.addProperty("atRS", Convert.rsAccount(id))
+        json.addProperty("atRS", id.rsAccount())
         json.addProperty("atVersion", at.version)
         json.addProperty("name", at.name)
         json.addProperty("description", at.description)
         json.addProperty("creator", AtApiHelper.getLong(at.creator!!).toUnsignedString())
-        json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.creator!!)))
+        json.addProperty("creatorRS", AtApiHelper.getLong(at.creator!!).rsAccount())
         json.addProperty("machineCode", at.apCodeBytes.toHexString())
         json.addProperty("machineData", at.apDataBytes.toHexString())
         json.addProperty("balanceNQT", accountService.getAccount(id)!!.balanceNQT.toUnsignedString())

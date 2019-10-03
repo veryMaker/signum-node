@@ -2,7 +2,7 @@ package brs.transaction.advancedPayment
 
 import brs.*
 import brs.transactionduplicates.TransactionDuplicationKey
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 

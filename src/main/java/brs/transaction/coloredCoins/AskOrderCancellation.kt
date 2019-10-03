@@ -1,7 +1,7 @@
 package brs.transaction.coloredCoins
 
 import brs.*
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 

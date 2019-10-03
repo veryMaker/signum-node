@@ -12,8 +12,14 @@ import brs.props.Props
 import brs.taskScheduler.RepeatingTask
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore
-import brs.util.*
+import brs.util.JSON
+import brs.util.Listeners
+import brs.util.convert.parseUnsignedLong
+import brs.util.convert.safeSubtract
+import brs.util.convert.toUnsignedString
 import brs.util.delegates.Atomic
+import brs.util.isEmpty
+import brs.util.toJsonString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.delay
@@ -761,8 +767,8 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
                     throw BlockchainProcessor.BlockNotAcceptedException("Payload hash doesn't match for block " + block.height)
                 }
 
-                val remainingAmount = Convert.safeSubtract(block.totalAmountNQT, calculatedTotalAmount)
-                val remainingFee = Convert.safeSubtract(block.totalFeeNQT, calculatedTotalFee)
+                val remainingAmount = block.totalAmountNQT.safeSubtract(calculatedTotalAmount)
+                val remainingFee = block.totalFeeNQT.safeSubtract(calculatedTotalFee)
 
                 dp.blockService.setPrevious(block, lastBlock)
                 blockListeners.accept(BlockchainProcessor.Event.BEFORE_BLOCK_ACCEPT, block)

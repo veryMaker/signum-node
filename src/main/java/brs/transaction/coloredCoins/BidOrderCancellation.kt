@@ -1,8 +1,8 @@
 package brs.transaction.coloredCoins
 
 import brs.*
-import brs.util.Convert
-import brs.util.toUnsignedString
+import brs.util.convert.safeMultiply
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 
@@ -32,7 +32,7 @@ class BidOrderCancellation(dp: DependencyProvider) : OrderCancellation(dp) {
         if (order != null) {
             dp.accountService.addToUnconfirmedBalanceNQT(
                 senderAccount,
-                Convert.safeMultiply(order.quantityQNT, order.priceNQT)
+                order.quantityQNT.safeMultiply(order.priceNQT)
             )
         }
     }

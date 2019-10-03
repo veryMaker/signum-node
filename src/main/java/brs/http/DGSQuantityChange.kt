@@ -2,7 +2,6 @@ package brs.http
 
 
 import brs.Attachment
-import brs.BurstException
 import brs.Constants
 import brs.DependencyProvider
 import brs.http.JSONResponses.INCORRECT_DELTA_QUANTITY
@@ -10,7 +9,7 @@ import brs.http.JSONResponses.MISSING_DELTA_QUANTITY
 import brs.http.JSONResponses.UNKNOWN_GOODS
 import brs.http.common.Parameters.DELTA_QUANTITY_PARAMETER
 import brs.http.common.Parameters.GOODS_PARAMETER
-import brs.util.Convert
+import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -26,7 +25,7 @@ internal class DGSQuantityChange internal constructor(private val dp: Dependency
 
         val deltaQuantity: Int
         try {
-            val deltaQuantityString = Convert.emptyToNull(request.getParameter(DELTA_QUANTITY_PARAMETER))
+            val deltaQuantityString = request.getParameter(DELTA_QUANTITY_PARAMETER).emptyToNull()
                     ?: return MISSING_DELTA_QUANTITY
             deltaQuantity = Integer.parseInt(deltaQuantityString)
             if (deltaQuantity > Constants.MAX_DGS_LISTING_QUANTITY || deltaQuantity < -Constants.MAX_DGS_LISTING_QUANTITY) {

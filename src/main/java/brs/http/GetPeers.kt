@@ -4,7 +4,7 @@ import brs.DependencyProvider
 import brs.http.common.Parameters.ACTIVE_PARAMETER
 import brs.http.common.Parameters.STATE_PARAMETER
 import brs.peer.Peer
-import brs.util.Convert
+import brs.util.convert.emptyToNull
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -14,7 +14,7 @@ internal class GetPeers(private val dp: DependencyProvider) : APIServlet.JsonReq
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
         val active = "true".equals(request.getParameter(ACTIVE_PARAMETER), ignoreCase = true)
-        val stateValue = Convert.emptyToNull(request.getParameter(STATE_PARAMETER))
+        val stateValue = request.getParameter(STATE_PARAMETER).emptyToNull()
 
         val peers = JsonArray()
         for (peer in if (active) dp.peers.activePeers else if (stateValue != null) dp.peers.getPeers(Peer.State.valueOf(stateValue)) else dp.peers.allPeers) {

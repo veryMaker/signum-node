@@ -1,15 +1,12 @@
 package brs.peer
 
-import brs.Block
 import brs.Blockchain
-import brs.util.Convert
 import brs.util.JSON
-import brs.util.parseUnsignedLong
-import brs.util.toUnsignedString
+import brs.util.convert.parseUnsignedLong
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.math.max
 import kotlin.math.min

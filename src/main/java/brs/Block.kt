@@ -1,12 +1,15 @@
 package brs
 
 import brs.crypto.Crypto
+import brs.crypto.signUsing
 import brs.db.TransactionDb
 import brs.fluxcapacitor.FluxValues
 import brs.peer.Peer
-import brs.util.*
+import brs.util.JSON
+import brs.util.convert.*
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLazy
+import brs.util.toJsonString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -33,7 +36,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
     var nextBlockId by Atomic<Long>()
     var height = -1
     var id by AtomicLazy {
-        Convert.fullHashToId(hash)
+        hash.fullHashToId()
     }
     var stringId by AtomicLazy {
         id.toUnsignedString()
@@ -169,7 +172,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
         val data = bytes
         val data2 = ByteArray(data.size - 64)
         System.arraycopy(data, 0, data2, 0, data2.size)
-        blockSignature = Crypto.sign(data2, secretPhrase)
+        blockSignature = data2.signUsing(secretPhrase)
     }
 
     companion object {

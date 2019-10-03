@@ -3,8 +3,7 @@ package brs.services.impl
 import brs.*
 import brs.BurstException.NotValidException
 import brs.services.SubscriptionService
-import brs.util.Convert
-import java.util.*
+import brs.util.convert.safeAdd
 
 class SubscriptionServiceImpl(private val dp: DependencyProvider) : SubscriptionService {
     private val subscriptionTable = dp.subscriptionStore.subscriptionTable
@@ -74,7 +73,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         }
         if (!appliedUnconfirmedSubscriptions.isEmpty()) {
             for (subscription in appliedUnconfirmedSubscriptions) {
-                totalFeeNQT = Convert.safeAdd(totalFeeNQT, fee)
+                totalFeeNQT = totalFeeNQT.safeAdd(fee)
                 undoUnconfirmed(subscription)
             }
         }
@@ -108,7 +107,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
 
     private suspend fun applyUnconfirmed(subscription: Subscription): Boolean {
         val sender = dp.accountService.getAccount(subscription.senderId!!)
-        val totalAmountNQT = Convert.safeAdd(subscription.amountNQT!!, fee)
+        val totalAmountNQT = subscription.amountNQT!!.safeAdd(fee)
 
         if (sender == null || sender.unconfirmedBalanceNQT < totalAmountNQT) {
             return false
@@ -121,7 +120,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
 
     private suspend fun undoUnconfirmed(subscription: Subscription) {
         val sender = dp.accountService.getAccount(subscription.senderId!!)
-        val totalAmountNQT = Convert.safeAdd(subscription.amountNQT!!, fee)
+        val totalAmountNQT = subscription.amountNQT!!.safeAdd(fee)
 
         if (sender != null) {
             dp.accountService.addToUnconfirmedBalanceNQT(sender, totalAmountNQT)
@@ -132,7 +131,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         val sender = dp.accountService.getAccount(subscription.senderId!!)!!
         val recipient = dp.accountService.getAccount(subscription.recipientId!!)!!
 
-        val totalAmountNQT = Convert.safeAdd(subscription.amountNQT!!, fee)
+        val totalAmountNQT = subscription.amountNQT!!.safeAdd(fee)
 
         dp.accountService.addToBalanceNQT(sender, -totalAmountNQT)
         dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(recipient, subscription.amountNQT)
@@ -159,8 +158,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         subscription.timeNextGetAndAdd(subscription.frequency)
     }
 
-    companion object {
-
+    companion object { // TODO why is this static??
         private val paymentTransactions = mutableListOf<Transaction>()
         private val appliedSubscriptions = mutableListOf<Subscription>()
         private val removeSubscriptions = mutableSetOf<Long>()

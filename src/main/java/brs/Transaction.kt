@@ -2,14 +2,20 @@ package brs
 
 import brs.Appendix.AbstractAppendix
 import brs.crypto.Crypto
+import brs.crypto.signUsing
+import brs.crypto.verifySignature
 import brs.fluxcapacitor.FluxValues
 import brs.transaction.TransactionType
 import brs.transaction.payment.MultiOutPayment
 import brs.transaction.payment.MultiOutSamePayment
 import brs.transactionduplicates.TransactionDuplicationKey
-import brs.util.*
+import brs.util.JSON
+import brs.util.addAll
+import brs.util.convert.*
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLazy
+import brs.util.isZero
+import brs.util.toJsonString
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
@@ -42,15 +48,14 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     internal var block by Atomic<Block?>()
     var signature by Atomic<ByteArray?>()
     var blockTimestamp by Atomic<Int>()
-    var id by AtomicLazy { Convert.fullHashToId(fullHash) }
+    var id by AtomicLazy { fullHash.fullHashToId() }
     val stringId by AtomicLazy { id.toUnsignedString() }
     var senderId by AtomicLazy {
         if (!this::type.isInitialized || type.isSigned) {
             Account.getId(senderPublicKey)
         } else 0
     }
-    // TODO just store it as bytes...
-    var fullHash by AtomicLazy {
+    var fullHash: ByteArray by AtomicLazy {
         check(!(signature == null && type.isSigned)) { "Transaction is not signed yet" }
         val data = zeroSignature(bytes)
         val signatureHash = Crypto.sha256().digest(if (signature != null) signature else ByteArray(64))
@@ -271,7 +276,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         this.version = builder.version
         if (builder.blockId != null) this.blockId = builder.blockId!!
         this.height = builder.height
-        if (builder.id != null) if (builder.id != null) this.id = builder.id!!
+        if (builder.id != null && builder.id != null) this.id = builder.id!!
         if (builder.senderId != null) this.senderId = builder.senderId!!
         if (builder.blockTimestamp != null) this.blockTimestamp = builder.blockTimestamp!!
         if (builder.fullHash != null) this.fullHash = builder.fullHash!!
@@ -361,11 +366,11 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
 
     fun sign(secretPhrase: String) {
         check(signature == null) { "Transaction already signed" }
-        signature = Crypto.sign(bytes, secretPhrase)
+        signature = bytes.signUsing(secretPhrase)
     }
 
-    override fun equals(o: Any?): Boolean {
-        return o is Transaction && this.id == o.id
+    override fun equals(other: Any?): Boolean {
+        return other is Transaction && this.id == other.id
     }
 
     override fun hashCode(): Int {
@@ -379,7 +384,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     fun verifySignature(): Boolean {
         val data = zeroSignature(bytes)
         if (signature == null) return false
-        return Crypto.verify(signature!!, data, senderPublicKey, true)
+        return data.verifySignature(signature!!, senderPublicKey, true)
     }
 
     private fun signatureOffset(): Int {
@@ -416,7 +421,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 buffer.get(referencedTransactionFullHash)
                 var signature: ByteArray? = ByteArray(64)
                 buffer.get(signature!!)
-                signature = Convert.emptyToNull(signature)
+                signature = signature.emptyToNull()
                 var flags = 0
                 var ecBlockHeight = 0
                 var ecBlockId: Long = 0

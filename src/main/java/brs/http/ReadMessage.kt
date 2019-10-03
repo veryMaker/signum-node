@@ -12,9 +12,10 @@ import brs.http.JSONResponses.UNKNOWN_TRANSACTION
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.http.common.Parameters.TRANSACTION_PARAMETER
 import brs.services.AccountService
-import brs.util.Convert
-import brs.util.parseUnsignedLong
-import brs.util.toHexString
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseUnsignedLong
+import brs.util.convert.toHexString
+import brs.util.convert.toUtf8String
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -23,7 +24,7 @@ import javax.servlet.http.HttpServletRequest
 internal class ReadMessage(private val blockchain: Blockchain, private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.MESSAGES), TRANSACTION_PARAMETER, SECRET_PHRASE_PARAMETER) {
 
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
-        val transactionIdString = Convert.emptyToNull(request.getParameter(TRANSACTION_PARAMETER))
+        val transactionIdString = request.getParameter(TRANSACTION_PARAMETER).emptyToNull()
                 ?: return MISSING_TRANSACTION
 
         val transaction: Transaction?
@@ -45,9 +46,9 @@ internal class ReadMessage(private val blockchain: Blockchain, private val accou
             return NO_MESSAGE
         }
         if (message != null) {
-            response.addProperty("message", if (message.isText) Convert.toString(message.messageBytes!!) else message.messageBytes.toHexString())
+            response.addProperty("message", if (message.isText) message.messageBytes!!.toUtf8String() else message.messageBytes.toHexString())
         }
-        val secretPhrase = Convert.emptyToNull(request.getParameter(SECRET_PHRASE_PARAMETER))
+        val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
         if (secretPhrase != null) {
             if (encryptedMessage != null) {
                 val readerAccountId = Account.getId(Crypto.getPublicKey(secretPhrase))
@@ -55,7 +56,7 @@ internal class ReadMessage(private val blockchain: Blockchain, private val accou
                 if (account != null) {
                     try {
                         val decrypted = account.decryptFrom(encryptedMessage.encryptedData, secretPhrase)
-                        response.addProperty("decryptedMessage", if (encryptedMessage.isText) Convert.toString(decrypted) else decrypted.toHexString())
+                        response.addProperty("decryptedMessage", if (encryptedMessage.isText) decrypted.toUtf8String() else decrypted.toHexString())
                     } catch (e: RuntimeException) {
                         logger.debug("Decryption of message to recipient failed: {}", e)
                     }
@@ -67,7 +68,7 @@ internal class ReadMessage(private val blockchain: Blockchain, private val accou
                 if (account != null) {
                     try {
                         val decrypted = account.decryptFrom(encryptToSelfMessage.encryptedData, secretPhrase)
-                        response.addProperty("decryptedMessageToSelf", if (encryptToSelfMessage.isText) Convert.toString(decrypted) else decrypted.toHexString())
+                        response.addProperty("decryptedMessageToSelf", if (encryptToSelfMessage.isText) decrypted.toUtf8String() else decrypted.toHexString())
                     } catch (e: RuntimeException) {
                         logger.debug("Decryption of message to self failed: {}", e)
                     }

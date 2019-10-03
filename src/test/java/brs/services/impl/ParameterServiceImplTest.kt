@@ -33,8 +33,7 @@ import brs.services.ATService
 import brs.services.AccountService
 import brs.services.AliasService
 import brs.services.DGSGoodsStoreService
-import brs.util.Convert
-import brs.util.parseHexString
+import brs.util.convert.parseHexString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*

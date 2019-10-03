@@ -1,13 +1,13 @@
 package brs.http
 
 import brs.Attachment
-import brs.BurstException
 import brs.DependencyProvider
 import brs.http.JSONResponses.NOT_ENOUGH_FUNDS
 import brs.http.common.Parameters.ASSET_PARAMETER
 import brs.http.common.Parameters.PRICE_NQT_PARAMETER
 import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
-import brs.util.Convert
+import brs.util.convert.safeAdd
+import brs.util.convert.safeMultiply
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -21,7 +21,7 @@ internal class PlaceBidOrder(private val dp: DependencyProvider) : CreateTransac
         val account = dp.parameterService.getSenderAccount(request)
 
         try {
-            if (Convert.safeAdd(feeNQT, Convert.safeMultiply(priceNQT, quantityQNT)) > account.unconfirmedBalanceNQT) {
+            if (feeNQT.safeAdd(priceNQT.safeMultiply(quantityQNT)) > account.unconfirmedBalanceNQT) {
                 return NOT_ENOUGH_FUNDS
             }
         } catch (e: ArithmeticException) {

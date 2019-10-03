@@ -12,8 +12,8 @@ import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.props.PropertyService
 import brs.props.Props
 import brs.services.AccountService
-import brs.util.Convert
-import brs.util.parseUnsignedLong
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseUnsignedLong
 import burst.kit.crypto.BurstCrypto
 import burst.kit.entity.BurstAddress
 import com.google.gson.JsonElement
@@ -40,7 +40,7 @@ internal class SubmitNonce(propertyService: PropertyService, private val account
 
         val accountId = request.getParameter(ACCOUNT_ID_PARAMETER)
 
-        val submissionHeight = Convert.emptyToNull(request.getParameter(BLOCK_HEIGHT_PARAMETER))
+        val submissionHeight = request.getParameter(BLOCK_HEIGHT_PARAMETER).emptyToNull()
 
         val response = JsonObject()
 

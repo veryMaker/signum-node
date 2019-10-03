@@ -4,8 +4,8 @@ import brs.http.common.Parameters.ESCROW_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.services.EscrowService
-import brs.util.Convert
-import brs.util.parseUnsignedLong
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -14,7 +14,7 @@ internal class GetEscrowTransaction(private val escrowService: EscrowService) : 
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         val escrowId: Long
         try {
-            escrowId = Convert.emptyToNull(request.getParameter(ESCROW_PARAMETER)).parseUnsignedLong()
+            escrowId = request.getParameter(ESCROW_PARAMETER).emptyToNull().parseUnsignedLong()
         } catch (e: Exception) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 3)

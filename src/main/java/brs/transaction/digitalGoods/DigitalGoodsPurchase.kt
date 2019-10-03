@@ -1,9 +1,9 @@
 package brs.transaction.digitalGoods
 
 import brs.*
-import brs.util.Convert
+import brs.util.convert.safeMultiply
+import brs.util.convert.toUnsignedString
 import brs.util.toJsonString
-import brs.util.toUnsignedString
 import com.google.gson.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -27,7 +27,7 @@ class DigitalGoodsPurchase(dp: DependencyProvider) : DigitalGoods(dp) {
 
     public override fun calculateAttachmentTotalAmountNQT(transaction: Transaction): Long {
         val attachment = transaction.attachment as Attachment.DigitalGoodsPurchase
-        return Convert.safeMultiply(attachment.quantity.toLong(), attachment.priceNQT)
+        return attachment.quantity.toLong().safeMultiply(attachment.priceNQT)
     }
 
     override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {

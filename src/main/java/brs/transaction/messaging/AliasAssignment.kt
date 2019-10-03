@@ -3,8 +3,8 @@ package brs.transaction.messaging
 import brs.*
 import brs.transaction.TransactionType
 import brs.transactionduplicates.TransactionDuplicationKey
-import brs.util.Convert
 import brs.util.TextUtils
+import brs.util.convert.toBytes
 import brs.util.toJsonString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
@@ -41,7 +41,7 @@ class AliasAssignment(dp: DependencyProvider) : Messaging(dp) {
     override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.MessagingAliasAssignment
         if (attachment.aliasName.isEmpty()
-            || Convert.toBytes(attachment.aliasName).size > Constants.MAX_ALIAS_LENGTH
+            || attachment.aliasName.toBytes().size > Constants.MAX_ALIAS_LENGTH
             || attachment.aliasURI.length > Constants.MAX_ALIAS_URI_LENGTH
         ) {
             throw BurstException.NotValidException("Invalid alias assignment: " + attachment.jsonObject.toJsonString())

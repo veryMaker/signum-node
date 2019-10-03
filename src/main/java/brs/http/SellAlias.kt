@@ -1,7 +1,6 @@
 package brs.http
 
 import brs.Attachment
-import brs.BurstException
 import brs.Constants
 import brs.DependencyProvider
 import brs.http.JSONResponses.INCORRECT_ALIAS_OWNER
@@ -12,7 +11,8 @@ import brs.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.http.common.Parameters.ALIAS_PARAMETER
 import brs.http.common.Parameters.PRICE_NQT_PARAMETER
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
-import brs.util.Convert
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseAccountId
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -22,7 +22,7 @@ internal class SellAlias internal constructor(private val dp: DependencyProvider
         val alias = dp.parameterService.getAlias(request)
         val owner = dp.parameterService.getSenderAccount(request)
 
-        val priceValueNQT = Convert.emptyToNull(request.getParameter(PRICE_NQT_PARAMETER)) ?: return MISSING_PRICE
+        val priceValueNQT = request.getParameter(PRICE_NQT_PARAMETER).emptyToNull() ?: return MISSING_PRICE
         val priceNQT: Long
         try {
             priceNQT = java.lang.Long.parseLong(priceValueNQT)
@@ -34,11 +34,11 @@ internal class SellAlias internal constructor(private val dp: DependencyProvider
             throw ParameterException(INCORRECT_PRICE)
         }
 
-        val recipientValue = Convert.emptyToNull(request.getParameter(RECIPIENT_PARAMETER))
+        val recipientValue = request.getParameter(RECIPIENT_PARAMETER).emptyToNull()
         var recipientId: Long = 0
         if (recipientValue != null) {
             try {
-                recipientId = Convert.parseAccountId(recipientValue)
+                recipientId = recipientValue.parseAccountId()
             } catch (e: RuntimeException) {
                 return INCORRECT_RECIPIENT
             }

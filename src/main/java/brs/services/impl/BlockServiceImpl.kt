@@ -2,11 +2,10 @@ package brs.services.impl
 
 import brs.*
 import brs.BlockchainProcessor.BlockOutOfOrderException
-import brs.crypto.Crypto
+import brs.crypto.verifySignature
 import brs.fluxcapacitor.FluxValues
 import brs.services.BlockService
-import brs.util.Convert
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.*
@@ -37,7 +36,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 }
             }
 
-            return Crypto.verify(block.blockSignature!!, data2, publicKey!!, block.version >= 3)
+            return data2.verifySignature(block.blockSignature!!, publicKey!!, block.version >= 3)
 
         } catch (e: RuntimeException) {
 
@@ -162,7 +161,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             block.cumulativeDifficulty = BigInteger.ZERO
         } else if (block.height < 4) {
             block.baseTarget = Constants.INITIAL_BASE_TARGET
-            block.cumulativeDifficulty = previousBlock.cumulativeDifficulty.add(Convert.two64.divide(BigInteger.valueOf(Constants.INITIAL_BASE_TARGET)))
+            block.cumulativeDifficulty = previousBlock.cumulativeDifficulty.add(two64.divide(BigInteger.valueOf(Constants.INITIAL_BASE_TARGET)))
         } else if (block.height < Constants.BURST_DIFF_ADJUST_CHANGE_BLOCK) {
             var itBlock: Block? = previousBlock
             var avgBaseTarget = BigInteger.valueOf(itBlock!!.baseTarget)
@@ -193,7 +192,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 newBaseTarget = twofoldCurBaseTarget
             }
             block.baseTarget = newBaseTarget
-            block.cumulativeDifficulty = previousBlock.cumulativeDifficulty.add(Convert.two64.divide(BigInteger.valueOf(newBaseTarget)))
+            block.cumulativeDifficulty = previousBlock.cumulativeDifficulty.add(two64.divide(BigInteger.valueOf(newBaseTarget)))
         } else {
             var itBlock: Block? = previousBlock
             var avgBaseTarget = BigInteger.valueOf(itBlock!!.baseTarget)
@@ -241,7 +240,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             }
 
             block.baseTarget = newBaseTarget
-            block.cumulativeDifficulty = previousBlock.cumulativeDifficulty.add(Convert.two64.divide(BigInteger.valueOf(newBaseTarget)))
+            block.cumulativeDifficulty = previousBlock.cumulativeDifficulty.add(two64.divide(BigInteger.valueOf(newBaseTarget)))
         }
     }
 
@@ -250,7 +249,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
     }
 
     companion object {
-
+        private val two64: BigInteger = BigInteger.valueOf(2).pow(64)
         private val logger = LoggerFactory.getLogger(BlockServiceImpl::class.java)
     }
 }

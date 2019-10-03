@@ -8,7 +8,7 @@ import brs.db.TransactionDb
 import brs.schema.Tables.TRANSACTION
 import brs.schema.tables.records.TransactionRecord
 import brs.transaction.TransactionType
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*

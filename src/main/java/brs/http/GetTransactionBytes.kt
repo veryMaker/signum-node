@@ -8,8 +8,8 @@ import brs.http.JSONResponses.INCORRECT_TRANSACTION
 import brs.http.JSONResponses.MISSING_TRANSACTION
 import brs.http.JSONResponses.UNKNOWN_TRANSACTION
 import brs.http.common.Parameters.TRANSACTION_PARAMETER
-import brs.util.parseUnsignedLong
-import brs.util.toHexString
+import brs.util.convert.parseUnsignedLong
+import brs.util.convert.toHexString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest

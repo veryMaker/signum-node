@@ -11,8 +11,8 @@ import brs.http.common.Parameters.INCLUDE_TRANSACTIONS_PARAMETER
 import brs.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.http.common.Parameters.isTrue
 import brs.services.BlockService
-import brs.util.Convert
-import brs.util.parseUnsignedLong
+import brs.util.convert.emptyToNull
+import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonElement
 
 import javax.servlet.http.HttpServletRequest
@@ -20,9 +20,9 @@ import javax.servlet.http.HttpServletRequest
 internal class GetBlock internal constructor(private val blockchain: Blockchain, private val blockService: BlockService) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS), BLOCK_PARAMETER, HEIGHT_PARAMETER, TIMESTAMP_PARAMETER, INCLUDE_TRANSACTIONS_PARAMETER) {
 
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
-        val blockValue = Convert.emptyToNull(request.getParameter(BLOCK_PARAMETER))
-        val heightValue = Convert.emptyToNull(request.getParameter(HEIGHT_PARAMETER))
-        val timestampValue = Convert.emptyToNull(request.getParameter(TIMESTAMP_PARAMETER))
+        val blockValue = request.getParameter(BLOCK_PARAMETER).emptyToNull()
+        val heightValue = request.getParameter(HEIGHT_PARAMETER).emptyToNull()
+        val timestampValue = request.getParameter(TIMESTAMP_PARAMETER).emptyToNull()
 
         val blockData = when {
             blockValue != null -> try {

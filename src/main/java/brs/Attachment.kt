@@ -71,10 +71,12 @@ import brs.http.common.ResultFields.TAGS_RESPONSE
 import brs.http.common.ResultFields.URI_RESPONSE
 import brs.transaction.TransactionType
 import brs.util.*
+import brs.util.convert.*
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
 import com.google.protobuf.InvalidProtocolBufferException
+import org.jooq.tools.Convert
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.util.*
@@ -204,7 +206,7 @@ interface Attachment : Appendix {
             get() {
                 var amountNQT: Long = 0
                 for (recipient in recipients) {
-                    amountNQT = Convert.safeAdd(amountNQT, recipient[1])
+                    amountNQT = amountNQT.safeAdd(recipient[1])
                 }
                 return amountNQT
             }
@@ -448,7 +450,7 @@ interface Attachment : Appendix {
             get() = "AliasAssignment"
 
         override val mySize: Int
-            get() = 1 + Convert.toBytes(aliasName).size + 2 + Convert.toBytes(aliasURI).size
+            get() = 1 + aliasName.toBytes().size + 2 + aliasURI.toBytes().size
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_MESSAGING, TransactionType.SUBTYPE_MESSAGING_ALIAS_ASSIGNMENT)
@@ -461,13 +463,13 @@ interface Attachment : Appendix {
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
-            aliasName = Convert.readString(buffer, buffer.get().toInt(), Constants.MAX_ALIAS_LENGTH).trim { it <= ' ' }
-            aliasURI = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_ALIAS_URI_LENGTH).trim { it <= ' ' }
+            aliasName = buffer.readString(buffer.get().toInt(), Constants.MAX_ALIAS_LENGTH).trim { it <= ' ' }
+            aliasURI = buffer.readString(buffer.short.toInt(), Constants.MAX_ALIAS_URI_LENGTH).trim { it <= ' ' }
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            aliasName = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER))).trim { it <= ' ' }
-            aliasURI = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(URI_PARAMETER))).trim { it <= ' ' }
+            aliasName = JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)).nullToEmpty().trim { it <= ' ' }
+            aliasURI = JSON.getAsString(attachmentData.get(URI_PARAMETER)).nullToEmpty().trim { it <= ' ' }
         }
 
         constructor(dp: DependencyProvider, aliasName: String, aliasURI: String, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -481,8 +483,8 @@ interface Attachment : Appendix {
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            val alias = Convert.toBytes(this.aliasName)
-            val uri = Convert.toBytes(this.aliasURI)
+            val alias = this.aliasName.toBytes()
+            val uri = this.aliasURI.toBytes()
             buffer.put(alias.size.toByte())
             buffer.put(alias)
             buffer.putShort(uri.size.toShort())
@@ -507,7 +509,7 @@ interface Attachment : Appendix {
             get() = Pair(TransactionType.TYPE_MESSAGING, TransactionType.SUBTYPE_MESSAGING_ALIAS_SELL)
 
         override val mySize: Int
-            get() = 1 + Convert.toBytes(aliasName).size + 8
+            get() = 1 + aliasName.toBytes().size + 8
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.AliasSellAttachment.newBuilder()
@@ -517,12 +519,12 @@ interface Attachment : Appendix {
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
-            this.aliasName = Convert.readString(buffer, buffer.get().toInt(), Constants.MAX_ALIAS_LENGTH)
+            this.aliasName = buffer.readString(buffer.get().toInt(), Constants.MAX_ALIAS_LENGTH)
             this.priceNQT = buffer.long
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.aliasName = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)))
+            this.aliasName = JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)).nullToEmpty()
             this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
         }
 
@@ -537,7 +539,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            val aliasBytes = Convert.toBytes(aliasName)
+            val aliasBytes = aliasName.toBytes()
             buffer.put(aliasBytes.size.toByte())
             buffer.put(aliasBytes)
             buffer.putLong(priceNQT)
@@ -560,7 +562,7 @@ interface Attachment : Appendix {
             get() = Pair(TransactionType.TYPE_MESSAGING, TransactionType.SUBTYPE_MESSAGING_ALIAS_BUY)
 
         override val mySize: Int
-            get() = 1 + Convert.toBytes(aliasName).size
+            get() = 1 + aliasName.toBytes().size
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.AliasBuyAttachment.newBuilder()
@@ -569,11 +571,11 @@ interface Attachment : Appendix {
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
-            this.aliasName = Convert.readString(buffer, buffer.get().toInt(), Constants.MAX_ALIAS_LENGTH)
+            this.aliasName = buffer.readString(buffer.get().toInt(), Constants.MAX_ALIAS_LENGTH)
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.aliasName = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)))
+            this.aliasName = JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)).nullToEmpty()
         }
 
         constructor(dp: DependencyProvider, aliasName: String, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -585,7 +587,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            val aliasBytes = Convert.toBytes(aliasName)
+            val aliasBytes = aliasName.toBytes()
             buffer.put(aliasBytes.size.toByte())
             buffer.put(aliasBytes)
         }
@@ -604,7 +606,7 @@ interface Attachment : Appendix {
             get() = "AccountInfo"
 
         override val mySize: Int
-            get() = 1 + Convert.toBytes(name).size + 2 + Convert.toBytes(description).size
+            get() = 1 + name.toBytes().size + 2 + description.toBytes().size
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_MESSAGING, TransactionType.SUBTYPE_MESSAGING_ACCOUNT_INFO)
@@ -617,13 +619,13 @@ interface Attachment : Appendix {
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
-            this.name = Convert.readString(buffer, buffer.get().toInt(), Constants.MAX_ACCOUNT_NAME_LENGTH)
-            this.description = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_ACCOUNT_DESCRIPTION_LENGTH)
+            this.name = buffer.readString(buffer.get().toInt(), Constants.MAX_ACCOUNT_NAME_LENGTH)
+            this.description = buffer.readString(buffer.short.toInt(), Constants.MAX_ACCOUNT_DESCRIPTION_LENGTH)
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.name = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(NAME_PARAMETER)))
-            this.description = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER)))
+            this.name = JSON.getAsString(attachmentData.get(NAME_PARAMETER)).nullToEmpty()
+            this.description = JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER)).nullToEmpty()
         }
 
         constructor(dp: DependencyProvider, name: String, description: String, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -637,8 +639,8 @@ interface Attachment : Appendix {
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            val putName = Convert.toBytes(this.name)
-            val putDescription = Convert.toBytes(this.description)
+            val putName = this.name.toBytes()
+            val putDescription = this.description.toBytes()
             buffer.put(putName.size.toByte())
             buffer.put(putName)
             buffer.putShort(putDescription.size.toShort())
@@ -662,7 +664,7 @@ interface Attachment : Appendix {
             get() = "AssetIssuance"
 
         override val mySize: Int
-            get() = 1 + Convert.toBytes(name).size + 2 + Convert.toBytes(description).size + 8 + 1
+            get() = 1 + name.toBytes().size + 2 + description.toBytes().size + 8 + 1
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_COLORED_COINS, TransactionType.SUBTYPE_COLORED_COINS_ASSET_ISSUANCE)
@@ -677,22 +679,22 @@ interface Attachment : Appendix {
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
-            this.name = Convert.readString(buffer, buffer.get().toInt(), Constants.MAX_ASSET_NAME_LENGTH)
-            this.description = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_ASSET_DESCRIPTION_LENGTH)
+            this.name = buffer.readString(buffer.get().toInt(), Constants.MAX_ASSET_NAME_LENGTH)
+            this.description = buffer.readString(buffer.short.toInt(), Constants.MAX_ASSET_DESCRIPTION_LENGTH)
             this.quantityQNT = buffer.long
             this.decimals = buffer.get()
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.name = JSON.getAsString(attachmentData.get(NAME_PARAMETER))
-            this.description = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER)))
+            this.description = JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER)).nullToEmpty()
             this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER))
             this.decimals = JSON.getAsByte(attachmentData.get(DECIMALS_PARAMETER))
         }
 
         constructor(dp: DependencyProvider, name: String, description: String, quantityQNT: Long, decimals: Byte, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.name = name
-            this.description = Convert.nullToEmpty(description)
+            this.description = description.nullToEmpty()
             this.quantityQNT = quantityQNT
             this.decimals = decimals
         }
@@ -705,8 +707,8 @@ interface Attachment : Appendix {
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            val name = Convert.toBytes(this.name)
-            val description = Convert.toBytes(this.description)
+            val name = this.name.toBytes()
+            val description = this.description.toBytes()
             buffer.put(name.size.toByte())
             buffer.put(name)
             buffer.putShort(description.size.toShort())
@@ -733,7 +735,7 @@ interface Attachment : Appendix {
             get() = "AssetTransfer"
 
         override val mySize: Int
-            get() = 8 + 8 + if (version.toInt() == 0) 2 + Convert.toBytes(comment).size else 0
+            get() = 8 + 8 + if (version.toInt() == 0) 2 + comment.toBytes().size else 0
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_COLORED_COINS, TransactionType.SUBTYPE_COLORED_COINS_ASSET_TRANSFER)
@@ -749,13 +751,13 @@ interface Attachment : Appendix {
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.assetId = buffer.long
             this.quantityQNT = buffer.long
-            this.comment = if (version.toInt() == 0) Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_ASSET_TRANSFER_COMMENT_LENGTH) else null
+            this.comment = if (version.toInt() == 0) buffer.readString(buffer.short.toInt(), Constants.MAX_ASSET_TRANSFER_COMMENT_LENGTH) else null
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.assetId = JSON.getAsString(attachmentData.get(ASSET_PARAMETER)).parseUnsignedLong()
             this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER))
-            this.comment = if (version.toInt() == 0) Convert.nullToEmpty(JSON.getAsString(attachmentData.get(COMMENT_PARAMETER))) else null
+            this.comment = if (version.toInt() == 0) JSON.getAsString(attachmentData.get(COMMENT_PARAMETER)).nullToEmpty() else null
         }
 
         constructor(dp: DependencyProvider, assetId: Long, quantityQNT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -774,7 +776,7 @@ interface Attachment : Appendix {
             buffer.putLong(assetId)
             buffer.putLong(quantityQNT)
             if (version.toInt() == 0 && comment != null) {
-                val commentBytes = Convert.toBytes(this.comment)
+                val commentBytes = this.comment.toBytes()
                 buffer.putShort(commentBytes.size.toShort())
                 buffer.put(commentBytes)
             }
@@ -990,8 +992,8 @@ interface Attachment : Appendix {
             get() = "DigitalGoodsListing"
 
         override val mySize: Int
-            get() = (2 + Convert.toBytes(name).size + 2 + Convert.toBytes(description).size + 2
-                    + Convert.toBytes(tags).size + 4 + 8)
+            get() = (2 + name.toBytes().size + 2 + description.toBytes().size + 2
+                    + tags.toBytes().size + 4 + 8)
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_DIGITAL_GOODS, TransactionType.SUBTYPE_DIGITAL_GOODS_LISTING)
@@ -1007,9 +1009,9 @@ interface Attachment : Appendix {
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
-            this.name = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_DGS_LISTING_NAME_LENGTH)
-            this.description = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_DGS_LISTING_DESCRIPTION_LENGTH)
-            this.tags = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_DGS_LISTING_TAGS_LENGTH)
+            this.name = buffer.readString(buffer.short.toInt(), Constants.MAX_DGS_LISTING_NAME_LENGTH)
+            this.description = buffer.readString(buffer.short.toInt(), Constants.MAX_DGS_LISTING_DESCRIPTION_LENGTH)
+            this.tags = buffer.readString(buffer.short.toInt(), Constants.MAX_DGS_LISTING_TAGS_LENGTH)
             this.quantity = buffer.int
             this.priceNQT = buffer.long
         }
@@ -1039,13 +1041,13 @@ interface Attachment : Appendix {
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            val nameBytes = Convert.toBytes(name)
+            val nameBytes = name.toBytes()
             buffer.putShort(nameBytes.size.toShort())
             buffer.put(nameBytes)
-            val descriptionBytes = Convert.toBytes(description)
+            val descriptionBytes = description.toBytes()
             buffer.putShort(descriptionBytes.size.toShort())
             buffer.put(descriptionBytes)
-            val tagsBytes = Convert.toBytes(tags)
+            val tagsBytes = tags.toBytes()
             buffer.putShort(tagsBytes.size.toShort())
             buffer.put(tagsBytes)
             buffer.putInt(quantity)
@@ -1900,7 +1902,7 @@ interface Attachment : Appendix {
         override val appendixName: String
             get() = "AutomatedTransactionsCreation"
         override val mySize: Int
-            get() = 1 + Convert.toBytes(name).size + 2 + Convert.toBytes(description).size + creationBytes!!.size
+            get() = 1 + name.toBytes().size + 2 + description.toBytes().size + creationBytes!!.size
 
 
         override val protobufMessage: Any
@@ -1914,8 +1916,8 @@ interface Attachment : Appendix {
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer,
                              transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
 
-            this.name = Convert.readString(buffer, buffer.get().toInt(), Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH)
-            this.description = Convert.readString(buffer, buffer.short.toInt(), Constants.MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH)
+            this.name = buffer.readString(buffer.get().toInt(), Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH)
+            this.description = buffer.readString(buffer.short.toInt(), Constants.MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH)
 
             // rest of the parsing is at related; code comes from
             // public AtMachineState( byte[] atId, byte[] creator, byte[] creationBytes, int height ) {
@@ -1991,10 +1993,10 @@ interface Attachment : Appendix {
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            val nameBytes = Convert.toBytes(name)
+            val nameBytes = name.toBytes()
             buffer.put(nameBytes.size.toByte())
             buffer.put(nameBytes)
-            val descriptionBytes = Convert.toBytes(description)
+            val descriptionBytes = description.toBytes()
             buffer.putShort(descriptionBytes.size.toShort())
             buffer.put(descriptionBytes)
 

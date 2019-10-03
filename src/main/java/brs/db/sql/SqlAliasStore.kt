@@ -9,7 +9,7 @@ import brs.schema.Tables.ALIAS
 import brs.schema.Tables.ALIAS_OFFER
 import brs.schema.tables.records.AliasOfferRecord
 import brs.schema.tables.records.AliasRecord
-import brs.util.Convert
+import brs.util.convert.nullToZero
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.SortField
@@ -49,7 +49,7 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
         }
     }
 
-    private inner class SqlOffer internal constructor(record: Record) : Alias.Offer(record.get(ALIAS_OFFER.ID), record.get(ALIAS_OFFER.PRICE), Convert.nullToZero(record.get(ALIAS_OFFER.BUYER_ID)), offerDbKeyFactory.newKey(record.get(ALIAS_OFFER.ID)))
+    private inner class SqlOffer internal constructor(record: Record) : Alias.Offer(record.get(ALIAS_OFFER.ID), record.get(ALIAS_OFFER.PRICE), record.get(ALIAS_OFFER.BUYER_ID).nullToZero(), offerDbKeyFactory.newKey(record.get(ALIAS_OFFER.ID)))
 
     private fun saveOffer(offer: Alias.Offer) {
         dp.db.useDslContext { ctx ->

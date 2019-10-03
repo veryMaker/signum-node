@@ -5,7 +5,7 @@ import brs.DependencyProvider
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
 import brs.props.Props
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import org.slf4j.LoggerFactory
 import org.slf4j.helpers.NOPLogger
 import java.nio.BufferUnderflowException

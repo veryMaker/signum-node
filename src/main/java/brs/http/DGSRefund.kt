@@ -2,7 +2,6 @@ package brs.http
 
 
 import brs.Attachment
-import brs.BurstException
 import brs.Constants
 import brs.DependencyProvider
 import brs.http.JSONResponses.DUPLICATE_REFUND
@@ -12,7 +11,7 @@ import brs.http.JSONResponses.INCORRECT_DGS_REFUND
 import brs.http.JSONResponses.INCORRECT_PURCHASE
 import brs.http.common.Parameters.PURCHASE_PARAMETER
 import brs.http.common.Parameters.REFUND_NQT_PARAMETER
-import brs.util.Convert
+import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -32,7 +31,7 @@ internal class DGSRefund internal constructor(private val dp: DependencyProvider
             return GOODS_NOT_DELIVERED
         }
 
-        val refundValueNQT = Convert.emptyToNull(request.getParameter(REFUND_NQT_PARAMETER))
+        val refundValueNQT = request.getParameter(REFUND_NQT_PARAMETER).emptyToNull()
         var refundNQT: Long = 0
         try {
             if (refundValueNQT != null) {

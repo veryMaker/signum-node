@@ -1,8 +1,7 @@
 package brs.http
 
 import brs.*
-import brs.util.Convert
-import brs.util.toHexString
+import brs.util.convert.toHexString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 

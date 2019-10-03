@@ -1,12 +1,11 @@
 package brs
 
 import brs.props.Props
-import brs.util.Convert
+import brs.util.convert.safeAdd
 
 import java.io.BufferedReader
 import java.io.FileReader
 import java.io.IOException
-import java.util.*
 
 object VerifyTrace {
     // Replace if changed.
@@ -71,7 +70,7 @@ object VerifyTrace {
                         when {
                             isBalance(header) -> accountTotals[header] = java.lang.Long.parseLong(value)
                             isDelta(header) -> {
-                                accountTotals[header] = Convert.safeAdd(nullToZero(accountTotals[header]), value.toLong())
+                                accountTotals[header] = nullToZero(accountTotals[header]).safeAdd(value.toLong())
                             }
                             isAssetQuantity(header) -> {
                                 val assetId = valueMap["asset"]!!
@@ -82,7 +81,7 @@ object VerifyTrace {
                                 val assetId = valueMap["asset"]!!
                                 val assetTotals = accountAssetMap.computeIfAbsent(assetId) { mutableMapOf() }
                                 val previousValue = nullToZero(assetTotals[header])
-                                assetTotals[header] = Convert.safeAdd(previousValue, java.lang.Long.parseLong(value))
+                                assetTotals[header] = previousValue.safeAdd(java.lang.Long.parseLong(value))
                             }
                         }
                     }
@@ -96,7 +95,7 @@ object VerifyTrace {
                     var totalDelta: Long = 0
                     for (header in deltaHeaders) {
                         val delta = nullToZero(accountValues[header])
-                        totalDelta = Convert.safeAdd(totalDelta, delta)
+                        totalDelta = totalDelta.safeAdd(delta)
                         println("$header: $delta")
                     }
                     println("total confirmed balance change: $totalDelta")
@@ -112,7 +111,7 @@ object VerifyTrace {
                         var totalAssetDelta: Long = 0
                         for (header in deltaAssetQuantityHeaders) {
                             val delta = nullToZero(assetValues[header])
-                            totalAssetDelta = Convert.safeAdd(totalAssetDelta, delta)
+                            totalAssetDelta = totalAssetDelta.safeAdd(delta)
                         }
                         println("total confirmed asset quantity change: $totalAssetDelta")
                         val assetBalance = assetValues["asset balance"]!!
@@ -121,7 +120,7 @@ object VerifyTrace {
                             failed.add(accountId)
                         }
                         val previousAssetQuantity = nullToZero(accountAssetQuantities[assetId])
-                        accountAssetQuantities[assetId] = Convert.safeAdd(previousAssetQuantity, assetBalance)
+                        accountAssetQuantities[assetId] = previousAssetQuantity.safeAdd(assetBalance)
                     }
                     println()
                 }

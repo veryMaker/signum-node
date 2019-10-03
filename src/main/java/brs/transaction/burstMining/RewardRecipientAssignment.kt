@@ -4,7 +4,7 @@ import brs.*
 import brs.fluxcapacitor.FluxValues
 import brs.transactionduplicates.TransactionDuplicationKey
 import brs.util.toJsonString
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 

@@ -2,10 +2,8 @@ package brs.http
 
 
 import brs.Attachment
-import brs.BurstException
 import brs.Constants
 import brs.DependencyProvider
-import brs.at.AtConstants
 import brs.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_DESCRIPTION
 import brs.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME
 import brs.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME_LENGTH
@@ -22,8 +20,8 @@ import brs.http.common.Parameters.USPAGES_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.util.TextUtils
-import brs.util.parseHexString
-import brs.util.parseUnsignedLong
+import brs.util.convert.parseHexString
+import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory

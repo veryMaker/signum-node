@@ -12,8 +12,8 @@ import brs.http.common.ResultFields.UNCONFIRMED_ASSET_BALANCES_RESPONSE
 import brs.http.common.ResultFields.UNCONFIRMED_BALANCE_QNT_RESPONSE
 import brs.services.AccountService
 import brs.services.ParameterService
-import brs.util.toHexString
-import brs.util.toUnsignedString
+import brs.util.convert.toHexString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

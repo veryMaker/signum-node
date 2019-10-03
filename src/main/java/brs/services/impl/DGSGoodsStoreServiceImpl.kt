@@ -5,8 +5,10 @@ import brs.DigitalGoodsStore.Event
 import brs.DigitalGoodsStore.Goods
 import brs.DigitalGoodsStore.Purchase
 import brs.services.DGSGoodsStoreService
-import brs.util.Convert
 import brs.util.Listeners
+import brs.util.convert.safeMultiply
+import brs.util.convert.safeSubtract
+import brs.util.convert.toUtf8String
 
 class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsStoreService {
     private val feedbackTable = dp.digitalGoodsStoreStore.feedbackTable
@@ -88,7 +90,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
             addPurchase(transaction, attachment, goods.sellerId)
         } else {
             val buyer = dp.accountService.getAccount(transaction.senderId)!!
-            dp.accountService.addToUnconfirmedBalanceNQT(buyer, Convert.safeMultiply(attachment.quantity.toLong(), attachment.priceNQT))
+            dp.accountService.addToUnconfirmedBalanceNQT(buyer, attachment.quantity.toLong().safeMultiply(attachment.priceNQT))
             // restoring the unconfirmed balance if purchase not successful, however buyer still lost the transaction fees
         }
     }
@@ -125,7 +127,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
             feedbackTable.insert(purchase, purchase.feedbackNotes!!)
         }
         if (message != null) {
-            addPublicFeedback(purchase, Convert.toString(message.messageBytes!!))
+            addPublicFeedback(purchase, message.messageBytes!!.toUtf8String())
         }
         purchaseListeners.accept(Event.FEEDBACK, purchase)
     }
@@ -175,12 +177,12 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
         val purchase = getPendingPurchase(attachment.purchaseId)
                 ?: throw RuntimeException("cant find purchase with id " + attachment.purchaseId)
         setPending(purchase, false)
-        val totalWithoutDiscount = Convert.safeMultiply(purchase.quantity.toLong(), purchase.priceNQT)
+        val totalWithoutDiscount = purchase.quantity.toLong().safeMultiply(purchase.priceNQT)
         val buyer = dp.accountService.getAccount(purchase.buyerId)!!
-        dp.accountService.addToBalanceNQT(buyer, Convert.safeSubtract(attachment.discountNQT, totalWithoutDiscount))
+        dp.accountService.addToBalanceNQT(buyer, attachment.discountNQT.safeSubtract(totalWithoutDiscount))
         dp.accountService.addToUnconfirmedBalanceNQT(buyer, attachment.discountNQT)
         val seller = dp.accountService.getAccount(transaction.senderId)!!
-        dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(seller, Convert.safeSubtract(totalWithoutDiscount, attachment.discountNQT))
+        dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(seller, totalWithoutDiscount.safeSubtract(attachment.discountNQT))
         purchase.setEncryptedGoods(attachment.goods, attachment.goodsIsText())
         purchaseTable.insert(purchase)
         purchase.discountNQT = attachment.discountNQT
@@ -204,7 +206,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
                 val buyer = dp.accountService.getAccount(purchase.buyerId)!!
                 dp.accountService.addToUnconfirmedBalanceNQT(
                     buyer,
-                    Convert.safeMultiply(purchase.quantity.toLong(), purchase.priceNQT)
+                    purchase.quantity.toLong().safeMultiply(purchase.priceNQT)
                 )
                 dp.digitalGoodsStoreService.changeQuantity(purchase.goodsId, purchase.quantity, true)
                 dp.digitalGoodsStoreService.setPending(purchase, false)

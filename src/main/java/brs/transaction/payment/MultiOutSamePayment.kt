@@ -2,7 +2,7 @@ package brs.transaction.payment
 
 import brs.*
 import brs.fluxcapacitor.FluxValues
-import brs.util.Convert
+import brs.util.convert.safeDivide
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 
@@ -34,7 +34,7 @@ class MultiOutSamePayment(dp: DependencyProvider) : Payment(dp) {
         recipientAccount: Account?
     ) {
         val attachment = transaction.attachment as Attachment.PaymentMultiSameOutCreation
-        val amountNQT = Convert.safeDivide(transaction.amountNQT, attachment.getRecipients().size.toLong())
+        val amountNQT = transaction.amountNQT.safeDivide(attachment.getRecipients().size.toLong())
         attachment.getRecipients().forEach { a ->
             dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(
                 dp.accountService.getOrAddAccount(a), amountNQT

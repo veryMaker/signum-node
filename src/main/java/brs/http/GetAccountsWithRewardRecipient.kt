@@ -4,7 +4,7 @@ import brs.http.common.Parameters.ACCOUNTS_RESPONSE
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.services.AccountService
 import brs.services.ParameterService
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

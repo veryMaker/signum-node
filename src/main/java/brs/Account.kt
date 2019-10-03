@@ -5,8 +5,8 @@ import brs.crypto.EncryptedData
 import brs.crypto.rsVerify
 import brs.db.BurstKey
 import brs.db.VersionedBatchEntityTable
-import brs.util.Convert
-import brs.util.toUnsignedString
+import brs.util.convert.fullHashToId
+import brs.util.convert.toUnsignedString
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -160,7 +160,7 @@ open class Account {
         @Deprecated("Just use Crypto/Convert class instead")
         fun getId(publicKey: ByteArray): Long {
             val publicKeyHash = Crypto.sha256().digest(publicKey)
-            return Convert.fullHashToId(publicKeyHash)
+            return publicKeyHash.fullHashToId()
         }
 
         fun getOrAddAccount(dp: DependencyProvider, id: Long): Account {

@@ -12,7 +12,7 @@ import brs.db.store.ATStore
 import brs.db.store.AccountStore
 import brs.props.PropertyService
 import brs.props.Props
-import brs.util.parseHexString
+import brs.util.convert.parseHexString
 import com.nhaarman.mockitokotlin2.*
 import io.mockk.every
 import io.mockk.mockkObject

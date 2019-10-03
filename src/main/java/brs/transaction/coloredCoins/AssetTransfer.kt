@@ -2,7 +2,7 @@ package brs.transaction.coloredCoins
 
 import brs.*
 import brs.util.toJsonString
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

@@ -1,10 +1,9 @@
 package brs.http
 
-import brs.BurstException
 import brs.http.common.Parameters.ACCOUNTS_RESPONSE
 import brs.http.common.Parameters.NAME_PARAMETER
 import brs.services.AccountService
-import brs.util.toUnsignedString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
