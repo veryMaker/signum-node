@@ -232,7 +232,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
                 } else {
                     Peer.State.NON_CONNECTED
                 }
-                response = null
+                response = error("Peer responded with HTTP " + connection.responseCode)
             }
         } catch (e: RuntimeException) {
             if (!isConnectionException(e)) {
@@ -245,7 +245,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
             if (state == Peer.State.CONNECTED) {
                 state = Peer.State.DISCONNECTED
             }
-            response = null
+            response = error("Error getting response from peer: ${e.javaClass}: ${e.message}")
         } catch (e: IOException) {
             if (!isConnectionException(e)) {
                 logger.safeDebug(e) { "Error sending JSON request" }
@@ -257,7 +257,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
             if (state == Peer.State.CONNECTED) {
                 state = Peer.State.DISCONNECTED
             }
-            response = null
+            response = error("Error getting response from peer: ${e.javaClass}: ${e.message}")
         }
 
         if (showLog && log != null) {
@@ -303,6 +303,12 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
         } else {
             state = Peer.State.NON_CONNECTED
         }
+    }
+
+    private fun error(message: String): JsonObject {
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("error", message)
+        return jsonObject
     }
 
     companion object {

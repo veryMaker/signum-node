@@ -83,7 +83,7 @@ class UnconfirmedTransactionStoreTest {
     @Test
     fun transactionsCanGetRetrievedAfterAddingThemToStore() {
         whenever(mockBlockChain!!.height).doReturn(20)
-        for (i in 1..100) {
+        1..100.forEach { i ->
             val transaction = Transaction.Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT * 100, timeService.epochTime + 50000, 500.toShort(), Attachment.OrdinaryPayment(dp))
                     .id(i.toLong()).senderId(123L).build()
             transaction.sign(TestConstants.TEST_SECRET_PHRASE)
@@ -103,7 +103,7 @@ class UnconfirmedTransactionStoreTest {
 
         whenever(mockBlockChain!!.height).doReturn(20)
 
-        for (i in 1..100) {
+        1..100.forEach { i ->
             val transaction = Transaction.Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT * 100, timeService.epochTime + 50000, 500.toShort(), Attachment.OrdinaryPayment(dp))
                     .id(i.toLong()).senderId(123L).build()
             transaction.sign(TestConstants.TEST_SECRET_PHRASE)
@@ -121,7 +121,7 @@ class UnconfirmedTransactionStoreTest {
 
         whenever(mockBlockChain!!.height).doReturn(20)
 
-        for (i in 1..100) {
+        1..100.forEach { i ->
             val transaction = Transaction.Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT * 100, timeService.epochTime + 50000, 500.toShort(), Attachment.OrdinaryPayment(dp))
                     .id(i.toLong()).senderId(123L).build()
             transaction.sign(TestConstants.TEST_SECRET_PHRASE)
@@ -142,7 +142,7 @@ class UnconfirmedTransactionStoreTest {
 
         whenever(mockBlockChain!!.height).doReturn(20)
 
-        for (i in 1..8192) {
+        1..8192.forEach { i ->
             val transaction = Transaction.Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT * 100, timeService.epochTime + 50000, 500.toShort(), Attachment.OrdinaryPayment(dp))
                     .id(i.toLong()).senderId(123L).build()
             transaction.sign(TestConstants.TEST_SECRET_PHRASE)
@@ -167,7 +167,7 @@ class UnconfirmedTransactionStoreTest {
 
         whenever(mockBlockChain!!.height).doReturn(20)
 
-        for (i in 1..8192) {
+        1..8192.forEach { i ->
             val transaction = Transaction.Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT * 100, timeService.epochTime + 50000, 500.toShort(), Attachment.OrdinaryPayment(dp))
                     .id(i.toLong()).senderId(123L).build()
             transaction.sign(TestConstants.TEST_SECRET_PHRASE)
@@ -247,7 +247,7 @@ class UnconfirmedTransactionStoreTest {
 
         whenever(mockBlockChain!!.height).doReturn(20)
 
-        for (i in 1..414) {
+        1..414.forEach { i ->
             val transaction = Transaction.Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT * 2, timeService.epochTime + 50000, 500.toShort(), Attachment.OrdinaryPayment(dp))
                     .id(i.toLong()).senderId(123L).referencedTransactionFullHash("b33f").build()
             transaction.sign(TestConstants.TEST_SECRET_PHRASE)
@@ -263,7 +263,7 @@ class UnconfirmedTransactionStoreTest {
 
         whenever(mockBlockChain!!.height).doReturn(20)
 
-        for (i in 1..365) {
+        1..365.forEach { i ->
             val transaction = Transaction.Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT, timeService.epochTime + 50000, 500.toShort(), Attachment.OrdinaryPayment(dp))
                     .id(i.toLong()).senderId(123L).build()
             transaction.sign(TestConstants.TEST_SECRET_PHRASE)
@@ -272,7 +272,7 @@ class UnconfirmedTransactionStoreTest {
 
         assertEquals(360, t!!.all.size)
 
-        for (i in 1..725) {
+        1..725.forEach { i ->
             val transaction = Transaction.Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, i.toLong(), FEE_QUANT * 2, timeService.epochTime + 50000, 500.toShort(), Attachment.OrdinaryPayment(dp))
                     .id(i.toLong()).senderId(123L).build()
             transaction.sign(TestConstants.TEST_SECRET_PHRASE)

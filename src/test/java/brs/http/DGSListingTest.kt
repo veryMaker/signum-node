@@ -92,7 +92,7 @@ class DGSListingTest : AbstractTransactionTest() {
     fun processRequest_incorrectDGSListingName() {
         var tooLongName = ""
 
-        for (i in 0..100) {
+        0..100.forEach { i ->
             tooLongName += "a"
         }
 
@@ -109,7 +109,7 @@ class DGSListingTest : AbstractTransactionTest() {
     fun processRequest_incorrectDgsListingDescription() {
         var tooLongDescription = ""
 
-        for (i in 0..1000) {
+        0..1000.forEach { i ->
             tooLongDescription += "a"
         }
 
@@ -127,7 +127,7 @@ class DGSListingTest : AbstractTransactionTest() {
     fun processRequest_incorrectDgsListingTags() {
         var tooLongTags = ""
 
-        for (i in 0..100) {
+        0..100.forEach { i ->
             tooLongTags += "a"
         }
 

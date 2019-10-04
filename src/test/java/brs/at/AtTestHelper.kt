@@ -73,7 +73,7 @@ object AtTestHelper {
         }.whenever(mockAtStore).orderedATs
         doAnswer { invoke ->
             val atId = invoke.getArgument<Long>(0)
-            for (addedAt in addedAts) {
+            addedAts.forEach { addedAt ->
                 if (AtApiHelper.getLong(addedAt.id ?: continue) == atId) {
                     return@doAnswer addedAt
                 }

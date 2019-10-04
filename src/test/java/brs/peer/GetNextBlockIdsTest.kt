@@ -22,7 +22,7 @@ class GetNextBlockIdsTest {
         mockBlockchain = mock<Blockchain>()
         mockPeer = mock<Peer>()
         val blocks = mutableListOf<Long>()
-        for (i in 0..99) {
+        0..99.forEach { i ->
             blocks.add((i + 1).toLong())
         }
         whenever(mockBlockchain!!.getBlockIdsAfter(eq(Genesis.GENESIS_BLOCK_ID), any())).doReturn(blocks)
@@ -43,7 +43,7 @@ class GetNextBlockIdsTest {
         assertTrue(nextBlocksElement is JsonArray)
         val nextBlocks = nextBlocksElement.asJsonArray
         assertEquals(100, nextBlocks.size().toLong())
-        for (nextBlock in nextBlocks) {
+        nextBlocks.forEach { nextBlock ->
             assertNotNull(nextBlock)
             assertTrue(nextBlock.isJsonPrimitive)
         }

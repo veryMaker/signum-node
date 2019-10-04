@@ -5,8 +5,12 @@ import brs.grpc.GrpcApiHandler
 import brs.grpc.handlers.*
 import com.google.protobuf.Empty
 import com.google.protobuf.Message
+import io.grpc.Server
+import io.grpc.ServerBuilder
+import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder
 import io.grpc.stub.StreamObserver
 import kotlinx.coroutines.runBlocking
+import java.net.InetSocketAddress
 import kotlin.reflect.KClass
 
 class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBase() {
@@ -73,6 +77,10 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         } else {
             response.onError(ProtoBuilder.buildError(HandlerNotFoundException("H not registered: ${H::class}")))
         }
+    }
+
+    fun start(hostname: String, port: Int): Server {
+        return if (hostname == "0.0.0.0") ServerBuilder.forPort(port).addService(this).build().start() else NettyServerBuilder.forAddress(InetSocketAddress(hostname, port)).addService(this).build().start()
     }
 
     override fun getMiningInfo(request: Empty, responseObserver: StreamObserver<BrsApi.MiningInfo>) {

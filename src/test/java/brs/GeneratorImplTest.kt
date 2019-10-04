@@ -35,7 +35,7 @@ class GeneratorImplTest {
 
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2)
 
-        generator = GeneratorImpl(QuickMocker.dependencyProvider(blockchain, timeService, fluxCapacitor))
+        generator = GeneratorImpl.new(QuickMocker.dependencyProvider(blockchain, timeService, fluxCapacitor))
     }
 
     @Test

@@ -204,14 +204,21 @@ internal object ParameterParser {
     }
 
     fun getLastIndex(request: HttpServletRequest): Int {
-        val lastIndex: Int
+        val firstIndex = getFirstIndex(request)
+        var lastIndex: Int
         try {
             lastIndex = Integer.parseInt(request.getParameter(LAST_INDEX_PARAMETER))
             if (lastIndex < 0) {
-                return Integer.MAX_VALUE
+                lastIndex = firstIndex + Constants.MAX_API_RETURNED_ITEMS
             }
         } catch (e: NumberFormatException) {
-            return Integer.MAX_VALUE
+            lastIndex = firstIndex + Constants.MAX_API_RETURNED_ITEMS
+        }
+
+        require(firstIndex <= lastIndex) { "lastIndex must be greater than or equal to firstIndex" }
+        if (lastIndex - firstIndex >= Constants.MAX_API_RETURNED_ITEMS) {
+            // Don't reject the request, just limit it.
+            lastIndex = firstIndex + Constants.MAX_API_RETURNED_ITEMS - 1
         }
 
         return lastIndex

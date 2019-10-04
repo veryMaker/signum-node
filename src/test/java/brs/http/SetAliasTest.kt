@@ -102,7 +102,7 @@ class SetAliasTest : AbstractTransactionTest() {
     fun processRequest_incorrectUriLengthWhenOver1000Characters() {
         val uriOver1000Characters = StringBuilder()
 
-        for (i in 0..1000) {
+        0..1000.forEach { i ->
             uriOver1000Characters.append("a")
         }
 

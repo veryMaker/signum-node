@@ -67,7 +67,7 @@ object QuickMocker {
             onGeneric { it.getValue(any<FluxValue<Boolean>>()) } doReturn false
             onGeneric { it.getValue(any<FluxValue<Boolean>>(), any()) } doReturn false
         }
-        for (ft in enabledToggles) {
+        enabledToggles.forEach { ft ->
             whenever(mockCapacitor.getValue(eq(ft))).doReturn(true)
             whenever(mockCapacitor.getValue(eq(ft), any())).doReturn(true)
         }
@@ -85,7 +85,7 @@ object QuickMocker {
     fun httpServletRequest(vararg parameters: MockParam): HttpServletRequest {
         val mockedRequest = mock<HttpServletRequest>()
 
-        for (mp in parameters) {
+        parameters.forEach { mp ->
             whenever(mockedRequest.getParameter(mp.key)).doReturn(mp.value)
         }
 
@@ -103,7 +103,7 @@ object QuickMocker {
     fun jsonObject(vararg parameters: JSONParam): JsonObject {
         val mockedRequest = JsonObject()
 
-        for (mp in parameters) {
+        parameters.forEach { mp ->
             mockedRequest.add(mp.key, mp.value)
         }
 

@@ -107,17 +107,10 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
                 dp.api = API(dp)
 
                 if (dp.propertyService.get(Props.API_V2_SERVER)) {
-                    val port =
-                        if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_API_V2_PORT) else dp.propertyService.get(
-                            Props.API_V2_PORT
-                        )
-                    logger.safeInfo { "Starting V2 API Server on port $port" }
-                    val apiV2 = BrsService(dp)
                     val hostname = dp.propertyService.get(Props.API_V2_LISTEN)
-                    dp.apiV2Server =
-                        if (hostname == "0.0.0.0") ServerBuilder.forPort(port).addService(apiV2).build().start() else NettyServerBuilder.forAddress(
-                            InetSocketAddress(hostname, port)
-                        ).addService(apiV2).build().start()
+                    val port = if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_API_V2_PORT) else dp.propertyService.get(Props.API_V2_PORT)
+                    logger.safeInfo { "Starting V2 API Server on port $port" }
+                    dp.apiV2Server = BrsService(dp).start(hostname, port)
                 } else {
                     logger.safeInfo { "Not starting V2 API Server - it is disabled." }
                 }

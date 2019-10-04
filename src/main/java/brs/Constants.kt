@@ -1,9 +1,7 @@
 package brs
 
 import brs.props.Props
-
-import java.util.Calendar
-import java.util.TimeZone
+import java.util.*
 
 object Constants {
 
@@ -58,6 +56,11 @@ object Constants {
     const val MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH = 1000
 
     const val FEE_SUGGESTION_MAX_HISTORY_LENGTH = 10
+
+    /**
+     * Must be >= 1.
+     */
+    const val MAX_API_RETURNED_ITEMS = 500
 
     const val HTTP = "http://"
 

@@ -20,7 +20,7 @@ class AlternativeRealityTest : AbstractIT() {
     @Test
     @Throws(IOException::class, InterruptedException::class)
     fun normalReality() {
-        for (jsonObject in getReality("reality1.json")) {
+        getReality("reality1.json").forEach { jsonObject ->
             super.processBlock(jsonObject)
             Thread.sleep(500)
         }
@@ -37,7 +37,7 @@ class AlternativeRealityTest : AbstractIT() {
 
         val result = mutableListOf<JsonObject>()
 
-        for (obj in array) {
+        array.forEach { obj ->
             result.add(JSON.getAsJsonObject(obj))
         }
 

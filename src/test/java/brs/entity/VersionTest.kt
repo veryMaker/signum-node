@@ -12,7 +12,7 @@ class VersionTest {
 
         val invalidVersions = arrayOf("v2.0", "v1.2.3-abc123", "v1a.2.3-dev", "1.0-dev", "v1.2.3-123dev123", "", null)
 
-        for (versionString in validVersions) {
+        validVersions.forEach { versionString ->
             val version = Version.parse(versionString)
             if (versionString.startsWith("v")) {
                 assertEquals(versionString, version.toString())
@@ -21,7 +21,7 @@ class VersionTest {
             }
         }
 
-        for (versionString in invalidVersions) {
+        invalidVersions.forEach { versionString ->
             try {
                 val version = Version.parse(versionString)
                 if (version === Version.EMPTY) throw IllegalArgumentException()
