@@ -1,8 +1,9 @@
 package brs.transaction.coloredCoins
 
 import brs.*
-import brs.util.toJsonString
 import brs.util.convert.toUnsignedString
+import brs.util.logging.safeTrace
+import brs.util.toJsonString
 import com.google.gson.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -22,10 +23,9 @@ class AssetTransfer(dp: DependencyProvider) : ColoredCoins(dp) {
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.ColoredCoinsAssetTransfer(dp, attachmentData)
 
     override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
-        logger.trace("TransactionType ASSET_TRANSFER")
+        logger.safeTrace { "TransactionType ASSET_TRANSFER" }
         val attachment = transaction.attachment as Attachment.ColoredCoinsAssetTransfer
-        val unconfirmedAssetBalance =
-            dp.accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.assetId)
+        val unconfirmedAssetBalance = dp.accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.assetId)
         if (unconfirmedAssetBalance >= 0 && unconfirmedAssetBalance >= attachment.quantityQNT) {
             dp.accountService.addToUnconfirmedAssetBalanceQNT(
                 senderAccount,

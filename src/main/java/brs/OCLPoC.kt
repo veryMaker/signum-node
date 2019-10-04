@@ -3,6 +3,8 @@ package brs
 import brs.props.Props
 import brs.services.BlockService
 import brs.util.MiningPlot
+import brs.util.logging.safeDebug
+import brs.util.logging.safeInfo
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -52,7 +54,7 @@ class OCLPoC(dp: DependencyProvider) {
                 val ac = autoChooseDevice() ?: throw OCLCheckerException("Autochoose failed to select a GPU")
                 platformIndex = ac.platform
                 deviceIndex = ac.device
-                logger.info("Choosing Platform {} - DeviceId: {}", platformIndex, deviceIndex)
+                logger.safeInfo { "Choosing Platform ${platformIndex} - DeviceId: ${deviceIndex}" }
             } else {
                 platformIndex = propertyService.get(Props.GPU_PLATFORM_IDX)
                 deviceIndex = propertyService.get(Props.GPU_DEVICE_IDX)
@@ -144,10 +146,10 @@ class OCLPoC(dp: DependencyProvider) {
                 throw OCLCheckerException(
                         "OpenCL init error. Invalid calculated max items: $maxItems")
             }
-            logger.info("OCL max items: {}", maxItems)
+            logger.safeInfo { "OCL max items: ${maxItems}" }
         } catch (e: CLException) {
-            if (logger.isInfoEnabled) {
-                logger.info("OpenCL exception: {}", e.message, e)
+            if (true) {
+                logger.safeInfo(e) { "OpenCL exception: ${e.message}" }
             }
             runBlocking { destroy() }
             throw OCLCheckerException("OpenCL exception", e)
@@ -157,8 +159,8 @@ class OCLPoC(dp: DependencyProvider) {
 
     suspend fun validatePoC(blocks: Collection<Block>, pocVersion: Int, blockService: BlockService) {
         try {
-            if (logger.isDebugEnabled) {
-                logger.debug("starting ocl verify for: {}", blocks.size)
+            if (true) {
+                logger.safeDebug { "starting ocl verify for: ${blocks.size}" }
             }
             val scoopsOut = ByteArray(MiningPlot.SCOOP_SIZE * blocks.size)
 
@@ -185,8 +187,8 @@ class OCLPoC(dp: DependencyProvider) {
                 buffer.clear()
                 scoopNums[i] = blockService.getScoopNum(block)
             }
-            if (logger.isDebugEnabled) {
-                logger.debug("finished preprocessing: {}", blocks.size)
+            if (true) {
+                logger.safeDebug { "finished preprocessing: ${blocks.size}" }
             }
 
             oclLock.withLock {
@@ -234,7 +236,7 @@ class OCLPoC(dp: DependencyProvider) {
                         c += st[0]
                     }
 
-                    if (pocVersion == 2) {
+                    if (pocVersion == 2) { // TODO why are these the same...?
                         clSetKernelArg(getKernel2, 0, Sizeof.cl_mem.toLong(), Pointer.to(scoopNumMem!!))
                         clSetKernelArg(getKernel2, 1, Sizeof.cl_mem.toLong(), Pointer.to(bufferMem))
                         clSetKernelArg(getKernel2, 2, Sizeof.cl_mem.toLong(), Pointer.to(scoopOutMem!!))
@@ -253,7 +255,7 @@ class OCLPoC(dp: DependencyProvider) {
                     clEnqueueReadBuffer(queue, scoopOutMem, true, 0,
                             MiningPlot.SCOOP_SIZE.toLong() * blocks.size, Pointer.to(scoopsOut), 0, null, null)
                 } catch (e: Exception) {
-                    logger.info("GPU error. Try to set a lower value on GPU.HashesPerBatch in properties.")
+                    logger.safeInfo { "GPU error. Try to set a lower value on GPU.HashesPerBatch in properties." }
                     return
                 } finally {
                     if (idMem != null) {
@@ -274,8 +276,8 @@ class OCLPoC(dp: DependencyProvider) {
                 }
             }
 
-            if (logger.isDebugEnabled) {
-                logger.debug("finished ocl, doing rest: {}", blocks.size)
+            if (true) {
+                logger.safeDebug { "finished ocl, doing rest: ${blocks.size}" }
             }
 
             val scoopsBuffer = ByteBuffer.wrap(scoopsOut)
@@ -289,8 +291,8 @@ class OCLPoC(dp: DependencyProvider) {
                     throw PreValidateFailException("Block failed to prevalidate", e, block)
                 }
             }
-            if (logger.isDebugEnabled) {
-                logger.debug("finished rest: {}", blocks.size)
+            if (true) {
+                logger.safeDebug { "finished rest: ${blocks.size}" }
             }
         } catch (e: CLException) {
             // intentionally leave out of unverified cache. It won't slow it that much on one failure and
@@ -357,10 +359,10 @@ class OCLPoC(dp: DependencyProvider) {
         val maxItemsByGlobalMemSize = globalMemSize[0] * memPercent / 100 / MEM_PER_ITEM
         val maxItemsByMaxAllocSize = maxMemAllocSize[0] * memPercent / 100 / BUFFER_PER_ITEM
 
-        logger.debug("Global Memory: {}", globalMemSize[0])
-        logger.debug("Max alloc Memory: {}", maxMemAllocSize[0])
-        logger.debug("maxItemsByGlobalMemSize: {}", maxItemsByGlobalMemSize)
-        logger.debug("maxItemsByMaxAllocSize: {}", maxItemsByMaxAllocSize)
+        logger.safeDebug { "Global Memory: ${globalMemSize[0]}" }
+        logger.safeDebug { "Max alloc Memory: ${maxMemAllocSize[0]}" }
+        logger.safeDebug { "maxItemsByGlobalMemSize: ${maxItemsByGlobalMemSize}" }
+        logger.safeDebug { "maxItemsByMaxAllocSize: ${maxItemsByMaxAllocSize}" }
 
         return min(maxItemsByGlobalMemSize, maxItemsByMaxAllocSize)
     }
@@ -387,7 +389,7 @@ class OCLPoC(dp: DependencyProvider) {
                     Pointer.to(platformNameChars), null)
             val platformName = String(platformNameChars)
 
-            logger.info("Platform {}: {}", pfi, platformName)
+            logger.safeInfo { "Platform ${pfi}: ${platformName}" }
 
             val numDevices = IntArray(1)
             clGetDeviceIDs(platforms[pfi], CL_DEVICE_TYPE_GPU, 0, null, numDevices)

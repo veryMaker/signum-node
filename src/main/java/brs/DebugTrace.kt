@@ -1,6 +1,7 @@
 package brs
 import brs.util.convert.safeMultiply
 import brs.util.convert.toUnsignedString
+import brs.util.logging.safeDebug
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.math.BigInteger
@@ -19,7 +20,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
         try {
             log = PrintWriter(BufferedWriter(OutputStreamWriter(FileOutputStream(logName))), true)
         } catch (e: IOException) {
-            logger.debug("Debug tracing to $logName not possible", e)
+            logger.safeDebug(e) { "Debug tracing to $logName not possible" }
             throw RuntimeException(e)
         }
 
@@ -277,7 +278,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
         return map
     }
 
-    internal fun log(map: Map<String, String>) {
+    private fun log(map: Map<String, String>) {
         if (map.isEmpty()) {
             return
         }

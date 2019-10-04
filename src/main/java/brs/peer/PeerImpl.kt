@@ -7,6 +7,9 @@ import brs.util.convert.emptyToNull
 import brs.util.convert.truncate
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicWithOverride
+import brs.util.logging.safeDebug
+import brs.util.logging.safeError
+import brs.util.logging.safeInfo
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import kotlinx.coroutines.runBlocking
@@ -125,17 +128,17 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
             blacklist()
         } else {
             val alreadyBlacklisted = isBlacklisted
-            logger.error("Reason for following blacklist: " + cause.message, cause)
+            logger.safeError(cause) { "Reason for following blacklist: ${cause.message}" }
             blacklist(description) // refresh blacklist expiry
             if (!alreadyBlacklisted) {
-                logger.debug("... because of: {}", cause, cause)
+                logger.safeDebug(cause) { "... because of: $cause" }
             }
         }
     }
 
     override suspend fun blacklist(description: String) {
-        if (!isBlacklisted && logger.isInfoEnabled) {
-            logger.info("Blacklisting {} ({}) because of: {}", peerAddress, version, description)
+        if (!isBlacklisted) {
+            logger.safeInfo { "Blacklisting $peerAddress ($version) because of: $description" }
         }
         blacklist()
     }
@@ -233,7 +236,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
             }
         } catch (e: RuntimeException) {
             if (!isConnectionException(e)) {
-                logger.debug("Error sending JSON request", e)
+                logger.safeDebug(e) { "Error sending JSON request" }
             }
             if (dp.peers.communicationLoggingMask and Peers.LOGGING_MASK_EXCEPTIONS != 0) {
                 log += " >>> $e"
@@ -245,7 +248,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
             response = null
         } catch (e: IOException) {
             if (!isConnectionException(e)) {
-                logger.debug("Error sending JSON request", e)
+                logger.safeDebug(e) { "Error sending JSON request" }
             }
             if (dp.peers.communicationLoggingMask and Peers.LOGGING_MASK_EXCEPTIONS != 0) {
                 log += " >>> $e"
@@ -257,8 +260,8 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
             response = null
         }
 
-        if (showLog) {
-            logger.info(log)
+        if (showLog && log != null) {
+            logger.safeInfo { log }
         }
 
         connection?.disconnect()

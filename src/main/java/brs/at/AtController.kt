@@ -6,6 +6,7 @@ import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
 import brs.props.Props
 import brs.util.convert.toUnsignedString
+import brs.util.logging.safeDebug
 import org.slf4j.LoggerFactory
 import org.slf4j.helpers.NOPLogger
 import java.nio.BufferUnderflowException
@@ -39,7 +40,7 @@ class AtController(private val dp: DependencyProvider) {
         while (state.machineState.steps + numSteps <= dp.atConstants.maxSteps(state.height)) {
 
             if (state.getgBalance() < stepFee * numSteps) {
-                debugLogger.debug("stopped - not enough balance")
+                debugLogger.safeDebug { "stopped - not enough balance" }
                 state.setFreeze(true)
                 return 3
             }
@@ -50,21 +51,21 @@ class AtController(private val dp: DependencyProvider) {
 
             if (rc >= 0) {
                 if (state.machineState.stopped) {
-                    debugLogger.debug("stopped")
+                    debugLogger.safeDebug { "stopped" }
                     state.machineState.running = false
                     return 2
                 } else if (state.machineState.finished) {
-                    debugLogger.debug("finished")
+                    debugLogger.safeDebug { "finished" }
                     state.machineState.running = false
                     return 1
                 }
             } else {
                 if (rc == -1)
-                    debugLogger.debug("error: overflow")
+                    debugLogger.safeDebug { "error: overflow" }
                 else if (rc == -2)
-                    debugLogger.debug("error: invalid code")
+                    debugLogger.safeDebug { "error: invalid code" }
                 else
-                    debugLogger.debug("unexpected error")
+                    debugLogger.safeDebug { "unexpected error" }
 
                 if (state.machineState.jumps.contains(state.machineState.err)) {
                     state.machineState.pc = state.machineState.err
@@ -256,7 +257,7 @@ class AtController(private val dp: DependencyProvider) {
 
                     processedATs.add(at)
                 } catch (e: Exception) {
-                    debugLogger.debug("Error handling AT", e)
+                    debugLogger.safeDebug(e) { "Error handling AT" }
                 }
 
             }
@@ -329,7 +330,7 @@ class AtController(private val dp: DependencyProvider) {
                     throw AtException("Calculated md5 and received md5 are not matching")
                 }
             } catch (e: Exception) {
-                debugLogger.debug("ATs error", e)
+                debugLogger.safeDebug(e) { "ATs error" }
                 throw AtException("ATs error. Block rejected", e)
             }
 
@@ -406,9 +407,7 @@ class AtController(private val dp: DependencyProvider) {
         for (tx in at.transactions.values) {
             totalAmount += tx.amount
             AT.addPendingTransaction(tx)
-            if (logger.isDebugEnabled) {
-                logger.debug("Transaction to {}, amount {}", AtApiHelper.getLong(tx.recipientId).toUnsignedString(), tx.amount)
-            }
+            logger.safeDebug { "Transaction to ${AtApiHelper.getLong(tx.recipientId).toUnsignedString()}, amount ${tx.amount}" }
         }
         return totalAmount
     }

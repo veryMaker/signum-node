@@ -8,6 +8,7 @@ import brs.props.Props
 import brs.services.IndirectIncomingService
 import brs.transaction.payment.MultiOutPayment
 import brs.transaction.payment.MultiOutSamePayment
+import brs.util.logging.safeWarn
 import org.slf4j.LoggerFactory
 
 class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : IndirectIncomingService {
@@ -15,7 +16,7 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
 
     init {
         if (disabled) {
-            LOGGER.warn("Indirect Incoming Service Disabled!")
+            logger.safeWarn { "Indirect Incoming Service Disabled!" }
         }
     }
 
@@ -56,6 +57,6 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
     }
 
     companion object {
-        private val LOGGER = LoggerFactory.getLogger(IndirectIncomingServiceImpl::class.java)
+        private val logger = LoggerFactory.getLogger(IndirectIncomingServiceImpl::class.java)
     }
 }

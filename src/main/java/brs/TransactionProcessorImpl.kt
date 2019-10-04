@@ -9,6 +9,10 @@ import brs.taskScheduler.Task
 import brs.util.JSON
 import brs.util.Listeners
 import brs.util.isEmpty
+import brs.util.logging.safeDebug
+import brs.util.logging.safeError
+import brs.util.logging.safeInfo
+import brs.util.logging.safeTrace
 import brs.util.toJsonString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -64,7 +68,7 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
                     peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
                 }
             } catch (e: Exception) {
-                logger.debug("Error processing unconfirmed transactions", e)
+                logger.safeDebug(e) { "Error processing unconfirmed transactions" }
             }
         }
     }
@@ -113,25 +117,19 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
         }
         val processedTransactions = processTransactions(setOf(transaction), null)
         if (dp.transactionDb.hasTransaction(transaction.id)) {
-            if (logger.isInfoEnabled) {
-                logger.info("Transaction {} already in blockchain, will not broadcast again", transaction.stringId)
-            }
+            logger.safeInfo { "Transaction ${transaction.stringId} already in blockchain, will not broadcast again" }
             return null
         }
 
         if (dp.unconfirmedTransactionStore.exists(transaction.id)) {
-            if (logger.isInfoEnabled) {
-                logger.info("Transaction {} already in unconfirmed pool, will not broadcast again", transaction.stringId)
-            }
+            logger.safeInfo { "Transaction ${transaction.stringId} already in unconfirmed pool, will not broadcast again" }
             return null
         }
 
         if (processedTransactions.isNotEmpty()) {
             return broadcastToPeers(true)
         } else {
-            if (logger.isDebugEnabled) {
-                logger.debug("Could not accept new transaction {}", transaction.stringId)
-            }
+            logger.safeDebug { "Could not accept new transaction ${transaction.stringId}" }
             throw BurstException.NotValidException("Invalid transaction " + transaction.stringId)
         }
     }
@@ -162,7 +160,7 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
             dp.unconfirmedTransactionStore.clear()
             dp.db.commitTransaction()
         } catch (e: Exception) {
-            logger.error(e.toString(), e)
+            logger.safeError(e) { e.toString() }
             dp.db.rollbackTransaction()
             throw e
         } finally {
@@ -186,7 +184,7 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
             try {
                 dp.unconfirmedTransactionStore.put(transaction, null)
             } catch (e: BurstException.ValidationException) {
-                logger.debug("Discarding invalid transaction in for later processing: " + transaction.jsonObject.toJsonString(), e)
+                logger.safeDebug(e) { "Discarding invalid transaction in for later processing: " + transaction.jsonObject.toJsonString() }
             }
         }
     }
@@ -196,19 +194,17 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
             return mutableListOf()
         }
         val transactions = mutableListOf<Transaction>()
-                for (transactionData in transactionsData) {
-                    try {
+        for (transactionData in transactionsData) {
+            try {
                 val transaction = parseTransaction(JSON.getAsJsonObject(transactionData))
                 dp.transactionService.validate(transaction)
                 if (!dp.economicClustering.verifyFork(transaction)) {
                     continue
                 }
                 transactions.add(transaction)
-            } catch (ignore: BurstException.NotCurrentlyValidException) {
+            } catch (ignored: BurstException.NotCurrentlyValidException) {
             } catch (e: BurstException.NotValidException) {
-                if (logger.isDebugEnabled) {
-                    logger.debug("Invalid transaction from peer: {}", transactionData.toJsonString())
-                }
+                logger.safeDebug { "Invalid transaction from peer: ${transactionData.toJsonString()}" }
                 throw e
             }
 
@@ -237,8 +233,8 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
                     if (dp.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionStore.exists(transaction.id)) {
                         dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, listOf(transaction))
                     } else if (!(transaction.verifySignature() && dp.transactionService.verifyPublicKey(transaction))) {
-                        if (dp.accountService.getAccount(transaction.senderId) != null && logger.isDebugEnabled) {
-                            logger.debug("Transaction {} failed to verify", transaction.jsonObject.toJsonString())
+                        if (dp.accountService.getAccount(transaction.senderId) != null) {
+                            logger.safeDebug { "Transaction ${transaction.jsonObject.toJsonString()} failed to verify" }
                         }
                     } else if (dp.unconfirmedTransactionStore.put(transaction, peer)) {
                         addedUnconfirmedTransactions.add(transaction)
@@ -251,7 +247,7 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
                     dp.db.endTransaction()
                 }
             } catch (e: RuntimeException) {
-                logger.info("Error processing transaction", e)
+                logger.safeInfo(e) { "Error processing transaction" }
             }
 
         }
@@ -269,7 +265,7 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
     private suspend fun broadcastToPeers(toAll: Boolean): Int {
         val peersToSendTo = if (toAll) dp.peers.activePeers.take(100) else dp.peers.allActivePriorityPlusSomeExtraPeers
 
-        logger.trace("Queueing up {} Peers for feeding", peersToSendTo.size)
+        logger.safeTrace { "Queueing up ${peersToSendTo.size} Peers for feeding" }
 
         for (p in peersToSendTo) {
             dp.peers.feedingTime(p, foodDispenser, doneFeedingLog)

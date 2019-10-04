@@ -3,6 +3,8 @@ package brs.http
 import brs.DependencyProvider
 import brs.props.Props
 import brs.util.Subnet
+import brs.util.logging.safeError
+import brs.util.logging.safeInfo
 import org.eclipse.jetty.rewrite.handler.RewriteHandler
 import org.eclipse.jetty.rewrite.handler.RewriteRegexRule
 import org.eclipse.jetty.server.*
@@ -16,7 +18,6 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.net.UnknownHostException
-import java.util.*
 import java.util.regex.Matcher
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -35,7 +36,7 @@ class API(dp: DependencyProvider) {
                 try {
                     allowedSubnets.add(Subnet.createInstance(allowedHost))
                 } catch (e: UnknownHostException) {
-                    logger.error("Error adding allowed host/subnet '$allowedHost'", e)
+                    logger.safeError(e) { "Error adding allowed host/subnet '$allowedHost'" }
                 }
 
             }
@@ -53,7 +54,7 @@ class API(dp: DependencyProvider) {
 
             val enableSSL = dp.propertyService.get(Props.API_SSL)
             if (enableSSL) {
-                logger.info("Using SSL (https) for the API server")
+                logger.safeInfo { "Using SSL (https) for the API server" }
                 val httpsConfig = HttpConfiguration()
                 httpsConfig.secureScheme = "https"
                 httpsConfig.securePort = port
@@ -149,13 +150,13 @@ class API(dp: DependencyProvider) {
 
             try {
                 apiServer.start()
-                logger.info("Started API server at {}:{}", host, port)
+                logger.safeInfo { "Started API server at $host:$port" }
             } catch (e: Exception) {
-                logger.error("Failed to start API server", e)
+                logger.safeError(e) { "Failed to start API server" }
             }
         } else {
             apiServer = null
-            logger.info("API server not enabled")
+            logger.safeInfo { "API server not enabled" }
         }
 
     }
@@ -169,7 +170,7 @@ class API(dp: DependencyProvider) {
             try {
                 apiServer.stop()
             } catch (e: Exception) {
-                logger.info("Failed to stop API server", e)
+                logger.safeInfo(e) { "Failed to stop API server" }
             }
 
         }

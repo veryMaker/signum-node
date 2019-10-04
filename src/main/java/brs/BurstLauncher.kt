@@ -1,5 +1,8 @@
 package brs
 
+import brs.util.logging.safeError
+import brs.util.logging.safeInfo
+import brs.util.logging.safeWarn
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.awt.GraphicsEnvironment
@@ -17,12 +20,12 @@ object BurstLauncher {
         addToClasspath(logger, "./conf")
 
         if (args.contains("--headless")) {
-            logger.info("Running in headless mode as specified by argument")
+            logger.safeInfo { "Running in headless mode as specified by argument" }
             canRunGui = false
         }
 
         if (canRunGui && GraphicsEnvironment.isHeadless()) {
-            logger.error("Cannot start GUI as running in headless environment")
+            logger.safeError { "Cannot start GUI as running in headless environment" }
             canRunGui = false
         }
 
@@ -30,7 +33,7 @@ object BurstLauncher {
             try {
                 Class.forName("javafx.application.Application")
             } catch (e: ClassNotFoundException) {
-                logger.error("Could not start GUI as your JRE does not seem to have JavaFX installed. To install please install the \"openjfx\" package (eg. \"sudo apt install openjfx\")")
+                logger.safeError { "Could not start GUI as your JRE does not seem to have JavaFX installed. To install please install the \"openjfx\" package (eg. \"sudo apt install openjfx\")" }
                 canRunGui = false
             }
 
@@ -42,16 +45,16 @@ object BurstLauncher {
                         .getDeclaredMethod("main", Array<String>::class.java)
                         .invoke(null, args as Any)
             } catch (e: ClassNotFoundException) {
-                logger.warn("Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless...")
+                logger.safeWarn { "Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless..." }
                 Burst.init(true)
             } catch (e: NoSuchMethodException) {
-                logger.warn("Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless...")
+                logger.safeWarn { "Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless..." }
                 Burst.init(true)
             } catch (e: IllegalAccessException) {
-                logger.warn("Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless...")
+                logger.safeWarn { "Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless..." }
                 Burst.init(true)
             } catch (e: InvocationTargetException) {
-                logger.warn("Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless...")
+                logger.safeWarn { "Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless..." }
                 Burst.init(true)
             }
         } else {
@@ -70,7 +73,7 @@ object BurstLauncher {
             method.isAccessible = true
             method.invoke(urlClassLoader, u.toURL())
         } catch (e: Exception) {
-            logger.warn("Could not add path \"$path\" to classpath", e)
+            logger.safeWarn(e) { "Could not add path \"$path\" to classpath" }
         }
 
     }

@@ -8,7 +8,7 @@
 package brs.at
 
 import brs.DependencyProvider
-import org.slf4j.Logger
+import brs.util.logging.safeDebug
 import org.slf4j.LoggerFactory
 import org.slf4j.helpers.NOPLogger
 
@@ -152,18 +152,18 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
         }
 
         val op = machineData.apCode.get(machineData.machineState.pc)
-        if (op > 0 && disassemble && !determineJumps && logger.isDebugEnabled) {
-            logger.debug(String.format("%8x", machineData.machineState.pc).replace(' ', '0'))
+        if (op > 0 && disassemble && !determineJumps) {
+            logger.safeDebug { String.format("%8x", machineData.machineState.pc).replace(' ', '0') }
             if (machineData.machineState.pc == machineData.machineState.opc)
-                logger.debug("* ")
+                logger.safeDebug { "* " }
             else
-                logger.debug("  ")
+                logger.safeDebug { "  " }
         }
 
         if (op == OpCode.E_OP_CODE_NOP) {
             if (disassemble) {
-                if (!determineJumps && logger.isDebugEnabled)
-                    logger.debug("NOP")
+                if (!determineJumps)
+                    logger.safeDebug { "NOP" }
                 ++rc
             } else {
                 ++rc
@@ -175,8 +175,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             if (rc == 0 || disassemble) {
                 rc = 13
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled)
-                        logger.debug("SET @ {} {}", String.format("%8s", `fun`.addr1).replace(' ', '0'), String.format("#%16s", java.lang.Long.toHexString(`fun`.`val`)).replace(' ', '0'))
+                    if (!determineJumps)
+                        logger.safeDebug { "SET @ ${String.format("%8s", `fun`.addr1).replace(' ', '0')} ${String.format("#%16s", java.lang.Long.toHexString(`fun`.`val`)).replace(' ', '0')}" }
                 } else {
                     machineData.machineState.pc += rc
                     machineData.apData.putLong(`fun`.addr1 * 8, `fun`.`val`)
@@ -190,8 +190,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             if (rc == 0 || disassemble) {
                 rc = 9
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled)
-                        logger.debug("SET @ {} \${}", String.format("%8s", `fun`.addr1).replace(' ', '0'), String.format("%8s", `fun`.addr2).replace(' ', '0'))
+                    if (!determineJumps)
+                        logger.safeDebug { "SET @ ${String.format("%8s", `fun`.addr1).replace(' ', '0')} \$${String.format("%8s", `fun`.addr2).replace(' ', '0')}" }
                 } else {
                     machineData.machineState.pc += rc
                     machineData.apData.putLong(`fun`.addr1 * 8, machineData.apData.getLong(`fun`.addr2 * 8))
@@ -205,8 +205,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             if (rc == 0 || disassemble) {
                 rc = 5
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled)
-                        logger.debug("CLR @ {}", String.format("%8s", `fun`.addr1))
+                    if (!determineJumps)
+                        logger.safeDebug { "CLR @ ${String.format("%8s", `fun`.addr1)}" }
                 } else {
                     machineData.machineState.pc += rc
                     machineData.apData.putLong(`fun`.addr1 * 8, 0.toLong())
@@ -221,31 +221,31 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                 rc = 5
                 if (disassemble) {
                     if (!determineJumps) {
-                        if (op == OpCode.E_OP_CODE_INC_DAT) {
-                            logger.debug("INC @")
-                        } else if (op == OpCode.E_OP_CODE_DEC_DAT) {
-                            logger.debug("DEC @")
-                        } else if (op == OpCode.E_OP_CODE_NOT_DAT) {
-                            logger.debug("NOT @")
+                        when (op) {
+                            OpCode.E_OP_CODE_INC_DAT -> logger.safeDebug { "INC @" }
+                            OpCode.E_OP_CODE_DEC_DAT -> logger.safeDebug { "DEC @" }
+                            OpCode.E_OP_CODE_NOT_DAT -> logger.safeDebug { "NOT @" }
                         }
-                        if (logger.isDebugEnabled) {
-                            logger.debug(String.format("%d", `fun`.addr1).replace(' ', '0'))
-                        }
+                        logger.safeDebug { String.format("%d", `fun`.addr1).replace(' ', '0') }
                     }
                 } else {
                     machineData.machineState.pc += rc
-                    if (op == OpCode.E_OP_CODE_INC_DAT) {
-                        val incData = machineData.apData.getLong(`fun`.addr1 * 8) + 1
-                        machineData.apData.putLong(`fun`.addr1 * 8, incData)
-                        machineData.apData.clear()
-                    } else if (op == OpCode.E_OP_CODE_DEC_DAT) {
-                        val incData = machineData.apData.getLong(`fun`.addr1 * 8) - 1
-                        machineData.apData.putLong(`fun`.addr1 * 8, incData)
-                        machineData.apData.clear()
-                    } else if (op == OpCode.E_OP_CODE_NOT_DAT) {
-                        val incData = machineData.apData.getLong(`fun`.addr1 * 8)
-                        machineData.apData.putLong(`fun`.addr1 * 8, incData.inv())
-                        machineData.apData.clear()
+                    when (op) {
+                        OpCode.E_OP_CODE_INC_DAT -> {
+                            val incData = machineData.apData.getLong(`fun`.addr1 * 8) + 1
+                            machineData.apData.putLong(`fun`.addr1 * 8, incData)
+                            machineData.apData.clear()
+                        }
+                        OpCode.E_OP_CODE_DEC_DAT -> {
+                            val incData = machineData.apData.getLong(`fun`.addr1 * 8) - 1
+                            machineData.apData.putLong(`fun`.addr1 * 8, incData)
+                            machineData.apData.clear()
+                        }
+                        OpCode.E_OP_CODE_NOT_DAT -> {
+                            val incData = machineData.apData.getLong(`fun`.addr1 * 8)
+                            machineData.apData.putLong(`fun`.addr1 * 8, incData.inv())
+                            machineData.apData.clear()
+                        }
                     }
                 }
             }
@@ -259,18 +259,13 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                 rc = 9
                 if (disassemble) {
                     if (!determineJumps) {
-                        if (op == OpCode.E_OP_CODE_ADD_DAT) {
-                            logger.debug("ADD @")
-                        } else if (op == OpCode.E_OP_CODE_SUB_DAT) {
-                            logger.debug("SUB @")
-                        } else if (op == OpCode.E_OP_CODE_MUL_DAT) {
-                            logger.debug("MUL @")
-                        } else if (op == OpCode.E_OP_CODE_DIV_DAT) {
-                            logger.debug("DIV @")
+                        when (op) {
+                            OpCode.E_OP_CODE_ADD_DAT -> logger.safeDebug { "ADD @" }
+                            OpCode.E_OP_CODE_SUB_DAT -> logger.safeDebug { "SUB @" }
+                            OpCode.E_OP_CODE_MUL_DAT -> logger.safeDebug { "MUL @" }
+                            OpCode.E_OP_CODE_DIV_DAT -> logger.safeDebug { "DIV @" }
                         }
-                        if (logger.isDebugEnabled) {
-                            logger.debug("{} \${}", String.format("%8x", `fun`.addr1).replace(' ', '0'), String.format("%8s", `fun`.addr2).replace(' ', '0'))
-                        }
+                        logger.safeDebug { "${String.format("%8x", `fun`.addr1).replace(' ', '0')} \$${String.format("%8s", `fun`.addr2).replace(' ', '0')}" }
                     }
                 } else {
                     val `val` = machineData.apData.getLong(`fun`.addr2 * 8)
@@ -278,27 +273,32 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                         rc = -2
                     else {
                         machineData.machineState.pc += rc
-                        if (op == OpCode.E_OP_CODE_ADD_DAT) {
-                            val addData1 = machineData.apData.getLong(`fun`.addr1 * 8)
-                            val addData2 = machineData.apData.getLong(`fun`.addr2 * 8)
-                            machineData.apData.putLong(`fun`.addr1 * 8, addData1 + addData2)
-                            machineData.apData.clear()
-                        } else if (op == OpCode.E_OP_CODE_SUB_DAT) {
-                            val addData1 = machineData.apData.getLong(`fun`.addr1 * 8)
-                            val addData2 = machineData.apData.getLong(`fun`.addr2 * 8)
-                            machineData.apData.putLong(`fun`.addr1 * 8, addData1 - addData2)
-                            machineData.apData.clear()
-                        } else if (op == OpCode.E_OP_CODE_MUL_DAT) {
-                            val addData1 = machineData.apData.getLong(`fun`.addr1 * 8)
-                            val addData2 = machineData.apData.getLong(`fun`.addr2 * 8)
-                            machineData.apData.putLong(`fun`.addr1 * 8, addData1 * addData2)
-                            machineData.apData.clear()
-                        } else if (op == OpCode.E_OP_CODE_DIV_DAT) {
+                        when (op) {
+                            OpCode.E_OP_CODE_ADD_DAT -> {
+                                val addData1 = machineData.apData.getLong(`fun`.addr1 * 8)
+                                val addData2 = machineData.apData.getLong(`fun`.addr2 * 8)
+                                machineData.apData.putLong(`fun`.addr1 * 8, addData1 + addData2)
+                                machineData.apData.clear()
+                            }
+                            OpCode.E_OP_CODE_SUB_DAT -> {
+                                val addData1 = machineData.apData.getLong(`fun`.addr1 * 8)
+                                val addData2 = machineData.apData.getLong(`fun`.addr2 * 8)
+                                machineData.apData.putLong(`fun`.addr1 * 8, addData1 - addData2)
+                                machineData.apData.clear()
+                            }
+                            OpCode.E_OP_CODE_MUL_DAT -> {
+                                val addData1 = machineData.apData.getLong(`fun`.addr1 * 8)
+                                val addData2 = machineData.apData.getLong(`fun`.addr2 * 8)
+                                machineData.apData.putLong(`fun`.addr1 * 8, addData1 * addData2)
+                                machineData.apData.clear()
+                            }
+                            OpCode.E_OP_CODE_DIV_DAT -> {
 
-                            val addData1 = machineData.apData.getLong(`fun`.addr1 * 8)
-                            val addData2 = machineData.apData.getLong(`fun`.addr2 * 8)
-                            machineData.apData.putLong(`fun`.addr1 * 8, addData1 / addData2)
-                            machineData.apData.clear()
+                                val addData1 = machineData.apData.getLong(`fun`.addr1 * 8)
+                                val addData2 = machineData.apData.getLong(`fun`.addr2 * 8)
+                                machineData.apData.putLong(`fun`.addr1 * 8, addData1 / addData2)
+                                machineData.apData.clear()
+                            }
                         }
                     }
                 }
@@ -311,32 +311,34 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             if (rc == 0 || disassemble) {
                 rc = 9
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled) {
-                        if (op == OpCode.E_OP_CODE_BOR_DAT) {
-                            logger.debug("BOR @")
-                        } else if (op == OpCode.E_OP_CODE_AND_DAT) {
-                            logger.debug("AND @")
-                        } else if (op == OpCode.E_OP_CODE_XOR_DAT) {
-                            logger.debug("XOR @")
+                    if (!determineJumps) {
+                        when (op) {
+                            OpCode.E_OP_CODE_BOR_DAT -> logger.safeDebug { "BOR @" }
+                            OpCode.E_OP_CODE_AND_DAT -> logger.safeDebug { "AND @" }
+                            OpCode.E_OP_CODE_XOR_DAT -> logger.safeDebug { "XOR @" }
                         }
-                        logger.debug(String.format("%16s $%16s", `fun`.addr1, `fun`.addr2).replace(' ', '0'))
+                        logger.safeDebug { String.format("%16s $%16s", `fun`.addr1, `fun`.addr2).replace(' ', '0') }
                     }
                 } else {
                     machineData.machineState.pc += rc
                     val `val` = machineData.apData.getLong(`fun`.addr2 * 8)
 
-                    if (op == OpCode.E_OP_CODE_BOR_DAT) {
-                        val incData = machineData.apData.getLong(`fun`.addr1 * 8)
-                        machineData.apData.putLong(`fun`.addr1 * 8, incData or `val`)
-                        machineData.apData.clear()
-                    } else if (op == OpCode.E_OP_CODE_AND_DAT) {
-                        val incData = machineData.apData.getLong(`fun`.addr1 * 8)
-                        machineData.apData.putLong(`fun`.addr1 * 8, incData and `val`)
-                        machineData.apData.clear()
-                    } else if (op == OpCode.E_OP_CODE_XOR_DAT) {
-                        val incData = machineData.apData.getLong(`fun`.addr1 * 8)
-                        machineData.apData.putLong(`fun`.addr1 * 8, incData xor `val`)
-                        machineData.apData.clear()
+                    when (op) {
+                        OpCode.E_OP_CODE_BOR_DAT -> {
+                            val incData = machineData.apData.getLong(`fun`.addr1 * 8)
+                            machineData.apData.putLong(`fun`.addr1 * 8, incData or `val`)
+                            machineData.apData.clear()
+                        }
+                        OpCode.E_OP_CODE_AND_DAT -> {
+                            val incData = machineData.apData.getLong(`fun`.addr1 * 8)
+                            machineData.apData.putLong(`fun`.addr1 * 8, incData and `val`)
+                            machineData.apData.clear()
+                        }
+                        OpCode.E_OP_CODE_XOR_DAT -> {
+                            val incData = machineData.apData.getLong(`fun`.addr1 * 8)
+                            machineData.apData.putLong(`fun`.addr1 * 8, incData xor `val`)
+                            machineData.apData.clear()
+                        }
                     }
                 }
             }
@@ -346,8 +348,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             if (rc == 0) {
                 rc = 9
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled)
-                        logger.debug("SET @ {} {}", String.format("%8s", `fun`.addr1).replace(' ', '0'), String.format("$($%8s", `fun`.addr2).replace(' ', '0'))
+                    if (!determineJumps)
+                        logger.safeDebug { "SET @ ${String.format("%8s", `fun`.addr1).replace(' ', '0')} ${String.format("$($%8s", `fun`.addr2).replace(' ', '0')}" }
                 } else {
                     val addr = machineData.apData.getLong(`fun`.addr2 * 8)
 
@@ -380,7 +382,7 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
 
                     val addr = base + offs
 
-                    logger.debug("addr1: {}", `fun`.addr1)
+                    logger.safeDebug { "addr1: ${`fun`.addr1}" }
                     if (!validAddr(addr.toInt(), false)) {
                         rc = -1
                     } else {
@@ -397,12 +399,10 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                 if (disassemble) {
                     if (!determineJumps) {
                         if (op == OpCode.E_OP_CODE_PSH_DAT)
-                            logger.debug("PSH $")
+                            logger.safeDebug { "PSH $" }
                         else
-                            logger.debug("POP @")
-                        if (logger.isDebugEnabled) {
-                            logger.debug(String.format("%8s", `fun`.addr1).replace(' ', '0'))
-                        }
+                            logger.safeDebug { "POP @" }
+                        logger.safeDebug { String.format("%8s", `fun`.addr1).replace(' ', '0') }
                     }
                 } else if (op == OpCode.E_OP_CODE_PSH_DAT && machineData.machineState.us == machineData.getcUserStackBytes() / 8 || op == OpCode.E_OP_CODE_POP_DAT && machineData.machineState.us == 0) {
                     rc = -1
@@ -431,19 +431,20 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             if (rc == 0 || disassemble) {
                 rc = 5
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled)
-                        logger.debug("JSR : {}", String.format("%8s", `fun`.addr1).replace(' ', '0'))
+                    if (!determineJumps)
+                        logger.safeDebug { "JSR : ${String.format("%8s", `fun`.addr1).replace(' ', '0')}" }
                 } else {
-                    if (machineData.machineState.cs == machineData.getcCallStackBytes() / 8)
-                        rc = -1
-                    else if (machineData.machineState.jumps.contains(`fun`.addr1)) {
-                        machineData.machineState.cs++
-                        machineData.apData.putLong(machineData.getdSize() + machineData.getcCallStackBytes() - machineData.machineState.cs * 8,
+                    when {
+                        machineData.machineState.cs == machineData.getcCallStackBytes() / 8 -> rc = -1
+                        machineData.machineState.jumps.contains(`fun`.addr1) -> {
+                            machineData.machineState.cs++
+                            machineData.apData.putLong(machineData.getdSize() + machineData.getcCallStackBytes() - machineData.machineState.cs * 8,
                                 (machineData.machineState.pc + rc).toLong())
-                        machineData.apData.clear()
-                        machineData.machineState.pc = `fun`.addr1
-                    } else
-                        rc = -2
+                            machineData.apData.clear()
+                            machineData.machineState.pc = `fun`.addr1
+                        }
+                        else -> rc = -2
+                    }
                 }
             }
         } else if (op == OpCode.E_OP_CODE_RET_SUB) {
@@ -451,7 +452,7 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
 
             if (disassemble) {
                 if (!determineJumps)
-                    logger.debug("RET\n")
+                    logger.safeDebug { "RET\n" }
             } else {
                 if (machineData.machineState.cs == 0)
                     rc = -1
@@ -471,8 +472,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             if (rc == 0) {
                 rc = 9
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled)
-                        logger.debug("SET @{} {}", String.format("($%8s)", `fun`.addr1).replace(' ', '0'), String.format("$%8s", `fun`.addr2).replace(' ', '0'))
+                    if (!determineJumps)
+                        logger.safeDebug { "SET @${String.format("($%8s)", `fun`.addr1).replace(' ', '0')} ${String.format("$%8s", `fun`.addr2).replace(' ', '0')}" }
                 } else {
                     val addr = machineData.apData.getLong(`fun`.addr1 * 8)
 
@@ -500,8 +501,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                 if (rc == 0 || disassemble) {
                     rc = 13
                     if (disassemble) {
-                        if (!determineJumps && logger.isDebugEnabled)
-                            logger.debug("SET @{} {}", String.format("($%8s+$%8s)", addr1, addr2).replace(' ', '0'), String.format("$%8s", `fun`.addr1).replace(' ', '0'))
+                        if (!determineJumps)
+                            logger.safeDebug { "SET @${String.format("($%8s+$%8s)", addr1, addr2).replace(' ', '0')} ${String.format("$%8s", `fun`.addr1).replace(' ', '0')}" }
                     } else {
                         val addr = machineData.apData.getLong(addr1 * 8) + machineData.apData.getLong(addr2 * 8)
 
@@ -521,8 +522,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             if (rc == 0 || disassemble) {
                 rc = 9
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled)
-                        logger.debug("MOD @{} \${}", String.format("%8x", `fun`.addr1).replace(' ', '0'), String.format("%8s", `fun`.addr2).replace(' ', '0'))
+                    if (!determineJumps)
+                        logger.safeDebug { "MOD @${String.format("%8x", `fun`.addr1).replace(' ', '0')} \$${String.format("%8s", `fun`.addr2).replace(' ', '0')}" }
                 } else {
                     val modData1 = machineData.apData.getLong(`fun`.addr1 * 8)
                     val modData2 = machineData.apData.getLong(`fun`.addr2 * 8)
@@ -541,16 +542,16 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             if (rc == 0 || disassemble) {
                 rc = 9
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled) {
+                    if (!determineJumps) {
                         if (op == OpCode.E_OP_CODE_SHL_DAT)
-                            logger.debug("SHL @{} \${}", String.format("%8x", `fun`.addr1).replace(' ', '0'), String.format("%8x", `fun`.addr2).replace(' ', '0'))
+                            logger.safeDebug { "SHL @${String.format("%8x", `fun`.addr1).replace(' ', '0')} \$${String.format("%8x", `fun`.addr2).replace(' ', '0')}" }
                         else
-                            logger.debug("SHR @{} \${}", String.format("%8x", `fun`.addr1).replace(' ', '0'), String.format("%8x", `fun`.addr2).replace(' ', '0'))
+                            logger.safeDebug { "SHR @${String.format("%8x", `fun`.addr1).replace(' ', '0')} \$${String.format("%8x", `fun`.addr2).replace(' ', '0')}" }
                     }
                 } else {
                     machineData.machineState.pc += rc
                     val `val` = machineData.apData.getLong(`fun`.addr1 * 8)
-                    var shift = machineData.apData.getLong(`fun`.addr2 * 8).coerceAtLeast(0).coerceAtMost(63).toInt()
+                    val shift = machineData.apData.getLong(`fun`.addr2 * 8).coerceAtLeast(0).coerceAtMost(63).toInt()
 
                     if (op == OpCode.E_OP_CODE_SHL_DAT)
                         machineData.apData.putLong(`fun`.addr1 * 8, `val` shl shift)
@@ -564,8 +565,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             if (rc == 0 || disassemble) {
                 rc = 5
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled)
-                        logger.debug("JMP : {}", String.format("%8x", `fun`.addr1))
+                    if (!determineJumps)
+                        logger.safeDebug { "JMP : ${String.format("%8x", `fun`.addr1)}" }
                 } else if (machineData.machineState.jumps.contains(`fun`.addr1))
                     machineData.machineState.pc = `fun`.addr1
                 else
@@ -579,13 +580,11 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                 if (disassemble) {
                     if (!determineJumps) {
                         if (op == OpCode.E_OP_CODE_BZR_DAT)
-                            logger.debug("BZR $")
+                            logger.safeDebug { "BZR $" }
                         else
-                            logger.debug("BNZ $")
+                            logger.safeDebug { "BNZ $" }
 
-                        if (logger.isDebugEnabled) {
-                            logger.debug("{}, :{}", String.format("%8x", `fun`.addr1).replace(' ', '0'), String.format("%8x", machineData.machineState.pc + `fun`.off).replace(' ', '0'))
-                        }
+                        logger.safeDebug { "${String.format("%8x", `fun`.addr1).replace(' ', '0')}, :${String.format("%8x", machineData.machineState.pc + `fun`.off).replace(' ', '0')}" }
                     }
                 } else {
                     val `val` = machineData.apData.getLong(`fun`.addr1 * 8)
@@ -607,22 +606,16 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                 rc = 10
                 if (disassemble) {
                     if (!determineJumps) {
-                        if (op == OpCode.E_OP_CODE_BGT_DAT)
-                            logger.debug("BGT $")
-                        else if (op == OpCode.E_OP_CODE_BLT_DAT)
-                            logger.debug("BLT $")
-                        else if (op == OpCode.E_OP_CODE_BGE_DAT)
-                            logger.debug("BGE $")
-                        else if (op == OpCode.E_OP_CODE_BLE_DAT)
-                            logger.debug("BLE $")
-                        else if (op == OpCode.E_OP_CODE_BEQ_DAT)
-                            logger.debug("BEQ $")
-                        else
-                            logger.debug("BNE $")
-
-                        if (logger.isDebugEnabled) {
-                            logger.debug("{} \${} :{}", String.format("%8x", `fun`.addr1).replace(' ', '0'), String.format("%8x", `fun`.addr2).replace(' ', '0'), String.format("%8x", machineData.machineState.pc + `fun`.off).replace(' ', '0'))
+                        when (op) {
+                            OpCode.E_OP_CODE_BGT_DAT -> logger.safeDebug { "BGT $" }
+                            OpCode.E_OP_CODE_BLT_DAT -> logger.safeDebug { "BLT $" }
+                            OpCode.E_OP_CODE_BGE_DAT -> logger.safeDebug { "BGE $" }
+                            OpCode.E_OP_CODE_BLE_DAT -> logger.safeDebug { "BLE $" }
+                            OpCode.E_OP_CODE_BEQ_DAT -> logger.safeDebug { "BEQ $" }
+                            else -> logger.safeDebug { "BNE $" }
                         }
+
+                        logger.safeDebug { "${String.format("%8x", `fun`.addr1).replace(' ', '0')} \$${String.format("%8x", `fun`.addr2).replace(' ', '0')} :${String.format("%8x", machineData.machineState.pc + `fun`.off).replace(' ', '0')}" }
                     }
                 } else {
                     val val1 = machineData.apData.getLong(`fun`.addr1 * 8)
@@ -650,8 +643,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                 rc = 1 + 4
 
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled)
-                        logger.debug("SLP @ {}", String.format("%8x", `fun`.addr1))
+                    if (!determineJumps)
+                        logger.safeDebug { "SLP @ ${String.format("%8x", `fun`.addr1)}" }
 
                 } else {
                     machineData.machineState.pc += rc
@@ -673,13 +666,11 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                 if (disassemble) {
                     if (!determineJumps) {
                         if (op == OpCode.E_OP_CODE_FIZ_DAT)
-                            logger.debug("FIZ @")
+                            logger.safeDebug { "FIZ @" }
                         else
-                            logger.debug("STZ @")
+                            logger.safeDebug { "STZ @" }
 
-                        if (logger.isDebugEnabled) {
-                            logger.debug(String.format("%8x", `fun`.addr1).replace(' ', '0'))
-                        }
+                        logger.safeDebug { String.format("%8x", `fun`.addr1).replace(' ', '0') }
                     }
                 } else {
                     if (machineData.apData.getLong(`fun`.addr1 * 8) == 0L) {
@@ -704,9 +695,9 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             if (disassemble) {
                 if (!determineJumps) {
                     if (op == OpCode.E_OP_CODE_FIN_IMD)
-                        logger.debug("FIN\n")
+                        logger.safeDebug { "FIN\n" }
                     else
-                        logger.debug("STP")
+                        logger.safeDebug { "STP" }
                 }
             } else if (op == OpCode.E_OP_CODE_STP_IMD) {
                 machineData.machineState.pc += rc
@@ -721,8 +712,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             rc = 1
 
             if (disassemble) {
-                if (!determineJumps && logger.isDebugEnabled) {
-                    logger.debug("SLP\n")
+                if (!determineJumps) {
+                    logger.safeDebug { "SLP\n" }
                 }
             } else {
                 machineData.machineState.pc += rc
@@ -734,8 +725,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             rc = 1
 
             if (disassemble) {
-                if (!determineJumps && logger.isDebugEnabled)
-                    logger.debug("PCS")
+                if (!determineJumps)
+                    logger.safeDebug { "PCS" }
             } else {
                 machineData.machineState.pc += rc
                 machineData.machineState.pcs = machineData.machineState.pc
@@ -747,8 +738,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                 rc = 1 + 2
 
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled)
-                        logger.debug("FUN {}", `fun`.`fun`)
+                    if (!determineJumps)
+                        logger.safeDebug { "FUN ${`fun`.`fun`}" }
                 } else {
                     machineData.machineState.pc += rc
                     dp.atApiController.func(`fun`.`fun`.toInt(), machineData)
@@ -760,8 +751,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                 rc = 7
 
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled)
-                        logger.debug("FUN {} \${}", `fun`.`fun`, String.format("%8x", `fun`.addr1).replace(' ', '0'))
+                    if (!determineJumps)
+                        logger.safeDebug { "FUN ${`fun`.`fun`} \$${String.format("%8x", `fun`.addr1).replace(' ', '0')}" }
                 } else {
                     machineData.machineState.pc += rc
                     val `val` = machineData.apData.getLong(`fun`.addr1 * 8)
@@ -775,8 +766,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                 rc = 11
 
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled)
-                        logger.debug("FUN {} \${} \${}", `fun`.`fun`, String.format("%8x", `fun`.addr3).replace(' ', '0'), String.format("%8x", `fun`.addr2).replace(' ', '0'))
+                    if (!determineJumps)
+                        logger.safeDebug { "FUN ${`fun`.`fun`} \$${String.format("%8x", `fun`.addr3).replace(' ', '0')} \$${String.format("%8x", `fun`.addr2).replace(' ', '0')}" }
                 } else {
                     machineData.machineState.pc += rc
                     val val1 = machineData.apData.getLong(`fun`.addr3 * 8)
@@ -792,8 +783,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                 rc = 7
 
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled)
-                        logger.debug("FUN @{} {}", String.format("%8x", `fun`.addr1).replace(' ', '0'), `fun`.`fun`)
+                    if (!determineJumps)
+                        logger.safeDebug { "FUN @${String.format("%8x", `fun`.addr1).replace(' ', '0')} ${`fun`.`fun`}" }
 
                 } else {
                     machineData.machineState.pc += rc
@@ -816,10 +807,10 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                 rc = 1 + size + if (op == OpCode.E_OP_CODE_EXT_FUN_RET_DAT_2) 4 else 0
 
                 if (disassemble) {
-                    if (!determineJumps && logger.isDebugEnabled) {
-                        logger.debug("FUN @{} {} \${}", String.format("%8x", `fun`.addr3).replace(' ', '0'), `fun`.`fun`, String.format("%8x", `fun`.addr2).replace(' ', '0'))
+                    if (!determineJumps) {
+                        logger.safeDebug { "FUN @${String.format("%8x", `fun`.addr3).replace(' ', '0')} ${`fun`.`fun`} \$${String.format("%8x", `fun`.addr2).replace(' ', '0')}" }
                         if (op == OpCode.E_OP_CODE_EXT_FUN_RET_DAT_2)
-                            logger.debug(" \${}", String.format("%8x", `fun`.addr1).replace(' ', '0'))
+                            logger.safeDebug { "\$${String.format("%8x", `fun`.addr1).replace(' ', '0')}"  }
                     }
                 } else {
                     machineData.machineState.pc += rc
@@ -841,8 +832,8 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             rc = 5
 
             if (disassemble) {
-                if (!determineJumps && logger.isDebugEnabled)
-                    logger.debug("ERR :{}", String.format("%8x", `fun`.addr1))
+                if (!determineJumps)
+                    logger.safeDebug { "ERR :${String.format("%8x", `fun`.addr1)}" }
             } else {
                 if (`fun`.addr1 == -1 || machineData.machineState.jumps.contains(`fun`.addr1)) {
                     machineData.machineState.pc += rc
@@ -855,10 +846,10 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
         }
 
         if (rc == -1 && disassemble && !determineJumps)
-            logger.debug("\n(overflow)")
+            logger.safeDebug { "\n(overflow)" }
 
         if (rc == -2 && disassemble && !determineJumps)
-            logger.debug("\n(invalid op)")
+            logger.safeDebug { "\n(invalid op)" }
 
         return rc
     }

@@ -3,13 +3,14 @@ package brs.at
 import brs.DependencyProvider
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
+import brs.util.convert.toUnsignedString
+import brs.util.logging.safeDebug
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
 
 class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiImpl(dp) {
-
     override fun getBlockTimestamp(state: AtMachineState): Long {
         val height = state.height
         return AtApiHelper.getLongTimestamp(height, 0)
@@ -55,7 +56,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         val b = state.id
 
         val tx = findTransaction(dp!!, height, state.height, AtApiHelper.getLong(b!!), numOfTx, state.minActivationAmount())!!
-        logger.debug("tx with id {} found", tx)
+        logger.safeDebug { "tx with id ${tx.toUnsignedString()} found" }
         clearA(state)
         state.a1 = AtApiHelper.getByteArray(tx)
 
@@ -93,7 +94,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
 
     override fun getTimestampForTxInA(state: AtMachineState): Long {
         val txId = AtApiHelper.getLong(state.a1)
-        logger.debug("get timestamp for tx with id {} found", txId)
+        logger.safeDebug { "get timestamp for tx with id ${txId.toUnsignedString()} found" }
         val tx = dp!!.blockchain.getTransaction(txId)
 
         if (tx == null || tx.height >= state.height) {

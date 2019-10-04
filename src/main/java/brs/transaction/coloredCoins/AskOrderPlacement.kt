@@ -4,6 +4,7 @@ import brs.Account
 import brs.Attachment
 import brs.DependencyProvider
 import brs.Transaction
+import brs.util.logging.safeTrace
 import com.google.gson.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -23,7 +24,7 @@ class AskOrderPlacement(dp: DependencyProvider) : OrderPlacement(dp) {
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.ColoredCoinsAskOrderPlacement(dp, attachmentData)
 
     override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
-        logger.trace("TransactionType ASK_ORDER_PLACEMENT")
+        logger.safeTrace { "TransactionType ASK_ORDER_PLACEMENT" }
         val attachment = transaction.attachment as Attachment.ColoredCoinsAskOrderPlacement
         val unconfirmedAssetBalance = dp.accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.assetId)
         if (unconfirmedAssetBalance >= 0 && unconfirmedAssetBalance >= attachment.quantityQNT) {

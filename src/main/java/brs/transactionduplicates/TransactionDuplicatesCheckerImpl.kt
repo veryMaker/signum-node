@@ -2,6 +2,7 @@ package brs.transactionduplicates
 
 import brs.Transaction
 import brs.transaction.TransactionType
+import brs.util.logging.safeDebug
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 
@@ -32,7 +33,7 @@ class TransactionDuplicatesCheckerImpl {
         val possiblyExistingTransaction = transactionOverview[transactionDuplicateKey.key]
 
         return if (possiblyExistingTransaction != null && possiblyExistingTransaction.feeNQT >= transaction.feeNQT) {
-            logger.debug("Transaction {}: is a duplicate of {} (Type: {})", transaction.id, possiblyExistingTransaction.id, transaction.type)
+            logger.safeDebug { "Transaction ${transaction.id}: is a duplicate of ${possiblyExistingTransaction.id} (Type: ${transaction.type})" }
             TransactionDuplicationResult(true, transaction)
         } else {
             transactionOverview[transactionDuplicateKey.key] = transaction

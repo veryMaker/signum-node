@@ -5,6 +5,7 @@ import brs.Attachment
 import brs.DependencyProvider
 import brs.Transaction
 import brs.util.convert.safeMultiply
+import brs.util.logging.safeTrace
 import com.google.gson.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -28,7 +29,7 @@ class BidOrderPlacement(dp: DependencyProvider) : OrderPlacement(dp) {
     }
 
     override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
-        logger.trace("TransactionType BID_ORDER_PLACEMENT")
+        logger.safeTrace { "TransactionType BID_ORDER_PLACEMENT" }
         val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
         if (senderAccount.unconfirmedBalanceNQT >= totalAmountNQT) {
             dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT)

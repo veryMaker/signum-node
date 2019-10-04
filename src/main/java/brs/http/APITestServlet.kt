@@ -1,6 +1,7 @@
 package brs.http
 import brs.util.Subnet
 import brs.util.convert.nullToEmpty
+import brs.util.logging.safeDebug
 import org.owasp.encoder.Encode
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -61,7 +62,7 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
             try {
                 resp.sendError(HttpServletResponse.SC_FORBIDDEN)
             } catch (e: IOException) {
-                logger.debug("IOException: ", e)
+                logger.safeDebug(e) { "IOException: " }
             }
 
             return
@@ -92,7 +93,7 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
                 writer.print(FOOTER_2)
             }
         } catch (e: IOException) {
-            logger.debug("IOException: ", e)
+            logger.safeDebug(e) { "IOException: " }
         }
     }
 

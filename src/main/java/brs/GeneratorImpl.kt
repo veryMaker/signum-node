@@ -7,6 +7,7 @@ import brs.taskScheduler.RepeatingTask
 import brs.util.Listeners
 import brs.util.convert.fullHashToId
 import brs.util.convert.toUnsignedString
+import brs.util.logging.safeDebug
 import burst.kit.crypto.BurstCrypto
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
@@ -31,7 +32,7 @@ open class GeneratorImpl private constructor(private val dp: DependencyProvider)
             }
             true
         } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
-            logger.debug("Error in block generation thread", e)
+            logger.safeDebug(e) { "Error in block generation thread" }
             false
         }
     }
@@ -57,13 +58,9 @@ open class GeneratorImpl private constructor(private val dp: DependencyProvider)
         if (curGen == null || generator.block > curGen.block || generator.deadline < curGen.deadline) {
             generators[id] = generator
             listeners.accept(Generator.Event.NONCE_SUBMITTED, generator)
-            if (logger.isDebugEnabled) {
-                logger.debug("Account {} started mining, deadline {} seconds", id.toUnsignedString(), generator.deadline)
-            }
+            logger.safeDebug { "Account ${id.toUnsignedString()} started mining, deadline ${generator.deadline} seconds" }
         } else {
-            if (logger.isDebugEnabled) {
-                logger.debug("Account {} already has a better nonce", id.toUnsignedString())
-            }
+            logger.safeDebug { "Account ${id.toUnsignedString()} already has a better nonce" }
         }
 
         return generator

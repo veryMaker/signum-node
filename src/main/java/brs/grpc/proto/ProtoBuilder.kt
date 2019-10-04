@@ -6,6 +6,7 @@ import brs.at.AT
 import brs.crypto.EncryptedData
 import brs.services.AccountService
 import brs.services.BlockService
+import brs.util.logging.safeDebug
 import com.google.protobuf.ByteString
 import com.google.protobuf.InvalidProtocolBufferException
 import com.google.rpc.Code
@@ -26,7 +27,7 @@ object ProtoBuilder {
     fun buildError(t: Throwable): StatusException {
         val message = if (t.message == null) "Unknown Error: " + t.javaClass.toString() else t.message
         if (t.message == null) {
-            logger.debug("Unknown message for gRPC API exception. Exception:", t)
+            logger.safeDebug { "Unknown message for gRPC API exception. Exception: $t" }
         }
         return StatusProto.toStatusException(Status.newBuilder().setCode(Code.ABORTED_VALUE).setMessage(message).build())
     }

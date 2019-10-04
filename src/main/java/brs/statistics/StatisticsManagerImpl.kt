@@ -1,12 +1,8 @@
 package brs.statistics
 
 import brs.DependencyProvider
-import brs.services.TimeService
-import org.slf4j.Logger
+import brs.util.logging.safeInfo
 import org.slf4j.LoggerFactory
-
-import java.util.HashMap
-import java.util.stream.Collectors
 
 class StatisticsManagerImpl(private val dp: DependencyProvider) { // TODO interface
 
@@ -37,13 +33,7 @@ class StatisticsManagerImpl(private val dp: DependencyProvider) { // TODO interf
         if (addedBlockCount++ == 0) {
             firstBlockAdded = dp.timeService.epochTime
         } else if (addedBlockCount % 500 == 0) {
-            val blocksPerSecond = 500 / (dp.timeService.epochTime - firstBlockAdded).toFloat()
-
-            if (logger.isInfoEnabled) {
-                val handleText = "handling {} blocks/s" + cacheStatistics.values.map { cacheInfo -> " " + cacheInfo.cacheInfoAndReset }.joinToString()
-                logger.info(handleText, String.format("%.2f", blocksPerSecond))
-            }
-
+            logger.safeInfo { "handling ${String.format("%.2f", 500 / (dp.timeService.epochTime - firstBlockAdded).toFloat())} blocks/s ${cacheStatistics.values.joinToString { cacheInfo -> " " + cacheInfo.cacheInfoAndReset }}" }
             addedBlockCount = 0
         }
     }

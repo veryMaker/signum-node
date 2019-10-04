@@ -16,6 +16,7 @@ import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toHexString
 import brs.util.convert.toUtf8String
+import brs.util.logging.safeDebug
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -58,7 +59,7 @@ internal class ReadMessage(private val blockchain: Blockchain, private val accou
                         val decrypted = account.decryptFrom(encryptedMessage.encryptedData, secretPhrase)
                         response.addProperty("decryptedMessage", if (encryptedMessage.isText) decrypted.toUtf8String() else decrypted.toHexString())
                     } catch (e: RuntimeException) {
-                        logger.debug("Decryption of message to recipient failed: {}", e)
+                        logger.safeDebug(e) { "Decryption of message to recipient failed: {}" }
                     }
 
                 }
@@ -70,7 +71,7 @@ internal class ReadMessage(private val blockchain: Blockchain, private val accou
                         val decrypted = account.decryptFrom(encryptToSelfMessage.encryptedData, secretPhrase)
                         response.addProperty("decryptedMessageToSelf", if (encryptToSelfMessage.isText) decrypted.toUtf8String() else decrypted.toHexString())
                     } catch (e: RuntimeException) {
-                        logger.debug("Decryption of message to self failed: {}", e)
+                        logger.safeDebug(e) { "Decryption of message to self failed: {}" }
                     }
 
                 }

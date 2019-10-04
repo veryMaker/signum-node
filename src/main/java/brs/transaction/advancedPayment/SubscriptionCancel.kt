@@ -3,6 +3,7 @@ package brs.transaction.advancedPayment
 import brs.*
 import brs.transactionduplicates.TransactionDuplicationKey
 import brs.util.convert.toUnsignedString
+import brs.util.logging.safeTrace
 import com.google.gson.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -16,7 +17,7 @@ class SubscriptionCancel(dp: DependencyProvider) : AdvancedPayment(dp) {
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.AdvancedPaymentSubscriptionCancel(dp, attachmentData)
 
     override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
-        logger.trace("TransactionType SUBSCRIPTION_CANCEL")
+        logger.safeTrace { "TransactionType SUBSCRIPTION_CANCEL" }
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionCancel
         dp.subscriptionService.addRemoval(attachment.subscriptionId)
         return true

@@ -10,6 +10,7 @@ import brs.schema.tables.records.AccountAssetRecord
 import brs.schema.tables.records.AccountRecord
 import brs.schema.tables.records.RewardRecipAssignRecord
 import brs.util.convert.toUnsignedString
+import brs.util.logging.safeInfo
 import org.jooq.*
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -126,41 +127,41 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
     }
 
     override fun setOrVerify(acc: Account, key: ByteArray, height: Int): Boolean {
-        when {
+        return when {
             acc.publicKey == null -> {
                 if (dp.db.isInTransaction) {
                     acc.publicKey = key
                     acc.keyHeight = -1
                     accountTable.insert(acc)
                 }
-                return true
+                true
             }
             Arrays.equals(acc.publicKey, key) -> return true
             acc.keyHeight == -1 -> {
-                if (logger.isInfoEnabled) {
-                    logger.info("DUPLICATE KEY!!!")
-                    logger.info("Account key for {} was already set to a different one at the same height, current height is {}, rejecting new key", acc.id.toUnsignedString(), height)
+                if (true) {
+                    logger.safeInfo { "DUPLICATE KEY!!!" }
+                    logger.safeInfo { "Account key for ${acc.id.toUnsignedString()} was already set to a different one at the same height, current height is $height, rejecting new key" }
                 }
-                return false
+                false
             }
             acc.keyHeight >= height -> {
-                logger.info("DUPLICATE KEY!!!")
+                logger.safeInfo { "DUPLICATE KEY!!!" }
                 if (dp.db.isInTransaction) {
-                    if (logger.isInfoEnabled) {
-                        logger.info("Changing key for account {} at height {}, was previously set to a different one at height {}", acc.id.toUnsignedString(), height, acc.keyHeight)
+                    if (true) {
+                        logger.safeInfo { "Changing key for account ${acc.id.toUnsignedString()} at height $height, was previously set to a different one at height ${acc.keyHeight}" }
                     }
                     acc.publicKey = key
                     acc.keyHeight = height
                     accountTable.insert(acc)
                 }
-                return true
+                true
             }
-            logger.isInfoEnabled -> {
-                logger.info("DUPLICATE KEY!!!")
-                logger.info("Invalid key for account {} at height {}, was already set to a different one at height {}", acc.id.toUnsignedString(), height, acc.keyHeight)
+            else -> {
+                logger.safeInfo { "DUPLICATE KEY!!!" }
+                logger.safeInfo { "Invalid key for account ${acc.id.toUnsignedString()} at height $height, was already set to a different one at height ${acc.keyHeight}" }
+                false
             }
         }
-        return false
     }
 
     internal class SQLAccountAsset(rs: Record) : Account.AccountAsset(rs.get(ACCOUNT_ASSET.ACCOUNT_ID), rs.get(ACCOUNT_ASSET.ASSET_ID), rs.get(ACCOUNT_ASSET.QUANTITY), rs.get(ACCOUNT_ASSET.UNCONFIRMED_QUANTITY), accountAssetDbKeyFactory.newKey(rs.get(ACCOUNT_ASSET.ACCOUNT_ID), rs.get(ACCOUNT_ASSET.ASSET_ID)))

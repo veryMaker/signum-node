@@ -2,6 +2,7 @@ package brs
 
 import brs.props.Props
 import brs.util.convert.parseUnsignedLong
+import brs.util.logging.safeDebug
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 
@@ -35,7 +36,7 @@ class DebugTraceManager(private val dp: DependencyProvider) {
                 val debugTrace = addDebugTrace(accountIds, logName)
                 dp.blockchainProcessor.addListener(BlockchainProcessor.Event.RESCAN_BEGIN, { debugTrace.resetLog() })
             }
-            logger.debug("Debug tracing of " + (if (accountIdStrings.contains("*")) "ALL" else accountIds.size.toString()) + " accounts enabled")
+            logger.safeDebug { "Debug tracing of " + (if (accountIdStrings.contains("*")) "ALL" else accountIds.size.toString()) + " accounts enabled" }
         }
     }
 

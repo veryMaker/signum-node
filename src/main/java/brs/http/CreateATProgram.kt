@@ -22,6 +22,7 @@ import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.util.TextUtils
 import brs.util.convert.parseHexString
 import brs.util.convert.parseUnsignedLong
+import brs.util.logging.safeDebug
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -127,7 +128,7 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
         val account = dp.parameterService.getSenderAccount(request)
         val attachment = Attachment.AutomatedTransactionsCreation(dp, name, description!!, creationBytes!!, dp.blockchain.height)
 
-        logger.debug("AT {} added successfully", name)
+        logger.safeDebug { "AT $name added successfully" }
         return createTransaction(request, account, attachment)
     }
 

@@ -62,7 +62,7 @@ object LoggerConfigurator {
 
         }
 
-        logger.info("logging enabled")
+        logger.info { "logging enabled" }
     }
 
     /**

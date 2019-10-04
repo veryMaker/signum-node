@@ -59,6 +59,7 @@ import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.services.ParameterService
 import brs.util.JSON
 import brs.util.convert.*
+import brs.util.logging.safeDebug
 import brs.util.parseJson
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -275,13 +276,13 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
                 val bytes = transactionBytes.parseHexString()
                 dp.transactionProcessor.parseTransaction(bytes)
             } catch (e: BurstException.ValidationException) {
-                logger.debug(e.message, e) // TODO remove?
+                logger.safeDebug(e) { e.message } // TODO remove?
                 val response = JsonObject()
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
                 response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect transactionBytes: $e")
                 throw ParameterException(response)
             } catch (e: RuntimeException) {
-                logger.debug(e.message, e)
+                logger.safeDebug(e) { e.message }
                 val response = JsonObject()
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
                 response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect transactionBytes: $e")
@@ -293,13 +294,13 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
                 val json = JSON.getAsJsonObject(transactionJSON!!.parseJson())
                 dp.transactionProcessor.parseTransaction(json)
             } catch (e: BurstException.ValidationException) {
-                logger.debug(e.message, e)
+                logger.safeDebug(e) { e.message }
                 val response = JsonObject()
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
                 response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect transactionJSON: $e")
                 throw ParameterException(response)
             } catch (e: RuntimeException) {
-                logger.debug(e.message, e)
+                logger.safeDebug(e) { e.message }
                 val response = JsonObject()
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
                 response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect transactionJSON: $e")

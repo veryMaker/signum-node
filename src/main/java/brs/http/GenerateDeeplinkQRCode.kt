@@ -19,6 +19,7 @@ import brs.http.common.Parameters.IMMUTABLE_PARAMETER
 import brs.http.common.Parameters.MESSAGE_PARAMETER
 import brs.http.common.Parameters.RECEIVER_ID_PARAMETER
 import brs.util.convert.emptyToNull
+import brs.util.logging.safeError
 import com.google.zxing.WriterException
 import org.eclipse.jetty.http.HttpStatus
 import org.slf4j.LoggerFactory
@@ -98,13 +99,13 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGenerator: Deepl
             ImageIO.write(qrImage, "jpg", resp.outputStream)
             resp.outputStream.close()
         } catch (e: WriterException) {
-            logger.error("Could not generate Deeplink QR code", e)
+            logger.safeError(e) { "Could not generate Deeplink QR code" }
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
         } catch (e: IOException) {
-            logger.error("Could not generate Deeplink QR code", e)
+            logger.safeError(e) { "Could not generate Deeplink QR code" }
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
         } catch (e: IllegalArgumentException) {
-            logger.error("Problem with arguments", e)
+            logger.safeError(e) { "Problem with arguments" }
         }
 
     }

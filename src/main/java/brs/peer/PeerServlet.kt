@@ -3,6 +3,8 @@ package brs.peer
 import brs.Constants.PROTOCOL
 import brs.DependencyProvider
 import brs.util.*
+import brs.util.logging.safeDebug
+import brs.util.logging.safeWarn
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
@@ -65,7 +67,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
             }
         } catch (e: Exception) { // We don't want to send exception information to client...
             resp.status = 500
-            logger.warn("Error handling peer request", e)
+            logger.safeWarn(e) { "Error handling peer request" }
         }
 
     }
@@ -113,14 +115,12 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
                     response = UNSUPPORTED_REQUEST_TYPE
                 }
             } else {
-                if (logger.isDebugEnabled) {
-                    logger.debug("Unsupported protocol {}", JSON.getAsString(jsonRequest.get(PROTOCOL)))
-                }
+                logger.safeDebug { "Unsupported protocol ${JSON.getAsString(jsonRequest.get(PROTOCOL))}" }
                 response = UNSUPPORTED_PROTOCOL
             }
 
         } catch (e: RuntimeException) {
-            logger.debug("Error processing POST request", e)
+            logger.safeDebug(e) { "Error processing POST request" }
             val json = JsonObject()
             json.addProperty("error", e.toString())
             response = json

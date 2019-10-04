@@ -15,6 +15,7 @@ import brs.util.convert.*
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLazy
 import brs.util.isZero
+import brs.util.logging.safeDebug
 import brs.util.toJsonString
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -99,9 +100,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 appendages.forEach { appendage -> appendage.putBytes(buffer) }
                 return buffer.array()
             } catch (e: RuntimeException) {
-                if (logger.isDebugEnabled) {
-                    logger.debug("Failed to get transaction bytes for transaction: {}", jsonObject.toJsonString())
-                }
+                logger.safeDebug { "Failed to get transaction bytes for transaction: ${jsonObject.toJsonString()}" }
                 throw e
             }
 
@@ -276,7 +275,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         this.version = builder.version
         if (builder.blockId != null) this.blockId = builder.blockId!!
         this.height = builder.height
-        if (builder.id != null && builder.id != null) this.id = builder.id!!
+        if (builder.id != null) this.id = builder.id!!
         if (builder.senderId != null) this.senderId = builder.senderId!!
         if (builder.blockTimestamp != null) this.blockTimestamp = builder.blockTimestamp!!
         if (builder.fullHash != null) this.fullHash = builder.fullHash!!
@@ -444,13 +443,13 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 transactionType.parseAppendices(builder, flags, version, buffer)
                 return builder.build()
             } catch (e: BurstException.NotValidException) {
-                if (logger.isDebugEnabled) {
-                    logger.debug("Failed to parse transaction bytes: {}", bytes.toHexString())
+                if (true) {
+                    logger.safeDebug { "Failed to parse transaction bytes: ${bytes.toHexString()}" }
                 }
                 throw e
             } catch (e: RuntimeException) {
-                if (logger.isDebugEnabled) {
-                    logger.debug("Failed to parse transaction bytes: {}", bytes.toHexString())
+                if (true) {
+                    logger.safeDebug { "Failed to parse transaction bytes: ${bytes.toHexString()}" }
                 }
                 throw e
             }
@@ -491,13 +490,13 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 }
                 return builder.build()
             } catch (e: BurstException.NotValidException) {
-                if (logger.isDebugEnabled) {
-                    logger.debug("Failed to parse transaction: {}", transactionData.toJsonString())
+                if (true) {
+                    logger.safeDebug { "Failed to parse transaction: ${transactionData.toJsonString()}" }
                 }
                 throw e
             } catch (e: RuntimeException) {
-                if (logger.isDebugEnabled) {
-                    logger.debug("Failed to parse transaction: {}", transactionData.toJsonString())
+                if (true) {
+                    logger.safeDebug { "Failed to parse transaction: ${transactionData.toJsonString()}" }
                 }
                 throw e
             }

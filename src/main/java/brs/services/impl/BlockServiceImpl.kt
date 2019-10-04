@@ -6,6 +6,7 @@ import brs.crypto.verifySignature
 import brs.fluxcapacitor.FluxValues
 import brs.services.BlockService
 import brs.util.convert.toUnsignedString
+import brs.util.logging.safeInfo
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.*
@@ -40,7 +41,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
 
         } catch (e: RuntimeException) {
 
-            logger.info("Error verifying block signature", e)
+            logger.safeInfo(e) { "Error verifying block signature" }
             return false
 
         }
@@ -62,7 +63,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             val pTime = block.pocTime!!.divide(BigInteger.valueOf(previousBlock.baseTarget))
             return BigInteger.valueOf(elapsedTime.toLong()) > pTime
         } catch (e: RuntimeException) {
-            logger.info("Error verifying block generation signature", e)
+            logger.safeInfo(e) { "Error verifying block generation signature" }
             return false
         }
 
@@ -88,15 +89,13 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 block.pocTime = dp.generator.calculateHit(block.generatorId, block.nonce!!, block.generationSignature, scoopData)
             }
         } catch (e: RuntimeException) {
-            logger.info("Error pre-verifying block generation signature", e)
+            logger.safeInfo(e) { "Error pre-verifying block generation signature" }
             return
         }
 
         for (transaction in block.transactions) {
             if (!transaction.verifySignature()) {
-                if (logger.isInfoEnabled) {
-                    logger.info("Bad transaction signature during block pre-verification for tx: {} at block height: {}", transaction.id.toUnsignedString(), block.height)
-                }
+                logger.safeInfo { "Bad transaction signature during block pre-verification for tx: ${transaction.id.toUnsignedString()} at block height: ${block.height}" }
                 throw BlockchainProcessor.TransactionNotAcceptedException("Invalid signature for tx " + transaction.id.toUnsignedString() + " at block height: " + block.height, transaction)
             }
         }

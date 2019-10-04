@@ -15,6 +15,7 @@ import brs.util.convert.nullToEmpty
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
 import brs.util.convert.toUtf8String
+import brs.util.logging.safeDebug
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -38,7 +39,7 @@ internal class DecryptFrom internal constructor(private val parameterService: Pa
             response.addProperty(DECRYPTED_MESSAGE_RESPONSE, if (isText) decrypted.toUtf8String() else decrypted.toHexString())
             response
         } catch (e: RuntimeException) {
-            logger.debug(e.toString())
+            logger.safeDebug { e.toString() }
             DECRYPTION_FAILED
         }
 

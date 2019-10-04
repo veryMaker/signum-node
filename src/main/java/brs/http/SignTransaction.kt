@@ -18,6 +18,7 @@ import brs.services.ParameterService
 import brs.services.TransactionService
 import brs.util.convert.emptyToNull
 import brs.util.convert.toHexString
+import brs.util.logging.safeDebug
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -53,13 +54,13 @@ internal class SignTransaction(private val parameterService: ParameterService, p
             response.addProperty(SIGNATURE_HASH_RESPONSE, Crypto.sha256().digest(transaction.signature).toHexString())
             response.addProperty(VERIFY_RESPONSE, transaction.verifySignature() && transactionService.verifyPublicKey(transaction))
         } catch (e: BurstException.ValidationException) {
-            logger.debug(e.message, e)
+            logger.safeDebug(e) { e.message }
             response.addProperty(ERROR_CODE_RESPONSE, 4)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect unsigned transaction: $e")
             response.addProperty(ERROR_RESPONSE, e.message)
             return response
         } catch (e: RuntimeException) {
-            logger.debug(e.message, e)
+            logger.safeDebug(e) { e.message }
             response.addProperty(ERROR_CODE_RESPONSE, 4)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect unsigned transaction: $e")
             response.addProperty(ERROR_RESPONSE, e.message)

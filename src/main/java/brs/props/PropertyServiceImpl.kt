@@ -1,6 +1,8 @@
 package brs.props
 
 import brs.Burst
+import brs.util.logging.LogMessageProducer
+import brs.util.logging.safeInfo
 import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.reflect.KClass
@@ -28,16 +30,16 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
                 if (type.isInstance(defaultValue)) {
                     val parsed = parser(value)
                     if (!type.isInstance(parsed)) {
-                        logger.info("Property parser returned type {}, was looking for type {}, using default value {}", parsed.javaClass, defaultValue.javaClass, defaultValue)
+                        logger.safeInfo { "Property parser returned type ${parsed.javaClass}, was looking for type ${defaultValue.javaClass}, using default value $defaultValue" }
                         return defaultValue
                     }
-                    logOnce(propName, false, "{}: {}", propName, parsed.toString())
+                    logOnce(propName) { "${propName}: ${parsed.toString()}" }
 
                     return parsed as T // TODO no unchecked
                 }
             }
         } catch (e: Exception) {
-            logger.info("Failed to parse property {}, using default value {}", propName, defaultValue.toString())
+            logger.safeInfo { "Failed to parse property $propName, using default value $defaultValue" }
         }
 
         return defaultValue
@@ -91,14 +93,10 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
         return result
     }
 
-    private fun logOnce(propertyName: String, debugLevel: Boolean, logText: String, vararg arguments: Any) {
+    private inline fun logOnce(propertyName: String, logText: LogMessageProducer) {
         if (propertyName == Props.SOLO_MINING_PASSPHRASES.name) return
         if (!this.alreadyLoggedProperties.contains(propertyName)) {
-            if (debugLevel) {
-                this.logger.debug(logText, *arguments)
-            } else {
-                this.logger.info(logText, *arguments)
-            }
+            this.logger.safeInfo(logText)
             this.alreadyLoggedProperties.add(propertyName)
         }
     }

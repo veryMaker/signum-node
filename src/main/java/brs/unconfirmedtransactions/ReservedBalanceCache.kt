@@ -7,6 +7,7 @@ import brs.Transaction
 import brs.db.store.AccountStore
 import brs.util.convert.safeAdd
 import brs.util.convert.safeSubtract
+import brs.util.logging.safeInfo
 import org.slf4j.LoggerFactory
 
 internal class ReservedBalanceCache(private val accountStore: AccountStore) {
@@ -22,15 +23,11 @@ internal class ReservedBalanceCache(private val accountStore: AccountStore) {
         val amountNQT = reservedBalanceCache.getOrDefault(transaction.senderId, 0L).safeAdd(transaction.type.calculateTotalAmountNQT(transaction))
 
         if (senderAccount == null) {
-            if (LOGGER.isInfoEnabled) {
-                LOGGER.info(String.format("Transaction %d: Account %d does not exist and has no balance. Required funds: %d", transaction.id, transaction.senderId, amountNQT))
-            }
+            logger.safeInfo { String.format("Transaction %d: Account %d does not exist and has no balance. Required funds: %d", transaction.id, transaction.senderId, amountNQT) }
 
             throw BurstException.NotCurrentlyValidException("Account unknown")
         } else if (amountNQT > senderAccount.unconfirmedBalanceNQT) {
-            if (LOGGER.isInfoEnabled) {
-                LOGGER.info(String.format("Transaction %d: Account %d balance too low. You have  %d > %d Balance", transaction.id, transaction.senderId, amountNQT, senderAccount.unconfirmedBalanceNQT))
-            }
+            logger.safeInfo { String.format("Transaction %d: Account %d balance too low. You have  %d > %d Balance", transaction.id, transaction.senderId, amountNQT, senderAccount.unconfirmedBalanceNQT) }
 
             throw BurstException.NotCurrentlyValidException("Insufficient funds")
         }
@@ -70,7 +67,6 @@ internal class ReservedBalanceCache(private val accountStore: AccountStore) {
     }
 
     companion object {
-        private val LOGGER = LoggerFactory.getLogger(ReservedBalanceCache::class.java)
+        private val logger = LoggerFactory.getLogger(ReservedBalanceCache::class.java)
     }
-
 }

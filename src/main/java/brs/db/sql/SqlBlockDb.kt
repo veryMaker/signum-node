@@ -4,15 +4,15 @@ import brs.Block
 import brs.BurstException
 import brs.DependencyProvider
 import brs.db.BlockDb
+import brs.schema.Tables.BLOCK
 import brs.schema.tables.records.BlockRecord
+import brs.util.logging.safeInfo
+import brs.util.logging.safeTrace
 import org.jooq.DSLContext
 import org.jooq.impl.TableImpl
 import org.slf4j.LoggerFactory
-
 import java.math.BigInteger
-import java.util.Optional
-
-import brs.schema.Tables.BLOCK
+import java.util.*
 
 class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
 
@@ -170,7 +170,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
             dp.db.endTransaction()
             return
         }
-        logger.info("Deleting blockchain...")
+        logger.safeInfo { "Deleting blockchain..." }
         dp.db.useDslContext { ctx ->
             val tables = mutableListOf<TableImpl<*>>(brs.schema.Tables.ACCOUNT,
                     brs.schema.Tables.ACCOUNT_ASSET, brs.schema.Tables.ALIAS, brs.schema.Tables.ALIAS_OFFER,
@@ -187,7 +187,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
                     ctx.truncate(table).execute()
                 } catch (e: org.jooq.exception.DataAccessException) {
                     if (force) {
-                        logger.trace("exception during truncate {0}", table, e)
+                        logger.safeTrace(e) { "exception during truncate ${table}" }
                     } else {
                         throw e
                     }

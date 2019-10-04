@@ -1,6 +1,7 @@
 package brs
 
 import brs.props.Props
+import brs.util.logging.safeError
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene
@@ -81,7 +82,7 @@ class BurstGUI : Application() {
             systemTray.add(newTrayIcon)
             return newTrayIcon
         } catch (e: Exception) {
-            LOGGER.error("Could not create tray icon", e)
+            logger.safeError(e) { "Could not create tray icon" }
             return null
         }
 
@@ -108,12 +109,12 @@ class BurstGUI : Application() {
             try {
                 Desktop.getDesktop().browse(URI(address))
             } catch (e: Exception) { // Catches parse exception or exception when opening browser
-                LOGGER.error("Could not open browser", e)
+                logger.safeError(e) { "Could not open browser" }
                 showMessage("Error opening web UI. Please open your browser and navigate to $address")
             }
 
         } catch (e: Exception) { // Catches error accessing PropertyService
-            LOGGER.error("Could not access PropertyService", e)
+            logger.safeError(e) { "Could not access PropertyService" }
             showMessage("Could not open web UI as could not read BRS configuration.")
         }
 
@@ -127,12 +128,12 @@ class BurstGUI : Application() {
                     onTestNetEnabled()
                 }
             } catch (t: Exception) {
-                LOGGER.error("Could not determine if running in testnet mode", t)
+                logger.safeError(t) { "Could not determine if running in testnet mode" }
             }
 
         } catch (ignored: SecurityException) {
         } catch (t: Exception) {
-            LOGGER.error(FAILED_TO_START_MESSAGE, t)
+            logger.safeError(t) { FAILED_TO_START_MESSAGE }
             showMessage(FAILED_TO_START_MESSAGE)
             onBrsStopped()
         }
@@ -198,9 +199,9 @@ class BurstGUI : Application() {
 
         override fun checkExit(status: Int) {
             if (!userClosed) {
-                LOGGER.error("{} {}", UNEXPECTED_EXIT_MESSAGE, status)
+                logger.safeError { "$UNEXPECTED_EXIT_MESSAGE $status" }
                 Platform.runLater { stage!!.show() }
-                showMessage(UNEXPECTED_EXIT_MESSAGE + status.toString())
+                showMessage("$UNEXPECTED_EXIT_MESSAGE $status")
                 onBrsStopped()
                 throw SecurityException()
             }
@@ -310,11 +311,11 @@ class BurstGUI : Application() {
     companion object {
         private const val ICON_LOCATION = "/images/burst_overlay_logo.png"
         private const val FAILED_TO_START_MESSAGE = "BurstGUI caught exception starting BRS"
-        private const val UNEXPECTED_EXIT_MESSAGE = "BRS Quit unexpectedly! Exit code "
+        private const val UNEXPECTED_EXIT_MESSAGE = "BRS Quit unexpectedly! Exit code"
 
         private const val OUTPUT_MAX_LINES = 500
 
-        private val LOGGER = LoggerFactory.getLogger(BurstGUI::class.java)
+        private val logger = LoggerFactory.getLogger(BurstGUI::class.java)
 
         @JvmStatic
         fun main(args: Array<String>) {

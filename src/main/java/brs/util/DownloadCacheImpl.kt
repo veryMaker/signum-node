@@ -6,6 +6,7 @@ import brs.Genesis
 import brs.fluxcapacitor.FluxValues
 import brs.props.Props
 import brs.util.convert.toUnsignedString
+import brs.util.logging.safeDebug
 import kotlinx.coroutines.sync.Mutex
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
@@ -167,8 +168,8 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
     fun size() = stampedLock.read { blockCache.size }
 
     private fun printLastVars() {
-        logger.debug("Cache LastId: {}", lastBlockId?.toUnsignedString())
-        logger.debug("Cache lastHeight: {}", lastHeight)
+        logger.safeDebug { "Cache LastId: ${lastBlockId?.toUnsignedString()}" }
+        logger.safeDebug { "Cache lastHeight: ${lastHeight}" }
     }
 
     private fun setLastVars() = stampedLock.write {
@@ -176,13 +177,13 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
             lastBlockId = blockCache[blockCache.keys.toTypedArray()[blockCache.keys.size - 1]]?.id
             lastHeight = blockCache[lastBlockId ?: Genesis.GENESIS_BLOCK_ID ]?.height ?: 0
             highestCumulativeDifficulty = blockCache[lastBlockId ?: Genesis.GENESIS_BLOCK_ID]!!.cumulativeDifficulty
-            logger.debug("Cache set to CacheData")
+            logger.safeDebug { "Cache set to CacheData" }
             printLastVars() // TODO remove? or compact?
         } else {
             lastBlockId = dp.blockchain.lastBlock.id
             lastHeight = dp.blockchain.height
             highestCumulativeDifficulty = dp.blockchain.lastBlock.cumulativeDifficulty
-            logger.debug("Cache set to ChainData")
+            logger.safeDebug { "Cache set to ChainData" }
             printLastVars() // TODO remove? or compact?
         }
     }

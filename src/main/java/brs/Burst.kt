@@ -23,6 +23,8 @@ import brs.unconfirmedtransactions.UnconfirmedTransactionStoreImpl
 import brs.util.DownloadCacheImpl
 import brs.util.LoggerConfigurator
 import brs.util.Time
+import brs.util.logging.safeError
+import brs.util.logging.safeInfo
 import io.grpc.ServerBuilder
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder
 import kotlinx.coroutines.runBlocking
@@ -109,7 +111,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
                         if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_API_V2_PORT) else dp.propertyService.get(
                             Props.API_V2_PORT
                         )
-                    logger.info("Starting V2 API Server on port {}", port)
+                    logger.safeInfo { "Starting V2 API Server on port $port" }
                     val apiV2 = BrsService(dp)
                     val hostname = dp.propertyService.get(Props.API_V2_LISTEN)
                     dp.apiV2Server =
@@ -117,7 +119,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
                             InetSocketAddress(hostname, port)
                         ).addService(apiV2).build().start()
                 } else {
-                    logger.info("Not starting V2 API Server - it is disabled.")
+                    logger.safeInfo { "Not starting V2 API Server - it is disabled." }
                 }
 
                 if (dp.propertyService.get(Props.BRS_DEBUG_TRACE_ENABLED)) {
@@ -139,18 +141,18 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
                             ), timeMultiplier
                         )
                     )
-                    logger.info("TIME WILL FLOW {} TIMES FASTER!", timeMultiplier)
+                    logger.safeInfo { "TIME WILL FLOW $timeMultiplier TIMES FASTER!" }
                 }
 
                 val currentTime = System.currentTimeMillis()
-                logger.info("Initialization took {} ms", currentTime - startTime)
-                logger.info("BRS {} started successfully.", VERSION)
+                logger.safeInfo { "Initialization took ${currentTime - startTime} ms" }
+                logger.safeInfo { "$APPLICATION $VERSION started successfully!" }
 
                 if (dp.propertyService.get(Props.DEV_TESTNET)) {
-                    logger.info("RUNNING ON TESTNET - DO NOT USE REAL ACCOUNTS!")
+                    logger.safeInfo { "RUNNING ON TESTNET - DO NOT USE REAL ACCOUNTS!" }
                 }
             } catch (e: Exception) {
-                logger.error(e.message, e)
+                logger.safeError(e) { e.message }
                 exitProcess(1)
             }
         }
@@ -158,7 +160,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
 
     private fun validateVersionNotDev(propertyService: PropertyService) {
         if (VERSION.isPrelease && !propertyService.get(Props.DEV_TESTNET)) {
-            logger.error("THIS IS A DEVELOPMENT WALLET, PLEASE DO NOT USE THIS")
+            logger.safeError { "THIS IS A DEVELOPMENT WALLET, PLEASE DO NOT USE THIS" }
             //exitProcess(0)
         }
     }
@@ -168,7 +170,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
     }
 
     fun shutdown(ignoreDBShutdown: Boolean) = runBlocking {
-        logger.info("Shutting down...")
+        logger.safeInfo { "Shutting down..." }
         try {
             dp.api.shutdown()
         } catch (ignored: UninitializedPropertyAccessException) {}
@@ -192,7 +194,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
                 dp.oclPoC.destroy()
             }
         } catch (ignored: UninitializedPropertyAccessException) {}
-        logger.info("BRS {} stopped.", VERSION)
+        logger.safeInfo { "$APPLICATION $VERSION stopped." }
         LoggerConfigurator.shutdown()
     }
 
@@ -206,7 +208,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             val defaultProperties = Properties()
 
             // TODO this can be refactored to be cleaner.
-            logger.info("Initializing Burst Reference Software (BRS) version {}", VERSION)
+            logger.safeInfo { "Initializing Burst Reference Software ($APPLICATION) version $VERSION" }
             try {
                 ClassLoader.getSystemResourceAsStream(DEFAULT_PROPERTIES_NAME).use { input ->
                     if (input != null) {

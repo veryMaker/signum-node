@@ -2,6 +2,7 @@ package brs.db.sql
 
 import brs.DependencyProvider
 import brs.db.DerivedTable
+import brs.util.logging.safeTrace
 import org.jooq.Field
 import org.jooq.impl.TableImpl
 import org.slf4j.LoggerFactory
@@ -11,7 +12,7 @@ abstract class DerivedSqlTable internal constructor(internal val table: String, 
     internal val latestField: Field<Boolean>?
 
     init {
-        logger.trace("Creating derived table for {}", table)
+        logger.safeTrace { "Creating derived table for $table" }
         dp.derivedTableManager.registerDerivedTable(this)
         this.heightField = tableClass.field("height", Int::class.java)
         this.latestField = tableClass.field("latest", Boolean::class.java)

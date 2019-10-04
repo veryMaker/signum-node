@@ -10,6 +10,7 @@ import brs.taskScheduler.RepeatingTask
 import brs.taskScheduler.Task
 import brs.util.*
 import brs.util.JSON.prepareRequest
+import brs.util.logging.*
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -116,9 +117,9 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
             try {
                 externalIPAddress = gateway!!.externalIPAddress
             } catch (e: IOException) {
-                logger.info("Can't get gateways IP adress")
+                logger.safeInfo { "Can't get gateways IP adress" }
             } catch (e: SAXException) {
-                logger.info("Can't get gateways IP adress")
+                logger.safeInfo { "Can't get gateways IP adress" }
             }
 
             externalIPAddress
@@ -150,7 +151,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                     json.addProperty("announcedAddress", host)
                 }
             } catch (e: URISyntaxException) {
-                logger.info("Your announce address is invalid: {}", myAddress)
+                logger.safeInfo { "Your announce address is invalid: $myAddress" }
                 throw RuntimeException(e.toString(), e)
             }
 
@@ -160,8 +161,8 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
         json.addProperty("version", Burst.VERSION.toString())
         json.addProperty("platform", this.myPlatform)
         json.addProperty("shareAddress", this.shareMyAddress)
-        if (logger.isDebugEnabled) {
-            logger.debug("My peer info: {}", json.toJsonString())
+        if (true) {
+            logger.safeDebug { "My peer info: ${json.toJsonString()}" }
         }
         myPeerInfoResponse = json.cloneJson()
         json.addProperty("requestType", "getInfo")
@@ -203,7 +204,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                 } catch (ignored: ParserConfigurationException) {
                 }
 
-                logger.trace("Looking for Gateway Devices")
+                logger.safeTrace { "Looking for Gateway Devices" }
                 if (gatewayDiscover.validGateway != null) {
                     gateway = gatewayDiscover.validGateway
                 }
@@ -214,23 +215,21 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                         try {
                             val localAddress = gateway!!.localAddress
                             val externalIPAddress = gateway!!.externalIPAddress
-                            if (logger.isInfoEnabled) {
-                                logger.info("Attempting to map {}:{} -> {}:{} on Gateway {} ({})", externalIPAddress, port, localAddress, port, gateway!!.modelName, gateway!!.modelDescription)
-                            }
+                            logger.safeInfo { "Attempting to map $externalIPAddress:$port -> $localAddress:$port on Gateway ${gateway!!.modelName} (${gateway!!.modelDescription})" }
                             val portMapping = PortMappingEntry()
                             if (gateway!!.getSpecificPortMappingEntry(port, "TCP", portMapping)) {
-                                logger.info("Port was already mapped. Aborting test.")
+                                logger.safeInfo { "Port was already mapped. Aborting test." }
                             } else {
                                 if (gateway!!.addPortMapping(port!!, port!!, localAddress.hostAddress, "TCP", "burstcoin")) {
-                                    logger.info("UPnP Mapping successful")
+                                    logger.safeInfo { "UPnP Mapping successful" }
                                 } else {
-                                    logger.warn("UPnP Mapping was denied!")
+                                    logger.safeWarn { "UPnP Mapping was denied!" }
                                 }
                             }
                         } catch (e: IOException) {
-                            logger.error("Can't start UPnP", e)
+                            logger.safeError(e) { "Can't start UPnP" }
                         } catch (e: SAXException) {
-                            logger.error("Can't start UPnP", e)
+                            logger.safeError(e) { "Can't start UPnP" }
                         }
 
                     }
@@ -240,7 +239,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                         dp.taskScheduler.runBeforeStart(gwDiscover)
                     }
                 } else {
-                    logger.warn("Tried to establish UPnP, but it was denied by the network.")
+                    logger.safeWarn { "Tried to establish UPnP, but it was denied by the network." }
                 }
             }
 
@@ -291,13 +290,13 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
             peerServer!!.stopAtShutdown = true
             try {
                 peerServer!!.start()
-                logger.info("Started peer networking server at {}:{}", host, port)
+                logger.safeInfo { "Started peer networking server at $host:$port" }
             } catch (e: Exception) {
-                logger.error("Failed to start peer networking server", e)
+                logger.safeError(e) { "Failed to start peer networking server" }
                 throw RuntimeException(e.toString(), e)
             }
         } else {
-            logger.info("shareMyAddress is disabled, will not start peer networking server")
+            logger.safeInfo { "shareMyAddress is disabled, will not start peer networking server" }
         }
     }
 
@@ -308,7 +307,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                 peer.updateBlacklistedStatus(curTime)
             }
         } catch (e: Exception) {
-            logger.debug("Error un-blacklisting peer", e)
+            logger.safeDebug(e) { "Error un-blacklisting peer" }
         }
         true
     }
@@ -318,7 +317,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
             loadPeers(wellKnownPeers)
         }
         if (usePeersDb) {
-            logger.debug("Loading known peers from the database...")
+            logger.safeDebug { "Loading known peers from the database..." }
             loadPeers(dp.peerDb.loadPeers())
         }
         lastSavedPeers = peers.size
@@ -330,17 +329,17 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                 try {
                     val badAddress = unresolvedPeer.await()
                     if (badAddress != null) {
-                        logger.debug("Failed to resolve peer address: {}", badAddress)
+                        logger.safeDebug { "Failed to resolve peer address: $badAddress" }
                     }
                 } catch (e: InterruptedException) {
                     Thread.currentThread().interrupt()
                 } catch (e: ExecutionException) {
-                    logger.debug("Failed to add peer", e)
+                    logger.safeDebug(e) { "Failed to add peer" }
                 } catch (ignored: TimeoutException) {
                 }
             }
-            if (logger.isDebugEnabled) {
-                logger.debug("Known peers: {}", peers.size)
+            if (true) {
+                logger.safeDebug { "Known peers: ${peers.size}" }
             }
         }
     }
@@ -425,7 +424,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
             }
 
         } catch (e: Exception) {
-            logger.debug("Error connecting to peer", e)
+            logger.safeDebug(e) { "Error connecting to peer" }
         }
         true
     }
@@ -488,7 +487,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                 }
 
             } catch (e: Exception) {
-                logger.debug("Error requesting peers from a peer", e)
+                logger.safeDebug(e) { "Error requesting peers from a peer" }
             }
             return@run true
         }
@@ -573,7 +572,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
             try {
                 peerServer!!.stop()
             } catch (e: Exception) {
-                logger.info("Failed to stop peer server", e)
+                logger.safeInfo(e) { "Failed to stop peer server" }
             }
 
         }
@@ -581,7 +580,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
             try {
                 gateway!!.deletePortMapping(port!!, "TCP")
             } catch (e: Exception) {
-                logger.info("Failed to remove UPNP rule from gateway", e)
+                logger.safeInfo(e) { "Failed to remove UPNP rule from gateway" }
             }
 
         }
@@ -593,8 +592,8 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                     buf.append("('").append(key).append("'), ")
                 }
             }
-            if (logger.isInfoEnabled) {
-                logger.info(buf.toString())
+            if (true) {
+                logger.safeInfo { buf.toString() }
             }
         }
     }
@@ -672,7 +671,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
 
         peer = PeerImpl(dp, peerAddress, announcedPeerAddress)
         if (dp.propertyService.get(Props.DEV_TESTNET) && peer.port > 0 && peer.port != TESTNET_PEER_PORT) {
-            logger.debug("Peer {} on testnet port is not using port {}, ignoring", peerAddress, TESTNET_PEER_PORT)
+            logger.safeDebug { "Peer $peerAddress on testnet port is not using port $TESTNET_PEER_PORT, ignoring" }
             return null
         }
         peers[peerAddress] = peer
@@ -722,7 +721,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                                     successful += 1
                                 }
                             } catch (e: ExecutionException) {
-                                logger.debug("Error in sendToSomePeers", e)
+                                logger.safeDebug(e) { "Error in sendToSomePeers" }
                             }
 
                         }
@@ -762,17 +761,17 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
         val transactionsToSend = foodDispenser(peer)
 
         if (transactionsToSend.isNotEmpty()) {
-            logger.trace("Feeding {} {} transactions", peer.peerAddress, transactionsToSend.size)
+            logger.safeTrace { "Feeding ${peer.peerAddress} ${transactionsToSend.size} transactions" }
             val response = peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend))
 
             if (response != null && response.get("error") == null) {
                 doneFeedingLog(peer, transactionsToSend)
             } else {
                 // TODO why does this keep coming up??
-                logger.warn("Error feeding {} transactions: {} error: {}", peer.peerAddress, transactionsToSend.map { it.id }.toList(), response)
+                logger.safeWarn { "Error feeding ${peer.peerAddress} transactions: ${transactionsToSend.map { it.id }.toList()} error: $response" }
             }
         } else {
-            logger.trace("No need to feed {}", peer.peerAddress)
+            logger.safeTrace { "No need to feed ${peer.peerAddress}" }
         }
 
         processingMutex.withLock {
@@ -818,9 +817,9 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
             }
             if (wellKnownConnected >= connectWellKnownFirst) {
                 connectWellKnownFinished = true
-                logger.info("Finished connecting to {} well known peers.", connectWellKnownFirst)
+                logger.safeInfo { "Finished connecting to $connectWellKnownFirst well known peers." }
                 // TODO should we remove this?
-                logger.info("You can open your Burst Wallet in your favorite browser with: http://127.0.0.1:8125 or http://localhost:8125")
+                logger.safeInfo { "You can open your Burst Wallet in your favorite browser with: http://127.0.0.1:8125 or http://localhost:8125" }
             }
         }
 

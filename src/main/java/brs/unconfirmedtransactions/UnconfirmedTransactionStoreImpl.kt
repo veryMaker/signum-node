@@ -7,6 +7,8 @@ import brs.peer.Peer
 import brs.props.Props
 import brs.taskScheduler.Task
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl
+import brs.util.logging.safeDebug
+import brs.util.logging.safeInfo
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -62,7 +64,7 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
         internalStoreLock.withLock {
             if (transactionIsCurrentlyInCache(transaction)) {
                 if (peer != null) {
-                    logger.info("Transaction {}: Added fingerprint of {}", transaction.id, peer.peerAddress)
+                    logger.safeInfo { "Transaction ${transaction.id}: Added fingerprint of ${peer.peerAddress}" }
                     fingerPrintsOverview[transaction]!!.add(peer)
                 }
             } else if (transactionCanBeAddedToCache(transaction)) {
@@ -74,7 +76,7 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
                     val duplicatedTransaction = duplicationInformation.transaction
 
                     if (duplicatedTransaction != null && duplicatedTransaction !== transaction) {
-                        logger.info("Transaction {}: Adding more expensive duplicate transaction", transaction.id)
+                        logger.safeInfo { "Transaction ${transaction.id}: Adding more expensive duplicate transaction" }
                         removeTransaction(duplicationInformation.transaction)
                         this.reservedBalanceCache.refundBalance(duplicationInformation.transaction)
 
@@ -84,14 +86,14 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
                             removeCheapestFirstToExpireTransaction()
                         }
                     } else {
-                        logger.info("Transaction {}: Will not add a cheaper duplicate UT", transaction.id)
+                        logger.safeInfo { "Transaction ${transaction.id}: Will not add a cheaper duplicate UT" }
                     }
                 } else {
                     addTransaction(transaction, peer)
                     if (amount % 128 == 0) {
-                        logger.info("Cache size: {}/{} added {} from sender {}", amount, maxSize, transaction.id, transaction.senderId)
+                        logger.safeInfo { "Cache size: $amount/$maxSize added ${transaction.id} from sender ${transaction.senderId}" }
                     } else {
-                        logger.debug("Cache size: {}/{} added {} from sender {}", amount, maxSize, transaction.id, transaction.senderId)
+                        logger.safeDebug { "Cache size: $amount/$maxSize added ${transaction.id} from sender ${transaction.senderId}" }
                     }
                 }
 
@@ -155,7 +157,7 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
         // Make sure that we are acting on our own copy of the transaction, as this is the one we want to remove. TODO check this
         val internalTransaction = getNoLock(transaction.id)
         if (internalTransaction != null) {
-            logger.debug("Removing {}", transaction.id)
+            logger.safeDebug { "Removing ${transaction.id}" }
             removeTransaction(internalTransaction)
         }
     }
@@ -168,7 +170,7 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
 
     override suspend fun clear() {
         internalStoreLock.withLock {
-            logger.info("Clearing UTStore")
+            logger.safeInfo { "Clearing UTStore" }
             amount = 0
             internalStore.clear()
             reservedBalanceCache.clear()
@@ -218,7 +220,7 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
         val slotHeight = this.amountSlotForTransaction(transaction)
 
         if (this.internalStore.containsKey(slotHeight) && this.internalStore[slotHeight]!!.size.toLong() == slotHeight * 360) {
-            logger.info("Transaction {}: Not added because slot {} is full", transaction.id, slotHeight)
+            logger.safeInfo { "Transaction ${transaction.id}: Not added because slot $slotHeight is full" }
             return true
         }
 
@@ -227,7 +229,7 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
 
     private fun tooManyTransactionsWithReferencedFullHash(transaction: Transaction): Boolean {
         if (transaction.referencedTransactionFullHash != null && maxPercentageUnconfirmedTransactionsFullHash <= (numberUnconfirmedTransactionsFullHash + 1) * 100 / maxSize) {
-            logger.info("Transaction {}: Not added because too many transactions with referenced full hash", transaction.id)
+            logger.safeInfo { "Transaction ${transaction.id}: Not added because too many transactions with referenced full hash" }
             return true
         }
 
@@ -236,7 +238,7 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
 
     private fun cacheFullAndTransactionCheaperThanAllTheRest(transaction: Transaction): Boolean {
         if (amount == maxSize && internalStore.firstKey() > amountSlotForTransaction(transaction)) {
-            logger.info("Transaction {}: Not added because cache is full and transaction is cheaper than all the rest", transaction.id)
+            logger.safeInfo { "Transaction ${transaction.id}: Not added because cache is full and transaction is cheaper than all the rest" }
             return true
         }
 
@@ -247,7 +249,7 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
         return if (dp.timeService.epochTime < transaction.expiration) {
             true
         } else {
-            logger.info("Transaction {} past expiration: {}", transaction.id, transaction.expiration)
+            logger.safeInfo { "Transaction ${transaction.id} past expiration: ${transaction.expiration}" }
             false
         }
     }
@@ -266,11 +268,11 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
             fingerPrintsOverview[transaction]!!.add(peer)
         }
 
-        if (logger.isDebugEnabled) {
+        if (true) {
             if (peer == null) {
-                logger.debug("Adding Transaction {} from ourself", transaction.id)
+                logger.safeDebug { "Adding Transaction ${transaction.id} from ourself" }
             } else {
-                logger.debug("Adding Transaction {} from Peer {}", transaction.id, peer.peerAddress)
+                logger.safeDebug { "Adding Transaction ${transaction.id} from Peer ${peer.peerAddress}" }
             }
         }
 

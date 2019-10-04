@@ -8,6 +8,8 @@ import brs.http.JSONResponses.ERROR_NOT_ALLOWED
 import brs.props.Props
 import brs.util.JSON
 import brs.util.Subnet
+import brs.util.logging.safeDebug
+import brs.util.logging.safeWarn
 import brs.util.writeTo
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -152,10 +154,10 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             } catch (e: ParameterException) {
                 e.errorResponse
             } catch (e: BurstException) {
-                logger.debug("Error processing API request", e)
+                logger.safeDebug(e) { "Error processing API request" }
                 ERROR_INCORRECT_REQUEST
             } catch (e: RuntimeException) {
-                logger.debug("Error processing API request", e)
+                logger.safeDebug(e) { "Error processing API request" }
                 ERROR_INCORRECT_REQUEST
             }
 
@@ -201,7 +203,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             }
         } catch (e: Exception) { // We don't want to send exception information to client...
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
-            logger.warn("Error handling GET request", e)
+            logger.safeWarn(e) { "Error handling GET request" }
         }
 
     }
@@ -213,7 +215,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             }
         } catch (e: Exception) { // We don't want to send exception information to client...
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
-            logger.warn("Error handling GET request", e)
+            logger.safeWarn(e) { "Error handling GET request" }
         }
 
     }
@@ -267,7 +269,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         } catch (e: ParameterException) {
             writeJsonToResponse(resp, e.errorResponse)
         } catch (e: RuntimeException) {
-            logger.debug("Error processing API request", e)
+            logger.safeDebug(e) { "Error processing API request" }
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
             writeJsonToResponse(resp, ERROR_INCORRECT_REQUEST)
         }

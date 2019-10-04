@@ -5,6 +5,7 @@ import brs.transaction.TransactionType
 import brs.transactionduplicates.TransactionDuplicationKey
 import brs.util.convert.safeAdd
 import brs.util.convert.safeMultiply
+import brs.util.logging.safeTrace
 import com.google.gson.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -24,7 +25,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.AdvancedPaymentEscrowCreation(dp, attachmentData)
 
     override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
-        logger.trace("TransactionType ESCROW_CREATION")
+        logger.safeTrace { "TransactionType ESCROW_CREATION" }
         val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
         if (senderAccount.unconfirmedBalanceNQT < totalAmountNQT) {
             return false

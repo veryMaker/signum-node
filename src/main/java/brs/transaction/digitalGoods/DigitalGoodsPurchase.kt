@@ -3,6 +3,7 @@ package brs.transaction.digitalGoods
 import brs.*
 import brs.util.convert.safeMultiply
 import brs.util.convert.toUnsignedString
+import brs.util.logging.safeTrace
 import brs.util.toJsonString
 import com.google.gson.JsonObject
 import org.slf4j.Logger
@@ -16,7 +17,7 @@ class DigitalGoodsPurchase(dp: DependencyProvider) : DigitalGoods(dp) {
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsPurchase(dp, attachmentData)
 
     override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
-        logger.trace("TransactionType PURCHASE")
+        logger.safeTrace { "TransactionType PURCHASE" }
         val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
         if (senderAccount.unconfirmedBalanceNQT >= totalAmountNQT) {
             dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT)

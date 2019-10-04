@@ -4,6 +4,8 @@ import brs.DependencyProvider
 import brs.db.BurstKey
 import brs.db.store.Dbs
 import brs.props.Props
+import brs.util.logging.safeDebug
+import brs.util.logging.safeInfo
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
@@ -32,7 +34,7 @@ class Db(private val dp: DependencyProvider) { // TODO interface
 
     val dbsByDatabaseType: Dbs
         get() {
-            logger.info("Using SQL Backend with Dialect {}", dialect!!.getName())
+            logger.safeInfo { "Using SQL Backend with Dialect ${dialect.getName()}" }
             return SqlDbs(dp)
         }
 
@@ -85,7 +87,7 @@ class Db(private val dp: DependencyProvider) { // TODO interface
         }
         dialect = JDBCUtils.dialect(dbUrl)
 
-        logger.debug("Database jdbc url set to: {}", dbUrl)
+        logger.safeDebug { "Database jdbc url set to: $dbUrl" }
         try {
             val config = HikariConfig()
             config.jdbcUrl = dbUrl
@@ -153,7 +155,7 @@ class Db(private val dp: DependencyProvider) { // TODO interface
             cp = HikariDataSource(config)
 
             if (runFlyway) {
-                logger.info("Running flyway migration")
+                logger.safeInfo { "Running flyway migration" }
                 val flyway = flywayBuilder.load()
                 flyway.migrate()
             }
@@ -189,9 +191,9 @@ class Db(private val dp: DependencyProvider) { // TODO interface
                     }
                 }
             } catch (e: SQLException) {
-                logger.info(e.toString(), e)
+                logger.safeInfo(e) { e.toString() }
             } finally {
-                logger.info("Database shutdown completed.")
+                logger.safeInfo { "Database shutdown completed." }
             }
         }
         if (cp != null && !cp!!.isClosed) {
@@ -276,7 +278,7 @@ class Db(private val dp: DependencyProvider) { // TODO interface
                     }
                 }
             } catch (e: Exception) {
-                logger.debug("Failed to optimize table {}", tableName, e)
+                logger.safeDebug(e) { "Failed to optimize table $tableName" }
             }
         }
     }

@@ -9,6 +9,8 @@ import brs.util.JSON
 import brs.util.convert.*
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLazy
+import brs.util.logging.safeDebug
+import brs.util.logging.safeError
 import brs.util.toJsonString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -111,9 +113,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
             if (blockATs != null)
                 buffer.put(blockATs)
             if (buffer.limit() - buffer.position() < blockSignature!!.size)
-                logger.error("Something is too large here - buffer should have {} bytes left but only has {}",
-                        blockSignature!!.size,
-                        buffer.limit() - buffer.position())
+                logger.safeError { "Something is too large here - buffer should have ${blockSignature!!.size} bytes left but only has ${buffer.limit() - buffer.position()}" }
             buffer.put(blockSignature!!)
             return buffer.array()
         }
@@ -209,13 +209,13 @@ class Block internal constructor(private val dp: DependencyProvider, val version
                         payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature,
                         previousBlockHash, blockTransactions.values, nonce, blockATs, height)
             } catch (e: BurstException.ValidationException) {
-                if (logger.isDebugEnabled) {
-                    logger.debug("Failed to parse block: {}", blockData.toJsonString())
+                if (true) {
+                    logger.safeDebug { "Failed to parse block: ${blockData.toJsonString()}" }
                 }
                 throw e
             } catch (e: RuntimeException) {
-                if (logger.isDebugEnabled) {
-                    logger.debug("Failed to parse block: {}", blockData.toJsonString())
+                if (true) {
+                    logger.safeDebug { "Failed to parse block: ${blockData.toJsonString()}" }
                 }
                 throw e
             }

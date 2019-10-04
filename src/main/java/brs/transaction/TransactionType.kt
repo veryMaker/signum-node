@@ -20,6 +20,7 @@ import brs.transaction.payment.OrdinaryPayment
 import brs.transactionduplicates.TransactionDuplicationKey
 import brs.util.convert.safeAdd
 import brs.util.convert.safeMultiply
+import brs.util.logging.safeTrace
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
@@ -38,21 +39,13 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
      */
     suspend fun applyUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         val totalAmountNQT = calculateTransactionAmountNQT(transaction)!!
-        if (logger.isTraceEnabled) {
-            logger.trace(
-                "applyUnconfirmed: {} < totalamount: {} = false",
-                senderAccount.unconfirmedBalanceNQT,
-                totalAmountNQT
-            )
-        }
+        logger.safeTrace { "applyUnconfirmed: ${senderAccount.unconfirmedBalanceNQT} < totalamount: $totalAmountNQT = false" }
         if (senderAccount.unconfirmedBalanceNQT < totalAmountNQT) {
             return false
         }
         dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT)
         if (!applyAttachmentUnconfirmed(transaction, senderAccount)) {
-            if (logger.isTraceEnabled) {
-                logger.trace("!applyAttachmentUnconfirmed({}, {})", transaction, senderAccount.id)
-            }
+            logger.safeTrace { "!applyAttachmentUnconfirmed($transaction, ${senderAccount.id})" }
             dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT)
             return false
         }
@@ -85,8 +78,8 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
         if (recipientAccount != null) {
             dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, transaction.amountNQT)
         }
-        if (logger.isTraceEnabled) {
-            logger.trace("applying transaction - id: {}, type: {}", transaction.id, transaction.type)
+        if (true) {
+            logger.safeTrace { "applying transaction - id: ${transaction.id}, type: ${transaction.type}" }
         }
         applyAttachment(transaction, senderAccount, recipientAccount)
     }

@@ -4,6 +4,7 @@ import brs.Blockchain
 import brs.util.JSON
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
+import brs.util.logging.safeDebug
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -59,7 +60,7 @@ internal class GetMilestoneBlockIds(private val blockchain: Blockchain) : PeerSe
             }
             response.add("milestoneBlockIds", milestoneBlockIds)
         } catch (e: RuntimeException) {
-            logger.debug(e.toString())
+            logger.safeDebug { e.toString() }
             response.addProperty("error", e.toString())
         }
 

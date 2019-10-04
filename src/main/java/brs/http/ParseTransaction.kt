@@ -16,6 +16,7 @@ import brs.http.common.ResultFields.ERROR_RESPONSE
 import brs.http.common.ResultFields.VALIDATE_RESPONSE
 import brs.http.common.ResultFields.VERIFY_RESPONSE
 import brs.util.convert.emptyToNull
+import brs.util.logging.safeDebug
 
 internal class ParseTransaction(private val parameterService: ParameterService, private val transactionService: TransactionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_BYTES_PARAMETER, TRANSACTION_JSON_PARAMETER) {
 
@@ -28,13 +29,13 @@ internal class ParseTransaction(private val parameterService: ParameterService, 
         try {
             transactionService.validate(transaction)
         } catch (e: BurstException.ValidationException) {
-            logger.debug(e.message, e)
+            logger.safeDebug(e) { e.message }
             response.addProperty(VALIDATE_RESPONSE, false)
             response.addProperty(ERROR_CODE_RESPONSE, 4)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Invalid transaction: $e")
             response.addProperty(ERROR_RESPONSE, e.message)
         } catch (e: RuntimeException) {
-            logger.debug(e.message, e)
+            logger.safeDebug(e) { e.message }
             response.addProperty(VALIDATE_RESPONSE, false)
             response.addProperty(ERROR_CODE_RESPONSE, 4)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Invalid transaction: $e")
