@@ -52,7 +52,7 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
     override val goodsTable: VersionedEntityTable<DigitalGoodsStore.Goods>
 
     init {
-        purchaseTable = object : VersionedEntitySqlTable<DigitalGoodsStore.Purchase>("purchase", brs.schema.Tables.PURCHASE, purchaseDbKeyFactory, dp) {
+        purchaseTable = object : VersionedEntitySqlTable<DigitalGoodsStore.Purchase>("purchase", PURCHASE, purchaseDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, rs: Record): DigitalGoodsStore.Purchase {
                 return SQLPurchase(rs)
             }
@@ -69,7 +69,7 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
             }
         }
 
-        feedbackTable = object : VersionedValuesSqlTable<DigitalGoodsStore.Purchase, EncryptedData>("purchase_feedback", brs.schema.Tables.PURCHASE_FEEDBACK, feedbackDbKeyFactory, dp) {
+        feedbackTable = object : VersionedValuesSqlTable<DigitalGoodsStore.Purchase, EncryptedData>("purchase_feedback", PURCHASE_FEEDBACK, feedbackDbKeyFactory, dp) {
 
             override fun load(ctx: DSLContext, record: Record): EncryptedData {
                 val data = record.get(PURCHASE_FEEDBACK.FEEDBACK_DATA)
@@ -97,7 +97,7 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
             }
         }
 
-        publicFeedbackTable = object : VersionedValuesSqlTable<DigitalGoodsStore.Purchase, String>("purchase_public_feedback", brs.schema.Tables.PURCHASE_PUBLIC_FEEDBACK, publicFeedbackDbKeyFactory, dp) {
+        publicFeedbackTable = object : VersionedValuesSqlTable<DigitalGoodsStore.Purchase, String>("purchase_public_feedback", PURCHASE_PUBLIC_FEEDBACK, publicFeedbackDbKeyFactory, dp) {
 
             override fun load(ctx: DSLContext, record: Record): String {
                 return record.get(PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK)
@@ -111,7 +111,7 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
             }
         }
 
-        goodsTable = object : VersionedEntitySqlTable<DigitalGoodsStore.Goods>("goods", brs.schema.Tables.GOODS, goodsDbKeyFactory, dp) {
+        goodsTable = object : VersionedEntitySqlTable<DigitalGoodsStore.Goods>("goods", GOODS, goodsDbKeyFactory, dp) {
 
             override fun load(ctx: DSLContext, rs: Record): DigitalGoodsStore.Goods {
                 return SQLGoods(rs)
@@ -123,8 +123,8 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
 
             override fun defaultSort(): List<SortField<*>> {
                 val sort = mutableListOf<SortField<*>>()
-                sort.add(brs.schema.Tables.GOODS.field("timestamp", Int::class.java).desc())
-                sort.add(brs.schema.Tables.GOODS.field("id", Long::class.java).asc())
+                sort.add(GOODS.field("timestamp", Int::class.java).desc())
+                sort.add(GOODS.field("id", Long::class.java).asc())
                 return sort
             }
         }
@@ -154,8 +154,8 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
         var refundNote: ByteArray? = null
         var refundNonce: ByteArray? = null
         if (purchase.note != null) {
-            note = purchase.note!!.data
-            nonce = purchase.note!!.nonce
+            note = purchase.note.data
+            nonce = purchase.note.nonce
         }
         if (purchase.encryptedGoods != null) {
             goods = purchase.encryptedGoods!!.data
@@ -167,7 +167,8 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
         }
         ctx.mergeInto<PurchaseRecord, Long, Long, Long, Long, Int, Long, Int, ByteArray, ByteArray, Int, Boolean, ByteArray, ByteArray, ByteArray, ByteArray, Boolean, Boolean, Long, Long, Int, Boolean>(PURCHASE, PURCHASE.ID, PURCHASE.BUYER_ID, PURCHASE.GOODS_ID, PURCHASE.SELLER_ID, PURCHASE.QUANTITY, PURCHASE.PRICE, PURCHASE.DEADLINE, PURCHASE.NOTE, PURCHASE.NONCE, PURCHASE.TIMESTAMP, PURCHASE.PENDING, PURCHASE.GOODS, PURCHASE.GOODS_NONCE, PURCHASE.REFUND_NOTE, PURCHASE.REFUND_NONCE, PURCHASE.HAS_FEEDBACK_NOTES, PURCHASE.HAS_PUBLIC_FEEDBACKS, PURCHASE.DISCOUNT, PURCHASE.REFUND, PURCHASE.HEIGHT, PURCHASE.LATEST)
                 .key(PURCHASE.ID, PURCHASE.HEIGHT)
-                .values(purchase.id, purchase.buyerId, purchase.goodsId, purchase.sellerId, purchase.quantity, purchase.priceNQT, purchase.deliveryDeadlineTimestamp, note, nonce, purchase.timestamp, purchase.isPending, goods, goodsNonce, refundNote, refundNonce, purchase.feedbackNotes != null && !purchase.feedbackNotes!!.isEmpty(), !purchase.publicFeedback!!.isEmpty(), purchase.discountNQT, purchase.refundNQT, dp.blockchain.height, true)
+                .values(purchase.id, purchase.buyerId, purchase.goodsId, purchase.sellerId, purchase.quantity, purchase.priceNQT, purchase.deliveryDeadlineTimestamp, note, nonce, purchase.timestamp, purchase.isPending, goods, goodsNonce, refundNote, refundNonce, purchase.feedbackNotes != null && purchase.feedbackNotes!!.isNotEmpty(),
+                    purchase.publicFeedback!!.isNotEmpty(), purchase.discountNQT, purchase.refundNQT, dp.blockchain.height, true)
                 .execute()
     }
 

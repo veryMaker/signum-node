@@ -150,7 +150,7 @@ object DigitalGoodsStore {
             this.quantity = attachment.quantity
             this.priceNQT = attachment.priceNQT
             this.deliveryDeadlineTimestamp = attachment.deliveryDeadlineTimestamp
-            this.note = if (transaction.encryptedMessage == null) null else transaction.encryptedMessage!!.encryptedData
+            this.note = if (transaction.encryptedMessage == null) null else transaction.encryptedMessage.encryptedData
             this.timestamp = transaction.timestamp
             this.isPending = true
         }
@@ -203,6 +203,6 @@ object DigitalGoodsStore {
     }
 
     private fun getGoods(dp: DependencyProvider, goodsId: Long): Goods? {
-        return Goods.goodsTable(dp).get(Goods.goodsDbKeyFactory(dp).newKey(goodsId))
+        return Goods.goodsTable(dp)[Goods.goodsDbKeyFactory(dp).newKey(goodsId)]
     }
 }

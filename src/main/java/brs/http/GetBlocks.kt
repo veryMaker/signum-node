@@ -21,7 +21,7 @@ internal class GetBlocks(private val blockchain: Blockchain, private val blockSe
             lastIndex = firstIndex + 99
         }
 
-        val includeTransactions = Parameters.isTrue(request.getParameter(Parameters.INCLUDE_TRANSACTIONS_PARAMETER))
+        val includeTransactions = Parameters.isTrue(request.getParameter(INCLUDE_TRANSACTIONS_PARAMETER))
 
         val blocks = JsonArray()
         for (block in blockchain.getBlocks(firstIndex, lastIndex)) {

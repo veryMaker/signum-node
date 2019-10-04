@@ -1,6 +1,5 @@
 package brs.grpc.handlers
 
-import brs.Alias
 import brs.grpc.GrpcApiHandler
 import brs.grpc.proto.BrsApi
 import brs.grpc.proto.ProtoBuilder

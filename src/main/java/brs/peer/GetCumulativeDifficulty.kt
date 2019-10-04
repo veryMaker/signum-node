@@ -1,6 +1,5 @@
 package brs.peer
 
-import brs.Block
 import brs.Blockchain
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

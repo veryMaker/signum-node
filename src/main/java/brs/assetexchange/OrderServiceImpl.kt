@@ -22,11 +22,11 @@ internal class OrderServiceImpl(private val dp: DependencyProvider, private val 
         get() = askOrderTable.count
 
     fun getAskOrder(orderId: Long): Ask?{
-        return askOrderTable.get(askOrderDbKeyFactory.newKey(orderId))
+        return askOrderTable[askOrderDbKeyFactory.newKey(orderId)]
     }
 
     fun getBidOrder(orderId: Long): Bid? {
-        return bidOrderTable.get(bidOrderDbKeyFactory.newKey(orderId))
+        return bidOrderTable[bidOrderDbKeyFactory.newKey(orderId)]
     }
 
     fun getAllAskOrders(from: Int, to: Int): Collection<Ask> {

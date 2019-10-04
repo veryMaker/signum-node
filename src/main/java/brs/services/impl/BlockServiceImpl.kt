@@ -9,7 +9,6 @@ import brs.util.convert.toUnsignedString
 import brs.util.logging.safeInfo
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
-import java.util.*
 
 class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
     override fun verifyBlockSignature(block: Block): Boolean {
@@ -17,7 +16,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             if (block.blockSignature == null) {
                 return false
             }
-            val previousBlock = dp.blockchain.getBlock(block.previousBlockId) ?: throw BlockchainProcessor.BlockOutOfOrderException("Can't verify signature because previous block is missing")
+            val previousBlock = dp.blockchain.getBlock(block.previousBlockId) ?: throw BlockOutOfOrderException("Can't verify signature because previous block is missing")
 
             val data = block.bytes
             val data2 = ByteArray(data.size - 64)
@@ -51,12 +50,12 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
     override fun verifyGenerationSignature(block: Block): Boolean {
         try {
             val previousBlock = dp.blockchain.getBlock(block.previousBlockId)
-                    ?: throw BlockchainProcessor.BlockOutOfOrderException(
+                    ?: throw BlockOutOfOrderException(
                             "Can't verify generation signature because previous block is missing")
 
             val correctGenerationSignature = dp.generator.calculateGenerationSignature(
                     previousBlock.generationSignature, previousBlock.generatorId)
-            if (!Arrays.equals(block.generationSignature, correctGenerationSignature)) {
+            if (!block.generationSignature.contentEquals(correctGenerationSignature)) {
                 return false
             }
             val elapsedTime = block.timestamp - previousBlock.timestamp
@@ -84,9 +83,11 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         try {
             // Pre-verify poc:
             if (scoopData == null) {
-                block.pocTime = dp.generator.calculateHit(block.generatorId, block.nonce!!, block.generationSignature, getScoopNum(block), block.height)
+                block.pocTime = dp.generator.calculateHit(block.generatorId,
+                    block.nonce, block.generationSignature, getScoopNum(block), block.height)
             } else {
-                block.pocTime = dp.generator.calculateHit(block.generatorId, block.nonce!!, block.generationSignature, scoopData)
+                block.pocTime = dp.generator.calculateHit(block.generatorId,
+                    block.nonce, block.generationSignature, scoopData)
             }
         } catch (e: RuntimeException) {
             logger.safeInfo(e) { "Error pre-verifying block generation signature" }
@@ -111,10 +112,10 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         } else {
             val rewardAccount: Account
             val rewardAssignment = dp.accountService.getRewardRecipientAssignment(generatorAccount)
-            when {
-                rewardAssignment == null -> rewardAccount = generatorAccount
-                block.height >= rewardAssignment.fromHeight -> rewardAccount = dp.accountService.getAccount(rewardAssignment.recipientId)!!
-                else -> rewardAccount = dp.accountService.getAccount(rewardAssignment.prevRecipientId)!!
+            rewardAccount = when {
+                rewardAssignment == null -> generatorAccount
+                block.height >= rewardAssignment.fromHeight -> dp.accountService.getAccount(rewardAssignment.recipientId)!!
+                else -> dp.accountService.getAccount(rewardAssignment.prevRecipientId)!!
             }
             dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, block.totalFeeNQT + getBlockReward(block))
             dp.accountService.addToForgedBalanceNQT(rewardAccount, block.totalFeeNQT + getBlockReward(block))

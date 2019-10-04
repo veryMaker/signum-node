@@ -1,7 +1,6 @@
 package brs.http
 
 import brs.Attachment
-import brs.BurstException
 import brs.DependencyProvider
 import brs.http.JSONResponses.NOT_ENOUGH_ASSETS
 import brs.http.common.Parameters.ASSET_PARAMETER

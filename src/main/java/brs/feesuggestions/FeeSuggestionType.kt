@@ -1,7 +1,5 @@
 package brs.feesuggestions
 
-import java.util.Arrays
-
 enum class FeeSuggestionType constructor(val type: String) {
     CHEAP("cheap"),
     STANDARD("standard"),

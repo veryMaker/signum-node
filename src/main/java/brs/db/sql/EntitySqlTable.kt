@@ -23,7 +23,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
     override val rowCount: Int
         get() = dp.db.useDslContext<Int> { ctx -> ctx.selectCount().from(tableClass).fetchOne(0, Int::class.javaPrimitiveType) }
 
-    internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: BurstKey.Factory<T>, dp: DependencyProvider) : this(table, tableClass, dbKeyFactory, false, dp) {}
+    internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: BurstKey.Factory<T>, dp: DependencyProvider) : this(table, tableClass, dbKeyFactory, false, dp)
 
     init {
         if (multiversion) {
@@ -163,7 +163,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
             query.addConditions(condition)
             query.addOrderBy(sort)
             if (multiversion) {
-                query.addConditions(latestField?.isTrue())
+                query.addConditions(latestField?.isTrue)
             }
             DbUtils.applyLimits(query, from, to)
             getManyBy(ctx, query, true)

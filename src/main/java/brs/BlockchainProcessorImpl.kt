@@ -486,7 +486,7 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
                                 pushBlock(block)
                                 pushedForkBlocks += 1
                             } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
-                                peer!!.blacklist(e, "during processing a fork")
+                                peer.blacklist(e, "during processing a fork")
                                 break
                             }
 
@@ -726,7 +726,7 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
                 if (dp.fluxCapacitor.getValue(FluxValues.NEXT_FORK)) {
                     Arrays.sort(feeArray)
                     for (i in feeArray.indices) {
-                        if (feeArray[i] >= Constants.FEE_QUANT * (i + 1)) {
+                        if (feeArray[i] >= FEE_QUANT * (i + 1)) {
                             throw BlockchainProcessor.BlockNotAcceptedException("Transaction fee is not enough to be included in this block " + block.height)
                         }
                     }
@@ -1069,9 +1069,7 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
                 dp.blockService.preVerify(block)
                 pushBlock(block)
                 blockListeners.accept(BlockchainProcessor.Event.BLOCK_GENERATED, block)
-                if (true) {
-                    logger.safeDebug { "Account ${block.generatorId.toUnsignedString()} generated block ${block.stringId} at height ${block.height}" }
-                }
+                logger.safeDebug { "Account ${block.generatorId.toUnsignedString()} generated block ${block.stringId} at height ${block.height}" }
                 dp.downloadCache.resetCache()
             } catch (e: BlockchainProcessor.TransactionNotAcceptedException) {
                 logger.safeDebug { "Generate block failed: ${e.message}" }

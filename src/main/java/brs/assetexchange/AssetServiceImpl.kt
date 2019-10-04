@@ -12,7 +12,7 @@ internal class AssetServiceImpl(private val assetAccountService: AssetAccountSer
         get() = assetTable.count
 
     fun getAsset(id: Long): Asset? {
-        return assetTable.get(assetDbKeyFactory.newKey(id))
+        return assetTable[assetDbKeyFactory.newKey(id)]
     }
 
     fun getAccounts(assetId: Long, from: Int, to: Int): Collection<AccountAsset> {

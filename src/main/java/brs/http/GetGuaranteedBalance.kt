@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
 import brs.http.common.ResultFields.GUARANTEED_BALANCE_NQT_RESPONSE

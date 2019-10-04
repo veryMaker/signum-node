@@ -33,7 +33,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
         get() = accountDbKeyFactory
 
     init {
-        rewardRecipientAssignmentTable = object : VersionedEntitySqlTable<Account.RewardRecipientAssignment>("reward_recip_assign", brs.schema.Tables.REWARD_RECIP_ASSIGN, rewardRecipientAssignmentDbKeyFactory, dp) {
+        rewardRecipientAssignmentTable = object : VersionedEntitySqlTable<Account.RewardRecipientAssignment>("reward_recip_assign", REWARD_RECIP_ASSIGN, rewardRecipientAssignmentDbKeyFactory, dp) {
 
             override fun load(ctx: DSLContext, rs: Record): Account.RewardRecipientAssignment {
                 return SqlRewardRecipientAssignment(rs)
@@ -47,7 +47,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             }
         }
 
-        accountAssetTable = object : VersionedEntitySqlTable<Account.AccountAsset>("account_asset", brs.schema.Tables.ACCOUNT_ASSET, accountAssetDbKeyFactory, dp) {
+        accountAssetTable = object : VersionedEntitySqlTable<Account.AccountAsset>("account_asset", ACCOUNT_ASSET, accountAssetDbKeyFactory, dp) {
             private val sort = initializeSort()
 
             private fun initializeSort(): List<SortField<*>> {
@@ -74,7 +74,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             }
         }
 
-        accountTable = object : VersionedBatchEntitySqlTable<Account>("account", brs.schema.Tables.ACCOUNT, accountDbKeyFactory, Account::class.java, dp) {
+        accountTable = object : VersionedBatchEntitySqlTable<Account>("account", ACCOUNT, accountDbKeyFactory, Account::class.java, dp) {
             override fun load(ctx: DSLContext, rs: Record): Account {
                 return SqlAccount(rs)
             }
@@ -138,18 +138,14 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             }
             Arrays.equals(acc.publicKey, key) -> return true
             acc.keyHeight == -1 -> {
-                if (true) {
-                    logger.safeInfo { "DUPLICATE KEY!!!" }
-                    logger.safeInfo { "Account key for ${acc.id.toUnsignedString()} was already set to a different one at the same height, current height is $height, rejecting new key" }
-                }
+                logger.safeInfo { "DUPLICATE KEY!!!" }
+                logger.safeInfo { "Account key for ${acc.id.toUnsignedString()} was already set to a different one at the same height, current height is $height, rejecting new key" }
                 false
             }
             acc.keyHeight >= height -> {
                 logger.safeInfo { "DUPLICATE KEY!!!" }
                 if (dp.db.isInTransaction) {
-                    if (true) {
-                        logger.safeInfo { "Changing key for account ${acc.id.toUnsignedString()} at height $height, was previously set to a different one at height ${acc.keyHeight}" }
-                    }
+                    logger.safeInfo { "Changing key for account ${acc.id.toUnsignedString()} at height $height, was previously set to a different one at height ${acc.keyHeight}" }
                     acc.publicKey = key
                     acc.keyHeight = height
                     accountTable.insert(acc)

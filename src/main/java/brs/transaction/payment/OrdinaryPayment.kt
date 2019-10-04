@@ -1,12 +1,11 @@
 package brs.transaction.payment
 
 import brs.*
-import brs.transaction.TransactionType
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 
 class OrdinaryPayment(dp: DependencyProvider) : Payment(dp) {
-    override val subtype = TransactionType.SUBTYPE_PAYMENT_ORDINARY_PAYMENT
+    override val subtype = SUBTYPE_PAYMENT_ORDINARY_PAYMENT
     override val description = "Ordinary Payment"
 
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.OrdinaryPayment(dp)

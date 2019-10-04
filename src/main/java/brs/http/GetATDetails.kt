@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.http.common.Parameters.AT_PARAMETER
 import brs.services.AccountService
 import brs.services.ParameterService

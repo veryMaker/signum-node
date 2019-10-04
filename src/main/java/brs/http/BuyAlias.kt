@@ -1,7 +1,6 @@
 package brs.http
 
 import brs.Attachment
-import brs.BurstException
 import brs.DependencyProvider
 import brs.http.JSONResponses.INCORRECT_ALIAS_NOTFORSALE
 import brs.http.common.Parameters.ALIAS_NAME_PARAMETER

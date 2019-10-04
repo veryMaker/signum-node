@@ -3,14 +3,9 @@ package brs.util
 import brs.Constants.PROTOCOL
 import com.google.gson.*
 import com.google.gson.stream.JsonReader
-import java.io.IOException
 import java.io.Reader
 import java.io.StringReader
 import java.io.Writer
-import java.util.function.BiConsumer
-import java.util.function.BinaryOperator
-import java.util.function.Supplier
-import java.util.stream.Collector
 
 object JSON {
     val emptyJSON: JsonElement = JsonObject()

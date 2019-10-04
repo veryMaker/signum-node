@@ -32,7 +32,7 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
             }
         }
 
-        aliasTable = object : VersionedEntitySqlTable<Alias>("alias", brs.schema.Tables.ALIAS, aliasDbKeyFactory, dp) {
+        aliasTable = object : VersionedEntitySqlTable<Alias>("alias", ALIAS, aliasDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, record: Record): Alias {
                 return SqlAlias(record)
             }
@@ -66,11 +66,11 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
     }
 
     override fun getAliasesByOwner(accountId: Long, from: Int, to: Int): Collection<Alias> {
-        return aliasTable.getManyBy(brs.schema.Tables.ALIAS.ACCOUNT_ID.eq(accountId), from, to)
+        return aliasTable.getManyBy(ALIAS.ACCOUNT_ID.eq(accountId), from, to)
     }
 
     override fun getAlias(aliasName: String): Alias? {
-        return aliasTable.getBy(brs.schema.Tables.ALIAS.ALIAS_NAME_LOWER.eq(aliasName.toLowerCase(Locale.ENGLISH)))
+        return aliasTable.getBy(ALIAS.ALIAS_NAME_LOWER.eq(aliasName.toLowerCase(Locale.ENGLISH)))
     }
 
     companion object {

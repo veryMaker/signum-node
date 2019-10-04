@@ -54,7 +54,7 @@ class OCLPoC(dp: DependencyProvider) {
                 val ac = autoChooseDevice() ?: throw OCLCheckerException("Autochoose failed to select a GPU")
                 platformIndex = ac.platform
                 deviceIndex = ac.device
-                logger.safeInfo { "Choosing Platform ${platformIndex} - DeviceId: ${deviceIndex}" }
+                logger.safeInfo { "Choosing Platform $platformIndex - DeviceId: $deviceIndex" }
             } else {
                 platformIndex = propertyService.get(Props.GPU_PLATFORM_IDX)
                 deviceIndex = propertyService.get(Props.GPU_DEVICE_IDX)
@@ -103,7 +103,7 @@ class OCLPoC(dp: DependencyProvider) {
             val ctxProps = cl_context_properties()
             ctxProps.addProperty(CL_CONTEXT_PLATFORM.toLong(), platform)
 
-            ctx = clCreateContext(ctxProps, 1, arrayOf<cl_device_id>(device!!), null, null, null)
+            ctx = clCreateContext(ctxProps, 1, arrayOf(device!!), null, null, null)
             queue = clCreateCommandQueueWithProperties(ctx, device, cl_queue_properties(), null)
 
             val source: String
@@ -127,7 +127,7 @@ class OCLPoC(dp: DependencyProvider) {
             clGetKernelWorkGroupInfo(getKernel, device, CL_KERNEL_WORK_GROUP_SIZE, 8,
                     Pointer.to(getGroupSize), null)
 
-            maxGroupItems = Math.min(genGroupSize[0], getGroupSize[0])
+            maxGroupItems = min(genGroupSize[0], getGroupSize[0])
 
             if (maxGroupItems <= 0) {
                 throw OCLCheckerException(
@@ -136,7 +136,7 @@ class OCLPoC(dp: DependencyProvider) {
 
             val maxItemsByComputeUnits = getComputeUnits(device) * maxGroupItems
 
-            maxItems = Math.min(calculateMaxItemsByMem(device), maxItemsByComputeUnits)
+            maxItems = min(calculateMaxItemsByMem(device), maxItemsByComputeUnits)
 
             if (maxItems % maxGroupItems != 0L) {
                 maxItems -= maxItems % maxGroupItems
@@ -146,11 +146,9 @@ class OCLPoC(dp: DependencyProvider) {
                 throw OCLCheckerException(
                         "OpenCL init error. Invalid calculated max items: $maxItems")
             }
-            logger.safeInfo { "OCL max items: ${maxItems}" }
+            logger.safeInfo { "OCL max items: $maxItems" }
         } catch (e: CLException) {
-            if (true) {
-                logger.safeInfo(e) { "OpenCL exception: ${e.message}" }
-            }
+            logger.safeInfo(e) { "OpenCL exception: ${e.message}" }
             runBlocking { destroy() }
             throw OCLCheckerException("OpenCL exception", e)
         }
@@ -159,9 +157,7 @@ class OCLPoC(dp: DependencyProvider) {
 
     suspend fun validatePoC(blocks: Collection<Block>, pocVersion: Int, blockService: BlockService) {
         try {
-            if (true) {
-                logger.safeDebug { "starting ocl verify for: ${blocks.size}" }
-            }
+            logger.safeDebug { "starting ocl verify for: ${blocks.size}" }
             val scoopsOut = ByteArray(MiningPlot.SCOOP_SIZE * blocks.size)
 
             var jobSize = blocks.size.toLong()
@@ -187,9 +183,7 @@ class OCLPoC(dp: DependencyProvider) {
                 buffer.clear()
                 scoopNums[i] = blockService.getScoopNum(block)
             }
-            if (true) {
-                logger.safeDebug { "finished preprocessing: ${blocks.size}" }
-            }
+            logger.safeDebug { "finished preprocessing: ${blocks.size}" }
 
             oclLock.withLock {
                 if (ctx == null) {
@@ -276,9 +270,7 @@ class OCLPoC(dp: DependencyProvider) {
                 }
             }
 
-            if (true) {
-                logger.safeDebug { "finished ocl, doing rest: ${blocks.size}" }
-            }
+            logger.safeDebug { "finished ocl, doing rest: ${blocks.size}" }
 
             val scoopsBuffer = ByteBuffer.wrap(scoopsOut)
             val scoop = ByteArray(MiningPlot.SCOOP_SIZE)
@@ -291,9 +283,7 @@ class OCLPoC(dp: DependencyProvider) {
                     throw PreValidateFailException("Block failed to prevalidate", e, block)
                 }
             }
-            if (true) {
-                logger.safeDebug { "finished rest: ${blocks.size}" }
-            }
+            logger.safeDebug { "finished rest: ${blocks.size}" }
         } catch (e: CLException) {
             // intentionally leave out of unverified cache. It won't slow it that much on one failure and
             // avoids infinite looping on repeat failed attempts.
@@ -361,8 +351,8 @@ class OCLPoC(dp: DependencyProvider) {
 
         logger.safeDebug { "Global Memory: ${globalMemSize[0]}" }
         logger.safeDebug { "Max alloc Memory: ${maxMemAllocSize[0]}" }
-        logger.safeDebug { "maxItemsByGlobalMemSize: ${maxItemsByGlobalMemSize}" }
-        logger.safeDebug { "maxItemsByMaxAllocSize: ${maxItemsByMaxAllocSize}" }
+        logger.safeDebug { "maxItemsByGlobalMemSize: $maxItemsByGlobalMemSize" }
+        logger.safeDebug { "maxItemsByMaxAllocSize: $maxItemsByMaxAllocSize" }
 
         return min(maxItemsByGlobalMemSize, maxItemsByMaxAllocSize)
     }
@@ -389,7 +379,7 @@ class OCLPoC(dp: DependencyProvider) {
                     Pointer.to(platformNameChars), null)
             val platformName = String(platformNameChars)
 
-            logger.safeInfo { "Platform ${pfi}: ${platformName}" }
+            logger.safeInfo { "Platform ${pfi}: $platformName" }
 
             val numDevices = IntArray(1)
             clGetDeviceIDs(platforms[pfi], CL_DEVICE_TYPE_GPU, 0, null, numDevices)
@@ -438,9 +428,9 @@ class OCLPoC(dp: DependencyProvider) {
     private class AutoChooseResult internal constructor(internal val platform: Int, internal val device: Int)
 
     class OCLCheckerException : RuntimeException {
-        internal constructor(message: String) : super(message) {}
+        internal constructor(message: String) : super(message)
 
-        internal constructor(message: String, cause: Throwable) : super(message, cause) {}
+        internal constructor(message: String, cause: Throwable) : super(message, cause)
     }
 
     class PreValidateFailException internal constructor(message: String, cause: Throwable, @field:Transient val block: Block) : RuntimeException(message, cause)

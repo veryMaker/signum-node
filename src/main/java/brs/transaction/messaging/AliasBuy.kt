@@ -2,7 +2,6 @@ package brs.transaction.messaging
 
 import brs.*
 import brs.fluxcapacitor.FluxValues
-import brs.transaction.TransactionType
 import brs.transactionduplicates.TransactionDuplicationKey
 import brs.util.convert.toUnsignedString
 import com.google.gson.JsonObject
@@ -10,7 +9,7 @@ import java.nio.ByteBuffer
 import java.util.*
 
 class AliasBuy(dp: DependencyProvider) : Messaging(dp) {
-    override val subtype = TransactionType.SUBTYPE_MESSAGING_ALIAS_BUY
+    override val subtype = SUBTYPE_MESSAGING_ALIAS_BUY
 
     override val description = "Alias Buy"
 

@@ -1,7 +1,6 @@
 package brs.http
 
 import brs.Blockchain
-import brs.BurstException
 import brs.EconomicClustering
 import brs.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.http.common.ResultFields.EC_BLOCK_HEIGHT_RESPONSE

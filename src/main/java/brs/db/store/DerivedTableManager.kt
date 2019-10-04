@@ -2,7 +2,6 @@ package brs.db.store
 
 import brs.db.DerivedTable
 import brs.util.logging.safeInfo
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CopyOnWriteArrayList
 

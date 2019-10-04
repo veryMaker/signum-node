@@ -60,26 +60,20 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
         if (request.getParameter(CODE_PARAMETER) != null) {
             try {
                 val code = request.getParameter(CODE_PARAMETER)
-                if (code.length and 1 != 0) {
-                    throw IllegalArgumentException()
-                }
+                require(code.length and 1 == 0)
 
                 var data: String? = request.getParameter(DATA_PARAMETER)
                 if (data == null) {
                     data = ""
                 }
-                if (data.length and 1 != 0) {
-                    throw IllegalArgumentException()
-                }
+                require(data.length and 1 == 0)
 
                 val cpages = code.length / 2 / 256 + if (code.length / 2 % 256 != 0) 1 else 0
                 val dpages = Integer.parseInt(request.getParameter(DPAGES_PARAMETER))
                 val cspages = Integer.parseInt(request.getParameter(CSPAGES_PARAMETER))
                 val uspages = Integer.parseInt(request.getParameter(USPAGES_PARAMETER))
 
-                if (dpages < 0 || cspages < 0 || uspages < 0) {
-                    throw IllegalArgumentException()
-                }
+                require(!(dpages < 0 || cspages < 0 || uspages < 0))
 
                 val minActivationAmount = request.getParameter(MIN_ACTIVATION_AMOUNT_NQT_PARAMETER).parseUnsignedLong()
 

@@ -28,7 +28,7 @@ internal class GetConstants(dp: DependencyProvider) : APIServlet.JsonRequestHand
                 .forEach { (key, value) ->
                     val transactionType = JsonObject()
                     transactionType.addProperty("value", key)
-                    transactionType.addProperty("description", TransactionType.getTypeDescription(key!!))
+                    transactionType.addProperty("description", TransactionType.getTypeDescription(key))
                     val transactionSubtypes = JsonArray()
                     transactionSubtypes.addAll(value.entries.map { entry ->
                                 val transactionSubtype = JsonObject()

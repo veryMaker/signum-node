@@ -70,13 +70,12 @@ import brs.http.common.ResultFields.SUBSCRIPTION_ID_RESPONSE
 import brs.http.common.ResultFields.TAGS_RESPONSE
 import brs.http.common.ResultFields.URI_RESPONSE
 import brs.transaction.TransactionType
-import brs.util.*
+import brs.util.JSON
 import brs.util.convert.*
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
 import com.google.protobuf.InvalidProtocolBufferException
-import org.jooq.tools.Convert
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.util.*
@@ -1554,7 +1553,7 @@ interface Attachment : Appendix {
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.EscrowCreationAttachment.newBuilder()
                     .setVersion(version.toInt())
-                    .setAmount(amountNQT!!)
+                    .setAmount(amountNQT)
                     .setRequiredSigners(requiredSigners.toInt())
                     .addAllSigners(signers)
                     .setDeadline(deadline)
@@ -1580,7 +1579,7 @@ interface Attachment : Appendix {
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.amountNQT = JSON.getAsString(attachmentData.get(AMOUNT_NQT_PARAMETER)).parseUnsignedLong()
             this.deadline = JSON.getAsInt(attachmentData.get(DEADLINE_PARAMETER))
-            this.deadlineAction = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DEADLINE_ACTION_PARAMETER))!!)
+            this.deadlineAction = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DEADLINE_ACTION_PARAMETER)))
             this.requiredSigners = JSON.getAsByte(attachmentData.get(REQUIRED_SIGNERS_PARAMETER))
             val totalSigners = JSON.getAsJsonArray(attachmentData.get(SIGNERS_PARAMETER)).size()
             if (totalSigners > 10 || totalSigners <= 0) {
@@ -1624,9 +1623,9 @@ interface Attachment : Appendix {
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            buffer.putLong(this.amountNQT!!)
+            buffer.putLong(this.amountNQT)
             buffer.putInt(this.deadline)
-            buffer.put(Escrow.decisionToByte(this.deadlineAction!!)!!)
+            buffer.put(Escrow.decisionToByte(this.deadlineAction!!))
             buffer.put(this.requiredSigners)
             val totalSigners = this.signers.size.toByte()
             buffer.put(totalSigners)
@@ -1634,7 +1633,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(AMOUNT_NQT_RESPONSE, this.amountNQT!!.toUnsignedString())
+            attachment.addProperty(AMOUNT_NQT_RESPONSE, this.amountNQT.toUnsignedString())
             attachment.addProperty(DEADLINE_RESPONSE, this.deadline)
             attachment.addProperty(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(this.deadlineAction!!))
             attachment.addProperty(REQUIRED_SIGNERS_RESPONSE, this.requiredSigners.toInt())
@@ -1682,7 +1681,7 @@ interface Attachment : Appendix {
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.escrowId = JSON.getAsString(attachmentData.get(ESCROW_ID_PARAMETER)).parseUnsignedLong()
-            this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER))!!)
+            this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER)))
         }
 
         constructor(dp: DependencyProvider, escrowId: Long?, decision: Escrow.DecisionType, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1697,7 +1696,7 @@ interface Attachment : Appendix {
 
         override fun putMyBytes(buffer: ByteBuffer) {
             buffer.putLong(this.escrowId!!)
-            buffer.put(Escrow.decisionToByte(this.decision!!)!!)
+            buffer.put(Escrow.decisionToByte(this.decision!!))
         }
 
         override fun putMyJSON(attachment: JsonObject) {
@@ -1734,7 +1733,7 @@ interface Attachment : Appendix {
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.escrowId = JSON.getAsString(attachmentData.get(ESCROW_ID_PARAMETER)).parseUnsignedLong()
-            this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER))!!)
+            this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER)))
         }
 
         constructor(dp: DependencyProvider, escrowId: Long, decision: Escrow.DecisionType, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1748,12 +1747,12 @@ interface Attachment : Appendix {
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            buffer.putLong(this.escrowId!!)
-            buffer.put(Escrow.decisionToByte(this.decision!!)!!)
+            buffer.putLong(this.escrowId)
+            buffer.put(Escrow.decisionToByte(this.decision!!))
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(ESCROW_ID_RESPONSE, this.escrowId!!.toUnsignedString())
+            attachment.addProperty(ESCROW_ID_RESPONSE, this.escrowId.toUnsignedString())
             attachment.addProperty(DECISION_RESPONSE, Escrow.decisionToString(this.decision!!))
         }
     }
@@ -1818,7 +1817,7 @@ interface Attachment : Appendix {
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.SubscriptionCancelAttachment.newBuilder()
                     .setVersion(version.toInt())
-                    .setSubscription(subscriptionId!!)
+                    .setSubscription(subscriptionId)
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
@@ -1838,11 +1837,11 @@ interface Attachment : Appendix {
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            buffer.putLong(subscriptionId!!)
+            buffer.putLong(subscriptionId)
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(SUBSCRIPTION_ID_RESPONSE, this.subscriptionId!!.toUnsignedString())
+            attachment.addProperty(SUBSCRIPTION_ID_RESPONSE, this.subscriptionId.toUnsignedString())
         }
     }
 
@@ -1902,7 +1901,7 @@ interface Attachment : Appendix {
         override val appendixName: String
             get() = "AutomatedTransactionsCreation"
         override val mySize: Int
-            get() = 1 + name.toBytes().size + 2 + description.toBytes().size + creationBytes!!.size
+            get() = 1 + name.toBytes().size + 2 + description.toBytes().size + creationBytes.size
 
 
         override val protobufMessage: Any
@@ -2000,7 +1999,7 @@ interface Attachment : Appendix {
             buffer.putShort(descriptionBytes.size.toShort())
             buffer.put(descriptionBytes)
 
-            buffer.put(creationBytes!!)
+            buffer.put(creationBytes)
         }
 
         override fun putMyJSON(attachment: JsonObject) {
@@ -2024,7 +2023,7 @@ interface Attachment : Appendix {
     // the message payload is in the Appendix
     class ArbitraryMessage(dp: DependencyProvider) : EmptyAttachment(dp) {
 
-        override val protobufMessage = Any.pack(BrsApi.ArbitraryMessageAttachment.getDefaultInstance())
+        override val protobufMessage: Any = Any.pack(BrsApi.ArbitraryMessageAttachment.getDefaultInstance())
 
         override val appendixName = "ArbitraryMessage"
 

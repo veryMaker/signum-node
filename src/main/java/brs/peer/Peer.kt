@@ -43,22 +43,22 @@ interface Peer : Comparable<Peer> {
         NON_CONNECTED, CONNECTED, DISCONNECTED;
 
         fun toProtobuf(): BrsApi.PeerState {
-            when (this) {
-                NON_CONNECTED -> return BrsApi.PeerState.NON_CONNECTED
-                CONNECTED -> return BrsApi.PeerState.CONNECTED
-                DISCONNECTED -> return BrsApi.PeerState.NON_CONNECTED
-                else -> return BrsApi.PeerState.UNRECOGNIZED
+            return when (this) {
+                NON_CONNECTED -> BrsApi.PeerState.NON_CONNECTED
+                CONNECTED -> BrsApi.PeerState.CONNECTED
+                DISCONNECTED -> BrsApi.PeerState.NON_CONNECTED
+                else -> BrsApi.PeerState.UNRECOGNIZED
             }
         }
 
         companion object {
 
             fun fromProtobuf(peer: BrsApi.PeerState): State? {
-                when (peer) {
-                    BrsApi.PeerState.NON_CONNECTED -> return NON_CONNECTED
-                    BrsApi.PeerState.CONNECTED -> return CONNECTED
-                    BrsApi.PeerState.DISCONNECTED -> return DISCONNECTED
-                    else -> return null
+                return when (peer) {
+                    BrsApi.PeerState.NON_CONNECTED -> NON_CONNECTED
+                    BrsApi.PeerState.CONNECTED -> CONNECTED
+                    BrsApi.PeerState.DISCONNECTED -> DISCONNECTED
+                    else -> null
                 }
             }
         }

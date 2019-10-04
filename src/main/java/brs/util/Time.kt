@@ -17,16 +17,14 @@ interface Time {
             get() = System.currentTimeMillis() - Constants.EPOCH_BEGINNING + 500
     }
 
-    class FasterTime(val timeSeconds: Int, private val multiplier: Int) : Time {
+    class FasterTime(private val timeSeconds: Int, private val multiplier: Int) : Time {
         private val systemStartTime: Long
 
         override val timeInMillis: Long
             get() = timeSeconds + (System.currentTimeMillis() - systemStartTime) / multiplier
 
         init {
-            if (multiplier > 1000 || multiplier <= 0) {
-                throw IllegalArgumentException("Time multiplier must be between 1 and 1000")
-            }
+            require(!(multiplier > 1000 || multiplier <= 0)) { "Time multiplier must be between 1 and 1000" }
             this.systemStartTime = System.currentTimeMillis()
         }
 

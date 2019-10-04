@@ -23,7 +23,7 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
     override fun processTransaction(transaction: Transaction) {
         if (disabled) return
         dp.indirectIncomingStore.addIndirectIncomings(getIndirectIncomings(transaction)
-                .map { account -> IndirectIncomingStore.IndirectIncoming(account!!, transaction.id, transaction.height) })
+                .map { account -> IndirectIncomingStore.IndirectIncoming(account, transaction.id, transaction.height) })
     }
 
     override fun isIndirectlyReceiving(transaction: Transaction, accountId: Long): Boolean {

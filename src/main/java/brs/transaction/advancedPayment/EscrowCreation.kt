@@ -1,7 +1,6 @@
 package brs.transaction.advancedPayment
 
 import brs.*
-import brs.transaction.TransactionType
 import brs.transactionduplicates.TransactionDuplicationKey
 import brs.util.convert.safeAdd
 import brs.util.convert.safeMultiply
@@ -12,7 +11,7 @@ import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 
 class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
-    override val subtype = TransactionType.SUBTYPE_ADVANCED_PAYMENT_ESCROW_CREATION
+    override val subtype = SUBTYPE_ADVANCED_PAYMENT_ESCROW_CREATION
     override val description = "Escrow Creation"
 
     override fun parseAttachment(
@@ -80,7 +79,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
 
     override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowCreation
-        var totalAmountNQT: Long? = attachment.amountNQT!!.safeAdd(transaction.feeNQT)
+        var totalAmountNQT: Long? = attachment.amountNQT.safeAdd(transaction.feeNQT)
         if (transaction.senderId == transaction.recipientId) {
             throw BurstException.NotValidException("Escrow must have different sender and recipient")
         }

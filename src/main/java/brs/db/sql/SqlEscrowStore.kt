@@ -31,7 +31,7 @@ class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
 
 
     init {
-        escrowTable = object : VersionedEntitySqlTable<Escrow>("escrow", brs.schema.Tables.ESCROW, escrowDbKeyFactory, dp) {
+        escrowTable = object : VersionedEntitySqlTable<Escrow>("escrow", ESCROW, escrowDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, rs: Record): Escrow {
                 return SqlEscrow(rs)
             }
@@ -41,7 +41,7 @@ class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
             }
         }
 
-        decisionTable = object : VersionedEntitySqlTable<Escrow.Decision>("escrow_decision", brs.schema.Tables.ESCROW_DECISION, decisionDbKeyFactory, dp) {
+        decisionTable = object : VersionedEntitySqlTable<Escrow.Decision>("escrow_decision", ESCROW_DECISION, decisionDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, record: Record): Escrow.Decision {
                 return SqlDecision(record)
             }
@@ -79,7 +79,7 @@ class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
 
     private inner class SqlDecision internal constructor(record: Record) : Escrow.Decision(decisionDbKeyFactory.newKey(record.get(ESCROW_DECISION.ESCROW_ID), record.get(ESCROW_DECISION.ACCOUNT_ID)), record.get(ESCROW_DECISION.ESCROW_ID), record.get(ESCROW_DECISION.ACCOUNT_ID), Escrow.byteToDecision(record.get(ESCROW_DECISION.DECISION).toByte()))
 
-    private inner class SqlEscrow internal constructor(record: Record) : Escrow(dp, record.get(ESCROW.ID), record.get(ESCROW.SENDER_ID), record.get(ESCROW.RECIPIENT_ID), escrowDbKeyFactory.newKey(record.get(ESCROW.ID)), record.get(ESCROW.AMOUNT), record.get(ESCROW.REQUIRED_SIGNERS), record.get(ESCROW.DEADLINE), Escrow.byteToDecision(record.get(ESCROW.DEADLINE_ACTION).toByte())!!)
+    private inner class SqlEscrow internal constructor(record: Record) : Escrow(dp, record.get(ESCROW.ID), record.get(ESCROW.SENDER_ID), record.get(ESCROW.RECIPIENT_ID), escrowDbKeyFactory.newKey(record.get(ESCROW.ID)), record.get(ESCROW.AMOUNT), record.get(ESCROW.REQUIRED_SIGNERS), record.get(ESCROW.DEADLINE), byteToDecision(record.get(ESCROW.DEADLINE_ACTION).toByte())!!)
 
     override fun getDecisions(id: Long?): Collection<Escrow.Decision> {
         return decisionTable.getManyBy(ESCROW_DECISION.ESCROW_ID.eq(id), 0, -1)

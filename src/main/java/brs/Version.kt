@@ -1,8 +1,6 @@
 package brs
 
-import java.util.Locale
-import java.util.Objects
-import java.util.StringTokenizer
+import java.util.*
 
 class Version(private val major: Int, private val minor: Int, private val patch: Int, private val prereleaseTag: PrereleaseTag, private val prereleaseIteration: Int) {
     val isPrelease: Boolean

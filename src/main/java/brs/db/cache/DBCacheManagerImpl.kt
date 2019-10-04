@@ -3,7 +3,6 @@ package brs.db.cache
 import brs.Account
 import brs.DependencyProvider
 import brs.db.BurstKey
-import brs.statistics.StatisticsManagerImpl
 import org.ehcache.Cache
 import org.ehcache.CacheManager
 import org.ehcache.Status
@@ -11,8 +10,6 @@ import org.ehcache.config.CacheConfiguration
 import org.ehcache.config.builders.CacheConfigurationBuilder
 import org.ehcache.config.builders.CacheManagerBuilder
 import org.ehcache.config.builders.ResourcePoolsBuilder
-
-import java.util.HashMap
 
 class DBCacheManagerImpl(private val dp: DependencyProvider) { // TODO interface
     private val cacheManager: CacheManager

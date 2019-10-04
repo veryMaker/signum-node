@@ -102,10 +102,12 @@ import brs.http.common.ResultFields.VERSION_RESPONSE
 import brs.peer.Peer
 import brs.services.AccountService
 import brs.util.addAll
-import brs.util.convert.*
+import brs.util.convert.emptyToNull
+import brs.util.convert.rsAccount
+import brs.util.convert.toHexString
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.jooq.tools.Convert
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -247,12 +249,12 @@ object JSONData {
 
     internal fun escrowTransaction(escrow: Escrow): JsonObject {
         val json = JsonObject()
-        json.addProperty(ID_RESPONSE, escrow.id!!.toUnsignedString())
-        json.addProperty(SENDER_RESPONSE, escrow.senderId!!.toUnsignedString())
-        json.addProperty(SENDER_RS_RESPONSE, escrow.senderId!!.rsAccount())
-        json.addProperty(RECIPIENT_RESPONSE, escrow.recipientId!!.toUnsignedString())
-        json.addProperty(RECIPIENT_RS_RESPONSE, escrow.recipientId!!.rsAccount())
-        json.addProperty(AMOUNT_NQT_RESPONSE, escrow.amountNQT!!.toUnsignedString())
+        json.addProperty(ID_RESPONSE, escrow.id.toUnsignedString())
+        json.addProperty(SENDER_RESPONSE, escrow.senderId.toUnsignedString())
+        json.addProperty(SENDER_RS_RESPONSE, escrow.senderId.rsAccount())
+        json.addProperty(RECIPIENT_RESPONSE, escrow.recipientId.toUnsignedString())
+        json.addProperty(RECIPIENT_RS_RESPONSE, escrow.recipientId.rsAccount())
+        json.addProperty(AMOUNT_NQT_RESPONSE, escrow.amountNQT.toUnsignedString())
         json.addProperty(REQUIRED_SIGNERS_RESPONSE, escrow.requiredSigners)
         json.addProperty(DEADLINE_RESPONSE, escrow.deadline)
         json.addProperty(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(escrow.deadlineAction))
@@ -264,7 +266,7 @@ object JSONData {
             }
             val signerDetails = JsonObject()
             signerDetails.addProperty(ID_RESPONSE, decision.accountId!!.toUnsignedString())
-            signerDetails.addProperty(ID_RS_RESPONSE, decision.accountId!!.rsAccount())
+            signerDetails.addProperty(ID_RS_RESPONSE, decision.accountId.rsAccount())
             signerDetails.addProperty(DECISION_RESPONSE, Escrow.decisionToString(decision.decision!!))
             signers.add(signerDetails)
         }
@@ -348,10 +350,10 @@ object JSONData {
 
     internal fun subscription(subscription: Subscription): JsonObject {
         val json = JsonObject()
-        json.addProperty(ID_RESPONSE, subscription.id!!.toUnsignedString())
-        putAccount(json, SENDER_RESPONSE, subscription.senderId!!)
-        putAccount(json, RECIPIENT_RESPONSE, subscription.recipientId!!)
-        json.addProperty(AMOUNT_NQT_RESPONSE, subscription.amountNQT!!.toUnsignedString())
+        json.addProperty(ID_RESPONSE, subscription.id.toUnsignedString())
+        putAccount(json, SENDER_RESPONSE, subscription.senderId)
+        putAccount(json, RECIPIENT_RESPONSE, subscription.recipientId)
+        json.addProperty(AMOUNT_NQT_RESPONSE, subscription.amountNQT.toUnsignedString())
         json.addProperty(FREQUENCY_RESPONSE, subscription.frequency)
         json.addProperty(TIME_NEXT_RESPONSE, subscription.timeNext)
         return json

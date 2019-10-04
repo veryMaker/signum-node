@@ -20,7 +20,7 @@ object Constants {
 
     const val BLOCK_HEADER_LENGTH = 232
 
-    const val MAX_BALANCE_BURST = 2158812800L
+    private const val MAX_BALANCE_BURST = 2158812800L
 
     const val FEE_QUANT = 735000L
     const val ONE_BURST = 100000000L

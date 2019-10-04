@@ -45,7 +45,7 @@ internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
         return dp.apiTransactionManager.createTransaction(request, senderAccount, recipientId, amountNQT, attachment, minimumFeeNQT())
     }
 
-    internal override fun requirePost(): Boolean {
+    override fun requirePost(): Boolean {
         return true
     }
 

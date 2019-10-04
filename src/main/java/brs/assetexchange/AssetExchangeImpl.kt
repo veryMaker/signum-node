@@ -9,8 +9,8 @@ import brs.Trade.Event
 
 class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
 
-    private val tradeService: TradeServiceImpl
-    private val assetAccountService: AssetAccountServiceImpl
+    private val tradeService: TradeServiceImpl = TradeServiceImpl(dp.tradeStore)
+    private val assetAccountService: AssetAccountServiceImpl = AssetAccountServiceImpl(dp.accountStore)
     private val assetTransferService: AssetTransferServiceImpl
     private val assetService: AssetServiceImpl
     private val orderService: OrderServiceImpl
@@ -32,8 +32,6 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
 
 
     init {
-        this.tradeService = TradeServiceImpl(dp.tradeStore)
-        this.assetAccountService = AssetAccountServiceImpl(dp.accountStore)
         this.assetTransferService = AssetTransferServiceImpl(dp.assetTransferStore)
         this.assetService = AssetServiceImpl(this.assetAccountService, tradeService, dp.assetStore, assetTransferService)
         this.orderService = OrderServiceImpl(dp, tradeService)

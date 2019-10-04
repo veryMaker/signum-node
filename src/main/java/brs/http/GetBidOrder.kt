@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.assetexchange.AssetExchange
 import brs.http.JSONResponses.UNKNOWN_ORDER
 import brs.http.common.Parameters.ORDER_PARAMETER

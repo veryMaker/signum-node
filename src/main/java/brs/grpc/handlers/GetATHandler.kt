@@ -1,6 +1,5 @@
 package brs.grpc.handlers
 
-import brs.at.AT
 import brs.grpc.GrpcApiHandler
 import brs.grpc.proto.ApiException
 import brs.grpc.proto.BrsApi

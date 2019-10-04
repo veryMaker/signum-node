@@ -33,7 +33,7 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
                         logger.safeInfo { "Property parser returned type ${parsed.javaClass}, was looking for type ${defaultValue.javaClass}, using default value $defaultValue" }
                         return defaultValue
                     }
-                    logOnce(propName) { "${propName}: ${parsed.toString()}" }
+                    logOnce(propName) { "${propName}: $parsed" }
 
                     return parsed as T // TODO no unchecked
                 }
@@ -45,7 +45,7 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
         return defaultValue
     }
 
-    fun getBoolean(value: String): Boolean {
+    private fun getBoolean(value: String): Boolean {
         if (value.matches("(?i)^1|active|true|yes|on$".toRegex())) {
             return true
         }
@@ -56,7 +56,7 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
         throw IllegalArgumentException()
     }
 
-    fun getInt(value: String?): Int {
+    private fun getInt(value: String?): Int {
         var value = value
         var radix = 10
 
@@ -71,7 +71,7 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
         return Integer.parseInt(value!!, radix)
     }
 
-    fun getString(value: String): String {
+    private fun getString(value: String): String {
         if (value.isNotEmpty()) {
             return value
         }

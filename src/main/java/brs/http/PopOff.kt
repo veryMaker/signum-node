@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.Block
 import brs.Blockchain
 import brs.BlockchainProcessor
 import brs.http.common.Parameters.HEIGHT_PARAMETER
@@ -46,7 +45,7 @@ internal class PopOff(private val blockchainProcessor: BlockchainProcessor, priv
         return response
     }
 
-    internal override fun requirePost(): Boolean {
+    override fun requirePost(): Boolean {
         return true
     }
 

@@ -37,7 +37,7 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
     override var shareAddress by Atomic(true)
     override var platform by Atomic<String>()
     override var application by Atomic<String>()
-    override var version by Atomic<Version>(Version.EMPTY)
+    override var version by Atomic(Version.EMPTY)
     private var isOldVersion by Atomic(false)
     private var blacklistingTime by Atomic<Long>(0)
     override var state: Peer.State by AtomicWithOverride(initialValue = Peer.State.NON_CONNECTED, setValueDelegate = { newState, set ->
@@ -55,8 +55,8 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
             }
         }
     })
-    override var downloadedVolume by Atomic<Long>(0L)
-    override var uploadedVolume by Atomic<Long>(0L)
+    override var downloadedVolume by Atomic(0L)
+    override var uploadedVolume by Atomic(0L)
     override var lastUpdated by Atomic<Int>()
     private val mutex = Mutex()
 

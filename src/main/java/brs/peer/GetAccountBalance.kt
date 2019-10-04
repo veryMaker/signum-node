@@ -15,7 +15,7 @@ internal constructor(private val accountService: AccountService) : PeerServlet.P
 
         val response = JsonObject()
 
-        val accountId = JSON.getAsString(request.get(ACCOUNT_ID_PARAMETER_FIELD))!!.parseAccountId()
+        val accountId = JSON.getAsString(request.get(ACCOUNT_ID_PARAMETER_FIELD)).parseAccountId()
         val account = accountService.getAccount(accountId)
         if (account != null) {
             response.addProperty(BALANCE_NQT_RESPONSE_FIELD, account.balanceNQT.toUnsignedString())
@@ -28,7 +28,7 @@ internal constructor(private val accountService: AccountService) : PeerServlet.P
 
     companion object {
 
-        internal val ACCOUNT_ID_PARAMETER_FIELD = "account"
-        internal val BALANCE_NQT_RESPONSE_FIELD = "balanceNQT"
+        internal const val ACCOUNT_ID_PARAMETER_FIELD = "account"
+        internal const val BALANCE_NQT_RESPONSE_FIELD = "balanceNQT"
     }
 }

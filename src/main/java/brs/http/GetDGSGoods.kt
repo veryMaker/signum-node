@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.DigitalGoodsStore
 import brs.http.common.Parameters
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER

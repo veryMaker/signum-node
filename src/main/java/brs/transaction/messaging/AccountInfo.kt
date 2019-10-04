@@ -1,7 +1,6 @@
 package brs.transaction.messaging
 
 import brs.*
-import brs.transaction.TransactionType
 import brs.util.convert.toBytes
 import brs.util.toJsonString
 import com.google.gson.JsonObject
@@ -9,7 +8,7 @@ import java.nio.ByteBuffer
 
 class AccountInfo(dp: DependencyProvider) : Messaging(dp) {
 
-    override val subtype = TransactionType.SUBTYPE_MESSAGING_ACCOUNT_INFO
+    override val subtype = SUBTYPE_MESSAGING_ACCOUNT_INFO
 
     override val description = "Account Info"
 

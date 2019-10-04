@@ -20,7 +20,7 @@ internal class FullReset internal constructor(private val blockchainProcessor: B
         return response
     }
 
-    internal override fun requirePost(): Boolean {
+    override fun requirePost(): Boolean {
         return true
     }
 }

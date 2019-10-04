@@ -22,7 +22,7 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
         return dp.db.useDslContext<Collection<Block>> { ctx ->
             val blockchainHeight = dp.blockchain.height
             getBlocks(ctx.selectFrom(BLOCK)
-                    .where(BLOCK.HEIGHT.between(if (to > 0) blockchainHeight - to else 0).and(blockchainHeight - Math.max(from, 0)))
+                    .where(BLOCK.HEIGHT.between(if (to > 0) blockchainHeight - to else 0).and(blockchainHeight - max(from, 0)))
                     .orderBy(BLOCK.HEIGHT.desc())
                     .fetch())
         }
@@ -69,7 +69,7 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
                     .limit(limit)
                     .fetch { result ->
                         try {
-                            return@fetch dp.blockDb.loadBlock(result);
+                            return@fetch dp.blockDb.loadBlock(result)
                         } catch (e: BurstException.ValidationException) {
                             throw RuntimeException(e.toString(), e)
                         }

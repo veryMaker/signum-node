@@ -30,10 +30,10 @@ internal class GetAccountCurrentAskOrders internal constructor(private val param
         val lastIndex = ParameterParser.getLastIndex(request)
 
         val askOrders: Iterator<Order.Ask>
-        if (assetId == 0L) {
-            askOrders = assetExchange.getAskOrdersByAccount(accountId, firstIndex, lastIndex).iterator()
+        askOrders = if (assetId == 0L) {
+            assetExchange.getAskOrdersByAccount(accountId, firstIndex, lastIndex).iterator()
         } else {
-            askOrders = assetExchange.getAskOrdersByAccountAsset(accountId, assetId, firstIndex, lastIndex).iterator()
+            assetExchange.getAskOrdersByAccountAsset(accountId, assetId, firstIndex, lastIndex).iterator()
         }
         val orders = JsonArray()
         while (askOrders.hasNext()) {

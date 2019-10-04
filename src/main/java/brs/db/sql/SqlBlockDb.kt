@@ -187,7 +187,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
                     ctx.truncate(table).execute()
                 } catch (e: org.jooq.exception.DataAccessException) {
                     if (force) {
-                        logger.safeTrace(e) { "exception during truncate ${table}" }
+                        logger.safeTrace(e) { "exception during truncate $table" }
                     } else {
                         throw e
                     }

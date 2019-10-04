@@ -1,6 +1,5 @@
 package brs.grpc.handlers
 
-import brs.Account
 import brs.Blockchain
 import brs.grpc.GrpcApiHandler
 import brs.grpc.proto.ApiException

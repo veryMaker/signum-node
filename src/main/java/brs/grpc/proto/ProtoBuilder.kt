@@ -221,10 +221,10 @@ object ProtoBuilder {
 
     fun buildSubscription(subscription: Subscription): BrsApi.Subscription {
         return BrsApi.Subscription.newBuilder()
-                .setId(subscription.id!!)
-                .setSender(subscription.senderId!!)
-                .setRecipient(subscription.recipientId!!)
-                .setAmount(subscription.amountNQT!!)
+                .setId(subscription.id)
+                .setSender(subscription.senderId)
+                .setRecipient(subscription.recipientId)
+                .setAmount(subscription.amountNQT)
                 .setFrequency(subscription.frequency)
                 .setTimeNext(subscription.timeNext)
                 .build()
@@ -258,10 +258,10 @@ object ProtoBuilder {
 
     fun buildEscrowTransaction(escrow: Escrow): BrsApi.EscrowTransaction {
         return BrsApi.EscrowTransaction.newBuilder()
-                .setEscrowId(escrow.id!!)
-                .setSender(escrow.senderId!!)
-                .setRecipient(escrow.recipientId!!)
-                .setAmount(escrow.amountNQT!!)
+                .setEscrowId(escrow.id)
+                .setSender(escrow.senderId)
+                .setRecipient(escrow.recipientId)
+                .setAmount(escrow.amountNQT)
                 .setRequiredSigners(escrow.requiredSigners)
                 .setDeadline(escrow.deadline)
                 .setDeadlineAction(Escrow.decisionToProtobuf(escrow.deadlineAction))

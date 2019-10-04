@@ -13,7 +13,6 @@ import brs.fluxcapacitor.FluxValues
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.*
 
 open class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     override fun getA1(state: AtMachineState): Long {
@@ -164,19 +163,19 @@ open class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     }
 
     override fun checkAEqualsB(state: AtMachineState): Long {
-        return (if (Arrays.equals(state.a1, state.b1) &&
-                Arrays.equals(state.a2, state.b2) &&
-                Arrays.equals(state.a3, state.b3) &&
-                Arrays.equals(state.a4, state.b4))
+        return (if (state.a1.contentEquals(state.b1) &&
+            state.a2.contentEquals(state.b2) &&
+            state.a3.contentEquals(state.b3) &&
+            state.a4.contentEquals(state.b4)
+        )
             1
         else
             0).toLong()
     }
 
     override fun swapAAndB(state: AtMachineState) {
-        var b: ByteArray
+        var b: ByteArray = state.a1.clone()
 
-        b = state.a1.clone()
         state.a1 = state.b1
         state.b1 = b
 
@@ -497,7 +496,7 @@ open class AtApiImpl(private val dp: DependencyProvider) : AtApi {
 
 
     override fun checkMd5AWithB(state: AtMachineState): Long {
-        if (dp!!.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
+        if (dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
             val b = ByteBuffer.allocate(16)
             b.order(ByteOrder.LITTLE_ENDIAN)
 
@@ -513,7 +512,7 @@ open class AtApiImpl(private val dp: DependencyProvider) : AtApi {
             else
                 0).toLong()
         } else {
-            return (if (Arrays.equals(state.a1, state.b1) && Arrays.equals(state.a2, state.b2))
+            return (if (state.a1.contentEquals(state.b1) && state.a2.contentEquals(state.b2))
                 1
             else
                 0).toLong()
@@ -538,7 +537,7 @@ open class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     }
 
     override fun checkHash160AWithB(state: AtMachineState): Long {
-        if (dp!!.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
+        if (dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
             val b = ByteBuffer.allocate(32)
             b.order(ByteOrder.LITTLE_ENDIAN)
 
@@ -557,8 +556,8 @@ open class AtApiImpl(private val dp: DependencyProvider) : AtApi {
             else
                 0).toLong()
         } else {
-            return (if (Arrays.equals(state.a1, state.b1) &&
-                    Arrays.equals(state.a2, state.b2) &&
+            return (if (state.a1.contentEquals(state.b1) &&
+                state.a2.contentEquals(state.b2) &&
                     AtApiHelper.getLong(state.a3) and 0x00000000FFFFFFFFL == AtApiHelper.getLong(state.b3) and 0x00000000FFFFFFFFL)
                 1
             else
@@ -586,7 +585,7 @@ open class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     }
 
     override fun checkSha256AWithB(state: AtMachineState): Long {
-        if (dp!!.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
+        if (dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
             val b = ByteBuffer.allocate(32)
             b.order(ByteOrder.LITTLE_ENDIAN)
 
@@ -607,10 +606,11 @@ open class AtApiImpl(private val dp: DependencyProvider) : AtApi {
             else
                 0).toLong()
         } else {
-            return (if (Arrays.equals(state.a1, state.b1) &&
-                    Arrays.equals(state.a2, state.b2) &&
-                    Arrays.equals(state.a3, state.b3) &&
-                    Arrays.equals(state.a4, state.b4))
+            return (if (state.a1.contentEquals(state.b1) &&
+                state.a2.contentEquals(state.b2) &&
+                state.a3.contentEquals(state.b3) &&
+                state.a4.contentEquals(state.b4)
+            )
                 1
             else
                 0).toLong()
@@ -736,7 +736,7 @@ open class AtApiImpl(private val dp: DependencyProvider) : AtApi {
         }
 
         val sha256 = Crypto.sha256()
-        sha256.update(state.apData!!.array(), val1.toInt(), (if (val2 > 256) 256 else val2).toInt())
+        sha256.update(state.apData.array(), val1.toInt(), (if (val2 > 256) 256 else val2).toInt())
         val shab = ByteBuffer.wrap(sha256.digest())
         shab.order(ByteOrder.LITTLE_ENDIAN)
 

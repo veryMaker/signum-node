@@ -73,7 +73,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
             try {
                 val buffer = ByteBuffer.allocate(size)
                 buffer.order(ByteOrder.LITTLE_ENDIAN)
-                buffer.put(type!!.type)
+                buffer.put(type.type)
                 buffer.put((version.toInt() shl 4).toByte() or (type.subtype and 0xff.toByte()))
                 buffer.putInt(timestamp)
                 buffer.putShort(deadline)
@@ -112,7 +112,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     val jsonObject: JsonObject
         get() {
             val json = JsonObject()
-            json.addProperty("type", type!!.type)
+            json.addProperty("type", type.type)
             json.addProperty("subtype", type.subtype)
             json.addProperty("timestamp", timestamp)
             json.addProperty("deadline", deadline)
@@ -161,7 +161,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         }
 
     val duplicationKey: TransactionDuplicationKey
-        get() = type!!.getDuplicationKey(this)
+        get() = type.getDuplicationKey(this)
 
     class Builder(internal val dp: DependencyProvider, internal val version: Byte, internal val senderPublicKey: ByteArray, internal val amountNQT: Long, internal val feeNQT: Long, internal val timestamp: Int, internal val deadline: Short,
                   internal val attachment: Attachment.AbstractAttachment) {
@@ -279,8 +279,8 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         if (builder.senderId != null) this.senderId = builder.senderId!!
         if (builder.blockTimestamp != null) this.blockTimestamp = builder.blockTimestamp!!
         if (builder.fullHash != null) this.fullHash = builder.fullHash!!
-        this.ecBlockHeight = builder.ecBlockHeight!!
-        this.ecBlockId = builder.ecBlockId!!
+        this.ecBlockHeight = builder.ecBlockHeight
+        this.ecBlockId = builder.ecBlockId
 
         val list = mutableListOf<AbstractAppendix>()
         this.attachment = builder.attachment
@@ -408,7 +408,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 val type = buffer.get()
                 var subtype = buffer.get()
                 val version = ((subtype.toInt() and 0xF0) shr 4).toByte()
-                subtype = (subtype and 0x0F).toByte()
+                subtype = (subtype and 0x0F)
                 val timestamp = buffer.get().toInt()
                 val deadline = buffer.short
                 val senderPublicKey = ByteArray(32)
@@ -430,7 +430,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                     ecBlockId = buffer.long
                 }
                 val transactionType = TransactionType.findTransactionType(dp, type, subtype)
-                val builder = Transaction.Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType!!.parseAttachment(buffer, version))
+                val builder = Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType!!.parseAttachment(buffer, version))
                         .signature(signature)
                         .ecBlockHeight(ecBlockHeight)
                         .ecBlockId(ecBlockId)
@@ -443,14 +443,10 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 transactionType.parseAppendices(builder, flags, version, buffer)
                 return builder.build()
             } catch (e: BurstException.NotValidException) {
-                if (true) {
-                    logger.safeDebug { "Failed to parse transaction bytes: ${bytes.toHexString()}" }
-                }
+                logger.safeDebug { "Failed to parse transaction bytes: ${bytes.toHexString()}" }
                 throw e
             } catch (e: RuntimeException) {
-                if (true) {
-                    logger.safeDebug { "Failed to parse transaction bytes: ${bytes.toHexString()}" }
-                }
+                logger.safeDebug { "Failed to parse transaction bytes: ${bytes.toHexString()}" }
                 throw e
             }
         }
@@ -490,14 +486,10 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 }
                 return builder.build()
             } catch (e: BurstException.NotValidException) {
-                if (true) {
-                    logger.safeDebug { "Failed to parse transaction: ${transactionData.toJsonString()}" }
-                }
+                logger.safeDebug { "Failed to parse transaction: ${transactionData.toJsonString()}" }
                 throw e
             } catch (e: RuntimeException) {
-                if (true) {
-                    logger.safeDebug { "Failed to parse transaction: ${transactionData.toJsonString()}" }
-                }
+                logger.safeDebug { "Failed to parse transaction: ${transactionData.toJsonString()}" }
                 throw e
             }
         }

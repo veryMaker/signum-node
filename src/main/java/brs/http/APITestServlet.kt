@@ -162,7 +162,7 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
 
         private val logger = LoggerFactory.getLogger(APITestServlet::class.java)
 
-        private val HEADER_1 = (
+        private const val HEADER_1 = (
                 "<!DOCTYPE html>\n"
                         + "<html>\n"
                         + "<head>\n"
@@ -247,13 +247,13 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
                         + "<div class=\"row\" style=\"margin-bottom:15px;\">"
                         + "  <div class=\"col-xs-4 col-sm-3 col-md-2\">"
                         + "    <ul class=\"nav nav-pills nav-stacked\">")
-        private val HEADER_2 = (
+        private const val HEADER_2 = (
                 "    </ul>"
                         + "  </div>"
                         + "  <div  class=\"col-xs-8 col-sm-9 col-md-10\">"
                         + "    <div class=\"panel-group\" id=\"accordion\">")
 
-        private val FOOTER_1 = (
+        private const val FOOTER_1 = (
                 "    </div> "
                         + "  </div> "
                         + "</div> "
@@ -264,7 +264,7 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
                         + "  $(document).ready(function() {"
                         + "    apiCalls = [];\n")
 
-        private val FOOTER_2 = (
+        private const val FOOTER_2 = (
                 "    $(\".collapse-link\").click(function(event) {"
                         + "       event.preventDefault();"
                         + "    });"

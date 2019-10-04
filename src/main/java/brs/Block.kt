@@ -24,7 +24,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
                      val payloadLength: Int, val payloadHash: ByteArray, val generatorPublicKey: ByteArray, val generationSignature: ByteArray,
                      blockSignature: ByteArray?, val previousBlockHash: ByteArray?, transactions: Collection<Transaction>?,
                      val nonce: Long, val blockATs: ByteArray?, height: Int) {
-    var transactions by AtomicLazy<Collection<Transaction>> {
+    var transactions by AtomicLazy {
         val txs = transactionDb().findBlockTransactions(id)
         txs.forEach { transaction -> transaction.setBlock(this) }
         txs
@@ -209,14 +209,10 @@ class Block internal constructor(private val dp: DependencyProvider, val version
                         payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature,
                         previousBlockHash, blockTransactions.values, nonce, blockATs, height)
             } catch (e: BurstException.ValidationException) {
-                if (true) {
-                    logger.safeDebug { "Failed to parse block: ${blockData.toJsonString()}" }
-                }
+                logger.safeDebug { "Failed to parse block: ${blockData.toJsonString()}" }
                 throw e
             } catch (e: RuntimeException) {
-                if (true) {
-                    logger.safeDebug { "Failed to parse block: ${blockData.toJsonString()}" }
-                }
+                logger.safeDebug { "Failed to parse block: ${blockData.toJsonString()}" }
                 throw e
             }
 

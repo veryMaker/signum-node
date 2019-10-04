@@ -2,6 +2,7 @@ package brs
 
 import brs.db.BurstKey
 import brs.util.convert.toUnsignedString
+import kotlin.math.min
 
 open class Trade {
 
@@ -55,7 +56,7 @@ open class Trade {
         this.bidOrderHeight = bidOrder.height
         this.sellerId = askOrder.accountId
         this.buyerId = bidOrder.accountId
-        this.quantityQNT = Math.min(askOrder.quantityQNT, bidOrder.quantityQNT)
+        this.quantityQNT = min(askOrder.quantityQNT, bidOrder.quantityQNT)
         this.isBuy = askOrderHeight < bidOrderHeight || askOrderHeight == bidOrderHeight && askOrderId < bidOrderId
         this.priceNQT = if (isBuy) askOrder.priceNQT else bidOrder.priceNQT
     }

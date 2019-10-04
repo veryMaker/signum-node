@@ -3,7 +3,7 @@ package brs.fluxcapacitor
 import brs.props.Prop
 import brs.props.Props
 
-enum class HistoricalMoments private constructor(val mainnetHeight: Int, val testnetHeight: Int, val overridingProperty: Prop<Int>) {
+enum class HistoricalMoments(val mainnetHeight: Int, val testnetHeight: Int, val overridingProperty: Prop<Int>) {
     REWARD_RECIPIENT_ENABLE(6500, 0, Props.DEV_REWARD_RECIPIENT_ENABLE_BLOCK_HEIGHT),
     DIGITAL_GOODS_STORE_BLOCK(11800, 1440, Props.DEV_DIGITAL_GOODS_STORE_BLOCK_HEIGHT),
     AUTOMATED_TRANSACTION_BLOCK(49200, 1440, Props.DEV_AUTOMATED_TRANSACTION_BLOCK_HEIGHT),

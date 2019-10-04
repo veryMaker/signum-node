@@ -14,7 +14,6 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -103,7 +102,7 @@ class AT : AtMachineState {
 
         fun findPendingTransaction(recipientId: ByteArray): Boolean {
             for (tx in pendingTransactions) {
-                if (Arrays.equals(recipientId, tx.recipientId)) {
+                if (recipientId.contentEquals(tx.recipientId)) {
                     return true
                 }
             }
@@ -171,7 +170,7 @@ class AT : AtMachineState {
         }
 
         fun compressState(stateBytes: ByteArray?): ByteArray? {
-            if (stateBytes == null || stateBytes.size == 0) {
+            if (stateBytes == null || stateBytes.isEmpty()) {
                 return null
             }
 
@@ -217,7 +216,9 @@ class AT : AtMachineState {
             val transactions = mutableListOf<Transaction>()
             for (atTransaction in pendingTransactions) {
                 dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(AtApiHelper.getLong(atTransaction.senderId))!!, -atTransaction.amount)
-                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.recipientId)), atTransaction.amount!!)
+                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.recipientId)),
+                    atTransaction.amount
+                )
 
                 val builder = Transaction.Builder(dp, 1.toByte(), Genesis.creatorPublicKey,
                     atTransaction.amount, 0L, block.timestamp, 1440.toShort(), Attachment.AtPayment(dp))

@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.http.JSONResponses.MISSING_SELLER
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER

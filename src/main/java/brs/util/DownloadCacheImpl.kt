@@ -169,7 +169,7 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
 
     private fun printLastVars() {
         logger.safeDebug { "Cache LastId: ${lastBlockId?.toUnsignedString()}" }
-        logger.safeDebug { "Cache lastHeight: ${lastHeight}" }
+        logger.safeDebug { "Cache lastHeight: $lastHeight" }
     }
 
     private fun setLastVars() = stampedLock.write {

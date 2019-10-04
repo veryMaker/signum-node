@@ -31,10 +31,10 @@ internal class GetAccountCurrentBidOrderIds internal constructor(private val par
         val lastIndex = ParameterParser.getLastIndex(request)
 
         val bidOrders: Collection<Order.Bid>
-        if (assetId == 0L) {
-            bidOrders = assetExchange.getBidOrdersByAccount(accountId, firstIndex, lastIndex)
+        bidOrders = if (assetId == 0L) {
+            assetExchange.getBidOrdersByAccount(accountId, firstIndex, lastIndex)
         } else {
-            bidOrders = assetExchange.getBidOrdersByAccountAsset(accountId, assetId, firstIndex, lastIndex)
+            assetExchange.getBidOrdersByAccountAsset(accountId, assetId, firstIndex, lastIndex)
         }
         val orderIds = JsonArray()
         for (bidOrder in bidOrders) {

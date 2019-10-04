@@ -1,7 +1,6 @@
 package brs.transaction.messaging
 
 import brs.*
-import brs.transaction.TransactionType
 import brs.transactionduplicates.TransactionDuplicationKey
 import brs.util.TextUtils
 import brs.util.convert.toBytes
@@ -11,7 +10,7 @@ import java.nio.ByteBuffer
 import java.util.*
 
 class AliasAssignment(dp: DependencyProvider) : Messaging(dp) {
-    override val subtype = TransactionType.SUBTYPE_MESSAGING_ALIAS_ASSIGNMENT
+    override val subtype = SUBTYPE_MESSAGING_ALIAS_ASSIGNMENT
 
     override val description = "Alias Assignment"
 

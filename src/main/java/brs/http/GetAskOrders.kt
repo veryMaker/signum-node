@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.assetexchange.AssetExchange
 import brs.http.common.Parameters.ASSET_PARAMETER
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER

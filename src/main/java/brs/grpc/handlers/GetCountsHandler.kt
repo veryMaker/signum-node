@@ -28,7 +28,7 @@ class GetCountsHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empt
             }
         }
         for (escrow in dp.escrowService.allEscrowTransactions) {
-            totalEffectiveBalance += escrow.amountNQT!!
+            totalEffectiveBalance += escrow.amountNQT
         }
 
         return BrsApi.Counts.newBuilder()

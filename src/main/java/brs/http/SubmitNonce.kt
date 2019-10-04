@@ -93,7 +93,7 @@ internal class SubmitNonce(propertyService: PropertyService, private val account
         }
 
         val generatorState = if (accountId == null || secretAccount == null) {
-            generator.addNonce(secret!!, nonce)
+            generator.addNonce(secret, nonce)
         } else {
             val genAccount = accountService.getAccount(accountId.parseUnsignedLong())
             if (genAccount?.publicKey == null) {
@@ -101,7 +101,7 @@ internal class SubmitNonce(propertyService: PropertyService, private val account
                 return response
             } else {
                 val publicKey = genAccount.publicKey!!
-                generator.addNonce(secret!!, nonce, publicKey)
+                generator.addNonce(secret, nonce, publicKey)
             }
         }
 
@@ -111,7 +111,7 @@ internal class SubmitNonce(propertyService: PropertyService, private val account
         return response
     }
 
-    internal override fun requirePost(): Boolean {
+    override fun requirePost(): Boolean {
         return true
     }
 }

@@ -153,7 +153,7 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
     /**
      * Assumes locked.
      */
-    private suspend fun removeNoLock(transaction: Transaction) {
+    private fun removeNoLock(transaction: Transaction) {
         // Make sure that we are acting on our own copy of the transaction, as this is the one we want to remove. TODO check this
         val internalTransaction = getNoLock(transaction.id)
         if (internalTransaction != null) {
@@ -268,12 +268,10 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
             fingerPrintsOverview[transaction]!!.add(peer)
         }
 
-        if (true) {
-            if (peer == null) {
-                logger.safeDebug { "Adding Transaction ${transaction.id} from ourself" }
-            } else {
-                logger.safeDebug { "Adding Transaction ${transaction.id} from Peer ${peer.peerAddress}" }
-            }
+        if (peer == null) {
+            logger.safeDebug { "Adding Transaction ${transaction.id} from ourself" }
+        } else {
+            logger.safeDebug { "Adding Transaction ${transaction.id} from Peer ${peer.peerAddress}" }
         }
 
         if (transaction.referencedTransactionFullHash != null) {

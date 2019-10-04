@@ -29,7 +29,7 @@ internal class GetState(private val dp: DependencyProvider) : APIServlet.JsonReq
                 }
             }
             for (escrow in dp.escrowService.allEscrowTransactions) {
-                totalEffectiveBalance += escrow.amountNQT!!
+                totalEffectiveBalance += escrow.amountNQT
             }
             response.addProperty("totalEffectiveBalanceNXT", totalEffectiveBalance / Constants.ONE_BURST)
 

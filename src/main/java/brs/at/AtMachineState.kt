@@ -39,58 +39,58 @@ open class AtMachineState {
     var height: Int = 0
 
     internal var a1: ByteArray
-        get() = machineState!!.a1
+        get() = machineState.a1
         set(a1) {
-            this.machineState!!.a1 = a1.clone()
+            this.machineState.a1 = a1.clone()
         }
 
     internal var a2: ByteArray
-        get() = machineState!!.a2
+        get() = machineState.a2
         set(a2) {
-            this.machineState!!.a2 = a2.clone()
+            this.machineState.a2 = a2.clone()
         }
 
     internal var a3: ByteArray
-        get() = machineState!!.a3
+        get() = machineState.a3
         set(a3) {
-            this.machineState!!.a3 = a3.clone()
+            this.machineState.a3 = a3.clone()
         }
 
     internal var a4: ByteArray
-        get() = machineState!!.a4
+        get() = machineState.a4
         set(a4) {
-            this.machineState!!.a4 = a4.clone()
+            this.machineState.a4 = a4.clone()
         }
 
     internal var b1: ByteArray
-        get() = machineState!!.b1
+        get() = machineState.b1
         set(b1) {
-            this.machineState!!.b1 = b1.clone()
+            this.machineState.b1 = b1.clone()
         }
 
     internal var b2: ByteArray
-        get() = machineState!!.b2
+        get() = machineState.b2
         set(b2) {
-            this.machineState!!.b2 = b2.clone()
+            this.machineState.b2 = b2.clone()
         }
 
     internal var b3: ByteArray
-        get() = machineState!!.b3
+        get() = machineState.b3
         set(b3) {
-            this.machineState!!.b3 = b3.clone()
+            this.machineState.b3 = b3.clone()
         }
 
     internal var b4: ByteArray
-        get() = machineState!!.b4
+        get() = machineState.b4
         set(b4) {
-            this.machineState!!.b4 = b4.clone()
+            this.machineState.b4 = b4.clone()
         }
 
     val apCodeBytes: ByteArray
         get() = apCode.array()
 
     val apDataBytes: ByteArray
-        get() = apData!!.array()
+        get() = apData.array()
 
     private val transactionBytes: ByteArray
         get() {
@@ -98,15 +98,15 @@ open class AtMachineState {
             b.order(ByteOrder.LITTLE_ENDIAN)
             for (tx in transactions.values) {
                 b.put(tx.recipientId)
-                b.putLong(tx.amount!!)
+                b.putLong(tx.amount)
             }
             return b.array()
         }
 
     protected var state: ByteArray
         get() {
-            val stateBytes = machineState!!.machineStateBytes
-            val dataBytes = apData!!.array()
+            val stateBytes = machineState.machineStateBytes
+            val dataBytes = apData.array()
 
             val b = ByteBuffer.allocate(stateSize)
             b.order(ByteOrder.LITTLE_ENDIAN)
@@ -125,10 +125,10 @@ open class AtMachineState {
             b.put(state)
             b.flip()
 
-            val stateSize = this.machineState!!.size
+            val stateSize = this.machineState.size
             val newMachineState = ByteArray(stateSize)
             b.get(newMachineState, 0, stateSize)
-            this.machineState!!.setMachineState(newMachineState)
+            this.machineState.setMachineState(newMachineState)
 
             gBalance = b.long
             pBalance = b.long
@@ -137,20 +137,20 @@ open class AtMachineState {
             val newApData = ByteArray(b.capacity() - b.position())
             b.get(newApData)
             this.apData = ByteBuffer.allocate(newApData.size)
-            this.apData!!.order(ByteOrder.LITTLE_ENDIAN)
-            this.apData!!.put(newApData)
-            this.apData!!.clear()
+            this.apData.order(ByteOrder.LITTLE_ENDIAN)
+            this.apData.put(newApData)
+            this.apData.clear()
         }
 
     private val stateSize: Int
-        get() = this.machineState!!.size + 8 + 8 + 4 + apData!!.capacity()
+        get() = this.machineState.size + 8 + 8 + 4 + apData.capacity()
 
     //these bytes are digested with MD5
     val bytes: ByteArray
         get() {
             val txBytes = transactionBytes
-            val stateBytes = machineState!!.machineStateBytes
-            val dataBytes = apData!!.array()
+            val stateBytes = machineState.machineStateBytes
+            val dataBytes = apData.array()
 
             val b = ByteBuffer.allocate(id!!.size + txBytes.size + stateBytes.size + dataBytes.size)
             b.order(ByteOrder.LITTLE_ENDIAN)
@@ -255,9 +255,9 @@ open class AtMachineState {
         b.get(data, 0, dataLen)
 
         this.apData = ByteBuffer.allocate(this.dSize + this.cCallStackBytes + this.cUserStackBytes)
-        this.apData!!.order(ByteOrder.LITTLE_ENDIAN)
-        this.apData!!.put(data)
-        this.apData!!.clear()
+        this.apData.order(ByteOrder.LITTLE_ENDIAN)
+        this.apData.put(data)
+        this.apData.clear()
 
         this.height = height
         this.creationBlockHeight = height
@@ -357,7 +357,7 @@ open class AtMachineState {
     }
 
     inner class MachineState internal constructor() {
-        internal val flags = ByteArray(2)
+        private val flags = ByteArray(2)
         internal val jumps = TreeSet<Int>()
         var running: Boolean = false
         var stopped: Boolean = false
@@ -394,11 +394,11 @@ open class AtMachineState {
 
                 bytes.put(flags)
 
-                bytes.putInt(machineState!!.pc)
-                bytes.putInt(machineState!!.pcs)
-                bytes.putInt(machineState!!.cs)
-                bytes.putInt(machineState!!.us)
-                bytes.putInt(machineState!!.err)
+                bytes.putInt(machineState.pc)
+                bytes.putInt(machineState.pcs)
+                bytes.putInt(machineState.cs)
+                bytes.putInt(machineState.us)
+                bytes.putInt(machineState.err)
 
                 bytes.put(a1)
                 bytes.put(a2)

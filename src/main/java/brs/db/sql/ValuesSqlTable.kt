@@ -9,7 +9,7 @@ import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 
 abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableClass: TableImpl<*>, internal val dbKeyFactory: DbKey.Factory<T>, private val multiversion: Boolean, private val dp: DependencyProvider) : DerivedSqlTable(table, tableClass, dp), ValuesTable<T, V> {
-    protected constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: DbKey.Factory<T>, dp: DependencyProvider) : this(table, tableClass, dbKeyFactory, false, dp) {}
+    protected constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: DbKey.Factory<T>, dp: DependencyProvider) : this(table, tableClass, dbKeyFactory, false, dp)
 
     protected abstract fun load(ctx: DSLContext, record: Record): V
 

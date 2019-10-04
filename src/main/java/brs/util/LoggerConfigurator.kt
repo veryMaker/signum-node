@@ -51,7 +51,7 @@ object LoggerConfigurator {
                     val outStream = ByteArrayOutputStream()
                     loggingProperties.store(outStream, "logging properties")
                     val inStream = ByteArrayInputStream(outStream.toByteArray())
-                    java.util.logging.LogManager.getLogManager().readConfiguration(inStream)
+                    LogManager.getLogManager().readConfiguration(inStream)
                     inStream.close()
                     outStream.close()
                 }

@@ -22,7 +22,6 @@ import java.sql.Connection
 import java.sql.SQLException
 import java.util.*
 
-// TODO refactor this so that it is not all static
 class Db(private val dp: DependencyProvider) { // TODO interface
     private val logger = LoggerFactory.getLogger(Db::class.java)
 
@@ -39,7 +38,7 @@ class Db(private val dp: DependencyProvider) { // TODO interface
         }
 
     private val pooledConnection: Connection
-        get() = cp!!.connection
+        get() = cp.connection
 
     val connection: Connection
         get() {
@@ -169,7 +168,7 @@ class Db(private val dp: DependencyProvider) { // TODO interface
     fun analyzeTables() {
         if (dialect == SQLDialect.H2) {
             try {
-                cp!!.connection.use { con -> con.createStatement().use { stmt -> stmt.execute("ANALYZE SAMPLE_SIZE 0") } }
+                cp.connection.use { con -> con.createStatement().use { stmt -> stmt.execute("ANALYZE SAMPLE_SIZE 0") } }
             } catch (e: SQLException) {
                 throw RuntimeException(e.toString(), e)
             }
@@ -180,7 +179,7 @@ class Db(private val dp: DependencyProvider) { // TODO interface
     fun shutdown() {
         if (dialect == SQLDialect.H2) {
             try {
-                cp!!.connection.use { con ->
+                cp.connection.use { con ->
                     con.createStatement().use { stmt ->
                         // COMPACT is not giving good result.
                         if (dp.propertyService.get(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
@@ -196,8 +195,8 @@ class Db(private val dp: DependencyProvider) { // TODO interface
                 logger.safeInfo { "Database shutdown completed." }
             }
         }
-        if (cp != null && !cp!!.isClosed) {
-            cp!!.close()
+        if (cp != null && !cp.isClosed) {
+            cp.close()
         }
     }
 
@@ -222,7 +221,7 @@ class Db(private val dp: DependencyProvider) { // TODO interface
     fun beginTransaction(): Connection {
         check(localConnection.get() == null) { "Transaction already in progress" }
         try {
-            val con = cp!!.connection
+            val con = cp.connection
             con.autoCommit = false
 
             localConnection.set(con)

@@ -1,6 +1,5 @@
 package brs.grpc.handlers
 
-import brs.feesuggestions.FeeSuggestion
 import brs.feesuggestions.FeeSuggestionCalculator
 import brs.grpc.GrpcApiHandler
 import brs.grpc.proto.BrsApi

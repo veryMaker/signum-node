@@ -62,11 +62,11 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     }
 
     override fun getAccount(id: Long): Account? {
-        return if (id == 0L) null else accountTable.get(accountBurstKeyFactory.newKey(id))
+        return if (id == 0L) null else accountTable[accountBurstKeyFactory.newKey(id)]
     }
 
     override fun getAccount(id: Long, height: Int): Account? {
-        return if (id == 0L) null else accountTable.get(accountBurstKeyFactory.newKey(id), height)
+        return if (id == 0L) null else accountTable[accountBurstKeyFactory.newKey(id), height]
     }
 
     override fun getAccount(publicKey: ByteArray): Account? {
@@ -100,7 +100,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     }
 
     override fun getOrAddAccount(id: Long): Account {
-        var account: Account? = accountTable.get(accountBurstKeyFactory.newKey(id))
+        var account: Account? = accountTable[accountBurstKeyFactory.newKey(id)]
         if (account == null) {
             account = Account(dp, id)
             accountTable.insert(account)
@@ -133,7 +133,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         var accountAsset: AccountAsset?
 
         val newKey = accountAssetKeyFactory.newKey(account.id, assetId)
-        accountAsset = accountAssetTable.get(newKey)
+        accountAsset = accountAssetTable[newKey]
         var assetBalance = accountAsset?.quantityQNT ?: 0
         assetBalance = assetBalance.safeAdd(quantityQNT)
         if (accountAsset == null) {
@@ -152,7 +152,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         }
         var accountAsset: AccountAsset?
         val newKey = accountAssetKeyFactory.newKey(account.id, assetId)
-        accountAsset = accountAssetTable.get(newKey)
+        accountAsset = accountAssetTable[newKey]
         var unconfirmedAssetBalance = accountAsset?.unconfirmedQuantityQNT ?: 0
         unconfirmedAssetBalance = unconfirmedAssetBalance.safeAdd(quantityQNT)
         if (accountAsset == null) {
@@ -171,7 +171,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         }
         var accountAsset: AccountAsset?
         val newKey = accountAssetKeyFactory.newKey(account.id, assetId)
-        accountAsset = accountAssetTable.get(newKey)
+        accountAsset = accountAssetTable[newKey]
         var assetBalance = accountAsset?.quantityQNT ?: 0
         assetBalance = assetBalance.safeAdd(quantityQNT)
         var unconfirmedAssetBalance = accountAsset?.unconfirmedQuantityQNT ?: 0
@@ -222,7 +222,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     }
 
     override fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment? {
-        return rewardRecipientAssignmentTable[rewardRecipientAssignmentKeyFactory.newKey(account.id!!)]
+        return rewardRecipientAssignmentTable[rewardRecipientAssignmentKeyFactory.newKey(account.id)]
     }
 
     override fun setRewardRecipientAssignment(account: Account, recipient: Long) {

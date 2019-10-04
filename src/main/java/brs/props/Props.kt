@@ -1,8 +1,5 @@
 package brs.props
 
-import java.util.Arrays
-import java.util.Collections
-
 object Props {
 
     // DEV options

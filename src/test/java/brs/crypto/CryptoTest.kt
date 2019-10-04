@@ -80,8 +80,6 @@ class CryptoTest {
         assertTrue(Crypto.verify("46ab525630fd4f2266d78309a04153dd7d69c8d3c77765956eff1b86cc4e5a0d8d0d8df1cfe8300617551361b99f54b5db7afbd8ffa0a21ddcdac2cfdec57b71".parseHexString(), stringToBytes("Burst Apps Team"), publicKey, true))
     }
 
-    // TODO test AES encrypt / decrypt & getSharedSecret
-
     @Test
     fun testCryptoRsEncode() {
         val burstCrypto = BurstCrypto.getInstance()

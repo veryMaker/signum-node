@@ -1,7 +1,6 @@
 package brs.http
 
 import brs.Attachment
-import brs.BurstException
 import brs.DependencyProvider
 import brs.http.JSONResponses.UNKNOWN_GOODS
 import brs.http.common.Parameters.GOODS_PARAMETER

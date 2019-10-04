@@ -1,6 +1,5 @@
 package brs.grpc.handlers
 
-import brs.Account
 import brs.Blockchain
 import brs.grpc.GrpcApiHandler
 import brs.grpc.proto.ApiException
@@ -8,8 +7,6 @@ import brs.grpc.proto.BrsApi
 import brs.grpc.proto.ProtoBuilder
 import brs.services.AccountService
 import brs.services.BlockService
-
-import java.util.stream.Collectors
 
 class GetAccountBlocksHandler(private val blockchain: Blockchain, private val blockService: BlockService, private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAccountBlocksRequest, BrsApi.Blocks> {
     override suspend fun handleRequest(getAccountRequest: BrsApi.GetAccountBlocksRequest): BrsApi.Blocks {

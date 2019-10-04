@@ -1,6 +1,5 @@
 package brs.grpc.handlers
 
-import brs.Asset
 import brs.assetexchange.AssetExchange
 import brs.grpc.GrpcApiHandler
 import brs.grpc.proto.ApiException

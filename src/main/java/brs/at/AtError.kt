@@ -1,6 +1,6 @@
 package brs.at
 
-enum class AtError private constructor(val code: Int, val description: String) {
+enum class AtError(val code: Int, val description: String) {
     INCORRECT_VERSION(1, "The current AT version is not supported."),
     INCORRECT_CODE_PAGES(2, "Maximum number of code pages exceeded."),
     INCORRECT_DATA_PAGES(3, "Maximum number of data pages exceeded."),

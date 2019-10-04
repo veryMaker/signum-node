@@ -68,7 +68,7 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
             encryptedGoods = buyerAccount.encryptTo(goodsBytes, secretPhrase)
         }
 
-        val attachment = Attachment.DigitalGoodsDelivery(dp, purchase.id, encryptedGoods!!, goodsIsText, discountNQT, dp.blockchain.height)
+        val attachment = Attachment.DigitalGoodsDelivery(dp, purchase.id, encryptedGoods, goodsIsText, discountNQT, dp.blockchain.height)
         return createTransaction(request, sellerAccount, buyerAccount.id, 0, attachment)
 
     }

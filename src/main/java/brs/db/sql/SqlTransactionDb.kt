@@ -49,7 +49,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         val buffer: ByteBuffer
         if (tr.attachmentBytes != null) {
             buffer = ByteBuffer.wrap(tr.attachmentBytes)
-            buffer!!.order(ByteOrder.LITTLE_ENDIAN)
+            buffer.order(ByteOrder.LITTLE_ENDIAN)
         } else {
             buffer = ByteBuffer.allocate(0)
         }
@@ -73,16 +73,16 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
             builder.recipientId(Optional.ofNullable(tr.recipientId).orElse(0L))
         }
         if (tr.hasMessage!!) {
-            builder.message(Appendix.Message(buffer!!, tr.version!!))
+            builder.message(Appendix.Message(buffer, tr.version!!))
         }
         if (tr.hasEncryptedMessage!!) {
-            builder.encryptedMessage(Appendix.EncryptedMessage(buffer!!, tr.version!!))
+            builder.encryptedMessage(Appendix.EncryptedMessage(buffer, tr.version!!))
         }
         if (tr.hasPublicKeyAnnouncement!!) {
-            builder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(dp, buffer!!, tr.version!!))
+            builder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(dp, buffer, tr.version!!))
         }
         if (tr.hasEncrypttoselfMessage!!) {
-            builder.encryptToSelfMessage(Appendix.EncryptToSelfMessage(buffer!!, tr.version!!))
+            builder.encryptToSelfMessage(Appendix.EncryptToSelfMessage(buffer, tr.version!!))
         }
         if (tr.version > 0) {
             builder.ecBlockHeight(tr.ecBlockHeight!!)
@@ -112,15 +112,15 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         for (appendage in transaction.appendages) {
             bytesLength += appendage.size
         }
-        if (bytesLength == 0) {
-            return null
+        return if (bytesLength == 0) {
+            null
         } else {
             val buffer = ByteBuffer.allocate(bytesLength)
             buffer.order(ByteOrder.LITTLE_ENDIAN)
             for (appendage in transaction.appendages) {
                 appendage.putBytes(buffer)
             }
-            return buffer.array()
+            buffer.array()
         }
     }
 

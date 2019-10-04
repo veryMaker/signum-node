@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.http.common.Parameters.BUYER_PARAMETER
 import brs.http.common.Parameters.COMPLETED_PARAMETER
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER

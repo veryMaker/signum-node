@@ -3,11 +3,10 @@ package brs.grpc.handlers
 import brs.Constants
 import brs.DependencyProvider
 import brs.Genesis
-import brs.transaction.TransactionType
-import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import brs.grpc.GrpcApiHandler
 import brs.grpc.proto.BrsApi
+import brs.transaction.TransactionType
 import com.google.protobuf.Empty
 
 class GetConstantsHandler(dp: DependencyProvider) : GrpcApiHandler<Empty, BrsApi.Constants> {

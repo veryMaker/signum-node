@@ -2,13 +2,12 @@ package brs.transaction.messaging
 
 import brs.*
 import brs.fluxcapacitor.FluxValues
-import brs.transaction.TransactionType
 import brs.util.toJsonString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 
 class ArbitraryMessage(dp: DependencyProvider) : Messaging(dp) {
-    override val subtype = TransactionType.SUBTYPE_MESSAGING_ARBITRARY_MESSAGE
+    override val subtype = SUBTYPE_MESSAGING_ARBITRARY_MESSAGE
     override val description = "Arbitrary Message"
 
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.ArbitraryMessage(dp)

@@ -5,7 +5,6 @@ import brs.fluxcapacitor.FluxCapacitor
 import brs.fluxcapacitor.FluxValues
 import java.nio.ByteBuffer
 import java.security.MessageDigest
-import java.util.*
 import kotlin.experimental.xor
 
 class MiningPlot(addr: Long, nonce: Long, blockHeight: Int, fluxCapacitor: FluxCapacitor) {
@@ -61,7 +60,7 @@ class MiningPlot(addr: Long, nonce: Long, blockHeight: Int, fluxCapacitor: FluxC
         private const val HASH_SIZE = 32
         private const val HASHES_PER_SCOOP = 2
         const val SCOOP_SIZE = HASHES_PER_SCOOP * HASH_SIZE
-        const val SCOOPS_PER_PLOT = 4096 // original 1MB/plot = 16384
+        private const val SCOOPS_PER_PLOT = 4096 // original 1MB/plot = 16384
         const val PLOT_SIZE = SCOOPS_PER_PLOT * SCOOP_SIZE
         private const val HASH_CAP = 4096
     }

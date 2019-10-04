@@ -18,7 +18,7 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
         for (appendage in transaction.appendages) {
             appendage.validate(transaction)
         }
-        val minimumFeeNQT = transaction.type!!.minimumFeeNQT(dp.blockchain.height, transaction.appendagesSize)
+        val minimumFeeNQT = transaction.type.minimumFeeNQT(dp.blockchain.height, transaction.appendagesSize)
         if (transaction.feeNQT < minimumFeeNQT) {
             throw BurstException.NotCurrentlyValidException(String.format("Transaction fee %d less than minimum fee %d at height %d",
                     transaction.feeNQT, minimumFeeNQT, dp.blockchain.height))
@@ -27,7 +27,7 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
 
     override suspend fun applyUnconfirmed(transaction: Transaction): Boolean {
         val senderAccount = dp.accountService.getAccount(transaction.senderId)
-        return senderAccount != null && transaction.type!!.applyUnconfirmed(transaction, senderAccount)
+        return senderAccount != null && transaction.type.applyUnconfirmed(transaction, senderAccount)
     }
 
     override suspend fun apply(transaction: Transaction) {
@@ -41,7 +41,7 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
 
     override suspend fun undoUnconfirmed(transaction: Transaction) {
         val senderAccount = dp.accountService.getAccount(transaction.senderId)!!
-        transaction.type!!.undoUnconfirmed(transaction, senderAccount)
+        transaction.type.undoUnconfirmed(transaction, senderAccount)
     }
 
 }

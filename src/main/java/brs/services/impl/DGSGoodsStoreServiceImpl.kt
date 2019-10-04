@@ -127,7 +127,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
             feedbackTable.insert(purchase, purchase.feedbackNotes!!)
         }
         if (message != null) {
-            addPublicFeedback(purchase, message.messageBytes!!.toUtf8String())
+            addPublicFeedback(purchase, message.messageBytes.toUtf8String())
         }
         purchaseListeners.accept(Event.FEEDBACK, purchase)
     }

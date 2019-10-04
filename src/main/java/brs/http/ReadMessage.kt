@@ -47,7 +47,7 @@ internal class ReadMessage(private val blockchain: Blockchain, private val accou
             return NO_MESSAGE
         }
         if (message != null) {
-            response.addProperty("message", if (message.isText) message.messageBytes!!.toUtf8String() else message.messageBytes.toHexString())
+            response.addProperty("message", if (message.isText) message.messageBytes.toUtf8String() else message.messageBytes.toHexString())
         }
         val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
         if (secretPhrase != null) {

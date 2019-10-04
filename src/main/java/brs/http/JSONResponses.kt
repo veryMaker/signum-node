@@ -57,7 +57,6 @@ import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import java.util.*
 
 object JSONResponses {
     val INCORRECT_ALIAS = incorrect(ALIAS_PARAMETER)
@@ -170,7 +169,7 @@ object JSONResponses {
 
     val ERROR_MISSING_REQUEST: JsonElement
 
-    val POST_REQUIRED: JsonElement
+    private val POST_REQUIRED: JsonElement
 
     val FEATURE_NOT_AVAILABLE: JsonElement
 
@@ -283,7 +282,7 @@ object JSONResponses {
         if (paramNames.size == 1) {
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "\"" + paramNames[0] + "\"" + " not specified")
         } else {
-            response.addProperty(ERROR_DESCRIPTION_RESPONSE, "At least one of " + Arrays.toString(paramNames) + " must be specified")
+            response.addProperty(ERROR_DESCRIPTION_RESPONSE, "At least one of " + paramNames.contentToString() + " must be specified")
         }
         return response
     }

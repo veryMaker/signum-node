@@ -8,8 +8,8 @@ interface DbKey : BurstKey {
 
     override val pkValues: LongArray
 
-    abstract class Factory<T> internal constructor(val pkClause: String, val pkColumns: Array<String>, // expects tables to be named a and b
-                                                   val selfJoinClause: String) : BurstKey.Factory<T> {
+    abstract class Factory<T> internal constructor(pkClause: String, val pkColumns: Array<String>, // expects tables to be named a and b
+        val selfJoinClause: String) : BurstKey.Factory<T> {
         /**
          * @return The number of variables in PKClause
          */

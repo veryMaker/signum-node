@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.http.JSONResponses.INCORRECT_ENCRYPTED_MESSAGE
 import brs.http.JSONResponses.INCORRECT_RECIPIENT
 import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER

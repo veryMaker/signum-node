@@ -125,7 +125,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
             externalIPAddress
         } else dp.propertyService.get(Props.P2P_MY_ADDRESS)
 
-        if (myAddress != null && myAddress!!.endsWith(":$TESTNET_PEER_PORT") && !dp.propertyService.get(Props.DEV_TESTNET)) {
+        if (myAddress != null && myAddress.endsWith(":$TESTNET_PEER_PORT") && !dp.propertyService.get(Props.DEV_TESTNET)) {
             throw RuntimeException("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
         }
         myPeerServerPort = dp.propertyService.get(Props.P2P_PORT)
@@ -136,9 +136,9 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
         shareMyAddress = dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE)
 
         val json = JsonObject()
-        if (myAddress != null && !myAddress!!.isEmpty()) {
+        if (myAddress != null && myAddress.isNotEmpty()) {
             try {
-                val uri = URI("http://" + myAddress!!.trim { it <= ' ' })
+                val uri = URI("http://" + myAddress.trim { it <= ' ' })
                 val host = uri.host
                 val port = uri.port
                 if (!dp.propertyService.get(Props.DEV_TESTNET)) {
@@ -161,9 +161,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
         json.addProperty("version", Burst.VERSION.toString())
         json.addProperty("platform", this.myPlatform)
         json.addProperty("shareAddress", this.shareMyAddress)
-        if (true) {
-            logger.safeDebug { "My peer info: ${json.toJsonString()}" }
-        }
+        logger.safeDebug { "My peer info: ${json.toJsonString()}" }
         myPeerInfoResponse = json.cloneJson()
         json.addProperty("requestType", "getInfo")
         myPeerInfoRequest = prepareRequest(json)
@@ -172,10 +170,10 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
         connectWellKnownFinished = connectWellKnownFirst == 0
 
         val knownBlacklistedPeersList = dp.propertyService.get(Props.P2P_BLACKLISTED_PEERS)
-        if (knownBlacklistedPeersList.isEmpty()) {
-            knownBlacklistedPeers = emptySet()
+        knownBlacklistedPeers = if (knownBlacklistedPeersList.isEmpty()) {
+            emptySet()
         } else {
-            knownBlacklistedPeers = knownBlacklistedPeersList.toSet()
+            knownBlacklistedPeersList.toSet()
         }
 
         maxNumberOfConnectedPublicPeers = dp.propertyService.get(Props.P2P_MAX_CONNECTIONS)
@@ -220,7 +218,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                             if (gateway!!.getSpecificPortMappingEntry(port, "TCP", portMapping)) {
                                 logger.safeInfo { "Port was already mapped. Aborting test." }
                             } else {
-                                if (gateway!!.addPortMapping(port!!, port!!, localAddress.hostAddress, "TCP", "burstcoin")) {
+                                if (gateway!!.addPortMapping(port, port, localAddress.hostAddress, "TCP", "burstcoin")) {
                                     logger.safeInfo { "UPnP Mapping successful" }
                                 } else {
                                     logger.safeWarn { "UPnP Mapping was denied!" }
@@ -338,9 +336,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                 } catch (ignored: TimeoutException) {
                 }
             }
-            if (true) {
-                logger.safeDebug { "Known peers: ${peers.size}" }
-            }
+            logger.safeDebug { "Known peers: ${peers.size}" }
         }
     }
 
@@ -439,7 +435,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
 
     init {
         runBlocking {
-            listeners.addListener(Event.NEW_PEER, { addedNewPeer.set(true) })
+            listeners.addListener(Event.NEW_PEER) { addedNewPeer.set(true) }
         }
     }
 
@@ -578,7 +574,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
         }
         if (gateway != null) {
             try {
-                gateway!!.deletePortMapping(port!!, "TCP")
+                gateway!!.deletePortMapping(port, "TCP")
             } catch (e: Exception) {
                 logger.safeInfo(e) { "Failed to remove UPNP rule from gateway" }
             }
@@ -588,13 +584,13 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
             val buf = StringBuilder()
             for ((key, value) in announcedAddresses) {
                 val peer = peers[value]
-                if (peer != null && peer.state == Peer.State.CONNECTED && peer.shareAddress && !peer.isBlacklisted && peer.version.toString().startsWith(dumpPeersVersion!!)) {
+                if (peer != null && peer.state == Peer.State.CONNECTED && peer.shareAddress && !peer.isBlacklisted && peer.version.toString().startsWith(
+                        dumpPeersVersion
+                    )) {
                     buf.append("('").append(key).append("'), ")
                 }
             }
-            if (true) {
-                logger.safeInfo { buf.toString() }
-            }
+            logger.safeInfo { buf.toString() }
         }
     }
 
@@ -665,7 +661,7 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
 
         val announcedPeerAddress = if (address == announcedAddress) peerAddress else normalizeHostAndPort(announcedAddress)
 
-        if (!myAddress.isNullOrEmpty() && myAddress!!.equals(announcedPeerAddress, ignoreCase = true)) {
+        if (!myAddress.isNullOrEmpty() && myAddress.equals(announcedPeerAddress, ignoreCase = true)) {
             return null
         }
 

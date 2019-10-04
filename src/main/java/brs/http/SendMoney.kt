@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.DependencyProvider
 import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
 import brs.http.common.Parameters.RECIPIENT_PARAMETER

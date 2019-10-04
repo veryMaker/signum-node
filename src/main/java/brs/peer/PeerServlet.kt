@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
-import javax.servlet.ServletConfig
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -51,10 +50,6 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
         map["getAccountBalance"] = GetAccountBalance(dp.accountService)
         map["getAccountRecentTransactions"] = GetAccountRecentTransactions(dp.accountService, dp.blockchain)
         peerRequestHandlers = map
-    }
-
-    override fun init(config: ServletConfig) {
-        super.init(config)
     }
 
     override fun doPost(request: HttpServletRequest, resp: HttpServletResponse) {

@@ -7,68 +7,68 @@ import brs.fluxcapacitor.FluxValues
 
 class AtConstants(private val dp: DependencyProvider) {
     //platform based
-    private val MIN_FEE = mutableMapOf<Short, Long>()
-    private val STEP_FEE = mutableMapOf<Short, Long>()
-    private val MAX_STEPS = mutableMapOf<Short, Long>()
-    private val API_STEP_MULTIPLIER = mutableMapOf<Short, Long>()
-    private val COST_PER_PAGE = mutableMapOf<Short, Long>()
-    private val MAX_WAIT_FOR_NUM_OF_BLOCKS = mutableMapOf<Short, Long>()
-    private val MAX_SLEEP_BETWEEN_BLOCKS = mutableMapOf<Short, Long>()
-    private val PAGE_SIZE = mutableMapOf<Short, Long>()
-    private val MAX_MACHINE_CODE_PAGES = mutableMapOf<Short, Long>()
-    private val MAX_MACHINE_DATA_PAGES = mutableMapOf<Short, Long>()
-    private val MAX_MACHINE_USER_STACK_PAGES = mutableMapOf<Short, Long>()
-    private val MAX_MACHINE_CALL_STACK_PAGES = mutableMapOf<Short, Long>()
-    private val BLOCKS_FOR_RANDOM = mutableMapOf<Short, Long>()
-    private val MAX_PAYLOAD_FOR_BLOCK = mutableMapOf<Short, Long>()
-    private val AVERAGE_BLOCK_MINUTES = mutableMapOf<Short, Long>()
+    private val minFee = mutableMapOf<Short, Long>()
+    private val stepFee = mutableMapOf<Short, Long>()
+    private val maxSteps = mutableMapOf<Short, Long>()
+    private val apiStepMultiplier = mutableMapOf<Short, Long>()
+    private val costPerPage = mutableMapOf<Short, Long>()
+    private val maxWaitForNumOfBlocks = mutableMapOf<Short, Long>()
+    private val maxSleepBetweenBlocks = mutableMapOf<Short, Long>()
+    private val pageSize = mutableMapOf<Short, Long>()
+    private val maxMachineCodePages = mutableMapOf<Short, Long>()
+    private val maxMachineDataPages = mutableMapOf<Short, Long>()
+    private val maxMachineUserStackPages = mutableMapOf<Short, Long>()
+    private val maxMachineCallStackPages = mutableMapOf<Short, Long>()
+    private val blocksForRandom = mutableMapOf<Short, Long>()
+    private val maxPayloadForBlock = mutableMapOf<Short, Long>()
+    private val averageBlockMinutes = mutableMapOf<Short, Long>()
 
 
     init {
         // constants for AT version 1
-        MIN_FEE[1.toShort()] = 1000L
-        STEP_FEE[1.toShort()] = Constants.ONE_BURST / 10L
-        MAX_STEPS[1.toShort()] = 2000L
-        API_STEP_MULTIPLIER[1.toShort()] = 10L
+        minFee[1.toShort()] = 1000L
+        stepFee[1.toShort()] = Constants.ONE_BURST / 10L
+        maxSteps[1.toShort()] = 2000L
+        apiStepMultiplier[1.toShort()] = 10L
 
-        COST_PER_PAGE[1.toShort()] = Constants.ONE_BURST
+        costPerPage[1.toShort()] = Constants.ONE_BURST
 
-        MAX_WAIT_FOR_NUM_OF_BLOCKS[1.toShort()] = 31536000L
-        MAX_SLEEP_BETWEEN_BLOCKS[1.toShort()] = 31536000L
+        maxWaitForNumOfBlocks[1.toShort()] = 31536000L
+        maxSleepBetweenBlocks[1.toShort()] = 31536000L
 
-        PAGE_SIZE[1.toShort()] = 256L
+        pageSize[1.toShort()] = 256L
 
-        MAX_MACHINE_CODE_PAGES[1.toShort()] = 10L
-        MAX_MACHINE_DATA_PAGES[1.toShort()] = 10L
-        MAX_MACHINE_USER_STACK_PAGES[1.toShort()] = 10L
-        MAX_MACHINE_CALL_STACK_PAGES[1.toShort()] = 10L
+        maxMachineCodePages[1.toShort()] = 10L
+        maxMachineDataPages[1.toShort()] = 10L
+        maxMachineUserStackPages[1.toShort()] = 10L
+        maxMachineCallStackPages[1.toShort()] = 10L
 
-        BLOCKS_FOR_RANDOM[1.toShort()] = 15L //for testing 2 -> normally 1440
-        MAX_PAYLOAD_FOR_BLOCK[1.toShort()] = dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH) / 2L //use at max half size of the block.
-        AVERAGE_BLOCK_MINUTES[1.toShort()] = 4L
+        blocksForRandom[1.toShort()] = 15L //for testing 2 -> normally 1440
+        maxPayloadForBlock[1.toShort()] = dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH) / 2L //use at max half size of the block.
+        averageBlockMinutes[1.toShort()] = 4L
         // end of AT version 1
 
         // constants for AT version 2
-        MIN_FEE[2.toShort()] = 1000L
-        STEP_FEE[2.toShort()] = Constants.FEE_QUANT / 10L
-        MAX_STEPS[2.toShort()] = 100000L
-        API_STEP_MULTIPLIER[2.toShort()] = 10L
+        minFee[2.toShort()] = 1000L
+        stepFee[2.toShort()] = Constants.FEE_QUANT / 10L
+        maxSteps[2.toShort()] = 100000L
+        apiStepMultiplier[2.toShort()] = 10L
 
-        COST_PER_PAGE[2.toShort()] = Constants.FEE_QUANT * 10
+        costPerPage[2.toShort()] = Constants.FEE_QUANT * 10
 
-        MAX_WAIT_FOR_NUM_OF_BLOCKS[2.toShort()] = 31536000L
-        MAX_SLEEP_BETWEEN_BLOCKS[2.toShort()] = 31536000L
+        maxWaitForNumOfBlocks[2.toShort()] = 31536000L
+        maxSleepBetweenBlocks[2.toShort()] = 31536000L
 
-        PAGE_SIZE[2.toShort()] = 256L
+        pageSize[2.toShort()] = 256L
 
-        MAX_MACHINE_CODE_PAGES[2.toShort()] = 10L
-        MAX_MACHINE_DATA_PAGES[2.toShort()] = 10L
-        MAX_MACHINE_USER_STACK_PAGES[2.toShort()] = 10L
-        MAX_MACHINE_CALL_STACK_PAGES[2.toShort()] = 10L
+        maxMachineCodePages[2.toShort()] = 10L
+        maxMachineDataPages[2.toShort()] = 10L
+        maxMachineUserStackPages[2.toShort()] = 10L
+        maxMachineCallStackPages[2.toShort()] = 10L
 
-        BLOCKS_FOR_RANDOM[2.toShort()] = 15L //for testing 2 -> normally 1440
-        MAX_PAYLOAD_FOR_BLOCK[2.toShort()] = dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH) / 2L //use at max half size of the block.
-        AVERAGE_BLOCK_MINUTES[2.toShort()] = 4L
+        blocksForRandom[2.toShort()] = 15L //for testing 2 -> normally 1440
+        maxPayloadForBlock[2.toShort()] = dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH) / 2L //use at max half size of the block.
+        averageBlockMinutes[2.toShort()] = 4L
         // end of AT version 2
     }
 
@@ -77,59 +77,59 @@ class AtConstants(private val dp: DependencyProvider) {
     }
 
     fun stepFee(height: Int): Long {
-        return STEP_FEE[atVersion(height)]!!
+        return stepFee[atVersion(height)]!!
     }
 
     fun maxSteps(height: Int): Long {
-        return MAX_STEPS[atVersion(height)]!!
+        return maxSteps[atVersion(height)]!!
     }
 
     fun apiStepMultiplier(height: Int): Long {
-        return API_STEP_MULTIPLIER[atVersion(height)]!!
+        return apiStepMultiplier[atVersion(height)]!!
     }
 
     fun costPerPage(height: Int): Long {
-        return COST_PER_PAGE[atVersion(height)]!!
+        return costPerPage[atVersion(height)]!!
     }
 
     fun getMaxWaitForNumOfBlocks(height: Int): Long {
-        return MAX_WAIT_FOR_NUM_OF_BLOCKS[atVersion(height)]!!
+        return maxWaitForNumOfBlocks[atVersion(height)]!!
     }
 
     fun maxSleepBetweenBlocks(height: Int): Long {
-        return MAX_SLEEP_BETWEEN_BLOCKS[atVersion(height)]!!
+        return maxSleepBetweenBlocks[atVersion(height)]!!
     }
 
     fun pageSize(height: Int): Long {
-        return PAGE_SIZE[atVersion(height)]!!
+        return pageSize[atVersion(height)]!!
     }
 
     fun maxMachineCodePages(height: Int): Long {
-        return MAX_MACHINE_CODE_PAGES[atVersion(height)]!!
+        return maxMachineCodePages[atVersion(height)]!!
     }
 
     fun maxMachineDataPages(height: Int): Long {
-        return MAX_MACHINE_DATA_PAGES[atVersion(height)]!!
+        return maxMachineDataPages[atVersion(height)]!!
     }
 
     fun maxMachineUserStackPages(height: Int): Long {
-        return MAX_MACHINE_USER_STACK_PAGES[atVersion(height)]!!
+        return maxMachineUserStackPages[atVersion(height)]!!
     }
 
     fun maxMachineCallStackPages(height: Int): Long {
-        return MAX_MACHINE_CALL_STACK_PAGES[atVersion(height)]!!
+        return maxMachineCallStackPages[atVersion(height)]!!
     }
 
     fun blocksForRandom(height: Int): Long {
-        return BLOCKS_FOR_RANDOM[atVersion(height)]!!
+        return blocksForRandom[atVersion(height)]!!
     }
 
     fun maxPayloadForBlock(height: Int): Long {
-        return MAX_PAYLOAD_FOR_BLOCK[atVersion(height)]!!
+        return maxPayloadForBlock[atVersion(height)]!!
     }
 
     fun averageBlockMinutes(height: Int): Long {
-        return AVERAGE_BLOCK_MINUTES[atVersion(height)]!!
+        return averageBlockMinutes[atVersion(height)]!!
     }
 
     companion object {

@@ -38,7 +38,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
      * @return false if double spending
      */
     suspend fun applyUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
-        val totalAmountNQT = calculateTransactionAmountNQT(transaction)!!
+        val totalAmountNQT = calculateTransactionAmountNQT(transaction)
         logger.safeTrace { "applyUnconfirmed: ${senderAccount.unconfirmedBalanceNQT} < totalamount: $totalAmountNQT = false" }
         if (senderAccount.unconfirmedBalanceNQT < totalAmountNQT) {
             return false
@@ -78,9 +78,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
         if (recipientAccount != null) {
             dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, transaction.amountNQT)
         }
-        if (true) {
-            logger.safeTrace { "applying transaction - id: ${transaction.id}, type: ${transaction.type}" }
-        }
+        logger.safeTrace { "applying transaction - id: ${transaction.id}, type: ${transaction.type}" }
         applyAttachment(transaction, senderAccount, recipientAccount)
     }
 

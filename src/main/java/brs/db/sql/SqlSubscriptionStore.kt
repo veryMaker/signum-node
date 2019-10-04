@@ -23,7 +23,7 @@ class SqlSubscriptionStore(private val dp: DependencyProvider) : SubscriptionSto
     override val subscriptionTable: VersionedEntityTable<Subscription>
 
     init {
-        subscriptionTable = object : VersionedEntitySqlTable<Subscription>("subscription", brs.schema.Tables.SUBSCRIPTION, subscriptionDbKeyFactory, dp) {
+        subscriptionTable = object : VersionedEntitySqlTable<Subscription>("subscription", SUBSCRIPTION, subscriptionDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, rs: Record): Subscription {
                 return SqlSubscription(rs)
             }

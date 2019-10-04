@@ -14,7 +14,7 @@ import com.google.gson.JsonObject
 class GetAccountRecentTransactions internal constructor(private val accountService: AccountService, private val blockchain: Blockchain) : PeerServlet.PeerRequestHandler {
     override suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         val response = JsonObject()
-        val accountId = JSON.getAsString(request.get("account"))!!.parseAccountId()
+        val accountId = JSON.getAsString(request.get("account")).parseAccountId()
         val account = accountService.getAccount(accountId)
         val transactions = JsonArray()
         if (account != null) {

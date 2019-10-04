@@ -55,7 +55,7 @@ open class Account {
         }
 
         fun checkBalance() {
-            Account.checkBalance(this.accountId, this.quantityQNT, this.unconfirmedQuantityQNT)
+            checkBalance(this.accountId, this.quantityQNT, this.unconfirmedQuantityQNT)
         }
 
         override fun toString(): String {
@@ -154,7 +154,7 @@ open class Account {
         }
 
         fun getAccount(dp: DependencyProvider, id: Long): Account? {
-            return if (id == 0L) null else accountTable(dp).get(accountBurstKeyFactory(dp).newKey(id))
+            return if (id == 0L) null else accountTable(dp)[accountBurstKeyFactory(dp).newKey(id)]
         }
 
         @Deprecated("Just use Crypto/Convert class instead")

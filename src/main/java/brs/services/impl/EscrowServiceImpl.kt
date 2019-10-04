@@ -47,7 +47,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
 
 
     override fun addEscrowTransaction(sender: Account, recipient: Account, id: Long, amountNQT: Long, requiredSigners: Int, signers: Collection<Long>, deadline: Int, deadlineAction: DecisionType) {
-        val dbKey = escrowDbKeyFactory.newKey(id!!)
+        val dbKey = escrowDbKeyFactory.newKey(id)
         val newEscrowTransaction = Escrow(dp, dbKey, sender, recipient, id, amountNQT, requiredSigners, deadline, deadlineAction)
         escrowTable.insert(newEscrowTransaction)
         val senderDbKey = decisionDbKeyFactory.newKey(id, sender.id)
@@ -72,7 +72,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
             return
         }
 
-        val decisionChange = decisionTable.get(decisionDbKeyFactory.newKey(escrow.id!!, id)) ?: return
+        val decisionChange = decisionTable[decisionDbKeyFactory.newKey(escrow.id, id)] ?: return
         decisionChange.decision = decision
 
         decisionTable.insert(decisionChange)
@@ -81,11 +81,11 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
     }
 
     override fun checkComplete(escrow: Escrow): DecisionType {
-        val senderDecision = decisionTable[decisionDbKeyFactory.newKey(escrow.id!!, escrow.senderId!!)]!!
+        val senderDecision = decisionTable[decisionDbKeyFactory.newKey(escrow.id, escrow.senderId)]!!
         if (senderDecision.decision == DecisionType.RELEASE) {
             return DecisionType.RELEASE
         }
-        val recipientDecision = decisionTable[decisionDbKeyFactory.newKey(escrow.id, escrow.recipientId!!)]!!
+        val recipientDecision = decisionTable[decisionDbKeyFactory.newKey(escrow.id, escrow.recipientId)]!!
         if (recipientDecision.decision == DecisionType.REFUND) {
             return DecisionType.REFUND
         }
@@ -99,9 +99,9 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
                 continue
             }
             when (decision.decision) {
-                Escrow.DecisionType.RELEASE -> countRelease++
-                Escrow.DecisionType.REFUND -> countRefund++
-                Escrow.DecisionType.SPLIT -> countSplit++
+                DecisionType.RELEASE -> countRelease++
+                DecisionType.REFUND -> countRefund++
+                DecisionType.SPLIT -> countSplit++
                 else -> {
                 }
             }
@@ -131,9 +131,9 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
         if (!updatedEscrowIds.isEmpty()) {
             for (escrowId in updatedEscrowIds) {
                 val escrow = escrowTable[escrowDbKeyFactory.newKey(escrowId!!)]!!
-                var result: Escrow.DecisionType = checkComplete(escrow)
-                if (result != Escrow.DecisionType.UNDECIDED || escrow.deadline < block.timestamp) {
-                    if (result == Escrow.DecisionType.UNDECIDED) {
+                var result: DecisionType = checkComplete(escrow)
+                if (result != DecisionType.UNDECIDED || escrow.deadline < block.timestamp) {
+                    if (result == DecisionType.UNDECIDED) {
                         result = escrow.deadlineAction
                     }
                     doPayout(result, block, blockchainHeight, escrow)
@@ -150,18 +150,22 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
 
     override suspend fun doPayout(result: DecisionType, block: Block, blockchainHeight: Int, escrow: Escrow) {
         when (result) {
-            Escrow.DecisionType.RELEASE -> {
-                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(escrow.recipientId!!)!!, escrow.amountNQT!!)
+            DecisionType.RELEASE -> {
+                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(escrow.recipientId)!!,
+                    escrow.amountNQT
+                )
                 saveResultTransaction(block, escrow.id, escrow.recipientId, escrow.amountNQT, DecisionType.RELEASE, blockchainHeight)
             }
-            Escrow.DecisionType.REFUND -> {
-                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(escrow.senderId!!)!!, escrow.amountNQT!!)
+            DecisionType.REFUND -> {
+                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(escrow.senderId)!!,
+                    escrow.amountNQT
+                )
                 saveResultTransaction(block, escrow.id, escrow.senderId, escrow.amountNQT, DecisionType.REFUND, blockchainHeight)
             }
-            Escrow.DecisionType.SPLIT -> {
-                val halfAmountNQT = escrow.amountNQT!! / 2
-                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(escrow.recipientId!!)!!, halfAmountNQT)
-                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(escrow.senderId!!)!!, escrow.amountNQT - halfAmountNQT)
+            DecisionType.SPLIT -> {
+                val halfAmountNQT = escrow.amountNQT / 2
+                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(escrow.recipientId)!!, halfAmountNQT)
+                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(escrow.senderId)!!, escrow.amountNQT - halfAmountNQT)
                 saveResultTransaction(block, escrow.id, escrow.recipientId, halfAmountNQT, DecisionType.SPLIT, blockchainHeight)
                 saveResultTransaction(block, escrow.id, escrow.senderId, escrow.amountNQT - halfAmountNQT, DecisionType.SPLIT, blockchainHeight)
             }
@@ -169,15 +173,15 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
     }
 
     override fun isIdSigner(id: Long?, escrow: Escrow): Boolean {
-        return decisionTable[decisionDbKeyFactory.newKey(escrow.id!!, id!!)] != null
+        return decisionTable[decisionDbKeyFactory.newKey(escrow.id, id!!)] != null
     }
 
     override fun saveResultTransaction(block: Block, escrowId: Long, recipientId: Long, amountNQT: Long, decision: DecisionType, blockchainHeight: Int) {
         val attachment = Attachment.AdvancedPaymentEscrowResult(dp, escrowId, decision, blockchainHeight)
         val builder = Transaction.Builder(dp, 1.toByte(), Genesis.creatorPublicKey,
-                amountNQT!!, 0L, block.timestamp, 1440.toShort(), attachment)
+            amountNQT, 0L, block.timestamp, 1440.toShort(), attachment)
         builder.senderId(0L)
-                .recipientId(recipientId!!)
+                .recipientId(recipientId)
                 .blockId(block.id)
                 .height(block.height)
                 .blockTimestamp(block.timestamp)

@@ -53,9 +53,9 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
                                     if (otherPeerTransactions.isEmpty()) return@launch
                                     dp.peers.feedingTime(otherPeer, foodDispenser, doneFeedingLog)
                                 } catch (e: ValidationException) {
-                                    peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
+                                    peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
                                 } catch (e: RuntimeException) {
-                                    peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
+                                    peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
                                 }
                             })
                         }
@@ -63,9 +63,9 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
                         jobs.forEach { it.join() }
                     }
                 } catch (e: ValidationException) {
-                    peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
+                    peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
                 } catch (e: RuntimeException) {
-                    peer!!.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
+                    peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
                 }
             } catch (e: Exception) {
                 logger.safeDebug(e) { "Error processing unconfirmed transactions" }
@@ -183,7 +183,7 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
         for (transaction in transactions) {
             try {
                 dp.unconfirmedTransactionStore.put(transaction, null)
-            } catch (e: BurstException.ValidationException) {
+            } catch (e: ValidationException) {
                 logger.safeDebug(e) { "Discarding invalid transaction in for later processing: " + transaction.jsonObject.toJsonString() }
             }
         }

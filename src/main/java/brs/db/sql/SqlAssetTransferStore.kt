@@ -13,7 +13,7 @@ class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferS
     override val transferDbKeyFactory = TransferDbKeyFactory
 
     init {
-        assetTransferTable = object : EntitySqlTable<AssetTransfer>("asset_transfer", brs.schema.Tables.ASSET_TRANSFER, transferDbKeyFactory, dp) {
+        assetTransferTable = object : EntitySqlTable<AssetTransfer>("asset_transfer", ASSET_TRANSFER, transferDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, record: Record): AssetTransfer {
                 return SqlAssetTransfer(record)
             }

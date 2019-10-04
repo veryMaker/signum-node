@@ -21,7 +21,7 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
         }
 
     override val batch: MutableMap<BurstKey, T>
-        get() = dp.db.getBatch<T>(table)
+        get() = dp.db.getBatch(table)
 
     override val cache: Cache<BurstKey, T>
         get() = dp.dbCacheManager.getCache(table, tClass)!!

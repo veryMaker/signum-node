@@ -35,7 +35,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     }
 
     override fun addSubscription(sender: Account, recipient: Account, id: Long, amountNQT: Long, startTimestamp: Int, frequency: Int) {
-        val dbKey = subscriptionDbKeyFactory.newKey(id!!)
+        val dbKey = subscriptionDbKeyFactory.newKey(id)
         val subscription = Subscription(sender.id, recipient.id, id, amountNQT, frequency, startTimestamp + frequency, dbKey)
 
         subscriptionTable.insert(subscription)
@@ -47,7 +47,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
             apply(block, blockchainHeight, subscription)
             subscriptionTable.insert(subscription)
         }
-        if (!paymentTransactions.isEmpty()) {
+        if (paymentTransactions.isNotEmpty()) {
             dp.transactionDb.saveTransactions(paymentTransactions)
         }
         removeSubscriptions.forEach { this.removeSubscription(it) }
@@ -71,7 +71,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
                 appliedUnconfirmedSubscriptions.add(subscription)
             }
         }
-        if (!appliedUnconfirmedSubscriptions.isEmpty()) {
+        if (appliedUnconfirmedSubscriptions.isNotEmpty()) {
             for (subscription in appliedUnconfirmedSubscriptions) {
                 totalFeeNQT = totalFeeNQT.safeAdd(fee)
                 undoUnconfirmed(subscription)
@@ -106,8 +106,8 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     }
 
     private suspend fun applyUnconfirmed(subscription: Subscription): Boolean {
-        val sender = dp.accountService.getAccount(subscription.senderId!!)
-        val totalAmountNQT = subscription.amountNQT!!.safeAdd(fee)
+        val sender = dp.accountService.getAccount(subscription.senderId)
+        val totalAmountNQT = subscription.amountNQT.safeAdd(fee)
 
         if (sender == null || sender.unconfirmedBalanceNQT < totalAmountNQT) {
             return false
@@ -119,8 +119,8 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     }
 
     private suspend fun undoUnconfirmed(subscription: Subscription) {
-        val sender = dp.accountService.getAccount(subscription.senderId!!)
-        val totalAmountNQT = subscription.amountNQT!!.safeAdd(fee)
+        val sender = dp.accountService.getAccount(subscription.senderId)
+        val totalAmountNQT = subscription.amountNQT.safeAdd(fee)
 
         if (sender != null) {
             dp.accountService.addToUnconfirmedBalanceNQT(sender, totalAmountNQT)
@@ -128,10 +128,10 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     }
 
     private suspend fun apply(block: Block, blockchainHeight: Int, subscription: Subscription) {
-        val sender = dp.accountService.getAccount(subscription.senderId!!)!!
-        val recipient = dp.accountService.getAccount(subscription.recipientId!!)!!
+        val sender = dp.accountService.getAccount(subscription.senderId)!!
+        val recipient = dp.accountService.getAccount(subscription.recipientId)!!
 
-        val totalAmountNQT = subscription.amountNQT!!.safeAdd(fee)
+        val totalAmountNQT = subscription.amountNQT.safeAdd(fee)
 
         dp.accountService.addToBalanceNQT(sender, -totalAmountNQT)
         dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(recipient, subscription.amountNQT)

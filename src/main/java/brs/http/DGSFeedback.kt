@@ -1,7 +1,6 @@
 package brs.http
 
 import brs.Attachment
-import brs.BurstException
 import brs.DependencyProvider
 import brs.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.http.JSONResponses.INCORRECT_ACCOUNT

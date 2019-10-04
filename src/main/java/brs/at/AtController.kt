@@ -29,7 +29,7 @@ class AtController(private val dp: DependencyProvider) {
         state.machineState.dead = false
         state.machineState.steps = 0
 
-        val processor = AtMachineProcessor(dp, state, dp!!.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
+        val processor = AtMachineProcessor(dp, state, dp.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
 
         state.setFreeze(false)
 
@@ -45,7 +45,7 @@ class AtController(private val dp: DependencyProvider) {
                 return 3
             }
 
-            state.setgBalance(state.getgBalance()!! - stepFee * numSteps)
+            state.setgBalance(state.getgBalance() - stepFee * numSteps)
             state.machineState.steps += numSteps
             val rc = processor.processOp(disassemble = false, determineJumps = false)
 
@@ -206,7 +206,7 @@ class AtController(private val dp: DependencyProvider) {
     }
 
     fun getCurrentBlockATs(freePayload: Int, blockHeight: Int): AtBlock {
-        val orderedATs = AT.getOrderedATs(dp!!)
+        val orderedATs = AT.getOrderedATs(dp)
         val keys = orderedATs.iterator()
 
         val processedATs = mutableListOf<AT>()
@@ -218,10 +218,10 @@ class AtController(private val dp: DependencyProvider) {
 
         while (payload <= freePayload - costOfOneAT && keys.hasNext()) {
             val id = keys.next()
-            val at = AT.getAT(dp!!, id)!!
+            val at = AT.getAT(dp, id)!!
 
             val atAccountBalance = getATAccountBalance(id)
-            val atStateBalance = at.getgBalance()!!
+            val atStateBalance = at.getgBalance()
 
             if (at.freezeOnSameBalance() && atAccountBalance - atStateBalance < at.minActivationAmount()) {
                 continue
@@ -238,20 +238,20 @@ class AtController(private val dp: DependencyProvider) {
 
                     var fee = at.machineState.steps * dp.atConstants.stepFee(at.creationBlockHeight)
                     if (at.machineState.dead) {
-                        fee += at.getgBalance()!!
+                        fee += at.getgBalance()
                         at.setgBalance(0L)
                     }
                     at.setpBalance(at.getgBalance())
 
                     val amount = makeTransactions(at)
-                    if (!dp!!.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
+                    if (!dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
                         totalAmount = amount
                     } else {
                         totalAmount += amount
                     }
 
                     totalFee += fee
-                    AT.addPendingFee(id!!, fee)
+                    AT.addPendingFee(id, fee)
 
                     payload += costOfOneAT
 
@@ -293,7 +293,7 @@ class AtController(private val dp: DependencyProvider) {
                     throw AtException("AT has insufficient balance to run")
                 }
 
-                if (at.freezeOnSameBalance() && atAccountBalance - at.getgBalance()!! < at.minActivationAmount()) {
+                if (at.freezeOnSameBalance() && atAccountBalance - at.getgBalance() < at.minActivationAmount()) {
                     throw AtException("AT should be frozen due to unchanged balance")
                 }
 
@@ -309,12 +309,12 @@ class AtController(private val dp: DependencyProvider) {
 
                 var fee = at.machineState.steps * dp.atConstants.stepFee(at.creationBlockHeight)
                 if (at.machineState.dead) {
-                    fee += at.getgBalance()!!
+                    fee += at.getgBalance()
                     at.setgBalance(0L)
                 }
                 at.setpBalance(at.getgBalance())
 
-                if (!dp!!.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
+                if (!dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
                     totalAmount = makeTransactions(at)
                 } else {
                     totalAmount += makeTransactions(at)
@@ -397,7 +397,7 @@ class AtController(private val dp: DependencyProvider) {
     //platform based
     private fun makeTransactions(at: AT): Long {
         var totalAmount: Long = 0
-        if (!dp!!.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, at.height)) {
+        if (!dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, at.height)) {
             for (tx in at.transactions.values) {
                 if (AT.findPendingTransaction(tx.recipientId)) {
                     throw AtException("Conflicting transaction found")

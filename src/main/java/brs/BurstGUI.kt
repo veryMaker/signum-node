@@ -17,6 +17,7 @@ import java.io.PrintStream
 import java.net.InetAddress
 import java.net.URI
 import java.security.Permission
+import kotlin.system.exitProcess
 
 class BurstGUI : Application() {
 
@@ -44,7 +45,7 @@ class BurstGUI : Application() {
         if (trayIcon != null && SystemTray.isSupported()) {
             SystemTray.getSystemTray().remove(trayIcon)
         }
-        System.exit(0) // BRS shutdown handled by exit hook
+        exitProcess(0) // BRS shutdown handled by exit hook
     }
 
     private fun showTrayIcon() {

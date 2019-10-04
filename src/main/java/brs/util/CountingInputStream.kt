@@ -1,7 +1,6 @@
 package brs.util
 
 import java.io.FilterInputStream
-import java.io.IOException
 import java.io.InputStream
 
 class CountingInputStream(input: InputStream) : FilterInputStream(input) {

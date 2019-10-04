@@ -1,8 +1,6 @@
 package brs.grpc.handlers
 
-import brs.Blockchain
 import brs.DependencyProvider
-import brs.TransactionProcessor
 import brs.grpc.GrpcApiHandler
 import brs.grpc.proto.BrsApi
 import brs.grpc.proto.ProtoBuilder

@@ -1,7 +1,6 @@
 package brs.http
 
 import brs.Attachment
-import brs.BurstException
 import brs.DependencyProvider
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE

@@ -89,7 +89,7 @@ interface Appendix {
             get() = "Message"
 
         override val mySize: Int
-            get() = 4 + messageBytes!!.size
+            get() = 4 + messageBytes.size
 
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.MessageAppendix.newBuilder()
@@ -133,12 +133,12 @@ interface Appendix {
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            buffer.putInt(if (isText) messageBytes!!.size or Integer.MIN_VALUE else messageBytes!!.size)
+            buffer.putInt(if (isText) messageBytes.size or Integer.MIN_VALUE else messageBytes.size)
             buffer.put(messageBytes)
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty("message", if (isText) messageBytes!!.toUtf8String() else messageBytes.toHexString())
+            attachment.addProperty("message", if (isText) messageBytes.toUtf8String() else messageBytes.toHexString())
             attachment.addProperty("messageIsText", isText)
         }
 
@@ -149,7 +149,7 @@ interface Appendix {
             if (transaction.version.toInt() == 0 && transaction.attachment !is Attachment.ArbitraryMessage) {
                 throw BurstException.NotValidException("Message attachments not enabled for version 0 transactions")
             }
-            if (messageBytes!!.size > Constants.MAX_ARBITRARY_MESSAGE_LENGTH) {
+            if (messageBytes.size > Constants.MAX_ARBITRARY_MESSAGE_LENGTH) {
                 throw BurstException.NotValidException("Invalid arbitrary message length: " + messageBytes.size)
             }
         }
@@ -226,7 +226,7 @@ interface Appendix {
             if (encryptedData.data.size > Constants.MAX_ENCRYPTED_MESSAGE_LENGTH) {
                 throw BurstException.NotValidException("Max encrypted message length exceeded")
             }
-            if (encryptedData.nonce.size != 32 && encryptedData.data.size > 0 || encryptedData.nonce.size != 0 && encryptedData.data.size == 0) {
+            if (encryptedData.nonce.size != 32 && encryptedData.data.isNotEmpty() || encryptedData.nonce.isNotEmpty() && encryptedData.data.isEmpty()) {
                 throw BurstException.NotValidException("Invalid nonce length " + encryptedData.nonce.size)
             }
         }
@@ -243,12 +243,11 @@ interface Appendix {
         override val type: BrsApi.EncryptedMessageAppendix.Type
             get() = BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT
 
-        constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
-        }
+        constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion)
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData, JSON.getAsJsonObject(attachmentData.get("encryptedMessage"))) {}
+        internal constructor(attachmentData: JsonObject) : super(attachmentData, JSON.getAsJsonObject(attachmentData.get("encryptedMessage")))
 
-        constructor(dp: DependencyProvider, encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(dp, encryptedData, isText, blockchainHeight) {}
+        constructor(dp: DependencyProvider, encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(dp, encryptedData, isText, blockchainHeight)
 
         constructor(dp: DependencyProvider, encryptedMessageAppendix: BrsApi.EncryptedMessageAppendix, blockchainHeight: Int) : super(dp, encryptedMessageAppendix, blockchainHeight) {
             require(encryptedMessageAppendix.type == BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT)
@@ -289,12 +288,11 @@ interface Appendix {
         override val type: BrsApi.EncryptedMessageAppendix.Type
             get() = BrsApi.EncryptedMessageAppendix.Type.TO_SELF
 
-        constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
-        }
+        constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion)
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData, JSON.getAsJsonObject(attachmentData.get("encryptToSelfMessage"))) {}
+        internal constructor(attachmentData: JsonObject) : super(attachmentData, JSON.getAsJsonObject(attachmentData.get("encryptToSelfMessage")))
 
-        constructor(dp: DependencyProvider, encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(dp, encryptedData, isText, blockchainHeight) {}
+        constructor(dp: DependencyProvider, encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(dp, encryptedData, isText, blockchainHeight)
 
         constructor(dp: DependencyProvider, encryptedMessageAppendix: BrsApi.EncryptedMessageAppendix, blockchainHeight: Int) : super(dp, encryptedMessageAppendix, blockchainHeight) {
             require(encryptedMessageAppendix.type == BrsApi.EncryptedMessageAppendix.Type.TO_SELF)
@@ -362,7 +360,7 @@ interface Appendix {
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            buffer.put(publicKey!!)
+            buffer.put(publicKey)
         }
 
         override fun putMyJSON(attachment: JsonObject) {
@@ -373,8 +371,8 @@ interface Appendix {
             if (!transaction.type.hasRecipient()) {
                 throw BurstException.NotValidException("PublicKeyAnnouncement cannot be attached to transactions with no recipient")
             }
-            if (publicKey!!.size != 32) {
-                throw BurstException.NotValidException("Invalid recipient public key length: " + publicKey.toHexString()!!)
+            if (publicKey.size != 32) {
+                throw BurstException.NotValidException("Invalid recipient public key length: " + publicKey.toHexString())
             }
             val recipientId = transaction.recipientId
             if (Account.getId(this.publicKey) != recipientId) {
@@ -384,7 +382,7 @@ interface Appendix {
                 throw BurstException.NotValidException("Public key announcements not enabled for version 0 transactions")
             }
             val recipientAccount = Account.getAccount(dp, recipientId)
-            if (recipientAccount != null && recipientAccount.publicKey != null && !Arrays.equals(publicKey, recipientAccount.publicKey)) {
+            if (recipientAccount?.publicKey != null && !Arrays.equals(publicKey, recipientAccount.publicKey)) {
                 throw BurstException.NotCurrentlyValidException("A different public key for this account has already been announced")
             }
         }

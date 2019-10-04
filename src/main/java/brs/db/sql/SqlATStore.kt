@@ -2,7 +2,6 @@ package brs.db.sql
 
 import brs.DependencyProvider
 import brs.at.AtApiHelper
-import brs.at.AtConstants
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.db.store.ATStore
@@ -65,7 +64,7 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
             }
         }
 
-        atStateTable = object : VersionedEntitySqlTable<brs.at.AT.ATState>("at_state", brs.schema.Tables.AT_STATE, atStateDbKeyFactory, dp) {
+        atStateTable = object : VersionedEntitySqlTable<brs.at.AT.ATState>("at_state", AT_STATE, atStateDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, rs: Record): brs.at.AT.ATState {
                 return SqlATState(dp, rs)
             }
@@ -120,7 +119,7 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
                             .and(AT.ID.eq(id)))
                     .fetchOne() ?: return@useDslContext null
 
-            val at = record!!.into(AT)
+            val at = record.into(AT)
             val atState = record.into(AT_STATE)
 
             createAT(dp, at, atState)
