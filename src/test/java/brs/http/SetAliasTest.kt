@@ -19,6 +19,7 @@ import brs.transaction.messaging.AliasAssignment
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -28,12 +29,12 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class SetAliasTest : AbstractTransactionTest() {
 
-    private var t: SetAlias? = null
+    private lateinit var t: SetAlias
     private lateinit var dp: DependencyProvider
-    private var parameterServiceMock: ParameterService? = null
-    private var blockchainMock: Blockchain? = null
-    private var aliasServiceMock: AliasService? = null
-    private var apiTransactionManagerMock: APITransactionManager? = null
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var blockchainMock: Blockchain
+    private lateinit var aliasServiceMock: AliasService
+    private lateinit var apiTransactionManagerMock: APITransactionManager
 
     @Before
     fun setUp() {
@@ -42,12 +43,12 @@ class SetAliasTest : AbstractTransactionTest() {
         blockchainMock = mock()
         aliasServiceMock = mock()
         apiTransactionManagerMock = mock()
-        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, aliasServiceMock!!, apiTransactionManagerMock!!)
+        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, aliasServiceMock!!, apiTransactionManagerMock!!, QuickMocker.latestValueFluxCapacitor())
         t = SetAlias(dp)
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val aliasNameParameter = "aliasNameParameter"
         val aliasUrl = "aliasUrl"
 
@@ -68,7 +69,7 @@ class SetAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_missingAliasName() {
+    fun processRequest_missingAliasName() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(ALIAS_NAME_PARAMETER, null as String?),
                 MockParam(ALIAS_URI_PARAMETER, "aliasUrl")
@@ -78,7 +79,7 @@ class SetAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectAliasLength_nameOnlySpaces() {
+    fun processRequest_incorrectAliasLength_nameOnlySpaces() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(ALIAS_NAME_PARAMETER, "  "),
                 MockParam(ALIAS_URI_PARAMETER, null as String?)
@@ -89,7 +90,7 @@ class SetAliasTest : AbstractTransactionTest() {
 
 
     @Test
-    fun processRequest_incorrectAliasLength_incorrectAliasName() {
+    fun processRequest_incorrectAliasLength_incorrectAliasName() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(ALIAS_NAME_PARAMETER, "[]"),
                 MockParam(ALIAS_URI_PARAMETER, null as String?)
@@ -99,12 +100,8 @@ class SetAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectUriLengthWhenOver1000Characters() {
-        val uriOver1000Characters = StringBuilder()
-
-        0..1000.forEach { i ->
-            uriOver1000Characters.append("a")
-        }
+    fun processRequest_incorrectUriLengthWhenOver1000Characters() = runBlocking {
+        val uriOver1000Characters = stringWithLength(1001)
 
         val request = QuickMocker.httpServletRequest(
                 MockParam(ALIAS_NAME_PARAMETER, "name"),

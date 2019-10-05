@@ -9,18 +9,17 @@ import brs.util.convert.toHexString
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-
 import java.math.BigInteger
-
-import org.junit.Assert.*
 
 @RunWith(JUnit4::class)
 class GeneratorImplTest {
-    private var generator: Generator? = null
+    private lateinit var generator: Generator
 
     @Before
     fun setUpGeneratorTest() {
@@ -35,7 +34,7 @@ class GeneratorImplTest {
 
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2)
 
-        generator = GeneratorImpl.new(QuickMocker.dependencyProvider(blockchain, timeService, fluxCapacitor))
+        generator = GeneratorImpl(QuickMocker.dependencyProvider(blockchain, timeService, fluxCapacitor))
     }
 
     @Test
@@ -45,7 +44,7 @@ class GeneratorImplTest {
     }
 
     @Test
-    fun testGeneratorCalculateDeadline() {
+    fun btestGeneratorCalculateDeadline() {
         val deadline = generator!!.calculateDeadline(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig!!, generator!!.calculateScoop(exampleGenSig, exampleHeight.toLong()), exampleBaseTarget, exampleHeight)
         assertEquals(BigInteger.valueOf(7157291745432L), deadline)
     }
@@ -58,7 +57,7 @@ class GeneratorImplTest {
     }
 
     @Test
-    fun testGeneratorAddNonce() {
+    fun testGeneratorAddNonce() = runBlocking {
         assertEquals(0, generator!!.allGenerators.size.toLong())
         generator!!.addNonce(TestConstants.TEST_SECRET_PHRASE, 0L)
         assertEquals(1, generator!!.allGenerators.size.toLong())
@@ -71,7 +70,6 @@ class GeneratorImplTest {
     }
 
     companion object {
-
         private val exampleGenSig = "6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0".parseHexString()
         private const val exampleBaseTarget: Long = 70312
         private const val exampleHeight = 500000

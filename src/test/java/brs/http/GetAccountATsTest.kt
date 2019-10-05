@@ -19,16 +19,17 @@ import java.util.Arrays
 
 import brs.http.common.ResultFields.ATS_RESPONSE
 import com.nhaarman.mockitokotlin2.*
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 
 class GetAccountATsTest {
 
-    private var t: GetAccountATs? = null
+    private lateinit var t: GetAccountATs
 
-    private var mockParameterService: ParameterService? = null
-    private var mockATService: ATService? = null
-    private var mockAccountService: AccountService? = null
+    private lateinit var mockParameterService: ParameterService
+    private lateinit var mockATService: ATService
+    private lateinit var mockAccountService: AccountService
 
     @Before
     fun setUp() {
@@ -40,7 +41,7 @@ class GetAccountATsTest {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val mockAccountId = 123L

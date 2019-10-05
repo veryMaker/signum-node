@@ -44,7 +44,7 @@ import javax.xml.parsers.ParserConfigurationException
 
 // TODO this whole class needs refactoring.
 // TODO what about next-gen P2P network?
-class Peers private constructor(private val dp: DependencyProvider) { // TODO interface
+class Peers(private val dp: DependencyProvider) { // TODO interface
     internal var communicationLoggingMask: Int = 0
 
     private val random = Random()
@@ -310,36 +310,6 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
         true
     }
 
-    internal val loadKnownPeersTask: Task = {
-        if (wellKnownPeers.isNotEmpty()) {
-            loadPeers(wellKnownPeers)
-        }
-        if (usePeersDb) {
-            logger.safeDebug { "Loading known peers from the database..." }
-            loadPeers(dp.peerDb.loadPeers())
-        }
-        lastSavedPeers = peers.size
-    }
-
-    internal val findUnresolvedPeersTask: Task = {
-        unresolvedPeersLock.withLock {
-            for (unresolvedPeer in unresolvedPeers) {
-                try {
-                    val badAddress = unresolvedPeer.await()
-                    if (badAddress != null) {
-                        logger.safeDebug { "Failed to resolve peer address: $badAddress" }
-                    }
-                } catch (e: InterruptedException) {
-                    Thread.currentThread().interrupt()
-                } catch (e: ExecutionException) {
-                    logger.safeDebug(e) { "Failed to add peer" }
-                } catch (ignored: TimeoutException) {
-                }
-            }
-            logger.safeDebug { "Known peers: ${peers.size}" }
-        }
-    }
-
     private val numberOfConnectedPublicPeers: Int
         get() {
             var numberOfConnectedPeers = 0
@@ -486,6 +456,46 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
                 logger.safeDebug(e) { "Error requesting peers from a peer" }
             }
             return@run true
+        }
+    }
+
+    init {
+        dp.taskScheduler.runBeforeStart {
+            if (wellKnownPeers.isNotEmpty()) {
+                loadPeers(wellKnownPeers)
+            }
+            if (usePeersDb) {
+                logger.safeDebug { "Loading known peers from the database..." }
+                loadPeers(dp.peerDb.loadPeers())
+            }
+            lastSavedPeers = peers.size
+        }
+
+        dp.taskScheduler.runAfterStart {
+            unresolvedPeersLock.withLock {
+                for (unresolvedPeer in unresolvedPeers) {
+                    try {
+                        val badAddress = unresolvedPeer.await()
+                        if (badAddress != null) {
+                            logger.safeDebug { "Failed to resolve peer address: $badAddress" }
+                        }
+                    } catch (e: InterruptedException) {
+                        Thread.currentThread().interrupt()
+                    } catch (e: ExecutionException) {
+                        logger.safeDebug(e) { "Failed to add peer" }
+                    } catch (ignored: TimeoutException) {
+                    }
+                }
+                logger.safeDebug { "Known peers: ${peers.size}" }
+            }
+        }
+
+        if (!dp.propertyService.get(Props.DEV_OFFLINE)) {
+            dp.taskScheduler.scheduleTask(peerConnectingThread)
+            dp.taskScheduler.scheduleTask(peerUnBlacklistingThread)
+            if (getMorePeers) {
+                dp.taskScheduler.scheduleTask(getMorePeersThread)
+            }
         }
     }
 
@@ -862,22 +872,5 @@ class Peers private constructor(private val dp: DependencyProvider) { // TODO in
         internal const val LOGGING_MASK_200_RESPONSES = 4
         internal const val DEFAULT_PEER_PORT = 8123
         internal const val TESTNET_PEER_PORT = 7123
-        
-        suspend fun new(dp: DependencyProvider): Peers {
-            val peers = Peers(dp)
-
-            dp.taskScheduler.runBeforeStart(peers.loadKnownPeersTask)
-            dp.taskScheduler.runAfterStart(peers.findUnresolvedPeersTask)
-            
-            if (!dp.propertyService.get(Props.DEV_OFFLINE)) {
-                dp.taskScheduler.scheduleTask(peers.peerConnectingThread)
-                dp.taskScheduler.scheduleTask(peers.peerUnBlacklistingThread)
-                if (peers.getMorePeers) {
-                    dp.taskScheduler.scheduleTask(peers.getMorePeersThread)
-                }
-            }
-            
-            return peers
-        }
     }
 }

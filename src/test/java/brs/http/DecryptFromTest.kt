@@ -14,15 +14,16 @@ import brs.http.common.ResultFields.DECRYPTED_MESSAGE_RESPONSE
 import brs.services.ParameterService
 import brs.util.JSON
 import com.nhaarman.mockitokotlin2.*
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
 class DecryptFromTest {
 
-    private var t: DecryptFrom? = null
+    private lateinit var t: DecryptFrom
 
-    private var mockParameterService: ParameterService? = null
+    private lateinit var mockParameterService: ParameterService
 
     @Before
     fun setUp() {
@@ -32,7 +33,7 @@ class DecryptFromTest {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(DECRYPTED_MESSAGE_IS_TEXT_PARAMETER, "true"),
@@ -53,7 +54,7 @@ class DecryptFromTest {
     }
 
     @Test
-    fun processRequest_accountWithoutPublicKeyIsIncorrectAccount() {
+    fun processRequest_accountWithoutPublicKeyIsIncorrectAccount() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         whenever(mockParameterService!!.getAccount(request)).doReturn(mock<Account>())

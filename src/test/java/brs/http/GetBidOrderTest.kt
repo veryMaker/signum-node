@@ -1,32 +1,29 @@
 package brs.http
 
-import brs.BurstException
 import brs.Order.Bid
 import brs.assetexchange.AssetExchange
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.util.JSON
-import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
 import brs.http.JSONResponses.UNKNOWN_ORDER
 import brs.http.common.Parameters.ORDER_PARAMETER
 import brs.http.common.ResultFields.ORDER_RESPONSE
+import brs.util.JSON
+import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
 
 class GetBidOrderTest {
 
-    private var t: GetBidOrder? = null
+    private lateinit var t: GetBidOrder
 
-    private var mockAssetExchange: AssetExchange? = null
+    private lateinit var mockAssetExchange: AssetExchange
 
     @Before
     fun setUp() {
@@ -36,7 +33,7 @@ class GetBidOrderTest {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val bidOrderId = 123L
         val mockBid = mock<Bid>()
         whenever(mockBid.id).doReturn(bidOrderId)
@@ -51,7 +48,7 @@ class GetBidOrderTest {
     }
 
     @Test
-    fun processRequest_orderNotFoundUnknownOrder() {
+    fun processRequest_orderNotFoundUnknownOrder() = runBlocking {
         val bidOrderId = 123L
 
         val request = QuickMocker.httpServletRequest(MockParam(ORDER_PARAMETER, bidOrderId))

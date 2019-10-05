@@ -17,6 +17,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -25,9 +26,9 @@ import javax.servlet.http.HttpServletRequest
 
 class GetDGSGoodTest {
 
-    private var t: GetDGSGood? = null
+    private lateinit var t: GetDGSGood
 
-    private var mockParameterService: ParameterService? = null
+    private lateinit var mockParameterService: ParameterService
 
     @Before
     fun setUp() {
@@ -37,7 +38,7 @@ class GetDGSGoodTest {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val mockGoods = mock<DigitalGoodsStore.Goods>()
         whenever(mockGoods.id).doReturn(1L)
         whenever(mockGoods.name).doReturn("name")

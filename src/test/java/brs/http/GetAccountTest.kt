@@ -2,7 +2,6 @@ package brs.http
 
 import brs.Account
 import brs.Account.AccountAsset
-import brs.BurstException
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.http.common.ResultFields.ASSET_BALANCES_RESPONSE
@@ -18,23 +17,23 @@ import brs.services.ParameterService
 import brs.util.JSON
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class GetAccountTest : AbstractUnitTest() {
 
-    private var t: GetAccount? = null
+    private lateinit var t: GetAccount
 
-    private var parameterServiceMock: ParameterService? = null
-    private var accountServiceMock: AccountService? = null
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var accountServiceMock: AccountService
 
     @Before
     fun setUp() {
@@ -45,7 +44,7 @@ class GetAccountTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val mockAccountId = 123L
         val mockAccountName = "accountName"
         val mockAccountDescription = "accountDescription"

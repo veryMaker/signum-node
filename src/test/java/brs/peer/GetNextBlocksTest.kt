@@ -4,24 +4,20 @@ import brs.Block
 import brs.Blockchain
 import brs.Genesis
 import com.google.gson.JsonArray
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.ArgumentMatchers
-
-import java.util.ArrayList
-
-import org.junit.Assert.*
 
 @RunWith(JUnit4::class)
 class GetNextBlocksTest {
-    private var getNextBlocks: GetNextBlocks? = null
-    private var mockBlockchain: Blockchain? = null
-    private var mockPeer: Peer? = null
+    private lateinit var getNextBlocks: GetNextBlocks
+    private lateinit var mockBlockchain: Blockchain
+    private lateinit var mockPeer: Peer
 
     @Before
     fun setUpGetNextBlocksTest() {
@@ -30,7 +26,7 @@ class GetNextBlocksTest {
         val mockBlock = mock<Block>()
         whenever(mockBlock.jsonObject).doReturn(JsonObject())
         val blocks = mutableListOf<Block>()
-        0..99.forEach { i ->
+        repeat(100) {
             blocks.add(mockBlock)
         }
         whenever(mockBlockchain!!.getBlocksAfter(eq(Genesis.GENESIS_BLOCK_ID), any())).doReturn(blocks)
@@ -38,7 +34,7 @@ class GetNextBlocksTest {
     }
 
     @Test
-    fun testGetNextBlocks() {
+    fun testGetNextBlocks() = runBlocking {
         val request = JsonObject()
         request.addProperty("blockId", java.lang.Long.toUnsignedString(Genesis.GENESIS_BLOCK_ID))
         val responseElement = getNextBlocks!!.processRequest(request, mockPeer!!)
@@ -58,7 +54,7 @@ class GetNextBlocksTest {
     }
 
     @Test
-    fun testGetNextBlocks_noIdSpecified() {
+    fun testGetNextBlocks_noIdSpecified() = runBlocking {
         val request = JsonObject()
         val responseElement = getNextBlocks!!.processRequest(request, mockPeer!!)
         assertNotNull(responseElement)

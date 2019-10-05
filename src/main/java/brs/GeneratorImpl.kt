@@ -3,7 +3,6 @@ package brs
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
 import brs.props.Props
-import brs.taskScheduler.RepeatingTask
 import brs.util.Listeners
 import brs.util.convert.fullHashToId
 import brs.util.convert.toUnsignedString
@@ -13,27 +12,29 @@ import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.concurrent.ConcurrentHashMap
 
-open class GeneratorImpl private constructor(private val dp: DependencyProvider) : Generator {
+open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
     private val listeners = Listeners<Generator.GeneratorState, Generator.Event>()
     private val generators = ConcurrentHashMap<Long, GeneratorStateImpl>() // Remember, this map type cannot take null keys.
     private val burstCrypto = BurstCrypto.getInstance()
 
-    internal val forgeTask: RepeatingTask = {
-        try {
-            val currentBlock = dp.blockchain.lastBlock.height.toLong()
-            val it = generators.entries.iterator()
-            while (it.hasNext()) {
-                val generator = it.next()
-                if (currentBlock < generator.value.block) {
-                    generator.value.forge(dp.blockchainProcessor)
-                } else {
-                    it.remove()
+    init {
+        dp.taskScheduler.scheduleTask {
+            try {
+                val currentBlock = dp.blockchain.lastBlock.height.toLong()
+                val it = generators.entries.iterator()
+                while (it.hasNext()) {
+                    val generator = it.next()
+                    if (currentBlock < generator.value.block) {
+                        generator.value.forge(dp.blockchainProcessor)
+                    } else {
+                        it.remove()
+                    }
                 }
+                true
+            } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
+                logger.safeDebug(e) { "Error in block generation thread" }
+                false
             }
-            true
-        } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
-            logger.safeDebug(e) { "Error in block generation thread" }
-            false
         }
     }
 
@@ -136,13 +137,5 @@ open class GeneratorImpl private constructor(private val dp: DependencyProvider)
 
     companion object {
         private val logger = LoggerFactory.getLogger(GeneratorImpl::class.java)
-
-        suspend fun new(dp: DependencyProvider): Generator {
-            val generator = GeneratorImpl(dp)
-
-            dp.taskScheduler.scheduleTask(generator.forgeTask)
-
-            return generator
-        }
     }
 }

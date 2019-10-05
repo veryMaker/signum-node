@@ -20,6 +20,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -27,9 +28,9 @@ import org.junit.Test
 
 class GetAllOpenAskOrdersTest : AbstractUnitTest() {
 
-    private var t: GetAllOpenAskOrders? = null
+    private lateinit var t: GetAllOpenAskOrders
 
-    private var mockAssetExchange: AssetExchange? = null
+    private lateinit var mockAssetExchange: AssetExchange
 
     @Before
     fun setUp() {
@@ -39,7 +40,7 @@ class GetAllOpenAskOrdersTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val mockAskOrder = mock<Ask>()
         whenever(mockAskOrder.id).doReturn(1L)
         whenever(mockAskOrder.assetId).doReturn(2L)

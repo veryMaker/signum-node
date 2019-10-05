@@ -22,7 +22,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class IndirectIncomingServiceImplTest {
     private var addIndirectIncomingsRunnable by Atomic<(List<IndirectIncomingStore.IndirectIncoming>) -> Unit>()
-    private var indirectIncomingService: IndirectIncomingServiceImpl? = null
+    private lateinit var indirectIncomingService: IndirectIncomingServiceImpl
     private lateinit var dp: DependencyProvider
 
     @Before
@@ -42,7 +42,7 @@ class IndirectIncomingServiceImplTest {
     fun testIndirectIncomingServiceImplTestMultiOutTransaction() {
         addIndirectIncomingsRunnable = { indirectIncomings ->
             assertEquals(4, indirectIncomings.size.toLong())
-            assertEquals(setOf(indirectIncomings).size.toLong(), indirectIncomings.size.toLong()) // Assert that there are no duplicates
+            assertEquals(indirectIncomings.toSet().size.toLong(), indirectIncomings.size.toLong()) // Assert that there are no duplicates
         }
         val recipients = mutableListOf<List<Long>>()
         recipients.add(listOf(1L, Constants.ONE_BURST))
@@ -63,7 +63,7 @@ class IndirectIncomingServiceImplTest {
     fun testIndirectIncomingServiceImplTestMultiOutSameTransaction() {
         addIndirectIncomingsRunnable = { indirectIncomings ->
             assertEquals(4, indirectIncomings.size.toLong())
-            assertEquals(setOf(indirectIncomings).size.toLong(), indirectIncomings.size.toLong()) // Assert that there are no duplicates
+            assertEquals(indirectIncomings.toSet().size.toLong(), indirectIncomings.size.toLong()) // Assert that there are no duplicates
         }
         val recipients = mutableListOf<Long>()
         recipients.add(1L)

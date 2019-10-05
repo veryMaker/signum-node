@@ -15,6 +15,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -40,7 +41,7 @@ class BuyAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequestDefaultKeys(MockParam(AMOUNT_NQT_PARAMETER, "" + Constants.ONE_BURST))
 
         val mockOfferOnAlias = mock<Offer>()
@@ -68,7 +69,7 @@ class BuyAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_aliasNotForSale() {
+    fun processRequest_aliasNotForSale() = runBlocking {
         val request = QuickMocker.httpServletRequest(MockParam(AMOUNT_NQT_PARAMETER, "3"))
         val mockAlias = mock<Alias>()
 

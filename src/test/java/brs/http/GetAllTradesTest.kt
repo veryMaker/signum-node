@@ -18,6 +18,7 @@ import brs.util.JSON
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -25,9 +26,9 @@ import org.junit.Test
 
 class GetAllTradesTest : AbstractUnitTest() {
 
-    private var t: GetAllTrades? = null
+    private lateinit var t: GetAllTrades
 
-    private var mockAssetExchange: AssetExchange? = null
+    private lateinit var mockAssetExchange: AssetExchange
 
     @Before
     fun setUp() {
@@ -37,7 +38,7 @@ class GetAllTradesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_withAssetsInformation() {
+    fun processRequest_withAssetsInformation() = runBlocking {
         val timestamp = 1
         val firstIndex = 0
         val lastIndex = 1
@@ -82,7 +83,7 @@ class GetAllTradesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_withoutAssetsInformation() {
+    fun processRequest_withoutAssetsInformation() = runBlocking<Unit> {
         val timestamp = 1
         val firstIndex = 0
         val lastIndex = 1

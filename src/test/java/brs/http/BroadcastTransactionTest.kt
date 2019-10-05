@@ -12,8 +12,11 @@ import brs.http.common.ResultFields.TRANSACTION_RESPONSE
 import brs.services.ParameterService
 import brs.services.TransactionService
 import brs.util.JSON
+import brs.util.convert.parseHexString
+import brs.util.convert.toHexString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -21,11 +24,11 @@ import javax.servlet.http.HttpServletRequest
 
 class BroadcastTransactionTest {
 
-    private var t: BroadcastTransaction? = null
+    private lateinit var t: BroadcastTransaction
 
-    private var transactionProcessorMock: TransactionProcessor? = null
-    private var parameterServiceMock: ParameterService? = null
-    private var transactionServiceMock: TransactionService? = null
+    private lateinit var transactionProcessorMock: TransactionProcessor
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var transactionServiceMock: TransactionService
 
     @Before
     fun setUp() {
@@ -37,12 +40,12 @@ class BroadcastTransactionTest {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val mockTransactionBytesParameter = "mockTransactionBytesParameter"
         val mockTransactionJson = "mockTransactionJson"
 
         val mockTransactionStringId = "mockTransactionStringId"
-        val mockTransactionFullHash = "mockTransactionFullHash"
+        val mockTransactionFullHash = "deadbeef".parseHexString()
 
         val request = mock<HttpServletRequest>()
         val mockTransaction = mock<Transaction>()
@@ -60,11 +63,11 @@ class BroadcastTransactionTest {
         verify(transactionProcessorMock!!).broadcast(eq(mockTransaction))
 
         assertEquals(mockTransactionStringId, JSON.getAsString(result.get(TRANSACTION_RESPONSE)))
-        assertEquals(mockTransactionFullHash, JSON.getAsString(result.get(FULL_HASH_RESPONSE)))
+        assertEquals(mockTransactionFullHash.toHexString(), JSON.getAsString(result.get(FULL_HASH_RESPONSE)))
     }
 
     @Test
-    fun processRequest_validationException() {
+    fun processRequest_validationException() = runBlocking {
         val mockTransactionBytesParameter = "mockTransactionBytesParameter"
         val mockTransactionJson = "mockTransactionJson"
 

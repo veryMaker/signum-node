@@ -17,6 +17,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -24,9 +25,9 @@ import org.junit.Test
 
 class GetDGSPurchasesTest : AbstractUnitTest() {
 
-    private var t: GetDGSPurchases? = null
+    private lateinit var t: GetDGSPurchases
 
-    private var mockDGSGoodsStoreService: DGSGoodsStoreService? = null
+    private lateinit var mockDGSGoodsStoreService: DGSGoodsStoreService
 
     @Before
     fun setUp() {
@@ -36,7 +37,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_getAllPurchases() {
+    fun processRequest_getAllPurchases() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 0L),
                 MockParam(BUYER_PARAMETER, 0L),
@@ -61,7 +62,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_getSellerPurchases() {
+    fun processRequest_getSellerPurchases() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 1L),
                 MockParam(BUYER_PARAMETER, 0L),
@@ -86,7 +87,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_getBuyerPurchases() {
+    fun processRequest_getBuyerPurchases() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 0L),
                 MockParam(BUYER_PARAMETER, 1L),
@@ -111,7 +112,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_getSellerBuyerPurchases() {
+    fun processRequest_getSellerBuyerPurchases() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 1L),
                 MockParam(BUYER_PARAMETER, 2L),

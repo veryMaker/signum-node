@@ -1,30 +1,28 @@
 package brs.http
 
 import brs.Account
-import brs.BurstException
 import brs.common.QuickMocker
 import brs.common.TestConstants
+import brs.http.common.ResultFields.PUBLIC_KEY_RESPONSE
 import brs.services.ParameterService
 import brs.util.JSON
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.ResultFields.PUBLIC_KEY_RESPONSE
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class GetAccountPublicKeyTest {
 
-    private var t: GetAccountPublicKey? = null
+    private lateinit var t: GetAccountPublicKey
 
-    private var mockParameterService: ParameterService? = null
+    private lateinit var mockParameterService: ParameterService
 
     @Before
     fun setUp() {
@@ -34,7 +32,7 @@ class GetAccountPublicKeyTest {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
@@ -49,7 +47,7 @@ class GetAccountPublicKeyTest {
     }
 
     @Test
-    fun processRequest_withoutPublicKey() {
+    fun processRequest_withoutPublicKey() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()

@@ -2,26 +2,24 @@ package brs.http
 
 import brs.TransactionProcessor
 import brs.common.QuickMocker
+import brs.http.common.ResultFields.DONE_RESPONSE
+import brs.http.common.ResultFields.ERROR_RESPONSE
 import brs.util.JSON
 import com.google.gson.JsonObject
+import com.nhaarman.mockitokotlin2.doThrow
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.ResultFields.DONE_RESPONSE
-import brs.http.common.ResultFields.ERROR_RESPONSE
-import com.nhaarman.mockitokotlin2.doThrow
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
-
 class ClearUnconfirmedTransactionsTest {
 
-    private var t: ClearUnconfirmedTransactions? = null
+    private lateinit var t: ClearUnconfirmedTransactions
 
-    private var transactionProcessorMock: TransactionProcessor? = null
+    private lateinit var transactionProcessorMock: TransactionProcessor
 
     @Before
     fun init() {
@@ -31,7 +29,7 @@ class ClearUnconfirmedTransactionsTest {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val result = t!!.processRequest(request) as JsonObject
@@ -40,7 +38,7 @@ class ClearUnconfirmedTransactionsTest {
     }
 
     @Test
-    fun processRequest_runtimeExceptionOccurs() {
+    fun processRequest_runtimeExceptionOccurs() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         doThrow(RuntimeException("errorMessage")).whenever(transactionProcessorMock!!).clearUnconfirmedTransactions()

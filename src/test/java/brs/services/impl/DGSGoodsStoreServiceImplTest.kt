@@ -21,16 +21,16 @@ import org.junit.Test
 
 class DGSGoodsStoreServiceImplTest : AbstractUnitTest() {
 
-    private var blockchain: Blockchain? = null
+    private lateinit var blockchain: Blockchain
 
-    private var mockAccountService: AccountService? = null
-    private var mockDigitalGoodsStoreStore: DigitalGoodsStoreStore? = null
+    private lateinit var mockAccountService: AccountService
+    private lateinit var mockDigitalGoodsStoreStore: DigitalGoodsStoreStore
 
-    private var mockGoodsTable: VersionedEntityTable<DigitalGoodsStore.Goods>? = null
-    private var mockPurchaseTable: VersionedEntityTable<DigitalGoodsStore.Purchase>? = null
-    private var mockGoodsDbKeyFactory: LongKeyFactory<DigitalGoodsStore.Goods>? = null
+    private lateinit var mockGoodsTable: VersionedEntityTable<DigitalGoodsStore.Goods>
+    private lateinit var mockPurchaseTable: VersionedEntityTable<DigitalGoodsStore.Purchase>
+    private lateinit var mockGoodsDbKeyFactory: LongKeyFactory<DigitalGoodsStore.Goods>
 
-    private var t: DGSGoodsStoreServiceImpl? = null
+    private lateinit var t: DGSGoodsStoreServiceImpl
 
     @Before
     fun setUp() {

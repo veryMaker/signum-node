@@ -18,13 +18,13 @@ import org.junit.Test
 
 class AliasServiceImplTest : AbstractUnitTest() {
 
-    private var t: AliasServiceImpl? = null
+    private lateinit var t: AliasServiceImpl
 
-    private var aliasStoreMock: AliasStore? = null
-    private var aliasTableMock: VersionedEntityTable<Alias>? = null
-    private var aliasDbKeyFactoryMock: BurstKey.LongKeyFactory<Alias>? = null
-    private var offerTableMock: VersionedEntityTable<Offer>? = null
-    private var offerDbKeyFactoryMock: BurstKey.LongKeyFactory<Offer>? = null
+    private lateinit var aliasStoreMock: AliasStore
+    private lateinit var aliasTableMock: VersionedEntityTable<Alias>
+    private lateinit var aliasDbKeyFactoryMock: BurstKey.LongKeyFactory<Alias>
+    private lateinit var offerTableMock: VersionedEntityTable<Offer>
+    private lateinit var offerDbKeyFactoryMock: BurstKey.LongKeyFactory<Offer>
 
     @Before
     fun setUp() {

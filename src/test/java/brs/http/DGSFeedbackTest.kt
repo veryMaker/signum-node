@@ -18,6 +18,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -43,7 +44,7 @@ class DGSFeedbackTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val mockPurchaseId = 123L
@@ -72,7 +73,7 @@ class DGSFeedbackTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectPurchaseWhenOtherBuyerId() {
+    fun processRequest_incorrectPurchaseWhenOtherBuyerId() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val mockPurchase = mock<Purchase>()
@@ -88,7 +89,7 @@ class DGSFeedbackTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_goodsNotDeliveredWhenNoEncryptedGoods() {
+    fun processRequest_goodsNotDeliveredWhenNoEncryptedGoods() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val mockPurchase = mock<Purchase>()

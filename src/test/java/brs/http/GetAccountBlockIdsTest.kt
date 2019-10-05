@@ -18,6 +18,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -25,10 +26,10 @@ import org.junit.Test
 
 class GetAccountBlockIdsTest : AbstractUnitTest() {
 
-    private var t: GetAccountBlockIds? = null
+    private lateinit var t: GetAccountBlockIds
 
-    private var mockParameterService: ParameterService? = null
-    private var mockBlockchain: Blockchain? = null
+    private lateinit var mockParameterService: ParameterService
+    private lateinit var mockBlockchain: Blockchain
 
     @Before
     fun setUp() {
@@ -39,7 +40,7 @@ class GetAccountBlockIdsTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val timestamp = 1
         val firstIndex = 0
         val lastIndex = 1

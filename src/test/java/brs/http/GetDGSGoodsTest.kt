@@ -25,6 +25,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -35,9 +36,9 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class GetDGSGoodsTest : AbstractUnitTest() {
 
-    private var t: GetDGSGoods? = null
+    private lateinit var t: GetDGSGoods
 
-    private var mockDGSGoodsStoreService: DGSGoodsStoreService? = null
+    private lateinit var mockDGSGoodsStoreService: DGSGoodsStoreService
 
     @Before
     fun setUp() {
@@ -47,7 +48,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_getSellerGoods() {
+    fun processRequest_getSellerGoods() = runBlocking {
         val sellerId = 1L
         val firstIndex = 2
         val lastIndex = 3
@@ -87,7 +88,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_getAllGoods() {
+    fun processRequest_getAllGoods() = runBlocking {
         val sellerId = 0L
         val firstIndex = 2
         val lastIndex = 3
@@ -127,7 +128,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_getGoodsInStock() {
+    fun processRequest_getGoodsInStock() = runBlocking {
         val sellerId = 0L
         val firstIndex = 2
         val lastIndex = 3

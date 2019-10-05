@@ -11,7 +11,7 @@ abstract class AbstractUnitTest {
     protected fun stringWithLength(length: Int): String {
         val result = StringBuilder()
 
-        0 until length.forEach { i ->
+        repeat(length) {
             result.append("a")
         }
 

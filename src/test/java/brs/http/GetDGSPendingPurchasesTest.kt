@@ -1,33 +1,32 @@
 package brs.http
 
-import brs.BurstException
 import brs.DigitalGoodsStore.Purchase
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.services.DGSGoodsStoreService
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
 import brs.http.JSONResponses.MISSING_SELLER
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.Parameters.SELLER_PARAMETER
 import brs.http.common.ResultFields.PURCHASES_RESPONSE
+import brs.services.DGSGoodsStoreService
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
 
 class GetDGSPendingPurchasesTest : AbstractUnitTest() {
 
-    private var t: GetDGSPendingPurchases? = null
+    private lateinit var t: GetDGSPendingPurchases
 
-    private var mockDGSGoodStoreService: DGSGoodsStoreService? = null
+    private lateinit var mockDGSGoodStoreService: DGSGoodsStoreService
 
     @Before
     fun setUp() {
@@ -37,7 +36,7 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val sellerId = 123L
         val firstIndex = 1
         val lastIndex = 2
@@ -63,7 +62,7 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_missingSeller() {
+    fun processRequest_missingSeller() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 0L)
         )

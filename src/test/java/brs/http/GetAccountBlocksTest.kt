@@ -3,34 +3,34 @@ package brs.http
 import brs.Account
 import brs.Block
 import brs.Blockchain
-import brs.BurstException
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.Parameters.TIMESTAMP_PARAMETER
+import brs.http.common.ResultFields.BLOCKS_RESPONSE
 import brs.services.BlockService
 import brs.services.ParameterService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-import brs.http.common.ResultFields.BLOCKS_RESPONSE
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
 
 class GetAccountBlocksTest : AbstractUnitTest() {
 
-    private var t: GetAccountBlocks? = null
+    private lateinit var t: GetAccountBlocks
 
-    private var blockchainMock: Blockchain? = null
-    private var parameterServiceMock: ParameterService? = null
-    private var blockServiceMock: BlockService? = null
+    private lateinit var blockchainMock: Blockchain
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var blockServiceMock: BlockService
 
     @Before
     fun setUp() {
@@ -42,7 +42,7 @@ class GetAccountBlocksTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val mockTimestamp = 1
         val mockFirstIndex = 2
         val mockLastIndex = 3

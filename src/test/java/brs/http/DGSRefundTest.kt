@@ -19,6 +19,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -47,7 +48,7 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val refundNQTParameter: Long = 5
 
         val request = QuickMocker.httpServletRequest(
@@ -83,7 +84,7 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectPurchase() {
+    fun processRequest_incorrectPurchase() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val mockSellerAccount = mock<Account>()
@@ -99,7 +100,7 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_duplicateRefund() {
+    fun processRequest_duplicateRefund() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val mockSellerAccount = mock<Account>()
@@ -116,7 +117,7 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_goodsNotDelivered() {
+    fun processRequest_goodsNotDelivered() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val mockSellerAccount = mock<Account>()
@@ -134,7 +135,7 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectDgsRefundWrongFormat() {
+    fun processRequest_incorrectDgsRefundWrongFormat() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(REFUND_NQT_PARAMETER, "Bob")
         )
@@ -154,7 +155,7 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_negativeIncorrectDGSRefund() {
+    fun processRequest_negativeIncorrectDGSRefund() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(REFUND_NQT_PARAMETER, -5L)
         )
@@ -174,7 +175,7 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_overMaxBalanceNQTIncorrectDGSRefund() {
+    fun processRequest_overMaxBalanceNQTIncorrectDGSRefund() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(REFUND_NQT_PARAMETER, Constants.MAX_BALANCE_NQT + 1)
         )

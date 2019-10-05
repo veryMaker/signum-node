@@ -13,23 +13,22 @@ import brs.http.common.Parameters.HEIGHT_PARAMETER
 import brs.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.services.BlockService
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
 
 class GetBlockTest {
 
-    private var t: GetBlock? = null
+    private lateinit var t: GetBlock
 
-    private var blockchainMock: Blockchain? = null
-    private var blockServiceMock: BlockService? = null
+    private lateinit var blockchainMock: Blockchain
+    private lateinit var blockServiceMock: BlockService
 
     @Before
     fun setUp() {
@@ -40,7 +39,7 @@ class GetBlockTest {
     }
 
     @Test
-    fun processRequest_withBlockId() {
+    fun processRequest_withBlockId() = runBlocking {
         val blockId = 2L
 
         val request = QuickMocker.httpServletRequest(
@@ -57,7 +56,7 @@ class GetBlockTest {
     }
 
     @Test
-    fun processRequest_withBlockId_incorrectBlock() {
+    fun processRequest_withBlockId_incorrectBlock() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(BLOCK_PARAMETER, "notALong")
         )
@@ -66,7 +65,7 @@ class GetBlockTest {
     }
 
     @Test
-    fun processRequest_withHeight() {
+    fun processRequest_withHeight() = runBlocking {
         val blockHeight = 2
 
         val request = QuickMocker.httpServletRequest(
@@ -84,7 +83,7 @@ class GetBlockTest {
     }
 
     @Test
-    fun processRequest_withHeight_incorrectHeight_unParsable() {
+    fun processRequest_withHeight_incorrectHeight_unParsable() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(HEIGHT_PARAMETER, "unParsable")
         )
@@ -93,7 +92,7 @@ class GetBlockTest {
     }
 
     @Test
-    fun processRequest_withHeight_incorrectHeight_isNegative() {
+    fun processRequest_withHeight_incorrectHeight_isNegative() = runBlocking {
         val heightValue = -1L
 
         val request = QuickMocker.httpServletRequest(
@@ -104,7 +103,7 @@ class GetBlockTest {
     }
 
     @Test
-    fun processRequest_withHeight_incorrectHeight_overCurrentBlockHeight() {
+    fun processRequest_withHeight_incorrectHeight_overCurrentBlockHeight() = runBlocking {
         val heightValue = 10L
 
         val request = QuickMocker.httpServletRequest(
@@ -117,7 +116,7 @@ class GetBlockTest {
     }
 
     @Test
-    fun processRequest_withTimestamp() {
+    fun processRequest_withTimestamp() = runBlocking {
         val timestamp = 2
 
         val request = QuickMocker.httpServletRequest(
@@ -134,7 +133,7 @@ class GetBlockTest {
     }
 
     @Test
-    fun processRequest_withTimestamp_incorrectTimeStamp_unParsable() {
+    fun processRequest_withTimestamp_incorrectTimeStamp_unParsable() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(TIMESTAMP_PARAMETER, "unParsable")
         )
@@ -143,7 +142,7 @@ class GetBlockTest {
     }
 
     @Test
-    fun processRequest_withTimestamp_incorrectTimeStamp_negative() {
+    fun processRequest_withTimestamp_incorrectTimeStamp_negative() = runBlocking {
         val timestamp = -1
 
         val request = QuickMocker.httpServletRequest(
@@ -155,7 +154,7 @@ class GetBlockTest {
 
 
     @Test
-    fun processRequest_unknownBlock() {
+    fun processRequest_unknownBlock() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         assertEquals(UNKNOWN_BLOCK, t!!.processRequest(request))

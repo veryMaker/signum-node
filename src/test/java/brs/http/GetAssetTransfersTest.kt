@@ -3,7 +3,6 @@ package brs.http
 import brs.Account
 import brs.Asset
 import brs.AssetTransfer
-import brs.BurstException
 import brs.assetexchange.AssetExchange
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
@@ -21,24 +20,24 @@ import brs.services.ParameterService
 import brs.util.JSON
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class GetAssetTransfersTest : AbstractUnitTest() {
 
-    private var t: GetAssetTransfers? = null
+    private lateinit var t: GetAssetTransfers
 
-    private var mockParameterService: ParameterService? = null
-    private var mockAccountService: AccountService? = null
-    private var mockAssetExchange: AssetExchange? = null
+    private lateinit var mockParameterService: ParameterService
+    private lateinit var mockAccountService: AccountService
+    private lateinit var mockAssetExchange: AssetExchange
 
     @Before
     fun setUp() {
@@ -50,7 +49,7 @@ class GetAssetTransfersTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_byAsset() {
+    fun processRequest_byAsset() = runBlocking {
         val assetId = 123L
         val firstIndex = 0
         val lastIndex = 1
@@ -78,7 +77,7 @@ class GetAssetTransfersTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_byAccount() {
+    fun processRequest_byAccount() = runBlocking {
         val accountId = 234L
         val firstIndex = 0
         val lastIndex = 1
@@ -106,7 +105,7 @@ class GetAssetTransfersTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_byAccountAndAsset() {
+    fun processRequest_byAccountAndAsset() = runBlocking {
         val assetId = 123L
         val accountId = 234L
         val firstIndex = 0

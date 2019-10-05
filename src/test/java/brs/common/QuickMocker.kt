@@ -13,6 +13,7 @@ import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.props.Prop
 import brs.props.PropertyService
 import brs.props.Props
+import brs.taskScheduler.CoroutineTaskScheduler
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
@@ -47,6 +48,7 @@ object QuickMocker {
             notInsertedDependencies.removeAll(insertedDependencies)
             "Not all dependencies can go into dependency provider, these types can't: $notInsertedDependencies"
         }
+        dp.taskScheduler = CoroutineTaskScheduler()
         return dp
     }
 

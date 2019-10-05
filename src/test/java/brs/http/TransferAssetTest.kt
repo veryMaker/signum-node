@@ -13,6 +13,7 @@ import brs.services.ParameterService
 import brs.transaction.TransactionType
 import brs.transaction.coloredCoins.AssetTransfer
 import com.nhaarman.mockitokotlin2.*
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -23,13 +24,13 @@ import javax.servlet.http.HttpServletRequest
 @RunWith(JUnit4::class)
 class TransferAssetTest : AbstractTransactionTest() {
 
-    private var t: TransferAsset? = null
+    private lateinit var t: TransferAsset
     private lateinit var dp: DependencyProvider
-    private var parameterServiceMock: ParameterService? = null
-    private var blockchainMock: Blockchain? = null
-    private var transactionProcessorMock: TransactionProcessor? = null
-    private var apiTransactionManagerMock: APITransactionManager? = null
-    private var accountServiceMock: AccountService? = null
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var blockchainMock: Blockchain
+    private lateinit var transactionProcessorMock: TransactionProcessor
+    private lateinit var apiTransactionManagerMock: APITransactionManager
+    private lateinit var accountServiceMock: AccountService
 
     @Before
     fun setUp() {
@@ -43,7 +44,7 @@ class TransferAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val recipientParameter = 34L
         val assetIdParameter = 456L
         val quantityQNTParameter = 56L
@@ -76,7 +77,7 @@ class TransferAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_assetBalanceLowerThanQuantityNQTParameter() {
+    fun processRequest_assetBalanceLowerThanQuantityNQTParameter() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(RECIPIENT_PARAMETER, "123"),
                 MockParam(ASSET_PARAMETER, "456"),

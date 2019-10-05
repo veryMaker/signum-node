@@ -18,7 +18,6 @@ class ProcessASingleBlockTest : AbstractIT() {
                 .transactions(null)
                 .version(3)
                 .nonce("31687")
-                .blockATs(null)
                 .previousBlock("3444294670862540038")
                 .timestamp(683)
                 .previousBlockHash("065d8826c197cc2fc7059b15fedc7d700bc56320095eafb4c1ab115ba0a3979e")

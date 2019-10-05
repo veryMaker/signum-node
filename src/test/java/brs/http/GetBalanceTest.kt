@@ -14,6 +14,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -21,9 +22,9 @@ import javax.servlet.http.HttpServletRequest
 
 class GetBalanceTest {
 
-    private var t: GetBalance? = null
+    private lateinit var t: GetBalance
 
-    private var parameterServiceMock: ParameterService? = null
+    private lateinit var parameterServiceMock: ParameterService
 
     @Before
     fun setUp() {
@@ -32,7 +33,7 @@ class GetBalanceTest {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequest()
         val mockAccount = mock<Account>()
 
@@ -52,7 +53,7 @@ class GetBalanceTest {
     }
 
     @Test
-    fun processRequest_noAccountFound() {
+    fun processRequest_noAccountFound() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(null)

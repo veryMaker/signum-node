@@ -15,6 +15,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -23,10 +24,10 @@ import javax.servlet.http.HttpServletRequest
 
 class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
 
-    private var parameterService: ParameterService? = null
-    private var accountService: AccountService? = null
+    private lateinit var parameterService: ParameterService
+    private lateinit var accountService: AccountService
 
-    private var t: GetAccountsWithRewardRecipient? = null
+    private lateinit var t: GetAccountsWithRewardRecipient
 
     @Before
     fun setUp() {
@@ -37,7 +38,7 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val targetAccountId = 4L
 
         val request = QuickMocker.httpServletRequest(
@@ -65,7 +66,7 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_withRewardRecipientAssignmentKnown() {
+    fun processRequest_withRewardRecipientAssignmentKnown() = runBlocking {
         val targetAccountId = 4L
 
         val request = QuickMocker.httpServletRequest(

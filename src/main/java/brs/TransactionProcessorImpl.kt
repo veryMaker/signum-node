@@ -20,55 +20,59 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
-class TransactionProcessorImpl private constructor(private val dp: DependencyProvider) : TransactionProcessor {
+class TransactionProcessorImpl(private val dp: DependencyProvider) : TransactionProcessor {
     private val testUnconfirmedTransactions = dp.propertyService.get(Props.BRS_TEST_UNCONFIRMED_TRANSACTIONS)
 
     private val transactionListeners = Listeners<Collection<Transaction>, TransactionProcessor.Event>()
     private val foodDispenser: suspend (Peer) -> Collection<Transaction> = { dp.unconfirmedTransactionStore.getAllFor(it) }
     private val doneFeedingLog: suspend (Peer, Collection<Transaction>) -> Unit = { peer, transactions -> dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions) }
 
-    internal val getUnconfirmedTransactionsTask: Task = {
-        run {
-            try {
-                val peer = dp.peers.getAnyPeer(Peer.State.CONNECTED) ?: return@run
-                val response = dp.peers.readUnconfirmedTransactions(peer) ?: return@run
-                val transactionsData = JSON.getAsJsonArray(response.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
-                if (transactionsData.isEmpty()) return@run
-                dp.peers.feedingTime(peer, foodDispenser, doneFeedingLog)
-
+    init {
+        dp.taskScheduler.scheduleTaskWithDelay(0, 10000) {
+            run {
                 try {
-                    val addedTransactions = processPeerTransactions(transactionsData, peer)
+                    val peer = dp.peers.getAnyPeer(Peer.State.CONNECTED) ?: return@run
+                    val response = dp.peers.readUnconfirmedTransactions(peer) ?: return@run
+                    val transactionsData = JSON.getAsJsonArray(response.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
+                    if (transactionsData.isEmpty()) return@run
+                    dp.peers.feedingTime(peer, foodDispenser, doneFeedingLog)
 
-                    if (addedTransactions.isNotEmpty()) {
-                        val activePrioPlusExtra = dp.peers.allActivePriorityPlusSomeExtraPeers
-                        activePrioPlusExtra.remove(peer)
+                    try {
+                        val addedTransactions = processPeerTransactions(transactionsData, peer)
 
-                        val jobs = mutableListOf<Job>()
+                        if (addedTransactions.isNotEmpty()) {
+                            val activePrioPlusExtra = dp.peers.allActivePriorityPlusSomeExtraPeers
+                            activePrioPlusExtra.remove(peer)
 
-                        for (otherPeer in activePrioPlusExtra) {
-                            jobs.add(launch {
-                                try {
-                                    val otherPeerResponse = dp.peers.readUnconfirmedTransactions(otherPeer) ?: return@launch
-                                    val otherPeerTransactions = JSON.getAsJsonArray(otherPeerResponse.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
-                                    if (otherPeerTransactions.isEmpty()) return@launch
-                                    dp.peers.feedingTime(otherPeer, foodDispenser, doneFeedingLog)
-                                } catch (e: ValidationException) {
-                                    peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
-                                } catch (e: RuntimeException) {
-                                    peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
-                                }
-                            })
+                            val jobs = mutableListOf<Job>()
+
+                            for (otherPeer in activePrioPlusExtra) {
+                                jobs.add(launch {
+                                    try {
+                                        val otherPeerResponse =
+                                            dp.peers.readUnconfirmedTransactions(otherPeer) ?: return@launch
+                                        val otherPeerTransactions =
+                                            JSON.getAsJsonArray(otherPeerResponse.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
+                                        if (otherPeerTransactions.isEmpty()) return@launch
+                                        dp.peers.feedingTime(otherPeer, foodDispenser, doneFeedingLog)
+                                    } catch (e: ValidationException) {
+                                        peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
+                                    } catch (e: RuntimeException) {
+                                        peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
+                                    }
+                                })
+                            }
+
+                            jobs.forEach { it.join() }
                         }
-
-                        jobs.forEach { it.join() }
+                    } catch (e: ValidationException) {
+                        peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
+                    } catch (e: RuntimeException) {
+                        peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
                     }
-                } catch (e: ValidationException) {
-                    peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
-                } catch (e: RuntimeException) {
-                    peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
+                } catch (e: Exception) {
+                    logger.safeDebug(e) { "Error processing unconfirmed transactions" }
                 }
-            } catch (e: Exception) {
-                logger.safeDebug(e) { "Error processing unconfirmed transactions" }
             }
         }
     }
@@ -297,11 +301,5 @@ class TransactionProcessorImpl private constructor(private val dp: DependencyPro
 
     companion object {
         private val logger = LoggerFactory.getLogger(TransactionProcessorImpl::class.java)
-
-        suspend fun new(dp: DependencyProvider): TransactionProcessor {
-            val transactionProcessor = TransactionProcessorImpl(dp)
-            dp.taskScheduler.scheduleTaskWithDelay(transactionProcessor.getUnconfirmedTransactionsTask, 0, 10000)
-            return transactionProcessor
-        }
     }
 }

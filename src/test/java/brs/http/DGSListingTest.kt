@@ -23,6 +23,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -46,7 +47,7 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val mockAccount = mock<Account>()
 
         val dgsName = "dgsName"
@@ -79,7 +80,7 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_missingName() {
+    fun processRequest_missingName() = runBlocking {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L),
                 MockParam(QUANTITY_PARAMETER, 1L)
@@ -89,12 +90,8 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectDGSListingName() {
-        var tooLongName = ""
-
-        0..100.forEach { i ->
-            tooLongName += "a"
-        }
+    fun processRequest_incorrectDGSListingName() = runBlocking {
+        val tooLongName = stringWithLength(101)
 
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L),
@@ -106,12 +103,8 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectDgsListingDescription() {
-        var tooLongDescription = ""
-
-        0..1000.forEach { i ->
-            tooLongDescription += "a"
-        }
+    fun processRequest_incorrectDgsListingDescription() = runBlocking {
+        val tooLongDescription = stringWithLength(1001)
 
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L),
@@ -124,12 +117,8 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectDgsListingTags() {
-        var tooLongTags = ""
-
-        0..100.forEach { i ->
-            tooLongTags += "a"
-        }
+    fun processRequest_incorrectDgsListingTags() = runBlocking {
+        val tooLongTags = stringWithLength(101)
 
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L),

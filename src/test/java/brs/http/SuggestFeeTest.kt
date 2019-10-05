@@ -12,15 +12,16 @@ import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
 class SuggestFeeTest {
 
-    private var t: SuggestFee? = null
+    private lateinit var t: SuggestFee
 
-    private var feeSuggestionCalculator: FeeSuggestionCalculator? = null
+    private lateinit var feeSuggestionCalculator: FeeSuggestionCalculator
 
     @Before
     fun setUp() {
@@ -30,7 +31,7 @@ class SuggestFeeTest {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val cheap = 1 * FEE_QUANT

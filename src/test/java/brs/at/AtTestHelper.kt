@@ -74,7 +74,7 @@ object AtTestHelper {
         doAnswer { invoke ->
             val atId = invoke.getArgument<Long>(0)
             addedAts.forEach { addedAt ->
-                if (AtApiHelper.getLong(addedAt.id ?: continue) == atId) {
+                if (AtApiHelper.getLong(addedAt.id ?: return@forEach) == atId) {
                     return@doAnswer addedAt
                 }
             }

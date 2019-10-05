@@ -13,9 +13,9 @@ import org.junit.Test
 
 class ATServiceImplTest {
 
-    private var t: ATServiceImpl? = null
+    private lateinit var t: ATServiceImpl
 
-    private var mockATStore: ATStore? = null
+    private lateinit var mockATStore: ATStore
 
     @Before
     fun setUp() {

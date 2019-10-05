@@ -6,6 +6,7 @@ import brs.peer.ProcessBlock
 import brs.props.Props
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.mock
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -15,7 +16,7 @@ import java.util.*
 @RunWith(JUnit4::class)
 abstract class AbstractIT {
 
-    private var processBlock: ProcessBlock? = null
+    private lateinit var processBlock: ProcessBlock
 
     protected var apiSender = APISender()
     private lateinit var burst: Burst
@@ -49,11 +50,11 @@ abstract class AbstractIT {
         return props
     }
 
-    fun processBlock(jsonFirstBlock: JsonObject) {
+    fun processBlock(jsonFirstBlock: JsonObject) = runBlocking {
         processBlock!!.processRequest(jsonFirstBlock, mock())
     }
 
-    fun rollback(height: Int) {
+    fun rollback(height: Int) = runBlocking {
         burst.dp.blockchainProcessor.popOffTo(0)
     }
 }

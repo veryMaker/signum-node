@@ -34,6 +34,7 @@ import brs.services.AccountService
 import brs.services.AliasService
 import brs.services.DGSGoodsStoreService
 import brs.util.convert.parseHexString
+import brs.util.convert.toBytes
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
@@ -438,7 +439,7 @@ class ParameterServiceImplTest {
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        whenever(mockRecipientAccount.encryptTo(eq(Convert.toBytes("message")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
+        whenever(mockRecipientAccount.encryptTo(eq("message".toBytes()), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t!!.getEncryptedMessage(request, mockRecipientAccount, null))
     }
@@ -528,7 +529,7 @@ class ParameterServiceImplTest {
 
         val encryptedDataMock = mock<EncryptedData>()
 
-        whenever(mockAccount.encryptTo(eq(Convert.toBytes("message")), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
+        whenever(mockAccount.encryptTo(eq("message".toBytes()), eq<String>(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t!!.getEncryptToSelfMessage(request))
     }

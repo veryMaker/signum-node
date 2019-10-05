@@ -18,16 +18,16 @@ import org.junit.Test
 
 class OrderServiceImplTest {
 
-    private var t: OrderServiceImpl? = null
+    private lateinit var t: OrderServiceImpl
 
-    private var orderStoreMock: OrderStore? = null
-    private var mockAskOrderTable: VersionedEntityTable<Ask>? = null
-    private var mockAskOrderDbKeyFactory: LongKeyFactory<Ask>? = null
-    private var mockBidOrderTable: VersionedEntityTable<Bid>? = null
-    private var mockBidOrderDbKeyFactory: LongKeyFactory<Bid>? = null
+    private lateinit var orderStoreMock: OrderStore
+    private lateinit var mockAskOrderTable: VersionedEntityTable<Ask>
+    private lateinit var mockAskOrderDbKeyFactory: LongKeyFactory<Ask>
+    private lateinit var mockBidOrderTable: VersionedEntityTable<Bid>
+    private lateinit var mockBidOrderDbKeyFactory: LongKeyFactory<Bid>
 
-    private var accountServiceMock: AccountService? = null
-    private var tradeServiceMock: TradeServiceImpl? = null
+    private lateinit var accountServiceMock: AccountService
+    private lateinit var tradeServiceMock: TradeServiceImpl
 
     @Before
     fun setUp() {

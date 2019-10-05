@@ -8,27 +8,28 @@ import brs.common.QuickMocker
 import brs.services.AccountService
 import brs.services.DGSGoodsStoreService
 import com.nhaarman.mockitokotlin2.*
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 
 
 class ExpiredPurchaseListenerTest : AbstractUnitTest() {
 
-    private var accountServiceMock: AccountService? = null
-    private var dgsGoodsStoreServiceMock: DGSGoodsStoreService? = null
+    private lateinit var accountServiceMock: AccountService
+    private lateinit var dgsGoodsStoreServiceMock: DGSGoodsStoreService
 
-    private var t: DGSGoodsStoreServiceImpl.ExpiredPurchaseListener? = null
+    private lateinit var t: suspend (Block) -> Unit
 
     @Before
     fun setUp() {
         accountServiceMock = mock<AccountService>()
         dgsGoodsStoreServiceMock = mock<DGSGoodsStoreService>()
 
-        t = DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(QuickMocker.dependencyProvider(accountServiceMock!!, dgsGoodsStoreServiceMock!!))
+        t = DGSGoodsStoreServiceImpl.expiredPurchaseListener(QuickMocker.dependencyProvider(accountServiceMock!!, dgsGoodsStoreServiceMock!!))
     }
 
     @Test
-    fun notify_processesExpiredPurchases() {
+    fun notify_processesExpiredPurchases() = runBlocking {
         val blockTimestamp = 123
         val block = mock<Block>()
         whenever(block.timestamp).doReturn(blockTimestamp)

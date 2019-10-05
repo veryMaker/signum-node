@@ -14,7 +14,7 @@ import org.junit.Assert.assertNotNull
 
 @RunWith(JUnit4::class)
 class DeeplinkQRCodeGeneratorTest {
-    private var deeplinkQRCodeGenerator: DeeplinkQRCodeGenerator? = null
+    private lateinit var deeplinkQRCodeGenerator: DeeplinkQRCodeGenerator
 
     @Before
     fun setUpDeeplinkQrCodeGeneratorTest() {

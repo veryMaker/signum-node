@@ -1,7 +1,6 @@
 package brs.http
 
 import brs.Asset
-import brs.BurstException
 import brs.Order.Ask
 import brs.assetexchange.AssetExchange
 import brs.common.AbstractUnitTest
@@ -20,23 +19,23 @@ import brs.services.ParameterService
 import brs.util.JSON
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class GetAskOrdersTest : AbstractUnitTest() {
 
-    private var parameterServiceMock: ParameterService? = null
-    private var assetExchangeMock: AssetExchange? = null
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var assetExchangeMock: AssetExchange
 
-    private var t: GetAskOrders? = null
+    private lateinit var t: GetAskOrders
 
     @Before
     fun setUp() {
@@ -47,7 +46,7 @@ class GetAskOrdersTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val assetIndex: Long = 5
         val firstIndex = 1
         val lastIndex = 3
@@ -73,7 +72,7 @@ class GetAskOrdersTest : AbstractUnitTest() {
         val askOrder2 = mock<Ask>()
         whenever(askOrder1.id).doReturn(4L)
 
-        val askIterator = this.mockCollection<Ask>(askOrder1, askOrder2)
+        val askIterator = mockCollection<Ask>(askOrder1, askOrder2)
 
         whenever(assetExchangeMock!!.getSortedAskOrders(eq(assetIndex), eq(firstIndex), eq(lastIndex))).doReturn(askIterator)
 

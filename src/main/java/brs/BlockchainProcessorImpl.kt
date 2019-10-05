@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.max
 
-class BlockchainProcessorImpl private constructor (private val dp: DependencyProvider) : BlockchainProcessor {
+class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainProcessor {
     override val oclVerify = dp.propertyService.get(Props.GPU_ACCELERATION)
     private val oclUnverifiedQueue = dp.propertyService.get(Props.GPU_UNVERIFIED_QUEUE)
 
@@ -335,6 +335,18 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
         get() = 3
 
     init {
+        dp.taskScheduler.scheduleTask(this.getMoreBlocksTask) // TODO somehow parallelize this task
+        dp.taskScheduler.scheduleTask(this.blockImporterTask)
+
+        // TODO have separate tasks depending on whether we want to use GPU acceleration
+        if (dp.propertyService.get(Props.GPU_ACCELERATION)) {
+            logger.safeDebug { "Starting preverifier thread in Open CL mode." }
+            dp.taskScheduler.scheduleTask(this.pocVerificationTask)
+        } else {
+            logger.safeDebug { "Starting preverifier thread in CPU mode." }
+            dp.taskScheduler.scheduleTask(8, this.pocVerificationTask) // TODO property for number of instances
+        }
+
         runBlocking {
             blockListeners.addListener(BlockchainProcessor.Event.BLOCK_SCANNED) { block ->
                 if (block.height % 5000 == 0) {
@@ -1100,22 +1112,5 @@ class BlockchainProcessorImpl private constructor (private val dp: DependencyPro
         private val logger = LoggerFactory.getLogger(BlockchainProcessorImpl::class.java)
 
         private const val MAX_TIMESTAMP_DIFFERENCE = 15
-
-        suspend fun new(dp: DependencyProvider): BlockchainProcessor {
-            val blockchainProcessor = BlockchainProcessorImpl(dp)
-            dp.taskScheduler.scheduleTask(blockchainProcessor.getMoreBlocksTask) // TODO somehow parallelize this task
-            dp.taskScheduler.scheduleTask(blockchainProcessor.blockImporterTask)
-
-            // TODO have separate tasks depending on whether we want to use GPU acceleration
-            if (dp.propertyService.get(Props.GPU_ACCELERATION)) {
-                logger.safeDebug { "Starting preverifier thread in Open CL mode." }
-                dp.taskScheduler.scheduleTask(blockchainProcessor.pocVerificationTask)
-            } else {
-                logger.safeDebug { "Starting preverifier thread in CPU mode." }
-                dp.taskScheduler.scheduleTask(8, blockchainProcessor.pocVerificationTask) // TODO property for number of instances
-            }
-
-            return blockchainProcessor
-        }
     }
 }

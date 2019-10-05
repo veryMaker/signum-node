@@ -1,24 +1,12 @@
 package brs.http
 
 import brs.Account
-import brs.BurstException
 import brs.Escrow
 import brs.Escrow.Decision
 import brs.Escrow.DecisionType
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.services.EscrowService
-import brs.services.ParameterService
-import brs.util.JSON
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-import java.util.Arrays
-
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.Parameters.ESCROWS_RESPONSE
 import brs.http.common.ResultFields.AMOUNT_NQT_RESPONSE
@@ -33,19 +21,28 @@ import brs.http.common.ResultFields.REQUIRED_SIGNERS_RESPONSE
 import brs.http.common.ResultFields.SENDER_RESPONSE
 import brs.http.common.ResultFields.SENDER_RS_RESPONSE
 import brs.http.common.ResultFields.SIGNERS_RESPONSE
+import brs.services.EscrowService
+import brs.services.ParameterService
+import brs.util.JSON
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
 
-    private var parameterServiceMock: ParameterService? = null
-    private var escrowServiceMock: EscrowService? = null
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var escrowServiceMock: EscrowService
 
-    private var t: GetAccountEscrowTransactions? = null
+    private lateinit var t: GetAccountEscrowTransactions
 
     @Before
     fun setUp() {
@@ -56,7 +53,7 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val accountId: Long = 5
 
         val request = QuickMocker.httpServletRequest(

@@ -25,13 +25,10 @@ import brs.util.LoggerConfigurator
 import brs.util.Time
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
-import io.grpc.ServerBuilder
-import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.io.IOException
-import java.net.InetSocketAddress
 import java.util.*
 import kotlin.math.max
 import kotlin.system.exitProcess
@@ -49,7 +46,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             try {
                 val startTime = System.currentTimeMillis()
                 Constants.init(dp)
-                dp.taskScheduler = CoroutineTaskScheduler(dp)
+                dp.taskScheduler = CoroutineTaskScheduler()
                 dp.atApiPlatformImpl = AtApiPlatformImpl(dp)
                 dp.atApiController = AtApiController(dp)
                 dp.atController = AtController(dp)
@@ -75,7 +72,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
                 dp.orderStore = SqlOrderStore(dp)
                 dp.tradeStore = SqlTradeStore(dp)
                 dp.subscriptionStore = SqlSubscriptionStore(dp)
-                dp.unconfirmedTransactionStore = UnconfirmedTransactionStoreImpl.new(dp)
+                dp.unconfirmedTransactionStore = UnconfirmedTransactionStoreImpl(dp)
                 dp.indirectIncomingStore = SqlIndirectIncomingStore(dp)
                 dp.blockchainStore = SqlBlockchainStore(dp)
                 dp.blockchain = BlockchainImpl(dp)
@@ -83,13 +80,13 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
                 dp.fluxCapacitor = FluxCapacitorImpl(dp)
                 dp.transactionTypes = TransactionType.getTransactionTypes(dp)
                 dp.blockService = BlockServiceImpl(dp)
-                dp.blockchainProcessor = BlockchainProcessorImpl.new(dp)
+                dp.blockchainProcessor = BlockchainProcessorImpl(dp)
                 dp.atConstants = AtConstants(dp)
                 dp.economicClustering = EconomicClustering(dp)
-                dp.generator = if (dp.propertyService.get(Props.DEV_MOCK_MINING)) GeneratorImpl.MockGenerator(dp) else GeneratorImpl.new(dp)
+                dp.generator = if (dp.propertyService.get(Props.DEV_MOCK_MINING)) GeneratorImpl.MockGenerator(dp) else GeneratorImpl(dp)
                 dp.accountService = AccountServiceImpl(dp)
                 dp.transactionService = TransactionServiceImpl(dp)
-                dp.transactionProcessor = TransactionProcessorImpl.new(dp)
+                dp.transactionProcessor = TransactionProcessorImpl(dp)
                 dp.atService = ATServiceImpl(dp)
                 dp.subscriptionService = SubscriptionServiceImpl(dp)
                 dp.digitalGoodsStoreService = DGSGoodsStoreServiceImpl(dp)
@@ -103,7 +100,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
                 dp.blockchainProcessor.addListener(BlockchainProcessor.Event.AFTER_BLOCK_APPLY, AT.handleATBlockTransactionsListener(dp))
                 dp.blockchainProcessor.addListener(BlockchainProcessor.Event.AFTER_BLOCK_APPLY, DGSGoodsStoreServiceImpl.expiredPurchaseListener(dp))
                 dp.apiTransactionManager = APITransactionManagerImpl(dp)
-                dp.peers = Peers.new(dp)
+                dp.peers = Peers(dp)
                 dp.api = API(dp)
 
                 if (dp.propertyService.get(Props.API_V2_SERVER)) {

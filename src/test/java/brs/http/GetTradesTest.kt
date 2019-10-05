@@ -20,6 +20,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -28,10 +29,10 @@ import javax.servlet.http.HttpServletRequest
 
 class GetTradesTest : AbstractUnitTest() {
 
-    private var t: GetTrades? = null
+    private lateinit var t: GetTrades
 
-    private var mockParameterService: ParameterService? = null
-    private var mockAssetExchange: AssetExchange? = null
+    private lateinit var mockParameterService: ParameterService
+    private lateinit var mockAssetExchange: AssetExchange
 
     @Before
     fun setUp() {
@@ -42,7 +43,7 @@ class GetTradesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_withAssetId() {
+    fun processRequest_withAssetId() = runBlocking {
         val assetId = 123L
         val firstIndex = 0
         val lastIndex = 1
@@ -76,7 +77,7 @@ class GetTradesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_withAccountId() {
+    fun processRequest_withAccountId() = runBlocking {
         val accountId = 321L
         val firstIndex = 0
         val lastIndex = 1
@@ -110,7 +111,7 @@ class GetTradesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_withAssetIdAndAccountId() {
+    fun processRequest_withAssetIdAndAccountId() = runBlocking {
         val assetId = 123L
         val accountId = 321L
         val firstIndex = 0

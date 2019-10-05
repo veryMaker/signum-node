@@ -5,7 +5,6 @@ import brs.DependencyProvider
 import brs.Transaction
 import brs.peer.Peer
 import brs.props.Props
-import brs.taskScheduler.Task
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
@@ -15,7 +14,7 @@ import kotlinx.coroutines.sync.withLock
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class UnconfirmedTransactionStoreImpl private constructor(private val dp: DependencyProvider) : UnconfirmedTransactionStore {
+class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : UnconfirmedTransactionStore {
     private val reservedBalanceCache = ReservedBalanceCache(dp.accountStore)
     private val transactionDuplicatesChecker = TransactionDuplicatesCheckerImpl()
 
@@ -32,10 +31,16 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
     private val maxPercentageUnconfirmedTransactionsFullHash = dp.propertyService.get(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE)
     private var numberUnconfirmedTransactionsFullHash: Int = 0
 
-    val cleanupExpiredTransactions: Task = {
-        internalStoreLock.withLock {
-            getAllNoLock().filter { t -> dp.timeService.epochTime > t.expiration || dp.transactionDb.hasTransaction(t.id) }
-                .forEach { removeTransaction(it) }
+    init {
+        dp.taskScheduler.scheduleTaskWithDelay(10000, 10000) {
+            internalStoreLock.withLock {
+                getAllNoLock().filter { t ->
+                    dp.timeService.epochTime > t.expiration || dp.transactionDb.hasTransaction(
+                        t.id
+                    )
+                }
+                    .forEach { removeTransaction(it) }
+            }
         }
     }
 
@@ -138,15 +143,15 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
         internalStoreLock.withLock {
             var roomLeft = this.maxRawUTBytesToSend.toLong()
             return fingerPrintsOverview.entries
-                    .asSequence()
-                    .filter { e -> !e.value.contains(peer) }
-                    .map { it.key }
-                    .toList()
-                    .filter {
-                        roomLeft -= it.size.toLong()
-                        return@filter roomLeft > 0
-                    }
-                    .toList()
+                .asSequence()
+                .filter { e -> !e.value.contains(peer) }
+                .map { it.key }
+                .toList()
+                .filter {
+                    roomLeft -= it.size.toLong()
+                    return@filter roomLeft > 0
+                }
+                .toList()
         }
     }
 
@@ -296,10 +301,10 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
 
     private fun removeCheapestFirstToExpireTransaction() {
         val cheapestFirstToExpireTransaction = this.internalStore[this.internalStore.firstKey()]!!
-                .sortedWith(Comparator.comparingLong<Transaction> { it.feeNQT }
-                        .thenComparing<Int> { it.expiration }
-                        .thenComparing<Long> { it.id })
-                .firstOrNull()
+            .sortedWith(Comparator.comparingLong<Transaction> { it.feeNQT }
+                .thenComparing<Int> { it.expiration }
+                .thenComparing<Long> { it.id })
+            .firstOrNull()
         if (cheapestFirstToExpireTransaction != null) {
             reservedBalanceCache.refundBalance(cheapestFirstToExpireTransaction)
             removeTransaction(cheapestFirstToExpireTransaction)
@@ -331,13 +336,5 @@ class UnconfirmedTransactionStoreImpl private constructor(private val dp: Depend
 
     companion object {
         private val logger = LoggerFactory.getLogger(UnconfirmedTransactionStoreImpl::class.java)
-
-        suspend fun new(dp: DependencyProvider): UnconfirmedTransactionStore {
-            val utStore = UnconfirmedTransactionStoreImpl(dp)
-
-            dp.taskScheduler.scheduleTaskWithDelay(utStore.cleanupExpiredTransactions, 10000, 10000)
-
-            return utStore
-        }
     }
 }

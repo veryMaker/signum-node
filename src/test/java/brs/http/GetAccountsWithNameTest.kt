@@ -1,30 +1,27 @@
 package brs.http
 
 import brs.Account
-import brs.BurstException
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
+import brs.http.common.Parameters.ACCOUNTS_RESPONSE
+import brs.http.common.Parameters.NAME_PARAMETER
 import brs.services.AccountService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 
-import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.Parameters.ACCOUNTS_RESPONSE
-import brs.http.common.Parameters.NAME_PARAMETER
-import com.nhaarman.mockitokotlin2.doReturn
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
-
 class GetAccountsWithNameTest : AbstractUnitTest() {
 
-    private var accountService: AccountService? = null
+    private lateinit var accountService: AccountService
 
-    private var t: GetAccountsWithName? = null
+    private lateinit var t: GetAccountsWithName
 
     @Before
     fun setUp() {
@@ -34,7 +31,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val targetAccountId = 4L
         val targetAccountName = "exampleAccountName"
 
@@ -59,7 +56,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_noAccountFound() {
+    fun processRequest_noAccountFound() = runBlocking {
         val targetAccountName = "exampleAccountName"
 
         val request = QuickMocker.httpServletRequest(

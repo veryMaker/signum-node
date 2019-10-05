@@ -24,13 +24,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 
 class GetAskOrderIdsTest : AbstractUnitTest() {
 
-    private var parameterServiceMock: ParameterService? = null
-    private var assetExchangeMock: AssetExchange? = null
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var assetExchangeMock: AssetExchange
 
-    private var t: GetAskOrderIds? = null
+    private lateinit var t: GetAskOrderIds
 
     @Before
     fun setUp() {
@@ -41,7 +42,7 @@ class GetAskOrderIdsTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val assetIndex: Long = 5
         val firstIndex = 1
         val lastIndex = 3
@@ -62,7 +63,7 @@ class GetAskOrderIdsTest : AbstractUnitTest() {
         val askOrder2 = mock<Ask>()
         whenever(askOrder1.id).doReturn(6L)
 
-        val askIterator = this.mockCollection<Ask>(askOrder1, askOrder2)
+        val askIterator = mockCollection<Ask>(askOrder1, askOrder2)
 
         whenever(assetExchangeMock!!.getSortedAskOrders(eq(assetIndex), eq(firstIndex), eq(lastIndex))).doReturn(askIterator)
 

@@ -20,14 +20,14 @@ import org.junit.Assert.assertEquals
 
 class EscrowServiceImplTest {
 
-    private var t: EscrowServiceImpl? = null
+    private lateinit var t: EscrowServiceImpl
 
-    private var mockEscrowStore: EscrowStore? = null
-    private var mockEscrowTable: VersionedEntityTable<Escrow>? = null
-    private var mockEscrowDbKeyFactory: LongKeyFactory<Escrow>? = null
-    private var blockchainMock: Blockchain? = null
-    private var aliasServiceMock: AliasService? = null
-    private var accountServiceMock: AccountService? = null
+    private lateinit var mockEscrowStore: EscrowStore
+    private lateinit var mockEscrowTable: VersionedEntityTable<Escrow>
+    private lateinit var mockEscrowDbKeyFactory: LongKeyFactory<Escrow>
+    private lateinit var blockchainMock: Blockchain
+    private lateinit var aliasServiceMock: AliasService
+    private lateinit var accountServiceMock: AccountService
 
     @Before
     fun setUp() {

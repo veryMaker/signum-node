@@ -55,7 +55,5 @@ internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(
 
         val attachment = Attachment.MessagingAliasAssignment(dp, aliasName, aliasURI, dp.blockchain.height)
         return createTransaction(request, account, attachment)
-
     }
-
 }

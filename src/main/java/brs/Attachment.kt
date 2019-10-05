@@ -140,17 +140,17 @@ interface Attachment : Appendix {
                     attachment.`is`(BrsApi.AssetTransferAttachment::class.java) -> return ColoredCoinsAssetTransfer(dp, attachment.unpack(BrsApi.AssetTransferAttachment::class.java))
                     attachment.`is`(BrsApi.AssetOrderPlacementAttachment::class.java) -> {
                         val placementAttachment = attachment.unpack(BrsApi.AssetOrderPlacementAttachment::class.java)
-                        return when {
-                            placementAttachment.type == BrsApi.OrderType.ASK -> ColoredCoinsAskOrderPlacement(dp, placementAttachment)
-                            placementAttachment.type == BrsApi.OrderType.BID -> ColoredCoinsBidOrderPlacement(dp, placementAttachment)
+                        return when(placementAttachment.type) {
+                            BrsApi.OrderType.ASK -> ColoredCoinsAskOrderPlacement(dp, placementAttachment)
+                            BrsApi.OrderType.BID -> ColoredCoinsBidOrderPlacement(dp, placementAttachment)
                             else -> throw IllegalArgumentException("Attachment type must be ASK or BID")
                         }
                     }
                     attachment.`is`(BrsApi.AssetOrderCancellationAttachment::class.java) -> {
                         val placementAttachment = attachment.unpack(BrsApi.AssetOrderCancellationAttachment::class.java)
-                        return when {
-                            placementAttachment.type == BrsApi.OrderType.ASK -> ColoredCoinsAskOrderCancellation(dp, placementAttachment)
-                            placementAttachment.type == BrsApi.OrderType.BID -> ColoredCoinsBidOrderCancellation(dp, placementAttachment)
+                        return when(placementAttachment.type) {
+                            BrsApi.OrderType.ASK -> ColoredCoinsAskOrderCancellation(dp, placementAttachment)
+                            BrsApi.OrderType.BID -> ColoredCoinsBidOrderCancellation(dp, placementAttachment)
                             else -> throw IllegalArgumentException("Attachment type must be ASK or BID")
                         }
                     }

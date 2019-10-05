@@ -1,25 +1,23 @@
 package brs.http
 
 import brs.common.QuickMocker
+import brs.http.common.ResultFields.TIME_RESPONSE
 import brs.services.TimeService
 import brs.util.JSON
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
-import brs.http.common.ResultFields.TIME_RESPONSE
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Test
 
 class GetTimeTest {
 
-    private var t: GetTime? = null
+    private lateinit var t: GetTime
 
-    private var mockTimeService: TimeService? = null
+    private lateinit var mockTimeService: TimeService
 
     @Before
     fun setUp() {
@@ -29,7 +27,7 @@ class GetTimeTest {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val currentEpochTime = 123

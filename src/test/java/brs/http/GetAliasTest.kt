@@ -14,6 +14,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -22,10 +23,10 @@ import javax.servlet.http.HttpServletRequest
 
 class GetAliasTest {
 
-    private var t: GetAlias? = null
+    private lateinit var t: GetAlias
 
-    private var mockParameterService: ParameterService? = null
-    private var mockAliasService: AliasService? = null
+    private lateinit var mockParameterService: ParameterService
+    private lateinit var mockAliasService: AliasService
 
     @Before
     fun setUp() {
@@ -36,7 +37,7 @@ class GetAliasTest {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val mockAlias = mock<Alias>()
         whenever(mockAlias.aliasName).doReturn("mockAliasName")
 

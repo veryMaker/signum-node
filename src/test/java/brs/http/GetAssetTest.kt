@@ -21,6 +21,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -29,10 +30,10 @@ import javax.servlet.http.HttpServletRequest
 
 class GetAssetTest : AbstractUnitTest() {
 
-    private var parameterServiceMock: ParameterService? = null
-    private var mockAssetExchange: AssetExchange? = null
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var mockAssetExchange: AssetExchange
 
-    private var t: GetAsset? = null
+    private lateinit var t: GetAsset
 
     @Before
     fun setUp() {
@@ -43,7 +44,7 @@ class GetAssetTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val assetId: Long = 4
 
         val request = QuickMocker.httpServletRequest(

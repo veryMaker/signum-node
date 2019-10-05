@@ -25,6 +25,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -33,10 +34,10 @@ import javax.servlet.http.HttpServletRequest
 
 class GetAssetsByIssuerTest : AbstractUnitTest() {
 
-    private var t: GetAssetsByIssuer? = null
+    private lateinit var t: GetAssetsByIssuer
 
-    private var mockParameterService: ParameterService? = null
-    private var mockAssetExchange: AssetExchange? = null
+    private lateinit var mockParameterService: ParameterService
+    private lateinit var mockAssetExchange: AssetExchange
 
     @Before
     fun setUp() {
@@ -47,7 +48,7 @@ class GetAssetsByIssuerTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val firstIndex = 1
         val lastIndex = 2
 

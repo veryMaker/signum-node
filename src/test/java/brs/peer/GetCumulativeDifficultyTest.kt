@@ -8,6 +8,7 @@ import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -16,9 +17,9 @@ import java.math.BigInteger
 
 class GetCumulativeDifficultyTest {
 
-    private var t: GetCumulativeDifficulty? = null
+    private lateinit var t: GetCumulativeDifficulty
 
-    private var mockBlockchain: Blockchain? = null
+    private lateinit var mockBlockchain: Blockchain
 
     @Before
     fun setUp() {
@@ -28,7 +29,7 @@ class GetCumulativeDifficultyTest {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val cumulativeDifficulty = BigInteger.TEN
         val blockchainHeight = 50
 

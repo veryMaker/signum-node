@@ -13,10 +13,10 @@ import org.junit.Test
 
 class AssetTransferServiceImplTest {
 
-    private var t: AssetTransferServiceImpl? = null
+    private lateinit var t: AssetTransferServiceImpl
 
-    private var mockAssetTransferStore: AssetTransferStore? = null
-    private var mockAssetTransferTable: EntitySqlTable<AssetTransfer>? = null
+    private lateinit var mockAssetTransferStore: AssetTransferStore
+    private lateinit var mockAssetTransferTable: EntitySqlTable<AssetTransfer>
 
     @Before
     fun setUp() {

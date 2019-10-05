@@ -12,7 +12,7 @@ import org.junit.Test
 
 class AssetAccountServiceImplTest {
 
-    private var t: AssetAccountServiceImpl? = null
+    private lateinit var t: AssetAccountServiceImpl
 
     private lateinit var mockAccountStore: AccountStore
 

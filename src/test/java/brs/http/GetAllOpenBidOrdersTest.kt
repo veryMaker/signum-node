@@ -5,12 +5,6 @@ import brs.assetexchange.AssetExchange
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.util.JSON
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.ASSET_RESPONSE
@@ -19,18 +13,24 @@ import brs.http.common.ResultFields.OPEN_ORDERS_RESPONSE
 import brs.http.common.ResultFields.ORDER_RESPONSE
 import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE
+import brs.util.JSON
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
 
 class GetAllOpenBidOrdersTest : AbstractUnitTest() {
 
-    private var t: GetAllOpenBidOrders? = null
+    private lateinit var t: GetAllOpenBidOrders
 
-    private var mockAssetExchange: AssetExchange? = null
+    private lateinit var mockAssetExchange: AssetExchange
 
     @Before
     fun setUp() {
@@ -40,7 +40,7 @@ class GetAllOpenBidOrdersTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val mockBidOrder = mock<Bid>()
         whenever(mockBidOrder.id).doReturn(1L)
         whenever(mockBidOrder.assetId).doReturn(2L)

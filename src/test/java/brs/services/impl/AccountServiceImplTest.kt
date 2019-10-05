@@ -15,12 +15,12 @@ import org.junit.Test
 
 class AccountServiceImplTest {
 
-    private var accountStoreMock: AccountStore? = null
-    private var accountTableMock: VersionedBatchEntityTable<Account>? = null
-    private var accountBurstKeyFactoryMock: LongKeyFactory<Account>? = null
-    private var assetTransferStoreMock: AssetTransferStore? = null
+    private lateinit var accountStoreMock: AccountStore
+    private lateinit var accountTableMock: VersionedBatchEntityTable<Account>
+    private lateinit var accountBurstKeyFactoryMock: LongKeyFactory<Account>
+    private lateinit var assetTransferStoreMock: AssetTransferStore
 
-    private var t: AccountServiceImpl? = null
+    private lateinit var t: AccountServiceImpl
 
     @Before
     fun setUp() {

@@ -16,6 +16,7 @@ import brs.services.ParameterService
 import brs.transaction.TransactionType
 import brs.transaction.burstMining.RewardRecipientAssignment
 import com.nhaarman.mockitokotlin2.*
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -26,12 +27,12 @@ import javax.servlet.http.HttpServletRequest
 @RunWith(JUnit4::class)
 class SetRewardRecipientTest : AbstractTransactionTest() {
 
-    private var t: SetRewardRecipient? = null
+    private lateinit var t: SetRewardRecipient
     private lateinit var dp: DependencyProvider
-    private var parameterServiceMock: ParameterService? = null
-    private var blockchainMock: Blockchain? = null
-    private var accountServiceMock: AccountService? = null
-    private var apiTransactionManagerMock: APITransactionManager? = null
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var blockchainMock: Blockchain
+    private lateinit var accountServiceMock: AccountService
+    private lateinit var apiTransactionManagerMock: APITransactionManager
 
     @Before
     fun setUp() {
@@ -45,7 +46,7 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()
         val mockRecipientAccount = mock<Account>()
@@ -65,7 +66,7 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_recipientAccountDoesNotExist_errorCode8() {
+    fun processRequest_recipientAccountDoesNotExist_errorCode8() = runBlocking {
         val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()
 
@@ -75,7 +76,7 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_recipientAccountDoesNotHavePublicKey_errorCode8() {
+    fun processRequest_recipientAccountDoesNotHavePublicKey_errorCode8() = runBlocking {
         val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()
         val mockRecipientAccount = mock<Account>()

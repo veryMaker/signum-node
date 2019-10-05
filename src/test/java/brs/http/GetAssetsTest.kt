@@ -3,14 +3,6 @@ package brs.http
 import brs.Asset
 import brs.assetexchange.AssetExchange
 import brs.common.QuickMocker
-import brs.util.JSON
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-
 import brs.http.JSONResponses.INCORRECT_ASSET
 import brs.http.JSONResponses.UNKNOWN_ASSET
 import brs.http.common.Parameters.ASSETS_PARAMETER
@@ -18,18 +10,24 @@ import brs.http.common.ResultFields.ASSETS_RESPONSE
 import brs.http.common.ResultFields.NUMBER_OF_ACCOUNTS_RESPONSE
 import brs.http.common.ResultFields.NUMBER_OF_TRADES_RESPONSE
 import brs.http.common.ResultFields.NUMBER_OF_TRANSFERS_RESPONSE
+import brs.util.JSON
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
 
 class GetAssetsTest {
 
-    private var t: GetAssets? = null
+    private lateinit var t: GetAssets
 
-    private var mockAssetExchange: AssetExchange? = null
+    private lateinit var mockAssetExchange: AssetExchange
 
     @Before
     fun setUp() {
@@ -39,7 +37,7 @@ class GetAssetsTest {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val assetId = 123L
 
         val request = QuickMocker.httpServletRequest()
@@ -73,7 +71,7 @@ class GetAssetsTest {
     }
 
     @Test
-    fun processRequest_unknownAsset() {
+    fun processRequest_unknownAsset() = runBlocking {
         val assetId = 123L
 
         val request = QuickMocker.httpServletRequest()
@@ -85,7 +83,7 @@ class GetAssetsTest {
     }
 
     @Test
-    fun processRequest_incorrectAsset() {
+    fun processRequest_incorrectAsset() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         whenever(request.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf("unParsable"))

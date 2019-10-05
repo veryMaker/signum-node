@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.BurstException
 import brs.DigitalGoodsStore.Purchase
 import brs.common.QuickMocker
 import brs.crypto.EncryptedData
@@ -19,23 +18,22 @@ import brs.http.common.ResultFields.TIMESTAMP_RESPONSE
 import brs.services.ParameterService
 import brs.util.JSON
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-import java.util.Arrays
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import javax.servlet.http.HttpServletRequest
 
 class GetDGSPurchaseTest {
 
-    private var t: GetDGSPurchase? = null
+    private lateinit var t: GetDGSPurchase
 
-    private var mockParameterService: ParameterService? = null
+    private lateinit var mockParameterService: ParameterService
 
     @Before
     fun setUp() {
@@ -46,7 +44,7 @@ class GetDGSPurchaseTest {
 
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val mockEncryptedData = mock<EncryptedData>()

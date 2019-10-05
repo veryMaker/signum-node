@@ -20,6 +20,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -28,10 +29,10 @@ import javax.servlet.http.HttpServletRequest
 
 class GetAccountSubscriptionsTest : AbstractUnitTest() {
 
-    private var parameterServiceMock: ParameterService? = null
-    private var subscriptionServiceMock: SubscriptionService? = null
+    private lateinit var parameterServiceMock: ParameterService
+    private lateinit var subscriptionServiceMock: SubscriptionService
 
-    private var t: GetAccountSubscriptions? = null
+    private lateinit var t: GetAccountSubscriptions
 
     @Before
     fun setUp() {
@@ -42,7 +43,7 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val userId = 123L
 
         val request = QuickMocker.httpServletRequest(
@@ -59,7 +60,7 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
         whenever(subscription.frequency).doReturn(3)
         whenever(subscription.timeNext).doReturn(4)
 
-        val subscriptionIterator = this.mockCollection<Subscription>(subscription)
+        val subscriptionIterator = mockCollection(subscription)
         whenever(subscriptionServiceMock!!.getSubscriptionsByParticipant(eq(userId))).doReturn(subscriptionIterator)
 
         val result = t!!.processRequest(request) as JsonObject

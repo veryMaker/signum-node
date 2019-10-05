@@ -14,12 +14,12 @@ interface TaskScheduler {
     /**
      * Runs a task when start() is called, before starting the scheduler. If the scheduler has already started, it throws.
      */
-    suspend fun runBeforeStart(task: Task)
+    fun runBeforeStart(task: Task)
 
     /**
      * Runs a task once, after the scheduler has been started. If the scheduler has already started, it throws.
      */
-    suspend fun runAfterStart(task: Task)
+    fun runAfterStart(task: Task)
 
     /**
      * Schedules a task to be repeatedly run forever when the scheduler starts.
@@ -28,7 +28,7 @@ interface TaskScheduler {
      * This process will repeat.
      * If the scheduler has already started, it throws.
      */
-    suspend fun scheduleTaskWithDelay(task: Task, initialDelayMs: Long, delayMs: Long)
+    fun scheduleTaskWithDelay(initialDelayMs: Long, delayMs: Long, task: Task)
 
     /**
      * Schedules a task to be repeatedly run forever when the scheduler starts.
@@ -36,7 +36,7 @@ interface TaskScheduler {
      * or false if unsuccessful (meaning it should have a delay before running again)
      * If the scheduler has already started, it throws.
      */
-    suspend fun scheduleTask(task: RepeatingTask)
+    fun scheduleTask(task: RepeatingTask)
 
     /**
      * Schedules n instances of a task to be simultaneously repeatedly run when the scheduler starts.
@@ -44,7 +44,7 @@ interface TaskScheduler {
      * or false if unsuccessful (meaning it should have a delay before running again)
      * If the scheduler has already started, it throws.
      */
-    suspend fun scheduleTask(numberOfInstances: Int, task: RepeatingTask)
+    fun scheduleTask(numberOfInstances: Int, task: RepeatingTask)
 
     /**
      * Starts the scheduler - runs any tasks scheduled to be run before start

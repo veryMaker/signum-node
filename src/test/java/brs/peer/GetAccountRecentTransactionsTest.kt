@@ -9,7 +9,6 @@ import brs.common.QuickMocker
 import brs.common.QuickMocker.JSONParam
 import brs.common.TestConstants
 import brs.services.AccountService
-import brs.transaction.digitalGoods.DigitalGoods
 import brs.transaction.digitalGoods.DigitalGoodsDelisting
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -18,18 +17,18 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-
 class GetAccountRecentTransactionsTest : AbstractUnitTest() {
 
-    private var t: GetAccountRecentTransactions? = null
+    private lateinit var t: GetAccountRecentTransactions
 
-    private var mockAccountService: AccountService? = null
-    private var mockBlockchain: Blockchain? = null
+    private lateinit var mockAccountService: AccountService
+    private lateinit var mockBlockchain: Blockchain
     private lateinit var dp: DependencyProvider
 
     @Before
@@ -42,7 +41,7 @@ class GetAccountRecentTransactionsTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val accountId = TestConstants.TEST_ACCOUNT_NUMERIC_ID
 
         val request = QuickMocker.jsonObject(JSONParam("account", JsonPrimitive(accountId)))

@@ -1,27 +1,19 @@
 package brs.taskScheduler
 
 import brs.Constants
-import brs.DependencyProvider
 import brs.util.delegates.Atomic
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
-class CoroutineTaskScheduler(dp: DependencyProvider): TaskScheduler {
+class CoroutineTaskScheduler(): TaskScheduler {
     private var started by Atomic(false) // Stays true after shutdown
     private val jobs = mutableListOf<Job>()
     private val scope = CoroutineScope(Dispatchers.Default)
 
     private val beforeStartTasks = mutableListOf<Task>()
-    private val beforeStartTasksLock = Mutex()
     private val afterStartTasks = mutableListOf<Task>()
-    private val afterStartTasksLock = Mutex()
     private val scheduledWithDelayTasks = mutableMapOf<Task, Pair<Long, Long>>()
-    private val scheduledWithDelayTasksLock = Mutex()
     private val scheduledTasks = mutableListOf<RepeatingTask>()
-    private val scheduledTasksLock = Mutex()
     private val scheduledParallelTasks = mutableMapOf<RepeatingTask, Int>()
-    private val scheduledParallelTasksLock = Mutex()
 
     private fun requireStarted() {
         require(started) { "Task Scheduler has not yet started" }
@@ -36,39 +28,29 @@ class CoroutineTaskScheduler(dp: DependencyProvider): TaskScheduler {
         runTask(taskToTask(task))
     }
 
-    override suspend fun runBeforeStart(task: Task) {
+    override fun runBeforeStart(task: Task) {
         requireNotStarted()
-        beforeStartTasksLock.withLock {
-            beforeStartTasks.add(task)
-        }
+        beforeStartTasks.add(task)
     }
 
-    override suspend fun runAfterStart(task: Task) {
+    override fun runAfterStart(task: Task) {
         requireNotStarted()
-        afterStartTasksLock.withLock {
-            afterStartTasks.add(task)
-        }
+        afterStartTasks.add(task)
     }
 
-    override suspend fun scheduleTaskWithDelay(task: Task, initialDelayMs: Long, delayMs: Long) {
+    override fun scheduleTaskWithDelay(initialDelayMs: Long, delayMs: Long, task: Task) {
         requireNotStarted()
-        scheduledWithDelayTasksLock.withLock {
-            scheduledWithDelayTasks[task] = Pair(initialDelayMs, delayMs)
-        }
+        scheduledWithDelayTasks[task] = Pair(initialDelayMs, delayMs)
     }
 
-    override suspend fun scheduleTask(task: RepeatingTask) {
+    override fun scheduleTask(task: RepeatingTask) {
         requireNotStarted()
-        scheduledTasksLock.withLock {
-            scheduledTasks.add(task)
-        }
+        scheduledTasks.add(task)
     }
 
-    override suspend fun scheduleTask(numberOfInstances: Int, task: RepeatingTask) {
+    override fun scheduleTask(numberOfInstances: Int, task: RepeatingTask) {
         requireNotStarted()
-        scheduledParallelTasksLock.withLock {
-            scheduledParallelTasks[task] = numberOfInstances
-        }
+        scheduledParallelTasks[task] = numberOfInstances
     }
 
     private fun runTask(task: Task) {
@@ -107,36 +89,27 @@ class CoroutineTaskScheduler(dp: DependencyProvider): TaskScheduler {
         requireNotStarted()
         started = true
         // Run before start tasks
-        beforeStartTasksLock.withLock {
-            val beforeStartJobs = mutableListOf<Job>()
-            beforeStartTasks.forEach { beforeStartJobs.add(scope.launch(block = taskToTask(it))) }
-            beforeStartJobs.forEach { it.join() }
-        }
+        val beforeStartJobs = mutableListOf<Job>()
+        beforeStartTasks.forEach { beforeStartJobs.add(scope.launch(block = taskToTask(it))) }
+        beforeStartJobs.forEach { it.join() }
 
         // Start regular scheduled tasks
-        scheduledTasksLock.withLock {
-            scheduledTasks.forEach { runTask(repeatingTaskToTask(it)) }
-        }
+        scheduledTasks.forEach { runTask(repeatingTaskToTask(it)) }
+
         // Start parallel scheduled tasks
-        scheduledParallelTasksLock.withLock {
-            scheduledParallelTasks.forEach { (task, numberOfInstances) ->
-                val runner = repeatingTaskToTask(task)
-                repeat(numberOfInstances) {
-                    runTask(runner)
-                }
+        scheduledParallelTasks.forEach { (task, numberOfInstances) ->
+            val runner = repeatingTaskToTask(task)
+            repeat(numberOfInstances) {
+                runTask(runner)
             }
         }
         // Start delayed scheduled tasks
-        scheduledWithDelayTasksLock.withLock {
-            scheduledWithDelayTasks.forEach { (task, delays) -> runTask(delayedTaskToTask(task, delays.first, delays.second)) }
-        }
+        scheduledWithDelayTasks.forEach { (task, delays) -> runTask(delayedTaskToTask(task, delays.first, delays.second)) }
 
         // Run after start tasks
-        afterStartTasksLock.withLock {
-            val afterStartJobs = mutableListOf<Job>()
-            beforeStartTasks.forEach { afterStartJobs.add(scope.launch(block = taskToTask(it))) }
-            afterStartJobs.forEach { it.join() }
-        }
+        val afterStartJobs = mutableListOf<Job>()
+        beforeStartTasks.forEach { afterStartJobs.add(scope.launch(block = taskToTask(it))) }
+        afterStartJobs.forEach { it.join() }
     }
 
     override fun shutdown() {

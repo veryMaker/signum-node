@@ -15,6 +15,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -38,7 +39,7 @@ class DGSDelistingTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() {
+    fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
@@ -61,7 +62,7 @@ class DGSDelistingTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_goodsDelistedUnknownGoods() {
+    fun processRequest_goodsDelistedUnknownGoods() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
@@ -76,7 +77,7 @@ class DGSDelistingTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_otherSellerIdUnknownGoods() {
+    fun processRequest_otherSellerIdUnknownGoods() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
         val mockAccount = mock<Account>()
