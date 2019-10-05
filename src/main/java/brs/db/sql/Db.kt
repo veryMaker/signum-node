@@ -27,6 +27,7 @@ class Db(private val dp: DependencyProvider) { // TODO interface
 
     private val cp: HikariDataSource
     private val dialect: SQLDialect
+    // TODO these don't work with coroutines...
     private val localConnection = ThreadLocal<Connection>()
     private val transactionCaches = ThreadLocal<MutableMap<String, MutableMap<BurstKey, Any>>>()
     private val transactionBatches = ThreadLocal<MutableMap<String, MutableMap<BurstKey, Any>>>()
@@ -35,22 +36,6 @@ class Db(private val dp: DependencyProvider) { // TODO interface
         get() {
             logger.safeInfo { "Using SQL Backend with Dialect ${dialect.getName()}" }
             return SqlDbs(dp)
-        }
-
-    private val pooledConnection: Connection
-        get() = cp.connection
-
-    val connection: Connection
-        get() {
-            var con: Connection? = localConnection.get()
-            if (con != null) {
-                return con
-            }
-
-            con = pooledConnection
-            con.autoCommit = true
-
-            return con
         }
 
     val dslContext: DSLContext
@@ -164,18 +149,6 @@ class Db(private val dp: DependencyProvider) { // TODO interface
 
     }
 
-
-    fun analyzeTables() {
-        if (dialect == SQLDialect.H2) {
-            try {
-                cp.connection.use { con -> con.createStatement().use { stmt -> stmt.execute("ANALYZE SAMPLE_SIZE 0") } }
-            } catch (e: SQLException) {
-                throw RuntimeException(e.toString(), e)
-            }
-
-        }
-    }
-
     fun shutdown() {
         if (dialect == SQLDialect.H2) {
             try {
@@ -195,7 +168,7 @@ class Db(private val dp: DependencyProvider) { // TODO interface
                 logger.safeInfo { "Database shutdown completed." }
             }
         }
-        if (cp != null && !cp.isClosed) {
+        if (!cp.isClosed) {
             cp.close()
         }
     }

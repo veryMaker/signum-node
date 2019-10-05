@@ -38,12 +38,12 @@ internal class BriefLogFormatter private constructor() : Formatter() {
 
         arguments[4] = logRecord.loggerName
 
-        return messageFormat.get().format(arguments)
+        return messageFormat.format(arguments)
     }
 
     companion object {
-        /** Format used for log messages  */
-        private val messageFormat = ThreadLocal.withInitial { MessageFormat("[{1}] {0,date,yyyy-MM-dd HH:mm:ss} {4} - {2}\n{3}") }
+        /** Format used for log messages */
+        private val messageFormat = MessageFormat("[{1}] {0,date,yyyy-MM-dd HH:mm:ss} {4} - {2}\n{3}")
 
         /** LoggerConfigurator instance at the top of the name tree  */
         private val logger = Logger.getLogger("")
