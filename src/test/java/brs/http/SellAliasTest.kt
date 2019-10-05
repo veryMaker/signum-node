@@ -35,10 +35,10 @@ class SellAliasTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock<ParameterService>()
-        blockchainMock = mock<Blockchain>()
-        apiTransactionManagerMock = mock<APITransactionManager>()
-        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!)
+        parameterServiceMock = mock()
+        blockchainMock = mock()
+        apiTransactionManagerMock = mock()
+        dp = QuickMocker.dependencyProvider(parameterServiceMock, blockchainMock, apiTransactionManagerMock)
         t = SellAlias(dp)
     }
 
@@ -60,13 +60,13 @@ class SellAliasTest : AbstractTransactionTest() {
         val mockSender = mock<Account>()
         whenever(mockSender.id).doReturn(aliasAccountId)
 
-        whenever(parameterServiceMock!!.getSenderAccount(request)).doReturn(mockSender)
-        whenever(parameterServiceMock!!.getAlias(request)).doReturn(mockAlias)
+        whenever(parameterServiceMock.getSenderAccount(request)).doReturn(mockSender)
+        whenever(parameterServiceMock.getAlias(request)).doReturn(mockAlias)
 
         dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.MessagingAliasSell
+        val attachment = attachmentCreatedTransaction({ t.processRequest(request) }, apiTransactionManagerMock) as Attachment.MessagingAliasSell
         assertNotNull(attachment)
 
         assertTrue(attachment.transactionType is AliasSell)
@@ -77,7 +77,7 @@ class SellAliasTest : AbstractTransactionTest() {
     fun processRequest_missingPrice() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
-        assertEquals(MISSING_PRICE, t!!.processRequest(request))
+        assertEquals(MISSING_PRICE, t.processRequest(request))
     }
 
     @Test
@@ -86,7 +86,7 @@ class SellAliasTest : AbstractTransactionTest() {
                 MockParam(PRICE_NQT_PARAMETER, "unParsable")
         )
 
-        assertEquals(INCORRECT_PRICE, t!!.processRequest(request))
+        assertEquals(INCORRECT_PRICE, t.processRequest(request))
     }
 
     @Test(expected = ParameterException::class)
@@ -95,7 +95,7 @@ class SellAliasTest : AbstractTransactionTest() {
                 MockParam(PRICE_NQT_PARAMETER, -10L)
         )
 
-        t!!.processRequest(request)
+        t.processRequest(request)
     }
 
     @Test(expected = ParameterException::class)
@@ -104,7 +104,7 @@ class SellAliasTest : AbstractTransactionTest() {
                 MockParam(PRICE_NQT_PARAMETER, MAX_BALANCE_NQT + 1)
         )
 
-        t!!.processRequest(request)
+        t.processRequest(request)
     }
 
     @Test
@@ -116,7 +116,7 @@ class SellAliasTest : AbstractTransactionTest() {
                 MockParam(RECIPIENT_PARAMETER, "unParsable")
         )
 
-        assertEquals(INCORRECT_RECIPIENT, t!!.processRequest(request))
+        assertEquals(INCORRECT_RECIPIENT, t.processRequest(request))
     }
 
     @Test
@@ -129,7 +129,7 @@ class SellAliasTest : AbstractTransactionTest() {
                 MockParam(RECIPIENT_PARAMETER, recipientId)
         )
 
-        assertEquals(INCORRECT_RECIPIENT, t!!.processRequest(request))
+        assertEquals(INCORRECT_RECIPIENT, t.processRequest(request))
     }
 
     @Test
@@ -150,10 +150,10 @@ class SellAliasTest : AbstractTransactionTest() {
         val mockSender = mock<Account>()
         whenever(mockSender.id).doReturn(mockSenderId)
 
-        whenever(parameterServiceMock!!.getSenderAccount(request)).doReturn(mockSender)
-        whenever(parameterServiceMock!!.getAlias(request)).doReturn(mockAlias)
+        whenever(parameterServiceMock.getSenderAccount(request)).doReturn(mockSender)
+        whenever(parameterServiceMock.getAlias(request)).doReturn(mockAlias)
 
-        assertEquals(INCORRECT_ALIAS_OWNER, t!!.processRequest(request))
+        assertEquals(INCORRECT_ALIAS_OWNER, t.processRequest(request))
     }
 
 }

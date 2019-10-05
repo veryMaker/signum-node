@@ -31,10 +31,10 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterService = mock<ParameterService>()
-        accountService = mock<AccountService>()
+        parameterService = mock()
+        accountService = mock()
 
-        t = GetAccountsWithRewardRecipient(parameterService!!, accountService!!)
+        t = GetAccountsWithRewardRecipient(parameterService, accountService)
     }
 
     @Test
@@ -48,16 +48,16 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
         val targetAccount = mock<Account>()
         whenever(targetAccount.id).doReturn(targetAccountId)
 
-        whenever(parameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(targetAccount)
+        whenever(parameterService.getAccount(eq(request))).doReturn(targetAccount)
 
         val assignment = mock<RewardRecipientAssignment>()
         whenever(assignment.accountId).doReturn(targetAccountId)
 
-        val assignmentIterator = mockCollection<RewardRecipientAssignment>(assignment)
+        val assignmentIterator = mockCollection(assignment)
 
-        whenever(accountService!!.getAccountsWithRewardRecipient(eq(targetAccountId))).doReturn(assignmentIterator)
+        whenever(accountService.getAccountsWithRewardRecipient(eq(targetAccountId))).doReturn(assignmentIterator)
 
-        val resultOverview = t!!.processRequest(request) as JsonObject
+        val resultOverview = t.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
 
         val resultList = resultOverview.get(ACCOUNTS_RESPONSE) as JsonArray
@@ -76,17 +76,17 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
         val targetAccount = mock<Account>()
         whenever(targetAccount.id).doReturn(targetAccountId)
 
-        whenever(parameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(targetAccount)
+        whenever(parameterService.getAccount(eq(request))).doReturn(targetAccount)
 
         val assignment = mock<RewardRecipientAssignment>()
         whenever(assignment.accountId).doReturn(targetAccountId)
 
-        val assignmentIterator = mockCollection<RewardRecipientAssignment>(assignment)
+        val assignmentIterator = mockCollection(assignment)
 
-        whenever(accountService!!.getAccountsWithRewardRecipient(eq(targetAccountId))).doReturn(assignmentIterator)
-        whenever(accountService!!.getRewardRecipientAssignment(eq(targetAccount))).doReturn(assignment)
+        whenever(accountService.getAccountsWithRewardRecipient(eq(targetAccountId))).doReturn(assignmentIterator)
+        whenever(accountService.getRewardRecipientAssignment(eq(targetAccount))).doReturn(assignment)
 
-        val resultOverview = t!!.processRequest(request) as JsonObject
+        val resultOverview = t.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
 
         val resultList = resultOverview.get(ACCOUNTS_RESPONSE) as JsonArray

@@ -32,11 +32,11 @@ class BuyAliasTest : AbstractTransactionTest() {
 
     @Before
     fun init() {
-        parameterServiceMock = mock<ParameterService>()
-        blockchain = mock<Blockchain>()
-        aliasService = mock<AliasService>()
-        apiTransactionManagerMock = mock<APITransactionManager>()
-        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchain!!, aliasService!!, apiTransactionManagerMock)
+        parameterServiceMock = mock()
+        blockchain = mock()
+        aliasService = mock()
+        apiTransactionManagerMock = mock()
+        dp = QuickMocker.dependencyProvider(parameterServiceMock, blockchain, aliasService, apiTransactionManagerMock)
         t = BuyAlias(dp)
     }
 
@@ -54,14 +54,14 @@ class BuyAliasTest : AbstractTransactionTest() {
         whenever(mockAlias.accountId).doReturn(mockSellerId)
         whenever(mockAlias.aliasName).doReturn(mockAliasName)
 
-        whenever(aliasService!!.getOffer(eq(mockAlias))).doReturn(mockOfferOnAlias)
+        whenever(aliasService.getOffer(eq(mockAlias))).doReturn(mockOfferOnAlias)
 
-        whenever(parameterServiceMock!!.getAlias(eq(request))).doReturn(mockAlias)
-        whenever(parameterServiceMock!!.getSenderAccount(eq(request))).doReturn(mockAccount)
+        whenever(parameterServiceMock.getAlias(eq(request))).doReturn(mockAlias)
+        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockAccount)
         dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.MessagingAliasBuy
+        val attachment = attachmentCreatedTransaction({ t.processRequest(request) }, apiTransactionManagerMock) as Attachment.MessagingAliasBuy
         assertNotNull(attachment)
 
         assertTrue(attachment.transactionType is AliasBuy)
@@ -73,11 +73,11 @@ class BuyAliasTest : AbstractTransactionTest() {
         val request = QuickMocker.httpServletRequest(MockParam(AMOUNT_NQT_PARAMETER, "3"))
         val mockAlias = mock<Alias>()
 
-        whenever(parameterServiceMock!!.getAlias(eq<HttpServletRequest>(request))).doReturn(mockAlias)
+        whenever(parameterServiceMock.getAlias(eq(request))).doReturn(mockAlias)
 
-        whenever(aliasService!!.getOffer(eq(mockAlias))).doReturn(null)
+        whenever(aliasService.getOffer(eq(mockAlias))).doReturn(null)
 
-        assertEquals(INCORRECT_ALIAS_NOTFORSALE, t!!.processRequest(request))
+        assertEquals(INCORRECT_ALIAS_NOTFORSALE, t.processRequest(request))
     }
 
 }

@@ -35,11 +35,16 @@ class TransferAssetTest : AbstractTransactionTest() {
     @Before
     fun setUp() {
         parameterServiceMock = mock()
-        blockchainMock = mock<Blockchain>()
-        apiTransactionManagerMock = mock<APITransactionManager>()
-        transactionProcessorMock = mock<TransactionProcessor>()
-        accountServiceMock = mock<AccountService>()
-        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!, accountServiceMock!!)
+        blockchainMock = mock()
+        apiTransactionManagerMock = mock()
+        transactionProcessorMock = mock()
+        accountServiceMock = mock()
+        dp = QuickMocker.dependencyProvider(
+            parameterServiceMock,
+            blockchainMock,
+            apiTransactionManagerMock,
+            accountServiceMock
+        )
         t = TransferAsset(dp)
     }
 
@@ -57,18 +62,18 @@ class TransferAssetTest : AbstractTransactionTest() {
 
         val mockAsset = mock<Asset>()
 
-        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(request))).doReturn(mockAsset)
+        whenever(parameterServiceMock.getAsset(eq(request))).doReturn(mockAsset)
         whenever(mockAsset.id).doReturn(assetIdParameter)
 
         val mockSenderAccount = mock<Account>()
-        whenever(accountServiceMock!!.getUnconfirmedAssetBalanceQNT(eq(mockSenderAccount), eq(assetIdParameter))).doReturn(500L)
+        whenever(accountServiceMock.getUnconfirmedAssetBalanceQNT(eq(mockSenderAccount), eq(assetIdParameter))).doReturn(500L)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
+        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
 
         dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.ColoredCoinsAssetTransfer
+        val attachment = attachmentCreatedTransaction({ t.processRequest(request) }, apiTransactionManagerMock) as Attachment.ColoredCoinsAssetTransfer
         assertNotNull(attachment)
 
         assertTrue(attachment.transactionType is AssetTransfer)
@@ -86,14 +91,14 @@ class TransferAssetTest : AbstractTransactionTest() {
 
         val mockAsset = mock<Asset>()
 
-        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(request))).doReturn(mockAsset)
+        whenever(parameterServiceMock.getAsset(eq(request))).doReturn(mockAsset)
         whenever(mockAsset.id).doReturn(456L)
 
         val mockSenderAccount = mock<Account>()
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
+        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
 
-        whenever(accountServiceMock!!.getUnconfirmedAssetBalanceQNT(eq(mockSenderAccount), any())).doReturn(2L)
+        whenever(accountServiceMock.getUnconfirmedAssetBalanceQNT(eq(mockSenderAccount), any())).doReturn(2L)
 
-        assertEquals(NOT_ENOUGH_ASSETS, t!!.processRequest(request))
+        assertEquals(NOT_ENOUGH_ASSETS, t.processRequest(request))
     }
 }

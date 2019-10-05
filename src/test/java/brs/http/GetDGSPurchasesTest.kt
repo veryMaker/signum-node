@@ -31,9 +31,9 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockDGSGoodsStoreService = mock<DGSGoodsStoreService>()
+        mockDGSGoodsStoreService = mock()
 
-        t = GetDGSPurchases(mockDGSGoodsStoreService!!)
+        t = GetDGSPurchases(mockDGSGoodsStoreService)
     }
 
     @Test
@@ -49,11 +49,11 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.isPending).doReturn(false)
 
-        val mockGoodsIterator = mockCollection<Purchase>(mockPurchase)
+        val mockGoodsIterator = mockCollection(mockPurchase)
 
-        whenever(mockDGSGoodsStoreService!!.getAllPurchases(eq(0), eq(-1))).doReturn(mockGoodsIterator)
+        whenever(mockDGSGoodsStoreService.getAllPurchases(eq(0), eq(-1))).doReturn(mockGoodsIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val purchasesResult = result.get(PURCHASES_RESPONSE) as JsonArray
@@ -74,11 +74,11 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.isPending).doReturn(false)
 
-        val mockGoodsIterator = mockCollection<Purchase>(mockPurchase)
+        val mockGoodsIterator = mockCollection(mockPurchase)
 
-        whenever(mockDGSGoodsStoreService!!.getSellerPurchases(eq(1L), eq(0), eq(-1))).doReturn(mockGoodsIterator)
+        whenever(mockDGSGoodsStoreService.getSellerPurchases(eq(1L), eq(0), eq(-1))).doReturn(mockGoodsIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val purchasesResult = result.get(PURCHASES_RESPONSE) as JsonArray
@@ -99,11 +99,11 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.isPending).doReturn(false)
 
-        val mockGoodsIterator = mockCollection<Purchase>(mockPurchase)
+        val mockGoodsIterator = mockCollection(mockPurchase)
 
-        whenever(mockDGSGoodsStoreService!!.getBuyerPurchases(eq(1L), eq(0), eq(-1))).doReturn(mockGoodsIterator)
+        whenever(mockDGSGoodsStoreService.getBuyerPurchases(eq(1L), eq(0), eq(-1))).doReturn(mockGoodsIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val purchasesResult = result.get(PURCHASES_RESPONSE) as JsonArray
@@ -124,11 +124,11 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.isPending).doReturn(false)
 
-        val mockGoodsIterator = mockCollection<Purchase>(mockPurchase)
+        val mockGoodsIterator = mockCollection(mockPurchase)
 
-        whenever(mockDGSGoodsStoreService!!.getSellerBuyerPurchases(eq(1L), eq(2L), eq(0), eq(-1))).doReturn(mockGoodsIterator)
+        whenever(mockDGSGoodsStoreService.getSellerBuyerPurchases(eq(1L), eq(2L), eq(0), eq(-1))).doReturn(mockGoodsIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val purchasesResult = result.get(PURCHASES_RESPONSE) as JsonArray

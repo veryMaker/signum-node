@@ -32,9 +32,9 @@ class GetAllTradesTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockAssetExchange = mock<AssetExchange>()
+        mockAssetExchange = mock()
 
-        t = GetAllTrades(mockAssetExchange!!)
+        t = GetAllTrades(mockAssetExchange)
     }
 
     @Test
@@ -62,12 +62,12 @@ class GetAllTradesTest : AbstractUnitTest() {
         whenever(mockTrade.timestamp).doReturn(2)
         whenever(mockTrade.assetId).doReturn(mockAssetId)
 
-        val mockTradeIterator = mockCollection<Trade>(mockTrade)
+        val mockTradeIterator = mockCollection(mockTrade)
 
-        whenever(mockAssetExchange!!.getAllTrades(eq(0), eq(-1))).doReturn(mockTradeIterator)
-        whenever(mockAssetExchange!!.getAsset(eq(mockAssetId))).doReturn(mockAsset)
+        whenever(mockAssetExchange.getAllTrades(eq(0), eq(-1))).doReturn(mockTradeIterator)
+        whenever(mockAssetExchange.getAsset(eq(mockAssetId))).doReturn(mockAsset)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val tradesResult = result.get(TRADES_RESPONSE) as JsonArray
@@ -102,11 +102,11 @@ class GetAllTradesTest : AbstractUnitTest() {
         whenever(mockTrade.timestamp).doReturn(2)
         whenever(mockTrade.assetId).doReturn(mockAssetId)
 
-        val mockTradeIterator = mockCollection<Trade>(mockTrade)
+        val mockTradeIterator = mockCollection(mockTrade)
 
-        whenever(mockAssetExchange!!.getAllTrades(eq(0), eq(-1))).doReturn(mockTradeIterator)
+        whenever(mockAssetExchange.getAllTrades(eq(0), eq(-1))).doReturn(mockTradeIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val tradesResult = result.get(TRADES_RESPONSE) as JsonArray
@@ -120,7 +120,7 @@ class GetAllTradesTest : AbstractUnitTest() {
         assertEquals("" + mockAssetId, JSON.getAsString(tradeAssetInfoResult.get(ASSET_RESPONSE)))
         assertEquals("", JSON.getAsString(tradeAssetInfoResult.get(NAME_RESPONSE)))
 
-        verify(mockAssetExchange!!, never()).getAsset(eq(mockAssetId))
+        verify(mockAssetExchange, never()).getAsset(eq(mockAssetId))
     }
 
 }

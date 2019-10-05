@@ -39,11 +39,15 @@ class SetAliasTest : AbstractTransactionTest() {
     @Before
     fun setUp() {
         parameterServiceMock = mock()
-        whenever(parameterServiceMock!!.getSenderAccount(any())).thenReturn(mock())
+        whenever(parameterServiceMock.getSenderAccount(any())).thenReturn(mock())
         blockchainMock = mock()
         aliasServiceMock = mock()
         apiTransactionManagerMock = mock()
-        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, aliasServiceMock!!, apiTransactionManagerMock!!, QuickMocker.latestValueFluxCapacitor())
+        dp = QuickMocker.dependencyProvider(
+            parameterServiceMock,
+            blockchainMock,
+            aliasServiceMock,
+            apiTransactionManagerMock, QuickMocker.latestValueFluxCapacitor())
         t = SetAlias(dp)
     }
 
@@ -60,7 +64,7 @@ class SetAliasTest : AbstractTransactionTest() {
         dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.MessagingAliasAssignment
+        val attachment = attachmentCreatedTransaction({ t.processRequest(request) }, apiTransactionManagerMock) as Attachment.MessagingAliasAssignment
         assertNotNull(attachment)
 
         assertTrue(attachment.transactionType is AliasAssignment)
@@ -75,7 +79,7 @@ class SetAliasTest : AbstractTransactionTest() {
                 MockParam(ALIAS_URI_PARAMETER, "aliasUrl")
         )
 
-        assertEquals(MISSING_ALIAS_NAME, t!!.processRequest(request))
+        assertEquals(MISSING_ALIAS_NAME, t.processRequest(request))
     }
 
     @Test
@@ -85,7 +89,7 @@ class SetAliasTest : AbstractTransactionTest() {
                 MockParam(ALIAS_URI_PARAMETER, null as String?)
         )
 
-        assertEquals(INCORRECT_ALIAS_LENGTH, t!!.processRequest(request))
+        assertEquals(INCORRECT_ALIAS_LENGTH, t.processRequest(request))
     }
 
 
@@ -96,7 +100,7 @@ class SetAliasTest : AbstractTransactionTest() {
                 MockParam(ALIAS_URI_PARAMETER, null as String?)
         )
 
-        assertEquals(INCORRECT_ALIAS_NAME, t!!.processRequest(request))
+        assertEquals(INCORRECT_ALIAS_NAME, t.processRequest(request))
     }
 
     @Test
@@ -105,10 +109,10 @@ class SetAliasTest : AbstractTransactionTest() {
 
         val request = QuickMocker.httpServletRequest(
                 MockParam(ALIAS_NAME_PARAMETER, "name"),
-                MockParam(ALIAS_URI_PARAMETER, uriOver1000Characters.toString())
+                MockParam(ALIAS_URI_PARAMETER, uriOver1000Characters)
         )
 
-        assertEquals(INCORRECT_URI_LENGTH, t!!.processRequest(request))
+        assertEquals(INCORRECT_URI_LENGTH, t.processRequest(request))
     }
 
 }

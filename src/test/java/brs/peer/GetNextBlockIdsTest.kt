@@ -20,21 +20,21 @@ class GetNextBlockIdsTest {
 
     @Before
     fun setUpGetNextBlocksTest() {
-        mockBlockchain = mock<Blockchain>()
-        mockPeer = mock<Peer>()
+        mockBlockchain = mock()
+        mockPeer = mock()
         val blocks = mutableListOf<Long>()
         repeat(100) {
             blocks.add((it + 1).toLong())
         }
-        whenever(mockBlockchain!!.getBlockIdsAfter(eq(Genesis.GENESIS_BLOCK_ID), any())).doReturn(blocks)
-        getNextBlockIds = GetNextBlockIds(mockBlockchain!!)
+        whenever(mockBlockchain.getBlockIdsAfter(eq(Genesis.GENESIS_BLOCK_ID), any())).doReturn(blocks)
+        getNextBlockIds = GetNextBlockIds(mockBlockchain)
     }
 
     @Test
     fun testGetNextBlocks() = runBlocking {
         val request = JsonObject()
         request.addProperty("blockId", java.lang.Long.toUnsignedString(Genesis.GENESIS_BLOCK_ID))
-        val responseElement = getNextBlockIds!!.processRequest(request, mockPeer!!)
+        val responseElement = getNextBlockIds.processRequest(request, mockPeer)
         assertNotNull(responseElement)
         assertTrue(responseElement is JsonObject)
         val response = responseElement.asJsonObject
@@ -53,7 +53,7 @@ class GetNextBlockIdsTest {
     @Test
     fun testGetNextBlocks_noIdSpecified() = runBlocking {
         val request = JsonObject()
-        val responseElement = getNextBlockIds!!.processRequest(request, mockPeer!!)
+        val responseElement = getNextBlockIds.processRequest(request, mockPeer)
         assertNotNull(responseElement)
         assertTrue(responseElement is JsonObject)
         val response = responseElement.asJsonObject

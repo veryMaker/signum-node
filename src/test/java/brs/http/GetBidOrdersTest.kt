@@ -33,10 +33,10 @@ class GetBidOrdersTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
-        mockAssetExchange = mock<AssetExchange>()
+        mockParameterService = mock()
+        mockAssetExchange = mock()
 
-        t = GetBidOrders(mockParameterService!!, mockAssetExchange!!)
+        t = GetBidOrders(mockParameterService, mockAssetExchange)
     }
 
     @Test
@@ -57,12 +57,12 @@ class GetBidOrdersTest : AbstractUnitTest() {
         val mockBid = mock<Bid>()
         whenever(mockBid.id).doReturn(mockOrderId)
 
-        val mockBidIterator = mockCollection<Bid>(mockBid)
+        val mockBidIterator = mockCollection(mockBid)
 
-        whenever(mockParameterService!!.getAsset(request)).doReturn(mockAsset)
-        whenever(mockAssetExchange!!.getSortedBidOrders(eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
+        whenever(mockParameterService.getAsset(request)).doReturn(mockAsset)
+        whenever(mockAssetExchange.getSortedBidOrders(eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val resultBidOrdersList = result.get(BID_ORDERS_RESPONSE) as JsonArray

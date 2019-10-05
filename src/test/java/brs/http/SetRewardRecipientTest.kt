@@ -36,12 +36,17 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock<ParameterService>()
-        whenever(parameterServiceMock!!.getSenderAccount(any())).doReturn(mock())
-        blockchainMock = mock<Blockchain>()
-        accountServiceMock = mock<AccountService>()
-        apiTransactionManagerMock = mock<APITransactionManager>()
-        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, accountServiceMock!!, apiTransactionManagerMock!!)
+        parameterServiceMock = mock()
+        whenever(parameterServiceMock.getSenderAccount(any())).doReturn(mock())
+        blockchainMock = mock()
+        accountServiceMock = mock()
+        apiTransactionManagerMock = mock()
+        dp = QuickMocker.dependencyProvider(
+            parameterServiceMock,
+            blockchainMock,
+            accountServiceMock,
+            apiTransactionManagerMock
+        )
         t = SetRewardRecipient(dp)
     }
 
@@ -53,13 +58,13 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
 
         whenever(mockRecipientAccount.publicKey).doReturn(Crypto.getPublicKey(TestConstants.TEST_SECRET_PHRASE))
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
-        whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(mockRecipientAccount)
+        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(mockSenderAccount)
+        whenever(accountServiceMock.getAccount(eq(123L))).doReturn(mockRecipientAccount)
 
         dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.BurstMiningRewardRecipientAssignment
+        val attachment = attachmentCreatedTransaction({ t.processRequest(request) }, apiTransactionManagerMock) as Attachment.BurstMiningRewardRecipientAssignment
         assertNotNull(attachment)
 
         assertTrue(attachment.transactionType is RewardRecipientAssignment)
@@ -70,9 +75,9 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
         val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
+        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(mockSenderAccount)
 
-        assertEquals(8, JSONTestHelper.errorCode(t!!.processRequest(request)).toLong())
+        assertEquals(8, JSONTestHelper.errorCode(t.processRequest(request)).toLong())
     }
 
     @Test
@@ -81,9 +86,9 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         val mockRecipientAccount = mock<Account>()
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
-        whenever(accountServiceMock!!.getAccount(eq(123L))).doReturn(mockRecipientAccount)
+        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(mockSenderAccount)
+        whenever(accountServiceMock.getAccount(eq(123L))).doReturn(mockRecipientAccount)
 
-        assertEquals(8, JSONTestHelper.errorCode(t!!.processRequest(request)).toLong())
+        assertEquals(8, JSONTestHelper.errorCode(t.processRequest(request)).toLong())
     }
 }

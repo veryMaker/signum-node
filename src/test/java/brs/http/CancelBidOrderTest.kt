@@ -38,11 +38,16 @@ class CancelBidOrderTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock<ParameterService>()
-        blockchainMock = mock<Blockchain>()
-        assetExchangeMock = mock<AssetExchange>()
-        apiTransactionManagerMock = mock<APITransactionManager>()
-        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, blockchainMock!!, assetExchangeMock!!, apiTransactionManagerMock!!)
+        parameterServiceMock = mock()
+        blockchainMock = mock()
+        assetExchangeMock = mock()
+        apiTransactionManagerMock = mock()
+        dp = QuickMocker.dependencyProvider(
+            parameterServiceMock,
+            blockchainMock,
+            assetExchangeMock,
+            apiTransactionManagerMock
+        )
         t = CancelBidOrder(dp)
     }
 
@@ -57,15 +62,15 @@ class CancelBidOrderTest : AbstractTransactionTest() {
 
         val mockBidOrder = mock<Bid>()
         whenever(mockBidOrder.accountId).doReturn(orderAccountId)
-        whenever(assetExchangeMock!!.getBidOrder(eq(123L))).doReturn(mockBidOrder)
+        whenever(assetExchangeMock.getBidOrder(eq(123L))).doReturn(mockBidOrder)
 
         val mockAccount = mock<Account>()
         whenever(mockAccount.id).doReturn(orderAccountId)
-        whenever(parameterServiceMock!!.getSenderAccount(eq(request))).doReturn(mockAccount)
+        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockAccount)
         dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.ColoredCoinsBidOrderCancellation
+        val attachment = attachmentCreatedTransaction({ t.processRequest(request) }, apiTransactionManagerMock) as Attachment.ColoredCoinsBidOrderCancellation
         assertNotNull(attachment)
 
         assertTrue(attachment.transactionType is BidOrderCancellation)
@@ -74,7 +79,7 @@ class CancelBidOrderTest : AbstractTransactionTest() {
 
     @Test(expected = ParameterException::class)
     fun processRequest_orderParameterMissing() = runBlocking<Unit> {
-        t!!.processRequest(QuickMocker.httpServletRequest())
+        t.processRequest(QuickMocker.httpServletRequest())
     }
 
     @Test
@@ -84,9 +89,9 @@ class CancelBidOrderTest : AbstractTransactionTest() {
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        whenever(assetExchangeMock!!.getBidOrder(eq(123L))).doReturn(null)
+        whenever(assetExchangeMock.getBidOrder(eq(123L))).doReturn(null)
 
-        assertEquals(UNKNOWN_ORDER, t!!.processRequest(request))
+        assertEquals(UNKNOWN_ORDER, t.processRequest(request))
     }
 
     @Test
@@ -101,13 +106,13 @@ class CancelBidOrderTest : AbstractTransactionTest() {
 
         val mockBidOrder = mock<Bid>()
         whenever(mockBidOrder.accountId).doReturn(orderAccountId)
-        whenever(assetExchangeMock!!.getBidOrder(eq(123L))).doReturn(mockBidOrder)
+        whenever(assetExchangeMock.getBidOrder(eq(123L))).doReturn(mockBidOrder)
 
         val mockAccount = mock<Account>()
         whenever(mockAccount.id).doReturn(senderAccountId)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
+        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockAccount)
 
-        assertEquals(UNKNOWN_ORDER, t!!.processRequest(request))
+        assertEquals(UNKNOWN_ORDER, t.processRequest(request))
     }
 }

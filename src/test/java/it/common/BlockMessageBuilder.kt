@@ -9,7 +9,7 @@ class BlockMessageBuilder {
     private var version: Long = 0
     private lateinit var nonce: String
     private var totalFeeNQT: Long = 0
-    private lateinit var blockATs: String
+    private var blockATs: String? = null
     private lateinit var previousBlock: String
     private lateinit var generationSignature: String
     private lateinit var generatorPublicKey: String

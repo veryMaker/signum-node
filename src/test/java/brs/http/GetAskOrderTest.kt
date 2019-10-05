@@ -25,9 +25,9 @@ class GetAskOrderTest {
 
     @Before
     fun setUp() {
-        mockAssetExchange = mock<AssetExchange>()
+        mockAssetExchange = mock()
 
-        t = GetAskOrder(mockAssetExchange!!)
+        t = GetAskOrder(mockAssetExchange)
     }
 
     @Test
@@ -36,13 +36,13 @@ class GetAskOrderTest {
 
         val mockOrder = mock<Ask>()
 
-        whenever(mockAssetExchange!!.getAskOrder(eq(orderId))).doReturn(mockOrder)
+        whenever(mockAssetExchange.getAskOrder(eq(orderId))).doReturn(mockOrder)
 
         val request = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
     }
 
@@ -50,13 +50,13 @@ class GetAskOrderTest {
     fun processRequest_unknownOrder() = runBlocking {
         val orderId = 123L
 
-        whenever(mockAssetExchange!!.getAskOrder(eq(orderId))).doReturn(null)
+        whenever(mockAssetExchange.getAskOrder(eq(orderId))).doReturn(null)
 
         val request = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        assertEquals(UNKNOWN_ORDER, t!!.processRequest(request))
+        assertEquals(UNKNOWN_ORDER, t.processRequest(request))
     }
 
 }

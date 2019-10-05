@@ -31,18 +31,23 @@ class EscrowServiceImplTest {
 
     @Before
     fun setUp() {
-        mockEscrowStore = mock<EscrowStore>()
+        mockEscrowStore = mock()
         mockEscrowTable = mock()
         mockEscrowDbKeyFactory = mock()
 
         blockchainMock = mock()
         aliasServiceMock = mock()
-        accountServiceMock = mock<AccountService>()
+        accountServiceMock = mock()
 
-        whenever(mockEscrowStore!!.escrowTable).doReturn(mockEscrowTable!!)
-        whenever(mockEscrowStore!!.escrowDbKeyFactory).doReturn(mockEscrowDbKeyFactory!!)
+        whenever(mockEscrowStore.escrowTable).doReturn(mockEscrowTable)
+        whenever(mockEscrowStore.escrowDbKeyFactory).doReturn(mockEscrowDbKeyFactory)
 
-        t = EscrowServiceImpl(QuickMocker.dependencyProvider(mockEscrowStore!!, blockchainMock!!, aliasServiceMock!!, accountServiceMock!!))
+        t = EscrowServiceImpl(QuickMocker.dependencyProvider(
+            mockEscrowStore,
+            blockchainMock,
+            aliasServiceMock,
+            accountServiceMock
+        ))
     }
 
 
@@ -50,9 +55,9 @@ class EscrowServiceImplTest {
     fun getAllEscrowTransactions() {
         val mockEscrowIterator = mock<Collection<Escrow>>()
 
-        whenever(mockEscrowTable!!.getAll(eq(0), eq(-1))).doReturn(mockEscrowIterator)
+        whenever(mockEscrowTable.getAll(eq(0), eq(-1))).doReturn(mockEscrowIterator)
 
-        assertEquals(mockEscrowIterator, t!!.allEscrowTransactions)
+        assertEquals(mockEscrowIterator, t.allEscrowTransactions)
     }
 
     @Test
@@ -62,9 +67,9 @@ class EscrowServiceImplTest {
         val mockEscrowKey = mock<BurstKey>()
         val mockEscrow = mock<Escrow>()
 
-        whenever(mockEscrowDbKeyFactory!!.newKey(eq(escrowId))).doReturn(mockEscrowKey)
-        whenever(mockEscrowTable!!.get(eq(mockEscrowKey))).doReturn(mockEscrow)
+        whenever(mockEscrowDbKeyFactory.newKey(eq(escrowId))).doReturn(mockEscrowKey)
+        whenever(mockEscrowTable[eq(mockEscrowKey)]).doReturn(mockEscrow)
 
-        assertEquals(mockEscrow, t!!.getEscrowTransaction(escrowId))
+        assertEquals(mockEscrow, t.getEscrowTransaction(escrowId))
     }
 }

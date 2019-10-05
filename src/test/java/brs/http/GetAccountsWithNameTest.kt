@@ -25,9 +25,9 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        accountService = mock<AccountService>()
+        accountService = mock()
 
-        t = GetAccountsWithName(accountService!!)
+        t = GetAccountsWithName(accountService)
     }
 
     @Test
@@ -43,11 +43,11 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
         whenever(targetAccount.id).doReturn(targetAccountId)
         whenever(targetAccount.name).doReturn(targetAccountName)
 
-        val mockIterator = mockCollection<Account>(targetAccount)
+        val mockIterator = mockCollection(targetAccount)
 
-        whenever(accountService!!.getAccountsWithName(targetAccountName)).doReturn(mockIterator)
+        whenever(accountService.getAccountsWithName(targetAccountName)).doReturn(mockIterator)
 
-        val resultOverview = t!!.processRequest(request) as JsonObject
+        val resultOverview = t.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
 
         val resultList = resultOverview.get(ACCOUNTS_RESPONSE) as JsonArray
@@ -65,9 +65,9 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
 
         val mockIterator = mockCollection<Account>()
 
-        whenever(accountService!!.getAccountsWithName(targetAccountName)).doReturn(mockIterator)
+        whenever(accountService.getAccountsWithName(targetAccountName)).doReturn(mockIterator)
 
-        val resultOverview = t!!.processRequest(request) as JsonObject
+        val resultOverview = t.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
 
         val resultList = resultOverview.get(ACCOUNTS_RESPONSE) as JsonArray

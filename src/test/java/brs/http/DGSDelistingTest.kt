@@ -31,10 +31,10 @@ class DGSDelistingTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
-        mockBlockchain = mock<Blockchain>()
-        apiTransactionManagerMock = mock<APITransactionManager>()
-        dp = QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!)
+        mockParameterService = mock()
+        mockBlockchain = mock()
+        apiTransactionManagerMock = mock()
+        dp = QuickMocker.dependencyProvider(mockParameterService, mockBlockchain, apiTransactionManagerMock)
         t = DGSDelisting(dp)
     }
 
@@ -49,12 +49,12 @@ class DGSDelistingTest : AbstractTransactionTest() {
         whenever(mockGoods.sellerId).doReturn(1L)
         whenever(mockAccount.id).doReturn(1L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
+        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockAccount)
+        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
         dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsDelisting
+        val attachment = attachmentCreatedTransaction({ t.processRequest(request) }, apiTransactionManagerMock) as Attachment.DigitalGoodsDelisting
         assertNotNull(attachment)
 
         assertTrue(attachment.transactionType is DigitalGoodsDelisting)
@@ -70,10 +70,10 @@ class DGSDelistingTest : AbstractTransactionTest() {
 
         whenever(mockGoods.isDelisted).doReturn(true)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
+        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockAccount)
+        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
 
-        assertEquals(UNKNOWN_GOODS, t!!.processRequest(request))
+        assertEquals(UNKNOWN_GOODS, t.processRequest(request))
     }
 
     @Test
@@ -87,10 +87,10 @@ class DGSDelistingTest : AbstractTransactionTest() {
         whenever(mockGoods.sellerId).doReturn(1L)
         whenever(mockAccount.id).doReturn(2L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
+        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockAccount)
+        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
 
-        assertEquals(UNKNOWN_GOODS, t!!.processRequest(request))
+        assertEquals(UNKNOWN_GOODS, t.processRequest(request))
     }
 
 }

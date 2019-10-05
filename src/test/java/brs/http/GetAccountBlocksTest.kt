@@ -34,11 +34,11 @@ class GetAccountBlocksTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        blockchainMock = mock<Blockchain>()
-        parameterServiceMock = mock<ParameterService>()
-        blockServiceMock = mock<BlockService>()
+        blockchainMock = mock()
+        parameterServiceMock = mock()
+        blockServiceMock = mock()
 
-        t = GetAccountBlocks(blockchainMock!!, parameterServiceMock!!, blockServiceMock!!)
+        t = GetAccountBlocks(blockchainMock, parameterServiceMock, blockServiceMock)
     }
 
     @Test
@@ -57,12 +57,12 @@ class GetAccountBlocksTest : AbstractUnitTest() {
         val mockBlock = mock<Block>()
 
 
-        whenever(parameterServiceMock!!.getAccount(request)).doReturn(mockAccount)
+        whenever(parameterServiceMock.getAccount(request)).doReturn(mockAccount)
 
-        val mockBlockIterator = mockCollection<Block>(mockBlock)
-        whenever(blockchainMock!!.getBlocks(eq(mockAccount), eq(mockTimestamp), eq(mockFirstIndex), eq(mockLastIndex))).doReturn(mockBlockIterator)
+        val mockBlockIterator = mockCollection(mockBlock)
+        whenever(blockchainMock.getBlocks(eq(mockAccount), eq(mockTimestamp), eq(mockFirstIndex), eq(mockLastIndex))).doReturn(mockBlockIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         val blocks = result.get(BLOCKS_RESPONSE) as JsonArray
         assertNotNull(blocks)

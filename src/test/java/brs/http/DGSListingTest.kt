@@ -39,10 +39,10 @@ class DGSListingTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
-        mockBlockchain = mock<Blockchain>()
-        apiTransactionManagerMock = mock<APITransactionManager>()
-        dp = QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!)
+        mockParameterService = mock()
+        mockBlockchain = mock()
+        apiTransactionManagerMock = mock()
+        dp = QuickMocker.dependencyProvider(mockParameterService, mockBlockchain, apiTransactionManagerMock)
         t = DGSListing(dp)
     }
 
@@ -64,11 +64,11 @@ class DGSListingTest : AbstractTransactionTest() {
                 MockParam(TAGS_PARAMETER, tags)
         )
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
+        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockAccount)
         dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsListing
+        val attachment = attachmentCreatedTransaction({ t.processRequest(request) }, apiTransactionManagerMock) as Attachment.DigitalGoodsListing
         assertNotNull(attachment)
 
         assertTrue(attachment.transactionType is DigitalGoodsListing)
@@ -86,7 +86,7 @@ class DGSListingTest : AbstractTransactionTest() {
                 MockParam(QUANTITY_PARAMETER, 1L)
         )
 
-        assertEquals(MISSING_NAME, t!!.processRequest(request))
+        assertEquals(MISSING_NAME, t.processRequest(request))
     }
 
     @Test
@@ -99,7 +99,7 @@ class DGSListingTest : AbstractTransactionTest() {
                 MockParam(NAME_PARAMETER, tooLongName)
         )
 
-        assertEquals(INCORRECT_DGS_LISTING_NAME, t!!.processRequest(request))
+        assertEquals(INCORRECT_DGS_LISTING_NAME, t.processRequest(request))
     }
 
     @Test
@@ -113,7 +113,7 @@ class DGSListingTest : AbstractTransactionTest() {
                 MockParam(DESCRIPTION_PARAMETER, tooLongDescription)
         )
 
-        assertEquals(INCORRECT_DGS_LISTING_DESCRIPTION, t!!.processRequest(request))
+        assertEquals(INCORRECT_DGS_LISTING_DESCRIPTION, t.processRequest(request))
     }
 
     @Test
@@ -128,7 +128,7 @@ class DGSListingTest : AbstractTransactionTest() {
                 MockParam(TAGS_PARAMETER, tooLongTags)
         )
 
-        assertEquals(INCORRECT_DGS_LISTING_TAGS, t!!.processRequest(request))
+        assertEquals(INCORRECT_DGS_LISTING_TAGS, t.processRequest(request))
     }
 
 }

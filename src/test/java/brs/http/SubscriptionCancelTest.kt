@@ -35,11 +35,16 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock<ParameterService>()
-        subscriptionServiceMock = mock<SubscriptionService>()
-        blockchainMock = mock<Blockchain>()
-        apiTransactionManagerMock = mock<APITransactionManager>()
-        dp = QuickMocker.dependencyProvider(parameterServiceMock!!, subscriptionServiceMock!!, blockchainMock!!, apiTransactionManagerMock!!)
+        parameterServiceMock = mock()
+        subscriptionServiceMock = mock()
+        blockchainMock = mock()
+        apiTransactionManagerMock = mock()
+        dp = QuickMocker.dependencyProvider(
+            parameterServiceMock,
+            subscriptionServiceMock,
+            blockchainMock,
+            apiTransactionManagerMock
+        )
         t = SubscriptionCancel(dp)
     }
 
@@ -59,13 +64,13 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         whenever(mockSubscription.senderId).doReturn(1L)
         whenever(mockSubscription.recipientId).doReturn(2L)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSender)
-        whenever(subscriptionServiceMock!!.getSubscription(eq<Long>(subscriptionIdParameter))).doReturn(mockSubscription)
+        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockSender)
+        whenever(subscriptionServiceMock.getSubscription(eq(subscriptionIdParameter))).doReturn(mockSubscription)
 
         dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.AdvancedPaymentSubscriptionCancel
+        val attachment = attachmentCreatedTransaction({ t.processRequest(request) }, apiTransactionManagerMock) as Attachment.AdvancedPaymentSubscriptionCancel
         assertNotNull(attachment)
 
         assertTrue(attachment.transactionType is brs.transaction.advancedPayment.SubscriptionCancel)
@@ -76,7 +81,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     fun processRequest_missingSubscriptionParameter() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
-        val response = t!!.processRequest(request) as JsonObject
+        val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
 
         assertEquals(3, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)).toLong())
@@ -88,7 +93,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
                 MockParam(SUBSCRIPTION_PARAMETER, "notALong")
         )
 
-        val response = t!!.processRequest(request) as JsonObject
+        val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
 
         assertEquals(4, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)).toLong())
@@ -102,9 +107,9 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
                 MockParam(SUBSCRIPTION_PARAMETER, subscriptionId)
         )
 
-        whenever(subscriptionServiceMock!!.getSubscription(eq(subscriptionId))).doReturn(null)
+        whenever(subscriptionServiceMock.getSubscription(eq(subscriptionId))).doReturn(null)
 
-        val response = t!!.processRequest(request) as JsonObject
+        val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
 
         assertEquals(5, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)).toLong())
@@ -125,10 +130,10 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         whenever(mockSubscription.senderId).doReturn(2L)
         whenever(mockSubscription.recipientId).doReturn(3L)
 
-        whenever(parameterServiceMock!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSender)
-        whenever(subscriptionServiceMock!!.getSubscription(eq(subscriptionId))).doReturn(mockSubscription)
+        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockSender)
+        whenever(subscriptionServiceMock.getSubscription(eq(subscriptionId))).doReturn(mockSubscription)
 
-        val response = t!!.processRequest(request) as JsonObject
+        val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
 
         assertEquals(7, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)).toLong())

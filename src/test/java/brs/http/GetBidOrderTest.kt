@@ -27,9 +27,9 @@ class GetBidOrderTest {
 
     @Before
     fun setUp() {
-        mockAssetExchange = mock<AssetExchange>()
+        mockAssetExchange = mock()
 
-        t = GetBidOrder(mockAssetExchange!!)
+        t = GetBidOrder(mockAssetExchange)
     }
 
     @Test
@@ -38,11 +38,11 @@ class GetBidOrderTest {
         val mockBid = mock<Bid>()
         whenever(mockBid.id).doReturn(bidOrderId)
 
-        whenever(mockAssetExchange!!.getBidOrder(eq(bidOrderId))).doReturn(mockBid)
+        whenever(mockAssetExchange.getBidOrder(eq(bidOrderId))).doReturn(mockBid)
 
         val request = QuickMocker.httpServletRequest(MockParam(ORDER_PARAMETER, bidOrderId))
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
         assertEquals("" + bidOrderId, JSON.getAsString(result.get(ORDER_RESPONSE)))
     }
@@ -53,7 +53,7 @@ class GetBidOrderTest {
 
         val request = QuickMocker.httpServletRequest(MockParam(ORDER_PARAMETER, bidOrderId))
 
-        assertEquals(UNKNOWN_ORDER, t!!.processRequest(request))
+        assertEquals(UNKNOWN_ORDER, t.processRequest(request))
     }
 
 }

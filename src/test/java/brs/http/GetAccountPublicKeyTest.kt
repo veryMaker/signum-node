@@ -26,9 +26,9 @@ class GetAccountPublicKeyTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
+        mockParameterService = mock()
 
-        t = GetAccountPublicKey(mockParameterService!!)
+        t = GetAccountPublicKey(mockParameterService)
     }
 
     @Test
@@ -38,9 +38,9 @@ class GetAccountPublicKeyTest {
         val mockAccount = mock<Account>()
         whenever(mockAccount.publicKey).doReturn(TestConstants.TEST_PUBLIC_KEY_BYTES)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
+        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         assertEquals(TestConstants.TEST_PUBLIC_KEY, JSON.getAsString(result.get(PUBLIC_KEY_RESPONSE)))
@@ -53,9 +53,9 @@ class GetAccountPublicKeyTest {
         val mockAccount = mock<Account>()
         whenever(mockAccount.publicKey).doReturn(null)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
+        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
 
-        assertEquals(JSON.emptyJSON, t!!.processRequest(request))
+        assertEquals(JSON.emptyJSON, t.processRequest(request))
     }
 
 }

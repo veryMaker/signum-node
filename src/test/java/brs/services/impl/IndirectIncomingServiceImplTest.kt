@@ -35,7 +35,7 @@ class IndirectIncomingServiceImplTest {
             null
         }.whenever(indirectIncomingStore).addIndirectIncomings(any())
         indirectIncomingService = IndirectIncomingServiceImpl(QuickMocker.dependencyProvider(indirectIncomingStore, propertyService))
-        dp = QuickMocker.dependencyProvider(indirectIncomingService!!, indirectIncomingStore, propertyService)
+        dp = QuickMocker.dependencyProvider(indirectIncomingService, indirectIncomingStore, propertyService)
     }
 
     @Test
@@ -56,7 +56,7 @@ class IndirectIncomingServiceImplTest {
             on { type } doReturn MultiOutPayment(dp)
             on { it.attachment } doReturn attachment
         }
-        indirectIncomingService!!.processTransaction(multiOut)
+        indirectIncomingService.processTransaction(multiOut)
     }
 
     @Test
@@ -75,7 +75,7 @@ class IndirectIncomingServiceImplTest {
         val multiOutSame = mock<Transaction>()
         whenever(multiOutSame.type).doReturn(MultiOutSamePayment(dp))
         whenever(multiOutSame.attachment).doReturn(attachment)
-        indirectIncomingService!!.processTransaction(multiOutSame)
+        indirectIncomingService.processTransaction(multiOutSame)
     }
 
     @Test
@@ -84,6 +84,6 @@ class IndirectIncomingServiceImplTest {
         val ordinaryTransaction = mock<Transaction>()
         whenever(ordinaryTransaction.attachment).doReturn(Attachment.OrdinaryPayment(dp))
         whenever(ordinaryTransaction.type).doReturn(OrdinaryPayment(dp))
-        indirectIncomingService!!.processTransaction(ordinaryTransaction)
+        indirectIncomingService.processTransaction(ordinaryTransaction)
     }
 }

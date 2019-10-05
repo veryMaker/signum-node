@@ -42,9 +42,9 @@ class GetDGSGoodsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockDGSGoodsStoreService = mock<DGSGoodsStoreService>()
+        mockDGSGoodsStoreService = mock()
 
-        t = GetDGSGoods(mockDGSGoodsStoreService!!)
+        t = GetDGSGoods(mockDGSGoodsStoreService)
     }
 
     @Test
@@ -61,12 +61,12 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         )
 
         val mockGood = mockGood()
-        val mockGoodIterator = mockCollection<Goods>(mockGood)
+        val mockGoodIterator = mockCollection(mockGood)
 
-        whenever(mockDGSGoodsStoreService!!.getSellerGoods(eq(sellerId), eq(true), eq(firstIndex), eq(lastIndex)))
+        whenever(mockDGSGoodsStoreService.getSellerGoods(eq(sellerId), eq(true), eq(firstIndex), eq(lastIndex)))
                 .doReturn(mockGoodIterator)
 
-        val fullResult = t!!.processRequest(request) as JsonObject
+        val fullResult = t.processRequest(request) as JsonObject
         assertNotNull(fullResult)
 
         val goodsList = fullResult.get(GOODS_RESPONSE) as JsonArray
@@ -101,12 +101,12 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         )
 
         val mockGood = mockGood()
-        val mockGoodIterator = mockCollection<Goods>(mockGood)
+        val mockGoodIterator = mockCollection(mockGood)
 
-        whenever(mockDGSGoodsStoreService!!.getAllGoods(eq(firstIndex), eq(lastIndex)))
+        whenever(mockDGSGoodsStoreService.getAllGoods(eq(firstIndex), eq(lastIndex)))
                 .doReturn(mockGoodIterator)
 
-        val fullResult = t!!.processRequest(request) as JsonObject
+        val fullResult = t.processRequest(request) as JsonObject
         assertNotNull(fullResult)
 
         val goodsList = fullResult.get(GOODS_RESPONSE) as JsonArray
@@ -141,12 +141,12 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         )
 
         val mockGood = mockGood()
-        val mockGoodIterator = mockCollection<Goods>(mockGood)
+        val mockGoodIterator = mockCollection(mockGood)
 
-        whenever(mockDGSGoodsStoreService!!.getGoodsInStock(eq(firstIndex), eq(lastIndex)))
+        whenever(mockDGSGoodsStoreService.getGoodsInStock(eq(firstIndex), eq(lastIndex)))
                 .doReturn(mockGoodIterator)
 
-        val fullResult = t!!.processRequest(request) as JsonObject
+        val fullResult = t.processRequest(request) as JsonObject
         assertNotNull(fullResult)
 
         val goodsList = fullResult.get(GOODS_RESPONSE) as JsonArray
@@ -167,8 +167,8 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         assertEquals(mockGood.timestamp.toLong(), JSON.getAsInt(result.get(TIMESTAMP_RESPONSE)).toLong())
     }
 
-    private fun mockGood(): DigitalGoodsStore.Goods {
-        val mockGood = mock<DigitalGoodsStore.Goods>()
+    private fun mockGood(): Goods {
+        val mockGood = mock<Goods>()
 
         whenever(mockGood.id).doReturn(1L)
         whenever(mockGood.name).doReturn("name")

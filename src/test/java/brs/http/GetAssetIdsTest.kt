@@ -29,9 +29,9 @@ class GetAssetIdsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockAssetExchange = mock<AssetExchange>()
+        mockAssetExchange = mock()
 
-        t = GetAssetIds(mockAssetExchange!!)
+        t = GetAssetIds(mockAssetExchange)
     }
 
     @Test
@@ -42,9 +42,9 @@ class GetAssetIdsTest : AbstractUnitTest() {
         val mockAsset = mock<Asset>()
         whenever(mockAsset.id).doReturn(5L)
 
-        val mockAssetIterator = mockCollection<Asset>(mockAsset)
+        val mockAssetIterator = mockCollection(mockAsset)
 
-        whenever(mockAssetExchange!!.getAllAssets(eq(firstIndex), eq(lastIndex)))
+        whenever(mockAssetExchange.getAllAssets(eq(firstIndex), eq(lastIndex)))
                 .doReturn(mockAssetIterator)
 
         val request = QuickMocker.httpServletRequest(
@@ -52,7 +52,7 @@ class GetAssetIdsTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertNotNull(result)
 

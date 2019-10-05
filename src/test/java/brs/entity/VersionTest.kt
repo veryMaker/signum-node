@@ -24,7 +24,7 @@ class VersionTest {
         invalidVersions.forEach { versionString ->
             try {
                 val version = Version.parse(versionString)
-                if (version === Version.EMPTY) throw IllegalArgumentException()
+                require(!(version === Version.EMPTY))
                 throw AssertionError("Did not fail to parse: $versionString")
             } catch (ignored: IllegalArgumentException) {
             }

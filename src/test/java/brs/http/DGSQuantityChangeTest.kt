@@ -38,10 +38,10 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
-        mockBlockchain = mock<Blockchain>()
-        apiTransactionManagerMock = mock<APITransactionManager>()
-        dp = QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!)
+        mockParameterService = mock()
+        mockBlockchain = mock()
+        apiTransactionManagerMock = mock()
+        dp = QuickMocker.dependencyProvider(mockParameterService, mockBlockchain, apiTransactionManagerMock)
         t = DGSQuantityChange(dp)
     }
 
@@ -61,12 +61,12 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         whenever(mockSenderAccount.id).doReturn(1L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
+        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
         dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.DigitalGoodsQuantityChange
+        val attachment = attachmentCreatedTransaction({ t.processRequest(request) }, apiTransactionManagerMock) as Attachment.DigitalGoodsQuantityChange
         assertNotNull(attachment)
 
         attachment.transactionType
@@ -83,10 +83,10 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
 
         val mockSenderAccount = mock<Account>()
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
+        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
 
-        assertEquals(UNKNOWN_GOODS, t!!.processRequest(request))
+        assertEquals(UNKNOWN_GOODS, t.processRequest(request))
     }
 
     @Test
@@ -100,10 +100,10 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         whenever(mockSenderAccount.id).doReturn(2L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
+        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
 
-        assertEquals(UNKNOWN_GOODS, t!!.processRequest(request))
+        assertEquals(UNKNOWN_GOODS, t.processRequest(request))
     }
 
     @Test
@@ -119,10 +119,10 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         whenever(mockSenderAccount.id).doReturn(1L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
+        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
 
-        assertEquals(MISSING_DELTA_QUANTITY, t!!.processRequest(request))
+        assertEquals(MISSING_DELTA_QUANTITY, t.processRequest(request))
     }
 
     @Test
@@ -138,10 +138,10 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         whenever(mockSenderAccount.id).doReturn(1L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
+        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
 
-        assertEquals(INCORRECT_DELTA_QUANTITY, t!!.processRequest(request))
+        assertEquals(INCORRECT_DELTA_QUANTITY, t.processRequest(request))
     }
 
     @Test
@@ -157,10 +157,10 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         whenever(mockSenderAccount.id).doReturn(1L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
+        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
 
-        assertEquals(INCORRECT_DELTA_QUANTITY, t!!.processRequest(request))
+        assertEquals(INCORRECT_DELTA_QUANTITY, t.processRequest(request))
     }
 
     @Test
@@ -176,10 +176,10 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         whenever(mockSenderAccount.id).doReturn(1L)
 
-        whenever(mockParameterService!!.getSenderAccount(eq<HttpServletRequest>(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
+        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
+        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
 
-        assertEquals(INCORRECT_DELTA_QUANTITY, t!!.processRequest(request))
+        assertEquals(INCORRECT_DELTA_QUANTITY, t.processRequest(request))
     }
 
 }

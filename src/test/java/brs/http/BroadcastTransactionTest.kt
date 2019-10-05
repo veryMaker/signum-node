@@ -32,11 +32,11 @@ class BroadcastTransactionTest {
 
     @Before
     fun setUp() {
-        this.transactionProcessorMock = mock<TransactionProcessor>()
-        this.parameterServiceMock = mock<ParameterService>()
-        this.transactionServiceMock = mock<TransactionService>()
+        this.transactionProcessorMock = mock()
+        this.parameterServiceMock = mock()
+        this.transactionServiceMock = mock()
 
-        t = BroadcastTransaction(transactionProcessorMock!!, parameterServiceMock!!, transactionServiceMock!!)
+        t = BroadcastTransaction(transactionProcessorMock, parameterServiceMock, transactionServiceMock)
     }
 
     @Test
@@ -56,11 +56,11 @@ class BroadcastTransactionTest {
         whenever(request.getParameter(TRANSACTION_BYTES_PARAMETER)).doReturn(mockTransactionBytesParameter)
         whenever(request.getParameter(TRANSACTION_JSON_PARAMETER)).doReturn(mockTransactionJson)
 
-        whenever(parameterServiceMock!!.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson))).doReturn(mockTransaction)
+        whenever(parameterServiceMock.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson))).doReturn(mockTransaction)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
-        verify(transactionProcessorMock!!).broadcast(eq(mockTransaction))
+        verify(transactionProcessorMock).broadcast(eq(mockTransaction))
 
         assertEquals(mockTransactionStringId, JSON.getAsString(result.get(TRANSACTION_RESPONSE)))
         assertEquals(mockTransactionFullHash.toHexString(), JSON.getAsString(result.get(FULL_HASH_RESPONSE)))
@@ -77,11 +77,11 @@ class BroadcastTransactionTest {
         whenever(request.getParameter(TRANSACTION_BYTES_PARAMETER)).doReturn(mockTransactionBytesParameter)
         whenever(request.getParameter(TRANSACTION_JSON_PARAMETER)).doReturn(mockTransactionJson)
 
-        whenever(parameterServiceMock!!.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson))).doReturn(mockTransaction)
+        whenever(parameterServiceMock.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson))).doReturn(mockTransaction)
 
-        doAnswer { throw BurstException.NotCurrentlyValidException("") }.whenever(transactionServiceMock!!).validate(eq(mockTransaction))
+        doAnswer { throw BurstException.NotCurrentlyValidException("") }.whenever(transactionServiceMock).validate(eq(mockTransaction))
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertEquals(4, JSON.getAsInt(result.get(ERROR_CODE_RESPONSE)).toLong())
         assertNotNull(result.get(ERROR_DESCRIPTION_RESPONSE))
@@ -89,6 +89,6 @@ class BroadcastTransactionTest {
 
     @Test
     fun requirePost() {
-        assertTrue(t!!.requirePost())
+        assertTrue(t.requirePost())
     }
 }

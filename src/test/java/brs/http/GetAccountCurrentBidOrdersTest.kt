@@ -36,10 +36,10 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
-        mockAssetExchange = mock<AssetExchange>()
+        mockParameterService = mock()
+        mockAssetExchange = mock()
 
-        t = GetAccountCurrentBidOrders(mockParameterService!!, mockAssetExchange!!)
+        t = GetAccountCurrentBidOrders(mockParameterService, mockAssetExchange)
     }
 
     @Test
@@ -61,12 +61,12 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
         val bid = mock<Bid>()
         whenever(bid.id).doReturn(mockBidId)
 
-        val mockBidIterator = mockCollection<Bid>(bid)
+        val mockBidIterator = mockCollection(bid)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
-        whenever(mockAssetExchange!!.getBidOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
+        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
+        whenever(mockAssetExchange.getBidOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val resultList = result.get(BID_ORDERS_RESPONSE) as JsonArray
@@ -99,12 +99,12 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
         val bid = mock<Bid>()
         whenever(bid.id).doReturn(mockBidId)
 
-        val mockBidIterator = mockCollection<Bid>(bid)
+        val mockBidIterator = mockCollection(bid)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
-        whenever(mockAssetExchange!!.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
+        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
+        whenever(mockAssetExchange.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val resultList = result.get(BID_ORDERS_RESPONSE) as JsonArray

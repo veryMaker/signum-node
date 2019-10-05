@@ -33,11 +33,11 @@ class GetAccountRecentTransactionsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockAccountService = mock<AccountService>()
-        mockBlockchain = mock<Blockchain>()
-        dp = QuickMocker.dependencyProvider(mockAccountService!!, mockBlockchain!!)
+        mockAccountService = mock()
+        mockBlockchain = mock()
+        dp = QuickMocker.dependencyProvider(mockAccountService, mockBlockchain)
 
-        t = GetAccountRecentTransactions(mockAccountService!!, mockBlockchain!!)
+        t = GetAccountRecentTransactions(mockAccountService, mockBlockchain)
     }
 
     @Test
@@ -52,12 +52,12 @@ class GetAccountRecentTransactionsTest : AbstractUnitTest() {
 
         val mockTransaction = mock<Transaction>()
         whenever(mockTransaction.type).doReturn(DigitalGoodsDelisting(dp))
-        val transactionsIterator = mockCollection<Transaction>(mockTransaction)
+        val transactionsIterator = mockCollection(mockTransaction)
 
-        whenever(mockAccountService!!.getAccount(eq(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED))).doReturn(mockAccount)
-        whenever(mockBlockchain!!.getTransactions(eq(mockAccount), eq(0), eq((-1).toByte()), eq(0.toByte()), eq(0), eq(0), eq(9), eq(false))).doReturn(transactionsIterator)
+        whenever(mockAccountService.getAccount(eq(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED))).doReturn(mockAccount)
+        whenever(mockBlockchain.getTransactions(eq(mockAccount), eq(0), eq((-1).toByte()), eq(0.toByte()), eq(0), eq(0), eq(9), eq(false))).doReturn(transactionsIterator)
 
-        val result = t!!.processRequest(request, peerMock) as JsonObject
+        val result = t.processRequest(request, peerMock) as JsonObject
         assertNotNull(result)
 
         val transactionsResult = result.get("transactions") as JsonArray

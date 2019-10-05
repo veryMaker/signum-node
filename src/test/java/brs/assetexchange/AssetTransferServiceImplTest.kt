@@ -23,9 +23,9 @@ class AssetTransferServiceImplTest {
         mockAssetTransferStore = mock()
         mockAssetTransferTable = mock()
 
-        whenever(mockAssetTransferStore!!.assetTransferTable).doReturn(mockAssetTransferTable!!)
+        whenever(mockAssetTransferStore.assetTransferTable).doReturn(mockAssetTransferTable)
 
-        t = AssetTransferServiceImpl(mockAssetTransferStore!!)
+        t = AssetTransferServiceImpl(mockAssetTransferStore)
     }
 
     @Test
@@ -36,9 +36,9 @@ class AssetTransferServiceImplTest {
 
         val mockAssetTransferIterator = mock<Collection<AssetTransfer>>()
 
-        whenever(mockAssetTransferStore!!.getAssetTransfers(eq(assetId), eq(from), eq(to))).doReturn(mockAssetTransferIterator)
+        whenever(mockAssetTransferStore.getAssetTransfers(eq(assetId), eq(from), eq(to))).doReturn(mockAssetTransferIterator)
 
-        assertEquals(mockAssetTransferIterator, t!!.getAssetTransfers(assetId, from, to))
+        assertEquals(mockAssetTransferIterator, t.getAssetTransfers(assetId, from, to))
     }
 
     @Test
@@ -50,23 +50,23 @@ class AssetTransferServiceImplTest {
 
         val mockAccountAssetTransferIterator = mock<Collection<AssetTransfer>>()
 
-        whenever(mockAssetTransferStore!!.getAccountAssetTransfers(eq(accountId), eq(assetId), eq(from), eq(to))).doReturn(mockAccountAssetTransferIterator)
+        whenever(mockAssetTransferStore.getAccountAssetTransfers(eq(accountId), eq(assetId), eq(from), eq(to))).doReturn(mockAccountAssetTransferIterator)
 
-        assertEquals(mockAccountAssetTransferIterator, t!!.getAccountAssetTransfers(accountId, assetId, from, to))
+        assertEquals(mockAccountAssetTransferIterator, t.getAccountAssetTransfers(accountId, assetId, from, to))
     }
 
     @Test
     fun getTransferCount() {
-        whenever(mockAssetTransferStore!!.getTransferCount(eq(123L))).doReturn(5)
+        whenever(mockAssetTransferStore.getTransferCount(eq(123L))).doReturn(5)
 
-        assertEquals(5, t!!.getTransferCount(123L).toLong())
+        assertEquals(5, t.getTransferCount(123L).toLong())
     }
 
     @Test
     fun getAssetTransferCount() {
-        whenever(mockAssetTransferTable!!.count).doReturn(5)
+        whenever(mockAssetTransferTable.count).doReturn(5)
 
-        assertEquals(5, t!!.assetTransferCount.toLong())
+        assertEquals(5, t.assetTransferCount.toLong())
     }
 }
 

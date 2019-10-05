@@ -37,10 +37,10 @@ class GetAssetTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock<ParameterService>()
-        mockAssetExchange = mock<AssetExchange>()
+        parameterServiceMock = mock()
+        mockAssetExchange = mock()
 
-        t = GetAsset(parameterServiceMock!!, mockAssetExchange!!)
+        t = GetAsset(parameterServiceMock, mockAssetExchange)
     }
 
     @Test
@@ -57,17 +57,17 @@ class GetAssetTest : AbstractUnitTest() {
         whenever(asset.description).doReturn("assetDescription")
         whenever(asset.decimals).doReturn(3)
 
-        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(request))).doReturn(asset)
+        whenever(parameterServiceMock.getAsset(eq(request))).doReturn(asset)
 
         val tradeCount = 1
         val transferCount = 2
         val assetAccountsCount = 3
 
-        whenever(mockAssetExchange!!.getTradeCount(eq(assetId))).doReturn(tradeCount)
-        whenever(mockAssetExchange!!.getTransferCount(eq(assetId))).doReturn(transferCount)
-        whenever(mockAssetExchange!!.getAssetAccountsCount(eq(assetId))).doReturn(assetAccountsCount)
+        whenever(mockAssetExchange.getTradeCount(eq(assetId))).doReturn(tradeCount)
+        whenever(mockAssetExchange.getTransferCount(eq(assetId))).doReturn(transferCount)
+        whenever(mockAssetExchange.getAssetAccountsCount(eq(assetId))).doReturn(assetAccountsCount)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertNotNull(result)
         assertEquals(asset.name, JSON.getAsString(result.get(NAME_RESPONSE)))

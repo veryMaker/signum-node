@@ -33,10 +33,10 @@ class GetAliasesTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
-        mockAliasService = mock<AliasService>()
+        mockParameterService = mock()
+        mockAliasService = mock()
 
-        t = GetAliases(mockParameterService!!, mockAliasService!!)
+        t = GetAliases(mockParameterService, mockAliasService)
     }
 
     @Test
@@ -53,14 +53,14 @@ class GetAliasesTest : AbstractUnitTest() {
         val mockOffer = mock<Offer>()
         whenever(mockOffer.priceNQT).doReturn(234L)
 
-        val mockAliasIterator = mockCollection<Alias>(mockAlias)
+        val mockAliasIterator = mockCollection(mockAlias)
 
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
+        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
 
-        whenever(mockAliasService!!.getAliasesByOwner(eq(accountId), eq(0), eq(-1))).doReturn(mockAliasIterator)
-        whenever(mockAliasService!!.getOffer(eq(mockAlias))).doReturn(mockOffer)
+        whenever(mockAliasService.getAliasesByOwner(eq(accountId), eq(0), eq(-1))).doReturn(mockAliasIterator)
+        whenever(mockAliasService.getOffer(eq(mockAlias))).doReturn(mockOffer)
 
-        val resultOverview = t!!.processRequest(request) as JsonObject
+        val resultOverview = t.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
 
         val resultList = resultOverview.get(ALIASES_RESPONSE) as JsonArray

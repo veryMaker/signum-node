@@ -18,7 +18,6 @@ abstract class AbstractIT {
 
     private lateinit var processBlock: ProcessBlock
 
-    protected var apiSender = APISender()
     private lateinit var burst: Burst
 
     @Before
@@ -51,7 +50,7 @@ abstract class AbstractIT {
     }
 
     fun processBlock(jsonFirstBlock: JsonObject) = runBlocking {
-        processBlock!!.processRequest(jsonFirstBlock, mock())
+        processBlock.processRequest(jsonFirstBlock, mock())
     }
 
     fun rollback(height: Int) = runBlocking {

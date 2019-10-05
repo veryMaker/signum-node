@@ -34,9 +34,9 @@ class GetAllOpenAskOrdersTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockAssetExchange = mock<AssetExchange>()
+        mockAssetExchange = mock()
 
-        t = GetAllOpenAskOrders(mockAssetExchange!!)
+        t = GetAllOpenAskOrders(mockAssetExchange)
     }
 
     @Test
@@ -51,11 +51,11 @@ class GetAllOpenAskOrdersTest : AbstractUnitTest() {
         val firstIndex = 1
         val lastIndex = 2
 
-        val mockIterator = mockCollection<Ask>(mockAskOrder)
-        whenever(mockAssetExchange!!.getAllAskOrders(eq(firstIndex), eq(lastIndex)))
+        val mockIterator = mockCollection(mockAskOrder)
+        whenever(mockAssetExchange.getAllAskOrders(eq(firstIndex), eq(lastIndex)))
                 .doReturn(mockIterator)
 
-        val result = t!!.processRequest(QuickMocker.httpServletRequest(
+        val result = t.processRequest(QuickMocker.httpServletRequest(
                 MockParam(FIRST_INDEX_PARAMETER, "" + firstIndex),
                 MockParam(LAST_INDEX_PARAMETER, "" + lastIndex)
         )) as JsonObject

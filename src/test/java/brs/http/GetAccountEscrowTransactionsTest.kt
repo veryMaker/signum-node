@@ -46,10 +46,10 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock<ParameterService>()
-        escrowServiceMock = mock<EscrowService>()
+        parameterServiceMock = mock()
+        escrowServiceMock = mock()
 
-        t = GetAccountEscrowTransactions(parameterServiceMock!!, escrowServiceMock!!)
+        t = GetAccountEscrowTransactions(parameterServiceMock, escrowServiceMock)
     }
 
     @Test
@@ -62,7 +62,7 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
 
         val account = mock<Account>()
         whenever(account.id).doReturn(accountId)
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(account)
+        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(account)
 
         val escrow = mock<Escrow>()
         whenever(escrow.id).doReturn(1L)
@@ -85,13 +85,13 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
         whenever(escrow.recipientId).doReturn(5L)
         whenever(escrow.senderId).doReturn(6L)
 
-        val decisionsIterator = mockCollection<Decision>(decision, skippedDecision, otherSkippedDecision)
+        val decisionsIterator = mockCollection(decision, skippedDecision, otherSkippedDecision)
         whenever(escrow.decisions).doReturn(decisionsIterator)
 
         val escrowCollection = listOf(escrow)
-        whenever(escrowServiceMock!!.getEscrowTransactionsByParticipant(eq(accountId))).doReturn(escrowCollection)
+        whenever(escrowServiceMock.getEscrowTransactionsByParticipant(eq(accountId))).doReturn(escrowCollection)
 
-        val resultOverview = t!!.processRequest(request) as JsonObject
+        val resultOverview = t.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
 
         val resultList = resultOverview.get(ESCROWS_RESPONSE) as JsonArray
@@ -101,12 +101,12 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
         val result = resultList.get(0) as JsonObject
         assertNotNull(result)
 
-        assertEquals("" + escrow.id!!, JSON.getAsString(result.get(ID_RESPONSE)))
-        assertEquals("" + escrow.senderId!!, JSON.getAsString(result.get(SENDER_RESPONSE)))
+        assertEquals("" + escrow.id, JSON.getAsString(result.get(ID_RESPONSE)))
+        assertEquals("" + escrow.senderId, JSON.getAsString(result.get(SENDER_RESPONSE)))
         assertEquals("BURST-2228-2222-BMNG-22222", JSON.getAsString(result.get(SENDER_RS_RESPONSE)))
-        assertEquals("" + escrow.recipientId!!, JSON.getAsString(result.get(RECIPIENT_RESPONSE)))
+        assertEquals("" + escrow.recipientId, JSON.getAsString(result.get(RECIPIENT_RESPONSE)))
         assertEquals("BURST-2227-2222-ZAYB-22222", JSON.getAsString(result.get(RECIPIENT_RS_RESPONSE)))
-        assertEquals("" + escrow.amountNQT!!, JSON.getAsString(result.get(AMOUNT_NQT_RESPONSE)))
+        assertEquals("" + escrow.amountNQT, JSON.getAsString(result.get(AMOUNT_NQT_RESPONSE)))
         assertEquals(escrow.requiredSigners.toLong(), JSON.getAsInt(result.get(REQUIRED_SIGNERS_RESPONSE)).toLong())
         assertEquals(escrow.deadline.toLong(), JSON.getAsInt(result.get(DEADLINE_RESPONSE)).toLong())
         assertEquals("undecided", JSON.getAsString(result.get(DEADLINE_ACTION_RESPONSE)))

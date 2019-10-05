@@ -34,10 +34,10 @@ class GetAccountCurrentAskOrdersTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
-        mockAssetExchange = mock<AssetExchange>()
+        mockParameterService = mock()
+        mockAssetExchange = mock()
 
-        t = GetAccountCurrentAskOrders(mockParameterService!!, mockAssetExchange!!)
+        t = GetAccountCurrentAskOrders(mockParameterService, mockAssetExchange)
     }
 
     @Test
@@ -54,17 +54,17 @@ class GetAccountCurrentAskOrdersTest : AbstractUnitTest() {
 
         val mockAccount = mock<Account>()
         whenever(mockAccount.id).doReturn(accountId)
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
+        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
 
         val mockAsk = mock<Ask>()
         val mockAskId = 1L
         whenever(mockAsk.id).doReturn(mockAskId)
 
-        val mockAskIterator = mockCollection<Ask>(mockAsk)
+        val mockAskIterator = mockCollection(mockAsk)
 
-        whenever(mockAssetExchange!!.getAskOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).doReturn(mockAskIterator)
+        whenever(mockAssetExchange.getAskOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).doReturn(mockAskIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertNotNull(result)
         assertEquals(1, (result.get(ASK_ORDERS_RESPONSE) as JsonArray).size())
@@ -86,17 +86,17 @@ class GetAccountCurrentAskOrdersTest : AbstractUnitTest() {
 
         val mockAccount = mock<Account>()
         whenever(mockAccount.id).doReturn(accountId)
-        whenever(mockParameterService!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
+        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
 
         val mockAsk = mock<Ask>()
         val mockAskId = 1L
         whenever(mockAsk.id).doReturn(mockAskId)
 
-        val mockAskIterator = mockCollection<Ask>(mockAsk)
+        val mockAskIterator = mockCollection(mockAsk)
 
-        whenever(mockAssetExchange!!.getAskOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockAskIterator)
+        whenever(mockAssetExchange.getAskOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockAskIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertNotNull(result)
         assertEquals(1, (result.get(ASK_ORDERS_RESPONSE) as JsonArray).size())

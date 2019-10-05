@@ -5,8 +5,6 @@ import io.grpc.StatusRuntimeException
 import org.junit.Before
 import org.junit.Test
 
-import java.io.IOException
-
 class GetBlockHandlerTest : AbstractGrpcTest() {
     @Before
     fun setupGetBlockHandlerTest() {
@@ -15,7 +13,7 @@ class GetBlockHandlerTest : AbstractGrpcTest() {
 
     @Test(expected = StatusRuntimeException::class)
     fun testGetBlockWithNoBlockSelected() {
-        brsService!!.getBlock(BrsApi.GetBlockRequest.newBuilder()
+        brsService.getBlock(BrsApi.GetBlockRequest.newBuilder()
                 .setHeight(Integer.MAX_VALUE)
                 .build())
     }

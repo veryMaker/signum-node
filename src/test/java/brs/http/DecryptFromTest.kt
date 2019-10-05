@@ -27,9 +27,9 @@ class DecryptFromTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
+        mockParameterService = mock()
 
-        t = DecryptFrom(mockParameterService!!)
+        t = DecryptFrom(mockParameterService)
     }
 
     @Test
@@ -43,23 +43,23 @@ class DecryptFromTest {
 
         val mockAccount = mock<Account>()
 
-        whenever(mockAccount.decryptFrom(any(), eq<String>(TEST_SECRET_PHRASE)))
+        whenever(mockAccount.decryptFrom(any(), eq(TEST_SECRET_PHRASE)))
                 .doReturn(byteArrayOf(1.toByte()))
 
         whenever(mockAccount.publicKey).doReturn(TEST_PUBLIC_KEY_BYTES)
 
-        whenever(mockParameterService!!.getAccount(request)).doReturn(mockAccount)
+        whenever(mockParameterService.getAccount(request)).doReturn(mockAccount)
 
-        assertEquals("\u0001", JSON.getAsString(JSON.getAsJsonObject(t!!.processRequest(request)).get(DECRYPTED_MESSAGE_RESPONSE)))
+        assertEquals("\u0001", JSON.getAsString(JSON.getAsJsonObject(t.processRequest(request)).get(DECRYPTED_MESSAGE_RESPONSE)))
     }
 
     @Test
     fun processRequest_accountWithoutPublicKeyIsIncorrectAccount() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
-        whenever(mockParameterService!!.getAccount(request)).doReturn(mock<Account>())
+        whenever(mockParameterService.getAccount(request)).doReturn(mock())
 
-        assertEquals(INCORRECT_ACCOUNT, t!!.processRequest(request))
+        assertEquals(INCORRECT_ACCOUNT, t.processRequest(request))
     }
 
 }

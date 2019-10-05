@@ -25,9 +25,9 @@ class SuggestFeeTest {
 
     @Before
     fun setUp() {
-        feeSuggestionCalculator = mock<FeeSuggestionCalculator>()
+        feeSuggestionCalculator = mock()
 
-        t = SuggestFee(feeSuggestionCalculator!!)
+        t = SuggestFee(feeSuggestionCalculator)
     }
 
     @Test
@@ -39,9 +39,9 @@ class SuggestFeeTest {
         val priority = 10 * FEE_QUANT
         val feeSuggestion = FeeSuggestion(cheap, standard, priority)
 
-        whenever(feeSuggestionCalculator!!.giveFeeSuggestion()).doReturn(feeSuggestion)
+        whenever(feeSuggestionCalculator.giveFeeSuggestion()).doReturn(feeSuggestion)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertEquals(cheap, JSON.getAsLong(result.get(CHEAP_FEE_RESPONSE)))
         assertEquals(standard, JSON.getAsLong(result.get(STANDARD_FEE_RESPONSE)))

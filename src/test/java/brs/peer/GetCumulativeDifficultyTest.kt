@@ -23,9 +23,9 @@ class GetCumulativeDifficultyTest {
 
     @Before
     fun setUp() {
-        mockBlockchain = mock<Blockchain>()
+        mockBlockchain = mock()
 
-        t = GetCumulativeDifficulty(mockBlockchain!!)
+        t = GetCumulativeDifficulty(mockBlockchain)
     }
 
     @Test
@@ -39,9 +39,9 @@ class GetCumulativeDifficultyTest {
         whenever(mockLastBlock.height).doReturn(blockchainHeight)
         whenever(mockLastBlock.cumulativeDifficulty).doReturn(cumulativeDifficulty)
 
-        whenever(mockBlockchain!!.lastBlock).doReturn(mockLastBlock)
+        whenever(mockBlockchain.lastBlock).doReturn(mockLastBlock)
 
-        val result = t!!.processRequest(request, mock<Peer>()) as JsonObject
+        val result = t.processRequest(request, mock()) as JsonObject
         assertNotNull(result)
 
         assertEquals(cumulativeDifficulty.toString(), JSON.getAsString(result.get("cumulativeDifficulty")))

@@ -1,27 +1,22 @@
 package brs.http
 
 import brs.Account
-import brs.BurstException
 import brs.at.AT
 import brs.at.AtConstants
 import brs.at.AtMachineState
 import brs.common.QuickMocker
+import brs.http.common.ResultFields.ATS_RESPONSE
 import brs.services.ATService
 import brs.services.AccountService
 import brs.services.ParameterService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.junit.Before
-import org.junit.Test
-
-import javax.servlet.http.HttpServletRequest
-import java.util.Arrays
-
-import brs.http.common.ResultFields.ATS_RESPONSE
 import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
 
 class GetAccountATsTest {
 
@@ -33,11 +28,11 @@ class GetAccountATsTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
-        mockATService = mock<ATService>()
-        mockAccountService = mock<AccountService>()
+        mockParameterService = mock()
+        mockATService = mock()
+        mockAccountService = mock()
 
-        t = GetAccountATs(mockParameterService!!, mockATService!!, mockAccountService!!)
+        t = GetAccountATs(mockParameterService, mockATService, mockAccountService)
     }
 
     @Test
@@ -57,14 +52,14 @@ class GetAccountATsTest {
         whenever(mockAT.id).doReturn(mockATIDBytes)
         whenever(mockAT.machineState).doReturn(mockMachineState)
 
-        whenever(mockParameterService!!.getAccount(eq(request))).doReturn(mockAccount)
+        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
 
-        whenever(mockAccountService!!.getAccount(any<Long>())).doReturn(mockAccount)
+        whenever(mockAccountService.getAccount(any<Long>())).doReturn(mockAccount)
 
-        whenever(mockATService!!.getATsIssuedBy(eq(mockAccountId))).doReturn(listOf(mockATId))
-        whenever(mockATService!!.getAT(eq(mockATId))).doReturn(mockAT)
+        whenever(mockATService.getATsIssuedBy(eq(mockAccountId))).doReturn(listOf(mockATId))
+        whenever(mockATService.getAT(eq(mockATId))).doReturn(mockAT)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val atsResultList = result.get(ATS_RESPONSE) as JsonArray

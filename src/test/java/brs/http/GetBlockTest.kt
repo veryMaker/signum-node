@@ -32,10 +32,10 @@ class GetBlockTest {
 
     @Before
     fun setUp() {
-        blockchainMock = mock<Blockchain>()
-        blockServiceMock = mock<BlockService>()
+        blockchainMock = mock()
+        blockServiceMock = mock()
 
-        t = GetBlock(blockchainMock!!, blockServiceMock!!)
+        t = GetBlock(blockchainMock, blockServiceMock)
     }
 
     @Test
@@ -48,9 +48,9 @@ class GetBlockTest {
 
         val mockBlock = mock<Block>()
 
-        whenever(blockchainMock!!.getBlock(eq(blockId))).doReturn(mockBlock)
+        whenever(blockchainMock.getBlock(eq(blockId))).doReturn(mockBlock)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertNotNull(result)
     }
@@ -61,7 +61,7 @@ class GetBlockTest {
                 MockParam(BLOCK_PARAMETER, "notALong")
         )
 
-        assertEquals(INCORRECT_BLOCK, t!!.processRequest(request))
+        assertEquals(INCORRECT_BLOCK, t.processRequest(request))
     }
 
     @Test
@@ -74,10 +74,10 @@ class GetBlockTest {
 
         val mockBlock = mock<Block>()
 
-        whenever(blockchainMock!!.height).doReturn(100)
-        whenever(blockchainMock!!.getBlockAtHeight(eq(blockHeight))).doReturn(mockBlock)
+        whenever(blockchainMock.height).doReturn(100)
+        whenever(blockchainMock.getBlockAtHeight(eq(blockHeight))).doReturn(mockBlock)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertNotNull(result)
     }
@@ -88,7 +88,7 @@ class GetBlockTest {
                 MockParam(HEIGHT_PARAMETER, "unParsable")
         )
 
-        assertEquals(INCORRECT_HEIGHT, t!!.processRequest(request))
+        assertEquals(INCORRECT_HEIGHT, t.processRequest(request))
     }
 
     @Test
@@ -99,7 +99,7 @@ class GetBlockTest {
                 MockParam(HEIGHT_PARAMETER, heightValue)
         )
 
-        assertEquals(INCORRECT_HEIGHT, t!!.processRequest(request))
+        assertEquals(INCORRECT_HEIGHT, t.processRequest(request))
     }
 
     @Test
@@ -110,9 +110,9 @@ class GetBlockTest {
                 MockParam(HEIGHT_PARAMETER, heightValue)
         )
 
-        whenever(blockchainMock!!.height).doReturn(5)
+        whenever(blockchainMock.height).doReturn(5)
 
-        assertEquals(INCORRECT_HEIGHT, t!!.processRequest(request))
+        assertEquals(INCORRECT_HEIGHT, t.processRequest(request))
     }
 
     @Test
@@ -125,9 +125,9 @@ class GetBlockTest {
 
         val mockBlock = mock<Block>()
 
-        whenever(blockchainMock!!.getLastBlock(eq(timestamp))).doReturn(mockBlock)
+        whenever(blockchainMock.getLastBlock(eq(timestamp))).doReturn(mockBlock)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertNotNull(result)
     }
@@ -138,7 +138,7 @@ class GetBlockTest {
                 MockParam(TIMESTAMP_PARAMETER, "unParsable")
         )
 
-        assertEquals(INCORRECT_TIMESTAMP, t!!.processRequest(request))
+        assertEquals(INCORRECT_TIMESTAMP, t.processRequest(request))
     }
 
     @Test
@@ -149,7 +149,7 @@ class GetBlockTest {
                 MockParam(TIMESTAMP_PARAMETER, timestamp)
         )
 
-        assertEquals(INCORRECT_TIMESTAMP, t!!.processRequest(request))
+        assertEquals(INCORRECT_TIMESTAMP, t.processRequest(request))
     }
 
 
@@ -157,7 +157,7 @@ class GetBlockTest {
     fun processRequest_unknownBlock() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
-        assertEquals(UNKNOWN_BLOCK, t!!.processRequest(request))
+        assertEquals(UNKNOWN_BLOCK, t.processRequest(request))
     }
 
 }

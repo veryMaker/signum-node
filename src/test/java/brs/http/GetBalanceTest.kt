@@ -28,8 +28,8 @@ class GetBalanceTest {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock<ParameterService>()
-        this.t = GetBalance(parameterServiceMock!!)
+        parameterServiceMock = mock()
+        this.t = GetBalance(parameterServiceMock)
     }
 
     @Test
@@ -41,9 +41,9 @@ class GetBalanceTest {
         whenever(mockAccount.unconfirmedBalanceNQT).doReturn(2L)
         whenever(mockAccount.forgedBalanceNQT).doReturn(3L)
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(mockAccount)
+        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(mockAccount)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertEquals("1", JSON.getAsString(result.get(BALANCE_NQT_RESPONSE)))
         assertEquals("2", JSON.getAsString(result.get(UNCONFIRMED_BALANCE_NQT_RESPONSE)))
@@ -56,9 +56,9 @@ class GetBalanceTest {
     fun processRequest_noAccountFound() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(null)
+        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(null)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertEquals("0", JSON.getAsString(result.get(BALANCE_NQT_RESPONSE)))
         assertEquals("0", JSON.getAsString(result.get(UNCONFIRMED_BALANCE_NQT_RESPONSE)))

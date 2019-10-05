@@ -21,16 +21,16 @@ class ATServiceImplTest {
     fun setUp() {
         mockATStore = mock()
 
-        t = ATServiceImpl(QuickMocker.dependencyProvider(mockATStore!!))
+        t = ATServiceImpl(QuickMocker.dependencyProvider(mockATStore))
     }
 
     @Test
     fun getAllATIds() {
         val mockATCollection = mock<Collection<Long>>()
 
-        whenever(mockATStore!!.allATIds).doReturn(mockATCollection)
+        whenever(mockATStore.allATIds).doReturn(mockATCollection)
 
-        assertEquals(mockATCollection, t!!.allATIds)
+        assertEquals(mockATCollection, t.allATIds)
     }
 
     @Test
@@ -39,9 +39,9 @@ class ATServiceImplTest {
 
         val mockATsIssuedByAccount = mock<List<Long>>()
 
-        whenever(mockATStore!!.getATsIssuedBy(eq(accountId))).doReturn(mockATsIssuedByAccount)
+        whenever(mockATStore.getATsIssuedBy(eq(accountId))).doReturn(mockATsIssuedByAccount)
 
-        assertEquals(mockATsIssuedByAccount, t!!.getATsIssuedBy(accountId))
+        assertEquals(mockATsIssuedByAccount, t.getATsIssuedBy(accountId))
     }
 
     @Test
@@ -50,9 +50,9 @@ class ATServiceImplTest {
 
         val mockAT = mock<AT>()
 
-        whenever(mockATStore!!.getAT(eq(atId))).doReturn(mockAT)
+        whenever(mockATStore.getAT(eq(atId))).doReturn(mockAT)
 
-        assertEquals(mockAT, t!!.getAT(atId))
+        assertEquals(mockAT, t.getAT(atId))
     }
 
 }

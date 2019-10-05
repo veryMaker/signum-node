@@ -42,10 +42,16 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
         aliasService = mock()
         accountService = mock()
 
-        whenever(mockSubscriptionStore!!.subscriptionTable).doReturn(mockSubscriptionTable!!)
-        whenever(mockSubscriptionStore!!.subscriptionDbKeyFactory).doReturn(mockSubscriptionDbKeyFactory!!)
+        whenever(mockSubscriptionStore.subscriptionTable).doReturn(mockSubscriptionTable)
+        whenever(mockSubscriptionStore.subscriptionDbKeyFactory).doReturn(mockSubscriptionDbKeyFactory)
 
-        t = SubscriptionServiceImpl(QuickMocker.dependencyProvider(mockSubscriptionStore!!, transactionDb!!, blockchain!!, aliasService!!, accountService!!))
+        t = SubscriptionServiceImpl(QuickMocker.dependencyProvider(
+            mockSubscriptionStore,
+            transactionDb,
+            blockchain,
+            aliasService,
+            accountService
+        ))
     }
 
     @Test
@@ -56,10 +62,10 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
 
         val mockSubscription = mock<Subscription>()
 
-        whenever(mockSubscriptionDbKeyFactory!!.newKey(eq(subscriptionId))).doReturn(mockSubscriptionKey)
-        whenever(mockSubscriptionTable!!.get(eq(mockSubscriptionKey))).doReturn(mockSubscription)
+        whenever(mockSubscriptionDbKeyFactory.newKey(eq(subscriptionId))).doReturn(mockSubscriptionKey)
+        whenever(mockSubscriptionTable[eq(mockSubscriptionKey)]).doReturn(mockSubscription)
 
-        assertEquals(mockSubscription, t!!.getSubscription(subscriptionId))
+        assertEquals(mockSubscription, t.getSubscription(subscriptionId))
     }
 
     @Test
@@ -67,9 +73,9 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
         val accountId = 123L
 
         val mockSubscriptionIterator = mockCollection<Subscription>()
-        whenever(mockSubscriptionStore!!.getSubscriptionsByParticipant(eq(accountId))).doReturn(mockSubscriptionIterator)
+        whenever(mockSubscriptionStore.getSubscriptionsByParticipant(eq(accountId))).doReturn(mockSubscriptionIterator)
 
-        assertEquals(mockSubscriptionIterator, t!!.getSubscriptionsByParticipant(accountId))
+        assertEquals(mockSubscriptionIterator, t.getSubscriptionsByParticipant(accountId))
     }
 
     @Test
@@ -77,8 +83,8 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
         val accountId = 123L
 
         val mockSubscriptionIterator = mockCollection<Subscription>()
-        whenever(mockSubscriptionStore!!.getSubscriptionsToId(eq(accountId))).doReturn(mockSubscriptionIterator)
+        whenever(mockSubscriptionStore.getSubscriptionsToId(eq(accountId))).doReturn(mockSubscriptionIterator)
 
-        assertEquals(mockSubscriptionIterator, t!!.getSubscriptionsToId(accountId))
+        assertEquals(mockSubscriptionIterator, t.getSubscriptionsToId(accountId))
     }
 }

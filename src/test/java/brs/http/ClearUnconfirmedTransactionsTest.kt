@@ -23,16 +23,16 @@ class ClearUnconfirmedTransactionsTest {
 
     @Before
     fun init() {
-        transactionProcessorMock = mock<TransactionProcessor>()
+        transactionProcessorMock = mock()
 
-        this.t = ClearUnconfirmedTransactions(transactionProcessorMock!!)
+        this.t = ClearUnconfirmedTransactions(transactionProcessorMock)
     }
 
     @Test
     fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertEquals(true, JSON.getAsBoolean(result.get(DONE_RESPONSE)))
     }
@@ -41,15 +41,15 @@ class ClearUnconfirmedTransactionsTest {
     fun processRequest_runtimeExceptionOccurs() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
-        doThrow(RuntimeException("errorMessage")).whenever(transactionProcessorMock!!).clearUnconfirmedTransactions()
+        doThrow(RuntimeException("errorMessage")).whenever(transactionProcessorMock).clearUnconfirmedTransactions()
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertEquals("java.lang.RuntimeException: errorMessage", JSON.getAsString(result.get(ERROR_RESPONSE)))
     }
 
     @Test
     fun requirePost() {
-        assertTrue(t!!.requirePost())
+        assertTrue(t.requirePost())
     }
 }

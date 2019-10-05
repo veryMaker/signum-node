@@ -30,9 +30,9 @@ class AssetAccountServiceImplTest {
 
         val mockAccountIterator = mock<Collection<AccountAsset>>()
 
-        whenever(mockAccountStore!!.getAssetAccounts(eq(assetId), eq(from), eq(to))).doReturn(mockAccountIterator)
+        whenever(mockAccountStore.getAssetAccounts(eq(assetId), eq(from), eq(to))).doReturn(mockAccountIterator)
 
-        assertEquals(mockAccountIterator, t!!.getAssetAccounts(assetId, from, to))
+        assertEquals(mockAccountIterator, t.getAssetAccounts(assetId, from, to))
     }
 
     @Test
@@ -44,9 +44,9 @@ class AssetAccountServiceImplTest {
 
         val mockAccountIterator = mock<Collection<AccountAsset>>()
 
-        whenever(mockAccountStore!!.getAssetAccounts(eq(assetId), eq(height), eq(from), eq(to))).doReturn(mockAccountIterator)
+        whenever(mockAccountStore.getAssetAccounts(eq(assetId), eq(height), eq(from), eq(to))).doReturn(mockAccountIterator)
 
-        assertEquals(mockAccountIterator, t!!.getAssetAccounts(assetId, height, from, to))
+        assertEquals(mockAccountIterator, t.getAssetAccounts(assetId, height, from, to))
     }
 
     @Test
@@ -58,15 +58,15 @@ class AssetAccountServiceImplTest {
 
         val mockAccountIterator = mock<Collection<AccountAsset>>()
 
-        whenever(mockAccountStore!!.getAssetAccounts(eq(assetId), eq(from), eq(to))).doReturn(mockAccountIterator)
+        whenever(mockAccountStore.getAssetAccounts(eq(assetId), eq(from), eq(to))).doReturn(mockAccountIterator)
 
-        assertEquals(mockAccountIterator, t!!.getAssetAccounts(assetId, height, from, to))
+        assertEquals(mockAccountIterator, t.getAssetAccounts(assetId, height, from, to))
     }
 
     @Test
     fun getAssetAccountsCount() {
-        whenever(mockAccountStore!!.getAssetAccountsCount(eq(123L))).doReturn(5)
+        whenever(mockAccountStore.getAssetAccountsCount(eq(123L))).doReturn(5)
 
-        assertEquals(5L, t!!.getAssetAccountsCount(123).toLong())
+        assertEquals(5L, t.getAssetAccountsCount(123).toLong())
     }
 }

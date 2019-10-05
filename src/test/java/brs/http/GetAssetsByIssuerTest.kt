@@ -41,10 +41,10 @@ class GetAssetsByIssuerTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
-        mockAssetExchange = mock<AssetExchange>()
+        mockParameterService = mock()
+        mockAssetExchange = mock()
 
-        t = GetAssetsByIssuer(mockParameterService!!, mockAssetExchange!!)
+        t = GetAssetsByIssuer(mockParameterService, mockAssetExchange)
     }
 
     @Test
@@ -60,7 +60,7 @@ class GetAssetsByIssuerTest : AbstractUnitTest() {
 
         val mockAccount = mock<Account>()
         whenever(mockAccount.id).doReturn(1L)
-        whenever(mockParameterService!!.getAccounts(eq<HttpServletRequest>(request))).doReturn(listOf(mockAccount))
+        whenever(mockParameterService.getAccounts(eq(request))).doReturn(listOf(mockAccount))
 
         val mockAssetId: Long = 1
 
@@ -72,14 +72,14 @@ class GetAssetsByIssuerTest : AbstractUnitTest() {
         whenever(mockAsset.decimals).doReturn(1.toByte())
         whenever(mockAsset.quantityQNT).doReturn(2L)
 
-        val mockAssetIterator = mockCollection<Asset>(mockAsset)
+        val mockAssetIterator = mockCollection(mockAsset)
 
-        whenever(mockAssetExchange!!.getAssetsIssuedBy(eq(mockAccount.id), eq(firstIndex), eq(lastIndex))).doReturn(mockAssetIterator)
-        whenever(mockAssetExchange!!.getAssetAccountsCount(eq(mockAssetId))).doReturn(1)
-        whenever(mockAssetExchange!!.getTransferCount(eq(mockAssetId))).doReturn(2)
-        whenever(mockAssetExchange!!.getTradeCount(eq(mockAssetId))).doReturn(3)
+        whenever(mockAssetExchange.getAssetsIssuedBy(eq(mockAccount.id), eq(firstIndex), eq(lastIndex))).doReturn(mockAssetIterator)
+        whenever(mockAssetExchange.getAssetAccountsCount(eq(mockAssetId))).doReturn(1)
+        whenever(mockAssetExchange.getTransferCount(eq(mockAssetId))).doReturn(2)
+        whenever(mockAssetExchange.getTradeCount(eq(mockAssetId))).doReturn(3)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val assetsForAccountsResult = result.get(ASSETS_RESPONSE) as JsonArray

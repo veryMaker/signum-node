@@ -32,9 +32,9 @@ class GetDGSGoodTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
+        mockParameterService = mock()
 
-        t = GetDGSGood(mockParameterService!!)
+        t = GetDGSGood(mockParameterService)
     }
 
     @Test
@@ -51,9 +51,9 @@ class GetDGSGoodTest {
 
         val request = QuickMocker.httpServletRequest()
 
-        whenever(mockParameterService!!.getGoods(eq<HttpServletRequest>(request))).doReturn(mockGoods)
+        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         assertEquals("" + mockGoods.id, JSON.getAsString(result.get(GOODS_RESPONSE)))

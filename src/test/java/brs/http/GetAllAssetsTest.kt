@@ -37,9 +37,9 @@ class GetAllAssetsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        assetExchange = mock<AssetExchange>()
+        assetExchange = mock()
 
-        t = GetAllAssets(assetExchange!!)
+        t = GetAllAssets(assetExchange)
     }
 
     @Test
@@ -62,14 +62,14 @@ class GetAllAssetsTest : AbstractUnitTest() {
         whenever(mockAsset.decimals).doReturn(1.toByte())
         whenever(mockAsset.quantityQNT).doReturn(2L)
 
-        val mockAssetIterator = mockCollection<Asset>(mockAsset)
+        val mockAssetIterator = mockCollection(mockAsset)
 
-        whenever(assetExchange!!.getAllAssets(eq(firstIndex), eq(lastIndex))).doReturn(mockAssetIterator)
-        whenever(assetExchange!!.getAssetAccountsCount(eq(mockAssetId))).doReturn(1)
-        whenever(assetExchange!!.getTransferCount(eq(mockAssetId))).doReturn(2)
-        whenever(assetExchange!!.getTradeCount(eq(mockAssetId))).doReturn(3)
+        whenever(assetExchange.getAllAssets(eq(firstIndex), eq(lastIndex))).doReturn(mockAssetIterator)
+        whenever(assetExchange.getAssetAccountsCount(eq(mockAssetId))).doReturn(1)
+        whenever(assetExchange.getTransferCount(eq(mockAssetId))).doReturn(2)
+        whenever(assetExchange.getTradeCount(eq(mockAssetId))).doReturn(3)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val assetsResult = result.get(ASSETS_RESPONSE) as JsonArray

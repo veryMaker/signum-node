@@ -25,14 +25,14 @@ class FullResetTest {
     fun init() {
         blockchainProcessor = mock()
 
-        this.t = FullReset(blockchainProcessor!!)
+        this.t = FullReset(blockchainProcessor)
     }
 
     @Test
     fun processRequest() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertTrue(JSON.getAsBoolean(result.get(DONE_RESPONSE)))
     }
@@ -41,15 +41,15 @@ class FullResetTest {
     fun processRequest_runtimeExceptionOccurs() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
-        doThrow(RuntimeException("errorMessage")).whenever(blockchainProcessor!!).fullReset()
+        doThrow(RuntimeException("errorMessage")).whenever(blockchainProcessor).fullReset()
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertEquals("java.lang.RuntimeException: errorMessage", JSON.getAsString(result.get(ERROR_RESPONSE)))
     }
 
     @Test
     fun requirePost() {
-        assertTrue(t!!.requirePost())
+        assertTrue(t.requirePost())
     }
 }

@@ -30,10 +30,10 @@ class GetAliasTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
-        mockAliasService = mock<AliasService>()
+        mockParameterService = mock()
+        mockAliasService = mock()
 
-        t = GetAlias(mockParameterService!!, mockAliasService!!)
+        t = GetAlias(mockParameterService, mockAliasService)
     }
 
     @Test
@@ -47,10 +47,10 @@ class GetAliasTest {
 
         val request = QuickMocker.httpServletRequest()
 
-        whenever(mockParameterService!!.getAlias(eq<HttpServletRequest>(request))).doReturn(mockAlias)
-        whenever(mockAliasService!!.getOffer(eq(mockAlias))).doReturn(mockOffer)
+        whenever(mockParameterService.getAlias(eq(request))).doReturn(mockAlias)
+        whenever(mockAliasService.getOffer(eq(mockAlias))).doReturn(mockOffer)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
         assertEquals(mockAlias.aliasName, JSON.getAsString(result.get(ALIAS_NAME_RESPONSE)))
         assertEquals("" + mockOffer.priceNQT, JSON.getAsString(result.get(PRICE_NQT_RESPONSE)))

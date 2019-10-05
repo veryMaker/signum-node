@@ -21,9 +21,9 @@ class GetTimeTest {
 
     @Before
     fun setUp() {
-        mockTimeService = mock<TimeService>()
+        mockTimeService = mock()
 
-        t = GetTime(mockTimeService!!)
+        t = GetTime(mockTimeService)
     }
 
     @Test
@@ -32,9 +32,9 @@ class GetTimeTest {
 
         val currentEpochTime = 123
 
-        whenever(mockTimeService!!.epochTime).doReturn(currentEpochTime)
+        whenever(mockTimeService.epochTime).doReturn(currentEpochTime)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertEquals(currentEpochTime.toLong(), JSON.getAsInt(result.get(TIME_RESPONSE)).toLong())
     }

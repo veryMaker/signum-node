@@ -39,10 +39,10 @@ class GetAskOrdersTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock<ParameterService>()
-        assetExchangeMock = mock<AssetExchange>()
+        parameterServiceMock = mock()
+        assetExchangeMock = mock()
 
-        t = GetAskOrders(parameterServiceMock!!, assetExchangeMock!!)
+        t = GetAskOrders(parameterServiceMock, assetExchangeMock)
     }
 
     @Test
@@ -60,7 +60,7 @@ class GetAskOrdersTest : AbstractUnitTest() {
         val asset = mock<Asset>()
         whenever(asset.id).doReturn(assetIndex)
 
-        whenever(parameterServiceMock!!.getAsset(eq<HttpServletRequest>(request))).doReturn(asset)
+        whenever(parameterServiceMock.getAsset(eq(request))).doReturn(asset)
 
         val askOrder1 = mock<Ask>()
         whenever(askOrder1.id).doReturn(3L)
@@ -72,11 +72,11 @@ class GetAskOrdersTest : AbstractUnitTest() {
         val askOrder2 = mock<Ask>()
         whenever(askOrder1.id).doReturn(4L)
 
-        val askIterator = mockCollection<Ask>(askOrder1, askOrder2)
+        val askIterator = mockCollection(askOrder1, askOrder2)
 
-        whenever(assetExchangeMock!!.getSortedAskOrders(eq(assetIndex), eq(firstIndex), eq(lastIndex))).doReturn(askIterator)
+        whenever(assetExchangeMock.getSortedAskOrders(eq(assetIndex), eq(firstIndex), eq(lastIndex))).doReturn(askIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val orders = result.get(ASK_ORDERS_RESPONSE) as JsonArray

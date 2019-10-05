@@ -66,7 +66,7 @@ abstract class AbstractGrpcTest {
         setUpBrsService(BrsService(dp))
     }
 
-    protected fun setUpBrsService(brsService: BrsService) {
+    private fun setUpBrsService(brsService: BrsService) {
         val serverName = InProcessServerBuilder.generateName()
         grpcCleanup.register(InProcessServerBuilder.forName(serverName).directExecutor().addService(brsService).build().start())
 

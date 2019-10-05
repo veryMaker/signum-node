@@ -37,9 +37,9 @@ class GetDGSPurchaseTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
+        mockParameterService = mock()
 
-        t = GetDGSPurchase(mockParameterService!!)
+        t = GetDGSPurchase(mockParameterService)
     }
 
 
@@ -74,9 +74,9 @@ class GetDGSPurchaseTest {
         whenever(mockPurchase.note).doReturn(mockEncryptedData)
         whenever(mockPurchase.publicFeedback).doReturn(listOf("feedback"))
 
-        whenever(mockParameterService!!.getPurchase(eq<HttpServletRequest>(request))).doReturn(mockPurchase)
+        whenever(mockParameterService.getPurchase(eq(request))).doReturn(mockPurchase)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
 
         assertNotNull(result)
 

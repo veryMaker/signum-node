@@ -43,11 +43,11 @@ class IssueAssetTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock<ParameterService>()
-        whenever(mockParameterService!!.getSenderAccount(any())).doReturn(mock())
-        mockBlockchain = mock<Blockchain>()
-        apiTransactionManagerMock = mock<APITransactionManager>()
-        dp = QuickMocker.dependencyProvider(mockParameterService!!, mockBlockchain!!, apiTransactionManagerMock!!)
+        mockParameterService = mock()
+        whenever(mockParameterService.getSenderAccount(any())).doReturn(mock())
+        mockBlockchain = mock()
+        apiTransactionManagerMock = mock()
+        dp = QuickMocker.dependencyProvider(mockParameterService, mockBlockchain, apiTransactionManagerMock)
         t = IssueAsset(dp)
     }
 
@@ -68,7 +68,7 @@ class IssueAssetTest : AbstractTransactionTest() {
         dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        val attachment = attachmentCreatedTransaction({ t!!.processRequest(request) }, apiTransactionManagerMock!!) as Attachment.ColoredCoinsAssetIssuance
+        val attachment = attachmentCreatedTransaction({ t.processRequest(request) }, apiTransactionManagerMock) as Attachment.ColoredCoinsAssetIssuance
         assertNotNull(attachment)
 
         assertTrue(attachment.transactionType is AssetIssuance)
@@ -82,7 +82,7 @@ class IssueAssetTest : AbstractTransactionTest() {
     fun processRequest_missingName() = runBlocking {
         val request = QuickMocker.httpServletRequest()
 
-        assertEquals(MISSING_NAME, t!!.processRequest(request))
+        assertEquals(MISSING_NAME, t.processRequest(request))
     }
 
     @Test
@@ -91,7 +91,7 @@ class IssueAssetTest : AbstractTransactionTest() {
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH - 1))
         )
 
-        assertEquals(INCORRECT_ASSET_NAME_LENGTH, t!!.processRequest(request))
+        assertEquals(INCORRECT_ASSET_NAME_LENGTH, t.processRequest(request))
     }
 
     @Test
@@ -100,7 +100,7 @@ class IssueAssetTest : AbstractTransactionTest() {
                 MockParam(NAME_PARAMETER, stringWithLength(MAX_ASSET_NAME_LENGTH + 1))
         )
 
-        assertEquals(INCORRECT_ASSET_NAME_LENGTH, t!!.processRequest(request))
+        assertEquals(INCORRECT_ASSET_NAME_LENGTH, t.processRequest(request))
     }
 
     @Test
@@ -109,7 +109,7 @@ class IssueAssetTest : AbstractTransactionTest() {
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1) + "[")
         )
 
-        assertEquals(INCORRECT_ASSET_NAME, t!!.processRequest(request))
+        assertEquals(INCORRECT_ASSET_NAME, t.processRequest(request))
     }
 
     @Test
@@ -119,7 +119,7 @@ class IssueAssetTest : AbstractTransactionTest() {
                 MockParam(DESCRIPTION_PARAMETER, stringWithLength(MAX_ASSET_DESCRIPTION_LENGTH + 1))
         )
 
-        assertEquals(INCORRECT_ASSET_DESCRIPTION, t!!.processRequest(request))
+        assertEquals(INCORRECT_ASSET_DESCRIPTION, t.processRequest(request))
     }
 
     @Test
@@ -130,7 +130,7 @@ class IssueAssetTest : AbstractTransactionTest() {
                 MockParam(DECIMALS_PARAMETER, "unParsable")
         )
 
-        assertEquals(INCORRECT_DECIMALS, t!!.processRequest(request))
+        assertEquals(INCORRECT_DECIMALS, t.processRequest(request))
     }
 
     @Test
@@ -141,7 +141,7 @@ class IssueAssetTest : AbstractTransactionTest() {
                 MockParam(DECIMALS_PARAMETER, -5L)
         )
 
-        assertEquals(INCORRECT_DECIMALS, t!!.processRequest(request))
+        assertEquals(INCORRECT_DECIMALS, t.processRequest(request))
     }
 
     @Test
@@ -152,6 +152,6 @@ class IssueAssetTest : AbstractTransactionTest() {
                 MockParam(DECIMALS_PARAMETER, 9L)
         )
 
-        assertEquals(INCORRECT_DECIMALS, t!!.processRequest(request))
+        assertEquals(INCORRECT_DECIMALS, t.processRequest(request))
     }
 }

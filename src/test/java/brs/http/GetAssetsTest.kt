@@ -31,9 +31,9 @@ class GetAssetsTest {
 
     @Before
     fun setUp() {
-        mockAssetExchange = mock<AssetExchange>()
+        mockAssetExchange = mock()
 
-        t = GetAssets(mockAssetExchange!!)
+        t = GetAssets(mockAssetExchange)
     }
 
     @Test
@@ -50,13 +50,13 @@ class GetAssetsTest {
         val mockAsset = mock<Asset>()
         whenever(mockAsset.id).doReturn(assetId)
 
-        whenever(mockAssetExchange!!.getAsset(eq(assetId))).doReturn(mockAsset)
+        whenever(mockAssetExchange.getAsset(eq(assetId))).doReturn(mockAsset)
 
-        whenever(mockAssetExchange!!.getTradeCount(eq(assetId))).doReturn(mockTradeCount)
-        whenever(mockAssetExchange!!.getTransferCount(eq(assetId))).doReturn(mockTransferCount)
-        whenever(mockAssetExchange!!.getAssetAccountsCount(eq(assetId))).doReturn(mockAccountsCount)
+        whenever(mockAssetExchange.getTradeCount(eq(assetId))).doReturn(mockTradeCount)
+        whenever(mockAssetExchange.getTransferCount(eq(assetId))).doReturn(mockTransferCount)
+        whenever(mockAssetExchange.getAssetAccountsCount(eq(assetId))).doReturn(mockAccountsCount)
 
-        val response = t!!.processRequest(request) as JsonObject
+        val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
 
         val responseList = response.get(ASSETS_RESPONSE) as JsonArray
@@ -77,9 +77,9 @@ class GetAssetsTest {
         val request = QuickMocker.httpServletRequest()
         whenever(request.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf(assetId.toString()))
 
-        whenever(mockAssetExchange!!.getAsset(eq(assetId))).doReturn(null)
+        whenever(mockAssetExchange.getAsset(eq(assetId))).doReturn(null)
 
-        assertEquals(UNKNOWN_ASSET, t!!.processRequest(request))
+        assertEquals(UNKNOWN_ASSET, t.processRequest(request))
     }
 
     @Test
@@ -88,7 +88,7 @@ class GetAssetsTest {
 
         whenever(request.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf("unParsable"))
 
-        assertEquals(INCORRECT_ASSET, t!!.processRequest(request))
+        assertEquals(INCORRECT_ASSET, t.processRequest(request))
     }
 
 }

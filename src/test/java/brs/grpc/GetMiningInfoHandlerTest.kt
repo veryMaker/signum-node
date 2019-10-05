@@ -17,7 +17,7 @@ class GetMiningInfoHandlerTest : AbstractGrpcTest() {
     @Test
     fun testGetMiningInfo() {
         runAndCancel {
-            val miningInfoIterator = brsService!!.getMiningInfo(Empty.getDefaultInstance())
+            val miningInfoIterator = brsService.getMiningInfo(Empty.getDefaultInstance())
             assertTrue("Mining info is not available", miningInfoIterator.hasNext())
             val miningInfo = miningInfoIterator.next()
             assertNotNull("Mining info is null", miningInfo)

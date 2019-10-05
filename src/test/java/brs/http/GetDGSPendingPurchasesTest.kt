@@ -30,9 +30,9 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockDGSGoodStoreService = mock<DGSGoodsStoreService>()
+        mockDGSGoodStoreService = mock()
 
-        t = GetDGSPendingPurchases(mockDGSGoodStoreService!!)
+        t = GetDGSPendingPurchases(mockDGSGoodStoreService)
     }
 
     @Test
@@ -49,10 +49,10 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
 
         val mockPurchase = mock<Purchase>()
 
-        val mockPurchaseIterator = mockCollection<Purchase>(mockPurchase)
-        whenever(mockDGSGoodStoreService!!.getPendingSellerPurchases(eq(sellerId), eq(firstIndex), eq(lastIndex))).doReturn(mockPurchaseIterator)
+        val mockPurchaseIterator = mockCollection(mockPurchase)
+        whenever(mockDGSGoodStoreService.getPendingSellerPurchases(eq(sellerId), eq(firstIndex), eq(lastIndex))).doReturn(mockPurchaseIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val resultPurchases = result.get(PURCHASES_RESPONSE) as JsonArray
@@ -67,7 +67,7 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
                 MockParam(SELLER_PARAMETER, 0L)
         )
 
-        assertEquals(MISSING_SELLER, t!!.processRequest(request))
+        assertEquals(MISSING_SELLER, t.processRequest(request))
     }
 
 }

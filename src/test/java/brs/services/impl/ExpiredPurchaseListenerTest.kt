@@ -22,10 +22,13 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        accountServiceMock = mock<AccountService>()
-        dgsGoodsStoreServiceMock = mock<DGSGoodsStoreService>()
+        accountServiceMock = mock()
+        dgsGoodsStoreServiceMock = mock()
 
-        t = DGSGoodsStoreServiceImpl.expiredPurchaseListener(QuickMocker.dependencyProvider(accountServiceMock!!, dgsGoodsStoreServiceMock!!))
+        t = DGSGoodsStoreServiceImpl.expiredPurchaseListener(QuickMocker.dependencyProvider(
+            accountServiceMock,
+            dgsGoodsStoreServiceMock
+        ))
     }
 
     @Test
@@ -37,7 +40,7 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
         val purchaseBuyerId: Long = 34
         val purchaseBuyer = mock<Account>()
         whenever(purchaseBuyer.id).doReturn(purchaseBuyerId)
-        whenever(accountServiceMock!!.getAccount(eq(purchaseBuyer.id))).doReturn(purchaseBuyer)
+        whenever(accountServiceMock.getAccount(eq(purchaseBuyer.id))).doReturn(purchaseBuyer)
 
         val expiredPurchase = mock<Purchase>()
         whenever(expiredPurchase.quantity).doReturn(5)
@@ -45,12 +48,12 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
         whenever(expiredPurchase.buyerId).doReturn(purchaseBuyerId)
 
         val mockIterator = mockCollection(expiredPurchase)
-        whenever(dgsGoodsStoreServiceMock!!.getExpiredPendingPurchases(eq(blockTimestamp))).doReturn(mockIterator)
+        whenever(dgsGoodsStoreServiceMock.getExpiredPendingPurchases(eq(blockTimestamp))).doReturn(mockIterator)
 
-        t!!(block)
+        t(block)
 
-        verify(accountServiceMock!!).addToUnconfirmedBalanceNQT(eq(purchaseBuyer), eq(15000L))
+        verify(accountServiceMock).addToUnconfirmedBalanceNQT(eq(purchaseBuyer), eq(15000L))
 
-        verify(dgsGoodsStoreServiceMock!!).setPending(eq(expiredPurchase), eq(false))
+        verify(dgsGoodsStoreServiceMock).setPending(eq(expiredPurchase), eq(false))
     }
 }

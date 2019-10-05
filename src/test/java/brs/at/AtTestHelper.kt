@@ -123,7 +123,7 @@ object AtTestHelper {
         }
     }
 
-    fun getCreationBytes(codePages: Int, code: ByteArray): ByteArray {
+    private fun getCreationBytes(codePages: Int, code: ByteArray): ByteArray {
         val cpages = codePages.toShort()
         val dpages: Short = 1
         val cspages: Short = 1
@@ -135,7 +135,7 @@ object AtTestHelper {
         creationLength += 8 // minActivationAmount
         creationLength += if (cpages * 256 <= 256) 1 else if (cpages * 256 <= 32767) 2 else 4 // code size
         creationLength += code.size
-        creationLength += if (dpages * 256 <= 256) 1 else if (dpages * 256 <= 32767) 2 else 4 // data size
+        creationLength += 1 // data size
         creationLength += data.size
 
         val creation = ByteBuffer.allocate(creationLength)

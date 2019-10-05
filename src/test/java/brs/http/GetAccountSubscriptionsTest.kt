@@ -36,10 +36,10 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock<ParameterService>()
-        subscriptionServiceMock = mock<SubscriptionService>()
+        parameterServiceMock = mock()
+        subscriptionServiceMock = mock()
 
-        t = GetAccountSubscriptions(parameterServiceMock!!, subscriptionServiceMock!!)
+        t = GetAccountSubscriptions(parameterServiceMock, subscriptionServiceMock)
     }
 
     @Test
@@ -52,7 +52,7 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
 
         val account = mock<Account>()
         whenever(account.id).doReturn(userId)
-        whenever(parameterServiceMock!!.getAccount(eq<HttpServletRequest>(request))).doReturn(account)
+        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(account)
 
         val subscription = mock<Subscription>()
         whenever(subscription.id).doReturn(1L)
@@ -61,9 +61,9 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
         whenever(subscription.timeNext).doReturn(4)
 
         val subscriptionIterator = mockCollection(subscription)
-        whenever(subscriptionServiceMock!!.getSubscriptionsByParticipant(eq(userId))).doReturn(subscriptionIterator)
+        whenever(subscriptionServiceMock.getSubscriptionsByParticipant(eq(userId))).doReturn(subscriptionIterator)
 
-        val result = t!!.processRequest(request) as JsonObject
+        val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
         val resultSubscriptions = result.get(SUBSCRIPTIONS_RESPONSE) as JsonArray
@@ -73,8 +73,8 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
         val resultSubscription = resultSubscriptions.get(0) as JsonObject
         assertNotNull(resultSubscription)
 
-        assertEquals("" + subscription.id!!, JSON.getAsString(resultSubscription.get(ID_RESPONSE)))
-        assertEquals("" + subscription.amountNQT!!, JSON.getAsString(resultSubscription.get(AMOUNT_NQT_RESPONSE)))
+        assertEquals("" + subscription.id, JSON.getAsString(resultSubscription.get(ID_RESPONSE)))
+        assertEquals("" + subscription.amountNQT, JSON.getAsString(resultSubscription.get(AMOUNT_NQT_RESPONSE)))
         assertEquals(subscription.frequency.toLong(), JSON.getAsInt(resultSubscription.get(FREQUENCY_RESPONSE)).toLong())
         assertEquals(subscription.timeNext.toLong(), JSON.getAsInt(resultSubscription.get(TIME_NEXT_RESPONSE)).toLong())
     }
