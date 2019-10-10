@@ -261,12 +261,14 @@ test {
     useJUnitPlatform()
     reports.html.enabled = false
     maxHeapSize = '4G'
+    testLogging.showStandardStreams = true
 }
 
 testlogger {
     showExceptions true
     showStackTraces true
     showFullStackTraces true
+    showStandardStreams true
 }
 
 project.tasks["sonarqube"].dependsOn jacocoTestReport

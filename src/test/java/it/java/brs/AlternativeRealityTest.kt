@@ -5,18 +5,37 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import it.common.AbstractIT
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import java.io.BufferedInputStream
-import java.io.IOException
 
 class AlternativeRealityTest : AbstractIT() {
+    @Before
+    fun setUp() {
+        setupIT()
+    }
+
+    @After
+    fun tearDown() {
+        tearDownIT()
+    }
 
     @Test
-    @Throws(IOException::class, InterruptedException::class)
-    fun normalReality() {
+    fun reality1() = runBlocking {
         getReality("reality1.json").forEach { jsonObject ->
             super.processBlock(jsonObject)
-            Thread.sleep(500)
+            delay(500)
+        }
+    }
+
+    @Test
+    fun reality2() = runBlocking {
+        getReality("reality2.json").forEach { jsonObject ->
+            super.processBlock(jsonObject)
+            delay(500)
         }
     }
 

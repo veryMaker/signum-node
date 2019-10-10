@@ -163,7 +163,7 @@ class Db(private val dp: DependencyProvider) { // TODO interface
                     }
                 }
             } catch (e: SQLException) {
-                logger.safeInfo(e) { e.toString() }
+                logger.safeInfo(e) { null }
             } finally {
                 logger.safeInfo { "Database shutdown completed." }
             }

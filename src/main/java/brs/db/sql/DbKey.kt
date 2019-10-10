@@ -1,7 +1,7 @@
 package brs.db.sql
 
 import brs.db.BurstKey
-import brs.util.StringUtils
+import brs.util.countMatches
 import org.jooq.*
 
 interface DbKey : BurstKey {
@@ -13,7 +13,7 @@ interface DbKey : BurstKey {
         /**
          * @return The number of variables in PKClause
          */
-        val pkVariables = StringUtils.countMatches(pkClause, "?")
+        val pkVariables = pkClause.countMatches("?")
 
         abstract fun applySelfJoin(query: SelectQuery<Record>, queryTable: Table<*>, otherTable: Table<*>)
     }

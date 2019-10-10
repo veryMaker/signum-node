@@ -7,17 +7,17 @@ class BlockMessageBuilder {
     private var payloadLength: Long = 0
     private var totalAmountNQT: Long = 0
     private var version: Long = 0
-    private lateinit var nonce: String
+    private var nonce: String? = null
     private var totalFeeNQT: Long = 0
     private var blockATs: String? = null
-    private lateinit var previousBlock: String
-    private lateinit var generationSignature: String
-    private lateinit var generatorPublicKey: String
-    private lateinit var payloadHash: String
-    private lateinit var blockSignature: String
+    private var previousBlock: String? = null
+    private var generationSignature: String? = null
+    private var generatorPublicKey: String? = null
+    private var payloadHash: String? = null
+    private var blockSignature: String? = null
     private var transactions = JsonArray()
     private var timestamp: Long = 0
-    private lateinit var previousBlockHash: String
+    private var previousBlockHash: String? = null
 
     fun payloadLength(payloadLength: Long): BlockMessageBuilder {
         this.payloadLength = payloadLength

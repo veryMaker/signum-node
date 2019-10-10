@@ -15,5 +15,4 @@ abstract class AbstractTransactionTest : AbstractUnitTest() {
 
         return ac.firstValue
     }
-
 }
