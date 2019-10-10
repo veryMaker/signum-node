@@ -263,4 +263,11 @@ test {
     maxHeapSize = '4G'
 }
 
+testlogger {
+    showExceptions true
+    showStackTraces true
+    showFullStackTraces true
+    showPassed false
+}
+
 project.tasks["sonarqube"].dependsOn jacocoTestReport
