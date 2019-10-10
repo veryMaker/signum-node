@@ -51,7 +51,9 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
                 dp.atApiController = AtApiController(dp)
                 dp.atController = AtController(dp)
                 val atApiImpl = AtApiImpl(dp) // TODO ??
-                dp.oclPoC = OCLPoC(dp)
+                if (dp.propertyService.get(Props.GPU_ACCELERATION)) {
+                    dp.oclPoC = OCLPoC(dp)
+                }
                 dp.timeService = TimeServiceImpl()
                 dp.derivedTableManager = DerivedTableManager()
                 dp.statisticsManager = StatisticsManagerImpl(dp)
@@ -180,8 +182,8 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.dbCacheManager.close()
         } catch (ignored: UninitializedPropertyAccessException) {}
         try {
-            if (dp.blockchainProcessor.oclVerify) {
-                dp.oclPoC.destroy()
+            if (dp.blockchainProcessor.oclVerify && dp.oclPoC != null) {
+                dp.oclPoC!!.destroy()
             }
         } catch (ignored: UninitializedPropertyAccessException) {}
         logger.safeInfo { "$APPLICATION $VERSION stopped." }

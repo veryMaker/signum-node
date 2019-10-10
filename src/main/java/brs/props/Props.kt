@@ -54,7 +54,6 @@ object Props {
     // CPU options
     val CPU_NUM_CORES = Prop("CPU.NumCores", -1)
 
-
     // DB options
     val DB_URL = Prop("DB.Url", "jdbc:mariadb://localhost:3306/burstwallet")
     val DB_USERNAME = Prop("DB.Username", "")
