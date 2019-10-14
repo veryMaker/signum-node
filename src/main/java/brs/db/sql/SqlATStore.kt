@@ -49,36 +49,30 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
 
     init {
         atTable = object : VersionedEntitySqlTable<brs.at.AT>("at", AT, atDbKeyFactory, dp) {
-            override fun load(ctx: DSLContext, rs: Record): brs.at.AT {
-                throw RuntimeException("AT attempted to be created with atTable.load")
+            override fun load(ctx: DSLContext, record: Record): brs.at.AT {
+                throw UnsupportedOperationException("AT cannot be created with atTable.load")
             }
 
             override fun save(ctx: DSLContext, at: brs.at.AT) {
                 saveAT(ctx, at)
             }
 
-            override fun defaultSort(): List<SortField<*>> {
-                val sort = mutableListOf<SortField<*>>()
-                sort.add(tableClass.field("id", Long::class.java).asc())
-                return sort
+            override fun defaultSort(): Collection<SortField<*>> {
+                return listOf(tableClass.field("id", Long::class.java).asc())
             }
         }
 
         atStateTable = object : VersionedEntitySqlTable<brs.at.AT.ATState>("at_state", AT_STATE, atStateDbKeyFactory, dp) {
-            override fun load(ctx: DSLContext, rs: Record): brs.at.AT.ATState {
-                return SqlATState(dp, rs)
+            override fun load(ctx: DSLContext, record: Record): brs.at.AT.ATState {
+                return SqlATState(dp, record)
             }
 
             override fun save(ctx: DSLContext, atState: brs.at.AT.ATState) {
                 saveATState(ctx, atState)
             }
 
-            override fun defaultSort(): List<SortField<*>> {
-                val sort = mutableListOf<SortField<*>>()
-                sort.add(tableClass.field("prev_height", Int::class.java).asc())
-                sort.add(heightField.asc())
-                sort.add(tableClass.field("at_id", Long::class.java).asc())
-                return sort
+            override fun defaultSort(): Collection<SortField<*>> {
+                return listOf(tableClass.field("prev_height", Int::class.java).asc(), heightField.asc(), tableClass.field("at_id", Long::class.java).asc())
             }
         }
     }

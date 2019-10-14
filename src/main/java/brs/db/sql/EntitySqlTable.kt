@@ -37,7 +37,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
     protected abstract fun load(ctx: DSLContext, record: Record): T
 
     internal open fun save(ctx: DSLContext, t: T) {
-
+        // TODO no no-op
     }
 
     internal open fun save(ctx: DSLContext, ts: Array<T>) {
@@ -46,7 +46,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         }
     }
 
-    internal open fun defaultSort(): List<SortField<*>> {
+    internal open fun defaultSort(): Collection<SortField<*>> {
         return defaultSort
     }
 
@@ -156,7 +156,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         return getManyBy(condition, from, to, defaultSort())
     }
 
-    override fun getManyBy(condition: Condition, from: Int, to: Int, sort: List<SortField<*>>): Collection<T> {
+    override fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         return dp.db.useDslContext<Collection<T>> { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
@@ -174,7 +174,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         return getManyBy(condition, height, from, to, defaultSort())
     }
 
-    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: List<SortField<*>>): Collection<T> {
+    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         checkAvailable(height)
         return dp.db.useDslContext<Collection<T>> { ctx ->
             val query = ctx.selectQuery()
@@ -234,7 +234,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         return getAll(from, to, defaultSort())
     }
 
-    override fun getAll(from: Int, to: Int, sort: List<SortField<*>>): Collection<T> {
+    override fun getAll(from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         return dp.db.useDslContext<Collection<T>> { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
@@ -251,7 +251,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         return getAll(height, from, to, defaultSort())
     }
 
-    override fun getAll(height: Int, from: Int, to: Int, sort: List<SortField<*>>): Collection<T> {
+    override fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         checkAvailable(height)
         return dp.db.useDslContext<Collection<T>> { ctx ->
             val query = ctx.selectQuery()

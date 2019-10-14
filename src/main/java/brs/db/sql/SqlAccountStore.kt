@@ -11,7 +11,10 @@ import brs.schema.tables.records.AccountRecord
 import brs.schema.tables.records.RewardRecipAssignRecord
 import brs.util.convert.toUnsignedString
 import brs.util.logging.safeInfo
-import org.jooq.*
+import org.jooq.Condition
+import org.jooq.DSLContext
+import org.jooq.Record
+import org.jooq.SortField
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -35,8 +38,8 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
     init {
         rewardRecipientAssignmentTable = object : VersionedEntitySqlTable<Account.RewardRecipientAssignment>("reward_recip_assign", REWARD_RECIP_ASSIGN, rewardRecipientAssignmentDbKeyFactory, dp) {
 
-            override fun load(ctx: DSLContext, rs: Record): Account.RewardRecipientAssignment {
-                return SqlRewardRecipientAssignment(rs)
+            override fun load(ctx: DSLContext, record: Record): Account.RewardRecipientAssignment {
+                return SqlRewardRecipientAssignment(record)
             }
 
             override fun save(ctx: DSLContext, assignment: Account.RewardRecipientAssignment) {
@@ -51,15 +54,11 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             private val sort = initializeSort()
 
             private fun initializeSort(): List<SortField<*>> {
-                val sort = mutableListOf<SortField<*>>()
-                sort.add(tableClass.field("quantity", Long::class.java).desc())
-                sort.add(tableClass.field("account_id", Long::class.java).asc())
-                sort.add(tableClass.field("asset_id", Long::class.java).asc())
-                return sort
+                return listOf<SortField<*>>(tableClass.field("quantity", Long::class.java).desc(), tableClass.field("account_id", Long::class.java).asc(), tableClass.field("asset_id", Long::class.java).asc())
             }
 
-            override fun load(ctx: DSLContext, rs: Record): Account.AccountAsset {
-                return SQLAccountAsset(rs)
+            override fun load(ctx: DSLContext, record: Record): Account.AccountAsset {
+                return SQLAccountAsset(record)
             }
 
             override fun save(ctx: DSLContext, accountAsset: Account.AccountAsset) {
@@ -69,29 +68,26 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
                         .execute()
             }
 
-            override fun defaultSort(): List<SortField<*>> {
+            override fun defaultSort(): Collection<SortField<*>> {
                 return sort
             }
         }
 
         accountTable = object : VersionedBatchEntitySqlTable<Account>("account", ACCOUNT, accountDbKeyFactory, Account::class.java, dp) {
-            override fun load(ctx: DSLContext, rs: Record): Account {
-                return SqlAccount(rs)
+            override fun load(ctx: DSLContext, record: Record): Account {
+                return SqlAccount(record)
             }
 
             override fun bulkInsert(ctx: DSLContext, accounts: Collection<Account>) {
-                val accountQueries = mutableListOf<Query>()
                 val height = dp.blockchain.height
-                for (account in accounts) {
-                    accountQueries.add(
-                            ctx.mergeInto<AccountRecord, Long, Int, Int, ByteArray, Int, Long, Long, Long, String, String, Boolean>(ACCOUNT, ACCOUNT.ID, ACCOUNT.HEIGHT, ACCOUNT.CREATION_HEIGHT, ACCOUNT.PUBLIC_KEY, ACCOUNT.KEY_HEIGHT, ACCOUNT.BALANCE,
-                                    ACCOUNT.UNCONFIRMED_BALANCE, ACCOUNT.FORGED_BALANCE, ACCOUNT.NAME, ACCOUNT.DESCRIPTION, ACCOUNT.LATEST)
-                                    .key(ACCOUNT.ID, ACCOUNT.HEIGHT)
-                                    .values(account.id, height, account.creationHeight, account.publicKey, account.keyHeight,
-                                            account.balanceNQT, account.unconfirmedBalanceNQT, account.forgedBalanceNQT, account.name, account.description, true)
-                    )
-                }
-                ctx.batch(accountQueries).execute()
+                ctx.batch(
+                    accounts.map { account ->
+                        ctx.mergeInto<AccountRecord, Long, Int, Int, ByteArray, Int, Long, Long, Long, String, String, Boolean>(ACCOUNT, ACCOUNT.ID, ACCOUNT.HEIGHT, ACCOUNT.CREATION_HEIGHT, ACCOUNT.PUBLIC_KEY, ACCOUNT.KEY_HEIGHT, ACCOUNT.BALANCE,
+                            ACCOUNT.UNCONFIRMED_BALANCE, ACCOUNT.FORGED_BALANCE, ACCOUNT.NAME, ACCOUNT.DESCRIPTION, ACCOUNT.LATEST)
+                            .key(ACCOUNT.ID, ACCOUNT.HEIGHT)
+                            .values(account.id, height, account.creationHeight, account.publicKey, account.keyHeight,
+                                account.balanceNQT, account.unconfirmedBalanceNQT, account.forgedBalanceNQT, account.name, account.description, true) })
+                    .execute()
             }
         }
     }
@@ -109,9 +105,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
     }
 
     override fun getAssetAccounts(assetId: Long, from: Int, to: Int): Collection<Account.AccountAsset> {
-        val sort = mutableListOf<SortField<*>>()
-        sort.add(ACCOUNT_ASSET.field("quantity", Long::class.java).desc())
-        sort.add(ACCOUNT_ASSET.field("account_id", Long::class.java).asc())
+        val sort = listOf(ACCOUNT_ASSET.field("quantity", Long::class.java).desc(), ACCOUNT_ASSET.field("account_id", Long::class.java).asc())
         return accountAssetTable.getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), from, to, sort)
     }
 
@@ -120,9 +114,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             return getAssetAccounts(assetId, from, to)
         }
 
-        val sort = mutableListOf<SortField<*>>()
-        sort.add(ACCOUNT_ASSET.field("quantity", Long::class.java).desc())
-        sort.add(ACCOUNT_ASSET.field("account_id", Long::class.java).asc())
+        val sort = listOf<SortField<*>>(ACCOUNT_ASSET.field("quantity", Long::class.java).desc(), ACCOUNT_ASSET.field("account_id", Long::class.java).asc())
         return accountAssetTable.getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), height, from, to, sort)
     }
 

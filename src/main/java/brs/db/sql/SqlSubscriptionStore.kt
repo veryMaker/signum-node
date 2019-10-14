@@ -32,11 +32,8 @@ class SqlSubscriptionStore(private val dp: DependencyProvider) : SubscriptionSto
                 saveSubscription(ctx, subscription)
             }
 
-            override fun defaultSort(): List<SortField<*>> {
-                val sort = mutableListOf<SortField<*>>()
-                sort.add(tableClass.field("time_next", Int::class.java).asc())
-                sort.add(tableClass.field("id", Long::class.java).asc())
-                return sort
+            override fun defaultSort(): Collection<SortField<*>> {
+                return listOf(tableClass.field("time_next", Int::class.java).asc(), tableClass.field("id", Long::class.java).asc())
             }
         }
     }

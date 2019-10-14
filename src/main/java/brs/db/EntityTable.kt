@@ -18,21 +18,21 @@ interface EntityTable<T> : DerivedTable {
 
     fun getManyBy(condition: Condition, from: Int, to: Int): Collection<T>
 
-    fun getManyBy(condition: Condition, from: Int, to: Int, sort: List<SortField<*>>): Collection<T>
+    fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T>
 
     fun getManyBy(condition: Condition, height: Int, from: Int, to: Int): Collection<T>
 
-    fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: List<SortField<*>>): Collection<T>
+    fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T>
 
     fun getManyBy(ctx: DSLContext, query: SelectQuery<out Record>, cache: Boolean): Collection<T>
 
     fun getAll(from: Int, to: Int): Collection<T>
 
-    fun getAll(from: Int, to: Int, sort: List<SortField<*>>): Collection<T>
+    fun getAll(from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T>
 
     fun getAll(height: Int, from: Int, to: Int): Collection<T>
 
-    fun getAll(height: Int, from: Int, to: Int, sort: List<SortField<*>>): Collection<T>
+    fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T>
 
     fun insert(t: T)
 

@@ -172,7 +172,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
         }
         logger.safeInfo { "Deleting blockchain..." }
         dp.db.useDslContext { ctx ->
-            val tables = mutableListOf<TableImpl<*>>(brs.schema.Tables.ACCOUNT,
+            val tables = listOf<TableImpl<*>>(brs.schema.Tables.ACCOUNT,
                     brs.schema.Tables.ACCOUNT_ASSET, brs.schema.Tables.ALIAS, brs.schema.Tables.ALIAS_OFFER,
                     brs.schema.Tables.ASK_ORDER, brs.schema.Tables.ASSET, brs.schema.Tables.ASSET_TRANSFER,
                     brs.schema.Tables.AT, brs.schema.Tables.AT_STATE, brs.schema.Tables.BID_ORDER,

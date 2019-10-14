@@ -42,8 +42,8 @@ interface DbKey : BurstKey {
     }
 
     abstract class LinkKeyFactory<T>(private val idColumnA: String, private val idColumnB: String) : Factory<T>(" WHERE $idColumnA = ? AND $idColumnB = ? ", arrayOf(idColumnA, idColumnB), " a.$idColumnA = b.$idColumnA AND a.$idColumnB = b.$idColumnB "), BurstKey.LinkKeyFactory<T> {
-        override fun newKey(rs: Record): DbKey {
-            return LinkKey(rs.get(idColumnA, Long::class.java), rs.get(idColumnB, Long::class.java), idColumnA, idColumnB)
+        override fun newKey(record: Record): DbKey {
+            return LinkKey(record.get(idColumnA, Long::class.java), record.get(idColumnB, Long::class.java), idColumnA, idColumnB)
         }
 
         override fun newKey(idA: Long, idB: Long): DbKey {
@@ -78,9 +78,7 @@ interface DbKey : BurstKey {
         }
 
         override fun getPKConditions(tableClass: Table<*>): Collection<Condition> {
-            val conditions = mutableListOf<Condition>()
-            conditions.add(tableClass.field(idColumn, Long::class.java).eq(id))
-            return conditions
+            return listOf(tableClass.field(idColumn, Long::class.java).eq(id))
         }
 
     }
@@ -99,10 +97,7 @@ interface DbKey : BurstKey {
         }
 
         override fun getPKConditions(tableClass: Table<*>): Collection<Condition> {
-            val conditions = mutableListOf<Condition>()
-            conditions.add(tableClass.field(idColumnA, Long::class.java).eq(idA))
-            conditions.add(tableClass.field(idColumnB, Long::class.java).eq(idB))
-            return conditions
+            return listOf(tableClass.field(idColumnA, Long::class.java).eq(idA), tableClass.field(idColumnB, Long::class.java).eq(idB))
         }
     }
 }

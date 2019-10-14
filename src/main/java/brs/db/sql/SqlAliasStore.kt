@@ -41,10 +41,8 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
                 saveAlias(ctx, alias)
             }
 
-            override fun defaultSort(): List<SortField<*>> {
-                val sort = mutableListOf<SortField<*>>()
-                sort.add(tableClass.field("alias_name_lower", String::class.java).asc())
-                return sort
+            override fun defaultSort(): Collection<SortField<*>> {
+                return listOf(tableClass.field("alias_name_lower", String::class.java).asc())
             }
         }
     }

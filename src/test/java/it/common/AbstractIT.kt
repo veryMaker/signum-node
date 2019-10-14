@@ -29,7 +29,11 @@ abstract class AbstractIT {
      * Must be called by subclasses
      */
     fun tearDownIT() {
-        burst.shutdown(false)
+        try {
+            burst.shutdown(false)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
     }
 
     private fun testProperties(): Properties {

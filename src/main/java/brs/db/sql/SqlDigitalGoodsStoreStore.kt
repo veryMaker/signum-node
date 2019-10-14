@@ -61,11 +61,8 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
                 savePurchase(ctx, purchase)
             }
 
-            override fun defaultSort(): List<SortField<*>> {
-                val sort = mutableListOf<SortField<*>>()
-                sort.add(tableClass.field("timestamp", Int::class.java).desc())
-                sort.add(tableClass.field("id", Long::class.java).asc())
-                return sort
+            override fun defaultSort(): Collection<SortField<*>> {
+                return listOf(tableClass.field("timestamp", Int::class.java).desc(), tableClass.field("id", Long::class.java).asc())
             }
         }
 
@@ -113,19 +110,16 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
 
         goodsTable = object : VersionedEntitySqlTable<DigitalGoodsStore.Goods>("goods", GOODS, goodsDbKeyFactory, dp) {
 
-            override fun load(ctx: DSLContext, rs: Record): DigitalGoodsStore.Goods {
-                return SQLGoods(rs)
+            override fun load(ctx: DSLContext, record: Record): DigitalGoodsStore.Goods {
+                return SQLGoods(record)
             }
 
             override fun save(ctx: DSLContext, goods: DigitalGoodsStore.Goods) {
                 saveGoods(ctx, goods)
             }
 
-            override fun defaultSort(): List<SortField<*>> {
-                val sort = mutableListOf<SortField<*>>()
-                sort.add(GOODS.field("timestamp", Int::class.java).desc())
-                sort.add(GOODS.field("id", Long::class.java).asc())
-                return sort
+            override fun defaultSort(): Collection<SortField<*>> {
+                return listOf(tableClass.field("timestamp", Int::class.java).desc(), tableClass.field("id", Long::class.java).asc())
             }
         }
     }

@@ -4,7 +4,7 @@ import brs.Constants
 import brs.util.delegates.Atomic
 import kotlinx.coroutines.*
 
-class CoroutineTaskScheduler(): TaskScheduler {
+class CoroutineTaskScheduler: TaskScheduler {
     private var started by Atomic(false) // Stays true after shutdown
     private val jobs = mutableListOf<Job>()
     private val scope = CoroutineScope(Dispatchers.Default)
@@ -63,25 +63,21 @@ class CoroutineTaskScheduler(): TaskScheduler {
 
     private fun delayedTaskToTask(task: Task, initialDelayMs: Long, delayMs: Long): Task {
         return {
-            val stopped by Atomic(false)
             delay(initialDelayMs)
-            while (!stopped) {
+            while (isActive) {
                 task()
                 delay(delayMs)
             }
-            // TODO cancel
         }
     }
 
     private fun repeatingTaskToTask(task: RepeatingTask): Task { // TODO catch stuff
         return {
-            val stopped by Atomic(false)
-            while (!stopped) {
+            while (isActive) {
                 if (!task()) {
                     delay(Constants.TASK_FAILURE_DELAY_MS)
                 }
             }
-            // TODO cancel
         }
     }
 
@@ -89,9 +85,7 @@ class CoroutineTaskScheduler(): TaskScheduler {
         requireNotStarted()
         started = true
         // Run before start tasks
-        val beforeStartJobs = mutableListOf<Job>()
-        beforeStartTasks.forEach { beforeStartJobs.add(scope.launch(block = taskToTask(it))) }
-        beforeStartJobs.forEach { it.join() }
+        beforeStartTasks.map { scope.launch(block = taskToTask(it)) }.forEach { it.join() }
 
         // Start regular scheduled tasks
         scheduledTasks.forEach { runTask(repeatingTaskToTask(it)) }
@@ -107,14 +101,13 @@ class CoroutineTaskScheduler(): TaskScheduler {
         scheduledWithDelayTasks.forEach { (task, delays) -> runTask(delayedTaskToTask(task, delays.first, delays.second)) }
 
         // Run after start tasks
-        val afterStartJobs = mutableListOf<Job>()
-        beforeStartTasks.forEach { afterStartJobs.add(scope.launch(block = taskToTask(it))) }
-        afterStartJobs.forEach { it.join() }
+        beforeStartTasks.map { scope.launch(block = taskToTask(it)) }.forEach { it.join() }
     }
 
-    override fun shutdown() {
+    override suspend fun shutdown() {
         if (!started) return
         jobs.forEach { it.cancel("Task Scheduler Shutting Down") }
+        jobs.forEach { it.join() }
         try {
             scope.cancel("Task Scheduler Shutting Down")
         } catch (ignored: IllegalStateException) {}

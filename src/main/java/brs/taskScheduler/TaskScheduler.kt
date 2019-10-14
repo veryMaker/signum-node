@@ -57,5 +57,5 @@ interface TaskScheduler {
      * Shutdown the scheduler, stopping all tasks. TODO should we just wait for every task to finish?
      * If the scheduler has not yet started, this is a no-op.
      */
-    fun shutdown()
+    suspend fun shutdown()
 }

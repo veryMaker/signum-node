@@ -26,21 +26,21 @@ interface VersionedBatchEntityTable<T> : DerivedTable, EntityTable<T> {
 
     override fun getBy(condition: Condition, height: Int): T?
 
-    override fun getManyBy(condition: Condition, from: Int, to: Int, sort: List<SortField<*>>): Collection<T>
+    override fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T>
 
     override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int): Collection<T>
 
-    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: List<SortField<*>>): Collection<T>
+    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T>
 
     override fun getManyBy(ctx: DSLContext, query: SelectQuery<out Record>, cache: Boolean): Collection<T>
 
     override fun getAll(from: Int, to: Int): Collection<T>
 
-    override fun getAll(from: Int, to: Int, sort: List<SortField<*>>): Collection<T>
+    override fun getAll(from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T>
 
     override fun getAll(height: Int, from: Int, to: Int): Collection<T>
 
-    override fun getAll(height: Int, from: Int, to: Int, sort: List<SortField<*>>): Collection<T>
+    override fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T>
 
     override fun rollback(height: Int)
 

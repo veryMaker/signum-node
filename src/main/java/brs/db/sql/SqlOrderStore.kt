@@ -40,26 +40,22 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
                 saveAsk(ctx, ask)
             }
 
-            override fun defaultSort(): List<SortField<*>> {
-                val sort = mutableListOf<SortField<*>>()
-                sort.add(tableClass.field("creation_height", Int::class.java).desc())
-                return sort
+            override fun defaultSort(): Collection<SortField<*>> {
+                return listOf(tableClass.field("creation_height", Int::class.java).desc())
             }
         }
 
         bidOrderTable = object : VersionedEntitySqlTable<Order.Bid>("bid_order", BID_ORDER, bidOrderDbKeyFactory, dp) {
-            override fun load(ctx: DSLContext, rs: Record): Order.Bid {
-                return SqlBid(rs)
+            override fun load(ctx: DSLContext, record: Record): Order.Bid {
+                return SqlBid(record)
             }
 
             override fun save(ctx: DSLContext, bid: Order.Bid) {
                 saveBid(ctx, bid)
             }
 
-            override fun defaultSort(): List<SortField<*>> {
-                val sort = mutableListOf<SortField<*>>()
-                sort.add(tableClass.field("creation_height", Int::class.java).desc())
-                return sort
+            override fun defaultSort(): Collection<SortField<*>> {
+                return listOf(tableClass.field("creation_height", Int::class.java).desc())
             }
         }
     }

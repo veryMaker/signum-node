@@ -115,7 +115,7 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
         return super.getManyBy(condition, from, to)
     }
 
-    override fun getManyBy(condition: Condition, from: Int, to: Int, sort: List<SortField<*>>): Collection<T> {
+    override fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         assertInTransaction()
         return super.getManyBy(condition, from, to, sort)
     }
@@ -125,7 +125,7 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
         return super.getManyBy(condition, height, from, to)
     }
 
-    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: List<SortField<*>>): Collection<T> {
+    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         assertInTransaction()
         return super.getManyBy(condition, height, from, to, sort)
     }
@@ -140,7 +140,7 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
         return super.getAll(from, to)
     }
 
-    override fun getAll(from: Int, to: Int, sort: List<SortField<*>>): Collection<T> {
+    override fun getAll(from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         assertInTransaction()
         return super.getAll(from, to, sort)
     }
@@ -150,7 +150,7 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
         return super.getAll(height, from, to)
     }
 
-    override fun getAll(height: Int, from: Int, to: Int, sort: List<SortField<*>>): Collection<T> {
+    override fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         assertInTransaction()
         return super.getAll(height, from, to, sort)
     }
