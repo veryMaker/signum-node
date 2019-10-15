@@ -1,6 +1,7 @@
 os: linux
 language: java
 dist: trusty
+install: skip
 
 matrix:
   include:
