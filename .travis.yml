@@ -1,13 +1,15 @@
+os: linux
 language: java
 dist: trusty
 
-jdk:
-  - oraclejdk8
-  - oraclejdk9
-  - oraclejdk11
-
-script:
-  - ./gradlew clean sonarqube -Dsonar.login=$SONAR_KEY
+matrix:
+  include:
+    - jdk: oraclejdk8
+      script: ./gradlew -Dsonar.login=$SONAR_KEY clean sonarqube
+    - jdk: oraclejdk9
+      script: ./gradlew clean test
+    - jdk: oraclejdk11
+      script: ./gradlew -Dheadless=true clean test
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
