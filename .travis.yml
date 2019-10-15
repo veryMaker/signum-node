@@ -3,10 +3,8 @@ dist: trusty
 
 jdk:
   - oraclejdk8
-
-addons:
-  sonarcloud:
-    organization: "burst-apps-team"
+  - oraclejdk9
+  - oraclejdk11
 
 script:
   - ./gradlew clean sonarqube -Dsonar.login=$SONAR_KEY
