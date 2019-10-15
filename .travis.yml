@@ -1,15 +1,20 @@
 os: linux
 language: java
-dist: trusty
 install: skip
 
 matrix:
   include:
-    - jdk: oraclejdk8
+    - name: "OracleJDK 8 + SonarQube Analysis"
+      jdk: oraclejdk8 # Oracle JDK has JavaFX built in
+      dist: trusty # Trusty has Oracle JDK 8
       script: ./gradlew -Dsonar.login=$SONAR_KEY clean sonarqube
-    - jdk: oraclejdk9
-      script: ./gradlew clean test
-    - jdk: oraclejdk11
+    - name: "OpenJDK 9"
+      jdk: openjdk9
+      dist: bionic
+      script: ./gradlew -Dheadless=true clean test
+    - name: "OpenJDK 12"
+      jdk: openjdk12
+      dist: bionic
       script: ./gradlew -Dheadless=true clean test
 
 before_cache:

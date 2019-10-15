@@ -71,6 +71,7 @@ def mockitoVersion = "3.1.0"
 def mockitoKotlinVersion = "2.1.0"
 def mockkVersion = "1.9.3"
 def kotlinCoroutinesVersion = "1.3.2"
+def javaxAnnotationVersion = "1.3.2"
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
@@ -102,6 +103,7 @@ dependencies {
     compile "org.bitlet:weupnp:$webUpnpVersion"
     compile "org.ehcache:ehcache:$ehCacheVersion"
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+    compile "javax.annotation:javax.annotation-api:$javaxAnnotationVersion"
 
     testImplementation "junit:junit:$jUnit4Version"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$jUnit5Version"
@@ -119,7 +121,7 @@ sourceSets {
     main {
         java {
             exclude { fileTreeElement ->
-                System.getProperty("headless") == "true" && fileTreeElement.file == ("$projectDir/src/brs/BurstGUI.java" as File)
+                System.getProperty("headless") == "true" && fileTreeElement.file == ("$projectDir/src/main/java/brs/BurstGUI.kt" as File)
             }
         }
     }
@@ -252,7 +254,7 @@ sonarqube {
         property "sonar.organization", "burst-apps-team"
         property "sonar.projectKey", "burst-apps-team_burstcoin"
         property "sonar.verbose", "true"
-        property "sonar.exclusions", "src/main/java/brs/grpc/proto/BrsApi.java,src/main/java/brs/grpc/proto/BrsApiServiceGrpc.java,src/brs/schema/**"
+        property "sonar.exclusions", "src/main/java/brs/grpc/proto/BrsApi.java,src/main/java/brs/grpc/proto/BrsApiServiceGrpc.java,src/main/java/brs/schema/**"
     }
 }
 
