@@ -121,7 +121,6 @@ open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
     }
 
     class MockGenerator(private val dp: DependencyProvider) : GeneratorImpl(dp) {
-
         override fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, blockHeight: Int): BigInteger {
             return BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toLong())
         }

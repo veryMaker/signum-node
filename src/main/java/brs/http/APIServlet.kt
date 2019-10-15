@@ -66,7 +66,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getBlock"] = GetBlock(dp.blockchain, dp.blockService)
         map["getBlockId"] = GetBlockId(dp.blockchain)
         map["getBlocks"] = GetBlocks(dp.blockchain, dp.blockService)
-        map["getblockchainStatus"] = GetBlockchainStatus(dp.blockchainProcessor, dp.blockchain, dp.timeService)
+        map["getBlockchainStatus"] = GetBlockchainStatus(dp.blockchainProcessor, dp.blockchain, dp.timeService)
         map["getConstants"] = GetConstants(dp)
         map["getDGSGoods"] = GetDGSGoods(dp.digitalGoodsStoreService)
         map["getDGSGood"] = GetDGSGood(dp.parameterService)

@@ -41,5 +41,4 @@ abstract class BurstException : Exception {
         constructor(message: String, cause: Throwable) : super(message, cause)
 
     }
-
 }

@@ -204,7 +204,7 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
                         + "                type: 'POST',\n"
                         + "            })\n"
                         + "            .done(function(result) {\n"
-                        + "                var resultStr = JSON.stringify(result), null, 4.parseJson();\n"
+                        + "                var resultStr = JSON.stringify(JSON.parse(result), null, 4);\n"
                         + "                form.getElementsByClassName(\"result\")[0].textContent = resultStr;\n"
                         + "            })\n"
                         + "            .fail(function() {\n"

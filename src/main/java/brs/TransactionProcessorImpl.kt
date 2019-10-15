@@ -5,7 +5,6 @@ import brs.fluxcapacitor.FluxValues
 import brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
 import brs.peer.Peer
 import brs.props.Props
-import brs.taskScheduler.Task
 import brs.util.JSON
 import brs.util.Listeners
 import brs.util.isEmpty

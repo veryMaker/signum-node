@@ -62,7 +62,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         JSON.prepareRequest(request)
     }
 
-    val getMoreBlocksTask: RepeatingTask = {
+    private val getMoreBlocksTask: RepeatingTask = {
         run {
             if (dp.propertyService.get(Props.DEV_OFFLINE)) return@run false
             try {
@@ -231,7 +231,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    val blockImporterTask: RepeatingTask = {
+    private val blockImporterTask: RepeatingTask = {
         if (dp.downloadCache.size() == 0) {
             false
         } else {
@@ -266,7 +266,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    val pocVerificationTask: RepeatingTask = {
+    private val pocVerificationTask: RepeatingTask = {
         var verifyWithOcl: Boolean
         val queueThreshold = if (oclVerify) oclUnverifiedQueue else 0
         val unVerified = dp.downloadCache.unverifiedSize

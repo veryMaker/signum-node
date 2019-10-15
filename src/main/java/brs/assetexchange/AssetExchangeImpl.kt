@@ -11,7 +11,7 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
 
     private val tradeService: TradeServiceImpl = TradeServiceImpl(dp.tradeStore)
     private val assetAccountService: AssetAccountServiceImpl = AssetAccountServiceImpl(dp.accountStore)
-    private val assetTransferService: AssetTransferServiceImpl
+    private val assetTransferService: AssetTransferServiceImpl = AssetTransferServiceImpl(dp.assetTransferStore)
     private val assetService: AssetServiceImpl
     private val orderService: OrderServiceImpl
 
@@ -32,7 +32,6 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
 
 
     init {
-        this.assetTransferService = AssetTransferServiceImpl(dp.assetTransferStore)
         this.assetService = AssetServiceImpl(this.assetAccountService, tradeService, dp.assetStore, assetTransferService)
         this.orderService = OrderServiceImpl(dp, tradeService)
     }
