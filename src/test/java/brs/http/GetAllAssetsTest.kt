@@ -16,7 +16,8 @@ import brs.http.common.ResultFields.NUMBER_OF_ACCOUNTS_RESPONSE
 import brs.http.common.ResultFields.NUMBER_OF_TRADES_RESPONSE
 import brs.http.common.ResultFields.NUMBER_OF_TRANSFERS_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE
-import brs.util.JSON
+import brs.util.safeGetAsLong
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -79,14 +80,14 @@ class GetAllAssetsTest : AbstractUnitTest() {
         val assetResult = assetsResult.get(0) as JsonObject
         assertNotNull(assetResult)
 
-        assertEquals(mockAsset.name, JSON.getAsString(assetResult.get(NAME_RESPONSE)))
-        assertEquals(mockAsset.description, JSON.getAsString(assetResult.get(DESCRIPTION_RESPONSE)))
-        assertEquals(mockAsset.decimals.toLong(), JSON.getAsByte(assetResult.get(DECIMALS_RESPONSE)).toLong())
-        assertEquals("" + mockAsset.quantityQNT, JSON.getAsString(assetResult.get(QUANTITY_QNT_RESPONSE)))
-        assertEquals("" + mockAsset.id, JSON.getAsString(assetResult.get(ASSET_RESPONSE)))
-        assertEquals(1, JSON.getAsInt(assetResult.get(NUMBER_OF_ACCOUNTS_RESPONSE)).toLong())
-        assertEquals(2, JSON.getAsInt(assetResult.get(NUMBER_OF_TRANSFERS_RESPONSE)).toLong())
-        assertEquals(3, JSON.getAsInt(assetResult.get(NUMBER_OF_TRADES_RESPONSE)).toLong())
+        assertEquals(mockAsset.name, assetResult.get(NAME_RESPONSE).safeGetAsString())
+        assertEquals(mockAsset.description, assetResult.get(DESCRIPTION_RESPONSE).safeGetAsString())
+        assertEquals(mockAsset.decimals.toLong(), assetResult.get(DECIMALS_RESPONSE).safeGetAsLong())
+        assertEquals("" + mockAsset.quantityQNT, assetResult.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockAsset.id, assetResult.get(ASSET_RESPONSE).safeGetAsString())
+        assertEquals(1L, assetResult.get(NUMBER_OF_ACCOUNTS_RESPONSE).safeGetAsLong())
+        assertEquals(2L, assetResult.get(NUMBER_OF_TRANSFERS_RESPONSE).safeGetAsLong())
+        assertEquals(3L, assetResult.get(NUMBER_OF_TRADES_RESPONSE).safeGetAsLong())
     }
 
 }

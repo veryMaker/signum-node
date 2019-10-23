@@ -1,9 +1,9 @@
 package brs.db
 
 interface VersionedEntityTable<T> : EntityTable<T> {
-    override fun rollback(height: Int)
+    override suspend fun rollback(height: Int)
 
-    fun delete(t: T): Boolean
+    suspend fun delete(t: T): Boolean
 
-    override fun trim(height: Int)
+    override suspend fun trim(height: Int)
 }

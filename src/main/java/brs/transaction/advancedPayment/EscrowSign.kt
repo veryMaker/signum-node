@@ -31,7 +31,7 @@ class EscrowSign(dp: DependencyProvider) : AdvancedPayment(dp) {
         return TransactionDuplicationKey(EscrowSign::class, uniqueString)
     }
 
-    override fun validateAttachment(transaction: Transaction) {
+    override suspend fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowSign
         if (transaction.amountNQT != 0L || transaction.feeNQT != Constants.ONE_BURST) {
             throw BurstException.NotValidException("Escrow signing must have amount 0 and fee of 1")
@@ -53,7 +53,7 @@ class EscrowSign(dp: DependencyProvider) : AdvancedPayment(dp) {
         if (escrow.recipientId == transaction.senderId && attachment.decision != Escrow.DecisionType.REFUND) {
             throw BurstException.NotValidException("Escrow recipient can only refund")
         }
-        if (!dp.escrowService.isEnabled) {
+        if (!dp.escrowService.isEnabled()) {
             throw BurstException.NotYetEnabledException("Escrow not yet enabled")
         }
     }

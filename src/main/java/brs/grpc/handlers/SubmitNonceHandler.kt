@@ -72,7 +72,7 @@ class SubmitNonceHandler(propertyService: PropertyService, private val blockchai
 
     companion object {
 
-        fun verifySecretAccount(accountService: AccountService, blockchain: Blockchain, secretAccount: Account, accountId: Long) {
+        suspend fun verifySecretAccount(accountService: AccountService, blockchain: Blockchain, secretAccount: Account, accountId: Long) {
             val genAccount = if (accountId != 0L) {
                 accountService.getAccount(accountId)
             } else {

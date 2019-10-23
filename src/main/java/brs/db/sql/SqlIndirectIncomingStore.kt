@@ -30,11 +30,11 @@ class SqlIndirectIncomingStore(private val dp: DependencyProvider) : IndirectInc
                         .values(indirectIncoming.accountId, indirectIncoming.transactionId, indirectIncoming.height)
             }
 
-            override fun save(ctx: DSLContext, indirectIncoming: IndirectIncomingStore.IndirectIncoming) {
+            override suspend fun save(ctx: DSLContext, indirectIncoming: IndirectIncomingStore.IndirectIncoming) {
                 getQuery(ctx, indirectIncoming).execute()
             }
 
-            override fun save(ctx: DSLContext, indirectIncomings: Array<IndirectIncomingStore.IndirectIncoming>) {
+            override suspend fun save(ctx: DSLContext, indirectIncomings: Array<IndirectIncomingStore.IndirectIncoming>) {
                 val queries = mutableListOf<Query>()
                 for (indirectIncoming in indirectIncomings) {
                     queries.add(getQuery(ctx, indirectIncoming))
@@ -44,11 +44,11 @@ class SqlIndirectIncomingStore(private val dp: DependencyProvider) : IndirectInc
         }
     }
 
-    override fun addIndirectIncomings(indirectIncomings: Collection<IndirectIncomingStore.IndirectIncoming>) {
+    override suspend fun addIndirectIncomings(indirectIncomings: Collection<IndirectIncomingStore.IndirectIncoming>) {
         dp.db.useDslContext { ctx -> indirectIncomingTable.save(ctx, indirectIncomings.toTypedArray()) }
     }
 
-    override fun getIndirectIncomings(accountId: Long, from: Int, to: Int): List<Long> {
+    override suspend fun getIndirectIncomings(accountId: Long, from: Int, to: Int): List<Long> {
         return indirectIncomingTable.getManyBy(INDIRECT_INCOMING.ACCOUNT_ID.eq(accountId), from, to)
                 .map { it.transactionId }
     }

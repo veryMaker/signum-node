@@ -12,7 +12,8 @@ import brs.http.common.Parameters.NONCE_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.http.common.ResultFields.DECRYPTED_MESSAGE_RESPONSE
 import brs.services.ParameterService
-import brs.util.JSON
+import brs.util.mustGetAsJsonObject
+import brs.util.safeGetAsString
 import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -50,7 +51,7 @@ class DecryptFromTest {
 
         whenever(mockParameterService.getAccount(request)).doReturn(mockAccount)
 
-        assertEquals("\u0001", JSON.getAsString(JSON.getAsJsonObject(t.processRequest(request)).get(DECRYPTED_MESSAGE_RESPONSE)))
+        assertEquals("\u0001", t.processRequest(request).mustGetAsJsonObject("result").get(DECRYPTED_MESSAGE_RESPONSE).safeGetAsString())
     }
 
     @Test

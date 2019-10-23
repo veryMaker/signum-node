@@ -15,7 +15,8 @@ import brs.http.common.ResultFields.NUMBER_OF_TRADES_RESPONSE
 import brs.http.common.ResultFields.NUMBER_OF_TRANSFERS_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE
 import brs.services.ParameterService
-import brs.util.JSON
+import brs.util.safeGetAsLong
+import brs.util.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -26,7 +27,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class GetAssetTest : AbstractUnitTest() {
 
@@ -70,13 +70,13 @@ class GetAssetTest : AbstractUnitTest() {
         val result = t.processRequest(request) as JsonObject
 
         assertNotNull(result)
-        assertEquals(asset.name, JSON.getAsString(result.get(NAME_RESPONSE)))
-        assertEquals(asset.description, JSON.getAsString(result.get(DESCRIPTION_RESPONSE)))
-        assertEquals(asset.decimals.toLong(), JSON.getAsInt(result.get(DECIMALS_RESPONSE)).toLong())
-        assertEquals("" + asset.quantityQNT, JSON.getAsString(result.get(QUANTITY_QNT_RESPONSE)))
-        assertEquals("" + asset.id, JSON.getAsString(result.get(ASSET_RESPONSE)))
-        assertEquals(tradeCount.toLong(), JSON.getAsInt(result.get(NUMBER_OF_TRADES_RESPONSE)).toLong())
-        assertEquals(transferCount.toLong(), JSON.getAsInt(result.get(NUMBER_OF_TRANSFERS_RESPONSE)).toLong())
-        assertEquals(assetAccountsCount.toLong(), JSON.getAsInt(result.get(NUMBER_OF_ACCOUNTS_RESPONSE)).toLong())
+        assertEquals(asset.name, result.get(NAME_RESPONSE).safeGetAsString())
+        assertEquals(asset.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
+        assertEquals(asset.decimals.toLong(), result.get(DECIMALS_RESPONSE).safeGetAsLong())
+        assertEquals("" + asset.quantityQNT, result.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
+        assertEquals("" + asset.id, result.get(ASSET_RESPONSE).safeGetAsString())
+        assertEquals(tradeCount.toLong(), result.get(NUMBER_OF_TRADES_RESPONSE).safeGetAsLong())
+        assertEquals(transferCount.toLong(), result.get(NUMBER_OF_TRANSFERS_RESPONSE).safeGetAsLong())
+        assertEquals(assetAccountsCount.toLong(), result.get(NUMBER_OF_ACCOUNTS_RESPONSE).safeGetAsLong())
     }
 }

@@ -104,7 +104,7 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
         setLastVars()
     }
 
-    fun getBlock(blockId: Long): Block? {
+    suspend fun getBlock(blockId: Long): Block? {
         if (forkCache.isNotEmpty()) {
             for (block in forkCache) {
                 if (block.id == blockId) {
@@ -117,9 +117,9 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
 
     fun getNextBlock(prevBlockId: Long) = stampedLock.read { blockCache[reverseCache[prevBlockId]] }
 
-    fun hasBlock(blockId: Long) = stampedLock.read { blockCache.containsKey(blockId) } || dp.blockchain.hasBlock(blockId)
+    suspend fun hasBlock(blockId: Long) = stampedLock.read { blockCache.containsKey(blockId) } || dp.blockchain.hasBlock(blockId)
 
-    fun canBeFork(oldBlockId: Long) = stampedLock.read {
+    suspend fun canBeFork(oldBlockId: Long) = stampedLock.read {
         val curHeight = chainHeight
         var block = blockCache[oldBlockId]
         if (block == null && dp.blockchain.hasBlock(oldBlockId)) {
@@ -158,7 +158,7 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
         }
     }
 
-    fun getPoCVersion(blockId: Long): Int {
+    suspend fun getPoCVersion(blockId: Long): Int {
         val block = getBlock(blockId)
         return if (block == null || !dp.fluxCapacitor.getValue(FluxValues.POC2, block.height)) 1 else 2
     }

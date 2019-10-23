@@ -20,7 +20,7 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
         }
     }
 
-    override fun processTransaction(transaction: Transaction) {
+    override suspend fun processTransaction(transaction: Transaction) {
         if (disabled) return
         dp.indirectIncomingStore.addIndirectIncomings(getIndirectIncomings(transaction)
                 .map { account -> IndirectIncomingStore.IndirectIncoming(account, transaction.id, transaction.height) })
@@ -32,12 +32,10 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
     }
 
     private fun getIndirectIncomings(transaction: Transaction): Collection<Long> {
-        return if (transaction.type is MultiOutPayment) {
-            getMultiOutRecipients(transaction)
-        } else if (transaction.type is MultiOutSamePayment) {
-            getMultiOutSameRecipients(transaction)
-        } else {
-            emptyList()
+        return when {
+            transaction.type is MultiOutPayment -> getMultiOutRecipients(transaction)
+            transaction.type is MultiOutSamePayment -> getMultiOutSameRecipients(transaction)
+            else -> emptyList()
         }
     }
 

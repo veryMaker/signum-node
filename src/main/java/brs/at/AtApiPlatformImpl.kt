@@ -26,11 +26,11 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         return AtApiHelper.getLongTimestamp(height, 0)
     }
 
-    override fun putLastBlockHashInA(state: AtMachineState) {
+    override suspend fun putLastBlockHashInA(state: AtMachineState) {
         val b = ByteBuffer.allocate(state.a1.size * 4)
         b.order(ByteOrder.LITTLE_ENDIAN)
 
-        b.put(dp.blockchain.getBlockAtHeight(state.height - 1)!!.blockHash)
+        b.put(dp.blockchain.getBlockAtHeight(state.height - 1)!!.hash)
 
         b.clear()
 
@@ -49,8 +49,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         state.a4 = temp
     }
 
-    override fun aToTxAfterTimestamp(`val`: Long, state: AtMachineState) {
-
+    override suspend fun aToTxAfterTimestamp(`val`: Long, state: AtMachineState) {
         val height = AtApiHelper.longToHeight(`val`)
         val numOfTx = AtApiHelper.longToNumOfTx(`val`)
 
@@ -60,10 +59,9 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         logger.safeDebug { "tx with id ${tx.toUnsignedString()} found" }
         clearA(state)
         state.a1 = AtApiHelper.getByteArray(tx)
-
     }
 
-    override fun getTypeForTxInA(state: AtMachineState): Long {
+    override suspend fun getTypeForTxInA(state: AtMachineState): Long {
         val txid = AtApiHelper.getLong(state.a1)
 
         val tx = dp.blockchain.getTransaction(txid)
@@ -78,7 +76,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
 
     }
 
-    override fun getAmountForTxInA(state: AtMachineState): Long {
+    override suspend fun getAmountForTxInA(state: AtMachineState): Long {
         val txId = AtApiHelper.getLong(state.a1)
 
         val tx = dp.blockchain.getTransaction(txId)
@@ -93,7 +91,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
 
     }
 
-    override fun getTimestampForTxInA(state: AtMachineState): Long {
+    override suspend fun getTimestampForTxInA(state: AtMachineState): Long {
         val txId = AtApiHelper.getLong(state.a1)
         logger.safeDebug { "get timestamp for tx with id ${txId.toUnsignedString()} found" }
         val tx = dp.blockchain.getTransaction(txId)
@@ -109,7 +107,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         return AtApiHelper.getLongTimestamp(blockHeight, txHeight)
     }
 
-    override fun getRandomIdForTxInA(state: AtMachineState): Long {
+    override suspend fun getRandomIdForTxInA(state: AtMachineState): Long {
         val txId = AtApiHelper.getLong(state.a1)
 
         val tx = dp.blockchain.getTransaction(txId)
@@ -144,7 +142,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         return abs(AtApiHelper.getLong(Arrays.copyOfRange(byteRandom, 0, 8)))
     }
 
-    override fun messageFromTxInAToB(state: AtMachineState) {
+    override suspend fun messageFromTxInAToB(state: AtMachineState) {
         val txid = AtApiHelper.getLong(state.a1)
 
         var tx = dp.blockchain.getTransaction(txid)
@@ -182,7 +180,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
 
     }
 
-    override fun bToAddressOfTxInA(state: AtMachineState) {
+    override suspend fun bToAddressOfTxInA(state: AtMachineState) {
         val txId = AtApiHelper.getLong(state.a1)
 
         clearB(state)
@@ -206,7 +204,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
 
     }
 
-    override fun putLastBlockGenerationSignatureInA(state: AtMachineState) {
+    override suspend fun putLastBlockGenerationSignatureInA(state: AtMachineState) {
         val b = ByteBuffer.allocate(state.a1.size * 4)
         b.order(ByteOrder.LITTLE_ENDIAN)
 
@@ -306,11 +304,11 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         private val logger = LoggerFactory.getLogger(AtApiPlatformImpl::class.java)
 
         // TODO remove methods taking dp
-        private fun findTransaction(dp: DependencyProvider, startHeight: Int, endHeight: Int, atID: Long?, numOfTx: Int, minAmount: Long): Long? {
+        private suspend fun findTransaction(dp: DependencyProvider, startHeight: Int, endHeight: Int, atID: Long?, numOfTx: Int, minAmount: Long): Long? {
             return dp.atStore.findTransaction(startHeight, endHeight, atID, numOfTx, minAmount)
         }
 
-        private fun findTransactionHeight(dp: DependencyProvider, transactionId: Long?, height: Int, atID: Long?, minAmount: Long): Int {
+        private suspend fun findTransactionHeight(dp: DependencyProvider, transactionId: Long?, height: Int, atID: Long?, minAmount: Long): Int {
             return dp.atStore.findTransactionHeight(transactionId, height, atID, minAmount)
         }
     }

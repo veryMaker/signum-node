@@ -11,7 +11,9 @@ import brs.http.common.ResultFields.QUANTITY_RESPONSE
 import brs.http.common.ResultFields.TAGS_RESPONSE
 import brs.http.common.ResultFields.TIMESTAMP_RESPONSE
 import brs.services.ParameterService
-import brs.util.JSON
+import brs.util.safeGetAsBoolean
+import brs.util.safeGetAsLong
+import brs.util.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -22,7 +24,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class GetDGSGoodTest {
 
@@ -56,13 +57,13 @@ class GetDGSGoodTest {
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
-        assertEquals("" + mockGoods.id, JSON.getAsString(result.get(GOODS_RESPONSE)))
-        assertEquals(mockGoods.name, JSON.getAsString(result.get(NAME_RESPONSE)))
-        assertEquals(mockGoods.description, JSON.getAsString(result.get(DESCRIPTION_RESPONSE)))
-        assertEquals(mockGoods.quantity.toLong(), JSON.getAsInt(result.get(QUANTITY_RESPONSE)).toLong())
-        assertEquals("" + mockGoods.priceNQT, JSON.getAsString(result.get(PRICE_NQT_RESPONSE)))
-        assertEquals(mockGoods.tags, JSON.getAsString(result.get(TAGS_RESPONSE)))
-        assertEquals(mockGoods.isDelisted, JSON.getAsBoolean(result.get(DELISTED_RESPONSE)))
-        assertEquals(mockGoods.timestamp.toLong(), JSON.getAsInt(result.get(TIMESTAMP_RESPONSE)).toLong())
+        assertEquals("" + mockGoods.id, result.get(GOODS_RESPONSE).safeGetAsString())
+        assertEquals(mockGoods.name, result.get(NAME_RESPONSE).safeGetAsString())
+        assertEquals(mockGoods.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
+        assertEquals(mockGoods.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
+        assertEquals("" + mockGoods.priceNQT, result.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals(mockGoods.tags, result.get(TAGS_RESPONSE).safeGetAsString())
+        assertEquals(mockGoods.isDelisted, result.get(DELISTED_RESPONSE).safeGetAsBoolean())
+        assertEquals(mockGoods.timestamp.toLong(), result.get(TIMESTAMP_RESPONSE).safeGetAsLong())
     }
 }

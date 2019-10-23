@@ -29,6 +29,7 @@ internal class SubmitNonce(propertyService: PropertyService, private val account
     init {
         val burstCrypto = BurstCrypto.getInstance()
         this.passphrases = propertyService.get(Props.SOLO_MINING_PASSPHRASES)
+                .asSequence()
                 .map { burstCrypto.getBurstAddressFromPassphrase(it).burstID.signedLongId to it}
                 .toMap()
         this.allowOtherSoloMiners = propertyService.get(Props.ALLOW_OTHER_SOLO_MINERS)

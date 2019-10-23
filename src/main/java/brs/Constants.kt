@@ -86,6 +86,8 @@ object Constants {
 
     const val TASK_FAILURE_DELAY_MS = 500L
 
+    const val OPTIMIZE_TABLE_FREQUENCY = 10000 // Optimize tables every 1000 blocks
+
     init {
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
         calendar.set(Calendar.YEAR, 2014)

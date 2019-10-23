@@ -321,7 +321,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
             return numberOfConnectedPeers
         }
 
-    private fun updateSavedPeers() {
+    private suspend fun updateSavedPeers() {
         val oldPeers = dp.peerDb.loadPeers().toSet()
         val currentPeers = mutableSetOf<String>()
         for (peer in peers.values) {
@@ -421,12 +421,13 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
 
                 val peer = getAnyPeer(Peer.State.CONNECTED) ?: return@run false
                 val response = peer.send(getPeersRequest) ?: return@run true
-                val peersJson = JSON.getAsJsonArray(response.get("peers"))
+                val peersJson = response.get("peers").safeGetAsJsonArray()
                 val addedAddresses = mutableSetOf<String>()
-                if (!peersJson.isEmpty()) {
+                if (peersJson != null && !peersJson.isEmpty()) {
                     for (announcedAddress in peersJson) {
-                        if (addPeer(JSON.getAsString(announcedAddress)) != null) {
-                            addedAddresses.add(JSON.getAsString(announcedAddress))
+                        val announcedAddressString = announcedAddress.mustGetAsString("announcedAddress")
+                        if (addPeer(announcedAddressString) != null) {
+                            addedAddresses.add(announcedAddressString)
                         }
                     }
                     if (savePeers && addedNewPeer.get()) {
@@ -706,7 +707,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
     }
 
     suspend fun sendToSomePeers(block: Block) {
-        val request = block.jsonObject
+        val request = block.toJsonObject()
         request.addProperty("requestType", "processBlock")
 
         coroutineScope { launch {

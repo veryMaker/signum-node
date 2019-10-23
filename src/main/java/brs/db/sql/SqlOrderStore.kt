@@ -36,7 +36,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
                 return SqlAsk(record)
             }
 
-            override fun save(ctx: DSLContext, ask: Order.Ask) {
+            override suspend fun save(ctx: DSLContext, ask: Order.Ask) {
                 saveAsk(ctx, ask)
             }
 
@@ -50,7 +50,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
                 return SqlBid(record)
             }
 
-            override fun save(ctx: DSLContext, bid: Order.Bid) {
+            override suspend fun save(ctx: DSLContext, bid: Order.Bid) {
                 saveBid(ctx, bid)
             }
 
@@ -60,26 +60,16 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
         }
     }
 
-    override fun getAskOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Order.Ask> {
-        return askOrderTable.getManyBy(
-                ASK_ORDER.ACCOUNT_ID.eq(accountId).and(
-                        ASK_ORDER.ASSET_ID.eq(assetId)
-                ),
-                from,
-                to
-        )
+    override suspend fun getAskOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Order.Ask> {
+        return askOrderTable.getManyBy(ASK_ORDER.ACCOUNT_ID.eq(accountId).and(ASK_ORDER.ASSET_ID.eq(assetId)), from, to)
     }
 
-    override fun getSortedAsks(assetId: Long, from: Int, to: Int): Collection<Order.Ask> {
-        val sort = mutableListOf<SortField<*>>()
-        sort.add(ASK_ORDER.field("price", Long::class.java).asc())
-        sort.add(ASK_ORDER.field("creation_height", Int::class.java).asc())
-        sort.add(ASK_ORDER.field("id", Long::class.java).asc())
-        return askOrderTable.getManyBy(ASK_ORDER.ASSET_ID.eq(assetId), from, to, sort)
+    override suspend fun getSortedAsks(assetId: Long, from: Int, to: Int): Collection<Order.Ask> {
+        return askOrderTable.getManyBy(ASK_ORDER.ASSET_ID.eq(assetId), from, to, listOf(ASK_ORDER.field("price", Long::class.java).asc(), ASK_ORDER.field("creation_height", Int::class.java).asc(), ASK_ORDER.field("id", Long::class.java).asc()))
     }
 
-    override fun getNextOrder(assetId: Long): Order.Ask? {
-        return dp.db.useDslContext<Order.Ask?> { ctx ->
+    override suspend fun getNextOrder(assetId: Long): Order.Ask? {
+        return dp.db.getUsingDslContext<Order.Ask?> { ctx ->
             val query = ctx.selectFrom(ASK_ORDER)
                     .where(ASK_ORDER.ASSET_ID.eq(assetId).and(ASK_ORDER.LATEST.isTrue))
                     .orderBy(ASK_ORDER.PRICE.asc(),
@@ -92,15 +82,15 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
         }
     }
 
-    override fun getAll(from: Int, to: Int): Collection<Order.Ask> {
+    override suspend fun getAll(from: Int, to: Int): Collection<Order.Ask> {
         return askOrderTable.getAll(from, to)
     }
 
-    override fun getAskOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Order.Ask> {
+    override suspend fun getAskOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Order.Ask> {
         return askOrderTable.getManyBy(ASK_ORDER.ACCOUNT_ID.eq(accountId), from, to)
     }
 
-    override fun getAskOrdersByAsset(assetId: Long, from: Int, to: Int): Collection<Order.Ask> {
+    override suspend fun getAskOrdersByAsset(assetId: Long, from: Int, to: Int): Collection<Order.Ask> {
         return askOrderTable.getManyBy(ASK_ORDER.ASSET_ID.eq(assetId), from, to)
     }
 
@@ -111,15 +101,15 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
                 .execute()
     }
 
-    override fun getBidOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Order.Bid> {
+    override suspend fun getBidOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Order.Bid> {
         return bidOrderTable.getManyBy(BID_ORDER.ACCOUNT_ID.eq(accountId), from, to)
     }
 
-    override fun getBidOrdersByAsset(assetId: Long, from: Int, to: Int): Collection<Order.Bid> {
+    override suspend fun getBidOrdersByAsset(assetId: Long, from: Int, to: Int): Collection<Order.Bid> {
         return bidOrderTable.getManyBy(BID_ORDER.ASSET_ID.eq(assetId), from, to)
     }
 
-    override fun getBidOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Order.Bid> {
+    override suspend fun getBidOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Order.Bid> {
         return bidOrderTable.getManyBy(
                 BID_ORDER.ACCOUNT_ID.eq(accountId).and(
                         BID_ORDER.ASSET_ID.eq(assetId)
@@ -129,16 +119,12 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
         )
     }
 
-    override fun getSortedBids(assetId: Long, from: Int, to: Int): Collection<Order.Bid> {
-        val sort = mutableListOf<SortField<*>>()
-        sort.add(BID_ORDER.field("price", Long::class.java).desc())
-        sort.add(BID_ORDER.field("creation_height", Int::class.java).asc())
-        sort.add(BID_ORDER.field("id", Long::class.java).asc())
-        return bidOrderTable.getManyBy(BID_ORDER.ASSET_ID.eq(assetId), from, to, sort)
+    override suspend fun getSortedBids(assetId: Long, from: Int, to: Int): Collection<Order.Bid> {
+        return bidOrderTable.getManyBy(BID_ORDER.ASSET_ID.eq(assetId), from, to, listOf(BID_ORDER.field("price", Long::class.java).desc(), BID_ORDER.field("creation_height", Int::class.java).asc(), BID_ORDER.field("id", Long::class.java).asc()))
     }
 
-    override fun getNextBid(assetId: Long): Order.Bid? {
-        return dp.db.useDslContext<Order.Bid?> { ctx ->
+    override suspend fun getNextBid(assetId: Long): Order.Bid? {
+        return dp.db.getUsingDslContext<Order.Bid?> { ctx ->
             val query = ctx.selectFrom(BID_ORDER)
                     .where(BID_ORDER.ASSET_ID.eq(assetId)
                             .and(BID_ORDER.LATEST.isTrue))

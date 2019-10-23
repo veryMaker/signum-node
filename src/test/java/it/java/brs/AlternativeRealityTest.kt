@@ -1,6 +1,6 @@
 package it.java.brs
 
-import brs.util.JSON
+import brs.util.mustGetAsJsonObject
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -51,7 +51,7 @@ class AlternativeRealityTest : AbstractIT() {
         val result = mutableListOf<JsonObject>()
 
         array.forEach { obj ->
-            result.add(JSON.getAsJsonObject(obj))
+            result.add(obj.mustGetAsJsonObject("obj"))
         }
 
         return result

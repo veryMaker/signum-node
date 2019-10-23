@@ -17,6 +17,8 @@ import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE
 import brs.services.ParameterService
 import brs.util.JSON
+import brs.util.safeGetAsLong
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -86,10 +88,10 @@ class GetAskOrdersTest : AbstractUnitTest() {
 
         val askOrder1Result = orders.get(0) as JsonObject
 
-        assertEquals("" + askOrder1.id, JSON.getAsString(askOrder1Result.get(ORDER_RESPONSE)))
-        assertEquals("" + askOrder1.assetId, JSON.getAsString(askOrder1Result.get(ASSET_RESPONSE)))
-        assertEquals("" + askOrder1.quantityQNT, JSON.getAsString(askOrder1Result.get(QUANTITY_QNT_RESPONSE)))
-        assertEquals("" + askOrder1.priceNQT, JSON.getAsString(askOrder1Result.get(PRICE_NQT_RESPONSE)))
-        assertEquals(askOrder1.height.toLong(), JSON.getAsInt(askOrder1Result.get(HEIGHT_RESPONSE)).toLong())
+        assertEquals("" + askOrder1.id, askOrder1Result.get(ORDER_RESPONSE).safeGetAsString())
+        assertEquals("" + askOrder1.assetId, askOrder1Result.get(ASSET_RESPONSE).safeGetAsString())
+        assertEquals("" + askOrder1.quantityQNT, askOrder1Result.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
+        assertEquals("" + askOrder1.priceNQT, askOrder1Result.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals(askOrder1.height.toLong(), askOrder1Result.get(HEIGHT_RESPONSE).safeGetAsLong())
     }
 }

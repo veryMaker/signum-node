@@ -7,14 +7,14 @@ import brs.services.TransactionService
 
 class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionService {
 
-    override fun verifyPublicKey(transaction: Transaction): Boolean {
+    override suspend fun verifyPublicKey(transaction: Transaction): Boolean {
         val account = dp.accountService.getAccount(transaction.senderId) ?: return false
         return if (transaction.signature == null) {
             false
         } else account.setOrVerify(dp, transaction.senderPublicKey, transaction.height)
     }
 
-    override fun validate(transaction: Transaction) {
+    override suspend fun validate(transaction: Transaction) {
         for (appendage in transaction.appendages) {
             appendage.validate(transaction)
         }

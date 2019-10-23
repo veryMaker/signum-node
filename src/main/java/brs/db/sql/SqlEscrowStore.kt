@@ -29,14 +29,13 @@ class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
     override val decisionTable: VersionedEntityTable<Escrow.Decision>
     override val resultTransactions = mutableListOf<Transaction>()
 
-
     init {
         escrowTable = object : VersionedEntitySqlTable<Escrow>("escrow", ESCROW, escrowDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, rs: Record): Escrow {
                 return SqlEscrow(rs)
             }
 
-            override fun save(ctx: DSLContext, escrow: Escrow) {
+            override suspend fun save(ctx: DSLContext, escrow: Escrow) {
                 saveEscrow(ctx, escrow)
             }
         }
@@ -46,7 +45,7 @@ class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
                 return SqlDecision(record)
             }
 
-            override fun save(ctx: DSLContext, decision: Escrow.Decision) {
+            override suspend fun save(ctx: DSLContext, decision: Escrow.Decision) {
                 saveDecision(ctx, decision)
             }
         }
@@ -59,10 +58,10 @@ class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
                 .execute()
     }
 
-    override fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow> {
+    override suspend fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow> {
         val filtered = mutableListOf<Escrow>()
         for (decision in decisionTable.getManyBy(ESCROW_DECISION.ACCOUNT_ID.eq(accountId), 0, -1)) {
-            val escrow = escrowTable[escrowDbKeyFactory.newKey(decision.escrowId!!)]
+            val escrow = escrowTable.get(escrowDbKeyFactory.newKey(decision.escrowId!!))
             if (escrow != null) {
                 filtered.add(escrow)
             }
@@ -81,8 +80,7 @@ class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
 
     private inner class SqlEscrow internal constructor(record: Record) : Escrow(dp, record.get(ESCROW.ID), record.get(ESCROW.SENDER_ID), record.get(ESCROW.RECIPIENT_ID), escrowDbKeyFactory.newKey(record.get(ESCROW.ID)), record.get(ESCROW.AMOUNT), record.get(ESCROW.REQUIRED_SIGNERS), record.get(ESCROW.DEADLINE), byteToDecision(record.get(ESCROW.DEADLINE_ACTION).toByte())!!)
 
-    override fun getDecisions(id: Long?): Collection<Escrow.Decision> {
+    override suspend fun getDecisions(id: Long?): Collection<Escrow.Decision> {
         return decisionTable.getManyBy(ESCROW_DECISION.ESCROW_ID.eq(id), 0, -1)
     }
-
 }

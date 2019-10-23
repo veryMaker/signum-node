@@ -28,7 +28,7 @@ class GetDgsPurchasesHandler(private val digitalGoodsStoreService: DGSGoodsStore
 
         val builder = BrsApi.DgsPurchases.newBuilder()
         FilteringIterator(purchases, { purchase -> !(completed && purchase.isPending) }, firstIndex, lastIndex)
-                .forEachRemaining { purchase -> builder.addDgsPurchases(ProtoBuilder.buildPurchase(purchase, digitalGoodsStoreService.getGoods(purchase.goodsId)!!)) }
+                .forEach { purchase -> builder.addDgsPurchases(ProtoBuilder.buildPurchase(purchase, digitalGoodsStoreService.getGoods(purchase.goodsId)!!)) }
         return builder.build()
     }
 }

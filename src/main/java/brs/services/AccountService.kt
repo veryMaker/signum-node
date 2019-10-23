@@ -6,34 +6,34 @@ import brs.AssetTransfer
 import brs.util.Observable
 
 interface AccountService : Observable<Account, Event> {
-    val count: Int
+    suspend fun getCount(): Int
 
     suspend fun addAssetListener(eventType: Event, listener: suspend (AccountAsset) -> Unit)
 
-    fun getAccount(id: Long): Account?
+    suspend fun getAccount(id: Long): Account?
 
-    fun getAccount(id: Long, height: Int): Account?
+    suspend fun getAccount(id: Long, height: Int): Account?
 
-    fun getAccount(publicKey: ByteArray): Account?
+    suspend fun getAccount(publicKey: ByteArray): Account?
 
-    fun getAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer>
+    suspend fun getAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer>
 
-    fun getAssets(accountId: Long, from: Int, to: Int): Collection<AccountAsset>
+    suspend fun getAssets(accountId: Long, from: Int, to: Int): Collection<AccountAsset>
 
-    fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<RewardRecipientAssignment>
+    suspend fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<RewardRecipientAssignment>
 
-    fun getAccountsWithName(name: String): Collection<Account>
+    suspend fun getAccountsWithName(name: String): Collection<Account>
 
-    fun getAllAccounts(from: Int, to: Int): Collection<Account>
+    suspend fun getAllAccounts(from: Int, to: Int): Collection<Account>
 
-    fun getOrAddAccount(id: Long): Account
+    suspend fun getOrAddAccount(id: Long): Account
 
-    fun flushAccountTable()
+    suspend fun flushAccountTable()
 
     // TODO rename methods
-    fun addToForgedBalanceNQT(account: Account, amountNQT: Long)
+    suspend fun addToForgedBalanceNQT(account: Account, amountNQT: Long)
 
-    fun setAccountInfo(account: Account, name: String, description: String)
+    suspend fun setAccountInfo(account: Account, name: String, description: String)
 
     suspend fun addToAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
 
@@ -47,9 +47,9 @@ interface AccountService : Observable<Account, Event> {
 
     suspend fun addToBalanceAndUnconfirmedBalanceNQT(account: Account, amountNQT: Long)
 
-    fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment?
+    suspend fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment?
 
-    fun setRewardRecipientAssignment(account: Account, recipient: Long)
+    suspend fun setRewardRecipientAssignment(account: Account, recipient: Long)
 
-    fun getUnconfirmedAssetBalanceQNT(account: Account, assetId: Long): Long
+    suspend fun getUnconfirmedAssetBalanceQNT(account: Account, assetId: Long): Long
 }

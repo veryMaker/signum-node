@@ -47,8 +47,8 @@ class AT : AtMachineState {
         return dp.atStore.atStateTable
     }
 
-    fun saveState() {
-        var state: ATState? = atStateTable()[atStateDbKeyFactory(dp).newKey(AtApiHelper.getLong(this.id!!))]
+    suspend fun saveState() {
+        var state: ATState? = atStateTable().get(atStateDbKeyFactory(dp).newKey(AtApiHelper.getLong(this.id!!)))
         val prevHeight = dp.blockchain.height
         val newNextHeight = prevHeight + waitForNumberOfBlocks
         if (state != null) {
@@ -127,16 +127,16 @@ class AT : AtMachineState {
         }
 
         @Deprecated("Use dp.atStore.getAT(AtApiHelper.getLong(id)) instead")
-        fun getAT(dp: DependencyProvider, id: ByteArray): AT? {
+        suspend fun getAT(dp: DependencyProvider, id: ByteArray): AT? {
             return getAT(dp, AtApiHelper.getLong(id))
         }
 
         @Deprecated("Use dp.atStore.getAT(id) instead")
-        fun getAT(dp: DependencyProvider, id: Long?): AT? {
+        suspend fun getAT(dp: DependencyProvider, id: Long?): AT? {
             return dp.atStore.getAT(id)
         }
 
-        fun addAT(dp: DependencyProvider, atId: Long?, senderAccountId: Long?, name: String, description: String, creationBytes: ByteArray, height: Int) {
+        suspend fun addAT(dp: DependencyProvider, atId: Long?, senderAccountId: Long?, name: String, description: String, creationBytes: ByteArray, height: Int) {
             val bf = ByteBuffer.allocate(8 + 8)
             bf.order(ByteOrder.LITTLE_ENDIAN)
 
@@ -164,9 +164,9 @@ class AT : AtMachineState {
         }
 
         // TODO just do it yourself! or add a utils class or something... same goes for all of the methods around here doing this
-        @Deprecated("Use dp.atStore.orderedATs instead")
-        fun getOrderedATs(dp: DependencyProvider): List<Long> {
-            return dp.atStore.orderedATs
+        @Deprecated("Use dp.atStore.getOrderedATs() instead")
+        suspend fun getOrderedATs(dp: DependencyProvider): List<Long> {
+            return dp.atStore.getOrderedATs()
         }
 
         fun compressState(stateBytes: ByteArray?): ByteArray? {

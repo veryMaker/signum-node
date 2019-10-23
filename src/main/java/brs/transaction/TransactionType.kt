@@ -32,7 +32,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
     open val isSigned = true
     abstract fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte): AbstractAttachment
     internal abstract fun parseAttachment(attachmentData: JsonObject): AbstractAttachment
-    internal abstract fun validateAttachment(transaction: Transaction)
+    internal abstract suspend fun validateAttachment(transaction: Transaction)
 
     /**
      * @return false if double spending

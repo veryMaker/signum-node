@@ -24,7 +24,7 @@ class EffectiveBalanceLeasing(dp: DependencyProvider) : AccountControl(dp) {
     }
 
     @Throws(BurstException.ValidationException::class)
-    override fun validateAttachment(transaction: Transaction) {
+    override suspend fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AccountControlEffectiveBalanceLeasing
         val recipientAccount = dp.accountService.getAccount(transaction.recipientId)
         if (transaction.senderId == transaction.recipientId || transaction.amountNQT != 0L || attachment.period < 1440) {

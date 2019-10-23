@@ -12,7 +12,7 @@ interface AliasStore {
 
     val offerTable: VersionedEntityTable<Alias.Offer>
 
-    fun getAliasesByOwner(accountId: Long, from: Int, to: Int): Collection<Alias>
+    suspend fun getAliasesByOwner(accountId: Long, from: Int, to: Int): Collection<Alias>
 
-    fun getAlias(aliasName: String): Alias?
+    suspend fun getAlias(aliasName: String): Alias?
 }

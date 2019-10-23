@@ -11,7 +11,6 @@ import brs.http.common.Parameters.NONCE_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.http.common.ResultFields.DECRYPTED_MESSAGE_RESPONSE
 import brs.services.ParameterService
-import brs.util.convert.nullToEmpty
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
 import brs.util.convert.toUtf8String
@@ -29,8 +28,8 @@ internal class DecryptFrom internal constructor(private val parameterService: Pa
             return INCORRECT_ACCOUNT
         }
         val secretPhrase = ParameterParser.getSecretPhrase(request)
-        val data = request.getParameter(DATA_PARAMETER).nullToEmpty().parseHexString()
-        val nonce = request.getParameter(NONCE_PARAMETER).nullToEmpty().parseHexString()
+        val data = request.getParameter(DATA_PARAMETER).orEmpty().parseHexString()
+        val nonce = request.getParameter(NONCE_PARAMETER).orEmpty().parseHexString()
         val encryptedData = EncryptedData(data, nonce)
         val isText = !Parameters.isFalse(request.getParameter(DECRYPTED_MESSAGE_IS_TEXT_PARAMETER))
         return try {

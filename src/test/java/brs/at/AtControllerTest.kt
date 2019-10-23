@@ -9,17 +9,19 @@ import org.junit.Before
 import org.junit.Test
 
 class AtControllerTest {
+    private lateinit var atTestHelper: AtTestHelper
     private lateinit var dp: DependencyProvider
     
     @Before
     fun setUp() {
-        dp = AtTestHelper.setupMocks()
+        atTestHelper = AtTestHelper()
+        dp = atTestHelper.setupMocks()
         dp.atController = AtController(dp)
     }
 
     @Test
     fun testCheckCreationBytes() {
-        AtTestHelper.clearAddedAts(dp)
+        atTestHelper.clearAddedAts(dp)
         assertEquals(4, dp.atController.checkCreationBytes(AtTestHelper.HELLO_WORLD_CREATION_BYTES, Integer.MAX_VALUE).toLong())
         assertEquals(4, dp.atController.checkCreationBytes(AtTestHelper.ECHO_CREATION_BYTES, Integer.MAX_VALUE).toLong())
         assertEquals(5, dp.atController.checkCreationBytes(AtTestHelper.TIP_THANKS_CREATION_BYTES, Integer.MAX_VALUE).toLong())
@@ -27,10 +29,10 @@ class AtControllerTest {
 
     @Test
     fun testRunSteps() {
-        AtTestHelper.clearAddedAts(dp)
-        AtTestHelper.addHelloWorldAT(dp)
-        AtTestHelper.addEchoAT(dp)
-        AtTestHelper.addTipThanksAT(dp)
+        atTestHelper.clearAddedAts(dp)
+        atTestHelper.addHelloWorldAT(dp)
+        atTestHelper.addEchoAT(dp)
+        atTestHelper.addTipThanksAT(dp)
         assertEquals(3, AT.getOrderedATs(dp).size.toLong())
         val atBlock = dp.atController.getCurrentBlockATs(Integer.MAX_VALUE, Integer.MAX_VALUE)
         assertNotNull(atBlock)
@@ -40,10 +42,10 @@ class AtControllerTest {
 
     @Test
     fun testValidateAts() {
-        AtTestHelper.clearAddedAts(dp)
-        AtTestHelper.addHelloWorldAT(dp)
-        AtTestHelper.addEchoAT(dp)
-        AtTestHelper.addTipThanksAT(dp)
+        atTestHelper.clearAddedAts(dp)
+        atTestHelper.addHelloWorldAT(dp)
+        atTestHelper.addEchoAT(dp)
+        atTestHelper.addTipThanksAT(dp)
         assertEquals(3, AT.getOrderedATs(dp).size.toLong())
         val atBlock = dp.atController.validateATs("010000000000000097c1d1e5b25c1d109f2ba522d1dda248020000000000000014ea12712c274caebc49ccd7fff0b0b703000000000000009f1af5443c8d1e7b492f848e91fccb1f".parseHexString(), Integer.MAX_VALUE)
         assertNotNull(atBlock)

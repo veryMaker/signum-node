@@ -5,14 +5,11 @@ import brs.fluxcapacitor.FluxValues
 import brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
 import brs.peer.Peer
 import brs.props.Props
-import brs.util.JSON
-import brs.util.Listeners
-import brs.util.isEmpty
+import brs.util.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import brs.util.logging.safeTrace
-import brs.util.toJsonString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Job
@@ -32,7 +29,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                 try {
                     val peer = dp.peers.getAnyPeer(Peer.State.CONNECTED) ?: return@run
                     val response = dp.peers.readUnconfirmedTransactions(peer) ?: return@run
-                    val transactionsData = JSON.getAsJsonArray(response.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
+                    val transactionsData = response.get(UNCONFIRMED_TRANSACTIONS_RESPONSE).mustGetAsJsonArray(UNCONFIRMED_TRANSACTIONS_RESPONSE)
                     if (transactionsData.isEmpty()) return@run
                     dp.peers.feedingTime(peer, foodDispenser, doneFeedingLog)
 
@@ -48,10 +45,8 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                             for (otherPeer in activePrioPlusExtra) {
                                 jobs.add(launch {
                                     try {
-                                        val otherPeerResponse =
-                                            dp.peers.readUnconfirmedTransactions(otherPeer) ?: return@launch
-                                        val otherPeerTransactions =
-                                            JSON.getAsJsonArray(otherPeerResponse.get(UNCONFIRMED_TRANSACTIONS_RESPONSE))
+                                        val otherPeerResponse = dp.peers.readUnconfirmedTransactions(otherPeer) ?: return@launch
+                                        val otherPeerTransactions = otherPeerResponse.get(UNCONFIRMED_TRANSACTIONS_RESPONSE).mustGetAsJsonArray(UNCONFIRMED_TRANSACTIONS_RESPONSE)
                                         if (otherPeerTransactions.isEmpty()) return@launch
                                         dp.peers.feedingTime(otherPeer, foodDispenser, doneFeedingLog)
                                     } catch (e: ValidationException) {
@@ -102,7 +97,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         return dp.unconfirmedTransactionStore.get(transactionId)
     }
 
-    override fun newTransactionBuilder(senderPublicKey: ByteArray, amountNQT: Long, feeNQT: Long, deadline: Short, attachment: Attachment): Transaction.Builder {
+    override suspend fun newTransactionBuilder(senderPublicKey: ByteArray, amountNQT: Long, feeNQT: Long, deadline: Short, attachment: Attachment): Transaction.Builder {
         val version = getTransactionVersion(dp.blockchain.height).toByte()
         val timestamp = dp.timeService.epochTime
         val builder = Transaction.Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, attachment as Attachment.AbstractAttachment)
@@ -138,7 +133,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
     }
 
     override suspend fun processPeerTransactions(request: JsonObject, peer: Peer) {
-        val transactionsData = JSON.getAsJsonArray(request.get("transactions"))
+        val transactionsData = request.get("transactions").mustGetAsJsonArray("transactions")
         val processedTransactions = processPeerTransactions(transactionsData, peer)
 
         if (!processedTransactions.isEmpty()) {
@@ -199,7 +194,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         val transactions = mutableListOf<Transaction>()
         for (transactionData in transactionsData) {
             try {
-                val transaction = parseTransaction(JSON.getAsJsonObject(transactionData))
+                val transaction = parseTransaction(transactionData.mustGetAsJsonObject("transaction"))
                 dp.transactionService.validate(transaction)
                 if (!dp.economicClustering.verifyFork(transaction)) {
                     continue

@@ -18,7 +18,7 @@ class DigitalGoodsDelisting(dp: DependencyProvider) : DigitalGoods(dp) {
         dp.digitalGoodsStoreService.delistGoods(attachment.goodsId)
     }
 
-    override fun doValidateAttachment(transaction: Transaction) {
+    override suspend fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsDelisting
         val goods = dp.digitalGoodsStoreService.getGoods(attachment.goodsId)
         if (goods != null && transaction.senderId != goods.sellerId) {

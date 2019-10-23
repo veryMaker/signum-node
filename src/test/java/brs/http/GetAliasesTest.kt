@@ -10,7 +10,7 @@ import brs.http.common.ResultFields.ALIAS_RESPONSE
 import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
 import brs.services.AliasService
 import brs.services.ParameterService
-import brs.util.JSON
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -22,7 +22,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class GetAliasesTest : AbstractUnitTest() {
 
@@ -69,8 +68,8 @@ class GetAliasesTest : AbstractUnitTest() {
 
         val result = resultList.get(0) as JsonObject
         assertNotNull(result)
-        assertEquals("" + mockAlias.id, JSON.getAsString(result.get(ALIAS_RESPONSE)))
-        assertEquals("" + mockOffer.priceNQT, JSON.getAsString(result.get(PRICE_NQT_RESPONSE)))
+        assertEquals("" + mockAlias.id, result.get(ALIAS_RESPONSE).safeGetAsString())
+        assertEquals("" + mockOffer.priceNQT, result.get(PRICE_NQT_RESPONSE).safeGetAsString())
     }
 
 }

@@ -13,7 +13,8 @@ import brs.http.common.ResultFields.ID_RESPONSE
 import brs.http.common.ResultFields.TIME_NEXT_RESPONSE
 import brs.services.ParameterService
 import brs.services.SubscriptionService
-import brs.util.JSON
+import brs.util.safeGetAsLong
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -25,7 +26,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class GetAccountSubscriptionsTest : AbstractUnitTest() {
 
@@ -73,10 +73,10 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
         val resultSubscription = resultSubscriptions.get(0) as JsonObject
         assertNotNull(resultSubscription)
 
-        assertEquals("" + subscription.id, JSON.getAsString(resultSubscription.get(ID_RESPONSE)))
-        assertEquals("" + subscription.amountNQT, JSON.getAsString(resultSubscription.get(AMOUNT_NQT_RESPONSE)))
-        assertEquals(subscription.frequency.toLong(), JSON.getAsInt(resultSubscription.get(FREQUENCY_RESPONSE)).toLong())
-        assertEquals(subscription.timeNext.toLong(), JSON.getAsInt(resultSubscription.get(TIME_NEXT_RESPONSE)).toLong())
+        assertEquals("" + subscription.id, resultSubscription.get(ID_RESPONSE).safeGetAsString())
+        assertEquals("" + subscription.amountNQT, resultSubscription.get(AMOUNT_NQT_RESPONSE).safeGetAsString())
+        assertEquals(subscription.frequency.toLong(), resultSubscription.get(FREQUENCY_RESPONSE).safeGetAsLong())
+        assertEquals(subscription.timeNext.toLong(), resultSubscription.get(TIME_NEXT_RESPONSE).safeGetAsLong())
     }
 
 }

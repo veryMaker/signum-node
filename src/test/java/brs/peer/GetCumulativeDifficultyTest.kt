@@ -4,6 +4,8 @@ import brs.Block
 import brs.Blockchain
 import brs.common.QuickMocker
 import brs.util.JSON
+import brs.util.safeGetAsLong
+import brs.util.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
@@ -44,8 +46,8 @@ class GetCumulativeDifficultyTest {
         val result = t.processRequest(request, mock()) as JsonObject
         assertNotNull(result)
 
-        assertEquals(cumulativeDifficulty.toString(), JSON.getAsString(result.get("cumulativeDifficulty")))
-        assertEquals(blockchainHeight.toLong(), JSON.getAsInt(result.get("blockchainHeight")).toLong())
+        assertEquals(cumulativeDifficulty.toString(), result.get("cumulativeDifficulty").safeGetAsString())
+        assertEquals(blockchainHeight.toLong(), result.get("blockchainHeight").safeGetAsLong())
     }
 
 }

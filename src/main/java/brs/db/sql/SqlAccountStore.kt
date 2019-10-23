@@ -42,7 +42,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
                 return SqlRewardRecipientAssignment(record)
             }
 
-            override fun save(ctx: DSLContext, assignment: Account.RewardRecipientAssignment) {
+            override suspend fun save(ctx: DSLContext, assignment: Account.RewardRecipientAssignment) {
                 ctx.mergeInto<RewardRecipAssignRecord, Long, Long, Long, Int, Int, Boolean>(REWARD_RECIP_ASSIGN, REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.PREV_RECIP_ID, REWARD_RECIP_ASSIGN.RECIP_ID, REWARD_RECIP_ASSIGN.FROM_HEIGHT, REWARD_RECIP_ASSIGN.HEIGHT, REWARD_RECIP_ASSIGN.LATEST)
                         .key(REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.HEIGHT)
                         .values(assignment.accountId, assignment.prevRecipientId, assignment.recipientId, assignment.fromHeight, dp.blockchain.height, true)
@@ -61,7 +61,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
                 return SQLAccountAsset(record)
             }
 
-            override fun save(ctx: DSLContext, accountAsset: Account.AccountAsset) {
+            override suspend fun save(ctx: DSLContext, accountAsset: Account.AccountAsset) {
                 ctx.mergeInto<AccountAssetRecord, Long, Long, Long, Long, Int, Boolean>(ACCOUNT_ASSET, ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.QUANTITY, ACCOUNT_ASSET.UNCONFIRMED_QUANTITY, ACCOUNT_ASSET.HEIGHT, ACCOUNT_ASSET.LATEST)
                         .key(ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.HEIGHT)
                         .values(accountAsset.accountId, accountAsset.assetId, accountAsset.quantityQNT, accountAsset.unconfirmedQuantityQNT, dp.blockchain.height, true)
@@ -80,8 +80,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
 
             override fun bulkInsert(ctx: DSLContext, accounts: Collection<Account>) {
                 val height = dp.blockchain.height
-                ctx.batch(
-                    accounts.map { account ->
+                ctx.batch(accounts.map { account ->
                         ctx.mergeInto<AccountRecord, Long, Int, Int, ByteArray, Int, Long, Long, Long, String, String, Boolean>(ACCOUNT, ACCOUNT.ID, ACCOUNT.HEIGHT, ACCOUNT.CREATION_HEIGHT, ACCOUNT.PUBLIC_KEY, ACCOUNT.KEY_HEIGHT, ACCOUNT.BALANCE,
                             ACCOUNT.UNCONFIRMED_BALANCE, ACCOUNT.FORGED_BALANCE, ACCOUNT.NAME, ACCOUNT.DESCRIPTION, ACCOUNT.LATEST)
                             .key(ACCOUNT.ID, ACCOUNT.HEIGHT)
@@ -92,24 +91,24 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
         }
     }
 
-    override fun getAssetAccountsCount(assetId: Long): Int {
-        return dp.db.useDslContext<Int> { ctx -> ctx.selectCount().from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(assetId)).and(ACCOUNT_ASSET.LATEST.isTrue).fetchOne(0, Int::class.javaPrimitiveType) }
+    override suspend fun getAssetAccountsCount(assetId: Long): Int {
+        return dp.db.getUsingDslContext<Int> { ctx -> ctx.selectCount().from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(assetId)).and(ACCOUNT_ASSET.LATEST.isTrue).fetchOne(0, Int::class.javaPrimitiveType) }
     }
 
-    override fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<Account.RewardRecipientAssignment> {
+    override suspend fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<Account.RewardRecipientAssignment> {
         return rewardRecipientAssignmentTable.getManyBy(getAccountsWithRewardRecipientClause(recipientId!!, dp.blockchain.height + 1), 0, -1)
     }
 
-    override fun getAssets(from: Int, to: Int, id: Long?): Collection<Account.AccountAsset> {
+    override suspend fun getAssets(from: Int, to: Int, id: Long?): Collection<Account.AccountAsset> {
         return accountAssetTable.getManyBy(ACCOUNT_ASSET.ACCOUNT_ID.eq(id), from, to)
     }
 
-    override fun getAssetAccounts(assetId: Long, from: Int, to: Int): Collection<Account.AccountAsset> {
+    override suspend fun getAssetAccounts(assetId: Long, from: Int, to: Int): Collection<Account.AccountAsset> {
         val sort = listOf(ACCOUNT_ASSET.field("quantity", Long::class.java).desc(), ACCOUNT_ASSET.field("account_id", Long::class.java).asc())
         return accountAssetTable.getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), from, to, sort)
     }
 
-    override fun getAssetAccounts(assetId: Long, height: Int, from: Int, to: Int): Collection<Account.AccountAsset> {
+    override suspend fun getAssetAccounts(assetId: Long, height: Int, from: Int, to: Int): Collection<Account.AccountAsset> {
         if (height < 0) {
             return getAssetAccounts(assetId, from, to)
         }
@@ -118,10 +117,10 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
         return accountAssetTable.getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), height, from, to, sort)
     }
 
-    override fun setOrVerify(acc: Account, key: ByteArray, height: Int): Boolean {
+    override suspend fun setOrVerify(acc: Account, key: ByteArray, height: Int): Boolean {
         return when {
             acc.publicKey == null -> {
-                if (dp.db.isInTransaction) {
+                if (dp.db.isInTransaction()) {
                     acc.publicKey = key
                     acc.keyHeight = -1
                     accountTable.insert(acc)
@@ -136,7 +135,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             }
             acc.keyHeight >= height -> {
                 logger.safeInfo { "DUPLICATE KEY!!!" }
-                if (dp.db.isInTransaction) {
+                if (dp.db.isInTransaction()) {
                     logger.safeInfo { "Changing key for account ${acc.id.toUnsignedString()} at height $height, was previously set to a different one at height ${acc.keyHeight}" }
                     acc.publicKey = key
                     acc.keyHeight = height

@@ -58,7 +58,7 @@ class DGSGoodsStoreServiceImplTest : AbstractUnitTest() {
         val mockGoods = mock<Goods>()
 
         whenever(mockGoodsDbKeyFactory.newKey(eq(1L))).doReturn(mockKey)
-        whenever(mockGoodsTable[eq(mockKey)]).doReturn(mockGoods)
+        whenever(mockGoodsTable.get(eq(mockKey))).doReturn(mockGoods)
 
         assertEquals(mockGoods, t.getGoods(1L))
     }

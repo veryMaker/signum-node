@@ -16,7 +16,7 @@ class DigitalGoodsListing(dp: DependencyProvider) : DigitalGoods(dp) {
         dp.digitalGoodsStoreService.listGoods(transaction, attachment)
     }
 
-    override fun doValidateAttachment(transaction: Transaction) {
+    override suspend fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsListing
         if (attachment.name!!.isEmpty()
             || attachment.name.length > Constants.MAX_DGS_LISTING_NAME_LENGTH

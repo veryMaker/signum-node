@@ -10,15 +10,15 @@ class GetCountsHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empt
     override suspend fun handleRequest(empty: Empty): BrsApi.Counts {
         var totalEffectiveBalance: Long = 0
         val numberOfBlocks = dp.blockchain.height + 1 // Height + genesis
-        val numberOfTransactions = dp.blockchain.transactionCount
-        val numberOfAccounts = dp.accountService.count
-        val numberOfAssets = dp.assetExchange.assetsCount
-        val numberOfAskOrders = dp.assetExchange.askCount
-        val numberOfBidOrders = dp.assetExchange.bidCount
+        val numberOfTransactions = dp.blockchain.getTransactionCount()
+        val numberOfAccounts = dp.accountService.getCount()
+        val numberOfAssets = dp.assetExchange.getAssetsCount()
+        val numberOfAskOrders = dp.assetExchange.getAskCount()
+        val numberOfBidOrders = dp.assetExchange.getBidCount()
         val numberOfOrders = numberOfAskOrders + numberOfBidOrders
-        val numberOfTrades = dp.assetExchange.tradesCount
-        val numberOfTransfers = dp.assetExchange.assetTransferCount
-        val numberOfAliases = dp.aliasService.aliasCount
+        val numberOfTrades = dp.assetExchange.getTradesCount()
+        val numberOfTransfers = dp.assetExchange.getAssetTransferCount()
+        val numberOfAliases = dp.aliasService.getAliasCount()
         val numberOfPeers = dp.peers.allPeers.size
         val numberOfGenerators = dp.generator.allGenerators.size
         for (account in dp.accountService.getAllAccounts(0, -1)) {
@@ -27,7 +27,7 @@ class GetCountsHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empt
                 totalEffectiveBalance += effectiveBalanceBURST
             }
         }
-        for (escrow in dp.escrowService.allEscrowTransactions) {
+        for (escrow in dp.escrowService.getAllEscrowTransactions()) {
             totalEffectiveBalance += escrow.amountNQT
         }
 

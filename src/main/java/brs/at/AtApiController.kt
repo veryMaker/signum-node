@@ -5,7 +5,7 @@ import brs.DependencyProvider
 class AtApiController(dp: DependencyProvider) {
     private val atApi = AtApiImpl(dp)
 
-    fun func(funcNum: Int, state: AtMachineState): Long {
+    suspend fun func(funcNum: Int, state: AtMachineState): Long {
         when (funcNum) {
             256 -> return atApi.getA1(state)
             257 -> return atApi.getA2(state)
@@ -71,7 +71,7 @@ class AtApiController(dp: DependencyProvider) {
         return 0
     }
 
-    fun func1(funcNum: Int, `val`: Long, state: AtMachineState): Long {
+    suspend fun func1(funcNum: Int, `val`: Long, state: AtMachineState): Long {
         when (funcNum) {
             272 -> atApi.setA1(`val`, state)
             273 -> atApi.setA2(`val`, state)

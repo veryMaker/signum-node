@@ -14,38 +14,6 @@ object JSON {
         json.addProperty(PROTOCOL, "B1")
         return json
     }
-
-    fun getAsJsonObject(jsonElement: JsonElement?): JsonObject {
-        return if (jsonElement != null && jsonElement.isJsonObject) jsonElement.asJsonObject else JsonObject()
-    }
-
-    fun getAsJsonArray(jsonElement: JsonElement?): JsonArray {
-        return if (jsonElement != null && jsonElement.isJsonArray) jsonElement.asJsonArray else JsonArray()
-    }
-
-    fun getAsString(jsonElement: JsonElement?): String { // TODO should this be a nullable return type?
-        return if (jsonElement != null && jsonElement.isJsonPrimitive) jsonElement.asString else ""
-    }
-
-    fun getAsLong(jsonElement: JsonElement?): Long {
-        return if (jsonElement != null && jsonElement.isJsonPrimitive) jsonElement.asLong else 0
-    }
-
-    fun getAsInt(jsonElement: JsonElement?): Int {
-        return if (jsonElement != null && jsonElement.isJsonPrimitive) jsonElement.asInt else 0
-    }
-
-    fun getAsShort(jsonElement: JsonElement?): Short {
-        return if (jsonElement != null && jsonElement.isJsonPrimitive) jsonElement.asShort else 0
-    }
-
-    fun getAsByte(jsonElement: JsonElement?): Byte {
-        return if (jsonElement != null && jsonElement.isJsonPrimitive) jsonElement.asByte else 0
-    }
-
-    fun getAsBoolean(jsonElement: JsonElement?): Boolean {
-        return jsonElement != null && jsonElement.isJsonPrimitive && jsonElement.asBoolean
-    }
 }
 
 fun JsonElement.writeTo(writer: Writer) {
@@ -89,3 +57,67 @@ fun <T: JsonElement> Iterable<T>.toJsonArray(): JsonArray {
 fun JsonArray.isEmpty() = this.size() == 0
 
 fun JsonObject.isEmpty() = this.size() == 0
+
+fun JsonElement?.safeGetAsJsonObject(): JsonObject? {
+    return if (this != null && this.isJsonObject) this.asJsonObject else null
+}
+
+fun JsonElement?.mustGetAsJsonObject(fieldName: String): JsonObject {
+    return if (this != null && this.isJsonObject) this.asJsonObject else error("JSON: Could not get $fieldName")
+}
+
+fun JsonElement?.safeGetAsJsonArray(): JsonArray? {
+    return if (this != null && this.isJsonArray) this.asJsonArray else null
+}
+
+fun JsonElement?.mustGetAsJsonArray(fieldName: String): JsonArray {
+    return if (this != null && this.isJsonArray) this.asJsonArray else error("JSON: Could not get $fieldName")
+}
+
+fun JsonElement?.safeGetAsString(): String? {
+    return if (this != null && this.isJsonPrimitive) this.asString else null
+}
+
+fun JsonElement?.mustGetAsString(fieldName: String): String {
+    return if (this != null && this.isJsonPrimitive) this.asString else error("JSON: Could not get $fieldName")
+}
+
+fun JsonElement?.safeGetAsLong(): Long? {
+    return if (this != null && this.isJsonPrimitive) this.asLong else null
+}
+
+fun JsonElement?.mustGetAsLong(fieldName: String): Long {
+    return if (this != null && this.isJsonPrimitive) this.asLong else error("JSON: Could not get $fieldName")
+}
+
+fun JsonElement?.safeGetAsInt(): Int? {
+    return if (this != null && this.isJsonPrimitive) this.asInt else null
+}
+
+fun JsonElement?.mustGetAsInt(fieldName: String): Int {
+    return if (this != null && this.isJsonPrimitive) this.asInt else error("JSON: Could not get $fieldName")
+}
+
+fun JsonElement?.safeGetAsShort(): Short? {
+    return if (this != null && this.isJsonPrimitive) this.asShort else null
+}
+
+fun JsonElement?.mustGetAsShort(fieldName: String): Short {
+    return if (this != null && this.isJsonPrimitive) this.asShort else error("JSON: Could not get $fieldName")
+}
+
+fun JsonElement?.safeGetAsByte(): Byte? {
+    return if (this != null && this.isJsonPrimitive) this.asByte else null
+}
+
+fun JsonElement?.mustGetAsByte(fieldName: String): Byte {
+    return if (this != null && this.isJsonPrimitive) this.asByte else error("JSON: Could not get $fieldName")
+}
+
+fun JsonElement?.safeGetAsBoolean(): Boolean? {
+    return if (this != null && this.isJsonPrimitive) this.asBoolean else null
+}
+
+fun JsonElement?.mustGetAsBoolean(fieldName: String): Boolean {
+    return if (this != null && this.isJsonPrimitive) this.asBoolean else error("JSON: Could not get $fieldName")
+}

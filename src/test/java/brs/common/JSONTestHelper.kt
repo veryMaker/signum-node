@@ -1,13 +1,13 @@
 package brs.common
 
-import brs.util.JSON
-import com.google.gson.JsonElement
-
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
+import brs.util.mustGetAsInt
+import brs.util.mustGetAsJsonObject
+import com.google.gson.JsonElement
 
 object JSONTestHelper {
 
     fun errorCode(json: JsonElement): Int {
-        return JSON.getAsInt(JSON.getAsJsonObject(json).get(ERROR_CODE_RESPONSE))
+        return json.mustGetAsJsonObject("json").get(ERROR_CODE_RESPONSE).mustGetAsInt(ERROR_CODE_RESPONSE)
     }
 }

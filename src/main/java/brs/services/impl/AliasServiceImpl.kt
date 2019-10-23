@@ -16,8 +16,7 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
     private val offerTable: VersionedEntityTable<Offer>
     private val offerDbKeyFactory: BurstKey.LongKeyFactory<Offer>
 
-    override val aliasCount: Long
-        get() = aliasTable.count.toLong()
+    override suspend fun getAliasCount() = aliasTable.getCount().toLong()
 
     init {
         this.aliasTable = aliasStore.aliasTable
@@ -26,23 +25,23 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
         this.offerDbKeyFactory = aliasStore.offerDbKeyFactory
     }
 
-    override fun getAlias(aliasName: String): Alias? {
+    override suspend fun getAlias(aliasName: String): Alias? {
         return aliasStore.getAlias(aliasName)
     }
 
-    override fun getAlias(aliasId: Long): Alias? {
-        return aliasTable[aliasDbKeyFactory.newKey(aliasId)]
+    override suspend fun getAlias(aliasId: Long): Alias? {
+        return aliasTable.get(aliasDbKeyFactory.newKey(aliasId))
     }
 
-    override fun getOffer(alias: Alias): Offer? {
-        return offerTable[offerDbKeyFactory.newKey(alias.id)]
+    override suspend fun getOffer(alias: Alias): Offer? {
+        return offerTable.get(offerDbKeyFactory.newKey(alias.id))
     }
 
-    override fun getAliasesByOwner(accountId: Long, from: Int, to: Int): Collection<Alias> {
+    override suspend fun getAliasesByOwner(accountId: Long, from: Int, to: Int): Collection<Alias> {
         return aliasStore.getAliasesByOwner(accountId, from, to)
     }
 
-    override fun addOrUpdateAlias(transaction: Transaction, attachment: Attachment.MessagingAliasAssignment) {
+    override suspend fun addOrUpdateAlias(transaction: Transaction, attachment: Attachment.MessagingAliasAssignment) {
         var alias = getAlias(attachment.aliasName)
         if (alias == null) {
             val aliasDBId = aliasDbKeyFactory.newKey(transaction.id)
@@ -55,7 +54,7 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
         aliasTable.insert(alias)
     }
 
-    override fun sellAlias(transaction: Transaction, attachment: Attachment.MessagingAliasSell) {
+    override suspend fun sellAlias(transaction: Transaction, attachment: Attachment.MessagingAliasSell) {
         val aliasName = attachment.aliasName
         val priceNQT = attachment.priceNQT
         val buyerId = transaction.recipientId
@@ -75,7 +74,7 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
         }
     }
 
-    override fun changeOwner(newOwnerId: Long, aliasName: String, timestamp: Int) {
+    override suspend fun changeOwner(newOwnerId: Long, aliasName: String, timestamp: Int) {
         val alias = getAlias(aliasName)!!
         alias.accountId = newOwnerId
         alias.timestamp = timestamp

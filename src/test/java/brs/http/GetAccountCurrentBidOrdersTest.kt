@@ -13,7 +13,7 @@ import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.BID_ORDERS_RESPONSE
 import brs.http.common.ResultFields.ORDER_RESPONSE
 import brs.services.ParameterService
-import brs.util.JSON
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -25,7 +25,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
 
@@ -75,7 +74,7 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
 
         val resultBid = resultList.get(0) as JsonObject
         assertNotNull(resultBid)
-        assertEquals("" + mockBidId, JSON.getAsString(resultBid.get(ORDER_RESPONSE)))
+        assertEquals("" + mockBidId, resultBid.get(ORDER_RESPONSE).safeGetAsString())
     }
 
     @Test
@@ -113,7 +112,7 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
 
         val resultBid = resultList.get(0) as JsonObject
         assertNotNull(resultBid)
-        assertEquals("" + mockBidId, JSON.getAsString(resultBid.get(ORDER_RESPONSE)))
+        assertEquals("" + mockBidId, resultBid.get(ORDER_RESPONSE).safeGetAsString())
     }
 
 }

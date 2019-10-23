@@ -19,7 +19,7 @@ class FeeSuggestionCalculator(private val dp: DependencyProvider, maxHistoryLeng
         }
     }
 
-    fun giveFeeSuggestion(): FeeSuggestion {
+    suspend fun giveFeeSuggestion(): FeeSuggestion {
         if (latestBlocksIsEmpty()) {
             fillInitialHistory()
             recalculateSuggestion()
@@ -28,7 +28,7 @@ class FeeSuggestionCalculator(private val dp: DependencyProvider, maxHistoryLeng
         return feeSuggestion
     }
 
-    private fun newBlockApplied(block: Block) {
+    private suspend fun newBlockApplied(block: Block) {
         if (latestBlocksIsEmpty()) {
             fillInitialHistory()
         }
@@ -37,7 +37,7 @@ class FeeSuggestionCalculator(private val dp: DependencyProvider, maxHistoryLeng
         recalculateSuggestion()
     }
 
-    private fun fillInitialHistory() {
+    private suspend fun fillInitialHistory() {
         dp.blockchainStore.getLatestBlocks(latestBlocks.size).forEach { this.pushNewBlock(it) }
     }
 
@@ -55,11 +55,11 @@ class FeeSuggestionCalculator(private val dp: DependencyProvider, maxHistoryLeng
         latestBlocks[latestBlocks.size - 1] = block
     }
 
-    private fun recalculateSuggestion() {
+    private suspend fun recalculateSuggestion() {
         try {
             val transactionSizes = latestBlocks
                     .filterNotNull()
-                    .map { it.transactions.size }
+                    .map { it.getTransactions().size }
             val lowestAmountTransactionsNearHistory = transactionSizes.min() ?: 1
             val averageAmountTransactionsNearHistory = ceil(transactionSizes.average().let { return@let if (it.isNaN()) 1.0 else it }).toLong()
             val highestAmountTransactionsNearHistory = transactionSizes.max() ?: 1

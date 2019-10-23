@@ -18,7 +18,7 @@ interface EscrowStore {
 
     val resultTransactions: MutableList<Transaction>
 
-    fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow>
+    suspend fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow>
 
-    fun getDecisions(id: Long?): Collection<Escrow.Decision>
+    suspend fun getDecisions(id: Long?): Collection<Escrow.Decision>
 }

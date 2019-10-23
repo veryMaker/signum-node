@@ -14,7 +14,6 @@ import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.util.TextUtils
 import brs.util.convert.emptyToNull
-import brs.util.convert.nullToEmpty
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -23,7 +22,7 @@ internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(
 
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         var aliasName = request.getParameter(ALIAS_NAME_PARAMETER).emptyToNull()
-        var aliasURI = request.getParameter(ALIAS_URI_PARAMETER).nullToEmpty()
+        var aliasURI = request.getParameter(ALIAS_URI_PARAMETER).orEmpty()
 
         if (aliasName == null) {
             return MISSING_ALIAS_NAME

@@ -23,22 +23,22 @@ class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
                 return SqlTrade(record)
             }
 
-            override fun save(ctx: DSLContext, trade: Trade) {
+            override suspend fun save(ctx: DSLContext, trade: Trade) {
                 saveTrade(ctx, trade)
             }
         }
     }
 
-    override fun getAllTrades(from: Int, to: Int): Collection<Trade> {
+    override suspend fun getAllTrades(from: Int, to: Int): Collection<Trade> {
         return tradeTable.getAll(from, to)
     }
 
-    override fun getAssetTrades(assetId: Long, from: Int, to: Int): Collection<Trade> {
+    override suspend fun getAssetTrades(assetId: Long, from: Int, to: Int): Collection<Trade> {
         return tradeTable.getManyBy(TRADE.ASSET_ID.eq(assetId), from, to)
     }
 
-    override fun getAccountTrades(accountId: Long, from: Int, to: Int): Collection<Trade> {
-        return dp.db.useDslContext<Collection<Trade>> { ctx ->
+    override suspend fun getAccountTrades(accountId: Long, from: Int, to: Int): Collection<Trade> {
+        return dp.db.getUsingDslContext<Collection<Trade>> { ctx ->
             val selectQuery = ctx
                     .selectFrom(TRADE).where(
                             TRADE.SELLER_ID.eq(accountId)
@@ -58,8 +58,8 @@ class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
         }
     }
 
-    override fun getAccountAssetTrades(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Trade> {
-        return dp.db.useDslContext<Collection<Trade>> { ctx ->
+    override suspend fun getAccountAssetTrades(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Trade> {
+        return dp.db.getUsingDslContext<Collection<Trade>> { ctx ->
             val selectQuery = ctx
                     .selectFrom(TRADE).where(
                             TRADE.SELLER_ID.eq(accountId).and(TRADE.ASSET_ID.eq(assetId))
@@ -78,8 +78,8 @@ class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
         }
     }
 
-    override fun getTradeCount(assetId: Long): Int {
-        return dp.db.useDslContext<Int> { ctx -> ctx.fetchCount(ctx.selectFrom(TRADE).where(TRADE.ASSET_ID.eq(assetId))) }
+    override suspend fun getTradeCount(assetId: Long): Int {
+        return dp.db.getUsingDslContext<Int> { ctx -> ctx.fetchCount(ctx.selectFrom(TRADE).where(TRADE.ASSET_ID.eq(assetId))) }
     }
 
     private fun saveTrade(ctx: DSLContext, trade: Trade) {

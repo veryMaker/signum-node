@@ -13,7 +13,7 @@ internal class GetATIds(private val atService: ATService) : APIServlet.JsonReque
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
 
         val atIds = JsonArray()
-        for (id in atService.allATIds) {
+        for (id in atService.getAllATIds()) {
             atIds.add(id.toUnsignedString())
         }
 

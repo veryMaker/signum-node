@@ -4,7 +4,8 @@ import brs.TransactionProcessor
 import brs.common.QuickMocker
 import brs.http.common.ResultFields.DONE_RESPONSE
 import brs.http.common.ResultFields.ERROR_RESPONSE
-import brs.util.JSON
+import brs.util.safeGetAsBoolean
+import brs.util.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.mock
@@ -34,7 +35,7 @@ class ClearUnconfirmedTransactionsTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(true, JSON.getAsBoolean(result.get(DONE_RESPONSE)))
+        assertEquals(true, result.get(DONE_RESPONSE).safeGetAsBoolean())
     }
 
     @Test
@@ -45,7 +46,7 @@ class ClearUnconfirmedTransactionsTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals("java.lang.RuntimeException: errorMessage", JSON.getAsString(result.get(ERROR_RESPONSE)))
+        assertEquals("java.lang.RuntimeException: errorMessage", result.get(ERROR_RESPONSE).safeGetAsString())
     }
 
     @Test

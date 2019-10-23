@@ -63,7 +63,7 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
         val mockSubscription = mock<Subscription>()
 
         whenever(mockSubscriptionDbKeyFactory.newKey(eq(subscriptionId))).doReturn(mockSubscriptionKey)
-        whenever(mockSubscriptionTable[eq(mockSubscriptionKey)]).doReturn(mockSubscription)
+        whenever(mockSubscriptionTable.get(eq(mockSubscriptionKey))).doReturn(mockSubscription)
 
         assertEquals(mockSubscription, t.getSubscription(subscriptionId))
     }

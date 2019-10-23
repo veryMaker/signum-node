@@ -15,38 +15,37 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
     private val decisionDbKeyFactory = dp.escrowStore.decisionDbKeyFactory
     private val resultTransactions = dp.escrowStore.resultTransactions
 
-    override val allEscrowTransactions: Collection<Escrow>
-        get() = escrowTable.getAll(0, -1)
+    override suspend fun getAllEscrowTransactions() = escrowTable.getAll(0, -1)
 
-    override val isEnabled: Boolean
-        get() {
-            if (dp.blockchain.lastBlock.height >= Constants.BURST_ESCROW_START_BLOCK) {
-                return true
-            }
-
-            val escrowEnabled = dp.aliasService.getAlias("featureescrow")
-            return escrowEnabled != null && escrowEnabled.aliasURI == "enabled"
+    override suspend fun isEnabled(): Boolean {
+        if (dp.blockchain.lastBlock.height >= Constants.BURST_ESCROW_START_BLOCK) {
+            return true
         }
+
+        // TODO what...?!
+        val escrowEnabled = dp.aliasService.getAlias("featureescrow")
+        return escrowEnabled != null && escrowEnabled.aliasURI == "enabled"
+    }
 
 
     private val updatedEscrowIds = ConcurrentSkipListSet<Long>()
 
-    override fun getEscrowTransaction(id: Long?): Escrow? {
-        return escrowTable[escrowDbKeyFactory.newKey(id!!)]
+    override suspend fun getEscrowTransaction(id: Long?): Escrow? {
+        return escrowTable.get(escrowDbKeyFactory.newKey(id!!))
     }
 
-    override fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow> {
+    override suspend fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow> {
         return dp.escrowStore.getEscrowTransactionsByParticipant(accountId)
     }
 
-    override fun removeEscrowTransaction(id: Long?) {
-        val escrow = escrowTable[escrowDbKeyFactory.newKey(id!!)] ?: return
-        escrow.decisions.forEach { decisionTable.delete(it) }
+    override suspend fun removeEscrowTransaction(id: Long?) {
+        val escrow = escrowTable.get(escrowDbKeyFactory.newKey(id!!)) ?: return
+        escrow.getDecisions().forEach { decisionTable.delete(it) }
         escrowTable.delete(escrow)
     }
 
 
-    override fun addEscrowTransaction(sender: Account, recipient: Account, id: Long, amountNQT: Long, requiredSigners: Int, signers: Collection<Long>, deadline: Int, deadlineAction: DecisionType) {
+    override suspend fun addEscrowTransaction(sender: Account, recipient: Account, id: Long, amountNQT: Long, requiredSigners: Int, signers: Collection<Long>, deadline: Int, deadlineAction: DecisionType) {
         val dbKey = escrowDbKeyFactory.newKey(id)
         val newEscrowTransaction = Escrow(dp, dbKey, sender, recipient, id, amountNQT, requiredSigners, deadline, deadlineAction)
         escrowTable.insert(newEscrowTransaction)
@@ -63,7 +62,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
         }
     }
 
-    override fun sign(id: Long, decision: DecisionType, escrow: Escrow) {
+    override suspend fun sign(id: Long, decision: DecisionType, escrow: Escrow) {
         if (id == escrow.senderId && decision != DecisionType.RELEASE) {
             return
         }
@@ -72,7 +71,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
             return
         }
 
-        val decisionChange = decisionTable[decisionDbKeyFactory.newKey(escrow.id, id)] ?: return
+        val decisionChange = decisionTable.get(decisionDbKeyFactory.newKey(escrow.id, id)) ?: return
         decisionChange.decision = decision
 
         decisionTable.insert(decisionChange)
@@ -80,12 +79,12 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
         updatedEscrowIds.add(escrow.id)
     }
 
-    override fun checkComplete(escrow: Escrow): DecisionType {
-        val senderDecision = decisionTable[decisionDbKeyFactory.newKey(escrow.id, escrow.senderId)]!!
+    override suspend fun checkComplete(escrow: Escrow): DecisionType {
+        val senderDecision = decisionTable.get(decisionDbKeyFactory.newKey(escrow.id, escrow.senderId))!!
         if (senderDecision.decision == DecisionType.RELEASE) {
             return DecisionType.RELEASE
         }
-        val recipientDecision = decisionTable[decisionDbKeyFactory.newKey(escrow.id, escrow.recipientId)]!!
+        val recipientDecision = decisionTable.get(decisionDbKeyFactory.newKey(escrow.id, escrow.recipientId))!!
         if (recipientDecision.decision == DecisionType.REFUND) {
             return DecisionType.REFUND
         }
@@ -130,7 +129,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
 
         if (!updatedEscrowIds.isEmpty()) {
             for (escrowId in updatedEscrowIds) {
-                val escrow = escrowTable[escrowDbKeyFactory.newKey(escrowId!!)]!!
+                val escrow = escrowTable.get(escrowDbKeyFactory.newKey(escrowId!!))!!
                 var result: DecisionType = checkComplete(escrow)
                 if (result != DecisionType.UNDECIDED || escrow.deadline < block.timestamp) {
                     if (result == DecisionType.UNDECIDED) {
@@ -172,11 +171,11 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
         }
     }
 
-    override fun isIdSigner(id: Long?, escrow: Escrow): Boolean {
-        return decisionTable[decisionDbKeyFactory.newKey(escrow.id, id!!)] != null
+    override suspend fun isIdSigner(id: Long?, escrow: Escrow): Boolean {
+        return decisionTable.get(decisionDbKeyFactory.newKey(escrow.id, id!!)) != null
     }
 
-    override fun saveResultTransaction(block: Block, escrowId: Long, recipientId: Long, amountNQT: Long, decision: DecisionType, blockchainHeight: Int) {
+    override suspend fun saveResultTransaction(block: Block, escrowId: Long, recipientId: Long, amountNQT: Long, decision: DecisionType, blockchainHeight: Int) {
         val attachment = Attachment.AdvancedPaymentEscrowResult(dp, escrowId, decision, blockchainHeight)
         val builder = Transaction.Builder(dp, 1.toByte(), Genesis.creatorPublicKey,
             amountNQT, 0L, block.timestamp, 1440.toShort(), attachment)

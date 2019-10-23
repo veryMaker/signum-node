@@ -1,11 +1,11 @@
 package brs.db
 
 interface DerivedTable : Table {
-    fun rollback(height: Int)
+    suspend fun rollback(height: Int)
 
-    fun truncate()
+    suspend fun truncate()
 
-    fun trim(height: Int)
+    suspend fun trim(height: Int)
 
-    fun finish()
+    suspend fun finish()
 }

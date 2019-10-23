@@ -7,7 +7,7 @@ import brs.feesuggestions.FeeSuggestionCalculator
 import brs.http.common.ResultFields.CHEAP_FEE_RESPONSE
 import brs.http.common.ResultFields.PRIORITY_FEE_RESPONSE
 import brs.http.common.ResultFields.STANDARD_FEE_RESPONSE
-import brs.util.JSON
+import brs.util.safeGetAsLong
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
@@ -43,8 +43,8 @@ class SuggestFeeTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(cheap, JSON.getAsLong(result.get(CHEAP_FEE_RESPONSE)))
-        assertEquals(standard, JSON.getAsLong(result.get(STANDARD_FEE_RESPONSE)))
-        assertEquals(priority, JSON.getAsLong(result.get(PRIORITY_FEE_RESPONSE)))
+        assertEquals(cheap, result.get(CHEAP_FEE_RESPONSE).safeGetAsLong())
+        assertEquals(standard, result.get(STANDARD_FEE_RESPONSE).safeGetAsLong())
+        assertEquals(priority, result.get(PRIORITY_FEE_RESPONSE).safeGetAsLong())
     }
 }

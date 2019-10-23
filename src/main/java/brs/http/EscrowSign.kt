@@ -70,7 +70,7 @@ internal class EscrowSign internal constructor(private val dp: DependencyProvide
         return createTransaction(request, sender, null, 0, attachment)
     }
 
-    private fun isValidUser(escrow: Escrow, sender: Account): Boolean {
+    private suspend fun isValidUser(escrow: Escrow, sender: Account): Boolean {
         return escrow.senderId == sender.id ||
                 escrow.recipientId == sender.id ||
                 dp.escrowService.isIdSigner(sender.id, escrow)

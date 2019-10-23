@@ -10,6 +10,7 @@ import brs.util.JSON
 import brs.util.Subnet
 import brs.util.logging.safeDebug
 import brs.util.logging.safeWarn
+import brs.util.mustGetAsJsonObject
 import brs.util.writeTo
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -162,7 +163,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             }
 
             if (response is JsonObject) {
-                JSON.getAsJsonObject(response).addProperty("requestProcessingTime", System.currentTimeMillis() - startTime)
+                response.mustGetAsJsonObject("response").addProperty("requestProcessingTime", System.currentTimeMillis() - startTime)
             }
 
             writeJsonToResponse(resp, response)

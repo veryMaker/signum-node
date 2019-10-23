@@ -35,7 +35,7 @@ class SubscriptionCancel(dp: DependencyProvider) : AdvancedPayment(dp) {
         return TransactionDuplicationKey(SubscriptionCancel::class, attachment.subscriptionId.toUnsignedString())
     }
 
-    override fun validateAttachment(transaction: Transaction) {
+    override suspend fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionCancel
         if (attachment.subscriptionId == null) {
             throw BurstException.NotValidException("Subscription cancel must include subscription id")
@@ -47,7 +47,7 @@ class SubscriptionCancel(dp: DependencyProvider) : AdvancedPayment(dp) {
             throw BurstException.NotValidException("Subscription cancel can only be done by participants")
         }
 
-        if (!dp.subscriptionService.isEnabled) {
+        if (!dp.subscriptionService.isEnabled()) {
             throw BurstException.NotYetEnabledException("Subscription cancel not yet enabled")
         }
     }

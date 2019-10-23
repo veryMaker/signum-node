@@ -4,6 +4,7 @@ import brs.Blockchain
 import brs.util.JSON
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -16,7 +17,7 @@ internal class GetNextBlockIds(private val blockchain: Blockchain) : PeerServlet
         val response = JsonObject()
 
         val nextBlockIds = JsonArray()
-        val blockId = JSON.getAsString(request.get("blockId")).parseUnsignedLong()
+        val blockId = request.get("blockId").safeGetAsString().parseUnsignedLong()
         val ids = blockchain.getBlockIdsAfter(blockId, 100)
 
         for (id in ids) {

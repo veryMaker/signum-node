@@ -56,7 +56,7 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
             val secretPhrase = ParameterParser.getSecretPhrase(request)
             val goodsBytes: ByteArray?
             try {
-                val plainGoods = request.getParameter(GOODS_TO_ENCRYPT_PARAMETER).nullToEmpty()
+                val plainGoods = request.getParameter(GOODS_TO_ENCRYPT_PARAMETER).orEmpty()
                 if (plainGoods.isEmpty()) {
                     return INCORRECT_DGS_GOODS
                 }

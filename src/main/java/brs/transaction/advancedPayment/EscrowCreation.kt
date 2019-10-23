@@ -77,7 +77,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
         return TransactionDuplicationKey.IS_NEVER_DUPLICATE
     }
 
-    override fun validateAttachment(transaction: Transaction) {
+    override suspend fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowCreation
         var totalAmountNQT: Long? = attachment.amountNQT.safeAdd(transaction.feeNQT)
         if (transaction.senderId == transaction.recipientId) {
@@ -114,7 +114,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
         ) {
             throw BurstException.NotValidException("Escrow sender and recipient cannot be signers")
         }
-        if (!dp.escrowService.isEnabled) {
+        if (!dp.escrowService.isEnabled()) {
             throw BurstException.NotYetEnabledException("Escrow not yet enabled")
         }
     }

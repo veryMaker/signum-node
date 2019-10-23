@@ -13,22 +13,21 @@ internal class AssetTransferServiceImpl(private val assetTransferStore: AssetTra
     private val assetTransferTable = assetTransferStore.assetTransferTable
     private val transferDbKeyFactory = assetTransferStore.transferDbKeyFactory
 
-    val assetTransferCount: Int
-        get() = assetTransferTable.count
+    suspend fun getAssetTransferCount() = assetTransferTable.getCount()
 
     suspend fun addListener(eventType: Event, listener: suspend (AssetTransfer) -> Unit) {
         listeners.addListener(eventType, listener)
     }
 
-    fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
+    suspend fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
         return assetTransferStore.getAssetTransfers(assetId, from, to)
     }
 
-    fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
+    suspend fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
         return assetTransferStore.getAccountAssetTransfers(accountId, assetId, from, to)
     }
 
-    fun getTransferCount(assetId: Long): Int {
+    suspend fun getTransferCount(assetId: Long): Int {
         return assetTransferStore.getTransferCount(assetId)
     }
 

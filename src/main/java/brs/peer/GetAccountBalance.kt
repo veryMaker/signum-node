@@ -1,9 +1,9 @@
 package brs.peer
 
 import brs.services.AccountService
-import brs.util.JSON
 import brs.util.convert.parseAccountId
 import brs.util.convert.toUnsignedString
+import brs.util.mustGetAsString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
@@ -15,7 +15,7 @@ internal constructor(private val accountService: AccountService) : PeerServlet.P
 
         val response = JsonObject()
 
-        val accountId = JSON.getAsString(request.get(ACCOUNT_ID_PARAMETER_FIELD)).parseAccountId()
+        val accountId = request.get(ACCOUNT_ID_PARAMETER_FIELD).mustGetAsString(ACCOUNT_ID_PARAMETER_FIELD).parseAccountId()
         val account = accountService.getAccount(accountId)
         if (account != null) {
             response.addProperty(BALANCE_NQT_RESPONSE_FIELD, account.balanceNQT.toUnsignedString())

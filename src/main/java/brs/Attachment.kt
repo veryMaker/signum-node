@@ -70,7 +70,7 @@ import brs.http.common.ResultFields.SUBSCRIPTION_ID_RESPONSE
 import brs.http.common.ResultFields.TAGS_RESPONSE
 import brs.http.common.ResultFields.URI_RESPONSE
 import brs.transaction.TransactionType
-import brs.util.JSON
+import brs.util.*
 import brs.util.convert.*
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -105,7 +105,7 @@ interface Attachment : Appendix {
             this.dp = dp
         }
 
-        override fun validate(transaction: Transaction) {
+        override suspend fun validate(transaction: Transaction) {
             transactionType.validateAttachment(transaction)
         }
 
@@ -189,7 +189,6 @@ interface Attachment : Appendix {
         override fun verifyVersion(transactionVersion: Byte): Boolean {
             return true
         }
-
     }
 
     class PaymentMultiOutCreation : AbstractAttachment {
@@ -248,14 +247,14 @@ interface Attachment : Appendix {
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
 
-            val receipientsJson = JSON.getAsJsonArray(attachmentData.get(RECIPIENTS_PARAMETER))
+            val receipientsJson = attachmentData.get(RECIPIENTS_PARAMETER).mustGetAsJsonArray(RECIPIENTS_PARAMETER)
             val recipientOf = mutableMapOf<Long, Boolean>()
 
             for (recipientObject in receipientsJson) {
-                val recipient = JSON.getAsJsonArray(recipientObject)
+                val recipient = recipientObject.mustGetAsJsonArray("recipient")
 
-                val recipientId = BigInteger(JSON.getAsString(recipient.get(0))).toLong()
-                val amountNQT = JSON.getAsLong(recipient.get(1))
+                val recipientId = BigInteger(recipient.get(0).mustGetAsString("recipientId")).toLong()
+                val amountNQT = recipient.get(1).mustGetAsLong("amountNQT")
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi out transaction")
 
@@ -376,11 +375,11 @@ interface Attachment : Appendix {
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
 
-            val recipientsJson = JSON.getAsJsonArray(attachmentData.get(RECIPIENTS_PARAMETER))
+            val recipientsJson = attachmentData.get(RECIPIENTS_PARAMETER).mustGetAsJsonArray(RECIPIENTS_PARAMETER)
             val recipientOf = mutableMapOf<Long, Boolean>()
 
             for (recipient in recipientsJson) {
-                val recipientId = BigInteger(JSON.getAsString(recipient)).toLong()
+                val recipientId = recipient.mustGetAsString("recipient").parseUnsignedLong()
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi same out transaction")
 
@@ -467,8 +466,8 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            aliasName = JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)).nullToEmpty().trim { it <= ' ' }
-            aliasURI = JSON.getAsString(attachmentData.get(URI_PARAMETER)).nullToEmpty().trim { it <= ' ' }
+            aliasName = attachmentData.get(ALIAS_PARAMETER).safeGetAsString().orEmpty().trim { it <= ' ' }
+            aliasURI = attachmentData.get(URI_PARAMETER).safeGetAsString().orEmpty().trim { it <= ' ' }
         }
 
         constructor(dp: DependencyProvider, aliasName: String, aliasURI: String, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -523,8 +522,8 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.aliasName = JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)).nullToEmpty()
-            this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
+            this.aliasName = attachmentData.get(ALIAS_PARAMETER).safeGetAsString().orEmpty()
+            this.priceNQT = attachmentData.get(PRICE_NQT_PARAMETER).mustGetAsLong(PRICE_NQT_PARAMETER)
         }
 
         constructor(dp: DependencyProvider, aliasName: String, priceNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -574,7 +573,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.aliasName = JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)).nullToEmpty()
+            this.aliasName = attachmentData.get(ALIAS_PARAMETER).safeGetAsString().orEmpty()
         }
 
         constructor(dp: DependencyProvider, aliasName: String, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -623,8 +622,8 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.name = JSON.getAsString(attachmentData.get(NAME_PARAMETER)).nullToEmpty()
-            this.description = JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER)).nullToEmpty()
+            this.name = attachmentData.get(NAME_PARAMETER).safeGetAsString().orEmpty()
+            this.description = attachmentData.get(DESCRIPTION_PARAMETER).safeGetAsString().orEmpty()
         }
 
         constructor(dp: DependencyProvider, name: String, description: String, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -685,15 +684,15 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.name = JSON.getAsString(attachmentData.get(NAME_PARAMETER))
-            this.description = JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER)).nullToEmpty()
-            this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER))
-            this.decimals = JSON.getAsByte(attachmentData.get(DECIMALS_PARAMETER))
+            this.name = attachmentData.get(NAME_PARAMETER).safeGetAsString()
+            this.description = attachmentData.get(DESCRIPTION_PARAMETER).safeGetAsString().orEmpty()
+            this.quantityQNT = attachmentData.get(QUANTITY_QNT_PARAMETER).mustGetAsLong(QUANTITY_QNT_PARAMETER)
+            this.decimals = attachmentData.get(DECIMALS_PARAMETER).mustGetAsByte(DECIMALS_PARAMETER)
         }
 
         constructor(dp: DependencyProvider, name: String, description: String, quantityQNT: Long, decimals: Byte, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.name = name
-            this.description = description.nullToEmpty()
+            this.description = description.orEmpty()
             this.quantityQNT = quantityQNT
             this.decimals = decimals
         }
@@ -754,9 +753,9 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.assetId = JSON.getAsString(attachmentData.get(ASSET_PARAMETER)).parseUnsignedLong()
-            this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER))
-            this.comment = if (version.toInt() == 0) JSON.getAsString(attachmentData.get(COMMENT_PARAMETER)).nullToEmpty() else null
+            this.assetId = attachmentData.get(ASSET_PARAMETER).safeGetAsString().parseUnsignedLong()
+            this.quantityQNT = attachmentData.get(QUANTITY_QNT_PARAMETER).mustGetAsLong(QUANTITY_QNT_PARAMETER)
+            this.comment = if (version.toInt() == 0) attachmentData.get(COMMENT_PARAMETER).safeGetAsString().orEmpty() else null
         }
 
         constructor(dp: DependencyProvider, assetId: Long, quantityQNT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -817,9 +816,9 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.assetId = JSON.getAsString(attachmentData.get(ASSET_PARAMETER)).parseUnsignedLong()
-            this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER))
-            this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
+            this.assetId = attachmentData.get(ASSET_PARAMETER).safeGetAsString().parseUnsignedLong()
+            this.quantityQNT = attachmentData.get(QUANTITY_QNT_PARAMETER).mustGetAsLong(QUANTITY_QNT_PARAMETER)
+            this.priceNQT = attachmentData.get(PRICE_NQT_PARAMETER).mustGetAsLong(PRICE_NQT_PARAMETER)
         }
 
         constructor(dp: DependencyProvider, assetId: Long, quantityQNT: Long, priceNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -913,7 +912,7 @@ interface Attachment : Appendix {
         }
 
         constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.orderId = JSON.getAsString(attachmentData.get(ORDER_PARAMETER)).parseUnsignedLong()
+            this.orderId = attachmentData.get(ORDER_PARAMETER).safeGetAsString().parseUnsignedLong()
         }
 
         constructor(dp: DependencyProvider, orderId: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1016,11 +1015,11 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.name = JSON.getAsString(attachmentData.get(NAME_RESPONSE))
-            this.description = JSON.getAsString(attachmentData.get(DESCRIPTION_RESPONSE))
-            this.tags = JSON.getAsString(attachmentData.get(TAGS_RESPONSE))
-            this.quantity = JSON.getAsInt(attachmentData.get(QUANTITY_RESPONSE))
-            this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
+            this.name = attachmentData.get(NAME_RESPONSE).safeGetAsString()
+            this.description = attachmentData.get(DESCRIPTION_RESPONSE).safeGetAsString()
+            this.tags = attachmentData.get(TAGS_RESPONSE).safeGetAsString()
+            this.quantity = attachmentData.get(QUANTITY_RESPONSE).mustGetAsInt(QUANTITY_RESPONSE)
+            this.priceNQT = attachmentData.get(PRICE_NQT_PARAMETER).mustGetAsLong(PRICE_NQT_PARAMETER)
         }
 
         constructor(dp: DependencyProvider, name: String, description: String, tags: String, quantity: Int, priceNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1086,7 +1085,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.goodsId = JSON.getAsString(attachmentData.get(GOODS_PARAMETER)).parseUnsignedLong()
+            this.goodsId = attachmentData.get(GOODS_PARAMETER).safeGetAsString().parseUnsignedLong()
         }
 
         constructor(dp: DependencyProvider, goodsId: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1133,8 +1132,8 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.goodsId = JSON.getAsString(attachmentData.get(GOODS_PARAMETER)).parseUnsignedLong()
-            this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
+            this.goodsId = attachmentData.get(GOODS_PARAMETER).safeGetAsString().parseUnsignedLong()
+            this.priceNQT = attachmentData.get(PRICE_NQT_PARAMETER).mustGetAsLong(PRICE_NQT_PARAMETER)
         }
 
         constructor(dp: DependencyProvider, goodsId: Long, priceNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1185,8 +1184,8 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.goodsId = JSON.getAsString(attachmentData.get(GOODS_PARAMETER)).parseUnsignedLong()
-            this.deltaQuantity = JSON.getAsInt(attachmentData.get(DELTA_QUANTITY_PARAMETER))
+            this.goodsId = attachmentData.get(GOODS_PARAMETER).safeGetAsString().parseUnsignedLong()
+            this.deltaQuantity = attachmentData.get(DELTA_QUANTITY_PARAMETER).mustGetAsInt(DELTA_QUANTITY_PARAMETER)
         }
 
         constructor(dp: DependencyProvider, goodsId: Long, deltaQuantity: Int, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1243,10 +1242,10 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.goodsId = JSON.getAsString(attachmentData.get(GOODS_PARAMETER)).parseUnsignedLong()
-            this.quantity = JSON.getAsInt(attachmentData.get(QUANTITY_PARAMETER))
-            this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER))
-            this.deliveryDeadlineTimestamp = JSON.getAsInt(attachmentData.get(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER))
+            this.goodsId = attachmentData.get(GOODS_PARAMETER).safeGetAsString().parseUnsignedLong()
+            this.quantity = attachmentData.get(QUANTITY_PARAMETER).mustGetAsInt(QUANTITY_PARAMETER)
+            this.priceNQT = attachmentData.get(PRICE_NQT_PARAMETER).mustGetAsLong(PRICE_NQT_PARAMETER)
+            this.deliveryDeadlineTimestamp = attachmentData.get(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER).mustGetAsInt(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER)
         }
 
         constructor(dp: DependencyProvider, goodsId: Long, quantity: Int, priceNQT: Long, deliveryDeadlineTimestamp: Int, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1315,10 +1314,10 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.purchaseId = JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)).parseUnsignedLong()
-            this.goods = EncryptedData(JSON.getAsString(attachmentData.get(GOODS_DATA_PARAMETER)).parseHexString(), JSON.getAsString(attachmentData.get(GOODS_NONCE_PARAMETER)).parseHexString())
-            this.discountNQT = JSON.getAsLong(attachmentData.get(DISCOUNT_NQT_PARAMETER))
-            this.goodsIsText = JSON.getAsBoolean(attachmentData.get(GOODS_IS_TEXT_PARAMETER))
+            this.purchaseId = attachmentData.get(PURCHASE_PARAMETER).safeGetAsString().parseUnsignedLong()
+            this.goods = EncryptedData(attachmentData.get(GOODS_DATA_PARAMETER).mustGetAsString(GOODS_DATA_PARAMETER).parseHexString(), attachmentData.get(GOODS_NONCE_PARAMETER).mustGetAsString(GOODS_NONCE_PARAMETER).parseHexString())
+            this.discountNQT = attachmentData.get(DISCOUNT_NQT_PARAMETER).mustGetAsLong(DISCOUNT_NQT_PARAMETER)
+            this.goodsIsText = attachmentData.get(GOODS_IS_TEXT_PARAMETER).mustGetAsBoolean(GOODS_IS_TEXT_PARAMETER)
         }
 
         constructor(dp: DependencyProvider, purchaseId: Long, goods: EncryptedData, goodsIsText: Boolean, discountNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1380,7 +1379,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.purchaseId = JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)).parseUnsignedLong()
+            this.purchaseId = attachmentData.get(PURCHASE_PARAMETER).safeGetAsString().parseUnsignedLong()
         }
 
         constructor(dp: DependencyProvider, purchaseId: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1427,8 +1426,8 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.purchaseId = JSON.getAsString(attachmentData.get(PURCHASE_PARAMETER)).parseUnsignedLong()
-            this.refundNQT = JSON.getAsLong(attachmentData.get(REFUND_NQT_PARAMETER))
+            this.purchaseId = attachmentData.get(PURCHASE_PARAMETER).safeGetAsString().parseUnsignedLong()
+            this.refundNQT = attachmentData.get(REFUND_NQT_PARAMETER).mustGetAsLong(REFUND_NQT_PARAMETER)
         }
 
         constructor(dp: DependencyProvider, purchaseId: Long, refundNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1473,7 +1472,7 @@ interface Attachment : Appendix {
         }
 
         constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.period = JSON.getAsShort(attachmentData.get(PERIOD_PARAMETER))
+            this.period = attachmentData.get(PERIOD_PARAMETER).mustGetAsShort(PERIOD_PARAMETER)
         }
 
         constructor(dp: DependencyProvider, period: Short, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1577,19 +1576,19 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.amountNQT = JSON.getAsString(attachmentData.get(AMOUNT_NQT_PARAMETER)).parseUnsignedLong()
-            this.deadline = JSON.getAsInt(attachmentData.get(DEADLINE_PARAMETER))
-            this.deadlineAction = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DEADLINE_ACTION_PARAMETER)))
-            this.requiredSigners = JSON.getAsByte(attachmentData.get(REQUIRED_SIGNERS_PARAMETER))
-            val totalSigners = JSON.getAsJsonArray(attachmentData.get(SIGNERS_PARAMETER)).size()
+            this.amountNQT = attachmentData.get(AMOUNT_NQT_PARAMETER).safeGetAsString().parseUnsignedLong()
+            this.deadline = attachmentData.get(DEADLINE_PARAMETER).mustGetAsInt(DEADLINE_PARAMETER)
+            this.deadlineAction = Escrow.stringToDecision(attachmentData.get(DEADLINE_ACTION_PARAMETER).mustGetAsString(DEADLINE_ACTION_PARAMETER))
+            this.requiredSigners = attachmentData.get(REQUIRED_SIGNERS_PARAMETER).mustGetAsByte(REQUIRED_SIGNERS_PARAMETER)
+            val totalSigners = attachmentData.get(SIGNERS_PARAMETER).mustGetAsJsonArray(SIGNERS_PARAMETER).size()
             if (totalSigners > 10 || totalSigners <= 0) {
                 throw BurstException.NotValidException("Invalid number of signers listed on create escrow transaction")
             }
-            val signersJson = JSON.getAsJsonArray(attachmentData.get(SIGNERS_PARAMETER))
+            val signersJson = attachmentData.get(SIGNERS_PARAMETER).mustGetAsJsonArray(SIGNERS_PARAMETER)
             for (aSignersJson in signersJson) {
-                this.signers.add(JSON.getAsString(aSignersJson).parseUnsignedLong())
+                this.signers.add(aSignersJson.mustGetAsString("signer").parseUnsignedLong())
             }
-            if (this.signers.size != JSON.getAsJsonArray(attachmentData.get(SIGNERS_PARAMETER)).size()) {
+            if (this.signers.size != attachmentData.get(SIGNERS_PARAMETER).mustGetAsJsonArray(SIGNERS_PARAMETER).size()) {
                 throw BurstException.NotValidException("Duplicate signer on escrow creation")
             }
         }
@@ -1680,8 +1679,8 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.escrowId = JSON.getAsString(attachmentData.get(ESCROW_ID_PARAMETER)).parseUnsignedLong()
-            this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER)))
+            this.escrowId = attachmentData.get(ESCROW_ID_PARAMETER).safeGetAsString().parseUnsignedLong()
+            this.decision = Escrow.stringToDecision(attachmentData.get(DECISION_PARAMETER).mustGetAsString(DECISION_PARAMETER))
         }
 
         constructor(dp: DependencyProvider, escrowId: Long?, decision: Escrow.DecisionType, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1732,8 +1731,8 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.escrowId = JSON.getAsString(attachmentData.get(ESCROW_ID_PARAMETER)).parseUnsignedLong()
-            this.decision = Escrow.stringToDecision(JSON.getAsString(attachmentData.get(DECISION_PARAMETER)))
+            this.escrowId = attachmentData.get(ESCROW_ID_PARAMETER).safeGetAsString().parseUnsignedLong()
+            this.decision = Escrow.stringToDecision(attachmentData.get(DECISION_PARAMETER).mustGetAsString(DECISION_PARAMETER))
         }
 
         constructor(dp: DependencyProvider, escrowId: Long, decision: Escrow.DecisionType, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1781,7 +1780,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.frequency = JSON.getAsInt(attachmentData.get(FREQUENCY_PARAMETER))
+            this.frequency = attachmentData.get(FREQUENCY_PARAMETER).safeGetAsInt()
         }
 
         constructor(dp: DependencyProvider, frequency: Int, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1825,7 +1824,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.subscriptionId = JSON.getAsString(attachmentData.get(SUBSCRIPTION_ID_PARAMETER)).parseUnsignedLong()
+            this.subscriptionId = attachmentData.get(SUBSCRIPTION_ID_PARAMETER).safeGetAsString().parseUnsignedLong()
         }
 
         constructor(dp: DependencyProvider, subscriptionId: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1869,7 +1868,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.subscriptionId = JSON.getAsString(attachmentData.get(SUBSCRIPTION_ID_PARAMETER)).parseUnsignedLong()
+            this.subscriptionId = attachmentData.get(SUBSCRIPTION_ID_PARAMETER).safeGetAsString().parseUnsignedLong()
         }
 
         constructor(dp: DependencyProvider, subscriptionId: Long?, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -1972,10 +1971,10 @@ interface Attachment : Appendix {
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
 
-            this.name = JSON.getAsString(attachmentData.get(NAME_PARAMETER))
-            this.description = JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER))
+            this.name = attachmentData.get(NAME_PARAMETER).safeGetAsString()
+            this.description = attachmentData.get(DESCRIPTION_PARAMETER).safeGetAsString()
 
-            this.creationBytes = JSON.getAsString(attachmentData.get(CREATION_BYTES_PARAMETER)).parseHexString()
+            this.creationBytes = attachmentData.get(CREATION_BYTES_PARAMETER).mustGetAsString(CREATION_BYTES_PARAMETER).parseHexString()
 
         }
 

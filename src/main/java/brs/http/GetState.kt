@@ -28,23 +28,23 @@ internal class GetState(private val dp: DependencyProvider) : APIServlet.JsonReq
                     totalEffectiveBalance += effectiveBalanceBURST
                 }
             }
-            for (escrow in dp.escrowService.allEscrowTransactions) {
+            for (escrow in dp.escrowService.getAllEscrowTransactions()) {
                 totalEffectiveBalance += escrow.amountNQT
             }
             response.addProperty("totalEffectiveBalanceNXT", totalEffectiveBalance / Constants.ONE_BURST)
 
             response.addProperty("numberOfBlocks", dp.blockchain.height + 1)
-            response.addProperty("numberOfTransactions", dp.blockchain.transactionCount)
-            response.addProperty("numberOfAccounts", dp.accountService.count)
-            response.addProperty("numberOfAssets", dp.assetExchange.assetsCount)
-            val askCount = dp.assetExchange.askCount
-            val bidCount = dp.assetExchange.bidCount
+            response.addProperty("numberOfTransactions", dp.blockchain.getTransactionCount())
+            response.addProperty("numberOfAccounts", dp.accountService.getCount())
+            response.addProperty("numberOfAssets", dp.assetExchange.getAssetsCount())
+            val askCount = dp.assetExchange.getAskCount()
+            val bidCount = dp.assetExchange.getBidCount()
             response.addProperty("numberOfOrders", askCount + bidCount)
             response.addProperty("numberOfAskOrders", askCount)
             response.addProperty("numberOfBidOrders", bidCount)
-            response.addProperty("numberOfTrades", dp.assetExchange.tradesCount)
-            response.addProperty("numberOfTransfers", dp.assetExchange.assetTransferCount)
-            response.addProperty("numberOfAliases", dp.aliasService.aliasCount)
+            response.addProperty("numberOfTrades", dp.assetExchange.getTradesCount())
+            response.addProperty("numberOfTransfers", dp.assetExchange.getAssetTransferCount())
+            response.addProperty("numberOfAliases", dp.aliasService.getAliasCount())
         }
         response.addProperty("numberOfPeers", dp.peers.allPeers.size)
         response.addProperty("numberOfUnlockedAccounts", dp.generator.allGenerators.size)

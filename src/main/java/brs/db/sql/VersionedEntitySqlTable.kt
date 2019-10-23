@@ -8,18 +8,18 @@ import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 
 abstract class VersionedEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: BurstKey.Factory<T>, private val dp: DependencyProvider) : EntitySqlTable<T>(table, tableClass, dbKeyFactory, true, dp), VersionedEntityTable<T> {
-    override fun rollback(height: Int) {
+    override suspend fun rollback(height: Int) {
         rollback(dp, table, tableClass, heightField, latestField, height, dbKeyFactory)
     }
 
-    override fun trim(height: Int) {
+    override suspend fun trim(height: Int) {
         trim(dp, tableClass, heightField, height, dbKeyFactory)
     }
 
-    override fun delete(t: T): Boolean {
-        check(dp.db.isInTransaction) { "Not in transaction" }
+    override suspend fun delete(t: T): Boolean {
+        check(dp.db.isInTransaction()) { "Not in transaction" }
         val dbKey = dbKeyFactory.newKey(t) as DbKey
-        return dp.db.useDslContext<Boolean> { ctx ->
+        return dp.db.getUsingDslContext<Boolean> { ctx ->
             try {
                 val countQuery = ctx.selectQuery()
                 countQuery.addFrom(tableClass)
@@ -39,11 +39,11 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
                     // delete after the save
                     updateQuery.execute()
 
-                    return@useDslContext true
+                    return@getUsingDslContext true
                 } else {
                     val deleteQuery = ctx.deleteQuery(tableClass)
                     deleteQuery.addConditions(dbKey.getPKConditions(tableClass))
-                    return@useDslContext deleteQuery.execute () > 0
+                    return@getUsingDslContext deleteQuery.execute () > 0
                 }
             } finally {
                 dp.db.getCache<Any>(table).remove(dbKey)
@@ -52,7 +52,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
     }
 
     companion object {
-        internal fun rollback(
+        internal suspend fun rollback(
             dp: DependencyProvider,
             table: String,
             tableClass: TableImpl<*>,
@@ -61,7 +61,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
             height: Int,
             dbKeyFactory: DbKey.Factory<*>
         ) {
-            check(dp.db.isInTransaction) { "Not in transaction" }
+            check(dp.db.isInTransaction()) { "Not in transaction" }
 
             dp.db.useDslContext { ctx ->
                 // get dbKey's for entries whose stuff newer than height would be deleted, to allow fixing
@@ -100,14 +100,14 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
             dp.db.getCache<Any>(table).clear()
         }
 
-        internal fun trim(
+        internal suspend fun trim(
             dp: DependencyProvider,
             tableClass: TableImpl<*>,
             heightField: Field<Int>,
             height: Int,
             dbKeyFactory: DbKey.Factory<*>
         ) {
-            check(dp.db.isInTransaction) { "Not in transaction" }
+            check(dp.db.isInTransaction()) { "Not in transaction" }
 
             // "accounts" is just an example to make it easier to understand what the code does
             // select all accounts with multiple entries where height < trimToHeight[current height - 1440]

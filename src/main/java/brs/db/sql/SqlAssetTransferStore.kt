@@ -18,13 +18,13 @@ class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferS
                 return SqlAssetTransfer(record)
             }
 
-            override fun save(ctx: DSLContext, assetTransfer: AssetTransfer) {
+            override suspend fun save(ctx: DSLContext, assetTransfer: AssetTransfer) {
                 saveAssetTransfer(assetTransfer)
             }
         }
     }
 
-    private fun saveAssetTransfer(assetTransfer: AssetTransfer) {
+    private suspend fun saveAssetTransfer(assetTransfer: AssetTransfer) {
         dp.db.useDslContext { ctx ->
             ctx.insertInto(ASSET_TRANSFER, ASSET_TRANSFER.ID, ASSET_TRANSFER.ASSET_ID, ASSET_TRANSFER.SENDER_ID, ASSET_TRANSFER.RECIPIENT_ID, ASSET_TRANSFER.QUANTITY, ASSET_TRANSFER.TIMESTAMP, ASSET_TRANSFER.HEIGHT)
                     .values(assetTransfer.id, assetTransfer.assetId, assetTransfer.senderId, assetTransfer.recipientId, assetTransfer.quantityQNT, assetTransfer.timestamp, assetTransfer.height)
@@ -32,12 +32,12 @@ class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferS
         }
     }
 
-    override fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
+    override suspend fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
         return assetTransferTable.getManyBy(ASSET_TRANSFER.ASSET_ID.eq(assetId), from, to)
     }
 
-    override fun getAccountAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer> {
-        return dp.db.useDslContext<Collection<AssetTransfer>> { ctx ->
+    override suspend fun getAccountAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer> {
+        return dp.db.getUsingDslContext<Collection<AssetTransfer>> { ctx ->
             val selectQuery = ctx
                     .selectFrom(ASSET_TRANSFER).where(
                             ASSET_TRANSFER.SENDER_ID.eq(accountId)
@@ -55,8 +55,8 @@ class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferS
         }
     }
 
-    override fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
-        return dp.db.useDslContext<Collection<AssetTransfer>> { ctx ->
+    override suspend fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
+        return dp.db.getUsingDslContext { ctx ->
             val selectQuery = ctx
                     .selectFrom(ASSET_TRANSFER).where(
                             ASSET_TRANSFER.SENDER_ID.eq(accountId).and(ASSET_TRANSFER.ASSET_ID.eq(assetId))
@@ -75,8 +75,8 @@ class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferS
         }
     }
 
-    override fun getTransferCount(assetId: Long): Int {
-        return dp.db.useDslContext<Int> { ctx -> ctx.fetchCount(ctx.selectFrom(ASSET_TRANSFER).where(ASSET_TRANSFER.ASSET_ID.eq(assetId))) }
+    override suspend fun getTransferCount(assetId: Long): Int {
+        return dp.db.getUsingDslContext<Int> { ctx -> ctx.fetchCount(ctx.selectFrom(ASSET_TRANSFER).where(ASSET_TRANSFER.ASSET_ID.eq(assetId))) }
     }
 
     internal inner class SqlAssetTransfer(record: Record) : AssetTransfer(record.get(ASSET_TRANSFER.ID), transferDbKeyFactory.newKey(record.get(ASSET_TRANSFER.ID)), record.get(ASSET_TRANSFER.ASSET_ID), record.get(ASSET_TRANSFER.HEIGHT), record.get(ASSET_TRANSFER.SENDER_ID), record.get(ASSET_TRANSFER.RECIPIENT_ID), record.get(ASSET_TRANSFER.QUANTITY), record.get(ASSET_TRANSFER.TIMESTAMP))

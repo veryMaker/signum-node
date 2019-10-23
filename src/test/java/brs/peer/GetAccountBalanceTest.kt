@@ -6,7 +6,7 @@ import brs.common.TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED
 import brs.peer.GetAccountBalance.Companion.ACCOUNT_ID_PARAMETER_FIELD
 import brs.peer.GetAccountBalance.Companion.BALANCE_NQT_RESPONSE_FIELD
 import brs.services.AccountService
-import brs.util.JSON
+import brs.util.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -45,7 +45,7 @@ class GetAccountBalanceTest {
 
         val result = t.processRequest(request, peer) as JsonObject
 
-        assertEquals("" + mockBalanceNQT, JSON.getAsString(result.get(BALANCE_NQT_RESPONSE_FIELD)))
+        assertEquals("" + mockBalanceNQT, result.get(BALANCE_NQT_RESPONSE_FIELD).safeGetAsString())
     }
 
     @Test
@@ -58,7 +58,7 @@ class GetAccountBalanceTest {
 
         val result = t.processRequest(request, peer) as JsonObject
 
-        assertEquals("0", JSON.getAsString(result.get(BALANCE_NQT_RESPONSE_FIELD)))
+        assertEquals("0", result.get(BALANCE_NQT_RESPONSE_FIELD).safeGetAsString())
     }
 
 }

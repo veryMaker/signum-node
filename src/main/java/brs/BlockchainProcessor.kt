@@ -25,9 +25,9 @@ interface BlockchainProcessor : Observable<Block, BlockchainProcessor.Event> {
         AFTER_BLOCK_APPLY
     }
 
-    fun processPeerBlock(request: JsonObject, peer: Peer)
+    suspend fun processPeerBlock(request: JsonObject, peer: Peer)
 
-    fun fullReset()
+    suspend fun fullReset()
 
     suspend fun generateBlock(secretPhrase: String, publicKey: ByteArray, nonce: Long?)
 

@@ -1,10 +1,10 @@
 package brs.peer
 
 import brs.Blockchain
-import brs.util.JSON
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
 import brs.util.logging.safeDebug
+import brs.util.mustGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -17,7 +17,7 @@ internal class GetMilestoneBlockIds(private val blockchain: Blockchain) : PeerSe
         val response = JsonObject()
         try {
             val milestoneBlockIds = JsonArray()
-            val lastBlockIdString = JSON.getAsString(request.get("lastBlockId"))
+            val lastBlockIdString = request.get("lastBlockId").mustGetAsString("lastBlockId")
             if (lastBlockIdString.isNotEmpty()) {
                 val lastBlockId = lastBlockIdString.parseUnsignedLong()
                 val myLastBlockId = blockchain.lastBlock.id
@@ -36,20 +36,24 @@ internal class GetMilestoneBlockIds(private val blockchain: Blockchain) : PeerSe
             val jump: Int
             var limit = 10
             val blockchainHeight = blockchain.height
-            val lastMilestoneBlockIdString = JSON.getAsString(request.get("lastMilestoneBlockId"))
-            if (lastMilestoneBlockIdString.isEmpty()) {
-                val lastMilestoneBlock = blockchain.getBlock(lastMilestoneBlockIdString.parseUnsignedLong())
+            val lastMilestoneBlockIdString = request.get("lastMilestoneBlockId").mustGetAsString("lastMilestoneBlockId")
+            when {
+                lastMilestoneBlockIdString.isEmpty() -> {
+                    val lastMilestoneBlock = blockchain.getBlock(lastMilestoneBlockIdString.parseUnsignedLong())
                         ?: throw IllegalStateException("Don't have block $lastMilestoneBlockIdString")
-                height = lastMilestoneBlock.height
-                jump = min(1440, max(blockchainHeight - height, 1))
-                height = max(height - jump, 0)
-            } else if (lastBlockIdString.isNotEmpty()) {
-                height = blockchainHeight
-                jump = 10
-            } else {
-                peer.blacklist("GetMilestoneBlockIds")
-                response.addProperty("error", "Old getMilestoneBlockIds protocol not supported, please upgrade")
-                return response
+                    height = lastMilestoneBlock.height
+                    jump = min(1440, max(blockchainHeight - height, 1))
+                    height = max(height - jump, 0)
+                }
+                lastBlockIdString.isNotEmpty() -> {
+                    height = blockchainHeight
+                    jump = 10
+                }
+                else -> {
+                    peer.blacklist("GetMilestoneBlockIds")
+                    response.addProperty("error", "Old getMilestoneBlockIds protocol not supported, please upgrade")
+                    return response
+                }
             }
             blockId = blockchain.getBlockIdAtHeight(height)
 

@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory
 internal class ReservedBalanceCache(private val accountStore: AccountStore) {
     private val reservedBalanceCache = mutableMapOf<Long, Long>()
 
-    fun reserveBalanceAndPut(transaction: Transaction) {
+    suspend fun reserveBalanceAndPut(transaction: Transaction) {
         var senderAccount: Account? = null
 
         if (transaction.senderId != 0L) {
-            senderAccount = accountStore.accountTable[accountStore.accountKeyFactory.newKey(transaction.senderId)]
+            senderAccount = accountStore.accountTable.get(accountStore.accountKeyFactory.newKey(transaction.senderId))
         }
 
         val amountNQT = reservedBalanceCache.getOrDefault(transaction.senderId, 0L).safeAdd(transaction.type.calculateTotalAmountNQT(transaction))
@@ -45,7 +45,7 @@ internal class ReservedBalanceCache(private val accountStore: AccountStore) {
         }
     }
 
-    fun rebuild(transactions: List<Transaction>): List<Transaction> {
+    suspend fun rebuild(transactions: List<Transaction>): List<Transaction> {
         clear()
 
         val insufficientFundsTransactions = mutableListOf<Transaction>()

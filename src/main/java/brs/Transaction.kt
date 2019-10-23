@@ -9,14 +9,11 @@ import brs.transaction.TransactionType
 import brs.transaction.payment.MultiOutPayment
 import brs.transaction.payment.MultiOutSamePayment
 import brs.transactionduplicates.TransactionDuplicationKey
-import brs.util.JSON
-import brs.util.addAll
+import brs.util.*
 import brs.util.convert.*
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLazy
-import brs.util.isZero
 import brs.util.logging.safeDebug
-import brs.util.toJsonString
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
@@ -341,8 +338,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
 
         for (appendage in appendages) {
             if (!appendage.verifyVersion(this.version)) {
-                throw BurstException.NotValidException("Invalid attachment version " + appendage.version
-                        + " for transaction version " + this.version)
+                throw BurstException.NotValidException("Invalid attachment version ${appendage.version} for transaction version ${this.version}")
             }
         }
     }
@@ -443,53 +439,52 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 transactionType.parseAppendices(builder, flags, version, buffer)
                 return builder.build()
             } catch (e: BurstException.NotValidException) {
-                logger.safeDebug { "Failed to parse transaction bytes: ${bytes.toHexString()}" }
+                logger.safeDebug(e) { "Failed to parse transaction bytes: ${bytes.toHexString()}" }
                 throw e
             } catch (e: RuntimeException) {
-                logger.safeDebug { "Failed to parse transaction bytes: ${bytes.toHexString()}" }
+                logger.safeDebug(e) { "Failed to parse transaction bytes: ${bytes.toHexString()}" }
                 throw e
             }
         }
 
         internal fun parseTransaction(dp: DependencyProvider, transactionData: JsonObject, height: Int): Transaction {
             try {
-                val type = JSON.getAsByte(transactionData.get("type"))
-                val subtype = JSON.getAsByte(transactionData.get("subtype"))
-                val timestamp = JSON.getAsInt(transactionData.get("timestamp"))
-                val deadline = JSON.getAsShort(transactionData.get("deadline"))
-                val senderPublicKey = JSON.getAsString(transactionData.get("senderPublicKey")).parseHexString()
-                val amountNQT = JSON.getAsLong(transactionData.get("amountNQT"))
-                val feeNQT = JSON.getAsLong(transactionData.get("feeNQT"))
-                val referencedTransactionFullHash = JSON.getAsString(transactionData.get("referencedTransactionFullHash"))
-                val signature = JSON.getAsString(transactionData.get("signature")).parseHexString()
-                val version = JSON.getAsByte(transactionData.get("version"))
-                val attachmentData = JSON.getAsJsonObject(transactionData.get("attachment"))
+                val type = transactionData.get("type").mustGetAsByte("type")
+                val subtype = transactionData.get("subtype").mustGetAsByte("subtype")
+                val timestamp = transactionData.get("timestamp").mustGetAsInt("timestamp")
+                val deadline = transactionData.get("deadline").mustGetAsShort("deadline")
+                val senderPublicKey = transactionData.get("senderPublicKey").mustGetAsString("senderPublicKey").parseHexString()
+                val amountNQT = transactionData.get("amountNQT").mustGetAsLong("amountNQT")
+                val feeNQT = transactionData.get("feeNQT").mustGetAsLong("feeNQT")
+                val referencedTransactionFullHash = transactionData.get("referencedTransactionFullHash").safeGetAsString()
+                val signature = transactionData.get("signature").mustGetAsString("signature").parseHexString()
+                val version = transactionData.get("version").mustGetAsByte("version")
+                val attachmentData = transactionData.get("attachment").mustGetAsJsonObject("attachment")
 
-                val transactionType = TransactionType.findTransactionType(dp, type, subtype)
-                        ?: throw BurstException.NotValidException("Invalid transaction type: $type, $subtype")
+                val transactionType = TransactionType.findTransactionType(dp, type, subtype) ?: throw BurstException.NotValidException("Invalid transaction type: $type, $subtype")
                 val builder = Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType.parseAttachment(attachmentData))
                         .signature(signature)
                         .height(height)
-                if (referencedTransactionFullHash.isNotEmpty()) {
+                if (!referencedTransactionFullHash.isNullOrEmpty()) {
                     builder.referencedTransactionFullHash(referencedTransactionFullHash.parseHexString())
                 }
                 if (transactionType.hasRecipient()) {
-                    val recipientId = JSON.getAsString(transactionData.get("recipient")).parseUnsignedLong()
+                    val recipientId = transactionData.get("recipient").safeGetAsString().parseUnsignedLong()
                     builder.recipientId(recipientId)
                 }
 
                 transactionType.parseAppendices(builder, attachmentData)
 
                 if (version > 0) {
-                    builder.ecBlockHeight(JSON.getAsInt(transactionData.get("ecBlockHeight")))
-                    builder.ecBlockId(JSON.getAsString(transactionData.get("ecBlockId")).parseUnsignedLong())
+                    builder.ecBlockHeight(transactionData.get("ecBlockHeight").mustGetAsInt("ecBlockHeight"))
+                    builder.ecBlockId(transactionData.get("ecBlockId").mustGetAsString("ecBlockId").parseUnsignedLong())
                 }
                 return builder.build()
             } catch (e: BurstException.NotValidException) {
-                logger.safeDebug { "Failed to parse transaction: ${transactionData.toJsonString()}" }
+                logger.safeDebug(e) { "Failed to parse transaction: ${transactionData.toJsonString()}" }
                 throw e
             } catch (e: RuntimeException) {
-                logger.safeDebug { "Failed to parse transaction: ${transactionData.toJsonString()}" }
+                logger.safeDebug(e) { "Failed to parse transaction: ${transactionData.toJsonString()}" }
                 throw e
             }
         }

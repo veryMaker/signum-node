@@ -12,7 +12,7 @@ import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.BID_ORDER_IDS_RESPONSE
 import brs.services.ParameterService
-import brs.util.JSON
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -24,7 +24,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class GetAccountCurrentBidOrderIdsTest : AbstractUnitTest() {
 
@@ -71,7 +70,7 @@ class GetAccountCurrentBidOrderIdsTest : AbstractUnitTest() {
         val resultList = result.get(BID_ORDER_IDS_RESPONSE) as JsonArray
         assertNotNull(resultList)
         assertEquals(1, resultList.size().toLong())
-        assertEquals("" + mockBidId, JSON.getAsString(resultList.get(0)))
+        assertEquals("" + mockBidId, resultList.get(0).safeGetAsString())
     }
 
     @Test
@@ -106,7 +105,7 @@ class GetAccountCurrentBidOrderIdsTest : AbstractUnitTest() {
         val resultList = result.get(BID_ORDER_IDS_RESPONSE) as JsonArray
         assertNotNull(resultList)
         assertEquals(1, resultList.size().toLong())
-        assertEquals("" + mockBidId, JSON.getAsString(resultList.get(0)))
+        assertEquals("" + mockBidId, resultList.get(0).safeGetAsString())
     }
 
 }

@@ -24,6 +24,8 @@ import brs.http.common.ResultFields.SIGNERS_RESPONSE
 import brs.services.EscrowService
 import brs.services.ParameterService
 import brs.util.JSON
+import brs.util.safeGetAsLong
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -101,22 +103,22 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
         val result = resultList.get(0) as JsonObject
         assertNotNull(result)
 
-        assertEquals("" + escrow.id, JSON.getAsString(result.get(ID_RESPONSE)))
-        assertEquals("" + escrow.senderId, JSON.getAsString(result.get(SENDER_RESPONSE)))
-        assertEquals("BURST-2228-2222-BMNG-22222", JSON.getAsString(result.get(SENDER_RS_RESPONSE)))
-        assertEquals("" + escrow.recipientId, JSON.getAsString(result.get(RECIPIENT_RESPONSE)))
-        assertEquals("BURST-2227-2222-ZAYB-22222", JSON.getAsString(result.get(RECIPIENT_RS_RESPONSE)))
-        assertEquals("" + escrow.amountNQT, JSON.getAsString(result.get(AMOUNT_NQT_RESPONSE)))
-        assertEquals(escrow.requiredSigners.toLong(), JSON.getAsInt(result.get(REQUIRED_SIGNERS_RESPONSE)).toLong())
-        assertEquals(escrow.deadline.toLong(), JSON.getAsInt(result.get(DEADLINE_RESPONSE)).toLong())
-        assertEquals("undecided", JSON.getAsString(result.get(DEADLINE_ACTION_RESPONSE)))
+        assertEquals("" + escrow.id, result.get(ID_RESPONSE).safeGetAsString())
+        assertEquals("" + escrow.senderId, result.get(SENDER_RESPONSE).safeGetAsString())
+        assertEquals("BURST-2228-2222-BMNG-22222", result.get(SENDER_RS_RESPONSE).safeGetAsString())
+        assertEquals("" + escrow.recipientId, result.get(RECIPIENT_RESPONSE).safeGetAsString())
+        assertEquals("BURST-2227-2222-ZAYB-22222", result.get(RECIPIENT_RS_RESPONSE).safeGetAsString())
+        assertEquals("" + escrow.amountNQT, result.get(AMOUNT_NQT_RESPONSE).safeGetAsString())
+        assertEquals(escrow.requiredSigners.toLong(), result.get(REQUIRED_SIGNERS_RESPONSE).safeGetAsLong())
+        assertEquals(escrow.deadline.toLong(), result.get(DEADLINE_RESPONSE).safeGetAsLong())
+        assertEquals("undecided", result.get(DEADLINE_ACTION_RESPONSE).safeGetAsString())
 
         val signersResult = result.get(SIGNERS_RESPONSE) as JsonArray
         assertEquals(1, signersResult.size().toLong())
 
         val signer = signersResult.get(0) as JsonObject
-        assertEquals("" + decision.accountId!!, JSON.getAsString(signer.get(ID_RESPONSE)))
-        assertEquals("BURST-2225-2222-QVC9-22222", JSON.getAsString(signer.get(ID_RS_RESPONSE)))
-        assertEquals("undecided", JSON.getAsString(signer.get(DECISION_RESPONSE)))
+        assertEquals("" + decision.accountId!!, signer.get(ID_RESPONSE).safeGetAsString())
+        assertEquals("BURST-2225-2222-QVC9-22222", signer.get(ID_RS_RESPONSE).safeGetAsString())
+        assertEquals("undecided", signer.get(DECISION_RESPONSE).safeGetAsString())
     }
 }

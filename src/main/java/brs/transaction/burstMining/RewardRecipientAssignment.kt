@@ -36,7 +36,7 @@ class RewardRecipientAssignment(dp: DependencyProvider) : BurstMining(dp) {
 
     }
 
-    override fun validateAttachment(transaction: Transaction) {
+    override suspend fun validateAttachment(transaction: Transaction) {
         val height = dp.blockchain.lastBlock.height + 1
         val sender = dp.accountService.getAccount(transaction.senderId)
             ?: throw BurstException.NotCurrentlyValidException("Sender not yet known ?!")

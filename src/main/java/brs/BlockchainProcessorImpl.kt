@@ -12,15 +12,12 @@ import brs.props.Props
 import brs.taskScheduler.RepeatingTask
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore
-import brs.util.JSON
-import brs.util.Listeners
+import brs.util.*
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.safeSubtract
 import brs.util.convert.toUnsignedString
 import brs.util.delegates.Atomic
-import brs.util.isEmpty
 import brs.util.logging.*
-import brs.util.toJsonString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.delay
@@ -86,7 +83,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 val response = peer.send(getCumulativeDifficultyRequest) ?: return@run true
                 if (response["blockchainHeight"] != null) {
                     lastBlockchainFeeder = peer
-                    lastBlockchainFeederHeight = JSON.getAsInt(response["blockchainHeight"])
+                    lastBlockchainFeederHeight = response["blockchainHeight"].mustGetAsInt("blockchainHeight")
                 } else {
                     logger.safeDebug { "Peer has no chainheight" }
                     return@run true
@@ -94,7 +91,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
                 /* Cache now contains Cumulative Difficulty */
                 val curCumulativeDifficulty = dp.downloadCache.cumulativeDifficulty
-                val peerCumulativeDifficulty = JSON.getAsString(response.get("cumulativeDifficulty"))
+                val peerCumulativeDifficulty = response.get("cumulativeDifficulty").mustGetAsString("cumulativeDifficulty")
                 if (peerCumulativeDifficulty.isEmpty()) {
                     logger.safeDebug { "Peer CumulativeDifficulty is null" }
                     return@run true
@@ -158,7 +155,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
                 for (o in nextBlocks) {
                     val height = lastBlock!!.height + 1
-                    blockData = JSON.getAsJsonObject(o)
+                    blockData = o.mustGetAsJsonObject("nextBlock")
                     try {
                         block = Block.parseBlock(dp, blockData, height)
                         // Make sure it maps back to chain
@@ -250,7 +247,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                             dp.blockService.preVerify(currentBlock)
                             logger.safeDebug { "block was not preverified" }
                         }
-                        pushBlock(currentBlock) //pushblock removes the block from cache.
+                        pushBlock(currentBlock) // This removes the block from cache.
                         true
                     } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
                         logger.safeError(e) { "Block not accepted" }
@@ -372,9 +369,9 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     }
                 }
             }
-        }
 
-        addGenesisBlock()
+            addGenesisBlock()
+        }
     }
 
     private suspend fun getCommonMilestoneBlockId(peer: Peer?): Long {
@@ -394,8 +391,8 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 logger.safeDebug { "Got null response in getCommonMilestoneBlockId" }
                 return 0
             }
-            val milestoneBlockIds = JSON.getAsJsonArray(response.get("milestoneBlockIds"))
-            if (milestoneBlockIds.isEmpty()) {
+            val milestoneBlockIds = response.get("milestoneBlockIds").safeGetAsJsonArray()
+            if (milestoneBlockIds == null || milestoneBlockIds.isEmpty()) {
                 logger.safeDebug { "MilestoneArray is empty" }
                 return 0
             }
@@ -407,12 +404,13 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 peer.blacklist("obsolete or rogue peer sends too many milestoneBlockIds")
                 return 0
             }
-            if (JSON.getAsBoolean(response.get("last"))) {
+            if (response.get("last").safeGetAsBoolean() == true) {
                 peerHasMore = false
             }
 
             for (milestoneBlockId in milestoneBlockIds) {
-                val blockId = JSON.getAsString(milestoneBlockId).parseUnsignedLong()
+                val milestoneBlockIdString = milestoneBlockId.mustGetAsString("milestoneBlockId")
+                val blockId = milestoneBlockIdString.parseUnsignedLong()
 
                 if (dp.downloadCache.hasBlock(blockId)) {
                     if (lastMilestoneBlockId == null && milestoneBlockIds.size() > 1) {
@@ -421,7 +419,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     }
                     return blockId
                 }
-                lastMilestoneBlockId = JSON.getAsString(milestoneBlockId)
+                lastMilestoneBlockId = milestoneBlockIdString
             }
         }
     }
@@ -434,7 +432,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             request.addProperty("requestType", "getNextBlockIds")
             request.addProperty("blockId", commonBlockId.toUnsignedString())
             val response = peer!!.send(JSON.prepareRequest(request)) ?: return 0
-            val nextBlockIds = JSON.getAsJsonArray(response.get("nextBlockIds"))
+            val nextBlockIds = response.get("nextBlockIds").mustGetAsJsonArray("enxtBlockIds")
             if (nextBlockIds.isEmpty()) return 0
             // prevent overloading with blockIds
             if (nextBlockIds.size() > 1440) { // TODO just truncate
@@ -443,7 +441,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             }
 
             for (nextBlockId in nextBlockIds) {
-                val blockId = JSON.getAsString(nextBlockId).parseUnsignedLong()
+                val blockId = nextBlockId.mustGetAsString("nextBlockId").parseUnsignedLong()
                 if (!dp.downloadCache.hasBlock(blockId)) {
                     return commonBlockId
                 }
@@ -459,7 +457,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         logger.safeDebug { "Getting next Blocks after ${curBlockId.toUnsignedString()} from ${peer!!.peerAddress}" }
         val response = peer!!.send(JSON.prepareRequest(request)) ?: return null
 
-        val nextBlocks = JSON.getAsJsonArray(response.get("nextBlocks"))
+        val nextBlocks = response.get("nextBlocks").mustGetAsJsonArray("nextBlocks")
         if (nextBlocks.isEmpty()) return null
         // prevent overloading with blocks
         if (nextBlocks.size() > 1440) {
@@ -515,7 +513,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     peer.blacklist("got a bad fork")
                     val peerPoppedOffBlocks = popOffTo(forkBlock)
                     pushedForkBlocks = 0
-                    peerPoppedOffBlocks.forEach { block -> dp.transactionProcessor.processLater(block.transactions) }
+                    peerPoppedOffBlocks.forEach { block -> dp.transactionProcessor.processLater(block.getTransactions()) }
                 }
 
                 // if we did not push any blocks we try to restore chain.
@@ -526,12 +524,12 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                             dp.blockService.preVerify(block)
                             pushBlock(block)
                         } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
-                            logger.safeWarn(e) { "Popped off block no longer acceptable: " + block.jsonObject.toJsonString() }
+                            logger.safeWarn(e) { "Popped off block no longer acceptable: " + block.toJsonObject().toJsonString() }
                             break
                         }
                     }
                 } else {
-                    myPoppedOffBlocks.forEach { block -> dp.transactionProcessor.processLater(block.transactions) }
+                    myPoppedOffBlocks.forEach { block -> dp.transactionProcessor.processLater(block.getTransactions()) }
                     logger.safeWarn { "Successfully switched to better chain." }
                 }
                 logger.safeWarn { "Forkprocessing complete." }
@@ -577,7 +575,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         return blockListeners.addListener(eventType, listener)
     }
 
-    override fun processPeerBlock(request: JsonObject, peer: Peer) {
+    override suspend fun processPeerBlock(request: JsonObject, peer: Peer) {
         val newBlock = Block.parseBlock(dp, request, dp.blockchain.height)
         //* This process takes care of the blocks that is announced by peers We do not want to be fed forks.
         val chainblock = dp.downloadCache.lastBlock
@@ -596,19 +594,19 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         return popOffTo(dp.blockchain.getBlockAtHeight(height)!!)
     }
 
-    override fun fullReset() {
+    override suspend fun fullReset() {
         dp.blockDb.deleteAll(false)
         dp.dbCacheManager.flushCache()
         dp.downloadCache.resetCache()
         addGenesisBlock()
     }
 
-    private fun addBlock(block: Block) {
+    private suspend fun addBlock(block: Block) {
         dp.blockchainStore.addBlock(block)
         dp.blockchain.lastBlock = block
     }
 
-    private fun addGenesisBlock() {
+    private suspend fun addGenesisBlock() {
         if (dp.blockDb.hasBlock(Genesis.GENESIS_BLOCK_ID)) {
             logger.safeInfo { "Genesis block already in database" }
             val lastBlock = dp.blockDb.findLastBlock()!!
@@ -648,7 +646,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 if (block.version != blockVersion) {
                     throw BlockchainProcessor.BlockNotAcceptedException("Invalid version " + block.version + " for block " + block.height)
                 }
-                if (block.version != 1 && !Arrays.equals(Crypto.sha256().digest(lastBlock.bytes), block.previousBlockHash)) {
+                if (block.version != 1 && !Arrays.equals(Crypto.sha256().digest(lastBlock.toBytes()), block.previousBlockHash)) {
                     throw BlockchainProcessor.BlockNotAcceptedException("Previous block hash doesn't match for block " + block.height)
                 }
                 if (block.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE || block.timestamp <= lastBlock.timestamp) {
@@ -669,52 +667,30 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 var calculatedTotalFee: Long = 0
                 val digest = Crypto.sha256()
 
-                val feeArray = LongArray(block.transactions.size)
+                val feeArray = LongArray(block.getTransactions().size)
                 var slotIdx = 0
 
-                for (transaction in block.transactions) {
-                    if (transaction.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE) {
-                        throw BlockchainProcessor.BlockOutOfOrderException("Invalid transaction timestamp: "
-                                + transaction.timestamp + ", current time is " + curTime)
-                    }
-                    if (transaction.timestamp > block.timestamp + MAX_TIMESTAMP_DIFFERENCE || transaction.expiration < block.timestamp) {
-                        throw BlockchainProcessor.TransactionNotAcceptedException("Invalid transaction timestamp "
-                                + transaction.timestamp + " for transaction " + transaction.stringId
-                                + ", current time is " + curTime + ", block timestamp is " + block.timestamp,
-                                transaction)
-                    }
-                    if (dp.transactionDb.hasTransaction(transaction.id)) {
-                        throw BlockchainProcessor.TransactionNotAcceptedException(
-                                "Transaction " + transaction.stringId + " is already in the blockchain",
-                                transaction)
-                    }
-                    if (transaction.referencedTransactionFullHash != null && !hasAllReferencedTransactions(transaction, transaction.timestamp, 0)) {
-                        throw BlockchainProcessor.TransactionNotAcceptedException("Missing or invalid referenced transaction "
-                                + transaction.referencedTransactionFullHash + " for transaction "
-                                + transaction.stringId, transaction)
-                    }
-                    if (transaction.version.toInt() != dp.transactionProcessor.getTransactionVersion(lastBlock.height)) {
-                        throw BlockchainProcessor.TransactionNotAcceptedException("Invalid transaction version "
-                                + transaction.version + " at height " + lastBlock.height,
-                                transaction)
-                    }
+                for (transaction in block.getTransactions()) {
+                    if (transaction.id == 0L)
+                        throw BlockchainProcessor.TransactionNotAcceptedException("Invalid transaction id", transaction)
+                    if (transaction.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE)
+                        throw BlockchainProcessor.BlockOutOfOrderException("Invalid transaction timestamp: ${transaction.timestamp}, current time is $curTime")
+                    if (transaction.timestamp > block.timestamp + MAX_TIMESTAMP_DIFFERENCE || transaction.expiration < block.timestamp)
+                        throw BlockchainProcessor.TransactionNotAcceptedException("Invalid transaction timestamp ${transaction.timestamp} for transaction ${transaction.stringId}, current time is $curTime, block timestamp is ${block.timestamp}", transaction)
+                    if (dp.transactionDb.hasTransaction(transaction.id))
+                        throw BlockchainProcessor.TransactionNotAcceptedException("Transaction ${transaction.stringId} is already in the blockchain", transaction)
+                    if (transaction.referencedTransactionFullHash != null && !hasAllReferencedTransactions(transaction, transaction.timestamp, 0))
+                        throw BlockchainProcessor.TransactionNotAcceptedException("Missing or invalid referenced transaction ${transaction.referencedTransactionFullHash} for transaction ${transaction.stringId}", transaction)
+                    if (transaction.version.toInt() != dp.transactionProcessor.getTransactionVersion(lastBlock.height))
+                        throw BlockchainProcessor.TransactionNotAcceptedException("Invalid transaction version ${transaction.version} at height ${lastBlock.height}", transaction)
+                    if (!dp.transactionService.verifyPublicKey(transaction))
+                        throw BlockchainProcessor.TransactionNotAcceptedException("Wrong public key in transaction ${transaction.stringId} at height ${lastBlock.height}", transaction)
+                    if (transactionDuplicatesChecker.hasAnyDuplicate(transaction))
+                        throw BlockchainProcessor.TransactionNotAcceptedException("Transaction is a duplicate: ${transaction.stringId}", transaction)
 
-                    if (!dp.transactionService.verifyPublicKey(transaction)) {
-                        throw BlockchainProcessor.TransactionNotAcceptedException("Wrong public key in transaction "
-                                + transaction.stringId + " at height " + lastBlock.height,
-                                transaction)
-                    }
                     if (dp.fluxCapacitor.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) && !dp.economicClustering.verifyFork(transaction)) {
                         logger.safeDebug { "Block ${block.stringId} height ${lastBlock.height + 1} contains transaction that was generated on a fork: ${transaction.stringId} ecBlockId ${transaction.ecBlockHeight} ecBlockHeight ${transaction.ecBlockId.toUnsignedString()}" }
-                        throw BlockchainProcessor.TransactionNotAcceptedException("Transaction belongs to a different fork",
-                                transaction)
-                    }
-                    if (transaction.id == 0L) {
-                        throw BlockchainProcessor.TransactionNotAcceptedException("Invalid transaction id", transaction)
-                    }
-
-                    if (transactionDuplicatesChecker.hasAnyDuplicate(transaction)) {
-                        throw BlockchainProcessor.TransactionNotAcceptedException("Transaction is a duplicate: " + transaction.stringId, transaction)
+                        throw BlockchainProcessor.TransactionNotAcceptedException("Transaction belongs to a different fork", transaction)
                     }
 
                     try {
@@ -753,7 +729,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
                 dp.blockService.setPrevious(block, lastBlock)
                 blockListeners.accept(BlockchainProcessor.Event.BEFORE_BLOCK_ACCEPT, block)
-                dp.transactionProcessor.removeForgedTransactions(block.transactions)
+                dp.transactionProcessor.removeForgedTransactions(block.getTransactions())
                 dp.transactionProcessor.requeueAllUnconfirmedTransactions()
                 dp.accountService.flushAccountTable()
                 addBlock(block)
@@ -787,12 +763,15 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             if (block.height >= autoPopOffLastStuckHeight) {
                 autoPopOffNumberOfBlocks = 0
             }
+            if (block.height % Constants.OPTIMIZE_TABLE_FREQUENCY == 0) {
+                dp.derivedTableManager.derivedTables.forEach { it.optimize() } // TODO this is not all of the tables...
+            }
         }
     }
 
     private suspend fun accept(block: Block, remainingAmount: Long?, remainingFee: Long?) {
         dp.subscriptionService.clearRemovals()
-        for (transaction in block.transactions) {
+        for (transaction in block.getTransactions()) {
             if (!dp.transactionService.applyUnconfirmed(transaction)) {
                 throw BlockchainProcessor.TransactionNotAcceptedException("Double spending transaction: " + transaction.stringId, transaction)
             }
@@ -805,8 +784,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         AT.clearPendingFees()
         AT.clearPendingTransactions()
         try {
-            // TODO NN Assert might cause problems...
-            atBlock = dp.atController.validateATs(block.blockATs!!, dp.blockchain.height)
+            atBlock = dp.atController.validateATs(block.blockATs, dp.blockchain.height)
         } catch (e: AtException) {
             throw BlockchainProcessor.BlockNotAcceptedException("ats are not matching at block height " + dp.blockchain.height + " (" + e + ")")
         }
@@ -814,7 +792,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         calculatedRemainingAmount += atBlock.totalAmount
         calculatedRemainingFee += atBlock.totalFees
         // ATs
-        if (dp.subscriptionService.isEnabled) {
+        if (dp.subscriptionService.isEnabled()) {
             calculatedRemainingFee += dp.subscriptionService.applyUnconfirmed(block.timestamp)
         }
         if (remainingAmount != null && remainingAmount != calculatedRemainingAmount) {
@@ -826,12 +804,12 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         blockListeners.accept(BlockchainProcessor.Event.BEFORE_BLOCK_APPLY, block)
         dp.blockService.apply(block)
         dp.subscriptionService.applyConfirmed(block, dp.blockchain.height)
-        if (dp.escrowService.isEnabled) {
+        if (dp.escrowService.isEnabled()) {
             dp.escrowService.updateOnBlock(block, dp.blockchain.height)
         }
         blockListeners.accept(BlockchainProcessor.Event.AFTER_BLOCK_APPLY, block)
-        if (!block.transactions.isEmpty()) {
-            dp.transactionProcessor.notifyListeners(block.transactions, TransactionProcessor.Event.ADDED_CONFIRMED_TRANSACTIONS)
+        if (!block.getTransactions().isEmpty()) {
+            dp.transactionProcessor.notifyListeners(block.getTransactions(), TransactionProcessor.Event.ADDED_CONFIRMED_TRANSACTIONS)
         }
     }
 
@@ -875,7 +853,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
         val previousBlock = dp.blockDb.findBlock(block.previousBlockId)!!
         dp.blockchain.setLastBlock(block, previousBlock)
-        block.transactions.forEach { it.unsetBlock() }
+        block.getTransactions().forEach { it.unsetBlock() }
         dp.blockDb.deleteBlocksFrom(block.id)
         blockListeners.accept(BlockchainProcessor.Event.BLOCK_POPPED, block)
         return previousBlock
@@ -1030,7 +1008,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     }
                 }
 
-                if (dp.subscriptionService.isEnabled) {
+                if (dp.subscriptionService.isEnabled()) {
                     dp.subscriptionService.clearRemovals()
                     totalFeeNQT += dp.subscriptionService.calculateFees(blockTimestamp)
                 }
@@ -1063,7 +1041,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             val generationSignature = dp.generator.calculateGenerationSignature(
                     previousBlock.generationSignature, previousBlock.generatorId)
             val block: Block
-            val previousBlockHash = Crypto.sha256().digest(previousBlock.bytes)
+            val previousBlockHash = Crypto.sha256().digest(previousBlock.toBytes())
             try {
                 block = Block(dp, blockVersion, blockTimestamp,
                         previousBlock.id, totalAmountNQT, totalFeeNQT, dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
@@ -1097,12 +1075,12 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    private fun hasAllReferencedTransactions(transaction: Transaction, timestamp: Int, count: Int): Boolean {
+    private suspend fun hasAllReferencedTransactions(transaction: Transaction, timestamp: Int, count: Int): Boolean {
         if (transaction.referencedTransactionFullHash == null) {
             return timestamp - transaction.timestamp < 60 * 1440 * 60 && count < 10
         }
         val foundTransaction = dp.transactionDb.findTransactionByFullHash(transaction.referencedTransactionFullHash)
-        if (!dp.subscriptionService.isEnabled && foundTransaction != null && transaction.signature == null) {
+        if (!dp.subscriptionService.isEnabled() && foundTransaction != null && transaction.signature == null) {
             return false
         }
         return foundTransaction != null && hasAllReferencedTransactions(foundTransaction, timestamp, count + 1)

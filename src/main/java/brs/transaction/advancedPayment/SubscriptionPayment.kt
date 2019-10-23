@@ -15,6 +15,6 @@ class SubscriptionPayment(dp: DependencyProvider) : AdvancedPayment(dp) {
     override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) = Unit
     override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
     override fun getDuplicationKey(transaction: Transaction) = TransactionDuplicationKey.IS_ALWAYS_DUPLICATE
-    override fun validateAttachment(transaction: Transaction) = throw BurstException.NotValidException("Subscription payment never validates")
+    override suspend fun validateAttachment(transaction: Transaction) = throw BurstException.NotValidException("Subscription payment never validates")
     override fun hasRecipient() = true
 }

@@ -13,7 +13,8 @@ import brs.http.common.ResultFields.OPEN_ORDERS_RESPONSE
 import brs.http.common.ResultFields.ORDER_RESPONSE
 import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE
-import brs.util.JSON
+import brs.util.safeGetAsLong
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -67,10 +68,10 @@ class GetAllOpenAskOrdersTest : AbstractUnitTest() {
         assertEquals(1, openOrdersResult.size().toLong())
 
         val openOrderResult = openOrdersResult.get(0) as JsonObject
-        assertEquals("" + mockAskOrder.id, JSON.getAsString(openOrderResult.get(ORDER_RESPONSE)))
-        assertEquals("" + mockAskOrder.assetId, JSON.getAsString(openOrderResult.get(ASSET_RESPONSE)))
-        assertEquals("" + mockAskOrder.quantityQNT, JSON.getAsString(openOrderResult.get(QUANTITY_QNT_RESPONSE)))
-        assertEquals("" + mockAskOrder.priceNQT, JSON.getAsString(openOrderResult.get(PRICE_NQT_RESPONSE)))
-        assertEquals(mockAskOrder.height.toLong(), JSON.getAsInt(openOrderResult.get(HEIGHT_RESPONSE)).toLong())
+        assertEquals("" + mockAskOrder.id, openOrderResult.get(ORDER_RESPONSE).safeGetAsString())
+        assertEquals("" + mockAskOrder.assetId, openOrderResult.get(ASSET_RESPONSE).safeGetAsString())
+        assertEquals("" + mockAskOrder.quantityQNT, openOrderResult.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockAskOrder.priceNQT, openOrderResult.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals(mockAskOrder.height.toLong(), openOrderResult.get(HEIGHT_RESPONSE).safeGetAsLong())
     }
 }

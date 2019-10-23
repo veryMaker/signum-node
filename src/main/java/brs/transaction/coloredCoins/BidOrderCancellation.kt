@@ -37,7 +37,7 @@ class BidOrderCancellation(dp: DependencyProvider) : OrderCancellation(dp) {
         }
     }
 
-    override fun validateAttachment(transaction: Transaction) {
+    override suspend fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsBidOrderCancellation
         val bid = dp.assetExchange.getBidOrder(attachment.orderId)
             ?: throw BurstException.NotCurrentlyValidException("Invalid bid order: " + attachment.orderId.toUnsignedString())

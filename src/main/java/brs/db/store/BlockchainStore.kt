@@ -14,27 +14,26 @@ import org.jooq.Result
 
 interface BlockchainStore {
 
-    val transactionCount: Int
+    suspend fun getTransactionCount(): Int
 
-    val allTransactions: Collection<Transaction>
+    suspend fun getAllTransactions(): Collection<Transaction>
 
+    suspend fun getBlocks(from: Int, to: Int): Collection<Block>
 
-    fun getBlocks(from: Int, to: Int): Collection<Block>
-
-    fun getBlocks(account: Account, timestamp: Int, from: Int, to: Int): Collection<Block>
+    suspend fun getBlocks(account: Account, timestamp: Int, from: Int, to: Int): Collection<Block>
 
     fun getBlocks(blockRecords: Result<BlockRecord>): Collection<Block>
 
-    fun getBlockIdsAfter(blockId: Long, limit: Int): Collection<Long>
+    suspend fun getBlockIdsAfter(blockId: Long, limit: Int): Collection<Long>
 
-    fun getBlocksAfter(blockId: Long, limit: Int): Collection<Block>
+    suspend fun getBlocksAfter(blockId: Long, limit: Int): Collection<Block>
 
-    fun getTransactions(account: Account, numberOfConfirmations: Int, type: Byte, subtype: Byte,
-                        blockTimestamp: Int, from: Int, to: Int, includeIndirectIncoming: Boolean): Collection<Transaction>
+    suspend fun getTransactions(account: Account, numberOfConfirmations: Int, type: Byte, subtype: Byte,
+                                blockTimestamp: Int, from: Int, to: Int, includeIndirectIncoming: Boolean): Collection<Transaction>
 
     fun getTransactions(ctx: DSLContext, rs: Result<TransactionRecord>): Collection<Transaction>
 
-    fun addBlock(block: Block)
+    suspend fun addBlock(block: Block)
 
-    fun getLatestBlocks(amountBlocks: Int): Collection<Block>
+    suspend fun getLatestBlocks(amountBlocks: Int): Collection<Block>
 }

@@ -5,7 +5,8 @@ import brs.http.JSONResponses.MISSING_UNSIGNED_BYTES
 import brs.http.common.Parameters.SIGNATURE_HASH_PARAMETER
 import brs.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
 import brs.http.common.ResultFields.FULL_HASH_RESPONSE
-import brs.util.JSON
+import brs.util.mustGetAsJsonObject
+import brs.util.safeGetAsString
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -37,8 +38,8 @@ class CalculateFullHashTest {
         whenever(request.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER))).doReturn(mockUnsignedTransactionBytes)
         whenever(request.getParameter(eq(SIGNATURE_HASH_PARAMETER))).doReturn(mockSignatureHash)
 
-        val result = JSON.getAsJsonObject(t.processRequest(request))
-        assertEquals(expectedFullHash, JSON.getAsString(result.get(FULL_HASH_RESPONSE)))
+        val result = t.processRequest(request).mustGetAsJsonObject("result")
+        assertEquals(expectedFullHash, result.get(FULL_HASH_RESPONSE).safeGetAsString())
     }
 
     @Test

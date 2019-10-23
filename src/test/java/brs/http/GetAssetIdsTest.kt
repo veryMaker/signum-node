@@ -8,7 +8,7 @@ import brs.common.QuickMocker.MockParam
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.ASSET_IDS_RESPONSE
-import brs.util.JSON
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -60,7 +60,7 @@ class GetAssetIdsTest : AbstractUnitTest() {
         assertNotNull(resultAssetIds)
         assertEquals(1, resultAssetIds.size().toLong())
 
-        val resultAssetId = JSON.getAsString(resultAssetIds.get(0))
+        val resultAssetId = resultAssetIds.get(0).safeGetAsString()
         assertEquals("5", resultAssetId)
     }
 

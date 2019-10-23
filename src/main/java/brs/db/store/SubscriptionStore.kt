@@ -9,11 +9,11 @@ interface SubscriptionStore {
 
     val subscriptionTable: VersionedEntityTable<Subscription>
 
-    fun getSubscriptionsByParticipant(accountId: Long?): Collection<Subscription>
+    suspend fun getSubscriptionsByParticipant(accountId: Long?): Collection<Subscription>
 
-    fun getIdSubscriptions(accountId: Long?): Collection<Subscription>
+    suspend fun getIdSubscriptions(accountId: Long?): Collection<Subscription>
 
-    fun getSubscriptionsToId(accountId: Long?): Collection<Subscription>
+    suspend fun getSubscriptionsToId(accountId: Long?): Collection<Subscription>
 
-    fun getUpdateSubscriptions(timestamp: Int): Collection<Subscription>
+    suspend fun getUpdateSubscriptions(timestamp: Int): Collection<Subscription>
 }

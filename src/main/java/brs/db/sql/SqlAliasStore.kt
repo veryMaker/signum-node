@@ -27,7 +27,7 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
                 return SqlOffer(record)
             }
 
-            override fun save(ctx: DSLContext, offer: Alias.Offer) {
+            override suspend fun save(ctx: DSLContext, offer: Alias.Offer) {
                 saveOffer(offer)
             }
         }
@@ -37,7 +37,7 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
                 return SqlAlias(record)
             }
 
-            override fun save(ctx: DSLContext, alias: Alias) {
+            override suspend fun save(ctx: DSLContext, alias: Alias) {
                 saveAlias(ctx, alias)
             }
 
@@ -49,7 +49,7 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
 
     private inner class SqlOffer internal constructor(record: Record) : Alias.Offer(record.get(ALIAS_OFFER.ID), record.get(ALIAS_OFFER.PRICE), record.get(ALIAS_OFFER.BUYER_ID).nullToZero(), offerDbKeyFactory.newKey(record.get(ALIAS_OFFER.ID)))
 
-    private fun saveOffer(offer: Alias.Offer) {
+    private suspend fun saveOffer(offer: Alias.Offer) {
         dp.db.useDslContext { ctx ->
             ctx.insertInto<AliasOfferRecord, Long, Long, Long, Int>(ALIAS_OFFER, ALIAS_OFFER.ID, ALIAS_OFFER.PRICE, ALIAS_OFFER.BUYER_ID, ALIAS_OFFER.HEIGHT)
                     .values(offer.id, offer.priceNQT, if (offer.buyerId == 0L) null else offer.buyerId, dp.blockchain.height)
@@ -63,11 +63,11 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
         ctx.insertInto<AliasRecord>(ALIAS).set(ALIAS.ID, alias.id).set(ALIAS.ACCOUNT_ID, alias.accountId).set(ALIAS.ALIAS_NAME, alias.aliasName).set(ALIAS.ALIAS_NAME_LOWER, alias.aliasName.toLowerCase(Locale.ENGLISH)).set(ALIAS.ALIAS_URI, alias.aliasURI).set(ALIAS.TIMESTAMP, alias.timestamp).set(ALIAS.HEIGHT, dp.blockchain.height).execute()
     }
 
-    override fun getAliasesByOwner(accountId: Long, from: Int, to: Int): Collection<Alias> {
+    override suspend fun getAliasesByOwner(accountId: Long, from: Int, to: Int): Collection<Alias> {
         return aliasTable.getManyBy(ALIAS.ACCOUNT_ID.eq(accountId), from, to)
     }
 
-    override fun getAlias(aliasName: String): Alias? {
+    override suspend fun getAlias(aliasName: String): Alias? {
         return aliasTable.getBy(ALIAS.ALIAS_NAME_LOWER.eq(aliasName.toLowerCase(Locale.ENGLISH)))
     }
 

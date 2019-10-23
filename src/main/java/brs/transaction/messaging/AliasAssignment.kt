@@ -37,7 +37,7 @@ class AliasAssignment(dp: DependencyProvider) : Messaging(dp) {
         return TransactionDuplicationKey(AliasAssignment::class, attachment.aliasName.toLowerCase(Locale.ENGLISH))
     }
 
-    override fun validateAttachment(transaction: Transaction) {
+    override suspend fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.MessagingAliasAssignment
         if (attachment.aliasName.isEmpty()
             || attachment.aliasName.toBytes().size > Constants.MAX_ALIAS_LENGTH

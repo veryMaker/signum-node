@@ -11,7 +11,6 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 open class Account {
-
     val id: Long
     val nxtKey: BurstKey
     val creationHeight: Int
@@ -120,11 +119,11 @@ open class Account {
     // this.publicKey is set to null (in which case this.publicKey also gets set to key)
     // or
     // this.publicKey is already set to an array equal to key
-    fun setOrVerify(dp: DependencyProvider, key: ByteArray, height: Int): Boolean { // TODO should we deprecate?
+    suspend fun setOrVerify(dp: DependencyProvider, key: ByteArray, height: Int): Boolean { // TODO should we deprecate?
         return dp.accountStore.setOrVerify(this, key, height)
     }
 
-    fun apply(dp: DependencyProvider, key: ByteArray, height: Int) {
+    suspend fun apply(dp: DependencyProvider, key: ByteArray, height: Int) {
         check(setOrVerify(dp, key, this.creationHeight)) { "Public key mismatch" }
         checkNotNull(this.publicKeyInternal) {
             ("Public key has not been set for account " + id.toUnsignedString()
@@ -153,8 +152,8 @@ open class Account {
             return dp.accountStore.accountTable
         }
 
-        fun getAccount(dp: DependencyProvider, id: Long): Account? {
-            return if (id == 0L) null else accountTable(dp)[accountBurstKeyFactory(dp).newKey(id)]
+        suspend fun getAccount(dp: DependencyProvider, id: Long): Account? {
+            return if (id == 0L) null else accountTable(dp).get(accountBurstKeyFactory(dp).newKey(id))
         }
 
         @Deprecated("Just use Crypto/Convert class instead")
@@ -163,7 +162,7 @@ open class Account {
             return publicKeyHash.fullHashToId()
         }
 
-        fun getOrAddAccount(dp: DependencyProvider, id: Long): Account {
+        suspend fun getOrAddAccount(dp: DependencyProvider, id: Long): Account {
             var account = getAccount(dp, id)
             if (account == null) {
                 account = Account(dp, id)

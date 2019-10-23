@@ -15,57 +15,55 @@ internal class OrderServiceImpl(private val dp: DependencyProvider, private val 
     private val bidOrderTable = dp.orderStore.bidOrderTable
     private val bidOrderDbKeyFactory = dp.orderStore.bidOrderDbKeyFactory
 
-    val bidCount: Int
-        get() = bidOrderTable.count
+    suspend fun getBidCount() = bidOrderTable.getCount()
 
-    val askCount: Int
-        get() = askOrderTable.count
+    suspend fun getAskCount() = askOrderTable.getCount()
 
-    fun getAskOrder(orderId: Long): Ask?{
-        return askOrderTable[askOrderDbKeyFactory.newKey(orderId)]
+    suspend fun getAskOrder(orderId: Long): Ask?{
+        return askOrderTable.get(askOrderDbKeyFactory.newKey(orderId))
     }
 
-    fun getBidOrder(orderId: Long): Bid? {
-        return bidOrderTable[bidOrderDbKeyFactory.newKey(orderId)]
+    suspend fun getBidOrder(orderId: Long): Bid? {
+        return bidOrderTable.get(bidOrderDbKeyFactory.newKey(orderId))
     }
 
-    fun getAllAskOrders(from: Int, to: Int): Collection<Ask> {
+    suspend fun getAllAskOrders(from: Int, to: Int): Collection<Ask> {
         return askOrderTable.getAll(from, to)
     }
 
-    fun getAllBidOrders(from: Int, to: Int): Collection<Bid> {
+    suspend fun getAllBidOrders(from: Int, to: Int): Collection<Bid> {
         return bidOrderTable.getAll(from, to)
     }
 
-    fun getSortedBidOrders(assetId: Long, from: Int, to: Int): Collection<Bid> {
+    suspend fun getSortedBidOrders(assetId: Long, from: Int, to: Int): Collection<Bid> {
         return dp.orderStore.getSortedBids(assetId, from, to)
     }
 
-    fun getAskOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Ask> {
+    suspend fun getAskOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Ask> {
         return dp.orderStore.getAskOrdersByAccount(accountId, from, to)
     }
 
-    fun getAskOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Ask> {
+    suspend fun getAskOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Ask> {
         return dp.orderStore.getAskOrdersByAccountAsset(accountId, assetId, from, to)
     }
 
-    fun getSortedAskOrders(assetId: Long, from: Int, to: Int): Collection<Ask> {
+    suspend fun getSortedAskOrders(assetId: Long, from: Int, to: Int): Collection<Ask> {
         return dp.orderStore.getSortedAsks(assetId, from, to)
     }
 
-    fun getBidOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Bid> {
+    suspend fun getBidOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Bid> {
         return dp.orderStore.getBidOrdersByAccount(accountId, from, to)
     }
 
-    fun getBidOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Bid> {
+    suspend fun getBidOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Bid> {
         return dp.orderStore.getBidOrdersByAccountAsset(accountId, assetId, from, to)
     }
 
-    fun removeBidOrder(orderId: Long) {
+    suspend fun removeBidOrder(orderId: Long) {
         bidOrderTable.delete(getBidOrder(orderId) ?: return)
     }
 
-    fun removeAskOrder(orderId: Long) {
+    suspend fun removeAskOrder(orderId: Long) {
         askOrderTable.delete(getAskOrder(orderId) ?: return)
     }
 
@@ -83,11 +81,11 @@ internal class OrderServiceImpl(private val dp: DependencyProvider, private val 
         matchOrders(attachment.assetId)
     }
 
-    private fun getNextAskOrder(assetId: Long): Ask? {
+    private suspend fun getNextAskOrder(assetId: Long): Ask? {
         return dp.orderStore.getNextOrder(assetId)
     }
 
-    private fun getNextBidOrder(assetId: Long): Bid? {
+    private suspend fun getNextBidOrder(assetId: Long): Bid? {
         return dp.orderStore.getNextBid(assetId)
     }
 
@@ -116,7 +114,7 @@ internal class OrderServiceImpl(private val dp: DependencyProvider, private val 
         }
     }
 
-    private fun askOrderUpdateQuantityQNT(askOrder: Ask, quantityQNT: Long) {
+    private suspend fun askOrderUpdateQuantityQNT(askOrder: Ask, quantityQNT: Long) {
         askOrder.quantityQNT = quantityQNT
         when {
             quantityQNT > 0 -> askOrderTable.insert(askOrder)
@@ -125,7 +123,7 @@ internal class OrderServiceImpl(private val dp: DependencyProvider, private val 
         }
     }
 
-    private fun bidOrderUpdateQuantityQNT(bidOrder: Bid, quantityQNT: Long) {
+    private suspend fun bidOrderUpdateQuantityQNT(bidOrder: Bid, quantityQNT: Long) {
         bidOrder.quantityQNT = quantityQNT
         when {
             quantityQNT > 0 -> bidOrderTable.insert(bidOrder)

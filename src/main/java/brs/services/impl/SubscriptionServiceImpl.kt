@@ -9,8 +9,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     private val subscriptionTable = dp.subscriptionStore.subscriptionTable
     private val subscriptionDbKeyFactory = dp.subscriptionStore.subscriptionDbKeyFactory
 
-    override val isEnabled: Boolean
-        get() {
+    override suspend fun isEnabled(): Boolean {
             if (dp.blockchain.lastBlock.height >= Constants.BURST_SUBSCRIPTION_START_BLOCK) {
                 return true
             }
@@ -22,19 +21,19 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     private val fee: Long
         get() = Constants.ONE_BURST
 
-    override fun getSubscription(id: Long?): Subscription? {
-        return subscriptionTable[subscriptionDbKeyFactory.newKey(id!!)]
+    override suspend fun getSubscription(id: Long?): Subscription? {
+        return subscriptionTable.get(subscriptionDbKeyFactory.newKey(id!!))
     }
 
-    override fun getSubscriptionsByParticipant(accountId: Long?): Collection<Subscription> {
+    override suspend fun getSubscriptionsByParticipant(accountId: Long?): Collection<Subscription> {
         return dp.subscriptionStore.getSubscriptionsByParticipant(accountId)
     }
 
-    override fun getSubscriptionsToId(accountId: Long?): Collection<Subscription> {
+    override suspend fun getSubscriptionsToId(accountId: Long?): Collection<Subscription> {
         return dp.subscriptionStore.getSubscriptionsToId(accountId)
     }
 
-    override fun addSubscription(sender: Account, recipient: Account, id: Long, amountNQT: Long, startTimestamp: Int, frequency: Int) {
+    override suspend fun addSubscription(sender: Account, recipient: Account, id: Long, amountNQT: Long, startTimestamp: Int, frequency: Int) {
         val dbKey = subscriptionDbKeyFactory.newKey(id)
         val subscription = Subscription(sender.id, recipient.id, id, amountNQT, frequency, startTimestamp + frequency, dbKey)
 
@@ -53,8 +52,8 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         removeSubscriptions.forEach { this.removeSubscription(it) }
     }
 
-    override fun removeSubscription(id: Long) {
-        val subscription = subscriptionTable[subscriptionDbKeyFactory.newKey(id)]
+    override suspend fun removeSubscription(id: Long) {
+        val subscription = subscriptionTable.get(subscriptionDbKeyFactory.newKey(id))
         if (subscription != null) {
             subscriptionTable.delete(subscription)
         }

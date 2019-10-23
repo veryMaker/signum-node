@@ -14,7 +14,7 @@ import brs.http.common.ResultFields.ASSET_RESPONSE
 import brs.http.common.ResultFields.NAME_RESPONSE
 import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
 import brs.http.common.ResultFields.TRADES_RESPONSE
-import brs.util.JSON
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
@@ -77,9 +77,9 @@ class GetAllTradesTest : AbstractUnitTest() {
         val tradeAssetInfoResult = tradesResult.get(0) as JsonObject
         assertNotNull(tradeAssetInfoResult)
 
-        assertEquals("" + priceNQT, JSON.getAsString(tradeAssetInfoResult.get(PRICE_NQT_RESPONSE)))
-        assertEquals("" + mockAssetId, JSON.getAsString(tradeAssetInfoResult.get(ASSET_RESPONSE)))
-        assertEquals(mockAssetName, JSON.getAsString(tradeAssetInfoResult.get(NAME_RESPONSE)))
+        assertEquals("" + priceNQT, tradeAssetInfoResult.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockAssetId, tradeAssetInfoResult.get(ASSET_RESPONSE).safeGetAsString())
+        assertEquals(mockAssetName, tradeAssetInfoResult.get(NAME_RESPONSE).safeGetAsString())
     }
 
     @Test
@@ -116,9 +116,9 @@ class GetAllTradesTest : AbstractUnitTest() {
         val tradeAssetInfoResult = tradesResult.get(0) as JsonObject
         assertNotNull(tradeAssetInfoResult)
 
-        assertEquals("" + priceNQT, JSON.getAsString(tradeAssetInfoResult.get(PRICE_NQT_RESPONSE)))
-        assertEquals("" + mockAssetId, JSON.getAsString(tradeAssetInfoResult.get(ASSET_RESPONSE)))
-        assertEquals("", JSON.getAsString(tradeAssetInfoResult.get(NAME_RESPONSE)))
+        assertEquals("" + priceNQT, tradeAssetInfoResult.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockAssetId, tradeAssetInfoResult.get(ASSET_RESPONSE).safeGetAsString())
+        assertEquals(null, tradeAssetInfoResult.get(NAME_RESPONSE).safeGetAsString())
 
         verify(mockAssetExchange, never()).getAsset(eq(mockAssetId))
     }

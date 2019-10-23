@@ -18,7 +18,7 @@ class DigitalGoodsPriceChange(dp: DependencyProvider) : DigitalGoods(dp) {
         dp.digitalGoodsStoreService.changePrice(attachment.goodsId, attachment.priceNQT)
     }
 
-    override fun doValidateAttachment(transaction: Transaction) {
+    override suspend fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsPriceChange
         val goods = dp.digitalGoodsStoreService.getGoods(attachment.goodsId)
         if (attachment.priceNQT <= 0 || attachment.priceNQT > Constants.MAX_BALANCE_NQT

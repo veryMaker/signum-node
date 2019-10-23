@@ -8,65 +8,61 @@ import org.jooq.*
 import org.jooq.impl.TableImpl
 
 abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: DbKey.Factory<T>, private val tClass: Class<T>, private val dp: DependencyProvider) : VersionedEntitySqlTable<T>(table, tableClass, dbKeyFactory, dp), VersionedBatchEntityTable<T> {
-    override val count: Int
-        get() {
-            assertInTransaction()
-            return super.count
-        }
-
-    override val rowCount: Int
-        get() {
-            assertInTransaction()
-            return super.rowCount
-        }
-
-    override val batch: MutableMap<BurstKey, T>
-        get() = dp.db.getBatch(table)
-
-    override val cache: Cache<BurstKey, T>
-        get() = dp.dbCacheManager.getCache(table, tClass)!!
-
-    private fun assertInTransaction() {
-        check(!dp.db.isInTransaction) { "Cannot use in batch table transaction" }
+    override suspend fun getCount(): Int {
+        assertInTransaction()
+        return super.getCount()
     }
 
-    private fun assertNotInTransaction() {
-        check(dp.db.isInTransaction) { "Not in transaction" }
+    override suspend fun getRowCount(): Int {
+        assertInTransaction()
+        return super.getRowCount()
+    }
+
+    override suspend fun getBatch(): MutableMap<BurstKey, T> = dp.db.getBatch(table)
+
+    override suspend fun cache(): Cache<BurstKey, T> = dp.dbCacheManager.getCache(table, tClass)!!
+
+    private suspend fun assertInTransaction() {
+        check(!dp.db.isInTransaction()) { "Cannot use in batch table transaction" }
+    }
+
+    private suspend fun assertNotInTransaction() {
+        check(dp.db.isInTransaction()) { "Not in transaction" }
     }
 
     protected abstract fun bulkInsert(ctx: DSLContext, t: Collection<T>)
 
-    override fun delete(t: T): Boolean {
+    override suspend fun delete(t: T): Boolean {
         assertNotInTransaction()
         val dbKey = dbKeyFactory.newKey(t) as DbKey
-        cache.remove(dbKey)
-        batch.remove(dbKey)
+        cache().remove(dbKey)
+        getBatch().remove(dbKey)
         return true
     }
 
-    override fun get(dbKey: BurstKey): T? {
-        if (cache.containsKey(dbKey)) {
-            return cache.get(dbKey)
-        } else if (dp.db.isInTransaction && batch.containsKey(dbKey)) {
-            return batch[dbKey]
+    override suspend fun get(dbKey: BurstKey): T? {
+        if (cache().containsKey(dbKey)) {
+            return cache().get(dbKey)
+        } else if (dp.db.isInTransaction() && getBatch().containsKey(dbKey)) {
+            return getBatch()[dbKey]
         }
         val item = super.get(dbKey)
         if (item != null) {
-            cache.put(dbKey, item)
+            cache().put(dbKey, item)
         }
         return item
     }
 
-    override fun insert(t: T) {
+    override suspend fun insert(t: T) {
         assertNotInTransaction()
         val key = dbKeyFactory.newKey(t)
-        batch[key] = t
-        cache.put(key, t)
+        getBatch()[key] = t
+        cache().put(key, t)
     }
 
-    override fun finish() {
+    override suspend fun finish() {
         assertNotInTransaction()
-        val keySet = batch.keys
+        val keySet = getBatch().keys
         if (keySet.isEmpty()) {
             return
         }
@@ -90,82 +86,82 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
                 updateBatch.bind(bindArgs)
             }
             updateBatch.execute()
-            bulkInsert(ctx, batch.values)
-            batch.clear()
+            bulkInsert(ctx, getBatch().values)
+            getBatch().clear()
         }
     }
 
-    override fun get(dbKey: BurstKey, height: Int): T? {
+    override suspend fun get(dbKey: BurstKey, height: Int): T? {
         assertInTransaction()
         return super.get(dbKey, height)
     }
 
-    override fun getBy(condition: Condition): T? {
+    override suspend fun getBy(condition: Condition): T? {
         assertInTransaction()
         return super.getBy(condition)
     }
 
-    override fun getBy(condition: Condition, height: Int): T? {
+    override suspend fun getBy(condition: Condition, height: Int): T? {
         assertInTransaction()
         return super.getBy(condition, height)
     }
 
-    override fun getManyBy(condition: Condition, from: Int, to: Int): Collection<T> {
+    override suspend fun getManyBy(condition: Condition, from: Int, to: Int): Collection<T> {
         assertInTransaction()
         return super.getManyBy(condition, from, to)
     }
 
-    override fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
+    override suspend fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         assertInTransaction()
         return super.getManyBy(condition, from, to, sort)
     }
 
-    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int): Collection<T> {
+    override suspend fun getManyBy(condition: Condition, height: Int, from: Int, to: Int): Collection<T> {
         assertInTransaction()
         return super.getManyBy(condition, height, from, to)
     }
 
-    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
+    override suspend fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         assertInTransaction()
         return super.getManyBy(condition, height, from, to, sort)
     }
 
-    override fun getManyBy(ctx: DSLContext, query: SelectQuery<out Record>, cache: Boolean): Collection<T> {
+    override suspend fun getManyBy(ctx: DSLContext, query: SelectQuery<out Record>, cache: Boolean): Collection<T> {
         assertInTransaction()
         return super.getManyBy(ctx, query, cache)
     }
 
-    override fun getAll(from: Int, to: Int): Collection<T> {
+    override suspend fun getAll(from: Int, to: Int): Collection<T> {
         assertInTransaction()
         return super.getAll(from, to)
     }
 
-    override fun getAll(from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
+    override suspend fun getAll(from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         assertInTransaction()
         return super.getAll(from, to, sort)
     }
 
-    override fun getAll(height: Int, from: Int, to: Int): Collection<T> {
+    override suspend fun getAll(height: Int, from: Int, to: Int): Collection<T> {
         assertInTransaction()
         return super.getAll(height, from, to)
     }
 
-    override fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
+    override suspend fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         assertInTransaction()
         return super.getAll(height, from, to, sort)
     }
 
-    override fun rollback(height: Int) {
+    override suspend fun rollback(height: Int) {
         super.rollback(height)
-        batch.clear()
+        getBatch().clear()
     }
 
-    override fun truncate() {
+    override suspend fun truncate() {
         super.truncate()
-        batch.clear()
+        getBatch().clear()
     }
 
-    override fun flushCache() {
-        cache.clear()
+    override suspend fun flushCache() {
+        cache().clear()
     }
 }

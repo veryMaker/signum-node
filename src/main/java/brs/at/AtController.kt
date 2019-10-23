@@ -22,7 +22,7 @@ class AtController(private val dp: DependencyProvider) {
     private val costOfOneAT: Int
         get() = AtConstants.AT_ID_SIZE + 16
 
-    private fun runSteps(state: AtMachineState): Int {
+    private suspend fun runSteps(state: AtMachineState): Int {
         state.machineState.running = true
         state.machineState.stopped = false
         state.machineState.finished = false
@@ -85,12 +85,12 @@ class AtController(private val dp: DependencyProvider) {
         return if (op in 0x32..55) dp.atConstants.apiStepMultiplier(height).toInt() else 1
     }
 
-    fun resetMachine(state: AtMachineState) {
+    suspend fun resetMachine(state: AtMachineState) {
         state.machineState.reset()
         listCode(state, disassembly = true, determineJumps = true)
     }
 
-    private fun listCode(state: AtMachineState, disassembly: Boolean, determineJumps: Boolean) {
+    private suspend fun listCode(state: AtMachineState, disassembly: Boolean, determineJumps: Boolean) {
 
         val machineProcessor = AtMachineProcessor(dp, state, dp.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
 
@@ -205,7 +205,7 @@ class AtController(private val dp: DependencyProvider) {
         return codeLen
     }
 
-    fun getCurrentBlockATs(freePayload: Int, blockHeight: Int): AtBlock {
+    suspend fun getCurrentBlockATs(freePayload: Int, blockHeight: Int): AtBlock {
         val orderedATs = AT.getOrderedATs(dp)
         val keys = orderedATs.iterator()
 
@@ -270,7 +270,7 @@ class AtController(private val dp: DependencyProvider) {
         return AtBlock(totalFee, totalAmount, bytesForBlock)
     }
 
-    fun validateATs(blockATs: ByteArray, blockHeight: Int): AtBlock {
+    suspend fun validateATs(blockATs: ByteArray?, blockHeight: Int): AtBlock {
         val ats = getATsFromBlock(blockATs)
 
         val processedATs = mutableListOf<AT>()
@@ -343,7 +343,10 @@ class AtController(private val dp: DependencyProvider) {
         return AtBlock(totalFee, totalAmount, ByteArray(1))
     }
 
-    private fun getATsFromBlock(blockATs: ByteArray): Map<ByteBuffer, ByteArray> {
+    private fun getATsFromBlock(blockATs: ByteArray?): Map<ByteBuffer, ByteArray> {
+        if (blockATs == null || blockATs.isEmpty()) {
+            return emptyMap()
+        }
         if (blockATs.isNotEmpty() && blockATs.size % costOfOneAT != 0) {
             throw AtException("blockATs size must be a multiple of cost of one AT ( $costOfOneAT )")
         }
@@ -413,7 +416,7 @@ class AtController(private val dp: DependencyProvider) {
     }
 
     //platform based
-    private fun getATAccountBalance(id: Long?): Long {
+    private suspend fun getATAccountBalance(id: Long?): Long {
         val atAccount = Account.getAccount(dp, id!!)
         return atAccount?.balanceNQT ?: 0
     }

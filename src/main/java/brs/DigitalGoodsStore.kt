@@ -5,6 +5,7 @@ import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.db.VersionedValuesTable
 import brs.util.delegates.AtomicLazy
+import kotlinx.coroutines.runBlocking
 
 object DigitalGoodsStore {
     enum class Event {
@@ -100,7 +101,9 @@ object DigitalGoodsStore {
         var refundNote: EncryptedData? = null
         private var hasFeedbackNotes: Boolean = false
         var feedbackNotes by AtomicLazy {
-            if (!hasFeedbackNotes) null else feedbackTable(dp)[feedbackDbKeyFactory(dp).newKey(this)].toMutableList()
+            runBlocking {
+                if (!hasFeedbackNotes) null else feedbackTable(dp).get(feedbackDbKeyFactory(dp).newKey(this@Purchase)).toMutableList()
+            }
         }
         private var hasPublicFeedbacks: Boolean = false
         var publicFeedbacks: MutableList<String>? = null
@@ -108,17 +111,15 @@ object DigitalGoodsStore {
         var discountNQT: Long = 0
         var refundNQT: Long = 0
 
-        val name: String?
-            get() = getGoods(dp, goodsId)!!.name
+        suspend fun getName() = getGoods(dp, goodsId)!!.name
 
-        val publicFeedback: List<String>?
-            get() {
-                if (!hasPublicFeedbacks) {
-                    return emptyList()
-                }
-                publicFeedbacks = publicFeedbackTable(dp)[publicFeedbackDbKeyFactory(dp).newKey(this)].toMutableList()
-                return publicFeedbacks
+        suspend fun getPublicFeedback(): List<String>?  {
+            if (!hasPublicFeedbacks) {
+                return emptyList()
             }
+            publicFeedbacks = publicFeedbackTable(dp).get(publicFeedbackDbKeyFactory(dp).newKey(this)).toMutableList()
+            return publicFeedbacks
+        }
 
         private fun purchaseDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<Purchase> {
             return dp.digitalGoodsStoreStore.purchaseDbKeyFactory
@@ -202,7 +203,7 @@ object DigitalGoodsStore {
         }
     }
 
-    private fun getGoods(dp: DependencyProvider, goodsId: Long): Goods? {
-        return Goods.goodsTable(dp)[Goods.goodsDbKeyFactory(dp).newKey(goodsId)]
+    private suspend fun getGoods(dp: DependencyProvider, goodsId: Long): Goods? {
+        return Goods.goodsTable(dp).get(Goods.goodsDbKeyFactory(dp).newKey(goodsId))
     }
 }

@@ -21,10 +21,6 @@ fun String?.emptyToNull(): String? {
     return if (this.isNullOrEmpty()) null else this
 }
 
-fun String?.nullToEmpty(): String {
-    return this ?: ""
-}
-
 fun Long?.nullToZero(): Long {
     return this ?: 0
 }

@@ -17,7 +17,7 @@ import brs.http.common.ResultFields.NAME_RESPONSE
 import brs.http.common.ResultFields.TRANSFERS_RESPONSE
 import brs.services.AccountService
 import brs.services.ParameterService
-import brs.util.JSON
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -29,7 +29,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class GetAssetTransfersTest : AbstractUnitTest() {
 
@@ -146,8 +145,8 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         assertEquals(1, resultList.size().toLong())
 
         val transferInfoResult = resultList.get(0) as JsonObject
-        assertEquals("" + assetId, JSON.getAsString(transferInfoResult.get(ASSET_RESPONSE)))
-        assertEquals(mockAsset.name, JSON.getAsString(transferInfoResult.get(NAME_RESPONSE)))
+        assertEquals("" + assetId, transferInfoResult.get(ASSET_RESPONSE).safeGetAsString())
+        assertEquals(mockAsset.name, transferInfoResult.get(NAME_RESPONSE).safeGetAsString())
     }
 
 }

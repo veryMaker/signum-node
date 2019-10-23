@@ -17,7 +17,7 @@ class MultiOutSamePayment(dp: DependencyProvider) : Payment(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.PaymentMultiSameOutCreation(dp, attachmentData)
 
-    override fun validateAttachment(transaction: Transaction) {
+    override suspend fun validateAttachment(transaction: Transaction) {
         if (!dp.fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, transaction.height)) {
             throw BurstException.NotCurrentlyValidException("Multi Same Out Payments are not allowed before the Pre Dymaxion block")
         }

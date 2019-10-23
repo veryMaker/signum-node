@@ -11,7 +11,7 @@ import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.http.common.ResultFields.BLOCK_IDS_RESPONSE
 import brs.services.ParameterService
-import brs.util.JSON
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -68,6 +68,6 @@ class GetAccountBlockIdsTest : AbstractUnitTest() {
         val blockIds = result.get(BLOCK_IDS_RESPONSE) as JsonArray
         assertNotNull(blockIds)
         assertEquals(1, blockIds.size().toLong())
-        assertEquals(mockBlockStringId, JSON.getAsString(blockIds.get(0)))
+        assertEquals(mockBlockStringId, blockIds.get(0).safeGetAsString())
     }
 }

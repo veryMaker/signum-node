@@ -17,7 +17,7 @@ class AutomatedTransactionCreation(dp: DependencyProvider) : AutomatedTransactio
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.AutomatedTransactionsCreation(dp, attachmentData)
 
-    override fun doValidateAttachment(transaction: Transaction) {
+    override suspend fun doValidateAttachment(transaction: Transaction) {
         if (!dp.fluxCapacitor.getValue(
                 FluxValues.AUTOMATED_TRANSACTION_BLOCK,
                 dp.blockchain.lastBlock.height

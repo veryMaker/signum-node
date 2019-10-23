@@ -48,7 +48,7 @@ class DigitalGoodsRefund(dp: DependencyProvider) : DigitalGoods(dp) {
         )
     }
 
-    override fun doValidateAttachment(transaction: Transaction) {
+    override suspend fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsRefund
         val purchase = dp.digitalGoodsStoreService.getPurchase(attachment.purchaseId)
         if (attachment.refundNQT < 0 || attachment.refundNQT > Constants.MAX_BALANCE_NQT

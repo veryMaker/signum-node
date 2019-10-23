@@ -68,7 +68,7 @@ class EscrowServiceImplTest {
         val mockEscrow = mock<Escrow>()
 
         whenever(mockEscrowDbKeyFactory.newKey(eq(escrowId))).doReturn(mockEscrowKey)
-        whenever(mockEscrowTable[eq(mockEscrowKey)]).doReturn(mockEscrow)
+        whenever(mockEscrowTable.get(eq(mockEscrowKey))).doReturn(mockEscrow)
 
         assertEquals(mockEscrow, t.getEscrowTransaction(escrowId))
     }

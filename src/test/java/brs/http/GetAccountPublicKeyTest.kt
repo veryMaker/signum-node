@@ -6,6 +6,7 @@ import brs.common.TestConstants
 import brs.http.common.ResultFields.PUBLIC_KEY_RESPONSE
 import brs.services.ParameterService
 import brs.util.JSON
+import brs.util.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -16,7 +17,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class GetAccountPublicKeyTest {
 
@@ -43,7 +43,7 @@ class GetAccountPublicKeyTest {
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
-        assertEquals(TestConstants.TEST_PUBLIC_KEY, JSON.getAsString(result.get(PUBLIC_KEY_RESPONSE)))
+        assertEquals(TestConstants.TEST_PUBLIC_KEY, result.get(PUBLIC_KEY_RESPONSE).safeGetAsString())
     }
 
     @Test

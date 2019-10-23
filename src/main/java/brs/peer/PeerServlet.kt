@@ -81,7 +81,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
             }
 
             val cis = CountingInputStream(request.inputStream)
-            val jsonRequest = InputStreamReader(cis, StandardCharsets.UTF_8).use { reader -> JSON.getAsJsonObject(reader.parseJson()) }
+            val jsonRequest = InputStreamReader(cis, StandardCharsets.UTF_8).use { reader -> reader.parseJson().mustGetAsJsonObject("request") }
             if (jsonRequest.isEmpty()) {
                 return
             }
@@ -94,23 +94,21 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
             }
             peer.updateDownloadedVolume(cis.count)
 
-            if (jsonRequest.get(PROTOCOL) != null && JSON.getAsString(jsonRequest.get(PROTOCOL)) == "B1") {
-                requestType = "" + JSON.getAsString(jsonRequest.get("requestType"))
-                val peerRequestHandler = peerRequestHandlers[JSON.getAsString(jsonRequest.get("requestType"))]
+            if (jsonRequest.get(PROTOCOL) != null && jsonRequest.get(PROTOCOL).safeGetAsString() == "B1") {
+                requestType = jsonRequest.get("requestType").mustGetAsString("requestType")
+                val peerRequestHandler = peerRequestHandlers[requestType]
                 if (peerRequestHandler != null) {
                     if (peerRequestHandler is ExtendedPeerRequestHandler) {
                         extendedProcessRequest = peerRequestHandler.extendedProcessRequest(jsonRequest, peer)
                         response = extendedProcessRequest.response
                     } else {
-                        response = runBlocking { // TODO
-                            peerRequestHandler.processRequest(jsonRequest, peer)
-                        }
+                        response = peerRequestHandler.processRequest(jsonRequest, peer)
                     }
                 } else {
                     response = UNSUPPORTED_REQUEST_TYPE
                 }
             } else {
-                logger.safeDebug { "Unsupported protocol ${JSON.getAsString(jsonRequest.get(PROTOCOL))}" }
+                logger.safeDebug { "Unsupported protocol ${jsonRequest.get(PROTOCOL).safeGetAsString()}" }
                 response = UNSUPPORTED_PROTOCOL
             }
 
@@ -124,7 +122,6 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
         resp.contentType = "text/plain; charset=UTF-8"
         try {
             val byteCount: Long
-
             val cos = CountingOutputStream(resp.outputStream)
             OutputStreamWriter(cos, StandardCharsets.UTF_8).use { writer -> response.writeTo(writer) }
             byteCount = cos.count

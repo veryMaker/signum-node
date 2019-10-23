@@ -1,7 +1,7 @@
 package brs.peer
 
 import brs.Blockchain
-import brs.util.JSON
+import brs.util.mustGetAsInt
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -9,11 +9,11 @@ import com.google.gson.JsonObject
 internal class GetBlocksFromHeight(private val blockchain: Blockchain) : PeerServlet.PeerRequestHandler {
     override suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         val response = JsonObject()
-        var blockHeight = JSON.getAsInt(request.get("height"))
+        var blockHeight = request.get("height").mustGetAsInt("numBlocks")
         var numBlocks = 100
 
         try {
-            numBlocks = JSON.getAsInt(request.get("numBlocks"))
+            numBlocks = request.get("numBlocks").mustGetAsInt("numBlocks")
         } catch (ignored: Exception) {
         }
 
@@ -29,7 +29,7 @@ internal class GetBlocksFromHeight(private val blockchain: Blockchain) : PeerSer
         val blocks = blockchain.getBlocksAfter(blockId, numBlocks)
         val nextBlocksArray = JsonArray()
         for (nextBlock in blocks) {
-            nextBlocksArray.add(nextBlock.jsonObject)
+            nextBlocksArray.add(nextBlock.toJsonObject())
         }
         response.add("nextBlocks", nextBlocksArray)
         return response

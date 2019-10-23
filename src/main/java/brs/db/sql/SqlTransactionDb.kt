@@ -9,40 +9,41 @@ import brs.schema.Tables.TRANSACTION
 import brs.schema.tables.records.TransactionRecord
 import brs.transaction.TransactionType
 import brs.util.convert.toUnsignedString
+import brs.util.db.fetchAndMap
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
 
 class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
 
-    override fun findTransaction(transactionId: Long): Transaction {
-        return dp.db.useDslContext<Transaction> { ctx ->
+    override suspend fun findTransaction(transactionId: Long): Transaction {
+        return dp.db.getUsingDslContext<Transaction> { ctx ->
             try {
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId)).fetchOne()
-                return@useDslContext loadTransaction(transactionRecord)
+                return@getUsingDslContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException("Transaction already in database, id = $transactionId, does not pass validation!", e)
             }
         }
     }
 
-    override fun findTransactionByFullHash(fullHash: ByteArray): Transaction {
-        return dp.db.useDslContext<Transaction> { ctx ->
+    override suspend fun findTransactionByFullHash(fullHash: ByteArray): Transaction {
+        return dp.db.getUsingDslContext<Transaction> { ctx ->
             try {
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash)).fetchOne()
-                return@useDslContext loadTransaction(transactionRecord)
+                return@getUsingDslContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException("Transaction already in database, full_hash = $fullHash, does not pass validation!", e)
             }
         }
     }
 
-    override fun hasTransaction(transactionId: Long): Boolean {
-        return dp.db.useDslContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId))) }
+    override suspend fun hasTransaction(transactionId: Long): Boolean {
+        return dp.db.getUsingDslContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId))) }
     }
 
-    override fun hasTransactionByFullHash(fullHash: ByteArray): Boolean {
-        return dp.db.useDslContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash))) }
+    override suspend fun hasTransactionByFullHash(fullHash: ByteArray): Boolean {
+        return dp.db.getUsingDslContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash))) }
     }
 
     override fun loadTransaction(tr: TransactionRecord): Transaction {
@@ -92,14 +93,14 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         return builder.build()
     }
 
-    override fun findBlockTransactions(blockId: Long): Collection<Transaction> {
-        return dp.db.useDslContext<List<Transaction>> { ctx ->
+    override suspend fun findBlockTransactions(blockId: Long): Collection<Transaction> {
+        return dp.db.getUsingDslContext<List<Transaction>> { ctx ->
             ctx.selectFrom(TRANSACTION)
                     .where(TRANSACTION.BLOCK_ID.eq(blockId))
                     .and(TRANSACTION.SIGNATURE.isNotNull)
-                    .fetch { record ->
+                    .fetchAndMap { record ->
                         try {
-                            return@fetch loadTransaction(record)
+                            return@fetchAndMap loadTransaction(record)
                         } catch (e: BurstException.ValidationException) {
                             throw RuntimeException("Transaction already in database for block_id = ${blockId.toUnsignedString()} does not pass validation!", e)
                         }
@@ -124,7 +125,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         }
     }
 
-    override fun saveTransactions(transactions: Collection<Transaction>) {
+    override suspend fun saveTransactions(transactions: Collection<Transaction>) {
         if (transactions.isNotEmpty()) {
             dp.db.useDslContext { ctx ->
                 val insertBatch = ctx.batch(
@@ -172,7 +173,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         }
     }
 
-    override fun optimize() {
+    override suspend fun optimize() {
         dp.db.optimizeTable(TRANSACTION.name)
     }
 }

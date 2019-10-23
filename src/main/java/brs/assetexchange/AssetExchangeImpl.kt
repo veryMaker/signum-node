@@ -15,20 +15,15 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
     private val assetService: AssetServiceImpl
     private val orderService: OrderServiceImpl
 
-    override val assetsCount: Int
-        get() = assetService.assetsCount
+    override suspend fun getAssetsCount() = assetService.getAssetsCount()
 
-    override val askCount: Int
-        get() = orderService.askCount
+    override suspend fun getAskCount() = orderService.getAskCount()
 
-    override val bidCount: Int
-        get() = orderService.bidCount
+    override suspend fun getBidCount() = orderService.getBidCount()
 
-    override val tradesCount: Int
-        get() = tradeService.count
+    override suspend fun getTradesCount() = tradeService.getCount()
 
-    override val assetTransferCount: Int
-        get() = assetTransferService.assetTransferCount
+    override suspend fun getAssetTransferCount() = assetTransferService.getAssetTransferCount()
 
 
     init {
@@ -36,23 +31,23 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
         this.orderService = OrderServiceImpl(dp, tradeService)
     }
 
-    override fun getAllAssets(from: Int, to: Int): Collection<Asset> {
+    override suspend fun getAllAssets(from: Int, to: Int): Collection<Asset> {
         return assetService.getAllAssets(from, to)
     }
 
-    override fun getAsset(assetId: Long): Asset? {
+    override suspend fun getAsset(assetId: Long): Asset? {
         return assetService.getAsset(assetId)
     }
 
-    override fun getTradeCount(assetId: Long): Int {
+    override suspend fun getTradeCount(assetId: Long): Int {
         return tradeService.getTradeCount(assetId)
     }
 
-    override fun getTransferCount(assetId: Long): Int {
+    override suspend fun getTransferCount(assetId: Long): Int {
         return assetTransferService.getTransferCount(assetId)
     }
 
-    override fun getAssetAccountsCount(assetId: Long): Int {
+    override suspend fun getAssetAccountsCount(assetId: Long): Int {
         return assetAccountService.getAssetAccountsCount(assetId)
     }
 
@@ -60,11 +55,11 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
         tradeService.addListener(eventType, listener)
     }
 
-    override fun getAskOrder(orderId: Long): Ask? {
+    override suspend fun getAskOrder(orderId: Long): Ask? {
         return orderService.getAskOrder(orderId)
     }
 
-    override fun addAsset(transaction: Transaction, attachment: ColoredCoinsAssetIssuance) {
+    override suspend fun addAsset(transaction: Transaction, attachment: ColoredCoinsAssetIssuance) {
         assetService.addAsset(transaction, attachment)
     }
 
@@ -80,79 +75,79 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
         orderService.addBidOrder(transaction, attachment)
     }
 
-    override fun removeAskOrder(orderId: Long) {
+    override suspend fun removeAskOrder(orderId: Long) {
         orderService.removeAskOrder(orderId)
     }
 
-    override fun getBidOrder(orderId: Long): Bid? {
+    override suspend fun getBidOrder(orderId: Long): Bid? {
         return orderService.getBidOrder(orderId)
     }
 
-    override fun removeBidOrder(orderId: Long) {
+    override suspend fun removeBidOrder(orderId: Long) {
         orderService.removeBidOrder(orderId)
     }
 
-    override fun getAllTrades(from: Int, to: Int): Collection<Trade> {
+    override suspend fun getAllTrades(from: Int, to: Int): Collection<Trade> {
         return tradeService.getAllTrades(from, to)
     }
 
-    override fun getTrades(assetId: Long, from: Int, to: Int): Collection<Trade> {
+    override suspend fun getTrades(assetId: Long, from: Int, to: Int): Collection<Trade> {
         return assetService.getTrades(assetId, from, to)
     }
 
-    override fun getAccountTrades(id: Long, from: Int, to: Int): Collection<Trade> {
+    override suspend fun getAccountTrades(id: Long, from: Int, to: Int): Collection<Trade> {
         return tradeService.getAccountTrades(id, from, to)
     }
 
-    override fun getAccountAssetTrades(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Trade> {
+    override suspend fun getAccountAssetTrades(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Trade> {
         return tradeService.getAccountAssetTrades(accountId, assetId, from, to)
     }
 
-    override fun getAccountAssetsOverview(id: Long, height: Int, from: Int, to: Int): Collection<AccountAsset> {
+    override suspend fun getAccountAssetsOverview(id: Long, height: Int, from: Int, to: Int): Collection<AccountAsset> {
         return assetAccountService.getAssetAccounts(id, height, from, to)
     }
 
-    override fun getAssetsIssuedBy(accountId: Long, from: Int, to: Int): Collection<Asset> {
+    override suspend fun getAssetsIssuedBy(accountId: Long, from: Int, to: Int): Collection<Asset> {
         return assetService.getAssetsIssuedBy(accountId, from, to)
     }
 
-    override fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
+    override suspend fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
         return assetTransferService.getAssetTransfers(assetId, from, to)
     }
 
-    override fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
+    override suspend fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
         return assetTransferService.getAccountAssetTransfers(accountId, assetId, from, to)
     }
 
-    override fun getAskOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Ask> {
+    override suspend fun getAskOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Ask> {
         return orderService.getAskOrdersByAccount(accountId, from, to)
     }
 
-    override fun getAskOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Ask> {
+    override suspend fun getAskOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Ask> {
         return orderService.getAskOrdersByAccountAsset(accountId, assetId, from, to)
     }
 
-    override fun getBidOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Bid> {
+    override suspend fun getBidOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Bid> {
         return orderService.getBidOrdersByAccount(accountId, from, to)
     }
 
-    override fun getBidOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Bid> {
+    override suspend fun getBidOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Bid> {
         return orderService.getBidOrdersByAccountAsset(accountId, assetId, from, to)
     }
 
-    override fun getAllAskOrders(from: Int, to: Int): Collection<Ask> {
+    override suspend fun getAllAskOrders(from: Int, to: Int): Collection<Ask> {
         return orderService.getAllAskOrders(from, to)
     }
 
-    override fun getAllBidOrders(from: Int, to: Int): Collection<Bid> {
+    override suspend fun getAllBidOrders(from: Int, to: Int): Collection<Bid> {
         return orderService.getAllBidOrders(from, to)
     }
 
-    override fun getSortedAskOrders(assetId: Long, from: Int, to: Int): Collection<Ask> {
+    override suspend fun getSortedAskOrders(assetId: Long, from: Int, to: Int): Collection<Ask> {
         return orderService.getSortedAskOrders(assetId, from, to)
     }
 
-    override fun getSortedBidOrders(assetId: Long, from: Int, to: Int): Collection<Bid> {
+    override suspend fun getSortedBidOrders(assetId: Long, from: Int, to: Int): Collection<Bid> {
         return orderService.getSortedBidOrders(assetId, from, to)
     }
 }

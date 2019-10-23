@@ -12,7 +12,7 @@ import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.ASK_ORDER_IDS_RESPONSE
 import brs.services.ParameterService
-import brs.util.JSON
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -24,7 +24,6 @@ import junit.framework.TestCase.assertNotNull
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
 
@@ -72,7 +71,7 @@ class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
         assertNotNull(resultList)
         assertEquals(1, resultList.size())
 
-        assertEquals("" + mockAsk.id, JSON.getAsString(resultList.get(0)))
+        assertEquals("" + mockAsk.id, resultList.get(0).safeGetAsString())
     }
 
     @Test
@@ -108,7 +107,7 @@ class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
         assertNotNull(resultList)
         assertEquals(1, resultList.size())
 
-        assertEquals("" + mockAsk.id, JSON.getAsString(resultList.get(0)))
+        assertEquals("" + mockAsk.id, resultList.get(0).safeGetAsString())
     }
 
 }

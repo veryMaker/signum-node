@@ -11,7 +11,7 @@ import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.ResultFields.BID_ORDERS_RESPONSE
 import brs.http.common.ResultFields.ORDER_RESPONSE
 import brs.services.ParameterService
-import brs.util.JSON
+import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -72,7 +72,7 @@ class GetBidOrdersTest : AbstractUnitTest() {
         val resultBidOrder = resultBidOrdersList.get(0) as JsonObject
         assertNotNull(resultBidOrder)
 
-        assertEquals("" + mockOrderId, JSON.getAsString(resultBidOrder.get(ORDER_RESPONSE)))
+        assertEquals("" + mockOrderId, resultBidOrder.get(ORDER_RESPONSE).safeGetAsString())
     }
 
 }

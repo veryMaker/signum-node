@@ -11,31 +11,31 @@ import brs.Trade.Event
 import brs.Transaction
 
 interface AssetExchange {
-    val assetsCount: Int
+    suspend fun getAssetsCount(): Int
 
-    val askCount: Int
+    suspend fun getAskCount(): Int
 
-    val bidCount: Int
+    suspend fun getBidCount(): Int
 
-    val tradesCount: Int
+    suspend fun getTradesCount(): Int
 
-    val assetTransferCount: Int
+    suspend fun getAssetTransferCount(): Int
 
-    fun getAllAssets(from: Int, to: Int): Collection<Asset>
+    suspend fun getAllAssets(from: Int, to: Int): Collection<Asset>
 
-    fun getAsset(assetId: Long): Asset?
+    suspend fun getAsset(assetId: Long): Asset?
 
-    fun getTradeCount(assetId: Long): Int
+    suspend fun getTradeCount(assetId: Long): Int
 
-    fun getTransferCount(assetId: Long): Int
+    suspend fun getTransferCount(assetId: Long): Int
 
-    fun getAssetAccountsCount(assetId: Long): Int
+    suspend fun getAssetAccountsCount(assetId: Long): Int
 
     suspend fun addTradeListener(eventType: Event, listener: suspend (Trade) -> Unit)
 
-    fun getAskOrder(orderId: Long): Ask?
+    suspend fun getAskOrder(orderId: Long): Ask?
 
-    fun addAsset(transaction: Transaction, attachment: ColoredCoinsAssetIssuance)
+    suspend fun addAsset(transaction: Transaction, attachment: ColoredCoinsAssetIssuance)
 
     suspend fun addAssetTransfer(transaction: Transaction, attachment: ColoredCoinsAssetTransfer)
 
@@ -43,41 +43,41 @@ interface AssetExchange {
 
     suspend fun addBidOrder(transaction: Transaction, attachment: ColoredCoinsBidOrderPlacement)
 
-    fun removeAskOrder(orderId: Long)
+    suspend fun removeAskOrder(orderId: Long)
 
-    fun getBidOrder(orderId: Long): Bid?
+    suspend fun getBidOrder(orderId: Long): Bid?
 
-    fun removeBidOrder(orderId: Long)
+    suspend fun removeBidOrder(orderId: Long)
 
-    fun getAllTrades(i: Int, i1: Int): Collection<Trade>
+    suspend fun getAllTrades(i: Int, i1: Int): Collection<Trade>
 
-    fun getTrades(assetId: Long, from: Int, to: Int): Collection<Trade>
+    suspend fun getTrades(assetId: Long, from: Int, to: Int): Collection<Trade>
 
-    fun getAccountTrades(accountId: Long, from: Int, to: Int): Collection<Trade>
+    suspend fun getAccountTrades(accountId: Long, from: Int, to: Int): Collection<Trade>
 
-    fun getAccountAssetTrades(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Trade>
+    suspend fun getAccountAssetTrades(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Trade>
 
-    fun getAccountAssetsOverview(accountId: Long, height: Int, from: Int, to: Int): Collection<AccountAsset>
+    suspend fun getAccountAssetsOverview(accountId: Long, height: Int, from: Int, to: Int): Collection<AccountAsset>
 
-    fun getAssetsIssuedBy(accountId: Long, from: Int, to: Int): Collection<Asset>
+    suspend fun getAssetsIssuedBy(accountId: Long, from: Int, to: Int): Collection<Asset>
 
-    fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer>
+    suspend fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer>
 
-    fun getAccountAssetTransfers(id: Long, id1: Long, from: Int, to: Int): Collection<AssetTransfer>
+    suspend fun getAccountAssetTransfers(id: Long, id1: Long, from: Int, to: Int): Collection<AssetTransfer>
 
-    fun getAskOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Ask>
+    suspend fun getAskOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Ask>
 
-    fun getAskOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Ask>
+    suspend fun getAskOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Ask>
 
-    fun getBidOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Bid>
+    suspend fun getBidOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Bid>
 
-    fun getBidOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Bid>
+    suspend fun getBidOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Bid>
 
-    fun getAllAskOrders(from: Int, to: Int): Collection<Ask>
+    suspend fun getAllAskOrders(from: Int, to: Int): Collection<Ask>
 
-    fun getAllBidOrders(from: Int, to: Int): Collection<Bid>
+    suspend fun getAllBidOrders(from: Int, to: Int): Collection<Bid>
 
-    fun getSortedAskOrders(assetId: Long, from: Int, to: Int): Collection<Ask>
+    suspend fun getSortedAskOrders(assetId: Long, from: Int, to: Int): Collection<Ask>
 
-    fun getSortedBidOrders(assetId: Long, from: Int, to: Int): Collection<Bid>
+    suspend fun getSortedBidOrders(assetId: Long, from: Int, to: Int): Collection<Bid>
 }

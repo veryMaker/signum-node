@@ -194,7 +194,7 @@ object JSONData {
         return json
     }
 
-    internal fun block(block: Block, includeTransactions: Boolean, currentBlockchainHeight: Int, blockReward: Long, scoopNum: Int): JsonObject {
+    internal suspend fun block(block: Block, includeTransactions: Boolean, currentBlockchainHeight: Int, blockReward: Long, scoopNum: Int): JsonObject {
         val json = JsonObject()
         json.addProperty(BLOCK_RESPONSE, block.stringId)
         json.addProperty(HEIGHT_RESPONSE, block.height)
@@ -203,7 +203,7 @@ object JSONData {
         json.addProperty(NONCE_RESPONSE, block.nonce.toUnsignedString())
         json.addProperty(SCOOP_NUM_RESPONSE, scoopNum)
         json.addProperty(TIMESTAMP_RESPONSE, block.timestamp)
-        json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, block.transactions.size)
+        json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, block.getTransactions().size)
         json.addProperty(TOTAL_AMOUNT_NQT_RESPONSE, block.totalAmountNQT.toString())
         json.addProperty(TOTAL_FEE_NQT_RESPONSE, block.totalFeeNQT.toString())
         json.addProperty(BLOCK_REWARD_RESPONSE, (blockReward / Constants.ONE_BURST).toUnsignedString())
@@ -229,7 +229,7 @@ object JSONData {
         json.addProperty(BLOCK_SIGNATURE_RESPONSE, block.blockSignature.toHexString())
 
         val transactions = JsonArray()
-        for (transaction in block.transactions) {
+        for (transaction in block.getTransactions()) {
             if (includeTransactions) {
                 transactions.add(transaction(transaction, currentBlockchainHeight))
             } else {
@@ -247,7 +247,7 @@ object JSONData {
         return json
     }
 
-    internal fun escrowTransaction(escrow: Escrow): JsonObject {
+    internal suspend fun escrowTransaction(escrow: Escrow): JsonObject {
         val json = JsonObject()
         json.addProperty(ID_RESPONSE, escrow.id.toUnsignedString())
         json.addProperty(SENDER_RESPONSE, escrow.senderId.toUnsignedString())
@@ -260,7 +260,7 @@ object JSONData {
         json.addProperty(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(escrow.deadlineAction))
 
         val signers = JsonArray()
-        for (decision in escrow.decisions) {
+        for (decision in escrow.getDecisions()) {
             if (decision.accountId == escrow.senderId || decision.accountId == escrow.recipientId) {
                 continue
             }
@@ -303,11 +303,11 @@ object JSONData {
         return json
     }
 
-    internal fun purchase(purchase: DigitalGoodsStore.Purchase): JsonObject {
+    internal suspend fun purchase(purchase: DigitalGoodsStore.Purchase): JsonObject {
         val json = JsonObject()
         json.addProperty(PURCHASE_RESPONSE, purchase.id.toUnsignedString())
         json.addProperty(GOODS_RESPONSE, purchase.goodsId.toUnsignedString())
-        json.addProperty(NAME_RESPONSE, purchase.name)
+        json.addProperty(NAME_RESPONSE, purchase.getName())
         putAccount(json, SELLER_RESPONSE, purchase.sellerId)
         json.addProperty(PRICE_NQT_RESPONSE, purchase.priceNQT.toString())
         json.addProperty(QUANTITY_RESPONSE, purchase.quantity)
@@ -329,9 +329,10 @@ object JSONData {
             }
             json.add(FEEDBACK_NOTES_RESPONSE, feedbacks)
         }
-        if (purchase.publicFeedback != null && purchase.publicFeedback!!.isNotEmpty()) {
+        val publicFeedback = purchase.getPublicFeedback()
+        if (publicFeedback != null && publicFeedback.isNotEmpty()) {
             val publicFeedbacks = JsonArray()
-            for (string in purchase.publicFeedback!!) {
+            for (string in publicFeedback) {
                 publicFeedbacks.add(string)
             }
             json.add(PUBLIC_FEEDBACKS_RESPONSE, publicFeedbacks)
@@ -476,7 +477,7 @@ object JSONData {
     }
 
     //TODO refactor the accountservice out of this :-)
-    internal fun at(at: AT, accountService: AccountService): JsonObject {
+    internal suspend fun at(at: AT, accountService: AccountService): JsonObject {
         val json = JsonObject()
         val bf = ByteBuffer.allocate(8)
         bf.order(ByteOrder.LITTLE_ENDIAN)

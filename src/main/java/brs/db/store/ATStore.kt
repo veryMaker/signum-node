@@ -5,9 +5,9 @@ import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 
 interface ATStore {
-    val orderedATs: List<Long>
+    suspend fun getOrderedATs(): List<Long>
 
-    val allATIds: Collection<Long>
+    suspend fun getAllATIds(): Collection<Long>
 
     val atDbKeyFactory: BurstKey.LongKeyFactory<AT>
 
@@ -17,13 +17,13 @@ interface ATStore {
 
     val atStateTable: VersionedEntityTable<AT.ATState>
 
-    fun isATAccountId(id: Long?): Boolean
+    suspend fun isATAccountId(id: Long?): Boolean
 
-    fun getAT(id: Long?): AT?
+    suspend fun getAT(id: Long?): AT?
 
-    fun getATsIssuedBy(accountId: Long?): List<Long>
+    suspend fun getATsIssuedBy(accountId: Long?): List<Long>
 
-    fun findTransaction(startHeight: Int, endHeight: Int, atID: Long?, numOfTx: Int, minAmount: Long): Long?
+    suspend fun findTransaction(startHeight: Int, endHeight: Int, atID: Long?, numOfTx: Int, minAmount: Long): Long?
 
-    fun findTransactionHeight(transactionId: Long?, height: Int, atID: Long?, minAmount: Long): Int
+    suspend fun findTransactionHeight(transactionId: Long?, height: Int, atID: Long?, minAmount: Long): Int
 }

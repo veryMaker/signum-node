@@ -14,6 +14,8 @@ import brs.services.TransactionService
 import brs.util.JSON
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
+import brs.util.safeGetAsLong
+import brs.util.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.runBlocking
@@ -62,8 +64,8 @@ class BroadcastTransactionTest {
 
         verify(transactionProcessorMock).broadcast(eq(mockTransaction))
 
-        assertEquals(mockTransactionStringId, JSON.getAsString(result.get(TRANSACTION_RESPONSE)))
-        assertEquals(mockTransactionFullHash.toHexString(), JSON.getAsString(result.get(FULL_HASH_RESPONSE)))
+        assertEquals(mockTransactionStringId, result.get(TRANSACTION_RESPONSE).safeGetAsString())
+        assertEquals(mockTransactionFullHash.toHexString(), result.get(FULL_HASH_RESPONSE).safeGetAsString())
     }
 
     @Test
@@ -83,7 +85,7 @@ class BroadcastTransactionTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(4, JSON.getAsInt(result.get(ERROR_CODE_RESPONSE)).toLong())
+        assertEquals(4L, result.get(ERROR_CODE_RESPONSE).safeGetAsLong())
         assertNotNull(result.get(ERROR_DESCRIPTION_RESPONSE))
     }
 

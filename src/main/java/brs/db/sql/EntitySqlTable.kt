@@ -3,6 +3,7 @@ package brs.db.sql
 import brs.DependencyProvider
 import brs.db.BurstKey
 import brs.db.EntityTable
+import brs.util.db.fetchAndMap
 import org.jooq.*
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
@@ -11,17 +12,14 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
     internal val dbKeyFactory = dbKeyFactory as DbKey.Factory<T>
     private val defaultSort: MutableList<SortField<*>> = mutableListOf()
 
-    private val cache: Map<BurstKey, T>
-        get() = dp.db.getCache(table)
+    private suspend fun getCache(): Map<BurstKey, T> = dp.db.getCache(table)
 
-    override val count: Int
-        get() = dp.db.useDslContext<Int> { ctx ->
-            val r = ctx.selectCount().from(tableClass)
-            (if (multiversion) r.where(latestField?.isTrue) else r).fetchOne(0, Int::class.javaPrimitiveType)
-        }
+    override suspend fun getCount() = dp.db.getUsingDslContext<Int> { ctx ->
+        val r = ctx.selectCount().from(tableClass)
+        (if (multiversion) r.where(latestField?.isTrue) else r).fetchOne(0, Int::class.javaPrimitiveType)
+    }
 
-    override val rowCount: Int
-        get() = dp.db.useDslContext<Int> { ctx -> ctx.selectCount().from(tableClass).fetchOne(0, Int::class.javaPrimitiveType) }
+    override suspend fun getRowCount() = dp.db.getUsingDslContext<Int> { ctx -> ctx.selectCount().from(tableClass).fetchOne(0, Int::class.javaPrimitiveType) }
 
     internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: BurstKey.Factory<T>, dp: DependencyProvider) : this(table, tableClass, dbKeyFactory, false, dp)
 
@@ -36,11 +34,11 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
 
     protected abstract fun load(ctx: DSLContext, record: Record): T
 
-    internal open fun save(ctx: DSLContext, t: T) {
+    internal open suspend fun save(ctx: DSLContext, t: T) {
         // TODO no no-op
     }
 
-    internal open fun save(ctx: DSLContext, ts: Array<T>) {
+    internal open suspend fun save(ctx: DSLContext, ts: Array<T>) {
         for (t in ts) {
             save(ctx, t)
         }
@@ -54,15 +52,15 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         require(!(multiversion && height < dp.blockchainProcessor.minRollbackHeight)) { "Historical data as of height $height not available, set brs.trimDerivedTables=false and re-scan" }
     }
 
-    override fun get(dbKey: BurstKey): T? {
+    override suspend fun get(dbKey: BurstKey): T? {
         val key = dbKey as DbKey
-        if (dp.db.isInTransaction) {
-            val t = cache[key]
+        if (dp.db.isInTransaction()) {
+            val t = getCache()[key]
             if (t != null) {
                 return t
             }
         }
-        return dp.db.useDslContext<T?> { ctx ->
+        return dp.db.getUsingDslContext<T?> { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             query.addConditions(key.getPKConditions(tableClass))
@@ -75,11 +73,11 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         }
     }
 
-    override fun get(dbKey: BurstKey, height: Int): T? {
+    override suspend fun get(dbKey: BurstKey, height: Int): T? {
         val key = dbKey as DbKey
         checkAvailable(height)
 
-        return dp.db.useDslContext<T?> { ctx ->
+        return dp.db.getUsingDslContext<T?> { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             query.addConditions(key.getPKConditions(tableClass))
@@ -98,8 +96,8 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         }
     }
 
-    override fun getBy(condition: Condition): T? {
-        return dp.db.useDslContext<T?> { ctx ->
+    override suspend fun getBy(condition: Condition): T? {
+        return dp.db.getUsingDslContext<T?> { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             query.addConditions(condition)
@@ -112,9 +110,9 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         }
     }
 
-    override fun getBy(condition: Condition, height: Int): T? {
+    override suspend fun getBy(condition: Condition, height: Int): T? {
         checkAvailable(height)
-        return dp.db.useDslContext<T?> { ctx ->
+        return dp.db.getUsingDslContext<T?> { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             query.addConditions(condition)
@@ -132,14 +130,14 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         }
     }
 
-    private operator fun get(ctx: DSLContext, query: SelectQuery<Record>, cache: Boolean): T? {
-        val doCache = cache && dp.db.isInTransaction
+    private suspend fun get(ctx: DSLContext, query: SelectQuery<Record>, cache: Boolean): T? {
+        val doCache = cache && dp.db.isInTransaction()
         val record = query.fetchOne() ?: return null
         var t: T? = null
         var dbKey: DbKey? = null
         if (doCache) {
             dbKey = dbKeyFactory.newKey(record) as DbKey
-            t = this.cache[dbKey]
+            t = this.getCache()[dbKey]
         }
         return if (t == null) {
             t = load(ctx, record)
@@ -152,12 +150,12 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         }
     }
 
-    override fun getManyBy(condition: Condition, from: Int, to: Int): Collection<T> {
+    override suspend fun getManyBy(condition: Condition, from: Int, to: Int): Collection<T> {
         return getManyBy(condition, from, to, defaultSort())
     }
 
-    override fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
-        return dp.db.useDslContext<Collection<T>> { ctx ->
+    override suspend fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
+        return dp.db.getUsingDslContext<Collection<T>> { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             query.addConditions(condition)
@@ -170,13 +168,13 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         }
     }
 
-    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int): Collection<T> {
+    override suspend fun getManyBy(condition: Condition, height: Int, from: Int, to: Int): Collection<T> {
         return getManyBy(condition, height, from, to, defaultSort())
     }
 
-    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
+    override suspend fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         checkAvailable(height)
-        return dp.db.useDslContext<Collection<T>> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             query.addConditions(condition)
@@ -211,31 +209,31 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         }
     }
 
-    override fun getManyBy(ctx: DSLContext, query: SelectQuery<out Record>, cache: Boolean): Collection<T> {
-        val doCache = cache && dp.db.isInTransaction
-        return query.fetch<T> { record ->
+    override suspend fun getManyBy(ctx: DSLContext, query: SelectQuery<out Record>, cache: Boolean): Collection<T> {
+        val doCache = cache && dp.db.isInTransaction()
+        return query.fetchAndMap<Record, T> { record ->
             var t: T? = null
             var dbKey: DbKey? = null
             if (doCache) {
                 dbKey = dbKeyFactory.newKey(record) as DbKey
-                t = this.cache[dbKey]
+                t = this.getCache()[dbKey]
             }
             if (t == null) {
                 t = load(ctx, record)
                 if (doCache && dbKey != null) {
                     dp.db.getCache<T>(table)[dbKey] = t
                 }
-            }
-            t
+                t
+            } else t
         }
     }
 
-    override fun getAll(from: Int, to: Int): Collection<T> {
+    override suspend fun getAll(from: Int, to: Int): Collection<T> {
         return getAll(from, to, defaultSort())
     }
 
-    override fun getAll(from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
-        return dp.db.useDslContext<Collection<T>> { ctx ->
+    override suspend fun getAll(from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
+        return dp.db.getUsingDslContext<Collection<T>> { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             if (multiversion) {
@@ -247,13 +245,13 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         }
     }
 
-    override fun getAll(height: Int, from: Int, to: Int): Collection<T> {
+    override suspend fun getAll(height: Int, from: Int, to: Int): Collection<T> {
         return getAll(height, from, to, defaultSort())
     }
 
-    override fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
+    override suspend fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         checkAvailable(height)
-        return dp.db.useDslContext<Collection<T>> { ctx ->
+        return dp.db.getUsingDslContext<Collection<T>> { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             query.addConditions(heightField.le(height))
@@ -276,10 +274,10 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         }
     }
 
-    override fun insert(t: T) {
-        check(dp.db.isInTransaction) { "Not in transaction" }
+    override suspend fun insert(t: T) {
+        check(dp.db.isInTransaction()) { "Not in transaction" }
         val dbKey = dbKeyFactory.newKey(t) as DbKey
-        val cachedT = cache[dbKey]
+        val cachedT = getCache()[dbKey]
         if (cachedT == null) {
             dp.db.getCache<T>(table)[dbKey] = t
         } else check(!(t !== cachedT)) { // not a bug
@@ -300,12 +298,12 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         }
     }
 
-    override fun rollback(height: Int) {
+    override suspend fun rollback(height: Int) {
         super.rollback(height)
         dp.db.getCache<Any>(table).clear()
     }
 
-    override fun truncate() {
+    override suspend fun truncate() {
         super.truncate()
         dp.db.getCache<Any>(table).clear()
     }

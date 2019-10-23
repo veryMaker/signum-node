@@ -10,7 +10,7 @@ import brs.http.common.ResultFields.ASSETS_RESPONSE
 import brs.http.common.ResultFields.NUMBER_OF_ACCOUNTS_RESPONSE
 import brs.http.common.ResultFields.NUMBER_OF_TRADES_RESPONSE
 import brs.http.common.ResultFields.NUMBER_OF_TRANSFERS_RESPONSE
-import brs.util.JSON
+import brs.util.safeGetAsLong
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -65,9 +65,9 @@ class GetAssetsTest {
 
         val assetResponse = responseList.get(0) as JsonObject
         assertNotNull(assetResponse)
-        assertEquals(mockTradeCount.toLong(), JSON.getAsInt(assetResponse.get(NUMBER_OF_TRADES_RESPONSE)).toLong())
-        assertEquals(mockTransferCount.toLong(), JSON.getAsInt(assetResponse.get(NUMBER_OF_TRANSFERS_RESPONSE)).toLong())
-        assertEquals(mockAccountsCount.toLong(), JSON.getAsInt(assetResponse.get(NUMBER_OF_ACCOUNTS_RESPONSE)).toLong())
+        assertEquals(mockTradeCount.toLong(), assetResponse.get(NUMBER_OF_TRADES_RESPONSE).safeGetAsLong())
+        assertEquals(mockTransferCount.toLong(), assetResponse.get(NUMBER_OF_TRANSFERS_RESPONSE).safeGetAsLong())
+        assertEquals(mockAccountsCount.toLong(), assetResponse.get(NUMBER_OF_ACCOUNTS_RESPONSE).safeGetAsLong())
     }
 
     @Test

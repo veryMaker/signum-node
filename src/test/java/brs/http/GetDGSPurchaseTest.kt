@@ -16,7 +16,9 @@ import brs.http.common.ResultFields.REFUND_NQT_RESPONSE
 import brs.http.common.ResultFields.SELLER_RESPONSE
 import brs.http.common.ResultFields.TIMESTAMP_RESPONSE
 import brs.services.ParameterService
-import brs.util.JSON
+import brs.util.safeGetAsBoolean
+import brs.util.safeGetAsLong
+import brs.util.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -27,7 +29,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class GetDGSPurchaseTest {
 
@@ -80,18 +81,18 @@ class GetDGSPurchaseTest {
 
         assertNotNull(result)
 
-        assertEquals("" + mockPurchase.id, JSON.getAsString(result.get(PURCHASE_RESPONSE)))
-        assertEquals("" + mockPurchase.goodsId, JSON.getAsString(result.get(GOODS_RESPONSE)))
-        assertEquals(mockPurchase.name, JSON.getAsString(result.get(NAME_RESPONSE)))
-        assertEquals("" + mockPurchase.sellerId, JSON.getAsString(result.get(SELLER_RESPONSE)))
-        assertEquals("" + mockPurchase.priceNQT, JSON.getAsString(result.get(PRICE_NQT_RESPONSE)))
-        assertEquals(mockPurchase.quantity.toLong(), JSON.getAsInt(result.get(QUANTITY_RESPONSE)).toLong())
-        assertEquals("" + mockPurchase.buyerId, JSON.getAsString(result.get(BUYER_RESPONSE)))
-        assertEquals(mockPurchase.timestamp.toLong(), JSON.getAsInt(result.get(TIMESTAMP_RESPONSE)).toLong())
-        assertEquals(mockPurchase.deliveryDeadlineTimestamp.toLong(), JSON.getAsInt(result.get(DELIVERY_DEADLINE_TIMESTAMP_RESPONSE)).toLong())
-        assertEquals(mockPurchase.isPending, JSON.getAsBoolean(result.get(PENDING_RESPONSE)))
-        assertEquals("" + mockPurchase.discountNQT, JSON.getAsString(result.get(DISCOUNT_NQT_RESPONSE)))
-        assertEquals("" + mockPurchase.refundNQT, JSON.getAsString(result.get(REFUND_NQT_RESPONSE)))
+        assertEquals("" + mockPurchase.id, result.get(PURCHASE_RESPONSE).safeGetAsString())
+        assertEquals("" + mockPurchase.goodsId, result.get(GOODS_RESPONSE).safeGetAsString())
+        assertEquals(mockPurchase.name, result.get(NAME_RESPONSE).safeGetAsString())
+        assertEquals("" + mockPurchase.sellerId, result.get(SELLER_RESPONSE).safeGetAsString())
+        assertEquals("" + mockPurchase.priceNQT, result.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals(mockPurchase.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
+        assertEquals("" + mockPurchase.buyerId, result.get(BUYER_RESPONSE).safeGetAsString())
+        assertEquals(mockPurchase.timestamp.toLong(), result.get(TIMESTAMP_RESPONSE).safeGetAsLong())
+        assertEquals(mockPurchase.deliveryDeadlineTimestamp.toLong(), result.get(DELIVERY_DEADLINE_TIMESTAMP_RESPONSE).safeGetAsLong())
+        assertEquals(mockPurchase.isPending, result.get(PENDING_RESPONSE).safeGetAsBoolean())
+        assertEquals("" + mockPurchase.discountNQT, result.get(DISCOUNT_NQT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockPurchase.refundNQT, result.get(REFUND_NQT_RESPONSE).safeGetAsString())
     }
 
 }

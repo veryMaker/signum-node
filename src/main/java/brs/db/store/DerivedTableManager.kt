@@ -19,5 +19,4 @@ class DerivedTableManager {
         logger.safeInfo { "Registering derived table ${table.javaClass}" }
         derivedTables.add(table)
     }
-
 }

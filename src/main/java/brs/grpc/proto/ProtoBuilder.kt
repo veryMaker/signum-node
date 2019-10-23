@@ -32,7 +32,7 @@ object ProtoBuilder {
         return StatusProto.toStatusException(Status.newBuilder().setCode(Code.ABORTED_VALUE).setMessage(message).build())
     }
 
-    fun buildAccount(account: Account, accountService: AccountService): BrsApi.Account {
+    suspend fun buildAccount(account: Account, accountService: AccountService): BrsApi.Account {
         return BrsApi.Account.newBuilder()
                 .setId(account.id)
                 .setPublicKey(account.publicKey.toByteString())
@@ -55,11 +55,11 @@ object ProtoBuilder {
                 .build()
     }
 
-    fun buildBlock(blockchain: Blockchain, blockService: BlockService, block: Block, includeTransactions: Boolean): BrsApi.Block {
+    suspend fun buildBlock(blockchain: Blockchain, blockService: BlockService, block: Block, includeTransactions: Boolean): BrsApi.Block {
         val builder = BrsApi.Block.newBuilder()
                 .setId(block.id)
                 .setHeight(block.height)
-                .setNumberOfTransactions(block.transactions.size)
+                .setNumberOfTransactions(block.getTransactions().size)
                 .setTotalAmount(block.totalAmountNQT)
                 .setTotalFee(block.totalFeeNQT)
                 .setBlockReward(blockService.getBlockReward(block))
@@ -67,7 +67,7 @@ object ProtoBuilder {
                 .setVersion(block.version)
                 .setBaseTarget(block.baseTarget)
                 .setTimestamp(block.timestamp)
-                .addAllTransactionIds(block.transactions.map { it.id })
+                .addAllTransactionIds(block.getTransactions().map { it.id })
                 .setGenerationSignature(block.generationSignature.toByteString())
                 .setBlockSignature(block.blockSignature.toByteString())
                 .setPayloadHash(block.payloadHash.toByteString())
@@ -79,7 +79,7 @@ object ProtoBuilder {
 
         if (includeTransactions) {
             val currentHeight = blockchain.height
-            builder.addAllTransactions(block.transactions
+            builder.addAllTransactions(block.getTransactions()
                     .map { transaction -> buildTransaction(transaction, currentHeight) })
         }
 
@@ -132,7 +132,7 @@ object ProtoBuilder {
                 .build()
     }
 
-    fun buildAT(accountService: AccountService, at: AT): BrsApi.AT {
+    suspend fun buildAT(accountService: AccountService, at: AT): BrsApi.AT {
         val bf = ByteBuffer.allocate(8)
         bf.order(ByteOrder.LITTLE_ENDIAN)
         bf.put(at.creator!!)
@@ -205,7 +205,7 @@ object ProtoBuilder {
         return newIndexRange.build()
     }
 
-    fun buildAsset(assetExchange: AssetExchange, asset: Asset): BrsApi.Asset {
+    suspend fun buildAsset(assetExchange: AssetExchange, asset: Asset): BrsApi.Asset {
         return BrsApi.Asset.newBuilder()
                 .setAsset(asset.id)
                 .setAccount(asset.accountId)
@@ -302,7 +302,7 @@ object ProtoBuilder {
                 .build()
     }
 
-    fun buildPurchase(purchase: DigitalGoodsStore.Purchase, goods: DigitalGoodsStore.Goods): BrsApi.DgsPurchase {
+    suspend fun buildPurchase(purchase: DigitalGoodsStore.Purchase, goods: DigitalGoodsStore.Goods): BrsApi.DgsPurchase {
         return BrsApi.DgsPurchase.newBuilder()
                 .setId(purchase.id)
                 .setGood(purchase.goodsId)
@@ -319,7 +319,7 @@ object ProtoBuilder {
                 .setDeliveredData(buildEncryptedData(purchase.encryptedGoods))
                 .setDeliveredDataIsText(purchase.goodsIsText())
                 .addAllFeedback(purchase.feedbackNotes?.map { buildEncryptedData(it) } ?: emptyList())
-                .addAllPublicFeedback(purchase.publicFeedback)
+                .addAllPublicFeedback(purchase.getPublicFeedback())
                 .setRefundNote(buildEncryptedData(purchase.refundNote))
                 .setDiscount(purchase.discountNQT)
                 .setRefund(purchase.refundNQT)

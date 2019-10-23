@@ -3,9 +3,9 @@ package brs.services
 import brs.Transaction
 
 interface TransactionService {
-    fun verifyPublicKey(transaction: Transaction): Boolean
+    suspend fun verifyPublicKey(transaction: Transaction): Boolean
 
-    fun validate(transaction: Transaction)
+    suspend fun validate(transaction: Transaction)
 
     suspend fun applyUnconfirmed(transaction: Transaction): Boolean
 

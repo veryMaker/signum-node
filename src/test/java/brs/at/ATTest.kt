@@ -8,38 +8,40 @@ import org.junit.Test
 import java.util.concurrent.atomic.AtomicBoolean
 
 class ATTest {
+    private lateinit var atTestHelper: AtTestHelper
     private lateinit var dp: DependencyProvider
 
     @Before
     fun setUp() {
-        dp = AtTestHelper.setupMocks()
+        atTestHelper = AtTestHelper()
+        dp = atTestHelper.setupMocks()
     }
 
     @Test
     fun testAddAt() {
-        AtTestHelper.clearAddedAts(dp)
+        atTestHelper.clearAddedAts(dp)
         val helloWorldReceived = AtomicBoolean(false)
-        AtTestHelper.setOnAtAdded { at ->
+        atTestHelper.setOnAtAdded { at ->
             assertEquals("HelloWorld", at.name)
             helloWorldReceived.set(true)
         }
-        AtTestHelper.addHelloWorldAT(dp)
+        atTestHelper.addHelloWorldAT(dp)
         assertTrue(helloWorldReceived.get())
 
         val echoReceived = AtomicBoolean(false)
-        AtTestHelper.setOnAtAdded { at ->
+        atTestHelper.setOnAtAdded { at ->
             assertEquals("Echo", at.name)
             echoReceived.set(true)
         }
-        AtTestHelper.addEchoAT(dp)
+        atTestHelper.addEchoAT(dp)
         assertTrue(echoReceived.get())
 
         val tipThanksReceived = AtomicBoolean(false)
-        AtTestHelper.setOnAtAdded { at ->
+        atTestHelper.setOnAtAdded { at ->
             assertEquals("TipThanks", at.name)
             tipThanksReceived.set(true)
         }
-        AtTestHelper.addTipThanksAT(dp)
+        atTestHelper.addTipThanksAT(dp)
         assertTrue(tipThanksReceived.get())
         assertEquals(3, AT.getOrderedATs(dp).size.toLong())
     }

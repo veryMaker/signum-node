@@ -7,7 +7,7 @@ import brs.common.QuickMocker.MockParam
 import brs.http.JSONResponses.UNKNOWN_ORDER
 import brs.http.common.Parameters.ORDER_PARAMETER
 import brs.http.common.ResultFields.ORDER_RESPONSE
-import brs.util.JSON
+import brs.util.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -44,7 +44,7 @@ class GetBidOrderTest {
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
-        assertEquals("" + bidOrderId, JSON.getAsString(result.get(ORDER_RESPONSE)))
+        assertEquals("" + bidOrderId, result.get(ORDER_RESPONSE).safeGetAsString())
     }
 
     @Test

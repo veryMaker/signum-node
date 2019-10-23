@@ -9,5 +9,5 @@ interface AssetStore {
 
     val assetTable: EntitySqlTable<Asset>
 
-    fun getAssetsIssuedBy(accountId: Long, from: Int, to: Int): Collection<Asset>
+    suspend fun getAssetsIssuedBy(accountId: Long, from: Int, to: Int): Collection<Asset>
 }

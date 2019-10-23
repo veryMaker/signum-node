@@ -16,43 +16,43 @@ import java.util.*
 
 class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
 
-    override fun findBlock(blockId: Long): Block? {
-        return dp.db.useDslContext<Block?> { ctx ->
+    override suspend fun findBlock(blockId: Long): Block? {
+        return dp.db.getUsingDslContext<Block?> { ctx ->
             try {
                 val r = ctx.selectFrom(BLOCK).where(BLOCK.ID.eq(blockId)).fetchAny()
-                return@useDslContext if (r == null) null else loadBlock(r)
+                return@getUsingDslContext if (r == null) null else loadBlock(r)
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException("Block already in database, id = $blockId, does not pass validation!", e)
             }
         }
     }
 
-    override fun hasBlock(blockId: Long): Boolean {
-        return dp.db.useDslContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectOne().from(BLOCK).where(BLOCK.ID.eq(blockId))) }
+    override suspend fun hasBlock(blockId: Long): Boolean {
+        return dp.db.getUsingDslContext { ctx -> ctx.fetchExists(ctx.selectOne().from(BLOCK).where(BLOCK.ID.eq(blockId))) }
     }
 
-    override fun findBlockIdAtHeight(height: Int): Long {
-        return dp.db.useDslContext<Long> { ctx ->
+    override suspend fun findBlockIdAtHeight(height: Int): Long {
+        return dp.db.getUsingDslContext<Long> { ctx ->
             val id = ctx.select(BLOCK.ID).from(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchOne(BLOCK.ID)
                     ?: throw RuntimeException("Block at height $height not found in database!")
             id
         }
     }
 
-    override fun findBlockAtHeight(height: Int): Block {
-        return dp.db.useDslContext<Block> { ctx ->
+    override suspend fun findBlockAtHeight(height: Int): Block {
+        return dp.db.getUsingDslContext<Block> { ctx ->
             try {
-                return@useDslContext loadBlock(ctx.selectFrom(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchAny() ?: throw RuntimeException("Block at height $height not found in database!"))
+                return@getUsingDslContext loadBlock(ctx.selectFrom(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchAny() ?: throw RuntimeException("Block at height $height not found in database!"))
             } catch (e: BurstException.ValidationException) {
                 throw RuntimeException(e.toString(), e)
             }
         }
     }
 
-    override fun findLastBlock(): Block {
-        return dp.db.useDslContext<Block> { ctx ->
+    override suspend fun findLastBlock(): Block {
+        return dp.db.getUsingDslContext<Block> { ctx ->
             try {
-                return@useDslContext loadBlock(ctx.selectFrom(BLOCK)
+                return@getUsingDslContext loadBlock(ctx.selectFrom(BLOCK)
                         .orderBy(BLOCK.DB_ID.desc())
                         .limit(1)
                         .fetchAny())
@@ -62,10 +62,10 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
         }
     }
 
-    override fun findLastBlock(timestamp: Int): Block {
-        return dp.db.useDslContext<Block> { ctx ->
+    override suspend fun findLastBlock(timestamp: Int): Block {
+        return dp.db.getUsingDslContext<Block> { ctx ->
             try {
-                return@useDslContext loadBlock(ctx.selectFrom(BLOCK)
+                return@getUsingDslContext loadBlock(ctx.selectFrom(BLOCK)
                         .where(BLOCK.TIMESTAMP.lessOrEqual(timestamp))
                         .orderBy(BLOCK.DB_ID.desc())
                         .limit(1)
@@ -101,7 +101,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
                 cumulativeDifficulty, baseTarget, nextBlockId, height, id, nonce, blockATs)
     }
 
-    override fun saveBlock(ctx: DSLContext, block: Block) {
+    override suspend fun saveBlock(ctx: DSLContext, block: Block) {
         ctx.insertInto(BLOCK, BLOCK.ID, BLOCK.VERSION, BLOCK.TIMESTAMP, BLOCK.PREVIOUS_BLOCK_ID,
                 BLOCK.TOTAL_AMOUNT, BLOCK.TOTAL_FEE, BLOCK.PAYLOAD_LENGTH, BLOCK.GENERATOR_PUBLIC_KEY,
                 BLOCK.PREVIOUS_BLOCK_HASH, BLOCK.CUMULATIVE_DIFFICULTY, BLOCK.BASE_TARGET, BLOCK.HEIGHT,
@@ -116,7 +116,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
                         block.generatorId, block.nonce, block.blockATs)
                 .execute()
 
-        dp.transactionDb.saveTransactions(block.transactions)
+        dp.transactionDb.saveTransactions(block.getTransactions())
 
         if (block.previousBlockId != 0L) {
             ctx.update(BLOCK)
@@ -127,8 +127,8 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     }
 
     // relying on cascade triggers in the database to delete the transactions for all deleted blocks
-    override fun deleteBlocksFrom(blockId: Long) {
-        if (!dp.db.isInTransaction) {
+    override suspend fun deleteBlocksFrom(blockId: Long) {
+        if (!dp.db.isInTransaction()) {
             try {
                 dp.db.beginTransaction()
                 deleteBlocksFrom(blockId)
@@ -156,8 +156,8 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
         }
     }
 
-    override fun deleteAll(force: Boolean) {
-        if (!dp.db.isInTransaction) {
+    override suspend fun deleteAll(force: Boolean) {
+        if (!dp.db.isInTransaction()) {
             try {
                 dp.db.beginTransaction()
                 deleteAll(force)
@@ -197,7 +197,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
         }
     }
 
-    override fun optimize() {
+    override suspend fun optimize() {
         dp.db.optimizeTable(BLOCK.name)
     }
 

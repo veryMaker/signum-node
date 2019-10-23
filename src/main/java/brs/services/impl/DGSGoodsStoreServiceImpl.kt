@@ -31,48 +31,48 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
         purchaseListeners.addListener(eventType, listener)
     }
 
-    override fun getGoods(goodsId: Long): Goods? {
-        return goodsTable[goodsDbKeyFactory.newKey(goodsId)]
+    override suspend fun getGoods(goodsId: Long): Goods? {
+        return goodsTable.get(goodsDbKeyFactory.newKey(goodsId))
     }
 
-    override fun getAllGoods(from: Int, to: Int): Collection<Goods> {
+    override suspend fun getAllGoods(from: Int, to: Int): Collection<Goods> {
         return goodsTable.getAll(from, to)
     }
 
-    override fun getGoodsInStock(from: Int, to: Int): Collection<Goods> {
+    override suspend fun getGoodsInStock(from: Int, to: Int): Collection<Goods> {
         return dp.digitalGoodsStoreStore.getGoodsInStock(from, to)
     }
 
-    override fun getSellerGoods(sellerId: Long, inStockOnly: Boolean, from: Int, to: Int): Collection<Goods> {
+    override suspend fun getSellerGoods(sellerId: Long, inStockOnly: Boolean, from: Int, to: Int): Collection<Goods> {
         return dp.digitalGoodsStoreStore.getSellerGoods(sellerId, inStockOnly, from, to)
     }
 
-    override fun getAllPurchases(from: Int, to: Int): Collection<Purchase> {
+    override suspend fun getAllPurchases(from: Int, to: Int): Collection<Purchase> {
         return purchaseTable.getAll(from, to)
     }
 
-    override fun getSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<Purchase> {
+    override suspend fun getSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<Purchase> {
         return dp.digitalGoodsStoreStore.getSellerPurchases(sellerId, from, to)
     }
 
-    override fun getBuyerPurchases(buyerId: Long, from: Int, to: Int): Collection<Purchase> {
+    override suspend fun getBuyerPurchases(buyerId: Long, from: Int, to: Int): Collection<Purchase> {
         return dp.digitalGoodsStoreStore.getBuyerPurchases(buyerId, from, to)
     }
 
-    override fun getSellerBuyerPurchases(sellerId: Long, buyerId: Long, from: Int, to: Int): Collection<Purchase> {
+    override suspend fun getSellerBuyerPurchases(sellerId: Long, buyerId: Long, from: Int, to: Int): Collection<Purchase> {
         return dp.digitalGoodsStoreStore.getSellerBuyerPurchases(sellerId, buyerId, from, to)
     }
 
-    override fun getPendingSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<Purchase> {
+    override suspend fun getPendingSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<Purchase> {
         return dp.digitalGoodsStoreStore.getPendingSellerPurchases(sellerId, from, to)
     }
 
-    override fun getPurchase(purchaseId: Long): Purchase? {
-        return purchaseTable[purchaseDbKeyFactory.newKey(purchaseId)]
+    override suspend fun getPurchase(purchaseId: Long): Purchase? {
+        return purchaseTable.get(purchaseDbKeyFactory.newKey(purchaseId))
     }
 
     override suspend fun changeQuantity(goodsId: Long, deltaQuantity: Int, allowDelisted: Boolean) {
-        val goods = goodsTable[goodsDbKeyFactory.newKey(goodsId)]!!
+        val goods = goodsTable.get(goodsDbKeyFactory.newKey(goodsId))!!
         if (allowDelisted || !goods.isDelisted) {
             goods.changeQuantity(deltaQuantity)
             goodsTable.insert(goods)
@@ -83,7 +83,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
     }
 
     override suspend fun purchase(transaction: Transaction, attachment: Attachment.DigitalGoodsPurchase) {
-        val goods = goodsTable[goodsDbKeyFactory.newKey(attachment.goodsId)]!!
+        val goods = goodsTable.get(goodsDbKeyFactory.newKey(attachment.goodsId))!!
         if (!goods.isDelisted && attachment.quantity <= goods.quantity && attachment.priceNQT == goods.priceNQT
                 && attachment.deliveryDeadlineTimestamp > dp.blockchain.lastBlock.timestamp) {
             changeQuantity(goods.id, -attachment.quantity, false)
@@ -109,7 +109,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
     }
 
     override suspend fun delistGoods(goodsId: Long) {
-        val goods = goodsTable[goodsDbKeyFactory.newKey(goodsId)]!!
+        val goods = goodsTable.get(goodsDbKeyFactory.newKey(goodsId))!!
         if (!goods.isDelisted) {
             goods.isDelisted = true
             goodsTable.insert(goods)
@@ -120,7 +120,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
     }
 
     override suspend fun feedback(purchaseId: Long, encryptedMessage: Appendix.EncryptedMessage?, message: Appendix.Message?) {
-        val purchase = purchaseTable[purchaseDbKeyFactory.newKey(purchaseId)]!!
+        val purchase = purchaseTable.get(purchaseDbKeyFactory.newKey(purchaseId))!!
         if (encryptedMessage != null) {
             purchase.addFeedbackNote(encryptedMessage.encryptedData)
             purchaseTable.insert(purchase)
@@ -132,7 +132,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
         purchaseListeners.accept(Event.FEEDBACK, purchase)
     }
 
-    private fun addPublicFeedback(purchase: Purchase, publicFeedback: String) {
+    private suspend fun addPublicFeedback(purchase: Purchase, publicFeedback: String) {
         var publicFeedbacks: MutableList<String>? = purchase.publicFeedbacks
         if (publicFeedbacks == null) {
             publicFeedbacks = mutableListOf()
@@ -144,7 +144,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
     }
 
     override suspend fun refund(sellerId: Long, purchaseId: Long, refundNQT: Long, encryptedMessage: Appendix.EncryptedMessage?) {
-        val purchase = purchaseTable[purchaseDbKeyFactory.newKey(purchaseId)]!!
+        val purchase = purchaseTable.get(purchaseDbKeyFactory.newKey(purchaseId))!!
         val seller = dp.accountService.getAccount(sellerId)!!
         dp.accountService.addToBalanceNQT(seller, -refundNQT)
         val buyer = dp.accountService.getAccount(purchase.buyerId)!!
@@ -158,12 +158,12 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
         purchaseListeners.accept(Event.REFUND, purchase)
     }
 
-    override fun getExpiredPendingPurchases(timestamp: Int): Collection<Purchase> {
+    override suspend fun getExpiredPendingPurchases(timestamp: Int): Collection<Purchase> {
         return dp.digitalGoodsStoreStore.getExpiredPendingPurchases(timestamp)
     }
 
     override suspend fun changePrice(goodsId: Long, priceNQT: Long) {
-        val goods = goodsTable[goodsDbKeyFactory.newKey(goodsId)]!!
+        val goods = goodsTable.get(goodsDbKeyFactory.newKey(goodsId))!!
         if (!goods.isDelisted) {
             goods.changePrice(priceNQT)
             goodsTable.insert(goods)
@@ -190,12 +190,12 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
         purchaseListeners.accept(Event.DELIVERY, purchase)
     }
 
-    override fun getPendingPurchase(purchaseId: Long): Purchase? {
+    override suspend fun getPendingPurchase(purchaseId: Long): Purchase? {
         val purchase = getPurchase(purchaseId)
         return if (purchase == null || !purchase.isPending) null else purchase
     }
 
-    override fun setPending(purchase: Purchase, pendingValue: Boolean) {
+    override suspend fun setPending(purchase: Purchase, pendingValue: Boolean) {
         purchase.isPending = pendingValue
         purchaseTable.insert(purchase)
     }

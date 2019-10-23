@@ -43,7 +43,7 @@ internal class GetDGSPurchases(private val dgsGoodsStoreService: DGSGoodsStoreSe
         } else {
             dgsGoodsStoreService.getSellerBuyerPurchases(sellerId, buyerId, 0, -1)
         }
-        val purchaseIterator = FilteringIterator(purchases, { purchase -> purchase != null && !(completed && purchase.isPending) }, firstIndex, lastIndex)
+        val purchaseIterator = FilteringIterator(purchases, { purchase -> !(completed && purchase.isPending) }, firstIndex, lastIndex)
         while (purchaseIterator.hasNext()) {
             purchasesJSON.add(JSONData.purchase(purchaseIterator.next()))
         }

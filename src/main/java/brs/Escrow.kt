@@ -14,8 +14,7 @@ open class Escrow {
     val deadline: Int
     val deadlineAction: DecisionType
 
-    val decisions: Collection<Decision>
-        get() = dp.escrowStore.getDecisions(id)
+    suspend fun getDecisions() = dp.escrowStore.getDecisions(id)
 
     enum class DecisionType {
         UNDECIDED,

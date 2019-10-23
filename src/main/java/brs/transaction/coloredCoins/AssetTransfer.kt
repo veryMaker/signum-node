@@ -61,7 +61,7 @@ class AssetTransfer(dp: DependencyProvider) : ColoredCoins(dp) {
         )
     }
 
-    override fun validateAttachment(transaction: Transaction) {
+    override suspend fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsAssetTransfer
         if (transaction.amountNQT != 0L
             || attachment.comment != null && attachment.comment.length > Constants.MAX_ASSET_TRANSFER_COMMENT_LENGTH

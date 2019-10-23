@@ -31,7 +31,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
         return accountId != 0L && (accountIds.isEmpty() || accountIds.contains(accountId))
     }
 
-    private fun include(attachment: Attachment): Boolean {
+    private suspend fun include(attachment: Attachment): Boolean {
         return when (attachment) {
             is Attachment.DigitalGoodsPurchase -> include(dp.digitalGoodsStoreService.getGoods(attachment.goodsId)!!.sellerId)
             is Attachment.DigitalGoodsDelivery -> include(dp.digitalGoodsStoreService.getPurchase(attachment.purchaseId)!!.buyerId)
@@ -41,7 +41,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
     }
 
     // Note: Trade events occur before the change in account balances
-    internal fun trace(trade: Trade) {
+    internal suspend fun trace(trade: Trade) {
         val askAccountId = dp.assetExchange.getAskOrder(trade.askOrderId)!!.accountId
         val bidAccountId = dp.assetExchange.getBidOrder(trade.bidOrderId)!!.accountId
         if (include(askAccountId)) {
@@ -52,13 +52,13 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
         }
     }
 
-    internal fun trace(account: Account, unconfirmed: Boolean) {
+    internal suspend fun trace(account: Account, unconfirmed: Boolean) {
         if (include(account.id)) {
             log(getValues(account.id, unconfirmed))
         }
     }
 
-    internal fun trace(accountAsset: Account.AccountAsset, unconfirmed: Boolean) {
+    internal suspend fun trace(accountAsset: Account.AccountAsset, unconfirmed: Boolean) {
         if (!include(accountAsset.accountId)) {
             return
         }
@@ -66,15 +66,15 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
     }
 
 
-    internal fun traceBeforeAccept(block: Block) {
+    internal suspend fun traceBeforeAccept(block: Block) {
         val generatorId = block.generatorId
         if (include(generatorId)) {
             log(getValues(generatorId, block))
         }
     }
 
-    internal fun trace(block: Block) {
-        for (transaction in block.transactions) {
+    internal suspend fun trace(block: Block) {
+        for (transaction in block.getTransactions()) {
             val senderId = transaction.senderId
             if (include(senderId)) {
                 log(getValues(senderId, transaction, false))
@@ -104,7 +104,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
         return map
     }
 
-    internal fun getValues(accountId: Long, unconfirmed: Boolean): MutableMap<String, String> {
+    internal suspend fun getValues(accountId: Long, unconfirmed: Boolean): MutableMap<String, String> {
         val map = mutableMapOf<String, String>()
         map["account"] = accountId.toUnsignedString()
         val account = Account.getAccount(dp, accountId)
@@ -116,7 +116,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
         return map
     }
 
-    internal fun getValues(accountId: Long, trade: Trade, isAsk: Boolean): Map<String, String> {
+    internal suspend fun getValues(accountId: Long, trade: Trade, isAsk: Boolean): Map<String, String> {
         val map = getValues(accountId, false)
         map["asset"] = trade.assetId.toUnsignedString()
         map["trade quantity"] = (if (isAsk) -trade.quantityQNT else trade.quantityQNT).toString()
@@ -127,7 +127,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
         return map
     }
 
-    internal fun getValues(accountId: Long, transaction: Transaction, isRecipient: Boolean): Map<String, String> {
+    internal suspend fun getValues(accountId: Long, transaction: Transaction, isRecipient: Boolean): Map<String, String> {
         var amount = transaction.amountNQT
         var fee = transaction.feeNQT
         if (isRecipient) {
@@ -153,7 +153,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
         return map
     }
 
-    internal fun getValues(accountId: Long, block: Block): Map<String, String> {
+    internal suspend fun getValues(accountId: Long, block: Block): Map<String, String> {
         val fee = block.totalFeeNQT
         if (fee == 0L) {
             return emptyMap()
@@ -182,7 +182,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
         return map
     }
 
-    private fun getValues(accountId: Long, transaction: Transaction, attachment: Attachment, isRecipient: Boolean): Map<String, String> {
+    private suspend fun getValues(accountId: Long, transaction: Transaction, attachment: Attachment, isRecipient: Boolean): Map<String, String> {
         var map: MutableMap<String, String> = getValues(accountId, false)
         if (attachment is Attachment.ColoredCoinsOrderPlacement) {
             if (isRecipient) {

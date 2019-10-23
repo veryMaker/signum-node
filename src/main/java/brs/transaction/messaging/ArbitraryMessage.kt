@@ -22,7 +22,7 @@ class ArbitraryMessage(dp: DependencyProvider) : Messaging(dp) {
         // No appendices
     }
 
-    override fun validateAttachment(transaction: Transaction) {
+    override suspend fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment
         if (transaction.amountNQT != 0L) {
             throw BurstException.NotValidException("Invalid arbitrary message: " + attachment.jsonObject.toJsonString())

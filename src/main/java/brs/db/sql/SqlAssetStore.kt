@@ -23,7 +23,7 @@ class SqlAssetStore(private val dp: DependencyProvider) : AssetStore {
                 return SqlAsset(record)
             }
 
-            override fun save(ctx: DSLContext, asset: Asset) {
+            override suspend fun save(ctx: DSLContext, asset: Asset) {
                 saveAsset(ctx, asset)
             }
         }
@@ -33,7 +33,7 @@ class SqlAssetStore(private val dp: DependencyProvider) : AssetStore {
         ctx.insertInto(ASSET).set(ASSET.ID, asset.id).set(ASSET.ACCOUNT_ID, asset.accountId).set(ASSET.NAME, asset.name).set(ASSET.DESCRIPTION, asset.description).set(ASSET.QUANTITY, asset.quantityQNT).set(ASSET.DECIMALS, asset.decimals).set(ASSET.HEIGHT, dp.blockchain.height).execute()
     }
 
-    override fun getAssetsIssuedBy(accountId: Long, from: Int, to: Int): Collection<Asset> {
+    override suspend fun getAssetsIssuedBy(accountId: Long, from: Int, to: Int): Collection<Asset> {
         return assetTable.getManyBy(ASSET.ACCOUNT_ID.eq(accountId), from, to)
     }
 

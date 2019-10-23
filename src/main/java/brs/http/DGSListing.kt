@@ -13,15 +13,14 @@ import brs.http.common.Parameters.PRICE_NQT_PARAMETER
 import brs.http.common.Parameters.QUANTITY_PARAMETER
 import brs.http.common.Parameters.TAGS_PARAMETER
 import brs.util.convert.emptyToNull
-import brs.util.convert.nullToEmpty
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 internal class DGSListing internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, TAGS_PARAMETER, QUANTITY_PARAMETER, PRICE_NQT_PARAMETER) {
     override suspend fun processRequest(request: HttpServletRequest): JsonElement {
         var name = request.getParameter(NAME_PARAMETER).emptyToNull()
-        val description = request.getParameter(DESCRIPTION_PARAMETER).nullToEmpty()
-        val tags = request.getParameter(TAGS_PARAMETER).nullToEmpty()
+        val description = request.getParameter(DESCRIPTION_PARAMETER).orEmpty()
+        val tags = request.getParameter(TAGS_PARAMETER).orEmpty()
         val priceNQT = ParameterParser.getPriceNQT(request)
         val quantity = ParameterParser.getGoodsQuantity(request)
 

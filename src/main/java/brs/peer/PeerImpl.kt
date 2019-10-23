@@ -217,9 +217,9 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
                     }
                     log += " >>> $responseValue"
                     showLog = true
-                    response = JSON.getAsJsonObject(responseValue.parseJson())
+                    response = responseValue.parseJson().safeGetAsJsonObject()
                 } else {
-                    BufferedReader(InputStreamReader(responseStream, StandardCharsets.UTF_8)).use { reader -> response = JSON.getAsJsonObject(reader.parseJson()) }
+                    BufferedReader(InputStreamReader(responseStream, StandardCharsets.UTF_8)).use { reader -> response = reader.parseJson().safeGetAsJsonObject() }
                 }
                 updateDownloadedVolume(cis.count)
             } else {
@@ -281,12 +281,12 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
 
     override suspend fun connect(currentTime: Int) {
         val response = send(dp.peers.myPeerInfoRequest)
-        if (response != null) {
-            application = JSON.getAsString(response.get("application"))
-            setVersion(JSON.getAsString(response.get("version")))
-            platform = JSON.getAsString(response.get("platform"))
-            shareAddress = JSON.getAsBoolean(response.get("shareAddress")) == true
-            val newAnnouncedAddress = JSON.getAsString(response.get("announcedAddress")).emptyToNull()
+        if (response != null && response.get("error") == null) {
+            application = response.get("application").mustGetAsString("application")
+            setVersion(response.get("version").mustGetAsString("version"))
+            platform = response.get("platform").mustGetAsString("platform")
+            shareAddress = response.get("shareAddress").safeGetAsBoolean() == true
+            val newAnnouncedAddress = response.get("announcedAddress").safeGetAsString().emptyToNull()
             if (newAnnouncedAddress != null && newAnnouncedAddress != announcedAddress) {
                 // force verification of changed announced address
                 state = Peer.State.NON_CONNECTED

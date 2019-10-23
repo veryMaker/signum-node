@@ -43,7 +43,7 @@ class DigitalGoodsPurchase(dp: DependencyProvider) : DigitalGoods(dp) {
         dp.digitalGoodsStoreService.purchase(transaction, attachment)
     }
 
-    override fun doValidateAttachment(transaction: Transaction) {
+    override suspend fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsPurchase
         val goods = dp.digitalGoodsStoreService.getGoods(attachment.goodsId)
         if (attachment.quantity <= 0 || attachment.quantity > Constants.MAX_DGS_LISTING_QUANTITY

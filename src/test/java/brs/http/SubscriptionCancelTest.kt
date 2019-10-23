@@ -9,7 +9,7 @@ import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.services.ParameterService
 import brs.services.SubscriptionService
 import brs.transaction.TransactionType
-import brs.util.JSON
+import brs.util.safeGetAsLong
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -21,7 +21,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.servlet.http.HttpServletRequest
 
 @RunWith(JUnit4::class)
 class SubscriptionCancelTest : AbstractTransactionTest() {
@@ -84,7 +83,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
 
-        assertEquals(3, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)).toLong())
+        assertEquals(3L, response.get(ERROR_CODE_RESPONSE).safeGetAsLong())
     }
 
     @Test
@@ -96,7 +95,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
 
-        assertEquals(4, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)).toLong())
+        assertEquals(4L, response.get(ERROR_CODE_RESPONSE).safeGetAsLong())
     }
 
     @Test
@@ -112,7 +111,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
 
-        assertEquals(5, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)).toLong())
+        assertEquals(5L, response.get(ERROR_CODE_RESPONSE).safeGetAsLong())
     }
 
     @Test
@@ -136,6 +135,6 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
 
-        assertEquals(7, JSON.getAsInt(response.get(ERROR_CODE_RESPONSE)).toLong())
+        assertEquals(7L, response.get(ERROR_CODE_RESPONSE).safeGetAsLong())
     }
 }

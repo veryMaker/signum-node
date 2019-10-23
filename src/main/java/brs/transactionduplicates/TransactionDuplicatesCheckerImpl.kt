@@ -10,7 +10,7 @@ class TransactionDuplicatesCheckerImpl {
 
     private val logger = LoggerFactory.getLogger(TransactionDuplicatesCheckerImpl::class.java)
 
-    private val duplicates = mutableMapOf< KClass<out TransactionType>, MutableMap<String, Transaction>>()
+    private val duplicates = mutableMapOf<KClass<out TransactionType>, MutableMap<String, Transaction>>()
 
     fun clear() {
         duplicates.clear()

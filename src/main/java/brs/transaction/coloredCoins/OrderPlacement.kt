@@ -5,7 +5,7 @@ import brs.util.toJsonString
 import brs.util.convert.toUnsignedString
 
 abstract class OrderPlacement(dp: DependencyProvider) : ColoredCoins(dp) {
-    override fun validateAttachment(transaction: Transaction) {
+    override suspend fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsOrderPlacement
         if (attachment.priceNQT <= 0 || attachment.priceNQT > Constants.MAX_BALANCE_NQT
             || attachment.assetId == 0L

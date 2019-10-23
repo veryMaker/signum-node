@@ -5,15 +5,15 @@ import brs.crypto.signUsing
 import brs.db.TransactionDb
 import brs.fluxcapacitor.FluxValues
 import brs.peer.Peer
-import brs.util.JSON
+import brs.util.*
 import brs.util.convert.*
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLazy
 import brs.util.logging.safeDebug
 import brs.util.logging.safeError
-import brs.util.toJsonString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.nio.ByteBuffer
@@ -24,10 +24,20 @@ class Block internal constructor(private val dp: DependencyProvider, val version
                      val payloadLength: Int, val payloadHash: ByteArray, val generatorPublicKey: ByteArray, val generationSignature: ByteArray,
                      blockSignature: ByteArray?, val previousBlockHash: ByteArray?, transactions: Collection<Transaction>?,
                      val nonce: Long, val blockATs: ByteArray?, height: Int) {
-    var transactions by AtomicLazy {
-        val txs = transactionDb().findBlockTransactions(id)
-        txs.forEach { transaction -> transaction.setBlock(this) }
-        txs
+    private var internalTransactions by Atomic<Collection<Transaction>?>()
+
+    // TODO this needs a mutex or something - atomics do not guarantee locking
+    suspend fun getTransactions(): Collection<Transaction> {
+        return internalTransactions ?: run {
+            val txs = transactionDb().findBlockTransactions(id)
+            txs.forEach { it.setBlock(this) }
+            internalTransactions = txs
+            txs
+        }
+    }
+
+    fun setTransactions(transactions: Collection<Transaction>?) {
+        internalTransactions = transactions
     }
 
     var blockSignature: ByteArray?
@@ -48,7 +58,9 @@ class Block internal constructor(private val dp: DependencyProvider, val version
     }
     var hash by AtomicLazy<ByteArray> {
         checkNotNull(blockSignature) { "Block is not signed yet" }
-        Crypto.sha256().digest(bytes)
+        runBlocking {
+            Crypto.sha256().digest(toBytes())
+        }
     }
 
     var pocTime: BigInteger? = null
@@ -59,64 +71,59 @@ class Block internal constructor(private val dp: DependencyProvider, val version
     val isVerified: Boolean
         get() = pocTime != null
 
-    val blockHash: ByteArray
-        get() = Crypto.sha256().digest(bytes)
-
-    val jsonObject: JsonObject
-        get() {
-            val json = JsonObject()
-            json.addProperty("version", version)
-            json.addProperty("timestamp", timestamp)
-            json.addProperty("previousBlock", previousBlockId.toUnsignedString())
-            json.addProperty("totalAmountNQT", totalAmountNQT)
-            json.addProperty("totalFeeNQT", totalFeeNQT)
-            json.addProperty("payloadLength", payloadLength)
-            json.addProperty("payloadHash", payloadHash.toHexString())
-            json.addProperty("generatorPublicKey", generatorPublicKey.toHexString())
-            json.addProperty("generationSignature", generationSignature.toHexString())
-            if (version > 1) {
-                json.addProperty("previousBlockHash", previousBlockHash!!.toHexString())
-            }
-            json.addProperty("blockSignature", blockSignature?.toHexString())
-            val transactionsData = JsonArray()
-            transactions.forEach { transaction -> transactionsData.add(transaction.jsonObject) }
-            json.add("transactions", transactionsData)
-            json.addProperty("nonce", nonce.toUnsignedString())
-            json.addProperty("blockATs", blockATs?.toHexString() ?: "")
-            return json
+    suspend fun toJsonObject(): JsonObject {
+        val json = JsonObject()
+        json.addProperty("version", version)
+        json.addProperty("timestamp", timestamp)
+        json.addProperty("previousBlock", previousBlockId.toUnsignedString())
+        json.addProperty("totalAmountNQT", totalAmountNQT)
+        json.addProperty("totalFeeNQT", totalFeeNQT)
+        json.addProperty("payloadLength", payloadLength)
+        json.addProperty("payloadHash", payloadHash.toHexString())
+        json.addProperty("generatorPublicKey", generatorPublicKey.toHexString())
+        json.addProperty("generationSignature", generationSignature.toHexString())
+        if (version > 1) {
+            json.addProperty("previousBlockHash", previousBlockHash!!.toHexString())
         }
+        json.addProperty("blockSignature", blockSignature?.toHexString())
+        val transactionsData = JsonArray()
+        getTransactions().forEach { transaction -> transactionsData.add(transaction.jsonObject) }
+        json.add("transactions", transactionsData)
+        json.addProperty("nonce", nonce.toUnsignedString())
+        json.addProperty("blockATs", blockATs?.toHexString() ?: "")
+        return json
+    }
 
-    val bytes: ByteArray
-        get() {
-            val buffer = ByteBuffer.allocate(4 + 4 + 8 + 4 + (if (version < 3) 4 + 4 else 8 + 8) + 4
-                    + 32 + 32 + (32 + 32) + 8 + (blockATs?.size ?: 0) + 64)
-            buffer.order(ByteOrder.LITTLE_ENDIAN)
-            buffer.putInt(version)
-            buffer.putInt(timestamp)
-            buffer.putLong(previousBlockId)
-            buffer.putInt(transactions.size)
-            if (version < 3) {
-                buffer.putInt((totalAmountNQT / Constants.ONE_BURST).toInt())
-                buffer.putInt((totalFeeNQT / Constants.ONE_BURST).toInt())
-            } else {
-                buffer.putLong(totalAmountNQT)
-                buffer.putLong(totalFeeNQT)
-            }
-            buffer.putInt(payloadLength)
-            buffer.put(payloadHash)
-            buffer.put(generatorPublicKey)
-            buffer.put(generationSignature)
-            if (version > 1) {
-                buffer.put(previousBlockHash)
-            }
-            buffer.putLong(nonce)
-            if (blockATs != null)
-                buffer.put(blockATs)
-            if (buffer.limit() - buffer.position() < blockSignature!!.size)
-                logger.safeError { "Something is too large here - buffer should have ${blockSignature!!.size} bytes left but only has ${buffer.limit() - buffer.position()}" }
-            buffer.put(blockSignature!!)
-            return buffer.array()
+    suspend fun toBytes(): ByteArray {
+        val buffer = ByteBuffer.allocate(4 + 4 + 8 + 4 + (if (version < 3) 4 + 4 else 8 + 8) + 4
+                + 32 + 32 + (32 + 32) + 8 + (blockATs?.size ?: 0) + 64)
+        buffer.order(ByteOrder.LITTLE_ENDIAN)
+        buffer.putInt(version)
+        buffer.putInt(timestamp)
+        buffer.putLong(previousBlockId)
+        buffer.putInt(getTransactions().size)
+        if (version < 3) {
+            buffer.putInt((totalAmountNQT / Constants.ONE_BURST).toInt())
+            buffer.putInt((totalFeeNQT / Constants.ONE_BURST).toInt())
+        } else {
+            buffer.putLong(totalAmountNQT)
+            buffer.putLong(totalFeeNQT)
         }
+        buffer.putInt(payloadLength)
+        buffer.put(payloadHash)
+        buffer.put(generatorPublicKey)
+        buffer.put(generationSignature)
+        if (version > 1) {
+            buffer.put(previousBlockHash)
+        }
+        buffer.putLong(nonce)
+        if (blockATs != null)
+            buffer.put(blockATs)
+        if (buffer.limit() - buffer.position() < blockSignature!!.size)
+            logger.safeError { "Something is too large here - buffer should have ${blockSignature!!.size} bytes left but only has ${buffer.limit() - buffer.position()}" }
+        buffer.put(blockSignature!!)
+        return buffer.array()
+    }
 
     init {
         if (payloadLength > dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH, height) || payloadLength < 0) {
@@ -136,12 +143,12 @@ class Block internal constructor(private val dp: DependencyProvider, val version
                 }
                 previousId = transaction.id
             }
-            this.transactions = transactions
+            setTransactions(transactions)
         }
     }
 
     constructor(dp: DependencyProvider, version: Int, timestamp: Int, previousBlockId: Long, totalAmountNQT: Long, totalFeeNQT: Long, payloadLength: Int, payloadHash: ByteArray, generatorPublicKey: ByteArray, generationSignature: ByteArray, blockSignature: ByteArray, previousBlockHash: ByteArray?, cumulativeDifficulty: BigInteger?, baseTarget: Long,
-                nextBlockId: Long, height: Int, id: Long, nonce: Long, blockATs: ByteArray) : this(dp, version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature, previousBlockHash, null, nonce, blockATs, height) {
+                nextBlockId: Long, height: Int, id: Long, nonce: Long, blockATs: ByteArray?) : this(dp, version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature, previousBlockHash, null, nonce, blockATs, height) {
 
         this.cumulativeDifficulty = cumulativeDifficulty ?: BigInteger.ZERO
         this.baseTarget = baseTarget
@@ -166,10 +173,10 @@ class Block internal constructor(private val dp: DependencyProvider, val version
         return (id xor id.ushr(32)).toInt()
     }
 
-    internal fun sign(secretPhrase: String) {
+    internal suspend fun sign(secretPhrase: String) {
         check(blockSignature == null) { "Block already signed" }
         blockSignature = ByteArray(64)
-        val data = bytes
+        val data = toBytes()
         val data2 = ByteArray(data.size - 64)
         System.arraycopy(data, 0, data2, 0, data2.size)
         blockSignature = data2.signUsing(secretPhrase)
@@ -181,30 +188,30 @@ class Block internal constructor(private val dp: DependencyProvider, val version
 
         internal fun parseBlock(dp: DependencyProvider, blockData: JsonObject, height: Int): Block {
             try {
-                val version = JSON.getAsInt(blockData.get("version"))
-                val timestamp = JSON.getAsInt(blockData.get("timestamp"))
-                val previousBlock = JSON.getAsString(blockData.get("previousBlock")).parseUnsignedLong()
-                val totalAmountNQT = JSON.getAsLong(blockData.get("totalAmountNQT"))
-                val totalFeeNQT = JSON.getAsLong(blockData.get("totalFeeNQT"))
-                val payloadLength = JSON.getAsInt(blockData.get("payloadLength"))
-                val payloadHash = JSON.getAsString(blockData.get("payloadHash")).parseHexString()
-                val generatorPublicKey = JSON.getAsString(blockData.get("generatorPublicKey")).parseHexString()
-                val generationSignature = JSON.getAsString(blockData.get("generationSignature")).parseHexString()
-                val blockSignature = JSON.getAsString(blockData.get("blockSignature")).parseHexString()
-                val previousBlockHash = if (version == 1) null else JSON.getAsString(blockData.get("previousBlockHash")).parseHexString()
-                val nonce = JSON.getAsString(blockData.get("nonce")).parseUnsignedLong()
+                val version = blockData.get("version").mustGetAsInt("version")
+                val timestamp = blockData.get("timestamp").mustGetAsInt("timestamp")
+                val previousBlock = blockData.get("previousBlock").safeGetAsString().parseUnsignedLong()
+                val totalAmountNQT = blockData.get("totalAmountNQT").mustGetAsLong("totalAmountNQT")
+                val totalFeeNQT = blockData.get("totalFeeNQT").mustGetAsLong("totalFeeNQT")
+                val payloadLength = blockData.get("payloadLength").mustGetAsInt("payloadLength")
+                val payloadHash = blockData.get("payloadHash").mustGetAsString("payloadHash").parseHexString()
+                val generatorPublicKey = blockData.get("generatorPublicKey").mustGetAsString("generatorPublicKey").parseHexString()
+                val generationSignature = blockData.get("generationSignature").mustGetAsString("generationSignature").parseHexString()
+                val blockSignature = blockData.get("blockSignature").mustGetAsString("blockSignature").parseHexString()
+                val previousBlockHash = if (version == 1) null else blockData.get("previousBlockHash").mustGetAsString("previousBlockHash").parseHexString()
+                val nonce = blockData.get("nonce").safeGetAsString().parseUnsignedLong()
 
                 val blockTransactions = TreeMap<Long, Transaction>()
-                val transactionsData = JSON.getAsJsonArray(blockData.get("transactions"))
+                val transactionsData = blockData.get("transactions").mustGetAsJsonArray("transactions")
 
                 for (transactionData in transactionsData) {
-                    val transaction = Transaction.parseTransaction(dp, JSON.getAsJsonObject(transactionData), height)
+                    val transaction = Transaction.parseTransaction(dp, transactionData.mustGetAsJsonObject("transactionData"), height)
                     if (transaction.signature != null && blockTransactions.put(transaction.id, transaction) != null) {
                         throw BurstException.NotValidException("Block contains duplicate transactions: " + transaction.stringId)
                     }
                 }
 
-                val blockATs = JSON.getAsString(blockData.get("blockATs")).parseHexString()
+                val blockATs = blockData.get("blockATs").safeGetAsString()?.parseHexString()
                 return Block(dp, version, timestamp, previousBlock, totalAmountNQT, totalFeeNQT,
                         payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature,
                         previousBlockHash, blockTransactions.values, nonce, blockATs, height)

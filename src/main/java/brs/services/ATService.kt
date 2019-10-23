@@ -3,9 +3,9 @@ package brs.services
 import brs.at.AT
 
 interface ATService {
-    val allATIds: Collection<Long>
+    suspend fun getAllATIds(): Collection<Long>
 
-    fun getATsIssuedBy(accountId: Long?): List<Long>
+    suspend fun getATsIssuedBy(accountId: Long?): List<Long>
 
-    fun getAT(id: Long?): AT?
+    suspend fun getAT(id: Long?): AT?
 }

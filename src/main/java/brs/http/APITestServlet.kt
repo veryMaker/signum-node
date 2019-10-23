@@ -1,7 +1,7 @@
 package brs.http
 import brs.util.Subnet
-import brs.util.convert.nullToEmpty
 import brs.util.logging.safeDebug
+import org.intellij.lang.annotations.Language
 import org.owasp.encoder.Encode
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -33,7 +33,7 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
 
     private fun buildLinks(request: HttpServletRequest): String {
         val buf = StringBuilder()
-        val requestTag = request.getParameter("requestTag").nullToEmpty()
+        val requestTag = request.getParameter("requestTag").orEmpty()
         buf.append("<li")
         if (requestTag.isEmpty()) {
             buf.append(" class=\"active\"")
@@ -73,14 +73,14 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
                 writer.print(HEADER_1)
                 writer.print(buildLinks(request))
                 writer.print(HEADER_2)
-                val requestType = Encode.forHtml(request.getParameter("requestType")).nullToEmpty()
+                val requestType = Encode.forHtml(request.getParameter("requestType")).orEmpty()
                 var requestHandler: APIServlet.HttpRequestHandler? = apiRequestHandlers[requestType]
                 val bufJSCalls = StringBuilder()
                 if (requestHandler != null) {
                     writer.print(form(requestType, true, requestHandler.javaClass.name, requestHandler.parameters, requestHandler.requirePost()))
                     bufJSCalls.append("apiCalls.push(\"").append(requestType).append("\");\n")
                 } else {
-                    val requestTag = request.getParameter("requestTag").nullToEmpty()
+                    val requestTag = request.getParameter("requestTag").orEmpty()
                     val taggedTypes = requestTags[requestTag]
                     for (type in taggedTypes ?: requestTypes) {
                         requestHandler = apiRequestHandlers[type]
@@ -159,141 +159,14 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(APITestServlet::class.java)
-
-        private const val HEADER_1 = (
-                "<!DOCTYPE html>\n"
-                        + "<html>\n"
-                        + "<head>\n"
-                        + "    <meta charset=\"UTF-8\"/>\n"
-                        + "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">"
-                        + "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-                        + "    <title>Burst http API</title>\n"
-                        + "    <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" type=\"text/css\" />"
-                        + "    <style type=\"text/css\">\n"
-                        + "        table {border-collapse: collapse;}\n"
-                        + "        td {padding: 10px;}\n"
-                        + "        .result {white-space: pre; font-family: monospace; overflow: auto;}\n"
-                        + "    </style>\n"
-                        + "    <script type=\"text/javascript\">\n"
-                        + "        var apiCalls;\n"
-                        + "        function performSearch(searchStr) {\n"
-                        + "            if (searchStr == '') {\n"
-                        + "              $('.api-call-All').show();\n"
-                        + "            } else {\n"
-                        + "              $('.api-call-All').hide();\n"
-                        + "              $('.topic-link').css('font-weight', 'normal');\n"
-                        + "              for(var i=0; i<apiCalls.length; i++) {\n"
-                        + "                var apiCall = apiCalls[i];\n"
-                        + "                if (new RegExp(searchStr.toLowerCase()).test(apiCall.toLowerCase())) {\n"
-                        + "                  $('#api-call-' + apiCall).show();\n"
-                        + "                }\n"
-                        + "              }\n"
-                        + "            }\n"
-                        + "        }\n"
-                        + "        function submitForm(form) {\n"
-                        + "            var url = '/burst';\n"
-                        + "            for (i = 0; i < form.elements.length; i++) {\n"
-                        + "                if (form.elements[i].type != 'button' && form.elements[i].value && form.elements[i].value != 'submit') {\n"
-                        + "                    url += ((i == 0 && '?') || '&') + form.elements[i].name + '=' + form.elements[i].value;\n"
-                        + "                }\n"
-                        + "            }\n"
-                        + "            $.ajax({\n"
-                        + "                url: url,\n"
-                        + "                type: 'POST',\n"
-                        + "            })\n"
-                        + "            .done(function(result) {\n"
-                        + "                var resultStr = JSON.stringify(JSON.parse(result), null, 4);\n"
-                        + "                form.getElementsByClassName(\"result\")[0].textContent = resultStr;\n"
-                        + "            })\n"
-                        + "            .fail(function() {\n"
-                        + "                alert('API not available, check if Burst Server is running!');\n"
-                        + "            });\n"
-                        + "            if ($(form).has('.uri-link').length > 0) {\n"
-                        + "                  var html = '<a href=\"' + url + '\" target=\"_blank\" style=\"font-size:12px;font-weight:normal;\">Open GET URL</a>';"
-                        + "                  form.getElementsByClassName(\"uri-link\")[0].innerHTML = html;\n"
-                        + "            }"
-                        + "            return false;\n"
-                        + "        }\n"
-                        + "    </script>\n"
-                        + "</head>\n"
-                        + "<body>\n"
-                        + "<div class=\"navbar navbar-default\" role=\"navigation\">"
-                        + "   <div class=\"container\" style=\"min-width: 90%;\">"
-                        + "       <div class=\"navbar-header\">"
-                        + "           <a class=\"navbar-brand\" href=\"/test\">Burst http API</a>"
-                        + "       </div>"
-                        + "       <div class=\"navbar-collapse collapse\">"
-                        + "           <ul class=\"nav navbar-nav navbar-right\">"
-                        + "               <li><input type=\"text\" class=\"form-control\" id=\"search\" "
-                        + "                    placeholder=\"Search\" style=\"margin-top:8px;\"></li>\n"
-                        + "               <li><a href=\"https://burstwiki.org/en/the-burst-api/\" target=\"_blank\" style=\"margin-left:20px;\">Wiki Docs</a></li>"
-                        + "               <li><a href=\"/doc/index.html\" target=\"_blank\" style=\"margin-left:20px;\">Javadoc Index</a></li>"
-                        + "           </ul>"
-                        + "       </div>"
-                        + "   </div>"
-                        + "</div>"
-                        + "<div class=\"container\" style=\"min-width: 90%;\">"
-                        + "<div class=\"row\">"
-                        + "  <div class=\"col-xs-12\" style=\"margin-bottom:15px;\">"
-                        + "    <div class=\"pull-right\">"
-                        + "      <a href=\"#\" id=\"navi-show-open\">Show Open</a>"
-                        + "       | "
-                        + "      <a href=\"#\" id=\"navi-show-all\" style=\"font-weight:bold;\">Show All</a>"
-                        + "    </div>"
-                        + "  </div>"
-                        + "</div>"
-                        + "<div class=\"row\" style=\"margin-bottom:15px;\">"
-                        + "  <div class=\"col-xs-4 col-sm-3 col-md-2\">"
-                        + "    <ul class=\"nav nav-pills nav-stacked\">")
-        private const val HEADER_2 = (
-                "    </ul>"
-                        + "  </div>"
-                        + "  <div  class=\"col-xs-8 col-sm-9 col-md-10\">"
-                        + "    <div class=\"panel-group\" id=\"accordion\">")
-
-        private const val FOOTER_1 = (
-                "    </div> "
-                        + "  </div> "
-                        + "</div> "
-                        + "</div> "
-                        + "<script src=\"js/3rdparty/jquery.min.js\" integrity=\"sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT\"></script>"
-                        + "<script src=\"js/3rdparty/bootstrap.min.js\" integrity=\"sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa\" type=\"text/javascript\"></script>"
-                        + "<script>"
-                        + "  $(document).ready(function() {"
-                        + "    apiCalls = [];\n")
-
-        private const val FOOTER_2 = (
-                "    $(\".collapse-link\").click(function(event) {"
-                        + "       event.preventDefault();"
-                        + "    });"
-                        + "    $('#search').keyup(function(e) {\n"
-                        + "      if (e.keyCode == 13) {\n"
-                        + "        performSearch($(this).val());\n"
-                        + "      }\n"
-                        + "    });\n"
-                        + "    $('#navi-show-open').click(function(e) {"
-                        + "      $('.api-call-All').each(function() {"
-                        + "        if($(this).find('.panel-collapse.in').length != 0) {"
-                        + "          $(this).show();"
-                        + "        } else {"
-                        + "          $(this).hide();"
-                        + "        }"
-                        + "      });"
-                        + "      $('#navi-show-all').css('font-weight', 'normal');"
-                        + "      $(this).css('font-weight', 'bold');"
-                        + "      e.preventDefault();"
-                        + "    });"
-                        + "    $('#navi-show-all').click(function(e) {"
-                        + "      $('.api-call-All').show();"
-                        + "      $('#navi-show-open').css('font-weight', 'normal');"
-                        + "      $(this).css('font-weight', 'bold');"
-                        + "      e.preventDefault();"
-                        + "    });"
-                        + "  });"
-                        + "</script>"
-                        + "</body>\n"
-                        + "</html>\n")
+        @Language("HTML")
+        private const val HEADER_1 = """<!DOCTYPE html><html><head><meta charset="UTF-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"> <title>Burst http API</title> <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" /><style type="text/css"> table {border-collapse: collapse;} td {padding: 10px;} .result {white-space: pre; font-family: monospace; overflow: auto;} </style> <script type="text/javascript"> var apiCalls; function performSearch(searchStr) { if (searchStr == '') { $('.api-call-All').show(); } else { $('.api-call-All').hide(); $('.topic-link').css('font-weight', 'normal'); for(var i=0; i<apiCalls.length; i++) {  var apiCall = apiCalls[i];  if (new RegExp(searchStr.toLowerCase()).test(apiCall.toLowerCase())) {  $('#api-call-' + apiCall).show();  } } } } function submitForm(form) { var url = '/burst'; for (i = 0; i < form.elements.length; i++) {  if (form.elements[i].type != 'button' && form.elements[i].value && form.elements[i].value != 'submit') {  url += ((i == 0 && '?') || '&') + form.elements[i].name + '=' + form.elements[i].value;  } } $.ajax({  url: url,  type: 'POST', }) .done(function(result) {  var resultStr = JSON.stringify(JSON.parse(result), null, 4);  form.getElementsByClassName("result")[0].textContent = resultStr; }) .fail(function() {  alert('API not available, check if Burst Server is running!'); }); if ($(form).has('.uri-link').length > 0) {  var html = '<a href="' + url + '" target="_blank" style="font-size:12px;font-weight:normal;">Open GET URL</a>';  form.getElementsByClassName("uri-link")[0].innerHTML = html; } return false; } </script> </head> <body> <div class="navbar navbar-default" role="navigation"> <div class="container" style="min-width: 90%;"> <div class="navbar-header"> <a class="navbar-brand" href="/test">Burst http API</a> </div> <div class="navbar-collapse collapse"> <ul class="nav navbar-nav navbar-right"> <li><input type="text" class="form-control" id="search"  placeholder="Search" style="margin-top:8px;"></li> <li><a href="https://burstwiki.org/en/the-burst-api/" target="_blank" style="margin-left:20px;">Wiki Docs</a></li> <li><a href="/doc/index.html" target="_blank" style="margin-left:20px;">Javadoc Index</a></li> </ul> </div> </div></div><div class="container" style="min-width: 90%;"><div class="row"> <div class="col-xs-12" style="margin-bottom:15px;"> <div class="pull-right"> <a href="#" id="navi-show-open">Show Open</a> | <a href="#" id="navi-show-all" style="font-weight:bold;">Show All</a> </div> </div></div><div class="row" style="margin-bottom:15px;"> <div class="col-xs-4 col-sm-3 col-md-2"> <ul class="nav nav-pills nav-stacked">"""
+        @Language("HTML")
+        private const val HEADER_2 = """</ul></div><div class="col-xs-8 col-sm-9 col-md-10"><div class="panel-group" id="accordion">"""
+        @Language("HTML")
+        private const val FOOTER_1 = """</div></div></div></div><script src="js/3rdparty/jquery.min.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT"></script><script src="js/3rdparty/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" type="text/javascript"></script><script> $(document).ready(function() { apiCalls = [];"""
+        @Language("HTML")
+        private const val FOOTER_2 = """$(".collapse-link").click(function(event) { event.preventDefault(); });$('#search').keyup(function(e) { if (e.keyCode == 13) { performSearch($(this).val()); } });$('#navi-show-open').click(function(e) {$('.api-call-All').each(function() {if($(this).find('.panel-collapse.in').length != 0) {$(this).show();} else {$(this).hide();}});$('#navi-show-all').css('font-weight', 'normal');$(this).css('font-weight', 'bold');e.preventDefault();});$('#navi-show-all').click(function(e) {$('.api-call-All').show();$('#navi-show-open').css('font-weight', 'normal');$(this).css('font-weight', 'bold');e.preventDefault();});});</script></body></html>"""
     }
 }

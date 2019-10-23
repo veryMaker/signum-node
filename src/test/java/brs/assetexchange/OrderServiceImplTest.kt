@@ -56,7 +56,7 @@ class OrderServiceImplTest {
         val askKey = 123L
 
         whenever(mockAskOrderDbKeyFactory.newKey(eq(askKey))).doReturn(mockAskKey)
-        whenever(mockAskOrderTable[eq(mockAskKey)]).doReturn(mockAsk)
+        whenever(mockAskOrderTable.get(eq(mockAskKey))).doReturn(mockAsk)
 
         assertEquals(mockAsk, t.getAskOrder(askKey))
     }
@@ -69,7 +69,7 @@ class OrderServiceImplTest {
         val bidKey = 123L
 
         whenever(mockBidOrderDbKeyFactory.newKey(eq(bidKey))).doReturn(mockBidKey)
-        whenever(mockBidOrderTable[eq(mockBidKey)]).doReturn(mockBid)
+        whenever(mockBidOrderTable.get(eq(mockBidKey))).doReturn(mockBid)
 
         assertEquals(mockBid, t.getBidOrder(bidKey))
     }

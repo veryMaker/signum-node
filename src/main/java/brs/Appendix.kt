@@ -5,11 +5,14 @@ import brs.fluxcapacitor.FluxValues
 import brs.grpc.proto.BrsApi
 import brs.grpc.proto.ProtoBuilder
 import brs.grpc.proto.toByteString
-import brs.util.JSON
 import brs.util.convert.parseHexString
 import brs.util.convert.toBytes
 import brs.util.convert.toHexString
 import brs.util.convert.toUtf8String
+import brs.util.mustGetAsBoolean
+import brs.util.mustGetAsJsonObject
+import brs.util.mustGetAsString
+import brs.util.safeGetAsByte
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
 import java.nio.ByteBuffer
@@ -45,7 +48,7 @@ interface Appendix {
             }
 
         internal constructor(attachmentData: JsonObject) {
-            version = JSON.getAsByte(attachmentData.get("version.$appendixName"))
+            version = attachmentData.get("version.$appendixName").safeGetAsByte() ?: 0
         }
 
         internal constructor(buffer: ByteBuffer, transactionVersion: Byte) {
@@ -75,7 +78,7 @@ interface Appendix {
             return if (transactionVersion.toInt() == 0) version.toInt() == 0 else version > 0
         }
 
-        abstract fun validate(transaction: Transaction)
+        abstract suspend fun validate(transaction: Transaction)
 
         abstract suspend fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account)
     }
@@ -112,8 +115,8 @@ interface Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            val messageString = JSON.getAsString(attachmentData.get("message"))
-            this.isText = JSON.getAsBoolean(attachmentData.get("messageIsText"))
+            val messageString = attachmentData.get("message").mustGetAsString("message")
+            this.isText = attachmentData.get("messageIsText").mustGetAsBoolean("messageIsText")
             this.messageBytes = if (isText) messageString.toBytes() else messageString.parseHexString()
         }
 
@@ -142,7 +145,7 @@ interface Appendix {
             attachment.addProperty("messageIsText", isText)
         }
 
-        override fun validate(transaction: Transaction) {
+        override suspend fun validate(transaction: Transaction) {
             if (this.isText && transaction.version.toInt() == 0) {
                 throw BurstException.NotValidException("Text messages not yet enabled")
             }
@@ -194,10 +197,10 @@ interface Appendix {
         }
 
         constructor(attachmentJSON: JsonObject, encryptedMessageJSON: JsonObject) : super(attachmentJSON) {
-            val data = JSON.getAsString(encryptedMessageJSON.get("data")).parseHexString()
-            val nonce = JSON.getAsString(encryptedMessageJSON.get("nonce")).parseHexString()
+            val data = encryptedMessageJSON.get("data").mustGetAsString("data").parseHexString()
+            val nonce = encryptedMessageJSON.get("nonce").mustGetAsString("data").parseHexString()
             this.encryptedData = EncryptedData(data, nonce)
-            this.isText = JSON.getAsBoolean(encryptedMessageJSON.get("isText"))
+            this.isText = encryptedMessageJSON.get("isText").mustGetAsBoolean("data")
         }
 
         constructor(dp: DependencyProvider, encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(dp, blockchainHeight) {
@@ -222,7 +225,7 @@ interface Appendix {
             json.addProperty("isText", isText)
         }
 
-        override fun validate(transaction: Transaction) {
+        override suspend fun validate(transaction: Transaction) {
             if (encryptedData.data.size > Constants.MAX_ENCRYPTED_MESSAGE_LENGTH) {
                 throw BurstException.NotValidException("Max encrypted message length exceeded")
             }
@@ -245,7 +248,7 @@ interface Appendix {
 
         constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion)
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData, JSON.getAsJsonObject(attachmentData.get("encryptedMessage")))
+        internal constructor(attachmentData: JsonObject) : super(attachmentData, attachmentData.get("encryptedMessage").mustGetAsJsonObject("encryptedMessage"))
 
         constructor(dp: DependencyProvider, encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(dp, encryptedData, isText, blockchainHeight)
 
@@ -259,7 +262,7 @@ interface Appendix {
             json.add("encryptedMessage", encryptedMessageJSON)
         }
 
-        override fun validate(transaction: Transaction) {
+        override suspend fun validate(transaction: Transaction) {
             super.validate(transaction)
             if (!transaction.type.hasRecipient()) {
                 throw BurstException.NotValidException("Encrypted messages cannot be attached to transactions with no recipient")
@@ -290,7 +293,7 @@ interface Appendix {
 
         constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion)
 
-        internal constructor(attachmentData: JsonObject) : super(attachmentData, JSON.getAsJsonObject(attachmentData.get("encryptToSelfMessage")))
+        internal constructor(attachmentData: JsonObject) : super(attachmentData, attachmentData.get("encryptToSelfMessage").mustGetAsJsonObject("encryptToSelfMessage"))
 
         constructor(dp: DependencyProvider, encryptedData: EncryptedData, isText: Boolean, blockchainHeight: Int) : super(dp, encryptedData, isText, blockchainHeight)
 
@@ -304,7 +307,7 @@ interface Appendix {
             json.add("encryptToSelfMessage", encryptToSelfMessageJSON)
         }
 
-        override fun validate(transaction: Transaction) {
+        override suspend fun validate(transaction: Transaction) {
             super.validate(transaction)
             if (transaction.version.toInt() == 0) {
                 throw BurstException.NotValidException("Encrypt-to-self message attachments not enabled for version 0 transactions")
@@ -318,7 +321,6 @@ interface Appendix {
                 } else EncryptToSelfMessage(attachmentData)
             }
         }
-
     }
 
     class PublicKeyAnnouncement : AbstractAppendix {
@@ -345,7 +347,7 @@ interface Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(attachmentData) {
-            this.publicKey = JSON.getAsString(attachmentData.get("recipientPublicKey")).parseHexString()
+            this.publicKey = attachmentData.get("recipientPublicKey").mustGetAsString("recipientPublicKey").parseHexString()
             this.dp = dp
         }
 
@@ -367,7 +369,7 @@ interface Appendix {
             attachment.addProperty("recipientPublicKey", publicKey.toHexString())
         }
 
-        override fun validate(transaction: Transaction) {
+        override suspend fun validate(transaction: Transaction) {
             if (!transaction.type.hasRecipient()) {
                 throw BurstException.NotValidException("PublicKeyAnnouncement cannot be attached to transactions with no recipient")
             }

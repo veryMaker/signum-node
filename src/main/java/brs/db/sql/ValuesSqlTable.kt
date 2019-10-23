@@ -3,6 +3,7 @@ package brs.db.sql
 import brs.DependencyProvider
 import brs.db.BurstKey
 import brs.db.ValuesTable
+import brs.util.db.fetchAndMap
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.impl.DSL
@@ -15,30 +16,30 @@ abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableCla
 
     protected abstract fun save(ctx: DSLContext, t: T, v: V)
 
-    override fun get(dbKey: BurstKey): List<V> {
-        return dp.db.useDslContext<List<V>> { ctx ->
+    override suspend fun get(dbKey: BurstKey): List<V> {
+        return dp.db.getUsingDslContext<List<V>> { ctx ->
             val key = dbKey as DbKey
             var values: List<V>?
-            if (dp.db.isInTransaction) {
+            if (dp.db.isInTransaction()) {
                 values = dp.db.getCache<List<V>>(table)[key]
                 if (values != null) {
-                    return@useDslContext values
+                    return@getUsingDslContext values
                 }
             }
             values = ctx.selectFrom(tableClass)
                     .where(key.getPKConditions(tableClass))
                     .and(if (multiversion) latestField?.isTrue ?: DSL.noCondition() else DSL.noCondition())
                     .orderBy(tableClass.field("db_id").desc())
-                    .fetch { record -> load(ctx, record) }
-            if (dp.db.isInTransaction) {
+                    .fetchAndMap { record -> load(ctx, record) }
+            if (dp.db.isInTransaction()) {
                 dp.db.getCache<Any>(table)[key] = values
             }
             values
         }
     }
 
-    override fun insert(t: T, values: List<V>) {
-        check(dp.db.isInTransaction) { "Not in transaction" }
+    override suspend fun insert(t: T, values: List<V>) {
+        check(dp.db.isInTransaction()) { "Not in transaction" }
         dp.db.useDslContext { ctx ->
             val dbKey = dbKeyFactory.newKey(t) as DbKey
             dp.db.getCache<Any>(table)[dbKey] = values
@@ -55,12 +56,12 @@ abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableCla
         }
     }
 
-    override fun rollback(height: Int) {
+    override suspend fun rollback(height: Int) {
         super.rollback(height)
         dp.db.getCache<Any>(table).clear()
     }
 
-    override fun truncate() {
+    override suspend fun truncate() {
         super.truncate()
         dp.db.getCache<Any>(table).clear()
     }

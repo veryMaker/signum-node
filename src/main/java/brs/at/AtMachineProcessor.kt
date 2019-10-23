@@ -141,7 +141,7 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
 
     }
 
-    fun processOp(disassemble: Boolean, determineJumps: Boolean): Int {
+    suspend fun processOp(disassemble: Boolean, determineJumps: Boolean): Int {
         var rc = 0
 
         if (machineData.getcSize() < 1 || machineData.machineState.pc >= machineData.getcSize())
