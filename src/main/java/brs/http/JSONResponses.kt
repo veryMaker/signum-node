@@ -280,9 +280,9 @@ object JSONResponses {
         val response = JsonObject()
         response.addProperty(ERROR_CODE_RESPONSE, 3)
         if (paramNames.size == 1) {
-            response.addProperty(ERROR_DESCRIPTION_RESPONSE, "\"" + paramNames[0] + "\"" + " not specified")
+            response.addProperty(ERROR_DESCRIPTION_RESPONSE, "\"${paramNames[0]}\" not specified")
         } else {
-            response.addProperty(ERROR_DESCRIPTION_RESPONSE, "At least one of " + paramNames.contentToString() + " must be specified")
+            response.addProperty(ERROR_DESCRIPTION_RESPONSE, "At least one of ${paramNames.contentToString()} must be specified")
         }
         return response
     }
@@ -290,7 +290,7 @@ object JSONResponses {
     private fun incorrect(paramName: String, details: String? = null): JsonElement {
         val response = JsonObject()
         response.addProperty(ERROR_CODE_RESPONSE, 4)
-        response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect \"" + paramName + "\"" + (details ?: ""))
+        response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect \"$paramName\"${details ?: ""}")
         return response
     }
 
@@ -302,7 +302,6 @@ object JSONResponses {
     }
 
     fun incorrectUnknown(paramName: String): JsonElement {
-        return incorrect(paramName, "param not known")
+        return incorrect(paramName, "Param not known")
     }
-
 }

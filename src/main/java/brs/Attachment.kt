@@ -269,11 +269,9 @@ interface Attachment : Appendix {
             }
         }
 
-        constructor(dp: DependencyProvider, recipients: Collection<Entry<String, Long>>, blockchainHeight: Int) : super(dp, blockchainHeight) {
-
+        constructor(dp: DependencyProvider, recipients: Map<Long, Long>, blockchainHeight: Int) : super(dp, blockchainHeight) {
             val recipientOf = mutableMapOf<Long, Boolean>()
-            for ((key, amountNQT) in recipients) {
-                val recipientId = BigInteger(key).toLong()
+            for ((recipientId, amountNQT) in recipients) {
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi out transaction")
 

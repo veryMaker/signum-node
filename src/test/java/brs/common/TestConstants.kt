@@ -1,8 +1,7 @@
 package brs.common
 
-import brs.crypto.Crypto
-
 import brs.Constants.ONE_BURST
+import brs.crypto.Crypto
 
 object TestConstants {
 
@@ -20,7 +19,7 @@ object TestConstants {
 
     const val DEADLINE = "400"
 
-    const val FEE = "" + ONE_BURST
+    const val FEE = ONE_BURST.toString()
 
     const val TEN_BURST = ONE_BURST * 10
 }

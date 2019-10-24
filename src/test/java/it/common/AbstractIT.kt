@@ -21,6 +21,7 @@ abstract class AbstractIT {
      * Must be called by subclasses.
      */
     fun setupIT() {
+        println("Setting up IT for test " + this.javaClass.toString())
         burst = Burst(testProperties(), false)
         processBlock = ProcessBlock(burst.dp.blockchain, burst.dp.blockchainProcessor)
     }

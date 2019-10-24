@@ -77,7 +77,7 @@ abstract class AbstractGrpcTest {
      * Needed so that streaming calls can be gracefully shutdown afterwards.
      * @param runnable The test to execute
      */
-    protected fun runAndCancel(runnable: () -> Unit) {
+    protected inline fun runAndCancel(runnable: () -> Unit) {
         val withCancellation = Context.current().withCancellation()
         val prevCtx = withCancellation.attach()
         try {

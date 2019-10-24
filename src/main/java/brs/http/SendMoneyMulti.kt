@@ -16,12 +16,9 @@ import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import java.util.AbstractMap.SimpleEntry
 import javax.servlet.http.HttpServletRequest
-import kotlin.collections.Map.Entry
 
 internal class SendMoneyMulti(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), true, *commonParameters) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)
         val recipientString = request.getParameter(RECIPIENTS_PARAMETER).emptyToNull()
@@ -42,7 +39,7 @@ internal class SendMoneyMulti(private val dp: DependencyProvider) : CreateTransa
             return response
         }
 
-        val recipients = mutableListOf<Entry<String, Long>>()
+        val recipients = mutableMapOf<Long, Long>()
 
         var totalAmountNQT: Long = 0
         try {
@@ -50,7 +47,7 @@ internal class SendMoneyMulti(private val dp: DependencyProvider) : CreateTransa
                 val recipientArray = transactionString.split(":".toRegex(), 2).toTypedArray()
                 val recipientId = recipientArray[0].parseUnsignedLong()
                 val amountNQT = recipientArray[1].parseUnsignedLong()
-                recipients.add(SimpleEntry("" + recipientId, amountNQT))
+                recipients[recipientId] = amountNQT
                 totalAmountNQT += amountNQT
             }
         } catch (e: Exception) {
@@ -73,7 +70,6 @@ internal class SendMoneyMulti(private val dp: DependencyProvider) : CreateTransa
     }
 
     companion object {
-
         private val commonParameters = arrayOf(SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_NQT_PARAMETER, DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER, RECIPIENTS_PARAMETER)
     }
 }
