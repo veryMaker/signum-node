@@ -72,7 +72,7 @@ class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
     private fun saveEscrow(ctx: DSLContext, escrow: Escrow) {
         ctx.mergeInto<EscrowRecord, Long, Long, Long, Long, Int, Int, Int, Int, Boolean>(ESCROW, ESCROW.ID, ESCROW.SENDER_ID, ESCROW.RECIPIENT_ID, ESCROW.AMOUNT, ESCROW.REQUIRED_SIGNERS, ESCROW.DEADLINE, ESCROW.DEADLINE_ACTION, ESCROW.HEIGHT, ESCROW.LATEST)
                 .key(ESCROW.ID, ESCROW.HEIGHT)
-                .values(escrow.id, escrow.senderId, escrow.recipientId, escrow.amountNQT, escrow.requiredSigners, escrow.deadline, Escrow.decisionToByte(escrow.deadlineAction) as Int, dp.blockchain.height, true)
+                .values(escrow.id, escrow.senderId, escrow.recipientId, escrow.amountNQT, escrow.requiredSigners, escrow.deadline, Escrow.decisionToByte(escrow.deadlineAction).toInt(), dp.blockchain.height, true)
                 .execute()
     }
 

@@ -28,18 +28,18 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                 try {
                     val peer = dp.peers.getAnyPeer(Peer.State.CONNECTED) ?: return@run
                     val response = dp.peers.readUnconfirmedTransactions(peer) ?: return@run
-                    val transactionsData = response.get(UNCONFIRMED_TRANSACTIONS_RESPONSE).mustGetAsJsonArray(UNCONFIRMED_TRANSACTIONS_RESPONSE)
-                    if (transactionsData.isEmpty()) return@run
+                    val transactionsData = response.get(UNCONFIRMED_TRANSACTIONS_RESPONSE).safeGetAsJsonArray()
+                    if (transactionsData == null || transactionsData.isEmpty()) return@run
                     dp.peers.feedingTime(peer, foodDispenser, doneFeedingLog)
 
                     try {
                         val addedTransactions = processPeerTransactions(transactionsData, peer)
 
                         if (addedTransactions.isNotEmpty()) {
-                            val activePrioPlusExtra = dp.peers.allActivePriorityPlusSomeExtraPeers
-                            activePrioPlusExtra.remove(peer)
+                            val activePriorityPlusExtra = dp.peers.allActivePriorityPlusSomeExtraPeers
+                            activePriorityPlusExtra.remove(peer)
 
-                            dp.taskScheduler.awaitTasks(TaskType.IO, activePrioPlusExtra.map { otherPeer ->
+                            dp.taskScheduler.awaitTasks(TaskType.IO, activePriorityPlusExtra.map { otherPeer ->
                                 {
                                     try {
                                         val otherPeerResponse = dp.peers.readUnconfirmedTransactions(otherPeer)

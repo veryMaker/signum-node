@@ -78,7 +78,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
             goodsTable.insert(goods)
             goodsListeners.accept(Event.GOODS_QUANTITY_CHANGE, goods)
         } else {
-            throw IllegalStateException("Can't change quantity of delisted goods")
+            error("Can't change quantity of delisted goods")
         }
     }
 
@@ -115,7 +115,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
             goodsTable.insert(goods)
             goodsListeners.accept(Event.GOODS_DELISTED, goods)
         } else {
-            throw IllegalStateException("Goods already delisted")
+            error("Goods already delisted")
         }
     }
 
@@ -169,7 +169,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
             goodsTable.insert(goods)
             goodsListeners.accept(Event.GOODS_PRICE_CHANGE, goods)
         } else {
-            throw IllegalStateException("Can't change price of delisted goods")
+            error("Can't change price of delisted goods")
         }
     }
 

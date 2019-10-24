@@ -40,7 +40,7 @@ internal class GetMilestoneBlockIds(private val blockchain: Blockchain) : PeerSe
             when {
                 lastMilestoneBlockIdString.isEmpty() -> {
                     val lastMilestoneBlock = blockchain.getBlock(lastMilestoneBlockIdString.parseUnsignedLong())
-                        ?: throw IllegalStateException("Don't have block $lastMilestoneBlockIdString")
+                        ?: error("Don't have block $lastMilestoneBlockIdString")
                     height = lastMilestoneBlock.height
                     jump = min(1440, max(blockchainHeight - height, 1))
                     height = max(height - jump, 0)
