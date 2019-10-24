@@ -108,7 +108,7 @@ class RxJavaTaskScheduler: TaskScheduler {
         requireNotStarted()
         started = true
         // Run before start tasks
-        awaitTasks(TaskType.COMPUTATION, beforeStartTasks)
+        awaitTasks(TaskType.IO, beforeStartTasks)
 
         // Start regular scheduled tasks
         scheduledTasks.forEach { (task, taskType) -> runTask(repeatingTaskToTask(task, taskType)) }
@@ -124,7 +124,7 @@ class RxJavaTaskScheduler: TaskScheduler {
         scheduledWithDelayTasks.forEach { (task, taskInfo) -> runTask(delayedTaskToTask(task, taskInfo.first, taskInfo.second, taskInfo.third)) }
 
         // Run after start tasks
-        awaitTasks(TaskType.COMPUTATION, afterStartTasks)
+        awaitTasks(TaskType.IO, afterStartTasks)
     }
 
     override fun shutdown() {

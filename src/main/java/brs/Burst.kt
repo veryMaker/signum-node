@@ -113,14 +113,14 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             }
 
             if (dp.propertyService.get(Props.BRS_DEBUG_TRACE_ENABLED)) {
+                // TODO remove
+                logger.safeInfo { "Starting Debug Trace Manager" }
                 val debugTraceManager = DebugTraceManager(dp)
             }
 
-            val timeMultiplier =
-                if (dp.propertyService.get(Props.DEV_TESTNET) && dp.propertyService.get(Props.DEV_OFFLINE)) dp.propertyService.get(
-                    Props.DEV_TIMEWARP
-                ).coerceAtLeast(1) else 1
+            val timeMultiplier = if (dp.propertyService.get(Props.DEV_TESTNET) && dp.propertyService.get(Props.DEV_OFFLINE)) dp.propertyService.get(Props.DEV_TIMEWARP).coerceAtLeast(1) else 1
 
+            logger.safeInfo { "Starting Task Scheduler" }
             dp.taskScheduler.start()
             if (timeMultiplier > 1) {
                 dp.timeService.setTime(
