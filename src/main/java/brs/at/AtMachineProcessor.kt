@@ -422,10 +422,11 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                                     machineData.getcUserStackBytes() - machineData.machineState.us * 8, machineData.apData.getLong(`fun`.addr1 * 8))
                             machineData.apData.clear()
                         } else {
-                            machineData.machineState.us--
-                            machineData.apData.putLong(`fun`.addr1 * 8, machineData.apData.getLong(machineData.getdSize() +
+                            val `val` = machineData.apData.getLong(machineData.getdSize() +
                                     machineData.getcCallStackBytes() +
-                                    machineData.getcUserStackBytes() - machineData.machineState.us * 8))
+                                    machineData.getcUserStackBytes() - machineData.machineState.us * 8)
+                            machineData.machineState.us--
+                            machineData.apData.putLong(`fun`.addr1 * 8, `val`)
                             machineData.apData.clear()
                         }
                     }

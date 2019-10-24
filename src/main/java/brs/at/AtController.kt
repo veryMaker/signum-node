@@ -60,12 +60,11 @@ class AtController(private val dp: DependencyProvider) {
                     return 1
                 }
             } else {
-                if (rc == -1)
-                    debugLogger.safeDebug { "error: overflow" }
-                else if (rc == -2)
-                    debugLogger.safeDebug { "error: invalid code" }
-                else
-                    debugLogger.safeDebug { "unexpected error" }
+                when (rc) {
+                    -1 -> debugLogger.safeDebug { "error: overflow" }
+                    -2 -> debugLogger.safeDebug { "error: invalid code" }
+                    else -> debugLogger.safeDebug { "unexpected error" }
+                }
 
                 if (state.machineState.jumps.contains(state.machineState.err)) {
                     state.machineState.pc = state.machineState.err
