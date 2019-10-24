@@ -79,7 +79,6 @@ import com.google.protobuf.InvalidProtocolBufferException
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.util.*
-import kotlin.collections.Map.Entry
 
 
 interface Attachment : Appendix {
@@ -194,8 +193,7 @@ interface Attachment : Appendix {
     class PaymentMultiOutCreation : AbstractAttachment {
         private val recipients = mutableListOf<List<Long>>()
 
-        override val appendixName: String
-            get() = "MultiOutCreation"
+        override fun getAppendixName(): String = "MultiOutCreation"
 
         override val mySize: Int
             get() = 1 + recipients.size * 16
@@ -338,8 +336,7 @@ interface Attachment : Appendix {
 
         private val recipients = mutableListOf<Long>()
 
-        override val appendixName: String
-            get() = "MultiSameOutCreation"
+        override fun getAppendixName(): String = "MultiSameOutCreation"
 
         override val mySize: Int
             get() = 1 + recipients.size * 8
@@ -442,8 +439,7 @@ interface Attachment : Appendix {
         val aliasName: String
         val aliasURI: String
 
-        override val appendixName: String
-            get() = "AliasAssignment"
+        override fun getAppendixName(): String = "AliasAssignment"
 
         override val mySize: Int
             get() = 1 + aliasName.toBytes().size + 2 + aliasURI.toBytes().size
@@ -498,8 +494,7 @@ interface Attachment : Appendix {
         val aliasName: String
         val priceNQT: Long
 
-        override val appendixName: String
-            get() = "AliasSell"
+        override fun getAppendixName(): String = "AliasSell"
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_MESSAGING, TransactionType.SUBTYPE_MESSAGING_ALIAS_SELL)
@@ -551,8 +546,7 @@ interface Attachment : Appendix {
 
         val aliasName: String
 
-        override val appendixName: String
-            get() = "AliasBuy"
+        override fun getAppendixName(): String = "AliasBuy"
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_MESSAGING, TransactionType.SUBTYPE_MESSAGING_ALIAS_BUY)
@@ -598,8 +592,7 @@ interface Attachment : Appendix {
         val name: String
         val description: String
 
-        override val appendixName: String
-            get() = "AccountInfo"
+        override fun getAppendixName(): String = "AccountInfo"
 
         override val mySize: Int
             get() = 1 + name.toBytes().size + 2 + description.toBytes().size
@@ -656,8 +649,7 @@ interface Attachment : Appendix {
         val quantityQNT: Long
         val decimals: Byte
 
-        override val appendixName: String
-            get() = "AssetIssuance"
+        override fun getAppendixName(): String = "AssetIssuance"
 
         override val mySize: Int
             get() = 1 + name.toBytes().size + 2 + description.toBytes().size + 8 + 1
@@ -727,8 +719,7 @@ interface Attachment : Appendix {
         val quantityQNT: Long
         val comment: String?
 
-        override val appendixName: String
-            get() = "AssetTransfer"
+        override fun getAppendixName(): String = "AssetTransfer"
 
         override val mySize: Int
             get() = 8 + 8 + if (version.toInt() == 0) 2 + comment.toBytes().size else 0
@@ -849,8 +840,7 @@ interface Attachment : Appendix {
         override val type: BrsApi.OrderType
             get() = BrsApi.OrderType.ASK
 
-        override val appendixName: String
-            get() = "AskOrderPlacement"
+        override fun getAppendixName(): String = "AskOrderPlacement"
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_COLORED_COINS, TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT)
@@ -871,8 +861,7 @@ interface Attachment : Appendix {
         override val type: BrsApi.OrderType
             get() = BrsApi.OrderType.BID
 
-        override val appendixName: String
-            get() = "BidOrderPlacement"
+        override fun getAppendixName(): String = "BidOrderPlacement"
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_COLORED_COINS, TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT)
@@ -935,8 +924,7 @@ interface Attachment : Appendix {
         override val type: BrsApi.OrderType
             get() = BrsApi.OrderType.ASK
 
-        override val appendixName: String
-            get() = "AskOrderCancellation"
+        override fun getAppendixName(): String = "AskOrderCancellation"
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_COLORED_COINS, TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION)
@@ -958,8 +946,7 @@ interface Attachment : Appendix {
         override val type: BrsApi.OrderType
             get() = BrsApi.OrderType.BID
 
-        override val appendixName: String
-            get() = "BidOrderCancellation"
+        override fun getAppendixName(): String = "BidOrderCancellation"
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_COLORED_COINS, TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION)
@@ -984,8 +971,7 @@ interface Attachment : Appendix {
         val quantity: Int
         val priceNQT: Long
 
-        override val appendixName: String
-            get() = "DigitalGoodsListing"
+        override fun getAppendixName(): String = "DigitalGoodsListing"
 
         override val mySize: Int
             get() = (2 + name.toBytes().size + 2 + description.toBytes().size + 2
@@ -1063,8 +1049,7 @@ interface Attachment : Appendix {
 
         val goodsId: Long
 
-        override val appendixName: String
-            get() = "DigitalGoodsDelisting"
+        override fun getAppendixName(): String = "DigitalGoodsDelisting"
 
         override val mySize: Int
             get() = 8
@@ -1108,8 +1093,7 @@ interface Attachment : Appendix {
         val goodsId: Long
         val priceNQT: Long
 
-        override val appendixName: String
-            get() = "DigitalGoodsPriceChange"
+        override fun getAppendixName(): String = "DigitalGoodsPriceChange"
 
         override val mySize: Int
             get() = 8 + 8
@@ -1160,8 +1144,7 @@ interface Attachment : Appendix {
         val goodsId: Long
         val deltaQuantity: Int
 
-        override val appendixName: String
-            get() = "DigitalGoodsQuantityChange"
+        override fun getAppendixName(): String = "DigitalGoodsQuantityChange"
 
         override val mySize: Int
             get() = 8 + 4
@@ -1214,8 +1197,7 @@ interface Attachment : Appendix {
         val priceNQT: Long
         val deliveryDeadlineTimestamp: Int
 
-        override val appendixName: String
-            get() = "DigitalGoodsPurchase"
+        override fun getAppendixName(): String = "DigitalGoodsPurchase"
 
         override val mySize: Int
             get() = 8 + 4 + 8 + 4
@@ -1282,8 +1264,7 @@ interface Attachment : Appendix {
         val discountNQT: Long
         private val goodsIsText: Boolean
 
-        override val appendixName: String
-            get() = "DigitalGoodsDelivery"
+        override fun getAppendixName(): String = "DigitalGoodsDelivery"
 
         override val mySize: Int
             get() = 8 + 4 + goods.size + 8
@@ -1357,8 +1338,7 @@ interface Attachment : Appendix {
 
         val purchaseId: Long
 
-        override val appendixName: String
-            get() = "DigitalGoodsFeedback"
+        override fun getAppendixName(): String = "DigitalGoodsFeedback"
 
         override val mySize: Int
             get() = 8
@@ -1402,8 +1382,7 @@ interface Attachment : Appendix {
         val purchaseId: Long
         val refundNQT: Long
 
-        override val appendixName: String
-            get() = "DigitalGoodsRefund"
+        override fun getAppendixName(): String = "DigitalGoodsRefund"
 
         override val mySize: Int
             get() = 8 + 8
@@ -1454,7 +1433,7 @@ interface Attachment : Appendix {
 
         val period: Short
 
-        override val appendixName = "EffectiveBalanceLeasing"
+        override fun getAppendixName() = "EffectiveBalanceLeasing"
 
         override val mySize = 2
 
@@ -1492,8 +1471,7 @@ interface Attachment : Appendix {
 
     class BurstMiningRewardRecipientAssignment : AbstractAttachment {
 
-        override val appendixName: String
-            get() = "RewardRecipientAssignment"
+        override fun getAppendixName(): String = "RewardRecipientAssignment"
 
         override val mySize: Int
             get() = 0
@@ -1531,8 +1509,7 @@ interface Attachment : Appendix {
         val deadline: Int
         val deadlineAction: Escrow.DecisionType?
 
-        override val appendixName: String
-            get() = "EscrowCreation"
+        override fun getAppendixName(): String = "EscrowCreation"
 
         override val mySize: Int
             get() {
@@ -1655,8 +1632,7 @@ interface Attachment : Appendix {
         val escrowId: Long?
         val decision: Escrow.DecisionType?
 
-        override val appendixName: String
-            get() = "EscrowSign"
+        override fun getAppendixName(): String = "EscrowSign"
 
         override val mySize: Int
             get() = 8 + 1
@@ -1707,8 +1683,7 @@ interface Attachment : Appendix {
         private val escrowId: Long
         private val decision: Escrow.DecisionType?
 
-        override val appendixName: String
-            get() = "EscrowResult"
+        override fun getAppendixName(): String = "EscrowResult"
 
         override val mySize: Int
             get() = 8 + 1
@@ -1758,8 +1733,7 @@ interface Attachment : Appendix {
 
         val frequency: Int?
 
-        override val appendixName: String
-            get() = "SubscriptionSubscribe"
+        override fun getAppendixName(): String = "SubscriptionSubscribe"
 
         override val mySize: Int
             get() = 4
@@ -1802,8 +1776,7 @@ interface Attachment : Appendix {
 
         val subscriptionId: Long
 
-        override val appendixName: String
-            get() = "SubscriptionCancel"
+        override fun getAppendixName(): String = "SubscriptionCancel"
 
         override val mySize: Int
             get() = 8
@@ -1846,8 +1819,7 @@ interface Attachment : Appendix {
 
         private val subscriptionId: Long?
 
-        override val appendixName: String
-            get() = "SubscriptionPayment"
+        override fun getAppendixName(): String = "SubscriptionPayment"
 
         override val mySize: Int
             get() = 8
@@ -1895,8 +1867,7 @@ interface Attachment : Appendix {
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_AUTOMATED_TRANSACTIONS, TransactionType.SUBTYPE_AT_CREATION)
 
-        override val appendixName: String
-            get() = "AutomatedTransactionsCreation"
+        override fun getAppendixName(): String = "AutomatedTransactionsCreation"
         override val mySize: Int
             get() = 1 + name.toBytes().size + 2 + description.toBytes().size + creationBytes.size
 
@@ -2010,8 +1981,7 @@ interface Attachment : Appendix {
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.OrdinaryPaymentAttachment.getDefaultInstance())
 
-        override val appendixName: String
-            get() = "OrdinaryPayment"
+        override fun getAppendixName(): String = "OrdinaryPayment"
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_PAYMENT, TransactionType.SUBTYPE_PAYMENT_ORDINARY_PAYMENT)
@@ -2022,7 +1992,7 @@ interface Attachment : Appendix {
 
         override val protobufMessage: Any = Any.pack(BrsApi.ArbitraryMessageAttachment.getDefaultInstance())
 
-        override val appendixName = "ArbitraryMessage"
+        override fun getAppendixName() = "ArbitraryMessage"
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_MESSAGING, TransactionType.SUBTYPE_MESSAGING_ARBITRARY_MESSAGE)
@@ -2035,7 +2005,6 @@ interface Attachment : Appendix {
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(TransactionType.TYPE_AUTOMATED_TRANSACTIONS, TransactionType.SUBTYPE_AT_PAYMENT)
 
-        override val appendixName: String
-            get() = "AT Payment"
+        override fun getAppendixName(): String = "AT Payment"
     }
 }

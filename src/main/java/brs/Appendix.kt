@@ -30,7 +30,8 @@ interface Appendix {
 
         final override val version: Byte
 
-        internal abstract val appendixName: String
+        // Must be function as it is needed in constructor and properties will not have been initialized
+        internal abstract fun getAppendixName(): String
 
         override val size: Int
             get() = mySize + if (version > 0) 1 else 0
@@ -41,14 +42,14 @@ interface Appendix {
             get() {
                 val json = JsonObject()
                 if (version > 0) {
-                    json.addProperty("version.$appendixName", version)
+                    json.addProperty("version.${getAppendixName()}", version)
                 }
                 putMyJSON(json)
                 return json
             }
 
         internal constructor(attachmentData: JsonObject) {
-            version = attachmentData.get("version.$appendixName").safeGetAsByte() ?: 0
+            version = attachmentData.get("version.${getAppendixName()}").safeGetAsByte() ?: 0
         }
 
         internal constructor(buffer: ByteBuffer, transactionVersion: Byte) {
@@ -88,8 +89,7 @@ interface Appendix {
         val messageBytes: ByteArray
         val isText: Boolean
 
-        override val appendixName: String
-            get() = "Message"
+        override fun getAppendixName(): String = "Message"
 
         override val mySize: Int
             get() = 4 + messageBytes.size
@@ -240,8 +240,7 @@ interface Appendix {
 
     class EncryptedMessage : AbstractEncryptedMessage {
 
-        override val appendixName: String
-            get() = "EncryptedMessage"
+        override fun getAppendixName(): String = "EncryptedMessage"
 
         override val type: BrsApi.EncryptedMessageAppendix.Type
             get() = BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT
@@ -285,8 +284,7 @@ interface Appendix {
 
     class EncryptToSelfMessage : AbstractEncryptedMessage {
 
-        override val appendixName: String
-            get() = "EncryptToSelfMessage"
+        override fun getAppendixName(): String = "EncryptToSelfMessage"
 
         override val type: BrsApi.EncryptedMessageAppendix.Type
             get() = BrsApi.EncryptedMessageAppendix.Type.TO_SELF
@@ -328,8 +326,7 @@ interface Appendix {
         private val dp: DependencyProvider
         val publicKey: ByteArray
 
-        override val appendixName: String
-            get() = "PublicKeyAnnouncement"
+        override fun getAppendixName(): String = "PublicKeyAnnouncement"
 
         override val mySize: Int
             get() = 32

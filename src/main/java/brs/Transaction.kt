@@ -309,7 +309,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         feeNQT = if (type.isSigned) {
             if (builder.feeNQT in 1 until minimumFeeNQT) {
                 throw BurstException.NotValidException(String.format("Requested fee %d less than the minimum fee %d",
-                        builder.feeNQT, minimumFeeNQT))
+                    builder.feeNQT, minimumFeeNQT))
             }
             if (builder.feeNQT <= 0) {
                 minimumFeeNQT
@@ -321,9 +321,9 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         }
 
         if ((type.isSigned) && (deadline < 1
-                        || feeNQT > Constants.MAX_BALANCE_NQT
-                        || amountNQT < 0
-                        || amountNQT > Constants.MAX_BALANCE_NQT)) {
+                    || feeNQT > Constants.MAX_BALANCE_NQT
+                    || amountNQT < 0
+                    || amountNQT > Constants.MAX_BALANCE_NQT)) {
             throw BurstException.NotValidException("Invalid transaction parameters:\n type: " + type + ", timestamp: " + timestamp
                     + ", deadline: " + deadline + ", fee: " + feeNQT + ", amount: " + amountNQT)
         }
@@ -427,9 +427,9 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 }
                 val transactionType = TransactionType.findTransactionType(dp, type, subtype)
                 val builder = Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType!!.parseAttachment(buffer, version))
-                        .signature(signature)
-                        .ecBlockHeight(ecBlockHeight)
-                        .ecBlockId(ecBlockId)
+                    .signature(signature)
+                    .ecBlockHeight(ecBlockHeight)
+                    .ecBlockId(ecBlockId)
                 if (!referencedTransactionFullHash.isZero()) {
                     builder.referencedTransactionFullHash(referencedTransactionFullHash)
                 }
@@ -463,8 +463,8 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
 
                 val transactionType = TransactionType.findTransactionType(dp, type, subtype) ?: throw BurstException.NotValidException("Invalid transaction type: $type, $subtype")
                 val builder = Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType.parseAttachment(attachmentData))
-                        .signature(signature)
-                        .height(height)
+                    .signature(signature)
+                    .height(height)
                 if (!referencedTransactionFullHash.isNullOrEmpty()) {
                     builder.referencedTransactionFullHash(referencedTransactionFullHash.parseHexString())
                 }
