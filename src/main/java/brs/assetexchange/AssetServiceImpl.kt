@@ -8,7 +8,7 @@ internal class AssetServiceImpl(private val assetAccountService: AssetAccountSer
     private val assetTable = assetStore.assetTable
     private val assetDbKeyFactory = assetStore.assetDbKeyFactory
 
-    fun getAssetsCount() = assetTable.count
+    val assetsCount get() = assetTable.count
 
     fun getAsset(id: Long): Asset? {
         return assetTable.get(assetDbKeyFactory.newKey(id))

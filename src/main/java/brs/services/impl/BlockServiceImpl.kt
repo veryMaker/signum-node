@@ -94,7 +94,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             return
         }
 
-        for (transaction in block.getTransactions()) {
+        for (transaction in block.transactions) {
             if (!transaction.verifySignature()) {
                 logger.safeInfo { "Bad transaction signature during block pre-verification for tx: ${transaction.id.toUnsignedString()} at block height: ${block.height}" }
                 throw BlockchainProcessor.TransactionNotAcceptedException("Invalid signature for tx " + transaction.id.toUnsignedString() + " at block height: " + block.height, transaction)
@@ -121,7 +121,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             dp.accountService.addToForgedBalanceNQT(rewardAccount, block.totalFeeNQT + getBlockReward(block))
         }
 
-        for (transaction in block.getTransactions()) {
+        for (transaction in block.transactions) {
             dp.transactionService.apply(transaction)
         }
     }
@@ -152,7 +152,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         } else {
             block.height = 0
         }
-        block.getTransactions().forEach { transaction -> transaction.setBlock(block) }
+        block.transactions.forEach { transaction -> transaction.setBlock(block) }
     }
 
     override fun calculateBaseTarget(block: Block, previousBlock: Block) {

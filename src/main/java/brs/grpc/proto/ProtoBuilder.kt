@@ -59,7 +59,7 @@ object ProtoBuilder {
         val builder = BrsApi.Block.newBuilder()
                 .setId(block.id)
                 .setHeight(block.height)
-                .setNumberOfTransactions(block.getTransactions().size)
+                .setNumberOfTransactions(block.transactions.size)
                 .setTotalAmount(block.totalAmountNQT)
                 .setTotalFee(block.totalFeeNQT)
                 .setBlockReward(blockService.getBlockReward(block))
@@ -67,7 +67,7 @@ object ProtoBuilder {
                 .setVersion(block.version)
                 .setBaseTarget(block.baseTarget)
                 .setTimestamp(block.timestamp)
-                .addAllTransactionIds(block.getTransactions().map { it.id })
+                .addAllTransactionIds(block.transactions.map { it.id })
                 .setGenerationSignature(block.generationSignature.toByteString())
                 .setBlockSignature(block.blockSignature.toByteString())
                 .setPayloadHash(block.payloadHash.toByteString())
@@ -79,7 +79,7 @@ object ProtoBuilder {
 
         if (includeTransactions) {
             val currentHeight = blockchain.height
-            builder.addAllTransactions(block.getTransactions()
+            builder.addAllTransactions(block.transactions
                     .map { transaction -> buildTransaction(transaction, currentHeight) })
         }
 

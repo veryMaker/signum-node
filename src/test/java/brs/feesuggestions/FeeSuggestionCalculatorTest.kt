@@ -2,9 +2,7 @@ package brs.feesuggestions
 
 import brs.Block
 import brs.BlockchainProcessor
-import brs.BlockchainProcessor.Event
 import brs.Constants.FEE_QUANT
-import brs.Transaction
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.db.store.BlockchainStore
@@ -28,7 +26,7 @@ class FeeSuggestionCalculatorTest : AbstractUnitTest() {
         blockchainStoreMock = mock()
 
         listenerArgumentCaptor = argumentCaptor()
-        whenever(blockchainProcessorMock.addListener(eq(Event.AFTER_BLOCK_APPLY), listenerArgumentCaptor.capture())).doReturn(Unit) // TODO ??
+        doNothing().whenever(blockchainProcessorMock).addListener(eq(BlockchainProcessor.Event.AFTER_BLOCK_APPLY), listenerArgumentCaptor.capture())
 
         t = FeeSuggestionCalculator(QuickMocker.dependencyProvider(blockchainProcessorMock, blockchainStoreMock), 5)
     }
@@ -36,15 +34,15 @@ class FeeSuggestionCalculatorTest : AbstractUnitTest() {
     @Test
     fun getFeeSuggestion() {
         val mockBlock1 = mock<Block>()
-        whenever(mockBlock1.getTransactions()).doReturn(mutableListOf())
+        whenever(mockBlock1.transactions).doReturn(mutableListOf())
         val mockBlock2 = mock<Block>()
-        whenever(mockBlock2.getTransactions()).doReturn(listOf(mock()))
+        whenever(mockBlock2.transactions).doReturn(listOf(mock()))
         val mockBlock3 = mock<Block>()
-        whenever(mockBlock3.getTransactions()).doReturn(listOf(mock()))
+        whenever(mockBlock3.transactions).doReturn(listOf(mock()))
         val mockBlock4 = mock<Block>()
-        whenever(mockBlock4.getTransactions()).doReturn(listOf(mock()))
+        whenever(mockBlock4.transactions).doReturn(listOf(mock()))
         val mockBlock5 = mock<Block>()
-        whenever(mockBlock5.getTransactions()).doReturn(listOf(mock()))
+        whenever(mockBlock5.transactions).doReturn(listOf(mock()))
 
         val mockBlocksIterator = mockCollection(mockBlock1, mockBlock2, mockBlock3, mockBlock4, mockBlock5)
         whenever(blockchainStoreMock.getLatestBlocks(eq(5))).doReturn(mockBlocksIterator)
@@ -61,11 +59,11 @@ class FeeSuggestionCalculatorTest : AbstractUnitTest() {
         assertEquals(2 * FEE_QUANT, feeSuggestionOne.priorityFee)
 
         val mockBlock6 = mock<Block>()
-        whenever(mockBlock6.getTransactions()).doReturn(listOf(mock(), mock(), mock(), mock()))
+        whenever(mockBlock6.transactions).doReturn(listOf(mock(), mock(), mock(), mock()))
         val mockBlock7 = mock<Block>()
-        whenever(mockBlock7.getTransactions()).doReturn(listOf(mock(), mock(), mock(), mock()))
+        whenever(mockBlock7.transactions).doReturn(listOf(mock(), mock(), mock(), mock()))
         val mockBlock8 = mock<Block>()
-        whenever(mockBlock8.getTransactions()).doReturn(listOf(mock(), mock(), mock(), mock(), mock()))
+        whenever(mockBlock8.transactions).doReturn(listOf(mock(), mock(), mock(), mock(), mock()))
 
         listenerArgumentCaptor.firstValue(mockBlock6)
         val feeSuggestionTwo = t.giveFeeSuggestion()

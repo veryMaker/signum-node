@@ -28,9 +28,9 @@ class ATServiceImplTest {
     fun getAllATIds() {
         val mockATCollection = mock<Collection<Long>>()
 
-        whenever(mockATStore.allATIds).doReturn(mockATCollection)
+        whenever(mockATStore.getAllATIds()).doReturn(mockATCollection)
 
-        assertEquals(mockATCollection, t.allATIds)
+        assertEquals(mockATCollection, t.getAllATIds())
     }
 
     @Test

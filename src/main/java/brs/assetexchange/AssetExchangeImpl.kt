@@ -15,15 +15,15 @@ class AssetExchangeImpl(dp: DependencyProvider) : AssetExchange {
     private val assetService: AssetServiceImpl
     private val orderService: OrderServiceImpl
 
-    override fun getAssetsCount() = assetService.getAssetsCount()
+    override val assetsCount get() = assetService.assetsCount
 
-    override fun getAskCount() = orderService.getAskCount()
+    override val askCount get() = orderService.askCount
 
-    override fun getBidCount() = orderService.getBidCount()
+    override val bidCount get() = orderService.bidCount
 
-    override fun getTradesCount() = tradeService.getCount()
+    override val tradesCount get() = tradeService.count
 
-    override fun getAssetTransferCount() = assetTransferService.getAssetTransferCount()
+    override val assetTransferCount get() = assetTransferService.assetTransferCount
 
 
     init {

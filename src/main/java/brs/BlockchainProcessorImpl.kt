@@ -509,7 +509,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     peer.blacklist("got a bad fork")
                     val peerPoppedOffBlocks = popOffTo(forkBlock)
                     pushedForkBlocks = 0
-                    peerPoppedOffBlocks.forEach { block -> dp.transactionProcessor.processLater(block.getTransactions()) }
+                    peerPoppedOffBlocks.forEach { block -> dp.transactionProcessor.processLater(block.transactions) }
                 }
 
                 // if we did not push any blocks we try to restore chain.
@@ -525,7 +525,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                         }
                     }
                 } else {
-                    myPoppedOffBlocks.forEach { block -> dp.transactionProcessor.processLater(block.getTransactions()) }
+                    myPoppedOffBlocks.forEach { block -> dp.transactionProcessor.processLater(block.transactions) }
                     logger.safeWarn { "Successfully switched to better chain." }
                 }
                 logger.safeWarn { "Forkprocessing complete." }
@@ -663,10 +663,10 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 var calculatedTotalFee: Long = 0
                 val digest = Crypto.sha256()
 
-                val feeArray = LongArray(block.getTransactions().size)
+                val feeArray = LongArray(block.transactions.size)
                 var slotIdx = 0
 
-                for (transaction in block.getTransactions()) {
+                for (transaction in block.transactions) {
                     if (transaction.id == 0L)
                         throw BlockchainProcessor.TransactionNotAcceptedException("Invalid transaction id", transaction)
                     if (transaction.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE)
@@ -725,7 +725,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
                 dp.blockService.setPrevious(block, lastBlock)
                 blockListeners.accept(BlockchainProcessor.Event.BEFORE_BLOCK_ACCEPT, block)
-                dp.transactionProcessor.removeForgedTransactions(block.getTransactions())
+                dp.transactionProcessor.removeForgedTransactions(block.transactions)
                 dp.transactionProcessor.requeueAllUnconfirmedTransactions()
                 dp.accountService.flushAccountTable()
                 addBlock(block)
@@ -767,7 +767,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
     private fun accept(block: Block, remainingAmount: Long?, remainingFee: Long?) {
         dp.subscriptionService.clearRemovals()
-        for (transaction in block.getTransactions()) {
+        for (transaction in block.transactions) {
             if (!dp.transactionService.applyUnconfirmed(transaction)) {
                 throw BlockchainProcessor.TransactionNotAcceptedException("Double spending transaction: " + transaction.stringId, transaction)
             }
@@ -804,8 +804,8 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             dp.escrowService.updateOnBlock(block, dp.blockchain.height)
         }
         blockListeners.accept(BlockchainProcessor.Event.AFTER_BLOCK_APPLY, block)
-        if (!block.getTransactions().isEmpty()) {
-            dp.transactionProcessor.notifyListeners(block.getTransactions(), TransactionProcessor.Event.ADDED_CONFIRMED_TRANSACTIONS)
+        if (!block.transactions.isEmpty()) {
+            dp.transactionProcessor.notifyListeners(block.transactions, TransactionProcessor.Event.ADDED_CONFIRMED_TRANSACTIONS)
         }
     }
 
@@ -849,7 +849,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
         val previousBlock = dp.blockDb.findBlock(block.previousBlockId)!!
         dp.blockchain.setLastBlock(block, previousBlock)
-        block.getTransactions().forEach { it.unsetBlock() }
+        block.transactions.forEach { it.unsetBlock() }
         dp.blockDb.deleteBlocksFrom(block.id)
         blockListeners.accept(BlockchainProcessor.Event.BLOCK_POPPED, block)
         return previousBlock

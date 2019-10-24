@@ -11,15 +11,15 @@ import brs.Trade.Event
 import brs.Transaction
 
 interface AssetExchange {
-    fun getAssetsCount(): Int
+    val assetsCount: Int
 
-    fun getAskCount(): Int
+    val askCount: Int
 
-    fun getBidCount(): Int
+    val bidCount: Int
 
-    fun getTradesCount(): Int
+    val tradesCount: Int
 
-    fun getAssetTransferCount(): Int
+    val assetTransferCount: Int
 
     fun getAllAssets(from: Int, to: Int): Collection<Asset>
 

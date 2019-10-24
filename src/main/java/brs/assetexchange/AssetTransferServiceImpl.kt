@@ -13,7 +13,7 @@ internal class AssetTransferServiceImpl(private val assetTransferStore: AssetTra
     private val assetTransferTable = assetTransferStore.assetTransferTable
     private val transferDbKeyFactory = assetTransferStore.transferDbKeyFactory
 
-    fun getAssetTransferCount() = assetTransferTable.count
+    val assetTransferCount get() = assetTransferTable.count
 
     fun addListener(eventType: Event, listener: (AssetTransfer) -> Unit) {
         listeners.addListener(eventType, listener)

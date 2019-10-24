@@ -40,7 +40,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
 
     override fun removeEscrowTransaction(id: Long?) {
         val escrow = escrowTable.get(escrowDbKeyFactory.newKey(id!!)) ?: return
-        escrow.getDecisions().forEach { decisionTable.delete(it) }
+        escrow.decisions.forEach { decisionTable.delete(it) }
         escrowTable.delete(escrow)
     }
 

@@ -203,7 +203,7 @@ object JSONData {
         json.addProperty(NONCE_RESPONSE, block.nonce.toUnsignedString())
         json.addProperty(SCOOP_NUM_RESPONSE, scoopNum)
         json.addProperty(TIMESTAMP_RESPONSE, block.timestamp)
-        json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, block.getTransactions().size)
+        json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, block.transactions.size)
         json.addProperty(TOTAL_AMOUNT_NQT_RESPONSE, block.totalAmountNQT.toString())
         json.addProperty(TOTAL_FEE_NQT_RESPONSE, block.totalFeeNQT.toString())
         json.addProperty(BLOCK_REWARD_RESPONSE, (blockReward / Constants.ONE_BURST).toUnsignedString())
@@ -229,7 +229,7 @@ object JSONData {
         json.addProperty(BLOCK_SIGNATURE_RESPONSE, block.blockSignature.toHexString())
 
         val transactions = JsonArray()
-        for (transaction in block.getTransactions()) {
+        for (transaction in block.transactions) {
             if (includeTransactions) {
                 transactions.add(transaction(transaction, currentBlockchainHeight))
             } else {
@@ -260,7 +260,7 @@ object JSONData {
         json.addProperty(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(escrow.deadlineAction))
 
         val signers = JsonArray()
-        for (decision in escrow.getDecisions()) {
+        for (decision in escrow.decisions) {
             if (decision.accountId == escrow.senderId || decision.accountId == escrow.recipientId) {
                 continue
             }

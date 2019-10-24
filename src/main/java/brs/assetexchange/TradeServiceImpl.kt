@@ -14,7 +14,7 @@ internal class TradeServiceImpl(private val tradeStore: TradeStore): Observable<
     private val tradeTable = tradeStore.tradeTable
     private val tradeDbKeyFactory = tradeStore.tradeDbKeyFactory
 
-    fun getCount() = tradeTable.count
+    val count get() = tradeTable.count
 
     fun getAssetTrades(assetId: Long, from: Int, to: Int): Collection<Trade> {
         return tradeStore.getAssetTrades(assetId, from, to)

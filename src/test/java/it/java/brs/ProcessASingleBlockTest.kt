@@ -20,7 +20,7 @@ class ProcessASingleBlockTest : AbstractIT() {
             .generatorPublicKey("a44e4299354f59919329a0bfbac7d6858873ef06c8db3a6a90158f581478bd38")
             .payloadHash("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
             .blockSignature("0271d3d9adae0636d8d7c4a3612848f694690157693847734441f3a499410a0cadfc65aac43802afe39e22725465b9301eae89ae59fdd554835607a40c3b370b")
-            .getTransactions()(null)
+            .transactions(null)
             .version(3)
             .nonce("31687")
             .previousBlock("3444294670862540038")
@@ -38,13 +38,13 @@ class ProcessASingleBlockTest : AbstractIT() {
     @Test
     fun canProcessASingleBlock() {
         processBlock(jsonFirstBlock)
-        delay(200)
+        Thread.sleep(200)
     }
 
     @Test
     fun canRollback() {
         processBlock(jsonFirstBlock)
-        delay(200)
+        Thread.sleep(200)
         rollback(0)
     }
 }

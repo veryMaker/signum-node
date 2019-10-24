@@ -25,7 +25,7 @@ class AlternativeRealityTest : AbstractIT() {
     fun reality1() {
         getReality("reality1.json").forEach { jsonObject ->
             super.processBlock(jsonObject)
-            delay(500)
+            Thread.sleep(500)
         }
     }
 
@@ -33,7 +33,7 @@ class AlternativeRealityTest : AbstractIT() {
     fun reality2() {
         getReality("reality2.json").forEach { jsonObject ->
             super.processBlock(jsonObject)
-            delay(500)
+            Thread.sleep(500)
         }
     }
 

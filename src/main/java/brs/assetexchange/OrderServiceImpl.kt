@@ -15,9 +15,9 @@ internal class OrderServiceImpl(private val dp: DependencyProvider, private val 
     private val bidOrderTable = dp.orderStore.bidOrderTable
     private val bidOrderDbKeyFactory = dp.orderStore.bidOrderDbKeyFactory
 
-    fun getBidCount() = bidOrderTable.count
+    val bidCount get() = bidOrderTable.count
 
-    fun getAskCount() = askOrderTable.count
+    val askCount get() = askOrderTable.count
 
     fun getAskOrder(orderId: Long): Ask?{
         return askOrderTable.get(askOrderDbKeyFactory.newKey(orderId))

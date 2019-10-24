@@ -227,7 +227,7 @@ class AccountServiceImplTest {
 
         whenever(accountTableMock.count).doReturn(count)
 
-        assertEquals(count.toLong(), t.count.toLong())
+        assertEquals(count.toLong(), t.getCount().toLong())
     }
 
 }

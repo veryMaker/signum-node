@@ -57,7 +57,7 @@ class GetDGSPurchaseTest {
         val mockPurchase = mock<Purchase>()
         whenever(mockPurchase.id).doReturn(1L)
         whenever(mockPurchase.goodsId).doReturn(2L)
-        whenever(mockPurchase.name).doReturn("name")
+        whenever(mockPurchase.getName()).doReturn("name")
         whenever(mockPurchase.sellerId).doReturn(3L)
         whenever(mockPurchase.priceNQT).doReturn(4L)
         whenever(mockPurchase.quantity).doReturn(5)
@@ -72,7 +72,7 @@ class GetDGSPurchaseTest {
         whenever(mockPurchase.feedbackNotes).doReturn(mockEncryptedDataList)
         whenever(mockPurchase.refundNote).doReturn(mockEncryptedData)
         whenever(mockPurchase.note).doReturn(mockEncryptedData)
-        whenever(mockPurchase.publicFeedback).doReturn(listOf("feedback"))
+        whenever(mockPurchase.getPublicFeedback()).doReturn(listOf("feedback"))
 
         whenever(mockParameterService.getPurchase(eq(request))).doReturn(mockPurchase)
 
@@ -82,7 +82,7 @@ class GetDGSPurchaseTest {
 
         assertEquals("" + mockPurchase.id, result.get(PURCHASE_RESPONSE).safeGetAsString())
         assertEquals("" + mockPurchase.goodsId, result.get(GOODS_RESPONSE).safeGetAsString())
-        assertEquals(mockPurchase.name, result.get(NAME_RESPONSE).safeGetAsString())
+        assertEquals(mockPurchase.getName(), result.get(NAME_RESPONSE).safeGetAsString())
         assertEquals("" + mockPurchase.sellerId, result.get(SELLER_RESPONSE).safeGetAsString())
         assertEquals("" + mockPurchase.priceNQT, result.get(PRICE_NQT_RESPONSE).safeGetAsString())
         assertEquals(mockPurchase.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())

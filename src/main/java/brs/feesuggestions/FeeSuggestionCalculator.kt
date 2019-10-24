@@ -56,7 +56,7 @@ class FeeSuggestionCalculator(private val dp: DependencyProvider, maxHistoryLeng
         try {
             val transactionSizes = latestBlocks
                     .filterNotNull()
-                    .map { it.getTransactions().size }
+                    .map { it.transactions.size }
             val lowestAmountTransactionsNearHistory = transactionSizes.min() ?: 1
             val averageAmountTransactionsNearHistory = ceil(transactionSizes.average().let { return@let if (it.isNaN()) 1.0 else it }).toLong()
             val highestAmountTransactionsNearHistory = transactionSizes.max() ?: 1

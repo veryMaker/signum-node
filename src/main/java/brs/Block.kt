@@ -23,20 +23,10 @@ class Block internal constructor(private val dp: DependencyProvider, val version
                      val payloadLength: Int, val payloadHash: ByteArray, val generatorPublicKey: ByteArray, val generationSignature: ByteArray,
                      blockSignature: ByteArray?, val previousBlockHash: ByteArray?, transactions: Collection<Transaction>?,
                      val nonce: Long, val blockATs: ByteArray?, height: Int) {
-    private var internalTransactions by Atomic<Collection<Transaction>?>()
-
-    // TODO this needs a mutex or something - atomics do not guarantee locking
-    fun getTransactions(): Collection<Transaction> {
-        return internalTransactions ?: run {
-            val txs = transactionDb().findBlockTransactions(id)
-            txs.forEach { it.setBlock(this) }
-            internalTransactions = txs
-            txs
-        }
-    }
-
-    fun setTransactions(transactions: Collection<Transaction>?) {
-        internalTransactions = transactions
+    var transactions by AtomicLazy {
+        val txs = transactionDb().findBlockTransactions(id)
+        txs.forEach { it.setBlock(this) }
+        txs
     }
 
     var blockSignature: ByteArray?
@@ -84,7 +74,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
         }
         json.addProperty("blockSignature", blockSignature?.toHexString())
         val transactionsData = JsonArray()
-        getTransactions().forEach { transaction -> transactionsData.add(transaction.jsonObject) }
+        transactions.forEach { transaction -> transactionsData.add(transaction.jsonObject) }
         json.add("transactions", transactionsData)
         json.addProperty("nonce", nonce.toUnsignedString())
         json.addProperty("blockATs", blockATs?.toHexString() ?: "")
@@ -98,7 +88,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
         buffer.putInt(version)
         buffer.putInt(timestamp)
         buffer.putLong(previousBlockId)
-        buffer.putInt(getTransactions().size)
+        buffer.putInt(transactions.size)
         if (version < 3) {
             buffer.putInt((totalAmountNQT / Constants.ONE_BURST).toInt())
             buffer.putInt((totalFeeNQT / Constants.ONE_BURST).toInt())
@@ -140,7 +130,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
                 }
                 previousId = transaction.id
             }
-            setTransactions(transactions)
+            this.transactions = transactions
         }
     }
 

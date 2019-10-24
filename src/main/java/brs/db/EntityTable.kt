@@ -9,9 +9,9 @@ interface EntityTable<T> : DerivedTable {
 
     fun checkAvailable(height: Int)
 
-    fun get(dbKey: BurstKey): T?
+    operator fun get(dbKey: BurstKey): T?
 
-    fun get(dbKey: BurstKey, height: Int): T?
+    operator fun get(dbKey: BurstKey, height: Int): T?
 
     fun getBy(condition: Condition): T?
 

@@ -74,7 +74,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
     }
 
     internal fun trace(block: Block) {
-        for (transaction in block.getTransactions()) {
+        for (transaction in block.transactions) {
             val senderId = transaction.senderId
             if (include(senderId)) {
                 log(getValues(senderId, transaction, false))

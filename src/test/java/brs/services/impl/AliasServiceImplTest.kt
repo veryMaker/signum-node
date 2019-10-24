@@ -82,7 +82,7 @@ class AliasServiceImplTest : AbstractUnitTest() {
     @Test
     fun getAliasCount() {
         whenever(aliasTableMock.count).doReturn(5)
-        assertEquals(5L, t.aliasCount)
+        assertEquals(5L, t.getAliasCount())
     }
 
     @Test

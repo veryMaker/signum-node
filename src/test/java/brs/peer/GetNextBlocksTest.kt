@@ -23,7 +23,7 @@ class GetNextBlocksTest {
         mockBlockchain = mock()
         mockPeer = mock()
         val mockBlock = mock<Block>()
-        whenever(mockBlock.jsonObject).doReturn(JsonObject())
+        whenever(mockBlock.toJsonObject()).doReturn(JsonObject())
         val blocks = mutableListOf<Block>()
         repeat(100) {
             blocks.add(mockBlock)
