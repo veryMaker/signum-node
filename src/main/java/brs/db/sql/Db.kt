@@ -20,6 +20,7 @@ import org.mariadb.jdbc.UrlParser
 import org.slf4j.LoggerFactory
 import java.sql.Connection
 import java.sql.SQLException
+import java.sql.SQLNonTransientConnectionException
 import java.util.*
 
 class Db(private val dp: DependencyProvider) { // TODO interface
@@ -163,6 +164,7 @@ class Db(private val dp: DependencyProvider) { // TODO interface
                         }
                     }
                 }
+            } catch (ignored: SQLNonTransientConnectionException) {
             } catch (e: SQLException) {
                 logger.safeInfo(e) { null }
             } finally {

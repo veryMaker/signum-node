@@ -3,12 +3,16 @@ package brs.taskScheduler.impl
 import brs.Constants
 import brs.taskScheduler.*
 import brs.util.delegates.Atomic
+import brs.util.logging.safeError
 import brs.util.rxjava.toFuture
 import io.reactivex.Completable
+import io.reactivex.CompletableEmitter
 import io.reactivex.Maybe
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.util.concurrent.Future
 
 class RxJavaTaskScheduler: TaskScheduler {
@@ -37,6 +41,7 @@ class RxJavaTaskScheduler: TaskScheduler {
 
     override fun <T : Any> async(taskType: TaskType, task: TaskWithResult<T>): Future<T?> {
         requireStarted()
+        // TODO safe catch without creating an extra lambda object
         val future = Maybe.fromCallable(task).subscribeOn(taskType.toScheduler())
             .toFuture()
         disposables.add(future)
@@ -77,13 +82,30 @@ class RxJavaTaskScheduler: TaskScheduler {
             .blockingAwait()
     }
 
+    private inline fun safeCreateCompletable(crossinline task: (CompletableEmitter) -> Unit): Completable {
+        return Completable.create {
+            try {
+                task(it)
+            } catch (e: Exception) {
+                if (e is InterruptedException) return@create
+                if (it.isDisposed) {
+                    logger.safeError(e) { "Error occurred after disposed" }
+                } else {
+                    it.onError(e)
+                }
+            }
+            it.onComplete()
+        }
+    }
+
     private fun taskToTask(task: Task, taskType: TaskType): Completable { // TODO catch stuff
+        // TODO safe catch without creating an extra lambda object
         return Completable.fromAction(task)
             .subscribeOn(taskType.toScheduler())
     }
 
-    private fun delayedTaskToTask(task: Task, taskType: TaskType, initialDelayMs: Long, delayMs: Long): Completable { // TODO catch stuff
-        return Completable.create {
+    private fun delayedRepeatingTaskToTask(task: Task, taskType: TaskType, initialDelayMs: Long, delayMs: Long): Completable {
+        return safeCreateCompletable {
             Thread.sleep(initialDelayMs)
             while (!it.isDisposed) {
                 task()
@@ -94,7 +116,7 @@ class RxJavaTaskScheduler: TaskScheduler {
     }
 
     private fun repeatingTaskToTask(task: RepeatingTask, taskType: TaskType): Completable { // TODO catch stuff
-        return Completable.create {
+        return safeCreateCompletable {
             while (!it.isDisposed) {
                 if (!task()) {
                     Thread.sleep(Constants.TASK_FAILURE_DELAY_MS)
@@ -121,7 +143,7 @@ class RxJavaTaskScheduler: TaskScheduler {
             }
         }
         // Start delayed scheduled tasks
-        scheduledWithDelayTasks.forEach { (task, taskInfo) -> runTask(delayedTaskToTask(task, taskInfo.first, taskInfo.second, taskInfo.third)) }
+        scheduledWithDelayTasks.forEach { (task, taskInfo) -> runTask(delayedRepeatingTaskToTask(task, taskInfo.first, taskInfo.second, taskInfo.third)) }
 
         // Run after start tasks
         awaitTasks(TaskType.IO, afterStartTasks)
@@ -138,5 +160,9 @@ class RxJavaTaskScheduler: TaskScheduler {
             TaskType.IO -> Schedulers.io()
             TaskType.COMPUTATION -> Schedulers.computation()
         }
+    }
+
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(RxJavaTaskScheduler::class.java)
     }
 }
