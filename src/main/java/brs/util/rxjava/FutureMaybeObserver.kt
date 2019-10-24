@@ -10,7 +10,7 @@ import io.reactivex.plugins.RxJavaPlugins
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicReference
 
-fun <T> Maybe<T>.toFuture(): Future<T> {
+fun <T> Maybe<T>.toFuture(): FutureMaybeObserver<T> {
     return this.subscribeWith(FutureMaybeObserver())
 }
 

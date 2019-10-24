@@ -36,8 +36,11 @@ class RxJavaTaskScheduler: TaskScheduler {
     }
 
     override fun <T : Any> async(taskType: TaskType, task: TaskWithResult<T>): Future<T?> {
-        return Maybe.fromCallable(task).subscribeOn(taskType.toScheduler())
+        requireStarted()
+        val future = Maybe.fromCallable(task).subscribeOn(taskType.toScheduler())
             .toFuture()
+        disposables.add(future)
+        return future
     }
 
     override fun runBeforeStart(task: Task) {
@@ -126,6 +129,7 @@ class RxJavaTaskScheduler: TaskScheduler {
 
     override fun shutdown() {
         if (!started) return
+        started = false
         disposables.dispose()
     }
 
