@@ -17,7 +17,7 @@ import brs.props.PropertyServiceImpl
 import brs.props.Props
 import brs.services.impl.*
 import brs.statistics.StatisticsManagerImpl
-import brs.taskScheduler.RxJavaTaskScheduler
+import brs.taskScheduler.impl.RxJavaTaskScheduler
 import brs.transaction.TransactionType
 import brs.unconfirmedtransactions.UnconfirmedTransactionStoreImpl
 import brs.util.DownloadCacheImpl

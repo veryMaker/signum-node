@@ -5,6 +5,7 @@ import brs.DependencyProvider
 import brs.Transaction
 import brs.peer.Peer
 import brs.props.Props
+import brs.taskScheduler.TaskType
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
@@ -30,7 +31,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
     private var numberUnconfirmedTransactionsFullHash: Int = 0
 
     init {
-        dp.taskScheduler.scheduleTaskWithDelay(10000, 10000) {
+        dp.taskScheduler.scheduleTaskWithDelay(TaskType.IO, 10000, 10000) {
             internalStoreLock.withLock {
                 getAllNoLock().filter { t ->
                     dp.timeService.epochTime > t.expiration || dp.transactionDb.hasTransaction(
@@ -43,7 +44,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
     }
 
     /**
-     * Assumes lcoked.
+     * Assumes locked.
      */
     private fun getAllNoLock(): List<Transaction> {
         val flatTransactionList = mutableListOf<Transaction>()

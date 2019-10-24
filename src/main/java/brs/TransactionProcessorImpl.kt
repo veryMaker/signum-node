@@ -5,7 +5,7 @@ import brs.fluxcapacitor.FluxValues
 import brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
 import brs.peer.Peer
 import brs.props.Props
-import brs.taskScheduler.Task
+import brs.taskScheduler.TaskType
 import brs.util.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeError
@@ -23,7 +23,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
     private val doneFeedingLog: (Peer, Collection<Transaction>) -> Unit = { peer, transactions -> dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, transactions) }
 
     init {
-        dp.taskScheduler.scheduleTaskWithDelay(0, 10000) {
+        dp.taskScheduler.scheduleTaskWithDelay(TaskType.IO, 0, 10000) {
             run {
                 try {
                     val peer = dp.peers.getAnyPeer(Peer.State.CONNECTED) ?: return@run
@@ -39,7 +39,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                             val activePrioPlusExtra = dp.peers.allActivePriorityPlusSomeExtraPeers
                             activePrioPlusExtra.remove(peer)
 
-                            dp.taskScheduler.awaitTasks(activePrioPlusExtra.map<Peer, Task> { otherPeer ->
+                            dp.taskScheduler.awaitTasks(TaskType.IO, activePrioPlusExtra.map { otherPeer ->
                                 {
                                     try {
                                         val otherPeerResponse = dp.peers.readUnconfirmedTransactions(otherPeer)

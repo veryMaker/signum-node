@@ -10,6 +10,7 @@ import brs.fluxcapacitor.FluxValues
 import brs.peer.Peer
 import brs.props.Props
 import brs.taskScheduler.RepeatingTask
+import brs.taskScheduler.TaskType
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore
 import brs.util.*
@@ -329,16 +330,16 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         get() = 3
 
     init {
-        dp.taskScheduler.scheduleTask(this.getMoreBlocksTask) // TODO somehow parallelize this task
-        dp.taskScheduler.scheduleTask(this.blockImporterTask)
+        dp.taskScheduler.scheduleTask(TaskType.IO, this.getMoreBlocksTask) // TODO somehow parallelize this task
+        dp.taskScheduler.scheduleTask(TaskType.COMPUTATION, this.blockImporterTask)
 
         // TODO have separate tasks depending on whether we want to use GPU acceleration
         if (dp.propertyService.get(Props.GPU_ACCELERATION)) {
-            logger.safeDebug { "Starting preverifier thread in Open CL mode." }
-            dp.taskScheduler.scheduleTask(this.pocVerificationTask)
+            logger.safeDebug { "Starting pre-verifier thread in Open CL mode." }
+            dp.taskScheduler.scheduleTask(TaskType.IO, this.pocVerificationTask)
         } else {
-            logger.safeDebug { "Starting preverifier thread in CPU mode." }
-            dp.taskScheduler.scheduleTask(8, this.pocVerificationTask) // TODO property for number of instances
+            logger.safeDebug { "Starting pre-verifier thread in CPU mode." }
+            dp.taskScheduler.scheduleTask(TaskType.COMPUTATION, Runtime.getRuntime().availableProcessors(), this.pocVerificationTask) // TODO property for number of instances
         }
 
         blockListeners.addListener(BlockchainProcessor.Event.BLOCK_SCANNED) { block ->

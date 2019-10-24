@@ -8,6 +8,7 @@ import brs.props.Props.P2P_ENABLE_TX_REBROADCAST
 import brs.props.Props.P2P_SEND_TO_LIMIT
 import brs.taskScheduler.RepeatingTask
 import brs.taskScheduler.Task
+import brs.taskScheduler.TaskType
 import brs.util.*
 import brs.util.JSON.prepareRequest
 import brs.util.logging.*
@@ -483,10 +484,10 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         }
 
         if (!dp.propertyService.get(Props.DEV_OFFLINE)) {
-            dp.taskScheduler.scheduleTask(peerConnectingThread)
-            dp.taskScheduler.scheduleTask(peerUnBlacklistingThread)
+            dp.taskScheduler.scheduleTask(TaskType.IO, peerConnectingThread)
+            dp.taskScheduler.scheduleTask(TaskType.IO, peerUnBlacklistingThread)
             if (getMorePeers) {
-                dp.taskScheduler.scheduleTask(getMorePeersThread)
+                dp.taskScheduler.scheduleTask(TaskType.IO, getMorePeersThread)
             }
         }
     }
@@ -554,7 +555,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
 
     private fun loadPeers(addresses: Collection<String>) {
         for (address in addresses) {
-            val unresolvedAddress = dp.taskScheduler.async {
+            val unresolvedAddress = dp.taskScheduler.async(TaskType.IO) {
                 val peer = addPeer(address)
                 if (peer == null) address else null
             }
@@ -707,7 +708,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
             val expectedResponses = mutableListOf<Future<JsonObject?>>()
             for (peer in peers.values) {
                 if (peerEligibleForSending(peer, false)) {
-                    val deferred = dp.taskScheduler.async { peer.send(jsonRequest) }
+                    val deferred = dp.taskScheduler.async(TaskType.IO) { peer.send(jsonRequest) }
                     expectedResponses.add(deferred)
                 }
                 if (expectedResponses.size >= sendToPeersLimit - successful) {

@@ -13,7 +13,7 @@ import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.props.Prop
 import brs.props.PropertyService
 import brs.props.Props
-import brs.taskScheduler.RxJavaTaskScheduler
+import brs.taskScheduler.impl.RxJavaTaskScheduler
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*

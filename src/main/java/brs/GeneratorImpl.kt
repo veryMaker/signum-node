@@ -3,6 +3,7 @@ package brs
 import brs.crypto.Crypto
 import brs.fluxcapacitor.FluxValues
 import brs.props.Props
+import brs.taskScheduler.TaskType
 import brs.util.Listeners
 import brs.util.convert.fullHashToId
 import brs.util.convert.toUnsignedString
@@ -18,7 +19,7 @@ open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
     private val burstCrypto = BurstCrypto.getInstance()
 
     init {
-        dp.taskScheduler.scheduleTask {
+        dp.taskScheduler.scheduleTask(TaskType.COMPUTATION) {
             try {
                 val currentBlock = dp.blockchain.lastBlock.height.toLong()
                 val it = generators.entries.iterator()
