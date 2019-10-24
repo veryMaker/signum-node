@@ -61,7 +61,7 @@ class AtConstants(private val dp: DependencyProvider) {
 
         pageSize[2.toShort()] = 256L
 
-        maxMachineCodePages[2.toShort()] = 10L
+        maxMachineCodePages[2.toShort()] = 20L
         maxMachineDataPages[2.toShort()] = 10L
         maxMachineUserStackPages[2.toShort()] = 10L
         maxMachineCallStackPages[2.toShort()] = 10L
