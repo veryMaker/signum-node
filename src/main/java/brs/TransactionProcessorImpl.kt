@@ -178,7 +178,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
             try {
                 dp.unconfirmedTransactionStore.put(transaction, null)
             } catch (e: ValidationException) {
-                logger.safeDebug(e) { "Discarding invalid transaction in for later processing: " + transaction.jsonObject.toJsonString() }
+                logger.safeDebug(e) { "Discarding invalid transaction in for later processing: " + transaction.toJsonObject().toJsonString() }
             }
         }
     }
@@ -228,7 +228,7 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
                         dp.unconfirmedTransactionStore.markFingerPrintsOf(peer, listOf(transaction))
                     } else if (!(transaction.verifySignature() && dp.transactionService.verifyPublicKey(transaction))) {
                         if (dp.accountService.getAccount(transaction.senderId) != null) {
-                            logger.safeDebug { "Transaction ${transaction.jsonObject.toJsonString()} failed to verify" }
+                            logger.safeDebug { "Transaction ${transaction.toJsonObject().toJsonString()} failed to verify" }
                         }
                     } else if (dp.unconfirmedTransactionStore.put(transaction, peer)) {
                         addedUnconfirmedTransactions.add(transaction)

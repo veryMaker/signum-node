@@ -43,20 +43,20 @@ class RewardRecipientAssignment(dp: DependencyProvider) : BurstMining(dp) {
 
         val rewardAssignment = dp.accountService.getRewardRecipientAssignment(sender)
         if (rewardAssignment != null && rewardAssignment.fromHeight >= height) {
-            throw BurstException.NotCurrentlyValidException("Cannot reassign reward recipient before previous goes into effect: " + transaction.jsonObject.toJsonString())
+            throw BurstException.NotCurrentlyValidException("Cannot reassign reward recipient before previous goes into effect: " + transaction.toJsonObject().toJsonString())
         }
         val recip = dp.accountService.getAccount(transaction.recipientId)
         if (recip?.publicKey == null) {
-            throw BurstException.NotValidException("Reward recipient must have public key saved in blockchain: " + transaction.jsonObject.toJsonString())
+            throw BurstException.NotValidException("Reward recipient must have public key saved in blockchain: " + transaction.toJsonObject().toJsonString())
         }
 
         if (dp.fluxCapacitor.getValue(FluxValues.PRE_DYMAXION)) {
             if (transaction.amountNQT != 0L || transaction.feeNQT < Constants.FEE_QUANT) {
-                throw BurstException.NotValidException("Reward recipient assignment transaction must have 0 send amount and at least minimum fee: " + transaction.jsonObject.toJsonString())
+                throw BurstException.NotValidException("Reward recipient assignment transaction must have 0 send amount and at least minimum fee: " + transaction.toJsonObject().toJsonString())
             }
         } else {
             if (transaction.amountNQT != 0L || transaction.feeNQT != Constants.ONE_BURST) {
-                throw BurstException.NotValidException("Reward recipient assignment transaction must have 0 send amount and 1 fee: " + transaction.jsonObject.toJsonString())
+                throw BurstException.NotValidException("Reward recipient assignment transaction must have 0 send amount and 1 fee: " + transaction.toJsonObject().toJsonString())
             }
         }
 

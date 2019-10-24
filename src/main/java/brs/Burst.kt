@@ -45,10 +45,9 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             val startTime = System.currentTimeMillis()
             Constants.init(dp)
             dp.taskScheduler = RxJavaTaskScheduler()
-            dp.atApiPlatformImpl = AtApiPlatformImpl(dp)
+            dp.atApi = AtApiPlatformImpl(dp)
             dp.atApiController = AtApiController(dp)
             dp.atController = AtController(dp)
-            val atApiImpl = AtApiImpl(dp) // TODO ??
             if (dp.propertyService.get(Props.GPU_ACCELERATION)) {
                 dp.oclPoC = OCLPoC(dp)
             }

@@ -115,17 +115,11 @@ class AtController(private val dp: DependencyProvider) {
         state.machineState.pc = opc
     }
 
-    fun checkCreationBytes(creation: ByteArray?, height: Int): Int {
-        if (creation == null)
-            throw AtException("Creation bytes cannot be null")
-
+    fun checkCreationBytes(creation: ByteArray, height: Int): Int {
         val totalPages: Int
         try {
-            val b = ByteBuffer.allocate(creation.size)
+            val b = ByteBuffer.wrap(creation)
             b.order(ByteOrder.LITTLE_ENDIAN)
-
-            b.put(creation)
-            b.clear()
 
             val version = b.short
             if (version != dp.atConstants.atVersion(height)) {
@@ -178,8 +172,7 @@ class AtController(private val dp: DependencyProvider) {
                 throw AtException(AtError.INCORRECT_CREATION_TX.description)
             }
 
-            //TODO note: run code in demo mode for checking if is valid
-
+            // TODO note: run code in demo mode for checking if is valid
         } catch (e: BufferUnderflowException) {
             throw AtException(AtError.INCORRECT_CREATION_TX.description)
         }
@@ -280,8 +273,7 @@ class AtController(private val dp: DependencyProvider) {
         var md5: ByteArray
         var totalAmount: Long = 0
 
-        for ((atIdBuffer, receivedMd5) in ats) {
-            val atId = atIdBuffer.array()
+        for ((atId, receivedMd5) in ats) {
             val at = AT.getAT(dp, atId)!!
             try {
                 at.clearTransactions()
@@ -343,7 +335,7 @@ class AtController(private val dp: DependencyProvider) {
         return AtBlock(totalFee, totalAmount, ByteArray(1))
     }
 
-    private fun getATsFromBlock(blockATs: ByteArray?): Map<ByteBuffer, ByteArray> {
+    private fun getATsFromBlock(blockATs: ByteArray?): Map<ByteArray, ByteArray> {
         if (blockATs == null || blockATs.isEmpty()) {
             return emptyMap()
         }
@@ -354,17 +346,13 @@ class AtController(private val dp: DependencyProvider) {
         val b = ByteBuffer.wrap(blockATs)
         b.order(ByteOrder.LITTLE_ENDIAN)
 
-        val temp = ByteArray(AtConstants.AT_ID_SIZE)
-
-        val ats = mutableMapOf<ByteBuffer, ByteArray>()
+        val ats = mutableMapOf<ByteArray, ByteArray>()
 
         while (b.position() < b.capacity()) {
-            b.get(temp, 0, temp.size)
+            val atId = ByteArray(AtConstants.AT_ID_SIZE)
+            b.get(atId, 0, atId.size)
             val md5 = ByteArray(16)
-            b.get(md5, 0, md5.size)
-            val atId = ByteBuffer.allocate(AtConstants.AT_ID_SIZE)
-            atId.put(temp)
-            atId.clear()
+            b.get(md5, 0, 16)
             if (ats.containsKey(atId)) {
                 throw AtException("AT included in block multiple times")
             }

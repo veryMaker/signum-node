@@ -43,7 +43,7 @@ class AliasSell(dp: DependencyProvider) : Messaging(dp) {
             throw BurstException.NotYetEnabledException("Alias transfer not yet enabled at height " + dp.blockchain.lastBlock.height)
         }
         if (transaction.amountNQT != 0L) {
-            throw BurstException.NotValidException("Invalid sell alias transaction: " + transaction.jsonObject.toJsonString())
+            throw BurstException.NotValidException("Invalid sell alias transaction: " + transaction.toJsonObject().toJsonString())
         }
         val attachment = transaction.attachment as Attachment.MessagingAliasSell
         val aliasName = attachment.aliasName

@@ -1,8 +1,8 @@
 package brs
 
 import brs.assetexchange.AssetExchange
+import brs.at.AtApi
 import brs.at.AtApiController
-import brs.at.AtApiPlatformImpl
 import brs.at.AtConstants
 import brs.at.AtController
 import brs.db.BlockDb
@@ -75,7 +75,7 @@ class DependencyProvider {
     lateinit var peers: Peers
     var oclPoC: OCLPoC? = null
     lateinit var atConstants: AtConstants
-    lateinit var atApiPlatformImpl: AtApiPlatformImpl
+    lateinit var atApi: AtApi
     lateinit var atApiController: AtApiController
     lateinit var atController: AtController
     lateinit var transactionTypes: Map<Byte, Map<Byte, TransactionType>>

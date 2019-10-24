@@ -27,7 +27,7 @@ class EffectiveBalanceLeasing(dp: DependencyProvider) : AccountControl(dp) {
         val attachment = transaction.attachment as Attachment.AccountControlEffectiveBalanceLeasing
         val recipientAccount = dp.accountService.getAccount(transaction.recipientId)
         if (transaction.senderId == transaction.recipientId || transaction.amountNQT != 0L || attachment.period < 1440) {
-            throw BurstException.NotValidException("Invalid effective balance leasing: " + transaction.jsonObject.toJsonString() + " transaction " + transaction.stringId)
+            throw BurstException.NotValidException("Invalid effective balance leasing: " + transaction.toJsonObject().toJsonString() + " transaction " + transaction.stringId)
         }
         if (recipientAccount == null || recipientAccount.publicKey == null && transaction.stringId != "5081403377391821646") {
             throw BurstException.NotCurrentlyValidException("Invalid effective balance leasing: recipient account ${transaction.recipientId} not found or no public key published")

@@ -42,6 +42,27 @@ class AtApiHelperTest {
     }
 
     @Test
+    fun testGetByteArray_long_direct() {
+        val buffer = ByteArray(8)
+        AtApiHelper.getByteArray(0x0000000000000001L, buffer)
+        assertEquals("0100000000000000", buffer.toHexString())
+        AtApiHelper.getByteArray(0x0000000000002301L, buffer)
+        assertEquals("0123000000000000", buffer.toHexString())
+        AtApiHelper.getByteArray(0x0000000000452301L, buffer)
+        assertEquals("0123450000000000", buffer.toHexString())
+        AtApiHelper.getByteArray(0x0000000067452301L, buffer)
+        assertEquals("0123456700000000", buffer.toHexString())
+        AtApiHelper.getByteArray(0x0000008967452301L, buffer)
+        assertEquals("0123456789000000", buffer.toHexString())
+        AtApiHelper.getByteArray(0x0000ab8967452301L, buffer)
+        assertEquals("0123456789ab0000", buffer.toHexString())
+        AtApiHelper.getByteArray(0x00cdab8967452301L, buffer)
+        assertEquals("0123456789abcd00", buffer.toHexString())
+        AtApiHelper.getByteArray(-0x1032547698badcffL, buffer)
+        assertEquals("0123456789abcdef", buffer.toHexString())
+    }
+
+    @Test
     fun testGetByteArray_bigInteger() {
         assertEquals("0100000000000000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000000001L)).toHexString())
         assertEquals("0123000000000000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000002301L)).toHexString())

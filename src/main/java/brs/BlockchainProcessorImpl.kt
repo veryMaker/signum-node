@@ -697,7 +697,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
                     calculatedTotalAmount += transaction.amountNQT
                     calculatedTotalFee += transaction.feeNQT
-                    digest.update(transaction.bytes)
+                    digest.update(transaction.toBytes())
                     dp.indirectIncomingService.processTransaction(transaction)
                     feeArray[slotIdx] = transaction.feeNQT
                     slotIdx += 1
@@ -1032,7 +1032,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             // ATs for block
 
             val digest = Crypto.sha256()
-            orderedBlockTransactions.forEach { transaction -> digest.update(transaction.bytes) }
+            orderedBlockTransactions.forEach { transaction -> digest.update(transaction.toBytes()) }
             val payloadHash = digest.digest()
             val generationSignature = dp.generator.calculateGenerationSignature(
                     previousBlock.generationSignature, previousBlock.generatorId)

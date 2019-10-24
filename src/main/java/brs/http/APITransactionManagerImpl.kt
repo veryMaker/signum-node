@@ -160,7 +160,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
                 dp.transactionService.validate(transaction) // 2nd validate may be needed if validation requires id to be known
                 response.addProperty(TRANSACTION_RESPONSE, transaction.stringId)
                 response.addProperty(FULL_HASH_RESPONSE, transaction.fullHash.toHexString())
-                response.addProperty(TRANSACTION_BYTES_RESPONSE, transaction.bytes.toHexString())
+                response.addProperty(TRANSACTION_BYTES_RESPONSE, transaction.toBytes().toHexString())
                 response.addProperty(SIGNATURE_HASH_RESPONSE, Crypto.sha256().digest(transaction.signature).toHexString())
                 if (broadcast) {
                     response.addProperty(NUMBER_PEERS_SENT_TO_RESPONSE, dp.transactionProcessor.broadcast(transaction))
@@ -171,7 +171,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
             } else {
                 response.addProperty(BROADCASTED_RESPONSE, false)
             }
-            response.addProperty(UNSIGNED_TRANSACTION_BYTES_RESPONSE, transaction.unsignedBytes.toHexString())
+            response.addProperty(UNSIGNED_TRANSACTION_BYTES_RESPONSE, transaction.toUnsignedBytes().toHexString())
             response.add(TRANSACTION_JSON_RESPONSE, JSONData.unconfirmedTransaction(transaction))
 
         } catch (e: BurstException.NotYetEnabledException) {

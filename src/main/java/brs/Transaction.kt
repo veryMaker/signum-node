@@ -55,7 +55,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     }
     var fullHash: ByteArray by AtomicLazy {
         check(!(signature == null && type.isSigned)) { "Transaction is not signed yet" }
-        val data = zeroSignature(bytes)
+        val data = toBytes(false)
         val signatureHash = Crypto.sha256().digest(if (signature != null) signature else ByteArray(64))
         val digest = Crypto.sha256()
         digest.update(data)
@@ -65,75 +65,71 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     val expiration: Int
         get() = timestamp + deadline * 60
 
-    val bytes: ByteArray
-        get() {
-            try {
-                val buffer = ByteBuffer.allocate(size)
-                buffer.order(ByteOrder.LITTLE_ENDIAN)
-                buffer.put(type.type)
-                buffer.put((version.toInt() shl 4).toByte() or (type.subtype and 0xff.toByte()))
-                buffer.putInt(timestamp)
-                buffer.putShort(deadline)
-                if (type.isSigned || !dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4)) {
-                    buffer.put(senderPublicKey)
-                } else {
-                    buffer.putLong(senderId)
-                    buffer.put(ByteArray(24))
-                }
-                buffer.putLong(if (type.hasRecipient()) recipientId else Genesis.CREATOR_ID)
-                buffer.putLong(amountNQT)
-                buffer.putLong(feeNQT)
-                if (referencedTransactionFullHash != null) {
-                    buffer.put(referencedTransactionFullHash)
-                } else {
-                    buffer.put(ByteArray(32))
-                }
-                buffer.put(if (signature != null) signature else ByteArray(64))
-                if (version > 0) {
-                    buffer.putInt(flags)
-                    buffer.putInt(ecBlockHeight)
-                    buffer.putLong(ecBlockId)
-                }
-                appendages.forEach { appendage -> appendage.putBytes(buffer) }
-                return buffer.array()
-            } catch (e: RuntimeException) {
-                logger.safeDebug { "Failed to get transaction bytes for transaction: ${jsonObject.toJsonString()}" }
-                throw e
+    fun toBytes(includeSignature: Boolean = true): ByteArray {
+        try {
+            val buffer = ByteBuffer.allocate(size)
+            buffer.order(ByteOrder.LITTLE_ENDIAN)
+            buffer.put(type.type)
+            buffer.put((version.toInt() shl 4).toByte() or (type.subtype and 0xff.toByte()))
+            buffer.putInt(timestamp)
+            buffer.putShort(deadline)
+            if (type.isSigned || !dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4)) {
+                buffer.put(senderPublicKey)
+            } else {
+                buffer.putLong(senderId)
+                buffer.put(ByteArray(24))
             }
-
-        }
-
-    val unsignedBytes: ByteArray
-        get() = zeroSignature(bytes)
-
-    val jsonObject: JsonObject
-        get() {
-            val json = JsonObject()
-            json.addProperty("type", type.type)
-            json.addProperty("subtype", type.subtype)
-            json.addProperty("timestamp", timestamp)
-            json.addProperty("deadline", deadline)
-            json.addProperty("senderPublicKey", senderPublicKey.toHexString())
-            if (type.hasRecipient()) {
-                json.addProperty("recipient", recipientId.toUnsignedString())
-            }
-            json.addProperty("amountNQT", amountNQT)
-            json.addProperty("feeNQT", feeNQT)
+            buffer.putLong(if (type.hasRecipient()) recipientId else Genesis.CREATOR_ID)
+            buffer.putLong(amountNQT)
+            buffer.putLong(feeNQT)
             if (referencedTransactionFullHash != null) {
-                json.addProperty("referencedTransactionFullHash", referencedTransactionFullHash.toHexString())
+                buffer.put(referencedTransactionFullHash)
+            } else {
+                buffer.put(ByteArray(32))
             }
-            json.addProperty("ecBlockHeight", ecBlockHeight)
-            json.addProperty("ecBlockId", ecBlockId.toUnsignedString())
-            json.addProperty("signature", signature?.toHexString() ?: "")
-            val attachmentJSON = JsonObject()
-            appendages.forEach { appendage -> attachmentJSON.addAll(appendage.jsonObject) }
-            json.add("attachment", attachmentJSON)
-            json.addProperty("version", version)
-            return json
+            buffer.put(if (includeSignature && signature != null) signature else ByteArray(64))
+            if (version > 0) {
+                buffer.putInt(flags)
+                buffer.putInt(ecBlockHeight)
+                buffer.putLong(ecBlockId)
+            }
+            appendages.forEach { appendage -> appendage.putBytes(buffer) }
+            return buffer.array()
+        } catch (e: RuntimeException) {
+            logger.safeDebug { "Failed to get transaction bytes for transaction: ${toJsonObject().toJsonString()}" }
+            throw e
         }
+    }
+
+    fun toUnsignedBytes(): ByteArray = toBytes(false)
+
+    fun toJsonObject(): JsonObject {
+        val json = JsonObject()
+        json.addProperty("type", type.type)
+        json.addProperty("subtype", type.subtype)
+        json.addProperty("timestamp", timestamp)
+        json.addProperty("deadline", deadline)
+        json.addProperty("senderPublicKey", senderPublicKey.toHexString())
+        if (type.hasRecipient()) {
+            json.addProperty("recipient", recipientId.toUnsignedString())
+        }
+        json.addProperty("amountNQT", amountNQT)
+        json.addProperty("feeNQT", feeNQT)
+        if (referencedTransactionFullHash != null) {
+            json.addProperty("referencedTransactionFullHash", referencedTransactionFullHash.toHexString())
+        }
+        json.addProperty("ecBlockHeight", ecBlockHeight)
+        json.addProperty("ecBlockId", ecBlockId.toUnsignedString())
+        json.addProperty("signature", signature?.toHexString() ?: "")
+        val attachmentJSON = JsonObject()
+        appendages.forEach { appendage -> attachmentJSON.addAll(appendage.jsonObject) }
+        json.add("attachment", attachmentJSON)
+        json.addProperty("version", version)
+        return json
+    }
 
     val size: Int
-        get() = signatureOffset() + 64 + (if (version > 0) 4 + 4 + 8 else 0) + appendagesSize
+        get() = SIGNATURE_OFFSET + 64 + (if (version > 0) 4 + 4 + 8 else 0) + appendagesSize
 
     private val flags: Int
         get() {
@@ -361,7 +357,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
 
     fun sign(secretPhrase: String) {
         check(signature == null) { "Transaction already signed" }
-        signature = bytes.signUsing(secretPhrase)
+        signature = toBytes().signUsing(secretPhrase)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -377,21 +373,9 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     }
 
     fun verifySignature(): Boolean {
-        val data = zeroSignature(bytes)
+        val data = toBytes(false)
         if (signature == null) return false
         return data.verifySignature(signature!!, senderPublicKey, true)
-    }
-
-    private fun signatureOffset(): Int {
-        return 1 + 1 + 4 + 2 + 32 + 8 + (8 + 8 + 32)
-    }
-
-    private fun zeroSignature(data: ByteArray): ByteArray {
-        val start = signatureOffset()
-        for (i in start until start + 64) {
-            data[i] = 0
-        }
-        return data
     }
 
     companion object {
@@ -488,5 +472,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 throw e
             }
         }
+
+        private const val SIGNATURE_OFFSET = 1 + 1 + 4 + 2 + 32 + 8 + 8 + 8 + 32
     }
 }

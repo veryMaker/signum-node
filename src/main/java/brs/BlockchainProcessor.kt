@@ -35,7 +35,7 @@ interface BlockchainProcessor : Observable<Block, BlockchainProcessor.Event> {
 
     open class BlockNotAcceptedException internal constructor(message: String) : BurstException(message)
 
-    class TransactionNotAcceptedException(message: String, val transaction: Transaction) : BlockNotAcceptedException(message + " transaction: " + transaction.jsonObject.toJsonString())
+    class TransactionNotAcceptedException(message: String, val transaction: Transaction) : BlockNotAcceptedException(message + " transaction: " + transaction.toJsonObject().toJsonString())
 
     class BlockOutOfOrderException(message: String) : BlockNotAcceptedException(message)
 

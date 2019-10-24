@@ -37,8 +37,8 @@ internal class GetTransactionBytes(private val blockchain: Blockchain, private v
             response.addProperty("confirmations", blockchain.height - transaction.height)
         }
 
-        response.addProperty("transactionBytes", transaction.bytes.toHexString())
-        response.addProperty("unsignedTransactionBytes", transaction.unsignedBytes.toHexString())
+        response.addProperty("transactionBytes", transaction.toBytes().toHexString())
+        response.addProperty("unsignedTransactionBytes", transaction.toUnsignedBytes().toHexString())
 
         return response
     }

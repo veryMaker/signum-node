@@ -8,9 +8,10 @@
 
 package brs.at
 
+import brs.at.AtApi.Companion.REGISTER_PART_SIZE
+import brs.util.partEquals
 import burst.kit.crypto.BurstCrypto
 import org.bouncycastle.util.Arrays
-
 import java.math.BigInteger
 import java.nio.BufferOverflowException
 import kotlin.experimental.and
@@ -23,6 +24,9 @@ object AtApiHelper {
         return (x shr 32).toInt()
     }
 
+    /**
+     * Little Endian.
+     */
     fun getLong(bytes: ByteArray): Long {
         if (bytes.size > 8) {
             throw BufferOverflowException()
@@ -30,8 +34,26 @@ object AtApiHelper {
         return burstCrypto.bytesToLong(bytes)
     }
 
-    fun getByteArray(l: Long): ByteArray {
-        return Arrays.reverse(burstCrypto.longToBytes(l))
+    /**
+     * Little Endian.
+     */
+    fun getByteArray(long: Long, dest: ByteArray) {
+        // TODO integrate with BurstKit if/when it provides a method that does not create a new array
+        // TODO optimize to iterate upwards rather than downwards
+        var l = long
+        for (i in 7 downTo 0) {
+            dest[7-i] = (l and 0xFF).toByte()
+            l = l shr 8
+        }
+    }
+
+    /**
+     * Little Endian.
+     */
+    fun getByteArray(long: Long): ByteArray {
+        val bytes = burstCrypto.longToBytes(long)
+        bytes.reverse()
+        return bytes
     }
 
     fun longToNumOfTx(x: Long): Int {
@@ -62,4 +84,36 @@ object AtApiHelper {
         System.arraycopy(bigIntBytes, 0, result, 0, if (resultSize >= bigIntBytes.size) bigIntBytes.size else resultSize)
         return result
     }
+}
+
+fun AtMachineState.putInA(data: ByteArray) {
+    require (data.size == 32)
+    data.copyInto(this.a1, 0, 0, 8)
+    data.copyInto(this.a2, 0, 8, 16)
+    data.copyInto(this.a3, 0, 16, 24)
+    data.copyInto(this.a4, 0, 24, 32)
+}
+
+fun AtMachineState.putInB(data: ByteArray) {
+    require (data.size == 32)
+    data.copyInto(this.b1, 0, 0, 8)
+    data.copyInto(this.b2, 0, 8, 16)
+    data.copyInto(this.b3, 0, 16, 24)
+    data.copyInto(this.b4, 0, 24, 32)
+}
+
+fun AtMachineState.aEquals(data: ByteArray): Boolean {
+    require (data.size == 32)
+    return data.partEquals(this.a1, 0, REGISTER_PART_SIZE)
+            && data.partEquals(this.a2, 8, REGISTER_PART_SIZE)
+            && data.partEquals(this.a3, 16, REGISTER_PART_SIZE)
+            && data.partEquals(this.a4, 24, REGISTER_PART_SIZE)
+}
+
+fun AtMachineState.bEquals(data: ByteArray): Boolean {
+    require (data.size == 32)
+    return data.partEquals(this.b1, 0, REGISTER_PART_SIZE)
+            && data.partEquals(this.b2, 8, REGISTER_PART_SIZE)
+            && data.partEquals(this.b3, 16, REGISTER_PART_SIZE)
+            && data.partEquals(this.b4, 24, REGISTER_PART_SIZE)
 }

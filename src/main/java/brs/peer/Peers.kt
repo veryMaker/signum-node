@@ -787,7 +787,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         val transactionsData = JsonArray()
 
         for (transaction in transactions) {
-            transactionsData.add(transaction.jsonObject)
+            transactionsData.add(transaction.toJsonObject())
         }
 
         request.addProperty("requestType", "processTransactions")

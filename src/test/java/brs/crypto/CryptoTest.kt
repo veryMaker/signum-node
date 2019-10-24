@@ -4,14 +4,12 @@ import brs.common.TestConstants
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
 import burst.kit.crypto.BurstCrypto
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-
 import java.nio.charset.StandardCharsets
-
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 
 @RunWith(JUnit4::class)
 class CryptoTest {
@@ -40,7 +38,7 @@ class CryptoTest {
 
     @Test
     fun testCryptoRipemd160() {
-        val ripemd160 = Crypto.ripemd160()
+        val ripemd160 = Crypto.ripeMD160()
         assertEquals("9c1185a5c5e9fc54612808977ee8f548b2258d31", ripemd160.digest(stringToBytes("")).toHexString())
         assertEquals("01743c6e71742ed72d6c51537f1790a462b82c82", ripemd160.digest(stringToBytes("Testing")).toHexString())
         assertEquals("9b7e20c53c6e77ed8d9768d8a5a813d02c0a0d6a", ripemd160.digest(stringToBytes("Burstcoin!")).toHexString())

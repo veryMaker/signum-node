@@ -1,6 +1,6 @@
 package brs.at
 
-internal interface AtApi {
+interface AtApi {
     // range 0x0100..0x01ff
 
     /**
@@ -70,34 +70,34 @@ internal interface AtApi {
     /**
      * sets A1 to @addr (0x0110)
      *
-     * @param val   new A1 register value
+     * @param value   new A1 register value
      * @param state AT machine state
      */
-    fun setA1(`val`: Long, state: AtMachineState)
+    fun setA1(value: Long, state: AtMachineState)
 
     /**
      * sets A2 to @addr (0x0111)
      *
-     * @param val   new A2 register value
+     * @param value   new A2 register value
      * @param state AT machine state
      */
-    fun setA2(`val`: Long, state: AtMachineState)
+    fun setA2(value: Long, state: AtMachineState)
 
     /**
      * sets A3 to @addr (0x0112)
      *
-     * @param val   new A3 register value
+     * @param value   new A3 register value
      * @param state AT machine state
      */
-    fun setA3(`val`: Long, state: AtMachineState)
+    fun setA3(value: Long, state: AtMachineState)
 
     /**
      * sets A4 to @addr (0x0113)
      *
-     * @param val   new A4 register value
+     * @param value   new A4 register value
      * @param state AT machine state
      */
-    fun setA4(`val`: Long, state: AtMachineState)
+    fun setA4(value: Long, state: AtMachineState)
 
     /**
      * sets A1 from @addr1 and A2 from @addr2 (0x0114)
@@ -120,34 +120,34 @@ internal interface AtApi {
     /**
      * sets B1 from @addr (0x0116)
      *
-     * @param val   new B1 register value
+     * @param value   new B1 register value
      * @param state AT machine state
      */
-    fun setB1(`val`: Long, state: AtMachineState)
+    fun setB1(value: Long, state: AtMachineState)
 
     /**
      * sets B2 from @addr (0x0117)
      *
-     * @param val   new B2 register value
+     * @param value   new B2 register value
      * @param state AT machine state
      */
-    fun setB2(`val`: Long, state: AtMachineState)
+    fun setB2(value: Long, state: AtMachineState)
 
     /**
      * sets B3 from @addr (0x0118)
      *
-     * @param val   new B3 register value
+     * @param value   new B3 register value
      * @param state AT machine state
      */
-    fun setB3(`val`: Long, state: AtMachineState)
+    fun setB3(value: Long, state: AtMachineState)
 
     /**
      * sets B4 @addr (0x0119)
      *
-     * @param val   new B4 register value
+     * @param value   new B4 register value
      * @param state AT machine state
      */
-    fun setB4(`val`: Long, state: AtMachineState)
+    fun setB4(value: Long, state: AtMachineState)
 
     /**
      * sets B1 from @addr1 and B2 from @addr2 (0x011a)
@@ -415,7 +415,7 @@ internal interface AtApi {
      *
      * @param state AT machine state
      */
-    fun aToTxAfterTimestamp(`val`: Long, state: AtMachineState)
+    fun aToTxAfterTimestamp(value: Long, state: AtMachineState)
 
     /**
      * @param state AT machine state
@@ -495,7 +495,7 @@ internal interface AtApi {
      *
      * @param state AT machine state
      */
-    fun sendToAddressInB(`val`: Long, state: AtMachineState)
+    fun sendToAddressInB(value: Long, state: AtMachineState)
 
     /**
      * bool if B is a valid address then send it entire balance
@@ -531,7 +531,7 @@ internal interface AtApi {
      *
      * @param state AT machine state
      */
-    fun setMinActivationAmount(`val`: Long, state: AtMachineState)
+    fun setMinActivationAmount(value: Long, state: AtMachineState)
 
     // end range 0x0400.0x04ff
     // -----------------------
@@ -549,4 +549,9 @@ internal interface AtApi {
      * @param state AT machine state
      */
     fun sha256ToB(val1: Long, val2: Long, state: AtMachineState)
+
+    companion object {
+        const val REGISTER_PART_SIZE = 8
+        const val REGISTER_SIZE = REGISTER_PART_SIZE * 4
+    }
 }

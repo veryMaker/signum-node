@@ -14,7 +14,7 @@ internal class GetUnconfirmedTransactions(private val transactionProcessor: Tran
 
         val transactionsData = JsonArray()
         for (transaction in unconfirmedTransactions) {
-            transactionsData.add(transaction.jsonObject)
+            transactionsData.add(transaction.toJsonObject())
         }
 
         response.add(UNCONFIRMED_TRANSACTIONS_RESPONSE, transactionsData)

@@ -103,7 +103,7 @@ object ProtoBuilder {
                 .addAllAppendages(transaction.appendages.map { it.protobufMessage })
                 .setEcBlockId(transaction.ecBlockId)
                 .setEcBlockHeight(transaction.ecBlockHeight)
-                .setSignature(transaction.bytes.toByteString())
+                .setSignature(transaction.toBytes().toByteString())
                 .build()
     }
 
@@ -111,7 +111,7 @@ object ProtoBuilder {
         return BrsApi.Transaction.newBuilder()
                 .setTransaction(buildBasicTransaction(transaction))
                 .setId(transaction.id)
-                .setTransactionBytes(transaction.bytes.toByteString())
+                .setTransactionBytes(transaction.toBytes().toByteString())
                 .setBlock(transaction.blockId)
                 .setBlockHeight(transaction.height)
                 .setBlockTimestamp(transaction.blockTimestamp)
@@ -125,7 +125,7 @@ object ProtoBuilder {
         return BrsApi.Transaction.newBuilder()
                 .setTransaction(buildBasicTransaction(transaction))
                 .setId(transaction.id)
-                .setTransactionBytes(transaction.bytes.toByteString())
+                .setTransactionBytes(transaction.toBytes().toByteString())
                 .setBlockHeight(transaction.height)
                 .setSignature(transaction.signature.toByteString())
                 .setFullHash(transaction.fullHash.toByteString())

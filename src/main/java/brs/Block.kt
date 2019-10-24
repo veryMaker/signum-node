@@ -74,7 +74,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
         }
         json.addProperty("blockSignature", blockSignature?.toHexString())
         val transactionsData = JsonArray()
-        transactions.forEach { transaction -> transactionsData.add(transaction.jsonObject) }
+        transactions.forEach { transaction -> transactionsData.add(transaction.toJsonObject()) }
         json.add("transactions", transactionsData)
         json.addProperty("nonce", nonce.toUnsignedString())
         json.addProperty("blockATs", blockATs?.toHexString() ?: "")

@@ -18,7 +18,7 @@ object Crypto {
         return burstCrypto.shabal256
     }
 
-    fun ripemd160(): MessageDigest {
+    fun ripeMD160(): MessageDigest {
         return burstCrypto.ripeMD160
     }
 

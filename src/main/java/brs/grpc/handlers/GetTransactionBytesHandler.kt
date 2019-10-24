@@ -10,7 +10,7 @@ class GetTransactionBytesHandler(private val dp: DependencyProvider) : GrpcApiHa
 
     override fun handleRequest(request: BrsApi.BasicTransaction): BrsApi.TransactionBytes {
         return BrsApi.TransactionBytes.newBuilder()
-                .setTransactionBytes(ProtoBuilder.parseBasicTransaction(dp, request).bytes.toByteString())
+                .setTransactionBytes(ProtoBuilder.parseBasicTransaction(dp, request).toBytes().toByteString())
                 .build()
     }
 }

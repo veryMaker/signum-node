@@ -14,7 +14,6 @@ import brs.props.PropertyService
 import brs.props.Props
 import brs.util.convert.parseHexString
 import com.nhaarman.mockitokotlin2.*
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockkObject
 import org.junit.Assert.assertEquals
@@ -86,7 +85,7 @@ class AtTestHelper {
         val dp = QuickMocker.dependencyProvider(mockAccountStore, mockAtStore, mockBlockchain, mockFluxCapacitor, mockPropertyService)
         dp.atConstants = AtConstants(dp)
         dp.atApiController = AtApiController(dp)
-        dp.atApiPlatformImpl = AtApiPlatformImpl(dp)
+        dp.atApi = AtApiPlatformImpl(dp)
         dp.atController = AtController(dp)
         return dp
     }

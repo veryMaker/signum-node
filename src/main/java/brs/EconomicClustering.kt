@@ -46,7 +46,7 @@ class EconomicClustering(private val dp: DependencyProvider) { // TODO interface
             val ecBlock = dp.blockchain.getBlock(transaction.ecBlockId)
             return ecBlock != null && ecBlock.height == transaction.ecBlockHeight
         } catch (e: NullPointerException) {
-            logger.safeDebug { "caught null pointer exception during verifyFork with transaction: ${transaction.jsonObject.toJsonString()}" }
+            logger.safeDebug { "caught null pointer exception during verifyFork with transaction: ${transaction.toJsonObject().toJsonString()}" }
             throw e
         }
 
