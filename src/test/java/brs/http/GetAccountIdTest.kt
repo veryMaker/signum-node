@@ -13,7 +13,6 @@ import brs.http.common.ResultFields.PUBLIC_KEY_RESPONSE
 import brs.util.JSON
 import brs.util.safeGetAsString
 import com.google.gson.JsonObject
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -29,7 +28,7 @@ class GetAccountIdTest {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(PUBLIC_KEY_PARAMETER, TEST_PUBLIC_KEY)
@@ -42,7 +41,7 @@ class GetAccountIdTest {
     }
 
     @Test
-    fun processRequest_missingSecretPhraseUsesPublicKey() = runBlocking {
+    fun processRequest_missingSecretPhraseUsesPublicKey() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PUBLIC_KEY_PARAMETER, TEST_PUBLIC_KEY)
         )
@@ -54,7 +53,7 @@ class GetAccountIdTest {
     }
 
     @Test
-    fun processRequest_missingSecretPhraseAndPublicKey() = runBlocking {
+    fun processRequest_missingSecretPhraseAndPublicKey() {
         assertEquals(MISSING_SECRET_PHRASE_OR_PUBLIC_KEY, t.processRequest(QuickMocker.httpServletRequest()))
     }
 

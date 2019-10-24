@@ -9,11 +9,11 @@ interface AssetTransferStore {
 
     val assetTransferTable: EntitySqlTable<AssetTransfer>
 
-    suspend fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer>
+    fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer>
 
-    suspend fun getAccountAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer>
+    fun getAccountAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer>
 
-    suspend fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer>
+    fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer>
 
-    suspend fun getTransferCount(assetId: Long): Int
+    fun getTransferCount(assetId: Long): Int
 }

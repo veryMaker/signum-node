@@ -10,7 +10,6 @@ import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -30,7 +29,7 @@ class ClearUnconfirmedTransactionsTest {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val request = QuickMocker.httpServletRequest()
 
         val result = t.processRequest(request) as JsonObject
@@ -39,7 +38,7 @@ class ClearUnconfirmedTransactionsTest {
     }
 
     @Test
-    fun processRequest_runtimeExceptionOccurs() = runBlocking {
+    fun processRequest_runtimeExceptionOccurs() {
         val request = QuickMocker.httpServletRequest()
 
         doThrow(RuntimeException("errorMessage")).whenever(transactionProcessorMock).clearUnconfirmedTransactions()

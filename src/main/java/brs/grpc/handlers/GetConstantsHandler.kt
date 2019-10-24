@@ -39,7 +39,7 @@ class GetConstantsHandler(dp: DependencyProvider) : GrpcApiHandler<Empty, BrsApi
                 .build()
     }
 
-    override suspend fun handleRequest(empty: Empty): BrsApi.Constants {
+    override fun handleRequest(empty: Empty): BrsApi.Constants {
         return constants
     }
 }

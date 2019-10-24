@@ -8,26 +8,26 @@ interface UnconfirmedTransactionStore {
 
     val amount: Int
 
-    suspend fun put(transaction: Transaction, peer: Peer?): Boolean
+    fun put(transaction: Transaction, peer: Peer?): Boolean
 
-    suspend fun get(transactionId: Long?): Transaction?
+    fun get(transactionId: Long?): Transaction?
 
-    suspend fun exists(transactionId: Long?): Boolean
+    fun exists(transactionId: Long?): Boolean
 
-    suspend fun getAllFor(peer: Peer): Collection<Transaction>
+    fun getAllFor(peer: Peer): Collection<Transaction>
 
-    suspend fun remove(transaction: Transaction)
+    fun remove(transaction: Transaction)
 
-    suspend fun clear()
+    fun clear()
 
     /**
      * Review which transactions are still eligible to stay
      * @return The list of removed transactions
      * TODO rename method
      */
-    suspend fun resetAccountBalances()
+    fun resetAccountBalances()
 
-    suspend fun markFingerPrintsOf(peer: Peer?, transactions: Collection<Transaction>)
+    fun markFingerPrintsOf(peer: Peer?, transactions: Collection<Transaction>)
 
-    suspend fun removeForgedTransactions(transactions: Collection<Transaction>)
+    fun removeForgedTransactions(transactions: Collection<Transaction>)
 }

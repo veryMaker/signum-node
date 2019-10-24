@@ -23,7 +23,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -47,7 +46,7 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val mockAccount = mock<Account>()
 
         val dgsName = "dgsName"
@@ -80,7 +79,7 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_missingName() = runBlocking {
+    fun processRequest_missingName() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L),
                 MockParam(QUANTITY_PARAMETER, 1L)
@@ -90,7 +89,7 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectDGSListingName() = runBlocking {
+    fun processRequest_incorrectDGSListingName() {
         val tooLongName = stringWithLength(101)
 
         val request = QuickMocker.httpServletRequest(
@@ -103,7 +102,7 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectDgsListingDescription() = runBlocking {
+    fun processRequest_incorrectDgsListingDescription() {
         val tooLongDescription = stringWithLength(1001)
 
         val request = QuickMocker.httpServletRequest(
@@ -117,7 +116,7 @@ class DGSListingTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectDgsListingTags() = runBlocking {
+    fun processRequest_incorrectDgsListingTags() {
         val tooLongTags = stringWithLength(101)
 
         val request = QuickMocker.httpServletRequest(

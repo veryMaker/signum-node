@@ -18,12 +18,9 @@ import brs.util.convert.safeSubtract
 import brs.util.convert.toUnsignedString
 import brs.util.delegates.Atomic
 import brs.util.logging.*
+import brs.util.sync.Mutex
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.*
@@ -344,37 +341,35 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             dp.taskScheduler.scheduleTask(8, this.pocVerificationTask) // TODO property for number of instances
         }
 
-        runBlocking {
-            blockListeners.addListener(BlockchainProcessor.Event.BLOCK_SCANNED) { block ->
-                if (block.height % 5000 == 0) {
-                    logger.safeInfo { "processed block ${block.height}" }
-                }
+        blockListeners.addListener(BlockchainProcessor.Event.BLOCK_SCANNED) { block ->
+            if (block.height % 5000 == 0) {
+                logger.safeInfo { "processed block ${block.height}" }
             }
+        }
 
-            blockListeners.addListener(BlockchainProcessor.Event.BLOCK_PUSHED) { block ->
-                if (block.height % 5000 == 0) {
-                    logger.safeInfo { "processed block ${block.height}" }
-                }
+        blockListeners.addListener(BlockchainProcessor.Event.BLOCK_PUSHED) { block ->
+            if (block.height % 5000 == 0) {
+                logger.safeInfo { "processed block ${block.height}" }
             }
+        }
 
-            blockListeners.addListener(BlockchainProcessor.Event.BLOCK_PUSHED) { dp.transactionProcessor.revalidateUnconfirmedTransactions() }
+        blockListeners.addListener(BlockchainProcessor.Event.BLOCK_PUSHED) { dp.transactionProcessor.revalidateUnconfirmedTransactions() }
 
-            if (trimDerivedTables) {
-                blockListeners.addListener(BlockchainProcessor.Event.AFTER_BLOCK_APPLY) { block ->
-                    if (block.height % 1440 == 0) {
-                        lastTrimHeight.set(max(block.height - dp.propertyService.get(Props.DB_MAX_ROLLBACK), 0))
-                        if (lastTrimHeight.get() > 0) {
-                            dp.derivedTableManager.derivedTables.forEach { table -> table.trim(lastTrimHeight.get()) }
-                        }
+        if (trimDerivedTables) {
+            blockListeners.addListener(BlockchainProcessor.Event.AFTER_BLOCK_APPLY) { block ->
+                if (block.height % 1440 == 0) {
+                    lastTrimHeight.set(max(block.height - dp.propertyService.get(Props.DB_MAX_ROLLBACK), 0))
+                    if (lastTrimHeight.get() > 0) {
+                        dp.derivedTableManager.derivedTables.forEach { table -> table.trim(lastTrimHeight.get()) }
                     }
                 }
             }
-
-            addGenesisBlock()
         }
+
+        addGenesisBlock()
     }
 
-    private suspend fun getCommonMilestoneBlockId(peer: Peer?): Long {
+    private fun getCommonMilestoneBlockId(peer: Peer?): Long {
         var lastMilestoneBlockId: String? = null
         while (true) {
             val milestoneBlockIdsRequest = JsonObject()
@@ -424,7 +419,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    private suspend fun getCommonBlockId(peer: Peer?, commonBlockId: Long): Long {
+    private fun getCommonBlockId(peer: Peer?, commonBlockId: Long): Long {
         var commonBlockId = commonBlockId
 
         while (true) { // TODO not while true
@@ -450,15 +445,15 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    private suspend fun getNextBlocks(peer: Peer?, curBlockId: Long): JsonArray? {
+    private fun getNextBlocks(peer: Peer?, curBlockId: Long): JsonArray? {
         val request = JsonObject()
         request.addProperty("requestType", "getNextBlocks")
         request.addProperty("blockId", curBlockId.toUnsignedString())
         logger.safeDebug { "Getting next Blocks after ${curBlockId.toUnsignedString()} from ${peer!!.peerAddress}" }
         val response = peer!!.send(JSON.prepareRequest(request)) ?: return null
 
-        val nextBlocks = response.get("nextBlocks").mustGetAsJsonArray("nextBlocks")
-        if (nextBlocks.isEmpty()) return null
+        val nextBlocks = response.get("nextBlocks").safeGetAsJsonArray()
+        if (nextBlocks == null || nextBlocks.isEmpty()) return null
         // prevent overloading with blocks
         if (nextBlocks.size() > 1440) {
             peer.blacklist("obsolete or rogue peer sends too many nextBlocks")
@@ -469,10 +464,10 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
     }
 
-    private suspend fun processFork(peer: Peer, forkBlocks: List<Block>, forkBlockId: Long) {
+    private fun processFork(peer: Peer, forkBlocks: List<Block>, forkBlockId: Long) {
         logger.safeWarn { "A fork is detected. Waiting for cache to be processed." }
         dp.downloadCache.lockCache() //dont let anything add to cache!
-        while (dp.downloadCache.size() != 0) delay(1000) // TODO don't do this...
+        while (dp.downloadCache.size() != 0) Thread.sleep(1000) // TODO don't do this...
         dp.downloadCache.mutex.withLock {
             processMutex.withLock {
                 logger.safeWarn { "Cache is now processed. Starting to process fork." }
@@ -539,7 +534,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    private suspend fun blacklistClean(block: Block?, e: Exception, description: String) {
+    private fun blacklistClean(block: Block?, e: Exception, description: String) {
         logger.safeDebug { "Blacklisting peer and cleaning cache queue" }
         if (block == null) {
             return
@@ -550,7 +545,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         logger.safeDebug { "Blacklisted peer and cleaned queue" }
     }
 
-    private suspend fun autoPopOff(height: Int) {
+    private fun autoPopOff(height: Int) {
         if (!autoPopOffEnabled) {
             logger.safeWarn { "Not automatically popping off as it is disabled via properties. If your node becomes stuck you will need to manually pop off." }
             return
@@ -571,11 +566,11 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    override suspend fun addListener(eventType: BlockchainProcessor.Event, listener: suspend (Block) -> Unit) {
+    override fun addListener(eventType: BlockchainProcessor.Event, listener: (Block) -> Unit) {
         return blockListeners.addListener(eventType, listener)
     }
 
-    override suspend fun processPeerBlock(request: JsonObject, peer: Peer) {
+    override fun processPeerBlock(request: JsonObject, peer: Peer) {
         val newBlock = Block.parseBlock(dp, request, dp.blockchain.height)
         //* This process takes care of the blocks that is announced by peers We do not want to be fed forks.
         val chainblock = dp.downloadCache.lastBlock
@@ -590,23 +585,23 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    override suspend fun popOffTo(height: Int): List<Block> {
+    override fun popOffTo(height: Int): List<Block> {
         return popOffTo(dp.blockchain.getBlockAtHeight(height)!!)
     }
 
-    override suspend fun fullReset() {
+    override fun fullReset() {
         dp.blockDb.deleteAll(false)
         dp.dbCacheManager.flushCache()
         dp.downloadCache.resetCache()
         addGenesisBlock()
     }
 
-    private suspend fun addBlock(block: Block) {
+    private fun addBlock(block: Block) {
         dp.blockchainStore.addBlock(block)
         dp.blockchain.lastBlock = block
     }
 
-    private suspend fun addGenesisBlock() {
+    private fun addGenesisBlock() {
         if (dp.blockDb.hasBlock(Genesis.GENESIS_BLOCK_ID)) {
             logger.safeInfo { "Genesis block already in database" }
             val lastBlock = dp.blockDb.findLastBlock()!!
@@ -627,7 +622,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    private suspend fun pushBlock(block: Block) {
+    private fun pushBlock(block: Block) {
         processMutex.withLock {
             dp.db.beginTransaction()
             val curTime = dp.timeService.epochTime
@@ -769,7 +764,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    private suspend fun accept(block: Block, remainingAmount: Long?, remainingFee: Long?) {
+    private fun accept(block: Block, remainingAmount: Long?, remainingFee: Long?) {
         dp.subscriptionService.clearRemovals()
         for (transaction in block.getTransactions()) {
             if (!dp.transactionService.applyUnconfirmed(transaction)) {
@@ -813,7 +808,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    private suspend fun popOffTo(commonBlock: Block): MutableList<Block> {
+    private fun popOffTo(commonBlock: Block): MutableList<Block> {
         require(commonBlock.height >= minRollbackHeight) { "Rollback to height " + commonBlock.height + " not suppported, " + "current height " + dp.blockchain.height }
         if (!dp.blockchain.hasBlock(commonBlock.id)) {
             logger.safeDebug { "Block ${commonBlock.stringId} not found in blockchain, nothing to pop off" }
@@ -846,7 +841,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         return poppedOffBlocks
     }
 
-    private suspend fun popLastBlock(): Block {
+    private fun popLastBlock(): Block {
         val block = dp.blockchain.lastBlock
         if (block.id == Genesis.GENESIS_BLOCK_ID) {
             throw RuntimeException("Cannot pop off genesis block")
@@ -859,7 +854,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         return previousBlock
     }
 
-    private suspend fun preCheckUnconfirmedTransaction(transactionDuplicatesChecker: TransactionDuplicatesCheckerImpl, unconfirmedTransactionStore: UnconfirmedTransactionStore, transaction: Transaction): Boolean {
+    private fun preCheckUnconfirmedTransaction(transactionDuplicatesChecker: TransactionDuplicatesCheckerImpl, unconfirmedTransactionStore: UnconfirmedTransactionStore, transaction: Transaction): Boolean {
         val ok = (hasAllReferencedTransactions(transaction, transaction.timestamp, 0)
                 && !transactionDuplicatesChecker.hasAnyDuplicate(transaction)
                 && !dp.transactionDb.hasTransaction(transaction.id))
@@ -867,7 +862,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         return ok
     }
 
-    override suspend fun generateBlock(secretPhrase: String, publicKey: ByteArray, nonce: Long?) {
+    override fun generateBlock(secretPhrase: String, publicKey: ByteArray, nonce: Long?) {
         dp.downloadCache.mutex.withLock {
             dp.downloadCache.lockCache() //stop all incoming blocks.
             val unconfirmedTransactionStore = dp.unconfirmedTransactionStore
@@ -1050,7 +1045,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             } catch (e: BurstException.ValidationException) {
                 // shouldn't happen because all transactions are already validated
                 logger.safeInfo(e) { "Error generating block" }
-                return
+                return@withLock
             }
 
             block.sign(secretPhrase)
@@ -1075,7 +1070,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
         }
     }
 
-    private suspend fun hasAllReferencedTransactions(transaction: Transaction, timestamp: Int, count: Int): Boolean {
+    private fun hasAllReferencedTransactions(transaction: Transaction, timestamp: Int, count: Int): Boolean {
         if (transaction.referencedTransactionFullHash == null) {
             return timestamp - transaction.timestamp < 60 * 1440 * 60 && count < 10
         }

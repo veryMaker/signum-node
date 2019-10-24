@@ -25,7 +25,6 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -52,7 +51,7 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val nameParameter = stringWithLength(MIN_ASSET_NAME_LENGTH + 1)
         val descriptionParameter = stringWithLength(MAX_ASSET_DESCRIPTION_LENGTH - 1)
         val decimalsParameter = 4
@@ -79,14 +78,14 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_missingName() = runBlocking {
+    fun processRequest_missingName() {
         val request = QuickMocker.httpServletRequest()
 
         assertEquals(MISSING_NAME, t.processRequest(request))
     }
 
     @Test
-    fun processRequest_incorrectAssetNameLength_smallerThanMin() = runBlocking {
+    fun processRequest_incorrectAssetNameLength_smallerThanMin() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH - 1))
         )
@@ -95,7 +94,7 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectAssetNameLength_largerThanMax() = runBlocking {
+    fun processRequest_incorrectAssetNameLength_largerThanMax() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MAX_ASSET_NAME_LENGTH + 1))
         )
@@ -104,7 +103,7 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectAssetName() = runBlocking {
+    fun processRequest_incorrectAssetName() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1) + "[")
         )
@@ -113,7 +112,7 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectAssetDescription() = runBlocking {
+    fun processRequest_incorrectAssetDescription() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1)),
                 MockParam(DESCRIPTION_PARAMETER, stringWithLength(MAX_ASSET_DESCRIPTION_LENGTH + 1))
@@ -123,7 +122,7 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectDecimals_unParsable() = runBlocking {
+    fun processRequest_incorrectDecimals_unParsable() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1)),
                 MockParam(DESCRIPTION_PARAMETER, stringWithLength(MAX_ASSET_DESCRIPTION_LENGTH - 1)),
@@ -134,7 +133,7 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectDecimals_negativeNumber() = runBlocking {
+    fun processRequest_incorrectDecimals_negativeNumber() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1)),
                 MockParam(DESCRIPTION_PARAMETER, stringWithLength(MAX_ASSET_DESCRIPTION_LENGTH - 1)),
@@ -145,7 +144,7 @@ class IssueAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectDecimals_moreThan8() = runBlocking {
+    fun processRequest_incorrectDecimals_moreThan8() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1)),
                 MockParam(DESCRIPTION_PARAMETER, stringWithLength(MAX_ASSET_DESCRIPTION_LENGTH - 1)),

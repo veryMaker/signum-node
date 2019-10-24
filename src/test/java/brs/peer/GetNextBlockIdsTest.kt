@@ -5,7 +5,6 @@ import brs.Genesis
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -31,7 +30,7 @@ class GetNextBlockIdsTest {
     }
 
     @Test
-    fun testGetNextBlocks() = runBlocking {
+    fun testGetNextBlocks() {
         val request = JsonObject()
         request.addProperty("blockId", java.lang.Long.toUnsignedString(Genesis.GENESIS_BLOCK_ID))
         val responseElement = getNextBlockIds.processRequest(request, mockPeer)
@@ -51,7 +50,7 @@ class GetNextBlockIdsTest {
     }
 
     @Test
-    fun testGetNextBlocks_noIdSpecified() = runBlocking {
+    fun testGetNextBlocks_noIdSpecified() {
         val request = JsonObject()
         val responseElement = getNextBlockIds.processRequest(request, mockPeer)
         assertNotNull(responseElement)

@@ -11,7 +11,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetState(private val dp: DependencyProvider) : APIServlet.JsonRequestHandler(arrayOf(APITag.INFO), INCLUDE_COUNTS_PARAMETER) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
 
         response.addProperty("application", Burst.APPLICATION)

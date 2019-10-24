@@ -47,7 +47,7 @@ class AT : AtMachineState {
         return dp.atStore.atStateTable
     }
 
-    suspend fun saveState() {
+    fun saveState() {
         var state: ATState? = atStateTable().get(atStateDbKeyFactory(dp).newKey(AtApiHelper.getLong(this.id!!)))
         val prevHeight = dp.blockchain.height
         val newNextHeight = prevHeight + waitForNumberOfBlocks
@@ -127,16 +127,16 @@ class AT : AtMachineState {
         }
 
         @Deprecated("Use dp.atStore.getAT(AtApiHelper.getLong(id)) instead")
-        suspend fun getAT(dp: DependencyProvider, id: ByteArray): AT? {
+        fun getAT(dp: DependencyProvider, id: ByteArray): AT? {
             return getAT(dp, AtApiHelper.getLong(id))
         }
 
         @Deprecated("Use dp.atStore.getAT(id) instead")
-        suspend fun getAT(dp: DependencyProvider, id: Long?): AT? {
+        fun getAT(dp: DependencyProvider, id: Long?): AT? {
             return dp.atStore.getAT(id)
         }
 
-        suspend fun addAT(dp: DependencyProvider, atId: Long?, senderAccountId: Long?, name: String, description: String, creationBytes: ByteArray, height: Int) {
+        fun addAT(dp: DependencyProvider, atId: Long?, senderAccountId: Long?, name: String, description: String, creationBytes: ByteArray, height: Int) {
             val bf = ByteBuffer.allocate(8 + 8)
             bf.order(ByteOrder.LITTLE_ENDIAN)
 
@@ -165,7 +165,7 @@ class AT : AtMachineState {
 
         // TODO just do it yourself! or add a utils class or something... same goes for all of the methods around here doing this
         @Deprecated("Use dp.atStore.getOrderedATs() instead")
-        suspend fun getOrderedATs(dp: DependencyProvider): List<Long> {
+        fun getOrderedATs(dp: DependencyProvider): List<Long> {
             return dp.atStore.getOrderedATs()
         }
 
@@ -207,7 +207,7 @@ class AT : AtMachineState {
             }
         }
 
-        fun handleATBlockTransactionsListener(dp: DependencyProvider): suspend (Block) -> Unit = { block ->
+        fun handleATBlockTransactionsListener(dp: DependencyProvider): (Block) -> Unit = { block ->
             pendingFees.forEach { (key, value) ->
                 val atAccount = dp.accountService.getAccount(key)!!
                 dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(atAccount, -value)

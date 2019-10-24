@@ -21,7 +21,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -43,7 +42,7 @@ class GetAccountTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val mockAccountId = 123L
         val mockAccountName = "accountName"
         val mockAccountDescription = "accountDescription"

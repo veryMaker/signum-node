@@ -20,7 +20,7 @@ class AskOrderCancellation(dp: DependencyProvider) : OrderCancellation(dp) {
         return Attachment.ColoredCoinsAskOrderCancellation(dp, attachmentData)
     }
 
-    override suspend fun applyAttachment(
+    override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?
@@ -37,7 +37,7 @@ class AskOrderCancellation(dp: DependencyProvider) : OrderCancellation(dp) {
         }
     }
 
-    override suspend fun validateAttachment(transaction: Transaction) {
+    override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsAskOrderCancellation
         val ask = dp.assetExchange.getAskOrder(attachment.orderId)
             ?: throw BurstException.NotCurrentlyValidException("Invalid ask order: " + attachment.orderId.toUnsignedString())

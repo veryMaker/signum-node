@@ -10,9 +10,9 @@ class SubscriptionSubscribe(dp: DependencyProvider) : AdvancedPayment(dp) {
     override val description = "Subscription Subscribe"
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.AdvancedPaymentSubscriptionSubscribe(dp, buffer, transactionVersion)
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.AdvancedPaymentSubscriptionSubscribe(dp, attachmentData)
-    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
+    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
 
-    override suspend fun applyAttachment(
+    override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?
@@ -28,10 +28,10 @@ class SubscriptionSubscribe(dp: DependencyProvider) : AdvancedPayment(dp) {
         )
     }
 
-    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
+    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
     override fun getDuplicationKey(transaction: Transaction) = TransactionDuplicationKey.IS_NEVER_DUPLICATE
 
-    override suspend fun validateAttachment(transaction: Transaction) {
+    override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionSubscribe
         if (attachment.frequency == null ||
             attachment.frequency < Constants.BURST_SUBSCRIPTION_MIN_Frequest ||

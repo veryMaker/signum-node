@@ -12,7 +12,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetECBlock(private val blockchain: Blockchain, private val timeService: TimeService, private val economicClustering: EconomicClustering) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS), TIMESTAMP_PARAMETER) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         var timestamp = ParameterParser.getTimestamp(request)
         if (timestamp == 0) {
             timestamp = timeService.epochTime

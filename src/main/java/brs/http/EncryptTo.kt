@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class EncryptTo(private val parameterService: ParameterService, private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.MESSAGES), RECIPIENT_PARAMETER, MESSAGE_TO_ENCRYPT_PARAMETER, MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, SECRET_PHRASE_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val recipientId = ParameterParser.getRecipientId(request)
         val recipientAccount = accountService.getAccount(recipientId)

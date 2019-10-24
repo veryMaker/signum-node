@@ -57,7 +57,7 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
                 return SQLPurchase(rs)
             }
 
-            override suspend fun save(ctx: DSLContext, purchase: DigitalGoodsStore.Purchase) {
+            override fun save(ctx: DSLContext, purchase: DigitalGoodsStore.Purchase) {
                 savePurchase(ctx, purchase)
             }
 
@@ -114,7 +114,7 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
                 return SQLGoods(record)
             }
 
-            override suspend fun save(ctx: DSLContext, goods: DigitalGoodsStore.Goods) {
+            override fun save(ctx: DSLContext, goods: DigitalGoodsStore.Goods) {
                 saveGoods(ctx, goods)
             }
 
@@ -124,7 +124,7 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
         }
     }
 
-    override suspend fun getExpiredPendingPurchases(timestamp: Int): Collection<DigitalGoodsStore.Purchase> {
+    override fun getExpiredPendingPurchases(timestamp: Int): Collection<DigitalGoodsStore.Purchase> {
         return purchaseTable.getManyBy(PURCHASE.DEADLINE.lt(timestamp).and(PURCHASE.PENDING.isTrue), 0, -1)
     }
 
@@ -140,7 +140,7 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
                 .execute()
     }
 
-    private suspend fun savePurchase(ctx: DSLContext, purchase: DigitalGoodsStore.Purchase) {
+    private fun savePurchase(ctx: DSLContext, purchase: DigitalGoodsStore.Purchase) {
         var note: ByteArray? = null
         var nonce: ByteArray? = null
         var goods: ByteArray? = null
@@ -166,35 +166,35 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
                 .execute()
     }
 
-    override suspend fun getGoodsInStock(from: Int, to: Int): Collection<DigitalGoodsStore.Goods> {
+    override fun getGoodsInStock(from: Int, to: Int): Collection<DigitalGoodsStore.Goods> {
         return goodsTable.getManyBy(GOODS.DELISTED.isFalse.and(GOODS.QUANTITY.gt(0)), from, to)
     }
 
-    override suspend fun getSellerGoods(sellerId: Long, inStockOnly: Boolean, from: Int, to: Int): Collection<DigitalGoodsStore.Goods> {
+    override fun getSellerGoods(sellerId: Long, inStockOnly: Boolean, from: Int, to: Int): Collection<DigitalGoodsStore.Goods> {
         return goodsTable.getManyBy(if (inStockOnly) GOODS.SELLER_ID.eq(sellerId).and(GOODS.DELISTED.isFalse).and(GOODS.QUANTITY.gt(0)) else GOODS.SELLER_ID.eq(sellerId), from, to, listOf(GOODS.field("name", String::class.java).asc(), GOODS.field("timestamp", Int::class.java).desc(), GOODS.field("id", Long::class.java).asc()))
     }
 
-    override suspend fun getAllPurchases(from: Int, to: Int): Collection<DigitalGoodsStore.Purchase> {
+    override fun getAllPurchases(from: Int, to: Int): Collection<DigitalGoodsStore.Purchase> {
         return purchaseTable.getAll(from, to)
     }
 
-    override suspend fun getSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase> {
+    override fun getSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase> {
         return purchaseTable.getManyBy(PURCHASE.SELLER_ID.eq(sellerId), from, to)
     }
 
-    override suspend fun getBuyerPurchases(buyerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase> {
+    override fun getBuyerPurchases(buyerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase> {
         return purchaseTable.getManyBy(PURCHASE.BUYER_ID.eq(buyerId), from, to)
     }
 
-    override suspend fun getSellerBuyerPurchases(sellerId: Long, buyerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase> {
+    override fun getSellerBuyerPurchases(sellerId: Long, buyerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase> {
         return purchaseTable.getManyBy(PURCHASE.SELLER_ID.eq(sellerId).and(PURCHASE.BUYER_ID.eq(buyerId)), from, to)
     }
 
-    override suspend fun getPendingSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase> {
+    override fun getPendingSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase> {
         return purchaseTable.getManyBy(PURCHASE.SELLER_ID.eq(sellerId).and(PURCHASE.PENDING.isTrue), from, to)
     }
 
-    suspend fun getPendingPurchase(purchaseId: Long): DigitalGoodsStore.Purchase? {
+    fun getPendingPurchase(purchaseId: Long): DigitalGoodsStore.Purchase? {
         val purchase = purchaseTable.get(purchaseDbKeyFactory.newKey(purchaseId))
         return if (purchase == null || !purchase.isPending) null else purchase
     }

@@ -105,11 +105,11 @@ interface Attachment : Appendix {
             this.dp = dp
         }
 
-        override suspend fun validate(transaction: Transaction) {
+        override fun validate(transaction: Transaction) {
             transactionType.validateAttachment(transaction)
         }
 
-        override suspend fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
+        override fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
             transactionType.apply(transaction, senderAccount, recipientAccount)
         }
 

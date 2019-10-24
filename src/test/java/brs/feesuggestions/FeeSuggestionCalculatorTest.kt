@@ -9,7 +9,6 @@ import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.db.store.BlockchainStore
 import com.nhaarman.mockitokotlin2.*
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -21,10 +20,10 @@ class FeeSuggestionCalculatorTest : AbstractUnitTest() {
     private lateinit var blockchainProcessorMock: BlockchainProcessor
     private lateinit var blockchainStoreMock: BlockchainStore
 
-    private lateinit var listenerArgumentCaptor: KArgumentCaptor<suspend (Block) -> Unit>
+    private lateinit var listenerArgumentCaptor: KArgumentCaptor<(Block) -> Unit>
 
     @Before
-    fun setUp() = runBlocking {
+    fun setUp() {
         blockchainProcessorMock = mock()
         blockchainStoreMock = mock()
 
@@ -35,7 +34,7 @@ class FeeSuggestionCalculatorTest : AbstractUnitTest() {
     }
 
     @Test
-    fun getFeeSuggestion() = runBlocking {
+    fun getFeeSuggestion() {
         val mockBlock1 = mock<Block>()
         whenever(mockBlock1.getTransactions()).doReturn(mutableListOf())
         val mockBlock2 = mock<Block>()

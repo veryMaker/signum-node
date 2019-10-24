@@ -22,7 +22,7 @@ class AtController(private val dp: DependencyProvider) {
     private val costOfOneAT: Int
         get() = AtConstants.AT_ID_SIZE + 16
 
-    private suspend fun runSteps(state: AtMachineState): Int {
+    private fun runSteps(state: AtMachineState): Int {
         state.machineState.running = true
         state.machineState.stopped = false
         state.machineState.finished = false
@@ -85,12 +85,12 @@ class AtController(private val dp: DependencyProvider) {
         return if (op in 0x32..55) dp.atConstants.apiStepMultiplier(height).toInt() else 1
     }
 
-    suspend fun resetMachine(state: AtMachineState) {
+    fun resetMachine(state: AtMachineState) {
         state.machineState.reset()
         listCode(state, disassembly = true, determineJumps = true)
     }
 
-    private suspend fun listCode(state: AtMachineState, disassembly: Boolean, determineJumps: Boolean) {
+    private fun listCode(state: AtMachineState, disassembly: Boolean, determineJumps: Boolean) {
 
         val machineProcessor = AtMachineProcessor(dp, state, dp.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
 
@@ -205,7 +205,7 @@ class AtController(private val dp: DependencyProvider) {
         return codeLen
     }
 
-    suspend fun getCurrentBlockATs(freePayload: Int, blockHeight: Int): AtBlock {
+    fun getCurrentBlockATs(freePayload: Int, blockHeight: Int): AtBlock {
         val orderedATs = AT.getOrderedATs(dp)
         val keys = orderedATs.iterator()
 
@@ -270,7 +270,7 @@ class AtController(private val dp: DependencyProvider) {
         return AtBlock(totalFee, totalAmount, bytesForBlock)
     }
 
-    suspend fun validateATs(blockATs: ByteArray?, blockHeight: Int): AtBlock {
+    fun validateATs(blockATs: ByteArray?, blockHeight: Int): AtBlock {
         val ats = getATsFromBlock(blockATs)
 
         val processedATs = mutableListOf<AT>()
@@ -416,7 +416,7 @@ class AtController(private val dp: DependencyProvider) {
     }
 
     //platform based
-    private suspend fun getATAccountBalance(id: Long?): Long {
+    private fun getATAccountBalance(id: Long?): Long {
         val atAccount = Account.getAccount(dp, id!!)
         return atAccount?.balanceNQT ?: 0
     }

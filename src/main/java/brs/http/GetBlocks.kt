@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetBlocks(private val blockchain: Blockchain, private val blockService: BlockService) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS), FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, INCLUDE_TRANSACTIONS_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val firstIndex = ParameterParser.getFirstIndex(request)
         var lastIndex = ParameterParser.getLastIndex(request)

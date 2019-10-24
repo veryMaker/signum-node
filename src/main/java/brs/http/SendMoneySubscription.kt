@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class SendMoneySubscription(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, AMOUNT_NQT_PARAMETER, FREQUENCY_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)
         val recipient = ParameterParser.getRecipientId(request)
         val amountNQT = ParameterParser.getAmountNQT(request)

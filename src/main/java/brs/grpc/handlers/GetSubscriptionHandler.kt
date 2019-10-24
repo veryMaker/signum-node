@@ -8,7 +8,7 @@ import brs.services.SubscriptionService
 
 class GetSubscriptionHandler(private val subscriptionService: SubscriptionService) : GrpcApiHandler<BrsApi.GetByIdRequest, BrsApi.Subscription> {
 
-    override suspend fun handleRequest(request: BrsApi.GetByIdRequest): BrsApi.Subscription {
+    override fun handleRequest(request: BrsApi.GetByIdRequest): BrsApi.Subscription {
         val subscriptionId = request.id
         val subscription = subscriptionService.getSubscription(subscriptionId)
                 ?: throw ApiException("Could not find subscription")

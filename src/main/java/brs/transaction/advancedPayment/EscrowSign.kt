@@ -14,15 +14,15 @@ class EscrowSign(dp: DependencyProvider) : AdvancedPayment(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.AdvancedPaymentEscrowSign(dp, attachmentData)
 
-    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
+    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
 
-    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowSign
         val escrow = dp.escrowService.getEscrowTransaction(attachment.escrowId)!!
         dp.escrowService.sign(senderAccount.id, attachment.decision!!, escrow)
     }
 
-    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
+    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
 
     override fun getDuplicationKey(transaction: Transaction): TransactionDuplicationKey {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowSign
@@ -31,7 +31,7 @@ class EscrowSign(dp: DependencyProvider) : AdvancedPayment(dp) {
         return TransactionDuplicationKey(EscrowSign::class, uniqueString)
     }
 
-    override suspend fun validateAttachment(transaction: Transaction) {
+    override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowSign
         if (transaction.amountNQT != 0L || transaction.feeNQT != Constants.ONE_BURST) {
             throw BurstException.NotValidException("Escrow signing must have amount 0 and fee of 1")

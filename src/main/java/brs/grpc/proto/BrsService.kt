@@ -9,7 +9,6 @@ import io.grpc.Server
 import io.grpc.ServerBuilder
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder
 import io.grpc.stub.StreamObserver
-import kotlinx.coroutines.runBlocking
 import java.net.InetSocketAddress
 import kotlin.reflect.KClass
 
@@ -71,9 +70,7 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
     private inline fun <reified H : GrpcApiHandler<R, S>, R : Message, S : Message> handleRequest(handlerClass: KClass<H>, request: R, response: StreamObserver<S>) {
         val handler = handlers[handlerClass]
         if (handler is H) {
-            runBlocking { // TODO
-                handler.handleRequest(request, response)
-            }
+            handler.handleRequest(request, response)
         } else {
             response.onError(ProtoBuilder.buildError(HandlerNotFoundException("H not registered: ${H::class}")))
         }

@@ -14,33 +14,33 @@ internal class TradeServiceImpl(private val tradeStore: TradeStore): Observable<
     private val tradeTable = tradeStore.tradeTable
     private val tradeDbKeyFactory = tradeStore.tradeDbKeyFactory
 
-    suspend fun getCount() = tradeTable.getCount()
+    fun getCount() = tradeTable.count
 
-    suspend fun getAssetTrades(assetId: Long, from: Int, to: Int): Collection<Trade> {
+    fun getAssetTrades(assetId: Long, from: Int, to: Int): Collection<Trade> {
         return tradeStore.getAssetTrades(assetId, from, to)
     }
 
-    suspend fun getAccountAssetTrades(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Trade> {
+    fun getAccountAssetTrades(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Trade> {
         return tradeStore.getAccountAssetTrades(accountId, assetId, from, to)
     }
 
-    suspend fun getAccountTrades(id: Long, from: Int, to: Int): Collection<Trade> {
+    fun getAccountTrades(id: Long, from: Int, to: Int): Collection<Trade> {
         return tradeStore.getAccountTrades(id, from, to)
     }
 
-    suspend fun getTradeCount(assetId: Long): Int {
+    fun getTradeCount(assetId: Long): Int {
         return tradeStore.getTradeCount(assetId)
     }
 
-    suspend fun getAllTrades(from: Int, to: Int): Collection<Trade> {
+    fun getAllTrades(from: Int, to: Int): Collection<Trade> {
         return tradeTable.getAll(from, to)
     }
 
-    override suspend fun addListener(eventType: Event, listener: suspend (Trade) -> Unit) {
+    override fun addListener(eventType: Event, listener: (Trade) -> Unit) {
         listeners.addListener(eventType, listener)
     }
 
-    suspend fun addTrade(assetId: Long, block: Block, askOrder: Order.Ask, bidOrder: Order.Bid): Trade {
+    fun addTrade(assetId: Long, block: Block, askOrder: Order.Ask, bidOrder: Order.Bid): Trade {
         val dbKey = tradeDbKeyFactory.newKey(askOrder.id, bidOrder.id)
         val trade = Trade(dbKey, assetId, block, askOrder, bidOrder)
         tradeTable.insert(trade)

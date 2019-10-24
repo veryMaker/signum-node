@@ -54,11 +54,11 @@ abstract class AbstractIT {
         return props
     }
 
-    suspend fun processBlock(jsonFirstBlock: JsonObject) {
+    fun processBlock(jsonFirstBlock: JsonObject) {
         processBlock.processRequest(jsonFirstBlock, mock())
     }
 
-    suspend fun rollback(height: Int) {
+    fun rollback(height: Int) {
         burst.dp.blockchainProcessor.popOffTo(height)
     }
 }

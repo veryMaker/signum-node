@@ -22,7 +22,7 @@ class SubmitNonceHandler(propertyService: PropertyService, private val blockchai
         this.allowOtherSoloMiners = propertyService.get(Props.ALLOW_OTHER_SOLO_MINERS)
     }
 
-    override suspend fun handleRequest(request: BrsApi.SubmitNonceRequest): BrsApi.SubmitNonceResponse {
+    override fun handleRequest(request: BrsApi.SubmitNonceRequest): BrsApi.SubmitNonceResponse {
         var secret: String = request.secretPhrase
         val nonce = request.nonce
         val accountId = request.account
@@ -72,7 +72,7 @@ class SubmitNonceHandler(propertyService: PropertyService, private val blockchai
 
     companion object {
 
-        suspend fun verifySecretAccount(accountService: AccountService, blockchain: Blockchain, secretAccount: Account, accountId: Long) {
+        fun verifySecretAccount(accountService: AccountService, blockchain: Blockchain, secretAccount: Account, accountId: Long) {
             val genAccount = if (accountId != 0L) {
                 accountService.getAccount(accountId)
             } else {

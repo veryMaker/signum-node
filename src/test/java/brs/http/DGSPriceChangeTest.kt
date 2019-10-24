@@ -17,7 +17,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -44,7 +43,7 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val priceNQTParameter = 5
 
         val request = QuickMocker.httpServletRequest(
@@ -75,7 +74,7 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_goodsDelistedUnknownGoods() = runBlocking {
+    fun processRequest_goodsDelistedUnknownGoods() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L)
         )
@@ -92,7 +91,7 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_goodsWrongSellerIdUnknownGoods() = runBlocking {
+    fun processRequest_goodsWrongSellerIdUnknownGoods() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, 123L)
         )

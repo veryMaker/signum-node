@@ -11,7 +11,7 @@ import com.google.gson.JsonObject
 @Deprecated("This call is no longer made by the other peers so will soon be removed.")
 class GetAccountBalance @Deprecated("")
 internal constructor(private val accountService: AccountService) : PeerServlet.PeerRequestHandler {
-    override suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement {
+    override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
 
         val response = JsonObject()
 

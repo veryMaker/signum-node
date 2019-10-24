@@ -13,7 +13,6 @@ import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.nio.ByteBuffer
@@ -27,7 +26,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
     private var internalTransactions by Atomic<Collection<Transaction>?>()
 
     // TODO this needs a mutex or something - atomics do not guarantee locking
-    suspend fun getTransactions(): Collection<Transaction> {
+    fun getTransactions(): Collection<Transaction> {
         return internalTransactions ?: run {
             val txs = transactionDb().findBlockTransactions(id)
             txs.forEach { it.setBlock(this) }
@@ -58,9 +57,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
     }
     var hash by AtomicLazy<ByteArray> {
         checkNotNull(blockSignature) { "Block is not signed yet" }
-        runBlocking {
-            Crypto.sha256().digest(toBytes())
-        }
+        Crypto.sha256().digest(toBytes())
     }
 
     var pocTime: BigInteger? = null
@@ -71,7 +68,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
     val isVerified: Boolean
         get() = pocTime != null
 
-    suspend fun toJsonObject(): JsonObject {
+    fun toJsonObject(): JsonObject {
         val json = JsonObject()
         json.addProperty("version", version)
         json.addProperty("timestamp", timestamp)
@@ -94,7 +91,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
         return json
     }
 
-    suspend fun toBytes(): ByteArray {
+    fun toBytes(): ByteArray {
         val buffer = ByteBuffer.allocate(4 + 4 + 8 + 4 + (if (version < 3) 4 + 4 else 8 + 8) + 4
                 + 32 + 32 + (32 + 32) + 8 + (blockATs?.size ?: 0) + 64)
         buffer.order(ByteOrder.LITTLE_ENDIAN)
@@ -173,7 +170,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
         return (id xor id.ushr(32)).toInt()
     }
 
-    internal suspend fun sign(secretPhrase: String) {
+    internal fun sign(secretPhrase: String) {
         check(blockSignature == null) { "Block already signed" }
         blockSignature = ByteArray(64)
         val data = toBytes()

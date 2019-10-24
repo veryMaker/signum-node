@@ -17,7 +17,7 @@ import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 internal class DGSListing internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, TAGS_PARAMETER, QUANTITY_PARAMETER, PRICE_NQT_PARAMETER) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         var name = request.getParameter(NAME_PARAMETER).emptyToNull()
         val description = request.getParameter(DESCRIPTION_PARAMETER).orEmpty()
         val tags = request.getParameter(TAGS_PARAMETER).orEmpty()

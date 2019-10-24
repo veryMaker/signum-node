@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class PopOff(private val blockchainProcessor: BlockchainProcessor, private val blockchain: Blockchain, private val blockService: BlockService) : APIServlet.JsonRequestHandler(arrayOf(APITag.DEBUG), NUM_BLOCKS_PARAMETER, HEIGHT_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val response = JsonObject()
         var numBlocks = 0

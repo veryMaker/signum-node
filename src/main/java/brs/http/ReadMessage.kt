@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 
 internal class ReadMessage(private val blockchain: Blockchain, private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.MESSAGES), TRANSACTION_PARAMETER, SECRET_PHRASE_PARAMETER) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val transactionIdString = request.getParameter(TRANSACTION_PARAMETER).emptyToNull()
                 ?: return MISSING_TRANSACTION
 

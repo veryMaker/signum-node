@@ -1,8 +1,8 @@
 package brs.db.store
 
 interface IndirectIncomingStore {
-    suspend fun addIndirectIncomings(indirectIncomings: Collection<IndirectIncoming>)
-    suspend fun getIndirectIncomings(accountId: Long, from: Int, to: Int): List<Long>
+    fun addIndirectIncomings(indirectIncomings: Collection<IndirectIncoming>)
+    fun getIndirectIncomings(accountId: Long, from: Int, to: Int): List<Long>
 
     class IndirectIncoming(val accountId: Long, val transactionId: Long, val height: Int) {
 

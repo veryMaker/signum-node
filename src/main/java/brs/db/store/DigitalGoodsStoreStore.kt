@@ -24,19 +24,19 @@ interface DigitalGoodsStoreStore {
 
     val goodsTable: VersionedEntityTable<DigitalGoodsStore.Goods>
 
-    suspend fun getGoodsInStock(from: Int, to: Int): Collection<DigitalGoodsStore.Goods>
+    fun getGoodsInStock(from: Int, to: Int): Collection<DigitalGoodsStore.Goods>
 
-    suspend fun getSellerGoods(sellerId: Long, inStockOnly: Boolean, from: Int, to: Int): Collection<DigitalGoodsStore.Goods>
+    fun getSellerGoods(sellerId: Long, inStockOnly: Boolean, from: Int, to: Int): Collection<DigitalGoodsStore.Goods>
 
-    suspend fun getAllPurchases(from: Int, to: Int): Collection<DigitalGoodsStore.Purchase>
+    fun getAllPurchases(from: Int, to: Int): Collection<DigitalGoodsStore.Purchase>
 
-    suspend fun getSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase>
+    fun getSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase>
 
-    suspend fun getBuyerPurchases(buyerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase>
+    fun getBuyerPurchases(buyerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase>
 
-    suspend fun getSellerBuyerPurchases(sellerId: Long, buyerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase>
+    fun getSellerBuyerPurchases(sellerId: Long, buyerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase>
 
-    suspend fun getPendingSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase>
+    fun getPendingSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<DigitalGoodsStore.Purchase>
 
-    suspend fun getExpiredPendingPurchases(timestamp: Int): Collection<DigitalGoodsStore.Purchase>
+    fun getExpiredPendingPurchases(timestamp: Int): Collection<DigitalGoodsStore.Purchase>
 }

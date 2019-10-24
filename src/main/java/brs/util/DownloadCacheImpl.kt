@@ -7,7 +7,7 @@ import brs.fluxcapacitor.FluxValues
 import brs.props.Props
 import brs.util.convert.toUnsignedString
 import brs.util.logging.safeDebug
-import kotlinx.coroutines.sync.Mutex
+import brs.util.sync.Mutex
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.concurrent.locks.StampedLock
@@ -104,7 +104,7 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
         setLastVars()
     }
 
-    suspend fun getBlock(blockId: Long): Block? {
+    fun getBlock(blockId: Long): Block? {
         if (forkCache.isNotEmpty()) {
             for (block in forkCache) {
                 if (block.id == blockId) {
@@ -117,9 +117,9 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
 
     fun getNextBlock(prevBlockId: Long) = stampedLock.read { blockCache[reverseCache[prevBlockId]] }
 
-    suspend fun hasBlock(blockId: Long) = stampedLock.read { blockCache.containsKey(blockId) } || dp.blockchain.hasBlock(blockId)
+    fun hasBlock(blockId: Long) = stampedLock.read { blockCache.containsKey(blockId) } || dp.blockchain.hasBlock(blockId)
 
-    suspend fun canBeFork(oldBlockId: Long) = stampedLock.read {
+    fun canBeFork(oldBlockId: Long) = stampedLock.read {
         val curHeight = chainHeight
         var block = blockCache[oldBlockId]
         if (block == null && dp.blockchain.hasBlock(oldBlockId)) {
@@ -158,7 +158,7 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
         }
     }
 
-    suspend fun getPoCVersion(blockId: Long): Int {
+    fun getPoCVersion(blockId: Long): Int {
         val block = getBlock(blockId)
         return if (block == null || !dp.fluxCapacitor.getValue(FluxValues.POC2, block.height)) 1 else 2
     }

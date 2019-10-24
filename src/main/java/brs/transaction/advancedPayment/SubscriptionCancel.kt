@@ -16,26 +16,26 @@ class SubscriptionCancel(dp: DependencyProvider) : AdvancedPayment(dp) {
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.AdvancedPaymentSubscriptionCancel(dp, buffer, transactionVersion)
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.AdvancedPaymentSubscriptionCancel(dp, attachmentData)
 
-    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
+    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.safeTrace { "TransactionType SUBSCRIPTION_CANCEL" }
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionCancel
         dp.subscriptionService.addRemoval(attachment.subscriptionId)
         return true
     }
 
-    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionCancel
         dp.subscriptionService.removeSubscription(attachment.subscriptionId)
     }
 
-    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
+    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
 
     override fun getDuplicationKey(transaction: Transaction): TransactionDuplicationKey {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionCancel
         return TransactionDuplicationKey(SubscriptionCancel::class, attachment.subscriptionId.toUnsignedString())
     }
 
-    override suspend fun validateAttachment(transaction: Transaction) {
+    override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionCancel
         if (attachment.subscriptionId == null) {
             throw BurstException.NotValidException("Subscription cancel must include subscription id")

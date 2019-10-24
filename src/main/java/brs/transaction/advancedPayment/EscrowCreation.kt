@@ -23,7 +23,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.AdvancedPaymentEscrowCreation(dp, attachmentData)
 
-    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
+    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.safeTrace { "TransactionType ESCROW_CREATION" }
         val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
         if (senderAccount.unconfirmedBalanceNQT < totalAmountNQT) {
@@ -38,7 +38,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
         return attachment.amountNQT.safeAdd(attachment.totalSigners.toLong().safeMultiply(Constants.ONE_BURST))
     }
 
-    override suspend fun applyAttachment(
+    override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?
@@ -66,7 +66,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
         )
     }
 
-    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
+    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
         dp.accountService.addToUnconfirmedBalanceNQT(
             senderAccount,
             calculateAttachmentTotalAmountNQT(transaction)
@@ -77,7 +77,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
         return TransactionDuplicationKey.IS_NEVER_DUPLICATE
     }
 
-    override suspend fun validateAttachment(transaction: Transaction) {
+    override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowCreation
         var totalAmountNQT: Long? = attachment.amountNQT.safeAdd(transaction.feeNQT)
         if (transaction.senderId == transaction.recipientId) {

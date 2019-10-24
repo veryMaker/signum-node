@@ -9,7 +9,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     private val subscriptionTable = dp.subscriptionStore.subscriptionTable
     private val subscriptionDbKeyFactory = dp.subscriptionStore.subscriptionDbKeyFactory
 
-    override suspend fun isEnabled(): Boolean {
+    override fun isEnabled(): Boolean {
             if (dp.blockchain.lastBlock.height >= Constants.BURST_SUBSCRIPTION_START_BLOCK) {
                 return true
             }
@@ -21,26 +21,26 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     private val fee: Long
         get() = Constants.ONE_BURST
 
-    override suspend fun getSubscription(id: Long?): Subscription? {
+    override fun getSubscription(id: Long?): Subscription? {
         return subscriptionTable.get(subscriptionDbKeyFactory.newKey(id!!))
     }
 
-    override suspend fun getSubscriptionsByParticipant(accountId: Long?): Collection<Subscription> {
+    override fun getSubscriptionsByParticipant(accountId: Long?): Collection<Subscription> {
         return dp.subscriptionStore.getSubscriptionsByParticipant(accountId)
     }
 
-    override suspend fun getSubscriptionsToId(accountId: Long?): Collection<Subscription> {
+    override fun getSubscriptionsToId(accountId: Long?): Collection<Subscription> {
         return dp.subscriptionStore.getSubscriptionsToId(accountId)
     }
 
-    override suspend fun addSubscription(sender: Account, recipient: Account, id: Long, amountNQT: Long, startTimestamp: Int, frequency: Int) {
+    override fun addSubscription(sender: Account, recipient: Account, id: Long, amountNQT: Long, startTimestamp: Int, frequency: Int) {
         val dbKey = subscriptionDbKeyFactory.newKey(id)
         val subscription = Subscription(sender.id, recipient.id, id, amountNQT, frequency, startTimestamp + frequency, dbKey)
 
         subscriptionTable.insert(subscription)
     }
 
-    override suspend fun applyConfirmed(block: Block, blockchainHeight: Int) {
+    override fun applyConfirmed(block: Block, blockchainHeight: Int) {
         paymentTransactions.clear()
         for (subscription in appliedSubscriptions) {
             apply(block, blockchainHeight, subscription)
@@ -52,14 +52,14 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         removeSubscriptions.forEach { this.removeSubscription(it) }
     }
 
-    override suspend fun removeSubscription(id: Long) {
+    override fun removeSubscription(id: Long) {
         val subscription = subscriptionTable.get(subscriptionDbKeyFactory.newKey(id))
         if (subscription != null) {
             subscriptionTable.delete(subscription)
         }
     }
 
-    override suspend fun calculateFees(timestamp: Int): Long {
+    override fun calculateFees(timestamp: Int): Long {
         var totalFeeNQT: Long = 0
         val appliedUnconfirmedSubscriptions = mutableListOf<Subscription>()
         for (subscription in dp.subscriptionStore.getUpdateSubscriptions(timestamp)) {
@@ -87,7 +87,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         removeSubscriptions.add(id)
     }
 
-    override suspend fun applyUnconfirmed(timestamp: Int): Long {
+    override fun applyUnconfirmed(timestamp: Int): Long {
         appliedSubscriptions.clear()
         var totalFees: Long = 0
         for (subscription in dp.subscriptionStore.getUpdateSubscriptions(timestamp)) {
@@ -104,7 +104,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         return totalFees
     }
 
-    private suspend fun applyUnconfirmed(subscription: Subscription): Boolean {
+    private fun applyUnconfirmed(subscription: Subscription): Boolean {
         val sender = dp.accountService.getAccount(subscription.senderId)
         val totalAmountNQT = subscription.amountNQT.safeAdd(fee)
 
@@ -117,7 +117,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         return true
     }
 
-    private suspend fun undoUnconfirmed(subscription: Subscription) {
+    private fun undoUnconfirmed(subscription: Subscription) {
         val sender = dp.accountService.getAccount(subscription.senderId)
         val totalAmountNQT = subscription.amountNQT.safeAdd(fee)
 
@@ -126,7 +126,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         }
     }
 
-    private suspend fun apply(block: Block, blockchainHeight: Int, subscription: Subscription) {
+    private fun apply(block: Block, blockchainHeight: Int, subscription: Subscription) {
         val sender = dp.accountService.getAccount(subscription.senderId)!!
         val recipient = dp.accountService.getAccount(subscription.recipientId)!!
 

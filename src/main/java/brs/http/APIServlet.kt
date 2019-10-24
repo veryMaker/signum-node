@@ -14,7 +14,6 @@ import brs.util.mustGetAsJsonObject
 import brs.util.writeTo
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import kotlinx.coroutines.runBlocking
 import org.eclipse.jetty.http.HttpStatus
 import org.slf4j.LoggerFactory
 import java.net.InetAddress
@@ -147,7 +146,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
     }
 
     internal abstract class JsonRequestHandler(apiTags: Array<APITag>, vararg parameters: String) : HttpRequestHandler(apiTags, *parameters) {
-        override suspend fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
+        override fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
             val startTime = System.currentTimeMillis()
 
             val response = try {
@@ -169,7 +168,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             writeJsonToResponse(resp, response)
         }
 
-        internal abstract suspend fun processRequest(request: HttpServletRequest): JsonElement
+        internal abstract fun processRequest(request: HttpServletRequest): JsonElement
     }
 
     abstract class HttpRequestHandler(apiTags: Array<APITag>, vararg parameters: String) {
@@ -177,7 +176,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         val parameters = parameters.toList()
         val apiTags = apiTags.toSet()
 
-        abstract suspend fun processRequest(request: HttpServletRequest, resp: HttpServletResponse)
+        abstract fun processRequest(request: HttpServletRequest, resp: HttpServletResponse)
 
         fun addErrorMessage(resp: HttpServletResponse, msg: JsonElement) {
             writeJsonToResponse(resp, msg)
@@ -198,10 +197,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
 
     override fun doGet(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
-            runBlocking {
-                // TODO
-                process(request, resp)
-            }
+            process(request, resp)
         } catch (e: Exception) { // We don't want to send exception information to client...
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
             logger.safeWarn(e) { "Error handling GET request" }
@@ -211,9 +207,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
 
     override fun doPost(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
-            runBlocking { // TODO
-                process(request, resp)
-            }
+            process(request, resp)
         } catch (e: Exception) { // We don't want to send exception information to client...
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
             logger.safeWarn(e) { "Error handling GET request" }
@@ -221,7 +215,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
 
     }
 
-    private suspend fun process(request: HttpServletRequest, resp: HttpServletResponse) {
+    private fun process(request: HttpServletRequest, resp: HttpServletResponse) {
         resp.setHeader("Access-Control-Allow-Methods", "GET, POST")
         resp.setHeader("Access-Control-Allow-Origin", allowedOrigins)
         resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private")

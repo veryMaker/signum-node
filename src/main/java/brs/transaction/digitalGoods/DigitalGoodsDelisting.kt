@@ -13,12 +13,12 @@ class DigitalGoodsDelisting(dp: DependencyProvider) : DigitalGoods(dp) {
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsDelisting(dp, buffer, transactionVersion)
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsDelisting(dp, attachmentData)
 
-    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsDelisting
         dp.digitalGoodsStoreService.delistGoods(attachment.goodsId)
     }
 
-    override suspend fun doValidateAttachment(transaction: Transaction) {
+    override fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsDelisting
         val goods = dp.digitalGoodsStoreService.getGoods(attachment.goodsId)
         if (goods != null && transaction.senderId != goods.sellerId) {

@@ -6,7 +6,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal object GetMyInfo : APIServlet.JsonRequestHandler(arrayOf(APITag.INFO)) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
         response.addProperty("host", request.remoteHost)
         response.addProperty("address", request.remoteAddr)

@@ -15,7 +15,6 @@ import brs.services.ParameterService
 import brs.util.mustGetAsJsonObject
 import brs.util.safeGetAsString
 import com.nhaarman.mockitokotlin2.*
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -34,7 +33,7 @@ class DecryptFromTest {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(DECRYPTED_MESSAGE_IS_TEXT_PARAMETER, "true"),
@@ -55,7 +54,7 @@ class DecryptFromTest {
     }
 
     @Test
-    fun processRequest_accountWithoutPublicKeyIsIncorrectAccount() = runBlocking {
+    fun processRequest_accountWithoutPublicKeyIsIncorrectAccount() {
         val request = QuickMocker.httpServletRequest()
 
         whenever(mockParameterService.getAccount(request)).doReturn(mock())

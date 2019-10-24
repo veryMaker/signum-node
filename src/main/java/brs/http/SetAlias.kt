@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION), ALIAS_NAME_PARAMETER, ALIAS_URI_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         var aliasName = request.getParameter(ALIAS_NAME_PARAMETER).emptyToNull()
         var aliasURI = request.getParameter(ALIAS_URI_PARAMETER).orEmpty()
 

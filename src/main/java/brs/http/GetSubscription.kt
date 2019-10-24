@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetSubscription(private val subscriptionService: SubscriptionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), SUBSCRIPTION_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val subscriptionId: Long
         try {
             subscriptionId = request.getParameter(SUBSCRIPTION_PARAMETER).emptyToNull().parseUnsignedLong()

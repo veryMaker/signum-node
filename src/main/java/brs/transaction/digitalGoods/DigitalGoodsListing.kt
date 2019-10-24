@@ -11,12 +11,12 @@ class DigitalGoodsListing(dp: DependencyProvider) : DigitalGoods(dp) {
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsListing(dp, buffer, transactionVersion)
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsListing(dp, attachmentData)
 
-    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsListing
         dp.digitalGoodsStoreService.listGoods(transaction, attachment)
     }
 
-    override suspend fun doValidateAttachment(transaction: Transaction) {
+    override fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsListing
         if (attachment.name!!.isEmpty()
             || attachment.name.length > Constants.MAX_DGS_LISTING_NAME_LENGTH

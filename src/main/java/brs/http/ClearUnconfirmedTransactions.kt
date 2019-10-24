@@ -8,7 +8,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class ClearUnconfirmedTransactions internal constructor(private val transactionProcessor: TransactionProcessor) : APIServlet.JsonRequestHandler(arrayOf(APITag.DEBUG)) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
         try {
             transactionProcessor.clearUnconfirmedTransactions()

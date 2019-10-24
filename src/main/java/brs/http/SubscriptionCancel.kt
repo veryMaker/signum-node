@@ -14,7 +14,7 @@ import brs.util.convert.parseUnsignedLong
 
 internal class SubscriptionCancel(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), SUBSCRIPTION_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)
 
         val subscriptionString = request.getParameter(SUBSCRIPTION_PARAMETER).emptyToNull()

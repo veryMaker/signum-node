@@ -10,7 +10,7 @@ import brs.services.AccountService
 
 class GetAssetTransfersHandler(private val assetExchange: AssetExchange, private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAssetTransfersRequest, BrsApi.AssetTransfers> {
 
-    override suspend fun handleRequest(request: BrsApi.GetAssetTransfersRequest): BrsApi.AssetTransfers {
+    override fun handleRequest(request: BrsApi.GetAssetTransfersRequest): BrsApi.AssetTransfers {
         val accountId = request.account
         val assetId = request.asset
         val indexRange = ProtoBuilder.sanitizeIndexRange(request.indexRange)

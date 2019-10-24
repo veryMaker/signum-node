@@ -12,7 +12,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -32,7 +31,7 @@ class GetAccountBalanceTest {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val request = JsonObject()
         request.addProperty(ACCOUNT_ID_PARAMETER_FIELD, TEST_ACCOUNT_ID)
         val peer = mock<Peer>()
@@ -49,7 +48,7 @@ class GetAccountBalanceTest {
     }
 
     @Test
-    fun processRequest_notExistingAccount() = runBlocking {
+    fun processRequest_notExistingAccount() {
         val request = JsonObject()
         request.addProperty(ACCOUNT_ID_PARAMETER_FIELD, TEST_ACCOUNT_ID)
         val peer = mock<Peer>()

@@ -16,7 +16,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -36,7 +35,7 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val sellerId = 123L
         val firstIndex = 1
         val lastIndex = 2
@@ -62,7 +61,7 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_missingSeller() = runBlocking {
+    fun processRequest_missingSeller() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 0L)
         )

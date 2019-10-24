@@ -2,12 +2,16 @@ package brs.taskScheduler
 
 import brs.Constants
 import brs.util.delegates.Atomic
-import kotlinx.coroutines.*
+import brs.util.rxjava.toFuture
+import io.reactivex.Completable
+import io.reactivex.Maybe
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.Future
 
-class CoroutineTaskScheduler: TaskScheduler {
+class RxJavaTaskScheduler: TaskScheduler {
     private var started by Atomic(false) // Stays true after shutdown
-    private val jobs = mutableListOf<Job>()
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val disposables = CompositeDisposable()
 
     private val beforeStartTasks = mutableListOf<Task>()
     private val afterStartTasks = mutableListOf<Task>()
@@ -26,6 +30,11 @@ class CoroutineTaskScheduler: TaskScheduler {
     override fun run(task: Task) {
         requireStarted()
         runTask(taskToTask(task))
+    }
+
+    override fun <T : Any> async(task: TaskWithResult<T>): Future<T?> {
+        return Maybe.fromCallable(task).subscribeOn(Schedulers.computation())
+            .toFuture()
     }
 
     override fun runBeforeStart(task: Task) {
@@ -53,39 +62,45 @@ class CoroutineTaskScheduler: TaskScheduler {
         scheduledParallelTasks[task] = numberOfInstances
     }
 
-    private fun runTask(task: Task) {
-        jobs.add(scope.launch(block = task))
+    private fun runTask(task: Completable) {
+        disposables.add(task.subscribeOn(Schedulers.io()).subscribe())
     }
 
-    private fun taskToTask(task: Task): Task { // TODO catch stuff
-        return task
+    override fun awaitTasks(tasks: Iterable<Task>) {
+        Completable.merge(tasks.map { taskToTask(it) })
+            .subscribeOn(Schedulers.computation())
+            .blockingAwait()
     }
 
-    private fun delayedTaskToTask(task: Task, initialDelayMs: Long, delayMs: Long): Task {
-        return {
-            delay(initialDelayMs)
-            while (isActive) {
+    private fun taskToTask(task: Task): Completable { // TODO catch stuff
+        return Completable.fromAction(task)
+    }
+
+    private fun delayedTaskToTask(task: Task, initialDelayMs: Long, delayMs: Long): Completable {
+        return Completable.create {
+            Thread.sleep(initialDelayMs)
+            while (!it.isDisposed) {
                 task()
-                delay(delayMs)
+                Thread.sleep(delayMs)
             }
         }
     }
 
-    private fun repeatingTaskToTask(task: RepeatingTask): Task { // TODO catch stuff
-        return {
-            while (isActive) {
+    private fun repeatingTaskToTask(task: RepeatingTask): Completable { // TODO catch stuff
+        return Completable.create {
+            while (!it.isDisposed) {
                 if (!task()) {
-                    delay(Constants.TASK_FAILURE_DELAY_MS)
+                    Thread.sleep(Constants.TASK_FAILURE_DELAY_MS)
                 }
             }
         }
     }
 
-    override suspend fun start() {
+    override fun start() {
         requireNotStarted()
         started = true
         // Run before start tasks
-        beforeStartTasks.map { scope.launch(block = taskToTask(it)) }.forEach { it.join() }
+        awaitTasks(beforeStartTasks)
 
         // Start regular scheduled tasks
         scheduledTasks.forEach { runTask(repeatingTaskToTask(it)) }
@@ -101,15 +116,11 @@ class CoroutineTaskScheduler: TaskScheduler {
         scheduledWithDelayTasks.forEach { (task, delays) -> runTask(delayedTaskToTask(task, delays.first, delays.second)) }
 
         // Run after start tasks
-        beforeStartTasks.map { scope.launch(block = taskToTask(it)) }.forEach { it.join() }
+        awaitTasks(afterStartTasks)
     }
 
-    override suspend fun shutdown() {
+    override fun shutdown() {
         if (!started) return
-        jobs.forEach { it.cancel("Task Scheduler Shutting Down") }
-        jobs.forEach { it.join() }
-        try {
-            scope.cancel("Task Scheduler Shutting Down")
-        } catch (ignored: IllegalStateException) {}
+        disposables.dispose()
     }
 }

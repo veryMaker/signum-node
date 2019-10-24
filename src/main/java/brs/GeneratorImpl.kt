@@ -41,16 +41,16 @@ open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
     override val allGenerators: Collection<Generator.GeneratorState>
         get() = generators.values
 
-    override suspend fun addListener(eventType: Generator.Event, listener: suspend (Generator.GeneratorState) -> Unit) {
+    override fun addListener(eventType: Generator.Event, listener: (Generator.GeneratorState) -> Unit) {
         return listeners.addListener(eventType, listener)
     }
 
-    override suspend fun addNonce(secretPhrase: String, nonce: Long?): Generator.GeneratorState {
+    override fun addNonce(secretPhrase: String, nonce: Long?): Generator.GeneratorState {
         val publicKey = Crypto.getPublicKey(secretPhrase)
         return addNonce(secretPhrase, nonce, publicKey)
     }
 
-    override suspend fun addNonce(secretPhrase: String, nonce: Long?, publicKey: ByteArray): Generator.GeneratorState {
+    override fun addNonce(secretPhrase: String, nonce: Long?, publicKey: ByteArray): Generator.GeneratorState {
         val publicKeyHash = Crypto.sha256().digest(publicKey)
         val id = publicKeyHash.fullHashToId()
 
@@ -110,7 +110,7 @@ open class GeneratorImpl(private val dp: DependencyProvider) : Generator {
             deadline = calculateDeadline(accountId!!, nonce!!, newGenSig, scoopNum, lastBlock.baseTarget, lastBlock.height + 1)
         }
 
-        internal suspend fun forge(blockchainProcessor: BlockchainProcessor) {
+        internal fun forge(blockchainProcessor: BlockchainProcessor) {
             val lastBlock = dp.blockchain.lastBlock
 
             val elapsedTime = dp.timeService.epochTime - lastBlock.timestamp

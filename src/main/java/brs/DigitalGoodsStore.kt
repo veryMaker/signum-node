@@ -5,7 +5,6 @@ import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.db.VersionedValuesTable
 import brs.util.delegates.AtomicLazy
-import kotlinx.coroutines.runBlocking
 
 object DigitalGoodsStore {
     enum class Event {
@@ -101,9 +100,7 @@ object DigitalGoodsStore {
         var refundNote: EncryptedData? = null
         private var hasFeedbackNotes: Boolean = false
         var feedbackNotes by AtomicLazy {
-            runBlocking {
-                if (!hasFeedbackNotes) null else feedbackTable(dp).get(feedbackDbKeyFactory(dp).newKey(this@Purchase)).toMutableList()
-            }
+            if (!hasFeedbackNotes) null else feedbackTable(dp).get(feedbackDbKeyFactory(dp).newKey(this@Purchase)).toMutableList()
         }
         private var hasPublicFeedbacks: Boolean = false
         var publicFeedbacks: MutableList<String>? = null
@@ -111,9 +108,9 @@ object DigitalGoodsStore {
         var discountNQT: Long = 0
         var refundNQT: Long = 0
 
-        suspend fun getName() = getGoods(dp, goodsId)!!.name
+        fun getName() = getGoods(dp, goodsId)!!.name
 
-        suspend fun getPublicFeedback(): List<String>?  {
+        fun getPublicFeedback(): List<String>?  {
             if (!hasPublicFeedbacks) {
                 return emptyList()
             }
@@ -203,7 +200,7 @@ object DigitalGoodsStore {
         }
     }
 
-    private suspend fun getGoods(dp: DependencyProvider, goodsId: Long): Goods? {
+    private fun getGoods(dp: DependencyProvider, goodsId: Long): Goods? {
         return Goods.goodsTable(dp).get(Goods.goodsDbKeyFactory(dp).newKey(goodsId))
     }
 }

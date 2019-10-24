@@ -6,9 +6,6 @@ import brs.db.store.Dbs
 import brs.props.Props
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
-import brs.util.threadLocal.getSafely
-import brs.util.threadLocal.removeSafely
-import brs.util.threadLocal.setSafely
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
@@ -48,8 +45,8 @@ class Db(private val dp: DependencyProvider) { // TODO interface
             return SqlDbs(dp)
         }
 
-    suspend fun getDslContext(): DSLContext {
-        val con = localConnection.getSafely()
+    fun getDslContext(): DSLContext {
+        val con = localConnection.get()
         if (con == null) {
             DSL.using(cp, dialect, settings).use { ctx -> return ctx }
         } else {
@@ -57,7 +54,7 @@ class Db(private val dp: DependencyProvider) { // TODO interface
         }
     }
 
-    suspend fun isInTransaction() = localConnection.getSafely() != null
+    fun isInTransaction() = localConnection.get() != null
 
     init {
         val dbUrl: String
@@ -177,33 +174,33 @@ class Db(private val dp: DependencyProvider) { // TODO interface
         }
     }
 
-    suspend inline fun <T> getUsingDslContext(function: (DSLContext) -> T): T {
+    inline fun <T> getUsingDslContext(function: (DSLContext) -> T): T {
         getDslContext().use { context -> return function(context) }
     }
 
-    suspend inline fun useDslContext(consumer: (DSLContext) -> Unit) { // TODO parallelize this? maybe we should have a dedicated coroutine that does db operations in sequence?
+    inline fun useDslContext(consumer: (DSLContext) -> Unit) { // TODO parallelize this? maybe we should have a dedicated coroutine that does db operations in sequence?
         getDslContext().use { context -> consumer(context) }
     }
 
-    internal suspend fun <V> getCache(tableName: String): MutableMap<BurstKey, V> {
+    internal fun <V> getCache(tableName: String): MutableMap<BurstKey, V> {
         check(isInTransaction()) { "Not in transaction" }
-        return transactionCaches.getSafely()!!.computeIfAbsent(tableName) { mutableMapOf() } as MutableMap<BurstKey, V>
+        return transactionCaches.get()!!.computeIfAbsent(tableName) { mutableMapOf() } as MutableMap<BurstKey, V>
     }
 
-    internal suspend fun <V> getBatch(tableName: String): MutableMap<BurstKey, V> {
+    internal fun <V> getBatch(tableName: String): MutableMap<BurstKey, V> {
         check(isInTransaction()) { "Not in transaction" }
-        return transactionBatches.getSafely()!!.computeIfAbsent(tableName) { mutableMapOf() } as MutableMap<BurstKey, V>
+        return transactionBatches.get()!!.computeIfAbsent(tableName) { mutableMapOf() } as MutableMap<BurstKey, V>
     }
 
-    suspend fun beginTransaction(): Connection {
+    fun beginTransaction(): Connection {
         check(!isInTransaction()) { "Transaction already in progress" }
         try {
             val con = cp.connection
             con.autoCommit = false
 
-            localConnection.setSafely(con)
-            transactionCaches.setSafely(mutableMapOf())
-            transactionBatches.setSafely(mutableMapOf())
+            localConnection.set(con)
+            transactionCaches.set(mutableMapOf())
+            transactionBatches.set(mutableMapOf())
 
             return con
         } catch (e: Exception) {
@@ -211,8 +208,8 @@ class Db(private val dp: DependencyProvider) { // TODO interface
         }
     }
 
-    suspend fun commitTransaction() {
-        val con = localConnection.getSafely() ?: error("Not in transaction")
+    fun commitTransaction() {
+        val con = localConnection.get() ?: error("Not in transaction")
         try {
             con.commit()
         } catch (e: SQLException) {
@@ -220,30 +217,30 @@ class Db(private val dp: DependencyProvider) { // TODO interface
         }
     }
 
-    suspend fun rollbackTransaction() {
-        val con = localConnection.getSafely() ?: error("Not in transaction")
+    fun rollbackTransaction() {
+        val con = localConnection.get() ?: error("Not in transaction")
         try {
             con.rollback()
         } catch (e: SQLException) {
             throw RuntimeException(e.toString(), e)
         }
 
-        transactionCaches.getSafely()?.clear()
-        transactionBatches.getSafely()?.clear()
+        transactionCaches.get().clear()
+        transactionBatches.get().clear()
         dp.dbCacheManager.flushCache()
     }
 
-    suspend fun endTransaction() {
-        val con = localConnection.getSafely() ?: error("Not in transaction")
-        localConnection.removeSafely()
-        transactionCaches.getSafely()?.clear()
-        transactionCaches.removeSafely()
-        transactionBatches.getSafely()?.clear()
-        transactionBatches.removeSafely()
+    fun endTransaction() {
+        val con = localConnection.get() ?: error("Not in transaction")
+        localConnection.remove()
+        transactionCaches.get().clear()
+        transactionCaches.remove()
+        transactionBatches.get().clear()
+        transactionBatches.remove()
         DbUtils.close(con)
     }
 
-    suspend fun optimizeTable(tableName: String) {
+    fun optimizeTable(tableName: String) {
         useDslContext { ctx ->
             try {
                 when (ctx.dialect()) {

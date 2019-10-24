@@ -78,9 +78,9 @@ interface Appendix {
             return if (transactionVersion.toInt() == 0) version.toInt() == 0 else version > 0
         }
 
-        abstract suspend fun validate(transaction: Transaction)
+        abstract fun validate(transaction: Transaction)
 
-        abstract suspend fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account)
+        abstract fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account)
     }
 
     class Message : AbstractAppendix {
@@ -145,7 +145,7 @@ interface Appendix {
             attachment.addProperty("messageIsText", isText)
         }
 
-        override suspend fun validate(transaction: Transaction) {
+        override fun validate(transaction: Transaction) {
             if (this.isText && transaction.version.toInt() == 0) {
                 throw BurstException.NotValidException("Text messages not yet enabled")
             }
@@ -157,7 +157,7 @@ interface Appendix {
             }
         }
 
-        override suspend fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
+        override fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
             // Do nothing by default
         }
 
@@ -225,7 +225,7 @@ interface Appendix {
             json.addProperty("isText", isText)
         }
 
-        override suspend fun validate(transaction: Transaction) {
+        override fun validate(transaction: Transaction) {
             if (encryptedData.data.size > Constants.MAX_ENCRYPTED_MESSAGE_LENGTH) {
                 throw BurstException.NotValidException("Max encrypted message length exceeded")
             }
@@ -234,7 +234,7 @@ interface Appendix {
             }
         }
 
-        override suspend fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
+        override fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
         }
     }
 
@@ -262,7 +262,7 @@ interface Appendix {
             json.add("encryptedMessage", encryptedMessageJSON)
         }
 
-        override suspend fun validate(transaction: Transaction) {
+        override fun validate(transaction: Transaction) {
             super.validate(transaction)
             if (!transaction.type.hasRecipient()) {
                 throw BurstException.NotValidException("Encrypted messages cannot be attached to transactions with no recipient")
@@ -307,7 +307,7 @@ interface Appendix {
             json.add("encryptToSelfMessage", encryptToSelfMessageJSON)
         }
 
-        override suspend fun validate(transaction: Transaction) {
+        override fun validate(transaction: Transaction) {
             super.validate(transaction)
             if (transaction.version.toInt() == 0) {
                 throw BurstException.NotValidException("Encrypt-to-self message attachments not enabled for version 0 transactions")
@@ -369,7 +369,7 @@ interface Appendix {
             attachment.addProperty("recipientPublicKey", publicKey.toHexString())
         }
 
-        override suspend fun validate(transaction: Transaction) {
+        override fun validate(transaction: Transaction) {
             if (!transaction.type.hasRecipient()) {
                 throw BurstException.NotValidException("PublicKeyAnnouncement cannot be attached to transactions with no recipient")
             }
@@ -389,7 +389,7 @@ interface Appendix {
             }
         }
 
-        override suspend fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
+        override fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
             if (recipientAccount.setOrVerify(dp, publicKey, transaction.height)) {
                 recipientAccount.apply(dp, this.publicKey, transaction.height)
             }

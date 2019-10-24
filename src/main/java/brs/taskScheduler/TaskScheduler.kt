@@ -1,15 +1,18 @@
 package brs.taskScheduler
 
-import kotlinx.coroutines.CoroutineScope
+import java.util.concurrent.Future
 
-typealias Task = suspend CoroutineScope.() -> Unit
-typealias RepeatingTask = suspend CoroutineScope.() -> Boolean
+typealias Task = () -> Unit
+typealias TaskWithResult<T> = () -> T?
+typealias RepeatingTask = () -> Boolean
 
 interface TaskScheduler {
     /**
      * Runs a task immediately. If the scheduler has not started yet, it throws.
      */
     fun run(task: Task)
+
+    fun <T: Any> async(task: TaskWithResult<T>): Future<T?>
 
     /**
      * Runs a task when start() is called, before starting the scheduler. If the scheduler has already started, it throws.
@@ -47,15 +50,20 @@ interface TaskScheduler {
     fun scheduleTask(numberOfInstances: Int, task: RepeatingTask)
 
     /**
+     * Runs all tasks specified in parallel and returns once all have completed.
+     */
+    fun awaitTasks(tasks: Iterable<Task>)
+
+    /**
      * Starts the scheduler - runs any tasks scheduled to be run before start
      * and then starts repeatedly running scheduled tasks.
      * If the scheduler has already started, it throws.
      */
-    suspend fun start()
+    fun start()
 
     /**
-     * Shutdown the scheduler, stopping all tasks. TODO should we just wait for every task to finish?
+     * Shutdown the scheduler, stopping all tasks.
      * If the scheduler has not yet started, this is a no-op.
      */
-    suspend fun shutdown()
+    fun shutdown()
 }

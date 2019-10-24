@@ -11,7 +11,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -27,7 +26,7 @@ class CalculateFullHashTest {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         //TODO More sensible values here...
         val mockUnsignedTransactionBytes = "123"
         val mockSignatureHash = "123"
@@ -43,12 +42,12 @@ class CalculateFullHashTest {
     }
 
     @Test
-    fun processRequest_missingUnsignedBytes() = runBlocking {
+    fun processRequest_missingUnsignedBytes() {
         assertEquals(MISSING_UNSIGNED_BYTES, t.processRequest(mock()))
     }
 
     @Test
-    fun processRequest_missingSignatureHash() = runBlocking {
+    fun processRequest_missingSignatureHash() {
         val mockUnsignedTransactionBytes = "mockUnsignedTransactionBytes"
         val request = mock<HttpServletRequest>()
 

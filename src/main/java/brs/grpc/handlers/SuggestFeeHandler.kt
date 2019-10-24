@@ -7,7 +7,7 @@ import com.google.protobuf.Empty
 
 class SuggestFeeHandler(private val feeSuggestionCalculator: FeeSuggestionCalculator) : GrpcApiHandler<Empty, BrsApi.FeeSuggestion> {
 
-    override suspend fun handleRequest(empty: Empty): BrsApi.FeeSuggestion {
+    override fun handleRequest(empty: Empty): BrsApi.FeeSuggestion {
         val feeSuggestion = feeSuggestionCalculator.giveFeeSuggestion()
         return BrsApi.FeeSuggestion.newBuilder()
                 .setCheap(feeSuggestion.cheapFee)

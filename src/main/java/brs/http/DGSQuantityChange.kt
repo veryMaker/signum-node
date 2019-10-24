@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class DGSQuantityChange internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, DELTA_QUANTITY_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val account = dp.parameterService.getSenderAccount(request)
         val goods = dp.parameterService.getGoods(request)

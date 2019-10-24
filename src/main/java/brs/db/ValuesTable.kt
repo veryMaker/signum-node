@@ -1,11 +1,11 @@
 package brs.db
 
 interface ValuesTable<T, V> : DerivedTable {
-    suspend fun get(dbKey: BurstKey): List<V>
+    fun get(dbKey: BurstKey): List<V>
 
-    suspend fun insert(t: T, values: List<V>)
+    fun insert(t: T, values: List<V>)
 
-    override suspend fun rollback(height: Int)
+    override fun rollback(height: Int)
 
-    override suspend fun truncate()
+    override fun truncate()
 }

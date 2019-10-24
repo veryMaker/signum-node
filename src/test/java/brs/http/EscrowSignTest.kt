@@ -18,7 +18,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -52,7 +51,7 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_positiveAsEscrowSender() = runBlocking {
+    fun processRequest_positiveAsEscrowSender() {
         val escrowId: Long = 5
         val senderId: Long = 6
 
@@ -83,7 +82,7 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_positiveAsEscrowRecipient() = runBlocking {
+    fun processRequest_positiveAsEscrowRecipient() {
         val escrowId: Long = 5
         val senderId: Long = 6
 
@@ -114,7 +113,7 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_positiveAsEscrowSigner() = runBlocking {
+    fun processRequest_positiveAsEscrowSigner() {
         val escrowId: Long = 5
         val senderId: Long = 6
 
@@ -147,7 +146,7 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_invalidEscrowId() = runBlocking {
+    fun processRequest_invalidEscrowId() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(ESCROW_PARAMETER, "NotANumber")
         )
@@ -158,7 +157,7 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_escrowNotFound() = runBlocking {
+    fun processRequest_escrowNotFound() {
         val escrowId: Long = 5
 
         val request = QuickMocker.httpServletRequest(
@@ -173,7 +172,7 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_invalidDecisionType() = runBlocking {
+    fun processRequest_invalidDecisionType() {
         val escrowId: Long = 5
 
         val request = QuickMocker.httpServletRequest(
@@ -191,7 +190,7 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_invalidSender() = runBlocking {
+    fun processRequest_invalidSender() {
         val escrowId: Long = 5
         val senderId: Long = 6
 
@@ -218,7 +217,7 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_senderCanOnlyRelease() = runBlocking {
+    fun processRequest_senderCanOnlyRelease() {
         val escrowId: Long = 5
         val senderId: Long = 6
 
@@ -242,7 +241,7 @@ class EscrowSignTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_recipientCanOnlyRefund() = runBlocking {
+    fun processRequest_recipientCanOnlyRefund() {
         val escrowId: Long = 5
         val senderId: Long = 6
 

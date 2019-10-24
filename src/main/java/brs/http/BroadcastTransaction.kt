@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class BroadcastTransaction(private val transactionProcessor: TransactionProcessor, private val parameterService: ParameterService, private val transactionService: TransactionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_BYTES_PARAMETER, TRANSACTION_JSON_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val transactionBytes = request.getParameter(TRANSACTION_BYTES_PARAMETER).emptyToNull()
         val transactionJSON = request.getParameter(TRANSACTION_JSON_PARAMETER).emptyToNull()

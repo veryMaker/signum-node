@@ -13,12 +13,12 @@ class DigitalGoodsPriceChange(dp: DependencyProvider) : DigitalGoods(dp) {
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsPriceChange(dp, buffer, transactionVersion)
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsPriceChange(dp, attachmentData)
 
-    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsPriceChange
         dp.digitalGoodsStoreService.changePrice(attachment.goodsId, attachment.priceNQT)
     }
 
-    override suspend fun doValidateAttachment(transaction: Transaction) {
+    override fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsPriceChange
         val goods = dp.digitalGoodsStoreService.getGoods(attachment.goodsId)
         if (attachment.priceNQT <= 0 || attachment.priceNQT > Constants.MAX_BALANCE_NQT

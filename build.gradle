@@ -69,7 +69,6 @@ def jUnit4Version = "4.12"
 def mockitoVersion = "3.1.0"
 def mockitoKotlinVersion = "2.1.0"
 def mockkVersion = "1.9.3"
-def kotlinCoroutinesVersion = "1.3.2"
 def javaxAnnotationVersion = "1.3.2"
 
 dependencies {
@@ -101,7 +100,6 @@ dependencies {
     compile "org.jooq:jooq-codegen:$jooqVersion"
     compile "org.bitlet:weupnp:$webUpnpVersion"
     compile "org.ehcache:ehcache:$ehCacheVersion"
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     compile "javax.annotation:javax.annotation-api:$javaxAnnotationVersion"
 
     testImplementation "junit:junit:$jUnit4Version"
@@ -128,7 +126,7 @@ sourceSets {
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.freeCompilerArgs += ["-Xuse-experimental=kotlin.Experimental", "-progressive"]
+    kotlinOptions.freeCompilerArgs += ["-Xuse-experimental=kotlin.Experimental", "-progressive", "-XXLanguage:+InlineClasses"]
 }
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"

@@ -17,7 +17,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -48,7 +47,7 @@ class CancelAskOrderTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val orderId: Long = 5
         val sellerId: Long = 6
 
@@ -77,7 +76,7 @@ class CancelAskOrderTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_orderDataNotFound() = runBlocking {
+    fun processRequest_orderDataNotFound() {
         val orderId = 5
 
         val request = QuickMocker.httpServletRequest(
@@ -90,7 +89,7 @@ class CancelAskOrderTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_orderOtherAccount() = runBlocking {
+    fun processRequest_orderOtherAccount() {
         val orderId: Long = 5
         val accountId: Long = 6
         val otherAccountId: Long = 7

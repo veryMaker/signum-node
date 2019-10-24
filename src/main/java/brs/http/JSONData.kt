@@ -194,7 +194,7 @@ object JSONData {
         return json
     }
 
-    internal suspend fun block(block: Block, includeTransactions: Boolean, currentBlockchainHeight: Int, blockReward: Long, scoopNum: Int): JsonObject {
+    internal fun block(block: Block, includeTransactions: Boolean, currentBlockchainHeight: Int, blockReward: Long, scoopNum: Int): JsonObject {
         val json = JsonObject()
         json.addProperty(BLOCK_RESPONSE, block.stringId)
         json.addProperty(HEIGHT_RESPONSE, block.height)
@@ -247,7 +247,7 @@ object JSONData {
         return json
     }
 
-    internal suspend fun escrowTransaction(escrow: Escrow): JsonObject {
+    internal fun escrowTransaction(escrow: Escrow): JsonObject {
         val json = JsonObject()
         json.addProperty(ID_RESPONSE, escrow.id.toUnsignedString())
         json.addProperty(SENDER_RESPONSE, escrow.senderId.toUnsignedString())
@@ -303,7 +303,7 @@ object JSONData {
         return json
     }
 
-    internal suspend fun purchase(purchase: DigitalGoodsStore.Purchase): JsonObject {
+    internal fun purchase(purchase: DigitalGoodsStore.Purchase): JsonObject {
         val json = JsonObject()
         json.addProperty(PURCHASE_RESPONSE, purchase.id.toUnsignedString())
         json.addProperty(GOODS_RESPONSE, purchase.goodsId.toUnsignedString())
@@ -477,7 +477,7 @@ object JSONData {
     }
 
     //TODO refactor the accountservice out of this :-)
-    internal suspend fun at(at: AT, accountService: AccountService): JsonObject {
+    internal fun at(at: AT, accountService: AccountService): JsonObject {
         val json = JsonObject()
         val bf = ByteBuffer.allocate(8)
         bf.order(ByteOrder.LITTLE_ENDIAN)

@@ -11,12 +11,10 @@ import brs.taskScheduler.Task
 import brs.util.*
 import brs.util.JSON.prepareRequest
 import brs.util.logging.*
+import brs.util.sync.Mutex
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.bitlet.weupnp.GatewayDevice
 import org.bitlet.weupnp.GatewayDiscover
 import org.bitlet.weupnp.PortMappingEntry
@@ -35,10 +33,7 @@ import java.net.URI
 import java.net.URISyntaxException
 import java.net.UnknownHostException
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.ThreadLocalRandom
-import java.util.concurrent.TimeoutException
+import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.xml.parsers.ParserConfigurationException
 
@@ -105,7 +100,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
 
     val allPeers: Collection<Peer> = peers.values
 
-    private val unresolvedPeers = mutableListOf<Deferred<String?>>()
+    private val unresolvedPeers = mutableListOf<Future<String?>>()
     private val unresolvedPeersLock = Mutex()
 
     init {
@@ -233,9 +228,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
                     }
                 }
                 if (this.gateway != null) {
-                    runBlocking {
-                        dp.taskScheduler.runBeforeStart(gwDiscover)
-                    }
+                    dp.taskScheduler.runBeforeStart(gwDiscover)
                 } else {
                     logger.safeWarn { "Tried to establish UPnP, but it was denied by the network." }
                 }
@@ -321,7 +314,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
             return numberOfConnectedPeers
         }
 
-    private suspend fun updateSavedPeers() {
+    private fun updateSavedPeers() {
         val oldPeers = dp.peerDb.loadPeers().toSet()
         val currentPeers = mutableSetOf<String>()
         for (peer in peers.values) {
@@ -371,7 +364,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
                         numConnectedPeers++
                     }
                 }
-                delay(1000)
+                Thread.sleep(1000)
             }
 
             val now = dp.timeService.epochTime
@@ -404,9 +397,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
     private val addedNewPeer = AtomicBoolean(false) // TODO by Atomic
 
     init {
-        runBlocking {
-            listeners.addListener(Event.NEW_PEER) { addedNewPeer.set(true) }
-        }
+        listeners.addListener(Event.NEW_PEER) { addedNewPeer.set(true) }
     }
 
     private val getMorePeersThread: RepeatingTask = {
@@ -476,7 +467,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
             unresolvedPeersLock.withLock {
                 for (unresolvedPeer in unresolvedPeers) {
                     try {
-                        val badAddress = unresolvedPeer.await()
+                        val badAddress = unresolvedPeer.get()
                         if (badAddress != null) {
                             logger.safeDebug { "Failed to resolve peer address: $badAddress" }
                         }
@@ -561,12 +552,11 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         NEW_PEER
     }
 
-    private suspend fun loadPeers(addresses: Collection<String>) {
+    private fun loadPeers(addresses: Collection<String>) {
         for (address in addresses) {
-            val unresolvedAddress = coroutineScope { async {
-                    val peer = addPeer(address)
-                    if (peer == null) address else null
-                }
+            val unresolvedAddress = dp.taskScheduler.async {
+                val peer = addPeer(address)
+                if (peer == null) address else null
             }
             unresolvedPeersLock.withLock {
                 unresolvedPeers.add(unresolvedAddress)
@@ -605,7 +595,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         }
     }
 
-    internal suspend fun notifyListeners(peer: Peer, eventType: Event) {
+    internal fun notifyListeners(peer: Peer, eventType: Event) {
         this.listeners.accept(eventType, peer)
     }
 
@@ -623,7 +613,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         return peers[peerAddress]
     }
 
-    suspend fun addPeer(announcedAddress: String?): Peer? {
+    fun addPeer(announcedAddress: String?): Peer? {
         if (announcedAddress == null) return null
         val cleanAddress = announcedAddress.trim { it <= ' ' }
         var peer = peers[cleanAddress]
@@ -654,7 +644,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
 
     }
 
-    internal suspend fun addPeer(address: String, announcedAddress: String?): Peer? {
+    internal fun addPeer(address: String, announcedAddress: String?): Peer? {
         //re-add the [] to ipv6 addresses lost in getHostAddress() above
         var cleanAddress = address
         if (cleanAddress.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray().size > 2) {
@@ -696,7 +686,7 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         peers.remove(peer.peerAddress)
     }
 
-    internal suspend fun updateAddress(peer: Peer) {
+    internal fun updateAddress(peer: Peer) {
         val oldAddress = announcedAddresses.put(peer.announcedAddress, peer.peerAddress)
         if (oldAddress != null && peer.peerAddress != oldAddress) {
             val oldPeer = peers.remove(oldAddress)
@@ -706,37 +696,36 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         }
     }
 
-    suspend fun sendToSomePeers(block: Block) {
+    fun sendToSomePeers(block: Block) {
         val request = block.toJsonObject()
         request.addProperty("requestType", "processBlock")
 
-        coroutineScope { launch {
-                val jsonRequest = prepareRequest(request)
+        dp.taskScheduler.run {
+            val jsonRequest = prepareRequest(request)
 
-                var successful = 0
-                val expectedResponses = mutableListOf<Deferred<JsonObject?>>()
-                for (peer in peers.values) {
-                    if (peerEligibleForSending(peer, false)) {
-                        val deferred = async { peer.send(jsonRequest) }
-                        expectedResponses.add(deferred)
-                    }
-                    if (expectedResponses.size >= sendToPeersLimit - successful) {
-                        for (expectedResponse in expectedResponses) {
-                            try {
-                                val response = expectedResponse.await()
-                                if (response != null && response.get("error") == null) {
-                                    successful += 1
-                                }
-                            } catch (e: ExecutionException) {
-                                logger.safeDebug(e) { "Error in sendToSomePeers" }
+            var successful = 0
+            val expectedResponses = mutableListOf<Future<JsonObject?>>()
+            for (peer in peers.values) {
+                if (peerEligibleForSending(peer, false)) {
+                    val deferred = dp.taskScheduler.async { peer.send(jsonRequest) }
+                    expectedResponses.add(deferred)
+                }
+                if (expectedResponses.size >= sendToPeersLimit - successful) {
+                    for (expectedResponse in expectedResponses) {
+                        try {
+                            val response = expectedResponse.get()
+                            if (response != null && response.get("error") == null) {
+                                successful += 1
                             }
-
+                        } catch (e: ExecutionException) {
+                            logger.safeDebug(e) { "Error in sendToSomePeers" }
                         }
-                        expectedResponses.clear()
+
                     }
-                    if (successful >= sendToPeersLimit) {
-                        return@launch
-                    }
+                    expectedResponses.clear()
+                }
+                if (successful >= sendToPeersLimit) {
+                    return@run
                 }
             }
         }
@@ -748,23 +737,23 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
         getUnconfirmedTransactionsRequest = prepareRequest(request)
     }
 
-    suspend fun readUnconfirmedTransactions(peer: Peer): JsonObject? {
+    fun readUnconfirmedTransactions(peer: Peer): JsonObject? {
         return peer.send(getUnconfirmedTransactionsRequest)
     }
 
-    suspend fun feedingTime(peer: Peer, foodDispenser: suspend (Peer) -> Collection<Transaction>, doneFeedingLog: suspend (Peer, Collection<Transaction>) -> Unit) {
+    fun feedingTime(peer: Peer, foodDispenser: (Peer) -> Collection<Transaction>, doneFeedingLog: (Peer, Collection<Transaction>) -> Unit) {
         processingMutex.withLock<Unit> {
             when {
                 !beingProcessed.contains(peer) -> {
                     beingProcessed.add(peer)
-                    coroutineScope { launch { feedPeer(peer, foodDispenser, doneFeedingLog) } }
+                    dp.taskScheduler.run { feedPeer(peer, foodDispenser, doneFeedingLog) }
                 }
                 !processingQueue.contains(peer) -> processingQueue.add(peer)
             }
         }
     }
 
-    private suspend fun feedPeer(peer: Peer, foodDispenser: suspend (Peer) -> Collection<Transaction>, doneFeedingLog: suspend (Peer, Collection<Transaction>) -> Unit) {
+    private fun feedPeer(peer: Peer, foodDispenser: (Peer) -> Collection<Transaction>, doneFeedingLog: (Peer, Collection<Transaction>) -> Unit) {
         val transactionsToSend = foodDispenser(peer)
 
         if (transactionsToSend.isNotEmpty()) {

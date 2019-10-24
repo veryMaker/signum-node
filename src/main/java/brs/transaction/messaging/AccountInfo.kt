@@ -21,7 +21,7 @@ class AccountInfo(dp: DependencyProvider) : Messaging(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.MessagingAccountInfo(dp, attachmentData)
 
-    override suspend fun validateAttachment(transaction: Transaction) {
+    override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.MessagingAccountInfo
         if (attachment.name.toBytes().size > Constants.MAX_ACCOUNT_NAME_LENGTH || attachment.description.toBytes().size > Constants.MAX_ACCOUNT_DESCRIPTION_LENGTH
         ) {
@@ -29,7 +29,7 @@ class AccountInfo(dp: DependencyProvider) : Messaging(dp) {
         }
     }
 
-    override suspend fun applyAttachment(
+    override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?

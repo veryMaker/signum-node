@@ -18,7 +18,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -46,7 +45,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val deltaQualityParameter = 5
         val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, deltaQualityParameter)
@@ -75,7 +74,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_unknownGoodsBecauseDelisted() = runBlocking {
+    fun processRequest_unknownGoodsBecauseDelisted() {
         val request = QuickMocker.httpServletRequest()
 
         val mockGoods = mock<Goods>()
@@ -90,7 +89,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_unknownGoodsBecauseWrongSellerId() = runBlocking {
+    fun processRequest_unknownGoodsBecauseWrongSellerId() {
         val request = QuickMocker.httpServletRequest()
 
         val mockGoods = mock<Goods>()
@@ -107,7 +106,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_missingDeltaQuantity() = runBlocking {
+    fun processRequest_missingDeltaQuantity() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, null as String?)
         )
@@ -126,7 +125,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_deltaQuantityWrongFormat() = runBlocking {
+    fun processRequest_deltaQuantityWrongFormat() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, "Bob")
         )
@@ -145,7 +144,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_deltaQuantityOverMaxIncorrectDeltaQuantity() = runBlocking {
+    fun processRequest_deltaQuantityOverMaxIncorrectDeltaQuantity() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, Integer.MIN_VALUE)
         )
@@ -164,7 +163,7 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_deltaQuantityLowerThanNegativeMaxIncorrectDeltaQuantity() = runBlocking {
+    fun processRequest_deltaQuantityLowerThanNegativeMaxIncorrectDeltaQuantity() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(DELTA_QUANTITY_PARAMETER, Integer.MAX_VALUE)
         )

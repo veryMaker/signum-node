@@ -5,9 +5,7 @@ import brs.services.BlockService
 import brs.util.MiningPlot
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import brs.util.sync.Mutex
 import org.jocl.*
 import org.jocl.CL.*
 import org.slf4j.LoggerFactory
@@ -149,13 +147,13 @@ class OCLPoC(dp: DependencyProvider) {
             logger.safeInfo { "OCL max items: $maxItems" }
         } catch (e: CLException) {
             logger.safeInfo(e) { "OpenCL exception: ${e.message}" }
-            runBlocking { destroy() }
+            destroy()
             throw OCLCheckerException("OpenCL exception", e)
         }
 
     }
 
-    suspend fun validatePoC(blocks: Collection<Block>, pocVersion: Int, blockService: BlockService) {
+    fun validatePoC(blocks: Collection<Block>, pocVersion: Int, blockService: BlockService) {
         try {
             logger.safeDebug { "starting ocl verify for: ${blocks.size}" }
             val scoopsOut = ByteArray(MiningPlot.SCOOP_SIZE * blocks.size)
@@ -292,7 +290,7 @@ class OCLPoC(dp: DependencyProvider) {
 
     }
 
-    suspend fun destroy() {
+    fun destroy() {
         oclLock.withLock {
             if (program != null) {
                 clReleaseProgram(program)

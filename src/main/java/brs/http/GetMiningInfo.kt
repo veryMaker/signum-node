@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetMiningInfo(private val dp: DependencyProvider) : APIServlet.JsonRequestHandler(arrayOf(APITag.MINING, APITag.INFO)) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
 
         response.addProperty("height", (dp.blockchain.height.toLong() + 1).toString())

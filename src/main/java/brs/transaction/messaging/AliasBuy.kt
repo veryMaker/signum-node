@@ -22,7 +22,7 @@ class AliasBuy(dp: DependencyProvider) : Messaging(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.MessagingAliasBuy(dp, attachmentData)
 
-    override suspend fun applyAttachment(
+    override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?
@@ -38,7 +38,7 @@ class AliasBuy(dp: DependencyProvider) : Messaging(dp) {
         return TransactionDuplicationKey(AliasAssignment::class, attachment.aliasName.toLowerCase(Locale.ENGLISH))
     }
 
-    override suspend fun validateAttachment(transaction: Transaction) {
+    override fun validateAttachment(transaction: Transaction) {
         if (!dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, dp.blockchain.lastBlock.height)) {
             throw BurstException.NotYetEnabledException("Alias transfer not yet enabled at height " + dp.blockchain.lastBlock.height)
         }

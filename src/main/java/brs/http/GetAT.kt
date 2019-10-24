@@ -7,7 +7,7 @@ import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 internal class GetAT(private val parameterService: ParameterService, private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.AT), AT_PARAMETER) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         return JSONData.at(parameterService.getAT(request), accountService)
     }
 }

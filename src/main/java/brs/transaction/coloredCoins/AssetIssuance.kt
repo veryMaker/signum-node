@@ -22,9 +22,9 @@ class AssetIssuance(dp: DependencyProvider) : ColoredCoins(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.ColoredCoinsAssetIssuance(dp, attachmentData)
 
-    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
+    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
 
-    override suspend fun applyAttachment(
+    override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?
@@ -39,11 +39,11 @@ class AssetIssuance(dp: DependencyProvider) : ColoredCoins(dp) {
         )
     }
 
-    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
+    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
         // Nothing to undo
     }
 
-    override suspend fun validateAttachment(transaction: Transaction) {
+    override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsAssetIssuance
         if (attachment.name!!.length < Constants.MIN_ASSET_NAME_LENGTH
             || attachment.name.length > Constants.MAX_ASSET_NAME_LENGTH

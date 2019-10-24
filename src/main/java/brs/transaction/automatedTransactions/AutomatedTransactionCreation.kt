@@ -17,7 +17,7 @@ class AutomatedTransactionCreation(dp: DependencyProvider) : AutomatedTransactio
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.AutomatedTransactionsCreation(dp, attachmentData)
 
-    override suspend fun doValidateAttachment(transaction: Transaction) {
+    override fun doValidateAttachment(transaction: Transaction) {
         if (!dp.fluxCapacitor.getValue(
                 FluxValues.AUTOMATED_TRANSACTION_BLOCK,
                 dp.blockchain.lastBlock.height
@@ -58,7 +58,7 @@ class AutomatedTransactionCreation(dp: DependencyProvider) : AutomatedTransactio
         }
     }
 
-    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.AutomatedTransactionsCreation
         AT.addAT(
             dp,

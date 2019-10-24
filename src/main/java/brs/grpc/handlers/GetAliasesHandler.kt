@@ -8,7 +8,7 @@ import brs.util.FilteringIterator
 
 class GetAliasesHandler(private val aliasService: AliasService) : GrpcApiHandler<BrsApi.GetAliasesRequest, BrsApi.Aliases> {
 
-    override suspend fun handleRequest(getAliasesRequest: BrsApi.GetAliasesRequest): BrsApi.Aliases {
+    override fun handleRequest(getAliasesRequest: BrsApi.GetAliasesRequest): BrsApi.Aliases {
         val timestamp = getAliasesRequest.timestamp
         val accountId = getAliasesRequest.owner
         val firstIndex = getAliasesRequest.indexRange.firstIndex

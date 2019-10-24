@@ -42,7 +42,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
                 return SqlRewardRecipientAssignment(record)
             }
 
-            override suspend fun save(ctx: DSLContext, assignment: Account.RewardRecipientAssignment) {
+            override fun save(ctx: DSLContext, assignment: Account.RewardRecipientAssignment) {
                 ctx.mergeInto<RewardRecipAssignRecord, Long, Long, Long, Int, Int, Boolean>(REWARD_RECIP_ASSIGN, REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.PREV_RECIP_ID, REWARD_RECIP_ASSIGN.RECIP_ID, REWARD_RECIP_ASSIGN.FROM_HEIGHT, REWARD_RECIP_ASSIGN.HEIGHT, REWARD_RECIP_ASSIGN.LATEST)
                         .key(REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.HEIGHT)
                         .values(assignment.accountId, assignment.prevRecipientId, assignment.recipientId, assignment.fromHeight, dp.blockchain.height, true)
@@ -61,7 +61,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
                 return SQLAccountAsset(record)
             }
 
-            override suspend fun save(ctx: DSLContext, accountAsset: Account.AccountAsset) {
+            override fun save(ctx: DSLContext, accountAsset: Account.AccountAsset) {
                 ctx.mergeInto<AccountAssetRecord, Long, Long, Long, Long, Int, Boolean>(ACCOUNT_ASSET, ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.QUANTITY, ACCOUNT_ASSET.UNCONFIRMED_QUANTITY, ACCOUNT_ASSET.HEIGHT, ACCOUNT_ASSET.LATEST)
                         .key(ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.HEIGHT)
                         .values(accountAsset.accountId, accountAsset.assetId, accountAsset.quantityQNT, accountAsset.unconfirmedQuantityQNT, dp.blockchain.height, true)
@@ -91,24 +91,24 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
         }
     }
 
-    override suspend fun getAssetAccountsCount(assetId: Long): Int {
+    override fun getAssetAccountsCount(assetId: Long): Int {
         return dp.db.getUsingDslContext<Int> { ctx -> ctx.selectCount().from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(assetId)).and(ACCOUNT_ASSET.LATEST.isTrue).fetchOne(0, Int::class.javaPrimitiveType) }
     }
 
-    override suspend fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<Account.RewardRecipientAssignment> {
+    override fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<Account.RewardRecipientAssignment> {
         return rewardRecipientAssignmentTable.getManyBy(getAccountsWithRewardRecipientClause(recipientId!!, dp.blockchain.height + 1), 0, -1)
     }
 
-    override suspend fun getAssets(from: Int, to: Int, id: Long?): Collection<Account.AccountAsset> {
+    override fun getAssets(from: Int, to: Int, id: Long?): Collection<Account.AccountAsset> {
         return accountAssetTable.getManyBy(ACCOUNT_ASSET.ACCOUNT_ID.eq(id), from, to)
     }
 
-    override suspend fun getAssetAccounts(assetId: Long, from: Int, to: Int): Collection<Account.AccountAsset> {
+    override fun getAssetAccounts(assetId: Long, from: Int, to: Int): Collection<Account.AccountAsset> {
         val sort = listOf(ACCOUNT_ASSET.field("quantity", Long::class.java).desc(), ACCOUNT_ASSET.field("account_id", Long::class.java).asc())
         return accountAssetTable.getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), from, to, sort)
     }
 
-    override suspend fun getAssetAccounts(assetId: Long, height: Int, from: Int, to: Int): Collection<Account.AccountAsset> {
+    override fun getAssetAccounts(assetId: Long, height: Int, from: Int, to: Int): Collection<Account.AccountAsset> {
         if (height < 0) {
             return getAssetAccounts(assetId, from, to)
         }
@@ -117,7 +117,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
         return accountAssetTable.getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), height, from, to, sort)
     }
 
-    override suspend fun setOrVerify(acc: Account, key: ByteArray, height: Int): Boolean {
+    override fun setOrVerify(acc: Account, key: ByteArray, height: Int): Boolean {
         return when {
             acc.publicKey == null -> {
                 if (dp.db.isInTransaction()) {

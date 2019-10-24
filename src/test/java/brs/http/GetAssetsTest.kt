@@ -17,7 +17,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -37,7 +36,7 @@ class GetAssetsTest {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val assetId = 123L
 
         val request = QuickMocker.httpServletRequest()
@@ -71,7 +70,7 @@ class GetAssetsTest {
     }
 
     @Test
-    fun processRequest_unknownAsset() = runBlocking {
+    fun processRequest_unknownAsset() {
         val assetId = 123L
 
         val request = QuickMocker.httpServletRequest()
@@ -83,7 +82,7 @@ class GetAssetsTest {
     }
 
     @Test
-    fun processRequest_incorrectAsset() = runBlocking {
+    fun processRequest_incorrectAsset() {
         val request = QuickMocker.httpServletRequest()
 
         whenever(request.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf("unParsable"))

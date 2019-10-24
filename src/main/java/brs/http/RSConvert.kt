@@ -10,7 +10,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal object RSConvert : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS, APITag.UTILS), ACCOUNT_PARAMETER) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val accountValue = request.getParameter(ACCOUNT_PARAMETER).emptyToNull() ?: return MISSING_ACCOUNT
         try {
             val accountId = accountValue.parseAccountId()

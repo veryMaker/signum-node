@@ -22,7 +22,6 @@ import brs.services.TimeService
 import brs.transaction.TransactionType
 import brs.transaction.digitalGoods.DigitalGoodsPurchase
 import com.nhaarman.mockitokotlin2.*
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -57,7 +56,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val goodsQuantity = 5
         val goodsPrice = 10L
         val deliveryDeadlineTimestamp: Long = 100
@@ -97,7 +96,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_unknownGoods() = runBlocking {
+    fun processRequest_unknownGoods() {
         val request = QuickMocker.httpServletRequest()
 
         val mockGoods = mock<Goods>()
@@ -109,7 +108,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectPurchaseQuantity() = runBlocking {
+    fun processRequest_incorrectPurchaseQuantity() {
         val goodsQuantity = 5
 
         val request = QuickMocker.httpServletRequest(
@@ -126,7 +125,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectPurchasePrice() = runBlocking {
+    fun processRequest_incorrectPurchasePrice() {
         val goodsQuantity = 5
         val goodsPrice = 5L
 
@@ -147,7 +146,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
 
 
     @Test
-    fun processRequest_missingDeliveryDeadlineTimestamp() = runBlocking {
+    fun processRequest_missingDeliveryDeadlineTimestamp() {
         val goodsQuantity = 5
         val goodsPrice = 10L
 
@@ -167,7 +166,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectDeliveryDeadlineTimestamp_unParsable() = runBlocking {
+    fun processRequest_incorrectDeliveryDeadlineTimestamp_unParsable() {
         val goodsQuantity = 5
         val goodsPrice = 10L
 
@@ -188,7 +187,7 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectDeliveryDeadlineTimestamp_beforeCurrentTime() = runBlocking {
+    fun processRequest_incorrectDeliveryDeadlineTimestamp_beforeCurrentTime() {
         val goodsQuantity = 5
         val goodsPrice = 10L
         val deliveryDeadlineTimestamp: Long = 100

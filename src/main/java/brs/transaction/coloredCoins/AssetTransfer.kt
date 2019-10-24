@@ -22,7 +22,7 @@ class AssetTransfer(dp: DependencyProvider) : ColoredCoins(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.ColoredCoinsAssetTransfer(dp, attachmentData)
 
-    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
+    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.safeTrace { "TransactionType ASSET_TRANSFER" }
         val attachment = transaction.attachment as Attachment.ColoredCoinsAssetTransfer
         val unconfirmedAssetBalance = dp.accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.assetId)
@@ -37,7 +37,7 @@ class AssetTransfer(dp: DependencyProvider) : ColoredCoins(dp) {
         return false
     }
 
-    override suspend fun applyAttachment(
+    override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?
@@ -52,7 +52,7 @@ class AssetTransfer(dp: DependencyProvider) : ColoredCoins(dp) {
         dp.assetExchange.addAssetTransfer(transaction, attachment)
     }
 
-    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
+    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsAssetTransfer
         dp.accountService.addToUnconfirmedAssetBalanceQNT(
             senderAccount,
@@ -61,7 +61,7 @@ class AssetTransfer(dp: DependencyProvider) : ColoredCoins(dp) {
         )
     }
 
-    override suspend fun validateAttachment(transaction: Transaction) {
+    override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsAssetTransfer
         if (transaction.amountNQT != 0L
             || attachment.comment != null && attachment.comment.length > Constants.MAX_ASSET_TRANSFER_COMMENT_LENGTH

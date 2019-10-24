@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetDGSGood internal constructor(private val parameterService: ParameterService) : APIServlet.JsonRequestHandler(arrayOf(APITag.DGS), GOODS_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         return JSONData.goods(parameterService.getGoods(request))
     }
 

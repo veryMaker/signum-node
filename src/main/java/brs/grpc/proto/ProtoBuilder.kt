@@ -32,7 +32,7 @@ object ProtoBuilder {
         return StatusProto.toStatusException(Status.newBuilder().setCode(Code.ABORTED_VALUE).setMessage(message).build())
     }
 
-    suspend fun buildAccount(account: Account, accountService: AccountService): BrsApi.Account {
+    fun buildAccount(account: Account, accountService: AccountService): BrsApi.Account {
         return BrsApi.Account.newBuilder()
                 .setId(account.id)
                 .setPublicKey(account.publicKey.toByteString())
@@ -55,7 +55,7 @@ object ProtoBuilder {
                 .build()
     }
 
-    suspend fun buildBlock(blockchain: Blockchain, blockService: BlockService, block: Block, includeTransactions: Boolean): BrsApi.Block {
+    fun buildBlock(blockchain: Blockchain, blockService: BlockService, block: Block, includeTransactions: Boolean): BrsApi.Block {
         val builder = BrsApi.Block.newBuilder()
                 .setId(block.id)
                 .setHeight(block.height)
@@ -132,7 +132,7 @@ object ProtoBuilder {
                 .build()
     }
 
-    suspend fun buildAT(accountService: AccountService, at: AT): BrsApi.AT {
+    fun buildAT(accountService: AccountService, at: AT): BrsApi.AT {
         val bf = ByteBuffer.allocate(8)
         bf.order(ByteOrder.LITTLE_ENDIAN)
         bf.put(at.creator!!)
@@ -205,7 +205,7 @@ object ProtoBuilder {
         return newIndexRange.build()
     }
 
-    suspend fun buildAsset(assetExchange: AssetExchange, asset: Asset): BrsApi.Asset {
+    fun buildAsset(assetExchange: AssetExchange, asset: Asset): BrsApi.Asset {
         return BrsApi.Asset.newBuilder()
                 .setAsset(asset.id)
                 .setAccount(asset.accountId)
@@ -302,7 +302,7 @@ object ProtoBuilder {
                 .build()
     }
 
-    suspend fun buildPurchase(purchase: DigitalGoodsStore.Purchase, goods: DigitalGoodsStore.Goods): BrsApi.DgsPurchase {
+    fun buildPurchase(purchase: DigitalGoodsStore.Purchase, goods: DigitalGoodsStore.Goods): BrsApi.DgsPurchase {
         return BrsApi.DgsPurchase.newBuilder()
                 .setId(purchase.id)
                 .setGood(purchase.goodsId)

@@ -62,7 +62,7 @@ internal class GetConstants(dp: DependencyProvider) : APIServlet.JsonRequestHand
         constants = response
     }
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         return constants
     }
 }

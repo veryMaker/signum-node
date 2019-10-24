@@ -18,13 +18,11 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.servlet.http.HttpServletRequest
 
 @RunWith(JUnit4::class)
 class CancelBidOrderTest : AbstractTransactionTest() {
@@ -52,7 +50,7 @@ class CancelBidOrderTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val orderId = 123
         val orderAccountId: Long = 1
 
@@ -78,12 +76,12 @@ class CancelBidOrderTest : AbstractTransactionTest() {
     }
 
     @Test(expected = ParameterException::class)
-    fun processRequest_orderParameterMissing() = runBlocking<Unit> {
+    fun processRequest_orderParameterMissing() {
         t.processRequest(QuickMocker.httpServletRequest())
     }
 
     @Test
-    fun processRequest_orderDataMissingUnkownOrder() = runBlocking {
+    fun processRequest_orderDataMissingUnkownOrder() {
         val orderId = 123
         val request = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)
@@ -95,7 +93,7 @@ class CancelBidOrderTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_accountIdNotSameAsOrder() = runBlocking {
+    fun processRequest_accountIdNotSameAsOrder() {
         val orderId = 123
         val orderAccountId: Long = 1
         val senderAccountId: Long = 2

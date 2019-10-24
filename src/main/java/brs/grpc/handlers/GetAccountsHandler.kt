@@ -7,7 +7,7 @@ import brs.services.AccountService
 
 class GetAccountsHandler(private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAccountsRequest, BrsApi.Accounts> {
 
-    override suspend fun handleRequest(request: BrsApi.GetAccountsRequest): BrsApi.Accounts {
+    override fun handleRequest(request: BrsApi.GetAccountsRequest): BrsApi.Accounts {
         val builder = BrsApi.Accounts.newBuilder()
         if (request.name != "") {
             val accounts = accountService.getAccountsWithName(request.name)

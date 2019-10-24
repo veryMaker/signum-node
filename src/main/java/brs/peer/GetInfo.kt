@@ -7,7 +7,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerRequestHandler {
-    override suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement {
+    override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         var announcedAddress = request.get("announcedAddress").mustGetAsString("announcedAddress")
         if (announcedAddress.isNotEmpty()) {
             announcedAddress = announcedAddress.trim { it <= ' ' }

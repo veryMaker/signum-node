@@ -15,7 +15,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -48,7 +47,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val subscriptionIdParameter = 123L
 
         val request = QuickMocker.httpServletRequest(
@@ -77,7 +76,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_missingSubscriptionParameter() = runBlocking {
+    fun processRequest_missingSubscriptionParameter() {
         val request = QuickMocker.httpServletRequest()
 
         val response = t.processRequest(request) as JsonObject
@@ -87,7 +86,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_failedToParseSubscription() = runBlocking {
+    fun processRequest_failedToParseSubscription() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SUBSCRIPTION_PARAMETER, "notALong")
         )
@@ -99,7 +98,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_subscriptionNotFound() = runBlocking {
+    fun processRequest_subscriptionNotFound() {
         val subscriptionId = 123L
 
         val request = QuickMocker.httpServletRequest(
@@ -115,7 +114,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_userIsNotSenderOrRecipient() = runBlocking {
+    fun processRequest_userIsNotSenderOrRecipient() {
         val subscriptionId = 123L
 
         val request = QuickMocker.httpServletRequest(

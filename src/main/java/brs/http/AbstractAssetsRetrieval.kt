@@ -5,7 +5,7 @@ import brs.assetexchange.AssetExchange
 import com.google.gson.JsonArray
 
 internal abstract class AbstractAssetsRetrieval(apiTags: Array<APITag>, private val assetExchange: AssetExchange, vararg parameters: String) : APIServlet.JsonRequestHandler(apiTags, *parameters) {
-    suspend fun assetsToJson(assets: Collection<Asset>): JsonArray {
+    fun assetsToJson(assets: Collection<Asset>): JsonArray {
         val assetsJsonArray = JsonArray()
         assets.forEach { asset ->
             val tradeCount = assetExchange.getTradeCount(asset.id)

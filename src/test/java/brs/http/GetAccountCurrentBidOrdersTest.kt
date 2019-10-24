@@ -20,7 +20,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -42,7 +41,7 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_byAccount() = runBlocking {
+    fun processRequest_byAccount() {
         val accountId = 123L
         val firstIndex = 0
         val lastIndex = 1
@@ -78,7 +77,7 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_byAccountAsset() = runBlocking {
+    fun processRequest_byAccountAsset() {
         val accountId = 123L
         val assetId = 234L
         val firstIndex = 0

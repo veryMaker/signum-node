@@ -13,25 +13,25 @@ interface OrderStore {
 
     val bidOrderDbKeyFactory: BurstKey.LongKeyFactory<Order.Bid>
 
-    suspend fun getAskOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Order.Ask>
+    fun getAskOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Order.Ask>
 
-    suspend fun getSortedAsks(assetId: Long, from: Int, to: Int): Collection<Order.Ask>
+    fun getSortedAsks(assetId: Long, from: Int, to: Int): Collection<Order.Ask>
 
-    suspend fun getNextOrder(assetId: Long): Order.Ask?
+    fun getNextOrder(assetId: Long): Order.Ask?
 
-    suspend fun getAll(from: Int, to: Int): Collection<Order.Ask>
+    fun getAll(from: Int, to: Int): Collection<Order.Ask>
 
-    suspend fun getAskOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Order.Ask>
+    fun getAskOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Order.Ask>
 
-    suspend fun getAskOrdersByAsset(assetId: Long, from: Int, to: Int): Collection<Order.Ask>
+    fun getAskOrdersByAsset(assetId: Long, from: Int, to: Int): Collection<Order.Ask>
 
-    suspend fun getBidOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Order.Bid>
+    fun getBidOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Order.Bid>
 
-    suspend fun getBidOrdersByAsset(assetId: Long, from: Int, to: Int): Collection<Order.Bid>
+    fun getBidOrdersByAsset(assetId: Long, from: Int, to: Int): Collection<Order.Bid>
 
-    suspend fun getBidOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Order.Bid>
+    fun getBidOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Order.Bid>
 
-    suspend fun getSortedBids(assetId: Long, from: Int, to: Int): Collection<Order.Bid>
+    fun getSortedBids(assetId: Long, from: Int, to: Int): Collection<Order.Bid>
 
-    suspend fun getNextBid(assetId: Long): Order.Bid?
+    fun getNextBid(assetId: Long): Order.Bid?
 }

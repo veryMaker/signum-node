@@ -7,7 +7,7 @@ import brs.services.SubscriptionService
 
 class GetAccountSubscriptionsHandler(private val subscriptionService: SubscriptionService) : GrpcApiHandler<BrsApi.GetAccountRequest, BrsApi.Subscriptions> {
 
-    override suspend fun handleRequest(request: BrsApi.GetAccountRequest): BrsApi.Subscriptions {
+    override fun handleRequest(request: BrsApi.GetAccountRequest): BrsApi.Subscriptions {
         val accountId = request.accountId
         val builder = BrsApi.Subscriptions.newBuilder()
         subscriptionService.getSubscriptionsByParticipant(accountId)

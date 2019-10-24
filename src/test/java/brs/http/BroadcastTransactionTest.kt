@@ -18,7 +18,6 @@ import brs.util.safeGetAsLong
 import brs.util.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -42,7 +41,7 @@ class BroadcastTransactionTest {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val mockTransactionBytesParameter = "mockTransactionBytesParameter"
         val mockTransactionJson = "mockTransactionJson"
 
@@ -69,7 +68,7 @@ class BroadcastTransactionTest {
     }
 
     @Test
-    fun processRequest_validationException() = runBlocking {
+    fun processRequest_validationException() {
         val mockTransactionBytesParameter = "mockTransactionBytesParameter"
         val mockTransactionJson = "mockTransactionJson"
 

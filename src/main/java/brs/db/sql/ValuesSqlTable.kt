@@ -16,7 +16,7 @@ abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableCla
 
     protected abstract fun save(ctx: DSLContext, t: T, v: V)
 
-    override suspend fun get(dbKey: BurstKey): List<V> {
+    override fun get(dbKey: BurstKey): List<V> {
         return dp.db.getUsingDslContext<List<V>> { ctx ->
             val key = dbKey as DbKey
             var values: List<V>?
@@ -38,7 +38,7 @@ abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableCla
         }
     }
 
-    override suspend fun insert(t: T, values: List<V>) {
+    override fun insert(t: T, values: List<V>) {
         check(dp.db.isInTransaction()) { "Not in transaction" }
         dp.db.useDslContext { ctx ->
             val dbKey = dbKeyFactory.newKey(t) as DbKey
@@ -56,12 +56,12 @@ abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableCla
         }
     }
 
-    override suspend fun rollback(height: Int) {
+    override fun rollback(height: Int) {
         super.rollback(height)
         dp.db.getCache<Any>(table).clear()
     }
 
-    override suspend fun truncate() {
+    override fun truncate() {
         super.truncate()
         dp.db.getCache<Any>(table).clear()
     }

@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 
 internal class SignTransaction(private val parameterService: ParameterService, private val transactionService: TransactionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), UNSIGNED_TRANSACTION_BYTES_PARAMETER, UNSIGNED_TRANSACTION_JSON_PARAMETER, SECRET_PHRASE_PARAMETER) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val transactionBytes = request.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER).emptyToNull()
         val transactionJSON = request.getParameter(UNSIGNED_TRANSACTION_JSON_PARAMETER).emptyToNull()

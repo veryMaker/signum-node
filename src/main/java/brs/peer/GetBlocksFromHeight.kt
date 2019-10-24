@@ -7,7 +7,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 internal class GetBlocksFromHeight(private val blockchain: Blockchain) : PeerServlet.PeerRequestHandler {
-    override suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement {
+    override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         val response = JsonObject()
         var blockHeight = request.get("height").mustGetAsInt("numBlocks")
         var numBlocks = 100

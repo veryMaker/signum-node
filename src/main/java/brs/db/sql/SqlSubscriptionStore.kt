@@ -28,7 +28,7 @@ class SqlSubscriptionStore(private val dp: DependencyProvider) : SubscriptionSto
                 return SqlSubscription(rs)
             }
 
-            override suspend fun save(ctx: DSLContext, subscription: Subscription) {
+            override fun save(ctx: DSLContext, subscription: Subscription) {
                 saveSubscription(ctx, subscription)
             }
 
@@ -46,19 +46,19 @@ class SqlSubscriptionStore(private val dp: DependencyProvider) : SubscriptionSto
         return SUBSCRIPTION.TIME_NEXT.le(timestamp)
     }
 
-    override suspend fun getSubscriptionsByParticipant(accountId: Long?): Collection<Subscription> {
+    override fun getSubscriptionsByParticipant(accountId: Long?): Collection<Subscription> {
         return subscriptionTable.getManyBy(getByParticipantClause(accountId!!), 0, -1)
     }
 
-    override suspend fun getIdSubscriptions(accountId: Long?): Collection<Subscription> {
+    override fun getIdSubscriptions(accountId: Long?): Collection<Subscription> {
         return subscriptionTable.getManyBy(SUBSCRIPTION.SENDER_ID.eq(accountId), 0, -1)
     }
 
-    override suspend fun getSubscriptionsToId(accountId: Long?): Collection<Subscription> {
+    override fun getSubscriptionsToId(accountId: Long?): Collection<Subscription> {
         return subscriptionTable.getManyBy(SUBSCRIPTION.RECIPIENT_ID.eq(accountId), 0, -1)
     }
 
-    override suspend fun getUpdateSubscriptions(timestamp: Int): Collection<Subscription> {
+    override fun getUpdateSubscriptions(timestamp: Int): Collection<Subscription> {
         return subscriptionTable.getManyBy(getUpdateOnBlockClause(timestamp), 0, -1)
     }
 

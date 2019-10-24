@@ -11,7 +11,6 @@ import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -31,7 +30,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val targetAccountId = 4L
         val targetAccountName = "exampleAccountName"
 
@@ -56,7 +55,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_noAccountFound() = runBlocking {
+    fun processRequest_noAccountFound() {
         val targetAccountName = "exampleAccountName"
 
         val request = QuickMocker.httpServletRequest(

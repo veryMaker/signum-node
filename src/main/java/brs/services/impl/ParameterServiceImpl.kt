@@ -69,7 +69,7 @@ import javax.servlet.http.HttpServletRequest
 
 class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterService {
 
-    override suspend fun getAccount(request: HttpServletRequest): Account {
+    override fun getAccount(request: HttpServletRequest): Account {
         val accountId = request.getParameter(ACCOUNT_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_ACCOUNT)
         try {
@@ -81,7 +81,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
 
     }
 
-    override suspend fun getAccounts(request: HttpServletRequest): List<Account> {
+    override fun getAccounts(request: HttpServletRequest): List<Account> {
         val accountIDs = request.getParameterValues(ACCOUNT_PARAMETER)
         if (accountIDs == null || accountIDs.isEmpty()) {
             throw ParameterException(MISSING_ACCOUNT)
@@ -103,7 +103,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         return result
     }
 
-    override suspend fun getSenderAccount(request: HttpServletRequest): Account {
+    override fun getSenderAccount(request: HttpServletRequest): Account {
         val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
         val publicKeyString = request.getParameter(PUBLIC_KEY_PARAMETER).emptyToNull()
         return when {
@@ -117,7 +117,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         } ?: throw ParameterException(UNKNOWN_ACCOUNT)
     }
 
-    override suspend fun getAlias(request: HttpServletRequest): Alias {
+    override fun getAlias(request: HttpServletRequest): Alias {
         val aliasId: Long
         try {
             aliasId = request.getParameter(ALIAS_PARAMETER).emptyToNull().parseUnsignedLong()
@@ -133,7 +133,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         } ?: throw ParameterException(UNKNOWN_ALIAS)
     }
 
-    override suspend fun getAsset(request: HttpServletRequest): Asset {
+    override fun getAsset(request: HttpServletRequest): Asset {
         val assetValue = request.getParameter(ASSET_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_ASSET)
         val asset: Asset?
@@ -150,7 +150,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         return asset
     }
 
-    override suspend fun getGoods(request: HttpServletRequest): DigitalGoodsStore.Goods {
+    override fun getGoods(request: HttpServletRequest): DigitalGoodsStore.Goods {
         val goodsValue = request.getParameter(GOODS_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_GOODS)
 
@@ -163,7 +163,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
 
     }
 
-    override suspend fun getPurchase(request: HttpServletRequest): DigitalGoodsStore.Purchase {
+    override fun getPurchase(request: HttpServletRequest): DigitalGoodsStore.Purchase {
         val purchaseIdString = request.getParameter(PURCHASE_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_PURCHASE)
         try {
@@ -203,7 +203,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
 
     }
 
-    override suspend fun getEncryptToSelfMessage(request: HttpServletRequest): EncryptedData? {
+    override fun getEncryptToSelfMessage(request: HttpServletRequest): EncryptedData? {
         val data = request.getParameter(ENCRYPT_TO_SELF_MESSAGE_DATA).emptyToNull()
         val nonce = request.getParameter(ENCRYPT_TO_SELF_MESSAGE_NONCE).emptyToNull()
         if (data != null && nonce != null) {
@@ -307,7 +307,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         }
     }
 
-    override suspend fun getAT(request: HttpServletRequest): AT {
+    override fun getAT(request: HttpServletRequest): AT {
         val atValue = request.getParameter(AT_PARAMETER).emptyToNull() ?: throw ParameterException(MISSING_AT)
         val at: AT?
         try {

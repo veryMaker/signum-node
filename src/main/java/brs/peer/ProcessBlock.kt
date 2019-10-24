@@ -9,7 +9,7 @@ import com.google.gson.JsonObject
 
 class ProcessBlock(private val blockchain: Blockchain, private val blockchainProcessor: BlockchainProcessor) : PeerServlet.PeerRequestHandler {
 
-    override suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement {
+    override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
 
         try {
             if (blockchain.lastBlock.stringId != request.get("previousBlock").safeGetAsString()) {

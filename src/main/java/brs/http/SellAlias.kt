@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class SellAlias internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION), ALIAS_PARAMETER, ALIAS_NAME_PARAMETER, RECIPIENT_PARAMETER, PRICE_NQT_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val alias = dp.parameterService.getAlias(request)
         val owner = dp.parameterService.getSenderAccount(request)
 

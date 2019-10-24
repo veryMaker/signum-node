@@ -16,7 +16,7 @@ class DigitalGoodsRefund(dp: DependencyProvider) : DigitalGoods(dp) {
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsRefund(dp, buffer, transactionVersion)
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsRefund(dp, attachmentData)
 
-    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
+    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.safeTrace { "TransactionType REFUND" }
         val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
         if (senderAccount.unconfirmedBalanceNQT >= totalAmountNQT) {
@@ -31,14 +31,14 @@ class DigitalGoodsRefund(dp: DependencyProvider) : DigitalGoods(dp) {
         return attachment.refundNQT
     }
 
-    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
+    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
         dp.accountService.addToUnconfirmedBalanceNQT(
             senderAccount,
             calculateAttachmentTotalAmountNQT(transaction)
         )
     }
 
-    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsRefund
         dp.digitalGoodsStoreService.refund(
             transaction.senderId,
@@ -48,7 +48,7 @@ class DigitalGoodsRefund(dp: DependencyProvider) : DigitalGoods(dp) {
         )
     }
 
-    override suspend fun doValidateAttachment(transaction: Transaction) {
+    override fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsRefund
         val purchase = dp.digitalGoodsStoreService.getPurchase(attachment.purchaseId)
         if (attachment.refundNQT < 0 || attachment.refundNQT > Constants.MAX_BALANCE_NQT

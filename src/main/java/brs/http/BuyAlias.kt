@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class BuyAlias(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION), ALIAS_PARAMETER, ALIAS_NAME_PARAMETER, AMOUNT_NQT_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val buyer = dp.parameterService.getSenderAccount(request)
         val alias = dp.parameterService.getAlias(request)
         val amountNQT = ParameterParser.getAmountNQT(request)

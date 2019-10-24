@@ -35,7 +35,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     private val listeners = Listeners<Account, Event>()
     private val assetListeners = Listeners<AccountAsset, Event>()
 
-    override suspend fun getCount() = accountTable.getCount()
+    override fun getCount() = accountTable.count
 
     init { // TODO don't hold references to dependency instances
         val accountStore = dp.accountStore
@@ -49,26 +49,26 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         this.rewardRecipientAssignmentKeyFactory = accountStore.rewardRecipientAssignmentKeyFactory
     }
 
-    override suspend fun addListener(eventType: Event, listener: suspend (Account) -> Unit) {
+    override fun addListener(eventType: Event, listener: (Account) -> Unit) {
         listeners.addListener(eventType, listener)
     }
 
-    override suspend fun addAssetListener(
+    override fun addAssetListener(
         eventType: Event,
-        listener: suspend (AccountAsset) -> Unit
+        listener: (AccountAsset) -> Unit
     ) {
         assetListeners.addListener(eventType, listener)
     }
 
-    override suspend fun getAccount(id: Long): Account? {
+    override fun getAccount(id: Long): Account? {
         return if (id == 0L) null else accountTable.get(accountBurstKeyFactory.newKey(id))
     }
 
-    override suspend fun getAccount(id: Long, height: Int): Account? {
+    override fun getAccount(id: Long, height: Int): Account? {
         return if (id == 0L) null else accountTable.get(accountBurstKeyFactory.newKey(id), height)
     }
 
-    override suspend fun getAccount(publicKey: ByteArray): Account? {
+    override fun getAccount(publicKey: ByteArray): Account? {
         val account = accountTable.get(accountBurstKeyFactory.newKey(getId(publicKey))) ?: return null
 
         if (account.publicKey == null || Arrays.equals(account.publicKey, publicKey)) {
@@ -78,27 +78,27 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         throw RuntimeException("DUPLICATE KEY for account " + account.id.toUnsignedString() + " existing key " + account.publicKey!!.toHexString() + " new key " + publicKey.toHexString())
     }
 
-    override suspend fun getAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer> {
+    override fun getAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer> {
         return assetTransferStore.getAccountAssetTransfers(accountId, from, to)
     }
 
-    override suspend fun getAssets(accountId: Long, from: Int, to: Int): Collection<AccountAsset> {
+    override fun getAssets(accountId: Long, from: Int, to: Int): Collection<AccountAsset> {
         return accountStore.getAssets(from, to, accountId)
     }
 
-    override suspend fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<RewardRecipientAssignment> {
+    override fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<RewardRecipientAssignment> {
         return accountStore.getAccountsWithRewardRecipient(recipientId)
     }
 
-    override suspend fun getAccountsWithName(name: String): Collection<Account> {
+    override fun getAccountsWithName(name: String): Collection<Account> {
         return accountTable.getManyBy(ACCOUNT.NAME.equalIgnoreCase(name), 0, -1)
     }
 
-    override suspend fun getAllAccounts(from: Int, to: Int): Collection<Account> {
+    override fun getAllAccounts(from: Int, to: Int): Collection<Account> {
         return accountTable.getAll(from, to)
     }
 
-    override suspend fun getOrAddAccount(id: Long): Account {
+    override fun getOrAddAccount(id: Long): Account {
         var account: Account? = accountTable.get(accountBurstKeyFactory.newKey(id))
         if (account == null) {
             account = Account(dp, id)
@@ -107,11 +107,11 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         return account
     }
 
-    override suspend fun flushAccountTable() {
+    override fun flushAccountTable() {
         accountTable.finish()
     }
 
-    override suspend fun addToForgedBalanceNQT(account: Account, amountNQT: Long) {
+    override fun addToForgedBalanceNQT(account: Account, amountNQT: Long) {
         if (amountNQT == 0L) {
             return
         }
@@ -119,13 +119,13 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         accountTable.insert(account)
     }
 
-    override suspend fun setAccountInfo(account: Account, name: String, description: String) {
+    override fun setAccountInfo(account: Account, name: String, description: String) {
         account.name = name.trim { it <= ' ' }
         account.description = description.trim { it <= ' ' }
         accountTable.insert(account)
     }
 
-    override suspend fun addToAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long) {
+    override fun addToAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long) {
         if (quantityQNT == 0L) {
             return
         }
@@ -145,7 +145,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         assetListeners.accept(Event.ASSET_BALANCE, accountAsset)
     }
 
-    override suspend fun addToUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long) {
+    override fun addToUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long) {
         if (quantityQNT == 0L) {
             return
         }
@@ -164,7 +164,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         assetListeners.accept(Event.UNCONFIRMED_ASSET_BALANCE, accountAsset)
     }
 
-    override suspend fun addToAssetAndUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long) {
+    override fun addToAssetAndUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long) {
         if (quantityQNT == 0L) {
             return
         }
@@ -188,7 +188,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         assetListeners.accept(Event.UNCONFIRMED_ASSET_BALANCE, accountAsset)
     }
 
-    override suspend fun addToBalanceNQT(account: Account, amountNQT: Long) {
+    override fun addToBalanceNQT(account: Account, amountNQT: Long) {
         if (amountNQT == 0L) {
             return
         }
@@ -198,7 +198,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         listeners.accept(Event.BALANCE, account)
     }
 
-    override suspend fun addToUnconfirmedBalanceNQT(account: Account, amountNQT: Long) {
+    override fun addToUnconfirmedBalanceNQT(account: Account, amountNQT: Long) {
         if (amountNQT == 0L) {
             return
         }
@@ -208,7 +208,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         listeners.accept(Event.UNCONFIRMED_BALANCE, account)
     }
 
-    override suspend fun addToBalanceAndUnconfirmedBalanceNQT(account: Account, amountNQT: Long) {
+    override fun addToBalanceAndUnconfirmedBalanceNQT(account: Account, amountNQT: Long) {
         if (amountNQT == 0L) {
             return
         }
@@ -220,11 +220,11 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         listeners.accept(Event.UNCONFIRMED_BALANCE, account)
     }
 
-    override suspend fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment? {
+    override fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment? {
         return rewardRecipientAssignmentTable.get(rewardRecipientAssignmentKeyFactory.newKey(account.id))
     }
 
-    override suspend fun setRewardRecipientAssignment(account: Account, recipient: Long) {
+    override fun setRewardRecipientAssignment(account: Account, recipient: Long) {
         val currentHeight = dp.blockchain.height
         var assignment = getRewardRecipientAssignment(account)
         if (assignment == null) {
@@ -236,14 +236,14 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         rewardRecipientAssignmentTable.insert(assignment)
     }
 
-    override suspend fun getUnconfirmedAssetBalanceQNT(account: Account, assetId: Long): Long {
+    override fun getUnconfirmedAssetBalanceQNT(account: Account, assetId: Long): Long {
         val newKey = accountAssetKeyFactory.newKey(account.id, assetId)
         val accountAsset = accountAssetTable.get(newKey)
         return accountAsset?.unconfirmedQuantityQNT ?: 0
     }
 
 
-    private suspend fun saveAccountAsset(accountAsset: AccountAsset) {
+    private fun saveAccountAsset(accountAsset: AccountAsset) {
         accountAsset.checkBalance()
         if (accountAsset.quantityQNT > 0 || accountAsset.unconfirmedQuantityQNT > 0) {
             accountAssetTable.insert(accountAsset)

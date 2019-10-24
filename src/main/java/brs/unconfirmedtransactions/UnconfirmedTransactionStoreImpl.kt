@@ -8,9 +8,7 @@ import brs.props.Props
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import brs.util.sync.Mutex
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -59,13 +57,11 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
 
 
     override val all: List<Transaction>
-        get() = runBlocking {
-            internalStoreLock.withLock {
-                getAllNoLock()
-            }
+        get() = internalStoreLock.withLock {
+            getAllNoLock()
         }
 
-    override suspend fun put(transaction: Transaction, peer: Peer?): Boolean {
+    override fun put(transaction: Transaction, peer: Peer?): Boolean {
         internalStoreLock.withLock {
             if (transactionIsCurrentlyInCache(transaction)) {
                 if (peer != null) {
@@ -127,19 +123,19 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         return null
     }
 
-    override suspend fun get(transactionId: Long?): Transaction? {
+    override fun get(transactionId: Long?): Transaction? {
         internalStoreLock.withLock {
             return getNoLock(transactionId)
         }
     }
 
-    override suspend fun exists(transactionId: Long?): Boolean {
+    override fun exists(transactionId: Long?): Boolean {
         internalStoreLock.withLock {
             return getNoLock(transactionId) != null
         }
     }
 
-    override suspend fun getAllFor(peer: Peer): List<Transaction> {
+    override fun getAllFor(peer: Peer): List<Transaction> {
         internalStoreLock.withLock {
             var roomLeft = this.maxRawUTBytesToSend.toLong()
             return fingerPrintsOverview.entries
@@ -167,13 +163,13 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         }
     }
 
-    override suspend fun remove(transaction: Transaction) {
+    override fun remove(transaction: Transaction) {
         internalStoreLock.withLock {
             removeNoLock(transaction)
         }
     }
 
-    override suspend fun clear() {
+    override fun clear() {
         internalStoreLock.withLock {
             logger.safeInfo { "Clearing UTStore" }
             amount = 0
@@ -183,7 +179,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         }
     }
 
-    override suspend fun resetAccountBalances() {
+    override fun resetAccountBalances() {
         internalStoreLock.withLock {
             for (insufficientFundsTransactions in reservedBalanceCache.rebuild(getAllNoLock())) {
                 removeTransaction(insufficientFundsTransactions)
@@ -191,7 +187,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         }
     }
 
-    override suspend fun markFingerPrintsOf(peer: Peer?, transactions: Collection<Transaction>) {
+    override fun markFingerPrintsOf(peer: Peer?, transactions: Collection<Transaction>) {
         internalStoreLock.withLock {
             for (transaction in transactions) {
                 if (fingerPrintsOverview.containsKey(transaction)) {
@@ -201,7 +197,7 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
         }
     }
 
-    override suspend fun removeForgedTransactions(transactions: Collection<Transaction>) {
+    override fun removeForgedTransactions(transactions: Collection<Transaction>) {
         internalStoreLock.withLock {
             for (t in transactions) {
                 removeNoLock(t)

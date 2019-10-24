@@ -8,7 +8,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class FullReset internal constructor(private val blockchainProcessor: BlockchainProcessor) : APIServlet.JsonRequestHandler(arrayOf(APITag.DEBUG)) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
         try {
             blockchainProcessor.fullReset()

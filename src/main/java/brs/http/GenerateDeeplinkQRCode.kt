@@ -32,7 +32,7 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGenerator: Deepl
 
     private val logger = LoggerFactory.getLogger(GenerateDeeplinkQRCode::class.java)
 
-    override suspend fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
+    override fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
             val immutable = Parameters.isTrue(request.getParameter(IMMUTABLE_PARAMETER))
 

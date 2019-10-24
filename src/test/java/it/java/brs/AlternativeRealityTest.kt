@@ -5,8 +5,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import it.common.AbstractIT
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -24,7 +22,7 @@ class AlternativeRealityTest : AbstractIT() {
     }
 
     @Test
-    fun reality1() = runBlocking {
+    fun reality1() {
         getReality("reality1.json").forEach { jsonObject ->
             super.processBlock(jsonObject)
             delay(500)
@@ -32,7 +30,7 @@ class AlternativeRealityTest : AbstractIT() {
     }
 
     @Test
-    fun reality2() = runBlocking {
+    fun reality2() {
         getReality("reality2.json").forEach { jsonObject ->
             super.processBlock(jsonObject)
             delay(500)

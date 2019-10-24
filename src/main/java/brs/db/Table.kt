@@ -4,5 +4,5 @@ interface Table {
     /**
      * For future use; currently unused.
      */
-    suspend fun optimize()
+    fun optimize()
 }

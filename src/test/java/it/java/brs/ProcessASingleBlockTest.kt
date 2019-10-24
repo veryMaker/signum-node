@@ -3,8 +3,6 @@ package it.java.brs
 import com.google.gson.JsonObject
 import it.common.AbstractIT
 import it.common.BlockMessageBuilder
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -38,13 +36,13 @@ class ProcessASingleBlockTest : AbstractIT() {
     }
 
     @Test
-    fun canProcessASingleBlock() = runBlocking {
+    fun canProcessASingleBlock() {
         processBlock(jsonFirstBlock)
         delay(200)
     }
 
     @Test
-    fun canRollback() = runBlocking {
+    fun canRollback() {
         processBlock(jsonFirstBlock)
         delay(200)
         rollback(0)

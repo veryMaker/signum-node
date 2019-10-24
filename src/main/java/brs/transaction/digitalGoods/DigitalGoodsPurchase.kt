@@ -16,7 +16,7 @@ class DigitalGoodsPurchase(dp: DependencyProvider) : DigitalGoods(dp) {
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsPurchase(dp, buffer, transactionVersion)
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsPurchase(dp, attachmentData)
 
-    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
+    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.safeTrace { "TransactionType PURCHASE" }
         val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
         if (senderAccount.unconfirmedBalanceNQT >= totalAmountNQT) {
@@ -31,19 +31,19 @@ class DigitalGoodsPurchase(dp: DependencyProvider) : DigitalGoods(dp) {
         return attachment.quantity.toLong().safeMultiply(attachment.priceNQT)
     }
 
-    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
+    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
         dp.accountService.addToUnconfirmedBalanceNQT(
             senderAccount,
             calculateAttachmentTotalAmountNQT(transaction)
         )
     }
 
-    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsPurchase
         dp.digitalGoodsStoreService.purchase(transaction, attachment)
     }
 
-    override suspend fun doValidateAttachment(transaction: Transaction) {
+    override fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsPurchase
         val goods = dp.digitalGoodsStoreService.getGoods(attachment.goodsId)
         if (attachment.quantity <= 0 || attachment.quantity > Constants.MAX_DGS_LISTING_QUANTITY

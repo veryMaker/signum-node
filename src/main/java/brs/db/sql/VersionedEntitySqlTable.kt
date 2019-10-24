@@ -8,15 +8,15 @@ import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 
 abstract class VersionedEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: BurstKey.Factory<T>, private val dp: DependencyProvider) : EntitySqlTable<T>(table, tableClass, dbKeyFactory, true, dp), VersionedEntityTable<T> {
-    override suspend fun rollback(height: Int) {
+    override fun rollback(height: Int) {
         rollback(dp, table, tableClass, heightField, latestField, height, dbKeyFactory)
     }
 
-    override suspend fun trim(height: Int) {
+    override fun trim(height: Int) {
         trim(dp, tableClass, heightField, height, dbKeyFactory)
     }
 
-    override suspend fun delete(t: T): Boolean {
+    override fun delete(t: T): Boolean {
         check(dp.db.isInTransaction()) { "Not in transaction" }
         val dbKey = dbKeyFactory.newKey(t) as DbKey
         return dp.db.getUsingDslContext<Boolean> { ctx ->
@@ -52,7 +52,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
     }
 
     companion object {
-        internal suspend fun rollback(
+        internal fun rollback(
             dp: DependencyProvider,
             table: String,
             tableClass: TableImpl<*>,
@@ -100,7 +100,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
             dp.db.getCache<Any>(table).clear()
         }
 
-        internal suspend fun trim(
+        internal fun trim(
             dp: DependencyProvider,
             tableClass: TableImpl<*>,
             heightField: Field<Int>,

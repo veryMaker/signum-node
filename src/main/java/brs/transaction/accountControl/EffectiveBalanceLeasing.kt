@@ -18,13 +18,13 @@ class EffectiveBalanceLeasing(dp: DependencyProvider) : AccountControl(dp) {
         return Attachment.AccountControlEffectiveBalanceLeasing(dp, attachmentData)
     }
 
-    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         // TODO: check if anyone's used this or if it's even possible to use this, and eliminate it if possible
         // TODO harry1453: people have used this, remove in next fork
     }
 
     @Throws(BurstException.ValidationException::class)
-    override suspend fun validateAttachment(transaction: Transaction) {
+    override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AccountControlEffectiveBalanceLeasing
         val recipientAccount = dp.accountService.getAccount(transaction.recipientId)
         if (transaction.senderId == transaction.recipientId || transaction.amountNQT != 0L || attachment.period < 1440) {

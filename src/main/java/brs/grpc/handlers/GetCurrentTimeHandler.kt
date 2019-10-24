@@ -7,7 +7,7 @@ import com.google.protobuf.Empty
 
 class GetCurrentTimeHandler(private val timeService: TimeService) : GrpcApiHandler<Empty, BrsApi.Time> {
 
-    override suspend fun handleRequest(empty: Empty): BrsApi.Time {
+    override fun handleRequest(empty: Empty): BrsApi.Time {
         return BrsApi.Time.newBuilder()
                 .setTime(timeService.epochTime)
                 .build()

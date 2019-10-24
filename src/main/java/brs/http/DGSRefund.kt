@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class DGSRefund internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), PURCHASE_PARAMETER, REFUND_NQT_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val sellerAccount = dp.parameterService.getSenderAccount(request)
         val purchase = dp.parameterService.getPurchase(request)
 

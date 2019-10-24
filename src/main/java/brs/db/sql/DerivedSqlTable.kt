@@ -18,25 +18,25 @@ abstract class DerivedSqlTable internal constructor(internal val table: String, 
         this.latestField = tableClass.field("latest", Boolean::class.java)
     }
 
-    override suspend fun rollback(height: Int) {
+    override fun rollback(height: Int) {
         check(dp.db.isInTransaction()) { "Not in transaction" }
         dp.db.useDslContext { ctx -> ctx.delete(tableClass).where(heightField.gt(height)).execute() }
     }
 
-    override suspend fun truncate() {
+    override fun truncate() {
         check(dp.db.isInTransaction()) { "Not in transaction" }
         dp.db.useDslContext { ctx -> ctx.delete(tableClass).execute() }
     }
 
-    override suspend fun trim(height: Int) {
+    override fun trim(height: Int) {
         // Nothing to trim
     }
 
-    override suspend fun finish() {
+    override fun finish() {
         // Nothing to finish
     }
 
-    override suspend fun optimize() {
+    override fun optimize() {
         dp.db.optimizeTable(table)
     }
 

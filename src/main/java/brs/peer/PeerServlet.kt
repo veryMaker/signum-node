@@ -8,7 +8,6 @@ import brs.util.logging.safeWarn
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
-import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
@@ -21,18 +20,18 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
     private val peerRequestHandlers: Map<String, PeerRequestHandler>
 
     internal interface PeerRequestHandler {
-        suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement
+        fun processRequest(request: JsonObject, peer: Peer): JsonElement
     }
 
     internal abstract class ExtendedPeerRequestHandler : PeerRequestHandler {
-        override suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement {
+        override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
             return JsonNull.INSTANCE
         }
 
-        internal abstract suspend fun extendedProcessRequest(request: JsonObject, peer: Peer): ExtendedProcessRequest
+        internal abstract fun extendedProcessRequest(request: JsonObject, peer: Peer): ExtendedProcessRequest
     }
 
-    internal class ExtendedProcessRequest(val response: JsonElement, val afterRequestHook: suspend () -> Unit)
+    internal class ExtendedProcessRequest(val response: JsonElement, val afterRequestHook: () -> Unit)
 
     init { // TODO each one should take dp
         val map = mutableMapOf<String, PeerRequestHandler>()
@@ -57,9 +56,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
             if (!dp.peers.isSupportedUserAgent(request.getHeader("User-Agent"))) {
                 return
             }
-            runBlocking { // TODO
-                process(request, resp)
-            }
+            process(request, resp)
         } catch (e: Exception) { // We don't want to send exception information to client...
             resp.status = 500
             logger.safeWarn(e) { "Error handling peer request" }
@@ -67,7 +64,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
 
     }
 
-    private suspend fun process(request: HttpServletRequest, resp: HttpServletResponse) {
+    private fun process(request: HttpServletRequest, resp: HttpServletResponse) {
         var peer: Peer? = null
         var response: JsonElement
 

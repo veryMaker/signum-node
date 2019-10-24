@@ -8,7 +8,6 @@ import brs.common.QuickMocker
 import brs.services.AccountService
 import brs.services.DGSGoodsStoreService
 import com.nhaarman.mockitokotlin2.*
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 
@@ -18,7 +17,7 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
     private lateinit var accountServiceMock: AccountService
     private lateinit var dgsGoodsStoreServiceMock: DGSGoodsStoreService
 
-    private lateinit var t: suspend (Block) -> Unit
+    private lateinit var t: (Block) -> Unit
 
     @Before
     fun setUp() {
@@ -32,7 +31,7 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
     }
 
     @Test
-    fun notify_processesExpiredPurchases() = runBlocking {
+    fun notify_processesExpiredPurchases() {
         val blockTimestamp = 123
         val block = mock<Block>()
         whenever(block.timestamp).doReturn(blockTimestamp)

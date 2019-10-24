@@ -18,7 +18,6 @@ import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -38,7 +37,7 @@ class GetAllTradesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_withAssetsInformation() = runBlocking {
+    fun processRequest_withAssetsInformation() {
         val timestamp = 1
         val firstIndex = 0
         val lastIndex = 1
@@ -83,7 +82,7 @@ class GetAllTradesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_withoutAssetsInformation() = runBlocking<Unit> {
+    fun processRequest_withoutAssetsInformation() {
         val timestamp = 1
         val firstIndex = 0
         val lastIndex = 1

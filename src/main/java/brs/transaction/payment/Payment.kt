@@ -8,9 +8,9 @@ import brs.transaction.TransactionType
 abstract class Payment(dp: DependencyProvider) : TransactionType(dp) {
     override val type = TYPE_PAYMENT
 
-    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
+    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
 
-    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) = Unit
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) = Unit
 
-    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
+    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
 }

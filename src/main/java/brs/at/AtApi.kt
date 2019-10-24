@@ -408,14 +408,14 @@ internal interface AtApi {
      *
      * @param state AT machine state
      */
-    suspend fun putLastBlockHashInA(state: AtMachineState)
+    fun putLastBlockHashInA(state: AtMachineState)
 
     /**
      * sets A to zero/tx hash of the first tx after
      *
      * @param state AT machine state
      */
-    suspend fun aToTxAfterTimestamp(`val`: Long, state: AtMachineState)
+    fun aToTxAfterTimestamp(`val`: Long, state: AtMachineState)
 
     /**
      * @param state AT machine state
@@ -423,26 +423,26 @@ internal interface AtApi {
      * 0: normal tx
      * 1: message tx
      */
-    suspend fun getTypeForTxInA(state: AtMachineState): Long
+    fun getTypeForTxInA(state: AtMachineState): Long
 
     /**
      * @param state AT machine state
      * @return bool if A is a valid tx with @addr to tx amount
      */
-    suspend fun getAmountForTxInA(state: AtMachineState): Long
+    fun getAmountForTxInA(state: AtMachineState): Long
 
     /**
      * @param state AT machine state
      * @return bool if A is a valid tx with @addr to the tx timestamp
      */
-    suspend fun getTimestampForTxInA(state: AtMachineState): Long
+    fun getTimestampForTxInA(state: AtMachineState): Long
 
     /**
      * @param state AT machine state
      * @return bool if A is a valid tx with @addr to the tx random id
      * random id is a 64bit signed value (always positive) and this is a blocking function
      */
-    suspend fun getRandomIdForTxInA(state: AtMachineState): Long
+    fun getRandomIdForTxInA(state: AtMachineState): Long
 
     /**
      * bool if A is a valid tx with B to the tx message
@@ -450,14 +450,14 @@ internal interface AtApi {
      *
      * @param state AT machine state
      */
-    suspend fun messageFromTxInAToB(state: AtMachineState)
+    fun messageFromTxInAToB(state: AtMachineState)
 
     /**
      * bool if A is a valid tx with B set to the tx address
      *
      * @param state AT machine state
      */
-    suspend fun bToAddressOfTxInA(state: AtMachineState)
+    fun bToAddressOfTxInA(state: AtMachineState)
 
     /**
      * set B to the address of the AT's creator
@@ -541,7 +541,7 @@ internal interface AtApi {
      *
      * @param state AT machine state
      */
-    suspend fun putLastBlockGenerationSignatureInA(state: AtMachineState)
+    fun putLastBlockGenerationSignatureInA(state: AtMachineState)
 
     /**
      * take a SHA256 hash of val2 bytes starting at val1. out this in B1..4

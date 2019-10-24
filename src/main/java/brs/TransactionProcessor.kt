@@ -19,39 +19,39 @@ interface TransactionProcessor : Observable<Collection<Transaction>, Transaction
     }
 
     @Deprecated("Just use UTStore directly")
-    suspend fun revalidateUnconfirmedTransactions()
+    fun revalidateUnconfirmedTransactions()
 
     @Deprecated("Just use UTStore directly")
-    suspend fun getAllUnconfirmedTransactionsFor(peer: Peer): Collection<Transaction>
+    fun getAllUnconfirmedTransactionsFor(peer: Peer): Collection<Transaction>
 
     @Deprecated("Just use UTStore directly")
-    suspend fun markFingerPrintsOf(peer: Peer, transactions: Collection<Transaction>)
+    fun markFingerPrintsOf(peer: Peer, transactions: Collection<Transaction>)
 
     @Deprecated("Just use UTStore directly")
-    suspend fun getUnconfirmedTransaction(transactionId: Long): Transaction?
+    fun getUnconfirmedTransaction(transactionId: Long): Transaction?
 
     @Deprecated("Just use UTStore directly")
-    suspend fun clearUnconfirmedTransactions()
+    fun clearUnconfirmedTransactions()
 
-    suspend fun broadcast(transaction: Transaction): Int?
+    fun broadcast(transaction: Transaction): Int?
 
-    suspend fun processPeerTransactions(request: JsonObject, peer: Peer)
+    fun processPeerTransactions(request: JsonObject, peer: Peer)
 
     fun parseTransaction(bytes: ByteArray): Transaction
 
     fun parseTransaction(json: JsonObject): Transaction
 
-    suspend fun newTransactionBuilder(senderPublicKey: ByteArray, amountNQT: Long, feeNQT: Long, deadline: Short, attachment: Attachment): Transaction.Builder
+    fun newTransactionBuilder(senderPublicKey: ByteArray, amountNQT: Long, feeNQT: Long, deadline: Short, attachment: Attachment): Transaction.Builder
 
     fun getTransactionVersion(blockHeight: Int): Int
 
-    suspend fun processLater(transactions: Collection<Transaction>)
+    fun processLater(transactions: Collection<Transaction>)
 
     @Deprecated("Just use UTStore directly")
-    suspend fun requeueAllUnconfirmedTransactions()
+    fun requeueAllUnconfirmedTransactions()
 
     @Deprecated("Just use UTStore directly")
-    suspend fun removeForgedTransactions(transactions: Collection<Transaction>)
+    fun removeForgedTransactions(transactions: Collection<Transaction>)
 
-    suspend fun notifyListeners(transactions: Collection<Transaction>, eventType: Event)
+    fun notifyListeners(transactions: Collection<Transaction>, eventType: Event)
 }

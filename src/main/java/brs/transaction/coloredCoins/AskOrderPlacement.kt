@@ -23,7 +23,7 @@ class AskOrderPlacement(dp: DependencyProvider) : OrderPlacement(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.ColoredCoinsAskOrderPlacement(dp, attachmentData)
 
-    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
+    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.safeTrace { "TransactionType ASK_ORDER_PLACEMENT" }
         val attachment = transaction.attachment as Attachment.ColoredCoinsAskOrderPlacement
         val unconfirmedAssetBalance = dp.accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.assetId)
@@ -38,7 +38,7 @@ class AskOrderPlacement(dp: DependencyProvider) : OrderPlacement(dp) {
         return false
     }
 
-    override suspend fun applyAttachment(
+    override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?
@@ -49,7 +49,7 @@ class AskOrderPlacement(dp: DependencyProvider) : OrderPlacement(dp) {
         }
     }
 
-    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
+    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsAskOrderPlacement
         dp.accountService.addToUnconfirmedAssetBalanceQNT(
             senderAccount,

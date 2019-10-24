@@ -13,12 +13,12 @@ class DigitalGoodsQuantityChange(dp: DependencyProvider) : DigitalGoods(dp) {
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsQuantityChange(dp, buffer, transactionVersion)
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsQuantityChange(dp, attachmentData)
 
-    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsQuantityChange
         dp.digitalGoodsStoreService.changeQuantity(attachment.goodsId, attachment.deltaQuantity, false)
     }
 
-    override suspend fun doValidateAttachment(transaction: Transaction) {
+    override fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsQuantityChange
         val goods = dp.digitalGoodsStoreService.getGoods(attachment.goodsId)
         if (attachment.deltaQuantity < -Constants.MAX_DGS_LISTING_QUANTITY

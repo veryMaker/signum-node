@@ -8,9 +8,9 @@ interface GrpcApiHandler<R : Message, S : Message> {
     /**
      * This should only ever be internally called.
      */
-    suspend fun handleRequest(request: R): S
+    fun handleRequest(request: R): S
 
-    suspend fun handleRequest(request: R, responseObserver: StreamObserver<S>) {
+    fun handleRequest(request: R, responseObserver: StreamObserver<S>) {
         try {
             responseObserver.onNext(handleRequest(request))
             responseObserver.onCompleted()

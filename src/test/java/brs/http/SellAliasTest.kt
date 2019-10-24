@@ -17,7 +17,6 @@ import brs.transaction.messaging.AliasSell
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -43,7 +42,7 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val priceParameter = 10
         val recipientId = 5
 
@@ -74,14 +73,14 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_missingPrice() = runBlocking {
+    fun processRequest_missingPrice() {
         val request = QuickMocker.httpServletRequest()
 
         assertEquals(MISSING_PRICE, t.processRequest(request))
     }
 
     @Test
-    fun processRequest_incorrectPrice_unParsable() = runBlocking {
+    fun processRequest_incorrectPrice_unParsable() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, "unParsable")
         )
@@ -90,7 +89,7 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test(expected = ParameterException::class)
-    fun processRequest_incorrectPrice_negative() = runBlocking<Unit> {
+    fun processRequest_incorrectPrice_negative() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, -10L)
         )
@@ -99,7 +98,7 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test(expected = ParameterException::class)
-    fun processRequest_incorrectPrice_overMaxBalance() = runBlocking<Unit> {
+    fun processRequest_incorrectPrice_overMaxBalance() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(PRICE_NQT_PARAMETER, MAX_BALANCE_NQT + 1)
         )
@@ -108,7 +107,7 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectRecipient_unparsable() = runBlocking {
+    fun processRequest_incorrectRecipient_unparsable() {
         val price = 10
 
         val request = QuickMocker.httpServletRequest(
@@ -120,7 +119,7 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectRecipient_zero() = runBlocking {
+    fun processRequest_incorrectRecipient_zero() {
         val price = 10
         val recipientId = 0
 
@@ -133,7 +132,7 @@ class SellAliasTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_incorrectAliasOwner() = runBlocking {
+    fun processRequest_incorrectAliasOwner() {
         val price = 10
         val recipientId = 5
 

@@ -6,23 +6,23 @@ import brs.crypto.EncryptedData
 import javax.servlet.http.HttpServletRequest
 
 interface ParameterService {
-    suspend fun getAccount(request: HttpServletRequest): Account?
+    fun getAccount(request: HttpServletRequest): Account?
 
-    suspend fun getAccounts(request: HttpServletRequest): List<Account>
+    fun getAccounts(request: HttpServletRequest): List<Account>
 
-    suspend fun getSenderAccount(request: HttpServletRequest): Account // TODO these should be nullable.
+    fun getSenderAccount(request: HttpServletRequest): Account // TODO these should be nullable.
 
-    suspend fun getAlias(request: HttpServletRequest): Alias
+    fun getAlias(request: HttpServletRequest): Alias
 
-    suspend fun getAsset(request: HttpServletRequest): Asset
+    fun getAsset(request: HttpServletRequest): Asset
 
-    suspend fun getGoods(request: HttpServletRequest): DigitalGoodsStore.Goods
+    fun getGoods(request: HttpServletRequest): DigitalGoodsStore.Goods
 
-    suspend fun getPurchase(request: HttpServletRequest): DigitalGoodsStore.Purchase
+    fun getPurchase(request: HttpServletRequest): DigitalGoodsStore.Purchase
 
     fun getEncryptedMessage(request: HttpServletRequest, recipientAccount: Account?, publicKey: ByteArray?): EncryptedData?
 
-    suspend fun getEncryptToSelfMessage(request: HttpServletRequest): EncryptedData?
+    fun getEncryptToSelfMessage(request: HttpServletRequest): EncryptedData?
 
     fun getSecretPhrase(request: HttpServletRequest): String
 
@@ -32,7 +32,7 @@ interface ParameterService {
 
     fun parseTransaction(transactionBytes: String?, transactionJSON: String?): Transaction
 
-    suspend fun getAT(request: HttpServletRequest): AT
+    fun getAT(request: HttpServletRequest): AT
 
     fun getIncludeIndirect(request: HttpServletRequest): Boolean
 }

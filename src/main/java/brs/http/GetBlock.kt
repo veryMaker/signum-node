@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal class GetBlock internal constructor(private val blockchain: Blockchain, private val blockService: BlockService) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS), BLOCK_PARAMETER, HEIGHT_PARAMETER, TIMESTAMP_PARAMETER, INCLUDE_TRANSACTIONS_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val blockValue = request.getParameter(BLOCK_PARAMETER).emptyToNull()
         val heightValue = request.getParameter(HEIGHT_PARAMETER).emptyToNull()
         val timestampValue = request.getParameter(TIMESTAMP_PARAMETER).emptyToNull()

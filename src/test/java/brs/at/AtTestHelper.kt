@@ -15,6 +15,7 @@ import brs.props.Props
 import brs.util.convert.parseHexString
 import com.nhaarman.mockitokotlin2.*
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockkObject
 import org.junit.Assert.assertEquals
 import java.nio.ByteBuffer
@@ -24,7 +25,7 @@ class AtTestHelper {
     private val addedAts = mutableListOf<AT>()
     private var onAtAdded: ((AT) -> Unit)? = null
 
-    internal suspend fun setupMocks(): DependencyProvider {
+    internal fun setupMocks(): DependencyProvider {
         val mockAtStore = mock<ATStore>()
         val mockFluxCapacitor = QuickMocker.latestValueFluxCapacitor()
 
@@ -72,8 +73,8 @@ class AtTestHelper {
         }.whenever(mockAtStore).getAT(any())
         whenever(mockAtTable.getAll(any(), any())).doReturn(addedAts)
         mockkObject(Account.Companion)
-        coEvery { Account.getOrAddAccount(any(), any()) } returns mockAccount
-        coEvery { Account.getAccount(any(), any()) } returns mockAccount
+        every { Account.getOrAddAccount(any(), any()) } returns mockAccount
+        every { Account.getAccount(any(), any()) } returns mockAccount
         whenever(mockAccountTable.get(any())).doReturn(mockAccount)
         whenever(mockAccountStore.accountKeyFactory).doReturn(mockAccountKeyFactory)
         whenever(mockAtStore.atStateTable).doReturn(mockAtStateTable)
@@ -90,7 +91,7 @@ class AtTestHelper {
         return dp
     }
 
-    internal suspend fun clearAddedAts(dp: DependencyProvider) {
+    internal fun clearAddedAts(dp: DependencyProvider) {
         addedAts.clear()
         assertEquals(0, AT.getOrderedATs(dp).size.toLong())
     }
@@ -99,15 +100,15 @@ class AtTestHelper {
         this.onAtAdded = onAtAdded
     }
 
-    suspend fun addHelloWorldAT(dp: DependencyProvider) {
+    fun addHelloWorldAT(dp: DependencyProvider) {
         AT.addAT(dp, 1L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "HelloWorld", "Hello World AT", HELLO_WORLD_CREATION_BYTES, Integer.MAX_VALUE)
     }
 
-    suspend fun addEchoAT(dp: DependencyProvider) {
+    fun addEchoAT(dp: DependencyProvider) {
         AT.addAT(dp, 2L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "Echo", "Message Echo AT", ECHO_CREATION_BYTES, Integer.MAX_VALUE)
     }
 
-    suspend fun addTipThanksAT(dp: DependencyProvider) {
+    fun addTipThanksAT(dp: DependencyProvider) {
         AT.addAT(dp, 3L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "TipThanks", "Tip Thanks AT", TIP_THANKS_CREATION_BYTES, Integer.MAX_VALUE)
     }
 

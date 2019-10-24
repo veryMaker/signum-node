@@ -6,50 +6,50 @@ import brs.AssetTransfer
 import brs.util.Observable
 
 interface AccountService : Observable<Account, Event> {
-    suspend fun getCount(): Int
+    fun getCount(): Int
 
-    suspend fun addAssetListener(eventType: Event, listener: suspend (AccountAsset) -> Unit)
+    fun addAssetListener(eventType: Event, listener: (AccountAsset) -> Unit)
 
-    suspend fun getAccount(id: Long): Account?
+    fun getAccount(id: Long): Account?
 
-    suspend fun getAccount(id: Long, height: Int): Account?
+    fun getAccount(id: Long, height: Int): Account?
 
-    suspend fun getAccount(publicKey: ByteArray): Account?
+    fun getAccount(publicKey: ByteArray): Account?
 
-    suspend fun getAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer>
+    fun getAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer>
 
-    suspend fun getAssets(accountId: Long, from: Int, to: Int): Collection<AccountAsset>
+    fun getAssets(accountId: Long, from: Int, to: Int): Collection<AccountAsset>
 
-    suspend fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<RewardRecipientAssignment>
+    fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<RewardRecipientAssignment>
 
-    suspend fun getAccountsWithName(name: String): Collection<Account>
+    fun getAccountsWithName(name: String): Collection<Account>
 
-    suspend fun getAllAccounts(from: Int, to: Int): Collection<Account>
+    fun getAllAccounts(from: Int, to: Int): Collection<Account>
 
-    suspend fun getOrAddAccount(id: Long): Account
+    fun getOrAddAccount(id: Long): Account
 
-    suspend fun flushAccountTable()
+    fun flushAccountTable()
 
     // TODO rename methods
-    suspend fun addToForgedBalanceNQT(account: Account, amountNQT: Long)
+    fun addToForgedBalanceNQT(account: Account, amountNQT: Long)
 
-    suspend fun setAccountInfo(account: Account, name: String, description: String)
+    fun setAccountInfo(account: Account, name: String, description: String)
 
-    suspend fun addToAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
+    fun addToAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
 
-    suspend fun addToUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
+    fun addToUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
 
-    suspend fun addToAssetAndUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
+    fun addToAssetAndUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
 
-    suspend fun addToBalanceNQT(account: Account, amountNQT: Long)
+    fun addToBalanceNQT(account: Account, amountNQT: Long)
 
-    suspend fun addToUnconfirmedBalanceNQT(account: Account, amountNQT: Long)
+    fun addToUnconfirmedBalanceNQT(account: Account, amountNQT: Long)
 
-    suspend fun addToBalanceAndUnconfirmedBalanceNQT(account: Account, amountNQT: Long)
+    fun addToBalanceAndUnconfirmedBalanceNQT(account: Account, amountNQT: Long)
 
-    suspend fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment?
+    fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment?
 
-    suspend fun setRewardRecipientAssignment(account: Account, recipient: Long)
+    fun setRewardRecipientAssignment(account: Account, recipient: Long)
 
-    suspend fun getUnconfirmedAssetBalanceQNT(account: Account, assetId: Long): Long
+    fun getUnconfirmedAssetBalanceQNT(account: Account, assetId: Long): Long
 }

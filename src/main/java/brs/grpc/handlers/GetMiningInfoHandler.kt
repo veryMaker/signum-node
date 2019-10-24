@@ -8,11 +8,9 @@ import brs.grpc.StreamResponseGrpcApiHandler
 import brs.grpc.proto.BrsApi
 import brs.grpc.proto.toByteString
 import brs.util.delegates.Atomic
+import brs.util.sync.Mutex
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.util.*
 
 class GetMiningInfoHandler(blockchainProcessor: BlockchainProcessor, blockchain: Blockchain, private val generator: Generator) : StreamResponseGrpcApiHandler<Empty, BrsApi.MiningInfo> {
@@ -25,13 +23,11 @@ class GetMiningInfoHandler(blockchainProcessor: BlockchainProcessor, blockchain:
     private val miningInfoLock = Mutex()
 
     init {
-        runBlocking {
-            blockchainProcessor.addListener(BlockchainProcessor.Event.BLOCK_PUSHED) { block: Block -> onBlock(block) }
-            onBlock(blockchain.lastBlock)
-        }
+        blockchainProcessor.addListener(BlockchainProcessor.Event.BLOCK_PUSHED) { block: Block -> onBlock(block) }
+        onBlock(blockchain.lastBlock)
     }
 
-    private suspend fun onBlock(block: Block) {
+    private fun onBlock(block: Block) {
         miningInfoLock.withLock {
             val nextGenSig = generator.calculateGenerationSignature(block.generationSignature, block.generatorId)
             val miningInfo = currentMiningInfo
@@ -47,7 +43,7 @@ class GetMiningInfoHandler(blockchainProcessor: BlockchainProcessor, blockchain:
         }
     }
 
-    private suspend fun notifyListeners(miningInfo: BrsApi.MiningInfo) {
+    private fun notifyListeners(miningInfo: BrsApi.MiningInfo) {
         listenersLock.withLock {
             listeners.removeIf { listener ->
                 try {
@@ -66,13 +62,13 @@ class GetMiningInfoHandler(blockchainProcessor: BlockchainProcessor, blockchain:
         }
     }
 
-    private suspend fun addListener(listener: (BrsApi.MiningInfo?) -> Unit) {
+    private fun addListener(listener: (BrsApi.MiningInfo?) -> Unit) {
         listenersLock.withLock {
             listeners.add(listener)
         }
     }
 
-    override suspend fun handleStreamRequest(request: Empty, responseObserver: StreamObserver<BrsApi.MiningInfo>) {
+    override fun handleStreamRequest(request: Empty, responseObserver: StreamObserver<BrsApi.MiningInfo>) {
         responseObserver.onNext(currentMiningInfo)
         addListener { miningInfo ->
             if (miningInfo == null) {

@@ -20,7 +20,7 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
         }
     }
 
-    override suspend fun processTransaction(transaction: Transaction) {
+    override fun processTransaction(transaction: Transaction) {
         if (disabled) return
         dp.indirectIncomingStore.addIndirectIncomings(getIndirectIncomings(transaction)
                 .map { account -> IndirectIncomingStore.IndirectIncoming(account, transaction.id, transaction.height) })

@@ -9,7 +9,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class SuggestFee(private val feeSuggestionCalculator: FeeSuggestionCalculator) : APIServlet.JsonRequestHandler(arrayOf(APITag.FEES)) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val feeSuggestion = feeSuggestionCalculator.giveFeeSuggestion()
 
         val response = JsonObject()

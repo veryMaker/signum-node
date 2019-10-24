@@ -22,18 +22,18 @@ interface AccountStore {
 
     val accountKeyFactory: BurstKey.LongKeyFactory<Account>
 
-    suspend fun getAssetAccountsCount(assetId: Long): Int
+    fun getAssetAccountsCount(assetId: Long): Int
 
-    suspend fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<Account.RewardRecipientAssignment>
+    fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<Account.RewardRecipientAssignment>
 
-    suspend fun getAssets(from: Int, to: Int, id: Long?): Collection<Account.AccountAsset>
+    fun getAssets(from: Int, to: Int, id: Long?): Collection<Account.AccountAsset>
 
-    suspend fun getAssetAccounts(assetId: Long, from: Int, to: Int): Collection<Account.AccountAsset>
+    fun getAssetAccounts(assetId: Long, from: Int, to: Int): Collection<Account.AccountAsset>
 
-    suspend fun getAssetAccounts(assetId: Long, height: Int, from: Int, to: Int): Collection<Account.AccountAsset>
+    fun getAssetAccounts(assetId: Long, height: Int, from: Int, to: Int): Collection<Account.AccountAsset>
     // returns true iff:
     // this.publicKey is set to null (in which case this.publicKey also gets set to key)
     // or
     // this.publicKey is already set to an array equal to key
-    suspend fun setOrVerify(acc: Account, key: ByteArray, height: Int): Boolean
+    fun setOrVerify(acc: Account, key: ByteArray, height: Int): Boolean
 }

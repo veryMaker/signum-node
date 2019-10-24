@@ -11,7 +11,6 @@ import brs.util.convert.toHexString
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -63,7 +62,7 @@ class MockGeneratorTest {
     }
 
     @Test
-    fun testGeneratorAddNonce() = runBlocking {
+    fun testGeneratorAddNonce() {
         assertEquals(0, generator.allGenerators.size.toLong())
         generator.addNonce(TestConstants.TEST_SECRET_PHRASE, 0L)
         assertEquals(1, generator.allGenerators.size.toLong())

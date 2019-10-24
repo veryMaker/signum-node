@@ -6,7 +6,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 internal class GetPeers(private val dp: DependencyProvider) : PeerServlet.PeerRequestHandler {
-    override suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement {
+    override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         val response = JsonObject()
         val peers = JsonArray()
         for (otherPeer in dp.peers.allPeers) {

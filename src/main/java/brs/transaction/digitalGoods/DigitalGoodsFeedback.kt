@@ -13,7 +13,7 @@ class DigitalGoodsFeedback(dp: DependencyProvider) : DigitalGoods(dp) {
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsFeedback(dp, buffer, transactionVersion)
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsFeedback(dp, attachmentData)
 
-    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsFeedback
         dp.digitalGoodsStoreService.feedback(
             attachment.purchaseId,
@@ -22,7 +22,7 @@ class DigitalGoodsFeedback(dp: DependencyProvider) : DigitalGoods(dp) {
         )
     }
 
-    override suspend fun doValidateAttachment(transaction: Transaction) {
+    override fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsFeedback
         val purchase = dp.digitalGoodsStoreService.getPurchase(attachment.purchaseId)
         if (purchase != null && (purchase.sellerId != transaction.recipientId || transaction.senderId != purchase.buyerId)) {

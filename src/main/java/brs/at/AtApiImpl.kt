@@ -635,42 +635,42 @@ open class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     }
 
     @Deprecated("Use dp.atApiPlatformImpl instead")
-    override suspend fun putLastBlockHashInA(state: AtMachineState) {
+    override fun putLastBlockHashInA(state: AtMachineState) {
         dp.atApiPlatformImpl.putLastBlockHashInA(state)
 
     }
 
     @Deprecated("Use dp.atApiPlatformImpl instead")
-    override suspend fun aToTxAfterTimestamp(`val`: Long, state: AtMachineState) {
+    override fun aToTxAfterTimestamp(`val`: Long, state: AtMachineState) {
         dp.atApiPlatformImpl.aToTxAfterTimestamp(`val`, state)
     }
 
     @Deprecated("Use dp.atApiPlatformImpl instead")
-    override suspend fun getTypeForTxInA(state: AtMachineState): Long {
+    override fun getTypeForTxInA(state: AtMachineState): Long {
         return dp.atApiPlatformImpl.getTypeForTxInA(state)
     }
 
     @Deprecated("Use dp.atApiPlatformImpl instead")
-    override suspend fun getAmountForTxInA(state: AtMachineState): Long {
+    override fun getAmountForTxInA(state: AtMachineState): Long {
         return dp.atApiPlatformImpl.getAmountForTxInA(state)
     }
 
     @Deprecated("Use dp.atApiPlatformImpl instead")
-    override suspend fun getTimestampForTxInA(state: AtMachineState): Long {
+    override fun getTimestampForTxInA(state: AtMachineState): Long {
         return dp.atApiPlatformImpl.getTimestampForTxInA(state)
     }
 
     @Deprecated("Use dp.atApiPlatformImpl instead")
-    override suspend fun getRandomIdForTxInA(state: AtMachineState): Long {
+    override fun getRandomIdForTxInA(state: AtMachineState): Long {
         return dp.atApiPlatformImpl.getRandomIdForTxInA(state)
     }
 
-    override suspend fun messageFromTxInAToB(state: AtMachineState) {
+    override fun messageFromTxInAToB(state: AtMachineState) {
         dp.atApiPlatformImpl.messageFromTxInAToB(state)
     }
 
     @Deprecated("Use dp.atApiPlatformImpl instead")
-    override suspend fun bToAddressOfTxInA(state: AtMachineState) {
+    override fun bToAddressOfTxInA(state: AtMachineState) {
         dp.atApiPlatformImpl.bToAddressOfTxInA(state)
     }
 
@@ -720,7 +720,7 @@ open class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     }
 
     @Deprecated("Use dp.atApiPlatformImpl instead")
-    override suspend fun putLastBlockGenerationSignatureInA(state: AtMachineState) {
+    override fun putLastBlockGenerationSignatureInA(state: AtMachineState) {
         dp.atApiPlatformImpl.putLastBlockGenerationSignatureInA(state)
     }
 

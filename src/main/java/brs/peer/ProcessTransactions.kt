@@ -7,7 +7,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 internal class ProcessTransactions(private val transactionProcessor: TransactionProcessor) : PeerServlet.PeerRequestHandler {
-    override suspend fun processRequest(request: JsonObject, peer: Peer): JsonElement {
+    override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         return try {
             transactionProcessor.processPeerTransactions(request, peer) // TODO this is not locking sync obj...
             JSON.emptyJSON

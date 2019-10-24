@@ -16,7 +16,7 @@ class MultiOutPayment(dp: DependencyProvider) : Payment(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.PaymentMultiOutCreation(dp, attachmentData)
 
-    override suspend fun validateAttachment(transaction: Transaction) {
+    override fun validateAttachment(transaction: Transaction) {
         if (!dp.fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, transaction.height)) {
             throw BurstException.NotCurrentlyValidException("Multi Out Payments are not allowed before the Pre Dymaxion block")
         }
@@ -32,7 +32,7 @@ class MultiOutPayment(dp: DependencyProvider) : Payment(dp) {
         }
     }
 
-    override suspend fun applyAttachment(
+    override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?

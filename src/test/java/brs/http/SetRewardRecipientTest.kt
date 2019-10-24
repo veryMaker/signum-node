@@ -16,7 +16,6 @@ import brs.services.ParameterService
 import brs.transaction.TransactionType
 import brs.transaction.burstMining.RewardRecipientAssignment
 import com.nhaarman.mockitokotlin2.*
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -51,7 +50,7 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()
         val mockRecipientAccount = mock<Account>()
@@ -71,7 +70,7 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_recipientAccountDoesNotExist_errorCode8() = runBlocking {
+    fun processRequest_recipientAccountDoesNotExist_errorCode8() {
         val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()
 
@@ -81,7 +80,7 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_recipientAccountDoesNotHavePublicKey_errorCode8() = runBlocking {
+    fun processRequest_recipientAccountDoesNotHavePublicKey_errorCode8() {
         val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
         val mockSenderAccount = mock<Account>()
         val mockRecipientAccount = mock<Account>()

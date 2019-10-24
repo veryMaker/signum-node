@@ -6,41 +6,41 @@ interface Blockchain {
 
     val height: Int
 
-    suspend fun getTransactionCount(): Int
+    fun getTransactionCount(): Int
 
-    suspend fun getAllTransactions(): Collection<Transaction>
+    fun getAllTransactions(): Collection<Transaction>
 
-    suspend fun getLastBlock(timestamp: Int): Block?
+    fun getLastBlock(timestamp: Int): Block?
 
-    suspend fun getBlock(blockId: Long): Block?
+    fun getBlock(blockId: Long): Block?
 
-    suspend fun getBlockAtHeight(height: Int): Block?
+    fun getBlockAtHeight(height: Int): Block?
 
-    suspend fun hasBlock(blockId: Long): Boolean
+    fun hasBlock(blockId: Long): Boolean
 
-    suspend fun getBlocks(from: Int, to: Int): Collection<Block>
+    fun getBlocks(from: Int, to: Int): Collection<Block>
 
-    suspend fun getBlocks(account: Account, timestamp: Int): Collection<Block>
+    fun getBlocks(account: Account, timestamp: Int): Collection<Block>
 
-    suspend fun getBlocks(account: Account, timestamp: Int, from: Int, to: Int): Collection<Block>
+    fun getBlocks(account: Account, timestamp: Int, from: Int, to: Int): Collection<Block>
 
-    suspend fun getBlockIdsAfter(blockId: Long, limit: Int): Collection<Long>
+    fun getBlockIdsAfter(blockId: Long, limit: Int): Collection<Long>
 
-    suspend fun getBlocksAfter(blockId: Long, limit: Int): Collection<Block>
+    fun getBlocksAfter(blockId: Long, limit: Int): Collection<Block>
 
-    suspend fun getBlockIdAtHeight(height: Int): Long
+    fun getBlockIdAtHeight(height: Int): Long
 
-    suspend fun getTransaction(transactionId: Long): Transaction?
+    fun getTransaction(transactionId: Long): Transaction?
 
-    suspend fun getTransactionByFullHash(fullHash: ByteArray): Transaction?
+    fun getTransactionByFullHash(fullHash: ByteArray): Transaction?
 
-    suspend fun hasTransaction(transactionId: Long): Boolean
+    fun hasTransaction(transactionId: Long): Boolean
 
-    suspend fun hasTransactionByFullHash(fullHash: ByteArray): Boolean
+    fun hasTransactionByFullHash(fullHash: ByteArray): Boolean
 
-    suspend fun getTransactions(account: Account, type: Byte, subtype: Byte, blockTimestamp: Int, includeIndirectIncoming: Boolean): Collection<Transaction>
+    fun getTransactions(account: Account, type: Byte, subtype: Byte, blockTimestamp: Int, includeIndirectIncoming: Boolean): Collection<Transaction>
 
-    suspend fun getTransactions(account: Account, numberOfConfirmations: Int, type: Byte, subtype: Byte, blockTimestamp: Int, from: Int, to: Int, includeIndirectIncoming: Boolean): Collection<Transaction>
+    fun getTransactions(account: Account, numberOfConfirmations: Int, type: Byte, subtype: Byte, blockTimestamp: Int, from: Int, to: Int, includeIndirectIncoming: Boolean): Collection<Transaction>
 
     fun setLastBlock(previousBlock: Block, block: Block)
 }

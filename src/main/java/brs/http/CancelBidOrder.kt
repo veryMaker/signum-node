@@ -8,7 +8,7 @@ import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
 internal class CancelBidOrder(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), ORDER_PARAMETER) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val orderId = ParameterParser.getOrderId(request)
         val account = dp.parameterService.getSenderAccount(request)
         val orderData = dp.assetExchange.getBidOrder(orderId)

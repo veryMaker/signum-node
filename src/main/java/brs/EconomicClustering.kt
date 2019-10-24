@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory
  */
 class EconomicClustering(private val dp: DependencyProvider) { // TODO interface
 
-    suspend fun getECBlock(timestamp: Int): Block {
+    fun getECBlock(timestamp: Int): Block {
         var block: Block? = dp.blockchain.lastBlock
         require(timestamp >= block!!.timestamp - 15) { "Timestamp cannot be more than 15 s earlier than last block timestamp: " + block!!.timestamp }
         var distance = 0
@@ -32,7 +32,7 @@ class EconomicClustering(private val dp: DependencyProvider) { // TODO interface
         return block
     }
 
-    suspend fun verifyFork(transaction: Transaction): Boolean {
+    fun verifyFork(transaction: Transaction): Boolean {
         try {
             if (!dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE)) {
                 return true

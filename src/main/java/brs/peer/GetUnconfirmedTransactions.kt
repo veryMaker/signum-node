@@ -7,7 +7,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 
 internal class GetUnconfirmedTransactions(private val transactionProcessor: TransactionProcessor) : PeerServlet.ExtendedPeerRequestHandler() {
-    override suspend fun extendedProcessRequest(request: JsonObject, peer: Peer): ExtendedProcessRequest {
+    override fun extendedProcessRequest(request: JsonObject, peer: Peer): ExtendedProcessRequest {
         val response = JsonObject()
 
         val unconfirmedTransactions = transactionProcessor.getAllUnconfirmedTransactionsFor(peer)

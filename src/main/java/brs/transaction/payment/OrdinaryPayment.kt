@@ -12,7 +12,7 @@ class OrdinaryPayment(dp: DependencyProvider) : Payment(dp) {
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.OrdinaryPayment(dp)
 
-    override suspend fun validateAttachment(transaction: Transaction) {
+    override fun validateAttachment(transaction: Transaction) {
         if (transaction.amountNQT <= 0 || transaction.amountNQT >= Constants.MAX_BALANCE_NQT) {
             throw BurstException.NotValidException("Invalid ordinary payment")
         }

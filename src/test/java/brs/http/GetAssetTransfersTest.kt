@@ -24,7 +24,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -48,7 +47,7 @@ class GetAssetTransfersTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_byAsset() = runBlocking {
+    fun processRequest_byAsset() {
         val assetId = 123L
         val firstIndex = 0
         val lastIndex = 1
@@ -76,7 +75,7 @@ class GetAssetTransfersTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_byAccount() = runBlocking {
+    fun processRequest_byAccount() {
         val accountId = 234L
         val firstIndex = 0
         val lastIndex = 1
@@ -104,7 +103,7 @@ class GetAssetTransfersTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_byAccountAndAsset() = runBlocking {
+    fun processRequest_byAccountAndAsset() {
         val assetId = 123L
         val accountId = 234L
         val firstIndex = 0

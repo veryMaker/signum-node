@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest
 internal class GetAssets(private val assetExchange: AssetExchange) // limit to 3 for testing
     : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), ASSETS_PARAMETER, ASSETS_PARAMETER, ASSETS_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val assets = request.getParameterValues(ASSETS_PARAMETER)
 

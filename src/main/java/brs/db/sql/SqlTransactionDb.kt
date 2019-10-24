@@ -16,7 +16,7 @@ import java.util.*
 
 class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
 
-    override suspend fun findTransaction(transactionId: Long): Transaction {
+    override fun findTransaction(transactionId: Long): Transaction {
         return dp.db.getUsingDslContext<Transaction> { ctx ->
             try {
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId)).fetchOne()
@@ -27,7 +27,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         }
     }
 
-    override suspend fun findTransactionByFullHash(fullHash: ByteArray): Transaction {
+    override fun findTransactionByFullHash(fullHash: ByteArray): Transaction {
         return dp.db.getUsingDslContext<Transaction> { ctx ->
             try {
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash)).fetchOne()
@@ -38,11 +38,11 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         }
     }
 
-    override suspend fun hasTransaction(transactionId: Long): Boolean {
+    override fun hasTransaction(transactionId: Long): Boolean {
         return dp.db.getUsingDslContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId))) }
     }
 
-    override suspend fun hasTransactionByFullHash(fullHash: ByteArray): Boolean {
+    override fun hasTransactionByFullHash(fullHash: ByteArray): Boolean {
         return dp.db.getUsingDslContext<Boolean> { ctx -> ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash))) }
     }
 
@@ -93,7 +93,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         return builder.build()
     }
 
-    override suspend fun findBlockTransactions(blockId: Long): Collection<Transaction> {
+    override fun findBlockTransactions(blockId: Long): Collection<Transaction> {
         return dp.db.getUsingDslContext<List<Transaction>> { ctx ->
             ctx.selectFrom(TRANSACTION)
                     .where(TRANSACTION.BLOCK_ID.eq(blockId))
@@ -125,7 +125,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         }
     }
 
-    override suspend fun saveTransactions(transactions: Collection<Transaction>) {
+    override fun saveTransactions(transactions: Collection<Transaction>) {
         if (transactions.isNotEmpty()) {
             dp.db.useDslContext { ctx ->
                 val insertBatch = ctx.batch(
@@ -173,7 +173,7 @@ class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
         }
     }
 
-    override suspend fun optimize() {
+    override fun optimize() {
         dp.db.optimizeTable(TRANSACTION.name)
     }
 }

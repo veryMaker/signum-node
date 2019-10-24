@@ -3,7 +3,6 @@ package brs
 import brs.props.Props
 import brs.util.convert.parseUnsignedLong
 import brs.util.logging.safeDebug
-import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 
 class DebugTraceManager(private val dp: DependencyProvider) {
@@ -32,15 +31,13 @@ class DebugTraceManager(private val dp: DependencyProvider) {
                 }
                 accountIds.add(accountId.parseUnsignedLong())
             }
-            runBlocking {
-                val debugTrace = addDebugTrace(accountIds, logName)
-                dp.blockchainProcessor.addListener(BlockchainProcessor.Event.RESCAN_BEGIN) { debugTrace.resetLog() }
-            }
+            val debugTrace = addDebugTrace(accountIds, logName)
+            dp.blockchainProcessor.addListener(BlockchainProcessor.Event.RESCAN_BEGIN) { debugTrace.resetLog() }
             logger.safeDebug { "Debug tracing of " + (if (accountIdStrings.contains("*")) "ALL" else accountIds.size.toString()) + " accounts enabled" }
         }
     }
 
-    private suspend fun addDebugTrace(accountIds: Set<Long>, logName: String): DebugTrace {
+    private fun addDebugTrace(accountIds: Set<Long>, logName: String): DebugTrace {
         val debugTrace = DebugTrace(dp, quote, separator, logUnconfirmed, columns, headers, accountIds, logName)
         dp.assetExchange.addTradeListener(Trade.Event.TRADE) { debugTrace.trace(it) }
         dp.accountService.addListener(Account.Event.BALANCE) { account -> debugTrace.trace(account, false) }

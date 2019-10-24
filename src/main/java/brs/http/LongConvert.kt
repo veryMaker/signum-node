@@ -10,7 +10,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal object LongConvert : APIServlet.JsonRequestHandler(arrayOf(APITag.UTILS), ID_PARAMETER) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val id = request.getParameter(ID_PARAMETER).emptyToNull() ?: return JSON.emptyJSON
         val response = JsonObject()
         val long: Long

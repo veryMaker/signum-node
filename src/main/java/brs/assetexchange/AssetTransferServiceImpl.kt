@@ -13,25 +13,25 @@ internal class AssetTransferServiceImpl(private val assetTransferStore: AssetTra
     private val assetTransferTable = assetTransferStore.assetTransferTable
     private val transferDbKeyFactory = assetTransferStore.transferDbKeyFactory
 
-    suspend fun getAssetTransferCount() = assetTransferTable.getCount()
+    fun getAssetTransferCount() = assetTransferTable.count
 
-    suspend fun addListener(eventType: Event, listener: suspend (AssetTransfer) -> Unit) {
+    fun addListener(eventType: Event, listener: (AssetTransfer) -> Unit) {
         listeners.addListener(eventType, listener)
     }
 
-    suspend fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
+    fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
         return assetTransferStore.getAssetTransfers(assetId, from, to)
     }
 
-    suspend fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
+    fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
         return assetTransferStore.getAccountAssetTransfers(accountId, assetId, from, to)
     }
 
-    suspend fun getTransferCount(assetId: Long): Int {
+    fun getTransferCount(assetId: Long): Int {
         return assetTransferStore.getTransferCount(assetId)
     }
 
-    suspend fun addAssetTransfer(transaction: Transaction, attachment: Attachment.ColoredCoinsAssetTransfer): AssetTransfer {
+    fun addAssetTransfer(transaction: Transaction, attachment: Attachment.ColoredCoinsAssetTransfer): AssetTransfer {
         val dbKey = transferDbKeyFactory.newKey(transaction.id)
         val assetTransfer = AssetTransfer(dbKey, transaction, attachment)
         assetTransferTable.insert(assetTransfer)

@@ -10,7 +10,6 @@ import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -31,7 +30,7 @@ class GetCumulativeDifficultyTest {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val cumulativeDifficulty = BigInteger.TEN
         val blockchainHeight = 50
 

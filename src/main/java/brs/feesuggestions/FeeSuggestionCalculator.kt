@@ -5,7 +5,6 @@ import brs.BlockchainProcessor.Event
 import brs.Constants
 import brs.Constants.FEE_QUANT
 import brs.DependencyProvider
-import kotlinx.coroutines.runBlocking
 import kotlin.math.ceil
 
 class FeeSuggestionCalculator(private val dp: DependencyProvider, maxHistoryLength: Int = Constants.FEE_SUGGESTION_MAX_HISTORY_LENGTH) { // TODO interface
@@ -14,12 +13,10 @@ class FeeSuggestionCalculator(private val dp: DependencyProvider, maxHistoryLeng
     private var feeSuggestion = FeeSuggestion(FEE_QUANT, FEE_QUANT, FEE_QUANT)
 
     init {
-        runBlocking {
-            dp.blockchainProcessor.addListener(Event.AFTER_BLOCK_APPLY) { newBlockApplied(it) }
-        }
+        dp.blockchainProcessor.addListener(Event.AFTER_BLOCK_APPLY) { newBlockApplied(it) }
     }
 
-    suspend fun giveFeeSuggestion(): FeeSuggestion {
+    fun giveFeeSuggestion(): FeeSuggestion {
         if (latestBlocksIsEmpty()) {
             fillInitialHistory()
             recalculateSuggestion()
@@ -28,7 +25,7 @@ class FeeSuggestionCalculator(private val dp: DependencyProvider, maxHistoryLeng
         return feeSuggestion
     }
 
-    private suspend fun newBlockApplied(block: Block) {
+    private fun newBlockApplied(block: Block) {
         if (latestBlocksIsEmpty()) {
             fillInitialHistory()
         }
@@ -37,7 +34,7 @@ class FeeSuggestionCalculator(private val dp: DependencyProvider, maxHistoryLeng
         recalculateSuggestion()
     }
 
-    private suspend fun fillInitialHistory() {
+    private fun fillInitialHistory() {
         dp.blockchainStore.getLatestBlocks(latestBlocks.size).forEach { this.pushNewBlock(it) }
     }
 
@@ -55,7 +52,7 @@ class FeeSuggestionCalculator(private val dp: DependencyProvider, maxHistoryLeng
         latestBlocks[latestBlocks.size - 1] = block
     }
 
-    private suspend fun recalculateSuggestion() {
+    private fun recalculateSuggestion() {
         try {
             val transactionSizes = latestBlocks
                     .filterNotNull()

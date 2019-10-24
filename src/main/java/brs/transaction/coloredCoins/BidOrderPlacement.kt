@@ -28,7 +28,7 @@ class BidOrderPlacement(dp: DependencyProvider) : OrderPlacement(dp) {
         return Attachment.ColoredCoinsBidOrderPlacement(dp, attachmentData)
     }
 
-    override suspend fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
+    override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.safeTrace { "TransactionType BID_ORDER_PLACEMENT" }
         val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
         if (senderAccount.unconfirmedBalanceNQT >= totalAmountNQT) {
@@ -43,7 +43,7 @@ class BidOrderPlacement(dp: DependencyProvider) : OrderPlacement(dp) {
         return attachment.quantityQNT.safeMultiply(attachment.priceNQT)
     }
 
-    override suspend fun applyAttachment(
+    override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
         recipientAccount: Account?
@@ -54,7 +54,7 @@ class BidOrderPlacement(dp: DependencyProvider) : OrderPlacement(dp) {
         }
     }
 
-    override suspend fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
+    override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
         val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
         dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT)
     }

@@ -14,12 +14,12 @@ class DigitalGoodsDelivery(dp: DependencyProvider) : DigitalGoods(dp) {
     override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsDelivery(dp, buffer, transactionVersion)
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsDelivery(dp, attachmentData)
 
-    override suspend fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsDelivery
         dp.digitalGoodsStoreService.deliver(transaction, attachment)
     }
 
-    override suspend fun doValidateAttachment(transaction: Transaction) {
+    override fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsDelivery
         val purchase = dp.digitalGoodsStoreService.getPendingPurchase(attachment.purchaseId)
         if (attachment.goods.data.size > Constants.MAX_DGS_GOODS_LENGTH

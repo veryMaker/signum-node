@@ -13,7 +13,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -33,7 +32,7 @@ class GetBidOrderTest {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val bidOrderId = 123L
         val mockBid = mock<Bid>()
         whenever(mockBid.id).doReturn(bidOrderId)
@@ -48,7 +47,7 @@ class GetBidOrderTest {
     }
 
     @Test
-    fun processRequest_orderNotFoundUnknownOrder() = runBlocking {
+    fun processRequest_orderNotFoundUnknownOrder() {
         val bidOrderId = 123L
 
         val request = QuickMocker.httpServletRequest(MockParam(ORDER_PARAMETER, bidOrderId))

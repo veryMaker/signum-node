@@ -9,7 +9,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetAllAssets(private val assetExchange: AssetExchange) : AbstractAssetsRetrieval(arrayOf(APITag.AE), assetExchange, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER) {
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val firstIndex = ParameterParser.getFirstIndex(request)
         val lastIndex = ParameterParser.getLastIndex(request)
 

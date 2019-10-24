@@ -7,7 +7,7 @@ import brs.grpc.proto.ProtoBuilder
 import brs.services.IndirectIncomingService
 
 class GetUnconfirmedTransactionsHandler(private val indirectIncomingService: IndirectIncomingService, private val transactionProcessor: TransactionProcessor) : GrpcApiHandler<BrsApi.GetAccountRequest, BrsApi.UnconfirmedTransactions> {
-    override suspend fun handleRequest(getAccountRequest: BrsApi.GetAccountRequest): BrsApi.UnconfirmedTransactions {
+    override fun handleRequest(getAccountRequest: BrsApi.GetAccountRequest): BrsApi.UnconfirmedTransactions {
         return BrsApi.UnconfirmedTransactions.newBuilder()
             .addAllUnconfirmedTransactions(transactionProcessor.allUnconfirmedTransactions
                 .asSequence()

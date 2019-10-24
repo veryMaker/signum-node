@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 import java.math.BigInteger
 
 class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
-    override suspend fun verifyBlockSignature(block: Block): Boolean {
+    override fun verifyBlockSignature(block: Block): Boolean {
         try {
             if (block.blockSignature == null) {
                 return false
@@ -47,7 +47,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
 
     }
 
-    override suspend fun verifyGenerationSignature(block: Block): Boolean {
+    override fun verifyGenerationSignature(block: Block): Boolean {
         try {
             val previousBlock = dp.blockchain.getBlock(block.previousBlockId)
                     ?: throw BlockOutOfOrderException(
@@ -69,12 +69,12 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
     }
 
     @Throws(BlockchainProcessor.BlockNotAcceptedException::class, InterruptedException::class)
-    override suspend fun preVerify(block: Block) {
+    override fun preVerify(block: Block) {
         preVerify(block, null)
     }
 
     @Throws(BlockchainProcessor.BlockNotAcceptedException::class, InterruptedException::class)
-    override suspend fun preVerify(block: Block, scoopData: ByteArray?) { // TODO pre-verify more stuff
+    override fun preVerify(block: Block, scoopData: ByteArray?) { // TODO pre-verify more stuff
         // Just in case its already verified
         if (block.isVerified) {
             return
@@ -103,7 +103,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
 
     }
 
-    override suspend fun apply(block: Block) {
+    override fun apply(block: Block) {
         val generatorAccount = dp.accountService.getOrAddAccount(block.generatorId)
         generatorAccount.apply(dp, block.generatorPublicKey, block.height)
         if (!dp.fluxCapacitor.getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
@@ -135,7 +135,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 .divide(BigInteger.valueOf(100).pow(month)).toLong() * Constants.ONE_BURST
     }
 
-    override suspend fun setPrevious(block: Block, previousBlock: Block?) {
+    override fun setPrevious(block: Block, previousBlock: Block?) {
         if (previousBlock != null) {
             check(previousBlock.id == block.previousBlockId) { // shouldn't happen as previous id is already verified, but just in case
                 "Previous block id doesn't match"
@@ -155,7 +155,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         block.getTransactions().forEach { transaction -> transaction.setBlock(block) }
     }
 
-    override suspend fun calculateBaseTarget(block: Block, previousBlock: Block) {
+    override fun calculateBaseTarget(block: Block, previousBlock: Block) {
         if (block.id == Genesis.GENESIS_BLOCK_ID && block.previousBlockId == 0L) {
             block.baseTarget = Constants.INITIAL_BASE_TARGET
             block.cumulativeDifficulty = BigInteger.ZERO

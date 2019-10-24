@@ -13,7 +13,6 @@ import brs.services.ParameterService
 import brs.transaction.TransactionType
 import brs.transaction.coloredCoins.AssetTransfer
 import com.nhaarman.mockitokotlin2.*
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -49,7 +48,7 @@ class TransferAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest() = runBlocking {
+    fun processRequest() {
         val recipientParameter = 34L
         val assetIdParameter = 456L
         val quantityQNTParameter = 56L
@@ -82,7 +81,7 @@ class TransferAssetTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_assetBalanceLowerThanQuantityNQTParameter() = runBlocking {
+    fun processRequest_assetBalanceLowerThanQuantityNQTParameter() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(RECIPIENT_PARAMETER, "123"),
                 MockParam(ASSET_PARAMETER, "456"),

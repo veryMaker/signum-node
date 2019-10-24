@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest
 internal class GetGuaranteedBalance @Deprecated("")
 internal constructor(private val parameterService: ParameterService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER, NUMBER_OF_CONFIRMATIONS_PARAMETER) {
 
-    override suspend fun processRequest(request: HttpServletRequest): JsonElement {
+    override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request)
         val response = JsonObject()
         if (account == null) {

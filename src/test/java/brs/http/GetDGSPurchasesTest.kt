@@ -17,7 +17,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -37,7 +36,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_getAllPurchases() = runBlocking {
+    fun processRequest_getAllPurchases() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 0L),
                 MockParam(BUYER_PARAMETER, 0L),
@@ -62,7 +61,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_getSellerPurchases() = runBlocking {
+    fun processRequest_getSellerPurchases() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 1L),
                 MockParam(BUYER_PARAMETER, 0L),
@@ -87,7 +86,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_getBuyerPurchases() = runBlocking {
+    fun processRequest_getBuyerPurchases() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 0L),
                 MockParam(BUYER_PARAMETER, 1L),
@@ -112,7 +111,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
     }
 
     @Test
-    fun processRequest_getSellerBuyerPurchases() = runBlocking {
+    fun processRequest_getSellerBuyerPurchases() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(SELLER_PARAMETER, 1L),
                 MockParam(BUYER_PARAMETER, 2L),

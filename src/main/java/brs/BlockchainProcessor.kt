@@ -25,13 +25,13 @@ interface BlockchainProcessor : Observable<Block, BlockchainProcessor.Event> {
         AFTER_BLOCK_APPLY
     }
 
-    suspend fun processPeerBlock(request: JsonObject, peer: Peer)
+    fun processPeerBlock(request: JsonObject, peer: Peer)
 
-    suspend fun fullReset()
+    fun fullReset()
 
-    suspend fun generateBlock(secretPhrase: String, publicKey: ByteArray, nonce: Long?)
+    fun generateBlock(secretPhrase: String, publicKey: ByteArray, nonce: Long?)
 
-    suspend fun popOffTo(height: Int): List<Block>
+    fun popOffTo(height: Int): List<Block>
 
     open class BlockNotAcceptedException internal constructor(message: String) : BurstException(message)
 

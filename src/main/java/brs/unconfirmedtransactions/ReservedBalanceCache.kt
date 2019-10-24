@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 internal class ReservedBalanceCache(private val accountStore: AccountStore) {
     private val reservedBalanceCache = mutableMapOf<Long, Long>()
 
-    suspend fun reserveBalanceAndPut(transaction: Transaction) {
+    fun reserveBalanceAndPut(transaction: Transaction) {
         var senderAccount: Account? = null
 
         if (transaction.senderId != 0L) {
@@ -45,7 +45,7 @@ internal class ReservedBalanceCache(private val accountStore: AccountStore) {
         }
     }
 
-    suspend fun rebuild(transactions: List<Transaction>): List<Transaction> {
+    fun rebuild(transactions: List<Transaction>): List<Transaction> {
         clear()
 
         val insufficientFundsTransactions = mutableListOf<Transaction>()
