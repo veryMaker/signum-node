@@ -12,11 +12,10 @@ import brs.db.BurstKey.LongKeyFactory
 import brs.db.sql.EntitySqlTable
 import brs.db.store.AssetStore
 import com.nhaarman.mockitokotlin2.*
-import org.junit.Before
-import org.junit.Test
-
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
 
 class AssetServiceImplTest : AbstractUnitTest() {
 
