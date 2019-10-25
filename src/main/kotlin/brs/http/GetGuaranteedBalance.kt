@@ -2,7 +2,7 @@ package brs.http
 
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
-import brs.http.common.ResultFields.GUARANTEED_BALANCE_NQT_RESPONSE
+import brs.http.common.ResultFields.GUARANTEED_BALANCE_PLANCK_RESPONSE
 import brs.services.ParameterService
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -17,9 +17,9 @@ internal constructor(private val parameterService: ParameterService) : APIServle
         val account = parameterService.getAccount(request)
         val response = JsonObject()
         if (account == null) {
-            response.addProperty(GUARANTEED_BALANCE_NQT_RESPONSE, "0")
+            response.addProperty(GUARANTEED_BALANCE_PLANCK_RESPONSE, "0")
         } else {
-            response.addProperty(GUARANTEED_BALANCE_NQT_RESPONSE, account.balanceNQT.toString())
+            response.addProperty(GUARANTEED_BALANCE_PLANCK_RESPONSE, account.balancePlanck.toString())
         }
         return response
     }

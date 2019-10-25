@@ -45,7 +45,7 @@ class AutomatedTransactionCreation(dp: DependencyProvider) : AutomatedTransactio
         }
 
         val requiredFee = totalPages * dp.atConstants.costPerPage(transaction.height)
-        if (transaction.feeNQT < requiredFee) {
+        if (transaction.feePlanck < requiredFee) {
             throw BurstException.NotValidException("Insufficient fee for AT creation. Minimum: " + (requiredFee / Constants.ONE_BURST).toUnsignedString())
         }
         if (dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {

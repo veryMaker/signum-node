@@ -8,7 +8,7 @@ import brs.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.http.JSONResponses.INCORRECT_DGS_DISCOUNT
 import brs.http.JSONResponses.INCORRECT_DGS_GOODS
 import brs.http.JSONResponses.INCORRECT_PURCHASE
-import brs.http.common.Parameters.DISCOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.DISCOUNT_PLANCK_PARAMETER
 import brs.http.common.Parameters.GOODS_DATA_PARAMETER
 import brs.http.common.Parameters.GOODS_IS_TEXT_PARAMETER
 import brs.http.common.Parameters.GOODS_NONCE_PARAMETER
@@ -22,7 +22,7 @@ import brs.util.convert.toBytes
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class DGSDelivery internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), PURCHASE_PARAMETER, DISCOUNT_NQT_PARAMETER, GOODS_TO_ENCRYPT_PARAMETER, GOODS_IS_TEXT_PARAMETER, GOODS_DATA_PARAMETER, GOODS_NONCE_PARAMETER) {
+internal class DGSDelivery internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), PURCHASE_PARAMETER, DISCOUNT_PLANCK_PARAMETER, GOODS_TO_ENCRYPT_PARAMETER, GOODS_IS_TEXT_PARAMETER, GOODS_DATA_PARAMETER, GOODS_NONCE_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
@@ -35,19 +35,19 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
             return ALREADY_DELIVERED
         }
 
-        val discountValueNQT = request.getParameter(DISCOUNT_NQT_PARAMETER).emptyToNull()
-        var discountNQT: Long = 0
+        val discountValuePlanck = request.getParameter(DISCOUNT_PLANCK_PARAMETER).emptyToNull()
+        var discountPlanck: Long = 0
         try {
-            if (discountValueNQT != null) {
-                discountNQT = java.lang.Long.parseLong(discountValueNQT)
+            if (discountValuePlanck != null) {
+                discountPlanck = java.lang.Long.parseLong(discountValuePlanck)
             }
         } catch (e: RuntimeException) {
             return INCORRECT_DGS_DISCOUNT
         }
 
-        if (discountNQT < 0
-                || discountNQT > Constants.MAX_BALANCE_NQT
-                || discountNQT > purchase.priceNQT.safeMultiply(purchase.quantity.toLong())) {
+        if (discountPlanck < 0
+                || discountPlanck > Constants.MAX_BALANCE_PLANCK
+                || discountPlanck > purchase.pricePlanck.safeMultiply(purchase.quantity.toLong())) {
             return INCORRECT_DGS_DISCOUNT
         }
 
@@ -71,7 +71,7 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
             encryptedGoods = buyerAccount.encryptTo(goodsBytes, secretPhrase)
         }
 
-        val attachment = Attachment.DigitalGoodsDelivery(dp, purchase.id, encryptedGoods, goodsIsText, discountNQT, dp.blockchain.height)
+        val attachment = Attachment.DigitalGoodsDelivery(dp, purchase.id, encryptedGoods, goodsIsText, discountPlanck, dp.blockchain.height)
         return createTransaction(request, sellerAccount, buyerAccount.id, 0, attachment)
 
     }

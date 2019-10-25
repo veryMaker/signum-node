@@ -20,26 +20,26 @@ internal class ReservedBalanceCache(private val accountStore: AccountStore) {
             senderAccount = accountStore.accountTable.get(accountStore.accountKeyFactory.newKey(transaction.senderId))
         }
 
-        val amountNQT = reservedBalanceCache.getOrDefault(transaction.senderId, 0L).safeAdd(transaction.type.calculateTotalAmountNQT(transaction))
+        val amountPlanck = reservedBalanceCache.getOrDefault(transaction.senderId, 0L).safeAdd(transaction.type.calculateTotalAmountPlanck(transaction))
 
         if (senderAccount == null) {
-            logger.safeInfo { String.format("Transaction %d: Account %d does not exist and has no balance. Required funds: %d", transaction.id, transaction.senderId, amountNQT) }
+            logger.safeInfo { String.format("Transaction %d: Account %d does not exist and has no balance. Required funds: %d", transaction.id, transaction.senderId, amountPlanck) }
 
             throw BurstException.NotCurrentlyValidException("Account unknown")
-        } else if (amountNQT > senderAccount.unconfirmedBalanceNQT) {
-            logger.safeInfo { String.format("Transaction %d: Account %d balance too low. You have  %d > %d Balance", transaction.id, transaction.senderId, amountNQT, senderAccount.unconfirmedBalanceNQT) }
+        } else if (amountPlanck > senderAccount.unconfirmedBalancePlanck) {
+            logger.safeInfo { String.format("Transaction %d: Account %d balance too low. You have  %d > %d Balance", transaction.id, transaction.senderId, amountPlanck, senderAccount.unconfirmedBalancePlanck) }
 
             throw BurstException.NotCurrentlyValidException("Insufficient funds")
         }
 
-        reservedBalanceCache[transaction.senderId] = amountNQT
+        reservedBalanceCache[transaction.senderId] = amountPlanck
     }
 
     fun refundBalance(transaction: Transaction) {
-        val amountNQT = reservedBalanceCache.getOrDefault(transaction.senderId, 0L).safeSubtract(transaction.type.calculateTotalAmountNQT(transaction))
+        val amountPlanck = reservedBalanceCache.getOrDefault(transaction.senderId, 0L).safeSubtract(transaction.type.calculateTotalAmountPlanck(transaction))
 
-        if (amountNQT > 0) {
-            reservedBalanceCache[transaction.senderId] = amountNQT
+        if (amountPlanck > 0) {
+            reservedBalanceCache[transaction.senderId] = amountPlanck
         } else {
             reservedBalanceCache.remove(transaction.senderId)
         }

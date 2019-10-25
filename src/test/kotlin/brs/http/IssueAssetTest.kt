@@ -55,13 +55,13 @@ class IssueAssetTest : AbstractTransactionTest() {
         val nameParameter = stringWithLength(MIN_ASSET_NAME_LENGTH + 1)
         val descriptionParameter = stringWithLength(MAX_ASSET_DESCRIPTION_LENGTH - 1)
         val decimalsParameter = 4
-        val quantityQNTParameter = 5
+        val quantityParameter = 5
 
         val request = QuickMocker.httpServletRequest(
                 MockParam(NAME_PARAMETER, nameParameter),
                 MockParam(DESCRIPTION_PARAMETER, descriptionParameter),
                 MockParam(DECIMALS_PARAMETER, decimalsParameter),
-                MockParam(QUANTITY_QNT_PARAMETER, quantityQNTParameter)
+                MockParam(QUANTITY_QNT_PARAMETER, quantityParameter)
         )
 
         dp.fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)

@@ -55,9 +55,9 @@ internal class IssueAsset internal constructor(private val dp: DependencyProvide
 
         }
 
-        val quantityQNT = ParameterParser.getQuantityQNT(request)
+        val quantity = ParameterParser.getQuantity(request)
         val account = dp.parameterService.getSenderAccount(request)
-        val attachment = Attachment.ColoredCoinsAssetIssuance(dp, name, description!!, quantityQNT, decimals, dp.blockchain.height)
+        val attachment = Attachment.ColoredCoinsAssetIssuance(dp, name, description!!, quantity, decimals, dp.blockchain.height)
         return createTransaction(request, account, attachment)
     }
 }

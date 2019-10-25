@@ -3,7 +3,7 @@ package brs.http
 import brs.Attachment
 import brs.Constants
 import brs.DependencyProvider
-import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.http.common.Parameters.FREQUENCY_PARAMETER
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
@@ -12,12 +12,12 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class SendMoneySubscription(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, AMOUNT_NQT_PARAMETER, FREQUENCY_PARAMETER) {
+internal class SendMoneySubscription(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, AMOUNT_PLANCK_PARAMETER, FREQUENCY_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)
         val recipient = ParameterParser.getRecipientId(request)
-        val amountNQT = ParameterParser.getAmountNQT(request)
+        val amountPlanck = ParameterParser.getAmountPlanck(request)
 
         val frequency: Int
         try {
@@ -38,6 +38,6 @@ internal class SendMoneySubscription(private val dp: DependencyProvider) : Creat
 
         val attachment = Attachment.AdvancedPaymentSubscriptionSubscribe(dp, frequency, dp.blockchain.height)
 
-        return createTransaction(request, sender, recipient, amountNQT, attachment)
+        return createTransaction(request, sender, recipient, amountPlanck, attachment)
     }
 }

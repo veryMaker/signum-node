@@ -5,7 +5,7 @@ import brs.Alias.Offer
 import brs.common.QuickMocker
 import brs.http.common.ResultFields.ALIAS_NAME_RESPONSE
 import brs.http.common.ResultFields.BUYER_RESPONSE
-import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.services.AliasService
 import brs.services.ParameterService
 import brs.util.safeGetAsString
@@ -40,7 +40,7 @@ class GetAliasTest {
         whenever(mockAlias.aliasName).doReturn("mockAliasName")
 
         val mockOffer = mock<Offer>()
-        whenever(mockOffer.priceNQT).doReturn(123L)
+        whenever(mockOffer.pricePlanck).doReturn(123L)
         whenever(mockOffer.buyerId).doReturn(345L)
 
         val request = QuickMocker.httpServletRequest()
@@ -51,7 +51,7 @@ class GetAliasTest {
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
         assertEquals(mockAlias.aliasName, result.get(ALIAS_NAME_RESPONSE).safeGetAsString())
-        assertEquals("" + mockOffer.priceNQT, result.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockOffer.pricePlanck, result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
         assertEquals("" + mockOffer.buyerId, result.get(BUYER_RESPONSE).safeGetAsString())
     }
 

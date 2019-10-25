@@ -41,7 +41,7 @@ interface TransactionProcessor : Observable<Collection<Transaction>, Transaction
 
     fun parseTransaction(json: JsonObject): Transaction
 
-    fun newTransactionBuilder(senderPublicKey: ByteArray, amountNQT: Long, feeNQT: Long, deadline: Short, attachment: Attachment): Transaction.Builder
+    fun newTransactionBuilder(senderPublicKey: ByteArray, amountPlanck: Long, feePlanck: Long, deadline: Short, attachment: Attachment): Transaction.Builder
 
     fun getTransactionVersion(blockHeight: Int): Int
 

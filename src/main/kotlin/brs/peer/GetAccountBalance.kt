@@ -18,9 +18,9 @@ internal constructor(private val accountService: AccountService) : PeerServlet.P
         val accountId = request.get(ACCOUNT_ID_PARAMETER_FIELD).mustGetAsString(ACCOUNT_ID_PARAMETER_FIELD).parseAccountId()
         val account = accountService.getAccount(accountId)
         if (account != null) {
-            response.addProperty(BALANCE_NQT_RESPONSE_FIELD, account.balanceNQT.toUnsignedString())
+            response.addProperty(BALANCE_PLANCK_RESPONSE_FIELD, account.balancePlanck.toUnsignedString())
         } else {
-            response.addProperty(BALANCE_NQT_RESPONSE_FIELD, "0")
+            response.addProperty(BALANCE_PLANCK_RESPONSE_FIELD, "0")
         }
 
         return response
@@ -29,6 +29,6 @@ internal constructor(private val accountService: AccountService) : PeerServlet.P
     companion object {
 
         internal const val ACCOUNT_ID_PARAMETER_FIELD = "account"
-        internal const val BALANCE_NQT_RESPONSE_FIELD = "balanceNQT"
+        internal const val BALANCE_PLANCK_RESPONSE_FIELD = "balanceNQT"
     }
 }

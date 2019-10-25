@@ -18,23 +18,23 @@ class DigitalGoodsRefund(dp: DependencyProvider) : DigitalGoods(dp) {
 
     override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.safeTrace { "TransactionType REFUND" }
-        val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
-        if (senderAccount.unconfirmedBalanceNQT >= totalAmountNQT) {
-            dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT)
+        val totalAmountPlanck = calculateAttachmentTotalAmountPlanck(transaction)
+        if (senderAccount.unconfirmedBalancePlanck >= totalAmountPlanck) {
+            dp.accountService.addToUnconfirmedBalancePlanck(senderAccount, -totalAmountPlanck)
             return true
         }
         return false
     }
 
-    public override fun calculateAttachmentTotalAmountNQT(transaction: Transaction): Long {
+    public override fun calculateAttachmentTotalAmountPlanck(transaction: Transaction): Long {
         val attachment = transaction.attachment as Attachment.DigitalGoodsRefund
-        return attachment.refundNQT
+        return attachment.refundPlanck
     }
 
     override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
-        dp.accountService.addToUnconfirmedBalanceNQT(
+        dp.accountService.addToUnconfirmedBalancePlanck(
             senderAccount,
-            calculateAttachmentTotalAmountNQT(transaction)
+            calculateAttachmentTotalAmountPlanck(transaction)
         )
     }
 
@@ -43,7 +43,7 @@ class DigitalGoodsRefund(dp: DependencyProvider) : DigitalGoods(dp) {
         dp.digitalGoodsStoreService.refund(
             transaction.senderId,
             attachment.purchaseId,
-            attachment.refundNQT,
+            attachment.refundPlanck,
             transaction.encryptedMessage
         )
     }
@@ -51,7 +51,7 @@ class DigitalGoodsRefund(dp: DependencyProvider) : DigitalGoods(dp) {
     override fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsRefund
         val purchase = dp.digitalGoodsStoreService.getPurchase(attachment.purchaseId)
-        if (attachment.refundNQT < 0 || attachment.refundNQT > Constants.MAX_BALANCE_NQT
+        if (attachment.refundPlanck < 0 || attachment.refundPlanck > Constants.MAX_BALANCE_PLANCK
             || purchase != null && (purchase.buyerId != transaction.recipientId || transaction.senderId != purchase.sellerId)
         ) {
             throw BurstException.NotValidException("Invalid digital goods refund: " + attachment.jsonObject.toJsonString())
@@ -59,7 +59,7 @@ class DigitalGoodsRefund(dp: DependencyProvider) : DigitalGoods(dp) {
         if (transaction.encryptedMessage != null && !transaction.encryptedMessage.isText) {
             throw BurstException.NotValidException("Only text encrypted messages allowed")
         }
-        if (purchase?.encryptedGoods == null || purchase.refundNQT != 0L) {
+        if (purchase?.encryptedGoods == null || purchase.refundPlanck != 0L) {
             throw BurstException.NotCurrentlyValidException("Purchase does not exist or is not delivered or is already refunded")
         }
     }

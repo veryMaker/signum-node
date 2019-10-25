@@ -26,7 +26,7 @@ class EffectiveBalanceLeasing(dp: DependencyProvider) : AccountControl(dp) {
     override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AccountControlEffectiveBalanceLeasing
         val recipientAccount = dp.accountService.getAccount(transaction.recipientId)
-        if (transaction.senderId == transaction.recipientId || transaction.amountNQT != 0L || attachment.period < 1440) {
+        if (transaction.senderId == transaction.recipientId || transaction.amountPlanck != 0L || attachment.period < 1440) {
             throw BurstException.NotValidException("Invalid effective balance leasing: " + transaction.toJsonObject().toJsonString() + " transaction " + transaction.stringId)
         }
         if (recipientAccount == null || recipientAccount.publicKey == null && transaction.stringId != "5081403377391821646") {

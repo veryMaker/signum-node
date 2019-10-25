@@ -68,8 +68,8 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
             return -1
         }
 
-        return if ((tx.message == null || dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_2, state.height)) && state.minActivationAmount() <= tx.amountNQT) {
-            tx.amountNQT - state.minActivationAmount()
+        return if ((tx.message == null || dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_2, state.height)) && state.minActivationAmount() <= tx.amountPlanck) {
+            tx.amountPlanck - state.minActivationAmount()
         } else 0
 
     }

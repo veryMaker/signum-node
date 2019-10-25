@@ -52,9 +52,9 @@ class AliasBuy(dp: DependencyProvider) : Messaging(dp) {
         }
         val offer = dp.aliasService.getOffer(alias)
             ?: throw BurstException.NotCurrentlyValidException("Alias is not for sale: $aliasName")
-        if (transaction.amountNQT < offer.priceNQT) {
+        if (transaction.amountPlanck < offer.pricePlanck) {
             val msg = ("Price is too low for: " + aliasName + " ("
-                    + transaction.amountNQT + " < " + offer.priceNQT + ")")
+                    + transaction.amountPlanck + " < " + offer.pricePlanck + ")")
             throw BurstException.NotCurrentlyValidException(msg)
         }
         if (offer.buyerId != 0L && offer.buyerId != transaction.senderId) {

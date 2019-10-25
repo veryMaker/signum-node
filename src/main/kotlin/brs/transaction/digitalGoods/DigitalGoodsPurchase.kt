@@ -18,23 +18,23 @@ class DigitalGoodsPurchase(dp: DependencyProvider) : DigitalGoods(dp) {
 
     override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.safeTrace { "TransactionType PURCHASE" }
-        val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
-        if (senderAccount.unconfirmedBalanceNQT >= totalAmountNQT) {
-            dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT)
+        val totalAmountPlanck = calculateAttachmentTotalAmountPlanck(transaction)
+        if (senderAccount.unconfirmedBalancePlanck >= totalAmountPlanck) {
+            dp.accountService.addToUnconfirmedBalancePlanck(senderAccount, -totalAmountPlanck)
             return true
         }
         return false
     }
 
-    public override fun calculateAttachmentTotalAmountNQT(transaction: Transaction): Long {
+    public override fun calculateAttachmentTotalAmountPlanck(transaction: Transaction): Long {
         val attachment = transaction.attachment as Attachment.DigitalGoodsPurchase
-        return attachment.quantity.toLong().safeMultiply(attachment.priceNQT)
+        return attachment.quantity.toLong().safeMultiply(attachment.pricePlanck)
     }
 
     override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
-        dp.accountService.addToUnconfirmedBalanceNQT(
+        dp.accountService.addToUnconfirmedBalancePlanck(
             senderAccount,
-            calculateAttachmentTotalAmountNQT(transaction)
+            calculateAttachmentTotalAmountPlanck(transaction)
         )
     }
 
@@ -47,7 +47,7 @@ class DigitalGoodsPurchase(dp: DependencyProvider) : DigitalGoods(dp) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsPurchase
         val goods = dp.digitalGoodsStoreService.getGoods(attachment.goodsId)
         if (attachment.quantity <= 0 || attachment.quantity > Constants.MAX_DGS_LISTING_QUANTITY
-            || attachment.priceNQT <= 0 || attachment.priceNQT > Constants.MAX_BALANCE_NQT
+            || attachment.pricePlanck <= 0 || attachment.pricePlanck > Constants.MAX_BALANCE_PLANCK
             || goods != null && goods.sellerId != transaction.recipientId
         ) {
             throw BurstException.NotValidException("Invalid digital goods purchase: " + attachment.jsonObject.toJsonString())
@@ -61,7 +61,7 @@ class DigitalGoodsPurchase(dp: DependencyProvider) : DigitalGoods(dp) {
                         "not yet listed or already delisted"
             )
         }
-        if (attachment.quantity > goods.quantity || attachment.priceNQT != goods.priceNQT) {
+        if (attachment.quantity > goods.quantity || attachment.pricePlanck != goods.pricePlanck) {
             throw BurstException.NotCurrentlyValidException("Goods price or quantity changed: " + attachment.jsonObject.toJsonString())
         }
         if (attachment.deliveryDeadlineTimestamp <= dp.blockchain.lastBlock.timestamp) {

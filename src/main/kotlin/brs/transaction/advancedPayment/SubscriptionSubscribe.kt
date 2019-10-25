@@ -22,7 +22,7 @@ class SubscriptionSubscribe(dp: DependencyProvider) : AdvancedPayment(dp) {
             senderAccount,
             recipientAccount!!,
             transaction.id,
-            transaction.amountNQT,
+            transaction.amountPlanck,
             transaction.timestamp,
             attachment.frequency!!
         )
@@ -39,7 +39,7 @@ class SubscriptionSubscribe(dp: DependencyProvider) : AdvancedPayment(dp) {
         ) {
             throw BurstException.NotValidException("Invalid subscription frequency")
         }
-        if (transaction.amountNQT < Constants.ONE_BURST || transaction.amountNQT > Constants.MAX_BALANCE_NQT) {
+        if (transaction.amountPlanck < Constants.ONE_BURST || transaction.amountPlanck > Constants.MAX_BALANCE_PLANCK) {
             throw BurstException.NotValidException("Subscriptions must be at least one burst")
         }
         if (transaction.senderId == transaction.recipientId) {

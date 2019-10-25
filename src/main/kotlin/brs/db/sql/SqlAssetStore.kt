@@ -30,7 +30,7 @@ class SqlAssetStore(private val dp: DependencyProvider) : AssetStore {
     }
 
     private fun saveAsset(ctx: DSLContext, asset: Asset) {
-        ctx.insertInto(ASSET).set(ASSET.ID, asset.id).set(ASSET.ACCOUNT_ID, asset.accountId).set(ASSET.NAME, asset.name).set(ASSET.DESCRIPTION, asset.description).set(ASSET.QUANTITY, asset.quantityQNT).set(ASSET.DECIMALS, asset.decimals).set(ASSET.HEIGHT, dp.blockchain.height).execute()
+        ctx.insertInto(ASSET).set(ASSET.ID, asset.id).set(ASSET.ACCOUNT_ID, asset.accountId).set(ASSET.NAME, asset.name).set(ASSET.DESCRIPTION, asset.description).set(ASSET.QUANTITY, asset.quantity).set(ASSET.DECIMALS, asset.decimals).set(ASSET.HEIGHT, dp.blockchain.height).execute()
     }
 
     override fun getAssetsIssuedBy(accountId: Long, from: Int, to: Int): Collection<Asset> {

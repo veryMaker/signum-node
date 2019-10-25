@@ -19,9 +19,9 @@ open class Account {
         get() = if (this.keyHeight == -1) { null } else publicKeyInternal
         set(v) { publicKeyInternal = v }
     var keyHeight: Int = 0
-    var balanceNQT: Long = 0
-    var unconfirmedBalanceNQT: Long = 0
-    var forgedBalanceNQT: Long = 0
+    var balancePlanck: Long = 0
+    var unconfirmedBalancePlanck: Long = 0
+    var forgedBalancePlanck: Long = 0
 
     var name: String? = null
     var description: String? = null
@@ -34,27 +34,27 @@ open class Account {
         val accountId: Long
         val assetId: Long
         val burstKey: BurstKey
-        var quantityQNT: Long = 0
-        var unconfirmedQuantityQNT: Long = 0
+        var quantity: Long = 0
+        var unconfirmedQuantity: Long = 0
 
-        protected constructor(accountId: Long, assetId: Long, quantityQNT: Long, unconfirmedQuantityQNT: Long, burstKey: BurstKey) {
+        protected constructor(accountId: Long, assetId: Long, quantity: Long, unconfirmedQuantity: Long, burstKey: BurstKey) {
             this.accountId = accountId
             this.assetId = assetId
-            this.quantityQNT = quantityQNT
-            this.unconfirmedQuantityQNT = unconfirmedQuantityQNT
+            this.quantity = quantity
+            this.unconfirmedQuantity = unconfirmedQuantity
             this.burstKey = burstKey
         }
 
-        constructor(burstKey: BurstKey, accountId: Long, assetId: Long, quantityQNT: Long, unconfirmedQuantityQNT: Long) {
+        constructor(burstKey: BurstKey, accountId: Long, assetId: Long, quantity: Long, unconfirmedQuantity: Long) {
             this.accountId = accountId
             this.assetId = assetId
             this.burstKey = burstKey
-            this.quantityQNT = quantityQNT
-            this.unconfirmedQuantityQNT = unconfirmedQuantityQNT
+            this.quantity = quantity
+            this.unconfirmedQuantity = unconfirmedQuantity
         }
 
         fun checkBalance() {
-            checkBalance(this.accountId, this.quantityQNT, this.unconfirmedQuantityQNT)
+            checkBalance(this.accountId, this.quantity, this.unconfirmedQuantity)
         }
 
         override fun toString(): String {
@@ -63,9 +63,9 @@ open class Account {
                     + " asset_id: "
                     + assetId.toUnsignedString()
                     + " quantity: "
-                    + quantityQNT
+                    + quantity
                     + " unconfirmedQuantity: "
-                    + unconfirmedQuantityQNT)
+                    + unconfirmedQuantity)
         }
     }
 
@@ -136,7 +136,7 @@ open class Account {
     }
 
     fun checkBalance() {
-        checkBalance(this.id, this.balanceNQT, this.unconfirmedBalanceNQT)
+        checkBalance(this.id, this.balancePlanck, this.unconfirmedBalancePlanck)
     }
 
     companion object {

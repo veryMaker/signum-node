@@ -107,8 +107,8 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         val generatorAccount = dp.accountService.getOrAddAccount(block.generatorId)
         generatorAccount.apply(dp, block.generatorPublicKey, block.height)
         if (!dp.fluxCapacitor.getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
-            dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(generatorAccount, block.totalFeeNQT + getBlockReward(block))
-            dp.accountService.addToForgedBalanceNQT(generatorAccount, block.totalFeeNQT + getBlockReward(block))
+            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(generatorAccount, block.totalFeePlanck + getBlockReward(block))
+            dp.accountService.addToForgedBalancePlanck(generatorAccount, block.totalFeePlanck + getBlockReward(block))
         } else {
             val rewardAccount: Account
             val rewardAssignment = dp.accountService.getRewardRecipientAssignment(generatorAccount)
@@ -117,8 +117,8 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 block.height >= rewardAssignment.fromHeight -> dp.accountService.getAccount(rewardAssignment.recipientId)!!
                 else -> dp.accountService.getAccount(rewardAssignment.prevRecipientId)!!
             }
-            dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, block.totalFeeNQT + getBlockReward(block))
-            dp.accountService.addToForgedBalanceNQT(rewardAccount, block.totalFeeNQT + getBlockReward(block))
+            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(rewardAccount, block.totalFeePlanck + getBlockReward(block))
+            dp.accountService.addToForgedBalancePlanck(rewardAccount, block.totalFeePlanck + getBlockReward(block))
         }
 
         for (transaction in block.transactions) {

@@ -13,10 +13,9 @@ import brs.http.common.ResultFields.ASK_ORDERS_RESPONSE
 import brs.http.common.ResultFields.ASSET_RESPONSE
 import brs.http.common.ResultFields.HEIGHT_RESPONSE
 import brs.http.common.ResultFields.ORDER_RESPONSE
-import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE
 import brs.services.ParameterService
-import brs.util.JSON
 import brs.util.safeGetAsLong
 import brs.util.safeGetAsString
 import com.google.gson.JsonArray
@@ -29,7 +28,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class GetAskOrdersTest : AbstractUnitTest() {
 
@@ -66,8 +64,8 @@ class GetAskOrdersTest : AbstractUnitTest() {
         val askOrder1 = mock<Ask>()
         whenever(askOrder1.id).doReturn(3L)
         whenever(askOrder1.assetId).doReturn(assetIndex)
-        whenever(askOrder1.quantityQNT).doReturn(56L)
-        whenever(askOrder1.priceNQT).doReturn(45L)
+        whenever(askOrder1.quantity).doReturn(56L)
+        whenever(askOrder1.pricePlanck).doReturn(45L)
         whenever(askOrder1.height).doReturn(32)
 
         val askOrder2 = mock<Ask>()
@@ -89,8 +87,8 @@ class GetAskOrdersTest : AbstractUnitTest() {
 
         assertEquals("" + askOrder1.id, askOrder1Result.get(ORDER_RESPONSE).safeGetAsString())
         assertEquals("" + askOrder1.assetId, askOrder1Result.get(ASSET_RESPONSE).safeGetAsString())
-        assertEquals("" + askOrder1.quantityQNT, askOrder1Result.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
-        assertEquals("" + askOrder1.priceNQT, askOrder1Result.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals("" + askOrder1.quantity, askOrder1Result.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
+        assertEquals("" + askOrder1.pricePlanck, askOrder1Result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
         assertEquals(askOrder1.height.toLong(), askOrder1Result.get(HEIGHT_RESPONSE).safeGetAsLong())
     }
 }

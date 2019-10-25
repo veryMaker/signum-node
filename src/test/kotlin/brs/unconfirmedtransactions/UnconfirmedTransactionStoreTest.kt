@@ -14,7 +14,6 @@ import brs.db.VersionedBatchEntityTable
 import brs.db.store.AccountStore
 import brs.fluxcapacitor.FluxValues
 import brs.peer.Peer
-import brs.props.Prop
 import brs.props.PropertyService
 import brs.props.Props
 import brs.services.impl.TimeServiceImpl
@@ -69,7 +68,7 @@ class UnconfirmedTransactionStoreTest {
         val mockAccountKey = mock<BurstKey>()
         whenever(accountBurstKeyFactoryMock.newKey(eq(123L))).doReturn(mockAccountKey)
         whenever(accountTableMock[eq(mockAccountKey)]).doReturn(mockAccount)
-        whenever(mockAccount.unconfirmedBalanceNQT).doReturn(Constants.MAX_BALANCE_NQT)
+        whenever(mockAccount.unconfirmedBalancePlanck).doReturn(Constants.MAX_BALANCE_PLANCK)
 
         val mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION, FluxValues.DIGITAL_GOODS_STORE)
 
@@ -178,7 +177,7 @@ class UnconfirmedTransactionStoreTest {
         }
 
         assertEquals(8192, t.all.size)
-        assertEquals(8192, t.all.filter { t -> t.feeNQT == FEE_QUANT * 100 }.count())
+        assertEquals(8192, t.all.filter { t -> t.feePlanck == FEE_QUANT * 100 }.count())
         assertNotNull(t.get(1L))
 
         val oneTransactionTooMany = Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 9999, FEE_QUANT * 200, timeService.epochTime + 50000, 500.toShort(), Attachment.OrdinaryPayment(dp))
@@ -187,8 +186,8 @@ class UnconfirmedTransactionStoreTest {
         t.put(oneTransactionTooMany, null)
 
         assertEquals(8192, t.all.size)
-        assertEquals(8192 - 1, t.all.filter { t -> t.feeNQT == FEE_QUANT * 100 }.count())
-        assertEquals(1, t.all.filter { t -> t.feeNQT == FEE_QUANT * 200 }.count())
+        assertEquals(8192 - 1, t.all.filter { t -> t.feePlanck == FEE_QUANT * 100 }.count())
+        assertEquals(1, t.all.filter { t -> t.feePlanck == FEE_QUANT * 200 }.count())
     }
 
     @DisplayName("The unconfirmed transaction gets denied in case the account is unknown")
@@ -207,7 +206,7 @@ class UnconfirmedTransactionStoreTest {
     fun unconfirmedTransactionGetsDeniedForNotEnoughUnconfirmedBalance() {
         whenever(mockBlockChain.height).doReturn(20)
 
-        val transaction = Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, Constants.MAX_BALANCE_NQT, timeService.epochTime + 50000, 500.toShort(), Attachment.OrdinaryPayment(dp))
+        val transaction = Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, Constants.MAX_BALANCE_PLANCK, timeService.epochTime + 50000, 500.toShort(), Attachment.OrdinaryPayment(dp))
                 .id(1).senderId(123L).build()
         transaction.sign(TestConstants.TEST_SECRET_PHRASE)
 
@@ -228,7 +227,7 @@ class UnconfirmedTransactionStoreTest {
 
         whenever(mockPeer.peerAddress).doReturn("mockPeer")
 
-        val transactionBuilder = Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, Constants.MAX_BALANCE_NQT - 100000, timeService.epochTime + 50000,
+        val transactionBuilder = Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, Constants.MAX_BALANCE_PLANCK - 100000, timeService.epochTime + 50000,
                 500.toShort(), Attachment.OrdinaryPayment(dp))
                 .id(1).senderId(123L)
 

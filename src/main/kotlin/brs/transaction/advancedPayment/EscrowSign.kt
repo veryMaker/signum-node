@@ -33,7 +33,7 @@ class EscrowSign(dp: DependencyProvider) : AdvancedPayment(dp) {
 
     override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowSign
-        if (transaction.amountNQT != 0L || transaction.feeNQT != Constants.ONE_BURST) {
+        if (transaction.amountPlanck != 0L || transaction.feePlanck != Constants.ONE_BURST) {
             throw BurstException.NotValidException("Escrow signing must have amount 0 and fee of 1")
         }
         if (attachment.escrowId == null || attachment.decision == null) {

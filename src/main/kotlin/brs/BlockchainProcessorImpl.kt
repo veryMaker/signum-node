@@ -695,15 +695,15 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                         throw BlockchainProcessor.TransactionNotAcceptedException(e.message!!, transaction)
                     }
 
-                    calculatedTotalAmount += transaction.amountNQT
-                    calculatedTotalFee += transaction.feeNQT
+                    calculatedTotalAmount += transaction.amountPlanck
+                    calculatedTotalFee += transaction.feePlanck
                     digest.update(transaction.toBytes())
                     dp.indirectIncomingService.processTransaction(transaction)
-                    feeArray[slotIdx] = transaction.feeNQT
+                    feeArray[slotIdx] = transaction.feePlanck
                     slotIdx += 1
                 }
 
-                if (calculatedTotalAmount > block.totalAmountNQT || calculatedTotalFee > block.totalFeeNQT) {
+                if (calculatedTotalAmount > block.totalAmountPlanck || calculatedTotalFee > block.totalFeePlanck) {
                     throw BlockchainProcessor.BlockNotAcceptedException("Total amount or fee don't match transaction totals for block " + block.height)
                 }
 
@@ -720,8 +720,8 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     throw BlockchainProcessor.BlockNotAcceptedException("Payload hash doesn't match for block " + block.height)
                 }
 
-                val remainingAmount = block.totalAmountNQT.safeSubtract(calculatedTotalAmount)
-                val remainingFee = block.totalFeeNQT.safeSubtract(calculatedTotalFee)
+                val remainingAmount = block.totalAmountPlanck.safeSubtract(calculatedTotalAmount)
+                val remainingFee = block.totalFeePlanck.safeSubtract(calculatedTotalFee)
 
                 dp.blockService.setPrevious(block, lastBlock)
                 blockListeners.accept(BlockchainProcessor.Event.BEFORE_BLOCK_ACCEPT, block)
@@ -785,7 +785,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             throw BlockchainProcessor.BlockNotAcceptedException("ats are not matching at block height " + dp.blockchain.height + " (" + e + ")")
         }
 
-        calculatedRemainingAmount += atBlock.totalAmount
+        calculatedRemainingAmount += atBlock.totalAmountPlanck
         calculatedRemainingFee += atBlock.totalFees
         // ATs
         if (dp.subscriptionService.isEnabled()) {
@@ -872,8 +872,8 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             var blockSize = dp.fluxCapacitor.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS)
             var payloadSize = dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH)
 
-            var totalAmountNQT: Long = 0
-            var totalFeeNQT: Long = 0
+            var totalAmountPlanck: Long = 0
+            var totalFeePlanck: Long = 0
 
             val previousBlock = dp.blockchain.lastBlock
             val blockTimestamp = dp.timeService.epochTime
@@ -889,7 +889,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                 val priorityCalculator = { transaction: Transaction ->
                     var age = blockTimestamp + 1 - transaction.timestamp
                     if (age < 0) age = 1
-                    age.toLong() * transaction.feeNQT
+                    age.toLong() * transaction.feePlanck
                 }
 
                 // Map of slot number -> transaction
@@ -907,7 +907,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     // In this step we get all unconfirmed transactions and then sort them by slot, followed by priority
                     val unconfirmedTransactionsOrderedBySlotThenPriority = mutableMapOf<Long, MutableMap<Long, Transaction>>()
                     inclusionCandidates.associateBy({ it }, priorityCalculator).forEach { (transaction, priority) ->
-                        val slot = (transaction.feeNQT - transaction.feeNQT % FEE_QUANT) / FEE_QUANT
+                        val slot = (transaction.feePlanck - transaction.feePlanck % FEE_QUANT) / FEE_QUANT
                         unconfirmedTransactionsOrderedBySlotThenPriority.computeIfAbsent(slot) { mutableMapOf() }
                         unconfirmedTransactionsOrderedBySlotThenPriority[slot]!![priority] = transaction
                     }
@@ -981,13 +981,13 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     }
 
                     val slotFee = if (dp.fluxCapacitor.getValue(FluxValues.PRE_DYMAXION)) slot * FEE_QUANT else ONE_BURST
-                    if (transaction.feeNQT >= slotFee) {
+                    if (transaction.feePlanck >= slotFee) {
                         if (dp.transactionService.applyUnconfirmed(transaction)) {
                             try {
                                 dp.transactionService.validate(transaction)
                                 payloadSize -= transaction.size
-                                totalAmountNQT += transaction.amountNQT
-                                totalFeeNQT += transaction.feeNQT
+                                totalAmountPlanck += transaction.amountPlanck
+                                totalFeePlanck += transaction.feePlanck
                                 orderedBlockTransactions.add(transaction)
                                 blockSize--
                             } catch (e: BurstException.NotCurrentlyValidException) {
@@ -1006,7 +1006,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
 
                 if (dp.subscriptionService.isEnabled()) {
                     dp.subscriptionService.clearRemovals()
-                    totalFeeNQT += dp.subscriptionService.calculateFees(blockTimestamp)
+                    totalFeePlanck += dp.subscriptionService.calculateFees(blockTimestamp)
                 }
             } catch (e: Exception) {
                 dp.db.rollbackTransaction()
@@ -1025,8 +1025,8 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             // digesting AT Bytes
             if (byteATs != null) {
                 payloadSize -= byteATs.size
-                totalFeeNQT += atBlock.totalFees
-                totalAmountNQT += atBlock.totalAmount
+                totalFeePlanck += atBlock.totalFees
+                totalAmountPlanck += atBlock.totalAmountPlanck
             }
 
             // ATs for block
@@ -1040,7 +1040,7 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
             val previousBlockHash = Crypto.sha256().digest(previousBlock.toBytes())
             try {
                 block = Block(dp, blockVersion, blockTimestamp,
-                        previousBlock.id, totalAmountNQT, totalFeeNQT, dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
+                        previousBlock.id, totalAmountPlanck, totalFeePlanck, dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
                         generationSignature, null, previousBlockHash, orderedBlockTransactions, nonce!!,
                         byteATs, previousBlock.height)
             } catch (e: BurstException.ValidationException) {

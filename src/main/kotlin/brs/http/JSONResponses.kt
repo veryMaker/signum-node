@@ -4,8 +4,8 @@ import brs.Constants
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.http.common.Parameters.ALIAS_PARAMETER
-import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
 import brs.http.common.Parameters.AMOUNT_PARAMETER
+import brs.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.http.common.Parameters.ASSET_PARAMETER
 import brs.http.common.Parameters.AT_PARAMETER
 import brs.http.common.Parameters.BLOCK_PARAMETER
@@ -15,10 +15,10 @@ import brs.http.common.Parameters.DECIMALS_PARAMETER
 import brs.http.common.Parameters.DELIVERY_DEADLINE_TIMESTAMP_PARAMETER
 import brs.http.common.Parameters.DELTA_QUANTITY_PARAMETER
 import brs.http.common.Parameters.DESCRIPTION_PARAMETER
-import brs.http.common.Parameters.DISCOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.DISCOUNT_PLANCK_PARAMETER
 import brs.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
-import brs.http.common.Parameters.FEE_NQT_PARAMETER
 import brs.http.common.Parameters.FEE_PARAMETER
+import brs.http.common.Parameters.FEE_PLANCK_PARAMETER
 import brs.http.common.Parameters.FEE_SUGGESTION_TYPE_PARAMETER
 import brs.http.common.Parameters.GOODS_DATA_PARAMETER
 import brs.http.common.Parameters.GOODS_PARAMETER
@@ -31,8 +31,8 @@ import brs.http.common.Parameters.NAME_PARAMETER
 import brs.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
 import brs.http.common.Parameters.ORDER_PARAMETER
 import brs.http.common.Parameters.PEER_PARAMETER
-import brs.http.common.Parameters.PRICE_NQT_PARAMETER
 import brs.http.common.Parameters.PRICE_PARAMETER
+import brs.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.http.common.Parameters.PURCHASE_PARAMETER
 import brs.http.common.Parameters.QUANTITY_PARAMETER
@@ -40,7 +40,7 @@ import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
 import brs.http.common.Parameters.RECEIVER_ID_PARAMETER
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER
-import brs.http.common.Parameters.REFUND_NQT_PARAMETER
+import brs.http.common.Parameters.REFUND_PLANCK_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.http.common.Parameters.SELLER_PARAMETER
 import brs.http.common.Parameters.SIGNATURE_HASH_PARAMETER
@@ -69,7 +69,7 @@ object JSONResponses {
     val INCORRECT_PUBLIC_KEY = incorrect(PUBLIC_KEY_PARAMETER)
     val MISSING_ALIAS_NAME = missing(ALIAS_NAME_PARAMETER)
     val MISSING_ALIAS_OR_ALIAS_NAME = missing(ALIAS_PARAMETER, "aliasName")
-    val MISSING_FEE = missing(FEE_NQT_PARAMETER)
+    val MISSING_FEE = missing(FEE_PLANCK_PARAMETER)
     val MISSING_DEADLINE = missing(DEADLINE_PARAMETER)
     val INCORRECT_DEADLINE = incorrect(DEADLINE_PARAMETER)
     val INCORRECT_FEE = incorrect(FEE_PARAMETER)
@@ -102,19 +102,19 @@ object JSONResponses {
     val MISSING_NAME = missing(NAME_PARAMETER)
     val MISSING_QUANTITY = missing(QUANTITY_QNT_PARAMETER)
     val INCORRECT_QUANTITY = incorrect(QUANTITY_PARAMETER)
-    val INCORRECT_ASSET_QUANTITY = incorrect(QUANTITY_PARAMETER, "(must be in [1.." + Constants.MAX_ASSET_QUANTITY_QNT + "] range)")
+    val INCORRECT_ASSET_QUANTITY = incorrect(QUANTITY_PARAMETER, "(must be in [1.." + Constants.MAX_ASSET_QUANTITY + "] range)")
     val INCORRECT_DECIMALS = incorrect(DECIMALS_PARAMETER)
     val MISSING_HOST = missing(HOST_PARAMETER)
     val MISSING_DATE = missing(DATE_PARAMETER)
     val INCORRECT_HOST = incorrect(HOST_PARAMETER, "(the length exceeds 100 chars limit)")
     val INCORRECT_DATE = incorrect(DATE_PARAMETER)
-    val MISSING_PRICE = missing(PRICE_NQT_PARAMETER)
+    val MISSING_PRICE = missing(PRICE_PLANCK_PARAMETER)
     val INCORRECT_PRICE = incorrect(PRICE_PARAMETER)
     val INCORRECT_REFERENCED_TRANSACTION = incorrect(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER)
     val MISSING_RECIPIENT = missing(RECIPIENT_PARAMETER)
     val INCORRECT_RECIPIENT = incorrect(RECIPIENT_PARAMETER)
     val INCORRECT_ARBITRARY_MESSAGE = incorrect(MESSAGE_PARAMETER)
-    val MISSING_AMOUNT = missing(AMOUNT_NQT_PARAMETER)
+    val MISSING_AMOUNT = missing(AMOUNT_PLANCK_PARAMETER)
     val INCORRECT_AMOUNT = incorrect(AMOUNT_PARAMETER)
     val INCORRECT_ACCOUNT_NAME_LENGTH = incorrect(NAME_PARAMETER, "(length must be less than " + Constants.MAX_ACCOUNT_NAME_LENGTH + " characters)")
     val INCORRECT_ACCOUNT_DESCRIPTION_LENGTH = incorrect(DESCRIPTION_PARAMETER, "(length must be less than " + Constants.MAX_ACCOUNT_DESCRIPTION_LENGTH + " characters)")
@@ -131,12 +131,12 @@ object JSONResponses {
     val MISSING_DELIVERY_DEADLINE_TIMESTAMP = missing(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER)
     val INCORRECT_DELIVERY_DEADLINE_TIMESTAMP = incorrect(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER)
     val INCORRECT_PURCHASE_QUANTITY = incorrect(QUANTITY_PARAMETER, "(quantity exceeds available goods quantity)")
-    val INCORRECT_PURCHASE_PRICE = incorrect(PRICE_NQT_PARAMETER, "(purchase price doesn't match goods price)")
+    val INCORRECT_PURCHASE_PRICE = incorrect(PRICE_PLANCK_PARAMETER, "(purchase price doesn't match goods price)")
     val INCORRECT_PURCHASE = incorrect(PURCHASE_PARAMETER)
     val MISSING_PURCHASE = missing(PURCHASE_PARAMETER)
     val INCORRECT_DGS_GOODS = incorrect(GOODS_TO_ENCRYPT_PARAMETER)
-    val INCORRECT_DGS_DISCOUNT = incorrect(DISCOUNT_NQT_PARAMETER)
-    val INCORRECT_DGS_REFUND = incorrect(REFUND_NQT_PARAMETER)
+    val INCORRECT_DGS_DISCOUNT = incorrect(DISCOUNT_PLANCK_PARAMETER)
+    val INCORRECT_DGS_REFUND = incorrect(REFUND_PLANCK_PARAMETER)
     val MISSING_SELLER = missing(SELLER_PARAMETER)
     val INCORRECT_ENCRYPTED_MESSAGE = incorrect(ENCRYPTED_MESSAGE_DATA_PARAMETER)
     val INCORRECT_DGS_ENCRYPTED_GOODS = incorrect(GOODS_DATA_PARAMETER)

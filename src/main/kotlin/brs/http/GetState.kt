@@ -23,13 +23,13 @@ internal class GetState(private val dp: DependencyProvider) : APIServlet.JsonReq
         if (!"false".equals(request.getParameter("includeCounts"), ignoreCase = true)) {
             var totalEffectiveBalance: Long = 0
             for (account in dp.accountService.getAllAccounts(0, -1)) {
-                val effectiveBalanceBURST = account.balanceNQT
+                val effectiveBalanceBURST = account.balancePlanck
                 if (effectiveBalanceBURST > 0) {
                     totalEffectiveBalance += effectiveBalanceBURST
                 }
             }
             for (escrow in dp.escrowService.getAllEscrowTransactions()) {
-                totalEffectiveBalance += escrow.amountNQT
+                totalEffectiveBalance += escrow.amountPlanck
             }
             response.addProperty("totalEffectiveBalanceNXT", totalEffectiveBalance / Constants.ONE_BURST)
 

@@ -93,10 +93,10 @@ class TransactionProcessorImpl(private val dp: DependencyProvider) : Transaction
         return dp.unconfirmedTransactionStore.get(transactionId)
     }
 
-    override fun newTransactionBuilder(senderPublicKey: ByteArray, amountNQT: Long, feeNQT: Long, deadline: Short, attachment: Attachment): Transaction.Builder {
+    override fun newTransactionBuilder(senderPublicKey: ByteArray, amountPlanck: Long, feePlanck: Long, deadline: Short, attachment: Attachment): Transaction.Builder {
         val version = getTransactionVersion(dp.blockchain.height).toByte()
         val timestamp = dp.timeService.epochTime
-        val builder = Transaction.Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, attachment as Attachment.AbstractAttachment)
+        val builder = Transaction.Builder(dp, version, senderPublicKey, amountPlanck, feePlanck, timestamp, deadline, attachment as Attachment.AbstractAttachment)
         if (version > 0) {
             val ecBlock = dp.economicClustering.getECBlock(timestamp)
             builder.ecBlockHeight(ecBlock.height)

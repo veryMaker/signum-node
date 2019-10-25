@@ -46,7 +46,7 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransactionManager {
-    override fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment, minimumFeeNQT: Long): JsonElement {
+    override fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountPlanck: Long, attachment: Attachment, minimumFeePlanck: Long): JsonElement {
         val blockchainHeight = dp.blockchain.height
         val deadlineValue = request.getParameter(DEADLINE_PARAMETER)
         val referencedTransactionFullHash = request.getParameter(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER).emptyToNull()
@@ -110,13 +110,13 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
             return INCORRECT_DEADLINE
         }
 
-        val feeNQT = ParameterParser.getFeeNQT(request)
-        if (feeNQT < minimumFeeNQT) {
+        val feePlanck = ParameterParser.getFeePlanck(request)
+        if (feePlanck < minimumFeePlanck) {
             return INCORRECT_FEE
         }
 
         try {
-            if (amountNQT.safeAdd(feeNQT) > senderAccount.unconfirmedBalanceNQT) {
+            if (amountPlanck.safeAdd(feePlanck) > senderAccount.unconfirmedBalancePlanck) {
                 return NOT_ENOUGH_FUNDS
             }
         } catch (e: ArithmeticException) {
@@ -133,7 +133,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
         val publicKey = if (secretPhrase != null) Crypto.getPublicKey(secretPhrase) else publicKeyValue?.parseHexString()
 
         try {
-            val builder = dp.transactionProcessor.newTransactionBuilder(publicKey!!, amountNQT, feeNQT, deadline, attachment)
+            val builder = dp.transactionProcessor.newTransactionBuilder(publicKey!!, amountPlanck, feePlanck, deadline, attachment)
             if (!referencedTransactionFullHash.isNullOrEmpty()) {
                 builder.referencedTransactionFullHash(referencedTransactionFullHash.parseHexString())
             }

@@ -7,4 +7,4 @@
 */
 package brs.at
 
-class AtBlock internal constructor(val totalFees: Long, val totalAmount: Long, val bytesForBlock: ByteArray?)
+class AtBlock internal constructor(val totalFees: Long, val totalAmountPlanck: Long, val bytesForBlock: ByteArray?)

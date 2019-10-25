@@ -9,10 +9,10 @@ abstract class Order {
     val id: Long
     val accountId: Long
     val assetId: Long
-    val priceNQT: Long
+    val pricePlanck: Long
     val height: Int
 
-    var quantityQNT: Long = 0
+    var quantity: Long = 0
 
     abstract val protobufType: BrsApi.OrderType
 
@@ -20,22 +20,22 @@ abstract class Order {
         this.id = transaction.id
         this.accountId = transaction.senderId
         this.assetId = attachment.assetId
-        this.quantityQNT = attachment.quantityQNT
-        this.priceNQT = attachment.priceNQT
+        this.quantity = attachment.quantity
+        this.pricePlanck = attachment.pricePlanck
         this.height = transaction.height
     }
 
-    internal constructor(id: Long, accountId: Long, assetId: Long, priceNQT: Long, creationHeight: Int, quantityQNT: Long) {
+    internal constructor(id: Long, accountId: Long, assetId: Long, pricePlanck: Long, creationHeight: Int, quantity: Long) {
         this.id = id
         this.accountId = accountId
         this.assetId = assetId
-        this.priceNQT = priceNQT
+        this.pricePlanck = pricePlanck
         this.height = creationHeight
-        this.quantityQNT = quantityQNT
+        this.quantity = quantity
     }
 
     override fun toString(): String {
-        return "${javaClass.simpleName} id: ${id.toUnsignedString()} account: ${accountId.toUnsignedString()} asset: ${assetId.toUnsignedString()} price: $priceNQT quantity: $quantityQNT height: $height"
+        return "${javaClass.simpleName} id: ${id.toUnsignedString()} account: ${accountId.toUnsignedString()} asset: ${assetId.toUnsignedString()} price: $pricePlanck quantity: $quantity height: $height"
     }
 
     open class Ask : Order {
@@ -49,7 +49,7 @@ abstract class Order {
             this.dbKey = dbKey
         }
 
-        protected constructor(id: Long, accountId: Long, assetId: Long, priceNQT: Long, creationHeight: Int, quantityQNT: Long, dbKey: BurstKey) : super(id, accountId, assetId, priceNQT, creationHeight, quantityQNT) {
+        protected constructor(id: Long, accountId: Long, assetId: Long, pricePlanck: Long, creationHeight: Int, quantity: Long, dbKey: BurstKey) : super(id, accountId, assetId, pricePlanck, creationHeight, quantity) {
             this.dbKey = dbKey
         }
     }
@@ -65,7 +65,7 @@ abstract class Order {
             this.dbKey = dbKey
         }
 
-        protected constructor(id: Long, accountId: Long, assetId: Long, priceNQT: Long, creationHeight: Int, quantityQNT: Long, dbKey: BurstKey) : super(id, accountId, assetId, priceNQT, creationHeight, quantityQNT) {
+        protected constructor(id: Long, accountId: Long, assetId: Long, pricePlanck: Long, creationHeight: Int, quantity: Long, dbKey: BurstKey) : super(id, accountId, assetId, pricePlanck, creationHeight, quantity) {
             this.dbKey = dbKey
         }
     }

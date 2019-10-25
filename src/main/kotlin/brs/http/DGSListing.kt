@@ -9,19 +9,19 @@ import brs.http.JSONResponses.INCORRECT_DGS_LISTING_TAGS
 import brs.http.JSONResponses.MISSING_NAME
 import brs.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.http.common.Parameters.NAME_PARAMETER
-import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.http.common.Parameters.QUANTITY_PARAMETER
 import brs.http.common.Parameters.TAGS_PARAMETER
 import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class DGSListing internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, TAGS_PARAMETER, QUANTITY_PARAMETER, PRICE_NQT_PARAMETER) {
+internal class DGSListing internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, TAGS_PARAMETER, QUANTITY_PARAMETER, PRICE_PLANCK_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         var name = request.getParameter(NAME_PARAMETER).emptyToNull()
         val description = request.getParameter(DESCRIPTION_PARAMETER).orEmpty()
         val tags = request.getParameter(TAGS_PARAMETER).orEmpty()
-        val priceNQT = ParameterParser.getPriceNQT(request)
+        val pricePlanck = ParameterParser.getPricePlanck(request)
         val quantity = ParameterParser.getGoodsQuantity(request)
 
         if (name == null) {
@@ -41,7 +41,7 @@ internal class DGSListing internal constructor(private val dp: DependencyProvide
         }
 
         val account = dp.parameterService.getSenderAccount(request)
-        val attachment = Attachment.DigitalGoodsListing(dp, name, description, tags, quantity, priceNQT, dp.blockchain.height)
+        val attachment = Attachment.DigitalGoodsListing(dp, name, description, tags, quantity, pricePlanck, dp.blockchain.height)
         return createTransaction(request, account, attachment)
     }
 }

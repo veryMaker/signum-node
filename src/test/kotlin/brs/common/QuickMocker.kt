@@ -7,7 +7,7 @@ import brs.fluxcapacitor.FluxCapacitorImpl
 import brs.fluxcapacitor.FluxEnable
 import brs.fluxcapacitor.FluxValue
 import brs.http.common.Parameters.DEADLINE_PARAMETER
-import brs.http.common.Parameters.FEE_NQT_PARAMETER
+import brs.http.common.Parameters.FEE_PLANCK_PARAMETER
 import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.props.Prop
@@ -95,7 +95,7 @@ object QuickMocker {
     }
 
     fun httpServletRequestDefaultKeys(vararg parameters: MockParam): HttpServletRequest {
-        val paramsWithKeys = mutableListOf(listOf(MockParam(SECRET_PHRASE_PARAMETER, TestConstants.TEST_SECRET_PHRASE), MockParam(PUBLIC_KEY_PARAMETER, TestConstants.TEST_PUBLIC_KEY), MockParam(DEADLINE_PARAMETER, TestConstants.DEADLINE), MockParam(FEE_NQT_PARAMETER, TestConstants.FEE)))
+        val paramsWithKeys = mutableListOf(listOf(MockParam(SECRET_PHRASE_PARAMETER, TestConstants.TEST_SECRET_PHRASE), MockParam(PUBLIC_KEY_PARAMETER, TestConstants.TEST_PUBLIC_KEY), MockParam(DEADLINE_PARAMETER, TestConstants.DEADLINE), MockParam(FEE_PLANCK_PARAMETER, TestConstants.FEE)))
 
         paramsWithKeys.addAll(listOf(parameters.toList()))
 

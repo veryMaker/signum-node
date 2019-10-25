@@ -15,13 +15,13 @@ class DigitalGoodsPriceChange(dp: DependencyProvider) : DigitalGoods(dp) {
 
     override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsPriceChange
-        dp.digitalGoodsStoreService.changePrice(attachment.goodsId, attachment.priceNQT)
+        dp.digitalGoodsStoreService.changePrice(attachment.goodsId, attachment.pricePlanck)
     }
 
     override fun doValidateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsPriceChange
         val goods = dp.digitalGoodsStoreService.getGoods(attachment.goodsId)
-        if (attachment.priceNQT <= 0 || attachment.priceNQT > Constants.MAX_BALANCE_NQT
+        if (attachment.pricePlanck <= 0 || attachment.pricePlanck > Constants.MAX_BALANCE_PLANCK
             || goods != null && transaction.senderId != goods.sellerId
         ) {
             throw BurstException.NotValidException("Invalid digital goods price change: " + attachment.jsonObject.toJsonString())

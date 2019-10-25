@@ -12,7 +12,7 @@ import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.http.common.ResultFields.ASSET_RESPONSE
 import brs.http.common.ResultFields.NAME_RESPONSE
-import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.http.common.ResultFields.TRADES_RESPONSE
 import brs.util.safeGetAsString
 import com.google.gson.JsonArray
@@ -55,9 +55,9 @@ class GetAllTradesTest : AbstractUnitTest() {
         whenever(mockAsset.id).doReturn(mockAssetId)
         whenever(mockAsset.name).doReturn(mockAssetName)
 
-        val priceNQT = 123L
+        val pricePlanck = 123L
         val mockTrade = mock<Trade>()
-        whenever(mockTrade.priceNQT).doReturn(priceNQT)
+        whenever(mockTrade.pricePlanck).doReturn(pricePlanck)
         whenever(mockTrade.timestamp).doReturn(2)
         whenever(mockTrade.assetId).doReturn(mockAssetId)
 
@@ -76,8 +76,8 @@ class GetAllTradesTest : AbstractUnitTest() {
         val tradeAssetInfoResult = tradesResult.get(0) as JsonObject
         assertNotNull(tradeAssetInfoResult)
 
-        assertEquals("" + priceNQT, tradeAssetInfoResult.get(PRICE_NQT_RESPONSE).safeGetAsString())
-        assertEquals("" + mockAssetId, tradeAssetInfoResult.get(ASSET_RESPONSE).safeGetAsString())
+        assertEquals(pricePlanck.toString(), tradeAssetInfoResult.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockAssetId.toString(), tradeAssetInfoResult.get(ASSET_RESPONSE).safeGetAsString())
         assertEquals(mockAssetName, tradeAssetInfoResult.get(NAME_RESPONSE).safeGetAsString())
     }
 
@@ -95,9 +95,9 @@ class GetAllTradesTest : AbstractUnitTest() {
         )
 
         val mockAssetId = 123L
-        val priceNQT = 123L
+        val pricePlanck = 123L
         val mockTrade = mock<Trade>()
-        whenever(mockTrade.priceNQT).doReturn(priceNQT)
+        whenever(mockTrade.pricePlanck).doReturn(pricePlanck)
         whenever(mockTrade.timestamp).doReturn(2)
         whenever(mockTrade.assetId).doReturn(mockAssetId)
 
@@ -115,8 +115,8 @@ class GetAllTradesTest : AbstractUnitTest() {
         val tradeAssetInfoResult = tradesResult.get(0) as JsonObject
         assertNotNull(tradeAssetInfoResult)
 
-        assertEquals("" + priceNQT, tradeAssetInfoResult.get(PRICE_NQT_RESPONSE).safeGetAsString())
-        assertEquals("" + mockAssetId, tradeAssetInfoResult.get(ASSET_RESPONSE).safeGetAsString())
+        assertEquals(pricePlanck.toString(), tradeAssetInfoResult.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockAssetId.toString(), tradeAssetInfoResult.get(ASSET_RESPONSE).safeGetAsString())
         assertEquals(null, tradeAssetInfoResult.get(NAME_RESPONSE).safeGetAsString())
 
         verify(mockAssetExchange, never()).getAsset(eq(mockAssetId))

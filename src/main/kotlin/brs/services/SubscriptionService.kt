@@ -13,7 +13,7 @@ interface SubscriptionService {
 
     fun getSubscriptionsToId(accountId: Long?): Collection<Subscription>
 
-    fun addSubscription(sender: Account, recipient: Account, id: Long, amountNQT: Long, startTimestamp: Int, frequency: Int)
+    fun addSubscription(sender: Account, recipient: Account, id: Long, amountPlanck: Long, startTimestamp: Int, frequency: Int)
 
     fun applyConfirmed(block: Block, blockchainHeight: Int)
 

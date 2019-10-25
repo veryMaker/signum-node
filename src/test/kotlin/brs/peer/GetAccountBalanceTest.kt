@@ -4,7 +4,7 @@ import brs.Account
 import brs.common.TestConstants.TEST_ACCOUNT_ID
 import brs.common.TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED
 import brs.peer.GetAccountBalance.Companion.ACCOUNT_ID_PARAMETER_FIELD
-import brs.peer.GetAccountBalance.Companion.BALANCE_NQT_RESPONSE_FIELD
+import brs.peer.GetAccountBalance.Companion.BALANCE_PLANCK_RESPONSE_FIELD
 import brs.services.AccountService
 import brs.util.safeGetAsString
 import com.google.gson.JsonObject
@@ -36,15 +36,15 @@ class GetAccountBalanceTest {
         request.addProperty(ACCOUNT_ID_PARAMETER_FIELD, TEST_ACCOUNT_ID)
         val peer = mock<Peer>()
 
-        val mockBalanceNQT: Long = 5
+        val mockBalancePlanck: Long = 5
         val mockAccount = mock<Account>()
-        whenever(mockAccount.balanceNQT).doReturn(mockBalanceNQT)
+        whenever(mockAccount.balancePlanck).doReturn(mockBalancePlanck)
 
         whenever(mockAccountService.getAccount(eq(TEST_ACCOUNT_NUMERIC_ID_PARSED))).doReturn(mockAccount)
 
         val result = t.processRequest(request, peer) as JsonObject
 
-        assertEquals("" + mockBalanceNQT, result.get(BALANCE_NQT_RESPONSE_FIELD).safeGetAsString())
+        assertEquals("" + mockBalancePlanck, result.get(BALANCE_PLANCK_RESPONSE_FIELD).safeGetAsString())
     }
 
     @Test
@@ -57,7 +57,7 @@ class GetAccountBalanceTest {
 
         val result = t.processRequest(request, peer) as JsonObject
 
-        assertEquals("0", result.get(BALANCE_NQT_RESPONSE_FIELD).safeGetAsString())
+        assertEquals("0", result.get(BALANCE_PLANCK_RESPONSE_FIELD).safeGetAsString())
     }
 
 }

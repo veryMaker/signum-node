@@ -11,7 +11,7 @@ import brs.http.common.ResultFields.ASSET_RESPONSE
 import brs.http.common.ResultFields.HEIGHT_RESPONSE
 import brs.http.common.ResultFields.OPEN_ORDERS_RESPONSE
 import brs.http.common.ResultFields.ORDER_RESPONSE
-import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE
 import brs.util.safeGetAsLong
 import brs.util.safeGetAsString
@@ -44,8 +44,8 @@ class GetAllOpenAskOrdersTest : AbstractUnitTest() {
         val mockAskOrder = mock<Ask>()
         whenever(mockAskOrder.id).doReturn(1L)
         whenever(mockAskOrder.assetId).doReturn(2L)
-        whenever(mockAskOrder.quantityQNT).doReturn(3L)
-        whenever(mockAskOrder.priceNQT).doReturn(4L)
+        whenever(mockAskOrder.quantity).doReturn(3L)
+        whenever(mockAskOrder.pricePlanck).doReturn(4L)
         whenever(mockAskOrder.height).doReturn(5)
 
         val firstIndex = 1
@@ -69,8 +69,8 @@ class GetAllOpenAskOrdersTest : AbstractUnitTest() {
         val openOrderResult = openOrdersResult.get(0) as JsonObject
         assertEquals("" + mockAskOrder.id, openOrderResult.get(ORDER_RESPONSE).safeGetAsString())
         assertEquals("" + mockAskOrder.assetId, openOrderResult.get(ASSET_RESPONSE).safeGetAsString())
-        assertEquals("" + mockAskOrder.quantityQNT, openOrderResult.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
-        assertEquals("" + mockAskOrder.priceNQT, openOrderResult.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockAskOrder.quantity, openOrderResult.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockAskOrder.pricePlanck, openOrderResult.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
         assertEquals(mockAskOrder.height.toLong(), openOrderResult.get(HEIGHT_RESPONSE).safeGetAsLong())
     }
 }

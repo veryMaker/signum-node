@@ -25,11 +25,11 @@ class DigitalGoodsDelivery(dp: DependencyProvider) : DigitalGoods(dp) {
         if (attachment.goods.data.size > Constants.MAX_DGS_GOODS_LENGTH
             || attachment.goods.data.isEmpty()
             || attachment.goods.nonce.size != 32
-            || attachment.discountNQT < 0 || attachment.discountNQT > Constants.MAX_BALANCE_NQT
+            || attachment.discountPlanck < 0 || attachment.discountPlanck > Constants.MAX_BALANCE_PLANCK
             || purchase != null
             && (purchase.buyerId != transaction.recipientId
                     || transaction.senderId != purchase.sellerId
-                    || attachment.discountNQT > purchase.priceNQT.safeMultiply(purchase.quantity.toLong()))) {
+                    || attachment.discountPlanck > purchase.pricePlanck.safeMultiply(purchase.quantity.toLong()))) {
             throw BurstException.NotValidException("Invalid digital goods delivery: " + attachment.jsonObject.toJsonString())
         }
         if (purchase == null || purchase.encryptedGoods != null) {

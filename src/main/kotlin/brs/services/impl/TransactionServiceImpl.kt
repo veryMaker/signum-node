@@ -18,10 +18,10 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
         for (appendage in transaction.appendages) {
             appendage.validate(transaction)
         }
-        val minimumFeeNQT = transaction.type.minimumFeeNQT(dp.blockchain.height, transaction.appendagesSize)
-        if (transaction.feeNQT < minimumFeeNQT) {
+        val minimumFeePlanck = transaction.type.minimumFeePlanck(dp.blockchain.height, transaction.appendagesSize)
+        if (transaction.feePlanck < minimumFeePlanck) {
             throw BurstException.NotCurrentlyValidException(String.format("Transaction fee %d less than minimum fee %d at height %d",
-                    transaction.feeNQT, minimumFeeNQT, dp.blockchain.height))
+                    transaction.feePlanck, minimumFeePlanck, dp.blockchain.height))
         }
     }
 

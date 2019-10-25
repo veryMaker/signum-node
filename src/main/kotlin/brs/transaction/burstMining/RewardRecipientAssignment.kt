@@ -51,11 +51,11 @@ class RewardRecipientAssignment(dp: DependencyProvider) : BurstMining(dp) {
         }
 
         if (dp.fluxCapacitor.getValue(FluxValues.PRE_DYMAXION)) {
-            if (transaction.amountNQT != 0L || transaction.feeNQT < Constants.FEE_QUANT) {
+            if (transaction.amountPlanck != 0L || transaction.feePlanck < Constants.FEE_QUANT) {
                 throw BurstException.NotValidException("Reward recipient assignment transaction must have 0 send amount and at least minimum fee: " + transaction.toJsonObject().toJsonString())
             }
         } else {
-            if (transaction.amountNQT != 0L || transaction.feeNQT != Constants.ONE_BURST) {
+            if (transaction.amountPlanck != 0L || transaction.feePlanck != Constants.ONE_BURST) {
                 throw BurstException.NotValidException("Reward recipient assignment transaction must have 0 send amount and 1 fee: " + transaction.toJsonObject().toJsonString())
             }
         }

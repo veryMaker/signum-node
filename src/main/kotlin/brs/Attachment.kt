@@ -5,7 +5,7 @@ import brs.grpc.proto.BrsApi
 import brs.grpc.proto.ProtoBuilder
 import brs.grpc.proto.toByteString
 import brs.http.common.Parameters.ALIAS_PARAMETER
-import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.http.common.Parameters.ASSET_PARAMETER
 import brs.http.common.Parameters.COMMENT_PARAMETER
 import brs.http.common.Parameters.CREATION_BYTES_PARAMETER
@@ -16,7 +16,7 @@ import brs.http.common.Parameters.DECISION_PARAMETER
 import brs.http.common.Parameters.DELIVERY_DEADLINE_TIMESTAMP_PARAMETER
 import brs.http.common.Parameters.DELTA_QUANTITY_PARAMETER
 import brs.http.common.Parameters.DESCRIPTION_PARAMETER
-import brs.http.common.Parameters.DISCOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.DISCOUNT_PLANCK_PARAMETER
 import brs.http.common.Parameters.ESCROW_ID_PARAMETER
 import brs.http.common.Parameters.FREQUENCY_PARAMETER
 import brs.http.common.Parameters.GOODS_DATA_PARAMETER
@@ -26,19 +26,19 @@ import brs.http.common.Parameters.GOODS_PARAMETER
 import brs.http.common.Parameters.NAME_PARAMETER
 import brs.http.common.Parameters.ORDER_PARAMETER
 import brs.http.common.Parameters.PERIOD_PARAMETER
-import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.http.common.Parameters.PURCHASE_PARAMETER
 import brs.http.common.Parameters.QUANTITY_PARAMETER
 import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
 import brs.http.common.Parameters.RECIPIENTS_PARAMETER
 import brs.http.common.Parameters.RECIPIENTS_RESPONSE
-import brs.http.common.Parameters.REFUND_NQT_PARAMETER
+import brs.http.common.Parameters.REFUND_PLANCK_PARAMETER
 import brs.http.common.Parameters.REQUIRED_SIGNERS_PARAMETER
 import brs.http.common.Parameters.SIGNERS_PARAMETER
 import brs.http.common.Parameters.SUBSCRIPTION_ID_PARAMETER
 import brs.http.common.Parameters.URI_PARAMETER
 import brs.http.common.ResultFields.ALIAS_RESPONSE
-import brs.http.common.ResultFields.AMOUNT_NQT_RESPONSE
+import brs.http.common.ResultFields.AMOUNT_PLANCK_RESPONSE
 import brs.http.common.ResultFields.ASSET_RESPONSE
 import brs.http.common.ResultFields.COMMENT_RESPONSE
 import brs.http.common.ResultFields.CREATION_BYTES_RESPONSE
@@ -49,7 +49,7 @@ import brs.http.common.ResultFields.DECISION_RESPONSE
 import brs.http.common.ResultFields.DELIVERY_DEADLINE_TIMESTAMP_RESPONSE
 import brs.http.common.ResultFields.DELTA_QUANTITY_RESPONSE
 import brs.http.common.ResultFields.DESCRIPTION_RESPONSE
-import brs.http.common.ResultFields.DISCOUNT_NQT_RESPONSE
+import brs.http.common.ResultFields.DISCOUNT_PLANCK_RESPONSE
 import brs.http.common.ResultFields.ESCROW_ID_RESPONSE
 import brs.http.common.ResultFields.FREQUENCY_RESPONSE
 import brs.http.common.ResultFields.GOODS_DATA_RESPONSE
@@ -59,11 +59,11 @@ import brs.http.common.ResultFields.GOODS_RESPONSE
 import brs.http.common.ResultFields.NAME_RESPONSE
 import brs.http.common.ResultFields.ORDER_RESPONSE
 import brs.http.common.ResultFields.PERIOD_RESPONSE
-import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.http.common.ResultFields.PURCHASE_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_RESPONSE
-import brs.http.common.ResultFields.REFUND_NQT_RESPONSE
+import brs.http.common.ResultFields.REFUND_PLANCK_RESPONSE
 import brs.http.common.ResultFields.REQUIRED_SIGNERS_RESPONSE
 import brs.http.common.ResultFields.SIGNERS_RESPONSE
 import brs.http.common.ResultFields.SUBSCRIPTION_ID_RESPONSE
@@ -198,13 +198,13 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 1 + recipients.size * 16
 
-        val amountNQT: Long
+        val amountPlanck: Long
             get() {
-                var amountNQT: Long = 0
+                var amountPlanck: Long = 0
                 for (recipient in recipients) {
-                    amountNQT = amountNQT.safeAdd(recipient[1])
+                    amountPlanck = amountPlanck.safeAdd(recipient[1])
                 }
-                return amountNQT
+                return amountPlanck
             }
 
         override val protobufMessage: Any
@@ -226,16 +226,16 @@ interface Attachment : Appendix {
 
             for (i in 0 until numberOfRecipients) {
                 val recipientId = buffer.long
-                val amountNQT = buffer.long
+                val amountPlanck = buffer.long
 
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi out transaction")
 
-                if (amountNQT <= 0)
-                    throw BurstException.NotValidException("Insufficient amountNQT on multi out transaction")
+                if (amountPlanck <= 0)
+                    throw BurstException.NotValidException("Insufficient amountPlanck on multi out transaction")
 
                 recipientOf[recipientId] = true
-                this.recipients.add(listOf(recipientId, amountNQT))
+                this.recipients.add(listOf(recipientId, amountPlanck))
             }
             if (recipients.size > Constants.MAX_MULTI_OUT_RECIPIENTS || recipients.size <= 1) {
                 throw BurstException.NotValidException(
@@ -252,15 +252,15 @@ interface Attachment : Appendix {
                 val recipient = recipientObject.mustGetAsJsonArray("recipient")
 
                 val recipientId = BigInteger(recipient.get(0).mustGetAsString("recipientId")).toLong()
-                val amountNQT = recipient.get(1).mustGetAsLong("amountNQT")
+                val amountPlanck = recipient.get(1).mustGetAsLong("amountPlanck")
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi out transaction")
 
-                if (amountNQT <= 0)
-                    throw BurstException.NotValidException("Insufficient amountNQT on multi out transaction")
+                if (amountPlanck <= 0)
+                    throw BurstException.NotValidException("Insufficient amountPlanck on multi out transaction")
 
                 recipientOf[recipientId] = true
-                this.recipients.add(listOf(recipientId, amountNQT))
+                this.recipients.add(listOf(recipientId, amountPlanck))
             }
             if (receipientsJson.size() > Constants.MAX_MULTI_OUT_RECIPIENTS || receipientsJson.size() <= 1) {
                 throw BurstException.NotValidException("Invalid number of recipients listed on multi out transaction")
@@ -269,15 +269,15 @@ interface Attachment : Appendix {
 
         constructor(dp: DependencyProvider, recipients: Map<Long, Long>, blockchainHeight: Int) : super(dp, blockchainHeight) {
             val recipientOf = mutableMapOf<Long, Boolean>()
-            for ((recipientId, amountNQT) in recipients) {
+            for ((recipientId, amountPlanck) in recipients) {
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi out transaction")
 
-                if (amountNQT <= 0)
-                    throw BurstException.NotValidException("Insufficient amountNQT on multi out transaction")
+                if (amountPlanck <= 0)
+                    throw BurstException.NotValidException("Insufficient amountPlanck on multi out transaction")
 
                 recipientOf[recipientId] = true
-                this.recipients.add(listOf(recipientId, amountNQT))
+                this.recipients.add(listOf(recipientId, amountPlanck))
             }
             if (recipients.size > Constants.MAX_MULTI_OUT_RECIPIENTS || recipients.size <= 1) {
                 throw BurstException.NotValidException("Invalid number of recipients listed on multi out transaction")
@@ -288,15 +288,15 @@ interface Attachment : Appendix {
             val recipientOf = mutableMapOf<Long, Boolean>()
             for (recipient in attachment.recipientsList) {
                 val recipientId = recipient.recipient
-                val amountNQT = recipient.amount
+                val amountPlanck = recipient.amount
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi out transaction")
 
-                if (amountNQT <= 0)
-                    throw BurstException.NotValidException("Insufficient amountNQT on multi out transaction")
+                if (amountPlanck <= 0)
+                    throw BurstException.NotValidException("Insufficient amountPlanck on multi out transaction")
 
                 recipientOf[recipientId] = true
-                this.recipients.add(listOf(recipientId, amountNQT))
+                this.recipients.add(listOf(recipientId, amountPlanck))
             }
             if (recipients.size > Constants.MAX_MULTI_OUT_RECIPIENTS || recipients.size <= 1) {
                 throw BurstException.NotValidException("Invalid number of recipients listed on multi out transaction")
@@ -492,7 +492,7 @@ interface Attachment : Appendix {
     class MessagingAliasSell : AbstractAttachment {
 
         val aliasName: String
-        val priceNQT: Long
+        val pricePlanck: Long
 
         override fun getAppendixName(): String = "AliasSell"
 
@@ -506,39 +506,39 @@ interface Attachment : Appendix {
             get() = Any.pack(BrsApi.AliasSellAttachment.newBuilder()
                     .setVersion(version.toInt())
                     .setName(aliasName)
-                    .setPrice(priceNQT)
+                    .setPrice(pricePlanck)
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.aliasName = buffer.readString(buffer.get().toInt(), Constants.MAX_ALIAS_LENGTH)
-            this.priceNQT = buffer.long
+            this.pricePlanck = buffer.long
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.aliasName = attachmentData.get(ALIAS_PARAMETER).safeGetAsString().orEmpty()
-            this.priceNQT = attachmentData.get(PRICE_NQT_PARAMETER).mustGetAsLong(PRICE_NQT_PARAMETER)
+            this.pricePlanck = attachmentData.get(PRICE_PLANCK_PARAMETER).mustGetAsLong(PRICE_PLANCK_PARAMETER)
         }
 
-        constructor(dp: DependencyProvider, aliasName: String, priceNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
+        constructor(dp: DependencyProvider, aliasName: String, pricePlanck: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.aliasName = aliasName
-            this.priceNQT = priceNQT
+            this.pricePlanck = pricePlanck
         }
 
         internal constructor(dp: DependencyProvider, attachment: BrsApi.AliasSellAttachment) : super(dp, attachment.version.toByte()) {
             this.aliasName = attachment.name
-            this.priceNQT = attachment.price
+            this.pricePlanck = attachment.price
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
             val aliasBytes = aliasName.toBytes()
             buffer.put(aliasBytes.size.toByte())
             buffer.put(aliasBytes)
-            buffer.putLong(priceNQT)
+            buffer.putLong(pricePlanck)
         }
 
         override fun putMyJSON(attachment: JsonObject) {
             attachment.addProperty(ALIAS_RESPONSE, aliasName)
-            attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT)
+            attachment.addProperty(PRICE_PLANCK_RESPONSE, pricePlanck)
         }
     }
 
@@ -646,7 +646,7 @@ interface Attachment : Appendix {
 
         val name: String?
         val description: String
-        val quantityQNT: Long
+        val quantity: Long
         val decimals: Byte
 
         override fun getAppendixName(): String = "AssetIssuance"
@@ -662,35 +662,35 @@ interface Attachment : Appendix {
                     .setVersion(version.toInt())
                     .setName(name)
                     .setDescription(description)
-                    .setQuantity(quantityQNT)
+                    .setQuantity(quantity)
                     .setDecimals(decimals.toInt())
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.name = buffer.readString(buffer.get().toInt(), Constants.MAX_ASSET_NAME_LENGTH)
             this.description = buffer.readString(buffer.short.toInt(), Constants.MAX_ASSET_DESCRIPTION_LENGTH)
-            this.quantityQNT = buffer.long
+            this.quantity = buffer.long
             this.decimals = buffer.get()
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.name = attachmentData.get(NAME_PARAMETER).safeGetAsString()
             this.description = attachmentData.get(DESCRIPTION_PARAMETER).safeGetAsString().orEmpty()
-            this.quantityQNT = attachmentData.get(QUANTITY_QNT_PARAMETER).mustGetAsLong(QUANTITY_QNT_PARAMETER)
+            this.quantity = attachmentData.get(QUANTITY_QNT_PARAMETER).mustGetAsLong(QUANTITY_QNT_PARAMETER)
             this.decimals = attachmentData.get(DECIMALS_PARAMETER).mustGetAsByte(DECIMALS_PARAMETER)
         }
 
-        constructor(dp: DependencyProvider, name: String, description: String, quantityQNT: Long, decimals: Byte, blockchainHeight: Int) : super(dp, blockchainHeight) {
+        constructor(dp: DependencyProvider, name: String, description: String, quantity: Long, decimals: Byte, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.name = name
             this.description = description.orEmpty()
-            this.quantityQNT = quantityQNT
+            this.quantity = quantity
             this.decimals = decimals
         }
 
         internal constructor(dp: DependencyProvider, attachment: BrsApi.AssetIssuanceAttachment) : super(dp, attachment.version.toByte()) {
             this.name = attachment.name
             this.description = attachment.description
-            this.quantityQNT = attachment.quantity
+            this.quantity = attachment.quantity
             this.decimals = attachment.decimals.toByte()
         }
 
@@ -701,14 +701,14 @@ interface Attachment : Appendix {
             buffer.put(name)
             buffer.putShort(description.size.toShort())
             buffer.put(description)
-            buffer.putLong(quantityQNT)
+            buffer.putLong(quantity)
             buffer.put(decimals)
         }
 
         override fun putMyJSON(attachment: JsonObject) {
             attachment.addProperty(NAME_RESPONSE, name)
             attachment.addProperty(DESCRIPTION_RESPONSE, description)
-            attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT)
+            attachment.addProperty(QUANTITY_QNT_RESPONSE, quantity)
             attachment.addProperty(DECIMALS_RESPONSE, decimals)
         }
     }
@@ -716,7 +716,7 @@ interface Attachment : Appendix {
     class ColoredCoinsAssetTransfer : AbstractAttachment {
 
         val assetId: Long
-        val quantityQNT: Long
+        val quantity: Long
         val comment: String?
 
         override fun getAppendixName(): String = "AssetTransfer"
@@ -731,37 +731,37 @@ interface Attachment : Appendix {
             get() = Any.pack(BrsApi.AssetTransferAttachment.newBuilder()
                     .setVersion(version.toInt())
                     .setAsset(assetId)
-                    .setQuantity(quantityQNT)
+                    .setQuantity(quantity)
                     .setComment(comment)
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.assetId = buffer.long
-            this.quantityQNT = buffer.long
+            this.quantity = buffer.long
             this.comment = if (version.toInt() == 0) buffer.readString(buffer.short.toInt(), Constants.MAX_ASSET_TRANSFER_COMMENT_LENGTH) else null
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.assetId = attachmentData.get(ASSET_PARAMETER).safeGetAsString().parseUnsignedLong()
-            this.quantityQNT = attachmentData.get(QUANTITY_QNT_PARAMETER).mustGetAsLong(QUANTITY_QNT_PARAMETER)
+            this.quantity = attachmentData.get(QUANTITY_QNT_PARAMETER).mustGetAsLong(QUANTITY_QNT_PARAMETER)
             this.comment = if (version.toInt() == 0) attachmentData.get(COMMENT_PARAMETER).safeGetAsString().orEmpty() else null
         }
 
-        constructor(dp: DependencyProvider, assetId: Long, quantityQNT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
+        constructor(dp: DependencyProvider, assetId: Long, quantity: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.assetId = assetId
-            this.quantityQNT = quantityQNT
+            this.quantity = quantity
             this.comment = null
         }
 
         internal constructor(dp: DependencyProvider, attachment: BrsApi.AssetTransferAttachment) : super(dp, attachment.version.toByte()) {
             this.assetId = attachment.asset
-            this.quantityQNT = attachment.quantity
+            this.quantity = attachment.quantity
             this.comment = attachment.comment
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
             buffer.putLong(assetId)
-            buffer.putLong(quantityQNT)
+            buffer.putLong(quantity)
             if (version.toInt() == 0 && comment != null) {
                 val commentBytes = this.comment.toBytes()
                 buffer.putShort(commentBytes.size.toShort())
@@ -771,7 +771,7 @@ interface Attachment : Appendix {
 
         override fun putMyJSON(attachment: JsonObject) {
             attachment.addProperty(ASSET_RESPONSE, assetId.toUnsignedString())
-            attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT)
+            attachment.addProperty(QUANTITY_QNT_RESPONSE, quantity)
             if (version.toInt() == 0) {
                 attachment.addProperty(COMMENT_RESPONSE, comment)
             }
@@ -781,8 +781,8 @@ interface Attachment : Appendix {
     abstract class ColoredCoinsOrderPlacement : AbstractAttachment {
 
         val assetId: Long
-        val quantityQNT: Long
-        val priceNQT: Long
+        val quantity: Long
+        val pricePlanck: Long
 
         override val mySize: Int
             get() = 8 + 8 + 8
@@ -791,8 +791,8 @@ interface Attachment : Appendix {
             get() = Any.pack(BrsApi.AssetOrderPlacementAttachment.newBuilder()
                     .setVersion(version.toInt())
                     .setAsset(assetId)
-                    .setQuantity(quantityQNT)
-                    .setPrice(priceNQT)
+                    .setQuantity(quantity)
+                    .setPrice(pricePlanck)
                     .setType(type)
                     .build())
 
@@ -800,38 +800,38 @@ interface Attachment : Appendix {
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.assetId = buffer.long
-            this.quantityQNT = buffer.long
-            this.priceNQT = buffer.long
+            this.quantity = buffer.long
+            this.pricePlanck = buffer.long
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.assetId = attachmentData.get(ASSET_PARAMETER).safeGetAsString().parseUnsignedLong()
-            this.quantityQNT = attachmentData.get(QUANTITY_QNT_PARAMETER).mustGetAsLong(QUANTITY_QNT_PARAMETER)
-            this.priceNQT = attachmentData.get(PRICE_NQT_PARAMETER).mustGetAsLong(PRICE_NQT_PARAMETER)
+            this.quantity = attachmentData.get(QUANTITY_QNT_PARAMETER).mustGetAsLong(QUANTITY_QNT_PARAMETER)
+            this.pricePlanck = attachmentData.get(PRICE_PLANCK_PARAMETER).mustGetAsLong(PRICE_PLANCK_PARAMETER)
         }
 
-        constructor(dp: DependencyProvider, assetId: Long, quantityQNT: Long, priceNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
+        constructor(dp: DependencyProvider, assetId: Long, quantity: Long, pricePlanck: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.assetId = assetId
-            this.quantityQNT = quantityQNT
-            this.priceNQT = priceNQT
+            this.quantity = quantity
+            this.pricePlanck = pricePlanck
         }
 
         internal constructor(dp: DependencyProvider, attachment: BrsApi.AssetOrderPlacementAttachment) : super(dp, attachment.version.toByte()) {
             this.assetId = attachment.asset
-            this.quantityQNT = attachment.quantity
-            this.priceNQT = attachment.price
+            this.quantity = attachment.quantity
+            this.pricePlanck = attachment.price
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
             buffer.putLong(assetId)
-            buffer.putLong(quantityQNT)
-            buffer.putLong(priceNQT)
+            buffer.putLong(quantity)
+            buffer.putLong(pricePlanck)
         }
 
         override fun putMyJSON(attachment: JsonObject) {
             attachment.addProperty(ASSET_RESPONSE, assetId.toUnsignedString())
-            attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT)
-            attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT)
+            attachment.addProperty(QUANTITY_QNT_RESPONSE, quantity)
+            attachment.addProperty(PRICE_PLANCK_RESPONSE, pricePlanck)
         }
     }
 
@@ -849,7 +849,7 @@ interface Attachment : Appendix {
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData)
 
-        constructor(dp: DependencyProvider, assetId: Long, quantityQNT: Long, priceNQT: Long, blockchainHeight: Int) : super(dp, assetId, quantityQNT, priceNQT, blockchainHeight)
+        constructor(dp: DependencyProvider, assetId: Long, quantity: Long, pricePlanck: Long, blockchainHeight: Int) : super(dp, assetId, quantity, pricePlanck, blockchainHeight)
 
         internal constructor(dp: DependencyProvider, attachment: BrsApi.AssetOrderPlacementAttachment) : super(dp, attachment) {
             require(attachment.type == type) { "Type does not match" }
@@ -870,7 +870,7 @@ interface Attachment : Appendix {
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData)
 
-        constructor(dp: DependencyProvider, assetId: Long, quantityQNT: Long, priceNQT: Long, blockchainHeight: Int) : super(dp, assetId, quantityQNT, priceNQT, blockchainHeight)
+        constructor(dp: DependencyProvider, assetId: Long, quantity: Long, pricePlanck: Long, blockchainHeight: Int) : super(dp, assetId, quantity, pricePlanck, blockchainHeight)
 
         internal constructor(dp: DependencyProvider, attachment: BrsApi.AssetOrderPlacementAttachment) : super(dp, attachment) {
             require(attachment.type == type) { "Type does not match" }
@@ -969,7 +969,7 @@ interface Attachment : Appendix {
         val description: String?
         val tags: String?
         val quantity: Int
-        val priceNQT: Long
+        val pricePlanck: Long
 
         override fun getAppendixName(): String = "DigitalGoodsListing"
 
@@ -987,7 +987,7 @@ interface Attachment : Appendix {
                     .setDescription(description)
                     .setTags(tags)
                     .setQuantity(quantity)
-                    .setPrice(priceNQT)
+                    .setPrice(pricePlanck)
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
@@ -995,7 +995,7 @@ interface Attachment : Appendix {
             this.description = buffer.readString(buffer.short.toInt(), Constants.MAX_DGS_LISTING_DESCRIPTION_LENGTH)
             this.tags = buffer.readString(buffer.short.toInt(), Constants.MAX_DGS_LISTING_TAGS_LENGTH)
             this.quantity = buffer.int
-            this.priceNQT = buffer.long
+            this.pricePlanck = buffer.long
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
@@ -1003,15 +1003,15 @@ interface Attachment : Appendix {
             this.description = attachmentData.get(DESCRIPTION_RESPONSE).safeGetAsString()
             this.tags = attachmentData.get(TAGS_RESPONSE).safeGetAsString()
             this.quantity = attachmentData.get(QUANTITY_RESPONSE).mustGetAsInt(QUANTITY_RESPONSE)
-            this.priceNQT = attachmentData.get(PRICE_NQT_PARAMETER).mustGetAsLong(PRICE_NQT_PARAMETER)
+            this.pricePlanck = attachmentData.get(PRICE_PLANCK_PARAMETER).mustGetAsLong(PRICE_PLANCK_PARAMETER)
         }
 
-        constructor(dp: DependencyProvider, name: String, description: String, tags: String, quantity: Int, priceNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
+        constructor(dp: DependencyProvider, name: String, description: String, tags: String, quantity: Int, pricePlanck: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.name = name
             this.description = description
             this.tags = tags
             this.quantity = quantity
-            this.priceNQT = priceNQT
+            this.pricePlanck = pricePlanck
         }
 
         internal constructor(dp: DependencyProvider, attachment: BrsApi.DigitalGoodsListingAttachment) : super(dp, attachment.version.toByte()) {
@@ -1019,7 +1019,7 @@ interface Attachment : Appendix {
             this.description = attachment.description
             this.tags = attachment.tags
             this.quantity = attachment.quantity
-            this.priceNQT = attachment.price
+            this.pricePlanck = attachment.price
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
@@ -1033,7 +1033,7 @@ interface Attachment : Appendix {
             buffer.putShort(tagsBytes.size.toShort())
             buffer.put(tagsBytes)
             buffer.putInt(quantity)
-            buffer.putLong(priceNQT)
+            buffer.putLong(pricePlanck)
         }
 
         override fun putMyJSON(attachment: JsonObject) {
@@ -1041,7 +1041,7 @@ interface Attachment : Appendix {
             attachment.addProperty(DESCRIPTION_RESPONSE, description)
             attachment.addProperty(TAGS_RESPONSE, tags)
             attachment.addProperty(QUANTITY_RESPONSE, quantity)
-            attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT)
+            attachment.addProperty(PRICE_PLANCK_RESPONSE, pricePlanck)
         }
     }
 
@@ -1091,7 +1091,7 @@ interface Attachment : Appendix {
     class DigitalGoodsPriceChange : AbstractAttachment {
 
         val goodsId: Long
-        val priceNQT: Long
+        val pricePlanck: Long
 
         override fun getAppendixName(): String = "DigitalGoodsPriceChange"
 
@@ -1105,37 +1105,37 @@ interface Attachment : Appendix {
             get() = Any.pack(BrsApi.DigitalGoodsPriceChangeAttachment.newBuilder()
                     .setVersion(version.toInt())
                     .setGoods(goodsId)
-                    .setPrice(priceNQT)
+                    .setPrice(pricePlanck)
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.goodsId = buffer.long
-            this.priceNQT = buffer.long
+            this.pricePlanck = buffer.long
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.goodsId = attachmentData.get(GOODS_PARAMETER).safeGetAsString().parseUnsignedLong()
-            this.priceNQT = attachmentData.get(PRICE_NQT_PARAMETER).mustGetAsLong(PRICE_NQT_PARAMETER)
+            this.pricePlanck = attachmentData.get(PRICE_PLANCK_PARAMETER).mustGetAsLong(PRICE_PLANCK_PARAMETER)
         }
 
-        constructor(dp: DependencyProvider, goodsId: Long, priceNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
+        constructor(dp: DependencyProvider, goodsId: Long, pricePlanck: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.goodsId = goodsId
-            this.priceNQT = priceNQT
+            this.pricePlanck = pricePlanck
         }
 
         internal constructor(dp: DependencyProvider, attachment: BrsApi.DigitalGoodsPriceChangeAttachment) : super(dp, attachment.version.toByte()) {
             this.goodsId = attachment.goods
-            this.priceNQT = attachment.price
+            this.pricePlanck = attachment.price
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
             buffer.putLong(goodsId)
-            buffer.putLong(priceNQT)
+            buffer.putLong(pricePlanck)
         }
 
         override fun putMyJSON(attachment: JsonObject) {
             attachment.addProperty(GOODS_RESPONSE, goodsId.toUnsignedString())
-            attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT)
+            attachment.addProperty(PRICE_PLANCK_RESPONSE, pricePlanck)
         }
     }
 
@@ -1194,7 +1194,7 @@ interface Attachment : Appendix {
 
         val goodsId: Long
         val quantity: Int
-        val priceNQT: Long
+        val pricePlanck: Long
         val deliveryDeadlineTimestamp: Int
 
         override fun getAppendixName(): String = "DigitalGoodsPurchase"
@@ -1210,49 +1210,49 @@ interface Attachment : Appendix {
                     .setVersion(version.toInt())
                     .setGoods(goodsId)
                     .setQuantity(quantity)
-                    .setPrice(priceNQT)
+                    .setPrice(pricePlanck)
                     .setDeliveryDeadlineTimestmap(deliveryDeadlineTimestamp)
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.goodsId = buffer.long
             this.quantity = buffer.int
-            this.priceNQT = buffer.long
+            this.pricePlanck = buffer.long
             this.deliveryDeadlineTimestamp = buffer.int
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.goodsId = attachmentData.get(GOODS_PARAMETER).safeGetAsString().parseUnsignedLong()
             this.quantity = attachmentData.get(QUANTITY_PARAMETER).mustGetAsInt(QUANTITY_PARAMETER)
-            this.priceNQT = attachmentData.get(PRICE_NQT_PARAMETER).mustGetAsLong(PRICE_NQT_PARAMETER)
+            this.pricePlanck = attachmentData.get(PRICE_PLANCK_PARAMETER).mustGetAsLong(PRICE_PLANCK_PARAMETER)
             this.deliveryDeadlineTimestamp = attachmentData.get(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER).mustGetAsInt(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER)
         }
 
-        constructor(dp: DependencyProvider, goodsId: Long, quantity: Int, priceNQT: Long, deliveryDeadlineTimestamp: Int, blockchainHeight: Int) : super(dp, blockchainHeight) {
+        constructor(dp: DependencyProvider, goodsId: Long, quantity: Int, pricePlanck: Long, deliveryDeadlineTimestamp: Int, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.goodsId = goodsId
             this.quantity = quantity
-            this.priceNQT = priceNQT
+            this.pricePlanck = pricePlanck
             this.deliveryDeadlineTimestamp = deliveryDeadlineTimestamp
         }
 
         internal constructor(dp: DependencyProvider, attachment: BrsApi.DigitalGoodsPurchaseAttachment) : super(dp, attachment.version.toByte()) {
             this.goodsId = attachment.goods
             this.quantity = attachment.quantity
-            this.priceNQT = attachment.price
+            this.pricePlanck = attachment.price
             this.deliveryDeadlineTimestamp = attachment.deliveryDeadlineTimestmap
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
             buffer.putLong(goodsId)
             buffer.putInt(quantity)
-            buffer.putLong(priceNQT)
+            buffer.putLong(pricePlanck)
             buffer.putInt(deliveryDeadlineTimestamp)
         }
 
         override fun putMyJSON(attachment: JsonObject) {
             attachment.addProperty(GOODS_RESPONSE, goodsId.toUnsignedString())
             attachment.addProperty(QUANTITY_RESPONSE, quantity)
-            attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT)
+            attachment.addProperty(PRICE_PLANCK_RESPONSE, pricePlanck)
             attachment.addProperty(DELIVERY_DEADLINE_TIMESTAMP_RESPONSE, deliveryDeadlineTimestamp)
         }
     }
@@ -1261,7 +1261,7 @@ interface Attachment : Appendix {
 
         val purchaseId: Long
         val goods: EncryptedData
-        val discountNQT: Long
+        val discountPlanck: Long
         private val goodsIsText: Boolean
 
         override fun getAppendixName(): String = "DigitalGoodsDelivery"
@@ -1276,7 +1276,7 @@ interface Attachment : Appendix {
             get() = Any.pack(BrsApi.DigitalGoodsDeliveryAttachment.newBuilder()
                     .setVersion(version.toInt())
                     .setPurchase(purchaseId)
-                    .setDiscount(discountNQT)
+                    .setDiscount(discountPlanck)
                     .setGoods(ProtoBuilder.buildEncryptedData(goods))
                     .setIsText(goodsIsText)
                     .build())
@@ -1289,20 +1289,20 @@ interface Attachment : Appendix {
                 length = length and Integer.MAX_VALUE
             }
             this.goods = EncryptedData.readEncryptedData(buffer, length, Constants.MAX_DGS_GOODS_LENGTH)
-            this.discountNQT = buffer.long
+            this.discountPlanck = buffer.long
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.purchaseId = attachmentData.get(PURCHASE_PARAMETER).safeGetAsString().parseUnsignedLong()
             this.goods = EncryptedData(attachmentData.get(GOODS_DATA_PARAMETER).mustGetAsString(GOODS_DATA_PARAMETER).parseHexString(), attachmentData.get(GOODS_NONCE_PARAMETER).mustGetAsString(GOODS_NONCE_PARAMETER).parseHexString())
-            this.discountNQT = attachmentData.get(DISCOUNT_NQT_PARAMETER).mustGetAsLong(DISCOUNT_NQT_PARAMETER)
+            this.discountPlanck = attachmentData.get(DISCOUNT_PLANCK_PARAMETER).mustGetAsLong(DISCOUNT_PLANCK_PARAMETER)
             this.goodsIsText = attachmentData.get(GOODS_IS_TEXT_PARAMETER).mustGetAsBoolean(GOODS_IS_TEXT_PARAMETER)
         }
 
-        constructor(dp: DependencyProvider, purchaseId: Long, goods: EncryptedData, goodsIsText: Boolean, discountNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
+        constructor(dp: DependencyProvider, purchaseId: Long, goods: EncryptedData, goodsIsText: Boolean, discountPlanck: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.purchaseId = purchaseId
             this.goods = goods
-            this.discountNQT = discountNQT
+            this.discountPlanck = discountPlanck
             this.goodsIsText = goodsIsText
         }
 
@@ -1310,7 +1310,7 @@ interface Attachment : Appendix {
             this.purchaseId = attachment.purchase
             this.goods = ProtoBuilder.parseEncryptedData(attachment.goods)
             this.goodsIsText = attachment.isText
-            this.discountNQT = attachment.discount
+            this.discountPlanck = attachment.discount
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
@@ -1318,14 +1318,14 @@ interface Attachment : Appendix {
             buffer.putInt(if (goodsIsText) goods.data.size or Integer.MIN_VALUE else goods.data.size)
             buffer.put(goods.data)
             buffer.put(goods.nonce)
-            buffer.putLong(discountNQT)
+            buffer.putLong(discountPlanck)
         }
 
         override fun putMyJSON(attachment: JsonObject) {
             attachment.addProperty(PURCHASE_RESPONSE, purchaseId.toUnsignedString())
             attachment.addProperty(GOODS_DATA_RESPONSE, goods.data.toHexString())
             attachment.addProperty(GOODS_NONCE_RESPONSE, goods.nonce.toHexString())
-            attachment.addProperty(DISCOUNT_NQT_RESPONSE, discountNQT)
+            attachment.addProperty(DISCOUNT_PLANCK_RESPONSE, discountPlanck)
             attachment.addProperty(GOODS_IS_TEXT_RESPONSE, goodsIsText)
         }
 
@@ -1380,7 +1380,7 @@ interface Attachment : Appendix {
     class DigitalGoodsRefund : AbstractAttachment {
 
         val purchaseId: Long
-        val refundNQT: Long
+        val refundPlanck: Long
 
         override fun getAppendixName(): String = "DigitalGoodsRefund"
 
@@ -1394,37 +1394,37 @@ interface Attachment : Appendix {
             get() = Any.pack(BrsApi.DigitalGoodsRefundAttachment.newBuilder()
                     .setVersion(version.toInt())
                     .setPurchase(purchaseId)
-                    .setRefund(refundNQT)
+                    .setRefund(refundPlanck)
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
             this.purchaseId = buffer.long
-            this.refundNQT = buffer.long
+            this.refundPlanck = buffer.long
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.purchaseId = attachmentData.get(PURCHASE_PARAMETER).safeGetAsString().parseUnsignedLong()
-            this.refundNQT = attachmentData.get(REFUND_NQT_PARAMETER).mustGetAsLong(REFUND_NQT_PARAMETER)
+            this.refundPlanck = attachmentData.get(REFUND_PLANCK_PARAMETER).mustGetAsLong(REFUND_PLANCK_PARAMETER)
         }
 
-        constructor(dp: DependencyProvider, purchaseId: Long, refundNQT: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
+        constructor(dp: DependencyProvider, purchaseId: Long, refundPlanck: Long, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.purchaseId = purchaseId
-            this.refundNQT = refundNQT
+            this.refundPlanck = refundPlanck
         }
 
         internal constructor(dp: DependencyProvider, attachment: BrsApi.DigitalGoodsRefundAttachment) : super(dp, attachment.version.toByte()) {
             this.purchaseId = attachment.purchase
-            this.refundNQT = attachment.refund
+            this.refundPlanck = attachment.refund
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
             buffer.putLong(purchaseId)
-            buffer.putLong(refundNQT)
+            buffer.putLong(refundPlanck)
         }
 
         override fun putMyJSON(attachment: JsonObject) {
             attachment.addProperty(PURCHASE_RESPONSE, purchaseId.toUnsignedString())
-            attachment.addProperty(REFUND_NQT_RESPONSE, refundNQT)
+            attachment.addProperty(REFUND_PLANCK_RESPONSE, refundPlanck)
         }
     }
 
@@ -1503,7 +1503,7 @@ interface Attachment : Appendix {
 
     class AdvancedPaymentEscrowCreation : AbstractAttachment {
 
-        val amountNQT: Long
+        val amountPlanck: Long
         private val requiredSigners: Byte
         private val signers = TreeSet<Long>()
         val deadline: Int
@@ -1527,7 +1527,7 @@ interface Attachment : Appendix {
         override val protobufMessage: Any
             get() = Any.pack(BrsApi.EscrowCreationAttachment.newBuilder()
                     .setVersion(version.toInt())
-                    .setAmount(amountNQT)
+                    .setAmount(amountPlanck)
                     .setRequiredSigners(requiredSigners.toInt())
                     .addAllSigners(signers)
                     .setDeadline(deadline)
@@ -1535,7 +1535,7 @@ interface Attachment : Appendix {
                     .build())
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
-            this.amountNQT = buffer.long
+            this.amountPlanck = buffer.long
             this.deadline = buffer.int
             this.deadlineAction = Escrow.byteToDecision(buffer.get())
             this.requiredSigners = buffer.get()
@@ -1551,7 +1551,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.amountNQT = attachmentData.get(AMOUNT_NQT_PARAMETER).safeGetAsString().parseUnsignedLong()
+            this.amountPlanck = attachmentData.get(AMOUNT_PLANCK_PARAMETER).safeGetAsString().parseUnsignedLong()
             this.deadline = attachmentData.get(DEADLINE_PARAMETER).mustGetAsInt(DEADLINE_PARAMETER)
             this.deadlineAction = Escrow.stringToDecision(attachmentData.get(DEADLINE_ACTION_PARAMETER).mustGetAsString(DEADLINE_ACTION_PARAMETER))
             this.requiredSigners = attachmentData.get(REQUIRED_SIGNERS_PARAMETER).mustGetAsByte(REQUIRED_SIGNERS_PARAMETER)
@@ -1568,8 +1568,8 @@ interface Attachment : Appendix {
             }
         }
 
-        constructor(dp: DependencyProvider, amountNQT: Long, deadline: Int, deadlineAction: Escrow.DecisionType, requiredSigners: Int, signers: Collection<Long>, blockchainHeight: Int) : super(dp, blockchainHeight) {
-            this.amountNQT = amountNQT
+        constructor(dp: DependencyProvider, amountPlanck: Long, deadline: Int, deadlineAction: Escrow.DecisionType, requiredSigners: Int, signers: Collection<Long>, blockchainHeight: Int) : super(dp, blockchainHeight) {
+            this.amountPlanck = amountPlanck
             this.deadline = deadline
             this.deadlineAction = deadlineAction
             this.requiredSigners = requiredSigners.toByte()
@@ -1583,7 +1583,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachment: BrsApi.EscrowCreationAttachment) : super(dp, attachment.version.toByte()) {
-            this.amountNQT = attachment.amount
+            this.amountPlanck = attachment.amount
             this.requiredSigners = attachment.requiredSigners.toByte()
             this.deadline = attachment.deadline
             this.deadlineAction = Escrow.protoBufToDecision(attachment.deadlineAction)
@@ -1597,7 +1597,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            buffer.putLong(this.amountNQT)
+            buffer.putLong(this.amountPlanck)
             buffer.putInt(this.deadline)
             buffer.put(Escrow.decisionToByte(this.deadlineAction!!))
             buffer.put(this.requiredSigners)
@@ -1607,7 +1607,7 @@ interface Attachment : Appendix {
         }
 
         override fun putMyJSON(attachment: JsonObject) {
-            attachment.addProperty(AMOUNT_NQT_RESPONSE, this.amountNQT.toUnsignedString())
+            attachment.addProperty(AMOUNT_PLANCK_RESPONSE, this.amountPlanck.toUnsignedString())
             attachment.addProperty(DEADLINE_RESPONSE, this.deadline)
             attachment.addProperty(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(this.deadlineAction!!))
             attachment.addProperty(REQUIRED_SIGNERS_RESPONSE, this.requiredSigners.toInt())

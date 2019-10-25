@@ -111,11 +111,11 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         accountTable.finish()
     }
 
-    override fun addToForgedBalanceNQT(account: Account, amountNQT: Long) {
-        if (amountNQT == 0L) {
+    override fun addToForgedBalancePlanck(account: Account, amountPlanck: Long) {
+        if (amountPlanck == 0L) {
             return
         }
-        account.forgedBalanceNQT = account.forgedBalanceNQT.safeAdd(amountNQT)
+        account.forgedBalancePlanck = account.forgedBalancePlanck.safeAdd(amountPlanck)
         accountTable.insert(account)
     }
 
@@ -125,61 +125,61 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         accountTable.insert(account)
     }
 
-    override fun addToAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long) {
-        if (quantityQNT == 0L) {
+    override fun addToAssetBalanceQuantity(account: Account, assetId: Long, quantity: Long) {
+        if (quantity == 0L) {
             return
         }
         var accountAsset: AccountAsset?
 
         val newKey = accountAssetKeyFactory.newKey(account.id, assetId)
         accountAsset = accountAssetTable.get(newKey)
-        var assetBalance = accountAsset?.quantityQNT ?: 0
-        assetBalance = assetBalance.safeAdd(quantityQNT)
+        var assetBalance = accountAsset?.quantity ?: 0
+        assetBalance = assetBalance.safeAdd(quantity)
         if (accountAsset == null) {
             accountAsset = AccountAsset(newKey, account.id, assetId, assetBalance, 0)
         } else {
-            accountAsset.quantityQNT = assetBalance
+            accountAsset.quantity = assetBalance
         }
         saveAccountAsset(accountAsset)
         listeners.accept(Event.ASSET_BALANCE, account)
         assetListeners.accept(Event.ASSET_BALANCE, accountAsset)
     }
 
-    override fun addToUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long) {
-        if (quantityQNT == 0L) {
+    override fun addToUnconfirmedAssetBalanceQuantity(account: Account, assetId: Long, quantity: Long) {
+        if (quantity == 0L) {
             return
         }
         var accountAsset: AccountAsset?
         val newKey = accountAssetKeyFactory.newKey(account.id, assetId)
         accountAsset = accountAssetTable.get(newKey)
-        var unconfirmedAssetBalance = accountAsset?.unconfirmedQuantityQNT ?: 0
-        unconfirmedAssetBalance = unconfirmedAssetBalance.safeAdd(quantityQNT)
+        var unconfirmedAssetBalance = accountAsset?.unconfirmedQuantity ?: 0
+        unconfirmedAssetBalance = unconfirmedAssetBalance.safeAdd(quantity)
         if (accountAsset == null) {
             accountAsset = AccountAsset(newKey, account.id, assetId, 0, unconfirmedAssetBalance)
         } else {
-            accountAsset.unconfirmedQuantityQNT = unconfirmedAssetBalance
+            accountAsset.unconfirmedQuantity = unconfirmedAssetBalance
         }
         saveAccountAsset(accountAsset)
         listeners.accept(Event.UNCONFIRMED_ASSET_BALANCE, account)
         assetListeners.accept(Event.UNCONFIRMED_ASSET_BALANCE, accountAsset)
     }
 
-    override fun addToAssetAndUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long) {
-        if (quantityQNT == 0L) {
+    override fun addToAssetAndUnconfirmedAssetBalanceQuantity(account: Account, assetId: Long, quantity: Long) {
+        if (quantity == 0L) {
             return
         }
         var accountAsset: AccountAsset?
         val newKey = accountAssetKeyFactory.newKey(account.id, assetId)
         accountAsset = accountAssetTable.get(newKey)
-        var assetBalance = accountAsset?.quantityQNT ?: 0
-        assetBalance = assetBalance.safeAdd(quantityQNT)
-        var unconfirmedAssetBalance = accountAsset?.unconfirmedQuantityQNT ?: 0
-        unconfirmedAssetBalance = unconfirmedAssetBalance.safeAdd(quantityQNT)
+        var assetBalance = accountAsset?.quantity ?: 0
+        assetBalance = assetBalance.safeAdd(quantity)
+        var unconfirmedAssetBalance = accountAsset?.unconfirmedQuantity ?: 0
+        unconfirmedAssetBalance = unconfirmedAssetBalance.safeAdd(quantity)
         if (accountAsset == null) {
             accountAsset = AccountAsset(newKey, account.id, assetId, assetBalance, unconfirmedAssetBalance)
         } else {
-            accountAsset.quantityQNT = assetBalance
-            accountAsset.unconfirmedQuantityQNT = unconfirmedAssetBalance
+            accountAsset.quantity = assetBalance
+            accountAsset.unconfirmedQuantity = unconfirmedAssetBalance
         }
         saveAccountAsset(accountAsset)
         listeners.accept(Event.ASSET_BALANCE, account)
@@ -188,32 +188,32 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         assetListeners.accept(Event.UNCONFIRMED_ASSET_BALANCE, accountAsset)
     }
 
-    override fun addToBalanceNQT(account: Account, amountNQT: Long) {
-        if (amountNQT == 0L) {
+    override fun addToBalancePlanck(account: Account, amountPlanck: Long) {
+        if (amountPlanck == 0L) {
             return
         }
-        account.balanceNQT = account.balanceNQT.safeAdd(amountNQT)
+        account.balancePlanck = account.balancePlanck.safeAdd(amountPlanck)
         account.checkBalance()
         accountTable.insert(account)
         listeners.accept(Event.BALANCE, account)
     }
 
-    override fun addToUnconfirmedBalanceNQT(account: Account, amountNQT: Long) {
-        if (amountNQT == 0L) {
+    override fun addToUnconfirmedBalancePlanck(account: Account, amountPlanck: Long) {
+        if (amountPlanck == 0L) {
             return
         }
-        account.unconfirmedBalanceNQT = account.unconfirmedBalanceNQT.safeAdd(amountNQT)
+        account.unconfirmedBalancePlanck = account.unconfirmedBalancePlanck.safeAdd(amountPlanck)
         account.checkBalance()
         accountTable.insert(account)
         listeners.accept(Event.UNCONFIRMED_BALANCE, account)
     }
 
-    override fun addToBalanceAndUnconfirmedBalanceNQT(account: Account, amountNQT: Long) {
-        if (amountNQT == 0L) {
+    override fun addToBalanceAndUnconfirmedBalancePlanck(account: Account, amountPlanck: Long) {
+        if (amountPlanck == 0L) {
             return
         }
-        account.balanceNQT = account.balanceNQT.safeAdd(amountNQT)
-        account.unconfirmedBalanceNQT = account.unconfirmedBalanceNQT.safeAdd(amountNQT)
+        account.balancePlanck = account.balancePlanck.safeAdd(amountPlanck)
+        account.unconfirmedBalancePlanck = account.unconfirmedBalancePlanck.safeAdd(amountPlanck)
         account.checkBalance()
         accountTable.insert(account)
         listeners.accept(Event.BALANCE, account)
@@ -236,16 +236,16 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         rewardRecipientAssignmentTable.insert(assignment)
     }
 
-    override fun getUnconfirmedAssetBalanceQNT(account: Account, assetId: Long): Long {
+    override fun getUnconfirmedAssetBalanceQuantity(account: Account, assetId: Long): Long {
         val newKey = accountAssetKeyFactory.newKey(account.id, assetId)
         val accountAsset = accountAssetTable.get(newKey)
-        return accountAsset?.unconfirmedQuantityQNT ?: 0
+        return accountAsset?.unconfirmedQuantity ?: 0
     }
 
 
     private fun saveAccountAsset(accountAsset: AccountAsset) {
         accountAsset.checkBalance()
-        if (accountAsset.quantityQNT > 0 || accountAsset.unconfirmedQuantityQNT > 0) {
+        if (accountAsset.quantity > 0 || accountAsset.unconfirmedQuantity > 0) {
             accountAssetTable.insert(accountAsset)
         } else {
             accountAssetTable.delete(accountAsset)

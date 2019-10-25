@@ -80,8 +80,8 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
         val version = r.version!!
         val timestamp = r.timestamp!!
         val previousBlockId = Optional.ofNullable(r.previousBlockId).orElse(0L)
-        val totalAmountNQT = r.totalAmount!!
-        val totalFeeNQT = r.totalFee!!
+        val totalAmountPlanck = r.totalAmount!!
+        val totalFeePlanck = r.totalFee!!
         val payloadLength = r.payloadLength!!
         val generatorPublicKey = r.generatorPublicKey
         val previousBlockHash = r.previousBlockHash
@@ -96,7 +96,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
         val nonce = r.nonce!!
         val blockATs = r.ats
 
-        return Block(dp, version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, payloadLength, payloadHash,
+        return Block(dp, version, timestamp, previousBlockId, totalAmountPlanck, totalFeePlanck, payloadLength, payloadHash,
                 generatorPublicKey, generationSignature, blockSignature, previousBlockHash,
                 cumulativeDifficulty, baseTarget, nextBlockId, height, id, nonce, blockATs)
     }
@@ -109,7 +109,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
                 BLOCK.NONCE, BLOCK.ATS)
                 .values(block.id, block.version, block.timestamp,
                         if (block.previousBlockId == 0L) null else block.previousBlockId,
-                        block.totalAmountNQT, block.totalFeeNQT, block.payloadLength,
+                        block.totalAmountPlanck, block.totalFeePlanck, block.payloadLength,
                         block.generatorPublicKey, block.previousBlockHash,
                         block.cumulativeDifficulty.toByteArray(), block.baseTarget, block.height,
                         block.generationSignature, block.blockSignature, block.payloadHash,

@@ -24,7 +24,7 @@ class ArbitraryMessage(dp: DependencyProvider) : Messaging(dp) {
 
     override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment
-        if (transaction.amountNQT != 0L) {
+        if (transaction.amountPlanck != 0L) {
             throw BurstException.NotValidException("Invalid arbitrary message: " + attachment.jsonObject.toJsonString())
         }
         if (!dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE) && transaction.message == null) {

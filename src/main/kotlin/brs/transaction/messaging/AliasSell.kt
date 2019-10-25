@@ -42,7 +42,7 @@ class AliasSell(dp: DependencyProvider) : Messaging(dp) {
         if (!dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, dp.blockchain.lastBlock.height)) {
             throw BurstException.NotYetEnabledException("Alias transfer not yet enabled at height " + dp.blockchain.lastBlock.height)
         }
-        if (transaction.amountNQT != 0L) {
+        if (transaction.amountPlanck != 0L) {
             throw BurstException.NotValidException("Invalid sell alias transaction: " + transaction.toJsonObject().toJsonString())
         }
         val attachment = transaction.attachment as Attachment.MessagingAliasSell
@@ -50,11 +50,11 @@ class AliasSell(dp: DependencyProvider) : Messaging(dp) {
         if (aliasName.isEmpty()) {
             throw BurstException.NotValidException("Missing alias name")
         }
-        val priceNQT = attachment.priceNQT
-        if (priceNQT < 0 || priceNQT > Constants.MAX_BALANCE_NQT) {
-            throw BurstException.NotValidException("Invalid alias sell price: $priceNQT")
+        val pricePlanck = attachment.pricePlanck
+        if (pricePlanck < 0 || pricePlanck > Constants.MAX_BALANCE_PLANCK) {
+            throw BurstException.NotValidException("Invalid alias sell price: $pricePlanck")
         }
-        if (priceNQT == 0L) {
+        if (pricePlanck == 0L) {
             if (Genesis.CREATOR_ID == transaction.recipientId) {
                 throw BurstException.NotValidException("Transferring aliases to Genesis account not allowed")
             } else if (transaction.recipientId == 0L) {

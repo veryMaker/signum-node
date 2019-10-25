@@ -33,9 +33,9 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         return dp.subscriptionStore.getSubscriptionsToId(accountId)
     }
 
-    override fun addSubscription(sender: Account, recipient: Account, id: Long, amountNQT: Long, startTimestamp: Int, frequency: Int) {
+    override fun addSubscription(sender: Account, recipient: Account, id: Long, amountPlanck: Long, startTimestamp: Int, frequency: Int) {
         val dbKey = subscriptionDbKeyFactory.newKey(id)
-        val subscription = Subscription(sender.id, recipient.id, id, amountNQT, frequency, startTimestamp + frequency, dbKey)
+        val subscription = Subscription(sender.id, recipient.id, id, amountPlanck, frequency, startTimestamp + frequency, dbKey)
 
         subscriptionTable.insert(subscription)
     }
@@ -60,7 +60,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     }
 
     override fun calculateFees(timestamp: Int): Long {
-        var totalFeeNQT: Long = 0
+        var totalFeePlanck: Long = 0
         val appliedUnconfirmedSubscriptions = mutableListOf<Subscription>()
         for (subscription in dp.subscriptionStore.getUpdateSubscriptions(timestamp)) {
             if (removeSubscriptions.contains(subscription.id)) {
@@ -72,11 +72,11 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         }
         if (appliedUnconfirmedSubscriptions.isNotEmpty()) {
             for (subscription in appliedUnconfirmedSubscriptions) {
-                totalFeeNQT = totalFeeNQT.safeAdd(fee)
+                totalFeePlanck = totalFeePlanck.safeAdd(fee)
                 undoUnconfirmed(subscription)
             }
         }
-        return totalFeeNQT
+        return totalFeePlanck
     }
 
     override fun clearRemovals() {
@@ -106,23 +106,23 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
 
     private fun applyUnconfirmed(subscription: Subscription): Boolean {
         val sender = dp.accountService.getAccount(subscription.senderId)
-        val totalAmountNQT = subscription.amountNQT.safeAdd(fee)
+        val totalAmountPlanck = subscription.amountPlanck.safeAdd(fee)
 
-        if (sender == null || sender.unconfirmedBalanceNQT < totalAmountNQT) {
+        if (sender == null || sender.unconfirmedBalancePlanck < totalAmountPlanck) {
             return false
         }
 
-        dp.accountService.addToUnconfirmedBalanceNQT(sender, -totalAmountNQT)
+        dp.accountService.addToUnconfirmedBalancePlanck(sender, -totalAmountPlanck)
 
         return true
     }
 
     private fun undoUnconfirmed(subscription: Subscription) {
         val sender = dp.accountService.getAccount(subscription.senderId)
-        val totalAmountNQT = subscription.amountNQT.safeAdd(fee)
+        val totalAmountPlanck = subscription.amountPlanck.safeAdd(fee)
 
         if (sender != null) {
-            dp.accountService.addToUnconfirmedBalanceNQT(sender, totalAmountNQT)
+            dp.accountService.addToUnconfirmedBalancePlanck(sender, totalAmountPlanck)
         }
     }
 
@@ -130,13 +130,11 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         val sender = dp.accountService.getAccount(subscription.senderId)!!
         val recipient = dp.accountService.getAccount(subscription.recipientId)!!
 
-        val totalAmountNQT = subscription.amountNQT.safeAdd(fee)
-
-        dp.accountService.addToBalanceNQT(sender, -totalAmountNQT)
-        dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(recipient, subscription.amountNQT)
+        dp.accountService.addToBalancePlanck(sender, -subscription.amountPlanck.safeAdd(fee))
+        dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(recipient, subscription.amountPlanck)
 
         val attachment = Attachment.AdvancedPaymentSubscriptionPayment(dp, subscription.id, blockchainHeight)
-        val builder = Transaction.Builder(dp, 1.toByte(), sender.publicKey!!, subscription.amountNQT, fee, subscription.timeNext, 1440.toShort(), attachment)
+        val builder = Transaction.Builder(dp, 1.toByte(), sender.publicKey!!, subscription.amountPlanck, fee, subscription.timeNext, 1440.toShort(), attachment)
 
         try {
             builder.senderId(subscription.senderId)

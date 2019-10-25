@@ -17,8 +17,8 @@ open class Trade {
     val sellerId: Long
     val buyerId: Long
     val dbKey: BurstKey
-    val quantityQNT: Long
-    val priceNQT: Long
+    val quantity: Long
+    val pricePlanck: Long
     val isBuy: Boolean
 
     enum class Event {
@@ -27,7 +27,7 @@ open class Trade {
 
     protected constructor(timestamp: Int, assetId: Long, blockId: Long, height: Int,
                           askOrderId: Long, bidOrderId: Long, askOrderHeight: Int, bidOrderHeight: Int,
-                          sellerId: Long, buyerId: Long, dbKey: BurstKey, quantityQNT: Long, priceNQT: Long) {
+                          sellerId: Long, buyerId: Long, dbKey: BurstKey, quantity: Long, pricePlanck: Long) {
         this.timestamp = timestamp
         this.assetId = assetId
         this.blockId = blockId
@@ -39,8 +39,8 @@ open class Trade {
         this.sellerId = sellerId
         this.buyerId = buyerId
         this.dbKey = dbKey
-        this.quantityQNT = quantityQNT
-        this.priceNQT = priceNQT
+        this.quantity = quantity
+        this.pricePlanck = pricePlanck
         this.isBuy = askOrderHeight < bidOrderHeight || askOrderHeight == bidOrderHeight && askOrderId < bidOrderId
     }
 
@@ -56,13 +56,13 @@ open class Trade {
         this.bidOrderHeight = bidOrder.height
         this.sellerId = askOrder.accountId
         this.buyerId = bidOrder.accountId
-        this.quantityQNT = min(askOrder.quantityQNT, bidOrder.quantityQNT)
+        this.quantity = min(askOrder.quantity, bidOrder.quantity)
         this.isBuy = askOrderHeight < bidOrderHeight || askOrderHeight == bidOrderHeight && askOrderId < bidOrderId
-        this.priceNQT = if (isBuy) askOrder.priceNQT else bidOrder.priceNQT
+        this.pricePlanck = if (isBuy) askOrder.pricePlanck else bidOrder.pricePlanck
     }
 
     override fun toString(): String {
-        return "Trade asset: ${assetId.toUnsignedString()} ask: ${askOrderId.toUnsignedString()} bid: ${bidOrderId.toUnsignedString()} price: $priceNQT quantity: $quantityQNT height: $height"
+        return "Trade asset: ${assetId.toUnsignedString()} ask: ${askOrderId.toUnsignedString()} bid: ${bidOrderId.toUnsignedString()} price: $pricePlanck quantity: $quantity height: $height"
     }
 
 }

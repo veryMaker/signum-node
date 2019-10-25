@@ -16,7 +16,7 @@ abstract class DigitalGoods(dp: DependencyProvider) : TransactionType(dp) {
         if (!dp.fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, dp.blockchain.lastBlock.height)) {
             throw BurstException.NotYetEnabledException("Digital goods listing not yet enabled at height " + dp.blockchain.lastBlock.height)
         }
-        if (transaction.amountNQT != 0L) {
+        if (transaction.amountPlanck != 0L) {
             throw BurstException.NotValidException("Invalid digital goods transaction")
         }
         doValidateAttachment(transaction)

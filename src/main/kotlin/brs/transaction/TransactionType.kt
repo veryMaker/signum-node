@@ -38,45 +38,45 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
      * @return false if double spending
      */
     fun applyUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
-        val totalAmountNQT = calculateTransactionAmountNQT(transaction)
-        logger.safeTrace { "applyUnconfirmed: ${senderAccount.unconfirmedBalanceNQT} < totalamount: $totalAmountNQT = false" }
-        if (senderAccount.unconfirmedBalanceNQT < totalAmountNQT) {
+        val totalAmountPlanck = calculateTransactionAmountPlanck(transaction)
+        logger.safeTrace { "applyUnconfirmed: ${senderAccount.unconfirmedBalancePlanck} < totalamount: $totalAmountPlanck = false" }
+        if (senderAccount.unconfirmedBalancePlanck < totalAmountPlanck) {
             return false
         }
-        dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT)
+        dp.accountService.addToUnconfirmedBalancePlanck(senderAccount, -totalAmountPlanck)
         if (!applyAttachmentUnconfirmed(transaction, senderAccount)) {
             logger.safeTrace { "!applyAttachmentUnconfirmed($transaction, ${senderAccount.id})" }
-            dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT)
+            dp.accountService.addToUnconfirmedBalancePlanck(senderAccount, totalAmountPlanck)
             return false
         }
         return true
     }
 
-    fun calculateTotalAmountNQT(transaction: Transaction): Long {
-        return calculateTransactionAmountNQT(transaction).safeAdd(calculateAttachmentTotalAmountNQT(transaction)!!)
+    fun calculateTotalAmountPlanck(transaction: Transaction): Long {
+        return calculateTransactionAmountPlanck(transaction).safeAdd(calculateAttachmentTotalAmountPlanck(transaction)!!)
     }
 
-    private fun calculateTransactionAmountNQT(transaction: Transaction): Long {
-        var totalAmountNQT = transaction.amountNQT.safeAdd(transaction.feeNQT)
+    private fun calculateTransactionAmountPlanck(transaction: Transaction): Long {
+        var totalAmountPlanck = transaction.amountPlanck.safeAdd(transaction.feePlanck)
         if (transaction.referencedTransactionFullHash != null) {
-            totalAmountNQT = totalAmountNQT.safeAdd(Constants.UNCONFIRMED_POOL_DEPOSIT_NQT)
+            totalAmountPlanck = totalAmountPlanck.safeAdd(Constants.UNCONFIRMED_POOL_DEPOSIT_PLANCK)
         }
-        return totalAmountNQT
+        return totalAmountPlanck
     }
 
-    protected open fun calculateAttachmentTotalAmountNQT(transaction: Transaction): Long? {
+    protected open fun calculateAttachmentTotalAmountPlanck(transaction: Transaction): Long? {
         return 0L
     }
 
     internal abstract fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean
 
     internal fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
-        dp.accountService.addToBalanceNQT(senderAccount, -transaction.amountNQT.safeAdd(transaction.feeNQT))
+        dp.accountService.addToBalancePlanck(senderAccount, -transaction.amountPlanck.safeAdd(transaction.feePlanck))
         if (transaction.referencedTransactionFullHash != null) {
-            dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT)
+            dp.accountService.addToUnconfirmedBalancePlanck(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_PLANCK)
         }
         if (recipientAccount != null) {
-            dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, transaction.amountNQT)
+            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(recipientAccount, transaction.amountPlanck)
         }
         logger.safeTrace { "applying transaction - id: ${transaction.id}, type: ${transaction.type}" }
         applyAttachment(transaction, senderAccount, recipientAccount)
@@ -112,12 +112,12 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
 
     fun undoUnconfirmed(transaction: Transaction, senderAccount: Account) {
         undoAttachmentUnconfirmed(transaction, senderAccount)
-        dp.accountService.addToUnconfirmedBalanceNQT(
+        dp.accountService.addToUnconfirmedBalancePlanck(
             senderAccount,
-            transaction.amountNQT.safeAdd(transaction.feeNQT)
+            transaction.amountPlanck.safeAdd(transaction.feePlanck)
         )
         if (transaction.referencedTransactionFullHash != null) {
-            dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT)
+            dp.accountService.addToUnconfirmedBalancePlanck(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_PLANCK)
         }
     }
 
@@ -133,7 +133,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
         return "type: $type, subtype: $subtype"
     }
 
-    fun minimumFeeNQT(height: Int, appendagesSize: Int): Long {
+    fun minimumFeePlanck(height: Int, appendagesSize: Int): Long {
         if (height < BASELINE_FEE_HEIGHT) {
             return 0 // No need to validate fees before baseline block
         }
@@ -214,7 +214,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
 
         const val BASELINE_FEE_HEIGHT = 1 // At release time must be less than current block - 1440
         val BASELINE_ASSET_ISSUANCE_FEE =
-            Fee(Constants.ASSET_ISSUANCE_FEE_NQT, 0)
+            Fee(Constants.ASSET_ISSUANCE_FEE_PLANCK, 0)
 
         fun getTransactionTypes(dp: DependencyProvider): Map<Byte, Map<Byte, TransactionType>> {
             val paymentTypes = mutableMapOf<Byte, TransactionType>()

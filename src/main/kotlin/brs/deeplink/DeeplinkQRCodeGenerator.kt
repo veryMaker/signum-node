@@ -18,14 +18,14 @@ class DeeplinkQRCodeGenerator { // TODO interface
         hints[EncodeHintType.ERROR_CORRECTION] = ErrorCorrectionLevel.L
     }
 
-    fun generateRequestBurstDeepLinkQRCode(receiverId: String, amountNQT: Long, feeSuggestionType: FeeSuggestionType?, feeNQT: Long?, message: String?, immutable: Boolean): BufferedImage {
+    fun generateRequestBurstDeepLinkQRCode(receiverId: String, amountPlanck: Long, feeSuggestionType: FeeSuggestionType?, feePlanck: Long?, message: String?, immutable: Boolean): BufferedImage {
         val deeplinkBuilder = StringBuilder("burst://requestBurst")
 
         deeplinkBuilder.append("&receiver=").append(receiverId)
-        deeplinkBuilder.append("&amountNQT=").append(amountNQT)
+        deeplinkBuilder.append("&amountPlanck=").append(amountPlanck)
 
-        if (feeNQT != null) {
-            deeplinkBuilder.append("&feeNQT=").append(feeNQT)
+        if (feePlanck != null) {
+            deeplinkBuilder.append("&feePlanck=").append(feePlanck)
         } else if (feeSuggestionType != null) {
             deeplinkBuilder.append("&feeSuggestionType=").append(feeSuggestionType.type)
         }

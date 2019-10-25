@@ -1,6 +1,5 @@
 package brs.http
 
-import brs.DigitalGoodsStore
 import brs.DigitalGoodsStore.Goods
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
@@ -13,12 +12,11 @@ import brs.http.common.ResultFields.DELISTED_RESPONSE
 import brs.http.common.ResultFields.DESCRIPTION_RESPONSE
 import brs.http.common.ResultFields.GOODS_RESPONSE
 import brs.http.common.ResultFields.NAME_RESPONSE
-import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_RESPONSE
 import brs.http.common.ResultFields.TAGS_RESPONSE
 import brs.http.common.ResultFields.TIMESTAMP_RESPONSE
 import brs.services.DGSGoodsStoreService
-import brs.util.JSON
 import brs.util.safeGetAsBoolean
 import brs.util.safeGetAsLong
 import brs.util.safeGetAsString
@@ -82,7 +80,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         assertEquals(mockGood.name, result.get(NAME_RESPONSE).safeGetAsString())
         assertEquals(mockGood.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
         assertEquals(mockGood.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals("" + mockGood.priceNQT, result.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockGood.pricePlanck, result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
         assertEquals("" + mockGood.sellerId, result.get(SELLER_PARAMETER).safeGetAsString())
         assertEquals(mockGood.tags, result.get(TAGS_RESPONSE).safeGetAsString())
         assertEquals(mockGood.isDelisted, result.get(DELISTED_RESPONSE).safeGetAsBoolean())
@@ -122,7 +120,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         assertEquals(mockGood.name, result.get(NAME_RESPONSE).safeGetAsString())
         assertEquals(mockGood.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
         assertEquals(mockGood.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals("" + mockGood.priceNQT, result.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockGood.pricePlanck, result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
         assertEquals("" + mockGood.sellerId, result.get(SELLER_PARAMETER).safeGetAsString())
         assertEquals(mockGood.tags, result.get(TAGS_RESPONSE).safeGetAsString())
         assertEquals(mockGood.isDelisted, result.get(DELISTED_RESPONSE).safeGetAsBoolean())
@@ -162,7 +160,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         assertEquals(mockGood.name, result.get(NAME_RESPONSE).safeGetAsString())
         assertEquals(mockGood.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
         assertEquals(mockGood.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals("" + mockGood.priceNQT, result.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockGood.pricePlanck, result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
         assertEquals("" + mockGood.sellerId, result.get(SELLER_PARAMETER).safeGetAsString())
         assertEquals(mockGood.tags, result.get(TAGS_RESPONSE).safeGetAsString())
         assertEquals(mockGood.isDelisted, result.get(DELISTED_RESPONSE).safeGetAsBoolean())
@@ -176,7 +174,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         whenever(mockGood.name).doReturn("name")
         whenever(mockGood.description).doReturn("description")
         whenever(mockGood.quantity).doReturn(2)
-        whenever(mockGood.priceNQT).doReturn(3L)
+        whenever(mockGood.pricePlanck).doReturn(3L)
         whenever(mockGood.sellerId).doReturn(4L)
         whenever(mockGood.tags).doReturn("tags")
         whenever(mockGood.isDelisted).doReturn(true)

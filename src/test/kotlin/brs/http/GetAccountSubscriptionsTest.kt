@@ -7,7 +7,7 @@ import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.Parameters.SUBSCRIPTIONS_RESPONSE
-import brs.http.common.ResultFields.AMOUNT_NQT_RESPONSE
+import brs.http.common.ResultFields.AMOUNT_PLANCK_RESPONSE
 import brs.http.common.ResultFields.FREQUENCY_RESPONSE
 import brs.http.common.ResultFields.ID_RESPONSE
 import brs.http.common.ResultFields.TIME_NEXT_RESPONSE
@@ -55,7 +55,7 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
 
         val subscription = mock<Subscription>()
         whenever(subscription.id).doReturn(1L)
-        whenever(subscription.amountNQT).doReturn(2L)
+        whenever(subscription.amountPlanck).doReturn(2L)
         whenever(subscription.frequency).doReturn(3)
         whenever(subscription.timeNext).doReturn(4)
 
@@ -73,7 +73,7 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
         assertNotNull(resultSubscription)
 
         assertEquals("" + subscription.id, resultSubscription.get(ID_RESPONSE).safeGetAsString())
-        assertEquals("" + subscription.amountNQT, resultSubscription.get(AMOUNT_NQT_RESPONSE).safeGetAsString())
+        assertEquals("" + subscription.amountPlanck, resultSubscription.get(AMOUNT_PLANCK_RESPONSE).safeGetAsString())
         assertEquals(subscription.frequency.toLong(), resultSubscription.get(FREQUENCY_RESPONSE).safeGetAsLong())
         assertEquals(subscription.timeNext.toLong(), resultSubscription.get(TIME_NEXT_RESPONSE).safeGetAsLong())
     }

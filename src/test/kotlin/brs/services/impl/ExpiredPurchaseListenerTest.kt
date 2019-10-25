@@ -43,7 +43,7 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
 
         val expiredPurchase = mock<Purchase>()
         whenever(expiredPurchase.quantity).doReturn(5)
-        whenever(expiredPurchase.priceNQT).doReturn(3000L)
+        whenever(expiredPurchase.pricePlanck).doReturn(3000L)
         whenever(expiredPurchase.buyerId).doReturn(purchaseBuyerId)
 
         val mockIterator = mockCollection(expiredPurchase)
@@ -51,7 +51,7 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
 
         t(block)
 
-        verify(accountServiceMock).addToUnconfirmedBalanceNQT(eq(purchaseBuyer), eq(15000L))
+        verify(accountServiceMock).addToUnconfirmedBalancePlanck(eq(purchaseBuyer), eq(15000L))
 
         verify(dgsGoodsStoreServiceMock).setPending(eq(expiredPurchase), eq(false))
     }

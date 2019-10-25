@@ -210,13 +210,13 @@ class AT : AtMachineState {
         fun handleATBlockTransactionsListener(dp: DependencyProvider): (Block) -> Unit = { block ->
             pendingFees.forEach { (key, value) ->
                 val atAccount = dp.accountService.getAccount(key)!!
-                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(atAccount, -value)
+                dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(atAccount, -value)
             }
 
             val transactions = mutableListOf<Transaction>()
             for (atTransaction in pendingTransactions) {
-                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getAccount(AtApiHelper.getLong(atTransaction.senderId))!!, -atTransaction.amount)
-                dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(dp.accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.recipientId)),
+                dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(dp.accountService.getAccount(AtApiHelper.getLong(atTransaction.senderId))!!, -atTransaction.amount)
+                dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(dp.accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.recipientId)),
                     atTransaction.amount
                 )
 

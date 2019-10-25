@@ -29,12 +29,7 @@ class BidOrderCancellation(dp: DependencyProvider) : OrderCancellation(dp) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsBidOrderCancellation
         val order = dp.assetExchange.getBidOrder(attachment.orderId)
         dp.assetExchange.removeBidOrder(attachment.orderId)
-        if (order != null) {
-            dp.accountService.addToUnconfirmedBalanceNQT(
-                senderAccount,
-                order.quantityQNT.safeMultiply(order.priceNQT)
-            )
-        }
+        if (order != null) dp.accountService.addToUnconfirmedBalancePlanck(senderAccount, order.quantity.safeMultiply(order.pricePlanck))
     }
 
     override fun validateAttachment(transaction: Transaction) {

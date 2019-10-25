@@ -9,7 +9,7 @@ open class Escrow {
     val recipientId: Long
     val id: Long
     val dbKey: BurstKey
-    val amountNQT: Long
+    val amountPlanck: Long
     val requiredSigners: Int
     val deadline: Int
     val deadlineAction: DecisionType
@@ -28,7 +28,7 @@ open class Escrow {
     constructor(dp: DependencyProvider, dbKey: BurstKey, sender: Account,
                 recipient: Account,
                 id: Long,
-                amountNQT: Long,
+                amountPlanck: Long,
                 requiredSigners: Int,
                 deadline: Int,
                 deadlineAction: DecisionType) {
@@ -37,19 +37,19 @@ open class Escrow {
         this.senderId = sender.id
         this.recipientId = recipient.id
         this.id = id
-        this.amountNQT = amountNQT
+        this.amountPlanck = amountPlanck
         this.requiredSigners = requiredSigners
         this.deadline = deadline
         this.deadlineAction = deadlineAction
     }
 
-    protected constructor(dp: DependencyProvider, id: Long, senderId: Long, recipientId: Long, dbKey: BurstKey, amountNQT: Long, requiredSigners: Int, deadline: Int, deadlineAction: DecisionType) {
+    protected constructor(dp: DependencyProvider, id: Long, senderId: Long, recipientId: Long, dbKey: BurstKey, amountPlanck: Long, requiredSigners: Int, deadline: Int, deadlineAction: DecisionType) {
         this.dp = dp
         this.senderId = senderId
         this.recipientId = recipientId
         this.id = id
         this.dbKey = dbKey
-        this.amountNQT = amountNQT
+        this.amountPlanck = amountPlanck
         this.requiredSigners = requiredSigners
         this.deadline = deadline
         this.deadlineAction = deadlineAction

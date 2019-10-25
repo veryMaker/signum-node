@@ -23,12 +23,12 @@ object DigitalGoodsStore {
         val timestamp: Int
         var quantity: Int = 0
             private set
-        var priceNQT: Long = 0
+        var pricePlanck: Long = 0
             private set
         var isDelisted: Boolean = false
 
         protected constructor(id: Long, dbKey: BurstKey, sellerId: Long, name: String, description: String, tags: String, timestamp: Int,
-                              quantity: Int, priceNQT: Long, delisted: Boolean) {
+                              quantity: Int, pricePlanck: Long, delisted: Boolean) {
             this.id = id
             this.dbKey = dbKey
             this.sellerId = sellerId
@@ -37,7 +37,7 @@ object DigitalGoodsStore {
             this.tags = tags
             this.timestamp = timestamp
             this.quantity = quantity
-            this.priceNQT = priceNQT
+            this.pricePlanck = pricePlanck
             this.isDelisted = delisted
         }
 
@@ -49,7 +49,7 @@ object DigitalGoodsStore {
             this.description = attachment.description
             this.tags = attachment.tags
             this.quantity = attachment.quantity
-            this.priceNQT = attachment.priceNQT
+            this.pricePlanck = attachment.pricePlanck
             this.isDelisted = false
             this.timestamp = transaction.timestamp
         }
@@ -63,8 +63,8 @@ object DigitalGoodsStore {
             }
         }
 
-        fun changePrice(priceNQT: Long) {
-            this.priceNQT = priceNQT
+        fun changePrice(pricePlanck: Long) {
+            this.pricePlanck = pricePlanck
         }
 
         companion object {
@@ -89,7 +89,7 @@ object DigitalGoodsStore {
         val goodsId: Long
         val sellerId: Long
         val quantity: Int
-        val priceNQT: Long
+        val pricePlanck: Long
         val deliveryDeadlineTimestamp: Int
         val note: EncryptedData?
         val timestamp: Int
@@ -105,8 +105,8 @@ object DigitalGoodsStore {
         private var hasPublicFeedbacks: Boolean = false
         var publicFeedbacks: MutableList<String>? = null
             private set
-        var discountNQT: Long = 0
-        var refundNQT: Long = 0
+        var discountPlanck: Long = 0
+        var refundPlanck: Long = 0
 
         fun getName() = getGoods(dp, goodsId)!!.name
 
@@ -146,7 +146,7 @@ object DigitalGoodsStore {
             this.goodsId = attachment.goodsId
             this.sellerId = sellerId
             this.quantity = attachment.quantity
-            this.priceNQT = attachment.priceNQT
+            this.pricePlanck = attachment.pricePlanck
             this.deliveryDeadlineTimestamp = attachment.deliveryDeadlineTimestamp
             this.note = if (transaction.encryptedMessage == null) null else transaction.encryptedMessage.encryptedData
             this.timestamp = transaction.timestamp
@@ -154,10 +154,10 @@ object DigitalGoodsStore {
         }
 
         protected constructor(dp: DependencyProvider, id: Long, dbKey: BurstKey, buyerId: Long, goodsId: Long, sellerId: Long, quantity: Int,
-                              priceNQT: Long, deadline: Int, note: EncryptedData?, timestamp: Int, isPending: Boolean,
+                              pricePlanck: Long, deadline: Int, note: EncryptedData?, timestamp: Int, isPending: Boolean,
                               encryptedGoods: EncryptedData?, refundNote: EncryptedData?,
                               hasFeedbackNotes: Boolean, hasPublicFeedbacks: Boolean,
-                              discountNQT: Long, refundNQT: Long) {
+                              discountPlanck: Long, refundPlanck: Long) {
             this.dp = dp
             this.id = id
             this.dbKey = dbKey
@@ -165,7 +165,7 @@ object DigitalGoodsStore {
             this.goodsId = goodsId
             this.sellerId = sellerId
             this.quantity = quantity
-            this.priceNQT = priceNQT
+            this.pricePlanck = pricePlanck
             this.deliveryDeadlineTimestamp = deadline
             this.note = note
             this.timestamp = timestamp
@@ -174,8 +174,8 @@ object DigitalGoodsStore {
             this.refundNote = refundNote
             this.hasFeedbackNotes = hasFeedbackNotes
             this.hasPublicFeedbacks = hasPublicFeedbacks
-            this.discountNQT = discountNQT
-            this.refundNQT = refundNQT
+            this.discountPlanck = discountPlanck
+            this.refundPlanck = refundPlanck
         }
 
         fun goodsIsText(): Boolean {

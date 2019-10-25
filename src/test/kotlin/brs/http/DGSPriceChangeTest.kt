@@ -9,7 +9,7 @@ import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
 import brs.http.JSONResponses.UNKNOWN_GOODS
-import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.services.ParameterService
 import brs.transaction.TransactionType
 import brs.transaction.digitalGoods.DigitalGoodsPriceChange
@@ -22,7 +22,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.servlet.http.HttpServletRequest
 
 @RunWith(JUnit4::class)
 class DGSPriceChangeTest : AbstractTransactionTest() {
@@ -44,10 +43,10 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
 
     @Test
     fun processRequest() {
-        val priceNQTParameter = 5
+        val pricePlanckParameter = 5
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, priceNQTParameter)
+                MockParam(PRICE_PLANCK_PARAMETER, pricePlanckParameter)
         )
 
         val mockAccount = mock<Account>()
@@ -70,13 +69,13 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
 
         assertTrue(attachment.transactionType is DigitalGoodsPriceChange)
         assertEquals(mockGoodsId, attachment.goodsId)
-        assertEquals(priceNQTParameter.toLong(), attachment.priceNQT)
+        assertEquals(pricePlanckParameter.toLong(), attachment.pricePlanck)
     }
 
     @Test
     fun processRequest_goodsDelistedUnknownGoods() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, 123L)
+                MockParam(PRICE_PLANCK_PARAMETER, 123L)
         )
 
         val mockAccount = mock<Account>()
@@ -93,7 +92,7 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
     @Test
     fun processRequest_goodsWrongSellerIdUnknownGoods() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, 123L)
+                MockParam(PRICE_PLANCK_PARAMETER, 123L)
         )
 
         val mockAccount = mock<Account>()

@@ -180,7 +180,7 @@ class AssetServiceImplTest : AbstractUnitTest() {
         assertEquals(transaction.senderId, savedAsset.accountId)
         assertEquals(attachment.name, savedAsset.name)
         assertEquals(attachment.description, savedAsset.description)
-        assertEquals(attachment.quantityQNT, savedAsset.quantityQNT)
+        assertEquals(attachment.quantity, savedAsset.quantity)
         assertEquals(attachment.decimals.toLong(), savedAsset.decimals.toLong())
     }
 }

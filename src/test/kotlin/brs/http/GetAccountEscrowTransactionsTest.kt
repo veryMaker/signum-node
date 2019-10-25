@@ -9,7 +9,7 @@ import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.http.common.Parameters.ESCROWS_RESPONSE
-import brs.http.common.ResultFields.AMOUNT_NQT_RESPONSE
+import brs.http.common.ResultFields.AMOUNT_PLANCK_RESPONSE
 import brs.http.common.ResultFields.DEADLINE_ACTION_RESPONSE
 import brs.http.common.ResultFields.DEADLINE_RESPONSE
 import brs.http.common.ResultFields.DECISION_RESPONSE
@@ -23,7 +23,6 @@ import brs.http.common.ResultFields.SENDER_RS_RESPONSE
 import brs.http.common.ResultFields.SIGNERS_RESPONSE
 import brs.services.EscrowService
 import brs.services.ParameterService
-import brs.util.JSON
 import brs.util.safeGetAsLong
 import brs.util.safeGetAsString
 import com.google.gson.JsonArray
@@ -36,7 +35,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
 
@@ -69,7 +67,7 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
         whenever(escrow.id).doReturn(1L)
         whenever(escrow.senderId).doReturn(2L)
         whenever(escrow.recipientId).doReturn(3L)
-        whenever(escrow.amountNQT).doReturn(4L)
+        whenever(escrow.amountPlanck).doReturn(4L)
         whenever(escrow.requiredSigners).doReturn(5)
         whenever(escrow.deadlineAction).doReturn(DecisionType.UNDECIDED)
 
@@ -107,7 +105,7 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
         assertEquals("BURST-2228-2222-BMNG-22222", result.get(SENDER_RS_RESPONSE).safeGetAsString())
         assertEquals("" + escrow.recipientId, result.get(RECIPIENT_RESPONSE).safeGetAsString())
         assertEquals("BURST-2227-2222-ZAYB-22222", result.get(RECIPIENT_RS_RESPONSE).safeGetAsString())
-        assertEquals("" + escrow.amountNQT, result.get(AMOUNT_NQT_RESPONSE).safeGetAsString())
+        assertEquals("" + escrow.amountPlanck, result.get(AMOUNT_PLANCK_RESPONSE).safeGetAsString())
         assertEquals(escrow.requiredSigners.toLong(), result.get(REQUIRED_SIGNERS_RESPONSE).safeGetAsLong())
         assertEquals(escrow.deadline.toLong(), result.get(DEADLINE_RESPONSE).safeGetAsLong())
         assertEquals("undecided", result.get(DEADLINE_ACTION_RESPONSE).safeGetAsString())

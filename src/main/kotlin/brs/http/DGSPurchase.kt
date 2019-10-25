@@ -10,13 +10,13 @@ import brs.http.JSONResponses.MISSING_DELIVERY_DEADLINE_TIMESTAMP
 import brs.http.JSONResponses.UNKNOWN_GOODS
 import brs.http.common.Parameters.DELIVERY_DEADLINE_TIMESTAMP_PARAMETER
 import brs.http.common.Parameters.GOODS_PARAMETER
-import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.http.common.Parameters.QUANTITY_PARAMETER
 import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class DGSPurchase internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, PRICE_NQT_PARAMETER, QUANTITY_PARAMETER, DELIVERY_DEADLINE_TIMESTAMP_PARAMETER) {
+internal class DGSPurchase internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, PRICE_PLANCK_PARAMETER, QUANTITY_PARAMETER, DELIVERY_DEADLINE_TIMESTAMP_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
@@ -30,8 +30,8 @@ internal class DGSPurchase internal constructor(private val dp: DependencyProvid
             return INCORRECT_PURCHASE_QUANTITY
         }
 
-        val priceNQT = ParameterParser.getPriceNQT(request)
-        if (priceNQT != goods.priceNQT) {
+        val pricePlanck = ParameterParser.getPricePlanck(request)
+        if (pricePlanck != goods.pricePlanck) {
             return INCORRECT_PURCHASE_PRICE
         }
 
@@ -50,10 +50,8 @@ internal class DGSPurchase internal constructor(private val dp: DependencyProvid
         val buyerAccount = dp.parameterService.getSenderAccount(request)
         val sellerAccount = dp.accountService.getAccount(goods.sellerId) ?: return INCORRECT_ACCOUNT
 
-        val attachment = Attachment.DigitalGoodsPurchase(dp, goods.id, quantity, priceNQT,
+        val attachment = Attachment.DigitalGoodsPurchase(dp, goods.id, quantity, pricePlanck,
                 deliveryDeadline, dp.blockchain.height)
         return createTransaction(request, buyerAccount, sellerAccount.id, 0, attachment)
-
     }
-
 }

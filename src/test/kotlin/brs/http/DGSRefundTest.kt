@@ -4,13 +4,12 @@ import brs.*
 import brs.DigitalGoodsStore.Purchase
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.crypto.EncryptedData
 import brs.fluxcapacitor.FluxValues
 import brs.http.JSONResponses.DUPLICATE_REFUND
 import brs.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.http.JSONResponses.INCORRECT_DGS_REFUND
 import brs.http.JSONResponses.INCORRECT_PURCHASE
-import brs.http.common.Parameters.REFUND_NQT_PARAMETER
+import brs.http.common.Parameters.REFUND_PLANCK_PARAMETER
 import brs.services.AccountService
 import brs.services.ParameterService
 import brs.transaction.TransactionType
@@ -24,7 +23,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.servlet.http.HttpServletRequest
 
 @RunWith(JUnit4::class)
 class DGSRefundTest : AbstractTransactionTest() {
@@ -53,10 +51,10 @@ class DGSRefundTest : AbstractTransactionTest() {
 
     @Test
     fun processRequest() {
-        val refundNQTParameter: Long = 5
+        val refundPlanckParameter: Long = 5
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(REFUND_NQT_PARAMETER, refundNQTParameter)
+                MockParam(REFUND_PLANCK_PARAMETER, refundPlanckParameter)
         )
 
         val mockSellerAccount = mock<Account>()
@@ -83,7 +81,7 @@ class DGSRefundTest : AbstractTransactionTest() {
         assertNotNull(attachment)
 
         assertTrue(attachment.transactionType is DigitalGoodsRefund)
-        assertEquals(refundNQTParameter, attachment.refundNQT)
+        assertEquals(refundPlanckParameter, attachment.refundPlanck)
         assertEquals(mockPurchaseId, attachment.purchaseId)
     }
 
@@ -141,7 +139,7 @@ class DGSRefundTest : AbstractTransactionTest() {
     @Test
     fun processRequest_incorrectDgsRefundWrongFormat() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(REFUND_NQT_PARAMETER, "Bob")
+                MockParam(REFUND_PLANCK_PARAMETER, "Bob")
         )
 
         val mockSellerAccount = mock<Account>()
@@ -161,7 +159,7 @@ class DGSRefundTest : AbstractTransactionTest() {
     @Test
     fun processRequest_negativeIncorrectDGSRefund() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(REFUND_NQT_PARAMETER, -5L)
+                MockParam(REFUND_PLANCK_PARAMETER, -5L)
         )
 
         val mockSellerAccount = mock<Account>()
@@ -179,9 +177,9 @@ class DGSRefundTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_overMaxBalanceNQTIncorrectDGSRefund() {
+    fun processRequest_overMaxBalancePlanckIncorrectDGSRefund() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(REFUND_NQT_PARAMETER, Constants.MAX_BALANCE_NQT + 1)
+                MockParam(REFUND_PLANCK_PARAMETER, Constants.MAX_BALANCE_PLANCK + 1)
         )
 
         val mockSellerAccount = mock<Account>()

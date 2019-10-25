@@ -94,41 +94,41 @@ internal class OrderServiceImpl(private val dp: DependencyProvider, private val 
         var bidOrder = getNextBidOrder(assetId)
 
         while (askOrder != null && bidOrder != null) {
-            if (askOrder.priceNQT > bidOrder.priceNQT) break
+            if (askOrder.pricePlanck > bidOrder.pricePlanck) break
 
             val trade = tradeService.addTrade(assetId, dp.blockchain.lastBlock, askOrder, bidOrder)
 
-            askOrderUpdateQuantityQNT(askOrder, askOrder.quantityQNT.safeSubtract(trade.quantityQNT))
+            askOrderUpdateQuantity(askOrder, askOrder.quantity.safeSubtract(trade.quantity))
             val askAccount = dp.accountService.getAccount(askOrder.accountId)!!
-            dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(askAccount, trade.quantityQNT.safeMultiply(trade.priceNQT))
-            dp.accountService.addToAssetBalanceQNT(askAccount, assetId, -trade.quantityQNT)
+            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(askAccount, trade.quantity.safeMultiply(trade.pricePlanck))
+            dp.accountService.addToAssetBalanceQuantity(askAccount, assetId, -trade.quantity)
 
-            bidOrderUpdateQuantityQNT(bidOrder, bidOrder.quantityQNT.safeSubtract(trade.quantityQNT))
+            bidOrderUpdateQuantity(bidOrder, bidOrder.quantity.safeSubtract(trade.quantity))
             val bidAccount = dp.accountService.getAccount(bidOrder.accountId)!!
-            dp.accountService.addToAssetAndUnconfirmedAssetBalanceQNT(bidAccount, assetId, trade.quantityQNT)
-            dp.accountService.addToBalanceNQT(bidAccount, -trade.quantityQNT.safeMultiply(trade.priceNQT))
-            dp.accountService.addToUnconfirmedBalanceNQT(bidAccount, trade.quantityQNT.safeMultiply(bidOrder.priceNQT - trade.priceNQT))
+            dp.accountService.addToAssetAndUnconfirmedAssetBalanceQuantity(bidAccount, assetId, trade.quantity)
+            dp.accountService.addToBalancePlanck(bidAccount, -trade.quantity.safeMultiply(trade.pricePlanck))
+            dp.accountService.addToUnconfirmedBalancePlanck(bidAccount, trade.quantity.safeMultiply(bidOrder.pricePlanck - trade.pricePlanck))
 
             askOrder = getNextAskOrder(assetId)
             bidOrder = getNextBidOrder(assetId)
         }
     }
 
-    private fun askOrderUpdateQuantityQNT(askOrder: Ask, quantityQNT: Long) {
-        askOrder.quantityQNT = quantityQNT
+    private fun askOrderUpdateQuantity(askOrder: Ask, quantity: Long) {
+        askOrder.quantity = quantity
         when {
-            quantityQNT > 0 -> askOrderTable.insert(askOrder)
-            quantityQNT == 0L -> askOrderTable.delete(askOrder)
-            else -> throw IllegalArgumentException("Negative quantity: " + quantityQNT + " for order: " + askOrder.id.toUnsignedString())
+            quantity > 0 -> askOrderTable.insert(askOrder)
+            quantity == 0L -> askOrderTable.delete(askOrder)
+            else -> throw IllegalArgumentException("Negative quantity: " + quantity + " for order: " + askOrder.id.toUnsignedString())
         }
     }
 
-    private fun bidOrderUpdateQuantityQNT(bidOrder: Bid, quantityQNT: Long) {
-        bidOrder.quantityQNT = quantityQNT
+    private fun bidOrderUpdateQuantity(bidOrder: Bid, quantity: Long) {
+        bidOrder.quantity = quantity
         when {
-            quantityQNT > 0 -> bidOrderTable.insert(bidOrder)
-            quantityQNT == 0L -> bidOrderTable.delete(bidOrder)
-            else -> throw IllegalArgumentException("Negative quantity: " + quantityQNT + " for order: " + bidOrder.id.toUnsignedString())
+            quantity > 0 -> bidOrderTable.insert(bidOrder)
+            quantity == 0L -> bidOrderTable.delete(bidOrder)
+            else -> throw IllegalArgumentException("Negative quantity: " + quantity + " for order: " + bidOrder.id.toUnsignedString())
         }
     }
 }

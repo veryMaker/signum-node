@@ -32,10 +32,10 @@ class AssetIssuance(dp: DependencyProvider) : ColoredCoins(dp) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsAssetIssuance
         val assetId = transaction.id
         dp.assetExchange.addAsset(transaction, attachment)
-        dp.accountService.addToAssetAndUnconfirmedAssetBalanceQNT(
+        dp.accountService.addToAssetAndUnconfirmedAssetBalanceQuantity(
             senderAccount,
             assetId,
-            attachment.quantityQNT
+            attachment.quantity
         )
     }
 
@@ -49,8 +49,8 @@ class AssetIssuance(dp: DependencyProvider) : ColoredCoins(dp) {
             || attachment.name.length > Constants.MAX_ASSET_NAME_LENGTH
             || attachment.description.length > Constants.MAX_ASSET_DESCRIPTION_LENGTH
             || attachment.decimals < 0 || attachment.decimals > 8
-            || attachment.quantityQNT <= 0
-            || attachment.quantityQNT > Constants.MAX_ASSET_QUANTITY_QNT
+            || attachment.quantity <= 0
+            || attachment.quantity > Constants.MAX_ASSET_QUANTITY
         ) {
             throw BurstException.NotValidException("Invalid asset issuance: " + attachment.jsonObject.toJsonString())
         }

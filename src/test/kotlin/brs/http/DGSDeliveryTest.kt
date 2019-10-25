@@ -3,7 +3,7 @@ package brs.http
 import brs.Account
 import brs.Attachment
 import brs.Blockchain
-import brs.Constants.MAX_BALANCE_NQT
+import brs.Constants.MAX_BALANCE_PLANCK
 import brs.DependencyProvider
 import brs.DigitalGoodsStore.Purchase
 import brs.common.QuickMocker
@@ -14,7 +14,7 @@ import brs.http.JSONResponses.ALREADY_DELIVERED
 import brs.http.JSONResponses.INCORRECT_DGS_DISCOUNT
 import brs.http.JSONResponses.INCORRECT_DGS_GOODS
 import brs.http.JSONResponses.INCORRECT_PURCHASE
-import brs.http.common.Parameters.DISCOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.DISCOUNT_PLANCK_PARAMETER
 import brs.http.common.Parameters.GOODS_TO_ENCRYPT_PARAMETER
 import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.services.AccountService
@@ -25,7 +25,6 @@ import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class DGSDeliveryTest : AbstractTransactionTest() {
 
@@ -53,11 +52,11 @@ class DGSDeliveryTest : AbstractTransactionTest() {
 
     @Test
     fun processRequest() {
-        val discountNQTParameter: Long = 1
+        val discountPlanckParameter: Long = 1
         val goodsToEncryptParameter = "beef"
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(DISCOUNT_NQT_PARAMETER, discountNQTParameter),
+                MockParam(DISCOUNT_PLANCK_PARAMETER, discountPlanckParameter),
                 MockParam(GOODS_TO_ENCRYPT_PARAMETER, goodsToEncryptParameter),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE)
         )
@@ -70,7 +69,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         whenever(mockPurchase.sellerId).doReturn(1L)
         whenever(mockPurchase.buyerId).doReturn(2L)
         whenever(mockPurchase.quantity).doReturn(9)
-        whenever(mockPurchase.priceNQT).doReturn(1L)
+        whenever(mockPurchase.pricePlanck).doReturn(1L)
 
         whenever(mockPurchase.isPending).doReturn(true)
 
@@ -85,7 +84,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         assertNotNull(attachment)
 
         assertTrue(attachment.transactionType is DigitalGoodsDelivery)
-        assertEquals(discountNQTParameter, attachment.discountNQT)
+        assertEquals(discountPlanckParameter, attachment.discountPlanck)
     }
 
     @Test
@@ -125,7 +124,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     @Test
     fun processRequest_dgsDiscountNotAValidNumberIsIncorrectDGSDiscount() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(DISCOUNT_NQT_PARAMETER, "Bob")
+                MockParam(DISCOUNT_PLANCK_PARAMETER, "Bob")
         )
 
         val mockSellerAccount = mock<Account>()
@@ -145,7 +144,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     @Test
     fun processRequest_dgsDiscountNegativeIsIncorrectDGSDiscount() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(DISCOUNT_NQT_PARAMETER, "-1")
+                MockParam(DISCOUNT_PLANCK_PARAMETER, "-1")
         )
 
         val mockSellerAccount = mock<Account>()
@@ -163,9 +162,9 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     }
 
     @Test
-    fun processRequest_dgsDiscountOverMaxBalanceNQTIsIncorrectDGSDiscount() {
+    fun processRequest_dgsDiscountOverMaxBalancePlanckIsIncorrectDGSDiscount() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(DISCOUNT_NQT_PARAMETER, "" + (MAX_BALANCE_NQT + 1))
+                MockParam(DISCOUNT_PLANCK_PARAMETER, "" + (MAX_BALANCE_PLANCK + 1))
         )
 
         val mockSellerAccount = mock<Account>()
@@ -185,7 +184,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     @Test
     fun processRequest_dgsDiscountNegativeIsNotSafeMultiply() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(DISCOUNT_NQT_PARAMETER, "99999999999")
+                MockParam(DISCOUNT_PLANCK_PARAMETER, "99999999999")
         )
 
         val mockSellerAccount = mock<Account>()
@@ -194,7 +193,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         whenever(mockSellerAccount.id).doReturn(1L)
         whenever(mockPurchase.sellerId).doReturn(1L)
         whenever(mockPurchase.quantity).doReturn(999999999)
-        whenever(mockPurchase.priceNQT).doReturn(1L)
+        whenever(mockPurchase.pricePlanck).doReturn(1L)
 
         whenever(mockPurchase.isPending).doReturn(true)
 
@@ -207,7 +206,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     @Test
     fun processRequest_goodsToEncryptIsEmptyIsIncorrectDGSGoods() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(DISCOUNT_NQT_PARAMETER, "9"),
+                MockParam(DISCOUNT_PLANCK_PARAMETER, "9"),
                 MockParam(GOODS_TO_ENCRYPT_PARAMETER, ""),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE)
         )
@@ -219,7 +218,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         whenever(mockPurchase.sellerId).doReturn(1L)
         whenever(mockPurchase.buyerId).doReturn(2L)
         whenever(mockPurchase.quantity).doReturn(9)
-        whenever(mockPurchase.priceNQT).doReturn(1L)
+        whenever(mockPurchase.pricePlanck).doReturn(1L)
 
         whenever(mockPurchase.isPending).doReturn(true)
 

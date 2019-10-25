@@ -27,7 +27,7 @@ class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferS
     private fun saveAssetTransfer(assetTransfer: AssetTransfer) {
         dp.db.useDslContext { ctx ->
             ctx.insertInto(ASSET_TRANSFER, ASSET_TRANSFER.ID, ASSET_TRANSFER.ASSET_ID, ASSET_TRANSFER.SENDER_ID, ASSET_TRANSFER.RECIPIENT_ID, ASSET_TRANSFER.QUANTITY, ASSET_TRANSFER.TIMESTAMP, ASSET_TRANSFER.HEIGHT)
-                    .values(assetTransfer.id, assetTransfer.assetId, assetTransfer.senderId, assetTransfer.recipientId, assetTransfer.quantityQNT, assetTransfer.timestamp, assetTransfer.height)
+                    .values(assetTransfer.id, assetTransfer.assetId, assetTransfer.senderId, assetTransfer.recipientId, assetTransfer.quantity, assetTransfer.timestamp, assetTransfer.height)
                     .execute()
         }
     }

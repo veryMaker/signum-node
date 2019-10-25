@@ -20,17 +20,17 @@ import brs.http.JSONResponses.MISSING_QUANTITY
 import brs.http.JSONResponses.MISSING_RECIPIENT
 import brs.http.JSONResponses.MISSING_SECRET_PHRASE
 import brs.http.common.Parameters
-import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.http.common.Parameters.BUYER_PARAMETER
 import brs.http.common.Parameters.CREATION_BYTES_PARAMETER
-import brs.http.common.Parameters.FEE_NQT_PARAMETER
+import brs.http.common.Parameters.FEE_PLANCK_PARAMETER
 import brs.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.http.common.Parameters.GOODS_DATA_PARAMETER
 import brs.http.common.Parameters.GOODS_NONCE_PARAMETER
 import brs.http.common.Parameters.HEX_STRING_PARAMETER
 import brs.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.http.common.Parameters.ORDER_PARAMETER
-import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.http.common.Parameters.QUANTITY_PARAMETER
 import brs.http.common.Parameters.QUANTITY_QNT_PARAMETER
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
@@ -44,52 +44,52 @@ import javax.servlet.http.HttpServletRequest
 
 internal object ParameterParser {
 
-    fun getFeeNQT(request: HttpServletRequest): Long {
-        val feeValueNQT = request.getParameter(FEE_NQT_PARAMETER).emptyToNull()
+    fun getFeePlanck(request: HttpServletRequest): Long {
+        val feeValuePlanck = request.getParameter(FEE_PLANCK_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_FEE)
-        val feeNQT: Long
+        val feePlanck: Long
         try {
-            feeNQT = java.lang.Long.parseLong(feeValueNQT)
+            feePlanck = java.lang.Long.parseLong(feeValuePlanck)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_FEE)
         }
 
-        if (feeNQT < 0 || feeNQT >= Constants.MAX_BALANCE_NQT) {
+        if (feePlanck < 0 || feePlanck >= Constants.MAX_BALANCE_PLANCK) {
             throw ParameterException(INCORRECT_FEE)
         }
-        return feeNQT
+        return feePlanck
     }
 
-    fun getPriceNQT(request: HttpServletRequest): Long {
-        val priceValueNQT = request.getParameter(PRICE_NQT_PARAMETER).emptyToNull()
-                ?: throw ParameterException(MISSING_PRICE)
-        val priceNQT: Long
+    fun getPricePlanck(request: HttpServletRequest): Long {
+        val priceValuePlanck = request.getParameter(PRICE_PLANCK_PARAMETER).emptyToNull()
+            ?: throw ParameterException(MISSING_PRICE)
+        val pricePlanck: Long
         try {
-            priceNQT = java.lang.Long.parseLong(priceValueNQT)
+            pricePlanck = priceValuePlanck.toLong()
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_PRICE)
         }
 
-        if (priceNQT <= 0 || priceNQT > Constants.MAX_BALANCE_NQT) {
+        if (pricePlanck <= 0 || pricePlanck > Constants.MAX_BALANCE_PLANCK) {
             throw ParameterException(INCORRECT_PRICE)
         }
-        return priceNQT
+        return pricePlanck
     }
 
-    fun getQuantityQNT(request: HttpServletRequest): Long {
-        val quantityValueQNT = request.getParameter(QUANTITY_QNT_PARAMETER).emptyToNull()
+    fun getQuantity(request: HttpServletRequest): Long {
+        val quantityValue = request.getParameter(QUANTITY_QNT_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_QUANTITY)
-        val quantityQNT: Long
+        val quantity: Long
         try {
-            quantityQNT = java.lang.Long.parseLong(quantityValueQNT)
+            quantity = quantityValue.toLong()
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_QUANTITY)
         }
 
-        if (quantityQNT <= 0 || quantityQNT > Constants.MAX_ASSET_QUANTITY_QNT) {
+        if (quantity <= 0 || quantity > Constants.MAX_ASSET_QUANTITY) {
             throw ParameterException(INCORRECT_ASSET_QUANTITY)
         }
-        return quantityQNT
+        return quantity
     }
 
     fun getOrderId(request: HttpServletRequest): Long {
@@ -114,7 +114,6 @@ internal object ParameterParser {
         } catch (e: NumberFormatException) {
             throw ParameterException(INCORRECT_QUANTITY)
         }
-
     }
 
     fun getEncryptedGoods(request: HttpServletRequest): EncryptedData? {
@@ -242,19 +241,19 @@ internal object ParameterParser {
         return bf.getLong(0).toUnsignedString()
     }
 
-    fun getAmountNQT(request: HttpServletRequest): Long {
-        val amountValueNQT = request.getParameter(AMOUNT_NQT_PARAMETER).emptyToNull()
+    fun getAmountPlanck(request: HttpServletRequest): Long {
+        val amountValuePlanck = request.getParameter(AMOUNT_PLANCK_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_AMOUNT)
-        val amountNQT: Long
+        val amountPlanck: Long
         try {
-            amountNQT = java.lang.Long.parseLong(amountValueNQT)
+            amountPlanck = java.lang.Long.parseLong(amountValuePlanck)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_AMOUNT)
         }
 
-        if (amountNQT <= 0 || amountNQT >= Constants.MAX_BALANCE_NQT) {
+        if (amountPlanck <= 0 || amountPlanck >= Constants.MAX_BALANCE_PLANCK) {
             throw ParameterException(INCORRECT_AMOUNT)
         }
-        return amountNQT
+        return amountPlanck
     }
 }

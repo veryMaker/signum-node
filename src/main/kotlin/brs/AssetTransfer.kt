@@ -9,7 +9,7 @@ open class AssetTransfer {
     val height: Int
     val senderId: Long
     val recipientId: Long
-    val quantityQNT: Long
+    val quantity: Long
     val timestamp: Int
 
     enum class Event {
@@ -23,18 +23,18 @@ open class AssetTransfer {
         this.assetId = attachment.assetId
         this.senderId = transaction.senderId
         this.recipientId = transaction.recipientId
-        this.quantityQNT = attachment.quantityQNT
+        this.quantity = attachment.quantity
         this.timestamp = transaction.blockTimestamp
     }
 
-    protected constructor(id: Long, dbKey: BurstKey, assetId: Long, height: Int, senderId: Long, recipientId: Long, quantityQNT: Long, timestamp: Int) {
+    protected constructor(id: Long, dbKey: BurstKey, assetId: Long, height: Int, senderId: Long, recipientId: Long, quantity: Long, timestamp: Int) {
         this.id = id
         this.dbKey = dbKey
         this.assetId = assetId
         this.height = height
         this.senderId = senderId
         this.recipientId = recipientId
-        this.quantityQNT = quantityQNT
+        this.quantity = quantity
         this.timestamp = timestamp
     }
 }

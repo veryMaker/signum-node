@@ -96,7 +96,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
     internal fun lessorGuaranteedBalance(account: Account, lesseeId: Long): Map<String, String> {
         val map = mutableMapOf<String, String>()
         map["account"] = account.id.toUnsignedString()
-        map["lessor guaranteed balance"] = account.balanceNQT.toString()
+        map["lessor guaranteed balance"] = account.balancePlanck.toString()
         map["lessee"] = lesseeId.toUnsignedString()
         map["timestamp"] = dp.blockchain.lastBlock.timestamp.toString()
         map["height"] = dp.blockchain.height.toString()
@@ -108,8 +108,8 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
         val map = mutableMapOf<String, String>()
         map["account"] = accountId.toUnsignedString()
         val account = Account.getAccount(dp, accountId)
-        map["balance"] = (account?.balanceNQT ?: 0).toString()
-        map["unconfirmed balance"] = (account?.unconfirmedBalanceNQT ?: 0).toString()
+        map["balance"] = (account?.balancePlanck ?: 0).toString()
+        map["unconfirmed balance"] = (account?.unconfirmedBalancePlanck ?: 0).toString()
         map["timestamp"] = dp.blockchain.lastBlock.timestamp.toString()
         map["height"] = dp.blockchain.height.toString()
         map["event"] = if (unconfirmed) "unconfirmed balance" else "balance"
@@ -119,17 +119,17 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
     internal fun getValues(accountId: Long, trade: Trade, isAsk: Boolean): Map<String, String> {
         val map = getValues(accountId, false)
         map["asset"] = trade.assetId.toUnsignedString()
-        map["trade quantity"] = (if (isAsk) -trade.quantityQNT else trade.quantityQNT).toString()
-        map["trade price"] = trade.priceNQT.toString()
-        val tradeCost = trade.quantityQNT.safeMultiply(trade.priceNQT)
+        map["trade quantity"] = (if (isAsk) -trade.quantity else trade.quantity).toString()
+        map["trade price"] = trade.pricePlanck.toString()
+        val tradeCost = trade.quantity.safeMultiply(trade.pricePlanck)
         map["trade cost"] = (if (isAsk) tradeCost else -tradeCost).toString()
         map["event"] = "trade"
         return map
     }
 
     internal fun getValues(accountId: Long, transaction: Transaction, isRecipient: Boolean): Map<String, String> {
-        var amount = transaction.amountNQT
-        var fee = transaction.feeNQT
+        var amount = transaction.amountPlanck
+        var fee = transaction.feePlanck
         if (isRecipient) {
             fee = 0 // fee doesn't affect recipient account
         } else {
@@ -154,7 +154,7 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
     }
 
     internal fun getValues(accountId: Long, block: Block): Map<String, String> {
-        val fee = block.totalFeeNQT
+        val fee = block.totalFeePlanck
         if (fee == 0L) {
             return emptyMap()
         }
@@ -172,9 +172,9 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
         map["account"] = accountId.toUnsignedString()
         map["asset"] = accountAsset.assetId.toUnsignedString()
         if (unconfirmed) {
-            map["unconfirmed asset balance"] = accountAsset.unconfirmedQuantityQNT.toString()
+            map["unconfirmed asset balance"] = accountAsset.unconfirmedQuantity.toString()
         } else {
-            map["asset balance"] = accountAsset.quantityQNT.toString()
+            map["asset balance"] = accountAsset.quantity.toString()
         }
         map["timestamp"] = dp.blockchain.lastBlock.timestamp.toString()
         map["height"] = dp.blockchain.height.toString()
@@ -191,13 +191,13 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
             val isAsk = attachment is Attachment.ColoredCoinsAskOrderPlacement
             map["asset"] = attachment.assetId.toUnsignedString()
             map["order"] = transaction.stringId
-            map["order price"] = attachment.priceNQT.toString()
-            var quantity = attachment.quantityQNT
+            map["order price"] = attachment.pricePlanck.toString()
+            var quantity = attachment.quantity
             if (isAsk) {
                 quantity = -quantity
             }
             map["order quantity"] = quantity.toString()
-            var orderCost = BigInteger.valueOf(attachment.priceNQT).multiply(BigInteger.valueOf(attachment.quantityQNT))
+            var orderCost = BigInteger.valueOf(attachment.pricePlanck).multiply(BigInteger.valueOf(attachment.quantity))
             if (!isAsk) {
                 orderCost = orderCost.negate()
             }
@@ -209,11 +209,11 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
                 return emptyMap()
             }
             map["asset"] = transaction.stringId
-            map["asset quantity"] = attachment.quantityQNT.toString()
+            map["asset quantity"] = attachment.quantity.toString()
             map["event"] = "asset issuance"
         } else if (attachment is Attachment.ColoredCoinsAssetTransfer) {
             map["asset"] = attachment.assetId.toUnsignedString()
-            var quantity = attachment.quantityQNT
+            var quantity = attachment.quantity
             if (!isRecipient) {
                 quantity = -quantity
             }
@@ -237,10 +237,10 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
             }
             map["event"] = "delivery"
             map["purchase"] = delivery.purchaseId.toUnsignedString()
-            var discount = delivery.discountNQT
-            map["purchase price"] = purchase.priceNQT.toString()
+            var discount = delivery.discountPlanck
+            map["purchase price"] = purchase.pricePlanck.toString()
             map["purchase quantity"] = purchase.quantity.toString()
-            var cost = purchase.priceNQT.safeMultiply(purchase.quantity.toLong())
+            var cost = purchase.pricePlanck.safeMultiply(purchase.quantity.toLong())
             if (isRecipient) {
                 cost = -cost
             }
@@ -256,11 +256,11 @@ class DebugTrace internal constructor(private val dp: DependencyProvider, privat
             }
             map["event"] = "refund"
             map["purchase"] = refund.purchaseId.toUnsignedString()
-            var refundNQT = refund.refundNQT
+            var refundPlanck = refund.refundPlanck
             if (!isRecipient) {
-                refundNQT = -refundNQT
+                refundPlanck = -refundPlanck
             }
-            map["refund"] = refundNQT.toString()
+            map["refund"] = refundPlanck.toString()
         } else if (attachment is Attachment.ArbitraryMessage) {
             map = mutableMapOf()
             map["account"] = accountId.toUnsignedString()

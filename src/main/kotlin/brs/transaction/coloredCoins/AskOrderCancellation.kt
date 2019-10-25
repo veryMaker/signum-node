@@ -29,10 +29,10 @@ class AskOrderCancellation(dp: DependencyProvider) : OrderCancellation(dp) {
         val order = dp.assetExchange.getAskOrder(attachment.orderId)
         dp.assetExchange.removeAskOrder(attachment.orderId)
         if (order != null) {
-            dp.accountService.addToUnconfirmedAssetBalanceQNT(
+            dp.accountService.addToUnconfirmedAssetBalanceQuantity(
                 senderAccount,
                 order.assetId,
-                order.quantityQNT
+                order.quantity
             )
         }
     }

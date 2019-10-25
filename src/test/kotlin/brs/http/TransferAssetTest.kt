@@ -18,7 +18,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.servlet.http.HttpServletRequest
 
 @RunWith(JUnit4::class)
 class TransferAssetTest : AbstractTransactionTest() {
@@ -51,12 +50,12 @@ class TransferAssetTest : AbstractTransactionTest() {
     fun processRequest() {
         val recipientParameter = 34L
         val assetIdParameter = 456L
-        val quantityQNTParameter = 56L
+        val quantityParameter = 56L
 
         val request = QuickMocker.httpServletRequest(
                 MockParam(RECIPIENT_PARAMETER, recipientParameter),
                 MockParam(ASSET_PARAMETER, assetIdParameter),
-                MockParam(QUANTITY_QNT_PARAMETER, quantityQNTParameter)
+                MockParam(QUANTITY_QNT_PARAMETER, quantityParameter)
         )
 
         val mockAsset = mock<Asset>()
@@ -65,7 +64,7 @@ class TransferAssetTest : AbstractTransactionTest() {
         whenever(mockAsset.id).doReturn(assetIdParameter)
 
         val mockSenderAccount = mock<Account>()
-        whenever(accountServiceMock.getUnconfirmedAssetBalanceQNT(eq(mockSenderAccount), eq(assetIdParameter))).doReturn(500L)
+        whenever(accountServiceMock.getUnconfirmedAssetBalanceQuantity(eq(mockSenderAccount), eq(assetIdParameter))).doReturn(500L)
 
         whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
 
@@ -77,11 +76,11 @@ class TransferAssetTest : AbstractTransactionTest() {
 
         assertTrue(attachment.transactionType is AssetTransfer)
         assertEquals(assetIdParameter, attachment.assetId)
-        assertEquals(quantityQNTParameter, attachment.quantityQNT)
+        assertEquals(quantityParameter, attachment.quantity)
     }
 
     @Test
-    fun processRequest_assetBalanceLowerThanQuantityNQTParameter() {
+    fun processRequest_assetBalanceLowerThanQuantityPlanckParameter() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(RECIPIENT_PARAMETER, "123"),
                 MockParam(ASSET_PARAMETER, "456"),
@@ -96,7 +95,7 @@ class TransferAssetTest : AbstractTransactionTest() {
         val mockSenderAccount = mock<Account>()
         whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
 
-        whenever(accountServiceMock.getUnconfirmedAssetBalanceQNT(eq(mockSenderAccount), any())).doReturn(2L)
+        whenever(accountServiceMock.getUnconfirmedAssetBalanceQuantity(eq(mockSenderAccount), any())).doReturn(2L)
 
         assertEquals(NOT_ENOUGH_ASSETS, t.processRequest(request))
     }

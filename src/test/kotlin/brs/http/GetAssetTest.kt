@@ -72,7 +72,7 @@ class GetAssetTest : AbstractUnitTest() {
         assertEquals(asset.name, result.get(NAME_RESPONSE).safeGetAsString())
         assertEquals(asset.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
         assertEquals(asset.decimals.toLong(), result.get(DECIMALS_RESPONSE).safeGetAsLong())
-        assertEquals("" + asset.quantityQNT, result.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
+        assertEquals("" + asset.quantity, result.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
         assertEquals("" + asset.id, result.get(ASSET_RESPONSE).safeGetAsString())
         assertEquals(tradeCount.toLong(), result.get(NUMBER_OF_TRADES_RESPONSE).safeGetAsLong())
         assertEquals(transferCount.toLong(), result.get(NUMBER_OF_TRANSFERS_RESPONSE).safeGetAsLong())

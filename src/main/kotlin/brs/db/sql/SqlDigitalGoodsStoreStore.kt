@@ -136,7 +136,7 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
     private fun saveGoods(ctx: DSLContext, goods: DigitalGoodsStore.Goods) {
         ctx.mergeInto<GoodsRecord, Long, Long, String, String, String, Int, Int, Long, Boolean, Int, Boolean>(GOODS, GOODS.ID, GOODS.SELLER_ID, GOODS.NAME, GOODS.DESCRIPTION, GOODS.TAGS, GOODS.TIMESTAMP, GOODS.QUANTITY, GOODS.PRICE, GOODS.DELISTED, GOODS.HEIGHT, GOODS.LATEST)
                 .key(GOODS.ID, GOODS.HEIGHT)
-                .values(goods.id, goods.sellerId, goods.name, goods.description, goods.tags, goods.timestamp, goods.quantity, goods.priceNQT, goods.isDelisted, dp.blockchain.height, true)
+                .values(goods.id, goods.sellerId, goods.name, goods.description, goods.tags, goods.timestamp, goods.quantity, goods.pricePlanck, goods.isDelisted, dp.blockchain.height, true)
                 .execute()
     }
 
@@ -161,8 +161,8 @@ class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoo
         }
         ctx.mergeInto<PurchaseRecord, Long, Long, Long, Long, Int, Long, Int, ByteArray, ByteArray, Int, Boolean, ByteArray, ByteArray, ByteArray, ByteArray, Boolean, Boolean, Long, Long, Int, Boolean>(PURCHASE, PURCHASE.ID, PURCHASE.BUYER_ID, PURCHASE.GOODS_ID, PURCHASE.SELLER_ID, PURCHASE.QUANTITY, PURCHASE.PRICE, PURCHASE.DEADLINE, PURCHASE.NOTE, PURCHASE.NONCE, PURCHASE.TIMESTAMP, PURCHASE.PENDING, PURCHASE.GOODS, PURCHASE.GOODS_NONCE, PURCHASE.REFUND_NOTE, PURCHASE.REFUND_NONCE, PURCHASE.HAS_FEEDBACK_NOTES, PURCHASE.HAS_PUBLIC_FEEDBACKS, PURCHASE.DISCOUNT, PURCHASE.REFUND, PURCHASE.HEIGHT, PURCHASE.LATEST)
                 .key(PURCHASE.ID, PURCHASE.HEIGHT)
-                .values(purchase.id, purchase.buyerId, purchase.goodsId, purchase.sellerId, purchase.quantity, purchase.priceNQT, purchase.deliveryDeadlineTimestamp, note, nonce, purchase.timestamp, purchase.isPending, goods, goodsNonce, refundNote, refundNonce, purchase.feedbackNotes != null && purchase.feedbackNotes!!.isNotEmpty(),
-                    purchase.getPublicFeedback()!!.isNotEmpty(), purchase.discountNQT, purchase.refundNQT, dp.blockchain.height, true)
+                .values(purchase.id, purchase.buyerId, purchase.goodsId, purchase.sellerId, purchase.quantity, purchase.pricePlanck, purchase.deliveryDeadlineTimestamp, note, nonce, purchase.timestamp, purchase.isPending, goods, goodsNonce, refundNote, refundNonce, purchase.feedbackNotes != null && purchase.feedbackNotes!!.isNotEmpty(),
+                    purchase.getPublicFeedback()!!.isNotEmpty(), purchase.discountPlanck, purchase.refundPlanck, dp.blockchain.height, true)
                 .execute()
     }
 

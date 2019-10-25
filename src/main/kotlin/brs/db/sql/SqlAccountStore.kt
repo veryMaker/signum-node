@@ -64,7 +64,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             override fun save(ctx: DSLContext, accountAsset: Account.AccountAsset) {
                 ctx.mergeInto<AccountAssetRecord, Long, Long, Long, Long, Int, Boolean>(ACCOUNT_ASSET, ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.QUANTITY, ACCOUNT_ASSET.UNCONFIRMED_QUANTITY, ACCOUNT_ASSET.HEIGHT, ACCOUNT_ASSET.LATEST)
                         .key(ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.HEIGHT)
-                        .values(accountAsset.accountId, accountAsset.assetId, accountAsset.quantityQNT, accountAsset.unconfirmedQuantityQNT, dp.blockchain.height, true)
+                        .values(accountAsset.accountId, accountAsset.assetId, accountAsset.quantity, accountAsset.unconfirmedQuantity, dp.blockchain.height, true)
                         .execute()
             }
 
@@ -85,7 +85,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
                             ACCOUNT.UNCONFIRMED_BALANCE, ACCOUNT.FORGED_BALANCE, ACCOUNT.NAME, ACCOUNT.DESCRIPTION, ACCOUNT.LATEST)
                             .key(ACCOUNT.ID, ACCOUNT.HEIGHT)
                             .values(account.id, height, account.creationHeight, account.publicKey, account.keyHeight,
-                                account.balanceNQT, account.unconfirmedBalanceNQT, account.forgedBalanceNQT, account.name, account.description, true) })
+                                account.balancePlanck, account.unconfirmedBalancePlanck, account.forgedBalancePlanck, account.name, account.description, true) })
                     .execute()
             }
         }
@@ -157,9 +157,9 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
         init {
             this.publicKey = record.get(ACCOUNT.PUBLIC_KEY)
             this.keyHeight = record.get(ACCOUNT.KEY_HEIGHT)
-            this.balanceNQT = record.get(ACCOUNT.BALANCE)
-            this.unconfirmedBalanceNQT = record.get(ACCOUNT.UNCONFIRMED_BALANCE)
-            this.forgedBalanceNQT = record.get(ACCOUNT.FORGED_BALANCE)
+            this.balancePlanck = record.get(ACCOUNT.BALANCE)
+            this.unconfirmedBalancePlanck = record.get(ACCOUNT.UNCONFIRMED_BALANCE)
+            this.forgedBalancePlanck = record.get(ACCOUNT.FORGED_BALANCE)
             this.name = record.get(ACCOUNT.NAME)
             this.description = record.get(ACCOUNT.DESCRIPTION)
         }

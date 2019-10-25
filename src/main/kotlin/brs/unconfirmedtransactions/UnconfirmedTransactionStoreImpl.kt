@@ -293,12 +293,12 @@ class UnconfirmedTransactionStoreImpl(private val dp: DependencyProvider) : Unco
 
 
     private fun amountSlotForTransaction(transaction: Transaction): Long {
-        return transaction.feeNQT / Constants.FEE_QUANT
+        return transaction.feePlanck / Constants.FEE_QUANT
     }
 
     private fun removeCheapestFirstToExpireTransaction() {
         val cheapestFirstToExpireTransaction = this.internalStore[this.internalStore.firstKey()]!!
-            .sortedWith(Comparator.comparingLong<Transaction> { it.feeNQT }
+            .sortedWith(Comparator.comparingLong<Transaction> { it.feePlanck }
                 .thenComparing<Int> { it.expiration }
                 .thenComparing<Long> { it.id })
             .firstOrNull()

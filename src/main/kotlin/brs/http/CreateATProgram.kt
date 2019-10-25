@@ -14,7 +14,7 @@ import brs.http.common.Parameters.CSPAGES_PARAMETER
 import brs.http.common.Parameters.DATA_PARAMETER
 import brs.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.http.common.Parameters.DPAGES_PARAMETER
-import brs.http.common.Parameters.MIN_ACTIVATION_AMOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.MIN_ACTIVATION_AMOUNT_PLANCK_PARAMETER
 import brs.http.common.Parameters.NAME_PARAMETER
 import brs.http.common.Parameters.USPAGES_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
@@ -30,7 +30,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.servlet.http.HttpServletRequest
 
-internal class CreateATProgram(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AT, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, CREATION_BYTES_PARAMETER, CODE_PARAMETER, DATA_PARAMETER, DPAGES_PARAMETER, CSPAGES_PARAMETER, USPAGES_PARAMETER, MIN_ACTIVATION_AMOUNT_NQT_PARAMETER) {
+internal class CreateATProgram(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AT, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, CREATION_BYTES_PARAMETER, CODE_PARAMETER, DATA_PARAMETER, DPAGES_PARAMETER, CSPAGES_PARAMETER, USPAGES_PARAMETER, MIN_ACTIVATION_AMOUNT_PLANCK_PARAMETER) {
 
     private val logger = LoggerFactory.getLogger(CreateATProgram::class.java)
 
@@ -75,7 +75,7 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
 
                 require(!(dpages < 0 || cspages < 0 || uspages < 0))
 
-                val minActivationAmount = request.getParameter(MIN_ACTIVATION_AMOUNT_NQT_PARAMETER).parseUnsignedLong()
+                val minActivationAmount = request.getParameter(MIN_ACTIVATION_AMOUNT_PLANCK_PARAMETER).parseUnsignedLong()
 
                 var creationLength = 4 // version + reserved
                 creationLength += 8 // pages

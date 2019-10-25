@@ -6,7 +6,7 @@ import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
 import brs.http.JSONResponses.INCORRECT_ALIAS_NOTFORSALE
-import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.services.AliasService
 import brs.services.ParameterService
 import brs.transaction.TransactionType
@@ -41,7 +41,7 @@ class BuyAliasTest : AbstractTransactionTest() {
 
     @Test
     fun processRequest() {
-        val request = QuickMocker.httpServletRequestDefaultKeys(MockParam(AMOUNT_NQT_PARAMETER, "" + Constants.ONE_BURST))
+        val request = QuickMocker.httpServletRequestDefaultKeys(MockParam(AMOUNT_PLANCK_PARAMETER, "" + Constants.ONE_BURST))
 
         val mockOfferOnAlias = mock<Offer>()
 
@@ -69,7 +69,7 @@ class BuyAliasTest : AbstractTransactionTest() {
 
     @Test
     fun processRequest_aliasNotForSale() {
-        val request = QuickMocker.httpServletRequest(MockParam(AMOUNT_NQT_PARAMETER, "3"))
+        val request = QuickMocker.httpServletRequest(MockParam(AMOUNT_PLANCK_PARAMETER, "3"))
         val mockAlias = mock<Alias>()
 
         whenever(parameterServiceMock.getAlias(eq(request))).doReturn(mockAlias)

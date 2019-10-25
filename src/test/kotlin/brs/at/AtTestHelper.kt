@@ -52,7 +52,7 @@ class AtTestHelper {
             }
             null
         }.whenever(mockAtTable).insert(any())
-        whenever(mockAccount.balanceNQT).doReturn(TestConstants.TEN_BURST)
+        whenever(mockAccount.balancePlanck).doReturn(TestConstants.TEN_BURST)
         whenever(mockAccountStore.accountTable).doReturn(mockAccountTable)
         whenever(mockAccountStore.setOrVerify(any(), any(), any()))
                 .doReturn(true)

@@ -31,25 +31,25 @@ interface AccountService : Observable<Account, Event> {
     fun flushAccountTable()
 
     // TODO rename methods
-    fun addToForgedBalanceNQT(account: Account, amountNQT: Long)
+    fun addToForgedBalancePlanck(account: Account, amountPlanck: Long)
 
     fun setAccountInfo(account: Account, name: String, description: String)
 
-    fun addToAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
+    fun addToAssetBalanceQuantity(account: Account, assetId: Long, quantity: Long)
 
-    fun addToUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
+    fun addToUnconfirmedAssetBalanceQuantity(account: Account, assetId: Long, quantity: Long)
 
-    fun addToAssetAndUnconfirmedAssetBalanceQNT(account: Account, assetId: Long, quantityQNT: Long)
+    fun addToAssetAndUnconfirmedAssetBalanceQuantity(account: Account, assetId: Long, quantity: Long)
 
-    fun addToBalanceNQT(account: Account, amountNQT: Long)
+    fun addToBalancePlanck(account: Account, amountPlanck: Long)
 
-    fun addToUnconfirmedBalanceNQT(account: Account, amountNQT: Long)
+    fun addToUnconfirmedBalancePlanck(account: Account, amountPlanck: Long)
 
-    fun addToBalanceAndUnconfirmedBalanceNQT(account: Account, amountNQT: Long)
+    fun addToBalanceAndUnconfirmedBalancePlanck(account: Account, amountPlanck: Long)
 
     fun getRewardRecipientAssignment(account: Account): RewardRecipientAssignment?
 
     fun setRewardRecipientAssignment(account: Account, recipient: Long)
 
-    fun getUnconfirmedAssetBalanceQNT(account: Account, assetId: Long): Long
+    fun getUnconfirmedAssetBalanceQuantity(account: Account, assetId: Long): Long
 }

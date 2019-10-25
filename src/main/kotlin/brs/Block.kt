@@ -19,10 +19,10 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
 
-class Block internal constructor(private val dp: DependencyProvider, val version: Int, val timestamp: Int, val previousBlockId: Long, val totalAmountNQT: Long, val totalFeeNQT: Long,
-                     val payloadLength: Int, val payloadHash: ByteArray, val generatorPublicKey: ByteArray, val generationSignature: ByteArray,
-                     blockSignature: ByteArray?, val previousBlockHash: ByteArray?, transactions: Collection<Transaction>?,
-                     val nonce: Long, val blockATs: ByteArray?, height: Int) {
+class Block internal constructor(private val dp: DependencyProvider, val version: Int, val timestamp: Int, val previousBlockId: Long, val totalAmountPlanck: Long, val totalFeePlanck: Long,
+                                 val payloadLength: Int, val payloadHash: ByteArray, val generatorPublicKey: ByteArray, val generationSignature: ByteArray,
+                                 blockSignature: ByteArray?, val previousBlockHash: ByteArray?, transactions: Collection<Transaction>?,
+                                 val nonce: Long, val blockATs: ByteArray?, height: Int) {
     var transactions by AtomicLazy {
         val txs = transactionDb().findBlockTransactions(id)
         txs.forEach { it.setBlock(this) }
@@ -63,8 +63,8 @@ class Block internal constructor(private val dp: DependencyProvider, val version
         json.addProperty("version", version)
         json.addProperty("timestamp", timestamp)
         json.addProperty("previousBlock", previousBlockId.toUnsignedString())
-        json.addProperty("totalAmountNQT", totalAmountNQT)
-        json.addProperty("totalFeeNQT", totalFeeNQT)
+        json.addProperty("totalAmountNQT", totalAmountPlanck)
+        json.addProperty("totalFeeNQT", totalFeePlanck)
         json.addProperty("payloadLength", payloadLength)
         json.addProperty("payloadHash", payloadHash.toHexString())
         json.addProperty("generatorPublicKey", generatorPublicKey.toHexString())
@@ -90,11 +90,11 @@ class Block internal constructor(private val dp: DependencyProvider, val version
         buffer.putLong(previousBlockId)
         buffer.putInt(transactions.size)
         if (version < 3) {
-            buffer.putInt((totalAmountNQT / Constants.ONE_BURST).toInt())
-            buffer.putInt((totalFeeNQT / Constants.ONE_BURST).toInt())
+            buffer.putInt((totalAmountPlanck / Constants.ONE_BURST).toInt())
+            buffer.putInt((totalFeePlanck / Constants.ONE_BURST).toInt())
         } else {
-            buffer.putLong(totalAmountNQT)
-            buffer.putLong(totalFeeNQT)
+            buffer.putLong(totalAmountPlanck)
+            buffer.putLong(totalFeePlanck)
         }
         buffer.putInt(payloadLength)
         buffer.put(payloadHash)
@@ -134,8 +134,8 @@ class Block internal constructor(private val dp: DependencyProvider, val version
         }
     }
 
-    constructor(dp: DependencyProvider, version: Int, timestamp: Int, previousBlockId: Long, totalAmountNQT: Long, totalFeeNQT: Long, payloadLength: Int, payloadHash: ByteArray, generatorPublicKey: ByteArray, generationSignature: ByteArray, blockSignature: ByteArray, previousBlockHash: ByteArray?, cumulativeDifficulty: BigInteger?, baseTarget: Long,
-                nextBlockId: Long, height: Int, id: Long, nonce: Long, blockATs: ByteArray?) : this(dp, version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature, previousBlockHash, null, nonce, blockATs, height) {
+    constructor(dp: DependencyProvider, version: Int, timestamp: Int, previousBlockId: Long, totalAmountPlanck: Long, totalFeePlanck: Long, payloadLength: Int, payloadHash: ByteArray, generatorPublicKey: ByteArray, generationSignature: ByteArray, blockSignature: ByteArray, previousBlockHash: ByteArray?, cumulativeDifficulty: BigInteger?, baseTarget: Long,
+                nextBlockId: Long, height: Int, id: Long, nonce: Long, blockATs: ByteArray?) : this(dp, version, timestamp, previousBlockId, totalAmountPlanck, totalFeePlanck, payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature, previousBlockHash, null, nonce, blockATs, height) {
 
         this.cumulativeDifficulty = cumulativeDifficulty ?: BigInteger.ZERO
         this.baseTarget = baseTarget
@@ -178,8 +178,8 @@ class Block internal constructor(private val dp: DependencyProvider, val version
                 val version = blockData.get("version").mustGetAsInt("version")
                 val timestamp = blockData.get("timestamp").mustGetAsInt("timestamp")
                 val previousBlock = blockData.get("previousBlock").safeGetAsString().parseUnsignedLong()
-                val totalAmountNQT = blockData.get("totalAmountNQT").mustGetAsLong("totalAmountNQT")
-                val totalFeeNQT = blockData.get("totalFeeNQT").mustGetAsLong("totalFeeNQT")
+                val totalAmountPlanck = blockData.get("totalAmountNQT").mustGetAsLong("totalAmountNQT")
+                val totalFeePlanck = blockData.get("totalFeeNQT").mustGetAsLong("totalFeeNQT")
                 val payloadLength = blockData.get("payloadLength").mustGetAsInt("payloadLength")
                 val payloadHash = blockData.get("payloadHash").mustGetAsString("payloadHash").parseHexString()
                 val generatorPublicKey = blockData.get("generatorPublicKey").mustGetAsString("generatorPublicKey").parseHexString()
@@ -199,7 +199,7 @@ class Block internal constructor(private val dp: DependencyProvider, val version
                 }
 
                 val blockATs = blockData.get("blockATs").safeGetAsString()?.parseHexString()
-                return Block(dp, version, timestamp, previousBlock, totalAmountNQT, totalFeeNQT,
+                return Block(dp, version, timestamp, previousBlock, totalAmountPlanck, totalFeePlanck,
                         payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature,
                         previousBlockHash, blockTransactions.values, nonce, blockATs, height)
             } catch (e: BurstException.ValidationException) {

@@ -1,7 +1,7 @@
 package brs.http
 
 import brs.*
-import brs.Constants.MAX_BALANCE_NQT
+import brs.Constants.MAX_BALANCE_PLANCK
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.fluxcapacitor.FluxValues
@@ -9,7 +9,7 @@ import brs.http.JSONResponses.INCORRECT_ALIAS_OWNER
 import brs.http.JSONResponses.INCORRECT_PRICE
 import brs.http.JSONResponses.INCORRECT_RECIPIENT
 import brs.http.JSONResponses.MISSING_PRICE
-import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.services.ParameterService
 import brs.transaction.TransactionType
@@ -47,7 +47,7 @@ class SellAliasTest : AbstractTransactionTest() {
         val recipientId = 5
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, priceParameter),
+                MockParam(PRICE_PLANCK_PARAMETER, priceParameter),
                 MockParam(RECIPIENT_PARAMETER, recipientId)
         )
 
@@ -69,7 +69,7 @@ class SellAliasTest : AbstractTransactionTest() {
         assertNotNull(attachment)
 
         assertTrue(attachment.transactionType is AliasSell)
-        assertEquals(priceParameter.toLong(), attachment.priceNQT)
+        assertEquals(priceParameter.toLong(), attachment.pricePlanck)
     }
 
     @Test
@@ -82,7 +82,7 @@ class SellAliasTest : AbstractTransactionTest() {
     @Test
     fun processRequest_incorrectPrice_unParsable() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, "unParsable")
+                MockParam(PRICE_PLANCK_PARAMETER, "unParsable")
         )
 
         assertEquals(INCORRECT_PRICE, t.processRequest(request))
@@ -91,7 +91,7 @@ class SellAliasTest : AbstractTransactionTest() {
     @Test(expected = ParameterException::class)
     fun processRequest_incorrectPrice_negative() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, -10L)
+                MockParam(PRICE_PLANCK_PARAMETER, -10L)
         )
 
         t.processRequest(request)
@@ -100,7 +100,7 @@ class SellAliasTest : AbstractTransactionTest() {
     @Test(expected = ParameterException::class)
     fun processRequest_incorrectPrice_overMaxBalance() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, MAX_BALANCE_NQT + 1)
+                MockParam(PRICE_PLANCK_PARAMETER, MAX_BALANCE_PLANCK + 1)
         )
 
         t.processRequest(request)
@@ -111,7 +111,7 @@ class SellAliasTest : AbstractTransactionTest() {
         val price = 10
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, price),
+                MockParam(PRICE_PLANCK_PARAMETER, price),
                 MockParam(RECIPIENT_PARAMETER, "unParsable")
         )
 
@@ -124,7 +124,7 @@ class SellAliasTest : AbstractTransactionTest() {
         val recipientId = 0
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, price),
+                MockParam(PRICE_PLANCK_PARAMETER, price),
                 MockParam(RECIPIENT_PARAMETER, recipientId)
         )
 
@@ -137,7 +137,7 @@ class SellAliasTest : AbstractTransactionTest() {
         val recipientId = 5
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, price),
+                MockParam(PRICE_PLANCK_PARAMETER, price),
                 MockParam(RECIPIENT_PARAMETER, recipientId)
         )
 

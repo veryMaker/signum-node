@@ -56,16 +56,16 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
 
     override fun sellAlias(transaction: Transaction, attachment: Attachment.MessagingAliasSell) {
         val aliasName = attachment.aliasName
-        val priceNQT = attachment.priceNQT
+        val pricePlanck = attachment.pricePlanck
         val buyerId = transaction.recipientId
-        if (priceNQT > 0) {
+        if (pricePlanck > 0) {
             val alias = getAlias(aliasName)!!
             val offer = getOffer(alias)
             if (offer == null) {
                 val dbKey = offerDbKeyFactory.newKey(alias.id)
-                offerTable.insert(Offer(dbKey, alias.id, priceNQT, buyerId))
+                offerTable.insert(Offer(dbKey, alias.id, pricePlanck, buyerId))
             } else {
-                offer.priceNQT = priceNQT
+                offer.pricePlanck = pricePlanck
                 offer.buyerId = buyerId
                 offerTable.insert(offer)
             }

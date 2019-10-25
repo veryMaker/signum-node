@@ -23,7 +23,7 @@ object Constants {
     const val FEE_QUANT = 735000L
     const val ONE_BURST = 100000000L
 
-    const val MAX_BALANCE_NQT = MAX_BALANCE_BURST * ONE_BURST
+    const val MAX_BALANCE_PLANCK = MAX_BALANCE_BURST * ONE_BURST
     const val INITIAL_BASE_TARGET = 18325193796L
     const val MAX_BASE_TARGET = 18325193796L
 
@@ -39,8 +39,8 @@ object Constants {
     const val MAX_ACCOUNT_NAME_LENGTH = 100
     const val MAX_ACCOUNT_DESCRIPTION_LENGTH = 1000
 
-    const val MAX_ASSET_QUANTITY_QNT = 1000000000L * 100000000L
-    const val ASSET_ISSUANCE_FEE_NQT = 1000 * ONE_BURST
+    const val MAX_ASSET_QUANTITY = 1000000000L * 100000000L
+    const val ASSET_ISSUANCE_FEE_PLANCK = 1000 * ONE_BURST
     const val MIN_ASSET_NAME_LENGTH = 3
     const val MAX_ASSET_NAME_LENGTH = 10
     const val MAX_ASSET_DESCRIPTION_LENGTH = 1000
@@ -65,7 +65,7 @@ object Constants {
     const val HTTP = "http://"
 
     val MIN_VERSION = Version.parse("v2.3.0")
-    internal var UNCONFIRMED_POOL_DEPOSIT_NQT: Long = 0
+    internal var UNCONFIRMED_POOL_DEPOSIT_PLANCK: Long = 0
 
     // TODO burstkit4j integration
     val EPOCH_BEGINNING: Long
@@ -103,6 +103,6 @@ object Constants {
     fun init(dp: DependencyProvider) {
         val dbRollback = dp.propertyService.get(Props.DB_MAX_ROLLBACK).toLong()
         require(dbRollback >= 1440) { "brs.maxRollback must be at least 1440" }
-        UNCONFIRMED_POOL_DEPOSIT_NQT = (if (dp.propertyService.get(Props.DEV_TESTNET)) 50 else 100).toLong()
+        UNCONFIRMED_POOL_DEPOSIT_PLANCK = (if (dp.propertyService.get(Props.DEV_TESTNET)) 50 else 100).toLong()
     }
 }

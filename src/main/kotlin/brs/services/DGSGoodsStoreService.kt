@@ -44,11 +44,11 @@ interface DGSGoodsStoreService { // TODO Redundant name!
 
     fun feedback(purchaseId: Long, encryptedMessage: Appendix.EncryptedMessage?, message: Appendix.Message?)
 
-    fun refund(sellerId: Long, purchaseId: Long, refundNQT: Long, encryptedMessage: Appendix.EncryptedMessage?)
+    fun refund(sellerId: Long, purchaseId: Long, refundPlanck: Long, encryptedMessage: Appendix.EncryptedMessage?)
 
     fun getExpiredPendingPurchases(timestamp: Int): Collection<Purchase>
 
-    fun changePrice(goodsId: Long, priceNQT: Long)
+    fun changePrice(goodsId: Long, pricePlanck: Long)
 
     fun deliver(transaction: Transaction, attachment: Attachment.DigitalGoodsDelivery)
 

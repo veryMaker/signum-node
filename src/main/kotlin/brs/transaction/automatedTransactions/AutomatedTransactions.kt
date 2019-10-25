@@ -14,7 +14,7 @@ abstract class AutomatedTransactions(dp: DependencyProvider) : TransactionType(d
     override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
 
     override fun validateAttachment(transaction: Transaction) {
-        if (transaction.amountNQT != 0L) {
+        if (transaction.amountPlanck != 0L) {
             throw BurstException.NotValidException("Invalid automated transaction transaction")
         }
         doValidateAttachment(transaction)

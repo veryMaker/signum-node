@@ -49,7 +49,7 @@ class AtControllerTest {
         assertEquals(3, AT.getOrderedATs(dp).size.toLong())
         val atBlock = dp.atController.validateATs("010000000000000097c1d1e5b25c1d109f2ba522d1dda248020000000000000014ea12712c274caebc49ccd7fff0b0b703000000000000009f1af5443c8d1e7b492f848e91fccb1f".parseHexString(), Integer.MAX_VALUE)
         assertNotNull(atBlock)
-        assertEquals(0, atBlock.totalAmount)
+        assertEquals(0, atBlock.totalAmountPlanck)
         assertEquals(5439000, atBlock.totalFees)
     }
 }

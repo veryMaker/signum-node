@@ -26,8 +26,8 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     val deadline: Short
     lateinit var senderPublicKey: ByteArray
     val recipientId: Long
-    val amountNQT: Long
-    val feeNQT: Long
+    val amountPlanck: Long
+    val feePlanck: Long
     val referencedTransactionFullHash: ByteArray?
     lateinit var type: TransactionType
     val ecBlockHeight: Int
@@ -80,8 +80,8 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 buffer.put(ByteArray(24))
             }
             buffer.putLong(if (type.hasRecipient()) recipientId else Genesis.CREATOR_ID)
-            buffer.putLong(amountNQT)
-            buffer.putLong(feeNQT)
+            buffer.putLong(amountPlanck)
+            buffer.putLong(feePlanck)
             if (referencedTransactionFullHash != null) {
                 buffer.put(referencedTransactionFullHash)
             } else {
@@ -113,8 +113,8 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         if (type.hasRecipient()) {
             json.addProperty("recipient", recipientId.toUnsignedString())
         }
-        json.addProperty("amountNQT", amountNQT)
-        json.addProperty("feeNQT", feeNQT)
+        json.addProperty("amountNQT", amountPlanck)
+        json.addProperty("feeNQT", feePlanck)
         if (referencedTransactionFullHash != null) {
             json.addProperty("referencedTransactionFullHash", referencedTransactionFullHash.toHexString())
         }
@@ -156,7 +156,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     val duplicationKey: TransactionDuplicationKey
         get() = type.getDuplicationKey(this)
 
-    class Builder(internal val dp: DependencyProvider, internal val version: Byte, internal val senderPublicKey: ByteArray, internal val amountNQT: Long, internal val feeNQT: Long, internal val timestamp: Int, internal val deadline: Short,
+    class Builder(internal val dp: DependencyProvider, internal val version: Byte, internal val senderPublicKey: ByteArray, internal val amountPlanck: Long, internal val feePlanck: Long, internal val timestamp: Int, internal val deadline: Short,
                   internal val attachment: Attachment.AbstractAttachment) {
         internal val type = attachment.transactionType
 
@@ -261,7 +261,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         this.deadline = builder.deadline
         this.senderPublicKey = builder.senderPublicKey
         this.recipientId = Optional.ofNullable(builder.recipientId).orElse(0L)
-        this.amountNQT = builder.amountNQT
+        this.amountPlanck = builder.amountPlanck
         this.referencedTransactionFullHash = builder.referencedTransactionFullHash
         this.signature = builder.signature
         this.type = builder.type
@@ -301,34 +301,34 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         }
         this.appendagesSize = countAppendeges
         val effectiveHeight = if (height < Integer.MAX_VALUE) height else dp.blockchain.height
-        val minimumFeeNQT = type.minimumFeeNQT(effectiveHeight, countAppendeges)
-        feeNQT = if (type.isSigned) {
-            if (builder.feeNQT in 1 until minimumFeeNQT) {
+        val minimumFeePlanck = type.minimumFeePlanck(effectiveHeight, countAppendeges)
+        feePlanck = if (type.isSigned) {
+            if (builder.feePlanck in 1 until minimumFeePlanck) {
                 throw BurstException.NotValidException(String.format("Requested fee %d less than the minimum fee %d",
-                    builder.feeNQT, minimumFeeNQT))
+                    builder.feePlanck, minimumFeePlanck))
             }
-            if (builder.feeNQT <= 0) {
-                minimumFeeNQT
+            if (builder.feePlanck <= 0) {
+                minimumFeePlanck
             } else {
-                builder.feeNQT
+                builder.feePlanck
             }
         } else {
-            builder.feeNQT
+            builder.feePlanck
         }
 
         if ((type.isSigned) && (deadline < 1
-                    || feeNQT > Constants.MAX_BALANCE_NQT
-                    || amountNQT < 0
-                    || amountNQT > Constants.MAX_BALANCE_NQT)) {
+                    || feePlanck > Constants.MAX_BALANCE_PLANCK
+                    || amountPlanck < 0
+                    || amountPlanck > Constants.MAX_BALANCE_PLANCK)) {
             throw BurstException.NotValidException("Invalid transaction parameters:\n type: " + type + ", timestamp: " + timestamp
-                    + ", deadline: " + deadline + ", fee: " + feeNQT + ", amount: " + amountNQT)
+                    + ", deadline: " + deadline + ", fee: " + feePlanck + ", amount: " + amountPlanck)
         }
 
         if (type !== attachment.transactionType) {
             throw BurstException.NotValidException("Invalid attachment $attachment for transaction of type $type")
         }
 
-        if (!type.hasRecipient() && attachment.transactionType !is MultiOutPayment && attachment.transactionType !is MultiOutSamePayment && (recipientId != 0L || amountNQT != 0L)) {
+        if (!type.hasRecipient() && attachment.transactionType !is MultiOutPayment && attachment.transactionType !is MultiOutSamePayment && (recipientId != 0L || amountPlanck != 0L)) {
             throw BurstException.NotValidException("Transactions of this type must have recipient == Genesis, amount == 0")
         }
 
@@ -394,8 +394,8 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 val senderPublicKey = ByteArray(32)
                 buffer.get(senderPublicKey)
                 val recipientId = buffer.long
-                val amountNQT = buffer.long
-                val feeNQT = buffer.long
+                val amountPlanck = buffer.long
+                val feePlanck = buffer.long
                 val referencedTransactionFullHash = ByteArray(32)
                 buffer.get(referencedTransactionFullHash)
                 var signature: ByteArray? = ByteArray(64)
@@ -410,7 +410,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                     ecBlockId = buffer.long
                 }
                 val transactionType = TransactionType.findTransactionType(dp, type, subtype)
-                val builder = Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType!!.parseAttachment(buffer, version))
+                val builder = Builder(dp, version, senderPublicKey, amountPlanck, feePlanck, timestamp, deadline, transactionType!!.parseAttachment(buffer, version))
                     .signature(signature)
                     .ecBlockHeight(ecBlockHeight)
                     .ecBlockId(ecBlockId)
@@ -438,15 +438,15 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 val timestamp = transactionData.get("timestamp").mustGetAsInt("timestamp")
                 val deadline = transactionData.get("deadline").mustGetAsShort("deadline")
                 val senderPublicKey = transactionData.get("senderPublicKey").mustGetAsString("senderPublicKey").parseHexString()
-                val amountNQT = transactionData.get("amountNQT").mustGetAsLong("amountNQT")
-                val feeNQT = transactionData.get("feeNQT").mustGetAsLong("feeNQT")
+                val amountPlanck = transactionData.get("amountNQT").mustGetAsLong("amountNQT")
+                val feePlanck = transactionData.get("feeNQT").mustGetAsLong("feeNQT")
                 val referencedTransactionFullHash = transactionData.get("referencedTransactionFullHash").safeGetAsString()
                 val signature = transactionData.get("signature").mustGetAsString("signature").parseHexString()
                 val version = transactionData.get("version").mustGetAsByte("version")
                 val attachmentData = transactionData.get("attachment").mustGetAsJsonObject("attachment")
 
                 val transactionType = TransactionType.findTransactionType(dp, type, subtype) ?: throw BurstException.NotValidException("Invalid transaction type: $type, $subtype")
-                val builder = Builder(dp, version, senderPublicKey, amountNQT, feeNQT, timestamp, deadline, transactionType.parseAttachment(attachmentData))
+                val builder = Builder(dp, version, senderPublicKey, amountPlanck, feePlanck, timestamp, deadline, transactionType.parseAttachment(attachmentData))
                     .signature(signature)
                     .height(height)
                 if (!referencedTransactionFullHash.isNullOrEmpty()) {

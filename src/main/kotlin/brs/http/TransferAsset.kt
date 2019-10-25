@@ -14,15 +14,15 @@ internal class TransferAsset(private val dp: DependencyProvider) : CreateTransac
         val recipient = ParameterParser.getRecipientId(request)
 
         val asset = dp.parameterService.getAsset(request)
-        val quantityQNT = ParameterParser.getQuantityQNT(request)
+        val quantity = ParameterParser.getQuantity(request)
         val account = dp.parameterService.getSenderAccount(request)
 
-        val assetBalance = dp.accountService.getUnconfirmedAssetBalanceQNT(account, asset.id)
-        if (assetBalance < 0 || quantityQNT > assetBalance) {
+        val assetBalance = dp.accountService.getUnconfirmedAssetBalanceQuantity(account, asset.id)
+        if (assetBalance < 0 || quantity > assetBalance) {
             return NOT_ENOUGH_ASSETS
         }
 
-        val attachment = Attachment.ColoredCoinsAssetTransfer(dp, asset.id, quantityQNT, dp.blockchain.height)
+        val attachment = Attachment.ColoredCoinsAssetTransfer(dp, asset.id, quantity, dp.blockchain.height)
         return createTransaction(request, account, recipient, 0, attachment)
     }
 }

@@ -34,20 +34,20 @@ open class Alias {
 
     open class Offer {
 
-        var priceNQT: Long = 0
+        var pricePlanck: Long = 0
         var buyerId: Long = 0
         val id: Long
         val dbKey: BurstKey
 
-        constructor(dbKey: BurstKey, aliasId: Long, priceNQT: Long, buyerId: Long) {
+        constructor(dbKey: BurstKey, aliasId: Long, pricePlanck: Long, buyerId: Long) {
             this.dbKey = dbKey
-            this.priceNQT = priceNQT
+            this.pricePlanck = pricePlanck
             this.buyerId = buyerId
             this.id = aliasId
         }
 
-        protected constructor(aliasId: Long, priceNQT: Long, buyerId: Long, nxtKey: BurstKey) {
-            this.priceNQT = priceNQT
+        protected constructor(aliasId: Long, pricePlanck: Long, buyerId: Long, nxtKey: BurstKey) {
+            this.pricePlanck = pricePlanck
             this.buyerId = buyerId
             this.id = aliasId
             this.dbKey = nxtKey

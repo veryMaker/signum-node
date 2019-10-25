@@ -25,17 +25,17 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
 
     override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.safeTrace { "TransactionType ESCROW_CREATION" }
-        val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
-        if (senderAccount.unconfirmedBalanceNQT < totalAmountNQT) {
+        val totalAmountPlanck = calculateAttachmentTotalAmountPlanck(transaction)
+        if (senderAccount.unconfirmedBalancePlanck < totalAmountPlanck) {
             return false
         }
-        dp.accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT)
+        dp.accountService.addToUnconfirmedBalancePlanck(senderAccount, -totalAmountPlanck)
         return true
     }
 
-    public override fun calculateAttachmentTotalAmountNQT(transaction: Transaction): Long {
+    public override fun calculateAttachmentTotalAmountPlanck(transaction: Transaction): Long {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowCreation
-        return attachment.amountNQT.safeAdd(attachment.totalSigners.toLong().safeMultiply(Constants.ONE_BURST))
+        return attachment.amountPlanck.safeAdd(attachment.totalSigners.toLong().safeMultiply(Constants.ONE_BURST))
     }
 
     override fun applyAttachment(
@@ -44,11 +44,11 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
         recipientAccount: Account?
     ) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowCreation
-        val totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction)
-        dp.accountService.addToBalanceNQT(senderAccount, -totalAmountNQT)
+        val totalAmountPlanck = calculateAttachmentTotalAmountPlanck(transaction)
+        dp.accountService.addToBalancePlanck(senderAccount, -totalAmountPlanck)
         val signers = attachment.getSigners()
         signers.forEach { signer ->
-            dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(
+            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
                 dp.accountService.getOrAddAccount(
                     signer
                 ), Constants.ONE_BURST
@@ -58,7 +58,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
             senderAccount,
             recipientAccount!!,
             transaction.id,
-            attachment.amountNQT,
+            attachment.amountPlanck,
             attachment.getRequiredSigners(),
             attachment.getSigners(),
             transaction.timestamp + attachment.deadline,
@@ -67,9 +67,9 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
     }
 
     override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
-        dp.accountService.addToUnconfirmedBalanceNQT(
+        dp.accountService.addToUnconfirmedBalancePlanck(
             senderAccount,
-            calculateAttachmentTotalAmountNQT(transaction)
+            calculateAttachmentTotalAmountPlanck(transaction)
         )
     }
 
@@ -79,18 +79,18 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
 
     override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowCreation
-        var totalAmountNQT: Long? = attachment.amountNQT.safeAdd(transaction.feeNQT)
+        var totalAmountPlanck: Long? = attachment.amountPlanck.safeAdd(transaction.feePlanck)
         if (transaction.senderId == transaction.recipientId) {
             throw BurstException.NotValidException("Escrow must have different sender and recipient")
         }
-        totalAmountNQT = totalAmountNQT!!.safeAdd(attachment.totalSigners * Constants.ONE_BURST)
-        if (transaction.amountNQT != 0L) {
+        totalAmountPlanck = totalAmountPlanck!!.safeAdd(attachment.totalSigners * Constants.ONE_BURST)
+        if (transaction.amountPlanck != 0L) {
             throw BurstException.NotValidException("Transaction sent amount must be 0 for escrow")
         }
-        if (totalAmountNQT < 0L || totalAmountNQT > Constants.MAX_BALANCE_NQT) {
+        if (totalAmountPlanck < 0L || totalAmountPlanck > Constants.MAX_BALANCE_PLANCK) {
             throw BurstException.NotValidException("Invalid escrow creation amount")
         }
-        if (transaction.feeNQT < Constants.ONE_BURST) {
+        if (transaction.feePlanck < Constants.ONE_BURST) {
             throw BurstException.NotValidException("Escrow transaction must have a fee at least 1 burst")
         }
         if (attachment.getRequiredSigners() < 1 || attachment.getRequiredSigners() > 10) {

@@ -12,7 +12,7 @@ import brs.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
 import brs.http.common.Parameters.ENCRYPTED_MESSAGE_NONCE_PARAMETER
 import brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_DATA
 import brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_NONCE
-import brs.http.common.Parameters.FEE_NQT_PARAMETER
+import brs.http.common.Parameters.FEE_PLANCK_PARAMETER
 import brs.http.common.Parameters.MESSAGE_IS_TEXT_PARAMETER
 import brs.http.common.Parameters.MESSAGE_PARAMETER
 import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER
@@ -41,20 +41,20 @@ internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
         return createTransaction(request, senderAccount, null, 0, attachment)
     }
 
-    fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountNQT: Long, attachment: Attachment = Attachment.OrdinaryPayment(dp)): JsonElement {
-        return dp.apiTransactionManager.createTransaction(request, senderAccount, recipientId, amountNQT, attachment, minimumFeeNQT())
+    fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountPlanck: Long, attachment: Attachment = Attachment.OrdinaryPayment(dp)): JsonElement {
+        return dp.apiTransactionManager.createTransaction(request, senderAccount, recipientId, amountPlanck, attachment, minimumFeePlanck())
     }
 
     override fun requirePost(): Boolean {
         return true
     }
 
-    private fun minimumFeeNQT(): Long {
+    private fun minimumFeePlanck(): Long {
         return if (dp.fluxCapacitor.getValue(FluxValues.PRE_DYMAXION)) FEE_QUANT else ONE_BURST
     }
 
     companion object {
-        private val commonParameters = arrayOf(SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_NQT_PARAMETER, DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER, MESSAGE_PARAMETER, MESSAGE_IS_TEXT_PARAMETER, MESSAGE_TO_ENCRYPT_PARAMETER, MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, ENCRYPTED_MESSAGE_DATA_PARAMETER, ENCRYPTED_MESSAGE_NONCE_PARAMETER, MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER, MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, ENCRYPT_TO_SELF_MESSAGE_DATA, ENCRYPT_TO_SELF_MESSAGE_NONCE, RECIPIENT_PUBLIC_KEY_PARAMETER)
+        private val commonParameters = arrayOf(SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_PLANCK_PARAMETER, DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER, MESSAGE_PARAMETER, MESSAGE_IS_TEXT_PARAMETER, MESSAGE_TO_ENCRYPT_PARAMETER, MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, ENCRYPTED_MESSAGE_DATA_PARAMETER, ENCRYPTED_MESSAGE_NONCE_PARAMETER, MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER, MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, ENCRYPT_TO_SELF_MESSAGE_DATA, ENCRYPT_TO_SELF_MESSAGE_NONCE, RECIPIENT_PUBLIC_KEY_PARAMETER)
 
         private fun addCommonParameters(vararg parameters: String): Array<String> {
             return commonParameters + parameters

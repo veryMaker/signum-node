@@ -52,7 +52,7 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
     private fun saveOffer(offer: Alias.Offer) {
         dp.db.useDslContext { ctx ->
             ctx.insertInto<AliasOfferRecord, Long, Long, Long, Int>(ALIAS_OFFER, ALIAS_OFFER.ID, ALIAS_OFFER.PRICE, ALIAS_OFFER.BUYER_ID, ALIAS_OFFER.HEIGHT)
-                    .values(offer.id, offer.priceNQT, if (offer.buyerId == 0L) null else offer.buyerId, dp.blockchain.height)
+                    .values(offer.id, offer.pricePlanck, if (offer.buyerId == 0L) null else offer.buyerId, dp.blockchain.height)
                     .execute()
         }
     }

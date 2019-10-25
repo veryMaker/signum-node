@@ -32,7 +32,7 @@ class TransactionDuplicatesCheckerImpl {
 
         val possiblyExistingTransaction = transactionOverview[transactionDuplicateKey.key]
 
-        return if (possiblyExistingTransaction != null && possiblyExistingTransaction.feeNQT >= transaction.feeNQT) {
+        return if (possiblyExistingTransaction != null && possiblyExistingTransaction.feePlanck >= transaction.feePlanck) {
             logger.safeDebug { "Transaction ${transaction.id}: is a duplicate of ${possiblyExistingTransaction.id} (Type: ${transaction.type})" }
             TransactionDuplicationResult(true, transaction)
         } else {

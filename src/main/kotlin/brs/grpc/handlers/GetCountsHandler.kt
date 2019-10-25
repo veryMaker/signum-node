@@ -22,13 +22,13 @@ class GetCountsHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empt
         val numberOfPeers = dp.peers.allPeers.size
         val numberOfGenerators = dp.generator.allGenerators.size
         for (account in dp.accountService.getAllAccounts(0, -1)) {
-            val effectiveBalanceBURST = account.balanceNQT
+            val effectiveBalanceBURST = account.balancePlanck
             if (effectiveBalanceBURST > 0) {
                 totalEffectiveBalance += effectiveBalanceBURST
             }
         }
         for (escrow in dp.escrowService.getAllEscrowTransactions()) {
-            totalEffectiveBalance += escrow.amountNQT
+            totalEffectiveBalance += escrow.amountPlanck
         }
 
         return BrsApi.Counts.newBuilder()

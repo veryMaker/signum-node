@@ -13,7 +13,7 @@ import brs.http.JSONResponses.INCORRECT_DGS_LISTING_TAGS
 import brs.http.JSONResponses.MISSING_NAME
 import brs.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.http.common.Parameters.NAME_PARAMETER
-import brs.http.common.Parameters.PRICE_NQT_PARAMETER
+import brs.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.http.common.Parameters.QUANTITY_PARAMETER
 import brs.http.common.Parameters.TAGS_PARAMETER
 import brs.services.ParameterService
@@ -26,7 +26,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class DGSListingTest : AbstractTransactionTest() {
 
@@ -52,11 +51,11 @@ class DGSListingTest : AbstractTransactionTest() {
         val dgsName = "dgsName"
         val dgsDescription = "dgsDescription"
         val tags = "tags"
-        val priceNqt = 123
+        val pricePlanck = 123
         val quantity = 5
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, priceNqt),
+                MockParam(PRICE_PLANCK_PARAMETER, pricePlanck),
                 MockParam(QUANTITY_PARAMETER, quantity),
                 MockParam(NAME_PARAMETER, dgsName),
                 MockParam(DESCRIPTION_PARAMETER, dgsDescription),
@@ -74,14 +73,14 @@ class DGSListingTest : AbstractTransactionTest() {
         assertEquals(dgsName, attachment.name)
         assertEquals(dgsDescription, attachment.description)
         assertEquals(tags, attachment.tags)
-        assertEquals(priceNqt.toLong(), attachment.priceNQT)
+        assertEquals(pricePlanck.toLong(), attachment.pricePlanck)
         assertEquals(quantity.toLong(), attachment.quantity.toLong())
     }
 
     @Test
     fun processRequest_missingName() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, 123L),
+                MockParam(PRICE_PLANCK_PARAMETER, 123L),
                 MockParam(QUANTITY_PARAMETER, 1L)
         )
 
@@ -93,7 +92,7 @@ class DGSListingTest : AbstractTransactionTest() {
         val tooLongName = stringWithLength(101)
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, 123L),
+                MockParam(PRICE_PLANCK_PARAMETER, 123L),
                 MockParam(QUANTITY_PARAMETER, 1L),
                 MockParam(NAME_PARAMETER, tooLongName)
         )
@@ -106,7 +105,7 @@ class DGSListingTest : AbstractTransactionTest() {
         val tooLongDescription = stringWithLength(1001)
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, 123L),
+                MockParam(PRICE_PLANCK_PARAMETER, 123L),
                 MockParam(QUANTITY_PARAMETER, 1L),
                 MockParam(NAME_PARAMETER, "name"),
                 MockParam(DESCRIPTION_PARAMETER, tooLongDescription)
@@ -120,7 +119,7 @@ class DGSListingTest : AbstractTransactionTest() {
         val tooLongTags = stringWithLength(101)
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(PRICE_NQT_PARAMETER, 123L),
+                MockParam(PRICE_PLANCK_PARAMETER, 123L),
                 MockParam(QUANTITY_PARAMETER, 1L),
                 MockParam(NAME_PARAMETER, "name"),
                 MockParam(DESCRIPTION_PARAMETER, "description"),

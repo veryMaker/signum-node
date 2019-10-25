@@ -84,13 +84,13 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
 
     override fun purchase(transaction: Transaction, attachment: Attachment.DigitalGoodsPurchase) {
         val goods = goodsTable.get(goodsDbKeyFactory.newKey(attachment.goodsId))!!
-        if (!goods.isDelisted && attachment.quantity <= goods.quantity && attachment.priceNQT == goods.priceNQT
+        if (!goods.isDelisted && attachment.quantity <= goods.quantity && attachment.pricePlanck == goods.pricePlanck
                 && attachment.deliveryDeadlineTimestamp > dp.blockchain.lastBlock.timestamp) {
             changeQuantity(goods.id, -attachment.quantity, false)
             addPurchase(transaction, attachment, goods.sellerId)
         } else {
             val buyer = dp.accountService.getAccount(transaction.senderId)!!
-            dp.accountService.addToUnconfirmedBalanceNQT(buyer, attachment.quantity.toLong().safeMultiply(attachment.priceNQT))
+            dp.accountService.addToUnconfirmedBalancePlanck(buyer, attachment.quantity.toLong().safeMultiply(attachment.pricePlanck))
             // restoring the unconfirmed balance if purchase not successful, however buyer still lost the transaction fees
         }
     }
@@ -143,17 +143,17 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
         publicFeedbackTable.insert(purchase, publicFeedbacks)
     }
 
-    override fun refund(sellerId: Long, purchaseId: Long, refundNQT: Long, encryptedMessage: Appendix.EncryptedMessage?) {
+    override fun refund(sellerId: Long, purchaseId: Long, refundPlanck: Long, encryptedMessage: Appendix.EncryptedMessage?) {
         val purchase = purchaseTable.get(purchaseDbKeyFactory.newKey(purchaseId))!!
         val seller = dp.accountService.getAccount(sellerId)!!
-        dp.accountService.addToBalanceNQT(seller, -refundNQT)
+        dp.accountService.addToBalancePlanck(seller, -refundPlanck)
         val buyer = dp.accountService.getAccount(purchase.buyerId)!!
-        dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(buyer, refundNQT)
+        dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(buyer, refundPlanck)
         if (encryptedMessage != null) {
             purchase.refundNote = encryptedMessage.encryptedData
             purchaseTable.insert(purchase)
         }
-        purchase.refundNQT = refundNQT
+        purchase.refundPlanck = refundPlanck
         purchaseTable.insert(purchase)
         purchaseListeners.accept(Event.REFUND, purchase)
     }
@@ -162,10 +162,10 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
         return dp.digitalGoodsStoreStore.getExpiredPendingPurchases(timestamp)
     }
 
-    override fun changePrice(goodsId: Long, priceNQT: Long) {
-        val goods = goodsTable.get(goodsDbKeyFactory.newKey(goodsId))!!
+    override fun changePrice(goodsId: Long, pricePlanck: Long) {
+        val goods = goodsTable[goodsDbKeyFactory.newKey(goodsId)]!!
         if (!goods.isDelisted) {
-            goods.changePrice(priceNQT)
+            goods.changePrice(pricePlanck)
             goodsTable.insert(goods)
             goodsListeners.accept(Event.GOODS_PRICE_CHANGE, goods)
         } else {
@@ -177,15 +177,15 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
         val purchase = getPendingPurchase(attachment.purchaseId)
                 ?: throw RuntimeException("cant find purchase with id " + attachment.purchaseId)
         setPending(purchase, false)
-        val totalWithoutDiscount = purchase.quantity.toLong().safeMultiply(purchase.priceNQT)
+        val totalWithoutDiscount = purchase.quantity.toLong().safeMultiply(purchase.pricePlanck)
         val buyer = dp.accountService.getAccount(purchase.buyerId)!!
-        dp.accountService.addToBalanceNQT(buyer, attachment.discountNQT.safeSubtract(totalWithoutDiscount))
-        dp.accountService.addToUnconfirmedBalanceNQT(buyer, attachment.discountNQT)
+        dp.accountService.addToBalancePlanck(buyer, attachment.discountPlanck.safeSubtract(totalWithoutDiscount))
+        dp.accountService.addToUnconfirmedBalancePlanck(buyer, attachment.discountPlanck)
         val seller = dp.accountService.getAccount(transaction.senderId)!!
-        dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(seller, totalWithoutDiscount.safeSubtract(attachment.discountNQT))
+        dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(seller, totalWithoutDiscount.safeSubtract(attachment.discountPlanck))
         purchase.setEncryptedGoods(attachment.goods, attachment.goodsIsText())
         purchaseTable.insert(purchase)
-        purchase.discountNQT = attachment.discountNQT
+        purchase.discountPlanck = attachment.discountPlanck
         purchaseTable.insert(purchase)
         purchaseListeners.accept(Event.DELIVERY, purchase)
     }
@@ -204,9 +204,9 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
         fun expiredPurchaseListener(dp: DependencyProvider): (Block) -> Unit = { block ->
             for (purchase in dp.digitalGoodsStoreService.getExpiredPendingPurchases(block.timestamp)) {
                 val buyer = dp.accountService.getAccount(purchase.buyerId)!!
-                dp.accountService.addToUnconfirmedBalanceNQT(
+                dp.accountService.addToUnconfirmedBalancePlanck(
                     buyer,
-                    purchase.quantity.toLong().safeMultiply(purchase.priceNQT)
+                    purchase.quantity.toLong().safeMultiply(purchase.pricePlanck)
                 )
                 dp.digitalGoodsStoreService.changeQuantity(purchase.goodsId, purchase.quantity, true)
                 dp.digitalGoodsStoreService.setPending(purchase, false)

@@ -14,8 +14,8 @@ class ProcessASingleBlockTest : AbstractIT() {
     fun setUp() {
         jsonFirstBlock = BlockMessageBuilder()
             .payloadLength(0)
-            .totalAmountNQT(0)
-            .totalFeeNQT(0)
+            .totalAmountPlanck(0)
+            .totalFeePlanck(0)
             .generationSignature("305a98571a8b96f699449dd71eff051fc10a3475bce18c7dac81b3d9316a9780")
             .generatorPublicKey("a44e4299354f59919329a0bfbac7d6858873ef06c8db3a6a90158f581478bd38")
             .payloadHash("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")

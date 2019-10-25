@@ -23,7 +23,7 @@ class DigitalGoodsListing(dp: DependencyProvider) : DigitalGoods(dp) {
             || attachment.description!!.length > Constants.MAX_DGS_LISTING_DESCRIPTION_LENGTH
             || attachment.tags!!.length > Constants.MAX_DGS_LISTING_TAGS_LENGTH
             || attachment.quantity < 0 || attachment.quantity > Constants.MAX_DGS_LISTING_QUANTITY
-            || attachment.priceNQT <= 0 || attachment.priceNQT > Constants.MAX_BALANCE_NQT
+            || attachment.pricePlanck <= 0 || attachment.pricePlanck > Constants.MAX_BALANCE_PLANCK
         ) {
             throw BurstException.NotValidException("Invalid digital goods listing: " + attachment.jsonObject.toJsonString())
         }

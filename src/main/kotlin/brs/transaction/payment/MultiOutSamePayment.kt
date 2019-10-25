@@ -23,7 +23,7 @@ class MultiOutSamePayment(dp: DependencyProvider) : Payment(dp) {
         }
 
         val attachment = transaction.attachment as Attachment.PaymentMultiSameOutCreation
-        if (attachment.getRecipients().size < 2 && transaction.amountNQT % attachment.getRecipients().size == 0L) {
+        if (attachment.getRecipients().size < 2 && transaction.amountPlanck % attachment.getRecipients().size == 0L) {
             throw BurstException.NotValidException("Invalid multi out payment")
         }
     }
@@ -34,10 +34,10 @@ class MultiOutSamePayment(dp: DependencyProvider) : Payment(dp) {
         recipientAccount: Account?
     ) {
         val attachment = transaction.attachment as Attachment.PaymentMultiSameOutCreation
-        val amountNQT = transaction.amountNQT.safeDivide(attachment.getRecipients().size.toLong())
+        val amountPlanck = transaction.amountPlanck.safeDivide(attachment.getRecipients().size.toLong())
         attachment.getRecipients().forEach { a ->
-            dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(
-                dp.accountService.getOrAddAccount(a), amountNQT
+            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
+                dp.accountService.getOrAddAccount(a), amountPlanck
             )
         }
     }

@@ -12,8 +12,8 @@ import brs.http.JSONResponses.INCORRECT_MESSAGE_LENGTH
 import brs.http.JSONResponses.MISSING_AMOUNT
 import brs.http.JSONResponses.MISSING_RECEIVER_ID
 import brs.http.common.Parameters
-import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
-import brs.http.common.Parameters.FEE_NQT_PARAMETER
+import brs.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
+import brs.http.common.Parameters.FEE_PLANCK_PARAMETER
 import brs.http.common.Parameters.FEE_SUGGESTION_TYPE_PARAMETER
 import brs.http.common.Parameters.IMMUTABLE_PARAMETER
 import brs.http.common.Parameters.MESSAGE_PARAMETER
@@ -28,7 +28,7 @@ import javax.imageio.ImageIO
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGenerator: DeeplinkQRCodeGenerator) : HttpRequestHandler(arrayOf(APITag.CREATE_TRANSACTION, APITag.TRANSACTIONS), IMMUTABLE_PARAMETER, RECEIVER_ID_PARAMETER, AMOUNT_NQT_PARAMETER, FEE_NQT_PARAMETER, FEE_SUGGESTION_TYPE_PARAMETER, MESSAGE_PARAMETER) {
+internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGenerator: DeeplinkQRCodeGenerator) : HttpRequestHandler(arrayOf(APITag.CREATE_TRANSACTION, APITag.TRANSACTIONS), IMMUTABLE_PARAMETER, RECEIVER_ID_PARAMETER, AMOUNT_PLANCK_PARAMETER, FEE_PLANCK_PARAMETER, FEE_SUGGESTION_TYPE_PARAMETER, MESSAGE_PARAMETER) {
 
     private val logger = LoggerFactory.getLogger(GenerateDeeplinkQRCode::class.java)
 
@@ -43,26 +43,26 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGenerator: Deepl
                 return
             }
 
-            val amountNQTString = request.getParameter(AMOUNT_NQT_PARAMETER).emptyToNull()
-            if (amountNQTString.isNullOrBlank()) {
+            val amountPlanckString = request.getParameter(AMOUNT_PLANCK_PARAMETER).emptyToNull()
+            if (amountPlanckString.isNullOrBlank()) {
                 addErrorMessage(resp, MISSING_AMOUNT)
                 return
             }
 
-            val amountNQT = amountNQTString.toLong()
-            if (immutable && (amountNQT < 0 || amountNQT > Constants.MAX_BALANCE_NQT)) {
+            val amountPlanck = amountPlanckString.toLong()
+            if (immutable && (amountPlanck < 0 || amountPlanck > Constants.MAX_BALANCE_PLANCK)) {
                 addErrorMessage(resp, INCORRECT_AMOUNT)
                 return
             }
 
-            val feeNQTString = request.getParameter(FEE_NQT_PARAMETER).emptyToNull()
+            val feePlanckString = request.getParameter(FEE_PLANCK_PARAMETER).emptyToNull()
 
-            var feeNQT: Long? = null
+            var feePlanck: Long? = null
 
-            if (!feeNQTString.isNullOrBlank()) {
-                feeNQT = java.lang.Long.parseLong(feeNQTString)
+            if (!feePlanckString.isNullOrBlank()) {
+                feePlanck = feePlanckString.toLong()
 
-                if (feeNQT <= 0 || feeNQT >= Constants.MAX_BALANCE_NQT) {
+                if (feePlanck <= 0 || feePlanck >= Constants.MAX_BALANCE_PLANCK) {
                     addErrorMessage(resp, INCORRECT_FEE)
                     return
                 }
@@ -70,7 +70,7 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGenerator: Deepl
 
             var feeSuggestionType: FeeSuggestionType? = null
 
-            if (feeNQT == null) {
+            if (feePlanck == null) {
                 val feeSuggestionTypeString = request.getParameter(FEE_SUGGESTION_TYPE_PARAMETER).emptyToNull()
 
                 if (feeSuggestionTypeString.isNullOrBlank()) {
@@ -95,7 +95,7 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGenerator: Deepl
 
             resp.contentType = "image/jpeg"
 
-            val qrImage = deeplinkQRCodeGenerator.generateRequestBurstDeepLinkQRCode(receiverId, amountNQT, feeSuggestionType, feeNQT, message, immutable)
+            val qrImage = deeplinkQRCodeGenerator.generateRequestBurstDeepLinkQRCode(receiverId, amountPlanck, feeSuggestionType, feePlanck, message, immutable)
             ImageIO.write(qrImage, "jpg", resp.outputStream)
             resp.outputStream.close()
         } catch (e: WriterException) {

@@ -3,10 +3,10 @@ package brs.http
 import brs.Attachment
 import brs.Constants
 import brs.DependencyProvider
-import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.http.common.Parameters.BROADCAST_PARAMETER
 import brs.http.common.Parameters.DEADLINE_PARAMETER
-import brs.http.common.Parameters.FEE_NQT_PARAMETER
+import brs.http.common.Parameters.FEE_PLANCK_PARAMETER
 import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.http.common.Parameters.RECIPIENTS_PARAMETER
 import brs.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER
@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest
 internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), true, *commonParameters) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        val amountNQT = ParameterParser.getAmountNQT(request)
+        val amountPlanck = ParameterParser.getAmountPlanck(request)
         val sender = dp.parameterService.getSenderAccount(request)
         val recipientString = request.getParameter(RECIPIENTS_PARAMETER).emptyToNull()
 
@@ -45,7 +45,7 @@ internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTr
 
         val recipients = mutableListOf<Long>()
 
-        val totalAmountNQT = amountNQT * recipientsArray.size
+        val totalAmountPlanck = amountPlanck * recipientsArray.size
         try {
             for (recipientId in recipientsArray) {
                 recipients.add(recipientId.parseUnsignedLong())
@@ -57,7 +57,7 @@ internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTr
             return response
         }
 
-        if (sender.balanceNQT < totalAmountNQT) {
+        if (sender.balancePlanck < totalAmountPlanck) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 6)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Insufficient funds")
@@ -66,11 +66,11 @@ internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTr
 
         val attachment = Attachment.PaymentMultiSameOutCreation(dp, recipients, dp.blockchain.height)
 
-        return createTransaction(request, sender, null, totalAmountNQT, attachment)
+        return createTransaction(request, sender, null, totalAmountPlanck, attachment)
     }
 
     companion object {
 
-        private val commonParameters = arrayOf(SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_NQT_PARAMETER, DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER, RECIPIENTS_PARAMETER, AMOUNT_NQT_PARAMETER)
+        private val commonParameters = arrayOf(SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_PLANCK_PARAMETER, DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER, RECIPIENTS_PARAMETER, AMOUNT_PLANCK_PARAMETER)
     }
 }

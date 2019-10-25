@@ -6,12 +6,12 @@ import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.http.common.ResultFields.ASSET_BALANCES_RESPONSE
 import brs.http.common.ResultFields.ASSET_RESPONSE
-import brs.http.common.ResultFields.BALANCE_QNT_RESPONSE
+import brs.http.common.ResultFields.BALANCE_QUANTITY_RESPONSE
 import brs.http.common.ResultFields.DESCRIPTION_RESPONSE
 import brs.http.common.ResultFields.NAME_RESPONSE
 import brs.http.common.ResultFields.PUBLIC_KEY_RESPONSE
 import brs.http.common.ResultFields.UNCONFIRMED_ASSET_BALANCES_RESPONSE
-import brs.http.common.ResultFields.UNCONFIRMED_BALANCE_QNT_RESPONSE
+import brs.http.common.ResultFields.UNCONFIRMED_BALANCE_QUANTITY_RESPONSE
 import brs.services.AccountService
 import brs.services.ParameterService
 import brs.util.safeGetAsString
@@ -48,8 +48,8 @@ class GetAccountTest : AbstractUnitTest() {
         val mockAccountDescription = "accountDescription"
 
         val mockAssetId = 321L
-        val balanceNQT = 23L
-        val mockUnconfirmedQuantityNQT = 12L
+        val balancePlanck = 23L
+        val mockUnconfirmedQuantityPlanck = 12L
 
         val request = QuickMocker.httpServletRequest()
 
@@ -63,8 +63,8 @@ class GetAccountTest : AbstractUnitTest() {
 
         val mockAccountAsset = mock<AccountAsset>()
         whenever(mockAccountAsset.assetId).doReturn(mockAssetId)
-        whenever(mockAccountAsset.unconfirmedQuantityQNT).doReturn(mockUnconfirmedQuantityNQT)
-        whenever(mockAccountAsset.quantityQNT).doReturn(balanceNQT)
+        whenever(mockAccountAsset.unconfirmedQuantity).doReturn(mockUnconfirmedQuantityPlanck)
+        whenever(mockAccountAsset.quantity).doReturn(balancePlanck)
         val mockAssetOverview = mockCollection(mockAccountAsset)
         whenever(accountServiceMock.getAssets(eq(mockAccountId), eq(0), eq(-1))).doReturn(mockAssetOverview)
 
@@ -78,13 +78,13 @@ class GetAccountTest : AbstractUnitTest() {
         assertEquals(1, confirmedBalanceResponses.size().toLong())
         val balanceResponse = confirmedBalanceResponses.get(0) as JsonObject
         assertEquals("" + mockAssetId, balanceResponse.get(ASSET_RESPONSE).safeGetAsString())
-        assertEquals("" + balanceNQT, balanceResponse.get(BALANCE_QNT_RESPONSE).safeGetAsString())
+        assertEquals("" + balancePlanck, balanceResponse.get(BALANCE_QUANTITY_RESPONSE).safeGetAsString())
 
         val unconfirmedBalanceResponses = response.get(UNCONFIRMED_ASSET_BALANCES_RESPONSE) as JsonArray
         assertNotNull(unconfirmedBalanceResponses)
         assertEquals(1, unconfirmedBalanceResponses.size().toLong())
         val unconfirmedBalanceResponse = unconfirmedBalanceResponses.get(0) as JsonObject
         assertEquals("" + mockAssetId, unconfirmedBalanceResponse.get(ASSET_RESPONSE).safeGetAsString())
-        assertEquals("" + mockUnconfirmedQuantityNQT, unconfirmedBalanceResponse.get(UNCONFIRMED_BALANCE_QNT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockUnconfirmedQuantityPlanck, unconfirmedBalanceResponse.get(UNCONFIRMED_BALANCE_QUANTITY_RESPONSE).safeGetAsString())
     }
 }

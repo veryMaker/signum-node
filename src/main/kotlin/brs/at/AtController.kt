@@ -405,6 +405,6 @@ class AtController(private val dp: DependencyProvider) {
     //platform based
     private fun getATAccountBalance(id: Long?): Long {
         val atAccount = Account.getAccount(dp, id!!)
-        return atAccount?.balanceNQT ?: 0
+        return atAccount?.balancePlanck ?: 0
     }
 }

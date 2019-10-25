@@ -6,7 +6,7 @@ import brs.http.common.ResultFields.DELISTED_RESPONSE
 import brs.http.common.ResultFields.DESCRIPTION_RESPONSE
 import brs.http.common.ResultFields.GOODS_RESPONSE
 import brs.http.common.ResultFields.NAME_RESPONSE
-import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_RESPONSE
 import brs.http.common.ResultFields.TAGS_RESPONSE
 import brs.http.common.ResultFields.TIMESTAMP_RESPONSE
@@ -44,7 +44,7 @@ class GetDGSGoodTest {
         whenever(mockGoods.name).doReturn("name")
         whenever(mockGoods.description).doReturn("description")
         whenever(mockGoods.quantity).doReturn(2)
-        whenever(mockGoods.priceNQT).doReturn(3L)
+        whenever(mockGoods.pricePlanck).doReturn(3L)
         whenever(mockGoods.tags).doReturn("tags")
         whenever(mockGoods.isDelisted).doReturn(true)
         whenever(mockGoods.timestamp).doReturn(12345)
@@ -60,7 +60,7 @@ class GetDGSGoodTest {
         assertEquals(mockGoods.name, result.get(NAME_RESPONSE).safeGetAsString())
         assertEquals(mockGoods.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
         assertEquals(mockGoods.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals("" + mockGoods.priceNQT, result.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockGoods.pricePlanck, result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
         assertEquals(mockGoods.tags, result.get(TAGS_RESPONSE).safeGetAsString())
         assertEquals(mockGoods.isDelisted, result.get(DELISTED_RESPONSE).safeGetAsBoolean())
         assertEquals(mockGoods.timestamp.toLong(), result.get(TIMESTAMP_RESPONSE).safeGetAsLong())

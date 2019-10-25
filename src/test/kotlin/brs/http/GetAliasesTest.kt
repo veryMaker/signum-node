@@ -7,7 +7,7 @@ import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.http.common.ResultFields.ALIASES_RESPONSE
 import brs.http.common.ResultFields.ALIAS_RESPONSE
-import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.services.AliasService
 import brs.services.ParameterService
 import brs.util.safeGetAsString
@@ -49,7 +49,7 @@ class GetAliasesTest : AbstractUnitTest() {
         whenever(mockAlias.id).doReturn(567L)
 
         val mockOffer = mock<Offer>()
-        whenever(mockOffer.priceNQT).doReturn(234L)
+        whenever(mockOffer.pricePlanck).doReturn(234L)
 
         val mockAliasIterator = mockCollection(mockAlias)
 
@@ -68,7 +68,7 @@ class GetAliasesTest : AbstractUnitTest() {
         val result = resultList.get(0) as JsonObject
         assertNotNull(result)
         assertEquals("" + mockAlias.id, result.get(ALIAS_RESPONSE).safeGetAsString())
-        assertEquals("" + mockOffer.priceNQT, result.get(PRICE_NQT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockOffer.pricePlanck, result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
     }
 
 }

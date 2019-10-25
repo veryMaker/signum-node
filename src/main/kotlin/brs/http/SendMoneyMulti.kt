@@ -5,7 +5,7 @@ import brs.Constants
 import brs.DependencyProvider
 import brs.http.common.Parameters.BROADCAST_PARAMETER
 import brs.http.common.Parameters.DEADLINE_PARAMETER
-import brs.http.common.Parameters.FEE_NQT_PARAMETER
+import brs.http.common.Parameters.FEE_PLANCK_PARAMETER
 import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.http.common.Parameters.RECIPIENTS_PARAMETER
 import brs.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER
@@ -41,14 +41,14 @@ internal class SendMoneyMulti(private val dp: DependencyProvider) : CreateTransa
 
         val recipients = mutableMapOf<Long, Long>()
 
-        var totalAmountNQT: Long = 0
+        var totalAmountPlanck: Long = 0
         try {
             for (transactionString in transactionArray) {
                 val recipientArray = transactionString.split(":".toRegex(), 2).toTypedArray()
                 val recipientId = recipientArray[0].parseUnsignedLong()
-                val amountNQT = recipientArray[1].parseUnsignedLong()
-                recipients[recipientId] = amountNQT
-                totalAmountNQT += amountNQT
+                val amountPlanck = recipientArray[1].parseUnsignedLong()
+                recipients[recipientId] = amountPlanck
+                totalAmountPlanck += amountPlanck
             }
         } catch (e: Exception) {
             val response = JsonObject()
@@ -57,7 +57,7 @@ internal class SendMoneyMulti(private val dp: DependencyProvider) : CreateTransa
             return response
         }
 
-        if (sender.balanceNQT < totalAmountNQT) {
+        if (sender.balancePlanck < totalAmountPlanck) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 6)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Insufficient funds")
@@ -66,10 +66,10 @@ internal class SendMoneyMulti(private val dp: DependencyProvider) : CreateTransa
 
         val attachment = Attachment.PaymentMultiOutCreation(dp, recipients, dp.blockchain.height)
 
-        return createTransaction(request, sender, null, attachment.amountNQT, attachment)
+        return createTransaction(request, sender, null, attachment.amountPlanck, attachment)
     }
 
     companion object {
-        private val commonParameters = arrayOf(SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_NQT_PARAMETER, DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER, RECIPIENTS_PARAMETER)
+        private val commonParameters = arrayOf(SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_PLANCK_PARAMETER, DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER, RECIPIENTS_PARAMETER)
     }
 }

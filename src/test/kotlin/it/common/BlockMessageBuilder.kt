@@ -5,10 +5,10 @@ import com.google.gson.JsonObject
 
 class BlockMessageBuilder {
     private var payloadLength: Long = 0
-    private var totalAmountNQT: Long = 0
+    private var totalAmountPlanck: Long = 0
     private var version: Long = 0
     private var nonce: String? = null
-    private var totalFeeNQT: Long = 0
+    private var totalFeePlanck: Long = 0
     private var blockATs: String? = null
     private var previousBlock: String? = null
     private var generationSignature: String? = null
@@ -24,8 +24,8 @@ class BlockMessageBuilder {
         return this
     }
 
-    fun totalAmountNQT(totalAmountNQT: Long): BlockMessageBuilder {
-        this.totalAmountNQT = totalAmountNQT
+    fun totalAmountPlanck(totalAmountPlanck: Long): BlockMessageBuilder {
+        this.totalAmountPlanck = totalAmountPlanck
         return this
     }
 
@@ -39,8 +39,8 @@ class BlockMessageBuilder {
         return this
     }
 
-    fun totalFeeNQT(totalFeeNQT: Long): BlockMessageBuilder {
-        this.totalFeeNQT = totalFeeNQT
+    fun totalFeePlanck(totalFeePlanck: Long): BlockMessageBuilder {
+        this.totalFeePlanck = totalFeePlanck
         return this
     }
 
@@ -97,10 +97,10 @@ class BlockMessageBuilder {
         val overview = JsonObject()
 
         overview.addProperty("payloadLength", payloadLength)
-        overview.addProperty("totalAmountNQT", totalAmountNQT)
+        overview.addProperty("totalAmountNQT", totalAmountPlanck)
         overview.addProperty("version", version)
         overview.addProperty("nonce", nonce)
-        overview.addProperty("totalFeeNQT", totalFeeNQT)
+        overview.addProperty("totalFeeNQT", totalFeePlanck)
         overview.addProperty("blockATs", blockATs)
         overview.addProperty("previousBlock", previousBlock)
         overview.addProperty("generationSignature", generationSignature)

@@ -11,13 +11,13 @@ import brs.http.common.ResultFields.ACCOUNT_RESPONSE
 import brs.http.common.ResultFields.ALIAS_NAME_RESPONSE
 import brs.http.common.ResultFields.ALIAS_RESPONSE
 import brs.http.common.ResultFields.ALIAS_URI_RESPONSE
-import brs.http.common.ResultFields.AMOUNT_NQT_RESPONSE
+import brs.http.common.ResultFields.AMOUNT_PLANCK_RESPONSE
 import brs.http.common.ResultFields.ASK_ORDER_HEIGHT_RESPONSE
 import brs.http.common.ResultFields.ASK_ORDER_RESPONSE
 import brs.http.common.ResultFields.ASSET_RESPONSE
 import brs.http.common.ResultFields.ASSET_TRANSFER_RESPONSE
 import brs.http.common.ResultFields.ATTACHMENT_RESPONSE
-import brs.http.common.ResultFields.BALANCE_NQT_RESPONSE
+import brs.http.common.ResultFields.BALANCE_PLANCK_RESPONSE
 import brs.http.common.ResultFields.BASE_TARGET_RESPONSE
 import brs.http.common.ResultFields.BID_ORDER_HEIGHT_RESPONSE
 import brs.http.common.ResultFields.BID_ORDER_RESPONSE
@@ -35,13 +35,13 @@ import brs.http.common.ResultFields.DECISION_RESPONSE
 import brs.http.common.ResultFields.DELISTED_RESPONSE
 import brs.http.common.ResultFields.DELIVERY_DEADLINE_TIMESTAMP_RESPONSE
 import brs.http.common.ResultFields.DESCRIPTION_RESPONSE
-import brs.http.common.ResultFields.DISCOUNT_NQT_RESPONSE
+import brs.http.common.ResultFields.DISCOUNT_PLANCK_RESPONSE
 import brs.http.common.ResultFields.EC_BLOCK_HEIGHT_RESPONSE
 import brs.http.common.ResultFields.EC_BLOCK_ID_RESPONSE
-import brs.http.common.ResultFields.EFFECTIVE_BALANCE_NQT_RESPONSE
+import brs.http.common.ResultFields.EFFECTIVE_BALANCE_PLANCK_RESPONSE
 import brs.http.common.ResultFields.FEEDBACK_NOTES_RESPONSE
-import brs.http.common.ResultFields.FEE_NQT_RESPONSE
-import brs.http.common.ResultFields.FORGED_BALANCE_NQT_RESPONSE
+import brs.http.common.ResultFields.FEE_PLANCK_RESPONSE
+import brs.http.common.ResultFields.FORGED_BALANCE_PLANCK_RESPONSE
 import brs.http.common.ResultFields.FREQUENCY_RESPONSE
 import brs.http.common.ResultFields.GENERATION_SIGNATURE_RESPONSE
 import brs.http.common.ResultFields.GENERATOR_PUBLIC_KEY_RESPONSE
@@ -49,7 +49,7 @@ import brs.http.common.ResultFields.GENERATOR_RESPONSE
 import brs.http.common.ResultFields.GOODS_DATA_RESPONSE
 import brs.http.common.ResultFields.GOODS_IS_TEXT_RESPONSE
 import brs.http.common.ResultFields.GOODS_RESPONSE
-import brs.http.common.ResultFields.GUARANTEED_BALANCE_NQT_RESPONSE
+import brs.http.common.ResultFields.GUARANTEED_BALANCE_PLANCK_RESPONSE
 import brs.http.common.ResultFields.HEIGHT_RESPONSE
 import brs.http.common.ResultFields.ID_RESPONSE
 import brs.http.common.ResultFields.ID_RS_RESPONSE
@@ -67,7 +67,7 @@ import brs.http.common.ResultFields.PAYLOAD_LENGTH_RESPONSE
 import brs.http.common.ResultFields.PENDING_RESPONSE
 import brs.http.common.ResultFields.PREVIOUS_BLOCK_HASH_RESPONSE
 import brs.http.common.ResultFields.PREVIOUS_BLOCK_RESPONSE
-import brs.http.common.ResultFields.PRICE_NQT_RESPONSE
+import brs.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.http.common.ResultFields.PUBLIC_FEEDBACKS_RESPONSE
 import brs.http.common.ResultFields.PURCHASE_RESPONSE
 import brs.http.common.ResultFields.QUANTITY_QNT_RESPONSE
@@ -76,7 +76,7 @@ import brs.http.common.ResultFields.RECIPIENT_RESPONSE
 import brs.http.common.ResultFields.RECIPIENT_RS_RESPONSE
 import brs.http.common.ResultFields.REFERENCED_TRANSACTION_FULL_HASH_RESPONSE
 import brs.http.common.ResultFields.REFUND_NOTE_RESPONSE
-import brs.http.common.ResultFields.REFUND_NQT_RESPONSE
+import brs.http.common.ResultFields.REFUND_PLANCK_RESPONSE
 import brs.http.common.ResultFields.REQUIRED_SIGNERS_RESPONSE
 import brs.http.common.ResultFields.SCOOP_NUM_RESPONSE
 import brs.http.common.ResultFields.SELLER_RESPONSE
@@ -90,14 +90,14 @@ import brs.http.common.ResultFields.SUBTYPE_RESPONSE
 import brs.http.common.ResultFields.TAGS_RESPONSE
 import brs.http.common.ResultFields.TIMESTAMP_RESPONSE
 import brs.http.common.ResultFields.TIME_NEXT_RESPONSE
-import brs.http.common.ResultFields.TOTAL_AMOUNT_NQT_RESPONSE
-import brs.http.common.ResultFields.TOTAL_FEE_NQT_RESPONSE
+import brs.http.common.ResultFields.TOTAL_AMOUNT_PLANCK_RESPONSE
+import brs.http.common.ResultFields.TOTAL_FEE_PLANCK_RESPONSE
 import brs.http.common.ResultFields.TRADE_TYPE_RESPONSE
 import brs.http.common.ResultFields.TRANSACTIONS_RESPONSE
 import brs.http.common.ResultFields.TRANSACTION_RESPONSE
 import brs.http.common.ResultFields.TYPE_RESPONSE
-import brs.http.common.ResultFields.UNCONFIRMED_BALANCE_NQT_RESPONSE
-import brs.http.common.ResultFields.UNCONFIRMED_QUANTITY_QNT_RESPONSE
+import brs.http.common.ResultFields.UNCONFIRMED_BALANCE_PLANCK_RESPONSE
+import brs.http.common.ResultFields.UNCONFIRMED_QUANTITY_RESPONSE
 import brs.http.common.ResultFields.VERSION_RESPONSE
 import brs.peer.Peer
 import brs.services.AccountService
@@ -122,7 +122,7 @@ object JSONData {
         json.addProperty(ALIAS_RESPONSE, alias.id.toUnsignedString())
 
         if (offer != null) {
-            json.addProperty(PRICE_NQT_RESPONSE, offer.priceNQT.toString())
+            json.addProperty(PRICE_PLANCK_RESPONSE, offer.pricePlanck.toString())
             if (offer.buyerId != 0L) {
                 json.addProperty(BUYER_RESPONSE, offer.buyerId.toUnsignedString())
             }
@@ -133,17 +133,17 @@ object JSONData {
     internal fun accountBalance(account: Account?): JsonObject {
         val json = JsonObject()
         if (account == null) {
-            json.addProperty(BALANCE_NQT_RESPONSE, "0")
-            json.addProperty(UNCONFIRMED_BALANCE_NQT_RESPONSE, "0")
-            json.addProperty(EFFECTIVE_BALANCE_NQT_RESPONSE, "0")
-            json.addProperty(FORGED_BALANCE_NQT_RESPONSE, "0")
-            json.addProperty(GUARANTEED_BALANCE_NQT_RESPONSE, "0")
+            json.addProperty(BALANCE_PLANCK_RESPONSE, "0")
+            json.addProperty(UNCONFIRMED_BALANCE_PLANCK_RESPONSE, "0")
+            json.addProperty(EFFECTIVE_BALANCE_PLANCK_RESPONSE, "0")
+            json.addProperty(FORGED_BALANCE_PLANCK_RESPONSE, "0")
+            json.addProperty(GUARANTEED_BALANCE_PLANCK_RESPONSE, "0")
         } else {
-            json.addProperty(BALANCE_NQT_RESPONSE, account.balanceNQT.toString())
-            json.addProperty(UNCONFIRMED_BALANCE_NQT_RESPONSE, account.unconfirmedBalanceNQT.toString())
-            json.addProperty(EFFECTIVE_BALANCE_NQT_RESPONSE, account.balanceNQT.toString())
-            json.addProperty(FORGED_BALANCE_NQT_RESPONSE, account.forgedBalanceNQT.toString())
-            json.addProperty(GUARANTEED_BALANCE_NQT_RESPONSE, account.balanceNQT.toString())
+            json.addProperty(BALANCE_PLANCK_RESPONSE, account.balancePlanck.toString())
+            json.addProperty(UNCONFIRMED_BALANCE_PLANCK_RESPONSE, account.unconfirmedBalancePlanck.toString())
+            json.addProperty(EFFECTIVE_BALANCE_PLANCK_RESPONSE, account.balancePlanck.toString())
+            json.addProperty(FORGED_BALANCE_PLANCK_RESPONSE, account.forgedBalancePlanck.toString())
+            json.addProperty(GUARANTEED_BALANCE_PLANCK_RESPONSE, account.balancePlanck.toString())
         }
         return json
     }
@@ -154,7 +154,7 @@ object JSONData {
         json.addProperty(NAME_RESPONSE, asset.name)
         json.addProperty(DESCRIPTION_RESPONSE, asset.description)
         json.addProperty(DECIMALS_RESPONSE, asset.decimals)
-        json.addProperty(QUANTITY_QNT_RESPONSE, asset.quantityQNT.toString())
+        json.addProperty(QUANTITY_QNT_RESPONSE, asset.quantity.toString())
         json.addProperty(ASSET_RESPONSE, asset.id.toUnsignedString())
         json.addProperty(NUMBER_OF_TRADES_RESPONSE, tradeCount)
         json.addProperty(NUMBER_OF_TRANSFERS_RESPONSE, transferCount)
@@ -166,8 +166,8 @@ object JSONData {
         val json = JsonObject()
         putAccount(json, ACCOUNT_RESPONSE, accountAsset.accountId)
         json.addProperty(ASSET_RESPONSE, accountAsset.assetId.toUnsignedString())
-        json.addProperty(QUANTITY_QNT_RESPONSE, accountAsset.quantityQNT.toString())
-        json.addProperty(UNCONFIRMED_QUANTITY_QNT_RESPONSE, accountAsset.unconfirmedQuantityQNT.toString())
+        json.addProperty(QUANTITY_QNT_RESPONSE, accountAsset.quantity.toString())
+        json.addProperty(UNCONFIRMED_QUANTITY_RESPONSE, accountAsset.unconfirmedQuantity.toString())
         return json
     }
 
@@ -188,8 +188,8 @@ object JSONData {
         json.addProperty(ORDER_RESPONSE, order.id.toUnsignedString())
         json.addProperty(ASSET_RESPONSE, order.assetId.toUnsignedString())
         putAccount(json, ACCOUNT_RESPONSE, order.accountId)
-        json.addProperty(QUANTITY_QNT_RESPONSE, order.quantityQNT.toString())
-        json.addProperty(PRICE_NQT_RESPONSE, order.priceNQT.toString())
+        json.addProperty(QUANTITY_QNT_RESPONSE, order.quantity.toString())
+        json.addProperty(PRICE_PLANCK_RESPONSE, order.pricePlanck.toString())
         json.addProperty(HEIGHT_RESPONSE, order.height)
         return json
     }
@@ -204,8 +204,8 @@ object JSONData {
         json.addProperty(SCOOP_NUM_RESPONSE, scoopNum)
         json.addProperty(TIMESTAMP_RESPONSE, block.timestamp)
         json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, block.transactions.size)
-        json.addProperty(TOTAL_AMOUNT_NQT_RESPONSE, block.totalAmountNQT.toString())
-        json.addProperty(TOTAL_FEE_NQT_RESPONSE, block.totalFeeNQT.toString())
+        json.addProperty(TOTAL_AMOUNT_PLANCK_RESPONSE, block.totalAmountPlanck.toString())
+        json.addProperty(TOTAL_FEE_PLANCK_RESPONSE, block.totalFeePlanck.toString())
         json.addProperty(BLOCK_REWARD_RESPONSE, (blockReward / Constants.ONE_BURST).toUnsignedString())
         json.addProperty(PAYLOAD_LENGTH_RESPONSE, block.payloadLength)
         json.addProperty(VERSION_RESPONSE, block.version)
@@ -254,7 +254,7 @@ object JSONData {
         json.addProperty(SENDER_RS_RESPONSE, escrow.senderId.rsAccount())
         json.addProperty(RECIPIENT_RESPONSE, escrow.recipientId.toUnsignedString())
         json.addProperty(RECIPIENT_RS_RESPONSE, escrow.recipientId.rsAccount())
-        json.addProperty(AMOUNT_NQT_RESPONSE, escrow.amountNQT.toUnsignedString())
+        json.addProperty(AMOUNT_PLANCK_RESPONSE, escrow.amountPlanck.toUnsignedString())
         json.addProperty(REQUIRED_SIGNERS_RESPONSE, escrow.requiredSigners)
         json.addProperty(DEADLINE_RESPONSE, escrow.deadline)
         json.addProperty(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(escrow.deadlineAction))
@@ -280,7 +280,7 @@ object JSONData {
         json.addProperty(NAME_RESPONSE, goods.name)
         json.addProperty(DESCRIPTION_RESPONSE, goods.description)
         json.addProperty(QUANTITY_RESPONSE, goods.quantity)
-        json.addProperty(PRICE_NQT_RESPONSE, goods.priceNQT.toString())
+        json.addProperty(PRICE_PLANCK_RESPONSE, goods.pricePlanck.toString())
         putAccount(json, SELLER_RESPONSE, goods.sellerId)
         json.addProperty(TAGS_RESPONSE, goods.tags)
         json.addProperty(DELISTED_RESPONSE, goods.isDelisted)
@@ -309,7 +309,7 @@ object JSONData {
         json.addProperty(GOODS_RESPONSE, purchase.goodsId.toUnsignedString())
         json.addProperty(NAME_RESPONSE, purchase.getName())
         putAccount(json, SELLER_RESPONSE, purchase.sellerId)
-        json.addProperty(PRICE_NQT_RESPONSE, purchase.priceNQT.toString())
+        json.addProperty(PRICE_PLANCK_RESPONSE, purchase.pricePlanck.toString())
         json.addProperty(QUANTITY_RESPONSE, purchase.quantity)
         putAccount(json, BUYER_RESPONSE, purchase.buyerId)
         json.addProperty(TIMESTAMP_RESPONSE, purchase.timestamp)
@@ -340,11 +340,11 @@ object JSONData {
         if (purchase.refundNote != null) {
             json.add(REFUND_NOTE_RESPONSE, encryptedData(purchase.refundNote!!))
         }
-        if (purchase.discountNQT > 0) {
-            json.addProperty(DISCOUNT_NQT_RESPONSE, purchase.discountNQT.toString())
+        if (purchase.discountPlanck > 0) {
+            json.addProperty(DISCOUNT_PLANCK_RESPONSE, purchase.discountPlanck.toString())
         }
-        if (purchase.refundNQT > 0) {
-            json.addProperty(REFUND_NQT_RESPONSE, purchase.refundNQT.toString())
+        if (purchase.refundPlanck > 0) {
+            json.addProperty(REFUND_PLANCK_RESPONSE, purchase.refundPlanck.toString())
         }
         return json
     }
@@ -354,7 +354,7 @@ object JSONData {
         json.addProperty(ID_RESPONSE, subscription.id.toUnsignedString())
         putAccount(json, SENDER_RESPONSE, subscription.senderId)
         putAccount(json, RECIPIENT_RESPONSE, subscription.recipientId)
-        json.addProperty(AMOUNT_NQT_RESPONSE, subscription.amountNQT.toUnsignedString())
+        json.addProperty(AMOUNT_PLANCK_RESPONSE, subscription.amountPlanck.toUnsignedString())
         json.addProperty(FREQUENCY_RESPONSE, subscription.frequency)
         json.addProperty(TIME_NEXT_RESPONSE, subscription.timeNext)
         return json
@@ -363,8 +363,8 @@ object JSONData {
     internal fun trade(trade: Trade, asset: Asset?): JsonObject {
         val json = JsonObject()
         json.addProperty(TIMESTAMP_RESPONSE, trade.timestamp)
-        json.addProperty(QUANTITY_QNT_RESPONSE, trade.quantityQNT.toString())
-        json.addProperty(PRICE_NQT_RESPONSE, trade.priceNQT.toString())
+        json.addProperty(QUANTITY_QNT_RESPONSE, trade.quantity.toString())
+        json.addProperty(PRICE_PLANCK_RESPONSE, trade.pricePlanck.toString())
         json.addProperty(ASSET_RESPONSE, trade.assetId.toUnsignedString())
         json.addProperty(ASK_ORDER_RESPONSE, trade.askOrderId.toUnsignedString())
         json.addProperty(BID_ORDER_RESPONSE, trade.bidOrderId.toUnsignedString())
@@ -388,7 +388,7 @@ object JSONData {
         json.addProperty(ASSET_RESPONSE, assetTransfer.assetId.toUnsignedString())
         putAccount(json, SENDER_RESPONSE, assetTransfer.senderId)
         putAccount(json, RECIPIENT_RESPONSE, assetTransfer.recipientId)
-        json.addProperty(QUANTITY_QNT_RESPONSE, assetTransfer.quantityQNT.toString())
+        json.addProperty(QUANTITY_QNT_RESPONSE, assetTransfer.quantity.toString())
         json.addProperty(HEIGHT_RESPONSE, assetTransfer.height)
         json.addProperty(TIMESTAMP_RESPONSE, assetTransfer.timestamp)
         if (asset != null) {
@@ -409,8 +409,8 @@ object JSONData {
         if (transaction.recipientId != 0L) {
             putAccount(json, RECIPIENT_RESPONSE, transaction.recipientId)
         }
-        json.addProperty(AMOUNT_NQT_RESPONSE, transaction.amountNQT.toString())
-        json.addProperty(FEE_NQT_RESPONSE, transaction.feeNQT.toString())
+        json.addProperty(AMOUNT_PLANCK_RESPONSE, transaction.amountPlanck.toString())
+        json.addProperty(FEE_PLANCK_RESPONSE, transaction.feePlanck.toString())
         if (transaction.referencedTransactionFullHash != null) {
             json.addProperty(REFERENCED_TRANSACTION_FULL_HASH_RESPONSE, transaction.referencedTransactionFullHash.toHexString())
         }
@@ -453,21 +453,21 @@ object JSONData {
 
     // ugly, hopefully temporary
     private fun modifyAttachmentJSON(json: JsonObject) {
-        val quantityQNT = json.remove(QUANTITY_QNT_RESPONSE)
-        if (quantityQNT != null && quantityQNT.isJsonPrimitive) {
-            json.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT.asString)
+        val quantity = json.remove(QUANTITY_QNT_RESPONSE)
+        if (quantity != null && quantity.isJsonPrimitive) {
+            json.addProperty(QUANTITY_QNT_RESPONSE, quantity.asString)
         }
-        val priceNQT = json.remove(PRICE_NQT_RESPONSE)
-        if (priceNQT != null && priceNQT.isJsonPrimitive) {
-            json.addProperty(PRICE_NQT_RESPONSE, priceNQT.asString)
+        val pricePlanck = json.remove(PRICE_PLANCK_RESPONSE)
+        if (pricePlanck != null && pricePlanck.isJsonPrimitive) {
+            json.addProperty(PRICE_PLANCK_RESPONSE, pricePlanck.asString)
         }
-        val discountNQT = json.remove(DISCOUNT_NQT_RESPONSE)
-        if (discountNQT != null && discountNQT.isJsonPrimitive) {
-            json.addProperty(DISCOUNT_NQT_RESPONSE, discountNQT.asString)
+        val discountPlanck = json.remove(DISCOUNT_PLANCK_RESPONSE)
+        if (discountPlanck != null && discountPlanck.isJsonPrimitive) {
+            json.addProperty(DISCOUNT_PLANCK_RESPONSE, discountPlanck.asString)
         }
-        val refundNQT = json.remove(REFUND_NQT_RESPONSE)
-        if (refundNQT != null && refundNQT.isJsonPrimitive) {
-            json.addProperty(REFUND_NQT_RESPONSE, refundNQT.asString)
+        val refundPlanck = json.remove(REFUND_PLANCK_RESPONSE)
+        if (refundPlanck != null && refundPlanck.isJsonPrimitive) {
+            json.addProperty(REFUND_PLANCK_RESPONSE, refundPlanck.asString)
         }
     }
 
@@ -497,7 +497,7 @@ object JSONData {
         json.addProperty("creatorRS", AtApiHelper.getLong(at.creator!!).rsAccount())
         json.addProperty("machineCode", at.apCodeBytes.toHexString())
         json.addProperty("machineData", at.apDataBytes.toHexString())
-        json.addProperty("balanceNQT", accountService.getAccount(id)!!.balanceNQT.toUnsignedString())
+        json.addProperty("balanceNQT", accountService.getAccount(id)!!.balancePlanck.toUnsignedString())
         json.addProperty("prevBalanceNQT", at.getpBalance().toUnsignedString())
         json.addProperty("nextBlock", at.nextHeight())
         json.addProperty("frozen", at.freezeOnSameBalance())

@@ -60,7 +60,7 @@ class GetAllAssetsTest : AbstractUnitTest() {
         whenever(mockAsset.name).doReturn("name")
         whenever(mockAsset.description).doReturn("description")
         whenever(mockAsset.decimals).doReturn(1.toByte())
-        whenever(mockAsset.quantityQNT).doReturn(2L)
+        whenever(mockAsset.quantity).doReturn(2L)
 
         val mockAssetIterator = mockCollection(mockAsset)
 
@@ -82,7 +82,7 @@ class GetAllAssetsTest : AbstractUnitTest() {
         assertEquals(mockAsset.name, assetResult.get(NAME_RESPONSE).safeGetAsString())
         assertEquals(mockAsset.description, assetResult.get(DESCRIPTION_RESPONSE).safeGetAsString())
         assertEquals(mockAsset.decimals.toLong(), assetResult.get(DECIMALS_RESPONSE).safeGetAsLong())
-        assertEquals("" + mockAsset.quantityQNT, assetResult.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
+        assertEquals("" + mockAsset.quantity, assetResult.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
         assertEquals("" + mockAsset.id, assetResult.get(ASSET_RESPONSE).safeGetAsString())
         assertEquals(1L, assetResult.get(NUMBER_OF_ACCOUNTS_RESPONSE).safeGetAsLong())
         assertEquals(2L, assetResult.get(NUMBER_OF_TRANSFERS_RESPONSE).safeGetAsLong())

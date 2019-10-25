@@ -84,7 +84,7 @@ class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
 
     private fun saveTrade(ctx: DSLContext, trade: Trade) {
         ctx.insertInto(TRADE, TRADE.ASSET_ID, TRADE.BLOCK_ID, TRADE.ASK_ORDER_ID, TRADE.BID_ORDER_ID, TRADE.ASK_ORDER_HEIGHT, TRADE.BID_ORDER_HEIGHT, TRADE.SELLER_ID, TRADE.BUYER_ID, TRADE.QUANTITY, TRADE.PRICE, TRADE.TIMESTAMP, TRADE.HEIGHT)
-                .values(trade.assetId, trade.blockId, trade.askOrderId, trade.bidOrderId, trade.askOrderHeight, trade.bidOrderHeight, trade.sellerId, trade.buyerId, trade.quantityQNT, trade.priceNQT, trade.timestamp, trade.height)
+                .values(trade.assetId, trade.blockId, trade.askOrderId, trade.bidOrderId, trade.askOrderHeight, trade.bidOrderHeight, trade.sellerId, trade.buyerId, trade.quantity, trade.pricePlanck, trade.timestamp, trade.height)
                 .execute()
     }
 

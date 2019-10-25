@@ -22,10 +22,10 @@ class MultiOutPayment(dp: DependencyProvider) : Payment(dp) {
         }
 
         val attachment = transaction.attachment as Attachment.PaymentMultiOutCreation
-        val amountNQT = attachment.amountNQT
-        if (amountNQT <= 0
-            || amountNQT >= Constants.MAX_BALANCE_NQT
-            || amountNQT != transaction.amountNQT
+        val amountPlanck = attachment.amountPlanck
+        if (amountPlanck <= 0
+            || amountPlanck >= Constants.MAX_BALANCE_PLANCK
+            || amountPlanck != transaction.amountPlanck
             || attachment.getRecipients().size < 2
         ) {
             throw BurstException.NotValidException("Invalid multi out payment")
@@ -39,7 +39,7 @@ class MultiOutPayment(dp: DependencyProvider) : Payment(dp) {
     ) {
         val attachment = transaction.attachment as Attachment.PaymentMultiOutCreation
         for (recipient in attachment.getRecipients()) {
-            dp.accountService.addToBalanceAndUnconfirmedBalanceNQT(
+            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
                 dp.accountService.getOrAddAccount(
                     recipient[0]
                 ), recipient[1]

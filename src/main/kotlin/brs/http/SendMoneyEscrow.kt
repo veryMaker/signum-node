@@ -4,7 +4,7 @@ import brs.Attachment
 import brs.Constants
 import brs.DependencyProvider
 import brs.Escrow
-import brs.http.common.Parameters.AMOUNT_NQT_PARAMETER
+import brs.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.http.common.Parameters.DEADLINE_ACTION_PARAMETER
 import brs.http.common.Parameters.ESCROW_DEADLINE_PARAMETER
 import brs.http.common.Parameters.RECIPIENT_PARAMETER
@@ -19,12 +19,12 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, AMOUNT_NQT_PARAMETER, ESCROW_DEADLINE_PARAMETER, SIGNERS_PARAMETER, REQUIRED_SIGNERS_PARAMETER, DEADLINE_ACTION_PARAMETER) {
+internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, AMOUNT_PLANCK_PARAMETER, ESCROW_DEADLINE_PARAMETER, SIGNERS_PARAMETER, REQUIRED_SIGNERS_PARAMETER, DEADLINE_ACTION_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)
         val recipient = ParameterParser.getRecipientId(request)
-        val amountNQT = ParameterParser.getAmountNQT(request)
+        val amountPlanck = ParameterParser.getAmountPlanck(request)
         val signerString = request.getParameter(SIGNERS_PARAMETER).emptyToNull()
 
         val requiredSigners: Long
@@ -73,8 +73,8 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
             return response
         }
 
-        val totalAmountNQT = amountNQT.safeAdd(signers.size * Constants.ONE_BURST)
-        if (sender.balanceNQT < totalAmountNQT) {
+        val totalAmountPlanck = amountPlanck.safeAdd(signers.size * Constants.ONE_BURST)
+        if (sender.balancePlanck < totalAmountPlanck) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 6)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Insufficient funds")
@@ -105,7 +105,7 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
             return response
         }
 
-        val attachment = Attachment.AdvancedPaymentEscrowCreation(dp, amountNQT, deadline.toInt(), deadlineAction, requiredSigners.toInt(), signers, dp.blockchain.height)
+        val attachment = Attachment.AdvancedPaymentEscrowCreation(dp, amountPlanck, deadline.toInt(), deadlineAction, requiredSigners.toInt(), signers, dp.blockchain.height)
 
         return createTransaction(request, sender, recipient, 0, attachment)
     }
