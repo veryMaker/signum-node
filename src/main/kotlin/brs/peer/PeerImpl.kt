@@ -10,9 +10,9 @@ import brs.util.delegates.AtomicWithOverride
 import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
+import brs.util.sync.Mutex
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import brs.util.sync.Mutex
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.net.*

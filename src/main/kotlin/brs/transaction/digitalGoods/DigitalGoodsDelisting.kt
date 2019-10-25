@@ -2,8 +2,8 @@ package brs.transaction.digitalGoods
 
 import brs.*
 import brs.transactionduplicates.TransactionDuplicationKey
-import brs.util.toJsonString
 import brs.util.convert.toUnsignedString
+import brs.util.toJsonString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 

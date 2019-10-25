@@ -1,7 +1,10 @@
 package brs.peer
 
 import brs.DependencyProvider
-import brs.util.*
+import brs.util.JSON
+import brs.util.isEmpty
+import brs.util.mustGetAsJsonArray
+import brs.util.safeGetAsString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 

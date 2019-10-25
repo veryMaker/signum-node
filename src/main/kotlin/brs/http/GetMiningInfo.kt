@@ -1,10 +1,9 @@
 package brs.http
 
-import brs.*
+import brs.DependencyProvider
 import brs.util.convert.toHexString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-
 import javax.servlet.http.HttpServletRequest
 
 internal class GetMiningInfo(private val dp: DependencyProvider) : APIServlet.JsonRequestHandler(arrayOf(APITag.MINING, APITag.INFO)) {

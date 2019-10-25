@@ -7,8 +7,7 @@
 
 package brs.at
 
-import java.util.SortedMap
-import java.util.TreeMap
+import java.util.*
 
 class AtTransaction internal constructor(val senderId: ByteArray, val recipientId: ByteArray, val amount: Long, val message: ByteArray?) {
 

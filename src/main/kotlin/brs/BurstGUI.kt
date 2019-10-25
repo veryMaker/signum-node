@@ -69,9 +69,9 @@ class BurstGUI : Application() {
             val showItem = MenuItem("Show BRS output")
             val shutdownItem = MenuItem("Shutdown BRS")
 
-            openWebUiButton.addActionListener { e -> openWebUi() }
-            showItem.addActionListener { e -> showWindow() }
-            shutdownItem.addActionListener { e -> shutdown() }
+            openWebUiButton.addActionListener { openWebUi() }
+            showItem.addActionListener { showWindow() }
+            shutdownItem.addActionListener { shutdown() }
 
             popupMenu.add(openWebUiButton)
             popupMenu.add(showItem)
@@ -86,7 +86,6 @@ class BurstGUI : Application() {
             logger.safeError(e) { "Could not create tray icon" }
             return null
         }
-
     }
 
     private fun showWindow() {
@@ -118,7 +117,6 @@ class BurstGUI : Application() {
             logger.safeError(e) { "Could not access PropertyService" }
             showMessage("Could not open web UI as could not read BRS configuration.")
         }
-
     }
 
     private fun runBrs() {
@@ -324,15 +322,15 @@ class BurstGUI : Application() {
             launch(BurstGUI::class.java, *args)
         }
     }
-}
 
-class LimitedTextArea(private val maxNumberOfLines: Int) : TextArea() {
-    override fun replaceText(start: Int, end: Int, text: String) {
-        super.replaceText(start, end, text)
-        while (getText().split("\n".toRegex()).toTypedArray().size > maxNumberOfLines) {
-            val fle = getText().indexOf('\n')
-            super.replaceText(0, fle + 1, "")
+    class LimitedTextArea(private val maxNumberOfLines: Int) : TextArea() {
+        override fun replaceText(start: Int, end: Int, text: String) {
+            super.replaceText(start, end, text)
+            while (getText().split("\n".toRegex()).toTypedArray().size > maxNumberOfLines) {
+                val fle = getText().indexOf('\n')
+                super.replaceText(0, fle + 1, "")
+            }
+            positionCaret(getText().length)
         }
-        positionCaret(getText().length)
     }
 }

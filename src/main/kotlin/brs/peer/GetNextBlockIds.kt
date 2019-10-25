@@ -1,7 +1,6 @@
 package brs.peer
 
 import brs.Blockchain
-import brs.util.JSON
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
 import brs.util.safeGetAsString

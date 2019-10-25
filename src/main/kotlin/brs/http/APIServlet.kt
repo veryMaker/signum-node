@@ -6,7 +6,6 @@ import brs.http.JSONResponses.ERROR_INCORRECT_REQUEST
 import brs.http.JSONResponses.ERROR_MISSING_REQUEST
 import brs.http.JSONResponses.ERROR_NOT_ALLOWED
 import brs.props.Props
-import brs.util.JSON
 import brs.util.Subnet
 import brs.util.logging.safeDebug
 import brs.util.logging.safeWarn

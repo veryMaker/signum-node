@@ -2,29 +2,30 @@ package brs.transaction.digitalGoods
 
 import brs.*
 import brs.transactionduplicates.TransactionDuplicationKey
-import brs.util.toJsonString
 import brs.util.convert.toUnsignedString
+import brs.util.toJsonString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 
-class DigitalGoodsPriceChange(dp: DependencyProvider) : DigitalGoods(dp) {
-    override val subtype = SUBTYPE_DIGITAL_GOODS_PRICE_CHANGE
-    override val description = "Price Change"
-    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsPriceChange(dp, buffer, transactionVersion)
-    override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsPriceChange(dp, attachmentData)
+class DigitalGoodsQuantityChange(dp: DependencyProvider) : DigitalGoods(dp) {
+    override val subtype = SUBTYPE_DIGITAL_GOODS_QUANTITY_CHANGE
+    override val description = "Quantity Change"
+    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsQuantityChange(dp, buffer, transactionVersion)
+    override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsQuantityChange(dp, attachmentData)
 
     override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
-        val attachment = transaction.attachment as Attachment.DigitalGoodsPriceChange
-        dp.digitalGoodsStoreService.changePrice(attachment.goodsId, attachment.priceNQT)
+        val attachment = transaction.attachment as Attachment.DigitalGoodsQuantityChange
+        dp.digitalGoodsStoreService.changeQuantity(attachment.goodsId, attachment.deltaQuantity, false)
     }
 
     override fun doValidateAttachment(transaction: Transaction) {
-        val attachment = transaction.attachment as Attachment.DigitalGoodsPriceChange
+        val attachment = transaction.attachment as Attachment.DigitalGoodsQuantityChange
         val goods = dp.digitalGoodsStoreService.getGoods(attachment.goodsId)
-        if (attachment.priceNQT <= 0 || attachment.priceNQT > Constants.MAX_BALANCE_NQT
+        if (attachment.deltaQuantity < -Constants.MAX_DGS_LISTING_QUANTITY
+            || attachment.deltaQuantity > Constants.MAX_DGS_LISTING_QUANTITY
             || goods != null && transaction.senderId != goods.sellerId
         ) {
-            throw BurstException.NotValidException("Invalid digital goods price change: " + attachment.jsonObject.toJsonString())
+            throw BurstException.NotValidException("Invalid digital goods quantity change: " + attachment.jsonObject.toJsonString())
         }
         if (goods == null || goods.isDelisted) {
             throw BurstException.NotCurrentlyValidException(
@@ -35,7 +36,7 @@ class DigitalGoodsPriceChange(dp: DependencyProvider) : DigitalGoods(dp) {
     }
 
     override fun getDuplicationKey(transaction: Transaction): TransactionDuplicationKey {
-        val attachment = transaction.attachment as Attachment.DigitalGoodsPriceChange
+        val attachment = transaction.attachment as Attachment.DigitalGoodsQuantityChange
         // not a bug, uniqueness is based on DigitalGoods.DELISTING
         return TransactionDuplicationKey(DigitalGoodsDelisting::class, attachment.goodsId.toUnsignedString())
     }

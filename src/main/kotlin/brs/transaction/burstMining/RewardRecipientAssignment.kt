@@ -3,8 +3,8 @@ package brs.transaction.burstMining
 import brs.*
 import brs.fluxcapacitor.FluxValues
 import brs.transactionduplicates.TransactionDuplicationKey
-import brs.util.toJsonString
 import brs.util.convert.toUnsignedString
+import brs.util.toJsonString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 

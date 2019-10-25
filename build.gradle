@@ -117,16 +117,10 @@ dependencies {
 
 sourceSets {
     main {
-        java {
+        kotlin {
             exclude { fileTreeElement ->
-                System.getProperty("headless") == "true" && fileTreeElement.file == ("$projectDir/src/main/java/brs/BurstGUI.kt" as File)
+                System.getProperty("headless") == "true" && fileTreeElement.file == ("$projectDir/src/main/kotlin/brs/BurstGUI.kt" as File)
             }
-        }
-        proto {
-            exclude { fileTreeElement ->
-                System.getProperty("headless") == "true" && fileTreeElement.file == ("$projectDir/src/main/java/brs/BurstGUI.kt" as File)
-            }
-            srcDir "src/main/java"
         }
     }
 }
@@ -158,7 +152,7 @@ protobuf {
             }
         }
     }
-    generatedFilesBaseDir = "$projectDir/src/"
+    generatedFilesBaseDir = "$projectDir/src"
 }
 
 def dbUrl = "jdbc:mariadb://localhost:3306/burstwallet"
@@ -258,7 +252,7 @@ sonarqube {
         property "sonar.organization", "burst-apps-team"
         property "sonar.projectKey", "burst-apps-team_burstcoin"
         property "sonar.verbose", "true"
-        property "sonar.exclusions", "src/main/java/brs/grpc/proto/BrsApi.java,src/main/java/brs/grpc/proto/BrsApiServiceGrpc.java,src/main/java/brs/schema/**"
+        property "sonar.exclusions", "src/main/java/**"
     }
 }
 

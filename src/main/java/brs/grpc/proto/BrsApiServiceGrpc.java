@@ -12,7 +12,7 @@ import static io.grpc.stub.ServerCalls.*;
  */
 @javax.annotation.Generated(
     value = "by gRPC proto compiler (version 1.24.1)",
-    comments = "Source: brs/grpc/brsApi.proto")
+    comments = "Source: brsApi.proto")
 public final class BrsApiServiceGrpc {
 
   private BrsApiServiceGrpc() {}
