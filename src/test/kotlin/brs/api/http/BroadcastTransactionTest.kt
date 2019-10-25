@@ -13,8 +13,8 @@ import brs.services.ParameterService
 import brs.services.TransactionService
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
-import brs.util.safeGetAsLong
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsLong
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*

@@ -3,7 +3,7 @@ package brs.peer
 import brs.services.AccountService
 import brs.util.convert.parseAccountId
 import brs.util.convert.toUnsignedString
-import brs.util.mustGetAsString
+import brs.util.json.mustGetAsString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 

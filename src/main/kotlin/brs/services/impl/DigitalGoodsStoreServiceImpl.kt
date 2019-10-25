@@ -1,12 +1,12 @@
 package brs.services.impl
 
-import brs.*
-import brs.entity.DigitalGoodsStore.Event
-import brs.entity.DigitalGoodsStore.Goods
-import brs.entity.DigitalGoodsStore.Purchase
 import brs.entity.Block
-import brs.services.DigitalGoodsStoreService
+import brs.entity.DependencyProvider
+import brs.entity.Goods
+import brs.entity.Purchase
 import brs.entity.Transaction
+import brs.services.DigitalGoodsStoreService
+import brs.services.DigitalGoodsStoreService.Event
 import brs.transaction.appendix.Appendix
 import brs.transaction.appendix.Attachment
 import brs.util.Listeners

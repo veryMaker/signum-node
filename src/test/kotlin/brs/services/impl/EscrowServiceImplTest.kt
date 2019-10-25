@@ -6,7 +6,7 @@ import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedEntityTable
-import brs.db.store.EscrowStore
+import brs.db.EscrowStore
 import brs.services.AccountService
 import brs.services.AliasService
 import com.nhaarman.mockitokotlin2.doReturn

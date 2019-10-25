@@ -1,10 +1,11 @@
 package brs.db.sql
 
-import brs.entity.Alias
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
-import brs.db.store.AliasStore
+import brs.db.AliasStore
+import brs.db.useDslContext
+import brs.entity.Alias
 import brs.schema.Tables.ALIAS
 import brs.schema.Tables.ALIAS_OFFER
 import brs.schema.tables.records.AliasOfferRecord
@@ -15,7 +16,7 @@ import org.jooq.Record
 import org.jooq.SortField
 import java.util.*
 
-class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
+internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
     override val offerTable: VersionedEntityTable<Alias.Offer>
     override val aliasTable: VersionedEntityTable<Alias>
     override val aliasDbKeyFactory = AliasDbKeyFactory
@@ -72,13 +73,13 @@ class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
     }
 
     companion object {
-        object OfferDbKeyFactory : DbKey.LongKeyFactory<Alias.Offer>(ALIAS_OFFER.ID) {
+        internal object OfferDbKeyFactory : SqlDbKey.LongKeyFactory<Alias.Offer>(ALIAS_OFFER.ID) {
             override fun newKey(offer: Alias.Offer): BurstKey {
                 return offer.dbKey
             }
         }
 
-        object AliasDbKeyFactory : DbKey.LongKeyFactory<Alias>(ALIAS.ID) {
+        internal object AliasDbKeyFactory : SqlDbKey.LongKeyFactory<Alias>(ALIAS.ID) {
             override fun newKey(alias: Alias): BurstKey {
                 return alias.dbKey
             }

@@ -1,8 +1,8 @@
 package brs.at
 
 import brs.entity.Account
-import brs.DependencyProvider
-import brs.util.Crypto
+import brs.entity.DependencyProvider
+import brs.util.crypto.Crypto
 import brs.objects.FluxValues
 import brs.objects.Props
 import brs.util.convert.toUnsignedString

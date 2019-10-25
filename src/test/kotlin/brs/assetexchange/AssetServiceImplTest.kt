@@ -10,7 +10,7 @@ import brs.common.AbstractUnitTest
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.sql.EntitySqlTable
-import brs.db.store.AssetStore
+import brs.db.AssetStore
 import brs.services.impl.AssetAccountServiceImpl
 import brs.services.impl.AssetServiceImpl
 import brs.services.impl.AssetTradeServiceImpl

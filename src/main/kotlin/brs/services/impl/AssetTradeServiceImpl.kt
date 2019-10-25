@@ -4,7 +4,7 @@ import brs.entity.Order
 import brs.entity.Trade
 import brs.entity.Trade.Event
 import brs.entity.Block
-import brs.db.store.TradeStore
+import brs.db.TradeStore
 import brs.services.AssetTradeService
 import brs.util.Listeners
 

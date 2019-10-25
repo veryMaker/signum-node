@@ -4,8 +4,8 @@ import brs.entity.Account
 import brs.transaction.appendix.Attachment
 import brs.services.BlockchainService
 import brs.objects.Constants.MAX_BALANCE_PLANCK
-import brs.DependencyProvider
-import brs.entity.DigitalGoodsStore.Purchase
+import brs.entity.DependencyProvider
+import brs.entity.Purchase
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.common.TestConstants.TEST_SECRET_PHRASE

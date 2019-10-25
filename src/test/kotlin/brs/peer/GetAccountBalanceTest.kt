@@ -6,7 +6,7 @@ import brs.common.TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED
 import brs.peer.GetAccountBalance.Companion.ACCOUNT_ID_PARAMETER_FIELD
 import brs.peer.GetAccountBalance.Companion.BALANCE_PLANCK_RESPONSE_FIELD
 import brs.services.AccountService
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq

@@ -3,7 +3,7 @@ package brs.api.http
 import brs.entity.Alias.Offer
 import brs.at.AT
 import brs.at.AtApiHelper
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 import brs.api.http.common.Parameters.FULL_HASH_RESPONSE
 import brs.api.http.common.ResultFields.ACCOUNT_RESPONSE
 import brs.api.http.common.ResultFields.ALIAS_NAME_RESPONSE
@@ -101,7 +101,7 @@ import brs.entity.*
 import brs.objects.Constants
 import brs.peer.Peer
 import brs.services.AccountService
-import brs.util.addAll
+import brs.util.json.addAll
 import brs.util.convert.emptyToNull
 import brs.util.convert.rsAccount
 import brs.util.convert.toHexString
@@ -274,7 +274,7 @@ object JSONData {
         return json
     }
 
-    internal fun goods(goods: DigitalGoodsStore.Goods): JsonObject {
+    internal fun goods(goods: Goods): JsonObject {
         val json = JsonObject()
         json.addProperty(GOODS_RESPONSE, goods.id.toUnsignedString())
         json.addProperty(NAME_RESPONSE, goods.name)
@@ -303,7 +303,7 @@ object JSONData {
         return json
     }
 
-    internal fun purchase(purchase: DigitalGoodsStore.Purchase): JsonObject {
+    internal fun purchase(purchase: Purchase): JsonObject {
         val json = JsonObject()
         json.addProperty(PURCHASE_RESPONSE, purchase.id.toUnsignedString())
         json.addProperty(GOODS_RESPONSE, purchase.goodsId.toUnsignedString())

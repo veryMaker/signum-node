@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.util.convert.toHexString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

@@ -1,10 +1,10 @@
 package brs.db.sql
 
-import brs.DependencyProvider
-import brs.entity.Subscription
+import brs.entity.DependencyProvider
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
-import brs.db.store.SubscriptionStore
+import brs.db.SubscriptionStore
+import brs.entity.Subscription
 import brs.schema.Tables.SUBSCRIPTION
 import brs.schema.tables.records.SubscriptionRecord
 import org.jooq.Condition
@@ -12,9 +12,8 @@ import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.SortField
 
-class SqlSubscriptionStore(private val dp: DependencyProvider) : SubscriptionStore {
-
-    override val subscriptionDbKeyFactory: BurstKey.LongKeyFactory<Subscription> = object : DbKey.LongKeyFactory<Subscription>(SUBSCRIPTION.ID) {
+internal class SqlSubscriptionStore(private val dp: DependencyProvider) : SubscriptionStore {
+    override val subscriptionDbKeyFactory = object : SqlDbKey.LongKeyFactory<Subscription>(SUBSCRIPTION.ID) {
         override fun newKey(subscription: Subscription): BurstKey {
             return subscription.dbKey
         }

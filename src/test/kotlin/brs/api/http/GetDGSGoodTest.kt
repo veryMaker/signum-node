@@ -1,7 +1,4 @@
 package brs.api.http
-
-import brs.entity.DigitalGoodsStore
-import brs.common.QuickMocker
 import brs.api.http.common.ResultFields.DELISTED_RESPONSE
 import brs.api.http.common.ResultFields.DESCRIPTION_RESPONSE
 import brs.api.http.common.ResultFields.GOODS_RESPONSE
@@ -10,10 +7,12 @@ import brs.api.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.QUANTITY_RESPONSE
 import brs.api.http.common.ResultFields.TAGS_RESPONSE
 import brs.api.http.common.ResultFields.TIMESTAMP_RESPONSE
+import brs.common.QuickMocker
+import brs.entity.Goods
 import brs.services.ParameterService
-import brs.util.safeGetAsBoolean
-import brs.util.safeGetAsLong
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsBoolean
+import brs.util.json.safeGetAsLong
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -39,7 +38,7 @@ class GetDGSGoodTest {
 
     @Test
     fun processRequest() {
-        val mockGoods = mock<DigitalGoodsStore.Goods>()
+        val mockGoods = mock<Goods>()
         whenever(mockGoods.id).doReturn(1L)
         whenever(mockGoods.name).doReturn("name")
         whenever(mockGoods.description).doReturn("description")

@@ -1,7 +1,7 @@
 package brs.transaction.type.coloredCoins
 
 import brs.entity.Account
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 
 abstract class OrderCancellation(dp: DependencyProvider) : ColoredCoins(dp) {

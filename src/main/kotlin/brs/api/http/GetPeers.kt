@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.common.Parameters.ACTIVE_PARAMETER
 import brs.api.http.common.Parameters.STATE_PARAMETER
 import brs.peer.Peer

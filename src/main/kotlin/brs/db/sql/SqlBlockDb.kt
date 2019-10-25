@@ -1,11 +1,13 @@
 package brs.db.sql
 
-import brs.entity.Block
-import brs.util.BurstException
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.db.BlockDb
+import brs.db.getUsingDslContext
+import brs.db.useDslContext
+import brs.entity.Block
 import brs.schema.Tables.BLOCK
 import brs.schema.tables.records.BlockRecord
+import brs.util.BurstException
 import brs.util.logging.safeInfo
 import brs.util.logging.safeTrace
 import org.jooq.DSLContext
@@ -14,8 +16,7 @@ import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.*
 
-class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
-
+internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     override fun findBlock(blockId: Long): Block? {
         return dp.db.getUsingDslContext { ctx ->
             try {

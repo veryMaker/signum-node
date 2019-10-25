@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.entity.DigitalGoodsStore.Goods
+import brs.entity.Goods
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
@@ -17,9 +17,9 @@ import brs.api.http.common.ResultFields.QUANTITY_RESPONSE
 import brs.api.http.common.ResultFields.TAGS_RESPONSE
 import brs.api.http.common.ResultFields.TIMESTAMP_RESPONSE
 import brs.services.DigitalGoodsStoreService
-import brs.util.safeGetAsBoolean
-import brs.util.safeGetAsLong
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsBoolean
+import brs.util.json.safeGetAsLong
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn

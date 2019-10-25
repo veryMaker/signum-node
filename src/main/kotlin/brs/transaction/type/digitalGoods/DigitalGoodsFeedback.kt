@@ -1,13 +1,13 @@
 package brs.transaction.type.digitalGoods
 
-import brs.*
 import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.transaction.appendix.Attachment
-import brs.transaction.duplicates.TransactionDuplicationKey
+import brs.entity.TransactionDuplicationKey
 import brs.util.BurstException
 import brs.util.convert.toUnsignedString
-import brs.util.toJsonString
+import brs.util.json.toJsonString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 
@@ -48,7 +48,10 @@ class DigitalGoodsFeedback(dp: DependencyProvider) : DigitalGoods(dp) {
 
     override fun getDuplicationKey(transaction: Transaction): TransactionDuplicationKey {
         val attachment = transaction.attachment as Attachment.DigitalGoodsFeedback
-        return TransactionDuplicationKey(DigitalGoodsFeedback::class, attachment.purchaseId.toUnsignedString())
+        return TransactionDuplicationKey(
+            DigitalGoodsFeedback::class,
+            attachment.purchaseId.toUnsignedString()
+        )
     }
 
     override fun hasRecipient() = true

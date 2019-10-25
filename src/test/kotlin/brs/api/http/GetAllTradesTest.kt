@@ -14,7 +14,7 @@ import brs.api.http.common.ResultFields.ASSET_RESPONSE
 import brs.api.http.common.ResultFields.NAME_RESPONSE
 import brs.api.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.TRADES_RESPONSE
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*

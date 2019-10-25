@@ -4,8 +4,8 @@ import brs.entity.Account
 import brs.transaction.appendix.Appendix.*
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
-import brs.DependencyProvider
-import brs.util.Crypto
+import brs.entity.DependencyProvider
+import brs.util.crypto.Crypto
 import brs.objects.FluxValues
 import brs.api.http.JSONResponses.FEATURE_NOT_AVAILABLE
 import brs.api.http.JSONResponses.INCORRECT_ARBITRARY_MESSAGE

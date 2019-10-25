@@ -2,10 +2,10 @@ package brs.services.impl
 
 import brs.transaction.appendix.Attachment
 import brs.objects.Constants
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.common.QuickMocker
-import brs.db.store.IndirectIncomingStore
+import brs.db.IndirectIncomingStore
 import brs.services.PropertyService
 import brs.objects.Props
 import brs.transaction.type.payment.MultiOutPayment

@@ -1,10 +1,11 @@
 package brs.db.sql
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.at.AtApiHelper
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
-import brs.db.store.ATStore
+import brs.db.getUsingDslContext
+import brs.db.ATStore
 import brs.schema.Tables.*
 import brs.schema.tables.records.AtRecord
 import brs.schema.tables.records.AtStateRecord
@@ -13,9 +14,8 @@ import org.jooq.Record
 import org.jooq.SortField
 import org.jooq.exception.DataAccessException
 
-class SqlATStore(private val dp: DependencyProvider) : ATStore {
-
-    override val atDbKeyFactory: BurstKey.LongKeyFactory<brs.at.AT> = object : DbKey.LongKeyFactory<brs.at.AT>(AT.ID) {
+internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
+    override val atDbKeyFactory = object : SqlDbKey.LongKeyFactory<brs.at.AT>(AT.ID) {
         override fun newKey(at: brs.at.AT): BurstKey {
             return at.dbKey
         }
@@ -23,7 +23,7 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
 
     override val atTable: VersionedEntityTable<brs.at.AT>
 
-    override val atStateDbKeyFactory: BurstKey.LongKeyFactory<brs.at.AT.ATState> = object : DbKey.LongKeyFactory<brs.at.AT.ATState>(AT_STATE.AT_ID) {
+    override val atStateDbKeyFactory = object : SqlDbKey.LongKeyFactory<brs.at.AT.ATState>(AT_STATE.AT_ID) {
         override fun newKey(atState: brs.at.AT.ATState): BurstKey {
             return atState.dbKey
         }
@@ -138,7 +138,7 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
                     .and(TRANSACTION.AMOUNT.greaterOrEqual(minAmount))
                     .orderBy(TRANSACTION.HEIGHT, TRANSACTION.ID)
                     .query
-            DbUtils.applyLimits(query, numOfTx, numOfTx + 1)
+            SqlDbUtils.applyLimits(query, numOfTx, numOfTx + 1)
             val result = query.fetch()
             if (result.isEmpty()) 0L else result[0].value1()
         }

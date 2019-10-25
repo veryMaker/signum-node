@@ -9,7 +9,7 @@
 package brs.at
 
 import brs.at.AtApi.Companion.REGISTER_PART_SIZE
-import brs.util.partEquals
+import brs.util.byteArray.partEquals
 import burst.kit.crypto.BurstCrypto
 import org.bouncycastle.util.Arrays
 import java.math.BigInteger

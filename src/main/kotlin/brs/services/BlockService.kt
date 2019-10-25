@@ -2,7 +2,7 @@ package brs.services
 
 import brs.entity.Block
 
-interface BlockService { // TODO combine with blockchain or blockchainprocessor
+interface BlockService {
     @Throws(BlockchainProcessorService.BlockNotAcceptedException::class, InterruptedException::class)
     fun preVerify(block: Block)
 

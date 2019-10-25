@@ -1,6 +1,6 @@
 package brs.entity
 
-import brs.util.burstCrypto
+import brs.util.crypto.burstCrypto
 import brs.util.BurstException
 import burst.kit.entity.BurstEncryptedMessage
 

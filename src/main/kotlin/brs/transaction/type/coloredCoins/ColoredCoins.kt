@@ -1,6 +1,6 @@
 package brs.transaction.type.coloredCoins
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.transaction.type.TransactionType
 
 abstract class ColoredCoins(dp: DependencyProvider) : TransactionType(dp) {

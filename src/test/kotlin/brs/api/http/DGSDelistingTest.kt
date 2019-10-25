@@ -3,8 +3,8 @@ package brs.api.http
 import brs.entity.Account
 import brs.transaction.appendix.Attachment
 import brs.services.BlockchainService
-import brs.DependencyProvider
-import brs.entity.DigitalGoodsStore.Goods
+import brs.entity.DependencyProvider
+import brs.entity.Goods
 import brs.common.QuickMocker
 import brs.objects.FluxValues
 import brs.api.http.JSONResponses.UNKNOWN_GOODS

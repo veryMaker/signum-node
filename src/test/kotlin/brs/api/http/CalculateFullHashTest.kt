@@ -5,8 +5,8 @@ import brs.api.http.JSONResponses.MISSING_UNSIGNED_BYTES
 import brs.api.http.common.Parameters.SIGNATURE_HASH_PARAMETER
 import brs.api.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
 import brs.api.http.common.ResultFields.FULL_HASH_RESPONSE
-import brs.util.mustGetAsJsonObject
-import brs.util.safeGetAsString
+import brs.util.json.mustGetAsJsonObject
+import brs.util.json.safeGetAsString
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock

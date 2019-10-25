@@ -1,7 +1,7 @@
 package brs.common
 
 import brs.services.BlockchainService
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.services.FluxCapacitorService
 import brs.services.impl.FluxCapacitorServiceImpl
 import brs.entity.FluxEnable

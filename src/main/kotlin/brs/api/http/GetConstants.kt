@@ -1,12 +1,12 @@
 package brs.api.http
 
 import brs.objects.Constants
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.objects.Genesis
 import brs.objects.FluxValues
 import brs.transaction.type.TransactionType
 import brs.util.convert.toUnsignedString
-import brs.util.toJsonArray
+import brs.util.json.toJsonArray
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

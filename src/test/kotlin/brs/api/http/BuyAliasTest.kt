@@ -1,6 +1,5 @@
 package brs.api.http
 
-import brs.*
 import brs.entity.Alias.Offer
 import brs.entity.Account
 import brs.services.BlockchainService
@@ -10,6 +9,7 @@ import brs.objects.FluxValues
 import brs.api.http.JSONResponses.INCORRECT_ALIAS_NOTFORSALE
 import brs.api.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.entity.Alias
+import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.services.AliasService
 import brs.services.ParameterService

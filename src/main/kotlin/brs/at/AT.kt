@@ -6,12 +6,12 @@
 
 package brs.at
 
-import brs.*
 import brs.entity.Account
 import brs.entity.Block
 import brs.objects.Genesis
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.transaction.appendix.Appendix
 import brs.transaction.appendix.Attachment

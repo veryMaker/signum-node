@@ -1,13 +1,17 @@
 package brs.services
 
+import brs.entity.Goods
+import brs.entity.Purchase
+import brs.entity.Transaction
 import brs.transaction.appendix.Appendix
 import brs.transaction.appendix.Attachment
-import brs.entity.DigitalGoodsStore.Event
-import brs.entity.DigitalGoodsStore.Goods
-import brs.entity.DigitalGoodsStore.Purchase
-import brs.entity.Transaction
 
-interface DigitalGoodsStoreService { // TODO Redundant name!
+interface DigitalGoodsStoreService {
+    enum class Event {
+        GOODS_LISTED, GOODS_DELISTED, GOODS_PRICE_CHANGE, GOODS_QUANTITY_CHANGE,
+        PURCHASE, DELIVERY, REFUND, FEEDBACK
+    }
+
     fun addGoodsListener(listener: (Goods) -> Unit, eventType: Event)
 
     fun addPurchaseListener(listener: (Purchase) -> Unit, eventType: Event)

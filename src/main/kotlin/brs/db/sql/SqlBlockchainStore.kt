@@ -1,14 +1,16 @@
 package brs.db.sql
 
-import brs.*
+import brs.entity.DependencyProvider
+import brs.db.getUsingDslContext
+import brs.db.BlockchainStore
+import brs.db.useDslContext
 import brs.entity.Account
 import brs.entity.Block
-import brs.db.store.BlockchainStore
+import brs.entity.Transaction
 import brs.schema.Tables.BLOCK
 import brs.schema.Tables.TRANSACTION
 import brs.schema.tables.records.BlockRecord
 import brs.schema.tables.records.TransactionRecord
-import brs.entity.Transaction
 import brs.util.BurstException
 import brs.util.db.fetchAndMap
 import brs.util.db.inlineMap
@@ -17,7 +19,7 @@ import org.jooq.DSLContext
 import org.jooq.Result
 import kotlin.math.max
 
-class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
+internal class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
     override fun getTransactionCount() = dp.db.getUsingDslContext<Int> { ctx -> ctx.selectCount().from(TRANSACTION).fetchOne(0, Int::class.javaPrimitiveType) }
 
     override fun getAllTransactions() = dp.db.getUsingDslContext { ctx -> getTransactions(ctx, ctx.selectFrom(TRANSACTION).orderBy(TRANSACTION.DB_ID.asc()).fetch()) }
@@ -117,7 +119,7 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
                     .orderBy(TRANSACTION.BLOCK_TIMESTAMP.desc(), TRANSACTION.ID.desc())
                     .query
 
-            DbUtils.applyLimits(selectQuery, from, to)
+            SqlDbUtils.applyLimits(selectQuery, from, to)
 
             getTransactions(ctx, selectQuery.fetch())
         }

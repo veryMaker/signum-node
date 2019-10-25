@@ -1,7 +1,7 @@
 package brs.api.http
 
 import brs.api.http.common.Parameters.ID_PARAMETER
-import brs.util.JSON
+import brs.util.json.JSON
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString

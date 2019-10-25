@@ -1,7 +1,7 @@
 package brs.peer
 
 import brs.Burst
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.objects.Props
 import brs.services.BlockchainProcessorService
@@ -12,6 +12,7 @@ import brs.util.convert.emptyToNull
 import brs.util.convert.truncate
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicWithOverride
+import brs.util.json.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo

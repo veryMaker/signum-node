@@ -1,10 +1,12 @@
 package brs.db.sql
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.db.PeerDb
+import brs.db.getUsingDslContext
+import brs.db.useDslContext
 import brs.schema.Tables.PEER
 
-class SqlPeerDb(private val dp: DependencyProvider) : PeerDb {
+internal class SqlPeerDb(private val dp: DependencyProvider) : PeerDb {
     override fun loadPeers(): List<String> {
         return dp.db.getUsingDslContext<List<String>> { ctx -> ctx.selectFrom(PEER).fetch(PEER.ADDRESS, String::class.java) }
     }

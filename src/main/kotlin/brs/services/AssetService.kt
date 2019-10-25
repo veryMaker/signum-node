@@ -1,16 +1,12 @@
 package brs.services
 
-import brs.entity.Asset
-import brs.entity.AssetTransfer
-import brs.entity.Trade
-import brs.entity.Account
 import brs.db.BurstKey
-import brs.db.sql.EntitySqlTable
-import brs.entity.Transaction
+import brs.db.EntityTable
+import brs.entity.*
 import brs.transaction.appendix.Attachment
 
 interface AssetService {
-    val assetTable: EntitySqlTable<Asset>
+    val assetTable: EntityTable<Asset>
     val assetDbKeyFactory: BurstKey.LongKeyFactory<Asset>
     val assetsCount: Int
     fun getAsset(id: Long): Asset?

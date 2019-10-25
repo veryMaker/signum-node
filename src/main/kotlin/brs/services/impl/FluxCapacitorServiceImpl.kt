@@ -1,6 +1,6 @@
 package brs.services.impl
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.entity.FluxEnable
 import brs.entity.FluxValue

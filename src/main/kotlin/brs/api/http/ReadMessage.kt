@@ -4,7 +4,7 @@ package brs.api.http
 import brs.entity.Account
 import brs.services.BlockchainService
 import brs.entity.Transaction
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 import brs.api.http.JSONResponses.INCORRECT_TRANSACTION
 import brs.api.http.JSONResponses.MISSING_TRANSACTION
 import brs.api.http.JSONResponses.NO_MESSAGE

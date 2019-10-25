@@ -1,9 +1,9 @@
 package brs.services.impl
 
 import brs.transaction.appendix.Attachment
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
-import brs.db.store.IndirectIncomingStore
+import brs.db.IndirectIncomingStore
 import brs.objects.Props
 import brs.services.IndirectIncomingService
 import brs.transaction.type.payment.MultiOutPayment

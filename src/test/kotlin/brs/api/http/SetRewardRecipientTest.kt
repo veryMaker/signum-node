@@ -3,12 +3,12 @@ package brs.api.http
 import brs.entity.Account
 import brs.transaction.appendix.Attachment
 import brs.services.BlockchainService
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.common.JSONTestHelper
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.common.TestConstants
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 import brs.objects.FluxValues
 import brs.api.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.services.AccountService

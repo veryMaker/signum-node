@@ -2,7 +2,7 @@ package brs.services.impl
 
 import brs.at.AT
 import brs.common.QuickMocker
-import brs.db.store.ATStore
+import brs.db.ATStore
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock

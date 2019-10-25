@@ -3,7 +3,7 @@ package brs.services.impl
 import brs.entity.Alias
 import brs.entity.Alias.Offer
 import brs.transaction.appendix.Attachment
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable

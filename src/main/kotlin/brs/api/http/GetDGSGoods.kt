@@ -1,6 +1,4 @@
 package brs.api.http
-
-import brs.entity.DigitalGoodsStore
 import brs.api.http.common.Parameters
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.IN_STOCK_ONLY_PARAMETER
@@ -14,7 +12,6 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 internal class GetDGSGoods(private val digitalGoodsStoreService: DigitalGoodsStoreService) : APIServlet.JsonRequestHandler(arrayOf(APITag.DGS), SELLER_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, IN_STOCK_ONLY_PARAMETER) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sellerId = ParameterParser.getSellerId(request)
         val firstIndex = ParameterParser.getFirstIndex(request)
@@ -25,8 +22,7 @@ internal class GetDGSGoods(private val digitalGoodsStoreService: DigitalGoodsSto
         val goodsJSON = JsonArray()
         response.add(GOODS_RESPONSE, goodsJSON)
 
-        var goods: Collection<DigitalGoodsStore.Goods>? = null
-        goods = if (sellerId == 0L) {
+        val goods = if (sellerId == 0L) {
             if (inStockOnly) {
                 digitalGoodsStoreService.getGoodsInStock(firstIndex, lastIndex)
             } else {
@@ -41,5 +37,4 @@ internal class GetDGSGoods(private val digitalGoodsStoreService: DigitalGoodsSto
 
         return response
     }
-
 }

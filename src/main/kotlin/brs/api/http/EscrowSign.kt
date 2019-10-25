@@ -2,7 +2,7 @@ package brs.api.http
 
 import brs.entity.Account
 import brs.transaction.appendix.Attachment
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Escrow
 import brs.api.http.common.Parameters.DECISION_PARAMETER
 import brs.api.http.common.Parameters.ESCROW_PARAMETER

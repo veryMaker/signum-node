@@ -1,13 +1,13 @@
 package brs.services.impl
 
 import brs.objects.Constants
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Block
 import brs.objects.FluxValues
 import brs.services.EconomicClusteringService
 import brs.entity.Transaction
 import brs.util.logging.safeDebug
-import brs.util.toJsonString
+import brs.util.json.toJsonString
 import org.slf4j.LoggerFactory
 
 /**

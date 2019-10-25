@@ -1,12 +1,8 @@
 package brs.transaction.type.advancedPayment
 
-import brs.*
-import brs.entity.Account
-import brs.entity.Escrow
-import brs.entity.Transaction
+import brs.entity.*
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
-import brs.transaction.duplicates.TransactionDuplicationKey
 import brs.util.BurstException
 import brs.util.convert.safeAdd
 import brs.util.convert.safeMultiply

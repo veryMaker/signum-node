@@ -1,19 +1,20 @@
 package brs.db.sql
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.db.BurstKey
-import brs.db.store.IndirectIncomingStore
+import brs.db.IndirectIncomingStore
+import brs.db.useDslContext
 import brs.schema.Tables.INDIRECT_INCOMING
 import org.jooq.DSLContext
 import org.jooq.Query
 import org.jooq.Record
 
-class SqlIndirectIncomingStore(private val dp: DependencyProvider) : IndirectIncomingStore {
+internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : IndirectIncomingStore {
 
     private val indirectIncomingTable: EntitySqlTable<IndirectIncomingStore.IndirectIncoming>
 
     init {
-        val indirectIncomingDbKeyFactory = object : DbKey.LinkKeyFactory<IndirectIncomingStore.IndirectIncoming>("account_id", "transaction_id") {
+        val indirectIncomingDbKeyFactory = object : SqlDbKey.LinkKeyFactory<IndirectIncomingStore.IndirectIncoming>("account_id", "transaction_id") {
             override fun newKey(indirectIncoming: IndirectIncomingStore.IndirectIncoming): BurstKey {
                 return newKey(indirectIncoming.accountId, indirectIncoming.transactionId)
             }

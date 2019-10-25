@@ -1,6 +1,6 @@
 package brs.api.grpc.proto
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.handlers.*
 import com.google.protobuf.Empty

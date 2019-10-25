@@ -1,13 +1,14 @@
 package brs.db.sql
 
-import brs.DependencyProvider
-import brs.db.BurstKey
+import brs.entity.DependencyProvider
 import brs.db.VersionedEntityTable
+import brs.db.getUsingDslContext
+import brs.db.useDslContext
 import org.jooq.Field
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 
-abstract class VersionedEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: BurstKey.Factory<T>, private val dp: DependencyProvider) : EntitySqlTable<T>(table, tableClass, dbKeyFactory, true, dp), VersionedEntityTable<T> {
+internal abstract class VersionedEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: SqlDbKey.Factory<T>, private val dp: DependencyProvider) : EntitySqlTable<T>(table, tableClass, dbKeyFactory, true, dp), VersionedEntityTable<T> {
     override fun rollback(height: Int) {
         rollback(dp, table, tableClass, heightField, latestField, height, dbKeyFactory)
     }
@@ -18,7 +19,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
 
     override fun delete(t: T): Boolean {
         check(dp.db.isInTransaction()) { "Not in transaction" }
-        val dbKey = dbKeyFactory.newKey(t) as DbKey
+        val dbKey = dbKeyFactory.newKey(t) as SqlDbKey
         return dp.db.getUsingDslContext { ctx ->
             try {
                 val countQuery = ctx.selectQuery()
@@ -59,7 +60,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
             heightField: Field<Int>,
             latestField: Field<Boolean>?,
             height: Int,
-            dbKeyFactory: DbKey.Factory<*>
+            dbKeyFactory: SqlDbKey.Factory<*>
         ) {
             check(dp.db.isInTransaction()) { "Not in transaction" }
 
@@ -73,7 +74,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
                     selectForDeleteQuery.addSelect(tableClass.field(column, Long::class.java))
                 }
                 selectForDeleteQuery.setDistinct(true)
-                val dbKeys = selectForDeleteQuery.fetch { r -> dbKeyFactory.newKey(r) as DbKey }
+                val dbKeys = selectForDeleteQuery.fetch { r -> dbKeyFactory.newKey(r) as SqlDbKey }
 
                 // delete all entries > height
                 val deleteQuery = ctx.deleteQuery(tableClass)
@@ -105,7 +106,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
             tableClass: TableImpl<*>,
             heightField: Field<Int>,
             height: Int,
-            dbKeyFactory: DbKey.Factory<*>
+            dbKeyFactory: SqlDbKey.Factory<*>
         ) {
             check(dp.db.isInTransaction()) { "Not in transaction" }
 
@@ -133,7 +134,7 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
                 val deleteBatch = ctx.batch(deleteLowerHeightQuery)
 
                 for (record in selectMaxHeightQuery.fetch()) {
-                    val dbKey = dbKeyFactory.newKey(record) as DbKey
+                    val dbKey = dbKeyFactory.newKey(record) as SqlDbKey
                     val maxHeight = record.get("max_height", Int::class.java)
                     val bindValues = mutableListOf<Long>()
                     bindValues.add(maxHeight.toLong())

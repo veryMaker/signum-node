@@ -1,9 +1,9 @@
 package brs.crypto
 
 import brs.common.TestConstants
-import brs.util.*
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
+import brs.util.crypto.*
 import burst.kit.crypto.BurstCrypto
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

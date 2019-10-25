@@ -1,8 +1,8 @@
 package brs.services.impl
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.services.BlockchainProcessorService
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 import brs.objects.FluxValues
 import brs.objects.Props
 import brs.services.GeneratorService

@@ -1,14 +1,14 @@
 package brs.services.impl
 
 import brs.services.BlockchainService
-import brs.entity.DigitalGoodsStore.Goods
-import brs.entity.DigitalGoodsStore.Purchase
+import brs.entity.Goods
+import brs.entity.Purchase
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedEntityTable
-import brs.db.store.DigitalGoodsStoreStore
+import brs.db.DigitalGoodsStoreStore
 import brs.services.AccountService
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq

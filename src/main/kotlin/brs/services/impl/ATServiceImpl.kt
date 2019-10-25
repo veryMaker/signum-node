@@ -1,6 +1,6 @@
 package brs.services.impl
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.at.AT
 import brs.services.ATService
 

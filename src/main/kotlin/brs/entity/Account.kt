@@ -1,8 +1,7 @@
 package brs.entity
 
-import brs.DependencyProvider
-import brs.util.Crypto
-import brs.util.rsVerify
+import brs.util.crypto.Crypto
+import brs.util.crypto.rsVerify
 import brs.db.BurstKey
 import brs.db.VersionedBatchEntityTable
 import brs.util.convert.fullHashToId

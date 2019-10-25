@@ -2,7 +2,7 @@ package brs.transaction.type.automatedTransactions
 
 import brs.entity.Account
 import brs.util.BurstException
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.transaction.type.TransactionType
 

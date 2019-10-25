@@ -1,16 +1,18 @@
 package brs.db.sql
 
-import brs.entity.AssetTransfer
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.db.BurstKey
-import brs.db.store.AssetTransferStore
+import brs.db.getUsingDslContext
+import brs.db.AssetTransferStore
+import brs.db.useDslContext
+import brs.entity.AssetTransfer
 import brs.schema.Tables.ASSET_TRANSFER
 import org.jooq.DSLContext
 import org.jooq.Record
 
-class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferStore {
+internal class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferStore {
     override val assetTransferTable: EntitySqlTable<AssetTransfer>
-    override val transferDbKeyFactory = TransferDbKeyFactory
+    override val transferDbKeyFactory: BurstKey.LongKeyFactory<AssetTransfer> = TransferDbKeyFactory
 
     init {
         assetTransferTable = object : EntitySqlTable<AssetTransfer>("asset_transfer", ASSET_TRANSFER, transferDbKeyFactory, dp) {
@@ -49,7 +51,7 @@ class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferS
                     )
                     .orderBy(ASSET_TRANSFER.HEIGHT.desc())
                     .query
-            DbUtils.applyLimits(selectQuery, from, to)
+            SqlDbUtils.applyLimits(selectQuery, from, to)
 
             assetTransferTable.getManyBy(ctx, selectQuery, false)
         }
@@ -69,7 +71,7 @@ class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferS
                     )
                     .orderBy(ASSET_TRANSFER.HEIGHT.desc())
                     .query
-            DbUtils.applyLimits(selectQuery, from, to)
+            SqlDbUtils.applyLimits(selectQuery, from, to)
 
             assetTransferTable.getManyBy(ctx, selectQuery, false)
         }
@@ -82,7 +84,7 @@ class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferS
     internal inner class SqlAssetTransfer(record: Record) : AssetTransfer(record.get(ASSET_TRANSFER.ID), transferDbKeyFactory.newKey(record.get(ASSET_TRANSFER.ID)), record.get(ASSET_TRANSFER.ASSET_ID), record.get(ASSET_TRANSFER.HEIGHT), record.get(ASSET_TRANSFER.SENDER_ID), record.get(ASSET_TRANSFER.RECIPIENT_ID), record.get(ASSET_TRANSFER.QUANTITY), record.get(ASSET_TRANSFER.TIMESTAMP))
 
     companion object {
-        object TransferDbKeyFactory : DbKey.LongKeyFactory<AssetTransfer>(ASSET_TRANSFER.ID) {
+        private object TransferDbKeyFactory : SqlDbKey.LongKeyFactory<AssetTransfer>(ASSET_TRANSFER.ID) {
             override fun newKey(assetTransfer: AssetTransfer): BurstKey {
                 return assetTransfer.dbKey
             }

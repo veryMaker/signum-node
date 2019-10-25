@@ -2,7 +2,7 @@ package brs.peer
 
 import brs.entity.Account
 import brs.services.BlockchainService
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker

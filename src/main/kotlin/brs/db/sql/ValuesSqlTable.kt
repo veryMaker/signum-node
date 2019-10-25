@@ -1,22 +1,24 @@
 package brs.db.sql
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.db.BurstKey
 import brs.db.ValuesTable
+import brs.db.getUsingDslContext
+import brs.db.useDslContext
 import brs.util.db.fetchAndMap
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 
-abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableClass: TableImpl<*>, internal val dbKeyFactory: DbKey.Factory<T>, private val multiversion: Boolean, private val dp: DependencyProvider) : DerivedSqlTable(table, tableClass, dp), ValuesTable<T, V> {
+internal abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableClass: TableImpl<*>, internal val dbKeyFactory: SqlDbKey.Factory<T>, private val multiversion: Boolean, private val dp: DependencyProvider) : DerivedSqlTable(table, tableClass, dp), ValuesTable<T, V> {
     protected abstract fun load(ctx: DSLContext, record: Record): V
 
     protected abstract fun save(ctx: DSLContext, t: T, v: V)
 
     override fun get(dbKey: BurstKey): List<V> {
         return dp.db.getUsingDslContext { ctx ->
-            val key = dbKey as DbKey
+            val key = dbKey as SqlDbKey
             var values: List<V>?
             if (dp.db.isInTransaction()) {
                 values = dp.db.getCache<List<V>>(table)[key]
@@ -39,7 +41,7 @@ abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableCla
     override fun insert(t: T, values: List<V>) {
         check(dp.db.isInTransaction()) { "Not in transaction" }
         dp.db.useDslContext { ctx ->
-            val dbKey = dbKeyFactory.newKey(t) as DbKey
+            val dbKey = dbKeyFactory.newKey(t) as SqlDbKey
             dp.db.getCache<Any>(table)[dbKey] = values
             if (multiversion) {
                 ctx.update(tableClass)

@@ -4,8 +4,8 @@ import brs.services.BlockchainProcessorService
 import brs.common.QuickMocker
 import brs.api.http.common.ResultFields.DONE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_RESPONSE
-import brs.util.mustGetAsBoolean
-import brs.util.safeGetAsString
+import brs.util.json.mustGetAsBoolean
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.mock

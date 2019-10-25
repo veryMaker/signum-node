@@ -1,15 +1,15 @@
 package brs.transaction.type.messaging
 
-import brs.*
+import brs.entity.DependencyProvider
 import brs.entity.Account
 import brs.entity.Transaction
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
-import brs.transaction.duplicates.TransactionDuplicationKey
+import brs.entity.TransactionDuplicationKey
 import brs.util.BurstException
-import brs.util.TextUtils
 import brs.util.convert.toBytes
-import brs.util.toJsonString
+import brs.util.json.toJsonString
+import brs.util.string.isInAlphabet
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 import java.util.*
@@ -39,7 +39,10 @@ class AliasAssignment(dp: DependencyProvider) : Messaging(dp) {
 
     override fun getDuplicationKey(transaction: Transaction): TransactionDuplicationKey {
         val attachment = transaction.attachment as Attachment.MessagingAliasAssignment
-        return TransactionDuplicationKey(AliasAssignment::class, attachment.aliasName.toLowerCase(Locale.ENGLISH))
+        return TransactionDuplicationKey(
+            AliasAssignment::class,
+            attachment.aliasName.toLowerCase(Locale.ENGLISH)
+        )
     }
 
     override fun validateAttachment(transaction: Transaction) {
@@ -50,7 +53,7 @@ class AliasAssignment(dp: DependencyProvider) : Messaging(dp) {
         ) {
             throw BurstException.NotValidException("Invalid alias assignment: " + attachment.jsonObject.toJsonString())
         }
-        if (!TextUtils.isInAlphabet(attachment.aliasName)) {
+        if (!attachment.aliasName.isInAlphabet()) {
             throw BurstException.NotValidException("Invalid alias name: " + attachment.aliasName)
         }
         val alias = dp.aliasService.getAlias(attachment.aliasName)

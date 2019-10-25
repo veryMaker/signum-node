@@ -2,14 +2,14 @@ package brs.at
 
 import brs.entity.Account
 import brs.services.BlockchainService
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.common.QuickMocker
 import brs.common.TestConstants
 import brs.db.BurstKey
 import brs.db.VersionedBatchEntityTable
 import brs.db.VersionedEntityTable
-import brs.db.store.ATStore
-import brs.db.store.AccountStore
+import brs.db.ATStore
+import brs.db.AccountStore
 import brs.services.PropertyService
 import brs.objects.Props
 import brs.util.convert.parseHexString

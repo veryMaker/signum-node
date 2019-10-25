@@ -1,6 +1,6 @@
 package brs.transaction.type.advancedPayment
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.transaction.type.TransactionType
 
 abstract class AdvancedPayment(dp: DependencyProvider) : TransactionType(dp) {

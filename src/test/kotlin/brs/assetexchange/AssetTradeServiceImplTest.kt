@@ -3,7 +3,7 @@ package brs.assetexchange
 import brs.entity.Trade
 import brs.common.AbstractUnitTest
 import brs.db.sql.EntitySqlTable
-import brs.db.store.TradeStore
+import brs.db.TradeStore
 import brs.services.impl.AssetTradeServiceImpl
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq

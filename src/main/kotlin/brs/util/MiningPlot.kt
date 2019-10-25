@@ -2,6 +2,7 @@ package brs.util
 
 import brs.services.FluxCapacitorService
 import brs.objects.FluxValues
+import brs.util.crypto.Crypto
 import java.nio.ByteBuffer
 import java.security.MessageDigest
 import kotlin.experimental.xor

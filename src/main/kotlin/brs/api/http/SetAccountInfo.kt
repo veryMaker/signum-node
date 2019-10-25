@@ -2,7 +2,7 @@ package brs.api.http
 
 import brs.transaction.appendix.Attachment
 import brs.objects.Constants
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT_DESCRIPTION_LENGTH
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT_NAME_LENGTH
 import brs.api.http.common.Parameters.DESCRIPTION_PARAMETER

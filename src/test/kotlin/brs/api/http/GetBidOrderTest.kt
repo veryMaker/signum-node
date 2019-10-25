@@ -7,7 +7,7 @@ import brs.common.QuickMocker.MockParam
 import brs.api.http.JSONResponses.UNKNOWN_ORDER
 import brs.api.http.common.Parameters.ORDER_PARAMETER
 import brs.api.http.common.ResultFields.ORDER_RESPONSE
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq

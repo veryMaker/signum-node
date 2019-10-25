@@ -1,15 +1,17 @@
 package brs.db.sql
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.db.BurstKey
 import brs.db.EntityTable
+import brs.db.getUsingDslContext
+import brs.db.useDslContext
 import brs.util.db.fetchAndMap
 import org.jooq.*
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 
-abstract class EntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: BurstKey.Factory<T>, private val multiversion: Boolean, private val dp: DependencyProvider) : DerivedSqlTable(table, tableClass, dp), EntityTable<T> {
-    internal val dbKeyFactory = dbKeyFactory as DbKey.Factory<T>
+internal abstract class EntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: BurstKey.Factory<T>, private val multiversion: Boolean, private val dp: DependencyProvider) : DerivedSqlTable(table, tableClass, dp), EntityTable<T> {
+    internal val dbKeyFactory = dbKeyFactory as SqlDbKey.Factory<T>
     private val defaultSort: MutableList<SortField<*>> = mutableListOf()
 
     private fun getCache(): Map<BurstKey, T> = dp.db.getCache(table)
@@ -57,7 +59,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
     }
 
     override fun get(dbKey: BurstKey): T? {
-        val key = dbKey as DbKey
+        val key = dbKey as SqlDbKey
         if (dp.db.isInTransaction()) {
             val t = getCache()[key]
             if (t != null) {
@@ -78,7 +80,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
     }
 
     override fun get(dbKey: BurstKey, height: Int): T? {
-        val key = dbKey as DbKey
+        val key = dbKey as SqlDbKey
         checkAvailable(height)
 
         return dp.db.getUsingDslContext { ctx ->
@@ -138,9 +140,9 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         val doCache = cache && dp.db.isInTransaction()
         val record = query.fetchOne() ?: return null
         var t: T? = null
-        var dbKey: DbKey? = null
+        var dbKey: SqlDbKey? = null
         if (doCache) {
-            dbKey = dbKeyFactory.newKey(record) as DbKey
+            dbKey = dbKeyFactory.newKey(record) as SqlDbKey
             t = this.getCache()[dbKey]
         }
         return if (t == null) {
@@ -167,7 +169,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
             if (multiversion) {
                 query.addConditions(latestField?.isTrue)
             }
-            DbUtils.applyLimits(query, from, to)
+            SqlDbUtils.applyLimits(query, from, to)
             getManyBy(ctx, query, true)
         }
     }
@@ -208,7 +210,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
             }
             query.addOrderBy(sort)
 
-            DbUtils.applyLimits(query, from, to)
+            SqlDbUtils.applyLimits(query, from, to)
             getManyBy(ctx, query, true)
         }
     }
@@ -217,9 +219,9 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         val doCache = cache && dp.db.isInTransaction()
         return query.fetchAndMap<Record, T> { record ->
             var t: T? = null
-            var dbKey: DbKey? = null
+            var dbKey: SqlDbKey? = null
             if (doCache) {
-                dbKey = dbKeyFactory.newKey(record) as DbKey
+                dbKey = dbKeyFactory.newKey(record) as SqlDbKey
                 t = this.getCache()[dbKey]
             }
             if (t == null) {
@@ -244,7 +246,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
                 query.addConditions(latestField?.isTrue)
             }
             query.addOrderBy(sort)
-            DbUtils.applyLimits(query, from, to)
+            SqlDbUtils.applyLimits(query, from, to)
             getManyBy(ctx, query, true)
         }
     }
@@ -280,7 +282,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
 
     override fun insert(t: T) {
         check(dp.db.isInTransaction()) { "Not in transaction" }
-        val dbKey = dbKeyFactory.newKey(t) as DbKey
+        val dbKey = dbKeyFactory.newKey(t) as SqlDbKey
         val cachedT = getCache()[dbKey]
         if (cachedT == null) {
             dp.db.getCache<T>(table)[dbKey] = t

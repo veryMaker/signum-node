@@ -5,7 +5,7 @@ import brs.services.BlockchainService
 import brs.objects.Constants.MAX_ASSET_DESCRIPTION_LENGTH
 import brs.objects.Constants.MAX_ASSET_NAME_LENGTH
 import brs.objects.Constants.MIN_ASSET_NAME_LENGTH
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.objects.FluxValues

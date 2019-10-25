@@ -1,7 +1,7 @@
 package brs.api.http
 
 import brs.transaction.appendix.Attachment
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.INCORRECT_ALIAS_NOTFORSALE
 import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_PARAMETER

@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.RECIPIENT_PARAMETER
 import com.google.gson.JsonElement

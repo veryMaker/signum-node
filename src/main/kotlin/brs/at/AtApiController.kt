@@ -1,6 +1,6 @@
 package brs.at
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 
 class AtApiController(private val dp: DependencyProvider) {
     fun func(funcNum: Int, state: AtMachineState): Long {

@@ -1,11 +1,10 @@
 package brs.entity
 
-import brs.*
 import brs.objects.Constants
 import brs.transaction.appendix.Appendix.AbstractAppendix
-import brs.util.Crypto
-import brs.util.signUsing
-import brs.util.verifySignature
+import brs.util.crypto.Crypto
+import brs.util.crypto.signUsing
+import brs.util.crypto.verifySignature
 import brs.objects.FluxValues
 import brs.objects.Genesis
 import brs.transaction.appendix.Appendix
@@ -13,11 +12,12 @@ import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.transaction.type.payment.MultiOutPayment
 import brs.transaction.type.payment.MultiOutSamePayment
-import brs.transaction.duplicates.TransactionDuplicationKey
 import brs.util.*
+import brs.util.byteArray.isZero
 import brs.util.convert.*
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLazy
+import brs.util.json.*
 import brs.util.logging.safeDebug
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory

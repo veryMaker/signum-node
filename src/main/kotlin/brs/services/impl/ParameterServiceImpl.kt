@@ -1,8 +1,7 @@
 package brs.services.impl
 
-import brs.*
 import brs.at.AT
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 import brs.api.http.JSONResponses.HEIGHT_NOT_AVAILABLE
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.JSONResponses.INCORRECT_ALIAS
@@ -60,8 +59,8 @@ import brs.services.ParameterService
 import brs.util.BurstException
 import brs.util.convert.*
 import brs.util.logging.safeDebug
-import brs.util.mustGetAsJsonObject
-import brs.util.parseJson
+import brs.util.json.mustGetAsJsonObject
+import brs.util.json.parseJson
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
@@ -149,7 +148,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         return asset
     }
 
-    override fun getGoods(request: HttpServletRequest): DigitalGoodsStore.Goods {
+    override fun getGoods(request: HttpServletRequest): Goods {
         val goodsValue = request.getParameter(GOODS_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_GOODS)
 
@@ -162,7 +161,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
 
     }
 
-    override fun getPurchase(request: HttpServletRequest): DigitalGoodsStore.Purchase {
+    override fun getPurchase(request: HttpServletRequest): Purchase {
         val purchaseIdString = request.getParameter(PURCHASE_PARAMETER).emptyToNull()
                 ?: throw ParameterException(MISSING_PURCHASE)
         try {

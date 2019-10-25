@@ -3,8 +3,8 @@ package brs.peer
 import brs.entity.Block
 import brs.services.BlockchainService
 import brs.common.QuickMocker
-import brs.util.safeGetAsLong
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsLong
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock

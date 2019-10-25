@@ -1,11 +1,11 @@
 package brs.transaction.type.accountControl
 
-import brs.*
 import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
-import brs.util.toJsonString
+import brs.util.json.toJsonString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 

@@ -2,7 +2,7 @@ package brs.peer
 
 import brs.util.BurstException
 import brs.services.TransactionProcessorService
-import brs.util.JSON
+import brs.util.json.JSON
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 

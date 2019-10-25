@@ -7,7 +7,7 @@
 
 package brs.at
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.objects.FluxValues
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

@@ -16,8 +16,8 @@ import brs.api.http.common.ResultFields.ORDER_RESPONSE
 import brs.api.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.QUANTITY_QNT_RESPONSE
 import brs.services.ParameterService
-import brs.util.safeGetAsLong
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsLong
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn

@@ -1,6 +1,5 @@
 package brs.api.http
 
-import brs.*
 import brs.objects.Constants.MAX_BALANCE_PLANCK
 import brs.entity.Account
 import brs.services.BlockchainService
@@ -14,6 +13,7 @@ import brs.api.http.JSONResponses.MISSING_PRICE
 import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.entity.Alias
+import brs.entity.DependencyProvider
 import brs.services.ParameterService
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType

@@ -1,15 +1,16 @@
 package brs.db.sql
 
-import brs.DependencyProvider
-import brs.entity.Trade
+import brs.entity.DependencyProvider
 import brs.db.BurstKey
-import brs.db.store.TradeStore
+import brs.db.getUsingDslContext
+import brs.db.TradeStore
+import brs.entity.Trade
 import brs.schema.Tables.TRADE
 import org.jooq.DSLContext
 import org.jooq.Record
 
-class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
-    override val tradeDbKeyFactory: DbKey.LinkKeyFactory<Trade> = object : DbKey.LinkKeyFactory<Trade>("ask_order_id", "bid_order_id") {
+internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
+    override val tradeDbKeyFactory: BurstKey.LinkKeyFactory<Trade> = object : SqlDbKey.LinkKeyFactory<Trade>("ask_order_id", "bid_order_id") {
         override fun newKey(trade: Trade): BurstKey {
             return trade.dbKey
         }
@@ -52,7 +53,7 @@ class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
                     )
                     .orderBy(TRADE.HEIGHT.desc())
                     .query
-            DbUtils.applyLimits(selectQuery, from, to)
+            SqlDbUtils.applyLimits(selectQuery, from, to)
 
             tradeTable.getManyBy(ctx, selectQuery, false)
         }
@@ -72,7 +73,7 @@ class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
                     )
                     .orderBy(TRADE.HEIGHT.desc())
                     .query
-            DbUtils.applyLimits(selectQuery, from, to)
+            SqlDbUtils.applyLimits(selectQuery, from, to)
 
             tradeTable.getManyBy(ctx, selectQuery, false)
         }

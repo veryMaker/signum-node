@@ -6,8 +6,8 @@ import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedBatchEntityTable
-import brs.db.store.AccountStore
-import brs.db.store.AssetTransferStore
+import brs.db.AccountStore
+import brs.db.AssetTransferStore
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
 import org.junit.Before

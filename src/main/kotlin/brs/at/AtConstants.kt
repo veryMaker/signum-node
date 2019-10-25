@@ -1,7 +1,7 @@
 package brs.at
 
 import brs.objects.Constants
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.objects.FluxValues
 
 

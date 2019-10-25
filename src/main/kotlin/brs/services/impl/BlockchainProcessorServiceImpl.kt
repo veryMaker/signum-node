@@ -1,31 +1,27 @@
 package brs.services.impl
 
-import brs.*
-import brs.objects.Constants.FEE_QUANT
-import brs.objects.Constants.ONE_BURST
+import brs.entity.DependencyProvider
 import brs.at.AT
 import brs.at.AtBlock
 import brs.at.AtException
-import brs.OCLPoC
-import brs.util.Crypto
-import brs.objects.FluxValues
-import brs.peer.Peer
-import brs.objects.Props
 import brs.entity.Block
-import brs.objects.Genesis
-import brs.services.RepeatingTask
-import brs.services.TaskType
 import brs.entity.Transaction
 import brs.objects.Constants
-import brs.services.BlockchainProcessorService
-import brs.services.TransactionProcessorService
-import brs.transaction.duplicates.TransactionDuplicatesCheckerImpl
-import brs.transaction.unconfirmed.UnconfirmedTransactionStore
-import brs.util.*
+import brs.objects.Constants.FEE_QUANT
+import brs.objects.Constants.ONE_BURST
+import brs.objects.FluxValues
+import brs.objects.Genesis
+import brs.objects.Props
+import brs.peer.Peer
+import brs.services.*
+import brs.util.BurstException
+import brs.util.Listeners
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.safeSubtract
 import brs.util.convert.toUnsignedString
+import brs.util.crypto.Crypto
 import brs.util.delegates.Atomic
+import brs.util.json.*
 import brs.util.logging.*
 import brs.util.sync.Mutex
 import com.google.gson.JsonArray
@@ -72,12 +68,12 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 // unlocking cache for writing.
                 // This must be done before we query where to add blocks.
                 // We sync the cache in event of pop off
-                dp.downloadCache.mutex.withLock {
-                    dp.downloadCache.unlockCache()
+                dp.downloadCacheService.mutex.withLock {
+                    dp.downloadCacheService.unlockCache()
                 }
 
 
-                if (dp.downloadCache.isFull) {
+                if (dp.downloadCacheService.isFull) {
                     return@run false
                 }
                 peerHasMore = true
@@ -96,7 +92,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 }
 
                 /* Cache now contains Cumulative Difficulty */
-                val curCumulativeDifficulty = dp.downloadCache.cumulativeDifficulty
+                val curCumulativeDifficulty = dp.downloadCacheService.cumulativeDifficulty
                 val peerCumulativeDifficulty = response.get("cumulativeDifficulty").mustGetAsString("cumulativeDifficulty")
                 if (peerCumulativeDifficulty.isEmpty()) {
                     logger.safeDebug { "Peer CumulativeDifficulty is null" }
@@ -108,7 +104,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 }
 
                 var commonBlockId = Genesis.GENESIS_BLOCK_ID
-                val cacheLastBlockId = dp.downloadCache.getLastBlockId()
+                val cacheLastBlockId = dp.downloadCacheService.getLastBlockId()
 
                 // Now we will find the highest common block between us and the peer
                 if (cacheLastBlockId != Genesis.GENESIS_BLOCK_ID) {
@@ -127,7 +123,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
                 var saveInCache = true
                 if (commonBlockId != cacheLastBlockId) {
-                    if (dp.downloadCache.canBeFork(commonBlockId)) {
+                    if (dp.downloadCacheService.canBeFork(commonBlockId)) {
                         // the fork is not that old. Lets see if we can get more precise.
                         commonBlockId = getCommonBlockId(peer, commonBlockId)
                         if (commonBlockId == 0L || !peerHasMore) {
@@ -135,7 +131,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                             return@run true
                         }
                         saveInCache = false
-                        dp.downloadCache.resetForkBlocks()
+                        dp.downloadCacheService.resetForkBlocks()
                     } else {
                         logger.safeWarn { "Our peer want to feed us a fork that is more than ${dp.propertyService.get(
                             Props.DB_MAX_ROLLBACK)} blocks old." }
@@ -150,7 +146,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 }
 
                 // download blocks from peer
-                var lastBlock = dp.downloadCache.getBlock(commonBlockId)
+                var lastBlock = dp.downloadCacheService.getBlock(commonBlockId)
                 if (lastBlock == null) {
                     logger.safeInfo { "Error: lastBlock is null" }
                     return@run true
@@ -177,20 +173,20 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                         block.byteLength = blockData.toJsonString().length
                         dp.blockService.calculateBaseTarget(block, lastBlock)
                         if (saveInCache) {
-                            if (dp.downloadCache.getLastBlockId() == block.previousBlockId) { //still maps back? we might have got announced/forged blocks
-                                if (!dp.downloadCache.addBlock(block)) {
+                            if (dp.downloadCacheService.getLastBlockId() == block.previousBlockId) { //still maps back? we might have got announced/forged blocks
+                                if (!dp.downloadCacheService.addBlock(block)) {
                                     //we stop the loop since cahce has been locked
                                     return@run true
                                 }
                                 logger.safeDebug { "Added from download: Id: ${block.id} Height: ${block.height}" }
                             }
                         } else {
-                            dp.downloadCache.addForkBlock(block)
+                            dp.downloadCacheService.addForkBlock(block)
                         }
                         lastBlock = block
                     } catch (e: BlockchainProcessorService.BlockOutOfOrderException) {
                         logger.safeInfo(e) { "$e - autoflushing cache to get rid of it" }
-                        dp.downloadCache.resetCache()
+                        dp.downloadCacheService.resetCache()
                         return@run false
                     } catch (e: RuntimeException) {
                         logger.safeInfo(e) { "Failed to parse block: $e" }
@@ -209,9 +205,9 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     }
                 }
 
-                logger.safeTrace { "Unverified blocks: ${dp.downloadCache.unverifiedSize}" }
-                logger.safeTrace { "Blocks in cache: ${dp.downloadCache.size()}" }
-                logger.safeTrace { "Bytes in cache: ${dp.downloadCache.blockCacheSize}" }
+                logger.safeTrace { "Unverified blocks: ${dp.downloadCacheService.unverifiedSize}" }
+                logger.safeTrace { "Blocks in cache: ${dp.downloadCacheService.size()}" }
+                logger.safeTrace { "Bytes in cache: ${dp.downloadCacheService.blockCacheSize}" }
                 if (!saveInCache) {
                     /*
                      * Since we cannot rely on peers reported cumulative difficulty we do
@@ -220,10 +216,10 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                      */
                     if (lastBlock!!.cumulativeDifficulty < curCumulativeDifficulty) {
                         peer.blacklist("peer claimed to have bigger cumulative difficulty but in reality it did not.")
-                        dp.downloadCache.resetForkBlocks()
+                        dp.downloadCacheService.resetForkBlocks()
                         return@run true
                     }
-                    processFork(peer, dp.downloadCache.forkList, commonBlockId)
+                    processFork(peer, dp.downloadCacheService.forkList, commonBlockId)
                 }
             } catch (e: Exception) {
                 logger.safeInfo(e) { "Error in blockchain download thread" }
@@ -233,21 +229,21 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     }
 
     private val blockImporterTask: RepeatingTask = {
-        if (dp.downloadCache.size() == 0) {
+        if (dp.downloadCacheService.size() == 0) {
             false
         } else {
             try {
                 val lastBlock = dp.blockchainService.lastBlock
                 val lastId = lastBlock.id
-                val currentBlock = dp.downloadCache.getNextBlock(lastId) /* this should fetch first block in cache */
+                val currentBlock = dp.downloadCacheService.getNextBlock(lastId) /* this should fetch first block in cache */
                 if (currentBlock == null || currentBlock.height != lastBlock.height + 1) {
-                    logger.safeDebug { "cache is reset due to orphaned block(s). CacheSize: ${dp.downloadCache.size()}" }
-                    dp.downloadCache.resetCache() //resetting cache because we have blocks that cannot be processed.
+                    logger.safeDebug { "cache is reset due to orphaned block(s). CacheSize: ${dp.downloadCacheService.size()}" }
+                    dp.downloadCacheService.resetCache() //resetting cache because we have blocks that cannot be processed.
                     false
                 } else {
                     try {
                         if (!currentBlock.isVerified) {
-                            dp.downloadCache.removeUnverified(currentBlock.id)
+                            dp.downloadCacheService.removeUnverified(currentBlock.id)
                             dp.blockService.preVerify(currentBlock)
                             logger.safeDebug { "block was not preverified" }
                         }
@@ -270,7 +266,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     private val pocVerificationTask: RepeatingTask = {
         var verifyWithOcl: Boolean
         val queueThreshold = if (oclVerify) oclUnverifiedQueue else 0
-        val unVerified = dp.downloadCache.unverifiedSize
+        val unVerified = dp.downloadCacheService.unverifiedSize
         if (unVerified > queueThreshold) { // Is there anything to verify?
             if (unVerified >= oclUnverifiedQueue && oclVerify) { //should we use Ocl?
                 verifyWithOcl = true
@@ -281,26 +277,26 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             } else {
                 verifyWithOcl = false
             }
-            if (verifyWithOcl && dp.oclPoC != null) {
+            if (verifyWithOcl && dp.oclPocService != null) {
                 val pocVersion =
-                    dp.downloadCache.getPoCVersion(dp.downloadCache.getUnverifiedBlockIdFromPos(0))
+                    dp.downloadCacheService.getPoCVersion(dp.downloadCacheService.getUnverifiedBlockIdFromPos(0))
                 var pos = 0
                 val blocks = LinkedList<Block>()
-                while (dp.downloadCache.unverifiedSize - 1 > pos && blocks.size < dp.oclPoC!!.maxItems) {
-                    val blockId = dp.downloadCache.getUnverifiedBlockIdFromPos(pos)
-                    if (dp.downloadCache.getPoCVersion(blockId) != pocVersion) {
+                while (dp.downloadCacheService.unverifiedSize - 1 > pos && blocks.size < dp.oclPocService.maxItems) {
+                    val blockId = dp.downloadCacheService.getUnverifiedBlockIdFromPos(pos)
+                    if (dp.downloadCacheService.getPoCVersion(blockId) != pocVersion) {
                         break
                     }
-                    blocks.add(dp.downloadCache.getBlock(blockId)!!)
+                    blocks.add(dp.downloadCacheService.getBlock(blockId)!!)
                     pos += 1
                 }
                 try {
-                    dp.oclPoC!!.validatePoC(blocks, pocVersion, dp.blockService)
-                    dp.downloadCache.removeUnverifiedBatch(blocks)
-                } catch (e: OCLPoC.PreValidateFailException) {
+                    dp.oclPocService.validatePoC(blocks, pocVersion, dp.blockService)
+                    dp.downloadCacheService.removeUnverifiedBatch(blocks)
+                } catch (e: OclPocService.PreValidateFailException) {
                     logger.safeInfo(e) { e.toString() }
                     blacklistClean(e.block, e, "found invalid pull/push data during processing the pocVerification")
-                } catch (e: OCLPoC.OCLCheckerException) {
+                } catch (e: OclPocService.OCLCheckerException) {
                     logger.safeInfo(e) { "Open CL error. slow verify will occur for the next $oclUnverifiedQueue Blocks" }
                 } catch (e: Exception) {
                     logger.safeInfo(e) { "Unspecified Open CL error: " }
@@ -309,7 +305,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 }
             } else { //verify using java
                 try {
-                    val unverifiedBlock = dp.downloadCache.firstUnverifiedBlock
+                    val unverifiedBlock = dp.downloadCacheService.firstUnverifiedBlock
                     if (unverifiedBlock != null) {
                         dp.blockService.preVerify(unverifiedBlock)
                     }
@@ -367,7 +363,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 if (block.height % 1440 == 0) {
                     lastTrimHeight.set(max(block.height - dp.propertyService.get(Props.DB_MAX_ROLLBACK), 0))
                     if (lastTrimHeight.get() > 0) {
-                        dp.derivedTableManager.derivedTables.forEach { table -> table.trim(lastTrimHeight.get()) }
+                        dp.derivedTableService.derivedTables.forEach { table -> table.trim(lastTrimHeight.get()) }
                     }
                 }
             }
@@ -383,7 +379,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             milestoneBlockIdsRequest.addProperty("requestType", "getMilestoneBlockIds")
             if (lastMilestoneBlockId == null) {
                 milestoneBlockIdsRequest.addProperty("lastBlockId",
-                    dp.downloadCache.getLastBlockId().toUnsignedString())
+                    dp.downloadCacheService.getLastBlockId().toUnsignedString())
             } else {
                 milestoneBlockIdsRequest.addProperty("lastMilestoneBlockId", lastMilestoneBlockId)
             }
@@ -414,7 +410,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 val milestoneBlockIdString = milestoneBlockId.mustGetAsString("milestoneBlockId")
                 val blockId = milestoneBlockIdString.parseUnsignedLong()
 
-                if (dp.downloadCache.hasBlock(blockId)) {
+                if (dp.downloadCacheService.hasBlock(blockId)) {
                     if (lastMilestoneBlockId == null && milestoneBlockIds.size() > 1) {
                         peerHasMore = false
                         logger.safeDebug { "Peer dont have more (cache)" }
@@ -444,7 +440,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
             for (nextBlockId in nextBlockIds) {
                 val blockId = nextBlockId.mustGetAsString("nextBlockId").parseUnsignedLong()
-                if (!dp.downloadCache.hasBlock(blockId)) {
+                if (!dp.downloadCacheService.hasBlock(blockId)) {
                     return commonBlockId
                 }
                 commonBlockId = blockId
@@ -473,9 +469,9 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
     private fun processFork(peer: Peer, forkBlocks: List<Block>, forkBlockId: Long) {
         logger.safeWarn { "A fork is detected. Waiting for cache to be processed." }
-        dp.downloadCache.lockCache() //dont let anything add to cache!
-        while (dp.downloadCache.size() != 0) Thread.sleep(1000) // TODO don't do this...
-        dp.downloadCache.mutex.withLock {
+        dp.downloadCacheService.lockCache() //dont let anything add to cache!
+        while (dp.downloadCacheService.size() != 0) Thread.sleep(1000) // TODO don't do this...
+        dp.downloadCacheService.mutex.withLock {
             processMutex.withLock {
                 logger.safeWarn { "Cache is now processed. Starting to process fork." }
                 val forkBlock = dp.blockchainService.getBlock(forkBlockId)
@@ -535,8 +531,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     logger.safeWarn { "Successfully switched to better chain." }
                 }
                 logger.safeWarn { "Forkprocessing complete." }
-                dp.downloadCache.resetForkBlocks()
-                dp.downloadCache.resetCache() // Reset and set cached vars to chaindata.
+                dp.downloadCacheService.resetForkBlocks()
+                dp.downloadCacheService.resetCache() // Reset and set cached vars to chaindata.
             }
         }
     }
@@ -548,7 +544,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         }
         val peer = block.peer
         peer?.blacklist(e, description)
-        dp.downloadCache.resetCache()
+        dp.downloadCacheService.resetCache()
         logger.safeDebug { "Blacklisted peer and cleaned queue" }
     }
 
@@ -580,12 +576,12 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     override fun processPeerBlock(request: JsonObject, peer: Peer) {
         val newBlock = Block.parseBlock(dp, request, dp.blockchainService.height)
         //* This process takes care of the blocks that is announced by peers We do not want to be fed forks.
-        val chainblock = dp.downloadCache.lastBlock
+        val chainblock = dp.downloadCacheService.lastBlock
         if (chainblock!!.id == newBlock.previousBlockId) {
             newBlock.height = chainblock.height + 1
             newBlock.byteLength = newBlock.toString().length
             dp.blockService.calculateBaseTarget(newBlock, chainblock)
-            dp.downloadCache.addBlock(newBlock)
+            dp.downloadCacheService.addBlock(newBlock)
             logger.safeDebug { "Peer ${peer.peerAddress} added block from Announce: Id: ${newBlock.id} Height: ${newBlock.height}" }
         } else {
             logger.safeDebug { "Peer ${peer.peerAddress} sent us block: ${newBlock.previousBlockId} which is not the follow-up block for ${chainblock.id}" }
@@ -598,8 +594,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
     override fun fullReset() {
         dp.blockDb.deleteAll(false)
-        dp.dbCacheManager.flushCache()
-        dp.downloadCache.resetCache()
+        dp.dbCacheService.flushCache()
+        dp.downloadCacheService.resetCache()
         addGenesisBlock()
     }
 
@@ -666,7 +662,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     throw BlockchainProcessorService.BlockNotAcceptedException("Block signature verification failed for block " + block.height)
                 }
 
-                val transactionDuplicatesChecker = TransactionDuplicatesCheckerImpl()
+                val transactionDuplicatesChecker = TransactionDuplicateCheckerServiceImpl()
                 var calculatedTotalAmount: Long = 0
                 var calculatedTotalFee: Long = 0
                 val digest = Crypto.sha256()
@@ -761,23 +757,23 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 dp.transactionProcessorService.requeueAllUnconfirmedTransactions()
                 dp.accountService.flushAccountTable()
                 addBlock(block)
-                dp.downloadCache.removeBlock(block) // We make sure downloadCache do not have this block anymore.
+                dp.downloadCacheService.removeBlock(block) // We make sure downloadCache do not have this block anymore.
                 accept(block, remainingAmount, remainingFee)
-                dp.derivedTableManager.derivedTables.forEach { it.finish() }
+                dp.derivedTableService.derivedTables.forEach { it.finish() }
                 dp.db.commitTransaction()
             } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
                 dp.db.rollbackTransaction()
                 if (lastBlock != null) {
                     dp.blockchainService.lastBlock = lastBlock
                 }
-                dp.downloadCache.resetCache()
+                dp.downloadCacheService.resetCache()
                 throw e
             } catch (e: ArithmeticException) {
                 dp.db.rollbackTransaction()
                 if (lastBlock != null) {
                     dp.blockchainService.lastBlock = lastBlock
                 }
-                dp.downloadCache.resetCache()
+                dp.downloadCacheService.resetCache()
                 throw e
             } finally {
                 dp.db.endTransaction()
@@ -792,7 +788,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 autoPopOffNumberOfBlocks = 0
             }
             if (block.height % Constants.OPTIMIZE_TABLE_FREQUENCY == 0) {
-                dp.derivedTableManager.derivedTables.forEach { it.optimize() } // TODO this is not all of the tables...
+                dp.derivedTableService.derivedTables.forEach { it.optimize() } // TODO this is not all of the tables...
             }
         }
     }
@@ -851,7 +847,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             return mutableListOf()
         }
         val poppedOffBlocks = mutableListOf<Block>()
-        dp.downloadCache.mutex.withLock {
+        dp.downloadCacheService.mutex.withLock {
             processMutex.withLock {
                 try {
                     dp.db.beginTransaction()
@@ -861,10 +857,10 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                         poppedOffBlocks.add(block)
                         block = popLastBlock()
                     }
-                    dp.derivedTableManager.derivedTables.forEach { table -> table.rollback(commonBlock.height) }
-                    dp.dbCacheManager.flushCache()
+                    dp.derivedTableService.derivedTables.forEach { table -> table.rollback(commonBlock.height) }
+                    dp.dbCacheService.flushCache()
                     dp.db.commitTransaction()
-                    dp.downloadCache.resetCache()
+                    dp.downloadCacheService.resetCache()
                 } catch (e: RuntimeException) {
                     dp.db.rollbackTransaction()
                     logger.safeDebug(e) { "Error popping off to ${commonBlock.height}" }
@@ -890,18 +886,18 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         return previousBlock
     }
 
-    private fun preCheckUnconfirmedTransaction(transactionDuplicatesChecker: TransactionDuplicatesCheckerImpl, unconfirmedTransactionStore: UnconfirmedTransactionStore, transaction: Transaction): Boolean {
+    private fun preCheckUnconfirmedTransaction(transactionDuplicatesChecker: TransactionDuplicateCheckerService, unconfirmedTransactionService: UnconfirmedTransactionService, transaction: Transaction): Boolean {
         val ok = (hasAllReferencedTransactions(transaction, transaction.timestamp, 0)
                 && !transactionDuplicatesChecker.hasAnyDuplicate(transaction)
                 && !dp.transactionDb.hasTransaction(transaction.id))
-        if (!ok) unconfirmedTransactionStore.remove(transaction)
+        if (!ok) unconfirmedTransactionService.remove(transaction)
         return ok
     }
 
     override fun generateBlock(secretPhrase: String, publicKey: ByteArray, nonce: Long?) {
-        dp.downloadCache.mutex.withLock {
-            dp.downloadCache.lockCache() //stop all incoming blocks.
-            val unconfirmedTransactionStore = dp.unconfirmedTransactionStore
+        dp.downloadCacheService.mutex.withLock {
+            dp.downloadCacheService.lockCache() //stop all incoming blocks.
+            val unconfirmedTransactionStore = dp.unconfirmedTransactionService
             val orderedBlockTransactions = TreeSet<Transaction>()
 
             var blockSize = dp.fluxCapacitorService.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS)
@@ -919,7 +915,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             // accept (so it's going the same way like a received/synced block)
             try {
                 dp.db.beginTransaction()
-                val transactionDuplicatesChecker = TransactionDuplicatesCheckerImpl()
+                val transactionDuplicatesChecker = TransactionDuplicateCheckerServiceImpl()
 
                 val priorityCalculator = { transaction: Transaction ->
                     var age = blockTimestamp + 1 - transaction.timestamp
@@ -1105,7 +1101,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 pushBlock(block)
                 blockListeners.accept(BlockchainProcessorService.Event.BLOCK_GENERATED, block)
                 logger.safeDebug { "Account ${block.generatorId.toUnsignedString()} generated block ${block.stringId} at height ${block.height}" }
-                dp.downloadCache.resetCache()
+                dp.downloadCacheService.resetCache()
             } catch (e: BlockchainProcessorService.TransactionNotAcceptedException) {
                 logger.safeDebug { "Generate block failed: ${e.message}" }
                 val transaction = e.transaction

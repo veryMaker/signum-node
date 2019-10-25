@@ -1,11 +1,11 @@
 package brs.transaction.type.advancedPayment
 
-import brs.*
 import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
-import brs.transaction.duplicates.TransactionDuplicationKey
+import brs.entity.TransactionDuplicationKey
 import brs.util.BurstException
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer

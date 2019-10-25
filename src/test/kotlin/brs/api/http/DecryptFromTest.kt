@@ -12,8 +12,8 @@ import brs.api.http.common.Parameters.NONCE_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.ResultFields.DECRYPTED_MESSAGE_RESPONSE
 import brs.services.ParameterService
-import brs.util.mustGetAsJsonObject
-import brs.util.safeGetAsString
+import brs.util.json.mustGetAsJsonObject
+import brs.util.json.safeGetAsString
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertEquals
 import org.junit.Before

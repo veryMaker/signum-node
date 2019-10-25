@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.entity.DigitalGoodsStore.Purchase
+import brs.entity.Purchase
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam

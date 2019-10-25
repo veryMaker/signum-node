@@ -1,7 +1,7 @@
 package brs.api.http
 
 import brs.transaction.appendix.Attachment
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.JSONResponses.INCORRECT_DELIVERY_DEADLINE_TIMESTAMP
 import brs.api.http.JSONResponses.INCORRECT_PURCHASE_PRICE

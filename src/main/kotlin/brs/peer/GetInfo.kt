@@ -1,9 +1,9 @@
 package brs.peer
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.services.PeerService
-import brs.util.mustGetAsBoolean
-import brs.util.mustGetAsString
+import brs.util.json.mustGetAsBoolean
+import brs.util.json.mustGetAsString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 

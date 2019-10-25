@@ -1,6 +1,6 @@
 package brs.objects
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.util.Version
 import java.util.*
 

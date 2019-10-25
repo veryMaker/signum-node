@@ -1,7 +1,7 @@
 package brs.api.http
 
 import brs.transaction.appendix.Attachment
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.UNKNOWN_ORDER
 import brs.api.http.common.Parameters.ORDER_PARAMETER
 import com.google.gson.JsonElement

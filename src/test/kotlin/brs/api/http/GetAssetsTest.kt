@@ -10,7 +10,7 @@ import brs.api.http.common.ResultFields.ASSETS_RESPONSE
 import brs.api.http.common.ResultFields.NUMBER_OF_ACCOUNTS_RESPONSE
 import brs.api.http.common.ResultFields.NUMBER_OF_TRADES_RESPONSE
 import brs.api.http.common.ResultFields.NUMBER_OF_TRANSFERS_RESPONSE
-import brs.util.safeGetAsLong
+import brs.util.json.safeGetAsLong
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn

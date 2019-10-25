@@ -7,11 +7,11 @@
 
 package brs.at
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.at.AtApi.Companion.REGISTER_PART_SIZE
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 import brs.objects.FluxValues
-import brs.util.*
+import brs.util.byteArray.*
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

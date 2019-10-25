@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.UNKNOWN_ORDER
 import brs.api.http.common.Parameters.ORDER_PARAMETER
 import brs.transaction.appendix.Attachment

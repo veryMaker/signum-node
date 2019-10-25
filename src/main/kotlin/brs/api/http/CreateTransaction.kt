@@ -4,7 +4,7 @@ import brs.entity.Account
 import brs.transaction.appendix.Attachment
 import brs.objects.Constants.FEE_QUANT
 import brs.objects.Constants.ONE_BURST
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.objects.FluxValues
 import brs.api.http.common.Parameters.BROADCAST_PARAMETER
 import brs.api.http.common.Parameters.DEADLINE_PARAMETER

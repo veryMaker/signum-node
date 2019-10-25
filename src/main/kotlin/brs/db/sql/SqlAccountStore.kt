@@ -1,10 +1,12 @@
 package brs.db.sql
 
-import brs.entity.Account
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
+import brs.db.BurstKey
 import brs.db.VersionedBatchEntityTable
 import brs.db.VersionedEntityTable
-import brs.db.store.AccountStore
+import brs.db.getUsingDslContext
+import brs.db.AccountStore
+import brs.entity.Account
 import brs.schema.Tables.*
 import brs.schema.tables.records.AccountAssetRecord
 import brs.schema.tables.records.AccountRecord
@@ -18,7 +20,7 @@ import org.jooq.SortField
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
+internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
 
     override val accountAssetTable: VersionedEntityTable<Account.AccountAsset>
 
@@ -26,13 +28,13 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
 
     override val accountTable: VersionedBatchEntityTable<Account>
 
-    override val rewardRecipientAssignmentKeyFactory: DbKey.LongKeyFactory<Account.RewardRecipientAssignment>
+    override val rewardRecipientAssignmentKeyFactory: BurstKey.LongKeyFactory<Account.RewardRecipientAssignment>
         get() = rewardRecipientAssignmentDbKeyFactory
 
-    override val accountAssetKeyFactory: DbKey.LinkKeyFactory<Account.AccountAsset>
+    override val accountAssetKeyFactory: BurstKey.LinkKeyFactory<Account.AccountAsset>
         get() = accountAssetDbKeyFactory
 
-    override val accountKeyFactory: DbKey.LongKeyFactory<Account>
+    override val accountKeyFactory: BurstKey.LongKeyFactory<Account>
         get() = accountDbKeyFactory
 
     init {
@@ -169,20 +171,20 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
 
     companion object {
 
-        private val accountDbKeyFactory = object : DbKey.LongKeyFactory<Account>(ACCOUNT.ID) {
-            override fun newKey(account: Account): DbKey {
-                return account.nxtKey as DbKey
+        private val accountDbKeyFactory = object : SqlDbKey.LongKeyFactory<Account>(ACCOUNT.ID) {
+            override fun newKey(account: Account): SqlDbKey {
+                return account.nxtKey as SqlDbKey
             }
         }
-        private val rewardRecipientAssignmentDbKeyFactory = object : DbKey.LongKeyFactory<Account.RewardRecipientAssignment>(REWARD_RECIP_ASSIGN.ACCOUNT_ID) {
-            override fun newKey(assignment: Account.RewardRecipientAssignment): DbKey {
-                return assignment.burstKey as DbKey
+        private val rewardRecipientAssignmentDbKeyFactory = object : SqlDbKey.LongKeyFactory<Account.RewardRecipientAssignment>(REWARD_RECIP_ASSIGN.ACCOUNT_ID) {
+            override fun newKey(assignment: Account.RewardRecipientAssignment): SqlDbKey {
+                return assignment.burstKey as SqlDbKey
             }
         }
         private val logger = LoggerFactory.getLogger(SqlAccountStore::class.java)
-        private val accountAssetDbKeyFactory = object : DbKey.LinkKeyFactory<Account.AccountAsset>("account_id", "asset_id") {
-            override fun newKey(accountAsset: Account.AccountAsset): DbKey {
-                return accountAsset.burstKey as DbKey
+        private val accountAssetDbKeyFactory = object : SqlDbKey.LinkKeyFactory<Account.AccountAsset>("account_id", "asset_id") {
+            override fun newKey(accountAsset: Account.AccountAsset): SqlDbKey {
+                return accountAsset.burstKey as SqlDbKey
             }
         }
 

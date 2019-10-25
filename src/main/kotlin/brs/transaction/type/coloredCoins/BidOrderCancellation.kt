@@ -1,7 +1,7 @@
 package brs.transaction.type.coloredCoins
 
-import brs.*
 import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException

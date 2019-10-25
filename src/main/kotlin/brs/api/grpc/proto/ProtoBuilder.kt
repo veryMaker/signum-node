@@ -1,6 +1,5 @@
 package brs.api.grpc.proto
 
-import brs.*
 import brs.services.AssetExchangeService
 import brs.at.AT
 import brs.services.BlockchainService
@@ -246,7 +245,7 @@ object ProtoBuilder {
                 .build()
     }
 
-    fun buildGoods(goods: DigitalGoodsStore.Goods): BrsApi.DgsGood {
+    fun buildGoods(goods: Goods): BrsApi.DgsGood {
         return BrsApi.DgsGood.newBuilder()
                 .setId(goods.id)
                 .setSeller(goods.sellerId)
@@ -306,7 +305,7 @@ object ProtoBuilder {
                 .build()
     }
 
-    fun buildPurchase(purchase: DigitalGoodsStore.Purchase, goods: DigitalGoodsStore.Goods): BrsApi.DgsPurchase {
+    fun buildPurchase(purchase: Purchase, goods: Goods): BrsApi.DgsPurchase {
         return BrsApi.DgsPurchase.newBuilder()
                 .setId(purchase.id)
                 .setGood(purchase.goodsId)

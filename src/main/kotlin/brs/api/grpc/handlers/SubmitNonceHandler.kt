@@ -3,7 +3,7 @@ package brs.api.grpc.handlers
 import brs.entity.Account
 import brs.services.BlockchainService
 import brs.services.GeneratorService
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.ApiException
 import brs.api.grpc.proto.BrsApi

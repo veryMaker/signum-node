@@ -24,7 +24,7 @@ object Props {
     val DEV_P2P_BOOTSTRAP_PEERS = Prop("DEV.P2P.BootstrapPeers", emptyList<String>())
 
     val DEV_REWARD_RECIPIENT_ENABLE_BLOCK_HEIGHT = Prop("DEV.rewardRecipient.startBlock", -1)
-    val DEV_DIGITAL_GOODS_STORE_BLOCK_HEIGHT = Prop("DEV.digitalGoodsStore.startBlock", -1)
+    val DEV_DIGITAL_GOODS_STORE_BLOCK_HEIGHT = Prop("DEV.startBlock", -1)
     val DEV_AUTOMATED_TRANSACTION_BLOCK_HEIGHT = Prop("DEV.automatedTransactions.startBlock", -1)
     val DEV_AT_FIX_BLOCK_2_BLOCK_HEIGHT = Prop("DEV.atFixBlock2.startBlock", -1)
     val DEV_AT_FIX_BLOCK_3_BLOCK_HEIGHT = Prop("DEV.atFixBlock3.startBlock", -1)

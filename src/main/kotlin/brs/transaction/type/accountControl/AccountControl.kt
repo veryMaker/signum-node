@@ -1,7 +1,7 @@
 package brs.transaction.type.accountControl
 
 import brs.entity.Account
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.transaction.type.TransactionType
 

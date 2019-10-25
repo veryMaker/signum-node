@@ -1,11 +1,11 @@
 package brs.db.sql
 
-import brs.DependencyProvider
-import brs.entity.Escrow
-import brs.entity.Transaction
+import brs.entity.DependencyProvider
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
-import brs.db.store.EscrowStore
+import brs.db.EscrowStore
+import brs.entity.Escrow
+import brs.entity.Transaction
 import brs.schema.Tables.ESCROW
 import brs.schema.Tables.ESCROW_DECISION
 import brs.schema.tables.records.EscrowDecisionRecord
@@ -13,15 +13,15 @@ import brs.schema.tables.records.EscrowRecord
 import org.jooq.DSLContext
 import org.jooq.Record
 
-class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
-    override val escrowDbKeyFactory: BurstKey.LongKeyFactory<Escrow> = object : DbKey.LongKeyFactory<Escrow>(ESCROW.ID) {
+internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
+    override val escrowDbKeyFactory = object : SqlDbKey.LongKeyFactory<Escrow>(ESCROW.ID) {
         override fun newKey(escrow: Escrow): BurstKey {
             return escrow.dbKey
         }
     }
 
     override val escrowTable: VersionedEntityTable<Escrow>
-    override val decisionDbKeyFactory: DbKey.LinkKeyFactory<Escrow.Decision> = object : DbKey.LinkKeyFactory<Escrow.Decision>("escrow_id", "account_id") {
+    override val decisionDbKeyFactory = object : SqlDbKey.LinkKeyFactory<Escrow.Decision>("escrow_id", "account_id") {
         override fun newKey(decision: Escrow.Decision): BurstKey {
             return decision.dbKey
         }

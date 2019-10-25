@@ -1,6 +1,6 @@
 package brs.at
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
 import org.junit.Assert.assertEquals

@@ -3,7 +3,7 @@ package brs.api.http
 import brs.common.QuickMocker
 import brs.api.http.common.ResultFields.TIME_RESPONSE
 import brs.services.TimeService
-import brs.util.safeGetAsLong
+import brs.util.json.safeGetAsLong
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock

@@ -1,13 +1,13 @@
 package brs.transaction.type.coloredCoins
 
-import brs.*
+import brs.entity.DependencyProvider
 import brs.entity.Account
 import brs.entity.Transaction
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
-import brs.util.TextUtils
-import brs.util.toJsonString
+import brs.util.json.toJsonString
+import brs.util.string.isInAlphabet
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 
@@ -59,7 +59,7 @@ class AssetIssuance(dp: DependencyProvider) : ColoredCoins(dp) {
         ) {
             throw BurstException.NotValidException("Invalid asset issuance: " + attachment.jsonObject.toJsonString())
         }
-        if (!TextUtils.isInAlphabet(attachment.name)) {
+        if (!attachment.name.isInAlphabet()) {
             throw BurstException.NotValidException("Invalid asset name: " + attachment.name)
         }
     }

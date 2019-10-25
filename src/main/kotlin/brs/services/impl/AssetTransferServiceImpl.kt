@@ -2,7 +2,7 @@ package brs.services.impl
 
 import brs.entity.AssetTransfer
 import brs.entity.AssetTransfer.Event
-import brs.db.store.AssetTransferStore
+import brs.db.AssetTransferStore
 import brs.services.AssetTransferService
 import brs.entity.Transaction
 import brs.transaction.appendix.Attachment

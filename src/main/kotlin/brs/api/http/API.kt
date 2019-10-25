@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.util.Subnet
 import brs.util.logging.safeError

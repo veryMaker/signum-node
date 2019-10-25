@@ -1,7 +1,7 @@
 package brs.api.http
 
 import brs.util.BurstException
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 import brs.api.http.JSONResponses.MISSING_SECRET_PHRASE
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER

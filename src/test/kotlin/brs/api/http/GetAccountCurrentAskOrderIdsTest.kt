@@ -12,7 +12,7 @@ import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.api.http.common.ResultFields.ASK_ORDER_IDS_RESPONSE
 import brs.services.ParameterService
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn

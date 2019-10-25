@@ -1,6 +1,5 @@
 package brs.api.http
 
-import brs.*
 import brs.entity.Escrow.DecisionType
 import brs.entity.Account
 import brs.services.BlockchainService
@@ -10,12 +9,13 @@ import brs.objects.FluxValues
 import brs.api.http.common.Parameters.DECISION_PARAMETER
 import brs.api.http.common.Parameters.ESCROW_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
+import brs.entity.DependencyProvider
 import brs.entity.Escrow
 import brs.services.EscrowService
 import brs.services.ParameterService
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
-import brs.util.safeGetAsLong
+import brs.util.json.safeGetAsLong
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq

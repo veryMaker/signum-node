@@ -3,7 +3,7 @@ package brs.api.http
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.ResultFields.PUBLIC_KEY_RESPONSE
 import brs.services.ParameterService
-import brs.util.JSON
+import brs.util.json.JSON
 import brs.util.convert.toHexString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

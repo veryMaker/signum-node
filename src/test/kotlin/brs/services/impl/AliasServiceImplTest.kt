@@ -9,7 +9,7 @@ import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
-import brs.db.store.AliasStore
+import brs.db.AliasStore
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

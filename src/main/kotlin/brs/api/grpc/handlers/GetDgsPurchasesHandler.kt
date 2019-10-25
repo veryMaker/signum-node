@@ -1,9 +1,8 @@
 package brs.api.grpc.handlers
-
-import brs.entity.DigitalGoodsStore
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.proto.ProtoBuilder
+import brs.entity.Purchase
 import brs.services.DigitalGoodsStoreService
 import brs.util.FilteringIterator
 
@@ -18,7 +17,7 @@ class GetDgsPurchasesHandler(private val digitalGoodsStoreService: DigitalGoodsS
         val completed = request.completed
 
 
-        val purchases: Collection<DigitalGoodsStore.Purchase>
+        val purchases: Collection<Purchase>
         purchases = when {
             sellerId == 0L && buyerId == 0L -> digitalGoodsStoreService.getAllPurchases(firstIndex, lastIndex)
             sellerId != 0L && buyerId == 0L -> digitalGoodsStoreService.getSellerPurchases(sellerId, firstIndex, lastIndex)

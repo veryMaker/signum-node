@@ -1,10 +1,10 @@
 package brs.transaction.type
 
-import brs.*
 import brs.transaction.appendix.Attachment.AbstractAttachment
 import brs.objects.Constants.FEE_QUANT
 import brs.objects.Constants.ONE_BURST
 import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.objects.FluxValues
 import brs.entity.Transaction
 import brs.objects.Constants
@@ -21,7 +21,7 @@ import brs.transaction.type.messaging.*
 import brs.transaction.type.payment.MultiOutPayment
 import brs.transaction.type.payment.MultiOutSamePayment
 import brs.transaction.type.payment.OrdinaryPayment
-import brs.transaction.duplicates.TransactionDuplicationKey
+import brs.entity.TransactionDuplicationKey
 import brs.util.convert.safeAdd
 import brs.util.convert.safeMultiply
 import brs.util.logging.safeTrace

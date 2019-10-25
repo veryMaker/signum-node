@@ -1,7 +1,7 @@
 package brs.api.http
 
 import brs.transaction.appendix.Attachment
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.NOT_ENOUGH_ASSETS
 import brs.api.http.common.Parameters.ASSET_PARAMETER
 import brs.api.http.common.Parameters.QUANTITY_QNT_PARAMETER

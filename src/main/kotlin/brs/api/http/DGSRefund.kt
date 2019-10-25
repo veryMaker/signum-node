@@ -3,7 +3,7 @@ package brs.api.http
 
 import brs.transaction.appendix.Attachment
 import brs.objects.Constants
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.DUPLICATE_REFUND
 import brs.api.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT

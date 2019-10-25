@@ -2,7 +2,7 @@ package brs.api.http
 
 import brs.Burst
 import brs.objects.Constants
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.common.Parameters.INCLUDE_COUNTS_PARAMETER
 import brs.api.http.common.ResultFields.TIME_RESPONSE
 import brs.objects.Props

@@ -1,6 +1,5 @@
 package brs.api.grpc
 
-import brs.*
 import brs.services.AssetExchangeService
 import brs.entity.Block
 import brs.services.BlockchainService
@@ -11,6 +10,7 @@ import brs.services.impl.FeeSuggestionServiceImpl
 import brs.services.impl.FluxCapacitorServiceImpl
 import brs.api.grpc.proto.BrsApiServiceGrpc
 import brs.api.grpc.proto.BrsService
+import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.services.*
 import brs.services.TransactionProcessorService

@@ -1,6 +1,5 @@
 package brs.api.http
 
-import brs.*
 import brs.entity.Account
 import brs.services.BlockchainService
 import brs.common.QuickMocker
@@ -11,6 +10,7 @@ import brs.api.http.common.Parameters.ASSET_PARAMETER
 import brs.api.http.common.Parameters.QUANTITY_QNT_PARAMETER
 import brs.api.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.entity.Asset
+import brs.entity.DependencyProvider
 import brs.services.AccountService
 import brs.services.ParameterService
 import brs.services.TransactionProcessorService

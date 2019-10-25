@@ -2,7 +2,7 @@ package brs.transaction.type.coloredCoins
 
 import brs.entity.Account
 import brs.transaction.appendix.Attachment
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.util.convert.safeMultiply
 import brs.util.logging.safeTrace

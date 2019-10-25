@@ -3,7 +3,7 @@ package brs.transaction.appendix
 import brs.entity.Account
 import brs.util.BurstException
 import brs.objects.Constants
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.EncryptedData
 import brs.objects.FluxValues
 import brs.api.grpc.proto.BrsApi
@@ -14,10 +14,10 @@ import brs.util.convert.parseHexString
 import brs.util.convert.toBytes
 import brs.util.convert.toHexString
 import brs.util.convert.toUtf8String
-import brs.util.mustGetAsBoolean
-import brs.util.mustGetAsJsonObject
-import brs.util.mustGetAsString
-import brs.util.safeGetAsByte
+import brs.util.json.mustGetAsBoolean
+import brs.util.json.mustGetAsJsonObject
+import brs.util.json.mustGetAsString
+import brs.util.json.safeGetAsByte
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
 import java.nio.ByteBuffer

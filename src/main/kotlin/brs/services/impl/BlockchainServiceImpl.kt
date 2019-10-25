@@ -1,13 +1,13 @@
 package brs.services.impl
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Account
 import brs.entity.Block
 import brs.entity.Transaction
 import brs.services.BlockchainService
 import brs.util.delegates.Atomic
-import brs.util.read
-import brs.util.write
+import brs.util.sync.read
+import brs.util.sync.write
 import java.util.concurrent.locks.StampedLock
 
 class BlockchainServiceImpl internal constructor(private val dp: DependencyProvider) : BlockchainService {

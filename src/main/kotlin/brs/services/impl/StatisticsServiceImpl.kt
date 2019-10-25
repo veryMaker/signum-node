@@ -1,6 +1,6 @@
 package brs.services.impl
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.services.StatisticsService
 import brs.util.logging.safeInfo
 import org.slf4j.LoggerFactory

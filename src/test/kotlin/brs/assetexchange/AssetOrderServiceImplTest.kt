@@ -6,7 +6,7 @@ import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedEntityTable
-import brs.db.store.OrderStore
+import brs.db.OrderStore
 import brs.services.AccountService
 import brs.services.impl.AssetOrderServiceImpl
 import brs.services.impl.AssetTradeServiceImpl

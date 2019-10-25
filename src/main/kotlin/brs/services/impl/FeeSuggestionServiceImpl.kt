@@ -2,7 +2,7 @@ package brs.services.impl
 
 import brs.objects.Constants
 import brs.objects.Constants.FEE_QUANT
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Block
 import brs.services.BlockchainProcessorService.Event
 import brs.entity.FeeSuggestion

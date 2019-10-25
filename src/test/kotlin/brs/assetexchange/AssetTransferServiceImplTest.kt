@@ -2,7 +2,7 @@ package brs.assetexchange
 
 import brs.entity.AssetTransfer
 import brs.db.sql.EntitySqlTable
-import brs.db.store.AssetTransferStore
+import brs.db.AssetTransferStore
 import brs.services.impl.AssetTransferServiceImpl
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq

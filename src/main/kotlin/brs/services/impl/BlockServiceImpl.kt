@@ -1,13 +1,13 @@
 package brs.services.impl
 
-import brs.*
 import brs.entity.Account
 import brs.entity.Block
+import brs.entity.DependencyProvider
 import brs.services.BlockchainProcessorService
 import brs.services.BlockchainProcessorService.BlockOutOfOrderException
 import brs.objects.Genesis
 import brs.objects.Constants
-import brs.util.verifySignature
+import brs.util.crypto.verifySignature
 import brs.objects.FluxValues
 import brs.services.BlockService
 import brs.util.convert.toUnsignedString
@@ -173,7 +173,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             var itBlock: Block? = previousBlock
             var avgBaseTarget = BigInteger.valueOf(itBlock!!.baseTarget)
             do {
-                itBlock = dp.downloadCache.getBlock(itBlock!!.previousBlockId)
+                itBlock = dp.downloadCacheService.getBlock(itBlock!!.previousBlockId)
                 avgBaseTarget = avgBaseTarget.add(BigInteger.valueOf(itBlock!!.baseTarget))
             } while (itBlock!!.height > block.height - 4)
             avgBaseTarget = avgBaseTarget.divide(BigInteger.valueOf(4))
@@ -206,7 +206,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             var blockCounter = 1
             do {
                 val previousHeight = itBlock!!.height
-                itBlock = dp.downloadCache.getBlock(itBlock.previousBlockId)
+                itBlock = dp.downloadCacheService.getBlock(itBlock.previousBlockId)
                 if (itBlock == null) {
                     throw BlockOutOfOrderException("Previous block does no longer exist for block height $previousHeight")
                 }

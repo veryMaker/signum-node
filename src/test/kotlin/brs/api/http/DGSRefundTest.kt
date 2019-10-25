@@ -1,7 +1,6 @@
 package brs.api.http
 
-import brs.*
-import brs.entity.DigitalGoodsStore.Purchase
+import brs.entity.Purchase
 import brs.entity.Account
 import brs.services.BlockchainService
 import brs.common.QuickMocker
@@ -12,6 +11,7 @@ import brs.api.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.api.http.JSONResponses.INCORRECT_DGS_REFUND
 import brs.api.http.JSONResponses.INCORRECT_PURCHASE
 import brs.api.http.common.Parameters.REFUND_PLANCK_PARAMETER
+import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.services.AccountService
 import brs.services.ParameterService

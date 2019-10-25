@@ -1,6 +1,6 @@
 package brs.peer
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

@@ -1,13 +1,13 @@
 package brs.at
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.at.AtApi.Companion.REGISTER_PART_SIZE
 import brs.at.AtApi.Companion.REGISTER_SIZE
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 import brs.objects.FluxValues
 import brs.util.convert.toUnsignedString
 import brs.util.logging.safeDebug
-import brs.util.zero
+import brs.util.byteArray.zero
 import org.slf4j.LoggerFactory
 import java.nio.BufferUnderflowException
 import java.util.*

@@ -1,7 +1,7 @@
 package brs.api.http
 
 import brs.entity.Account
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 import brs.api.http.JSONResponses.MISSING_SECRET_PHRASE_OR_PUBLIC_KEY
 import brs.api.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER

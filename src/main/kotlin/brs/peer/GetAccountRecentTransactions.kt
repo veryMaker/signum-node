@@ -4,7 +4,7 @@ import brs.services.BlockchainService
 import brs.api.http.JSONData
 import brs.services.AccountService
 import brs.util.convert.parseAccountId
-import brs.util.mustGetAsString
+import brs.util.json.mustGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

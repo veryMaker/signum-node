@@ -1,21 +1,22 @@
 package brs.db.sql
 
-import brs.transaction.appendix.Appendix
-import brs.util.BurstException
-import brs.DependencyProvider
-import brs.entity.Transaction
+import brs.entity.DependencyProvider
 import brs.db.TransactionDb
+import brs.db.getUsingDslContext
+import brs.db.useDslContext
+import brs.entity.Transaction
 import brs.schema.Tables.TRANSACTION
 import brs.schema.tables.records.TransactionRecord
+import brs.transaction.appendix.Appendix
 import brs.transaction.type.TransactionType
+import brs.util.BurstException
 import brs.util.convert.toUnsignedString
 import brs.util.db.fetchAndMap
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
 
-class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
-
+internal class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
     override fun findTransaction(transactionId: Long): Transaction {
         return dp.db.getUsingDslContext { ctx ->
             try {

@@ -1,6 +1,6 @@
 package brs.at
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

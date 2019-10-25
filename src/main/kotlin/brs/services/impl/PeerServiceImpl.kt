@@ -1,7 +1,7 @@
 package brs.services.impl
 
 import brs.Burst
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Block
 import brs.entity.Transaction
 import brs.objects.Constants.MIN_VERSION
@@ -17,7 +17,8 @@ import brs.services.RepeatingTask
 import brs.services.Task
 import brs.services.TaskType
 import brs.util.*
-import brs.util.JSON.prepareRequest
+import brs.util.json.*
+import brs.util.json.JSON.prepareRequest
 import brs.util.logging.*
 import brs.util.sync.Mutex
 import com.google.gson.JsonArray

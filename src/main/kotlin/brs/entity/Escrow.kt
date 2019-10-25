@@ -1,6 +1,5 @@
 package brs.entity
 
-import brs.DependencyProvider
 import brs.db.BurstKey
 import brs.api.grpc.proto.BrsApi
 

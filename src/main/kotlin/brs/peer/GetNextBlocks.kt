@@ -4,7 +4,7 @@ import brs.entity.Block
 import brs.services.BlockchainService
 import brs.objects.Constants
 import brs.util.convert.parseUnsignedLong
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

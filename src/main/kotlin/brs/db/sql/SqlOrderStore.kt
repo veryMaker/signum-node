@@ -1,32 +1,29 @@
 package brs.db.sql
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Order
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
-import brs.db.store.OrderStore
+import brs.db.getUsingDslContext
+import brs.db.OrderStore
 import brs.schema.Tables.ASK_ORDER
 import brs.schema.Tables.BID_ORDER
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.SortField
 
-class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
+internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
 
-    override val askOrderDbKeyFactory: DbKey.LongKeyFactory<Order.Ask> = object : DbKey.LongKeyFactory<Order.Ask>(ASK_ORDER.ID) {
-
+    override val askOrderDbKeyFactory = object : SqlDbKey.LongKeyFactory<Order.Ask>(ASK_ORDER.ID) {
         override fun newKey(ask: Order.Ask): BurstKey {
             return ask.dbKey
         }
-
     }
     override val askOrderTable: VersionedEntityTable<Order.Ask>
-    override val bidOrderDbKeyFactory: DbKey.LongKeyFactory<Order.Bid> = object : DbKey.LongKeyFactory<Order.Bid>(BID_ORDER.ID) {
-
+    override val bidOrderDbKeyFactory = object : SqlDbKey.LongKeyFactory<Order.Bid>(BID_ORDER.ID) {
         override fun newKey(bid: Order.Bid): BurstKey {
             return bid.dbKey
         }
-
     }
     override val bidOrderTable: VersionedEntityTable<Order.Bid>
 

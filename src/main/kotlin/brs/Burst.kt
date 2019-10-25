@@ -1,32 +1,18 @@
 package brs
 
-import brs.services.impl.AssetExchangeServiceImpl
-import brs.at.*
-import brs.services.impl.BlockchainServiceImpl
-import brs.services.BlockchainProcessorService
-import brs.services.impl.BlockchainProcessorServiceImpl
-import brs.services.impl.GeneratorServiceImpl
-import brs.db.cache.DBCacheManagerImpl
-import brs.db.sql.*
-import brs.db.store.DerivedTableManager
-import brs.services.impl.DeeplinkQRCodeGeneratorServiceImpl
-import brs.services.impl.FeeSuggestionServiceImpl
-import brs.services.impl.FluxCapacitorServiceImpl
 import brs.api.grpc.proto.BrsService
 import brs.api.http.API
 import brs.api.http.APITransactionManagerImpl
+import brs.at.*
+import brs.db.sql.*
+import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.objects.Props
-import brs.services.impl.PeerServiceImpl
+import brs.services.BlockchainProcessorService
 import brs.services.PropertyService
-import brs.services.impl.PropertyServiceImpl
 import brs.services.impl.*
-import brs.services.impl.StatisticsServiceImpl
-import brs.services.impl.RxJavaTaskSchedulerService
-import brs.services.impl.TransactionProcessorServiceImpl
+import brs.services.impl.GeneratorServiceImpl
 import brs.transaction.type.TransactionType
-import brs.transaction.unconfirmed.UnconfirmedTransactionStoreImpl
-import brs.util.DownloadCacheImpl
 import brs.util.LoggerConfigurator
 import brs.util.Time
 import brs.util.Version
@@ -56,18 +42,17 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.atApiController = AtApiController(dp)
             dp.atController = AtController(dp)
             if (dp.propertyService.get(Props.GPU_ACCELERATION)) {
-                dp.oclPoC = OCLPoC(dp)
+                dp.oclPocService = OclPocServiceImpl(dp)
             }
             dp.timeService = TimeServiceImpl()
-            dp.derivedTableManager = DerivedTableManager()
+            dp.derivedTableService = DerivedTableServiceImpl()
             dp.statisticsService = StatisticsServiceImpl(dp)
-            dp.dbCacheManager = DBCacheManagerImpl(dp)
+            dp.dbCacheService = DBCacheServiceImpl(dp)
             LoggerConfigurator.init()
-            dp.db = Db(dp)
-            val dbs = dp.db.dbsByDatabaseType
-            dp.blockDb = dbs.blockDb
-            dp.transactionDb = dbs.transactionDb
-            dp.peerDb = dbs.peerDb
+            dp.db = SqlDb(dp)
+            dp.blockDb = SqlBlockDb(dp)
+            dp.transactionDb = SqlTransactionDb(dp)
+            dp.peerDb = SqlPeerDb(dp)
             dp.accountStore = SqlAccountStore(dp)
             dp.aliasStore = SqlAliasStore(dp)
             dp.assetStore = SqlAssetStore(dp)
@@ -78,7 +63,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.orderStore = SqlOrderStore(dp)
             dp.tradeStore = SqlTradeStore(dp)
             dp.subscriptionStore = SqlSubscriptionStore(dp)
-            dp.unconfirmedTransactionStore = UnconfirmedTransactionStoreImpl(dp)
+            dp.unconfirmedTransactionService = UnconfirmedTransactionServiceImpl(dp)
             dp.indirectIncomingStore = SqlIndirectIncomingStore(dp)
             dp.blockchainStore = SqlBlockchainStore(dp)
             dp.blockchainService = BlockchainServiceImpl(dp)
@@ -100,7 +85,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.digitalGoodsStoreService = DigitalGoodsStoreServiceImpl(dp)
             dp.escrowService = EscrowServiceImpl(dp)
             dp.assetExchangeService = AssetExchangeServiceImpl(dp)
-            dp.downloadCache = DownloadCacheImpl(dp)
+            dp.downloadCacheService = DownloadCacheServiceImpl(dp)
             dp.indirectIncomingService = IndirectIncomingServiceImpl(dp)
             dp.feeSuggestionService = FeeSuggestionServiceImpl(dp)
             dp.deeplinkQRCodeGeneratorService = DeeplinkQRCodeGeneratorServiceImpl()
@@ -180,11 +165,11 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.db.shutdown()
         }
         try {
-            dp.dbCacheManager.close()
+            dp.dbCacheService.close()
         } catch (ignored: UninitializedPropertyAccessException) {}
         try {
-            if (dp.blockchainProcessorService.oclVerify && dp.oclPoC != null) {
-                dp.oclPoC!!.destroy()
+            if (dp.blockchainProcessorService.oclVerify) {
+                dp.oclPocService.destroy()
             }
         } catch (ignored: UninitializedPropertyAccessException) {}
         logger.safeInfo { "$APPLICATION $VERSION stopped." }

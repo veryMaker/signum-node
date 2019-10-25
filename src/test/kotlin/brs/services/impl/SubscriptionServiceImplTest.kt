@@ -8,7 +8,7 @@ import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.TransactionDb
 import brs.db.VersionedEntityTable
-import brs.db.store.SubscriptionStore
+import brs.db.SubscriptionStore
 import brs.services.AccountService
 import brs.services.AliasService
 import com.nhaarman.mockitokotlin2.doReturn

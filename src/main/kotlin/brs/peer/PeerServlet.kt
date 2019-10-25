@@ -1,8 +1,9 @@
 package brs.peer
 
 import brs.objects.Constants.PROTOCOL
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.util.*
+import brs.util.json.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeWarn
 import com.google.gson.JsonElement

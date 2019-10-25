@@ -1,7 +1,7 @@
 package brs.api.grpc.handlers
 
 import brs.objects.Constants
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.objects.Genesis
 import brs.objects.FluxValues
 import brs.api.grpc.GrpcApiHandler

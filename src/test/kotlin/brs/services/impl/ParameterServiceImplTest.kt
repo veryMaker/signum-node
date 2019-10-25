@@ -8,7 +8,7 @@ import brs.services.BlockchainProcessorService
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.common.TestConstants.TEST_SECRET_PHRASE
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 import brs.api.http.ParameterException
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
@@ -340,7 +340,7 @@ class ParameterServiceImplTest {
                 MockParam(GOODS_PARAMETER, "1")
         )
 
-        val mockGoods = mock<DigitalGoodsStore.Goods>()
+        val mockGoods = mock<Goods>()
 
         whenever(digitalGoodsStoreServiceMock.getGoods(eq(1L))).doReturn(mockGoods)
 
@@ -378,7 +378,7 @@ class ParameterServiceImplTest {
                 MockParam(PURCHASE_PARAMETER, "1")
         )
 
-        val mockPurchase = mock<DigitalGoodsStore.Purchase>()
+        val mockPurchase = mock<Purchase>()
 
         whenever(digitalGoodsStoreServiceMock.getPurchase(eq(1L))).doReturn(mockPurchase)
 

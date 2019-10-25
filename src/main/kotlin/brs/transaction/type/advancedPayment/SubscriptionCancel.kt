@@ -1,10 +1,10 @@
 package brs.transaction.type.advancedPayment
 
-import brs.*
 import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.transaction.appendix.Attachment
-import brs.transaction.duplicates.TransactionDuplicationKey
+import brs.entity.TransactionDuplicationKey
 import brs.util.BurstException
 import brs.util.convert.toUnsignedString
 import brs.util.logging.safeTrace
@@ -36,7 +36,10 @@ class SubscriptionCancel(dp: DependencyProvider) : AdvancedPayment(dp) {
 
     override fun getDuplicationKey(transaction: Transaction): TransactionDuplicationKey {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionCancel
-        return TransactionDuplicationKey(SubscriptionCancel::class, attachment.subscriptionId.toUnsignedString())
+        return TransactionDuplicationKey(
+            SubscriptionCancel::class,
+            attachment.subscriptionId.toUnsignedString()
+        )
     }
 
     override fun validateAttachment(transaction: Transaction) {

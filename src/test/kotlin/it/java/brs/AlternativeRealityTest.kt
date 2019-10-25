@@ -1,6 +1,6 @@
 package it.java.brs
 
-import brs.util.mustGetAsJsonObject
+import brs.util.json.mustGetAsJsonObject
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser

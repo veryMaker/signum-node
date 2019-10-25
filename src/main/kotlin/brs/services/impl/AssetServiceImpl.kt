@@ -1,15 +1,18 @@
 package brs.services.impl
 
+import brs.db.AssetStore
+import brs.entity.Account.AccountAsset
 import brs.entity.Asset
 import brs.entity.AssetTransfer
 import brs.entity.Trade
-import brs.entity.Account.AccountAsset
-import brs.db.store.AssetStore
-import brs.services.AssetService
 import brs.entity.Transaction
+import brs.services.AssetAccountService
+import brs.services.AssetService
+import brs.services.AssetTradeService
+import brs.services.AssetTransferService
 import brs.transaction.appendix.Attachment
 
-internal class AssetServiceImpl(private val assetAccountService: AssetAccountServiceImpl, private val tradeService: AssetTradeServiceImpl, private val assetStore: AssetStore, private val assetTransferService: AssetTransferServiceImpl) :
+internal class AssetServiceImpl(private val assetAccountService: AssetAccountService, private val tradeService: AssetTradeService, private val assetStore: AssetStore, private val assetTransferService: AssetTransferService) :
     AssetService {
     override val assetTable = assetStore.assetTable
     override val assetDbKeyFactory = assetStore.assetDbKeyFactory

@@ -2,7 +2,7 @@ package brs.services.impl
 
 import brs.entity.Account
 import brs.entity.Block
-import brs.entity.DigitalGoodsStore.Purchase
+import brs.entity.Purchase
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.services.AccountService

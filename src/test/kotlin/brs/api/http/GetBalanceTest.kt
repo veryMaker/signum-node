@@ -8,7 +8,7 @@ import brs.api.http.common.ResultFields.FORGED_BALANCE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.GUARANTEED_BALANCE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.UNCONFIRMED_BALANCE_PLANCK_RESPONSE
 import brs.services.ParameterService
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq

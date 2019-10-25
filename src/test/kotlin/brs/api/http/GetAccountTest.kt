@@ -14,7 +14,7 @@ import brs.api.http.common.ResultFields.UNCONFIRMED_ASSET_BALANCES_RESPONSE
 import brs.api.http.common.ResultFields.UNCONFIRMED_BALANCE_QUANTITY_RESPONSE
 import brs.services.AccountService
 import brs.services.ParameterService
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn

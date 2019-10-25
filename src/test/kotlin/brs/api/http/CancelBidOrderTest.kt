@@ -3,7 +3,7 @@ package brs.api.http
 import brs.entity.Account
 import brs.transaction.appendix.Attachment
 import brs.services.BlockchainService
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Order.Bid
 import brs.services.AssetExchangeService
 import brs.common.QuickMocker

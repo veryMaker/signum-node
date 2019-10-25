@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.entity.DigitalGoodsStore.Purchase
+import brs.entity.Purchase
 import brs.common.QuickMocker
 import brs.entity.EncryptedData
 import brs.api.http.common.ResultFields.BUYER_RESPONSE
@@ -16,9 +16,9 @@ import brs.api.http.common.ResultFields.REFUND_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.SELLER_RESPONSE
 import brs.api.http.common.ResultFields.TIMESTAMP_RESPONSE
 import brs.services.ParameterService
-import brs.util.safeGetAsBoolean
-import brs.util.safeGetAsLong
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsBoolean
+import brs.util.json.safeGetAsLong
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq

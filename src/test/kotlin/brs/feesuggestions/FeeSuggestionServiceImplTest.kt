@@ -5,7 +5,7 @@ import brs.services.BlockchainProcessorService
 import brs.objects.Constants.FEE_QUANT
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
-import brs.db.store.BlockchainStore
+import brs.db.BlockchainStore
 import brs.services.impl.FeeSuggestionServiceImpl
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Before

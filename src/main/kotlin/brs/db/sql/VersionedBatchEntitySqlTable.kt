@@ -1,13 +1,14 @@
 package brs.db.sql
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.db.BurstKey
 import brs.db.VersionedBatchEntityTable
+import brs.db.useDslContext
 import org.ehcache.Cache
 import org.jooq.*
 import org.jooq.impl.TableImpl
 
-abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: DbKey.Factory<T>, private val tClass: Class<T>, private val dp: DependencyProvider) : VersionedEntitySqlTable<T>(table, tableClass, dbKeyFactory, dp), VersionedBatchEntityTable<T> {
+internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: SqlDbKey.Factory<T>, private val tClass: Class<T>, private val dp: DependencyProvider) : VersionedEntitySqlTable<T>(table, tableClass, dbKeyFactory, dp), VersionedBatchEntityTable<T> {
     override val count: Int
         get() {
             assertInTransaction()
@@ -22,7 +23,7 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
 
     override fun getBatch(): MutableMap<BurstKey, T> = dp.db.getBatch(table)
 
-    override fun getCache(): Cache<BurstKey, T> = dp.dbCacheManager.getCache(table, tClass)!!
+    override fun getCache(): Cache<BurstKey, T> = dp.dbCacheService.getCache(table, tClass)!!
 
     private fun assertInTransaction() {
         check(!dp.db.isInTransaction()) { "Cannot use in batch table transaction" }
@@ -36,7 +37,7 @@ abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: Strin
 
     override fun delete(t: T): Boolean {
         assertNotInTransaction()
-        val dbKey = dbKeyFactory.newKey(t) as DbKey
+        val dbKey = dbKeyFactory.newKey(t) as SqlDbKey
         getCache().remove(dbKey)
         getBatch().remove(dbKey)
         return true

@@ -5,7 +5,7 @@ import brs.util.BurstException
 import brs.peer.Peer
 import brs.entity.Transaction
 import brs.util.Observable
-import brs.util.toJsonString
+import brs.util.json.toJsonString
 import com.google.gson.JsonObject
 
 interface BlockchainProcessorService : Observable<Block, BlockchainProcessorService.Event> {

@@ -2,16 +2,15 @@ package brs.entity
 
 import brs.util.BurstException
 import brs.objects.Constants
-import brs.DependencyProvider
-import brs.util.Crypto
-import brs.util.signUsing
+import brs.util.crypto.Crypto
+import brs.util.crypto.signUsing
 import brs.db.TransactionDb
 import brs.objects.FluxValues
 import brs.peer.Peer
-import brs.util.*
 import brs.util.convert.*
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLazy
+import brs.util.json.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import com.google.gson.JsonArray

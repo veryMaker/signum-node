@@ -1,8 +1,5 @@
 package brs.transaction.appendix
 
-import brs.*
-import brs.entity.Account
-import brs.entity.EncryptedData
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.proto.ProtoBuilder
 import brs.api.grpc.proto.toByteString
@@ -71,12 +68,12 @@ import brs.api.http.common.ResultFields.SIGNERS_RESPONSE
 import brs.api.http.common.ResultFields.SUBSCRIPTION_ID_RESPONSE
 import brs.api.http.common.ResultFields.TAGS_RESPONSE
 import brs.api.http.common.ResultFields.URI_RESPONSE
-import brs.entity.Escrow
-import brs.entity.Transaction
+import brs.entity.*
 import brs.objects.Constants
 import brs.transaction.type.TransactionType
 import brs.util.*
 import brs.util.convert.*
+import brs.util.json.*
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.protobuf.Any

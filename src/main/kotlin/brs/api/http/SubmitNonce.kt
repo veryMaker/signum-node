@@ -2,7 +2,7 @@ package brs.api.http
 
 import brs.services.BlockchainService
 import brs.services.GeneratorService
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 import brs.api.grpc.handlers.SubmitNonceHandler
 import brs.api.grpc.proto.ApiException
 import brs.api.http.common.Parameters.ACCOUNT_ID_PARAMETER

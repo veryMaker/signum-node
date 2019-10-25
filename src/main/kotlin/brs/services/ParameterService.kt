@@ -15,9 +15,9 @@ interface ParameterService {
 
     fun getAsset(request: HttpServletRequest): Asset
 
-    fun getGoods(request: HttpServletRequest): DigitalGoodsStore.Goods
+    fun getGoods(request: HttpServletRequest): Goods
 
-    fun getPurchase(request: HttpServletRequest): DigitalGoodsStore.Purchase
+    fun getPurchase(request: HttpServletRequest): Purchase
 
     fun getEncryptedMessage(request: HttpServletRequest, recipientAccount: Account?, publicKey: ByteArray?): EncryptedData?
 

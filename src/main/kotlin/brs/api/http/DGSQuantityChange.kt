@@ -3,7 +3,7 @@ package brs.api.http
 
 import brs.transaction.appendix.Attachment
 import brs.objects.Constants
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.INCORRECT_DELTA_QUANTITY
 import brs.api.http.JSONResponses.MISSING_DELTA_QUANTITY
 import brs.api.http.JSONResponses.UNKNOWN_GOODS

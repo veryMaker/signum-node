@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.MISSING_PEER
 import brs.api.http.JSONResponses.UNKNOWN_PEER
 import brs.api.http.common.Parameters.PEER_PARAMETER

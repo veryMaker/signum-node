@@ -1,6 +1,5 @@
 package brs.api.http
 
-import brs.*
 import brs.entity.Account
 import brs.services.BlockchainService
 import brs.common.QuickMocker
@@ -8,12 +7,13 @@ import brs.common.QuickMocker.MockParam
 import brs.objects.FluxValues
 import brs.api.http.common.Parameters.SUBSCRIPTION_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
+import brs.entity.DependencyProvider
 import brs.entity.Subscription
 import brs.services.ParameterService
 import brs.services.SubscriptionService
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
-import brs.util.safeGetAsLong
+import brs.util.json.safeGetAsLong
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq

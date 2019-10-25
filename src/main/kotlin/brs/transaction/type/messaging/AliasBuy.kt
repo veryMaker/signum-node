@@ -1,11 +1,11 @@
 package brs.transaction.type.messaging
 
-import brs.*
 import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.objects.FluxValues
 import brs.entity.Transaction
 import brs.transaction.appendix.Attachment
-import brs.transaction.duplicates.TransactionDuplicationKey
+import brs.entity.TransactionDuplicationKey
 import brs.util.BurstException
 import brs.util.convert.toUnsignedString
 import com.google.gson.JsonObject
@@ -39,7 +39,10 @@ class AliasBuy(dp: DependencyProvider) : Messaging(dp) {
     override fun getDuplicationKey(transaction: Transaction): TransactionDuplicationKey {
         val attachment = transaction.attachment as Attachment.MessagingAliasBuy
         // not a bug, uniqueness is based on Messaging.ALIAS_ASSIGNMENT
-        return TransactionDuplicationKey(AliasAssignment::class, attachment.aliasName.toLowerCase(Locale.ENGLISH))
+        return TransactionDuplicationKey(
+            AliasAssignment::class,
+            attachment.aliasName.toLowerCase(Locale.ENGLISH)
+        )
     }
 
     override fun validateAttachment(transaction: Transaction) {

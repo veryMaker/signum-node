@@ -1,7 +1,7 @@
 package brs.services.impl
 
 import brs.util.BurstException
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.services.TransactionService
 

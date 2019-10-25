@@ -1,28 +1,19 @@
 package brs.services.impl
 
-import brs.DependencyProvider
+import brs.entity.*
 import brs.entity.Account.AccountAsset
-import brs.entity.Asset
-import brs.entity.AssetTransfer
 import brs.entity.Order.Ask
 import brs.entity.Order.Bid
-import brs.entity.Trade
 import brs.entity.Trade.Event
-import brs.entity.Transaction
-import brs.services.AssetExchangeService
-import brs.services.impl.*
+import brs.services.*
 import brs.transaction.appendix.Attachment.*
 
 class AssetExchangeServiceImpl(dp: DependencyProvider) : AssetExchangeService {
-
-    private val tradeService: AssetTradeServiceImpl =
-        AssetTradeServiceImpl(dp.tradeStore)
-    private val assetAccountService: AssetAccountServiceImpl =
-        AssetAccountServiceImpl(dp.accountStore)
-    private val assetTransferService: AssetTransferServiceImpl =
-        AssetTransferServiceImpl(dp.assetTransferStore)
-    private val assetService: AssetServiceImpl
-    private val orderService: AssetOrderServiceImpl
+    private val tradeService: AssetTradeService = AssetTradeServiceImpl(dp.tradeStore)
+    private val assetAccountService: AssetAccountService = AssetAccountServiceImpl(dp.accountStore)
+    private val assetTransferService: AssetTransferService = AssetTransferServiceImpl(dp.assetTransferStore)
+    private val assetService: AssetService
+    private val orderService: AssetOrderService
 
     override val assetsCount get() = assetService.assetsCount
 

@@ -1,15 +1,15 @@
 package brs.services
 
-import brs.entity.AssetTransfer
 import brs.db.BurstKey
-import brs.db.sql.EntitySqlTable
+import brs.db.EntityTable
+import brs.entity.AssetTransfer
 import brs.entity.Transaction
 import brs.transaction.appendix.Attachment
 import brs.util.Listeners
 
 interface AssetTransferService {
     val listeners: Listeners<AssetTransfer, AssetTransfer.Event>
-    val assetTransferTable: EntitySqlTable<AssetTransfer>
+    val assetTransferTable: EntityTable<AssetTransfer>
     val transferDbKeyFactory: BurstKey.LongKeyFactory<AssetTransfer>
     val assetTransferCount: Int
     fun addListener(eventType: AssetTransfer.Event, listener: (AssetTransfer) -> Unit)

@@ -1,7 +1,7 @@
 package brs.common
 
 import brs.objects.Constants.ONE_BURST
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 
 object TestConstants {
 

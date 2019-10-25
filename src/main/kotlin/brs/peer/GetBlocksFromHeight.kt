@@ -1,7 +1,7 @@
 package brs.peer
 
 import brs.services.BlockchainService
-import brs.util.mustGetAsInt
+import brs.util.json.mustGetAsInt
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

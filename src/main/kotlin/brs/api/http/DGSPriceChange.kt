@@ -1,7 +1,7 @@
 package brs.api.http
 
 import brs.transaction.appendix.Attachment
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.UNKNOWN_GOODS
 import brs.api.http.common.Parameters.GOODS_PARAMETER
 import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER

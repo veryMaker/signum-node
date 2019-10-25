@@ -1,12 +1,12 @@
 package brs.transaction.type.coloredCoins
 
-import brs.*
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.convert.toUnsignedString
-import brs.util.toJsonString
+import brs.util.json.toJsonString
 
 abstract class OrderPlacement(dp: DependencyProvider) : ColoredCoins(dp) {
     override fun validateAttachment(transaction: Transaction) {

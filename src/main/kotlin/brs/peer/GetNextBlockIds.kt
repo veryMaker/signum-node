@@ -3,7 +3,7 @@ package brs.peer
 import brs.services.BlockchainService
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
-import brs.util.safeGetAsString
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

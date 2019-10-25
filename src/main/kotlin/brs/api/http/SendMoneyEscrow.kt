@@ -2,7 +2,7 @@ package brs.api.http
 
 import brs.transaction.appendix.Attachment
 import brs.objects.Constants
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Escrow
 import brs.api.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.DEADLINE_ACTION_PARAMETER

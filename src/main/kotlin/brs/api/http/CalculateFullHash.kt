@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.util.Crypto
+import brs.util.crypto.Crypto
 import brs.api.http.JSONResponses.MISSING_SIGNATURE_HASH
 import brs.api.http.JSONResponses.MISSING_UNSIGNED_BYTES
 import brs.api.http.common.Parameters.FULL_HASH_RESPONSE

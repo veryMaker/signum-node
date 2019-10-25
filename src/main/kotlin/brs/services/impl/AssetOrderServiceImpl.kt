@@ -1,17 +1,17 @@
 package brs.services.impl
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.entity.Order.Ask
 import brs.entity.Order.Bid
-import brs.services.AssetOrderService
 import brs.entity.Transaction
+import brs.services.AssetOrderService
+import brs.services.AssetTradeService
 import brs.transaction.appendix.Attachment
 import brs.util.convert.safeMultiply
 import brs.util.convert.safeSubtract
 import brs.util.convert.toUnsignedString
 
-internal class AssetOrderServiceImpl(private val dp: DependencyProvider, private val tradeService: AssetTradeServiceImpl) :
-    AssetOrderService {
+internal class AssetOrderServiceImpl(private val dp: DependencyProvider, private val tradeService: AssetTradeService) : AssetOrderService {
     override val askOrderTable = dp.orderStore.askOrderTable
     override val askOrderDbKeyFactory = dp.orderStore.askOrderDbKeyFactory
     override val bidOrderTable = dp.orderStore.bidOrderTable

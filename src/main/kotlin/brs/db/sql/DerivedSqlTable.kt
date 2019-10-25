@@ -1,19 +1,20 @@
 package brs.db.sql
 
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.db.DerivedTable
+import brs.db.useDslContext
 import brs.util.logging.safeTrace
 import org.jooq.Field
 import org.jooq.impl.TableImpl
 import org.slf4j.LoggerFactory
 
-abstract class DerivedSqlTable internal constructor(internal val table: String, internal val tableClass: TableImpl<*>, private val dp: DependencyProvider) : DerivedTable {
+internal abstract class DerivedSqlTable internal constructor(internal val table: String, internal val tableClass: TableImpl<*>, private val dp: DependencyProvider) : DerivedTable {
     internal val heightField: Field<Int>
     internal val latestField: Field<Boolean>?
 
     init {
         logger.safeTrace { "Creating derived table for $table" }
-        dp.derivedTableManager.registerDerivedTable(this)
+        dp.derivedTableService.registerDerivedTable(this)
         this.heightField = tableClass.field("height", Int::class.java)
         this.latestField = tableClass.field("latest", Boolean::class.java)
     }

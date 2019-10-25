@@ -5,8 +5,8 @@ import brs.common.QuickMocker
 import brs.common.TestConstants
 import brs.api.http.common.ResultFields.PUBLIC_KEY_RESPONSE
 import brs.services.ParameterService
-import brs.util.JSON
-import brs.util.safeGetAsString
+import brs.util.json.JSON
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq

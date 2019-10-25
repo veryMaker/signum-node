@@ -2,7 +2,7 @@ package brs.api.http
 
 import brs.transaction.appendix.Attachment
 import brs.objects.Constants
-import brs.DependencyProvider
+import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.ALREADY_DELIVERED
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.JSONResponses.INCORRECT_DGS_DISCOUNT
