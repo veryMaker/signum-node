@@ -216,9 +216,6 @@ class BlockchainProcessorImpl(private val dp: DependencyProvider) : BlockchainPr
                     }
                     processFork(peer, dp.downloadCache.forkList, commonBlockId)
                 }
-
-            } catch (e: BurstException.StopException) {
-                logger.safeInfo { "Blockchain download stopped: ${e.message}" }
             } catch (e: Exception) {
                 logger.safeInfo(e) { "Error in blockchain download thread" }
             }

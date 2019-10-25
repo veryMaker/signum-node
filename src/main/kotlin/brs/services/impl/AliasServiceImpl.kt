@@ -30,11 +30,11 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
     }
 
     override fun getAlias(aliasId: Long): Alias? {
-        return aliasTable.get(aliasDbKeyFactory.newKey(aliasId))
+        return aliasTable[aliasDbKeyFactory.newKey(aliasId)]
     }
 
     override fun getOffer(alias: Alias): Offer? {
-        return offerTable.get(offerDbKeyFactory.newKey(alias.id))
+        return offerTable[offerDbKeyFactory.newKey(alias.id)]
     }
 
     override fun getAliasesByOwner(accountId: Long, from: Int, to: Int): Collection<Alias> {

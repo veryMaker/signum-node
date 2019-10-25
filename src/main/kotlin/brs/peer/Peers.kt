@@ -815,7 +815,6 @@ class Peers(private val dp: DependencyProvider) { // TODO interface
             if (wellKnownConnected >= connectWellKnownFirst) {
                 connectWellKnownFinished = true
                 logger.safeInfo { "Finished connecting to $connectWellKnownFirst well known peers." }
-                // TODO should we remove this?
                 logger.safeInfo { "You can open your Burst Wallet in your favorite browser with: http://127.0.0.1:8125 or http://localhost:8125" }
             }
         }

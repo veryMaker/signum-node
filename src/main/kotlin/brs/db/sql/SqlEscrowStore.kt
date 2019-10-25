@@ -61,7 +61,7 @@ class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
     override fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow> {
         val filtered = mutableListOf<Escrow>()
         for (decision in decisionTable.getManyBy(ESCROW_DECISION.ACCOUNT_ID.eq(accountId), 0, -1)) {
-            val escrow = escrowTable.get(escrowDbKeyFactory.newKey(decision.escrowId!!))
+            val escrow = escrowTable[escrowDbKeyFactory.newKey(decision.escrowId!!)]
             if (escrow != null) {
                 filtered.add(escrow)
             }

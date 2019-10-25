@@ -18,7 +18,7 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
 
     private val addrs: Int
         get() {
-            if (machineData.machineState.pc + 4 + 4 >= machineData.getcSize()) {
+            if (machineData.machineState.pc + 4 + 4 >= machineData.cSize) {
                 return -1
             }
 
@@ -32,7 +32,7 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
 
     private val addrOff: Int
         get() {
-            if (machineData.machineState.pc + 5 >= machineData.getcSize()) {
+            if (machineData.machineState.pc + 5 >= machineData.cSize) {
                 return -1
             }
 
@@ -46,7 +46,7 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
 
     private val addrsOff: Int
         get() {
-            if (machineData.machineState.pc + 9 >= machineData.getcSize()) {
+            if (machineData.machineState.pc + 9 >= machineData.cSize) {
                 return -1
             }
 
@@ -64,7 +64,7 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
 
     private val funAddr: Int
         get() {
-            if (machineData.machineState.pc + 4 + 4 >= machineData.getcSize()) {
+            if (machineData.machineState.pc + 4 + 4 >= machineData.cSize) {
                 return -1
             }
 
@@ -78,7 +78,7 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
 
     private val funAddrs: Int
         get() {
-            if (machineData.machineState.pc + 4 + 4 + 2 >= machineData.getcSize()) {
+            if (machineData.machineState.pc + 4 + 4 + 2 >= machineData.cSize) {
                 return -1
             }
 
@@ -94,7 +94,7 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
 
     private val addressVal: Int
         get() {
-            if (machineData.machineState.pc + 4 + 8 >= machineData.getcSize()) {
+            if (machineData.machineState.pc + 4 + 8 >= machineData.cSize) {
                 return -1
             }
 
@@ -109,7 +109,7 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
 
     private fun getFun(): Int {
 
-        if (machineData.machineState.pc + 2 >= machineData.getcSize())
+        if (machineData.machineState.pc + 2 >= machineData.cSize)
             return -1
         else {
             `fun`.`fun` = machineData.apCode.getShort(machineData.machineState.pc + 1)
@@ -119,7 +119,7 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
     }
 
     private fun getAddr(isCode: Boolean): Int {
-        if (machineData.machineState.pc + 4 >= machineData.getcSize()) {
+        if (machineData.machineState.pc + 4 >= machineData.cSize) {
             return -1
         }
 
@@ -135,16 +135,16 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
             return false
         }
 
-        return if (!isCode && (addr.toLong() * 8 + 8 > Integer.MAX_VALUE.toLong() || addr * 8 + 8 > machineData.getdSize())) {
+        return if (!isCode && (addr.toLong() * 8 + 8 > Integer.MAX_VALUE.toLong() || addr * 8 + 8 > machineData.dSize)) {
             false
-        } else !isCode || addr < machineData.getcSize()
+        } else !isCode || addr < machineData.cSize
 
     }
 
     fun processOp(disassemble: Boolean, determineJumps: Boolean): Int {
         var rc = 0
 
-        if (machineData.getcSize() < 1 || machineData.machineState.pc >= machineData.getcSize())
+        if (machineData.cSize < 1 || machineData.machineState.pc >= machineData.cSize)
             return 0
 
         if (determineJumps) {
@@ -176,12 +176,11 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                     rc = 13
                     if (disassemble) {
                         if (!determineJumps)
-                            logger.safeDebug { "SET @ ${String.format("%8s", `fun`.addr1).replace(' ', '0')} ${String.format("#%16s", java.lang.Long.toHexString(`fun`.`val`)).replace(' ', '0')}" }
+                            logger.safeDebug { "SET @ ${String.format("%8s", `fun`.addr1).replace(' ', '0')} ${String.format("#%16s", `fun`.`val`.toString(16)).replace(' ', '0')}" }
                     } else {
                         machineData.machineState.pc += rc
                         machineData.apData.putLong(`fun`.addr1 * 8, `fun`.`val`)
                         machineData.apData.clear()
-
                     }
                 }
             }
@@ -411,20 +410,20 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                                 logger.safeDebug { "POP @" }
                             logger.safeDebug { String.format("%8s", `fun`.addr1).replace(' ', '0') }
                         }
-                    } else if (op == OpCode.E_OP_CODE_PSH_DAT && machineData.machineState.us == machineData.getcUserStackBytes() / 8 || op == OpCode.E_OP_CODE_POP_DAT && machineData.machineState.us == 0) {
+                    } else if (op == OpCode.E_OP_CODE_PSH_DAT && machineData.machineState.us == machineData.cUserStackBytes / 8 || op == OpCode.E_OP_CODE_POP_DAT && machineData.machineState.us == 0) {
                         rc = -1
                     } else {
                         machineData.machineState.pc += rc
                         if (op == OpCode.E_OP_CODE_PSH_DAT) {
                             machineData.machineState.us++
-                            machineData.apData.putLong(machineData.getdSize() +
-                                    machineData.getcCallStackBytes() +
-                                    machineData.getcUserStackBytes() - machineData.machineState.us * 8, machineData.apData.getLong(`fun`.addr1 * 8))
+                            machineData.apData.putLong(machineData.dSize +
+                                    machineData.cCallStackBytes +
+                                    machineData.cUserStackBytes - machineData.machineState.us * 8, machineData.apData.getLong(`fun`.addr1 * 8))
                             machineData.apData.clear()
                         } else {
-                            val `val` = machineData.apData.getLong(machineData.getdSize() +
-                                    machineData.getcCallStackBytes() +
-                                    machineData.getcUserStackBytes() - machineData.machineState.us * 8)
+                            val `val` = machineData.apData.getLong(machineData.dSize +
+                                    machineData.cCallStackBytes +
+                                    machineData.cUserStackBytes - machineData.machineState.us * 8)
                             machineData.machineState.us--
                             machineData.apData.putLong(`fun`.addr1 * 8, `val`)
                             machineData.apData.clear()
@@ -442,10 +441,10 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                             logger.safeDebug { "JSR : ${String.format("%8s", `fun`.addr1).replace(' ', '0')}" }
                     } else {
                         when {
-                            machineData.machineState.cs == machineData.getcCallStackBytes() / 8 -> rc = -1
+                            machineData.machineState.cs == machineData.cCallStackBytes / 8 -> rc = -1
                             machineData.machineState.jumps.contains(`fun`.addr1) -> {
                                 machineData.machineState.cs++
-                                machineData.apData.putLong(machineData.getdSize() + machineData.getcCallStackBytes() - machineData.machineState.cs * 8,
+                                machineData.apData.putLong(machineData.dSize + machineData.cCallStackBytes - machineData.machineState.cs * 8,
                                     (machineData.machineState.pc + rc).toLong())
                                 machineData.apData.clear()
                                 machineData.machineState.pc = `fun`.addr1
@@ -465,7 +464,7 @@ internal class AtMachineProcessor(private val dp: DependencyProvider, private va
                     if (machineData.machineState.cs == 0)
                         rc = -1
                     else {
-                        val addr = machineData.apData.getLong(machineData.getdSize() + machineData.getcCallStackBytes() - machineData.machineState.cs * 8).toInt()
+                        val addr = machineData.apData.getLong(machineData.dSize + machineData.cCallStackBytes - machineData.machineState.cs * 8).toInt()
                         machineData.machineState.cs--
                         if (machineData.machineState.jumps.contains(addr))
                             machineData.machineState.pc = addr

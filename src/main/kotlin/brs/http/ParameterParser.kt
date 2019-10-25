@@ -49,7 +49,7 @@ internal object ParameterParser {
                 ?: throw ParameterException(MISSING_FEE)
         val feePlanck: Long
         try {
-            feePlanck = java.lang.Long.parseLong(feeValuePlanck)
+            feePlanck = feeValuePlanck.toLong()
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_FEE)
         }
@@ -246,7 +246,7 @@ internal object ParameterParser {
                 ?: throw ParameterException(MISSING_AMOUNT)
         val amountPlanck: Long
         try {
-            amountPlanck = java.lang.Long.parseLong(amountValuePlanck)
+            amountPlanck = amountValuePlanck.toLong()
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_AMOUNT)
         }

@@ -114,11 +114,11 @@ object QuickMocker {
 
     class MockParam(val key: String, val value: String?) {
 
-        constructor(key: String, value: Int?) : this(key, "" + value)
+        constructor(key: String, value: Int?) : this(key, value.toString())
 
-        constructor(key: String, value: Long?) : this(key, "" + value)
+        constructor(key: String, value: Long?) : this(key, value.toString())
 
-        constructor(key: String, value: Boolean?) : this(key, "" + value)
+        constructor(key: String, value: Boolean?) : this(key, value.toString())
     }
 
     class JSONParam(val key: String, val value: JsonElement)

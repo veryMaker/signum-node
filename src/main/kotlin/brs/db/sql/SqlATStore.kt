@@ -92,8 +92,8 @@ class SqlATStore(private val dp: DependencyProvider) : ATStore {
                 AT.AP_CODE, AT.HEIGHT
         ).values(
                 AtApiHelper.getLong(at.id!!), AtApiHelper.getLong(at.creator!!), at.name, at.description,
-                at.version, at.getcSize(), at.getdSize(), at.getcUserStackBytes(),
-                at.getcCallStackBytes(), at.creationBlockHeight,
+                at.version, at.cSize, at.dSize, at.cUserStackBytes,
+                at.cCallStackBytes, at.creationBlockHeight,
                 brs.at.AT.compressState(at.apCodeBytes), dp.blockchain.height
         ).execute()
     }

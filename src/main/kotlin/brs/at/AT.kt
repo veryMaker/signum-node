@@ -48,7 +48,7 @@ class AT : AtMachineState {
     }
 
     fun saveState() {
-        var state: ATState? = atStateTable().get(atStateDbKeyFactory(dp).newKey(AtApiHelper.getLong(this.id!!)))
+        var state: ATState? = atStateTable()[atStateDbKeyFactory(dp).newKey(AtApiHelper.getLong(this.id!!))]
         val prevHeight = dp.blockchain.height
         val newNextHeight = prevHeight + waitForNumberOfBlocks
         if (state != null) {

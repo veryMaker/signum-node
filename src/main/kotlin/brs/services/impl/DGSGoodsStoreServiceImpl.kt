@@ -32,7 +32,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
     }
 
     override fun getGoods(goodsId: Long): Goods? {
-        return goodsTable.get(goodsDbKeyFactory.newKey(goodsId))
+        return goodsTable[goodsDbKeyFactory.newKey(goodsId)]
     }
 
     override fun getAllGoods(from: Int, to: Int): Collection<Goods> {
@@ -68,11 +68,11 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
     }
 
     override fun getPurchase(purchaseId: Long): Purchase? {
-        return purchaseTable.get(purchaseDbKeyFactory.newKey(purchaseId))
+        return purchaseTable[purchaseDbKeyFactory.newKey(purchaseId)]
     }
 
     override fun changeQuantity(goodsId: Long, deltaQuantity: Int, allowDelisted: Boolean) {
-        val goods = goodsTable.get(goodsDbKeyFactory.newKey(goodsId))!!
+        val goods = goodsTable[goodsDbKeyFactory.newKey(goodsId)]!!
         if (allowDelisted || !goods.isDelisted) {
             goods.changeQuantity(deltaQuantity)
             goodsTable.insert(goods)
@@ -83,7 +83,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
     }
 
     override fun purchase(transaction: Transaction, attachment: Attachment.DigitalGoodsPurchase) {
-        val goods = goodsTable.get(goodsDbKeyFactory.newKey(attachment.goodsId))!!
+        val goods = goodsTable[goodsDbKeyFactory.newKey(attachment.goodsId)]!!
         if (!goods.isDelisted && attachment.quantity <= goods.quantity && attachment.pricePlanck == goods.pricePlanck
                 && attachment.deliveryDeadlineTimestamp > dp.blockchain.lastBlock.timestamp) {
             changeQuantity(goods.id, -attachment.quantity, false)
@@ -109,7 +109,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
     }
 
     override fun delistGoods(goodsId: Long) {
-        val goods = goodsTable.get(goodsDbKeyFactory.newKey(goodsId))!!
+        val goods = goodsTable[goodsDbKeyFactory.newKey(goodsId)]!!
         if (!goods.isDelisted) {
             goods.isDelisted = true
             goodsTable.insert(goods)
@@ -120,7 +120,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
     }
 
     override fun feedback(purchaseId: Long, encryptedMessage: Appendix.EncryptedMessage?, message: Appendix.Message?) {
-        val purchase = purchaseTable.get(purchaseDbKeyFactory.newKey(purchaseId))!!
+        val purchase = purchaseTable[purchaseDbKeyFactory.newKey(purchaseId)]!!
         if (encryptedMessage != null) {
             purchase.addFeedbackNote(encryptedMessage.encryptedData)
             purchaseTable.insert(purchase)
@@ -144,7 +144,7 @@ class DGSGoodsStoreServiceImpl(private val dp: DependencyProvider) : DGSGoodsSto
     }
 
     override fun refund(sellerId: Long, purchaseId: Long, refundPlanck: Long, encryptedMessage: Appendix.EncryptedMessage?) {
-        val purchase = purchaseTable.get(purchaseDbKeyFactory.newKey(purchaseId))!!
+        val purchase = purchaseTable[purchaseDbKeyFactory.newKey(purchaseId)]!!
         val seller = dp.accountService.getAccount(sellerId)!!
         dp.accountService.addToBalancePlanck(seller, -refundPlanck)
         val buyer = dp.accountService.getAccount(purchase.buyerId)!!

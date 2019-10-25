@@ -31,7 +31,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
     private val updatedEscrowIds = ConcurrentSkipListSet<Long>()
 
     override fun getEscrowTransaction(id: Long?): Escrow? {
-        return escrowTable.get(escrowDbKeyFactory.newKey(id!!))
+        return escrowTable[escrowDbKeyFactory.newKey(id!!)]
     }
 
     override fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow> {
@@ -39,7 +39,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
     }
 
     override fun removeEscrowTransaction(id: Long?) {
-        val escrow = escrowTable.get(escrowDbKeyFactory.newKey(id!!)) ?: return
+        val escrow = escrowTable[escrowDbKeyFactory.newKey(id!!)] ?: return
         escrow.decisions.forEach { decisionTable.delete(it) }
         escrowTable.delete(escrow)
     }
@@ -71,7 +71,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
             return
         }
 
-        val decisionChange = decisionTable.get(decisionDbKeyFactory.newKey(escrow.id, id)) ?: return
+        val decisionChange = decisionTable[decisionDbKeyFactory.newKey(escrow.id, id)] ?: return
         decisionChange.decision = decision
 
         decisionTable.insert(decisionChange)
@@ -80,11 +80,11 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
     }
 
     override fun checkComplete(escrow: Escrow): DecisionType {
-        val senderDecision = decisionTable.get(decisionDbKeyFactory.newKey(escrow.id, escrow.senderId))!!
+        val senderDecision = decisionTable[decisionDbKeyFactory.newKey(escrow.id, escrow.senderId)]!!
         if (senderDecision.decision == DecisionType.RELEASE) {
             return DecisionType.RELEASE
         }
-        val recipientDecision = decisionTable.get(decisionDbKeyFactory.newKey(escrow.id, escrow.recipientId))!!
+        val recipientDecision = decisionTable[decisionDbKeyFactory.newKey(escrow.id, escrow.recipientId)]!!
         if (recipientDecision.decision == DecisionType.REFUND) {
             return DecisionType.REFUND
         }
@@ -129,7 +129,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
 
         if (!updatedEscrowIds.isEmpty()) {
             for (escrowId in updatedEscrowIds) {
-                val escrow = escrowTable.get(escrowDbKeyFactory.newKey(escrowId!!))!!
+                val escrow = escrowTable[escrowDbKeyFactory.newKey(escrowId!!)]!!
                 var result: DecisionType = checkComplete(escrow)
                 if (result != DecisionType.UNDECIDED || escrow.deadline < block.timestamp) {
                     if (result == DecisionType.UNDECIDED) {
@@ -172,7 +172,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
     }
 
     override fun isIdSigner(id: Long?, escrow: Escrow): Boolean {
-        return decisionTable.get(decisionDbKeyFactory.newKey(escrow.id, id!!)) != null
+        return decisionTable[decisionDbKeyFactory.newKey(escrow.id, id!!)] != null
     }
 
     override fun saveResultTransaction(block: Block, escrowId: Long, recipientId: Long, amountPlanck: Long, decision: DecisionType, blockchainHeight: Int) {

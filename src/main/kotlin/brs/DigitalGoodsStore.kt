@@ -201,6 +201,6 @@ object DigitalGoodsStore {
     }
 
     private fun getGoods(dp: DependencyProvider, goodsId: Long): Goods? {
-        return Goods.goodsTable(dp).get(Goods.goodsDbKeyFactory(dp).newKey(goodsId))
+        return Goods.goodsTable(dp)[Goods.goodsDbKeyFactory(dp).newKey(goodsId)]
     }
 }

@@ -11,10 +11,6 @@ class DerivedTableManager {
 
     val derivedTables = CopyOnWriteArrayList<DerivedTable>()
 
-    fun getDerivedTables(): List<DerivedTable> {
-        return derivedTables
-    }
-
     fun registerDerivedTable(table: DerivedTable) {
         logger.safeInfo { "Registering derived table ${table.javaClass}" }
         derivedTables.add(table)

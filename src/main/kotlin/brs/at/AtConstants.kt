@@ -7,6 +7,7 @@ import brs.fluxcapacitor.FluxValues
 
 class AtConstants(private val dp: DependencyProvider) {
     //platform based
+    // TODO replace with a single object for each version
     private val minFee = mutableMapOf<Short, Long>()
     private val stepFee = mutableMapOf<Short, Long>()
     private val maxSteps = mutableMapOf<Short, Long>()

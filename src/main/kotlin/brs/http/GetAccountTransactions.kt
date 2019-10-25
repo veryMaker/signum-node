@@ -24,12 +24,12 @@ internal class GetAccountTransactions(private val parameterService: ParameterSer
         val numberOfConfirmations = parameterService.getNumberOfConfirmations(request)
 
         val type: Byte = try {
-            java.lang.Byte.parseByte(request.getParameter(TYPE_PARAMETER))
+            request.getParameter(TYPE_PARAMETER).toByte()
         } catch (e: NumberFormatException) {
             -1
         }
         val subtype: Byte = try {
-            java.lang.Byte.parseByte(request.getParameter(SUBTYPE_PARAMETER))
+            request.getParameter(SUBTYPE_PARAMETER).toByte()
         } catch (e: NumberFormatException) {
             -1
         }

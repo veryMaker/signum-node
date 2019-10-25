@@ -184,11 +184,11 @@ class AtController(private val dp: DependencyProvider) {
         if (nPages * 256 < 257) {
             codeLen = buffer.get().toInt()
             if (codeLen < 0)
-                codeLen += (java.lang.Byte.MAX_VALUE + 1) * 2
-        } else if (nPages * 256 < java.lang.Short.MAX_VALUE + 1) {
+                codeLen += (Byte.MAX_VALUE + 1) * 2
+        } else if (nPages * 256 < Short.MAX_VALUE + 1) {
             codeLen = buffer.short.toInt()
             if (codeLen < 0)
-                codeLen += (java.lang.Short.MAX_VALUE + 1) * 2
+                codeLen += (Short.MAX_VALUE + 1) * 2
         } else if (nPages * 256 <= Integer.MAX_VALUE) {
             codeLen = buffer.int
         } else {

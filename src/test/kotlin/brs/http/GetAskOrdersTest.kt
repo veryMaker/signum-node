@@ -85,10 +85,10 @@ class GetAskOrdersTest : AbstractUnitTest() {
 
         val askOrder1Result = orders.get(0) as JsonObject
 
-        assertEquals("" + askOrder1.id, askOrder1Result.get(ORDER_RESPONSE).safeGetAsString())
-        assertEquals("" + askOrder1.assetId, askOrder1Result.get(ASSET_RESPONSE).safeGetAsString())
-        assertEquals("" + askOrder1.quantity, askOrder1Result.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
-        assertEquals("" + askOrder1.pricePlanck, askOrder1Result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(askOrder1.id.toString(), askOrder1Result.get(ORDER_RESPONSE).safeGetAsString())
+        assertEquals(askOrder1.assetId.toString(), askOrder1Result.get(ASSET_RESPONSE).safeGetAsString())
+        assertEquals(askOrder1.quantity.toString(), askOrder1Result.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
+        assertEquals(askOrder1.pricePlanck.toString(), askOrder1Result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
         assertEquals(askOrder1.height.toLong(), askOrder1Result.get(HEIGHT_RESPONSE).safeGetAsLong())
     }
 }

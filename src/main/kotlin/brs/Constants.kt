@@ -79,9 +79,6 @@ object Constants {
     const val EC_BLOCK_DISTANCE_LIMIT = 60
     const val EC_CHANGE_BLOCK_1 = 67000 // TODO this should be in flux capacitor
 
-    const val RESPONSE = "response"
-    const val TOKEN = "token"
-    const val WEBSITE = "website"
     const val PROTOCOL = "protocol"
 
     const val TASK_FAILURE_DELAY_MS = 500L

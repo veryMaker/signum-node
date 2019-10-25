@@ -25,7 +25,7 @@ internal class SellAlias internal constructor(private val dp: DependencyProvider
         val priceValuePlanck = request.getParameter(PRICE_PLANCK_PARAMETER).emptyToNull() ?: return MISSING_PRICE
         val pricePlanck: Long
         try {
-            pricePlanck = java.lang.Long.parseLong(priceValuePlanck)
+            pricePlanck = priceValuePlanck.toLong()
         } catch (e: RuntimeException) {
             return INCORRECT_PRICE
         }

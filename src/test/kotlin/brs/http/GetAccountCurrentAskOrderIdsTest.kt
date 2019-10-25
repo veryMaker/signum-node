@@ -70,7 +70,7 @@ class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
         assertNotNull(resultList)
         assertEquals(1, resultList.size())
 
-        assertEquals("" + mockAsk.id, resultList.get(0).safeGetAsString())
+        assertEquals(mockAsk.id.toString(), resultList.get(0).safeGetAsString())
     }
 
     @Test
@@ -106,7 +106,7 @@ class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
         assertNotNull(resultList)
         assertEquals(1, resultList.size())
 
-        assertEquals("" + mockAsk.id, resultList.get(0).safeGetAsString())
+        assertEquals(mockAsk.id.toString(), resultList.get(0).safeGetAsString())
     }
 
 }

@@ -26,10 +26,10 @@ open class AtMachineState {
     private var gBalance: Long = 0
     private var pBalance: Long = 0
     val machineState: MachineState
-    private var cSize: Int = 0
-    private var dSize: Int = 0
-    private var cUserStackBytes: Int = 0
-    private var cCallStackBytes: Int = 0
+    val cSize: Int
+    val dSize: Int
+    val cUserStackBytes: Int
+    val cCallStackBytes: Int
     var id: ByteArray? = null
     var creator: ByteArray? = null
     internal var waitForNumberOfBlocks: Int = 0
@@ -193,11 +193,11 @@ open class AtMachineState {
         if (codePages * pageSize < pageSize + 1) {
             codeLen = b.get().toInt()
             if (codeLen < 0)
-                codeLen += (java.lang.Byte.MAX_VALUE + 1) * 2
-        } else if (codePages * pageSize < java.lang.Short.MAX_VALUE + 1) {
+                codeLen += (Byte.MAX_VALUE + 1) * 2
+        } else if (codePages * pageSize < Short.MAX_VALUE + 1) {
             codeLen = b.short.toInt()
             if (codeLen < 0)
-                codeLen += (java.lang.Short.MAX_VALUE + 1) * 2
+                codeLen += (Short.MAX_VALUE + 1) * 2
         } else {
             codeLen = b.int
         }
@@ -213,11 +213,11 @@ open class AtMachineState {
         if (dataPages * pageSize < 257) {
             dataLen = b.get().toInt()
             if (dataLen < 0)
-                dataLen += (java.lang.Byte.MAX_VALUE + 1) * 2
-        } else if (dataPages * pageSize < java.lang.Short.MAX_VALUE + 1) {
+                dataLen += (Byte.MAX_VALUE + 1) * 2
+        } else if (dataPages * pageSize < Short.MAX_VALUE + 1) {
             dataLen = b.short.toInt()
             if (dataLen < 0)
-                dataLen += (java.lang.Short.MAX_VALUE + 1) * 2
+                dataLen += (Short.MAX_VALUE + 1) * 2
         } else {
             dataLen = b.int
         }
@@ -260,38 +260,6 @@ open class AtMachineState {
 
     fun getTransactions(): Collection<AtTransaction> {
         return transactions.values
-    }
-
-    fun getcCallStackBytes(): Int {
-        return cCallStackBytes
-    }
-
-    protected fun setcCallStackBytes(cCallStackBytes: Int) {
-        this.cCallStackBytes = cCallStackBytes
-    }
-
-    fun getcUserStackBytes(): Int {
-        return cUserStackBytes
-    }
-
-    protected fun setcUserStackBytes(cUserStackBytes: Int) {
-        this.cUserStackBytes = cUserStackBytes
-    }
-
-    fun getcSize(): Int {
-        return cSize
-    }
-
-    protected fun setcSize(cSize: Int) {
-        this.cSize = cSize
-    }
-
-    fun getdSize(): Int {
-        return dSize
-    }
-
-    protected fun setdSize(dSize: Int) {
-        this.dSize = dSize
     }
 
     fun getgBalance(): Long {

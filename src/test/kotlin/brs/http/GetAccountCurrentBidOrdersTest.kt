@@ -73,7 +73,7 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
 
         val resultBid = resultList.get(0) as JsonObject
         assertNotNull(resultBid)
-        assertEquals("" + mockBidId, resultBid.get(ORDER_RESPONSE).safeGetAsString())
+        assertEquals(mockBidId.toString(), resultBid.get(ORDER_RESPONSE).safeGetAsString())
     }
 
     @Test
@@ -111,7 +111,7 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
 
         val resultBid = resultList.get(0) as JsonObject
         assertNotNull(resultBid)
-        assertEquals("" + mockBidId, resultBid.get(ORDER_RESPONSE).safeGetAsString())
+        assertEquals(mockBidId.toString(), resultBid.get(ORDER_RESPONSE).safeGetAsString())
     }
 
 }

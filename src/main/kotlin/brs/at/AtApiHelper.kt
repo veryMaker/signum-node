@@ -102,14 +102,6 @@ fun AtMachineState.putInB(data: ByteArray) {
     data.copyInto(this.b4, 0, 24, 32)
 }
 
-fun AtMachineState.aEquals(data: ByteArray): Boolean {
-    require (data.size == 32)
-    return data.partEquals(this.a1, 0, REGISTER_PART_SIZE)
-            && data.partEquals(this.a2, 8, REGISTER_PART_SIZE)
-            && data.partEquals(this.a3, 16, REGISTER_PART_SIZE)
-            && data.partEquals(this.a4, 24, REGISTER_PART_SIZE)
-}
-
 fun AtMachineState.bEquals(data: ByteArray): Boolean {
     require (data.size == 32)
     return data.partEquals(this.b1, 0, REGISTER_PART_SIZE)

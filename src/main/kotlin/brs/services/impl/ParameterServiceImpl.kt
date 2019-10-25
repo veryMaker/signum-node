@@ -322,7 +322,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     override fun getIncludeIndirect(request: HttpServletRequest): Boolean {
-        return java.lang.Boolean.parseBoolean(request.getParameter(INCLUDE_INDIRECT_PARAMETER))
+        return request.getParameter(INCLUDE_INDIRECT_PARAMETER)?.toBoolean() ?: false
     }
 
     companion object {

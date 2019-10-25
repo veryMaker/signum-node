@@ -88,3 +88,5 @@ fun String.parseHexString(): ByteArray {
         throw RuntimeException("Could not parse hex string $hex", e)
     }
 }
+
+fun Byte.toUnsignedInt() = java.lang.Byte.toUnsignedInt(this)

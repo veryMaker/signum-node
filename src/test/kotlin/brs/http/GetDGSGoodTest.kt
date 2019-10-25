@@ -56,11 +56,11 @@ class GetDGSGoodTest {
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
-        assertEquals("" + mockGoods.id, result.get(GOODS_RESPONSE).safeGetAsString())
+        assertEquals(mockGoods.id.toString(), result.get(GOODS_RESPONSE).safeGetAsString())
         assertEquals(mockGoods.name, result.get(NAME_RESPONSE).safeGetAsString())
         assertEquals(mockGoods.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
         assertEquals(mockGoods.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals("" + mockGoods.pricePlanck, result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockGoods.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
         assertEquals(mockGoods.tags, result.get(TAGS_RESPONSE).safeGetAsString())
         assertEquals(mockGoods.isDelisted, result.get(DELISTED_RESPONSE).safeGetAsBoolean())
         assertEquals(mockGoods.timestamp.toLong(), result.get(TIMESTAMP_RESPONSE).safeGetAsLong())

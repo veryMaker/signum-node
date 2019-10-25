@@ -18,7 +18,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import javax.servlet.http.HttpServletRequest
 
 class BuyAliasTest : AbstractTransactionTest() {
 
@@ -41,7 +40,7 @@ class BuyAliasTest : AbstractTransactionTest() {
 
     @Test
     fun processRequest() {
-        val request = QuickMocker.httpServletRequestDefaultKeys(MockParam(AMOUNT_PLANCK_PARAMETER, "" + Constants.ONE_BURST))
+        val request = QuickMocker.httpServletRequestDefaultKeys(MockParam(AMOUNT_PLANCK_PARAMETER, Constants.ONE_BURST.toString()))
 
         val mockOfferOnAlias = mock<Offer>()
 

@@ -39,7 +39,7 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
         var discountPlanck: Long = 0
         try {
             if (discountValuePlanck != null) {
-                discountPlanck = java.lang.Long.parseLong(discountValuePlanck)
+                discountPlanck = discountValuePlanck.toLong()
             }
         } catch (e: RuntimeException) {
             return INCORRECT_DGS_DISCOUNT

@@ -100,12 +100,12 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
         val result = resultList.get(0) as JsonObject
         assertNotNull(result)
 
-        assertEquals("" + escrow.id, result.get(ID_RESPONSE).safeGetAsString())
-        assertEquals("" + escrow.senderId, result.get(SENDER_RESPONSE).safeGetAsString())
+        assertEquals(escrow.id.toString(), result.get(ID_RESPONSE).safeGetAsString())
+        assertEquals(escrow.senderId.toString(), result.get(SENDER_RESPONSE).safeGetAsString())
         assertEquals("BURST-2228-2222-BMNG-22222", result.get(SENDER_RS_RESPONSE).safeGetAsString())
-        assertEquals("" + escrow.recipientId, result.get(RECIPIENT_RESPONSE).safeGetAsString())
+        assertEquals(escrow.recipientId.toString(), result.get(RECIPIENT_RESPONSE).safeGetAsString())
         assertEquals("BURST-2227-2222-ZAYB-22222", result.get(RECIPIENT_RS_RESPONSE).safeGetAsString())
-        assertEquals("" + escrow.amountPlanck, result.get(AMOUNT_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(escrow.amountPlanck.toString(), result.get(AMOUNT_PLANCK_RESPONSE).safeGetAsString())
         assertEquals(escrow.requiredSigners.toLong(), result.get(REQUIRED_SIGNERS_RESPONSE).safeGetAsLong())
         assertEquals(escrow.deadline.toLong(), result.get(DEADLINE_RESPONSE).safeGetAsLong())
         assertEquals("undecided", result.get(DEADLINE_ACTION_RESPONSE).safeGetAsString())
@@ -114,7 +114,7 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
         assertEquals(1, signersResult.size().toLong())
 
         val signer = signersResult.get(0) as JsonObject
-        assertEquals("" + decision.accountId!!, signer.get(ID_RESPONSE).safeGetAsString())
+        assertEquals(decision.accountId!!.toString(), signer.get(ID_RESPONSE).safeGetAsString())
         assertEquals("BURST-2225-2222-QVC9-22222", signer.get(ID_RS_RESPONSE).safeGetAsString())
         assertEquals("undecided", signer.get(DECISION_RESPONSE).safeGetAsString())
     }

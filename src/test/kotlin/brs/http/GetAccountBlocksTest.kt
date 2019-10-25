@@ -47,9 +47,9 @@ class GetAccountBlocksTest : AbstractUnitTest() {
         val mockLastIndex = 3
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(FIRST_INDEX_PARAMETER, "" + mockFirstIndex),
-                MockParam(LAST_INDEX_PARAMETER, "" + mockLastIndex),
-                MockParam(TIMESTAMP_PARAMETER, "" + mockTimestamp)
+                MockParam(FIRST_INDEX_PARAMETER, mockFirstIndex.toString()),
+                MockParam(LAST_INDEX_PARAMETER, mockLastIndex.toString()),
+                MockParam(TIMESTAMP_PARAMETER, mockTimestamp.toString())
         )
 
         val mockAccount = mock<Account>()

@@ -67,8 +67,8 @@ class GetAliasesTest : AbstractUnitTest() {
 
         val result = resultList.get(0) as JsonObject
         assertNotNull(result)
-        assertEquals("" + mockAlias.id, result.get(ALIAS_RESPONSE).safeGetAsString())
-        assertEquals("" + mockOffer.pricePlanck, result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockAlias.id.toString(), result.get(ALIAS_RESPONSE).safeGetAsString())
+        assertEquals(mockOffer.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
     }
 
 }

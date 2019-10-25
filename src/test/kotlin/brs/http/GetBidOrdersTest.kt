@@ -71,7 +71,7 @@ class GetBidOrdersTest : AbstractUnitTest() {
         val resultBidOrder = resultBidOrdersList.get(0) as JsonObject
         assertNotNull(resultBidOrder)
 
-        assertEquals("" + mockOrderId, resultBidOrder.get(ORDER_RESPONSE).safeGetAsString())
+        assertEquals(mockOrderId.toString(), resultBidOrder.get(ORDER_RESPONSE).safeGetAsString())
     }
 
 }

@@ -102,7 +102,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
 
         val deadline: Short
         try {
-            deadline = java.lang.Short.parseShort(deadlineValue)
+            deadline = deadlineValue.toShort()
             if (deadline < 1 || deadline > 1440) {
                 return INCORRECT_DEADLINE
             }

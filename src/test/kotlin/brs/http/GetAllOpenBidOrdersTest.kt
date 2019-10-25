@@ -57,8 +57,8 @@ class GetAllOpenBidOrdersTest : AbstractUnitTest() {
                 .doReturn(mockIterator)
 
         val result = t.processRequest(QuickMocker.httpServletRequest(
-                MockParam(FIRST_INDEX_PARAMETER, "" + firstIndex),
-                MockParam(LAST_INDEX_PARAMETER, "" + lastIndex)
+                MockParam(FIRST_INDEX_PARAMETER, firstIndex.toString()),
+                MockParam(LAST_INDEX_PARAMETER, lastIndex.toString())
         )) as JsonObject
 
         assertNotNull(result)
@@ -68,10 +68,10 @@ class GetAllOpenBidOrdersTest : AbstractUnitTest() {
         assertEquals(1, openOrdersResult.size().toLong())
 
         val openOrderResult = openOrdersResult.get(0).mustGetAsJsonObject("openOrderResult")
-        assertEquals("" + mockBidOrder.id, openOrderResult.get(ORDER_RESPONSE).safeGetAsString())
-        assertEquals("" + mockBidOrder.assetId, openOrderResult.get(ASSET_RESPONSE).safeGetAsString())
-        assertEquals("" + mockBidOrder.quantity, openOrderResult.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
-        assertEquals("" + mockBidOrder.pricePlanck, openOrderResult.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockBidOrder.id.toString(), openOrderResult.get(ORDER_RESPONSE).safeGetAsString())
+        assertEquals(mockBidOrder.assetId.toString(), openOrderResult.get(ASSET_RESPONSE).safeGetAsString())
+        assertEquals(mockBidOrder.quantity.toString(), openOrderResult.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
+        assertEquals(mockBidOrder.pricePlanck.toString(), openOrderResult.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
         assertEquals(mockBidOrder.height.toLong(), openOrderResult.get(HEIGHT_RESPONSE).safeGetAsLong())
     }
 }

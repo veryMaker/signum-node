@@ -31,16 +31,7 @@ object Props {
     val DEV_POC2_BLOCK_HEIGHT = Prop("DEV.poc2.startBlock", -1)
     val DEV_NEXT_FORK_BLOCK_HEIGHT = Prop("DEV.nextFork.startBlock", -1)
 
-    val BRS_DEBUG_TRACE_ENABLED = Prop("brs.debugTraceEnable", false)
-    val BRS_DEBUG_TRACE_QUOTE = Prop("brs.debugTraceQuote", "\"")
-    val BRS_DEBUG_TRACE_SEPARATOR = Prop("brs.debugTraceSeparator", "\t")
-    val BRS_DEBUG_LOG_CONFIRMED = Prop("brs.debugLogUnconfirmed", false)
-    val BRS_DEBUG_TRACE_ACCOUNTS = Prop("brs.debugTraceAccounts", emptyList<String>())
-
-    val BRS_DEBUG_TRACE_LOG = Prop("brs.debugTraceLog", "LOG_AccountBalances_trace.csv")
     val BRS_COMMUNICATION_LOGGING_MASK = Prop("brs.communicationLoggingMask", 0)
-
-    val BRS_SHUTDOWN_TIMEOUT = Prop("brs.ShutdownTimeout", 180)
 
     // GPU options
     val GPU_ACCELERATION = Prop("GPU.Acceleration", false)
@@ -51,15 +42,11 @@ object Props {
     val GPU_HASHES_PER_BATCH = Prop("GPU.HashesPerBatch", 1000)
     val GPU_MEM_PERCENT = Prop("GPU.MemPercent", 50)
 
-    // CPU options
-    val CPU_NUM_CORES = Prop("CPU.NumCores", -1)
-
     // DB options
     val DB_URL = Prop("DB.Url", "jdbc:mariadb://localhost:3306/burstwallet")
     val DB_USERNAME = Prop("DB.Username", "")
     val DB_PASSWORD = Prop("DB.Password", "")
     val DB_CONNECTIONS = Prop("DB.Connections", 30)
-    val DB_LOCK_TIMEOUT = Prop("DB.LockTimeout", 60)
 
     val DB_TRIM_DERIVED_TABLES = Prop("DB.trimDerivedTables", true)
     val DB_MAX_ROLLBACK = Prop("DB.maxRollback", 1440)
@@ -67,7 +54,6 @@ object Props {
     val BRS_TEST_UNCONFIRMED_TRANSACTIONS = Prop("brs.testUnconfirmedTransactions", false)
 
     val DB_H2_DEFRAG_ON_SHUTDOWN = Prop("Db.H2.DefragOnShutdown", false)
-
 
     val BRS_BLOCK_CACHE_MB = Prop("brs.blockCacheMB", 40)
 

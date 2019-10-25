@@ -43,7 +43,7 @@ class GetBidOrderTest {
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
-        assertEquals("" + bidOrderId, result.get(ORDER_RESPONSE).safeGetAsString())
+        assertEquals(bidOrderId.toString(), result.get(ORDER_RESPONSE).safeGetAsString())
     }
 
     @Test

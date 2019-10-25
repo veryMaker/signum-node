@@ -181,9 +181,9 @@ interface Attachment : Appendix {
         override val mySize: Int
             get() = 0
 
-        override fun putMyBytes(buffer: ByteBuffer) {}
+        override fun putMyBytes(buffer: ByteBuffer) = Unit
 
-        override fun putMyJSON(attachment: JsonObject) {}
+        override fun putMyJSON(attachment: JsonObject) = Unit
 
         override fun verifyVersion(transactionVersion: Byte): Boolean {
             return true
@@ -221,7 +221,7 @@ interface Attachment : Appendix {
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
 
-            val numberOfRecipients = java.lang.Byte.toUnsignedInt(buffer.get())
+            val numberOfRecipients = buffer.get().toUnsignedInt()
             val recipientOf = mutableMapOf<Long, Boolean>()
 
             for (i in 0 until numberOfRecipients) {
@@ -351,7 +351,7 @@ interface Attachment : Appendix {
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(dp, buffer, transactionVersion) {
 
-            val numberOfRecipients = java.lang.Byte.toUnsignedInt(buffer.get())
+            val numberOfRecipients = buffer.get().toUnsignedInt()
             val recipientOf = mutableMapOf<Long, Boolean>()
 
             for (i in 0 until numberOfRecipients) {
@@ -682,7 +682,7 @@ interface Attachment : Appendix {
 
         constructor(dp: DependencyProvider, name: String, description: String, quantity: Long, decimals: Byte, blockchainHeight: Int) : super(dp, blockchainHeight) {
             this.name = name
-            this.description = description.orEmpty()
+            this.description = description
             this.quantity = quantity
             this.decimals = decimals
         }
@@ -1452,10 +1452,6 @@ interface Attachment : Appendix {
             this.period = attachmentData.get(PERIOD_PARAMETER).mustGetAsShort(PERIOD_PARAMETER)
         }
 
-        constructor(dp: DependencyProvider, period: Short, blockchainHeight: Int) : super(dp, blockchainHeight) {
-            this.period = period
-        }
-
         constructor(dp: DependencyProvider, attachment: BrsApi.EffectiveBalanceLeasingAttachment) : super(dp, attachment.version.toByte()) {
             this.period = attachment.period.toShort()
         }
@@ -1905,11 +1901,11 @@ interface Attachment : Appendix {
             if (codePages * pageSize < pageSize + 1) {
                 codeLen = buffer.get().toInt()
                 if (codeLen < 0)
-                    codeLen += (java.lang.Byte.MAX_VALUE + 1) * 2
-            } else if (codePages * pageSize < java.lang.Short.MAX_VALUE + 1) {
+                    codeLen += (Byte.MAX_VALUE + 1) * 2
+            } else if (codePages * pageSize < Short.MAX_VALUE + 1) {
                 codeLen = buffer.short.toInt()
                 if (codeLen < 0)
-                    codeLen += (java.lang.Short.MAX_VALUE + 1) * 2
+                    codeLen += (Short.MAX_VALUE + 1) * 2
             } else {
                 codeLen = buffer.int
             }
@@ -1920,11 +1916,11 @@ interface Attachment : Appendix {
             if (dataPages * pageSize < 257) {
                 dataLen = buffer.get().toInt()
                 if (dataLen < 0)
-                    dataLen += (java.lang.Byte.MAX_VALUE + 1) * 2
-            } else if (dataPages * pageSize < java.lang.Short.MAX_VALUE + 1) {
+                    dataLen += (Byte.MAX_VALUE + 1) * 2
+            } else if (dataPages * pageSize < Short.MAX_VALUE + 1) {
                 dataLen = buffer.short.toInt()
                 if (dataLen < 0)
-                    dataLen += (java.lang.Short.MAX_VALUE + 1) * 2
+                    dataLen += (Short.MAX_VALUE + 1) * 2
             } else {
                 dataLen = buffer.int
             }

@@ -22,7 +22,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         get() = Constants.ONE_BURST
 
     override fun getSubscription(id: Long?): Subscription? {
-        return subscriptionTable.get(subscriptionDbKeyFactory.newKey(id!!))
+        return subscriptionTable[subscriptionDbKeyFactory.newKey(id!!)]
     }
 
     override fun getSubscriptionsByParticipant(accountId: Long?): Collection<Subscription> {
@@ -53,7 +53,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     }
 
     override fun removeSubscription(id: Long) {
-        val subscription = subscriptionTable.get(subscriptionDbKeyFactory.newKey(id))
+        val subscription = subscriptionTable[subscriptionDbKeyFactory.newKey(id)]
         if (subscription != null) {
             subscriptionTable.delete(subscription)
         }

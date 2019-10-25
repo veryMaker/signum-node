@@ -90,8 +90,6 @@ object Parameters {
     const val MESSAGE_IS_TEXT_PARAMETER = "messageIsText"
     const val MESSAGE_PARAMETER = "message"
     const val UNSIGNED_TRANSACTION_JSON_PARAMETER = "unsignedTransactionJSON"
-    const val AMOUNT_BURST_PARAMETER = "amountNXT"
-    const val FEE_BURST_PARAMETER = "feeNXT"
     const val IN_STOCK_ONLY_PARAMETER = "inStockOnly"
     const val COMPLETED_PARAMETER = "completed"
     const val PEER_PARAMETER = "peer"
@@ -113,12 +111,9 @@ object Parameters {
     const val ESCROWS_RESPONSE = "escrows"
     const val ACCOUNTS_RESPONSE = "accounts"
     const val RECIPIENTS_RESPONSE = "recipients"
-    const val LAST_UNCONFIRMED_TRANSACTION_TIMESTAMP_PARAMETER = "lastUnconfirmedTransactionTimestamp"
-    const val LIMIT_UNCONFIRMED_TRANSACTIONS_RETRIEVED_PARAMETER = "limitUnconfirmedTransactionsRetrieved"
     const val RECEIVER_ID_PARAMETER = "receiverId"
     const val FEE_SUGGESTION_TYPE_PARAMETER = "feeSuggestionType"
     const val IMMUTABLE_PARAMETER = "immutable"
-    const val FEE_SUGGESTION_RESPONSE = "feeSuggestion"
     const val INCLUDE_INDIRECT_PARAMETER = "includeIndirect"
 
     fun isFalse(text: String?): Boolean {

@@ -29,7 +29,7 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
 
         val requiredSigners: Long
         try {
-            requiredSigners = java.lang.Long.parseLong(request.getParameter(REQUIRED_SIGNERS_PARAMETER))
+            requiredSigners = request.getParameter(REQUIRED_SIGNERS_PARAMETER).toLong()
             if (requiredSigners < 1 || requiredSigners > 10) {
                 val response = JsonObject()
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
@@ -83,7 +83,7 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
 
         val deadline: Long
         try {
-            deadline = java.lang.Long.parseLong(request.getParameter(ESCROW_DEADLINE_PARAMETER))
+            deadline = request.getParameter(ESCROW_DEADLINE_PARAMETER).toLong()
             if (deadline < 1 || deadline > 7776000) {
                 val response = JsonObject()
                 response.addProperty(ERROR_CODE_RESPONSE, 4)

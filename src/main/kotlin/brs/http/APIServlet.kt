@@ -82,7 +82,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getTrades"] = GetTrades(dp.parameterService, dp.assetExchange)
         map["getAllTrades"] = GetAllTrades(dp.assetExchange)
         map["getAssetTransfers"] = GetAssetTransfers(dp.parameterService, dp.accountService, dp.assetExchange)
-        map["getTransaction"] = GetTransaction(dp.transactionProcessor, dp.blockchain)
+        map["getTransaction"] = GetTransaction(dp.blockchain)
         map["getTransactionBytes"] = GetTransactionBytes(dp.blockchain, dp.transactionProcessor)
         map["getUnconfirmedTransactionIds"] = GetUnconfirmedTransactionIds(dp.transactionProcessor, dp.indirectIncomingService, dp.parameterService)
         map["getUnconfirmedTransactions"] = GetUnconfirmedTransactions(dp.transactionProcessor, dp.indirectIncomingService, dp.parameterService)

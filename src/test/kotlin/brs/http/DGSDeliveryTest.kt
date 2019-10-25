@@ -164,7 +164,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     @Test
     fun processRequest_dgsDiscountOverMaxBalancePlanckIsIncorrectDGSDiscount() {
         val request = QuickMocker.httpServletRequest(
-                MockParam(DISCOUNT_PLANCK_PARAMETER, "" + (MAX_BALANCE_PLANCK + 1))
+                MockParam(DISCOUNT_PLANCK_PARAMETER, (MAX_BALANCE_PLANCK + 1).toString())
         )
 
         val mockSellerAccount = mock<Account>()

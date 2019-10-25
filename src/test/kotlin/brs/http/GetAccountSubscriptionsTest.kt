@@ -72,8 +72,8 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
         val resultSubscription = resultSubscriptions.get(0) as JsonObject
         assertNotNull(resultSubscription)
 
-        assertEquals("" + subscription.id, resultSubscription.get(ID_RESPONSE).safeGetAsString())
-        assertEquals("" + subscription.amountPlanck, resultSubscription.get(AMOUNT_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(subscription.id.toString(), resultSubscription.get(ID_RESPONSE).safeGetAsString())
+        assertEquals(subscription.amountPlanck.toString(), resultSubscription.get(AMOUNT_PLANCK_RESPONSE).safeGetAsString())
         assertEquals(subscription.frequency.toLong(), resultSubscription.get(FREQUENCY_RESPONSE).safeGetAsLong())
         assertEquals(subscription.timeNext.toLong(), resultSubscription.get(TIME_NEXT_RESPONSE).safeGetAsLong())
     }

@@ -9,7 +9,6 @@ import brs.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.http.common.Parameters.ASSET_PARAMETER
 import brs.http.common.Parameters.AT_PARAMETER
 import brs.http.common.Parameters.BLOCK_PARAMETER
-import brs.http.common.Parameters.DATE_PARAMETER
 import brs.http.common.Parameters.DEADLINE_PARAMETER
 import brs.http.common.Parameters.DECIMALS_PARAMETER
 import brs.http.common.Parameters.DELIVERY_DEADLINE_TIMESTAMP_PARAMETER
@@ -24,7 +23,6 @@ import brs.http.common.Parameters.GOODS_DATA_PARAMETER
 import brs.http.common.Parameters.GOODS_PARAMETER
 import brs.http.common.Parameters.GOODS_TO_ENCRYPT_PARAMETER
 import brs.http.common.Parameters.HEIGHT_PARAMETER
-import brs.http.common.Parameters.HOST_PARAMETER
 import brs.http.common.Parameters.MESSAGE_PARAMETER
 import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER
 import brs.http.common.Parameters.NAME_PARAMETER
@@ -46,13 +44,11 @@ import brs.http.common.Parameters.SELLER_PARAMETER
 import brs.http.common.Parameters.SIGNATURE_HASH_PARAMETER
 import brs.http.common.Parameters.TAGS_PARAMETER
 import brs.http.common.Parameters.TIMESTAMP_PARAMETER
-import brs.http.common.Parameters.TOKEN_PARAMETER
 import brs.http.common.Parameters.TRANSACTION_BYTES_PARAMETER
 import brs.http.common.Parameters.TRANSACTION_JSON_PARAMETER
 import brs.http.common.Parameters.TRANSACTION_PARAMETER
 import brs.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
 import brs.http.common.Parameters.URI_PARAMETER
-import brs.http.common.Parameters.WEBSITE_PARAMETER
 import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import com.google.gson.JsonElement
@@ -77,9 +73,6 @@ object JSONResponses {
     val MISSING_ORDER = missing(ORDER_PARAMETER)
     val INCORRECT_ORDER = incorrect(ORDER_PARAMETER)
     val UNKNOWN_ORDER = unknown(ORDER_PARAMETER)
-    val MISSING_WEBSITE = missing(WEBSITE_PARAMETER)
-    val INCORRECT_WEBSITE = incorrect(WEBSITE_PARAMETER)
-    val MISSING_TOKEN = missing(TOKEN_PARAMETER)
     val MISSING_ACCOUNT = missing(ACCOUNT_PARAMETER)
     val INCORRECT_ACCOUNT = incorrect(ACCOUNT_PARAMETER)
     val INCORRECT_TIMESTAMP = incorrect(TIMESTAMP_PARAMETER)
@@ -104,10 +97,6 @@ object JSONResponses {
     val INCORRECT_QUANTITY = incorrect(QUANTITY_PARAMETER)
     val INCORRECT_ASSET_QUANTITY = incorrect(QUANTITY_PARAMETER, "(must be in [1.." + Constants.MAX_ASSET_QUANTITY + "] range)")
     val INCORRECT_DECIMALS = incorrect(DECIMALS_PARAMETER)
-    val MISSING_HOST = missing(HOST_PARAMETER)
-    val MISSING_DATE = missing(DATE_PARAMETER)
-    val INCORRECT_HOST = incorrect(HOST_PARAMETER, "(the length exceeds 100 chars limit)")
-    val INCORRECT_DATE = incorrect(DATE_PARAMETER)
     val MISSING_PRICE = missing(PRICE_PLANCK_PARAMETER)
     val INCORRECT_PRICE = incorrect(PRICE_PARAMETER)
     val INCORRECT_REFERENCED_TRANSACTION = incorrect(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER)

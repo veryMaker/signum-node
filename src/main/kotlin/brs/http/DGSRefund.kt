@@ -35,7 +35,7 @@ internal class DGSRefund internal constructor(private val dp: DependencyProvider
         var refundPlanck: Long = 0
         try {
             if (refundValuePlanck != null) {
-                refundPlanck = java.lang.Long.parseLong(refundValuePlanck)
+                refundPlanck = refundValuePlanck.toLong()
             }
         } catch (e: RuntimeException) {
             return INCORRECT_DGS_REFUND

@@ -2,7 +2,6 @@ package brs.http
 
 import brs.Blockchain
 import brs.Transaction
-import brs.TransactionProcessor
 import brs.http.JSONResponses.INCORRECT_TRANSACTION
 import brs.http.JSONResponses.MISSING_TRANSACTION
 import brs.http.JSONResponses.UNKNOWN_TRANSACTION
@@ -14,7 +13,7 @@ import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class GetTransaction(private val transactionProcessor: TransactionProcessor, private val blockchain: Blockchain) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_PARAMETER, FULL_HASH_PARAMETER) {
+internal class GetTransaction(private val blockchain: Blockchain) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_PARAMETER, FULL_HASH_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val transactionIdString = request.getParameter(TRANSACTION_PARAMETER).emptyToNull()
         val transactionFullHash = request.getParameter(FULL_HASH_PARAMETER).emptyToNull()

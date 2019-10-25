@@ -45,7 +45,7 @@ internal class IssueAsset internal constructor(private val dp: DependencyProvide
         var decimals: Byte = 0
         if (decimalsValue != null) {
             try {
-                decimals = java.lang.Byte.parseByte(decimalsValue)
+                decimals = decimalsValue.toByte()
                 if (decimals < 0 || decimals > 8) {
                     return INCORRECT_DECIMALS
                 }

@@ -40,7 +40,7 @@ class GetAssetsTest {
         val assetId = 123L
 
         val request = QuickMocker.httpServletRequest()
-        whenever(request.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf("" + assetId, ""))
+        whenever(request.getParameterValues(eq(ASSETS_PARAMETER))).doReturn(arrayOf(assetId.toString(), ""))
 
         val mockTradeCount = 1
         val mockTransferCount = 2

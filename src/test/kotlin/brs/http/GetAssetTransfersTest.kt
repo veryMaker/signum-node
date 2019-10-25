@@ -144,7 +144,7 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         assertEquals(1, resultList.size().toLong())
 
         val transferInfoResult = resultList.get(0) as JsonObject
-        assertEquals("" + assetId, transferInfoResult.get(ASSET_RESPONSE).safeGetAsString())
+        assertEquals(assetId.toString(), transferInfoResult.get(ASSET_RESPONSE).safeGetAsString())
         assertEquals(mockAsset.name, transferInfoResult.get(NAME_RESPONSE).safeGetAsString())
     }
 

@@ -370,9 +370,9 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
         if (val1 < 0 || val2 < 0 ||
                 val1 + val2 - 1 < 0 ||
                 val1 * 8 + 8 > Integer.MAX_VALUE.toLong() ||
-                val1 * 8 + 8 > state.getdSize() ||
+                val1 * 8 + 8 > state.dSize ||
                 (val1 + val2 - 1) * 8 + 8 > Integer.MAX_VALUE.toLong() ||
-                (val1 + val2 - 1) * 8 + 8 > state.getdSize()) {
+                (val1 + val2 - 1) * 8 + 8 > state.dSize) {
             return
         }
 

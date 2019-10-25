@@ -3,6 +3,7 @@ package brs.peer
 import brs.Block
 import brs.Blockchain
 import brs.Genesis
+import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
@@ -35,7 +36,7 @@ class GetNextBlocksTest {
     @Test
     fun testGetNextBlocks() {
         val request = JsonObject()
-        request.addProperty("blockId", java.lang.Long.toUnsignedString(Genesis.GENESIS_BLOCK_ID))
+        request.addProperty("blockId", Genesis.GENESIS_BLOCK_ID.toUnsignedString())
         val responseElement = getNextBlocks.processRequest(request, mockPeer)
         assertNotNull(responseElement)
         assertTrue(responseElement.isJsonObject)

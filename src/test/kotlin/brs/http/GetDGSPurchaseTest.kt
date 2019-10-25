@@ -80,18 +80,18 @@ class GetDGSPurchaseTest {
 
         assertNotNull(result)
 
-        assertEquals("" + mockPurchase.id, result.get(PURCHASE_RESPONSE).safeGetAsString())
-        assertEquals("" + mockPurchase.goodsId, result.get(GOODS_RESPONSE).safeGetAsString())
+        assertEquals(mockPurchase.id.toString(), result.get(PURCHASE_RESPONSE).safeGetAsString())
+        assertEquals(mockPurchase.goodsId.toString(), result.get(GOODS_RESPONSE).safeGetAsString())
         assertEquals(mockPurchase.getName(), result.get(NAME_RESPONSE).safeGetAsString())
-        assertEquals("" + mockPurchase.sellerId, result.get(SELLER_RESPONSE).safeGetAsString())
-        assertEquals("" + mockPurchase.pricePlanck, result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockPurchase.sellerId.toString(), result.get(SELLER_RESPONSE).safeGetAsString())
+        assertEquals(mockPurchase.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
         assertEquals(mockPurchase.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals("" + mockPurchase.buyerId, result.get(BUYER_RESPONSE).safeGetAsString())
+        assertEquals(mockPurchase.buyerId.toString(), result.get(BUYER_RESPONSE).safeGetAsString())
         assertEquals(mockPurchase.timestamp.toLong(), result.get(TIMESTAMP_RESPONSE).safeGetAsLong())
         assertEquals(mockPurchase.deliveryDeadlineTimestamp.toLong(), result.get(DELIVERY_DEADLINE_TIMESTAMP_RESPONSE).safeGetAsLong())
         assertEquals(mockPurchase.isPending, result.get(PENDING_RESPONSE).safeGetAsBoolean())
-        assertEquals("" + mockPurchase.discountPlanck, result.get(DISCOUNT_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals("" + mockPurchase.refundPlanck, result.get(REFUND_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockPurchase.discountPlanck.toString(), result.get(DISCOUNT_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockPurchase.refundPlanck.toString(), result.get(REFUND_PLANCK_RESPONSE).safeGetAsString())
     }
 
 }

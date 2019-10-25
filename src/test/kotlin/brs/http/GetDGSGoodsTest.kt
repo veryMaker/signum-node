@@ -54,9 +54,9 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val lastIndex = 3
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(SELLER_PARAMETER, "" + sellerId),
-                MockParam(FIRST_INDEX_PARAMETER, "" + firstIndex),
-                MockParam(LAST_INDEX_PARAMETER, "" + lastIndex),
+                MockParam(SELLER_PARAMETER, sellerId.toString()),
+                MockParam(FIRST_INDEX_PARAMETER, firstIndex.toString()),
+                MockParam(LAST_INDEX_PARAMETER, lastIndex.toString()),
                 MockParam(IN_STOCK_ONLY_PARAMETER, "true")
         )
 
@@ -76,12 +76,12 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val result = goodsList.get(0) as JsonObject
         assertNotNull(result)
 
-        assertEquals("" + mockGood.id, result.get(GOODS_RESPONSE).safeGetAsString())
+        assertEquals(mockGood.id.toString(), result.get(GOODS_RESPONSE).safeGetAsString())
         assertEquals(mockGood.name, result.get(NAME_RESPONSE).safeGetAsString())
         assertEquals(mockGood.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
         assertEquals(mockGood.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals("" + mockGood.pricePlanck, result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals("" + mockGood.sellerId, result.get(SELLER_PARAMETER).safeGetAsString())
+        assertEquals(mockGood.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockGood.sellerId.toString(), result.get(SELLER_PARAMETER).safeGetAsString())
         assertEquals(mockGood.tags, result.get(TAGS_RESPONSE).safeGetAsString())
         assertEquals(mockGood.isDelisted, result.get(DELISTED_RESPONSE).safeGetAsBoolean())
         assertEquals(mockGood.timestamp.toLong(), result.get(TIMESTAMP_RESPONSE).safeGetAsLong())
@@ -94,9 +94,9 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val lastIndex = 3
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(SELLER_PARAMETER, "" + sellerId),
-                MockParam(FIRST_INDEX_PARAMETER, "" + firstIndex),
-                MockParam(LAST_INDEX_PARAMETER, "" + lastIndex),
+                MockParam(SELLER_PARAMETER, sellerId.toString()),
+                MockParam(FIRST_INDEX_PARAMETER, firstIndex.toString()),
+                MockParam(LAST_INDEX_PARAMETER, lastIndex.toString()),
                 MockParam(IN_STOCK_ONLY_PARAMETER, "false")
         )
 
@@ -116,12 +116,12 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val result = goodsList.get(0) as JsonObject
         assertNotNull(result)
 
-        assertEquals("" + mockGood.id, result.get(GOODS_RESPONSE).safeGetAsString())
+        assertEquals(mockGood.id.toString(), result.get(GOODS_RESPONSE).safeGetAsString())
         assertEquals(mockGood.name, result.get(NAME_RESPONSE).safeGetAsString())
         assertEquals(mockGood.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
         assertEquals(mockGood.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals("" + mockGood.pricePlanck, result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals("" + mockGood.sellerId, result.get(SELLER_PARAMETER).safeGetAsString())
+        assertEquals(mockGood.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockGood.sellerId.toString(), result.get(SELLER_PARAMETER).safeGetAsString())
         assertEquals(mockGood.tags, result.get(TAGS_RESPONSE).safeGetAsString())
         assertEquals(mockGood.isDelisted, result.get(DELISTED_RESPONSE).safeGetAsBoolean())
         assertEquals(mockGood.timestamp.toLong(), result.get(TIMESTAMP_RESPONSE).safeGetAsLong())
@@ -134,9 +134,9 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val lastIndex = 3
 
         val request = QuickMocker.httpServletRequest(
-                MockParam(SELLER_PARAMETER, "" + sellerId),
-                MockParam(FIRST_INDEX_PARAMETER, "" + firstIndex),
-                MockParam(LAST_INDEX_PARAMETER, "" + lastIndex),
+                MockParam(SELLER_PARAMETER, sellerId.toString()),
+                MockParam(FIRST_INDEX_PARAMETER, firstIndex.toString()),
+                MockParam(LAST_INDEX_PARAMETER, lastIndex.toString()),
                 MockParam(IN_STOCK_ONLY_PARAMETER, "true")
         )
 
@@ -156,12 +156,12 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val result = goodsList.get(0) as JsonObject
         assertNotNull(result)
 
-        assertEquals("" + mockGood.id, result.get(GOODS_RESPONSE).safeGetAsString())
+        assertEquals(mockGood.id.toString(), result.get(GOODS_RESPONSE).safeGetAsString())
         assertEquals(mockGood.name, result.get(NAME_RESPONSE).safeGetAsString())
         assertEquals(mockGood.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
         assertEquals(mockGood.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals("" + mockGood.pricePlanck, result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals("" + mockGood.sellerId, result.get(SELLER_PARAMETER).safeGetAsString())
+        assertEquals(mockGood.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockGood.sellerId.toString(), result.get(SELLER_PARAMETER).safeGetAsString())
         assertEquals(mockGood.tags, result.get(TAGS_RESPONSE).safeGetAsString())
         assertEquals(mockGood.isDelisted, result.get(DELISTED_RESPONSE).safeGetAsBoolean())
         assertEquals(mockGood.timestamp.toLong(), result.get(TIMESTAMP_RESPONSE).safeGetAsLong())

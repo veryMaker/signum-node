@@ -44,7 +44,7 @@ class GetAccountBalanceTest {
 
         val result = t.processRequest(request, peer) as JsonObject
 
-        assertEquals("" + mockBalancePlanck, result.get(BALANCE_PLANCK_RESPONSE_FIELD).safeGetAsString())
+        assertEquals(mockBalancePlanck.toString(), result.get(BALANCE_PLANCK_RESPONSE_FIELD).safeGetAsString())
     }
 
     @Test

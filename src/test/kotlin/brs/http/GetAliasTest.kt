@@ -51,8 +51,8 @@ class GetAliasTest {
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
         assertEquals(mockAlias.aliasName, result.get(ALIAS_NAME_RESPONSE).safeGetAsString())
-        assertEquals("" + mockOffer.pricePlanck, result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals("" + mockOffer.buyerId, result.get(BUYER_RESPONSE).safeGetAsString())
+        assertEquals(mockOffer.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockOffer.buyerId.toString(), result.get(BUYER_RESPONSE).safeGetAsString())
     }
 
 }

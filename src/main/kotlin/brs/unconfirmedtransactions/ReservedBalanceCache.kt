@@ -17,7 +17,7 @@ internal class ReservedBalanceCache(private val accountStore: AccountStore) {
         var senderAccount: Account? = null
 
         if (transaction.senderId != 0L) {
-            senderAccount = accountStore.accountTable.get(accountStore.accountKeyFactory.newKey(transaction.senderId))
+            senderAccount = accountStore.accountTable[accountStore.accountKeyFactory.newKey(transaction.senderId)]
         }
 
         val amountPlanck = reservedBalanceCache.getOrDefault(transaction.senderId, 0L).safeAdd(transaction.type.calculateTotalAmountPlanck(transaction))
