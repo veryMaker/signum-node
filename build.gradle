@@ -122,6 +122,12 @@ sourceSets {
                 System.getProperty("headless") == "true" && fileTreeElement.file == ("$projectDir/src/main/java/brs/BurstGUI.kt" as File)
             }
         }
+        proto {
+            exclude { fileTreeElement ->
+                System.getProperty("headless") == "true" && fileTreeElement.file == ("$projectDir/src/main/java/brs/BurstGUI.kt" as File)
+            }
+            srcDir "src/main/java"
+        }
     }
 }
 
@@ -153,14 +159,6 @@ protobuf {
         }
     }
     generatedFilesBaseDir = "$projectDir/src/"
-}
-
-sourceSets {
-    main {
-        proto {
-            srcDir "src/main/java"
-        }
-    }
 }
 
 def dbUrl = "jdbc:mariadb://localhost:3306/burstwallet"
