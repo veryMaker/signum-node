@@ -1,8 +1,8 @@
 package brs.at
 
-import brs.Constants
+import brs.objects.Constants
 import brs.DependencyProvider
-import brs.fluxcapacitor.FluxValues
+import brs.objects.FluxValues
 
 
 class AtConstants(private val dp: DependencyProvider) {
@@ -45,7 +45,7 @@ class AtConstants(private val dp: DependencyProvider) {
         maxMachineCallStackPages[1.toShort()] = 10L
 
         blocksForRandom[1.toShort()] = 15L //for testing 2 -> normally 1440
-        maxPayloadForBlock[1.toShort()] = dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH) / 2L //use at max half size of the block.
+        maxPayloadForBlock[1.toShort()] = dp.fluxCapacitorService.getValue(FluxValues.MAX_PAYLOAD_LENGTH) / 2L //use at max half size of the block.
         averageBlockMinutes[1.toShort()] = 4L
         // end of AT version 1
 
@@ -68,13 +68,13 @@ class AtConstants(private val dp: DependencyProvider) {
         maxMachineCallStackPages[2.toShort()] = 10L
 
         blocksForRandom[2.toShort()] = 15L //for testing 2 -> normally 1440
-        maxPayloadForBlock[2.toShort()] = dp.fluxCapacitor.getValue(FluxValues.MAX_PAYLOAD_LENGTH) / 2L //use at max half size of the block.
+        maxPayloadForBlock[2.toShort()] = dp.fluxCapacitorService.getValue(FluxValues.MAX_PAYLOAD_LENGTH) / 2L //use at max half size of the block.
         averageBlockMinutes[2.toShort()] = 4L
         // end of AT version 2
     }
 
     fun atVersion(blockHeight: Int): Short {
-        return dp.fluxCapacitor.getValue(FluxValues.AT_VERSION, blockHeight)
+        return dp.fluxCapacitorService.getValue(FluxValues.AT_VERSION, blockHeight)
     }
 
     fun stepFee(height: Int): Long {

@@ -1,16 +1,16 @@
 package brs.services.impl
 
-import brs.Attachment
-import brs.Constants
+import brs.transaction.appendix.Attachment
+import brs.objects.Constants
 import brs.DependencyProvider
-import brs.Transaction
+import brs.entity.Transaction
 import brs.common.QuickMocker
 import brs.db.store.IndirectIncomingStore
-import brs.props.PropertyService
-import brs.props.Props
-import brs.transaction.payment.MultiOutPayment
-import brs.transaction.payment.MultiOutSamePayment
-import brs.transaction.payment.OrdinaryPayment
+import brs.services.PropertyService
+import brs.objects.Props
+import brs.transaction.type.payment.MultiOutPayment
+import brs.transaction.type.payment.MultiOutSamePayment
+import brs.transaction.type.payment.OrdinaryPayment
 import brs.util.delegates.Atomic
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertEquals

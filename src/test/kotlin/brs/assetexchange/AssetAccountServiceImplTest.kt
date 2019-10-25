@@ -1,7 +1,8 @@
 package brs.assetexchange
 
-import brs.Account.AccountAsset
+import brs.entity.Account.AccountAsset
 import brs.db.store.AccountStore
+import brs.services.impl.AssetAccountServiceImpl
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock

@@ -1,7 +1,7 @@
 package brs.db.store
 
-import brs.Escrow
-import brs.Transaction
+import brs.entity.Escrow
+import brs.entity.Transaction
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.db.sql.DbKey

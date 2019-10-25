@@ -1,8 +1,8 @@
 package brs.peer
 
-import brs.Block
-import brs.Blockchain
-import brs.Genesis
+import brs.entity.Block
+import brs.services.BlockchainService
+import brs.objects.Genesis
 import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -16,12 +16,12 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class GetNextBlocksTest {
     private lateinit var getNextBlocks: GetNextBlocks
-    private lateinit var mockBlockchain: Blockchain
+    private lateinit var mockBlockchainService: BlockchainService
     private lateinit var mockPeer: Peer
 
     @Before
     fun setUpGetNextBlocksTest() {
-        mockBlockchain = mock()
+        mockBlockchainService = mock()
         mockPeer = mock()
         val mockBlock = mock<Block>()
         whenever(mockBlock.toJsonObject()).doReturn(JsonObject())
@@ -29,8 +29,8 @@ class GetNextBlocksTest {
         repeat(100) {
             blocks.add(mockBlock)
         }
-        whenever(mockBlockchain.getBlocksAfter(eq(Genesis.GENESIS_BLOCK_ID), any())).doReturn(blocks)
-        getNextBlocks = GetNextBlocks(mockBlockchain)
+        whenever(mockBlockchainService.getBlocksAfter(eq(Genesis.GENESIS_BLOCK_ID), any())).doReturn(blocks)
+        getNextBlocks = GetNextBlocks(mockBlockchainService)
     }
 
     @Test

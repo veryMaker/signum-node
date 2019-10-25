@@ -1,8 +1,8 @@
 package brs.db.cache
 
-import brs.Account
 import brs.DependencyProvider
 import brs.db.BurstKey
+import brs.entity.Account
 import org.ehcache.Cache
 import org.ehcache.CacheManager
 import org.ehcache.Status
@@ -36,7 +36,7 @@ class DBCacheManagerImpl(private val dp: DependencyProvider) { // TODO interface
 
     fun <V> getCache(name: String, valueClass: Class<V>): Cache<BurstKey, V>? {
         val cache = getEHCache(name, valueClass) ?: return null
-        return StatisticsCache(cache, name, dp.statisticsManager)
+        return StatisticsCache(cache, name, dp.statisticsService)
     }
 
     fun flushCache() {

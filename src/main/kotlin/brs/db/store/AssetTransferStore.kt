@@ -1,6 +1,6 @@
 package brs.db.store
 
-import brs.AssetTransfer
+import brs.entity.AssetTransfer
 import brs.db.BurstKey
 import brs.db.sql.EntitySqlTable
 

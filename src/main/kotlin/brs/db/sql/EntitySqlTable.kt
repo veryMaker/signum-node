@@ -53,7 +53,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
     }
 
     override fun checkAvailable(height: Int) {
-        require(!(multiversion && height < dp.blockchainProcessor.minRollbackHeight)) { "Historical data as of height $height not available, set brs.trimDerivedTables=false and re-scan" }
+        require(!(multiversion && height < dp.blockchainProcessorService.minRollbackHeight)) { "Historical data as of height $height not available, set brs.trimDerivedTables=false and re-scan" }
     }
 
     override fun get(dbKey: BurstKey): T? {
@@ -64,7 +64,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
                 return t
             }
         }
-        return dp.db.getUsingDslContext<T?> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             query.addConditions(key.getPKConditions(tableClass))
@@ -81,7 +81,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
         val key = dbKey as DbKey
         checkAvailable(height)
 
-        return dp.db.getUsingDslContext<T?> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             query.addConditions(key.getPKConditions(tableClass))
@@ -101,7 +101,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
     }
 
     override fun getBy(condition: Condition): T? {
-        return dp.db.getUsingDslContext<T?> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             query.addConditions(condition)
@@ -116,7 +116,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
 
     override fun getBy(condition: Condition, height: Int): T? {
         checkAvailable(height)
-        return dp.db.getUsingDslContext<T?> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             query.addConditions(condition)
@@ -159,7 +159,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
     }
 
     override fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
-        return dp.db.getUsingDslContext<Collection<T>> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             query.addConditions(condition)
@@ -237,7 +237,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
     }
 
     override fun getAll(from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
-        return dp.db.getUsingDslContext<Collection<T>> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             if (multiversion) {
@@ -255,7 +255,7 @@ abstract class EntitySqlTable<T> internal constructor(table: String, tableClass:
 
     override fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         checkAvailable(height)
-        return dp.db.getUsingDslContext<Collection<T>> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
             query.addConditions(heightField.le(height))

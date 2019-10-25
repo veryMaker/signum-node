@@ -1,9 +1,9 @@
 package brs.services
 
-import brs.Alias
-import brs.Alias.Offer
-import brs.Attachment
-import brs.Transaction
+import brs.entity.Alias
+import brs.entity.Alias.Offer
+import brs.transaction.appendix.Attachment
+import brs.entity.Transaction
 
 interface AliasService {
     fun getAliasCount(): Long

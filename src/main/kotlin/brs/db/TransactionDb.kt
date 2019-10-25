@@ -1,6 +1,6 @@
 package brs.db
 
-import brs.Transaction
+import brs.entity.Transaction
 import brs.schema.tables.records.TransactionRecord
 
 interface TransactionDb : Table {

@@ -1,11 +1,11 @@
 package brs.services.impl
 
-import brs.Account
-import brs.Account.*
-import brs.AssetTransfer
-import brs.Constants
+import brs.entity.Account
+import brs.entity.Account.*
+import brs.entity.AssetTransfer
+import brs.objects.Constants
 import brs.DependencyProvider
-import brs.crypto.Crypto
+import brs.util.Crypto
 import brs.db.BurstKey.LinkKeyFactory
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedBatchEntityTable
@@ -225,7 +225,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     }
 
     override fun setRewardRecipientAssignment(account: Account, recipient: Long) {
-        val currentHeight = dp.blockchain.height
+        val currentHeight = dp.blockchainService.height
         var assignment = getRewardRecipientAssignment(account)
         if (assignment == null) {
             val burstKey = rewardRecipientAssignmentKeyFactory.newKey(account.id)

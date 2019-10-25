@@ -1,6 +1,6 @@
 package brs.common
 
-import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
+import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.util.mustGetAsInt
 import brs.util.mustGetAsJsonObject
 import com.google.gson.JsonElement

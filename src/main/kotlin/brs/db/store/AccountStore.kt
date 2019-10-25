@@ -1,6 +1,6 @@
 package brs.db.store
 
-import brs.Account
+import brs.entity.Account
 import brs.db.BurstKey
 import brs.db.VersionedBatchEntityTable
 import brs.db.VersionedEntityTable

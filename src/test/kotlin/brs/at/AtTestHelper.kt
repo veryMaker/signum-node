@@ -1,7 +1,7 @@
 package brs.at
 
-import brs.Account
-import brs.Blockchain
+import brs.entity.Account
+import brs.services.BlockchainService
 import brs.DependencyProvider
 import brs.common.QuickMocker
 import brs.common.TestConstants
@@ -10,8 +10,8 @@ import brs.db.VersionedBatchEntityTable
 import brs.db.VersionedEntityTable
 import brs.db.store.ATStore
 import brs.db.store.AccountStore
-import brs.props.PropertyService
-import brs.props.Props
+import brs.services.PropertyService
+import brs.objects.Props
 import brs.util.convert.parseHexString
 import com.nhaarman.mockitokotlin2.*
 import io.mockk.every
@@ -31,7 +31,7 @@ class AtTestHelper {
         val atLongKeyFactory = mock<BurstKey.LongKeyFactory<AT>>()
 
         val atStateLongKeyFactory = mock<BurstKey.LongKeyFactory<AT.ATState>>()
-        val mockBlockchain = mock<Blockchain>()
+        val mockBlockchain = mock<BlockchainService>()
         val mockPropertyService = mock<PropertyService>()
 
         val mockAtTable = mock<VersionedEntityTable<AT>>()

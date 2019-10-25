@@ -1,28 +1,35 @@
 package brs
 
-import brs.assetexchange.AssetExchangeImpl
+import brs.services.impl.AssetExchangeServiceImpl
 import brs.at.*
+import brs.services.impl.BlockchainServiceImpl
+import brs.services.BlockchainProcessorService
+import brs.services.impl.BlockchainProcessorServiceImpl
+import brs.services.impl.GeneratorServiceImpl
 import brs.db.cache.DBCacheManagerImpl
 import brs.db.sql.*
 import brs.db.store.DerivedTableManager
-import brs.deeplink.DeeplinkQRCodeGenerator
-import brs.feesuggestions.FeeSuggestionCalculator
-import brs.fluxcapacitor.FluxCapacitorImpl
-import brs.grpc.proto.BrsService
-import brs.http.API
-import brs.http.APITransactionManagerImpl
-import brs.peer.Peers
-import brs.props.PropertyService
-import brs.props.PropertyServiceImpl
-import brs.props.Props
+import brs.services.impl.DeeplinkQRCodeGeneratorServiceImpl
+import brs.services.impl.FeeSuggestionServiceImpl
+import brs.services.impl.FluxCapacitorServiceImpl
+import brs.api.grpc.proto.BrsService
+import brs.api.http.API
+import brs.api.http.APITransactionManagerImpl
+import brs.objects.Constants
+import brs.objects.Props
+import brs.services.impl.PeerServiceImpl
+import brs.services.PropertyService
+import brs.services.impl.PropertyServiceImpl
 import brs.services.impl.*
-import brs.statistics.StatisticsManagerImpl
-import brs.taskScheduler.impl.RxJavaTaskScheduler
-import brs.transaction.TransactionType
-import brs.unconfirmedtransactions.UnconfirmedTransactionStoreImpl
+import brs.services.impl.StatisticsServiceImpl
+import brs.services.impl.RxJavaTaskSchedulerService
+import brs.services.impl.TransactionProcessorServiceImpl
+import brs.transaction.type.TransactionType
+import brs.transaction.unconfirmed.UnconfirmedTransactionStoreImpl
 import brs.util.DownloadCacheImpl
 import brs.util.LoggerConfigurator
 import brs.util.Time
+import brs.util.Version
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import org.slf4j.LoggerFactory
@@ -44,7 +51,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
         try {
             val startTime = System.currentTimeMillis()
             Constants.init(dp)
-            dp.taskScheduler = RxJavaTaskScheduler()
+            dp.taskSchedulerService = RxJavaTaskSchedulerService()
             dp.atApi = AtApiPlatformImpl(dp)
             dp.atApiController = AtApiController(dp)
             dp.atController = AtController(dp)
@@ -53,7 +60,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             }
             dp.timeService = TimeServiceImpl()
             dp.derivedTableManager = DerivedTableManager()
-            dp.statisticsManager = StatisticsManagerImpl(dp)
+            dp.statisticsService = StatisticsServiceImpl(dp)
             dp.dbCacheManager = DBCacheManagerImpl(dp)
             LoggerConfigurator.init()
             dp.db = Db(dp)
@@ -74,53 +81,57 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.unconfirmedTransactionStore = UnconfirmedTransactionStoreImpl(dp)
             dp.indirectIncomingStore = SqlIndirectIncomingStore(dp)
             dp.blockchainStore = SqlBlockchainStore(dp)
-            dp.blockchain = BlockchainImpl(dp)
+            dp.blockchainService = BlockchainServiceImpl(dp)
             dp.aliasService = AliasServiceImpl(dp)
-            dp.fluxCapacitor = FluxCapacitorImpl(dp)
+            dp.fluxCapacitorService = FluxCapacitorServiceImpl(dp)
             dp.transactionTypes = TransactionType.getTransactionTypes(dp)
             dp.blockService = BlockServiceImpl(dp)
-            dp.blockchainProcessor = BlockchainProcessorImpl(dp)
+            dp.blockchainProcessorService = BlockchainProcessorServiceImpl(dp)
             dp.atConstants = AtConstants(dp)
-            dp.economicClustering = EconomicClustering(dp)
-            dp.generator = if (dp.propertyService.get(Props.DEV_MOCK_MINING)) GeneratorImpl.MockGenerator(dp) else GeneratorImpl(dp)
+            dp.economicClusteringService = EconomicClusteringServiceImpl(dp)
+            dp.generatorService = if (dp.propertyService.get(Props.DEV_MOCK_MINING)) GeneratorServiceImpl.MockGeneratorService(dp) else GeneratorServiceImpl(
+                dp
+            )
             dp.accountService = AccountServiceImpl(dp)
             dp.transactionService = TransactionServiceImpl(dp)
-            dp.transactionProcessor = TransactionProcessorImpl(dp)
+            dp.transactionProcessorService = TransactionProcessorServiceImpl(dp)
             dp.atService = ATServiceImpl(dp)
             dp.subscriptionService = SubscriptionServiceImpl(dp)
-            dp.digitalGoodsStoreService = DGSGoodsStoreServiceImpl(dp)
+            dp.digitalGoodsStoreService = DigitalGoodsStoreServiceImpl(dp)
             dp.escrowService = EscrowServiceImpl(dp)
-            dp.assetExchange = AssetExchangeImpl(dp)
+            dp.assetExchangeService = AssetExchangeServiceImpl(dp)
             dp.downloadCache = DownloadCacheImpl(dp)
             dp.indirectIncomingService = IndirectIncomingServiceImpl(dp)
-            dp.feeSuggestionCalculator = FeeSuggestionCalculator(dp)
-            dp.deeplinkQRCodeGenerator = DeeplinkQRCodeGenerator()
+            dp.feeSuggestionService = FeeSuggestionServiceImpl(dp)
+            dp.deeplinkQRCodeGeneratorService = DeeplinkQRCodeGeneratorServiceImpl()
             dp.parameterService = ParameterServiceImpl(dp)
-            dp.blockchainProcessor.addListener(BlockchainProcessor.Event.AFTER_BLOCK_APPLY, AT.handleATBlockTransactionsListener(dp))
-            dp.blockchainProcessor.addListener(BlockchainProcessor.Event.AFTER_BLOCK_APPLY, DGSGoodsStoreServiceImpl.expiredPurchaseListener(dp))
+            dp.blockchainProcessorService.addListener(BlockchainProcessorService.Event.AFTER_BLOCK_APPLY, AT.handleATBlockTransactionsListener(dp))
+            dp.blockchainProcessorService.addListener(BlockchainProcessorService.Event.AFTER_BLOCK_APPLY, DigitalGoodsStoreServiceImpl.expiredPurchaseListener(dp))
             dp.apiTransactionManager = APITransactionManagerImpl(dp)
-            dp.peers = Peers(dp)
+            dp.peerService = PeerServiceImpl(dp)
             dp.api = API(dp)
 
             if (dp.propertyService.get(Props.API_V2_SERVER)) {
                 val hostname = dp.propertyService.get(Props.API_V2_LISTEN)
-                val port = if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_API_V2_PORT) else dp.propertyService.get(Props.API_V2_PORT)
+                val port = if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_API_V2_PORT) else dp.propertyService.get(
+                    Props.API_V2_PORT)
                 logger.safeInfo { "Starting V2 API Server on port $port" }
                 dp.apiV2Server = BrsService(dp).start(hostname, port)
             } else {
                 logger.safeInfo { "Not starting V2 API Server - it is disabled." }
             }
 
-            val timeMultiplier = if (dp.propertyService.get(Props.DEV_TESTNET) && dp.propertyService.get(Props.DEV_OFFLINE)) dp.propertyService.get(Props.DEV_TIMEWARP).coerceAtLeast(1) else 1
+            val timeMultiplier = if (dp.propertyService.get(Props.DEV_TESTNET) && dp.propertyService.get(Props.DEV_OFFLINE)) dp.propertyService.get(
+                Props.DEV_TIMEWARP).coerceAtLeast(1) else 1
 
             logger.safeInfo { "Starting Task Scheduler" }
-            dp.taskScheduler.start()
+            dp.taskSchedulerService.start()
             if (timeMultiplier > 1) {
                 dp.timeService.setTime(
                     Time.FasterTime(
                         max(
                             dp.timeService.epochTime,
-                            dp.blockchain.lastBlock.timestamp
+                            dp.blockchainService.lastBlock.timestamp
                         ), timeMultiplier
                     )
                 )
@@ -160,10 +171,10 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.apiV2Server.shutdownNow()
         } catch (ignored: UninitializedPropertyAccessException) {}
         try {
-            dp.peers.shutdown()
+            dp.peerService.shutdown()
         } catch (ignored: UninitializedPropertyAccessException) {}
         try {
-            dp.taskScheduler.shutdown()
+            dp.taskSchedulerService.shutdown()
         } catch (ignored: UninitializedPropertyAccessException) {}
         if (!ignoreDBShutdown) {
             dp.db.shutdown()
@@ -172,7 +183,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.dbCacheManager.close()
         } catch (ignored: UninitializedPropertyAccessException) {}
         try {
-            if (dp.blockchainProcessor.oclVerify && dp.oclPoC != null) {
+            if (dp.blockchainProcessorService.oclVerify && dp.oclPoC != null) {
                 dp.oclPoC!!.destroy()
             }
         } catch (ignored: UninitializedPropertyAccessException) {}

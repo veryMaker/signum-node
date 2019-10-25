@@ -1,8 +1,14 @@
 package brs.services.impl
 
 import brs.*
-import brs.BurstException.NotValidException
+import brs.util.BurstException.NotValidException
+import brs.entity.Account
+import brs.entity.Block
+import brs.entity.Subscription
 import brs.services.SubscriptionService
+import brs.entity.Transaction
+import brs.objects.Constants
+import brs.transaction.appendix.Attachment
 import brs.util.convert.safeAdd
 
 class SubscriptionServiceImpl(private val dp: DependencyProvider) : SubscriptionService {
@@ -10,7 +16,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     private val subscriptionDbKeyFactory = dp.subscriptionStore.subscriptionDbKeyFactory
 
     override fun isEnabled(): Boolean {
-            if (dp.blockchain.lastBlock.height >= Constants.BURST_SUBSCRIPTION_START_BLOCK) {
+            if (dp.blockchainService.lastBlock.height >= Constants.BURST_SUBSCRIPTION_START_BLOCK) {
                 return true
             }
 
@@ -35,7 +41,15 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
 
     override fun addSubscription(sender: Account, recipient: Account, id: Long, amountPlanck: Long, startTimestamp: Int, frequency: Int) {
         val dbKey = subscriptionDbKeyFactory.newKey(id)
-        val subscription = Subscription(sender.id, recipient.id, id, amountPlanck, frequency, startTimestamp + frequency, dbKey)
+        val subscription = Subscription(
+            sender.id,
+            recipient.id,
+            id,
+            amountPlanck,
+            frequency,
+            startTimestamp + frequency,
+            dbKey
+        )
 
         subscriptionTable.insert(subscription)
     }

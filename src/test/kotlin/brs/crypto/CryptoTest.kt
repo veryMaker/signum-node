@@ -1,6 +1,7 @@
 package brs.crypto
 
 import brs.common.TestConstants
+import brs.util.*
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
 import burst.kit.crypto.BurstCrypto

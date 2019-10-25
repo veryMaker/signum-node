@@ -1,7 +1,7 @@
 package brs.db.store
 
-import brs.DigitalGoodsStore
-import brs.crypto.EncryptedData
+import brs.entity.DigitalGoodsStore
+import brs.entity.EncryptedData
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.db.VersionedValuesTable

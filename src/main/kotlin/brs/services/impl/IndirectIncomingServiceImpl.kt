@@ -1,13 +1,13 @@
 package brs.services.impl
 
-import brs.Attachment
+import brs.transaction.appendix.Attachment
 import brs.DependencyProvider
-import brs.Transaction
+import brs.entity.Transaction
 import brs.db.store.IndirectIncomingStore
-import brs.props.Props
+import brs.objects.Props
 import brs.services.IndirectIncomingService
-import brs.transaction.payment.MultiOutPayment
-import brs.transaction.payment.MultiOutSamePayment
+import brs.transaction.type.payment.MultiOutPayment
+import brs.transaction.type.payment.MultiOutSamePayment
 import brs.util.logging.safeWarn
 import org.slf4j.LoggerFactory
 

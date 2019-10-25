@@ -3,7 +3,7 @@ package it.common
 import brs.Burst
 import brs.common.TestInfrastructure
 import brs.peer.ProcessBlock
-import brs.props.Props
+import brs.objects.Props
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.runner.RunWith
@@ -23,7 +23,7 @@ abstract class AbstractIT {
     fun setupIT() {
         println("Setting up IT for test " + this.javaClass.toString())
         burst = Burst(testProperties(), false)
-        processBlock = ProcessBlock(burst.dp.blockchain, burst.dp.blockchainProcessor)
+        processBlock = ProcessBlock(burst.dp.blockchainService, burst.dp.blockchainProcessorService)
     }
 
     /**
@@ -60,6 +60,6 @@ abstract class AbstractIT {
     }
 
     fun rollback(height: Int) {
-        burst.dp.blockchainProcessor.popOffTo(height)
+        burst.dp.blockchainProcessorService.popOffTo(height)
     }
 }

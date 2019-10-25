@@ -1,6 +1,6 @@
 package brs.entity
 
-import brs.Version
+import brs.util.Version
 import org.junit.Test
 
 import org.junit.Assert.*

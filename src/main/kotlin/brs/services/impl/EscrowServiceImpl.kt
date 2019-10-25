@@ -1,10 +1,15 @@
 package brs.services.impl
 
 import brs.*
-import brs.Escrow.Decision
-import brs.Escrow.DecisionType
+import brs.entity.*
+import brs.entity.Escrow.Decision
+import brs.entity.Escrow.DecisionType
+import brs.objects.Constants
+import brs.objects.Genesis
 import brs.schema.Tables.ESCROW
 import brs.services.EscrowService
+import brs.transaction.appendix.Attachment
+import brs.util.BurstException
 import org.jooq.Condition
 import java.util.concurrent.ConcurrentSkipListSet
 
@@ -18,7 +23,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
     override fun getAllEscrowTransactions() = escrowTable.getAll(0, -1)
 
     override fun isEnabled(): Boolean {
-        if (dp.blockchain.lastBlock.height >= Constants.BURST_ESCROW_START_BLOCK) {
+        if (dp.blockchainService.lastBlock.height >= Constants.BURST_ESCROW_START_BLOCK) {
             return true
         }
 
@@ -47,7 +52,8 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
 
     override fun addEscrowTransaction(sender: Account, recipient: Account, id: Long, amountPlanck: Long, requiredSigners: Int, signers: Collection<Long>, deadline: Int, deadlineAction: DecisionType) {
         val dbKey = escrowDbKeyFactory.newKey(id)
-        val newEscrowTransaction = Escrow(dp, dbKey, sender, recipient, id, amountPlanck, requiredSigners, deadline, deadlineAction)
+        val newEscrowTransaction =
+            Escrow(dp, dbKey, sender, recipient, id, amountPlanck, requiredSigners, deadline, deadlineAction)
         escrowTable.insert(newEscrowTransaction)
         val senderDbKey = decisionDbKeyFactory.newKey(id, sender.id)
         val senderDecision = Decision(senderDbKey, id, sender.id, DecisionType.UNDECIDED)

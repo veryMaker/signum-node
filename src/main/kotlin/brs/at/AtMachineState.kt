@@ -8,7 +8,7 @@
 package brs.at
 
 import brs.DependencyProvider
-import brs.fluxcapacitor.FluxValues
+import brs.objects.FluxValues
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
@@ -321,7 +321,7 @@ open class AtMachineState {
             val bytes = ByteBuffer.allocate(MACHINE_STATE_SIZE)
             bytes.order(ByteOrder.LITTLE_ENDIAN)
 
-            if (dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_2)) {
+            if (dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_2)) {
                 flags[0] = ((if (running) 1 else 0)
                         or ((if (stopped) 1 else 0) shl 1)
                         or ((if (finished) 1 else 0) shl 2)

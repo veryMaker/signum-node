@@ -1,11 +1,15 @@
 package brs.db.sql
 
 import brs.*
+import brs.entity.Account
+import brs.entity.Block
 import brs.db.store.BlockchainStore
 import brs.schema.Tables.BLOCK
 import brs.schema.Tables.TRANSACTION
 import brs.schema.tables.records.BlockRecord
 import brs.schema.tables.records.TransactionRecord
+import brs.entity.Transaction
+import brs.util.BurstException
 import brs.util.db.fetchAndMap
 import brs.util.db.inlineMap
 import org.jooq.Condition
@@ -19,8 +23,8 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
     override fun getAllTransactions() = dp.db.getUsingDslContext { ctx -> getTransactions(ctx, ctx.selectFrom(TRANSACTION).orderBy(TRANSACTION.DB_ID.asc()).fetch()) }
 
     override fun getBlocks(from: Int, to: Int): Collection<Block> {
-        return dp.db.getUsingDslContext<Collection<Block>> { ctx ->
-            val blockchainHeight = dp.blockchain.height
+        return dp.db.getUsingDslContext { ctx ->
+            val blockchainHeight = dp.blockchainService.height
             getBlocks(ctx.selectFrom(BLOCK)
                     .where(BLOCK.HEIGHT.between(if (to > 0) blockchainHeight - to else 0).and(blockchainHeight - max(from, 0)))
                     .orderBy(BLOCK.HEIGHT.desc())
@@ -29,7 +33,7 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
     }
 
     override fun getBlocks(account: Account, timestamp: Int, from: Int, to: Int): Collection<Block> {
-        return dp.db.getUsingDslContext<Collection<Block>> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectFrom(BLOCK).where(BLOCK.GENERATOR_ID.eq(account.id))
             if (timestamp > 0) {
                 query.and(BLOCK.TIMESTAMP.ge(timestamp))
@@ -60,7 +64,7 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
 
     override fun getBlocksAfter(blockId: Long, limit: Int): Collection<Block> {
         require(limit <= 1440) { "Can't get more than 1440 blocks at a time" }
-        return dp.db.getUsingDslContext<List<Block>> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             ctx.selectFrom(BLOCK)
                     .where(BLOCK.HEIGHT.gt(ctx.select(BLOCK.HEIGHT).from(BLOCK).where(BLOCK.ID.eq(blockId))))
                     .orderBy(BLOCK.HEIGHT.asc())
@@ -76,9 +80,9 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
     }
 
     override fun getTransactions(account: Account, numberOfConfirmations: Int, type: Byte, subtype: Byte, blockTimestamp: Int, from: Int, to: Int, includeIndirectIncoming: Boolean): Collection<Transaction> {
-        val height = if (numberOfConfirmations > 0) dp.blockchain.height - numberOfConfirmations else Integer.MAX_VALUE
-        require(height >= 0) { "Number of confirmations required " + numberOfConfirmations + " exceeds current blockchain height " + dp.blockchain.height }
-        return dp.db.getUsingDslContext<Collection<Transaction>> { ctx ->
+        val height = if (numberOfConfirmations > 0) dp.blockchainService.height - numberOfConfirmations else Integer.MAX_VALUE
+        require(height >= 0) { "Number of confirmations required " + numberOfConfirmations + " exceeds current blockchain height " + dp.blockchainService.height }
+        return dp.db.getUsingDslContext { ctx ->
             val conditions = mutableListOf<Condition>()
             if (blockTimestamp > 0) {
                 conditions.add(TRANSACTION.BLOCK_TIMESTAMP.ge(blockTimestamp))
@@ -138,7 +142,7 @@ class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
 
         val firstLatestBlockHeight = max(0, latestBlockHeight - amountBlocks)
 
-        return dp.db.getUsingDslContext<Collection<Block>> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             getBlocks(ctx.selectFrom(BLOCK)
                     .where(BLOCK.HEIGHT.between(firstLatestBlockHeight).and(latestBlockHeight))
                     .orderBy(BLOCK.HEIGHT.asc())

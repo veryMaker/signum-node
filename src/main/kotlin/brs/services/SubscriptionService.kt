@@ -1,8 +1,8 @@
 package brs.services
 
-import brs.Account
-import brs.Block
-import brs.Subscription
+import brs.entity.Account
+import brs.entity.Block
+import brs.entity.Subscription
 
 interface SubscriptionService {
     fun isEnabled(): Boolean

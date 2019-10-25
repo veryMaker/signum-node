@@ -1,23 +1,23 @@
 package brs.peer
 
-import brs.Blockchain
-import brs.BlockchainProcessor
-import brs.BurstException
+import brs.services.BlockchainService
+import brs.services.BlockchainProcessorService
+import brs.util.BurstException
 import brs.util.safeGetAsString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
-class ProcessBlock(private val blockchain: Blockchain, private val blockchainProcessor: BlockchainProcessor) : PeerServlet.PeerRequestHandler {
+class ProcessBlock(private val blockchainService: BlockchainService, private val blockchainProcessorService: BlockchainProcessorService) : PeerServlet.PeerRequestHandler {
 
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
 
         try {
-            if (blockchain.lastBlock.stringId != request.get("previousBlock").safeGetAsString()) {
+            if (blockchainService.lastBlock.stringId != request.get("previousBlock").safeGetAsString()) {
                 // do this check first to avoid validation failures of future blocks and transactions
                 // when loading blockchain from scratch
                 return NOT_ACCEPTED
             }
-            blockchainProcessor.processPeerBlock(request, peer)
+            blockchainProcessorService.processPeerBlock(request, peer)
             return ACCEPTED
 
         } catch (e: BurstException) {

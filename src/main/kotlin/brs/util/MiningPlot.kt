@@ -1,13 +1,12 @@
 package brs.util
 
-import brs.crypto.Crypto
-import brs.fluxcapacitor.FluxCapacitor
-import brs.fluxcapacitor.FluxValues
+import brs.services.FluxCapacitorService
+import brs.objects.FluxValues
 import java.nio.ByteBuffer
 import java.security.MessageDigest
 import kotlin.experimental.xor
 
-class MiningPlot(addr: Long, nonce: Long, blockHeight: Int, fluxCapacitor: FluxCapacitor) {
+class MiningPlot(addr: Long, nonce: Long, blockHeight: Int, fluxCapacitorService: FluxCapacitorService) {
 
     private val data = ByteArray(PLOT_SIZE)
 
@@ -34,7 +33,7 @@ class MiningPlot(addr: Long, nonce: Long, blockHeight: Int, fluxCapacitor: FluxC
             data[index] = (gendata[index] xor finalhash[index % HASH_SIZE])
         }
         //PoC2 Rearrangement
-        if (fluxCapacitor.getValue(FluxValues.POC2, blockHeight)) {
+        if (fluxCapacitorService.getValue(FluxValues.POC2, blockHeight)) {
             val hashBuffer = ByteArray(HASH_SIZE)
             var revPos = PLOT_SIZE - HASH_SIZE //Start at second hash in last scoop
             var pos = 32

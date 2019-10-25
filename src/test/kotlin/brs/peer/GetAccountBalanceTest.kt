@@ -1,6 +1,6 @@
 package brs.peer
 
-import brs.Account
+import brs.entity.Account
 import brs.common.TestConstants.TEST_ACCOUNT_ID
 import brs.common.TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED
 import brs.peer.GetAccountBalance.Companion.ACCOUNT_ID_PARAMETER_FIELD

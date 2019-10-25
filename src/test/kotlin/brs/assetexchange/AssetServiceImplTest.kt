@@ -1,16 +1,20 @@
 package brs.assetexchange
 
-import brs.Account.AccountAsset
-import brs.Asset
-import brs.AssetTransfer
-import brs.Attachment.ColoredCoinsAssetIssuance
-import brs.Trade
-import brs.Transaction
+import brs.entity.Account.AccountAsset
+import brs.entity.Asset
+import brs.entity.AssetTransfer
+import brs.transaction.appendix.Attachment.ColoredCoinsAssetIssuance
+import brs.entity.Trade
+import brs.entity.Transaction
 import brs.common.AbstractUnitTest
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.sql.EntitySqlTable
 import brs.db.store.AssetStore
+import brs.services.impl.AssetAccountServiceImpl
+import brs.services.impl.AssetServiceImpl
+import brs.services.impl.AssetTradeServiceImpl
+import brs.services.impl.AssetTransferServiceImpl
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -23,7 +27,7 @@ class AssetServiceImplTest : AbstractUnitTest() {
 
     private lateinit var assetAccountServiceMock: AssetAccountServiceImpl
     private lateinit var assetTransferServicMock: AssetTransferServiceImpl
-    private lateinit var tradeServiceMock: TradeServiceImpl
+    private lateinit var tradeServiceMock: AssetTradeServiceImpl
     private lateinit var assetStoreMock: AssetStore
     private lateinit var assetTableMock: EntitySqlTable<Asset>
     private lateinit var assetDbKeyFactoryMock: LongKeyFactory<Asset>
@@ -41,7 +45,12 @@ class AssetServiceImplTest : AbstractUnitTest() {
         whenever(assetStoreMock.assetTable).doReturn(assetTableMock)
         whenever(assetStoreMock.assetDbKeyFactory).doReturn(assetDbKeyFactoryMock)
 
-        t = AssetServiceImpl(assetAccountServiceMock, tradeServiceMock, assetStoreMock, assetTransferServicMock)
+        t = AssetServiceImpl(
+            assetAccountServiceMock,
+            tradeServiceMock,
+            assetStoreMock,
+            assetTransferServicMock
+        )
     }
 
     @Test

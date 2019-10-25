@@ -1,8 +1,8 @@
 package brs.services
 
-import brs.Account
-import brs.Account.*
-import brs.AssetTransfer
+import brs.entity.AssetTransfer
+import brs.entity.Account
+import brs.entity.Account.*
 import brs.util.Observable
 
 interface AccountService : Observable<Account, Event> {

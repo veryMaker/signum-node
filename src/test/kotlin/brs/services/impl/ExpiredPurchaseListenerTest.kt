@@ -1,12 +1,12 @@
 package brs.services.impl
 
-import brs.Account
-import brs.Block
-import brs.DigitalGoodsStore.Purchase
+import brs.entity.Account
+import brs.entity.Block
+import brs.entity.DigitalGoodsStore.Purchase
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.services.AccountService
-import brs.services.DGSGoodsStoreService
+import brs.services.DigitalGoodsStoreService
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Before
 import org.junit.Test
@@ -15,18 +15,18 @@ import org.junit.Test
 class ExpiredPurchaseListenerTest : AbstractUnitTest() {
 
     private lateinit var accountServiceMock: AccountService
-    private lateinit var dgsGoodsStoreServiceMock: DGSGoodsStoreService
+    private lateinit var digitalGoodsStoreServiceMock: DigitalGoodsStoreService
 
     private lateinit var t: (Block) -> Unit
 
     @Before
     fun setUp() {
         accountServiceMock = mock()
-        dgsGoodsStoreServiceMock = mock()
+        digitalGoodsStoreServiceMock = mock()
 
-        t = DGSGoodsStoreServiceImpl.expiredPurchaseListener(QuickMocker.dependencyProvider(
+        t = DigitalGoodsStoreServiceImpl.expiredPurchaseListener(QuickMocker.dependencyProvider(
             accountServiceMock,
-            dgsGoodsStoreServiceMock
+            digitalGoodsStoreServiceMock
         ))
     }
 
@@ -47,12 +47,12 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
         whenever(expiredPurchase.buyerId).doReturn(purchaseBuyerId)
 
         val mockIterator = mockCollection(expiredPurchase)
-        whenever(dgsGoodsStoreServiceMock.getExpiredPendingPurchases(eq(blockTimestamp))).doReturn(mockIterator)
+        whenever(digitalGoodsStoreServiceMock.getExpiredPendingPurchases(eq(blockTimestamp))).doReturn(mockIterator)
 
         t(block)
 
         verify(accountServiceMock).addToUnconfirmedBalancePlanck(eq(purchaseBuyer), eq(15000L))
 
-        verify(dgsGoodsStoreServiceMock).setPending(eq(expiredPurchase), eq(false))
+        verify(digitalGoodsStoreServiceMock).setPending(eq(expiredPurchase), eq(false))
     }
 }

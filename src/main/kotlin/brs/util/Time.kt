@@ -1,6 +1,6 @@
 package brs.util
 
-import brs.Constants
+import brs.objects.Constants
 
 // TODO burstkit4j integration
 interface Time {

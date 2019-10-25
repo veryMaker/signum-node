@@ -7,8 +7,15 @@
 package brs.at
 
 import brs.*
+import brs.entity.Account
+import brs.entity.Block
+import brs.objects.Genesis
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
+import brs.entity.Transaction
+import brs.transaction.appendix.Appendix
+import brs.transaction.appendix.Attachment
+import brs.util.BurstException
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -27,7 +34,7 @@ class AT : AtMachineState {
         this.name = name
         this.description = description
         dbKey = atDbKeyFactory(dp).newKey(AtApiHelper.getLong(atId))
-        this.nextHeight = dp.blockchain.height
+        this.nextHeight = dp.blockchainService.height
     }
 
     constructor(dp: DependencyProvider, atId: ByteArray, creator: ByteArray, name: String, description: String, version: Short,
@@ -49,7 +56,7 @@ class AT : AtMachineState {
 
     fun saveState() {
         var state: ATState? = atStateTable()[atStateDbKeyFactory(dp).newKey(AtApiHelper.getLong(this.id!!))]
-        val prevHeight = dp.blockchain.height
+        val prevHeight = dp.blockchainService.height
         val newNextHeight = prevHeight + waitForNumberOfBlocks
         if (state != null) {
             state.state = this.state
@@ -233,7 +240,7 @@ class AT : AtMachineState {
 
                 val message = atTransaction.message
                 if (message != null) {
-                    builder.message(Appendix.Message(dp, message, dp.blockchain.height))
+                    builder.message(Appendix.Message(dp, message, dp.blockchainService.height))
                 }
 
                 try {

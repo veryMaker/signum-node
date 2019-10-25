@@ -1,7 +1,7 @@
 package brs.db.sql
 
-import brs.Block
-import brs.BurstException
+import brs.entity.Block
+import brs.util.BurstException
 import brs.DependencyProvider
 import brs.db.BlockDb
 import brs.schema.Tables.BLOCK
@@ -17,7 +17,7 @@ import java.util.*
 class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
 
     override fun findBlock(blockId: Long): Block? {
-        return dp.db.getUsingDslContext<Block?> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             try {
                 val r = ctx.selectFrom(BLOCK).where(BLOCK.ID.eq(blockId)).fetchAny()
                 return@getUsingDslContext if (r == null) null else loadBlock(r)
@@ -32,7 +32,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     }
 
     override fun findBlockIdAtHeight(height: Int): Long {
-        return dp.db.getUsingDslContext<Long> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val id = ctx.select(BLOCK.ID).from(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchOne(BLOCK.ID)
                     ?: throw RuntimeException("Block at height $height not found in database!")
             id
@@ -40,7 +40,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     }
 
     override fun findBlockAtHeight(height: Int): Block {
-        return dp.db.getUsingDslContext<Block> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             try {
                 return@getUsingDslContext loadBlock(ctx.selectFrom(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchAny() ?: throw RuntimeException("Block at height $height not found in database!"))
             } catch (e: BurstException.ValidationException) {
@@ -50,7 +50,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     }
 
     override fun findLastBlock(): Block {
-        return dp.db.getUsingDslContext<Block> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             try {
                 return@getUsingDslContext loadBlock(ctx.selectFrom(BLOCK)
                         .orderBy(BLOCK.DB_ID.desc())
@@ -63,7 +63,7 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     }
 
     override fun findLastBlock(timestamp: Int): Block {
-        return dp.db.getUsingDslContext<Block> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             try {
                 return@getUsingDslContext loadBlock(ctx.selectFrom(BLOCK)
                         .where(BLOCK.TIMESTAMP.lessOrEqual(timestamp))
@@ -96,9 +96,11 @@ class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
         val nonce = r.nonce!!
         val blockATs = r.ats
 
-        return Block(dp, version, timestamp, previousBlockId, totalAmountPlanck, totalFeePlanck, payloadLength, payloadHash,
-                generatorPublicKey, generationSignature, blockSignature, previousBlockHash,
-                cumulativeDifficulty, baseTarget, nextBlockId, height, id, nonce, blockATs)
+        return Block(
+            dp, version, timestamp, previousBlockId, totalAmountPlanck, totalFeePlanck, payloadLength, payloadHash,
+            generatorPublicKey, generationSignature, blockSignature, previousBlockHash,
+            cumulativeDifficulty, baseTarget, nextBlockId, height, id, nonce, blockATs
+        )
     }
 
     override fun saveBlock(ctx: DSLContext, block: Block) {

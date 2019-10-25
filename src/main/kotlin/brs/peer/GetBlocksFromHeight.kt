@@ -1,12 +1,12 @@
 package brs.peer
 
-import brs.Blockchain
+import brs.services.BlockchainService
 import brs.util.mustGetAsInt
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
-internal class GetBlocksFromHeight(private val blockchain: Blockchain) : PeerServlet.PeerRequestHandler {
+internal class GetBlocksFromHeight(private val blockchainService: BlockchainService) : PeerServlet.PeerRequestHandler {
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         val response = JsonObject()
         var blockHeight = request.get("height").mustGetAsInt("numBlocks")
@@ -25,8 +25,8 @@ internal class GetBlocksFromHeight(private val blockchain: Blockchain) : PeerSer
             blockHeight = 0
         }
 
-        val blockId = blockchain.getBlockIdAtHeight(blockHeight)
-        val blocks = blockchain.getBlocksAfter(blockId, numBlocks)
+        val blockId = blockchainService.getBlockIdAtHeight(blockHeight)
+        val blocks = blockchainService.getBlocksAfter(blockId, numBlocks)
         val nextBlocksArray = JsonArray()
         for (nextBlock in blocks) {
             nextBlocksArray.add(nextBlock.toJsonObject())

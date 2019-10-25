@@ -1,28 +1,25 @@
 package brs
 
-import brs.assetexchange.AssetExchange
+import brs.api.http.API
+import brs.api.http.APITransactionManager
 import brs.at.AtApi
 import brs.at.AtApiController
 import brs.at.AtConstants
 import brs.at.AtController
+import brs.services.BlockchainService
+import brs.services.BlockchainProcessorService
 import brs.db.BlockDb
 import brs.db.PeerDb
 import brs.db.TransactionDb
 import brs.db.cache.DBCacheManagerImpl
 import brs.db.sql.Db
 import brs.db.store.*
-import brs.deeplink.DeeplinkQRCodeGenerator
-import brs.feesuggestions.FeeSuggestionCalculator
-import brs.fluxcapacitor.FluxCapacitor
-import brs.http.API
-import brs.http.APITransactionManager
-import brs.peer.Peers
-import brs.props.PropertyService
+import brs.services.FluxCapacitorService
 import brs.services.*
-import brs.statistics.StatisticsManagerImpl
-import brs.taskScheduler.TaskScheduler
-import brs.transaction.TransactionType
-import brs.unconfirmedtransactions.UnconfirmedTransactionStore
+import brs.services.TaskSchedulerService
+import brs.services.TransactionProcessorService
+import brs.transaction.type.TransactionType
+import brs.transaction.unconfirmed.UnconfirmedTransactionStore
 import brs.util.DownloadCacheImpl
 import io.grpc.Server
 
@@ -43,36 +40,36 @@ class DependencyProvider {
     lateinit var blockDb: BlockDb
     lateinit var transactionDb: TransactionDb
     lateinit var peerDb: PeerDb
-    lateinit var blockchain: Blockchain
-    lateinit var blockchainProcessor: BlockchainProcessor
-    lateinit var transactionProcessor: TransactionProcessor
+    lateinit var blockchainService: BlockchainService
+    lateinit var blockchainProcessorService: BlockchainProcessorService
+    lateinit var transactionProcessorService: TransactionProcessorService
     lateinit var propertyService: PropertyService
-    lateinit var fluxCapacitor: FluxCapacitor
+    lateinit var fluxCapacitorService: FluxCapacitorService
     lateinit var dbCacheManager: DBCacheManagerImpl
     lateinit var api: API
     lateinit var apiV2Server: Server
     lateinit var timeService: TimeService
     lateinit var derivedTableManager: DerivedTableManager
-    lateinit var statisticsManager: StatisticsManagerImpl
-    lateinit var taskScheduler: TaskScheduler
+    lateinit var statisticsService: StatisticsService
+    lateinit var taskSchedulerService: TaskSchedulerService
     lateinit var aliasService: AliasService
-    lateinit var economicClustering: EconomicClustering
-    lateinit var generator: Generator
+    lateinit var economicClusteringService: EconomicClusteringService
+    lateinit var generatorService: GeneratorService
     lateinit var accountService: AccountService
     lateinit var transactionService: TransactionService
     lateinit var atService: ATService
     lateinit var subscriptionService: SubscriptionService
-    lateinit var digitalGoodsStoreService: DGSGoodsStoreService
+    lateinit var digitalGoodsStoreService: DigitalGoodsStoreService
     lateinit var escrowService: EscrowService
-    lateinit var assetExchange: AssetExchange
+    lateinit var assetExchangeService: AssetExchangeService
     lateinit var downloadCache: DownloadCacheImpl
     lateinit var indirectIncomingService: IndirectIncomingService
     lateinit var blockService: BlockService
-    lateinit var feeSuggestionCalculator: FeeSuggestionCalculator
-    lateinit var deeplinkQRCodeGenerator: DeeplinkQRCodeGenerator
+    lateinit var feeSuggestionService: FeeSuggestionService
+    lateinit var deeplinkQRCodeGeneratorService: DeeplinkQRCodeGeneratorService
     lateinit var parameterService: ParameterService
     lateinit var apiTransactionManager: APITransactionManager
-    lateinit var peers: Peers
+    lateinit var peerService: PeerService
     var oclPoC: OCLPoC? = null
     lateinit var atConstants: AtConstants
     lateinit var atApi: AtApi

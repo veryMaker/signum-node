@@ -9,7 +9,7 @@ internal class GetPeers(private val dp: DependencyProvider) : PeerServlet.PeerRe
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         val response = JsonObject()
         val peers = JsonArray()
-        for (otherPeer in dp.peers.allPeers) {
+        for (otherPeer in dp.peerService.allPeers) {
             if (!otherPeer.isBlacklisted && otherPeer.announcedAddress != null && otherPeer.state == Peer.State.CONNECTED && otherPeer.shareAddress) {
                 peers.add(otherPeer.announcedAddress)
             }

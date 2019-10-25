@@ -1,7 +1,7 @@
 package brs.services.impl
 
-import brs.Blockchain
-import brs.Escrow
+import brs.services.BlockchainService
+import brs.entity.Escrow
 import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
@@ -24,7 +24,7 @@ class EscrowServiceImplTest {
     private lateinit var mockEscrowStore: EscrowStore
     private lateinit var mockEscrowTable: VersionedEntityTable<Escrow>
     private lateinit var mockEscrowDbKeyFactory: LongKeyFactory<Escrow>
-    private lateinit var blockchainMock: Blockchain
+    private lateinit var blockchainServiceMock: BlockchainService
     private lateinit var aliasServiceMock: AliasService
     private lateinit var accountServiceMock: AccountService
 
@@ -34,7 +34,7 @@ class EscrowServiceImplTest {
         mockEscrowTable = mock()
         mockEscrowDbKeyFactory = mock()
 
-        blockchainMock = mock()
+        blockchainServiceMock = mock()
         aliasServiceMock = mock()
         accountServiceMock = mock()
 
@@ -43,7 +43,7 @@ class EscrowServiceImplTest {
 
         t = EscrowServiceImpl(QuickMocker.dependencyProvider(
             mockEscrowStore,
-            blockchainMock,
+            blockchainServiceMock,
             aliasServiceMock,
             accountServiceMock
         ))

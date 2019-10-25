@@ -1,6 +1,6 @@
 package brs.db.sql
 
-import brs.AssetTransfer
+import brs.entity.AssetTransfer
 import brs.DependencyProvider
 import brs.db.BurstKey
 import brs.db.store.AssetTransferStore
@@ -37,7 +37,7 @@ class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferS
     }
 
     override fun getAccountAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer> {
-        return dp.db.getUsingDslContext<Collection<AssetTransfer>> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val selectQuery = ctx
                     .selectFrom(ASSET_TRANSFER).where(
                             ASSET_TRANSFER.SENDER_ID.eq(accountId)
@@ -76,7 +76,7 @@ class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferS
     }
 
     override fun getTransferCount(assetId: Long): Int {
-        return dp.db.getUsingDslContext<Int> { ctx -> ctx.fetchCount(ctx.selectFrom(ASSET_TRANSFER).where(ASSET_TRANSFER.ASSET_ID.eq(assetId))) }
+        return dp.db.getUsingDslContext { ctx -> ctx.fetchCount(ctx.selectFrom(ASSET_TRANSFER).where(ASSET_TRANSFER.ASSET_ID.eq(assetId))) }
     }
 
     internal inner class SqlAssetTransfer(record: Record) : AssetTransfer(record.get(ASSET_TRANSFER.ID), transferDbKeyFactory.newKey(record.get(ASSET_TRANSFER.ID)), record.get(ASSET_TRANSFER.ASSET_ID), record.get(ASSET_TRANSFER.HEIGHT), record.get(ASSET_TRANSFER.SENDER_ID), record.get(ASSET_TRANSFER.RECIPIENT_ID), record.get(ASSET_TRANSFER.QUANTITY), record.get(ASSET_TRANSFER.TIMESTAMP))

@@ -1,8 +1,8 @@
 package brs.util.convert
 
-import brs.BurstException
-import brs.crypto.burstCrypto
-import brs.crypto.rsEncode
+import brs.util.BurstException
+import brs.util.burstCrypto
+import brs.util.rsEncode
 import burst.kit.entity.BurstAddress
 import org.bouncycastle.util.encoders.DecoderException
 import org.bouncycastle.util.encoders.Hex

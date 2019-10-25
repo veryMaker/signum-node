@@ -1,6 +1,6 @@
 package brs.services
 
-import brs.Transaction
+import brs.entity.Transaction
 
 interface IndirectIncomingService {
     fun processTransaction(transaction: Transaction)

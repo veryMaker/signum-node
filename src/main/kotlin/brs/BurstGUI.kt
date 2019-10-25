@@ -1,6 +1,6 @@
 package brs
 
-import brs.props.Props
+import brs.objects.Props
 import brs.util.logging.safeError
 import javafx.application.Application
 import javafx.application.Platform
@@ -103,7 +103,8 @@ class BurstGUI : Application() {
                 return
             }
             val propertyService = burst!!.dp.propertyService
-            val port = if (propertyService.get(Props.DEV_TESTNET)) propertyService.get(Props.DEV_API_PORT) else propertyService.get(Props.API_PORT)
+            val port = if (propertyService.get(Props.DEV_TESTNET)) propertyService.get(Props.DEV_API_PORT) else propertyService.get(
+                Props.API_PORT)
             val httpPrefix = if (propertyService.get(Props.API_SSL)) "https://" else "http://"
             val address = httpPrefix + "localhost:" + port
             try {

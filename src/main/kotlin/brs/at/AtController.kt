@@ -1,10 +1,10 @@
 package brs.at
 
-import brs.Account
+import brs.entity.Account
 import brs.DependencyProvider
-import brs.crypto.Crypto
-import brs.fluxcapacitor.FluxValues
-import brs.props.Props
+import brs.util.Crypto
+import brs.objects.FluxValues
+import brs.objects.Props
 import brs.util.convert.toUnsignedString
 import brs.util.logging.safeDebug
 import org.slf4j.LoggerFactory
@@ -236,7 +236,7 @@ class AtController(private val dp: DependencyProvider) {
                     at.setpBalance(at.getgBalance())
 
                     val amount = makeTransactions(at)
-                    if (!dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
+                    if (!dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
                         totalAmount = amount
                     } else {
                         totalAmount += amount
@@ -305,7 +305,7 @@ class AtController(private val dp: DependencyProvider) {
                 }
                 at.setpBalance(at.getgBalance())
 
-                if (!dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
+                if (!dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
                     totalAmount = makeTransactions(at)
                 } else {
                     totalAmount += makeTransactions(at)
@@ -387,7 +387,7 @@ class AtController(private val dp: DependencyProvider) {
     //platform based
     private fun makeTransactions(at: AT): Long {
         var totalAmount: Long = 0
-        if (!dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_4, at.height)) {
+        if (!dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_4, at.height)) {
             for (tx in at.transactions.values) {
                 if (AT.findPendingTransaction(tx.recipientId)) {
                     throw AtException("Conflicting transaction found")

@@ -1,9 +1,9 @@
 package brs.services
 
-import brs.Account
-import brs.Block
-import brs.Escrow
-import brs.Escrow.DecisionType
+import brs.entity.Account
+import brs.entity.Block
+import brs.entity.Escrow
+import brs.entity.Escrow.DecisionType
 
 interface EscrowService {
     fun getAllEscrowTransactions(): Collection<Escrow>

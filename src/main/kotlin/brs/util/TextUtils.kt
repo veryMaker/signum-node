@@ -1,6 +1,6 @@
 package brs.util
 
-import brs.Constants
+import brs.objects.Constants
 import java.util.*
 
 object TextUtils { // TODO extension function

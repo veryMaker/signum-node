@@ -1,8 +1,8 @@
 package brs.services
 
-import brs.Transaction
+import brs.entity.Transaction
 
-interface TransactionService {
+interface TransactionService { // TODO combine with transactionprocessor
     fun verifyPublicKey(transaction: Transaction): Boolean
 
     fun validate(transaction: Transaction)

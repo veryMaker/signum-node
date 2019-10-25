@@ -19,12 +19,12 @@ abstract class VersionedEntitySqlTable<T> internal constructor(table: String, ta
     override fun delete(t: T): Boolean {
         check(dp.db.isInTransaction()) { "Not in transaction" }
         val dbKey = dbKeyFactory.newKey(t) as DbKey
-        return dp.db.getUsingDslContext<Boolean> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             try {
                 val countQuery = ctx.selectQuery()
                 countQuery.addFrom(tableClass)
                 countQuery.addConditions(dbKey.getPKConditions(tableClass))
-                countQuery.addConditions(heightField.lt(dp.blockchain.height))
+                countQuery.addConditions(heightField.lt(dp.blockchainService.height))
                 if (ctx.fetchCount(countQuery) > 0) {
                     val updateQuery = ctx.updateQuery(tableClass)
                     updateQuery.addValue(

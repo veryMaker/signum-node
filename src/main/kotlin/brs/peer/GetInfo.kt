@@ -1,6 +1,7 @@
 package brs.peer
 
 import brs.DependencyProvider
+import brs.services.PeerService
 import brs.util.mustGetAsBoolean
 import brs.util.mustGetAsString
 import com.google.gson.JsonElement
@@ -40,8 +41,8 @@ internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerReq
         peer.shareAddress = request.get("shareAddress").mustGetAsBoolean("shareAddress")
         peer.lastUpdated = dp.timeService.epochTime
 
-        dp.peers.notifyListeners(peer, Peers.Event.ADDED_ACTIVE_PEER)
+        dp.peerService.notifyListeners(peer, PeerService.Event.ADDED_ACTIVE_PEER)
 
-        return dp.peers.myPeerInfoResponse
+        return dp.peerService.myPeerInfoResponse
     }
 }

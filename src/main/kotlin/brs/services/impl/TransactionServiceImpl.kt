@@ -1,8 +1,8 @@
 package brs.services.impl
 
-import brs.BurstException
+import brs.util.BurstException
 import brs.DependencyProvider
-import brs.Transaction
+import brs.entity.Transaction
 import brs.services.TransactionService
 
 class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionService {
@@ -18,10 +18,10 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
         for (appendage in transaction.appendages) {
             appendage.validate(transaction)
         }
-        val minimumFeePlanck = transaction.type.minimumFeePlanck(dp.blockchain.height, transaction.appendagesSize)
+        val minimumFeePlanck = transaction.type.minimumFeePlanck(dp.blockchainService.height, transaction.appendagesSize)
         if (transaction.feePlanck < minimumFeePlanck) {
             throw BurstException.NotCurrentlyValidException(String.format("Transaction fee %d less than minimum fee %d at height %d",
-                    transaction.feePlanck, minimumFeePlanck, dp.blockchain.height))
+                    transaction.feePlanck, minimumFeePlanck, dp.blockchainService.height))
         }
     }
 

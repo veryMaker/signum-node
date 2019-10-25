@@ -1,6 +1,6 @@
 package brs.util
 
-import brs.Constants.PROTOCOL
+import brs.objects.Constants.PROTOCOL
 import com.google.gson.*
 import com.google.gson.stream.JsonReader
 import java.io.Reader

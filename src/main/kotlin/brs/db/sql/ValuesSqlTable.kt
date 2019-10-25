@@ -15,7 +15,7 @@ abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableCla
     protected abstract fun save(ctx: DSLContext, t: T, v: V)
 
     override fun get(dbKey: BurstKey): List<V> {
-        return dp.db.getUsingDslContext<List<V>> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val key = dbKey as DbKey
             var values: List<V>?
             if (dp.db.isInTransaction()) {

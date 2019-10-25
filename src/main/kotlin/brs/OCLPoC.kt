@@ -1,6 +1,8 @@
 package brs
 
-import brs.props.Props
+import brs.entity.Block
+import brs.objects.Props
+import brs.services.BlockchainProcessorService
 import brs.services.BlockService
 import brs.util.MiningPlot
 import brs.util.logging.safeDebug
@@ -129,7 +131,8 @@ class OCLPoC(dp: DependencyProvider) {
 
             if (maxGroupItems <= 0) {
                 throw OCLCheckerException(
-                        "OpenCL init error. Invalid max group items: $maxGroupItems")
+                    "OpenCL init error. Invalid max group items: $maxGroupItems"
+                )
             }
 
             val maxItemsByComputeUnits = getComputeUnits(device) * maxGroupItems
@@ -142,7 +145,8 @@ class OCLPoC(dp: DependencyProvider) {
 
             if (maxItems <= 0) {
                 throw OCLCheckerException(
-                        "OpenCL init error. Invalid calculated max items: $maxItems")
+                    "OpenCL init error. Invalid calculated max items: $maxItems"
+                )
             }
             logger.safeInfo { "OCL max items: $maxItems" }
         } catch (e: CLException) {
@@ -277,7 +281,7 @@ class OCLPoC(dp: DependencyProvider) {
                 try {
                     scoopsBuffer.get(scoop)
                     blockService.preVerify(block, scoop)
-                } catch (e: BlockchainProcessor.BlockNotAcceptedException) {
+                } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
                     throw PreValidateFailException("Block failed to prevalidate", e, block)
                 }
             }

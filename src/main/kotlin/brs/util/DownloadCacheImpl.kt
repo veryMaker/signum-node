@@ -1,10 +1,10 @@
 package brs.util
 
-import brs.Block
+import brs.entity.Block
 import brs.DependencyProvider
-import brs.Genesis
-import brs.fluxcapacitor.FluxValues
-import brs.props.Props
+import brs.objects.Genesis
+import brs.objects.FluxValues
+import brs.objects.Props
 import brs.util.convert.toUnsignedString
 import brs.util.logging.safeDebug
 import brs.util.sync.Mutex
@@ -33,7 +33,7 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
     private val chainHeight: Int
         get() = stampedLock.read {
             val height = lastHeight
-            return if (height > -1) height else dp.blockchain.height
+            return if (height > -1) height else dp.blockchainService.height
         }
 
     val isFull: Boolean
@@ -67,7 +67,7 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
         get() = forkCache
 
     val lastBlock: Block?
-        get() = stampedLock.read { blockCache[lastBlockId ?: return@read null] } ?: dp.blockchain.lastBlock
+        get() = stampedLock.read { blockCache[lastBlockId ?: return@read null] } ?: dp.blockchainService.lastBlock
 
     fun lockCache() {
         stampedLock.write {
@@ -112,18 +112,18 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
                 }
             }
         }
-        return stampedLock.read { blockCache[blockId] } ?: if (dp.blockchain.hasBlock(blockId)) dp.blockchain.getBlock(blockId) else null
+        return stampedLock.read { blockCache[blockId] } ?: if (dp.blockchainService.hasBlock(blockId)) dp.blockchainService.getBlock(blockId) else null
     }
 
     fun getNextBlock(prevBlockId: Long) = stampedLock.read { blockCache[reverseCache[prevBlockId]] }
 
-    fun hasBlock(blockId: Long) = stampedLock.read { blockCache.containsKey(blockId) } || dp.blockchain.hasBlock(blockId)
+    fun hasBlock(blockId: Long) = stampedLock.read { blockCache.containsKey(blockId) } || dp.blockchainService.hasBlock(blockId)
 
     fun canBeFork(oldBlockId: Long) = stampedLock.read {
         val curHeight = chainHeight
         var block = blockCache[oldBlockId]
-        if (block == null && dp.blockchain.hasBlock(oldBlockId)) {
-            block = dp.blockchain.getBlock(oldBlockId)
+        if (block == null && dp.blockchainService.hasBlock(oldBlockId)) {
+            block = dp.blockchainService.getBlock(oldBlockId)
         }
         block != null && curHeight - block.height <= dp.propertyService.get(Props.DB_MAX_ROLLBACK)
     }
@@ -160,10 +160,10 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
 
     fun getPoCVersion(blockId: Long): Int {
         val block = getBlock(blockId)
-        return if (block == null || !dp.fluxCapacitor.getValue(FluxValues.POC2, block.height)) 1 else 2
+        return if (block == null || !dp.fluxCapacitorService.getValue(FluxValues.POC2, block.height)) 1 else 2
     }
 
-    fun getLastBlockId() = stampedLock.read { lastBlockId } ?: dp.blockchain.lastBlock.id
+    fun getLastBlockId() = stampedLock.read { lastBlockId } ?: dp.blockchainService.lastBlock.id
 
     fun size() = stampedLock.read { blockCache.size }
 
@@ -180,9 +180,9 @@ class DownloadCacheImpl(private val dp: DependencyProvider) { // TODO interface
             logger.safeDebug { "Cache set to CacheData" }
             printLastVars() // TODO remove? or compact?
         } else {
-            lastBlockId = dp.blockchain.lastBlock.id
-            lastHeight = dp.blockchain.height
-            highestCumulativeDifficulty = dp.blockchain.lastBlock.cumulativeDifficulty
+            lastBlockId = dp.blockchainService.lastBlock.id
+            lastHeight = dp.blockchainService.height
+            highestCumulativeDifficulty = dp.blockchainService.lastBlock.cumulativeDifficulty
             logger.safeDebug { "Cache set to ChainData" }
             printLastVars() // TODO remove? or compact?
         }

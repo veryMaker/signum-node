@@ -1,6 +1,6 @@
 package brs.db.store
 
-import brs.Order
+import brs.entity.Order
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 

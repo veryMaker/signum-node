@@ -1,6 +1,6 @@
 package brs.db.store
 
-import brs.Subscription
+import brs.entity.Subscription
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 

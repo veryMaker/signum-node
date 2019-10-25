@@ -1,8 +1,8 @@
 package brs.db.store
 
-import brs.Account
-import brs.Block
-import brs.Transaction
+import brs.entity.Account
+import brs.entity.Block
+import brs.entity.Transaction
 import brs.schema.tables.records.BlockRecord
 import brs.schema.tables.records.TransactionRecord
 import org.jooq.DSLContext
@@ -29,7 +29,7 @@ interface BlockchainStore {
     fun getBlocksAfter(blockId: Long, limit: Int): Collection<Block>
 
     fun getTransactions(account: Account, numberOfConfirmations: Int, type: Byte, subtype: Byte,
-                                blockTimestamp: Int, from: Int, to: Int, includeIndirectIncoming: Boolean): Collection<Transaction>
+                        blockTimestamp: Int, from: Int, to: Int, includeIndirectIncoming: Boolean): Collection<Transaction>
 
     fun getTransactions(ctx: DSLContext, rs: Result<TransactionRecord>): Collection<Transaction>
 

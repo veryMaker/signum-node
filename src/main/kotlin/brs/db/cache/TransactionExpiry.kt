@@ -1,6 +1,6 @@
 package brs.db.cache
 
-import brs.Transaction
+import brs.entity.Transaction
 import brs.util.Time
 import org.ehcache.expiry.ExpiryPolicy
 

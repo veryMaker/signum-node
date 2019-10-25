@@ -9,8 +9,8 @@ package brs.at
 
 import brs.DependencyProvider
 import brs.at.AtApi.Companion.REGISTER_PART_SIZE
-import brs.crypto.Crypto
-import brs.fluxcapacitor.FluxValues
+import brs.util.Crypto
+import brs.objects.FluxValues
 import brs.util.*
 import java.math.BigInteger
 import java.nio.ByteBuffer
@@ -282,7 +282,7 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
 
         // TODO optimize
         AtApiHelper.getByteArray(mdb.getLong(0), state.b1)
-        if (dp.fluxCapacitor.getValue(FluxValues.NEXT_FORK)) {
+        if (dp.fluxCapacitorService.getValue(FluxValues.NEXT_FORK)) {
             AtApiHelper.getByteArray(mdb.getLong(0), state.b2)
         } else {
             AtApiHelper.getByteArray(mdb.getLong(8), state.b1)
@@ -291,7 +291,7 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
 
 
     override fun checkMd5AWithB(state: AtMachineState): Long {
-        return if (dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
+        return if (dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_3)) {
             val md5 = Crypto.md5()
             md5.digest(state.a1)
             md5.digest(state.a2)
@@ -321,7 +321,7 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     }
 
     override fun checkHash160AWithB(state: AtMachineState): Long {
-        return if (dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
+        return if (dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_3)) {
             val ripeMD = Crypto.ripeMD160()
             ripeMD.digest(state.a1)
             ripeMD.digest(state.a2)
@@ -347,7 +347,7 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     }
 
     override fun checkSha256AWithB(state: AtMachineState): Long {
-        return if (dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
+        return if (dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_3)) {
             val sha256 = Crypto.sha256()
             sha256.digest(state.a1)
             sha256.digest(state.a2)

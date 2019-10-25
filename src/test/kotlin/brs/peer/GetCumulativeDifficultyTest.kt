@@ -1,9 +1,8 @@
 package brs.peer
 
-import brs.Block
-import brs.Blockchain
+import brs.entity.Block
+import brs.services.BlockchainService
 import brs.common.QuickMocker
-import brs.util.JSON
 import brs.util.safeGetAsLong
 import brs.util.safeGetAsString
 import com.google.gson.JsonObject
@@ -20,13 +19,13 @@ class GetCumulativeDifficultyTest {
 
     private lateinit var t: GetCumulativeDifficulty
 
-    private lateinit var mockBlockchain: Blockchain
+    private lateinit var mockBlockchainService: BlockchainService
 
     @Before
     fun setUp() {
-        mockBlockchain = mock()
+        mockBlockchainService = mock()
 
-        t = GetCumulativeDifficulty(mockBlockchain)
+        t = GetCumulativeDifficulty(mockBlockchainService)
     }
 
     @Test
@@ -40,7 +39,7 @@ class GetCumulativeDifficultyTest {
         whenever(mockLastBlock.height).doReturn(blockchainHeight)
         whenever(mockLastBlock.cumulativeDifficulty).doReturn(cumulativeDifficulty)
 
-        whenever(mockBlockchain.lastBlock).doReturn(mockLastBlock)
+        whenever(mockBlockchainService.lastBlock).doReturn(mockLastBlock)
 
         val result = t.processRequest(request, mock()) as JsonObject
         assertNotNull(result)

@@ -1,7 +1,7 @@
 package brs.services.impl
 
-import brs.Account
-import brs.Account.RewardRecipientAssignment
+import brs.entity.Account
+import brs.entity.Account.RewardRecipientAssignment
 import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory

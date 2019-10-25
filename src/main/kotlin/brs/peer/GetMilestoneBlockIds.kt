@@ -1,6 +1,6 @@
 package brs.peer
 
-import brs.Blockchain
+import brs.services.BlockchainService
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
 import brs.util.logging.safeDebug
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 import kotlin.math.max
 import kotlin.math.min
 
-internal class GetMilestoneBlockIds(private val blockchain: Blockchain) : PeerServlet.PeerRequestHandler {
+internal class GetMilestoneBlockIds(private val blockchainService: BlockchainService) : PeerServlet.PeerRequestHandler {
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         val response = JsonObject()
         try {
@@ -20,8 +20,8 @@ internal class GetMilestoneBlockIds(private val blockchain: Blockchain) : PeerSe
             val lastBlockIdString = request.get("lastBlockId").mustGetAsString("lastBlockId")
             if (lastBlockIdString.isNotEmpty()) {
                 val lastBlockId = lastBlockIdString.parseUnsignedLong()
-                val myLastBlockId = blockchain.lastBlock.id
-                if (myLastBlockId == lastBlockId || blockchain.hasBlock(lastBlockId)) {
+                val myLastBlockId = blockchainService.lastBlock.id
+                if (myLastBlockId == lastBlockId || blockchainService.hasBlock(lastBlockId)) {
                     milestoneBlockIds.add(lastBlockIdString)
                     response.add("milestoneBlockIds", milestoneBlockIds)
                     if (myLastBlockId == lastBlockId) {
@@ -35,11 +35,11 @@ internal class GetMilestoneBlockIds(private val blockchain: Blockchain) : PeerSe
             var height: Int
             val jump: Int
             var limit = 10
-            val blockchainHeight = blockchain.height
+            val blockchainHeight = blockchainService.height
             val lastMilestoneBlockIdString = request.get("lastMilestoneBlockId").mustGetAsString("lastMilestoneBlockId")
             when {
                 lastMilestoneBlockIdString.isEmpty() -> {
-                    val lastMilestoneBlock = blockchain.getBlock(lastMilestoneBlockIdString.parseUnsignedLong())
+                    val lastMilestoneBlock = blockchainService.getBlock(lastMilestoneBlockIdString.parseUnsignedLong())
                         ?: error("Don't have block $lastMilestoneBlockIdString")
                     height = lastMilestoneBlock.height
                     jump = min(1440, max(blockchainHeight - height, 1))
@@ -55,11 +55,11 @@ internal class GetMilestoneBlockIds(private val blockchain: Blockchain) : PeerSe
                     return response
                 }
             }
-            blockId = blockchain.getBlockIdAtHeight(height)
+            blockId = blockchainService.getBlockIdAtHeight(height)
 
             while (height > 0 && limit-- > 0) {
                 milestoneBlockIds.add(blockId.toUnsignedString())
-                blockId = blockchain.getBlockIdAtHeight(height)
+                blockId = blockchainService.getBlockIdAtHeight(height)
                 height -= jump
             }
             response.add("milestoneBlockIds", milestoneBlockIds)

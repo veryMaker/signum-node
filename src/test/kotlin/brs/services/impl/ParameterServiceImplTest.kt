@@ -1,38 +1,41 @@
 package brs.services.impl
 
-import brs.*
-import brs.BurstException.ValidationException
-import brs.assetexchange.AssetExchange
+import brs.util.BurstException.ValidationException
+import brs.services.AssetExchangeService
 import brs.at.AT
+import brs.services.BlockchainService
+import brs.services.BlockchainProcessorService
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.common.TestConstants.TEST_SECRET_PHRASE
-import brs.crypto.Crypto
-import brs.crypto.EncryptedData
-import brs.http.ParameterException
-import brs.http.common.Parameters.ACCOUNT_PARAMETER
-import brs.http.common.Parameters.ALIAS_NAME_PARAMETER
-import brs.http.common.Parameters.ALIAS_PARAMETER
-import brs.http.common.Parameters.ASSET_PARAMETER
-import brs.http.common.Parameters.AT_PARAMETER
-import brs.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
-import brs.http.common.Parameters.ENCRYPTED_MESSAGE_NONCE_PARAMETER
-import brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_DATA
-import brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_NONCE
-import brs.http.common.Parameters.GOODS_PARAMETER
-import brs.http.common.Parameters.HEIGHT_PARAMETER
-import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER
-import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER
-import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER
-import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER
-import brs.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
-import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
-import brs.http.common.Parameters.PURCHASE_PARAMETER
-import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.util.Crypto
+import brs.api.http.ParameterException
+import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
+import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
+import brs.api.http.common.Parameters.ALIAS_PARAMETER
+import brs.api.http.common.Parameters.ASSET_PARAMETER
+import brs.api.http.common.Parameters.AT_PARAMETER
+import brs.api.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
+import brs.api.http.common.Parameters.ENCRYPTED_MESSAGE_NONCE_PARAMETER
+import brs.api.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_DATA
+import brs.api.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_NONCE
+import brs.api.http.common.Parameters.GOODS_PARAMETER
+import brs.api.http.common.Parameters.HEIGHT_PARAMETER
+import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER
+import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER
+import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER
+import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER
+import brs.api.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
+import brs.api.http.common.Parameters.PUBLIC_KEY_PARAMETER
+import brs.api.http.common.Parameters.PURCHASE_PARAMETER
+import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.entity.*
 import brs.services.ATService
 import brs.services.AccountService
 import brs.services.AliasService
-import brs.services.DGSGoodsStoreService
+import brs.services.DigitalGoodsStoreService
+import brs.services.TransactionProcessorService
+import brs.util.BurstException
 import brs.util.convert.parseHexString
 import brs.util.convert.toBytes
 import com.google.gson.JsonObject
@@ -47,32 +50,32 @@ class ParameterServiceImplTest {
 
     private lateinit var accountServiceMock: AccountService
     private lateinit var aliasServiceMock: AliasService
-    private lateinit var assetExchangeMock: AssetExchange
-    private lateinit var dgsGoodsStoreServiceMock: DGSGoodsStoreService
-    private lateinit var blockchainMock: Blockchain
-    private lateinit var blockchainProcessorMock: BlockchainProcessor
-    private lateinit var transactionProcessorMock: TransactionProcessor
+    private lateinit var assetExchangeServiceMock: AssetExchangeService
+    private lateinit var digitalGoodsStoreServiceMock: DigitalGoodsStoreService
+    private lateinit var blockchainServiceMock: BlockchainService
+    private lateinit var blockchainProcessorServiceMock: BlockchainProcessorService
+    private lateinit var transactionProcessorServiceMock: TransactionProcessorService
     private lateinit var atServiceMock: ATService
 
     @Before
     fun setUp() {
         accountServiceMock = mock()
         aliasServiceMock = mock()
-        assetExchangeMock = mock()
-        dgsGoodsStoreServiceMock = mock()
-        blockchainMock = mock()
-        blockchainProcessorMock = mock()
-        transactionProcessorMock = mock()
+        assetExchangeServiceMock = mock()
+        digitalGoodsStoreServiceMock = mock()
+        blockchainServiceMock = mock()
+        blockchainProcessorServiceMock = mock()
+        transactionProcessorServiceMock = mock()
         atServiceMock = mock()
 
         t = ParameterServiceImpl(QuickMocker.dependencyProvider(
             accountServiceMock,
             aliasServiceMock,
-            assetExchangeMock,
-            dgsGoodsStoreServiceMock,
-            blockchainMock,
-            blockchainProcessorMock,
-            transactionProcessorMock,
+            assetExchangeServiceMock,
+            digitalGoodsStoreServiceMock,
+            blockchainServiceMock,
+            blockchainProcessorServiceMock,
+            transactionProcessorServiceMock,
             atServiceMock
         ))
     }
@@ -309,7 +312,7 @@ class ParameterServiceImplTest {
 
         val mockAsset = mock<Asset>()
 
-        whenever(assetExchangeMock.getAsset(eq(123L))).doReturn(mockAsset)
+        whenever(assetExchangeServiceMock.getAsset(eq(123L))).doReturn(mockAsset)
 
         assertEquals(mockAsset, t.getAsset(request))
     }
@@ -326,7 +329,7 @@ class ParameterServiceImplTest {
 
     @Test(expected = ParameterException::class)
     fun getAsset_assetNotFoundIsUnknownAsset() {
-        whenever(assetExchangeMock.getAsset(eq(123L))).doReturn(null)
+        whenever(assetExchangeServiceMock.getAsset(eq(123L))).doReturn(null)
 
         t.getAsset(QuickMocker.httpServletRequest(MockParam(ASSET_PARAMETER, "123")))
     }
@@ -339,7 +342,7 @@ class ParameterServiceImplTest {
 
         val mockGoods = mock<DigitalGoodsStore.Goods>()
 
-        whenever(dgsGoodsStoreServiceMock.getGoods(eq(1L))).doReturn(mockGoods)
+        whenever(digitalGoodsStoreServiceMock.getGoods(eq(1L))).doReturn(mockGoods)
 
         assertEquals(mockGoods, t.getGoods(request))
     }
@@ -355,7 +358,7 @@ class ParameterServiceImplTest {
                 MockParam(GOODS_PARAMETER, "1")
         )
 
-        whenever(dgsGoodsStoreServiceMock.getGoods(eq(1L))).doReturn(null)
+        whenever(digitalGoodsStoreServiceMock.getGoods(eq(1L))).doReturn(null)
 
         t.getGoods(request)
     }
@@ -377,7 +380,7 @@ class ParameterServiceImplTest {
 
         val mockPurchase = mock<DigitalGoodsStore.Purchase>()
 
-        whenever(dgsGoodsStoreServiceMock.getPurchase(eq(1L))).doReturn(mockPurchase)
+        whenever(digitalGoodsStoreServiceMock.getPurchase(eq(1L))).doReturn(mockPurchase)
 
         assertEquals(mockPurchase, t.getPurchase(request))
     }
@@ -393,7 +396,7 @@ class ParameterServiceImplTest {
                 MockParam(PURCHASE_PARAMETER, "1")
         )
 
-        whenever(dgsGoodsStoreServiceMock.getPurchase(eq(1L))).doReturn(null)
+        whenever(digitalGoodsStoreServiceMock.getPurchase(eq(1L))).doReturn(null)
 
         t.getPurchase(request)
     }
@@ -596,7 +599,7 @@ class ParameterServiceImplTest {
 
     @Test
     fun getNumberOfConfirmations() {
-        whenever(blockchainMock.height).doReturn(6)
+        whenever(blockchainServiceMock.height).doReturn(6)
         assertEquals(5, t.getNumberOfConfirmations(QuickMocker.httpServletRequest(MockParam(NUMBER_OF_CONFIRMATIONS_PARAMETER, "5"))).toLong())
     }
 
@@ -612,14 +615,14 @@ class ParameterServiceImplTest {
 
     @Test(expected = ParameterException::class)
     fun getNumberOfConfirmations_numberOfConfirmationsBiggerThanBlockchainHeightParameterException() {
-        whenever(blockchainMock.height).doReturn(4)
+        whenever(blockchainServiceMock.height).doReturn(4)
         assertEquals(5, t.getNumberOfConfirmations(QuickMocker.httpServletRequest(MockParam(NUMBER_OF_CONFIRMATIONS_PARAMETER, "5"))).toLong())
     }
 
     @Test
     fun getHeight() {
-        whenever(blockchainMock.height).doReturn(6)
-        whenever(blockchainProcessorMock.minRollbackHeight).doReturn(4)
+        whenever(blockchainServiceMock.height).doReturn(6)
+        whenever(blockchainProcessorServiceMock.minRollbackHeight).doReturn(4)
         assertEquals(5, t.getHeight(QuickMocker.httpServletRequest(MockParam(HEIGHT_PARAMETER, "5"))).toLong())
     }
 
@@ -640,14 +643,14 @@ class ParameterServiceImplTest {
 
     @Test(expected = ParameterException::class)
     fun getHeight_heightGreaterThanBlockchainHeightParameterException() {
-        whenever(blockchainMock.height).doReturn(5)
+        whenever(blockchainServiceMock.height).doReturn(5)
         t.getHeight(QuickMocker.httpServletRequest(MockParam(HEIGHT_PARAMETER, "6")))
     }
 
     @Test(expected = ParameterException::class)
     fun getHeight_heightUnderMinRollbackHeightParameterException() {
-        whenever(blockchainMock.height).doReturn(10)
-        whenever(blockchainProcessorMock.minRollbackHeight).doReturn(12)
+        whenever(blockchainServiceMock.height).doReturn(10)
+        whenever(blockchainProcessorServiceMock.minRollbackHeight).doReturn(12)
         t.getHeight(QuickMocker.httpServletRequest(MockParam(HEIGHT_PARAMETER, "10")))
     }
 
@@ -656,7 +659,7 @@ class ParameterServiceImplTest {
     fun parseTransaction_transactionBytes() {
         val mockTransaction = mock<Transaction>()
 
-        whenever(transactionProcessorMock.parseTransaction(any<ByteArray>())).doReturn(mockTransaction)
+        whenever(transactionProcessorServiceMock.parseTransaction(any<ByteArray>())).doReturn(mockTransaction)
 
         assertEquals(mockTransaction, t.parseTransaction("123", null))
     }
@@ -669,7 +672,7 @@ class ParameterServiceImplTest {
     @Test(expected = ParameterException::class)
     @Throws(ValidationException::class, ParameterException::class)
     fun parseTransaction_transactionBytes_runTimeExceptionOccurs() {
-        whenever(transactionProcessorMock.parseTransaction(any<ByteArray>())).thenThrow(RuntimeException())
+        whenever(transactionProcessorServiceMock.parseTransaction(any<ByteArray>())).thenThrow(RuntimeException())
 
         t.parseTransaction("123", null)
     }
@@ -679,7 +682,7 @@ class ParameterServiceImplTest {
     fun parseTransaction_transactionJSON() {
         val mockTransaction = mock<Transaction>()
 
-        whenever(transactionProcessorMock.parseTransaction(any<JsonObject>())).doReturn(mockTransaction)
+        whenever(transactionProcessorServiceMock.parseTransaction(any<JsonObject>())).doReturn(mockTransaction)
 
         assertEquals(mockTransaction, t.parseTransaction(null, "{}"))
     }
@@ -687,7 +690,7 @@ class ParameterServiceImplTest {
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class, ValidationException::class)
     fun parseTransaction_transactionJSON_validationExceptionOccurs() {
-        whenever(transactionProcessorMock.parseTransaction(any<JsonObject>())).thenAnswer { throw BurstException.NotValidException("") }
+        whenever(transactionProcessorServiceMock.parseTransaction(any<JsonObject>())).thenAnswer { throw BurstException.NotValidException("") }
 
         t.parseTransaction(null, "{}")
     }
@@ -695,7 +698,7 @@ class ParameterServiceImplTest {
     @Test(expected = ParameterException::class)
     @Throws(ParameterException::class, ValidationException::class)
     fun parseTransaction_transactionJSON_runTimeExceptionOccurs() {
-        whenever(transactionProcessorMock.parseTransaction(any<JsonObject>())).thenThrow(RuntimeException())
+        whenever(transactionProcessorServiceMock.parseTransaction(any<JsonObject>())).thenThrow(RuntimeException())
 
         t.parseTransaction(null, "{}")
     }

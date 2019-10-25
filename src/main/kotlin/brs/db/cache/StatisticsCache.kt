@@ -1,10 +1,10 @@
 package brs.db.cache
 
-import brs.statistics.StatisticsManagerImpl
+import brs.services.StatisticsService
 import org.ehcache.Cache
 import org.ehcache.config.CacheRuntimeConfiguration
 
-internal class StatisticsCache<K, V>(private val wrappedCache: Cache<K, V>, private val cacheName: String, private val statisticsManager: StatisticsManagerImpl) : Cache<K, V> {
+internal class StatisticsCache<K, V>(private val wrappedCache: Cache<K, V>, private val cacheName: String, private val statisticsService: StatisticsService) : Cache<K, V> {
     override fun get(k: K): V {
         return wrappedCache.get(k)
     }
@@ -17,9 +17,9 @@ internal class StatisticsCache<K, V>(private val wrappedCache: Cache<K, V>, priv
         val result = wrappedCache.containsKey(k)
 
         if (result) {
-            statisticsManager.foundObjectInCache(cacheName)
+            statisticsService.foundObjectInCache(cacheName)
         } else {
-            statisticsManager.didNotFindObjectInCache(cacheName)
+            statisticsService.didNotFindObjectInCache(cacheName)
         }
 
         return result

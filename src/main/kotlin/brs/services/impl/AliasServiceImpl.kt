@@ -1,10 +1,10 @@
 package brs.services.impl
 
-import brs.Alias
-import brs.Alias.Offer
-import brs.Attachment
+import brs.entity.Alias
+import brs.entity.Alias.Offer
+import brs.transaction.appendix.Attachment
 import brs.DependencyProvider
-import brs.Transaction
+import brs.entity.Transaction
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.services.AliasService

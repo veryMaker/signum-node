@@ -1,6 +1,6 @@
 package brs.db
 
-import brs.Block
+import brs.entity.Block
 import brs.schema.tables.records.BlockRecord
 import org.jooq.DSLContext
 

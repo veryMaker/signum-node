@@ -1,7 +1,7 @@
 package brs.db.sql
 
 import brs.DependencyProvider
-import brs.Subscription
+import brs.entity.Subscription
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.db.store.SubscriptionStore
@@ -65,7 +65,7 @@ class SqlSubscriptionStore(private val dp: DependencyProvider) : SubscriptionSto
     private fun saveSubscription(ctx: DSLContext, subscription: Subscription) {
         ctx.mergeInto<SubscriptionRecord, Long, Long, Long, Long, Int, Int, Int, Boolean>(SUBSCRIPTION, SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
                 .key(SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
-                .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountPlanck, subscription.frequency, subscription.timeNext, dp.blockchain.height, true)
+                .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountPlanck, subscription.frequency, subscription.timeNext, dp.blockchainService.height, true)
                 .execute()
     }
 

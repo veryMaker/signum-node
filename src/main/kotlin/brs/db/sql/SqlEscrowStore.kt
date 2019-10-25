@@ -1,8 +1,8 @@
 package brs.db.sql
 
 import brs.DependencyProvider
-import brs.Escrow
-import brs.Transaction
+import brs.entity.Escrow
+import brs.entity.Transaction
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.db.store.EscrowStore
@@ -54,7 +54,7 @@ class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
     private fun saveDecision(ctx: DSLContext, decision: Escrow.Decision) {
         ctx.mergeInto<EscrowDecisionRecord, Long, Long, Int, Int, Boolean>(ESCROW_DECISION, ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.DECISION, ESCROW_DECISION.HEIGHT, ESCROW_DECISION.LATEST)
                 .key(ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.HEIGHT)
-                .values(decision.escrowId, decision.accountId, Escrow.decisionToByte(decision.decision!!).toInt(), dp.blockchain.height, true)
+                .values(decision.escrowId, decision.accountId, Escrow.decisionToByte(decision.decision!!).toInt(), dp.blockchainService.height, true)
                 .execute()
     }
 
@@ -72,7 +72,7 @@ class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
     private fun saveEscrow(ctx: DSLContext, escrow: Escrow) {
         ctx.mergeInto<EscrowRecord, Long, Long, Long, Long, Int, Int, Int, Int, Boolean>(ESCROW, ESCROW.ID, ESCROW.SENDER_ID, ESCROW.RECIPIENT_ID, ESCROW.AMOUNT, ESCROW.REQUIRED_SIGNERS, ESCROW.DEADLINE, ESCROW.DEADLINE_ACTION, ESCROW.HEIGHT, ESCROW.LATEST)
                 .key(ESCROW.ID, ESCROW.HEIGHT)
-                .values(escrow.id, escrow.senderId, escrow.recipientId, escrow.amountPlanck, escrow.requiredSigners, escrow.deadline, Escrow.decisionToByte(escrow.deadlineAction).toInt(), dp.blockchain.height, true)
+                .values(escrow.id, escrow.senderId, escrow.recipientId, escrow.amountPlanck, escrow.requiredSigners, escrow.deadline, Escrow.decisionToByte(escrow.deadlineAction).toInt(), dp.blockchainService.height, true)
                 .execute()
     }
 

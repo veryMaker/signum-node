@@ -1,7 +1,7 @@
 package brs.db.sql
 
 import brs.DependencyProvider
-import brs.Order
+import brs.entity.Order
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.db.store.OrderStore
@@ -69,7 +69,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
     }
 
     override fun getNextOrder(assetId: Long): Order.Ask? {
-        return dp.db.getUsingDslContext<Order.Ask?> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectFrom(ASK_ORDER)
                     .where(ASK_ORDER.ASSET_ID.eq(assetId).and(ASK_ORDER.LATEST.isTrue))
                     .orderBy(ASK_ORDER.PRICE.asc(),
@@ -97,7 +97,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
     private fun saveAsk(ctx: DSLContext, ask: Order.Ask) {
         ctx.mergeInto(ASK_ORDER, ASK_ORDER.ID, ASK_ORDER.ACCOUNT_ID, ASK_ORDER.ASSET_ID, ASK_ORDER.PRICE, ASK_ORDER.QUANTITY, ASK_ORDER.CREATION_HEIGHT, ASK_ORDER.HEIGHT, ASK_ORDER.LATEST)
                 .key(ASK_ORDER.ID, ASK_ORDER.HEIGHT)
-                .values(ask.id, ask.accountId, ask.assetId, ask.pricePlanck, ask.quantity, ask.height, dp.blockchain.height, true)
+                .values(ask.id, ask.accountId, ask.assetId, ask.pricePlanck, ask.quantity, ask.height, dp.blockchainService.height, true)
                 .execute()
     }
 
@@ -124,7 +124,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
     }
 
     override fun getNextBid(assetId: Long): Order.Bid? {
-        return dp.db.getUsingDslContext<Order.Bid?> { ctx ->
+        return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectFrom(BID_ORDER)
                     .where(BID_ORDER.ASSET_ID.eq(assetId)
                             .and(BID_ORDER.LATEST.isTrue))
@@ -141,7 +141,7 @@ class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
     private fun saveBid(ctx: DSLContext, bid: Order.Bid) {
         ctx.mergeInto(BID_ORDER, BID_ORDER.ID, BID_ORDER.ACCOUNT_ID, BID_ORDER.ASSET_ID, BID_ORDER.PRICE, BID_ORDER.QUANTITY, BID_ORDER.CREATION_HEIGHT, BID_ORDER.HEIGHT, BID_ORDER.LATEST)
                 .key(BID_ORDER.ID, BID_ORDER.HEIGHT)
-                .values(bid.id, bid.accountId, bid.assetId, bid.pricePlanck, bid.quantity, bid.height, dp.blockchain.height, true)
+                .values(bid.id, bid.accountId, bid.assetId, bid.pricePlanck, bid.quantity, bid.height, dp.blockchainService.height, true)
                 .execute()
     }
 

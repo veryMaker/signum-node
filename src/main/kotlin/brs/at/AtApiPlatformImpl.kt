@@ -3,8 +3,8 @@ package brs.at
 import brs.DependencyProvider
 import brs.at.AtApi.Companion.REGISTER_PART_SIZE
 import brs.at.AtApi.Companion.REGISTER_SIZE
-import brs.crypto.Crypto
-import brs.fluxcapacitor.FluxValues
+import brs.util.Crypto
+import brs.objects.FluxValues
 import brs.util.convert.toUnsignedString
 import brs.util.logging.safeDebug
 import brs.util.zero
@@ -29,7 +29,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
     }
 
     override fun putLastBlockHashInA(state: AtMachineState) {
-        state.putInA(dp.blockchain.getBlockAtHeight(state.height - 1)!!.hash)
+        state.putInA(dp.blockchainService.getBlockAtHeight(state.height - 1)!!.hash)
     }
 
     override fun aToTxAfterTimestamp(value: Long, state: AtMachineState) {
@@ -47,7 +47,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
     override fun getTypeForTxInA(state: AtMachineState): Long {
         val txid = AtApiHelper.getLong(state.a1)
 
-        val tx = dp.blockchain.getTransaction(txid)
+        val tx = dp.blockchainService.getTransaction(txid)
 
         if (tx == null || tx.height >= state.height) {
             return -1
@@ -62,13 +62,13 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
     override fun getAmountForTxInA(state: AtMachineState): Long {
         val txId = AtApiHelper.getLong(state.a1)
 
-        val tx = dp.blockchain.getTransaction(txId)
+        val tx = dp.blockchainService.getTransaction(txId)
 
         if (tx == null || tx.height >= state.height) {
             return -1
         }
 
-        return if ((tx.message == null || dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_2, state.height)) && state.minActivationAmount() <= tx.amountPlanck) {
+        return if ((tx.message == null || dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_2, state.height)) && state.minActivationAmount() <= tx.amountPlanck) {
             tx.amountPlanck - state.minActivationAmount()
         } else 0
 
@@ -77,7 +77,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
     override fun getTimestampForTxInA(state: AtMachineState): Long {
         val txId = AtApiHelper.getLong(state.a1)
         logger.safeDebug { "get timestamp for tx with id ${txId.toUnsignedString()} found" }
-        val tx = dp.blockchain.getTransaction(txId)
+        val tx = dp.blockchainService.getTransaction(txId)
 
         if (tx == null || tx.height >= state.height) {
             return -1
@@ -93,7 +93,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
     override fun getRandomIdForTxInA(state: AtMachineState): Long {
         val txId = AtApiHelper.getLong(state.a1)
 
-        val tx = dp.blockchain.getTransaction(txId)
+        val tx = dp.blockchainService.getTransaction(txId)
 
         if (tx == null || tx.height >= state.height) {
             return -1
@@ -113,7 +113,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
 
         val senderPublicKey = tx.senderPublicKey
 
-        digest.update(dp.blockchain.getBlockAtHeight(blockHeight - 1)!!.generationSignature)
+        digest.update(dp.blockchainService.getBlockAtHeight(blockHeight - 1)!!.generationSignature)
         digest.update(AtApiHelper.getByteArray(tx.id))
         digest.update(senderPublicKey)
 
@@ -125,7 +125,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
     override fun messageFromTxInAToB(state: AtMachineState) {
         val txid = AtApiHelper.getLong(state.a1)
 
-        var tx = dp.blockchain.getTransaction(txid)
+        var tx = dp.blockchainService.getTransaction(txid)
         if (tx != null && tx.height >= state.height) {
             tx = null
         }
@@ -156,7 +156,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
 
         clearB(state)
 
-        var tx = dp.blockchain.getTransaction(txId)
+        var tx = dp.blockchainService.getTransaction(txId)
         if (tx != null && tx.height >= state.height) {
             tx = null
         }
@@ -175,8 +175,8 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
     }
 
     override fun putLastBlockGenerationSignatureInA(state: AtMachineState) {
-        if (dp.fluxCapacitor.getValue(FluxValues.NEXT_FORK)) {
-            state.putInA(dp.blockchain.getBlockAtHeight(state.height - 1)!!.generationSignature)
+        if (dp.fluxCapacitorService.getValue(FluxValues.NEXT_FORK)) {
+            state.putInA(dp.blockchainService.getBlockAtHeight(state.height - 1)!!.generationSignature)
         } else {
             // Fast fail.
             throw BufferUnderflowException()
@@ -184,14 +184,14 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
     }
 
     override fun getCurrentBalance(state: AtMachineState): Long {
-        return if (!dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_2, state.height)) {
+        return if (!dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_2, state.height)) {
             0
         } else state.getgBalance()
 
     }
 
     override fun getPreviousBalance(state: AtMachineState): Long {
-        return if (!dp.fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_2, state.height)) {
+        return if (!dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_2, state.height)) {
             0
         } else state.getpBalance()
     }

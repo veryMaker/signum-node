@@ -3,7 +3,7 @@ package brs.db.sql
 import brs.DependencyProvider
 import brs.db.BurstKey
 import brs.db.store.Dbs
-import brs.props.Props
+import brs.objects.Props
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
 import com.zaxxer.hikari.HikariConfig

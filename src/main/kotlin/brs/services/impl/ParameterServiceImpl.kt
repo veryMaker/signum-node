@@ -2,61 +2,62 @@ package brs.services.impl
 
 import brs.*
 import brs.at.AT
-import brs.crypto.Crypto
-import brs.crypto.EncryptedData
-import brs.http.JSONResponses.HEIGHT_NOT_AVAILABLE
-import brs.http.JSONResponses.INCORRECT_ACCOUNT
-import brs.http.JSONResponses.INCORRECT_ALIAS
-import brs.http.JSONResponses.INCORRECT_ASSET
-import brs.http.JSONResponses.INCORRECT_AT
-import brs.http.JSONResponses.INCORRECT_ENCRYPTED_MESSAGE
-import brs.http.JSONResponses.INCORRECT_GOODS
-import brs.http.JSONResponses.INCORRECT_HEIGHT
-import brs.http.JSONResponses.INCORRECT_NUMBER_OF_CONFIRMATIONS
-import brs.http.JSONResponses.INCORRECT_PLAIN_MESSAGE
-import brs.http.JSONResponses.INCORRECT_PUBLIC_KEY
-import brs.http.JSONResponses.INCORRECT_PURCHASE
-import brs.http.JSONResponses.INCORRECT_RECIPIENT
-import brs.http.JSONResponses.MISSING_ACCOUNT
-import brs.http.JSONResponses.MISSING_ALIAS_OR_ALIAS_NAME
-import brs.http.JSONResponses.MISSING_ASSET
-import brs.http.JSONResponses.MISSING_AT
-import brs.http.JSONResponses.MISSING_GOODS
-import brs.http.JSONResponses.MISSING_PURCHASE
-import brs.http.JSONResponses.MISSING_SECRET_PHRASE
-import brs.http.JSONResponses.MISSING_SECRET_PHRASE_OR_PUBLIC_KEY
-import brs.http.JSONResponses.MISSING_TRANSACTION_BYTES_OR_JSON
-import brs.http.JSONResponses.UNKNOWN_ACCOUNT
-import brs.http.JSONResponses.UNKNOWN_ALIAS
-import brs.http.JSONResponses.UNKNOWN_ASSET
-import brs.http.JSONResponses.UNKNOWN_AT
-import brs.http.JSONResponses.UNKNOWN_GOODS
-import brs.http.ParameterException
-import brs.http.common.Parameters.ACCOUNT_PARAMETER
-import brs.http.common.Parameters.ALIAS_NAME_PARAMETER
-import brs.http.common.Parameters.ALIAS_PARAMETER
-import brs.http.common.Parameters.ASSET_PARAMETER
-import brs.http.common.Parameters.AT_PARAMETER
-import brs.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
-import brs.http.common.Parameters.ENCRYPTED_MESSAGE_NONCE_PARAMETER
-import brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_DATA
-import brs.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_NONCE
-import brs.http.common.Parameters.GOODS_PARAMETER
-import brs.http.common.Parameters.HEIGHT_PARAMETER
-import brs.http.common.Parameters.INCLUDE_INDIRECT_PARAMETER
-import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER
-import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER
-import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER
-import brs.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER
-import brs.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
-import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
-import brs.http.common.Parameters.PURCHASE_PARAMETER
-import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
-import brs.http.common.Parameters.isFalse
-import brs.http.common.Parameters.isTrue
-import brs.http.common.ResultFields.ERROR_CODE_RESPONSE
-import brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.util.Crypto
+import brs.api.http.JSONResponses.HEIGHT_NOT_AVAILABLE
+import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
+import brs.api.http.JSONResponses.INCORRECT_ALIAS
+import brs.api.http.JSONResponses.INCORRECT_ASSET
+import brs.api.http.JSONResponses.INCORRECT_AT
+import brs.api.http.JSONResponses.INCORRECT_ENCRYPTED_MESSAGE
+import brs.api.http.JSONResponses.INCORRECT_GOODS
+import brs.api.http.JSONResponses.INCORRECT_HEIGHT
+import brs.api.http.JSONResponses.INCORRECT_NUMBER_OF_CONFIRMATIONS
+import brs.api.http.JSONResponses.INCORRECT_PLAIN_MESSAGE
+import brs.api.http.JSONResponses.INCORRECT_PUBLIC_KEY
+import brs.api.http.JSONResponses.INCORRECT_PURCHASE
+import brs.api.http.JSONResponses.INCORRECT_RECIPIENT
+import brs.api.http.JSONResponses.MISSING_ACCOUNT
+import brs.api.http.JSONResponses.MISSING_ALIAS_OR_ALIAS_NAME
+import brs.api.http.JSONResponses.MISSING_ASSET
+import brs.api.http.JSONResponses.MISSING_AT
+import brs.api.http.JSONResponses.MISSING_GOODS
+import brs.api.http.JSONResponses.MISSING_PURCHASE
+import brs.api.http.JSONResponses.MISSING_SECRET_PHRASE
+import brs.api.http.JSONResponses.MISSING_SECRET_PHRASE_OR_PUBLIC_KEY
+import brs.api.http.JSONResponses.MISSING_TRANSACTION_BYTES_OR_JSON
+import brs.api.http.JSONResponses.UNKNOWN_ACCOUNT
+import brs.api.http.JSONResponses.UNKNOWN_ALIAS
+import brs.api.http.JSONResponses.UNKNOWN_ASSET
+import brs.api.http.JSONResponses.UNKNOWN_AT
+import brs.api.http.JSONResponses.UNKNOWN_GOODS
+import brs.api.http.ParameterException
+import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
+import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
+import brs.api.http.common.Parameters.ALIAS_PARAMETER
+import brs.api.http.common.Parameters.ASSET_PARAMETER
+import brs.api.http.common.Parameters.AT_PARAMETER
+import brs.api.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
+import brs.api.http.common.Parameters.ENCRYPTED_MESSAGE_NONCE_PARAMETER
+import brs.api.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_DATA
+import brs.api.http.common.Parameters.ENCRYPT_TO_SELF_MESSAGE_NONCE
+import brs.api.http.common.Parameters.GOODS_PARAMETER
+import brs.api.http.common.Parameters.HEIGHT_PARAMETER
+import brs.api.http.common.Parameters.INCLUDE_INDIRECT_PARAMETER
+import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER
+import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER
+import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER
+import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER
+import brs.api.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
+import brs.api.http.common.Parameters.PUBLIC_KEY_PARAMETER
+import brs.api.http.common.Parameters.PURCHASE_PARAMETER
+import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.api.http.common.Parameters.isFalse
+import brs.api.http.common.Parameters.isTrue
+import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
+import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.entity.*
 import brs.services.ParameterService
+import brs.util.BurstException
 import brs.util.convert.*
 import brs.util.logging.safeDebug
 import brs.util.mustGetAsJsonObject
@@ -137,7 +138,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         val asset: Asset?
         try {
             val assetId = assetValue.parseUnsignedLong()
-            asset = dp.assetExchange.getAsset(assetId)
+            asset = dp.assetExchangeService.getAsset(assetId)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_ASSET)
         }
@@ -235,7 +236,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         if (numberOfConfirmationsValue != null) {
             try {
                 val numberOfConfirmations = Integer.parseInt(numberOfConfirmationsValue)
-                if (numberOfConfirmations <= dp.blockchain.height) {
+                if (numberOfConfirmations <= dp.blockchainService.height) {
                     return numberOfConfirmations
                 }
                 throw ParameterException(INCORRECT_NUMBER_OF_CONFIRMATIONS)
@@ -252,10 +253,10 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         if (heightValue != null) {
             try {
                 val height = Integer.parseInt(heightValue)
-                if (height < 0 || height > dp.blockchain.height) {
+                if (height < 0 || height > dp.blockchainService.height) {
                     throw ParameterException(INCORRECT_HEIGHT)
                 }
-                if (height < dp.blockchainProcessor.minRollbackHeight) {
+                if (height < dp.blockchainProcessorService.minRollbackHeight) {
                     throw ParameterException(HEIGHT_NOT_AVAILABLE)
                 }
                 return height
@@ -271,7 +272,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         return when {
             transactionBytes != null -> try {
                 val bytes = transactionBytes.parseHexString()
-                dp.transactionProcessor.parseTransaction(bytes)
+                dp.transactionProcessorService.parseTransaction(bytes)
             } catch (e: BurstException.ValidationException) {
                 logger.safeDebug(e) { e.message } // TODO remove?
                 val response = JsonObject()
@@ -287,7 +288,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
             }
             transactionJSON != null -> try {
                 val json = transactionJSON.parseJson().mustGetAsJsonObject("transaction")
-                dp.transactionProcessor.parseTransaction(json)
+                dp.transactionProcessorService.parseTransaction(json)
             } catch (e: BurstException.ValidationException) {
                 logger.safeDebug(e) { e.message }
                 val response = JsonObject()

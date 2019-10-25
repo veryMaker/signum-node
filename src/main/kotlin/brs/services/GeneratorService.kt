@@ -1,0 +1,37 @@
+package brs.services
+
+import brs.util.Observable
+
+import java.math.BigInteger
+
+interface GeneratorService : Observable<GeneratorService.GeneratorState, GeneratorService.Event> {
+    val allGenerators: Collection<GeneratorState>
+
+    enum class Event {
+        NONCE_SUBMITTED
+    }
+
+    fun addNonce(secretPhrase: String, nonce: Long?): GeneratorState
+
+    fun addNonce(secretPhrase: String, nonce: Long?, publicKey: ByteArray): GeneratorState
+
+    fun calculateGenerationSignature(lastGenSig: ByteArray, lastGenId: Long): ByteArray
+
+    fun calculateScoop(genSig: ByteArray, height: Long): Int
+
+    fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, blockHeight: Int): BigInteger
+
+    fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoopData: ByteArray): BigInteger
+
+    fun calculateDeadline(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, baseTarget: Long, blockHeight: Int): BigInteger
+
+    interface GeneratorState {
+        val publicKey: ByteArray
+
+        val accountId: Long?
+
+        val deadline: BigInteger
+
+        val block: Long
+    }
+}

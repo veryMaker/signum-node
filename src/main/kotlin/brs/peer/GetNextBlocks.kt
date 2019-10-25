@@ -1,15 +1,15 @@
 package brs.peer
 
-import brs.Block
-import brs.Blockchain
-import brs.Constants
+import brs.entity.Block
+import brs.services.BlockchainService
+import brs.objects.Constants
 import brs.util.convert.parseUnsignedLong
 import brs.util.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
-internal class GetNextBlocks(private val blockchain: Blockchain) : PeerServlet.PeerRequestHandler {
+internal class GetNextBlocks(private val blockchainService: BlockchainService) : PeerServlet.PeerRequestHandler {
 
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
 
@@ -18,7 +18,7 @@ internal class GetNextBlocks(private val blockchain: Blockchain) : PeerServlet.P
         val nextBlocks = mutableListOf<Block>()
         var totalLength = 0
         val blockId = request.get("blockId").safeGetAsString().parseUnsignedLong()
-        val blocks = blockchain.getBlocksAfter(blockId, 100)
+        val blocks = blockchainService.getBlocksAfter(blockId, 100)
 
         for (block in blocks) {
             val length = Constants.BLOCK_HEADER_LENGTH + block.payloadLength

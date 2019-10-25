@@ -1,8 +1,7 @@
 package brs.services
 
-import brs.*
 import brs.at.AT
-import brs.crypto.EncryptedData
+import brs.entity.*
 import javax.servlet.http.HttpServletRequest
 
 interface ParameterService {

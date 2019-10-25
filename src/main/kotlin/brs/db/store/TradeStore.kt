@@ -1,6 +1,6 @@
 package brs.db.store
 
-import brs.Trade
+import brs.entity.Trade
 import brs.db.BurstKey
 import brs.db.sql.EntitySqlTable
 

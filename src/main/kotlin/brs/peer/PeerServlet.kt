@@ -1,6 +1,6 @@
 package brs.peer
 
-import brs.Constants.PROTOCOL
+import brs.objects.Constants.PROTOCOL
 import brs.DependencyProvider
 import brs.util.*
 import brs.util.logging.safeDebug
@@ -36,24 +36,24 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
     init { // TODO each one should take dp
         val map = mutableMapOf<String, PeerRequestHandler>()
         map["addPeers"] = AddPeers(dp)
-        map["getCumulativeDifficulty"] = GetCumulativeDifficulty(dp.blockchain)
+        map["getCumulativeDifficulty"] = GetCumulativeDifficulty(dp.blockchainService)
         map["getInfo"] = GetInfo(dp)
-        map["getMilestoneBlockIds"] = GetMilestoneBlockIds(dp.blockchain)
-        map["getNextBlockIds"] = GetNextBlockIds(dp.blockchain)
-        map["getBlocksFromHeight"] = GetBlocksFromHeight(dp.blockchain)
-        map["getNextBlocks"] = GetNextBlocks(dp.blockchain)
+        map["getMilestoneBlockIds"] = GetMilestoneBlockIds(dp.blockchainService)
+        map["getNextBlockIds"] = GetNextBlockIds(dp.blockchainService)
+        map["getBlocksFromHeight"] = GetBlocksFromHeight(dp.blockchainService)
+        map["getNextBlocks"] = GetNextBlocks(dp.blockchainService)
         map["getPeers"] = GetPeers(dp)
-        map["getUnconfirmedTransactions"] = GetUnconfirmedTransactions(dp.transactionProcessor)
-        map["processBlock"] = ProcessBlock(dp.blockchain, dp.blockchainProcessor)
-        map["processTransactions"] = ProcessTransactions(dp.transactionProcessor)
+        map["getUnconfirmedTransactions"] = GetUnconfirmedTransactions(dp.transactionProcessorService)
+        map["processBlock"] = ProcessBlock(dp.blockchainService, dp.blockchainProcessorService)
+        map["processTransactions"] = ProcessTransactions(dp.transactionProcessorService)
         map["getAccountBalance"] = GetAccountBalance(dp.accountService)
-        map["getAccountRecentTransactions"] = GetAccountRecentTransactions(dp.accountService, dp.blockchain)
+        map["getAccountRecentTransactions"] = GetAccountRecentTransactions(dp.accountService, dp.blockchainService)
         peerRequestHandlers = map
     }
 
     override fun doPost(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
-            if (!dp.peers.isSupportedUserAgent(request.getHeader("User-Agent"))) {
+            if (!dp.peerService.isSupportedUserAgent(request.getHeader("User-Agent"))) {
                 return
             }
             process(request, resp)
@@ -72,7 +72,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
 
         var requestType = "unknown"
         try {
-            peer = dp.peers.addPeer(request.remoteAddr, null)
+            peer = dp.peerService.addPeer(request.remoteAddr, null)
             if (peer == null || peer.isBlacklisted) {
                 return
             }
@@ -86,7 +86,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
             if (peer.state == Peer.State.DISCONNECTED) {
                 peer.state = Peer.State.CONNECTED
                 if (peer.announcedAddress != null) {
-                    dp.peers.updateAddress(peer)
+                    dp.peerService.updateAddress(peer)
                 }
             }
             peer.updateDownloadedVolume(cis.count)

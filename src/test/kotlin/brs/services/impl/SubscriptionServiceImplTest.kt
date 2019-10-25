@@ -1,7 +1,7 @@
 package brs.services.impl
 
-import brs.Blockchain
-import brs.Subscription
+import brs.services.BlockchainService
+import brs.entity.Subscription
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.db.BurstKey
@@ -27,7 +27,7 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
     private lateinit var mockSubscriptionTable: VersionedEntityTable<Subscription>
     private lateinit var mockSubscriptionDbKeyFactory: LongKeyFactory<Subscription>
     private lateinit var transactionDb: TransactionDb
-    private lateinit var blockchain: Blockchain
+    private lateinit var blockchainService: BlockchainService
     private lateinit var aliasService: AliasService
     private lateinit var accountService: AccountService
 
@@ -38,7 +38,7 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
         mockSubscriptionTable = mock()
         mockSubscriptionDbKeyFactory = mock()
         transactionDb = mock()
-        blockchain = mock()
+        blockchainService = mock()
         aliasService = mock()
         accountService = mock()
 
@@ -48,7 +48,7 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
         t = SubscriptionServiceImpl(QuickMocker.dependencyProvider(
             mockSubscriptionStore,
             transactionDb,
-            blockchain,
+            blockchainService,
             aliasService,
             accountService
         ))

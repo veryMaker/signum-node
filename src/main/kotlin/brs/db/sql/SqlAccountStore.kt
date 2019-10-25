@@ -1,6 +1,6 @@
 package brs.db.sql
 
-import brs.Account
+import brs.entity.Account
 import brs.DependencyProvider
 import brs.db.VersionedBatchEntityTable
 import brs.db.VersionedEntityTable
@@ -45,7 +45,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             override fun save(ctx: DSLContext, assignment: Account.RewardRecipientAssignment) {
                 ctx.mergeInto<RewardRecipAssignRecord, Long, Long, Long, Int, Int, Boolean>(REWARD_RECIP_ASSIGN, REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.PREV_RECIP_ID, REWARD_RECIP_ASSIGN.RECIP_ID, REWARD_RECIP_ASSIGN.FROM_HEIGHT, REWARD_RECIP_ASSIGN.HEIGHT, REWARD_RECIP_ASSIGN.LATEST)
                         .key(REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.HEIGHT)
-                        .values(assignment.accountId, assignment.prevRecipientId, assignment.recipientId, assignment.fromHeight, dp.blockchain.height, true)
+                        .values(assignment.accountId, assignment.prevRecipientId, assignment.recipientId, assignment.fromHeight, dp.blockchainService.height, true)
                         .execute()
             }
         }
@@ -64,7 +64,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             override fun save(ctx: DSLContext, accountAsset: Account.AccountAsset) {
                 ctx.mergeInto<AccountAssetRecord, Long, Long, Long, Long, Int, Boolean>(ACCOUNT_ASSET, ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.QUANTITY, ACCOUNT_ASSET.UNCONFIRMED_QUANTITY, ACCOUNT_ASSET.HEIGHT, ACCOUNT_ASSET.LATEST)
                         .key(ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.HEIGHT)
-                        .values(accountAsset.accountId, accountAsset.assetId, accountAsset.quantity, accountAsset.unconfirmedQuantity, dp.blockchain.height, true)
+                        .values(accountAsset.accountId, accountAsset.assetId, accountAsset.quantity, accountAsset.unconfirmedQuantity, dp.blockchainService.height, true)
                         .execute()
             }
 
@@ -79,7 +79,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
             }
 
             override fun bulkInsert(ctx: DSLContext, accounts: Collection<Account>) {
-                val height = dp.blockchain.height
+                val height = dp.blockchainService.height
                 ctx.batch(accounts.map { account ->
                         ctx.mergeInto<AccountRecord, Long, Int, Int, ByteArray, Int, Long, Long, Long, String, String, Boolean>(ACCOUNT, ACCOUNT.ID, ACCOUNT.HEIGHT, ACCOUNT.CREATION_HEIGHT, ACCOUNT.PUBLIC_KEY, ACCOUNT.KEY_HEIGHT, ACCOUNT.BALANCE,
                             ACCOUNT.UNCONFIRMED_BALANCE, ACCOUNT.FORGED_BALANCE, ACCOUNT.NAME, ACCOUNT.DESCRIPTION, ACCOUNT.LATEST)
@@ -96,7 +96,7 @@ class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
     }
 
     override fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<Account.RewardRecipientAssignment> {
-        return rewardRecipientAssignmentTable.getManyBy(getAccountsWithRewardRecipientClause(recipientId!!, dp.blockchain.height + 1), 0, -1)
+        return rewardRecipientAssignmentTable.getManyBy(getAccountsWithRewardRecipientClause(recipientId!!, dp.blockchainService.height + 1), 0, -1)
     }
 
     override fun getAssets(from: Int, to: Int, id: Long?): Collection<Account.AccountAsset> {

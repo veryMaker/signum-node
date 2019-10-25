@@ -1,10 +1,10 @@
 package brs.services.impl
 
-import brs.Alias
-import brs.Alias.Offer
-import brs.Attachment.MessagingAliasAssignment
-import brs.Attachment.MessagingAliasSell
-import brs.Transaction
+import brs.entity.Alias
+import brs.entity.Alias.Offer
+import brs.transaction.appendix.Attachment.MessagingAliasAssignment
+import brs.transaction.appendix.Attachment.MessagingAliasSell
+import brs.entity.Transaction
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.db.BurstKey

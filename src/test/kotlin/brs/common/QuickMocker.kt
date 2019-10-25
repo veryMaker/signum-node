@@ -1,19 +1,19 @@
 package brs.common
 
-import brs.Blockchain
+import brs.services.BlockchainService
 import brs.DependencyProvider
-import brs.fluxcapacitor.FluxCapacitor
-import brs.fluxcapacitor.FluxCapacitorImpl
-import brs.fluxcapacitor.FluxEnable
-import brs.fluxcapacitor.FluxValue
-import brs.http.common.Parameters.DEADLINE_PARAMETER
-import brs.http.common.Parameters.FEE_PLANCK_PARAMETER
-import brs.http.common.Parameters.PUBLIC_KEY_PARAMETER
-import brs.http.common.Parameters.SECRET_PHRASE_PARAMETER
-import brs.props.Prop
-import brs.props.PropertyService
-import brs.props.Props
-import brs.taskScheduler.impl.RxJavaTaskScheduler
+import brs.services.FluxCapacitorService
+import brs.services.impl.FluxCapacitorServiceImpl
+import brs.entity.FluxEnable
+import brs.entity.FluxValue
+import brs.api.http.common.Parameters.DEADLINE_PARAMETER
+import brs.api.http.common.Parameters.FEE_PLANCK_PARAMETER
+import brs.api.http.common.Parameters.PUBLIC_KEY_PARAMETER
+import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.entity.Prop
+import brs.services.PropertyService
+import brs.objects.Props
+import brs.services.impl.RxJavaTaskSchedulerService
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
@@ -48,7 +48,7 @@ object QuickMocker {
             notInsertedDependencies.removeAll(insertedDependencies)
             "Not all dependencies can go into dependency provider, these types can't: $notInsertedDependencies"
         }
-        dp.taskScheduler = RxJavaTaskScheduler()
+        dp.taskSchedulerService = RxJavaTaskSchedulerService()
         return dp
     }
 
@@ -64,8 +64,8 @@ object QuickMocker {
         }
     }
 
-    fun fluxCapacitorEnabledFunctionalities(vararg enabledToggles: FluxEnable): FluxCapacitor {
-        val mockCapacitor = mock<FluxCapacitor> {
+    fun fluxCapacitorEnabledFunctionalities(vararg enabledToggles: FluxEnable): FluxCapacitorService {
+        val mockCapacitor = mock<FluxCapacitorService> {
             onGeneric { it.getValue(any<FluxValue<Boolean>>()) } doReturn false
             onGeneric { it.getValue(any<FluxValue<Boolean>>(), any()) } doReturn false
         }
@@ -76,12 +76,12 @@ object QuickMocker {
         return mockCapacitor
     }
 
-    fun latestValueFluxCapacitor(): FluxCapacitor {
-        val blockchain = mock<Blockchain>()
+    fun latestValueFluxCapacitor(): FluxCapacitorService {
+        val blockchain = mock<BlockchainService>()
         val propertyService = mock<PropertyService>()
         whenever(blockchain.height).doReturn(Integer.MAX_VALUE)
         whenever(propertyService.get(eq(Props.DEV_TESTNET))).doReturn(false)
-        return FluxCapacitorImpl(dependencyProvider(blockchain, propertyService))
+        return FluxCapacitorServiceImpl(dependencyProvider(blockchain, propertyService))
     }
 
     fun httpServletRequest(vararg parameters: MockParam): HttpServletRequest {
