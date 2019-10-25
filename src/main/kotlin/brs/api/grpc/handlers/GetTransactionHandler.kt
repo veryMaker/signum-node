@@ -4,9 +4,9 @@ import brs.services.BlockchainService
 import brs.entity.Transaction
 import brs.services.TransactionProcessorService
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.proto.ApiException
+import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.proto.ProtoBuilder
+import brs.api.grpc.service.ProtoBuilder
 
 class GetTransactionHandler(private val blockchainService: BlockchainService, private val transactionProcessorService: TransactionProcessorService) : GrpcApiHandler<BrsApi.GetTransactionRequest, BrsApi.Transaction> {
 

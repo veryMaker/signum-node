@@ -1,8 +1,8 @@
 package brs.transaction.appendix
 
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.proto.ProtoBuilder
-import brs.api.grpc.proto.toByteString
+import brs.api.grpc.service.ProtoBuilder
+import brs.api.grpc.service.toByteString
 import brs.api.http.common.Parameters.ALIAS_PARAMETER
 import brs.api.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.ASSET_PARAMETER

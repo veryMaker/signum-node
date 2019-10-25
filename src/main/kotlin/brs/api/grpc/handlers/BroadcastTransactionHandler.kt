@@ -3,7 +3,7 @@ package brs.api.grpc.handlers
 import brs.entity.DependencyProvider
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.proto.ProtoBuilder
+import brs.api.grpc.service.ProtoBuilder
 
 class BroadcastTransactionHandler(private val dp: DependencyProvider) : GrpcApiHandler<BrsApi.BasicTransaction, BrsApi.TransactionBroadcastResult> {
 

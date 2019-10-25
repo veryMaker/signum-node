@@ -9,7 +9,7 @@ import brs.common.QuickMocker
 import brs.services.impl.FeeSuggestionServiceImpl
 import brs.services.impl.FluxCapacitorServiceImpl
 import brs.api.grpc.proto.BrsApiServiceGrpc
-import brs.api.grpc.proto.BrsService
+import brs.api.grpc.service.BrsService
 import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.services.*

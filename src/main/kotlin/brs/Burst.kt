@@ -1,6 +1,6 @@
 package brs
 
-import brs.api.grpc.proto.BrsService
+import brs.api.grpc.service.BrsService
 import brs.api.http.API
 import brs.api.http.APITransactionManagerImpl
 import brs.at.*

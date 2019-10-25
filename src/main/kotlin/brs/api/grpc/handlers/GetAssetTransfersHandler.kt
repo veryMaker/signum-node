@@ -3,9 +3,9 @@ package brs.api.grpc.handlers
 import brs.entity.AssetTransfer
 import brs.services.AssetExchangeService
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.proto.ApiException
+import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.proto.ProtoBuilder
+import brs.api.grpc.service.ProtoBuilder
 import brs.services.AccountService
 
 class GetAssetTransfersHandler(private val assetExchangeService: AssetExchangeService, private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAssetTransfersRequest, BrsApi.AssetTransfers> {
@@ -25,7 +25,11 @@ class GetAssetTransfersHandler(private val assetExchangeService: AssetExchangeSe
         }
         val builder = BrsApi.AssetTransfers.newBuilder()
         transfers.forEach { transfer ->
-            builder.addAssetTransfers(ProtoBuilder.buildTransfer(transfer, asset ?: assetExchangeService.getAsset(transfer.assetId) ?: throw ApiException("Asset not found")))
+            builder.addAssetTransfers(
+                ProtoBuilder.buildTransfer(transfer, asset ?: assetExchangeService.getAsset(transfer.assetId) ?: throw ApiException(
+                "Asset not found"
+            )
+            ))
         }
         return builder.build()
     }

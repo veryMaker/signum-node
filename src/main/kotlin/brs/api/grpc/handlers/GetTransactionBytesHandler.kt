@@ -3,8 +3,8 @@ package brs.api.grpc.handlers
 import brs.entity.DependencyProvider
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.proto.ProtoBuilder
-import brs.api.grpc.proto.toByteString
+import brs.api.grpc.service.ProtoBuilder
+import brs.api.grpc.service.toByteString
 
 class GetTransactionBytesHandler(private val dp: DependencyProvider) : GrpcApiHandler<BrsApi.BasicTransaction, BrsApi.TransactionBytes> {
 

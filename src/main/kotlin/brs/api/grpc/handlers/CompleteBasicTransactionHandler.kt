@@ -3,7 +3,7 @@ package brs.api.grpc.handlers
 import brs.transaction.appendix.Attachment
 import brs.entity.DependencyProvider
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.proto.ApiException
+import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
 import burst.kit.crypto.BurstCrypto
 import com.google.protobuf.Any

@@ -1,5 +1,6 @@
-package brs.api.grpc.proto
+package brs.api.grpc.service
 
+import brs.api.grpc.proto.BrsApi
 import brs.services.AssetExchangeService
 import brs.at.AT
 import brs.services.BlockchainService
@@ -45,7 +46,11 @@ object ProtoBuilder {
                 .setName(account.name ?: "")
                 .setDescription(account.description ?: "")
                 .setRewardRecipient(accountService.getRewardRecipientAssignment(account)?.accountId ?: account.id)
-                .addAllAssetBalances(accountService.getAssets(account.id, 0, -1).map { buildAssetBalance(it) })
+                .addAllAssetBalances(accountService.getAssets(account.id, 0, -1).map {
+                    buildAssetBalance(
+                        it
+                    )
+                })
                 .build()
     }
 
@@ -83,7 +88,12 @@ object ProtoBuilder {
         if (includeTransactions) {
             val currentHeight = blockchainService.height
             builder.addAllTransactions(block.transactions
-                    .map { transaction -> buildTransaction(transaction, currentHeight) })
+                    .map { transaction ->
+                        buildTransaction(
+                            transaction,
+                            currentHeight
+                        )
+                    })
         }
 
         return builder.build()
@@ -344,7 +354,8 @@ object ProtoBuilder {
             for (appendix in basicTransaction.appendagesList) {
                 try {
                     when {
-                        appendix.`is`(BrsApi.MessageAppendix::class.java) -> transactionBuilder.message(Appendix.Message(dp, appendix.unpack(BrsApi.MessageAppendix::class.java), blockchainHeight))
+                        appendix.`is`(BrsApi.MessageAppendix::class.java) -> transactionBuilder.message(Appendix.Message(dp, appendix.unpack(
+                            BrsApi.MessageAppendix::class.java), blockchainHeight))
                         appendix.`is`(BrsApi.EncryptedMessageAppendix::class.java) -> {
                             val encryptedMessageAppendix = appendix.unpack(BrsApi.EncryptedMessageAppendix::class.java)
                             when (encryptedMessageAppendix.type) {

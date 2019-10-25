@@ -2,7 +2,7 @@ package brs.api.grpc.handlers
 
 import brs.entity.DependencyProvider
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.proto.ApiException
+import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
 
 class GetPeerHandler(private val dp: DependencyProvider) : GrpcApiHandler<BrsApi.GetPeerRequest, BrsApi.Peer> {

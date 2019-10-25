@@ -6,7 +6,7 @@ import brs.services.BlockchainProcessorService
 import brs.services.GeneratorService
 import brs.api.grpc.StreamResponseGrpcApiHandler
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.proto.toByteString
+import brs.api.grpc.service.toByteString
 import brs.util.delegates.Atomic
 import brs.util.sync.Mutex
 import com.google.protobuf.Empty

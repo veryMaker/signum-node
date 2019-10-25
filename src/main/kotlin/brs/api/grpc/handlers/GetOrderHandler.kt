@@ -3,9 +3,9 @@ package brs.api.grpc.handlers
 import brs.entity.Order
 import brs.services.AssetExchangeService
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.proto.ApiException
+import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.proto.ProtoBuilder
+import brs.api.grpc.service.ProtoBuilder
 
 class GetOrderHandler(private val assetExchangeService: AssetExchangeService) : GrpcApiHandler<BrsApi.GetOrderRequest, BrsApi.Order> {
 

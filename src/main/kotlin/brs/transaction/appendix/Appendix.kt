@@ -7,8 +7,8 @@ import brs.entity.DependencyProvider
 import brs.entity.EncryptedData
 import brs.objects.FluxValues
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.proto.ProtoBuilder
-import brs.api.grpc.proto.toByteString
+import brs.api.grpc.service.ProtoBuilder
+import brs.api.grpc.service.toByteString
 import brs.entity.Transaction
 import brs.util.convert.parseHexString
 import brs.util.convert.toBytes

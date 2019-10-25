@@ -3,9 +3,9 @@ package brs.api.grpc.handlers
 import brs.entity.Trade
 import brs.services.AssetExchangeService
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.proto.ApiException
+import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.proto.ProtoBuilder
+import brs.api.grpc.service.ProtoBuilder
 
 class GetAssetTradesHandler(private val assetExchangeService: AssetExchangeService) : GrpcApiHandler<BrsApi.GetAssetTransfersRequest, BrsApi.AssetTrades> {
 
@@ -24,7 +24,11 @@ class GetAssetTradesHandler(private val assetExchangeService: AssetExchangeServi
         }
         val builder = BrsApi.AssetTrades.newBuilder()
         trades.forEach { trade ->
-            builder.addTrades(ProtoBuilder.buildTrade(trade, asset ?: assetExchangeService.getAsset(trade.assetId) ?: throw ApiException("Asset not found")))
+            builder.addTrades(
+                ProtoBuilder.buildTrade(trade, asset ?: assetExchangeService.getAsset(trade.assetId) ?: throw ApiException(
+                "Asset not found"
+            )
+            ))
         }
         return builder.build()
     }

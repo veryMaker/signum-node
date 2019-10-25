@@ -3,7 +3,7 @@ package brs.api.grpc.handlers
 import brs.services.BlockchainService
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.proto.ProtoBuilder
+import brs.api.grpc.service.ProtoBuilder
 import brs.services.BlockService
 
 class GetBlocksHandler(private val blockchainService: BlockchainService, private val blockService: BlockService) : GrpcApiHandler<BrsApi.GetBlocksRequest, BrsApi.Blocks> {

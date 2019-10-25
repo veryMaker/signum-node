@@ -2,9 +2,9 @@ package brs.api.grpc.handlers
 
 import brs.services.BlockchainService
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.proto.ApiException
+import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.proto.ProtoBuilder
+import brs.api.grpc.service.ProtoBuilder
 import brs.services.AccountService
 
 class GetAccountTransactionsHandler(private val blockchainService: BlockchainService, private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAccountTransactionsRequest, BrsApi.Transactions> {

@@ -5,7 +5,7 @@ import brs.services.BlockchainService
 import brs.services.GeneratorService
 import brs.util.crypto.Crypto
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.proto.ApiException
+import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
 import brs.services.PropertyService
 import brs.objects.Props

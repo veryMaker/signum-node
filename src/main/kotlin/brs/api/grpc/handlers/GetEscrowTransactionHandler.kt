@@ -1,9 +1,9 @@
 package brs.api.grpc.handlers
 
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.proto.ApiException
+import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.proto.ProtoBuilder
+import brs.api.grpc.service.ProtoBuilder
 import brs.services.EscrowService
 
 class GetEscrowTransactionHandler(private val escrowService: EscrowService) : GrpcApiHandler<BrsApi.GetByIdRequest, BrsApi.EscrowTransaction> {

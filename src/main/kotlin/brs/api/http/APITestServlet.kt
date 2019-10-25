@@ -77,14 +77,14 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
                 var requestHandler: APIServlet.HttpRequestHandler? = apiRequestHandlers[requestType]
                 val bufJSCalls = StringBuilder()
                 if (requestHandler != null) {
-                    writer.print(form(requestType, true, requestHandler.javaClass.name, requestHandler.parameters, requestHandler.requirePost()))
+                    writer.print(form(requestType, true, requestHandler.javaClass.getDokkaUrl(), requestHandler.parameters, requestHandler.requirePost()))
                     bufJSCalls.append("apiCalls.push(\"").append(requestType).append("\");\n")
                 } else {
                     val requestTag = request.getParameter("requestTag").orEmpty()
                     val taggedTypes = requestTags[requestTag]
                     for (type in taggedTypes ?: requestTypes) {
                         requestHandler = apiRequestHandlers[type]
-                        writer.print(form(type, false, requestHandler!!.javaClass.name, apiRequestHandlers[type]!!.parameters, apiRequestHandlers[type]!!.requirePost()))
+                        writer.print(form(type, false, requestHandler!!.javaClass.getDokkaUrl(), apiRequestHandlers[type]!!.parameters, apiRequestHandlers[type]!!.requirePost()))
                         bufJSCalls.append("apiCalls.push(\"").append(type).append("\");\n")
                     }
                 }
@@ -97,7 +97,7 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
         }
     }
 
-    private fun form(requestType: String, singleView: Boolean, className: String, parameters: List<String>, requirePost: Boolean): String {
+    private fun form(requestType: String, singleView: Boolean, classUrl: String, parameters: List<String>, requirePost: Boolean): String {
         val buf = StringBuilder()
         buf.append("<div class=\"panel panel-default api-call-All\" ")
         buf.append("id=\"api-call-").append(requestType).append("\">")
@@ -112,8 +112,8 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
             buf.append("\" target=\"_blank\" style=\"font-weight:normal;font-size:14px;color:#777;\"><span class=\"glyphicon glyphicon-new-window\"></span></a>")
             buf.append(" &nbsp;&nbsp;")
         }
-        buf.append("<a style=\"font-weight:normal;font-size:14px;color:#777;\" href=\"/doc/")
-        buf.append(className.replace('.', '/')).append(".html\" target=\"_blank\">javadoc</a>")
+        buf.append("<a style=\"font-weight:normal;font-size:14px;color:#777;\" href=\"/doc/burstcoin/")
+        buf.append(classUrl).append("\" target=\"_blank\">javadoc</a>")
         buf.append("</span>")
         buf.append("</h4>")
         buf.append("</div>")
@@ -161,12 +161,25 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
     companion object {
         private val logger = LoggerFactory.getLogger(APITestServlet::class.java)
         @Language("HTML")
-        private const val HEADER_1 = """<!DOCTYPE html><html lang='en'><head><meta charset="UTF-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"> <title>Burst http API</title> <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" /><style type="text/css"> table {border-collapse: collapse;} td {padding: 10px;} .result {white-space: pre; font-family: monospace; overflow: auto;} </style> <script type="text/javascript"> var apiCalls; function performSearch(searchStr) { if (searchStr == '') { $('.api-call-All').show(); } else { $('.api-call-All').hide(); $('.topic-link').css('font-weight', 'normal'); for(var i=0; i<apiCalls.length; i++) {  var apiCall = apiCalls[i];  if (new RegExp(searchStr.toLowerCase()).test(apiCall.toLowerCase())) {  $('#api-call-' + apiCall).show();  } } } } function submitForm(form) { var url = '/burst'; for (i = 0; i < form.elements.length; i++) {  if (form.elements[i].type != 'button' && form.elements[i].value && form.elements[i].value != 'submit') {  url += ((i == 0 && '?') || '&') + form.elements[i].name + '=' + form.elements[i].value;  } } $.ajax({  url: url,  type: 'POST', }) .done(function(result) {  var resultStr = JSON.stringify(JSON.parse(result), null, 4);  form.getElementsByClassName("result")[0].textContent = resultStr; }) .fail(function() {  alert('API not available, check if Burst Server is running!'); }); if ($(form).has('.uri-link').length > 0) {  var html = '<a href="' + url + '" target="_blank" style="font-size:12px;font-weight:normal;">Open GET URL</a>';  form.getElementsByClassName("uri-link")[0].innerHTML = html; } return false; } </script> </head> <body> <div class="navbar navbar-default" role="navigation"> <div class="container" style="min-width: 90%;"> <div class="navbar-header"> <a class="navbar-brand" href="/test">Burst http API</a> </div> <div class="navbar-collapse collapse"> <ul class="nav navbar-nav navbar-right"> <li><input type="text" class="form-control" id="search"  placeholder="Search" style="margin-top:8px;"></li> <li><a href="https://burstwiki.org/en/the-burst-api/" target="_blank" style="margin-left:20px;">Wiki Docs</a></li> <li><a href="/doc/index.html" target="_blank" style="margin-left:20px;">Javadoc Index</a></li> </ul> </div> </div></div><div class="container" style="min-width: 90%;"><div class="row"> <div class="col-xs-12" style="margin-bottom:15px;"> <div class="pull-right"> <a href="#" id="navi-show-open">Show Open</a> | <a href="#" id="navi-show-all" style="font-weight:bold;">Show All</a> </div> </div></div><div class="row" style="margin-bottom:15px;"> <div class="col-xs-4 col-sm-3 col-md-2"> <ul class="nav nav-pills nav-stacked">"""
+        private const val HEADER_1 = """<!DOCTYPE html><html lang='en'><head><meta charset="UTF-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"> <title>Burst http API</title> <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" /><style type="text/css"> table {border-collapse: collapse;} td {padding: 10px;} .result {white-space: pre; font-family: monospace; overflow: auto;} </style> <script type="text/javascript"> var apiCalls; function performSearch(searchStr) { if (searchStr == '') { $('.api-call-All').show(); } else { $('.api-call-All').hide(); $('.topic-link').css('font-weight', 'normal'); for(var i=0; i<apiCalls.length; i++) {  var apiCall = apiCalls[i];  if (new RegExp(searchStr.toLowerCase()).test(apiCall.toLowerCase())) {  $('#api-call-' + apiCall).show();  } } } } function submitForm(form) { var url = '/burst'; for (i = 0; i < form.elements.length; i++) {  if (form.elements[i].type != 'button' && form.elements[i].value && form.elements[i].value != 'submit') {  url += ((i == 0 && '?') || '&') + form.elements[i].name + '=' + form.elements[i].value;  } } $.ajax({  url: url,  type: 'POST', }) .done(function(result) {  var resultStr = JSON.stringify(JSON.parse(result), null, 4);  form.getElementsByClassName("result")[0].textContent = resultStr; }) .fail(function() {  alert('API not available, check if Burst Server is running!'); }); if ($(form).has('.uri-link').length > 0) {  var html = '<a href="' + url + '" target="_blank" style="font-size:12px;font-weight:normal;">Open GET URL</a>';  form.getElementsByClassName("uri-link")[0].innerHTML = html; } return false; } </script> </head> <body> <div class="navbar navbar-default" role="navigation"> <div class="container" style="min-width: 90%;"> <div class="navbar-header"> <a class="navbar-brand" href="/test">Burst http API</a> </div> <div class="navbar-collapse collapse"> <ul class="nav navbar-nav navbar-right"> <li><input type="text" class="form-control" id="search"  placeholder="Search" style="margin-top:8px;"></li> <li><a href="https://burstwiki.org/en/the-burst-api/" target="_blank" style="margin-left:20px;">Wiki Docs</a></li> <li><a href="/doc/burstcoin" target="_blank" style="margin-left:20px;">Javadoc Index</a></li> </ul> </div> </div></div><div class="container" style="min-width: 90%;"><div class="row"> <div class="col-xs-12" style="margin-bottom:15px;"> <div class="pull-right"> <a href="#" id="navi-show-open">Show Open</a> | <a href="#" id="navi-show-all" style="font-weight:bold;">Show All</a> </div> </div></div><div class="row" style="margin-bottom:15px;"> <div class="col-xs-4 col-sm-3 col-md-2"> <ul class="nav nav-pills nav-stacked">"""
         @Language("HTML")
         private const val HEADER_2 = """</ul></div><div class="col-xs-8 col-sm-9 col-md-10"><div class="panel-group" id="accordion">"""
         @Language("HTML")
         private const val FOOTER_1 = """</div></div></div></div><script src="js/3rdparty/jquery.min.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT"></script><script src="js/3rdparty/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" type="text/javascript"></script><script> $(document).ready(function() { apiCalls = [];"""
         @Language("HTML")
         private const val FOOTER_2 = """$(".collapse-link").click(function(event) { event.preventDefault(); });$('#search').keyup(function(e) { if (e.keyCode == 13) { performSearch($(this).val()); } });$('#navi-show-open').click(function(e) {$('.api-call-All').each(function() {if($(this).find('.panel-collapse.in').length != 0) {$(this).show();} else {$(this).hide();}});$('#navi-show-all').css('font-weight', 'normal');$(this).css('font-weight', 'bold');e.preventDefault();});$('#navi-show-all').click(function(e) {$('.api-call-All').show();$('#navi-show-open').css('font-weight', 'normal');$(this).css('font-weight', 'bold');e.preventDefault();});});</script></body></html>"""
+
+        private fun <T> Class<T>.getDokkaUrl(): String {
+            val simpleNameChars = this.simpleName.toCharArray()
+            val output = StringBuilder()
+            for (i in simpleNameChars.indices) {
+                if (simpleNameChars[i].isUpperCase()) {
+                    output.append('-').append(simpleNameChars[i].toLowerCase())
+                } else {
+                    output.append(simpleNameChars[i])
+                }
+            }
+            return "${this.`package`.name}/$output/"
+        }
     }
 }

@@ -4,7 +4,7 @@ import brs.services.BlockchainService
 import brs.services.GeneratorService
 import brs.util.crypto.Crypto
 import brs.api.grpc.handlers.SubmitNonceHandler
-import brs.api.grpc.proto.ApiException
+import brs.api.grpc.service.ApiException
 import brs.api.http.common.Parameters.ACCOUNT_ID_PARAMETER
 import brs.api.http.common.Parameters.BLOCK_HEIGHT_PARAMETER
 import brs.api.http.common.Parameters.NONCE_PARAMETER
