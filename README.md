@@ -109,7 +109,7 @@ A `.deb` package is available [here](https://github.com/burst-apps-team/burstcoi
 
 Docker Compose for use with MariaDB database
 
-```docker-compose
+```yaml
 version: '3'
 
 services:
@@ -134,7 +134,7 @@ services:
 
 Docker command for use with H2 database
 
-```bash
+```shell script
 docker run -p 8123:8123 -p 8125:8125 -p 8121:8121 -v "$(pwd)"/burst_db:/db -d burstappsteam/burstcoin:2-h2
 ```
 
@@ -142,7 +142,7 @@ docker run -p 8123:8123 -p 8125:8125 -p 8121:8121 -v "$(pwd)"/burst_db:/db -d bu
 
 ### Running on mainnet (unless you are developing or running on testnet, you will probably want this)
 
-Now you need to add the following to your `conf/brs.properties` (as a minimum):
+Add the following to your `conf/brs.properties` (as a minimum):
 
 ```properties
 DB.Url=jdbc:mariadb://localhost:3306/brs_master
@@ -154,43 +154,49 @@ Once you have done this, look through the existing properties if there is anythi
 
 ### Testnet
 
-Please see the [Wiki article](https://burstwiki.org/en/testnet/) for details on how to setup a testnet node.
+Please see the [Wiki article](https://burstwiki.org/en/testnet/) for details on how to setup a Ttestnet node.
 
 # Building
 
 ## Build options
 
-1. Run Protobuf Compiler: `gradlew -DrunProtoc=true ...`
+1. Enable Protobuf Compiler: `./gradlew -DrunProtoc=true ...`
 
-2. Run jOOQ generator: `gradlew -DrunJooq=true ...`
+2. Enable jOOQ generator: `./gradlew -DrunJooq=true ...`
 
-3. Run headless build (if you do not have JavaFX): `gradlew -Dheadless=true ...`
+3. Enable headless build (if you do not have JavaFX and get errors in `BurstGUI.kt` when compiling, this skips building the BurstGUI launcher): `./gradlew -Dheadless=true ...`
 
 ## Building the latest stable release
 
 Run these commands (`master` is always the latest stable release):
 
-```bash
+```shell script
 git fetch --all --tags --prune
 git checkout origin/master
-gradlew buildPackage
+./gradlew buildPackage
 ```
 
-Your packaged release will now be available in `dist/burstcoin-2.4.0.zip`
+Your packaged release will now be available in `dist/burstcoin-X.Y.Z.zip`
 
 ## Building the latest development version
 
-Run these commands (`develop` is always the latest stable release):
+Run these commands (`develop` is always the latest development version):
 
-```bash
+```shell script
 git fetch --all --tags --prune
 git checkout origin/develop
-gradlew buildPackage
+./gradlew buildPackage
 ```
 
-Your packaged release will now be available in `dist/burstcoin-2.4.0.zip`.
+Your packaged release will now be available in `dist/burstcoin-X.Y.Z.zip`.
 
-**Please note that development builds will refuse to run outside of testnet or a private chain**
+**Please note that development builds will refuse to run on Mainnet.**
+
+## Running tests
+
+```shell script
+./gradlew clean test
+```
 
 # Developers
 
