@@ -829,3 +829,8 @@ message ArbitraryMessageAttachment {
 message ATPaymentAttachment { // TODO version
     // Empty.
 }
+
+message EffectiveBalanceLeasingAttachment {
+    uint32 version = 1;
+    uint32 period = 2;
+}
