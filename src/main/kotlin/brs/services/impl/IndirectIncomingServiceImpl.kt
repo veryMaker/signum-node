@@ -1,11 +1,11 @@
 package brs.services.impl
 
-import brs.transaction.appendix.Attachment
 import brs.entity.DependencyProvider
+import brs.entity.IndirectIncoming
 import brs.entity.Transaction
-import brs.db.IndirectIncomingStore
 import brs.objects.Props
 import brs.services.IndirectIncomingService
+import brs.transaction.appendix.Attachment
 import brs.transaction.type.payment.MultiOutPayment
 import brs.transaction.type.payment.MultiOutSamePayment
 import brs.util.logging.safeWarn
@@ -23,7 +23,7 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
     override fun processTransaction(transaction: Transaction) {
         if (disabled) return
         dp.indirectIncomingStore.addIndirectIncomings(getIndirectIncomings(transaction)
-                .map { account -> IndirectIncomingStore.IndirectIncoming(account, transaction.id, transaction.height) })
+                .map { account -> IndirectIncoming(account, transaction.id, transaction.height) })
     }
 
     override fun isIndirectlyReceiving(transaction: Transaction, accountId: Long): Boolean {

@@ -1,13 +1,13 @@
 package brs.services.impl
 
-import brs.entity.Account
-import brs.entity.Account.RewardRecipientAssignment
 import brs.common.QuickMocker
+import brs.db.AccountStore
+import brs.db.AssetTransferStore
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedBatchEntityTable
-import brs.db.AccountStore
-import brs.db.AssetTransferStore
+import brs.entity.Account
+import brs.entity.Account.RewardRecipientAssignment
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
 import org.junit.Before
@@ -227,7 +227,7 @@ class AccountServiceImplTest {
 
         whenever(accountTableMock.count).doReturn(count)
 
-        assertEquals(count.toLong(), t.getCount().toLong())
+        assertEquals(count.toLong(), t.count.toLong())
     }
 
 }

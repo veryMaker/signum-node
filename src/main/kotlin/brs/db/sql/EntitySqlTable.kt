@@ -1,10 +1,10 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
 import brs.db.BurstKey
 import brs.db.EntityTable
 import brs.db.getUsingDslContext
 import brs.db.useDslContext
+import brs.entity.DependencyProvider
 import brs.util.db.fetchAndMap
 import org.jooq.*
 import org.jooq.impl.DSL
@@ -54,8 +54,8 @@ internal abstract class EntitySqlTable<T> internal constructor(table: String, ta
         return defaultSort
     }
 
-    override fun checkAvailable(height: Int) {
-        require(!(multiversion && height < dp.blockchainProcessorService.minRollbackHeight)) { "Historical data as of height $height not available, set brs.trimDerivedTables=false and re-scan" }
+    override fun ensureAvailable(height: Int) {
+        require(!multiversion || height >= dp.blockchainProcessorService.minRollbackHeight) { "Historical data as of height $height not available, set brs.trimDerivedTables=false and re-scan" }
     }
 
     override fun get(dbKey: BurstKey): T? {
@@ -81,7 +81,7 @@ internal abstract class EntitySqlTable<T> internal constructor(table: String, ta
 
     override fun get(dbKey: BurstKey, height: Int): T? {
         val key = dbKey as SqlDbKey
-        checkAvailable(height)
+        ensureAvailable(height)
 
         return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectQuery()
@@ -117,7 +117,7 @@ internal abstract class EntitySqlTable<T> internal constructor(table: String, ta
     }
 
     override fun getBy(condition: Condition, height: Int): T? {
-        checkAvailable(height)
+        ensureAvailable(height)
         return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
@@ -179,7 +179,7 @@ internal abstract class EntitySqlTable<T> internal constructor(table: String, ta
     }
 
     override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
-        checkAvailable(height)
+        ensureAvailable(height)
         return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
@@ -256,7 +256,7 @@ internal abstract class EntitySqlTable<T> internal constructor(table: String, ta
     }
 
     override fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
-        checkAvailable(height)
+        ensureAvailable(height)
         return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(tableClass)
@@ -306,11 +306,6 @@ internal abstract class EntitySqlTable<T> internal constructor(table: String, ta
 
     override fun rollback(height: Int) {
         super.rollback(height)
-        dp.db.getCache<Any>(table).clear()
-    }
-
-    override fun truncate() {
-        super.truncate()
         dp.db.getCache<Any>(table).clear()
     }
 }

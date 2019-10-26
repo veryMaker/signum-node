@@ -5,7 +5,6 @@ import brs.util.string.countMatches
 import org.jooq.*
 
 internal interface SqlDbKey : BurstKey {
-
     override val pkValues: LongArray
 
     abstract class Factory<T> internal constructor(pkClause: String, val pkColumns: Array<String>, // expects tables to be named a and b

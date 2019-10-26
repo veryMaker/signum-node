@@ -1,10 +1,10 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
 import brs.db.BurstKey
 import brs.db.ValuesTable
 import brs.db.getUsingDslContext
 import brs.db.useDslContext
+import brs.entity.DependencyProvider
 import brs.util.db.fetchAndMap
 import org.jooq.DSLContext
 import org.jooq.Record
@@ -61,8 +61,4 @@ internal abstract class ValuesSqlTable<T, V> internal constructor(table: String,
         dp.db.getCache<Any>(table).clear()
     }
 
-    override fun truncate() {
-        super.truncate()
-        dp.db.getCache<Any>(table).clear()
-    }
 }

@@ -35,7 +35,7 @@ internal class GetState(private val dp: DependencyProvider) : APIServlet.JsonReq
 
             response.addProperty("numberOfBlocks", dp.blockchainService.height + 1)
             response.addProperty("numberOfTransactions", dp.blockchainService.getTransactionCount())
-            response.addProperty("numberOfAccounts", dp.accountService.getCount())
+            response.addProperty("numberOfAccounts", dp.accountService.count)
             response.addProperty("numberOfAssets", dp.assetExchangeService.assetsCount)
             val askCount = dp.assetExchangeService.askCount
             val bidCount = dp.assetExchangeService.bidCount

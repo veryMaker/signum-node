@@ -1,9 +1,9 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
 import brs.db.BurstKey
 import brs.db.VersionedBatchEntityTable
 import brs.db.useDslContext
+import brs.entity.DependencyProvider
 import org.ehcache.Cache
 import org.jooq.*
 import org.jooq.impl.TableImpl
@@ -156,11 +156,6 @@ internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(tab
 
     override fun rollback(height: Int) {
         super.rollback(height)
-        getBatch().clear()
-    }
-
-    override fun truncate() {
-        super.truncate()
         getBatch().clear()
     }
 

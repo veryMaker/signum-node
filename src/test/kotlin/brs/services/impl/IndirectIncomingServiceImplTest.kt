@@ -1,13 +1,14 @@
 package brs.services.impl
 
-import brs.transaction.appendix.Attachment
-import brs.objects.Constants
-import brs.entity.DependencyProvider
-import brs.entity.Transaction
 import brs.common.QuickMocker
 import brs.db.IndirectIncomingStore
-import brs.services.PropertyService
+import brs.entity.DependencyProvider
+import brs.entity.IndirectIncoming
+import brs.entity.Transaction
+import brs.objects.Constants
 import brs.objects.Props
+import brs.services.PropertyService
+import brs.transaction.appendix.Attachment
 import brs.transaction.type.payment.MultiOutPayment
 import brs.transaction.type.payment.MultiOutSamePayment
 import brs.transaction.type.payment.OrdinaryPayment
@@ -21,7 +22,7 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class IndirectIncomingServiceImplTest {
-    private var addIndirectIncomingsRunnable by Atomic<(List<IndirectIncomingStore.IndirectIncoming>) -> Unit>()
+    private var addIndirectIncomingsRunnable by Atomic<(List<IndirectIncoming>) -> Unit>()
     private lateinit var indirectIncomingService: IndirectIncomingServiceImpl
     private lateinit var dp: DependencyProvider
 

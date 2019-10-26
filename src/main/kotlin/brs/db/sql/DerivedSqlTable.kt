@@ -1,8 +1,8 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
 import brs.db.DerivedTable
 import brs.db.useDslContext
+import brs.entity.DependencyProvider
 import brs.util.logging.safeTrace
 import org.jooq.Field
 import org.jooq.impl.TableImpl
@@ -22,11 +22,6 @@ internal abstract class DerivedSqlTable internal constructor(internal val table:
     override fun rollback(height: Int) {
         check(dp.db.isInTransaction()) { "Not in transaction" }
         dp.db.useDslContext { ctx -> ctx.delete(tableClass).where(heightField.gt(height)).execute() }
-    }
-
-    override fun truncate() {
-        check(dp.db.isInTransaction()) { "Not in transaction" }
-        dp.db.useDslContext { ctx -> ctx.delete(tableClass).execute() }
     }
 
     override fun trim(height: Int) {

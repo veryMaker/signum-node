@@ -3,8 +3,19 @@ package brs.services
 import brs.entity.Block
 
 interface OclPocService {
+    /**
+     * TODO
+     */
     val maxItems: Long
+
+    /**
+     * TODO
+     */
     fun validatePoC(blocks: Collection<Block>, pocVersion: Int, blockService: BlockService)
+
+    /**
+     * TODO
+     */
     fun destroy()
 
     class OCLCheckerException : RuntimeException {

@@ -1,39 +1,75 @@
 package brs.db
 
 import brs.entity.Account
-import brs.db.BurstKey
-import brs.db.VersionedBatchEntityTable
-import brs.db.VersionedEntityTable
 
 /**
  * Interface for Database operations related to Accounts
  */
 interface AccountStore {
-
+    /**
+     * TODO
+     */
     val accountTable: VersionedBatchEntityTable<Account>
 
+    /**
+     * TODO
+     */
     val rewardRecipientAssignmentTable: VersionedEntityTable<Account.RewardRecipientAssignment>
 
+    /**
+     * TODO
+     */
     val rewardRecipientAssignmentKeyFactory: BurstKey.LongKeyFactory<Account.RewardRecipientAssignment>
 
+    /**
+     * TODO
+     */
     val accountAssetKeyFactory: BurstKey.LinkKeyFactory<Account.AccountAsset>
 
+    /**
+     * TODO
+     */
     val accountAssetTable: VersionedEntityTable<Account.AccountAsset>
 
+    /**
+     * TODO
+     */
     val accountKeyFactory: BurstKey.LongKeyFactory<Account>
 
+    /**
+     * TODO
+     */
     fun getAssetAccountsCount(assetId: Long): Int
 
+    /**
+     * TODO
+     */
     fun getAccountsWithRewardRecipient(recipientId: Long?): Collection<Account.RewardRecipientAssignment>
 
+    /**
+     * TODO
+     */
     fun getAssets(from: Int, to: Int, id: Long?): Collection<Account.AccountAsset>
 
+    /**
+     * TODO
+     */
     fun getAssetAccounts(assetId: Long, from: Int, to: Int): Collection<Account.AccountAsset>
 
+    /**
+     * TODO
+     */
     fun getAssetAccounts(assetId: Long, height: Int, from: Int, to: Int): Collection<Account.AccountAsset>
-    // returns true iff:
-    // this.publicKey is set to null (in which case this.publicKey also gets set to key)
-    // or
-    // this.publicKey is already set to an array equal to key
-    fun setOrVerify(acc: Account, key: ByteArray, height: Int): Boolean
+
+    /**
+     * Set or verify an account's public key.
+     * If the account's public key is null, it is set to `key` and this returns true.
+     * If the account's public key is equal to `key`, this returns true.
+     * Otherwise this returns false.
+     * @param account The account to set or verify the public key of
+     * @param key The public key to use in setting or verify
+     * @param height TODO
+     * @return True if `account.publicKey == key` after execution (either it was set to key or was equal to before)
+     */
+    fun setOrVerify(account: Account, key: ByteArray, height: Int): Boolean
 }

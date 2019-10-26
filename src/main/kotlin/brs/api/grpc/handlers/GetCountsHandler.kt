@@ -11,7 +11,7 @@ class GetCountsHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empt
         var totalEffectiveBalance: Long = 0
         val numberOfBlocks = dp.blockchainService.height + 1 // Height + genesis
         val numberOfTransactions = dp.blockchainService.getTransactionCount()
-        val numberOfAccounts = dp.accountService.getCount()
+        val numberOfAccounts = dp.accountService.count
         val numberOfAssets = dp.assetExchangeService.assetsCount
         val numberOfAskOrders = dp.assetExchangeService.askCount
         val numberOfBidOrders = dp.assetExchangeService.bidCount

@@ -1,17 +1,16 @@
 package brs.services.impl
 
-import brs.entity.Account
-import brs.entity.Account.*
-import brs.entity.AssetTransfer
-import brs.objects.Constants
-import brs.entity.DependencyProvider
-import brs.util.crypto.Crypto
+import brs.db.AccountStore
+import brs.db.AssetTransferStore
 import brs.db.BurstKey.LinkKeyFactory
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedBatchEntityTable
 import brs.db.VersionedEntityTable
-import brs.db.AccountStore
-import brs.db.AssetTransferStore
+import brs.entity.Account
+import brs.entity.Account.*
+import brs.entity.AssetTransfer
+import brs.entity.DependencyProvider
+import brs.objects.Constants
 import brs.schema.Tables.ACCOUNT
 import brs.services.AccountService
 import brs.util.Listeners
@@ -19,6 +18,7 @@ import brs.util.convert.fullHashToId
 import brs.util.convert.safeAdd
 import brs.util.convert.toHexString
 import brs.util.convert.toUnsignedString
+import brs.util.crypto.Crypto
 import java.util.*
 
 class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
@@ -35,7 +35,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     private val listeners = Listeners<Account, Event>()
     private val assetListeners = Listeners<AccountAsset, Event>()
 
-    override fun getCount() = accountTable.count
+    override val count get() = accountTable.count
 
     init { // TODO don't hold references to dependency instances
         val accountStore = dp.accountStore

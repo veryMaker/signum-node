@@ -119,35 +119,35 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
         return accountAssetTable.getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), height, from, to, sort)
     }
 
-    override fun setOrVerify(acc: Account, key: ByteArray, height: Int): Boolean {
+    override fun setOrVerify(account: Account, key: ByteArray, height: Int): Boolean {
         return when {
-            acc.publicKey == null -> {
+            account.publicKey == null -> {
                 if (dp.db.isInTransaction()) {
-                    acc.publicKey = key
-                    acc.keyHeight = -1
-                    accountTable.insert(acc)
+                    account.publicKey = key
+                    account.keyHeight = -1
+                    accountTable.insert(account)
                 }
                 true
             }
-            Arrays.equals(acc.publicKey, key) -> return true
-            acc.keyHeight == -1 -> {
+            Arrays.equals(account.publicKey, key) -> return true
+            account.keyHeight == -1 -> {
                 logger.safeInfo { "DUPLICATE KEY!!!" }
-                logger.safeInfo { "Account key for ${acc.id.toUnsignedString()} was already set to a different one at the same height, current height is $height, rejecting new key" }
+                logger.safeInfo { "Account key for ${account.id.toUnsignedString()} was already set to a different one at the same height, current height is $height, rejecting new key" }
                 false
             }
-            acc.keyHeight >= height -> {
+            account.keyHeight >= height -> {
                 logger.safeInfo { "DUPLICATE KEY!!!" }
                 if (dp.db.isInTransaction()) {
-                    logger.safeInfo { "Changing key for account ${acc.id.toUnsignedString()} at height $height, was previously set to a different one at height ${acc.keyHeight}" }
-                    acc.publicKey = key
-                    acc.keyHeight = height
-                    accountTable.insert(acc)
+                    logger.safeInfo { "Changing key for account ${account.id.toUnsignedString()} at height $height, was previously set to a different one at height ${account.keyHeight}" }
+                    account.publicKey = key
+                    account.keyHeight = height
+                    accountTable.insert(account)
                 }
                 true
             }
             else -> {
                 logger.safeInfo { "DUPLICATE KEY!!!" }
-                logger.safeInfo { "Invalid key for account ${acc.id.toUnsignedString()} at height $height, was already set to a different one at height ${acc.keyHeight}" }
+                logger.safeInfo { "Invalid key for account ${account.id.toUnsignedString()} at height $height, was already set to a different one at height ${account.keyHeight}" }
                 false
             }
         }

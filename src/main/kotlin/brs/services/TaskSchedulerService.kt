@@ -17,6 +17,9 @@ interface TaskSchedulerService {
      */
     fun run(taskType: TaskType, task: Task)
 
+    /**
+     * TODO
+     */
     fun <T: Any> async(taskType: TaskType, task: TaskWithResult<T>): Future<T?>
 
     /**
