@@ -218,6 +218,9 @@ task removePackage(type: Delete) {
 task documentation {
     dependsOn dokka
     doLast {
+        delete {
+            "$projectDir/html/ui/doc/"
+        }
         copy {
             from "$projectDir/build/dokka/"
             into "$projectDir/html/ui/doc/"
