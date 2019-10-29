@@ -24,12 +24,13 @@ class RewardRecipientAssignment(dp: DependencyProvider) : BurstMining(dp) {
         return Attachment.BurstMiningRewardRecipientAssignment(dp, buffer, transactionVersion)
     }
 
-    override fun parseAttachment(attachmentData: JsonObject) = Attachment.BurstMiningRewardRecipientAssignment(dp, attachmentData)
+    override fun parseAttachment(attachmentData: JsonObject) =
+        Attachment.BurstMiningRewardRecipientAssignment(dp, attachmentData)
 
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         dp.accountService.setRewardRecipientAssignment(senderAccount, recipientAccount!!.id)
     }

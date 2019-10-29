@@ -22,7 +22,16 @@ import brs.util.convert.toBytes
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class DGSDelivery internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), PURCHASE_PARAMETER, DISCOUNT_PLANCK_PARAMETER, GOODS_TO_ENCRYPT_PARAMETER, GOODS_IS_TEXT_PARAMETER, GOODS_DATA_PARAMETER, GOODS_NONCE_PARAMETER) {
+internal class DGSDelivery internal constructor(private val dp: DependencyProvider) : CreateTransaction(
+    dp,
+    arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION),
+    PURCHASE_PARAMETER,
+    DISCOUNT_PLANCK_PARAMETER,
+    GOODS_TO_ENCRYPT_PARAMETER,
+    GOODS_IS_TEXT_PARAMETER,
+    GOODS_DATA_PARAMETER,
+    GOODS_NONCE_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
@@ -46,8 +55,9 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
         }
 
         if (discountPlanck < 0
-                || discountPlanck > Constants.MAX_BALANCE_PLANCK
-                || discountPlanck > purchase.pricePlanck.safeMultiply(purchase.quantity.toLong())) {
+            || discountPlanck > Constants.MAX_BALANCE_PLANCK
+            || discountPlanck > purchase.pricePlanck.safeMultiply(purchase.quantity.toLong())
+        ) {
             return INCORRECT_DGS_DISCOUNT
         }
 
@@ -71,7 +81,14 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
             encryptedGoods = buyerAccount.encryptTo(goodsBytes, secretPhrase)
         }
 
-        val attachment = Attachment.DigitalGoodsDelivery(dp, purchase.id, encryptedGoods, goodsIsText, discountPlanck, dp.blockchainService.height)
+        val attachment = Attachment.DigitalGoodsDelivery(
+            dp,
+            purchase.id,
+            encryptedGoods,
+            goodsIsText,
+            discountPlanck,
+            dp.blockchainService.height
+        )
         return createTransaction(request, sellerAccount, buyerAccount.id, 0, attachment)
 
     }

@@ -19,7 +19,8 @@ class MultiOutSamePayment(dp: DependencyProvider) : Payment(dp) {
         transactionVersion: Byte
     ) = Attachment.PaymentMultiSameOutCreation(dp, buffer, transactionVersion)
 
-    override fun parseAttachment(attachmentData: JsonObject) = Attachment.PaymentMultiSameOutCreation(dp, attachmentData)
+    override fun parseAttachment(attachmentData: JsonObject) =
+        Attachment.PaymentMultiSameOutCreation(dp, attachmentData)
 
     override fun validateAttachment(transaction: Transaction) {
         if (!dp.fluxCapacitorService.getValue(FluxValues.PRE_DYMAXION, transaction.height)) {
@@ -35,7 +36,7 @@ class MultiOutSamePayment(dp: DependencyProvider) : Payment(dp) {
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         val attachment = transaction.attachment as Attachment.PaymentMultiSameOutCreation
         val amountPlanck = transaction.amountPlanck.safeDivide(attachment.getRecipients().size.toLong())

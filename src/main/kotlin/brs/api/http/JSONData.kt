@@ -194,7 +194,13 @@ object JSONData {
         return json
     }
 
-    internal fun block(block: Block, includeTransactions: Boolean, currentBlockchainHeight: Int, blockReward: Long, scoopNum: Int): JsonObject {
+    internal fun block(
+        block: Block,
+        includeTransactions: Boolean,
+        currentBlockchainHeight: Int,
+        blockReward: Long,
+        scoopNum: Int
+    ): JsonObject {
         val json = JsonObject()
         json.addProperty(BLOCK_RESPONSE, block.stringId)
         json.addProperty(HEIGHT_RESPONSE, block.height)
@@ -412,7 +418,10 @@ object JSONData {
         json.addProperty(AMOUNT_PLANCK_RESPONSE, transaction.amountPlanck.toString())
         json.addProperty(FEE_PLANCK_RESPONSE, transaction.feePlanck.toString())
         if (transaction.referencedTransactionFullHash != null) {
-            json.addProperty(REFERENCED_TRANSACTION_FULL_HASH_RESPONSE, transaction.referencedTransactionFullHash.toHexString())
+            json.addProperty(
+                REFERENCED_TRANSACTION_FULL_HASH_RESPONSE,
+                transaction.referencedTransactionFullHash.toHexString()
+            )
         }
         val signature = transaction.signature.emptyToNull()
         if (signature != null) {

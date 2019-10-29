@@ -75,7 +75,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
             return account
         }
 
-        throw RuntimeException("DUPLICATE KEY for account " + account.id.toUnsignedString() + " existing key " + account.publicKey!!.toHexString() + " new key " + publicKey.toHexString())
+        throw RuntimeException("DUPLICATE KEY for account " + account.id.toUnsignedString() + " existing key " + account.publicKey.toHexString() + " new key " + publicKey.toHexString())
     }
 
     override fun getAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer> {
@@ -229,9 +229,18 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         var assignment = getRewardRecipientAssignment(account)
         if (assignment == null) {
             val burstKey = rewardRecipientAssignmentKeyFactory.newKey(account.id)
-            assignment = RewardRecipientAssignment(account.id, account.id, recipient, (currentHeight + Constants.BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME).toInt(), burstKey)
+            assignment = RewardRecipientAssignment(
+                account.id,
+                account.id,
+                recipient,
+                (currentHeight + Constants.BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME).toInt(),
+                burstKey
+            )
         } else {
-            assignment.setRecipient(recipient, (currentHeight + Constants.BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME).toInt())
+            assignment.setRecipient(
+                recipient,
+                (currentHeight + Constants.BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME).toInt()
+            )
         }
         rewardRecipientAssignmentTable.insert(assignment)
     }

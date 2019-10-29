@@ -8,7 +8,11 @@ import org.jooq.Field
 import org.jooq.impl.TableImpl
 import org.slf4j.LoggerFactory
 
-internal abstract class DerivedSqlTable internal constructor(internal val table: String, internal val tableClass: TableImpl<*>, private val dp: DependencyProvider) : DerivedTable {
+internal abstract class DerivedSqlTable internal constructor(
+    internal val table: String,
+    internal val tableClass: TableImpl<*>,
+    private val dp: DependencyProvider
+) : DerivedTable {
     internal val heightField: Field<Int>
     internal val latestField: Field<Boolean>?
 

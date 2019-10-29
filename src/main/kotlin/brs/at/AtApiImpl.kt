@@ -72,7 +72,7 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
 
     override fun setA3A4(val1: Long, val2: Long, state: AtMachineState) {
         AtApiHelper.getByteArray(val1, state.a3)
-         AtApiHelper.getByteArray(val2, state.a4)
+        AtApiHelper.getByteArray(val2, state.a4)
 
     }
 
@@ -81,7 +81,7 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     }
 
     override fun setB2(value: Long, state: AtMachineState) {
-       AtApiHelper.getByteArray(value, state.b2)
+        AtApiHelper.getByteArray(value, state.b2)
     }
 
     override fun setB3(value: Long, state: AtMachineState) {
@@ -132,23 +132,26 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
 
     override fun checkAIsZero(state: AtMachineState): Long {
         return (if (state.a1.isZero()
-                && state.a2.isZero()
-                && state.a3.isZero()
-                && state.a4.isZero()) 0 else 1).toLong()
+            && state.a2.isZero()
+            && state.a3.isZero()
+            && state.a4.isZero()
+        ) 0 else 1).toLong()
     }
 
     override fun checkBIsZero(state: AtMachineState): Long {
         return (if (state.b1.isZero()
-                && state.b2.isZero()
-                && state.b3.isZero()
-                && state.b4.isZero()) 0 else 1).toLong()
+            && state.b2.isZero()
+            && state.b3.isZero()
+            && state.b4.isZero()
+        ) 0 else 1).toLong()
     }
 
     override fun checkAEqualsB(state: AtMachineState): Long {
         return (if (state.a1.contentEquals(state.b1) &&
             state.a2.contentEquals(state.b2) &&
             state.a3.contentEquals(state.b3) &&
-            state.a4.contentEquals(state.b4)) 1 else 0).toLong()
+            state.a4.contentEquals(state.b4)
+        ) 1 else 0).toLong()
     }
 
     override fun swapAAndB(state: AtMachineState) {
@@ -331,9 +334,15 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
             digest.order(ByteOrder.LITTLE_ENDIAN)
 
             // TODO optimize
-            (if (digest.getLong(0) == AtApiHelper.getLong(state.b1) && digest.getLong(8) == AtApiHelper.getLong(state.b2) && digest.getInt(16) == (AtApiHelper.getLong(state.b3) and 0x00000000FFFFFFFFL).toInt()) 1 else 0).toLong()
+            (if (digest.getLong(0) == AtApiHelper.getLong(state.b1) && digest.getLong(8) == AtApiHelper.getLong(state.b2) && digest.getInt(
+                    16
+                ) == (AtApiHelper.getLong(state.b3) and 0x00000000FFFFFFFFL).toInt()
+            ) 1 else 0).toLong()
         } else {
-            (if (state.a1.contentEquals(state.b1) && state.a2.contentEquals(state.b2) && AtApiHelper.getLong(state.a3) and 0x00000000FFFFFFFFL == AtApiHelper.getLong(state.b3) and 0x00000000FFFFFFFFL) 1 else 0).toLong()
+            (if (state.a1.contentEquals(state.b1) && state.a2.contentEquals(state.b2) && AtApiHelper.getLong(state.a3) and 0x00000000FFFFFFFFL == AtApiHelper.getLong(
+                    state.b3
+                ) and 0x00000000FFFFFFFFL
+            ) 1 else 0).toLong()
         }
     }
 
@@ -358,7 +367,8 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
             (if (state.a1.contentEquals(state.b1) &&
                 state.a2.contentEquals(state.b2) &&
                 state.a3.contentEquals(state.b3) &&
-                state.a4.contentEquals(state.b4)) 1 else 0).toLong()
+                state.a4.contentEquals(state.b4)
+            ) 1 else 0).toLong()
         }
     }
 
@@ -368,11 +378,12 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
 
     override fun sha256ToB(val1: Long, val2: Long, state: AtMachineState) {
         if (val1 < 0 || val2 < 0 ||
-                val1 + val2 - 1 < 0 ||
-                val1 * 8 + 8 > Integer.MAX_VALUE.toLong() ||
-                val1 * 8 + 8 > state.dSize ||
-                (val1 + val2 - 1) * 8 + 8 > Integer.MAX_VALUE.toLong() ||
-                (val1 + val2 - 1) * 8 + 8 > state.dSize) {
+            val1 + val2 - 1 < 0 ||
+            val1 * 8 + 8 > Integer.MAX_VALUE.toLong() ||
+            val1 * 8 + 8 > state.dSize ||
+            (val1 + val2 - 1) * 8 + 8 > Integer.MAX_VALUE.toLong() ||
+            (val1 + val2 - 1) * 8 + 8 > state.dSize
+        ) {
             return
         }
 

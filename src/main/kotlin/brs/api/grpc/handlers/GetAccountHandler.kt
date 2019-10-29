@@ -7,7 +7,8 @@ import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 import brs.services.AccountService
 
-class GetAccountHandler(private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAccountRequest, BrsApi.Account> {
+class GetAccountHandler(private val accountService: AccountService) :
+    GrpcApiHandler<BrsApi.GetAccountRequest, BrsApi.Account> {
 
     override fun handleRequest(request: BrsApi.GetAccountRequest): BrsApi.Account {
         val account: Account?

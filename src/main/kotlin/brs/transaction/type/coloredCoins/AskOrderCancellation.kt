@@ -27,7 +27,7 @@ class AskOrderCancellation(dp: DependencyProvider) : OrderCancellation(dp) {
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsAskOrderCancellation
         val order = dp.assetExchangeService.getAskOrder(attachment.orderId)

@@ -23,7 +23,8 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
         return Attachment.AdvancedPaymentEscrowCreation(dp, buffer, transactionVersion)
     }
 
-    override fun parseAttachment(attachmentData: JsonObject) = Attachment.AdvancedPaymentEscrowCreation(dp, attachmentData)
+    override fun parseAttachment(attachmentData: JsonObject) =
+        Attachment.AdvancedPaymentEscrowCreation(dp, attachmentData)
 
     override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.safeTrace { "TransactionType ESCROW_CREATION" }
@@ -43,7 +44,7 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowCreation
         val totalAmountPlanck = calculateAttachmentTotalAmountPlanck(transaction)

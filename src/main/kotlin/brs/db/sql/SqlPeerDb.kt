@@ -8,7 +8,9 @@ import brs.schema.Tables.PEER
 
 internal class SqlPeerDb(private val dp: DependencyProvider) : PeerDb {
     override fun loadPeers(): List<String> {
-        return dp.db.getUsingDslContext<List<String>> { ctx -> ctx.selectFrom(PEER).fetch(PEER.ADDRESS, String::class.java) }
+        return dp.db.getUsingDslContext<List<String>> { ctx ->
+            ctx.selectFrom(PEER).fetch(PEER.ADDRESS, String::class.java)
+        }
     }
 
     override fun deletePeers(peers: Collection<String>) {

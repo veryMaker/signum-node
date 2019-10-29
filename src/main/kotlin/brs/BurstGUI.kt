@@ -22,7 +22,7 @@ import kotlin.system.exitProcess
 class BurstGUI : Application() {
 
     private var userClosed = false
-    private var stage: Stage? = null
+    private lateinit var stage: Stage
     private var trayIcon: TrayIcon? = null
 
     private var burst: Burst? = null
@@ -37,7 +37,7 @@ class BurstGUI : Application() {
         primaryStage.icons.add(javafx.scene.image.Image(javaClass.getResourceAsStream(ICON_LOCATION)))
         stage = primaryStage
         showTrayIcon()
-        Thread(Runnable { this.runBrs() }).start()
+        Thread { this.runBrs() }.start()
     }
 
     private fun shutdown() {
@@ -52,10 +52,10 @@ class BurstGUI : Application() {
         if (trayIcon == null) { // Don't start running in tray twice
             trayIcon = createTrayIcon()
             if (trayIcon != null) {
-                stage!!.setOnCloseRequest { event -> hideWindow() }
+                stage.setOnCloseRequest { hideWindow() }
             } else {
-                stage!!.show()
-                stage!!.setOnCloseRequest { event -> shutdown() }
+                stage.show()
+                stage.setOnCloseRequest { shutdown() }
             }
         }
     }
@@ -77,7 +77,11 @@ class BurstGUI : Application() {
             popupMenu.add(showItem)
             popupMenu.add(shutdownItem)
 
-            val newTrayIcon = TrayIcon(Toolkit.getDefaultToolkit().createImage(BurstGUI::class.java.getResource(ICON_LOCATION)), "Burst Reference Software", popupMenu)
+            val newTrayIcon = TrayIcon(
+                Toolkit.getDefaultToolkit().createImage(BurstGUI::class.java.getResource(ICON_LOCATION)),
+                "Burst Reference Software",
+                popupMenu
+            )
             newTrayIcon.image = newTrayIcon.image.getScaledInstance(newTrayIcon.size.width, -1, Image.SCALE_SMOOTH)
             newTrayIcon.addActionListener { e -> openWebUi() }
             systemTray.add(newTrayIcon)
@@ -89,11 +93,11 @@ class BurstGUI : Application() {
     }
 
     private fun showWindow() {
-        Platform.runLater { stage!!.show() }
+        Platform.runLater { stage.show() }
     }
 
     private fun hideWindow() {
-        Platform.runLater { stage!!.hide() }
+        Platform.runLater { stage.hide() }
     }
 
     private fun openWebUi() {
@@ -103,8 +107,10 @@ class BurstGUI : Application() {
                 return
             }
             val propertyService = burst!!.dp.propertyService
-            val port = if (propertyService.get(Props.DEV_TESTNET)) propertyService.get(Props.DEV_API_PORT) else propertyService.get(
-                Props.API_PORT)
+            val port =
+                if (propertyService.get(Props.DEV_TESTNET)) propertyService.get(Props.DEV_API_PORT) else propertyService.get(
+                    Props.API_PORT
+                )
             val httpPrefix = if (propertyService.get(Props.API_SSL)) "https://" else "http://"
             val address = httpPrefix + "localhost:" + port
             try {
@@ -141,12 +147,12 @@ class BurstGUI : Application() {
     }
 
     private fun onTestNetEnabled() {
-        Platform.runLater { stage!!.title = stage!!.title + " (TESTNET)" }
+        Platform.runLater { stage.title = stage.title + " (TESTNET)" }
         trayIcon!!.toolTip = trayIcon!!.toolTip + " (TESTNET)"
     }
 
     private fun onBrsStopped() {
-        Platform.runLater { stage!!.title = stage!!.title + " (STOPPED)" }
+        Platform.runLater { stage.title = stage.title + " (STOPPED)" }
         trayIcon!!.toolTip = trayIcon!!.toolTip + " (STOPPED)"
     }
 
@@ -166,7 +172,10 @@ class BurstGUI : Application() {
         }
     }
 
-    private class TextAreaOutputStream internal constructor(private val textArea: TextArea?, private val actualOutput: PrintStream) : OutputStream() {
+    private class TextAreaOutputStream internal constructor(
+        private val textArea: TextArea?,
+        private val actualOutput: PrintStream
+    ) : OutputStream() {
 
         private val lineBuilder = StringBuilder()
 
@@ -200,7 +209,7 @@ class BurstGUI : Application() {
         override fun checkExit(status: Int) {
             if (!userClosed) {
                 logger.safeError { "$UNEXPECTED_EXIT_MESSAGE $status" }
-                Platform.runLater { stage!!.show() }
+                Platform.runLater { stage.show() }
                 showMessage("$UNEXPECTED_EXIT_MESSAGE $status")
                 onBrsStopped()
                 throw SecurityException()

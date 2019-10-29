@@ -20,8 +20,10 @@ open class Goods {
         private set
     var isDelisted: Boolean = false
 
-    protected constructor(id: Long, dbKey: BurstKey, sellerId: Long, name: String, description: String, tags: String, timestamp: Int,
-                          quantity: Int, pricePlanck: Long, delisted: Boolean) {
+    protected constructor(
+        id: Long, dbKey: BurstKey, sellerId: Long, name: String, description: String, tags: String, timestamp: Int,
+        quantity: Int, pricePlanck: Long, delisted: Boolean
+    ) {
         this.id = id
         this.dbKey = dbKey
         this.sellerId = sellerId

@@ -35,7 +35,7 @@ open class Purchase {
 
     fun getName() = getGoods(dp, goodsId)!!.name
 
-    fun getPublicFeedback(): List<String>?  {
+    fun getPublicFeedback(): List<String>? {
         if (!hasPublicFeedbacks) {
             return emptyList()
         }
@@ -63,7 +63,12 @@ open class Purchase {
         return dp.digitalGoodsStoreStore.publicFeedbackTable
     }
 
-    constructor(dp: DependencyProvider, transaction: Transaction, attachment: Attachment.DigitalGoodsPurchase, sellerId: Long) {
+    constructor(
+        dp: DependencyProvider,
+        transaction: Transaction,
+        attachment: Attachment.DigitalGoodsPurchase,
+        sellerId: Long
+    ) {
         this.dp = dp
         this.id = transaction.id
         this.dbKey = purchaseDbKeyFactory(dp).newKey(this.id)
@@ -78,11 +83,13 @@ open class Purchase {
         this.isPending = true
     }
 
-    protected constructor(dp: DependencyProvider, id: Long, dbKey: BurstKey, buyerId: Long, goodsId: Long, sellerId: Long, quantity: Int,
-                          pricePlanck: Long, deadline: Int, note: EncryptedData?, timestamp: Int, isPending: Boolean,
-                          encryptedGoods: EncryptedData?, refundNote: EncryptedData?,
-                          hasFeedbackNotes: Boolean, hasPublicFeedbacks: Boolean,
-                          discountPlanck: Long, refundPlanck: Long) {
+    protected constructor(
+        dp: DependencyProvider, id: Long, dbKey: BurstKey, buyerId: Long, goodsId: Long, sellerId: Long, quantity: Int,
+        pricePlanck: Long, deadline: Int, note: EncryptedData?, timestamp: Int, isPending: Boolean,
+        encryptedGoods: EncryptedData?, refundNote: EncryptedData?,
+        hasFeedbackNotes: Boolean, hasPublicFeedbacks: Boolean,
+        discountPlanck: Long, refundPlanck: Long
+    ) {
         this.dp = dp
         this.id = id
         this.dbKey = dbKey

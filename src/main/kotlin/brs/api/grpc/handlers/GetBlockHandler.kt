@@ -8,7 +8,8 @@ import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 import brs.services.BlockService
 
-class GetBlockHandler(private val blockchainService: BlockchainService, private val blockService: BlockService) : GrpcApiHandler<BrsApi.GetBlockRequest, BrsApi.Block> {
+class GetBlockHandler(private val blockchainService: BlockchainService, private val blockService: BlockService) :
+    GrpcApiHandler<BrsApi.GetBlockRequest, BrsApi.Block> {
 
     override fun handleRequest(request: BrsApi.GetBlockRequest): BrsApi.Block {
         val blockId = request.blockId

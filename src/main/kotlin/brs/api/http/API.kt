@@ -48,8 +48,10 @@ class API(dp: DependencyProvider) {
         val enableAPIServer = dp.propertyService.get(Props.API_SERVER)
         if (enableAPIServer) {
             val host = dp.propertyService.get(Props.API_LISTEN)
-            val port = if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_API_PORT) else dp.propertyService.get(
-                Props.API_PORT)
+            val port =
+                if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_API_PORT) else dp.propertyService.get(
+                    Props.API_PORT
+                )
             apiServer = Server()
             val connector: ServerConnector
 
@@ -63,16 +65,20 @@ class API(dp: DependencyProvider) {
                 val sslContextFactory = SslContextFactory.Server()
                 sslContextFactory.keyStorePath = dp.propertyService.get(Props.API_SSL_KEY_STORE_PATH)
                 sslContextFactory.setKeyStorePassword(dp.propertyService.get(Props.API_SSL_KEY_STORE_PASSWORD))
-                sslContextFactory.setExcludeCipherSuites("SSL_RSA_WITH_DES_CBC_SHA",
-                        "SSL_DHE_RSA_WITH_DES_CBC_SHA",
-                        "SSL_DHE_DSS_WITH_DES_CBC_SHA",
-                        "SSL_RSA_EXPORT_WITH_RC4_40_MD5",
-                        "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
-                        "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
-                        "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA")
+                sslContextFactory.setExcludeCipherSuites(
+                    "SSL_RSA_WITH_DES_CBC_SHA",
+                    "SSL_DHE_RSA_WITH_DES_CBC_SHA",
+                    "SSL_DHE_DSS_WITH_DES_CBC_SHA",
+                    "SSL_RSA_EXPORT_WITH_RC4_40_MD5",
+                    "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
+                    "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
+                    "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA"
+                )
                 sslContextFactory.setExcludeProtocols("SSLv3")
-                connector = ServerConnector(apiServer, SslConnectionFactory(sslContextFactory, "http/1.1"),
-                        HttpConnectionFactory(httpsConfig))
+                connector = ServerConnector(
+                    apiServer, SslConnectionFactory(sslContextFactory, "http/1.1"),
+                    HttpConnectionFactory(httpsConfig)
+                )
             } else {
                 connector = ServerConnector(apiServer)
             }
@@ -108,18 +114,51 @@ class API(dp: DependencyProvider) {
 
             if (dp.propertyService.get(Props.JETTY_API_DOS_FILTER)) {
                 val dosFilterHolder = apiHandler.addFilter(DoSFilter::class.java, API_PATH, null)
-                dosFilterHolder.setInitParameter("maxRequestsPerSec", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_PER_SEC))
-                dosFilterHolder.setInitParameter("throttledRequests", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_THROTTLED_REQUESTS))
+                dosFilterHolder.setInitParameter(
+                    "maxRequestsPerSec",
+                    dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_PER_SEC)
+                )
+                dosFilterHolder.setInitParameter(
+                    "throttledRequests",
+                    dp.propertyService.get(Props.JETTY_API_DOS_FILTER_THROTTLED_REQUESTS)
+                )
                 dosFilterHolder.setInitParameter("delayMs", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_DELAY_MS))
-                dosFilterHolder.setInitParameter("maxWaitMs", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_WAIT_MS))
-                dosFilterHolder.setInitParameter("maxRequestMs", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_MS))
-                dosFilterHolder.setInitParameter("maxthrottleMs", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_THROTTLE_MS))
-                dosFilterHolder.setInitParameter("maxIdleTrackerMs", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_IDLE_TRACKER_MS))
-                dosFilterHolder.setInitParameter("trackSessions", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_TRACK_SESSIONS))
-                dosFilterHolder.setInitParameter("insertHeaders", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_INSERT_HEADERS))
-                dosFilterHolder.setInitParameter("remotePort", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_REMOTE_PORT))
-                dosFilterHolder.setInitParameter("ipWhitelist", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_IP_WHITELIST))
-                dosFilterHolder.setInitParameter("managedAttr", dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MANAGED_ATTR))
+                dosFilterHolder.setInitParameter(
+                    "maxWaitMs",
+                    dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_WAIT_MS)
+                )
+                dosFilterHolder.setInitParameter(
+                    "maxRequestMs",
+                    dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_MS)
+                )
+                dosFilterHolder.setInitParameter(
+                    "maxthrottleMs",
+                    dp.propertyService.get(Props.JETTY_API_DOS_FILTER_THROTTLE_MS)
+                )
+                dosFilterHolder.setInitParameter(
+                    "maxIdleTrackerMs",
+                    dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MAX_IDLE_TRACKER_MS)
+                )
+                dosFilterHolder.setInitParameter(
+                    "trackSessions",
+                    dp.propertyService.get(Props.JETTY_API_DOS_FILTER_TRACK_SESSIONS)
+                )
+                dosFilterHolder.setInitParameter(
+                    "insertHeaders",
+                    dp.propertyService.get(Props.JETTY_API_DOS_FILTER_INSERT_HEADERS)
+                )
+                dosFilterHolder.setInitParameter(
+                    "remotePort",
+                    dp.propertyService.get(Props.JETTY_API_DOS_FILTER_REMOTE_PORT)
+                )
+                dosFilterHolder.setInitParameter(
+                    "ipWhitelist",
+                    dp.propertyService.get(Props.JETTY_API_DOS_FILTER_IP_WHITELIST)
+                )
+                dosFilterHolder.setInitParameter(
+                    "managedAttr",
+                    dp.propertyService.get(Props.JETTY_API_DOS_FILTER_MANAGED_ATTR)
+                )
                 dosFilterHolder.isAsyncSupported = true
             }
 
@@ -130,7 +169,11 @@ class API(dp: DependencyProvider) {
             rewriteHandler.isRewritePathInfo = false
             rewriteHandler.originalPathAttribute = "requestedPath"
             rewriteHandler.handler = apiHandler
-            val rewriteToRoot = RegexOrExistsRewriteRule(File(dp.propertyService.get(Props.API_UI_DIR)), "^(?!" + regexpEscapeUrl(API_PATH) + "|" + regexpEscapeUrl(API_TEST_PATH) + ").*$", "/index.html")
+            val rewriteToRoot = RegexOrExistsRewriteRule(
+                File(dp.propertyService.get(Props.API_UI_DIR)),
+                "^(?!" + regexpEscapeUrl(API_PATH) + "|" + regexpEscapeUrl(API_TEST_PATH) + ").*$",
+                "/index.html"
+            )
             rewriteHandler.addRule(rewriteToRoot)
             apiHandlers.addHandler(rewriteHandler)
 
@@ -177,10 +220,24 @@ class API(dp: DependencyProvider) {
         }
     }
 
-    private class RegexOrExistsRewriteRule internal constructor(private val baseDirectory: File, regex: String, replacement: String) : RewriteRegexRule(regex, replacement) {
+    private class RegexOrExistsRewriteRule internal constructor(
+        private val baseDirectory: File,
+        regex: String,
+        replacement: String
+    ) : RewriteRegexRule(regex, replacement) {
 
-        override fun apply(target: String?, request: HttpServletRequest, response: HttpServletResponse?, matcher: Matcher): String {
-            return if (File(baseDirectory, target!!).exists()) target else super.apply(target, request, response, matcher)
+        override fun apply(
+            target: String?,
+            request: HttpServletRequest,
+            response: HttpServletResponse?,
+            matcher: Matcher
+        ): String {
+            return if (File(baseDirectory, target!!).exists()) target else super.apply(
+                target,
+                request,
+                response,
+                matcher
+            )
         }
     }
 

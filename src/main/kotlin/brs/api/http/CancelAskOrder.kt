@@ -7,7 +7,8 @@ import brs.api.http.common.Parameters.ORDER_PARAMETER
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class CancelAskOrder(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), ORDER_PARAMETER) {
+internal class CancelAskOrder(private val dp: DependencyProvider) :
+    CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), ORDER_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val orderId = ParameterParser.getOrderId(request)

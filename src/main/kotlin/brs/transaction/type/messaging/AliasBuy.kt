@@ -29,7 +29,7 @@ class AliasBuy(dp: DependencyProvider) : Messaging(dp) {
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         val attachment = transaction.attachment as Attachment.MessagingAliasBuy
         val aliasName = attachment.aliasName

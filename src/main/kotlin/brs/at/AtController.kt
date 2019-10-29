@@ -2,10 +2,10 @@ package brs.at
 
 import brs.entity.Account
 import brs.entity.DependencyProvider
-import brs.util.crypto.Crypto
 import brs.objects.FluxValues
 import brs.objects.Props
 import brs.util.convert.toUnsignedString
+import brs.util.crypto.Crypto
 import brs.util.logging.safeDebug
 import org.slf4j.LoggerFactory
 import org.slf4j.helpers.NOPLogger
@@ -225,7 +225,7 @@ class AtController(private val dp: DependencyProvider) {
                     at.height = blockHeight
                     at.clearTransactions()
                     at.waitForNumberOfBlocks = at.sleepBetween
-                    listCode(at, true, true)
+                    listCode(at, disassembly = true, determineJumps = true)
                     runSteps(at)
 
                     var fee = at.machineState.steps * dp.atConstants.stepFee(at.creationBlockHeight)
@@ -280,7 +280,10 @@ class AtController(private val dp: DependencyProvider) {
                 at.waitForNumberOfBlocks = at.sleepBetween
 
                 val atAccountBalance = getATAccountBalance(AtApiHelper.getLong(atId))
-                if (atAccountBalance < dp.atConstants.stepFee(at.creationBlockHeight) * dp.atConstants.apiStepMultiplier(at.creationBlockHeight)) {
+                if (atAccountBalance < dp.atConstants.stepFee(at.creationBlockHeight) * dp.atConstants.apiStepMultiplier(
+                        at.creationBlockHeight
+                    )
+                ) {
                     throw AtException("AT has insufficient balance to run")
                 }
 

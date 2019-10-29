@@ -14,7 +14,15 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class  GetUnconfirmedTransactions(private val transactionProcessorService: TransactionProcessorService, private val indirectIncomingService: IndirectIncomingService, private val parameterService: ParameterService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS, APITag.ACCOUNTS), ACCOUNT_PARAMETER, INCLUDE_INDIRECT_PARAMETER) {
+internal class GetUnconfirmedTransactions(
+    private val transactionProcessorService: TransactionProcessorService,
+    private val indirectIncomingService: IndirectIncomingService,
+    private val parameterService: ParameterService
+) : APIServlet.JsonRequestHandler(
+    arrayOf(APITag.TRANSACTIONS, APITag.ACCOUNTS),
+    ACCOUNT_PARAMETER,
+    INCLUDE_INDIRECT_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val accountIdString = request.getParameter(ACCOUNT_PARAMETER).emptyToNull()
@@ -37,8 +45,9 @@ internal class  GetUnconfirmedTransactions(private val transactionProcessorServi
 
         for (transaction in unconfirmedTransactions) {
             if (accountId == 0L
-                    || accountId == transaction.senderId || accountId == transaction.recipientId
-                    || includeIndirect && indirectIncomingService.isIndirectlyReceiving(transaction, accountId)) {
+                || accountId == transaction.senderId || accountId == transaction.recipientId
+                || includeIndirect && indirectIncomingService.isIndirectlyReceiving(transaction, accountId)
+            ) {
                 transactions.add(JSONData.unconfirmedTransaction(transaction))
             }
         }

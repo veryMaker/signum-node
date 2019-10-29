@@ -37,7 +37,7 @@ class AccountInfo(dp: DependencyProvider) : Messaging(dp) {
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         val attachment = transaction.attachment as Attachment.MessagingAccountInfo
         dp.accountService.setAccountInfo(senderAccount, attachment.name, attachment.description)

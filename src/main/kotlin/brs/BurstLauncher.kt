@@ -42,8 +42,8 @@ object BurstLauncher {
         if (canRunGui) {
             try {
                 Class.forName("brs.BurstGUI")
-                        .getDeclaredMethod("main", Array<String>::class.java)
-                        .invoke(null, args as Any)
+                    .getDeclaredMethod("main", Array<String>::class.java)
+                    .invoke(null, args as Any)
             } catch (e: ClassNotFoundException) {
                 logger.safeWarn { "Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless..." }
                 Burst.init(true)

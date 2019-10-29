@@ -1,7 +1,7 @@
 package brs.transaction.type.coloredCoins
 
-import brs.entity.DependencyProvider
 import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
@@ -32,7 +32,7 @@ class AssetIssuance(dp: DependencyProvider) : ColoredCoins(dp) {
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsAssetIssuance
         val assetId = transaction.id
@@ -50,7 +50,7 @@ class AssetIssuance(dp: DependencyProvider) : ColoredCoins(dp) {
 
     override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsAssetIssuance
-        if (attachment.name!!.length < Constants.MIN_ASSET_NAME_LENGTH
+        if (attachment.name.length < Constants.MIN_ASSET_NAME_LENGTH
             || attachment.name.length > Constants.MAX_ASSET_NAME_LENGTH
             || attachment.description.length > Constants.MAX_ASSET_DESCRIPTION_LENGTH
             || attachment.decimals < 0 || attachment.decimals > 8

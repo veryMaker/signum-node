@@ -89,12 +89,16 @@ class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : Digital
     override fun purchase(transaction: Transaction, attachment: Attachment.DigitalGoodsPurchase) {
         val goods = goodsTable[goodsDbKeyFactory.newKey(attachment.goodsId)]!!
         if (!goods.isDelisted && attachment.quantity <= goods.quantity && attachment.pricePlanck == goods.pricePlanck
-                && attachment.deliveryDeadlineTimestamp > dp.blockchainService.lastBlock.timestamp) {
+            && attachment.deliveryDeadlineTimestamp > dp.blockchainService.lastBlock.timestamp
+        ) {
             changeQuantity(goods.id, -attachment.quantity, false)
             addPurchase(transaction, attachment, goods.sellerId)
         } else {
             val buyer = dp.accountService.getAccount(transaction.senderId)!!
-            dp.accountService.addToUnconfirmedBalancePlanck(buyer, attachment.quantity.toLong().safeMultiply(attachment.pricePlanck))
+            dp.accountService.addToUnconfirmedBalancePlanck(
+                buyer,
+                attachment.quantity.toLong().safeMultiply(attachment.pricePlanck)
+            )
             // restoring the unconfirmed balance if purchase not successful, however buyer still lost the transaction fees
         }
     }
@@ -147,7 +151,12 @@ class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : Digital
         publicFeedbackTable.insert(purchase, publicFeedbacks)
     }
 
-    override fun refund(sellerId: Long, purchaseId: Long, refundPlanck: Long, encryptedMessage: Appendix.EncryptedMessage?) {
+    override fun refund(
+        sellerId: Long,
+        purchaseId: Long,
+        refundPlanck: Long,
+        encryptedMessage: Appendix.EncryptedMessage?
+    ) {
         val purchase = purchaseTable[purchaseDbKeyFactory.newKey(purchaseId)]!!
         val seller = dp.accountService.getAccount(sellerId)!!
         dp.accountService.addToBalancePlanck(seller, -refundPlanck)
@@ -179,14 +188,17 @@ class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : Digital
 
     override fun deliver(transaction: Transaction, attachment: Attachment.DigitalGoodsDelivery) {
         val purchase = getPendingPurchase(attachment.purchaseId)
-                ?: throw RuntimeException("cant find purchase with id " + attachment.purchaseId)
+            ?: throw RuntimeException("cant find purchase with id " + attachment.purchaseId)
         setPending(purchase, false)
         val totalWithoutDiscount = purchase.quantity.toLong().safeMultiply(purchase.pricePlanck)
         val buyer = dp.accountService.getAccount(purchase.buyerId)!!
         dp.accountService.addToBalancePlanck(buyer, attachment.discountPlanck.safeSubtract(totalWithoutDiscount))
         dp.accountService.addToUnconfirmedBalancePlanck(buyer, attachment.discountPlanck)
         val seller = dp.accountService.getAccount(transaction.senderId)!!
-        dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(seller, totalWithoutDiscount.safeSubtract(attachment.discountPlanck))
+        dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
+            seller,
+            totalWithoutDiscount.safeSubtract(attachment.discountPlanck)
+        )
         purchase.setEncryptedGoods(attachment.goods, attachment.goodsIsText())
         purchaseTable.insert(purchase)
         purchase.discountPlanck = attachment.discountPlanck

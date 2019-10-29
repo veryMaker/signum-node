@@ -5,7 +5,8 @@ import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 
-class GetAssetsHandler(private val assetExchangeService: AssetExchangeService) : GrpcApiHandler<BrsApi.GetAssetsRequest, BrsApi.Assets> {
+class GetAssetsHandler(private val assetExchangeService: AssetExchangeService) :
+    GrpcApiHandler<BrsApi.GetAssetsRequest, BrsApi.Assets> {
 
     override fun handleRequest(request: BrsApi.GetAssetsRequest): BrsApi.Assets {
         val builder = BrsApi.Assets.newBuilder()

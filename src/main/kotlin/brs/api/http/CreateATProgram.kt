@@ -1,7 +1,6 @@
 package brs.api.http
 
 
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_DESCRIPTION
 import brs.api.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME
 import brs.api.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME_LENGTH
@@ -17,6 +16,7 @@ import brs.api.http.common.Parameters.NAME_PARAMETER
 import brs.api.http.common.Parameters.USPAGES_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.convert.parseHexString
@@ -30,7 +30,19 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.servlet.http.HttpServletRequest
 
-internal class CreateATProgram(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AT, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, CREATION_BYTES_PARAMETER, CODE_PARAMETER, DATA_PARAMETER, DPAGES_PARAMETER, CSPAGES_PARAMETER, USPAGES_PARAMETER, MIN_ACTIVATION_AMOUNT_PLANCK_PARAMETER) {
+internal class CreateATProgram(private val dp: DependencyProvider) : CreateTransaction(
+    dp,
+    arrayOf(APITag.AT, APITag.CREATE_TRANSACTION),
+    NAME_PARAMETER,
+    DESCRIPTION_PARAMETER,
+    CREATION_BYTES_PARAMETER,
+    CODE_PARAMETER,
+    DATA_PARAMETER,
+    DPAGES_PARAMETER,
+    CSPAGES_PARAMETER,
+    USPAGES_PARAMETER,
+    MIN_ACTIVATION_AMOUNT_PLANCK_PARAMETER
+) {
 
     private val logger = LoggerFactory.getLogger(CreateATProgram::class.java)
 
@@ -75,7 +87,8 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
 
                 require(!(dpages < 0 || cspages < 0 || uspages < 0))
 
-                val minActivationAmount = request.getParameter(MIN_ACTIVATION_AMOUNT_PLANCK_PARAMETER).parseUnsignedLong()
+                val minActivationAmount =
+                    request.getParameter(MIN_ACTIVATION_AMOUNT_PLANCK_PARAMETER).parseUnsignedLong()
 
                 var creationLength = 4 // version + reserved
                 creationLength += 8 // pages
@@ -120,19 +133,23 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
         }
 
         val account = dp.parameterService.getSenderAccount(request)
-        val attachment = Attachment.AutomatedTransactionsCreation(dp, name, description!!, creationBytes!!, dp.blockchainService.height)
+        val attachment = Attachment.AutomatedTransactionsCreation(
+            dp,
+            name,
+            description!!,
+            creationBytes!!,
+            dp.blockchainService.height
+        )
 
         logger.safeDebug { "AT $name added successfully" }
         return createTransaction(request, account, attachment)
     }
 
     private fun putLength(nPages: Int, string: String, buffer: ByteBuffer) {
-        if (nPages * 256 <= 256) {
-            buffer.put((string.length / 2).toByte())
-        } else if (nPages * 256 <= 32767) {
-            buffer.putShort((string.length / 2).toShort())
-        } else {
-            buffer.putInt(string.length / 2)
+        when {
+            nPages * 256 <= 256 -> buffer.put((string.length / 2).toByte())
+            nPages * 256 <= 32767 -> buffer.putShort((string.length / 2).toShort())
+            else -> buffer.putInt(string.length / 2)
         }
     }
 }

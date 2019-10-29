@@ -9,7 +9,11 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class GetBlockchainStatus(private val blockchainProcessorService: BlockchainProcessorService, private val blockchainService: BlockchainService, private val timeService: TimeService) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS, APITag.INFO)) {
+internal class GetBlockchainStatus(
+    private val blockchainProcessorService: BlockchainProcessorService,
+    private val blockchainService: BlockchainService,
+    private val timeService: TimeService
+) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS, APITag.INFO)) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
         response.addProperty("application", Burst.APPLICATION)

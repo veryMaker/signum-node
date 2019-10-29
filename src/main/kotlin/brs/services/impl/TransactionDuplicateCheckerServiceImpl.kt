@@ -7,7 +7,8 @@ import brs.services.TransactionDuplicateCheckerService
 import brs.transaction.type.TransactionType
 import kotlin.reflect.KClass
 
-inline class TransactionDuplicateCheckerServiceImpl(private val duplicates: MutableMap<KClass<out TransactionType>, MutableMap<String, Transaction>> = mutableMapOf()) : TransactionDuplicateCheckerService {
+inline class TransactionDuplicateCheckerServiceImpl(private val duplicates: MutableMap<KClass<out TransactionType>, MutableMap<String, Transaction>> = mutableMapOf()) :
+    TransactionDuplicateCheckerService {
     override fun clear() {
         duplicates.clear()
     }
@@ -61,7 +62,10 @@ inline class TransactionDuplicateCheckerServiceImpl(private val duplicates: Muta
     override fun removeTransaction(transaction: Transaction) {
         val transactionDuplicateKey = transaction.duplicationKey
         val map = duplicates[transactionDuplicateKey.transactionType] ?: return
-        if (transactionDuplicateKey != TransactionDuplicationKey.IS_ALWAYS_DUPLICATE && transactionDuplicateKey != TransactionDuplicationKey.IS_NEVER_DUPLICATE && duplicates.containsKey(transactionDuplicateKey.transactionType) && map[transactionDuplicateKey.key] == transaction) {
+        if (transactionDuplicateKey != TransactionDuplicationKey.IS_ALWAYS_DUPLICATE && transactionDuplicateKey != TransactionDuplicationKey.IS_NEVER_DUPLICATE && duplicates.containsKey(
+                transactionDuplicateKey.transactionType
+            ) && map[transactionDuplicateKey.key] == transaction
+        ) {
             map.remove(transactionDuplicateKey.key)
         }
     }

@@ -120,7 +120,12 @@ class AssetExchangeServiceImpl(dp: DependencyProvider) : AssetExchangeService {
         return assetTransferService.getAssetTransfers(assetId, from, to)
     }
 
-    override fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
+    override fun getAccountAssetTransfers(
+        accountId: Long,
+        assetId: Long,
+        from: Int,
+        to: Int
+    ): Collection<AssetTransfer> {
         return assetTransferService.getAccountAssetTransfers(accountId, assetId, from, to)
     }
 

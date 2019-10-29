@@ -11,9 +11,10 @@ class GetPeersHandler(private val dp: DependencyProvider) : GrpcApiHandler<BrsAp
         val active = request.active
         val peerState = request.state
         val peers = BrsApi.Peers.newBuilder()
-        for (peer in if (active) dp.peerService.activePeers else if (peerState == BrsApi.PeerState.PeerState_UNSET) dp.peerService.allPeers else dp.peerService.getPeers(Peer.State.fromProtobuf(peerState) ?: throw ApiException(
-            "Peer State Invalid"
-        )
+        for (peer in if (active) dp.peerService.activePeers else if (peerState == BrsApi.PeerState.PeerState_UNSET) dp.peerService.allPeers else dp.peerService.getPeers(
+            Peer.State.fromProtobuf(peerState) ?: throw ApiException(
+                "Peer State Invalid"
+            )
         )) {
             peers.addPeerAddresses(peer.announcedAddress)
         }

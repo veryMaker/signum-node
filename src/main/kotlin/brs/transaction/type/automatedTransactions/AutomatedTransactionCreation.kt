@@ -1,12 +1,12 @@
 package brs.transaction.type.automatedTransactions
 
-import brs.entity.Account
 import brs.at.AT
 import brs.at.AtException
+import brs.entity.Account
 import brs.entity.DependencyProvider
-import brs.objects.FluxValues
 import brs.entity.Transaction
 import brs.objects.Constants
+import brs.objects.FluxValues
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.convert.toUnsignedString
@@ -18,9 +18,11 @@ class AutomatedTransactionCreation(dp: DependencyProvider) : AutomatedTransactio
     override val subtype = SUBTYPE_AT_CREATION
     override val description = "AT Creation"
 
-    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.AutomatedTransactionsCreation(dp, buffer, transactionVersion)
+    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) =
+        Attachment.AutomatedTransactionsCreation(dp, buffer, transactionVersion)
 
-    override fun parseAttachment(attachmentData: JsonObject) = Attachment.AutomatedTransactionsCreation(dp, attachmentData)
+    override fun parseAttachment(attachmentData: JsonObject) =
+        Attachment.AutomatedTransactionsCreation(dp, attachmentData)
 
     override fun doValidateAttachment(transaction: Transaction) {
         if (!dp.fluxCapacitorService.getValue(
@@ -63,7 +65,7 @@ class AutomatedTransactionCreation(dp: DependencyProvider) : AutomatedTransactio
         }
     }
 
-    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
         val attachment = transaction.attachment as Attachment.AutomatedTransactionsCreation
         AT.addAT(
             dp,

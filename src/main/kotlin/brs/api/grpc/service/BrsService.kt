@@ -19,18 +19,21 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
     private val handlers: Map<KClass<out GrpcApiHandler<out Message, out Message>>, GrpcApiHandler<out Message, out Message>>
 
     init { // TODO each handler should only take the dp
-        val handlerMap = mutableMapOf<KClass<out GrpcApiHandler<out Message, out Message>>, GrpcApiHandler<out Message, out Message>>()
+        val handlerMap =
+            mutableMapOf<KClass<out GrpcApiHandler<out Message, out Message>>, GrpcApiHandler<out Message, out Message>>()
         handlerMap[BroadcastTransactionHandler::class] = BroadcastTransactionHandler(dp)
         handlerMap[BroadcastTransactionBytesHandler::class] = BroadcastTransactionBytesHandler(dp)
         handlerMap[CompleteBasicTransactionHandler::class] = CompleteBasicTransactionHandler(dp)
         handlerMap[GetAccountATsHandler::class] = GetAccountATsHandler(dp.atService, dp.accountService)
-        handlerMap[GetAccountBlocksHandler::class] = GetAccountBlocksHandler(dp.blockchainService, dp.blockService, dp.accountService)
+        handlerMap[GetAccountBlocksHandler::class] =
+            GetAccountBlocksHandler(dp.blockchainService, dp.blockService, dp.accountService)
         handlerMap[GetAccountCurrentOrdersHandler::class] = GetAccountCurrentOrdersHandler(dp.assetExchangeService)
         handlerMap[GetAccountEscrowTransactionsHandler::class] = GetAccountEscrowTransactionsHandler(dp.escrowService)
         handlerMap[GetAccountHandler::class] = GetAccountHandler(dp.accountService)
         handlerMap[GetAccountsHandler::class] = GetAccountsHandler(dp.accountService)
         handlerMap[GetAccountSubscriptionsHandler::class] = GetAccountSubscriptionsHandler(dp.subscriptionService)
-        handlerMap[GetAccountTransactionsHandler::class] = GetAccountTransactionsHandler(dp.blockchainService, dp.accountService)
+        handlerMap[GetAccountTransactionsHandler::class] =
+            GetAccountTransactionsHandler(dp.blockchainService, dp.accountService)
         handlerMap[GetAliasesHandler::class] = GetAliasesHandler(dp.aliasService)
         handlerMap[GetAliasHandler::class] = GetAliasHandler(dp.aliasService)
         handlerMap[GetAssetBalancesHandler::class] = GetAssetBalancesHandler(dp.assetExchangeService)
@@ -38,7 +41,8 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handlerMap[GetAssetsByIssuerHandler::class] = GetAssetsByIssuerHandler(dp.assetExchangeService)
         handlerMap[GetAssetsHandler::class] = GetAssetsHandler(dp.assetExchangeService)
         handlerMap[GetAssetTradesHandler::class] = GetAssetTradesHandler(dp.assetExchangeService)
-        handlerMap[GetAssetTransfersHandler::class] = GetAssetTransfersHandler(dp.assetExchangeService, dp.accountService)
+        handlerMap[GetAssetTransfersHandler::class] =
+            GetAssetTransfersHandler(dp.assetExchangeService, dp.accountService)
         handlerMap[GetATHandler::class] = GetATHandler(dp.atService, dp.accountService)
         handlerMap[GetATIdsHandler::class] = GetATIdsHandler(dp.atService)
         handlerMap[GetBlockHandler::class] = GetBlockHandler(dp.blockchainService, dp.blockService)
@@ -52,7 +56,8 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handlerMap[GetDgsPurchaseHandler::class] = GetDgsPurchaseHandler(dp.digitalGoodsStoreService)
         handlerMap[GetDgsPurchasesHandler::class] = GetDgsPurchasesHandler(dp.digitalGoodsStoreService)
         handlerMap[GetEscrowTransactionHandler::class] = GetEscrowTransactionHandler(dp.escrowService)
-        handlerMap[GetMiningInfoHandler::class] = GetMiningInfoHandler(dp.blockchainProcessorService, dp.blockchainService, dp.generatorService)
+        handlerMap[GetMiningInfoHandler::class] =
+            GetMiningInfoHandler(dp.blockchainProcessorService, dp.blockchainService, dp.generatorService)
         handlerMap[GetOrderHandler::class] = GetOrderHandler(dp.assetExchangeService)
         handlerMap[GetOrdersHandler::class] = GetOrdersHandler(dp.assetExchangeService)
         handlerMap[GetPeerHandler::class] = GetPeerHandler(dp)
@@ -61,15 +66,22 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handlerMap[GetSubscriptionHandler::class] = GetSubscriptionHandler(dp.subscriptionService)
         handlerMap[GetSubscriptionsToAccountHandler::class] = GetSubscriptionsToAccountHandler(dp.subscriptionService)
         handlerMap[GetTransactionBytesHandler::class] = GetTransactionBytesHandler(dp)
-        handlerMap[GetTransactionHandler::class] = GetTransactionHandler(dp.blockchainService, dp.transactionProcessorService)
-        handlerMap[GetUnconfirmedTransactionsHandler::class] = GetUnconfirmedTransactionsHandler(dp.indirectIncomingService, dp.transactionProcessorService)
+        handlerMap[GetTransactionHandler::class] =
+            GetTransactionHandler(dp.blockchainService, dp.transactionProcessorService)
+        handlerMap[GetUnconfirmedTransactionsHandler::class] =
+            GetUnconfirmedTransactionsHandler(dp.indirectIncomingService, dp.transactionProcessorService)
         handlerMap[ParseTransactionHandler::class] = ParseTransactionHandler(dp)
-        handlerMap[SubmitNonceHandler::class] = SubmitNonceHandler(dp.propertyService, dp.blockchainService, dp.accountService, dp.generatorService)
+        handlerMap[SubmitNonceHandler::class] =
+            SubmitNonceHandler(dp.propertyService, dp.blockchainService, dp.accountService, dp.generatorService)
         handlerMap[SuggestFeeHandler::class] = SuggestFeeHandler(dp.feeSuggestionService)
         this.handlers = handlerMap
     }
 
-    private inline fun <reified H : GrpcApiHandler<R, S>, R : Message, S : Message> handleRequest(handlerClass: KClass<H>, request: R, response: StreamObserver<S>) {
+    private inline fun <reified H : GrpcApiHandler<R, S>, R : Message, S : Message> handleRequest(
+        handlerClass: KClass<H>,
+        request: R,
+        response: StreamObserver<S>
+    ) {
         val handler = handlers[handlerClass]
         if (handler is H) {
             handler.handleRequest(request, response)
@@ -79,14 +91,19 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
     }
 
     fun start(hostname: String, port: Int): Server {
-        return if (hostname == "0.0.0.0") ServerBuilder.forPort(port).addService(this).build().start() else NettyServerBuilder.forAddress(InetSocketAddress(hostname, port)).addService(this).build().start()
+        return if (hostname == "0.0.0.0") ServerBuilder.forPort(port).addService(this).build().start() else NettyServerBuilder.forAddress(
+            InetSocketAddress(hostname, port)
+        ).addService(this).build().start()
     }
 
     override fun getMiningInfo(request: Empty, responseObserver: StreamObserver<BrsApi.MiningInfo>) {
         handleRequest(GetMiningInfoHandler::class, request, responseObserver)
     }
 
-    override fun submitNonce(request: BrsApi.SubmitNonceRequest, responseObserver: StreamObserver<BrsApi.SubmitNonceResponse>) {
+    override fun submitNonce(
+        request: BrsApi.SubmitNonceRequest,
+        responseObserver: StreamObserver<BrsApi.SubmitNonceResponse>
+    ) {
         handleRequest(SubmitNonceHandler::class, request, responseObserver)
     }
 
@@ -102,15 +119,24 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handleRequest(GetBlockHandler::class, request, responseObserver)
     }
 
-    override fun getTransaction(request: BrsApi.GetTransactionRequest, responseObserver: StreamObserver<BrsApi.Transaction>) {
+    override fun getTransaction(
+        request: BrsApi.GetTransactionRequest,
+        responseObserver: StreamObserver<BrsApi.Transaction>
+    ) {
         handleRequest(GetTransactionHandler::class, request, responseObserver)
     }
 
-    override fun getTransactionBytes(request: BrsApi.BasicTransaction, responseObserver: StreamObserver<BrsApi.TransactionBytes>) {
+    override fun getTransactionBytes(
+        request: BrsApi.BasicTransaction,
+        responseObserver: StreamObserver<BrsApi.TransactionBytes>
+    ) {
         handleRequest(GetTransactionBytesHandler::class, request, responseObserver)
     }
 
-    override fun completeBasicTransaction(request: BrsApi.BasicTransaction, responseObserver: StreamObserver<BrsApi.BasicTransaction>) {
+    override fun completeBasicTransaction(
+        request: BrsApi.BasicTransaction,
+        responseObserver: StreamObserver<BrsApi.BasicTransaction>
+    ) {
         handleRequest(CompleteBasicTransactionHandler::class, request, responseObserver)
     }
 
@@ -118,11 +144,17 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handleRequest(GetCurrentTimeHandler::class, request, responseObserver)
     }
 
-    override fun broadcastTransaction(request: BrsApi.BasicTransaction, responseObserver: StreamObserver<BrsApi.TransactionBroadcastResult>) {
+    override fun broadcastTransaction(
+        request: BrsApi.BasicTransaction,
+        responseObserver: StreamObserver<BrsApi.TransactionBroadcastResult>
+    ) {
         handleRequest(BroadcastTransactionHandler::class, request, responseObserver)
     }
 
-    override fun broadcastTransactionBytes(request: BrsApi.TransactionBytes, responseObserver: StreamObserver<BrsApi.TransactionBroadcastResult>) {
+    override fun broadcastTransactionBytes(
+        request: BrsApi.TransactionBytes,
+        responseObserver: StreamObserver<BrsApi.TransactionBroadcastResult>
+    ) {
         handleRequest(BroadcastTransactionBytesHandler::class, request, responseObserver)
     }
 
@@ -142,7 +174,10 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handleRequest(SuggestFeeHandler::class, request, responseObserver)
     }
 
-    override fun parseTransaction(request: BrsApi.TransactionBytes, responseObserver: StreamObserver<BrsApi.BasicTransaction>) {
+    override fun parseTransaction(
+        request: BrsApi.TransactionBytes,
+        responseObserver: StreamObserver<BrsApi.BasicTransaction>
+    ) {
         handleRequest(ParseTransactionHandler::class, request, responseObserver)
     }
 
@@ -166,27 +201,45 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handleRequest(GetAliasesHandler::class, request, responseObserver)
     }
 
-    override fun getUnconfirmedTransactions(request: BrsApi.GetAccountRequest, responseObserver: StreamObserver<BrsApi.UnconfirmedTransactions>) {
+    override fun getUnconfirmedTransactions(
+        request: BrsApi.GetAccountRequest,
+        responseObserver: StreamObserver<BrsApi.UnconfirmedTransactions>
+    ) {
         handleRequest(GetUnconfirmedTransactionsHandler::class, request, responseObserver)
     }
 
-    override fun getAccountBlocks(request: BrsApi.GetAccountBlocksRequest, responseObserver: StreamObserver<BrsApi.Blocks>) {
+    override fun getAccountBlocks(
+        request: BrsApi.GetAccountBlocksRequest,
+        responseObserver: StreamObserver<BrsApi.Blocks>
+    ) {
         handleRequest(GetAccountBlocksHandler::class, request, responseObserver)
     }
 
-    override fun getAccountCurrentOrders(request: BrsApi.GetAccountOrdersRequest, responseObserver: StreamObserver<BrsApi.Orders>) {
+    override fun getAccountCurrentOrders(
+        request: BrsApi.GetAccountOrdersRequest,
+        responseObserver: StreamObserver<BrsApi.Orders>
+    ) {
         handleRequest(GetAccountCurrentOrdersHandler::class, request, responseObserver)
     }
 
-    override fun getAccountEscrowTransactions(request: BrsApi.GetAccountRequest, responseObserver: StreamObserver<BrsApi.EscrowTransactions>) {
+    override fun getAccountEscrowTransactions(
+        request: BrsApi.GetAccountRequest,
+        responseObserver: StreamObserver<BrsApi.EscrowTransactions>
+    ) {
         handleRequest(GetAccountEscrowTransactionsHandler::class, request, responseObserver)
     }
 
-    override fun getAccountSubscriptions(request: BrsApi.GetAccountRequest, responseObserver: StreamObserver<BrsApi.Subscriptions>) {
+    override fun getAccountSubscriptions(
+        request: BrsApi.GetAccountRequest,
+        responseObserver: StreamObserver<BrsApi.Subscriptions>
+    ) {
         handleRequest(GetAccountSubscriptionsHandler::class, request, responseObserver)
     }
 
-    override fun getAccountTransactions(request: BrsApi.GetAccountTransactionsRequest, responseObserver: StreamObserver<BrsApi.Transactions>) {
+    override fun getAccountTransactions(
+        request: BrsApi.GetAccountTransactionsRequest,
+        responseObserver: StreamObserver<BrsApi.Transactions>
+    ) {
         handleRequest(GetAccountTransactionsHandler::class, request, responseObserver)
     }
 
@@ -194,7 +247,10 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handleRequest(GetAssetHandler::class, request, responseObserver)
     }
 
-    override fun getAssetBalances(request: BrsApi.GetAssetBalancesRequest, responseObserver: StreamObserver<BrsApi.AssetBalances>) {
+    override fun getAssetBalances(
+        request: BrsApi.GetAssetBalancesRequest,
+        responseObserver: StreamObserver<BrsApi.AssetBalances>
+    ) {
         handleRequest(GetAssetBalancesHandler::class, request, responseObserver)
     }
 
@@ -206,11 +262,17 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handleRequest(GetAssetsByIssuerHandler::class, request, responseObserver)
     }
 
-    override fun getAssetTrades(request: BrsApi.GetAssetTransfersRequest, responseObserver: StreamObserver<BrsApi.AssetTrades>) {
+    override fun getAssetTrades(
+        request: BrsApi.GetAssetTransfersRequest,
+        responseObserver: StreamObserver<BrsApi.AssetTrades>
+    ) {
         handleRequest(GetAssetTradesHandler::class, request, responseObserver)
     }
 
-    override fun getAssetTransfers(request: BrsApi.GetAssetTransfersRequest, responseObserver: StreamObserver<BrsApi.AssetTransfers>) {
+    override fun getAssetTransfers(
+        request: BrsApi.GetAssetTransfersRequest,
+        responseObserver: StreamObserver<BrsApi.AssetTransfers>
+    ) {
         handleRequest(GetAssetTransfersHandler::class, request, responseObserver)
     }
 
@@ -234,7 +296,10 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handleRequest(GetDgsGoodsHandler::class, request, responseObserver)
     }
 
-    override fun getDgsPendingPurchases(request: BrsApi.GetDgsPendingPurchasesRequest, responseObserver: StreamObserver<BrsApi.DgsPurchases>) {
+    override fun getDgsPendingPurchases(
+        request: BrsApi.GetDgsPendingPurchasesRequest,
+        responseObserver: StreamObserver<BrsApi.DgsPurchases>
+    ) {
         handleRequest(GetDgsPendingPurchasesHandler::class, request, responseObserver)
     }
 
@@ -242,11 +307,17 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handleRequest(GetDgsPurchaseHandler::class, request, responseObserver)
     }
 
-    override fun getDgsPurchases(request: BrsApi.GetDgsPurchasesRequest, responseObserver: StreamObserver<BrsApi.DgsPurchases>) {
+    override fun getDgsPurchases(
+        request: BrsApi.GetDgsPurchasesRequest,
+        responseObserver: StreamObserver<BrsApi.DgsPurchases>
+    ) {
         handleRequest(GetDgsPurchasesHandler::class, request, responseObserver)
     }
 
-    override fun getEscrowTransaction(request: BrsApi.GetByIdRequest, responseObserver: StreamObserver<BrsApi.EscrowTransaction>) {
+    override fun getEscrowTransaction(
+        request: BrsApi.GetByIdRequest,
+        responseObserver: StreamObserver<BrsApi.EscrowTransaction>
+    ) {
         handleRequest(GetEscrowTransactionHandler::class, request, responseObserver)
     }
 
@@ -258,11 +329,17 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handleRequest(GetOrdersHandler::class, request, responseObserver)
     }
 
-    override fun getSubscription(request: BrsApi.GetByIdRequest, responseObserver: StreamObserver<BrsApi.Subscription>) {
+    override fun getSubscription(
+        request: BrsApi.GetByIdRequest,
+        responseObserver: StreamObserver<BrsApi.Subscription>
+    ) {
         handleRequest(GetSubscriptionHandler::class, request, responseObserver)
     }
 
-    override fun getSubscriptionsToAccount(request: BrsApi.GetAccountRequest, responseObserver: StreamObserver<BrsApi.Subscriptions>) {
+    override fun getSubscriptionsToAccount(
+        request: BrsApi.GetAccountRequest,
+        responseObserver: StreamObserver<BrsApi.Subscriptions>
+    ) {
         handleRequest(GetSubscriptionsToAccountHandler::class, request, responseObserver)
     }
 

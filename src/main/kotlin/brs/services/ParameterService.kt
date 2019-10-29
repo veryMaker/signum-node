@@ -43,7 +43,11 @@ interface ParameterService {
     /**
      * TODO
      */
-    fun getEncryptedMessage(request: HttpServletRequest, recipientAccount: Account?, publicKey: ByteArray?): EncryptedData?
+    fun getEncryptedMessage(
+        request: HttpServletRequest,
+        recipientAccount: Account?,
+        publicKey: ByteArray?
+    ): EncryptedData?
 
     /**
      * TODO

@@ -11,7 +11,14 @@ import brs.services.ParameterService
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class EncryptTo(private val parameterService: ParameterService, private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.MESSAGES), RECIPIENT_PARAMETER, MESSAGE_TO_ENCRYPT_PARAMETER, MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, SECRET_PHRASE_PARAMETER) {
+internal class EncryptTo(private val parameterService: ParameterService, private val accountService: AccountService) :
+    APIServlet.JsonRequestHandler(
+        arrayOf(APITag.MESSAGES),
+        RECIPIENT_PARAMETER,
+        MESSAGE_TO_ENCRYPT_PARAMETER,
+        MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER,
+        SECRET_PHRASE_PARAMETER
+    ) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
@@ -21,7 +28,9 @@ internal class EncryptTo(private val parameterService: ParameterService, private
             return INCORRECT_RECIPIENT
         }
 
-        val encryptedData = parameterService.getEncryptedMessage(request, recipientAccount, recipientAccount.publicKey!!) ?: return INCORRECT_ENCRYPTED_MESSAGE
+        val encryptedData =
+            parameterService.getEncryptedMessage(request, recipientAccount, recipientAccount.publicKey!!)
+                ?: return INCORRECT_ENCRYPTED_MESSAGE
         return JSONData.encryptedData(encryptedData)
     }
 }

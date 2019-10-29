@@ -23,7 +23,7 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
     override fun processTransaction(transaction: Transaction) {
         if (disabled) return
         dp.indirectIncomingStore.addIndirectIncomings(getIndirectIncomings(transaction)
-                .map { account -> IndirectIncoming(account, transaction.id, transaction.height) })
+            .map { account -> IndirectIncoming(account, transaction.id, transaction.height) })
     }
 
     override fun isIndirectlyReceiving(transaction: Transaction, accountId: Long): Boolean {
@@ -44,7 +44,7 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
 
         val attachment = transaction.attachment
         return attachment.getRecipients()
-                .map { recipient -> recipient[0] }
+            .map { recipient -> recipient[0] }
     }
 
     private fun getMultiOutSameRecipients(transaction: Transaction): Collection<Long> {

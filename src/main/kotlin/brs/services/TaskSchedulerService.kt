@@ -20,7 +20,7 @@ interface TaskSchedulerService {
     /**
      * TODO
      */
-    fun <T: Any> async(taskType: TaskType, task: TaskWithResult<T>): Future<T?>
+    fun <T : Any> async(taskType: TaskType, task: TaskWithResult<T>): Future<T?>
 
     /**
      * Runs a task when start() is called, before starting the scheduler. If the scheduler has already started, it throws.

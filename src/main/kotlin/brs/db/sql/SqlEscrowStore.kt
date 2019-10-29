@@ -40,7 +40,8 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
             }
         }
 
-        decisionTable = object : VersionedEntitySqlTable<Escrow.Decision>("escrow_decision", ESCROW_DECISION, decisionDbKeyFactory, dp) {
+        decisionTable = object :
+            VersionedEntitySqlTable<Escrow.Decision>("escrow_decision", ESCROW_DECISION, decisionDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, record: Record): Escrow.Decision {
                 return SqlDecision(record)
             }
@@ -52,10 +53,23 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
     }
 
     private fun saveDecision(ctx: DSLContext, decision: Escrow.Decision) {
-        ctx.mergeInto<EscrowDecisionRecord, Long, Long, Int, Int, Boolean>(ESCROW_DECISION, ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.DECISION, ESCROW_DECISION.HEIGHT, ESCROW_DECISION.LATEST)
-                .key(ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.HEIGHT)
-                .values(decision.escrowId, decision.accountId, Escrow.decisionToByte(decision.decision!!).toInt(), dp.blockchainService.height, true)
-                .execute()
+        ctx.mergeInto<EscrowDecisionRecord, Long, Long, Int, Int, Boolean>(
+            ESCROW_DECISION,
+            ESCROW_DECISION.ESCROW_ID,
+            ESCROW_DECISION.ACCOUNT_ID,
+            ESCROW_DECISION.DECISION,
+            ESCROW_DECISION.HEIGHT,
+            ESCROW_DECISION.LATEST
+        )
+            .key(ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.HEIGHT)
+            .values(
+                decision.escrowId,
+                decision.accountId,
+                Escrow.decisionToByte(decision.decision!!).toInt(),
+                dp.blockchainService.height,
+                true
+            )
+            .execute()
     }
 
     override fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow> {
@@ -70,15 +84,54 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
     }
 
     private fun saveEscrow(ctx: DSLContext, escrow: Escrow) {
-        ctx.mergeInto<EscrowRecord, Long, Long, Long, Long, Int, Int, Int, Int, Boolean>(ESCROW, ESCROW.ID, ESCROW.SENDER_ID, ESCROW.RECIPIENT_ID, ESCROW.AMOUNT, ESCROW.REQUIRED_SIGNERS, ESCROW.DEADLINE, ESCROW.DEADLINE_ACTION, ESCROW.HEIGHT, ESCROW.LATEST)
-                .key(ESCROW.ID, ESCROW.HEIGHT)
-                .values(escrow.id, escrow.senderId, escrow.recipientId, escrow.amountPlanck, escrow.requiredSigners, escrow.deadline, Escrow.decisionToByte(escrow.deadlineAction).toInt(), dp.blockchainService.height, true)
-                .execute()
+        ctx.mergeInto<EscrowRecord, Long, Long, Long, Long, Int, Int, Int, Int, Boolean>(
+            ESCROW,
+            ESCROW.ID,
+            ESCROW.SENDER_ID,
+            ESCROW.RECIPIENT_ID,
+            ESCROW.AMOUNT,
+            ESCROW.REQUIRED_SIGNERS,
+            ESCROW.DEADLINE,
+            ESCROW.DEADLINE_ACTION,
+            ESCROW.HEIGHT,
+            ESCROW.LATEST
+        )
+            .key(ESCROW.ID, ESCROW.HEIGHT)
+            .values(
+                escrow.id,
+                escrow.senderId,
+                escrow.recipientId,
+                escrow.amountPlanck,
+                escrow.requiredSigners,
+                escrow.deadline,
+                Escrow.decisionToByte(escrow.deadlineAction).toInt(),
+                dp.blockchainService.height,
+                true
+            )
+            .execute()
     }
 
-    private inner class SqlDecision internal constructor(record: Record) : Escrow.Decision(decisionDbKeyFactory.newKey(record.get(ESCROW_DECISION.ESCROW_ID), record.get(ESCROW_DECISION.ACCOUNT_ID)), record.get(ESCROW_DECISION.ESCROW_ID), record.get(ESCROW_DECISION.ACCOUNT_ID), Escrow.byteToDecision(record.get(ESCROW_DECISION.DECISION).toByte()))
+    private inner class SqlDecision internal constructor(record: Record) : Escrow.Decision(
+        decisionDbKeyFactory.newKey(
+            record.get(ESCROW_DECISION.ESCROW_ID),
+            record.get(ESCROW_DECISION.ACCOUNT_ID)
+        ),
+        record.get(ESCROW_DECISION.ESCROW_ID),
+        record.get(ESCROW_DECISION.ACCOUNT_ID),
+        Escrow.byteToDecision(record.get(ESCROW_DECISION.DECISION).toByte())
+    )
 
-    private inner class SqlEscrow internal constructor(record: Record) : Escrow(dp, record.get(ESCROW.ID), record.get(ESCROW.SENDER_ID), record.get(ESCROW.RECIPIENT_ID), escrowDbKeyFactory.newKey(record.get(ESCROW.ID)), record.get(ESCROW.AMOUNT), record.get(ESCROW.REQUIRED_SIGNERS), record.get(ESCROW.DEADLINE), byteToDecision(record.get(ESCROW.DEADLINE_ACTION).toByte())!!)
+    private inner class SqlEscrow internal constructor(record: Record) : Escrow(
+        dp,
+        record.get(ESCROW.ID),
+        record.get(ESCROW.SENDER_ID),
+        record.get(ESCROW.RECIPIENT_ID),
+        escrowDbKeyFactory.newKey(record.get(ESCROW.ID)),
+        record.get(ESCROW.AMOUNT),
+        record.get(ESCROW.REQUIRED_SIGNERS),
+        record.get(ESCROW.DEADLINE),
+        byteToDecision(record.get(ESCROW.DEADLINE_ACTION).toByte())!!
+    )
 
     override fun getDecisions(id: Long?): Collection<Escrow.Decision> {
         return decisionTable.getManyBy(ESCROW_DECISION.ESCROW_ID.eq(id), 0, -1)

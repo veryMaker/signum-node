@@ -4,7 +4,11 @@ import brs.services.StatisticsService
 import org.ehcache.Cache
 import org.ehcache.config.CacheRuntimeConfiguration
 
-internal class StatisticsCache<K, V>(private val wrappedCache: Cache<K, V>, private val cacheName: String, private val statisticsService: StatisticsService) : Cache<K, V> {
+internal class StatisticsCache<K, V>(
+    private val wrappedCache: Cache<K, V>,
+    private val cacheName: String,
+    private val statisticsService: StatisticsService
+) : Cache<K, V> {
     override fun get(k: K): V {
         return wrappedCache.get(k)
     }

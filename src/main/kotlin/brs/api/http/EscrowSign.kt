@@ -14,7 +14,12 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class EscrowSign internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), ESCROW_PARAMETER, DECISION_PARAMETER) {
+internal class EscrowSign internal constructor(private val dp: DependencyProvider) : CreateTransaction(
+    dp,
+    arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION),
+    ESCROW_PARAMETER,
+    DECISION_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val escrowId: Long

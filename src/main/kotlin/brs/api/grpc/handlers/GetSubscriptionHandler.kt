@@ -6,12 +6,13 @@ import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 import brs.services.SubscriptionService
 
-class GetSubscriptionHandler(private val subscriptionService: SubscriptionService) : GrpcApiHandler<BrsApi.GetByIdRequest, BrsApi.Subscription> {
+class GetSubscriptionHandler(private val subscriptionService: SubscriptionService) :
+    GrpcApiHandler<BrsApi.GetByIdRequest, BrsApi.Subscription> {
 
     override fun handleRequest(request: BrsApi.GetByIdRequest): BrsApi.Subscription {
         val subscriptionId = request.id
         val subscription = subscriptionService.getSubscription(subscriptionId)
-                ?: throw ApiException("Could not find subscription")
+            ?: throw ApiException("Could not find subscription")
         return ProtoBuilder.buildSubscription(subscription)
     }
 }

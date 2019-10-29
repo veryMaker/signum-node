@@ -2,7 +2,12 @@ package brs.util
 
 import java.util.*
 
-class FilteringIterator<T> constructor(collection: Collection<T>, private val filter: (T) -> Boolean, private val from: Int = 0, private val to: Int = Integer.MAX_VALUE) : Iterator<T> {
+class FilteringIterator<T> constructor(
+    collection: Collection<T>,
+    private val filter: (T) -> Boolean,
+    private val from: Int = 0,
+    private val to: Int = Integer.MAX_VALUE
+) : Iterator<T> {
     private val dbIterator: Iterator<T> = collection.iterator()
     private var next: T? = null
     private var hasNext: Boolean = false

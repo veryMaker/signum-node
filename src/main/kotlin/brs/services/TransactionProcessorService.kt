@@ -81,7 +81,13 @@ interface TransactionProcessorService : Observable<Collection<Transaction>, Tran
     /**
      * TODO
      */
-    fun newTransactionBuilder(senderPublicKey: ByteArray, amountPlanck: Long, feePlanck: Long, deadline: Short, attachment: Attachment): Transaction.Builder
+    fun newTransactionBuilder(
+        senderPublicKey: ByteArray,
+        amountPlanck: Long,
+        feePlanck: Long,
+        deadline: Short,
+        attachment: Attachment
+    ): Transaction.Builder
 
     /**
      * TODO

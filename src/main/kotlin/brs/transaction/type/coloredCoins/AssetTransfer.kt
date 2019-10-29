@@ -7,8 +7,8 @@ import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.convert.toUnsignedString
-import brs.util.logging.safeTrace
 import brs.util.json.toJsonString
+import brs.util.logging.safeTrace
 import com.google.gson.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,7 +30,8 @@ class AssetTransfer(dp: DependencyProvider) : ColoredCoins(dp) {
     override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
         logger.safeTrace { "TransactionType ASSET_TRANSFER" }
         val attachment = transaction.attachment as Attachment.ColoredCoinsAssetTransfer
-        val unconfirmedAssetBalance = dp.accountService.getUnconfirmedAssetBalanceQuantity(senderAccount, attachment.assetId)
+        val unconfirmedAssetBalance =
+            dp.accountService.getUnconfirmedAssetBalanceQuantity(senderAccount, attachment.assetId)
         if (unconfirmedAssetBalance >= 0 && unconfirmedAssetBalance >= attachment.quantity) {
             dp.accountService.addToUnconfirmedAssetBalanceQuantity(
                 senderAccount,
@@ -45,12 +46,12 @@ class AssetTransfer(dp: DependencyProvider) : ColoredCoins(dp) {
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsAssetTransfer
         dp.accountService.addToAssetBalanceQuantity(senderAccount, attachment.assetId, -attachment.quantity)
         dp.accountService.addToAssetAndUnconfirmedAssetBalanceQuantity(
-            recipientAccount!!,
+            recipientAccount,
             attachment.assetId,
             attachment.quantity
         )

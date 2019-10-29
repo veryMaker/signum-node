@@ -7,7 +7,8 @@ import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 
-class GetOrderHandler(private val assetExchangeService: AssetExchangeService) : GrpcApiHandler<BrsApi.GetOrderRequest, BrsApi.Order> {
+class GetOrderHandler(private val assetExchangeService: AssetExchangeService) :
+    GrpcApiHandler<BrsApi.GetOrderRequest, BrsApi.Order> {
 
     override fun handleRequest(request: BrsApi.GetOrderRequest): BrsApi.Order {
         val order: Order = when (request.orderType) {

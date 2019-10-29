@@ -18,7 +18,12 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION), ALIAS_NAME_PARAMETER, ALIAS_URI_PARAMETER) {
+internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(
+    dp,
+    arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION),
+    ALIAS_NAME_PARAMETER,
+    ALIAS_URI_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         var aliasName = request.getParameter(ALIAS_NAME_PARAMETER).emptyToNull()

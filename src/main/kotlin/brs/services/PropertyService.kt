@@ -6,10 +6,10 @@ interface PropertyService {
     /**
      * TODO
      */
-    fun <T: Any> get(prop: Prop<T>): T = get(prop.name, prop.defaultValue)
+    fun <T : Any> get(prop: Prop<T>): T = get(prop.name, prop.defaultValue)
 
     /**
      * TODO
      */
-    fun <T: Any> get(propName: String, defaultValue: T): T
+    fun <T : Any> get(propName: String, defaultValue: T): T
 }

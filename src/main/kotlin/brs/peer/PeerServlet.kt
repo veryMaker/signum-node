@@ -79,7 +79,9 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
             }
 
             val cis = CountingInputStream(request.inputStream)
-            val jsonRequest = InputStreamReader(cis, StandardCharsets.UTF_8).use { reader -> reader.parseJson().mustGetAsJsonObject("request") }
+            val jsonRequest = InputStreamReader(cis, StandardCharsets.UTF_8).use { reader ->
+                reader.parseJson().mustGetAsJsonObject("request")
+            }
             if (jsonRequest.isEmpty()) {
                 return
             }

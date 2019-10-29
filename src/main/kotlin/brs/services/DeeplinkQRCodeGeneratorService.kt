@@ -7,5 +7,12 @@ interface DeeplinkQRCodeGeneratorService {
     /**
      * TODO
      */
-    fun generateRequestBurstDeepLinkQRCode(receiverId: String, amountPlanck: Long, feeSuggestionType: FeeSuggestion.Type?, feePlanck: Long?, message: String?, immutable: Boolean): BufferedImage
+    fun generateRequestBurstDeepLinkQRCode(
+        receiverId: String,
+        amountPlanck: Long,
+        feeSuggestionType: FeeSuggestion.Type?,
+        feePlanck: Long?,
+        message: String?,
+        immutable: Boolean
+    ): BufferedImage
 }

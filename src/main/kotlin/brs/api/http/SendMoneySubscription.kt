@@ -12,7 +12,13 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class SendMoneySubscription(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, AMOUNT_PLANCK_PARAMETER, FREQUENCY_PARAMETER) {
+internal class SendMoneySubscription(private val dp: DependencyProvider) : CreateTransaction(
+    dp,
+    arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION),
+    RECIPIENT_PARAMETER,
+    AMOUNT_PLANCK_PARAMETER,
+    FREQUENCY_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)

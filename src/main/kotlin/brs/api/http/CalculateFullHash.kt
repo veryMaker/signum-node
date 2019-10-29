@@ -13,7 +13,11 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class CalculateFullHash : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), UNSIGNED_TRANSACTION_BYTES_PARAMETER, SIGNATURE_HASH_PARAMETER) {
+internal class CalculateFullHash : APIServlet.JsonRequestHandler(
+    arrayOf(APITag.TRANSACTIONS),
+    UNSIGNED_TRANSACTION_BYTES_PARAMETER,
+    SIGNATURE_HASH_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 

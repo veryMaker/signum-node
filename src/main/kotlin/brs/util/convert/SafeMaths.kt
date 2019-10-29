@@ -7,7 +7,8 @@ fun Long.safeAdd(long: Long): Long {
     if (if (long > 0)
             this > Long.MAX_VALUE - long
         else
-            this < Long.MIN_VALUE - long) {
+            this < Long.MIN_VALUE - long
+    ) {
         throw ArithmeticException("Integer overflow")
     }
     return this + long
@@ -17,7 +18,8 @@ fun Long.safeSubtract(long: Long): Long {
     if (if (long > 0)
             this < Long.MIN_VALUE + long
         else
-            this > Long.MAX_VALUE + long) {
+            this > Long.MAX_VALUE + long
+    ) {
         throw ArithmeticException("Integer overflow")
     }
     return this - long
@@ -28,7 +30,8 @@ fun Long.safeMultiply(long: Long): Long {
             long > 0 -> this > Long.MAX_VALUE / long || this < Long.MIN_VALUE / long
             long < -1L -> this > Long.MIN_VALUE / long || this < Long.MAX_VALUE / long
             else -> long == -1L && this == Long.MIN_VALUE
-        }) {
+        }
+    ) {
         throw ArithmeticException("Integer overflow")
     }
     return this * long

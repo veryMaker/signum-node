@@ -15,7 +15,8 @@ internal constructor(private val accountService: AccountService) : PeerServlet.P
 
         val response = JsonObject()
 
-        val accountId = request.get(ACCOUNT_ID_PARAMETER_FIELD).mustGetAsString(ACCOUNT_ID_PARAMETER_FIELD).parseAccountId()
+        val accountId =
+            request.get(ACCOUNT_ID_PARAMETER_FIELD).mustGetAsString(ACCOUNT_ID_PARAMETER_FIELD).parseAccountId()
         val account = accountService.getAccount(accountId)
         if (account != null) {
             response.addProperty(BALANCE_PLANCK_RESPONSE_FIELD, account.balancePlanck.toUnsignedString())

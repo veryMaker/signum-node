@@ -8,7 +8,10 @@ import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 import brs.services.AccountService
 
-class GetAssetTransfersHandler(private val assetExchangeService: AssetExchangeService, private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAssetTransfersRequest, BrsApi.AssetTransfers> {
+class GetAssetTransfersHandler(
+    private val assetExchangeService: AssetExchangeService,
+    private val accountService: AccountService
+) : GrpcApiHandler<BrsApi.GetAssetTransfersRequest, BrsApi.AssetTransfers> {
 
     override fun handleRequest(request: BrsApi.GetAssetTransfersRequest): BrsApi.AssetTransfers {
         val accountId = request.account
@@ -26,10 +29,12 @@ class GetAssetTransfersHandler(private val assetExchangeService: AssetExchangeSe
         val builder = BrsApi.AssetTransfers.newBuilder()
         transfers.forEach { transfer ->
             builder.addAssetTransfers(
-                ProtoBuilder.buildTransfer(transfer, asset ?: assetExchangeService.getAsset(transfer.assetId) ?: throw ApiException(
-                "Asset not found"
+                ProtoBuilder.buildTransfer(
+                    transfer, asset ?: assetExchangeService.getAsset(transfer.assetId) ?: throw ApiException(
+                        "Asset not found"
+                    )
+                )
             )
-            ))
         }
         return builder.build()
     }

@@ -28,8 +28,10 @@ object LoggerConfigurator {
         val oldManager = System.getProperty(managerPackage)
         System.setProperty(managerPackage, "brs.util.BurstLogManager")
         if (LogManager.getLogManager() !is BurstLogManager) {
-            System.setProperty(managerPackage,
-                    oldManager ?: "java.util.logging.LogManager")
+            System.setProperty(
+                managerPackage,
+                oldManager ?: "java.util.logging.LogManager"
+            )
         }
         if (System.getProperty("brs.doNotConfigureLogging")?.toLowerCase() != "true") {
             try {

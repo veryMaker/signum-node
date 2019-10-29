@@ -161,8 +161,15 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     val duplicationKey: TransactionDuplicationKey
         get() = type.getDuplicationKey(this)
 
-    class Builder(internal val dp: DependencyProvider, internal val version: Byte, internal val senderPublicKey: ByteArray, internal val amountPlanck: Long, internal val feePlanck: Long, internal val timestamp: Int, internal val deadline: Short,
-                  internal val attachment: Attachment.AbstractAttachment
+    class Builder(
+        internal val dp: DependencyProvider,
+        internal val version: Byte,
+        internal val senderPublicKey: ByteArray,
+        internal val amountPlanck: Long,
+        internal val feePlanck: Long,
+        internal val timestamp: Int,
+        internal val deadline: Short,
+        internal val attachment: Attachment.AbstractAttachment
     ) {
         internal val type = attachment.transactionType
 
@@ -329,7 +336,8 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         if ((type.isSigned) && (deadline < 1
                     || feePlanck > Constants.MAX_BALANCE_PLANCK
                     || amountPlanck < 0
-                    || amountPlanck > Constants.MAX_BALANCE_PLANCK)) {
+                    || amountPlanck > Constants.MAX_BALANCE_PLANCK)
+        ) {
             throw BurstException.NotValidException(
                 "Invalid transaction parameters:\n type: " + type + ", timestamp: " + timestamp
                         + ", deadline: " + deadline + ", fee: " + feePlanck + ", amount: " + amountPlanck
@@ -458,17 +466,20 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 val subtype = transactionData.get("subtype").mustGetAsByte("subtype")
                 val timestamp = transactionData.get("timestamp").mustGetAsInt("timestamp")
                 val deadline = transactionData.get("deadline").mustGetAsShort("deadline")
-                val senderPublicKey = transactionData.get("senderPublicKey").mustGetAsString("senderPublicKey").parseHexString()
+                val senderPublicKey =
+                    transactionData.get("senderPublicKey").mustGetAsString("senderPublicKey").parseHexString()
                 val amountPlanck = transactionData.get("amountNQT").mustGetAsLong("amountNQT")
                 val feePlanck = transactionData.get("feeNQT").mustGetAsLong("feeNQT")
-                val referencedTransactionFullHash = transactionData.get("referencedTransactionFullHash").safeGetAsString()
+                val referencedTransactionFullHash =
+                    transactionData.get("referencedTransactionFullHash").safeGetAsString()
                 val signature = transactionData.get("signature").mustGetAsString("signature").parseHexString()
                 val version = transactionData.get("version").mustGetAsByte("version")
                 val attachmentData = transactionData.get("attachment").mustGetAsJsonObject("attachment")
 
-                val transactionType = TransactionType.findTransactionType(dp, type, subtype) ?: throw BurstException.NotValidException(
-                    "Invalid transaction type: $type, $subtype"
-                )
+                val transactionType =
+                    TransactionType.findTransactionType(dp, type, subtype) ?: throw BurstException.NotValidException(
+                        "Invalid transaction type: $type, $subtype"
+                    )
                 val builder = Builder(
                     dp,
                     version,

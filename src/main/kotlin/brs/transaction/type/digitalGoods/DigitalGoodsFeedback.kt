@@ -14,10 +14,12 @@ import java.nio.ByteBuffer
 class DigitalGoodsFeedback(dp: DependencyProvider) : DigitalGoods(dp) {
     override val subtype = SUBTYPE_DIGITAL_GOODS_FEEDBACK
     override val description = "Feedback"
-    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsFeedback(dp, buffer, transactionVersion)
+    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) =
+        Attachment.DigitalGoodsFeedback(dp, buffer, transactionVersion)
+
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsFeedback(dp, attachmentData)
 
-    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsFeedback
         dp.digitalGoodsStoreService.feedback(
             attachment.purchaseId,

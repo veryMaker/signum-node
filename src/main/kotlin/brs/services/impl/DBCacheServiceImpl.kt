@@ -18,7 +18,11 @@ class DBCacheServiceImpl(private val dp: DependencyProvider) : DBCacheService {
     private val caches = mutableMapOf<String, CacheConfiguration<BurstKey, *>>()
 
     init {
-        caches["account"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(BurstKey::class.java, Account::class.java, ResourcePoolsBuilder.heap(8192)).build()
+        caches["account"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(
+            BurstKey::class.java,
+            Account::class.java,
+            ResourcePoolsBuilder.heap(8192)
+        ).build()
         var cacheBuilder: CacheManagerBuilder<*> = CacheManagerBuilder.newCacheManagerBuilder()
         for ((key, value) in caches) {
             cacheBuilder = cacheBuilder.withCache(key, value)

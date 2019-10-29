@@ -5,7 +5,8 @@ import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 import brs.services.AccountService
 
-class GetAccountsHandler(private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAccountsRequest, BrsApi.Accounts> {
+class GetAccountsHandler(private val accountService: AccountService) :
+    GrpcApiHandler<BrsApi.GetAccountsRequest, BrsApi.Accounts> {
 
     override fun handleRequest(request: BrsApi.GetAccountsRequest): BrsApi.Accounts {
         val builder = BrsApi.Accounts.newBuilder()
@@ -20,7 +21,15 @@ class GetAccountsHandler(private val accountService: AccountService) : GrpcApiHa
             val accounts = accountService.getAccountsWithRewardRecipient(request.rewardRecipient)
             accounts.forEach { assignment -> builder.addIds(assignment.accountId) }
             if (request.includeAccounts) {
-                accounts.forEach { assignment -> builder.addAccounts(ProtoBuilder.buildAccount(accountService.getAccount(assignment.accountId) ?: return@forEach, accountService)) }
+                accounts.forEach { assignment ->
+                    builder.addAccounts(
+                        ProtoBuilder.buildAccount(
+                            accountService.getAccount(
+                                assignment.accountId
+                            ) ?: return@forEach, accountService
+                        )
+                    )
+                }
             }
         }
         return builder.build()

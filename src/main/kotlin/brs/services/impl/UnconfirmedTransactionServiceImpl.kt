@@ -32,9 +32,11 @@ class UnconfirmedTransactionServiceImpl(private val dp: DependencyProvider) :
     override var amount: Int = 0
     private val maxSize = dp.propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS)
 
-    private val maxRawUTBytesToSend = dp.propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND)
+    private val maxRawUTBytesToSend =
+        dp.propertyService.get(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND)
 
-    private val maxPercentageUnconfirmedTransactionsFullHash = dp.propertyService.get(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE)
+    private val maxPercentageUnconfirmedTransactionsFullHash =
+        dp.propertyService.get(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE)
     private var numberUnconfirmedTransactionsFullHash: Int = 0
 
     init {
@@ -348,14 +350,30 @@ class UnconfirmedTransactionServiceImpl(private val dp: DependencyProvider) :
                 senderAccount = accountStore.accountTable[accountStore.accountKeyFactory.newKey(transaction.senderId)]
             }
 
-            val amountPlanck = reservedBalanceCache.getOrDefault(transaction.senderId, 0L).safeAdd(transaction.type.calculateTotalAmountPlanck(transaction))
+            val amountPlanck = reservedBalanceCache.getOrDefault(transaction.senderId, 0L)
+                .safeAdd(transaction.type.calculateTotalAmountPlanck(transaction))
 
             if (senderAccount == null) {
-                logger.safeInfo { String.format("Transaction %d: Account %d does not exist and has no balance. Required funds: %d", transaction.id, transaction.senderId, amountPlanck) }
+                logger.safeInfo {
+                    String.format(
+                        "Transaction %d: Account %d does not exist and has no balance. Required funds: %d",
+                        transaction.id,
+                        transaction.senderId,
+                        amountPlanck
+                    )
+                }
 
                 throw BurstException.NotCurrentlyValidException("Account unknown")
             } else if (amountPlanck > senderAccount.unconfirmedBalancePlanck) {
-                logger.safeInfo { String.format("Transaction %d: Account %d balance too low. You have  %d > %d Balance", transaction.id, transaction.senderId, amountPlanck, senderAccount.unconfirmedBalancePlanck) }
+                logger.safeInfo {
+                    String.format(
+                        "Transaction %d: Account %d balance too low. You have  %d > %d Balance",
+                        transaction.id,
+                        transaction.senderId,
+                        amountPlanck,
+                        senderAccount.unconfirmedBalancePlanck
+                    )
+                }
 
                 throw BurstException.NotCurrentlyValidException("Insufficient funds")
             }
@@ -364,7 +382,8 @@ class UnconfirmedTransactionServiceImpl(private val dp: DependencyProvider) :
         }
 
         fun refundBalance(transaction: Transaction) {
-            val amountPlanck = reservedBalanceCache.getOrDefault(transaction.senderId, 0L).safeSubtract(transaction.type.calculateTotalAmountPlanck(transaction))
+            val amountPlanck = reservedBalanceCache.getOrDefault(transaction.senderId, 0L)
+                .safeSubtract(transaction.type.calculateTotalAmountPlanck(transaction))
 
             if (amountPlanck > 0) {
                 reservedBalanceCache[transaction.senderId] = amountPlanck

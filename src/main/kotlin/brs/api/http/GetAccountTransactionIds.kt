@@ -15,7 +15,22 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class GetAccountTransactionIds(private val parameterService: ParameterService, private val blockchainService: BlockchainService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER, TIMESTAMP_PARAMETER, TYPE_PARAMETER, SUBTYPE_PARAMETER, ACCOUNT_PARAMETER, TIMESTAMP_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, NUMBER_OF_CONFIRMATIONS_PARAMETER, INCLUDE_INDIRECT_PARAMETER) {
+internal class GetAccountTransactionIds(
+    private val parameterService: ParameterService,
+    private val blockchainService: BlockchainService
+) : APIServlet.JsonRequestHandler(
+    arrayOf(APITag.ACCOUNTS),
+    ACCOUNT_PARAMETER,
+    TIMESTAMP_PARAMETER,
+    TYPE_PARAMETER,
+    SUBTYPE_PARAMETER,
+    ACCOUNT_PARAMETER,
+    TIMESTAMP_PARAMETER,
+    FIRST_INDEX_PARAMETER,
+    LAST_INDEX_PARAMETER,
+    NUMBER_OF_CONFIRMATIONS_PARAMETER,
+    INCLUDE_INDIRECT_PARAMETER
+) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
         val timestamp = ParameterParser.getTimestamp(request)
@@ -36,7 +51,16 @@ internal class GetAccountTransactionIds(private val parameterService: ParameterS
         val lastIndex = ParameterParser.getLastIndex(request)
 
         val transactionIds = JsonArray()
-        for (transaction in blockchainService.getTransactions(account, numberOfConfirmations, type, subtype, timestamp, firstIndex, lastIndex, parameterService.getIncludeIndirect(request))) {
+        for (transaction in blockchainService.getTransactions(
+            account,
+            numberOfConfirmations,
+            type,
+            subtype,
+            timestamp,
+            firstIndex,
+            lastIndex,
+            parameterService.getIncludeIndirect(request)
+        )) {
             transactionIds.add(transaction.stringId)
         }
 

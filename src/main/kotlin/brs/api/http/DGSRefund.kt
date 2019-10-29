@@ -15,7 +15,8 @@ import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class DGSRefund internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), PURCHASE_PARAMETER, REFUND_PLANCK_PARAMETER) {
+internal class DGSRefund internal constructor(private val dp: DependencyProvider) :
+    CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), PURCHASE_PARAMETER, REFUND_PLANCK_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sellerAccount = dp.parameterService.getSenderAccount(request)

@@ -23,17 +23,21 @@ class BidOrderCancellation(dp: DependencyProvider) : OrderCancellation(dp) {
         return Attachment.ColoredCoinsBidOrderCancellation(dp, buffer, transactionVersion)
     }
 
-    override fun parseAttachment(attachmentData: JsonObject) = Attachment.ColoredCoinsBidOrderCancellation(dp, attachmentData)
+    override fun parseAttachment(attachmentData: JsonObject) =
+        Attachment.ColoredCoinsBidOrderCancellation(dp, attachmentData)
 
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsBidOrderCancellation
         val order = dp.assetExchangeService.getBidOrder(attachment.orderId)
         dp.assetExchangeService.removeBidOrder(attachment.orderId)
-        if (order != null) dp.accountService.addToUnconfirmedBalancePlanck(senderAccount, order.quantity.safeMultiply(order.pricePlanck))
+        if (order != null) dp.accountService.addToUnconfirmedBalancePlanck(
+            senderAccount,
+            order.quantity.safeMultiply(order.pricePlanck)
+        )
     }
 
     override fun validateAttachment(transaction: Transaction) {

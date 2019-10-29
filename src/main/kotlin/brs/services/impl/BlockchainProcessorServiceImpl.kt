@@ -1,10 +1,10 @@
 package brs.services.impl
 
-import brs.entity.DependencyProvider
 import brs.at.AT
 import brs.at.AtBlock
 import brs.at.AtException
 import brs.entity.Block
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.objects.Constants
 import brs.objects.Constants.FEE_QUANT
@@ -42,7 +42,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
     private val trimDerivedTables = dp.propertyService.get(Props.DB_TRIM_DERIVED_TABLES)
     private val lastTrimHeight = AtomicInteger()
-    
+
     private val processMutex = Mutex()
 
     private val blockListeners = Listeners<Block, BlockchainProcessorService.Event>()
@@ -93,7 +93,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
                 /* Cache now contains Cumulative Difficulty */
                 val curCumulativeDifficulty = dp.downloadCacheService.cumulativeDifficulty
-                val peerCumulativeDifficulty = response.get("cumulativeDifficulty").mustGetAsString("cumulativeDifficulty")
+                val peerCumulativeDifficulty =
+                    response.get("cumulativeDifficulty").mustGetAsString("cumulativeDifficulty")
                 if (peerCumulativeDifficulty.isEmpty()) {
                     logger.safeDebug { "Peer CumulativeDifficulty is null" }
                     return@run true
@@ -133,8 +134,11 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                         saveInCache = false
                         dp.downloadCacheService.resetForkBlocks()
                     } else {
-                        logger.safeWarn { "Our peer want to feed us a fork that is more than ${dp.propertyService.get(
-                            Props.DB_MAX_ROLLBACK)} blocks old." }
+                        logger.safeWarn {
+                            "Our peer want to feed us a fork that is more than ${dp.propertyService.get(
+                                Props.DB_MAX_ROLLBACK
+                            )} blocks old."
+                        }
                         return@run true
                     }
                 }
@@ -235,7 +239,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             try {
                 val lastBlock = dp.blockchainService.lastBlock
                 val lastId = lastBlock.id
-                val currentBlock = dp.downloadCacheService.getNextBlock(lastId) /* this should fetch first block in cache */
+                val currentBlock =
+                    dp.downloadCacheService.getNextBlock(lastId) /* this should fetch first block in cache */
                 if (currentBlock == null || currentBlock.height != lastBlock.height + 1) {
                     logger.safeDebug { "cache is reset due to orphaned block(s). CacheSize: ${dp.downloadCacheService.size()}" }
                     dp.downloadCacheService.resetCache() //resetting cache because we have blocks that cannot be processed.
@@ -341,7 +346,11 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             dp.taskSchedulerService.scheduleTask(TaskType.IO, this.pocVerificationTask)
         } else {
             logger.safeDebug { "Starting pre-verifier thread in CPU mode." }
-            dp.taskSchedulerService.scheduleTask(TaskType.COMPUTATION, Runtime.getRuntime().availableProcessors(), this.pocVerificationTask) // TODO property for number of instances
+            dp.taskSchedulerService.scheduleTask(
+                TaskType.COMPUTATION,
+                Runtime.getRuntime().availableProcessors(),
+                this.pocVerificationTask
+            ) // TODO property for number of instances
         }
 
         blockListeners.addListener(BlockchainProcessorService.Event.BLOCK_SCANNED) { block ->
@@ -378,8 +387,10 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             val milestoneBlockIdsRequest = JsonObject()
             milestoneBlockIdsRequest.addProperty("requestType", "getMilestoneBlockIds")
             if (lastMilestoneBlockId == null) {
-                milestoneBlockIdsRequest.addProperty("lastBlockId",
-                    dp.downloadCacheService.getLastBlockId().toUnsignedString())
+                milestoneBlockIdsRequest.addProperty(
+                    "lastBlockId",
+                    dp.downloadCacheService.getLastBlockId().toUnsignedString()
+                )
             } else {
                 milestoneBlockIdsRequest.addProperty("lastMilestoneBlockId", lastMilestoneBlockId)
             }
@@ -646,7 +657,11 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 if (block.version != blockVersion) {
                     throw BlockchainProcessorService.BlockNotAcceptedException("Invalid version " + block.version + " for block " + block.height)
                 }
-                if (block.version != 1 && !Arrays.equals(Crypto.sha256().digest(lastBlock.toBytes()), block.previousBlockHash)) {
+                if (block.version != 1 && !Arrays.equals(
+                        Crypto.sha256().digest(lastBlock.toBytes()),
+                        block.previousBlockHash
+                    )
+                ) {
                     throw BlockchainProcessorService.BlockNotAcceptedException("Previous block hash doesn't match for block " + block.height)
                 }
                 if (block.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE || block.timestamp <= lastBlock.timestamp) {
@@ -688,7 +703,12 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                             "Transaction ${transaction.stringId} is already in the blockchain",
                             transaction
                         )
-                    if (transaction.referencedTransactionFullHash != null && !hasAllReferencedTransactions(transaction, transaction.timestamp, 0))
+                    if (transaction.referencedTransactionFullHash != null && !hasAllReferencedTransactions(
+                            transaction,
+                            transaction.timestamp,
+                            0
+                        )
+                    )
                         throw BlockchainProcessorService.TransactionNotAcceptedException(
                             "Missing or invalid referenced transaction ${transaction.referencedTransactionFullHash} for transaction ${transaction.stringId}",
                             transaction
@@ -709,7 +729,10 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                             transaction
                         )
 
-                    if (dp.fluxCapacitorService.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) && !dp.economicClusteringService.verifyFork(transaction)) {
+                    if (dp.fluxCapacitorService.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) && !dp.economicClusteringService.verifyFork(
+                            transaction
+                        )
+                    ) {
                         logger.safeDebug { "Block ${block.stringId} height ${lastBlock.height + 1} contains transaction that was generated on a fork: ${transaction.stringId} ecBlockId ${transaction.ecBlockHeight} ecBlockHeight ${transaction.ecBlockId.toUnsignedString()}" }
                         throw BlockchainProcessorService.TransactionNotAcceptedException(
                             "Transaction belongs to a different fork",
@@ -778,7 +801,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             } finally {
                 dp.db.endTransaction()
             }
-            logger.safeDebug { "Successfully pushed ${block.id.toUnsignedString()} (height ${block.height})"}
+            logger.safeDebug { "Successfully pushed ${block.id.toUnsignedString()} (height ${block.height})" }
             dp.statisticsService.blockAdded()
             blockListeners.accept(BlockchainProcessorService.Event.BLOCK_PUSHED, block)
             if (block.timestamp >= dp.timeService.epochTime - MAX_TIMESTAMP_DIFFERENCE) {
@@ -836,7 +859,10 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         }
         blockListeners.accept(BlockchainProcessorService.Event.AFTER_BLOCK_APPLY, block)
         if (!block.transactions.isEmpty()) {
-            dp.transactionProcessorService.notifyListeners(block.transactions, TransactionProcessorService.Event.ADDED_CONFIRMED_TRANSACTIONS)
+            dp.transactionProcessorService.notifyListeners(
+                block.transactions,
+                TransactionProcessorService.Event.ADDED_CONFIRMED_TRANSACTIONS
+            )
         }
     }
 
@@ -886,7 +912,11 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         return previousBlock
     }
 
-    private fun preCheckUnconfirmedTransaction(transactionDuplicatesChecker: TransactionDuplicateCheckerService, unconfirmedTransactionService: UnconfirmedTransactionService, transaction: Transaction): Boolean {
+    private fun preCheckUnconfirmedTransaction(
+        transactionDuplicatesChecker: TransactionDuplicateCheckerService,
+        unconfirmedTransactionService: UnconfirmedTransactionService,
+        transaction: Transaction
+    ): Boolean {
         val ok = (hasAllReferencedTransactions(transaction, transaction.timestamp, 0)
                 && !transactionDuplicatesChecker.hasAnyDuplicate(transaction)
                 && !dp.transactionDb.hasTransaction(transaction.id))
@@ -926,17 +956,29 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 // Map of slot number -> transaction
                 val transactionsToBeIncluded: Map<Long, Transaction>
                 val inclusionCandidates = unconfirmedTransactionStore.all
-                        .filter { transaction -> // Normal filtering
-                            transaction.version.toInt() == dp.transactionProcessorService.getTransactionVersion(previousBlock.height)
-                                    && transaction.expiration >= blockTimestamp
-                                    && transaction.timestamp <= blockTimestamp + MAX_TIMESTAMP_DIFFERENCE
-                                    && (!dp.fluxCapacitorService.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) || dp.economicClusteringService.verifyFork(transaction))
-                        }
-                        .filter { transaction -> preCheckUnconfirmedTransaction(transactionDuplicatesChecker, unconfirmedTransactionStore, transaction) } // Extra check for transactions that are to be considered
+                    .filter { transaction ->
+                        // Normal filtering
+                        transaction.version.toInt() == dp.transactionProcessorService.getTransactionVersion(
+                            previousBlock.height
+                        )
+                                && transaction.expiration >= blockTimestamp
+                                && transaction.timestamp <= blockTimestamp + MAX_TIMESTAMP_DIFFERENCE
+                                && (!dp.fluxCapacitorService.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) || dp.economicClusteringService.verifyFork(
+                            transaction
+                        ))
+                    }
+                    .filter { transaction ->
+                        preCheckUnconfirmedTransaction(
+                            transactionDuplicatesChecker,
+                            unconfirmedTransactionStore,
+                            transaction
+                        )
+                    } // Extra check for transactions that are to be considered
 
                 if (dp.fluxCapacitorService.getValue(FluxValues.PRE_DYMAXION)) {
                     // In this step we get all unconfirmed transactions and then sort them by slot, followed by priority
-                    val unconfirmedTransactionsOrderedBySlotThenPriority = mutableMapOf<Long, MutableMap<Long, Transaction>>()
+                    val unconfirmedTransactionsOrderedBySlotThenPriority =
+                        mutableMapOf<Long, MutableMap<Long, Transaction>>()
                     inclusionCandidates.associateBy({ it }, priorityCalculator).forEach { (transaction, priority) ->
                         val slot = (transaction.feePlanck - transaction.feePlanck % FEE_QUANT) / FEE_QUANT
                         unconfirmedTransactionsOrderedBySlotThenPriority.computeIfAbsent(slot) { mutableMapOf() }
@@ -946,11 +988,11 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     // In this step we sort through each slot and find the highest priority transaction in each.
                     val highestSlot = AtomicLong()
                     unconfirmedTransactionsOrderedBySlotThenPriority.keys
-                            .forEach { slot ->
-                                if (highestSlot.get() < slot) {
-                                    highestSlot.set(slot)
-                                }
+                        .forEach { slot ->
+                            if (highestSlot.get() < slot) {
+                                highestSlot.set(slot)
                             }
+                        }
                     val slotsWithNoTransactions = mutableListOf<Long>()
                     for (slot in 1..highestSlot.get()) {
                         val transactions = unconfirmedTransactionsOrderedBySlotThenPriority[slot]
@@ -995,11 +1037,12 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     val transactionsOrderedBySlot = mutableMapOf<Long, Transaction>()
                     val currentSlot = AtomicLong(1)
                     transactionsOrderedByPriority.keys
-                            .sortedWith(Comparator.reverseOrder())
-                            .forEach { priority -> // This should do highest priority to lowest priority
-                                transactionsOrderedBySlot[currentSlot.get()] = transactionsOrderedByPriority[priority]!!
-                                currentSlot.incrementAndGet()
-                            }
+                        .sortedWith(Comparator.reverseOrder())
+                        .forEach { priority ->
+                            // This should do highest priority to lowest priority
+                            transactionsOrderedBySlot[currentSlot.get()] = transactionsOrderedByPriority[priority]!!
+                            currentSlot.incrementAndGet()
+                        }
                     transactionsToBeIncluded = transactionsOrderedBySlot
                 }
 
@@ -1011,7 +1054,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                         continue
                     }
 
-                    val slotFee = if (dp.fluxCapacitorService.getValue(FluxValues.PRE_DYMAXION)) slot * FEE_QUANT else ONE_BURST
+                    val slotFee =
+                        if (dp.fluxCapacitorService.getValue(FluxValues.PRE_DYMAXION)) slot * FEE_QUANT else ONE_BURST
                     if (transaction.feePlanck >= slotFee) {
                         if (dp.transactionService.applyUnconfirmed(transaction)) {
                             try {
@@ -1066,7 +1110,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             orderedBlockTransactions.forEach { transaction -> digest.update(transaction.toBytes()) }
             val payloadHash = digest.digest()
             val generationSignature = dp.generatorService.calculateGenerationSignature(
-                    previousBlock.generationSignature, previousBlock.generatorId)
+                previousBlock.generationSignature, previousBlock.generatorId
+            )
             val block: Block
             val previousBlockHash = Crypto.sha256().digest(previousBlock.toBytes())
             try {

@@ -11,7 +11,13 @@ import brs.util.convert.safeMultiply
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class PlaceBidOrder(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), ASSET_PARAMETER, QUANTITY_QNT_PARAMETER, PRICE_PLANCK_PARAMETER) {
+internal class PlaceBidOrder(private val dp: DependencyProvider) : CreateTransaction(
+    dp,
+    arrayOf(APITag.AE, APITag.CREATE_TRANSACTION),
+    ASSET_PARAMETER,
+    QUANTITY_QNT_PARAMETER,
+    PRICE_PLANCK_PARAMETER
+) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val asset = dp.parameterService.getAsset(request)
@@ -28,7 +34,8 @@ internal class PlaceBidOrder(private val dp: DependencyProvider) : CreateTransac
             return NOT_ENOUGH_FUNDS
         }
 
-        val attachment = Attachment.ColoredCoinsBidOrderPlacement(dp, asset.id, quantity, pricePlanck, dp.blockchainService.height)
+        val attachment =
+            Attachment.ColoredCoinsBidOrderPlacement(dp, asset.id, quantity, pricePlanck, dp.blockchainService.height)
         return createTransaction(request, account, attachment)
     }
 }

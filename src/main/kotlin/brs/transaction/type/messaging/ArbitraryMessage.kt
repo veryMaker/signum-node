@@ -22,7 +22,7 @@ class ArbitraryMessage(dp: DependencyProvider) : Messaging(dp) {
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         // No appendices
     }

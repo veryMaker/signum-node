@@ -15,22 +15,40 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
     override val transferDbKeyFactory: BurstKey.LongKeyFactory<AssetTransfer> = TransferDbKeyFactory
 
     init {
-        assetTransferTable = object : EntitySqlTable<AssetTransfer>("asset_transfer", ASSET_TRANSFER, transferDbKeyFactory, dp) {
-            override fun load(ctx: DSLContext, record: Record): AssetTransfer {
-                return SqlAssetTransfer(record)
-            }
+        assetTransferTable =
+            object : EntitySqlTable<AssetTransfer>("asset_transfer", ASSET_TRANSFER, transferDbKeyFactory, dp) {
+                override fun load(ctx: DSLContext, record: Record): AssetTransfer {
+                    return SqlAssetTransfer(record)
+                }
 
-            override fun save(ctx: DSLContext, assetTransfer: AssetTransfer) {
-                saveAssetTransfer(assetTransfer)
+                override fun save(ctx: DSLContext, assetTransfer: AssetTransfer) {
+                    saveAssetTransfer(assetTransfer)
+                }
             }
-        }
     }
 
     private fun saveAssetTransfer(assetTransfer: AssetTransfer) {
         dp.db.useDslContext { ctx ->
-            ctx.insertInto(ASSET_TRANSFER, ASSET_TRANSFER.ID, ASSET_TRANSFER.ASSET_ID, ASSET_TRANSFER.SENDER_ID, ASSET_TRANSFER.RECIPIENT_ID, ASSET_TRANSFER.QUANTITY, ASSET_TRANSFER.TIMESTAMP, ASSET_TRANSFER.HEIGHT)
-                    .values(assetTransfer.id, assetTransfer.assetId, assetTransfer.senderId, assetTransfer.recipientId, assetTransfer.quantity, assetTransfer.timestamp, assetTransfer.height)
-                    .execute()
+            ctx.insertInto(
+                ASSET_TRANSFER,
+                ASSET_TRANSFER.ID,
+                ASSET_TRANSFER.ASSET_ID,
+                ASSET_TRANSFER.SENDER_ID,
+                ASSET_TRANSFER.RECIPIENT_ID,
+                ASSET_TRANSFER.QUANTITY,
+                ASSET_TRANSFER.TIMESTAMP,
+                ASSET_TRANSFER.HEIGHT
+            )
+                .values(
+                    assetTransfer.id,
+                    assetTransfer.assetId,
+                    assetTransfer.senderId,
+                    assetTransfer.recipientId,
+                    assetTransfer.quantity,
+                    assetTransfer.timestamp,
+                    assetTransfer.height
+                )
+                .execute()
         }
     }
 
@@ -41,36 +59,42 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
     override fun getAccountAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer> {
         return dp.db.getUsingDslContext { ctx ->
             val selectQuery = ctx
-                    .selectFrom(ASSET_TRANSFER).where(
-                            ASSET_TRANSFER.SENDER_ID.eq(accountId)
+                .selectFrom(ASSET_TRANSFER).where(
+                    ASSET_TRANSFER.SENDER_ID.eq(accountId)
+                )
+                .unionAll(
+                    ctx.selectFrom(ASSET_TRANSFER).where(
+                        ASSET_TRANSFER.RECIPIENT_ID.eq(accountId).and(ASSET_TRANSFER.SENDER_ID.ne(accountId))
                     )
-                    .unionAll(
-                            ctx.selectFrom(ASSET_TRANSFER).where(
-                                    ASSET_TRANSFER.RECIPIENT_ID.eq(accountId).and(ASSET_TRANSFER.SENDER_ID.ne(accountId))
-                            )
-                    )
-                    .orderBy(ASSET_TRANSFER.HEIGHT.desc())
-                    .query
+                )
+                .orderBy(ASSET_TRANSFER.HEIGHT.desc())
+                .query
             SqlDbUtils.applyLimits(selectQuery, from, to)
 
             assetTransferTable.getManyBy(ctx, selectQuery, false)
         }
     }
 
-    override fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
+    override fun getAccountAssetTransfers(
+        accountId: Long,
+        assetId: Long,
+        from: Int,
+        to: Int
+    ): Collection<AssetTransfer> {
         return dp.db.getUsingDslContext { ctx ->
             val selectQuery = ctx
-                    .selectFrom(ASSET_TRANSFER).where(
-                            ASSET_TRANSFER.SENDER_ID.eq(accountId).and(ASSET_TRANSFER.ASSET_ID.eq(assetId))
-                    )
-                    .unionAll(
-                            ctx.selectFrom(ASSET_TRANSFER).where(
-                                    ASSET_TRANSFER.RECIPIENT_ID.eq(accountId)).and(
-                                    ASSET_TRANSFER.SENDER_ID.ne(accountId)
-                            ).and(ASSET_TRANSFER.ASSET_ID.eq(assetId))
-                    )
-                    .orderBy(ASSET_TRANSFER.HEIGHT.desc())
-                    .query
+                .selectFrom(ASSET_TRANSFER).where(
+                    ASSET_TRANSFER.SENDER_ID.eq(accountId).and(ASSET_TRANSFER.ASSET_ID.eq(assetId))
+                )
+                .unionAll(
+                    ctx.selectFrom(ASSET_TRANSFER).where(
+                        ASSET_TRANSFER.RECIPIENT_ID.eq(accountId)
+                    ).and(
+                        ASSET_TRANSFER.SENDER_ID.ne(accountId)
+                    ).and(ASSET_TRANSFER.ASSET_ID.eq(assetId))
+                )
+                .orderBy(ASSET_TRANSFER.HEIGHT.desc())
+                .query
             SqlDbUtils.applyLimits(selectQuery, from, to)
 
             assetTransferTable.getManyBy(ctx, selectQuery, false)
@@ -78,10 +102,27 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
     }
 
     override fun getTransferCount(assetId: Long): Int {
-        return dp.db.getUsingDslContext { ctx -> ctx.fetchCount(ctx.selectFrom(ASSET_TRANSFER).where(ASSET_TRANSFER.ASSET_ID.eq(assetId))) }
+        return dp.db.getUsingDslContext { ctx ->
+            ctx.fetchCount(
+                ctx.selectFrom(ASSET_TRANSFER).where(
+                    ASSET_TRANSFER.ASSET_ID.eq(
+                        assetId
+                    )
+                )
+            )
+        }
     }
 
-    internal inner class SqlAssetTransfer(record: Record) : AssetTransfer(record.get(ASSET_TRANSFER.ID), transferDbKeyFactory.newKey(record.get(ASSET_TRANSFER.ID)), record.get(ASSET_TRANSFER.ASSET_ID), record.get(ASSET_TRANSFER.HEIGHT), record.get(ASSET_TRANSFER.SENDER_ID), record.get(ASSET_TRANSFER.RECIPIENT_ID), record.get(ASSET_TRANSFER.QUANTITY), record.get(ASSET_TRANSFER.TIMESTAMP))
+    internal inner class SqlAssetTransfer(record: Record) : AssetTransfer(
+        record.get(ASSET_TRANSFER.ID),
+        transferDbKeyFactory.newKey(record.get(ASSET_TRANSFER.ID)),
+        record.get(ASSET_TRANSFER.ASSET_ID),
+        record.get(ASSET_TRANSFER.HEIGHT),
+        record.get(ASSET_TRANSFER.SENDER_ID),
+        record.get(ASSET_TRANSFER.RECIPIENT_ID),
+        record.get(ASSET_TRANSFER.QUANTITY),
+        record.get(ASSET_TRANSFER.TIMESTAMP)
+    )
 
     companion object {
         private object TransferDbKeyFactory : SqlDbKey.LongKeyFactory<AssetTransfer>(ASSET_TRANSFER.ID) {

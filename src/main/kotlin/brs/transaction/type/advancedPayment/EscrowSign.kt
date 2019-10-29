@@ -12,13 +12,14 @@ class EscrowSign(dp: DependencyProvider) : AdvancedPayment(dp) {
     override val subtype = SUBTYPE_ADVANCED_PAYMENT_ESCROW_SIGN
     override val description = "Escrow Sign"
 
-    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.AdvancedPaymentEscrowSign(dp, buffer, transactionVersion)
+    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) =
+        Attachment.AdvancedPaymentEscrowSign(dp, buffer, transactionVersion)
 
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.AdvancedPaymentEscrowSign(dp, attachmentData)
 
     override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
 
-    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowSign
         val escrow = dp.escrowService.getEscrowTransaction(attachment.escrowId)!!
         dp.escrowService.sign(senderAccount.id, attachment.decision!!, escrow)

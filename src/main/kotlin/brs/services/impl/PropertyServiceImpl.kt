@@ -25,7 +25,7 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
     }
 
     // TODO caching
-    override operator fun <T: Any> get(propName: String, defaultValue: T): T {
+    override operator fun <T : Any> get(propName: String, defaultValue: T): T {
         val value = properties.getProperty(propName) ?: return defaultValue
         try {
             parsers.forEach { (type, parser) ->

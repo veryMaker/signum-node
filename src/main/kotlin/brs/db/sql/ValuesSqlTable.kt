@@ -11,7 +11,13 @@ import org.jooq.Record
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 
-internal abstract class ValuesSqlTable<T, V> internal constructor(table: String, tableClass: TableImpl<*>, internal val dbKeyFactory: SqlDbKey.Factory<T>, private val multiversion: Boolean, private val dp: DependencyProvider) : DerivedSqlTable(table, tableClass, dp), ValuesTable<T, V> {
+internal abstract class ValuesSqlTable<T, V> internal constructor(
+    table: String,
+    tableClass: TableImpl<*>,
+    internal val dbKeyFactory: SqlDbKey.Factory<T>,
+    private val multiversion: Boolean,
+    private val dp: DependencyProvider
+) : DerivedSqlTable(table, tableClass, dp), ValuesTable<T, V> {
     protected abstract fun load(ctx: DSLContext, record: Record): V
 
     protected abstract fun save(ctx: DSLContext, t: T, v: V)
@@ -27,10 +33,10 @@ internal abstract class ValuesSqlTable<T, V> internal constructor(table: String,
                 }
             }
             values = ctx.selectFrom(tableClass)
-                    .where(key.getPKConditions(tableClass))
-                    .and(if (multiversion) latestField?.isTrue ?: DSL.noCondition() else DSL.noCondition())
-                    .orderBy(tableClass.field("db_id").desc())
-                    .fetchAndMap { record -> load(ctx, record) }
+                .where(key.getPKConditions(tableClass))
+                .and(if (multiversion) latestField?.isTrue ?: DSL.noCondition() else DSL.noCondition())
+                .orderBy(tableClass.field("db_id").desc())
+                .fetchAndMap { record -> load(ctx, record) }
             if (dp.db.isInTransaction()) {
                 dp.db.getCache<Any>(table)[key] = values
             }
@@ -45,10 +51,10 @@ internal abstract class ValuesSqlTable<T, V> internal constructor(table: String,
             dp.db.getCache<Any>(table)[dbKey] = values
             if (multiversion) {
                 ctx.update(tableClass)
-                        .set(latestField, false)
-                        .where(dbKey.getPKConditions(tableClass))
-                        .and(latestField?.isTrue)
-                        .execute()
+                    .set(latestField, false)
+                    .where(dbKey.getPKConditions(tableClass))
+                    .and(latestField?.isTrue)
+                    .execute()
             }
             for (v in values) {
                 save(ctx, t, v)

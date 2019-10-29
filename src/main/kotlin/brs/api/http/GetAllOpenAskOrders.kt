@@ -9,7 +9,8 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class GetAllOpenAskOrders internal constructor(private val assetExchangeService: AssetExchangeService) : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER) {
+internal class GetAllOpenAskOrders internal constructor(private val assetExchangeService: AssetExchangeService) :
+    APIServlet.JsonRequestHandler(arrayOf(APITag.AE), FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val response = JsonObject()

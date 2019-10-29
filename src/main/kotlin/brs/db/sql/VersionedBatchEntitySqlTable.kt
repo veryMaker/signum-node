@@ -8,7 +8,13 @@ import org.ehcache.Cache
 import org.jooq.*
 import org.jooq.impl.TableImpl
 
-internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: SqlDbKey.Factory<T>, private val tClass: Class<T>, private val dp: DependencyProvider) : VersionedEntitySqlTable<T>(table, tableClass, dbKeyFactory, dp), VersionedBatchEntityTable<T> {
+internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(
+    table: String,
+    tableClass: TableImpl<*>,
+    dbKeyFactory: SqlDbKey.Factory<T>,
+    private val tClass: Class<T>,
+    private val dp: DependencyProvider
+) : VersionedEntitySqlTable<T>(table, tableClass, dbKeyFactory, dp), VersionedBatchEntityTable<T> {
     override val count: Int
         get() {
             assertInTransaction()
@@ -84,7 +90,7 @@ internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(tab
                 val bindArgs = arrayOfNulls<Any>(pkValues.size + 1)
                 bindArgs[0] = false
                 for (i in pkValues.indices) {
-                    bindArgs[i+1] = pkValues[i]
+                    bindArgs[i + 1] = pkValues[i]
                 }
                 updateBatch.bind(bindArgs)
             }
@@ -124,7 +130,13 @@ internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(tab
         return super.getManyBy(condition, height, from, to)
     }
 
-    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
+    override fun getManyBy(
+        condition: Condition,
+        height: Int,
+        from: Int,
+        to: Int,
+        sort: Collection<SortField<*>>
+    ): Collection<T> {
         assertInTransaction()
         return super.getManyBy(condition, height, from, to, sort)
     }

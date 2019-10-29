@@ -10,7 +10,8 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class GetEscrowTransaction(private val escrowService: EscrowService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ESCROW_PARAMETER) {
+internal class GetEscrowTransaction(private val escrowService: EscrowService) :
+    APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ESCROW_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val escrowId: Long
         try {

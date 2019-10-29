@@ -25,9 +25,11 @@ open class Trade {
         TRADE
     }
 
-    protected constructor(timestamp: Int, assetId: Long, blockId: Long, height: Int,
-                          askOrderId: Long, bidOrderId: Long, askOrderHeight: Int, bidOrderHeight: Int,
-                          sellerId: Long, buyerId: Long, dbKey: BurstKey, quantity: Long, pricePlanck: Long) {
+    protected constructor(
+        timestamp: Int, assetId: Long, blockId: Long, height: Int,
+        askOrderId: Long, bidOrderId: Long, askOrderHeight: Int, bidOrderHeight: Int,
+        sellerId: Long, buyerId: Long, dbKey: BurstKey, quantity: Long, pricePlanck: Long
+    ) {
         this.timestamp = timestamp
         this.assetId = assetId
         this.blockId = blockId

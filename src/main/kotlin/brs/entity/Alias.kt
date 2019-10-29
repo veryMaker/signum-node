@@ -13,7 +13,14 @@ open class Alias {
     var aliasURI: String? = null
     var timestamp: Int = 0
 
-    private constructor(dbKey: BurstKey, id: Long, accountId: Long, aliasName: String, aliasURI: String, timestamp: Int) {
+    private constructor(
+        dbKey: BurstKey,
+        id: Long,
+        accountId: Long,
+        aliasName: String,
+        aliasURI: String,
+        timestamp: Int
+    ) {
         this.id = id
         this.dbKey = dbKey
         this.accountId = accountId
@@ -22,7 +29,14 @@ open class Alias {
         this.timestamp = timestamp
     }
 
-    protected constructor(id: Long, accountId: Long, aliasName: String, aliasURI: String, timestamp: Int, dbKey: BurstKey) {
+    protected constructor(
+        id: Long,
+        accountId: Long,
+        aliasName: String,
+        aliasURI: String,
+        timestamp: Int,
+        dbKey: BurstKey
+    ) {
         this.id = id
         this.dbKey = dbKey
         this.accountId = accountId
@@ -31,8 +45,15 @@ open class Alias {
         this.timestamp = timestamp
     }
 
-    constructor(aliasId: Long, dbKey: BurstKey, transaction: Transaction, attachment: Attachment.MessagingAliasAssignment) : this(dbKey, aliasId, transaction.senderId, attachment.aliasName, attachment.aliasURI,
-            transaction.blockTimestamp)
+    constructor(
+        aliasId: Long,
+        dbKey: BurstKey,
+        transaction: Transaction,
+        attachment: Attachment.MessagingAliasAssignment
+    ) : this(
+        dbKey, aliasId, transaction.senderId, attachment.aliasName, attachment.aliasURI,
+        transaction.blockTimestamp
+    )
 
     open class Offer {
 

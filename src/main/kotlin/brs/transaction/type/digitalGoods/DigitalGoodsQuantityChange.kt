@@ -15,10 +15,12 @@ import java.nio.ByteBuffer
 class DigitalGoodsQuantityChange(dp: DependencyProvider) : DigitalGoods(dp) {
     override val subtype = SUBTYPE_DIGITAL_GOODS_QUANTITY_CHANGE
     override val description = "Quantity Change"
-    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsQuantityChange(dp, buffer, transactionVersion)
+    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) =
+        Attachment.DigitalGoodsQuantityChange(dp, buffer, transactionVersion)
+
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsQuantityChange(dp, attachmentData)
 
-    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsQuantityChange
         dp.digitalGoodsStoreService.changeQuantity(attachment.goodsId, attachment.deltaQuantity, false)
     }

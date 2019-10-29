@@ -20,7 +20,15 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import javax.servlet.http.HttpServletRequest
 
-internal class BroadcastTransaction(private val transactionProcessorService: TransactionProcessorService, private val parameterService: ParameterService, private val transactionService: TransactionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_BYTES_PARAMETER, TRANSACTION_JSON_PARAMETER) {
+internal class BroadcastTransaction(
+    private val transactionProcessorService: TransactionProcessorService,
+    private val parameterService: ParameterService,
+    private val transactionService: TransactionService
+) : APIServlet.JsonRequestHandler(
+    arrayOf(APITag.TRANSACTIONS),
+    TRANSACTION_BYTES_PARAMETER,
+    TRANSACTION_JSON_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 

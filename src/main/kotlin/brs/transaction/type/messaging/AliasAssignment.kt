@@ -31,7 +31,7 @@ class AliasAssignment(dp: DependencyProvider) : Messaging(dp) {
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         val attachment = transaction.attachment as Attachment.MessagingAliasAssignment
         dp.aliasService.addOrUpdateAlias(transaction, attachment)

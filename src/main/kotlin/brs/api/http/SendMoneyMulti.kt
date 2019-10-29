@@ -18,7 +18,8 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class SendMoneyMulti(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), true, *commonParameters) {
+internal class SendMoneyMulti(private val dp: DependencyProvider) :
+    CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), true, *commonParameters) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)
         val recipientString = request.getParameter(RECIPIENTS_PARAMETER).emptyToNull()
@@ -70,6 +71,14 @@ internal class SendMoneyMulti(private val dp: DependencyProvider) : CreateTransa
     }
 
     companion object {
-        private val commonParameters = arrayOf(SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_PLANCK_PARAMETER, DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER, RECIPIENTS_PARAMETER)
+        private val commonParameters = arrayOf(
+            SECRET_PHRASE_PARAMETER,
+            PUBLIC_KEY_PARAMETER,
+            FEE_PLANCK_PARAMETER,
+            DEADLINE_PARAMETER,
+            REFERENCED_TRANSACTION_FULL_HASH_PARAMETER,
+            BROADCAST_PARAMETER,
+            RECIPIENTS_PARAMETER
+        )
     }
 }

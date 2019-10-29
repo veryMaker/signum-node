@@ -15,8 +15,12 @@ open class Account {
     val creationHeight: Int
     private var publicKeyInternal: ByteArray? = null
     var publicKey: ByteArray?
-        get() = if (this.keyHeight == -1) { null } else publicKeyInternal
-        set(v) { publicKeyInternal = v }
+        get() = if (this.keyHeight == -1) {
+            null
+        } else publicKeyInternal
+        set(v) {
+            publicKeyInternal = v
+        }
     var keyHeight: Int = 0
     var balancePlanck: Long = 0
     var unconfirmedBalancePlanck: Long = 0
@@ -36,7 +40,13 @@ open class Account {
         var quantity: Long = 0
         var unconfirmedQuantity: Long = 0
 
-        protected constructor(accountId: Long, assetId: Long, quantity: Long, unconfirmedQuantity: Long, burstKey: BurstKey) {
+        protected constructor(
+            accountId: Long,
+            assetId: Long,
+            quantity: Long,
+            unconfirmedQuantity: Long,
+            burstKey: BurstKey
+        ) {
             this.accountId = accountId
             this.assetId = assetId
             this.quantity = quantity
@@ -68,7 +78,13 @@ open class Account {
         }
     }
 
-    open class RewardRecipientAssignment(val accountId: Long, var prevRecipientId: Long, var recipientId: Long, fromHeight: Int, val burstKey: BurstKey) {
+    open class RewardRecipientAssignment(
+        val accountId: Long,
+        var prevRecipientId: Long,
+        var recipientId: Long,
+        fromHeight: Int,
+        val burstKey: BurstKey
+    ) {
         var fromHeight: Int = 0
             private set
 

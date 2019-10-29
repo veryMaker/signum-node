@@ -14,7 +14,10 @@ class EffectiveBalanceLeasing(dp: DependencyProvider) : AccountControl(dp) {
     override val subtype = SUBTYPE_ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING
     override val description = "Effective Balance Leasing"
 
-    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte): Attachment.AccountControlEffectiveBalanceLeasing {
+    override fun parseAttachment(
+        buffer: ByteBuffer,
+        transactionVersion: Byte
+    ): Attachment.AccountControlEffectiveBalanceLeasing {
         return Attachment.AccountControlEffectiveBalanceLeasing(dp, buffer, transactionVersion)
     }
 
@@ -22,7 +25,7 @@ class EffectiveBalanceLeasing(dp: DependencyProvider) : AccountControl(dp) {
         return Attachment.AccountControlEffectiveBalanceLeasing(dp, attachmentData)
     }
 
-    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
         // TODO harry1453: Remove in next fork
     }
 

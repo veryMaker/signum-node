@@ -50,7 +50,14 @@ interface GeneratorService : Observable<GeneratorService.GeneratorState, Generat
     /**
      * TODO
      */
-    fun calculateDeadline(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, baseTarget: Long, blockHeight: Int): BigInteger
+    fun calculateDeadline(
+        accountId: Long,
+        nonce: Long,
+        genSig: ByteArray,
+        scoop: Int,
+        baseTarget: Long,
+        blockHeight: Int
+    ): BigInteger
 
     /**
      * TODO

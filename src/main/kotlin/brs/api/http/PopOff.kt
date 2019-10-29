@@ -12,7 +12,11 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class PopOff(private val blockchainProcessorService: BlockchainProcessorService, private val blockchainService: BlockchainService, private val blockService: BlockService) : APIServlet.JsonRequestHandler(arrayOf(APITag.DEBUG), NUM_BLOCKS_PARAMETER, HEIGHT_PARAMETER) {
+internal class PopOff(
+    private val blockchainProcessorService: BlockchainProcessorService,
+    private val blockchainService: BlockchainService,
+    private val blockService: BlockService
+) : APIServlet.JsonRequestHandler(arrayOf(APITag.DEBUG), NUM_BLOCKS_PARAMETER, HEIGHT_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
@@ -39,7 +43,15 @@ internal class PopOff(private val blockchainProcessorService: BlockchainProcesso
             }
         }
         for (block in blocks) {
-            blocksJSON.add(JSONData.block(block, true, blockchainService.height, blockService.getBlockReward(block), blockService.getScoopNum(block)))
+            blocksJSON.add(
+                JSONData.block(
+                    block,
+                    true,
+                    blockchainService.height,
+                    blockService.getBlockReward(block),
+                    blockService.getScoopNum(block)
+                )
+            )
         }
         response.add(BLOCKS_RESPONSE, blocksJSON)
         return response

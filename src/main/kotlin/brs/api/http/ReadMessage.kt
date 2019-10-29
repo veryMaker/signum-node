@@ -22,10 +22,13 @@ import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 
-internal class ReadMessage(private val blockchainService: BlockchainService, private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.MESSAGES), TRANSACTION_PARAMETER, SECRET_PHRASE_PARAMETER) {
+internal class ReadMessage(
+    private val blockchainService: BlockchainService,
+    private val accountService: AccountService
+) : APIServlet.JsonRequestHandler(arrayOf(APITag.MESSAGES), TRANSACTION_PARAMETER, SECRET_PHRASE_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val transactionIdString = request.getParameter(TRANSACTION_PARAMETER).emptyToNull()
-                ?: return MISSING_TRANSACTION
+            ?: return MISSING_TRANSACTION
 
         val transaction: Transaction?
         try {
@@ -46,17 +49,24 @@ internal class ReadMessage(private val blockchainService: BlockchainService, pri
             return NO_MESSAGE
         }
         if (message != null) {
-            response.addProperty("message", if (message.isText) message.messageBytes.toUtf8String() else message.messageBytes.toHexString())
+            response.addProperty(
+                "message",
+                if (message.isText) message.messageBytes.toUtf8String() else message.messageBytes.toHexString()
+            )
         }
         val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
         if (secretPhrase != null) {
             if (encryptedMessage != null) {
                 val readerAccountId = Account.getId(Crypto.getPublicKey(secretPhrase))
-                val account = if (senderAccount.id == readerAccountId) accountService.getAccount(transaction.recipientId) else senderAccount
+                val account =
+                    if (senderAccount.id == readerAccountId) accountService.getAccount(transaction.recipientId) else senderAccount
                 if (account != null) {
                     try {
                         val decrypted = account.decryptFrom(encryptedMessage.encryptedData, secretPhrase)
-                        response.addProperty("decryptedMessage", if (encryptedMessage.isText) decrypted.toUtf8String() else decrypted.toHexString())
+                        response.addProperty(
+                            "decryptedMessage",
+                            if (encryptedMessage.isText) decrypted.toUtf8String() else decrypted.toHexString()
+                        )
                     } catch (e: RuntimeException) {
                         logger.safeDebug(e) { "Decryption of message to recipient failed: {}" }
                     }
@@ -68,7 +78,10 @@ internal class ReadMessage(private val blockchainService: BlockchainService, pri
                 if (account != null) {
                     try {
                         val decrypted = account.decryptFrom(encryptToSelfMessage.encryptedData, secretPhrase)
-                        response.addProperty("decryptedMessageToSelf", if (encryptToSelfMessage.isText) decrypted.toUtf8String() else decrypted.toHexString())
+                        response.addProperty(
+                            "decryptedMessageToSelf",
+                            if (encryptToSelfMessage.isText) decrypted.toUtf8String() else decrypted.toHexString()
+                        )
                     } catch (e: RuntimeException) {
                         logger.safeDebug(e) { "Decryption of message to self failed: {}" }
                     }

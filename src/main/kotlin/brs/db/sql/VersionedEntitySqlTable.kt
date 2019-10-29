@@ -8,7 +8,12 @@ import org.jooq.Field
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 
-internal abstract class VersionedEntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: SqlDbKey.Factory<T>, private val dp: DependencyProvider) : EntitySqlTable<T>(table, tableClass, dbKeyFactory, true, dp), VersionedEntityTable<T> {
+internal abstract class VersionedEntitySqlTable<T> internal constructor(
+    table: String,
+    tableClass: TableImpl<*>,
+    dbKeyFactory: SqlDbKey.Factory<T>,
+    private val dp: DependencyProvider
+) : EntitySqlTable<T>(table, tableClass, dbKeyFactory, true, dp), VersionedEntityTable<T> {
     override fun rollback(height: Int) {
         rollback(dp, table, tableClass, heightField, latestField, height, dbKeyFactory)
     }
@@ -29,8 +34,8 @@ internal abstract class VersionedEntitySqlTable<T> internal constructor(table: S
                 if (ctx.fetchCount(countQuery) > 0) {
                     val updateQuery = ctx.updateQuery(tableClass)
                     updateQuery.addValue(
-                            latestField,
-                            false
+                        latestField,
+                        false
                     )
                     updateQuery.addConditions(dbKey.getPKConditions(tableClass))
                     updateQuery.addConditions(latestField?.isTrue)
@@ -44,7 +49,7 @@ internal abstract class VersionedEntitySqlTable<T> internal constructor(table: S
                 } else {
                     val deleteQuery = ctx.deleteQuery(tableClass)
                     deleteQuery.addConditions(dbKey.getPKConditions(tableClass))
-                    return@getUsingDslContext deleteQuery.execute () > 0
+                    return@getUsingDslContext deleteQuery.execute() > 0
                 }
             } finally {
                 dp.db.getCache<Any>(table).remove(dbKey)

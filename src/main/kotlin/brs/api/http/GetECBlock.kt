@@ -12,7 +12,11 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class GetECBlock(private val blockchainService: BlockchainService, private val timeService: TimeService, private val economicClusteringService: EconomicClusteringService) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS), TIMESTAMP_PARAMETER) {
+internal class GetECBlock(
+    private val blockchainService: BlockchainService,
+    private val timeService: TimeService,
+    private val economicClusteringService: EconomicClusteringService
+) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS), TIMESTAMP_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         var timestamp = ParameterParser.getTimestamp(request)
         if (timestamp == 0) {

@@ -10,7 +10,8 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class GetSubscription(private val subscriptionService: SubscriptionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), SUBSCRIPTION_PARAMETER) {
+internal class GetSubscription(private val subscriptionService: SubscriptionService) :
+    APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), SUBSCRIPTION_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val subscriptionId: Long

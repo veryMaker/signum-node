@@ -13,7 +13,15 @@ open class Asset {
     val quantity: Long
     val decimals: Byte
 
-    protected constructor(assetId: Long, dbKey: BurstKey, accountId: Long, name: String, description: String, quantity: Long, decimals: Byte) {
+    protected constructor(
+        assetId: Long,
+        dbKey: BurstKey,
+        accountId: Long,
+        name: String,
+        description: String,
+        quantity: Long,
+        decimals: Byte
+    ) {
         this.id = assetId
         this.dbKey = dbKey
         this.accountId = accountId

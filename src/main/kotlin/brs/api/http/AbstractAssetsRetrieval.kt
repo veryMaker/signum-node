@@ -4,7 +4,11 @@ import brs.entity.Asset
 import brs.services.AssetExchangeService
 import com.google.gson.JsonArray
 
-internal abstract class AbstractAssetsRetrieval(apiTags: Array<APITag>, private val assetExchangeService: AssetExchangeService, vararg parameters: String) : APIServlet.JsonRequestHandler(apiTags, *parameters) {
+internal abstract class AbstractAssetsRetrieval(
+    apiTags: Array<APITag>,
+    private val assetExchangeService: AssetExchangeService,
+    vararg parameters: String
+) : APIServlet.JsonRequestHandler(apiTags, *parameters) {
     fun assetsToJson(assets: Collection<Asset>): JsonArray {
         val assetsJsonArray = JsonArray()
         assets.forEach { asset ->

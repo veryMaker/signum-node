@@ -7,7 +7,8 @@ import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 
-class GetAssetTradesHandler(private val assetExchangeService: AssetExchangeService) : GrpcApiHandler<BrsApi.GetAssetTransfersRequest, BrsApi.AssetTrades> {
+class GetAssetTradesHandler(private val assetExchangeService: AssetExchangeService) :
+    GrpcApiHandler<BrsApi.GetAssetTransfersRequest, BrsApi.AssetTrades> {
 
     override fun handleRequest(request: BrsApi.GetAssetTransfersRequest): BrsApi.AssetTrades {
         val accountId = request.account
@@ -25,10 +26,12 @@ class GetAssetTradesHandler(private val assetExchangeService: AssetExchangeServi
         val builder = BrsApi.AssetTrades.newBuilder()
         trades.forEach { trade ->
             builder.addTrades(
-                ProtoBuilder.buildTrade(trade, asset ?: assetExchangeService.getAsset(trade.assetId) ?: throw ApiException(
-                "Asset not found"
+                ProtoBuilder.buildTrade(
+                    trade, asset ?: assetExchangeService.getAsset(trade.assetId) ?: throw ApiException(
+                        "Asset not found"
+                    )
+                )
             )
-            ))
         }
         return builder.build()
     }

@@ -24,5 +24,8 @@ interface OclPocService {
         internal constructor(message: String, cause: Throwable) : super(message, cause)
     }
 
-    class PreValidateFailException internal constructor(message: String, cause: Throwable, @field:Transient val block: Block) : RuntimeException(message, cause)
+    class PreValidateFailException internal constructor(
+        message: String,
+        cause: Throwable, @field:Transient val block: Block
+    ) : RuntimeException(message, cause)
 }

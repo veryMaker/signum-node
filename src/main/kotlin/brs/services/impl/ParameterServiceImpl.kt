@@ -69,10 +69,10 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
 
     override fun getAccount(request: HttpServletRequest): Account {
         val accountId = request.getParameter(ACCOUNT_PARAMETER).emptyToNull()
-                ?: throw ParameterException(MISSING_ACCOUNT)
+            ?: throw ParameterException(MISSING_ACCOUNT)
         try {
             return dp.accountService.getAccount(accountId.parseAccountId())
-                    ?: throw ParameterException(UNKNOWN_ACCOUNT)
+                ?: throw ParameterException(UNKNOWN_ACCOUNT)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_ACCOUNT)
         }
@@ -91,7 +91,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
             }
             try {
                 val account = dp.accountService.getAccount(accountValue.parseAccountId())
-                        ?: throw ParameterException(UNKNOWN_ACCOUNT)
+                    ?: throw ParameterException(UNKNOWN_ACCOUNT)
                 result.add(account)
             } catch (e: RuntimeException) {
                 throw ParameterException(INCORRECT_ACCOUNT)
@@ -133,7 +133,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
 
     override fun getAsset(request: HttpServletRequest): Asset {
         val assetValue = request.getParameter(ASSET_PARAMETER).emptyToNull()
-                ?: throw ParameterException(MISSING_ASSET)
+            ?: throw ParameterException(MISSING_ASSET)
         val asset: Asset?
         try {
             val assetId = assetValue.parseUnsignedLong()
@@ -150,7 +150,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
 
     override fun getGoods(request: HttpServletRequest): Goods {
         val goodsValue = request.getParameter(GOODS_PARAMETER).emptyToNull()
-                ?: throw ParameterException(MISSING_GOODS)
+            ?: throw ParameterException(MISSING_GOODS)
 
         try {
             val goodsId = goodsValue.parseUnsignedLong()
@@ -163,17 +163,21 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
 
     override fun getPurchase(request: HttpServletRequest): Purchase {
         val purchaseIdString = request.getParameter(PURCHASE_PARAMETER).emptyToNull()
-                ?: throw ParameterException(MISSING_PURCHASE)
+            ?: throw ParameterException(MISSING_PURCHASE)
         try {
             return dp.digitalGoodsStoreService.getPurchase(purchaseIdString.parseUnsignedLong())
-                    ?: throw ParameterException(INCORRECT_PURCHASE)
+                ?: throw ParameterException(INCORRECT_PURCHASE)
         } catch (e: RuntimeException) {
             throw ParameterException(INCORRECT_PURCHASE)
         }
 
     }
 
-    override fun getEncryptedMessage(request: HttpServletRequest, recipientAccount: Account?, publicKey: ByteArray?): EncryptedData? {
+    override fun getEncryptedMessage(
+        request: HttpServletRequest,
+        recipientAccount: Account?,
+        publicKey: ByteArray?
+    ): EncryptedData? {
         val data = request.getParameter(ENCRYPTED_MESSAGE_DATA_PARAMETER).emptyToNull()
         val nonce = request.getParameter(ENCRYPTED_MESSAGE_NONCE_PARAMETER).emptyToNull()
         if (data != null && nonce != null) {
@@ -227,7 +231,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
 
     override fun getSecretPhrase(request: HttpServletRequest): String {
         return request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
-                ?: throw ParameterException(MISSING_SECRET_PHRASE)
+            ?: throw ParameterException(MISSING_SECRET_PHRASE)
     }
 
     override fun getNumberOfConfirmations(request: HttpServletRequest): Int {

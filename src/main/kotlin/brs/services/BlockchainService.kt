@@ -98,12 +98,27 @@ interface BlockchainService {
     /**
      * TODO
      */
-    fun getTransactions(account: Account, type: Byte, subtype: Byte, blockTimestamp: Int, includeIndirectIncoming: Boolean): Collection<Transaction>
+    fun getTransactions(
+        account: Account,
+        type: Byte,
+        subtype: Byte,
+        blockTimestamp: Int,
+        includeIndirectIncoming: Boolean
+    ): Collection<Transaction>
 
     /**
      * TODO
      */
-    fun getTransactions(account: Account, numberOfConfirmations: Int, type: Byte, subtype: Byte, blockTimestamp: Int, from: Int, to: Int, includeIndirectIncoming: Boolean): Collection<Transaction>
+    fun getTransactions(
+        account: Account,
+        numberOfConfirmations: Int,
+        type: Byte,
+        subtype: Byte,
+        blockTimestamp: Int,
+        from: Int,
+        to: Int,
+        includeIndirectIncoming: Boolean
+    ): Collection<Transaction>
 
     /**
      * TODO

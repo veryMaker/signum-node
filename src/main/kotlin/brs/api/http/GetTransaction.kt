@@ -13,7 +13,8 @@ import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class GetTransaction(private val blockchainService: BlockchainService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_PARAMETER, FULL_HASH_PARAMETER) {
+internal class GetTransaction(private val blockchainService: BlockchainService) :
+    APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_PARAMETER, FULL_HASH_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val transactionIdString = request.getParameter(TRANSACTION_PARAMETER).emptyToNull()
         val transactionFullHash = request.getParameter(FULL_HASH_PARAMETER).emptyToNull()

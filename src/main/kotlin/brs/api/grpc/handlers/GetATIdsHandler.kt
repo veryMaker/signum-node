@@ -9,7 +9,7 @@ class GetATIdsHandler(private val atService: ATService) : GrpcApiHandler<Empty, 
 
     override fun handleRequest(empty: Empty): BrsApi.ATIds {
         return BrsApi.ATIds.newBuilder()
-                .addAllIds(atService.getAllATIds())
-                .build()
+            .addAllIds(atService.getAllATIds())
+            .build()
     }
 }

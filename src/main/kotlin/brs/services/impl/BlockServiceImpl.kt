@@ -3,14 +3,14 @@ package brs.services.impl
 import brs.entity.Account
 import brs.entity.Block
 import brs.entity.DependencyProvider
+import brs.objects.Constants
+import brs.objects.FluxValues
+import brs.objects.Genesis
+import brs.services.BlockService
 import brs.services.BlockchainProcessorService
 import brs.services.BlockchainProcessorService.BlockOutOfOrderException
-import brs.objects.Genesis
-import brs.objects.Constants
-import brs.util.crypto.verifySignature
-import brs.objects.FluxValues
-import brs.services.BlockService
 import brs.util.convert.toUnsignedString
+import brs.util.crypto.verifySignature
 import brs.util.logging.safeInfo
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
@@ -21,7 +21,8 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             if (block.blockSignature == null) {
                 return false
             }
-            val previousBlock = dp.blockchainService.getBlock(block.previousBlockId) ?: throw BlockOutOfOrderException("Can't verify signature because previous block is missing")
+            val previousBlock = dp.blockchainService.getBlock(block.previousBlockId)
+                ?: throw BlockOutOfOrderException("Can't verify signature because previous block is missing")
 
             val data = block.toBytes()
             val data2 = ByteArray(data.size - 64)
@@ -30,9 +31,12 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             val publicKey: ByteArray?
             val genAccount = dp.accountService.getAccount(block.generatorPublicKey)
             val rewardAssignment: Account.RewardRecipientAssignment?
-            rewardAssignment = if (genAccount == null) null else dp.accountService.getRewardRecipientAssignment(genAccount)
+            rewardAssignment =
+                if (genAccount == null) null else dp.accountService.getRewardRecipientAssignment(genAccount)
             publicKey = if (genAccount == null || rewardAssignment == null || !dp.fluxCapacitorService.getValue(
-                    FluxValues.REWARD_RECIPIENT_ENABLE)) {
+                    FluxValues.REWARD_RECIPIENT_ENABLE
+                )
+            ) {
                 block.generatorPublicKey
             } else {
                 if (previousBlock.height + 1 >= rewardAssignment.fromHeight) {
@@ -56,11 +60,13 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
     override fun verifyGenerationSignature(block: Block): Boolean {
         try {
             val previousBlock = dp.blockchainService.getBlock(block.previousBlockId)
-                    ?: throw BlockOutOfOrderException(
-                            "Can't verify generation signature because previous block is missing")
+                ?: throw BlockOutOfOrderException(
+                    "Can't verify generation signature because previous block is missing"
+                )
 
             val correctGenerationSignature = dp.generatorService.calculateGenerationSignature(
-                    previousBlock.generationSignature, previousBlock.generatorId)
+                previousBlock.generationSignature, previousBlock.generatorId
+            )
             if (!block.generationSignature.contentEquals(correctGenerationSignature)) {
                 return false
             }
@@ -89,11 +95,15 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         try {
             // Pre-verify poc:
             if (scoopData == null) {
-                block.pocTime = dp.generatorService.calculateHit(block.generatorId,
-                    block.nonce, block.generationSignature, getScoopNum(block), block.height)
+                block.pocTime = dp.generatorService.calculateHit(
+                    block.generatorId,
+                    block.nonce, block.generationSignature, getScoopNum(block), block.height
+                )
             } else {
-                block.pocTime = dp.generatorService.calculateHit(block.generatorId,
-                    block.nonce, block.generationSignature, scoopData)
+                block.pocTime = dp.generatorService.calculateHit(
+                    block.generatorId,
+                    block.nonce, block.generationSignature, scoopData
+                )
             }
         } catch (e: RuntimeException) {
             logger.safeInfo(e) { "Error pre-verifying block generation signature" }
@@ -103,7 +113,10 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         for (transaction in block.transactions) {
             if (!transaction.verifySignature()) {
                 logger.safeInfo { "Bad transaction signature during block pre-verification for tx: ${transaction.id.toUnsignedString()} at block height: ${block.height}" }
-                throw BlockchainProcessorService.TransactionNotAcceptedException("Invalid signature for tx " + transaction.id.toUnsignedString() + " at block height: " + block.height, transaction)
+                throw BlockchainProcessorService.TransactionNotAcceptedException(
+                    "Invalid signature for tx " + transaction.id.toUnsignedString() + " at block height: " + block.height,
+                    transaction
+                )
             }
         }
 
@@ -113,7 +126,10 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         val generatorAccount = dp.accountService.getOrAddAccount(block.generatorId)
         generatorAccount.apply(dp, block.generatorPublicKey, block.height)
         if (!dp.fluxCapacitorService.getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
-            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(generatorAccount, block.totalFeePlanck + getBlockReward(block))
+            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
+                generatorAccount,
+                block.totalFeePlanck + getBlockReward(block)
+            )
             dp.accountService.addToForgedBalancePlanck(generatorAccount, block.totalFeePlanck + getBlockReward(block))
         } else {
             val rewardAccount: Account
@@ -123,7 +139,10 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 block.height >= rewardAssignment.fromHeight -> dp.accountService.getAccount(rewardAssignment.recipientId)!!
                 else -> dp.accountService.getAccount(rewardAssignment.prevRecipientId)!!
             }
-            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(rewardAccount, block.totalFeePlanck + getBlockReward(block))
+            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
+                rewardAccount,
+                block.totalFeePlanck + getBlockReward(block)
+            )
             dp.accountService.addToForgedBalancePlanck(rewardAccount, block.totalFeePlanck + getBlockReward(block))
         }
 
@@ -138,12 +157,13 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         }
         val month = block.height / 10800
         return BigInteger.valueOf(10000).multiply(BigInteger.valueOf(95).pow(month))
-                .divide(BigInteger.valueOf(100).pow(month)).toLong() * Constants.ONE_BURST
+            .divide(BigInteger.valueOf(100).pow(month)).toLong() * Constants.ONE_BURST
     }
 
     override fun setPrevious(block: Block, previousBlock: Block?) {
         if (previousBlock != null) {
-            check(previousBlock.id == block.previousBlockId) { // shouldn't happen as previous id is already verified, but just in case
+            check(previousBlock.id == block.previousBlockId) {
+                // shouldn't happen as previous id is already verified, but just in case
                 "Previous block id doesn't match"
             }
             block.height = previousBlock.height + 1
@@ -167,8 +187,13 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             block.cumulativeDifficulty = BigInteger.ZERO
         } else if (block.height < 4) {
             block.baseTarget = Constants.INITIAL_BASE_TARGET
-            block.cumulativeDifficulty = previousBlock.cumulativeDifficulty.add(two64.divide(BigInteger.valueOf(
-                Constants.INITIAL_BASE_TARGET)))
+            block.cumulativeDifficulty = previousBlock.cumulativeDifficulty.add(
+                two64.divide(
+                    BigInteger.valueOf(
+                        Constants.INITIAL_BASE_TARGET
+                    )
+                )
+            )
         } else if (block.height < Constants.BURST_DIFF_ADJUST_CHANGE_BLOCK) {
             var itBlock: Block? = previousBlock
             var avgBaseTarget = BigInteger.valueOf(itBlock!!.baseTarget)
@@ -181,7 +206,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
 
             val curBaseTarget = avgBaseTarget.toLong()
             var newBaseTarget = BigInteger.valueOf(curBaseTarget).multiply(BigInteger.valueOf(difTime))
-                    .divide(BigInteger.valueOf(240L * 4)).toLong()
+                .divide(BigInteger.valueOf(240L * 4)).toLong()
             if (newBaseTarget < 0 || newBaseTarget > Constants.MAX_BASE_TARGET) {
                 newBaseTarget = Constants.MAX_BASE_TARGET
             }
@@ -199,7 +224,8 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 newBaseTarget = twofoldCurBaseTarget
             }
             block.baseTarget = newBaseTarget
-            block.cumulativeDifficulty = previousBlock.cumulativeDifficulty.add(two64.divide(BigInteger.valueOf(newBaseTarget)))
+            block.cumulativeDifficulty =
+                previousBlock.cumulativeDifficulty.add(two64.divide(BigInteger.valueOf(newBaseTarget)))
         } else {
             var itBlock: Block? = previousBlock
             var avgBaseTarget = BigInteger.valueOf(itBlock!!.baseTarget)
@@ -212,8 +238,8 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 }
                 blockCounter++
                 avgBaseTarget = avgBaseTarget.multiply(BigInteger.valueOf(blockCounter.toLong()))
-                        .add(BigInteger.valueOf(itBlock.baseTarget))
-                        .divide(BigInteger.valueOf(blockCounter + 1L))
+                    .add(BigInteger.valueOf(itBlock.baseTarget))
+                    .divide(BigInteger.valueOf(blockCounter + 1L))
             } while (blockCounter < 24)
             var difTime = block.timestamp.toLong() - itBlock!!.timestamp
             val targetTimespan = 24L * 4 * 60
@@ -228,7 +254,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
 
             val curBaseTarget = previousBlock.baseTarget
             var newBaseTarget = avgBaseTarget.multiply(BigInteger.valueOf(difTime))
-                    .divide(BigInteger.valueOf(targetTimespan)).toLong()
+                .divide(BigInteger.valueOf(targetTimespan)).toLong()
 
             if (newBaseTarget < 0 || newBaseTarget > Constants.MAX_BASE_TARGET) {
                 newBaseTarget = Constants.MAX_BASE_TARGET
@@ -247,7 +273,8 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             }
 
             block.baseTarget = newBaseTarget
-            block.cumulativeDifficulty = previousBlock.cumulativeDifficulty.add(two64.divide(BigInteger.valueOf(newBaseTarget)))
+            block.cumulativeDifficulty =
+                previousBlock.cumulativeDifficulty.add(two64.divide(BigInteger.valueOf(newBaseTarget)))
         }
     }
 

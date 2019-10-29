@@ -16,10 +16,12 @@ import java.nio.ByteBuffer
 class DigitalGoodsDelivery(dp: DependencyProvider) : DigitalGoods(dp) {
     override val subtype = SUBTYPE_DIGITAL_GOODS_DELIVERY
     override val description = "Delivery"
-    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsDelivery(dp, buffer, transactionVersion)
+    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) =
+        Attachment.DigitalGoodsDelivery(dp, buffer, transactionVersion)
+
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsDelivery(dp, attachmentData)
 
-    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsDelivery
         dp.digitalGoodsStoreService.deliver(transaction, attachment)
     }
@@ -34,7 +36,8 @@ class DigitalGoodsDelivery(dp: DependencyProvider) : DigitalGoods(dp) {
             || purchase != null
             && (purchase.buyerId != transaction.recipientId
                     || transaction.senderId != purchase.sellerId
-                    || attachment.discountPlanck > purchase.pricePlanck.safeMultiply(purchase.quantity.toLong()))) {
+                    || attachment.discountPlanck > purchase.pricePlanck.safeMultiply(purchase.quantity.toLong()))
+        ) {
             throw BurstException.NotValidException("Invalid digital goods delivery: " + attachment.jsonObject.toJsonString())
         }
         if (purchase == null || purchase.encryptedGoods != null) {

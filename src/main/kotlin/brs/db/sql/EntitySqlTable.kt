@@ -10,7 +10,13 @@ import org.jooq.*
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 
-internal abstract class EntitySqlTable<T> internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: BurstKey.Factory<T>, private val multiversion: Boolean, private val dp: DependencyProvider) : DerivedSqlTable(table, tableClass, dp), EntityTable<T> {
+internal abstract class EntitySqlTable<T> internal constructor(
+    table: String,
+    tableClass: TableImpl<*>,
+    dbKeyFactory: BurstKey.Factory<T>,
+    private val multiversion: Boolean,
+    private val dp: DependencyProvider
+) : DerivedSqlTable(table, tableClass, dp), EntityTable<T> {
     internal val dbKeyFactory = dbKeyFactory as SqlDbKey.Factory<T>
     private val defaultSort: MutableList<SortField<*>> = mutableListOf()
 
@@ -27,7 +33,12 @@ internal abstract class EntitySqlTable<T> internal constructor(table: String, ta
             ctx.selectCount().from(tableClass).fetchOne(0, Int::class.javaPrimitiveType)
         }
 
-    internal constructor(table: String, tableClass: TableImpl<*>, dbKeyFactory: BurstKey.Factory<T>, dp: DependencyProvider) : this(table, tableClass, dbKeyFactory, false, dp)
+    internal constructor(
+        table: String,
+        tableClass: TableImpl<*>,
+        dbKeyFactory: BurstKey.Factory<T>,
+        dp: DependencyProvider
+    ) : this(table, tableClass, dbKeyFactory, false, dp)
 
     init {
         if (multiversion) {
@@ -178,7 +189,13 @@ internal abstract class EntitySqlTable<T> internal constructor(table: String, ta
         return getManyBy(condition, height, from, to, defaultSort())
     }
 
-    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
+    override fun getManyBy(
+        condition: Condition,
+        height: Int,
+        from: Int,
+        to: Int,
+        sort: Collection<SortField<*>>
+    ): Collection<T> {
         ensureAvailable(height)
         return dp.db.getUsingDslContext { ctx ->
             val query = ctx.selectQuery()
@@ -194,18 +211,18 @@ internal abstract class EntitySqlTable<T> internal constructor(table: String, ta
                 val innerTableC = tableClass.`as`("c")
                 val innerQueryC = ctx.selectQuery()
                 innerQueryC.addConditions(
-                        innerTableC.field("height", Int::class.java).le(height).and(
-                                innerTableC.field("height", Int::class.java).gt(heightField)
-                        )
+                    innerTableC.field("height", Int::class.java).le(height).and(
+                        innerTableC.field("height", Int::class.java).gt(heightField)
+                    )
                 )
                 dbKeyFactory.applySelfJoin(innerQueryC, innerTableC, tableClass)
 
                 query.addConditions(
-                        latestField?.isTrue?.or(
-                                DSL.field(
-                                        DSL.exists(innerQueryB).and(DSL.notExists(innerQueryC))
-                                )
+                    latestField?.isTrue?.or(
+                        DSL.field(
+                            DSL.exists(innerQueryB).and(DSL.notExists(innerQueryC))
                         )
+                    )
                 )
             }
             query.addOrderBy(sort)
@@ -269,10 +286,27 @@ internal abstract class EntitySqlTable<T> internal constructor(table: String, ta
 
                 val innerTableC = tableClass.`as`("c")
                 val innerQueryC = ctx.selectQuery()
-                innerQueryC.addConditions(innerTableC.field("height", Int::class.java).le(height).and(innerTableC.field("height", Int::class.java).gt(heightField)))
+                innerQueryC.addConditions(
+                    innerTableC.field("height", Int::class.java).le(height).and(
+                        innerTableC.field(
+                            "height",
+                            Int::class.java
+                        ).gt(heightField)
+                    )
+                )
                 dbKeyFactory.applySelfJoin(innerQueryC, innerTableC, tableClass)
 
-                query.addConditions(latestField?.isTrue?.or(DSL.field(DSL.exists(innerQueryB).and(DSL.notExists(innerQueryC)))))
+                query.addConditions(
+                    latestField?.isTrue?.or(
+                        DSL.field(
+                            DSL.exists(innerQueryB).and(
+                                DSL.notExists(
+                                    innerQueryC
+                                )
+                            )
+                        )
+                    )
+                )
             }
             query.addOrderBy(sort)
             query.addLimit(from, to)
@@ -286,15 +320,16 @@ internal abstract class EntitySqlTable<T> internal constructor(table: String, ta
         val cachedT = getCache()[dbKey]
         if (cachedT == null) {
             dp.db.getCache<T>(table)[dbKey] = t
-        } else check(!(t !== cachedT)) { // not a bug
+        } else check(!(t !== cachedT)) {
+            // not a bug
             "Different instance found in Db cache, perhaps trying to save an object " + "that was read outside the current transaction"
         }
         dp.db.useDslContext { ctx ->
             if (multiversion) {
                 val query = ctx.updateQuery(tableClass)
                 query.addValue(
-                        latestField,
-                        false
+                    latestField,
+                    false
                 )
                 query.addConditions(dbKey.getPKConditions(tableClass))
                 query.addConditions(latestField?.isTrue)

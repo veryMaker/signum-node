@@ -25,13 +25,14 @@ open class Escrow {
 
     open class Decision(val dbKey: BurstKey, val escrowId: Long?, val accountId: Long?, var decision: DecisionType?)
 
-    constructor(dp: DependencyProvider, dbKey: BurstKey, sender: Account,
-                recipient: Account,
-                id: Long,
-                amountPlanck: Long,
-                requiredSigners: Int,
-                deadline: Int,
-                deadlineAction: DecisionType
+    constructor(
+        dp: DependencyProvider, dbKey: BurstKey, sender: Account,
+        recipient: Account,
+        id: Long,
+        amountPlanck: Long,
+        requiredSigners: Int,
+        deadline: Int,
+        deadlineAction: DecisionType
     ) {
         this.dp = dp
         this.dbKey = dbKey
@@ -44,7 +45,17 @@ open class Escrow {
         this.deadlineAction = deadlineAction
     }
 
-    protected constructor(dp: DependencyProvider, id: Long, senderId: Long, recipientId: Long, dbKey: BurstKey, amountPlanck: Long, requiredSigners: Int, deadline: Int, deadlineAction: DecisionType) {
+    protected constructor(
+        dp: DependencyProvider,
+        id: Long,
+        senderId: Long,
+        recipientId: Long,
+        dbKey: BurstKey,
+        amountPlanck: Long,
+        requiredSigners: Int,
+        deadline: Int,
+        deadlineAction: DecisionType
+    ) {
         this.dp = dp
         this.senderId = senderId
         this.recipientId = recipientId

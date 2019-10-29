@@ -18,7 +18,9 @@ import java.nio.ByteBuffer
 class DigitalGoodsRefund(dp: DependencyProvider) : DigitalGoods(dp) {
     override val subtype = SUBTYPE_DIGITAL_GOODS_REFUND
     override val description = "Refund"
-    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.DigitalGoodsRefund(dp, buffer, transactionVersion)
+    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) =
+        Attachment.DigitalGoodsRefund(dp, buffer, transactionVersion)
+
     override fun parseAttachment(attachmentData: JsonObject) = Attachment.DigitalGoodsRefund(dp, attachmentData)
 
     override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean {
@@ -43,7 +45,7 @@ class DigitalGoodsRefund(dp: DependencyProvider) : DigitalGoods(dp) {
         )
     }
 
-    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsRefund
         dp.digitalGoodsStoreService.refund(
             transaction.senderId,

@@ -7,7 +7,12 @@
 
 package brs.at
 
-class AtTransaction internal constructor(val senderId: ByteArray, val recipientId: ByteArray, val amount: Long, val message: ByteArray?) {
+class AtTransaction internal constructor(
+    val senderId: ByteArray,
+    val recipientId: ByteArray,
+    val amount: Long,
+    val message: ByteArray?
+) {
     fun getAmount(): Long? {
         return amount
     }

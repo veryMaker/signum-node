@@ -19,7 +19,10 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class GetAccount internal constructor(private val parameterService: ParameterService, private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER) {
+internal class GetAccount internal constructor(
+    private val parameterService: ParameterService,
+    private val accountService: AccountService
+) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
@@ -48,7 +51,10 @@ internal class GetAccount internal constructor(private val parameterService: Par
             assetBalances.add(assetBalance)
             val unconfirmedAssetBalance = JsonObject()
             unconfirmedAssetBalance.addProperty(ASSET_RESPONSE, accountAsset.assetId.toUnsignedString())
-            unconfirmedAssetBalance.addProperty(UNCONFIRMED_BALANCE_QUANTITY_RESPONSE, accountAsset.unconfirmedQuantity.toString())
+            unconfirmedAssetBalance.addProperty(
+                UNCONFIRMED_BALANCE_QUANTITY_RESPONSE,
+                accountAsset.unconfirmedQuantity.toString()
+            )
             unconfirmedAssetBalances.add(unconfirmedAssetBalance)
         }
 

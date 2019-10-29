@@ -8,7 +8,8 @@ import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class DGSPriceChange internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, PRICE_PLANCK_PARAMETER) {
+internal class DGSPriceChange internal constructor(private val dp: DependencyProvider) :
+    CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, PRICE_PLANCK_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = dp.parameterService.getSenderAccount(request)
         val goods = dp.parameterService.getGoods(request)

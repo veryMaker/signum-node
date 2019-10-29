@@ -46,10 +46,18 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransactionManager {
-    override fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountPlanck: Long, attachment: Attachment, minimumFeePlanck: Long): JsonElement {
+    override fun createTransaction(
+        request: HttpServletRequest,
+        senderAccount: Account,
+        recipientId: Long?,
+        amountPlanck: Long,
+        attachment: Attachment,
+        minimumFeePlanck: Long
+    ): JsonElement {
         val blockchainHeight = dp.blockchainService.height
         val deadlineValue = request.getParameter(DEADLINE_PARAMETER)
-        val referencedTransactionFullHash = request.getParameter(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER).emptyToNull()
+        val referencedTransactionFullHash =
+            request.getParameter(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER).emptyToNull()
         val referencedTransactionId = request.getParameter(REFERENCED_TRANSACTION_PARAMETER).emptyToNull()
         val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
         val publicKeyValue = request.getParameter(PUBLIC_KEY_PARAMETER).emptyToNull()
@@ -59,38 +67,71 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
         var encryptedMessage: EncryptedMessage? = null
 
         if (attachment.transactionType.hasRecipient()) {
-            val encryptedData = dp.parameterService.getEncryptedMessage(request, dp.accountService.getAccount(recipientId!!), recipientPublicKeyValue?.parseHexString())
+            val encryptedData = dp.parameterService.getEncryptedMessage(
+                request,
+                dp.accountService.getAccount(recipientId!!),
+                recipientPublicKeyValue?.parseHexString()
+            )
             if (encryptedData != null) {
-                encryptedMessage = EncryptedMessage(dp, encryptedData, !Parameters.isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER)), blockchainHeight)
+                encryptedMessage = EncryptedMessage(
+                    dp,
+                    encryptedData,
+                    !Parameters.isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER)),
+                    blockchainHeight
+                )
             }
         }
 
         var encryptToSelfMessage: EncryptToSelfMessage? = null
         val encryptedToSelfData = dp.parameterService.getEncryptToSelfMessage(request)
         if (encryptedToSelfData != null) {
-            encryptToSelfMessage = EncryptToSelfMessage(dp, encryptedToSelfData, !Parameters.isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER)), blockchainHeight)
+            encryptToSelfMessage = EncryptToSelfMessage(
+                dp,
+                encryptedToSelfData,
+                !Parameters.isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER)),
+                blockchainHeight
+            )
         }
         var message: Message? = null
         val messageValue = request.getParameter(MESSAGE_PARAMETER).emptyToNull()
         if (messageValue != null) {
-            val messageIsText = dp.fluxCapacitorService.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) && !Parameters.isFalse(request.getParameter(MESSAGE_IS_TEXT_PARAMETER))
+            val messageIsText = dp.fluxCapacitorService.getValue(
+                FluxValues.DIGITAL_GOODS_STORE,
+                blockchainHeight
+            ) && !Parameters.isFalse(request.getParameter(MESSAGE_IS_TEXT_PARAMETER))
             try {
-                message = if (messageIsText) Message(dp, messageValue, blockchainHeight) else Message(dp, messageValue.parseHexString(), blockchainHeight)
+                message = if (messageIsText) Message(dp, messageValue, blockchainHeight) else Message(
+                    dp,
+                    messageValue.parseHexString(),
+                    blockchainHeight
+                )
             } catch (e: RuntimeException) {
                 throw ParameterException(INCORRECT_ARBITRARY_MESSAGE)
             }
 
-        } else if (attachment is Attachment.ColoredCoinsAssetTransfer && dp.fluxCapacitorService.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
+        } else if (attachment is Attachment.ColoredCoinsAssetTransfer && dp.fluxCapacitorService.getValue(
+                FluxValues.DIGITAL_GOODS_STORE,
+                blockchainHeight
+            )
+        ) {
             val commentValue = request.getParameter(COMMENT_PARAMETER).emptyToNull()
             if (commentValue != null) {
                 message = Message(dp, commentValue, blockchainHeight)
             }
-        } else if (attachment is Attachment.ArbitraryMessage && !dp.fluxCapacitorService.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
+        } else if (attachment is Attachment.ArbitraryMessage && !dp.fluxCapacitorService.getValue(
+                FluxValues.DIGITAL_GOODS_STORE,
+                blockchainHeight
+            )
+        ) {
             message = Message(dp, ByteArray(0), blockchainHeight)
         }
         var publicKeyAnnouncement: PublicKeyAnnouncement? = null
         val recipientPublicKey = request.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER).emptyToNull()
-        if (recipientPublicKey != null && dp.fluxCapacitorService.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
+        if (recipientPublicKey != null && dp.fluxCapacitorService.getValue(
+                FluxValues.DIGITAL_GOODS_STORE,
+                blockchainHeight
+            )
+        ) {
             publicKeyAnnouncement = PublicKeyAnnouncement(dp, recipientPublicKey.parseHexString(), blockchainHeight)
         }
 
@@ -130,10 +171,17 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
         val response = JsonObject()
 
         // shouldn't try to get publicKey from senderAccount as it may have not been set yet
-        val publicKey = if (secretPhrase != null) Crypto.getPublicKey(secretPhrase) else publicKeyValue?.parseHexString()
+        val publicKey =
+            if (secretPhrase != null) Crypto.getPublicKey(secretPhrase) else publicKeyValue?.parseHexString()
 
         try {
-            val builder = dp.transactionProcessorService.newTransactionBuilder(publicKey!!, amountPlanck, feePlanck, deadline, attachment)
+            val builder = dp.transactionProcessorService.newTransactionBuilder(
+                publicKey!!,
+                amountPlanck,
+                feePlanck,
+                deadline,
+                attachment
+            )
             if (!referencedTransactionFullHash.isNullOrEmpty()) {
                 builder.referencedTransactionFullHash(referencedTransactionFullHash.parseHexString())
             }
@@ -161,9 +209,15 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
                 response.addProperty(TRANSACTION_RESPONSE, transaction.stringId)
                 response.addProperty(FULL_HASH_RESPONSE, transaction.fullHash.toHexString())
                 response.addProperty(TRANSACTION_BYTES_RESPONSE, transaction.toBytes().toHexString())
-                response.addProperty(SIGNATURE_HASH_RESPONSE, Crypto.sha256().digest(transaction.signature).toHexString())
+                response.addProperty(
+                    SIGNATURE_HASH_RESPONSE,
+                    Crypto.sha256().digest(transaction.signature).toHexString()
+                )
                 if (broadcast) {
-                    response.addProperty(NUMBER_PEERS_SENT_TO_RESPONSE, dp.transactionProcessorService.broadcast(transaction))
+                    response.addProperty(
+                        NUMBER_PEERS_SENT_TO_RESPONSE,
+                        dp.transactionProcessorService.broadcast(transaction)
+                    )
                     response.addProperty(BROADCASTED_RESPONSE, true)
                 } else {
                     response.addProperty(BROADCASTED_RESPONSE, false)

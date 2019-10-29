@@ -20,7 +20,15 @@ import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 
-internal class DecryptFrom internal constructor(private val parameterService: ParameterService) : APIServlet.JsonRequestHandler(arrayOf(APITag.MESSAGES), ACCOUNT_PARAMETER, DATA_PARAMETER, NONCE_PARAMETER, DECRYPTED_MESSAGE_IS_TEXT_PARAMETER, SECRET_PHRASE_PARAMETER) {
+internal class DecryptFrom internal constructor(private val parameterService: ParameterService) :
+    APIServlet.JsonRequestHandler(
+        arrayOf(APITag.MESSAGES),
+        ACCOUNT_PARAMETER,
+        DATA_PARAMETER,
+        NONCE_PARAMETER,
+        DECRYPTED_MESSAGE_IS_TEXT_PARAMETER,
+        SECRET_PHRASE_PARAMETER
+    ) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request) ?: return INCORRECT_ACCOUNT
@@ -35,7 +43,10 @@ internal class DecryptFrom internal constructor(private val parameterService: Pa
         return try {
             val decrypted = account.decryptFrom(encryptedData, secretPhrase)
             val response = JsonObject()
-            response.addProperty(DECRYPTED_MESSAGE_RESPONSE, if (isText) decrypted.toUtf8String() else decrypted.toHexString())
+            response.addProperty(
+                DECRYPTED_MESSAGE_RESPONSE,
+                if (isText) decrypted.toUtf8String() else decrypted.toHexString()
+            )
             response
         } catch (e: RuntimeException) {
             logger.safeDebug { e.toString() }

@@ -21,10 +21,24 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
 
-class Block internal constructor(private val dp: DependencyProvider, val version: Int, val timestamp: Int, val previousBlockId: Long, val totalAmountPlanck: Long, val totalFeePlanck: Long,
-                                 val payloadLength: Int, val payloadHash: ByteArray, val generatorPublicKey: ByteArray, val generationSignature: ByteArray,
-                                 blockSignature: ByteArray?, val previousBlockHash: ByteArray?, transactions: Collection<Transaction>?,
-                                 val nonce: Long, val blockATs: ByteArray?, height: Int) {
+class Block internal constructor(
+    private val dp: DependencyProvider,
+    val version: Int,
+    val timestamp: Int,
+    val previousBlockId: Long,
+    val totalAmountPlanck: Long,
+    val totalFeePlanck: Long,
+    val payloadLength: Int,
+    val payloadHash: ByteArray,
+    val generatorPublicKey: ByteArray,
+    val generationSignature: ByteArray,
+    blockSignature: ByteArray?,
+    val previousBlockHash: ByteArray?,
+    transactions: Collection<Transaction>?,
+    val nonce: Long,
+    val blockATs: ByteArray?,
+    height: Int
+) {
     var transactions by AtomicLazy {
         val txs = transactionDb().findBlockTransactions(id)
         txs.forEach { it.setBlock(this) }
@@ -84,8 +98,10 @@ class Block internal constructor(private val dp: DependencyProvider, val version
     }
 
     fun toBytes(): ByteArray {
-        val buffer = ByteBuffer.allocate(4 + 4 + 8 + 4 + (if (version < 3) 4 + 4 else 8 + 8) + 4
-                + 32 + 32 + (32 + 32) + 8 + (blockATs?.size ?: 0) + 64)
+        val buffer = ByteBuffer.allocate(
+            4 + 4 + 8 + 4 + (if (version < 3) 4 + 4 else 8 + 8) + 4
+                    + 32 + 32 + (32 + 32) + 8 + (blockATs?.size ?: 0) + 64
+        )
         buffer.order(ByteOrder.LITTLE_ENDIAN)
         buffer.putInt(version)
         buffer.putInt(timestamp)
@@ -115,7 +131,11 @@ class Block internal constructor(private val dp: DependencyProvider, val version
     }
 
     init {
-        if (payloadLength > dp.fluxCapacitorService.getValue(FluxValues.MAX_PAYLOAD_LENGTH, height) || payloadLength < 0) {
+        if (payloadLength > dp.fluxCapacitorService.getValue(
+                FluxValues.MAX_PAYLOAD_LENGTH,
+                height
+            ) || payloadLength < 0
+        ) {
             throw BurstException.NotValidException(
                 "attempted to create a block with payloadLength " + payloadLength + " height " + height + "previd " + previousBlockId
             )
@@ -138,8 +158,44 @@ class Block internal constructor(private val dp: DependencyProvider, val version
         }
     }
 
-    constructor(dp: DependencyProvider, version: Int, timestamp: Int, previousBlockId: Long, totalAmountPlanck: Long, totalFeePlanck: Long, payloadLength: Int, payloadHash: ByteArray, generatorPublicKey: ByteArray, generationSignature: ByteArray, blockSignature: ByteArray, previousBlockHash: ByteArray?, cumulativeDifficulty: BigInteger?, baseTarget: Long,
-                nextBlockId: Long, height: Int, id: Long, nonce: Long, blockATs: ByteArray?) : this(dp, version, timestamp, previousBlockId, totalAmountPlanck, totalFeePlanck, payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature, previousBlockHash, null, nonce, blockATs, height) {
+    constructor(
+        dp: DependencyProvider,
+        version: Int,
+        timestamp: Int,
+        previousBlockId: Long,
+        totalAmountPlanck: Long,
+        totalFeePlanck: Long,
+        payloadLength: Int,
+        payloadHash: ByteArray,
+        generatorPublicKey: ByteArray,
+        generationSignature: ByteArray,
+        blockSignature: ByteArray,
+        previousBlockHash: ByteArray?,
+        cumulativeDifficulty: BigInteger?,
+        baseTarget: Long,
+        nextBlockId: Long,
+        height: Int,
+        id: Long,
+        nonce: Long,
+        blockATs: ByteArray?
+    ) : this(
+        dp,
+        version,
+        timestamp,
+        previousBlockId,
+        totalAmountPlanck,
+        totalFeePlanck,
+        payloadLength,
+        payloadHash,
+        generatorPublicKey,
+        generationSignature,
+        blockSignature,
+        previousBlockHash,
+        null,
+        nonce,
+        blockATs,
+        height
+    ) {
 
         this.cumulativeDifficulty = cumulativeDifficulty ?: BigInteger.ZERO
         this.baseTarget = baseTarget
@@ -186,17 +242,21 @@ class Block internal constructor(private val dp: DependencyProvider, val version
                 val totalFeePlanck = blockData.get("totalFeeNQT").mustGetAsLong("totalFeeNQT")
                 val payloadLength = blockData.get("payloadLength").mustGetAsInt("payloadLength")
                 val payloadHash = blockData.get("payloadHash").mustGetAsString("payloadHash").parseHexString()
-                val generatorPublicKey = blockData.get("generatorPublicKey").mustGetAsString("generatorPublicKey").parseHexString()
-                val generationSignature = blockData.get("generationSignature").mustGetAsString("generationSignature").parseHexString()
+                val generatorPublicKey =
+                    blockData.get("generatorPublicKey").mustGetAsString("generatorPublicKey").parseHexString()
+                val generationSignature =
+                    blockData.get("generationSignature").mustGetAsString("generationSignature").parseHexString()
                 val blockSignature = blockData.get("blockSignature").mustGetAsString("blockSignature").parseHexString()
-                val previousBlockHash = if (version == 1) null else blockData.get("previousBlockHash").mustGetAsString("previousBlockHash").parseHexString()
+                val previousBlockHash =
+                    if (version == 1) null else blockData.get("previousBlockHash").mustGetAsString("previousBlockHash").parseHexString()
                 val nonce = blockData.get("nonce").safeGetAsString().parseUnsignedLong()
 
                 val blockTransactions = TreeMap<Long, Transaction>()
                 val transactionsData = blockData.get("transactions").mustGetAsJsonArray("transactions")
 
                 for (transactionData in transactionsData) {
-                    val transaction = Transaction.parseTransaction(dp, transactionData.mustGetAsJsonObject("transactionData"), height)
+                    val transaction =
+                        Transaction.parseTransaction(dp, transactionData.mustGetAsJsonObject("transactionData"), height)
                     if (transaction.signature != null && blockTransactions.put(transaction.id, transaction) != null) {
                         throw BurstException.NotValidException("Block contains duplicate transactions: " + transaction.stringId)
                     }

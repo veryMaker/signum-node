@@ -29,7 +29,8 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
 
     init { // TODO each one should just take dp
         val map = mutableMapOf<String, HttpRequestHandler>()
-        map["broadcastTransaction"] = BroadcastTransaction(dp.transactionProcessorService, dp.parameterService, dp.transactionService)
+        map["broadcastTransaction"] =
+            BroadcastTransaction(dp.transactionProcessorService, dp.parameterService, dp.transactionService)
         map["calculateFullHash"] = CalculateFullHash()
         map["cancelAskOrder"] = CancelAskOrder(dp)
         map["cancelBidOrder"] = CancelBidOrder(dp)
@@ -65,7 +66,8 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getBlock"] = GetBlock(dp.blockchainService, dp.blockService)
         map["getBlockId"] = GetBlockId(dp.blockchainService)
         map["getBlocks"] = GetBlocks(dp.blockchainService, dp.blockService)
-        map["getBlockchainStatus"] = GetBlockchainStatus(dp.blockchainProcessorService, dp.blockchainService, dp.timeService)
+        map["getBlockchainStatus"] =
+            GetBlockchainStatus(dp.blockchainProcessorService, dp.blockchainService, dp.timeService)
         map["getConstants"] = GetConstants(dp)
         map["getDGSGoods"] = GetDGSGoods(dp.digitalGoodsStoreService)
         map["getDGSGood"] = GetDGSGood(dp.parameterService)
@@ -84,8 +86,13 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getAssetTransfers"] = GetAssetTransfers(dp.parameterService, dp.accountService, dp.assetExchangeService)
         map["getTransaction"] = GetTransaction(dp.blockchainService)
         map["getTransactionBytes"] = GetTransactionBytes(dp.blockchainService, dp.transactionProcessorService)
-        map["getUnconfirmedTransactionIds"] = GetUnconfirmedTransactionIds(dp.transactionProcessorService, dp.indirectIncomingService, dp.parameterService)
-        map["getUnconfirmedTransactions"] = GetUnconfirmedTransactions(dp.transactionProcessorService, dp.indirectIncomingService, dp.parameterService)
+        map["getUnconfirmedTransactionIds"] = GetUnconfirmedTransactionIds(
+            dp.transactionProcessorService,
+            dp.indirectIncomingService,
+            dp.parameterService
+        )
+        map["getUnconfirmedTransactions"] =
+            GetUnconfirmedTransactions(dp.transactionProcessorService, dp.indirectIncomingService, dp.parameterService)
         map["getAccountCurrentAskOrderIds"] = GetAccountCurrentAskOrderIds(dp.parameterService, dp.assetExchangeService)
         map["getAccountCurrentBidOrderIds"] = GetAccountCurrentBidOrderIds(dp.parameterService, dp.assetExchangeService)
         map["getAccountCurrentAskOrders"] = GetAccountCurrentAskOrders(dp.parameterService, dp.assetExchangeService)
@@ -115,7 +122,8 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["signTransaction"] = SignTransaction(dp.parameterService, dp.transactionService)
         map["transferAsset"] = TransferAsset(dp)
         map["getMiningInfo"] = GetMiningInfo(dp)
-        map["submitNonce"] = SubmitNonce(dp.propertyService, dp.accountService, dp.blockchainService, dp.generatorService)
+        map["submitNonce"] =
+            SubmitNonce(dp.propertyService, dp.accountService, dp.blockchainService, dp.generatorService)
         map["getRewardRecipient"] = GetRewardRecipient(dp.parameterService, dp.blockchainService, dp.accountService)
         map["setRewardRecipient"] = SetRewardRecipient(dp)
         map["getAccountsWithRewardRecipient"] = GetAccountsWithRewardRecipient(dp.parameterService, dp.accountService)
@@ -144,7 +152,8 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         apiRequestHandlers = map
     }
 
-    internal abstract class JsonRequestHandler(apiTags: Array<APITag>, vararg parameters: String) : HttpRequestHandler(apiTags, *parameters) {
+    internal abstract class JsonRequestHandler(apiTags: Array<APITag>, vararg parameters: String) :
+        HttpRequestHandler(apiTags, *parameters) {
         override fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
             val startTime = System.currentTimeMillis()
 
@@ -161,7 +170,8 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             }
 
             if (response is JsonObject) {
-                response.mustGetAsJsonObject("response").addProperty("requestProcessingTime", System.currentTimeMillis() - startTime)
+                response.mustGetAsJsonObject("response")
+                    .addProperty("requestProcessingTime", System.currentTimeMillis() - startTime)
             }
 
             writeJsonToResponse(resp, response)

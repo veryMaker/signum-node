@@ -26,7 +26,14 @@ abstract class Order {
         this.height = transaction.height
     }
 
-    internal constructor(id: Long, accountId: Long, assetId: Long, pricePlanck: Long, creationHeight: Int, quantity: Long) {
+    internal constructor(
+        id: Long,
+        accountId: Long,
+        assetId: Long,
+        pricePlanck: Long,
+        creationHeight: Int,
+        quantity: Long
+    ) {
         this.id = id
         this.accountId = accountId
         this.assetId = assetId
@@ -46,11 +53,23 @@ abstract class Order {
         override val protobufType: BrsApi.OrderType
             get() = BrsApi.OrderType.ASK
 
-        constructor(dbKey: BurstKey, transaction: Transaction, attachment: Attachment.ColoredCoinsAskOrderPlacement) : super(transaction, attachment) {
+        constructor(
+            dbKey: BurstKey,
+            transaction: Transaction,
+            attachment: Attachment.ColoredCoinsAskOrderPlacement
+        ) : super(transaction, attachment) {
             this.dbKey = dbKey
         }
 
-        protected constructor(id: Long, accountId: Long, assetId: Long, pricePlanck: Long, creationHeight: Int, quantity: Long, dbKey: BurstKey) : super(id, accountId, assetId, pricePlanck, creationHeight, quantity) {
+        protected constructor(
+            id: Long,
+            accountId: Long,
+            assetId: Long,
+            pricePlanck: Long,
+            creationHeight: Int,
+            quantity: Long,
+            dbKey: BurstKey
+        ) : super(id, accountId, assetId, pricePlanck, creationHeight, quantity) {
             this.dbKey = dbKey
         }
     }
@@ -62,11 +81,23 @@ abstract class Order {
         override val protobufType: BrsApi.OrderType
             get() = BrsApi.OrderType.BID
 
-        constructor(dbKey: BurstKey, transaction: Transaction, attachment: Attachment.ColoredCoinsBidOrderPlacement) : super(transaction, attachment) {
+        constructor(
+            dbKey: BurstKey,
+            transaction: Transaction,
+            attachment: Attachment.ColoredCoinsBidOrderPlacement
+        ) : super(transaction, attachment) {
             this.dbKey = dbKey
         }
 
-        protected constructor(id: Long, accountId: Long, assetId: Long, pricePlanck: Long, creationHeight: Int, quantity: Long, dbKey: BurstKey) : super(id, accountId, assetId, pricePlanck, creationHeight, quantity) {
+        protected constructor(
+            id: Long,
+            accountId: Long,
+            assetId: Long,
+            pricePlanck: Long,
+            creationHeight: Int,
+            quantity: Long,
+            dbKey: BurstKey
+        ) : super(id, accountId, assetId, pricePlanck, creationHeight, quantity) {
             this.dbKey = dbKey
         }
     }

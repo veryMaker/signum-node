@@ -55,7 +55,10 @@ fun ByteBuffer.readString(numBytes: Int, maxLength: Int): String {
 }
 
 fun String?.truncate(replaceNull: String, limit: Int, dots: Boolean): String {
-    return if (this == null) replaceNull else if (this.length > limit) this.substring(0, if (dots) limit - 3 else limit) + if (dots) "..." else "" else this
+    return if (this == null) replaceNull else if (this.length > limit) this.substring(
+        0,
+        if (dots) limit - 3 else limit
+    ) + if (dots) "..." else "" else this
 }
 
 fun String.parseAccountId(): Long {

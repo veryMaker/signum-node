@@ -6,7 +6,8 @@ import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 
-class GetAssetHandler(private val assetExchangeService: AssetExchangeService) : GrpcApiHandler<BrsApi.GetByIdRequest, BrsApi.Asset> {
+class GetAssetHandler(private val assetExchangeService: AssetExchangeService) :
+    GrpcApiHandler<BrsApi.GetByIdRequest, BrsApi.Asset> {
 
     override fun handleRequest(getByIdRequest: BrsApi.GetByIdRequest): BrsApi.Asset {
         val asset = assetExchangeService.getAsset(getByIdRequest.id) ?: throw ApiException("Could not find asset")

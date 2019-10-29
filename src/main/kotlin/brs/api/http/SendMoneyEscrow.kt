@@ -19,7 +19,16 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER, AMOUNT_PLANCK_PARAMETER, ESCROW_DEADLINE_PARAMETER, SIGNERS_PARAMETER, REQUIRED_SIGNERS_PARAMETER, DEADLINE_ACTION_PARAMETER) {
+internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTransaction(
+    dp,
+    arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION),
+    RECIPIENT_PARAMETER,
+    AMOUNT_PLANCK_PARAMETER,
+    ESCROW_DEADLINE_PARAMETER,
+    SIGNERS_PARAMETER,
+    REQUIRED_SIGNERS_PARAMETER,
+    DEADLINE_ACTION_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)
@@ -105,7 +114,15 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
             return response
         }
 
-        val attachment = Attachment.AdvancedPaymentEscrowCreation(dp, amountPlanck, deadline.toInt(), deadlineAction, requiredSigners.toInt(), signers, dp.blockchainService.height)
+        val attachment = Attachment.AdvancedPaymentEscrowCreation(
+            dp,
+            amountPlanck,
+            deadline.toInt(),
+            deadlineAction,
+            requiredSigners.toInt(),
+            signers,
+            dp.blockchainService.height
+        )
 
         return createTransaction(request, sender, recipient, 0, attachment)
     }

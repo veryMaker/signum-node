@@ -7,7 +7,10 @@ import brs.util.json.safeGetAsString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
-class ProcessBlock(private val blockchainService: BlockchainService, private val blockchainProcessorService: BlockchainProcessorService) : PeerServlet.PeerRequestHandler {
+class ProcessBlock(
+    private val blockchainService: BlockchainService,
+    private val blockchainProcessorService: BlockchainProcessorService
+) : PeerServlet.PeerRequestHandler {
 
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
 
@@ -31,6 +34,7 @@ class ProcessBlock(private val blockchainService: BlockchainService, private val
 
     companion object {
         private val ACCEPTED: JsonElement
+
         init {
             val response = JsonObject()
             response.addProperty("accepted", true)
@@ -38,6 +42,7 @@ class ProcessBlock(private val blockchainService: BlockchainService, private val
         }
 
         private val NOT_ACCEPTED: JsonElement
+
         init {
             val response = JsonObject()
             response.addProperty("accepted", false)

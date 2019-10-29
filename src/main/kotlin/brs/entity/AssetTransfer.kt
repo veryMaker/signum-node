@@ -29,7 +29,16 @@ open class AssetTransfer {
         this.timestamp = transaction.blockTimestamp
     }
 
-    protected constructor(id: Long, dbKey: BurstKey, assetId: Long, height: Int, senderId: Long, recipientId: Long, quantity: Long, timestamp: Int) {
+    protected constructor(
+        id: Long,
+        dbKey: BurstKey,
+        assetId: Long,
+        height: Int,
+        senderId: Long,
+        recipientId: Long,
+        quantity: Long,
+        timestamp: Int
+    ) {
         this.id = id
         this.dbKey = dbKey
         this.assetId = assetId

@@ -12,13 +12,13 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     private val subscriptionDbKeyFactory = dp.subscriptionStore.subscriptionDbKeyFactory
 
     override fun isEnabled(): Boolean {
-            if (dp.blockchainService.lastBlock.height >= Constants.BURST_SUBSCRIPTION_START_BLOCK) {
-                return true
-            }
-
-            val subscriptionEnabled = dp.aliasService.getAlias("featuresubscription")
-            return subscriptionEnabled != null && subscriptionEnabled.aliasURI == "enabled"
+        if (dp.blockchainService.lastBlock.height >= Constants.BURST_SUBSCRIPTION_START_BLOCK) {
+            return true
         }
+
+        val subscriptionEnabled = dp.aliasService.getAlias("featuresubscription")
+        return subscriptionEnabled != null && subscriptionEnabled.aliasURI == "enabled"
+    }
 
     private val fee: Long
         get() = Constants.ONE_BURST
@@ -35,7 +35,14 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         return dp.subscriptionStore.getSubscriptionsToId(accountId)
     }
 
-    override fun addSubscription(sender: Account, recipient: Account, id: Long, amountPlanck: Long, startTimestamp: Int, frequency: Int) {
+    override fun addSubscription(
+        sender: Account,
+        recipient: Account,
+        id: Long,
+        amountPlanck: Long,
+        startTimestamp: Int,
+        frequency: Int
+    ) {
         val dbKey = subscriptionDbKeyFactory.newKey(id)
         val subscription = Subscription(
             sender.id,
@@ -144,16 +151,25 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(recipient, subscription.amountPlanck)
 
         val attachment = Attachment.AdvancedPaymentSubscriptionPayment(dp, subscription.id, blockchainHeight)
-        val builder = Transaction.Builder(dp, 1.toByte(), sender.publicKey!!, subscription.amountPlanck, fee, subscription.timeNext, 1440.toShort(), attachment)
+        val builder = Transaction.Builder(
+            dp,
+            1.toByte(),
+            sender.publicKey!!,
+            subscription.amountPlanck,
+            fee,
+            subscription.timeNext,
+            1440.toShort(),
+            attachment
+        )
 
         try {
             builder.senderId(subscription.senderId)
-                    .recipientId(subscription.recipientId)
-                    .blockId(block.id)
-                    .height(block.height)
-                    .blockTimestamp(block.timestamp)
-                    .ecBlockHeight(0)
-                    .ecBlockId(0L)
+                .recipientId(subscription.recipientId)
+                .blockId(block.id)
+                .height(block.height)
+                .blockTimestamp(block.timestamp)
+                .ecBlockHeight(0)
+                .ecBlockId(0L)
             val transaction = builder.build()
             if (!dp.transactionDb.hasTransaction(transaction.id)) {
                 paymentTransactions.add(transaction)

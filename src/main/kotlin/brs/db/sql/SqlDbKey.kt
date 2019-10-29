@@ -7,8 +7,10 @@ import org.jooq.*
 internal interface SqlDbKey : BurstKey {
     override val pkValues: LongArray
 
-    abstract class Factory<T> internal constructor(pkClause: String, val pkColumns: Array<String>, // expects tables to be named a and b
-        val selfJoinClause: String) : BurstKey.Factory<T> {
+    abstract class Factory<T> internal constructor(
+        pkClause: String, val pkColumns: Array<String>, // expects tables to be named a and b
+        val selfJoinClause: String
+    ) : BurstKey.Factory<T> {
         /**
          * @return The number of variables in PKClause
          */
@@ -19,7 +21,11 @@ internal interface SqlDbKey : BurstKey {
 
     fun getPKConditions(tableClass: Table<*>): Collection<Condition>
 
-    abstract class LongKeyFactory<T>(private val idColumn: Field<Long>) : Factory<T>(" WHERE " + idColumn.name + " = ? ", arrayOf(idColumn.name), " a." + idColumn.name + " = b." + idColumn.name + " "), BurstKey.LongKeyFactory<T> {
+    abstract class LongKeyFactory<T>(private val idColumn: Field<Long>) : Factory<T>(
+        " WHERE " + idColumn.name + " = ? ",
+        arrayOf(idColumn.name),
+        " a." + idColumn.name + " = b." + idColumn.name + " "
+    ), BurstKey.LongKeyFactory<T> {
 
         override fun newKey(record: Record): BurstKey {
             val result = record.get(idColumn)
@@ -32,16 +38,25 @@ internal interface SqlDbKey : BurstKey {
 
         override fun applySelfJoin(query: SelectQuery<Record>, queryTable: Table<*>, otherTable: Table<*>) {
             query.addConditions(
-                    queryTable.field(idColumn.name, Long::class.java).eq(
-                            otherTable.field(idColumn.name, Long::class.java)
-                    )
+                queryTable.field(idColumn.name, Long::class.java).eq(
+                    otherTable.field(idColumn.name, Long::class.java)
+                )
             )
         }
     }
 
-    abstract class LinkKeyFactory<T>(private val idColumnA: String, private val idColumnB: String) : Factory<T>(" WHERE $idColumnA = ? AND $idColumnB = ? ", arrayOf(idColumnA, idColumnB), " a.$idColumnA = b.$idColumnA AND a.$idColumnB = b.$idColumnB "), BurstKey.LinkKeyFactory<T> {
+    abstract class LinkKeyFactory<T>(private val idColumnA: String, private val idColumnB: String) : Factory<T>(
+        " WHERE $idColumnA = ? AND $idColumnB = ? ",
+        arrayOf(idColumnA, idColumnB),
+        " a.$idColumnA = b.$idColumnA AND a.$idColumnB = b.$idColumnB "
+    ), BurstKey.LinkKeyFactory<T> {
         override fun newKey(record: Record): SqlDbKey {
-            return LinkKey(record.get(idColumnA, Long::class.java), record.get(idColumnB, Long::class.java), idColumnA, idColumnB)
+            return LinkKey(
+                record.get(idColumnA, Long::class.java),
+                record.get(idColumnB, Long::class.java),
+                idColumnA,
+                idColumnB
+            )
         }
 
         override fun newKey(idA: Long, idB: Long): SqlDbKey {
@@ -50,14 +65,14 @@ internal interface SqlDbKey : BurstKey {
 
         override fun applySelfJoin(query: SelectQuery<Record>, queryTable: Table<*>, otherTable: Table<*>) {
             query.addConditions(
-                    queryTable.field(idColumnA, Long::class.java).eq(
-                            otherTable.field(idColumnA, Long::class.java)
-                    )
+                queryTable.field(idColumnA, Long::class.java).eq(
+                    otherTable.field(idColumnA, Long::class.java)
+                )
             )
             query.addConditions(
-                    queryTable.field(idColumnB, Long::class.java).eq(
-                            otherTable.field(idColumnB, Long::class.java)
-                    )
+                queryTable.field(idColumnB, Long::class.java).eq(
+                    otherTable.field(idColumnB, Long::class.java)
+                )
             )
         }
     }
@@ -81,7 +96,12 @@ internal interface SqlDbKey : BurstKey {
 
     }
 
-    class LinkKey internal constructor(private val idA: Long, private val idB: Long, private val idColumnA: String, private val idColumnB: String) : SqlDbKey {
+    class LinkKey internal constructor(
+        private val idA: Long,
+        private val idB: Long,
+        private val idColumnA: String,
+        private val idColumnB: String
+    ) : SqlDbKey {
 
         override val pkValues: LongArray
             get() = longArrayOf(idA, idB)
@@ -95,7 +115,10 @@ internal interface SqlDbKey : BurstKey {
         }
 
         override fun getPKConditions(tableClass: Table<*>): Collection<Condition> {
-            return listOf(tableClass.field(idColumnA, Long::class.java).eq(idA), tableClass.field(idColumnB, Long::class.java).eq(idB))
+            return listOf(
+                tableClass.field(idColumnA, Long::class.java).eq(idA),
+                tableClass.field(idColumnB, Long::class.java).eq(idB)
+            )
         }
     }
 }

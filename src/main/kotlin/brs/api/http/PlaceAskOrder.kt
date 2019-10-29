@@ -9,7 +9,13 @@ import brs.api.http.common.Parameters.QUANTITY_QNT_PARAMETER
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class PlaceAskOrder(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), ASSET_PARAMETER, QUANTITY_QNT_PARAMETER, PRICE_PLANCK_PARAMETER) {
+internal class PlaceAskOrder(private val dp: DependencyProvider) : CreateTransaction(
+    dp,
+    arrayOf(APITag.AE, APITag.CREATE_TRANSACTION),
+    ASSET_PARAMETER,
+    QUANTITY_QNT_PARAMETER,
+    PRICE_PLANCK_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
@@ -23,7 +29,8 @@ internal class PlaceAskOrder(private val dp: DependencyProvider) : CreateTransac
             return NOT_ENOUGH_ASSETS
         }
 
-        val attachment = Attachment.ColoredCoinsAskOrderPlacement(dp, asset.id, quantity, pricePlanck, dp.blockchainService.height)
+        val attachment =
+            Attachment.ColoredCoinsAskOrderPlacement(dp, asset.id, quantity, pricePlanck, dp.blockchainService.height)
         return createTransaction(request, account, attachment)
     }
 }

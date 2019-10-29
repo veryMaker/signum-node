@@ -26,7 +26,11 @@ import java.nio.charset.StandardCharsets
 import java.sql.SQLException
 import java.util.zip.GZIPInputStream
 
-internal class PeerImpl(private val dp: DependencyProvider, override val peerAddress: String, announcedAddress: String?) : Peer {
+internal class PeerImpl(
+    private val dp: DependencyProvider,
+    override val peerAddress: String,
+    announcedAddress: String?
+) : Peer {
     override var announcedAddress by AtomicWithOverride<String?>(setValueDelegate = { announcedAddress, set ->
         val announcedPeerAddress = dp.peerService.normalizeHostAndPort(announcedAddress)
         if (announcedPeerAddress != null) {
@@ -44,17 +48,19 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
     override var version by Atomic(Version.EMPTY)
     private var isOldVersion by Atomic(false)
     private var blacklistingTime by Atomic<Long>(0)
-    override var state: Peer.State by AtomicWithOverride(initialValue = Peer.State.NON_CONNECTED, setValueDelegate = { newState, set ->
-        if (state != newState) {
-            if (state == Peer.State.NON_CONNECTED) {
-                set(newState)
-                dp.peerService.notifyListeners(this@PeerImpl, PeerService.Event.ADDED_ACTIVE_PEER)
-            } else if (newState != Peer.State.NON_CONNECTED) {
-                set(newState)
-                dp.peerService.notifyListeners(this@PeerImpl, PeerService.Event.CHANGED_ACTIVE_PEER)
+    override var state: Peer.State by AtomicWithOverride(
+        initialValue = Peer.State.NON_CONNECTED,
+        setValueDelegate = { newState, set ->
+            if (state != newState) {
+                if (state == Peer.State.NON_CONNECTED) {
+                    set(newState)
+                    dp.peerService.notifyListeners(this@PeerImpl, PeerService.Event.ADDED_ACTIVE_PEER)
+                } else if (newState != Peer.State.NON_CONNECTED) {
+                    set(newState)
+                    dp.peerService.notifyListeners(this@PeerImpl, PeerService.Event.CHANGED_ACTIVE_PEER)
+                }
             }
-        }
-    })
+        })
     override var downloadedVolume by Atomic(0L)
     override var uploadedVolume by Atomic(0L)
     override var lastUpdated by Atomic<Int>()
@@ -118,7 +124,8 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
 
     override fun blacklist(cause: Exception, description: String) {
         if (cause is BurstException.NotCurrentlyValidException || cause is BlockchainProcessorService.BlockOutOfOrderException
-                || cause is SQLException || cause.cause is SQLException) {
+            || cause is SQLException || cause.cause is SQLException
+        ) {
             // don't blacklist peers just because a feature is not yet enabled, or because of database timeouts
             // prevents erroneous blacklisting during loading of blockchain from scratch
             return
@@ -199,7 +206,12 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
             connection.setRequestProperty("Connection", "close")
 
             val cos = CountingOutputStream(connection.outputStream)
-            BufferedWriter(OutputStreamWriter(cos, StandardCharsets.UTF_8)).use { writer -> request.writeTo(writer) } // rico666: no catch?
+            BufferedWriter(
+                OutputStreamWriter(
+                    cos,
+                    StandardCharsets.UTF_8
+                )
+            ).use { writer -> request.writeTo(writer) } // rico666: no catch?
             updateUploadedVolume(cos.count)
 
             if (connection.responseCode == HttpURLConnection.HTTP_OK) {
@@ -213,13 +225,19 @@ internal class PeerImpl(private val dp: DependencyProvider, override val peerAdd
                     responseStream.use { inputStream -> inputStream.copyTo(byteArrayOutputStream, 1024) }
                     val responseValue = byteArrayOutputStream.toString("UTF-8")
                     if (responseValue.isNotEmpty() && responseStream is GZIPInputStream) {
-                        log += String.format("[length: %d, compression ratio: %.2f]", cis.count, cis.count.toDouble() / responseValue.length.toDouble())
+                        log += String.format(
+                            "[length: %d, compression ratio: %.2f]",
+                            cis.count,
+                            cis.count.toDouble() / responseValue.length.toDouble()
+                        )
                     }
                     log += " >>> $responseValue"
                     showLog = true
                     response = responseValue.parseJson().safeGetAsJsonObject()
                 } else {
-                    BufferedReader(InputStreamReader(responseStream, StandardCharsets.UTF_8)).use { reader -> response = reader.parseJson().safeGetAsJsonObject() }
+                    BufferedReader(InputStreamReader(responseStream, StandardCharsets.UTF_8)).use { reader ->
+                        response = reader.parseJson().safeGetAsJsonObject()
+                    }
                 }
                 updateDownloadedVolume(cis.count)
             } else {

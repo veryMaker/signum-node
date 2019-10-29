@@ -20,17 +20,33 @@ import org.jooq.Result
 import kotlin.math.max
 
 internal class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
-    override fun getTransactionCount() = dp.db.getUsingDslContext<Int> { ctx -> ctx.selectCount().from(TRANSACTION).fetchOne(0, Int::class.javaPrimitiveType) }
+    override fun getTransactionCount() = dp.db.getUsingDslContext<Int> { ctx ->
+        ctx.selectCount().from(TRANSACTION).fetchOne(0, Int::class.javaPrimitiveType)
+    }
 
-    override fun getAllTransactions() = dp.db.getUsingDslContext { ctx -> getTransactions(ctx, ctx.selectFrom(TRANSACTION).orderBy(TRANSACTION.DB_ID.asc()).fetch()) }
+    override fun getAllTransactions() = dp.db.getUsingDslContext { ctx ->
+        getTransactions(
+            ctx,
+            ctx.selectFrom(TRANSACTION).orderBy(TRANSACTION.DB_ID.asc()).fetch()
+        )
+    }
 
     override fun getBlocks(from: Int, to: Int): Collection<Block> {
         return dp.db.getUsingDslContext { ctx ->
             val blockchainHeight = dp.blockchainService.height
-            getBlocks(ctx.selectFrom(BLOCK)
-                    .where(BLOCK.HEIGHT.between(if (to > 0) blockchainHeight - to else 0).and(blockchainHeight - max(from, 0)))
+            getBlocks(
+                ctx.selectFrom(BLOCK)
+                    .where(
+                        BLOCK.HEIGHT.between(if (to > 0) blockchainHeight - to else 0).and(
+                            blockchainHeight - max(
+                                from,
+                                0
+                            )
+                        )
+                    )
                     .orderBy(BLOCK.HEIGHT.desc())
-                    .fetch())
+                    .fetch()
+            )
         }
     }
 
@@ -59,7 +75,7 @@ internal class SqlBlockchainStore(private val dp: DependencyProvider) : Blockcha
 
         return dp.db.getUsingDslContext<List<Long>> { ctx ->
             ctx.selectFrom(BLOCK).where(
-                    BLOCK.HEIGHT.gt(ctx.select(BLOCK.HEIGHT).from(BLOCK).where(BLOCK.ID.eq(blockId)))
+                BLOCK.HEIGHT.gt(ctx.select(BLOCK.HEIGHT).from(BLOCK).where(BLOCK.ID.eq(blockId)))
             ).orderBy(BLOCK.HEIGHT.asc()).limit(limit).fetch(BLOCK.ID, Long::class.java)
         }
     }
@@ -68,21 +84,31 @@ internal class SqlBlockchainStore(private val dp: DependencyProvider) : Blockcha
         require(limit <= 1440) { "Can't get more than 1440 blocks at a time" }
         return dp.db.getUsingDslContext { ctx ->
             ctx.selectFrom(BLOCK)
-                    .where(BLOCK.HEIGHT.gt(ctx.select(BLOCK.HEIGHT).from(BLOCK).where(BLOCK.ID.eq(blockId))))
-                    .orderBy(BLOCK.HEIGHT.asc())
-                    .limit(limit)
-                    .fetchAndMap { result ->
-                        try {
-                            return@fetchAndMap dp.blockDb.loadBlock(result)
-                        } catch (e: BurstException.ValidationException) {
-                            throw RuntimeException(e.toString(), e)
-                        }
+                .where(BLOCK.HEIGHT.gt(ctx.select(BLOCK.HEIGHT).from(BLOCK).where(BLOCK.ID.eq(blockId))))
+                .orderBy(BLOCK.HEIGHT.asc())
+                .limit(limit)
+                .fetchAndMap { result ->
+                    try {
+                        return@fetchAndMap dp.blockDb.loadBlock(result)
+                    } catch (e: BurstException.ValidationException) {
+                        throw RuntimeException(e.toString(), e)
                     }
+                }
         }
     }
 
-    override fun getTransactions(account: Account, numberOfConfirmations: Int, type: Byte, subtype: Byte, blockTimestamp: Int, from: Int, to: Int, includeIndirectIncoming: Boolean): Collection<Transaction> {
-        val height = if (numberOfConfirmations > 0) dp.blockchainService.height - numberOfConfirmations else Integer.MAX_VALUE
+    override fun getTransactions(
+        account: Account,
+        numberOfConfirmations: Int,
+        type: Byte,
+        subtype: Byte,
+        blockTimestamp: Int,
+        from: Int,
+        to: Int,
+        includeIndirectIncoming: Boolean
+    ): Collection<Transaction> {
+        val height =
+            if (numberOfConfirmations > 0) dp.blockchainService.height - numberOfConfirmations else Integer.MAX_VALUE
         require(height >= 0) { "Number of confirmations required " + numberOfConfirmations + " exceeds current blockchain height " + dp.blockchainService.height }
         return dp.db.getUsingDslContext { ctx ->
             val conditions = mutableListOf<Condition>()
@@ -100,24 +126,26 @@ internal class SqlBlockchainStore(private val dp: DependencyProvider) : Blockcha
             }
 
             var select = ctx.selectFrom(TRANSACTION).where(conditions).and(
-                    TRANSACTION.RECIPIENT_ID.eq(account.id).and(
-                            TRANSACTION.SENDER_ID.ne(account.id)
-                    )
+                TRANSACTION.RECIPIENT_ID.eq(account.id).and(
+                    TRANSACTION.SENDER_ID.ne(account.id)
+                )
             ).unionAll(
-                    ctx.selectFrom(TRANSACTION).where(conditions).and(
-                            TRANSACTION.SENDER_ID.eq(account.id)
-                    )
+                ctx.selectFrom(TRANSACTION).where(conditions).and(
+                    TRANSACTION.SENDER_ID.eq(account.id)
+                )
             )
 
             if (includeIndirectIncoming) {
-                select = select.unionAll(ctx.selectFrom(TRANSACTION)
+                select = select.unionAll(
+                    ctx.selectFrom(TRANSACTION)
                         .where(conditions)
-                        .and(TRANSACTION.ID.`in`(dp.indirectIncomingStore.getIndirectIncomings(account.id, from, to))))
+                        .and(TRANSACTION.ID.`in`(dp.indirectIncomingStore.getIndirectIncomings(account.id, from, to)))
+                )
             }
 
             val selectQuery = select
-                    .orderBy(TRANSACTION.BLOCK_TIMESTAMP.desc(), TRANSACTION.ID.desc())
-                    .query
+                .orderBy(TRANSACTION.BLOCK_TIMESTAMP.desc(), TRANSACTION.ID.desc())
+                .query
 
             SqlDbUtils.applyLimits(selectQuery, from, to)
 
@@ -145,10 +173,12 @@ internal class SqlBlockchainStore(private val dp: DependencyProvider) : Blockcha
         val firstLatestBlockHeight = max(0, latestBlockHeight - amountBlocks)
 
         return dp.db.getUsingDslContext { ctx ->
-            getBlocks(ctx.selectFrom(BLOCK)
+            getBlocks(
+                ctx.selectFrom(BLOCK)
                     .where(BLOCK.HEIGHT.between(firstLatestBlockHeight).and(latestBlockHeight))
                     .orderBy(BLOCK.HEIGHT.asc())
-                    .fetch())
+                    .fetch()
+            )
         }
     }
 }

@@ -38,7 +38,13 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
 
         val b = state.id
 
-        val tx = dp.atStore.findTransaction(height, state.height, AtApiHelper.getLong(b!!), numOfTx, state.minActivationAmount())!!
+        val tx = dp.atStore.findTransaction(
+            height,
+            state.height,
+            AtApiHelper.getLong(b!!),
+            numOfTx,
+            state.minActivationAmount()
+        )!!
         logger.safeDebug { "tx with id ${tx.toUnsignedString()} found" }
         clearA(state)
         AtApiHelper.getByteArray(tx, state.a1)
@@ -68,7 +74,11 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
             return -1
         }
 
-        return if ((tx.message == null || dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_2, state.height)) && state.minActivationAmount() <= tx.amountPlanck) {
+        return if ((tx.message == null || dp.fluxCapacitorService.getValue(
+                FluxValues.AT_FIX_BLOCK_2,
+                state.height
+            )) && state.minActivationAmount() <= tx.amountPlanck
+        ) {
             tx.amountPlanck - state.minActivationAmount()
         } else 0
 
@@ -85,7 +95,8 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
 
         val b = state.id
         val blockHeight = tx.height
-        val txHeight = dp.atStore.findTransactionHeight(txId, blockHeight, AtApiHelper.getLong(b!!), state.minActivationAmount())
+        val txHeight =
+            dp.atStore.findTransactionHeight(txId, blockHeight, AtApiHelper.getLong(b!!), state.minActivationAmount())
 
         return AtApiHelper.getLongTimestamp(blockHeight, txHeight)
     }
@@ -103,7 +114,8 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         val blockHeight = state.height
 
         if (blockHeight - txBlockHeight < dp.atConstants.blocksForRandom(blockHeight)) { //for tests - for real case 1440
-            state.waitForNumberOfBlocks = dp.atConstants.blocksForRandom(blockHeight).toInt() - (blockHeight - txBlockHeight)
+            state.waitForNumberOfBlocks =
+                dp.atConstants.blocksForRandom(blockHeight).toInt() - (blockHeight - txBlockHeight)
             state.machineState.pc -= 7
             state.machineState.stopped = true
             return 0

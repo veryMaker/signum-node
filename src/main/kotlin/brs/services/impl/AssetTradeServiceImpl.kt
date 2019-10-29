@@ -8,7 +8,7 @@ import brs.db.TradeStore
 import brs.services.AssetTradeService
 import brs.util.Listeners
 
-internal class AssetTradeServiceImpl(private val tradeStore: TradeStore): AssetTradeService {
+internal class AssetTradeServiceImpl(private val tradeStore: TradeStore) : AssetTradeService {
 
     override val listeners = Listeners<Trade, Event>()
     override val tradeTable = tradeStore.tradeTable

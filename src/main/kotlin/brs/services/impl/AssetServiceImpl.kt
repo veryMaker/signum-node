@@ -12,7 +12,12 @@ import brs.services.AssetTradeService
 import brs.services.AssetTransferService
 import brs.transaction.appendix.Attachment
 
-internal class AssetServiceImpl(private val assetAccountService: AssetAccountService, private val tradeService: AssetTradeService, private val assetStore: AssetStore, private val assetTransferService: AssetTransferService) :
+internal class AssetServiceImpl(
+    private val assetAccountService: AssetAccountService,
+    private val tradeService: AssetTradeService,
+    private val assetStore: AssetStore,
+    private val assetTransferService: AssetTransferService
+) :
     AssetService {
     override val assetTable = assetStore.assetTable
     override val assetDbKeyFactory = assetStore.assetDbKeyFactory

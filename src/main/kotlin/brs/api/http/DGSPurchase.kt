@@ -16,7 +16,14 @@ import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class DGSPurchase internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, PRICE_PLANCK_PARAMETER, QUANTITY_PARAMETER, DELIVERY_DEADLINE_TIMESTAMP_PARAMETER) {
+internal class DGSPurchase internal constructor(private val dp: DependencyProvider) : CreateTransaction(
+    dp,
+    arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION),
+    GOODS_PARAMETER,
+    PRICE_PLANCK_PARAMETER,
+    QUANTITY_PARAMETER,
+    DELIVERY_DEADLINE_TIMESTAMP_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
@@ -36,7 +43,7 @@ internal class DGSPurchase internal constructor(private val dp: DependencyProvid
         }
 
         val deliveryDeadlineString = request.getParameter(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER).emptyToNull()
-                ?: return MISSING_DELIVERY_DEADLINE_TIMESTAMP
+            ?: return MISSING_DELIVERY_DEADLINE_TIMESTAMP
         val deliveryDeadline: Int
         try {
             deliveryDeadline = Integer.parseInt(deliveryDeadlineString)
@@ -50,8 +57,10 @@ internal class DGSPurchase internal constructor(private val dp: DependencyProvid
         val buyerAccount = dp.parameterService.getSenderAccount(request)
         val sellerAccount = dp.accountService.getAccount(goods.sellerId) ?: return INCORRECT_ACCOUNT
 
-        val attachment = Attachment.DigitalGoodsPurchase(dp, goods.id, quantity, pricePlanck,
-                deliveryDeadline, dp.blockchainService.height)
+        val attachment = Attachment.DigitalGoodsPurchase(
+            dp, goods.id, quantity, pricePlanck,
+            deliveryDeadline, dp.blockchainService.height
+        )
         return createTransaction(request, buyerAccount, sellerAccount.id, 0, attachment)
     }
 }

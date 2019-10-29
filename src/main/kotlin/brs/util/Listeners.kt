@@ -3,7 +3,8 @@ package brs.util
 import brs.util.sync.Mutex
 
 class Listeners<T, E : Enum<E>> {
-    private val listenersMap = mutableMapOf<Enum<E>, MutableList<(T) -> Unit>>() // Remember, this map type cannot take null keys.
+    private val listenersMap =
+        mutableMapOf<Enum<E>, MutableList<(T) -> Unit>>() // Remember, this map type cannot take null keys.
     private val mutex = Mutex()
 
     fun addListener(eventType: Enum<E>, listener: (T) -> Unit) {

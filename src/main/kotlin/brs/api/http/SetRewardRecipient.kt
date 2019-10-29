@@ -9,7 +9,8 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class SetRewardRecipient(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.ACCOUNTS, APITag.MINING, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER) {
+internal class SetRewardRecipient(private val dp: DependencyProvider) :
+    CreateTransaction(dp, arrayOf(APITag.ACCOUNTS, APITag.MINING, APITag.CREATE_TRANSACTION), RECIPIENT_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = dp.parameterService.getSenderAccount(request)

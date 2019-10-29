@@ -29,11 +29,19 @@ import javax.servlet.http.HttpServletRequest
 internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
     private val dp: DependencyProvider
 
-    constructor(dp: DependencyProvider, apiTags: Array<APITag>, replaceParameters: Boolean, vararg parameters: String) : super(apiTags, *if (replaceParameters) parameters else addCommonParameters(*parameters)) {
+    constructor(
+        dp: DependencyProvider,
+        apiTags: Array<APITag>,
+        replaceParameters: Boolean,
+        vararg parameters: String
+    ) : super(apiTags, *if (replaceParameters) parameters else addCommonParameters(*parameters)) {
         this.dp = dp
     }
 
-    constructor(dp: DependencyProvider, apiTags: Array<APITag>, vararg parameters: String) : super(apiTags, *addCommonParameters(*parameters)) {
+    constructor(dp: DependencyProvider, apiTags: Array<APITag>, vararg parameters: String) : super(
+        apiTags,
+        *addCommonParameters(*parameters)
+    ) {
         this.dp = dp
     }
 
@@ -41,8 +49,21 @@ internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
         return createTransaction(request, senderAccount, null, 0, attachment)
     }
 
-    fun createTransaction(request: HttpServletRequest, senderAccount: Account, recipientId: Long?, amountPlanck: Long, attachment: Attachment = Attachment.OrdinaryPayment(dp)): JsonElement {
-        return dp.apiTransactionManager.createTransaction(request, senderAccount, recipientId, amountPlanck, attachment, minimumFeePlanck())
+    fun createTransaction(
+        request: HttpServletRequest,
+        senderAccount: Account,
+        recipientId: Long?,
+        amountPlanck: Long,
+        attachment: Attachment = Attachment.OrdinaryPayment(dp)
+    ): JsonElement {
+        return dp.apiTransactionManager.createTransaction(
+            request,
+            senderAccount,
+            recipientId,
+            amountPlanck,
+            attachment,
+            minimumFeePlanck()
+        )
     }
 
     override fun requirePost(): Boolean {
@@ -54,7 +75,25 @@ internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
     }
 
     companion object {
-        private val commonParameters = arrayOf(SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_PLANCK_PARAMETER, DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER, MESSAGE_PARAMETER, MESSAGE_IS_TEXT_PARAMETER, MESSAGE_TO_ENCRYPT_PARAMETER, MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, ENCRYPTED_MESSAGE_DATA_PARAMETER, ENCRYPTED_MESSAGE_NONCE_PARAMETER, MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER, MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, ENCRYPT_TO_SELF_MESSAGE_DATA, ENCRYPT_TO_SELF_MESSAGE_NONCE, RECIPIENT_PUBLIC_KEY_PARAMETER)
+        private val commonParameters = arrayOf(
+            SECRET_PHRASE_PARAMETER,
+            PUBLIC_KEY_PARAMETER,
+            FEE_PLANCK_PARAMETER,
+            DEADLINE_PARAMETER,
+            REFERENCED_TRANSACTION_FULL_HASH_PARAMETER,
+            BROADCAST_PARAMETER,
+            MESSAGE_PARAMETER,
+            MESSAGE_IS_TEXT_PARAMETER,
+            MESSAGE_TO_ENCRYPT_PARAMETER,
+            MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER,
+            ENCRYPTED_MESSAGE_DATA_PARAMETER,
+            ENCRYPTED_MESSAGE_NONCE_PARAMETER,
+            MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER,
+            MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER,
+            ENCRYPT_TO_SELF_MESSAGE_DATA,
+            ENCRYPT_TO_SELF_MESSAGE_NONCE,
+            RECIPIENT_PUBLIC_KEY_PARAMETER
+        )
 
         private fun addCommonParameters(vararg parameters: String): Array<String> {
             return commonParameters + parameters

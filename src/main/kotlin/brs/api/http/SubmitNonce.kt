@@ -21,7 +21,18 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 
-internal class SubmitNonce(propertyService: PropertyService, private val accountService: AccountService, private val blockchainService: BlockchainService, private val generatorService: GeneratorService) : APIServlet.JsonRequestHandler(arrayOf(APITag.MINING), SECRET_PHRASE_PARAMETER, NONCE_PARAMETER, ACCOUNT_ID_PARAMETER, BLOCK_HEIGHT_PARAMETER) {
+internal class SubmitNonce(
+    propertyService: PropertyService,
+    private val accountService: AccountService,
+    private val blockchainService: BlockchainService,
+    private val generatorService: GeneratorService
+) : APIServlet.JsonRequestHandler(
+    arrayOf(APITag.MINING),
+    SECRET_PHRASE_PARAMETER,
+    NONCE_PARAMETER,
+    ACCOUNT_ID_PARAMETER,
+    BLOCK_HEIGHT_PARAMETER
+) {
 
     private val passphrases: Map<Long, String>
     private val allowOtherSoloMiners: Boolean
@@ -29,9 +40,9 @@ internal class SubmitNonce(propertyService: PropertyService, private val account
     init {
         val burstCrypto = BurstCrypto.getInstance()
         this.passphrases = propertyService.get(Props.SOLO_MINING_PASSPHRASES)
-                .asSequence()
-                .map { burstCrypto.getBurstAddressFromPassphrase(it).burstID.signedLongId to it}
-                .toMap()
+            .asSequence()
+            .map { burstCrypto.getBurstAddressFromPassphrase(it).burstID.signedLongId to it }
+            .toMap()
         this.allowOtherSoloMiners = propertyService.get(Props.ALLOW_OTHER_SOLO_MINERS)
     }
 
@@ -77,7 +88,10 @@ internal class SubmitNonce(propertyService: PropertyService, private val account
         }
 
         if (!allowOtherSoloMiners && !passphrases.containsValue(secret)) {
-            response.addProperty("result", "This account is not allowed to mine on this node as the whitelist is enabled and it is not whitelisted.")
+            response.addProperty(
+                "result",
+                "This account is not allowed to mine on this node as the whitelist is enabled and it is not whitelisted."
+            )
             return response
         }
 
@@ -85,7 +99,12 @@ internal class SubmitNonce(propertyService: PropertyService, private val account
         val secretAccount = accountService.getAccount(secretPublicKey)
         if (secretAccount != null) {
             try {
-                SubmitNonceHandler.verifySecretAccount(accountService, blockchainService, secretAccount, accountId.parseUnsignedLong())
+                SubmitNonceHandler.verifySecretAccount(
+                    accountService,
+                    blockchainService,
+                    secretAccount,
+                    accountId.parseUnsignedLong()
+                )
             } catch (e: ApiException) {
                 response.addProperty("result", e.message)
                 return response

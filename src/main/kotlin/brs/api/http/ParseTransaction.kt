@@ -16,7 +16,14 @@ import com.google.gson.JsonElement
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 
-internal class ParseTransaction(private val parameterService: ParameterService, private val transactionService: TransactionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_BYTES_PARAMETER, TRANSACTION_JSON_PARAMETER) {
+internal class ParseTransaction(
+    private val parameterService: ParameterService,
+    private val transactionService: TransactionService
+) : APIServlet.JsonRequestHandler(
+    arrayOf(APITag.TRANSACTIONS),
+    TRANSACTION_BYTES_PARAMETER,
+    TRANSACTION_JSON_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
@@ -40,7 +47,10 @@ internal class ParseTransaction(private val parameterService: ParameterService, 
             response.addProperty(ERROR_RESPONSE, e.message)
         }
 
-        response.addProperty(VERIFY_RESPONSE, transaction.verifySignature() && transactionService.verifyPublicKey(transaction))
+        response.addProperty(
+            VERIFY_RESPONSE,
+            transaction.verifySignature() && transactionService.verifyPublicKey(transaction)
+        )
         return response
     }
 

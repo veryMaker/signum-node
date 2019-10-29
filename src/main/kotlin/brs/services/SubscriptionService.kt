@@ -28,7 +28,14 @@ interface SubscriptionService {
     /**
      * TODO
      */
-    fun addSubscription(sender: Account, recipient: Account, id: Long, amountPlanck: Long, startTimestamp: Int, frequency: Int)
+    fun addSubscription(
+        sender: Account,
+        recipient: Account,
+        id: Long,
+        amountPlanck: Long,
+        startTimestamp: Int,
+        frequency: Int
+    )
 
     /**
      * TODO

@@ -6,7 +6,8 @@ import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 
-class GetAssetBalancesHandler(private val assetExchangeService: AssetExchangeService) : GrpcApiHandler<BrsApi.GetAssetBalancesRequest, BrsApi.AssetBalances> {
+class GetAssetBalancesHandler(private val assetExchangeService: AssetExchangeService) :
+    GrpcApiHandler<BrsApi.GetAssetBalancesRequest, BrsApi.AssetBalances> {
 
     override fun handleRequest(request: BrsApi.GetAssetBalancesRequest): BrsApi.AssetBalances {
         val assetId = request.asset
@@ -20,7 +21,7 @@ class GetAssetBalancesHandler(private val assetExchangeService: AssetExchangeSer
         val builder = BrsApi.AssetBalances.newBuilder()
 
         assetExchangeService.getAccountAssetsOverview(asset.id, height, firstIndex, lastIndex)
-                .forEach { assetAccount -> builder.addAssetBalances(ProtoBuilder.buildAssetBalance(assetAccount)) }
+            .forEach { assetAccount -> builder.addAssetBalances(ProtoBuilder.buildAssetBalance(assetAccount)) }
 
         return builder.build()
     }

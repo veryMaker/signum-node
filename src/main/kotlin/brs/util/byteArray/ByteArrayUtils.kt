@@ -36,8 +36,8 @@ fun ByteArray.andWith(other: ByteArray) {
 }
 
 fun ByteArray.partEquals(other: ByteArray, offset: Int, length: Int): Boolean {
-    require (offset + length <= this.size)
-    require (length <= other.size)
+    require(offset + length <= this.size)
+    require(length <= other.size)
     for (i in 0 until length) {
         if (this[offset + i] != other[i]) return false
     }

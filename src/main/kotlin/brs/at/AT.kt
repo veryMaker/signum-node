@@ -6,13 +6,13 @@
 
 package brs.at
 
-import brs.entity.Account
-import brs.entity.Block
-import brs.objects.Genesis
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
+import brs.entity.Account
+import brs.entity.Block
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
+import brs.objects.Genesis
 import brs.transaction.appendix.Appendix
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
@@ -30,20 +30,32 @@ class AT : AtMachineState {
     val description: String
     private val nextHeight: Int
 
-    private constructor(dp: DependencyProvider, atId: ByteArray, creator: ByteArray, name: String, description: String, creationBytes: ByteArray, height: Int) : super(dp, atId, creator, creationBytes, height) {
+    private constructor(
+        dp: DependencyProvider,
+        atId: ByteArray,
+        creator: ByteArray,
+        name: String,
+        description: String,
+        creationBytes: ByteArray,
+        height: Int
+    ) : super(dp, atId, creator, creationBytes, height) {
         this.name = name
         this.description = description
         dbKey = atDbKeyFactory(dp).newKey(AtApiHelper.getLong(atId))
         this.nextHeight = dp.blockchainService.height
     }
 
-    constructor(dp: DependencyProvider, atId: ByteArray, creator: ByteArray, name: String, description: String, version: Short,
-                stateBytes: ByteArray, csize: Int, dsize: Int, cUserStackBytes: Int, cCallStackBytes: Int,
-                creationBlockHeight: Int, sleepBetween: Int, nextHeight: Int,
-                freezeWhenSameBalance: Boolean, minActivationAmount: Long, apCode: ByteArray) : super(dp, atId, creator, version,
-            stateBytes, csize, dsize, cUserStackBytes, cCallStackBytes,
-            creationBlockHeight, sleepBetween,
-            freezeWhenSameBalance, minActivationAmount, apCode) {
+    constructor(
+        dp: DependencyProvider, atId: ByteArray, creator: ByteArray, name: String, description: String, version: Short,
+        stateBytes: ByteArray, csize: Int, dsize: Int, cUserStackBytes: Int, cCallStackBytes: Int,
+        creationBlockHeight: Int, sleepBetween: Int, nextHeight: Int,
+        freezeWhenSameBalance: Boolean, minActivationAmount: Long, apCode: ByteArray
+    ) : super(
+        dp, atId, creator, version,
+        stateBytes, csize, dsize, cUserStackBytes, cCallStackBytes,
+        creationBlockHeight, sleepBetween,
+        freezeWhenSameBalance, minActivationAmount, apCode
+    ) {
         this.name = name
         this.description = description
         dbKey = atDbKeyFactory(dp).newKey(AtApiHelper.getLong(atId))
@@ -67,9 +79,11 @@ class AT : AtMachineState {
             state.freezeWhenSameBalance = freezeOnSameBalance()
             state.minActivationAmount = minActivationAmount()
         } else {
-            state = ATState(dp, AtApiHelper.getLong(this.id!!),
-                    this.state, newNextHeight, sleepBetween,
-                    getpBalance(), freezeOnSameBalance(), minActivationAmount())
+            state = ATState(
+                dp, AtApiHelper.getLong(this.id!!),
+                this.state, newNextHeight, sleepBetween,
+                getpBalance(), freezeOnSameBalance(), minActivationAmount()
+            )
         }
         atStateTable().insert(state)
     }
@@ -78,7 +92,16 @@ class AT : AtMachineState {
         return nextHeight
     }
 
-    open class ATState(dp: DependencyProvider, val atId: Long, var state: ByteArray, var nextHeight: Int, var sleepBetween: Int, var prevBalance: Long, var freezeWhenSameBalance: Boolean, var minActivationAmount: Long) {
+    open class ATState(
+        dp: DependencyProvider,
+        val atId: Long,
+        var state: ByteArray,
+        var nextHeight: Int,
+        var sleepBetween: Int,
+        var prevBalance: Long,
+        var freezeWhenSameBalance: Boolean,
+        var minActivationAmount: Long
+    ) {
         val dbKey = atStateDbKeyFactory(dp).newKey(this.atId)
         var prevHeight: Int = 0
     }
@@ -143,7 +166,15 @@ class AT : AtMachineState {
             return dp.atStore.getAT(id)
         }
 
-        fun addAT(dp: DependencyProvider, atId: Long?, senderAccountId: Long?, name: String, description: String, creationBytes: ByteArray, height: Int) {
+        fun addAT(
+            dp: DependencyProvider,
+            atId: Long?,
+            senderAccountId: Long?,
+            name: String,
+            description: String,
+            creationBytes: ByteArray,
+            height: Int
+        ) {
             val bf = ByteBuffer.allocate(8 + 8)
             bf.order(ByteOrder.LITTLE_ENDIAN)
 
@@ -222,13 +253,22 @@ class AT : AtMachineState {
 
             val transactions = mutableListOf<Transaction>()
             for (atTransaction in pendingTransactions) {
-                dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(dp.accountService.getAccount(AtApiHelper.getLong(atTransaction.senderId))!!, -atTransaction.amount)
-                dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(dp.accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.recipientId)),
+                dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
+                    dp.accountService.getAccount(
+                        AtApiHelper.getLong(
+                            atTransaction.senderId
+                        )
+                    )!!, -atTransaction.amount
+                )
+                dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
+                    dp.accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.recipientId)),
                     atTransaction.amount
                 )
 
-                val builder = Transaction.Builder(dp, 1.toByte(), Genesis.creatorPublicKey,
-                    atTransaction.amount, 0L, block.timestamp, 1440.toShort(), Attachment.AtPayment(dp))
+                val builder = Transaction.Builder(
+                    dp, 1.toByte(), Genesis.creatorPublicKey,
+                    atTransaction.amount, 0L, block.timestamp, 1440.toShort(), Attachment.AtPayment(dp)
+                )
 
                 builder.senderId(AtApiHelper.getLong(atTransaction.senderId))
                     .recipientId(AtApiHelper.getLong(atTransaction.recipientId))

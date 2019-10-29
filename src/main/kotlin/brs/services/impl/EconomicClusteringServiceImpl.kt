@@ -1,13 +1,13 @@
 package brs.services.impl
 
-import brs.objects.Constants
-import brs.entity.DependencyProvider
 import brs.entity.Block
+import brs.entity.DependencyProvider
+import brs.entity.Transaction
+import brs.objects.Constants
 import brs.objects.FluxValues
 import brs.services.EconomicClusteringService
-import brs.entity.Transaction
-import brs.util.logging.safeDebug
 import brs.util.json.toJsonString
+import brs.util.logging.safeDebug
 import org.slf4j.LoggerFactory
 
 /**
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory
  *
  * Come-from-Beyond (21.05.2014)
  */
-class EconomicClusteringServiceImpl(private val dp: DependencyProvider): EconomicClusteringService {
+class EconomicClusteringServiceImpl(private val dp: DependencyProvider) : EconomicClusteringService {
     override fun getECBlock(timestamp: Int): Block {
         var block: Block? = dp.blockchainService.lastBlock
         require(timestamp >= block!!.timestamp - 15) { "Timestamp cannot be more than 15 s earlier than last block timestamp: " + block!!.timestamp }
@@ -38,15 +38,9 @@ class EconomicClusteringServiceImpl(private val dp: DependencyProvider): Economi
 
     override fun verifyFork(transaction: Transaction): Boolean {
         try {
-            if (!dp.fluxCapacitorService.getValue(FluxValues.DIGITAL_GOODS_STORE)) {
-                return true
-            }
-            if (transaction.referencedTransactionFullHash != null) {
-                return true
-            }
-            if (dp.blockchainService.height < Constants.EC_CHANGE_BLOCK_1 && dp.blockchainService.height - transaction.ecBlockHeight > Constants.EC_BLOCK_DISTANCE_LIMIT) {
-                return false
-            }
+            if (!dp.fluxCapacitorService.getValue(FluxValues.DIGITAL_GOODS_STORE)) return true
+            if (transaction.referencedTransactionFullHash != null) return true
+            if (dp.blockchainService.height < Constants.EC_CHANGE_BLOCK_1 && dp.blockchainService.height - transaction.ecBlockHeight > Constants.EC_BLOCK_DISTANCE_LIMIT) return false
             val ecBlock = dp.blockchainService.getBlock(transaction.ecBlockId)
             return ecBlock != null && ecBlock.height == transaction.ecBlockHeight
         } catch (e: NullPointerException) {

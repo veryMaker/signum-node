@@ -34,7 +34,12 @@ class StatisticsServiceImpl(private val dp: DependencyProvider) : StatisticsServ
         if (addedBlockCount++ == 0) {
             firstBlockAdded = dp.timeService.epochTime
         } else if (addedBlockCount % 500 == 0) {
-            logger.safeInfo { "handling ${String.format("%.2f", 500 / (dp.timeService.epochTime - firstBlockAdded).toFloat())} blocks/s ${cacheStatistics.values.joinToString { cacheInfo -> " " + cacheInfo.cacheInfoAndReset }}" }
+            logger.safeInfo {
+                "handling ${String.format(
+                    "%.2f",
+                    500 / (dp.timeService.epochTime - firstBlockAdded).toFloat()
+                )} blocks/s ${cacheStatistics.values.joinToString { cacheInfo -> " " + cacheInfo.cacheInfoAndReset }}"
+            }
             addedBlockCount = 0
         }
     }
@@ -49,13 +54,20 @@ class StatisticsServiceImpl(private val dp: DependencyProvider) : StatisticsServ
 
         internal val cacheInfoAndReset: String
             get() {
-                val hitRatio = if (cacheHits + cacheMisses > 0) cacheHits.toFloat() / (cacheHits + cacheMisses) else null
-                val totalHitRatio = if (totalCacheHits + totalCacheMisses > 0) totalCacheHits.toFloat() / (totalCacheHits + totalCacheMisses) else null
+                val hitRatio =
+                    if (cacheHits + cacheMisses > 0) cacheHits.toFloat() / (cacheHits + cacheMisses) else null
+                val totalHitRatio =
+                    if (totalCacheHits + totalCacheMisses > 0) totalCacheHits.toFloat() / (totalCacheHits + totalCacheMisses) else null
 
                 cacheHits = 0
                 cacheMisses = 0
 
-                return String.format("%s cache hit ratio now/total:%.2f%%/%.2f%%", cacheName, hitRatio!! * 100, totalHitRatio!! * 100)
+                return String.format(
+                    "%s cache hit ratio now/total:%.2f%%/%.2f%%",
+                    cacheName,
+                    hitRatio!! * 100,
+                    totalHitRatio!! * 100
+                )
             }
 
         internal fun cacheHit() {

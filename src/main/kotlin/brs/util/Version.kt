@@ -2,7 +2,13 @@ package brs.util
 
 import java.util.*
 
-class Version(private val major: Int, private val minor: Int, private val patch: Int, private val prereleaseTag: PrereleaseTag, private val prereleaseIteration: Int) {
+class Version(
+    private val major: Int,
+    private val minor: Int,
+    private val patch: Int,
+    private val prereleaseTag: PrereleaseTag,
+    private val prereleaseIteration: Int
+) {
     val isPrelease: Boolean
         get() = prereleaseTag != PrereleaseTag.NONE
 
@@ -93,9 +99,12 @@ class Version(private val major: Int, private val minor: Int, private val patch:
                 val minor = Integer.parseInt(tokenizer.nextToken())
                 val patch = Integer.parseInt(tokenizer.nextToken())
                 return if (tokenizer.hasMoreTokens()) {
-                    val prereleaseTagAndIteration = tokenizer.nextToken().split("(?<=[a-z])(?=[0-9])".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                    val prereleaseTagAndIteration =
+                        tokenizer.nextToken().split("(?<=[a-z])(?=[0-9])".toRegex()).dropLastWhile { it.isEmpty() }
+                            .toTypedArray()
                     val prereleaseTag = PrereleaseTag.withTag(prereleaseTagAndIteration[0])
-                    val prereleaseIteration = if (prereleaseTagAndIteration.size == 2) Integer.parseInt(prereleaseTagAndIteration[1]) else -1
+                    val prereleaseIteration =
+                        if (prereleaseTagAndIteration.size == 2) Integer.parseInt(prereleaseTagAndIteration[1]) else -1
                     Version(major, minor, patch, prereleaseTag, prereleaseIteration)
                 } else {
                     Version(major, minor, patch, PrereleaseTag.NONE, -1)

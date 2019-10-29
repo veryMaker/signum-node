@@ -1,13 +1,13 @@
 package brs.services.impl
 
-import brs.entity.Alias
-import brs.entity.Alias.Offer
-import brs.transaction.appendix.Attachment
-import brs.entity.DependencyProvider
-import brs.entity.Transaction
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
+import brs.entity.Alias
+import brs.entity.Alias.Offer
+import brs.entity.DependencyProvider
+import brs.entity.Transaction
 import brs.services.AliasService
+import brs.transaction.appendix.Attachment
 
 class AliasServiceImpl(dp: DependencyProvider) : AliasService {
     private val aliasStore = dp.aliasStore
@@ -59,7 +59,7 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
         val pricePlanck = attachment.pricePlanck
         val buyerId = transaction.recipientId
         if (pricePlanck > 0) {
-            val alias = getAlias(aliasName)!!
+            val alias = getAlias(aliasName) ?: error("Could not find alias with name \"$aliasName\"")
             val offer = getOffer(alias)
             if (offer == null) {
                 val dbKey = offerDbKeyFactory.newKey(alias.id)
@@ -75,7 +75,7 @@ class AliasServiceImpl(dp: DependencyProvider) : AliasService {
     }
 
     override fun changeOwner(newOwnerId: Long, aliasName: String, timestamp: Int) {
-        val alias = getAlias(aliasName)!!
+        val alias = getAlias(aliasName) ?: error("Could not find alias with name \"$aliasName\"")
         alias.accountId = newOwnerId
         alias.timestamp = timestamp
         aliasTable.insert(alias)

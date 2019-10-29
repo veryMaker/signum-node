@@ -17,7 +17,16 @@ import com.google.gson.JsonElement
 
 import javax.servlet.http.HttpServletRequest
 
-internal class GetBlock internal constructor(private val blockchainService: BlockchainService, private val blockService: BlockService) : APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS), BLOCK_PARAMETER, HEIGHT_PARAMETER, TIMESTAMP_PARAMETER, INCLUDE_TRANSACTIONS_PARAMETER) {
+internal class GetBlock internal constructor(
+    private val blockchainService: BlockchainService,
+    private val blockService: BlockService
+) : APIServlet.JsonRequestHandler(
+    arrayOf(APITag.BLOCKS),
+    BLOCK_PARAMETER,
+    HEIGHT_PARAMETER,
+    TIMESTAMP_PARAMETER,
+    INCLUDE_TRANSACTIONS_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val blockValue = request.getParameter(BLOCK_PARAMETER).emptyToNull()
@@ -53,6 +62,12 @@ internal class GetBlock internal constructor(private val blockchainService: Bloc
 
         val includeTransactions = isTrue(request.getParameter(INCLUDE_TRANSACTIONS_PARAMETER))
 
-        return JSONData.block(blockData, includeTransactions, blockchainService.height, blockService.getBlockReward(blockData), blockService.getScoopNum(blockData))
+        return JSONData.block(
+            blockData,
+            includeTransactions,
+            blockchainService.height,
+            blockService.getBlockReward(blockData),
+            blockService.getScoopNum(blockData)
+        )
     }
 }

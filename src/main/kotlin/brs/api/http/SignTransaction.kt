@@ -24,7 +24,15 @@ import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 
-internal class SignTransaction(private val parameterService: ParameterService, private val transactionService: TransactionService) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), UNSIGNED_TRANSACTION_BYTES_PARAMETER, UNSIGNED_TRANSACTION_JSON_PARAMETER, SECRET_PHRASE_PARAMETER) {
+internal class SignTransaction(
+    private val parameterService: ParameterService,
+    private val transactionService: TransactionService
+) : APIServlet.JsonRequestHandler(
+    arrayOf(APITag.TRANSACTIONS),
+    UNSIGNED_TRANSACTION_BYTES_PARAMETER,
+    UNSIGNED_TRANSACTION_JSON_PARAMETER,
+    SECRET_PHRASE_PARAMETER
+) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val transactionBytes = request.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER).emptyToNull()
@@ -32,7 +40,7 @@ internal class SignTransaction(private val parameterService: ParameterService, p
         val transaction = parameterService.parseTransaction(transactionBytes, transactionJSON)
 
         val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
-                ?: return MISSING_SECRET_PHRASE
+            ?: return MISSING_SECRET_PHRASE
 
         val response = JsonObject()
         try {
@@ -44,7 +52,10 @@ internal class SignTransaction(private val parameterService: ParameterService, p
             }
             if (!Crypto.getPublicKey(secretPhrase).contentEquals(transaction.senderPublicKey)) {
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
-                response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Secret phrase doesn't match transaction sender public key")
+                response.addProperty(
+                    ERROR_DESCRIPTION_RESPONSE,
+                    "Secret phrase doesn't match transaction sender public key"
+                )
                 return response
             }
             transaction.sign(secretPhrase)
@@ -52,7 +63,10 @@ internal class SignTransaction(private val parameterService: ParameterService, p
             response.addProperty(FULL_HASH_RESPONSE, transaction.fullHash.toHexString())
             response.addProperty(TRANSACTION_BYTES_RESPONSE, transaction.toBytes().toHexString())
             response.addProperty(SIGNATURE_HASH_RESPONSE, Crypto.sha256().digest(transaction.signature).toHexString())
-            response.addProperty(VERIFY_RESPONSE, transaction.verifySignature() && transactionService.verifyPublicKey(transaction))
+            response.addProperty(
+                VERIFY_RESPONSE,
+                transaction.verifySignature() && transactionService.verifyPublicKey(transaction)
+            )
         } catch (e: BurstException.ValidationException) {
             logger.safeDebug(e) { e.message }
             response.addProperty(ERROR_CODE_RESPONSE, 4)

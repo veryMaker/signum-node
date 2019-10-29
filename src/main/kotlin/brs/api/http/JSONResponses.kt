@@ -57,10 +57,12 @@ import com.google.gson.JsonObject
 object JSONResponses {
     val INCORRECT_ALIAS = incorrect(ALIAS_PARAMETER)
     val INCORRECT_ALIAS_OWNER = incorrect(ALIAS_PARAMETER, "(invalid alias owner)")
-    val INCORRECT_ALIAS_LENGTH = incorrect(ALIAS_PARAMETER, "(length must be in [1.." + Constants.MAX_ALIAS_LENGTH + "] range)")
+    val INCORRECT_ALIAS_LENGTH =
+        incorrect(ALIAS_PARAMETER, "(length must be in [1.." + Constants.MAX_ALIAS_LENGTH + "] range)")
     val INCORRECT_ALIAS_NAME = incorrect(ALIAS_PARAMETER, "(must contain only digits and latin letters)")
     val INCORRECT_ALIAS_NOTFORSALE = incorrect(ALIAS_PARAMETER, "(alias is not for sale at the moment)")
-    val INCORRECT_URI_LENGTH = incorrect(URI_PARAMETER, "(length must be not longer than " + Constants.MAX_ALIAS_URI_LENGTH + " characters)")
+    val INCORRECT_URI_LENGTH =
+        incorrect(URI_PARAMETER, "(length must be not longer than " + Constants.MAX_ALIAS_URI_LENGTH + " characters)")
     val MISSING_SECRET_PHRASE = missing(SECRET_PHRASE_PARAMETER)
     val INCORRECT_PUBLIC_KEY = incorrect(PUBLIC_KEY_PARAMETER)
     val MISSING_ALIAS_NAME = missing(ALIAS_NAME_PARAMETER)
@@ -89,13 +91,20 @@ object JSONResponses {
     val MISSING_TRANSACTION = missing(TRANSACTION_PARAMETER)
     val UNKNOWN_TRANSACTION = unknown(TRANSACTION_PARAMETER)
     val INCORRECT_TRANSACTION = incorrect(TRANSACTION_PARAMETER)
-    val INCORRECT_ASSET_DESCRIPTION = incorrect(DESCRIPTION_PARAMETER, "(length must not exceed " + Constants.MAX_ASSET_DESCRIPTION_LENGTH + " characters)")
+    val INCORRECT_ASSET_DESCRIPTION = incorrect(
+        DESCRIPTION_PARAMETER,
+        "(length must not exceed " + Constants.MAX_ASSET_DESCRIPTION_LENGTH + " characters)"
+    )
     val INCORRECT_ASSET_NAME = incorrect(NAME_PARAMETER, "(must contain only digits and latin letters)")
-    val INCORRECT_ASSET_NAME_LENGTH = incorrect(NAME_PARAMETER, "(length must be in [" + Constants.MIN_ASSET_NAME_LENGTH + ".." + Constants.MAX_ASSET_NAME_LENGTH + "] range)")
+    val INCORRECT_ASSET_NAME_LENGTH = incorrect(
+        NAME_PARAMETER,
+        "(length must be in [" + Constants.MIN_ASSET_NAME_LENGTH + ".." + Constants.MAX_ASSET_NAME_LENGTH + "] range)"
+    )
     val MISSING_NAME = missing(NAME_PARAMETER)
     val MISSING_QUANTITY = missing(QUANTITY_QNT_PARAMETER)
     val INCORRECT_QUANTITY = incorrect(QUANTITY_PARAMETER)
-    val INCORRECT_ASSET_QUANTITY = incorrect(QUANTITY_PARAMETER, "(must be in [1.." + Constants.MAX_ASSET_QUANTITY + "] range)")
+    val INCORRECT_ASSET_QUANTITY =
+        incorrect(QUANTITY_PARAMETER, "(must be in [1.." + Constants.MAX_ASSET_QUANTITY + "] range)")
     val INCORRECT_DECIMALS = incorrect(DECIMALS_PARAMETER)
     val MISSING_PRICE = missing(PRICE_PLANCK_PARAMETER)
     val INCORRECT_PRICE = incorrect(PRICE_PARAMETER)
@@ -105,13 +114,26 @@ object JSONResponses {
     val INCORRECT_ARBITRARY_MESSAGE = incorrect(MESSAGE_PARAMETER)
     val MISSING_AMOUNT = missing(AMOUNT_PLANCK_PARAMETER)
     val INCORRECT_AMOUNT = incorrect(AMOUNT_PARAMETER)
-    val INCORRECT_ACCOUNT_NAME_LENGTH = incorrect(NAME_PARAMETER, "(length must be less than " + Constants.MAX_ACCOUNT_NAME_LENGTH + " characters)")
-    val INCORRECT_ACCOUNT_DESCRIPTION_LENGTH = incorrect(DESCRIPTION_PARAMETER, "(length must be less than " + Constants.MAX_ACCOUNT_DESCRIPTION_LENGTH + " characters)")
+    val INCORRECT_ACCOUNT_NAME_LENGTH =
+        incorrect(NAME_PARAMETER, "(length must be less than " + Constants.MAX_ACCOUNT_NAME_LENGTH + " characters)")
+    val INCORRECT_ACCOUNT_DESCRIPTION_LENGTH = incorrect(
+        DESCRIPTION_PARAMETER,
+        "(length must be less than " + Constants.MAX_ACCOUNT_DESCRIPTION_LENGTH + " characters)"
+    )
     val MISSING_UNSIGNED_BYTES = missing(UNSIGNED_TRANSACTION_BYTES_PARAMETER)
     val MISSING_SIGNATURE_HASH = missing(SIGNATURE_HASH_PARAMETER)
-    val INCORRECT_DGS_LISTING_NAME = incorrect(NAME_PARAMETER, "(length must be not longer than " + Constants.MAX_DGS_LISTING_NAME_LENGTH + " characters)")
-    val INCORRECT_DGS_LISTING_DESCRIPTION = incorrect(DESCRIPTION_PARAMETER, "(length must be not longer than " + Constants.MAX_DGS_LISTING_DESCRIPTION_LENGTH + " characters)")
-    val INCORRECT_DGS_LISTING_TAGS = incorrect(TAGS_PARAMETER, "(length must be not longer than " + Constants.MAX_DGS_LISTING_TAGS_LENGTH + " characters)")
+    val INCORRECT_DGS_LISTING_NAME = incorrect(
+        NAME_PARAMETER,
+        "(length must be not longer than " + Constants.MAX_DGS_LISTING_NAME_LENGTH + " characters)"
+    )
+    val INCORRECT_DGS_LISTING_DESCRIPTION = incorrect(
+        DESCRIPTION_PARAMETER,
+        "(length must be not longer than " + Constants.MAX_DGS_LISTING_DESCRIPTION_LENGTH + " characters)"
+    )
+    val INCORRECT_DGS_LISTING_TAGS = incorrect(
+        TAGS_PARAMETER,
+        "(length must be not longer than " + Constants.MAX_DGS_LISTING_TAGS_LENGTH + " characters)"
+    )
     val MISSING_GOODS = missing(GOODS_PARAMETER)
     val INCORRECT_GOODS = incorrect(GOODS_PARAMETER)
     val UNKNOWN_GOODS = unknown(GOODS_PARAMETER)
@@ -134,9 +156,15 @@ object JSONResponses {
     val MISSING_HEIGHT = missing(HEIGHT_PARAMETER)
     val INCORRECT_PLAIN_MESSAGE = incorrect(MESSAGE_TO_ENCRYPT_PARAMETER)
 
-    val INCORRECT_AUTOMATED_TRANSACTION_NAME_LENGTH = incorrect(DESCRIPTION_PARAMETER, "(length must not exceed " + Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH + " characters)")
+    val INCORRECT_AUTOMATED_TRANSACTION_NAME_LENGTH = incorrect(
+        DESCRIPTION_PARAMETER,
+        "(length must not exceed " + Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH + " characters)"
+    )
     val INCORRECT_AUTOMATED_TRANSACTION_NAME = incorrect(NAME_PARAMETER, "(must contain only digits and latin letters)")
-    val INCORRECT_AUTOMATED_TRANSACTION_DESCRIPTION = incorrect(DESCRIPTION_PARAMETER, "(length must not exceed " + Constants.MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH + " characters)")
+    val INCORRECT_AUTOMATED_TRANSACTION_DESCRIPTION = incorrect(
+        DESCRIPTION_PARAMETER,
+        "(length must not exceed " + Constants.MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH + " characters)"
+    )
     val MISSING_AT = missing(AT_PARAMETER)
     val UNKNOWN_AT = unknown(AT_PARAMETER)
     val INCORRECT_AT = incorrect(AT_PARAMETER)
@@ -144,9 +172,11 @@ object JSONResponses {
 
     val MISSING_RECEIVER_ID = missing(RECEIVER_ID_PARAMETER)
 
-    val FEE_OR_FEE_SUGGESTION_REQUIRED = incorrect(FEE_SUGGESTION_TYPE_PARAMETER, "Either feeNQT or feeSuggestionType is a required parameter")
+    val FEE_OR_FEE_SUGGESTION_REQUIRED =
+        incorrect(FEE_SUGGESTION_TYPE_PARAMETER, "Either feeNQT or feeSuggestionType is a required parameter")
     val FEE_SUGGESTION_TYPE_INVALID = incorrect(FEE_SUGGESTION_TYPE_PARAMETER, "feeSuggestionType is not valid")
-    val INCORRECT_MESSAGE_LENGTH = incorrect(MESSAGE_PARAMETER, "Message can have a max length of " + Constants.MAX_ARBITRARY_MESSAGE_LENGTH)
+    val INCORRECT_MESSAGE_LENGTH =
+        incorrect(MESSAGE_PARAMETER, "Message can have a max length of " + Constants.MAX_ARBITRARY_MESSAGE_LENGTH)
 
     val NOT_ENOUGH_FUNDS: JsonElement
 
@@ -271,7 +301,10 @@ object JSONResponses {
         if (paramNames.size == 1) {
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "\"${paramNames[0]}\" not specified")
         } else {
-            response.addProperty(ERROR_DESCRIPTION_RESPONSE, "At least one of ${paramNames.contentToString()} must be specified")
+            response.addProperty(
+                ERROR_DESCRIPTION_RESPONSE,
+                "At least one of ${paramNames.contentToString()} must be specified"
+            )
         }
         return response
     }

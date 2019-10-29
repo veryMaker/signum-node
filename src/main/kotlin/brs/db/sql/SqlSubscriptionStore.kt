@@ -22,19 +22,23 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
     override val subscriptionTable: VersionedEntityTable<Subscription>
 
     init {
-        subscriptionTable = object : VersionedEntitySqlTable<Subscription>("subscription", SUBSCRIPTION, subscriptionDbKeyFactory, dp) {
-            override fun load(ctx: DSLContext, rs: Record): Subscription {
-                return SqlSubscription(rs)
-            }
+        subscriptionTable =
+            object : VersionedEntitySqlTable<Subscription>("subscription", SUBSCRIPTION, subscriptionDbKeyFactory, dp) {
+                override fun load(ctx: DSLContext, rs: Record): Subscription {
+                    return SqlSubscription(rs)
+                }
 
-            override fun save(ctx: DSLContext, subscription: Subscription) {
-                saveSubscription(ctx, subscription)
-            }
+                override fun save(ctx: DSLContext, subscription: Subscription) {
+                    saveSubscription(ctx, subscription)
+                }
 
-            override fun defaultSort(): Collection<SortField<*>> {
-                return listOf(tableClass.field("time_next", Int::class.java).asc(), tableClass.field("id", Long::class.java).asc())
+                override fun defaultSort(): Collection<SortField<*>> {
+                    return listOf(
+                        tableClass.field("time_next", Int::class.java).asc(),
+                        tableClass.field("id", Long::class.java).asc()
+                    )
+                }
             }
-        }
     }
 
     private fun getByParticipantClause(id: Long): Condition {
@@ -62,11 +66,47 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
     }
 
     private fun saveSubscription(ctx: DSLContext, subscription: Subscription) {
-        ctx.mergeInto<SubscriptionRecord, Long, Long, Long, Long, Int, Int, Int, Boolean>(SUBSCRIPTION, SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
-                .key(SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
-                .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountPlanck, subscription.frequency, subscription.timeNext, dp.blockchainService.height, true)
-                .execute()
+        ctx.mergeInto<SubscriptionRecord, Long, Long, Long, Long, Int, Int, Int, Boolean>(
+            SUBSCRIPTION,
+            SUBSCRIPTION.ID,
+            SUBSCRIPTION.SENDER_ID,
+            SUBSCRIPTION.RECIPIENT_ID,
+            SUBSCRIPTION.AMOUNT,
+            SUBSCRIPTION.FREQUENCY,
+            SUBSCRIPTION.TIME_NEXT,
+            SUBSCRIPTION.HEIGHT,
+            SUBSCRIPTION.LATEST
+        )
+            .key(
+                SUBSCRIPTION.ID,
+                SUBSCRIPTION.SENDER_ID,
+                SUBSCRIPTION.RECIPIENT_ID,
+                SUBSCRIPTION.AMOUNT,
+                SUBSCRIPTION.FREQUENCY,
+                SUBSCRIPTION.TIME_NEXT,
+                SUBSCRIPTION.HEIGHT,
+                SUBSCRIPTION.LATEST
+            )
+            .values(
+                subscription.id,
+                subscription.senderId,
+                subscription.recipientId,
+                subscription.amountPlanck,
+                subscription.frequency,
+                subscription.timeNext,
+                dp.blockchainService.height,
+                true
+            )
+            .execute()
     }
 
-    private inner class SqlSubscription internal constructor(record: Record) : Subscription(record.get(SUBSCRIPTION.SENDER_ID), record.get(SUBSCRIPTION.RECIPIENT_ID), record.get(SUBSCRIPTION.ID), record.get(SUBSCRIPTION.AMOUNT), record.get(SUBSCRIPTION.FREQUENCY), record.get(SUBSCRIPTION.TIME_NEXT), subscriptionDbKeyFactory.newKey(record.get(SUBSCRIPTION.ID)))
+    private inner class SqlSubscription internal constructor(record: Record) : Subscription(
+        record.get(SUBSCRIPTION.SENDER_ID),
+        record.get(SUBSCRIPTION.RECIPIENT_ID),
+        record.get(SUBSCRIPTION.ID),
+        record.get(SUBSCRIPTION.AMOUNT),
+        record.get(SUBSCRIPTION.FREQUENCY),
+        record.get(SUBSCRIPTION.TIME_NEXT),
+        subscriptionDbKeyFactory.newKey(record.get(SUBSCRIPTION.ID))
+    )
 }

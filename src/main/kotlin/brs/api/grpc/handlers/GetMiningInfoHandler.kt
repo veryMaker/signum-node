@@ -13,7 +13,11 @@ import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
 import java.util.*
 
-class GetMiningInfoHandler(blockchainProcessorService: BlockchainProcessorService, blockchainService: BlockchainService, private val generatorService: GeneratorService) : StreamResponseGrpcApiHandler<Empty, BrsApi.MiningInfo> {
+class GetMiningInfoHandler(
+    blockchainProcessorService: BlockchainProcessorService,
+    blockchainService: BlockchainService,
+    private val generatorService: GeneratorService
+) : StreamResponseGrpcApiHandler<Empty, BrsApi.MiningInfo> {
     /**
      * Listener should close connection if it receives null.
      */
@@ -23,7 +27,11 @@ class GetMiningInfoHandler(blockchainProcessorService: BlockchainProcessorServic
     private val miningInfoLock = Mutex()
 
     init {
-        blockchainProcessorService.addListener(BlockchainProcessorService.Event.BLOCK_PUSHED) { block: Block -> onBlock(block) }
+        blockchainProcessorService.addListener(BlockchainProcessorService.Event.BLOCK_PUSHED) { block: Block ->
+            onBlock(
+                block
+            )
+        }
         onBlock(blockchainService.lastBlock)
     }
 
@@ -31,12 +39,16 @@ class GetMiningInfoHandler(blockchainProcessorService: BlockchainProcessorServic
         miningInfoLock.withLock {
             val nextGenSig = generatorService.calculateGenerationSignature(block.generationSignature, block.generatorId)
             val miningInfo = currentMiningInfo
-            if (miningInfo == null || !Arrays.equals(miningInfo.generationSignature.toByteArray(), nextGenSig) || miningInfo.height - 1 != block.height || miningInfo.baseTarget != block.baseTarget) {
+            if (miningInfo == null || !Arrays.equals(
+                    miningInfo.generationSignature.toByteArray(),
+                    nextGenSig
+                ) || miningInfo.height - 1 != block.height || miningInfo.baseTarget != block.baseTarget
+            ) {
                 val newMiningInfo = BrsApi.MiningInfo.newBuilder()
-                        .setGenerationSignature(nextGenSig.toByteString())
-                        .setHeight(block.height + 1)
-                        .setBaseTarget(block.baseTarget)
-                        .build()
+                    .setGenerationSignature(nextGenSig.toByteString())
+                    .setHeight(block.height + 1)
+                    .setBaseTarget(block.baseTarget)
+                    .build()
                 currentMiningInfo = newMiningInfo
                 notifyListeners(newMiningInfo)
             }

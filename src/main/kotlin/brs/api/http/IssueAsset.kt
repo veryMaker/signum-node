@@ -17,7 +17,14 @@ import brs.util.string.isInAlphabet
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class IssueAsset internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, QUANTITY_QNT_PARAMETER, DECIMALS_PARAMETER) {
+internal class IssueAsset internal constructor(private val dp: DependencyProvider) : CreateTransaction(
+    dp,
+    arrayOf(APITag.AE, APITag.CREATE_TRANSACTION),
+    NAME_PARAMETER,
+    DESCRIPTION_PARAMETER,
+    QUANTITY_QNT_PARAMETER,
+    DECIMALS_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
@@ -57,7 +64,14 @@ internal class IssueAsset internal constructor(private val dp: DependencyProvide
 
         val quantity = ParameterParser.getQuantity(request)
         val account = dp.parameterService.getSenderAccount(request)
-        val attachment = Attachment.ColoredCoinsAssetIssuance(dp, name, description!!, quantity, decimals, dp.blockchainService.height)
+        val attachment = Attachment.ColoredCoinsAssetIssuance(
+            dp,
+            name,
+            description!!,
+            quantity,
+            decimals,
+            dp.blockchainService.height
+        )
         return createTransaction(request, account, attachment)
     }
 }

@@ -11,7 +11,8 @@ import brs.util.convert.safeMultiply
 import brs.util.convert.safeSubtract
 import brs.util.convert.toUnsignedString
 
-internal class AssetOrderServiceImpl(private val dp: DependencyProvider, private val tradeService: AssetTradeService) : AssetOrderService {
+internal class AssetOrderServiceImpl(private val dp: DependencyProvider, private val tradeService: AssetTradeService) :
+    AssetOrderService {
     override val askOrderTable = dp.orderStore.askOrderTable
     override val askOrderDbKeyFactory = dp.orderStore.askOrderDbKeyFactory
     override val bidOrderTable = dp.orderStore.bidOrderTable
@@ -21,7 +22,7 @@ internal class AssetOrderServiceImpl(private val dp: DependencyProvider, private
 
     override val askCount get() = askOrderTable.count
 
-    override fun getAskOrder(orderId: Long): Ask?{
+    override fun getAskOrder(orderId: Long): Ask? {
         return askOrderTable[askOrderDbKeyFactory.newKey(orderId)]
     }
 
@@ -101,15 +102,21 @@ internal class AssetOrderServiceImpl(private val dp: DependencyProvider, private
             val trade = tradeService.addTrade(assetId, dp.blockchainService.lastBlock, askOrder, bidOrder)
 
             askOrderUpdateQuantity(askOrder, askOrder.quantity.safeSubtract(trade.quantity))
-            val askAccount = dp.accountService.getAccount(askOrder.accountId)!!
-            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(askAccount, trade.quantity.safeMultiply(trade.pricePlanck))
+            val askAccount = dp.accountService.getAccount(askOrder.accountId) ?: error("Could not find account with ID \"${askOrder.accountId.toUnsignedString()}\"")
+            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
+                askAccount,
+                trade.quantity.safeMultiply(trade.pricePlanck)
+            )
             dp.accountService.addToAssetBalanceQuantity(askAccount, assetId, -trade.quantity)
 
             bidOrderUpdateQuantity(bidOrder, bidOrder.quantity.safeSubtract(trade.quantity))
-            val bidAccount = dp.accountService.getAccount(bidOrder.accountId)!!
+            val bidAccount = dp.accountService.getAccount(bidOrder.accountId) ?: error("Could not find account with ID \"${bidOrder.accountId.toUnsignedString()}\"")
             dp.accountService.addToAssetAndUnconfirmedAssetBalanceQuantity(bidAccount, assetId, trade.quantity)
             dp.accountService.addToBalancePlanck(bidAccount, -trade.quantity.safeMultiply(trade.pricePlanck))
-            dp.accountService.addToUnconfirmedBalancePlanck(bidAccount, trade.quantity.safeMultiply(bidOrder.pricePlanck - trade.pricePlanck))
+            dp.accountService.addToUnconfirmedBalancePlanck(
+                bidAccount,
+                trade.quantity.safeMultiply(bidOrder.pricePlanck - trade.pricePlanck)
+            )
 
             askOrder = getNextAskOrder(assetId)
             bidOrder = getNextBidOrder(assetId)

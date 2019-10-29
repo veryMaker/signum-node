@@ -40,7 +40,13 @@ class MiningPlot(addr: Long, nonce: Long, blockHeight: Int, fluxCapacitorService
             var pos = 32
             while (pos < PLOT_SIZE / 2) { //Start at second hash in first scoop
                 System.arraycopy(data, pos, hashBuffer, 0, HASH_SIZE) //Copy low scoop second hash to buffer
-                System.arraycopy(data, revPos, data, pos, HASH_SIZE) //Copy high scoop second hash to low scoop second hash
+                System.arraycopy(
+                    data,
+                    revPos,
+                    data,
+                    pos,
+                    HASH_SIZE
+                ) //Copy high scoop second hash to low scoop second hash
                 System.arraycopy(hashBuffer, 0, data, revPos, HASH_SIZE) //Copy buffer to high scoop second hash
                 revPos -= 64 //move backwards
                 pos += 64

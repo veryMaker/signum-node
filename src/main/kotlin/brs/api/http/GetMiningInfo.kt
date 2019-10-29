@@ -6,7 +6,8 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class GetMiningInfo(private val dp: DependencyProvider) : APIServlet.JsonRequestHandler(arrayOf(APITag.MINING, APITag.INFO)) {
+internal class GetMiningInfo(private val dp: DependencyProvider) :
+    APIServlet.JsonRequestHandler(arrayOf(APITag.MINING, APITag.INFO)) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
@@ -14,7 +15,8 @@ internal class GetMiningInfo(private val dp: DependencyProvider) : APIServlet.Js
         response.addProperty("height", (dp.blockchainService.height.toLong() + 1).toString())
 
         val lastBlock = dp.blockchainService.lastBlock
-        val newGenSig = dp.generatorService.calculateGenerationSignature(lastBlock.generationSignature, lastBlock.generatorId)
+        val newGenSig =
+            dp.generatorService.calculateGenerationSignature(lastBlock.generationSignature, lastBlock.generatorId)
 
         response.addProperty("generationSignature", newGenSig.toHexString())
         response.addProperty("baseTarget", lastBlock.baseTarget.toString())

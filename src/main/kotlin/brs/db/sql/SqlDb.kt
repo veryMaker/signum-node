@@ -73,8 +73,8 @@ class SqlDb(private val dp: DependencyProvider) : Db {
             config.maximumPoolSize = dp.propertyService.get(Props.DB_CONNECTIONS)
 
             val flywayBuilder = Flyway.configure()
-                    .dataSource(dbUrl, dbUsername, dbPassword)
-                    .baselineOnMigrate(true)
+                .dataSource(dbUrl, dbUsername, dbPassword)
+                .baselineOnMigrate(true)
             var runFlyway = false
 
             when (dialect) {
@@ -229,7 +229,8 @@ class SqlDb(private val dp: DependencyProvider) : Db {
             try {
                 when (ctx.dialect()) {
                     SQLDialect.MYSQL, SQLDialect.MARIADB -> ctx.execute("OPTIMIZE NO_WRITE_TO_BINLOG TABLE $tableName")
-                    else -> {}
+                    else -> {
+                    }
                 }
             } catch (e: Exception) {
                 logger.safeDebug(e) { "Failed to optimize table $tableName" }

@@ -9,7 +9,7 @@ class GetCurrentTimeHandler(private val timeService: TimeService) : GrpcApiHandl
 
     override fun handleRequest(empty: Empty): BrsApi.Time {
         return BrsApi.Time.newBuilder()
-                .setTime(timeService.epochTime)
-                .build()
+            .setTime(timeService.epochTime)
+            .build()
     }
 }

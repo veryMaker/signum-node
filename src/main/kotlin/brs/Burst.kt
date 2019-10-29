@@ -74,9 +74,10 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.blockchainProcessorService = BlockchainProcessorServiceImpl(dp)
             dp.atConstants = AtConstants(dp)
             dp.economicClusteringService = EconomicClusteringServiceImpl(dp)
-            dp.generatorService = if (dp.propertyService.get(Props.DEV_MOCK_MINING)) GeneratorServiceImpl.MockGeneratorService(dp) else GeneratorServiceImpl(
-                dp
-            )
+            dp.generatorService =
+                if (dp.propertyService.get(Props.DEV_MOCK_MINING)) GeneratorServiceImpl.MockGeneratorService(dp) else GeneratorServiceImpl(
+                    dp
+                )
             dp.accountService = AccountServiceImpl(dp)
             dp.transactionService = TransactionServiceImpl(dp)
             dp.transactionProcessorService = TransactionProcessorServiceImpl(dp)
@@ -90,24 +91,34 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.feeSuggestionService = FeeSuggestionServiceImpl(dp)
             dp.deeplinkQRCodeGeneratorService = DeeplinkQRCodeGeneratorServiceImpl()
             dp.parameterService = ParameterServiceImpl(dp)
-            dp.blockchainProcessorService.addListener(BlockchainProcessorService.Event.AFTER_BLOCK_APPLY, AT.handleATBlockTransactionsListener(dp))
-            dp.blockchainProcessorService.addListener(BlockchainProcessorService.Event.AFTER_BLOCK_APPLY, DigitalGoodsStoreServiceImpl.expiredPurchaseListener(dp))
+            dp.blockchainProcessorService.addListener(
+                BlockchainProcessorService.Event.AFTER_BLOCK_APPLY,
+                AT.handleATBlockTransactionsListener(dp)
+            )
+            dp.blockchainProcessorService.addListener(
+                BlockchainProcessorService.Event.AFTER_BLOCK_APPLY,
+                DigitalGoodsStoreServiceImpl.expiredPurchaseListener(dp)
+            )
             dp.apiTransactionManager = APITransactionManagerImpl(dp)
             dp.peerService = PeerServiceImpl(dp)
             dp.api = API(dp)
 
             if (dp.propertyService.get(Props.API_V2_SERVER)) {
                 val hostname = dp.propertyService.get(Props.API_V2_LISTEN)
-                val port = if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_API_V2_PORT) else dp.propertyService.get(
-                    Props.API_V2_PORT)
+                val port =
+                    if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_API_V2_PORT) else dp.propertyService.get(
+                        Props.API_V2_PORT
+                    )
                 logger.safeInfo { "Starting V2 API Server on port $port" }
                 dp.apiV2Server = BrsService(dp).start(hostname, port)
             } else {
                 logger.safeInfo { "Not starting V2 API Server - it is disabled." }
             }
 
-            val timeMultiplier = if (dp.propertyService.get(Props.DEV_TESTNET) && dp.propertyService.get(Props.DEV_OFFLINE)) dp.propertyService.get(
-                Props.DEV_TIMEWARP).coerceAtLeast(1) else 1
+            val timeMultiplier =
+                if (dp.propertyService.get(Props.DEV_TESTNET) && dp.propertyService.get(Props.DEV_OFFLINE)) dp.propertyService.get(
+                    Props.DEV_TIMEWARP
+                ).coerceAtLeast(1) else 1
 
             logger.safeInfo { "Starting Task Scheduler" }
             dp.taskSchedulerService.start()
@@ -151,27 +162,33 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
         logger.safeInfo { "Shutting down..." }
         try {
             dp.api.shutdown()
-        } catch (ignored: UninitializedPropertyAccessException) {}
+        } catch (ignored: UninitializedPropertyAccessException) {
+        }
         try {
             dp.apiV2Server.shutdownNow()
-        } catch (ignored: UninitializedPropertyAccessException) {}
+        } catch (ignored: UninitializedPropertyAccessException) {
+        }
         try {
             dp.peerService.shutdown()
-        } catch (ignored: UninitializedPropertyAccessException) {}
+        } catch (ignored: UninitializedPropertyAccessException) {
+        }
         try {
             dp.taskSchedulerService.shutdown()
-        } catch (ignored: UninitializedPropertyAccessException) {}
+        } catch (ignored: UninitializedPropertyAccessException) {
+        }
         if (!ignoreDBShutdown) {
             dp.db.shutdown()
         }
         try {
             dp.dbCacheService.close()
-        } catch (ignored: UninitializedPropertyAccessException) {}
+        } catch (ignored: UninitializedPropertyAccessException) {
+        }
         try {
             if (dp.blockchainProcessorService.oclVerify) {
                 dp.oclPocService.destroy()
             }
-        } catch (ignored: UninitializedPropertyAccessException) {}
+        } catch (ignored: UninitializedPropertyAccessException) {
+        }
         logger.safeInfo { "$APPLICATION $VERSION stopped." }
         LoggerConfigurator.shutdown()
     }

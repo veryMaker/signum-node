@@ -13,7 +13,14 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class GetAllTrades internal constructor(private val assetExchangeService: AssetExchangeService) : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), TIMESTAMP_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, INCLUDE_ASSET_INFO_PARAMETER) {
+internal class GetAllTrades internal constructor(private val assetExchangeService: AssetExchangeService) :
+    APIServlet.JsonRequestHandler(
+        arrayOf(APITag.AE),
+        TIMESTAMP_PARAMETER,
+        FIRST_INDEX_PARAMETER,
+        LAST_INDEX_PARAMETER,
+        INCLUDE_ASSET_INFO_PARAMETER
+    ) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val timestamp = ParameterParser.getTimestamp(request)
@@ -25,8 +32,9 @@ internal class GetAllTrades internal constructor(private val assetExchangeServic
         val trades = JsonArray()
 
         val tradeIterator = FilteringIterator(
-                assetExchangeService.getAllTrades(0, -1),
-                { trade -> trade != null && trade.timestamp >= timestamp }, firstIndex, lastIndex)
+            assetExchangeService.getAllTrades(0, -1),
+            { trade -> trade != null && trade.timestamp >= timestamp }, firstIndex, lastIndex
+        )
         while (tradeIterator.hasNext()) {
             val trade = tradeIterator.next()
             val asset = if (includeAssetInfo) assetExchangeService.getAsset(trade.assetId) else null

@@ -46,7 +46,7 @@ class BidOrderPlacement(dp: DependencyProvider) : OrderPlacement(dp) {
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         val attachment = transaction.attachment as Attachment.ColoredCoinsBidOrderPlacement
         if (dp.assetExchangeService.getAsset(attachment.assetId) != null) {
@@ -55,7 +55,10 @@ class BidOrderPlacement(dp: DependencyProvider) : OrderPlacement(dp) {
     }
 
     override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) {
-        dp.accountService.addToUnconfirmedBalancePlanck(senderAccount, calculateAttachmentTotalAmountPlanck(transaction))
+        dp.accountService.addToUnconfirmedBalancePlanck(
+            senderAccount,
+            calculateAttachmentTotalAmountPlanck(transaction)
+        )
     }
 
     companion object {

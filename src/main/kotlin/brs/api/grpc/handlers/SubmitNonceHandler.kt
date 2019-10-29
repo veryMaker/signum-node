@@ -12,13 +12,20 @@ import brs.objects.Props
 import brs.services.AccountService
 import burst.kit.crypto.BurstCrypto
 
-class SubmitNonceHandler(propertyService: PropertyService, private val blockchainService: BlockchainService, private val accountService: AccountService, private val generatorService: GeneratorService) : GrpcApiHandler<BrsApi.SubmitNonceRequest, BrsApi.SubmitNonceResponse> {
+class SubmitNonceHandler(
+    propertyService: PropertyService,
+    private val blockchainService: BlockchainService,
+    private val accountService: AccountService,
+    private val generatorService: GeneratorService
+) : GrpcApiHandler<BrsApi.SubmitNonceRequest, BrsApi.SubmitNonceResponse> {
     private val passphrases: Map<Long, String>
     private val allowOtherSoloMiners: Boolean
 
     init {
 
-        this.passphrases = propertyService.get(Props.SOLO_MINING_PASSPHRASES).associateBy { passphrase -> BurstCrypto.getInstance().getBurstAddressFromPassphrase(passphrase).burstID.signedLongId }
+        this.passphrases = propertyService.get(Props.SOLO_MINING_PASSPHRASES).associateBy { passphrase ->
+            BurstCrypto.getInstance().getBurstAddressFromPassphrase(passphrase).burstID.signedLongId
+        }
         this.allowOtherSoloMiners = propertyService.get(Props.ALLOW_OTHER_SOLO_MINERS)
     }
 
@@ -72,7 +79,12 @@ class SubmitNonceHandler(propertyService: PropertyService, private val blockchai
 
     companion object {
 
-        fun verifySecretAccount(accountService: AccountService, blockchainService: BlockchainService, secretAccount: Account, accountId: Long) {
+        fun verifySecretAccount(
+            accountService: AccountService,
+            blockchainService: BlockchainService,
+            secretAccount: Account,
+            accountId: Long
+        ) {
             val genAccount = if (accountId != 0L) {
                 accountService.getAccount(accountId)
             } else {

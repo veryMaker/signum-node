@@ -6,7 +6,10 @@ import brs.services.ParameterService
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class GetAsset internal constructor(private val parameterService: ParameterService, private val assetExchangeService: AssetExchangeService) : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), ASSET_PARAMETER) {
+internal class GetAsset internal constructor(
+    private val parameterService: ParameterService,
+    private val assetExchangeService: AssetExchangeService
+) : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), ASSET_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val asset = parameterService.getAsset(request)
 

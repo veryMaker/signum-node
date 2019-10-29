@@ -49,7 +49,8 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
             val platformIndex: Int
             val deviceIndex: Int
             if (autoChoose) {
-                val ac = autoChooseDevice() ?: throw OclPocService.OCLCheckerException("Autochoose failed to select a GPU")
+                val ac =
+                    autoChooseDevice() ?: throw OclPocService.OCLCheckerException("Autochoose failed to select a GPU")
                 platformIndex = ac.platform
                 deviceIndex = ac.device
                 logger.safeInfo { "Choosing Platform $platformIndex - DeviceId: $deviceIndex" }
@@ -120,10 +121,14 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
 
             val genGroupSize = LongArray(1)
             val getGroupSize = LongArray(1)
-            clGetKernelWorkGroupInfo(genKernel, device, CL_KERNEL_WORK_GROUP_SIZE, 8,
-                    Pointer.to(genGroupSize), null)
-            clGetKernelWorkGroupInfo(getKernel, device, CL_KERNEL_WORK_GROUP_SIZE, 8,
-                    Pointer.to(getGroupSize), null)
+            clGetKernelWorkGroupInfo(
+                genKernel, device, CL_KERNEL_WORK_GROUP_SIZE, 8,
+                Pointer.to(genGroupSize), null
+            )
+            clGetKernelWorkGroupInfo(
+                getKernel, device, CL_KERNEL_WORK_GROUP_SIZE, 8,
+                Pointer.to(getGroupSize), null
+            )
 
             maxGroupItems = min(genGroupSize[0], getGroupSize[0])
 
@@ -197,16 +202,26 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
                 var scoopOutMem: cl_mem? = null
 
                 try {
-                    idMem = clCreateBuffer(ctx, CL_MEM_READ_ONLY or CL_MEM_COPY_HOST_PTR, 8L * blocks.size,
-                            Pointer.to(ids), null)
-                    nonceMem = clCreateBuffer(ctx, CL_MEM_READ_ONLY or CL_MEM_COPY_HOST_PTR,
-                            8L * blocks.size, Pointer.to(nonces), null)
-                    bufferMem = clCreateBuffer(ctx, CL_MEM_READ_WRITE,
-                            (MiningPlot.PLOT_SIZE + 16).toLong() * blocks.size, null, null)
-                    scoopNumMem = clCreateBuffer(ctx, CL_MEM_READ_ONLY or CL_MEM_COPY_HOST_PTR,
-                            4L * blocks.size, Pointer.to(scoopNums), null)
-                    scoopOutMem = clCreateBuffer(ctx, CL_MEM_READ_WRITE,
-                            MiningPlot.SCOOP_SIZE.toLong() * blocks.size, null, null)
+                    idMem = clCreateBuffer(
+                        ctx, CL_MEM_READ_ONLY or CL_MEM_COPY_HOST_PTR, 8L * blocks.size,
+                        Pointer.to(ids), null
+                    )
+                    nonceMem = clCreateBuffer(
+                        ctx, CL_MEM_READ_ONLY or CL_MEM_COPY_HOST_PTR,
+                        8L * blocks.size, Pointer.to(nonces), null
+                    )
+                    bufferMem = clCreateBuffer(
+                        ctx, CL_MEM_READ_WRITE,
+                        (MiningPlot.PLOT_SIZE + 16).toLong() * blocks.size, null, null
+                    )
+                    scoopNumMem = clCreateBuffer(
+                        ctx, CL_MEM_READ_ONLY or CL_MEM_COPY_HOST_PTR,
+                        4L * blocks.size, Pointer.to(scoopNums), null
+                    )
+                    scoopOutMem = clCreateBuffer(
+                        ctx, CL_MEM_READ_WRITE,
+                        MiningPlot.SCOOP_SIZE.toLong() * blocks.size, null, null
+                    )
 
                     val totalSize = intArrayOf(blocks.size)
 
@@ -224,8 +239,10 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
                         st[0] = if (c + step > 8192) 8192 - c else step
                         clSetKernelArg(genKernel, 3, Sizeof.cl_int.toLong(), Pointer.to(cur))
                         clSetKernelArg(genKernel, 4, Sizeof.cl_int.toLong(), Pointer.to(st))
-                        clEnqueueNDRangeKernel(queue, genKernel, 1, null, longArrayOf(jobSize),
-                                longArrayOf(maxGroupItems), 0, null, null)
+                        clEnqueueNDRangeKernel(
+                            queue, genKernel, 1, null, longArrayOf(jobSize),
+                            longArrayOf(maxGroupItems), 0, null, null
+                        )
 
                         c += st[0]
                     }
@@ -235,19 +252,25 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
                         clSetKernelArg(getKernel2, 1, Sizeof.cl_mem.toLong(), Pointer.to(bufferMem))
                         clSetKernelArg(getKernel2, 2, Sizeof.cl_mem.toLong(), Pointer.to(scoopOutMem!!))
                         clSetKernelArg(getKernel2, 3, Sizeof.cl_int.toLong(), Pointer.to(totalSize))
-                        clEnqueueNDRangeKernel(queue, getKernel2, 1, null, longArrayOf(jobSize),
-                                longArrayOf(maxGroupItems), 0, null, null)
+                        clEnqueueNDRangeKernel(
+                            queue, getKernel2, 1, null, longArrayOf(jobSize),
+                            longArrayOf(maxGroupItems), 0, null, null
+                        )
                     } else {
                         clSetKernelArg(getKernel, 0, Sizeof.cl_mem.toLong(), Pointer.to(scoopNumMem!!))
                         clSetKernelArg(getKernel, 1, Sizeof.cl_mem.toLong(), Pointer.to(bufferMem))
                         clSetKernelArg(getKernel, 2, Sizeof.cl_mem.toLong(), Pointer.to(scoopOutMem!!))
                         clSetKernelArg(getKernel, 3, Sizeof.cl_int.toLong(), Pointer.to(totalSize))
-                        clEnqueueNDRangeKernel(queue, getKernel, 1, null, longArrayOf(jobSize),
-                                longArrayOf(maxGroupItems), 0, null, null)
+                        clEnqueueNDRangeKernel(
+                            queue, getKernel, 1, null, longArrayOf(jobSize),
+                            longArrayOf(maxGroupItems), 0, null, null
+                        )
                     }
 
-                    clEnqueueReadBuffer(queue, scoopOutMem, true, 0,
-                            MiningPlot.SCOOP_SIZE.toLong() * blocks.size, Pointer.to(scoopsOut), 0, null, null)
+                    clEnqueueReadBuffer(
+                        queue, scoopOutMem, true, 0,
+                        MiningPlot.SCOOP_SIZE.toLong() * blocks.size, Pointer.to(scoopsOut), 0, null, null
+                    )
                 } catch (e: Exception) {
                     logger.safeInfo { "GPU error. Try to set a lower value on GPU.HashesPerBatch in properties." }
                     return
@@ -375,8 +398,10 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
             val platformNameSize = LongArray(1)
             clGetPlatformInfo(platforms[pfi], CL_PLATFORM_NAME, 0, null, platformNameSize)
             val platformNameChars = ByteArray(platformNameSize[0].toInt())
-            clGetPlatformInfo(platforms[pfi], CL_PLATFORM_NAME, platformNameChars.size.toLong(),
-                    Pointer.to(platformNameChars), null)
+            clGetPlatformInfo(
+                platforms[pfi], CL_PLATFORM_NAME, platformNameChars.size.toLong(),
+                Pointer.to(platformNameChars), null
+            )
             val platformName = String(platformNameChars)
 
             logger.safeInfo { "Platform ${pfi}: $platformName" }
@@ -405,10 +430,13 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
                 }
 
                 val clock = LongArray(1)
-                clGetDeviceInfo(devices[dvi], CL_DEVICE_MAX_CLOCK_FREQUENCY, Sizeof.cl_long.toLong(),
-                        Pointer.to(clock), null)
+                clGetDeviceInfo(
+                    devices[dvi], CL_DEVICE_MAX_CLOCK_FREQUENCY, Sizeof.cl_long.toLong(),
+                    Pointer.to(clock), null
+                )
 
-                val maxItemsAtOnce = min(calculateMaxItemsByMem(devices[dvi]!!), getComputeUnits(devices[dvi]).toLong() * 256)
+                val maxItemsAtOnce =
+                    min(calculateMaxItemsByMem(devices[dvi]!!), getComputeUnits(devices[dvi]).toLong() * 256)
 
                 val score = maxItemsAtOnce * clock[0]
 

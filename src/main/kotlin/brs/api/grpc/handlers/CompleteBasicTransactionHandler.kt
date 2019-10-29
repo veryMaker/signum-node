@@ -9,7 +9,8 @@ import burst.kit.crypto.BurstCrypto
 import com.google.protobuf.Any
 import com.google.protobuf.InvalidProtocolBufferException
 
-class CompleteBasicTransactionHandler(private val dp: DependencyProvider) : GrpcApiHandler<BrsApi.BasicTransaction, BrsApi.BasicTransaction> {
+class CompleteBasicTransactionHandler(private val dp: DependencyProvider) :
+    GrpcApiHandler<BrsApi.BasicTransaction, BrsApi.BasicTransaction> {
     override fun handleRequest(request: BrsApi.BasicTransaction): BrsApi.BasicTransaction {
         try {
             val builder = request.toBuilder()
@@ -18,7 +19,9 @@ class CompleteBasicTransactionHandler(private val dp: DependencyProvider) : Grpc
                 builder.deadline = 1440
             }
             if (builder.senderId == 0L) {
-                builder.senderId = BurstCrypto.getInstance().getBurstAddressFromPublic(builder.senderPublicKey.toByteArray()).burstID.signedLongId
+                builder.senderId =
+                    BurstCrypto.getInstance().getBurstAddressFromPublic(builder.senderPublicKey.toByteArray())
+                        .burstID.signedLongId
             }
             builder.version = dp.transactionProcessorService.getTransactionVersion(dp.blockchainService.height)
             builder.type = attachment.transactionType.type.toInt()

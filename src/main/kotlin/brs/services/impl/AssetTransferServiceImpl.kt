@@ -25,7 +25,12 @@ internal class AssetTransferServiceImpl(private val assetTransferStore: AssetTra
         return assetTransferStore.getAssetTransfers(assetId, from, to)
     }
 
-    override fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
+    override fun getAccountAssetTransfers(
+        accountId: Long,
+        assetId: Long,
+        from: Int,
+        to: Int
+    ): Collection<AssetTransfer> {
         return assetTransferStore.getAccountAssetTransfers(accountId, assetId, from, to)
     }
 
@@ -33,7 +38,10 @@ internal class AssetTransferServiceImpl(private val assetTransferStore: AssetTra
         return assetTransferStore.getTransferCount(assetId)
     }
 
-    override fun addAssetTransfer(transaction: Transaction, attachment: Attachment.ColoredCoinsAssetTransfer): AssetTransfer {
+    override fun addAssetTransfer(
+        transaction: Transaction,
+        attachment: Attachment.ColoredCoinsAssetTransfer
+    ): AssetTransfer {
         val dbKey = transferDbKeyFactory.newKey(transaction.id)
         val assetTransfer = AssetTransfer(dbKey, transaction, attachment)
         assetTransferTable.insert(assetTransfer)

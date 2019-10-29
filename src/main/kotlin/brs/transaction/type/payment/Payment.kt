@@ -10,7 +10,7 @@ abstract class Payment(dp: DependencyProvider) : TransactionType(dp) {
 
     override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
 
-    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) = Unit
+    override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account) = Unit
 
     override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
 }

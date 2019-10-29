@@ -6,7 +6,8 @@ import brs.peer.PeerServlet.ExtendedProcessRequest
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 
-internal class GetUnconfirmedTransactions(private val transactionProcessorService: TransactionProcessorService) : PeerServlet.ExtendedPeerRequestHandler() {
+internal class GetUnconfirmedTransactions(private val transactionProcessorService: TransactionProcessorService) :
+    PeerServlet.ExtendedPeerRequestHandler() {
     override fun extendedProcessRequest(request: JsonObject, peer: Peer): ExtendedProcessRequest {
         val response = JsonObject()
 
@@ -19,6 +20,11 @@ internal class GetUnconfirmedTransactions(private val transactionProcessorServic
 
         response.add(UNCONFIRMED_TRANSACTIONS_RESPONSE, transactionsData)
 
-        return ExtendedProcessRequest(response) { transactionProcessorService.markFingerPrintsOf(peer, unconfirmedTransactions) }
+        return ExtendedProcessRequest(response) {
+            transactionProcessorService.markFingerPrintsOf(
+                peer,
+                unconfirmedTransactions
+            )
+        }
     }
 }

@@ -16,7 +16,15 @@ import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class DGSListing internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER, TAGS_PARAMETER, QUANTITY_PARAMETER, PRICE_PLANCK_PARAMETER) {
+internal class DGSListing internal constructor(private val dp: DependencyProvider) : CreateTransaction(
+    dp,
+    arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION),
+    NAME_PARAMETER,
+    DESCRIPTION_PARAMETER,
+    TAGS_PARAMETER,
+    QUANTITY_PARAMETER,
+    PRICE_PLANCK_PARAMETER
+) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         var name = request.getParameter(NAME_PARAMETER).emptyToNull()
         val description = request.getParameter(DESCRIPTION_PARAMETER).orEmpty()
@@ -41,7 +49,15 @@ internal class DGSListing internal constructor(private val dp: DependencyProvide
         }
 
         val account = dp.parameterService.getSenderAccount(request)
-        val attachment = Attachment.DigitalGoodsListing(dp, name, description, tags, quantity, pricePlanck, dp.blockchainService.height)
+        val attachment = Attachment.DigitalGoodsListing(
+            dp,
+            name,
+            description,
+            tags,
+            quantity,
+            pricePlanck,
+            dp.blockchainService.height
+        )
         return createTransaction(request, account, attachment)
     }
 }

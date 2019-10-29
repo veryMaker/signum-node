@@ -48,7 +48,7 @@ fun String.parseJson(): JsonElement {
     return StringReader(this).parseJson()
 }
 
-fun <T: JsonElement> Iterable<T>.toJsonArray(): JsonArray {
+fun <T : JsonElement> Iterable<T>.toJsonArray(): JsonArray {
     val jsonArray = JsonArray()
     for (item in this) jsonArray.add(item)
     return jsonArray

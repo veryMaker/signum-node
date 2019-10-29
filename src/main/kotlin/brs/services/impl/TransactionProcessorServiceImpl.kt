@@ -26,7 +26,8 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
 
     private val transactionListeners = Listeners<Collection<Transaction>, TransactionProcessorService.Event>()
     private val foodDispenser: (Peer) -> Collection<Transaction> = { dp.unconfirmedTransactionService.getAllFor(it) }
-    private val doneFeedingLog: (Peer, Collection<Transaction>) -> Unit = { peer, transactions -> dp.unconfirmedTransactionService.markFingerPrintsOf(peer, transactions) }
+    private val doneFeedingLog: (Peer, Collection<Transaction>) -> Unit =
+        { peer, transactions -> dp.unconfirmedTransactionService.markFingerPrintsOf(peer, transactions) }
 
     init {
         dp.taskSchedulerService.scheduleTaskWithDelay(TaskType.IO, 0, 10000) {
@@ -50,8 +51,14 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                                     try {
                                         val otherPeerResponse = dp.peerService.readUnconfirmedTransactions(otherPeer)
                                         if (otherPeerResponse != null) {
-                                            val otherPeerTransactions = otherPeerResponse.get(UNCONFIRMED_TRANSACTIONS_RESPONSE).mustGetAsJsonArray(UNCONFIRMED_TRANSACTIONS_RESPONSE)
-                                            if (!otherPeerTransactions.isEmpty()) dp.peerService.feedingTime(otherPeer, foodDispenser, doneFeedingLog)
+                                            val otherPeerTransactions =
+                                                otherPeerResponse.get(UNCONFIRMED_TRANSACTIONS_RESPONSE)
+                                                    .mustGetAsJsonArray(UNCONFIRMED_TRANSACTIONS_RESPONSE)
+                                            if (!otherPeerTransactions.isEmpty()) dp.peerService.feedingTime(
+                                                otherPeer,
+                                                foodDispenser,
+                                                doneFeedingLog
+                                            )
                                         }
                                     } catch (e: ValidationException) {
                                         peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
@@ -79,7 +86,10 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
     override val amountUnconfirmedTransactions: Int
         get() = dp.unconfirmedTransactionService.amount
 
-    override fun addListener(eventType: TransactionProcessorService.Event, listener: (Collection<Transaction>) -> Unit) {
+    override fun addListener(
+        eventType: TransactionProcessorService.Event,
+        listener: (Collection<Transaction>) -> Unit
+    ) {
         return transactionListeners.addListener(eventType, listener)
     }
 
@@ -99,7 +109,13 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
         return dp.unconfirmedTransactionService.get(transactionId)
     }
 
-    override fun newTransactionBuilder(senderPublicKey: ByteArray, amountPlanck: Long, feePlanck: Long, deadline: Short, attachment: Attachment): Transaction.Builder {
+    override fun newTransactionBuilder(
+        senderPublicKey: ByteArray,
+        amountPlanck: Long,
+        feePlanck: Long,
+        deadline: Short,
+        attachment: Attachment
+    ): Transaction.Builder {
         val version = getTransactionVersion(dp.blockchainService.height).toByte()
         val timestamp = dp.timeService.epochTime
         val builder = Transaction.Builder(
@@ -233,13 +249,17 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
             try {
                 val curTime = dp.timeService.epochTime
                 if (transaction.timestamp > curTime + 15 || transaction.expiration < curTime
-                    || transaction.deadline > 1440) {
+                    || transaction.deadline > 1440
+                ) {
                     continue
                 }
 
                 dp.db.beginTransaction()
                 try {
-                    if (dp.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionService.exists(transaction.id)) {
+                    if (dp.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionService.exists(
+                            transaction.id
+                        )
+                    ) {
                         dp.unconfirmedTransactionService.markFingerPrintsOf(peer, listOf(transaction))
                     } else if (!(transaction.verifySignature() && dp.transactionService.verifyPublicKey(transaction))) {
                         if (dp.accountService.getAccount(transaction.senderId) != null) {
@@ -272,7 +292,8 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
     }
 
     private fun broadcastToPeers(toAll: Boolean): Int {
-        val peersToSendTo = if (toAll) dp.peerService.activePeers.take(100) else dp.peerService.allActivePriorityPlusSomeExtraPeers
+        val peersToSendTo =
+            if (toAll) dp.peerService.activePeers.take(100) else dp.peerService.allActivePriorityPlusSomeExtraPeers
 
         logger.safeTrace { "Queueing up ${peersToSendTo.size} Peers for feeding" }
 

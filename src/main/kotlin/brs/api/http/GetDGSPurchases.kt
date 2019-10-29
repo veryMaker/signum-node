@@ -14,7 +14,15 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class GetDGSPurchases(private val digitalGoodsStoreService: DigitalGoodsStoreService) : APIServlet.JsonRequestHandler(arrayOf(APITag.DGS), SELLER_PARAMETER, BUYER_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, COMPLETED_PARAMETER) {
+internal class GetDGSPurchases(private val digitalGoodsStoreService: DigitalGoodsStoreService) :
+    APIServlet.JsonRequestHandler(
+        arrayOf(APITag.DGS),
+        SELLER_PARAMETER,
+        BUYER_PARAMETER,
+        FIRST_INDEX_PARAMETER,
+        LAST_INDEX_PARAMETER,
+        COMPLETED_PARAMETER
+    ) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sellerId = ParameterParser.getSellerId(request)
@@ -29,7 +37,12 @@ internal class GetDGSPurchases(private val digitalGoodsStoreService: DigitalGood
         response.add(PURCHASES_RESPONSE, purchasesJSON)
 
         if (sellerId == 0L && buyerId == 0L) {
-            val purchaseIterator = FilteringIterator(digitalGoodsStoreService.getAllPurchases(0, -1), { purchase -> purchase != null && !(completed && purchase.isPending) }, firstIndex, lastIndex)
+            val purchaseIterator = FilteringIterator(
+                digitalGoodsStoreService.getAllPurchases(0, -1),
+                { purchase -> purchase != null && !(completed && purchase.isPending) },
+                firstIndex,
+                lastIndex
+            )
             while (purchaseIterator.hasNext()) {
                 purchasesJSON.add(JSONData.purchase(purchaseIterator.next()))
             }
@@ -43,7 +56,8 @@ internal class GetDGSPurchases(private val digitalGoodsStoreService: DigitalGood
         } else {
             digitalGoodsStoreService.getSellerBuyerPurchases(sellerId, buyerId, 0, -1)
         }
-        val purchaseIterator = FilteringIterator(purchases, { purchase -> !(completed && purchase.isPending) }, firstIndex, lastIndex)
+        val purchaseIterator =
+            FilteringIterator(purchases, { purchase -> !(completed && purchase.isPending) }, firstIndex, lastIndex)
         while (purchaseIterator.hasNext()) {
             purchasesJSON.add(JSONData.purchase(purchaseIterator.next()))
         }

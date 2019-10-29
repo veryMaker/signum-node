@@ -1,4 +1,5 @@
 package brs.db
+
 import brs.entity.EncryptedData
 import brs.entity.Goods
 import brs.entity.Purchase

@@ -13,7 +13,8 @@ import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
-internal class DGSQuantityChange internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, DELTA_QUANTITY_PARAMETER) {
+internal class DGSQuantityChange internal constructor(private val dp: DependencyProvider) :
+    CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, DELTA_QUANTITY_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
@@ -26,7 +27,7 @@ internal class DGSQuantityChange internal constructor(private val dp: Dependency
         val deltaQuantity: Int
         try {
             val deltaQuantityString = request.getParameter(DELTA_QUANTITY_PARAMETER).emptyToNull()
-                    ?: return MISSING_DELTA_QUANTITY
+                ?: return MISSING_DELTA_QUANTITY
             deltaQuantity = Integer.parseInt(deltaQuantityString)
             if (deltaQuantity > Constants.MAX_DGS_LISTING_QUANTITY || deltaQuantity < -Constants.MAX_DGS_LISTING_QUANTITY) {
                 return INCORRECT_DELTA_QUANTITY

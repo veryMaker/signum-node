@@ -48,20 +48,47 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
         }
     }
 
-    private inner class SqlOffer internal constructor(record: Record) : Alias.Offer(record.get(ALIAS_OFFER.ID), record.get(ALIAS_OFFER.PRICE), record.get(ALIAS_OFFER.BUYER_ID).nullToZero(), offerDbKeyFactory.newKey(record.get(ALIAS_OFFER.ID)))
+    private inner class SqlOffer internal constructor(record: Record) : Alias.Offer(
+        record.get(ALIAS_OFFER.ID),
+        record.get(ALIAS_OFFER.PRICE),
+        record.get(ALIAS_OFFER.BUYER_ID).nullToZero(),
+        offerDbKeyFactory.newKey(record.get(ALIAS_OFFER.ID))
+    )
 
     private fun saveOffer(offer: Alias.Offer) {
         dp.db.useDslContext { ctx ->
-            ctx.insertInto<AliasOfferRecord, Long, Long, Long, Int>(ALIAS_OFFER, ALIAS_OFFER.ID, ALIAS_OFFER.PRICE, ALIAS_OFFER.BUYER_ID, ALIAS_OFFER.HEIGHT)
-                    .values(offer.id, offer.pricePlanck, if (offer.buyerId == 0L) null else offer.buyerId, dp.blockchainService.height)
-                    .execute()
+            ctx.insertInto<AliasOfferRecord, Long, Long, Long, Int>(
+                ALIAS_OFFER,
+                ALIAS_OFFER.ID,
+                ALIAS_OFFER.PRICE,
+                ALIAS_OFFER.BUYER_ID,
+                ALIAS_OFFER.HEIGHT
+            )
+                .values(
+                    offer.id,
+                    offer.pricePlanck,
+                    if (offer.buyerId == 0L) null else offer.buyerId,
+                    dp.blockchainService.height
+                )
+                .execute()
         }
     }
 
-    private inner class SqlAlias internal constructor(record: Record) : Alias(record.get(ALIAS.ID), record.get(ALIAS.ACCOUNT_ID), record.get(ALIAS.ALIAS_NAME), record.get(ALIAS.ALIAS_URI), record.get(ALIAS.TIMESTAMP), aliasDbKeyFactory.newKey(record.get(ALIAS.ID)))
+    private inner class SqlAlias internal constructor(record: Record) : Alias(
+        record.get(ALIAS.ID),
+        record.get(ALIAS.ACCOUNT_ID),
+        record.get(ALIAS.ALIAS_NAME),
+        record.get(ALIAS.ALIAS_URI),
+        record.get(ALIAS.TIMESTAMP),
+        aliasDbKeyFactory.newKey(record.get(ALIAS.ID))
+    )
 
     private fun saveAlias(ctx: DSLContext, alias: Alias) {
-        ctx.insertInto<AliasRecord>(ALIAS).set(ALIAS.ID, alias.id).set(ALIAS.ACCOUNT_ID, alias.accountId).set(ALIAS.ALIAS_NAME, alias.aliasName).set(ALIAS.ALIAS_NAME_LOWER, alias.aliasName.toLowerCase(Locale.ENGLISH)).set(ALIAS.ALIAS_URI, alias.aliasURI).set(ALIAS.TIMESTAMP, alias.timestamp).set(ALIAS.HEIGHT, dp.blockchainService.height).execute()
+        ctx.insertInto<AliasRecord>(ALIAS).set(ALIAS.ID, alias.id).set(ALIAS.ACCOUNT_ID, alias.accountId)
+            .set(ALIAS.ALIAS_NAME, alias.aliasName)
+            .set(ALIAS.ALIAS_NAME_LOWER, alias.aliasName.toLowerCase(Locale.ENGLISH))
+            .set(ALIAS.ALIAS_URI, alias.aliasURI).set(ALIAS.TIMESTAMP, alias.timestamp)
+            .set(ALIAS.HEIGHT, dp.blockchainService.height).execute()
     }
 
     override fun getAliasesByOwner(accountId: Long, from: Int, to: Int): Collection<Alias> {

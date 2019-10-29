@@ -6,7 +6,8 @@ import brs.util.json.JSON
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
-internal class ProcessTransactions(private val transactionProcessorService: TransactionProcessorService) : PeerServlet.PeerRequestHandler {
+internal class ProcessTransactions(private val transactionProcessorService: TransactionProcessorService) :
+    PeerServlet.PeerRequestHandler {
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         return try {
             transactionProcessorService.processPeerTransactions(request, peer) // TODO this is not locking sync obj...

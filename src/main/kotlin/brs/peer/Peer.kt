@@ -86,7 +86,9 @@ interface Peer : Comparable<Peer> {
 
     companion object {
         fun isHigherOrEqualVersion(ourVersion: Version?, possiblyLowerVersion: Version?): Boolean {
-            return if (ourVersion == null || possiblyLowerVersion == null) false else possiblyLowerVersion.isGreaterThanOrEqualTo(ourVersion)
+            return if (ourVersion == null || possiblyLowerVersion == null) false else possiblyLowerVersion.isGreaterThanOrEqualTo(
+                ourVersion
+            )
         }
     }
 

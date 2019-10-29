@@ -1,27 +1,26 @@
 package brs.transaction.type
 
-import brs.transaction.appendix.Attachment.AbstractAttachment
-import brs.objects.Constants.FEE_QUANT
-import brs.objects.Constants.ONE_BURST
 import brs.entity.Account
 import brs.entity.DependencyProvider
-import brs.objects.FluxValues
 import brs.entity.Transaction
+import brs.entity.TransactionDuplicationKey
 import brs.objects.Constants
+import brs.objects.Constants.FEE_QUANT
+import brs.objects.Constants.ONE_BURST
+import brs.objects.FluxValues
 import brs.transaction.appendix.Appendix
+import brs.transaction.appendix.Attachment.AbstractAttachment
 import brs.transaction.type.accountControl.EffectiveBalanceLeasing
 import brs.transaction.type.advancedPayment.*
 import brs.transaction.type.automatedTransactions.AtPayment
 import brs.transaction.type.automatedTransactions.AutomatedTransactionCreation
 import brs.transaction.type.burstMining.RewardRecipientAssignment
 import brs.transaction.type.coloredCoins.*
-import brs.transaction.type.coloredCoins.AssetTransfer
 import brs.transaction.type.digitalGoods.*
 import brs.transaction.type.messaging.*
 import brs.transaction.type.payment.MultiOutPayment
 import brs.transaction.type.payment.MultiOutSamePayment
 import brs.transaction.type.payment.OrdinaryPayment
-import brs.entity.TransactionDuplicationKey
 import brs.util.convert.safeAdd
 import brs.util.convert.safeMultiply
 import brs.util.logging.safeTrace
@@ -74,19 +73,17 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
 
     internal abstract fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account): Boolean
 
-    internal fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account?) {
+    internal fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
         dp.accountService.addToBalancePlanck(senderAccount, -transaction.amountPlanck.safeAdd(transaction.feePlanck))
         if (transaction.referencedTransactionFullHash != null) {
             dp.accountService.addToUnconfirmedBalancePlanck(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_PLANCK)
         }
-        if (recipientAccount != null) {
-            dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(recipientAccount, transaction.amountPlanck)
-        }
+        dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(recipientAccount, transaction.amountPlanck)
         logger.safeTrace { "applying transaction - id: ${transaction.id}, type: ${transaction.type}" }
         applyAttachment(transaction, senderAccount, recipientAccount)
     }
 
-    internal abstract fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account?)
+    internal abstract fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account)
 
     open fun parseAppendices(builder: Transaction.Builder, attachmentData: JsonObject) {
         builder.message(Appendix.Message.parse(attachmentData))

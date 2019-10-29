@@ -18,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorService {
     private val listeners = Listeners<GeneratorService.GeneratorState, GeneratorService.Event>()
-    private val generators = ConcurrentHashMap<Long, GeneratorStateImpl>() // Remember, this map type cannot take null keys.
+    private val generators =
+        ConcurrentHashMap<Long, GeneratorStateImpl>() // Remember, this map type cannot take null keys.
     private val burstCrypto = BurstCrypto.getInstance()
 
     init {
@@ -83,7 +84,13 @@ open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorS
         return if (dp.fluxCapacitorService.getValue(FluxValues.POC2, blockHeight)) 2 else 1
     }
 
-    override fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, blockHeight: Int): BigInteger {
+    override fun calculateHit(
+        accountId: Long,
+        nonce: Long,
+        genSig: ByteArray,
+        scoop: Int,
+        blockHeight: Int
+    ): BigInteger {
         return burstCrypto.calculateHit(accountId, nonce, genSig, scoop, getPocVersion(blockHeight))
     }
 
@@ -91,11 +98,23 @@ open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorS
         return burstCrypto.calculateHit(accountId, nonce, genSig, scoopData)
     }
 
-    override fun calculateDeadline(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, baseTarget: Long, blockHeight: Int): BigInteger {
+    override fun calculateDeadline(
+        accountId: Long,
+        nonce: Long,
+        genSig: ByteArray,
+        scoop: Int,
+        baseTarget: Long,
+        blockHeight: Int
+    ): BigInteger {
         return burstCrypto.calculateDeadline(accountId, nonce, genSig, scoop, baseTarget, getPocVersion(blockHeight))
     }
 
-    inner class GeneratorStateImpl internal constructor(private val secretPhrase: String, private val nonce: Long?, override val publicKey: ByteArray, override val accountId: Long?) :
+    inner class GeneratorStateImpl internal constructor(
+        private val secretPhrase: String,
+        private val nonce: Long?,
+        override val publicKey: ByteArray,
+        override val accountId: Long?
+    ) :
         GeneratorService.GeneratorState {
         override val deadline: BigInteger
         override val block: Long
@@ -112,7 +131,8 @@ open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorS
 
             val scoopNum = calculateScoop(newGenSig, lastBlock.height + 1L)
 
-            deadline = calculateDeadline(accountId!!, nonce!!, newGenSig, scoopNum, lastBlock.baseTarget, lastBlock.height + 1)
+            deadline =
+                calculateDeadline(accountId!!, nonce!!, newGenSig, scoopNum, lastBlock.baseTarget, lastBlock.height + 1)
         }
 
         internal fun forge(blockchainProcessorService: BlockchainProcessorService) {
@@ -126,7 +146,13 @@ open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorS
     }
 
     class MockGeneratorService(private val dp: DependencyProvider) : GeneratorServiceImpl(dp) {
-        override fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, blockHeight: Int): BigInteger {
+        override fun calculateHit(
+            accountId: Long,
+            nonce: Long,
+            genSig: ByteArray,
+            scoop: Int,
+            blockHeight: Int
+        ): BigInteger {
             return BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toLong())
         }
 
@@ -134,7 +160,14 @@ open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorS
             return BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toLong())
         }
 
-        override fun calculateDeadline(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, baseTarget: Long, blockHeight: Int): BigInteger {
+        override fun calculateDeadline(
+            accountId: Long,
+            nonce: Long,
+            genSig: ByteArray,
+            scoop: Int,
+            baseTarget: Long,
+            blockHeight: Int
+        ): BigInteger {
             return BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toLong())
         }
     }

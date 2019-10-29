@@ -40,7 +40,7 @@ class MultiOutPayment(dp: DependencyProvider) : Payment(dp) {
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         val attachment = transaction.attachment as Attachment.PaymentMultiOutCreation
         for (recipient in attachment.getRecipients()) {

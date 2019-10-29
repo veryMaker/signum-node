@@ -15,21 +15,32 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
     private val indirectIncomingTable: EntitySqlTable<IndirectIncoming>
 
     init {
-        val indirectIncomingDbKeyFactory = object : SqlDbKey.LinkKeyFactory<IndirectIncoming>("account_id", "transaction_id") {
-            override fun newKey(indirectIncoming: IndirectIncoming): BurstKey {
-                return newKey(indirectIncoming.accountId, indirectIncoming.transactionId)
+        val indirectIncomingDbKeyFactory =
+            object : SqlDbKey.LinkKeyFactory<IndirectIncoming>("account_id", "transaction_id") {
+                override fun newKey(indirectIncoming: IndirectIncoming): BurstKey {
+                    return newKey(indirectIncoming.accountId, indirectIncoming.transactionId)
+                }
             }
-        }
 
-        this.indirectIncomingTable = object : EntitySqlTable<IndirectIncoming>("indirect_incoming", INDIRECT_INCOMING, indirectIncomingDbKeyFactory, dp) {
+        this.indirectIncomingTable = object :
+            EntitySqlTable<IndirectIncoming>("indirect_incoming", INDIRECT_INCOMING, indirectIncomingDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, rs: Record): IndirectIncoming {
-                return IndirectIncoming(rs.get(INDIRECT_INCOMING.ACCOUNT_ID), rs.get(INDIRECT_INCOMING.TRANSACTION_ID), rs.get(INDIRECT_INCOMING.HEIGHT))
+                return IndirectIncoming(
+                    rs.get(INDIRECT_INCOMING.ACCOUNT_ID),
+                    rs.get(INDIRECT_INCOMING.TRANSACTION_ID),
+                    rs.get(INDIRECT_INCOMING.HEIGHT)
+                )
             }
 
             private fun getQuery(ctx: DSLContext, indirectIncoming: IndirectIncoming): Query {
-                return ctx.mergeInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
-                        .key(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
-                        .values(indirectIncoming.accountId, indirectIncoming.transactionId, indirectIncoming.height)
+                return ctx.mergeInto(
+                    INDIRECT_INCOMING,
+                    INDIRECT_INCOMING.ACCOUNT_ID,
+                    INDIRECT_INCOMING.TRANSACTION_ID,
+                    INDIRECT_INCOMING.HEIGHT
+                )
+                    .key(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
+                    .values(indirectIncoming.accountId, indirectIncoming.transactionId, indirectIncoming.height)
             }
 
             override fun save(ctx: DSLContext, indirectIncoming: IndirectIncoming) {
@@ -52,6 +63,6 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
 
     override fun getIndirectIncomings(accountId: Long, from: Int, to: Int): List<Long> {
         return indirectIncomingTable.getManyBy(INDIRECT_INCOMING.ACCOUNT_ID.eq(accountId), from, to)
-                .map { it.transactionId }
+            .map { it.transactionId }
     }
 }

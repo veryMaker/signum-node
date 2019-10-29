@@ -46,7 +46,7 @@ internal object ParameterParser {
 
     fun getFeePlanck(request: HttpServletRequest): Long {
         val feeValuePlanck = request.getParameter(FEE_PLANCK_PARAMETER).emptyToNull()
-                ?: throw ParameterException(MISSING_FEE)
+            ?: throw ParameterException(MISSING_FEE)
         val feePlanck: Long
         try {
             feePlanck = feeValuePlanck.toLong()
@@ -78,7 +78,7 @@ internal object ParameterParser {
 
     fun getQuantity(request: HttpServletRequest): Long {
         val quantityValue = request.getParameter(QUANTITY_QNT_PARAMETER).emptyToNull()
-                ?: throw ParameterException(MISSING_QUANTITY)
+            ?: throw ParameterException(MISSING_QUANTITY)
         val quantity: Long
         try {
             quantity = quantityValue.toLong()
@@ -94,7 +94,7 @@ internal object ParameterParser {
 
     fun getOrderId(request: HttpServletRequest): Long {
         val orderValue = request.getParameter(ORDER_PARAMETER).emptyToNull()
-                ?: throw ParameterException(MISSING_ORDER)
+            ?: throw ParameterException(MISSING_ORDER)
         try {
             return orderValue.parseUnsignedLong()
         } catch (e: RuntimeException) {
@@ -132,7 +132,7 @@ internal object ParameterParser {
 
     fun getSecretPhrase(request: HttpServletRequest): String {
         return request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
-                ?: throw ParameterException(MISSING_SECRET_PHRASE)
+            ?: throw ParameterException(MISSING_SECRET_PHRASE)
     }
 
     fun getTimestamp(request: HttpServletRequest): Int {
@@ -243,7 +243,7 @@ internal object ParameterParser {
 
     fun getAmountPlanck(request: HttpServletRequest): Long {
         val amountValuePlanck = request.getParameter(AMOUNT_PLANCK_PARAMETER).emptyToNull()
-                ?: throw ParameterException(MISSING_AMOUNT)
+            ?: throw ParameterException(MISSING_AMOUNT)
         val amountPlanck: Long
         try {
             amountPlanck = amountValuePlanck.toLong()

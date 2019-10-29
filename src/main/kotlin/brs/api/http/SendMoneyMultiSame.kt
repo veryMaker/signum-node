@@ -19,7 +19,8 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), true, *commonParameters) {
+internal class SendMoneyMultiSame(private val dp: DependencyProvider) :
+    CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), true, *commonParameters) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val amountPlanck = ParameterParser.getAmountPlanck(request)
@@ -34,7 +35,8 @@ internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTr
             return response
         }
 
-        val recipientsArray = recipientString.split(";".toRegex(), Constants.MAX_MULTI_SAME_OUT_RECIPIENTS).toTypedArray()
+        val recipientsArray =
+            recipientString.split(";".toRegex(), Constants.MAX_MULTI_SAME_OUT_RECIPIENTS).toTypedArray()
 
         if (recipientsArray.size > Constants.MAX_MULTI_SAME_OUT_RECIPIENTS || recipientsArray.size < 2) {
             val response = JsonObject()
@@ -71,6 +73,15 @@ internal class SendMoneyMultiSame(private val dp: DependencyProvider) : CreateTr
 
     companion object {
 
-        private val commonParameters = arrayOf(SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_PLANCK_PARAMETER, DEADLINE_PARAMETER, REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, BROADCAST_PARAMETER, RECIPIENTS_PARAMETER, AMOUNT_PLANCK_PARAMETER)
+        private val commonParameters = arrayOf(
+            SECRET_PHRASE_PARAMETER,
+            PUBLIC_KEY_PARAMETER,
+            FEE_PLANCK_PARAMETER,
+            DEADLINE_PARAMETER,
+            REFERENCED_TRANSACTION_FULL_HASH_PARAMETER,
+            BROADCAST_PARAMETER,
+            RECIPIENTS_PARAMETER,
+            AMOUNT_PLANCK_PARAMETER
+        )
     }
 }

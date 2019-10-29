@@ -8,7 +8,11 @@ import brs.api.grpc.service.ProtoBuilder
 import brs.services.AccountService
 import brs.services.BlockService
 
-class GetAccountBlocksHandler(private val blockchainService: BlockchainService, private val blockService: BlockService, private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAccountBlocksRequest, BrsApi.Blocks> {
+class GetAccountBlocksHandler(
+    private val blockchainService: BlockchainService,
+    private val blockService: BlockService,
+    private val accountService: AccountService
+) : GrpcApiHandler<BrsApi.GetAccountBlocksRequest, BrsApi.Blocks> {
     override fun handleRequest(getAccountRequest: BrsApi.GetAccountBlocksRequest): BrsApi.Blocks {
         val accountId = getAccountRequest.accountId
         val timestamp = getAccountRequest.timestamp
@@ -21,7 +25,13 @@ class GetAccountBlocksHandler(private val blockchainService: BlockchainService, 
         val account = accountService.getAccount(accountId) ?: throw ApiException("Could not find account")
 
         return BrsApi.Blocks.newBuilder()
-                .addAllBlocks(blockchainService.getBlocks(account, timestamp, firstIndex, lastIndex).map { block -> ProtoBuilder.buildBlock(blockchainService, blockService, block, includeTransactions) })
-                .build()
+            .addAllBlocks(
+                blockchainService.getBlocks(
+                    account,
+                    timestamp,
+                    firstIndex,
+                    lastIndex
+                ).map { block -> ProtoBuilder.buildBlock(blockchainService, blockService, block, includeTransactions) })
+            .build()
     }
 }

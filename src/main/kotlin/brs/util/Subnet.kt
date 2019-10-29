@@ -31,7 +31,8 @@ class Subnet {
      */
     private constructor(subnetAddress: InetAddress, mask: InetAddress?) {
         this.bytesSubnetCount = subnetAddress.address.size
-        this.bigMask = if (null == mask) BigInteger.valueOf(-1) else BigInteger(mask.address) // no mask given case is handled here.
+        this.bigMask =
+            if (null == mask) BigInteger.valueOf(-1) else BigInteger(mask.address) // no mask given case is handled here.
         this.bigSubnetMasked = BigInteger(subnetAddress.address).and(this.bigMask)
     }
 

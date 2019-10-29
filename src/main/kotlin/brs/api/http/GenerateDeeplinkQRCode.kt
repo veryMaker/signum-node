@@ -28,7 +28,16 @@ import javax.imageio.ImageIO
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGeneratorService: DeeplinkQRCodeGeneratorService) : HttpRequestHandler(arrayOf(APITag.CREATE_TRANSACTION, APITag.TRANSACTIONS), IMMUTABLE_PARAMETER, RECEIVER_ID_PARAMETER, AMOUNT_PLANCK_PARAMETER, FEE_PLANCK_PARAMETER, FEE_SUGGESTION_TYPE_PARAMETER, MESSAGE_PARAMETER) {
+internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGeneratorService: DeeplinkQRCodeGeneratorService) :
+    HttpRequestHandler(
+        arrayOf(APITag.CREATE_TRANSACTION, APITag.TRANSACTIONS),
+        IMMUTABLE_PARAMETER,
+        RECEIVER_ID_PARAMETER,
+        AMOUNT_PLANCK_PARAMETER,
+        FEE_PLANCK_PARAMETER,
+        FEE_SUGGESTION_TYPE_PARAMETER,
+        MESSAGE_PARAMETER
+    ) {
 
     private val logger = LoggerFactory.getLogger(GenerateDeeplinkQRCode::class.java)
 
@@ -95,7 +104,14 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGeneratorService
 
             resp.contentType = "image/jpeg"
 
-            val qrImage = deeplinkQRCodeGeneratorService.generateRequestBurstDeepLinkQRCode(receiverId, amountPlanck, feeSuggestionType, feePlanck, message, immutable)
+            val qrImage = deeplinkQRCodeGeneratorService.generateRequestBurstDeepLinkQRCode(
+                receiverId,
+                amountPlanck,
+                feeSuggestionType,
+                feePlanck,
+                message,
+                immutable
+            )
             ImageIO.write(qrImage, "jpg", resp.outputStream)
             resp.outputStream.close()
         } catch (e: WriterException) {

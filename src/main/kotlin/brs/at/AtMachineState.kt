@@ -136,10 +136,12 @@ open class AtMachineState {
             return b.array()
         }
 
-    protected constructor(dp: DependencyProvider, atId: ByteArray, creator: ByteArray, version: Short,
-                          stateBytes: ByteArray, cSize: Int, dSize: Int, cUserStackBytes: Int, cCallStackBytes: Int,
-                          creationBlockHeight: Int, sleepBetween: Int,
-                          freezeWhenSameBalance: Boolean, minActivationAmount: Long, apCode: ByteArray) {
+    protected constructor(
+        dp: DependencyProvider, atId: ByteArray, creator: ByteArray, version: Short,
+        stateBytes: ByteArray, cSize: Int, dSize: Int, cUserStackBytes: Int, cCallStackBytes: Int,
+        creationBlockHeight: Int, sleepBetween: Int,
+        freezeWhenSameBalance: Boolean, minActivationAmount: Long, apCode: ByteArray
+    ) {
         this.dp = dp
         this.id = atId
         this.creator = creator
@@ -163,7 +165,13 @@ open class AtMachineState {
         transactions = mutableMapOf()
     }
 
-    protected constructor(dp: DependencyProvider, atId: ByteArray, creator: ByteArray, creationBytes: ByteArray, height: Int) {
+    protected constructor(
+        dp: DependencyProvider,
+        atId: ByteArray,
+        creator: ByteArray,
+        creationBytes: ByteArray,
+        height: Int
+    ) {
         this.dp = dp
         this.version = dp.atConstants.atVersion(height)
         this.id = atId
@@ -246,10 +254,12 @@ open class AtMachineState {
         if (oldTx == null) {
             transactions[recipId] = tx
         } else {
-            val newTx = AtTransaction(tx.senderId,
-                    tx.recipientId,
-                    oldTx.amount + tx.amount,
-                    tx.message ?: oldTx.message)
+            val newTx = AtTransaction(
+                tx.senderId,
+                tx.recipientId,
+                oldTx.amount + tx.amount,
+                tx.message ?: oldTx.message
+            )
             transactions[recipId] = newTx
         }
     }

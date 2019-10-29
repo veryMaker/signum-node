@@ -10,7 +10,11 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class GetRewardRecipient(private val parameterService: ParameterService, private val blockchainService: BlockchainService, private val accountService: AccountService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS, APITag.MINING, APITag.INFO), ACCOUNT_PARAMETER) {
+internal class GetRewardRecipient(
+    private val parameterService: ParameterService,
+    private val blockchainService: BlockchainService,
+    private val accountService: AccountService
+) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS, APITag.MINING, APITag.INFO), ACCOUNT_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
 
@@ -19,7 +23,10 @@ internal class GetRewardRecipient(private val parameterService: ParameterService
         val height = blockchainService.lastBlock.height.toLong()
         when {
             assignment == null -> response.addProperty(REWARD_RECIPIENT_RESPONSE, account.id.toUnsignedString())
-            assignment.fromHeight > height + 1 -> response.addProperty(REWARD_RECIPIENT_RESPONSE, assignment.prevRecipientId.toUnsignedString())
+            assignment.fromHeight > height + 1 -> response.addProperty(
+                REWARD_RECIPIENT_RESPONSE,
+                assignment.prevRecipientId.toUnsignedString()
+            )
             else -> response.addProperty(REWARD_RECIPIENT_RESPONSE, assignment.recipientId.toUnsignedString())
         }
 

@@ -51,14 +51,18 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     override val communicationLoggingMask: Int
 
     private val random = Random()
-    
+
     override val rebroadcastPeers: Set<String>
     override val wellKnownPeers: Set<String>
-    
+
     init {
-        val wellKnownPeersList = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_BOOTSTRAP_PEERS else Props.P2P_BOOTSTRAP_PEERS).toMutableSet()
+        val wellKnownPeersList =
+            dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_BOOTSTRAP_PEERS else Props.P2P_BOOTSTRAP_PEERS)
+                .toMutableSet()
         if (dp.propertyService.get(P2P_ENABLE_TX_REBROADCAST)) {
-            rebroadcastPeers = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_REBROADCAST_TO else Props.P2P_REBROADCAST_TO).toSet()
+            rebroadcastPeers =
+                dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_REBROADCAST_TO else Props.P2P_REBROADCAST_TO)
+                    .toSet()
 
             for (rePeer in rebroadcastPeers) {
                 if (!wellKnownPeersList.contains(rePeer)) {
@@ -68,9 +72,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         } else {
             rebroadcastPeers = emptySet()
         }
-        wellKnownPeers = if (wellKnownPeersList.isEmpty() || dp.propertyService.get(Props.DEV_OFFLINE)) emptySet() else wellKnownPeersList
+        wellKnownPeers =
+            if (wellKnownPeersList.isEmpty() || dp.propertyService.get(Props.DEV_OFFLINE)) emptySet() else wellKnownPeersList
     }
-    
+
     override val knownBlacklistedPeers: Set<String>
 
     private var peerServer: Server? = null
@@ -104,7 +109,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private val listeners = Listeners<Peer, PeerService.Event>()
 
     private val peers = ConcurrentHashMap<String, Peer>() // Remember, this map type cannot take null keys.
-    private val announcedAddresses: MutableMap<String?, String> = ConcurrentHashMap() // Remember, this map type cannot take null keys.
+    private val announcedAddresses: MutableMap<String?, String> =
+        ConcurrentHashMap() // Remember, this map type cannot take null keys.
 
     override val allPeers: Collection<Peer> = peers.values
 
@@ -115,7 +121,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         myPlatform = dp.propertyService.get(Props.P2P_MY_PLATFORM)
         myAddress = if (dp.propertyService.get(Props.P2P_MY_ADDRESS).isNotBlank()
             && dp.propertyService.get(Props.P2P_MY_ADDRESS).trim { it <= ' ' }.isEmpty()
-            && gateway != null) {
+            && gateway != null
+        ) {
             var externalIPAddress: String? = null
             try {
                 externalIPAddress = gateway!!.externalIPAddress
@@ -136,7 +143,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             throw RuntimeException("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
         }
         useUpnp = dp.propertyService.get(Props.P2P_UPNP)
-        shareMyAddress = dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE)
+        shareMyAddress =
+            dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE)
 
         val json = JsonObject()
         if (myAddress != null && myAddress.isNotEmpty()) {
@@ -148,7 +156,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                     if (port >= 0) {
                         json.addProperty("announcedAddress", myAddress)
                     } else {
-                        json.addProperty("announcedAddress", host + if (myPeerServerPort != DEFAULT_PEER_PORT) ":$myPeerServerPort" else "")
+                        json.addProperty(
+                            "announcedAddress",
+                            host + if (myPeerServerPort != DEFAULT_PEER_PORT) ":$myPeerServerPort" else ""
+                        )
                     }
                 } else {
                     json.addProperty("announcedAddress", host)
@@ -221,7 +232,14 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                             if (gateway!!.getSpecificPortMappingEntry(port, "TCP", portMapping)) {
                                 logger.safeInfo { "Port was already mapped. Aborting test." }
                             } else {
-                                if (gateway!!.addPortMapping(port, port, localAddress.hostAddress, "TCP", "burstcoin")) {
+                                if (gateway!!.addPortMapping(
+                                        port,
+                                        port,
+                                        localAddress.hostAddress,
+                                        "TCP",
+                                        "burstcoin"
+                                    )
+                                ) {
                                     logger.safeInfo { "UPnP Mapping successful" }
                                 } else {
                                     logger.safeWarn { "UPnP Mapping was denied!" }
@@ -259,19 +277,53 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             peerHandler.addServletWithMapping(peerServletHolder, "/*")
 
             if (dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER)) {
-                val dosFilterHolder = peerHandler.addFilterWithMapping(DoSFilter::class.java, "/*", FilterMapping.DEFAULT)
-                dosFilterHolder.setInitParameter("maxRequestsPerSec", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_REQUESTS_PER_SEC))
-                dosFilterHolder.setInitParameter("throttledRequests", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_THROTTLED_REQUESTS))
+                val dosFilterHolder =
+                    peerHandler.addFilterWithMapping(DoSFilter::class.java, "/*", FilterMapping.DEFAULT)
+                dosFilterHolder.setInitParameter(
+                    "maxRequestsPerSec",
+                    dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_REQUESTS_PER_SEC)
+                )
+                dosFilterHolder.setInitParameter(
+                    "throttledRequests",
+                    dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_THROTTLED_REQUESTS)
+                )
                 dosFilterHolder.setInitParameter("delayMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_DELAY_MS))
-                dosFilterHolder.setInitParameter("maxWaitMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_WAIT_MS))
-                dosFilterHolder.setInitParameter("maxRequestMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_REQUEST_MS))
-                dosFilterHolder.setInitParameter("maxthrottleMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_THROTTLE_MS))
-                dosFilterHolder.setInitParameter("maxIdleTrackerMs", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_IDLE_TRACKER_MS))
-                dosFilterHolder.setInitParameter("trackSessions", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_TRACK_SESSIONS))
-                dosFilterHolder.setInitParameter("insertHeaders", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_INSERT_HEADERS))
-                dosFilterHolder.setInitParameter("remotePort", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_REMOTE_PORT))
-                dosFilterHolder.setInitParameter("ipWhitelist", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_IP_WHITELIST))
-                dosFilterHolder.setInitParameter("managedAttr", dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MANAGED_ATTR))
+                dosFilterHolder.setInitParameter(
+                    "maxWaitMs",
+                    dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_WAIT_MS)
+                )
+                dosFilterHolder.setInitParameter(
+                    "maxRequestMs",
+                    dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_REQUEST_MS)
+                )
+                dosFilterHolder.setInitParameter(
+                    "maxthrottleMs",
+                    dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_THROTTLE_MS)
+                )
+                dosFilterHolder.setInitParameter(
+                    "maxIdleTrackerMs",
+                    dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MAX_IDLE_TRACKER_MS)
+                )
+                dosFilterHolder.setInitParameter(
+                    "trackSessions",
+                    dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_TRACK_SESSIONS)
+                )
+                dosFilterHolder.setInitParameter(
+                    "insertHeaders",
+                    dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_INSERT_HEADERS)
+                )
+                dosFilterHolder.setInitParameter(
+                    "remotePort",
+                    dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_REMOTE_PORT)
+                )
+                dosFilterHolder.setInitParameter(
+                    "ipWhitelist",
+                    dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_IP_WHITELIST)
+                )
+                dosFilterHolder.setInitParameter(
+                    "managedAttr",
+                    dp.propertyService.get(Props.JETTY_P2P_DOS_FILTER_MANAGED_ATTR)
+                )
                 dosFilterHolder.isAsyncSupported = true
             }
 
@@ -329,7 +381,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             if (peer.announcedAddress != null
                 && !peer.isBlacklisted
                 && !peer.isWellKnown
-                && peer.isHigherOrEqualVersionThan(MIN_VERSION)) {
+                && peer.isHigherOrEqualVersionThan(MIN_VERSION)
+            ) {
                 currentPeers.add(peer.announcedAddress!!)
             }
         }
@@ -358,7 +411,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
              * if peers size is equal or below connected value we have nothing to connect to
              */
             while (numConnectedPeers < maxNumberOfConnectedPublicPeers && peers.size > numConnectedPeers) {
-                val peer = getAnyPeer(if (ThreadLocalRandom.current().nextInt(2) == 0) Peer.State.NON_CONNECTED else Peer.State.DISCONNECTED)
+                val peer =
+                    getAnyPeer(if (ThreadLocalRandom.current().nextInt(2) == 0) Peer.State.NON_CONNECTED else Peer.State.DISCONNECTED)
                 if (peer != null) {
                     peer.connect(dp.timeService.epochTime)
                     /*
@@ -437,10 +491,11 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 val myPeers = JsonArray()
                 for (myPeer in allPeers) {
                     if (!myPeer.isBlacklisted && myPeer.announcedAddress != null
-                            && myPeer.state == Peer.State.CONNECTED && myPeer.shareAddress
-                            && !addedAddresses.contains(myPeer.announcedAddress!!)
-                            && myPeer.announcedAddress != peer.announcedAddress
-                            && myPeer.isHigherOrEqualVersionThan(MIN_VERSION)) {
+                        && myPeer.state == Peer.State.CONNECTED && myPeer.shareAddress
+                        && !addedAddresses.contains(myPeer.announcedAddress!!)
+                        && myPeer.announcedAddress != peer.announcedAddress
+                        && myPeer.isHigherOrEqualVersionThan(MIN_VERSION)
+                    ) {
                         myPeers.add(myPeer.announcedAddress)
                     }
                 }
@@ -583,7 +638,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 val peer = peers[value]
                 if (peer != null && peer.state == Peer.State.CONNECTED && peer.shareAddress && !peer.isBlacklisted && peer.version.toString().startsWith(
                         dumpPeersVersion
-                    )) {
+                    )
+                ) {
                     buf.append("('").append(key).append("'), ")
                 }
             }
@@ -656,7 +712,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             return peer
         }
 
-        val announcedPeerAddress = if (address == announcedAddress) peerAddress else normalizeHostAndPort(announcedAddress)
+        val announcedPeerAddress =
+            if (address == announcedAddress) peerAddress else normalizeHostAndPort(announcedAddress)
 
         if (!myAddress.isNullOrEmpty() && myAddress.equals(announcedPeerAddress, ignoreCase = true)) {
             return null
@@ -737,7 +794,11 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         return peer.send(getUnconfirmedTransactionsRequest)
     }
 
-    override fun feedingTime(peer: Peer, foodDispenser: (Peer) -> Collection<Transaction>, doneFeedingLog: (Peer, Collection<Transaction>) -> Unit) {
+    override fun feedingTime(
+        peer: Peer,
+        foodDispenser: (Peer) -> Collection<Transaction>,
+        doneFeedingLog: (Peer, Collection<Transaction>) -> Unit
+    ) {
         processingMutex.withLock<Unit> {
             when {
                 !beingProcessed.contains(peer) -> {
@@ -749,7 +810,11 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         }
     }
 
-    private fun feedPeer(peer: Peer, foodDispenser: (Peer) -> Collection<Transaction>, doneFeedingLog: (Peer, Collection<Transaction>) -> Unit) {
+    private fun feedPeer(
+        peer: Peer,
+        foodDispenser: (Peer) -> Collection<Transaction>,
+        doneFeedingLog: (Peer, Collection<Transaction>) -> Unit
+    ) {
         val transactionsToSend = foodDispenser(peer)
 
         if (transactionsToSend.isNotEmpty()) {
@@ -838,7 +903,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             }
             val inetAddress = InetAddress.getByName(host)
             if (inetAddress.isAnyLocalAddress || inetAddress.isLoopbackAddress ||
-                    inetAddress.isLinkLocalAddress) {
+                inetAddress.isLinkLocalAddress
+            ) {
                 return null
             }
             val port = uri.port

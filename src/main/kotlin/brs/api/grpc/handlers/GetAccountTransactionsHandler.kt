@@ -7,7 +7,10 @@ import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 import brs.services.AccountService
 
-class GetAccountTransactionsHandler(private val blockchainService: BlockchainService, private val accountService: AccountService) : GrpcApiHandler<BrsApi.GetAccountTransactionsRequest, BrsApi.Transactions> {
+class GetAccountTransactionsHandler(
+    private val blockchainService: BlockchainService,
+    private val accountService: AccountService
+) : GrpcApiHandler<BrsApi.GetAccountTransactionsRequest, BrsApi.Transactions> {
 
     override fun handleRequest(request: BrsApi.GetAccountTransactionsRequest): BrsApi.Transactions {
         val accountId = request.accountId
@@ -24,8 +27,24 @@ class GetAccountTransactionsHandler(private val blockchainService: BlockchainSer
         val builder = BrsApi.Transactions.newBuilder()
 
         val currentHeight = blockchainService.height
-        blockchainService.getTransactions(account, numberOfConfirmations, type, subtype, timestamp, firstIndex, lastIndex, true)
-                .forEach { transaction -> builder.addTransactions(ProtoBuilder.buildTransaction(transaction, currentHeight)) }
+        blockchainService.getTransactions(
+            account,
+            numberOfConfirmations,
+            type,
+            subtype,
+            timestamp,
+            firstIndex,
+            lastIndex,
+            true
+        )
+            .forEach { transaction ->
+                builder.addTransactions(
+                    ProtoBuilder.buildTransaction(
+                        transaction,
+                        currentHeight
+                    )
+                )
+            }
 
         return builder.build()
     }

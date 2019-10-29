@@ -116,12 +116,14 @@ class DownloadCacheServiceImpl(private val dp: DependencyProvider) : DownloadCac
                 }
             }
         }
-        return stampedLock.read { blockCache[blockId] } ?: if (dp.blockchainService.hasBlock(blockId)) dp.blockchainService.getBlock(blockId) else null
+        return stampedLock.read { blockCache[blockId] }
+            ?: if (dp.blockchainService.hasBlock(blockId)) dp.blockchainService.getBlock(blockId) else null
     }
 
     override fun getNextBlock(prevBlockId: Long) = stampedLock.read { blockCache[reverseCache[prevBlockId]] }
 
-    override fun hasBlock(blockId: Long) = stampedLock.read { blockCache.containsKey(blockId) } || dp.blockchainService.hasBlock(blockId)
+    override fun hasBlock(blockId: Long) =
+        stampedLock.read { blockCache.containsKey(blockId) } || dp.blockchainService.hasBlock(blockId)
 
     override fun canBeFork(oldBlockId: Long) = stampedLock.read {
         val curHeight = chainHeight
@@ -179,7 +181,7 @@ class DownloadCacheServiceImpl(private val dp: DependencyProvider) : DownloadCac
     private fun setLastVars() = stampedLock.write {
         if (blockCache.isNotEmpty()) {
             lastBlockId = blockCache[blockCache.keys.toTypedArray()[blockCache.keys.size - 1]]?.id
-            lastHeight = blockCache[lastBlockId ?: Genesis.GENESIS_BLOCK_ID ]?.height ?: 0
+            lastHeight = blockCache[lastBlockId ?: Genesis.GENESIS_BLOCK_ID]?.height ?: 0
             highestCumulativeDifficulty = blockCache[lastBlockId ?: Genesis.GENESIS_BLOCK_ID]!!.cumulativeDifficulty
             logger.safeDebug { "Cache set to CacheData" }
             printLastVars() // TODO remove? or compact?

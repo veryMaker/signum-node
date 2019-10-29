@@ -16,7 +16,18 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
-internal class GetAssetTransfers internal constructor(private val parameterService: ParameterService, private val accountService: AccountService, private val assetExchangeService: AssetExchangeService) : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), ASSET_PARAMETER, ACCOUNT_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, INCLUDE_ASSET_INFO_PARAMETER) {
+internal class GetAssetTransfers internal constructor(
+    private val parameterService: ParameterService,
+    private val accountService: AccountService,
+    private val assetExchangeService: AssetExchangeService
+) : APIServlet.JsonRequestHandler(
+    arrayOf(APITag.AE),
+    ASSET_PARAMETER,
+    ACCOUNT_PARAMETER,
+    FIRST_INDEX_PARAMETER,
+    LAST_INDEX_PARAMETER,
+    INCLUDE_ASSET_INFO_PARAMETER
+) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val assetId = request.getParameter(ASSET_PARAMETER).emptyToNull()

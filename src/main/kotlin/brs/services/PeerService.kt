@@ -65,7 +65,11 @@ interface PeerService {
     /**
      * TODO
      */
-    fun feedingTime(peer: Peer, foodDispenser: (Peer) -> Collection<Transaction>, doneFeedingLog: (Peer, Collection<Transaction>) -> Unit)
+    fun feedingTime(
+        peer: Peer,
+        foodDispenser: (Peer) -> Collection<Transaction>,
+        doneFeedingLog: (Peer, Collection<Transaction>) -> Unit
+    )
 
     /**
      * TODO

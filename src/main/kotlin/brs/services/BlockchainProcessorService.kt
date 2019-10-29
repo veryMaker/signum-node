@@ -70,7 +70,8 @@ interface BlockchainProcessorService : Observable<Block, BlockchainProcessorServ
     /**
      * TODO
      */
-    class TransactionNotAcceptedException(message: String, val transaction: Transaction) : BlockNotAcceptedException(message + " transaction: " + transaction.toJsonObject().toJsonString())
+    class TransactionNotAcceptedException(message: String, val transaction: Transaction) :
+        BlockNotAcceptedException(message + " transaction: " + transaction.toJsonObject().toJsonString())
 
     /**
      * TODO

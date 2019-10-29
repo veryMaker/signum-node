@@ -11,7 +11,8 @@ import javax.servlet.http.HttpServletRequest
 
 @Deprecated("This call is superseded by GetBalance which does what this does and more.")
 internal class GetGuaranteedBalance @Deprecated("")
-internal constructor(private val parameterService: ParameterService) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER, NUMBER_OF_CONFIRMATIONS_PARAMETER) {
+internal constructor(private val parameterService: ParameterService) :
+    APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER, NUMBER_OF_CONFIRMATIONS_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request)

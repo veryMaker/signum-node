@@ -13,14 +13,18 @@ import java.nio.ByteBuffer
 class SubscriptionSubscribe(dp: DependencyProvider) : AdvancedPayment(dp) {
     override val subtype = SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_SUBSCRIBE
     override val description = "Subscription Subscribe"
-    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) = Attachment.AdvancedPaymentSubscriptionSubscribe(dp, buffer, transactionVersion)
-    override fun parseAttachment(attachmentData: JsonObject) = Attachment.AdvancedPaymentSubscriptionSubscribe(dp, attachmentData)
+    override fun parseAttachment(buffer: ByteBuffer, transactionVersion: Byte) =
+        Attachment.AdvancedPaymentSubscriptionSubscribe(dp, buffer, transactionVersion)
+
+    override fun parseAttachment(attachmentData: JsonObject) =
+        Attachment.AdvancedPaymentSubscriptionSubscribe(dp, attachmentData)
+
     override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
 
     override fun applyAttachment(
         transaction: Transaction,
         senderAccount: Account,
-        recipientAccount: Account?
+        recipientAccount: Account
     ) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionSubscribe
         dp.subscriptionService.addSubscription(
