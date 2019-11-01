@@ -1,8 +1,9 @@
 package brs.peer
 
-import brs.objects.Constants.PROTOCOL
 import brs.entity.DependencyProvider
-import brs.util.*
+import brs.objects.Constants.PROTOCOL
+import brs.util.CountingInputStream
+import brs.util.CountingOutputStream
 import brs.util.json.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeWarn
@@ -40,15 +41,12 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
         map["getCumulativeDifficulty"] = GetCumulativeDifficulty(dp.blockchainService)
         map["getInfo"] = GetInfo(dp)
         map["getMilestoneBlockIds"] = GetMilestoneBlockIds(dp.blockchainService)
-        map["getNextBlockIds"] = GetNextBlockIds(dp.blockchainService)
-        map["getBlocksFromHeight"] = GetBlocksFromHeight(dp.blockchainService)
         map["getNextBlocks"] = GetNextBlocks(dp.blockchainService)
+        map["getNextBlockIds"] = GetNextBlockIds(dp.blockchainService)
         map["getPeers"] = GetPeers(dp)
         map["getUnconfirmedTransactions"] = GetUnconfirmedTransactions(dp.transactionProcessorService)
         map["processBlock"] = ProcessBlock(dp.blockchainService, dp.blockchainProcessorService)
         map["processTransactions"] = ProcessTransactions(dp.transactionProcessorService)
-        map["getAccountBalance"] = GetAccountBalance(dp.accountService)
-        map["getAccountRecentTransactions"] = GetAccountRecentTransactions(dp.accountService, dp.blockchainService)
         peerRequestHandlers = map
     }
 
