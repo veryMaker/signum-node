@@ -131,10 +131,10 @@ public final class Burst {
   }
 
   private static void validateVersionNotDev(PropertyService propertyService) {
-    if(VERSION.isPrelease() && !propertyService.getBoolean(Props.DEV_TESTNET)) {
-      logger.error("THIS IS A DEVELOPMENT WALLET, PLEASE DO NOT USE THIS");
-      System.exit(0);
-    }
+//    if(VERSION.isPrelease() && !propertyService.getBoolean(Props.DEV_TESTNET)) {
+//      logger.error("THIS IS A DEVELOPMENT WALLET, PLEASE DO NOT USE THIS");
+//      System.exit(0);
+//    }
   }
 
   public static void init(Properties customProperties) {
