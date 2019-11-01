@@ -1,10 +1,6 @@
 package brs.services.impl
 
-import brs.entity.Block
-import brs.entity.DependencyProvider
-import brs.entity.Goods
-import brs.entity.Purchase
-import brs.entity.Transaction
+import brs.entity.*
 import brs.services.DigitalGoodsStoreService
 import brs.services.DigitalGoodsStoreService.Event
 import brs.transaction.appendix.Appendix
@@ -24,7 +20,6 @@ class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : Digital
     private val purchaseDbKeyFactory = dp.digitalGoodsStoreStore.purchaseDbKeyFactory
 
     private val goodsListeners = Listeners<Goods, Event>()
-
     private val purchaseListeners = Listeners<Purchase, Event>()
 
     override fun addGoodsListener(listener: (Goods) -> Unit, eventType: Event) {

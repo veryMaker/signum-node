@@ -1,21 +1,21 @@
 package brs.util
 
-import brs.util.sync.Mutex
+import brs.util.sync.read
+import brs.util.sync.write
+import java.util.concurrent.locks.StampedLock
 
 class Listeners<T, E : Enum<E>> {
-    private val listenersMap =
-        mutableMapOf<Enum<E>, MutableList<(T) -> Unit>>() // Remember, this map type cannot take null keys.
-    private val mutex = Mutex()
+    private val listenersMap = mutableMapOf<Enum<E>, MutableList<(T) -> Unit>>()
+    private val stampedLock = StampedLock()
 
     fun addListener(eventType: Enum<E>, listener: (T) -> Unit) {
-        mutex.withLock {
+        stampedLock.write {
             listenersMap.computeIfAbsent(eventType) { mutableListOf() }.add(listener)
         }
     }
 
     fun accept(eventType: Enum<E>, t: T) {
         // Read via the stamped lock from the map, return if null, otherwise each listener should accept the value.
-        mutex.withLock { (listenersMap[eventType] ?: return).forEach { it(t) } }
-        // TODO parallel processing?
+        (stampedLock.read { listenersMap[eventType] } ?: return).forEach { it(t) }
     }
 }
