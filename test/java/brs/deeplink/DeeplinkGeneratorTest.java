@@ -1,14 +1,15 @@
 package brs.deeplink;
 
+import com.google.zxing.WriterException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.awt.image.BufferedImage;
 import java.io.UnsupportedEncodingException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
 public class DeeplinkGeneratorTest {
@@ -55,5 +56,11 @@ public class DeeplinkGeneratorTest {
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().startsWith( "Maximum Payload Length "));
         }
+    }
+
+    @Test
+    public void testDeeplinkGenerator_QrCode() throws WriterException, UnsupportedEncodingException {
+        BufferedImage bufferedImage = deeplinkGenerator.generateDeepLinkQrCode("generic", "testAction", "dGVzdERhdGE=");
+        assertNotNull(bufferedImage);
     }
 }

@@ -1,8 +1,14 @@
 package brs.deeplink;
 
+import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageConfig;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
+import java.awt.image.BufferedImage;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -42,8 +48,8 @@ public class DeeplinkGenerator {
             if (base64Payload != null) {
                 deeplinkBuilder.append("&payload=");
                 String encodedPayload = URLEncoder.encode(base64Payload, DefaultCharset.toString());
-                if(encodedPayload.length() > MaxPayloadLength){
-                  throw new IllegalArgumentException("Maximum Payload Length (" + MaxPayloadLength + ") exceeded");
+                if (encodedPayload.length() > MaxPayloadLength) {
+                    throw new IllegalArgumentException("Maximum Payload Length (" + MaxPayloadLength + ") exceeded");
                 }
                 deeplinkBuilder.append(encodedPayload);
             }
@@ -51,29 +57,13 @@ public class DeeplinkGenerator {
         return deeplinkBuilder.toString();
     }
 
-//  public BufferedImage generateRequestBurstDeepLinkQRCode(String receiverId, long amountNQT, FeeSuggestionType feeSuggestionType, Long feeNQT, String message, boolean immutable)
-//      throws WriterException {
-//    final StringBuilder deeplinkBuilder = new StringBuilder("burst://requestBurst");
-//
-//    deeplinkBuilder.append("&receiver=").append(receiverId);
-//    deeplinkBuilder.append("&amountNQT=").append(amountNQT);
-//
-//    if (feeNQT != null) {
-//      deeplinkBuilder.append("&feeNQT=").append(feeNQT);
-//    } else {
-//      deeplinkBuilder.append("&feeSuggestionType=").append(feeSuggestionType.getType());
-//    }
-//
-//    if (!StringUtils.isEmpty(message)) {
-//      deeplinkBuilder.append("&message=").append(message);
-//    }
-//
-//    deeplinkBuilder.append("&immutable=").append(immutable);
-//
-//    return generateBurstQRCode(deeplinkBuilder.toString());
-//  }
-//
-//  private BufferedImage generateBurstQRCode(String url) throws WriterException {
-//    return MatrixToImageWriter.toBufferedImage(qrCodeWriter.encode(url, BarcodeFormat.QR_CODE, 350, 350, hints), new MatrixToImageConfig());
-//  }
+    public BufferedImage generateDeepLinkQrCode(String domain, String action, String base64Payload) throws UnsupportedEncodingException, IllegalArgumentException, WriterException {
+        return generateQRCode(this.generateDeepLink(domain, action, base64Payload));
+    }
+
+    private BufferedImage generateQRCode(String url) throws WriterException {
+        final QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        return MatrixToImageWriter.toBufferedImage(qrCodeWriter.encode(url, BarcodeFormat.QR_CODE, 350, 350, hints), new MatrixToImageConfig());
+    }
 }
+

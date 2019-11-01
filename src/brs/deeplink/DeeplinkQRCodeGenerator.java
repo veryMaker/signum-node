@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.util.EnumMap;
 import java.util.Map;
 
+@Deprecated
 public class DeeplinkQRCodeGenerator {
 
   private final QRCodeWriter qrCodeWriter = new QRCodeWriter();
