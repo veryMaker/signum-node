@@ -54,9 +54,9 @@ fun <T : JsonElement> Iterable<T>.toJsonArray(): JsonArray {
     return jsonArray
 }
 
-fun JsonArray.isEmpty() = this.size() == 0
+inline fun JsonArray.isEmpty() = this.size() == 0
 
-fun JsonObject.isEmpty() = this.size() == 0
+inline fun JsonObject.isEmpty() = this.size() == 0
 
 fun JsonElement?.safeGetAsJsonObject(): JsonObject? {
     return if (this != null && this.isJsonObject) this.asJsonObject else null

@@ -30,8 +30,8 @@ open class AtMachineState {
     val dSize: Int
     val cUserStackBytes: Int
     val cCallStackBytes: Int
-    var id: ByteArray? = null
-    var creator: ByteArray? = null
+    val id: ByteArray
+    val creator: ByteArray
     internal var waitForNumberOfBlocks: Int = 0
     private var freezeWhenSameBalance: Boolean = false
     private var minActivationAmount: Long = 0

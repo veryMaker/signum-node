@@ -1,12 +1,8 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
-import brs.db.BurstKey
-import brs.db.VersionedBatchEntityTable
-import brs.db.VersionedEntityTable
-import brs.db.getUsingDslContext
-import brs.db.AccountStore
+import brs.db.*
 import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.schema.Tables.*
 import brs.schema.tables.records.AccountAssetRecord
 import brs.schema.tables.records.AccountRecord
@@ -18,7 +14,6 @@ import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.SortField
 import org.slf4j.LoggerFactory
-import java.util.*
 
 internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
 
@@ -212,7 +207,7 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                 }
                 true
             }
-            Arrays.equals(account.publicKey, key) -> return true
+            account.publicKey!!.contentEquals(key) -> return true
             account.keyHeight == -1 -> {
                 logger.safeInfo { "DUPLICATE KEY!!!" }
                 logger.safeInfo { "Account key for ${account.id.toUnsignedString()} was already set to a different one at the same height, current height is $height, rejecting new key" }

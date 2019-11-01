@@ -1,15 +1,15 @@
 package brs.transaction.appendix
 
-import brs.entity.Account
-import brs.util.BurstException
-import brs.objects.Constants
-import brs.entity.DependencyProvider
-import brs.entity.EncryptedData
-import brs.objects.FluxValues
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 import brs.api.grpc.service.toByteString
+import brs.entity.Account
+import brs.entity.DependencyProvider
+import brs.entity.EncryptedData
 import brs.entity.Transaction
+import brs.objects.Constants
+import brs.objects.FluxValues
+import brs.util.BurstException
 import brs.util.convert.parseHexString
 import brs.util.convert.toBytes
 import brs.util.convert.toHexString
@@ -21,7 +21,6 @@ import brs.util.json.safeGetAsByte
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
 import java.nio.ByteBuffer
-import java.util.*
 
 interface Appendix {
 
@@ -443,7 +442,7 @@ interface Appendix {
                 throw BurstException.NotValidException("Public key announcements not enabled for version 0 transactions")
             }
             val recipientAccount = Account.getAccount(dp, recipientId)
-            if (recipientAccount?.publicKey != null && !Arrays.equals(publicKey, recipientAccount.publicKey)) {
+            if (recipientAccount?.publicKey != null && publicKey.contentEquals(recipientAccount.publicKey!!)) {
                 throw BurstException.NotCurrentlyValidException("A different public key for this account has already been announced")
             }
         }

@@ -99,8 +99,8 @@ class Block internal constructor(
 
     fun toBytes(): ByteArray {
         val buffer = ByteBuffer.allocate(
-            4 + 4 + 8 + 4 + (if (version < 3) 4 + 4 else 8 + 8) + 4
-                    + 32 + 32 + (32 + 32) + 8 + (blockATs?.size ?: 0) + 64
+            4 + 4 + 8 + 4 + (if (version < 3) 4 + 4 else 8 + 8) + 4 + 32 + 32 + (32 + 32) + 8 + (blockATs?.size
+                ?: 0) + 64
         )
         buffer.order(ByteOrder.LITTLE_ENDIAN)
         buffer.putInt(version)

@@ -19,8 +19,6 @@ import brs.util.BurstException
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -168,27 +166,15 @@ class AT : AtMachineState {
 
         fun addAT(
             dp: DependencyProvider,
-            atId: Long?,
-            senderAccountId: Long?,
+            atId: Long,
+            senderAccountId: Long,
             name: String,
             description: String,
             creationBytes: ByteArray,
             height: Int
         ) {
-            val bf = ByteBuffer.allocate(8 + 8)
-            bf.order(ByteOrder.LITTLE_ENDIAN)
-
-            bf.putLong(atId!!)
-
-            val id = ByteArray(8)
-
-            bf.putLong(8, senderAccountId!!)
-
-            val creator = ByteArray(8)
-            bf.clear()
-            bf.get(id, 0, 8)
-            bf.get(creator, 0, 8)
-
+            val id = AtApiHelper.getByteArray(atId)
+            val creator = AtApiHelper.getByteArray(senderAccountId)
             val at = AT(dp, id, creator, name, description, creationBytes, height)
 
             dp.atController.resetMachine(at)
@@ -223,7 +209,6 @@ class AT : AtMachineState {
             } catch (e: IOException) {
                 throw RuntimeException(e.message, e)
             }
-
         }
 
         fun decompressState(stateBytes: ByteArray?): ByteArray? {

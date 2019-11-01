@@ -2,6 +2,7 @@ package brs.api.grpc.service
 
 import brs.api.grpc.proto.BrsApi
 import brs.at.AT
+import brs.at.AtApiHelper
 import brs.entity.*
 import brs.services.AccountService
 import brs.services.AssetExchangeService
@@ -18,8 +19,6 @@ import com.google.rpc.Status
 import io.grpc.StatusException
 import io.grpc.protobuf.StatusProto
 import org.slf4j.LoggerFactory
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 fun ByteArray?.toByteString(): ByteString {
     return if (this == null) ByteString.EMPTY else ByteString.copyFrom(this)
@@ -151,14 +150,8 @@ object ProtoBuilder {
     }
 
     fun buildAT(accountService: AccountService, at: AT): BrsApi.AT {
-        val bf = ByteBuffer.allocate(8)
-        bf.order(ByteOrder.LITTLE_ENDIAN)
-        bf.put(at.creator!!)
-        bf.clear()
-        val creatorId = bf.long // TODO can this be improved?
-        bf.clear()
-        bf.put(at.id!!, 0, 8)
-        val atId = bf.getLong(0)
+        val atId = AtApiHelper.getLong(at.id)
+        val creatorId = AtApiHelper.getLong(at.creator)
         return BrsApi.AT.newBuilder()
             .setId(atId)
             .setCreator(creatorId)

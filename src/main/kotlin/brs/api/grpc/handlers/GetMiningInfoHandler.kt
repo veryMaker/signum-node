@@ -11,7 +11,6 @@ import brs.util.delegates.Atomic
 import brs.util.sync.Mutex
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
-import java.util.*
 
 class GetMiningInfoHandler(
     blockchainProcessorService: BlockchainProcessorService,
@@ -39,10 +38,8 @@ class GetMiningInfoHandler(
         miningInfoLock.withLock {
             val nextGenSig = generatorService.calculateGenerationSignature(block.generationSignature, block.generatorId)
             val miningInfo = currentMiningInfo
-            if (miningInfo == null || !Arrays.equals(
-                    miningInfo.generationSignature.toByteArray(),
-                    nextGenSig
-                ) || miningInfo.height - 1 != block.height || miningInfo.baseTarget != block.baseTarget
+            if (miningInfo == null || !nextGenSig.contentEquals(miningInfo.generationSignature.toByteArray())
+                || miningInfo.height - 1 != block.height || miningInfo.baseTarget != block.baseTarget
             ) {
                 val newMiningInfo = BrsApi.MiningInfo.newBuilder()
                     .setGenerationSignature(nextGenSig.toByteString())

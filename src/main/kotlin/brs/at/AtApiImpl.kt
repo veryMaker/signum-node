@@ -7,14 +7,12 @@
 
 package brs.at
 
-import brs.entity.DependencyProvider
 import brs.at.AtApi.Companion.REGISTER_PART_SIZE
-import brs.util.crypto.Crypto
+import brs.entity.DependencyProvider
 import brs.objects.FluxValues
 import brs.util.byteArray.*
+import brs.util.crypto.Crypto
 import java.math.BigInteger
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     override fun getA1(state: AtMachineState): Long {
@@ -280,15 +278,13 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
         val md5 = Crypto.md5()
         md5.digest(state.a1)
         md5.digest(state.a2)
-        val mdb = ByteBuffer.wrap(md5.digest())
-        mdb.order(ByteOrder.LITTLE_ENDIAN)
+        val hash = md5.digest()
 
-        // TODO optimize
-        AtApiHelper.getByteArray(mdb.getLong(0), state.b1)
+        hash.copyInto(state.b1, 0, 0, 8)
         if (dp.fluxCapacitorService.getValue(FluxValues.NEXT_FORK)) {
-            AtApiHelper.getByteArray(mdb.getLong(0), state.b2)
+            hash.copyInto(state.b2, 0, 8, 16)
         } else {
-            AtApiHelper.getByteArray(mdb.getLong(8), state.b1)
+            hash.copyInto(state.b1, 0, 8, 16)
         }
     }
 
@@ -298,11 +294,8 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
             val md5 = Crypto.md5()
             md5.digest(state.a1)
             md5.digest(state.a2)
-            val mdb = ByteBuffer.wrap(md5.digest())
-            mdb.order(ByteOrder.LITTLE_ENDIAN)
-
-            // TODO optimize
-            (if (mdb.getLong(0) == AtApiHelper.getLong(state.b1) && mdb.getLong(8) == AtApiHelper.getLong(state.b2)) 1 else 0).toLong()
+            val hash = md5.digest()
+            if (hash.partEquals(state.b1, 0, 8) && hash.partEquals(state.b2, 8, 8)) 1L else 0L
         } else {
             (if (state.a1.contentEquals(state.b1) && state.a2.contentEquals(state.b2)) 1 else 0).toLong()
         }
@@ -314,13 +307,11 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
         ripeMD.digest(state.a2)
         ripeMD.digest(state.a3)
         ripeMD.digest(state.a4)
-        val digest = ByteBuffer.wrap(ripeMD.digest())
-        digest.order(ByteOrder.LITTLE_ENDIAN)
+        val hash = ripeMD.digest()
 
-        // TODO optimize
-        AtApiHelper.getByteArray(digest.getLong(0), state.b1)
-        AtApiHelper.getByteArray(digest.getLong(8), state.b2)
-        AtApiHelper.getByteArray(digest.getInt(16).toLong(), state.b3)
+        hash.copyInto(state.b1, 0, 0, 8)
+        hash.copyInto(state.b2, 0, 8, 16)
+        hash.copyInto(state.b3, 0, 16, 24)
     }
 
     override fun checkHash160AWithB(state: AtMachineState): Long {
@@ -330,19 +321,19 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
             ripeMD.digest(state.a2)
             ripeMD.digest(state.a3)
             ripeMD.digest(state.a4)
-            val digest = ByteBuffer.wrap(ripeMD.digest())
-            digest.order(ByteOrder.LITTLE_ENDIAN)
+            val hash = ripeMD.digest()
 
-            // TODO optimize
-            (if (digest.getLong(0) == AtApiHelper.getLong(state.b1) && digest.getLong(8) == AtApiHelper.getLong(state.b2) && digest.getInt(
-                    16
-                ) == (AtApiHelper.getLong(state.b3) and 0x00000000FFFFFFFFL).toInt()
-            ) 1 else 0).toLong()
+            if (
+                hash.partEquals(state.b1, 0, 8)
+                && hash.partEquals(state.b2, 8, 8)
+                && hash.partEquals(state.b3, 16, 4)
+            ) 1L else 0L
         } else {
-            (if (state.a1.contentEquals(state.b1) && state.a2.contentEquals(state.b2) && AtApiHelper.getLong(state.a3) and 0x00000000FFFFFFFFL == AtApiHelper.getLong(
-                    state.b3
-                ) and 0x00000000FFFFFFFFL
-            ) 1 else 0).toLong()
+            if (
+                state.a1.contentEquals(state.b1)
+                && state.a2.contentEquals(state.b2)
+                && state.a3.partEquals(state.b3, 0, 4)
+            ) 1L else 0L
         }
     }
 

@@ -35,6 +35,13 @@ fun ByteArray.andWith(other: ByteArray) {
     }
 }
 
+/**
+ * Checks whether a part of this array equals the other array
+ * @param other The other array
+ * @param offset The offset within this array to start checking from
+ * @param length The length to check
+ * @throws IllegalArgumentException if `length <= other.size || offset + length <= this.size`
+ */
 fun ByteArray.partEquals(other: ByteArray, offset: Int, length: Int): Boolean {
     require(offset + length <= this.size)
     require(length <= other.size)

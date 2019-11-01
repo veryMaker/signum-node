@@ -657,11 +657,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 if (block.version != blockVersion) {
                     throw BlockchainProcessorService.BlockNotAcceptedException("Invalid version " + block.version + " for block " + block.height)
                 }
-                if (block.version != 1 && !Arrays.equals(
-                        Crypto.sha256().digest(lastBlock.toBytes()),
-                        block.previousBlockHash
-                    )
-                ) {
+                if (block.version != 1 && !Crypto.sha256().digest(lastBlock.toBytes())!!.contentEquals(block.previousBlockHash!!)) {
                     throw BlockchainProcessorService.BlockNotAcceptedException("Previous block hash doesn't match for block " + block.height)
                 }
                 if (block.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE || block.timestamp <= lastBlock.timestamp) {
@@ -759,7 +755,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 }
 
                 if (dp.fluxCapacitorService.getValue(FluxValues.NEXT_FORK)) {
-                    Arrays.sort(feeArray)
+                    feeArray.sort()
                     for (i in feeArray.indices) {
                         if (feeArray[i] >= FEE_QUANT * (i + 1)) {
                             throw BlockchainProcessorService.BlockNotAcceptedException("Transaction fee is not enough to be included in this block " + block.height)
@@ -767,7 +763,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     }
                 }
 
-                if (!Arrays.equals(digest.digest(), block.payloadHash)) {
+                if (!block.payloadHash.contentEquals(digest.digest())) {
                     throw BlockchainProcessorService.BlockNotAcceptedException("Payload hash doesn't match for block " + block.height)
                 }
 

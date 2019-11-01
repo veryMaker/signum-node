@@ -1,16 +1,15 @@
 package brs.at
 
-import brs.entity.DependencyProvider
 import brs.at.AtApi.Companion.REGISTER_PART_SIZE
 import brs.at.AtApi.Companion.REGISTER_SIZE
-import brs.util.crypto.Crypto
+import brs.entity.DependencyProvider
 import brs.objects.FluxValues
-import brs.util.convert.toUnsignedString
-import brs.util.logging.safeDebug
 import brs.util.byteArray.zero
+import brs.util.convert.toUnsignedString
+import brs.util.crypto.Crypto
+import brs.util.logging.safeDebug
 import org.slf4j.LoggerFactory
 import java.nio.BufferUnderflowException
-import java.util.*
 import kotlin.math.abs
 
 class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiImpl(dp) {
@@ -131,7 +130,8 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
 
         val byteRandom = digest.digest()
 
-        return abs(AtApiHelper.getLong(Arrays.copyOfRange(byteRandom, 0, REGISTER_PART_SIZE)))
+        // TODO don't copy of range
+        return abs(AtApiHelper.getLong(byteRandom.copyOfRange(0, REGISTER_PART_SIZE)))
     }
 
     override fun messageFromTxInAToB(state: AtMachineState) {

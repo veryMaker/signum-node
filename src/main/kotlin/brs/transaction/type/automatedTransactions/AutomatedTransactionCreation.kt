@@ -9,10 +9,10 @@ import brs.objects.Constants
 import brs.objects.FluxValues
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
+import brs.util.byteArray.isZero
 import brs.util.convert.toUnsignedString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
-import java.util.*
 
 class AutomatedTransactionCreation(dp: DependencyProvider) : AutomatedTransactions(dp) {
     override val subtype = SUBTYPE_AT_CREATION
@@ -35,11 +35,7 @@ class AutomatedTransactionCreation(dp: DependencyProvider) : AutomatedTransactio
         if (transaction.signature != null && dp.accountService.getAccount(transaction.id) != null) {
             val existingAccount = dp.accountService.getAccount(transaction.id)
                 ?: throw BurstException.NotValidException("Account with transaction's ID does not exist")
-            if (existingAccount.publicKey != null && !Arrays.equals(
-                    existingAccount.publicKey,
-                    ByteArray(32)
-                )
-            )
+            if (existingAccount.publicKey != null && !existingAccount.publicKey!!.isZero())
                 throw BurstException.NotValidException("Account with id already exists")
         }
         val attachment = transaction.attachment as Attachment.AutomatedTransactionsCreation

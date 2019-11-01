@@ -127,7 +127,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
             AT.C_CALL_STACK_BYTES, AT.CREATION_HEIGHT,
             AT.AP_CODE, AT.HEIGHT
         ).values(
-            AtApiHelper.getLong(at.id!!), AtApiHelper.getLong(at.creator!!), at.name, at.description,
+            AtApiHelper.getLong(at.id), AtApiHelper.getLong(at.creator), at.name, at.description,
             at.version, at.cSize, at.dSize, at.cUserStackBytes,
             at.cCallStackBytes, at.creationBlockHeight,
             brs.at.AT.compressState(at.apCodeBytes), dp.blockchainService.height
@@ -160,7 +160,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
     private fun createAT(dp: DependencyProvider, at: AtRecord, atState: AtStateRecord): brs.at.AT {
         return brs.at.AT(
             dp,
-            AtApiHelper.getByteArray(at.id!!),
+            AtApiHelper.getByteArray(at.id),
             AtApiHelper.getByteArray(at.creatorId!!),
             at.name,
             at.description,

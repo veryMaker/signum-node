@@ -11,7 +11,6 @@ package brs.at
 import brs.at.AtApi.Companion.REGISTER_PART_SIZE
 import brs.util.byteArray.partEquals
 import burst.kit.crypto.BurstCrypto
-import org.bouncycastle.util.Arrays
 import java.math.BigInteger
 import java.nio.BufferOverflowException
 import kotlin.experimental.and
@@ -40,6 +39,7 @@ object AtApiHelper {
     fun getByteArray(long: Long, dest: ByteArray) {
         // TODO integrate with BurstKit if/when it provides a method that does not create a new array
         // TODO optimize to iterate upwards rather than downwards
+        require(dest.size == 8)
         var l = long
         for (i in 7 downTo 0) {
             dest[7 - i] = (l and 0xFF).toByte()
@@ -103,9 +103,10 @@ object AtApiHelper {
         )
     }
 
-    fun getByteArray(bigInt: BigInteger): ByteArray {
+    fun getByteArray(bigInt: BigInteger): ByteArray { // TODO optimize
         val resultSize = 32
-        val bigIntBytes = Arrays.reverse(bigInt.toByteArray())
+        val bigIntBytes = bigInt.toByteArray()
+        bigIntBytes.reverse()
         val result = ByteArray(resultSize)
         if (bigIntBytes.size < resultSize) {
             val padding = ((bigIntBytes[bigIntBytes.size - 1] and 0x80.toByte()).toInt() shr 7).toByte()

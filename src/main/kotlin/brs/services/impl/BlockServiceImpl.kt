@@ -25,7 +25,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 ?: throw BlockOutOfOrderException("Can't verify signature because previous block is missing")
 
             val data = block.toBytes()
-            val data2 = ByteArray(data.size - 64)
+            val data2 = ByteArray(data.size - 64) // TODO copyOfRange
             System.arraycopy(data, 0, data2, 0, data2.size)
 
             val publicKey: ByteArray?

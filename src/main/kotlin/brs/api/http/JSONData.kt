@@ -485,25 +485,17 @@ object JSONData {
         json.addProperty(name + "RS", accountId.rsAccount())
     }
 
-    //TODO refactor the accountservice out of this :-)
     internal fun at(at: AT, accountService: AccountService): JsonObject {
         val json = JsonObject()
-        val bf = ByteBuffer.allocate(8)
-        bf.order(ByteOrder.LITTLE_ENDIAN)
-
-        bf.put(at.creator)
-        bf.clear()
-        putAccount(json, "creator", bf.long) // TODO is this redundant or does this bring LE byte order?
-        bf.clear()
-        bf.put(at.id, 0, 8)
-        val id = bf.getLong(0)
+        putAccount(json, "creator", AtApiHelper.getLong(at.creator))
+        val id = AtApiHelper.getLong(at.id)
         json.addProperty("at", id.toUnsignedString())
         json.addProperty("atRS", id.rsAccount())
         json.addProperty("atVersion", at.version)
         json.addProperty("name", at.name)
         json.addProperty("description", at.description)
-        json.addProperty("creator", AtApiHelper.getLong(at.creator!!).toUnsignedString())
-        json.addProperty("creatorRS", AtApiHelper.getLong(at.creator!!).rsAccount())
+        json.addProperty("creator", AtApiHelper.getLong(at.creator).toUnsignedString())
+        json.addProperty("creatorRS", AtApiHelper.getLong(at.creator).rsAccount())
         json.addProperty("machineCode", at.apCodeBytes.toHexString())
         json.addProperty("machineData", at.apDataBytes.toHexString())
         json.addProperty("balanceNQT", accountService.getAccount(id)!!.balancePlanck.toUnsignedString())

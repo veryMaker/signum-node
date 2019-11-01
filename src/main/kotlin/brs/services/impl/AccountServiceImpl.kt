@@ -19,7 +19,6 @@ import brs.util.convert.safeAdd
 import brs.util.convert.toHexString
 import brs.util.convert.toUnsignedString
 import brs.util.crypto.Crypto
-import java.util.*
 
 class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     private val accountStore: AccountStore
@@ -71,7 +70,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     override fun getAccount(publicKey: ByteArray): Account? {
         val account = accountTable[accountBurstKeyFactory.newKey(getId(publicKey))] ?: return null
 
-        if (account.publicKey == null || Arrays.equals(account.publicKey, publicKey)) {
+        if (account.publicKey == null || account.publicKey!!.contentEquals(publicKey)) {
             return account
         }
 

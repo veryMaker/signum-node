@@ -11,6 +11,7 @@ import brs.transaction.type.payment.MultiOutPayment
 import brs.transaction.type.payment.MultiOutSamePayment
 import brs.util.BurstException
 import brs.util.byteArray.isZero
+import brs.util.byteArray.skip
 import brs.util.convert.*
 import brs.util.crypto.Crypto
 import brs.util.crypto.signUsing
@@ -60,9 +61,9 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         } else 0
     }
     var fullHash: ByteArray by AtomicLazy {
-        check(!(signature == null && type.isSigned)) { "Transaction is not signed yet" }
+        check(signature != null || !type.isSigned) { "Transaction is not signed yet" }
         val data = toBytes(false)
-        val signatureHash = Crypto.sha256().digest(if (signature != null) signature else ByteArray(64))
+        val signatureHash = if (signature != null) Crypto.sha256().digest(signature) else SHA256_64_ZEROS
         val digest = Crypto.sha256()
         digest.update(data)
         digest.digest(signatureHash)
@@ -83,7 +84,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 buffer.put(senderPublicKey)
             } else {
                 buffer.putLong(senderId)
-                buffer.put(ByteArray(24))
+                buffer.skip(24)
             }
             buffer.putLong(if (type.hasRecipient()) recipientId else Genesis.CREATOR_ID)
             buffer.putLong(amountPlanck)
@@ -91,9 +92,9 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
             if (referencedTransactionFullHash != null) {
                 buffer.put(referencedTransactionFullHash)
             } else {
-                buffer.put(ByteArray(32))
+                buffer.skip(32)
             }
-            buffer.put(if (includeSignature && signature != null) signature else ByteArray(64))
+            if (includeSignature && signature != null) buffer.put(signature) else buffer.skip(64)
             if (version > 0) {
                 buffer.putInt(flags)
                 buffer.putInt(ecBlockHeight)
@@ -518,5 +519,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         }
 
         private const val SIGNATURE_OFFSET = 1 + 1 + 4 + 2 + 32 + 8 + 8 + 8 + 32
+
+        private val SHA256_64_ZEROS = "F5A5FD42D16A20302798EF6ED309979B43003D2320D9F0E8EA9831A92759FB4B".parseHexString()
     }
 }
