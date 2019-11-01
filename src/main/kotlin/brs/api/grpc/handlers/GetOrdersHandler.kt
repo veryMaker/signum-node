@@ -1,10 +1,10 @@
 package brs.api.grpc.handlers
 
-import brs.services.AssetExchangeService
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
+import brs.api.grpc.service.ApiException
 import brs.api.grpc.service.ProtoBuilder
+import brs.services.AssetExchangeService
 
 class GetOrdersHandler(private val assetExchangeService: AssetExchangeService) :
     GrpcApiHandler<BrsApi.GetOrdersRequest, BrsApi.Orders> {
@@ -20,7 +20,7 @@ class GetOrdersHandler(private val assetExchangeService: AssetExchangeService) :
             when (request.orderType) {
                 BrsApi.OrderType.ASK -> assetExchangeService.getAllAskOrders(firstIndex, lastIndex)
                     .forEach { order -> builder.addOrders(ProtoBuilder.buildOrder(order)) }
-                BrsApi.OrderType.BID -> assetExchangeService.getAllAskOrders(firstIndex, lastIndex)
+                BrsApi.OrderType.BID -> assetExchangeService.getAllBidOrders(firstIndex, lastIndex)
                     .forEach { order -> builder.addOrders(ProtoBuilder.buildOrder(order)) }
                 else -> throw ApiException("Order type unset")
             }

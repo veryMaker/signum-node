@@ -150,7 +150,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
     private fun validateVersionNotDev(propertyService: PropertyService) {
         if (VERSION.isPrelease && !propertyService.get(Props.DEV_TESTNET)) {
             logger.safeError { "THIS IS A DEVELOPMENT WALLET, PLEASE DO NOT USE THIS" }
-            //exitProcess(0)
+            exitProcess(0)
         }
     }
 
@@ -163,18 +163,22 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
         try {
             dp.api.shutdown()
         } catch (ignored: UninitializedPropertyAccessException) {
+            // Ignore
         }
         try {
             dp.apiV2Server.shutdownNow()
         } catch (ignored: UninitializedPropertyAccessException) {
+            // Ignore
         }
         try {
             dp.peerService.shutdown()
         } catch (ignored: UninitializedPropertyAccessException) {
+            // Ignore
         }
         try {
             dp.taskSchedulerService.shutdown()
         } catch (ignored: UninitializedPropertyAccessException) {
+            // Ignore
         }
         if (!ignoreDBShutdown) {
             dp.db.shutdown()
@@ -182,12 +186,14 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
         try {
             dp.dbCacheService.close()
         } catch (ignored: UninitializedPropertyAccessException) {
+            // Ignore
         }
         try {
             if (dp.blockchainProcessorService.oclVerify) {
                 dp.oclPocService.destroy()
-            }
+            }g
         } catch (ignored: UninitializedPropertyAccessException) {
+            // Ignore
         }
         logger.safeInfo { "$APPLICATION $VERSION stopped." }
         LoggerConfigurator.shutdown()

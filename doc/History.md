@@ -11,12 +11,14 @@ YYYY-MM-DD v3.0.0 (WIP)
 - Move to Gradle-based build
 - Fixed Escrow ID in Escrow Result Attachment Protobuf is always 2
 - Fixed Get Peer Handler in gRPC API is never initialized
+- Fixed GetOrdersHandler always returns ask orders
 - Fixed Bugs in AT API Implementation
 - Removed lots of unused code
 
 YYYY-MM-DD v2.4.3 (WIP) (Backport of fixes from v3.0.0)
 - Fixed Escrow ID in Escrow Result Attachment Protobuf is always 2
 - Fixed Get Peer Handler in gRPC API is never initialized
+- Fixed GetOrdersHandler always returns ask orders
 - Fixed Bugs in AT API Implementation
 
 2019-08-13 v2.4.2
