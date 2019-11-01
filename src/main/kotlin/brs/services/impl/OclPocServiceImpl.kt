@@ -1,7 +1,7 @@
 package brs.services.impl
 
-import brs.entity.DependencyProvider
 import brs.entity.Block
+import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.services.BlockService
 import brs.services.BlockchainProcessorService
@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.util.*
 import kotlin.math.min
 
@@ -107,7 +105,7 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
 
             val source: String
             try {
-                source = String(Files.readAllBytes(Paths.get("genscoop.cl")))
+                source = String(javaClass.getResourceAsStream("/cl/genscoop.cl").use { it.readBytes() })
             } catch (e: IOException) {
                 throw OclPocService.OCLCheckerException("Cannot read ocl file", e)
             }

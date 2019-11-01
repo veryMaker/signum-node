@@ -235,7 +235,6 @@ task copyPackageFiles {
                 rename "burstcoin-all.jar", "burst.jar"
             }
             from "$projectDir/Burst_Wallet.url"
-            from "$projectDir/genscoop.cl"
             from "$projectDir/init-mysql.sql"
             from "$projectDir/LICENSE.txt"
             from "$projectDir/README.md"
