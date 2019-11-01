@@ -14,6 +14,9 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class GetDGSPurchases(private val digitalGoodsStoreService: DigitalGoodsStoreService) :
     APIServlet.JsonRequestHandler(
         arrayOf(APITag.DGS),

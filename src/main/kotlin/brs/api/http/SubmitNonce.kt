@@ -21,6 +21,9 @@ import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 
+/**
+ * TODO
+ */
 internal class SubmitNonce(
     propertyService: PropertyService,
     private val accountService: AccountService,

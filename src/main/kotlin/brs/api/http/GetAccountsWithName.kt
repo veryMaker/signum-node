@@ -9,6 +9,9 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class GetAccountsWithName internal constructor(private val accountService: AccountService) :
     APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), NAME_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {

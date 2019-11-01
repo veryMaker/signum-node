@@ -1,18 +1,21 @@
 package brs.api.http
 
-import brs.services.AssetExchangeService
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.INCLUDE_ASSET_INFO_PARAMETER
 import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.api.http.common.Parameters.isFalse
 import brs.api.http.common.ResultFields.TRADES_RESPONSE
+import brs.services.AssetExchangeService
 import brs.util.FilteringIterator
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class GetAllTrades internal constructor(private val assetExchangeService: AssetExchangeService) :
     APIServlet.JsonRequestHandler(
         arrayOf(APITag.AE),

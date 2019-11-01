@@ -1,14 +1,17 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.INCORRECT_ALIAS_NOTFORSALE
 import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_PARAMETER
 import brs.api.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
+import brs.entity.DependencyProvider
+import brs.transaction.appendix.Attachment
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class BuyAlias(private val dp: DependencyProvider) : CreateTransaction(
     dp,
     arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION),

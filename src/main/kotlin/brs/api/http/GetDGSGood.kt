@@ -5,6 +5,9 @@ import brs.services.ParameterService
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class GetDGSGood internal constructor(private val parameterService: ParameterService) :
     APIServlet.JsonRequestHandler(arrayOf(APITag.DGS), GOODS_PARAMETER) {
 

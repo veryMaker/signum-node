@@ -1,15 +1,18 @@
 package brs.api.http
 
-import brs.services.BlockchainService
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.ResultFields.REWARD_RECIPIENT_RESPONSE
 import brs.services.AccountService
+import brs.services.BlockchainService
 import brs.services.ParameterService
 import brs.util.convert.toUnsignedString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class GetRewardRecipient(
     private val parameterService: ParameterService,
     private val blockchainService: BlockchainService,

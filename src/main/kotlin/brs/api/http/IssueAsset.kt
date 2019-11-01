@@ -1,6 +1,5 @@
 package brs.api.http
 
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.INCORRECT_ASSET_DESCRIPTION
 import brs.api.http.JSONResponses.INCORRECT_ASSET_NAME
 import brs.api.http.JSONResponses.INCORRECT_ASSET_NAME_LENGTH
@@ -10,6 +9,7 @@ import brs.api.http.common.Parameters.DECIMALS_PARAMETER
 import brs.api.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.api.http.common.Parameters.NAME_PARAMETER
 import brs.api.http.common.Parameters.QUANTITY_QNT_PARAMETER
+import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
@@ -17,6 +17,9 @@ import brs.util.string.isInAlphabet
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class IssueAsset internal constructor(private val dp: DependencyProvider) : CreateTransaction(
     dp,
     arrayOf(APITag.AE, APITag.CREATE_TRANSACTION),

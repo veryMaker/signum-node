@@ -1,8 +1,5 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
-import brs.objects.Constants
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.INCORRECT_ALIAS_OWNER
 import brs.api.http.JSONResponses.INCORRECT_PRICE
 import brs.api.http.JSONResponses.INCORRECT_RECIPIENT
@@ -11,11 +8,17 @@ import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_PARAMETER
 import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.RECIPIENT_PARAMETER
+import brs.entity.DependencyProvider
+import brs.objects.Constants
+import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseAccountId
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class SellAlias internal constructor(private val dp: DependencyProvider) : CreateTransaction(
     dp,
     arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION),

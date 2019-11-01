@@ -11,6 +11,9 @@ import brs.services.ParameterService
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class EncryptTo(private val parameterService: ParameterService, private val accountService: AccountService) :
     APIServlet.JsonRequestHandler(
         arrayOf(APITag.MESSAGES),

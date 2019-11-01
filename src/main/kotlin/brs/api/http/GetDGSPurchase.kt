@@ -5,6 +5,9 @@ import brs.services.ParameterService
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class GetDGSPurchase(private val parameterService: ParameterService) :
     APIServlet.JsonRequestHandler(arrayOf(APITag.DGS), PURCHASE_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {

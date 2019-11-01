@@ -1,8 +1,5 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
-import brs.objects.Constants
-import brs.entity.DependencyProvider
 import brs.api.http.common.Parameters.BROADCAST_PARAMETER
 import brs.api.http.common.Parameters.DEADLINE_PARAMETER
 import brs.api.http.common.Parameters.FEE_PLANCK_PARAMETER
@@ -12,12 +9,18 @@ import brs.api.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.entity.DependencyProvider
+import brs.objects.Constants
+import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class SendMoneyMulti(private val dp: DependencyProvider) :
     CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), true, *commonParameters) {
     override fun processRequest(request: HttpServletRequest): JsonElement {

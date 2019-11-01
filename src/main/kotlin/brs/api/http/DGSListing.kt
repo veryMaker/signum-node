@@ -1,8 +1,5 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
-import brs.objects.Constants
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.INCORRECT_DGS_LISTING_DESCRIPTION
 import brs.api.http.JSONResponses.INCORRECT_DGS_LISTING_NAME
 import brs.api.http.JSONResponses.INCORRECT_DGS_LISTING_TAGS
@@ -12,10 +9,16 @@ import brs.api.http.common.Parameters.NAME_PARAMETER
 import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.QUANTITY_PARAMETER
 import brs.api.http.common.Parameters.TAGS_PARAMETER
+import brs.entity.DependencyProvider
+import brs.objects.Constants
+import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class DGSListing internal constructor(private val dp: DependencyProvider) : CreateTransaction(
     dp,
     arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION),

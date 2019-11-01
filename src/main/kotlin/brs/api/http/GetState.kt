@@ -10,6 +10,9 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class GetState(private val dp: DependencyProvider) :
     APIServlet.JsonRequestHandler(arrayOf(APITag.INFO), INCLUDE_COUNTS_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {

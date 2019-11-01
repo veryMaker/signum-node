@@ -1,7 +1,5 @@
 package brs.api.http
 
-import brs.util.BurstException
-import brs.util.crypto.Crypto
 import brs.api.http.JSONResponses.MISSING_SECRET_PHRASE
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
@@ -16,14 +14,19 @@ import brs.api.http.common.ResultFields.TRANSACTION_RESPONSE
 import brs.api.http.common.ResultFields.VERIFY_RESPONSE
 import brs.services.ParameterService
 import brs.services.TransactionService
+import brs.util.BurstException
 import brs.util.convert.emptyToNull
 import brs.util.convert.toHexString
+import brs.util.crypto.Crypto
 import brs.util.logging.safeDebug
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class SignTransaction(
     private val parameterService: ParameterService,
     private val transactionService: TransactionService

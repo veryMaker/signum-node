@@ -1,8 +1,5 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
-import brs.objects.Constants
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.ALREADY_DELIVERED
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.JSONResponses.INCORRECT_DGS_DISCOUNT
@@ -15,6 +12,9 @@ import brs.api.http.common.Parameters.GOODS_NONCE_PARAMETER
 import brs.api.http.common.Parameters.GOODS_TO_ENCRYPT_PARAMETER
 import brs.api.http.common.Parameters.PURCHASE_PARAMETER
 import brs.api.http.common.Parameters.isFalse
+import brs.entity.DependencyProvider
+import brs.objects.Constants
+import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseHexString
 import brs.util.convert.safeMultiply
@@ -22,6 +22,9 @@ import brs.util.convert.toBytes
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class DGSDelivery internal constructor(private val dp: DependencyProvider) : CreateTransaction(
     dp,
     arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION),

@@ -1,8 +1,8 @@
 package brs.api.http
 
-import brs.entity.DependencyProvider
 import brs.api.http.common.Parameters.ACTIVE_PARAMETER
 import brs.api.http.common.Parameters.STATE_PARAMETER
+import brs.entity.DependencyProvider
 import brs.peer.Peer
 import brs.util.convert.emptyToNull
 import com.google.gson.JsonArray
@@ -10,6 +10,9 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class GetPeers(private val dp: DependencyProvider) :
     APIServlet.JsonRequestHandler(arrayOf(APITag.INFO), ACTIVE_PARAMETER, STATE_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {

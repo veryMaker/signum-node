@@ -1,15 +1,18 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
-import brs.objects.Constants
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT_DESCRIPTION_LENGTH
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT_NAME_LENGTH
 import brs.api.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.api.http.common.Parameters.NAME_PARAMETER
+import brs.entity.DependencyProvider
+import brs.objects.Constants
+import brs.transaction.appendix.Attachment
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class SetAccountInfo(private val dp: DependencyProvider) :
     CreateTransaction(dp, arrayOf(APITag.ACCOUNTS, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER) {
 

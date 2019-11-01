@@ -1,9 +1,9 @@
 package brs.api.http
 
-import brs.objects.Constants
 import brs.entity.DependencyProvider
-import brs.objects.Genesis
+import brs.objects.Constants
 import brs.objects.FluxValues
+import brs.objects.Genesis
 import brs.transaction.type.TransactionType
 import brs.util.convert.toUnsignedString
 import brs.util.json.toJsonArray
@@ -12,6 +12,9 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class GetConstants(dp: DependencyProvider) : APIServlet.JsonRequestHandler(arrayOf(APITag.INFO)) {
 
     private val constants: JsonElement

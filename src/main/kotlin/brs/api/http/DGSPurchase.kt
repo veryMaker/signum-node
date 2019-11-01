@@ -1,7 +1,5 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.JSONResponses.INCORRECT_DELIVERY_DEADLINE_TIMESTAMP
 import brs.api.http.JSONResponses.INCORRECT_PURCHASE_PRICE
@@ -12,10 +10,15 @@ import brs.api.http.common.Parameters.DELIVERY_DEADLINE_TIMESTAMP_PARAMETER
 import brs.api.http.common.Parameters.GOODS_PARAMETER
 import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.QUANTITY_PARAMETER
+import brs.entity.DependencyProvider
+import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class DGSPurchase internal constructor(private val dp: DependencyProvider) : CreateTransaction(
     dp,
     arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION),

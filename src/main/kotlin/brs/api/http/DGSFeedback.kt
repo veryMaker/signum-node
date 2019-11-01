@@ -1,14 +1,17 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.JSONResponses.INCORRECT_PURCHASE
 import brs.api.http.common.Parameters.PURCHASE_PARAMETER
+import brs.entity.DependencyProvider
+import brs.transaction.appendix.Attachment
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class DGSFeedback internal constructor(private val dp: DependencyProvider) :
     CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), PURCHASE_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {

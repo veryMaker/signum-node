@@ -1,6 +1,5 @@
 package brs.api.http
 
-import brs.util.BurstException
 import brs.api.http.common.Parameters.TRANSACTION_BYTES_PARAMETER
 import brs.api.http.common.Parameters.TRANSACTION_JSON_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
@@ -10,12 +9,16 @@ import brs.api.http.common.ResultFields.VALIDATE_RESPONSE
 import brs.api.http.common.ResultFields.VERIFY_RESPONSE
 import brs.services.ParameterService
 import brs.services.TransactionService
+import brs.util.BurstException
 import brs.util.convert.emptyToNull
 import brs.util.logging.safeDebug
 import com.google.gson.JsonElement
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class ParseTransaction(
     private val parameterService: ParameterService,
     private val transactionService: TransactionService

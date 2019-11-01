@@ -1,12 +1,15 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.UNKNOWN_GOODS
 import brs.api.http.common.Parameters.GOODS_PARAMETER
+import brs.entity.DependencyProvider
+import brs.transaction.appendix.Attachment
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class DGSDelisting(private val dp: DependencyProvider) :
     CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER) {
 
@@ -19,5 +22,4 @@ internal class DGSDelisting(private val dp: DependencyProvider) :
         val attachment = Attachment.DigitalGoodsDelisting(dp, goods.id, dp.blockchainService.height)
         return createTransaction(request, account, attachment)
     }
-
 }

@@ -1,9 +1,5 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
-import brs.objects.Constants
-import brs.entity.DependencyProvider
-import brs.entity.Escrow
 import brs.api.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.DEADLINE_ACTION_PARAMETER
 import brs.api.http.common.Parameters.ESCROW_DEADLINE_PARAMETER
@@ -12,6 +8,10 @@ import brs.api.http.common.Parameters.REQUIRED_SIGNERS_PARAMETER
 import brs.api.http.common.Parameters.SIGNERS_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.entity.DependencyProvider
+import brs.entity.Escrow
+import brs.objects.Constants
+import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseAccountId
 import brs.util.convert.safeAdd
@@ -19,6 +19,9 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTransaction(
     dp,
     arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION),

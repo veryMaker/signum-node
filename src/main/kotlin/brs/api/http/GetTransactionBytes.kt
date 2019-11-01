@@ -1,19 +1,21 @@
 package brs.api.http
 
-
-import brs.services.BlockchainService
-import brs.entity.Transaction
-import brs.services.TransactionProcessorService
 import brs.api.http.JSONResponses.INCORRECT_TRANSACTION
 import brs.api.http.JSONResponses.MISSING_TRANSACTION
 import brs.api.http.JSONResponses.UNKNOWN_TRANSACTION
 import brs.api.http.common.Parameters.TRANSACTION_PARAMETER
+import brs.entity.Transaction
+import brs.services.BlockchainService
+import brs.services.TransactionProcessorService
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toHexString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class GetTransactionBytes(
     private val blockchainService: BlockchainService,
     private val transactionProcessorService: TransactionProcessorService

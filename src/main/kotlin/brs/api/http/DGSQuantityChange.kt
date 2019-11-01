@@ -1,18 +1,21 @@
 package brs.api.http
 
 
-import brs.transaction.appendix.Attachment
-import brs.objects.Constants
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.INCORRECT_DELTA_QUANTITY
 import brs.api.http.JSONResponses.MISSING_DELTA_QUANTITY
 import brs.api.http.JSONResponses.UNKNOWN_GOODS
 import brs.api.http.common.Parameters.DELTA_QUANTITY_PARAMETER
 import brs.api.http.common.Parameters.GOODS_PARAMETER
+import brs.entity.DependencyProvider
+import brs.objects.Constants
+import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class DGSQuantityChange internal constructor(private val dp: DependencyProvider) :
     CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, DELTA_QUANTITY_PARAMETER) {
 

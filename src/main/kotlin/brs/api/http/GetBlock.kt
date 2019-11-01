@@ -1,6 +1,5 @@
 package brs.api.http
 
-import brs.services.BlockchainService
 import brs.api.http.JSONResponses.INCORRECT_BLOCK
 import brs.api.http.JSONResponses.INCORRECT_HEIGHT
 import brs.api.http.JSONResponses.INCORRECT_TIMESTAMP
@@ -11,12 +10,15 @@ import brs.api.http.common.Parameters.INCLUDE_TRANSACTIONS_PARAMETER
 import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.api.http.common.Parameters.isTrue
 import brs.services.BlockService
+import brs.services.BlockchainService
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonElement
-
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class GetBlock internal constructor(
     private val blockchainService: BlockchainService,
     private val blockService: BlockService

@@ -1,27 +1,30 @@
 package brs.api.http
 
 
-import brs.entity.Account
-import brs.services.BlockchainService
-import brs.entity.Transaction
-import brs.util.crypto.Crypto
 import brs.api.http.JSONResponses.INCORRECT_TRANSACTION
 import brs.api.http.JSONResponses.MISSING_TRANSACTION
 import brs.api.http.JSONResponses.NO_MESSAGE
 import brs.api.http.JSONResponses.UNKNOWN_TRANSACTION
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.Parameters.TRANSACTION_PARAMETER
+import brs.entity.Account
+import brs.entity.Transaction
 import brs.services.AccountService
+import brs.services.BlockchainService
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toHexString
 import brs.util.convert.toUtf8String
+import brs.util.crypto.Crypto
 import brs.util.logging.safeDebug
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class ReadMessage(
     private val blockchainService: BlockchainService,
     private val accountService: AccountService

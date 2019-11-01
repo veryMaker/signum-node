@@ -1,7 +1,5 @@
 package brs.api.http
 
-import brs.util.BurstException
-import brs.services.TransactionProcessorService
 import brs.api.http.common.Parameters.TRANSACTION_BYTES_PARAMETER
 import brs.api.http.common.Parameters.TRANSACTION_JSON_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
@@ -11,7 +9,9 @@ import brs.api.http.common.ResultFields.FULL_HASH_RESPONSE
 import brs.api.http.common.ResultFields.NUMBER_PEERS_SENT_TO_RESPONSE
 import brs.api.http.common.ResultFields.TRANSACTION_RESPONSE
 import brs.services.ParameterService
+import brs.services.TransactionProcessorService
 import brs.services.TransactionService
+import brs.util.BurstException
 import brs.util.convert.emptyToNull
 import brs.util.convert.toHexString
 import com.google.gson.JsonElement
@@ -20,6 +20,9 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class BroadcastTransaction(
     private val transactionProcessorService: TransactionProcessorService,
     private val parameterService: ParameterService,

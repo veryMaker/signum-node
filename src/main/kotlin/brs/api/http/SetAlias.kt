@@ -1,7 +1,6 @@
 package brs.api.http
 
 
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.INCORRECT_ALIAS_LENGTH
 import brs.api.http.JSONResponses.INCORRECT_ALIAS_NAME
 import brs.api.http.JSONResponses.INCORRECT_URI_LENGTH
@@ -10,6 +9,7 @@ import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_URI_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
@@ -18,6 +18,9 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(
     dp,
     arrayOf(APITag.ALIASES, APITag.CREATE_TRANSACTION),

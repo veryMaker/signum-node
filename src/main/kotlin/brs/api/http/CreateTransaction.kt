@@ -1,11 +1,5 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.transaction.appendix.Attachment
-import brs.objects.Constants.FEE_QUANT
-import brs.objects.Constants.ONE_BURST
-import brs.entity.DependencyProvider
-import brs.objects.FluxValues
 import brs.api.http.common.Parameters.BROADCAST_PARAMETER
 import brs.api.http.common.Parameters.DEADLINE_PARAMETER
 import brs.api.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
@@ -23,9 +17,18 @@ import brs.api.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.api.http.common.Parameters.RECIPIENT_PUBLIC_KEY_PARAMETER
 import brs.api.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.entity.Account
+import brs.entity.DependencyProvider
+import brs.objects.Constants.FEE_QUANT
+import brs.objects.Constants.ONE_BURST
+import brs.objects.FluxValues
+import brs.transaction.appendix.Attachment
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal abstract class CreateTransaction : APIServlet.JsonRequestHandler {
     private val dp: DependencyProvider
 

@@ -1,6 +1,5 @@
 package brs.api.http
 
-import brs.entity.EncryptedData
 import brs.api.http.JSONResponses.DECRYPTION_FAILED
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.common.Parameters
@@ -10,6 +9,7 @@ import brs.api.http.common.Parameters.DECRYPTED_MESSAGE_IS_TEXT_PARAMETER
 import brs.api.http.common.Parameters.NONCE_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.ResultFields.DECRYPTED_MESSAGE_RESPONSE
+import brs.entity.EncryptedData
 import brs.services.ParameterService
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
@@ -20,6 +20,9 @@ import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class DecryptFrom internal constructor(private val parameterService: ParameterService) :
     APIServlet.JsonRequestHandler(
         arrayOf(APITag.MESSAGES),

@@ -1,14 +1,17 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.NOT_ENOUGH_ASSETS
 import brs.api.http.common.Parameters.ASSET_PARAMETER
 import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.QUANTITY_QNT_PARAMETER
+import brs.entity.DependencyProvider
+import brs.transaction.appendix.Attachment
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class PlaceAskOrder(private val dp: DependencyProvider) : CreateTransaction(
     dp,
     arrayOf(APITag.AE, APITag.CREATE_TRANSACTION),

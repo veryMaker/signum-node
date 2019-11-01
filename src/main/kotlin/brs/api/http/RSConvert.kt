@@ -9,6 +9,9 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal object RSConvert : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS, APITag.UTILS), ACCOUNT_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val accountValue = request.getParameter(ACCOUNT_PARAMETER).emptyToNull() ?: return MISSING_ACCOUNT
@@ -23,6 +26,5 @@ internal object RSConvert : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNT
         } catch (e: RuntimeException) {
             return INCORRECT_ACCOUNT
         }
-
     }
 }

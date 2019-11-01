@@ -1,9 +1,6 @@
 package brs.api.http
 
 
-import brs.transaction.appendix.Attachment
-import brs.objects.Constants
-import brs.entity.DependencyProvider
 import brs.api.http.JSONResponses.DUPLICATE_REFUND
 import brs.api.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
@@ -11,10 +8,16 @@ import brs.api.http.JSONResponses.INCORRECT_DGS_REFUND
 import brs.api.http.JSONResponses.INCORRECT_PURCHASE
 import brs.api.http.common.Parameters.PURCHASE_PARAMETER
 import brs.api.http.common.Parameters.REFUND_PLANCK_PARAMETER
+import brs.entity.DependencyProvider
+import brs.objects.Constants
+import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * TODO
+ */
 internal class DGSRefund internal constructor(private val dp: DependencyProvider) :
     CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), PURCHASE_PARAMETER, REFUND_PLANCK_PARAMETER) {
 
