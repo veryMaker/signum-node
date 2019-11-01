@@ -1,0 +1,326 @@
+buildscript {
+    ext.kotlinVersion = "1.3.50"
+    ext.jooqPluginVersion = "3.0.3"
+    ext.shadowPluginVersion = "5.1.0"
+    ext.protobufPluginVersion = "0.8.10"
+    ext.sonarqubePluginVersion = "2.8"
+    ext.flywayPluginVersion = "6.0.7"
+    ext.testLoggerPluginVersion = "1.7.1"
+    ext.dokkaPluginVersion = "0.10.0"
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "com.google.protobuf:protobuf-gradle-plugin:$protobufPluginVersion"
+        classpath "com.github.jengelman.gradle.plugins:shadow:$shadowPluginVersion"
+        classpath "nu.studer:gradle-jooq-plugin:$jooqPluginVersion"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:$sonarqubePluginVersion"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaPluginVersion"
+    }
+}
+
+plugins {
+    id "java"
+    id "jacoco"
+    id "org.jetbrains.kotlin.jvm" version "$kotlinVersion"
+    id "com.google.protobuf" version "$protobufPluginVersion"
+    id "com.github.johnrengelman.shadow" version "$shadowPluginVersion"
+    id "nu.studer.jooq" version "$jooqPluginVersion"
+    id "org.flywaydb.flyway" version "$flywayPluginVersion"
+    id "org.sonarqube" version "$sonarqubePluginVersion"
+    id "com.adarshr.test-logger" version "$testLoggerPluginVersion"
+    id "org.jetbrains.dokka" version "$dokkaPluginVersion"
+}
+
+group = "burstcoin"
+description = "Burstcoin Reference Software"
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'brs.BurstLauncher'
+    }
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+    maven {
+        url = "https://jitpack.io"
+    }
+    maven {
+        url = "http://repo.maven.apache.org/maven2"
+    }
+}
+
+def jettyVersion = "9.4.22.v20191022"
+def burstkit4jVersion = "v0.12.2"
+def rxJavaVersion = "2.2.13"
+def joclVersion = "2.0.1"
+def bouncyCastleVersion = "1.64"
+def gsonVersion = "2.8.6"
+def slf4jVersion = "1.7.26"
+def mariaDbVersion = "2.5.1"
+def hikariVersion = "3.4.1"
+def h2Version = "1.4.200"
+def zxingVersion = "3.4.0"
+def protocVersion = "3.10.0"
+def grpcVersion = "1.24.1"
+def flywayVersion = "5.2.4"
+def owaspVersion = "1.2.2"
+def jooqVersion = "3.12.2"
+def webUpnpVersion = "0.1.4"
+def ehCacheVersion = "3.8.1"
+def jUnit5Version = "5.5.2"
+def jUnit4Version = "4.12"
+def mockitoVersion = "3.1.0"
+def mockitoKotlinVersion = "2.1.0"
+def mockkVersion = "1.9.3"
+def javaxAnnotationVersion = "1.3.2"
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    compile "com.github.burst-apps-team:burstkit4j:$burstkit4jVersion"
+    compile "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    compile "org.jocl:jocl:$joclVersion"
+    compile "org.bouncycastle:bcprov-jdk15on:$bouncyCastleVersion"
+    compile "com.google.code.gson:gson:$gsonVersion"
+    compile "org.eclipse.jetty:jetty-server:$jettyVersion"
+    compile "org.eclipse.jetty:jetty-servlet:$jettyVersion"
+    compile "org.eclipse.jetty:jetty-servlets:$jettyVersion"
+    compile "org.eclipse.jetty:jetty-rewrite:$jettyVersion"
+    compile "org.slf4j:slf4j-api:$slf4jVersion"
+    compile "org.slf4j:slf4j-jdk14:$slf4jVersion"
+    compile "org.mariadb.jdbc:mariadb-java-client:$mariaDbVersion"
+    jooqRuntime "org.mariadb.jdbc:mariadb-java-client:$mariaDbVersion"
+    compile "com.zaxxer:HikariCP:$hikariVersion"
+    compile "com.h2database:h2:$h2Version"
+    compile "com.google.zxing:core:$zxingVersion"
+    compile "com.google.zxing:javase:$zxingVersion"
+    compile "io.grpc:grpc-netty-shaded:$grpcVersion"
+    compile "io.grpc:grpc-protobuf:$grpcVersion"
+    compile "io.grpc:grpc-stub:$grpcVersion"
+    compile "org.flywaydb:flyway-core:$flywayVersion"
+    compile "org.owasp.encoder:encoder:$owaspVersion"
+    compile "org.jooq:jooq:$jooqVersion"
+    compile "org.jooq:jooq-meta:$jooqVersion"
+    compile "org.jooq:jooq-codegen:$jooqVersion"
+    compile "org.bitlet:weupnp:$webUpnpVersion"
+    compile "org.ehcache:ehcache:$ehCacheVersion"
+    compile "javax.annotation:javax.annotation-api:$javaxAnnotationVersion"
+
+    testImplementation "junit:junit:$jUnit4Version"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$jUnit5Version"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jUnit5Version"
+    testRuntimeOnly "org.junit.vintage:junit-vintage-engine:$jUnit5Version"
+
+    testCompile "org.mockito:mockito-core:$mockitoVersion"
+    testCompile "org.mockito:mockito-inline:$mockitoVersion"
+    testCompile "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockitoKotlinVersion"
+    testCompile "io.mockk:mockk:$mockkVersion"
+    testCompile "io.grpc:grpc-testing:$grpcVersion"
+}
+
+sourceSets {
+    main {
+        kotlin {
+            exclude { fileTreeElement ->
+                System.getProperty("headless") == "true" && fileTreeElement.file == ("$projectDir/src/main/kotlin/brs/BurstGUI.kt" as File)
+            }
+        }
+    }
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+        freeCompilerArgs += ["-Xuse-experimental=kotlin.Experimental", "-progressive", "-XXLanguage:+InlineClasses"]
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protocVersion}"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.onlyIf {System.getProperty("runProtoc") == "true"}
+        }
+        all()*.plugins {
+            grpc {
+                outputSubDir = "java"
+            }
+        }
+    }
+    generatedFilesBaseDir = "$projectDir/src"
+}
+
+def dbUrl = "jdbc:mariadb://localhost:3306/burstwallet"
+def dbUsername = "root"
+
+flyway {
+    url = dbUrl
+    user = dbUsername
+    locations = ["filesystem:"+project.projectDir.toString()+"/src/main/resources/db/migration_mariadb"]
+}
+
+jooq {
+    version = jooqVersion
+    edition = "OSS"
+    burstcoin(sourceSets.main) {
+        jdbc {
+            url = dbUrl
+            user = dbUsername
+        }
+        generator {
+            name = "org.jooq.codegen.JavaGenerator"
+            database {
+                includes = ".*"
+                name = "org.jooq.meta.mariadb.MariaDBDatabase"
+                inputSchema = "burstwallet"
+                outputSchema = "DB"
+                forcedTypes {
+                    forcedType {
+                        name = "BOOLEAN"
+                        expression = ".*\\.(.*\\.LATEST|AT_STATE\\.FREEZE_WHEN_SAME_BALANCE|GOODS\\.DELISTED|TRANSACTION\\.(HAS_MESSAGE|HAS_ENCRYPTED_MESSAGE|HAS_PUBLIC_KEY_ANNOUNCEMENT|HAS_ENCRYPTTOSELF_MESSAGE)|PURCHASE\\.(PENDING|HAS_FEEDBACK_NOTES|HAS_PUBLIC_FEEDBACKS))"
+                        types = ".*"
+                    }
+                }
+            }
+            target {
+                packageName = "brs.schema"
+                directory = "src/main/java"
+            }
+        }
+    }
+}
+generateBurstcoinJooqSchemaSource.dependsOn flywayMigrate
+generateBurstcoinJooqSchemaSource.onlyIf {System.getProperty("runJooq") == "true"}
+flywayMigrate.onlyIf {System.getProperty("runJooq") == "true"}
+
+task removePackage(type: Delete) {
+    delete file("$projectDir/dist")
+}
+
+task documentation {
+    dependsOn dokka
+    doLast {
+        delete {
+            "$projectDir/html/ui/doc/"
+        }
+        copy {
+            from "$projectDir/build/dokka/"
+            into "$projectDir/html/ui/doc/"
+        }
+    }
+}
+
+task copyPackageFiles {
+    doLast {
+        copy {
+            from("$projectDir/build/libs/burstcoin-all.jar") {
+                rename "burstcoin-all.jar", "burst.jar"
+            }
+            from "$projectDir/Burst_Wallet.url"
+            from "$projectDir/genscoop.cl"
+            from "$projectDir/init-mysql.sql"
+            from "$projectDir/LICENSE.txt"
+            from "$projectDir/README.md"
+            from "$projectDir/burst.cmd"
+            from "$projectDir/burst.sh"
+            into "$projectDir/dist/tmp/"
+        }
+        copy {
+            from "$projectDir/html/"
+            into "$projectDir/dist/tmp/html/"
+        }
+        copy {
+            from "$projectDir/conf/brs-default.properties"
+            from "$projectDir/conf/logging-default.properties"
+            into "$projectDir/dist/tmp/conf/"
+        }
+    }
+}
+
+task zipPackageFiles(type: Zip) {
+    from "$projectDir/dist/tmp"
+    include "*"
+    include "*/*"
+    archiveName "burstcoin.zip"
+    destinationDir(file("$projectDir/dist"))
+}
+
+task buildPackage { // TODO javadoc
+    dependsOn removePackage
+    dependsOn documentation
+    dependsOn shadowJar
+    dependsOn copyPackageFiles
+    dependsOn zipPackageFiles
+    documentation.mustRunAfter(removePackage)
+    shadowJar.mustRunAfter(documentation)
+    copyPackageFiles.mustRunAfter(shadowJar)
+    zipPackageFiles.mustRunAfter(copyPackageFiles)
+}
+
+sonarqube {
+    properties {
+        property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.organization", "burst-apps-team"
+        property "sonar.projectKey", "burst-apps-team_burstcoin"
+        property "sonar.verbose", "true"
+        property "sonar.exclusions", "src/main/java/**"
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.5"
+}
+
+test {
+    useJUnitPlatform()
+    reports.html.enabled = false
+    maxHeapSize = "4G"
+}
+
+testlogger {
+    showFullStackTraces true
+    showStandardStreams true
+}
+
+project.tasks["sonarqube"].dependsOn jacocoTestReport
+
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/dokka"
+    configuration {
+        includeNonPublic = true
+        skipDeprecated = true
+        jdkVersion = 8
+        sourceLink {
+            path = "src/main/kotlin"
+            url = "https://github.com/burst-apps-team/burstcoin/blob/master/src/main/kotlin"
+            lineSuffix = "#L"
+        }
+        perPackageOption {
+            prefix = "brs.schema"
+            suppress = true
+        }
+        perPackageOption {
+            prefix = "brs.api.grpc.proto"
+            suppress = true
+        }
+    }
+}
