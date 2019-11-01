@@ -191,7 +191,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
         try {
             if (dp.blockchainProcessorService.oclVerify) {
                 dp.oclPocService.destroy()
-            }g
+            }
         } catch (ignored: UninitializedPropertyAccessException) {
             // Ignore
         }
