@@ -38,7 +38,7 @@ internal class SendMoneySubscription(private val dp: DependencyProvider) : Creat
             return response
         }
 
-        if (frequency < Constants.BURST_SUBSCRIPTION_MIN_Frequest || frequency > Constants.BURST_SUBSCRIPTION_MAX_Frequest) {
+        if (frequency < Constants.BURST_SUBSCRIPTION_MIN_FREQUENCY || frequency > Constants.BURST_SUBSCRIPTION_MAX_FREQUENCY) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 4)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Invalid frequency amount")

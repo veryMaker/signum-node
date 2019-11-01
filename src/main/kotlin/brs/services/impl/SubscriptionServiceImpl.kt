@@ -1,24 +1,19 @@
 package brs.services.impl
 
 import brs.entity.*
-import brs.util.BurstException.NotValidException
-import brs.services.SubscriptionService
 import brs.objects.Constants
+import brs.services.SubscriptionService
 import brs.transaction.appendix.Attachment
+import brs.util.BurstException.NotValidException
 import brs.util.convert.safeAdd
 
 class SubscriptionServiceImpl(private val dp: DependencyProvider) : SubscriptionService {
     private val subscriptionTable = dp.subscriptionStore.subscriptionTable
     private val subscriptionDbKeyFactory = dp.subscriptionStore.subscriptionDbKeyFactory
 
-    override fun isEnabled(): Boolean {
-        if (dp.blockchainService.lastBlock.height >= Constants.BURST_SUBSCRIPTION_START_BLOCK) {
-            return true
-        }
-
-        val subscriptionEnabled = dp.aliasService.getAlias("featuresubscription")
-        return subscriptionEnabled != null && subscriptionEnabled.aliasURI == "enabled"
-    }
+    private val paymentTransactions = mutableListOf<Transaction>()
+    private val appliedSubscriptions = mutableListOf<Subscription>()
+    private val removeSubscriptions = mutableSetOf<Long>()
 
     private val fee: Long
         get() = Constants.ONE_BURST
@@ -180,11 +175,4 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
 
         subscription.timeNextGetAndAdd(subscription.frequency)
     }
-
-    companion object { // TODO why is this static??
-        private val paymentTransactions = mutableListOf<Transaction>()
-        private val appliedSubscriptions = mutableListOf<Subscription>()
-        private val removeSubscriptions = mutableSetOf<Long>()
-    }
-
 }

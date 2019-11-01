@@ -1,8 +1,7 @@
 package brs.peer
 
-import brs.util.BurstException
 import brs.services.TransactionProcessorService
-import brs.util.json.JSON
+import brs.util.BurstException
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
@@ -11,7 +10,7 @@ internal class ProcessTransactions(private val transactionProcessorService: Tran
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         return try {
             transactionProcessorService.processPeerTransactions(request, peer) // TODO this is not locking sync obj...
-            JSON.emptyJSON
+            JsonObject()
         } catch (e: RuntimeException) {
             peer.blacklist(e, "received invalid data via requestType=processTransactions")
             val response = JsonObject()

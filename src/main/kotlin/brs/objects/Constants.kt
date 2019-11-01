@@ -10,12 +10,8 @@ object Constants {
 
     const val BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME: Long = 4
 
-    // not sure when these were enabled, but they each do an alias lookup every block if greater than the current height
-    // TODO remove these 0 start blocks
-    const val BURST_ESCROW_START_BLOCK: Long = 0
-    const val BURST_SUBSCRIPTION_START_BLOCK: Long = 0
-    const val BURST_SUBSCRIPTION_MIN_Frequest = 3600
-    const val BURST_SUBSCRIPTION_MAX_Frequest = 31536000
+    const val BURST_SUBSCRIPTION_MIN_FREQUENCY = 3600
+    const val BURST_SUBSCRIPTION_MAX_FREQUENCY = 31536000
 
     const val BLOCK_HEADER_LENGTH = 232
 

@@ -41,7 +41,7 @@ class RxJavaTaskSchedulerService: TaskSchedulerService {
 
     override fun <T : Any> async(taskType: TaskType, task: TaskWithResult<T>): Future<T?> {
         requireStarted()
-        // TODO safe catch without creating an extra lambda object
+        // TODO safe create
         val future = Maybe.fromCallable(task).subscribeOn(taskType.toScheduler())
             .toFuture()
         disposables.add(future)
@@ -98,9 +98,8 @@ class RxJavaTaskSchedulerService: TaskSchedulerService {
         }
     }
 
-    private fun taskToTask(task: Task, taskType: TaskType): Completable { // TODO catch stuff
-        // TODO safe catch without creating an extra lambda object
-        return Completable.fromAction(task)
+    private fun taskToTask(task: Task, taskType: TaskType): Completable {
+        return safeCreateCompletable { task() }
             .subscribeOn(taskType.toScheduler())
     }
 
@@ -115,7 +114,7 @@ class RxJavaTaskSchedulerService: TaskSchedulerService {
             .subscribeOn(taskType.toScheduler())
     }
 
-    private fun repeatingTaskToTask(task: RepeatingTask, taskType: TaskType): Completable { // TODO catch stuff
+    private fun repeatingTaskToTask(task: RepeatingTask, taskType: TaskType): Completable {
         return safeCreateCompletable {
             while (!it.isDisposed) {
                 if (!task()) {

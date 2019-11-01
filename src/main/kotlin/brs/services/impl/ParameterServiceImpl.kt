@@ -1,7 +1,5 @@
 package brs.services.impl
 
-import brs.at.AT
-import brs.util.crypto.Crypto
 import brs.api.http.JSONResponses.HEIGHT_NOT_AVAILABLE
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.JSONResponses.INCORRECT_ALIAS
@@ -54,13 +52,15 @@ import brs.api.http.common.Parameters.isFalse
 import brs.api.http.common.Parameters.isTrue
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.at.AT
 import brs.entity.*
 import brs.services.ParameterService
 import brs.util.BurstException
 import brs.util.convert.*
-import brs.util.logging.safeDebug
+import brs.util.crypto.Crypto
 import brs.util.json.mustGetAsJsonObject
 import brs.util.json.parseJson
+import brs.util.logging.safeDebug
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
@@ -277,13 +277,11 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
                 val bytes = transactionBytes.parseHexString()
                 dp.transactionProcessorService.parseTransaction(bytes)
             } catch (e: BurstException.ValidationException) {
-                logger.safeDebug(e) { e.message } // TODO remove?
                 val response = JsonObject()
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
                 response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect transactionBytes: $e")
                 throw ParameterException(response)
             } catch (e: RuntimeException) {
-                logger.safeDebug(e) { e.message }
                 val response = JsonObject()
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
                 response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect transactionBytes: $e")

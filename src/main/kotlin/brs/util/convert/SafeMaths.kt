@@ -2,7 +2,7 @@ package brs.util.convert
 
 import kotlin.math.abs
 
-// overflow checking based on https://www.securecoding.cert.org/confluence/display/java/NUM00-J.+Detect+or+prevent+integer+overflow
+// overflow checking based on https://wiki.sei.cmu.edu/confluence/display/java/NUM00-J.+Detect+or+prevent+integer+overflow
 fun Long.safeAdd(long: Long): Long {
     if (if (long > 0)
             this > Long.MAX_VALUE - long

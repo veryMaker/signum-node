@@ -33,7 +33,6 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
 
     override val purchaseTable: VersionedEntityTable<Purchase>
 
-    @Deprecated("")
     override val feedbackTable: VersionedValuesTable<Purchase, EncryptedData>
 
     override val publicFeedbackDbKeyFactory = object : SqlDbKey.LongKeyFactory<Purchase>(PURCHASE.ID) {

@@ -56,9 +56,6 @@ class EscrowSign(dp: DependencyProvider) : AdvancedPayment(dp) {
         if (escrow.recipientId == transaction.senderId && attachment.decision != Escrow.DecisionType.REFUND) {
             throw BurstException.NotValidException("Escrow recipient can only refund")
         }
-        if (!dp.escrowService.isEnabled()) {
-            throw BurstException.NotYetEnabledException("Escrow not yet enabled")
-        }
     }
 
     override fun hasRecipient() = false

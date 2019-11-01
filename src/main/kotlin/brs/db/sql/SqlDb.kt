@@ -1,7 +1,7 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
 import brs.db.*
+import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
@@ -111,7 +111,7 @@ class SqlDb(private val dp: DependencyProvider) : Db {
                             }
                         }
                     }
-                    flywayBuilder.dataSource(flywayDataSource) // TODO Remove this hack once a stable version of Flyway has this bug fixed
+                    flywayBuilder.dataSource(flywayDataSource) // TODO Remove this hack once we can use Flyway 6
                     config.connectionInitSql = "SET NAMES utf8mb4;"
                 }
                 SQLDialect.H2 -> {
@@ -221,7 +221,11 @@ class SqlDb(private val dp: DependencyProvider) : Db {
         transactionCaches.remove()
         transactionBatches.get().clear()
         transactionBatches.remove()
-        SqlDbUtils.close(con)
+        try {
+            con.close()
+        } catch (ignored: Exception) {
+            // Do nothing
+        }
     }
 
     override fun optimizeTable(tableName: String) {

@@ -3,7 +3,6 @@ package brs.services.impl
 import brs.entity.*
 import brs.entity.Escrow.Decision
 import brs.entity.Escrow.DecisionType
-import brs.objects.Constants
 import brs.objects.Genesis
 import brs.schema.Tables.ESCROW
 import brs.services.EscrowService
@@ -20,17 +19,6 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
     private val resultTransactions = dp.escrowStore.resultTransactions
 
     override fun getAllEscrowTransactions() = escrowTable.getAll(0, -1)
-
-    override fun isEnabled(): Boolean {
-        if (dp.blockchainService.lastBlock.height >= Constants.BURST_ESCROW_START_BLOCK) {
-            return true
-        }
-
-        // TODO what...?!
-        val escrowEnabled = dp.aliasService.getAlias("featureescrow")
-        return escrowEnabled != null && escrowEnabled.aliasURI == "enabled"
-    }
-
 
     private val updatedEscrowIds = ConcurrentSkipListSet<Long>()
 

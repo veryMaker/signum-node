@@ -8,8 +8,6 @@ import java.io.StringReader
 import java.io.Writer
 
 object JSON {
-    val emptyJSON: JsonElement = JsonObject()
-
     fun prepareRequest(json: JsonObject): JsonElement {
         json.addProperty(PROTOCOL, "B1")
         return json

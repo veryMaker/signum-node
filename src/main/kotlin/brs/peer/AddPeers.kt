@@ -1,7 +1,6 @@
 package brs.peer
 
 import brs.entity.DependencyProvider
-import brs.util.json.JSON
 import brs.util.json.isEmpty
 import brs.util.json.mustGetAsJsonArray
 import brs.util.json.safeGetAsString
@@ -16,6 +15,6 @@ internal class AddPeers(private val dp: DependencyProvider) : PeerServlet.PeerRe
                 dp.peerService.addPeer(announcedAddress.safeGetAsString())
             }
         }
-        return JSON.emptyJSON
+        return JsonObject()
     }
 }

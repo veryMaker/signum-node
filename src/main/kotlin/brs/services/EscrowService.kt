@@ -14,11 +14,6 @@ interface EscrowService {
     /**
      * TODO
      */
-    fun isEnabled(): Boolean
-
-    /**
-     * TODO
-     */
     fun getEscrowTransaction(id: Long?): Escrow?
 
     /**

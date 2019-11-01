@@ -31,12 +31,12 @@ import kotlin.experimental.or
 
 class Transaction private constructor(private val dp: DependencyProvider, builder: Builder) : Comparable<Transaction> {
     val deadline: Short
-    lateinit var senderPublicKey: ByteArray
+    val senderPublicKey: ByteArray
     val recipientId: Long
     val amountPlanck: Long
     val feePlanck: Long
     val referencedTransactionFullHash: ByteArray?
-    lateinit var type: TransactionType
+    val type: TransactionType
     val ecBlockHeight: Int
     val ecBlockId: Long
     val version: Byte
@@ -53,10 +53,28 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     internal var block by Atomic<Block?>(null)
     var signature by Atomic<ByteArray?>(null)
     var blockTimestamp by AtomicLateinit<Int>()
+
+    val expiration: Int
+        get() = timestamp + deadline * 60
+
+    init {
+        this.timestamp = builder.timestamp
+        this.deadline = builder.deadline
+        this.senderPublicKey = builder.senderPublicKey
+        this.recipientId = Optional.ofNullable(builder.recipientId).orElse(0L)
+        this.amountPlanck = builder.amountPlanck
+        this.referencedTransactionFullHash = builder.referencedTransactionFullHash
+        this.signature = builder.signature
+        this.type = builder.type
+        this.version = builder.version
+        if (builder.blockId != null) this.blockId = builder.blockId!!
+        this.height = builder.height
+    }
+
     var id by AtomicLazy { fullHash.fullHashToId() }
     val stringId by AtomicLazy { id.toUnsignedString() }
     var senderId by AtomicLazy {
-        if (!this::type.isInitialized || type.isSigned) {
+        if (type.isSigned) {
             Account.getId(senderPublicKey)
         } else 0
     }
@@ -69,8 +87,84 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         digest.digest(signatureHash)
     }
 
-    val expiration: Int
-        get() = timestamp + deadline * 60
+    init {
+        if (builder.id != null) this.id = builder.id!!
+        if (builder.senderId != null) this.senderId = builder.senderId!!
+        if (builder.blockTimestamp != null) this.blockTimestamp = builder.blockTimestamp!!
+        if (builder.fullHash != null) this.fullHash = builder.fullHash!!
+        this.ecBlockHeight = builder.ecBlockHeight
+        this.ecBlockId = builder.ecBlockId
+
+        val list = mutableListOf<AbstractAppendix>()
+        this.attachment = builder.attachment
+        list.add(this.attachment)
+        this.message = builder.message
+        if (message != null) {
+            list.add(this.message)
+        }
+        this.encryptedMessage = builder.encryptedMessage
+        if (encryptedMessage != null) {
+            list.add(this.encryptedMessage)
+        }
+        this.publicKeyAnnouncement = builder.publicKeyAnnouncement
+        if (publicKeyAnnouncement != null) {
+            list.add(this.publicKeyAnnouncement)
+        }
+        this.encryptToSelfMessage = builder.encryptToSelfMessage
+        if (encryptToSelfMessage != null) {
+            list.add(this.encryptToSelfMessage)
+        }
+        this.appendages = list
+        var countAppendeges = 0
+        for (appendage in appendages) {
+            countAppendeges += appendage.size
+        }
+        this.appendagesSize = countAppendeges
+        val effectiveHeight = if (height < Integer.MAX_VALUE) height else dp.blockchainService.height
+        val minimumFeePlanck = type.minimumFeePlanck(effectiveHeight, countAppendeges)
+        feePlanck = if (type.isSigned) {
+            if (builder.feePlanck in 1 until minimumFeePlanck) {
+                throw BurstException.NotValidException(
+                    String.format(
+                        "Requested fee %d less than the minimum fee %d",
+                        builder.feePlanck, minimumFeePlanck
+                    )
+                )
+            }
+            if (builder.feePlanck <= 0) {
+                minimumFeePlanck
+            } else {
+                builder.feePlanck
+            }
+        } else {
+            builder.feePlanck
+        }
+
+        if ((type.isSigned) && (deadline < 1
+                    || feePlanck > Constants.MAX_BALANCE_PLANCK
+                    || amountPlanck < 0
+                    || amountPlanck > Constants.MAX_BALANCE_PLANCK)
+        ) {
+            throw BurstException.NotValidException(
+                "Invalid transaction parameters:\n type: " + type + ", timestamp: " + timestamp
+                        + ", deadline: " + deadline + ", fee: " + feePlanck + ", amount: " + amountPlanck
+            )
+        }
+
+        if (type !== attachment.transactionType) {
+            throw BurstException.NotValidException("Invalid attachment $attachment for transaction of type $type")
+        }
+
+        if (!type.hasRecipient() && attachment.transactionType !is MultiOutPayment && attachment.transactionType !is MultiOutSamePayment && (recipientId != 0L || amountPlanck != 0L)) {
+            throw BurstException.NotValidException("Transactions of this type must have recipient == Genesis, amount == 0")
+        }
+
+        for (appendage in appendages) {
+            if (!appendage.verifyVersion(this.version)) {
+                throw BurstException.NotValidException("Invalid attachment version ${appendage.version} for transaction version ${this.version}")
+            }
+        }
+    }
 
     fun toBytes(includeSignature: Boolean = true): ByteArray {
         try {
@@ -271,96 +365,6 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         }
     }
 
-    init {
-        this.timestamp = builder.timestamp
-        this.deadline = builder.deadline
-        this.senderPublicKey = builder.senderPublicKey
-        this.recipientId = Optional.ofNullable(builder.recipientId).orElse(0L)
-        this.amountPlanck = builder.amountPlanck
-        this.referencedTransactionFullHash = builder.referencedTransactionFullHash
-        this.signature = builder.signature
-        this.type = builder.type
-        this.version = builder.version
-        if (builder.blockId != null) this.blockId = builder.blockId!!
-        this.height = builder.height
-        if (builder.id != null) this.id = builder.id!!
-        if (builder.senderId != null) this.senderId = builder.senderId!!
-        if (builder.blockTimestamp != null) this.blockTimestamp = builder.blockTimestamp!!
-        if (builder.fullHash != null) this.fullHash = builder.fullHash!!
-        this.ecBlockHeight = builder.ecBlockHeight
-        this.ecBlockId = builder.ecBlockId
-
-        val list = mutableListOf<AbstractAppendix>()
-        this.attachment = builder.attachment
-        list.add(this.attachment)
-        this.message = builder.message
-        if (message != null) {
-            list.add(this.message)
-        }
-        this.encryptedMessage = builder.encryptedMessage
-        if (encryptedMessage != null) {
-            list.add(this.encryptedMessage)
-        }
-        this.publicKeyAnnouncement = builder.publicKeyAnnouncement
-        if (publicKeyAnnouncement != null) {
-            list.add(this.publicKeyAnnouncement)
-        }
-        this.encryptToSelfMessage = builder.encryptToSelfMessage
-        if (encryptToSelfMessage != null) {
-            list.add(this.encryptToSelfMessage)
-        }
-        this.appendages = list
-        var countAppendeges = 0
-        for (appendage in appendages) {
-            countAppendeges += appendage.size
-        }
-        this.appendagesSize = countAppendeges
-        val effectiveHeight = if (height < Integer.MAX_VALUE) height else dp.blockchainService.height
-        val minimumFeePlanck = type.minimumFeePlanck(effectiveHeight, countAppendeges)
-        feePlanck = if (type.isSigned) {
-            if (builder.feePlanck in 1 until minimumFeePlanck) {
-                throw BurstException.NotValidException(
-                    String.format(
-                        "Requested fee %d less than the minimum fee %d",
-                        builder.feePlanck, minimumFeePlanck
-                    )
-                )
-            }
-            if (builder.feePlanck <= 0) {
-                minimumFeePlanck
-            } else {
-                builder.feePlanck
-            }
-        } else {
-            builder.feePlanck
-        }
-
-        if ((type.isSigned) && (deadline < 1
-                    || feePlanck > Constants.MAX_BALANCE_PLANCK
-                    || amountPlanck < 0
-                    || amountPlanck > Constants.MAX_BALANCE_PLANCK)
-        ) {
-            throw BurstException.NotValidException(
-                "Invalid transaction parameters:\n type: " + type + ", timestamp: " + timestamp
-                        + ", deadline: " + deadline + ", fee: " + feePlanck + ", amount: " + amountPlanck
-            )
-        }
-
-        if (type !== attachment.transactionType) {
-            throw BurstException.NotValidException("Invalid attachment $attachment for transaction of type $type")
-        }
-
-        if (!type.hasRecipient() && attachment.transactionType !is MultiOutPayment && attachment.transactionType !is MultiOutSamePayment && (recipientId != 0L || amountPlanck != 0L)) {
-            throw BurstException.NotValidException("Transactions of this type must have recipient == Genesis, amount == 0")
-        }
-
-        for (appendage in appendages) {
-            if (!appendage.verifyVersion(this.version)) {
-                throw BurstException.NotValidException("Invalid attachment version ${appendage.version} for transaction version ${this.version}")
-            }
-        }
-    }
-
     // TODO should we use AtomicWithOverride? What about getBlock()
     fun setBlock(block: Block) {
         this.block = block
@@ -520,6 +524,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
 
         private const val SIGNATURE_OFFSET = 1 + 1 + 4 + 2 + 32 + 8 + 8 + 8 + 32
 
-        private val SHA256_64_ZEROS = "F5A5FD42D16A20302798EF6ED309979B43003D2320D9F0E8EA9831A92759FB4B".parseHexString()
+        private val SHA256_64_ZEROS =
+            "F5A5FD42D16A20302798EF6ED309979B43003D2320D9F0E8EA9831A92759FB4B".parseHexString()
     }
 }

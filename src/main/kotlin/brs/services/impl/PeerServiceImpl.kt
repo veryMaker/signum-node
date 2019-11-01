@@ -1,8 +1,8 @@
 package brs.services.impl
 
 import brs.Burst
-import brs.entity.DependencyProvider
 import brs.entity.Block
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.objects.Constants.MIN_VERSION
 import brs.objects.Props
@@ -16,7 +16,9 @@ import brs.services.PeerService
 import brs.services.RepeatingTask
 import brs.services.Task
 import brs.services.TaskType
-import brs.util.*
+import brs.util.Listeners
+import brs.util.Version
+import brs.util.delegates.Atomic
 import brs.util.json.*
 import brs.util.json.JSON.prepareRequest
 import brs.util.logging.*
@@ -43,7 +45,6 @@ import java.net.URISyntaxException
 import java.net.UnknownHostException
 import java.util.*
 import java.util.concurrent.*
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.xml.parsers.ParserConfigurationException
 
 // TODO what about next-gen P2P network?
@@ -456,10 +457,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         prepareRequest(request)
     }
 
-    private val addedNewPeer = AtomicBoolean(false) // TODO by Atomic
+    private var addedNewPeer by Atomic(false)
 
     init {
-        listeners.addListener(PeerService.Event.NEW_PEER) { addedNewPeer.set(true) }
+        listeners.addListener(PeerService.Event.NEW_PEER) { addedNewPeer = true }
     }
 
     private val getMorePeersThread: RepeatingTask = {
@@ -483,8 +484,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                             addedAddresses.add(announcedAddressString)
                         }
                     }
-                    if (savePeers && addedNewPeer.get()) {
-                        addedNewPeer.set(false)
+                    if (savePeers && addedNewPeer) { // FIXME: Atomics do not guarantee exclusivity in this way
+                        addedNewPeer = false
                     }
                 }
 

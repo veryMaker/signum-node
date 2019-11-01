@@ -1,11 +1,10 @@
 package brs.api.http
 
-import brs.entity.Account
+import brs.api.http.common.ResultFields.PUBLIC_KEY_RESPONSE
 import brs.common.QuickMocker
 import brs.common.TestConstants
-import brs.api.http.common.ResultFields.PUBLIC_KEY_RESPONSE
+import brs.entity.Account
 import brs.services.ParameterService
-import brs.util.json.JSON
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
@@ -54,7 +53,10 @@ class GetAccountPublicKeyTest {
 
         whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
 
-        assertEquals(JSON.emptyJSON, t.processRequest(request))
+        assertEquals(
+            "Account does not have public key set in Blockchain",
+            t.processRequest(request).asJsonObject["errorDescription"].asString
+        )
     }
 
 }

@@ -117,9 +117,6 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
         ) {
             throw BurstException.NotValidException("Escrow sender and recipient cannot be signers")
         }
-        if (!dp.escrowService.isEnabled()) {
-            throw BurstException.NotYetEnabledException("Escrow not yet enabled")
-        }
     }
 
     override fun hasRecipient() = true

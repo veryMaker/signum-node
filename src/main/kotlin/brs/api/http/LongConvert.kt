@@ -1,10 +1,10 @@
 package brs.api.http
 
+import brs.api.http.JSONResponses.MISSING_ID
 import brs.api.http.common.Parameters.ID_PARAMETER
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
-import brs.util.json.JSON
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest
  */
 internal object LongConvert : APIServlet.JsonRequestHandler(arrayOf(APITag.UTILS), ID_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        val id = request.getParameter(ID_PARAMETER).emptyToNull() ?: return JSON.emptyJSON
+        val id = request.getParameter(ID_PARAMETER).emptyToNull() ?: return MISSING_ID
         val response = JsonObject()
         val long: Long
         try {

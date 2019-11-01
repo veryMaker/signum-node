@@ -3,8 +3,8 @@ package brs.transaction.type.advancedPayment
 import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
-import brs.transaction.appendix.Attachment
 import brs.entity.TransactionDuplicationKey
+import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.convert.toUnsignedString
 import brs.util.logging.safeTrace
@@ -55,10 +55,6 @@ class SubscriptionCancel(dp: DependencyProvider) : AdvancedPayment(dp) {
 
         if (subscription.senderId != transaction.senderId && subscription.recipientId != transaction.senderId) {
             throw BurstException.NotValidException("Subscription cancel can only be done by participants")
-        }
-
-        if (!dp.subscriptionService.isEnabled()) {
-            throw BurstException.NotYetEnabledException("Subscription cancel not yet enabled")
         }
     }
 

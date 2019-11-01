@@ -1,10 +1,10 @@
 package brs.api.http
 
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
+import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.api.http.common.ResultFields.PUBLIC_KEY_RESPONSE
 import brs.services.ParameterService
 import brs.util.convert.toHexString
-import brs.util.json.JSON
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -24,7 +24,9 @@ internal class GetAccountPublicKey internal constructor(private val parameterSer
             response.addProperty(PUBLIC_KEY_RESPONSE, account.publicKey!!.toHexString())
             response
         } else {
-            JSON.emptyJSON
+            val response = JsonObject()
+            response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Account does not have public key set in Blockchain")
+            response
         }
     }
 }

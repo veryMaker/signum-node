@@ -3,9 +3,9 @@ package brs.transaction.type.advancedPayment
 import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
+import brs.entity.TransactionDuplicationKey
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
-import brs.entity.TransactionDuplicationKey
 import brs.util.BurstException
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
@@ -43,8 +43,8 @@ class SubscriptionSubscribe(dp: DependencyProvider) : AdvancedPayment(dp) {
     override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionSubscribe
         if (attachment.frequency == null ||
-            attachment.frequency < Constants.BURST_SUBSCRIPTION_MIN_Frequest ||
-            attachment.frequency > Constants.BURST_SUBSCRIPTION_MAX_Frequest
+            attachment.frequency < Constants.BURST_SUBSCRIPTION_MIN_FREQUENCY ||
+            attachment.frequency > Constants.BURST_SUBSCRIPTION_MAX_FREQUENCY
         ) {
             throw BurstException.NotValidException("Invalid subscription frequency")
         }
@@ -53,9 +53,6 @@ class SubscriptionSubscribe(dp: DependencyProvider) : AdvancedPayment(dp) {
         }
         if (transaction.senderId == transaction.recipientId) {
             throw BurstException.NotValidException("Cannot create subscription to same address")
-        }
-        if (!dp.subscriptionService.isEnabled()) {
-            throw BurstException.NotYetEnabledException("Subscriptions not yet enabled")
         }
     }
 

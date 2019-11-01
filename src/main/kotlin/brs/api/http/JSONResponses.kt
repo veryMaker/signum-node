@@ -1,6 +1,5 @@
 package brs.api.http
 
-import brs.objects.Constants
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_PARAMETER
@@ -23,6 +22,7 @@ import brs.api.http.common.Parameters.GOODS_DATA_PARAMETER
 import brs.api.http.common.Parameters.GOODS_PARAMETER
 import brs.api.http.common.Parameters.GOODS_TO_ENCRYPT_PARAMETER
 import brs.api.http.common.Parameters.HEIGHT_PARAMETER
+import brs.api.http.common.Parameters.ID_PARAMETER
 import brs.api.http.common.Parameters.MESSAGE_PARAMETER
 import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER
 import brs.api.http.common.Parameters.NAME_PARAMETER
@@ -51,6 +51,7 @@ import brs.api.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
 import brs.api.http.common.Parameters.URI_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.objects.Constants
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
@@ -69,6 +70,7 @@ object JSONResponses {
     val MISSING_ALIAS_OR_ALIAS_NAME = missing(ALIAS_PARAMETER, "aliasName")
     val MISSING_FEE = missing(FEE_PLANCK_PARAMETER)
     val MISSING_DEADLINE = missing(DEADLINE_PARAMETER)
+    val MISSING_ID = missing(ID_PARAMETER)
     val INCORRECT_DEADLINE = incorrect(DEADLINE_PARAMETER)
     val INCORRECT_FEE = incorrect(FEE_PARAMETER)
     val MISSING_TRANSACTION_BYTES_OR_JSON = missing(TRANSACTION_BYTES_PARAMETER, TRANSACTION_JSON_PARAMETER)

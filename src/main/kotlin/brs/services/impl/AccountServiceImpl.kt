@@ -36,7 +36,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
 
     override val count get() = accountTable.count
 
-    init { // TODO don't hold references to dependency instances
+    init {
         val accountStore = dp.accountStore
         this.accountStore = accountStore
         this.accountTable = accountStore.accountTable

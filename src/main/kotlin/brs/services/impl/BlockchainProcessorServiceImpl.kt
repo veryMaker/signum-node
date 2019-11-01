@@ -837,10 +837,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
         calculatedRemainingAmount += atBlock.totalAmountPlanck
         calculatedRemainingFee += atBlock.totalFees
-        // ATs
-        if (dp.subscriptionService.isEnabled()) {
-            calculatedRemainingFee += dp.subscriptionService.applyUnconfirmed(block.timestamp)
-        }
+        calculatedRemainingFee += dp.subscriptionService.applyUnconfirmed(block.timestamp)
         if (remainingAmount != null && remainingAmount != calculatedRemainingAmount) {
             throw BlockchainProcessorService.BlockNotAcceptedException("Calculated remaining amount doesn't add up for block " + block.height)
         }
@@ -850,9 +847,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         blockListeners.accept(BlockchainProcessorService.Event.BEFORE_BLOCK_APPLY, block)
         dp.blockService.apply(block)
         dp.subscriptionService.applyConfirmed(block, dp.blockchainService.height)
-        if (dp.escrowService.isEnabled()) {
-            dp.escrowService.updateOnBlock(block, dp.blockchainService.height)
-        }
+        dp.escrowService.updateOnBlock(block, dp.blockchainService.height)
         blockListeners.accept(BlockchainProcessorService.Event.AFTER_BLOCK_APPLY, block)
         if (!block.transactions.isEmpty()) {
             dp.transactionProcessorService.notifyListeners(
@@ -1074,11 +1069,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                         }
                     }
                 }
-
-                if (dp.subscriptionService.isEnabled()) {
-                    dp.subscriptionService.clearRemovals()
-                    totalFeePlanck += dp.subscriptionService.calculateFees(blockTimestamp)
-                }
+                dp.subscriptionService.clearRemovals()
+                totalFeePlanck += dp.subscriptionService.calculateFees(blockTimestamp)
             } catch (e: Exception) {
                 dp.db.rollbackTransaction()
                 throw e
@@ -1162,9 +1154,6 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             return timestamp - transaction.timestamp < 60 * 1440 * 60 && count < 10
         }
         val foundTransaction = dp.transactionDb.findTransactionByFullHash(transaction.referencedTransactionFullHash)
-        if (!dp.subscriptionService.isEnabled() && foundTransaction != null && transaction.signature == null) {
-            return false
-        }
         return foundTransaction != null && hasAllReferencedTransactions(foundTransaction, timestamp, count + 1)
     }
 
