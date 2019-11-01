@@ -71,7 +71,7 @@ import brs.api.http.common.ResultFields.URI_RESPONSE
 import brs.entity.*
 import brs.objects.Constants
 import brs.transaction.type.TransactionType
-import brs.util.*
+import brs.util.BurstException
 import brs.util.convert.*
 import brs.util.json.*
 import com.google.gson.JsonArray
@@ -816,7 +816,6 @@ interface Attachment : Appendix {
     }
 
     class ColoredCoinsAssetIssuance : AbstractAttachment {
-
         val name: String
         val description: String
         val quantity: Long
@@ -853,7 +852,7 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            this.name = attachmentData.get(NAME_PARAMETER).safeGetAsString()
+            this.name = attachmentData.get(NAME_PARAMETER).mustGetAsString(NAME_PARAMETER)
             this.description = attachmentData.get(DESCRIPTION_PARAMETER).safeGetAsString().orEmpty()
             this.quantity = attachmentData.get(QUANTITY_QNT_PARAMETER).mustGetAsLong(QUANTITY_QNT_PARAMETER)
             this.decimals = attachmentData.get(DECIMALS_PARAMETER).mustGetAsByte(DECIMALS_PARAMETER)
@@ -1947,7 +1946,7 @@ interface Attachment : Appendix {
         ) {
             this.amountPlanck = buffer.long
             this.deadline = buffer.int
-            this.deadlineAction = Escrow.byteToDecision(buffer.get())
+            this.deadlineAction = Escrow.byteToDecision(buffer.get()) ?: error("Escrow Decision Type Not Recognized")
             this.requiredSigners = buffer.get()
             val totalSigners = buffer.get()
             if (totalSigners > 10 || totalSigners <= 0) {
@@ -1963,9 +1962,7 @@ interface Attachment : Appendix {
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.amountPlanck = attachmentData.get(AMOUNT_PLANCK_PARAMETER).safeGetAsString().parseUnsignedLong()
             this.deadline = attachmentData.get(DEADLINE_PARAMETER).mustGetAsInt(DEADLINE_PARAMETER)
-            this.deadlineAction = Escrow.stringToDecision(
-                attachmentData.get(DEADLINE_ACTION_PARAMETER).mustGetAsString(DEADLINE_ACTION_PARAMETER)
-            )
+            this.deadlineAction = Escrow.stringToDecision(attachmentData.get(DEADLINE_ACTION_PARAMETER).mustGetAsString(DEADLINE_ACTION_PARAMETER)) ?: error("Escrow Decision Type not recognized: $attachmentData")
             this.requiredSigners =
                 attachmentData.get(REQUIRED_SIGNERS_PARAMETER).mustGetAsByte(REQUIRED_SIGNERS_PARAMETER)
             val totalSigners = attachmentData.get(SIGNERS_PARAMETER).mustGetAsJsonArray(SIGNERS_PARAMETER).size()
@@ -2010,7 +2007,7 @@ interface Attachment : Appendix {
             this.amountPlanck = attachment.amount
             this.requiredSigners = attachment.requiredSigners.toByte()
             this.deadline = attachment.deadline
-            this.deadlineAction = Escrow.protoBufToDecision(attachment.deadlineAction)
+            this.deadlineAction = Escrow.protoBufToDecision(attachment.deadlineAction) ?: error("Escrow Decision Type Not Recognized: ${attachment.deadlineAction}")
             this.signers.addAll(attachment.signersList)
             if (signers.size > 10 || signers.isEmpty()) {
                 throw BurstException.NotValidException("Invalid number of signers listed on create escrow transaction")
