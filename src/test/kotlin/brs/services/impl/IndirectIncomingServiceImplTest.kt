@@ -12,7 +12,7 @@ import brs.transaction.appendix.Attachment
 import brs.transaction.type.payment.MultiOutPayment
 import brs.transaction.type.payment.MultiOutSamePayment
 import brs.transaction.type.payment.OrdinaryPayment
-import brs.util.delegates.Atomic
+import brs.util.delegates.AtomicLateinit
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -22,7 +22,7 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class IndirectIncomingServiceImplTest {
-    private var addIndirectIncomingsRunnable by Atomic<(List<IndirectIncoming>) -> Unit>()
+    private var addIndirectIncomingsRunnable by AtomicLateinit<(List<IndirectIncoming>) -> Unit>()
     private lateinit var indirectIncomingService: IndirectIncomingServiceImpl
     private lateinit var dp: DependencyProvider
 

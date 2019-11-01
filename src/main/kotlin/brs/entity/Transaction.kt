@@ -1,21 +1,22 @@
 package brs.entity
 
 import brs.objects.Constants
-import brs.transaction.appendix.Appendix.AbstractAppendix
-import brs.util.crypto.Crypto
-import brs.util.crypto.signUsing
-import brs.util.crypto.verifySignature
 import brs.objects.FluxValues
 import brs.objects.Genesis
 import brs.transaction.appendix.Appendix
+import brs.transaction.appendix.Appendix.AbstractAppendix
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.transaction.type.payment.MultiOutPayment
 import brs.transaction.type.payment.MultiOutSamePayment
-import brs.util.*
+import brs.util.BurstException
 import brs.util.byteArray.isZero
 import brs.util.convert.*
+import brs.util.crypto.Crypto
+import brs.util.crypto.signUsing
+import brs.util.crypto.verifySignature
 import brs.util.delegates.Atomic
+import brs.util.delegates.AtomicLateinit
 import brs.util.delegates.AtomicLazy
 import brs.util.json.*
 import brs.util.logging.safeDebug
@@ -46,11 +47,11 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     val publicKeyAnnouncement: Appendix.PublicKeyAnnouncement?
     val appendages: List<AbstractAppendix>
     val appendagesSize: Int
-    var height by Atomic<Int>()
-    var blockId by Atomic<Long>()
-    internal var block by Atomic<Block?>()
-    var signature by Atomic<ByteArray?>()
-    var blockTimestamp by Atomic<Int>()
+    var height by AtomicLateinit<Int>()
+    var blockId by AtomicLateinit<Long>()
+    internal var block by Atomic<Block?>(null)
+    var signature by Atomic<ByteArray?>(null)
+    var blockTimestamp by AtomicLateinit<Int>()
     var id by AtomicLazy { fullHash.fullHashToId() }
     val stringId by AtomicLazy { id.toUnsignedString() }
     var senderId by AtomicLazy {

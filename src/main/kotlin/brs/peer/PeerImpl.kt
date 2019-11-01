@@ -7,11 +7,15 @@ import brs.objects.Props
 import brs.services.BlockchainProcessorService
 import brs.services.PeerService
 import brs.services.impl.PeerServiceImpl
-import brs.util.*
+import brs.util.BurstException
+import brs.util.CountingInputStream
+import brs.util.CountingOutputStream
+import brs.util.Version
 import brs.util.convert.emptyToNull
 import brs.util.convert.truncate
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicWithOverride
+import brs.util.delegates.AtomicLateinit
 import brs.util.json.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeError
@@ -31,20 +35,22 @@ internal class PeerImpl(
     override val peerAddress: String,
     announcedAddress: String?
 ) : Peer {
-    override var announcedAddress by AtomicWithOverride<String?>(setValueDelegate = { announcedAddress, set ->
-        val announcedPeerAddress = dp.peerService.normalizeHostAndPort(announcedAddress)
-        if (announcedPeerAddress != null) {
-            set(announcedPeerAddress)
-            try {
-                this.port = URL(Constants.HTTP + announcedPeerAddress).port
-            } catch (ignored: MalformedURLException) {
+    override var announcedAddress by AtomicWithOverride<String?>(
+        initialValue = null,
+        setValueDelegate = { announcedAddress, set ->
+            val announcedPeerAddress = dp.peerService.normalizeHostAndPort(announcedAddress)
+            if (announcedPeerAddress != null) {
+                set(announcedPeerAddress)
+                try {
+                    this.port = URL(Constants.HTTP + announcedPeerAddress).port
+                } catch (ignored: MalformedURLException) {
+                }
             }
-        }
-    })
-    override var port by Atomic<Int>()
+        })
+    override var port by AtomicLateinit<Int>()
     override var shareAddress by Atomic(true)
-    override var platform by Atomic<String>()
-    override var application by Atomic<String>()
+    override var platform by AtomicLateinit<String>()
+    override var application by AtomicLateinit<String>()
     override var version by Atomic(Version.EMPTY)
     private var isOldVersion by Atomic(false)
     private var blacklistingTime by Atomic<Long>(0)
@@ -63,7 +69,7 @@ internal class PeerImpl(
         })
     override var downloadedVolume by Atomic(0L)
     override var uploadedVolume by Atomic(0L)
-    override var lastUpdated by Atomic<Int>()
+    override var lastUpdated by AtomicLateinit<Int>()
     private val mutex = Mutex()
 
     override val isAtLeastMyVersion: Boolean

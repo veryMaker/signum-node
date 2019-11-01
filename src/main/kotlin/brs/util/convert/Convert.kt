@@ -21,7 +21,7 @@ fun String?.emptyToNull(): String? {
     return if (this.isNullOrEmpty()) null else this
 }
 
-fun Long?.nullToZero(): Long {
+inline fun Long?.nullToZero(): Long {
     return this ?: 0
 }
 
@@ -41,7 +41,7 @@ fun String?.toBytes(): ByteArray {
     return this?.toByteArray(StandardCharsets.UTF_8) ?: ByteArray(0)
 }
 
-fun ByteArray.toUtf8String(): String {
+inline fun ByteArray.toUtf8String(): String {
     return String(this, StandardCharsets.UTF_8)
 }
 
@@ -55,10 +55,14 @@ fun ByteBuffer.readString(numBytes: Int, maxLength: Int): String {
 }
 
 fun String?.truncate(replaceNull: String, limit: Int, dots: Boolean): String {
-    return if (this == null) replaceNull else if (this.length > limit) this.substring(
-        0,
-        if (dots) limit - 3 else limit
-    ) + if (dots) "..." else "" else this
+    return when {
+        this == null -> replaceNull
+        this.length > limit -> this.substring(
+            0,
+            if (dots) limit - 3 else limit
+        ) + if (dots) "..." else ""
+        else -> this
+    }
 }
 
 fun String.parseAccountId(): Long {
@@ -67,7 +71,7 @@ fun String.parseAccountId(): Long {
     return address?.burstID?.signedLongId ?: 0
 }
 
-fun Long.toUnsignedString(): String {
+inline fun Long.toUnsignedString(): String {
     return java.lang.Long.toUnsignedString(this)
 }
 
@@ -92,4 +96,4 @@ fun String.parseHexString(): ByteArray {
     }
 }
 
-fun Byte.toUnsignedInt() = java.lang.Byte.toUnsignedInt(this)
+inline fun Byte.toUnsignedInt() = java.lang.Byte.toUnsignedInt(this)

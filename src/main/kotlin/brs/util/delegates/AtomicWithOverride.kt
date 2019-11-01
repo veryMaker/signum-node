@@ -3,7 +3,7 @@ package brs.util.delegates
 import kotlin.reflect.KProperty
 
 class AtomicWithOverride<T>(
-    initialValue: T? = null,
+    initialValue: T,
     private val getValueDelegate: ((get: () -> T) -> T) = { it() },
     private val setValueDelegate: (((value: T, set: (T) -> Unit) -> Unit)) = { value, setter ->
         setter(value)

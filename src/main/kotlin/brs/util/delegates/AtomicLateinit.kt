@@ -4,15 +4,11 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-open class Atomic<T>(initialValue: T) : ReadWriteProperty<Any?, T> {
-    protected val ref = AtomicReference<T>()
-
-    init {
-        ref.set(initialValue)
-    }
+class AtomicLateinit<T : Any> : ReadWriteProperty<Any?, T> {
+    private val ref = AtomicReference<T>()
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        return ref.get()
+        return ref.get() ?: throw UninitializedPropertyAccessException()
     }
 
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {

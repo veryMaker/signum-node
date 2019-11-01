@@ -1,13 +1,13 @@
 package brs.entity
 
-import brs.util.BurstException
-import brs.objects.Constants
-import brs.util.crypto.Crypto
-import brs.util.crypto.signUsing
 import brs.db.TransactionDb
+import brs.objects.Constants
 import brs.objects.FluxValues
 import brs.peer.Peer
+import brs.util.BurstException
 import brs.util.convert.*
+import brs.util.crypto.Crypto
+import brs.util.crypto.signUsing
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLazy
 import brs.util.json.*
@@ -50,7 +50,7 @@ class Block internal constructor(
     var cumulativeDifficulty: BigInteger = BigInteger.ZERO
 
     var baseTarget = Constants.INITIAL_BASE_TARGET
-    var nextBlockId by Atomic<Long>()
+    var nextBlockId by Atomic<Long?>(null)
     var height = -1
     var id by AtomicLazy {
         hash.fullHashToId()

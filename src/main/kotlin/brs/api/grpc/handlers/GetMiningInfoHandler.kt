@@ -1,12 +1,12 @@
 package brs.api.grpc.handlers
 
-import brs.entity.Block
-import brs.services.BlockchainService
-import brs.services.BlockchainProcessorService
-import brs.services.GeneratorService
 import brs.api.grpc.StreamResponseGrpcApiHandler
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.toByteString
+import brs.entity.Block
+import brs.services.BlockchainProcessorService
+import brs.services.BlockchainService
+import brs.services.GeneratorService
 import brs.util.delegates.Atomic
 import brs.util.sync.Mutex
 import com.google.protobuf.Empty
@@ -23,7 +23,7 @@ class GetMiningInfoHandler(
      */
     private val listeners = mutableSetOf<(BrsApi.MiningInfo?) -> Unit>()
     private val listenersLock = Mutex()
-    private var currentMiningInfo by Atomic<BrsApi.MiningInfo?>()
+    private var currentMiningInfo by Atomic<BrsApi.MiningInfo?>(null)
     private val miningInfoLock = Mutex()
 
     init {

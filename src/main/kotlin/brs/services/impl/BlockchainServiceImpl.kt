@@ -1,18 +1,18 @@
 package brs.services.impl
 
-import brs.entity.DependencyProvider
 import brs.entity.Account
 import brs.entity.Block
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.services.BlockchainService
-import brs.util.delegates.Atomic
+import brs.util.delegates.AtomicLateinit
 import brs.util.sync.read
 import brs.util.sync.write
 import java.util.concurrent.locks.StampedLock
 
 class BlockchainServiceImpl internal constructor(private val dp: DependencyProvider) : BlockchainService {
-    override var lastBlock by Atomic<Block>() // TODO should this be null?
-    private val lastBlockLock = StampedLock() // TODO
+    override var lastBlock by AtomicLateinit<Block>()
+    private val lastBlockLock = StampedLock()
 
     override val height get() = lastBlock.height
 
@@ -88,11 +88,35 @@ class BlockchainServiceImpl internal constructor(private val dp: DependencyProvi
         return dp.transactionDb.hasTransactionByFullHash(fullHash)
     }
 
-    override fun getTransactions(account: Account, type: Byte, subtype: Byte, blockTimestamp: Int, includeIndirectIncoming: Boolean): Collection<Transaction> {
+    override fun getTransactions(
+        account: Account,
+        type: Byte,
+        subtype: Byte,
+        blockTimestamp: Int,
+        includeIndirectIncoming: Boolean
+    ): Collection<Transaction> {
         return getTransactions(account, 0, type, subtype, blockTimestamp, 0, -1, includeIndirectIncoming)
     }
 
-    override fun getTransactions(account: Account, numberOfConfirmations: Int, type: Byte, subtype: Byte, blockTimestamp: Int, from: Int, to: Int, includeIndirectIncoming: Boolean): Collection<Transaction> {
-        return dp.blockchainStore.getTransactions(account, numberOfConfirmations, type, subtype, blockTimestamp, from, to, includeIndirectIncoming)
+    override fun getTransactions(
+        account: Account,
+        numberOfConfirmations: Int,
+        type: Byte,
+        subtype: Byte,
+        blockTimestamp: Int,
+        from: Int,
+        to: Int,
+        includeIndirectIncoming: Boolean
+    ): Collection<Transaction> {
+        return dp.blockchainStore.getTransactions(
+            account,
+            numberOfConfirmations,
+            type,
+            subtype,
+            blockTimestamp,
+            from,
+            to,
+            includeIndirectIncoming
+        )
     }
 }

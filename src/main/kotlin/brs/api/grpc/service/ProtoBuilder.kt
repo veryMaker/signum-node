@@ -1,12 +1,12 @@
 package brs.api.grpc.service
 
 import brs.api.grpc.proto.BrsApi
-import brs.services.AssetExchangeService
 import brs.at.AT
-import brs.services.BlockchainService
 import brs.entity.*
 import brs.services.AccountService
+import brs.services.AssetExchangeService
 import brs.services.BlockService
+import brs.services.BlockchainService
 import brs.transaction.appendix.Appendix
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
@@ -88,7 +88,7 @@ object ProtoBuilder {
             .setNonce(block.nonce)
             .setScoop(blockService.getScoopNum(block))
             .setPreviousBlockHash(block.previousBlockHash.toByteString())
-            .setNextBlockId(block.nextBlockId)
+            .setNextBlockId(block.nextBlockId ?: 0)
 
         if (includeTransactions) {
             val currentHeight = blockchainService.height

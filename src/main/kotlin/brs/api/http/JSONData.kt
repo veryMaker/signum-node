@@ -1,9 +1,5 @@
 package brs.api.http
 
-import brs.entity.Alias.Offer
-import brs.at.AT
-import brs.at.AtApiHelper
-import brs.util.crypto.Crypto
 import brs.api.http.common.Parameters.FULL_HASH_RESPONSE
 import brs.api.http.common.ResultFields.ACCOUNT_RESPONSE
 import brs.api.http.common.ResultFields.ALIAS_NAME_RESPONSE
@@ -97,15 +93,19 @@ import brs.api.http.common.ResultFields.TYPE_RESPONSE
 import brs.api.http.common.ResultFields.UNCONFIRMED_BALANCE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.UNCONFIRMED_QUANTITY_RESPONSE
 import brs.api.http.common.ResultFields.VERSION_RESPONSE
+import brs.at.AT
+import brs.at.AtApiHelper
 import brs.entity.*
+import brs.entity.Alias.Offer
 import brs.objects.Constants
 import brs.peer.Peer
 import brs.services.AccountService
-import brs.util.json.addAll
 import brs.util.convert.emptyToNull
 import brs.util.convert.rsAccount
 import brs.util.convert.toHexString
 import brs.util.convert.toUnsignedString
+import brs.util.crypto.Crypto
+import brs.util.json.addAll
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
@@ -221,8 +221,8 @@ object JSONData {
             json.addProperty(PREVIOUS_BLOCK_RESPONSE, block.previousBlockId.toUnsignedString())
         }
 
-        if (block.nextBlockId != 0L) {
-            json.addProperty(NEXT_BLOCK_RESPONSE, block.nextBlockId.toUnsignedString())
+        if (block.nextBlockId != null) {
+            json.addProperty(NEXT_BLOCK_RESPONSE, block.nextBlockId!!.toUnsignedString())
         }
 
         json.addProperty(PAYLOAD_HASH_RESPONSE, block.payloadHash.toHexString())

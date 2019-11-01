@@ -46,8 +46,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     private val processMutex = Mutex()
 
     private val blockListeners = Listeners<Block, BlockchainProcessorService.Event>()
-    override var lastBlockchainFeeder by Atomic<Peer?>()
-    override var lastBlockchainFeederHeight by Atomic<Int?>()
+    override var lastBlockchainFeeder by Atomic<Peer?>(null)
+    override var lastBlockchainFeederHeight by Atomic<Int?>(null)
 
     private val autoPopOffEnabled = dp.propertyService.get(Props.AUTO_POP_OFF_ENABLED)
     private var autoPopOffLastStuckHeight = 0

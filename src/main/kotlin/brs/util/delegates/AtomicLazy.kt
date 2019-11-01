@@ -1,15 +1,30 @@
 package brs.util.delegates
 
+import brs.util.sync.Mutex
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class AtomicLazy<T>(private val lazy: () -> T) : Atomic<T>() {
+class AtomicLazy<T>(private val lazy: () -> T) : ReadWriteProperty<Any?, T> {
+    private val ref = AtomicReference<T>()
+    private val mutex = Mutex()
+    private var initialized by Atomic(false)
+
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        // TODO syncronize this, don't want lazy being called twice on different threads simultaneously
-        var value = ref.get()
-        if (value == null) {
-            value = lazy()
-            setValue(thisRef, property, value)
+        mutex.withLock {
+            return if (initialized) ref.get() else {
+                val lazyResult = lazy()
+                ref.set(lazyResult)
+                initialized = true
+                lazyResult
+            }
         }
-        return value
+    }
+
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        mutex.withLock {
+            ref.set(value)
+            initialized = true
+        }
     }
 }
