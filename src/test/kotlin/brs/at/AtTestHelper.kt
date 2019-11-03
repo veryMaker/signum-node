@@ -1,17 +1,13 @@
 package brs.at
 
-import brs.entity.Account
-import brs.services.BlockchainService
-import brs.entity.DependencyProvider
 import brs.common.QuickMocker
 import brs.common.TestConstants
-import brs.db.BurstKey
-import brs.db.VersionedBatchEntityTable
-import brs.db.VersionedEntityTable
-import brs.db.ATStore
-import brs.db.AccountStore
-import brs.services.PropertyService
+import brs.db.*
+import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.objects.Props
+import brs.services.BlockchainService
+import brs.services.PropertyService
 import brs.util.convert.parseHexString
 import com.nhaarman.mockitokotlin2.*
 import io.mockk.every
@@ -58,13 +54,12 @@ class AtTestHelper {
                 .doReturn(true)
         doAnswer {
             addedAts.map { it.id }
-                    .map { AtApiHelper.getLong(it!!) }
                     .toList()
         }.whenever(mockAtStore).getOrderedATs()
         doAnswer { invoke ->
             val atId = invoke.getArgument<Long>(0)
             addedAts.forEach { addedAt ->
-                if (AtApiHelper.getLong(addedAt.id ?: return@forEach) == atId) {
+                if (addedAt.id == atId) {
                     return@doAnswer addedAt
                 }
             }

@@ -1,11 +1,11 @@
 package brs.api.http
 
-import brs.entity.Account
+import brs.api.http.common.ResultFields.ATS_RESPONSE
 import brs.at.AT
-import brs.at.AtConstants
 import brs.at.AtMachineState
 import brs.common.QuickMocker
-import brs.api.http.common.ResultFields.ATS_RESPONSE
+import brs.common.TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED
+import brs.entity.Account
 import brs.services.ATService
 import brs.services.AccountService
 import brs.services.ParameterService
@@ -43,8 +43,8 @@ class GetAccountATsTest {
         whenever(mockAccount.id).doReturn(mockAccountId)
 
         val mockATId = 1L
-        val mockATIDBytes = ByteArray(AtConstants.AT_ID_SIZE)
-        val creatorBytes = byteArrayOf('c'.toByte(), 'r'.toByte(), 'e'.toByte(), 'a'.toByte(), 't'.toByte(), 'o'.toByte(), 'r'.toByte())
+        val mockATIDBytes = TEST_ACCOUNT_NUMERIC_ID_PARSED
+        val creatorBytes = TEST_ACCOUNT_NUMERIC_ID_PARSED + 1
         val mockMachineState = mock<AtMachineState.MachineState>()
         val mockAT = mock<AT>()
         whenever(mockAT.creator).doReturn(creatorBytes)
