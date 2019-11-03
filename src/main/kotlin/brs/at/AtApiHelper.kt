@@ -13,6 +13,7 @@ import brs.util.byteArray.partEquals
 import burst.kit.crypto.BurstCrypto
 import java.math.BigInteger
 import java.nio.BufferOverflowException
+import java.security.MessageDigest
 import kotlin.experimental.and
 
 object AtApiHelper {
@@ -36,13 +37,13 @@ object AtApiHelper {
     /**
      * Little Endian.
      */
-    fun getByteArray(long: Long, dest: ByteArray) {
+    fun getByteArray(long: Long, dest: ByteArray, offset: Int = 0) {
         // TODO integrate with BurstKit if/when it provides a method that does not create a new array
         // TODO optimize to iterate upwards rather than downwards
-        require(dest.size == 8)
+        require(dest.size - offset >= 8)
         var l = long
         for (i in 7 downTo 0) {
-            dest[7 - i] = (l and 0xFF).toByte()
+            dest[offset + 7 - i] = (l and 0xFF).toByte()
             l = l shr 8
         }
     }
@@ -54,6 +55,17 @@ object AtApiHelper {
         val bytes = burstCrypto.longToBytes(long)
         bytes.reverse()
         return bytes
+    }
+
+    /**
+     * Little Endian.
+     */
+    fun hashLong(messageDigest: MessageDigest, long: Long) {
+        var l = long
+        for (i in 7 downTo 0) {
+            messageDigest.update((l and 0xFF).toByte())
+            l = l shr 8
+        }
     }
 
     fun longToNumOfTx(x: Long): Int {

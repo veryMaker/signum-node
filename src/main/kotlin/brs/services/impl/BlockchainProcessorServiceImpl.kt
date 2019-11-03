@@ -627,7 +627,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         try {
             val genesisBlock = Block(
                 dp, -1, 0, 0, 0, 0, 0,
-                Crypto.sha256().digest(), Genesis.creatorPublicKey, ByteArray(32),
+                Crypto.sha256().digest() /* TODO constant value for this */, Genesis.creatorPublicKey, ByteArray(32),
                 Genesis.genesisBlockSignature, null, emptyList(), 0, byteArrayOf(), -1
             )
             dp.blockService.setPrevious(genesisBlock, null)

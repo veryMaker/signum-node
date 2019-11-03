@@ -22,7 +22,7 @@ class MiningPlot(addr: Long, nonce: Long, blockHeight: Int, fluxCapacitorService
                 len = HASH_CAP
             }
             shabal256.update(data, i, len)
-            System.arraycopy(shabal256.digest(), 0, data, i - HASH_SIZE, HASH_SIZE)
+            shabal256.digest(data, i - HASH_SIZE, HASH_SIZE)
             i -= HASH_SIZE
         }
         val finalhash = shabal256.digest(data)

@@ -7,7 +7,7 @@ import brs.objects.FluxValues
 import brs.util.byteArray.zero
 import brs.util.convert.toUnsignedString
 import brs.util.crypto.Crypto
-import brs.util.logging.safeDebug
+import brs.util.logging.safeTrace
 import org.slf4j.LoggerFactory
 import java.nio.BufferUnderflowException
 import kotlin.math.abs
@@ -42,7 +42,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
             numOfTx,
             state.minActivationAmount()
         )!!
-        logger.safeDebug { "tx with id ${tx.toUnsignedString()} found" }
+        logger.safeTrace { "tx with id ${tx.toUnsignedString()} found" }
         clearA(state)
         AtApiHelper.getByteArray(tx, state.a1)
     }
@@ -83,7 +83,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
 
     override fun getTimestampForTxInA(state: AtMachineState): Long {
         val txId = AtApiHelper.getLong(state.a1)
-        logger.safeDebug { "get timestamp for tx with id ${txId.toUnsignedString()} found" }
+        logger.safeTrace { "get timestamp for tx with id ${txId.toUnsignedString()} found" }
         val tx = dp.blockchainService.getTransaction(txId)
 
         if (tx == null || tx.height >= state.height) {
@@ -120,7 +120,9 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         digest.update(dp.blockchainService.getBlockAtHeight(blockHeight - 1)!!.generationSignature)
         digest.update(AtApiHelper.getByteArray(tx.id))
         digest.update(tx.senderPublicKey)
-        digest.update(ByteArray(56)) // FIXME remove this in next fork
+        if (!dp.fluxCapacitorService.getValue(FluxValues.NEXT_FORK)) {
+            digest.update(ByteArray(56))
+        }
         val byteRandom = digest.digest()
 
         // TODO don't copy of range

@@ -11,6 +11,7 @@ import brs.entity.DependencyProvider
 import brs.objects.FluxValues
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.security.MessageDigest
 import java.util.*
 import kotlin.experimental.and
 
@@ -67,14 +68,11 @@ open class AtMachineState {
     val apDataBytes: ByteArray
         get() = apData.array()
 
-    private fun getTransactionBytes(): ByteArray {
-        val b = ByteBuffer.allocate(16 * transactions.size)
-        b.order(ByteOrder.LITTLE_ENDIAN)
+    private fun hashTransactionBytes(md5: MessageDigest) {
         for (tx in transactions.values) {
-            b.putLong(tx.recipientId)
-            b.putLong(tx.amount)
+            AtApiHelper.hashLong(md5, tx.recipientId)
+            AtApiHelper.hashLong(md5, tx.amount)
         }
-        return b.array()
     }
 
     protected var state: ByteArray
@@ -97,40 +95,31 @@ open class AtMachineState {
             val b = ByteBuffer.wrap(state)
             b.order(ByteOrder.LITTLE_ENDIAN)
 
-            val newMachineState = ByteArray(MACHINE_STATE_SIZE)
-            b.get(newMachineState, 0, MACHINE_STATE_SIZE)
-            this.machineState.setMachineState(newMachineState)
-
+            machineState.setMachineState(b)
             gBalance = b.long
             pBalance = b.long
             waitForNumberOfBlocks = b.int
 
-            val newApData = ByteArray(b.capacity() - b.position())
+            val newApData = ByteArray(b.remaining())
             b.get(newApData)
-            this.apData = ByteBuffer.allocate(newApData.size)
-            this.apData.order(ByteOrder.LITTLE_ENDIAN)
-            this.apData.put(newApData)
-            this.apData.clear()
+            this.apData = ByteBuffer.wrap(newApData)
         }
 
     private val stateSize: Int
         get() = MACHINE_STATE_SIZE + 8 + 8 + 4 + apData.capacity()
 
-    //these bytes are digested with MD5 TODO just turn this into a function called md5digest() or something and don't be assigning extra bytebuffers etc
-    fun getBytes(): ByteArray {
-        val txBytes = getTransactionBytes()
-        val stateBytes = machineState.getMachineStateBytes()
-        val dataBytes = apData.array()
+    fun getMD5Digest(md5: MessageDigest): ByteArray {
+        val digest = ByteArray(16)
+        getMD5Digest(md5, digest, 0)
+        return digest
+    }
 
-        val b = ByteBuffer.allocate(8 + txBytes.size + stateBytes.size + dataBytes.size)
-        b.order(ByteOrder.LITTLE_ENDIAN)
-
-        b.putLong(id)
-        b.put(stateBytes)
-        b.put(dataBytes)
-        b.put(txBytes)
-
-        return b.array()
+    fun getMD5Digest(md5: MessageDigest, target: ByteArray, offset: Int) {
+        AtApiHelper.hashLong(md5, id)
+        md5.update(machineState.getMachineStateBytes())
+        md5.update(apData.array())
+        hashTransactionBytes(md5)
+        md5.digest(target, offset, 16)
     }
 
     protected constructor(
@@ -378,31 +367,26 @@ open class AtMachineState {
             dead = false
         }
 
-        fun setMachineState(machineState: ByteArray) {
-            val bf = ByteBuffer.allocate(MACHINE_STATE_SIZE)
-            bf.order(ByteOrder.LITTLE_ENDIAN)
-            bf.put(machineState)
-            bf.flip()
-
-            bf.get(flags, 0, 2)
+        fun setMachineState(machineState: ByteBuffer) {
+            machineState.get(flags)
             running = flags[0] and 1.toByte() == 1.toByte()
             stopped = flags[0].toInt().ushr(1) and 1 == 1
             finished = flags[0].toInt().ushr(2) and 1 == 1
             dead = flags[0].toInt().ushr(3) and 1 == 1
 
-            pc = bf.int
-            pcs = bf.int
-            cs = bf.int
-            us = bf.int
-            err = bf.int
-            bf.get(a1, 0, 8)
-            bf.get(a2, 0, 8)
-            bf.get(a3, 0, 8)
-            bf.get(a4, 0, 8)
-            bf.get(b1, 0, 8)
-            bf.get(b2, 0, 8)
-            bf.get(b3, 0, 8)
-            bf.get(b4, 0, 8)
+            pc = machineState.int
+            pcs = machineState.int
+            cs = machineState.int
+            us = machineState.int
+            err = machineState.int
+            machineState.get(a1)
+            machineState.get(a2)
+            machineState.get(a3)
+            machineState.get(a4)
+            machineState.get(b1)
+            machineState.get(b2)
+            machineState.get(b3)
+            machineState.get(b4)
         }
     }
 

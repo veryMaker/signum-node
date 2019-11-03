@@ -7,6 +7,7 @@ import brs.objects.Props
 import brs.util.convert.toUnsignedString
 import brs.util.crypto.Crypto
 import brs.util.logging.safeDebug
+import brs.util.logging.safeTrace
 import org.slf4j.LoggerFactory
 import org.slf4j.helpers.NOPLogger
 import java.nio.BufferUnderflowException
@@ -45,19 +46,19 @@ class AtController(private val dp: DependencyProvider) {
 
             if (rc >= 0) {
                 if (state.machineState.stopped) {
-                    debugLogger.safeDebug { "stopped" }
+                    debugLogger.safeTrace { "stopped" }
                     state.machineState.running = false
                     return 2
                 } else if (state.machineState.finished) {
-                    debugLogger.safeDebug { "finished" }
+                    debugLogger.safeTrace { "finished" }
                     state.machineState.running = false
                     return 1
                 }
             } else {
                 when (rc) {
-                    -1 -> debugLogger.safeDebug { "error: overflow" }
-                    -2 -> debugLogger.safeDebug { "error: invalid code" }
-                    else -> debugLogger.safeDebug { "unexpected error" }
+                    -1 -> debugLogger.safeTrace { "error: overflow" }
+                    -2 -> debugLogger.safeTrace { "error: invalid code" }
+                    else -> debugLogger.safeTrace { "unexpected error" }
                 }
 
                 if (state.machineState.jumps.contains(state.machineState.err)) {
@@ -197,7 +198,6 @@ class AtController(private val dp: DependencyProvider) {
 
         val processedATs = mutableListOf<AT>()
 
-        val costOfOneAT = costOfOneAT
         var payload = 0
         var totalFee: Long = 0
         var totalAmount: Long = 0
@@ -262,9 +262,8 @@ class AtController(private val dp: DependencyProvider) {
         val processedATs = mutableListOf<AT>()
 
         var totalFee: Long = 0
-        val digest = Crypto.md5()
-        var md5: ByteArray
         var totalAmount: Long = 0
+        val md5 = Crypto.md5()
 
         for ((atId, receivedMd5) in ats) {
             val at = AT.getAT(dp, atId)!!
@@ -313,12 +312,11 @@ class AtController(private val dp: DependencyProvider) {
 
                 processedATs.add(at)
 
-                md5 = digest.digest(at.getBytes())
-                if (!md5.contentEquals(receivedMd5)) {
+                val digest = at.getMD5Digest(md5)
+                if (!digest.contentEquals(receivedMd5)) {
                     throw AtException("Calculated md5 and received md5 are not matching")
                 }
             } catch (e: Exception) {
-                debugLogger.safeDebug(e) { "ATs error" }
                 throw AtException("ATs error. Block rejected", e)
             }
 
@@ -367,18 +365,15 @@ class AtController(private val dp: DependencyProvider) {
             return null
         }
 
-        // TODO don't use ByteBuffer, just digest straight into ByteArray
-        val b = ByteBuffer.allocate(payload)
-        b.order(ByteOrder.LITTLE_ENDIAN)
+        val b = ByteArray(payload)
 
-        val digest = Crypto.md5()
-        for (at in processedATs) {
-            b.putLong(at.id)
-            digest.update(at.getBytes())
-            b.put(digest.digest())
+        val md5 = Crypto.md5()
+        for ((i, at) in processedATs.withIndex()) {
+            AtApiHelper.getByteArray(at.id, b, i * 24)
+            at.getMD5Digest(md5, b, i * 24 + 8)
         }
 
-        return b.array()
+        return b
     }
 
     //platform based implementations
