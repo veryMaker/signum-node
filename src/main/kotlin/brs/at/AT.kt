@@ -30,8 +30,8 @@ class AT : AtMachineState {
 
     private constructor(
         dp: DependencyProvider,
-        atId: ByteArray,
-        creator: ByteArray,
+        atId: Long,
+        creator: Long,
         name: String,
         description: String,
         creationBytes: ByteArray,
@@ -39,12 +39,12 @@ class AT : AtMachineState {
     ) : super(dp, atId, creator, creationBytes, height) {
         this.name = name
         this.description = description
-        dbKey = atDbKeyFactory(dp).newKey(AtApiHelper.getLong(atId))
+        dbKey = atDbKeyFactory(dp).newKey(atId)
         this.nextHeight = dp.blockchainService.height
     }
 
     constructor(
-        dp: DependencyProvider, atId: ByteArray, creator: ByteArray, name: String, description: String, version: Short,
+        dp: DependencyProvider, atId: Long, creator: Long, name: String, description: String, version: Short,
         stateBytes: ByteArray, csize: Int, dsize: Int, cUserStackBytes: Int, cCallStackBytes: Int,
         creationBlockHeight: Int, sleepBetween: Int, nextHeight: Int,
         freezeWhenSameBalance: Boolean, minActivationAmount: Long, apCode: ByteArray
@@ -56,7 +56,7 @@ class AT : AtMachineState {
     ) {
         this.name = name
         this.description = description
-        dbKey = atDbKeyFactory(dp).newKey(AtApiHelper.getLong(atId))
+        dbKey = atDbKeyFactory(dp).newKey(atId)
         this.nextHeight = nextHeight
     }
 
@@ -65,7 +65,7 @@ class AT : AtMachineState {
     }
 
     fun saveState() {
-        var state: ATState? = atStateTable()[atStateDbKeyFactory(dp).newKey(AtApiHelper.getLong(this.id!!))]
+        var state: ATState? = atStateTable()[atStateDbKeyFactory(dp).newKey(id)]
         val prevHeight = dp.blockchainService.height
         val newNextHeight = prevHeight + waitForNumberOfBlocks
         if (state != null) {
@@ -78,7 +78,7 @@ class AT : AtMachineState {
             state.minActivationAmount = minActivationAmount()
         } else {
             state = ATState(
-                dp, AtApiHelper.getLong(this.id!!),
+                dp, id,
                 this.state, newNextHeight, sleepBetween,
                 getpBalance(), freezeOnSameBalance(), minActivationAmount()
             )
@@ -128,9 +128,9 @@ class AT : AtMachineState {
             pendingTransactions.add(atTransaction)
         }
 
-        fun findPendingTransaction(recipientId: ByteArray): Boolean {
+        fun findPendingTransaction(recipientId: Long): Boolean {
             for (tx in pendingTransactions) {
-                if (recipientId.contentEquals(tx.recipientId)) {
+                if (recipientId == tx.recipientId) {
                     return true
                 }
             }
@@ -167,15 +167,13 @@ class AT : AtMachineState {
         fun addAT(
             dp: DependencyProvider,
             atId: Long,
-            senderAccountId: Long,
+            creator: Long,
             name: String,
             description: String,
             creationBytes: ByteArray,
             height: Int
         ) {
-            val id = AtApiHelper.getByteArray(atId)
-            val creator = AtApiHelper.getByteArray(senderAccountId)
-            val at = AT(dp, id, creator, name, description, creationBytes, height)
+            val at = AT(dp, atId, creator, name, description, creationBytes, height)
 
             dp.atController.resetMachine(at)
 
@@ -239,14 +237,11 @@ class AT : AtMachineState {
             val transactions = mutableListOf<Transaction>()
             for (atTransaction in pendingTransactions) {
                 dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
-                    dp.accountService.getAccount(
-                        AtApiHelper.getLong(
-                            atTransaction.senderId
-                        )
-                    )!!, -atTransaction.amount
+                    dp.accountService.getAccount(atTransaction.senderId)!!,
+                    -atTransaction.amount
                 )
                 dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
-                    dp.accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.recipientId)),
+                    dp.accountService.getOrAddAccount(atTransaction.recipientId),
                     atTransaction.amount
                 )
 
@@ -255,8 +250,8 @@ class AT : AtMachineState {
                     atTransaction.amount, 0L, block.timestamp, 1440.toShort(), Attachment.AtPayment(dp)
                 )
 
-                builder.senderId(AtApiHelper.getLong(atTransaction.senderId))
-                    .recipientId(AtApiHelper.getLong(atTransaction.recipientId))
+                builder.senderId(atTransaction.senderId)
+                    .recipientId(atTransaction.recipientId)
                     .blockId(block.id)
                     .height(block.height)
                     .blockTimestamp(block.timestamp)

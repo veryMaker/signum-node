@@ -373,7 +373,7 @@ class AtController(private val dp: DependencyProvider) {
 
         val digest = Crypto.md5()
         for (at in processedATs) {
-            b.put(at.id)
+            b.putLong(at.id)
             digest.update(at.getBytes())
             b.put(digest.digest())
         }
@@ -395,7 +395,7 @@ class AtController(private val dp: DependencyProvider) {
         for (tx in at.transactions.values) {
             totalAmount += tx.amount
             AT.addPendingTransaction(tx)
-            logger.safeDebug { "Transaction to ${AtApiHelper.getLong(tx.recipientId).toUnsignedString()}, amount ${tx.amount}" }
+            logger.safeDebug { "Transaction to ${tx.recipientId.toUnsignedString()}, amount ${tx.amount}" }
         }
         return totalAmount
     }

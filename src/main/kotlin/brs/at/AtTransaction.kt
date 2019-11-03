@@ -8,8 +8,8 @@
 package brs.at
 
 class AtTransaction internal constructor(
-    val senderId: ByteArray,
-    val recipientId: ByteArray,
+    val senderId: Long,
+    val recipientId: Long,
     val amount: Long,
     val message: ByteArray?
 ) {

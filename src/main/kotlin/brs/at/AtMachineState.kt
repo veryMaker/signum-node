@@ -9,12 +9,10 @@ package brs.at
 
 import brs.entity.DependencyProvider
 import brs.objects.FluxValues
-import brs.util.convert.toHexString
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
 import kotlin.experimental.and
-
 
 open class AtMachineState {
     protected val dp: DependencyProvider
@@ -31,8 +29,8 @@ open class AtMachineState {
     val dSize: Int
     val cUserStackBytes: Int
     val cCallStackBytes: Int
-    val id: ByteArray
-    val creator: ByteArray
+    val id: Long
+    val creator: Long
     internal var waitForNumberOfBlocks: Int = 0
     private var freezeWhenSameBalance: Boolean = false
     private var minActivationAmount: Long = 0
@@ -73,7 +71,7 @@ open class AtMachineState {
         val b = ByteBuffer.allocate(16 * transactions.size)
         b.order(ByteOrder.LITTLE_ENDIAN)
         for (tx in transactions.values) {
-            b.put(tx.recipientId)
+            b.putLong(tx.recipientId)
             b.putLong(tx.amount)
         }
         return b.array()
@@ -124,24 +122,19 @@ open class AtMachineState {
         val stateBytes = machineState.getMachineStateBytes()
         val dataBytes = apData.array()
 
-        val b = ByteBuffer.allocate(id.size + txBytes.size + stateBytes.size + dataBytes.size)
+        val b = ByteBuffer.allocate(8 + txBytes.size + stateBytes.size + dataBytes.size)
         b.order(ByteOrder.LITTLE_ENDIAN)
 
-        b.put(id)
+        b.putLong(id)
         b.put(stateBytes)
         b.put(dataBytes)
         b.put(txBytes)
-
-        println("ID: " + id.toHexString())
-        println("SB: " + stateBytes.toHexString())
-        println("DB: " + dataBytes.toHexString())
-        println("TB: " + txBytes.toHexString())
 
         return b.array()
     }
 
     protected constructor(
-        dp: DependencyProvider, atId: ByteArray, creator: ByteArray, version: Short,
+        dp: DependencyProvider, atId: Long, creator: Long, version: Short,
         stateBytes: ByteArray, cSize: Int, dSize: Int, cUserStackBytes: Int, cCallStackBytes: Int,
         creationBlockHeight: Int, sleepBetween: Int,
         freezeWhenSameBalance: Boolean, minActivationAmount: Long, apCode: ByteArray
@@ -171,8 +164,8 @@ open class AtMachineState {
 
     protected constructor(
         dp: DependencyProvider,
-        atId: ByteArray,
-        creator: ByteArray,
+        atId: Long,
+        creator: Long,
         creationBytes: ByteArray,
         height: Int
     ) {
@@ -253,7 +246,7 @@ open class AtMachineState {
     }
 
     internal fun addTransaction(tx: AtTransaction) {
-        val recipId = AtApiHelper.getLong(tx.recipientId)
+        val recipId = tx.recipientId
         val oldTx = transactions[recipId]
         if (oldTx == null) {
             transactions[recipId] = tx

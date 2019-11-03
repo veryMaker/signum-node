@@ -35,12 +35,10 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         val height = AtApiHelper.longToHeight(value)
         val numOfTx = AtApiHelper.longToNumOfTx(value)
 
-        val b = state.id
-
         val tx = dp.atStore.findTransaction(
             height,
             state.height,
-            AtApiHelper.getLong(b!!),
+            state.id,
             numOfTx,
             state.minActivationAmount()
         )!!
@@ -92,10 +90,8 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
             return -1
         }
 
-        val b = state.id
         val blockHeight = tx.height
-        val txHeight =
-            dp.atStore.findTransactionHeight(txId, blockHeight, AtApiHelper.getLong(b!!), state.minActivationAmount())
+        val txHeight = dp.atStore.findTransactionHeight(txId, blockHeight, state.id, state.minActivationAmount())
 
         return AtApiHelper.getLongTimestamp(blockHeight, txHeight)
     }
@@ -176,11 +172,8 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
     }
 
     override fun bToAddressOfCreator(state: AtMachineState) {
-        val creator = AtApiHelper.getLong(state.creator!!)
-
         clearB(state)
-
-        AtApiHelper.getByteArray(creator, state.b1)
+        AtApiHelper.getByteArray(state.creator, state.b1)
     }
 
     override fun putLastBlockGenerationSignatureInA(state: AtMachineState) {
@@ -210,12 +203,12 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
             return
 
         if (value < state.getgBalance()) {
-            val tx = AtTransaction(state.id!!, state.b1.clone(), value, null)
+            val tx = AtTransaction(state.id!!, AtApiHelper.getLong(state.b1), value, null)
             state.addTransaction(tx)
 
             state.setgBalance(state.getgBalance() - value)
         } else {
-            val tx = AtTransaction(state.id!!, state.b1.clone(), state.getgBalance(), null)
+            val tx = AtTransaction(state.id!!, AtApiHelper.getLong(state.b1), state.getgBalance(), null)
             state.addTransaction(tx)
 
             state.setgBalance(0L)
@@ -223,20 +216,20 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
     }
 
     override fun sendAllToAddressInB(state: AtMachineState) {
-        val tx = AtTransaction(state.id!!, state.b1.clone(), state.getgBalance(), null)
+        val tx = AtTransaction(state.id!!, AtApiHelper.getLong(state.b1), state.getgBalance(), null)
         state.addTransaction(tx)
         state.setgBalance(0L)
     }
 
     override fun sendOldToAddressInB(state: AtMachineState) {
         if (state.getpBalance() > state.getgBalance()) {
-            val tx = AtTransaction(state.id!!, state.b1, state.getgBalance(), null)
+            val tx = AtTransaction(state.id!!, AtApiHelper.getLong(state.b1), state.getgBalance(), null)
             state.addTransaction(tx)
 
             state.setgBalance(0L)
             state.setpBalance(0L)
         } else {
-            val tx = AtTransaction(state.id!!, state.b1, state.getpBalance(), null)
+            val tx = AtTransaction(state.id!!, AtApiHelper.getLong(state.b1), state.getpBalance(), null)
             state.addTransaction(tx)
 
             state.setgBalance(state.getgBalance() - state.getpBalance())
@@ -251,7 +244,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         state.a3.copyInto(b, 16)
         state.a4.copyInto(b, 24)
 
-        val tx = AtTransaction(state.id!!, state.b1, 0L, b)
+        val tx = AtTransaction(state.id!!, AtApiHelper.getLong(state.b1), 0L, b)
         state.addTransaction(tx)
     }
 

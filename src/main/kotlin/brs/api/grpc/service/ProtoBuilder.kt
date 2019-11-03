@@ -150,17 +150,15 @@ object ProtoBuilder {
     }
 
     fun buildAT(accountService: AccountService, at: AT): BrsApi.AT {
-        val atId = AtApiHelper.getLong(at.id)
-        val creatorId = AtApiHelper.getLong(at.creator)
         return BrsApi.AT.newBuilder()
-            .setId(atId)
-            .setCreator(creatorId)
+            .setId(at.id)
+            .setCreator(at.creator)
             .setVersion(at.version.toInt())
             .setName(at.name)
             .setDescription(at.description)
             .setMachineCode(at.apCodeBytes.toByteString())
             .setMachineData(at.apDataBytes.toByteString())
-            .setBalance(accountService.getAccount(atId)!!.balancePlanck)
+            .setBalance(accountService.getAccount(at.id)!!.balancePlanck)
             .setPreviousBalance(at.getpBalance())
             .setNextBlock(at.nextHeight())
             .setFrozen(at.freezeOnSameBalance())
