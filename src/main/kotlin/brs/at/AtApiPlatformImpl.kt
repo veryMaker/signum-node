@@ -121,13 +121,10 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         }
 
         val digest = Crypto.sha256()
-
-        val senderPublicKey = tx.senderPublicKey
-
         digest.update(dp.blockchainService.getBlockAtHeight(blockHeight - 1)!!.generationSignature)
         digest.update(AtApiHelper.getByteArray(tx.id))
-        digest.update(senderPublicKey)
-
+        digest.update(tx.senderPublicKey)
+        digest.update(ByteArray(56)) // FIXME remove this in next fork
         val byteRandom = digest.digest()
 
         // TODO don't copy of range
