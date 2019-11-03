@@ -61,7 +61,7 @@ object Constants {
 
     const val HTTP = "http://"
 
-    val MIN_VERSION = Version.parse("v3.0.0-alpha1")
+    val MIN_VERSION = Version.parse("v2.3.0")
     internal var UNCONFIRMED_POOL_DEPOSIT_PLANCK: Long = 0
 
     // TODO burstkit4j integration

@@ -201,7 +201,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
     }
 
     companion object {
-        val VERSION = Version.parse("v3.0.0-dev")
+        val VERSION = Version.parse("v3.0.0-alpha1")
         const val APPLICATION = "BRS"
         private const val DEFAULT_PROPERTIES_NAME = "brs-default.properties"
         private val logger = LoggerFactory.getLogger(Burst::class.java)
