@@ -182,12 +182,7 @@ internal class AtMachineProcessor(
                     rc = 13
                     if (disassemble) {
                         if (!determineJumps)
-                            logger.safeDebug {
-                                "SET @ ${String.format("%8s", func.addr1).replace(
-                                    ' ',
-                                    '0'
-                                )} ${String.format("#%16s", func.value.toString(16)).replace(' ', '0')}"
-                            }
+                            logger.safeDebug { "SET @ ${String.format("%8s", func.addr1).replace(' ', '0')} ${String.format("#%16s", java.lang.Long.toHexString(func.value)).replace(' ', '0')}" }
                     } else {
                         machineData.machineState.pc += rc
                         machineData.apData.putLong(func.addr1 * 8, func.value)
@@ -202,15 +197,10 @@ internal class AtMachineProcessor(
                     rc = 9
                     if (disassemble) {
                         if (!determineJumps)
-                            logger.safeDebug {
-                                "SET @ ${String.format("%8s", func.addr1).replace(
-                                    ' ',
-                                    '0'
-                                )} \$${String.format("%8s", func.addr2).replace(' ', '0')}"
-                            }
+                            logger.safeDebug { "SET @ ${String.format("%8s", func.addr1).replace(' ', '0')} \$${String.format("%8s", func.addr2).replace(' ', '0')}" }
                     } else {
                         machineData.machineState.pc += rc
-                        machineData.apData.putLong(func.addr1 * 8, machineData.apData.getLong(func.addr2 * 8))
+                        machineData.apData.putLong(func.addr1 * 8, machineData.apData.getLong(func.addr2 * 8)) // HERE
                         machineData.apData.clear()
 
                     }
@@ -284,12 +274,7 @@ internal class AtMachineProcessor(
                                 OpCodes.E_OP_CODE_MUL_DAT -> logger.safeDebug { "MUL @" }
                                 OpCodes.E_OP_CODE_DIV_DAT -> logger.safeDebug { "DIV @" }
                             }
-                            logger.safeDebug {
-                                "${String.format("%8x", func.addr1).replace(
-                                    ' ',
-                                    '0'
-                                )} \$${String.format("%8s", func.addr2).replace(' ', '0')}"
-                            }
+                            logger.safeDebug { "${String.format("%8x", func.addr1).replace(' ', '0')} \$${String.format("%8s", func.addr2).replace(' ', '0')}" }
                         }
                     } else {
                         val value = machineData.apData.getLong(func.addr2 * 8)
@@ -375,12 +360,7 @@ internal class AtMachineProcessor(
                     rc = 9
                     if (disassemble) {
                         if (!determineJumps)
-                            logger.safeDebug {
-                                "SET @ ${String.format("%8s", func.addr1).replace(
-                                    ' ',
-                                    '0'
-                                )} ${String.format("$($%8s", func.addr2).replace(' ', '0')}"
-                            }
+                            logger.safeDebug { "SET @ ${String.format("%8s", func.addr1).replace(' ', '0')} ${String.format("$($%8s", func.addr2).replace(' ', '0')}" }
                     } else {
                         val addr = machineData.apData.getLong(func.addr2 * 8)
 
@@ -388,7 +368,8 @@ internal class AtMachineProcessor(
                             rc = -1
                         else {
                             machineData.machineState.pc += rc
-                            machineData.apData.putLong(func.addr1 * 8, machineData.apData.getLong(addr.toInt() * 8))
+                            val value = machineData.apData.getLong(addr.toInt() * 8)
+                            machineData.apData.putLong(func.addr1 * 8, value)
                             machineData.apData.clear()
                         }
                     }
@@ -441,20 +422,16 @@ internal class AtMachineProcessor(
                     } else {
                         machineData.machineState.pc += rc
                         if (op == OpCodes.E_OP_CODE_PSH_DAT) {
+                            val value = machineData.apData.getLong(func.addr1 * 8)
                             machineData.machineState.us++
-                            machineData.apData.putLong(
-                                machineData.dSize +
-                                        machineData.cCallStackBytes +
-                                        machineData.cUserStackBytes - machineData.machineState.us * 8,
-                                machineData.apData.getLong(func.addr1 * 8)
-                            )
+                            machineData.apData.putLong(machineData.dSize +
+                                    machineData.cCallStackBytes +
+                                    machineData.cUserStackBytes - machineData.machineState.us * 8, value)
                             machineData.apData.clear()
                         } else {
-                            val value = machineData.apData.getLong(
-                                machineData.dSize +
-                                        machineData.cCallStackBytes +
-                                        machineData.cUserStackBytes - machineData.machineState.us * 8
-                            )
+                            val value = machineData.apData.getLong(machineData.dSize +
+                                    machineData.cCallStackBytes +
+                                    machineData.cUserStackBytes - machineData.machineState.us * 8)
                             machineData.machineState.us--
                             machineData.apData.putLong(func.addr1 * 8, value)
                             machineData.apData.clear()
@@ -475,10 +452,8 @@ internal class AtMachineProcessor(
                             machineData.machineState.cs == machineData.cCallStackBytes / 8 -> rc = -1
                             machineData.machineState.jumps.contains(func.addr1) -> {
                                 machineData.machineState.cs++
-                                machineData.apData.putLong(
-                                    machineData.dSize + machineData.cCallStackBytes - machineData.machineState.cs * 8,
-                                    (machineData.machineState.pc + rc).toLong()
-                                )
+                                machineData.apData.putLong(machineData.dSize + machineData.cCallStackBytes - machineData.machineState.cs * 8,
+                                    (machineData.machineState.pc + rc).toLong())
                                 machineData.apData.clear()
                                 machineData.machineState.pc = func.addr1
                             }
@@ -497,10 +472,9 @@ internal class AtMachineProcessor(
                     if (machineData.machineState.cs == 0)
                         rc = -1
                     else {
-                        val addr =
-                            machineData.apData.getLong(machineData.dSize + machineData.cCallStackBytes - machineData.machineState.cs * 8)
-                                .toInt()
+                        val value = machineData.apData.getLong(machineData.dSize + machineData.cCallStackBytes - machineData.machineState.cs * 8)
                         machineData.machineState.cs--
+                        val addr = value.toInt()
                         if (machineData.machineState.jumps.contains(addr))
                             machineData.machineState.pc = addr
                         else
@@ -515,12 +489,7 @@ internal class AtMachineProcessor(
                     rc = 9
                     if (disassemble) {
                         if (!determineJumps)
-                            logger.safeDebug {
-                                "SET @${String.format("($%8s)", func.addr1).replace(
-                                    ' ',
-                                    '0'
-                                )} ${String.format("$%8s", func.addr2).replace(' ', '0')}"
-                            }
+                            logger.safeDebug { "SET @${String.format("($%8s)", func.addr1).replace(' ', '0')} ${String.format("$%8s", func.addr2).replace(' ', '0')}" }
                     } else {
                         val addr = machineData.apData.getLong(func.addr1 * 8)
 
@@ -550,12 +519,7 @@ internal class AtMachineProcessor(
                         rc = 13
                         if (disassemble) {
                             if (!determineJumps)
-                                logger.safeDebug {
-                                    "SET @${String.format("($%8s+$%8s)", addr1, addr2).replace(
-                                        ' ',
-                                        '0'
-                                    )} ${String.format("$%8s", func.addr1).replace(' ', '0')}"
-                                }
+                                logger.safeDebug { "SET @${String.format("($%8s+$%8s)", addr1, addr2).replace(' ', '0')} ${String.format("$%8s", func.addr1).replace(' ', '0')}" }
                         } else {
                             val addr = machineData.apData.getLong(addr1 * 8) + machineData.apData.getLong(addr2 * 8)
 
@@ -563,10 +527,7 @@ internal class AtMachineProcessor(
                                 rc = -1
                             else {
                                 machineData.machineState.pc += rc
-                                machineData.apData.putLong(
-                                    addr.toInt() * 8,
-                                    machineData.apData.getLong(func.addr1 * 8)
-                                )
+                                machineData.apData.putLong(addr.toInt() * 8, machineData.apData.getLong(func.addr1 * 8))
                                 machineData.apData.clear()
                             }
                         }
@@ -580,12 +541,7 @@ internal class AtMachineProcessor(
                     rc = 9
                     if (disassemble) {
                         if (!determineJumps)
-                            logger.safeDebug {
-                                "MOD @${String.format("%8x", func.addr1).replace(
-                                    ' ',
-                                    '0'
-                                )} \$${String.format("%8s", func.addr2).replace(' ', '0')}"
-                            }
+                            logger.safeDebug { "MOD @${String.format("%8x", func.addr1).replace(' ', '0')} \$${String.format("%8s", func.addr2).replace(' ', '0')}" }
                     } else {
                         val modData1 = machineData.apData.getLong(func.addr1 * 8)
                         val modData2 = machineData.apData.getLong(func.addr2 * 8)
@@ -607,25 +563,14 @@ internal class AtMachineProcessor(
                     if (disassemble) {
                         if (!determineJumps) {
                             if (op == OpCodes.E_OP_CODE_SHL_DAT)
-                                logger.safeDebug {
-                                    "SHL @${String.format("%8x", func.addr1).replace(
-                                        ' ',
-                                        '0'
-                                    )} \$${String.format("%8x", func.addr2).replace(' ', '0')}"
-                                }
+                                logger.safeDebug { "SHL @${String.format("%8x", func.addr1).replace(' ', '0')} \$${String.format("%8x", func.addr2).replace(' ', '0')}" }
                             else
-                                logger.safeDebug {
-                                    "SHR @${String.format("%8x", func.addr1).replace(
-                                        ' ',
-                                        '0'
-                                    )} \$${String.format("%8x", func.addr2).replace(' ', '0')}"
-                                }
+                                logger.safeDebug { "SHR @${String.format("%8x", func.addr1).replace(' ', '0')} \$${String.format("%8x", func.addr2).replace(' ', '0')}" }
                         }
                     } else {
                         machineData.machineState.pc += rc
                         val value = machineData.apData.getLong(func.addr1 * 8)
-                        val shift =
-                            machineData.apData.getLong(func.addr2 * 8).coerceAtLeast(0).coerceAtMost(63).toInt()
+                        val shift = machineData.apData.getLong(func.addr2 * 8).coerceAtLeast(0).coerceAtMost(63).toInt()
 
                         if (op == OpCodes.E_OP_CODE_SHL_DAT)
                             machineData.apData.putLong(func.addr1 * 8, value shl shift)
@@ -660,12 +605,7 @@ internal class AtMachineProcessor(
                             else
                                 logger.safeDebug { "BNZ $" }
 
-                            logger.safeDebug {
-                                "${String.format("%8x", func.addr1).replace(
-                                    ' ',
-                                    '0'
-                                )}, :${String.format("%8x", machineData.machineState.pc + func.off).replace(' ', '0')}"
-                            }
+                            logger.safeDebug { "${String.format("%8x", func.addr1).replace(' ', '0')}, :${String.format("%8x", machineData.machineState.pc + func.off).replace(' ', '0')}" }
                         }
                     } else {
                         val value = machineData.apData.getLong(func.addr1 * 8)
@@ -697,15 +637,7 @@ internal class AtMachineProcessor(
                                 else -> logger.safeDebug { "BNE $" }
                             }
 
-                            logger.safeDebug {
-                                "${String.format("%8x", func.addr1).replace(
-                                    ' ',
-                                    '0'
-                                )} \$${String.format("%8x", func.addr2).replace(' ', '0')} :${String.format(
-                                    "%8x",
-                                    machineData.machineState.pc + func.off
-                                ).replace(' ', '0')}"
-                            }
+                            logger.safeDebug { "${String.format("%8x", func.addr1).replace(' ', '0')} \$${String.format("%8x", func.addr2).replace(' ', '0')} :${String.format("%8x", machineData.machineState.pc + func.off).replace(' ', '0')}" }
                         }
                     } else {
                         val val1 = machineData.apData.getLong(func.addr1 * 8)
@@ -716,8 +648,7 @@ internal class AtMachineProcessor(
                             op == OpCodes.E_OP_CODE_BGE_DAT && val1 >= val2 ||
                             op == OpCodes.E_OP_CODE_BLE_DAT && val1 <= val2 ||
                             op == OpCodes.E_OP_CODE_BEQ_DAT && val1 == val2 ||
-                            op == OpCodes.E_OP_CODE_BNE_DAT && val1 != val2
-                        ) {
+                            op == OpCodes.E_OP_CODE_BNE_DAT && val1 != val2) {
 
                             if (machineData.machineState.jumps.contains(machineData.machineState.pc + func.off))
                                 machineData.machineState.pc += func.off.toInt()
@@ -743,8 +674,7 @@ internal class AtMachineProcessor(
                         var numBlocks = machineData.apData.getLong(func.addr1 * 8).toInt()
                         if (numBlocks < 0)
                             numBlocks = 0
-                        val maxNumBlocks =
-                            dp.atConstants.getMaxWaitForNumOfBlocks(machineData.creationBlockHeight).toInt()
+                        val maxNumBlocks = dp.atConstants.getMaxWaitForNumOfBlocks(machineData.creationBlockHeight).toInt()
                         if (numBlocks > maxNumBlocks)
                             numBlocks = maxNumBlocks
                         machineData.waitForNumberOfBlocks = numBlocks
@@ -851,12 +781,7 @@ internal class AtMachineProcessor(
 
                     if (disassemble) {
                         if (!determineJumps)
-                            logger.safeDebug {
-                                "FUN ${func.func} \$${String.format("%8x", func.addr1).replace(
-                                    ' ',
-                                    '0'
-                                )}"
-                            }
+                            logger.safeDebug { "FUN ${func.func} \$${String.format("%8x", func.addr1).replace(' ', '0')}" }
                     } else {
                         machineData.machineState.pc += rc
                         val value = machineData.apData.getLong(func.addr1 * 8)
@@ -872,12 +797,7 @@ internal class AtMachineProcessor(
 
                     if (disassemble) {
                         if (!determineJumps)
-                            logger.safeDebug {
-                                "FUN ${func.func} \$${String.format("%8x", func.addr3).replace(
-                                    ' ',
-                                    '0'
-                                )} \$${String.format("%8x", func.addr2).replace(' ', '0')}"
-                            }
+                            logger.safeDebug { "FUN ${func.func} \$${String.format("%8x", func.addr3).replace(' ', '0')} \$${String.format("%8x", func.addr2).replace(' ', '0')}" }
                     } else {
                         machineData.machineState.pc += rc
                         val val1 = machineData.apData.getLong(func.addr3 * 8)
@@ -895,20 +815,12 @@ internal class AtMachineProcessor(
 
                     if (disassemble) {
                         if (!determineJumps)
-                            logger.safeDebug {
-                                "FUN @${String.format("%8x", func.addr1).replace(
-                                    ' ',
-                                    '0'
-                                )} ${func.func}"
-                            }
+                            logger.safeDebug { "FUN @${String.format("%8x", func.addr1).replace(' ', '0')} ${func.func}" }
 
                     } else {
                         machineData.machineState.pc += rc
 
-                        machineData.apData.putLong(
-                            func.addr1 * 8,
-                            dp.atApiController.func(func.func.toInt(), machineData)
-                        )
+                        machineData.apData.putLong(func.addr1 * 8, dp.atApiController.func(func.func.toInt(), machineData))
                         machineData.apData.clear()
                     }
                 }
@@ -928,30 +840,19 @@ internal class AtMachineProcessor(
 
                     if (disassemble) {
                         if (!determineJumps) {
-                            logger.safeDebug {
-                                "FUN @${String.format("%8x", func.addr3).replace(
-                                    ' ',
-                                    '0'
-                                )} ${func.func} \$${String.format("%8x", func.addr2).replace(' ', '0')}"
-                            }
+                            logger.safeDebug { "FUN @${String.format("%8x", func.addr3).replace(' ', '0')} ${func.func} \$${String.format("%8x", func.addr2).replace(' ', '0')}" }
                             if (op == OpCodes.E_OP_CODE_EXT_FUN_RET_DAT_2)
-                                logger.safeDebug { "\$${String.format("%8x", func.addr1).replace(' ', '0')}" }
+                                logger.safeDebug { "\$${String.format("%8x", func.addr1).replace(' ', '0')}"  }
                         }
                     } else {
                         machineData.machineState.pc += rc
                         val value = machineData.apData.getLong(func.addr2 * 8)
 
                         if (op != OpCodes.E_OP_CODE_EXT_FUN_RET_DAT_2)
-                            machineData.apData.putLong(
-                                func.addr3 * 8,
-                                dp.atApiController.func1(func.func.toInt(), value, machineData)
-                            )
+                            machineData.apData.putLong(func.addr3 * 8, dp.atApiController.func1(func.func.toInt(), value, machineData))
                         else {
                             val val2 = machineData.apData.getLong(func.addr1 * 8)
-                            machineData.apData.putLong(
-                                func.addr3 * 8,
-                                dp.atApiController.func2(func.func.toInt(), value, val2, machineData)
-                            )
+                            machineData.apData.putLong(func.addr3 * 8, dp.atApiController.func2(func.func.toInt(), value, val2, machineData))
                         }
                         machineData.apData.clear()
                     }
@@ -987,10 +888,10 @@ internal class AtMachineProcessor(
     }
 
     private inner class Fun {
-        internal var func: Short = 0 // TODO rename
+        internal var func: Short = 0
         internal var addr1: Int = 0
         internal var addr2: Int = 0
-        internal var value: Long = 0 // TODO rename
+        internal var value: Long = 0
         internal var off: Byte = 0
         internal var addr3: Int = 0
     }

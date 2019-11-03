@@ -9,6 +9,7 @@ package brs.at
 
 import brs.entity.DependencyProvider
 import brs.objects.FluxValues
+import brs.util.convert.toHexString
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
@@ -131,6 +132,11 @@ open class AtMachineState {
         b.put(stateBytes)
         b.put(dataBytes)
         b.put(txBytes)
+
+        println("ID: " + id.toHexString())
+        println("SB: " + stateBytes.toHexString())
+        println("DB: " + dataBytes.toHexString())
+        println("TB: " + txBytes.toHexString())
 
         return b.array()
     }
