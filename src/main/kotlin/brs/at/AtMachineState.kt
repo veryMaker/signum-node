@@ -21,7 +21,7 @@ open class AtMachineState {
     val creationBlockHeight: Int
     val sleepBetween: Int
     val apCode: ByteBuffer
-    internal val transactions: MutableMap<ByteBuffer, AtTransaction>
+    internal val transactions: MutableMap<Long, AtTransaction>
     var version: Short = 0
         private set
     private var gBalance: Long = 0
@@ -69,16 +69,15 @@ open class AtMachineState {
     val apDataBytes: ByteArray
         get() = apData.array()
 
-    private val transactionBytes: ByteArray
-        get() {
-            val b = ByteBuffer.allocate((creator!!.size + 8) * transactions.size)
-            b.order(ByteOrder.LITTLE_ENDIAN)
-            for (tx in transactions.values) {
-                b.put(tx.recipientId)
-                b.putLong(tx.amount)
-            }
-            return b.array()
+    private fun getTransactionBytes(): ByteArray {
+        val b = ByteBuffer.allocate(16 * transactions.size)
+        b.order(ByteOrder.LITTLE_ENDIAN)
+        for (tx in transactions.values) {
+            b.put(tx.recipientId)
+            b.putLong(tx.amount)
         }
+        return b.array()
+    }
 
     protected var state: ByteArray
         get() {
@@ -121,7 +120,7 @@ open class AtMachineState {
 
     //these bytes are digested with MD5 TODO just turn this into a function called md5digest() or something and don't be assigning extra bytebuffers etc
     fun getBytes(): ByteArray {
-        val txBytes = transactionBytes
+        val txBytes = getTransactionBytes()
         val stateBytes = machineState.getMachineStateBytes()
         val dataBytes = apData.array()
 
@@ -254,7 +253,7 @@ open class AtMachineState {
     }
 
     internal fun addTransaction(tx: AtTransaction) {
-        val recipId = ByteBuffer.wrap(tx.recipientId)
+        val recipId = AtApiHelper.getLong(tx.recipientId)
         val oldTx = transactions[recipId]
         if (oldTx == null) {
             transactions[recipId] = tx
