@@ -1,6 +1,5 @@
 package brs.at
 
-import brs.at.AtApi.Companion.REGISTER_PART_SIZE
 import brs.at.AtApi.Companion.REGISTER_SIZE
 import brs.entity.DependencyProvider
 import brs.objects.FluxValues
@@ -125,14 +124,13 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         }
         val byteRandom = digest.digest()
 
-        // TODO don't copy of range
-        return abs(AtApiHelper.getLong(byteRandom.copyOfRange(0, REGISTER_PART_SIZE)))
+        return abs(AtApiHelper.getLong(byteRandom))
     }
 
     override fun messageFromTxInAToB(state: AtMachineState) {
-        val txid = AtApiHelper.getLong(state.a1)
+        val txId = AtApiHelper.getLong(state.a1)
 
-        var tx = dp.blockchainService.getTransaction(txid)
+        var tx = dp.blockchainService.getTransaction(txId)
         if (tx != null && tx.height >= state.height) {
             tx = null
         }
@@ -205,12 +203,12 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
             return
 
         if (value < state.getgBalance()) {
-            val tx = AtTransaction(state.id!!, AtApiHelper.getLong(state.b1), value, null)
+            val tx = AtTransaction(state.id, AtApiHelper.getLong(state.b1), value, null)
             state.addTransaction(tx)
 
             state.setgBalance(state.getgBalance() - value)
         } else {
-            val tx = AtTransaction(state.id!!, AtApiHelper.getLong(state.b1), state.getgBalance(), null)
+            val tx = AtTransaction(state.id, AtApiHelper.getLong(state.b1), state.getgBalance(), null)
             state.addTransaction(tx)
 
             state.setgBalance(0L)
@@ -218,20 +216,20 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
     }
 
     override fun sendAllToAddressInB(state: AtMachineState) {
-        val tx = AtTransaction(state.id!!, AtApiHelper.getLong(state.b1), state.getgBalance(), null)
+        val tx = AtTransaction(state.id, AtApiHelper.getLong(state.b1), state.getgBalance(), null)
         state.addTransaction(tx)
         state.setgBalance(0L)
     }
 
     override fun sendOldToAddressInB(state: AtMachineState) {
         if (state.getpBalance() > state.getgBalance()) {
-            val tx = AtTransaction(state.id!!, AtApiHelper.getLong(state.b1), state.getgBalance(), null)
+            val tx = AtTransaction(state.id, AtApiHelper.getLong(state.b1), state.getgBalance(), null)
             state.addTransaction(tx)
 
             state.setgBalance(0L)
             state.setpBalance(0L)
         } else {
-            val tx = AtTransaction(state.id!!, AtApiHelper.getLong(state.b1), state.getpBalance(), null)
+            val tx = AtTransaction(state.id, AtApiHelper.getLong(state.b1), state.getpBalance(), null)
             state.addTransaction(tx)
 
             state.setgBalance(state.getgBalance() - state.getpBalance())
@@ -246,7 +244,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         state.a3.copyInto(b, 16)
         state.a4.copyInto(b, 24)
 
-        val tx = AtTransaction(state.id!!, AtApiHelper.getLong(state.b1), 0L, b)
+        val tx = AtTransaction(state.id, AtApiHelper.getLong(state.b1), 0L, b)
         state.addTransaction(tx)
     }
 

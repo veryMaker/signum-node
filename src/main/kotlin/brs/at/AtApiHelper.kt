@@ -12,7 +12,6 @@ import brs.at.AtApi.Companion.REGISTER_PART_SIZE
 import brs.util.byteArray.partEquals
 import burst.kit.crypto.BurstCrypto
 import java.math.BigInteger
-import java.nio.BufferOverflowException
 import java.security.MessageDigest
 import kotlin.experimental.and
 
@@ -28,9 +27,7 @@ object AtApiHelper {
      * Little Endian.
      */
     fun getLong(bytes: ByteArray): Long {
-        if (bytes.size > 8) {
-            throw BufferOverflowException()
-        }
+        require(bytes.size >= 8)
         return burstCrypto.bytesToLong(bytes)
     }
 
