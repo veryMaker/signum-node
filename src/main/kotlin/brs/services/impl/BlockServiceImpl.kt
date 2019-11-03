@@ -9,7 +9,6 @@ import brs.objects.Genesis
 import brs.services.BlockService
 import brs.services.BlockchainProcessorService
 import brs.services.BlockchainProcessorService.BlockOutOfOrderException
-import brs.util.convert.toUnsignedString
 import brs.util.crypto.verifySignature
 import brs.util.logging.safeInfo
 import org.slf4j.LoggerFactory
@@ -112,9 +111,9 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
 
         for (transaction in block.transactions) {
             if (!transaction.verifySignature()) {
-                logger.safeInfo { "Bad transaction signature during block pre-verification for tx: ${transaction.id.toUnsignedString()} at block height: ${block.height}" }
+                logger.safeInfo { "Bad transaction signature during block pre-verification for tx: ${transaction.stringId} at block height: ${block.height}" }
                 throw BlockchainProcessorService.TransactionNotAcceptedException(
-                    "Invalid signature for tx " + transaction.id.toUnsignedString() + " at block height: " + block.height,
+                    "Invalid signature for tx " + transaction.stringId + " at block height: " + block.height,
                     transaction
                 )
             }

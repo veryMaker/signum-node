@@ -1,37 +1,33 @@
 package brs.util
 
-import brs.services.FluxCapacitorService
 import brs.objects.FluxValues
+import brs.services.FluxCapacitorService
 import brs.util.crypto.Crypto
 import java.nio.ByteBuffer
 import java.security.MessageDigest
 import kotlin.experimental.xor
 
 class MiningPlot(addr: Long, nonce: Long, blockHeight: Int, fluxCapacitorService: FluxCapacitorService) {
-
-    private val data = ByteArray(PLOT_SIZE)
+    private val data = ByteArray(PLOT_AND_SEED_SIZE)
 
     init {
-        val baseBuffer = ByteBuffer.allocate(16)
+        val baseBuffer = ByteBuffer.wrap(data, PLOT_SIZE, SEED_SIZE)
         baseBuffer.putLong(addr)
         baseBuffer.putLong(nonce)
-        val base = baseBuffer.array()
         val shabal256 = Crypto.shabal256()
-        val gendata = ByteArray(PLOT_SIZE + base.size)
-        System.arraycopy(base, 0, gendata, PLOT_SIZE, base.size)
         var i = PLOT_SIZE
         while (i > 0) {
-            var len = PLOT_SIZE + base.size - i
+            var len = PLOT_AND_SEED_SIZE - i
             if (len > HASH_CAP) {
                 len = HASH_CAP
             }
-            shabal256.update(gendata, i, len)
-            System.arraycopy(shabal256.digest(), 0, gendata, i - HASH_SIZE, HASH_SIZE)
+            shabal256.update(data, i, len)
+            System.arraycopy(shabal256.digest(), 0, data, i - HASH_SIZE, HASH_SIZE)
             i -= HASH_SIZE
         }
-        val finalhash = shabal256.digest(gendata)
+        val finalhash = shabal256.digest(data)
         for (index in 0 until PLOT_SIZE) {
-            data[index] = (gendata[index] xor finalhash[index % HASH_SIZE])
+            data[index] = (data[index] xor finalhash[index % HASH_SIZE])
         }
         //PoC2 Rearrangement
         if (fluxCapacitorService.getValue(FluxValues.POC2, blockHeight)) {
@@ -63,11 +59,13 @@ class MiningPlot(addr: Long, nonce: Long, blockHeight: Int, fluxCapacitorService
     }
 
     companion object {
+        private const val SEED_SIZE = 16
         private const val HASH_SIZE = 32
         private const val HASHES_PER_SCOOP = 2
         const val SCOOP_SIZE = HASHES_PER_SCOOP * HASH_SIZE
         private const val SCOOPS_PER_PLOT = 4096 // original 1MB/plot = 16384
         const val PLOT_SIZE = SCOOPS_PER_PLOT * SCOOP_SIZE
+        private const val PLOT_AND_SEED_SIZE = PLOT_SIZE + SEED_SIZE
         private const val HASH_CAP = 4096
     }
 }

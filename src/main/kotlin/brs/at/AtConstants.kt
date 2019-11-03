@@ -1,9 +1,8 @@
 package brs.at
 
-import brs.objects.Constants
 import brs.entity.DependencyProvider
+import brs.objects.Constants
 import brs.objects.FluxValues
-
 
 class AtConstants(private val dp: DependencyProvider) {
     //platform based

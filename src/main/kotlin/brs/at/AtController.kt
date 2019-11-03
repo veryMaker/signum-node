@@ -14,13 +14,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 class AtController(private val dp: DependencyProvider) {
-
-    private val logger = LoggerFactory.getLogger(AtController::class.java)
-
-    private val debugLogger by lazy { if (dp.propertyService.get(Props.ENABLE_AT_DEBUG_LOG)) logger else NOPLogger.NOP_LOGGER }
-
-    private val costOfOneAT: Int
-        get() = AtConstants.AT_ID_SIZE + 16
+    private val debugLogger = if (dp.propertyService.get(Props.ENABLE_AT_DEBUG_LOG)) logger else NOPLogger.NOP_LOGGER
 
     private fun runSteps(state: AtMachineState): Int {
         state.machineState.running = true
@@ -319,7 +313,7 @@ class AtController(private val dp: DependencyProvider) {
 
                 processedATs.add(at)
 
-                md5 = digest.digest(at.bytes)
+                md5 = digest.digest(at.getBytes())
                 if (!md5.contentEquals(receivedMd5)) {
                     throw AtException("Calculated md5 and received md5 are not matching")
                 }
@@ -373,13 +367,14 @@ class AtController(private val dp: DependencyProvider) {
             return null
         }
 
+        // TODO don't use ByteBuffer, just digest straight into ByteArray
         val b = ByteBuffer.allocate(payload)
         b.order(ByteOrder.LITTLE_ENDIAN)
 
         val digest = Crypto.md5()
         for (at in processedATs) {
             b.put(at.id)
-            digest.update(at.bytes)
+            digest.update(at.getBytes())
             b.put(digest.digest())
         }
 
@@ -409,5 +404,10 @@ class AtController(private val dp: DependencyProvider) {
     private fun getATAccountBalance(id: Long?): Long {
         val atAccount = Account.getAccount(dp, id!!)
         return atAccount?.balancePlanck ?: 0
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(AtController::class.java)
+        private const val costOfOneAT = AtConstants.AT_ID_SIZE + 16
     }
 }

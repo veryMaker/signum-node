@@ -72,9 +72,8 @@ object BurstLauncher {
             val method = urlClass.getDeclaredMethod("addURL", URL::class.java)
             method.isAccessible = true
             method.invoke(urlClassLoader, u.toURL())
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             logger.safeWarn(e) { "Could not add path \"$path\" to classpath" }
         }
-
     }
 }

@@ -1,3 +1,3 @@
 package brs.entity
 
-class Prop<T>(val name: String, val defaultValue: T)
+data class Prop<T>(val name: String, val defaultValue: T)

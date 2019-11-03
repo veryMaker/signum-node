@@ -108,8 +108,6 @@ import brs.util.crypto.Crypto
 import brs.util.json.addAll
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 object JSONData {
 
@@ -239,7 +237,7 @@ object JSONData {
             if (includeTransactions) {
                 transactions.add(transaction(transaction, currentBlockchainHeight))
             } else {
-                transactions.add(transaction.id.toUnsignedString())
+                transactions.add(transaction.stringId)
             }
         }
         json.add(TRANSACTIONS_RESPONSE, transactions)

@@ -1,3 +1,3 @@
 package brs.entity
 
-class TransactionDuplicationResult(val isDuplicate: Boolean, val transaction: Transaction?)
+data class TransactionDuplicationResult(val isDuplicate: Boolean, val transaction: Transaction?)

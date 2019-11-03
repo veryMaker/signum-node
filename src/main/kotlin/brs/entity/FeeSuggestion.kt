@@ -1,6 +1,6 @@
 package brs.entity
 
-class FeeSuggestion(val cheapFee: Long, val standardFee: Long, val priorityFee: Long) {
+data class FeeSuggestion(val cheapFee: Long, val standardFee: Long, val priorityFee: Long) {
     enum class Type(val type: String) {
         CHEAP("cheap"),
         STANDARD("standard"),

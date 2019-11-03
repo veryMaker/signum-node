@@ -373,7 +373,6 @@ interface Appendix {
     }
 
     class PublicKeyAnnouncement : AbstractAppendix {
-
         private val dp: DependencyProvider
         val publicKey: ByteArray
 
@@ -442,8 +441,8 @@ interface Appendix {
                 throw BurstException.NotValidException("Public key announcements not enabled for version 0 transactions")
             }
             val recipientAccount = Account.getAccount(dp, recipientId)
-            if (recipientAccount?.publicKey != null && publicKey.contentEquals(recipientAccount.publicKey!!)) {
-                throw BurstException.NotCurrentlyValidException("A different public key for this account has already been announced")
+            if (recipientAccount?.publicKey != null && !publicKey.contentEquals(recipientAccount.publicKey!!)) {
+                throw BurstException.NotCurrentlyValidException("A different public key for this account has already been announced. Previous public key: \"${recipientAccount.publicKey.toHexString()}\", new public key: \"${publicKey.toHexString()}\"")
             }
         }
 

@@ -75,9 +75,10 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.atConstants = AtConstants(dp)
             dp.economicClusteringService = EconomicClusteringServiceImpl(dp)
             dp.generatorService =
-                if (dp.propertyService.get(Props.DEV_MOCK_MINING)) GeneratorServiceImpl.MockGeneratorService(dp) else GeneratorServiceImpl(
-                    dp
-                )
+                if (dp.propertyService.get(Props.DEV_TESTNET) && dp.propertyService.get(Props.DEV_MOCK_MINING))
+                    GeneratorServiceImpl.MockGeneratorService(dp)
+                else
+                    GeneratorServiceImpl(dp)
             dp.accountService = AccountServiceImpl(dp)
             dp.transactionService = TransactionServiceImpl(dp)
             dp.transactionProcessorService = TransactionProcessorServiceImpl(dp)

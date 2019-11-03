@@ -739,7 +739,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     try {
                         dp.transactionService.validate(transaction)
                     } catch (e: BurstException.ValidationException) {
-                        throw BlockchainProcessorService.TransactionNotAcceptedException(e.message!!, transaction)
+                        throw BlockchainProcessorService.TransactionNotAcceptedException(e.message!!, transaction, e)
                     }
 
                     calculatedTotalAmount += transaction.amountPlanck
@@ -832,7 +832,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         try {
             atBlock = dp.atController.validateATs(block.blockATs, dp.blockchainService.height)
         } catch (e: AtException) {
-            throw BlockchainProcessorService.BlockNotAcceptedException("ats are not matching at block height " + dp.blockchainService.height + " (" + e + ")")
+            throw BlockchainProcessorService.BlockNotAcceptedException("Failed to validate ATs at height ${dp.blockchainService.height}", e)
         }
 
         calculatedRemainingAmount += atBlock.totalAmountPlanck

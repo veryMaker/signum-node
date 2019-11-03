@@ -118,23 +118,22 @@ open class AtMachineState {
     private val stateSize: Int
         get() = MACHINE_STATE_SIZE + 8 + 8 + 4 + apData.capacity()
 
-    //these bytes are digested with MD5
-    val bytes: ByteArray
-        get() {
-            val txBytes = transactionBytes
-            val stateBytes = machineState.getMachineStateBytes()
-            val dataBytes = apData.array()
+    //these bytes are digested with MD5 TODO just turn this into a function called md5digest() or something and don't be assigning extra bytebuffers etc
+    fun getBytes(): ByteArray {
+        val txBytes = transactionBytes
+        val stateBytes = machineState.getMachineStateBytes()
+        val dataBytes = apData.array()
 
-            val b = ByteBuffer.allocate(id!!.size + txBytes.size + stateBytes.size + dataBytes.size)
-            b.order(ByteOrder.LITTLE_ENDIAN)
+        val b = ByteBuffer.allocate(id.size + txBytes.size + stateBytes.size + dataBytes.size)
+        b.order(ByteOrder.LITTLE_ENDIAN)
 
-            b.put(id!!)
-            b.put(stateBytes)
-            b.put(dataBytes)
-            b.put(txBytes)
+        b.put(id)
+        b.put(stateBytes)
+        b.put(dataBytes)
+        b.put(txBytes)
 
-            return b.array()
-        }
+        return b.array()
+    }
 
     protected constructor(
         dp: DependencyProvider, atId: ByteArray, creator: ByteArray, version: Short,

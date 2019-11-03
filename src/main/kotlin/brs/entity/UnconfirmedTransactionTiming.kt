@@ -1,3 +1,3 @@
 package brs.entity
 
-internal class UnconfirmedTransactionTiming(val transaction: Transaction, val timestamp: Long)
+internal data class UnconfirmedTransactionTiming(val transaction: Transaction, val timestamp: Long)

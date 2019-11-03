@@ -65,13 +65,26 @@ interface BlockchainProcessorService : Observable<Block, BlockchainProcessorServ
     /**
      * TODO
      */
-    open class BlockNotAcceptedException internal constructor(message: String) : BurstException(message)
+    open class BlockNotAcceptedException : BurstException {
+        internal constructor(message: String) : super(message)
+        internal constructor(message: String, cause: Throwable) : super(message, cause)
+    }
 
     /**
      * TODO
      */
-    class TransactionNotAcceptedException(message: String, val transaction: Transaction) :
-        BlockNotAcceptedException(message + " transaction: " + transaction.toJsonObject().toJsonString())
+    class TransactionNotAcceptedException : BlockNotAcceptedException {
+        val transaction: Transaction
+
+        constructor(message: String, transaction: Transaction)
+                : super(message + " transaction: " + transaction.toJsonObject().toJsonString()) {
+            this.transaction = transaction
+        }
+
+        constructor(message: String, transaction: Transaction, cause: Throwable) : super(message, cause) {
+            this.transaction = transaction
+        }
+    }
 
     /**
      * TODO
