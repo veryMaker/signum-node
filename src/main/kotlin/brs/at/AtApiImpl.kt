@@ -190,7 +190,7 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
         val a = AtApiHelper.getBigInteger(state.a1, state.a2, state.a3, state.a4)
         val b = AtApiHelper.getBigInteger(state.b1, state.b2, state.b3, state.b4)
         val result = b.subtract(a)
-        state.putInA(AtApiHelper.getByteArray(result))
+        state.putInB(AtApiHelper.getByteArray(result))
     }
 
     override fun subBFromA(state: AtMachineState) {
@@ -276,8 +276,8 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
 
     override fun md5Atob(state: AtMachineState) {
         val md5 = Crypto.md5()
-        md5.digest(state.a1)
-        md5.digest(state.a2)
+        md5.update(state.a1)
+        md5.update(state.a2)
         val hash = md5.digest()
 
         hash.copyInto(state.b1, 0, 0, 8)
@@ -292,8 +292,8 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     override fun checkMd5AWithB(state: AtMachineState): Long {
         return if (dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_3)) {
             val md5 = Crypto.md5()
-            md5.digest(state.a1)
-            md5.digest(state.a2)
+            md5.update(state.a1)
+            md5.update(state.a2)
             val hash = md5.digest()
             if (hash.partEquals(state.b1, 0, 8) && hash.partEquals(state.b2, 8, 8)) 1L else 0L
         } else {
@@ -303,10 +303,10 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
 
     override fun hash160AToB(state: AtMachineState) {
         val ripeMD = Crypto.ripeMD160()
-        ripeMD.digest(state.a1)
-        ripeMD.digest(state.a2)
-        ripeMD.digest(state.a3)
-        ripeMD.digest(state.a4)
+        ripeMD.update(state.a1)
+        ripeMD.update(state.a2)
+        ripeMD.update(state.a3)
+        ripeMD.update(state.a4)
         val hash = ripeMD.digest()
 
         hash.copyInto(state.b1, 0, 0, 8)
@@ -317,10 +317,10 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     override fun checkHash160AWithB(state: AtMachineState): Long {
         return if (dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_3)) {
             val ripeMD = Crypto.ripeMD160()
-            ripeMD.digest(state.a1)
-            ripeMD.digest(state.a2)
-            ripeMD.digest(state.a3)
-            ripeMD.digest(state.a4)
+            ripeMD.update(state.a1)
+            ripeMD.update(state.a2)
+            ripeMD.update(state.a3)
+            ripeMD.update(state.a4)
             val hash = ripeMD.digest()
 
             if (
@@ -339,20 +339,20 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
 
     override fun sha256AToB(state: AtMachineState) {
         val sha256 = Crypto.sha256()
-        sha256.digest(state.a1)
-        sha256.digest(state.a2)
-        sha256.digest(state.a3)
-        sha256.digest(state.a4)
+        sha256.update(state.a1)
+        sha256.update(state.a2)
+        sha256.update(state.a3)
+        sha256.update(state.a4)
         state.putInB(sha256.digest())
     }
 
     override fun checkSha256AWithB(state: AtMachineState): Long {
         return if (dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_3)) {
             val sha256 = Crypto.sha256()
-            sha256.digest(state.a1)
-            sha256.digest(state.a2)
-            sha256.digest(state.a3)
-            sha256.digest(state.a4)
+            sha256.update(state.a1)
+            sha256.update(state.a2)
+            sha256.update(state.a3)
+            sha256.update(state.a4)
             state.bEquals(sha256.digest()).toLong()
         } else {
             (if (state.a1.contentEquals(state.b1) &&
