@@ -248,6 +248,11 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             return properties
         }
 
+        @JvmStatic
+        fun main(args: Array<String>) {
+            init()
+        }
+
         fun init(addShutdownHook: Boolean = true): Burst {
             return Burst(loadProperties(), addShutdownHook)
         }
