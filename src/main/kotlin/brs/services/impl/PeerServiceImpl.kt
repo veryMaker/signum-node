@@ -207,7 +207,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         port = if (dp.propertyService.get(Props.DEV_TESTNET)) TESTNET_PEER_PORT else myPeerServerPort
         if (shareMyAddress) {
             if (useUpnp) {
-                port = dp.propertyService.get(Props.P2P_PORT)
                 val gatewayDiscover = GatewayDiscover()
                 gatewayDiscover.timeout = 2000
                 try {
