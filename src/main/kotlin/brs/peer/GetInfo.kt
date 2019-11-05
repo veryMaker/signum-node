@@ -4,13 +4,14 @@ import brs.entity.DependencyProvider
 import brs.services.PeerService
 import brs.util.json.mustGetAsBoolean
 import brs.util.json.mustGetAsString
+import brs.util.json.safeGetAsString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerRequestHandler {
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
-        var announcedAddress = request.get("announcedAddress").mustGetAsString("announcedAddress")
-        if (announcedAddress.isNotEmpty()) {
+        var announcedAddress = request.get("announcedAddress").safeGetAsString()
+        if (!announcedAddress.isNullOrEmpty()) {
             announcedAddress = announcedAddress.trim { it <= ' ' }
             if (announcedAddress.isNotEmpty()) {
                 if (peer.announcedAddress != null && announcedAddress != peer.announcedAddress) {
