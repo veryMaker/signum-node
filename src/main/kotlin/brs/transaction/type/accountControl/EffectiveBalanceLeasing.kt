@@ -3,6 +3,7 @@ package brs.transaction.type.accountControl
 import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
+import brs.objects.FluxValues
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.json.toJsonString
@@ -31,6 +32,8 @@ class EffectiveBalanceLeasing(dp: DependencyProvider) : AccountControl(dp) {
 
     @Throws(BurstException.ValidationException::class)
     override fun validateAttachment(transaction: Transaction) {
+        if (dp.fluxCapacitorService.getValue(FluxValues.NEXT_FORK))
+            throw BurstException.NotCurrentlyValidException("Effective Balance Leasing is disabled.")
         val attachment = transaction.attachment as Attachment.AccountControlEffectiveBalanceLeasing
         val recipientAccount = dp.accountService.getAccount(transaction.recipientId)
         if (transaction.senderId == transaction.recipientId || transaction.amountPlanck != 0L || attachment.period < 1440) {
