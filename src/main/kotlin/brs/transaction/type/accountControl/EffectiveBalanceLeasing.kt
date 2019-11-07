@@ -36,7 +36,7 @@ class EffectiveBalanceLeasing(dp: DependencyProvider) : AccountControl(dp) {
         if (transaction.senderId == transaction.recipientId || transaction.amountPlanck != 0L || attachment.period < 1440) {
             throw BurstException.NotValidException("Invalid effective balance leasing: " + transaction.toJsonObject().toJsonString() + " transaction " + transaction.stringId)
         }
-        if (recipientAccount == null || recipientAccount.publicKey == null && transaction.stringId != "5081403377391821646") { // TODO why this weird check?
+        if (recipientAccount?.publicKey == null) {
             throw BurstException.NotCurrentlyValidException("Invalid effective balance leasing: recipient account ${transaction.recipientId} not found or no public key published")
         }
     }
