@@ -27,7 +27,6 @@ object AtApiHelper {
      * Little Endian.
      */
     fun getLong(bytes: ByteArray): Long {
-        require(bytes.size >= 8)
         return burstCrypto.bytesToLong(bytes)
     }
 

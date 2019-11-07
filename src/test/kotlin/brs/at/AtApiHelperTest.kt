@@ -7,7 +7,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.math.BigInteger
-import java.nio.BufferOverflowException
 
 @RunWith(JUnit4::class)
 class AtApiHelperTest {
@@ -24,9 +23,10 @@ class AtApiHelperTest {
         assertEquals(-0x1032547698badcffL, AtApiHelper.getLong("0123456789abcdef".parseHexString()))
     }
 
-    @Test(expected = BufferOverflowException::class)
+    @Test
     fun testGetLong_overflow() {
-        AtApiHelper.getLong("0123456789abcdef0123456789abcdef".parseHexString())
+        assertEquals(-0x1032547698badcffL, AtApiHelper.getLong("0123456789abcdef0123456789abcdef".parseHexString()))
+        assertEquals(-0x1032547698badcffL, AtApiHelper.getLong("0123456789abcdef2222222222222222".parseHexString()))
     }
 
     @Test
