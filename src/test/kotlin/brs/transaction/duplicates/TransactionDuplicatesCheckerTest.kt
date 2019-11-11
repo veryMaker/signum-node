@@ -1,15 +1,15 @@
 package brs.transaction.duplicates
 
-import brs.transaction.appendix.Attachment.*
-import brs.services.impl.BlockchainServiceImpl
+import brs.common.QuickMocker
+import brs.common.TestConstants
 import brs.entity.DependencyProvider
 import brs.entity.Escrow.DecisionType
 import brs.entity.Transaction
-import brs.common.QuickMocker
-import brs.common.TestConstants
 import brs.objects.FluxValues
-import brs.services.impl.TransactionDuplicateCheckerServiceImpl
+import brs.services.impl.BlockchainServiceImpl
+import brs.transaction.appendix.Attachment.*
 import brs.transaction.type.TransactionType
+import brs.util.TransactionDuplicateChecker
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -22,9 +22,9 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class TransactionDuplicatesCheckerImplTest {
+class TransactionDuplicatesCheckerTest {
 
-    private var t = TransactionDuplicateCheckerServiceImpl()
+    private var t = TransactionDuplicateChecker()
     private lateinit var dp: DependencyProvider
 
     @Before
@@ -37,7 +37,7 @@ class TransactionDuplicatesCheckerImplTest {
 
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        t = TransactionDuplicateCheckerServiceImpl()
+        t = TransactionDuplicateChecker()
     }
 
     @DisplayName("First transaction is never a duplicate when checking for any duplicate")

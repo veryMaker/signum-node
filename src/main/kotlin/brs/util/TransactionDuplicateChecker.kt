@@ -1,19 +1,17 @@
-package brs.services.impl
+package brs.util
 
 import brs.entity.Transaction
 import brs.entity.TransactionDuplicationKey
 import brs.entity.TransactionDuplicationResult
-import brs.services.TransactionDuplicateCheckerService
 import brs.transaction.type.TransactionType
 import kotlin.reflect.KClass
 
-inline class TransactionDuplicateCheckerServiceImpl(private val duplicates: MutableMap<KClass<out TransactionType>, MutableMap<String, Transaction>> = mutableMapOf()) :
-    TransactionDuplicateCheckerService {
-    override fun clear() {
+inline class TransactionDuplicateChecker(private val duplicates: MutableMap<KClass<out TransactionType>, MutableMap<String, Transaction>> = mutableMapOf()) {
+    fun clear() {
         duplicates.clear()
     }
 
-    override fun removeCheaperDuplicate(transaction: Transaction): TransactionDuplicationResult {
+    fun removeCheaperDuplicate(transaction: Transaction): TransactionDuplicationResult {
         val transactionDuplicateKey = transaction.duplicationKey
 
         when (transactionDuplicateKey) {
@@ -37,7 +35,7 @@ inline class TransactionDuplicateCheckerServiceImpl(private val duplicates: Muta
         }
     }
 
-    override fun hasAnyDuplicate(transaction: Transaction): Boolean {
+    fun hasAnyDuplicate(transaction: Transaction): Boolean {
         val transactionDuplicateKey = transaction.duplicationKey
 
         when (transactionDuplicateKey) {
@@ -59,7 +57,7 @@ inline class TransactionDuplicateCheckerServiceImpl(private val duplicates: Muta
         }
     }
 
-    override fun removeTransaction(transaction: Transaction) {
+    fun removeTransaction(transaction: Transaction) {
         val transactionDuplicateKey = transaction.duplicationKey
         val map = duplicates[transactionDuplicateKey.transactionType] ?: return
         if (transactionDuplicateKey != TransactionDuplicationKey.IS_ALWAYS_DUPLICATE && transactionDuplicateKey != TransactionDuplicationKey.IS_NEVER_DUPLICATE && duplicates.containsKey(

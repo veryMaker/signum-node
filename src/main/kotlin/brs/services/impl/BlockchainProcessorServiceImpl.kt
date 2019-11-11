@@ -16,6 +16,7 @@ import brs.peer.Peer
 import brs.services.*
 import brs.util.BurstException
 import brs.util.Listeners
+import brs.util.TransactionDuplicateChecker
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.safeSubtract
 import brs.util.convert.toUnsignedString
@@ -673,7 +674,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     throw BlockchainProcessorService.BlockNotAcceptedException("Block signature verification failed for block " + block.height)
                 }
 
-                val transactionDuplicatesChecker = TransactionDuplicateCheckerServiceImpl()
+                val transactionDuplicatesChecker = TransactionDuplicateChecker()
                 var calculatedTotalAmount: Long = 0
                 var calculatedTotalFee: Long = 0
                 val digest = Crypto.sha256()
@@ -904,7 +905,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     }
 
     private fun preCheckUnconfirmedTransaction(
-        transactionDuplicatesChecker: TransactionDuplicateCheckerService,
+        transactionDuplicatesChecker: TransactionDuplicateChecker,
         unconfirmedTransactionService: UnconfirmedTransactionService,
         transaction: Transaction
     ): Boolean {
@@ -936,7 +937,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             // accept (so it's going the same way like a received/synced block)
             try {
                 dp.db.beginTransaction()
-                val transactionDuplicatesChecker = TransactionDuplicateCheckerServiceImpl()
+                val transactionDuplicatesChecker = TransactionDuplicateChecker()
 
                 val priorityCalculator = { transaction: Transaction ->
                     var age = blockTimestamp + 1 - transaction.timestamp

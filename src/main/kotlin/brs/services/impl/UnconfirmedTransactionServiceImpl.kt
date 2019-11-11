@@ -10,6 +10,7 @@ import brs.peer.Peer
 import brs.services.TaskType
 import brs.services.UnconfirmedTransactionService
 import brs.util.BurstException
+import brs.util.TransactionDuplicateChecker
 import brs.util.convert.safeAdd
 import brs.util.convert.safeSubtract
 import brs.util.logging.safeDebug
@@ -22,7 +23,7 @@ class UnconfirmedTransactionServiceImpl(private val dp: DependencyProvider) :
     UnconfirmedTransactionService {
     private val reservedBalanceCache =
         ReservedBalanceCache(dp.accountStore)
-    private val transactionDuplicatesChecker = TransactionDuplicateCheckerServiceImpl()
+    private val transactionDuplicatesChecker = TransactionDuplicateChecker()
 
     private val fingerPrintsOverview = mutableMapOf<Transaction, MutableSet<Peer?>>()
 
