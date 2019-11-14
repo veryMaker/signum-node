@@ -1,6 +1,9 @@
 package brs.db
 
 import org.jooq.DSLContext
+import org.jooq.Field
+import org.jooq.Query
+import org.jooq.UpdatableRecord
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -24,4 +27,12 @@ inline fun <T> Db.getUsingDslContext(action: (DSLContext) -> T): T {
 inline fun Db.useDslContext(action: (DSLContext) -> Unit) {
     contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
     getDslContext().use { context -> action(context) }
+}
+
+fun DSLContext.upsert(record: UpdatableRecord<*>, vararg keys: Field<*>): Query {
+    return insertInto(record.getTable())
+        .set(record)
+        .onConflict(*keys) // TODO work around having to use spread operator here...
+        .doUpdate()
+        .set(record)
 }
