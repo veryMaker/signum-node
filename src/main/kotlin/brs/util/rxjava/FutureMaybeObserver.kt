@@ -6,7 +6,6 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.internal.disposables.DisposableHelper
 import io.reactivex.internal.util.BlockingHelper
 import io.reactivex.internal.util.ExceptionHelper.timeoutMessage
-import io.reactivex.plugins.RxJavaPlugins
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicReference
 
@@ -108,7 +107,7 @@ class FutureMaybeObserver<T> : CountDownLatch(1), MaybeObserver<T>, Future<T>, D
         while (true) {
             val a = upstream.get()
             if (a === DisposableHelper.DISPOSED) {
-                RxJavaPlugins.onError(t)
+                RxJavaUtils.handleError(t)
                 return
             }
             error = t

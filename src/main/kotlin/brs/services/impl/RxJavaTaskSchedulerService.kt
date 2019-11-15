@@ -4,12 +4,14 @@ import brs.objects.Constants
 import brs.services.*
 import brs.util.delegates.Atomic
 import brs.util.logging.safeError
+import brs.util.rxjava.RxJavaUtils
 import brs.util.rxjava.toFuture
 import io.reactivex.Completable
 import io.reactivex.CompletableEmitter
 import io.reactivex.Maybe
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Action
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -74,7 +76,7 @@ class RxJavaTaskSchedulerService: TaskSchedulerService {
     }
 
     private fun runTask(task: Completable) {
-        disposables.add(task.subscribe())
+        disposables.add(task.subscribe(emptyHandler, RxJavaUtils.defaultErrorHandler))
     }
 
     override fun awaitTasks(tasksType: TaskType, tasks: Iterable<Task>) {
@@ -163,5 +165,6 @@ class RxJavaTaskSchedulerService: TaskSchedulerService {
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger(RxJavaTaskSchedulerService::class.java)
+        val emptyHandler: Action = Action { }
     }
 }
