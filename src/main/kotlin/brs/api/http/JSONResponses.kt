@@ -14,6 +14,7 @@ import brs.api.http.common.Parameters.DELIVERY_DEADLINE_TIMESTAMP_PARAMETER
 import brs.api.http.common.Parameters.DELTA_QUANTITY_PARAMETER
 import brs.api.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.api.http.common.Parameters.DISCOUNT_PLANCK_PARAMETER
+import brs.api.http.common.Parameters.DOMAIN_PARAMETER
 import brs.api.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
 import brs.api.http.common.Parameters.FEE_PARAMETER
 import brs.api.http.common.Parameters.FEE_PLANCK_PARAMETER
@@ -28,6 +29,7 @@ import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER
 import brs.api.http.common.Parameters.NAME_PARAMETER
 import brs.api.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
 import brs.api.http.common.Parameters.ORDER_PARAMETER
+import brs.api.http.common.Parameters.PAYLOAD_PARAMETER
 import brs.api.http.common.Parameters.PEER_PARAMETER
 import brs.api.http.common.Parameters.PRICE_PARAMETER
 import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER
@@ -157,6 +159,8 @@ object JSONResponses {
     val INCORRECT_HEIGHT = incorrect(HEIGHT_PARAMETER)
     val MISSING_HEIGHT = missing(HEIGHT_PARAMETER)
     val INCORRECT_PLAIN_MESSAGE = incorrect(MESSAGE_TO_ENCRYPT_PARAMETER)
+    val MISSING_DOMAIN = missing(DOMAIN_PARAMETER)
+    val PAYLOAD_WITHOUT_ACTION = incorrect(PAYLOAD_PARAMETER, "With 'payload' parameter the 'action' parameter is mandatory")
 
     val INCORRECT_AUTOMATED_TRANSACTION_NAME_LENGTH = incorrect(
         DESCRIPTION_PARAMETER,
@@ -311,7 +315,7 @@ object JSONResponses {
         return response
     }
 
-    private fun incorrect(paramName: String, details: String? = null): JsonElement {
+    fun incorrect(paramName: String, details: String? = null): JsonElement {
         val response = JsonObject()
         response.addProperty(ERROR_CODE_RESPONSE, 4)
         response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect \"$paramName\"${details ?: ""}")

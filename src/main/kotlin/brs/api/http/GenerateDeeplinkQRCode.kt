@@ -28,9 +28,7 @@ import javax.imageio.ImageIO
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-/**
- * TODO
- */
+@Deprecated("Will be substituted by more versatile CIP22 version GenerateDeeplinkQR")
 internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGeneratorService: DeeplinkQRCodeGeneratorService) :
     HttpRequestHandler(
         arrayOf(APITag.CREATE_TRANSACTION, APITag.TRANSACTIONS),

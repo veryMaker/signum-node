@@ -115,6 +115,9 @@ object Parameters {
     const val FEE_SUGGESTION_TYPE_PARAMETER = "feeSuggestionType"
     const val IMMUTABLE_PARAMETER = "immutable"
     const val INCLUDE_INDIRECT_PARAMETER = "includeIndirect"
+    const val DOMAIN_PARAMETER = "domain"
+    const val ACTION_PARAMETER = "action"
+    const val PAYLOAD_PARAMETER = "payload"
 
     fun isFalse(text: String?): Boolean {
         return "false".equals(text, ignoreCase = true)

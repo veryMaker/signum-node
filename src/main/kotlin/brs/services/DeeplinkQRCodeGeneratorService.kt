@@ -3,6 +3,7 @@ package brs.services
 import brs.entity.FeeSuggestion
 import java.awt.image.BufferedImage
 
+@Deprecated("Replace with DeeplinkGenerator")
 interface DeeplinkQRCodeGeneratorService {
     /**
      * TODO
