@@ -263,7 +263,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     }
                 }
             } catch (e: Exception) {
-                logger.safeError(e) { "Uncaught exception in blockImporterTask" }
+                logger.safeError(e) { "Uncaught exception in blockImporterTask at height ${dp.blockchainService.height}" }
                 false
             }
         }

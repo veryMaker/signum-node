@@ -191,9 +191,10 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         record.deadline = purchase.deliveryDeadlineTimestamp
         record.note = note
         record.nonce = nonce
+        record.pending = purchase.isPending
         record.timestamp = purchase.timestamp
         record.goods = goods
-        record.goods = goodsNonce
+        record.goodsNonce = goodsNonce
         record.refundNote = refundNote
         record.refundNonce = refundNonce
         record.hasFeedbackNotes = purchase.feedbackNotes != null && purchase.feedbackNotes!!.isNotEmpty()
