@@ -21,6 +21,9 @@ import java.io.IOException;
 import static brs.http.JSONResponses.*;
 import static brs.http.common.Parameters.*;
 
+/**
+ * @deprecated Will be substituted by more versatile CIP22 version GenerateDeeplinkQR
+ */
 public class GenerateDeeplinkQRCode extends HttpRequestHandler {
 
   private final Logger logger = LoggerFactory.getLogger(GenerateDeeplinkQRCode.class);
