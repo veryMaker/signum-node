@@ -1,7 +1,7 @@
 package brs.services.impl
 
-import brs.entity.DependencyProvider
 import brs.entity.Block
+import brs.entity.DependencyProvider
 import brs.objects.FluxValues
 import brs.objects.Genesis
 import brs.objects.Props

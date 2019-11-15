@@ -1,11 +1,11 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
+import brs.db.AliasStore
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
-import brs.db.AliasStore
 import brs.db.useDslContext
 import brs.entity.Alias
+import brs.entity.DependencyProvider
 import brs.schema.Tables.ALIAS
 import brs.schema.Tables.ALIAS_OFFER
 import brs.schema.tables.records.AliasOfferRecord

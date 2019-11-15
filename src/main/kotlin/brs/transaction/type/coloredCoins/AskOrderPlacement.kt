@@ -1,9 +1,9 @@
 package brs.transaction.type.coloredCoins
 
 import brs.entity.Account
-import brs.transaction.appendix.Attachment
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
+import brs.transaction.appendix.Attachment
 import brs.util.logging.safeTrace
 import com.google.gson.JsonObject
 import org.slf4j.Logger

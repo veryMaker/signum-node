@@ -1,11 +1,11 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
+import brs.db.AssetTransferStore
 import brs.db.BurstKey
 import brs.db.getUsingDslContext
-import brs.db.AssetTransferStore
 import brs.db.useDslContext
 import brs.entity.AssetTransfer
+import brs.entity.DependencyProvider
 import brs.schema.Tables.ASSET_TRANSFER
 import org.jooq.DSLContext
 import org.jooq.Record

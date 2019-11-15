@@ -1,7 +1,7 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
 import brs.db.VersionedValuesTable
+import brs.entity.DependencyProvider
 import org.jooq.impl.TableImpl
 
 internal abstract class VersionedValuesSqlTable<T, V> internal constructor(

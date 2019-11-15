@@ -1,10 +1,10 @@
 package brs.api.grpc.handlers
 
-import brs.entity.DependencyProvider
-import brs.entity.Transaction
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
+import brs.entity.DependencyProvider
+import brs.entity.Transaction
 
 class ParseTransactionHandler(private val dp: DependencyProvider) :
     GrpcApiHandler<BrsApi.TransactionBytes, BrsApi.BasicTransaction> {

@@ -1,7 +1,5 @@
 package brs.api.http
 
-import brs.objects.Constants
-import brs.entity.EncryptedData
 import brs.api.http.JSONResponses.INCORRECT_AMOUNT
 import brs.api.http.JSONResponses.INCORRECT_ASSET_QUANTITY
 import brs.api.http.JSONResponses.INCORRECT_CREATION_BYTES
@@ -37,6 +35,8 @@ import brs.api.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.Parameters.SELLER_PARAMETER
 import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
+import brs.entity.EncryptedData
+import brs.objects.Constants
 import brs.util.convert.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

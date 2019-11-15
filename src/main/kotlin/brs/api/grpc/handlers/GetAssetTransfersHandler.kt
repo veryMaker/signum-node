@@ -1,12 +1,12 @@
 package brs.api.grpc.handlers
 
-import brs.entity.AssetTransfer
-import brs.services.AssetExchangeService
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
+import brs.api.grpc.service.ApiException
 import brs.api.grpc.service.ProtoBuilder
+import brs.entity.AssetTransfer
 import brs.services.AccountService
+import brs.services.AssetExchangeService
 
 class GetAssetTransfersHandler(
     private val assetExchangeService: AssetExchangeService,

@@ -1,11 +1,11 @@
 package brs.api.grpc.handlers
 
-import brs.objects.Constants
-import brs.entity.DependencyProvider
-import brs.objects.Genesis
-import brs.objects.FluxValues
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
+import brs.entity.DependencyProvider
+import brs.objects.Constants
+import brs.objects.FluxValues
+import brs.objects.Genesis
 import brs.transaction.type.TransactionType
 import com.google.protobuf.Empty
 

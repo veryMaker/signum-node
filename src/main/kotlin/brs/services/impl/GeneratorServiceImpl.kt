@@ -1,15 +1,15 @@
 package brs.services.impl
 
 import brs.entity.DependencyProvider
-import brs.services.BlockchainProcessorService
-import brs.util.crypto.Crypto
 import brs.objects.FluxValues
 import brs.objects.Props
+import brs.services.BlockchainProcessorService
 import brs.services.GeneratorService
 import brs.services.TaskType
 import brs.util.Listeners
 import brs.util.convert.fullHashToId
 import brs.util.convert.toUnsignedString
+import brs.util.crypto.Crypto
 import brs.util.logging.safeDebug
 import burst.kit.crypto.BurstCrypto
 import org.slf4j.LoggerFactory

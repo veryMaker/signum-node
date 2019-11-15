@@ -1,9 +1,9 @@
 package brs.api.grpc.handlers
 
-import brs.entity.DependencyProvider
-import brs.entity.Transaction
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
+import brs.entity.DependencyProvider
+import brs.entity.Transaction
 
 class BroadcastTransactionBytesHandler(private val dp: DependencyProvider) :
     GrpcApiHandler<BrsApi.TransactionBytes, BrsApi.TransactionBroadcastResult> {

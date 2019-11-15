@@ -1,10 +1,10 @@
 package brs.services.impl
 
 import brs.entity.DependencyProvider
-import brs.objects.Props
 import brs.entity.FluxEnable
 import brs.entity.FluxValue
 import brs.objects.HistoricalMoments
+import brs.objects.Props
 import brs.services.FluxCapacitorService
 
 class FluxCapacitorServiceImpl(dp: DependencyProvider) : FluxCapacitorService {

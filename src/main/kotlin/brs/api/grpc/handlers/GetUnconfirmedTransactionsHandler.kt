@@ -1,10 +1,10 @@
 package brs.api.grpc.handlers
 
-import brs.services.TransactionProcessorService
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 import brs.services.IndirectIncomingService
+import brs.services.TransactionProcessorService
 
 class GetUnconfirmedTransactionsHandler(
     private val indirectIncomingService: IndirectIncomingService,

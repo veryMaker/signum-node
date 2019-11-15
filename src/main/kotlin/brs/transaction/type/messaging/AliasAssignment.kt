@@ -1,11 +1,11 @@
 package brs.transaction.type.messaging
 
-import brs.entity.DependencyProvider
 import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
+import brs.entity.TransactionDuplicationKey
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
-import brs.entity.TransactionDuplicationKey
 import brs.util.BurstException
 import brs.util.convert.toBytes
 import brs.util.json.toJsonString

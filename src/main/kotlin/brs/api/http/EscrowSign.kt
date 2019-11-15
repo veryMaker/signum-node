@@ -1,13 +1,13 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.transaction.appendix.Attachment
-import brs.entity.DependencyProvider
-import brs.entity.Escrow
 import brs.api.http.common.Parameters.DECISION_PARAMETER
 import brs.api.http.common.Parameters.ESCROW_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.entity.Account
+import brs.entity.DependencyProvider
+import brs.entity.Escrow
+import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonElement

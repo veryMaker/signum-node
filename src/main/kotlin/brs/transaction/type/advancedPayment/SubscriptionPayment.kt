@@ -3,8 +3,8 @@ package brs.transaction.type.advancedPayment
 import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
-import brs.transaction.appendix.Attachment
 import brs.entity.TransactionDuplicationKey
+import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer

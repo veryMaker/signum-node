@@ -3,7 +3,6 @@ package brs.api.grpc.handlers
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
 import brs.services.FeeSuggestionService
-import brs.services.impl.FeeSuggestionServiceImpl
 import com.google.protobuf.Empty
 
 class SuggestFeeHandler(private val feeSuggestionServiceImpl: FeeSuggestionService) :

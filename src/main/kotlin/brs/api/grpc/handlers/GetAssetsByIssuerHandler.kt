@@ -1,9 +1,9 @@
 package brs.api.grpc.handlers
 
-import brs.services.AssetExchangeService
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
+import brs.services.AssetExchangeService
 
 class GetAssetsByIssuerHandler(private val assetExchangeService: AssetExchangeService) :
     GrpcApiHandler<BrsApi.GetAccountRequest, BrsApi.Assets> {

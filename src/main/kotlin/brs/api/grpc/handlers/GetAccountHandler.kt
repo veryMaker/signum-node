@@ -1,10 +1,10 @@
 package brs.api.grpc.handlers
 
-import brs.entity.Account
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
+import brs.api.grpc.service.ApiException
 import brs.api.grpc.service.ProtoBuilder
+import brs.entity.Account
 import brs.services.AccountService
 
 class GetAccountHandler(private val accountService: AccountService) :

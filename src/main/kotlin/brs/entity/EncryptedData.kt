@@ -1,9 +1,8 @@
 package brs.entity
 
-import brs.util.crypto.burstCrypto
 import brs.util.BurstException
+import brs.util.crypto.burstCrypto
 import burst.kit.entity.BurstEncryptedMessage
-
 import java.nio.ByteBuffer
 
 // TODO replace this class with the one from burstkit4j

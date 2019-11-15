@@ -1,11 +1,11 @@
 package brs.transaction.type.digitalGoods
 
 import brs.entity.Account
-import brs.util.BurstException
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.objects.FluxValues
 import brs.transaction.type.TransactionType
+import brs.util.BurstException
 
 abstract class DigitalGoods(dp: DependencyProvider) : TransactionType(dp) {
     override val type = TYPE_DIGITAL_GOODS

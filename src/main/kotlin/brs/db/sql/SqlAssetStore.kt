@@ -1,9 +1,9 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
-import brs.db.BurstKey
 import brs.db.AssetStore
+import brs.db.BurstKey
 import brs.entity.Asset
+import brs.entity.DependencyProvider
 import brs.schema.Tables.ASSET
 import org.jooq.DSLContext
 import org.jooq.Record

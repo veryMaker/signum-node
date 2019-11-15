@@ -1,7 +1,7 @@
 package brs.peer
 
-import brs.util.Version
 import brs.api.grpc.proto.BrsApi
+import brs.util.Version
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 

@@ -1,12 +1,12 @@
 package brs.api.grpc.handlers
 
-import brs.services.BlockchainService
-import brs.entity.Transaction
-import brs.services.TransactionProcessorService
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
+import brs.api.grpc.service.ApiException
 import brs.api.grpc.service.ProtoBuilder
+import brs.entity.Transaction
+import brs.services.BlockchainService
+import brs.services.TransactionProcessorService
 
 class GetTransactionHandler(
     private val blockchainService: BlockchainService,

@@ -1,7 +1,7 @@
 package brs.entity
 
-import brs.db.BurstKey
 import brs.api.grpc.proto.BrsApi
+import brs.db.BurstKey
 import brs.transaction.appendix.Attachment
 import brs.util.convert.toUnsignedString
 

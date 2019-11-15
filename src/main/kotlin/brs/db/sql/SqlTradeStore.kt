@@ -1,9 +1,9 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
 import brs.db.BurstKey
-import brs.db.getUsingDslContext
 import brs.db.TradeStore
+import brs.db.getUsingDslContext
+import brs.entity.DependencyProvider
 import brs.entity.Trade
 import brs.schema.Tables.TRADE
 import org.jooq.DSLContext

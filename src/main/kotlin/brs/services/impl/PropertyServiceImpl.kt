@@ -1,8 +1,8 @@
 package brs.services.impl
 
 import brs.Burst
-import brs.services.PropertyService
 import brs.objects.Props
+import brs.services.PropertyService
 import brs.util.logging.LogMessageProducer
 import brs.util.logging.safeInfo
 import org.slf4j.LoggerFactory

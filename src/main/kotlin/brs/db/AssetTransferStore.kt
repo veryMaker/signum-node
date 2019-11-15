@@ -1,7 +1,5 @@
 package brs.db
 
-import brs.db.BurstKey
-import brs.db.EntityTable
 import brs.entity.AssetTransfer
 
 interface AssetTransferStore {

@@ -1,8 +1,8 @@
 package brs.peer
 
 import brs.entity.Block
-import brs.services.BlockchainService
 import brs.objects.Constants
+import brs.services.BlockchainService
 import brs.util.convert.parseUnsignedLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray

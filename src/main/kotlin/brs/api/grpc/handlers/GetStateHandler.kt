@@ -1,9 +1,9 @@
 package brs.api.grpc.handlers
 
 import brs.Burst
-import brs.entity.DependencyProvider
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
+import brs.entity.DependencyProvider
 import brs.objects.Props
 import com.google.protobuf.Empty
 

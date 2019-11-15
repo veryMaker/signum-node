@@ -1,11 +1,11 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
-import brs.db.getUsingDslContext
 import brs.db.BlockchainStore
+import brs.db.getUsingDslContext
 import brs.db.useDslContext
 import brs.entity.Account
 import brs.entity.Block
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.schema.Tables.BLOCK
 import brs.schema.Tables.TRANSACTION

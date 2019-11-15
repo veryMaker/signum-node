@@ -1,8 +1,8 @@
 package brs.peer
 
-import brs.services.TransactionProcessorService
 import brs.api.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
 import brs.peer.PeerServlet.ExtendedProcessRequest
+import brs.services.TransactionProcessorService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 

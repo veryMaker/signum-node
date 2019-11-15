@@ -2,12 +2,12 @@ package brs.transaction.type.messaging
 
 import brs.entity.Account
 import brs.entity.DependencyProvider
-import brs.objects.Genesis
-import brs.objects.FluxValues
 import brs.entity.Transaction
-import brs.objects.Constants
-import brs.transaction.appendix.Attachment
 import brs.entity.TransactionDuplicationKey
+import brs.objects.Constants
+import brs.objects.FluxValues
+import brs.objects.Genesis
+import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.json.toJsonString
 import com.google.gson.JsonObject

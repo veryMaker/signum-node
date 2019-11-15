@@ -2,7 +2,6 @@ package brs.api.grpc.service
 
 import brs.api.grpc.proto.BrsApi
 import brs.at.AT
-import brs.at.AtApiHelper
 import brs.entity.*
 import brs.services.AccountService
 import brs.services.AssetExchangeService

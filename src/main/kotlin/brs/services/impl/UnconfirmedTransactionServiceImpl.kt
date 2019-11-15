@@ -1,8 +1,8 @@
 package brs.services.impl
 
-import brs.entity.DependencyProvider
 import brs.db.AccountStore
 import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.objects.Constants
 import brs.objects.Props

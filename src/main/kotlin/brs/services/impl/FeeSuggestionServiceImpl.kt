@@ -1,11 +1,11 @@
 package brs.services.impl
 
+import brs.entity.Block
+import brs.entity.DependencyProvider
+import brs.entity.FeeSuggestion
 import brs.objects.Constants
 import brs.objects.Constants.FEE_QUANT
-import brs.entity.DependencyProvider
-import brs.entity.Block
 import brs.services.BlockchainProcessorService.Event
-import brs.entity.FeeSuggestion
 import brs.services.FeeSuggestionService
 import kotlin.math.ceil
 

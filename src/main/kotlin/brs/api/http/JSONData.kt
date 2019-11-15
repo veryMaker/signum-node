@@ -94,7 +94,6 @@ import brs.api.http.common.ResultFields.UNCONFIRMED_BALANCE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.UNCONFIRMED_QUANTITY_RESPONSE
 import brs.api.http.common.ResultFields.VERSION_RESPONSE
 import brs.at.AT
-import brs.at.AtApiHelper
 import brs.entity.*
 import brs.entity.Alias.Offer
 import brs.objects.Constants

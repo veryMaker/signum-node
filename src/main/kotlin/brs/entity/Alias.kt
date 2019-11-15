@@ -1,7 +1,6 @@
 package brs.entity
 
 import brs.db.BurstKey
-import brs.entity.Transaction
 import brs.transaction.appendix.Attachment
 
 open class Alias {

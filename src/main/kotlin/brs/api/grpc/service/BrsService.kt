@@ -1,10 +1,10 @@
 package brs.api.grpc.service
 
-import brs.entity.DependencyProvider
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.handlers.*
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.proto.BrsApiServiceGrpc
+import brs.entity.DependencyProvider
 import com.google.protobuf.Empty
 import com.google.protobuf.Message
 import io.grpc.Server

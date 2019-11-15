@@ -1,10 +1,10 @@
 package brs.transaction.type.automatedTransactions
 
 import brs.entity.Account
-import brs.util.BurstException
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.transaction.type.TransactionType
+import brs.util.BurstException
 
 abstract class AutomatedTransactions(dp: DependencyProvider) : TransactionType(dp) {
     override val type = TYPE_AUTOMATED_TRANSACTIONS

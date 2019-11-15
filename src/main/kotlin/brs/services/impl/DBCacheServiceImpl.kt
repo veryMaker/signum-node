@@ -1,8 +1,8 @@
 package brs.services.impl
 
-import brs.entity.DependencyProvider
 import brs.db.BurstKey
 import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.entity.StatisticsCache
 import brs.services.DBCacheService
 import org.ehcache.Cache

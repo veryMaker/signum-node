@@ -1,9 +1,9 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
 import brs.db.PeerDb
 import brs.db.getUsingDslContext
 import brs.db.useDslContext
+import brs.entity.DependencyProvider
 import brs.schema.Tables.PEER
 
 internal class SqlPeerDb(private val dp: DependencyProvider) : PeerDb {

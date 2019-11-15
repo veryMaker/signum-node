@@ -2,8 +2,8 @@ package brs.transaction.type.messaging
 
 import brs.entity.Account
 import brs.entity.DependencyProvider
-import brs.objects.FluxValues
 import brs.entity.Transaction
+import brs.objects.FluxValues
 import brs.transaction.appendix.Appendix
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException

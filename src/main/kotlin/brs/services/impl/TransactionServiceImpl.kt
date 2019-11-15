@@ -1,9 +1,9 @@
 package brs.services.impl
 
-import brs.util.BurstException
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.services.TransactionService
+import brs.util.BurstException
 
 class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionService {
 

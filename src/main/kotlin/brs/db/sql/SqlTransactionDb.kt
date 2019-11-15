@@ -1,9 +1,9 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
 import brs.db.TransactionDb
 import brs.db.getUsingDslContext
 import brs.db.useDslContext
+import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.schema.Tables.TRANSACTION
 import brs.schema.tables.records.TransactionRecord

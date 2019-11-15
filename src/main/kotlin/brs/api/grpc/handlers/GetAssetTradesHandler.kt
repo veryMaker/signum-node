@@ -1,11 +1,11 @@
 package brs.api.grpc.handlers
 
+import brs.api.grpc.GrpcApiHandler
+import brs.api.grpc.proto.BrsApi
+import brs.api.grpc.service.ApiException
+import brs.api.grpc.service.ProtoBuilder
 import brs.entity.Trade
 import brs.services.AssetExchangeService
-import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.service.ApiException
-import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.service.ProtoBuilder
 
 class GetAssetTradesHandler(private val assetExchangeService: AssetExchangeService) :
     GrpcApiHandler<BrsApi.GetAssetTransfersRequest, BrsApi.AssetTrades> {

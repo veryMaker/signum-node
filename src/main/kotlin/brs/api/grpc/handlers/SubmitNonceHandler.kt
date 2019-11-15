@@ -1,15 +1,15 @@
 package brs.api.grpc.handlers
 
-import brs.entity.Account
-import brs.services.BlockchainService
-import brs.services.GeneratorService
-import brs.util.crypto.Crypto
 import brs.api.grpc.GrpcApiHandler
-import brs.api.grpc.service.ApiException
 import brs.api.grpc.proto.BrsApi
-import brs.services.PropertyService
+import brs.api.grpc.service.ApiException
+import brs.entity.Account
 import brs.objects.Props
 import brs.services.AccountService
+import brs.services.BlockchainService
+import brs.services.GeneratorService
+import brs.services.PropertyService
+import brs.util.crypto.Crypto
 import burst.kit.crypto.BurstCrypto
 
 class SubmitNonceHandler(

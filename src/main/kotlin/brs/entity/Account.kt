@@ -1,11 +1,11 @@
 package brs.entity
 
-import brs.util.crypto.Crypto
-import brs.util.crypto.rsVerify
 import brs.db.BurstKey
 import brs.db.VersionedBatchEntityTable
 import brs.util.convert.fullHashToId
 import brs.util.convert.toUnsignedString
+import brs.util.crypto.Crypto
+import brs.util.crypto.rsVerify
 import java.util.logging.Level
 import java.util.logging.Logger
 

@@ -1,9 +1,9 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
 import brs.db.VersionedEntityTable
 import brs.db.getUsingDslContext
 import brs.db.useDslContext
+import brs.entity.DependencyProvider
 import org.jooq.Field
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl

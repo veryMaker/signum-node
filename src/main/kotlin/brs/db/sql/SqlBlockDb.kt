@@ -1,10 +1,10 @@
 package brs.db.sql
 
-import brs.entity.DependencyProvider
 import brs.db.BlockDb
 import brs.db.getUsingDslContext
 import brs.db.useDslContext
 import brs.entity.Block
+import brs.entity.DependencyProvider
 import brs.schema.Tables.BLOCK
 import brs.schema.tables.records.BlockRecord
 import brs.util.BurstException

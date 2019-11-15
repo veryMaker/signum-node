@@ -1,7 +1,7 @@
 package brs.services.impl
 
-import brs.entity.DependencyProvider
 import brs.at.AT
+import brs.entity.DependencyProvider
 import brs.services.ATService
 
 class ATServiceImpl(private val dp: DependencyProvider) : ATService {

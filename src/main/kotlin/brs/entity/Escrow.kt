@@ -1,7 +1,7 @@
 package brs.entity
 
-import brs.db.BurstKey
 import brs.api.grpc.proto.BrsApi
+import brs.db.BurstKey
 
 open class Escrow {
     private val dp: DependencyProvider
