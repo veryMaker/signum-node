@@ -2,11 +2,11 @@ package brs.transaction.type.burstMining
 
 import brs.entity.Account
 import brs.entity.DependencyProvider
-import brs.objects.FluxValues
 import brs.entity.Transaction
-import brs.objects.Constants
-import brs.transaction.appendix.Attachment
 import brs.entity.TransactionDuplicationKey
+import brs.objects.Constants
+import brs.objects.FluxValues
+import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.convert.toUnsignedString
 import brs.util.json.toJsonString
@@ -56,7 +56,7 @@ class RewardRecipientAssignment(dp: DependencyProvider) : BurstMining(dp) {
         }
         val recip = dp.accountService.getAccount(transaction.recipientId)
         if (recip?.publicKey == null) {
-            throw BurstException.NotValidException("Reward recipient must have public key saved in blockchain: " + transaction.toJsonObject().toJsonString())
+            throw BurstException.NotValidException("Reward recipient must have public key saved in blockchain: ${transaction.toJsonObject().toJsonString()}, account: $recip, account key height: ${recip?.keyHeight}")
         }
 
         if (dp.fluxCapacitorService.getValue(FluxValues.PRE_DYMAXION)) {

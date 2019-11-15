@@ -3,10 +3,10 @@ package brs.api.http
 import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.util.Subnet
+import brs.util.jetty.InverseExistsOrRewriteRegexRule
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import org.eclipse.jetty.rewrite.handler.RewriteHandler
-import org.eclipse.jetty.rewrite.handler.RewriteRegexRule
 import org.eclipse.jetty.server.*
 import org.eclipse.jetty.server.handler.HandlerList
 import org.eclipse.jetty.server.handler.gzip.GzipHandler
@@ -18,9 +18,6 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.net.UnknownHostException
-import java.util.regex.Matcher
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 class API(dp: DependencyProvider) {
     private val apiServer: Server?
@@ -28,7 +25,9 @@ class API(dp: DependencyProvider) {
     init {
         val allowedBotHostsList = dp.propertyService.get(Props.API_ALLOWED)
         val allowedBotHosts: Set<Subnet>?
-        if (!allowedBotHostsList.contains("*")) {
+        if (allowedBotHostsList.contains("*")) {
+            allowedBotHosts = null
+        } else {
             // Temporary set to store allowed subnets
             val allowedSubnets = mutableSetOf<Subnet>()
 
@@ -41,8 +40,6 @@ class API(dp: DependencyProvider) {
 
             }
             allowedBotHosts = allowedSubnets
-        } else {
-            allowedBotHosts = null
         }
 
         val enableAPIServer = dp.propertyService.get(Props.API_SERVER)
@@ -169,10 +166,10 @@ class API(dp: DependencyProvider) {
             rewriteHandler.isRewritePathInfo = false
             rewriteHandler.originalPathAttribute = "requestedPath"
             rewriteHandler.handler = apiHandler
-            val rewriteToRoot = RegexOrExistsRewriteRule(
+            val rewriteToRoot = InverseExistsOrRewriteRegexRule(
                 File(dp.propertyService.get(Props.API_UI_DIR)),
-                "^(?!" + regexpEscapeUrl(API_PATH) + "|" + regexpEscapeUrl(API_TEST_PATH) + ").*$",
-                "/index.html"
+                "^\\/?(burst|test)",
+                "/"
             )
             rewriteHandler.addRule(rewriteToRoot)
             apiHandlers.addHandler(rewriteHandler)
@@ -202,11 +199,6 @@ class API(dp: DependencyProvider) {
             apiServer = null
             logger.safeInfo { "API server not enabled" }
         }
-
-    }
-
-    private fun regexpEscapeUrl(url: String): String {
-        return url.replace("/", "\\/")
     }
 
     fun shutdown() {
@@ -220,29 +212,7 @@ class API(dp: DependencyProvider) {
         }
     }
 
-    private class RegexOrExistsRewriteRule internal constructor(
-        private val baseDirectory: File,
-        regex: String,
-        replacement: String
-    ) : RewriteRegexRule(regex, replacement) {
-
-        override fun apply(
-            target: String?,
-            request: HttpServletRequest,
-            response: HttpServletResponse?,
-            matcher: Matcher
-        ): String {
-            return if (File(baseDirectory, target!!).exists()) target else super.apply(
-                target,
-                request,
-                response,
-                matcher
-            )
-        }
-    }
-
     companion object {
-
         private val logger = LoggerFactory.getLogger(API::class.java)
 
         private const val API_PATH = "/burst"
