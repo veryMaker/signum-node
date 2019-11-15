@@ -12,3 +12,7 @@ target
 *.prefs
 .project
 .classpath
+.gradle/
+build/
+out/
+classes/
