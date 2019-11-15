@@ -48,8 +48,4 @@ class InverseExistsOrRewriteRegexRule constructor(private val baseDirectory: Fil
             request.queryString = query
         }
     }
-
-    override fun toString(): String {
-        return super.toString() + "[" + replacement + "]"
-    }
 }
