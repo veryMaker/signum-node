@@ -1,12 +1,13 @@
 package brs.api.http
 
+import brs.api.http.APIServlet.HttpRequestHandler
 import brs.api.http.JSONResponses.MISSING_DOMAIN
 import brs.api.http.JSONResponses.PAYLOAD_WITHOUT_ACTION
 import brs.api.http.JSONResponses.incorrect
 import brs.api.http.common.Parameters.ACTION_PARAMETER
 import brs.api.http.common.Parameters.DOMAIN_PARAMETER
 import brs.api.http.common.Parameters.PAYLOAD_PARAMETER
-import brs.deeplink.DeeplinkGenerator
+import brs.services.DeeplinkGeneratorService
 import brs.util.convert.emptyToNull
 import com.google.zxing.WriterException
 import org.eclipse.jetty.http.HttpStatus
@@ -16,8 +17,9 @@ import javax.imageio.ImageIO
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-internal object GenerateDeeplinkQR :
-    APIServlet.HttpRequestHandler(arrayOf(APITag.UTILS), DOMAIN_PARAMETER, ACTION_PARAMETER, PAYLOAD_PARAMETER) {
+internal class GenerateDeeplinkQR(private val deeplinkGeneratorService: DeeplinkGeneratorService) :
+    HttpRequestHandler
+        (arrayOf(APITag.UTILS), DOMAIN_PARAMETER, ACTION_PARAMETER, PAYLOAD_PARAMETER) {
     private val logger = LoggerFactory.getLogger(GenerateDeeplinkQR::class.java)
 
     override fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
@@ -36,9 +38,12 @@ internal object GenerateDeeplinkQR :
                 return
             }
 
-            val deeplinkGenerator = DeeplinkGenerator()
             try {
-                val qrImage = deeplinkGenerator.generateDeepLinkQrCode(domain, action!!, payload!!) // TODO do something other than not-null-assert
+                val qrImage = deeplinkGeneratorService.generateDeepLinkQrCode(
+                    domain,
+                    action!!,
+                    payload!!
+                ) // TODO do something other than not-null-assert
                 resp.contentType = "image/jpeg"
                 ImageIO.write(qrImage, "jpg", resp.outputStream)
                 resp.outputStream.close()

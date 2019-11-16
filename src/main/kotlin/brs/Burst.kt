@@ -91,6 +91,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
             dp.indirectIncomingService = IndirectIncomingServiceImpl(dp)
             dp.feeSuggestionService = FeeSuggestionServiceImpl(dp)
             dp.deeplinkQRCodeGeneratorService = DeeplinkQRCodeGeneratorServiceImpl()
+            dp.deeplinkGeneratorService = DeeplinkGeneratorServiceImpl()
             dp.parameterService = ParameterServiceImpl(dp)
             dp.blockchainProcessorService.addListener(
                 BlockchainProcessorService.Event.AFTER_BLOCK_APPLY,

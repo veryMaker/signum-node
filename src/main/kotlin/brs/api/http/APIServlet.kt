@@ -144,8 +144,8 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getAccountATs"] = GetAccountATs(dp.parameterService, dp.atService, dp.accountService)
         map["getGuaranteedBalance"] = GetGuaranteedBalance(dp.parameterService)
         map["generateSendTransactionQRCode"] = GenerateDeeplinkQRCode(dp.deeplinkQRCodeGeneratorService)
-        map["generateDeeplink"] = GenerateDeeplink
-        map["generateDeeplinkQRCode"] = GenerateDeeplinkQR
+        map["generateDeeplink"] = GenerateDeeplink(dp.deeplinkGeneratorService)
+        map["generateDeeplinkQRCode"] = GenerateDeeplinkQR(dp.deeplinkGeneratorService)
         map
         if (dp.propertyService.get(Props.API_DEBUG)) {
             map["clearUnconfirmedTransactions"] = ClearUnconfirmedTransactions(dp.transactionProcessorService)

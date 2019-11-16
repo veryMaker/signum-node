@@ -1,5 +1,6 @@
-package brs.deeplink
+package brs.services.impl
 
+import brs.services.DeeplinkGeneratorService
 import com.google.zxing.WriterException
 import org.junit.Assert.*
 import org.junit.Before
@@ -9,18 +10,18 @@ import org.junit.runners.JUnit4
 import java.io.UnsupportedEncodingException
 
 @RunWith(JUnit4::class)
-class DeeplinkGeneratorTest {
-    private lateinit var deeplinkGenerator: DeeplinkGenerator
+class DeeplinkGeneratorServiceImplTest {
+    private lateinit var deeplinkGeneratorService: DeeplinkGeneratorService
 
     @Before
     fun setUpDeeplinkGeneratorTest() {
-        deeplinkGenerator = DeeplinkGenerator()
+        deeplinkGeneratorService = DeeplinkGeneratorServiceImpl()
     }
 
     @Test
     @Throws(UnsupportedEncodingException::class)
     fun testDeeplinkGenerator_Success() {
-        val result = deeplinkGenerator.generateDeepLink("generic", "testAction", "dGVzdERhdGE=")
+        val result = deeplinkGeneratorService.generateDeepLink("generic", "testAction", "dGVzdERhdGE=")
         val expectedResult = "burst.generic://v1?action=testAction&payload=dGVzdERhdGE%3D"
         assertEquals(expectedResult, result)
     }
@@ -28,7 +29,7 @@ class DeeplinkGeneratorTest {
     @Test
     @Throws(UnsupportedEncodingException::class)
     fun testDeeplinkGenerator_NoPayloadSuccess() {
-        val result = deeplinkGenerator.generateDeepLink("generic", "testAction", null)
+        val result = deeplinkGeneratorService.generateDeepLink("generic", "testAction", null)
         val expectedResult = "burst.generic://v1?action=testAction"
         assertEquals(expectedResult, result)
     }
@@ -37,7 +38,7 @@ class DeeplinkGeneratorTest {
     @Throws(UnsupportedEncodingException::class)
     fun testDeeplinkGenerator_InvalidDomain() {
         try {
-            deeplinkGenerator.generateDeepLink("invalid", "testAction", null)
+            deeplinkGeneratorService.generateDeepLink("invalid", "testAction", null)
         } catch (e: IllegalArgumentException) {
             assertEquals(e.message, "Invalid domain:invalid")
         }
@@ -54,7 +55,7 @@ class DeeplinkGeneratorTest {
         }
 
         try {
-            deeplinkGenerator.generateDeepLink("generic", "testAction", s.toString())
+            deeplinkGeneratorService.generateDeepLink("generic", "testAction", s.toString())
         } catch (e: IllegalArgumentException) {
             assertTrue(e.message!!.startsWith("Maximum Payload Length "))
         }
@@ -64,7 +65,7 @@ class DeeplinkGeneratorTest {
     @Test
     @Throws(WriterException::class, UnsupportedEncodingException::class)
     fun testDeeplinkGenerator_QrCode() {
-        val bufferedImage = deeplinkGenerator.generateDeepLinkQrCode("generic", "testAction", "dGVzdERhdGE=")
+        val bufferedImage = deeplinkGeneratorService.generateDeepLinkQrCode("generic", "testAction", "dGVzdERhdGE=")
         assertNotNull(bufferedImage)
     }
 }

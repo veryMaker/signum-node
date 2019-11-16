@@ -7,6 +7,8 @@ import brs.api.http.common.Parameters.ACTION_PARAMETER
 import brs.api.http.common.Parameters.DOMAIN_PARAMETER
 import brs.api.http.common.Parameters.PAYLOAD_PARAMETER
 import brs.deeplink.DeeplinkGenerator
+import brs.services.DeeplinkGeneratorService
+import brs.services.DeeplinkQRCodeGeneratorService
 import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -14,7 +16,7 @@ import org.slf4j.LoggerFactory
 import java.io.UnsupportedEncodingException
 import javax.servlet.http.HttpServletRequest
 
-internal object GenerateDeeplink :
+internal class GenerateDeeplink(private val deeplinkGeneratorService: DeeplinkGeneratorService) :
     APIServlet.JsonRequestHandler(arrayOf(APITag.UTILS), DOMAIN_PARAMETER, ACTION_PARAMETER, PAYLOAD_PARAMETER) {
     private val logger = LoggerFactory.getLogger(GenerateDeeplink::class.java)
 
@@ -33,8 +35,7 @@ internal object GenerateDeeplink :
                 return PAYLOAD_WITHOUT_ACTION
             }
 
-            val deeplinkGenerator = DeeplinkGenerator()
-            val deepLink = deeplinkGenerator.generateDeepLink(domain, action, payload)
+            val deepLink = deeplinkGeneratorService.generateDeepLink(domain, action, payload)
             val response = JsonObject()
             response.addProperty("link", deepLink)
             return response
