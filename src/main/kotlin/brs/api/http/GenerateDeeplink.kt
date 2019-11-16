@@ -6,6 +6,7 @@ import brs.api.http.JSONResponses.incorrect
 import brs.api.http.common.Parameters.ACTION_PARAMETER
 import brs.api.http.common.Parameters.DOMAIN_PARAMETER
 import brs.api.http.common.Parameters.PAYLOAD_PARAMETER
+import brs.api.http.common.ResultFields.DEEPLINK_RESPONSE
 import brs.deeplink.DeeplinkGenerator
 import brs.services.DeeplinkGeneratorService
 import brs.services.DeeplinkQRCodeGeneratorService
@@ -37,7 +38,7 @@ internal class GenerateDeeplink(private val deeplinkGeneratorService: DeeplinkGe
 
             val deepLink = deeplinkGeneratorService.generateDeepLink(domain, action, payload)
             val response = JsonObject()
-            response.addProperty("link", deepLink)
+            response.addProperty(DEEPLINK_RESPONSE, deepLink)
             return response
 
         } catch (e: IllegalArgumentException) {

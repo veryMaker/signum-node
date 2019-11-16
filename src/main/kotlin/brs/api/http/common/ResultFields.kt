@@ -141,4 +141,5 @@ object ResultFields {
     const val CHEAP_FEE_RESPONSE = "cheap"
     const val STANDARD_FEE_RESPONSE = "standard"
     const val PRIORITY_FEE_RESPONSE = "priority"
+    const val DEEPLINK_RESPONSE = "link"
 }
