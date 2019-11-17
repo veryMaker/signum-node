@@ -267,7 +267,7 @@ task zipPackageFiles(type: Zip) {
     destinationDir(file("$projectDir/dist"))
 }
 
-task buildPackage { // TODO javadoc
+task buildPackage {
     dependsOn removePackage
     dependsOn documentation
     dependsOn shadowJar
