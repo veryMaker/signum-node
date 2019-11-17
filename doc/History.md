@@ -3,7 +3,7 @@
 ```
 YYYY-MM-DD v3.0.0 (WIP)
 - Complete backend codebase translation from Java to Kotlin, excluding generated code
-- CI now passes against Java 8, Java 9 and Java 12
+- CI now passes against Java 8, Java 9 and Java 13
 - Support SQLite as a DB backend
 - CIP22 integration (Deeplinks)
 - More advanced block pre-verification

@@ -6,6 +6,7 @@ import brs.entity.FluxValue
 import brs.objects.HistoricalMoments
 import brs.objects.Props
 import brs.services.FluxCapacitorService
+import java.util.concurrent.ConcurrentHashMap
 
 class FluxCapacitorServiceImpl(dp: DependencyProvider) : FluxCapacitorService {
 
@@ -13,7 +14,7 @@ class FluxCapacitorServiceImpl(dp: DependencyProvider) : FluxCapacitorService {
     private val blockchain = dp.blockchainService
 
     // Map of Flux Value -> Change Height -> Index of ValueChange in FluxValue. Used as a cache.
-    private val valueChangesPerFluxValue = mutableMapOf<FluxValue<*>, Map<Int, Int>>()
+    private val valueChangesPerFluxValue = ConcurrentHashMap<FluxValue<*>, Map<Int, Int>>()
 
     override fun <T> getValue(fluxValue: FluxValue<T>): T {
         return getValueAt(fluxValue, blockchain.height)
