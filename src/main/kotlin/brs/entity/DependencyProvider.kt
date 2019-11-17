@@ -54,7 +54,9 @@ class DependencyProvider {
     lateinit var indirectIncomingService: IndirectIncomingService
     lateinit var blockService: BlockService
     lateinit var feeSuggestionService: FeeSuggestionService
+    @Deprecated("Use deeplinkGeneratorService")
     lateinit var deeplinkQRCodeGeneratorService: DeeplinkQRCodeGeneratorService
+    lateinit var deeplinkGeneratorService: DeeplinkGeneratorService
     lateinit var parameterService: ParameterService
     lateinit var apiTransactionManager: APITransactionManager
     lateinit var peerService: PeerService

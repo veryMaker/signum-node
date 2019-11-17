@@ -25,7 +25,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
     private val enforcePost = dp.propertyService.get(Props.API_SERVER_ENFORCE_POST)
     private val allowedOrigins = dp.propertyService.get(Props.API_ALLOWED_ORIGINS)
 
-    val apiRequestHandlers: Map<String, HttpRequestHandler>
+    internal val apiRequestHandlers: Map<String, HttpRequestHandler>
 
     init { // TODO each one should just take dp
         val map = mutableMapOf<String, HttpRequestHandler>()
@@ -144,6 +144,9 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getAccountATs"] = GetAccountATs(dp.parameterService, dp.atService, dp.accountService)
         map["getGuaranteedBalance"] = GetGuaranteedBalance(dp.parameterService)
         map["generateSendTransactionQRCode"] = GenerateDeeplinkQRCode(dp.deeplinkQRCodeGeneratorService)
+        map["generateDeeplink"] = GenerateDeeplink(dp.deeplinkGeneratorService)
+        map["generateDeeplinkQRCode"] = GenerateDeeplinkQR(dp.deeplinkGeneratorService)
+        map
         if (dp.propertyService.get(Props.API_DEBUG)) {
             map["clearUnconfirmedTransactions"] = ClearUnconfirmedTransactions(dp.transactionProcessorService)
             map["fullReset"] = FullReset(dp.blockchainProcessorService)
@@ -180,7 +183,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         internal abstract fun processRequest(request: HttpServletRequest): JsonElement
     }
 
-    abstract class HttpRequestHandler(apiTags: Array<APITag>, vararg parameters: String) {
+    internal abstract class HttpRequestHandler(apiTags: Array<APITag>, vararg parameters: String) {
 
         val parameters = parameters.toList()
         val apiTags = apiTags.toSet()

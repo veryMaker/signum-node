@@ -1,4 +1,4 @@
-package brs.deeplink
+package brs.services.impl
 
 import brs.common.TestConstants
 import brs.entity.FeeSuggestion

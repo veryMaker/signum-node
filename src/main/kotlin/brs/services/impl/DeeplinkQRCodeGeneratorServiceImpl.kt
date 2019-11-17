@@ -10,7 +10,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import java.awt.image.BufferedImage
 import java.util.*
-
+@Deprecated("Use DeeplinkGeneratorService")
 class DeeplinkQRCodeGeneratorServiceImpl : DeeplinkQRCodeGeneratorService {
     private val qrCodeWriter = QRCodeWriter()
     private val hints = EnumMap<EncodeHintType, ErrorCorrectionLevel>(EncodeHintType::class.java)
