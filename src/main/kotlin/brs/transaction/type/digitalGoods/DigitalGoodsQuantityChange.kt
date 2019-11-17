@@ -25,7 +25,11 @@ class DigitalGoodsQuantityChange(dp: DependencyProvider) : DigitalGoods(dp) {
         dp.digitalGoodsStoreService.changeQuantity(attachment.goodsId, attachment.deltaQuantity, false)
     }
 
-    override fun doValidateAttachment(transaction: Transaction) {
+    override fun doPreValidateAttachment(transaction: Transaction, height: Int) {
+        // Nothing to pre-validate.
+    }
+
+    override fun validateAttachment(transaction: Transaction) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsQuantityChange
         val goods = dp.digitalGoodsStoreService.getGoods(attachment.goodsId)
         if (attachment.deltaQuantity < -Constants.MAX_DGS_LISTING_QUANTITY
@@ -35,10 +39,7 @@ class DigitalGoodsQuantityChange(dp: DependencyProvider) : DigitalGoods(dp) {
             throw BurstException.NotValidException("Invalid digital goods quantity change: " + attachment.jsonObject.toJsonString())
         }
         if (goods == null || goods.isDelisted) {
-            throw BurstException.NotCurrentlyValidException(
-                "Goods " + attachment.goodsId.toUnsignedString() +
-                        "not yet listed or already delisted"
-            )
+            throw BurstException.NotCurrentlyValidException("Goods ${attachment.goodsId.toUnsignedString()} not yet listed or already delisted")
         }
     }
 

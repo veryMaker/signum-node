@@ -110,6 +110,10 @@ interface Attachment : Appendix {
             this.dp = dp
         }
 
+        override fun preValidate(transaction: Transaction, height: Int) {
+            transactionType.preValidateAttachment(transaction, height)
+        }
+
         override fun validate(transaction: Transaction) {
             transactionType.validateAttachment(transaction)
         }

@@ -9,8 +9,11 @@ import brs.objects.Genesis
 import brs.services.BlockService
 import brs.services.BlockchainProcessorService
 import brs.services.BlockchainProcessorService.BlockOutOfOrderException
+import brs.util.crypto.Crypto
 import brs.util.crypto.verifySignature
+import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
+import brs.util.logging.safeWarn
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 
@@ -70,6 +73,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 return false
             }
             val elapsedTime = block.timestamp - previousBlock.timestamp
+            // TODO pocTime is accessed outside of lock.
             val pTime = block.pocTime!!.divide(BigInteger.valueOf(previousBlock.baseTarget))
             return BigInteger.valueOf(elapsedTime.toLong()) > pTime
         } catch (e: RuntimeException) {
@@ -79,46 +83,69 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
 
     }
 
-    @Throws(BlockchainProcessorService.BlockNotAcceptedException::class, InterruptedException::class)
-    override fun preVerify(block: Block) {
-        preVerify(block, null)
-    }
-
-    @Throws(BlockchainProcessorService.BlockNotAcceptedException::class, InterruptedException::class)
-    override fun preVerify(block: Block, scoopData: ByteArray?) { // TODO pre-verify more stuff
-        // Just in case its already verified
-        if (block.isVerified) {
-            return
-        }
-
-        try {
-            // Pre-verify poc:
-            if (scoopData == null) {
-                block.pocTime = dp.generatorService.calculateHit(
-                    block.generatorId,
-                    block.nonce, block.generationSignature, getScoopNum(block), block.height
-                )
-            } else {
-                block.pocTime = dp.generatorService.calculateHit(
-                    block.generatorId,
-                    block.nonce, block.generationSignature, scoopData
-                )
+    override fun preVerify(block: Block, scoopData: ByteArray?, warnIfNotVerified: Boolean) {
+        block.verificationLock.withLock {
+            // Check if it's already verified
+            if (block.verified) {
+                return
             }
-        } catch (e: RuntimeException) {
-            logger.safeInfo(e) { "Error pre-verifying block generation signature" }
-            return
-        }
 
-        for (transaction in block.transactions) {
-            if (!transaction.verifySignature()) {
-                logger.safeInfo { "Bad transaction signature during block pre-verification for tx: ${transaction.stringId} at block height: ${block.height}" }
-                throw BlockchainProcessorService.TransactionNotAcceptedException(
-                    "Invalid signature for tx " + transaction.stringId + " at block height: " + block.height,
-                    transaction
-                )
+            if (warnIfNotVerified) {
+                logger.safeWarn { "Block was not pre-verified!" }
             }
-        }
 
+            dp.downloadCacheService.removeUnverified(block.id)
+
+            try {
+                // Pre-verify poc:
+                if (scoopData == null) {
+                    block.pocTime = dp.generatorService.calculateHit(
+                        block.generatorId,
+                        block.nonce, block.generationSignature, getScoopNum(block), block.height
+                    )
+                } else {
+                    block.pocTime = dp.generatorService.calculateHit(
+                        block.generatorId,
+                        block.nonce, block.generationSignature, scoopData
+                    )
+                }
+            } catch (e: RuntimeException) {
+                logger.safeInfo(e) { "Error pre-verifying block generation signature" }
+                return
+            }
+
+            val feeArray = LongArray(block.transactions.size)
+            val sha256 = Crypto.sha256()
+            for ((slotIdx, transaction) in block.transactions.withIndex()) {
+                if (!transaction.verifySignature()) {
+                    logger.safeInfo { "Bad transaction signature during block pre-verification for tx: ${transaction.stringId} at block height: ${block.height}" }
+                    throw BlockchainProcessorService.TransactionNotAcceptedException(
+                        "Invalid signature for tx " + transaction.stringId + " at block height: " + block.height,
+                        transaction
+                    )
+                }
+                dp.transactionService.preValidate(transaction, block.height)
+                sha256.update(transaction.toBytes())
+                feeArray[slotIdx] = transaction.feePlanck
+            }
+
+            if (dp.fluxCapacitorService.getValue(FluxValues.NEXT_FORK)) {
+                feeArray.sort()
+                for (i in feeArray.indices) {
+                    if (feeArray[i] >= Constants.FEE_QUANT * (i + 1)) {
+                        throw BlockchainProcessorService.BlockNotAcceptedException("Transaction fee is not enough to be included in this block " + block.height)
+                    }
+                }
+            }
+
+            if (!block.payloadHash.contentEquals(sha256.digest())) {
+                throw BlockchainProcessorService.BlockNotAcceptedException("Payload hash doesn't match for block " + block.height)
+            }
+
+            logger.safeDebug { "Pre-verified block at height ${block.height}"}
+
+            block.verified = true
+        }
     }
 
     override fun apply(block: Block) {

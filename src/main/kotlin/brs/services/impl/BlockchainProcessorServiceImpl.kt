@@ -248,11 +248,6 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     false
                 } else {
                     try {
-                        if (!currentBlock.isVerified) {
-                            dp.downloadCacheService.removeUnverified(currentBlock.id)
-                            dp.blockService.preVerify(currentBlock)
-                            logger.safeDebug { "block was not preverified" }
-                        }
                         pushBlock(currentBlock) // This removes the block from cache.
                         true
                     } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
@@ -502,7 +497,6 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     for (block in forkBlocks) {
                         if (dp.blockchainService.lastBlock.id == block.previousBlockId) {
                             try {
-                                dp.blockService.preVerify(block)
                                 pushBlock(block)
                                 pushedForkBlocks += 1
                             } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
@@ -531,7 +525,6 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     for (i in myPoppedOffBlocks.indices.reversed()) {
                         val block = myPoppedOffBlocks.removeAt(i)
                         try {
-                            dp.blockService.preVerify(block)
                             pushBlock(block)
                         } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
                             logger.safeWarn(e) { "Popped off block no longer acceptable: " + block.toJsonObject().toJsonString() }
@@ -640,13 +633,13 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     }
 
     private fun pushBlock(block: Block) {
+        dp.blockService.preVerify(block, warnIfNotVerified = true)
         processMutex.withLock {
             dp.db.beginTransaction()
             val curTime = dp.timeService.epochTime
             var lastBlock: Block? = null
             try {
                 lastBlock = dp.blockchainService.lastBlock
-
 
                 if (lastBlock.id != block.previousBlockId) {
                     throw BlockchainProcessorService.BlockOutOfOrderException(
@@ -677,10 +670,6 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 val transactionDuplicatesChecker = TransactionDuplicateChecker()
                 var calculatedTotalAmount: Long = 0
                 var calculatedTotalFee: Long = 0
-                val digest = Crypto.sha256()
-
-                val feeArray = LongArray(block.transactions.size)
-                var slotIdx = 0
 
                 for (transaction in block.transactions) {
                     if (transaction.id == 0L)
@@ -738,34 +727,18 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     }
 
                     try {
-                        dp.transactionService.validate(transaction)
+                        dp.transactionService.validate(transaction, false)
                     } catch (e: BurstException.ValidationException) {
                         throw BlockchainProcessorService.TransactionNotAcceptedException(e.message!!, transaction, e)
                     }
 
                     calculatedTotalAmount += transaction.amountPlanck
                     calculatedTotalFee += transaction.feePlanck
-                    digest.update(transaction.toBytes())
                     dp.indirectIncomingService.processTransaction(transaction)
-                    feeArray[slotIdx] = transaction.feePlanck
-                    slotIdx += 1
                 }
 
                 if (calculatedTotalAmount > block.totalAmountPlanck || calculatedTotalFee > block.totalFeePlanck) {
                     throw BlockchainProcessorService.BlockNotAcceptedException("Total amount or fee don't match transaction totals for block " + block.height)
-                }
-
-                if (dp.fluxCapacitorService.getValue(FluxValues.NEXT_FORK)) {
-                    feeArray.sort()
-                    for (i in feeArray.indices) {
-                        if (feeArray[i] >= FEE_QUANT * (i + 1)) {
-                            throw BlockchainProcessorService.BlockNotAcceptedException("Transaction fee is not enough to be included in this block " + block.height)
-                        }
-                    }
-                }
-
-                if (!block.payloadHash.contentEquals(digest.digest())) {
-                    throw BlockchainProcessorService.BlockNotAcceptedException("Payload hash doesn't match for block " + block.height)
                 }
 
                 val remainingAmount = block.totalAmountPlanck.safeSubtract(calculatedTotalAmount)
@@ -1131,7 +1104,6 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             block.sign(secretPhrase)
             dp.blockService.setPrevious(block, previousBlock)
             try {
-                dp.blockService.preVerify(block)
                 pushBlock(block)
                 blockListeners.accept(BlockchainProcessorService.Event.BLOCK_GENERATED, block)
                 logger.safeDebug { "Account ${block.generatorId.toUnsignedString()} generated block ${block.stringId} at height ${block.height}" }
