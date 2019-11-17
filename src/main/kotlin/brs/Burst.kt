@@ -19,7 +19,8 @@ import brs.util.Version
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import org.slf4j.LoggerFactory
-import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.FileReader
 import java.io.IOException
 import java.util.*
 import kotlin.math.max
@@ -226,22 +227,21 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
             // TODO this can be refactored to be cleaner.
             logger.safeInfo { "Initializing Burst Reference Software ($APPLICATION) version $VERSION" }
             try {
-                ClassLoader.getSystemResourceAsStream(DEFAULT_PROPERTIES_NAME).use { input ->
-                    if (input != null) {
+                try {
+                    FileReader("conf/$DEFAULT_PROPERTIES_NAME").use { input ->
                         defaultProperties.load(input)
-                    } else {
-                        val configFile = System.getProperty(DEFAULT_PROPERTIES_NAME)
+                    }
+                } catch (e: FileNotFoundException) {
+                    val configFile = System.getProperty(DEFAULT_PROPERTIES_NAME)
 
-                        if (configFile != null) {
-                            try {
-                                FileInputStream(configFile).use { fis -> defaultProperties.load(fis) }
-                            } catch (e: IOException) {
-                                throw RuntimeException("Error loading $DEFAULT_PROPERTIES_NAME from $configFile")
-                            }
-
-                        } else {
-                            throw RuntimeException("$DEFAULT_PROPERTIES_NAME not in classpath and system property $DEFAULT_PROPERTIES_NAME not defined either")
+                    if (configFile != null) {
+                        try {
+                            FileReader(configFile).use { fis -> defaultProperties.load(fis) }
+                        } catch (e: IOException) {
+                            throw RuntimeException("Error loading $DEFAULT_PROPERTIES_NAME from $configFile")
                         }
+                    } else {
+                        throw RuntimeException("$DEFAULT_PROPERTIES_NAME not in classpath and system property $DEFAULT_PROPERTIES_NAME not defined either")
                     }
                 }
             } catch (e: IOException) {
@@ -250,13 +250,13 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
 
             val properties = Properties(defaultProperties)
             try {
-                ClassLoader.getSystemResourceAsStream("brs.properties").use { input ->
-                    if (input != null) { // parse if brs.properties was loaded
-                        properties.load(input)
-                    }
+                FileReader("conf/brs.properties").use { input ->
+                    properties.load(input)
                 }
             } catch (e: IOException) {
-                throw RuntimeException("Error loading brs.properties", e)
+                if (e !is FileNotFoundException) {
+                    throw RuntimeException("Error loading brs.properties", e)
+                }
             }
 
             return properties

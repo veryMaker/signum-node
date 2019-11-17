@@ -1,8 +1,6 @@
 package brs.util
 
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.IOException
+import java.io.*
 import java.util.*
 import java.util.logging.LogManager
 import java.util.logging.Logger
@@ -37,17 +35,21 @@ object LoggerConfigurator {
             try {
                 var foundProperties = false
                 val loggingProperties = Properties()
-                ClassLoader.getSystemResourceAsStream("logging-default.properties").use { input ->
-                    if (input != null) {
+                try {
+                    FileInputStream("conf/logging-default.properties").use { input ->
                         loggingProperties.load(input)
                         foundProperties = true
                     }
+                } catch (ignored: FileNotFoundException) {
+                    // Ignore error
                 }
-                ClassLoader.getSystemResourceAsStream("logging.properties").use { input ->
-                    if (input != null) {
+                try {
+                    FileReader("conf/logging.properties").use { input ->
                         loggingProperties.load(input)
                         foundProperties = true
                     }
+                } catch (ignored: FileNotFoundException) {
+                    // Ignore error
                 }
                 if (foundProperties) {
                     val outStream = ByteArrayOutputStream()
@@ -61,7 +63,6 @@ object LoggerConfigurator {
             } catch (e: IOException) {
                 throw RuntimeException("Error loading logging properties", e)
             }
-
         }
 
         logger.info { "logging enabled" }
