@@ -49,7 +49,7 @@ class DeeplinkGeneratorServiceImpl : DeeplinkGeneratorService {
     }
 
     @Throws(UnsupportedEncodingException::class, IllegalArgumentException::class, WriterException::class)
-    override fun generateDeepLinkQrCode(domain: String, action: String, base64Payload: String): BufferedImage {
+    override fun generateDeepLinkQrCode(domain: String, action: String?, base64Payload: String?): BufferedImage {
         return generateQRCode(this.generateDeepLink(domain, action, base64Payload))
     }
 

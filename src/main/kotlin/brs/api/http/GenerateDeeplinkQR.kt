@@ -41,9 +41,9 @@ internal class GenerateDeeplinkQR(private val deeplinkGeneratorService: Deeplink
             try {
                 val qrImage = deeplinkGeneratorService.generateDeepLinkQrCode(
                     domain,
-                    action!!,
-                    payload!!
-                ) // TODO do something other than not-null-assert
+                    action,
+                    payload
+                )
                 resp.contentType = "image/jpeg"
                 ImageIO.write(qrImage, "jpg", resp.outputStream)
                 resp.outputStream.close()
