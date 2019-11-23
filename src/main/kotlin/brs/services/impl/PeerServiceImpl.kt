@@ -825,7 +825,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 doneFeedingLog(peer, transactionsToSend)
             } else {
                 // TODO why does this keep coming up??
-                logger.safeWarn { "Error feeding ${peer.peerAddress} transactions: ${transactionsToSend.map { it.id }.toList()} error: $response" }
+                logger.safeWarn { "Error feeding ${peer.peerAddress} transactions: ${transactionsToSend.map { it.id }} error: $response" }
             }
         } else {
             logger.safeTrace { "No need to feed ${peer.peerAddress}" }

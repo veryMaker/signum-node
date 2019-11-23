@@ -153,7 +153,6 @@ class UnconfirmedTransactionServiceImpl(private val dp: DependencyProvider) :
                 .asSequence()
                 .filter { e -> !e.value.contains(peer) }
                 .map { it.key }
-                .toList()
                 .filter {
                     roomLeft -= it.size.toLong()
                     return@filter roomLeft > 0
