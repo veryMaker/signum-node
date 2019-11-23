@@ -261,8 +261,7 @@ task copyPackageFiles {
 
 task zipPackageFiles(type: Zip) {
     from "$projectDir/dist/tmp"
-    include "*"
-    include "*/*"
+    include "*/**"
     archiveName "burstcoin.zip"
     destinationDir(file("$projectDir/dist"))
 }
