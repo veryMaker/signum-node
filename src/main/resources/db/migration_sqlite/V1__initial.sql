@@ -1,18 +1,18 @@
 PRAGMA foreign_keys = ON;
 CREATE TABLE block (db_id INTEGER PRIMARY KEY AUTOINCREMENT, id BIGINT NOT NULL, version INT NOT NULL,
     timestamp INT NOT NULL, previous_block_id BIGINT REFERENCES block(id) ON DELETE CASCADE, total_amount BIGINT NOT NULL,
-    total_fee BIGINT NOT NULL, payload_length INT NOT NULL, generator_public_key BINARY(32) NOT NULL,
-    previous_block_hash BINARY(32), cumulative_difficulty VARBINARY NOT NULL, base_target BIGINT NOT NULL,
-    next_block_id BIGINT REFERENCES block (id) ON DELETE SET NULL, height INT NOT NULL, generation_signature BINARY(64) NOT NULL,
-    block_signature BINARY(64) NOT NULL, payload_hash BINARY(32) NOT NULL, generator_id BIGINT NOT NULL, nonce BIGINT NOT NULL, ats BINARY);
+    total_fee BIGINT NOT NULL, payload_length INT NOT NULL, generator_public_key BLOB NOT NULL,
+    previous_block_hash BLOB, cumulative_difficulty BLOB NOT NULL, base_target BIGINT NOT NULL,
+    next_block_id BIGINT REFERENCES block (id) ON DELETE SET NULL, height INT NOT NULL, generation_signature BLOB NOT NULL,
+    block_signature BLOB NOT NULL, payload_hash BLOB NOT NULL, generator_id BIGINT NOT NULL, nonce BIGINT NOT NULL, ats BLOB);
 CREATE UNIQUE INDEX block_id_idx ON block (id);
 CREATE TABLE "transaction" (db_id INTEGER PRIMARY KEY AUTOINCREMENT, id BIGINT NOT NULL,
-    deadline SMALLINT NOT NULL, sender_public_key BINARY(32) NOT NULL, recipient_id BIGINT NULL,
+    deadline SMALLINT NOT NULL, sender_public_key BLOB NOT NULL, recipient_id BIGINT NULL,
     amount BIGINT NOT NULL, fee BIGINT NOT NULL,
     height INT NOT NULL, block_id BIGINT NOT NULL REFERENCES block (id) ON DELETE CASCADE,
-    signature BINARY(64) NULL, timestamp INT NOT NULL, type TINYINT NOT NULL, subtype TINYINT NOT NULL,
-    sender_id BIGINT NOT NULL, attachment_bytes VARBINARY, block_timestamp INT NOT NULL, full_hash BINARY(32) NOT NULL,
-    referenced_transaction_fullhash BINARY(32), version TINYINT NOT NULL, has_message BOOLEAN NOT NULL DEFAULT FALSE,
+    signature BLOB NULL, timestamp INT NOT NULL, type TINYINT NOT NULL, subtype TINYINT NOT NULL,
+    sender_id BIGINT NOT NULL, attachment_bytes BLOB, block_timestamp INT NOT NULL, full_hash BLOB NOT NULL,
+    referenced_transaction_fullhash BLOB, version TINYINT NOT NULL, has_message BOOLEAN NOT NULL DEFAULT FALSE,
     has_encrypted_message BOOLEAN NOT NULL DEFAULT FALSE, has_public_key_announcement BOOLEAN NOT NULL DEFAULT FALSE,
     ec_block_height INT DEFAULT NULL, ec_block_id BIGINT DEFAULT NULL, has_encrypttoself_message BOOLEAN NOT NULL DEFAULT FALSE);
 CREATE UNIQUE INDEX transaction_id_idx ON "transaction" (id);
@@ -72,9 +72,9 @@ CREATE INDEX goods_timestamp_idx ON goods (timestamp DESC, height DESC);
 CREATE TABLE purchase (db_id INTEGER PRIMARY KEY AUTOINCREMENT, id BIGINT NOT NULL, buyer_id BIGINT NOT NULL,
     goods_id BIGINT NOT NULL,
     seller_id BIGINT NOT NULL, quantity INT NOT NULL,
-    price BIGINT NOT NULL, deadline INT NOT NULL, note VARBINARY, nonce BINARY(32),
-    timestamp INT NOT NULL, pending BOOLEAN NOT NULL, goods VARBINARY, goods_nonce BINARY(32),
-    refund_note VARBINARY, refund_nonce BINARY(32), has_feedback_notes BOOLEAN NOT NULL DEFAULT FALSE,
+    price BIGINT NOT NULL, deadline INT NOT NULL, note BLOB, nonce BLOB,
+    timestamp INT NOT NULL, pending BOOLEAN NOT NULL, goods BLOB, goods_nonce BLOB,
+    refund_note BLOB, refund_nonce BLOB, has_feedback_notes BOOLEAN NOT NULL DEFAULT FALSE,
     has_public_feedbacks BOOLEAN NOT NULL DEFAULT FALSE, discount BIGINT NOT NULL, refund BIGINT NOT NULL,
     height INT NOT NULL, latest BOOLEAN NOT NULL DEFAULT TRUE);
 CREATE UNIQUE INDEX purchase_id_height_idx ON purchase (id, height DESC);
@@ -82,7 +82,7 @@ CREATE INDEX purchase_buyer_id_height_idx ON purchase (buyer_id, height DESC);
 CREATE INDEX purchase_seller_id_height_idx ON purchase (seller_id, height DESC);
 CREATE INDEX purchase_deadline_idx ON purchase (deadline DESC, height DESC);
 CREATE TABLE account (db_id INTEGER PRIMARY KEY AUTOINCREMENT, id BIGINT NOT NULL, creation_height INT NOT NULL,
-    public_key BINARY(32), key_height INT, balance BIGINT NOT NULL, unconfirmed_balance BIGINT NOT NULL,
+    public_key BLOB, key_height INT, balance BIGINT NOT NULL, unconfirmed_balance BIGINT NOT NULL,
     forged_balance BIGINT NOT NULL, name VARCHAR, description VARCHAR, height INT NOT NULL,
     latest BOOLEAN NOT NULL DEFAULT TRUE);
 CREATE UNIQUE INDEX account_id_height_idx ON account (id, height DESC);
@@ -90,15 +90,15 @@ CREATE TABLE account_asset (db_id INTEGER PRIMARY KEY AUTOINCREMENT, account_id 
     asset_id BIGINT NOT NULL, quantity BIGINT NOT NULL, unconfirmed_quantity BIGINT NOT NULL, height INT NOT NULL,
     latest BOOLEAN NOT NULL DEFAULT TRUE);
 CREATE UNIQUE INDEX account_asset_id_height_idx ON account_asset (account_id, asset_id, height DESC);
-CREATE TABLE purchase_feedback (db_id INTEGER PRIMARY KEY AUTOINCREMENT, id BIGINT NOT NULL, feedback_data VARBINARY NOT NULL,
-    feedback_nonce BINARY(32) NOT NULL, height INT NOT NULL, latest BOOLEAN NOT NULL DEFAULT TRUE);
+CREATE TABLE purchase_feedback (db_id INTEGER PRIMARY KEY AUTOINCREMENT, id BIGINT NOT NULL, feedback_data BLOB NOT NULL,
+    feedback_nonce BLOB NOT NULL, height INT NOT NULL, latest BOOLEAN NOT NULL DEFAULT TRUE);
 CREATE INDEX purchase_feedback_id_height_idx ON purchase_feedback (id, height DESC);
 CREATE TABLE purchase_public_feedback (db_id INTEGER PRIMARY KEY AUTOINCREMENT, id BIGINT NOT NULL, public_feedback
     VARCHAR NOT NULL, height INT NOT NULL, latest BOOLEAN NOT NULL DEFAULT TRUE);
 CREATE INDEX purchase_public_feedback_id_height_idx ON purchase_public_feedback (id, height DESC);
 CREATE TABLE unconfirmed_transaction (db_id INTEGER PRIMARY KEY AUTOINCREMENT, id BIGINT NOT NULL, expiration INT NOT NULL,
     transaction_height INT NOT NULL, fee_per_byte BIGINT NOT NULL, timestamp INT NOT NULL,
-    transaction_bytes VARBINARY NOT NULL, height INT NOT NULL);
+    transaction_bytes BLOB NOT NULL, height INT NOT NULL);
 CREATE UNIQUE INDEX unconfirmed_transaction_id_idx ON unconfirmed_transaction (id);
 CREATE INDEX unconfirmed_transaction_height_fee_timestamp_idx ON unconfirmed_transaction
     (transaction_height ASC, fee_per_byte DESC, timestamp ASC);
@@ -138,11 +138,11 @@ CREATE INDEX subscription_recipient_id_height_idx ON subscription (recipient_id,
 CREATE UNIQUE INDEX block_timestamp_idx ON block (timestamp DESC);
 CREATE TABLE at (db_id INTEGER PRIMARY KEY AUTOINCREMENT, id BIGINT NOT NULL, creator_id BIGINT NOT NULL, name VARCHAR, description VARCHAR,
     version SMALLINT NOT NULL, csize INT NOT NULL, dsize INT NOT NULL, c_user_stack_bytes INT NOT NULL, c_call_stack_bytes INT NOT NULL,
-    creation_height INT NOT NULL, ap_code BINARY NOT NULL,
+    creation_height INT NOT NULL, ap_code BLOB NOT NULL,
     height INT NOT NULL, latest BOOLEAN NOT NULL DEFAULT TRUE);
 CREATE UNIQUE INDEX at_id_height_idx ON at (id, height DESC);
 CREATE INDEX at_creator_id_height_idx ON at (creator_id, height DESC);
-CREATE TABLE at_state (db_id INTEGER PRIMARY KEY AUTOINCREMENT, at_id BIGINT NOT NULL, state BINARY NOT NULL, prev_height INT NOT NULL,
+CREATE TABLE at_state (db_id INTEGER PRIMARY KEY AUTOINCREMENT, at_id BIGINT NOT NULL, state BLOB NOT NULL, prev_height INT NOT NULL,
     next_height INT NOT NULL, sleep_between INT NOT NULL,
     prev_balance BIGINT NOT NULL, freeze_when_same_balance BOOLEAN NOT NULL, min_activate_amount BIGINT NOT NULL, height INT NOT NULL, latest BOOLEAN NOT NULL DEFAULT TRUE);
 CREATE UNIQUE INDEX at_state_at_id_height_idx ON at_state (at_id, height DESC);
