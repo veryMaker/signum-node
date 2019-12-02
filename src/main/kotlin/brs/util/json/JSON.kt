@@ -119,3 +119,15 @@ fun JsonElement?.safeGetAsBoolean(): Boolean? {
 fun JsonElement?.mustGetAsBoolean(fieldName: String): Boolean {
     return if (this != null && this.isJsonPrimitive) this.asBoolean else error("JSON: Could not get $fieldName")
 }
+
+/**
+ * Removes items from the end of the array until the size == maxLength.
+ * Does nothing if size <= maxLength to begin with.
+ * After this, size must be <= maxLength.
+ * @param maxLength The maximum length this array could have after the truncation.
+ */
+fun JsonArray.truncate(maxLength: Int) {
+    while (this.size() > maxLength) {
+        this.remove(this.size() - 1)
+    }
+}

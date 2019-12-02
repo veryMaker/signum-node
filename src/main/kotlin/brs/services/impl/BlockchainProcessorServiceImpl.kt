@@ -377,7 +377,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         addGenesisBlock()
     }
 
-    private fun getCommonMilestoneBlockId(peer: Peer?): Long {
+    private fun getCommonMilestoneBlockId(peer: Peer): Long {
         var lastMilestoneBlockId: String? = null
         while (true) {
             val milestoneBlockIdsRequest = JsonObject()
@@ -429,22 +429,17 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         }
     }
 
-    private fun getCommonBlockId(peer: Peer?, commonBlockId: Long): Long {
+    private fun getCommonBlockId(peer: Peer, commonBlockId: Long): Long {
         var commonBlockId = commonBlockId
 
         while (true) { // TODO not while true
             val request = JsonObject()
             request.addProperty("requestType", "getNextBlockIds")
             request.addProperty("blockId", commonBlockId.toUnsignedString())
-            val response = peer!!.send(JSON.prepareRequest(request)) ?: return 0
+            val response = peer.send(JSON.prepareRequest(request)) ?: return 0
             val nextBlockIds = response.get("nextBlockIds").mustGetAsJsonArray("nextBlockIds")
             if (nextBlockIds.isEmpty()) return 0
-            // prevent overloading with blockIds
-            if (nextBlockIds.size() > 1440) { // TODO just truncate
-                peer.blacklist("obsolete or rogue peer sends too many nextBlocks")
-                return 0
-            }
-
+            nextBlockIds.truncate(1440)
             for (nextBlockId in nextBlockIds) {
                 val blockId = nextBlockId.safeGetAsString().parseUnsignedLong()
                 if (!dp.downloadCacheService.hasBlock(blockId)) {
