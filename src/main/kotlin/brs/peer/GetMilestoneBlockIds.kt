@@ -37,15 +37,18 @@ internal class GetMilestoneBlockIds(private val blockchainService: BlockchainSer
             var limit = 10
             val blockchainHeight = blockchainService.height
             val lastMilestoneBlockIdString = request.get("lastMilestoneBlockId").safeGetAsString()
-            if (lastMilestoneBlockIdString.isNullOrEmpty()) {
-                val lastMilestoneBlock = blockchainService.getBlock(lastMilestoneBlockIdString.parseUnsignedLong())
-                    ?: error("Don't have block $lastMilestoneBlockIdString")
+            if (!lastMilestoneBlockIdString.isNullOrEmpty()) {
+                val lastMilestoneBlock = blockchainService.getBlock(lastMilestoneBlockIdString.parseUnsignedLong()) ?: error("Don't have block $lastMilestoneBlockIdString")
                 height = lastMilestoneBlock.height
                 jump = min(1440, max(blockchainHeight - height, 1))
                 height = max(height - jump, 0)
-            } else {
+            } else if (lastBlockIdString != null) {
                 height = blockchainHeight
                 jump = 10
+            } else {
+                peer.blacklist("GetMilestoneBlockIds");
+                response.addProperty("error", "Old getMilestoneBlockIds protocol not supported, please upgrade");
+                return response
             }
             blockId = blockchainService.getBlockIdAtHeight(height)
 

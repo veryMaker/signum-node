@@ -1,8 +1,8 @@
 package brs.peer
 
+import brs.common.QuickMocker
 import brs.entity.Block
 import brs.services.BlockchainService
-import brs.common.QuickMocker
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
@@ -18,34 +18,33 @@ import java.math.BigInteger
 class GetCumulativeDifficultyTest {
 
     private lateinit var t: GetCumulativeDifficulty
-
+    private lateinit var mockLastBlock: Block
     private lateinit var mockBlockchainService: BlockchainService
 
     @Before
     fun setUp() {
         mockBlockchainService = mock()
-
+        mockLastBlock = mock()
+        whenever(mockLastBlock.height).doReturn(50)
+        whenever(mockLastBlock.cumulativeDifficulty).doReturn(BigInteger.TEN)
+        whenever(mockBlockchainService.lastBlock).doReturn(mockLastBlock)
         t = GetCumulativeDifficulty(mockBlockchainService)
     }
 
     @Test
     fun processRequest() {
-        val cumulativeDifficulty = BigInteger.TEN
-        val blockchainHeight = 50
 
         val request = QuickMocker.jsonObject()
-
-        val mockLastBlock = mock<Block>()
-        whenever(mockLastBlock.height).doReturn(blockchainHeight)
-        whenever(mockLastBlock.cumulativeDifficulty).doReturn(cumulativeDifficulty)
-
-        whenever(mockBlockchainService.lastBlock).doReturn(mockLastBlock)
 
         val result = t.processRequest(request, mock()) as JsonObject
         assertNotNull(result)
 
-        assertEquals(cumulativeDifficulty.toString(), result.get("cumulativeDifficulty").safeGetAsString())
-        assertEquals(blockchainHeight.toLong(), result.get("blockchainHeight").safeGetAsLong())
+        assertEquals("10", result.get("cumulativeDifficulty").safeGetAsString())
+        assertEquals(50L, result.get("blockchainHeight").safeGetAsLong())
     }
 
+    @Test
+    fun test_nothingProvided() {
+        PeerApiTestUtils.testWithNothingProvided(t)
+    }
 }

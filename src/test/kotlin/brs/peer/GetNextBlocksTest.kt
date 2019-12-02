@@ -1,8 +1,8 @@
 package brs.peer
 
 import brs.entity.Block
-import brs.services.BlockchainService
 import brs.objects.Genesis
+import brs.services.BlockchainService
 import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -66,5 +66,10 @@ class GetNextBlocksTest {
         assertTrue(nextBlocksElement is JsonArray)
         val nextBlocks = nextBlocksElement.asJsonArray
         assertEquals(0, nextBlocks.size().toLong())
+    }
+
+    @Test
+    fun test_nothingProvided() {
+        PeerApiTestUtils.testWithNothingProvided(getNextBlocks)
     }
 }

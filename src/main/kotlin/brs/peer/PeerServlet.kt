@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse
 class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
     private val peerRequestHandlers: Map<String, PeerRequestHandler>
 
-    internal interface PeerRequestHandler {
+    interface PeerRequestHandler {
         fun processRequest(request: JsonObject, peer: Peer): JsonElement
     }
 

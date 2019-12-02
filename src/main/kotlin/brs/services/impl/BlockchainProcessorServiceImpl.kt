@@ -420,7 +420,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 if (dp.downloadCacheService.hasBlock(blockId)) {
                     if (lastMilestoneBlockId == null && milestoneBlockIds.size() > 1) {
                         peerHasMore = false
-                        logger.safeDebug { "Peer dont have more (cache)" }
+                        logger.safeDebug { "Peer doesn't have more (cache)" }
                     }
                     return blockId
                 }
@@ -471,7 +471,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
     private fun processFork(peer: Peer, forkBlocks: List<Block>, forkBlockId: Long) {
         logger.safeWarn { "A fork is detected. Waiting for cache to be processed." }
-        dp.downloadCacheService.lockCache() //dont let anything add to cache!
+        dp.downloadCacheService.lockCache() // Don't let anything add to cache!
         while (dp.downloadCacheService.size() != 0) Thread.sleep(1000) // TODO don't do this...
         dp.downloadCacheService.mutex.withLock {
             processMutex.withLock {
