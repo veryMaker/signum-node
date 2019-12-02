@@ -50,9 +50,6 @@ repositories {
     maven {
         url = "https://jitpack.io"
     }
-    maven {
-        url = "http://repo.maven.apache.org/maven2"
-    }
 }
 
 def jettyVersion = "9.4.24.v20191120"
