@@ -53,8 +53,8 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                                         if (otherPeerResponse != null) {
                                             val otherPeerTransactions =
                                                 otherPeerResponse.get(UNCONFIRMED_TRANSACTIONS_RESPONSE)
-                                                    .mustGetAsJsonArray(UNCONFIRMED_TRANSACTIONS_RESPONSE)
-                                            if (!otherPeerTransactions.isEmpty()) dp.peerService.feedingTime(
+                                                    .safeGetAsJsonArray()
+                                            if (otherPeerTransactions != null && !otherPeerTransactions.isEmpty()) dp.peerService.feedingTime(
                                                 otherPeer,
                                                 foodDispenser,
                                                 doneFeedingLog
@@ -62,7 +62,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                                         }
                                     } catch (e: ValidationException) {
                                         peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
-                                    } catch (e: RuntimeException) {
+                                    } catch (e: Exception) {
                                         peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
                                     }
                                 }
@@ -70,7 +70,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                         }
                     } catch (e: ValidationException) {
                         peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
-                    } catch (e: RuntimeException) {
+                    } catch (e: Exception) {
                         peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
                     }
                 } catch (e: Exception) {
@@ -275,7 +275,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                 } finally {
                     dp.db.endTransaction()
                 }
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 logger.safeInfo(e) { "Error processing transaction" }
             }
 

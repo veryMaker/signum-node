@@ -196,7 +196,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
             }
             appendages.forEach { appendage -> appendage.putBytes(buffer) }
             return buffer.array()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             logger.safeDebug { "Failed to get transaction bytes for transaction: ${toJsonObject().toJsonString()}" }
             throw e
         }
@@ -460,7 +460,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
             } catch (e: BurstException.NotValidException) {
                 logger.safeDebug(e) { "Failed to parse transaction bytes: ${bytes.toHexString()}" }
                 throw e
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 logger.safeDebug(e) { "Failed to parse transaction bytes: ${bytes.toHexString()}" }
                 throw e
             }
@@ -510,13 +510,13 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
 
                 if (version > 0) {
                     builder.ecBlockHeight(transactionData.get("ecBlockHeight").mustGetAsInt("ecBlockHeight"))
-                    builder.ecBlockId(transactionData.get("ecBlockId").mustGetAsString("ecBlockId").parseUnsignedLong())
+                    builder.ecBlockId(transactionData.get("ecBlockId").safeGetAsString().parseUnsignedLong())
                 }
                 return builder.build()
             } catch (e: BurstException.NotValidException) {
                 logger.safeDebug(e) { "Failed to parse transaction: ${transactionData.toJsonString()}" }
                 throw e
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 logger.safeDebug(e) { "Failed to parse transaction: ${transactionData.toJsonString()}" }
                 throw e
             }

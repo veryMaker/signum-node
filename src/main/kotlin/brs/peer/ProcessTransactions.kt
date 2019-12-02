@@ -11,7 +11,7 @@ internal class ProcessTransactions(private val transactionProcessorService: Tran
         return try {
             transactionProcessorService.processPeerTransactions(request, peer) // TODO this is not locking sync obj...
             JsonObject()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             peer.blacklist(e, "received invalid data via requestType=processTransactions")
             val response = JsonObject()
             response.addProperty("error", e.toString())

@@ -18,7 +18,7 @@ interface OclPocService {
      */
     fun destroy()
 
-    class OCLCheckerException : RuntimeException {
+    class OCLCheckerException : Exception {
         internal constructor(message: String) : super(message)
 
         internal constructor(message: String, cause: Throwable) : super(message, cause)
@@ -27,5 +27,5 @@ interface OclPocService {
     class PreValidateFailException internal constructor(
         message: String,
         cause: Throwable, @field:Transient val block: Block
-    ) : RuntimeException(message, cause)
+    ) : Exception(message, cause)
 }

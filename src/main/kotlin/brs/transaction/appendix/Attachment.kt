@@ -497,7 +497,7 @@ interface Attachment : Appendix {
             val recipientOf = mutableMapOf<Long, Boolean>()
 
             for (recipient in recipientsJson) {
-                val recipientId = recipient.mustGetAsString("recipient").parseUnsignedLong()
+                val recipientId = recipient.safeGetAsString().parseUnsignedLong()
                 if (recipientOf.containsKey(recipientId))
                     throw BurstException.NotValidException("Duplicate recipient on multi same out transaction")
 
@@ -1975,7 +1975,7 @@ interface Attachment : Appendix {
             }
             val signersJson = attachmentData.get(SIGNERS_PARAMETER).mustGetAsJsonArray(SIGNERS_PARAMETER)
             for (aSignersJson in signersJson) {
-                this.signers.add(aSignersJson.mustGetAsString("signer").parseUnsignedLong())
+                this.signers.add(aSignersJson.safeGetAsString().parseUnsignedLong())
             }
             if (this.signers.size != attachmentData.get(SIGNERS_PARAMETER).mustGetAsJsonArray(SIGNERS_PARAMETER).size()) {
                 throw BurstException.NotValidException("Duplicate signer on escrow creation")
@@ -2444,13 +2444,9 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-
             this.name = attachmentData.get(NAME_PARAMETER).safeGetAsString()
             this.description = attachmentData.get(DESCRIPTION_PARAMETER).safeGetAsString()
-
-            this.creationBytes =
-                attachmentData.get(CREATION_BYTES_PARAMETER).mustGetAsString(CREATION_BYTES_PARAMETER).parseHexString()
-
+            this.creationBytes = attachmentData.get(CREATION_BYTES_PARAMETER).mustGetAsString(CREATION_BYTES_PARAMETER).parseHexString()
         }
 
         constructor(

@@ -53,7 +53,7 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
             if (discountValuePlanck != null) {
                 discountPlanck = discountValuePlanck.toLong()
             }
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             return INCORRECT_DGS_DISCOUNT
         }
 
@@ -77,7 +77,7 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
                     return INCORRECT_DGS_GOODS
                 }
                 goodsBytes = if (goodsIsText) plainGoods.toBytes() else plainGoods.parseHexString()
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 return INCORRECT_DGS_GOODS
             }
 

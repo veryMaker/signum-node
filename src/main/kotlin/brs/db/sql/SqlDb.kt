@@ -180,36 +180,24 @@ class SqlDb(private val dp: DependencyProvider) : Db {
 
     override fun beginTransaction(): Connection {
         check(!isInTransaction()) { "Transaction already in progress" }
-        try {
-            val con = cp.connection
-            con.autoCommit = false
+        val con = cp.connection
+        con.autoCommit = false
 
-            localConnection.set(con)
-            transactionCaches.set(mutableMapOf())
-            transactionBatches.set(mutableMapOf())
+        localConnection.set(con)
+        transactionCaches.set(mutableMapOf())
+        transactionBatches.set(mutableMapOf())
 
-            return con
-        } catch (e: Exception) {
-            throw RuntimeException(e.toString(), e)
-        }
+        return con
     }
 
     override fun commitTransaction() {
         val con = localConnection.get() ?: error("Not in transaction")
-        try {
-            con.commit()
-        } catch (e: SQLException) {
-            throw RuntimeException(e.toString(), e)
-        }
+        con.commit()
     }
 
     override fun rollbackTransaction() {
         val con = localConnection.get() ?: error("Not in transaction")
-        try {
-            con.rollback()
-        } catch (e: SQLException) {
-            throw RuntimeException(e.toString(), e)
-        }
+        con.rollback()
 
         transactionCaches.get().clear()
         transactionBatches.get().clear()

@@ -26,7 +26,7 @@ class ProcessBlock(
         } catch (e: BurstException) {
             peer.blacklist(e, "received invalid data via requestType=processBlock")
             return NOT_ACCEPTED
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             peer.blacklist(e, "received invalid data via requestType=processBlock")
             return NOT_ACCEPTED
         }

@@ -27,7 +27,7 @@ internal class GetTransactionBytes(
         var transaction: Transaction?
         try {
             transactionId = transactionValue.parseUnsignedLong()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             return INCORRECT_TRANSACTION
         }
 

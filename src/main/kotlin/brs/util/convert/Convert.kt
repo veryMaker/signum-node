@@ -92,7 +92,7 @@ fun String.parseHexString(): ByteArray {
         }
         return Hex.decode(hex)
     } catch (e: DecoderException) {
-        throw RuntimeException("Could not parse hex string $hex", e)
+        throw Exception("Could not parse hex string $hex", e)
     }
 }
 

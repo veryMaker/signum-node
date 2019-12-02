@@ -167,7 +167,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             } catch (e: BurstException) {
                 logger.safeDebug(e) { "Error processing API request" }
                 ERROR_INCORRECT_REQUEST
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 logger.safeDebug(e) { "Error processing API request" }
                 ERROR_INCORRECT_REQUEST
             }
@@ -275,7 +275,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             apiRequestHandler.processRequest(request, resp)
         } catch (e: ParameterException) {
             writeJsonToResponse(resp, e.errorResponse)
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             logger.safeDebug(e) { "Error processing API request" }
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
             writeJsonToResponse(resp, ERROR_INCORRECT_REQUEST)

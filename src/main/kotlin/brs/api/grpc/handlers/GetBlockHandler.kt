@@ -20,7 +20,7 @@ class GetBlockHandler(private val blockchainService: BlockchainService, private 
         if (blockId > 0) {
             try {
                 block = blockchainService.getBlock(blockId)
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 throw ApiException("Incorrect Block ID")
             }
 
@@ -30,14 +30,14 @@ class GetBlockHandler(private val blockchainService: BlockchainService, private 
                     throw ApiException("Incorrect Block Height")
                 }
                 block = blockchainService.getBlockAtHeight(blockHeight)
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 throw ApiException("Incorrect Block Height")
             }
 
         } else if (timestamp > 0) {
             try {
                 block = blockchainService.getLastBlock(timestamp)
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 throw ApiException("Incorrect Timestamp")
             }
 

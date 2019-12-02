@@ -50,7 +50,7 @@ internal object ParameterParser {
         val feePlanck: Long
         try {
             feePlanck = feeValuePlanck.toLong()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_FEE)
         }
 
@@ -66,7 +66,7 @@ internal object ParameterParser {
         val pricePlanck: Long
         try {
             pricePlanck = priceValuePlanck.toLong()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_PRICE)
         }
 
@@ -82,7 +82,7 @@ internal object ParameterParser {
         val quantity: Long
         try {
             quantity = quantityValue.toLong()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_QUANTITY)
         }
 
@@ -97,7 +97,7 @@ internal object ParameterParser {
             ?: throw ParameterException(MISSING_ORDER)
         try {
             return orderValue.parseUnsignedLong()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_ORDER)
         }
 
@@ -122,7 +122,7 @@ internal object ParameterParser {
         if (data != null && nonce != null) {
             try {
                 return EncryptedData(data.parseHexString(), nonce.parseHexString())
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 throw ParameterException(INCORRECT_DGS_ENCRYPTED_GOODS)
             }
 
@@ -158,7 +158,7 @@ internal object ParameterParser {
         val recipientId: Long
         try {
             recipientId = recipientValue.parseAccountId()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_RECIPIENT)
         }
 
@@ -172,7 +172,7 @@ internal object ParameterParser {
         val sellerIdValue = request.getParameter(SELLER_PARAMETER).emptyToNull()
         try {
             return sellerIdValue!!.parseAccountId()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_RECIPIENT)
         }
 
@@ -182,7 +182,7 @@ internal object ParameterParser {
         val buyerIdValue = request.getParameter(BUYER_PARAMETER).emptyToNull()
         try {
             return buyerIdValue!!.parseAccountId()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_RECIPIENT)
         }
 
@@ -226,7 +226,7 @@ internal object ParameterParser {
     fun getCreationBytes(request: HttpServletRequest): ByteArray? {
         try {
             return request.getParameter(CREATION_BYTES_PARAMETER).parseHexString()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_CREATION_BYTES)
         }
 
@@ -247,7 +247,7 @@ internal object ParameterParser {
         val amountPlanck: Long
         try {
             amountPlanck = amountValuePlanck.toLong()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_AMOUNT)
         }
 

@@ -74,7 +74,7 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
             return account
         }
 
-        throw RuntimeException("DUPLICATE KEY for account " + account.id.toUnsignedString() + " existing key " + account.publicKey.toHexString() + " new key " + publicKey.toHexString())
+        throw Exception("DUPLICATE KEY for account " + account.id.toUnsignedString() + " existing key " + account.publicKey.toHexString() + " new key " + publicKey.toHexString())
     }
 
     override fun getAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer> {

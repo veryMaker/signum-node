@@ -203,7 +203,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
                 }
                 return@getUsingDslContext counter
             } catch (e: DataAccessException) {
-                throw RuntimeException(e.toString(), e)
+                throw Exception(e.toString(), e)
             }
         }
     }

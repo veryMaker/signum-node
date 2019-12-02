@@ -3,7 +3,7 @@ package brs.peer
 import brs.services.BlockchainService
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
-import brs.util.json.mustGetAsString
+import brs.util.json.safeGetAsString
 import brs.util.logging.safeDebug
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -17,8 +17,8 @@ internal class GetMilestoneBlockIds(private val blockchainService: BlockchainSer
         val response = JsonObject()
         try {
             val milestoneBlockIds = JsonArray()
-            val lastBlockIdString = request.get("lastBlockId").mustGetAsString("lastBlockId")
-            if (lastBlockIdString.isNotEmpty()) {
+            val lastBlockIdString = request.get("lastBlockId").safeGetAsString()
+            if (!lastBlockIdString.isNullOrEmpty()) {
                 val lastBlockId = lastBlockIdString.parseUnsignedLong()
                 val myLastBlockId = blockchainService.lastBlock.id
                 if (myLastBlockId == lastBlockId || blockchainService.hasBlock(lastBlockId)) {
@@ -36,24 +36,16 @@ internal class GetMilestoneBlockIds(private val blockchainService: BlockchainSer
             val jump: Int
             var limit = 10
             val blockchainHeight = blockchainService.height
-            val lastMilestoneBlockIdString = request.get("lastMilestoneBlockId").mustGetAsString("lastMilestoneBlockId")
-            when {
-                lastMilestoneBlockIdString.isEmpty() -> {
-                    val lastMilestoneBlock = blockchainService.getBlock(lastMilestoneBlockIdString.parseUnsignedLong())
-                        ?: error("Don't have block $lastMilestoneBlockIdString")
-                    height = lastMilestoneBlock.height
-                    jump = min(1440, max(blockchainHeight - height, 1))
-                    height = max(height - jump, 0)
-                }
-                lastBlockIdString.isNotEmpty() -> {
-                    height = blockchainHeight
-                    jump = 10
-                }
-                else -> {
-                    peer.blacklist("GetMilestoneBlockIds")
-                    response.addProperty("error", "Old getMilestoneBlockIds protocol not supported, please upgrade")
-                    return response
-                }
+            val lastMilestoneBlockIdString = request.get("lastMilestoneBlockId").safeGetAsString()
+            if (lastMilestoneBlockIdString.isNullOrEmpty()) {
+                val lastMilestoneBlock = blockchainService.getBlock(lastMilestoneBlockIdString.parseUnsignedLong())
+                    ?: error("Don't have block $lastMilestoneBlockIdString")
+                height = lastMilestoneBlock.height
+                jump = min(1440, max(blockchainHeight - height, 1))
+                height = max(height - jump, 0)
+            } else {
+                height = blockchainHeight
+                jump = 10
             }
             blockId = blockchainService.getBlockIdAtHeight(height)
 
@@ -63,7 +55,7 @@ internal class GetMilestoneBlockIds(private val blockchainService: BlockchainSer
                 height -= jump
             }
             response.add("milestoneBlockIds", milestoneBlockIds)
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             logger.safeDebug { e.toString() }
             response.addProperty("error", e.toString())
         }

@@ -17,7 +17,7 @@ internal class ClearUnconfirmedTransactions internal constructor(private val tra
         try {
             transactionProcessorService.clearUnconfirmedTransactions()
             response.addProperty(DONE_RESPONSE, true)
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             response.addProperty(ERROR_RESPONSE, e.toString())
         }
 

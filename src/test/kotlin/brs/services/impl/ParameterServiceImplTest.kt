@@ -1,14 +1,5 @@
 package brs.services.impl
 
-import brs.util.BurstException.ValidationException
-import brs.services.AssetExchangeService
-import brs.at.AT
-import brs.services.BlockchainService
-import brs.services.BlockchainProcessorService
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
-import brs.common.TestConstants.TEST_SECRET_PHRASE
-import brs.util.crypto.Crypto
 import brs.api.http.ParameterException
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
@@ -29,15 +20,17 @@ import brs.api.http.common.Parameters.NUMBER_OF_CONFIRMATIONS_PARAMETER
 import brs.api.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.api.http.common.Parameters.PURCHASE_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.at.AT
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.common.TestConstants.TEST_SECRET_PHRASE
 import brs.entity.*
-import brs.services.ATService
-import brs.services.AccountService
-import brs.services.AliasService
-import brs.services.DigitalGoodsStoreService
-import brs.services.TransactionProcessorService
+import brs.services.*
 import brs.util.BurstException
+import brs.util.BurstException.ValidationException
 import brs.util.convert.parseHexString
 import brs.util.convert.toBytes
+import brs.util.crypto.Crypto
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
@@ -469,7 +462,7 @@ class ParameterServiceImplTest {
     }
 
     @Test(expected = ParameterException::class)
-    fun getEncryptMessage_encryptMessageAndNonce_runtimeExceptionIncorrectEncryptedMessage() {
+    fun getEncryptMessage_encryptMessageAndNonce_incorrectEncryptedMessage() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(ENCRYPTED_MESSAGE_DATA_PARAMETER, "zz"),
                 MockParam(ENCRYPTED_MESSAGE_NONCE_PARAMETER, "123"))
@@ -478,7 +471,7 @@ class ParameterServiceImplTest {
     }
 
     @Test(expected = ParameterException::class)
-    fun getEncryptMessage_encryptionRuntimeExceptionParameterException() {
+    fun getEncryptMessage_encryptionParameterException() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(MESSAGE_TO_ENCRYPT_PARAMETER, "invalidHexNumber"),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
@@ -559,7 +552,7 @@ class ParameterServiceImplTest {
     }
 
     @Test(expected = ParameterException::class)
-    fun getEncryptToSelfMessage_encryptMessageAndNonce_runtimeExceptionIncorrectEncryptedMessage() {
+    fun getEncryptToSelfMessage_encryptMessageAndNonce_incorrectEncryptedMessage() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(ENCRYPT_TO_SELF_MESSAGE_DATA, "zz"),
                 MockParam(ENCRYPT_TO_SELF_MESSAGE_NONCE, "123"))
@@ -568,7 +561,7 @@ class ParameterServiceImplTest {
     }
 
     @Test(expected = ParameterException::class)
-    fun getEncryptToSelfMessage_encryptionRuntimeExceptionParameterException() {
+    fun getEncryptToSelfMessage_encryptionParameterException() {
         val request = QuickMocker.httpServletRequest(
                 MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER, "invalidHexNumber"),
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),

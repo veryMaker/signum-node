@@ -18,7 +18,6 @@ import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -196,16 +195,12 @@ class AT : AtMachineState {
                 return null
             }
 
-            try {
-                ByteArrayOutputStream().use { bos ->
-                    GZIPOutputStream(bos).use { gzip ->
-                        gzip.write(stateBytes)
-                        gzip.flush()
-                    }
-                    return bos.toByteArray()
+            ByteArrayOutputStream().use { bos ->
+                GZIPOutputStream(bos).use { gzip ->
+                    gzip.write(stateBytes)
+                    gzip.flush()
                 }
-            } catch (e: IOException) {
-                throw RuntimeException(e.message, e)
+                return bos.toByteArray()
             }
         }
 
@@ -214,17 +209,13 @@ class AT : AtMachineState {
                 return null
             }
 
-            try {
-                ByteArrayInputStream(stateBytes).use { bis ->
-                    GZIPInputStream(bis).use { gzip ->
-                        ByteArrayOutputStream().use { bos ->
-                            gzip.copyTo(bos, 256)
-                            return bos.toByteArray()
-                        }
+            ByteArrayInputStream(stateBytes).use { bis ->
+                GZIPInputStream(bis).use { gzip ->
+                    ByteArrayOutputStream().use { bos ->
+                        gzip.copyTo(bos, 256)
+                        return bos.toByteArray()
                     }
                 }
-            } catch (e: IOException) {
-                throw RuntimeException(e.message, e)
             }
         }
 
@@ -269,7 +260,7 @@ class AT : AtMachineState {
                         transactions.add(transaction)
                     }
                 } catch (e: BurstException.NotValidException) {
-                    throw RuntimeException("Failed to construct AT payment transaction", e)
+                    throw Exception("Failed to construct AT payment transaction", e)
                 }
 
             }

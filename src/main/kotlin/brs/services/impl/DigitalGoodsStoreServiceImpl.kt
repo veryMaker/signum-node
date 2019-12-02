@@ -183,7 +183,7 @@ class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : Digital
 
     override fun deliver(transaction: Transaction, attachment: Attachment.DigitalGoodsDelivery) {
         val purchase = getPendingPurchase(attachment.purchaseId)
-            ?: throw RuntimeException("cant find purchase with id " + attachment.purchaseId)
+            ?: throw Exception("cant find purchase with id " + attachment.purchaseId)
         setPending(purchase, false)
         val totalWithoutDiscount = purchase.quantity.toLong().safeMultiply(purchase.pricePlanck)
         val buyer = dp.accountService.getAccount(purchase.buyerId)!!

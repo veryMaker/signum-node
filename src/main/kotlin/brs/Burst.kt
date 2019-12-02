@@ -227,25 +227,21 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
             // TODO this can be refactored to be cleaner.
             logger.safeInfo { "Initializing Burst Reference Software ($APPLICATION) version $VERSION" }
             try {
-                try {
-                    FileReader("conf/$DEFAULT_PROPERTIES_NAME").use { input ->
-                        defaultProperties.load(input)
-                    }
-                } catch (e: FileNotFoundException) {
-                    val configFile = System.getProperty(DEFAULT_PROPERTIES_NAME)
-
-                    if (configFile != null) {
-                        try {
-                            FileReader(configFile).use { fis -> defaultProperties.load(fis) }
-                        } catch (e: IOException) {
-                            throw RuntimeException("Error loading $DEFAULT_PROPERTIES_NAME from $configFile")
-                        }
-                    } else {
-                        throw RuntimeException("$DEFAULT_PROPERTIES_NAME not in classpath and system property $DEFAULT_PROPERTIES_NAME not defined either")
-                    }
+                FileReader("conf/$DEFAULT_PROPERTIES_NAME").use { input ->
+                    defaultProperties.load(input)
                 }
-            } catch (e: IOException) {
-                throw RuntimeException("Error loading $DEFAULT_PROPERTIES_NAME", e)
+            } catch (e: FileNotFoundException) {
+                val configFile = System.getProperty(DEFAULT_PROPERTIES_NAME)
+
+                if (configFile != null) {
+                    try {
+                        FileReader(configFile).use { fis -> defaultProperties.load(fis) }
+                    } catch (e: IOException) {
+                        throw Exception("Error loading $DEFAULT_PROPERTIES_NAME from $configFile")
+                    }
+                } else {
+                    throw Exception("$DEFAULT_PROPERTIES_NAME not in classpath and system property $DEFAULT_PROPERTIES_NAME not defined either")
+                }
             }
 
             val properties = Properties(defaultProperties)
@@ -255,7 +251,7 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
                 }
             } catch (e: IOException) {
                 if (e !is FileNotFoundException) {
-                    throw RuntimeException("Error loading brs.properties", e)
+                    throw Exception("Error loading brs.properties", e)
                 }
             }
 

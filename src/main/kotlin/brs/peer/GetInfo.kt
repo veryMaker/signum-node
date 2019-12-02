@@ -2,8 +2,7 @@ package brs.peer
 
 import brs.entity.DependencyProvider
 import brs.services.PeerService
-import brs.util.json.mustGetAsBoolean
-import brs.util.json.mustGetAsString
+import brs.util.json.safeGetAsBoolean
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -21,25 +20,25 @@ internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerReq
                 peer.announcedAddress = announcedAddress
             }
         }
-        var application = request.get("application").mustGetAsString("application")
-        if (application.isEmpty()) {
+        var application = request.get("application").safeGetAsString()
+        if (application.isNullOrEmpty()) {
             application = "?"
         }
         peer.application = application.trim { it <= ' ' }
 
-        var version = request.get("version").mustGetAsString("version")
-        if (version.isEmpty()) {
+        var version = request.get("version").safeGetAsString()
+        if (version.isNullOrEmpty()) {
             version = "?"
         }
         peer.setVersion(version.trim { it <= ' ' })
 
-        var platform = request.get("platform").mustGetAsString("platform")
-        if (platform.isEmpty()) {
+        var platform = request.get("platform").safeGetAsString()
+        if (platform.isNullOrEmpty()) {
             platform = "?"
         }
         peer.platform = platform.trim { it <= ' ' }
 
-        peer.shareAddress = request.get("shareAddress").mustGetAsBoolean("shareAddress")
+        peer.shareAddress = request.get("shareAddress").safeGetAsBoolean() ?: false
         peer.lastUpdated = dp.timeService.epochTime
 
         dp.peerService.notifyListeners(peer, PeerService.Event.ADDED_ACTIVE_PEER)

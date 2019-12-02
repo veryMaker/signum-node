@@ -12,7 +12,6 @@ import brs.util.convert.emptyToNull
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
-import java.io.UnsupportedEncodingException
 import javax.servlet.http.HttpServletRequest
 
 internal class GenerateDeeplink(private val deeplinkGeneratorService: DeeplinkGeneratorService) :
@@ -42,8 +41,6 @@ internal class GenerateDeeplink(private val deeplinkGeneratorService: DeeplinkGe
         } catch (e: IllegalArgumentException) {
             logger.error("Problem with arguments", e)
             return incorrect("arguments", e.message)
-        } catch (e: UnsupportedEncodingException) {
-            throw RuntimeException(e)
         }
     }
 }

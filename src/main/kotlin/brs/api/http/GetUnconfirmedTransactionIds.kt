@@ -35,7 +35,7 @@ internal class GetUnconfirmedTransactionIds(
         if (accountIdString != null) {
             try {
                 accountId = accountIdString.parseAccountId()
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 return INCORRECT_ACCOUNT
             }
 

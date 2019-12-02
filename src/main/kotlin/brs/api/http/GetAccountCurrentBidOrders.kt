@@ -34,7 +34,7 @@ internal class GetAccountCurrentBidOrders internal constructor(
         var assetId: Long = 0
         try {
             assetId = request.getParameter(ASSET_PARAMETER).parseUnsignedLong()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             // ignore
         }
 

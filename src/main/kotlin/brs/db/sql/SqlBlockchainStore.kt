@@ -65,7 +65,7 @@ internal class SqlBlockchainStore(private val dp: DependencyProvider) : Blockcha
             try {
                 return@inlineMap dp.blockDb.loadBlock(blockRecord)
             } catch (e: BurstException.ValidationException) {
-                throw RuntimeException(e)
+                throw Exception(e)
             }
         }
     }
@@ -87,13 +87,7 @@ internal class SqlBlockchainStore(private val dp: DependencyProvider) : Blockcha
                 .where(BLOCK.HEIGHT.gt(ctx.select(BLOCK.HEIGHT).from(BLOCK).where(BLOCK.ID.eq(blockId))))
                 .orderBy(BLOCK.HEIGHT.asc())
                 .limit(limit)
-                .fetchAndMap { result ->
-                    try {
-                        return@fetchAndMap dp.blockDb.loadBlock(result)
-                    } catch (e: BurstException.ValidationException) {
-                        throw RuntimeException(e.toString(), e)
-                    }
-                }
+                .fetchAndMap { result -> dp.blockDb.loadBlock(result) }
         }
     }
 
@@ -154,13 +148,7 @@ internal class SqlBlockchainStore(private val dp: DependencyProvider) : Blockcha
     }
 
     override fun getTransactions(ctx: DSLContext, rs: Result<TransactionRecord>): Collection<Transaction> {
-        return rs.inlineMap { r ->
-            try {
-                return@inlineMap dp.transactionDb.loadTransaction(r)
-            } catch (e: BurstException.ValidationException) {
-                throw RuntimeException(e)
-            }
-        }
+        return rs.inlineMap { r -> dp.transactionDb.loadTransaction(r) }
     }
 
     override fun addBlock(block: Block) {

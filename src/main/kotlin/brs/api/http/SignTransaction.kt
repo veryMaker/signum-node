@@ -76,7 +76,7 @@ internal class SignTransaction(
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect unsigned transaction: $e")
             response.addProperty(ERROR_RESPONSE, e.message)
             return response
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             logger.safeDebug(e) { e.message }
             response.addProperty(ERROR_CODE_RESPONSE, 4)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect unsigned transaction: $e")

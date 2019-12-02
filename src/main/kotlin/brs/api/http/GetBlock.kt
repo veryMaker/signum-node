@@ -38,7 +38,7 @@ internal class GetBlock internal constructor(
         val blockData = when {
             blockValue != null -> try {
                 blockchainService.getBlock(blockValue.parseUnsignedLong())
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 return INCORRECT_BLOCK
             }
             heightValue != null -> try {
@@ -47,7 +47,7 @@ internal class GetBlock internal constructor(
                     return INCORRECT_HEIGHT
                 }
                 blockchainService.getBlockAtHeight(height)
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 return INCORRECT_HEIGHT
             }
             timestampValue != null -> try {
@@ -56,7 +56,7 @@ internal class GetBlock internal constructor(
                     return INCORRECT_TIMESTAMP
                 }
                 blockchainService.getLastBlock(timestamp)
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 return INCORRECT_TIMESTAMP
             }
             else -> blockchainService.lastBlock

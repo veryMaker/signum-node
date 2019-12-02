@@ -61,7 +61,7 @@ object LoggerConfigurator {
                 }
                 BriefLogFormatter.init()
             } catch (e: IOException) {
-                throw RuntimeException("Error loading logging properties", e)
+                throw Exception("Error loading logging properties", e)
             }
         }
 

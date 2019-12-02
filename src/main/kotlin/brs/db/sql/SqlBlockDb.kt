@@ -23,7 +23,7 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
                 val r = ctx.selectFrom(BLOCK).where(BLOCK.ID.eq(blockId)).fetchAny()
                 return@getUsingDslContext if (r == null) null else loadBlock(r)
             } catch (e: BurstException.ValidationException) {
-                throw RuntimeException("Block already in database, id = $blockId, does not pass validation!", e)
+                throw Exception("Block already in database, id = $blockId, does not pass validation!", e)
             }
         }
     }
@@ -35,21 +35,17 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     override fun findBlockIdAtHeight(height: Int): Long {
         return dp.db.getUsingDslContext { ctx ->
             val id = ctx.select(BLOCK.ID).from(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchOne(BLOCK.ID)
-                ?: throw RuntimeException("Block at height $height not found in database!")
+                ?: throw Exception("Block at height $height not found in database!")
             id
         }
     }
 
     override fun findBlockAtHeight(height: Int): Block {
         return dp.db.getUsingDslContext { ctx ->
-            try {
-                return@getUsingDslContext loadBlock(
-                    ctx.selectFrom(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchAny()
-                        ?: throw RuntimeException("Block at height $height not found in database!")
-                )
-            } catch (e: BurstException.ValidationException) {
-                throw RuntimeException(e.toString(), e)
-            }
+            loadBlock(
+                ctx.selectFrom(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchAny()
+                    ?: throw Exception("Block at height $height not found in database!")
+            )
         }
     }
 
@@ -63,7 +59,7 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
                         .fetchAny()
                 )
             } catch (e: BurstException.ValidationException) {
-                throw RuntimeException("Last block already in database does not pass validation!", e)
+                throw Exception("Last block already in database does not pass validation!", e)
             }
         }
     }
@@ -79,7 +75,7 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
                         .fetchAny()
                 )
             } catch (e: BurstException.ValidationException) {
-                throw RuntimeException("Block already in database at timestamp $timestamp does not pass validation!", e)
+                throw Exception("Block already in database at timestamp $timestamp does not pass validation!", e)
             }
         }
     }

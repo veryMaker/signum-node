@@ -99,7 +99,7 @@ open class Account {
         }
     }
 
-    internal class DoubleSpendingException(message: String) : RuntimeException(message)
+    internal class DoubleSpendingException(message: String) : Exception(message)
 
     constructor(dp: DependencyProvider, id: Long) {
         if (!id.rsVerify()) {

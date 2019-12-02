@@ -51,7 +51,7 @@ internal class DecryptFrom internal constructor(private val parameterService: Pa
                 if (isText) decrypted.toUtf8String() else decrypted.toHexString()
             )
             response
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             logger.safeDebug { e.toString() }
             DECRYPTION_FAILED
         }

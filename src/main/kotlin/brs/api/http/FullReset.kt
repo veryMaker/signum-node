@@ -17,7 +17,7 @@ internal class FullReset internal constructor(private val blockchainProcessorSer
         try {
             blockchainProcessorService.fullReset()
             response.addProperty(DONE_RESPONSE, true)
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             response.addProperty(ERROR_RESPONSE, e.toString())
         }
 

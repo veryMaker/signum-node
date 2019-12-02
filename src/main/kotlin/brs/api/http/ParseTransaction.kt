@@ -42,7 +42,7 @@ internal class ParseTransaction(
             response.addProperty(ERROR_CODE_RESPONSE, 4)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Invalid transaction: $e")
             response.addProperty(ERROR_RESPONSE, e.message)
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             logger.safeDebug(e) { e.message }
             response.addProperty(VALIDATE_RESPONSE, false)
             response.addProperty(ERROR_CODE_RESPONSE, 4)

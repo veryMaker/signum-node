@@ -113,7 +113,7 @@ class AccountServiceImplTest {
         assertNull(t.getAccount(publicKey))
     }
 
-    @Test(expected = RuntimeException::class)
+    @Test(expected = Exception::class)
     fun getAccount_withPublicKey_duplicateKeyForAccount() {
         val publicKey = ByteArray(1)
         publicKey[0] = 1.toByte()

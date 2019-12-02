@@ -258,7 +258,7 @@ internal class PeerImpl(
                 }
                 response = error("Peer responded with HTTP " + connection.responseCode)
             }
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             if (!isConnectionException(e)) {
                 logger.safeDebug(e) { "Error sending JSON request" }
             }

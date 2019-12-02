@@ -78,9 +78,9 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
 
             val cis = CountingInputStream(request.inputStream)
             val jsonRequest = InputStreamReader(cis, StandardCharsets.UTF_8).use { reader ->
-                reader.parseJson().mustGetAsJsonObject("request")
+                reader.parseJson().safeGetAsJsonObject()
             }
-            if (jsonRequest.isEmpty()) {
+            if (jsonRequest == null || jsonRequest.isEmpty()) {
                 return
             }
 
@@ -110,7 +110,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
                 response = UNSUPPORTED_PROTOCOL
             }
 
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             logger.safeDebug(e) { "Error processing POST request" }
             val json = JsonObject()
             json.addProperty("error", e.toString())

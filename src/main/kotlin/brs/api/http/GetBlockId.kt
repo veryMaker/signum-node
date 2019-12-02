@@ -22,7 +22,7 @@ internal class GetBlockId(private val blockchainService: BlockchainService) :
         try {
             val heightValue = request.getParameter(HEIGHT_PARAMETER).emptyToNull() ?: return MISSING_HEIGHT
             height = Integer.parseInt(heightValue)
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             return INCORRECT_HEIGHT
         }
 
@@ -30,7 +30,7 @@ internal class GetBlockId(private val blockchainService: BlockchainService) :
             val response = JsonObject()
             response.addProperty("block", blockchainService.getBlockIdAtHeight(height).toUnsignedString())
             response
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             INCORRECT_HEIGHT
         }
 

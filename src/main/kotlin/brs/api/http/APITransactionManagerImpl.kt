@@ -105,7 +105,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
                     messageValue.parseHexString(),
                     blockchainHeight
                 )
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 throw ParameterException(INCORRECT_ARBITRARY_MESSAGE)
             }
 

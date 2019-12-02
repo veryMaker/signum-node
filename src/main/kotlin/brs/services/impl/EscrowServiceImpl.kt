@@ -7,7 +7,6 @@ import brs.objects.Genesis
 import brs.schema.Tables.ESCROW
 import brs.services.EscrowService
 import brs.transaction.appendix.Attachment
-import brs.util.BurstException
 import org.jooq.Condition
 import java.util.concurrent.ConcurrentSkipListSet
 
@@ -242,11 +241,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
             .ecBlockId(0L)
 
         val transaction: Transaction
-        try {
-            transaction = builder.build()
-        } catch (e: BurstException.NotValidException) {
-            throw RuntimeException(e.toString(), e)
-        }
+        transaction = builder.build()
 
         if (!dp.transactionDb.hasTransaction(transaction.id)) {
             resultTransactions.add(transaction)

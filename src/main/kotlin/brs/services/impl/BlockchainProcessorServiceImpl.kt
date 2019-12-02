@@ -193,7 +193,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                         logger.safeInfo(e) { "$e - autoflushing cache to get rid of it" }
                         dp.downloadCacheService.resetCache()
                         return@run false
-                    } catch (e: RuntimeException) {
+                    } catch (e: Exception) {
                         logger.safeInfo(e) { "Failed to parse block: $e" }
                         logger.safeInfo { "Failed to parse block trace: ${e.stackTrace.joinToString()}" }
                         peer.blacklist(e, "pulled invalid data using getCumulativeDifficulty")
@@ -437,7 +437,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             request.addProperty("requestType", "getNextBlockIds")
             request.addProperty("blockId", commonBlockId.toUnsignedString())
             val response = peer!!.send(JSON.prepareRequest(request)) ?: return 0
-            val nextBlockIds = response.get("nextBlockIds").mustGetAsJsonArray("enxtBlockIds")
+            val nextBlockIds = response.get("nextBlockIds").mustGetAsJsonArray("nextBlockIds")
             if (nextBlockIds.isEmpty()) return 0
             // prevent overloading with blockIds
             if (nextBlockIds.size() > 1440) { // TODO just truncate
@@ -446,7 +446,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             }
 
             for (nextBlockId in nextBlockIds) {
-                val blockId = nextBlockId.mustGetAsString("nextBlockId").parseUnsignedLong()
+                val blockId = nextBlockId.safeGetAsString().parseUnsignedLong()
                 if (!dp.downloadCacheService.hasBlock(blockId)) {
                     return commonBlockId
                 }
@@ -618,18 +618,13 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             return
         }
         logger.safeInfo { "Genesis block not in database, starting from scratch" }
-        try {
-            val genesisBlock = Block(
-                dp, -1, 0, 0, 0, 0, 0,
-                Crypto.sha256().digest() /* TODO constant value for this */, Genesis.creatorPublicKey, ByteArray(32),
-                Genesis.genesisBlockSignature, null, emptyList(), 0, byteArrayOf(), -1
-            )
-            dp.blockService.setPrevious(genesisBlock, null)
-            addBlock(genesisBlock)
-        } catch (e: BurstException.ValidationException) {
-            logger.safeInfo { e.message ?: e.toString() }
-            throw RuntimeException(e.toString(), e)
-        }
+        val genesisBlock = Block(
+            dp, -1, 0, 0, 0, 0, 0,
+            Crypto.sha256().digest() /* TODO constant value for this */, Genesis.creatorPublicKey, ByteArray(32),
+            Genesis.genesisBlockSignature, null, emptyList(), 0, byteArrayOf(), -1
+        )
+        dp.blockService.setPrevious(genesisBlock, null)
+        addBlock(genesisBlock)
     }
 
     private fun pushBlock(block: Block) {
@@ -866,9 +861,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
     private fun popLastBlock(): Block {
         val block = dp.blockchainService.lastBlock
-        if (block.id == Genesis.GENESIS_BLOCK_ID) {
-            throw RuntimeException("Cannot pop off genesis block")
-        }
+        check(block.id != Genesis.GENESIS_BLOCK_ID) { "Cannot pop off genesis block" }
         val previousBlock = dp.blockDb.findBlock(block.previousBlockId)!!
         dp.blockchainService.setLastBlock(block, previousBlock)
         block.transactions.forEach { it.unsetBlock() }

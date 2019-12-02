@@ -37,7 +37,7 @@ internal class GetTransaction(private val blockchainService: BlockchainService) 
             if (transaction == null) {
                 return UNKNOWN_TRANSACTION
             }
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             return INCORRECT_TRANSACTION
         }
 

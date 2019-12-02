@@ -256,8 +256,7 @@ class Block internal constructor(
                 val transactionsData = blockData.get("transactions").mustGetAsJsonArray("transactions")
 
                 for (transactionData in transactionsData) {
-                    val transaction =
-                        Transaction.parseTransaction(dp, transactionData.mustGetAsJsonObject("transactionData"), height)
+                    val transaction = Transaction.parseTransaction(dp, transactionData.mustGetAsJsonObject("transactionData"), height)
                     if (transaction.signature != null && blockTransactions.put(transaction.id, transaction) != null) {
                         throw BurstException.NotValidException("Block contains duplicate transactions: " + transaction.stringId)
                     }
@@ -272,7 +271,7 @@ class Block internal constructor(
             } catch (e: BurstException.ValidationException) {
                 logger.safeDebug { "Failed to parse block: ${blockData.toJsonString()}" }
                 throw e
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 logger.safeDebug { "Failed to parse block: ${blockData.toJsonString()}" }
                 throw e
             }

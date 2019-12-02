@@ -39,7 +39,7 @@ internal class ReadMessage(
             if (transaction == null) {
                 return UNKNOWN_TRANSACTION
             }
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             return INCORRECT_TRANSACTION
         }
 
@@ -70,7 +70,7 @@ internal class ReadMessage(
                             "decryptedMessage",
                             if (encryptedMessage.isText) decrypted.toUtf8String() else decrypted.toHexString()
                         )
-                    } catch (e: RuntimeException) {
+                    } catch (e: Exception) {
                         logger.safeDebug(e) { "Decryption of message to recipient failed: {}" }
                     }
 
@@ -85,7 +85,7 @@ internal class ReadMessage(
                             "decryptedMessageToSelf",
                             if (encryptToSelfMessage.isText) decrypted.toUtf8String() else decrypted.toHexString()
                         )
-                    } catch (e: RuntimeException) {
+                    } catch (e: Exception) {
                         logger.safeDebug(e) { "Decryption of message to self failed: {}" }
                     }
 

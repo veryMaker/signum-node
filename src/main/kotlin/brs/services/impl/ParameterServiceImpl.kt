@@ -73,7 +73,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         try {
             return dp.accountService.getAccount(accountId.parseAccountId())
                 ?: throw ParameterException(UNKNOWN_ACCOUNT)
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_ACCOUNT)
         }
 
@@ -93,7 +93,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
                 val account = dp.accountService.getAccount(accountValue.parseAccountId())
                     ?: throw ParameterException(UNKNOWN_ACCOUNT)
                 result.add(account)
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 throw ParameterException(INCORRECT_ACCOUNT)
             }
 
@@ -108,7 +108,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
             secretPhrase != null -> dp.accountService.getAccount(Crypto.getPublicKey(secretPhrase))
             publicKeyString != null -> try {
                 dp.accountService.getAccount(publicKeyString.parseHexString())
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 throw ParameterException(INCORRECT_PUBLIC_KEY)
             }
             else -> throw ParameterException(MISSING_SECRET_PHRASE_OR_PUBLIC_KEY)
@@ -119,7 +119,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         val aliasId: Long
         try {
             aliasId = request.getParameter(ALIAS_PARAMETER).emptyToNull().parseUnsignedLong()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_ALIAS)
         }
 
@@ -138,7 +138,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         try {
             val assetId = assetValue.parseUnsignedLong()
             asset = dp.assetExchangeService.getAsset(assetId)
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_ASSET)
         }
 
@@ -155,7 +155,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         try {
             val goodsId = goodsValue.parseUnsignedLong()
             return dp.digitalGoodsStoreService.getGoods(goodsId) ?: throw ParameterException(UNKNOWN_GOODS)
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_GOODS)
         }
 
@@ -167,7 +167,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         try {
             return dp.digitalGoodsStoreService.getPurchase(purchaseIdString.parseUnsignedLong())
                 ?: throw ParameterException(INCORRECT_PURCHASE)
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_PURCHASE)
         }
 
@@ -183,7 +183,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         if (data != null && nonce != null) {
             try {
                 return EncryptedData(data.parseHexString(), nonce.parseHexString())
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 throw ParameterException(INCORRECT_ENCRYPTED_MESSAGE)
             }
 
@@ -199,7 +199,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
                 publicKey != null -> Account.encryptTo(plainMessageBytes, secretPhrase, publicKey)
                 else -> throw ParameterException(INCORRECT_RECIPIENT)
             }
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_PLAIN_MESSAGE)
         }
 
@@ -211,7 +211,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         if (data != null && nonce != null) {
             try {
                 return EncryptedData(data.parseHexString(), nonce.parseHexString())
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 throw ParameterException(INCORRECT_ENCRYPTED_MESSAGE)
             }
 
@@ -223,7 +223,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         try {
             val plainMessageBytes = if (isText) plainMessage.toBytes() else plainMessage.parseHexString()
             return senderAccount?.encryptTo(plainMessageBytes, secretPhrase)
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_PLAIN_MESSAGE)
         }
 
@@ -281,7 +281,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
                 response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect transactionBytes: $e")
                 throw ParameterException(response)
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 val response = JsonObject()
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
                 response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect transactionBytes: $e")
@@ -296,7 +296,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
                 response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect transactionJSON: $e")
                 throw ParameterException(response)
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 logger.safeDebug(e) { e.message }
                 val response = JsonObject()
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
@@ -313,7 +313,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         try {
             val atId = atValue.parseUnsignedLong()
             at = dp.atService.getAT(atId)
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ParameterException(INCORRECT_AT)
         }
 

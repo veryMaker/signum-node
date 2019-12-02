@@ -50,7 +50,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
 
             return data2.verifySignature(block.blockSignature!!, publicKey!!, block.version >= 3)
 
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
 
             logger.safeInfo(e) { "Error verifying block signature" }
             return false
@@ -76,7 +76,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             // TODO pocTime is accessed outside of lock.
             val pTime = block.pocTime!!.divide(BigInteger.valueOf(previousBlock.baseTarget))
             return BigInteger.valueOf(elapsedTime.toLong()) > pTime
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             logger.safeInfo(e) { "Error verifying block generation signature" }
             return false
         }
@@ -109,7 +109,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                         block.nonce, block.generationSignature, scoopData
                     )
                 }
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 logger.safeInfo(e) { "Error pre-verifying block generation signature" }
                 return
             }

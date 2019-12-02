@@ -36,7 +36,7 @@ internal class GetAssets(private val assetExchangeService: AssetExchangeService)
                 val accountsCount = assetExchangeService.getAssetAccountsCount(asset.id)
 
                 assetsJsonArray.add(JSONData.asset(asset, tradeCount, transferCount, accountsCount))
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 return INCORRECT_ASSET
             }
 

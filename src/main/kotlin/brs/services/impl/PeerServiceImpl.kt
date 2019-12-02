@@ -137,11 +137,11 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         } else dp.propertyService.get(Props.P2P_MY_ADDRESS)
 
         if (myAddress != null && myAddress.endsWith(":$TESTNET_PEER_PORT") && !dp.propertyService.get(Props.DEV_TESTNET)) {
-            throw RuntimeException("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
+            throw Exception("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
         }
         myPeerServerPort = dp.propertyService.get(Props.P2P_PORT)
         if (myPeerServerPort == TESTNET_PEER_PORT && !dp.propertyService.get(Props.DEV_TESTNET)) {
-            throw RuntimeException("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
+            throw Exception("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
         }
         useUpnp = dp.propertyService.get(Props.P2P_UPNP)
         shareMyAddress =
@@ -167,7 +167,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 }
             } catch (e: URISyntaxException) {
                 logger.safeInfo { "Your announce address is invalid: $myAddress" }
-                throw RuntimeException(e.toString(), e)
+                throw Exception(e.toString(), e)
             }
 
         }
@@ -339,13 +339,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 peerServer!!.handler = peerHandler
             }
             peerServer!!.stopAtShutdown = true
-            try {
-                peerServer!!.start()
-                logger.safeInfo { "Started peer networking server at $host:$port" }
-            } catch (e: Exception) {
-                logger.safeError(e) { "Failed to start peer networking server" }
-                throw RuntimeException(e.toString(), e)
-            }
+            peerServer!!.start()
+            logger.safeInfo { "Started peer networking server at $host:$port" }
         } else {
             logger.safeInfo { "shareMyAddress is disabled, will not start peer networking server" }
         }

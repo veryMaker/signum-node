@@ -170,7 +170,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
                 paymentTransactions.add(transaction)
             }
         } catch (e: NotValidException) {
-            throw RuntimeException("Failed to build subscription payment transaction", e)
+            throw Exception("Failed to build subscription payment transaction", e)
         }
 
         subscription.timeNextGetAndAdd(subscription.frequency)

@@ -23,7 +23,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId)).fetchOne()
                 return@getUsingDslContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
-                throw RuntimeException(
+                throw Exception(
                     "Transaction already in database, id = $transactionId, does not pass validation!",
                     e
                 )
@@ -37,7 +37,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash)).fetchOne()
                 return@getUsingDslContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
-                throw RuntimeException(
+                throw Exception(
                     "Transaction already in database, full_hash = $fullHash, does not pass validation!",
                     e
                 )
@@ -127,7 +127,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
                     try {
                         return@fetchAndMap loadTransaction(record)
                     } catch (e: BurstException.ValidationException) {
-                        throw RuntimeException(
+                        throw Exception(
                             "Transaction already in database for block_id = ${blockId.toUnsignedString()} does not pass validation!",
                             e
                         )

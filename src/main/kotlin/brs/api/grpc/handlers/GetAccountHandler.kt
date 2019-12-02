@@ -15,7 +15,7 @@ class GetAccountHandler(private val accountService: AccountService) :
         try {
             account = accountService.getAccount(request.accountId)
             if (account == null) throw NullPointerException()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             throw ApiException("Could not find account")
         }
 

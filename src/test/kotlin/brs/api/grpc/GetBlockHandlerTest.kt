@@ -13,8 +13,10 @@ class GetBlockHandlerTest : AbstractGrpcTest() {
 
     @Test(expected = StatusRuntimeException::class)
     fun testGetBlockWithNoBlockSelected() {
-        brsService.getBlock(BrsApi.GetBlockRequest.newBuilder()
+        brsService.getBlock(
+            BrsApi.GetBlockRequest.newBuilder()
                 .setHeight(Integer.MAX_VALUE)
-                .build())
+                .build()
+        )
     }
 }

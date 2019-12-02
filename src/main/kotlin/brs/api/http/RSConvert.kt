@@ -23,7 +23,7 @@ internal object RSConvert : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNT
             val response = JsonObject()
             JSONData.putAccount(response, "account", accountId)
             return response
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             return INCORRECT_ACCOUNT
         }
     }

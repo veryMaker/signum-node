@@ -36,7 +36,7 @@ internal class SellAlias internal constructor(private val dp: DependencyProvider
         val pricePlanck: Long
         try {
             pricePlanck = priceValuePlanck.toLong()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             return INCORRECT_PRICE
         }
 
@@ -49,7 +49,7 @@ internal class SellAlias internal constructor(private val dp: DependencyProvider
         if (recipientValue != null) {
             try {
                 recipientId = recipientValue.parseAccountId()
-            } catch (e: RuntimeException) {
+            } catch (e: Exception) {
                 return INCORRECT_RECIPIENT
             }
 
