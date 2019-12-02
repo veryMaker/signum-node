@@ -77,6 +77,7 @@ class SqlDb(private val dp: DependencyProvider) : Db {
 
         val flywayBuilder = Flyway.configure()
             .dataSource(dbUrl, dbUsername, dbPassword)
+            .mixed(true)
             .baselineOnMigrate(true)
         var runFlyway = false
 

@@ -9,6 +9,7 @@ import brs.api.http.common.Parameters.DOMAIN_PARAMETER
 import brs.api.http.common.Parameters.PAYLOAD_PARAMETER
 import brs.services.DeeplinkGeneratorService
 import brs.util.convert.emptyToNull
+import brs.util.logging.safeDebug
 import com.google.zxing.WriterException
 import org.eclipse.jetty.http.HttpStatus
 import org.slf4j.LoggerFactory
@@ -18,10 +19,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 internal class GenerateDeeplinkQR(private val deeplinkGeneratorService: DeeplinkGeneratorService) :
-    HttpRequestHandler
-        (arrayOf(APITag.UTILS), DOMAIN_PARAMETER, ACTION_PARAMETER, PAYLOAD_PARAMETER) {
-    private val logger = LoggerFactory.getLogger(GenerateDeeplinkQR::class.java)
-
+    HttpRequestHandler(arrayOf(APITag.UTILS), DOMAIN_PARAMETER, ACTION_PARAMETER, PAYLOAD_PARAMETER) {
     override fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
             val domain = request.getParameter(DOMAIN_PARAMETER).emptyToNull()
@@ -48,17 +46,19 @@ internal class GenerateDeeplinkQR(private val deeplinkGeneratorService: Deeplink
                 ImageIO.write(qrImage, "jpg", resp.outputStream)
                 resp.outputStream.close()
             } catch (e: IllegalArgumentException) {
-                logger.error("Problem with arguments", e)
+                logger.safeDebug(e) { "Problem with arguments" }
                 addErrorMessage(resp, incorrect("arguments", e.message))
             }
-
         } catch (e: WriterException) {
-            logger.error("Could not generate Deeplink QR code", e)
+            logger.safeDebug(e) { "Could not generate Deeplink QR code" }
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
         } catch (e: IOException) {
-            logger.error("Could not generate Deeplink QR code", e)
+            logger.safeDebug(e) { "Could not generate Deeplink QR code" }
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
         }
+    }
 
+    companion object {
+        private val logger = LoggerFactory.getLogger(GenerateDeeplinkQR::class.java)
     }
 }

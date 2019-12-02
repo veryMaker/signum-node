@@ -42,7 +42,6 @@ class DeeplinkGeneratorServiceImplTest {
         } catch (e: IllegalArgumentException) {
             assertEquals(e.message, "Invalid domain:invalid")
         }
-
     }
 
     @Test
