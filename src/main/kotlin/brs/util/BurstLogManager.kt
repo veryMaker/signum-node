@@ -46,12 +46,4 @@ internal class BurstLogManager : LogManager() {
         if (loggingReconfiguration.get())
             super.reset()
     }
-
-    /**
-     * Burst shutdown is now complete, so call LogManager.reset() to terminate
-     * the log handlers.
-     */
-    fun burstShutdown() {
-        super.reset()
-    }
 }

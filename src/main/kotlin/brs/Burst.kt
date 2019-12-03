@@ -170,46 +170,40 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
         shutdown(false)
     }
 
-    fun shutdown(ignoreDBShutdown: Boolean) {
+    /**
+     * Tries to perform an action that uses a `lateinit` property.
+     * If this property is uninitialized, this swallows the exception produced.
+     */
+    private inline fun tryOnLateinit(action: () -> Unit) {
+        try {
+            action()
+        } catch (e: UninitializedPropertyAccessException) {
+            // Ignore
+        }
+    }
+
+    fun shutdown() {
         logger.safeInfo { "Shutting down..." }
-        try {
+        tryOnLateinit {
             dp.api.shutdown()
-        } catch (ignored: UninitializedPropertyAccessException) {
-            // Ignore
         }
-        try {
+        tryOnLateinit {
             dp.apiV2Server.shutdownNow()
-        } catch (ignored: UninitializedPropertyAccessException) {
-            // Ignore
         }
-        try {
+        tryOnLateinit {
             dp.peerService.shutdown()
-        } catch (ignored: UninitializedPropertyAccessException) {
-            // Ignore
         }
-        try {
+        tryOnLateinit {
             dp.taskSchedulerService.shutdown()
-        } catch (ignored: UninitializedPropertyAccessException) {
-            // Ignore
         }
-        if (!ignoreDBShutdown) {
-            try {
-                dp.db.shutdown()
-            } catch (ignored: UninitializedPropertyAccessException) {
-                // Ignore
-            }
+        tryOnLateinit {
+            dp.db.shutdown()
         }
-        try {
+        tryOnLateinit {
             dp.dbCacheService.close()
-        } catch (ignored: UninitializedPropertyAccessException) {
-            // Ignore
         }
-        try {
-            if (dp.blockchainProcessorService.oclVerify) {
-                dp.oclPocService.destroy()
-            }
-        } catch (ignored: UninitializedPropertyAccessException) {
-            // Ignore
+        tryOnLateinit {
+            dp.oclPocService.destroy()
         }
         logger.safeInfo { "$APPLICATION $VERSION stopped." }
         LoggerConfigurator.shutdown()

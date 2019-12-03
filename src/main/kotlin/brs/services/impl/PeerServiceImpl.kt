@@ -339,8 +339,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 peerServer!!.handler = peerHandler
             }
             peerServer!!.stopAtShutdown = true
-            peerServer!!.start()
-            logger.safeInfo { "Started peer networking server at $host:$port" }
+            dp.taskSchedulerService.runBeforeStart {
+                peerServer!!.start()
+                logger.safeInfo { "Started peer networking server at $host:$port" }
+            }
         } else {
             logger.safeInfo { "shareMyAddress is disabled, will not start peer networking server" }
         }

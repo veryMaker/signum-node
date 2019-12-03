@@ -72,8 +72,6 @@ object LoggerConfigurator {
      * LoggerConfigurator shutdown
      */
     fun shutdown() {
-        if (LogManager.getLogManager() is BurstLogManager) {
-            (LogManager.getLogManager() as BurstLogManager).burstShutdown()
-        }
+        LogManager.getLogManager().reset()
     }
 }

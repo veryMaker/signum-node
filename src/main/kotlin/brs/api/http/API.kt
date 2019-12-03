@@ -189,11 +189,13 @@ class API(dp: DependencyProvider) {
             apiServer.handler = apiHandlers
             apiServer.stopAtShutdown = true
 
-            try {
-                apiServer.start()
-                logger.safeInfo { "Started API server at $host:$port" }
-            } catch (e: Exception) {
-                logger.safeError(e) { "Failed to start API server" }
+            dp.taskSchedulerService.runBeforeStart {
+                try {
+                    apiServer.start()
+                    logger.safeInfo { "Started API server at $host:$port" }
+                } catch (e: Exception) {
+                    logger.safeError(e) { "Failed to start API server" }
+                }
             }
         } else {
             apiServer = null
