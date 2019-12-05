@@ -1,6 +1,6 @@
 package brs.services
 
-import brs.util.Time.FasterTime
+import brs.util.Time
 
 interface TimeService {
     /**
@@ -11,10 +11,5 @@ interface TimeService {
     /**
      * TODO
      */
-    val epochTimeMillis: Long
-
-    /**
-     * TODO
-     */
-    fun setTime(fasterTime: FasterTime)
+    fun setTime(time: Time)
 }
