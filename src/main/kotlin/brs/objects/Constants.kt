@@ -2,7 +2,6 @@ package brs.objects
 
 import brs.entity.DependencyProvider
 import brs.util.Version
-import java.util.*
 
 object Constants {
 
@@ -62,10 +61,8 @@ object Constants {
     const val HTTP = "http://"
 
     val MIN_VERSION = Version.parse("v2.3.0")
-    internal var UNCONFIRMED_POOL_DEPOSIT_PLANCK: Long = 0
 
-    // TODO burstkit4j integration
-    val EPOCH_BEGINNING: Long
+    internal var UNCONFIRMED_POOL_DEPOSIT_PLANCK: Long = 0
 
     const val ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz"
 
@@ -81,18 +78,6 @@ object Constants {
     const val TASK_FAILURE_DELAY_MS = 500L
 
     const val OPTIMIZE_TABLE_FREQUENCY = 10000 // Optimize tables every 1000 blocks
-
-    init {
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-        calendar.set(Calendar.YEAR, 2014)
-        calendar.set(Calendar.MONTH, Calendar.AUGUST)
-        calendar.set(Calendar.DAY_OF_MONTH, 11)
-        calendar.set(Calendar.HOUR_OF_DAY, 2)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-        EPOCH_BEGINNING = calendar.timeInMillis
-    }
 
     fun init(dp: DependencyProvider) {
         val dbRollback = dp.propertyService.get(Props.DB_MAX_ROLLBACK).toLong()

@@ -66,7 +66,7 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
 
         val buyerAccount = dp.accountService.getAccount(purchase.buyerId) ?: return INCORRECT_ACCOUNT
         val goodsIsText = !isFalse(request.getParameter(GOODS_IS_TEXT_PARAMETER))
-        var encryptedGoods = ParameterParser.getEncryptedGoods(request)
+        var encryptedGoods = ParameterParser.getEncryptedGoods(request, goodsIsText)
 
         if (encryptedGoods == null) {
             val secretPhrase = ParameterParser.getSecretPhrase(request)
@@ -81,14 +81,13 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
                 return INCORRECT_DGS_GOODS
             }
 
-            encryptedGoods = buyerAccount.encryptTo(goodsBytes, secretPhrase)
+            encryptedGoods = buyerAccount.encryptTo(goodsBytes, secretPhrase, goodsIsText)
         }
 
         val attachment = Attachment.DigitalGoodsDelivery(
             dp,
             purchase.id,
             encryptedGoods,
-            goodsIsText,
             discountPlanck,
             dp.blockchainService.height
         )

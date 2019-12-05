@@ -9,12 +9,12 @@ import brs.api.http.common.Parameters.DECRYPTED_MESSAGE_IS_TEXT_PARAMETER
 import brs.api.http.common.Parameters.NONCE_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.ResultFields.DECRYPTED_MESSAGE_RESPONSE
-import brs.entity.EncryptedData
 import brs.services.ParameterService
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
 import brs.util.convert.toUtf8String
 import brs.util.logging.safeDebug
+import burst.kit.entity.BurstEncryptedMessage
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -41,8 +41,8 @@ internal class DecryptFrom internal constructor(private val parameterService: Pa
         val secretPhrase = ParameterParser.getSecretPhrase(request)
         val data = request.getParameter(DATA_PARAMETER).orEmpty().parseHexString()
         val nonce = request.getParameter(NONCE_PARAMETER).orEmpty().parseHexString()
-        val encryptedData = EncryptedData(data, nonce)
         val isText = !Parameters.isFalse(request.getParameter(DECRYPTED_MESSAGE_IS_TEXT_PARAMETER))
+        val encryptedData = BurstEncryptedMessage(data, nonce, isText)
         return try {
             val decrypted = account.decryptFrom(encryptedData, secretPhrase)
             val response = JsonObject()
@@ -61,5 +61,4 @@ internal class DecryptFrom internal constructor(private val parameterService: Pa
     companion object {
         private val logger = LoggerFactory.getLogger(DecryptFrom::class.java)
     }
-
 }

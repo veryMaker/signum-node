@@ -5,7 +5,6 @@ import brs.api.grpc.service.ProtoBuilder
 import brs.api.grpc.service.toByteString
 import brs.entity.Account
 import brs.entity.DependencyProvider
-import brs.entity.EncryptedData
 import brs.entity.Transaction
 import brs.objects.Constants
 import brs.objects.FluxValues
@@ -14,10 +13,12 @@ import brs.util.convert.parseHexString
 import brs.util.convert.toBytes
 import brs.util.convert.toHexString
 import brs.util.convert.toUtf8String
+import brs.util.crypto.Crypto
 import brs.util.json.mustGetAsBoolean
 import brs.util.json.mustGetAsJsonObject
 import brs.util.json.mustGetAsString
 import brs.util.json.safeGetAsByte
+import burst.kit.entity.BurstEncryptedMessage
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
 import java.nio.ByteBuffer
@@ -191,8 +192,7 @@ interface Appendix {
 
     abstract class AbstractEncryptedMessage : AbstractAppendix {
 
-        val encryptedData: EncryptedData
-        val isText: Boolean
+        val encryptedData: BurstEncryptedMessage
 
         override val mySize: Int
             get() = 4 + encryptedData.size
@@ -210,31 +210,28 @@ interface Appendix {
 
         constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
             var length = buffer.int
-            this.isText = length < 0
             if (length < 0) {
                 length = length and Integer.MAX_VALUE
             }
-            this.encryptedData = EncryptedData.readEncryptedData(
+            this.encryptedData = Crypto.readEncryptedData(
                 buffer, length,
-                Constants.MAX_ENCRYPTED_MESSAGE_LENGTH
+                Constants.MAX_ENCRYPTED_MESSAGE_LENGTH,
+                length < 0
             )
         }
 
         constructor(attachmentJSON: JsonObject, encryptedMessageJSON: JsonObject) : super(attachmentJSON) {
             val data = encryptedMessageJSON.get("data").mustGetAsString("data").parseHexString()
             val nonce = encryptedMessageJSON.get("nonce").mustGetAsString("data").parseHexString()
-            this.encryptedData = EncryptedData(data, nonce)
-            this.isText = encryptedMessageJSON.get("isText").mustGetAsBoolean("data")
+            this.encryptedData = BurstEncryptedMessage(data, nonce, encryptedMessageJSON.get("isText").mustGetAsBoolean("data"))
         }
 
         constructor(
             dp: DependencyProvider,
-            encryptedData: EncryptedData,
-            isText: Boolean,
+            encryptedData: BurstEncryptedMessage,
             blockchainHeight: Int
         ) : super(dp, blockchainHeight) {
             this.encryptedData = encryptedData
-            this.isText = isText
         }
 
         constructor(
@@ -242,12 +239,11 @@ interface Appendix {
             encryptedMessageAppendix: BrsApi.EncryptedMessageAppendix,
             blockchainHeight: Int
         ) : super(dp, blockchainHeight) {
-            this.encryptedData = ProtoBuilder.parseEncryptedData(encryptedMessageAppendix.encryptedData)
-            this.isText = encryptedMessageAppendix.isText
+            this.encryptedData = ProtoBuilder.parseEncryptedData(encryptedMessageAppendix.encryptedData, encryptedMessageAppendix.isText)
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
-            buffer.putInt(if (isText) encryptedData.data.size or Integer.MIN_VALUE else encryptedData.data.size)
+            buffer.putInt(if (encryptedData.isText) encryptedData.data.size or Integer.MIN_VALUE else encryptedData.data.size)
             buffer.put(encryptedData.data)
             buffer.put(encryptedData.nonce)
         }
@@ -255,7 +251,7 @@ interface Appendix {
         override fun putMyJSON(json: JsonObject) {
             json.addProperty("data", encryptedData.data.toHexString())
             json.addProperty("nonce", encryptedData.nonce.toHexString())
-            json.addProperty("isText", isText)
+            json.addProperty("isText", encryptedData.isText)
         }
 
         override fun preValidate(transaction: Transaction, height: Int) {
@@ -294,10 +290,9 @@ interface Appendix {
 
         constructor(
             dp: DependencyProvider,
-            encryptedData: EncryptedData,
-            isText: Boolean,
+            encryptedData: BurstEncryptedMessage,
             blockchainHeight: Int
-        ) : super(dp, encryptedData, isText, blockchainHeight)
+        ) : super(dp, encryptedData, blockchainHeight)
 
         constructor(
             dp: DependencyProvider,
@@ -347,10 +342,9 @@ interface Appendix {
 
         constructor(
             dp: DependencyProvider,
-            encryptedData: EncryptedData,
-            isText: Boolean,
+            encryptedData: BurstEncryptedMessage,
             blockchainHeight: Int
-        ) : super(dp, encryptedData, isText, blockchainHeight)
+        ) : super(dp, encryptedData, blockchainHeight)
 
         constructor(
             dp: DependencyProvider,

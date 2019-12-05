@@ -194,7 +194,7 @@ class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : Digital
             seller,
             totalWithoutDiscount.safeSubtract(attachment.discountPlanck)
         )
-        purchase.setEncryptedGoods(attachment.goods, attachment.goodsIsText())
+        purchase.setEncryptedGoods(attachment.goods)
         purchaseTable.insert(purchase)
         purchase.discountPlanck = attachment.discountPlanck
         purchaseTable.insert(purchase)

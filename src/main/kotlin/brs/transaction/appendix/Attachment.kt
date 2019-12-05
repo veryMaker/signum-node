@@ -68,12 +68,17 @@ import brs.api.http.common.ResultFields.SIGNERS_RESPONSE
 import brs.api.http.common.ResultFields.SUBSCRIPTION_ID_RESPONSE
 import brs.api.http.common.ResultFields.TAGS_RESPONSE
 import brs.api.http.common.ResultFields.URI_RESPONSE
-import brs.entity.*
+import brs.entity.Account
+import brs.entity.DependencyProvider
+import brs.entity.Escrow
+import brs.entity.Transaction
 import brs.objects.Constants
 import brs.transaction.type.TransactionType
 import brs.util.BurstException
 import brs.util.convert.*
+import brs.util.crypto.Crypto
 import brs.util.json.*
+import burst.kit.entity.BurstEncryptedMessage
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
@@ -1605,9 +1610,8 @@ interface Attachment : Appendix {
     class DigitalGoodsDelivery : AbstractAttachment {
 
         val purchaseId: Long
-        val goods: EncryptedData
+        val goods: BurstEncryptedMessage
         val discountPlanck: Long
-        private val goodsIsText: Boolean
 
         override fun getAppendixName(): String = "DigitalGoodsDelivery"
 
@@ -1624,7 +1628,7 @@ interface Attachment : Appendix {
                     .setPurchase(purchaseId)
                     .setDiscount(discountPlanck)
                     .setGoods(ProtoBuilder.buildEncryptedData(goods))
-                    .setIsText(goodsIsText)
+                    .setIsText(goods.isText)
                     .build()
             )
 
@@ -1635,36 +1639,33 @@ interface Attachment : Appendix {
         ) {
             this.purchaseId = buffer.long
             var length = buffer.int
-            goodsIsText = length < 0
             if (length < 0) {
                 length = length and Integer.MAX_VALUE
             }
-            this.goods = EncryptedData.readEncryptedData(buffer, length, Constants.MAX_DGS_GOODS_LENGTH)
+            this.goods = Crypto.readEncryptedData(buffer, length, Constants.MAX_DGS_GOODS_LENGTH, length < 0)
             this.discountPlanck = buffer.long
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
             this.purchaseId = attachmentData.get(PURCHASE_PARAMETER).safeGetAsString().parseUnsignedLong()
-            this.goods = EncryptedData(
+            this.goods = BurstEncryptedMessage(
                 attachmentData.get(GOODS_DATA_PARAMETER).mustGetAsString(GOODS_DATA_PARAMETER).parseHexString(),
-                attachmentData.get(GOODS_NONCE_PARAMETER).mustGetAsString(GOODS_NONCE_PARAMETER).parseHexString()
+                attachmentData.get(GOODS_NONCE_PARAMETER).mustGetAsString(GOODS_NONCE_PARAMETER).parseHexString(),
+                attachmentData.get(GOODS_IS_TEXT_PARAMETER).mustGetAsBoolean(GOODS_IS_TEXT_PARAMETER)
             )
             this.discountPlanck = attachmentData.get(DISCOUNT_PLANCK_PARAMETER).mustGetAsLong(DISCOUNT_PLANCK_PARAMETER)
-            this.goodsIsText = attachmentData.get(GOODS_IS_TEXT_PARAMETER).mustGetAsBoolean(GOODS_IS_TEXT_PARAMETER)
         }
 
         constructor(
             dp: DependencyProvider,
             purchaseId: Long,
-            goods: EncryptedData,
-            goodsIsText: Boolean,
+            goods: BurstEncryptedMessage,
             discountPlanck: Long,
             blockchainHeight: Int
         ) : super(dp, blockchainHeight) {
             this.purchaseId = purchaseId
             this.goods = goods
             this.discountPlanck = discountPlanck
-            this.goodsIsText = goodsIsText
         }
 
         internal constructor(dp: DependencyProvider, attachment: BrsApi.DigitalGoodsDeliveryAttachment) : super(
@@ -1672,14 +1673,13 @@ interface Attachment : Appendix {
             attachment.version.toByte()
         ) {
             this.purchaseId = attachment.purchase
-            this.goods = ProtoBuilder.parseEncryptedData(attachment.goods)
-            this.goodsIsText = attachment.isText
+            this.goods = ProtoBuilder.parseEncryptedData(attachment.goods, attachment.isText)
             this.discountPlanck = attachment.discount
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
             buffer.putLong(purchaseId)
-            buffer.putInt(if (goodsIsText) goods.data.size or Integer.MIN_VALUE else goods.data.size)
+            buffer.putInt(if (goods.isText) goods.data.size or Integer.MIN_VALUE else goods.data.size)
             buffer.put(goods.data)
             buffer.put(goods.nonce)
             buffer.putLong(discountPlanck)
@@ -1690,11 +1690,7 @@ interface Attachment : Appendix {
             attachment.addProperty(GOODS_DATA_RESPONSE, goods.data.toHexString())
             attachment.addProperty(GOODS_NONCE_RESPONSE, goods.nonce.toHexString())
             attachment.addProperty(DISCOUNT_PLANCK_RESPONSE, discountPlanck)
-            attachment.addProperty(GOODS_IS_TEXT_RESPONSE, goodsIsText)
-        }
-
-        fun goodsIsText(): Boolean {
-            return goodsIsText
+            attachment.addProperty(GOODS_IS_TEXT_RESPONSE, goods.isText)
         }
     }
 

@@ -11,6 +11,7 @@ import brs.transaction.appendix.Appendix
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.logging.safeDebug
+import burst.kit.entity.BurstEncryptedMessage
 import com.google.protobuf.ByteString
 import com.google.protobuf.InvalidProtocolBufferException
 import com.google.rpc.Code
@@ -187,15 +188,15 @@ object ProtoBuilder {
         return builder.build()
     }
 
-    fun buildEncryptedData(encryptedData: EncryptedData?): BrsApi.EncryptedData {
+    fun buildEncryptedData(encryptedData: BurstEncryptedMessage?): BrsApi.EncryptedData {
         return if (encryptedData == null) BrsApi.EncryptedData.getDefaultInstance() else BrsApi.EncryptedData.newBuilder()
             .setData(encryptedData.data.toByteString())
             .setNonce(encryptedData.nonce.toByteString())
-            .build() // TODO is this needed for all methods?
+            .build()
     }
 
-    fun parseEncryptedData(encryptedData: BrsApi.EncryptedData): EncryptedData {
-        return EncryptedData(encryptedData.data.toByteArray(), encryptedData.nonce.toByteArray())
+    fun parseEncryptedData(encryptedData: BrsApi.EncryptedData, isText: Boolean): BurstEncryptedMessage {
+        return BurstEncryptedMessage(encryptedData.data.toByteArray(), encryptedData.nonce.toByteArray(), isText)
     }
 
     fun sanitizeIndexRange(indexRange: BrsApi.IndexRange): BrsApi.IndexRange {
@@ -325,7 +326,7 @@ object ProtoBuilder {
             .setNote(buildEncryptedData(purchase.note))
             .setIsPending(purchase.isPending)
             .setDeliveredData(buildEncryptedData(purchase.encryptedGoods))
-            .setDeliveredDataIsText(purchase.goodsIsText())
+            .setDeliveredDataIsText(purchase.encryptedGoods?.isText ?: false)
             .addAllFeedback(purchase.feedbackNotes?.map { buildEncryptedData(it) } ?: emptyList())
             .addAllPublicFeedback(purchase.getPublicFeedback())
             .setRefundNote(buildEncryptedData(purchase.refundNote))

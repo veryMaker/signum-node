@@ -31,6 +31,7 @@ import brs.util.BurstException.ValidationException
 import brs.util.convert.parseHexString
 import brs.util.convert.toBytes
 import brs.util.crypto.Crypto
+import burst.kit.entity.BurstEncryptedMessage
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.*
@@ -413,9 +414,9 @@ class ParameterServiceImplTest {
         val mockRecipientAccount = mock<Account>()
         whenever(mockRecipientAccount.publicKey).doReturn(ByteArray(0))
 
-        val encryptedDataMock = mock<EncryptedData>()
+        val encryptedDataMock = mock<BurstEncryptedMessage>()
 
-        whenever(mockRecipientAccount.encryptTo(eq("beef123".parseHexString()), eq(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
+        whenever(mockRecipientAccount.encryptTo(eq("beef123".parseHexString()), eq(TEST_SECRET_PHRASE), any())).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t.getEncryptedMessage(request, mockRecipientAccount, null))
     }
@@ -427,7 +428,7 @@ class ParameterServiceImplTest {
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
                 MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "false"))
 
-        val encryptedDataMock = mock<EncryptedData>()
+        val encryptedDataMock = mock<BurstEncryptedMessage>()
 
         assertEquals(encryptedDataMock, t.getEncryptedMessage(request, null, null))
     }
@@ -442,9 +443,9 @@ class ParameterServiceImplTest {
         val mockRecipientAccount = mock<Account>()
         whenever(mockRecipientAccount.publicKey).doReturn(ByteArray(0))
 
-        val encryptedDataMock = mock<EncryptedData>()
+        val encryptedDataMock = mock<BurstEncryptedMessage>()
 
-        whenever(mockRecipientAccount.encryptTo(eq("message".toBytes()), eq(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
+        whenever(mockRecipientAccount.encryptTo(eq("message".toBytes()), eq(TEST_SECRET_PHRASE), any())).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t.getEncryptedMessage(request, mockRecipientAccount, null))
     }
@@ -498,9 +499,9 @@ class ParameterServiceImplTest {
         val mockAccount = mock<Account>()
         whenever(accountServiceMock.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).doReturn(mockAccount)
 
-        val encryptedDataMock = mock<EncryptedData>()
+        val encryptedDataMock = mock<BurstEncryptedMessage>()
 
-        whenever(mockAccount.encryptTo(eq("beef123".parseHexString()), eq(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
+        whenever(mockAccount.encryptTo(eq("beef123".parseHexString()), eq(TEST_SECRET_PHRASE), any())).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t.getEncryptToSelfMessage(request))
     }
@@ -515,9 +516,9 @@ class ParameterServiceImplTest {
         val mockAccount = mock<Account>()
         whenever(accountServiceMock.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).doReturn(mockAccount)
 
-        val encryptedDataMock = mock<EncryptedData>()
+        val encryptedDataMock = mock<BurstEncryptedMessage>()
 
-        whenever(mockAccount.encryptTo(eq("beef123".parseHexString()), eq(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
+        whenever(mockAccount.encryptTo(eq("beef123".parseHexString()), eq(TEST_SECRET_PHRASE), any())).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t.getEncryptToSelfMessage(request))
     }
@@ -532,9 +533,9 @@ class ParameterServiceImplTest {
         val mockAccount = mock<Account>()
         whenever(accountServiceMock.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE)))).doReturn(mockAccount)
 
-        val encryptedDataMock = mock<EncryptedData>()
+        val encryptedDataMock = mock<BurstEncryptedMessage>()
 
-        whenever(mockAccount.encryptTo(eq("message".toBytes()), eq(TEST_SECRET_PHRASE))).doReturn(encryptedDataMock)
+        whenever(mockAccount.encryptTo(eq("message".toBytes()), eq(TEST_SECRET_PHRASE), any())).doReturn(encryptedDataMock)
 
         assertEquals(encryptedDataMock, t.getEncryptToSelfMessage(request))
     }

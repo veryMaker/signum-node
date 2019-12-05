@@ -1,15 +1,5 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.transaction.appendix.Attachment
-import brs.services.BlockchainService
-import brs.objects.Constants.MAX_BALANCE_PLANCK
-import brs.entity.DependencyProvider
-import brs.entity.Purchase
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
-import brs.common.TestConstants.TEST_SECRET_PHRASE
-import brs.objects.FluxValues
 import brs.api.http.JSONResponses.ALREADY_DELIVERED
 import brs.api.http.JSONResponses.INCORRECT_DGS_DISCOUNT
 import brs.api.http.JSONResponses.INCORRECT_DGS_GOODS
@@ -17,8 +7,18 @@ import brs.api.http.JSONResponses.INCORRECT_PURCHASE
 import brs.api.http.common.Parameters.DISCOUNT_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.GOODS_TO_ENCRYPT_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.common.TestConstants.TEST_SECRET_PHRASE
+import brs.entity.Account
+import brs.entity.DependencyProvider
+import brs.entity.Purchase
+import brs.objects.Constants.MAX_BALANCE_PLANCK
+import brs.objects.FluxValues
 import brs.services.AccountService
+import brs.services.BlockchainService
 import brs.services.ParameterService
+import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.transaction.type.digitalGoods.DigitalGoodsDelivery
 import com.nhaarman.mockitokotlin2.*
@@ -76,7 +76,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockSellerAccount)
         whenever(parameterServiceMock.getPurchase(eq(request))).doReturn(mockPurchase)
         whenever(accountServiceMock.getAccount(eq(mockPurchase.buyerId))).doReturn(mockBuyerAccount)
-        whenever(mockBuyerAccount.encryptTo(any(), any())).doReturn(mock())
+        whenever(mockBuyerAccount.encryptTo(any(), any(), any())).doReturn(mock())
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 

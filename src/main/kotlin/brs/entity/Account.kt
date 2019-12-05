@@ -6,6 +6,7 @@ import brs.util.convert.fullHashToId
 import brs.util.convert.toUnsignedString
 import brs.util.crypto.Crypto
 import brs.util.crypto.rsVerify
+import burst.kit.entity.BurstEncryptedMessage
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -119,13 +120,13 @@ open class Account {
         this.creationHeight = creationHeight
     }
 
-    fun encryptTo(data: ByteArray, senderSecretPhrase: String): EncryptedData {
+    fun encryptTo(data: ByteArray, senderSecretPhrase: String, isText: Boolean): BurstEncryptedMessage {
         requireNotNull(publicKey) { "Recipient account doesn't have a public key set" }
-        return EncryptedData.encrypt(data, Crypto.getPrivateKey(senderSecretPhrase), publicKey!!)
+        return Crypto.encryptData(data, Crypto.getPrivateKey(senderSecretPhrase), publicKey!!, isText)
     }
 
 
-    fun decryptFrom(encryptedData: EncryptedData, recipientSecretPhrase: String): ByteArray {
+    fun decryptFrom(encryptedData: BurstEncryptedMessage, recipientSecretPhrase: String): ByteArray {
         requireNotNull(publicKey) { "Sender account doesn't have a public key set" }
         return encryptedData.decrypt(Crypto.getPrivateKey(recipientSecretPhrase), publicKey!!)
     }
@@ -189,9 +190,13 @@ open class Account {
             return account
         }
 
-        fun encryptTo(data: ByteArray, senderSecretPhrase: String, publicKey: ByteArray?): EncryptedData {
-            requireNotNull(publicKey) { "public key required" }
-            return EncryptedData.encrypt(data, Crypto.getPrivateKey(senderSecretPhrase), publicKey)
+        fun encryptTo(
+            data: ByteArray,
+            senderSecretPhrase: String,
+            publicKey: ByteArray,
+            isText: Boolean
+        ): BurstEncryptedMessage {
+            return Crypto.encryptData(data, Crypto.getPrivateKey(senderSecretPhrase), publicKey, isText)
         }
 
         private fun checkBalance(accountId: Long, confirmed: Long, unconfirmed: Long) {

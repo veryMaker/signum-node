@@ -51,7 +51,7 @@ class DigitalGoodsPurchase(dp: DependencyProvider) : DigitalGoods(dp) {
     }
 
     override fun doPreValidateAttachment(transaction: Transaction, height: Int) {
-        if (transaction.encryptedMessage != null && !transaction.encryptedMessage.isText) {
+        if (transaction.encryptedMessage != null && !transaction.encryptedMessage.encryptedData.isText) {
             throw BurstException.NotValidException("Only text encrypted messages allowed")
         }
     }

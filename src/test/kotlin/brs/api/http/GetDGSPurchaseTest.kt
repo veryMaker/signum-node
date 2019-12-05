@@ -1,8 +1,5 @@
 package brs.api.http
 
-import brs.entity.Purchase
-import brs.common.QuickMocker
-import brs.entity.EncryptedData
 import brs.api.http.common.ResultFields.BUYER_RESPONSE
 import brs.api.http.common.ResultFields.DELIVERY_DEADLINE_TIMESTAMP_RESPONSE
 import brs.api.http.common.ResultFields.DISCOUNT_PLANCK_RESPONSE
@@ -15,10 +12,13 @@ import brs.api.http.common.ResultFields.QUANTITY_RESPONSE
 import brs.api.http.common.ResultFields.REFUND_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.SELLER_RESPONSE
 import brs.api.http.common.ResultFields.TIMESTAMP_RESPONSE
+import brs.common.QuickMocker
+import brs.entity.Purchase
 import brs.services.ParameterService
 import brs.util.json.safeGetAsBoolean
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
+import burst.kit.entity.BurstEncryptedMessage
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -47,10 +47,11 @@ class GetDGSPurchaseTest {
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockEncryptedData = mock<EncryptedData>()
+        val mockEncryptedData = mock<BurstEncryptedMessage>()
 
         whenever(mockEncryptedData.data).doReturn(byteArrayOf(1.toByte()))
         whenever(mockEncryptedData.nonce).doReturn(byteArrayOf(1.toByte()))
+        whenever(mockEncryptedData.isText).doReturn(true)
 
         val mockEncryptedDataList = mutableListOf(mockEncryptedData)
 
@@ -65,7 +66,6 @@ class GetDGSPurchaseTest {
         whenever(mockPurchase.timestamp).doReturn(7)
         whenever(mockPurchase.deliveryDeadlineTimestamp).doReturn(8)
         whenever(mockPurchase.isPending).doReturn(true)
-        whenever(mockPurchase.goodsIsText()).doReturn(true)
         whenever(mockPurchase.discountPlanck).doReturn(8L)
         whenever(mockPurchase.refundPlanck).doReturn(9L)
         whenever(mockPurchase.encryptedGoods).doReturn(mockEncryptedData)

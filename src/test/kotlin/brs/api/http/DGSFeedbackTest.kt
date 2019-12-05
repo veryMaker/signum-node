@@ -1,19 +1,19 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.transaction.appendix.Attachment
-import brs.services.BlockchainService
-import brs.entity.DependencyProvider
-import brs.entity.Purchase
-import brs.common.QuickMocker
-import brs.entity.EncryptedData
-import brs.objects.FluxValues
 import brs.api.http.JSONResponses.GOODS_NOT_DELIVERED
 import brs.api.http.JSONResponses.INCORRECT_PURCHASE
+import brs.common.QuickMocker
+import brs.entity.Account
+import brs.entity.DependencyProvider
+import brs.entity.Purchase
+import brs.objects.FluxValues
 import brs.services.AccountService
+import brs.services.BlockchainService
 import brs.services.ParameterService
+import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.transaction.type.digitalGoods.DigitalGoodsFeedback
+import burst.kit.entity.BurstEncryptedMessage
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -55,7 +55,7 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         whenever(mockPurchase.id).doReturn(mockPurchaseId)
         val mockAccount = mock<Account>()
         val mockSellerAccount = mock<Account>()
-        val mockEncryptedGoods = mock<EncryptedData>()
+        val mockEncryptedGoods = mock<BurstEncryptedMessage>()
 
         whenever(parameterServiceMock.getPurchase(eq(request))).doReturn(mockPurchase)
         whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockAccount)

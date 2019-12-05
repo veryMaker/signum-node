@@ -4,6 +4,7 @@ import brs.db.BurstKey
 import brs.db.VersionedValuesTable
 import brs.transaction.appendix.Attachment
 import brs.util.delegates.AtomicLazy
+import burst.kit.entity.BurstEncryptedMessage
 
 open class Purchase {
     private lateinit var dp: DependencyProvider
@@ -16,13 +17,12 @@ open class Purchase {
     val quantity: Int
     val pricePlanck: Long
     val deliveryDeadlineTimestamp: Int
-    val note: EncryptedData?
+    val note: BurstEncryptedMessage?
     val timestamp: Int
     var isPending: Boolean = false
-    var encryptedGoods: EncryptedData? = null
+    var encryptedGoods: BurstEncryptedMessage? = null
         private set
-    private var goodsIsText: Boolean = false
-    var refundNote: EncryptedData? = null
+    var refundNote: BurstEncryptedMessage? = null
     private var hasFeedbackNotes: Boolean = false
     var feedbackNotes by AtomicLazy {
         if (!hasFeedbackNotes) null else feedbackTable(dp).get(feedbackDbKeyFactory(dp).newKey(this@Purchase)).toMutableList()
@@ -51,7 +51,7 @@ open class Purchase {
         return dp.digitalGoodsStoreStore.feedbackDbKeyFactory
     }
 
-    private fun feedbackTable(dp: DependencyProvider): VersionedValuesTable<Purchase, EncryptedData> {
+    private fun feedbackTable(dp: DependencyProvider): VersionedValuesTable<Purchase, BurstEncryptedMessage> {
         return dp.digitalGoodsStoreStore.feedbackTable
     }
 
@@ -85,8 +85,8 @@ open class Purchase {
 
     protected constructor(
         dp: DependencyProvider, id: Long, dbKey: BurstKey, buyerId: Long, goodsId: Long, sellerId: Long, quantity: Int,
-        pricePlanck: Long, deadline: Int, note: EncryptedData?, timestamp: Int, isPending: Boolean,
-        encryptedGoods: EncryptedData?, refundNote: EncryptedData?,
+        pricePlanck: Long, deadline: Int, note: BurstEncryptedMessage?, timestamp: Int, isPending: Boolean,
+        encryptedGoods: BurstEncryptedMessage?, refundNote: BurstEncryptedMessage?,
         hasFeedbackNotes: Boolean, hasPublicFeedbacks: Boolean,
         discountPlanck: Long, refundPlanck: Long
     ) {
@@ -110,16 +110,11 @@ open class Purchase {
         this.refundPlanck = refundPlanck
     }
 
-    fun goodsIsText(): Boolean {
-        return goodsIsText
-    }
-
-    fun setEncryptedGoods(encryptedGoods: EncryptedData, goodsIsText: Boolean) {
+    fun setEncryptedGoods(encryptedGoods: BurstEncryptedMessage) {
         this.encryptedGoods = encryptedGoods
-        this.goodsIsText = goodsIsText
     }
 
-    fun addFeedbackNote(feedbackNote: EncryptedData) {
+    fun addFeedbackNote(feedbackNote: BurstEncryptedMessage) {
         if (feedbackNotes == null) {
             feedbackNotes = mutableListOf()
         }

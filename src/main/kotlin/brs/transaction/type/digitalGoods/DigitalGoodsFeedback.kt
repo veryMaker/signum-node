@@ -41,7 +41,7 @@ class DigitalGoodsFeedback(dp: DependencyProvider) : DigitalGoods(dp) {
         if (transaction.encryptedMessage == null && transaction.message == null) {
             throw BurstException.NotValidException("Missing feedback message")
         }
-        if (transaction.encryptedMessage != null && !transaction.encryptedMessage.isText) {
+        if (transaction.encryptedMessage != null && !transaction.encryptedMessage.encryptedData.isText) {
             throw BurstException.NotValidException("Only text encrypted messages allowed")
         }
         if (transaction.message != null && !transaction.message.isText) {

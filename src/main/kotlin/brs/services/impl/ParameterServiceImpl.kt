@@ -61,6 +61,7 @@ import brs.util.crypto.Crypto
 import brs.util.json.mustGetAsJsonObject
 import brs.util.json.parseJson
 import brs.util.logging.safeDebug
+import burst.kit.entity.BurstEncryptedMessage
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
@@ -177,12 +178,13 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         request: HttpServletRequest,
         recipientAccount: Account?,
         publicKey: ByteArray?
-    ): EncryptedData? {
+    ): BurstEncryptedMessage? {
         val data = request.getParameter(ENCRYPTED_MESSAGE_DATA_PARAMETER).emptyToNull()
         val nonce = request.getParameter(ENCRYPTED_MESSAGE_NONCE_PARAMETER).emptyToNull()
+        val isText = isTrue(request.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER))
         if (data != null && nonce != null) {
             try {
-                return EncryptedData(data.parseHexString(), nonce.parseHexString())
+                return BurstEncryptedMessage(data.parseHexString(), nonce.parseHexString(), isText)
             } catch (e: Exception) {
                 throw ParameterException(INCORRECT_ENCRYPTED_MESSAGE)
             }
@@ -191,12 +193,11 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         val plainMessage = request.getParameter(MESSAGE_TO_ENCRYPT_PARAMETER).emptyToNull() ?: return null
 
         val secretPhrase = getSecretPhrase(request)
-        val isText = isTrue(request.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER))
         try {
             val plainMessageBytes = if (isText) plainMessage.toBytes() else plainMessage.parseHexString()
             return when {
-                recipientAccount?.publicKey != null -> recipientAccount.encryptTo(plainMessageBytes, secretPhrase)
-                publicKey != null -> Account.encryptTo(plainMessageBytes, secretPhrase, publicKey)
+                recipientAccount?.publicKey != null -> recipientAccount.encryptTo(plainMessageBytes, secretPhrase, isText)
+                publicKey != null -> Account.encryptTo(plainMessageBytes, secretPhrase, publicKey, isText)
                 else -> throw ParameterException(INCORRECT_RECIPIENT)
             }
         } catch (e: Exception) {
@@ -205,28 +206,26 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
 
     }
 
-    override fun getEncryptToSelfMessage(request: HttpServletRequest): EncryptedData? {
+    override fun getEncryptToSelfMessage(request: HttpServletRequest): BurstEncryptedMessage? {
         val data = request.getParameter(ENCRYPT_TO_SELF_MESSAGE_DATA).emptyToNull()
         val nonce = request.getParameter(ENCRYPT_TO_SELF_MESSAGE_NONCE).emptyToNull()
+        val isText = !isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER))
         if (data != null && nonce != null) {
             try {
-                return EncryptedData(data.parseHexString(), nonce.parseHexString())
+                return BurstEncryptedMessage(data.parseHexString(), nonce.parseHexString(), isText)
             } catch (e: Exception) {
                 throw ParameterException(INCORRECT_ENCRYPTED_MESSAGE)
             }
-
         }
         val plainMessage = request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER).emptyToNull() ?: return null
         val secretPhrase = getSecretPhrase(request)
         val senderAccount = dp.accountService.getAccount(Crypto.getPublicKey(secretPhrase))
-        val isText = !isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER))
         try {
             val plainMessageBytes = if (isText) plainMessage.toBytes() else plainMessage.parseHexString()
-            return senderAccount?.encryptTo(plainMessageBytes, secretPhrase)
+            return senderAccount?.encryptTo(plainMessageBytes, secretPhrase, isText)
         } catch (e: Exception) {
             throw ParameterException(INCORRECT_PLAIN_MESSAGE)
         }
-
     }
 
     override fun getSecretPhrase(request: HttpServletRequest): String {

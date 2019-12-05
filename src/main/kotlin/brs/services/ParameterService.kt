@@ -2,6 +2,7 @@ package brs.services
 
 import brs.at.AT
 import brs.entity.*
+import burst.kit.entity.BurstEncryptedMessage
 import javax.servlet.http.HttpServletRequest
 
 interface ParameterService {
@@ -47,12 +48,12 @@ interface ParameterService {
         request: HttpServletRequest,
         recipientAccount: Account?,
         publicKey: ByteArray?
-    ): EncryptedData?
+    ): BurstEncryptedMessage?
 
     /**
      * TODO
      */
-    fun getEncryptToSelfMessage(request: HttpServletRequest): EncryptedData?
+    fun getEncryptToSelfMessage(request: HttpServletRequest): BurstEncryptedMessage?
 
     /**
      * TODO

@@ -105,6 +105,7 @@ import brs.util.convert.toHexString
 import brs.util.convert.toUnsignedString
 import brs.util.crypto.Crypto
 import brs.util.json.addAll
+import burst.kit.entity.BurstEncryptedMessage
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 
@@ -243,7 +244,7 @@ object JSONData {
         return json
     }
 
-    internal fun encryptedData(encryptedData: EncryptedData): JsonObject {
+    internal fun encryptedData(encryptedData: BurstEncryptedMessage): JsonObject {
         val json = JsonObject()
         json.addProperty(DATA_RESPONSE, encryptedData.data.toHexString())
         json.addProperty(NONCE_RESPONSE, encryptedData.nonce.toHexString())
@@ -323,7 +324,7 @@ object JSONData {
         json.addProperty(PENDING_RESPONSE, purchase.isPending)
         if (purchase.encryptedGoods != null) {
             json.add(GOODS_DATA_RESPONSE, encryptedData(purchase.encryptedGoods!!))
-            json.addProperty(GOODS_IS_TEXT_RESPONSE, purchase.goodsIsText())
+            json.addProperty(GOODS_IS_TEXT_RESPONSE, purchase.encryptedGoods?.isText ?: false)
         }
         if (purchase.feedbackNotes != null) {
             val feedbacks = JsonArray()

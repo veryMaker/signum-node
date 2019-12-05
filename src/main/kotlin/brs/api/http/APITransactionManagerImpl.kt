@@ -14,8 +14,6 @@ import brs.api.http.common.Parameters.COMMENT_PARAMETER
 import brs.api.http.common.Parameters.DEADLINE_PARAMETER
 import brs.api.http.common.Parameters.MESSAGE_IS_TEXT_PARAMETER
 import brs.api.http.common.Parameters.MESSAGE_PARAMETER
-import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER
-import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER
 import brs.api.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.api.http.common.Parameters.RECIPIENT_PUBLIC_KEY_PARAMETER
 import brs.api.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER
@@ -76,7 +74,6 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
                 encryptedMessage = EncryptedMessage(
                     dp,
                     encryptedData,
-                    !Parameters.isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER)),
                     blockchainHeight
                 )
             }
@@ -88,7 +85,6 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
             encryptToSelfMessage = EncryptToSelfMessage(
                 dp,
                 encryptedToSelfData,
-                !Parameters.isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER)),
                 blockchainHeight
             )
         }

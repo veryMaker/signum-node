@@ -27,30 +27,21 @@ object AtApiHelper {
      * Little Endian.
      */
     fun getLong(bytes: ByteArray): Long {
-        return burstCrypto.bytesToLong(bytes)
+        return burstCrypto.bytesToLongLE(bytes)
     }
 
     /**
      * Little Endian.
      */
     fun getByteArray(long: Long, dest: ByteArray, offset: Int = 0) {
-        // TODO integrate with BurstKit if/when it provides a method that does not create a new array
-        // TODO optimize to iterate upwards rather than downwards
-        require(dest.size - offset >= 8)
-        var l = long
-        for (i in 7 downTo 0) {
-            dest[offset + 7 - i] = (l and 0xFF).toByte()
-            l = l shr 8
-        }
+        return burstCrypto.longToBytesLE(long, dest, offset)
     }
 
     /**
      * Little Endian.
      */
     fun getByteArray(long: Long): ByteArray {
-        val bytes = burstCrypto.longToBytes(long)
-        bytes.reverse()
-        return bytes
+        return burstCrypto.longToBytesLE(long)
     }
 
     /**

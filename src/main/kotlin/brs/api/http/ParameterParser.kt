@@ -35,9 +35,9 @@ import brs.api.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.Parameters.SELLER_PARAMETER
 import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
-import brs.entity.EncryptedData
 import brs.objects.Constants
 import brs.util.convert.*
+import burst.kit.entity.BurstEncryptedMessage
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.servlet.http.HttpServletRequest
@@ -116,12 +116,12 @@ internal object ParameterParser {
         }
     }
 
-    fun getEncryptedGoods(request: HttpServletRequest): EncryptedData? {
+    fun getEncryptedGoods(request: HttpServletRequest, goodsIsText: Boolean): BurstEncryptedMessage? {
         val data = request.getParameter(GOODS_DATA_PARAMETER).emptyToNull()
         val nonce = request.getParameter(GOODS_NONCE_PARAMETER).emptyToNull()
         if (data != null && nonce != null) {
             try {
-                return EncryptedData(data.parseHexString(), nonce.parseHexString())
+                return BurstEncryptedMessage(data.parseHexString(), nonce.parseHexString(), goodsIsText)
             } catch (e: Exception) {
                 throw ParameterException(INCORRECT_DGS_ENCRYPTED_GOODS)
             }

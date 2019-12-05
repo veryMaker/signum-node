@@ -10,7 +10,6 @@ object Props {
     val DEV_API_PORT = Prop("DEV.API.Port", 6876)
     val DEV_API_V2_PORT = Prop("DEV.API.V2.Port", 6878)
 
-    val DEV_TIMEWARP = Prop("DEV.TimeWarp", 1)
     val DEV_MOCK_MINING = Prop("DEV.mockMining", false)
     val DEV_MOCK_MINING_DEADLINE = Prop("DEV.mockMining.deadline", 10)
 

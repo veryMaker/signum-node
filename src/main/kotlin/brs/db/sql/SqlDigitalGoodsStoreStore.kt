@@ -2,7 +2,6 @@ package brs.db.sql
 
 import brs.db.*
 import brs.entity.DependencyProvider
-import brs.entity.EncryptedData
 import brs.entity.Goods
 import brs.entity.Purchase
 import brs.schema.Tables.*
@@ -10,6 +9,7 @@ import brs.schema.tables.records.GoodsRecord
 import brs.schema.tables.records.PurchaseFeedbackRecord
 import brs.schema.tables.records.PurchasePublicFeedbackRecord
 import brs.schema.tables.records.PurchaseRecord
+import burst.kit.entity.BurstEncryptedMessage
 import org.jooq.DSLContext
 import org.jooq.Field
 import org.jooq.Record
@@ -30,7 +30,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
 
     override val purchaseTable: VersionedEntityTable<Purchase>
 
-    override val feedbackTable: VersionedValuesTable<Purchase, EncryptedData>
+    override val feedbackTable: VersionedValuesTable<Purchase, BurstEncryptedMessage>
 
     override val publicFeedbackDbKeyFactory = object : SqlDbKey.LongKeyFactory<Purchase>(PURCHASE.ID) {
         override fun newKey(purchase: Purchase): BurstKey {
@@ -66,20 +66,20 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
             }
         }
 
-        feedbackTable = object : VersionedValuesSqlTable<Purchase, EncryptedData>(
+        feedbackTable = object : VersionedValuesSqlTable<Purchase, BurstEncryptedMessage>(
             "purchase_feedback",
             PURCHASE_FEEDBACK,
             feedbackDbKeyFactory,
             dp
         ) {
 
-            override fun load(ctx: DSLContext, record: Record): EncryptedData {
+            override fun load(ctx: DSLContext, record: Record): BurstEncryptedMessage {
                 val data = record.get(PURCHASE_FEEDBACK.FEEDBACK_DATA)
                 val nonce = record.get(PURCHASE_FEEDBACK.FEEDBACK_NONCE)
-                return EncryptedData(data, nonce)
+                return BurstEncryptedMessage(data, nonce, false)
             }
 
-            override fun save(ctx: DSLContext, purchase: Purchase, encryptedData: EncryptedData) {
+            override fun save(ctx: DSLContext, purchase: Purchase, encryptedData: BurstEncryptedMessage) {
                 ctx.insertInto<PurchaseFeedbackRecord, Long, ByteArray, ByteArray, Int, Boolean>(
                     PURCHASE_FEEDBACK,
                     PURCHASE_FEEDBACK.ID,
@@ -141,9 +141,9 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         record: Record,
         dataField: Field<ByteArray>,
         nonceField: Field<ByteArray>
-    ): EncryptedData? {
+    ): BurstEncryptedMessage? {
         val data = record.get(dataField) ?: return null // TODO
-        return EncryptedData(data, record.get(nonceField))
+        return BurstEncryptedMessage(data, record.get(nonceField), false)
     }
 
     private fun saveGoods(ctx: DSLContext, goods: Goods) {

@@ -1,8 +1,8 @@
 package brs.db
 
-import brs.entity.EncryptedData
 import brs.entity.Goods
 import brs.entity.Purchase
+import burst.kit.entity.BurstEncryptedMessage
 
 interface DigitalGoodsStoreStore {
     /**
@@ -23,7 +23,7 @@ interface DigitalGoodsStoreStore {
     /**
      * TODO
      */
-    val feedbackTable: VersionedValuesTable<Purchase, EncryptedData>
+    val feedbackTable: VersionedValuesTable<Purchase, BurstEncryptedMessage>
 
     /**
      * TODO

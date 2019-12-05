@@ -14,7 +14,6 @@ import brs.services.impl.*
 import brs.services.impl.GeneratorServiceImpl
 import brs.transaction.type.TransactionType
 import brs.util.LoggerConfigurator
-import brs.util.Time
 import brs.util.Version
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
@@ -23,7 +22,6 @@ import java.io.FileNotFoundException
 import java.io.FileReader
 import java.io.IOException
 import java.util.*
-import kotlin.math.max
 import kotlin.system.exitProcess
 
 class Burst(properties: Properties, addShutdownHook: Boolean = true) {
@@ -127,24 +125,8 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
                 logger.safeInfo { "Not starting V2 API Server - it is disabled." }
             }
 
-            val timeMultiplier =
-                if (dp.propertyService.get(Props.DEV_TESTNET) && dp.propertyService.get(Props.DEV_OFFLINE)) dp.propertyService.get(
-                    Props.DEV_TIMEWARP
-                ).coerceAtLeast(1) else 1
-
             logger.safeInfo { "Starting Task Scheduler" }
             dp.taskSchedulerService.start()
-            if (timeMultiplier > 1) {
-                dp.timeService.setTime(
-                    Time.FasterTime(
-                        max(
-                            dp.timeService.epochTime,
-                            dp.blockchainService.lastBlock.timestamp
-                        ), timeMultiplier
-                    )
-                )
-                logger.safeInfo { "TIME WILL FLOW $timeMultiplier TIMES FASTER!" }
-            }
 
             val currentTime = System.currentTimeMillis()
             logger.safeInfo { "Initialization took ${currentTime - startTime} ms" }

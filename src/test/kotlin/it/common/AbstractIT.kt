@@ -31,7 +31,7 @@ abstract class AbstractIT {
      */
     fun tearDownIT() {
         try {
-            burst.shutdown(false)
+            burst.shutdown()
         } catch (e: Throwable) {
             e.printStackTrace()
         }

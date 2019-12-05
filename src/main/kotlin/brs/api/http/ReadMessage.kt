@@ -68,7 +68,7 @@ internal class ReadMessage(
                         val decrypted = account.decryptFrom(encryptedMessage.encryptedData, secretPhrase)
                         response.addProperty(
                             "decryptedMessage",
-                            if (encryptedMessage.isText) decrypted.toUtf8String() else decrypted.toHexString()
+                            if (encryptedMessage.encryptedData.isText) decrypted.toUtf8String() else decrypted.toHexString()
                         )
                     } catch (e: Exception) {
                         logger.safeDebug(e) { "Decryption of message to recipient failed: {}" }
@@ -83,7 +83,7 @@ internal class ReadMessage(
                         val decrypted = account.decryptFrom(encryptToSelfMessage.encryptedData, secretPhrase)
                         response.addProperty(
                             "decryptedMessageToSelf",
-                            if (encryptToSelfMessage.isText) decrypted.toUtf8String() else decrypted.toHexString()
+                            if (encryptToSelfMessage.encryptedData.isText) decrypted.toUtf8String() else decrypted.toHexString()
                         )
                     } catch (e: Exception) {
                         logger.safeDebug(e) { "Decryption of message to self failed: {}" }
