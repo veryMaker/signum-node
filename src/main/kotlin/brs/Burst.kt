@@ -166,10 +166,6 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
         }
     }
 
-    private fun shutdown() {
-        shutdown(false)
-    }
-
     /**
      * Tries to perform an action that uses a `lateinit` property.
      * If this property is uninitialized, this swallows the exception produced.
