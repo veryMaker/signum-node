@@ -208,8 +208,8 @@ jooq {
     }
 }
 generateBurstcoinJooqSchemaSource.dependsOn flywayMigrate
-generateBurstcoinJooqSchemaSource.onlyIf {System.getProperty("runJooq") == "true"}
-flywayMigrate.onlyIf {System.getProperty("runJooq") == "true"}
+generateBurstcoinJooqSchemaSource.onlyIf { System.getProperty("runJooq") == "true" }
+flywayMigrate.onlyIf { System.getProperty("runJooq") == "true" }
 
 task removePackage(type: Delete) {
     delete file("$projectDir/dist")
@@ -262,6 +262,7 @@ task zipPackageFiles(type: Zip) {
 }
 
 task deleteTemporaryFiles(type: Delete) {
+    onlyIf { System.getProperty("skipDeleteTempPackageFiles") != "true" }
     delete file("$projectDir/dist/tmp")
 }
 

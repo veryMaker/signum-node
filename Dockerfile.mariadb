@@ -1,7 +1,7 @@
 FROM openjdk:13-slim as build
 WORKDIR /app
 COPY . .
-RUN ./gradlew -Dheadless=true buildPackage
+RUN ./gradlew -Dheadless=true -DskipDeleteTempPackageFiles=true buildPackage
 
 FROM openjdk:13-slim
 WORKDIR /app
