@@ -8,10 +8,11 @@
 The world's first HDD-mined cryptocurrency using an energy efficient
 and fair Proof-of-Capacity (PoC) consensus algorithm.
 
-This wallet version is developed and maintained by the Burst Apps Team (BAT). The two supported database servers are:
+This wallet version is developed and maintained by the Burst Apps Team (BAT). The three supported database servers are:
 
 - MariaDB (recommended)
 - H2 (embedded, easier install)
+- SQLite (embedded, easier install)
 
 ## Network Features
 
