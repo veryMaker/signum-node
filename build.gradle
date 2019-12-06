@@ -261,16 +261,22 @@ task zipPackageFiles(type: Zip) {
     destinationDir(file("$projectDir/dist"))
 }
 
+task deleteTemporaryFiles(type: Delete) {
+    delete file("$projectDir/dist/tmp")
+}
+
 task buildPackage {
     dependsOn removePackage
     dependsOn documentation
     dependsOn shadowJar
     dependsOn copyPackageFiles
     dependsOn zipPackageFiles
+    dependsOn deleteTemporaryFiles
     documentation.mustRunAfter(removePackage)
     shadowJar.mustRunAfter(documentation)
     copyPackageFiles.mustRunAfter(shadowJar)
     zipPackageFiles.mustRunAfter(copyPackageFiles)
+    deleteTemporaryFiles.mustRunAfter(zipPackageFiles)
 }
 
 sonarqube {
