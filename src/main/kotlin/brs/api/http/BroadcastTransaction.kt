@@ -14,10 +14,10 @@ import brs.services.TransactionService
 import brs.util.BurstException
 import brs.util.convert.emptyToNull
 import brs.util.convert.toHexString
+import brs.util.logging.safeInfo
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import java.util.logging.Level
-import java.util.logging.Logger
+import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -45,12 +45,12 @@ internal class BroadcastTransaction(
             response.addProperty(TRANSACTION_RESPONSE, transaction.stringId)
             response.addProperty(FULL_HASH_RESPONSE, transaction.fullHash.toHexString())
         } catch (e: BurstException.ValidationException) {
-            logger.log(Level.INFO, e.message, e)
+            logger.safeInfo(e) { e.message }
             response.addProperty(ERROR_CODE_RESPONSE, 4)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect transaction: $e")
             response.addProperty(ERROR_RESPONSE, e.message)
         } catch (e: Exception) {
-            logger.log(Level.INFO, e.message, e)
+            logger.safeInfo(e) { e.message }
             response.addProperty(ERROR_CODE_RESPONSE, 4)
             response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect transaction: $e")
             response.addProperty(ERROR_RESPONSE, e.message)
@@ -65,8 +65,6 @@ internal class BroadcastTransaction(
     }
 
     companion object {
-
-        private val logger = Logger.getLogger(BroadcastTransaction::class.java.simpleName)
+        private val logger = LoggerFactory.getLogger(BroadcastTransaction::class.java)
     }
-
 }

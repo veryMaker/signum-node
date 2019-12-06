@@ -736,8 +736,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
                 dp.blockService.setPrevious(block, lastBlock)
                 blockListeners.accept(BlockchainProcessorService.Event.BEFORE_BLOCK_ACCEPT, block)
-                dp.transactionProcessorService.removeForgedTransactions(block.transactions)
-                dp.transactionProcessorService.requeueAllUnconfirmedTransactions()
+                dp.unconfirmedTransactionService.removeForgedTransactions(block.transactions)
+                dp.unconfirmedTransactionService.resetAccountBalances()
                 dp.accountService.flushAccountTable()
                 addBlock(block)
                 dp.downloadCacheService.removeBlock(block) // We make sure downloadCache do not have this block anymore.

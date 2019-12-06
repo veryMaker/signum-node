@@ -44,7 +44,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
         map["getNextBlocks"] = GetNextBlocks(dp.blockchainService)
         map["getNextBlockIds"] = GetNextBlockIds(dp.blockchainService)
         map["getPeers"] = GetPeers(dp)
-        map["getUnconfirmedTransactions"] = GetUnconfirmedTransactions(dp.transactionProcessorService)
+        map["getUnconfirmedTransactions"] = GetUnconfirmedTransactions(dp)
         map["processBlock"] = ProcessBlock(dp.blockchainService, dp.blockchainProcessorService)
         map["processTransactions"] = ProcessTransactions(dp.transactionProcessorService)
         peerRequestHandlers = map

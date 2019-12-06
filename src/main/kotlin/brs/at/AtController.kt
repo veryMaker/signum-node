@@ -1,6 +1,5 @@
 package brs.at
 
-import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.objects.FluxValues
 import brs.objects.Props
@@ -196,7 +195,7 @@ class AtController(private val dp: DependencyProvider) {
     }
 
     fun getCurrentBlockATs(freePayload: Int, blockHeight: Int): AtBlock {
-        val orderedATs = AT.getOrderedATs(dp)
+        val orderedATs = dp.atStore.getOrderedATs()
         val keys = orderedATs.iterator()
 
         val processedATs = mutableListOf<AT>()
@@ -207,7 +206,7 @@ class AtController(private val dp: DependencyProvider) {
 
         while (payload <= freePayload - costOfOneAT && keys.hasNext()) {
             val id = keys.next()
-            val at = AT.getAT(dp, id)!!
+            val at = dp.atStore.getAT(id)!!
 
             val atAccountBalance = getATAccountBalance(id)
             val atStateBalance = at.getgBalance()
@@ -269,7 +268,7 @@ class AtController(private val dp: DependencyProvider) {
         val md5 = Crypto.md5()
 
         for ((atId, receivedMd5) in ats) {
-            val at = AT.getAT(dp, atId)!!
+            val at = dp.atStore.getAT(AtApiHelper.getLong(atId))!!
             try {
                 at.clearTransactions()
                 at.height = blockHeight
@@ -399,8 +398,8 @@ class AtController(private val dp: DependencyProvider) {
     }
 
     //platform based
-    private fun getATAccountBalance(id: Long?): Long {
-        val atAccount = Account.getAccount(dp, id!!)
+    private fun getATAccountBalance(id: Long): Long {
+        val atAccount = dp.accountService.getAccount(id)
         return atAccount?.balancePlanck ?: 0
     }
 

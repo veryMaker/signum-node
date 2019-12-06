@@ -66,13 +66,10 @@ class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         handlerMap[GetSubscriptionHandler::class] = GetSubscriptionHandler(dp.subscriptionService)
         handlerMap[GetSubscriptionsToAccountHandler::class] = GetSubscriptionsToAccountHandler(dp.subscriptionService)
         handlerMap[GetTransactionBytesHandler::class] = GetTransactionBytesHandler(dp)
-        handlerMap[GetTransactionHandler::class] =
-            GetTransactionHandler(dp.blockchainService, dp.transactionProcessorService)
-        handlerMap[GetUnconfirmedTransactionsHandler::class] =
-            GetUnconfirmedTransactionsHandler(dp.indirectIncomingService, dp.transactionProcessorService)
+        handlerMap[GetTransactionHandler::class] = GetTransactionHandler(dp)
+        handlerMap[GetUnconfirmedTransactionsHandler::class] = GetUnconfirmedTransactionsHandler(dp)
         handlerMap[ParseTransactionHandler::class] = ParseTransactionHandler(dp)
-        handlerMap[SubmitNonceHandler::class] =
-            SubmitNonceHandler(dp.propertyService, dp.blockchainService, dp.accountService, dp.generatorService)
+        handlerMap[SubmitNonceHandler::class] = SubmitNonceHandler(dp)
         handlerMap[SuggestFeeHandler::class] = SuggestFeeHandler(dp.feeSuggestionService)
         this.handlers = handlerMap
     }

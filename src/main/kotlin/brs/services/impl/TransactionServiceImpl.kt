@@ -11,7 +11,7 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
         val account = dp.accountService.getAccount(transaction.senderId) ?: return false
         return if (transaction.signature == null) {
             false
-        } else account.setOrVerify(dp, transaction.senderPublicKey, transaction.height)
+        } else dp.accountStore.setOrVerify(account, transaction.senderPublicKey, transaction.height)
     }
 
     override fun validate(transaction: Transaction, preValidate: Boolean) {

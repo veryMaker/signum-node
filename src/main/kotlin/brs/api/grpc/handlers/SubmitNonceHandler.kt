@@ -4,29 +4,25 @@ import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ApiException
 import brs.entity.Account
+import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.services.AccountService
 import brs.services.BlockchainService
 import brs.services.GeneratorService
-import brs.services.PropertyService
 import brs.util.crypto.Crypto
 import burst.kit.crypto.BurstCrypto
 
-class SubmitNonceHandler(
-    propertyService: PropertyService,
-    private val blockchainService: BlockchainService,
-    private val accountService: AccountService,
-    private val generatorService: GeneratorService
-) : GrpcApiHandler<BrsApi.SubmitNonceRequest, BrsApi.SubmitNonceResponse> {
+class SubmitNonceHandler(private val dp: DependencyProvider) :
+    GrpcApiHandler<BrsApi.SubmitNonceRequest, BrsApi.SubmitNonceResponse> {
     private val passphrases: Map<Long, String>
     private val allowOtherSoloMiners: Boolean
 
     init {
 
-        this.passphrases = propertyService.get(Props.SOLO_MINING_PASSPHRASES).associateBy { passphrase ->
+        this.passphrases = dp.propertyService.get(Props.SOLO_MINING_PASSPHRASES).associateBy { passphrase ->
             BurstCrypto.getInstance().getBurstAddressFromPassphrase(passphrase).burstID.signedLongId
         }
-        this.allowOtherSoloMiners = propertyService.get(Props.ALLOW_OTHER_SOLO_MINERS)
+        this.allowOtherSoloMiners = dp.propertyService.get(Props.ALLOW_OTHER_SOLO_MINERS)
     }
 
     override fun handleRequest(request: BrsApi.SubmitNonceRequest): BrsApi.SubmitNonceResponse {
@@ -35,7 +31,7 @@ class SubmitNonceHandler(
         val accountId = request.account
         val submissionHeight = request.blockHeight
 
-        if (submissionHeight != 0 && submissionHeight != blockchainService.height + 1) {
+        if (submissionHeight != 0 && submissionHeight != dp.blockchainService.height + 1) {
             throw ApiException("Given block height does not match current blockchain height")
         }
 
@@ -52,26 +48,22 @@ class SubmitNonceHandler(
         }
 
         val secretPublicKey = Crypto.getPublicKey(secret)
-        val secretAccount = accountService.getAccount(secretPublicKey)
+        val secretAccount = dp.accountService.getAccount(secretPublicKey)
         if (secretAccount != null) {
-            verifySecretAccount(accountService, blockchainService, secretAccount, accountId)
+            verifySecretAccount(dp.accountService, dp.blockchainService, secretAccount, accountId)
         }
 
         val generatorState: GeneratorService.GeneratorState?
         generatorState = if (accountId == 0L || secretAccount == null) {
-            generatorService.addNonce(secret, nonce)
+            dp.generatorService.addNonce(secret, nonce)
         } else {
-            val genAccount = accountService.getAccount(accountId)
+            val genAccount = dp.accountService.getAccount(accountId)
             if (genAccount?.publicKey == null) {
                 throw ApiException("Passthrough mining requires public key in blockchain")
             } else {
                 val publicKey = genAccount.publicKey
-                generatorService.addNonce(secret, nonce, publicKey!!)
+                dp.generatorService.addNonce(secret, nonce, publicKey!!)
             }
-        }
-
-        if (generatorState == null) {
-            throw ApiException("Failed to create generator")
         }
 
         return BrsApi.SubmitNonceResponse.newBuilder().setDeadline(generatorState.deadline.longValueExact()).build()

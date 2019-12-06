@@ -3,24 +3,21 @@ package brs.api.grpc.handlers
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
-import brs.services.IndirectIncomingService
-import brs.services.TransactionProcessorService
+import brs.entity.DependencyProvider
 
-class GetUnconfirmedTransactionsHandler(
-    private val indirectIncomingService: IndirectIncomingService,
-    private val transactionProcessorService: TransactionProcessorService
-) : GrpcApiHandler<BrsApi.GetAccountRequest, BrsApi.UnconfirmedTransactions> {
-    override fun handleRequest(getAccountRequest: BrsApi.GetAccountRequest): BrsApi.UnconfirmedTransactions {
+class GetUnconfirmedTransactionsHandler(private val dp: DependencyProvider) :
+    GrpcApiHandler<BrsApi.GetAccountRequest, BrsApi.UnconfirmedTransactions> {
+    override fun handleRequest(request: BrsApi.GetAccountRequest): BrsApi.UnconfirmedTransactions {
         return BrsApi.UnconfirmedTransactions.newBuilder()
-            .addAllUnconfirmedTransactions(transactionProcessorService.allUnconfirmedTransactions
+            .addAllUnconfirmedTransactions(dp.unconfirmedTransactionService.all
                 .asSequence()
                 .filter { transaction ->
-                    (getAccountRequest.accountId == 0L
-                            || getAccountRequest.accountId == transaction.senderId
-                            || getAccountRequest.accountId == transaction.recipientId
-                            || indirectIncomingService.isIndirectlyReceiving(
+                    (request.accountId == 0L
+                            || request.accountId == transaction.senderId
+                            || request.accountId == transaction.recipientId
+                            || dp.indirectIncomingService.isIndirectlyReceiving(
                         transaction,
-                        getAccountRequest.accountId
+                        request.accountId
                     ))
                 }
                 .map { ProtoBuilder.buildUnconfirmedTransaction(it) }

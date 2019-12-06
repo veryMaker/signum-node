@@ -196,8 +196,17 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         try {
             val plainMessageBytes = if (isText) plainMessage.toBytes() else plainMessage.parseHexString()
             return when {
-                recipientAccount?.publicKey != null -> recipientAccount.encryptTo(plainMessageBytes, secretPhrase, isText)
-                publicKey != null -> Account.encryptTo(plainMessageBytes, secretPhrase, publicKey, isText)
+                recipientAccount?.publicKey != null -> recipientAccount.encryptTo(
+                    plainMessageBytes,
+                    secretPhrase,
+                    isText
+                )
+                publicKey != null -> Crypto.encryptData(
+                    plainMessageBytes,
+                    Crypto.getPublicKey(secretPhrase),
+                    publicKey,
+                    isText
+                )
                 else -> throw ParameterException(INCORRECT_RECIPIENT)
             }
         } catch (e: Exception) {
@@ -274,7 +283,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         return when {
             transactionBytes != null -> try {
                 val bytes = transactionBytes.parseHexString()
-                dp.transactionProcessorService.parseTransaction(bytes)
+                Transaction.parseTransaction(dp, bytes)
             } catch (e: BurstException.ValidationException) {
                 val response = JsonObject()
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
@@ -288,7 +297,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
             }
             transactionJSON != null -> try {
                 val json = transactionJSON.parseJson().mustGetAsJsonObject("transaction")
-                dp.transactionProcessorService.parseTransaction(json)
+                Transaction.parseTransaction(dp, json)
             } catch (e: BurstException.ValidationException) {
                 logger.safeDebug(e) { e.message }
                 val response = JsonObject()

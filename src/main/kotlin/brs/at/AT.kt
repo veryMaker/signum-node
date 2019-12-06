@@ -7,8 +7,6 @@
 package brs.at
 
 import brs.db.BurstKey
-import brs.db.VersionedEntityTable
-import brs.entity.Account
 import brs.entity.Block
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
@@ -38,7 +36,7 @@ class AT : AtMachineState {
     ) : super(dp, atId, creator, creationBytes, height) {
         this.name = name
         this.description = description
-        dbKey = atDbKeyFactory(dp).newKey(atId)
+        dbKey = dp.atStore.atDbKeyFactory.newKey(atId)
         this.nextHeight = dp.blockchainService.height
     }
 
@@ -55,16 +53,12 @@ class AT : AtMachineState {
     ) {
         this.name = name
         this.description = description
-        dbKey = atDbKeyFactory(dp).newKey(atId)
+        dbKey = dp.atStore.atDbKeyFactory.newKey(atId)
         this.nextHeight = nextHeight
     }
 
-    private fun atStateTable(): VersionedEntityTable<ATState> {
-        return dp.atStore.atStateTable
-    }
-
     fun saveState() {
-        var state: ATState? = atStateTable()[atStateDbKeyFactory(dp).newKey(id)]
+        var state: ATState? = dp.atStore.atStateTable[dp.atStore.atStateDbKeyFactory.newKey(id)]
         val prevHeight = dp.blockchainService.height
         val newNextHeight = prevHeight + waitForNumberOfBlocks
         if (state != null) {
@@ -82,7 +76,7 @@ class AT : AtMachineState {
                 getpBalance(), freezeOnSameBalance(), minActivationAmount()
             )
         }
-        atStateTable().insert(state)
+        dp.atStore.atStateTable.insert(state)
     }
 
     fun nextHeight(): Int {
@@ -99,7 +93,7 @@ class AT : AtMachineState {
         var freezeWhenSameBalance: Boolean,
         var minActivationAmount: Long
     ) {
-        val dbKey = atStateDbKeyFactory(dp).newKey(this.atId)
+        val dbKey = dp.atStore.atStateDbKeyFactory.newKey(this.atId)
         var prevHeight: Int = 0
     }
 
@@ -136,33 +130,6 @@ class AT : AtMachineState {
             return false
         }
 
-        // TODO stop passing dp around, fix this code to be organized properly!!!
-
-        @Deprecated("Use dp.atStore.atDbKeyFactory instead")
-        private fun atDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<AT> {
-            return dp.atStore.atDbKeyFactory
-        }
-
-        @Deprecated("Use dp.atStore.atTable instead")
-        private fun atTable(dp: DependencyProvider): VersionedEntityTable<AT> {
-            return dp.atStore.atTable
-        }
-
-        @Deprecated("Use dp.atStore.atStateDbKeyFactory instead")
-        private fun atStateDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<ATState> {
-            return dp.atStore.atStateDbKeyFactory
-        }
-
-        @Deprecated("Use dp.atStore.getAT(AtApiHelper.getLong(id)) instead")
-        fun getAT(dp: DependencyProvider, id: ByteArray): AT? {
-            return getAT(dp, AtApiHelper.getLong(id))
-        }
-
-        @Deprecated("Use dp.atStore.getAT(id) instead")
-        fun getAT(dp: DependencyProvider, id: Long?): AT? {
-            return dp.atStore.getAT(id)
-        }
-
         fun addAT(
             dp: DependencyProvider,
             atId: Long,
@@ -176,18 +143,12 @@ class AT : AtMachineState {
 
             dp.atController.resetMachine(at)
 
-            atTable(dp).insert(at)
+            dp.atStore.atTable.insert(at)
 
             at.saveState()
 
-            val account = Account.getOrAddAccount(dp, atId)
+            val account = dp.accountService.getOrAddAccount(atId)
             account.apply(dp, ByteArray(32), height)
-        }
-
-        // TODO just do it yourself! or add a utils class or something... same goes for all of the methods around here doing this
-        @Deprecated("Use dp.atStore.getOrderedATs() instead")
-        fun getOrderedATs(dp: DependencyProvider): List<Long> {
-            return dp.atStore.getOrderedATs()
         }
 
         fun compressState(stateBytes: ByteArray?): ByteArray? {

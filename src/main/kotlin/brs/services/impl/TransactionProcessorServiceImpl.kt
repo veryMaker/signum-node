@@ -80,12 +80,6 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
         }
     }
 
-    override val allUnconfirmedTransactions: List<Transaction>
-        get() = dp.unconfirmedTransactionService.all
-
-    override val amountUnconfirmedTransactions: Int
-        get() = dp.unconfirmedTransactionService.amount
-
     override fun addListener(
         eventType: TransactionProcessorService.Event,
         listener: (Collection<Transaction>) -> Unit
@@ -95,18 +89,6 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
 
     override fun notifyListeners(transactions: Collection<Transaction>, eventType: TransactionProcessorService.Event) {
         transactionListeners.accept(eventType, transactions)
-    }
-
-    override fun getAllUnconfirmedTransactionsFor(peer: Peer): Collection<Transaction> {
-        return dp.unconfirmedTransactionService.getAllFor(peer)
-    }
-
-    override fun markFingerPrintsOf(peer: Peer, transactions: Collection<Transaction>) {
-        dp.unconfirmedTransactionService.markFingerPrintsOf(peer, transactions)
-    }
-
-    override fun getUnconfirmedTransaction(transactionId: Long): Transaction? {
-        return dp.unconfirmedTransactionService.get(transactionId)
     }
 
     override fun newTransactionBuilder(
@@ -168,11 +150,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
         }
     }
 
-    override fun parseTransaction(bytes: ByteArray): Transaction {
-        return Transaction.parseTransaction(dp, bytes)
-    }
-
-    override fun parseTransaction(transactionData: JsonObject): Transaction {
+    fun parseTransaction(transactionData: JsonObject): Transaction {
         return Transaction.parseTransaction(dp, transactionData, dp.blockchainService.height)
     }
 
@@ -193,10 +171,6 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
         }
 
         transactionListeners.accept(TransactionProcessorService.Event.REMOVED_UNCONFIRMED_TRANSACTIONS, removed)
-    }
-
-    override fun requeueAllUnconfirmedTransactions() {
-        dp.unconfirmedTransactionService.resetAccountBalances()
     }
 
     override fun getTransactionVersion(blockHeight: Int): Int {
@@ -221,7 +195,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
         val transactions = mutableListOf<Transaction>()
         for (transactionData in transactionsData) {
             try {
-                val transaction = parseTransaction(transactionData.mustGetAsJsonObject("transaction"))
+                val transaction = Transaction.parseTransaction(dp, transactionData.mustGetAsJsonObject("transaction"))
                 dp.transactionService.validate(transaction)
                 if (!dp.economicClusteringService.verifyFork(transaction)) {
                     continue
@@ -318,10 +292,6 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
         for (t in invalidTransactions) {
             dp.unconfirmedTransactionService.remove(t)
         }
-    }
-
-    override fun removeForgedTransactions(transactions: Collection<Transaction>) {
-        dp.unconfirmedTransactionService.removeForgedTransactions(transactions)
     }
 
     companion object {

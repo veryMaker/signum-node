@@ -72,10 +72,10 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     }
 
     var id by AtomicLazy { fullHash.fullHashToId() }
-    val stringId by AtomicLazy { id.toUnsignedString() }
+    val stringId by lazy { id.toUnsignedString() }
     var senderId by AtomicLazy {
         if (type.isSigned) {
-            Account.getId(senderPublicKey)
+            senderPublicKey.publicKeyToId()
         } else 0
     }
     var fullHash: ByteArray by AtomicLazy {
@@ -466,7 +466,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
             }
         }
 
-        internal fun parseTransaction(dp: DependencyProvider, transactionData: JsonObject, height: Int): Transaction {
+        internal fun parseTransaction(dp: DependencyProvider, transactionData: JsonObject, height: Int = dp.blockchainService.height): Transaction {
             try {
                 val type = transactionData.get("type").mustGetAsByte("type")
                 val subtype = transactionData.get("subtype").mustGetAsByte("subtype")

@@ -6,12 +6,11 @@ import brs.db.*
 import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.objects.Props
+import brs.services.AccountService
 import brs.services.BlockchainService
 import brs.services.PropertyService
 import brs.util.convert.parseHexString
 import com.nhaarman.mockitokotlin2.*
-import io.mockk.every
-import io.mockk.mockkObject
 import org.junit.Assert.assertEquals
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -36,6 +35,7 @@ class AtTestHelper {
 
         val mockAtStateTable = mock<VersionedEntityTable<AT.ATState>>()
         val mockAccountStore = mock<AccountStore>()
+        val mockAccountService = mock<AccountService>()
 
         val mockAccountKeyFactory = mock<BurstKey.LongKeyFactory<Account>>()
         val mockAccount = mock<Account>()
@@ -64,9 +64,8 @@ class AtTestHelper {
             null
         }.whenever(mockAtStore).getAT(any())
         whenever(mockAtTable.getAll(any(), any())).doReturn(addedAts)
-        mockkObject(Account.Companion)
-        every { Account.getOrAddAccount(any(), any()) } returns mockAccount
-        every { Account.getAccount(any(), any()) } returns mockAccount
+        whenever(mockAccountService.getOrAddAccount(any())).doReturn(mockAccount)
+        whenever(mockAccountService.getAccount(any<Long>())).doReturn(mockAccount)
         whenever(mockAccountTable.get(any())).doReturn(mockAccount)
         whenever(mockAccountStore.accountKeyFactory).doReturn(mockAccountKeyFactory)
         whenever(mockAtStore.atStateTable).doReturn(mockAtStateTable)
@@ -77,6 +76,7 @@ class AtTestHelper {
         whenever(mockAtStore.atStateDbKeyFactory).doReturn(atStateLongKeyFactory)
         val dp = QuickMocker.dependencyProvider(
             mockAccountStore,
+            mockAccountService,
             mockAtStore,
             mockBlockchain,
             mockFluxCapacitor,
@@ -91,7 +91,7 @@ class AtTestHelper {
 
     internal fun clearAddedAts(dp: DependencyProvider) {
         addedAts.clear()
-        assertEquals(0, AT.getOrderedATs(dp).size.toLong())
+        assertEquals(0, dp.atStore.getOrderedATs().size.toLong())
     }
 
     internal fun setOnAtAdded(onAtAdded: (AT) -> Unit) {

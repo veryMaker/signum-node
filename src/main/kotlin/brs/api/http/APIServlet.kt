@@ -77,7 +77,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getECBlock"] = GetECBlock(dp.blockchainService, dp.timeService, dp.economicClusteringService)
         map["getMyInfo"] = GetMyInfo
         map["getPeer"] = GetPeer(dp)
-        map["getMyPeerInfo"] = GetMyPeerInfo(dp.transactionProcessorService)
+        map["getMyPeerInfo"] = GetMyPeerInfo(dp)
         map["getPeers"] = GetPeers(dp)
         map["getState"] = GetState(dp)
         map["getTime"] = GetTime(dp.timeService)
@@ -85,14 +85,10 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getAllTrades"] = GetAllTrades(dp.assetExchangeService)
         map["getAssetTransfers"] = GetAssetTransfers(dp.parameterService, dp.accountService, dp.assetExchangeService)
         map["getTransaction"] = GetTransaction(dp.blockchainService)
-        map["getTransactionBytes"] = GetTransactionBytes(dp.blockchainService, dp.transactionProcessorService)
-        map["getUnconfirmedTransactionIds"] = GetUnconfirmedTransactionIds(
-            dp.transactionProcessorService,
-            dp.indirectIncomingService,
-            dp.parameterService
-        )
+        map["getTransactionBytes"] = GetTransactionBytes(dp)
+        map["getUnconfirmedTransactionIds"] = GetUnconfirmedTransactionIds(dp)
         map["getUnconfirmedTransactions"] =
-            GetUnconfirmedTransactions(dp.transactionProcessorService, dp.indirectIncomingService, dp.parameterService)
+            GetUnconfirmedTransactions(dp)
         map["getAccountCurrentAskOrderIds"] = GetAccountCurrentAskOrderIds(dp.parameterService, dp.assetExchangeService)
         map["getAccountCurrentBidOrderIds"] = GetAccountCurrentBidOrderIds(dp.parameterService, dp.assetExchangeService)
         map["getAccountCurrentAskOrders"] = GetAccountCurrentAskOrders(dp.parameterService, dp.assetExchangeService)
@@ -146,7 +142,6 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["generateSendTransactionQRCode"] = GenerateDeeplinkQRCode(dp.deeplinkQRCodeGeneratorService)
         map["generateDeeplink"] = GenerateDeeplink(dp.deeplinkGeneratorService)
         map["generateDeeplinkQRCode"] = GenerateDeeplinkQR(dp.deeplinkGeneratorService)
-        map
         if (dp.propertyService.get(Props.API_DEBUG)) {
             map["clearUnconfirmedTransactions"] = ClearUnconfirmedTransactions(dp.transactionProcessorService)
             map["fullReset"] = FullReset(dp.blockchainProcessorService)

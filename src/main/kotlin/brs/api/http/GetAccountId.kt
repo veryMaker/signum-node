@@ -5,9 +5,9 @@ import brs.api.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.ResultFields.ACCOUNT_RESPONSE
 import brs.api.http.common.ResultFields.PUBLIC_KEY_RESPONSE
-import brs.entity.Account
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseHexString
+import brs.util.convert.publicKeyToId
 import brs.util.convert.toHexString
 import brs.util.crypto.Crypto
 import com.google.gson.JsonElement
@@ -27,10 +27,10 @@ internal class GetAccountId :
         when {
             secretPhrase != null -> {
                 val publicKey = Crypto.getPublicKey(secretPhrase)
-                accountId = Account.getId(publicKey)
+                accountId = publicKey.publicKeyToId()
                 publicKeyString = publicKey.toHexString()
             }
-            publicKeyString != null -> accountId = Account.getId(publicKeyString.parseHexString())
+            publicKeyString != null -> accountId = publicKeyString.parseHexString().publicKeyToId()
             else -> return MISSING_SECRET_PHRASE_OR_PUBLIC_KEY
         }
 

@@ -7,17 +7,6 @@ import brs.util.Observable
 import com.google.gson.JsonObject
 
 interface TransactionProcessorService : Observable<Collection<Transaction>, TransactionProcessorService.Event> {
-    /**
-     * TODO
-     */
-    @Deprecated("Just use UTStore directly")
-    val allUnconfirmedTransactions: Collection<Transaction>
-
-    /**
-     * TODO
-     */
-    @Deprecated("Just use UTStore directly")
-    val amountUnconfirmedTransactions: Int
 
     /**
      * TODO
@@ -31,31 +20,11 @@ interface TransactionProcessorService : Observable<Collection<Transaction>, Tran
     /**
      * TODO
      */
-    @Deprecated("Just use UTStore directly")
     fun revalidateUnconfirmedTransactions()
 
     /**
      * TODO
      */
-    @Deprecated("Just use UTStore directly")
-    fun getAllUnconfirmedTransactionsFor(peer: Peer): Collection<Transaction>
-
-    /**
-     * TODO
-     */
-    @Deprecated("Just use UTStore directly")
-    fun markFingerPrintsOf(peer: Peer, transactions: Collection<Transaction>)
-
-    /**
-     * TODO
-     */
-    @Deprecated("Just use UTStore directly")
-    fun getUnconfirmedTransaction(transactionId: Long): Transaction?
-
-    /**
-     * TODO
-     */
-    @Deprecated("Just use UTStore directly")
     fun clearUnconfirmedTransactions()
 
     /**
@@ -67,16 +36,6 @@ interface TransactionProcessorService : Observable<Collection<Transaction>, Tran
      * TODO
      */
     fun processPeerTransactions(request: JsonObject, peer: Peer)
-
-    /**
-     * TODO
-     */
-    fun parseTransaction(bytes: ByteArray): Transaction
-
-    /**
-     * TODO
-     */
-    fun parseTransaction(json: JsonObject): Transaction
 
     /**
      * TODO
@@ -98,18 +57,6 @@ interface TransactionProcessorService : Observable<Collection<Transaction>, Tran
      * TODO
      */
     fun processLater(transactions: Collection<Transaction>)
-
-    /**
-     * TODO
-     */
-    @Deprecated("Just use UTStore directly")
-    fun requeueAllUnconfirmedTransactions()
-
-    /**
-     * TODO
-     */
-    @Deprecated("Just use UTStore directly")
-    fun removeForgedTransactions(transactions: Collection<Transaction>)
 
     /**
      * TODO

@@ -56,13 +56,13 @@ class Block internal constructor(
     var id by AtomicLazy {
         hash.fullHashToId()
     }
-    var stringId by AtomicLazy {
+    val stringId by lazy {
         id.toUnsignedString()
     }
-    var generatorId by AtomicLazy {
-        Account.getId(generatorPublicKey)
+    val generatorId by lazy {
+        generatorPublicKey.publicKeyToId()
     }
-    var hash by AtomicLazy<ByteArray> {
+    val hash by lazy<ByteArray> {
         checkNotNull(blockSignature) { "Block is not signed yet" }
         Crypto.sha256().digest(toBytes())
     }
@@ -197,7 +197,6 @@ class Block internal constructor(
         blockATs,
         height
     ) {
-
         this.cumulativeDifficulty = cumulativeDifficulty ?: BigInteger.ZERO
         this.baseTarget = baseTarget
         this.nextBlockId = nextBlockId

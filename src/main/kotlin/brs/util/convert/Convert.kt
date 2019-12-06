@@ -1,6 +1,7 @@
 package brs.util.convert
 
 import brs.util.BurstException
+import brs.util.crypto.Crypto
 import brs.util.crypto.burstCrypto
 import brs.util.crypto.rsEncode
 import burst.kit.entity.BurstAddress
@@ -97,3 +98,8 @@ fun String.parseHexString(): ByteArray {
 }
 
 inline fun Byte.toUnsignedInt() = java.lang.Byte.toUnsignedInt(this)
+
+fun ByteArray.publicKeyToId(): Long {
+    val publicKeyHash = Crypto.sha256().digest(this)
+    return publicKeyHash.fullHashToId()
+}

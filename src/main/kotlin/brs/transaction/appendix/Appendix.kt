@@ -9,10 +9,7 @@ import brs.entity.Transaction
 import brs.objects.Constants
 import brs.objects.FluxValues
 import brs.util.BurstException
-import brs.util.convert.parseHexString
-import brs.util.convert.toBytes
-import brs.util.convert.toHexString
-import brs.util.convert.toUtf8String
+import brs.util.convert.*
 import brs.util.crypto.Crypto
 import brs.util.json.mustGetAsBoolean
 import brs.util.json.mustGetAsJsonObject
@@ -431,7 +428,7 @@ interface Appendix {
                 throw BurstException.NotValidException("Invalid recipient public key length: " + publicKey.toHexString())
             }
             val recipientId = transaction.recipientId
-            if (Account.getId(this.publicKey) != recipientId) {
+            if (this.publicKey.publicKeyToId() != recipientId) {
                 throw BurstException.NotValidException("Announced public key does not match recipient accountId")
             }
             if (transaction.version.toInt() == 0) {
@@ -441,17 +438,17 @@ interface Appendix {
 
         override fun validate(transaction: Transaction) {
             val recipientId = transaction.recipientId
-            if (Account.getId(this.publicKey) != recipientId) {
+            if (this.publicKey.publicKeyToId() != recipientId) {
                 throw BurstException.NotValidException("Announced public key does not match recipient accountId")
             }
-            val recipientAccount = Account.getAccount(dp, recipientId)
+            val recipientAccount = dp.accountService.getAccount(recipientId)
             if (recipientAccount?.publicKey != null && !publicKey.contentEquals(recipientAccount.publicKey!!)) {
                 throw BurstException.NotCurrentlyValidException("A different public key for this account has already been announced. Previous public key: \"${recipientAccount.publicKey.toHexString()}\", new public key: \"${publicKey.toHexString()}\"")
             }
         }
 
         override fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
-            if (recipientAccount.setOrVerify(dp, publicKey, transaction.height)) {
+            if (dp.accountStore.setOrVerify(recipientAccount, publicKey, transaction.height)) {
                 recipientAccount.apply(dp, this.publicKey, transaction.height)
             }
         }

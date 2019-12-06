@@ -7,14 +7,10 @@ import brs.api.http.JSONResponses.NO_MESSAGE
 import brs.api.http.JSONResponses.UNKNOWN_TRANSACTION
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.Parameters.TRANSACTION_PARAMETER
-import brs.entity.Account
 import brs.entity.Transaction
 import brs.services.AccountService
 import brs.services.BlockchainService
-import brs.util.convert.emptyToNull
-import brs.util.convert.parseUnsignedLong
-import brs.util.convert.toHexString
-import brs.util.convert.toUtf8String
+import brs.util.convert.*
 import brs.util.crypto.Crypto
 import brs.util.logging.safeDebug
 import com.google.gson.JsonElement
@@ -60,7 +56,7 @@ internal class ReadMessage(
         val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
         if (secretPhrase != null) {
             if (encryptedMessage != null) {
-                val readerAccountId = Account.getId(Crypto.getPublicKey(secretPhrase))
+                val readerAccountId = Crypto.getPublicKey(secretPhrase).publicKeyToId()
                 val account =
                     if (senderAccount.id == readerAccountId) accountService.getAccount(transaction.recipientId) else senderAccount
                 if (account != null) {

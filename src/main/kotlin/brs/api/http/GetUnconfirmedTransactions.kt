@@ -4,6 +4,7 @@ import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.Parameters.INCLUDE_INDIRECT_PARAMETER
 import brs.api.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
+import brs.entity.DependencyProvider
 import brs.services.IndirectIncomingService
 import brs.services.ParameterService
 import brs.services.TransactionProcessorService
@@ -17,11 +18,7 @@ import javax.servlet.http.HttpServletRequest
 /**
  * TODO
  */
-internal class GetUnconfirmedTransactions(
-    private val transactionProcessorService: TransactionProcessorService,
-    private val indirectIncomingService: IndirectIncomingService,
-    private val parameterService: ParameterService
-) : APIServlet.JsonRequestHandler(
+internal class GetUnconfirmedTransactions(private val dp: DependencyProvider) : APIServlet.JsonRequestHandler(
     arrayOf(APITag.TRANSACTIONS, APITag.ACCOUNTS),
     ACCOUNT_PARAMETER,
     INCLUDE_INDIRECT_PARAMETER
@@ -29,7 +26,7 @@ internal class GetUnconfirmedTransactions(
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val accountIdString = request.getParameter(ACCOUNT_PARAMETER).emptyToNull()
-        val includeIndirect = parameterService.getIncludeIndirect(request)
+        val includeIndirect = dp.parameterService.getIncludeIndirect(request)
 
         var accountId: Long = 0
 
@@ -42,14 +39,14 @@ internal class GetUnconfirmedTransactions(
 
         }
 
-        val unconfirmedTransactions = transactionProcessorService.allUnconfirmedTransactions
+        val unconfirmedTransactions = dp.unconfirmedTransactionService.all
 
         val transactions = JsonArray()
 
         for (transaction in unconfirmedTransactions) {
             if (accountId == 0L
                 || accountId == transaction.senderId || accountId == transaction.recipientId
-                || includeIndirect && indirectIncomingService.isIndirectlyReceiving(transaction, accountId)
+                || includeIndirect && dp.indirectIncomingService.isIndirectlyReceiving(transaction, accountId)
             ) {
                 transactions.add(JSONData.unconfirmedTransaction(transaction))
             }

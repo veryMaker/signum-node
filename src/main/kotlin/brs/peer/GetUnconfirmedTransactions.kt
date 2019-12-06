@@ -1,17 +1,17 @@
 package brs.peer
 
 import brs.api.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
+import brs.entity.DependencyProvider
 import brs.peer.PeerServlet.ExtendedProcessRequest
-import brs.services.TransactionProcessorService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 
-internal class GetUnconfirmedTransactions(private val transactionProcessorService: TransactionProcessorService) :
+internal class GetUnconfirmedTransactions(private val dp: DependencyProvider) :
     PeerServlet.ExtendedPeerRequestHandler() {
     override fun extendedProcessRequest(request: JsonObject, peer: Peer): ExtendedProcessRequest {
         val response = JsonObject()
 
-        val unconfirmedTransactions = transactionProcessorService.getAllUnconfirmedTransactionsFor(peer)
+        val unconfirmedTransactions = dp.unconfirmedTransactionService.getAllFor(peer)
 
         val transactionsData = JsonArray()
         for (transaction in unconfirmedTransactions) {
@@ -21,7 +21,7 @@ internal class GetUnconfirmedTransactions(private val transactionProcessorServic
         response.add(UNCONFIRMED_TRANSACTIONS_RESPONSE, transactionsData)
 
         return ExtendedProcessRequest(response) {
-            transactionProcessorService.markFingerPrintsOf(
+            dp.unconfirmedTransactionService.markFingerPrintsOf(
                 peer,
                 unconfirmedTransactions
             )

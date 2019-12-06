@@ -1,14 +1,12 @@
 package brs.entity
 
 import brs.db.BurstKey
-import brs.db.VersionedBatchEntityTable
-import brs.util.convert.fullHashToId
 import brs.util.convert.toUnsignedString
 import brs.util.crypto.Crypto
 import brs.util.crypto.rsVerify
+import brs.util.logging.safeError
 import burst.kit.entity.BurstEncryptedMessage
-import java.util.logging.Level
-import java.util.logging.Logger
+import org.slf4j.LoggerFactory
 
 open class Account {
     val id: Long
@@ -104,16 +102,16 @@ open class Account {
 
     constructor(dp: DependencyProvider, id: Long) {
         if (!id.rsVerify()) {
-            logger.log(Level.INFO, "CRITICAL ERROR: Reed-Solomon encoding fails for {0}", id)
+            logger.safeError { "CRITICAL ERROR: Reed-Solomon encoding fails for $id" }
         }
         this.id = id
-        this.nxtKey = accountBurstKeyFactory(dp).newKey(this.id)
+        this.nxtKey = dp.accountStore.accountKeyFactory.newKey(this.id)
         this.creationHeight = dp.blockchainService.height
     }
 
     protected constructor(id: Long, burstKey: BurstKey, creationHeight: Int) {
         if (!id.rsVerify()) {
-            logger.log(Level.INFO, "CRITICAL ERROR: Reed-Solomon encoding fails for {0}", id)
+            logger.safeError { "CRITICAL ERROR: Reed-Solomon encoding fails for $id" }
         }
         this.id = id
         this.nxtKey = burstKey
@@ -131,23 +129,15 @@ open class Account {
         return encryptedData.decrypt(Crypto.getPrivateKey(recipientSecretPhrase), publicKey!!)
     }
 
-    // returns true if:
-    // this.publicKey is set to null (in which case this.publicKey also gets set to key)
-    // or
-    // this.publicKey is already set to an array equal to key
-    fun setOrVerify(dp: DependencyProvider, key: ByteArray, height: Int): Boolean { // TODO should we deprecate?
-        return dp.accountStore.setOrVerify(this, key, height)
-    }
-
     fun apply(dp: DependencyProvider, key: ByteArray, height: Int) {
-        check(setOrVerify(dp, key, this.creationHeight)) { "Public key mismatch" }
+        check(dp.accountStore.setOrVerify(this, key, height)) { "Public key mismatch" }
         checkNotNull(this.publicKeyInternal) {
             ("Public key has not been set for account " + id.toUnsignedString()
                     + " at height " + height + ", key height is " + keyHeight)
         }
         if (this.keyHeight == -1 || this.keyHeight > height) {
             this.keyHeight = height
-            accountTable(dp).insert(this)
+            dp.accountStore.accountTable.insert(this)
         }
     }
 
@@ -156,48 +146,7 @@ open class Account {
     }
 
     companion object {
-
-        private val logger = Logger.getLogger(Account::class.java.simpleName)
-
-        // TODO refactor methods that take dp
-        private fun accountBurstKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<Account> {
-            return dp.accountStore.accountKeyFactory
-        }
-
-        private fun accountTable(dp: DependencyProvider): VersionedBatchEntityTable<Account> {
-            return dp.accountStore.accountTable
-        }
-
-        @Deprecated("Use dp.accountService.getAccount()")
-        fun getAccount(dp: DependencyProvider, id: Long): Account? {
-            return if (id == 0L) null else accountTable(dp)[accountBurstKeyFactory(
-                dp
-            ).newKey(id)]
-        }
-
-        @Deprecated("Just use Crypto/Convert class instead")
-        fun getId(publicKey: ByteArray): Long {
-            val publicKeyHash = Crypto.sha256().digest(publicKey)
-            return publicKeyHash.fullHashToId()
-        }
-
-        fun getOrAddAccount(dp: DependencyProvider, id: Long): Account {
-            var account = getAccount(dp, id)
-            if (account == null) {
-                account = Account(dp, id)
-                accountTable(dp).insert(account)
-            }
-            return account
-        }
-
-        fun encryptTo(
-            data: ByteArray,
-            senderSecretPhrase: String,
-            publicKey: ByteArray,
-            isText: Boolean
-        ): BurstEncryptedMessage {
-            return Crypto.encryptData(data, Crypto.getPrivateKey(senderSecretPhrase), publicKey, isText)
-        }
+        private val logger = LoggerFactory.getLogger(Account::class.java)
 
         private fun checkBalance(accountId: Long, confirmed: Long, unconfirmed: Long) {
             if (confirmed < 0) {
