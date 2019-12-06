@@ -14,7 +14,7 @@ import org.jooq.Record
 
 internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : IndirectIncomingStore {
 
-    private val indirectIncomingTable: EntitySqlTable<IndirectIncoming>
+    internal val indirectIncomingTable: EntitySqlTable<IndirectIncoming>
 
     init {
         val indirectIncomingDbKeyFactory =

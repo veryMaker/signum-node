@@ -57,75 +57,77 @@ interface Db {
     /**
      * TODO
      */
-    fun getBlockDb(): BlockDb
+    val blockDb: BlockDb
 
     /**
      * TODO
      */
-    fun getPeerDb(): PeerDb
+    val peerDb: PeerDb
 
     /**
      * TODO
      */
-    fun getTransactionDb(): TransactionDb
+    val transactionDb: TransactionDb
 
     /**
      * TODO
      */
-    fun getAccountStore(): AccountStore
+    val accountStore: AccountStore
 
     /**
      * TODO
      */
-    fun getAliasStore(): AliasStore
+    val aliasStore: AliasStore
 
     /**
      * TODO
      */
-    fun getAssetStore(): AssetStore
+    val assetStore: AssetStore
 
     /**
      * TODO
      */
-    fun getAssetTransferStore(): AssetTransferStore
+    val assetTransferStore: AssetTransferStore
 
     /**
      * TODO
      */
-    fun getATStore(): ATStore
+    val atStore: ATStore
 
     /**
      * TODO
      */
-    fun getBlockchainStore(): BlockchainStore
+    val blockchainStore: BlockchainStore
 
     /**
      * TODO
      */
-    fun getDigitalGoodsStoreStore(): DigitalGoodsStoreStore
+    val digitalGoodsStoreStore: DigitalGoodsStoreStore
 
     /**
      * TODO
      */
-    fun getEscrowStore(): EscrowStore
+    val escrowStore: EscrowStore
 
     /**
      * TODO
      */
-    fun getIndirectIncomingStore(): IndirectIncomingStore
+    val indirectIncomingStore: IndirectIncomingStore
 
     /**
      * TODO
      */
-    fun getOrderStore(): OrderStore
+    val orderStore: OrderStore
 
     /**
      * TODO
      */
-    fun getSubscriptionStore(): SubscriptionStore
+    val subscriptionStore: SubscriptionStore
 
     /**
      * TODO
      */
-    fun getTradeStore(): TradeStore
+    val tradeStore: TradeStore
+
+    val allTables: Collection<Table>
 }

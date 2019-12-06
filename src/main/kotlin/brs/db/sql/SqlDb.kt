@@ -1,6 +1,8 @@
 package brs.db.sql
 
-import brs.db.*
+import brs.db.BurstKey
+import brs.db.Db
+import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.util.logging.safeDebug
@@ -22,7 +24,7 @@ import java.sql.SQLException
 import java.sql.SQLNonTransientConnectionException
 import java.util.*
 
-class SqlDb(private val dp: DependencyProvider) : Db {
+internal class SqlDb(private val dp: DependencyProvider) : Db {
     private val logger = LoggerFactory.getLogger(SqlDb::class.java)
 
     private val settings = Settings()
@@ -233,19 +235,45 @@ class SqlDb(private val dp: DependencyProvider) : Db {
         }
     }
 
-    override fun getBlockDb(): BlockDb = SqlBlockDb(dp)
-    override fun getPeerDb(): PeerDb = SqlPeerDb(dp)
-    override fun getTransactionDb(): TransactionDb = SqlTransactionDb(dp)
-    override fun getAccountStore(): AccountStore = SqlAccountStore(dp)
-    override fun getAliasStore(): AliasStore = SqlAliasStore(dp)
-    override fun getAssetStore(): AssetStore = SqlAssetStore(dp)
-    override fun getAssetTransferStore(): AssetTransferStore = SqlAssetTransferStore(dp)
-    override fun getATStore(): ATStore = SqlATStore(dp)
-    override fun getBlockchainStore(): BlockchainStore = SqlBlockchainStore(dp)
-    override fun getDigitalGoodsStoreStore(): DigitalGoodsStoreStore = SqlDigitalGoodsStoreStore(dp)
-    override fun getEscrowStore(): EscrowStore = SqlEscrowStore(dp)
-    override fun getIndirectIncomingStore(): IndirectIncomingStore = SqlIndirectIncomingStore(dp)
-    override fun getOrderStore(): OrderStore = SqlOrderStore(dp)
-    override fun getSubscriptionStore(): SubscriptionStore = SqlSubscriptionStore(dp)
-    override fun getTradeStore(): TradeStore = SqlTradeStore(dp)
+    override val blockDb = SqlBlockDb(dp)
+    override val peerDb = SqlPeerDb(dp)
+    override val transactionDb = SqlTransactionDb(dp)
+    override val accountStore = SqlAccountStore(dp)
+    override val aliasStore = SqlAliasStore(dp)
+    override val assetStore = SqlAssetStore(dp)
+    override val assetTransferStore = SqlAssetTransferStore(dp)
+    override val atStore = SqlATStore(dp)
+    override val blockchainStore = SqlBlockchainStore(dp)
+    override val digitalGoodsStoreStore = SqlDigitalGoodsStoreStore(dp)
+    override val escrowStore = SqlEscrowStore(dp)
+    override val indirectIncomingStore = SqlIndirectIncomingStore(dp)
+    override val orderStore = SqlOrderStore(dp)
+    override val subscriptionStore = SqlSubscriptionStore(dp)
+    override val tradeStore = SqlTradeStore(dp)
+
+    override val allTables = listOf(
+        blockDb,
+        peerDb,
+        transactionDb,
+        accountStore.accountTable,
+        accountStore.accountAssetTable,
+        accountStore.rewardRecipientAssignmentTable,
+        aliasStore.aliasTable,
+        aliasStore.offerTable,
+        assetStore.assetTable,
+        assetTransferStore.assetTransferTable,
+        atStore.atTable,
+        atStore.atStateTable,
+        digitalGoodsStoreStore.feedbackTable,
+        digitalGoodsStoreStore.goodsTable,
+        digitalGoodsStoreStore.publicFeedbackTable,
+        digitalGoodsStoreStore.purchaseTable,
+        escrowStore.escrowTable,
+        escrowStore.decisionTable,
+        indirectIncomingStore.indirectIncomingTable,
+        orderStore.askOrderTable,
+        orderStore.bidOrderTable,
+        subscriptionStore.subscriptionTable,
+        tradeStore.tradeTable
+    )
 }
