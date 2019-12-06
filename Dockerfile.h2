@@ -12,4 +12,4 @@ COPY conf/brs.properties.h2 /conf/brs.properties
 COPY conf/brs-default.properties /conf/brs-default.properties
 COPY conf/logging-default.properties /conf/logging-default.properties
 EXPOSE 8125 8123 8121
-ENTRYPOINT ["java", "-jar", "burst.jar"]
+ENTRYPOINT ["java", "-jar", "burst.jar", "--config", "/conf"]

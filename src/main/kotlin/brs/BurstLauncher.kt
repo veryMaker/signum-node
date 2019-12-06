@@ -12,7 +12,9 @@ object BurstLauncher {
         val logger = LoggerFactory.getLogger(BurstLauncher::class.java)
         var canRunGui = true
 
-        if (args.contains("--headless")) {
+        val arguments = Arguments.parse(args)
+
+        if (arguments.headless) {
             logger.safeInfo { "Running in headless mode as specified by argument" }
             canRunGui = false
         }
@@ -35,13 +37,13 @@ object BurstLauncher {
             try {
                 Class.forName("brs.BurstGUI")
                     .getDeclaredMethod("main", Array<String>::class.java)
-                    .invoke(null, args as Any)
+                    .invoke(null, args as Any) // TODO avoid BurstGUI re-parsing arguments
             } catch (e: Exception) {
                 logger.safeWarn { "Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless..." }
-                Burst.init(true)
+                Burst.init(arguments, true)
             }
         } else {
-            Burst.init(true)
+            Burst.init(arguments, true)
         }
     }
 }

@@ -21,7 +21,7 @@ object LoggerConfigurator {
      * files will be used.  Entries in logging.properties will override entries in
      * logging-default.properties.
      */
-    fun init() {
+    fun init(confDirectory: String) {
         val managerPackage = "java.util.logging.manager"
         val oldManager = System.getProperty(managerPackage)
         System.setProperty(managerPackage, "brs.util.BurstLogManager")
@@ -36,7 +36,7 @@ object LoggerConfigurator {
                 var foundProperties = false
                 val loggingProperties = Properties()
                 try {
-                    FileInputStream("conf/logging-default.properties").use { input ->
+                    FileInputStream("$confDirectory/logging-default.properties").use { input ->
                         loggingProperties.load(input)
                         foundProperties = true
                     }
@@ -44,7 +44,7 @@ object LoggerConfigurator {
                     // Ignore error
                 }
                 try {
-                    FileReader("conf/logging.properties").use { input ->
+                    FileReader("$confDirectory/logging.properties").use { input ->
                         loggingProperties.load(input)
                         foundProperties = true
                     }

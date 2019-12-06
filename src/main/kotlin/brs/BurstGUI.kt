@@ -128,7 +128,7 @@ class BurstGUI : Application() {
 
     private fun runBrs() {
         try {
-            burst = Burst.init(true) // TODO what should addShutdownHook be?
+            burst = Burst.init(Arguments.parse(parameters.raw.toTypedArray()), true) // TODO what should addShutdownHook be?
             try {
                 if (burst!!.dp.propertyService.get(Props.DEV_TESTNET)) {
                     onTestNetEnabled()

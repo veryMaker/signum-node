@@ -27,7 +27,13 @@ import kotlin.system.exitProcess
 class Burst(properties: Properties, addShutdownHook: Boolean = true) {
     val dp = DependencyProvider()
 
+    /**
+     * Class member as opposed to companion member as it needs to be created after LoggerConfigurator.init() is called.
+     */
+    private val logger = LoggerFactory.getLogger(Burst::class.java)
+
     init {
+        logger.safeInfo { "Initializing Burst Reference Software ($APPLICATION) version $VERSION" }
         dp.propertyService = PropertyServiceImpl(properties)
         validateVersionNotDev(dp.propertyService)
 
@@ -36,7 +42,7 @@ class Burst(properties: Properties, addShutdownHook: Boolean = true) {
         try {
             val startTime = System.currentTimeMillis()
             logger.safeInfo {
-"""
+                """
 **********
 SYSTEM INFORMATION
 RT: ${System.getProperty("java.runtime.name")}, Version: ${System.getProperty("java.runtime.version")}
@@ -56,7 +62,6 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
             dp.derivedTableService = DerivedTableServiceImpl()
             dp.statisticsService = StatisticsServiceImpl(dp)
             dp.dbCacheService = DBCacheServiceImpl(dp)
-            LoggerConfigurator.init()
             dp.db = SqlDb(dp)
             dp.blockDb = SqlBlockDb(dp)
             dp.transactionDb = SqlTransactionDb(dp)
@@ -191,15 +196,13 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
         val VERSION = Version.parse("v3.0.0-dev")
         const val APPLICATION = "BRS"
         private const val DEFAULT_PROPERTIES_NAME = "brs-default.properties"
-        private val logger = LoggerFactory.getLogger(Burst::class.java)
 
-        private fun loadProperties(): Properties {
+        private fun loadProperties(confDirectory: String): Properties {
             val defaultProperties = Properties()
 
             // TODO this can be refactored to be cleaner.
-            logger.safeInfo { "Initializing Burst Reference Software ($APPLICATION) version $VERSION" }
             try {
-                FileReader("conf/$DEFAULT_PROPERTIES_NAME").use { input ->
+                FileReader("$confDirectory/$DEFAULT_PROPERTIES_NAME").use { input ->
                     defaultProperties.load(input)
                 }
             } catch (e: FileNotFoundException) {
@@ -218,7 +221,7 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
 
             val properties = Properties(defaultProperties)
             try {
-                FileReader("conf/brs.properties").use { input ->
+                FileReader("$confDirectory/brs.properties").use { input ->
                     properties.load(input)
                 }
             } catch (e: IOException) {
@@ -232,11 +235,12 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
 
         @JvmStatic
         fun main(args: Array<String>) {
-            init()
+            init(Arguments.parse(args))
         }
 
-        fun init(addShutdownHook: Boolean = true): Burst {
-            return Burst(loadProperties(), addShutdownHook)
+        fun init(arguments: Arguments, addShutdownHook: Boolean = true): Burst {
+            LoggerConfigurator.init(arguments.configDirectory)
+            return Burst(loadProperties(arguments.configDirectory), addShutdownHook)
         }
     }
 }
