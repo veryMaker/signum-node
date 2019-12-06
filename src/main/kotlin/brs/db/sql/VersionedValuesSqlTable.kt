@@ -1,6 +1,6 @@
 package brs.db.sql
 
-import brs.db.VersionedValuesTable
+import brs.db.ValuesTable
 import brs.entity.DependencyProvider
 import org.jooq.impl.TableImpl
 
@@ -9,7 +9,7 @@ internal abstract class VersionedValuesSqlTable<T, V> internal constructor(
     tableClass: TableImpl<*>,
     dbKeyFactory: SqlDbKey.Factory<T>,
     private val dp: DependencyProvider
-) : ValuesSqlTable<T, V>(table, tableClass, dbKeyFactory, true, dp), VersionedValuesTable<T, V> {
+) : ValuesSqlTable<T, V>(table, tableClass, dbKeyFactory, true, dp), ValuesTable<T, V> {
     override fun rollback(height: Int) {
         VersionedEntitySqlTable.rollback(dp, table, tableClass, heightField, latestField, height, dbKeyFactory)
     }

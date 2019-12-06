@@ -23,7 +23,7 @@ interface DigitalGoodsStoreStore {
     /**
      * TODO
      */
-    val feedbackTable: VersionedValuesTable<Purchase, BurstEncryptedMessage>
+    val feedbackTable: ValuesTable<Purchase, BurstEncryptedMessage>
 
     /**
      * TODO
@@ -33,7 +33,7 @@ interface DigitalGoodsStoreStore {
     /**
      * TODO
      */
-    val publicFeedbackTable: VersionedValuesTable<Purchase, String>
+    val publicFeedbackTable: ValuesTable<Purchase, String>
 
     /**
      * TODO

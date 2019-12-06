@@ -30,7 +30,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
 
     override val purchaseTable: VersionedEntityTable<Purchase>
 
-    override val feedbackTable: VersionedValuesTable<Purchase, BurstEncryptedMessage>
+    override val feedbackTable: ValuesTable<Purchase, BurstEncryptedMessage>
 
     override val publicFeedbackDbKeyFactory = object : SqlDbKey.LongKeyFactory<Purchase>(PURCHASE.ID) {
         override fun newKey(purchase: Purchase): BurstKey {
@@ -38,7 +38,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         }
     }
 
-    override val publicFeedbackTable: VersionedValuesTable<Purchase, String>
+    override val publicFeedbackTable: ValuesTable<Purchase, String>
 
     override val goodsDbKeyFactory = object : SqlDbKey.LongKeyFactory<Goods>(GOODS.ID) {
         override fun newKey(goods: Goods): BurstKey {

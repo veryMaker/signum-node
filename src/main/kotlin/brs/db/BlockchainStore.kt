@@ -11,7 +11,6 @@ import org.jooq.Result
 /**
  * Store for both BlockchainImpl and BlockchainProcessorImpl
  */
-
 interface BlockchainStore {
     /**
      * TODO

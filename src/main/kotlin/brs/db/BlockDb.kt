@@ -45,7 +45,6 @@ interface BlockDb : Table {
      */
     fun saveBlock(ctx: DSLContext, block: Block)
 
-    // relying on cascade triggers in the database to delete the transactions for all deleted blocks
     /**
      * TODO
      */

@@ -1,7 +1,7 @@
 package brs.entity
 
 import brs.db.BurstKey
-import brs.db.VersionedValuesTable
+import brs.db.ValuesTable
 import brs.transaction.appendix.Attachment
 import brs.util.delegates.AtomicLazy
 import burst.kit.entity.BurstEncryptedMessage
@@ -51,7 +51,7 @@ open class Purchase {
         return dp.digitalGoodsStoreStore.feedbackDbKeyFactory
     }
 
-    private fun feedbackTable(dp: DependencyProvider): VersionedValuesTable<Purchase, BurstEncryptedMessage> {
+    private fun feedbackTable(dp: DependencyProvider): ValuesTable<Purchase, BurstEncryptedMessage> {
         return dp.digitalGoodsStoreStore.feedbackTable
     }
 
@@ -59,7 +59,7 @@ open class Purchase {
         return dp.digitalGoodsStoreStore.publicFeedbackDbKeyFactory
     }
 
-    private fun publicFeedbackTable(dp: DependencyProvider): VersionedValuesTable<Purchase, String> {
+    private fun publicFeedbackTable(dp: DependencyProvider): ValuesTable<Purchase, String> {
         return dp.digitalGoodsStoreStore.publicFeedbackTable
     }
 
