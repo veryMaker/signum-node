@@ -225,12 +225,32 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
         useDslContext { ctx ->
             try {
                 when (ctx.dialect()) {
-                    SQLDialect.MYSQL, SQLDialect.MARIADB -> ctx.execute("OPTIMIZE NO_WRITE_TO_BINLOG TABLE $tableName")
+                    SQLDialect.MYSQL, SQLDialect.MARIADB -> {
+                        // All MySQL tables are InnoDB.
+                        ctx.execute("OPTIMIZE NO_WRITE_TO_BINLOG TABLE $tableName")
+                    }
                     else -> {
                     }
                 }
             } catch (e: Exception) {
                 logger.safeDebug(e) { "Failed to optimize table $tableName" }
+            }
+        }
+    }
+
+    override fun optimizeDatabase() {
+        useDslContext { ctx ->
+            try {
+                when (ctx.dialect()) {
+                    SQLDialect.SQLITE -> {
+                        ctx.execute("VACUUM")
+                        ctx.execute("ANALYZE")
+                    }
+                    else -> {
+                    }
+                }
+            } catch (e: Exception) {
+                logger.safeDebug(e) { "Failed to optimize database" }
             }
         }
     }

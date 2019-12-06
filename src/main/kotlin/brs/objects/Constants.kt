@@ -77,7 +77,7 @@ object Constants {
 
     const val TASK_FAILURE_DELAY_MS = 500L
 
-    const val OPTIMIZE_TABLE_FREQUENCY = 10000 // Optimize tables every 1000 blocks
+    const val OPTIMIZE_TABLE_FREQUENCY = 10000 // Optimize tables every 10000 blocks
 
     fun init(dp: DependencyProvider) {
         val dbRollback = dp.propertyService.get(Props.DB_MAX_ROLLBACK).toLong()

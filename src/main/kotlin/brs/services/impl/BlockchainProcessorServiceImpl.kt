@@ -771,7 +771,10 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 autoPopOffNumberOfBlocks = 0
             }
             if (block.height % Constants.OPTIMIZE_TABLE_FREQUENCY == 0) {
-                dp.db.getAllTables().forEach { it.optimize() }
+                logger.safeInfo { "Processed a multiple of ${Constants.OPTIMIZE_TABLE_FREQUENCY} blocks. Optimizing database tables..." }
+                dp.db.allTables.forEach { it.optimize() }
+                dp.db.optimizeDatabase()
+                logger.safeInfo { "Database optimization complete!" }
             }
         }
     }

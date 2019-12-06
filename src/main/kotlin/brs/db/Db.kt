@@ -129,5 +129,13 @@ interface Db {
      */
     val tradeStore: TradeStore
 
+    /**
+     * TODO
+     */
     val allTables: Collection<Table>
+
+    /**
+     * TODO
+     */
+    fun optimizeDatabase()
 }
