@@ -102,11 +102,16 @@ A `.deb` package is available [here](https://github.com/burst-apps-team/burstcoi
 
 [Docker repository](https://hub.docker.com/r/burstappsteam/burstcoin)
 
-`latest` : Latest version of BRS with H2 database  
+`latest` : Latest version of BRS with H2 database
+
 `mariadb` : Latest version of BRS with MariaDB database
+
 `2-h2` / `2-mariadb` - Version 2.X.X (latest) with corresponding database
+
 `2.4-h2` / `2.4-mariadb` - Version 2.4.X (latest) with corresponding database
+
 `2.4.2-h2` / `2.4.2-mariadb` - Version 2.4.2 with corresponding database
+
 `edge-testnet` - The latest snapshot development build
 
 Docker Compose for use with MariaDB database
