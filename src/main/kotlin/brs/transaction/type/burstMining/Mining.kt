@@ -5,8 +5,8 @@ import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.transaction.type.TransactionType
 
-abstract class BurstMining(dp: DependencyProvider) : TransactionType(dp) { // TODO rename to just Mining
-    override val type = TYPE_BURST_MINING
+abstract class Mining(dp: DependencyProvider) : TransactionType(dp) {
+    override val type = TYPE_MINING
     override fun applyAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = true
     override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
 }

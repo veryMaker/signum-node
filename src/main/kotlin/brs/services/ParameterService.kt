@@ -9,7 +9,7 @@ interface ParameterService {
     /**
      * TODO
      */
-    fun getAccount(request: HttpServletRequest): Account?
+    fun getAccount(request: HttpServletRequest): Account
 
     /**
      * TODO

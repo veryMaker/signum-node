@@ -200,7 +200,6 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
         private fun loadProperties(confDirectory: String): Properties {
             val defaultProperties = Properties()
 
-            // TODO this can be refactored to be cleaner.
             try {
                 FileReader("$confDirectory/$DEFAULT_PROPERTIES_NAME").use { input ->
                     defaultProperties.load(input)

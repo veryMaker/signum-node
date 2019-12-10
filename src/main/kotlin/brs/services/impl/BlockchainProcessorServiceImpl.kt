@@ -625,9 +625,9 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     private fun pushBlock(block: Block) {
         dp.blockService.preVerify(block, warnIfNotVerified = true)
         processMutex.withLock {
-            dp.db.beginTransaction()
             val curTime = dp.timeService.epochTime
             var lastBlock: Block? = null
+            dp.db.beginTransaction()
             try {
                 lastBlock = dp.blockchainService.lastBlock
 
@@ -833,8 +833,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         val poppedOffBlocks = mutableListOf<Block>()
         dp.downloadCacheService.mutex.withLock {
             processMutex.withLock {
+                dp.db.beginTransaction()
                 try {
-                    dp.db.beginTransaction()
                     var block = dp.blockchainService.lastBlock
                     logger.safeInfo { "Rollback from ${block.height} to ${commonBlock.height}" }
                     while (block.id != commonBlock.id && block.id != Genesis.GENESIS_BLOCK_ID) {
@@ -899,8 +899,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             // finally all stuff is reverted so nothing is written to the db
             // the block itself with all transactions we found is pushed using pushBlock which calls
             // accept (so it's going the same way like a received/synced block)
+            dp.db.beginTransaction()
             try {
-                dp.db.beginTransaction()
                 val transactionDuplicatesChecker = TransactionDuplicateChecker()
 
                 val priorityCalculator = { transaction: Transaction ->
@@ -1037,10 +1037,9 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 dp.subscriptionService.clearRemovals()
                 totalFeePlanck += dp.subscriptionService.calculateFees(blockTimestamp)
             } catch (e: Exception) {
-                dp.db.rollbackTransaction()
                 throw e
             } finally {
-                dp.db.rollbackTransaction() // TODO ????
+                dp.db.rollbackTransaction()
                 dp.db.endTransaction()
             }
 

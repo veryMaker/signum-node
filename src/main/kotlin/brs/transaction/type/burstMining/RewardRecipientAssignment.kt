@@ -12,7 +12,7 @@ import brs.util.json.toJsonString
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 
-class RewardRecipientAssignment(dp: DependencyProvider) : BurstMining(dp) {
+class RewardRecipientAssignment(dp: DependencyProvider) : Mining(dp) {
     override val subtype = SUBTYPE_BURST_MINING_REWARD_RECIPIENT_ASSIGNMENT
     override val description = "Reward Recipient Assignment"
 
@@ -41,7 +41,6 @@ class RewardRecipientAssignment(dp: DependencyProvider) : BurstMining(dp) {
             RewardRecipientAssignment::class,
             transaction.senderId.toUnsignedString()
         )
-
     }
 
     override fun preValidateAttachment(transaction: Transaction, height: Int) {

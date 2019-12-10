@@ -28,7 +28,7 @@ internal class GetAliases internal constructor(
 ) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val timestamp = ParameterParser.getTimestamp(request)
-        val accountId = parameterService.getAccount(request)?.id ?: return JSONResponses.INCORRECT_ACCOUNT
+        val accountId = parameterService.getAccount(request).id
         val firstIndex = ParameterParser.getFirstIndex(request)
         val lastIndex = ParameterParser.getLastIndex(request)
 

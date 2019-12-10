@@ -19,10 +19,8 @@ internal class GetAccountATs internal constructor(
     private val atService: ATService,
     private val accountService: AccountService
 ) : APIServlet.JsonRequestHandler(arrayOf(APITag.AT, APITag.ACCOUNTS), ACCOUNT_PARAMETER) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request)
-            ?: return JSONResponses.INCORRECT_ACCOUNT // TODO this is super redundant
 
         val atIds = atService.getATsIssuedBy(account.id)
         val ats = JsonArray()

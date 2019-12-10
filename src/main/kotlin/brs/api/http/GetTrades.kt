@@ -49,12 +49,12 @@ internal class GetTrades internal constructor(
                 assetExchangeService.getTrades(asset.id, firstIndex, lastIndex)
             }
             assetId == null -> {
-                val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
+                val account = parameterService.getAccount(request)
                 assetExchangeService.getAccountTrades(account.id, firstIndex, lastIndex)
             }
             else -> {
                 val asset = parameterService.getAsset(request)
-                val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
+                val account = parameterService.getAccount(request)
                 assetExchangeService.getAccountAssetTrades(account.id, asset.id, firstIndex, lastIndex)
             }
         }

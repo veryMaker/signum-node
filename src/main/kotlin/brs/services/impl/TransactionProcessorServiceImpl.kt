@@ -156,8 +156,8 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
 
     override fun clearUnconfirmedTransactions() {
         val removed: List<Transaction>
+        dp.db.beginTransaction()
         try {
-            dp.db.beginTransaction()
             removed = dp.unconfirmedTransactionService.all
             dp.accountService.flushAccountTable()
             dp.unconfirmedTransactionService.clear()

@@ -77,7 +77,6 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         } catch (e: Exception) {
             throw ParameterException(INCORRECT_ACCOUNT)
         }
-
     }
 
     override fun getAccounts(request: HttpServletRequest): List<Account> {

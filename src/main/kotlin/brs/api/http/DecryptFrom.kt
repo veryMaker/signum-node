@@ -34,7 +34,7 @@ internal class DecryptFrom internal constructor(private val parameterService: Pa
     ) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        val account = parameterService.getAccount(request) ?: return INCORRECT_ACCOUNT
+        val account = parameterService.getAccount(request)
         if (account.publicKey == null) {
             return INCORRECT_ACCOUNT
         }

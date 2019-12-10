@@ -182,7 +182,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
         const val TYPE_COLORED_COINS: Byte = 2
         const val TYPE_DIGITAL_GOODS: Byte = 3
         const val TYPE_ACCOUNT_CONTROL: Byte = 4
-        const val TYPE_BURST_MINING: Byte = 20 // jump some for easier nxt updating
+        const val TYPE_MINING: Byte = 20 // jump some for easier nxt updating
         const val TYPE_ADVANCED_PAYMENT: Byte = 21
         const val TYPE_AUTOMATED_TRANSACTIONS: Byte = 22
 
@@ -285,7 +285,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
             transactionTypes[TYPE_COLORED_COINS] = coloredCoinsTypes
             transactionTypes[TYPE_DIGITAL_GOODS] = digitalGoodsTypes
             transactionTypes[TYPE_ACCOUNT_CONTROL] = accountControlTypes
-            transactionTypes[TYPE_BURST_MINING] = burstMiningTypes
+            transactionTypes[TYPE_MINING] = burstMiningTypes
             transactionTypes[TYPE_ADVANCED_PAYMENT] = advancedPaymentTypes
             transactionTypes[TYPE_AUTOMATED_TRANSACTIONS] = atTypes
 
@@ -303,7 +303,7 @@ abstract class TransactionType constructor(internal val dp: DependencyProvider) 
                 TYPE_MESSAGING -> "Messaging"
                 TYPE_COLORED_COINS -> "Colored coins"
                 TYPE_DIGITAL_GOODS -> "Digital Goods"
-                TYPE_BURST_MINING -> "Burst Mining"
+                TYPE_MINING -> "Burst Mining"
                 TYPE_ADVANCED_PAYMENT -> "Advanced Payment"
                 TYPE_AUTOMATED_TRANSACTIONS -> "Automated Transactions"
                 else -> "Unknown"

@@ -18,7 +18,7 @@ internal class GetAccountEscrowTransactions internal constructor(
 ) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
+        val account = parameterService.getAccount(request)
 
         val accountEscrows = escrowService.getEscrowTransactionsByParticipant(account.id)
 

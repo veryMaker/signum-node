@@ -139,8 +139,8 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     // relying on cascade triggers in the database to delete the transactions for all deleted blocks
     override fun deleteBlocksFrom(blockId: Long) {
         if (!dp.db.isInTransaction()) {
+            dp.db.beginTransaction()
             try {
-                dp.db.beginTransaction()
                 deleteBlocksFrom(blockId)
                 dp.db.commitTransaction()
             } catch (e: Exception) {
@@ -168,8 +168,8 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
 
     override fun deleteAll(force: Boolean) {
         if (!dp.db.isInTransaction()) {
+            dp.db.beginTransaction()
             try {
-                dp.db.beginTransaction()
                 deleteAll(force)
                 dp.db.commitTransaction()
             } catch (e: Exception) {

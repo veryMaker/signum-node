@@ -35,7 +35,7 @@ internal class GetAccountTransactionIds(
     INCLUDE_INDIRECT_PARAMETER
 ) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
+        val account = parameterService.getAccount(request)
         val timestamp = ParameterParser.getTimestamp(request)
         val numberOfConfirmations = parameterService.getNumberOfConfirmations(request)
 

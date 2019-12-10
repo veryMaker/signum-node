@@ -385,8 +385,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         }
         val toDelete = oldPeers.toMutableSet()
         toDelete.removeAll(currentPeers)
+        dp.db.beginTransaction()
         try {
-            dp.db.beginTransaction()
             dp.peerDb.deletePeers(toDelete)
             currentPeers.removeAll(oldPeers)
             dp.peerDb.addPeers(currentPeers)

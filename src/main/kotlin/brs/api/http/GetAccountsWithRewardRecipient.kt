@@ -20,7 +20,7 @@ internal class GetAccountsWithRewardRecipient internal constructor(
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
 
-        val targetAccount = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
+        val targetAccount = parameterService.getAccount(request)
 
         val accounts = JsonArray()
 

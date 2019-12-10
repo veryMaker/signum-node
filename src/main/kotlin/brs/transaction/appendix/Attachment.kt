@@ -1866,7 +1866,7 @@ interface Attachment : Appendix {
 
         override val transactionTypeAndSubtype: Pair<Byte, Byte>
             get() = Pair(
-                TransactionType.TYPE_BURST_MINING,
+                TransactionType.TYPE_MINING,
                 TransactionType.SUBTYPE_BURST_MINING_REWARD_RECIPIENT_ASSIGNMENT
             )
 

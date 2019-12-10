@@ -128,7 +128,7 @@ open class Purchase {
 
     companion object {
         private fun getGoods(dp: DependencyProvider, goodsId: Long): Goods? {
-            return Goods.goodsTable(dp)[Goods.goodsDbKeyFactory(dp).newKey(goodsId)]
+            return dp.digitalGoodsStoreStore.goodsTable[dp.digitalGoodsStoreStore.goodsDbKeyFactory.newKey(goodsId)]
         }
     }
 }

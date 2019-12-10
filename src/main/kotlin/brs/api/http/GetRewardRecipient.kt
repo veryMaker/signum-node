@@ -21,7 +21,7 @@ internal class GetRewardRecipient(
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
 
-        val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
+        val account = parameterService.getAccount(request)
         val assignment = accountService.getRewardRecipientAssignment(account)
         val height = blockchainService.lastBlock.height.toLong()
         when {

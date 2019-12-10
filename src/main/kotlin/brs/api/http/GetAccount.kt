@@ -29,7 +29,7 @@ internal class GetAccount internal constructor(
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val account = parameterService.getAccount(request) ?: return JSONResponses.INCORRECT_ACCOUNT
+        val account = parameterService.getAccount(request)
 
         val response = JSONData.accountBalance(account)
         JSONData.putAccount(response, ACCOUNT_RESPONSE, account.id)

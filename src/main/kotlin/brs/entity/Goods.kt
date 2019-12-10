@@ -1,7 +1,6 @@
 package brs.entity
 
 import brs.db.BurstKey
-import brs.db.VersionedEntityTable
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 
@@ -60,17 +59,5 @@ open class Goods {
 
     fun changePrice(pricePlanck: Long) {
         this.pricePlanck = pricePlanck
-    }
-
-    companion object {
-        // TODO remove these getters
-        fun goodsDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<Goods> {
-            return dp.digitalGoodsStoreStore.goodsDbKeyFactory
-        }
-
-        // TODO remove these getters
-        fun goodsTable(dp: DependencyProvider): VersionedEntityTable<Goods> {
-            return dp.digitalGoodsStoreStore.goodsTable
-        }
     }
 }
