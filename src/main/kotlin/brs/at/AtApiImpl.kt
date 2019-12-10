@@ -173,63 +173,63 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     }
 
     override fun addAToB(state: AtMachineState) {
-        val a = AtApiHelper.getBigInteger(state.a1, state.a2, state.a3, state.a4)
-        val b = AtApiHelper.getBigInteger(state.b1, state.b2, state.b3, state.b4)
+        val a = AtApiHelper.getA(state)
+        val b = AtApiHelper.getB(state)
         val result = a.add(b)
-        state.putInB(AtApiHelper.getByteArray(result))
+        AtApiHelper.getByteArray(result, state.b1, state.b2, state.b3, state.b4)
     }
 
     override fun addBToA(state: AtMachineState) {
-        val a = AtApiHelper.getBigInteger(state.a1, state.a2, state.a3, state.a4)
-        val b = AtApiHelper.getBigInteger(state.b1, state.b2, state.b3, state.b4)
+        val a = AtApiHelper.getA(state)
+        val b = AtApiHelper.getB(state)
         val result = a.add(b)
-        state.putInA(AtApiHelper.getByteArray(result))
+        AtApiHelper.getByteArray(result, state.a1, state.a2, state.a3, state.a4)
     }
 
     override fun subAFromB(state: AtMachineState) {
-        val a = AtApiHelper.getBigInteger(state.a1, state.a2, state.a3, state.a4)
-        val b = AtApiHelper.getBigInteger(state.b1, state.b2, state.b3, state.b4)
+        val a = AtApiHelper.getA(state)
+        val b = AtApiHelper.getB(state)
         val result = b.subtract(a)
-        state.putInB(AtApiHelper.getByteArray(result))
+        AtApiHelper.getByteArray(result, state.b1, state.b2, state.b3, state.b4)
     }
 
     override fun subBFromA(state: AtMachineState) {
-        val a = AtApiHelper.getBigInteger(state.a1, state.a2, state.a3, state.a4)
-        val b = AtApiHelper.getBigInteger(state.b1, state.b2, state.b3, state.b4)
+        val a = AtApiHelper.getA(state)
+        val b = AtApiHelper.getB(state)
         val result = a.subtract(b)
-        state.putInA(AtApiHelper.getByteArray(result))
+        AtApiHelper.getByteArray(result, state.a1, state.a2, state.a3, state.a4)
     }
 
     override fun mulAByB(state: AtMachineState) {
-        val a = AtApiHelper.getBigInteger(state.a1, state.a2, state.a3, state.a4)
-        val b = AtApiHelper.getBigInteger(state.b1, state.b2, state.b3, state.b4)
+        val a = AtApiHelper.getA(state)
+        val b = AtApiHelper.getB(state)
         val result = a.multiply(b)
-        state.putInB(AtApiHelper.getByteArray(result))
+        AtApiHelper.getByteArray(result, state.b1, state.b2, state.b3, state.b4)
     }
 
     override fun mulBByA(state: AtMachineState) {
-        val a = AtApiHelper.getBigInteger(state.a1, state.a2, state.a3, state.a4)
-        val b = AtApiHelper.getBigInteger(state.b1, state.b2, state.b3, state.b4)
+        val a = AtApiHelper.getA(state)
+        val b = AtApiHelper.getB(state)
         val result = a.multiply(b)
-        state.putInA(AtApiHelper.getByteArray(result))
+        AtApiHelper.getByteArray(result, state.a1, state.a2, state.a3, state.a4)
     }
 
     override fun divAByB(state: AtMachineState) {
-        val a = AtApiHelper.getBigInteger(state.a1, state.a2, state.a3, state.a4)
-        val b = AtApiHelper.getBigInteger(state.b1, state.b2, state.b3, state.b4)
+        val a = AtApiHelper.getA(state)
+        val b = AtApiHelper.getB(state)
         if (b.compareTo(BigInteger.ZERO) == 0)
             return
         val result = a.divide(b)
-        state.putInB(AtApiHelper.getByteArray(result))
+        AtApiHelper.getByteArray(result, state.b1, state.b2, state.b3, state.b4)
     }
 
     override fun divBByA(state: AtMachineState) {
-        val a = AtApiHelper.getBigInteger(state.a1, state.a2, state.a3, state.a4)
-        val b = AtApiHelper.getBigInteger(state.b1, state.b2, state.b3, state.b4)
+        val a = AtApiHelper.getA(state)
+        val b = AtApiHelper.getB(state)
         if (a.compareTo(BigInteger.ZERO) == 0)
             return
         val result = b.divide(a)
-        state.putInA(AtApiHelper.getByteArray(result))
+        AtApiHelper.getByteArray(result, state.a1, state.a2, state.a3, state.a4)
     }
 
     override fun orAWithB(state: AtMachineState) {

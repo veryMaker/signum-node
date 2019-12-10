@@ -64,16 +64,34 @@ class AtApiHelperTest {
 
     @Test
     fun testGetByteArray_bigInteger() {
-        assertEquals("0100000000000000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000000001L)).toHexString())
-        assertEquals("0123000000000000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000002301L)).toHexString())
-        assertEquals("0123450000000000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000452301L)).toHexString())
-        assertEquals("0123456700000000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000067452301L)).toHexString())
-        assertEquals("0123456789000000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000008967452301L)).toHexString())
-        assertEquals("0123456789ab0000000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x0000ab8967452301L)).toHexString())
-        assertEquals("0123456789abcd00000000000000000000000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger.valueOf(0x00cdab8967452301L)).toHexString())
-        assertEquals("0123456789abcdefffffffffffffffffffffffffffffffffffffffffffffffff", AtApiHelper.getByteArray(BigInteger.valueOf(-0x1032547698badcffL)).toHexString())
-        assertEquals("0123456789abcdef0123456789abcdef00000000000000000000000000000000", AtApiHelper.getByteArray(BigInteger("efcdab8967452301efcdab8967452301", 16)).toHexString())
-        assertEquals("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", AtApiHelper.getByteArray(BigInteger("efcdab8967452301efcdab8967452301efcdab8967452301efcdab8967452301", 16)).toHexString())
+        val first = ByteArray(8)
+        val second = ByteArray(8)
+        val third = ByteArray(8)
+        val fourth = ByteArray(8)
+        fun arraySum(): String {
+            return first.toHexString() + second.toHexString() + third.toHexString() + fourth.toHexString()
+        }
+        
+        AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000000001L), first, second, third, fourth)
+        assertEquals("0100000000000000000000000000000000000000000000000000000000000000", arraySum())
+        AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000002301L), first, second, third, fourth)
+        assertEquals("0123000000000000000000000000000000000000000000000000000000000000", arraySum())
+        AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000452301L), first, second, third, fourth)
+        assertEquals("0123450000000000000000000000000000000000000000000000000000000000", arraySum())
+        AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000067452301L), first, second, third, fourth)
+        assertEquals("0123456700000000000000000000000000000000000000000000000000000000", arraySum())
+        AtApiHelper.getByteArray(BigInteger.valueOf(0x0000008967452301L), first, second, third, fourth)
+        assertEquals("0123456789000000000000000000000000000000000000000000000000000000", arraySum())
+        AtApiHelper.getByteArray(BigInteger.valueOf(0x0000ab8967452301L), first, second, third, fourth)
+        assertEquals("0123456789ab0000000000000000000000000000000000000000000000000000", arraySum())
+        AtApiHelper.getByteArray(BigInteger.valueOf(0x00cdab8967452301L), first, second, third, fourth)
+        assertEquals("0123456789abcd00000000000000000000000000000000000000000000000000", arraySum())
+        AtApiHelper.getByteArray(BigInteger.valueOf(-0x1032547698badcffL), first, second, third, fourth)
+        assertEquals("0123456789abcdefffffffffffffffffffffffffffffffffffffffffffffffff", arraySum())
+        AtApiHelper.getByteArray(BigInteger("efcdab8967452301efcdab8967452301", 16), first, second, third, fourth)
+        assertEquals("0123456789abcdef0123456789abcdef00000000000000000000000000000000", arraySum())
+        AtApiHelper.getByteArray(BigInteger("efcdab8967452301efcdab8967452301efcdab8967452301efcdab8967452301", 16), first, second, third, fourth)
+        assertEquals("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", arraySum())
     }
 
     @Test

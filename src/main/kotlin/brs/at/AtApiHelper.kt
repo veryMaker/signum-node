@@ -63,6 +63,14 @@ object AtApiHelper {
         return height.toLong() shl 32 or numOfTx.toLong()
     }
 
+    fun getA(state: AtMachineState): BigInteger {
+        return getBigInteger(state.a1, state.a2, state.a3, state.a4) // TODO optimize
+    }
+
+    fun getB(state: AtMachineState): BigInteger {
+        return getBigInteger(state.b1, state.b2, state.b3, state.b4) // TODO optimize
+    }
+
     fun getBigInteger(b1: ByteArray, b2: ByteArray, b3: ByteArray, b4: ByteArray): BigInteger {
         return BigInteger(
             byteArrayOf(
@@ -102,28 +110,45 @@ object AtApiHelper {
         )
     }
 
-    fun getByteArray(bigInt: BigInteger): ByteArray { // TODO optimize
-        val resultSize = 32
-        val bigIntBytes = bigInt.toByteArray()
-        bigIntBytes.reverse()
-        val result = ByteArray(resultSize)
-        if (bigIntBytes.size < resultSize) {
-            val padding = ((bigIntBytes[bigIntBytes.size - 1] and 0x80.toByte()).toInt() shr 7).toByte()
-            var i = 0
-            val length = resultSize - bigIntBytes.size
-            while (i < length) {
-                result[resultSize - 1 - i] = padding
-                i++
+    /**
+     * Little endian.
+     * @param bigInt The integer to load into the arrays
+     * @param first The first register eg. A1
+     * @param second The second register eg. A2
+     * @param second The third register eg. A3
+     * @param second The fourth register eg. A4
+     */
+    fun getByteArray(
+        bigInt: BigInteger,
+        first: ByteArray,
+        second: ByteArray,
+        third: ByteArray,
+        fourth: ByteArray
+    ) {
+        // Calculate little endian bytes
+        val array = bigInt.toByteArray()
+        array.reverse()
+
+        // Fill in the bytes
+        for (i in array.indices) {
+            when {
+                i < 8 -> first[i] = array[i]
+                i < 16 -> second[i - 8] = array[i]
+                i < 24 -> third[i - 16] = array[i]
+                i < 32 -> fourth[i - 24] = array[i]
             }
         }
-        System.arraycopy(
-            bigIntBytes,
-            0,
-            result,
-            0,
-            if (resultSize >= bigIntBytes.size) bigIntBytes.size else resultSize
-        )
-        return result
+
+        // Fill in the zero bytes
+        val padding = ((array[array.size - 1] and 0x80.toByte()).toInt() shr 7).toByte()
+        for (i in 32 downTo array.size) {
+            when {
+                i < 8 -> first[i] = padding
+                i < 16 -> second[i - 8] = padding
+                i < 24 -> third[i - 16] = padding
+                i < 32 -> fourth[i - 24] = padding
+            }
+        }
     }
 }
 
