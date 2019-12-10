@@ -112,7 +112,6 @@ internal class SubmitNonce(
                 response.addProperty("result", e.message)
                 return response
             }
-
         }
 
         val generatorState = if (accountId == null || secretAccount == null) {

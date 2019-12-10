@@ -10,9 +10,10 @@ YYYY-MM-DD v3.0.0 (WIP)
 - More documentation on interfaces
 - General Optimizations
 - Lots of optimizations to AT Implementation
-- New TaskScheduler
+- New RxJava-based Task Scheduler
 - Dependency Injection for services
 - Move to Gradle-based build
+- Configuration location now specified by argument instead of classpath
 - Fixed Escrow ID in Escrow Result Attachment Protobuf is always 2
 - Fixed Get Peer Handler in gRPC API is never initialized
 - Fixed GetOrdersHandler always returns ask orders

@@ -18,7 +18,6 @@ class SubmitNonceHandler(private val dp: DependencyProvider) :
     private val allowOtherSoloMiners: Boolean
 
     init {
-
         this.passphrases = dp.propertyService.get(Props.SOLO_MINING_PASSPHRASES).associateBy { passphrase ->
             BurstCrypto.getInstance().getBurstAddressFromPassphrase(passphrase).burstID.signedLongId
         }

@@ -5,8 +5,8 @@ import org.jooq.Result
 import org.jooq.ResultQuery
 
 inline fun <R : Record, T> ResultQuery<out R>.fetchAndMap(mapper: (R) -> T): List<T> {
-    // If it is not cast to a list, we get the member function map instead of Kotlin's extension function map.
-    val result = this.fetch() as List<R>
+    // If it is not cast to an iterable, we get the member function map instead of Kotlin's extension function map.
+    val result = this.fetch() as Iterable<R>
     return result.map(mapper)
 }
 

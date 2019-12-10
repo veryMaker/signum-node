@@ -71,7 +71,7 @@ fun ByteArray.signUsing(secretPhrase: String): ByteArray {
 }
 
 fun Long.rsEncode(): String {
-    // TODO don't construct BurstID
+    // TODO don't construct BurstID, add a function in burstkit4j for this
     return burstCrypto.rsEncode(BurstID.fromLong(this))
 }
 

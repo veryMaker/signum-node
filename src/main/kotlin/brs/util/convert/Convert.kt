@@ -15,6 +15,7 @@ fun Long.rsAccount(): String {
 }
 
 fun ByteArray.fullHashToId(): Long {
+    // TODO don't construct BurstID, add a function in burstkit4j for this
     return burstCrypto.hashToId(this).signedLongId
 }
 
@@ -67,7 +68,7 @@ fun String?.truncate(replaceNull: String, limit: Int, dots: Boolean): String {
 }
 
 fun String.parseAccountId(): Long {
-    // TODO don't construct BurstAddress
+    // TODO don't construct BurstAddress, add a function in burstkit4j to do this
     val address = BurstAddress.fromEither(this)
     return address?.burstID?.signedLongId ?: 0
 }
@@ -100,6 +101,5 @@ fun String.parseHexString(): ByteArray {
 inline fun Byte.toUnsignedInt() = java.lang.Byte.toUnsignedInt(this)
 
 fun ByteArray.publicKeyToId(): Long {
-    val publicKeyHash = Crypto.sha256().digest(this)
-    return publicKeyHash.fullHashToId()
+    return Crypto.sha256().digest(this).fullHashToId()
 }

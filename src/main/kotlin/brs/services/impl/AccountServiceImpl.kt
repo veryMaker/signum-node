@@ -261,7 +261,6 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     }
 
     companion object {
-
         fun getId(publicKey: ByteArray): Long {
             val publicKeyHash = Crypto.sha256().digest(publicKey)
             return publicKeyHash.fullHashToId()
