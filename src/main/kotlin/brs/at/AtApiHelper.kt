@@ -9,6 +9,7 @@
 package brs.at
 
 import brs.at.AtApi.Companion.REGISTER_PART_SIZE
+import brs.util.byteArray.fillFromEnd
 import brs.util.byteArray.partEquals
 import burst.kit.crypto.BurstCrypto
 import java.math.BigInteger
@@ -125,28 +126,53 @@ object AtApiHelper {
         third: ByteArray,
         fourth: ByteArray
     ) {
-        // Calculate little endian bytes
+        // Calculate the data from the BigInteger
         val array = bigInt.toByteArray()
         array.reverse()
 
-        // Fill in the bytes
-        for (i in array.indices) {
-            when {
-                i < 8 -> first[i] = array[i]
-                i < 16 -> second[i - 8] = array[i]
-                i < 24 -> third[i - 16] = array[i]
-                i < 32 -> fourth[i - 24] = array[i]
-            }
+        // Optimized algorithm for copying the data into the registers provided.
+        if (array.size >= 32) {
+            array.copyInto(first, 0, 0, 8)
+            array.copyInto(second, 0, 8, 16)
+            array.copyInto(third, 0, 16, 24)
+            array.copyInto(fourth, 0, 24, 32)
+            return
         }
-
-        // Fill in the zero bytes
+        // The padding byte
         val padding = ((array[array.size - 1] and 0x80.toByte()).toInt() shr 7).toByte()
-        for (i in 32 downTo array.size) {
-            when {
-                i < 8 -> first[i] = padding
-                i < 16 -> second[i - 8] = padding
-                i < 24 -> third[i - 16] = padding
-                i < 32 -> fourth[i - 24] = padding
+        // The number of non-padding bytes in the partially filled register (the register that is neither full of data nor empty of data)
+        val partialRegisterLength = array.size % 8
+        // The number of padding bytes in the partially filled register
+        val partialRegisterPads = 8 - partialRegisterLength
+        // Determine the range that the length lies in
+        when (array.size / 8) {
+            0 -> { // Length 0-7
+                array.copyInto(first, 0, 0, partialRegisterLength)
+                first.fillFromEnd(padding, partialRegisterPads)
+                second.fill(padding)
+                third.fill(padding)
+                fourth.fill(padding)
+            }
+            1 -> { // Length 8-15
+                array.copyInto(first, 0, 0, 8)
+                array.copyInto(second, 0, 8, partialRegisterLength + 8)
+                second.fillFromEnd(padding, partialRegisterPads)
+                third.fill(padding)
+                fourth.fill(padding)
+            }
+            2 -> { // Length 16-23
+                array.copyInto(first, 0, 0, 8)
+                array.copyInto(second, 0, 8, 16)
+                array.copyInto(third, 0, 16, partialRegisterLength + 16)
+                third.fillFromEnd(padding, partialRegisterPads)
+                fourth.fill(padding)
+            }
+            3 -> { // Length 24-31
+                array.copyInto(first, 0, 0, 8)
+                array.copyInto(second, 0, 8, 16)
+                array.copyInto(third, 0, 16, 24)
+                array.copyInto(fourth, 0, 24, partialRegisterLength + 24)
+                fourth.fillFromEnd(padding, partialRegisterPads)
             }
         }
     }

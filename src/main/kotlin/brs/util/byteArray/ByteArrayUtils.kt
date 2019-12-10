@@ -10,6 +10,10 @@ fun ByteArray.zero() {
     }
 }
 
+fun ByteArray.fillFromEnd(byte: Byte, length: Int) {
+    fill(byte, this.size - length, this.size)
+}
+
 fun ByteArray.isZero(): Boolean {
     for (b in this) {
         if (b != 0.toByte()) return false

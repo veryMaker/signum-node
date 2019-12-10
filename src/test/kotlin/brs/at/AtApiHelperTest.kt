@@ -68,10 +68,23 @@ class AtApiHelperTest {
         val second = ByteArray(8)
         val third = ByteArray(8)
         val fourth = ByteArray(8)
+
         fun arraySum(): String {
             return first.toHexString() + second.toHexString() + third.toHexString() + fourth.toHexString()
         }
-        
+
+        fun fillArray(array: ByteArray) {
+            for (i in array.indices) {
+                array[i] = 0xAA.toByte()
+            }
+        }
+
+        // Protect against padding failures
+        fillArray(first)
+        fillArray(second)
+        fillArray(third)
+        fillArray(fourth)
+
         AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000000001L), first, second, third, fourth)
         assertEquals("0100000000000000000000000000000000000000000000000000000000000000", arraySum())
         AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000002301L), first, second, third, fourth)
