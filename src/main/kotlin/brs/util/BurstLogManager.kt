@@ -1,8 +1,8 @@
 package brs.util
 
+import brs.util.delegates.Atomic
 import java.io.IOException
 import java.io.InputStream
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.logging.LogManager
 
 /**
@@ -20,7 +20,7 @@ internal class BurstLogManager : LogManager() {
     /**
      * Logging reconfiguration in progress
      */
-    private val loggingReconfiguration = AtomicBoolean(false)
+    private var loggingReconfiguration by Atomic(false)
 
     /**
      * Reconfigure logging support using a configuration file
@@ -30,9 +30,9 @@ internal class BurstLogManager : LogManager() {
      * @throws      SecurityException   Caller does not have LoggingPermission("control")
      */
     override fun readConfiguration(inStream: InputStream) {
-        loggingReconfiguration.set(true)
+        loggingReconfiguration = true
         super.readConfiguration(inStream)
-        loggingReconfiguration.set(false)
+        loggingReconfiguration = false
     }
 
     /**
@@ -43,7 +43,7 @@ internal class BurstLogManager : LogManager() {
      * This allows us to continue to use logging facilities during Burst shutdown.
      */
     override fun reset() {
-        if (loggingReconfiguration.get())
+        if (loggingReconfiguration)
             super.reset()
     }
 }

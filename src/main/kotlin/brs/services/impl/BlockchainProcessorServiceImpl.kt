@@ -32,8 +32,6 @@ import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.Semaphore
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.max
 
 class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : BlockchainProcessorService {
@@ -43,7 +41,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     private val gpuUsage = Semaphore(2)
 
     private val trimDerivedTables = dp.propertyService.get(Props.DB_TRIM_DERIVED_TABLES)
-    private val lastTrimHeight = AtomicInteger()
+    private var lastTrimHeight by Atomic(0)
 
     private val processMutex = Mutex()
 
@@ -323,8 +321,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
     override val minRollbackHeight: Int
         get() {
-            val trimHeight = if (lastTrimHeight.get() > 0)
-                lastTrimHeight.get()
+            val trimHeight = if (lastTrimHeight > 0)
+                lastTrimHeight
             else
                 max(dp.blockchainService.height - dp.propertyService.get(Props.DB_MAX_ROLLBACK), 0)
             return if (trimDerivedTables) trimHeight else 0
@@ -367,9 +365,9 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         if (trimDerivedTables) {
             blockListeners.addListener(BlockchainProcessorService.Event.AFTER_BLOCK_APPLY) { block ->
                 if (block.height % 1440 == 0) {
-                    lastTrimHeight.set(max(block.height - dp.propertyService.get(Props.DB_MAX_ROLLBACK), 0))
-                    if (lastTrimHeight.get() > 0) {
-                        dp.derivedTableService.derivedTables.forEach { table -> table.trim(lastTrimHeight.get()) }
+                    lastTrimHeight = max(block.height - dp.propertyService.get(Props.DB_MAX_ROLLBACK), 0)
+                    if (lastTrimHeight > 0) {
+                        dp.derivedTableService.derivedTables.forEach { table -> table.trim(lastTrimHeight) }
                     }
                 }
             }
@@ -937,15 +935,15 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     }
 
                     // In this step we sort through each slot and find the highest priority transaction in each.
-                    val highestSlot = AtomicLong() // TODO remove AtomicLong
+                    var highestSlot = 0L
                     unconfirmedTransactionsOrderedBySlotThenPriority.keys
                         .forEach { slot ->
-                            if (highestSlot.get() < slot) {
-                                highestSlot.set(slot)
+                            if (highestSlot < slot) {
+                                highestSlot = slot
                             }
                         }
                     val slotsWithNoTransactions = mutableListOf<Long>()
-                    for (slot in 1..highestSlot.get()) {
+                    for (slot in 1..highestSlot) {
                         val transactions = unconfirmedTransactionsOrderedBySlotThenPriority[slot]
                         if (transactions.isNullOrEmpty()) {
                             slotsWithNoTransactions.add(slot)
@@ -970,7 +968,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                         var slotToTakeFrom: MutableMap<Long, Transaction>? = null
                         while (slotToTakeFrom.isNullOrEmpty()) {
                             slotNumberToTakeFrom++
-                            if (slotNumberToTakeFrom > highestSlot.get()) return@forEach
+                            if (slotNumberToTakeFrom > highestSlot) return@forEach
                             slotToTakeFrom = unconfirmedTransactionsOrderedBySlotThenPriority[slotNumberToTakeFrom]
                         }
                         var highestPriority = 0L
@@ -986,13 +984,13 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 } else { // Before Pre-Dymaxion HF, just choose highest priority
                     val transactionsOrderedByPriority = inclusionCandidates.associateBy(priorityCalculator, { it })
                     val transactionsOrderedBySlot = mutableMapOf<Long, Transaction>()
-                    val currentSlot = AtomicLong(1)
+                    var currentSlot = 1L
                     transactionsOrderedByPriority.keys
                         .sortedWith(Comparator.reverseOrder())
                         .forEach { priority ->
                             // This should do highest priority to lowest priority
-                            transactionsOrderedBySlot[currentSlot.get()] = transactionsOrderedByPriority[priority]!!
-                            currentSlot.incrementAndGet()
+                            transactionsOrderedBySlot[currentSlot] = transactionsOrderedByPriority[priority]!!
+                            currentSlot++
                         }
                     transactionsToBeIncluded = transactionsOrderedBySlot
                 }
@@ -1022,7 +1020,6 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                                 unconfirmedTransactionStore.remove(transaction)
                                 dp.transactionService.undoUnconfirmed(transaction)
                             }
-
                         } else {
                             // Drop duplicates and transactions that cannot be applied
                             unconfirmedTransactionStore.remove(transaction)
