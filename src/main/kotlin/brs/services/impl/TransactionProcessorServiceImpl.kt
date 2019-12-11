@@ -1,6 +1,7 @@
 package brs.services.impl
 
 import brs.api.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
+import brs.db.transaction
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.objects.FluxValues
@@ -14,7 +15,6 @@ import brs.util.BurstException.ValidationException
 import brs.util.Listeners
 import brs.util.json.*
 import brs.util.logging.safeDebug
-import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import brs.util.logging.safeTrace
 import com.google.gson.JsonArray
@@ -156,20 +156,11 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
 
     override fun clearUnconfirmedTransactions() {
         val removed: List<Transaction>
-        dp.db.beginTransaction()
-        try {
+        dp.db.transaction {
             removed = dp.unconfirmedTransactionService.all
             dp.accountService.flushAccountTable()
             dp.unconfirmedTransactionService.clear()
-            dp.db.commitTransaction()
-        } catch (e: Exception) {
-            logger.safeError(e) { e.toString() }
-            dp.db.rollbackTransaction()
-            throw e
-        } finally {
-            dp.db.endTransaction()
         }
-
         transactionListeners.accept(TransactionProcessorService.Event.REMOVED_UNCONFIRMED_TRANSACTIONS, removed)
     }
 
@@ -228,8 +219,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                     continue
                 }
 
-                dp.db.beginTransaction()
-                try {
+                dp.db.transaction {
                     if (dp.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionService.exists(
                             transaction.id
                         )
@@ -242,12 +232,6 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                     } else if (dp.unconfirmedTransactionService.put(transaction, peer)) {
                         addedUnconfirmedTransactions.add(transaction)
                     }
-                    dp.db.commitTransaction()
-                } catch (e: Exception) {
-                    dp.db.rollbackTransaction()
-                    throw e
-                } finally {
-                    dp.db.endTransaction()
                 }
             } catch (e: Exception) {
                 logger.safeInfo(e) { "Error processing transaction" }

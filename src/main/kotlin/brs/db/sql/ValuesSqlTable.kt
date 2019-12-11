@@ -45,7 +45,7 @@ internal abstract class ValuesSqlTable<T, V> internal constructor(
     }
 
     override fun insert(t: T, values: List<V>) {
-        check(dp.db.isInTransaction()) { "Not in transaction" }
+        dp.db.assertInTransaction()
         dp.db.useDslContext { ctx ->
             val dbKey = dbKeyFactory.newKey(t) as SqlDbKey
             dp.db.getCache<Any>(table)[dbKey] = values

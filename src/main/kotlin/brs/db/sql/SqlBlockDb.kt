@@ -2,6 +2,7 @@ package brs.db.sql
 
 import brs.db.BlockDb
 import brs.db.getUsingDslContext
+import brs.db.transaction
 import brs.db.useDslContext
 import brs.entity.Block
 import brs.entity.DependencyProvider
@@ -139,15 +140,8 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     // relying on cascade triggers in the database to delete the transactions for all deleted blocks
     override fun deleteBlocksFrom(blockId: Long) {
         if (!dp.db.isInTransaction()) {
-            dp.db.beginTransaction()
-            try {
+            dp.db.transaction {
                 deleteBlocksFrom(blockId)
-                dp.db.commitTransaction()
-            } catch (e: Exception) {
-                dp.db.rollbackTransaction()
-                throw e
-            } finally {
-                dp.db.endTransaction()
             }
             return
         }
@@ -168,16 +162,9 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
 
     override fun deleteAll(force: Boolean) {
         if (!dp.db.isInTransaction()) {
-            dp.db.beginTransaction()
-            try {
+            dp.db.transaction {
                 deleteAll(force)
-                dp.db.commitTransaction()
-            } catch (e: Exception) {
-                dp.db.rollbackTransaction()
-                throw e
             }
-
-            dp.db.endTransaction()
             return
         }
         logger.safeInfo { "Deleting blockchain..." }

@@ -23,7 +23,7 @@ internal abstract class VersionedEntitySqlTable<T> internal constructor(
     }
 
     override fun delete(t: T): Boolean {
-        check(dp.db.isInTransaction()) { "Not in transaction" }
+        dp.db.assertInTransaction()
         val dbKey = dbKeyFactory.newKey(t) as SqlDbKey
         return dp.db.getUsingDslContext { ctx ->
             try {
@@ -67,7 +67,7 @@ internal abstract class VersionedEntitySqlTable<T> internal constructor(
             height: Int,
             dbKeyFactory: SqlDbKey.Factory<*>
         ) {
-            check(dp.db.isInTransaction()) { "Not in transaction" }
+            dp.db.assertInTransaction()
 
             dp.db.useDslContext { ctx ->
                 // get dbKey's for entries whose stuff newer than height would be deleted, to allow fixing
@@ -113,7 +113,7 @@ internal abstract class VersionedEntitySqlTable<T> internal constructor(
             height: Int,
             dbKeyFactory: SqlDbKey.Factory<*>
         ) {
-            check(dp.db.isInTransaction()) { "Not in transaction" }
+            dp.db.assertInTransaction()
 
             // "accounts" is just an example to make it easier to understand what the code does
             // select all accounts with multiple entries where height < trimToHeight[current height - 1440]

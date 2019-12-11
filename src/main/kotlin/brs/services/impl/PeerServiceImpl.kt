@@ -1,6 +1,7 @@
 package brs.services.impl
 
 import brs.Burst
+import brs.db.transaction
 import brs.entity.Block
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
@@ -385,17 +386,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         }
         val toDelete = oldPeers.toMutableSet()
         toDelete.removeAll(currentPeers)
-        dp.db.beginTransaction()
-        try {
+        dp.db.transaction {
             dp.peerDb.deletePeers(toDelete)
             currentPeers.removeAll(oldPeers)
             dp.peerDb.addPeers(currentPeers)
-            dp.db.commitTransaction()
-        } catch (e: Exception) {
-            dp.db.rollbackTransaction()
-            throw e
-        } finally {
-            dp.db.endTransaction()
         }
     }
 

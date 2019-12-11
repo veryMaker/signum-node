@@ -29,6 +29,30 @@ inline fun Db.useDslContext(action: (DSLContext) -> Unit) {
     getDslContext().use { context -> action(context) }
 }
 
+/**
+ * Do `action` within a database transaction, and revert
+ * if an exception was thrown.
+ * @param action The action to perform within a DB transaction
+ */
+@UseExperimental(ExperimentalContracts::class)
+inline fun Db.transaction(action: () -> Unit) {
+    contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
+    beginTransaction()
+    try {
+        action()
+        commitTransaction()
+    } catch (e: Exception) {
+        rollbackTransaction()
+        throw e
+    } finally {
+        endTransaction()
+    }
+}
+
+fun Db.assertInTransaction() {
+    check(isInTransaction()) { "Database not in transaction" }
+}
+
 fun DSLContext.upsert(record: UpdatableRecord<*>, vararg keys: Field<*>): Query {
     return insertInto(record.getTable())
         .set(record)

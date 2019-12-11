@@ -1,6 +1,7 @@
 package brs.db.sql
 
 import brs.db.DerivedTable
+import brs.db.assertInTransaction
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.util.logging.safeTrace
@@ -24,7 +25,7 @@ internal abstract class DerivedSqlTable internal constructor(
     }
 
     override fun rollback(height: Int) {
-        check(dp.db.isInTransaction()) { "Not in transaction" }
+        dp.db.assertInTransaction()
         dp.db.useDslContext { ctx -> ctx.delete(tableClass).where(heightField.gt(height)).execute() }
     }
 

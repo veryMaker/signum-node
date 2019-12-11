@@ -36,7 +36,7 @@ internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(
     }
 
     private fun assertNotInTransaction() {
-        check(dp.db.isInTransaction()) { "Not in transaction" }
+        dp.db.assertInTransaction()
     }
 
     protected abstract fun bulkInsert(ctx: DSLContext, t: Collection<T>)

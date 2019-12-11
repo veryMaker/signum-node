@@ -2,6 +2,7 @@ package brs.db.sql
 
 import brs.db.BurstKey
 import brs.db.Db
+import brs.db.assertInTransaction
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.objects.Props
@@ -172,16 +173,16 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
     }
 
     override fun <V> getCache(tableName: String): MutableMap<BurstKey, V> {
-        check(isInTransaction()) { "Not in transaction" }
+        assertInTransaction()
         return transactionCaches.get()!!.computeIfAbsent(tableName) { mutableMapOf() } as MutableMap<BurstKey, V>
     }
 
     override fun <V> getBatch(tableName: String): MutableMap<BurstKey, V> {
-        check(isInTransaction()) { "Not in transaction" }
+        assertInTransaction()
         return transactionBatches.get()!!.computeIfAbsent(tableName) { mutableMapOf() } as MutableMap<BurstKey, V>
     }
 
-    override fun beginTransaction(): Connection {
+    override fun beginTransaction() {
         check(!isInTransaction()) { "Transaction already in progress" }
         val con = cp.connection
         con.autoCommit = false
@@ -189,8 +190,6 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
         localConnection.set(con)
         transactionCaches.set(mutableMapOf())
         transactionBatches.set(mutableMapOf())
-
-        return con
     }
 
     override fun commitTransaction() {

@@ -1,7 +1,6 @@
 package brs.db
 
 import org.jooq.DSLContext
-import java.sql.Connection
 
 interface Db {
     /**
@@ -32,7 +31,7 @@ interface Db {
     /**
      * TODO
      */
-    fun beginTransaction(): Connection
+    fun beginTransaction()
 
     /**
      * TODO

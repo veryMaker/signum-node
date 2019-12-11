@@ -315,7 +315,7 @@ internal abstract class EntitySqlTable<T> internal constructor(
     }
 
     override fun insert(t: T) {
-        check(dp.db.isInTransaction()) { "Not in transaction" }
+        dp.db.assertInTransaction()
         val dbKey = dbKeyFactory.newKey(t) as SqlDbKey
         val cachedT = getCache()[dbKey]
         if (cachedT == null) {
