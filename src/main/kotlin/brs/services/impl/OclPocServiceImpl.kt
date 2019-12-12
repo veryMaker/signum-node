@@ -3,12 +3,12 @@ package brs.services.impl
 import brs.entity.Block
 import brs.entity.DependencyProvider
 import brs.objects.Props
-import brs.services.BlockService
 import brs.services.BlockchainProcessorService
 import brs.services.OclPocService
 import brs.util.MiningPlot
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
+import brs.util.ocl.release
 import brs.util.sync.Mutex
 import org.jocl.*
 import org.jocl.CL.*
@@ -19,7 +19,7 @@ import java.nio.ByteOrder
 import java.util.*
 import kotlin.math.min
 
-class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
+class OclPocServiceImpl(private val dp: DependencyProvider) : OclPocService {
     private val hashesPerBatch: Int
     private val memPercent: Int
 
@@ -27,8 +27,8 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
     private var queue: cl_command_queue? = null
     private var program: cl_program? = null
     private var genKernel: cl_kernel? = null
-    private var getKernel: cl_kernel? = null
-    private var getKernel2: cl_kernel? = null
+    private var getKernelPoc1: cl_kernel? = null
+    private var getKernelPoc2: cl_kernel? = null
 
     override var maxItems: Long = 0
     private val maxGroupItems: Long
@@ -114,8 +114,8 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
             clBuildProgram(program, 0, null, null, null, null)
 
             genKernel = clCreateKernel(program, "generate_scoops", null)
-            getKernel = clCreateKernel(program, "get_scoops", null)
-            getKernel2 = clCreateKernel(program, "get_scoops2", null)
+            getKernelPoc1 = clCreateKernel(program, "get_scoops_poc1", null)
+            getKernelPoc2 = clCreateKernel(program, "get_scoops_poc2", null)
 
             val genGroupSize = LongArray(1)
             val getGroupSize = LongArray(1)
@@ -124,7 +124,7 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
                 Pointer.to(genGroupSize), null
             )
             clGetKernelWorkGroupInfo(
-                getKernel, device, CL_KERNEL_WORK_GROUP_SIZE, 8,
+                getKernelPoc1, device, CL_KERNEL_WORK_GROUP_SIZE, 8,
                 Pointer.to(getGroupSize), null
             )
 
@@ -158,7 +158,7 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
 
     }
 
-    override fun validatePoC(blocks: Collection<Block>, pocVersion: Int, blockService: BlockService) {
+    override fun validateAndPreVerify(blocks: Collection<Block>, pocVersion: Int) {
         try {
             logger.safeDebug { "starting ocl verify for: ${blocks.size}" }
             val scoopsOut = ByteArray(MiningPlot.SCOOP_SIZE * blocks.size)
@@ -184,14 +184,12 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
                 ids[i] = buffer.long
                 nonces[i] = buffer.long
                 buffer.clear()
-                scoopNums[i] = blockService.getScoopNum(block)
+                scoopNums[i] = dp.blockService.getScoopNum(block)
             }
             logger.safeDebug { "finished preprocessing: ${blocks.size}" }
 
             oclLock.withLock {
-                if (ctx == null) {
-                    throw OclPocService.OCLCheckerException("OCL context no longer exists")
-                }
+                checkNotNull(ctx) { "OCL context no longer exists" }
 
                 var idMem: cl_mem? = null
                 var nonceMem: cl_mem? = null
@@ -245,25 +243,15 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
                         c += st[0]
                     }
 
-                    if (pocVersion == 2) { // TODO why are these the same...?
-                        clSetKernelArg(getKernel2, 0, Sizeof.cl_mem.toLong(), Pointer.to(scoopNumMem!!))
-                        clSetKernelArg(getKernel2, 1, Sizeof.cl_mem.toLong(), Pointer.to(bufferMem))
-                        clSetKernelArg(getKernel2, 2, Sizeof.cl_mem.toLong(), Pointer.to(scoopOutMem!!))
-                        clSetKernelArg(getKernel2, 3, Sizeof.cl_int.toLong(), Pointer.to(totalSize))
-                        clEnqueueNDRangeKernel(
-                            queue, getKernel2, 1, null, longArrayOf(jobSize),
-                            longArrayOf(maxGroupItems), 0, null, null
-                        )
-                    } else {
-                        clSetKernelArg(getKernel, 0, Sizeof.cl_mem.toLong(), Pointer.to(scoopNumMem!!))
-                        clSetKernelArg(getKernel, 1, Sizeof.cl_mem.toLong(), Pointer.to(bufferMem))
-                        clSetKernelArg(getKernel, 2, Sizeof.cl_mem.toLong(), Pointer.to(scoopOutMem!!))
-                        clSetKernelArg(getKernel, 3, Sizeof.cl_int.toLong(), Pointer.to(totalSize))
-                        clEnqueueNDRangeKernel(
-                            queue, getKernel, 1, null, longArrayOf(jobSize),
-                            longArrayOf(maxGroupItems), 0, null, null
-                        )
-                    }
+                    val kernel = if (pocVersion == 2) getKernelPoc2 else getKernelPoc1
+                    clSetKernelArg(kernel, 0, Sizeof.cl_mem.toLong(), Pointer.to(scoopNumMem!!))
+                    clSetKernelArg(kernel, 1, Sizeof.cl_mem.toLong(), Pointer.to(bufferMem))
+                    clSetKernelArg(kernel, 2, Sizeof.cl_mem.toLong(), Pointer.to(scoopOutMem!!))
+                    clSetKernelArg(kernel, 3, Sizeof.cl_int.toLong(), Pointer.to(totalSize))
+                    clEnqueueNDRangeKernel(
+                        queue, kernel, 1, null, longArrayOf(jobSize),
+                        longArrayOf(maxGroupItems), 0, null, null
+                    )
 
                     clEnqueueReadBuffer(
                         queue, scoopOutMem, true, 0,
@@ -273,21 +261,11 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
                     logger.safeInfo { "GPU error. Try to set a lower value on GPU.HashesPerBatch in properties." }
                     return
                 } finally {
-                    if (idMem != null) {
-                        clReleaseMemObject(idMem)
-                    }
-                    if (nonceMem != null) {
-                        clReleaseMemObject(nonceMem)
-                    }
-                    if (bufferMem != null) {
-                        clReleaseMemObject(bufferMem)
-                    }
-                    if (scoopNumMem != null) {
-                        clReleaseMemObject(scoopNumMem)
-                    }
-                    if (scoopOutMem != null) {
-                        clReleaseMemObject(scoopOutMem)
-                    }
+                    idMem?.release()
+                    nonceMem?.release()
+                    bufferMem?.release()
+                    scoopNumMem?.release()
+                    scoopOutMem?.release()
                 }
             }
 
@@ -299,7 +277,7 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
             blocks.forEach { block ->
                 try {
                     scoopsBuffer.get(scoop)
-                    blockService.preVerify(block, scoop)
+                    dp.blockService.preVerify(block, scoop)
                 } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
                     throw OclPocService.PreValidateFailException("Block failed to prevalidate", e, block)
                 }
@@ -323,9 +301,9 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
                 clReleaseKernel(genKernel)
                 genKernel = null
             }
-            if (getKernel != null) {
-                clReleaseKernel(getKernel)
-                getKernel = null
+            if (getKernelPoc1 != null) {
+                clReleaseKernel(getKernelPoc1)
+                getKernelPoc1 = null
             }
             if (queue != null) {
                 clReleaseCommandQueue(queue)
@@ -415,15 +393,9 @@ class OclPocServiceImpl(dp: DependencyProvider) : OclPocService {
             clGetDeviceIDs(platforms[pfi], CL_DEVICE_TYPE_GPU, devices.size, devices, null)
 
             for (dvi in devices.indices) {
-                if (!checkAvailable(devices[dvi])) {
-                    continue
-                }
-
-                if (!checkLittleEndian(devices[dvi])) {
-                    continue
-                }
-
-                if (bestResult != null && platformName.toLowerCase(Locale.ENGLISH).contains("intel")) {
+                if (!checkAvailable(devices[dvi])
+                    || !checkLittleEndian(devices[dvi])
+                    || (bestResult != null && platformName.toLowerCase(Locale.ENGLISH).contains("intel"))) {
                     continue
                 }
 

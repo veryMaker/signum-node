@@ -9,9 +9,9 @@ interface OclPocService {
     val maxItems: Long
 
     /**
-     * TODO
+     * Validates the PoC Proofs for `blocks` and pre-verifies the blocks.
      */
-    fun validatePoC(blocks: Collection<Block>, pocVersion: Int, blockService: BlockService)
+    fun validateAndPreVerify(blocks: Collection<Block>, pocVersion: Int)
 
     /**
      * TODO

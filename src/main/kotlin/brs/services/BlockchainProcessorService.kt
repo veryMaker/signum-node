@@ -12,11 +12,6 @@ interface BlockchainProcessorService : Observable<Block, BlockchainProcessorServ
     /**
      * TODO
      */
-    val oclVerify: Boolean
-
-    /**
-     * TODO
-     */
     val lastBlockchainFeeder: Peer?
 
     /**

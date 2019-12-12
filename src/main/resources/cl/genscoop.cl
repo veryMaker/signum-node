@@ -493,7 +493,7 @@ __kernel void generate_scoops(__global unsigned long* ids, __global unsigned lon
     }
 }
 
-__kernel void get_scoops(__global int* scoop_nums, __global unsigned char* buffer, __global unsigned char* scoops_out, int num) {
+__kernel void get_scoops_poc1(__global int* scoop_nums, __global unsigned char* buffer, __global unsigned char* scoops_out, int num) {
     int gid = get_global_id(0);
 
     if (gid >= num)
@@ -590,7 +590,7 @@ __kernel void get_scoops(__global int* scoop_nums, __global unsigned char* buffe
     }
 }
 
-__kernel void get_scoops2(__global int* scoop_nums, __global unsigned char* buffer, __global unsigned char* scoops_out, int num) {
+__kernel void get_scoops_poc2(__global int* scoop_nums, __global unsigned char* buffer, __global unsigned char* scoops_out, int num) {
     int gid = get_global_id(0);
 
     if (gid >= num)

@@ -31,14 +31,11 @@ import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.*
-import java.util.concurrent.Semaphore
 import kotlin.math.max
 
 class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : BlockchainProcessorService {
-    override val oclVerify = dp.propertyService.get(Props.GPU_ACCELERATION)
+    private val oclVerify = dp.propertyService.get(Props.GPU_ACCELERATION)
     private val oclUnverifiedQueue = dp.propertyService.get(Props.GPU_UNVERIFIED_QUEUE)
-
-    private val gpuUsage = Semaphore(2)
 
     private val trimDerivedTables = dp.propertyService.get(Props.DB_TRIM_DERIVED_TABLES)
     private var lastTrimHeight by Atomic(0)
@@ -263,55 +260,58 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         }
     }
 
-    private val pocVerificationTask: RepeatingTask = {
-        var verifyWithOcl: Boolean
-        val queueThreshold = if (oclVerify) oclUnverifiedQueue else 0
-        val unVerified = dp.downloadCacheService.unverifiedSize
-        if (unVerified > queueThreshold) { // Is there anything to verify?
-            if (unVerified >= oclUnverifiedQueue && oclVerify) { //should we use Ocl?
-                verifyWithOcl = true
-                if (!gpuUsage.tryAcquire()) { //is Ocl ready ?
-                    logger.safeDebug { "already max locked" }
-                    verifyWithOcl = false
+    /**
+     * This task pre-verifies blocks in the background.
+     * It is thread-safe, so multiple instances can be run
+     * in parallel and should be for best performance.
+     */
+    private val cpuPreVerificationTask: RepeatingTask = {
+        if (dp.downloadCacheService.unverifiedSize > 0) {
+            try {
+                val unverifiedBlock = dp.downloadCacheService.firstUnverifiedBlock
+                if (unverifiedBlock != null) {
+                    dp.blockService.preVerify(unverifiedBlock)
                 }
-            } else {
-                verifyWithOcl = false
+                true
+            } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
+                logger.safeError(e) { "Block failed to pre-verify" }
+                false
             }
-            if (verifyWithOcl && dp.oclPocService != null) {
-                val pocVersion =
-                    dp.downloadCacheService.getPoCVersion(dp.downloadCacheService.getUnverifiedBlockIdFromPos(0))
-                var pos = 0
-                val blocks = LinkedList<Block>()
-                while (dp.downloadCacheService.unverifiedSize - 1 > pos && blocks.size < dp.oclPocService.maxItems) {
-                    val blockId = dp.downloadCacheService.getUnverifiedBlockIdFromPos(pos)
-                    if (dp.downloadCacheService.getPoCVersion(blockId) != pocVersion) {
-                        break
-                    }
-                    blocks.add(dp.downloadCacheService.getBlock(blockId)!!)
-                    pos += 1
+        } else {
+            false
+        }
+    }
+
+    /**
+     * This task pre-verifies blocks in the background,
+     * using the GPU to verify the PoC proof.
+     * It is NOT thread-safe, so only one instance may be
+     * run at a time. It should also only be run if `oclVerify` is `true`.
+     */
+    private val gpuPreVerificationTask: RepeatingTask = {
+        val unVerified = dp.downloadCacheService.unverifiedSize
+        if (unVerified > oclUnverifiedQueue) { // Is there anything to verify?
+            val pocVersion = dp.downloadCacheService.getPoCVersion(dp.downloadCacheService.getUnverifiedBlockIdFromPos(0))
+            var pos = 0
+            val blocks = LinkedList<Block>()
+            while (dp.downloadCacheService.unverifiedSize - 1 > pos && blocks.size < dp.oclPocService.maxItems) {
+                val blockId = dp.downloadCacheService.getUnverifiedBlockIdFromPos(pos)
+                if (dp.downloadCacheService.getPoCVersion(blockId) != pocVersion) {
+                    break
                 }
-                try {
-                    dp.oclPocService.validatePoC(blocks, pocVersion, dp.blockService)
-                    dp.downloadCacheService.removeUnverifiedBatch(blocks)
-                } catch (e: OclPocService.PreValidateFailException) {
-                    logger.safeInfo(e) { e.toString() }
-                    blacklistClean(e.block, e, "found invalid pull/push data during processing the pocVerification")
-                } catch (e: OclPocService.OCLCheckerException) {
-                    logger.safeInfo(e) { "Open CL error. slow verify will occur for the next $oclUnverifiedQueue Blocks" }
-                } catch (e: Exception) {
-                    logger.safeInfo(e) { "Unspecified Open CL error: " }
-                } finally {
-                    gpuUsage.release()
-                }
-            } else { //verify using java
-                try {
-                    val unverifiedBlock = dp.downloadCacheService.firstUnverifiedBlock
-                    if (unverifiedBlock != null) {
-                        dp.blockService.preVerify(unverifiedBlock)
-                    }
-                } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
-                    logger.safeError(e) { "Block failed to preverify: " }
-                }
+                blocks.add(dp.downloadCacheService.getBlock(blockId)!!)
+                pos += 1
+            }
+            try {
+                dp.oclPocService.validateAndPreVerify(blocks, pocVersion)
+                dp.downloadCacheService.removeUnverifiedBatch(blocks)
+            } catch (e: OclPocService.PreValidateFailException) {
+                logger.safeInfo(e) { e.toString() }
+                blacklistClean(e.block, e, "found invalid pull/push data during processing the pocVerification")
+            } catch (e: OclPocService.OCLCheckerException) {
+                logger.safeInfo(e) { "Open CL error. slow verify will occur for the next $oclUnverifiedQueue Blocks" }
+            } catch (e: Exception) {
+                logger.safeInfo(e) { "Unspecified Open CL error: " }
             }
             true
         } else {
@@ -335,17 +335,14 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         dp.taskSchedulerService.scheduleTask(TaskType.IO, this.getMoreBlocksTask) // TODO somehow parallelize this task
         dp.taskSchedulerService.scheduleTask(TaskType.COMPUTATION, this.blockImporterTask)
 
-        // TODO have separate tasks depending on whether we want to use GPU acceleration
-        if (dp.propertyService.get(Props.GPU_ACCELERATION)) {
+        if (oclVerify) {
             logger.safeDebug { "Starting pre-verifier thread in Open CL mode." }
-            dp.taskSchedulerService.scheduleTask(TaskType.IO, this.pocVerificationTask)
+            dp.taskSchedulerService.scheduleTask(TaskType.IO, this.gpuPreVerificationTask)
         } else {
-            logger.safeDebug { "Starting pre-verifier thread in CPU mode." }
-            dp.taskSchedulerService.scheduleTask(
-                TaskType.COMPUTATION,
-                Runtime.getRuntime().availableProcessors(),
-                this.pocVerificationTask
-            ) // TODO property for number of instances
+            // TODO property for number of instances
+            val numberOfInstances = Runtime.getRuntime().availableProcessors()
+            logger.safeDebug { "Starting $numberOfInstances pre-verifier threads in CPU mode." }
+            dp.taskSchedulerService.scheduleTask(TaskType.COMPUTATION, numberOfInstances, this.cpuPreVerificationTask)
         }
 
         blockListeners.addListener(BlockchainProcessorService.Event.BLOCK_SCANNED) { block ->
@@ -390,7 +387,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 milestoneBlockIdsRequest.addProperty("lastMilestoneBlockId", lastMilestoneBlockId)
             }
 
-            val response = peer!!.send(JSON.prepareRequest(milestoneBlockIdsRequest))
+            val response = peer.send(JSON.prepareRequest(milestoneBlockIdsRequest))
             if (response == null) {
                 logger.safeDebug { "Got null response in getCommonMilestoneBlockId" }
                 return 0
