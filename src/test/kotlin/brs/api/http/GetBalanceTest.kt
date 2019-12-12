@@ -1,12 +1,12 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.common.QuickMocker
 import brs.api.http.common.ResultFields.BALANCE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.EFFECTIVE_BALANCE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.FORGED_BALANCE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.GUARANTEED_BALANCE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.UNCONFIRMED_BALANCE_PLANCK_RESPONSE
+import brs.common.QuickMocker
+import brs.entity.Account
 import brs.services.ParameterService
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
@@ -54,7 +54,7 @@ class GetBalanceTest {
     fun processRequest_noAccountFound() {
         val request = QuickMocker.httpServletRequest()
 
-        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(null)
+        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(mock())
 
         val result = t.processRequest(request) as JsonObject
 

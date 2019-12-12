@@ -24,7 +24,14 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
 
     init {
         subscriptionTable =
-            object : VersionedEntitySqlTable<Subscription>("subscription", SUBSCRIPTION, subscriptionDbKeyFactory, dp) {
+            object : VersionedEntitySqlTable<Subscription>(
+                "subscription",
+                SUBSCRIPTION,
+                SUBSCRIPTION.HEIGHT,
+                SUBSCRIPTION.LATEST,
+                subscriptionDbKeyFactory,
+                dp
+            ) {
                 override fun load(ctx: DSLContext, rs: Record): Subscription {
                     return SqlSubscription(rs)
                 }

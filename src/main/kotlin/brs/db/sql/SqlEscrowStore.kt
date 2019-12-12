@@ -31,7 +31,7 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
     override val resultTransactions = mutableListOf<Transaction>()
 
     init {
-        escrowTable = object : VersionedEntitySqlTable<Escrow>("escrow", ESCROW, escrowDbKeyFactory, dp) {
+        escrowTable = object : VersionedEntitySqlTable<Escrow>("escrow", ESCROW, ESCROW.HEIGHT, ESCROW.LATEST, escrowDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, rs: Record): Escrow {
                 return SqlEscrow(rs)
             }
@@ -42,7 +42,7 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
         }
 
         decisionTable = object :
-            VersionedEntitySqlTable<Escrow.Decision>("escrow_decision", ESCROW_DECISION, decisionDbKeyFactory, dp) {
+            VersionedEntitySqlTable<Escrow.Decision>("escrow_decision", ESCROW_DECISION, ESCROW_DECISION.HEIGHT, ESCROW_DECISION.LATEST, decisionDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, record: Record): Escrow.Decision {
                 return SqlDecision(record)
             }

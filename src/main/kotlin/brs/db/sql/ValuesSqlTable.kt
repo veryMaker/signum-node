@@ -1,12 +1,10 @@
 package brs.db.sql
 
-import brs.db.BurstKey
-import brs.db.ValuesTable
-import brs.db.getUsingDslContext
-import brs.db.useDslContext
+import brs.db.*
 import brs.entity.DependencyProvider
 import brs.util.db.fetchAndMap
 import org.jooq.DSLContext
+import org.jooq.Field
 import org.jooq.Record
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
@@ -14,10 +12,12 @@ import org.jooq.impl.TableImpl
 internal abstract class ValuesSqlTable<T, V> internal constructor(
     table: String,
     tableClass: TableImpl<*>,
+    heightField: Field<Int>,
+    latestField: Field<Boolean>?,
     internal val dbKeyFactory: SqlDbKey.Factory<T>,
     private val multiversion: Boolean,
     private val dp: DependencyProvider
-) : DerivedSqlTable(table, tableClass, dp), ValuesTable<T, V> {
+) : DerivedSqlTable(table, tableClass, heightField, latestField, dp), ValuesTable<T, V> {
     protected abstract fun load(ctx: DSLContext, record: Record): V
 
     protected abstract fun save(ctx: DSLContext, t: T, v: V)
@@ -61,10 +61,4 @@ internal abstract class ValuesSqlTable<T, V> internal constructor(
             }
         }
     }
-
-    override fun rollback(height: Int) {
-        super.rollback(height)
-        dp.db.getCache<Any>(table).clear()
-    }
-
 }

@@ -49,7 +49,14 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
     override val goodsTable: VersionedEntityTable<Goods>
 
     init {
-        purchaseTable = object : VersionedEntitySqlTable<Purchase>("purchase", PURCHASE, purchaseDbKeyFactory, dp) {
+        purchaseTable = object : VersionedEntitySqlTable<Purchase>(
+            "purchase",
+            PURCHASE,
+            PURCHASE.HEIGHT,
+            PURCHASE.LATEST,
+            purchaseDbKeyFactory,
+            dp
+        ) {
             override fun load(ctx: DSLContext, rs: Record): Purchase {
                 return SQLPurchase(rs)
             }
@@ -69,6 +76,8 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         feedbackTable = object : VersionedValuesSqlTable<Purchase, BurstEncryptedMessage>(
             "purchase_feedback",
             PURCHASE_FEEDBACK,
+            PURCHASE_FEEDBACK.HEIGHT,
+            PURCHASE_FEEDBACK.LATEST,
             feedbackDbKeyFactory,
             dp
         ) {
@@ -96,6 +105,8 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         publicFeedbackTable = object : VersionedValuesSqlTable<Purchase, String>(
             "purchase_public_feedback",
             PURCHASE_PUBLIC_FEEDBACK,
+            PURCHASE_PUBLIC_FEEDBACK.HEIGHT,
+            PURCHASE_PUBLIC_FEEDBACK.LATEST,
             publicFeedbackDbKeyFactory,
             dp
         ) {
@@ -114,23 +125,24 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
             }
         }
 
-        goodsTable = object : VersionedEntitySqlTable<Goods>("goods", GOODS, goodsDbKeyFactory, dp) {
+        goodsTable =
+            object : VersionedEntitySqlTable<Goods>("goods", GOODS, GOODS.HEIGHT, GOODS.LATEST, goodsDbKeyFactory, dp) {
 
-            override fun load(ctx: DSLContext, record: Record): Goods {
-                return SQLGoods(record)
-            }
+                override fun load(ctx: DSLContext, record: Record): Goods {
+                    return SQLGoods(record)
+                }
 
-            override fun save(ctx: DSLContext, goods: Goods) {
-                saveGoods(ctx, goods)
-            }
+                override fun save(ctx: DSLContext, goods: Goods) {
+                    saveGoods(ctx, goods)
+                }
 
-            override fun defaultSort(): Collection<SortField<*>> {
-                return listOf(
-                    tableClass.field("timestamp", Int::class.java).desc(),
-                    tableClass.field("id", Long::class.java).asc()
-                )
+                override fun defaultSort(): Collection<SortField<*>> {
+                    return listOf(
+                        tableClass.field("timestamp", Int::class.java).desc(),
+                        tableClass.field("id", Long::class.java).asc()
+                    )
+                }
             }
-        }
     }
 
     override fun getExpiredPendingPurchases(timestamp: Int): Collection<Purchase> {

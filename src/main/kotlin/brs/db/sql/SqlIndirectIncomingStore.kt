@@ -25,7 +25,7 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
             }
 
         this.indirectIncomingTable = object :
-            EntitySqlTable<IndirectIncoming>("indirect_incoming", INDIRECT_INCOMING, indirectIncomingDbKeyFactory, dp) {
+            EntitySqlTable<IndirectIncoming>("indirect_incoming", INDIRECT_INCOMING, INDIRECT_INCOMING.HEIGHT, null, indirectIncomingDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, rs: Record): IndirectIncoming {
                 return IndirectIncoming(
                     rs.get(INDIRECT_INCOMING.ACCOUNT_ID),

@@ -20,7 +20,7 @@ internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
     override val tradeTable: EntitySqlTable<Trade>
 
     init {
-        tradeTable = object : EntitySqlTable<Trade>("trade", TRADE, tradeDbKeyFactory, dp) {
+        tradeTable = object : EntitySqlTable<Trade>("trade", TRADE, TRADE.HEIGHT, null, tradeDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, record: Record): Trade {
                 return SqlTrade(record)
             }

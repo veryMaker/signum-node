@@ -23,7 +23,14 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
     override val offerDbKeyFactory = OfferDbKeyFactory
 
     init {
-        offerTable = object : VersionedEntitySqlTable<Alias.Offer>("alias_offer", ALIAS_OFFER, offerDbKeyFactory, dp) {
+        offerTable = object : VersionedEntitySqlTable<Alias.Offer>(
+            "alias_offer",
+            ALIAS_OFFER,
+            ALIAS_OFFER.HEIGHT,
+            ALIAS_OFFER.LATEST,
+            offerDbKeyFactory,
+            dp
+        ) {
             override fun load(ctx: DSLContext, record: Record): Alias.Offer {
                 return SqlOffer(record)
             }
@@ -33,19 +40,20 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
             }
         }
 
-        aliasTable = object : VersionedEntitySqlTable<Alias>("alias", ALIAS, aliasDbKeyFactory, dp) {
-            override fun load(ctx: DSLContext, record: Record): Alias {
-                return SqlAlias(record)
-            }
+        aliasTable =
+            object : VersionedEntitySqlTable<Alias>("alias", ALIAS, ALIAS.HEIGHT, ALIAS.LATEST, aliasDbKeyFactory, dp) {
+                override fun load(ctx: DSLContext, record: Record): Alias {
+                    return SqlAlias(record)
+                }
 
-            override fun save(ctx: DSLContext, alias: Alias) {
-                saveAlias(ctx, alias)
-            }
+                override fun save(ctx: DSLContext, alias: Alias) {
+                    saveAlias(ctx, alias)
+                }
 
-            override fun defaultSort(): Collection<SortField<*>> {
-                return listOf(tableClass.field("alias_name_lower", String::class.java).asc())
+                override fun defaultSort(): Collection<SortField<*>> {
+                    return listOf(tableClass.field("alias_name_lower", String::class.java).asc())
+                }
             }
-        }
     }
 
     private inner class SqlOffer internal constructor(record: Record) : Alias.Offer(

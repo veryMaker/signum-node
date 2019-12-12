@@ -27,7 +27,14 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
     override val bidOrderTable: VersionedEntityTable<Order.Bid>
 
     init {
-        askOrderTable = object : VersionedEntitySqlTable<Order.Ask>("ask_order", ASK_ORDER, askOrderDbKeyFactory, dp) {
+        askOrderTable = object : VersionedEntitySqlTable<Order.Ask>(
+            "ask_order",
+            ASK_ORDER,
+            ASK_ORDER.HEIGHT,
+            ASK_ORDER.LATEST,
+            askOrderDbKeyFactory,
+            dp
+        ) {
             override fun load(ctx: DSLContext, record: Record): Order.Ask {
                 return SqlAsk(record)
             }
@@ -41,7 +48,14 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             }
         }
 
-        bidOrderTable = object : VersionedEntitySqlTable<Order.Bid>("bid_order", BID_ORDER, bidOrderDbKeyFactory, dp) {
+        bidOrderTable = object : VersionedEntitySqlTable<Order.Bid>(
+            "bid_order",
+            BID_ORDER,
+            BID_ORDER.HEIGHT,
+            BID_ORDER.LATEST,
+            bidOrderDbKeyFactory,
+            dp
+        ) {
             override fun load(ctx: DSLContext, record: Record): Order.Bid {
                 return SqlBid(record)
             }

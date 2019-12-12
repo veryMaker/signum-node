@@ -2,6 +2,7 @@ package brs.db.sql
 
 import brs.db.BurstKey
 import brs.db.VersionedBatchEntityTable
+import brs.db.assertInTransaction
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import org.ehcache.Cache
@@ -11,19 +12,21 @@ import org.jooq.impl.TableImpl
 internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(
     table: String,
     tableClass: TableImpl<*>,
+    heightField: Field<Int>,
+    latestField: Field<Boolean>?,
     dbKeyFactory: SqlDbKey.Factory<T>,
     private val tClass: Class<T>,
     private val dp: DependencyProvider
-) : VersionedEntitySqlTable<T>(table, tableClass, dbKeyFactory, dp), VersionedBatchEntityTable<T> {
+) : VersionedEntitySqlTable<T>(table, tableClass, heightField, latestField, dbKeyFactory, dp), VersionedBatchEntityTable<T> {
     override val count: Int
         get() {
-            assertInTransaction()
+            assertNotInTransaction()
             return super.count
         }
 
     override val rowCount: Int
         get() {
-            assertInTransaction()
+            assertNotInTransaction()
             return super.rowCount
         }
 
@@ -31,18 +34,14 @@ internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(
 
     override fun getCache(): Cache<BurstKey, T> = dp.dbCacheService.getCache(table, tClass)!!
 
-    private fun assertInTransaction() {
-        check(!dp.db.isInTransaction()) { "Cannot use in batch table transaction" }
-    }
-
     private fun assertNotInTransaction() {
-        dp.db.assertInTransaction()
+        check(!dp.db.isInTransaction()) { "Cannot use in batch table transaction" }
     }
 
     protected abstract fun bulkInsert(ctx: DSLContext, t: Collection<T>)
 
     override fun delete(t: T): Boolean {
-        assertNotInTransaction()
+        dp.db.assertInTransaction()
         val dbKey = dbKeyFactory.newKey(t) as SqlDbKey
         getCache().remove(dbKey)
         getBatch().remove(dbKey)
@@ -63,14 +62,14 @@ internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(
     }
 
     override fun insert(t: T) {
-        assertNotInTransaction()
+        dp.db.assertInTransaction()
         val key = dbKeyFactory.newKey(t)
         getBatch()[key] = t
         getCache().put(key, t)
     }
 
     override fun finish() {
-        assertNotInTransaction()
+        dp.db.assertInTransaction()
         val keySet = getBatch().keys
         if (keySet.isEmpty()) {
             return
@@ -101,32 +100,32 @@ internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(
     }
 
     override fun get(dbKey: BurstKey, height: Int): T? {
-        assertInTransaction()
+        assertNotInTransaction()
         return super.get(dbKey, height)
     }
 
     override fun getBy(condition: Condition): T? {
-        assertInTransaction()
+        assertNotInTransaction()
         return super.getBy(condition)
     }
 
     override fun getBy(condition: Condition, height: Int): T? {
-        assertInTransaction()
+        assertNotInTransaction()
         return super.getBy(condition, height)
     }
 
     override fun getManyBy(condition: Condition, from: Int, to: Int): Collection<T> {
-        assertInTransaction()
+        assertNotInTransaction()
         return super.getManyBy(condition, from, to)
     }
 
     override fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
-        assertInTransaction()
+        assertNotInTransaction()
         return super.getManyBy(condition, from, to, sort)
     }
 
     override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int): Collection<T> {
-        assertInTransaction()
+        assertNotInTransaction()
         return super.getManyBy(condition, height, from, to)
     }
 
@@ -137,32 +136,32 @@ internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(
         to: Int,
         sort: Collection<SortField<*>>
     ): Collection<T> {
-        assertInTransaction()
+        assertNotInTransaction()
         return super.getManyBy(condition, height, from, to, sort)
     }
 
     override fun getManyBy(ctx: DSLContext, query: SelectQuery<out Record>, cache: Boolean): Collection<T> {
-        assertInTransaction()
+        assertNotInTransaction()
         return super.getManyBy(ctx, query, cache)
     }
 
     override fun getAll(from: Int, to: Int): Collection<T> {
-        assertInTransaction()
+        assertNotInTransaction()
         return super.getAll(from, to)
     }
 
     override fun getAll(from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
-        assertInTransaction()
+        assertNotInTransaction()
         return super.getAll(from, to, sort)
     }
 
     override fun getAll(height: Int, from: Int, to: Int): Collection<T> {
-        assertInTransaction()
+        assertNotInTransaction()
         return super.getAll(height, from, to)
     }
 
     override fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
-        assertInTransaction()
+        assertNotInTransaction()
         return super.getAll(height, from, to, sort)
     }
 

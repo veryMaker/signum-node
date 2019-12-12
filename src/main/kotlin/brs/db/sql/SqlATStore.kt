@@ -53,22 +53,30 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
     }
 
     init {
-        atTable = object : VersionedEntitySqlTable<AT>("at", ATTable, atDbKeyFactory, dp) {
-            override fun load(ctx: DSLContext, record: Record): AT {
-                throw UnsupportedOperationException("AT cannot be created with atTable.load")
-            }
+        atTable =
+            object : VersionedEntitySqlTable<AT>("at", ATTable, ATTable.HEIGHT, ATTable.LATEST, atDbKeyFactory, dp) {
+                override fun load(ctx: DSLContext, record: Record): AT {
+                    throw UnsupportedOperationException("AT cannot be created with atTable.load")
+                }
 
-            override fun save(ctx: DSLContext, at: AT) {
-                saveAT(ctx, at)
-            }
+                override fun save(ctx: DSLContext, at: AT) {
+                    saveAT(ctx, at)
+                }
 
-            override fun defaultSort(): Collection<SortField<*>> {
-                return listOf(tableClass.field("id", Long::class.java).asc())
+                override fun defaultSort(): Collection<SortField<*>> {
+                    return listOf(tableClass.field("id", Long::class.java).asc())
+                }
             }
-        }
 
         atStateTable =
-            object : VersionedEntitySqlTable<AT.ATState>("at_state", AT_STATE, atStateDbKeyFactory, dp) {
+            object : VersionedEntitySqlTable<AT.ATState>(
+                "at_state",
+                AT_STATE,
+                AT_STATE.HEIGHT,
+                AT_STATE.LATEST,
+                atStateDbKeyFactory,
+                dp
+            ) {
                 override fun load(ctx: DSLContext, record: Record): AT.ATState {
                     return SqlATState(dp, record)
                 }
@@ -118,7 +126,13 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
     }
 
     override fun isATAccountId(id: Long?): Boolean {
-        return dp.db.getUsingDslContext { ctx -> ctx.fetchExists(ctx.selectOne().from(ATTable).where(ATTable.ID.eq(id)).and(ATTable.LATEST.isTrue)) }
+        return dp.db.getUsingDslContext { ctx ->
+            ctx.fetchExists(
+                ctx.selectOne().from(ATTable).where(ATTable.ID.eq(id)).and(
+                    ATTable.LATEST.isTrue
+                )
+            )
+        }
     }
 
     override fun getAT(id: Long?): AT? {

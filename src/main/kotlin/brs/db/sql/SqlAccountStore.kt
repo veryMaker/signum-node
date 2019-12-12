@@ -36,6 +36,8 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
         rewardRecipientAssignmentTable = object : VersionedEntitySqlTable<Account.RewardRecipientAssignment>(
             "reward_recip_assign",
             REWARD_RECIP_ASSIGN,
+            REWARD_RECIP_ASSIGN.HEIGHT,
+            REWARD_RECIP_ASSIGN.LATEST,
             rewardRecipientAssignmentDbKeyFactory,
             dp
         ) {
@@ -62,6 +64,8 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
         accountAssetTable = object : VersionedEntitySqlTable<Account.AccountAsset>(
             "account_asset",
             ACCOUNT_ASSET,
+            ACCOUNT_ASSET.HEIGHT,
+            ACCOUNT_ASSET.LATEST,
             accountAssetDbKeyFactory,
             dp
         ) {
@@ -97,7 +101,7 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
         }
 
         accountTable = object :
-            VersionedBatchEntitySqlTable<Account>("account", ACCOUNT, accountDbKeyFactory, Account::class.java, dp) {
+            VersionedBatchEntitySqlTable<Account>("account", ACCOUNT, ACCOUNT.HEIGHT, ACCOUNT.LATEST, accountDbKeyFactory, Account::class.java, dp) {
             override fun load(ctx: DSLContext, record: Record): Account {
                 return SqlAccount(record)
             }

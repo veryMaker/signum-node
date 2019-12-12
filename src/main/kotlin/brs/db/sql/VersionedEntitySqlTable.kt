@@ -1,6 +1,7 @@
 package brs.db.sql
 
 import brs.db.VersionedEntityTable
+import brs.db.assertInTransaction
 import brs.db.getUsingDslContext
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
@@ -11,9 +12,11 @@ import org.jooq.impl.TableImpl
 internal abstract class VersionedEntitySqlTable<T> internal constructor(
     table: String,
     tableClass: TableImpl<*>,
+    heightField: Field<Int>,
+    latestField: Field<Boolean>?,
     dbKeyFactory: SqlDbKey.Factory<T>,
     private val dp: DependencyProvider
-) : EntitySqlTable<T>(table, tableClass, dbKeyFactory, true, dp), VersionedEntityTable<T> {
+) : EntitySqlTable<T>(table, tableClass, dbKeyFactory, heightField, latestField, true, dp), VersionedEntityTable<T> {
     override fun rollback(height: Int) {
         rollback(dp, table, tableClass, heightField, latestField, height, dbKeyFactory)
     }
@@ -63,7 +66,7 @@ internal abstract class VersionedEntitySqlTable<T> internal constructor(
             table: String,
             tableClass: TableImpl<*>,
             heightField: Field<Int>,
-            latestField: Field<Boolean>?,
+            latestField: Field<Boolean>??,
             height: Int,
             dbKeyFactory: SqlDbKey.Factory<*>
         ) {

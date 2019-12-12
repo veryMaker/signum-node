@@ -1,9 +1,6 @@
 package brs.db.sql
 
-import brs.db.BurstKey
-import brs.db.EntityTable
-import brs.db.getUsingDslContext
-import brs.db.useDslContext
+import brs.db.*
 import brs.entity.DependencyProvider
 import brs.util.db.fetchAndMap
 import org.jooq.*
@@ -14,9 +11,11 @@ internal abstract class EntitySqlTable<T> internal constructor(
     table: String,
     tableClass: TableImpl<*>,
     dbKeyFactory: BurstKey.Factory<T>,
+    heightField: Field<Int>,
+    latestField: Field<Boolean>?,
     private val multiversion: Boolean,
     private val dp: DependencyProvider
-) : DerivedSqlTable(table, tableClass, dp), EntityTable<T> {
+) : DerivedSqlTable(table, tableClass, heightField, latestField, dp), EntityTable<T> {
     internal val dbKeyFactory = dbKeyFactory as SqlDbKey.Factory<T>
     private val defaultSort: MutableList<SortField<*>> = mutableListOf()
 
@@ -36,9 +35,11 @@ internal abstract class EntitySqlTable<T> internal constructor(
     internal constructor(
         table: String,
         tableClass: TableImpl<*>,
+        heightField: Field<Int>,
+        latestField: Field<Boolean>?,
         dbKeyFactory: BurstKey.Factory<T>,
         dp: DependencyProvider
-    ) : this(table, tableClass, dbKeyFactory, false, dp)
+    ) : this(table, tableClass, dbKeyFactory, heightField, latestField, false, dp)
 
     init {
         if (multiversion) {
@@ -337,10 +338,5 @@ internal abstract class EntitySqlTable<T> internal constructor(
             }
             save(ctx, t)
         }
-    }
-
-    override fun rollback(height: Int) {
-        super.rollback(height)
-        dp.db.getCache<Any>(table).clear()
     }
 }
