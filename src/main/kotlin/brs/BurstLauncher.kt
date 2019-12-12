@@ -40,10 +40,10 @@ object BurstLauncher {
                     .invoke(null, args as Any) // TODO avoid BurstGUI re-parsing arguments
             } catch (e: Exception) {
                 logger.safeWarn { "Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless..." }
-                Burst.init(arguments, true)
+                Burst.init(arguments)
             }
         } else {
-            Burst.init(arguments, true)
+            Burst.init(arguments)
         }
     }
 }

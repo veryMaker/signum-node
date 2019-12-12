@@ -168,7 +168,7 @@ class AtController(private val dp: DependencyProvider) {
                 throw AtException(AtError.INCORRECT_CREATION_TX.description)
             }
 
-            // TODO note: run code in demo mode for checking if is valid
+            // Note: run code in demo mode for checking if is valid
         } catch (e: BufferUnderflowException) {
             throw AtException(AtError.INCORRECT_CREATION_TX.description)
         }

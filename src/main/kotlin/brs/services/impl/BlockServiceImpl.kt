@@ -9,6 +9,7 @@ import brs.objects.Genesis
 import brs.services.BlockService
 import brs.services.BlockchainProcessorService
 import brs.services.BlockchainProcessorService.BlockOutOfOrderException
+import brs.util.BurstException
 import brs.util.crypto.Crypto
 import brs.util.crypto.verifySignature
 import brs.util.logging.safeDebug
@@ -26,46 +27,32 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             val previousBlock = dp.blockchainService.getBlock(block.previousBlockId)
                 ?: throw BlockOutOfOrderException("Can't verify signature because previous block is missing")
 
-            val data = block.toBytes()
-            val data2 = ByteArray(data.size - 64) // TODO copyOfRange
-            System.arraycopy(data, 0, data2, 0, data2.size)
+            val data = block.toBytes(includeSignature = false)
 
-            val publicKey: ByteArray?
             val genAccount = dp.accountService.getAccount(block.generatorPublicKey)
-            val rewardAssignment: Account.RewardRecipientAssignment?
-            rewardAssignment =
-                if (genAccount == null) null else dp.accountService.getRewardRecipientAssignment(genAccount)
-            publicKey = if (genAccount == null || rewardAssignment == null || !dp.fluxCapacitorService.getValue(
-                    FluxValues.REWARD_RECIPIENT_ENABLE
-                )
-            ) {
-                block.generatorPublicKey
-            } else {
-                if (previousBlock.height + 1 >= rewardAssignment.fromHeight) {
-                    dp.accountService.getAccount(rewardAssignment.recipientId)!!.publicKey
+            val rewardAssignment = if (genAccount == null) null else dp.accountService.getRewardRecipientAssignment(genAccount)
+            val publicKey =
+                if (genAccount == null || rewardAssignment == null || !dp.fluxCapacitorService.getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
+                    block.generatorPublicKey
                 } else {
-                    dp.accountService.getAccount(rewardAssignment.prevRecipientId)!!.publicKey
-                }
-            }
+                    if (previousBlock.height + 1 >= rewardAssignment.fromHeight) {
+                        dp.accountService.getAccount(rewardAssignment.recipientId)?.publicKey
+                    } else {
+                        dp.accountService.getAccount(rewardAssignment.prevRecipientId)?.publicKey
+                    }
+                } ?: throw BurstException.NotValidException("Could not get signer's public key to verify block")
 
-            return data2.verifySignature(block.blockSignature!!, publicKey!!, block.version >= 3)
-
+            return data.verifySignature(block.blockSignature!!, publicKey, block.version >= 3)
         } catch (e: Exception) {
-
             logger.safeInfo(e) { "Error verifying block signature" }
             return false
-
         }
-
     }
 
     override fun verifyGenerationSignature(block: Block): Boolean {
         try {
             val previousBlock = dp.blockchainService.getBlock(block.previousBlockId)
-                ?: throw BlockOutOfOrderException(
-                    "Can't verify generation signature because previous block is missing"
-                )
-
+                ?: throw BlockOutOfOrderException("Can't verify generation signature because previous block is missing")
             val correctGenerationSignature = dp.generatorService.calculateGenerationSignature(
                 previousBlock.generationSignature, previousBlock.generatorId
             )
@@ -73,8 +60,9 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 return false
             }
             val elapsedTime = block.timestamp - previousBlock.timestamp
-            // TODO pocTime is accessed outside of lock.
-            val pTime = block.pocTime!!.divide(BigInteger.valueOf(previousBlock.baseTarget))
+            val pTime = block.verificationLock.withLock {
+                block.pocTime!!.divide(BigInteger.valueOf(previousBlock.baseTarget))
+            }
             return BigInteger.valueOf(elapsedTime.toLong()) > pTime
         } catch (e: Exception) {
             logger.safeInfo(e) { "Error verifying block generation signature" }
@@ -142,7 +130,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 throw BlockchainProcessorService.BlockNotAcceptedException("Payload hash doesn't match for block " + block.height)
             }
 
-            logger.safeDebug { "Pre-verified block at height ${block.height}"}
+            logger.safeDebug { "Pre-verified block at height ${block.height}" }
 
             block.verified = true
         }
@@ -221,12 +209,13 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 )
             )
         } else if (block.height < Constants.BURST_DIFF_ADJUST_CHANGE_BLOCK) {
-            var itBlock: Block? = previousBlock
-            var avgBaseTarget = BigInteger.valueOf(itBlock!!.baseTarget)
+            var itBlock: Block = previousBlock
+            var avgBaseTarget = BigInteger.valueOf(itBlock.baseTarget)
             do {
-                itBlock = dp.downloadCacheService.getBlock(itBlock!!.previousBlockId)
-                avgBaseTarget = avgBaseTarget.add(BigInteger.valueOf(itBlock!!.baseTarget))
-            } while (itBlock!!.height > block.height - 4)
+                itBlock = dp.downloadCacheService.getBlock(itBlock.previousBlockId)
+                    ?: throw BlockOutOfOrderException("Previous block does no longer exist for block height ${itBlock.height}")
+                avgBaseTarget = avgBaseTarget.add(BigInteger.valueOf(itBlock.baseTarget))
+            } while (itBlock.height > block.height - 4)
             avgBaseTarget = avgBaseTarget.divide(BigInteger.valueOf(4))
             val difTime = block.timestamp.toLong() - itBlock.timestamp
 
@@ -253,21 +242,18 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             block.cumulativeDifficulty =
                 previousBlock.cumulativeDifficulty.add(two64.divide(BigInteger.valueOf(newBaseTarget)))
         } else {
-            var itBlock: Block? = previousBlock
-            var avgBaseTarget = BigInteger.valueOf(itBlock!!.baseTarget)
+            var itBlock: Block = previousBlock
+            var avgBaseTarget = BigInteger.valueOf(itBlock.baseTarget)
             var blockCounter = 1
             do {
-                val previousHeight = itBlock!!.height
                 itBlock = dp.downloadCacheService.getBlock(itBlock.previousBlockId)
-                if (itBlock == null) {
-                    throw BlockOutOfOrderException("Previous block does no longer exist for block height $previousHeight")
-                }
+                    ?: throw BlockOutOfOrderException("Previous block does no longer exist for block height ${itBlock.height}")
                 blockCounter++
                 avgBaseTarget = avgBaseTarget.multiply(BigInteger.valueOf(blockCounter.toLong()))
                     .add(BigInteger.valueOf(itBlock.baseTarget))
                     .divide(BigInteger.valueOf(blockCounter + 1L))
             } while (blockCounter < 24)
-            var difTime = block.timestamp.toLong() - itBlock!!.timestamp
+            var difTime = block.timestamp.toLong() - itBlock.timestamp
             val targetTimespan = 24L * 4 * 60
 
             if (difTime < targetTimespan / 2) {

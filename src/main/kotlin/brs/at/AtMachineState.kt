@@ -12,7 +12,6 @@ import brs.objects.FluxValues
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.security.MessageDigest
-import java.util.*
 import kotlin.experimental.and
 
 open class AtMachineState {
@@ -292,7 +291,7 @@ open class AtMachineState {
 
     inner class MachineState internal constructor() {
         private val flags = ByteArray(2)
-        internal val jumps = TreeSet<Int>()
+        internal val jumps = mutableSetOf<Int>()
         var running: Boolean = false
         var stopped: Boolean = false
         var finished: Boolean = false
@@ -357,7 +356,7 @@ open class AtMachineState {
             us = 0
             err = -1
             steps = 0
-            if (!jumps.isEmpty())
+            if (jumps.isNotEmpty())
                 jumps.clear()
             flags[0] = 0
             flags[1] = 0

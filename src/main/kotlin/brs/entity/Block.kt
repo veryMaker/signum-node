@@ -12,7 +12,6 @@ import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLazy
 import brs.util.json.*
 import brs.util.logging.safeDebug
-import brs.util.logging.safeError
 import brs.util.sync.Mutex
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -46,6 +45,9 @@ class Block internal constructor(
         txs
     }
 
+    /**
+     * The block signature, should be 64 bytes long.
+     */
     var blockSignature: ByteArray?
 
     var cumulativeDifficulty: BigInteger = BigInteger.ZERO
@@ -98,10 +100,15 @@ class Block internal constructor(
         return json
     }
 
-    fun toBytes(): ByteArray {
+    /**
+     * Get this block represented as a byte array.
+     * @param includeSignature Whether to include the signature bytes
+     */
+    fun toBytes(includeSignature: Boolean = true): ByteArray {
+        val signatureSize = if (includeSignature) 64 else 0
         val buffer = ByteBuffer.allocate(
             4 + 4 + 8 + 4 + (if (version < 3) 4 + 4 else 8 + 8) + 4 + 32 + 32 + (32 + 32) + 8 + (blockATs?.size
-                ?: 0) + 64
+                ?: 0) + signatureSize
         )
         buffer.order(ByteOrder.LITTLE_ENDIAN)
         buffer.putInt(version)
@@ -125,9 +132,10 @@ class Block internal constructor(
         buffer.putLong(nonce)
         if (blockATs != null)
             buffer.put(blockATs)
-        if (buffer.limit() - buffer.position() < blockSignature!!.size)
-            logger.safeError { "Something is too large here - buffer should have ${blockSignature!!.size} bytes left but only has ${buffer.limit() - buffer.position()}" }
-        buffer.put(blockSignature!!)
+        if (includeSignature) {
+            buffer.put(blockSignature!!)
+        }
+        check(buffer.limit() - buffer.position() <= signatureSize) { "Something is too large here - buffer should have $signatureSize bytes left but only has ${buffer.limit() - buffer.position()}" }
         return buffer.array()
     }
 
@@ -222,15 +230,10 @@ class Block internal constructor(
 
     internal fun sign(secretPhrase: String) {
         check(blockSignature == null) { "Block already signed" }
-        blockSignature = ByteArray(64)
-        val data = toBytes()
-        val data2 = ByteArray(data.size - 64)
-        System.arraycopy(data, 0, data2, 0, data2.size)
-        blockSignature = data2.signUsing(secretPhrase)
+        blockSignature = toBytes(includeSignature = false).signUsing(secretPhrase)
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(Block::class.java)
 
         internal fun parseBlock(dp: DependencyProvider, blockData: JsonObject, height: Int): Block {
@@ -274,7 +277,6 @@ class Block internal constructor(
                 logger.safeDebug { "Failed to parse block: ${blockData.toJsonString()}" }
                 throw e
             }
-
         }
     }
 }
