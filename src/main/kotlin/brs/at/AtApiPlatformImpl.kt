@@ -107,9 +107,9 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         val txBlockHeight = tx.height
         val blockHeight = state.height
 
-        if (blockHeight - txBlockHeight < dp.atConstants.blocksForRandom(blockHeight)) { //for tests - for real case 1440
+        if (blockHeight - txBlockHeight < dp.atConstants[blockHeight].blocksForRandom) { //for tests - for real case 1440
             state.waitForNumberOfBlocks =
-                dp.atConstants.blocksForRandom(blockHeight).toInt() - (blockHeight - txBlockHeight)
+                dp.atConstants[blockHeight].blocksForRandom.toInt() - (blockHeight - txBlockHeight)
             state.machineState.pc -= 7
             state.machineState.stopped = true
             return 0
@@ -251,7 +251,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
     override fun addMinutesToTimestamp(val1: Long, val2: Long, state: AtMachineState): Long {
         val height = AtApiHelper.longToHeight(val1)
         val numOfTx = AtApiHelper.longToNumOfTx(val1)
-        val addHeight = height + (val2 / dp.atConstants.averageBlockMinutes(state.height)).toInt()
+        val addHeight = height + (val2 / dp.atConstants[state.height].averageBlockMinutes).toInt()
 
         return AtApiHelper.getLongTimestamp(addHeight, numOfTx)
     }

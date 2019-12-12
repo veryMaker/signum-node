@@ -2394,7 +2394,7 @@ interface Attachment : Appendix {
 
             buffer.short //future: reserved for future needs
 
-            val pageSize = dp.atConstants.pageSize(dp.blockchainService.height).toInt()
+            val pageSize = dp.atConstants[dp.blockchainService.height].pageSize.toInt()
             val codePages = buffer.short
             val dataPages = buffer.short
             buffer.short

@@ -28,11 +28,11 @@ class AtController(private val dp: DependencyProvider) {
 
         state.setFreeze(false)
 
-        val stepFee = dp.atConstants.stepFee(state.creationBlockHeight)
+        val stepFee = dp.atConstants[state.creationBlockHeight].stepFee
 
         var numSteps = getNumSteps(state.apCode.get(state.machineState.pc), state.creationBlockHeight)
 
-        while (state.machineState.steps + numSteps <= dp.atConstants.maxSteps(state.height)) {
+        while (state.machineState.steps + numSteps <= dp.atConstants[state.height].maxSteps) {
 
             if (state.getgBalance() < stepFee * numSteps) {
                 debugLogger.safeDebug { "stopped - not enough balance" }
@@ -76,7 +76,7 @@ class AtController(private val dp: DependencyProvider) {
     }
 
     private fun getNumSteps(op: Byte, height: Int): Int {
-        return if (op in 0x32..55) dp.atConstants.apiStepMultiplier(height).toInt() else 1
+        return if (op in 0x32..55) dp.atConstants[height].apiStepMultiplier.toInt() else 1
     }
 
     fun resetMachine(state: AtMachineState) {
@@ -128,22 +128,22 @@ class AtController(private val dp: DependencyProvider) {
             b.short //future: reserved for future needs
 
             val codePages = b.short
-            if (codePages > dp.atConstants.maxMachineCodePages(height) || codePages < 1) {
+            if (codePages > dp.atConstants[height].maxMachineCodePages || codePages < 1) {
                 throw AtException(AtError.INCORRECT_CODE_PAGES.description)
             }
 
             val dataPages = b.short
-            if (dataPages > dp.atConstants.maxMachineDataPages(height) || dataPages < 0) {
+            if (dataPages > dp.atConstants[height].maxMachineDataPages || dataPages < 0) {
                 throw AtException(AtError.INCORRECT_DATA_PAGES.description)
             }
 
             val callStackPages = b.short
-            if (callStackPages > dp.atConstants.maxMachineCallStackPages(height) || callStackPages < 0) {
+            if (callStackPages > dp.atConstants[height].maxMachineCallStackPages || callStackPages < 0) {
                 throw AtException(AtError.INCORRECT_CALL_PAGES.description)
             }
 
             val userStackPages = b.short
-            if (userStackPages > dp.atConstants.maxMachineUserStackPages(height) || userStackPages < 0) {
+            if (userStackPages > dp.atConstants[height].maxMachineUserStackPages || userStackPages < 0) {
                 throw AtException(AtError.INCORRECT_USER_PAGES.description)
             }
 
@@ -215,7 +215,7 @@ class AtController(private val dp: DependencyProvider) {
                 continue
             }
 
-            if (atAccountBalance >= dp.atConstants.stepFee(at.creationBlockHeight) * dp.atConstants.apiStepMultiplier(at.creationBlockHeight)) {
+            if (atAccountBalance >= dp.atConstants[at.creationBlockHeight].stepFee * dp.atConstants[at.creationBlockHeight].apiStepMultiplier) {
                 try {
                     at.setgBalance(atAccountBalance)
                     at.height = blockHeight
@@ -224,7 +224,7 @@ class AtController(private val dp: DependencyProvider) {
                     listCode(at, disassembly = true, determineJumps = true)
                     runSteps(at)
 
-                    var fee = at.machineState.steps * dp.atConstants.stepFee(at.creationBlockHeight)
+                    var fee = at.machineState.steps * dp.atConstants[at.creationBlockHeight].stepFee
                     if (at.machineState.dead) {
                         fee += at.getgBalance()
                         at.setgBalance(0L)
@@ -275,10 +275,7 @@ class AtController(private val dp: DependencyProvider) {
                 at.waitForNumberOfBlocks = at.sleepBetween
 
                 val atAccountBalance = getATAccountBalance(AtApiHelper.getLong(atId))
-                if (atAccountBalance < dp.atConstants.stepFee(at.creationBlockHeight) * dp.atConstants.apiStepMultiplier(
-                        at.creationBlockHeight
-                    )
-                ) {
+                if (atAccountBalance < dp.atConstants[at.creationBlockHeight].stepFee * dp.atConstants[at.creationBlockHeight].apiStepMultiplier) {
                     throw AtException("AT has insufficient balance to run")
                 }
 
@@ -296,7 +293,7 @@ class AtController(private val dp: DependencyProvider) {
 
                 runSteps(at)
 
-                var fee = at.machineState.steps * dp.atConstants.stepFee(at.creationBlockHeight)
+                var fee = at.machineState.steps * dp.atConstants[at.creationBlockHeight].stepFee
                 if (at.machineState.dead) {
                     fee += at.getgBalance()
                     at.setgBalance(0L)

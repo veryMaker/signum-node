@@ -43,7 +43,7 @@ class AutomatedTransactionCreation(dp: DependencyProvider) : AutomatedTransactio
             throw BurstException.NotCurrentlyValidException("Invalid AT creation bytes", e)
         }
 
-        val requiredFee = totalPages * dp.atConstants.costPerPage(height)
+        val requiredFee = totalPages * dp.atConstants[height].costPerPage
         if (transaction.feePlanck < requiredFee) {
             throw BurstException.NotValidException("Insufficient fee for AT creation. Minimum: " + (requiredFee / Constants.ONE_BURST).toUnsignedString())
         }

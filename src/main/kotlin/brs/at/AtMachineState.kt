@@ -169,7 +169,7 @@ open class AtMachineState {
 
         b.short //future: reserved for future needs
 
-        val pageSize = dp.atConstants.pageSize(height).toInt()
+        val pageSize = dp.atConstants[height].pageSize.toInt()
         val codePages = b.short
         val dataPages = b.short
         val callStackPages = b.short

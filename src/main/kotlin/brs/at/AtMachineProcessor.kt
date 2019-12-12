@@ -674,7 +674,7 @@ internal class AtMachineProcessor(
                         var numBlocks = machineData.apData.getLong(func.addr1 * 8).toInt()
                         if (numBlocks < 0)
                             numBlocks = 0
-                        val maxNumBlocks = dp.atConstants.maxWaitForNumOfBlocks(machineData.creationBlockHeight).toInt()
+                        val maxNumBlocks = dp.atConstants[machineData.creationBlockHeight].maxWaitForNumOfBlocks.toInt()
                         if (numBlocks > maxNumBlocks)
                             numBlocks = maxNumBlocks
                         machineData.waitForNumberOfBlocks = numBlocks
