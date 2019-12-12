@@ -31,7 +31,6 @@ internal class GetAssetTransfers internal constructor(
     LAST_INDEX_PARAMETER,
     INCLUDE_ASSET_INFO_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val assetId = request.getParameter(ASSET_PARAMETER).emptyToNull()
         val accountId = request.getParameter(ACCOUNT_PARAMETER).emptyToNull()

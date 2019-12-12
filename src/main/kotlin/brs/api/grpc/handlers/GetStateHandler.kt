@@ -4,12 +4,10 @@ import brs.Burst
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
 import brs.entity.DependencyProvider
-import brs.objects.Props
 import com.google.protobuf.Empty
 
 class GetStateHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empty, BrsApi.State> {
-
-    override fun handleRequest(empty: Empty): BrsApi.State {
+    override fun handleRequest(request: Empty): BrsApi.State {
         val lastBlock = dp.blockchainService.lastBlock
         val lastBlockchainFeeder = dp.blockchainProcessorService.lastBlockchainFeeder
         return BrsApi.State.newBuilder()
@@ -28,7 +26,6 @@ class GetStateHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empty
             .setMaxMemory(Runtime.getRuntime().maxMemory())
             .setTotalMemory(Runtime.getRuntime().totalMemory())
             .setFreeMemory(Runtime.getRuntime().freeMemory())
-            .setIndirectIncomingServiceEnabled(dp.propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE))
             .build()
     }
 }

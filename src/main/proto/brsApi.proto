@@ -488,7 +488,6 @@ message State {
     uint64 maxMemory = 13;
     uint64 totalMemory = 14;
     uint64 freeMemory = 15;
-    bool indirectIncomingServiceEnabled = 16;
 }
 
 message FeeSuggestion {

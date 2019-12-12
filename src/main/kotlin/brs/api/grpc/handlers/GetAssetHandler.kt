@@ -8,9 +8,8 @@ import brs.services.AssetExchangeService
 
 class GetAssetHandler(private val assetExchangeService: AssetExchangeService) :
     GrpcApiHandler<BrsApi.GetByIdRequest, BrsApi.Asset> {
-
-    override fun handleRequest(getByIdRequest: BrsApi.GetByIdRequest): BrsApi.Asset {
-        val asset = assetExchangeService.getAsset(getByIdRequest.id) ?: throw ApiException("Could not find asset")
+    override fun handleRequest(request: BrsApi.GetByIdRequest): BrsApi.Asset {
+        val asset = assetExchangeService.getAsset(request.id) ?: throw ApiException("Could not find asset")
         return ProtoBuilder.buildAsset(assetExchangeService, asset)
     }
 }

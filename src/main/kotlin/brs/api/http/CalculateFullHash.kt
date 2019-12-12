@@ -21,7 +21,6 @@ internal class CalculateFullHash : APIServlet.JsonRequestHandler(
     UNSIGNED_TRANSACTION_BYTES_PARAMETER,
     SIGNATURE_HASH_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val unsignedBytesString = request.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER).emptyToNull()
@@ -40,7 +39,5 @@ internal class CalculateFullHash : APIServlet.JsonRequestHandler(
         response.addProperty(FULL_HASH_RESPONSE, fullHash.toHexString())
 
         return response
-
     }
-
 }

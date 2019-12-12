@@ -13,12 +13,12 @@ class GetAccountBlocksHandler(
     private val blockService: BlockService,
     private val accountService: AccountService
 ) : GrpcApiHandler<BrsApi.GetAccountBlocksRequest, BrsApi.Blocks> {
-    override fun handleRequest(getAccountRequest: BrsApi.GetAccountBlocksRequest): BrsApi.Blocks {
-        val accountId = getAccountRequest.accountId
-        val timestamp = getAccountRequest.timestamp
-        val includeTransactions = getAccountRequest.includeTransactions
+    override fun handleRequest(request: BrsApi.GetAccountBlocksRequest): BrsApi.Blocks {
+        val accountId = request.accountId
+        val timestamp = request.timestamp
+        val includeTransactions = request.includeTransactions
 
-        val indexRange = ProtoBuilder.sanitizeIndexRange(getAccountRequest.indexRange)
+        val indexRange = ProtoBuilder.sanitizeIndexRange(request.indexRange)
         val firstIndex = indexRange.firstIndex
         val lastIndex = indexRange.lastIndex
 

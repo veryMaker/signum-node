@@ -6,7 +6,6 @@ import brs.entity.DependencyProvider
 import brs.entity.IndirectIncoming
 import brs.entity.Transaction
 import brs.objects.Constants
-import brs.objects.Props
 import brs.services.PropertyService
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.payment.MultiOutPayment
@@ -30,7 +29,6 @@ class IndirectIncomingServiceImplTest {
     fun setUpIndirectIncomingServiceImplTest() {
         val propertyService = mock<PropertyService>()
         val indirectIncomingStore = mock<IndirectIncomingStore>()
-        whenever(propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE)).doReturn(true)
         doAnswer { invocation ->
             addIndirectIncomingsRunnable(invocation.getArgument(0))
             null

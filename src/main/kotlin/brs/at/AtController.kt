@@ -345,7 +345,7 @@ class AtController(private val dp: DependencyProvider) {
         val ats = mutableMapOf<ByteArray, ByteArray>()
 
         while (b.position() < b.capacity()) {
-            val atId = ByteArray(AtConstants.AT_ID_SIZE)
+            val atId = ByteArray(8)
             b.get(atId, 0, atId.size)
             val md5 = ByteArray(16)
             b.get(md5, 0, 16)
@@ -405,6 +405,6 @@ class AtController(private val dp: DependencyProvider) {
 
     companion object {
         private val logger = LoggerFactory.getLogger(AtController::class.java)
-        private const val costOfOneAT = AtConstants.AT_ID_SIZE + 16
+        private const val costOfOneAT = 8 + 16
     }
 }

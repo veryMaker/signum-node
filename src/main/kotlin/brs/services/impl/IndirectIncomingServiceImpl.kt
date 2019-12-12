@@ -3,38 +3,26 @@ package brs.services.impl
 import brs.entity.DependencyProvider
 import brs.entity.IndirectIncoming
 import brs.entity.Transaction
-import brs.objects.Props
 import brs.services.IndirectIncomingService
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.payment.MultiOutPayment
 import brs.transaction.type.payment.MultiOutSamePayment
-import brs.util.logging.safeWarn
-import org.slf4j.LoggerFactory
 
 class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : IndirectIncomingService {
-    private val disabled = !dp.propertyService.get(Props.INDIRECT_INCOMING_SERVICE_ENABLE)
-
-    init {
-        if (disabled) {
-            logger.safeWarn { "Indirect Incoming Service Disabled!" }
-        }
-    }
-
     override fun processTransaction(transaction: Transaction) {
-        if (disabled) return
         dp.indirectIncomingStore.addIndirectIncomings(getIndirectIncomings(transaction)
             .map { account -> IndirectIncoming(account, transaction.id, transaction.height) })
     }
 
     override fun isIndirectlyReceiving(transaction: Transaction, accountId: Long): Boolean {
         // It would be confusing to have inconsistent behaviour so even when not loading from database we should disable when told to do so.
-        return !disabled && getIndirectIncomings(transaction).contains(accountId)
+        return getIndirectIncomings(transaction).contains(accountId)
     }
 
     private fun getIndirectIncomings(transaction: Transaction): Collection<Long> {
-        return when {
-            transaction.type is MultiOutPayment -> getMultiOutRecipients(transaction)
-            transaction.type is MultiOutSamePayment -> getMultiOutSameRecipients(transaction)
+        return when (transaction.type) {
+            is MultiOutPayment -> getMultiOutRecipients(transaction)
+            is MultiOutSamePayment -> getMultiOutSameRecipients(transaction)
             else -> emptyList()
         }
     }
@@ -52,9 +40,5 @@ class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : Indirect
 
         val attachment = transaction.attachment
         return attachment.getRecipients()
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(IndirectIncomingServiceImpl::class.java)
     }
 }

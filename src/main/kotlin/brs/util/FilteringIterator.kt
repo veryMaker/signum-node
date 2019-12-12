@@ -2,14 +2,14 @@ package brs.util
 
 import java.util.*
 
-class FilteringIterator<T> constructor(
+class FilteringIterator<T: Any> constructor(
     collection: Collection<T>,
     private val filter: (T) -> Boolean,
     private val from: Int = 0,
     private val to: Int = Integer.MAX_VALUE
 ) : Iterator<T> {
     private val dbIterator: Iterator<T> = collection.iterator()
-    private var next: T? = null
+    private lateinit var next: T
     private var hasNext: Boolean = false
     private var count: Int = 0
 
@@ -19,7 +19,7 @@ class FilteringIterator<T> constructor(
         }
         while (dbIterator.hasNext() && count <= to) {
             next = dbIterator.next()
-            if (filter(next ?: continue)) {
+            if (filter(next)) {
                 if (count >= from) {
                     count += 1
                     hasNext = true
@@ -35,16 +35,15 @@ class FilteringIterator<T> constructor(
     override fun next(): T {
         if (hasNext) {
             hasNext = false
-            // TODO remove null assertions
-            return next!!
+            return next
         }
         while (dbIterator.hasNext() && count <= to) {
             next = dbIterator.next()
-            if (filter(next ?: continue)) {
+            if (filter(next)) {
                 if (count >= from) {
                     count += 1
                     hasNext = false
-                    return next!!
+                    return next
                 }
                 count += 1
             }

@@ -8,12 +8,11 @@ import brs.entity.Transaction
 
 class ParseTransactionHandler(private val dp: DependencyProvider) :
     GrpcApiHandler<BrsApi.TransactionBytes, BrsApi.BasicTransaction> {
-
-    override fun handleRequest(transactionBytes: BrsApi.TransactionBytes): BrsApi.BasicTransaction {
+    override fun handleRequest(request: BrsApi.TransactionBytes): BrsApi.BasicTransaction {
         return ProtoBuilder.buildBasicTransaction(
             Transaction.parseTransaction(
                 dp,
-                transactionBytes.transactionBytes.toByteArray()
+                request.transactionBytes.toByteArray()
             )
         )
     }

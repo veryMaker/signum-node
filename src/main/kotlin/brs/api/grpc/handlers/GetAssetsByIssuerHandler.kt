@@ -7,10 +7,9 @@ import brs.services.AssetExchangeService
 
 class GetAssetsByIssuerHandler(private val assetExchangeService: AssetExchangeService) :
     GrpcApiHandler<BrsApi.GetAccountRequest, BrsApi.Assets> {
-
-    override fun handleRequest(getAccountRequest: BrsApi.GetAccountRequest): BrsApi.Assets {
+    override fun handleRequest(request: BrsApi.GetAccountRequest): BrsApi.Assets {
         val builder = BrsApi.Assets.newBuilder()
-        assetExchangeService.getAssetsIssuedBy(getAccountRequest.accountId, 0, -1)
+        assetExchangeService.getAssetsIssuedBy(request.accountId, 0, -1)
             .forEach { asset -> builder.addAssets(ProtoBuilder.buildAsset(assetExchangeService, asset)) }
         return builder.build()
     }
