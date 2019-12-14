@@ -1,7 +1,6 @@
 package brs.entity
 
 import brs.db.BurstKey
-import brs.db.ValuesTable
 import brs.transaction.appendix.Attachment
 import brs.util.delegates.AtomicLazy
 import burst.kit.entity.BurstEncryptedMessage
@@ -25,7 +24,7 @@ open class Purchase {
     var refundNote: BurstEncryptedMessage? = null
     private var hasFeedbackNotes: Boolean = false
     var feedbackNotes by AtomicLazy {
-        if (!hasFeedbackNotes) null else feedbackTable(dp).get(feedbackDbKeyFactory(dp).newKey(this@Purchase)).toMutableList()
+        if (!hasFeedbackNotes) null else dp.digitalGoodsStoreStore.feedbackTable[dp.digitalGoodsStoreStore.feedbackDbKeyFactory.newKey(this@Purchase)].toMutableList()
     }
     private var hasPublicFeedbacks: Boolean = false
     var publicFeedbacks: MutableList<String>? = null
@@ -39,28 +38,8 @@ open class Purchase {
         if (!hasPublicFeedbacks) {
             return emptyList()
         }
-        publicFeedbacks = publicFeedbackTable(dp).get(publicFeedbackDbKeyFactory(dp).newKey(this)).toMutableList()
+        publicFeedbacks = dp.digitalGoodsStoreStore.publicFeedbackTable[dp.digitalGoodsStoreStore.publicFeedbackDbKeyFactory.newKey(this)].toMutableList()
         return publicFeedbacks
-    }
-
-    private fun purchaseDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<Purchase> {
-        return dp.digitalGoodsStoreStore.purchaseDbKeyFactory
-    }
-
-    private fun feedbackDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<Purchase> {
-        return dp.digitalGoodsStoreStore.feedbackDbKeyFactory
-    }
-
-    private fun feedbackTable(dp: DependencyProvider): ValuesTable<Purchase, BurstEncryptedMessage> {
-        return dp.digitalGoodsStoreStore.feedbackTable
-    }
-
-    private fun publicFeedbackDbKeyFactory(dp: DependencyProvider): BurstKey.LongKeyFactory<Purchase> {
-        return dp.digitalGoodsStoreStore.publicFeedbackDbKeyFactory
-    }
-
-    private fun publicFeedbackTable(dp: DependencyProvider): ValuesTable<Purchase, String> {
-        return dp.digitalGoodsStoreStore.publicFeedbackTable
     }
 
     constructor(
@@ -71,7 +50,7 @@ open class Purchase {
     ) {
         this.dp = dp
         this.id = transaction.id
-        this.dbKey = purchaseDbKeyFactory(dp).newKey(this.id)
+        this.dbKey = dp.digitalGoodsStoreStore.purchaseDbKeyFactory.newKey(this.id)
         this.buyerId = transaction.senderId
         this.goodsId = attachment.goodsId
         this.sellerId = sellerId

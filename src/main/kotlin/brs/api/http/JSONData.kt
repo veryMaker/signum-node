@@ -269,7 +269,7 @@ object JSONData {
                 continue
             }
             val signerDetails = JsonObject()
-            signerDetails.addProperty(ID_RESPONSE, decision.accountId!!.toUnsignedString())
+            signerDetails.addProperty(ID_RESPONSE, decision.accountId.toUnsignedString())
             signerDetails.addProperty(ID_RS_RESPONSE, decision.accountId.rsAccount())
             signerDetails.addProperty(DECISION_RESPONSE, Escrow.decisionToString(decision.decision!!))
             signers.add(signerDetails)

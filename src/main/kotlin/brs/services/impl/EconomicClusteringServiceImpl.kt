@@ -26,11 +26,11 @@ import org.slf4j.LoggerFactory
  */
 class EconomicClusteringServiceImpl(private val dp: DependencyProvider) : EconomicClusteringService {
     override fun getECBlock(timestamp: Int): Block {
-        var block: Block? = dp.blockchainService.lastBlock
-        require(timestamp >= block!!.timestamp - 15) { "Timestamp cannot be more than 15 s earlier than last block timestamp: " + block!!.timestamp }
+        var block = dp.blockchainService.lastBlock
+        require(timestamp >= block.timestamp - 15) { "Timestamp cannot be more than 15s earlier than last block timestamp: Timestamp is $timestamp, last block timestamp is ${block.timestamp}" }
         var distance = 0
-        while (block!!.timestamp > timestamp - Constants.EC_RULE_TERMINATOR && distance < Constants.EC_BLOCK_DISTANCE_LIMIT) {
-            block = dp.blockchainService.getBlock(block.previousBlockId)
+        while (block.timestamp > timestamp - Constants.EC_RULE_TERMINATOR && distance < Constants.EC_BLOCK_DISTANCE_LIMIT) {
+            block = dp.blockchainService.getBlock(block.previousBlockId) ?: error("Could not find previous block for finding EC block, missing ID is ${block.previousBlockId}")
             distance += 1
         }
         return block

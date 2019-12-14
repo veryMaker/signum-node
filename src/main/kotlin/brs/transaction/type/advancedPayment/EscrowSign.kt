@@ -22,25 +22,21 @@ class EscrowSign(dp: DependencyProvider) : AdvancedPayment(dp) {
     override fun applyAttachment(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowSign
         val escrow = dp.escrowService.getEscrowTransaction(attachment.escrowId)!!
-        dp.escrowService.sign(senderAccount.id, attachment.decision!!, escrow)
+        dp.escrowService.sign(senderAccount.id, attachment.decision, escrow)
     }
 
     override fun undoAttachmentUnconfirmed(transaction: Transaction, senderAccount: Account) = Unit
 
     override fun getDuplicationKey(transaction: Transaction): TransactionDuplicationKey {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowSign
-        val uniqueString = attachment.escrowId!!.toUnsignedString() + ":" +
+        val uniqueString = attachment.escrowId.toUnsignedString() + ":" +
                 transaction.senderId.toUnsignedString()
         return TransactionDuplicationKey(EscrowSign::class, uniqueString)
     }
 
     override fun preValidateAttachment(transaction: Transaction, height: Int) {
-        val attachment = transaction.attachment as Attachment.AdvancedPaymentEscrowSign
         if (transaction.amountPlanck != 0L || transaction.feePlanck != Constants.ONE_BURST) {
             throw BurstException.NotValidException("Escrow signing must have amount 0 and fee of 1")
-        }
-        if (attachment.escrowId == null || attachment.decision == null) {
-            throw BurstException.NotValidException("Escrow signing requires escrow id and decision set")
         }
     }
 

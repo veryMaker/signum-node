@@ -21,16 +21,16 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
 
     private val updatedEscrowIds = ConcurrentSkipListSet<Long>()
 
-    override fun getEscrowTransaction(id: Long?): Escrow? {
-        return escrowTable[escrowDbKeyFactory.newKey(id!!)]
+    override fun getEscrowTransaction(id: Long): Escrow? {
+        return escrowTable[escrowDbKeyFactory.newKey(id)]
     }
 
-    override fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow> {
+    override fun getEscrowTransactionsByParticipant(accountId: Long): Collection<Escrow> {
         return dp.escrowStore.getEscrowTransactionsByParticipant(accountId)
     }
 
-    override fun removeEscrowTransaction(id: Long?) {
-        val escrow = escrowTable[escrowDbKeyFactory.newKey(id!!)] ?: return
+    override fun removeEscrowTransaction(id: Long) {
+        val escrow = escrowTable[escrowDbKeyFactory.newKey(id)] ?: return
         escrow.decisions.forEach { decisionTable.delete(it) }
         escrowTable.delete(escrow)
     }

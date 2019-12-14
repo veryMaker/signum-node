@@ -23,7 +23,7 @@ open class Escrow {
         SPLIT
     }
 
-    open class Decision(val dbKey: BurstKey, val escrowId: Long?, val accountId: Long?, var decision: DecisionType?)
+    open class Decision(val dbKey: BurstKey, val escrowId: Long, val accountId: Long, var decision: DecisionType?)
 
     constructor(
         dp: DependencyProvider, dbKey: BurstKey, sender: Account,

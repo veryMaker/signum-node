@@ -48,7 +48,7 @@ class AutomatedTransactionCreation(dp: DependencyProvider) : AutomatedTransactio
             throw BurstException.NotValidException("Insufficient fee for AT creation. Minimum: " + (requiredFee / Constants.ONE_BURST).toUnsignedString())
         }
         if (dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_3, height)) {
-            if (attachment.name!!.length > Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH) {
+            if (attachment.name.length > Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH) {
                 throw BurstException.NotValidException("Name of automated transaction over size limit")
             }
             if (attachment.description!!.length > Constants.MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH) {
@@ -72,7 +72,7 @@ class AutomatedTransactionCreation(dp: DependencyProvider) : AutomatedTransactio
             dp,
             transaction.id,
             transaction.senderId,
-            attachment.name.orEmpty(),
+            attachment.name,
             attachment.description.orEmpty(),
             attachment.creationBytes,
             transaction.height

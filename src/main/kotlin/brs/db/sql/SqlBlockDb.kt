@@ -10,7 +10,6 @@ import brs.schema.tables.records.BlockRecord
 import brs.util.BurstException
 import org.jooq.DSLContext
 import java.math.BigInteger
-import java.util.*
 
 internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     override fun findBlock(blockId: Long): Block? {
@@ -76,25 +75,25 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
         }
     }
 
-    override fun loadBlock(r: BlockRecord): Block {
-        val version = r.version!!
-        val timestamp = r.timestamp!!
-        val previousBlockId = Optional.ofNullable(r.previousBlockId).orElse(0L)
-        val totalAmountPlanck = r.totalAmount!!
-        val totalFeePlanck = r.totalFee!!
-        val payloadLength = r.payloadLength!!
-        val generatorPublicKey = r.generatorPublicKey
-        val previousBlockHash = r.previousBlockHash
-        val cumulativeDifficulty = BigInteger(r.cumulativeDifficulty)
-        val baseTarget = r.baseTarget!!
-        val nextBlockId = Optional.ofNullable(r.nextBlockId).orElse(0L)
-        val height = r.height!!
-        val generationSignature = r.generationSignature
-        val blockSignature = r.blockSignature
-        val payloadHash = r.payloadHash
-        val id = r.id!!
-        val nonce = r.nonce!!
-        val blockATs = r.ats
+    override fun loadBlock(record: BlockRecord): Block {
+        val version = record.version
+        val timestamp = record.timestamp
+        val previousBlockId = record.previousBlockId ?: 0L
+        val totalAmountPlanck = record.totalAmount
+        val totalFeePlanck = record.totalFee
+        val payloadLength = record.payloadLength
+        val generatorPublicKey = record.generatorPublicKey
+        val previousBlockHash = record.previousBlockHash
+        val cumulativeDifficulty = BigInteger(record.cumulativeDifficulty)
+        val baseTarget = record.baseTarget
+        val nextBlockId = record.nextBlockId ?: 0L
+        val height = record.height
+        val generationSignature = record.generationSignature
+        val blockSignature = record.blockSignature
+        val payloadHash = record.payloadHash
+        val id = record.id
+        val nonce = record.nonce
+        val blockATs = record.ats
 
         return Block(
             dp, version, timestamp, previousBlockId, totalAmountPlanck, totalFeePlanck, payloadLength, payloadHash,

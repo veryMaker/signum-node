@@ -43,7 +43,7 @@ interface DownloadCacheService {
     /**
      * TODO
      */
-    val lastBlock: Block?
+    val lastBlock: Block
 
     /**
      * TODO

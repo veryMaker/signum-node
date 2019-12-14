@@ -27,6 +27,10 @@ interface Appendix {
     val version: Byte
     val protobufMessage: Any
     fun putBytes(buffer: ByteBuffer)
+    fun verifyVersion(transactionVersion: Byte): Boolean
+    fun validate(transaction: Transaction)
+    fun preValidate(transaction: Transaction, height: Int)
+    fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account)
 
     abstract class AbstractAppendix : Appendix {
 
@@ -81,15 +85,9 @@ interface Appendix {
 
         internal abstract fun putMyJSON(attachment: JsonObject)
 
-        open fun verifyVersion(transactionVersion: Byte): Boolean {
+        override fun verifyVersion(transactionVersion: Byte): Boolean {
             return if (transactionVersion.toInt() == 0) version.toInt() == 0 else version > 0
         }
-
-        abstract fun preValidate(transaction: Transaction, height: Int)
-
-        abstract fun validate(transaction: Transaction)
-
-        abstract fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account)
     }
 
     class Message : AbstractAppendix {

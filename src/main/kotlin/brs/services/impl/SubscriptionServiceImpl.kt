@@ -22,11 +22,11 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         return subscriptionTable[subscriptionDbKeyFactory.newKey(id!!)]
     }
 
-    override fun getSubscriptionsByParticipant(accountId: Long?): Collection<Subscription> {
+    override fun getSubscriptionsByParticipant(accountId: Long): Collection<Subscription> {
         return dp.subscriptionStore.getSubscriptionsByParticipant(accountId)
     }
 
-    override fun getSubscriptionsToId(accountId: Long?): Collection<Subscription> {
+    override fun getSubscriptionsToId(accountId: Long): Collection<Subscription> {
         return dp.subscriptionStore.getSubscriptionsToId(accountId)
     }
 

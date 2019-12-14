@@ -144,7 +144,7 @@ internal class SqlBlockchainStore(private val dp: DependencyProvider) : Blockcha
     }
 
     override fun addBlock(block: Block) {
-        dp.db.useDslContext<Unit> { ctx -> dp.blockDb.saveBlock(ctx, block) }
+        dp.db.useDslContext { ctx -> dp.blockDb.saveBlock(ctx, block) }
     }
 
     override fun getLatestBlocks(amountBlocks: Int): Collection<Block> {

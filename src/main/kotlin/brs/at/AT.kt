@@ -187,30 +187,29 @@ class AT : AtMachineState {
             }
 
             val transactions = mutableListOf<Transaction>()
-            for (atTransaction in pendingTransactions) {
+            for ((senderId, recipientId, amount, message) in pendingTransactions) {
                 dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
-                    dp.accountService.getAccount(atTransaction.senderId)!!,
-                    -atTransaction.amount
+                    dp.accountService.getAccount(senderId)!!,
+                    -amount
                 )
                 dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
-                    dp.accountService.getOrAddAccount(atTransaction.recipientId),
-                    atTransaction.amount
+                    dp.accountService.getOrAddAccount(recipientId),
+                    amount
                 )
 
                 val builder = Transaction.Builder(
                     dp, 1.toByte(), Genesis.creatorPublicKey,
-                    atTransaction.amount, 0L, block.timestamp, 1440.toShort(), Attachment.AtPayment(dp)
+                    amount, 0L, block.timestamp, 1440.toShort(), Attachment.AtPayment(dp)
                 )
 
-                builder.senderId(atTransaction.senderId)
-                    .recipientId(atTransaction.recipientId)
+                builder.senderId(senderId)
+                    .recipientId(recipientId)
                     .blockId(block.id)
                     .height(block.height)
                     .blockTimestamp(block.timestamp)
                     .ecBlockHeight(0)
                     .ecBlockId(0L)
 
-                val message = atTransaction.message
                 if (message != null) {
                     builder.message(Appendix.Message(dp, message, dp.blockchainService.height))
                 }

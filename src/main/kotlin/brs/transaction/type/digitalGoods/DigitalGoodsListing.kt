@@ -25,7 +25,7 @@ class DigitalGoodsListing(dp: DependencyProvider) : DigitalGoods(dp) {
 
     override fun doPreValidateAttachment(transaction: Transaction, height: Int) {
         val attachment = transaction.attachment as Attachment.DigitalGoodsListing
-        if (attachment.name!!.isEmpty()
+        if (attachment.name.isNullOrEmpty()
             || attachment.name.length > Constants.MAX_DGS_LISTING_NAME_LENGTH
             || attachment.description!!.length > Constants.MAX_DGS_LISTING_DESCRIPTION_LENGTH
             || attachment.tags!!.length > Constants.MAX_DGS_LISTING_TAGS_LENGTH

@@ -14,17 +14,17 @@ interface EscrowService {
     /**
      * TODO
      */
-    fun getEscrowTransaction(id: Long?): Escrow?
+    fun getEscrowTransaction(id: Long): Escrow?
 
     /**
      * TODO
      */
-    fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow>
+    fun getEscrowTransactionsByParticipant(accountId: Long): Collection<Escrow>
 
     /**
      * TODO
      */
-    fun removeEscrowTransaction(id: Long?)
+    fun removeEscrowTransaction(id: Long)
 
     /**
      * TODO

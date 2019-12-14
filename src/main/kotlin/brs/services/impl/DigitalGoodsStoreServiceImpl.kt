@@ -71,7 +71,7 @@ class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : Digital
     }
 
     override fun changeQuantity(goodsId: Long, deltaQuantity: Int, allowDelisted: Boolean) {
-        val goods = goodsTable[goodsDbKeyFactory.newKey(goodsId)]!!
+        val goods = goodsTable[goodsDbKeyFactory.newKey(goodsId)] ?: error("Could not find goods with ID $goodsId")
         if (allowDelisted || !goods.isDelisted) {
             goods.changeQuantity(deltaQuantity)
             goodsTable.insert(goods)

@@ -68,9 +68,9 @@ open class AtMachineState {
         get() = apData.array()
 
     private fun hashTransactionBytes(md5: MessageDigest) {
-        for (tx in transactions.values) {
-            AtApiHelper.hashLong(md5, tx.recipientId)
-            AtApiHelper.hashLong(md5, tx.amount)
+        for ((_, recipientId, amount) in transactions.values) {
+            AtApiHelper.hashLong(md5, recipientId)
+            AtApiHelper.hashLong(md5, amount)
         }
     }
 

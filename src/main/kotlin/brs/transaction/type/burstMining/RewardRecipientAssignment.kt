@@ -31,7 +31,7 @@ class RewardRecipientAssignment(dp: DependencyProvider) : Mining(dp) {
         senderAccount: Account,
         recipientAccount: Account
     ) {
-        dp.accountService.setRewardRecipientAssignment(senderAccount, recipientAccount!!.id)
+        dp.accountService.setRewardRecipientAssignment(senderAccount, recipientAccount.id)
     }
 
     override fun getDuplicationKey(transaction: Transaction): TransactionDuplicationKey {

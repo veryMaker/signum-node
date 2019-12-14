@@ -32,7 +32,7 @@ interface EscrowStore {
     /**
      * TODO
      */
-    fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow>
+    fun getEscrowTransactionsByParticipant(accountId: Long): Collection<Escrow>
 
     /**
      * TODO

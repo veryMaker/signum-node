@@ -35,11 +35,7 @@ class SubmitNonceHandler(private val dp: DependencyProvider) :
         }
 
         if (secret.isEmpty()) {
-            if (passphrases.containsKey(accountId)) {
-                secret = passphrases[accountId]!!
-            } else {
-                throw ApiException("Missing Passphrase and account passphrase not in solo mining config")
-            }
+            secret = passphrases[accountId] ?: throw ApiException("Missing Passphrase and account passphrase not in solo mining config")
         }
 
         if (!allowOtherSoloMiners && !passphrases.containsValue(secret)) {

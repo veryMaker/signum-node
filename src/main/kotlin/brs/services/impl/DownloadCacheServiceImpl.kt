@@ -70,8 +70,8 @@ class DownloadCacheServiceImpl(private val dp: DependencyProvider) : DownloadCac
     override val forkList: List<Block>
         get() = forkCache
 
-    override val lastBlock: Block?
-        get() = stampedLock.read { blockCache[lastBlockId ?: return@read null] } ?: dp.blockchainService.lastBlock
+    override val lastBlock: Block
+        get() = stampedLock.read { blockCache[lastBlockId] } ?: dp.blockchainService.lastBlock
 
     override fun lockCache() {
         stampedLock.write {
@@ -184,13 +184,13 @@ class DownloadCacheServiceImpl(private val dp: DependencyProvider) : DownloadCac
             lastHeight = blockCache[lastBlockId ?: Genesis.GENESIS_BLOCK_ID]?.height ?: 0
             highestCumulativeDifficulty = blockCache[lastBlockId ?: Genesis.GENESIS_BLOCK_ID]!!.cumulativeDifficulty
             logger.safeDebug { "Cache set to CacheData" }
-            printLastVars() // TODO remove? or compact?
+            printLastVars()
         } else {
             lastBlockId = dp.blockchainService.lastBlock.id
             lastHeight = dp.blockchainService.height
             highestCumulativeDifficulty = dp.blockchainService.lastBlock.cumulativeDifficulty
             logger.safeDebug { "Cache set to ChainData" }
-            printLastVars() // TODO remove? or compact?
+            printLastVars()
         }
     }
 

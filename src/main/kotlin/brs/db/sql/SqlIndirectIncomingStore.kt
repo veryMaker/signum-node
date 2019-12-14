@@ -56,7 +56,7 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
     }
 
     override fun addIndirectIncomings(indirectIncomings: Collection<IndirectIncoming>) {
-        dp.db.useDslContext<Unit> { ctx -> indirectIncomingTable.save(ctx, indirectIncomings.toTypedArray()) }
+        dp.db.useDslContext { ctx -> indirectIncomingTable.save(ctx, indirectIncomings.toTypedArray()) }
     }
 
     override fun getIndirectIncomings(accountId: Long, from: Int, to: Int): List<Long> {

@@ -82,9 +82,7 @@ internal class SubmitNonce(
                 return response
             }
 
-            if (passphrases.containsKey(accountIdLong)) {
-                secret = passphrases[accountIdLong]!!
-            } else {
+            secret = passphrases[accountIdLong] ?: run {
                 response.addProperty("result", "Missing Passphrase and account passphrase not in solo mining config")
                 return response
             }

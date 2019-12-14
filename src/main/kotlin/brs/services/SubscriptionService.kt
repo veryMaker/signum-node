@@ -14,12 +14,12 @@ interface SubscriptionService {
     /**
      * TODO
      */
-    fun getSubscriptionsByParticipant(accountId: Long?): Collection<Subscription>
+    fun getSubscriptionsByParticipant(accountId: Long): Collection<Subscription>
 
     /**
      * TODO
      */
-    fun getSubscriptionsToId(accountId: Long?): Collection<Subscription>
+    fun getSubscriptionsToId(accountId: Long): Collection<Subscription>
 
     /**
      * TODO

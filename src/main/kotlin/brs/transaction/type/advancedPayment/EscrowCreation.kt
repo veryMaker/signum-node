@@ -59,13 +59,13 @@ class EscrowCreation(dp: DependencyProvider) : AdvancedPayment(dp) {
         }
         dp.escrowService.addEscrowTransaction(
             senderAccount,
-            recipientAccount!!,
+            recipientAccount,
             transaction.id,
             attachment.amountPlanck,
             attachment.getRequiredSigners(),
             attachment.getSigners(),
             transaction.timestamp + attachment.deadline,
-            attachment.deadlineAction!!
+            attachment.deadlineAction
         )
     }
 

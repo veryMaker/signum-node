@@ -289,7 +289,7 @@ class AtController(private val dp: DependencyProvider) {
 
                 at.setgBalance(atAccountBalance)
 
-                listCode(at, true, true)
+                listCode(at, disassembly = true, determineJumps = true)
 
                 runSteps(at)
 

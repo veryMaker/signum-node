@@ -37,5 +37,5 @@ interface TransactionDb : Table {
     /**
      * TODO
      */
-    fun loadTransaction(tr: TransactionRecord): Transaction
+    fun loadTransaction(record: TransactionRecord): Transaction
 }

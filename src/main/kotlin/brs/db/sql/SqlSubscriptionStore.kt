@@ -53,15 +53,15 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
         return SUBSCRIPTION.TIME_NEXT.le(timestamp)
     }
 
-    override fun getSubscriptionsByParticipant(accountId: Long?): Collection<Subscription> {
-        return subscriptionTable.getManyBy(getByParticipantClause(accountId!!), 0, -1)
+    override fun getSubscriptionsByParticipant(accountId: Long): Collection<Subscription> {
+        return subscriptionTable.getManyBy(getByParticipantClause(accountId), 0, -1)
     }
 
-    override fun getIdSubscriptions(accountId: Long?): Collection<Subscription> {
+    override fun getIdSubscriptions(accountId: Long): Collection<Subscription> {
         return subscriptionTable.getManyBy(SUBSCRIPTION.SENDER_ID.eq(accountId), 0, -1)
     }
 
-    override fun getSubscriptionsToId(accountId: Long?): Collection<Subscription> {
+    override fun getSubscriptionsToId(accountId: Long): Collection<Subscription> {
         return subscriptionTable.getManyBy(SUBSCRIPTION.RECIPIENT_ID.eq(accountId), 0, -1)
     }
 

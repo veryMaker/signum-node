@@ -13,7 +13,6 @@ import brs.util.convert.toUnsignedString
 import brs.util.db.fetchAndMap
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.*
 
 internal class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
     override fun findTransaction(transactionId: Long): Transaction {
@@ -22,10 +21,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId)).fetchOne()
                 return@useDslContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
-                throw Exception(
-                    "Transaction already in database, id = $transactionId, does not pass validation!",
-                    e
-                )
+                throw Exception("Transaction already in database, id = $transactionId, does not pass validation!", e)
             }
         }
     }
@@ -36,10 +32,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash)).fetchOne()
                 return@useDslContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
-                throw Exception(
-                    "Transaction already in database, full_hash = $fullHash, does not pass validation!",
-                    e
-                )
+                throw Exception("Transaction already in database, full_hash = $fullHash, does not pass validation!", e)
             }
         }
     }
@@ -58,60 +51,42 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
 
     override fun hasTransactionByFullHash(fullHash: ByteArray): Boolean {
         return dp.db.useDslContext { ctx ->
-            ctx.fetchExists(
-                ctx.selectFrom(TRANSACTION).where(
-                    TRANSACTION.FULL_HASH.eq(
-                        fullHash
-                    )
-                )
-            )
+            ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash)))
         }
     }
 
-    override fun loadTransaction(tr: TransactionRecord): Transaction {
+    override fun loadTransaction(record: TransactionRecord): Transaction {
         val buffer: ByteBuffer
-        if (tr.attachmentBytes != null) {
-            buffer = ByteBuffer.wrap(tr.attachmentBytes)
+        if (record.attachmentBytes != null) {
+            buffer = ByteBuffer.wrap(record.attachmentBytes)
             buffer.order(ByteOrder.LITTLE_ENDIAN)
         } else {
             buffer = ByteBuffer.allocate(0)
         }
 
-        val transactionType = TransactionType.findTransactionType(dp, tr.type!!, tr.subtype!!)
+        val transactionType = TransactionType.findTransactionType(dp, record.type, record.subtype) ?: error("Could not find transaction with type ${record.type} and subtype ${record.subtype}")
         val builder = Transaction.Builder(
-            dp, tr.version!!, tr.senderPublicKey,
-            tr.amount!!, tr.fee!!, tr.timestamp!!, tr.deadline!!,
-            transactionType!!.parseAttachment(buffer, tr.version!!)
+            dp, record.version, record.senderPublicKey,
+            record.amount, record.fee, record.timestamp, record.deadline,
+            transactionType.parseAttachment(buffer, record.version)
         )
-            .signature(tr.signature)
-            .blockId(tr.blockId!!)
-            .height(tr.height!!)
-            .id(tr.id!!)
-            .senderId(tr.senderId!!)
-            .blockTimestamp(tr.blockTimestamp!!)
-            .fullHash(tr.fullHash)
-        val referencedTransactionFullHash = tr.referencedTransactionFullhash
-        if (referencedTransactionFullHash != null) {
-            builder.referencedTransactionFullHash(referencedTransactionFullHash)
-        }
-        if (transactionType.hasRecipient()) {
-            builder.recipientId(Optional.ofNullable(tr.recipientId).orElse(0L))
-        }
-        if (tr.hasMessage!!) {
-            builder.message(Appendix.Message(buffer, tr.version!!))
-        }
-        if (tr.hasEncryptedMessage!!) {
-            builder.encryptedMessage(Appendix.EncryptedMessage(buffer, tr.version!!))
-        }
-        if (tr.hasPublicKeyAnnouncement!!) {
-            builder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(dp, buffer, tr.version!!))
-        }
-        if (tr.hasEncrypttoselfMessage!!) {
-            builder.encryptToSelfMessage(Appendix.EncryptToSelfMessage(buffer, tr.version!!))
-        }
-        if (tr.version > 0) {
-            builder.ecBlockHeight(tr.ecBlockHeight!!)
-            builder.ecBlockId(Optional.ofNullable(tr.ecBlockId).orElse(0L))
+            .signature(record.signature)
+            .blockId(record.blockId)
+            .height(record.height)
+            .id(record.id)
+            .senderId(record.senderId)
+            .blockTimestamp(record.blockTimestamp)
+            .fullHash(record.fullHash)
+        val referencedTransactionFullHash = record.referencedTransactionFullhash
+        if (referencedTransactionFullHash != null) builder.referencedTransactionFullHash(referencedTransactionFullHash)
+        if (transactionType.hasRecipient() && record.recipientId != null) builder.recipientId(record.recipientId)
+        if (record.hasMessage) builder.message(Appendix.Message(buffer, record.version))
+        if (record.hasEncryptedMessage) builder.encryptedMessage(Appendix.EncryptedMessage(buffer, record.version))
+        if (record.hasPublicKeyAnnouncement) builder.publicKeyAnnouncement(Appendix.PublicKeyAnnouncement(dp, buffer, record.version))
+        if (record.hasEncrypttoselfMessage) builder.encryptToSelfMessage(Appendix.EncryptToSelfMessage(buffer, record.version))
+        if (record.version > 0) {
+            builder.ecBlockHeight(record.ecBlockHeight)
+            if (record.ecBlockId != null) builder.ecBlockId(record.ecBlockId)
         }
 
         return builder.build()

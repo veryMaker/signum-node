@@ -50,12 +50,8 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
     private val logger = LoggerFactory.getLogger(CreateATProgram::class.java)
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        var name: String? = request.getParameter(NAME_PARAMETER)
-        val description = request.getParameter(DESCRIPTION_PARAMETER)
-
-        if (name == null) {
-            return MISSING_NAME
-        }
+        var name = request.getParameter(NAME_PARAMETER) ?: return MISSING_NAME
+        val description: String? = request.getParameter(DESCRIPTION_PARAMETER)
 
         name = name.trim { it <= ' ' }
         if (name.length > Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH) {
@@ -112,12 +108,12 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
                 creation.putLong(minActivationAmount)
                 putLength(cpages, code, creation)
                 val codeBytes = code.parseHexString()
-                if (codeBytes != null && codeBytes.isNotEmpty()) {
+                if (codeBytes.isNotEmpty()) {
                     creation.put(codeBytes)
                 }
                 putLength(dpages, data, creation)
                 val dataBytes = data.parseHexString()
-                if (dataBytes != null && dataBytes.isNotEmpty()) {
+                if (dataBytes.isNotEmpty()) {
                     creation.put(dataBytes)
                 }
 

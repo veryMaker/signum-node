@@ -574,7 +574,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         val newBlock = Block.parseBlock(dp, request, dp.blockchainService.height)
         //* This process takes care of the blocks that is announced by peers We do not want to be fed forks.
         val chainblock = dp.downloadCacheService.lastBlock
-        if (chainblock!!.id == newBlock.previousBlockId) {
+        if (chainblock.id == newBlock.previousBlockId) {
             newBlock.height = chainblock.height + 1
             newBlock.byteLength = newBlock.toString().length
             dp.blockService.calculateBaseTarget(newBlock, chainblock)

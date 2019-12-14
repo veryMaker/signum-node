@@ -38,7 +38,7 @@ interface BlockDb : Table {
     /**
      * TODO
      */
-    fun loadBlock(r: BlockRecord): Block
+    fun loadBlock(record: BlockRecord): Block
 
     /**
      * TODO

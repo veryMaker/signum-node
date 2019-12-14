@@ -63,10 +63,10 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
         ctx.upsert(record, ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.HEIGHT).execute()
     }
 
-    override fun getEscrowTransactionsByParticipant(accountId: Long?): Collection<Escrow> {
+    override fun getEscrowTransactionsByParticipant(accountId: Long): Collection<Escrow> {
         val filtered = mutableListOf<Escrow>()
         for (decision in decisionTable.getManyBy(ESCROW_DECISION.ACCOUNT_ID.eq(accountId), 0, -1)) {
-            val escrow = escrowTable[escrowDbKeyFactory.newKey(decision.escrowId!!)]
+            val escrow = escrowTable[escrowDbKeyFactory.newKey(decision.escrowId)]
             if (escrow != null) {
                 filtered.add(escrow)
             }

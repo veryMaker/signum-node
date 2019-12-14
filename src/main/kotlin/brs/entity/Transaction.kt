@@ -4,7 +4,6 @@ import brs.objects.Constants
 import brs.objects.FluxValues
 import brs.objects.Genesis
 import brs.transaction.appendix.Appendix
-import brs.transaction.appendix.Appendix.AbstractAppendix
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.transaction.type.payment.MultiOutPayment
@@ -25,7 +24,6 @@ import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.*
 import kotlin.experimental.and
 import kotlin.experimental.or
 
@@ -46,7 +44,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     val encryptedMessage: Appendix.EncryptedMessage?
     val encryptToSelfMessage: Appendix.EncryptToSelfMessage?
     val publicKeyAnnouncement: Appendix.PublicKeyAnnouncement?
-    val appendages: List<AbstractAppendix>
+    val appendages: List<Appendix>
     val appendagesSize: Int
     var height by AtomicLateinit<Int>()
     var blockId by AtomicLateinit<Long>()
@@ -61,13 +59,13 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         this.timestamp = builder.timestamp
         this.deadline = builder.deadline
         this.senderPublicKey = builder.senderPublicKey
-        this.recipientId = Optional.ofNullable(builder.recipientId).orElse(0L)
+        this.recipientId = builder.recipientId
         this.amountPlanck = builder.amountPlanck
         this.referencedTransactionFullHash = builder.referencedTransactionFullHash
         this.signature = builder.signature
         this.type = builder.type
         this.version = builder.version
-        if (builder.blockId != null) this.blockId = builder.blockId!!
+        builder.blockId?.let { this.blockId = it }
         this.height = builder.height
     }
 
@@ -88,33 +86,27 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     }
 
     init {
-        if (builder.id != null) this.id = builder.id!!
-        if (builder.senderId != null) this.senderId = builder.senderId!!
-        if (builder.blockTimestamp != null) this.blockTimestamp = builder.blockTimestamp!!
-        if (builder.fullHash != null) this.fullHash = builder.fullHash!!
+        builder.id?.let { this.id = it }
+        builder.senderId?.let { this.senderId = it }
+        builder.blockTimestamp?.let { this.blockTimestamp = it }
+        builder.fullHash?.let { this.fullHash = it }
         this.ecBlockHeight = builder.ecBlockHeight
         this.ecBlockId = builder.ecBlockId
 
-        val list = mutableListOf<AbstractAppendix>()
+        val appendixList = mutableListOf<Appendix>()
         this.attachment = builder.attachment
-        list.add(this.attachment)
+        appendixList.add(this.attachment)
         this.message = builder.message
         if (message != null) {
-            list.add(this.message)
+            appendixList.add(this.message)
         }
         this.encryptedMessage = builder.encryptedMessage
-        if (encryptedMessage != null) {
-            list.add(this.encryptedMessage)
-        }
+        if (encryptedMessage != null) appendixList.add(this.encryptedMessage)
         this.publicKeyAnnouncement = builder.publicKeyAnnouncement
-        if (publicKeyAnnouncement != null) {
-            list.add(this.publicKeyAnnouncement)
-        }
+        if (publicKeyAnnouncement != null) appendixList.add(this.publicKeyAnnouncement)
         this.encryptToSelfMessage = builder.encryptToSelfMessage
-        if (encryptToSelfMessage != null) {
-            list.add(this.encryptToSelfMessage)
-        }
-        this.appendages = list
+        if (encryptToSelfMessage != null) appendixList.add(this.encryptToSelfMessage)
+        this.appendages = appendixList
         var countAppendeges = 0
         for (appendage in appendages) {
             countAppendeges += appendage.size
@@ -269,7 +261,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     ) {
         internal val type = attachment.transactionType
 
-        internal var recipientId: Long? = null
+        internal var recipientId: Long = 0L
         internal var referencedTransactionFullHash: ByteArray? = null
         internal var signature: ByteArray? = null
         internal var message: Appendix.Message? = null
@@ -399,8 +391,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
 
     fun verifySignature(): Boolean {
         val data = toBytes(false)
-        if (signature == null) return false
-        return data.verifySignature(signature!!, senderPublicKey, true)
+        return data.verifySignature(signature ?: return false, senderPublicKey, true)
     }
 
     companion object {
@@ -423,9 +414,8 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 val feePlanck = buffer.long
                 val referencedTransactionFullHash = ByteArray(32)
                 buffer.get(referencedTransactionFullHash)
-                var signature: ByteArray? = ByteArray(64)
-                buffer.get(signature!!)
-                signature = signature.emptyToNull()
+                val signature = ByteArray(64)
+                buffer.get(signature)
                 var flags = 0
                 var ecBlockHeight = 0
                 var ecBlockId: Long = 0
@@ -434,7 +424,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                     ecBlockHeight = buffer.get().toInt()
                     ecBlockId = buffer.long
                 }
-                val transactionType = TransactionType.findTransactionType(dp, type, subtype)
+                val transactionType = TransactionType.findTransactionType(dp, type, subtype) ?: error("Could not find transaction with type $type and subtype $subtype")
                 val builder = Builder(
                     dp,
                     version,
@@ -443,9 +433,9 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                     feePlanck,
                     timestamp,
                     deadline,
-                    transactionType!!.parseAttachment(buffer, version)
+                    transactionType.parseAttachment(buffer, version)
                 )
-                    .signature(signature)
+                    .signature(signature.emptyToNull())
                     .ecBlockHeight(ecBlockHeight)
                     .ecBlockId(ecBlockId)
                 if (!referencedTransactionFullHash.isZero()) {

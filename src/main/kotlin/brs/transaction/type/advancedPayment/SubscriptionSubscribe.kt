@@ -29,11 +29,11 @@ class SubscriptionSubscribe(dp: DependencyProvider) : AdvancedPayment(dp) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionSubscribe
         dp.subscriptionService.addSubscription(
             senderAccount,
-            recipientAccount!!,
+            recipientAccount,
             transaction.id,
             transaction.amountPlanck,
             transaction.timestamp,
-            attachment.frequency!!
+            attachment.frequency
         )
     }
 

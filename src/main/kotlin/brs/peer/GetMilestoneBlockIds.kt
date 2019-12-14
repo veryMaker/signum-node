@@ -46,8 +46,8 @@ internal class GetMilestoneBlockIds(private val blockchainService: BlockchainSer
                 height = blockchainHeight
                 jump = 10
             } else {
-                peer.blacklist("GetMilestoneBlockIds");
-                response.addProperty("error", "Old getMilestoneBlockIds protocol not supported, please upgrade");
+                peer.blacklist("GetMilestoneBlockIds")
+                response.addProperty("error", "Old getMilestoneBlockIds protocol not supported, please upgrade")
                 return response
             }
             blockId = blockchainService.getBlockIdAtHeight(height)
