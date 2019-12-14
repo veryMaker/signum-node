@@ -48,51 +48,34 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
     }
 
     private fun getBoolean(value: String): Boolean {
-        if (value.matches("(?i)^1|active|true|yes|on$".toRegex())) {
-            return true
+        return when {
+            value.matches("(?i)^1|active|true|yes|on$".toRegex()) -> true
+            value.matches("(?i)^0|false|no|off$".toRegex()) -> false
+            else -> throw IllegalArgumentException()
         }
-
-        if (value.matches("(?i)^0|false|no|off$".toRegex())) {
-            return false
-        }
-        throw IllegalArgumentException()
     }
 
-    private fun getInt(value: String?): Int {
-        var value = value
-        var radix = 10
-
-        if (value != null && value.matches("(?i)^0x.+$".toRegex())) {
-            value = value.replaceFirst("^0x".toRegex(), "")
-            radix = 16
-        } else if (value != null && value.matches("(?i)^0b[01]+$".toRegex())) {
-            value = value.replaceFirst("^0b".toRegex(), "")
-            radix = 2
+    private fun getInt(value: String): Int {
+        return when {
+            value.matches("(?i)^0x[0-9a-fA-F]+$".toRegex()) -> Integer.parseInt(value.replaceFirst("0x", ""), 16)
+            value.matches("(?i)^0b[01]+$".toRegex()) -> Integer.parseInt(value.replaceFirst("0b", ""), 2)
+            else -> Integer.parseInt(value, 10)
         }
-
-        return Integer.parseInt(value!!, radix)
     }
 
     private fun getString(value: String): String {
-        if (value.isNotEmpty()) {
-            return value
-        }
-
-        throw IllegalArgumentException()
+        require(value.isNotEmpty()) { "String property must not be empty" }
+        return value.trim()
     }
 
     private fun getStringList(value: String): List<String> {
-        if (value.isEmpty()) {
-            return emptyList()
+        return if (value.isEmpty()) {
+            emptyList()
+        } else {
+            value.split(";")
+                .map { element -> element.trim() }
+                .filter { it.isNotEmpty() }
         }
-        val result = mutableListOf<String>()
-        for (s in value.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
-            val s1 = s.trim { it <= ' ' }
-            if (s1.isNotEmpty()) {
-                result.add(s1)
-            }
-        }
-        return result
     }
 
     private inline fun logOnce(propertyName: String, logText: LogMessageProducer) {
