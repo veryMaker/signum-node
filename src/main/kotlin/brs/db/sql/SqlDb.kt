@@ -1,21 +1,22 @@
 package brs.db.sql
 
-import brs.db.BurstKey
-import brs.db.Db
-import brs.db.assertInTransaction
-import brs.db.useDslContext
+import brs.db.*
 import brs.entity.DependencyProvider
 import brs.objects.Props
+import brs.schema.Tables
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
+import brs.util.logging.safeWarn
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
+import org.jooq.Table
 import org.jooq.conf.Settings
 import org.jooq.conf.StatementType
 import org.jooq.impl.DSL
+import org.jooq.impl.TableImpl
 import org.jooq.tools.jdbc.JDBCUtils
 import org.mariadb.jdbc.MariaDbDataSource
 import org.mariadb.jdbc.UrlParser
@@ -33,8 +34,8 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
     private val cp: HikariDataSource
     private val dialect: SQLDialect
     private val localConnection = ThreadLocal<Connection>()
-    private val transactionCaches = ThreadLocal<MutableMap<String, MutableMap<BurstKey, Any>>>()
-    private val transactionBatches = ThreadLocal<MutableMap<String, MutableMap<BurstKey, Any>>>()
+    private val transactionCaches = ThreadLocal<MutableMap<Table<*>, MutableMap<BurstKey, *>>>()
+    private val transactionBatches = ThreadLocal<MutableMap<Table<*>, MutableMap<BurstKey, *>>>()
 
     override fun getDslContext(): DSLContext {
         val con = localConnection.get()
@@ -172,14 +173,14 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
         }
     }
 
-    override fun <V> getCache(tableName: String): MutableMap<BurstKey, V> {
+    override fun <V> getCache(table: Table<*>): MutableMap<BurstKey, V> {
         assertInTransaction()
-        return transactionCaches.get()!!.computeIfAbsent(tableName) { mutableMapOf() } as MutableMap<BurstKey, V>
+        return transactionCaches.get().computeIfAbsent(table) { mutableMapOf<BurstKey, V>() } as MutableMap<BurstKey, V>
     }
 
-    override fun <V> getBatch(tableName: String): MutableMap<BurstKey, V> {
+    override fun <V> getBatch(table: Table<*>): MutableMap<BurstKey, V> {
         assertInTransaction()
-        return transactionBatches.get()!!.computeIfAbsent(tableName) { mutableMapOf() } as MutableMap<BurstKey, V>
+        return transactionBatches.get().computeIfAbsent(table) { mutableMapOf<BurstKey, V>() } as MutableMap<BurstKey, V>
     }
 
     override fun beginTransaction() {
@@ -192,32 +193,31 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
         transactionBatches.set(mutableMapOf())
     }
 
+    private fun getLocalConnection() = localConnection.get() ?: error("Not in transaction")
+
     override fun commitTransaction() {
-        val con = localConnection.get() ?: error("Not in transaction")
-        con.commit()
+        getLocalConnection().commit()
     }
 
     override fun rollbackTransaction() {
-        val con = localConnection.get() ?: error("Not in transaction")
-        con.rollback()
-
+        getLocalConnection().rollback()
         transactionCaches.get().clear()
         transactionBatches.get().clear()
         dp.dbCacheService.flushCache()
     }
 
     override fun endTransaction() {
-        val con = localConnection.get() ?: error("Not in transaction")
+        assertInTransaction()
+        try {
+            getLocalConnection().close()
+        } catch (ignored: Exception) {
+            // Do nothing
+        }
         localConnection.remove()
         transactionCaches.get().clear()
         transactionCaches.remove()
         transactionBatches.get().clear()
         transactionBatches.remove()
-        try {
-            con.close()
-        } catch (ignored: Exception) {
-            // Do nothing
-        }
     }
 
     override fun optimizeTable(tableName: String) {
@@ -250,6 +250,34 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
                 }
             } catch (e: Exception) {
                 logger.safeDebug(e) { "Failed to optimize database" }
+            }
+        }
+    }
+
+    override fun deleteAll() {
+        if (!dp.db.isInTransaction()) {
+            dp.db.transaction {
+                deleteAll()
+            }
+            return
+        }
+        logger.safeWarn { "Deleting blockchain..." }
+        dp.db.useDslContext { ctx ->
+            // TODO use allTables list
+            val tables = listOf<TableImpl<*>>(
+                Tables.ACCOUNT,
+                Tables.ACCOUNT_ASSET, Tables.ALIAS, Tables.ALIAS_OFFER,
+                Tables.ASK_ORDER, Tables.ASSET, Tables.ASSET_TRANSFER,
+                Tables.AT, Tables.AT_STATE, Tables.BID_ORDER,
+                Tables.BLOCK, Tables.ESCROW, Tables.ESCROW_DECISION,
+                Tables.GOODS, Tables.PEER, Tables.PURCHASE,
+                Tables.PURCHASE_FEEDBACK, Tables.PURCHASE_PUBLIC_FEEDBACK,
+                Tables.REWARD_RECIP_ASSIGN, Tables.SUBSCRIPTION,
+                Tables.TRADE, Tables.TRANSACTION,
+                Tables.UNCONFIRMED_TRANSACTION
+            )
+            for (table in tables) {
+                ctx.truncate(table).execute()
             }
         }
     }

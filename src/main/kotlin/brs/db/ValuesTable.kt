@@ -1,13 +1,16 @@
 package brs.db
 
-interface ValuesTable<T, V> : DerivedTable {
+/**
+ * Like a key-value pair table, but stores lists of values.
+ */
+interface ValuesTable<K, V> : DerivedTable {
     /**
      * TODO
      */
-    fun get(dbKey: BurstKey): List<V>
+    operator fun get(dbKey: BurstKey): List<V>
 
     /**
      * TODO
      */
-    fun insert(t: T, values: List<V>)
+    fun insert(key: K, values: List<V>)
 }

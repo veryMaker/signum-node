@@ -1,7 +1,6 @@
 package brs.db.sql
 
 import brs.db.TransactionDb
-import brs.db.getUsingDslContext
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
@@ -18,10 +17,10 @@ import java.util.*
 
 internal class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
     override fun findTransaction(transactionId: Long): Transaction {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             try {
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId)).fetchOne()
-                return@getUsingDslContext loadTransaction(transactionRecord)
+                return@useDslContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
                 throw Exception(
                     "Transaction already in database, id = $transactionId, does not pass validation!",
@@ -32,10 +31,10 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
     }
 
     override fun findTransactionByFullHash(fullHash: ByteArray): Transaction {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             try {
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash)).fetchOne()
-                return@getUsingDslContext loadTransaction(transactionRecord)
+                return@useDslContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
                 throw Exception(
                     "Transaction already in database, full_hash = $fullHash, does not pass validation!",
@@ -46,7 +45,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
     }
 
     override fun hasTransaction(transactionId: Long): Boolean {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             ctx.fetchExists(
                 ctx.selectFrom(TRANSACTION).where(
                     TRANSACTION.ID.eq(
@@ -58,7 +57,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
     }
 
     override fun hasTransactionByFullHash(fullHash: ByteArray): Boolean {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             ctx.fetchExists(
                 ctx.selectFrom(TRANSACTION).where(
                     TRANSACTION.FULL_HASH.eq(
@@ -119,7 +118,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
     }
 
     override fun findBlockTransactions(blockId: Long): Collection<Transaction> {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             ctx.selectFrom(TRANSACTION)
                 .where(TRANSACTION.BLOCK_ID.eq(blockId))
                 .and(TRANSACTION.SIGNATURE.isNotNull)
@@ -155,7 +154,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
 
     override fun saveTransactions(transactions: Collection<Transaction>) {
         if (transactions.isNotEmpty()) {
-            dp.db.useDslContext { ctx ->
+            dp.db.useDslContext<Unit> { ctx ->
                 val insertBatch = ctx.batch(
                     ctx.insertInto(
                         TRANSACTION, TRANSACTION.ID, TRANSACTION.DEADLINE,
@@ -168,33 +167,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
                         TRANSACTION.HAS_MESSAGE, TRANSACTION.HAS_ENCRYPTED_MESSAGE,
                         TRANSACTION.HAS_PUBLIC_KEY_ANNOUNCEMENT, TRANSACTION.HAS_ENCRYPTTOSELF_MESSAGE,
                         TRANSACTION.EC_BLOCK_HEIGHT, TRANSACTION.EC_BLOCK_ID
-                    )
-                        .values(
-                            null as Long?,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null
-                        )
+                    ).values(null as Long?, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null)
                 )
                 for (transaction in transactions) {
                     insertBatch.bind(
@@ -221,7 +194,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
                         transaction.publicKeyAnnouncement != null,
                         transaction.encryptToSelfMessage != null,
                         transaction.ecBlockHeight,
-                        if (transaction.ecBlockId != 0L) transaction.ecBlockId else null
+                        if (transaction.ecBlockId == 0L) null else transaction.ecBlockId
                     )
                 }
                 insertBatch.execute()

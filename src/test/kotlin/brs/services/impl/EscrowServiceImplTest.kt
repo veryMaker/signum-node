@@ -1,18 +1,16 @@
 package brs.services.impl
 
-import brs.services.BlockchainService
-import brs.entity.Escrow
 import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
-import brs.db.VersionedEntityTable
 import brs.db.EscrowStore
+import brs.db.VersionedEntityTable
+import brs.entity.Escrow
 import brs.services.AccountService
 import brs.services.AliasService
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import brs.services.BlockchainService
+import com.nhaarman.mockitokotlin2.*
+import org.jooq.SortField
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -54,7 +52,7 @@ class EscrowServiceImplTest {
     fun getAllEscrowTransactions() {
         val mockEscrowIterator = mock<Collection<Escrow>>()
 
-        whenever(mockEscrowTable.getAll(eq(0), eq(-1))).doReturn(mockEscrowIterator)
+        whenever(mockEscrowTable.getAll(eq(0), eq(-1), any<Collection<SortField<*>>>())).doReturn(mockEscrowIterator)
 
         assertEquals(mockEscrowIterator, t.getAllEscrowTransactions())
     }

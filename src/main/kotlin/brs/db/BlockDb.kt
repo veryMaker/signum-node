@@ -49,9 +49,4 @@ interface BlockDb : Table {
      * TODO
      */
     fun deleteBlocksFrom(blockId: Long)
-
-    /**
-     * TODO
-     */
-    fun deleteAll(force: Boolean)
 }

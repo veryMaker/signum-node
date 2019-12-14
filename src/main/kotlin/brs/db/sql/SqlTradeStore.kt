@@ -2,7 +2,7 @@ package brs.db.sql
 
 import brs.db.BurstKey
 import brs.db.TradeStore
-import brs.db.getUsingDslContext
+import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.entity.Trade
 import brs.schema.Tables.TRADE
@@ -10,17 +10,17 @@ import org.jooq.DSLContext
 import org.jooq.Record
 
 internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
-    override val tradeDbKeyFactory: BurstKey.LinkKeyFactory<Trade> =
+    override val tradeDbKeyFactory: SqlDbKey.LinkKeyFactory<Trade> =
         object : SqlDbKey.LinkKeyFactory<Trade>("ask_order_id", "bid_order_id") {
             override fun newKey(trade: Trade): BurstKey {
                 return trade.dbKey
             }
         }
 
-    override val tradeTable: EntitySqlTable<Trade>
+    override val tradeTable: SqlEntityTable<Trade>
 
     init {
-        tradeTable = object : EntitySqlTable<Trade>("trade", TRADE, TRADE.HEIGHT, null, tradeDbKeyFactory, dp) {
+        tradeTable = object : SqlEntityTable<Trade>(TRADE, tradeDbKeyFactory, TRADE.HEIGHT, null, dp) {
             override fun load(ctx: DSLContext, record: Record): Trade {
                 return SqlTrade(record)
             }
@@ -40,7 +40,7 @@ internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
     }
 
     override fun getAccountTrades(accountId: Long, from: Int, to: Int): Collection<Trade> {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             val selectQuery = ctx
                 .selectFrom(TRADE).where(
                     TRADE.SELLER_ID.eq(accountId)
@@ -61,7 +61,7 @@ internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
     }
 
     override fun getAccountAssetTrades(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Trade> {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             val selectQuery = ctx
                 .selectFrom(TRADE).where(
                     TRADE.SELLER_ID.eq(accountId).and(TRADE.ASSET_ID.eq(assetId))
@@ -82,7 +82,7 @@ internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
     }
 
     override fun getTradeCount(assetId: Long): Int {
-        return dp.db.getUsingDslContext { ctx -> ctx.fetchCount(ctx.selectFrom(TRADE).where(TRADE.ASSET_ID.eq(assetId))) }
+        return dp.db.useDslContext { ctx -> ctx.fetchCount(ctx.selectFrom(TRADE).where(TRADE.ASSET_ID.eq(assetId))) }
     }
 
     private fun saveTrade(ctx: DSLContext, trade: Trade) {

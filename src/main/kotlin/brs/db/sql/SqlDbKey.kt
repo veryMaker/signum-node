@@ -12,7 +12,7 @@ internal interface SqlDbKey : BurstKey {
         val selfJoinClause: String
     ) : BurstKey.Factory<T> {
         /**
-         * @return The number of variables in PKClause
+         * The number of variables in PKClause
          */
         val pkVariables = pkClause.countMatches("?")
 

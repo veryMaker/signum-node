@@ -9,6 +9,7 @@ import brs.db.VersionedBatchEntityTable
 import brs.entity.Account
 import brs.entity.Account.RewardRecipientAssignment
 import com.nhaarman.mockitokotlin2.*
+import org.jooq.SortField
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -169,7 +170,7 @@ class AccountServiceImplTest {
         val to = 5
         val mockAccountsIterator = mock<Collection<Account>>()
 
-        whenever(accountTableMock.getAll(eq(from), eq(to))).doReturn(mockAccountsIterator)
+        whenever(accountTableMock.getAll(eq(from), eq(to), any<Collection<SortField<*>>>())).doReturn(mockAccountsIterator)
 
         assertEquals(mockAccountsIterator, t.getAllAccounts(from, to))
     }

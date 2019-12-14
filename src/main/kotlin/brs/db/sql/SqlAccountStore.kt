@@ -33,15 +33,13 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
         get() = accountDbKeyFactory
 
     init {
-        rewardRecipientAssignmentTable = object : VersionedEntitySqlTable<Account.RewardRecipientAssignment>(
-            "reward_recip_assign",
+        rewardRecipientAssignmentTable = object : SqlVersionedEntityTable<Account.RewardRecipientAssignment>(
             REWARD_RECIP_ASSIGN,
             REWARD_RECIP_ASSIGN.HEIGHT,
             REWARD_RECIP_ASSIGN.LATEST,
             rewardRecipientAssignmentDbKeyFactory,
             dp
         ) {
-
             override fun load(ctx: DSLContext, record: Record): Account.RewardRecipientAssignment {
                 return SqlRewardRecipientAssignment(record)
             }
@@ -61,23 +59,18 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
             }
         }
 
-        accountAssetTable = object : VersionedEntitySqlTable<Account.AccountAsset>(
-            "account_asset",
+        accountAssetTable = object : SqlVersionedEntityTable<Account.AccountAsset>(
             ACCOUNT_ASSET,
             ACCOUNT_ASSET.HEIGHT,
             ACCOUNT_ASSET.LATEST,
             accountAssetDbKeyFactory,
             dp
         ) {
-            private val sort = initializeSort()
-
-            private fun initializeSort(): List<SortField<*>> {
-                return listOf<SortField<*>>(
-                    tableClass.field("quantity", Long::class.java).desc(),
-                    tableClass.field("account_id", Long::class.java).asc(),
-                    tableClass.field("asset_id", Long::class.java).asc()
-                )
-            }
+            override val defaultSort = listOf<SortField<*>>(
+                table.field("quantity", Long::class.java).desc(),
+                table.field("account_id", Long::class.java).asc(),
+                table.field("asset_id", Long::class.java).asc()
+            )
 
             override fun load(ctx: DSLContext, record: Record): Account.AccountAsset {
                 return SQLAccountAsset(record)
@@ -94,14 +87,10 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                 ctx.upsert(record, ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.HEIGHT)
                     .execute()
             }
-
-            override fun defaultSort(): Collection<SortField<*>> {
-                return sort
-            }
         }
 
         accountTable = object :
-            VersionedBatchEntitySqlTable<Account>("account", ACCOUNT, ACCOUNT.HEIGHT, ACCOUNT.LATEST, accountDbKeyFactory, Account::class.java, dp) {
+            SqlVersionedBatchEntityTable<Account>(ACCOUNT, ACCOUNT.HEIGHT, ACCOUNT.LATEST, accountDbKeyFactory, Account::class.java, dp) {
             override fun load(ctx: DSLContext, record: Record): Account {
                 return SqlAccount(record)
             }
@@ -128,7 +117,7 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
     }
 
     override fun getAssetAccountsCount(assetId: Long): Int {
-        return dp.db.getUsingDslContext<Int> { ctx ->
+        return dp.db.useDslContext<Int> { ctx ->
             ctx.selectCount().from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(assetId))
                 .and(ACCOUNT_ASSET.LATEST.isTrue).fetchOne(0, Int::class.javaPrimitiveType)
         }

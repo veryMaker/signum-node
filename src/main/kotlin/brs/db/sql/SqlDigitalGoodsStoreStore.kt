@@ -13,7 +13,6 @@ import burst.kit.entity.BurstEncryptedMessage
 import org.jooq.DSLContext
 import org.jooq.Field
 import org.jooq.Record
-import org.jooq.SortField
 
 internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoodsStoreStore {
     override val feedbackDbKeyFactory = object : SqlDbKey.LongKeyFactory<Purchase>(PURCHASE.ID) {
@@ -49,31 +48,28 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
     override val goodsTable: VersionedEntityTable<Goods>
 
     init {
-        purchaseTable = object : VersionedEntitySqlTable<Purchase>(
-            "purchase",
+        purchaseTable = object : SqlVersionedEntityTable<Purchase>(
             PURCHASE,
             PURCHASE.HEIGHT,
             PURCHASE.LATEST,
             purchaseDbKeyFactory,
             dp
         ) {
-            override fun load(ctx: DSLContext, rs: Record): Purchase {
-                return SQLPurchase(rs)
+            override val defaultSort = listOf(
+                table.field("timestamp", Int::class.java).desc(),
+                table.field("id", Long::class.java).asc()
+            )
+
+            override fun load(ctx: DSLContext, record: Record): Purchase {
+                return SQLPurchase(record)
             }
 
             override fun save(ctx: DSLContext, purchase: Purchase) {
                 savePurchase(ctx, purchase)
             }
-
-            override fun defaultSort(): Collection<SortField<*>> {
-                return listOf(
-                    tableClass.field("timestamp", Int::class.java).desc(),
-                    tableClass.field("id", Long::class.java).asc()
-                )
-            }
         }
 
-        feedbackTable = object : VersionedValuesSqlTable<Purchase, BurstEncryptedMessage>(
+        feedbackTable = object : SqlVersionedValuesTable<Purchase, BurstEncryptedMessage>(
             "purchase_feedback",
             PURCHASE_FEEDBACK,
             PURCHASE_FEEDBACK.HEIGHT,
@@ -102,7 +98,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
             }
         }
 
-        publicFeedbackTable = object : VersionedValuesSqlTable<Purchase, String>(
+        publicFeedbackTable = object : SqlVersionedValuesTable<Purchase, String>(
             "purchase_public_feedback",
             PURCHASE_PUBLIC_FEEDBACK,
             PURCHASE_PUBLIC_FEEDBACK.HEIGHT,
@@ -126,21 +122,30 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         }
 
         goodsTable =
-            object : VersionedEntitySqlTable<Goods>("goods", GOODS, GOODS.HEIGHT, GOODS.LATEST, goodsDbKeyFactory, dp) {
+            object : SqlVersionedEntityTable<Goods>(GOODS, GOODS.HEIGHT, GOODS.LATEST, goodsDbKeyFactory, dp) {
+                override val defaultSort = listOf(
+                    table.field("timestamp", Int::class.java).desc(),
+                    table.field("id", Long::class.java).asc()
+                )
 
                 override fun load(ctx: DSLContext, record: Record): Goods {
                     return SQLGoods(record)
                 }
 
                 override fun save(ctx: DSLContext, goods: Goods) {
-                    saveGoods(ctx, goods)
-                }
-
-                override fun defaultSort(): Collection<SortField<*>> {
-                    return listOf(
-                        tableClass.field("timestamp", Int::class.java).desc(),
-                        tableClass.field("id", Long::class.java).asc()
-                    )
+                    val record = GoodsRecord()
+                    record.id = goods.id
+                    record.sellerId = goods.sellerId
+                    record.name = goods.name
+                    record.description = goods.description
+                    record.tags = goods.tags
+                    record.timestamp = goods.timestamp
+                    record.quantity = goods.quantity
+                    record.price = goods.pricePlanck
+                    record.delisted = goods.isDelisted
+                    record.height = dp.blockchainService.height
+                    record.latest = true
+                    ctx.upsert(record, GOODS.ID, GOODS.HEIGHT).execute()
                 }
             }
     }
@@ -156,22 +161,6 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
     ): BurstEncryptedMessage? {
         val data = record.get(dataField) ?: return null // TODO
         return BurstEncryptedMessage(data, record.get(nonceField), false)
-    }
-
-    private fun saveGoods(ctx: DSLContext, goods: Goods) {
-        val record = GoodsRecord()
-        record.id = goods.id
-        record.sellerId = goods.sellerId
-        record.name = goods.name
-        record.description = goods.description
-        record.tags = goods.tags
-        record.timestamp = goods.timestamp
-        record.quantity = goods.quantity
-        record.price = goods.pricePlanck
-        record.delisted = goods.isDelisted
-        record.height = dp.blockchainService.height
-        record.latest = true
-        ctx.upsert(record, GOODS.ID, GOODS.HEIGHT).execute()
     }
 
     private fun savePurchase(ctx: DSLContext, purchase: Purchase) {

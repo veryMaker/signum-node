@@ -1,21 +1,22 @@
 package brs.assetexchange
 
+import brs.common.AbstractUnitTest
+import brs.db.AssetStore
+import brs.db.BurstKey
+import brs.db.BurstKey.LongKeyFactory
+import brs.db.sql.SqlEntityTable
 import brs.entity.Account.AccountAsset
 import brs.entity.Asset
 import brs.entity.AssetTransfer
-import brs.transaction.appendix.Attachment.ColoredCoinsAssetIssuance
 import brs.entity.Trade
 import brs.entity.Transaction
-import brs.common.AbstractUnitTest
-import brs.db.BurstKey
-import brs.db.BurstKey.LongKeyFactory
-import brs.db.sql.EntitySqlTable
-import brs.db.AssetStore
 import brs.services.impl.AssetAccountServiceImpl
 import brs.services.impl.AssetServiceImpl
 import brs.services.impl.AssetTradeServiceImpl
 import brs.services.impl.AssetTransferServiceImpl
+import brs.transaction.appendix.Attachment.ColoredCoinsAssetIssuance
 import com.nhaarman.mockitokotlin2.*
+import org.jooq.SortField
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -29,7 +30,7 @@ class AssetServiceImplTest : AbstractUnitTest() {
     private lateinit var assetTransferServicMock: AssetTransferServiceImpl
     private lateinit var tradeServiceMock: AssetTradeServiceImpl
     private lateinit var assetStoreMock: AssetStore
-    private lateinit var assetTableMock: EntitySqlTable<Asset>
+    private lateinit var assetTableMock: SqlEntityTable<Asset>
     private lateinit var assetDbKeyFactoryMock: LongKeyFactory<Asset>
 
     @Before
@@ -139,7 +140,7 @@ class AssetServiceImplTest : AbstractUnitTest() {
 
         val mockTradeIterator = mock<Collection<Asset>>()
 
-        whenever(assetTableMock.getAll(eq(from), eq(to))).doReturn(mockTradeIterator)
+        whenever(assetTableMock.getAll(eq(from), eq(to), any<Collection<SortField<*>>>())).doReturn(mockTradeIterator)
 
         assertEquals(mockTradeIterator, t.getAllAssets(from, to))
     }

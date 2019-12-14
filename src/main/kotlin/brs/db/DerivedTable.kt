@@ -11,9 +11,4 @@ interface DerivedTable : Table {
      * TODO
      */
     fun trim(height: Int)
-
-    /**
-     * TODO
-     */
-    fun finish()
 }

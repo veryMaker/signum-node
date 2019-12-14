@@ -2,7 +2,6 @@ package brs.db.sql
 
 import brs.db.AssetTransferStore
 import brs.db.BurstKey
-import brs.db.getUsingDslContext
 import brs.db.useDslContext
 import brs.entity.AssetTransfer
 import brs.entity.DependencyProvider
@@ -11,12 +10,12 @@ import org.jooq.DSLContext
 import org.jooq.Record
 
 internal class SqlAssetTransferStore(private val dp: DependencyProvider) : AssetTransferStore {
-    override val assetTransferTable: EntitySqlTable<AssetTransfer>
-    override val transferDbKeyFactory: BurstKey.LongKeyFactory<AssetTransfer> = TransferDbKeyFactory
+    override val assetTransferTable: SqlEntityTable<AssetTransfer>
+    override val transferDbKeyFactory: SqlDbKey.LongKeyFactory<AssetTransfer> = TransferDbKeyFactory
 
     init {
         assetTransferTable =
-            object : EntitySqlTable<AssetTransfer>("asset_transfer", ASSET_TRANSFER, ASSET_TRANSFER.HEIGHT, null, transferDbKeyFactory, dp) {
+            object : SqlEntityTable<AssetTransfer>(ASSET_TRANSFER, transferDbKeyFactory, ASSET_TRANSFER.HEIGHT, null, dp) {
                 override fun load(ctx: DSLContext, record: Record): AssetTransfer {
                     return SqlAssetTransfer(record)
                 }
@@ -28,7 +27,7 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
     }
 
     private fun saveAssetTransfer(assetTransfer: AssetTransfer) {
-        dp.db.useDslContext { ctx ->
+        dp.db.useDslContext<Unit> { ctx ->
             ctx.insertInto(
                 ASSET_TRANSFER,
                 ASSET_TRANSFER.ID,
@@ -57,7 +56,7 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
     }
 
     override fun getAccountAssetTransfers(accountId: Long, from: Int, to: Int): Collection<AssetTransfer> {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             val selectQuery = ctx
                 .selectFrom(ASSET_TRANSFER).where(
                     ASSET_TRANSFER.SENDER_ID.eq(accountId)
@@ -81,7 +80,7 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
         from: Int,
         to: Int
     ): Collection<AssetTransfer> {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             val selectQuery = ctx
                 .selectFrom(ASSET_TRANSFER).where(
                     ASSET_TRANSFER.SENDER_ID.eq(accountId).and(ASSET_TRANSFER.ASSET_ID.eq(assetId))
@@ -102,7 +101,7 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
     }
 
     override fun getTransferCount(assetId: Long): Int {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             ctx.fetchCount(
                 ctx.selectFrom(ASSET_TRANSFER).where(
                     ASSET_TRANSFER.ASSET_ID.eq(

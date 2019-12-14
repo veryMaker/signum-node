@@ -1,14 +1,12 @@
 package brs.assetexchange
 
-import brs.entity.Trade
 import brs.common.AbstractUnitTest
-import brs.db.sql.EntitySqlTable
 import brs.db.TradeStore
+import brs.db.sql.SqlEntityTable
+import brs.entity.Trade
 import brs.services.impl.AssetTradeServiceImpl
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
+import org.jooq.SortField
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -18,7 +16,7 @@ class AssetTradeServiceImplTest : AbstractUnitTest() {
     private lateinit var t: AssetTradeServiceImpl
 
     private lateinit var mockTradeStore: TradeStore
-    private lateinit var mockTradeTable: EntitySqlTable<Trade>
+    private lateinit var mockTradeTable: SqlEntityTable<Trade>
 
     @Before
     fun setUp() {
@@ -96,7 +94,7 @@ class AssetTradeServiceImplTest : AbstractUnitTest() {
 
         val mockTradeIterator = mockCollection<Trade>()
 
-        whenever(mockTradeTable.getAll(eq(from), eq(to))).doReturn(mockTradeIterator)
+        whenever(mockTradeTable.getAll(eq(from), eq(to), any<Collection<SortField<*>>>())).doReturn(mockTradeIterator)
 
         assertEquals(mockTradeIterator, t.getAllTrades(from, to))
     }

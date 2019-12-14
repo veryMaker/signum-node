@@ -3,6 +3,7 @@ package brs.services.impl
 import brs.at.AT
 import brs.at.AtBlock
 import brs.at.AtException
+import brs.db.VersionedBatchEntityTable
 import brs.db.transaction
 import brs.entity.Block
 import brs.entity.DependencyProvider
@@ -589,7 +590,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     }
 
     override fun fullReset() {
-        dp.blockDb.deleteAll(false)
+        dp.db.deleteAll()
         dp.dbCacheService.flushCache()
         dp.downloadCacheService.resetCache()
         addGenesisBlock()
@@ -743,7 +744,11 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     addBlock(block)
                     dp.downloadCacheService.removeBlock(block) // We make sure downloadCache do not have this block anymore.
                     accept(block, remainingAmount, remainingFee)
-                    dp.derivedTableService.derivedTables.forEach { it.finish() }
+                    dp.derivedTableService.derivedTables.forEach {
+                        if (it is VersionedBatchEntityTable<*>) {
+                            it.finish()
+                        }
+                    }
                 }
             } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
                 dp.blockchainService.lastBlock = lastBlock

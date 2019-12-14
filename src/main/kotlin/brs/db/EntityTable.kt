@@ -4,14 +4,19 @@ import org.jooq.*
 
 interface EntityTable<T> : DerivedTable {
     /**
-     * The number of entities (rows where latest is true)
+     * The number of entities (rows where latest is true) in the table
      */
     val count: Int
 
     /**
-     * The number of rows
+     * The number of rows in the table
      */
     val rowCount: Int
+
+    /**
+     * TODO
+     */
+    val defaultSort: Collection<SortField<*>>
 
     /**
      * Ensure that the table is available at a particular height
@@ -48,22 +53,12 @@ interface EntityTable<T> : DerivedTable {
     /**
      * TODO
      */
-    fun getManyBy(condition: Condition, from: Int, to: Int): Collection<T>
+    fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>> = defaultSort): Collection<T>
 
     /**
      * TODO
      */
-    fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T>
-
-    /**
-     * TODO
-     */
-    fun getManyBy(condition: Condition, height: Int, from: Int, to: Int): Collection<T>
-
-    /**
-     * TODO
-     */
-    fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T>
+    fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>> = defaultSort): Collection<T>
 
     /**
      * TODO
@@ -73,26 +68,16 @@ interface EntityTable<T> : DerivedTable {
     /**
      * TODO
      */
-    fun getAll(from: Int, to: Int): Collection<T>
+    fun getAll(from: Int, to: Int, sort: Collection<SortField<*>> = defaultSort): Collection<T>
 
     /**
      * TODO
      */
-    fun getAll(from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T>
-
-    /**
-     * TODO
-     */
-    fun getAll(height: Int, from: Int, to: Int): Collection<T>
-
-    /**
-     * TODO
-     */
-    fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T>
+    fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>> = defaultSort): Collection<T>
 
     /**
      * Insert an entity into the table
-     * @param t The entity
+     * @param entity The entity
      */
-    fun insert(t: T)
+    fun insert(entity: T)
 }

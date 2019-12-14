@@ -1,19 +1,17 @@
 package brs.services.impl
 
-import brs.services.BlockchainService
-import brs.entity.Goods
-import brs.entity.Purchase
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
-import brs.db.VersionedEntityTable
 import brs.db.DigitalGoodsStoreStore
+import brs.db.VersionedEntityTable
+import brs.entity.Goods
+import brs.entity.Purchase
 import brs.services.AccountService
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import brs.services.BlockchainService
+import com.nhaarman.mockitokotlin2.*
+import org.jooq.SortField
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -68,7 +66,7 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
         val to = 2
 
         val mockIterator = mockCollection<Goods>()
-        whenever(mockGoodsTable.getAll(eq(from), eq(to))).doReturn(mockIterator)
+        whenever(mockGoodsTable.getAll(eq(from), eq(to), any<Collection<SortField<*>>>())).doReturn(mockIterator)
 
         assertEquals(mockIterator, t.getAllGoods(from, to))
     }
@@ -103,7 +101,7 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
         val to = 2
 
         val mockIterator = mockCollection<Purchase>()
-        whenever(mockPurchaseTable.getAll(eq(from), eq(to))).doReturn(mockIterator)
+        whenever(mockPurchaseTable.getAll(eq(from), eq(to), any<Collection<SortField<*>>>())).doReturn(mockIterator)
 
         assertEquals(mockIterator, t.getAllPurchases(from, to))
     }

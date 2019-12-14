@@ -1,19 +1,17 @@
 package brs.assetexchange
 
-import brs.entity.Order.Ask
-import brs.entity.Order.Bid
 import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
-import brs.db.VersionedEntityTable
 import brs.db.OrderStore
+import brs.db.VersionedEntityTable
+import brs.entity.Order.Ask
+import brs.entity.Order.Bid
 import brs.services.AccountService
 import brs.services.impl.AssetOrderServiceImpl
 import brs.services.impl.AssetTradeServiceImpl
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
+import org.jooq.SortField
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -86,7 +84,7 @@ class AssetOrderServiceImplTest {
 
         val mockAskIterator = mock<Collection<Ask>>()
 
-        whenever(mockAskOrderTable.getAll(eq(from), eq(to))).doReturn(mockAskIterator)
+        whenever(mockAskOrderTable.getAll(eq(from), eq(to), any<Collection<SortField<*>>>())).doReturn(mockAskIterator)
 
         assertEquals(mockAskIterator, t.getAllAskOrders(from, to))
     }
@@ -98,7 +96,7 @@ class AssetOrderServiceImplTest {
 
         val mockBidIterator = mock<Collection<Bid>>()
 
-        whenever(mockBidOrderTable.getAll(eq(from), eq(to))).doReturn(mockBidIterator)
+        whenever(mockBidOrderTable.getAll(eq(from), eq(to), any<Collection<SortField<*>>>())).doReturn(mockBidIterator)
 
         assertEquals(mockBidIterator, t.getAllBidOrders(from, to))
     }

@@ -13,7 +13,6 @@ import brs.schema.tables.records.AliasRecord
 import brs.util.convert.nullToZero
 import org.jooq.DSLContext
 import org.jooq.Record
-import org.jooq.SortField
 import java.util.*
 
 internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
@@ -23,8 +22,7 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
     override val offerDbKeyFactory = OfferDbKeyFactory
 
     init {
-        offerTable = object : VersionedEntitySqlTable<Alias.Offer>(
-            "alias_offer",
+        offerTable = object : SqlVersionedEntityTable<Alias.Offer>(
             ALIAS_OFFER,
             ALIAS_OFFER.HEIGHT,
             ALIAS_OFFER.LATEST,
@@ -41,17 +39,15 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
         }
 
         aliasTable =
-            object : VersionedEntitySqlTable<Alias>("alias", ALIAS, ALIAS.HEIGHT, ALIAS.LATEST, aliasDbKeyFactory, dp) {
+            object : SqlVersionedEntityTable<Alias>(ALIAS, ALIAS.HEIGHT, ALIAS.LATEST, aliasDbKeyFactory, dp) {
+                override val defaultSort = listOf(table.field("alias_name_lower", String::class.java).asc())
+
                 override fun load(ctx: DSLContext, record: Record): Alias {
                     return SqlAlias(record)
                 }
 
                 override fun save(ctx: DSLContext, alias: Alias) {
                     saveAlias(ctx, alias)
-                }
-
-                override fun defaultSort(): Collection<SortField<*>> {
-                    return listOf(tableClass.field("alias_name_lower", String::class.java).asc())
                 }
             }
     }
@@ -64,7 +60,7 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
     )
 
     private fun saveOffer(offer: Alias.Offer) {
-        dp.db.useDslContext { ctx ->
+        dp.db.useDslContext<Unit> { ctx ->
             ctx.insertInto<AliasOfferRecord, Long, Long, Long, Int>(
                 ALIAS_OFFER,
                 ALIAS_OFFER.ID,

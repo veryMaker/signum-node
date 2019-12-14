@@ -1,46 +1,45 @@
 package brs.db.sql
 
+import brs.db.BurstKey
 import brs.db.VersionedEntityTable
 import brs.db.assertInTransaction
-import brs.db.getUsingDslContext
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import org.jooq.Field
+import org.jooq.Table
 import org.jooq.impl.DSL
-import org.jooq.impl.TableImpl
 
-internal abstract class VersionedEntitySqlTable<T> internal constructor(
-    table: String,
-    tableClass: TableImpl<*>,
+internal abstract class SqlVersionedEntityTable<T> internal constructor(
+    table: Table<*>,
     heightField: Field<Int>,
-    latestField: Field<Boolean>?,
+    latestField: Field<Boolean>,
     dbKeyFactory: SqlDbKey.Factory<T>,
     private val dp: DependencyProvider
-) : EntitySqlTable<T>(table, tableClass, dbKeyFactory, heightField, latestField, true, dp), VersionedEntityTable<T> {
+) : SqlEntityTable<T>(table, dbKeyFactory, heightField, latestField, dp), VersionedEntityTable<T> {
     override fun rollback(height: Int) {
-        rollback(dp, table, tableClass, heightField, latestField, height, dbKeyFactory)
+        rollback(dp, cache, table, heightField, latestField, height, dbKeyFactory)
     }
 
     override fun trim(height: Int) {
-        trim(dp, tableClass, heightField, height, dbKeyFactory)
+        trim(dp, table, heightField, height, dbKeyFactory)
     }
 
     override fun delete(t: T): Boolean {
         dp.db.assertInTransaction()
         val dbKey = dbKeyFactory.newKey(t) as SqlDbKey
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             try {
                 val countQuery = ctx.selectQuery()
-                countQuery.addFrom(tableClass)
-                countQuery.addConditions(dbKey.getPKConditions(tableClass))
+                countQuery.addFrom(table)
+                countQuery.addConditions(dbKey.getPKConditions(table))
                 countQuery.addConditions(heightField.lt(dp.blockchainService.height))
                 if (ctx.fetchCount(countQuery) > 0) {
-                    val updateQuery = ctx.updateQuery(tableClass)
+                    val updateQuery = ctx.updateQuery(table)
                     updateQuery.addValue(
                         latestField,
                         false
                     )
-                    updateQuery.addConditions(dbKey.getPKConditions(tableClass))
+                    updateQuery.addConditions(dbKey.getPKConditions(table))
                     updateQuery.addConditions(latestField?.isTrue)
 
                     updateQuery.execute()
@@ -48,25 +47,25 @@ internal abstract class VersionedEntitySqlTable<T> internal constructor(
                     // delete after the save
                     updateQuery.execute()
 
-                    return@getUsingDslContext true
+                    return@useDslContext true
                 } else {
-                    val deleteQuery = ctx.deleteQuery(tableClass)
-                    deleteQuery.addConditions(dbKey.getPKConditions(tableClass))
-                    return@getUsingDslContext deleteQuery.execute() > 0
+                    val deleteQuery = ctx.deleteQuery(table)
+                    deleteQuery.addConditions(dbKey.getPKConditions(table))
+                    return@useDslContext deleteQuery.execute() > 0
                 }
             } finally {
-                dp.db.getCache<Any>(table).remove(dbKey)
+                cache.remove(dbKey)
             }
         }
     }
 
     companion object {
-        internal fun rollback(
+        internal fun <T> rollback(
             dp: DependencyProvider,
-            table: String,
-            tableClass: TableImpl<*>,
+            cache: MutableMap<BurstKey, T>,
+            tableClass: Table<*>,
             heightField: Field<Int>,
-            latestField: Field<Boolean>??,
+            latestField: Field<Boolean>?,
             height: Int,
             dbKeyFactory: SqlDbKey.Factory<*>
         ) {
@@ -106,12 +105,12 @@ internal abstract class VersionedEntitySqlTable<T> internal constructor(
                     }
                 }
             }
-            dp.db.getCache<Any>(table).clear()
+            cache.clear()
         }
 
         internal fun trim(
             dp: DependencyProvider,
-            tableClass: TableImpl<*>,
+            tableClass: Table<*>,
             heightField: Field<Int>,
             height: Int,
             dbKeyFactory: SqlDbKey.Factory<*>

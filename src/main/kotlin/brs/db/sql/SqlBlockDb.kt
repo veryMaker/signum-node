@@ -1,7 +1,6 @@
 package brs.db.sql
 
 import brs.db.BlockDb
-import brs.db.getUsingDslContext
 import brs.db.transaction
 import brs.db.useDslContext
 import brs.entity.Block
@@ -9,20 +8,16 @@ import brs.entity.DependencyProvider
 import brs.schema.Tables.BLOCK
 import brs.schema.tables.records.BlockRecord
 import brs.util.BurstException
-import brs.util.logging.safeInfo
-import brs.util.logging.safeTrace
 import org.jooq.DSLContext
-import org.jooq.impl.TableImpl
-import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.*
 
 internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     override fun findBlock(blockId: Long): Block? {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             try {
                 val r = ctx.selectFrom(BLOCK).where(BLOCK.ID.eq(blockId)).fetchAny()
-                return@getUsingDslContext if (r == null) null else loadBlock(r)
+                return@useDslContext if (r == null) null else loadBlock(r)
             } catch (e: BurstException.ValidationException) {
                 throw Exception("Block already in database, id = $blockId, does not pass validation!", e)
             }
@@ -30,11 +25,11 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     }
 
     override fun hasBlock(blockId: Long): Boolean {
-        return dp.db.getUsingDslContext { ctx -> ctx.fetchExists(ctx.selectOne().from(BLOCK).where(BLOCK.ID.eq(blockId))) }
+        return dp.db.useDslContext { ctx -> ctx.fetchExists(ctx.selectOne().from(BLOCK).where(BLOCK.ID.eq(blockId))) }
     }
 
     override fun findBlockIdAtHeight(height: Int): Long {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             val id = ctx.select(BLOCK.ID).from(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchOne(BLOCK.ID)
                 ?: throw Exception("Block at height $height not found in database!")
             id
@@ -42,7 +37,7 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     }
 
     override fun findBlockAtHeight(height: Int): Block {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             loadBlock(
                 ctx.selectFrom(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchAny()
                     ?: throw Exception("Block at height $height not found in database!")
@@ -51,9 +46,9 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     }
 
     override fun findLastBlock(): Block {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             try {
-                return@getUsingDslContext loadBlock(
+                return@useDslContext loadBlock(
                     ctx.selectFrom(BLOCK)
                         .orderBy(BLOCK.DB_ID.desc())
                         .limit(1)
@@ -66,9 +61,9 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     }
 
     override fun findLastBlock(timestamp: Int): Block {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             try {
-                return@getUsingDslContext loadBlock(
+                return@useDslContext loadBlock(
                     ctx.selectFrom(BLOCK)
                         .where(BLOCK.TIMESTAMP.lessOrEqual(timestamp))
                         .orderBy(BLOCK.DB_ID.desc())
@@ -137,8 +132,8 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
         }
     }
 
-    // relying on cascade triggers in the database to delete the transactions for all deleted blocks
     override fun deleteBlocksFrom(blockId: Long) {
+        // This relies on cascade triggers in the database to delete the transactions in deleted blocks
         if (!dp.db.isInTransaction()) {
             dp.db.transaction {
                 deleteBlocksFrom(blockId)
@@ -160,47 +155,7 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
         }
     }
 
-    override fun deleteAll(force: Boolean) {
-        if (!dp.db.isInTransaction()) {
-            dp.db.transaction {
-                deleteAll(force)
-            }
-            return
-        }
-        logger.safeInfo { "Deleting blockchain..." }
-        dp.db.useDslContext { ctx ->
-            val tables = listOf<TableImpl<*>>(
-                brs.schema.Tables.ACCOUNT,
-                brs.schema.Tables.ACCOUNT_ASSET, brs.schema.Tables.ALIAS, brs.schema.Tables.ALIAS_OFFER,
-                brs.schema.Tables.ASK_ORDER, brs.schema.Tables.ASSET, brs.schema.Tables.ASSET_TRANSFER,
-                brs.schema.Tables.AT, brs.schema.Tables.AT_STATE, brs.schema.Tables.BID_ORDER,
-                BLOCK, brs.schema.Tables.ESCROW, brs.schema.Tables.ESCROW_DECISION,
-                brs.schema.Tables.GOODS, brs.schema.Tables.PEER, brs.schema.Tables.PURCHASE,
-                brs.schema.Tables.PURCHASE_FEEDBACK, brs.schema.Tables.PURCHASE_PUBLIC_FEEDBACK,
-                brs.schema.Tables.REWARD_RECIP_ASSIGN, brs.schema.Tables.SUBSCRIPTION,
-                brs.schema.Tables.TRADE, brs.schema.Tables.TRANSACTION,
-                brs.schema.Tables.UNCONFIRMED_TRANSACTION
-            )
-            for (table in tables) {
-                try {
-                    ctx.truncate(table).execute()
-                } catch (e: org.jooq.exception.DataAccessException) {
-                    if (force) {
-                        logger.safeTrace(e) { "exception during truncate $table" }
-                    } else {
-                        throw e
-                    }
-                }
-
-            }
-        }
-    }
-
     override fun optimize() {
         dp.db.optimizeTable(BLOCK.name)
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(BlockDb::class.java)
     }
 }

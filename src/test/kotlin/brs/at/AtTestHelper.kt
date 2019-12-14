@@ -11,6 +11,7 @@ import brs.services.BlockchainService
 import brs.services.PropertyService
 import brs.util.convert.parseHexString
 import com.nhaarman.mockitokotlin2.*
+import org.jooq.SortField
 import org.junit.Assert.assertEquals
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -63,7 +64,7 @@ class AtTestHelper {
             }
             null
         }.whenever(mockAtStore).getAT(any())
-        whenever(mockAtTable.getAll(any(), any())).doReturn(addedAts)
+        whenever(mockAtTable.getAll(any(), any(), any<Collection<SortField<*>>>())).doReturn(addedAts)
         whenever(mockAccountService.getOrAddAccount(any())).doReturn(mockAccount)
         whenever(mockAccountService.getAccount(any<Long>())).doReturn(mockAccount)
         whenever(mockAccountTable.get(any())).doReturn(mockAccount)

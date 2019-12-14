@@ -1,6 +1,7 @@
 package brs.db
 
 import org.jooq.DSLContext
+import org.jooq.Table as JooqTable
 
 interface Db {
     /**
@@ -21,12 +22,12 @@ interface Db {
     /**
      * TODO
      */
-    fun <V> getCache(tableName: String): MutableMap<BurstKey, V>
+    fun <V> getCache(table: JooqTable<*>): MutableMap<BurstKey, V>
 
     /**
      * TODO
      */
-    fun <V> getBatch(tableName: String): MutableMap<BurstKey, V>
+    fun <V> getBatch(table: JooqTable<*>): MutableMap<BurstKey, V>
 
     /**
      * TODO
@@ -137,4 +138,9 @@ interface Db {
      * TODO
      */
     fun optimizeDatabase()
+
+    /**
+     * TODO
+     */
+    fun deleteAll()
 }

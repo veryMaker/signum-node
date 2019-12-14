@@ -1,7 +1,7 @@
 package brs.assetexchange
 
 import brs.entity.AssetTransfer
-import brs.db.sql.EntitySqlTable
+import brs.db.sql.SqlEntityTable
 import brs.db.AssetTransferStore
 import brs.services.impl.AssetTransferServiceImpl
 import com.nhaarman.mockitokotlin2.doReturn
@@ -17,7 +17,7 @@ class AssetTransferServiceImplTest {
     private lateinit var t: AssetTransferServiceImpl
 
     private lateinit var mockAssetTransferStore: AssetTransferStore
-    private lateinit var mockAssetTransferTable: EntitySqlTable<AssetTransfer>
+    private lateinit var mockAssetTransferTable: SqlEntityTable<AssetTransfer>
 
     @Before
     fun setUp() {

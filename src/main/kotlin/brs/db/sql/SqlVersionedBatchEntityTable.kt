@@ -7,17 +7,15 @@ import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import org.ehcache.Cache
 import org.jooq.*
-import org.jooq.impl.TableImpl
 
-internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(
-    table: String,
-    tableClass: TableImpl<*>,
+internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
+    table: Table<*>,
     heightField: Field<Int>,
-    latestField: Field<Boolean>?,
+    latestField: Field<Boolean>,
     dbKeyFactory: SqlDbKey.Factory<T>,
     private val tClass: Class<T>,
     private val dp: DependencyProvider
-) : VersionedEntitySqlTable<T>(table, tableClass, heightField, latestField, dbKeyFactory, dp), VersionedBatchEntityTable<T> {
+) : SqlVersionedEntityTable<T>(table, heightField, latestField, dbKeyFactory, dp), VersionedBatchEntityTable<T> {
     override val count: Int
         get() {
             assertNotInTransaction()
@@ -30,56 +28,62 @@ internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(
             return super.rowCount
         }
 
-    override fun getBatch(): MutableMap<BurstKey, T> = dp.db.getBatch(table)
+    private val batch: MutableMap<BurstKey, T>
+        get() = dp.db.getBatch(table)
 
-    override fun getCache(): Cache<BurstKey, T> = dp.dbCacheService.getCache(table, tClass)!!
+    private val batchCache: Cache<BurstKey, T>
+        get() = dp.dbCacheService.getCache(tableName, tClass)!!
 
     private fun assertNotInTransaction() {
-        check(!dp.db.isInTransaction()) { "Cannot use in batch table transaction" }
+        check(!dp.db.isInTransaction()) { "Cannot use batch table during transaction" }
     }
 
-    protected abstract fun bulkInsert(ctx: DSLContext, t: Collection<T>)
+    protected abstract fun bulkInsert(ctx: DSLContext, entities: Collection<T>)
 
     override fun delete(t: T): Boolean {
         dp.db.assertInTransaction()
         val dbKey = dbKeyFactory.newKey(t) as SqlDbKey
-        getCache().remove(dbKey)
-        getBatch().remove(dbKey)
+        batchCache.remove(dbKey)
+        batch.remove(dbKey)
         return true
     }
 
+    override fun save(ctx: DSLContext, entity: T) {
+        insert(entity)
+    }
+
     override fun get(dbKey: BurstKey): T? {
-        if (getCache().containsKey(dbKey)) {
-            return getCache().get(dbKey)
-        } else if (dp.db.isInTransaction() && getBatch().containsKey(dbKey)) {
-            return getBatch()[dbKey]
+        if (batchCache.containsKey(dbKey)) {
+            return batchCache.get(dbKey)
+        } else if (dp.db.isInTransaction() && batch.containsKey(dbKey)) {
+            return batch[dbKey]
         }
         val item = super.get(dbKey)
         if (item != null) {
-            getCache().put(dbKey, item)
+            batchCache.put(dbKey, item)
         }
         return item
     }
 
-    override fun insert(t: T) {
+    override fun insert(entity: T) {
         dp.db.assertInTransaction()
-        val key = dbKeyFactory.newKey(t)
-        getBatch()[key] = t
-        getCache().put(key, t)
+        val key = dbKeyFactory.newKey(entity)
+        batch[key] = entity
+        batchCache.put(key, entity)
     }
 
     override fun finish() {
         dp.db.assertInTransaction()
-        val keySet = getBatch().keys
+        val keySet = batch.keys
         if (keySet.isEmpty()) {
             return
         }
 
         dp.db.useDslContext { ctx ->
-            val updateQuery = ctx.updateQuery(tableClass)
+            val updateQuery = ctx.updateQuery(table)
             updateQuery.addValue(latestField, false)
             for (idColumn in dbKeyFactory.pkColumns) {
-                updateQuery.addConditions(tableClass.field(idColumn, Long::class.java).eq(0L))
+                updateQuery.addConditions(table.field(idColumn, Long::class.java).eq(0L))
             }
             updateQuery.addConditions(latestField?.isTrue)
 
@@ -94,8 +98,8 @@ internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(
                 updateBatch.bind(bindArgs)
             }
             updateBatch.execute()
-            bulkInsert(ctx, getBatch().values)
-            getBatch().clear()
+            bulkInsert(ctx, batch.values)
+            batch.clear()
         }
     }
 
@@ -114,19 +118,9 @@ internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(
         return super.getBy(condition, height)
     }
 
-    override fun getManyBy(condition: Condition, from: Int, to: Int): Collection<T> {
-        assertNotInTransaction()
-        return super.getManyBy(condition, from, to)
-    }
-
     override fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         assertNotInTransaction()
         return super.getManyBy(condition, from, to, sort)
-    }
-
-    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int): Collection<T> {
-        assertNotInTransaction()
-        return super.getManyBy(condition, height, from, to)
     }
 
     override fun getManyBy(
@@ -145,19 +139,9 @@ internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(
         return super.getManyBy(ctx, query, cache)
     }
 
-    override fun getAll(from: Int, to: Int): Collection<T> {
-        assertNotInTransaction()
-        return super.getAll(from, to)
-    }
-
     override fun getAll(from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         assertNotInTransaction()
         return super.getAll(from, to, sort)
-    }
-
-    override fun getAll(height: Int, from: Int, to: Int): Collection<T> {
-        assertNotInTransaction()
-        return super.getAll(height, from, to)
     }
 
     override fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
@@ -167,10 +151,6 @@ internal abstract class VersionedBatchEntitySqlTable<T> internal constructor(
 
     override fun rollback(height: Int) {
         super.rollback(height)
-        getBatch().clear()
-    }
-
-    override fun flushCache() {
-        getCache().clear()
+        batch.clear()
     }
 }

@@ -13,8 +13,7 @@ import org.jooq.Query
 import org.jooq.Record
 
 internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : IndirectIncomingStore {
-
-    internal val indirectIncomingTable: EntitySqlTable<IndirectIncoming>
+    internal val indirectIncomingTable: SqlEntityTable<IndirectIncoming>
 
     init {
         val indirectIncomingDbKeyFactory =
@@ -25,12 +24,12 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
             }
 
         this.indirectIncomingTable = object :
-            EntitySqlTable<IndirectIncoming>("indirect_incoming", INDIRECT_INCOMING, INDIRECT_INCOMING.HEIGHT, null, indirectIncomingDbKeyFactory, dp) {
-            override fun load(ctx: DSLContext, rs: Record): IndirectIncoming {
+            SqlEntityTable<IndirectIncoming>(INDIRECT_INCOMING, indirectIncomingDbKeyFactory, INDIRECT_INCOMING.HEIGHT, null, dp) {
+            override fun load(ctx: DSLContext, record: Record): IndirectIncoming {
                 return IndirectIncoming(
-                    rs.get(INDIRECT_INCOMING.ACCOUNT_ID),
-                    rs.get(INDIRECT_INCOMING.TRANSACTION_ID),
-                    rs.get(INDIRECT_INCOMING.HEIGHT)
+                    record.get(INDIRECT_INCOMING.ACCOUNT_ID),
+                    record.get(INDIRECT_INCOMING.TRANSACTION_ID),
+                    record.get(INDIRECT_INCOMING.HEIGHT)
                 )
             }
 
@@ -57,7 +56,7 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
     }
 
     override fun addIndirectIncomings(indirectIncomings: Collection<IndirectIncoming>) {
-        dp.db.useDslContext { ctx -> indirectIncomingTable.save(ctx, indirectIncomings.toTypedArray()) }
+        dp.db.useDslContext<Unit> { ctx -> indirectIncomingTable.save(ctx, indirectIncomings.toTypedArray()) }
     }
 
     override fun getIndirectIncomings(accountId: Long, from: Int, to: Int): List<Long> {

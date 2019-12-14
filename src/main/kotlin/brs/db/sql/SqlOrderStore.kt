@@ -9,7 +9,6 @@ import brs.schema.tables.records.AskOrderRecord
 import brs.schema.tables.records.BidOrderRecord
 import org.jooq.DSLContext
 import org.jooq.Record
-import org.jooq.SortField
 
 internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
 
@@ -27,14 +26,15 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
     override val bidOrderTable: VersionedEntityTable<Order.Bid>
 
     init {
-        askOrderTable = object : VersionedEntitySqlTable<Order.Ask>(
-            "ask_order",
+        askOrderTable = object : SqlVersionedEntityTable<Order.Ask>(
             ASK_ORDER,
             ASK_ORDER.HEIGHT,
             ASK_ORDER.LATEST,
             askOrderDbKeyFactory,
             dp
         ) {
+            override val defaultSort = listOf(table.field("creation_height", Int::class.java).desc())
+
             override fun load(ctx: DSLContext, record: Record): Order.Ask {
                 return SqlAsk(record)
             }
@@ -42,30 +42,23 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             override fun save(ctx: DSLContext, ask: Order.Ask) {
                 saveAsk(ctx, ask)
             }
-
-            override fun defaultSort(): Collection<SortField<*>> {
-                return listOf(tableClass.field("creation_height", Int::class.java).desc())
-            }
         }
 
-        bidOrderTable = object : VersionedEntitySqlTable<Order.Bid>(
-            "bid_order",
+        bidOrderTable = object : SqlVersionedEntityTable<Order.Bid>(
             BID_ORDER,
             BID_ORDER.HEIGHT,
             BID_ORDER.LATEST,
             bidOrderDbKeyFactory,
             dp
         ) {
+            override val defaultSort = listOf(table.field("creation_height", Int::class.java).desc())
+
             override fun load(ctx: DSLContext, record: Record): Order.Bid {
                 return SqlBid(record)
             }
 
             override fun save(ctx: DSLContext, bid: Order.Bid) {
                 saveBid(ctx, bid)
-            }
-
-            override fun defaultSort(): Collection<SortField<*>> {
-                return listOf(tableClass.field("creation_height", Int::class.java).desc())
             }
         }
     }
@@ -74,21 +67,18 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
         return askOrderTable.getManyBy(ASK_ORDER.ACCOUNT_ID.eq(accountId).and(ASK_ORDER.ASSET_ID.eq(assetId)), from, to)
     }
 
+    private val askSort = listOf(
+        ASK_ORDER.field("price", Long::class.java).asc(),
+        ASK_ORDER.field("creation_height", Int::class.java).asc(),
+        ASK_ORDER.field("id", Long::class.java).asc()
+    )
+
     override fun getSortedAsks(assetId: Long, from: Int, to: Int): Collection<Order.Ask> {
-        return askOrderTable.getManyBy(
-            ASK_ORDER.ASSET_ID.eq(assetId),
-            from,
-            to,
-            listOf(
-                ASK_ORDER.field("price", Long::class.java).asc(),
-                ASK_ORDER.field("creation_height", Int::class.java).asc(),
-                ASK_ORDER.field("id", Long::class.java).asc()
-            )
-        )
+        return askOrderTable.getManyBy(ASK_ORDER.ASSET_ID.eq(assetId), from, to, askSort)
     }
 
     override fun getNextOrder(assetId: Long): Order.Ask? {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             val query = ctx.selectFrom(ASK_ORDER)
                 .where(ASK_ORDER.ASSET_ID.eq(assetId).and(ASK_ORDER.LATEST.isTrue))
                 .orderBy(
@@ -146,21 +136,18 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
         )
     }
 
+    private val bidSort = listOf(
+        BID_ORDER.field("price", Long::class.java).desc(),
+        BID_ORDER.field("creation_height", Int::class.java).asc(),
+        BID_ORDER.field("id", Long::class.java).asc()
+    )
+
     override fun getSortedBids(assetId: Long, from: Int, to: Int): Collection<Order.Bid> {
-        return bidOrderTable.getManyBy(
-            BID_ORDER.ASSET_ID.eq(assetId),
-            from,
-            to,
-            listOf(
-                BID_ORDER.field("price", Long::class.java).desc(),
-                BID_ORDER.field("creation_height", Int::class.java).asc(),
-                BID_ORDER.field("id", Long::class.java).asc()
-            )
-        )
+        return bidOrderTable.getManyBy(BID_ORDER.ASSET_ID.eq(assetId), from, to, bidSort)
     }
 
     override fun getNextBid(assetId: Long): Order.Bid? {
-        return dp.db.getUsingDslContext { ctx ->
+        return dp.db.useDslContext { ctx ->
             val query = ctx.selectFrom(BID_ORDER)
                 .where(
                     BID_ORDER.ASSET_ID.eq(assetId)

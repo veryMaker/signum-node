@@ -11,7 +11,6 @@ import brs.schema.tables.records.SubscriptionRecord
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.Record
-import org.jooq.SortField
 
 internal class SqlSubscriptionStore(private val dp: DependencyProvider) : SubscriptionStore {
     override val subscriptionDbKeyFactory = object : SqlDbKey.LongKeyFactory<Subscription>(SUBSCRIPTION.ID) {
@@ -24,27 +23,24 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
 
     init {
         subscriptionTable =
-            object : VersionedEntitySqlTable<Subscription>(
-                "subscription",
+            object : SqlVersionedEntityTable<Subscription>(
                 SUBSCRIPTION,
                 SUBSCRIPTION.HEIGHT,
                 SUBSCRIPTION.LATEST,
                 subscriptionDbKeyFactory,
                 dp
             ) {
-                override fun load(ctx: DSLContext, rs: Record): Subscription {
-                    return SqlSubscription(rs)
+                override val defaultSort = listOf(
+                    table.field("time_next", Int::class.java).asc(),
+                    table.field("id", Long::class.java).asc()
+                )
+
+                override fun load(ctx: DSLContext, record: Record): Subscription {
+                    return SqlSubscription(record)
                 }
 
                 override fun save(ctx: DSLContext, subscription: Subscription) {
                     saveSubscription(ctx, subscription)
-                }
-
-                override fun defaultSort(): Collection<SortField<*>> {
-                    return listOf(
-                        tableClass.field("time_next", Int::class.java).asc(),
-                        tableClass.field("id", Long::class.java).asc()
-                    )
                 }
             }
     }

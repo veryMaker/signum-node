@@ -8,10 +8,10 @@ interface BurstKey {
     interface Factory<T> {
         /**
          * Create a new key for an entity
-         * @param t The entity
+         * @param entity The entity
          * @return The key for this entity
          */
-        fun newKey(t: T): BurstKey
+        fun newKey(entity: T): BurstKey
 
         /**
          * Create a new key for an entity
