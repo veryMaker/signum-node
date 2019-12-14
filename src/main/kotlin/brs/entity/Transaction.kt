@@ -81,7 +81,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     var fullHash: ByteArray by AtomicLazy {
         check(signature != null || !type.isSigned) { "Transaction is not signed yet" }
         val data = toBytes(false)
-        val signatureHash = if (signature != null) Crypto.sha256().digest(signature) else SHA256_64_ZEROS
+        val signatureHash = if (signature != null) Crypto.sha256().digest(signature) else Constants.SHA256_64_ZEROS
         val digest = Crypto.sha256()
         digest.update(data)
         digest.digest(signatureHash)
@@ -365,7 +365,6 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         }
     }
 
-    // TODO should we use AtomicWithOverride? What about getBlock()
     fun setBlock(block: Block) {
         this.block = block
         this.blockId = block.id
@@ -523,8 +522,5 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         }
 
         private const val SIGNATURE_OFFSET = 1 + 1 + 4 + 2 + 32 + 8 + 8 + 8 + 32
-
-        private val SHA256_64_ZEROS =
-            "F5A5FD42D16A20302798EF6ED309979B43003D2320D9F0E8EA9831A92759FB4B".parseHexString()
     }
 }

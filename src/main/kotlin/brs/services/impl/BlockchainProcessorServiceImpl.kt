@@ -428,7 +428,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     private fun getCommonBlockId(peer: Peer, commonBlockId: Long): Long {
         var commonBlockId = commonBlockId
 
-        while (true) { // TODO not while true
+        while (true) {
             val request = JsonObject()
             request.addProperty("requestType", "getNextBlockIds")
             request.addProperty("blockId", commonBlockId.toUnsignedString())
@@ -611,7 +611,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         logger.safeInfo { "Genesis block not in database, starting from scratch" }
         val genesisBlock = Block(
             dp, -1, 0, 0, 0, 0, 0,
-            Crypto.sha256().digest() /* TODO constant value for this */, Genesis.creatorPublicKey, ByteArray(32),
+            Constants.SHA256_NO_DATA, Genesis.creatorPublicKey, ByteArray(32),
             Genesis.genesisBlockSignature, null, emptyList(), 0, byteArrayOf(), -1
         )
         dp.blockService.setPrevious(genesisBlock, null)

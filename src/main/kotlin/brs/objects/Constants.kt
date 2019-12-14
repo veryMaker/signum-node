@@ -2,6 +2,7 @@ package brs.objects
 
 import brs.entity.DependencyProvider
 import brs.util.Version
+import brs.util.convert.parseHexString
 
 object Constants {
 
@@ -79,9 +80,21 @@ object Constants {
 
     const val OPTIMIZE_TABLE_FREQUENCY = 10000 // Optimize tables every 10000 blocks
 
+    /**
+     * The SHA256 hash of no data - SHA256's initial hash.
+     * The equivalent of calling Crypto.sha256().digest()
+     */
+    val SHA256_NO_DATA = "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855".parseHexString()
+
+    /**
+     * The SHA256 hash of 64 zeros.
+     * The equivalent of calling Crypto.sha256().digest(ByteArray(64))
+     */
+    val SHA256_64_ZEROS = "F5A5FD42D16A20302798EF6ED309979B43003D2320D9F0E8EA9831A92759FB4B".parseHexString()
+
     fun init(dp: DependencyProvider) {
-        val dbRollback = dp.propertyService.get(Props.DB_MAX_ROLLBACK).toLong()
-        require(dbRollback >= 1440) { "brs.maxRollback must be at least 1440" }
+        val dbRollback = dp.propertyService.get(Props.DB_MAX_ROLLBACK)
+        require(dbRollback >= 1440) { "Property \"brs.maxRollback\" must be at least 1440, it is currently $dbRollback" }
         UNCONFIRMED_POOL_DEPOSIT_PLANCK = (if (dp.propertyService.get(Props.DEV_TESTNET)) 50 else 100).toLong()
     }
 }

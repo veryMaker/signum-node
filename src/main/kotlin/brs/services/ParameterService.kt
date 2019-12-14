@@ -19,7 +19,7 @@ interface ParameterService {
     /**
      * TODO
      */
-    fun getSenderAccount(request: HttpServletRequest): Account // TODO these should be nullable.
+    fun getSenderAccount(request: HttpServletRequest): Account
 
     /**
      * TODO
