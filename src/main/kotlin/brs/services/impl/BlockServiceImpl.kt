@@ -49,57 +49,49 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         }
     }
 
-    override fun verifyGenerationSignature(block: Block): Boolean {
+    override fun verifyGenerationSignature(block: Block, pocTime: BigInteger): Boolean {
         try {
-            val previousBlock = dp.blockchainService.getBlock(block.previousBlockId)
-                ?: throw BlockOutOfOrderException("Can't verify generation signature because previous block is missing")
-            val correctGenerationSignature = dp.generatorService.calculateGenerationSignature(
-                previousBlock.generationSignature, previousBlock.generatorId
-            )
-            if (!block.generationSignature.contentEquals(correctGenerationSignature)) {
-                return false
-            }
-            val elapsedTime = block.timestamp - previousBlock.timestamp
-            val pTime = block.verificationLock.withLock {
-                block.pocTime!!.divide(BigInteger.valueOf(previousBlock.baseTarget))
-            }
-            return BigInteger.valueOf(elapsedTime.toLong()) > pTime
+            val previousBlock = dp.downloadCacheService.getBlock(block.previousBlockId) ?: throw BlockOutOfOrderException("Can't verify generation signature because previous block is missing")
+            val correctGenerationSignature = dp.generatorService.calculateGenerationSignature(previousBlock.generationSignature, previousBlock.generatorId)
+            if (!block.generationSignature.contentEquals(correctGenerationSignature)) return false
+            return BigInteger.valueOf(block.timestamp.toLong() - previousBlock.timestamp.toLong()) > pocTime.divide(BigInteger.valueOf(previousBlock.baseTarget))
         } catch (e: Exception) {
             logger.safeInfo(e) { "Error verifying block generation signature" }
             return false
         }
-
     }
 
     override fun preVerify(block: Block, scoopData: ByteArray?, warnIfNotVerified: Boolean) {
-        block.verificationLock.withLock {
+        block.preVerificationLock.withLock {
             // Check if it's already verified
-            if (block.verified) {
+            if (block.preVerified) {
                 return
             }
 
             if (warnIfNotVerified) {
-                logger.safeWarn { "Block was not pre-verified!" }
+                logger.safeWarn { "Block was not pre-verified! Pre-verification threads are probably not keeping up..." }
             }
 
             dp.downloadCacheService.removeUnverified(block.id)
 
-            try {
-                // Pre-verify poc:
+            val pocTime = try {
                 if (scoopData == null) {
-                    block.pocTime = dp.generatorService.calculateHit(
+                    dp.generatorService.calculateHit(
                         block.generatorId,
                         block.nonce, block.generationSignature, getScoopNum(block), block.height
                     )
                 } else {
-                    block.pocTime = dp.generatorService.calculateHit(
+                    dp.generatorService.calculateHit(
                         block.generatorId,
                         block.nonce, block.generationSignature, scoopData
                     )
                 }
             } catch (e: Exception) {
-                logger.safeInfo(e) { "Error pre-verifying block generation signature" }
-                return
+                throw BlockchainProcessorService.BlockNotAcceptedException("Error pre-verifying block generation signature", e)
+            }
+
+            if (!dp.blockService.verifyGenerationSignature(block, pocTime)) {
+                throw BlockchainProcessorService.BlockNotAcceptedException("Generation signature verification failed for block ${block.height}")
             }
 
             val feeArray = LongArray(block.transactions.size)
@@ -121,18 +113,18 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 feeArray.sort()
                 for (i in feeArray.indices) {
                     if (feeArray[i] >= Constants.FEE_QUANT * (i + 1)) {
-                        throw BlockchainProcessorService.BlockNotAcceptedException("Transaction fee is not enough to be included in this block " + block.height)
+                        throw BlockchainProcessorService.BlockNotAcceptedException("Transaction fee is not enough to be included in this block at height ${block.height}")
                     }
                 }
             }
 
             if (!block.payloadHash.contentEquals(sha256.digest())) {
-                throw BlockchainProcessorService.BlockNotAcceptedException("Payload hash doesn't match for block " + block.height)
+                throw BlockchainProcessorService.BlockNotAcceptedException("Payload hash doesn't match for block ${block.height}")
             }
 
             logger.safeDebug { "Pre-verified block at height ${block.height}" }
 
-            block.verified = true
+            block.preVerified = true
         }
     }
 

@@ -340,8 +340,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             logger.safeDebug { "Starting pre-verifier thread in Open CL mode." }
             dp.taskSchedulerService.scheduleTask(TaskType.IO, this.gpuPreVerificationTask)
         } else {
-            // TODO property for number of instances
-            val numberOfInstances = Runtime.getRuntime().availableProcessors()
+            var numberOfInstances = dp.propertyService.get(Props.NUM_PRE_VERIFIER_THREADS)
+            if (numberOfInstances <= 0) numberOfInstances = Runtime.getRuntime().availableProcessors()
             logger.safeDebug { "Starting $numberOfInstances pre-verifier threads in CPU mode." }
             dp.taskSchedulerService.scheduleTask(TaskType.COMPUTATION, numberOfInstances, this.cpuPreVerificationTask)
         }
@@ -645,9 +645,6 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     if (block.id == 0L || dp.blockDb.hasBlock(block.id)) {
                         throw BlockchainProcessorService.BlockNotAcceptedException("Duplicate block or invalid id for block " + block.height)
                     }
-                    if (!dp.blockService.verifyGenerationSignature(block)) {
-                        throw BlockchainProcessorService.BlockNotAcceptedException("Generation signature verification failed for block " + block.height)
-                    }
                     if (!dp.blockService.verifyBlockSignature(block)) {
                         throw BlockchainProcessorService.BlockNotAcceptedException("Block signature verification failed for block " + block.height)
                     }
@@ -658,70 +655,28 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
                     for (transaction in block.transactions) {
                         if (transaction.id == 0L)
-                            throw BlockchainProcessorService.TransactionNotAcceptedException(
-                                "Invalid transaction id",
-                                transaction
-                            )
+                            throw BlockchainProcessorService.TransactionNotAcceptedException("Invalid transaction id", transaction)
                         if (transaction.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE)
                             throw BlockchainProcessorService.BlockOutOfOrderException("Invalid transaction timestamp: ${transaction.timestamp}, current time is $curTime")
                         if (transaction.timestamp > block.timestamp + MAX_TIMESTAMP_DIFFERENCE || transaction.expiration < block.timestamp)
-                            throw BlockchainProcessorService.TransactionNotAcceptedException(
-                                "Invalid transaction timestamp ${transaction.timestamp} for transaction ${transaction.stringId}, current time is $curTime, block timestamp is ${block.timestamp}",
-                                transaction
-                            )
+                            throw BlockchainProcessorService.TransactionNotAcceptedException("Invalid transaction timestamp ${transaction.timestamp} for transaction ${transaction.stringId}, current time is $curTime, block timestamp is ${block.timestamp}", transaction)
                         if (dp.transactionDb.hasTransaction(transaction.id))
-                            throw BlockchainProcessorService.TransactionNotAcceptedException(
-                                "Transaction ${transaction.stringId} is already in the blockchain",
-                                transaction
-                            )
-                        if (transaction.referencedTransactionFullHash != null && !hasAllReferencedTransactions(
-                                transaction,
-                                transaction.timestamp,
-                                0
-                            )
-                        )
-                            throw BlockchainProcessorService.TransactionNotAcceptedException(
-                                "Missing or invalid referenced transaction ${transaction.referencedTransactionFullHash} for transaction ${transaction.stringId}",
-                                transaction
-                            )
-                        if (transaction.version.toInt() != dp.transactionProcessorService.getTransactionVersion(
-                                lastBlock.height
-                            )
-                        )
-                            throw BlockchainProcessorService.TransactionNotAcceptedException(
-                                "Invalid transaction version ${transaction.version} at height ${lastBlock.height}",
-                                transaction
-                            )
+                            throw BlockchainProcessorService.TransactionNotAcceptedException("Transaction ${transaction.stringId} is already in the blockchain", transaction)
+                        if (transaction.referencedTransactionFullHash != null && !hasAllReferencedTransactions(transaction, transaction.timestamp, 0))
+                            throw BlockchainProcessorService.TransactionNotAcceptedException("Missing or invalid referenced transaction ${transaction.referencedTransactionFullHash} for transaction ${transaction.stringId}", transaction)
+                        if (transaction.version.toInt() != dp.transactionProcessorService.getTransactionVersion(lastBlock.height))
+                            throw BlockchainProcessorService.TransactionNotAcceptedException("Invalid transaction version ${transaction.version} at height ${lastBlock.height}", transaction)
                         if (!dp.transactionService.verifyPublicKey(transaction))
-                            throw BlockchainProcessorService.TransactionNotAcceptedException(
-                                "Wrong public key in transaction ${transaction.stringId} at height ${lastBlock.height}",
-                                transaction
-                            )
+                            throw BlockchainProcessorService.TransactionNotAcceptedException("Wrong public key in transaction ${transaction.stringId} at height ${lastBlock.height}", transaction)
                         if (transactionDuplicatesChecker.hasAnyDuplicate(transaction))
-                            throw BlockchainProcessorService.TransactionNotAcceptedException(
-                                "Transaction is a duplicate: ${transaction.stringId}",
-                                transaction
-                            )
-
-                        if (dp.fluxCapacitorService.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) && !dp.economicClusteringService.verifyFork(
-                                transaction
-                            )
-                        ) {
-                            logger.safeDebug { "Block ${block.stringId} height ${lastBlock.height + 1} contains transaction that was generated on a fork: ${transaction.stringId} ecBlockId ${transaction.ecBlockHeight} ecBlockHeight ${transaction.ecBlockId.toUnsignedString()}" }
-                            throw BlockchainProcessorService.TransactionNotAcceptedException(
-                                "Transaction belongs to a different fork",
-                                transaction
-                            )
-                        }
+                            throw BlockchainProcessorService.TransactionNotAcceptedException("Transaction is a duplicate: ${transaction.stringId}", transaction)
+                        if (dp.fluxCapacitorService.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) && !dp.economicClusteringService.verifyFork(transaction))
+                            throw BlockchainProcessorService.TransactionNotAcceptedException("Transaction belongs to a different fork - EC verification failed", transaction)
 
                         try {
                             dp.transactionService.validate(transaction, false)
                         } catch (e: BurstException.ValidationException) {
-                            throw BlockchainProcessorService.TransactionNotAcceptedException(
-                                e.message!!,
-                                transaction,
-                                e
-                            )
+                            throw BlockchainProcessorService.TransactionNotAcceptedException(e.message ?: "", transaction, e)
                         }
 
                         calculatedTotalAmount += transaction.amountPlanck

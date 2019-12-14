@@ -3,7 +3,6 @@ package brs.objects
 import brs.entity.Prop
 
 object Props {
-
     // DEV options
     val DEV_OFFLINE = Prop("DEV.Offline", false)
     val DEV_TESTNET = Prop("DEV.TestNet", false)
@@ -158,4 +157,6 @@ object Props {
 
     val SOLO_MINING_PASSPHRASES = Prop("SoloMiningPassphrases", emptyList<String>())
     val ALLOW_OTHER_SOLO_MINERS = Prop("AllowOtherSoloMiners", true)
-}//no need to construct
+
+    val NUM_PRE_VERIFIER_THREADS = Prop("PreVerifier.NumberOfInstances", 0)
+}

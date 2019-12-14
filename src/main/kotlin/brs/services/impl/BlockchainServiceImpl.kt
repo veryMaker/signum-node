@@ -37,7 +37,7 @@ class BlockchainServiceImpl internal constructor(private val dp: DependencyProvi
     }
 
     override fun hasBlock(blockId: Long): Boolean {
-        return lastBlockLock.read { lastBlock }.id == blockId || dp.blockDb.hasBlock(blockId)
+        return lastBlockLock.read { lastBlock.id } == blockId || dp.blockDb.hasBlock(blockId)
     }
 
     override fun getBlocks(from: Int, to: Int): Collection<Block> {

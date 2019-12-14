@@ -111,13 +111,10 @@ class DownloadCacheServiceImpl(private val dp: DependencyProvider) : DownloadCac
     override fun getBlock(blockId: Long): Block? {
         if (forkCache.isNotEmpty()) {
             for (block in forkCache) {
-                if (block.id == blockId) {
-                    return block
-                }
+                if (block.id == blockId) return block
             }
         }
-        return stampedLock.read { blockCache[blockId] }
-            ?: if (dp.blockchainService.hasBlock(blockId)) dp.blockchainService.getBlock(blockId) else null
+        return stampedLock.read { blockCache[blockId] } ?: if (dp.blockchainService.hasBlock(blockId)) dp.blockchainService.getBlock(blockId) else null
     }
 
     override fun getNextBlock(prevBlockId: Long) = stampedLock.read { blockCache[reverseCache[prevBlockId]] }

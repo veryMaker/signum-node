@@ -70,9 +70,8 @@ class Block internal constructor(
     }
 
     // Pre-verification stuff
-    val verificationLock = Mutex()
-    var verified: Boolean = false
-    var pocTime: BigInteger? = null
+    val preVerificationLock = Mutex()
+    var preVerified: Boolean = false
 
     var peer: Peer? = null
     var byteLength = 0
