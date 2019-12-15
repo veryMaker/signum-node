@@ -11,7 +11,7 @@ import java.util.logging.Logger
 /**
  * A Java logging formatter that writes more compact output than the default
  */
-internal class BriefLogFormatter private constructor() : Formatter() {
+internal object BriefLogFormatter : Formatter() {
     /**
      * Format the log record as follows:
      *
@@ -41,23 +41,18 @@ internal class BriefLogFormatter private constructor() : Formatter() {
         return messageFormat.format(arguments)
     }
 
-    companion object {
-        /** Format used for log messages */
-        private val messageFormat = MessageFormat("[{1}] {0,date,yyyy-MM-dd HH:mm:ss} {4} - {2}\n{3}")
+    /** Format used for log messages */
+    private val messageFormat = MessageFormat("[{1}] {0,date,yyyy-MM-dd HH:mm:ss} {4} - {2}\n{3}")
 
-        /** LoggerConfigurator instance at the top of the name tree  */
-        private val logger = Logger.getLogger("")
+    /** LoggerConfigurator instance at the top of the name tree  */
+    private val logger = Logger.getLogger("")
 
-        /** singleton BriefLogFormatter instance  */
-        private val briefLogFormatter = BriefLogFormatter()
-
-        /**
-         * Configures JDK logging to use this class for everything
-         */
-        fun init() {
-            val handlers = logger.handlers
-            for (handler in handlers)
-                handler.formatter = briefLogFormatter
-        }
+    /**
+     * Configures JDK logging to use this class for everything
+     */
+    fun init() {
+        val handlers = logger.handlers
+        for (handler in handlers)
+            handler.formatter = BriefLogFormatter
     }
 }

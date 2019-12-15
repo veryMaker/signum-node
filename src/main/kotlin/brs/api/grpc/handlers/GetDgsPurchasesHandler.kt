@@ -5,7 +5,7 @@ import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.service.ProtoBuilder
 import brs.entity.Purchase
 import brs.services.DigitalGoodsStoreService
-import brs.util.FilteringIterator
+import brs.util.misc.filterWithLimits
 
 class GetDgsPurchasesHandler(private val digitalGoodsStoreService: DigitalGoodsStoreService) :
     GrpcApiHandler<BrsApi.GetDgsPurchasesRequest, BrsApi.DgsPurchases> {
@@ -32,14 +32,9 @@ class GetDgsPurchasesHandler(private val digitalGoodsStoreService: DigitalGoodsS
         }
 
         val builder = BrsApi.DgsPurchases.newBuilder()
-        FilteringIterator(purchases, { purchase -> !(completed && purchase.isPending) }, firstIndex, lastIndex)
+        purchases.filterWithLimits(firstIndex, lastIndex) { purchase -> !completed || !purchase.isPending }
             .forEach { purchase ->
-                builder.addDgsPurchases(
-                    ProtoBuilder.buildPurchase(
-                        purchase,
-                        digitalGoodsStoreService.getGoods(purchase.goodsId)!!
-                    )
-                )
+                builder.addDgsPurchases(ProtoBuilder.buildPurchase(purchase, digitalGoodsStoreService.getGoods(purchase.goodsId)!!))
             }
         return builder.build()
     }

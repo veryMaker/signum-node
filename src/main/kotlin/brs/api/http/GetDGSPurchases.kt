@@ -8,7 +8,7 @@ import brs.api.http.common.Parameters.SELLER_PARAMETER
 import brs.api.http.common.Parameters.isTrue
 import brs.api.http.common.ResultFields.PURCHASES_RESPONSE
 import brs.services.DigitalGoodsStoreService
-import brs.util.FilteringIterator
+import brs.util.misc.filterWithLimits
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -40,15 +40,9 @@ internal class GetDGSPurchases(private val digitalGoodsStoreService: DigitalGood
         response.add(PURCHASES_RESPONSE, purchasesJSON)
 
         if (sellerId == 0L && buyerId == 0L) {
-            val purchaseIterator = FilteringIterator(
-                digitalGoodsStoreService.getAllPurchases(0, -1),
-                { purchase -> purchase != null && !(completed && purchase.isPending) },
-                firstIndex,
-                lastIndex
-            )
-            while (purchaseIterator.hasNext()) {
-                purchasesJSON.add(JSONData.purchase(purchaseIterator.next()))
-            }
+            digitalGoodsStoreService.getAllPurchases(0, -1)
+                .filterWithLimits(firstIndex, lastIndex) { purchase -> !(completed && purchase.isPending) }
+                .forEach { purchasesJSON.add(JSONData.purchase(it)) }
             return response
         }
 
@@ -59,11 +53,8 @@ internal class GetDGSPurchases(private val digitalGoodsStoreService: DigitalGood
         } else {
             digitalGoodsStoreService.getSellerBuyerPurchases(sellerId, buyerId, 0, -1)
         }
-        val purchaseIterator =
-            FilteringIterator(purchases, { purchase -> !(completed && purchase.isPending) }, firstIndex, lastIndex)
-        while (purchaseIterator.hasNext()) {
-            purchasesJSON.add(JSONData.purchase(purchaseIterator.next()))
-        }
+        purchases.filterWithLimits(firstIndex, lastIndex) { purchase -> !completed || !purchase.isPending }
+            .forEach { purchasesJSON.add(JSONData.purchase(it)) }
         return response
     }
 }

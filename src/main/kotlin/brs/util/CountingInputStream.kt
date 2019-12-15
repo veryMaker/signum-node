@@ -10,7 +10,15 @@ class CountingInputStream(input: InputStream) : FilterInputStream(input) {
     override fun read(): Int {
         val read = super.read()
         if (read >= 0) {
-            count += 1
+            count++
+        }
+        return read
+    }
+
+    override fun read(b: ByteArray): Int {
+        val read = super.read(b)
+        if (read >= 0) {
+            count += read.toLong()
         }
         return read
     }

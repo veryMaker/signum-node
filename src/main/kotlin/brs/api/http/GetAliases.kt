@@ -7,7 +7,7 @@ import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.api.http.common.ResultFields.ALIASES_RESPONSE
 import brs.services.AliasService
 import brs.services.ParameterService
-import brs.util.FilteringIterator
+import brs.util.misc.filterWithLimits
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -33,17 +33,12 @@ internal class GetAliases internal constructor(
         val lastIndex = ParameterParser.getLastIndex(request)
 
         val aliases = JsonArray()
-        val aliasIterator = FilteringIterator(
-            aliasService.getAliasesByOwner(accountId, 0, -1),
-            { alias -> alias != null && alias.timestamp >= timestamp },
-            firstIndex,
-            lastIndex
-        )
-        while (aliasIterator.hasNext()) {
-            val alias = aliasIterator.next()
-            val offer = aliasService.getOffer(alias)
-            aliases.add(JSONData.alias(alias, offer))
-        }
+        aliasService.getAliasesByOwner(accountId, 0, -1)
+            .filterWithLimits(firstIndex, lastIndex) { it.timestamp >= timestamp }
+            .forEach { alias ->
+                val offer = aliasService.getOffer(alias)
+                aliases.add(JSONData.alias(alias, offer))
+            }
 
         val response = JsonObject()
         response.add(ALIASES_RESPONSE, aliases)

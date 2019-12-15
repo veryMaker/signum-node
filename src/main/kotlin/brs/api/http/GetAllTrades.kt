@@ -7,7 +7,7 @@ import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.api.http.common.Parameters.isFalse
 import brs.api.http.common.ResultFields.TRADES_RESPONSE
 import brs.services.AssetExchangeService
-import brs.util.FilteringIterator
+import brs.util.misc.filterWithLimits
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -34,14 +34,10 @@ internal class GetAllTrades internal constructor(private val assetExchangeServic
         val response = JsonObject()
         val trades = JsonArray()
 
-        val tradeIterator = FilteringIterator(
-            assetExchangeService.getAllTrades(0, -1),
-            { trade -> trade != null && trade.timestamp >= timestamp }, firstIndex, lastIndex
-        )
-        while (tradeIterator.hasNext()) {
-            val trade = tradeIterator.next()
+        assetExchangeService.getAllTrades(0, -1)
+            .filterWithLimits(firstIndex, lastIndex) { trade -> trade.timestamp >= timestamp }
+            .forEach { trade ->
             val asset = if (includeAssetInfo) assetExchangeService.getAsset(trade.assetId) else null
-
             trades.add(JSONData.trade(trade, asset))
         }
 
