@@ -11,7 +11,6 @@ import brs.util.logging.safeDebug
 import brs.util.sync.Mutex
 import brs.util.sync.read
 import brs.util.sync.write
-import brs.util.sync.writeAndRead
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.concurrent.locks.StampedLock
@@ -53,8 +52,8 @@ class DownloadCacheServiceImpl(private val dp: DependencyProvider) : DownloadCac
         }
 
     override val firstUnverifiedBlock: Block?
-        get() = stampedLock.writeAndRead {
-            if (unverified.isEmpty()) return@writeAndRead null
+        get() = stampedLock.write {
+            if (unverified.isEmpty()) return@write null
             val blockId = unverified[0]
             val block = blockCache[blockId]
             unverified.remove(blockId)
@@ -87,7 +86,7 @@ class DownloadCacheServiceImpl(private val dp: DependencyProvider) : DownloadCac
 
     override fun getUnverifiedBlockIdFromPos(pos: Int) = stampedLock.read { unverified[pos] }
 
-    override fun removeUnverified(blockId: Long) = stampedLock.write {
+    override fun removeUnverified(blockId: Long) = stampedLock.write<Unit> {
         unverified.remove(blockId)
     }
 
@@ -131,7 +130,7 @@ class DownloadCacheServiceImpl(private val dp: DependencyProvider) : DownloadCac
         block != null && curHeight - block.height <= dp.propertyService.get(Props.DB_MAX_ROLLBACK)
     }
 
-    override fun addBlock(block: Block) = stampedLock.writeAndRead {
+    override fun addBlock(block: Block) = stampedLock.write {
         if (locked) false else {
             blockCache[block.id] = block
             reverseCache[block.previousBlockId] = block.id

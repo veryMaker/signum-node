@@ -8,36 +8,34 @@ import kotlin.contracts.contract
 @UseExperimental(ExperimentalContracts::class)
 inline fun <T> StampedLock.read(reader: () -> T): T {
     contract { callsInPlace(reader, InvocationKind.AT_LEAST_ONCE) }
-    var stamp = this.tryOptimisticRead()
-    var retVal = reader()
+    val stamp = this.tryOptimisticRead()
+    if (stamp == 0L) {
+        return this.forceRead(reader)
+    }
+    val retVal = reader()
     if (!this.validate(stamp)) {
-        stamp = this.readLock()
-        try {
-            retVal = reader()
-        } finally {
-            this.unlockRead(stamp)
-        }
+        return this.forceRead(reader)
     }
     return retVal
 }
 
 @UseExperimental(ExperimentalContracts::class)
-inline fun StampedLock.write(writer: () -> Unit) {
-    contract { callsInPlace(writer, InvocationKind.EXACTLY_ONCE) }
-    val stamp = this.writeLock()
+inline fun <T> StampedLock.forceRead(reader: () -> T): T {
+    contract { callsInPlace(reader, InvocationKind.EXACTLY_ONCE) }
+    val stamp = this.readLock()
     try {
-        writer()
+        return reader()
     } finally {
-        this.unlockWrite(stamp)
+        this.unlockRead(stamp)
     }
 }
 
 @UseExperimental(ExperimentalContracts::class)
-inline fun <T> StampedLock.writeAndRead(action: () -> T): T {
-    contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
+inline fun <T> StampedLock.write(writer: () -> T): T {
+    contract { callsInPlace(writer, InvocationKind.EXACTLY_ONCE) }
     val stamp = this.writeLock()
     try {
-        return action()
+        return writer()
     } finally {
         this.unlockWrite(stamp)
     }

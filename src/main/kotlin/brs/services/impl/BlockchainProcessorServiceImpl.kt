@@ -240,7 +240,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 val currentBlock =
                     dp.downloadCacheService.getNextBlock(lastId) /* this should fetch first block in cache */
                 if (currentBlock == null || currentBlock.height != lastBlock.height + 1) {
-                    logger.safeDebug { "cache is reset due to orphaned block(s). CacheSize: ${dp.downloadCacheService.size()}" }
+                    logger.safeDebug { "Cache is reset due to orphaned block(s). CacheSize: ${dp.downloadCacheService.size()}" }
                     dp.downloadCacheService.resetCache() //resetting cache because we have blocks that cannot be processed.
                     false
                 } else {
@@ -272,8 +272,11 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 val unverifiedBlock = dp.downloadCacheService.firstUnverifiedBlock
                 if (unverifiedBlock != null) {
                     dp.blockService.preVerify(unverifiedBlock)
+                    true
+                } else {
+                    // Should never reach here..
+                    false
                 }
-                true
             } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
                 logger.safeError(e) { "Block failed to pre-verify" }
                 false

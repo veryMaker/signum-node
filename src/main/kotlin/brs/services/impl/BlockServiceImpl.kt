@@ -65,14 +65,15 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         block.preVerificationLock.withLock {
             // Check if it's already verified
             if (block.preVerified) {
+                if (!warnIfNotVerified) {
+                    logger.safeDebug { "Thread ${Thread.currentThread().name}: Block height ${block.height} already verified" }
+                }
                 return
             }
 
             if (warnIfNotVerified) {
-                logger.safeWarn { "Block was not pre-verified! Pre-verification threads are probably not keeping up..." }
+                logger.safeWarn{ "Block at height ${block.height} was not pre-verified! Pre-verification threads are probably not keeping up..." }
             }
-
-            dp.downloadCacheService.removeUnverified(block.id)
 
             val pocTime = try {
                 if (scoopData == null) {
@@ -99,10 +100,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             for ((slotIdx, transaction) in block.transactions.withIndex()) {
                 if (!transaction.verifySignature()) {
                     logger.safeInfo { "Bad transaction signature during block pre-verification for tx: ${transaction.stringId} at block height: ${block.height}" }
-                    throw BlockchainProcessorService.TransactionNotAcceptedException(
-                        "Invalid signature for tx " + transaction.stringId + " at block height: " + block.height,
-                        transaction
-                    )
+                    throw BlockchainProcessorService.TransactionNotAcceptedException("Invalid signature for tx " + transaction.stringId + " at block height: " + block.height, transaction)
                 }
                 dp.transactionService.preValidate(transaction, block.height)
                 sha256.update(transaction.toBytes())
@@ -122,7 +120,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 throw BlockchainProcessorService.BlockNotAcceptedException("Payload hash doesn't match for block ${block.height}")
             }
 
-            logger.safeDebug { "Pre-verified block at height ${block.height}" }
+            logger.safeDebug { "Thread ${Thread.currentThread().name} pre-verified block at height ${block.height}" }
 
             block.preVerified = true
         }
