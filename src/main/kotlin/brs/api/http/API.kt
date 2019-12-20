@@ -168,7 +168,7 @@ class API(dp: DependencyProvider) {
             rewriteHandler.handler = apiHandler
             val rewriteToRoot = InverseExistsOrRewriteRegexRule(
                 File(dp.propertyService.get(Props.API_UI_DIR)),
-                "^\\/?(burst|test)",
+                Regex("^/?(burst|test)"),
                 "/"
             )
             rewriteHandler.addRule(rewriteToRoot)

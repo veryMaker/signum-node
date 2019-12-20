@@ -62,7 +62,7 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
             return response
         }
 
-        val signersArray = signerString.split(";".toRegex(), 10).toTypedArray()
+        val signersArray = signerString.split(';', limit = 10).toTypedArray()
 
         if (signersArray.isEmpty() || signersArray.size > 10 || signersArray.size < requiredSigners) {
             val response = JsonObject()

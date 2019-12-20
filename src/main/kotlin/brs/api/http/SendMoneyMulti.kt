@@ -34,7 +34,7 @@ internal class SendMoneyMulti(private val dp: DependencyProvider) :
             return response
         }
 
-        val transactionArray = recipientString.split(";".toRegex(), Constants.MAX_MULTI_OUT_RECIPIENTS).toTypedArray()
+        val transactionArray = recipientString.split(';', limit = Constants.MAX_MULTI_OUT_RECIPIENTS).toTypedArray()
 
         if (transactionArray.size > Constants.MAX_MULTI_OUT_RECIPIENTS || transactionArray.size < 2) {
             val response = JsonObject()
@@ -48,7 +48,7 @@ internal class SendMoneyMulti(private val dp: DependencyProvider) :
         var totalAmountPlanck: Long = 0
         try {
             for (transactionString in transactionArray) {
-                val recipientArray = transactionString.split(":".toRegex(), 2).toTypedArray()
+                val recipientArray = transactionString.split(':', limit = 2).toTypedArray()
                 val recipientId = recipientArray[0].parseUnsignedLong()
                 val amountPlanck = recipientArray[1].parseUnsignedLong()
                 recipients[recipientId] = amountPlanck

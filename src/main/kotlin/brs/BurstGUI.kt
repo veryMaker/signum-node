@@ -336,7 +336,7 @@ class BurstGUI : Application() {
     class LimitedTextArea(private val maxNumberOfLines: Int) : TextArea() {
         override fun replaceText(start: Int, end: Int, text: String) {
             super.replaceText(start, end, text)
-            while (getText().split("\n".toRegex()).toTypedArray().size > maxNumberOfLines) {
+            while (getText().split('\n').toTypedArray().size > maxNumberOfLines) {
                 val fle = getText().indexOf('\n')
                 super.replaceText(0, fle + 1, "")
             }

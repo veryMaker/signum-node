@@ -6,7 +6,7 @@ import java.io.File
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class InverseExistsOrRewriteRegexRule constructor(private val baseDirectory: File, regex: String, replacement: String) : InverseRegexRule(regex), Rule.ApplyURI {
+class InverseExistsOrRewriteRegexRule constructor(private val baseDirectory: File, regex: Regex, replacement: String) : InverseRegexRule(regex), Rule.ApplyURI {
     private var replacement: String
     private var query: String? = null
     private var queryGroup: Boolean = false
@@ -14,7 +14,7 @@ class InverseExistsOrRewriteRegexRule constructor(private val baseDirectory: Fil
     init {
         isHandling = false
         isTerminating = false
-        val split = replacement.split("\\?".toRegex(), 2).toTypedArray()
+        val split = replacement.split(splitRegex, 2).toTypedArray()
         this.replacement = split[0]
         query = if (split.size == 2) split[1] else null
         queryGroup = query != null && query!!.contains("\$Q")
@@ -47,5 +47,9 @@ class InverseExistsOrRewriteRegexRule constructor(private val baseDirectory: Fil
             request.setURIPathQuery(newURI)
             request.queryString = query
         }
+    }
+
+    companion object {
+        private val splitRegex = Regex("\\?")
     }
 }

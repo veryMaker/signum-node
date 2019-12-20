@@ -76,7 +76,7 @@ class Subnet {
          * @throws UnknownHostException thrown if unsupported subnet mask.
          */
         fun createInstance(subnetMask: String): Subnet {
-            val stringArr = subnetMask.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val stringArr = subnetMask.split('/').dropLastWhile { it.isEmpty() }.toTypedArray()
             return if (2 > stringArr.size)
                 Subnet(InetAddress.getByName(stringArr[0]), null)
             else if (stringArr[1].contains(".") || stringArr[1].contains(":"))

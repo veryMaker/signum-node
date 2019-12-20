@@ -690,7 +690,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     override fun addPeer(address: String, announcedAddress: String?): Peer? {
         //re-add the [] to ipv6 addresses lost in getHostAddress() above
         var cleanAddress = address
-        if (cleanAddress.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray().size > 2) {
+        if (cleanAddress.split(':').dropLastWhile { it.isEmpty() }.toTypedArray().size > 2) {
             cleanAddress = "[$cleanAddress]"
         }
         var peer = peers[cleanAddress]

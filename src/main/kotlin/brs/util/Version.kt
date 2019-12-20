@@ -86,6 +86,8 @@ class Version(
     companion object {
         val EMPTY = Version(0, 0, 0, PrereleaseTag.NONE, -1)
 
+        private val prereleaseTagRegex = Regex("(?<=[a-z])(?=[0-9])")
+
         fun parse(versionString: String?): Version {
             if (versionString.isNullOrBlank()) {
                 return EMPTY
@@ -100,7 +102,7 @@ class Version(
                 val patch = Integer.parseInt(tokenizer.nextToken())
                 return if (tokenizer.hasMoreTokens()) {
                     val prereleaseTagAndIteration =
-                        tokenizer.nextToken().split("(?<=[a-z])(?=[0-9])".toRegex()).dropLastWhile { it.isEmpty() }
+                        tokenizer.nextToken().split(prereleaseTagRegex).dropLastWhile { it.isEmpty() }
                             .toTypedArray()
                     val prereleaseTag = PrereleaseTag.withTag(prereleaseTagAndIteration[0])
                     val prereleaseIteration =

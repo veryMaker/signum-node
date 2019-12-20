@@ -38,8 +38,7 @@ internal class SendMoneyMultiSame(private val dp: DependencyProvider) :
             return response
         }
 
-        val recipientsArray =
-            recipientString.split(";".toRegex(), Constants.MAX_MULTI_SAME_OUT_RECIPIENTS).toTypedArray()
+        val recipientsArray = recipientString.split(';', limit = Constants.MAX_MULTI_SAME_OUT_RECIPIENTS).toTypedArray()
 
         if (recipientsArray.size > Constants.MAX_MULTI_SAME_OUT_RECIPIENTS || recipientsArray.size < 2) {
             val response = JsonObject()

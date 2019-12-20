@@ -12,7 +12,6 @@ import kotlin.reflect.KClass
 class PropertyServiceImpl(private val properties: Properties) : PropertyService {
     private val logger = LoggerFactory.getLogger(Burst::class.java)
     private val parsers: Map<KClass<*>, (String) -> Any>
-
     private val alreadyLoggedProperties = mutableListOf<String>()
 
     init {
@@ -49,16 +48,16 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
 
     private fun getBoolean(value: String): Boolean {
         return when {
-            value.matches("(?i)^1|active|true|yes|on$".toRegex()) -> true
-            value.matches("(?i)^0|false|no|off$".toRegex()) -> false
+            value.matches(booleanTrueRegex) -> true
+            value.matches(booleanFalseRegex) -> false
             else -> throw IllegalArgumentException()
         }
     }
 
     private fun getInt(value: String): Int {
         return when {
-            value.matches("(?i)^0x[0-9a-fA-F]+$".toRegex()) -> Integer.parseInt(value.replaceFirst("0x", ""), 16)
-            value.matches("(?i)^0b[01]+$".toRegex()) -> Integer.parseInt(value.replaceFirst("0b", ""), 2)
+            value.matches(hexRegex) -> Integer.parseInt(value.replaceFirst("0x", ""), 16)
+            value.matches(binaryRegex) -> Integer.parseInt(value.replaceFirst("0b", ""), 2)
             else -> Integer.parseInt(value, 10)
         }
     }
@@ -84,5 +83,12 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
             this.logger.safeInfo(logText)
             this.alreadyLoggedProperties.add(propertyName)
         }
+    }
+
+    companion object {
+        private val hexRegex = Regex("(?i)^0x[0-9a-fA-F]+$")
+        private val binaryRegex = Regex("(?i)^0b[01]+\$")
+        private val booleanTrueRegex = Regex("(?i)^1|active|true|yes|on$")
+        private val booleanFalseRegex = Regex("(?i)^0|false|no|off$")
     }
 }
