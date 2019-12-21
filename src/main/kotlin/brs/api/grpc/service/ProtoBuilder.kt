@@ -294,6 +294,7 @@ object ProtoBuilder {
             .setTimestamp(trade.timestamp)
             .setAssetName(asset.name)
             .setAssetDescription(asset.description)
+            .setAssetDecimals(asset.decimals.toInt())
             .build()
     }
 

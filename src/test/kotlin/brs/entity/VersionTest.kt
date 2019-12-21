@@ -1,16 +1,15 @@
 package brs.entity
 
 import brs.util.Version
-import org.junit.Test
-
 import org.junit.Assert.*
+import org.junit.Test
 
 class VersionTest {
     @Test
     fun testVersionParse() {
         val validVersions = arrayOf("2.2.2", "v1.2.3", "v0.2.7-dev", "1.24.2-rc9", "v0.8.999-beta99")
 
-        val invalidVersions = arrayOf("v2.0", "v1.2.3-abc123", "v1a.2.3-dev", "1.0-dev", "v1.2.3-123dev123", "", null)
+        val invalidVersions = arrayOf("v2.0", "v1.2.3-abc123", "v1a.2.3-dev", "1.0-dev", "v1.2.3-123dev123", "v1.2.3-superdev6", "v1.2.3-dev42ab", "", null)
 
         validVersions.forEach { versionString ->
             val version = Version.parse(versionString)

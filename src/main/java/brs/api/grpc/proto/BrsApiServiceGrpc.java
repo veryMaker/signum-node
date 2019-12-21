@@ -1,17 +1,24 @@
 package brs.api.grpc.proto;
 
 import static io.grpc.MethodDescriptor.generateFullMethodName;
+import static io.grpc.stub.ClientCalls.asyncBidiStreamingCall;
+import static io.grpc.stub.ClientCalls.asyncClientStreamingCall;
 import static io.grpc.stub.ClientCalls.asyncServerStreamingCall;
 import static io.grpc.stub.ClientCalls.asyncUnaryCall;
-import static io.grpc.stub.ClientCalls.*;
+import static io.grpc.stub.ClientCalls.blockingServerStreamingCall;
+import static io.grpc.stub.ClientCalls.blockingUnaryCall;
+import static io.grpc.stub.ClientCalls.futureUnaryCall;
+import static io.grpc.stub.ServerCalls.asyncBidiStreamingCall;
+import static io.grpc.stub.ServerCalls.asyncClientStreamingCall;
 import static io.grpc.stub.ServerCalls.asyncServerStreamingCall;
 import static io.grpc.stub.ServerCalls.asyncUnaryCall;
-import static io.grpc.stub.ServerCalls.*;
+import static io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall;
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 
 /**
  */
 @javax.annotation.Generated(
-    value = "by gRPC proto compiler (version 1.25.0)",
+    value = "by gRPC proto compiler (version 1.26.0)",
     comments = "Source: brsApi.proto")
 public final class BrsApiServiceGrpc {
 
@@ -1450,7 +1457,14 @@ public final class BrsApiServiceGrpc {
    * Creates a new async stub that supports all call types for the service
    */
   public static BrsApiServiceStub newStub(io.grpc.Channel channel) {
-    return new BrsApiServiceStub(channel);
+    io.grpc.stub.AbstractStub.StubFactory<BrsApiServiceStub> factory =
+      new io.grpc.stub.AbstractStub.StubFactory<BrsApiServiceStub>() {
+        @java.lang.Override
+        public BrsApiServiceStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+          return new BrsApiServiceStub(channel, callOptions);
+        }
+      };
+    return BrsApiServiceStub.newStub(factory, channel);
   }
 
   /**
@@ -1458,7 +1472,14 @@ public final class BrsApiServiceGrpc {
    */
   public static BrsApiServiceBlockingStub newBlockingStub(
       io.grpc.Channel channel) {
-    return new BrsApiServiceBlockingStub(channel);
+    io.grpc.stub.AbstractStub.StubFactory<BrsApiServiceBlockingStub> factory =
+      new io.grpc.stub.AbstractStub.StubFactory<BrsApiServiceBlockingStub>() {
+        @java.lang.Override
+        public BrsApiServiceBlockingStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+          return new BrsApiServiceBlockingStub(channel, callOptions);
+        }
+      };
+    return BrsApiServiceBlockingStub.newStub(factory, channel);
   }
 
   /**
@@ -1466,7 +1487,14 @@ public final class BrsApiServiceGrpc {
    */
   public static BrsApiServiceFutureStub newFutureStub(
       io.grpc.Channel channel) {
-    return new BrsApiServiceFutureStub(channel);
+    io.grpc.stub.AbstractStub.StubFactory<BrsApiServiceFutureStub> factory =
+      new io.grpc.stub.AbstractStub.StubFactory<BrsApiServiceFutureStub>() {
+        @java.lang.Override
+        public BrsApiServiceFutureStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+          return new BrsApiServiceFutureStub(channel, callOptions);
+        }
+      };
+    return BrsApiServiceFutureStub.newStub(factory, channel);
   }
 
   /**
@@ -2194,19 +2222,15 @@ public final class BrsApiServiceGrpc {
 
   /**
    */
-  public static final class BrsApiServiceStub extends io.grpc.stub.AbstractStub<BrsApiServiceStub> {
-    private BrsApiServiceStub(io.grpc.Channel channel) {
-      super(channel);
-    }
-
-    private BrsApiServiceStub(io.grpc.Channel channel,
-        io.grpc.CallOptions callOptions) {
+  public static final class BrsApiServiceStub extends io.grpc.stub.AbstractAsyncStub<BrsApiServiceStub> {
+    private BrsApiServiceStub(
+        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       super(channel, callOptions);
     }
 
     @java.lang.Override
-    protected BrsApiServiceStub build(io.grpc.Channel channel,
-        io.grpc.CallOptions callOptions) {
+    protected BrsApiServiceStub build(
+        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new BrsApiServiceStub(channel, callOptions);
     }
 
@@ -2650,19 +2674,15 @@ public final class BrsApiServiceGrpc {
 
   /**
    */
-  public static final class BrsApiServiceBlockingStub extends io.grpc.stub.AbstractStub<BrsApiServiceBlockingStub> {
-    private BrsApiServiceBlockingStub(io.grpc.Channel channel) {
-      super(channel);
-    }
-
-    private BrsApiServiceBlockingStub(io.grpc.Channel channel,
-        io.grpc.CallOptions callOptions) {
+  public static final class BrsApiServiceBlockingStub extends io.grpc.stub.AbstractBlockingStub<BrsApiServiceBlockingStub> {
+    private BrsApiServiceBlockingStub(
+        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       super(channel, callOptions);
     }
 
     @java.lang.Override
-    protected BrsApiServiceBlockingStub build(io.grpc.Channel channel,
-        io.grpc.CallOptions callOptions) {
+    protected BrsApiServiceBlockingStub build(
+        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new BrsApiServiceBlockingStub(channel, callOptions);
     }
 
@@ -3061,19 +3081,15 @@ public final class BrsApiServiceGrpc {
 
   /**
    */
-  public static final class BrsApiServiceFutureStub extends io.grpc.stub.AbstractStub<BrsApiServiceFutureStub> {
-    private BrsApiServiceFutureStub(io.grpc.Channel channel) {
-      super(channel);
-    }
-
-    private BrsApiServiceFutureStub(io.grpc.Channel channel,
-        io.grpc.CallOptions callOptions) {
+  public static final class BrsApiServiceFutureStub extends io.grpc.stub.AbstractFutureStub<BrsApiServiceFutureStub> {
+    private BrsApiServiceFutureStub(
+        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       super(channel, callOptions);
     }
 
     @java.lang.Override
-    protected BrsApiServiceFutureStub build(io.grpc.Channel channel,
-        io.grpc.CallOptions callOptions) {
+    protected BrsApiServiceFutureStub build(
+        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new BrsApiServiceFutureStub(channel, callOptions);
     }
 

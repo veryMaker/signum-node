@@ -17,13 +17,13 @@ class GetAccountCurrentOrdersHandler(private val assetExchangeService: AssetExch
 
         val builder = BrsApi.Orders.newBuilder()
         when (request.orderType) {
-            BrsApi.OrderType.ASK -> (if (assetId == 0L) assetExchangeService.getAskOrdersByAccount(
+            BrsApi.AssetOrderType.ASK -> (if (assetId == 0L) assetExchangeService.getAskOrdersByAccount(
                 accountId,
                 firstIndex,
                 lastIndex
             ) else assetExchangeService.getAskOrdersByAccountAsset(accountId, assetId, firstIndex, lastIndex))
                 .forEach { order -> builder.addOrders(ProtoBuilder.buildOrder(order)) }
-            BrsApi.OrderType.BID -> (if (assetId == 0L) assetExchangeService.getBidOrdersByAccount(
+            BrsApi.AssetOrderType.BID -> (if (assetId == 0L) assetExchangeService.getBidOrdersByAccount(
                 accountId,
                 firstIndex,
                 lastIndex

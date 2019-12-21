@@ -18,18 +18,18 @@ class GetOrdersHandler(private val assetExchangeService: AssetExchangeService) :
         if (assetId == 0L) {
             // Get all open orders
             when (request.orderType) {
-                BrsApi.OrderType.ASK -> assetExchangeService.getAllAskOrders(firstIndex, lastIndex)
+                BrsApi.AssetOrderType.ASK -> assetExchangeService.getAllAskOrders(firstIndex, lastIndex)
                     .forEach { order -> builder.addOrders(ProtoBuilder.buildOrder(order)) }
-                BrsApi.OrderType.BID -> assetExchangeService.getAllBidOrders(firstIndex, lastIndex)
+                BrsApi.AssetOrderType.BID -> assetExchangeService.getAllBidOrders(firstIndex, lastIndex)
                     .forEach { order -> builder.addOrders(ProtoBuilder.buildOrder(order)) }
                 else -> throw ApiException("Order type unset")
             }
         } else {
             // Get orders under that asset
             when (request.orderType) {
-                BrsApi.OrderType.ASK -> assetExchangeService.getSortedAskOrders(assetId, firstIndex, lastIndex)
+                BrsApi.AssetOrderType.ASK -> assetExchangeService.getSortedAskOrders(assetId, firstIndex, lastIndex)
                     .forEach { order -> builder.addOrders(ProtoBuilder.buildOrder(order)) }
-                BrsApi.OrderType.BID -> assetExchangeService.getSortedBidOrders(assetId, firstIndex, lastIndex)
+                BrsApi.AssetOrderType.BID -> assetExchangeService.getSortedBidOrders(assetId, firstIndex, lastIndex)
                     .forEach { order -> builder.addOrders(ProtoBuilder.buildOrder(order)) }
                 else -> throw ApiException("Order type unset")
             }

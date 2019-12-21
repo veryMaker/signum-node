@@ -20,7 +20,7 @@ class GetAssetBalancesHandler(private val assetExchangeService: AssetExchangeSer
 
         val builder = BrsApi.AssetBalances.newBuilder()
 
-        assetExchangeService.getAccountAssetsOverview(asset.id, height, firstIndex, lastIndex)
+        assetExchangeService.getAccountAssetsOverview(asset.id, if (height == 0) -1 else height, firstIndex, lastIndex)
             .forEach { assetAccount -> builder.addAssetBalances(ProtoBuilder.buildAssetBalance(assetAccount)) }
 
         return builder.build()

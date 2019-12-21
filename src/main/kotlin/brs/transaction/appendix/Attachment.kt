@@ -185,11 +185,11 @@ interface Attachment : Appendix {
                     attachment.`is`(BrsApi.AssetOrderPlacementAttachment::class.java) -> {
                         val placementAttachment = attachment.unpack(BrsApi.AssetOrderPlacementAttachment::class.java)
                         return when (placementAttachment.type) {
-                            BrsApi.OrderType.ASK -> ColoredCoinsAskOrderPlacement(
+                            BrsApi.AssetOrderType.ASK -> ColoredCoinsAskOrderPlacement(
                                 dp,
                                 placementAttachment
                             )
-                            BrsApi.OrderType.BID -> ColoredCoinsBidOrderPlacement(
+                            BrsApi.AssetOrderType.BID -> ColoredCoinsBidOrderPlacement(
                                 dp,
                                 placementAttachment
                             )
@@ -199,11 +199,11 @@ interface Attachment : Appendix {
                     attachment.`is`(BrsApi.AssetOrderCancellationAttachment::class.java) -> {
                         val placementAttachment = attachment.unpack(BrsApi.AssetOrderCancellationAttachment::class.java)
                         return when (placementAttachment.type) {
-                            BrsApi.OrderType.ASK -> ColoredCoinsAskOrderCancellation(
+                            BrsApi.AssetOrderType.ASK -> ColoredCoinsAskOrderCancellation(
                                 dp,
                                 placementAttachment
                             )
-                            BrsApi.OrderType.BID -> ColoredCoinsBidOrderCancellation(
+                            BrsApi.AssetOrderType.BID -> ColoredCoinsBidOrderCancellation(
                                 dp,
                                 placementAttachment
                             )
@@ -1009,7 +1009,7 @@ interface Attachment : Appendix {
                     .build()
             )
 
-        protected abstract val type: BrsApi.OrderType
+        protected abstract val type: BrsApi.AssetOrderType
 
         internal constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(
             dp,
@@ -1063,8 +1063,8 @@ interface Attachment : Appendix {
 
     class ColoredCoinsAskOrderPlacement : ColoredCoinsOrderPlacement {
 
-        override val type: BrsApi.OrderType
-            get() = BrsApi.OrderType.ASK
+        override val type: BrsApi.AssetOrderType
+            get() = BrsApi.AssetOrderType.ASK
 
         override fun getAppendixName(): String = "AskOrderPlacement"
 
@@ -1097,8 +1097,8 @@ interface Attachment : Appendix {
 
     class ColoredCoinsBidOrderPlacement : ColoredCoinsOrderPlacement {
 
-        override val type: BrsApi.OrderType
-            get() = BrsApi.OrderType.BID
+        override val type: BrsApi.AssetOrderType
+            get() = BrsApi.AssetOrderType.BID
 
         override fun getAppendixName(): String = "BidOrderPlacement"
 
@@ -1146,7 +1146,7 @@ interface Attachment : Appendix {
                     .build()
             )
 
-        protected abstract val type: BrsApi.OrderType
+        protected abstract val type: BrsApi.AssetOrderType
 
         constructor(dp: DependencyProvider, buffer: ByteBuffer, transactionVersion: Byte) : super(
             dp,
@@ -1182,8 +1182,8 @@ interface Attachment : Appendix {
 
     class ColoredCoinsAskOrderCancellation : ColoredCoinsOrderCancellation {
 
-        override val type: BrsApi.OrderType
-            get() = BrsApi.OrderType.ASK
+        override val type: BrsApi.AssetOrderType
+            get() = BrsApi.AssetOrderType.ASK
 
         override fun getAppendixName(): String = "AskOrderCancellation"
 
@@ -1214,8 +1214,8 @@ interface Attachment : Appendix {
 
     class ColoredCoinsBidOrderCancellation : ColoredCoinsOrderCancellation {
 
-        override val type: BrsApi.OrderType
-            get() = BrsApi.OrderType.BID
+        override val type: BrsApi.AssetOrderType
+            get() = BrsApi.AssetOrderType.BID
 
         override fun getAppendixName(): String = "BidOrderCancellation"
 

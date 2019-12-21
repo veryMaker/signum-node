@@ -15,7 +15,7 @@ abstract class Order {
 
     var quantity: Long = 0
 
-    abstract val protobufType: BrsApi.OrderType
+    abstract val protobufType: BrsApi.AssetOrderType
 
     private constructor(transaction: Transaction, attachment: Attachment.ColoredCoinsOrderPlacement) {
         this.id = transaction.id
@@ -50,8 +50,8 @@ abstract class Order {
 
         val dbKey: BurstKey
 
-        override val protobufType: BrsApi.OrderType
-            get() = BrsApi.OrderType.ASK
+        override val protobufType: BrsApi.AssetOrderType
+            get() = BrsApi.AssetOrderType.ASK
 
         constructor(
             dbKey: BurstKey,
@@ -78,8 +78,8 @@ abstract class Order {
 
         val dbKey: BurstKey
 
-        override val protobufType: BrsApi.OrderType
-            get() = BrsApi.OrderType.BID
+        override val protobufType: BrsApi.AssetOrderType
+            get() = BrsApi.AssetOrderType.BID
 
         constructor(
             dbKey: BurstKey,

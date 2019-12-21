@@ -211,21 +211,22 @@ message AssetTrade {
     uint32 timestamp = 13;
     string assetName = 14;
     string assetDescription = 15;
+    uint32 assetDecimals = 16;
 }
 
 message GetOrdersRequest {
     uint64 asset = 1; // If 0 returns all open orders.
-    OrderType orderType = 2;
+    AssetOrderType orderType = 2;
     IndexRange indexRange = 3;
 }
 
 message GetOrderRequest {
     uint64 orderId = 1;
-    OrderType orderType = 2;
+    AssetOrderType orderType = 2;
 }
 
 message GetOpenOrdersRequest {
-    OrderType orderType = 1;
+    AssetOrderType orderType = 1;
     IndexRange indexRange = 2;
 }
 
@@ -332,14 +333,14 @@ message Order {
     uint64 quantity = 4;
     uint64 price = 5;
     uint32 height = 6;
-    OrderType type = 7;
+    AssetOrderType type = 7;
 }
 
 message GetAccountOrdersRequest {
     uint64 account = 1;
     uint64 asset = 2;
     IndexRange indexRange = 3;
-    OrderType orderType = 4;
+    AssetOrderType orderType = 4;
 }
 
 message IndexRange {
@@ -649,7 +650,7 @@ message AssetTransferAttachment {
     string comment = 4;
 }
 
-enum OrderType {
+enum AssetOrderType {
     OrderType_UNSET = 0;
     ASK = 1;
     BID = 2;
@@ -660,13 +661,13 @@ message AssetOrderPlacementAttachment {
     uint64 asset = 2;
     uint64 quantity = 3;
     uint64 price = 4;
-    OrderType type = 5;
+    AssetOrderType type = 5;
 }
 
 message AssetOrderCancellationAttachment {
     uint32 version = 1;
     uint64 order = 2;
-    OrderType type = 3;
+    AssetOrderType type = 3;
 }
 
 message DigitalGoodsListingAttachment {
