@@ -5,7 +5,7 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 class AtomicLateinit<T : Any> : ReadWriteProperty<Any?, T> {
-    private val ref = AtomicReference<T>()
+    private val ref = AtomicReference<T>(null)
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
         return ref.get() ?: throw UninitializedPropertyAccessException()

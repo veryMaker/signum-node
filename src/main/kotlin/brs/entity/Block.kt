@@ -32,7 +32,10 @@ class Block internal constructor(
     val payloadHash: ByteArray,
     val generatorPublicKey: ByteArray,
     val generationSignature: ByteArray,
-    blockSignature: ByteArray?,
+    /**
+     * The block signature, should be 64 bytes long.
+     */
+    var blockSignature: ByteArray?,
     val previousBlockHash: ByteArray?,
     transactions: Collection<Transaction>?,
     val nonce: Long,
@@ -44,11 +47,6 @@ class Block internal constructor(
         txs.forEach { it.setBlock(this) }
         txs
     }
-
-    /**
-     * The block signature, should be 64 bytes long.
-     */
-    var blockSignature: ByteArray?
 
     var cumulativeDifficulty: BigInteger = BigInteger.ZERO
 
@@ -148,7 +146,6 @@ class Block internal constructor(
                 "attempted to create a block with payloadLength " + payloadLength + " height " + height + "previd " + previousBlockId
             )
         }
-        this.blockSignature = blockSignature
         if (transactions != null) {
             if (transactions.size > dp.fluxCapacitorService.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, height)) {
                 throw BurstException.NotValidException(

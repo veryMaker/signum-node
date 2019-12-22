@@ -404,7 +404,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 var subtype = buffer.get()
                 val version = ((subtype.toInt() and 0xF0) shr 4).toByte()
                 subtype = (subtype and 0x0F)
-                val timestamp = buffer.get().toInt()
+                val timestamp = buffer.int
                 val deadline = buffer.short
                 val senderPublicKey = ByteArray(32)
                 buffer.get(senderPublicKey)
@@ -419,8 +419,8 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                 var ecBlockHeight = 0
                 var ecBlockId: Long = 0
                 if (version > 0) {
-                    flags = buffer.get().toInt()
-                    ecBlockHeight = buffer.get().toInt()
+                    flags = buffer.int
+                    ecBlockHeight = buffer.int
                     ecBlockId = buffer.long
                 }
                 val transactionType = TransactionType.findTransactionType(dp, type, subtype) ?: error("Could not find transaction with type $type and subtype $subtype")

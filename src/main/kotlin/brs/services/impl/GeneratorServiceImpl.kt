@@ -18,8 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorService {
     private val listeners = Listeners<GeneratorService.GeneratorState, GeneratorService.Event>()
-    private val generators =
-        ConcurrentHashMap<Long, GeneratorStateImpl>() // Remember, this map type cannot take null keys.
+    private val generators = ConcurrentHashMap<Long, GeneratorStateImpl>() // Remember, this map type cannot take null keys.
     private val burstCrypto = BurstCrypto.getInstance()
 
     init {

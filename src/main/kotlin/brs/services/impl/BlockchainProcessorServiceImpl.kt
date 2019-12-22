@@ -1058,7 +1058,6 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 logger.safeDebug { "Generate block failed: ${e.message}" }
                 throw e
             }
-
         }
     }
 

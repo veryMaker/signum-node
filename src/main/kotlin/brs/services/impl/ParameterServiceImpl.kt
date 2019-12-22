@@ -182,12 +182,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         val nonce = request.getParameter(ENCRYPTED_MESSAGE_NONCE_PARAMETER).emptyToNull()
         val isText = isTrue(request.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER))
         if (data != null && nonce != null) {
-            try {
-                return BurstEncryptedMessage(data.parseHexString(), nonce.parseHexString(), isText)
-            } catch (e: Exception) {
-                throw ParameterException(INCORRECT_ENCRYPTED_MESSAGE)
-            }
-
+            return BurstEncryptedMessage(data.parseHexString(), nonce.parseHexString(), isText)
         }
         val plainMessage = request.getParameter(MESSAGE_TO_ENCRYPT_PARAMETER).emptyToNull() ?: return null
 
