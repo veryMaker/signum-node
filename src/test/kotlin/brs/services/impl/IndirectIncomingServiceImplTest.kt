@@ -52,7 +52,7 @@ class IndirectIncomingServiceImplTest {
             on { getRecipients() } doReturn recipients
         }
         val multiOut = mock<Transaction> {
-            on { type } doReturn MultiOutPayment(dp)
+            on { it.type } doReturn MultiOutPayment(dp)
             on { it.attachment } doReturn attachment
         }
         indirectIncomingService.processTransaction(multiOut)

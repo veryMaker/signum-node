@@ -67,7 +67,6 @@ import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 
 class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterService {
-
     override fun getAccount(request: HttpServletRequest): Account {
         val accountId = request.getParameter(ACCOUNT_PARAMETER).emptyToNull()
             ?: throw ParameterException(MISSING_ACCOUNT)
@@ -182,7 +181,11 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         val nonce = request.getParameter(ENCRYPTED_MESSAGE_NONCE_PARAMETER).emptyToNull()
         val isText = isTrue(request.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER))
         if (data != null && nonce != null) {
-            return BurstEncryptedMessage(data.parseHexString(), nonce.parseHexString(), isText)
+            try {
+                return BurstEncryptedMessage(data.parseHexString(), nonce.parseHexString(), isText)
+            } catch (e: Exception) {
+                throw ParameterException(INCORRECT_ENCRYPTED_MESSAGE)
+            }
         }
         val plainMessage = request.getParameter(MESSAGE_TO_ENCRYPT_PARAMETER).emptyToNull() ?: return null
 

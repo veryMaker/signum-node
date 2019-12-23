@@ -39,31 +39,6 @@ interface Peer : Comparable<Peer> {
 
     fun connect(currentTime: Int)
 
-    enum class State {
-        NON_CONNECTED, CONNECTED, DISCONNECTED;
-
-        fun toProtobuf(): BrsApi.PeerState {
-            return when (this) {
-                NON_CONNECTED -> BrsApi.PeerState.NON_CONNECTED
-                CONNECTED -> BrsApi.PeerState.CONNECTED
-                DISCONNECTED -> BrsApi.PeerState.NON_CONNECTED
-                else -> BrsApi.PeerState.UNRECOGNIZED
-            }
-        }
-
-        companion object {
-
-            fun fromProtobuf(peer: BrsApi.PeerState): State? {
-                return when (peer) {
-                    BrsApi.PeerState.NON_CONNECTED -> NON_CONNECTED
-                    BrsApi.PeerState.CONNECTED -> CONNECTED
-                    BrsApi.PeerState.DISCONNECTED -> DISCONNECTED
-                    else -> null
-                }
-            }
-        }
-    }
-
     fun updateUploadedVolume(volume: Long)
 
     fun isHigherOrEqualVersionThan(version: Version): Boolean
@@ -84,15 +59,36 @@ interface Peer : Comparable<Peer> {
 
     fun send(request: JsonElement): JsonObject?
 
-    companion object {
-        fun isHigherOrEqualVersion(ourVersion: Version?, possiblyLowerVersion: Version?): Boolean {
-            return if (ourVersion == null || possiblyLowerVersion == null) false else possiblyLowerVersion.isGreaterThanOrEqualTo(
-                ourVersion
-            )
-        }
-    }
-
     fun setVersion(version: String?)
 
     var shareAddress: Boolean
+
+    enum class State {
+        NON_CONNECTED, CONNECTED, DISCONNECTED;
+
+        fun toProtobuf(): BrsApi.PeerState {
+            return when (this) {
+                NON_CONNECTED -> BrsApi.PeerState.NON_CONNECTED
+                CONNECTED -> BrsApi.PeerState.CONNECTED
+                DISCONNECTED -> BrsApi.PeerState.NON_CONNECTED
+            }
+        }
+
+        companion object {
+            fun fromProtobuf(peer: BrsApi.PeerState): State? {
+                return when (peer) {
+                    BrsApi.PeerState.NON_CONNECTED -> NON_CONNECTED
+                    BrsApi.PeerState.CONNECTED -> CONNECTED
+                    BrsApi.PeerState.DISCONNECTED -> DISCONNECTED
+                    else -> null
+                }
+            }
+        }
+    }
+
+    companion object {
+        fun isHigherOrEqualVersion(ourVersion: Version?, possiblyLowerVersion: Version?): Boolean {
+            return ourVersion != null && possiblyLowerVersion?.isGreaterThanOrEqualTo(ourVersion) ?: false
+        }
+    }
 }

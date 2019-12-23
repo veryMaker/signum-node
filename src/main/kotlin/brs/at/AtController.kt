@@ -8,6 +8,7 @@ import brs.util.convert.toUnsignedString
 import brs.util.crypto.Crypto
 import brs.util.logging.safeDebug
 import brs.util.logging.safeTrace
+import brs.util.logging.safeWarn
 import org.slf4j.LoggerFactory
 import org.slf4j.helpers.NOPLogger
 import java.nio.BufferUnderflowException
@@ -211,9 +212,7 @@ class AtController(private val dp: DependencyProvider) {
             val atAccountBalance = getATAccountBalance(id)
             val atStateBalance = at.getgBalance()
 
-            if (at.freezeOnSameBalance() && atAccountBalance - atStateBalance < at.minActivationAmount()) {
-                continue
-            }
+            if (at.freezeOnSameBalance() && atAccountBalance - atStateBalance < at.minActivationAmount()) continue
 
             if (atAccountBalance >= dp.atConstants[at.creationBlockHeight].stepFee * dp.atConstants[at.creationBlockHeight].apiStepMultiplier) {
                 try {
@@ -245,9 +244,8 @@ class AtController(private val dp: DependencyProvider) {
 
                     processedATs.add(at)
                 } catch (e: Exception) {
-                    debugLogger.safeDebug(e) { "Error handling AT" }
+                    debugLogger.safeWarn(e) { "Error handling AT" }
                 }
-
             }
         }
 
