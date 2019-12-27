@@ -9,9 +9,8 @@ import brs.api.http.common.ResultFields.PRIORITY_FEE_RESPONSE
 import brs.api.http.common.ResultFields.STANDARD_FEE_RESPONSE
 import brs.util.json.safeGetAsLong
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -24,7 +23,7 @@ class SuggestFeeTest {
 
     @Before
     fun setUp() {
-        feeSuggestionServiceImpl = mock()
+        feeSuggestionServiceImpl = mockk()
 
         t = SuggestFee(feeSuggestionServiceImpl)
     }
@@ -38,7 +37,7 @@ class SuggestFeeTest {
         val priority = 10 * FEE_QUANT
         val feeSuggestion = FeeSuggestion(cheap, standard, priority)
 
-        whenever(feeSuggestionServiceImpl.giveFeeSuggestion()).doReturn(feeSuggestion)
+        every { feeSuggestionServiceImpl.giveFeeSuggestion() } returns feeSuggestion
 
         val result = t.processRequest(request) as JsonObject
 

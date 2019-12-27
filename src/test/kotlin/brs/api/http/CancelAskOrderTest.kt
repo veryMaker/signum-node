@@ -1,23 +1,21 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.services.BlockchainService
-import brs.entity.DependencyProvider
-import brs.entity.Order.Ask
-import brs.services.AssetExchangeService
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
-import brs.objects.FluxValues
 import brs.api.http.JSONResponses.UNKNOWN_ORDER
 import brs.api.http.common.Parameters.ORDER_PARAMETER
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Account
+import brs.entity.DependencyProvider
+import brs.entity.Order.Ask
+import brs.objects.FluxValues
+import brs.services.AssetExchangeService
+import brs.services.BlockchainService
 import brs.services.ParameterService
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.transaction.type.coloredCoins.AskOrderCancellation
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -33,10 +31,10 @@ class CancelAskOrderTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
-        blockchainServiceMock = mock()
-        assetExchangeServiceMock = mock()
-        apiTransactionManagerMock = mock()
+        parameterServiceMock = mockk()
+        blockchainServiceMock = mockk()
+        assetExchangeServiceMock = mockk()
+        apiTransactionManagerMock = mockk()
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             blockchainServiceMock,
@@ -55,14 +53,14 @@ class CancelAskOrderTest : AbstractTransactionTest() {
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        val sellerAccount = mock<Account>()
-        whenever(sellerAccount.id).doReturn(sellerId)
+        val sellerAccount = mockk<Account>()
+        every { sellerAccount.id } returns sellerId
 
-        val order = mock<Ask>()
-        whenever(order.accountId).doReturn(sellerId)
+        val order = mockk<Ask>()
+        every { order.accountId } returns sellerId
 
-        whenever(assetExchangeServiceMock.getAskOrder(eq(orderId))).doReturn(order)
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(sellerAccount)
+        every { assetExchangeServiceMock.getAskOrder(eq(orderId)) } returns order
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns sellerAccount
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
@@ -83,7 +81,7 @@ class CancelAskOrderTest : AbstractTransactionTest() {
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        whenever(assetExchangeServiceMock.getAskOrder(eq(orderId).toLong())).doReturn(null)
+        every { assetExchangeServiceMock.getAskOrder(eq(orderId.toLong())) } returns null
 
         assertEquals(UNKNOWN_ORDER, t.processRequest(request))
     }
@@ -98,14 +96,14 @@ class CancelAskOrderTest : AbstractTransactionTest() {
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        val sellerAccount = mock<Account>()
-        whenever(sellerAccount.id).doReturn(accountId)
+        val sellerAccount = mockk<Account>()
+        every { sellerAccount.id } returns accountId
 
-        val order = mock<Ask>()
-        whenever(order.accountId).doReturn(otherAccountId)
+        val order = mockk<Ask>()
+        every { order.accountId } returns otherAccountId
 
-        whenever(assetExchangeServiceMock.getAskOrder(eq(orderId))).doReturn(order)
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(sellerAccount)
+        every { assetExchangeServiceMock.getAskOrder(eq(orderId)) } returns order
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns sellerAccount
 
         assertEquals(UNKNOWN_ORDER, t.processRequest(request))
     }

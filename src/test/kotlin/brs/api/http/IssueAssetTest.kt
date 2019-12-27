@@ -1,14 +1,5 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
-import brs.services.BlockchainService
-import brs.objects.Constants.MAX_ASSET_DESCRIPTION_LENGTH
-import brs.objects.Constants.MAX_ASSET_NAME_LENGTH
-import brs.objects.Constants.MIN_ASSET_NAME_LENGTH
-import brs.entity.DependencyProvider
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
-import brs.objects.FluxValues
 import brs.api.http.JSONResponses.INCORRECT_ASSET_DESCRIPTION
 import brs.api.http.JSONResponses.INCORRECT_ASSET_NAME
 import brs.api.http.JSONResponses.INCORRECT_ASSET_NAME_LENGTH
@@ -18,13 +9,20 @@ import brs.api.http.common.Parameters.DECIMALS_PARAMETER
 import brs.api.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.api.http.common.Parameters.NAME_PARAMETER
 import brs.api.http.common.Parameters.QUANTITY_QNT_PARAMETER
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.DependencyProvider
+import brs.objects.Constants.MAX_ASSET_DESCRIPTION_LENGTH
+import brs.objects.Constants.MAX_ASSET_NAME_LENGTH
+import brs.objects.Constants.MIN_ASSET_NAME_LENGTH
+import brs.objects.FluxValues
+import brs.services.BlockchainService
 import brs.services.ParameterService
+import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.transaction.type.coloredCoins.AssetIssuance
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -42,10 +40,10 @@ class IssueAssetTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
-        whenever(mockParameterService.getSenderAccount(any())).doReturn(mock())
-        mockBlockchainService = mock()
-        apiTransactionManagerMock = mock()
+        mockParameterService = mockk()
+        every { mockParameterService.getSenderAccount(any()) } returns mockk()
+        mockBlockchainService = mockk()
+        apiTransactionManagerMock = mockk()
         dp = QuickMocker.dependencyProvider(mockParameterService, mockBlockchainService, apiTransactionManagerMock)
         t = IssueAsset(dp)
     }

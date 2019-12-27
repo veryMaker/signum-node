@@ -11,10 +11,10 @@ interface ATService {
     /**
      * TODO
      */
-    fun getATsIssuedBy(accountId: Long?): List<Long>
+    fun getATsIssuedBy(accountId: Long): List<Long>
 
     /**
      * TODO
      */
-    fun getAT(id: Long?): AT?
+    fun getAT(id: Long): AT?
 }

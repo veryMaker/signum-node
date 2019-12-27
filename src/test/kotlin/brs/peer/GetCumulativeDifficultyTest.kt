@@ -6,9 +6,8 @@ import brs.services.BlockchainService
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -23,11 +22,11 @@ class GetCumulativeDifficultyTest {
 
     @Before
     fun setUp() {
-        mockBlockchainService = mock()
-        mockLastBlock = mock()
-        whenever(mockLastBlock.height).doReturn(50)
-        whenever(mockLastBlock.cumulativeDifficulty).doReturn(BigInteger.TEN)
-        whenever(mockBlockchainService.lastBlock).doReturn(mockLastBlock)
+        mockBlockchainService = mockk()
+        mockLastBlock = mockk()
+        every { mockLastBlock.height } returns 50
+        every { mockLastBlock.cumulativeDifficulty } returns BigInteger.TEN
+        every { mockBlockchainService.lastBlock } returns mockLastBlock
         t = GetCumulativeDifficulty(mockBlockchainService)
     }
 
@@ -36,7 +35,7 @@ class GetCumulativeDifficultyTest {
 
         val request = QuickMocker.jsonObject()
 
-        val result = t.processRequest(request, mock()) as JsonObject
+        val result = t.processRequest(request, mockk()) as JsonObject
         assertNotNull(result)
 
         assertEquals("10", result.get("cumulativeDifficulty").safeGetAsString())

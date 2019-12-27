@@ -8,9 +8,8 @@ import brs.api.http.common.Parameters.NAME_PARAMETER
 import brs.services.AccountService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -24,7 +23,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        accountService = mock()
+        accountService = mockk()
 
         t = GetAccountsWithName(accountService)
     }
@@ -38,13 +37,13 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
                 QuickMocker.MockParam(NAME_PARAMETER, targetAccountName)
         )
 
-        val targetAccount = mock<Account>()
-        whenever(targetAccount.id).doReturn(targetAccountId)
-        whenever(targetAccount.name).doReturn(targetAccountName)
+        val targetAccount = mockk<Account>()
+        every { targetAccount.id } returns targetAccountId
+        every { targetAccount.name } returns targetAccountName
 
         val mockIterator = mockCollection(targetAccount)
 
-        whenever(accountService.getAccountsWithName(targetAccountName)).doReturn(mockIterator)
+        every { accountService.getAccountsWithName(targetAccountName) } returns mockIterator
 
         val resultOverview = t.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
@@ -64,7 +63,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
 
         val mockIterator = mockCollection<Account>()
 
-        whenever(accountService.getAccountsWithName(targetAccountName)).doReturn(mockIterator)
+        every { accountService.getAccountsWithName(targetAccountName) } returns mockIterator
 
         val resultOverview = t.processRequest(request) as JsonObject
         assertNotNull(resultOverview)

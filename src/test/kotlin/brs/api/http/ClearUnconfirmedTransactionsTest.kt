@@ -7,9 +7,8 @@ import brs.services.TransactionProcessorService
 import brs.util.json.safeGetAsBoolean
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doThrow
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -23,7 +22,7 @@ class ClearUnconfirmedTransactionsTest {
 
     @Before
     fun init() {
-        transactionProcessorServiceMock = mock()
+        transactionProcessorServiceMock = mockk()
 
         this.t = ClearUnconfirmedTransactions(transactionProcessorServiceMock)
     }
@@ -41,7 +40,7 @@ class ClearUnconfirmedTransactionsTest {
     fun processRequest_runtimeExceptionOccurs() {
         val request = QuickMocker.httpServletRequest()
 
-        doThrow(RuntimeException("errorMessage")).whenever(transactionProcessorServiceMock).clearUnconfirmedTransactions()
+        every { transactionProcessorServiceMock.clearUnconfirmedTransactions() } throws RuntimeException("errorMessage")
 
         val result = t.processRequest(request) as JsonObject
 

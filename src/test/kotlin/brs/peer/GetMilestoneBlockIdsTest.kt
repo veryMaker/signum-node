@@ -1,7 +1,7 @@
 package brs.peer
 
 import brs.services.BlockchainService
-import com.nhaarman.mockitokotlin2.mock
+import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
 
@@ -12,8 +12,8 @@ class GetMilestoneBlockIdsTest {
 
     @Before
     fun setUp() {
-        blockchainService = mock()
-        peer = mock()
+        blockchainService = mockk()
+        peer = mockk()
         t = GetMilestoneBlockIds(blockchainService)
     }
 

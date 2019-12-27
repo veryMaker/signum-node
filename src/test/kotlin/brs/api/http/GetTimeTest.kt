@@ -5,9 +5,8 @@ import brs.api.http.common.ResultFields.TIME_RESPONSE
 import brs.services.TimeService
 import brs.util.json.safeGetAsLong
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -20,7 +19,7 @@ class GetTimeTest {
 
     @Before
     fun setUp() {
-        mockTimeService = mock()
+        mockTimeService = mockk()
 
         t = GetTime(mockTimeService)
     }
@@ -31,7 +30,7 @@ class GetTimeTest {
 
         val currentEpochTime = 123
 
-        whenever(mockTimeService.epochTime).doReturn(currentEpochTime)
+        every { mockTimeService.epochTime } returns currentEpochTime
 
         val result = t.processRequest(request) as JsonObject
 

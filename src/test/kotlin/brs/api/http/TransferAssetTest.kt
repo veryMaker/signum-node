@@ -1,23 +1,24 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.services.BlockchainService
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
-import brs.objects.FluxValues
 import brs.api.http.JSONResponses.NOT_ENOUGH_ASSETS
 import brs.api.http.common.Parameters.ASSET_PARAMETER
 import brs.api.http.common.Parameters.QUANTITY_QNT_PARAMETER
 import brs.api.http.common.Parameters.RECIPIENT_PARAMETER
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Account
 import brs.entity.Asset
 import brs.entity.DependencyProvider
+import brs.objects.FluxValues
 import brs.services.AccountService
+import brs.services.BlockchainService
 import brs.services.ParameterService
 import brs.services.TransactionProcessorService
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.transaction.type.coloredCoins.AssetTransfer
-import com.nhaarman.mockitokotlin2.*
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -37,11 +38,11 @@ class TransferAssetTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
-        blockchainServiceMock = mock()
-        apiTransactionManagerMock = mock()
-        transactionProcessorServiceMock = mock()
-        accountServiceMock = mock()
+        parameterServiceMock = mockk()
+        blockchainServiceMock = mockk()
+        apiTransactionManagerMock = mockk()
+        transactionProcessorServiceMock = mockk()
+        accountServiceMock = mockk()
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             blockchainServiceMock,
@@ -63,15 +64,15 @@ class TransferAssetTest : AbstractTransactionTest() {
                 MockParam(QUANTITY_QNT_PARAMETER, quantityParameter)
         )
 
-        val mockAsset = mock<Asset>()
+        val mockAsset = mockk<Asset>()
 
-        whenever(parameterServiceMock.getAsset(eq(request))).doReturn(mockAsset)
-        whenever(mockAsset.id).doReturn(assetIdParameter)
+        every { parameterServiceMock.getAsset(eq(request)) } returns mockAsset
+        every { mockAsset.id } returns assetIdParameter
 
-        val mockSenderAccount = mock<Account>()
-        whenever(accountServiceMock.getUnconfirmedAssetBalanceQuantity(eq(mockSenderAccount), eq(assetIdParameter))).doReturn(500L)
+        val mockSenderAccount = mockk<Account>()
+        every { accountServiceMock.getUnconfirmedAssetBalanceQuantity(eq(mockSenderAccount), eq(assetIdParameter)) } returns 500L
 
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockSenderAccount
 
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
@@ -92,15 +93,15 @@ class TransferAssetTest : AbstractTransactionTest() {
                 MockParam(QUANTITY_QNT_PARAMETER, "5")
         )
 
-        val mockAsset = mock<Asset>()
+        val mockAsset = mockk<Asset>()
 
-        whenever(parameterServiceMock.getAsset(eq(request))).doReturn(mockAsset)
-        whenever(mockAsset.id).doReturn(456L)
+        every { parameterServiceMock.getAsset(eq(request)) } returns mockAsset
+        every { mockAsset.id } returns 456L
 
-        val mockSenderAccount = mock<Account>()
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
+        val mockSenderAccount = mockk<Account>()
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockSenderAccount
 
-        whenever(accountServiceMock.getUnconfirmedAssetBalanceQuantity(eq(mockSenderAccount), any())).doReturn(2L)
+        every { accountServiceMock.getUnconfirmedAssetBalanceQuantity(eq(mockSenderAccount), any()) } returns 2L
 
         assertEquals(NOT_ENOUGH_ASSETS, t.processRequest(request))
     }

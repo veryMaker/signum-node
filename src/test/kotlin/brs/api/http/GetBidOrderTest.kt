@@ -9,10 +9,8 @@ import brs.api.http.common.Parameters.ORDER_PARAMETER
 import brs.api.http.common.ResultFields.ORDER_RESPONSE
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -26,7 +24,7 @@ class GetBidOrderTest {
 
     @Before
     fun setUp() {
-        mockAssetExchangeService = mock()
+        mockAssetExchangeService = mockk()
 
         t = GetBidOrder(mockAssetExchangeService)
     }
@@ -34,10 +32,10 @@ class GetBidOrderTest {
     @Test
     fun processRequest() {
         val bidOrderId = 123L
-        val mockBid = mock<Bid>()
-        whenever(mockBid.id).doReturn(bidOrderId)
+        val mockBid = mockk<Bid>()
+        every { mockBid.id } returns bidOrderId
 
-        whenever(mockAssetExchangeService.getBidOrder(eq(bidOrderId))).doReturn(mockBid)
+        every { mockAssetExchangeService.getBidOrder(eq(bidOrderId)) } returns mockBid
 
         val request = QuickMocker.httpServletRequest(MockParam(ORDER_PARAMETER, bidOrderId))
 

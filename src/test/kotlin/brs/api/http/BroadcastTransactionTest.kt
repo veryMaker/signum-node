@@ -16,7 +16,9 @@ import brs.util.convert.toHexString
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -32,9 +34,9 @@ class BroadcastTransactionTest {
 
     @Before
     fun setUp() {
-        this.transactionProcessorServiceMock = mock()
-        this.parameterServiceMock = mock()
-        this.transactionServiceMock = mock()
+        this.transactionProcessorServiceMock = mockk()
+        this.parameterServiceMock = mockk()
+        this.transactionServiceMock = mockk()
 
         t = BroadcastTransaction(transactionProcessorServiceMock, parameterServiceMock, transactionServiceMock)
     }
@@ -47,20 +49,20 @@ class BroadcastTransactionTest {
         val mockTransactionStringId = "mockTransactionStringId"
         val mockTransactionFullHash = "deadbeef".parseHexString()
 
-        val request = mock<HttpServletRequest>()
-        val mockTransaction = mock<Transaction>()
+        val request = mockk<HttpServletRequest>()
+        val mockTransaction = mockk<Transaction>()
 
-        whenever(mockTransaction.stringId).doReturn(mockTransactionStringId)
-        whenever(mockTransaction.fullHash).doReturn(mockTransactionFullHash)
+        every { mockTransaction.stringId } returns mockTransactionStringId
+        every { mockTransaction.fullHash } returns mockTransactionFullHash
 
-        whenever(request.getParameter(TRANSACTION_BYTES_PARAMETER)).doReturn(mockTransactionBytesParameter)
-        whenever(request.getParameter(TRANSACTION_JSON_PARAMETER)).doReturn(mockTransactionJson)
+        every { request.getParameter(TRANSACTION_BYTES_PARAMETER) } returns mockTransactionBytesParameter
+        every { request.getParameter(TRANSACTION_JSON_PARAMETER) } returns mockTransactionJson
 
-        whenever(parameterServiceMock.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson))).doReturn(mockTransaction)
+        every { parameterServiceMock.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson)) } returns mockTransaction
 
         val result = t.processRequest(request) as JsonObject
 
-        verify(transactionProcessorServiceMock).broadcast(eq(mockTransaction))
+        verify { transactionProcessorServiceMock.broadcast(eq(mockTransaction)) }
 
         assertEquals(mockTransactionStringId, result.get(TRANSACTION_RESPONSE).safeGetAsString())
         assertEquals(mockTransactionFullHash.toHexString(), result.get(FULL_HASH_RESPONSE).safeGetAsString())
@@ -71,15 +73,15 @@ class BroadcastTransactionTest {
         val mockTransactionBytesParameter = "mockTransactionBytesParameter"
         val mockTransactionJson = "mockTransactionJson"
 
-        val request = mock<HttpServletRequest>()
-        val mockTransaction = mock<Transaction>()
+        val request = mockk<HttpServletRequest>()
+        val mockTransaction = mockk<Transaction>()
 
-        whenever(request.getParameter(TRANSACTION_BYTES_PARAMETER)).doReturn(mockTransactionBytesParameter)
-        whenever(request.getParameter(TRANSACTION_JSON_PARAMETER)).doReturn(mockTransactionJson)
+        every { request.getParameter(TRANSACTION_BYTES_PARAMETER) } returns mockTransactionBytesParameter
+        every { request.getParameter(TRANSACTION_JSON_PARAMETER) } returns mockTransactionJson
 
-        whenever(parameterServiceMock.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson))).doReturn(mockTransaction)
+        every { parameterServiceMock.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson)) } returns mockTransaction
 
-        doAnswer { throw BurstException.NotCurrentlyValidException("") }.whenever(transactionServiceMock).validate(eq(mockTransaction), any())
+        every { transactionServiceMock.validate(eq(mockTransaction), any()) } throws BurstException.NotCurrentlyValidException("")
 
         val result = t.processRequest(request) as JsonObject
 

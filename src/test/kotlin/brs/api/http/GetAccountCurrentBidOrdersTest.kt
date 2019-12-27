@@ -16,10 +16,8 @@ import brs.services.ParameterService
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -34,8 +32,8 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
-        mockAssetExchangeService = mock()
+        mockParameterService = mockk()
+        mockAssetExchangeService = mockk()
 
         t = GetAccountCurrentBidOrders(mockParameterService, mockAssetExchangeService)
     }
@@ -52,17 +50,17 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val mockAccount = mock<Account>()
-        whenever(mockAccount.id).doReturn(accountId)
+        val mockAccount = mockk<Account>()
+        every { mockAccount.id } returns accountId
 
         val mockBidId = 456L
-        val bid = mock<Bid>()
-        whenever(bid.id).doReturn(mockBidId)
+        val bid = mockk<Bid>()
+        every { bid.id } returns mockBidId
 
         val mockBidIterator = mockCollection(bid)
 
-        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
-        whenever(mockAssetExchangeService.getBidOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
+        every { mockParameterService.getAccount(eq(request)) } returns mockAccount
+        every { mockAssetExchangeService.getBidOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex)) } returns mockBidIterator
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
@@ -90,17 +88,17 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val mockAccount = mock<Account>()
-        whenever(mockAccount.id).doReturn(accountId)
+        val mockAccount = mockk<Account>()
+        every { mockAccount.id } returns accountId
 
         val mockBidId = 456L
-        val bid = mock<Bid>()
-        whenever(bid.id).doReturn(mockBidId)
+        val bid = mockk<Bid>()
+        every { bid.id } returns mockBidId
 
         val mockBidIterator = mockCollection(bid)
 
-        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
-        whenever(mockAssetExchangeService.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
+        every { mockParameterService.getAccount(eq(request)) } returns mockAccount
+        every { mockAssetExchangeService.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex)) } returns mockBidIterator
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)

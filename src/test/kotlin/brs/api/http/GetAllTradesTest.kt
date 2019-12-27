@@ -1,11 +1,5 @@
 package brs.api.http
 
-import brs.entity.Asset
-import brs.entity.Trade
-import brs.services.AssetExchangeService
-import brs.common.AbstractUnitTest
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.INCLUDE_ASSET_INFO_PARAMETER
 import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
@@ -14,10 +8,18 @@ import brs.api.http.common.ResultFields.ASSET_RESPONSE
 import brs.api.http.common.ResultFields.NAME_RESPONSE
 import brs.api.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.TRADES_RESPONSE
+import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Asset
+import brs.entity.Trade
+import brs.services.AssetExchangeService
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -31,7 +33,7 @@ class GetAllTradesTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockAssetExchangeService = mock()
+        mockAssetExchangeService = mockk()
 
         t = GetAllTrades(mockAssetExchangeService)
     }
@@ -51,20 +53,20 @@ class GetAllTradesTest : AbstractUnitTest() {
 
         val mockAssetId = 123L
         val mockAssetName = "mockAssetName"
-        val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).doReturn(mockAssetId)
-        whenever(mockAsset.name).doReturn(mockAssetName)
+        val mockAsset = mockk<Asset>()
+        every { mockAsset.id } returns mockAssetId
+        every { mockAsset.name } returns mockAssetName
 
         val pricePlanck = 123L
-        val mockTrade = mock<Trade>()
-        whenever(mockTrade.pricePlanck).doReturn(pricePlanck)
-        whenever(mockTrade.timestamp).doReturn(2)
-        whenever(mockTrade.assetId).doReturn(mockAssetId)
+        val mockTrade = mockk<Trade>()
+        every { mockTrade.pricePlanck } returns pricePlanck
+        every { mockTrade.timestamp } returns 2
+        every { mockTrade.assetId } returns mockAssetId
 
         val mockTradeIterator = mockCollection(mockTrade)
 
-        whenever(mockAssetExchangeService.getAllTrades(eq(0), eq(-1))).doReturn(mockTradeIterator)
-        whenever(mockAssetExchangeService.getAsset(eq(mockAssetId))).doReturn(mockAsset)
+        every { mockAssetExchangeService.getAllTrades(eq(0), eq(-1)) } returns mockTradeIterator
+        every { mockAssetExchangeService.getAsset(eq(mockAssetId)) } returns mockAsset
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
@@ -96,14 +98,14 @@ class GetAllTradesTest : AbstractUnitTest() {
 
         val mockAssetId = 123L
         val pricePlanck = 123L
-        val mockTrade = mock<Trade>()
-        whenever(mockTrade.pricePlanck).doReturn(pricePlanck)
-        whenever(mockTrade.timestamp).doReturn(2)
-        whenever(mockTrade.assetId).doReturn(mockAssetId)
+        val mockTrade = mockk<Trade>()
+        every { mockTrade.pricePlanck } returns pricePlanck
+        every { mockTrade.timestamp } returns 2
+        every { mockTrade.assetId } returns mockAssetId
 
         val mockTradeIterator = mockCollection(mockTrade)
 
-        whenever(mockAssetExchangeService.getAllTrades(eq(0), eq(-1))).doReturn(mockTradeIterator)
+        every { mockAssetExchangeService.getAllTrades(eq(0), eq(-1)) } returns mockTradeIterator
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
@@ -119,7 +121,6 @@ class GetAllTradesTest : AbstractUnitTest() {
         assertEquals(mockAssetId.toString(), tradeAssetInfoResult.get(ASSET_RESPONSE).safeGetAsString())
         assertEquals(null, tradeAssetInfoResult.get(NAME_RESPONSE).safeGetAsString())
 
-        verify(mockAssetExchangeService, never()).getAsset(eq(mockAssetId))
+        verify(exactly = 0) { mockAssetExchangeService.getAsset(eq(mockAssetId)) }
     }
-
 }

@@ -1,9 +1,5 @@
 package brs.api.http
 
-import brs.entity.Goods
-import brs.common.AbstractUnitTest
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.IN_STOCK_ONLY_PARAMETER
 import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
@@ -16,16 +12,18 @@ import brs.api.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.QUANTITY_RESPONSE
 import brs.api.http.common.ResultFields.TAGS_RESPONSE
 import brs.api.http.common.ResultFields.TIMESTAMP_RESPONSE
+import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Goods
 import brs.services.DigitalGoodsStoreService
 import brs.util.json.safeGetAsBoolean
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -42,7 +40,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockDigitalGoodsStoreService = mock()
+        mockDigitalGoodsStoreService = mockk()
 
         t = GetDGSGoods(mockDigitalGoodsStoreService)
     }
@@ -63,8 +61,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val mockGood = mockGood()
         val mockGoodIterator = mockCollection(mockGood)
 
-        whenever(mockDigitalGoodsStoreService.getSellerGoods(eq(sellerId), eq(true), eq(firstIndex), eq(lastIndex)))
-                .doReturn(mockGoodIterator)
+        every { mockDigitalGoodsStoreService.getSellerGoods(eq(sellerId), eq(true), eq(firstIndex), eq(lastIndex)) } returns mockGoodIterator
 
         val fullResult = t.processRequest(request) as JsonObject
         assertNotNull(fullResult)
@@ -103,8 +100,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val mockGood = mockGood()
         val mockGoodIterator = mockCollection(mockGood)
 
-        whenever(mockDigitalGoodsStoreService.getAllGoods(eq(firstIndex), eq(lastIndex)))
-                .doReturn(mockGoodIterator)
+        every { mockDigitalGoodsStoreService.getAllGoods(eq(firstIndex), eq(lastIndex)) } returns mockGoodIterator
 
         val fullResult = t.processRequest(request) as JsonObject
         assertNotNull(fullResult)
@@ -143,8 +139,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val mockGood = mockGood()
         val mockGoodIterator = mockCollection(mockGood)
 
-        whenever(mockDigitalGoodsStoreService.getGoodsInStock(eq(firstIndex), eq(lastIndex)))
-                .doReturn(mockGoodIterator)
+        every { mockDigitalGoodsStoreService.getGoodsInStock(eq(firstIndex), eq(lastIndex)) } returns mockGoodIterator
 
         val fullResult = t.processRequest(request) as JsonObject
         assertNotNull(fullResult)
@@ -168,17 +163,17 @@ class GetDGSGoodsTest : AbstractUnitTest() {
     }
 
     private fun mockGood(): Goods {
-        val mockGood = mock<Goods>()
+        val mockGood = mockk<Goods>()
 
-        whenever(mockGood.id).doReturn(1L)
-        whenever(mockGood.name).doReturn("name")
-        whenever(mockGood.description).doReturn("description")
-        whenever(mockGood.quantity).doReturn(2)
-        whenever(mockGood.pricePlanck).doReturn(3L)
-        whenever(mockGood.sellerId).doReturn(4L)
-        whenever(mockGood.tags).doReturn("tags")
-        whenever(mockGood.isDelisted).doReturn(true)
-        whenever(mockGood.timestamp).doReturn(5)
+        every { mockGood.id } returns 1L
+        every { mockGood.name } returns "name"
+        every { mockGood.description } returns "description"
+        every { mockGood.quantity } returns 2
+        every { mockGood.pricePlanck } returns 3L
+        every { mockGood.sellerId } returns 4L
+        every { mockGood.tags } returns "tags"
+        every { mockGood.isDelisted } returns true
+        every { mockGood.timestamp } returns 5
 
         return mockGood
     }

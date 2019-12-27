@@ -3,7 +3,7 @@ package brs.peer
 import brs.common.QuickMocker
 import brs.services.PeerService
 import brs.services.TimeService
-import com.nhaarman.mockitokotlin2.mock
+import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
 
@@ -15,9 +15,9 @@ class GetInfoTest {
 
     @Before
     fun setUp() {
-        peerService = mock()
-        timeService = mock()
-        peer = mock()
+        peerService = mockk()
+        timeService = mockk()
+        peer = mockk()
         t = GetInfo(QuickMocker.dependencyProvider(peerService, timeService))
     }
 

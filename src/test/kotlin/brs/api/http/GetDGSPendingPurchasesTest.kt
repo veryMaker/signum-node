@@ -12,10 +12,8 @@ import brs.api.http.common.ResultFields.PURCHASES_RESPONSE
 import brs.services.DigitalGoodsStoreService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -29,7 +27,7 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockDigitalGoodStoreService = mock()
+        mockDigitalGoodStoreService = mockk()
 
         t = GetDGSPendingPurchases(mockDigitalGoodStoreService)
     }
@@ -46,10 +44,10 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val mockPurchase = mock<Purchase>()
+        val mockPurchase = mockk<Purchase>()
 
         val mockPurchaseIterator = mockCollection(mockPurchase)
-        whenever(mockDigitalGoodStoreService.getPendingSellerPurchases(eq(sellerId), eq(firstIndex), eq(lastIndex))).doReturn(mockPurchaseIterator)
+        every { mockDigitalGoodStoreService.getPendingSellerPurchases(eq(sellerId), eq(firstIndex), eq(lastIndex)) } returns mockPurchaseIterator
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)

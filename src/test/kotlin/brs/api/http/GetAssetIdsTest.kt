@@ -1,20 +1,18 @@
 package brs.api.http
 
-import brs.entity.Asset
-import brs.services.AssetExchangeService
-import brs.common.AbstractUnitTest
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.api.http.common.ResultFields.ASSET_IDS_RESPONSE
+import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Asset
+import brs.services.AssetExchangeService
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -28,7 +26,7 @@ class GetAssetIdsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockAssetExchangeService = mock()
+        mockAssetExchangeService = mockk()
 
         t = GetAssetIds(mockAssetExchangeService)
     }
@@ -38,13 +36,12 @@ class GetAssetIdsTest : AbstractUnitTest() {
         val firstIndex = 1
         val lastIndex = 2
 
-        val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).doReturn(5L)
+        val mockAsset = mockk<Asset>()
+        every { mockAsset.id } returns 5L
 
         val mockAssetIterator = mockCollection(mockAsset)
 
-        whenever(mockAssetExchangeService.getAllAssets(eq(firstIndex), eq(lastIndex)))
-                .doReturn(mockAssetIterator)
+        every { mockAssetExchangeService.getAllAssets(eq(firstIndex), eq(lastIndex)) } returns mockAssetIterator
 
         val request = QuickMocker.httpServletRequest(
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex),

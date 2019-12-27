@@ -1,24 +1,23 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
-import brs.services.BlockchainService
-import brs.entity.DependencyProvider
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
-import brs.objects.FluxValues
 import brs.api.http.JSONResponses.INCORRECT_ALIAS_LENGTH
 import brs.api.http.JSONResponses.INCORRECT_ALIAS_NAME
 import brs.api.http.JSONResponses.INCORRECT_URI_LENGTH
 import brs.api.http.JSONResponses.MISSING_ALIAS_NAME
 import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_URI_PARAMETER
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.DependencyProvider
+import brs.objects.FluxValues
 import brs.services.AliasService
+import brs.services.BlockchainService
 import brs.services.ParameterService
+import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.transaction.type.messaging.AliasAssignment
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -37,11 +36,11 @@ class SetAliasTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
-        whenever(parameterServiceMock.getSenderAccount(any())).thenReturn(mock())
-        blockchainServiceMock = mock()
-        aliasServiceMock = mock()
-        apiTransactionManagerMock = mock()
+        parameterServiceMock = mockk()
+        every { parameterServiceMock.getSenderAccount(any()) } returns mockk()
+        blockchainServiceMock = mockk()
+        aliasServiceMock = mockk()
+        apiTransactionManagerMock = mockk()
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             blockchainServiceMock,

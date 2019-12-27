@@ -10,7 +10,8 @@ import brs.entity.Goods
 import brs.entity.Purchase
 import brs.services.AccountService
 import brs.services.BlockchainService
-import com.nhaarman.mockitokotlin2.*
+import io.mockk.every
+import io.mockk.mockk
 import org.jooq.SortField
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -31,16 +32,16 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        blockchainService = mock()
-        mockGoodsTable = mock()
-        mockPurchaseTable = mock()
-        mockDigitalGoodsStoreStore = mock()
-        mockGoodsDbKeyFactory = mock()
-        mockAccountService = mock()
+        blockchainService = mockk()
+        mockGoodsTable = mockk()
+        mockPurchaseTable = mockk()
+        mockDigitalGoodsStoreStore = mockk()
+        mockGoodsDbKeyFactory = mockk()
+        mockAccountService = mockk()
 
-        whenever(mockDigitalGoodsStoreStore.goodsTable).doReturn(mockGoodsTable)
-        whenever(mockDigitalGoodsStoreStore.purchaseTable).doReturn(mockPurchaseTable)
-        whenever(mockDigitalGoodsStoreStore.goodsDbKeyFactory).doReturn(mockGoodsDbKeyFactory)
+        every { mockDigitalGoodsStoreStore.goodsTable } returns mockGoodsTable
+        every { mockDigitalGoodsStoreStore.purchaseTable } returns mockPurchaseTable
+        every { mockDigitalGoodsStoreStore.goodsDbKeyFactory } returns mockGoodsDbKeyFactory
 
         t = DigitalGoodsStoreServiceImpl(QuickMocker.dependencyProvider(
             blockchainService,
@@ -51,11 +52,11 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
 
     @Test
     fun getGoods() {
-        val mockKey = mock<BurstKey>()
-        val mockGoods = mock<Goods>()
+        val mockKey = mockk<BurstKey>()
+        val mockGoods = mockk<Goods>()
 
-        whenever(mockGoodsDbKeyFactory.newKey(eq(1L))).doReturn(mockKey)
-        whenever(mockGoodsTable.get(eq(mockKey))).doReturn(mockGoods)
+        every { mockGoodsDbKeyFactory.newKey(eq(1L)) } returns mockKey
+        every { mockGoodsTable.get(eq(mockKey)) } returns mockGoods
 
         assertEquals(mockGoods, t.getGoods(1L))
     }
@@ -66,7 +67,7 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
         val to = 2
 
         val mockIterator = mockCollection<Goods>()
-        whenever(mockGoodsTable.getAll(eq(from), eq(to), any<Collection<SortField<*>>>())).doReturn(mockIterator)
+        every { mockGoodsTable.getAll(eq(from), eq(to), any<Collection<SortField<*>>>()) } returns mockIterator
 
         assertEquals(mockIterator, t.getAllGoods(from, to))
     }
@@ -77,7 +78,7 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
         val to = 2
 
         val mockIterator = mockCollection<Goods>()
-        whenever(mockDigitalGoodsStoreStore.getGoodsInStock(eq(from), eq(to))).doReturn(mockIterator)
+        every { mockDigitalGoodsStoreStore.getGoodsInStock(eq(from), eq(to)) } returns mockIterator
 
         assertEquals(mockIterator, t.getGoodsInStock(from, to))
     }
@@ -90,7 +91,7 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
         val to = 2
 
         val mockIterator = mockCollection<Goods>()
-        whenever(mockDigitalGoodsStoreStore.getSellerGoods(eq(sellerId), eq(inStockOnly), eq(from), eq(to))).doReturn(mockIterator)
+        every { mockDigitalGoodsStoreStore.getSellerGoods(eq(sellerId), eq(inStockOnly), eq(from), eq(to)) } returns mockIterator
 
         assertEquals(mockIterator, t.getSellerGoods(sellerId, inStockOnly, from, to))
     }
@@ -101,7 +102,7 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
         val to = 2
 
         val mockIterator = mockCollection<Purchase>()
-        whenever(mockPurchaseTable.getAll(eq(from), eq(to), any<Collection<SortField<*>>>())).doReturn(mockIterator)
+        every { mockPurchaseTable.getAll(eq(from), eq(to), any<Collection<SortField<*>>>()) } returns mockIterator
 
         assertEquals(mockIterator, t.getAllPurchases(from, to))
     }
@@ -113,7 +114,7 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
         val to = 3
 
         val mockIterator = mockCollection<Purchase>()
-        whenever(mockDigitalGoodsStoreStore.getSellerPurchases(eq(sellerId), eq(from), eq(to))).doReturn(mockIterator)
+        every { mockDigitalGoodsStoreStore.getSellerPurchases(eq(sellerId), eq(from), eq(to)) } returns mockIterator
 
         assertEquals(mockIterator, t.getSellerPurchases(sellerId, from, to))
     }
@@ -125,7 +126,7 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
         val to = 3
 
         val mockIterator = mockCollection<Purchase>()
-        whenever(mockDigitalGoodsStoreStore.getBuyerPurchases(eq(buyerId), eq(from), eq(to))).doReturn(mockIterator)
+        every { mockDigitalGoodsStoreStore.getBuyerPurchases(eq(buyerId), eq(from), eq(to)) } returns mockIterator
 
         assertEquals(mockIterator, t.getBuyerPurchases(buyerId, from, to))
     }
@@ -138,7 +139,7 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
         val to = 4
 
         val mockIterator = mockCollection<Purchase>()
-        whenever(mockDigitalGoodsStoreStore.getSellerBuyerPurchases(eq(sellerId), eq(buyerId), eq(from), eq(to))).doReturn(mockIterator)
+        every { mockDigitalGoodsStoreStore.getSellerBuyerPurchases(eq(sellerId), eq(buyerId), eq(from), eq(to)) } returns mockIterator
 
         assertEquals(mockIterator, t.getSellerBuyerPurchases(sellerId, buyerId, from, to))
     }
@@ -150,7 +151,7 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
         val to = 2
 
         val mockPurchaseIterator = mockCollection<Purchase>()
-        whenever(mockDigitalGoodsStoreStore.getPendingSellerPurchases(eq(sellerId), eq(from), eq(to))).doReturn(mockPurchaseIterator)
+        every { mockDigitalGoodsStoreStore.getPendingSellerPurchases(eq(sellerId), eq(from), eq(to)) } returns mockPurchaseIterator
 
         assertEquals(mockPurchaseIterator, t.getPendingSellerPurchases(sellerId, from, to))
     }

@@ -2,7 +2,7 @@ package brs.peer
 
 import brs.common.QuickMocker
 import brs.services.PeerService
-import com.nhaarman.mockitokotlin2.mock
+import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
 
@@ -12,7 +12,7 @@ class AddPeersTest {
 
     @Before
     fun setUp() {
-        peerService = mock()
+        peerService = mockk()
         t = AddPeers(QuickMocker.dependencyProvider(peerService))
     }
 

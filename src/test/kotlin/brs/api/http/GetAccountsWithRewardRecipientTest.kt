@@ -1,20 +1,18 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.entity.Account.RewardRecipientAssignment
+import brs.api.http.common.Parameters.ACCOUNTS_RESPONSE
+import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
-import brs.api.http.common.Parameters.ACCOUNTS_RESPONSE
-import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
+import brs.entity.Account
+import brs.entity.Account.RewardRecipientAssignment
 import brs.services.AccountService
 import brs.services.ParameterService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -29,8 +27,8 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterService = mock()
-        accountService = mock()
+        parameterService = mockk()
+        accountService = mockk()
 
         t = GetAccountsWithRewardRecipient(parameterService, accountService)
     }
@@ -43,23 +41,23 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
                 MockParam(ACCOUNT_PARAMETER, targetAccountId)
         )
 
-        val targetAccount = mock<Account>()
-        whenever(targetAccount.id).doReturn(targetAccountId)
+        val targetAccount = mockk<Account>()
+        every { targetAccount.id } returns targetAccountId
 
-        whenever(parameterService.getAccount(eq(request))).doReturn(targetAccount)
+        every { parameterService.getAccount(eq(request)) } returns targetAccount
 
-        val assignment = mock<RewardRecipientAssignment>()
-        whenever(assignment.accountId).doReturn(targetAccountId)
+        val assignment = mockk<RewardRecipientAssignment>()
+        every { assignment.accountId } returns targetAccountId
 
         val assignmentIterator = mockCollection(assignment)
 
-        whenever(accountService.getAccountsWithRewardRecipient(eq(targetAccountId))).doReturn(assignmentIterator)
+        every { accountService.getRewardRecipientAssignment(eq(targetAccount)) } returns null
+        every { accountService.getAccountsWithRewardRecipient(eq(targetAccountId)) } returns assignmentIterator
 
         val resultOverview = t.processRequest(request) as JsonObject
         assertNotNull(resultOverview)
 
         val resultList = resultOverview.get(ACCOUNTS_RESPONSE) as JsonArray
-        assertNotNull(resultList)
         assertEquals(2, resultList.size().toLong())
     }
 
@@ -71,18 +69,18 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
                 MockParam(ACCOUNT_PARAMETER, targetAccountId)
         )
 
-        val targetAccount = mock<Account>()
-        whenever(targetAccount.id).doReturn(targetAccountId)
+        val targetAccount = mockk<Account>()
+        every { targetAccount.id } returns targetAccountId
 
-        whenever(parameterService.getAccount(eq(request))).doReturn(targetAccount)
+        every { parameterService.getAccount(eq(request)) } returns targetAccount
 
-        val assignment = mock<RewardRecipientAssignment>()
-        whenever(assignment.accountId).doReturn(targetAccountId)
+        val assignment = mockk<RewardRecipientAssignment>()
+        every { assignment.accountId } returns targetAccountId
 
         val assignmentIterator = mockCollection(assignment)
 
-        whenever(accountService.getAccountsWithRewardRecipient(eq(targetAccountId))).doReturn(assignmentIterator)
-        whenever(accountService.getRewardRecipientAssignment(eq(targetAccount))).doReturn(assignment)
+        every { accountService.getAccountsWithRewardRecipient(eq(targetAccountId)) } returns assignmentIterator
+        every { accountService.getRewardRecipientAssignment(eq(targetAccount)) } returns assignment
 
         val resultOverview = t.processRequest(request) as JsonObject
         assertNotNull(resultOverview)

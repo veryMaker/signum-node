@@ -7,10 +7,8 @@ import brs.common.QuickMocker.MockParam
 import brs.api.http.JSONResponses.UNKNOWN_ORDER
 import brs.api.http.common.Parameters.ORDER_PARAMETER
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -24,7 +22,7 @@ class GetAskOrderTest {
 
     @Before
     fun setUp() {
-        mockAssetExchangeService = mock()
+        mockAssetExchangeService = mockk()
 
         t = GetAskOrder(mockAssetExchangeService)
     }
@@ -33,9 +31,9 @@ class GetAskOrderTest {
     fun processRequest() {
         val orderId = 123L
 
-        val mockOrder = mock<Ask>()
+        val mockOrder = mockk<Ask>()
 
-        whenever(mockAssetExchangeService.getAskOrder(eq(orderId))).doReturn(mockOrder)
+        every { mockAssetExchangeService.getAskOrder(eq(orderId)) } returns mockOrder
 
         val request = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)
@@ -49,7 +47,7 @@ class GetAskOrderTest {
     fun processRequest_unknownOrder() {
         val orderId = 123L
 
-        whenever(mockAssetExchangeService.getAskOrder(eq(orderId))).doReturn(null)
+        every { mockAssetExchangeService.getAskOrder(eq(orderId)) } returns null
 
         val request = QuickMocker.httpServletRequest(
                 MockParam(ORDER_PARAMETER, orderId)

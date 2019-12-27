@@ -4,10 +4,8 @@ import brs.entity.AssetTransfer
 import brs.db.sql.SqlEntityTable
 import brs.db.AssetTransferStore
 import brs.services.impl.AssetTransferServiceImpl
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -21,10 +19,10 @@ class AssetTransferServiceImplTest {
 
     @Before
     fun setUp() {
-        mockAssetTransferStore = mock()
-        mockAssetTransferTable = mock()
+        mockAssetTransferStore = mockk()
+        mockAssetTransferTable = mockk()
 
-        whenever(mockAssetTransferStore.assetTransferTable).doReturn(mockAssetTransferTable)
+        every { mockAssetTransferStore.assetTransferTable } returns mockAssetTransferTable
 
         t = AssetTransferServiceImpl(mockAssetTransferStore)
     }
@@ -35,9 +33,9 @@ class AssetTransferServiceImplTest {
         val from = 1
         val to = 4
 
-        val mockAssetTransferIterator = mock<Collection<AssetTransfer>>()
+        val mockAssetTransferIterator = mockk<Collection<AssetTransfer>>()
 
-        whenever(mockAssetTransferStore.getAssetTransfers(eq(assetId), eq(from), eq(to))).doReturn(mockAssetTransferIterator)
+        every { mockAssetTransferStore.getAssetTransfers(eq(assetId), eq(from), eq(to)) } returns mockAssetTransferIterator
 
         assertEquals(mockAssetTransferIterator, t.getAssetTransfers(assetId, from, to))
     }
@@ -49,23 +47,23 @@ class AssetTransferServiceImplTest {
         val from = 1
         val to = 4
 
-        val mockAccountAssetTransferIterator = mock<Collection<AssetTransfer>>()
+        val mockAccountAssetTransferIterator = mockk<Collection<AssetTransfer>>()
 
-        whenever(mockAssetTransferStore.getAccountAssetTransfers(eq(accountId), eq(assetId), eq(from), eq(to))).doReturn(mockAccountAssetTransferIterator)
+        every { mockAssetTransferStore.getAccountAssetTransfers(eq(accountId), eq(assetId), eq(from), eq(to)) } returns mockAccountAssetTransferIterator
 
         assertEquals(mockAccountAssetTransferIterator, t.getAccountAssetTransfers(accountId, assetId, from, to))
     }
 
     @Test
     fun getTransferCount() {
-        whenever(mockAssetTransferStore.getTransferCount(eq(123L))).doReturn(5)
+        every { mockAssetTransferStore.getTransferCount(eq(123L)) } returns 5
 
         assertEquals(5, t.getTransferCount(123L).toLong())
     }
 
     @Test
     fun getAssetTransferCount() {
-        whenever(mockAssetTransferTable.count).doReturn(5)
+        every { mockAssetTransferTable.count } returns 5
 
         assertEquals(5, t.assetTransferCount.toLong())
     }

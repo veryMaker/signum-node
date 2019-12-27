@@ -10,7 +10,8 @@ import brs.services.AccountService
 import brs.services.BlockchainService
 import brs.services.PropertyService
 import brs.util.convert.parseHexString
-import com.nhaarman.mockitokotlin2.*
+import io.mockk.every
+import io.mockk.mockk
 import org.jooq.SortField
 import org.junit.Assert.assertEquals
 import java.nio.ByteBuffer
@@ -21,60 +22,58 @@ class AtTestHelper {
     private var onAtAdded: ((AT) -> Unit)? = null
 
     internal fun setupMocks(): DependencyProvider {
-        val mockAtStore = mock<ATStore>()
+        val mockAtStore = mockk<ATStore>()
         val mockFluxCapacitor = QuickMocker.latestValueFluxCapacitor()
 
-        val atLongKeyFactory = mock<BurstKey.LongKeyFactory<AT>>()
+        val atLongKeyFactory = mockk<BurstKey.LongKeyFactory<AT>>()
 
-        val atStateLongKeyFactory = mock<BurstKey.LongKeyFactory<AT.ATState>>()
-        val mockBlockchain = mock<BlockchainService>()
-        val mockPropertyService = mock<PropertyService>()
+        val atStateLongKeyFactory = mockk<BurstKey.LongKeyFactory<AT.ATState>>()
+        val mockBlockchain = mockk<BlockchainService>()
+        val mockPropertyService = mockk<PropertyService>()
 
-        val mockAtTable = mock<VersionedEntityTable<AT>>()
+        val mockAtTable = mockk<VersionedEntityTable<AT>>()
 
-        val mockAccountTable = mock<VersionedBatchEntityTable<Account>>()
+        val mockAccountTable = mockk<VersionedBatchEntityTable<Account>>()
 
-        val mockAtStateTable = mock<VersionedEntityTable<AT.ATState>>()
-        val mockAccountStore = mock<AccountStore>()
-        val mockAccountService = mock<AccountService>()
+        val mockAtStateTable = mockk<VersionedEntityTable<AT.ATState>>()
+        val mockAccountStore = mockk<AccountStore>()
+        val mockAccountService = mockk<AccountService>()
 
-        val mockAccountKeyFactory = mock<BurstKey.LongKeyFactory<Account>>()
-        val mockAccount = mock<Account>()
+        val mockAccountKeyFactory = mockk<BurstKey.LongKeyFactory<Account>>()
+        val mockAccount = mockk<Account>()
 
-        doAnswer { invoke ->
-            val at = invoke.getArgument<AT>(0)
+        every { mockAtTable.insert(any()) } answers {
+            val at = args[0] as AT
             addedAts.add(at)
             if (onAtAdded != null) {
                 onAtAdded!!(at)
             }
-            null
-        }.whenever(mockAtTable).insert(any())
-        whenever(mockAccount.balancePlanck).doReturn(TestConstants.TEN_BURST)
-        whenever(mockAccountStore.accountTable).doReturn(mockAccountTable)
-        whenever(mockAccountStore.setOrVerify(any(), any(), any())).doReturn(true)
-        doAnswer {
-            addedAts.map { it.id }
-        }.whenever(mockAtStore).getOrderedATs()
-        doAnswer { invoke ->
-            val atId = invoke.getArgument<Long>(0)
+        }
+        every { mockAccount.balancePlanck } returns TestConstants.TEN_BURST
+        every { mockAccountStore.accountTable } returns mockAccountTable
+        every { mockAccountStore.setOrVerify(any(), any(), any()) } returns true
+        every { mockAtStore.getOrderedATs() } answers { addedAts.map { it.id } }
+        every { mockAtStore.getAT(any()) } answers {
+            val atId = args[0] as Long
             addedAts.forEach { addedAt ->
                 if (addedAt.id == atId) {
-                    return@doAnswer addedAt
+                    return@answers addedAt
                 }
             }
-            null
-        }.whenever(mockAtStore).getAT(any())
-        whenever(mockAtTable.getAll(any(), any(), any<Collection<SortField<*>>>())).doReturn(addedAts)
-        whenever(mockAccountService.getOrAddAccount(any())).doReturn(mockAccount)
-        whenever(mockAccountService.getAccount(any<Long>())).doReturn(mockAccount)
-        whenever(mockAccountTable.get(any())).doReturn(mockAccount)
-        whenever(mockAccountStore.accountKeyFactory).doReturn(mockAccountKeyFactory)
-        whenever(mockAtStore.atStateTable).doReturn(mockAtStateTable)
-        whenever(mockPropertyService.get(eq(Props.ENABLE_AT_DEBUG_LOG))).doReturn(true)
-        whenever(mockAtStore.atTable).doReturn(mockAtTable)
-        whenever(mockBlockchain.height).doReturn(Integer.MAX_VALUE)
-        whenever(mockAtStore.atDbKeyFactory).doReturn(atLongKeyFactory)
-        whenever(mockAtStore.atStateDbKeyFactory).doReturn(atStateLongKeyFactory)
+            return@answers null
+        }
+        every { mockAtTable.getAll(any(), any(), any<Collection<SortField<*>>>()) } returns addedAts
+        every { mockAccountService.getOrAddAccount(any()) } returns mockAccount
+        every { mockAccountService.getAccount(any<Long>()) } returns mockAccount
+        every { mockAccountTable[any()] } returns mockAccount
+        every { mockAccountStore.accountKeyFactory } returns mockAccountKeyFactory
+        every { mockAtStore.atStateTable } returns mockAtStateTable
+        every { mockPropertyService.get(eq(Props.ENABLE_AT_DEBUG_LOG)) } returns true
+        every { mockAtStore.atTable } returns mockAtTable
+        every { mockBlockchain.height } returns Integer.MAX_VALUE
+        every { mockAtStore.atDbKeyFactory } returns atLongKeyFactory
+        every { mockAtStore.atStateDbKeyFactory } returns atStateLongKeyFactory
+        every { atStateLongKeyFactory.newKey(any<Long>()) } returns mockk()
         val dp = QuickMocker.dependencyProvider(
             mockAccountStore,
             mockAccountService,

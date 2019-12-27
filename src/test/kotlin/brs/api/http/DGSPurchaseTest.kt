@@ -21,7 +21,8 @@ import brs.services.ParameterService
 import brs.services.TimeService
 import brs.transaction.type.TransactionType
 import brs.transaction.type.digitalGoods.DigitalGoodsPurchase
-import com.nhaarman.mockitokotlin2.*
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -38,12 +39,12 @@ class DGSPurchaseTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
-        whenever(mockParameterService.getSenderAccount(any())).doReturn(mock())
-        mockBlockchainService = mock()
-        mockAccountService = mock()
-        mockTimeService = mock()
-        apiTransactionManagerMock = mock()
+        mockParameterService = mockk()
+        every { mockParameterService.getSenderAccount(any()) } returns mockk()
+        mockBlockchainService = mockk()
+        mockAccountService = mockk()
+        mockTimeService = mockk()
+        apiTransactionManagerMock = mockk()
         dp = QuickMocker.dependencyProvider(
             mockParameterService,
             mockBlockchainService,
@@ -68,19 +69,19 @@ class DGSPurchaseTest : AbstractTransactionTest() {
 
         val mockSellerId = 123L
         val mockGoodsId = 123L
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.id).doReturn(mockGoodsId)
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.quantity).doReturn(10)
-        whenever(mockGoods.pricePlanck).doReturn(10L)
-        whenever(mockGoods.sellerId).doReturn(mockSellerId)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.id } returns mockGoodsId
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.quantity } returns 10
+        every { mockGoods.pricePlanck } returns 10L
+        every { mockGoods.sellerId } returns mockSellerId
 
-        val mockSellerAccount = mock<Account>()
+        val mockSellerAccount = mockk<Account>()
 
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
-        whenever(mockTimeService.epochTime).doReturn(10)
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
+        every { mockTimeService.epochTime } returns 10
 
-        whenever(mockAccountService.getAccount(eq(mockSellerId))).doReturn(mockSellerAccount)
+        every { mockAccountService.getAccount(eq(mockSellerId)) } returns mockSellerAccount
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
@@ -98,10 +99,10 @@ class DGSPurchaseTest : AbstractTransactionTest() {
     fun processRequest_unknownGoods() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).doReturn(true)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.isDelisted } returns true
 
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(UNKNOWN_GOODS, t.processRequest(request))
     }
@@ -114,11 +115,11 @@ class DGSPurchaseTest : AbstractTransactionTest() {
                 MockParam(QUANTITY_PARAMETER, goodsQuantity)
         )
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.quantity).doReturn(4)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.quantity } returns 4
 
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(INCORRECT_PURCHASE_QUANTITY, t.processRequest(request))
     }
@@ -133,12 +134,12 @@ class DGSPurchaseTest : AbstractTransactionTest() {
                 MockParam(PRICE_PLANCK_PARAMETER, goodsPrice)
         )
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.quantity).doReturn(10)
-        whenever(mockGoods.pricePlanck).doReturn(10L)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.quantity } returns 10
+        every { mockGoods.pricePlanck } returns 10L
 
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(INCORRECT_PURCHASE_PRICE, t.processRequest(request))
     }
@@ -154,12 +155,12 @@ class DGSPurchaseTest : AbstractTransactionTest() {
                 MockParam(PRICE_PLANCK_PARAMETER, goodsPrice)
         )
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.quantity).doReturn(10)
-        whenever(mockGoods.pricePlanck).doReturn(10L)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.quantity } returns 10
+        every { mockGoods.pricePlanck } returns 10L
 
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(MISSING_DELIVERY_DEADLINE_TIMESTAMP, t.processRequest(request))
     }
@@ -175,12 +176,12 @@ class DGSPurchaseTest : AbstractTransactionTest() {
                 MockParam(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER, "unParsable")
         )
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.quantity).doReturn(10)
-        whenever(mockGoods.pricePlanck).doReturn(10L)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.quantity } returns 10
+        every { mockGoods.pricePlanck } returns 10L
 
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(INCORRECT_DELIVERY_DEADLINE_TIMESTAMP, t.processRequest(request))
     }
@@ -197,13 +198,13 @@ class DGSPurchaseTest : AbstractTransactionTest() {
                 MockParam(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER, deliveryDeadlineTimestamp)
         )
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.quantity).doReturn(10)
-        whenever(mockGoods.pricePlanck).doReturn(10L)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.quantity } returns 10
+        every { mockGoods.pricePlanck } returns 10L
 
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
-        whenever(mockTimeService.epochTime).doReturn(1000)
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
+        every { mockTimeService.epochTime } returns 1000
 
         assertEquals(INCORRECT_DELIVERY_DEADLINE_TIMESTAMP, t.processRequest(request))
     }

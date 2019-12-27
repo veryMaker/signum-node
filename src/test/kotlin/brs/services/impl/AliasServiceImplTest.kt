@@ -1,16 +1,19 @@
 package brs.services.impl
 
-import brs.entity.Alias
-import brs.entity.Alias.Offer
-import brs.transaction.appendix.Attachment.MessagingAliasAssignment
-import brs.transaction.appendix.Attachment.MessagingAliasSell
-import brs.entity.Transaction
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
+import brs.db.AliasStore
 import brs.db.BurstKey
 import brs.db.VersionedEntityTable
-import brs.db.AliasStore
-import com.nhaarman.mockitokotlin2.*
+import brs.entity.Alias
+import brs.entity.Alias.Offer
+import brs.entity.Transaction
+import brs.transaction.appendix.Attachment.MessagingAliasAssignment
+import brs.transaction.appendix.Attachment.MessagingAliasSell
+import io.mockk.CapturingSlot
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -28,17 +31,17 @@ class AliasServiceImplTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        aliasStoreMock = mock()
-        aliasTableMock = mock()
-        aliasDbKeyFactoryMock = mock()
-        offerTableMock = mock()
-        offerDbKeyFactoryMock = mock()
+        aliasStoreMock = mockk()
+        aliasTableMock = mockk()
+        aliasDbKeyFactoryMock = mockk()
+        offerTableMock = mockk()
+        offerDbKeyFactoryMock = mockk()
 
-        whenever(aliasStoreMock.aliasTable).doReturn(aliasTableMock)
-        whenever(aliasStoreMock.aliasDbKeyFactory).doReturn(aliasDbKeyFactoryMock)
-        whenever(aliasStoreMock.offerTable).doReturn(offerTableMock)
-        whenever(aliasStoreMock.offerDbKeyFactory).doReturn(offerDbKeyFactoryMock)
-        whenever(aliasDbKeyFactoryMock.newKey(any<Long>())).doReturn(mock())
+        every { aliasStoreMock.aliasTable } returns aliasTableMock
+        every { aliasStoreMock.aliasDbKeyFactory } returns aliasDbKeyFactoryMock
+        every { aliasStoreMock.offerTable } returns offerTableMock
+        every { aliasStoreMock.offerDbKeyFactory } returns offerDbKeyFactoryMock
+        every { aliasDbKeyFactoryMock.newKey(any<Long>()) } returns mockk()
 
         t = AliasServiceImpl(QuickMocker.dependencyProvider(aliasStoreMock))
     }
@@ -46,9 +49,9 @@ class AliasServiceImplTest : AbstractUnitTest() {
     @Test
     fun getAlias() {
         val aliasName = "aliasName"
-        val mockAlias = mock<Alias>()
+        val mockAlias = mockk<Alias>()
 
-        whenever(aliasStoreMock.getAlias(eq(aliasName))).doReturn(mockAlias)
+        every { aliasStoreMock.getAlias(eq(aliasName)) } returns mockAlias
 
         assertEquals(mockAlias, t.getAlias(aliasName))
     }
@@ -56,11 +59,11 @@ class AliasServiceImplTest : AbstractUnitTest() {
     @Test
     fun getAlias_byId() {
         val id = 123L
-        val mockKey = mock<BurstKey>()
-        val mockAlias = mock<Alias>()
+        val mockKey = mockk<BurstKey>()
+        val mockAlias = mockk<Alias>()
 
-        whenever(aliasDbKeyFactoryMock.newKey(eq(id))).doReturn(mockKey)
-        whenever(aliasTableMock[eq(mockKey)]).doReturn(mockAlias)
+        every { aliasDbKeyFactoryMock.newKey(eq(id)) } returns mockKey
+        every { aliasTableMock[eq(mockKey)] } returns mockAlias
 
         assertEquals(mockAlias, t.getAlias(id))
     }
@@ -68,20 +71,20 @@ class AliasServiceImplTest : AbstractUnitTest() {
     @Test
     fun getOffer() {
         val aliasId = 123L
-        val mockAlias = mock<Alias>()
-        whenever(mockAlias.id).doReturn(aliasId)
-        val mockOfferKey = mock<BurstKey>()
-        val mockOffer = mock<Offer>()
+        val mockAlias = mockk<Alias>()
+        every { mockAlias.id } returns aliasId
+        val mockOfferKey = mockk<BurstKey>()
+        val mockOffer = mockk<Offer>()
 
-        whenever(offerDbKeyFactoryMock.newKey(eq(aliasId))).doReturn(mockOfferKey)
-        whenever(offerTableMock[eq(mockOfferKey)]).doReturn(mockOffer)
+        every { offerDbKeyFactoryMock.newKey(eq(aliasId)) } returns mockOfferKey
+        every { offerTableMock[eq(mockOfferKey)] } returns mockOffer
 
         assertEquals(mockOffer, t.getOffer(mockAlias))
     }
 
     @Test
     fun getAliasCount() {
-        whenever(aliasTableMock.count).doReturn(5)
+        every { aliasTableMock.count } returns 5
         assertEquals(5L, t.getAliasCount())
     }
 
@@ -93,29 +96,29 @@ class AliasServiceImplTest : AbstractUnitTest() {
 
         val mockAliasIterator = mockCollection<Alias>()
 
-        whenever(aliasStoreMock.getAliasesByOwner(eq(accountId), eq(from), eq(to))).doReturn(mockAliasIterator)
+        every { aliasStoreMock.getAliasesByOwner(eq(accountId), eq(from), eq(to)) } returns mockAliasIterator
 
         assertEquals(mockAliasIterator, t.getAliasesByOwner(accountId, from, to))
     }
 
     @Test
     fun addOrUpdateAlias_addAlias() {
-        val transaction = mock<Transaction>()
-        whenever(transaction.senderId).doReturn(123L)
-        whenever(transaction.blockTimestamp).doReturn(34)
+        val transaction = mockk<Transaction>()
+        every { transaction.senderId } returns 123L
+        every { transaction.blockTimestamp } returns 34
 
-        val attachment = mock<MessagingAliasAssignment>()
-        whenever(attachment.aliasURI).doReturn("aliasURI")
-        whenever(attachment.aliasName).doReturn("")
-        whenever(attachment.aliasName).doReturn("")
+        val attachment = mockk<MessagingAliasAssignment>()
+        every { attachment.aliasURI } returns "aliasURI"
+        every { attachment.aliasName } returns ""
+        every { attachment.aliasName } returns ""
 
         t.addOrUpdateAlias(transaction, attachment)
 
-        val savedAliasCaptor = argumentCaptor<Alias>()
+        val savedAliasCaptor = CapturingSlot<Alias>()
 
-        verify(aliasTableMock).insert(savedAliasCaptor.capture())
+        verify { aliasTableMock.insert(capture(savedAliasCaptor)) }
 
-        val savedAlias = savedAliasCaptor.firstValue
+        val savedAlias = savedAliasCaptor.captured
         assertNotNull(savedAlias)
 
         assertEquals(transaction.senderId, savedAlias.accountId)
@@ -126,58 +129,58 @@ class AliasServiceImplTest : AbstractUnitTest() {
     @Test
     fun addOrUpdateAlias_updateAlias() {
         val aliasName = "aliasName"
-        val mockAlias = mock<Alias>()
+        val mockAlias = mockk<Alias>()
 
-        whenever(aliasStoreMock.getAlias(eq(aliasName))).doReturn(mockAlias)
+        every { aliasStoreMock.getAlias(eq(aliasName)) } returns mockAlias
 
-        val transaction = mock<Transaction>()
-        whenever(transaction.senderId).doReturn(123L)
-        whenever(transaction.blockTimestamp).doReturn(34)
+        val transaction = mockk<Transaction>()
+        every { transaction.senderId } returns 123L
+        every { transaction.blockTimestamp } returns 34
 
-        val attachment = mock<MessagingAliasAssignment>()
-        whenever(attachment.aliasName).doReturn(aliasName)
-        whenever(attachment.aliasURI).doReturn("aliasURI")
+        val attachment = mockk<MessagingAliasAssignment>()
+        every { attachment.aliasName } returns aliasName
+        every { attachment.aliasURI } returns "aliasURI"
 
         t.addOrUpdateAlias(transaction, attachment)
 
-        verify(mockAlias).accountId = eq(transaction.senderId)
-        verify(mockAlias).timestamp = eq(transaction.blockTimestamp)
-        verify(mockAlias).aliasURI = eq(attachment.aliasURI)
+        verify { mockAlias.accountId = eq(transaction.senderId) }
+        verify { mockAlias.timestamp = eq(transaction.blockTimestamp) }
+        verify { mockAlias.aliasURI = eq(attachment.aliasURI) }
 
-        verify(aliasTableMock).insert(eq(mockAlias))
+        verify { aliasTableMock.insert(eq(mockAlias)) }
     }
 
     @Test
     fun sellAlias_forBurst_newOffer() {
         val aliasName = "aliasName"
         val aliasId = 123L
-        val mockAlias = mock<Alias>()
-        whenever(mockAlias.id).doReturn(aliasId)
+        val mockAlias = mockk<Alias>()
+        every { mockAlias.id } returns aliasId
 
-        whenever(aliasStoreMock.getAlias(eq(aliasName))).doReturn(mockAlias)
+        every { aliasStoreMock.getAlias(eq(aliasName)) } returns mockAlias
 
-        val mockOfferKey = mock<BurstKey>()
-        whenever(offerDbKeyFactoryMock.newKey(eq(aliasId))).doReturn(mockOfferKey)
+        val mockOfferKey = mockk<BurstKey>()
+        every { offerDbKeyFactoryMock.newKey(eq(aliasId)) } returns mockOfferKey
 
         val pricePlanck = 500L
 
         val newOwnerId = 234L
         val timestamp = 567
 
-        val transaction = mock<Transaction>()
-        val attachment = mock<MessagingAliasSell>()
-        whenever(attachment.aliasName).doReturn(aliasName)
-        whenever(attachment.pricePlanck).doReturn(pricePlanck)
-        whenever(transaction.blockTimestamp).doReturn(timestamp)
-        whenever(transaction.recipientId).doReturn(newOwnerId)
+        val transaction = mockk<Transaction>()
+        val attachment = mockk<MessagingAliasSell>()
+        every { attachment.aliasName } returns aliasName
+        every { attachment.pricePlanck } returns pricePlanck
+        every { transaction.blockTimestamp } returns timestamp
+        every { transaction.recipientId } returns newOwnerId
 
         t.sellAlias(transaction, attachment)
 
-        val mockOfferCaptor = argumentCaptor<Offer>()
+        val mockOfferCaptor = CapturingSlot<Offer>()
 
-        verify(offerTableMock).insert(mockOfferCaptor.capture())
+        verify { offerTableMock.insert(capture(mockOfferCaptor)) }
 
-        val savedOffer = mockOfferCaptor.firstValue
+        val savedOffer = mockOfferCaptor.captured
         assertEquals(newOwnerId, savedOffer.buyerId)
         assertEquals(pricePlanck, savedOffer.pricePlanck)
     }
@@ -186,94 +189,94 @@ class AliasServiceImplTest : AbstractUnitTest() {
     fun sellAlias_forBurst_offerExists() {
         val aliasName = "aliasName"
         val aliasId = 123L
-        val mockAlias = mock<Alias>()
-        whenever(mockAlias.id).doReturn(aliasId)
+        val mockAlias = mockk<Alias>()
+        every { mockAlias.id } returns aliasId
 
-        whenever(aliasStoreMock.getAlias(eq(aliasName))).doReturn(mockAlias)
+        every { aliasStoreMock.getAlias(eq(aliasName)) } returns mockAlias
 
-        val mockOfferKey = mock<BurstKey>()
-        val mockOffer = mock<Offer>()
-        whenever(offerDbKeyFactoryMock.newKey(eq(aliasId))).doReturn(mockOfferKey)
-        whenever(offerTableMock[eq(mockOfferKey)]).doReturn(mockOffer)
+        val mockOfferKey = mockk<BurstKey>()
+        val mockOffer = mockk<Offer>()
+        every { offerDbKeyFactoryMock.newKey(eq(aliasId)) } returns mockOfferKey
+        every { offerTableMock[eq(mockOfferKey)] } returns mockOffer
 
         val pricePlanck = 500L
 
         val newOwnerId = 234L
         val timestamp = 567
 
-        val transaction = mock<Transaction>()
-        val attachment = mock<MessagingAliasSell>()
-        whenever(attachment.aliasName).doReturn(aliasName)
-        whenever(attachment.pricePlanck).doReturn(pricePlanck)
-        whenever(transaction.blockTimestamp).doReturn(timestamp)
-        whenever(transaction.recipientId).doReturn(newOwnerId)
+        val transaction = mockk<Transaction>()
+        val attachment = mockk<MessagingAliasSell>()
+        every { attachment.aliasName } returns aliasName
+        every { attachment.pricePlanck } returns pricePlanck
+        every { transaction.blockTimestamp } returns timestamp
+        every { transaction.recipientId } returns newOwnerId
 
         t.sellAlias(transaction, attachment)
 
-        verify(mockOffer).pricePlanck = eq(pricePlanck)
-        verify(mockOffer).buyerId = eq(newOwnerId)
+        verify { mockOffer.pricePlanck = eq(pricePlanck) }
+        verify { mockOffer.buyerId = eq(newOwnerId) }
 
-        verify(offerTableMock).insert(eq(mockOffer))
+        verify { offerTableMock.insert(eq(mockOffer)) }
     }
 
     @Test
     fun sellAlias_forFree() {
         val aliasName = "aliasName"
         val aliasId = 123L
-        val mockAlias = mock<Alias>()
-        whenever(mockAlias.id).doReturn(aliasId)
+        val mockAlias = mockk<Alias>()
+        every { mockAlias.id } returns aliasId
 
-        whenever(aliasStoreMock.getAlias(eq(aliasName))).doReturn(mockAlias)
+        every { aliasStoreMock.getAlias(eq(aliasName)) } returns mockAlias
 
-        val mockOfferKey = mock<BurstKey>()
-        val mockOffer = mock<Offer>()
-        whenever(offerDbKeyFactoryMock.newKey(eq(aliasId))).doReturn(mockOfferKey)
-        whenever(offerTableMock[eq(mockOfferKey)]).doReturn(mockOffer)
+        val mockOfferKey = mockk<BurstKey>()
+        val mockOffer = mockk<Offer>()
+        every { offerDbKeyFactoryMock.newKey(eq(aliasId)) } returns mockOfferKey
+        every { offerTableMock[eq(mockOfferKey)] } returns mockOffer
 
         val pricePlanck = 0L
 
         val newOwnerId = 234L
         val timestamp = 567
 
-        val transaction = mock<Transaction>()
-        val attachment = mock<MessagingAliasSell>()
-        whenever(attachment.aliasName).doReturn(aliasName)
-        whenever(attachment.pricePlanck).doReturn(pricePlanck)
-        whenever(transaction.blockTimestamp).doReturn(timestamp)
-        whenever(transaction.recipientId).doReturn(newOwnerId)
+        val transaction = mockk<Transaction>()
+        val attachment = mockk<MessagingAliasSell>()
+        every { attachment.aliasName } returns aliasName
+        every { attachment.pricePlanck } returns pricePlanck
+        every { transaction.blockTimestamp } returns timestamp
+        every { transaction.recipientId } returns newOwnerId
 
         t.sellAlias(transaction, attachment)
 
-        verify(mockAlias).accountId = newOwnerId
-        verify(mockAlias).timestamp = eq(timestamp)
-        verify(aliasTableMock).insert(mockAlias)
+        verify { mockAlias.accountId = newOwnerId }
+        verify { mockAlias.timestamp = eq(timestamp) }
+        verify { aliasTableMock.insert(mockAlias) }
 
-        verify(offerTableMock).delete(eq(mockOffer))
+        verify { offerTableMock.delete(eq(mockOffer)) }
     }
 
     @Test
     fun changeOwner() {
         val aliasName = "aliasName"
         val aliasId = 123L
-        val mockAlias = mock<Alias>()
-        whenever(mockAlias.id).doReturn(aliasId)
+        val mockAlias = mockk<Alias>()
+        every { mockAlias.id } returns aliasId
 
-        whenever(aliasStoreMock.getAlias(eq(aliasName))).doReturn(mockAlias)
+        every { aliasStoreMock.getAlias(eq(aliasName)) } returns mockAlias
 
-        val mockOfferKey = mock<BurstKey>()
-        val mockOffer = mock<Offer>()
-        whenever(offerDbKeyFactoryMock.newKey(eq(aliasId))).doReturn(mockOfferKey)
-        whenever(offerTableMock[eq(mockOfferKey)]).doReturn(mockOffer)
+        val mockOfferKey = mockk<BurstKey>()
+        val mockOffer = mockk<Offer>()
+        every { offerDbKeyFactoryMock.newKey(eq(aliasId)) } returns mockOfferKey
+        every { offerTableMock[eq(mockOfferKey)] } returns mockOffer
 
         val newOwnerId = 234L
         val timestamp = 567
 
         t.changeOwner(newOwnerId, aliasName, timestamp)
 
-        verify(mockAlias).accountId = newOwnerId
-        verify(mockAlias).timestamp = eq(timestamp)
-        verify(aliasTableMock).insert(mockAlias)
+        verify { mockAlias.accountId = newOwnerId }
+        verify { mockAlias.timestamp = eq(timestamp) }
+        verify { aliasTableMock.insert(mockAlias) }
 
-        verify(offerTableMock).delete(eq(mockOffer))
+        verify { offerTableMock.delete(eq(mockOffer)) }
     }
 }

@@ -1,10 +1,5 @@
 package brs.api.http
 
-import brs.entity.Asset
-import brs.services.AssetExchangeService
-import brs.common.AbstractUnitTest
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
 import brs.api.http.common.Parameters.ASSET_PARAMETER
 import brs.api.http.common.ResultFields.ASSET_RESPONSE
 import brs.api.http.common.ResultFields.DECIMALS_RESPONSE
@@ -14,14 +9,17 @@ import brs.api.http.common.ResultFields.NUMBER_OF_ACCOUNTS_RESPONSE
 import brs.api.http.common.ResultFields.NUMBER_OF_TRADES_RESPONSE
 import brs.api.http.common.ResultFields.NUMBER_OF_TRANSFERS_RESPONSE
 import brs.api.http.common.ResultFields.QUANTITY_QNT_RESPONSE
+import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Asset
+import brs.services.AssetExchangeService
 import brs.services.ParameterService
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -36,8 +34,8 @@ class GetAssetTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
-        mockAssetExchangeService = mock()
+        parameterServiceMock = mockk()
+        mockAssetExchangeService = mockk()
 
         t = GetAsset(parameterServiceMock, mockAssetExchangeService)
     }
@@ -50,21 +48,22 @@ class GetAssetTest : AbstractUnitTest() {
                 MockParam(ASSET_PARAMETER, assetId)
         )
 
-        val asset = mock<Asset>()
-        whenever(asset.id).doReturn(assetId)
-        whenever(asset.name).doReturn("assetName")
-        whenever(asset.description).doReturn("assetDescription")
-        whenever(asset.decimals).doReturn(3)
+        val asset = mockk<Asset>()
+        every { asset.id } returns assetId
+        every { asset.accountId } returns 1L
+        every { asset.name } returns "assetName"
+        every { asset.description } returns "assetDescription"
+        every { asset.decimals } returns 3
 
-        whenever(parameterServiceMock.getAsset(eq(request))).doReturn(asset)
+        every { parameterServiceMock.getAsset(eq(request)) } returns asset
 
         val tradeCount = 1
         val transferCount = 2
         val assetAccountsCount = 3
 
-        whenever(mockAssetExchangeService.getTradeCount(eq(assetId))).doReturn(tradeCount)
-        whenever(mockAssetExchangeService.getTransferCount(eq(assetId))).doReturn(transferCount)
-        whenever(mockAssetExchangeService.getAssetAccountsCount(eq(assetId))).doReturn(assetAccountsCount)
+        every { mockAssetExchangeService.getTradeCount(eq(assetId)) } returns tradeCount
+        every { mockAssetExchangeService.getTransferCount(eq(assetId)) } returns transferCount
+        every { mockAssetExchangeService.getAssetAccountsCount(eq(assetId)) } returns assetAccountsCount
 
         val result = t.processRequest(request) as JsonObject
 

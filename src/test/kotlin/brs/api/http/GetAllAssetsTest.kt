@@ -20,10 +20,8 @@ import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -37,7 +35,7 @@ class GetAllAssetsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        assetExchangeService = mock()
+        assetExchangeService = mockk()
 
         t = GetAllAssets(assetExchangeService)
     }
@@ -54,20 +52,20 @@ class GetAllAssetsTest : AbstractUnitTest() {
 
         val mockAssetId: Long = 1
 
-        val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).doReturn(1L)
-        whenever(mockAsset.id).doReturn(mockAssetId)
-        whenever(mockAsset.name).doReturn("name")
-        whenever(mockAsset.description).doReturn("description")
-        whenever(mockAsset.decimals).doReturn(1.toByte())
-        whenever(mockAsset.quantity).doReturn(2L)
+        val mockAsset = mockk<Asset>()
+        every { mockAsset.id } returns 1L
+        every { mockAsset.id } returns mockAssetId
+        every { mockAsset.name } returns "name"
+        every { mockAsset.description } returns "description"
+        every { mockAsset.decimals } returns 1.toByte()
+        every { mockAsset.quantity } returns 2L
 
         val mockAssetIterator = mockCollection(mockAsset)
 
-        whenever(assetExchangeService.getAllAssets(eq(firstIndex), eq(lastIndex))).doReturn(mockAssetIterator)
-        whenever(assetExchangeService.getAssetAccountsCount(eq(mockAssetId))).doReturn(1)
-        whenever(assetExchangeService.getTransferCount(eq(mockAssetId))).doReturn(2)
-        whenever(assetExchangeService.getTradeCount(eq(mockAssetId))).doReturn(3)
+        every { assetExchangeService.getAllAssets(eq(firstIndex), eq(lastIndex)) } returns mockAssetIterator
+        every { assetExchangeService.getAssetAccountsCount(eq(mockAssetId)) } returns 1
+        every { assetExchangeService.getTransferCount(eq(mockAssetId)) } returns 2
+        every { assetExchangeService.getTradeCount(eq(mockAssetId)) } returns 3
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)

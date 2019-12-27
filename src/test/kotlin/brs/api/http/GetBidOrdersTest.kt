@@ -14,10 +14,8 @@ import brs.services.ParameterService
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -32,8 +30,8 @@ class GetBidOrdersTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
-        mockAssetExchangeService = mock()
+        mockParameterService = mockk()
+        mockAssetExchangeService = mockk()
 
         t = GetBidOrders(mockParameterService, mockAssetExchangeService)
     }
@@ -49,17 +47,17 @@ class GetBidOrdersTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).doReturn(assetId)
+        val mockAsset = mockk<Asset>()
+        every { mockAsset.id } returns assetId
 
         val mockOrderId = 345L
-        val mockBid = mock<Bid>()
-        whenever(mockBid.id).doReturn(mockOrderId)
+        val mockBid = mockk<Bid>()
+        every { mockBid.id } returns mockOrderId
 
         val mockBidIterator = mockCollection(mockBid)
 
-        whenever(mockParameterService.getAsset(request)).doReturn(mockAsset)
-        whenever(mockAssetExchangeService.getSortedBidOrders(eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockBidIterator)
+        every { mockParameterService.getAsset(request) } returns mockAsset
+        every { mockAssetExchangeService.getSortedBidOrders(eq(assetId), eq(firstIndex), eq(lastIndex)) } returns mockBidIterator
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)

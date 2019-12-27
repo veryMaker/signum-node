@@ -27,10 +27,8 @@ import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -45,8 +43,8 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
-        escrowServiceMock = mock()
+        parameterServiceMock = mockk()
+        escrowServiceMock = mockk()
 
         t = GetAccountEscrowTransactions(parameterServiceMock, escrowServiceMock)
     }
@@ -59,36 +57,36 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
                 MockParam(ACCOUNT_PARAMETER, accountId)
         )
 
-        val account = mock<Account>()
-        whenever(account.id).doReturn(accountId)
-        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(account)
+        val account = mockk<Account>()
+        every { account.id } returns accountId
+        every { parameterServiceMock.getAccount(eq(request)) } returns account
 
-        val escrow = mock<Escrow>()
-        whenever(escrow.id).doReturn(1L)
-        whenever(escrow.senderId).doReturn(2L)
-        whenever(escrow.recipientId).doReturn(3L)
-        whenever(escrow.amountPlanck).doReturn(4L)
-        whenever(escrow.requiredSigners).doReturn(5)
-        whenever(escrow.deadlineAction).doReturn(DecisionType.UNDECIDED)
+        val escrow = mockk<Escrow>()
+        every { escrow.id } returns 1L
+        every { escrow.senderId } returns 2L
+        every { escrow.recipientId } returns 3L
+        every { escrow.amountPlanck } returns 4L
+        every { escrow.requiredSigners } returns 5
+        every { escrow.deadlineAction } returns DecisionType.UNDECIDED
 
-        val decision = mock<Decision>()
-        whenever(decision.accountId).doReturn(3L)
-        whenever(decision.decision).doReturn(DecisionType.UNDECIDED)
+        val decision = mockk<Decision>()
+        every { decision.accountId } returns 3L
+        every { decision.decision } returns DecisionType.UNDECIDED
 
-        val skippedDecision = mock<Decision>()
-        whenever(skippedDecision.accountId).doReturn(5L)
+        val skippedDecision = mockk<Decision>()
+        every { skippedDecision.accountId } returns 5L
 
-        val otherSkippedDecision = mock<Decision>()
-        whenever(otherSkippedDecision.accountId).doReturn(6L)
+        val otherSkippedDecision = mockk<Decision>()
+        every { otherSkippedDecision.accountId } returns 6L
 
-        whenever(escrow.recipientId).doReturn(5L)
-        whenever(escrow.senderId).doReturn(6L)
+        every { escrow.recipientId } returns 5L
+        every { escrow.senderId } returns 6L
 
         val decisionsIterator = mockCollection(decision, skippedDecision, otherSkippedDecision)
-        whenever(escrow.decisions).doReturn(decisionsIterator)
+        every { escrow.decisions } returns decisionsIterator
 
         val escrowCollection = listOf(escrow)
-        whenever(escrowServiceMock.getEscrowTransactionsByParticipant(eq(accountId))).doReturn(escrowCollection)
+        every { escrowServiceMock.getEscrowTransactionsByParticipant(eq(accountId)) } returns escrowCollection
 
         val resultOverview = t.processRequest(request) as JsonObject
         assertNotNull(resultOverview)

@@ -73,8 +73,6 @@ def webUpnpVersion = "0.1.4"
 def ehCacheVersion = "3.8.1"
 def jUnit5Version = "5.5.2"
 def jUnit4Version = "4.12"
-def mockitoVersion = "3.2.0"
-def mockitoKotlinVersion = "2.2.0"
 def mockkVersion = "1.9.3"
 def javaxAnnotationVersion = "1.3.2"
 def kotlinArgParserVersion = "2.0.7"
@@ -118,9 +116,6 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jUnit5Version"
     testRuntimeOnly "org.junit.vintage:junit-vintage-engine:$jUnit5Version"
 
-    testImplementation "org.mockito:mockito-core:$mockitoVersion"
-    testImplementation "org.mockito:mockito-inline:$mockitoVersion"
-    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockitoKotlinVersion"
     testImplementation "io.mockk:mockk:$mockkVersion"
     testImplementation "io.grpc:grpc-testing:$grpcVersion"
 }

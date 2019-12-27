@@ -1,22 +1,23 @@
 package brs.common
 
-import brs.services.BlockchainService
-import brs.entity.DependencyProvider
-import brs.services.FluxCapacitorService
-import brs.services.impl.FluxCapacitorServiceImpl
-import brs.entity.FluxEnable
-import brs.entity.FluxValue
 import brs.api.http.common.Parameters.DEADLINE_PARAMETER
 import brs.api.http.common.Parameters.FEE_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.entity.DependencyProvider
+import brs.entity.FluxEnable
+import brs.entity.FluxValue
 import brs.entity.Prop
-import brs.services.PropertyService
 import brs.objects.Props
+import brs.services.BlockchainService
+import brs.services.FluxCapacitorService
+import brs.services.PropertyService
+import brs.services.impl.FluxCapacitorServiceImpl
 import brs.services.impl.RxJavaTaskSchedulerService
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.*
+import io.mockk.every
+import io.mockk.mockk
 import javax.servlet.http.HttpServletRequest
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KType
@@ -52,43 +53,43 @@ object QuickMocker {
         return dp
     }
 
-    fun defaultPropertyService() = mock<PropertyService> {
-        onGeneric { get(any<Prop<Any>>()) } doAnswer {
-            when (it.getArgument<Prop<Any>>(0).defaultValue) {
-                is Boolean -> return@doAnswer false
-                is Int -> return@doAnswer -1
-                is String -> return@doAnswer ""
-                is List<*> -> return@doAnswer emptyList<String>()
-                else -> null
+    fun defaultPropertyService() = mockk<PropertyService> {
+        every { get(any<Prop<Any>>()) } answers {
+            when ((args[0] as Prop<*>).defaultValue) {
+                is Boolean -> false
+                is Int -> -1
+                is String -> ""
+                is List<*> -> emptyList<String>()
+                else -> ""
             }
         }
     }
 
     fun fluxCapacitorEnabledFunctionalities(vararg enabledToggles: FluxEnable): FluxCapacitorService {
-        val mockCapacitor = mock<FluxCapacitorService> {
-            onGeneric { it.getValue(any<FluxValue<Boolean>>()) } doReturn false
-            onGeneric { it.getValue(any<FluxValue<Boolean>>(), any()) } doReturn false
+        val mockCapacitor = mockk<FluxCapacitorService> {
+            every { getValue(any<FluxValue<Boolean>>()) } returns false
+            every { getValue(any<FluxValue<Boolean>>(), any()) } returns false
         }
         enabledToggles.forEach { ft ->
-            whenever(mockCapacitor.getValue(eq(ft))).doReturn(true)
-            whenever(mockCapacitor.getValue(eq(ft), any())).doReturn(true)
+            every { mockCapacitor.getValue(eq(ft)) } returns true
+            every { mockCapacitor.getValue(eq(ft), any()) } returns true
         }
         return mockCapacitor
     }
 
     fun latestValueFluxCapacitor(): FluxCapacitorService {
-        val blockchain = mock<BlockchainService>()
-        val propertyService = mock<PropertyService>()
-        whenever(blockchain.height).doReturn(Integer.MAX_VALUE)
-        whenever(propertyService.get(eq(Props.DEV_TESTNET))).doReturn(false)
+        val blockchain = mockk<BlockchainService>()
+        val propertyService = mockk<PropertyService>()
+        every { blockchain.height } returns Integer.MAX_VALUE
+        every { propertyService.get(eq(Props.DEV_TESTNET)) } returns false
         return FluxCapacitorServiceImpl(dependencyProvider(blockchain, propertyService))
     }
 
     fun httpServletRequest(vararg parameters: MockParam): HttpServletRequest {
-        val mockedRequest = mock<HttpServletRequest>()
+        val mockedRequest = mockk<HttpServletRequest>()
 
         parameters.forEach { mp ->
-            whenever(mockedRequest.getParameter(mp.key)).doReturn(mp.value)
+            every { mockedRequest.getParameter(mp.key) } returns mp.value
         }
 
         return mockedRequest

@@ -6,7 +6,8 @@ import brs.services.BlockchainService
 import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.*
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -21,15 +22,16 @@ class GetNextBlocksTest {
 
     @Before
     fun setUpGetNextBlocksTest() {
-        mockBlockchainService = mock()
-        mockPeer = mock()
-        val mockBlock = mock<Block>()
-        whenever(mockBlock.toJsonObject()).doReturn(JsonObject())
+        mockBlockchainService = mockk()
+        mockPeer = mockk()
+        val mockBlock = mockk<Block>()
+        every { mockBlock.toJsonObject() } returns JsonObject()
+        every { mockBlock.payloadLength } returns 0
         val blocks = mutableListOf<Block>()
         repeat(100) {
             blocks.add(mockBlock)
         }
-        whenever(mockBlockchainService.getBlocksAfter(eq(Genesis.GENESIS_BLOCK_ID), any())).doReturn(blocks)
+        every { mockBlockchainService.getBlocksAfter(any(), any()) } returns blocks
         getNextBlocks = GetNextBlocks(mockBlockchainService)
     }
 

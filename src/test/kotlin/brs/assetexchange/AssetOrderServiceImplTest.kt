@@ -10,7 +10,8 @@ import brs.entity.Order.Bid
 import brs.services.AccountService
 import brs.services.impl.AssetOrderServiceImpl
 import brs.services.impl.AssetTradeServiceImpl
-import com.nhaarman.mockitokotlin2.*
+import io.mockk.every
+import io.mockk.mockk
 import org.jooq.SortField
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -31,19 +32,19 @@ class AssetOrderServiceImplTest {
 
     @Before
     fun setUp() {
-        orderStoreMock = mock()
-        mockAskOrderTable = mock()
-        mockAskOrderDbKeyFactory = mock()
-        mockBidOrderTable = mock()
-        mockBidOrderDbKeyFactory = mock()
+        orderStoreMock = mockk()
+        mockAskOrderTable = mockk()
+        mockAskOrderDbKeyFactory = mockk()
+        mockBidOrderTable = mockk()
+        mockBidOrderDbKeyFactory = mockk()
 
-        accountServiceMock = mock()
-        tradeServiceMock = mock()
+        accountServiceMock = mockk()
+        tradeServiceMock = mockk()
 
-        whenever(orderStoreMock.askOrderTable).doReturn(mockAskOrderTable)
-        whenever(orderStoreMock.askOrderDbKeyFactory).doReturn(mockAskOrderDbKeyFactory)
-        whenever(orderStoreMock.bidOrderTable).doReturn(mockBidOrderTable)
-        whenever(orderStoreMock.bidOrderDbKeyFactory).doReturn(mockBidOrderDbKeyFactory)
+        every { orderStoreMock.askOrderTable } returns mockAskOrderTable
+        every { orderStoreMock.askOrderDbKeyFactory } returns mockAskOrderDbKeyFactory
+        every { orderStoreMock.bidOrderTable } returns mockBidOrderTable
+        every { orderStoreMock.bidOrderDbKeyFactory } returns mockBidOrderDbKeyFactory
 
         t = AssetOrderServiceImpl(
             QuickMocker.dependencyProvider(orderStoreMock, accountServiceMock),
@@ -53,26 +54,26 @@ class AssetOrderServiceImplTest {
 
     @Test
     fun getAskOrder() {
-        val mockAskKey = mock<BurstKey>()
-        val mockAsk = mock<Ask>()
+        val mockAskKey = mockk<BurstKey>()
+        val mockAsk = mockk<Ask>()
 
         val askKey = 123L
 
-        whenever(mockAskOrderDbKeyFactory.newKey(eq(askKey))).doReturn(mockAskKey)
-        whenever(mockAskOrderTable.get(eq(mockAskKey))).doReturn(mockAsk)
+        every { mockAskOrderDbKeyFactory.newKey(eq(askKey)) } returns mockAskKey
+        every { mockAskOrderTable.get(eq(mockAskKey)) } returns mockAsk
 
         assertEquals(mockAsk, t.getAskOrder(askKey))
     }
 
     @Test
     fun getBidOrder() {
-        val mockBidKey = mock<BurstKey>()
-        val mockBid = mock<Bid>()
+        val mockBidKey = mockk<BurstKey>()
+        val mockBid = mockk<Bid>()
 
         val bidKey = 123L
 
-        whenever(mockBidOrderDbKeyFactory.newKey(eq(bidKey))).doReturn(mockBidKey)
-        whenever(mockBidOrderTable.get(eq(mockBidKey))).doReturn(mockBid)
+        every { mockBidOrderDbKeyFactory.newKey(eq(bidKey)) } returns mockBidKey
+        every { mockBidOrderTable.get(eq(mockBidKey)) } returns mockBid
 
         assertEquals(mockBid, t.getBidOrder(bidKey))
     }
@@ -82,9 +83,9 @@ class AssetOrderServiceImplTest {
         val from = 1
         val to = 5
 
-        val mockAskIterator = mock<Collection<Ask>>()
+        val mockAskIterator = mockk<Collection<Ask>>()
 
-        whenever(mockAskOrderTable.getAll(eq(from), eq(to), any<Collection<SortField<*>>>())).doReturn(mockAskIterator)
+        every { mockAskOrderTable.getAll(eq(from), eq(to), any<Collection<SortField<*>>>()) } returns mockAskIterator
 
         assertEquals(mockAskIterator, t.getAllAskOrders(from, to))
     }
@@ -94,9 +95,9 @@ class AssetOrderServiceImplTest {
         val from = 1
         val to = 5
 
-        val mockBidIterator = mock<Collection<Bid>>()
+        val mockBidIterator = mockk<Collection<Bid>>()
 
-        whenever(mockBidOrderTable.getAll(eq(from), eq(to), any<Collection<SortField<*>>>())).doReturn(mockBidIterator)
+        every { mockBidOrderTable.getAll(eq(from), eq(to), any<Collection<SortField<*>>>()) } returns mockBidIterator
 
         assertEquals(mockBidIterator, t.getAllBidOrders(from, to))
     }
@@ -107,9 +108,9 @@ class AssetOrderServiceImplTest {
         val from = 1
         val to = 5
 
-        val mockBidIterator = mock<Collection<Bid>>()
+        val mockBidIterator = mockk<Collection<Bid>>()
 
-        whenever(orderStoreMock.getSortedBids(eq(assetId), eq(from), eq(to))).doReturn(mockBidIterator)
+        every { orderStoreMock.getSortedBids(eq(assetId), eq(from), eq(to)) } returns mockBidIterator
 
         assertEquals(mockBidIterator, t.getSortedBidOrders(assetId, from, to))
     }
@@ -120,9 +121,9 @@ class AssetOrderServiceImplTest {
         val from = 1
         val to = 5
 
-        val mockAskIterator = mock<Collection<Ask>>()
+        val mockAskIterator = mockk<Collection<Ask>>()
 
-        whenever(orderStoreMock.getAskOrdersByAccount(eq(accountId), eq(from), eq(to))).doReturn(mockAskIterator)
+        every { orderStoreMock.getAskOrdersByAccount(eq(accountId), eq(from), eq(to)) } returns mockAskIterator
 
         assertEquals(mockAskIterator, t.getAskOrdersByAccount(accountId, from, to))
     }
@@ -134,9 +135,9 @@ class AssetOrderServiceImplTest {
         val from = 1
         val to = 5
 
-        val mockAskIterator = mock<Collection<Ask>>()
+        val mockAskIterator = mockk<Collection<Ask>>()
 
-        whenever(orderStoreMock.getAskOrdersByAccountAsset(eq(accountId), eq(assetId), eq(from), eq(to))).doReturn(mockAskIterator)
+        every { orderStoreMock.getAskOrdersByAccountAsset(eq(accountId), eq(assetId), eq(from), eq(to)) } returns mockAskIterator
 
         assertEquals(mockAskIterator, t.getAskOrdersByAccountAsset(accountId, assetId, from, to))
     }
@@ -147,23 +148,23 @@ class AssetOrderServiceImplTest {
         val from = 1
         val to = 5
 
-        val mockAskIterator = mock<Collection<Ask>>()
+        val mockAskIterator = mockk<Collection<Ask>>()
 
-        whenever(orderStoreMock.getSortedAsks(eq(assetId), eq(from), eq(to))).doReturn(mockAskIterator)
+        every { orderStoreMock.getSortedAsks(eq(assetId), eq(from), eq(to)) } returns mockAskIterator
 
         assertEquals(mockAskIterator, t.getSortedAskOrders(assetId, from, to))
     }
 
     @Test
     fun getBidCount() {
-        whenever(mockBidOrderTable.count).doReturn(5)
+        every { mockBidOrderTable.count } returns 5
 
         assertEquals(5, t.bidCount.toLong())
     }
 
     @Test
     fun getAskCount() {
-        whenever(mockAskOrderTable.count).doReturn(5)
+        every { mockAskOrderTable.count } returns 5
 
         assertEquals(5, t.askCount.toLong())
     }
@@ -174,9 +175,9 @@ class AssetOrderServiceImplTest {
         val from = 1
         val to = 5
 
-        val mockBidIterator = mock<Collection<Bid>>()
+        val mockBidIterator = mockk<Collection<Bid>>()
 
-        whenever(orderStoreMock.getBidOrdersByAccount(eq(accountId), eq(from), eq(to))).doReturn(mockBidIterator)
+        every { orderStoreMock.getBidOrdersByAccount(eq(accountId), eq(from), eq(to)) } returns mockBidIterator
 
         assertEquals(mockBidIterator, t.getBidOrdersByAccount(accountId, from, to))
     }
@@ -188,9 +189,9 @@ class AssetOrderServiceImplTest {
         val from = 1
         val to = 5
 
-        val mockBidIterator = mock<Collection<Bid>>()
+        val mockBidIterator = mockk<Collection<Bid>>()
 
-        whenever(orderStoreMock.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(from), eq(to))).doReturn(mockBidIterator)
+        every { orderStoreMock.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(from), eq(to)) } returns mockBidIterator
 
         assertEquals(mockBidIterator, t.getBidOrdersByAccountAsset(accountId, assetId, from, to))
     }

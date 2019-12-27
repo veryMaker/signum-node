@@ -9,7 +9,8 @@ import brs.entity.Escrow
 import brs.services.AccountService
 import brs.services.AliasService
 import brs.services.BlockchainService
-import com.nhaarman.mockitokotlin2.*
+import io.mockk.every
+import io.mockk.mockk
 import org.jooq.SortField
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -28,16 +29,17 @@ class EscrowServiceImplTest {
 
     @Before
     fun setUp() {
-        mockEscrowStore = mock()
-        mockEscrowTable = mock()
-        mockEscrowDbKeyFactory = mock()
+        mockEscrowStore = mockk()
+        mockEscrowTable = mockk()
+        mockEscrowDbKeyFactory = mockk()
 
-        blockchainServiceMock = mock()
-        aliasServiceMock = mock()
-        accountServiceMock = mock()
+        blockchainServiceMock = mockk()
+        aliasServiceMock = mockk()
+        accountServiceMock = mockk()
 
-        whenever(mockEscrowStore.escrowTable).doReturn(mockEscrowTable)
-        whenever(mockEscrowStore.escrowDbKeyFactory).doReturn(mockEscrowDbKeyFactory)
+        every { mockEscrowStore.decisionTable } returns mockk()
+        every { mockEscrowStore.escrowTable } returns mockEscrowTable
+        every { mockEscrowStore.escrowDbKeyFactory } returns mockEscrowDbKeyFactory
 
         t = EscrowServiceImpl(QuickMocker.dependencyProvider(
             mockEscrowStore,
@@ -50,9 +52,9 @@ class EscrowServiceImplTest {
 
     @Test
     fun getAllEscrowTransactions() {
-        val mockEscrowIterator = mock<Collection<Escrow>>()
+        val mockEscrowIterator = mockk<Collection<Escrow>>()
 
-        whenever(mockEscrowTable.getAll(eq(0), eq(-1), any<Collection<SortField<*>>>())).doReturn(mockEscrowIterator)
+        every { mockEscrowTable.getAll(eq(0), eq(-1), any<Collection<SortField<*>>>()) } returns mockEscrowIterator
 
         assertEquals(mockEscrowIterator, t.getAllEscrowTransactions())
     }
@@ -61,11 +63,11 @@ class EscrowServiceImplTest {
     fun getEscrowTransaction() {
         val escrowId = 123L
 
-        val mockEscrowKey = mock<BurstKey>()
-        val mockEscrow = mock<Escrow>()
+        val mockEscrowKey = mockk<BurstKey>()
+        val mockEscrow = mockk<Escrow>()
 
-        whenever(mockEscrowDbKeyFactory.newKey(eq(escrowId))).doReturn(mockEscrowKey)
-        whenever(mockEscrowTable.get(eq(mockEscrowKey))).doReturn(mockEscrow)
+        every { mockEscrowDbKeyFactory.newKey(eq(escrowId)) } returns mockEscrowKey
+        every { mockEscrowTable.get(eq(mockEscrowKey)) } returns mockEscrow
 
         assertEquals(mockEscrow, t.getEscrowTransaction(escrowId))
     }

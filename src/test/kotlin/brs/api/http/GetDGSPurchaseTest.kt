@@ -20,10 +20,8 @@ import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import burst.kit.entity.BurstEncryptedMessage
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -37,7 +35,7 @@ class GetDGSPurchaseTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
+        mockParameterService = mockk()
 
         t = GetDGSPurchase(mockParameterService)
     }
@@ -47,34 +45,34 @@ class GetDGSPurchaseTest {
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockEncryptedData = mock<BurstEncryptedMessage>()
+        val mockEncryptedData = mockk<BurstEncryptedMessage>()
 
-        whenever(mockEncryptedData.data).doReturn(byteArrayOf(1.toByte()))
-        whenever(mockEncryptedData.nonce).doReturn(byteArrayOf(1.toByte()))
-        whenever(mockEncryptedData.isText).doReturn(true)
+        every { mockEncryptedData.data } returns byteArrayOf(1.toByte())
+        every { mockEncryptedData.nonce } returns byteArrayOf(1.toByte())
+        every { mockEncryptedData.isText } returns true
 
         val mockEncryptedDataList = mutableListOf(mockEncryptedData)
 
-        val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.id).doReturn(1L)
-        whenever(mockPurchase.goodsId).doReturn(2L)
-        whenever(mockPurchase.getName()).doReturn("name")
-        whenever(mockPurchase.sellerId).doReturn(3L)
-        whenever(mockPurchase.pricePlanck).doReturn(4L)
-        whenever(mockPurchase.quantity).doReturn(5)
-        whenever(mockPurchase.buyerId).doReturn(6L)
-        whenever(mockPurchase.timestamp).doReturn(7)
-        whenever(mockPurchase.deliveryDeadlineTimestamp).doReturn(8)
-        whenever(mockPurchase.isPending).doReturn(true)
-        whenever(mockPurchase.discountPlanck).doReturn(8L)
-        whenever(mockPurchase.refundPlanck).doReturn(9L)
-        whenever(mockPurchase.encryptedGoods).doReturn(mockEncryptedData)
-        whenever(mockPurchase.feedbackNotes).doReturn(mockEncryptedDataList)
-        whenever(mockPurchase.refundNote).doReturn(mockEncryptedData)
-        whenever(mockPurchase.note).doReturn(mockEncryptedData)
-        whenever(mockPurchase.getPublicFeedback()).doReturn(listOf("feedback"))
+        val mockPurchase = mockk<Purchase>()
+        every { mockPurchase.id } returns 1L
+        every { mockPurchase.goodsId } returns 2L
+        every { mockPurchase.getName() } returns "name"
+        every { mockPurchase.sellerId } returns 3L
+        every { mockPurchase.pricePlanck } returns 4L
+        every { mockPurchase.quantity } returns 5
+        every { mockPurchase.buyerId } returns 6L
+        every { mockPurchase.timestamp } returns 7
+        every { mockPurchase.deliveryDeadlineTimestamp } returns 8
+        every { mockPurchase.isPending } returns true
+        every { mockPurchase.discountPlanck } returns 8L
+        every { mockPurchase.refundPlanck } returns 9L
+        every { mockPurchase.encryptedGoods } returns mockEncryptedData
+        every { mockPurchase.feedbackNotes } returns mockEncryptedDataList
+        every { mockPurchase.refundNote } returns mockEncryptedData
+        every { mockPurchase.note } returns mockEncryptedData
+        every { mockPurchase.getPublicFeedback() } returns listOf("feedback")
 
-        whenever(mockParameterService.getPurchase(eq(request))).doReturn(mockPurchase)
+        every { mockParameterService.getPurchase(eq(request)) } returns mockPurchase
 
         val result = t.processRequest(request) as JsonObject
 

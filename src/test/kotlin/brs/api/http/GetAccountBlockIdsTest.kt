@@ -1,23 +1,21 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.entity.Block
-import brs.services.BlockchainService
-import brs.common.AbstractUnitTest
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.api.http.common.ResultFields.BLOCK_IDS_RESPONSE
+import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Account
+import brs.entity.Block
+import brs.services.BlockchainService
 import brs.services.ParameterService
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -32,8 +30,8 @@ class GetAccountBlockIdsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
-        mockBlockchainService = mock()
+        mockParameterService = mockk()
+        mockBlockchainService = mockk()
 
         t = GetAccountBlockIds(mockParameterService, mockBlockchainService)
     }
@@ -50,16 +48,15 @@ class GetAccountBlockIdsTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val mockAccount = mock<Account>()
+        val mockAccount = mockk<Account>()
 
         val mockBlockStringId = "mockBlockStringId"
-        val mockBlock = mock<Block>()
-        whenever(mockBlock.stringId).doReturn(mockBlockStringId)
+        val mockBlock = mockk<Block>()
+        every { mockBlock.stringId } returns mockBlockStringId
         val mockBlocksIterator = mockCollection(mockBlock)
 
-        whenever(mockParameterService.getAccount(request)).doReturn(mockAccount)
-        whenever(mockBlockchainService.getBlocks(eq(mockAccount), eq(timestamp), eq(firstIndex), eq(lastIndex)))
-                .doReturn(mockBlocksIterator)
+        every { mockParameterService.getAccount(request) } returns mockAccount
+        every { mockBlockchainService.getBlocks(eq(mockAccount), eq(timestamp), eq(firstIndex), eq(lastIndex)) } returns mockBlocksIterator
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)

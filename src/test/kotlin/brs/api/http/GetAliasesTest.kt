@@ -13,10 +13,8 @@ import brs.services.ParameterService
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -31,8 +29,8 @@ class GetAliasesTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
-        mockAliasService = mock()
+        mockParameterService = mockk()
+        mockAliasService = mockk()
 
         t = GetAliases(mockParameterService, mockAliasService)
     }
@@ -42,21 +40,21 @@ class GetAliasesTest : AbstractUnitTest() {
         val accountId = 123L
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mock<Account>()
-        whenever(mockAccount.id).doReturn(accountId)
+        val mockAccount = mockk<Account>()
+        every { mockAccount.id } returns accountId
 
-        val mockAlias = mock<Alias>()
-        whenever(mockAlias.id).doReturn(567L)
+        val mockAlias = mockk<Alias>()
+        every { mockAlias.id } returns 567L
 
-        val mockOffer = mock<Offer>()
-        whenever(mockOffer.pricePlanck).doReturn(234L)
+        val mockOffer = mockk<Offer>()
+        every { mockOffer.pricePlanck } returns 234L
 
         val mockAliasIterator = mockCollection(mockAlias)
 
-        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
+        every { mockParameterService.getAccount(eq(request)) } returns mockAccount
 
-        whenever(mockAliasService.getAliasesByOwner(eq(accountId), eq(0), eq(-1))).doReturn(mockAliasIterator)
-        whenever(mockAliasService.getOffer(eq(mockAlias))).doReturn(mockOffer)
+        every { mockAliasService.getAliasesByOwner(eq(accountId), eq(0), eq(-1)) } returns mockAliasIterator
+        every { mockAliasService.getOffer(eq(mockAlias)) } returns mockOffer
 
         val resultOverview = t.processRequest(request) as JsonObject
         assertNotNull(resultOverview)

@@ -10,7 +10,7 @@ import brs.services.impl.DeeplinkGeneratorServiceImpl
 import brs.util.json.safeGetAsInt
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.mock
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

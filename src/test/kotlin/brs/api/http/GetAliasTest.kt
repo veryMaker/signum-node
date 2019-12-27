@@ -10,10 +10,8 @@ import brs.services.AliasService
 import brs.services.ParameterService
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -28,25 +26,25 @@ class GetAliasTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
-        mockAliasService = mock()
+        mockParameterService = mockk()
+        mockAliasService = mockk()
 
         t = GetAlias(mockParameterService, mockAliasService)
     }
 
     @Test
     fun processRequest() {
-        val mockAlias = mock<Alias>()
-        whenever(mockAlias.aliasName).doReturn("mockAliasName")
+        val mockAlias = mockk<Alias>()
+        every { mockAlias.aliasName } returns "mockAliasName"
 
-        val mockOffer = mock<Offer>()
-        whenever(mockOffer.pricePlanck).doReturn(123L)
-        whenever(mockOffer.buyerId).doReturn(345L)
+        val mockOffer = mockk<Offer>()
+        every { mockOffer.pricePlanck } returns 123L
+        every { mockOffer.buyerId } returns 345L
 
         val request = QuickMocker.httpServletRequest()
 
-        whenever(mockParameterService.getAlias(eq(request))).doReturn(mockAlias)
-        whenever(mockAliasService.getOffer(eq(mockAlias))).doReturn(mockOffer)
+        every { mockParameterService.getAlias(eq(request)) } returns mockAlias
+        every { mockAliasService.getOffer(eq(mockAlias)) } returns mockOffer
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)

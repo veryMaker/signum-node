@@ -14,10 +14,8 @@ import brs.api.http.common.Parameters.ORDER_PARAMETER
 import brs.services.ParameterService
 import brs.transaction.type.TransactionType
 import brs.transaction.type.coloredCoins.BidOrderCancellation
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -36,10 +34,10 @@ class CancelBidOrderTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
-        blockchainServiceMock = mock()
-        assetExchangeServiceMock = mock()
-        apiTransactionManagerMock = mock()
+        parameterServiceMock = mockk()
+        blockchainServiceMock = mockk()
+        assetExchangeServiceMock = mockk()
+        apiTransactionManagerMock = mockk()
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             blockchainServiceMock,
@@ -58,13 +56,13 @@ class CancelBidOrderTest : AbstractTransactionTest() {
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        val mockBidOrder = mock<Bid>()
-        whenever(mockBidOrder.accountId).doReturn(orderAccountId)
-        whenever(assetExchangeServiceMock.getBidOrder(eq(123L))).doReturn(mockBidOrder)
+        val mockBidOrder = mockk<Bid>()
+        every { mockBidOrder.accountId } returns orderAccountId
+        every { assetExchangeServiceMock.getBidOrder(eq(123L)) } returns mockBidOrder
 
-        val mockAccount = mock<Account>()
-        whenever(mockAccount.id).doReturn(orderAccountId)
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockAccount)
+        val mockAccount = mockk<Account>()
+        every { mockAccount.id } returns orderAccountId
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
@@ -87,7 +85,7 @@ class CancelBidOrderTest : AbstractTransactionTest() {
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        whenever(assetExchangeServiceMock.getBidOrder(eq(123L))).doReturn(null)
+        every { assetExchangeServiceMock.getBidOrder(eq(123L)) } returns null
 
         assertEquals(UNKNOWN_ORDER, t.processRequest(request))
     }
@@ -102,14 +100,14 @@ class CancelBidOrderTest : AbstractTransactionTest() {
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        val mockBidOrder = mock<Bid>()
-        whenever(mockBidOrder.accountId).doReturn(orderAccountId)
-        whenever(assetExchangeServiceMock.getBidOrder(eq(123L))).doReturn(mockBidOrder)
+        val mockBidOrder = mockk<Bid>()
+        every { mockBidOrder.accountId } returns orderAccountId
+        every { assetExchangeServiceMock.getBidOrder(eq(123L)) } returns mockBidOrder
 
-        val mockAccount = mock<Account>()
-        whenever(mockAccount.id).doReturn(senderAccountId)
+        val mockAccount = mockk<Account>()
+        every { mockAccount.id } returns senderAccountId
 
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockAccount)
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount
 
         assertEquals(UNKNOWN_ORDER, t.processRequest(request))
     }

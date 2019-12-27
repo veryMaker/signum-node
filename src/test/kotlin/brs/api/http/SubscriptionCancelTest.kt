@@ -1,24 +1,22 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.services.BlockchainService
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
-import brs.objects.FluxValues
 import brs.api.http.common.Parameters.SUBSCRIPTION_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.entity.Subscription
+import brs.objects.FluxValues
+import brs.services.BlockchainService
 import brs.services.ParameterService
 import brs.services.SubscriptionService
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.util.json.safeGetAsLong
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -37,10 +35,10 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
-        subscriptionServiceMock = mock()
-        blockchainServiceMock = mock()
-        apiTransactionManagerMock = mock()
+        parameterServiceMock = mockk()
+        subscriptionServiceMock = mockk()
+        blockchainServiceMock = mockk()
+        apiTransactionManagerMock = mockk()
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             subscriptionServiceMock,
@@ -58,16 +56,16 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
                 MockParam(SUBSCRIPTION_PARAMETER, subscriptionIdParameter)
         )
 
-        val mockSender = mock<Account>()
-        whenever(mockSender.id).doReturn(1L)
+        val mockSender = mockk<Account>()
+        every { mockSender.id } returns 1L
 
-        val mockSubscription = mock<Subscription>()
-        whenever(mockSubscription.id).doReturn(subscriptionIdParameter)
-        whenever(mockSubscription.senderId).doReturn(1L)
-        whenever(mockSubscription.recipientId).doReturn(2L)
+        val mockSubscription = mockk<Subscription>()
+        every { mockSubscription.id } returns subscriptionIdParameter
+        every { mockSubscription.senderId } returns 1L
+        every { mockSubscription.recipientId } returns 2L
 
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockSender)
-        whenever(subscriptionServiceMock.getSubscription(eq(subscriptionIdParameter))).doReturn(mockSubscription)
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockSender
+        every { subscriptionServiceMock.getSubscription(eq(subscriptionIdParameter)) } returns mockSubscription
 
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
@@ -109,7 +107,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
                 MockParam(SUBSCRIPTION_PARAMETER, subscriptionId)
         )
 
-        whenever(subscriptionServiceMock.getSubscription(eq(subscriptionId))).doReturn(null)
+        every { subscriptionServiceMock.getSubscription(eq(subscriptionId)) } returns null
 
         val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
@@ -125,15 +123,15 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
                 MockParam(SUBSCRIPTION_PARAMETER, subscriptionId)
         )
 
-        val mockSender = mock<Account>()
-        whenever(mockSender.id).doReturn(1L)
+        val mockSender = mockk<Account>()
+        every { mockSender.id } returns 1L
 
-        val mockSubscription = mock<Subscription>()
-        whenever(mockSubscription.senderId).doReturn(2L)
-        whenever(mockSubscription.recipientId).doReturn(3L)
+        val mockSubscription = mockk<Subscription>()
+        every { mockSubscription.senderId } returns 2L
+        every { mockSubscription.recipientId } returns 3L
 
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockSender)
-        whenever(subscriptionServiceMock.getSubscription(eq(subscriptionId))).doReturn(mockSubscription)
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockSender
+        every { subscriptionServiceMock.getSubscription(eq(subscriptionId)) } returns mockSubscription
 
         val response = t.processRequest(request) as JsonObject
         assertNotNull(response)

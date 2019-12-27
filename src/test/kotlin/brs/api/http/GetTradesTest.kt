@@ -16,10 +16,8 @@ import brs.api.http.common.ResultFields.TRADES_RESPONSE
 import brs.services.ParameterService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -34,8 +32,8 @@ class GetTradesTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
-        mockAssetExchangeService = mock()
+        mockParameterService = mockk()
+        mockAssetExchangeService = mockk()
 
         t = GetTrades(mockParameterService, mockAssetExchangeService)
     }
@@ -54,14 +52,14 @@ class GetTradesTest : AbstractUnitTest() {
                 MockParam(INCLUDE_ASSET_INFO_PARAMETER, includeAssetInfo)
         )
 
-        val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).doReturn(assetId)
+        val mockAsset = mockk<Asset>()
+        every { mockAsset.id } returns assetId
 
-        val mockTrade = mock<Trade>()
+        val mockTrade = mockk<Trade>()
         val mockTradesIterator = mockCollection(mockTrade)
 
-        whenever(mockParameterService.getAsset(eq(request))).doReturn(mockAsset)
-        whenever(mockAssetExchangeService.getTrades(eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockTradesIterator)
+        every { mockParameterService.getAsset(eq(request)) } returns mockAsset
+        every { mockAssetExchangeService.getTrades(eq(assetId), eq(firstIndex), eq(lastIndex)) } returns mockTradesIterator
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
@@ -88,14 +86,14 @@ class GetTradesTest : AbstractUnitTest() {
                 MockParam(INCLUDE_ASSET_INFO_PARAMETER, includeAssetInfo)
         )
 
-        val mockAccount = mock<Account>()
-        whenever(mockAccount.id).doReturn(accountId)
+        val mockAccount = mockk<Account>()
+        every { mockAccount.id } returns accountId
 
-        val mockTrade = mock<Trade>()
+        val mockTrade = mockk<Trade>()
         val mockTradesIterator = mockCollection(mockTrade)
 
-        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
-        whenever(mockAssetExchangeService.getAccountTrades(eq(accountId), eq(firstIndex), eq(lastIndex))).doReturn(mockTradesIterator)
+        every { mockParameterService.getAccount(eq(request)) } returns mockAccount
+        every { mockAssetExchangeService.getAccountTrades(eq(accountId), eq(firstIndex), eq(lastIndex)) } returns mockTradesIterator
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
@@ -124,18 +122,18 @@ class GetTradesTest : AbstractUnitTest() {
                 MockParam(INCLUDE_ASSET_INFO_PARAMETER, includeAssetInfo)
         )
 
-        val mockAsset = mock<Asset>()
-        whenever(mockAsset.id).doReturn(assetId)
+        val mockAsset = mockk<Asset>()
+        every { mockAsset.id } returns assetId
 
-        val mockAccount = mock<Account>()
-        whenever(mockAccount.id).doReturn(accountId)
+        val mockAccount = mockk<Account>()
+        every { mockAccount.id } returns accountId
 
-        val mockTrade = mock<Trade>()
+        val mockTrade = mockk<Trade>()
         val mockTradesIterator = mockCollection(mockTrade)
 
-        whenever(mockParameterService.getAsset(eq(request))).doReturn(mockAsset)
-        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
-        whenever(mockAssetExchangeService.getAccountAssetTrades(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).doReturn(mockTradesIterator)
+        every { mockParameterService.getAsset(eq(request)) } returns mockAsset
+        every { mockParameterService.getAccount(eq(request)) } returns mockAccount
+        every { mockAssetExchangeService.getAccountAssetTrades(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex)) } returns mockTradesIterator
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)

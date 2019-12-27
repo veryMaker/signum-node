@@ -10,10 +10,8 @@ import brs.entity.Account
 import brs.services.ParameterService
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -26,20 +24,20 @@ class GetBalanceTest {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
+        parameterServiceMock = mockk()
         this.t = GetBalance(parameterServiceMock)
     }
 
     @Test
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
-        val mockAccount = mock<Account>()
+        val mockAccount = mockk<Account>()
 
-        whenever(mockAccount.balancePlanck).doReturn(1L)
-        whenever(mockAccount.unconfirmedBalancePlanck).doReturn(2L)
-        whenever(mockAccount.forgedBalancePlanck).doReturn(3L)
+        every { mockAccount.balancePlanck } returns 1L
+        every { mockAccount.unconfirmedBalancePlanck } returns 2L
+        every { mockAccount.forgedBalancePlanck } returns 3L
 
-        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(mockAccount)
+        every { parameterServiceMock.getAccount(eq(request)) } returns mockAccount
 
         val result = t.processRequest(request) as JsonObject
 
@@ -54,7 +52,7 @@ class GetBalanceTest {
     fun processRequest_noAccountFound() {
         val request = QuickMocker.httpServletRequest()
 
-        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(mock())
+        every { parameterServiceMock.getAccount(eq(request)) } returns mockk()
 
         val result = t.processRequest(request) as JsonObject
 

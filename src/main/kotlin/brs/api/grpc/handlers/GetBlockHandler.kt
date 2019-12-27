@@ -17,32 +17,37 @@ class GetBlockHandler(private val blockchainService: BlockchainService, private 
         val timestamp = request.timestamp
 
         val block: Block?
-        if (blockId > 0) {
-            try {
-                block = blockchainService.getBlock(blockId)
-            } catch (e: Exception) {
-                throw ApiException("Incorrect Block ID")
-            }
+        when {
+            blockId > 0 -> {
+                try {
+                    block = blockchainService.getBlock(blockId)
+                } catch (e: Exception) {
+                    throw ApiException("Incorrect Block ID")
+                }
 
-        } else if (blockHeight > 0) {
-            try {
-                if (blockHeight > blockchainService.height) {
+            }
+            blockHeight > 0 -> {
+                try {
+                    if (blockHeight > blockchainService.height) {
+                        throw ApiException("Incorrect Block Height")
+                    }
+                    block = blockchainService.getBlockAtHeight(blockHeight)
+                } catch (e: Exception) {
                     throw ApiException("Incorrect Block Height")
                 }
-                block = blockchainService.getBlockAtHeight(blockHeight)
-            } catch (e: Exception) {
-                throw ApiException("Incorrect Block Height")
-            }
 
-        } else if (timestamp > 0) {
-            try {
-                block = blockchainService.getLastBlock(timestamp)
-            } catch (e: Exception) {
-                throw ApiException("Incorrect Timestamp")
             }
+            timestamp > 0 -> {
+                try {
+                    block = blockchainService.getLastBlock(timestamp)
+                } catch (e: Exception) {
+                    throw ApiException("Incorrect Timestamp")
+                }
 
-        } else {
-            block = blockchainService.lastBlock
+            }
+            else -> {
+                block = blockchainService.lastBlock
+            }
         }
 
         if (block == null) {

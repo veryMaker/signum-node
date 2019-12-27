@@ -7,10 +7,8 @@ import brs.entity.Account
 import brs.services.ParameterService
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -24,7 +22,7 @@ class GetAccountPublicKeyTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
+        mockParameterService = mockk()
 
         t = GetAccountPublicKey(mockParameterService)
     }
@@ -33,10 +31,10 @@ class GetAccountPublicKeyTest {
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mock<Account>()
-        whenever(mockAccount.publicKey).doReturn(TestConstants.TEST_PUBLIC_KEY_BYTES)
+        val mockAccount = mockk<Account>()
+        every { mockAccount.publicKey } returns TestConstants.TEST_PUBLIC_KEY_BYTES
 
-        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
+        every { mockParameterService.getAccount(eq(request)) } returns mockAccount
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
@@ -48,10 +46,10 @@ class GetAccountPublicKeyTest {
     fun processRequest_withoutPublicKey() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mock<Account>()
-        whenever(mockAccount.publicKey).doReturn(null)
+        val mockAccount = mockk<Account>()
+        every { mockAccount.publicKey } returns null
 
-        whenever(mockParameterService.getAccount(eq(request))).doReturn(mockAccount)
+        every { mockParameterService.getAccount(eq(request)) } returns mockAccount
 
         assertEquals(
             "Account does not have public key set in Blockchain",

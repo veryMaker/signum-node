@@ -17,10 +17,8 @@ import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -35,8 +33,8 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
-        subscriptionServiceMock = mock()
+        parameterServiceMock = mockk()
+        subscriptionServiceMock = mockk()
 
         t = GetAccountSubscriptions(parameterServiceMock, subscriptionServiceMock)
     }
@@ -49,18 +47,18 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
                 MockParam(ACCOUNT_PARAMETER, userId)
         )
 
-        val account = mock<Account>()
-        whenever(account.id).doReturn(userId)
-        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(account)
+        val account = mockk<Account>()
+        every { account.id } returns userId
+        every { parameterServiceMock.getAccount(eq(request)) } returns account
 
-        val subscription = mock<Subscription>()
-        whenever(subscription.id).doReturn(1L)
-        whenever(subscription.amountPlanck).doReturn(2L)
-        whenever(subscription.frequency).doReturn(3)
-        whenever(subscription.timeNext).doReturn(4)
+        val subscription = mockk<Subscription>()
+        every { subscription.id } returns 1L
+        every { subscription.amountPlanck } returns 2L
+        every { subscription.frequency } returns 3
+        every { subscription.timeNext } returns 4
 
         val subscriptionIterator = mockCollection(subscription)
-        whenever(subscriptionServiceMock.getSubscriptionsByParticipant(eq(userId))).doReturn(subscriptionIterator)
+        every { subscriptionServiceMock.getSubscriptionsByParticipant(eq(userId)) } returns subscriptionIterator
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)

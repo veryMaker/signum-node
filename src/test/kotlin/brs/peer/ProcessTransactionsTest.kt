@@ -1,7 +1,7 @@
 package brs.peer
 
 import brs.services.TransactionProcessorService
-import com.nhaarman.mockitokotlin2.mock
+import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
 
@@ -12,8 +12,8 @@ class ProcessTransactionsTest {
 
     @Before
     fun setUp() {
-        transactionProcessorService = mock()
-        peer = mock()
+        transactionProcessorService = mockk()
+        peer = mockk()
         t = ProcessTransactions(transactionProcessorService)
     }
 

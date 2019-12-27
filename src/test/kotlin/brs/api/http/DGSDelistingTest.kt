@@ -1,20 +1,18 @@
 package brs.api.http
 
+import brs.api.http.JSONResponses.UNKNOWN_GOODS
+import brs.common.QuickMocker
 import brs.entity.Account
-import brs.transaction.appendix.Attachment
-import brs.services.BlockchainService
 import brs.entity.DependencyProvider
 import brs.entity.Goods
-import brs.common.QuickMocker
 import brs.objects.FluxValues
-import brs.api.http.JSONResponses.UNKNOWN_GOODS
+import brs.services.BlockchainService
 import brs.services.ParameterService
+import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.transaction.type.digitalGoods.DigitalGoodsDelisting
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -29,9 +27,9 @@ class DGSDelistingTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
-        mockBlockchainService = mock()
-        apiTransactionManagerMock = mock()
+        mockParameterService = mockk()
+        mockBlockchainService = mockk()
+        apiTransactionManagerMock = mockk()
         dp = QuickMocker.dependencyProvider(mockParameterService, mockBlockchainService, apiTransactionManagerMock)
         t = DGSDelisting(dp)
     }
@@ -40,15 +38,16 @@ class DGSDelistingTest : AbstractTransactionTest() {
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mock<Account>()
-        val mockGoods = mock<Goods>()
+        val mockAccount = mockk<Account>()
+        val mockGoods = mockk<Goods>()
 
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.sellerId).doReturn(1L)
-        whenever(mockAccount.id).doReturn(1L)
+        every { mockGoods.id } returns 1L
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.sellerId } returns 1L
+        every { mockAccount.id } returns 1L
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockAccount)
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockAccount
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
@@ -63,13 +62,13 @@ class DGSDelistingTest : AbstractTransactionTest() {
     fun processRequest_goodsDelistedUnknownGoods() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mock<Account>()
-        val mockGoods = mock<Goods>()
+        val mockAccount = mockk<Account>()
+        val mockGoods = mockk<Goods>()
 
-        whenever(mockGoods.isDelisted).doReturn(true)
+        every { mockGoods.isDelisted } returns true
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockAccount)
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockAccount
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(UNKNOWN_GOODS, t.processRequest(request))
     }
@@ -78,15 +77,15 @@ class DGSDelistingTest : AbstractTransactionTest() {
     fun processRequest_otherSellerIdUnknownGoods() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mock<Account>()
-        val mockGoods = mock<Goods>()
+        val mockAccount = mockk<Account>()
+        val mockGoods = mockk<Goods>()
 
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.sellerId).doReturn(1L)
-        whenever(mockAccount.id).doReturn(2L)
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.sellerId } returns 1L
+        every { mockAccount.id } returns 2L
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockAccount)
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockAccount
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(UNKNOWN_GOODS, t.processRequest(request))
     }

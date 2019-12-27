@@ -13,10 +13,8 @@ import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.services.ParameterService
 import brs.transaction.type.TransactionType
 import brs.transaction.type.digitalGoods.DigitalGoodsPriceChange
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -34,9 +32,9 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
-        blockchainServiceMock = mock()
-        apiTransactionManagerMock = mock()
+        parameterServiceMock = mockk()
+        blockchainServiceMock = mockk()
+        apiTransactionManagerMock = mockk()
         dp = QuickMocker.dependencyProvider(parameterServiceMock, blockchainServiceMock, apiTransactionManagerMock)
         t = DGSPriceChange(dp)
     }
@@ -49,17 +47,17 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
                 MockParam(PRICE_PLANCK_PARAMETER, pricePlanckParameter)
         )
 
-        val mockAccount = mock<Account>()
-        whenever(mockAccount.id).doReturn(1L)
+        val mockAccount = mockk<Account>()
+        every { mockAccount.id } returns 1L
 
         val mockGoodsId: Long = 123
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.id).doReturn(mockGoodsId)
-        whenever(mockGoods.sellerId).doReturn(1L)
-        whenever(mockGoods.isDelisted).doReturn(false)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.id } returns mockGoodsId
+        every { mockGoods.sellerId } returns 1L
+        every { mockGoods.isDelisted } returns false
 
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockAccount)
-        whenever(parameterServiceMock.getGoods(eq(request))).doReturn(mockGoods)
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount
+        every { parameterServiceMock.getGoods(eq(request)) } returns mockGoods
 
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
@@ -78,13 +76,13 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
                 MockParam(PRICE_PLANCK_PARAMETER, 123L)
         )
 
-        val mockAccount = mock<Account>()
+        val mockAccount = mockk<Account>()
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).doReturn(true)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.isDelisted } returns true
 
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockAccount)
-        whenever(parameterServiceMock.getGoods(eq(request))).doReturn(mockGoods)
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount
+        every { parameterServiceMock.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(UNKNOWN_GOODS, t.processRequest(request))
     }
@@ -95,15 +93,15 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
                 MockParam(PRICE_PLANCK_PARAMETER, 123L)
         )
 
-        val mockAccount = mock<Account>()
-        whenever(mockAccount.id).doReturn(1L)
+        val mockAccount = mockk<Account>()
+        every { mockAccount.id } returns 1L
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.sellerId).doReturn(2L)
-        whenever(mockGoods.isDelisted).doReturn(false)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.sellerId } returns 2L
+        every { mockGoods.isDelisted } returns false
 
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockAccount)
-        whenever(parameterServiceMock.getGoods(eq(request))).doReturn(mockGoods)
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount
+        every { parameterServiceMock.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(UNKNOWN_GOODS, t.processRequest(request))
     }

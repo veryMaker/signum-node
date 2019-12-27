@@ -17,10 +17,8 @@ import brs.services.ParameterService
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -35,8 +33,8 @@ class GetAccountTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
-        accountServiceMock = mock()
+        parameterServiceMock = mockk()
+        accountServiceMock = mockk()
 
         t = GetAccount(parameterServiceMock, accountServiceMock)
     }
@@ -53,20 +51,20 @@ class GetAccountTest : AbstractUnitTest() {
 
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mock<Account>()
-        whenever(mockAccount.id).doReturn(mockAccountId)
-        whenever(mockAccount.publicKey).doReturn(byteArrayOf(1.toByte()))
-        whenever(mockAccount.name).doReturn(mockAccountName)
-        whenever(mockAccount.description).doReturn(mockAccountDescription)
+        val mockAccount = mockk<Account>()
+        every { mockAccount.id } returns mockAccountId
+        every { mockAccount.publicKey } returns byteArrayOf(1.toByte())
+        every { mockAccount.name } returns mockAccountName
+        every { mockAccount.description } returns mockAccountDescription
 
-        whenever(parameterServiceMock.getAccount(eq(request))).doReturn(mockAccount)
+        every { parameterServiceMock.getAccount(eq(request)) } returns mockAccount
 
-        val mockAccountAsset = mock<AccountAsset>()
-        whenever(mockAccountAsset.assetId).doReturn(mockAssetId)
-        whenever(mockAccountAsset.unconfirmedQuantity).doReturn(mockUnconfirmedQuantityPlanck)
-        whenever(mockAccountAsset.quantity).doReturn(balancePlanck)
+        val mockAccountAsset = mockk<AccountAsset>()
+        every { mockAccountAsset.assetId } returns mockAssetId
+        every { mockAccountAsset.unconfirmedQuantity } returns mockUnconfirmedQuantityPlanck
+        every { mockAccountAsset.quantity } returns balancePlanck
         val mockAssetOverview = mockCollection(mockAccountAsset)
-        whenever(accountServiceMock.getAssets(eq(mockAccountId), eq(0), eq(-1))).doReturn(mockAssetOverview)
+        every { accountServiceMock.getAssets(eq(mockAccountId), eq(0), eq(-1)) } returns mockAssetOverview
 
         val response = t.processRequest(request) as JsonObject
         assertEquals("01", response.get(PUBLIC_KEY_RESPONSE).safeGetAsString())

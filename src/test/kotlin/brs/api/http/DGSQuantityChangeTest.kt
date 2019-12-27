@@ -1,23 +1,21 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.transaction.appendix.Attachment
-import brs.services.BlockchainService
-import brs.entity.DependencyProvider
-import brs.entity.Goods
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
-import brs.objects.FluxValues
 import brs.api.http.JSONResponses.INCORRECT_DELTA_QUANTITY
 import brs.api.http.JSONResponses.MISSING_DELTA_QUANTITY
 import brs.api.http.JSONResponses.UNKNOWN_GOODS
 import brs.api.http.common.Parameters.DELTA_QUANTITY_PARAMETER
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Account
+import brs.entity.DependencyProvider
+import brs.entity.Goods
+import brs.objects.FluxValues
+import brs.services.BlockchainService
 import brs.services.ParameterService
+import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -36,9 +34,10 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
-        mockBlockchainService = mock()
-        apiTransactionManagerMock = mock()
+        mockParameterService = mockk()
+        mockBlockchainService = mockk()
+        apiTransactionManagerMock = mockk()
+        every { mockBlockchainService.height } returns 0
         dp = QuickMocker.dependencyProvider(mockParameterService, mockBlockchainService, apiTransactionManagerMock)
         t = DGSQuantityChange(dp)
     }
@@ -51,16 +50,16 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         )
 
         val mockGoodsID = 123L
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.id).doReturn(mockGoodsID)
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.sellerId).doReturn(1L)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.id } returns mockGoodsID
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.sellerId } returns 1L
 
-        val mockSenderAccount = mock<Account>()
-        whenever(mockSenderAccount.id).doReturn(1L)
+        val mockSenderAccount = mockk<Account>()
+        every { mockSenderAccount.id } returns 1L
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
@@ -76,13 +75,13 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     fun processRequest_unknownGoodsBecauseDelisted() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).doReturn(true)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.isDelisted } returns true
 
-        val mockSenderAccount = mock<Account>()
+        val mockSenderAccount = mockk<Account>()
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(UNKNOWN_GOODS, t.processRequest(request))
     }
@@ -91,15 +90,15 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     fun processRequest_unknownGoodsBecauseWrongSellerId() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.sellerId).doReturn(1L)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.sellerId } returns 1L
 
-        val mockSenderAccount = mock<Account>()
-        whenever(mockSenderAccount.id).doReturn(2L)
+        val mockSenderAccount = mockk<Account>()
+        every { mockSenderAccount.id } returns 2L
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(UNKNOWN_GOODS, t.processRequest(request))
     }
@@ -110,15 +109,15 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
                 MockParam(DELTA_QUANTITY_PARAMETER, null as String?)
         )
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.sellerId).doReturn(1L)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.sellerId } returns 1L
 
-        val mockSenderAccount = mock<Account>()
-        whenever(mockSenderAccount.id).doReturn(1L)
+        val mockSenderAccount = mockk<Account>()
+        every { mockSenderAccount.id } returns 1L
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(MISSING_DELTA_QUANTITY, t.processRequest(request))
     }
@@ -129,15 +128,15 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
                 MockParam(DELTA_QUANTITY_PARAMETER, "Bob")
         )
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.sellerId).doReturn(1L)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.sellerId } returns 1L
 
-        val mockSenderAccount = mock<Account>()
-        whenever(mockSenderAccount.id).doReturn(1L)
+        val mockSenderAccount = mockk<Account>()
+        every { mockSenderAccount.id } returns 1L
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(INCORRECT_DELTA_QUANTITY, t.processRequest(request))
     }
@@ -148,15 +147,15 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
                 MockParam(DELTA_QUANTITY_PARAMETER, Integer.MIN_VALUE)
         )
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.sellerId).doReturn(1L)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.sellerId } returns 1L
 
-        val mockSenderAccount = mock<Account>()
-        whenever(mockSenderAccount.id).doReturn(1L)
+        val mockSenderAccount = mockk<Account>()
+        every { mockSenderAccount.id } returns 1L
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(INCORRECT_DELTA_QUANTITY, t.processRequest(request))
     }
@@ -167,15 +166,15 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
                 MockParam(DELTA_QUANTITY_PARAMETER, Integer.MAX_VALUE)
         )
 
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.isDelisted).doReturn(false)
-        whenever(mockGoods.sellerId).doReturn(1L)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.isDelisted } returns false
+        every { mockGoods.sellerId } returns 1L
 
-        val mockSenderAccount = mock<Account>()
-        whenever(mockSenderAccount.id).doReturn(1L)
+        val mockSenderAccount = mockk<Account>()
+        every { mockSenderAccount.id } returns 1L
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSenderAccount)
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         assertEquals(INCORRECT_DELTA_QUANTITY, t.processRequest(request))
     }

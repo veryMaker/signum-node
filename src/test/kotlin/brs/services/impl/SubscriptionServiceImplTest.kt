@@ -11,10 +11,8 @@ import brs.db.VersionedEntityTable
 import brs.db.SubscriptionStore
 import brs.services.AccountService
 import brs.services.AliasService
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -34,16 +32,16 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockSubscriptionStore = mock()
-        mockSubscriptionTable = mock()
-        mockSubscriptionDbKeyFactory = mock()
-        transactionDb = mock()
-        blockchainService = mock()
-        aliasService = mock()
-        accountService = mock()
+        mockSubscriptionStore = mockk()
+        mockSubscriptionTable = mockk()
+        mockSubscriptionDbKeyFactory = mockk()
+        transactionDb = mockk()
+        blockchainService = mockk()
+        aliasService = mockk()
+        accountService = mockk()
 
-        whenever(mockSubscriptionStore.subscriptionTable).doReturn(mockSubscriptionTable)
-        whenever(mockSubscriptionStore.subscriptionDbKeyFactory).doReturn(mockSubscriptionDbKeyFactory)
+        every { mockSubscriptionStore.subscriptionTable } returns mockSubscriptionTable
+        every { mockSubscriptionStore.subscriptionDbKeyFactory } returns mockSubscriptionDbKeyFactory
 
         t = SubscriptionServiceImpl(QuickMocker.dependencyProvider(
             mockSubscriptionStore,
@@ -58,12 +56,12 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
     fun getSubscription() {
         val subscriptionId = 123L
 
-        val mockSubscriptionKey = mock<BurstKey>()
+        val mockSubscriptionKey = mockk<BurstKey>()
 
-        val mockSubscription = mock<Subscription>()
+        val mockSubscription = mockk<Subscription>()
 
-        whenever(mockSubscriptionDbKeyFactory.newKey(eq(subscriptionId))).doReturn(mockSubscriptionKey)
-        whenever(mockSubscriptionTable.get(eq(mockSubscriptionKey))).doReturn(mockSubscription)
+        every { mockSubscriptionDbKeyFactory.newKey(eq(subscriptionId)) } returns mockSubscriptionKey
+        every { mockSubscriptionTable.get(eq(mockSubscriptionKey)) } returns mockSubscription
 
         assertEquals(mockSubscription, t.getSubscription(subscriptionId))
     }
@@ -73,7 +71,7 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
         val accountId = 123L
 
         val mockSubscriptionIterator = mockCollection<Subscription>()
-        whenever(mockSubscriptionStore.getSubscriptionsByParticipant(eq(accountId))).doReturn(mockSubscriptionIterator)
+        every { mockSubscriptionStore.getSubscriptionsByParticipant(eq(accountId)) } returns mockSubscriptionIterator
 
         assertEquals(mockSubscriptionIterator, t.getSubscriptionsByParticipant(accountId))
     }
@@ -83,7 +81,7 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
         val accountId = 123L
 
         val mockSubscriptionIterator = mockCollection<Subscription>()
-        whenever(mockSubscriptionStore.getSubscriptionsToId(eq(accountId))).doReturn(mockSubscriptionIterator)
+        every { mockSubscriptionStore.getSubscriptionsToId(eq(accountId)) } returns mockSubscriptionIterator
 
         assertEquals(mockSubscriptionIterator, t.getSubscriptionsToId(accountId))
     }

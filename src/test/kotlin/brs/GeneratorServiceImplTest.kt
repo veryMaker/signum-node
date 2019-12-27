@@ -10,9 +10,8 @@ import brs.objects.FluxValues
 import brs.services.TimeService
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -26,14 +25,14 @@ class GeneratorServiceImplTest {
 
     @Before
     fun setUpGeneratorTest() {
-        val blockchain = mock<BlockchainService>()
-        val block = mock<Block>()
-        doReturn(block).whenever(blockchain).lastBlock
-        doReturn(exampleGenSig).whenever(block).generationSignature
-        doReturn(exampleHeight).whenever(block).height
-        doReturn(exampleBaseTarget).whenever(block).baseTarget
+        val blockchain = mockk<BlockchainService>()
+        val block = mockk<Block>()
+        every { blockchain.lastBlock } returns block
+        every { block.generationSignature } returns exampleGenSig
+        every { block.height } returns exampleHeight
+        every { block.baseTarget } returns exampleBaseTarget
 
-        val timeService = mock<TimeService>()
+        val timeService = mockk<TimeService>()
 
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2)
 

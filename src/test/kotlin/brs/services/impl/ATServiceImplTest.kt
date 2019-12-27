@@ -3,10 +3,8 @@ package brs.services.impl
 import brs.at.AT
 import brs.common.QuickMocker
 import brs.db.ATStore
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -19,16 +17,16 @@ class ATServiceImplTest {
 
     @Before
     fun setUp() {
-        mockATStore = mock()
+        mockATStore = mockk()
 
         t = ATServiceImpl(QuickMocker.dependencyProvider(mockATStore))
     }
 
     @Test
     fun getAllATIds() {
-        val mockATCollection = mock<Collection<Long>>()
+        val mockATCollection = mockk<Collection<Long>>()
 
-        whenever(mockATStore.getAllATIds()).doReturn(mockATCollection)
+        every { mockATStore.getAllATIds() } returns mockATCollection
 
         assertEquals(mockATCollection, t.getAllATIds())
     }
@@ -37,9 +35,9 @@ class ATServiceImplTest {
     fun getATsIssuedBy() {
         val accountId = 1L
 
-        val mockATsIssuedByAccount = mock<List<Long>>()
+        val mockATsIssuedByAccount = mockk<List<Long>>()
 
-        whenever(mockATStore.getATsIssuedBy(eq(accountId))).doReturn(mockATsIssuedByAccount)
+        every { mockATStore.getATsIssuedBy(eq(accountId)) } returns mockATsIssuedByAccount
 
         assertEquals(mockATsIssuedByAccount, t.getATsIssuedBy(accountId))
     }
@@ -48,9 +46,9 @@ class ATServiceImplTest {
     fun getAT() {
         val atId = 123L
 
-        val mockAT = mock<AT>()
+        val mockAT = mockk<AT>()
 
-        whenever(mockATStore.getAT(eq(atId))).doReturn(mockAT)
+        every { mockATStore.getAT(eq(atId)) } returns mockAT
 
         assertEquals(mockAT, t.getAT(atId))
     }

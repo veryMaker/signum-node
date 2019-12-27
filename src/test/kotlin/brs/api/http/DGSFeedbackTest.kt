@@ -14,10 +14,8 @@ import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.transaction.type.digitalGoods.DigitalGoodsFeedback
 import burst.kit.entity.BurstEncryptedMessage
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -33,10 +31,10 @@ class DGSFeedbackTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
-        accountServiceMock = mock()
-        blockchainServiceMock = mock()
-        apiTransactionManagerMock = mock()
+        parameterServiceMock = mockk()
+        accountServiceMock = mockk()
+        blockchainServiceMock = mockk()
+        apiTransactionManagerMock = mockk()
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             blockchainServiceMock,
@@ -51,20 +49,20 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         val request = QuickMocker.httpServletRequest()
 
         val mockPurchaseId = 123L
-        val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.id).doReturn(mockPurchaseId)
-        val mockAccount = mock<Account>()
-        val mockSellerAccount = mock<Account>()
-        val mockEncryptedGoods = mock<BurstEncryptedMessage>()
+        val mockPurchase = mockk<Purchase>()
+        every { mockPurchase.id } returns mockPurchaseId
+        val mockAccount = mockk<Account>()
+        val mockSellerAccount = mockk<Account>()
+        val mockEncryptedGoods = mockk<BurstEncryptedMessage>()
 
-        whenever(parameterServiceMock.getPurchase(eq(request))).doReturn(mockPurchase)
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockAccount)
-        whenever(accountServiceMock.getAccount(eq(2L))).doReturn(mockSellerAccount)
+        every { parameterServiceMock.getPurchase(eq(request)) } returns mockPurchase
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount
+        every { accountServiceMock.getAccount(eq(2L)) } returns mockSellerAccount
 
-        whenever(mockAccount.id).doReturn(1L)
-        whenever(mockPurchase.buyerId).doReturn(1L)
-        whenever(mockPurchase.encryptedGoods).doReturn(mockEncryptedGoods)
-        whenever(mockPurchase.sellerId).doReturn(2L)
+        every { mockAccount.id } returns 1L
+        every { mockPurchase.buyerId } returns 1L
+        every { mockPurchase.encryptedGoods } returns mockEncryptedGoods
+        every { mockPurchase.sellerId } returns 2L
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
@@ -79,14 +77,14 @@ class DGSFeedbackTest : AbstractTransactionTest() {
     fun processRequest_incorrectPurchaseWhenOtherBuyerId() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockPurchase = mock<Purchase>()
-        val mockAccount = mock<Account>()
+        val mockPurchase = mockk<Purchase>()
+        val mockAccount = mockk<Account>()
 
-        whenever(parameterServiceMock.getPurchase(eq(request))).doReturn(mockPurchase)
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockAccount)
+        every { parameterServiceMock.getPurchase(eq(request)) } returns mockPurchase
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount
 
-        whenever(mockAccount.id).doReturn(1L)
-        whenever(mockPurchase.buyerId).doReturn(2L)
+        every { mockAccount.id } returns 1L
+        every { mockPurchase.buyerId } returns 2L
 
         assertEquals(INCORRECT_PURCHASE, t.processRequest(request))
     }
@@ -95,15 +93,15 @@ class DGSFeedbackTest : AbstractTransactionTest() {
     fun processRequest_goodsNotDeliveredWhenNoEncryptedGoods() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockPurchase = mock<Purchase>()
-        val mockAccount = mock<Account>()
+        val mockPurchase = mockk<Purchase>()
+        val mockAccount = mockk<Account>()
 
-        whenever(parameterServiceMock.getPurchase(eq(request))).doReturn(mockPurchase)
-        whenever(parameterServiceMock.getSenderAccount(eq(request))).doReturn(mockAccount)
+        every { parameterServiceMock.getPurchase(eq(request)) } returns mockPurchase
+        every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount
 
-        whenever(mockAccount.id).doReturn(1L)
-        whenever(mockPurchase.buyerId).doReturn(1L)
-        whenever(mockPurchase.encryptedGoods).doReturn(null)
+        every { mockAccount.id } returns 1L
+        every { mockPurchase.buyerId } returns 1L
+        every { mockPurchase.encryptedGoods } returns null
 
         assertEquals(GOODS_NOT_DELIVERED, t.processRequest(request))
     }

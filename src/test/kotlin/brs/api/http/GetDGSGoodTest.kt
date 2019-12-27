@@ -1,4 +1,5 @@
 package brs.api.http
+
 import brs.api.http.common.ResultFields.DELISTED_RESPONSE
 import brs.api.http.common.ResultFields.DESCRIPTION_RESPONSE
 import brs.api.http.common.ResultFields.GOODS_RESPONSE
@@ -14,10 +15,8 @@ import brs.util.json.safeGetAsBoolean
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -31,26 +30,26 @@ class GetDGSGoodTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
+        mockParameterService = mockk()
 
         t = GetDGSGood(mockParameterService)
     }
 
     @Test
     fun processRequest() {
-        val mockGoods = mock<Goods>()
-        whenever(mockGoods.id).doReturn(1L)
-        whenever(mockGoods.name).doReturn("name")
-        whenever(mockGoods.description).doReturn("description")
-        whenever(mockGoods.quantity).doReturn(2)
-        whenever(mockGoods.pricePlanck).doReturn(3L)
-        whenever(mockGoods.tags).doReturn("tags")
-        whenever(mockGoods.isDelisted).doReturn(true)
-        whenever(mockGoods.timestamp).doReturn(12345)
+        val mockGoods = mockk<Goods>()
+        every { mockGoods.id } returns 1L
+        every { mockGoods.name } returns "name"
+        every { mockGoods.description } returns "description"
+        every { mockGoods.quantity } returns 2
+        every { mockGoods.pricePlanck } returns 3L
+        every { mockGoods.tags } returns "tags"
+        every { mockGoods.isDelisted } returns true
+        every { mockGoods.timestamp } returns 12345
 
         val request = QuickMocker.httpServletRequest()
 
-        whenever(mockParameterService.getGoods(eq(request))).doReturn(mockGoods)
+        every { mockParameterService.getGoods(eq(request)) } returns mockGoods
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)

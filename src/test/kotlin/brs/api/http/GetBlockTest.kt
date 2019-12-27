@@ -1,9 +1,5 @@
 package brs.api.http
 
-import brs.entity.Block
-import brs.services.BlockchainService
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
 import brs.api.http.JSONResponses.INCORRECT_BLOCK
 import brs.api.http.JSONResponses.INCORRECT_HEIGHT
 import brs.api.http.JSONResponses.INCORRECT_TIMESTAMP
@@ -11,12 +7,14 @@ import brs.api.http.JSONResponses.UNKNOWN_BLOCK
 import brs.api.http.common.Parameters.BLOCK_PARAMETER
 import brs.api.http.common.Parameters.HEIGHT_PARAMETER
 import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Block
 import brs.services.BlockService
+import brs.services.BlockchainService
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -31,8 +29,8 @@ class GetBlockTest {
 
     @Before
     fun setUp() {
-        blockchainServiceMock = mock()
-        blockServiceMock = mock()
+        blockchainServiceMock = mockk()
+        blockServiceMock = mockk()
 
         t = GetBlock(blockchainServiceMock, blockServiceMock)
     }
@@ -45,9 +43,9 @@ class GetBlockTest {
                 MockParam(BLOCK_PARAMETER, blockId)
         )
 
-        val mockBlock = mock<Block>()
+        val mockBlock = mockk<Block>()
 
-        whenever(blockchainServiceMock.getBlock(eq(blockId))).doReturn(mockBlock)
+        every { blockchainServiceMock.getBlock(eq(blockId)) } returns mockBlock
 
         val result = t.processRequest(request) as JsonObject
 
@@ -71,10 +69,10 @@ class GetBlockTest {
                 MockParam(HEIGHT_PARAMETER, blockHeight)
         )
 
-        val mockBlock = mock<Block>()
+        val mockBlock = mockk<Block>()
 
-        whenever(blockchainServiceMock.height).doReturn(100)
-        whenever(blockchainServiceMock.getBlockAtHeight(eq(blockHeight))).doReturn(mockBlock)
+        every { blockchainServiceMock.height } returns 100
+        every { blockchainServiceMock.getBlockAtHeight(eq(blockHeight)) } returns mockBlock
 
         val result = t.processRequest(request) as JsonObject
 
@@ -109,7 +107,7 @@ class GetBlockTest {
                 MockParam(HEIGHT_PARAMETER, heightValue)
         )
 
-        whenever(blockchainServiceMock.height).doReturn(5)
+        every { blockchainServiceMock.height } returns 5
 
         assertEquals(INCORRECT_HEIGHT, t.processRequest(request))
     }
@@ -122,9 +120,9 @@ class GetBlockTest {
                 MockParam(TIMESTAMP_PARAMETER, timestamp)
         )
 
-        val mockBlock = mock<Block>()
+        val mockBlock = mockk<Block>()
 
-        whenever(blockchainServiceMock.getLastBlock(eq(timestamp))).doReturn(mockBlock)
+        every { blockchainServiceMock.getLastBlock(eq(timestamp)) } returns mockBlock
 
         val result = t.processRequest(request) as JsonObject
 

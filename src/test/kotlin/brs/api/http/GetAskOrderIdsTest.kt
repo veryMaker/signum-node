@@ -13,10 +13,8 @@ import brs.api.http.common.ResultFields.ASK_ORDER_IDS_RESPONSE
 import brs.services.ParameterService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -31,8 +29,8 @@ class GetAskOrderIdsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
-        assetExchangeServiceMock = mock()
+        parameterServiceMock = mockk()
+        assetExchangeServiceMock = mockk()
 
         t = GetAskOrderIds(parameterServiceMock, assetExchangeServiceMock)
     }
@@ -49,19 +47,19 @@ class GetAskOrderIdsTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val asset = mock<Asset>()
-        whenever(asset.id).doReturn(assetIndex)
+        val asset = mockk<Asset>()
+        every { asset.id } returns assetIndex
 
-        whenever(parameterServiceMock.getAsset(eq(request))).doReturn(asset)
+        every { parameterServiceMock.getAsset(eq(request)) } returns asset
 
-        val askOrder1 = mock<Ask>()
-        whenever(askOrder1.id).doReturn(5L)
-        val askOrder2 = mock<Ask>()
-        whenever(askOrder1.id).doReturn(6L)
+        val askOrder1 = mockk<Ask>()
+        every { askOrder1.id } returns 5L
+        val askOrder2 = mockk<Ask>()
+        every { askOrder1.id } returns 6L
 
         val askIterator = mockCollection(askOrder1, askOrder2)
 
-        whenever(assetExchangeServiceMock.getSortedAskOrders(eq(assetIndex), eq(firstIndex), eq(lastIndex))).doReturn(askIterator)
+        every { assetExchangeServiceMock.getSortedAskOrders(eq(assetIndex), eq(firstIndex), eq(lastIndex)) } returns askIterator
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)

@@ -1,28 +1,22 @@
 package brs.api.grpc
 
-import brs.services.AssetExchangeService
-import brs.entity.Block
-import brs.services.BlockchainService
-import brs.services.BlockchainProcessorService
-import brs.services.GeneratorService
-import brs.common.QuickMocker
-import brs.services.impl.FeeSuggestionServiceImpl
-import brs.services.impl.FluxCapacitorServiceImpl
 import brs.api.grpc.proto.BrsApiServiceGrpc
 import brs.api.grpc.service.BrsService
+import brs.common.QuickMocker
+import brs.entity.Block
 import brs.entity.DependencyProvider
+import brs.mockAddListener
 import brs.objects.Props
 import brs.services.*
-import brs.services.TransactionProcessorService
+import brs.services.impl.FeeSuggestionServiceImpl
+import brs.services.impl.FluxCapacitorServiceImpl
 import brs.transaction.type.TransactionType
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import io.grpc.Context
 import io.grpc.inprocess.InProcessChannelBuilder
 import io.grpc.inprocess.InProcessServerBuilder
 import io.grpc.testing.GrpcCleanupRule
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Rule
 
 abstract class AbstractGrpcTest {
@@ -35,32 +29,35 @@ abstract class AbstractGrpcTest {
 
     protected fun defaultBrsService() {
         // Mocks
-        val latestBlock = mock<Block>()
-        val blockchainProcessor = mock<BlockchainProcessorService>()
-        val blockchain = mock<BlockchainService>()
-        val blockService = mock<BlockService>()
-        val accountService = mock<AccountService>()
-        val generator = mock<GeneratorService>()
-        val transactionProcessor = mock<TransactionProcessorService>()
-        val timeService = mock<TimeService>()
-        val feeSuggestionCalculator = mock<FeeSuggestionServiceImpl>()
-        val atService = mock<ATService>()
-        val aliasService = mock<AliasService>()
-        val indirectIncomingService = mock<IndirectIncomingService>()
-        val escrowService = mock<EscrowService>()
-        val assetExchange = mock<AssetExchangeService>()
-        val subscriptionService = mock<SubscriptionService>()
-        val dgsGoodsStoreService = mock<DigitalGoodsStoreService>()
+        val latestBlock = mockk<Block>()
+        val blockchainProcessor = mockk<BlockchainProcessorService>()
+        blockchainProcessor.mockAddListener()
+        val blockchain = mockk<BlockchainService>()
+        val blockService = mockk<BlockService>()
+        val accountService = mockk<AccountService>()
+        val generator = mockk<GeneratorService>()
+        val transactionProcessor = mockk<TransactionProcessorService>()
+        transactionProcessor.mockAddListener()
+        val timeService = mockk<TimeService>()
+        val feeSuggestionCalculator = mockk<FeeSuggestionServiceImpl>()
+        val atService = mockk<ATService>()
+        val aliasService = mockk<AliasService>()
+        val indirectIncomingService = mockk<IndirectIncomingService>()
+        val escrowService = mockk<EscrowService>()
+        val assetExchange = mockk<AssetExchangeService>()
+        val subscriptionService = mockk<SubscriptionService>()
+        val dgsGoodsStoreService = mockk<DigitalGoodsStoreService>()
         val propertyService = QuickMocker.defaultPropertyService()
 
         // Returns
-        doReturn(Integer.MAX_VALUE).whenever(blockchain).height
-        doReturn(latestBlock).whenever(blockchain).lastBlock
-        doReturn(true).whenever(propertyService).get(Props.DEV_TESTNET)
-        doReturn(ByteArray(32)).whenever(generator).calculateGenerationSignature(any(), any())
-        doReturn(0L).whenever(latestBlock).generatorId
-        doReturn(ByteArray(32)).whenever(latestBlock).generationSignature
-        doReturn(emptyList<String>()).whenever(propertyService).get(Props.SOLO_MINING_PASSPHRASES)
+        every { blockchain.getBlock(any()) } returns null
+        every { blockchain.height } returns Integer.MAX_VALUE
+        every { blockchain.lastBlock } returns latestBlock
+        every { propertyService.get(Props.DEV_TESTNET) } returns true
+        every { generator.calculateGenerationSignature(any(), any()) } returns ByteArray(32)
+        every { latestBlock.generatorId } returns 0L
+        every { latestBlock.generationSignature } returns ByteArray(32)
+        every { propertyService.get(Props.SOLO_MINING_PASSPHRASES) } returns emptyList<String>()
 
         // Real classes
         dp = QuickMocker.dependencyProvider(blockchainProcessor, blockchain, blockService, accountService, generator, transactionProcessor, timeService, feeSuggestionCalculator, atService, aliasService, indirectIncomingService, escrowService, assetExchange, subscriptionService, dgsGoodsStoreService, propertyService)

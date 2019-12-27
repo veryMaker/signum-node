@@ -36,25 +36,25 @@ interface ATStore {
     /**
      * TODO
      */
-    fun isATAccountId(id: Long?): Boolean
+    fun isATAccountId(id: Long): Boolean
 
     /**
      * TODO
      */
-    fun getAT(id: Long?): AT?
+    fun getAT(id: Long): AT?
 
     /**
      * TODO
      */
-    fun getATsIssuedBy(accountId: Long?): List<Long>
+    fun getATsIssuedBy(accountId: Long): List<Long>
 
     /**
      * TODO
      */
-    fun findTransaction(startHeight: Int, endHeight: Int, atID: Long?, numOfTx: Int, minAmount: Long): Long?
+    fun findTransaction(startHeight: Int, endHeight: Int, atID: Long, numOfTx: Int, minAmount: Long): Long?
 
     /**
      * TODO
      */
-    fun findTransactionHeight(transactionId: Long?, height: Int, atID: Long?, minAmount: Long): Int
+    fun findTransactionHeight(transactionId: Long, height: Int, atID: Long, minAmount: Long): Int
 }

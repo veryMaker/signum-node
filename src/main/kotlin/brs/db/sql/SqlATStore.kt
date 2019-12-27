@@ -106,7 +106,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
             }
     }
 
-    override fun isATAccountId(id: Long?): Boolean {
+    override fun isATAccountId(id: Long): Boolean {
         return dp.db.useDslContext { ctx ->
             ctx.fetchExists(
                 ctx.selectOne().from(ATTable).where(ATTable.ID.eq(id)).and(
@@ -116,7 +116,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
         }
     }
 
-    override fun getAT(id: Long?): AT? {
+    override fun getAT(id: Long): AT? {
         return dp.db.useDslContext { ctx ->
             val record = ctx.select(*ATTable.fields())
                 .select(*AT_STATE.fields())
@@ -153,14 +153,14 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
         }
     }
 
-    override fun getATsIssuedBy(accountId: Long?): List<Long> {
+    override fun getATsIssuedBy(accountId: Long): List<Long> {
         return dp.db.useDslContext<List<Long>> { ctx ->
             ctx.selectFrom(ATTable).where(ATTable.LATEST.isTrue).and(ATTable.CREATOR_ID.eq(accountId))
                 .orderBy(ATTable.CREATION_HEIGHT.desc(), ATTable.ID.asc()).fetch().getValues(ATTable.ID)
         }
     }
 
-    override fun findTransaction(startHeight: Int, endHeight: Int, atID: Long?, numOfTx: Int, minAmount: Long): Long? {
+    override fun findTransaction(startHeight: Int, endHeight: Int, atID: Long, numOfTx: Int, minAmount: Long): Long? {
         return dp.db.useDslContext<Long> { ctx ->
             val query = ctx.select(TRANSACTION.ID)
                 .from(TRANSACTION)
@@ -175,7 +175,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
         }
     }
 
-    override fun findTransactionHeight(transactionId: Long?, height: Int, atID: Long?, minAmount: Long): Int {
+    override fun findTransactionHeight(transactionId: Long, height: Int, atID: Long, minAmount: Long): Int {
         return dp.db.useDslContext { ctx ->
             try {
                 val fetch = ctx.select(TRANSACTION.ID)

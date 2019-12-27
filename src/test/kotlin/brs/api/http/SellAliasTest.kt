@@ -18,9 +18,8 @@ import brs.services.ParameterService
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.transaction.type.messaging.AliasSell
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -38,9 +37,9 @@ class SellAliasTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mock()
-        blockchainServiceMock = mock()
-        apiTransactionManagerMock = mock()
+        parameterServiceMock = mockk()
+        blockchainServiceMock = mockk()
+        apiTransactionManagerMock = mockk()
         dp = QuickMocker.dependencyProvider(parameterServiceMock, blockchainServiceMock, apiTransactionManagerMock)
         t = SellAlias(dp)
     }
@@ -56,15 +55,15 @@ class SellAliasTest : AbstractTransactionTest() {
         )
 
         val aliasAccountId = 1L
-        val mockAlias = mock<Alias>()
-        whenever(mockAlias.accountId).doReturn(aliasAccountId)
-        whenever(mockAlias.aliasName).doReturn("")
+        val mockAlias = mockk<Alias>()
+        every { mockAlias.accountId } returns aliasAccountId
+        every { mockAlias.aliasName } returns ""
 
-        val mockSender = mock<Account>()
-        whenever(mockSender.id).doReturn(aliasAccountId)
+        val mockSender = mockk<Account>()
+        every { mockSender.id } returns aliasAccountId
 
-        whenever(parameterServiceMock.getSenderAccount(request)).doReturn(mockSender)
-        whenever(parameterServiceMock.getAlias(request)).doReturn(mockAlias)
+        every { parameterServiceMock.getSenderAccount(request) } returns mockSender
+        every { parameterServiceMock.getAlias(request) } returns mockAlias
 
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
@@ -146,15 +145,15 @@ class SellAliasTest : AbstractTransactionTest() {
         )
 
         val aliasAccountId = 1L
-        val mockAlias = mock<Alias>()
-        whenever(mockAlias.accountId).doReturn(aliasAccountId)
+        val mockAlias = mockk<Alias>()
+        every { mockAlias.accountId } returns aliasAccountId
 
         val mockSenderId = 2L
-        val mockSender = mock<Account>()
-        whenever(mockSender.id).doReturn(mockSenderId)
+        val mockSender = mockk<Account>()
+        every { mockSender.id } returns mockSenderId
 
-        whenever(parameterServiceMock.getSenderAccount(request)).doReturn(mockSender)
-        whenever(parameterServiceMock.getAlias(request)).doReturn(mockAlias)
+        every { parameterServiceMock.getSenderAccount(request) } returns mockSender
+        every { parameterServiceMock.getAlias(request) } returns mockAlias
 
         assertEquals(INCORRECT_ALIAS_OWNER, t.processRequest(request))
     }

@@ -1,10 +1,5 @@
 package brs.api.http
 
-import brs.entity.Order.Bid
-import brs.services.AssetExchangeService
-import brs.common.AbstractUnitTest
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.api.http.common.ResultFields.ASSET_RESPONSE
@@ -13,15 +8,18 @@ import brs.api.http.common.ResultFields.OPEN_ORDERS_RESPONSE
 import brs.api.http.common.ResultFields.ORDER_RESPONSE
 import brs.api.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.api.http.common.ResultFields.QUANTITY_QNT_RESPONSE
+import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Order.Bid
+import brs.services.AssetExchangeService
 import brs.util.json.mustGetAsJsonObject
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -35,26 +33,25 @@ class GetAllOpenBidOrdersTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockAssetExchangeService = mock()
+        mockAssetExchangeService = mockk()
 
         t = GetAllOpenBidOrders(mockAssetExchangeService)
     }
 
     @Test
     fun processRequest() {
-        val mockBidOrder = mock<Bid>()
-        whenever(mockBidOrder.id).doReturn(1L)
-        whenever(mockBidOrder.assetId).doReturn(2L)
-        whenever(mockBidOrder.quantity).doReturn(3L)
-        whenever(mockBidOrder.pricePlanck).doReturn(4L)
-        whenever(mockBidOrder.height).doReturn(5)
+        val mockBidOrder = mockk<Bid>()
+        every { mockBidOrder.id } returns 1L
+        every { mockBidOrder.assetId } returns 2L
+        every { mockBidOrder.quantity } returns 3L
+        every { mockBidOrder.pricePlanck } returns 4L
+        every { mockBidOrder.height } returns 5
 
         val firstIndex = 1
         val lastIndex = 2
 
         val mockIterator = mockCollection(mockBidOrder)
-        whenever(mockAssetExchangeService.getAllBidOrders(eq(firstIndex), eq(lastIndex)))
-                .doReturn(mockIterator)
+        every { mockAssetExchangeService.getAllBidOrders(eq(firstIndex), eq(lastIndex)) } returns mockIterator
 
         val result = t.processRequest(QuickMocker.httpServletRequest(
                 MockParam(FIRST_INDEX_PARAMETER, firstIndex.toString()),

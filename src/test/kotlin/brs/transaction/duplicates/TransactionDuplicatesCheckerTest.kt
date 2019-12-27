@@ -10,9 +10,8 @@ import brs.services.impl.BlockchainServiceImpl
 import brs.transaction.appendix.Attachment.*
 import brs.transaction.type.TransactionType
 import brs.util.TransactionDuplicateChecker
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -30,8 +29,8 @@ class TransactionDuplicatesCheckerTest {
     @Before
     fun setUp() {
         val mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION)
-        val mockBlockchain = mock<BlockchainServiceImpl>()
-        whenever(mockBlockchain.height).doReturn(4)
+        val mockBlockchain = mockk<BlockchainServiceImpl>()
+        every { mockBlockchain.height } returns 4
 
         dp = QuickMocker.dependencyProvider(mockBlockchain, mockFluxCapacitor)
 

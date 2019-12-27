@@ -19,10 +19,8 @@ import brs.api.http.common.Parameters.TAGS_PARAMETER
 import brs.services.ParameterService
 import brs.transaction.type.TransactionType
 import brs.transaction.type.digitalGoods.DigitalGoodsListing
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -37,16 +35,16 @@ class DGSListingTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
-        mockBlockchainService = mock()
-        apiTransactionManagerMock = mock()
+        mockParameterService = mockk()
+        mockBlockchainService = mockk()
+        apiTransactionManagerMock = mockk()
         dp = QuickMocker.dependencyProvider(mockParameterService, mockBlockchainService, apiTransactionManagerMock)
         t = DGSListing(dp)
     }
 
     @Test
     fun processRequest() {
-        val mockAccount = mock<Account>()
+        val mockAccount = mockk<Account>()
 
         val dgsName = "dgsName"
         val dgsDescription = "dgsDescription"
@@ -62,7 +60,7 @@ class DGSListingTest : AbstractTransactionTest() {
                 MockParam(TAGS_PARAMETER, tags)
         )
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockAccount)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockAccount
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 

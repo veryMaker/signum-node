@@ -14,10 +14,8 @@ import brs.services.BlockService
 import brs.services.ParameterService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -33,9 +31,9 @@ class GetAccountBlocksTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        blockchainServiceMock = mock()
-        parameterServiceMock = mock()
-        blockServiceMock = mock()
+        blockchainServiceMock = mockk()
+        parameterServiceMock = mockk()
+        blockServiceMock = mockk()
 
         t = GetAccountBlocks(blockchainServiceMock, parameterServiceMock, blockServiceMock)
     }
@@ -52,14 +50,14 @@ class GetAccountBlocksTest : AbstractUnitTest() {
                 MockParam(TIMESTAMP_PARAMETER, mockTimestamp.toString())
         )
 
-        val mockAccount = mock<Account>()
-        val mockBlock = mock<Block>()
+        val mockAccount = mockk<Account>()
+        val mockBlock = mockk<Block>()
 
 
-        whenever(parameterServiceMock.getAccount(request)).doReturn(mockAccount)
+        every { parameterServiceMock.getAccount(request) } returns mockAccount
 
         val mockBlockIterator = mockCollection(mockBlock)
-        whenever(blockchainServiceMock.getBlocks(eq(mockAccount), eq(mockTimestamp), eq(mockFirstIndex), eq(mockLastIndex))).doReturn(mockBlockIterator)
+        every { blockchainServiceMock.getBlocks(eq(mockAccount), eq(mockTimestamp), eq(mockFirstIndex), eq(mockLastIndex)) } returns mockBlockIterator
 
         val result = t.processRequest(request) as JsonObject
 

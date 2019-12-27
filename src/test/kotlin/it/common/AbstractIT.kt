@@ -5,7 +5,7 @@ import brs.common.TestInfrastructure
 import brs.objects.Props
 import brs.peer.ProcessBlock
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.mock
+import io.mockk.mockk
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.*
@@ -56,7 +56,7 @@ abstract class AbstractIT {
     }
 
     fun processBlock(jsonFirstBlock: JsonObject) {
-        processBlock.processRequest(jsonFirstBlock, mock())
+        processBlock.processRequest(jsonFirstBlock, mockk())
     }
 
     fun rollback(height: Int) {

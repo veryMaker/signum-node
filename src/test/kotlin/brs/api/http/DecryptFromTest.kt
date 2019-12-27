@@ -1,20 +1,21 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
-import brs.common.TestConstants.TEST_PUBLIC_KEY_BYTES
-import brs.common.TestConstants.TEST_SECRET_PHRASE
 import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.common.Parameters.DATA_PARAMETER
 import brs.api.http.common.Parameters.DECRYPTED_MESSAGE_IS_TEXT_PARAMETER
 import brs.api.http.common.Parameters.NONCE_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.ResultFields.DECRYPTED_MESSAGE_RESPONSE
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.common.TestConstants.TEST_PUBLIC_KEY_BYTES
+import brs.common.TestConstants.TEST_SECRET_PHRASE
+import brs.entity.Account
 import brs.services.ParameterService
 import brs.util.json.mustGetAsJsonObject
 import brs.util.json.safeGetAsString
-import com.nhaarman.mockitokotlin2.*
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -27,7 +28,7 @@ class DecryptFromTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
+        mockParameterService = mockk()
 
         t = DecryptFrom(mockParameterService)
     }
@@ -41,14 +42,13 @@ class DecryptFromTest {
                 MockParam(NONCE_PARAMETER, "def")
         )
 
-        val mockAccount = mock<Account>()
+        val mockAccount = mockk<Account>()
 
-        whenever(mockAccount.decryptFrom(any(), eq(TEST_SECRET_PHRASE)))
-                .doReturn(byteArrayOf(1.toByte()))
+        every { mockAccount.decryptFrom(any(), eq(TEST_SECRET_PHRASE)) } returns byteArrayOf(1.toByte())
 
-        whenever(mockAccount.publicKey).doReturn(TEST_PUBLIC_KEY_BYTES)
+        every { mockAccount.publicKey } returns TEST_PUBLIC_KEY_BYTES
 
-        whenever(mockParameterService.getAccount(request)).doReturn(mockAccount)
+        every { mockParameterService.getAccount(request) } returns mockAccount
 
         assertEquals("\u0001", t.processRequest(request).mustGetAsJsonObject("result").get(DECRYPTED_MESSAGE_RESPONSE).safeGetAsString())
     }
@@ -57,9 +57,8 @@ class DecryptFromTest {
     fun processRequest_accountWithoutPublicKeyIsIncorrectAccount() {
         val request = QuickMocker.httpServletRequest()
 
-        whenever(mockParameterService.getAccount(request)).doReturn(mock())
+        every { mockParameterService.getAccount(request) } returns mockk()
 
         assertEquals(INCORRECT_ACCOUNT, t.processRequest(request))
     }
-
 }

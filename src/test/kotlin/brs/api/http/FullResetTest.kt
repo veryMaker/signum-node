@@ -7,9 +7,8 @@ import brs.services.BlockchainProcessorService
 import brs.util.json.mustGetAsBoolean
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
-import com.nhaarman.mockitokotlin2.doThrow
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -23,7 +22,7 @@ class FullResetTest {
 
     @Before
     fun init() {
-        blockchainProcessorService = mock()
+        blockchainProcessorService = mockk()
 
         this.t = FullReset(blockchainProcessorService)
     }
@@ -41,7 +40,7 @@ class FullResetTest {
     fun processRequest_runtimeExceptionOccurs() {
         val request = QuickMocker.httpServletRequest()
 
-        doThrow(RuntimeException("errorMessage")).whenever(blockchainProcessorService).fullReset()
+        every { blockchainProcessorService.fullReset() } throws RuntimeException("errorMessage")
 
         val result = t.processRequest(request) as JsonObject
 

@@ -7,10 +7,8 @@ import brs.api.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
 import brs.api.http.common.ResultFields.FULL_HASH_RESPONSE
 import brs.util.json.mustGetAsJsonObject
 import brs.util.json.safeGetAsString
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -32,10 +30,10 @@ class CalculateFullHashTest {
         val mockSignatureHash = "123"
         val expectedFullHash = "fe09cbf95619345cde91e0dee049d55498085a152e19c1009cb8973f9e1b4518"
 
-        val request = mock<HttpServletRequest>()
+        val request = mockk<HttpServletRequest>()
 
-        whenever(request.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER))).doReturn(mockUnsignedTransactionBytes)
-        whenever(request.getParameter(eq(SIGNATURE_HASH_PARAMETER))).doReturn(mockSignatureHash)
+        every { request.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER)) } returns mockUnsignedTransactionBytes
+        every { request.getParameter(eq(SIGNATURE_HASH_PARAMETER)) } returns mockSignatureHash
 
         val result = t.processRequest(request).mustGetAsJsonObject("result")
         assertEquals(expectedFullHash, result.get(FULL_HASH_RESPONSE).safeGetAsString())
@@ -43,15 +41,15 @@ class CalculateFullHashTest {
 
     @Test
     fun processRequest_missingUnsignedBytes() {
-        assertEquals(MISSING_UNSIGNED_BYTES, t.processRequest(mock()))
+        assertEquals(MISSING_UNSIGNED_BYTES, t.processRequest(mockk()))
     }
 
     @Test
     fun processRequest_missingSignatureHash() {
         val mockUnsignedTransactionBytes = "mockUnsignedTransactionBytes"
-        val request = mock<HttpServletRequest>()
+        val request = mockk<HttpServletRequest>()
 
-        whenever(request.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER))).doReturn(mockUnsignedTransactionBytes)
+        every { request.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER)) } returns mockUnsignedTransactionBytes
 
         assertEquals(MISSING_SIGNATURE_HASH, t.processRequest(request))
     }

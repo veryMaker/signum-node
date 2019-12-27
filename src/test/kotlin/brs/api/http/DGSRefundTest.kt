@@ -18,10 +18,8 @@ import brs.services.ParameterService
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.transaction.type.digitalGoods.DigitalGoodsRefund
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.mockk
+import io.mockk.every
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -40,10 +38,10 @@ class DGSRefundTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mock()
-        mockBlockchainService = mock()
-        mockAccountService = mock()
-        apiTransactionManagerMock = mock()
+        mockParameterService = mockk()
+        mockBlockchainService = mockk()
+        mockAccountService = mockk()
+        apiTransactionManagerMock = mockk()
         dp = QuickMocker.dependencyProvider(
             mockParameterService,
             mockBlockchainService,
@@ -61,23 +59,23 @@ class DGSRefundTest : AbstractTransactionTest() {
                 MockParam(REFUND_PLANCK_PARAMETER, refundPlanckParameter)
         )
 
-        val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.id).doReturn(1L)
+        val mockSellerAccount = mockk<Account>()
+        every { mockSellerAccount.id } returns 1L
 
         val mockPurchaseId = 123L
-        val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.id).doReturn(mockPurchaseId)
-        whenever(mockPurchase.sellerId).doReturn(1L)
-        whenever(mockPurchase.buyerId).doReturn(2L)
-        whenever(mockPurchase.refundNote).doReturn(null)
-        whenever(mockPurchase.encryptedGoods).doReturn(mock())
+        val mockPurchase = mockk<Purchase>()
+        every { mockPurchase.id } returns mockPurchaseId
+        every { mockPurchase.sellerId } returns 1L
+        every { mockPurchase.buyerId } returns 2L
+        every { mockPurchase.refundNote } returns null
+        every { mockPurchase.encryptedGoods } returns mockk()
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSellerAccount)
-        whenever(mockParameterService.getPurchase(eq(request))).doReturn(mockPurchase)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSellerAccount
+        every { mockParameterService.getPurchase(eq(request)) } returns mockPurchase
 
-        val mockBuyerAccount = mock<Account>()
+        val mockBuyerAccount = mockk<Account>()
 
-        whenever(mockAccountService.getAccount(eq(mockPurchase.buyerId))).doReturn(mockBuyerAccount)
+        every { mockAccountService.getAccount(eq(mockPurchase.buyerId)) } returns mockBuyerAccount
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
@@ -93,14 +91,14 @@ class DGSRefundTest : AbstractTransactionTest() {
     fun processRequest_incorrectPurchase() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.id).doReturn(1L)
+        val mockSellerAccount = mockk<Account>()
+        every { mockSellerAccount.id } returns 1L
 
-        val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.sellerId).doReturn(2L)
+        val mockPurchase = mockk<Purchase>()
+        every { mockPurchase.sellerId } returns 2L
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSellerAccount)
-        whenever(mockParameterService.getPurchase(eq(request))).doReturn(mockPurchase)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSellerAccount
+        every { mockParameterService.getPurchase(eq(request)) } returns mockPurchase
 
         assertEquals(INCORRECT_PURCHASE, t.processRequest(request))
     }
@@ -109,15 +107,15 @@ class DGSRefundTest : AbstractTransactionTest() {
     fun processRequest_duplicateRefund() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.id).doReturn(1L)
+        val mockSellerAccount = mockk<Account>()
+        every { mockSellerAccount.id } returns 1L
 
-        val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.sellerId).doReturn(1L)
-        whenever(mockPurchase.refundNote).doReturn(mock())
+        val mockPurchase = mockk<Purchase>()
+        every { mockPurchase.sellerId } returns 1L
+        every { mockPurchase.refundNote } returns mockk()
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSellerAccount)
-        whenever(mockParameterService.getPurchase(eq(request))).doReturn(mockPurchase)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSellerAccount
+        every { mockParameterService.getPurchase(eq(request)) } returns mockPurchase
 
         assertEquals(DUPLICATE_REFUND, t.processRequest(request))
     }
@@ -126,16 +124,16 @@ class DGSRefundTest : AbstractTransactionTest() {
     fun processRequest_goodsNotDelivered() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.id).doReturn(1L)
+        val mockSellerAccount = mockk<Account>()
+        every { mockSellerAccount.id } returns 1L
 
-        val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.sellerId).doReturn(1L)
-        whenever(mockPurchase.refundNote).doReturn(null)
-        whenever(mockPurchase.encryptedGoods).doReturn(null)
+        val mockPurchase = mockk<Purchase>()
+        every { mockPurchase.sellerId } returns 1L
+        every { mockPurchase.refundNote } returns null
+        every { mockPurchase.encryptedGoods } returns null
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSellerAccount)
-        whenever(mockParameterService.getPurchase(eq(request))).doReturn(mockPurchase)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSellerAccount
+        every { mockParameterService.getPurchase(eq(request)) } returns mockPurchase
 
         assertEquals(GOODS_NOT_DELIVERED, t.processRequest(request))
     }
@@ -146,16 +144,16 @@ class DGSRefundTest : AbstractTransactionTest() {
                 MockParam(REFUND_PLANCK_PARAMETER, "Bob")
         )
 
-        val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.id).doReturn(1L)
+        val mockSellerAccount = mockk<Account>()
+        every { mockSellerAccount.id } returns 1L
 
-        val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.sellerId).doReturn(1L)
-        whenever(mockPurchase.refundNote).doReturn(null)
-        whenever(mockPurchase.encryptedGoods).doReturn(mock())
+        val mockPurchase = mockk<Purchase>()
+        every { mockPurchase.sellerId } returns 1L
+        every { mockPurchase.refundNote } returns null
+        every { mockPurchase.encryptedGoods } returns mockk()
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSellerAccount)
-        whenever(mockParameterService.getPurchase(eq(request))).doReturn(mockPurchase)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSellerAccount
+        every { mockParameterService.getPurchase(eq(request)) } returns mockPurchase
 
         assertEquals(INCORRECT_DGS_REFUND, t.processRequest(request))
     }
@@ -166,16 +164,16 @@ class DGSRefundTest : AbstractTransactionTest() {
                 MockParam(REFUND_PLANCK_PARAMETER, -5L)
         )
 
-        val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.id).doReturn(1L)
+        val mockSellerAccount = mockk<Account>()
+        every { mockSellerAccount.id } returns 1L
 
-        val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.sellerId).doReturn(1L)
-        whenever(mockPurchase.refundNote).doReturn(null)
-        whenever(mockPurchase.encryptedGoods).doReturn(mock())
+        val mockPurchase = mockk<Purchase>()
+        every { mockPurchase.sellerId } returns 1L
+        every { mockPurchase.refundNote } returns null
+        every { mockPurchase.encryptedGoods } returns mockk()
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSellerAccount)
-        whenever(mockParameterService.getPurchase(eq(request))).doReturn(mockPurchase)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSellerAccount
+        every { mockParameterService.getPurchase(eq(request)) } returns mockPurchase
 
         assertEquals(INCORRECT_DGS_REFUND, t.processRequest(request))
     }
@@ -186,16 +184,16 @@ class DGSRefundTest : AbstractTransactionTest() {
                 MockParam(REFUND_PLANCK_PARAMETER, Constants.MAX_BALANCE_PLANCK + 1)
         )
 
-        val mockSellerAccount = mock<Account>()
-        whenever(mockSellerAccount.id).doReturn(1L)
+        val mockSellerAccount = mockk<Account>()
+        every { mockSellerAccount.id } returns 1L
 
-        val mockPurchase = mock<Purchase>()
-        whenever(mockPurchase.sellerId).doReturn(1L)
-        whenever(mockPurchase.refundNote).doReturn(null)
-        whenever(mockPurchase.encryptedGoods).doReturn(mock())
+        val mockPurchase = mockk<Purchase>()
+        every { mockPurchase.sellerId } returns 1L
+        every { mockPurchase.refundNote } returns null
+        every { mockPurchase.encryptedGoods } returns mockk()
 
-        whenever(mockParameterService.getSenderAccount(eq(request))).doReturn(mockSellerAccount)
-        whenever(mockParameterService.getPurchase(eq(request))).doReturn(mockPurchase)
+        every { mockParameterService.getSenderAccount(eq(request)) } returns mockSellerAccount
+        every { mockParameterService.getPurchase(eq(request)) } returns mockPurchase
 
         assertEquals(INCORRECT_DGS_REFUND, t.processRequest(request))
     }

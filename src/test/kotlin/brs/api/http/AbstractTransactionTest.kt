@@ -1,18 +1,18 @@
 package brs.api.http
 
-import brs.transaction.appendix.Attachment
 import brs.common.AbstractUnitTest
+import brs.transaction.appendix.Attachment
 import com.google.gson.JsonPrimitive
-import com.nhaarman.mockitokotlin2.*
+import io.mockk.every
 
 abstract class AbstractTransactionTest : AbstractUnitTest() {
     protected inline fun attachmentCreatedTransaction(r: () -> Any, apiTransactionManagerMock: APITransactionManager): Attachment? {
-        val ac = argumentCaptor<Attachment>()
+        val ac = mutableListOf<Attachment?>()
 
-        whenever(apiTransactionManagerMock.createTransaction(any(), any(), anyOrNull(), any(), ac.capture(), any())).doReturn(JsonPrimitive("hi"))
+        every { apiTransactionManagerMock.createTransaction(any(), any(), any(), any(), captureNullable(ac), any()) } returns JsonPrimitive("hi")
 
         r()
 
-        return ac.firstValue
+        return if (ac.size > 0) ac[0] else null
     }
 }
