@@ -32,14 +32,14 @@ class AssetOrderServiceImplTest {
 
     @Before
     fun setUp() {
-        orderStoreMock = mockk()
-        mockAskOrderTable = mockk()
-        mockAskOrderDbKeyFactory = mockk()
-        mockBidOrderTable = mockk()
-        mockBidOrderDbKeyFactory = mockk()
+        orderStoreMock = mockk(relaxed = true)
+        mockAskOrderTable = mockk(relaxed = true)
+        mockAskOrderDbKeyFactory = mockk(relaxed = true)
+        mockBidOrderTable = mockk(relaxed = true)
+        mockBidOrderDbKeyFactory = mockk(relaxed = true)
 
-        accountServiceMock = mockk()
-        tradeServiceMock = mockk()
+        accountServiceMock = mockk(relaxed = true)
+        tradeServiceMock = mockk(relaxed = true)
 
         every { orderStoreMock.askOrderTable } returns mockAskOrderTable
         every { orderStoreMock.askOrderDbKeyFactory } returns mockAskOrderDbKeyFactory
@@ -54,8 +54,8 @@ class AssetOrderServiceImplTest {
 
     @Test
     fun getAskOrder() {
-        val mockAskKey = mockk<BurstKey>()
-        val mockAsk = mockk<Ask>()
+        val mockAskKey = mockk<BurstKey>(relaxed = true)
+        val mockAsk = mockk<Ask>(relaxed = true)
 
         val askKey = 123L
 
@@ -67,8 +67,8 @@ class AssetOrderServiceImplTest {
 
     @Test
     fun getBidOrder() {
-        val mockBidKey = mockk<BurstKey>()
-        val mockBid = mockk<Bid>()
+        val mockBidKey = mockk<BurstKey>(relaxed = true)
+        val mockBid = mockk<Bid>(relaxed = true)
 
         val bidKey = 123L
 

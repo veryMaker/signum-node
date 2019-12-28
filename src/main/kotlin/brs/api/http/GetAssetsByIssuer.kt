@@ -33,7 +33,6 @@ internal class GetAssetsByIssuer internal constructor(
 
         val response = JsonObject()
         val accountsJsonArray = JsonArray()
-        response.add(ASSETS_RESPONSE, accountsJsonArray)
         for (account in accounts) {
             accountsJsonArray.add(
                 assetsToJson(
@@ -45,6 +44,7 @@ internal class GetAssetsByIssuer internal constructor(
                 )
             )
         }
+        response.add(ASSETS_RESPONSE, accountsJsonArray)
         return response
     }
 }

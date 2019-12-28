@@ -43,6 +43,7 @@ class IssueAssetTest : AbstractTransactionTest() {
         mockParameterService = mockk()
         every { mockParameterService.getSenderAccount(any()) } returns mockk()
         mockBlockchainService = mockk()
+        every { mockBlockchainService.height } returns 0
         apiTransactionManagerMock = mockk()
         dp = QuickMocker.dependencyProvider(mockParameterService, mockBlockchainService, apiTransactionManagerMock)
         t = IssueAsset(dp)

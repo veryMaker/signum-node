@@ -22,7 +22,7 @@ class GetAskOrderTest {
 
     @Before
     fun setUp() {
-        mockAssetExchangeService = mockk()
+        mockAssetExchangeService = mockk(relaxed = true)
 
         t = GetAskOrder(mockAssetExchangeService)
     }
@@ -31,7 +31,7 @@ class GetAskOrderTest {
     fun processRequest() {
         val orderId = 123L
 
-        val mockOrder = mockk<Ask>()
+        val mockOrder = mockk<Ask>(relaxed = true)
 
         every { mockAssetExchangeService.getAskOrder(eq(orderId)) } returns mockOrder
 

@@ -32,9 +32,9 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        blockchainServiceMock = mockk()
-        apiTransactionManagerMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        blockchainServiceMock = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
         dp = QuickMocker.dependencyProvider(parameterServiceMock, blockchainServiceMock, apiTransactionManagerMock)
         t = DGSPriceChange(dp)
     }
@@ -47,11 +47,11 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
                 MockParam(PRICE_PLANCK_PARAMETER, pricePlanckParameter)
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.id } returns 1L
 
         val mockGoodsId: Long = 123
-        val mockGoods = mockk<Goods>()
+        val mockGoods = mockk<Goods>(relaxed = true)
         every { mockGoods.id } returns mockGoodsId
         every { mockGoods.sellerId } returns 1L
         every { mockGoods.isDelisted } returns false
@@ -76,9 +76,9 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
                 MockParam(PRICE_PLANCK_PARAMETER, 123L)
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
 
-        val mockGoods = mockk<Goods>()
+        val mockGoods = mockk<Goods>(relaxed = true)
         every { mockGoods.isDelisted } returns true
 
         every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount
@@ -93,10 +93,10 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
                 MockParam(PRICE_PLANCK_PARAMETER, 123L)
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.id } returns 1L
 
-        val mockGoods = mockk<Goods>()
+        val mockGoods = mockk<Goods>(relaxed = true)
         every { mockGoods.sellerId } returns 2L
         every { mockGoods.isDelisted } returns false
 

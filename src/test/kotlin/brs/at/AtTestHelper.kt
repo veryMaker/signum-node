@@ -22,25 +22,30 @@ class AtTestHelper {
     private var onAtAdded: ((AT) -> Unit)? = null
 
     internal fun setupMocks(): DependencyProvider {
-        val mockAtStore = mockk<ATStore>()
+        val mockAtStore = mockk<ATStore>(relaxed = true)
         val mockFluxCapacitor = QuickMocker.latestValueFluxCapacitor()
 
         val atLongKeyFactory = mockk<BurstKey.LongKeyFactory<AT>>()
+        every { atLongKeyFactory.newKey(any<Long>()) } returns mockk()
 
         val atStateLongKeyFactory = mockk<BurstKey.LongKeyFactory<AT.ATState>>()
-        val mockBlockchain = mockk<BlockchainService>()
-        val mockPropertyService = mockk<PropertyService>()
+        every { atStateLongKeyFactory.newKey(any<Long>()) } returns mockk()
+        val mockBlockchain = mockk<BlockchainService>(relaxed = true)
+        val mockPropertyService = mockk<PropertyService>(relaxed = true)
 
-        val mockAtTable = mockk<VersionedEntityTable<AT>>()
+        val mockAtTable = mockk<VersionedEntityTable<AT>>(relaxUnitFun = true)
+        every { mockAtTable[any()] } returns null
 
-        val mockAccountTable = mockk<VersionedBatchEntityTable<Account>>()
+        val mockAccountTable = mockk<VersionedBatchEntityTable<Account>>(relaxUnitFun = true)
 
-        val mockAtStateTable = mockk<VersionedEntityTable<AT.ATState>>()
-        val mockAccountStore = mockk<AccountStore>()
-        val mockAccountService = mockk<AccountService>()
+        val mockAtStateTable = mockk<VersionedEntityTable<AT.ATState>>(relaxUnitFun = true)
+        every { mockAtStateTable[any()] } returns null
+        val mockAccountStore = mockk<AccountStore>(relaxed = true)
+        val mockAccountService = mockk<AccountService>(relaxed = true)
 
         val mockAccountKeyFactory = mockk<BurstKey.LongKeyFactory<Account>>()
-        val mockAccount = mockk<Account>()
+        every { mockAccountKeyFactory.newKey(any<Long>()) } returns mockk()
+        val mockAccount = mockk<Account>(relaxed = true)
 
         every { mockAtTable.insert(any()) } answers {
             val at = args[0] as AT
@@ -73,7 +78,7 @@ class AtTestHelper {
         every { mockBlockchain.height } returns Integer.MAX_VALUE
         every { mockAtStore.atDbKeyFactory } returns atLongKeyFactory
         every { mockAtStore.atStateDbKeyFactory } returns atStateLongKeyFactory
-        every { atStateLongKeyFactory.newKey(any<Long>()) } returns mockk()
+        every { atStateLongKeyFactory.newKey(any<Long>()) } returns mockk(relaxed = true)
         val dp = QuickMocker.dependencyProvider(
             mockAccountStore,
             mockAccountService,

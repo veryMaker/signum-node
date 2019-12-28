@@ -32,8 +32,8 @@ class GetTradesTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
-        mockAssetExchangeService = mockk()
+        mockParameterService = mockk(relaxed = true)
+        mockAssetExchangeService = mockk(relaxed = true)
 
         t = GetTrades(mockParameterService, mockAssetExchangeService)
     }
@@ -52,10 +52,10 @@ class GetTradesTest : AbstractUnitTest() {
                 MockParam(INCLUDE_ASSET_INFO_PARAMETER, includeAssetInfo)
         )
 
-        val mockAsset = mockk<Asset>()
+        val mockAsset = mockk<Asset>(relaxed = true)
         every { mockAsset.id } returns assetId
 
-        val mockTrade = mockk<Trade>()
+        val mockTrade = mockk<Trade>(relaxed = true)
         val mockTradesIterator = mockCollection(mockTrade)
 
         every { mockParameterService.getAsset(eq(request)) } returns mockAsset
@@ -86,10 +86,10 @@ class GetTradesTest : AbstractUnitTest() {
                 MockParam(INCLUDE_ASSET_INFO_PARAMETER, includeAssetInfo)
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.id } returns accountId
 
-        val mockTrade = mockk<Trade>()
+        val mockTrade = mockk<Trade>(relaxed = true)
         val mockTradesIterator = mockCollection(mockTrade)
 
         every { mockParameterService.getAccount(eq(request)) } returns mockAccount
@@ -122,13 +122,13 @@ class GetTradesTest : AbstractUnitTest() {
                 MockParam(INCLUDE_ASSET_INFO_PARAMETER, includeAssetInfo)
         )
 
-        val mockAsset = mockk<Asset>()
+        val mockAsset = mockk<Asset>(relaxed = true)
         every { mockAsset.id } returns assetId
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.id } returns accountId
 
-        val mockTrade = mockk<Trade>()
+        val mockTrade = mockk<Trade>(relaxed = true)
         val mockTradesIterator = mockCollection(mockTrade)
 
         every { mockParameterService.getAsset(eq(request)) } returns mockAsset

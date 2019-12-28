@@ -28,7 +28,7 @@ class GetAssetsTest {
 
     @Before
     fun setUp() {
-        mockAssetExchangeService = mockk()
+        mockAssetExchangeService = mockk(relaxed = true)
 
         t = GetAssets(mockAssetExchangeService)
     }
@@ -44,7 +44,7 @@ class GetAssetsTest {
         val mockTransferCount = 2
         val mockAccountsCount = 3
 
-        val mockAsset = mockk<Asset>()
+        val mockAsset = mockk<Asset>(relaxed = true)
         every { mockAsset.id } returns assetId
 
         every { mockAssetExchangeService.getAsset(eq(assetId)) } returns mockAsset

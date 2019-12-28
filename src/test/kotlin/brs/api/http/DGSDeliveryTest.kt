@@ -38,10 +38,10 @@ class DGSDeliveryTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        blockchainServiceMock = mockk()
-        accountServiceMock = mockk()
-        apiTransactionManagerMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        blockchainServiceMock = mockk(relaxed = true)
+        accountServiceMock = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             blockchainServiceMock,
@@ -62,9 +62,9 @@ class DGSDeliveryTest : AbstractTransactionTest() {
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE)
         )
 
-        val mockSellerAccount = mockk<Account>()
-        val mockBuyerAccount = mockk<Account>()
-        val mockPurchase = mockk<Purchase>()
+        val mockSellerAccount = mockk<Account>(relaxed = true)
+        val mockBuyerAccount = mockk<Account>(relaxed = true)
+        val mockPurchase = mockk<Purchase>(relaxed = true)
 
         every { mockSellerAccount.id } returns 1L
         every { mockPurchase.sellerId } returns 1L
@@ -77,7 +77,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockSellerAccount
         every { parameterServiceMock.getPurchase(eq(request)) } returns mockPurchase
         every { accountServiceMock.getAccount(eq(mockPurchase.buyerId)) } returns mockBuyerAccount
-        every { mockBuyerAccount.encryptTo(any(), any(), any()) } returns mockk()
+        every { mockBuyerAccount.encryptTo(any(), any(), any()) } returns mockk(relaxed = true)
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
@@ -92,8 +92,8 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     fun processRequest_sellerAccountIdDifferentFromAccountSellerIdIsIncorrectPurchase() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockSellerAccount = mockk<Account>()
-        val mockPurchase = mockk<Purchase>()
+        val mockSellerAccount = mockk<Account>(relaxed = true)
+        val mockPurchase = mockk<Purchase>(relaxed = true)
 
         every { mockSellerAccount.id } returns 1L
         every { mockPurchase.sellerId } returns 2L
@@ -108,8 +108,8 @@ class DGSDeliveryTest : AbstractTransactionTest() {
     fun processRequest_purchaseNotPendingIsAlreadyDelivered() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockSellerAccount = mockk<Account>()
-        val mockPurchase = mockk<Purchase>()
+        val mockSellerAccount = mockk<Account>(relaxed = true)
+        val mockPurchase = mockk<Purchase>(relaxed = true)
 
         every { mockSellerAccount.id } returns 1L
         every { mockPurchase.sellerId } returns 1L
@@ -128,8 +128,8 @@ class DGSDeliveryTest : AbstractTransactionTest() {
                 MockParam(DISCOUNT_PLANCK_PARAMETER, "Bob")
         )
 
-        val mockSellerAccount = mockk<Account>()
-        val mockPurchase = mockk<Purchase>()
+        val mockSellerAccount = mockk<Account>(relaxed = true)
+        val mockPurchase = mockk<Purchase>(relaxed = true)
 
         every { mockSellerAccount.id } returns 1L
         every { mockPurchase.sellerId } returns 1L
@@ -148,8 +148,8 @@ class DGSDeliveryTest : AbstractTransactionTest() {
                 MockParam(DISCOUNT_PLANCK_PARAMETER, "-1")
         )
 
-        val mockSellerAccount = mockk<Account>()
-        val mockPurchase = mockk<Purchase>()
+        val mockSellerAccount = mockk<Account>(relaxed = true)
+        val mockPurchase = mockk<Purchase>(relaxed = true)
 
         every { mockSellerAccount.id } returns 1L
         every { mockPurchase.sellerId } returns 1L
@@ -168,8 +168,8 @@ class DGSDeliveryTest : AbstractTransactionTest() {
                 MockParam(DISCOUNT_PLANCK_PARAMETER, (MAX_BALANCE_PLANCK + 1).toString())
         )
 
-        val mockSellerAccount = mockk<Account>()
-        val mockPurchase = mockk<Purchase>()
+        val mockSellerAccount = mockk<Account>(relaxed = true)
+        val mockPurchase = mockk<Purchase>(relaxed = true)
 
         every { mockSellerAccount.id } returns 1L
         every { mockPurchase.sellerId } returns 1L
@@ -188,8 +188,8 @@ class DGSDeliveryTest : AbstractTransactionTest() {
                 MockParam(DISCOUNT_PLANCK_PARAMETER, "99999999999")
         )
 
-        val mockSellerAccount = mockk<Account>()
-        val mockPurchase = mockk<Purchase>()
+        val mockSellerAccount = mockk<Account>(relaxed = true)
+        val mockPurchase = mockk<Purchase>(relaxed = true)
 
         every { mockSellerAccount.id } returns 1L
         every { mockPurchase.sellerId } returns 1L
@@ -212,8 +212,8 @@ class DGSDeliveryTest : AbstractTransactionTest() {
                 MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE)
         )
 
-        val mockSellerAccount = mockk<Account>()
-        val mockPurchase = mockk<Purchase>()
+        val mockSellerAccount = mockk<Account>(relaxed = true)
+        val mockPurchase = mockk<Purchase>(relaxed = true)
 
         every { mockSellerAccount.id } returns 1L
         every { mockPurchase.sellerId } returns 1L
@@ -224,7 +224,7 @@ class DGSDeliveryTest : AbstractTransactionTest() {
         every { mockPurchase.isPending } returns true
 
         every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockSellerAccount
-        every { accountServiceMock.getAccount(eq(mockPurchase.buyerId)) } returns mockk()
+        every { accountServiceMock.getAccount(eq(mockPurchase.buyerId)) } returns mockk(relaxed = true)
         every { parameterServiceMock.getPurchase(eq(request)) } returns mockPurchase
 
         assertEquals(INCORRECT_DGS_GOODS, t.processRequest(request))

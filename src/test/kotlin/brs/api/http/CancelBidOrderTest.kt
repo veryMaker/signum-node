@@ -34,10 +34,10 @@ class CancelBidOrderTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        blockchainServiceMock = mockk()
-        assetExchangeServiceMock = mockk()
-        apiTransactionManagerMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        blockchainServiceMock = mockk(relaxed = true)
+        assetExchangeServiceMock = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             blockchainServiceMock,
@@ -56,11 +56,11 @@ class CancelBidOrderTest : AbstractTransactionTest() {
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        val mockBidOrder = mockk<Bid>()
+        val mockBidOrder = mockk<Bid>(relaxed = true)
         every { mockBidOrder.accountId } returns orderAccountId
         every { assetExchangeServiceMock.getBidOrder(eq(123L)) } returns mockBidOrder
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.id } returns orderAccountId
         every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
@@ -100,11 +100,11 @@ class CancelBidOrderTest : AbstractTransactionTest() {
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        val mockBidOrder = mockk<Bid>()
+        val mockBidOrder = mockk<Bid>(relaxed = true)
         every { mockBidOrder.accountId } returns orderAccountId
         every { assetExchangeServiceMock.getBidOrder(eq(123L)) } returns mockBidOrder
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.id } returns senderAccountId
 
         every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount

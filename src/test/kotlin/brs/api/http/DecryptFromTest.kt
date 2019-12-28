@@ -42,7 +42,7 @@ class DecryptFromTest {
                 MockParam(NONCE_PARAMETER, "def")
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
 
         every { mockAccount.decryptFrom(any(), eq(TEST_SECRET_PHRASE)) } returns byteArrayOf(1.toByte())
 
@@ -56,8 +56,10 @@ class DecryptFromTest {
     @Test
     fun processRequest_accountWithoutPublicKeyIsIncorrectAccount() {
         val request = QuickMocker.httpServletRequest()
+        val mockAccount = mockk<Account>()
+        every { mockAccount.publicKey } returns null
 
-        every { mockParameterService.getAccount(request) } returns mockk()
+        every { mockParameterService.getAccount(request) } returns mockAccount
 
         assertEquals(INCORRECT_ACCOUNT, t.processRequest(request))
     }

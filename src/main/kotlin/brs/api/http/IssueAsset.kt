@@ -30,9 +30,8 @@ internal class IssueAsset internal constructor(private val dp: DependencyProvide
 ) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
-        var name: String? = request.getParameter(NAME_PARAMETER)
-        val description = request.getParameter(DESCRIPTION_PARAMETER)
+        var name = request.getParameter(NAME_PARAMETER).emptyToNull()
+        val description = request.getParameter(DESCRIPTION_PARAMETER).emptyToNull()
         val decimalsValue = request.getParameter(DECIMALS_PARAMETER).emptyToNull()
 
         if (name == null) {

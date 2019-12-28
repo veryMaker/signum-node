@@ -23,7 +23,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        accountService = mockk()
+        accountService = mockk(relaxed = true)
 
         t = GetAccountsWithName(accountService)
     }
@@ -37,7 +37,7 @@ class GetAccountsWithNameTest : AbstractUnitTest() {
                 QuickMocker.MockParam(NAME_PARAMETER, targetAccountName)
         )
 
-        val targetAccount = mockk<Account>()
+        val targetAccount = mockk<Account>(relaxed = true)
         every { targetAccount.id } returns targetAccountId
         every { targetAccount.name } returns targetAccountName
 

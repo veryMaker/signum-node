@@ -23,7 +23,7 @@ class SuggestFeeTest {
 
     @Before
     fun setUp() {
-        feeSuggestionServiceImpl = mockk()
+        feeSuggestionServiceImpl = mockk(relaxed = true)
 
         t = SuggestFee(feeSuggestionServiceImpl)
     }

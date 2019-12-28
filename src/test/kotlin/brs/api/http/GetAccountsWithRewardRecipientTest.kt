@@ -27,8 +27,8 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterService = mockk()
-        accountService = mockk()
+        parameterService = mockk(relaxed = true)
+        accountService = mockk(relaxed = true)
 
         t = GetAccountsWithRewardRecipient(parameterService, accountService)
     }
@@ -41,12 +41,12 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
                 MockParam(ACCOUNT_PARAMETER, targetAccountId)
         )
 
-        val targetAccount = mockk<Account>()
+        val targetAccount = mockk<Account>(relaxed = true)
         every { targetAccount.id } returns targetAccountId
 
         every { parameterService.getAccount(eq(request)) } returns targetAccount
 
-        val assignment = mockk<RewardRecipientAssignment>()
+        val assignment = mockk<RewardRecipientAssignment>(relaxed = true)
         every { assignment.accountId } returns targetAccountId
 
         val assignmentIterator = mockCollection(assignment)
@@ -69,12 +69,12 @@ class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
                 MockParam(ACCOUNT_PARAMETER, targetAccountId)
         )
 
-        val targetAccount = mockk<Account>()
+        val targetAccount = mockk<Account>(relaxed = true)
         every { targetAccount.id } returns targetAccountId
 
         every { parameterService.getAccount(eq(request)) } returns targetAccount
 
-        val assignment = mockk<RewardRecipientAssignment>()
+        val assignment = mockk<RewardRecipientAssignment>(relaxed = true)
         every { assignment.accountId } returns targetAccountId
 
         val assignmentIterator = mockCollection(assignment)

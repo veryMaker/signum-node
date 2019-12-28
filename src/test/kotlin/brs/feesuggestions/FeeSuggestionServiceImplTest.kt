@@ -23,8 +23,8 @@ class FeeSuggestionServiceImplTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        blockchainProcessorServiceMock = mockk()
-        blockchainStoreMock = mockk()
+        blockchainProcessorServiceMock = mockk(relaxed = true, relaxUnitFun = true)
+        blockchainStoreMock = mockk(relaxed = true)
 
         listenerCapturingSlot = CapturingSlot()
         every { blockchainProcessorServiceMock.addListener(eq(BlockchainProcessorService.Event.AFTER_BLOCK_APPLY), capture(listenerCapturingSlot)) } just runs
@@ -39,16 +39,16 @@ class FeeSuggestionServiceImplTest : AbstractUnitTest() {
 
     @Test
     fun getFeeSuggestion() {
-        val mockBlock1 = mockk<Block>()
+        val mockBlock1 = mockk<Block>(relaxed = true)
         every { mockBlock1.transactions } returns mutableListOf()
-        val mockBlock2 = mockk<Block>()
-        every { mockBlock2.transactions } returns listOf(mockk())
-        val mockBlock3 = mockk<Block>()
-        every { mockBlock3.transactions } returns listOf(mockk())
-        val mockBlock4 = mockk<Block>()
-        every { mockBlock4.transactions } returns listOf(mockk())
-        val mockBlock5 = mockk<Block>()
-        every { mockBlock5.transactions } returns listOf(mockk())
+        val mockBlock2 = mockk<Block>(relaxed = true)
+        every { mockBlock2.transactions } returns listOf(mockk(relaxed = true))
+        val mockBlock3 = mockk<Block>(relaxed = true)
+        every { mockBlock3.transactions } returns listOf(mockk(relaxed = true))
+        val mockBlock4 = mockk<Block>(relaxed = true)
+        every { mockBlock4.transactions } returns listOf(mockk(relaxed = true))
+        val mockBlock5 = mockk<Block>(relaxed = true)
+        every { mockBlock5.transactions } returns listOf(mockk(relaxed = true))
 
         val mockBlocksIterator = mockCollection(mockBlock1, mockBlock2, mockBlock3, mockBlock4, mockBlock5)
         every { blockchainStoreMock.getLatestBlocks(eq(5)) } returns mockBlocksIterator
@@ -64,12 +64,12 @@ class FeeSuggestionServiceImplTest : AbstractUnitTest() {
         assertEquals(2 * FEE_QUANT, feeSuggestionOne.standardFee)
         assertEquals(2 * FEE_QUANT, feeSuggestionOne.priorityFee)
 
-        val mockBlock6 = mockk<Block>()
-        every { mockBlock6.transactions } returns listOf(mockk(), mockk(), mockk(), mockk())
-        val mockBlock7 = mockk<Block>()
-        every { mockBlock7.transactions } returns listOf(mockk(), mockk(), mockk(), mockk())
-        val mockBlock8 = mockk<Block>()
-        every { mockBlock8.transactions } returns listOf(mockk(), mockk(), mockk(), mockk(), mockk())
+        val mockBlock6 = mockk<Block>(relaxed = true)
+        every { mockBlock6.transactions } returns listOf(mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true))
+        val mockBlock7 = mockk<Block>(relaxed = true)
+        every { mockBlock7.transactions } returns listOf(mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true))
+        val mockBlock8 = mockk<Block>(relaxed = true)
+        every { mockBlock8.transactions } returns listOf(mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true))
 
         listenerCapturingSlot.captured(mockBlock6)
         val feeSuggestionTwo = t.giveFeeSuggestion()

@@ -17,7 +17,7 @@ class ATServiceImplTest {
 
     @Before
     fun setUp() {
-        mockATStore = mockk()
+        mockATStore = mockk(relaxed = true)
 
         t = ATServiceImpl(QuickMocker.dependencyProvider(mockATStore))
     }
@@ -46,7 +46,7 @@ class ATServiceImplTest {
     fun getAT() {
         val atId = 123L
 
-        val mockAT = mockk<AT>()
+        val mockAT = mockk<AT>(relaxed = true)
 
         every { mockATStore.getAT(eq(atId)) } returns mockAT
 

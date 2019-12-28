@@ -33,7 +33,7 @@ class GetAllTradesTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockAssetExchangeService = mockk()
+        mockAssetExchangeService = mockk(relaxed = true)
 
         t = GetAllTrades(mockAssetExchangeService)
     }
@@ -53,12 +53,12 @@ class GetAllTradesTest : AbstractUnitTest() {
 
         val mockAssetId = 123L
         val mockAssetName = "mockAssetName"
-        val mockAsset = mockk<Asset>()
+        val mockAsset = mockk<Asset>(relaxed = true)
         every { mockAsset.id } returns mockAssetId
         every { mockAsset.name } returns mockAssetName
 
         val pricePlanck = 123L
-        val mockTrade = mockk<Trade>()
+        val mockTrade = mockk<Trade>(relaxed = true)
         every { mockTrade.pricePlanck } returns pricePlanck
         every { mockTrade.timestamp } returns 2
         every { mockTrade.assetId } returns mockAssetId
@@ -98,7 +98,7 @@ class GetAllTradesTest : AbstractUnitTest() {
 
         val mockAssetId = 123L
         val pricePlanck = 123L
-        val mockTrade = mockk<Trade>()
+        val mockTrade = mockk<Trade>(relaxed = true)
         every { mockTrade.pricePlanck } returns pricePlanck
         every { mockTrade.timestamp } returns 2
         every { mockTrade.assetId } returns mockAssetId

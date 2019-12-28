@@ -30,7 +30,7 @@ class CalculateFullHashTest {
         val mockSignatureHash = "123"
         val expectedFullHash = "fe09cbf95619345cde91e0dee049d55498085a152e19c1009cb8973f9e1b4518"
 
-        val request = mockk<HttpServletRequest>()
+        val request = mockk<HttpServletRequest>(relaxed = true)
 
         every { request.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER)) } returns mockUnsignedTransactionBytes
         every { request.getParameter(eq(SIGNATURE_HASH_PARAMETER)) } returns mockSignatureHash
@@ -41,13 +41,13 @@ class CalculateFullHashTest {
 
     @Test
     fun processRequest_missingUnsignedBytes() {
-        assertEquals(MISSING_UNSIGNED_BYTES, t.processRequest(mockk()))
+        assertEquals(MISSING_UNSIGNED_BYTES, t.processRequest(mockk(relaxed = true)))
     }
 
     @Test
     fun processRequest_missingSignatureHash() {
         val mockUnsignedTransactionBytes = "mockUnsignedTransactionBytes"
-        val request = mockk<HttpServletRequest>()
+        val request = mockk<HttpServletRequest>(relaxed = true)
 
         every { request.getParameter(eq(UNSIGNED_TRANSACTION_BYTES_PARAMETER)) } returns mockUnsignedTransactionBytes
 

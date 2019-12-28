@@ -78,15 +78,15 @@ object QuickMocker {
     }
 
     fun latestValueFluxCapacitor(): FluxCapacitorService {
-        val blockchain = mockk<BlockchainService>()
-        val propertyService = mockk<PropertyService>()
+        val blockchain = mockk<BlockchainService>(relaxed = true)
+        val propertyService = mockk<PropertyService>(relaxed = true)
         every { blockchain.height } returns Integer.MAX_VALUE
         every { propertyService.get(eq(Props.DEV_TESTNET)) } returns false
         return FluxCapacitorServiceImpl(dependencyProvider(blockchain, propertyService))
     }
 
     fun httpServletRequest(vararg parameters: MockParam): HttpServletRequest {
-        val mockedRequest = mockk<HttpServletRequest>()
+        val mockedRequest = mockk<HttpServletRequest>(relaxed = true)
 
         parameters.forEach { mp ->
             every { mockedRequest.getParameter(mp.key) } returns mp.value

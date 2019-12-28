@@ -27,10 +27,10 @@ class AccountServiceImplTest {
 
     @Before
     fun setUp() {
-        accountStoreMock = mockk()
-        accountTableMock = mockk()
-        accountBurstKeyFactoryMock = mockk()
-        assetTransferStoreMock = mockk()
+        accountStoreMock = mockk(relaxed = true)
+        accountTableMock = mockk(relaxed = true)
+        accountBurstKeyFactoryMock = mockk(relaxed = true)
+        assetTransferStoreMock = mockk(relaxed = true)
 
         every { accountStoreMock.accountTable } returns accountTableMock
         every { accountStoreMock.accountKeyFactory } returns accountBurstKeyFactoryMock
@@ -41,8 +41,8 @@ class AccountServiceImplTest {
     @Test
     fun getAccount() {
         val mockId = 123L
-        val mockKey = mockk<BurstKey>()
-        val mockResultAccount = mockk<Account>()
+        val mockKey = mockk<BurstKey>(relaxed = true)
+        val mockResultAccount = mockk<Account>(relaxed = true)
 
         every { accountBurstKeyFactoryMock.newKey(eq(mockId)) } returns mockKey
         every { accountTableMock[eq(mockKey)] } returns mockResultAccount
@@ -59,8 +59,8 @@ class AccountServiceImplTest {
     fun getAccount_withHeight() {
         val id = 123L
         val height = 2
-        val mockKey = mockk<BurstKey>()
-        val mockResultAccount = mockk<Account>()
+        val mockKey = mockk<BurstKey>(relaxed = true)
+        val mockResultAccount = mockk<Account>(relaxed = true)
 
         every { accountBurstKeyFactoryMock.newKey(eq(id)) } returns mockKey
         every { accountTableMock[eq(mockKey), eq(height)] } returns mockResultAccount
@@ -78,8 +78,8 @@ class AccountServiceImplTest {
         val publicKey = ByteArray(1)
         publicKey[0] = 1.toByte()
 
-        val mockKey = mockk<BurstKey>()
-        val mockAccount = mockk<Account>()
+        val mockKey = mockk<BurstKey>(relaxed = true)
+        val mockAccount = mockk<Account>(relaxed = true)
 
         every { accountBurstKeyFactoryMock.newKey(any<Long>()) } returns mockKey
         every { accountTableMock[mockKey] } returns mockAccount
@@ -94,8 +94,8 @@ class AccountServiceImplTest {
         val publicKey = ByteArray(1)
         publicKey[0] = 1.toByte()
 
-        val mockKey = mockk<BurstKey>()
-        val mockAccount = mockk<Account>()
+        val mockKey = mockk<BurstKey>(relaxed = true)
+        val mockAccount = mockk<Account>(relaxed = true)
 
         every { accountBurstKeyFactoryMock.newKey(any<Long>()) } returns mockKey
         every { accountTableMock[mockKey] } returns mockAccount
@@ -108,7 +108,7 @@ class AccountServiceImplTest {
     @Test
     fun getAccount_withPublicKey_notFoundReturnsNull() {
         val publicKey = ByteArray(0)
-        val mockKey = mockk<BurstKey>()
+        val mockKey = mockk<BurstKey>(relaxed = true)
 
         every { accountBurstKeyFactoryMock.newKey(any<Long>()) } returns mockKey
         every { accountTableMock[mockKey] } returns null
@@ -123,8 +123,8 @@ class AccountServiceImplTest {
         val otherPublicKey = ByteArray(1)
         otherPublicKey[0] = 2.toByte()
 
-        val mockKey = mockk<BurstKey>()
-        val mockAccount = mockk<Account>()
+        val mockKey = mockk<BurstKey>(relaxed = true)
+        val mockAccount = mockk<Account>(relaxed = true)
 
         every { accountBurstKeyFactoryMock.newKey(any<Long>()) } returns mockKey
         every { accountTableMock[mockKey] } returns mockAccount
@@ -188,7 +188,7 @@ class AccountServiceImplTest {
     fun getOrAddAccount_addAccount() {
         val accountId = 123L
 
-        val mockKey = mockk<BurstKey>()
+        val mockKey = mockk<BurstKey>(relaxed = true)
 
         every { accountBurstKeyFactoryMock.newKey(eq(accountId)) } returns mockKey
         every { accountTableMock[eq(mockKey)] } returns null
@@ -205,8 +205,8 @@ class AccountServiceImplTest {
     fun getOrAddAccount_getAccount() {
         val accountId = 123L
 
-        val mockKey = mockk<BurstKey>()
-        val mockAccount = mockk<Account>()
+        val mockKey = mockk<BurstKey>(relaxed = true)
+        val mockAccount = mockk<Account>(relaxed = true)
 
         every { accountBurstKeyFactoryMock.newKey(eq(accountId)) } returns mockKey
         every { accountTableMock[eq(mockKey)] } returns mockAccount

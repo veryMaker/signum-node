@@ -28,7 +28,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockDigitalGoodsStoreService = mockk()
+        mockDigitalGoodsStoreService = mockk(relaxed = true)
 
         t = GetDGSPurchases(mockDigitalGoodsStoreService)
     }
@@ -43,7 +43,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
                 MockParam(COMPLETED_PARAMETER, false)
         )
 
-        val mockPurchase = mockk<Purchase>()
+        val mockPurchase = mockk<Purchase>(relaxed = true)
         every { mockPurchase.isPending } returns false
 
         val mockGoodsIterator = mockCollection(mockPurchase)
@@ -68,7 +68,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
                 MockParam(COMPLETED_PARAMETER, false)
         )
 
-        val mockPurchase = mockk<Purchase>()
+        val mockPurchase = mockk<Purchase>(relaxed = true)
         every { mockPurchase.isPending } returns false
 
         val mockGoodsIterator = mockCollection(mockPurchase)
@@ -93,7 +93,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
                 MockParam(COMPLETED_PARAMETER, false)
         )
 
-        val mockPurchase = mockk<Purchase>()
+        val mockPurchase = mockk<Purchase>(relaxed = true)
         every { mockPurchase.isPending } returns false
 
         val mockGoodsIterator = mockCollection(mockPurchase)
@@ -118,7 +118,7 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
                 MockParam(COMPLETED_PARAMETER, false)
         )
 
-        val mockPurchase = mockk<Purchase>()
+        val mockPurchase = mockk<Purchase>(relaxed = true)
         every { mockPurchase.isPending } returns false
 
         val mockGoodsIterator = mockCollection(mockPurchase)

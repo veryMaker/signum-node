@@ -30,8 +30,8 @@ class GetAccountBlockIdsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
-        mockBlockchainService = mockk()
+        mockParameterService = mockk(relaxed = true)
+        mockBlockchainService = mockk(relaxed = true)
 
         t = GetAccountBlockIds(mockParameterService, mockBlockchainService)
     }
@@ -48,10 +48,10 @@ class GetAccountBlockIdsTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
 
         val mockBlockStringId = "mockBlockStringId"
-        val mockBlock = mockk<Block>()
+        val mockBlock = mockk<Block>(relaxed = true)
         every { mockBlock.stringId } returns mockBlockStringId
         val mockBlocksIterator = mockCollection(mockBlock)
 

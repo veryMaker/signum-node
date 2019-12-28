@@ -27,7 +27,8 @@ class GetNextBlockIdsTest {
         repeat(100) {
             blocks.add((it + 1).toLong())
         }
-        every { mockBlockchainService.getBlockIdsAfter(any(), any()) } returns blocks
+        every { mockBlockchainService.getBlockIdsAfter(eq(Genesis.GENESIS_BLOCK_ID), any()) } returns blocks
+        every { mockBlockchainService.getBlockIdsAfter(neq(Genesis.GENESIS_BLOCK_ID), any()) } returns emptyList()
         getNextBlockIds = GetNextBlockIds(mockBlockchainService)
     }
 

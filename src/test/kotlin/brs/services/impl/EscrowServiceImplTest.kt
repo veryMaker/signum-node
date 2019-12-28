@@ -29,15 +29,15 @@ class EscrowServiceImplTest {
 
     @Before
     fun setUp() {
-        mockEscrowStore = mockk()
-        mockEscrowTable = mockk()
-        mockEscrowDbKeyFactory = mockk()
+        mockEscrowStore = mockk(relaxed = true)
+        mockEscrowTable = mockk(relaxed = true)
+        mockEscrowDbKeyFactory = mockk(relaxed = true)
 
-        blockchainServiceMock = mockk()
-        aliasServiceMock = mockk()
-        accountServiceMock = mockk()
+        blockchainServiceMock = mockk(relaxed = true)
+        aliasServiceMock = mockk(relaxed = true)
+        accountServiceMock = mockk(relaxed = true)
 
-        every { mockEscrowStore.decisionTable } returns mockk()
+        every { mockEscrowStore.decisionTable } returns mockk(relaxed = true)
         every { mockEscrowStore.escrowTable } returns mockEscrowTable
         every { mockEscrowStore.escrowDbKeyFactory } returns mockEscrowDbKeyFactory
 
@@ -63,8 +63,8 @@ class EscrowServiceImplTest {
     fun getEscrowTransaction() {
         val escrowId = 123L
 
-        val mockEscrowKey = mockk<BurstKey>()
-        val mockEscrow = mockk<Escrow>()
+        val mockEscrowKey = mockk<BurstKey>(relaxed = true)
+        val mockEscrow = mockk<Escrow>(relaxed = true)
 
         every { mockEscrowDbKeyFactory.newKey(eq(escrowId)) } returns mockEscrowKey
         every { mockEscrowTable.get(eq(mockEscrowKey)) } returns mockEscrow

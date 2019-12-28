@@ -36,11 +36,11 @@ class SetAliasTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        every { parameterServiceMock.getSenderAccount(any()) } returns mockk()
-        blockchainServiceMock = mockk()
-        aliasServiceMock = mockk()
-        apiTransactionManagerMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        every { parameterServiceMock.getSenderAccount(any()) } returns mockk(relaxed = true)
+        blockchainServiceMock = mockk(relaxed = true)
+        aliasServiceMock = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             blockchainServiceMock,

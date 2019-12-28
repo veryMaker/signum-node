@@ -28,8 +28,8 @@ class IndirectIncomingServiceImplTest {
 
     @Before
     fun setUpIndirectIncomingServiceImplTest() {
-        val propertyService = mockk<PropertyService>()
-        val indirectIncomingStore = mockk<IndirectIncomingStore>()
+        val propertyService = mockk<PropertyService>(relaxed = true)
+        val indirectIncomingStore = mockk<IndirectIncomingStore>(relaxed = true)
         every { indirectIncomingStore.addIndirectIncomings(any()) } answers { addIndirectIncomingsRunnable(args[0] as List<IndirectIncoming>) }
         indirectIncomingService = IndirectIncomingServiceImpl(QuickMocker.dependencyProvider(indirectIncomingStore, propertyService))
         dp = QuickMocker.dependencyProvider(indirectIncomingService, indirectIncomingStore, propertyService)
@@ -49,7 +49,7 @@ class IndirectIncomingServiceImplTest {
         val attachment = mockk<Attachment.PaymentMultiOutCreation> {
             every { getRecipients() } returns recipients
         }
-        val multiOut = mockk<Transaction>()
+        val multiOut = mockk<Transaction>(relaxed = true)
         every { multiOut.type } returns MultiOutPayment(dp)
         every { multiOut.attachment } returns attachment
         indirectIncomingService.processTransaction(multiOut)
@@ -66,9 +66,9 @@ class IndirectIncomingServiceImplTest {
         recipients.add(2L)
         recipients.add(3L)
         recipients.add(4L)
-        val attachment = mockk<Attachment.PaymentMultiSameOutCreation>()
+        val attachment = mockk<Attachment.PaymentMultiSameOutCreation>(relaxed = true)
         every { attachment.getRecipients() } returns recipients
-        val multiOutSame = mockk<Transaction>()
+        val multiOutSame = mockk<Transaction>(relaxed = true)
         every { multiOutSame.type } returns MultiOutSamePayment(dp)
         every { multiOutSame.attachment } returns attachment
         indirectIncomingService.processTransaction(multiOutSame)
@@ -77,8 +77,8 @@ class IndirectIncomingServiceImplTest {
     @Test
     fun testIndirectIncomingServiceImplTestOrdinaryTransaction() {
         addIndirectIncomingsRunnable = { indirectIncomings -> assertEquals(0, indirectIncomings.size.toLong()) }
-        val ordinaryTransaction = mockk<Transaction>()
-        every { ordinaryTransaction.type } returns OrdinaryPayment(dp)
+        val ordinaryTransaction = mockk<Transaction>(relaxed = true)
+        every { ordinaryTransaction.type } answers { OrdinaryPayment(dp) }
         every { ordinaryTransaction.attachment } returns Attachment.OrdinaryPayment(dp)
         indirectIncomingService.processTransaction(ordinaryTransaction)
     }

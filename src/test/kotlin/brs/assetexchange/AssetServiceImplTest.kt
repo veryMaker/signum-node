@@ -38,13 +38,13 @@ class AssetServiceImplTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        assetAccountServiceMock = mockk()
-        assetTransferServicMock = mockk()
-        tradeServiceMock = mockk()
+        assetAccountServiceMock = mockk(relaxed = true)
+        assetTransferServicMock = mockk(relaxed = true)
+        tradeServiceMock = mockk(relaxed = true)
 
-        assetStoreMock = mockk()
-        assetTableMock = mockk()
-        assetDbKeyFactoryMock = mockk()
+        assetStoreMock = mockk(relaxed = true)
+        assetTableMock = mockk(relaxed = true)
+        assetDbKeyFactoryMock = mockk(relaxed = true)
 
         every { assetStoreMock.assetTable } returns assetTableMock
         every { assetStoreMock.assetDbKeyFactory } returns assetDbKeyFactoryMock
@@ -60,8 +60,8 @@ class AssetServiceImplTest : AbstractUnitTest() {
     @Test
     fun getAsset() {
         val assetId = 123L
-        val mockAsset = mockk<Asset>()
-        val assetKeyMock = mockk<BurstKey>()
+        val mockAsset = mockk<Asset>(relaxed = true)
+        val assetKeyMock = mockk<BurstKey>(relaxed = true)
 
         every { assetDbKeyFactoryMock.newKey(eq(assetId)) } returns assetKeyMock
         every { assetTableMock[eq(assetKeyMock)] } returns mockAsset
@@ -169,7 +169,7 @@ class AssetServiceImplTest : AbstractUnitTest() {
 
     @Test
     fun addAsset() {
-        val assetKey = mockk<BurstKey>()
+        val assetKey = mockk<BurstKey>(relaxed = true)
 
         val transactionId = 123L
 
@@ -177,10 +177,10 @@ class AssetServiceImplTest : AbstractUnitTest() {
 
         val savedAssetCaptor = CapturingSlot<Asset>()
 
-        val transaction = mockk<Transaction>()
+        val transaction = mockk<Transaction>(relaxed = true)
         every { transaction.id } returns transactionId
 
-        val attachment = mockk<ColoredCoinsAssetIssuance>()
+        val attachment = mockk<ColoredCoinsAssetIssuance>(relaxed = true)
         t.addAsset(transaction, attachment)
 
         verify { assetTableMock.insert(capture(savedAssetCaptor)) }

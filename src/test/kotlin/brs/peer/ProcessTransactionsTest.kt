@@ -12,8 +12,8 @@ class ProcessTransactionsTest {
 
     @Before
     fun setUp() {
-        transactionProcessorService = mockk()
-        peer = mockk()
+        transactionProcessorService = mockk(relaxed = true)
+        peer = mockk(relaxed = true)
         t = ProcessTransactions(transactionProcessorService)
     }
 

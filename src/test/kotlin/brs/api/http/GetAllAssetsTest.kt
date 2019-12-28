@@ -35,7 +35,7 @@ class GetAllAssetsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        assetExchangeService = mockk()
+        assetExchangeService = mockk(relaxed = true)
 
         t = GetAllAssets(assetExchangeService)
     }
@@ -52,7 +52,7 @@ class GetAllAssetsTest : AbstractUnitTest() {
 
         val mockAssetId: Long = 1
 
-        val mockAsset = mockk<Asset>()
+        val mockAsset = mockk<Asset>(relaxed = true)
         every { mockAsset.id } returns 1L
         every { mockAsset.id } returns mockAssetId
         every { mockAsset.name } returns "name"

@@ -26,18 +26,18 @@ class GetAliasTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
-        mockAliasService = mockk()
+        mockParameterService = mockk(relaxed = true)
+        mockAliasService = mockk(relaxed = true)
 
         t = GetAlias(mockParameterService, mockAliasService)
     }
 
     @Test
     fun processRequest() {
-        val mockAlias = mockk<Alias>()
+        val mockAlias = mockk<Alias>(relaxed = true)
         every { mockAlias.aliasName } returns "mockAliasName"
 
-        val mockOffer = mockk<Offer>()
+        val mockOffer = mockk<Offer>(relaxed = true)
         every { mockOffer.pricePlanck } returns 123L
         every { mockOffer.buyerId } returns 345L
 

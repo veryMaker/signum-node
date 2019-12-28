@@ -30,7 +30,10 @@ class GetBlockTest {
     @Before
     fun setUp() {
         blockchainServiceMock = mockk()
-        blockServiceMock = mockk()
+        every { blockchainServiceMock.getBlock(any()) } returns null
+        every { blockchainServiceMock.height } returns 0
+        every { blockchainServiceMock.lastBlock } returns mockk(relaxed = true)
+        blockServiceMock = mockk(relaxed = true)
 
         t = GetBlock(blockchainServiceMock, blockServiceMock)
     }
@@ -43,7 +46,7 @@ class GetBlockTest {
                 MockParam(BLOCK_PARAMETER, blockId)
         )
 
-        val mockBlock = mockk<Block>()
+        val mockBlock = mockk<Block>(relaxed = true)
 
         every { blockchainServiceMock.getBlock(eq(blockId)) } returns mockBlock
 
@@ -69,7 +72,7 @@ class GetBlockTest {
                 MockParam(HEIGHT_PARAMETER, blockHeight)
         )
 
-        val mockBlock = mockk<Block>()
+        val mockBlock = mockk<Block>(relaxed = true)
 
         every { blockchainServiceMock.height } returns 100
         every { blockchainServiceMock.getBlockAtHeight(eq(blockHeight)) } returns mockBlock
@@ -120,7 +123,7 @@ class GetBlockTest {
                 MockParam(TIMESTAMP_PARAMETER, timestamp)
         )
 
-        val mockBlock = mockk<Block>()
+        val mockBlock = mockk<Block>(relaxed = true)
 
         every { blockchainServiceMock.getLastBlock(eq(timestamp)) } returns mockBlock
 
@@ -152,9 +155,8 @@ class GetBlockTest {
 
     @Test
     fun processRequest_unknownBlock() {
-        val request = QuickMocker.httpServletRequest()
+        val request = QuickMocker.httpServletRequest(MockParam(BLOCK_PARAMETER, 123L))
 
         assertEquals(UNKNOWN_BLOCK, t.processRequest(request))
     }
-
 }

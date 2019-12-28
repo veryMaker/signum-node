@@ -29,8 +29,8 @@ class GetAliasesTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
-        mockAliasService = mockk()
+        mockParameterService = mockk(relaxed = true)
+        mockAliasService = mockk(relaxed = true)
 
         t = GetAliases(mockParameterService, mockAliasService)
     }
@@ -40,13 +40,13 @@ class GetAliasesTest : AbstractUnitTest() {
         val accountId = 123L
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.id } returns accountId
 
-        val mockAlias = mockk<Alias>()
+        val mockAlias = mockk<Alias>(relaxed = true)
         every { mockAlias.id } returns 567L
 
-        val mockOffer = mockk<Offer>()
+        val mockOffer = mockk<Offer>(relaxed = true)
         every { mockOffer.pricePlanck } returns 234L
 
         val mockAliasIterator = mockCollection(mockAlias)

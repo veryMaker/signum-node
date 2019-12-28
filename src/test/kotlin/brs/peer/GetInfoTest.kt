@@ -15,9 +15,9 @@ class GetInfoTest {
 
     @Before
     fun setUp() {
-        peerService = mockk()
-        timeService = mockk()
-        peer = mockk()
+        peerService = mockk(relaxed = true)
+        timeService = mockk(relaxed = true)
+        peer = mockk(relaxed = true)
         t = GetInfo(QuickMocker.dependencyProvider(peerService, timeService))
     }
 

@@ -22,7 +22,7 @@ class FullResetTest {
 
     @Before
     fun init() {
-        blockchainProcessorService = mockk()
+        blockchainProcessorService = mockk(relaxed = true)
 
         this.t = FullReset(blockchainProcessorService)
     }

@@ -32,8 +32,8 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
-        mockAssetExchangeService = mockk()
+        mockParameterService = mockk(relaxed = true)
+        mockAssetExchangeService = mockk(relaxed = true)
 
         t = GetAccountCurrentBidOrders(mockParameterService, mockAssetExchangeService)
     }
@@ -50,11 +50,11 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.id } returns accountId
 
         val mockBidId = 456L
-        val bid = mockk<Bid>()
+        val bid = mockk<Bid>(relaxed = true)
         every { bid.id } returns mockBidId
 
         val mockBidIterator = mockCollection(bid)
@@ -88,11 +88,11 @@ class GetAccountCurrentBidOrdersTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.id } returns accountId
 
         val mockBidId = 456L
-        val bid = mockk<Bid>()
+        val bid = mockk<Bid>(relaxed = true)
         every { bid.id } returns mockBidId
 
         val mockBidIterator = mockCollection(bid)

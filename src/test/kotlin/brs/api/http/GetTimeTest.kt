@@ -19,7 +19,7 @@ class GetTimeTest {
 
     @Before
     fun setUp() {
-        mockTimeService = mockk()
+        mockTimeService = mockk(relaxed = true)
 
         t = GetTime(mockTimeService)
     }

@@ -35,7 +35,7 @@ class GetDGSPurchaseTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
+        mockParameterService = mockk(relaxed = true)
 
         t = GetDGSPurchase(mockParameterService)
     }
@@ -45,7 +45,7 @@ class GetDGSPurchaseTest {
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockEncryptedData = mockk<BurstEncryptedMessage>()
+        val mockEncryptedData = mockk<BurstEncryptedMessage>(relaxed = true)
 
         every { mockEncryptedData.data } returns byteArrayOf(1.toByte())
         every { mockEncryptedData.nonce } returns byteArrayOf(1.toByte())
@@ -53,7 +53,7 @@ class GetDGSPurchaseTest {
 
         val mockEncryptedDataList = mutableListOf(mockEncryptedData)
 
-        val mockPurchase = mockk<Purchase>()
+        val mockPurchase = mockk<Purchase>(relaxed = true)
         every { mockPurchase.id } returns 1L
         every { mockPurchase.goodsId } returns 2L
         every { mockPurchase.getName() } returns "name"

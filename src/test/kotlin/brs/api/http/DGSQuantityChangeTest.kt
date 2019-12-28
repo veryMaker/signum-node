@@ -34,9 +34,9 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
-        mockBlockchainService = mockk()
-        apiTransactionManagerMock = mockk()
+        mockParameterService = mockk(relaxed = true)
+        mockBlockchainService = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
         every { mockBlockchainService.height } returns 0
         dp = QuickMocker.dependencyProvider(mockParameterService, mockBlockchainService, apiTransactionManagerMock)
         t = DGSQuantityChange(dp)
@@ -50,12 +50,12 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
         )
 
         val mockGoodsID = 123L
-        val mockGoods = mockk<Goods>()
+        val mockGoods = mockk<Goods>(relaxed = true)
         every { mockGoods.id } returns mockGoodsID
         every { mockGoods.isDelisted } returns false
         every { mockGoods.sellerId } returns 1L
 
-        val mockSenderAccount = mockk<Account>()
+        val mockSenderAccount = mockk<Account>(relaxed = true)
         every { mockSenderAccount.id } returns 1L
 
         every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount
@@ -75,10 +75,10 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     fun processRequest_unknownGoodsBecauseDelisted() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockGoods = mockk<Goods>()
+        val mockGoods = mockk<Goods>(relaxed = true)
         every { mockGoods.isDelisted } returns true
 
-        val mockSenderAccount = mockk<Account>()
+        val mockSenderAccount = mockk<Account>(relaxed = true)
 
         every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount
         every { mockParameterService.getGoods(eq(request)) } returns mockGoods
@@ -90,11 +90,11 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
     fun processRequest_unknownGoodsBecauseWrongSellerId() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockGoods = mockk<Goods>()
+        val mockGoods = mockk<Goods>(relaxed = true)
         every { mockGoods.isDelisted } returns false
         every { mockGoods.sellerId } returns 1L
 
-        val mockSenderAccount = mockk<Account>()
+        val mockSenderAccount = mockk<Account>(relaxed = true)
         every { mockSenderAccount.id } returns 2L
 
         every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount
@@ -109,11 +109,11 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
                 MockParam(DELTA_QUANTITY_PARAMETER, null as String?)
         )
 
-        val mockGoods = mockk<Goods>()
+        val mockGoods = mockk<Goods>(relaxed = true)
         every { mockGoods.isDelisted } returns false
         every { mockGoods.sellerId } returns 1L
 
-        val mockSenderAccount = mockk<Account>()
+        val mockSenderAccount = mockk<Account>(relaxed = true)
         every { mockSenderAccount.id } returns 1L
 
         every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount
@@ -128,11 +128,11 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
                 MockParam(DELTA_QUANTITY_PARAMETER, "Bob")
         )
 
-        val mockGoods = mockk<Goods>()
+        val mockGoods = mockk<Goods>(relaxed = true)
         every { mockGoods.isDelisted } returns false
         every { mockGoods.sellerId } returns 1L
 
-        val mockSenderAccount = mockk<Account>()
+        val mockSenderAccount = mockk<Account>(relaxed = true)
         every { mockSenderAccount.id } returns 1L
 
         every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount
@@ -147,11 +147,11 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
                 MockParam(DELTA_QUANTITY_PARAMETER, Integer.MIN_VALUE)
         )
 
-        val mockGoods = mockk<Goods>()
+        val mockGoods = mockk<Goods>(relaxed = true)
         every { mockGoods.isDelisted } returns false
         every { mockGoods.sellerId } returns 1L
 
-        val mockSenderAccount = mockk<Account>()
+        val mockSenderAccount = mockk<Account>(relaxed = true)
         every { mockSenderAccount.id } returns 1L
 
         every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount
@@ -166,11 +166,11 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
                 MockParam(DELTA_QUANTITY_PARAMETER, Integer.MAX_VALUE)
         )
 
-        val mockGoods = mockk<Goods>()
+        val mockGoods = mockk<Goods>(relaxed = true)
         every { mockGoods.isDelisted } returns false
         every { mockGoods.sellerId } returns 1L
 
-        val mockSenderAccount = mockk<Account>()
+        val mockSenderAccount = mockk<Account>(relaxed = true)
         every { mockSenderAccount.id } returns 1L
 
         every { mockParameterService.getSenderAccount(eq(request)) } returns mockSenderAccount

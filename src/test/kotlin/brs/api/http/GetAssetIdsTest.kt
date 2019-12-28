@@ -26,7 +26,7 @@ class GetAssetIdsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockAssetExchangeService = mockk()
+        mockAssetExchangeService = mockk(relaxed = true)
 
         t = GetAssetIds(mockAssetExchangeService)
     }
@@ -36,7 +36,7 @@ class GetAssetIdsTest : AbstractUnitTest() {
         val firstIndex = 1
         val lastIndex = 2
 
-        val mockAsset = mockk<Asset>()
+        val mockAsset = mockk<Asset>(relaxed = true)
         every { mockAsset.id } returns 5L
 
         val mockAssetIterator = mockCollection(mockAsset)

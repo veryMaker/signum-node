@@ -32,12 +32,12 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        blockchainService = mockk()
-        mockGoodsTable = mockk()
-        mockPurchaseTable = mockk()
-        mockDigitalGoodsStoreStore = mockk()
-        mockGoodsDbKeyFactory = mockk()
-        mockAccountService = mockk()
+        blockchainService = mockk(relaxed = true)
+        mockGoodsTable = mockk(relaxed = true)
+        mockPurchaseTable = mockk(relaxed = true)
+        mockDigitalGoodsStoreStore = mockk(relaxed = true)
+        mockGoodsDbKeyFactory = mockk(relaxed = true)
+        mockAccountService = mockk(relaxed = true)
 
         every { mockDigitalGoodsStoreStore.goodsTable } returns mockGoodsTable
         every { mockDigitalGoodsStoreStore.purchaseTable } returns mockPurchaseTable
@@ -52,8 +52,8 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
 
     @Test
     fun getGoods() {
-        val mockKey = mockk<BurstKey>()
-        val mockGoods = mockk<Goods>()
+        val mockKey = mockk<BurstKey>(relaxed = true)
+        val mockGoods = mockk<Goods>(relaxed = true)
 
         every { mockGoodsDbKeyFactory.newKey(eq(1L)) } returns mockKey
         every { mockGoodsTable.get(eq(mockKey)) } returns mockGoods

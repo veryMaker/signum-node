@@ -33,14 +33,14 @@ class GetAllOpenBidOrdersTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockAssetExchangeService = mockk()
+        mockAssetExchangeService = mockk(relaxed = true)
 
         t = GetAllOpenBidOrders(mockAssetExchangeService)
     }
 
     @Test
     fun processRequest() {
-        val mockBidOrder = mockk<Bid>()
+        val mockBidOrder = mockk<Bid>(relaxed = true)
         every { mockBidOrder.id } returns 1L
         every { mockBidOrder.assetId } returns 2L
         every { mockBidOrder.quantity } returns 3L

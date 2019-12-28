@@ -22,7 +22,7 @@ class FluxCapacitorServiceImplTest {
 
     @BeforeEach
     fun setUp() {
-        blockchainServiceMock = mockk()
+        blockchainServiceMock = mockk(relaxed = true)
         propertyServiceMock = QuickMocker.defaultPropertyService()
     }
 

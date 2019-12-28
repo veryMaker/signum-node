@@ -22,7 +22,7 @@ class ClearUnconfirmedTransactionsTest {
 
     @Before
     fun init() {
-        transactionProcessorServiceMock = mockk()
+        transactionProcessorServiceMock = mockk(relaxed = true)
 
         this.t = ClearUnconfirmedTransactions(transactionProcessorServiceMock)
     }

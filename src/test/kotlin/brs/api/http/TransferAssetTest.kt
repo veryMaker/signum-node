@@ -38,11 +38,11 @@ class TransferAssetTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        blockchainServiceMock = mockk()
-        apiTransactionManagerMock = mockk()
-        transactionProcessorServiceMock = mockk()
-        accountServiceMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        blockchainServiceMock = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
+        transactionProcessorServiceMock = mockk(relaxed = true)
+        accountServiceMock = mockk(relaxed = true)
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             blockchainServiceMock,
@@ -64,12 +64,12 @@ class TransferAssetTest : AbstractTransactionTest() {
                 MockParam(QUANTITY_QNT_PARAMETER, quantityParameter)
         )
 
-        val mockAsset = mockk<Asset>()
+        val mockAsset = mockk<Asset>(relaxed = true)
 
         every { parameterServiceMock.getAsset(eq(request)) } returns mockAsset
         every { mockAsset.id } returns assetIdParameter
 
-        val mockSenderAccount = mockk<Account>()
+        val mockSenderAccount = mockk<Account>(relaxed = true)
         every { accountServiceMock.getUnconfirmedAssetBalanceQuantity(eq(mockSenderAccount), eq(assetIdParameter)) } returns 500L
 
         every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockSenderAccount
@@ -93,12 +93,12 @@ class TransferAssetTest : AbstractTransactionTest() {
                 MockParam(QUANTITY_QNT_PARAMETER, "5")
         )
 
-        val mockAsset = mockk<Asset>()
+        val mockAsset = mockk<Asset>(relaxed = true)
 
         every { parameterServiceMock.getAsset(eq(request)) } returns mockAsset
         every { mockAsset.id } returns 456L
 
-        val mockSenderAccount = mockk<Account>()
+        val mockSenderAccount = mockk<Account>(relaxed = true)
         every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockSenderAccount
 
         every { accountServiceMock.getUnconfirmedAssetBalanceQuantity(eq(mockSenderAccount), any()) } returns 2L

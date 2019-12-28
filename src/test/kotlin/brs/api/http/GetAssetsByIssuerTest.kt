@@ -1,11 +1,5 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.entity.Asset
-import brs.services.AssetExchangeService
-import brs.common.AbstractUnitTest
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.api.http.common.ResultFields.ASSETS_RESPONSE
@@ -17,13 +11,19 @@ import brs.api.http.common.ResultFields.NUMBER_OF_ACCOUNTS_RESPONSE
 import brs.api.http.common.ResultFields.NUMBER_OF_TRADES_RESPONSE
 import brs.api.http.common.ResultFields.NUMBER_OF_TRANSFERS_RESPONSE
 import brs.api.http.common.ResultFields.QUANTITY_QNT_RESPONSE
+import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Account
+import brs.entity.Asset
+import brs.services.AssetExchangeService
 import brs.services.ParameterService
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import io.mockk.mockk
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -54,15 +54,14 @@ class GetAssetsByIssuerTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-
         val mockAccount = mockk<Account>()
-        every { mockAccount.id } returns 1L
+        val mockAccountId = 1L
+        every { mockAccount.id } returns mockAccountId
         every { mockParameterService.getAccounts(eq(request)) } returns listOf(mockAccount)
 
         val mockAssetId: Long = 1
 
-        val mockAsset = mockk<Asset>()
-        every { mockAsset.id } returns 1L
+        val mockAsset = mockk<Asset>(relaxed = true)
         every { mockAsset.id } returns mockAssetId
         every { mockAsset.name } returns "name"
         every { mockAsset.description } returns "description"
@@ -71,7 +70,7 @@ class GetAssetsByIssuerTest : AbstractUnitTest() {
 
         val mockAssetIterator = mockCollection(mockAsset)
 
-        every { mockAssetExchangeService.getAssetsIssuedBy(eq(mockAccount.id), eq(firstIndex), eq(lastIndex)) } returns mockAssetIterator
+        every { mockAssetExchangeService.getAssetsIssuedBy(eq(mockAccountId), eq(firstIndex), eq(lastIndex)) } returns mockAssetIterator
         every { mockAssetExchangeService.getAssetAccountsCount(eq(mockAssetId)) } returns 1
         every { mockAssetExchangeService.getTransferCount(eq(mockAssetId)) } returns 2
         every { mockAssetExchangeService.getTradeCount(eq(mockAssetId)) } returns 3
@@ -99,5 +98,4 @@ class GetAssetsByIssuerTest : AbstractUnitTest() {
         assertEquals(2L, assetResult.get(NUMBER_OF_TRANSFERS_RESPONSE).safeGetAsLong())
         assertEquals(3L, assetResult.get(NUMBER_OF_TRADES_RESPONSE).safeGetAsLong())
     }
-
 }

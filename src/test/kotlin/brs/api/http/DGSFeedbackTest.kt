@@ -31,10 +31,10 @@ class DGSFeedbackTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        accountServiceMock = mockk()
-        blockchainServiceMock = mockk()
-        apiTransactionManagerMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        accountServiceMock = mockk(relaxed = true)
+        blockchainServiceMock = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             blockchainServiceMock,
@@ -49,11 +49,11 @@ class DGSFeedbackTest : AbstractTransactionTest() {
         val request = QuickMocker.httpServletRequest()
 
         val mockPurchaseId = 123L
-        val mockPurchase = mockk<Purchase>()
+        val mockPurchase = mockk<Purchase>(relaxed = true)
         every { mockPurchase.id } returns mockPurchaseId
-        val mockAccount = mockk<Account>()
-        val mockSellerAccount = mockk<Account>()
-        val mockEncryptedGoods = mockk<BurstEncryptedMessage>()
+        val mockAccount = mockk<Account>(relaxed = true)
+        val mockSellerAccount = mockk<Account>(relaxed = true)
+        val mockEncryptedGoods = mockk<BurstEncryptedMessage>(relaxed = true)
 
         every { parameterServiceMock.getPurchase(eq(request)) } returns mockPurchase
         every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount
@@ -77,8 +77,8 @@ class DGSFeedbackTest : AbstractTransactionTest() {
     fun processRequest_incorrectPurchaseWhenOtherBuyerId() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockPurchase = mockk<Purchase>()
-        val mockAccount = mockk<Account>()
+        val mockPurchase = mockk<Purchase>(relaxed = true)
+        val mockAccount = mockk<Account>(relaxed = true)
 
         every { parameterServiceMock.getPurchase(eq(request)) } returns mockPurchase
         every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount
@@ -93,8 +93,8 @@ class DGSFeedbackTest : AbstractTransactionTest() {
     fun processRequest_goodsNotDeliveredWhenNoEncryptedGoods() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockPurchase = mockk<Purchase>()
-        val mockAccount = mockk<Account>()
+        val mockPurchase = mockk<Purchase>(relaxed = true)
+        val mockAccount = mockk<Account>(relaxed = true)
 
         every { parameterServiceMock.getPurchase(eq(request)) } returns mockPurchase
         every { parameterServiceMock.getSenderAccount(eq(request)) } returns mockAccount

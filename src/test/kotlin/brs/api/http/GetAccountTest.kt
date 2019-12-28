@@ -33,8 +33,8 @@ class GetAccountTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        accountServiceMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        accountServiceMock = mockk(relaxed = true)
 
         t = GetAccount(parameterServiceMock, accountServiceMock)
     }
@@ -51,7 +51,7 @@ class GetAccountTest : AbstractUnitTest() {
 
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.id } returns mockAccountId
         every { mockAccount.publicKey } returns byteArrayOf(1.toByte())
         every { mockAccount.name } returns mockAccountName
@@ -59,7 +59,7 @@ class GetAccountTest : AbstractUnitTest() {
 
         every { parameterServiceMock.getAccount(eq(request)) } returns mockAccount
 
-        val mockAccountAsset = mockk<AccountAsset>()
+        val mockAccountAsset = mockk<AccountAsset>(relaxed = true)
         every { mockAccountAsset.assetId } returns mockAssetId
         every { mockAccountAsset.unconfirmedQuantity } returns mockUnconfirmedQuantityPlanck
         every { mockAccountAsset.quantity } returns balancePlanck

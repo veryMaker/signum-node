@@ -33,10 +33,10 @@ class BuyAliasTest : AbstractTransactionTest() {
 
     @Before
     fun init() {
-        parameterServiceMock = mockk()
-        blockchainService = mockk()
-        aliasService = mockk()
-        apiTransactionManagerMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        blockchainService = mockk(relaxed = true)
+        aliasService = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
         dp = QuickMocker.dependencyProvider(parameterServiceMock, blockchainService, aliasService, apiTransactionManagerMock)
         t = BuyAlias(dp)
     }
@@ -45,11 +45,11 @@ class BuyAliasTest : AbstractTransactionTest() {
     fun processRequest() {
         val request = QuickMocker.httpServletRequestDefaultKeys(MockParam(AMOUNT_PLANCK_PARAMETER, Constants.ONE_BURST.toString()))
 
-        val mockOfferOnAlias = mockk<Offer>()
+        val mockOfferOnAlias = mockk<Offer>(relaxed = true)
 
         val mockAliasName = "mockAliasName"
-        val mockAlias = mockk<Alias>()
-        val mockAccount = mockk<Account>()
+        val mockAlias = mockk<Alias>(relaxed = true)
+        val mockAccount = mockk<Account>(relaxed = true)
         val mockSellerId = 123L
 
         every { mockAlias.accountId } returns mockSellerId
@@ -72,7 +72,7 @@ class BuyAliasTest : AbstractTransactionTest() {
     @Test
     fun processRequest_aliasNotForSale() {
         val request = QuickMocker.httpServletRequest(MockParam(AMOUNT_PLANCK_PARAMETER, "3"))
-        val mockAlias = mockk<Alias>()
+        val mockAlias = mockk<Alias>(relaxed = true)
 
         every { parameterServiceMock.getAlias(eq(request)) } returns mockAlias
 

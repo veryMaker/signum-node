@@ -29,7 +29,7 @@ class TransactionDuplicatesCheckerTest {
     @Before
     fun setUp() {
         val mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION)
-        val mockBlockchain = mockk<BlockchainServiceImpl>()
+        val mockBlockchain = mockk<BlockchainServiceImpl>(relaxed = true)
         every { mockBlockchain.height } returns 4
 
         dp = QuickMocker.dependencyProvider(mockBlockchain, mockFluxCapacitor)

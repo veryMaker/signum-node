@@ -35,10 +35,10 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        subscriptionServiceMock = mockk()
-        blockchainServiceMock = mockk()
-        apiTransactionManagerMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        subscriptionServiceMock = mockk(relaxed = true)
+        blockchainServiceMock = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             subscriptionServiceMock,
@@ -56,10 +56,10 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
                 MockParam(SUBSCRIPTION_PARAMETER, subscriptionIdParameter)
         )
 
-        val mockSender = mockk<Account>()
+        val mockSender = mockk<Account>(relaxed = true)
         every { mockSender.id } returns 1L
 
-        val mockSubscription = mockk<Subscription>()
+        val mockSubscription = mockk<Subscription>(relaxed = true)
         every { mockSubscription.id } returns subscriptionIdParameter
         every { mockSubscription.senderId } returns 1L
         every { mockSubscription.recipientId } returns 2L
@@ -123,10 +123,10 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
                 MockParam(SUBSCRIPTION_PARAMETER, subscriptionId)
         )
 
-        val mockSender = mockk<Account>()
+        val mockSender = mockk<Account>(relaxed = true)
         every { mockSender.id } returns 1L
 
-        val mockSubscription = mockk<Subscription>()
+        val mockSubscription = mockk<Subscription>(relaxed = true)
         every { mockSubscription.senderId } returns 2L
         every { mockSubscription.recipientId } returns 3L
 

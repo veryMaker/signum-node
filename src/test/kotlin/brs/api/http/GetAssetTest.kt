@@ -34,8 +34,8 @@ class GetAssetTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        mockAssetExchangeService = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        mockAssetExchangeService = mockk(relaxed = true)
 
         t = GetAsset(parameterServiceMock, mockAssetExchangeService)
     }
@@ -48,7 +48,7 @@ class GetAssetTest : AbstractUnitTest() {
                 MockParam(ASSET_PARAMETER, assetId)
         )
 
-        val asset = mockk<Asset>()
+        val asset = mockk<Asset>(relaxed = true)
         every { asset.id } returns assetId
         every { asset.accountId } returns 1L
         every { asset.name } returns "assetName"

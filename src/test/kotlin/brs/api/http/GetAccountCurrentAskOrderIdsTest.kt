@@ -31,8 +31,8 @@ class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
-        mockAssetExchangeService = mockk()
+        mockParameterService = mockk(relaxed = true)
+        mockAssetExchangeService = mockk(relaxed = true)
 
         t = GetAccountCurrentAskOrderIds(mockParameterService, mockAssetExchangeService)
     }
@@ -49,11 +49,11 @@ class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.id } returns accountId
         every { mockParameterService.getAccount(eq(request)) } returns mockAccount
 
-        val mockAsk = mockk<Ask>()
+        val mockAsk = mockk<Ask>(relaxed = true)
         every { mockAsk.id } returns 1L
 
         val mockAskIterator = mockCollection(mockAsk)
@@ -85,11 +85,11 @@ class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.id } returns accountId
         every { mockParameterService.getAccount(eq(request)) } returns mockAccount
 
-        val mockAsk = mockk<Ask>()
+        val mockAsk = mockk<Ask>(relaxed = true)
         every { mockAsk.id } returns 1L
 
         val mockAskIterator = mockCollection(mockAsk)

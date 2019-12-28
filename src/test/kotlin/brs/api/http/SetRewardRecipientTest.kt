@@ -40,9 +40,11 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
         parameterServiceMock = mockk()
         every { parameterServiceMock.getSenderAccount(any()) } returns mockk()
         blockchainServiceMock = mockk()
+        every { blockchainServiceMock.height } returns 0
         accountServiceMock = mockk()
+        every { accountServiceMock.getAccount(any<Long>()) } returns null
         apiTransactionManagerMock = mockk()
-        fluxCapacitorServiceMock = mockk()
+        fluxCapacitorServiceMock = QuickMocker.fluxCapacitorEnabledFunctionalities()
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             blockchainServiceMock,
@@ -80,14 +82,15 @@ class SetRewardRecipientTest : AbstractTransactionTest() {
 
         every { parameterServiceMock.getAccount(eq(request)) } returns mockSenderAccount
 
-        assertEquals(8, JSONTestHelper.errorCode(t.processRequest(request)).toLong())
+        assertEquals(8, JSONTestHelper.errorCode(t.processRequest(request)))
     }
 
     @Test
     fun processRequest_recipientAccountDoesNotHavePublicKey_errorCode8() {
         val request = QuickMocker.httpServletRequest(MockParam(RECIPIENT_PARAMETER, "123"))
-        val mockSenderAccount = mockk<Account>()
-        val mockRecipientAccount = mockk<Account>()
+        val mockSenderAccount = mockk<Account>(relaxed = true)
+        val mockRecipientAccount = mockk<Account>(relaxed = true)
+        every { mockRecipientAccount.publicKey } returns null
 
         every { parameterServiceMock.getAccount(eq(request)) } returns mockSenderAccount
         every { accountServiceMock.getAccount(eq(123L)) } returns mockRecipientAccount

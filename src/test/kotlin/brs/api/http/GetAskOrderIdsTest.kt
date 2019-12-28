@@ -29,8 +29,8 @@ class GetAskOrderIdsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        assetExchangeServiceMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        assetExchangeServiceMock = mockk(relaxed = true)
 
         t = GetAskOrderIds(parameterServiceMock, assetExchangeServiceMock)
     }
@@ -47,14 +47,14 @@ class GetAskOrderIdsTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val asset = mockk<Asset>()
+        val asset = mockk<Asset>(relaxed = true)
         every { asset.id } returns assetIndex
 
         every { parameterServiceMock.getAsset(eq(request)) } returns asset
 
-        val askOrder1 = mockk<Ask>()
+        val askOrder1 = mockk<Ask>(relaxed = true)
         every { askOrder1.id } returns 5L
-        val askOrder2 = mockk<Ask>()
+        val askOrder2 = mockk<Ask>(relaxed = true)
         every { askOrder1.id } returns 6L
 
         val askIterator = mockCollection(askOrder1, askOrder2)

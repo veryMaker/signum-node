@@ -40,7 +40,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockDigitalGoodsStoreService = mockk()
+        mockDigitalGoodsStoreService = mockk(relaxed = true)
 
         t = GetDGSGoods(mockDigitalGoodsStoreService)
     }
@@ -163,7 +163,7 @@ class GetDGSGoodsTest : AbstractUnitTest() {
     }
 
     private fun mockGood(): Goods {
-        val mockGood = mockk<Goods>()
+        val mockGood = mockk<Goods>(relaxed = true)
 
         every { mockGood.id } returns 1L
         every { mockGood.name } returns "name"

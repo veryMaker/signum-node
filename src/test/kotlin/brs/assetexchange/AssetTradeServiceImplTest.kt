@@ -21,8 +21,8 @@ class AssetTradeServiceImplTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockTradeStore = mockk()
-        mockTradeTable = mockk()
+        mockTradeStore = mockk(relaxed = true)
+        mockTradeTable = mockk(relaxed = true)
 
         every { mockTradeStore.tradeTable } returns mockTradeTable
 

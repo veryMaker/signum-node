@@ -37,9 +37,9 @@ class SellAliasTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        blockchainServiceMock = mockk()
-        apiTransactionManagerMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        blockchainServiceMock = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
         dp = QuickMocker.dependencyProvider(parameterServiceMock, blockchainServiceMock, apiTransactionManagerMock)
         t = SellAlias(dp)
     }
@@ -55,11 +55,11 @@ class SellAliasTest : AbstractTransactionTest() {
         )
 
         val aliasAccountId = 1L
-        val mockAlias = mockk<Alias>()
+        val mockAlias = mockk<Alias>(relaxed = true)
         every { mockAlias.accountId } returns aliasAccountId
         every { mockAlias.aliasName } returns ""
 
-        val mockSender = mockk<Account>()
+        val mockSender = mockk<Account>(relaxed = true)
         every { mockSender.id } returns aliasAccountId
 
         every { parameterServiceMock.getSenderAccount(request) } returns mockSender
@@ -145,11 +145,11 @@ class SellAliasTest : AbstractTransactionTest() {
         )
 
         val aliasAccountId = 1L
-        val mockAlias = mockk<Alias>()
+        val mockAlias = mockk<Alias>(relaxed = true)
         every { mockAlias.accountId } returns aliasAccountId
 
         val mockSenderId = 2L
-        val mockSender = mockk<Account>()
+        val mockSender = mockk<Account>(relaxed = true)
         every { mockSender.id } returns mockSenderId
 
         every { parameterServiceMock.getSenderAccount(request) } returns mockSender

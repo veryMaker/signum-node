@@ -19,8 +19,8 @@ class AssetTransferServiceImplTest {
 
     @Before
     fun setUp() {
-        mockAssetTransferStore = mockk()
-        mockAssetTransferTable = mockk()
+        mockAssetTransferStore = mockk(relaxed = true)
+        mockAssetTransferTable = mockk(relaxed = true)
 
         every { mockAssetTransferStore.assetTransferTable } returns mockAssetTransferTable
 

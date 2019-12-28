@@ -33,8 +33,8 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        subscriptionServiceMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        subscriptionServiceMock = mockk(relaxed = true)
 
         t = GetAccountSubscriptions(parameterServiceMock, subscriptionServiceMock)
     }
@@ -47,11 +47,11 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
                 MockParam(ACCOUNT_PARAMETER, userId)
         )
 
-        val account = mockk<Account>()
+        val account = mockk<Account>(relaxed = true)
         every { account.id } returns userId
         every { parameterServiceMock.getAccount(eq(request)) } returns account
 
-        val subscription = mockk<Subscription>()
+        val subscription = mockk<Subscription>(relaxed = true)
         every { subscription.id } returns 1L
         every { subscription.amountPlanck } returns 2L
         every { subscription.frequency } returns 3

@@ -24,14 +24,14 @@ class GetBalanceTest {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
         this.t = GetBalance(parameterServiceMock)
     }
 
     @Test
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
 
         every { mockAccount.balancePlanck } returns 1L
         every { mockAccount.unconfirmedBalancePlanck } returns 2L
@@ -52,7 +52,7 @@ class GetBalanceTest {
     fun processRequest_noAccountFound() {
         val request = QuickMocker.httpServletRequest()
 
-        every { parameterServiceMock.getAccount(eq(request)) } returns mockk()
+        every { parameterServiceMock.getAccount(eq(request)) } returns mockk(relaxed = true)
 
         val result = t.processRequest(request) as JsonObject
 

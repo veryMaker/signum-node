@@ -5,7 +5,6 @@ import brs.api.grpc.service.BrsService
 import brs.common.QuickMocker
 import brs.entity.Block
 import brs.entity.DependencyProvider
-import brs.mockAddListener
 import brs.objects.Props
 import brs.services.*
 import brs.services.impl.FeeSuggestionServiceImpl
@@ -30,14 +29,12 @@ abstract class AbstractGrpcTest {
     protected fun defaultBrsService() {
         // Mocks
         val latestBlock = mockk<Block>()
-        val blockchainProcessor = mockk<BlockchainProcessorService>()
-        blockchainProcessor.mockAddListener()
+        val blockchainProcessor = mockk<BlockchainProcessorService>(relaxUnitFun = true)
         val blockchain = mockk<BlockchainService>()
         val blockService = mockk<BlockService>()
         val accountService = mockk<AccountService>()
         val generator = mockk<GeneratorService>()
-        val transactionProcessor = mockk<TransactionProcessorService>()
-        transactionProcessor.mockAddListener()
+        val transactionProcessor = mockk<TransactionProcessorService>(relaxUnitFun = true)
         val timeService = mockk<TimeService>()
         val feeSuggestionCalculator = mockk<FeeSuggestionServiceImpl>()
         val atService = mockk<ATService>()
@@ -55,6 +52,8 @@ abstract class AbstractGrpcTest {
         every { blockchain.lastBlock } returns latestBlock
         every { propertyService.get(Props.DEV_TESTNET) } returns true
         every { generator.calculateGenerationSignature(any(), any()) } returns ByteArray(32)
+        every { latestBlock.height } returns 0
+        every { latestBlock.baseTarget } returns 0
         every { latestBlock.generatorId } returns 0L
         every { latestBlock.generationSignature } returns ByteArray(32)
         every { propertyService.get(Props.SOLO_MINING_PASSPHRASES) } returns emptyList<String>()

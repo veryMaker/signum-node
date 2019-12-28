@@ -12,7 +12,7 @@ class AddPeersTest {
 
     @Before
     fun setUp() {
-        peerService = mockk()
+        peerService = mockk(relaxed = true)
         t = AddPeers(QuickMocker.dependencyProvider(peerService))
     }
 

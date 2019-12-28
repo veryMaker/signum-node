@@ -32,13 +32,13 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockSubscriptionStore = mockk()
-        mockSubscriptionTable = mockk()
-        mockSubscriptionDbKeyFactory = mockk()
-        transactionDb = mockk()
-        blockchainService = mockk()
-        aliasService = mockk()
-        accountService = mockk()
+        mockSubscriptionStore = mockk(relaxed = true)
+        mockSubscriptionTable = mockk(relaxed = true)
+        mockSubscriptionDbKeyFactory = mockk(relaxed = true)
+        transactionDb = mockk(relaxed = true)
+        blockchainService = mockk(relaxed = true)
+        aliasService = mockk(relaxed = true)
+        accountService = mockk(relaxed = true)
 
         every { mockSubscriptionStore.subscriptionTable } returns mockSubscriptionTable
         every { mockSubscriptionStore.subscriptionDbKeyFactory } returns mockSubscriptionDbKeyFactory
@@ -56,9 +56,9 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
     fun getSubscription() {
         val subscriptionId = 123L
 
-        val mockSubscriptionKey = mockk<BurstKey>()
+        val mockSubscriptionKey = mockk<BurstKey>(relaxed = true)
 
-        val mockSubscription = mockk<Subscription>()
+        val mockSubscription = mockk<Subscription>(relaxed = true)
 
         every { mockSubscriptionDbKeyFactory.newKey(eq(subscriptionId)) } returns mockSubscriptionKey
         every { mockSubscriptionTable.get(eq(mockSubscriptionKey)) } returns mockSubscription

@@ -30,14 +30,14 @@ class GetDGSGoodTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
+        mockParameterService = mockk(relaxed = true)
 
         t = GetDGSGood(mockParameterService)
     }
 
     @Test
     fun processRequest() {
-        val mockGoods = mockk<Goods>()
+        val mockGoods = mockk<Goods>(relaxed = true)
         every { mockGoods.id } returns 1L
         every { mockGoods.name } returns "name"
         every { mockGoods.description } returns "description"

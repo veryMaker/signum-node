@@ -21,7 +21,6 @@ abstract class AbstractIT {
      * Must be called by subclasses.
      */
     fun setupIT(dbUrl: String) {
-        println("Setting up IT for test " + this.javaClass.toString())
         burst = Burst(testProperties(dbUrl), false)
         processBlock = ProcessBlock(burst.dp.blockchainService, burst.dp.blockchainProcessorService)
     }
@@ -56,7 +55,7 @@ abstract class AbstractIT {
     }
 
     fun processBlock(jsonFirstBlock: JsonObject) {
-        processBlock.processRequest(jsonFirstBlock, mockk())
+        processBlock.processRequest(jsonFirstBlock, mockk(relaxed = true))
     }
 
     fun rollback(height: Int) {

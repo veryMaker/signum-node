@@ -17,7 +17,7 @@ class AssetAccountServiceImplTest {
 
     @Before
     fun setUp() {
-        mockAccountStore = mockk()
+        mockAccountStore = mockk(relaxed = true)
         t = AssetAccountServiceImpl(mockAccountStore)
     }
 

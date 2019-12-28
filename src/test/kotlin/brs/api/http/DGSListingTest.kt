@@ -35,16 +35,16 @@ class DGSListingTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
-        mockBlockchainService = mockk()
-        apiTransactionManagerMock = mockk()
+        mockParameterService = mockk(relaxed = true)
+        mockBlockchainService = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
         dp = QuickMocker.dependencyProvider(mockParameterService, mockBlockchainService, apiTransactionManagerMock)
         t = DGSListing(dp)
     }
 
     @Test
     fun processRequest() {
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
 
         val dgsName = "dgsName"
         val dgsDescription = "dgsDescription"

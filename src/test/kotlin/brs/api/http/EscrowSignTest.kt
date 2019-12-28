@@ -37,10 +37,10 @@ class EscrowSignTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        blockchainServiceMock = mockk()
-        escrowServiceMock = mockk()
-        apiTransactionManagerMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        blockchainServiceMock = mockk(relaxed = true)
+        escrowServiceMock = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             blockchainServiceMock,
@@ -60,11 +60,11 @@ class EscrowSignTest : AbstractTransactionTest() {
                 MockParam(DECISION_PARAMETER, "release")
         )
 
-        val escrow = mockk<Escrow>()
+        val escrow = mockk<Escrow>(relaxed = true)
         every { escrow.senderId } returns senderId
         every { escrow.recipientId } returns 2L
 
-        val sender = mockk<Account>()
+        val sender = mockk<Account>(relaxed = true)
         every { sender.id } returns senderId
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
@@ -91,11 +91,11 @@ class EscrowSignTest : AbstractTransactionTest() {
                 MockParam(DECISION_PARAMETER, "refund")
         )
 
-        val escrow = mockk<Escrow>()
+        val escrow = mockk<Escrow>(relaxed = true)
         every { escrow.senderId } returns 1L
         every { escrow.recipientId } returns senderId
 
-        val sender = mockk<Account>()
+        val sender = mockk<Account>(relaxed = true)
         every { sender.id } returns senderId
 
         every { escrowServiceMock.getEscrowTransaction(eq(escrowId)) } returns escrow
@@ -122,11 +122,11 @@ class EscrowSignTest : AbstractTransactionTest() {
                 MockParam(DECISION_PARAMETER, "refund")
         )
 
-        val escrow = mockk<Escrow>()
+        val escrow = mockk<Escrow>(relaxed = true)
         every { escrow.recipientId } returns 1L
         every { escrow.senderId } returns 2L
 
-        val sender = mockk<Account>()
+        val sender = mockk<Account>(relaxed = true)
         every { sender.id } returns senderId
         dp.fluxCapacitorService = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
@@ -180,7 +180,7 @@ class EscrowSignTest : AbstractTransactionTest() {
                 MockParam(DECISION_PARAMETER, "notADecisionValue")
         )
 
-        val escrow = mockk<Escrow>()
+        val escrow = mockk<Escrow>(relaxed = true)
 
         every { escrowServiceMock.getEscrowTransaction(eq(escrowId)) } returns escrow
 
@@ -199,13 +199,13 @@ class EscrowSignTest : AbstractTransactionTest() {
                 MockParam(DECISION_PARAMETER, "refund")
         )
 
-        val escrow = mockk<Escrow>()
+        val escrow = mockk<Escrow>(relaxed = true)
         every { escrow.senderId } returns 1L
         every { escrow.recipientId } returns 2L
 
         every { escrowServiceMock.isIdSigner(eq(senderId), eq(escrow)) } returns false
 
-        val sender = mockk<Account>()
+        val sender = mockk<Account>(relaxed = true)
         every { sender.id } returns senderId
 
         every { escrowServiceMock.getEscrowTransaction(eq(escrowId)) } returns escrow
@@ -226,10 +226,10 @@ class EscrowSignTest : AbstractTransactionTest() {
                 MockParam(DECISION_PARAMETER, "refund")
         )
 
-        val escrow = mockk<Escrow>()
+        val escrow = mockk<Escrow>(relaxed = true)
         every { escrow.senderId } returns senderId
 
-        val sender = mockk<Account>()
+        val sender = mockk<Account>(relaxed = true)
         every { sender.id } returns senderId
 
         every { escrowServiceMock.getEscrowTransaction(eq(escrowId)) } returns escrow
@@ -250,10 +250,10 @@ class EscrowSignTest : AbstractTransactionTest() {
                 MockParam(DECISION_PARAMETER, "release")
         )
 
-        val escrow = mockk<Escrow>()
+        val escrow = mockk<Escrow>(relaxed = true)
         every { escrow.recipientId } returns senderId
 
-        val sender = mockk<Account>()
+        val sender = mockk<Account>(relaxed = true)
         every { sender.id } returns senderId
 
         every { escrowServiceMock.getEscrowTransaction(eq(escrowId)) } returns escrow

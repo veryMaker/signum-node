@@ -22,7 +22,7 @@ class GetAccountPublicKeyTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
+        mockParameterService = mockk(relaxed = true)
 
         t = GetAccountPublicKey(mockParameterService)
     }
@@ -31,7 +31,7 @@ class GetAccountPublicKeyTest {
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.publicKey } returns TestConstants.TEST_PUBLIC_KEY_BYTES
 
         every { mockParameterService.getAccount(eq(request)) } returns mockAccount
@@ -46,7 +46,7 @@ class GetAccountPublicKeyTest {
     fun processRequest_withoutPublicKey() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.publicKey } returns null
 
         every { mockParameterService.getAccount(eq(request)) } returns mockAccount

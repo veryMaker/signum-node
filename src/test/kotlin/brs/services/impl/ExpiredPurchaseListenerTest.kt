@@ -23,8 +23,9 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        accountServiceMock = mockk()
-        digitalGoodsStoreServiceMock = mockk()
+        accountServiceMock = mockk(relaxUnitFun = true)
+        every { accountServiceMock.getAccount(any<Long>()) } returns null
+        digitalGoodsStoreServiceMock = mockk(relaxUnitFun = true)
 
         t = DigitalGoodsStoreServiceImpl.expiredPurchaseListener(QuickMocker.dependencyProvider(
             accountServiceMock,
@@ -38,12 +39,13 @@ class ExpiredPurchaseListenerTest : AbstractUnitTest() {
         val block = mockk<Block>()
         every { block.timestamp } returns blockTimestamp
 
-        val purchaseBuyerId: Long = 34
+        val purchaseBuyerId = 34L
         val purchaseBuyer = mockk<Account>()
         every { purchaseBuyer.id } returns purchaseBuyerId
-        every { accountServiceMock.getAccount(eq(purchaseBuyer.id)) } returns purchaseBuyer
+        every { accountServiceMock.getAccount(eq(purchaseBuyerId)) } returns purchaseBuyer
 
         val expiredPurchase = mockk<Purchase>()
+        every { expiredPurchase.goodsId } returns 1
         every { expiredPurchase.quantity } returns 5
         every { expiredPurchase.pricePlanck } returns 3000L
         every { expiredPurchase.buyerId } returns purchaseBuyerId

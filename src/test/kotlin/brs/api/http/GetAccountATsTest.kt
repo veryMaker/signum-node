@@ -28,9 +28,9 @@ class GetAccountATsTest {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
-        mockATService = mockk()
-        mockAccountService = mockk()
+        mockParameterService = mockk(relaxed = true)
+        mockATService = mockk(relaxed = true)
+        mockAccountService = mockk(relaxed = true)
 
         t = GetAccountATs(mockParameterService, mockATService, mockAccountService)
     }
@@ -40,14 +40,14 @@ class GetAccountATsTest {
         val request = QuickMocker.httpServletRequest()
 
         val mockAccountId = 123L
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { mockAccount.id } returns mockAccountId
 
         val mockATId = 1L
         val mockATIDBytes = TEST_ACCOUNT_NUMERIC_ID_PARSED
         val creatorBytes = TEST_ACCOUNT_NUMERIC_ID_PARSED + 1
-        val mockMachineState = mockk<AtMachineState.MachineState>()
-        val mockAT = mockk<AT>()
+        val mockMachineState = mockk<AtMachineState.MachineState>(relaxed = true)
+        val mockAT = mockk<AT>(relaxed = true)
         every { mockAT.creator } returns creatorBytes
         every { mockAT.id } returns mockATIDBytes
         every { mockAT.machineState } returns mockMachineState

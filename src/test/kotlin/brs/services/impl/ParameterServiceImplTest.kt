@@ -55,14 +55,14 @@ class ParameterServiceImplTest {
 
     @Before
     fun setUp() {
-        accountServiceMock = mockk()
-        aliasServiceMock = mockk()
-        assetExchangeServiceMock = mockk()
-        digitalGoodsStoreServiceMock = mockk()
-        blockchainServiceMock = mockk()
-        blockchainProcessorServiceMock = mockk()
-        transactionProcessorServiceMock = mockk()
-        atServiceMock = mockk()
+        accountServiceMock = mockk(relaxed = true)
+        aliasServiceMock = mockk(relaxed = true)
+        assetExchangeServiceMock = mockk(relaxed = true)
+        digitalGoodsStoreServiceMock = mockk(relaxed = true)
+        blockchainServiceMock = mockk(relaxed = true)
+        blockchainProcessorServiceMock = mockk(relaxed = true)
+        transactionProcessorServiceMock = mockk(relaxed = true)
+        atServiceMock = mockk(relaxed = true)
 
         t = ParameterServiceImpl(
             QuickMocker.dependencyProvider(
@@ -86,7 +86,7 @@ class ParameterServiceImplTest {
     @Test
     fun getAccount() {
         val accountId = "123"
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
 
         val request = QuickMocker.httpServletRequest(MockParam(ACCOUNT_PARAMETER, accountId))
 
@@ -130,8 +130,8 @@ class ParameterServiceImplTest {
 
         every { request.getParameterValues(eq(ACCOUNT_PARAMETER)) } returns accountIds
 
-        val mockAccount1 = mockk<Account>()
-        val mockAccount2 = mockk<Account>()
+        val mockAccount1 = mockk<Account>(relaxed = true)
+        val mockAccount2 = mockk<Account>(relaxed = true)
 
         every { accountServiceMock.getAccount(eq(123L)) } returns mockAccount1
         every { accountServiceMock.getAccount(eq(321L)) } returns mockAccount2
@@ -220,7 +220,7 @@ class ParameterServiceImplTest {
         val secretPhrase = TEST_SECRET_PHRASE
         val request = QuickMocker.httpServletRequest(MockParam(SECRET_PHRASE_PARAMETER, secretPhrase))
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
 
         every { accountServiceMock.getAccount(eq(Crypto.getPublicKey(secretPhrase))) } returns mockAccount
 
@@ -232,7 +232,7 @@ class ParameterServiceImplTest {
         val publicKey = "123"
         val request = QuickMocker.httpServletRequest(MockParam(PUBLIC_KEY_PARAMETER, publicKey))
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
 
         every { accountServiceMock.getAccount(eq(publicKey.parseHexString())) } returns mockAccount
 
@@ -267,7 +267,7 @@ class ParameterServiceImplTest {
 
     @Test
     fun getAliasByAliasId() {
-        val mockAlias = mockk<Alias>()
+        val mockAlias = mockk<Alias>(relaxed = true)
 
         val request = QuickMocker.httpServletRequest(MockParam(ALIAS_PARAMETER, "123"))
 
@@ -278,7 +278,7 @@ class ParameterServiceImplTest {
 
     @Test
     fun getAliasByAliasName() {
-        val mockAlias = mockk<Alias>()
+        val mockAlias = mockk<Alias>(relaxed = true)
 
         val request = QuickMocker.httpServletRequest(MockParam(ALIAS_NAME_PARAMETER, "aliasName"))
 
@@ -300,7 +300,7 @@ class ParameterServiceImplTest {
 
     @Test(expected = ParameterException::class)
     fun noAliasFoundIsUnknownAlias() {
-        val mockAlias = mockk<Alias>()
+        val mockAlias = mockk<Alias>(relaxed = true)
 
         val request = QuickMocker.httpServletRequest(MockParam(ALIAS_PARAMETER, "123"))
 
@@ -313,7 +313,7 @@ class ParameterServiceImplTest {
     fun getAsset() {
         val request = QuickMocker.httpServletRequest(MockParam(ASSET_PARAMETER, "123"))
 
-        val mockAsset = mockk<Asset>()
+        val mockAsset = mockk<Asset>(relaxed = true)
 
         every { assetExchangeServiceMock.getAsset(eq(123L)) } returns mockAsset
 
@@ -343,7 +343,7 @@ class ParameterServiceImplTest {
             MockParam(GOODS_PARAMETER, "1")
         )
 
-        val mockGoods = mockk<Goods>()
+        val mockGoods = mockk<Goods>(relaxed = true)
 
         every { digitalGoodsStoreServiceMock.getGoods(eq(1L)) } returns mockGoods
 
@@ -381,7 +381,7 @@ class ParameterServiceImplTest {
             MockParam(PURCHASE_PARAMETER, "1")
         )
 
-        val mockPurchase = mockk<Purchase>()
+        val mockPurchase = mockk<Purchase>(relaxed = true)
 
         every { digitalGoodsStoreServiceMock.getPurchase(eq(1L)) } returns mockPurchase
 
@@ -421,10 +421,10 @@ class ParameterServiceImplTest {
             MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "false")
         )
 
-        val mockRecipientAccount = mockk<Account>()
+        val mockRecipientAccount = mockk<Account>(relaxed = true)
         every { mockRecipientAccount.publicKey } returns ByteArray(0)
 
-        val encryptedDataMock = mockk<BurstEncryptedMessage>()
+        val encryptedDataMock = mockk<BurstEncryptedMessage>(relaxed = true)
 
         every { mockRecipientAccount.encryptTo(eq("beef123".parseHexString()), eq(TEST_SECRET_PHRASE), any()) } returns encryptedDataMock
 
@@ -439,7 +439,7 @@ class ParameterServiceImplTest {
             MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "false")
         )
 
-        val encryptedDataMock = mockk<BurstEncryptedMessage>()
+        val encryptedDataMock = mockk<BurstEncryptedMessage>(relaxed = true)
 
         assertEquals(encryptedDataMock, t.getEncryptedMessage(request, null, null))
     }
@@ -452,10 +452,10 @@ class ParameterServiceImplTest {
             MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "true")
         )
 
-        val mockRecipientAccount = mockk<Account>()
+        val mockRecipientAccount = mockk<Account>(relaxed = true)
         every { mockRecipientAccount.publicKey } returns ByteArray(0)
 
-        val encryptedDataMock = mockk<BurstEncryptedMessage>()
+        val encryptedDataMock = mockk<BurstEncryptedMessage>(relaxed = true)
 
         every { mockRecipientAccount.encryptTo(eq("message".toBytes()), eq(TEST_SECRET_PHRASE), any()) } returns encryptedDataMock
 
@@ -493,7 +493,7 @@ class ParameterServiceImplTest {
             MockParam(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER, "false")
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { accountServiceMock.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE))) } returns mockAccount
 
         t.getEncryptedMessage(request, mockAccount, null)
@@ -512,10 +512,10 @@ class ParameterServiceImplTest {
             MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, "false")
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { accountServiceMock.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE))) } returns mockAccount
 
-        val encryptedDataMock = mockk<BurstEncryptedMessage>()
+        val encryptedDataMock = mockk<BurstEncryptedMessage>(relaxed = true)
 
         every { mockAccount.encryptTo(eq("beef123".parseHexString()), eq(TEST_SECRET_PHRASE), any()) } returns encryptedDataMock
 
@@ -530,10 +530,10 @@ class ParameterServiceImplTest {
             MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, "false")
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { accountServiceMock.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE))) } returns mockAccount
 
-        val encryptedDataMock = mockk<BurstEncryptedMessage>()
+        val encryptedDataMock = mockk<BurstEncryptedMessage>(relaxed = true)
 
         every { mockAccount.encryptTo(eq("beef123".parseHexString()), eq(TEST_SECRET_PHRASE), any()) } returns encryptedDataMock
 
@@ -548,10 +548,10 @@ class ParameterServiceImplTest {
             MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, "true")
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { accountServiceMock.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE))) } returns mockAccount
 
-        val encryptedDataMock = mockk<BurstEncryptedMessage>()
+        val encryptedDataMock = mockk<BurstEncryptedMessage>(relaxed = true)
 
         every { mockAccount.encryptTo(eq("message".toBytes()), eq(TEST_SECRET_PHRASE), any()) } returns encryptedDataMock
 
@@ -589,7 +589,7 @@ class ParameterServiceImplTest {
             MockParam(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER, "false")
         )
 
-        val mockAccount = mockk<Account>()
+        val mockAccount = mockk<Account>(relaxed = true)
         every { accountServiceMock.getAccount(eq(Crypto.getPublicKey(TEST_SECRET_PHRASE))) } returns mockAccount
 
         t.getEncryptToSelfMessage(request)
@@ -699,7 +699,7 @@ class ParameterServiceImplTest {
     @Test
     @Throws(ValidationException::class, ParameterException::class)
     fun parseTransaction_transactionBytes() {
-        val mockTransaction = mockk<Transaction>()
+        val mockTransaction = mockk<Transaction>(relaxed = true)
 
         mockkObject(Transaction.Companion)
         every { Transaction.parseTransaction(any(), any<ByteArray>()) } returns mockTransaction
@@ -724,7 +724,7 @@ class ParameterServiceImplTest {
     @Test
     @Throws(ValidationException::class, ParameterException::class)
     fun parseTransaction_transactionJSON() {
-        val mockTransaction = mockk<Transaction>()
+        val mockTransaction = mockk<Transaction>(relaxed = true)
 
         mockkObject(Transaction.Companion)
         every { Transaction.parseTransaction(any(), any(), any()) } returns mockTransaction
@@ -766,7 +766,7 @@ class ParameterServiceImplTest {
 
         val request = QuickMocker.httpServletRequest(MockParam(AT_PARAMETER, atId))
 
-        val mockAT = mockk<AT>()
+        val mockAT = mockk<AT>(relaxed = true)
 
         every { atServiceMock.getAT(eq(atId)) } returns mockAT
 

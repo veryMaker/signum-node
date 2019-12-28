@@ -25,14 +25,14 @@ class GeneratorServiceImplTest {
 
     @Before
     fun setUpGeneratorTest() {
-        val blockchain = mockk<BlockchainService>()
-        val block = mockk<Block>()
+        val blockchain = mockk<BlockchainService>(relaxed = true)
+        val block = mockk<Block>(relaxed = true)
         every { blockchain.lastBlock } returns block
         every { block.generationSignature } returns exampleGenSig
         every { block.height } returns exampleHeight
         every { block.baseTarget } returns exampleBaseTarget
 
-        val timeService = mockk<TimeService>()
+        val timeService = mockk<TimeService>(relaxed = true)
 
         val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2)
 

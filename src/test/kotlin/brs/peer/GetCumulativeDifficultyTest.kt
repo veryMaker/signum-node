@@ -22,8 +22,8 @@ class GetCumulativeDifficultyTest {
 
     @Before
     fun setUp() {
-        mockBlockchainService = mockk()
-        mockLastBlock = mockk()
+        mockBlockchainService = mockk(relaxed = true)
+        mockLastBlock = mockk(relaxed = true)
         every { mockLastBlock.height } returns 50
         every { mockLastBlock.cumulativeDifficulty } returns BigInteger.TEN
         every { mockBlockchainService.lastBlock } returns mockLastBlock
@@ -35,7 +35,7 @@ class GetCumulativeDifficultyTest {
 
         val request = QuickMocker.jsonObject()
 
-        val result = t.processRequest(request, mockk()) as JsonObject
+        val result = t.processRequest(request, mockk(relaxed = true)) as JsonObject
         assertNotNull(result)
 
         assertEquals("10", result.get("cumulativeDifficulty").safeGetAsString())

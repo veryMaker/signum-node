@@ -12,8 +12,8 @@ class GetMilestoneBlockIdsTest {
 
     @Before
     fun setUp() {
-        blockchainService = mockk()
-        peer = mockk()
+        blockchainService = mockk(relaxed = true)
+        peer = mockk(relaxed = true)
         t = GetMilestoneBlockIds(blockchainService)
     }
 

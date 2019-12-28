@@ -31,9 +31,9 @@ class GetAccountBlocksTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        blockchainServiceMock = mockk()
-        parameterServiceMock = mockk()
-        blockServiceMock = mockk()
+        blockchainServiceMock = mockk(relaxed = true)
+        parameterServiceMock = mockk(relaxed = true)
+        blockServiceMock = mockk(relaxed = true)
 
         t = GetAccountBlocks(blockchainServiceMock, parameterServiceMock, blockServiceMock)
     }
@@ -50,8 +50,8 @@ class GetAccountBlocksTest : AbstractUnitTest() {
                 MockParam(TIMESTAMP_PARAMETER, mockTimestamp.toString())
         )
 
-        val mockAccount = mockk<Account>()
-        val mockBlock = mockk<Block>()
+        val mockAccount = mockk<Account>(relaxed = true)
+        val mockBlock = mockk<Block>(relaxed = true)
 
 
         every { parameterServiceMock.getAccount(request) } returns mockAccount

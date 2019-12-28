@@ -27,9 +27,9 @@ class DGSDelistingTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
-        mockBlockchainService = mockk()
-        apiTransactionManagerMock = mockk()
+        mockParameterService = mockk(relaxed = true)
+        mockBlockchainService = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
         dp = QuickMocker.dependencyProvider(mockParameterService, mockBlockchainService, apiTransactionManagerMock)
         t = DGSDelisting(dp)
     }
@@ -38,8 +38,8 @@ class DGSDelistingTest : AbstractTransactionTest() {
     fun processRequest() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mockk<Account>()
-        val mockGoods = mockk<Goods>()
+        val mockAccount = mockk<Account>(relaxed = true)
+        val mockGoods = mockk<Goods>(relaxed = true)
 
         every { mockGoods.id } returns 1L
         every { mockGoods.isDelisted } returns false
@@ -62,8 +62,8 @@ class DGSDelistingTest : AbstractTransactionTest() {
     fun processRequest_goodsDelistedUnknownGoods() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mockk<Account>()
-        val mockGoods = mockk<Goods>()
+        val mockAccount = mockk<Account>(relaxed = true)
+        val mockGoods = mockk<Goods>(relaxed = true)
 
         every { mockGoods.isDelisted } returns true
 
@@ -77,8 +77,8 @@ class DGSDelistingTest : AbstractTransactionTest() {
     fun processRequest_otherSellerIdUnknownGoods() {
         val request = QuickMocker.httpServletRequest()
 
-        val mockAccount = mockk<Account>()
-        val mockGoods = mockk<Goods>()
+        val mockAccount = mockk<Account>(relaxed = true)
+        val mockGoods = mockk<Goods>(relaxed = true)
 
         every { mockGoods.isDelisted } returns false
         every { mockGoods.sellerId } returns 1L

@@ -52,23 +52,23 @@ class UnconfirmedTransactionServiceTest {
     @Before
     fun setUp() {
 
-        val mockPropertyService = mockk<PropertyService>()
+        val mockPropertyService = mockk<PropertyService>(relaxed = true)
         every { mockPropertyService.get(eq(Props.DB_MAX_ROLLBACK)) } returns 1440
         every { mockPropertyService.get(eq(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS)) } returns 8192
         every { mockPropertyService.get(eq(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE)) } returns 5
         every { mockPropertyService.get(eq(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND)) } returns 175000
 
-        mockBlockChain = mockk()
+        mockBlockChain = mockk(relaxed = true)
 
-        accountStoreMock = mockk()
-        accountTableMock = mockk()
-        accountBurstKeyFactoryMock = mockk()
-        val transactionDbMock = mockk<TransactionDb>()
+        accountStoreMock = mockk(relaxed = true)
+        accountTableMock = mockk(relaxed = true)
+        accountBurstKeyFactoryMock = mockk(relaxed = true)
+        val transactionDbMock = mockk<TransactionDb>(relaxed = true)
         every { accountStoreMock.accountTable } returns accountTableMock
         every { accountStoreMock.accountKeyFactory } returns accountBurstKeyFactoryMock
 
-        val mockAccount = mockk<Account>()
-        val mockAccountKey = mockk<BurstKey>()
+        val mockAccount = mockk<Account>(relaxed = true)
+        val mockAccountKey = mockk<BurstKey>(relaxed = true)
         every { accountBurstKeyFactoryMock.newKey(eq(123L)) } returns mockAccountKey
         every { accountTableMock[any()] } returns null
         every { accountTableMock[eq(mockAccountKey)] } returns mockAccount
@@ -104,8 +104,8 @@ class UnconfirmedTransactionServiceTest {
     @DisplayName("When a transaction got added by a peer, he won't get it reflected at him when getting unconfirmed transactions")
     @Test
     fun transactionsGivenByPeerWontGetReturnedToPeer() {
-        val mockPeer = mockk<Peer>()
-        val otherMockPeer = mockk<Peer>()
+        val mockPeer = mockk<Peer>(relaxed = true)
+        val otherMockPeer = mockk<Peer>(relaxed = true)
 
         every { mockBlockChain.height } returns 20
 
@@ -123,7 +123,7 @@ class UnconfirmedTransactionServiceTest {
     @DisplayName("When a transactions got handed by a peer and we mark his fingerprints, he won't get it back a second time")
     @Test
     fun transactionsMarkedWithPeerFingerPrintsWontGetReturnedToPeer() {
-        val mockPeer = mockk<Peer>()
+        val mockPeer = mockk<Peer>(relaxed = true)
 
         every { mockBlockChain.height } returns 20
 
@@ -227,7 +227,7 @@ class UnconfirmedTransactionServiceTest {
     fun addingNewUnconfirmedTransactionWithSameIDResultsInNothingChanging() {
         every { mockBlockChain.height } returns 20
 
-        val mockPeer = mockk<Peer>()
+        val mockPeer = mockk<Peer>(relaxed = true)
 
         every { mockPeer.peerAddress } returns "mockPeer"
 

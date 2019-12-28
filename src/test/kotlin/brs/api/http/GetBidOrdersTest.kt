@@ -30,8 +30,8 @@ class GetBidOrdersTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        mockParameterService = mockk()
-        mockAssetExchangeService = mockk()
+        mockParameterService = mockk(relaxed = true)
+        mockAssetExchangeService = mockk(relaxed = true)
 
         t = GetBidOrders(mockParameterService, mockAssetExchangeService)
     }
@@ -47,11 +47,11 @@ class GetBidOrdersTest : AbstractUnitTest() {
                 MockParam(LAST_INDEX_PARAMETER, lastIndex)
         )
 
-        val mockAsset = mockk<Asset>()
+        val mockAsset = mockk<Asset>(relaxed = true)
         every { mockAsset.id } returns assetId
 
         val mockOrderId = 345L
-        val mockBid = mockk<Bid>()
+        val mockBid = mockk<Bid>(relaxed = true)
         every { mockBid.id } returns mockOrderId
 
         val mockBidIterator = mockCollection(mockBid)

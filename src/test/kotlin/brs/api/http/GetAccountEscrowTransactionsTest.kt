@@ -43,8 +43,8 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        escrowServiceMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        escrowServiceMock = mockk(relaxed = true)
 
         t = GetAccountEscrowTransactions(parameterServiceMock, escrowServiceMock)
     }
@@ -57,11 +57,11 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
                 MockParam(ACCOUNT_PARAMETER, accountId)
         )
 
-        val account = mockk<Account>()
+        val account = mockk<Account>(relaxed = true)
         every { account.id } returns accountId
         every { parameterServiceMock.getAccount(eq(request)) } returns account
 
-        val escrow = mockk<Escrow>()
+        val escrow = mockk<Escrow>(relaxed = true)
         every { escrow.id } returns 1L
         every { escrow.senderId } returns 2L
         every { escrow.recipientId } returns 3L
@@ -69,14 +69,14 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
         every { escrow.requiredSigners } returns 5
         every { escrow.deadlineAction } returns DecisionType.UNDECIDED
 
-        val decision = mockk<Decision>()
+        val decision = mockk<Decision>(relaxed = true)
         every { decision.accountId } returns 3L
         every { decision.decision } returns DecisionType.UNDECIDED
 
-        val skippedDecision = mockk<Decision>()
+        val skippedDecision = mockk<Decision>(relaxed = true)
         every { skippedDecision.accountId } returns 5L
 
-        val otherSkippedDecision = mockk<Decision>()
+        val otherSkippedDecision = mockk<Decision>(relaxed = true)
         every { otherSkippedDecision.accountId } returns 6L
 
         every { escrow.recipientId } returns 5L

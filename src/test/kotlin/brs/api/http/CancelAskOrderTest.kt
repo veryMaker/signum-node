@@ -31,10 +31,10 @@ class CancelAskOrderTest : AbstractTransactionTest() {
 
     @Before
     fun setUp() {
-        parameterServiceMock = mockk()
-        blockchainServiceMock = mockk()
-        assetExchangeServiceMock = mockk()
-        apiTransactionManagerMock = mockk()
+        parameterServiceMock = mockk(relaxed = true)
+        blockchainServiceMock = mockk(relaxed = true)
+        assetExchangeServiceMock = mockk(relaxed = true)
+        apiTransactionManagerMock = mockk(relaxed = true)
         dp = QuickMocker.dependencyProvider(
             parameterServiceMock,
             blockchainServiceMock,
@@ -53,10 +53,10 @@ class CancelAskOrderTest : AbstractTransactionTest() {
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        val sellerAccount = mockk<Account>()
+        val sellerAccount = mockk<Account>(relaxed = true)
         every { sellerAccount.id } returns sellerId
 
-        val order = mockk<Ask>()
+        val order = mockk<Ask>(relaxed = true)
         every { order.accountId } returns sellerId
 
         every { assetExchangeServiceMock.getAskOrder(eq(orderId)) } returns order
@@ -96,10 +96,10 @@ class CancelAskOrderTest : AbstractTransactionTest() {
                 MockParam(ORDER_PARAMETER, orderId)
         )
 
-        val sellerAccount = mockk<Account>()
+        val sellerAccount = mockk<Account>(relaxed = true)
         every { sellerAccount.id } returns accountId
 
-        val order = mockk<Ask>()
+        val order = mockk<Ask>(relaxed = true)
         every { order.accountId } returns otherAccountId
 
         every { assetExchangeServiceMock.getAskOrder(eq(orderId)) } returns order

@@ -34,9 +34,9 @@ class BroadcastTransactionTest {
 
     @Before
     fun setUp() {
-        this.transactionProcessorServiceMock = mockk()
-        this.parameterServiceMock = mockk()
-        this.transactionServiceMock = mockk()
+        this.transactionProcessorServiceMock = mockk(relaxed = true)
+        this.parameterServiceMock = mockk(relaxed = true)
+        this.transactionServiceMock = mockk(relaxed = true)
 
         t = BroadcastTransaction(transactionProcessorServiceMock, parameterServiceMock, transactionServiceMock)
     }
@@ -49,8 +49,8 @@ class BroadcastTransactionTest {
         val mockTransactionStringId = "mockTransactionStringId"
         val mockTransactionFullHash = "deadbeef".parseHexString()
 
-        val request = mockk<HttpServletRequest>()
-        val mockTransaction = mockk<Transaction>()
+        val request = mockk<HttpServletRequest>(relaxed = true)
+        val mockTransaction = mockk<Transaction>(relaxed = true)
 
         every { mockTransaction.stringId } returns mockTransactionStringId
         every { mockTransaction.fullHash } returns mockTransactionFullHash
@@ -73,8 +73,8 @@ class BroadcastTransactionTest {
         val mockTransactionBytesParameter = "mockTransactionBytesParameter"
         val mockTransactionJson = "mockTransactionJson"
 
-        val request = mockk<HttpServletRequest>()
-        val mockTransaction = mockk<Transaction>()
+        val request = mockk<HttpServletRequest>(relaxed = true)
+        val mockTransaction = mockk<Transaction>(relaxed = true)
 
         every { request.getParameter(TRANSACTION_BYTES_PARAMETER) } returns mockTransactionBytesParameter
         every { request.getParameter(TRANSACTION_JSON_PARAMETER) } returns mockTransactionJson

@@ -12,7 +12,7 @@ object PeerApiTestUtils {
         val json = JsonObject()
         json.addProperty("requestType", "processTransactions")
         JSON.prepareRequest(json)
-        val response = handler.processRequest(json, mockk())
+        val response = handler.processRequest(json, mockk(relaxed = true))
         assertEquals(expectedError, response.safeGetAsJsonObject()?.get("error").safeGetAsString())
     }
 }
