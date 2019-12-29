@@ -63,10 +63,12 @@ The MariaDb installation will ask to setup a password for the root user.
 Add this password to the `brs.properties` file you will create when installing BRS:
 
 ```properties
-DB.Url=jdbc:mariadb://localhost:3306/brs_master
+DB.Url=jdbc:mariadb://localhost:3306/databasename
 DB.Username=root
 DB.Password=YOUR_PASSWORD
 ```
+
+Please note that you will need to create a database and grant all priveleges to the user you specify, and substitute `databasename` in the above example with the name of your database.
 
 ## Installation
 
@@ -183,6 +185,8 @@ git checkout origin/master
 ./gradlew buildPackage
 ```
 
+**If you get errors relating to `BurstGUI.kt`, try running a headless build as shown above.**
+
 Your package will now be available in `dist/burstcoin.zip`
 
 ## Building the latest development version
@@ -195,6 +199,8 @@ git checkout origin/develop
 ./gradlew buildPackage
 ```
 
+**If you get errors relating to `BurstGUI.kt`, try running a headless build as shown above.**
+
 Your package will now be available in `dist/burstcoin.zip`.
 
 **Please note that development builds will refuse to run on Mainnet.**
@@ -204,6 +210,8 @@ Your package will now be available in `dist/burstcoin.zip`.
 ```shell script
 ./gradlew clean test
 ```
+
+**If you get errors relating to `BurstGUI.kt`, try running a headless build as shown above.**
 
 # Developers
 
