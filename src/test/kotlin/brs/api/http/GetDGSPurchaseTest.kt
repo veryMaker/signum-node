@@ -20,8 +20,8 @@ import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import burst.kit.entity.BurstEncryptedMessage
 import com.google.gson.JsonObject
-import io.mockk.mockk
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -56,7 +56,7 @@ class GetDGSPurchaseTest {
         val mockPurchase = mockk<Purchase>(relaxed = true)
         every { mockPurchase.id } returns 1L
         every { mockPurchase.goodsId } returns 2L
-        every { mockPurchase.getName() } returns "name"
+        every { mockPurchase.name } returns "name"
         every { mockPurchase.sellerId } returns 3L
         every { mockPurchase.pricePlanck } returns 4L
         every { mockPurchase.quantity } returns 5
@@ -70,7 +70,7 @@ class GetDGSPurchaseTest {
         every { mockPurchase.feedbackNotes } returns mockEncryptedDataList
         every { mockPurchase.refundNote } returns mockEncryptedData
         every { mockPurchase.note } returns mockEncryptedData
-        every { mockPurchase.getPublicFeedback() } returns listOf("feedback")
+        every { mockPurchase.publicFeedback } returns mutableListOf("feedback")
 
         every { mockParameterService.getPurchase(eq(request)) } returns mockPurchase
 
@@ -80,7 +80,7 @@ class GetDGSPurchaseTest {
 
         assertEquals(mockPurchase.id.toString(), result.get(PURCHASE_RESPONSE).safeGetAsString())
         assertEquals(mockPurchase.goodsId.toString(), result.get(GOODS_RESPONSE).safeGetAsString())
-        assertEquals(mockPurchase.getName(), result.get(NAME_RESPONSE).safeGetAsString())
+        assertEquals(mockPurchase.name, result.get(NAME_RESPONSE).safeGetAsString())
         assertEquals(mockPurchase.sellerId.toString(), result.get(SELLER_RESPONSE).safeGetAsString())
         assertEquals(mockPurchase.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
         assertEquals(mockPurchase.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())

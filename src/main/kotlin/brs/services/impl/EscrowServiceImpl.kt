@@ -206,6 +206,9 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
                     blockchainHeight
                 )
             }
+            DecisionType.UNDECIDED -> {
+                // Do nothing
+            }
         }
     }
 

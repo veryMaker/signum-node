@@ -12,16 +12,16 @@ import brs.schema.Tables.AT as ATTable
 
 internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
     override val atDbKeyFactory = object : SqlDbKey.LongKeyFactory<AT>(ATTable.ID) {
-        override fun newKey(at: AT): BurstKey {
-            return at.dbKey
+        override fun newKey(entity: AT): BurstKey {
+            return entity.dbKey
         }
     }
 
     override val atTable: VersionedEntityTable<AT>
 
     override val atStateDbKeyFactory = object : SqlDbKey.LongKeyFactory<AT.ATState>(AT_STATE.AT_ID) {
-        override fun newKey(atState: AT.ATState): BurstKey {
-            return atState.dbKey
+        override fun newKey(entity: AT.ATState): BurstKey {
+            return entity.dbKey
         }
     }
 
@@ -55,7 +55,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
                     throw UnsupportedOperationException("AT cannot be created with atTable.load")
                 }
 
-                override fun save(ctx: DSLContext, at: AT) {
+                override fun save(ctx: DSLContext, entity: AT) {
                     ctx.insertInto(
                         ATTable,
                         ATTable.ID, ATTable.CREATOR_ID, ATTable.NAME, ATTable.DESCRIPTION,
@@ -63,10 +63,10 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
                         ATTable.C_CALL_STACK_BYTES, ATTable.CREATION_HEIGHT,
                         ATTable.AP_CODE, ATTable.HEIGHT
                     ).values(
-                        at.id, at.creator, at.name, at.description,
-                        at.version, at.cSize, at.dSize, at.cUserStackBytes,
-                        at.cCallStackBytes, at.creationBlockHeight,
-                        AT.compressState(at.apCodeBytes), dp.blockchainService.height
+                        entity.id, entity.creator, entity.name, entity.description,
+                        entity.version, entity.cSize, entity.dSize, entity.cUserStackBytes,
+                        entity.cCallStackBytes, entity.creationBlockHeight,
+                        AT.compressState(entity.apCodeBytes), dp.blockchainService.height
                     ).execute()
                 }
             }
@@ -89,16 +89,16 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
                     return SqlATState(dp, record)
                 }
 
-                override fun save(ctx: DSLContext, atState: AT.ATState) {
+                override fun save(ctx: DSLContext, entity: AT.ATState) {
                     val record = AtStateRecord()
-                    record.atId = atState.atId
-                    record.state = AT.compressState(atState.state)
-                    record.prevHeight = atState.prevHeight
-                    record.nextHeight = atState.nextHeight
-                    record.sleepBetween = atState.sleepBetween
-                    record.prevBalance = atState.prevBalance
-                    record.freezeWhenSameBalance = atState.freezeWhenSameBalance
-                    record.minActivateAmount = atState.minActivationAmount
+                    record.atId = entity.atId
+                    record.state = AT.compressState(entity.state)
+                    record.prevHeight = entity.prevHeight
+                    record.nextHeight = entity.nextHeight
+                    record.sleepBetween = entity.sleepBetween
+                    record.prevBalance = entity.prevBalance
+                    record.freezeWhenSameBalance = entity.freezeWhenSameBalance
+                    record.minActivateAmount = entity.minActivationAmount
                     record.height = dp.blockchainService.height
                     record.latest = true
                     ctx.upsert(record, AT_STATE.AT_ID, AT_STATE.HEIGHT).execute()

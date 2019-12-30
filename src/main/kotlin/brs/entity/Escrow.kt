@@ -23,7 +23,7 @@ open class Escrow {
         SPLIT
     }
 
-    open class Decision(val dbKey: BurstKey, val escrowId: Long, val accountId: Long, var decision: DecisionType?)
+    open class Decision(val dbKey: BurstKey, val escrowId: Long, val accountId: Long, var decision: DecisionType)
 
     constructor(
         dp: DependencyProvider, dbKey: BurstKey, sender: Account,
@@ -96,13 +96,13 @@ open class Escrow {
             }
         }
 
-        fun byteToDecision(decision: Byte): DecisionType? {
+        fun byteToDecision(decision: Byte): DecisionType {
             return when (decision.toInt()) {
                 0 -> DecisionType.UNDECIDED
                 1 -> DecisionType.RELEASE
                 2 -> DecisionType.REFUND
                 3 -> DecisionType.SPLIT
-                else -> null
+                else -> error("Decision type $decision does not exist")
             }
         }
 
@@ -115,13 +115,13 @@ open class Escrow {
             }
         }
 
-        fun protoBufToDecision(decision: BrsApi.EscrowDecisionType): DecisionType? {
+        fun protoBufToDecision(decision: BrsApi.EscrowDecisionType): DecisionType {
             return when (decision) {
                 BrsApi.EscrowDecisionType.UNDECIDED -> DecisionType.UNDECIDED
                 BrsApi.EscrowDecisionType.RELEASE -> DecisionType.RELEASE
                 BrsApi.EscrowDecisionType.REFUND -> DecisionType.REFUND
                 BrsApi.EscrowDecisionType.SPLIT -> DecisionType.SPLIT
-                else -> null
+                else -> error("Decision type $decision does not exist")
             }
         }
     }

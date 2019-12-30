@@ -30,6 +30,7 @@ class IndirectIncomingServiceImplTest {
     fun setUpIndirectIncomingServiceImplTest() {
         val propertyService = mockk<PropertyService>(relaxed = true)
         val indirectIncomingStore = mockk<IndirectIncomingStore>(relaxed = true)
+        @Suppress("UNCHECKED_CAST")
         every { indirectIncomingStore.addIndirectIncomings(any()) } answers { addIndirectIncomingsRunnable(args[0] as List<IndirectIncoming>) }
         indirectIncomingService = IndirectIncomingServiceImpl(QuickMocker.dependencyProvider(indirectIncomingStore, propertyService))
         dp = QuickMocker.dependencyProvider(indirectIncomingService, indirectIncomingStore, propertyService)

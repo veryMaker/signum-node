@@ -2,7 +2,6 @@ package brs.services.impl
 
 import brs.common.TestConstants
 import brs.entity.FeeSuggestion
-import brs.services.impl.DeeplinkQRCodeGeneratorServiceImpl
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test

@@ -44,25 +44,32 @@ class Subnet {
         return bigAddress.and(this.bigMask) == this.bigSubnetMasked
     }
 
-    override fun equals(obj: Any?): Boolean {
-        if (obj !is Subnet)
-            return false
-        val other = obj as Subnet?
-        return this.bigSubnetMasked == other!!.bigSubnetMasked &&
-                this.bigMask == other.bigMask &&
-                this.bytesSubnetCount == other.bytesSubnetCount
-    }
-
-    override fun hashCode(): Int {
-        return this.bytesSubnetCount
-    }
-
     override fun toString(): String {
         val buf = StringBuilder()
         bigInteger2IpString(buf, this.bigSubnetMasked, this.bytesSubnetCount)
         buf.append('/')
         bigInteger2IpString(buf, this.bigMask, this.bytesSubnetCount)
         return buf.toString()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Subnet
+
+        if (bytesSubnetCount != other.bytesSubnetCount) return false
+        if (bigMask != other.bigMask) return false
+        if (bigSubnetMasked != other.bigSubnetMasked) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = bytesSubnetCount
+        result = 31 * result + bigMask.hashCode()
+        result = 31 * result + bigSubnetMasked.hashCode()
+        return result
     }
 
     companion object {

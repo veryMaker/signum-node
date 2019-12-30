@@ -18,11 +18,7 @@ internal class GetGuaranteedBalance internal constructor(private val parameterSe
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request)
         val response = JsonObject()
-        if (account == null) {
-            response.addProperty(GUARANTEED_BALANCE_PLANCK_RESPONSE, "0")
-        } else {
-            response.addProperty(GUARANTEED_BALANCE_PLANCK_RESPONSE, account.balancePlanck.toString())
-        }
+        response.addProperty(GUARANTEED_BALANCE_PLANCK_RESPONSE, account.balancePlanck.toString())
         return response
     }
 

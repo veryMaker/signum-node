@@ -430,12 +430,11 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     }
 
     private fun getCommonBlockId(peer: Peer, commonBlockId: Long): Long {
-        var commonBlockId = commonBlockId
-
+        var currentCommonBlockId = commonBlockId
         while (true) {
             val request = JsonObject()
             request.addProperty("requestType", "getNextBlockIds")
-            request.addProperty("blockId", commonBlockId.toUnsignedString())
+            request.addProperty("blockId", currentCommonBlockId.toUnsignedString())
             val response = peer.send(JSON.prepareRequest(request)) ?: return 0
             val nextBlockIds = response.get("nextBlockIds").mustGetAsJsonArray("nextBlockIds")
             if (nextBlockIds.isEmpty()) return 0
@@ -443,9 +442,9 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             for (nextBlockId in nextBlockIds) {
                 val blockId = nextBlockId.safeGetAsString().parseUnsignedLong()
                 if (!dp.downloadCacheService.hasBlock(blockId)) {
-                    return commonBlockId
+                    return currentCommonBlockId
                 }
-                commonBlockId = blockId
+                currentCommonBlockId = blockId
             }
         }
     }

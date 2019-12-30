@@ -42,10 +42,7 @@ class SubscriptionSubscribe(dp: DependencyProvider) : AdvancedPayment(dp) {
 
     override fun preValidateAttachment(transaction: Transaction, height: Int) {
         val attachment = transaction.attachment as Attachment.AdvancedPaymentSubscriptionSubscribe
-        if (attachment.frequency == null ||
-            attachment.frequency < Constants.BURST_SUBSCRIPTION_MIN_FREQUENCY ||
-            attachment.frequency > Constants.BURST_SUBSCRIPTION_MAX_FREQUENCY
-        ) {
+        if (attachment.frequency < Constants.BURST_SUBSCRIPTION_MIN_FREQUENCY || attachment.frequency > Constants.BURST_SUBSCRIPTION_MAX_FREQUENCY) {
             throw BurstException.NotValidException("Invalid subscription frequency")
         }
         if (transaction.amountPlanck < Constants.ONE_BURST || transaction.amountPlanck > Constants.MAX_BALANCE_PLANCK) {

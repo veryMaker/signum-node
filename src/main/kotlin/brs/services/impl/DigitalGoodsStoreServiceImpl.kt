@@ -127,7 +127,7 @@ class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : Digital
         if (encryptedMessage != null) {
             purchase.addFeedbackNote(encryptedMessage.encryptedData)
             purchaseTable.insert(purchase)
-            feedbackTable.insert(purchase, purchase.feedbackNotes!!)
+            feedbackTable.insert(purchase, purchase.feedbackNotes)
         }
         if (message != null) {
             addPublicFeedback(purchase, message.messageBytes.toUtf8String())
@@ -136,7 +136,7 @@ class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : Digital
     }
 
     private fun addPublicFeedback(purchase: Purchase, publicFeedback: String) {
-        var publicFeedbacks: MutableList<String>? = purchase.publicFeedbacks
+        var publicFeedbacks: MutableList<String>? = purchase.publicFeedback
         if (publicFeedbacks == null) {
             publicFeedbacks = mutableListOf()
         }

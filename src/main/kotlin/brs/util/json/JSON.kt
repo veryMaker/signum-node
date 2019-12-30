@@ -35,7 +35,7 @@ fun JsonElement.cloneJson(): JsonElement {
 }
 
 fun Reader.parseJson(): JsonElement {
-    val json = JsonParser().parse(if (this is JsonReader) this else JsonReader(this))
+    val json: JsonElement = JsonParser.parseReader(if (this is JsonReader) this else JsonReader(this))
     if (json.isJsonPrimitive) {
         throw JsonParseException("Json is primitive, was probably bad json interpreted as string")
     }
@@ -52,8 +52,10 @@ fun <T : JsonElement> Iterable<T>.toJsonArray(): JsonArray {
     return jsonArray
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun JsonArray.isEmpty() = this.size() == 0
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun JsonObject.isEmpty() = this.size() == 0
 
 fun JsonElement?.safeGetAsJsonObject(): JsonObject? {

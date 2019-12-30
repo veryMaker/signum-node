@@ -5,41 +5,37 @@ import brs.transaction.appendix.Attachment
 import brs.util.delegates.AtomicLazy
 import burst.kit.entity.BurstEncryptedMessage
 
-open class Purchase {
-    private lateinit var dp: DependencyProvider
-
-    val id: Long
-    val dbKey: BurstKey
-    val buyerId: Long
-    val goodsId: Long
-    val sellerId: Long
-    val quantity: Int
-    val pricePlanck: Long
-    val deliveryDeadlineTimestamp: Int
-    val note: BurstEncryptedMessage?
+// TODO stop these entities from being open
+open class Purchase(
+    private val dp: DependencyProvider,
+    val id: Long,
+    val dbKey: BurstKey,
+    val buyerId: Long,
+    val goodsId: Long,
+    val sellerId: Long,
+    val quantity: Int,
+    val pricePlanck: Long,
+    val deliveryDeadlineTimestamp: Int,
+    val note: BurstEncryptedMessage?,
     val timestamp: Int
+) {
     var isPending: Boolean = false
     var encryptedGoods: BurstEncryptedMessage? = null
         private set
     var refundNote: BurstEncryptedMessage? = null
     private var hasFeedbackNotes: Boolean = false
-    var feedbackNotes by AtomicLazy {
-        if (!hasFeedbackNotes) null else dp.digitalGoodsStoreStore.feedbackTable[dp.digitalGoodsStoreStore.feedbackDbKeyFactory.newKey(this@Purchase)].toMutableList()
+    val feedbackNotes by AtomicLazy {
+        if (!hasFeedbackNotes) mutableListOf() else dp.digitalGoodsStoreStore.feedbackTable[dp.digitalGoodsStoreStore.feedbackDbKeyFactory.newKey(this@Purchase)].toMutableList()
     }
     private var hasPublicFeedbacks: Boolean = false
-    var publicFeedbacks: MutableList<String>? = null
-        private set
+    val publicFeedback by lazy {
+        if (!hasFeedbackNotes) mutableListOf() else dp.digitalGoodsStoreStore.publicFeedbackTable[dp.digitalGoodsStoreStore.publicFeedbackDbKeyFactory.newKey(this@Purchase)].toMutableList()
+    }
     var discountPlanck: Long = 0
     var refundPlanck: Long = 0
 
-    fun getName() = getGoods(dp, goodsId)!!.name
-
-    fun getPublicFeedback(): List<String>? {
-        if (!hasPublicFeedbacks) {
-            return emptyList()
-        }
-        publicFeedbacks = dp.digitalGoodsStoreStore.publicFeedbackTable[dp.digitalGoodsStoreStore.publicFeedbackDbKeyFactory.newKey(this)].toMutableList()
-        return publicFeedbacks
+    val name by lazy {
+        dp.digitalGoodsStoreStore.goodsTable[dp.digitalGoodsStoreStore.goodsDbKeyFactory.newKey(goodsId)]!!.name
     }
 
     constructor(
@@ -47,19 +43,17 @@ open class Purchase {
         transaction: Transaction,
         attachment: Attachment.DigitalGoodsPurchase,
         sellerId: Long
-    ) {
-        this.dp = dp
-        this.id = transaction.id
-        this.dbKey = dp.digitalGoodsStoreStore.purchaseDbKeyFactory.newKey(this.id)
-        this.buyerId = transaction.senderId
-        this.goodsId = attachment.goodsId
-        this.sellerId = sellerId
-        this.quantity = attachment.quantity
-        this.pricePlanck = attachment.pricePlanck
-        this.deliveryDeadlineTimestamp = attachment.deliveryDeadlineTimestamp
-        this.note = if (transaction.encryptedMessage == null) null else transaction.encryptedMessage.encryptedData
-        this.timestamp = transaction.timestamp
-        this.isPending = true
+    ) : this(dp,
+        transaction.id,
+        dp.digitalGoodsStoreStore.purchaseDbKeyFactory.newKey(transaction.id),
+        transaction.senderId,
+        attachment.goodsId,
+        sellerId,
+        attachment.quantity,
+        attachment.pricePlanck,
+        attachment.deliveryDeadlineTimestamp,
+        if (transaction.encryptedMessage == null) null else transaction.encryptedMessage.encryptedData, transaction.timestamp) {
+        this.isPending = false
     }
 
     protected constructor(
@@ -68,18 +62,7 @@ open class Purchase {
         encryptedGoods: BurstEncryptedMessage?, refundNote: BurstEncryptedMessage?,
         hasFeedbackNotes: Boolean, hasPublicFeedbacks: Boolean,
         discountPlanck: Long, refundPlanck: Long
-    ) {
-        this.dp = dp
-        this.id = id
-        this.dbKey = dbKey
-        this.buyerId = buyerId
-        this.goodsId = goodsId
-        this.sellerId = sellerId
-        this.quantity = quantity
-        this.pricePlanck = pricePlanck
-        this.deliveryDeadlineTimestamp = deadline
-        this.note = note
-        this.timestamp = timestamp
+    ) : this(dp, id, dbKey, buyerId, goodsId, sellerId, quantity, pricePlanck, deadline, note, timestamp) {
         this.isPending = isPending
         this.encryptedGoods = encryptedGoods
         this.refundNote = refundNote
@@ -94,20 +77,11 @@ open class Purchase {
     }
 
     fun addFeedbackNote(feedbackNote: BurstEncryptedMessage) {
-        if (feedbackNotes == null) {
-            feedbackNotes = mutableListOf()
-        }
-        feedbackNotes!!.add(feedbackNote)
+        feedbackNotes.add(feedbackNote)
         this.hasFeedbackNotes = true
     }
 
     fun setHasPublicFeedbacks(hasPublicFeedbacks: Boolean) {
         this.hasPublicFeedbacks = hasPublicFeedbacks
-    }
-
-    companion object {
-        private fun getGoods(dp: DependencyProvider, goodsId: Long): Goods? {
-            return dp.digitalGoodsStoreStore.goodsTable[dp.digitalGoodsStoreStore.goodsDbKeyFactory.newKey(goodsId)]
-        }
     }
 }

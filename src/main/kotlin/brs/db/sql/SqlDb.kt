@@ -175,11 +175,13 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
 
     override fun <V> getCache(table: Table<*>): MutableMap<BurstKey, V> {
         assertInTransaction()
+        @Suppress("UNCHECKED_CAST")
         return transactionCaches.get().computeIfAbsent(table) { mutableMapOf<BurstKey, V>() } as MutableMap<BurstKey, V>
     }
 
     override fun <V> getBatch(table: Table<*>): MutableMap<BurstKey, V> {
         assertInTransaction()
+        @Suppress("UNCHECKED_CAST")
         return transactionBatches.get().computeIfAbsent(table) { mutableMapOf<BurstKey, V>() } as MutableMap<BurstKey, V>
     }
 

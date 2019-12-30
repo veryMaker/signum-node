@@ -1,12 +1,5 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.entity.Escrow
-import brs.entity.Escrow.Decision
-import brs.entity.Escrow.DecisionType
-import brs.common.AbstractUnitTest
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.Parameters.ESCROWS_RESPONSE
 import brs.api.http.common.ResultFields.AMOUNT_PLANCK_RESPONSE
@@ -21,14 +14,21 @@ import brs.api.http.common.ResultFields.REQUIRED_SIGNERS_RESPONSE
 import brs.api.http.common.ResultFields.SENDER_RESPONSE
 import brs.api.http.common.ResultFields.SENDER_RS_RESPONSE
 import brs.api.http.common.ResultFields.SIGNERS_RESPONSE
+import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Account
+import brs.entity.Escrow
+import brs.entity.Escrow.Decision
+import brs.entity.Escrow.DecisionType
 import brs.services.EscrowService
 import brs.services.ParameterService
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import io.mockk.mockk
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -112,7 +112,7 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
         assertEquals(1, signersResult.size().toLong())
 
         val signer = signersResult.get(0) as JsonObject
-        assertEquals(decision.accountId!!.toString(), signer.get(ID_RESPONSE).safeGetAsString())
+        assertEquals(decision.accountId.toString(), signer.get(ID_RESPONSE).safeGetAsString())
         assertEquals("BURST-2225-2222-QVC9-22222", signer.get(ID_RS_RESPONSE).safeGetAsString())
         assertEquals("undecided", signer.get(DECISION_RESPONSE).safeGetAsString())
     }

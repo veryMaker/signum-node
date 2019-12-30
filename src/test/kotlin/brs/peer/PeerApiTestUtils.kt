@@ -5,7 +5,7 @@ import brs.util.json.safeGetAsJsonObject
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
 import io.mockk.mockk
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 
 object PeerApiTestUtils {
     fun testWithNothingProvided(handler: PeerServlet.PeerRequestHandler, expectedError: String? = null) {

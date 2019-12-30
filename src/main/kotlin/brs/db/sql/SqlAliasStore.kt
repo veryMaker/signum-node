@@ -33,8 +33,8 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
                 return SqlOffer(record)
             }
 
-            override fun save(ctx: DSLContext, offer: Alias.Offer) {
-                saveOffer(offer)
+            override fun save(ctx: DSLContext, entity: Alias.Offer) {
+                saveOffer(entity)
             }
         }
 
@@ -46,8 +46,8 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
                     return SqlAlias(record)
                 }
 
-                override fun save(ctx: DSLContext, alias: Alias) {
-                    saveAlias(ctx, alias)
+                override fun save(ctx: DSLContext, entity: Alias) {
+                    saveAlias(ctx, entity)
                 }
             }
     }
@@ -105,14 +105,14 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
 
     companion object {
         internal object OfferDbKeyFactory : SqlDbKey.LongKeyFactory<Alias.Offer>(ALIAS_OFFER.ID) {
-            override fun newKey(offer: Alias.Offer): BurstKey {
-                return offer.dbKey
+            override fun newKey(entity: Alias.Offer): BurstKey {
+                return entity.dbKey
             }
         }
 
         internal object AliasDbKeyFactory : SqlDbKey.LongKeyFactory<Alias>(ALIAS.ID) {
-            override fun newKey(alias: Alias): BurstKey {
-                return alias.dbKey
+            override fun newKey(entity: Alias): BurstKey {
+                return entity.dbKey
             }
         }
     }

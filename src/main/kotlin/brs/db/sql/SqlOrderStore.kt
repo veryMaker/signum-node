@@ -13,14 +13,14 @@ import org.jooq.Record
 internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
 
     override val askOrderDbKeyFactory = object : SqlDbKey.LongKeyFactory<Order.Ask>(ASK_ORDER.ID) {
-        override fun newKey(ask: Order.Ask): BurstKey {
-            return ask.dbKey
+        override fun newKey(entity: Order.Ask): BurstKey {
+            return entity.dbKey
         }
     }
     override val askOrderTable: VersionedEntityTable<Order.Ask>
     override val bidOrderDbKeyFactory = object : SqlDbKey.LongKeyFactory<Order.Bid>(BID_ORDER.ID) {
-        override fun newKey(bid: Order.Bid): BurstKey {
-            return bid.dbKey
+        override fun newKey(entity: Order.Bid): BurstKey {
+            return entity.dbKey
         }
     }
     override val bidOrderTable: VersionedEntityTable<Order.Bid>
@@ -39,8 +39,8 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
                 return SqlAsk(record)
             }
 
-            override fun save(ctx: DSLContext, ask: Order.Ask) {
-                saveAsk(ctx, ask)
+            override fun save(ctx: DSLContext, entity: Order.Ask) {
+                saveAsk(ctx, entity)
             }
         }
 
@@ -57,8 +57,8 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
                 return SqlBid(record)
             }
 
-            override fun save(ctx: DSLContext, bid: Order.Bid) {
-                saveBid(ctx, bid)
+            override fun save(ctx: DSLContext, entity: Order.Bid) {
+                saveBid(ctx, entity)
             }
         }
     }

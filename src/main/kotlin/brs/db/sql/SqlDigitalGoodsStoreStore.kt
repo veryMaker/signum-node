@@ -16,14 +16,14 @@ import org.jooq.Record
 
 internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoodsStoreStore {
     override val feedbackDbKeyFactory = object : SqlDbKey.LongKeyFactory<Purchase>(PURCHASE.ID) {
-        override fun newKey(purchase: Purchase): BurstKey {
-            return purchase.dbKey
+        override fun newKey(entity: Purchase): BurstKey {
+            return entity.dbKey
         }
     }
 
     override val purchaseDbKeyFactory = object : SqlDbKey.LongKeyFactory<Purchase>(PURCHASE.ID) {
-        override fun newKey(purchase: Purchase): BurstKey {
-            return purchase.dbKey
+        override fun newKey(entity: Purchase): BurstKey {
+            return entity.dbKey
         }
     }
 
@@ -32,16 +32,16 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
     override val feedbackTable: ValuesTable<Purchase, BurstEncryptedMessage>
 
     override val publicFeedbackDbKeyFactory = object : SqlDbKey.LongKeyFactory<Purchase>(PURCHASE.ID) {
-        override fun newKey(purchase: Purchase): BurstKey {
-            return purchase.dbKey
+        override fun newKey(entity: Purchase): BurstKey {
+            return entity.dbKey
         }
     }
 
     override val publicFeedbackTable: ValuesTable<Purchase, String>
 
     override val goodsDbKeyFactory = object : SqlDbKey.LongKeyFactory<Goods>(GOODS.ID) {
-        override fun newKey(goods: Goods): BurstKey {
-            return goods.dbKey
+        override fun newKey(entity: Goods): BurstKey {
+            return entity.dbKey
         }
     }
 
@@ -64,13 +64,12 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 return SQLPurchase(record)
             }
 
-            override fun save(ctx: DSLContext, purchase: Purchase) {
-                savePurchase(ctx, purchase)
+            override fun save(ctx: DSLContext, entity: Purchase) {
+                savePurchase(ctx, entity)
             }
         }
 
         feedbackTable = object : SqlVersionedValuesTable<Purchase, BurstEncryptedMessage>(
-            "purchase_feedback",
             PURCHASE_FEEDBACK,
             PURCHASE_FEEDBACK.HEIGHT,
             PURCHASE_FEEDBACK.LATEST,
@@ -84,22 +83,21 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 return BurstEncryptedMessage(data, nonce, false)
             }
 
-            override fun save(ctx: DSLContext, purchase: Purchase, encryptedData: BurstEncryptedMessage) {
+            override fun save(ctx: DSLContext, key: Purchase, value: BurstEncryptedMessage) {
                 ctx.insertInto<PurchaseFeedbackRecord, Long, ByteArray, ByteArray, Int, Boolean>(
                     PURCHASE_FEEDBACK,
                     PURCHASE_FEEDBACK.ID,
                     PURCHASE_FEEDBACK.FEEDBACK_DATA, PURCHASE_FEEDBACK.FEEDBACK_NONCE,
                     PURCHASE_FEEDBACK.HEIGHT, PURCHASE_FEEDBACK.LATEST
                 ).values(
-                    purchase.id,
-                    encryptedData.data, encryptedData.nonce,
+                    key.id,
+                    value.data, value.nonce,
                     dp.blockchainService.height, true
                 ).execute()
             }
         }
 
         publicFeedbackTable = object : SqlVersionedValuesTable<Purchase, String>(
-            "purchase_public_feedback",
             PURCHASE_PUBLIC_FEEDBACK,
             PURCHASE_PUBLIC_FEEDBACK.HEIGHT,
             PURCHASE_PUBLIC_FEEDBACK.LATEST,
@@ -111,10 +109,10 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 return record.get(PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK)
             }
 
-            override fun save(ctx: DSLContext, purchase: Purchase, publicFeedback: String) {
+            override fun save(ctx: DSLContext, key: Purchase, value: String) {
                 val record = PurchasePublicFeedbackRecord()
-                record.id = purchase.id
-                record.publicFeedback = publicFeedback
+                record.id = key.id
+                record.publicFeedback = value
                 record.height = dp.blockchainService.height
                 record.latest = true
                 ctx.upsert(record, PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.HEIGHT).execute()
@@ -132,17 +130,17 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                     return SQLGoods(record)
                 }
 
-                override fun save(ctx: DSLContext, goods: Goods) {
+                override fun save(ctx: DSLContext, entity: Goods) {
                     val record = GoodsRecord()
-                    record.id = goods.id
-                    record.sellerId = goods.sellerId
-                    record.name = goods.name
-                    record.description = goods.description
-                    record.tags = goods.tags
-                    record.timestamp = goods.timestamp
-                    record.quantity = goods.quantity
-                    record.price = goods.pricePlanck
-                    record.delisted = goods.isDelisted
+                    record.id = entity.id
+                    record.sellerId = entity.sellerId
+                    record.name = entity.name
+                    record.description = entity.description
+                    record.tags = entity.tags
+                    record.timestamp = entity.timestamp
+                    record.quantity = entity.quantity
+                    record.price = entity.pricePlanck
+                    record.delisted = entity.isDelisted
                     record.height = dp.blockchainService.height
                     record.latest = true
                     ctx.upsert(record, GOODS.ID, GOODS.HEIGHT).execute()
@@ -198,8 +196,8 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         record.goodsNonce = goodsNonce
         record.refundNote = refundNote
         record.refundNonce = refundNonce
-        record.hasFeedbackNotes = purchase.feedbackNotes != null && purchase.feedbackNotes!!.isNotEmpty()
-        record.hasPublicFeedbacks = purchase.getPublicFeedback()!!.isNotEmpty()
+        record.hasFeedbackNotes = purchase.feedbackNotes.isNotEmpty()
+        record.hasPublicFeedbacks = purchase.publicFeedback.isNotEmpty()
         record.discount = purchase.discountPlanck
         record.refund = purchase.refundPlanck
         record.height = dp.blockchainService.height

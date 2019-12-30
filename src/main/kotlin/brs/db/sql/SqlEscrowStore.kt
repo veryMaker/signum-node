@@ -16,15 +16,15 @@ import org.jooq.Record
 
 internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore {
     override val escrowDbKeyFactory = object : SqlDbKey.LongKeyFactory<Escrow>(ESCROW.ID) {
-        override fun newKey(escrow: Escrow): BurstKey {
-            return escrow.dbKey
+        override fun newKey(entity: Escrow): BurstKey {
+            return entity.dbKey
         }
     }
 
     override val escrowTable: VersionedEntityTable<Escrow>
     override val decisionDbKeyFactory = object : SqlDbKey.LinkKeyFactory<Escrow.Decision>("escrow_id", "account_id") {
-        override fun newKey(decision: Escrow.Decision): BurstKey {
-            return decision.dbKey
+        override fun newKey(entity: Escrow.Decision): BurstKey {
+            return entity.dbKey
         }
     }
     override val decisionTable: VersionedEntityTable<Escrow.Decision>
@@ -36,8 +36,8 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
                 return SqlEscrow(record)
             }
 
-            override fun save(ctx: DSLContext, escrow: Escrow) {
-                saveEscrow(ctx, escrow)
+            override fun save(ctx: DSLContext, entity: Escrow) {
+                saveEscrow(ctx, entity)
             }
         }
 
@@ -47,8 +47,8 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
                 return SqlDecision(record)
             }
 
-            override fun save(ctx: DSLContext, decision: Escrow.Decision) {
-                saveDecision(ctx, decision)
+            override fun save(ctx: DSLContext, entity: Escrow.Decision) {
+                saveDecision(ctx, entity)
             }
         }
     }
@@ -57,7 +57,7 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
         val record = EscrowDecisionRecord()
         record.escrowId = decision.escrowId
         record.accountId = decision.accountId
-        record.decision = Escrow.decisionToByte(decision.decision!!).toInt()
+        record.decision = Escrow.decisionToByte(decision.decision).toInt()
         record.height = dp.blockchainService.height
         record.latest = true
         ctx.upsert(record, ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.HEIGHT).execute()
@@ -107,7 +107,7 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
         record.get(ESCROW.AMOUNT),
         record.get(ESCROW.REQUIRED_SIGNERS),
         record.get(ESCROW.DEADLINE),
-        byteToDecision(record.get(ESCROW.DEADLINE_ACTION).toByte())!!
+        byteToDecision(record.get(ESCROW.DEADLINE_ACTION).toByte())
     )
 
     override fun getDecisions(id: Long?): Collection<Escrow.Decision> {

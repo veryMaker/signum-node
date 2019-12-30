@@ -8,7 +8,6 @@ import brs.services.OclPocService
 import brs.util.MiningPlot
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
-import brs.util.ocl.release
 import brs.util.sync.Mutex
 import org.jocl.*
 import org.jocl.CL.*
@@ -424,6 +423,11 @@ class OclPocServiceImpl(private val dp: DependencyProvider) : OclPocService {
     }
 
     private class AutoChooseResult internal constructor(internal val platform: Int, internal val device: Int)
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun cl_mem.release() {
+        clReleaseMemObject(this)
+    }
 
     companion object {
         private val logger = LoggerFactory.getLogger(OclPocServiceImpl::class.java)

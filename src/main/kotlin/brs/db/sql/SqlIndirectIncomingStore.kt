@@ -18,8 +18,8 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
     init {
         val indirectIncomingDbKeyFactory =
             object : SqlDbKey.LinkKeyFactory<IndirectIncoming>("account_id", "transaction_id") {
-                override fun newKey(indirectIncoming: IndirectIncoming): BurstKey {
-                    return newKey(indirectIncoming.accountId, indirectIncoming.transactionId)
+                override fun newKey(entity: IndirectIncoming): BurstKey {
+                    return newKey(entity.accountId, entity.transactionId)
                 }
             }
 
@@ -41,13 +41,13 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
                 return ctx.upsert(record, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
             }
 
-            override fun save(ctx: DSLContext, indirectIncoming: IndirectIncoming) {
-                getQuery(ctx, indirectIncoming).execute()
+            override fun save(ctx: DSLContext, entity: IndirectIncoming) {
+                getQuery(ctx, entity).execute()
             }
 
-            override fun save(ctx: DSLContext, indirectIncomings: Array<IndirectIncoming>) {
+            override fun save(ctx: DSLContext, entities: Array<IndirectIncoming>) {
                 val queries = mutableListOf<Query>()
-                for (indirectIncoming in indirectIncomings) {
+                for (indirectIncoming in entities) {
                     queries.add(getQuery(ctx, indirectIncoming))
                 }
                 ctx.batch(queries).execute()

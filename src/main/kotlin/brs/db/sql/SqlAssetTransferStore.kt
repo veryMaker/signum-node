@@ -20,8 +20,8 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
                     return SqlAssetTransfer(record)
                 }
 
-                override fun save(ctx: DSLContext, assetTransfer: AssetTransfer) {
-                    saveAssetTransfer(assetTransfer)
+                override fun save(ctx: DSLContext, entity: AssetTransfer) {
+                    saveAssetTransfer(entity)
                 }
             }
     }
@@ -125,8 +125,8 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
 
     companion object {
         private object TransferDbKeyFactory : SqlDbKey.LongKeyFactory<AssetTransfer>(ASSET_TRANSFER.ID) {
-            override fun newKey(assetTransfer: AssetTransfer): BurstKey {
-                return assetTransfer.dbKey
+            override fun newKey(entity: AssetTransfer): BurstKey {
+                return entity.dbKey
             }
         }
     }

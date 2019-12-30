@@ -12,7 +12,6 @@ import org.jooq.Record
 import org.jooq.impl.TableImpl
 
 internal abstract class SqlValuesTable<K, V> internal constructor(
-    table: String,
     tableClass: TableImpl<*>,
     heightField: Field<Int>,
     internal val latestField: Field<Boolean>,

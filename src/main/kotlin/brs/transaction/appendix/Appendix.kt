@@ -243,10 +243,10 @@ interface Appendix {
             buffer.put(encryptedData.nonce)
         }
 
-        override fun putMyJSON(json: JsonObject) {
-            json.addProperty("data", encryptedData.data.toHexString())
-            json.addProperty("nonce", encryptedData.nonce.toHexString())
-            json.addProperty("isText", encryptedData.isText)
+        override fun putMyJSON(attachment: JsonObject) {
+            attachment.addProperty("data", encryptedData.data.toHexString())
+            attachment.addProperty("nonce", encryptedData.nonce.toHexString())
+            attachment.addProperty("isText", encryptedData.isText)
         }
 
         override fun preValidate(transaction: Transaction, height: Int) {
@@ -297,10 +297,10 @@ interface Appendix {
             require(encryptedMessageAppendix.type == BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT)
         }
 
-        override fun putMyJSON(json: JsonObject) {
+        override fun putMyJSON(attachment: JsonObject) {
             val encryptedMessageJSON = JsonObject()
             super.putMyJSON(encryptedMessageJSON)
-            json.add("encryptedMessage", encryptedMessageJSON)
+            attachment.add("encryptedMessage", encryptedMessageJSON)
         }
 
         override fun preValidate(transaction: Transaction, height: Int) {
@@ -349,10 +349,10 @@ interface Appendix {
             require(encryptedMessageAppendix.type == BrsApi.EncryptedMessageAppendix.Type.TO_SELF)
         }
 
-        override fun putMyJSON(json: JsonObject) {
+        override fun putMyJSON(attachment: JsonObject) {
             val encryptToSelfMessageJSON = JsonObject()
             super.putMyJSON(encryptToSelfMessageJSON)
-            json.add("encryptToSelfMessage", encryptToSelfMessageJSON)
+            attachment.add("encryptToSelfMessage", encryptToSelfMessageJSON)
         }
 
         companion object {

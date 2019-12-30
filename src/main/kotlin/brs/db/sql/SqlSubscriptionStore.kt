@@ -14,8 +14,8 @@ import org.jooq.Record
 
 internal class SqlSubscriptionStore(private val dp: DependencyProvider) : SubscriptionStore {
     override val subscriptionDbKeyFactory = object : SqlDbKey.LongKeyFactory<Subscription>(SUBSCRIPTION.ID) {
-        override fun newKey(subscription: Subscription): BurstKey {
-            return subscription.dbKey
+        override fun newKey(entity: Subscription): BurstKey {
+            return entity.dbKey
         }
     }
 
@@ -39,8 +39,8 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
                     return SqlSubscription(record)
                 }
 
-                override fun save(ctx: DSLContext, subscription: Subscription) {
-                    saveSubscription(ctx, subscription)
+                override fun save(ctx: DSLContext, entity: Subscription) {
+                    saveSubscription(ctx, entity)
                 }
             }
     }

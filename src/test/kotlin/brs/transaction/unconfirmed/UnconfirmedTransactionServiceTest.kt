@@ -290,7 +290,6 @@ class UnconfirmedTransactionServiceTest {
 
     @Test
     fun cheaperDuplicateTransactionGetsRemoved() {
-        val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION, FluxValues.DIGITAL_GOODS_STORE)
         val cheap = Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT, timeService.epochTime + 50000, 500.toShort(),
                 MessagingAliasSell(dp, "aliasName", 123, 5))
                 .id(1).senderId(123L).build()
@@ -313,7 +312,6 @@ class UnconfirmedTransactionServiceTest {
 
     @Test
     fun cheaperDuplicateTransactionNeverGetsAdded() {
-        val fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION, FluxValues.DIGITAL_GOODS_STORE)
         val cheap = Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT, timeService.epochTime + 50000, 500.toShort(),
                 MessagingAliasSell(dp, "aliasName", 123, 5))
                 .id(1).senderId(123L).build()

@@ -100,16 +100,16 @@ class AssetExchangeServiceImpl(dp: DependencyProvider) : AssetExchangeService {
         return assetService.getTrades(assetId, from, to)
     }
 
-    override fun getAccountTrades(id: Long, from: Int, to: Int): Collection<Trade> {
-        return tradeService.getAccountTrades(id, from, to)
+    override fun getAccountTrades(accountId: Long, from: Int, to: Int): Collection<Trade> {
+        return tradeService.getAccountTrades(accountId, from, to)
     }
 
     override fun getAccountAssetTrades(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Trade> {
         return tradeService.getAccountAssetTrades(accountId, assetId, from, to)
     }
 
-    override fun getAccountAssetsOverview(id: Long, height: Int, from: Int, to: Int): Collection<AccountAsset> {
-        return assetAccountService.getAssetAccounts(id, height, from, to)
+    override fun getAccountAssetsOverview(accountId: Long, height: Int, from: Int, to: Int): Collection<AccountAsset> {
+        return assetAccountService.getAssetAccounts(accountId, height, from, to)
     }
 
     override fun getAssetsIssuedBy(accountId: Long, from: Int, to: Int): Collection<Asset> {
@@ -120,12 +120,7 @@ class AssetExchangeServiceImpl(dp: DependencyProvider) : AssetExchangeService {
         return assetTransferService.getAssetTransfers(assetId, from, to)
     }
 
-    override fun getAccountAssetTransfers(
-        accountId: Long,
-        assetId: Long,
-        from: Int,
-        to: Int
-    ): Collection<AssetTransfer> {
+    override fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {
         return assetTransferService.getAccountAssetTransfers(accountId, assetId, from, to)
     }
 

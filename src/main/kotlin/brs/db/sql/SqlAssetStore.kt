@@ -10,8 +10,8 @@ import org.jooq.Record
 
 internal class SqlAssetStore(private val dp: DependencyProvider) : AssetStore {
     override val assetDbKeyFactory: SqlDbKey.LongKeyFactory<Asset> = object : SqlDbKey.LongKeyFactory<Asset>(ASSET.ID) {
-        override fun newKey(asset: Asset): BurstKey {
-            return asset.dbKey
+        override fun newKey(entity: Asset): BurstKey {
+            return entity.dbKey
         }
     }
     override val assetTable: SqlEntityTable<Asset>
@@ -22,10 +22,10 @@ internal class SqlAssetStore(private val dp: DependencyProvider) : AssetStore {
                 return SqlAsset(record)
             }
 
-            override fun save(ctx: DSLContext, asset: Asset) {
-                ctx.insertInto(ASSET).set(ASSET.ID, asset.id).set(ASSET.ACCOUNT_ID, asset.accountId).set(ASSET.NAME, asset.name)
-                    .set(ASSET.DESCRIPTION, asset.description).set(ASSET.QUANTITY, asset.quantity)
-                    .set(ASSET.DECIMALS, asset.decimals).set(ASSET.HEIGHT, dp.blockchainService.height).execute()
+            override fun save(ctx: DSLContext, entity: Asset) {
+                ctx.insertInto(ASSET).set(ASSET.ID, entity.id).set(ASSET.ACCOUNT_ID, entity.accountId).set(ASSET.NAME, entity.name)
+                    .set(ASSET.DESCRIPTION, entity.description).set(ASSET.QUANTITY, entity.quantity)
+                    .set(ASSET.DECIMALS, entity.decimals).set(ASSET.HEIGHT, dp.blockchainService.height).execute()
             }
         }
     }

@@ -25,14 +25,12 @@ internal class GetTransaction(private val blockchainService: BlockchainService) 
             return MISSING_TRANSACTION
         }
 
-        var transactionId: Long = 0
-        var transaction: Transaction? = null
+        val transaction: Transaction?
         try {
-            if (transactionIdString != null) {
-                transactionId = transactionIdString.parseUnsignedLong()
-                transaction = blockchainService.getTransaction(transactionId)
-            } else if (transactionFullHash != null) {
-                transaction = blockchainService.getTransactionByFullHash(transactionFullHash.parseHexString())
+            transaction = when {
+                transactionIdString != null -> blockchainService.getTransaction(transactionIdString.parseUnsignedLong())
+                transactionFullHash != null -> blockchainService.getTransactionByFullHash(transactionFullHash.parseHexString())
+                else -> null
             }
             if (transaction == null) {
                 return UNKNOWN_TRANSACTION

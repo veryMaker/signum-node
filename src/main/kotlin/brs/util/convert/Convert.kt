@@ -23,6 +23,7 @@ fun String?.emptyToNull(): String? {
     return if (this.isNullOrEmpty()) null else this
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun Long?.nullToZero(): Long {
     return this ?: 0
 }
@@ -43,6 +44,7 @@ fun String?.toBytes(): ByteArray {
     return this?.toByteArray(StandardCharsets.UTF_8) ?: ByteArray(0)
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun ByteArray.toUtf8String(): String {
     return String(this, StandardCharsets.UTF_8)
 }
@@ -73,6 +75,7 @@ fun String.parseAccountId(): Long {
     return address?.burstID?.signedLongId ?: 0
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun Long.toUnsignedString(): String {
     return java.lang.Long.toUnsignedString(this)
 }
@@ -98,6 +101,7 @@ fun String.parseHexString(): ByteArray {
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun Byte.toUnsignedInt() = java.lang.Byte.toUnsignedInt(this)
 
 fun ByteArray.publicKeyToId(): Long {

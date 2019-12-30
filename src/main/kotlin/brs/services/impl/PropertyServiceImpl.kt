@@ -34,9 +34,9 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
                         logger.safeInfo { "Property parser returned type ${parsed.javaClass}, was looking for type ${defaultValue.javaClass}, using default value $defaultValue" }
                         return defaultValue
                     }
-                    logOnce(propName) { "${propName}: $parsed" }
-
-                    return parsed as T // TODO no unchecked
+                    logOnce(propName) { "$propName: $parsed" }
+                    @Suppress("UNCHECKED_CAST")
+                    return parsed as T
                 }
             }
         } catch (e: Exception) {
@@ -88,7 +88,7 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
     companion object {
         private val hexRegex = Regex("(?i)^0x[0-9a-fA-F]+$")
         private val binaryRegex = Regex("(?i)^0b[01]+\$")
-        private val booleanTrueRegex = Regex("(?i)^1|active|true|yes|on$")
-        private val booleanFalseRegex = Regex("(?i)^0|false|no|off$")
+        private val booleanTrueRegex = Regex("(?i)^1|true|on|yes|active|enabled$")
+        private val booleanFalseRegex = Regex("(?i)^0|false|off|no|inactive|disabled$")
     }
 }

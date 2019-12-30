@@ -271,7 +271,7 @@ object JSONData {
             val signerDetails = JsonObject()
             signerDetails.addProperty(ID_RESPONSE, decision.accountId.toUnsignedString())
             signerDetails.addProperty(ID_RS_RESPONSE, decision.accountId.rsAccount())
-            signerDetails.addProperty(DECISION_RESPONSE, Escrow.decisionToString(decision.decision!!))
+            signerDetails.addProperty(DECISION_RESPONSE, Escrow.decisionToString(decision.decision))
             signers.add(signerDetails)
         }
         json.add(SIGNERS_RESPONSE, signers)
@@ -311,7 +311,7 @@ object JSONData {
         val json = JsonObject()
         json.addProperty(PURCHASE_RESPONSE, purchase.id.toUnsignedString())
         json.addProperty(GOODS_RESPONSE, purchase.goodsId.toUnsignedString())
-        json.addProperty(NAME_RESPONSE, purchase.getName())
+        json.addProperty(NAME_RESPONSE, purchase.name)
         putAccount(json, SELLER_RESPONSE, purchase.sellerId)
         json.addProperty(PRICE_PLANCK_RESPONSE, purchase.pricePlanck.toString())
         json.addProperty(QUANTITY_RESPONSE, purchase.quantity)
@@ -326,15 +326,15 @@ object JSONData {
             json.add(GOODS_DATA_RESPONSE, encryptedData(purchase.encryptedGoods!!))
             json.addProperty(GOODS_IS_TEXT_RESPONSE, purchase.encryptedGoods?.isText ?: false)
         }
-        if (purchase.feedbackNotes != null) {
+        if (purchase.feedbackNotes.isNotEmpty()) {
             val feedbacks = JsonArray()
-            for (encryptedData in purchase.feedbackNotes!!) {
+            for (encryptedData in purchase.feedbackNotes) {
                 feedbacks.add(encryptedData(encryptedData))
             }
             json.add(FEEDBACK_NOTES_RESPONSE, feedbacks)
         }
-        val publicFeedback = purchase.getPublicFeedback()
-        if (publicFeedback != null && publicFeedback.isNotEmpty()) {
+        val publicFeedback = purchase.publicFeedback
+        if (publicFeedback.isNotEmpty()) {
             val publicFeedbacks = JsonArray()
             for (string in publicFeedback) {
                 publicFeedbacks.add(string)

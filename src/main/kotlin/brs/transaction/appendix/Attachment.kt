@@ -1944,7 +1944,7 @@ interface Attachment : Appendix {
         ) {
             this.amountPlanck = buffer.long
             this.deadline = buffer.int
-            this.deadlineAction = Escrow.byteToDecision(buffer.get()) ?: error("Escrow Decision Type Not Recognized")
+            this.deadlineAction = Escrow.byteToDecision(buffer.get())
             this.requiredSigners = buffer.get()
             val totalSigners = buffer.get()
             if (totalSigners > 10 || totalSigners <= 0) {
@@ -2005,7 +2005,7 @@ interface Attachment : Appendix {
             this.amountPlanck = attachment.amount
             this.requiredSigners = attachment.requiredSigners.toByte()
             this.deadline = attachment.deadline
-            this.deadlineAction = Escrow.protoBufToDecision(attachment.deadlineAction) ?: error("Escrow Decision Type Not Recognized: ${attachment.deadlineAction}")
+            this.deadlineAction = Escrow.protoBufToDecision(attachment.deadlineAction)
             this.signers.addAll(attachment.signersList)
             if (signers.size > 10 || signers.isEmpty()) {
                 throw BurstException.NotValidException("Invalid number of signers listed on create escrow transaction")
@@ -2076,7 +2076,7 @@ interface Attachment : Appendix {
             transactionVersion
         ) {
             this.escrowId = buffer.long
-            this.decision = Escrow.byteToDecision(buffer.get())!!
+            this.decision = Escrow.byteToDecision(buffer.get())
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
@@ -2099,7 +2099,7 @@ interface Attachment : Appendix {
             attachment.version.toByte()
         ) {
             this.escrowId = attachment.escrow
-            this.decision = Escrow.protoBufToDecision(attachment.decision)!!
+            this.decision = Escrow.protoBufToDecision(attachment.decision)
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {
@@ -2141,7 +2141,7 @@ interface Attachment : Appendix {
             transactionVersion
         ) {
             this.escrowId = buffer.long
-            this.decision = Escrow.byteToDecision(buffer.get())!!
+            this.decision = Escrow.byteToDecision(buffer.get())
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
@@ -2164,7 +2164,7 @@ interface Attachment : Appendix {
             attachment.version.toByte()
         ) {
             this.escrowId = attachment.escrow
-            this.decision = Escrow.protoBufToDecision(attachment.decision)!!
+            this.decision = Escrow.protoBufToDecision(attachment.decision)
         }
 
         override fun putMyBytes(buffer: ByteBuffer) {

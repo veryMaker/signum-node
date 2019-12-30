@@ -109,7 +109,7 @@ interface AssetExchangeService {
     /**
      * TODO
      */
-    fun getAllTrades(i: Int, i1: Int): Collection<Trade>
+    fun getAllTrades(from: Int, to: Int): Collection<Trade>
 
     /**
      * TODO
@@ -144,7 +144,7 @@ interface AssetExchangeService {
     /**
      * TODO
      */
-    fun getAccountAssetTransfers(id: Long, id1: Long, from: Int, to: Int): Collection<AssetTransfer>
+    fun getAccountAssetTransfers(accountId: Long, assetId: Long, from: Int, to: Int): Collection<AssetTransfer>
 
     /**
      * TODO

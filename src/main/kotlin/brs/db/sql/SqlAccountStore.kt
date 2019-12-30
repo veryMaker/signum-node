@@ -44,12 +44,12 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                 return SqlRewardRecipientAssignment(record)
             }
 
-            override fun save(ctx: DSLContext, assignment: Account.RewardRecipientAssignment) {
+            override fun save(ctx: DSLContext, entity: Account.RewardRecipientAssignment) {
                 val record = RewardRecipAssignRecord()
-                record.accountId = assignment.accountId
-                record.prevRecipId = assignment.prevRecipientId
-                record.recipId = assignment.recipientId
-                record.fromHeight = assignment.fromHeight
+                record.accountId = entity.accountId
+                record.prevRecipId = entity.prevRecipientId
+                record.recipId = entity.recipientId
+                record.fromHeight = entity.fromHeight
                 record.height = dp.blockchainService.height
                 record.latest = true
                 ctx.upsert(
@@ -76,12 +76,12 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                 return SQLAccountAsset(record)
             }
 
-            override fun save(ctx: DSLContext, accountAsset: Account.AccountAsset) {
+            override fun save(ctx: DSLContext, entity: Account.AccountAsset) {
                 val record = AccountAssetRecord()
-                record.accountId = accountAsset.accountId
-                record.assetId = accountAsset.assetId
-                record.quantity = accountAsset.quantity
-                record.unconfirmedQuantity = accountAsset.unconfirmedQuantity
+                record.accountId = entity.accountId
+                record.assetId = entity.assetId
+                record.quantity = entity.quantity
+                record.unconfirmedQuantity = entity.unconfirmedQuantity
                 record.height = dp.blockchainService.height
                 record.latest = true
                 ctx.upsert(record, ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.HEIGHT)
@@ -95,9 +95,9 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                 return SqlAccount(record)
             }
 
-            override fun bulkInsert(ctx: DSLContext, accounts: Collection<Account>) {
+            override fun bulkInsert(ctx: DSLContext, entities: Collection<Account>) {
                 val height = dp.blockchainService.height
-                ctx.batch(accounts.map { account ->
+                ctx.batch(entities.map { account ->
                     val record = AccountRecord()
                     record.id = account.id
                     record.height = height
@@ -225,21 +225,21 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
     companion object {
 
         private val accountDbKeyFactory = object : SqlDbKey.LongKeyFactory<Account>(ACCOUNT.ID) {
-            override fun newKey(account: Account): SqlDbKey {
-                return account.nxtKey as SqlDbKey
+            override fun newKey(entity: Account): SqlDbKey {
+                return entity.nxtKey as SqlDbKey
             }
         }
         private val rewardRecipientAssignmentDbKeyFactory =
             object : SqlDbKey.LongKeyFactory<Account.RewardRecipientAssignment>(REWARD_RECIP_ASSIGN.ACCOUNT_ID) {
-                override fun newKey(assignment: Account.RewardRecipientAssignment): SqlDbKey {
-                    return assignment.burstKey as SqlDbKey
+                override fun newKey(entity: Account.RewardRecipientAssignment): SqlDbKey {
+                    return entity.burstKey as SqlDbKey
                 }
             }
         private val logger = LoggerFactory.getLogger(SqlAccountStore::class.java)
         private val accountAssetDbKeyFactory =
             object : SqlDbKey.LinkKeyFactory<Account.AccountAsset>("account_id", "asset_id") {
-                override fun newKey(accountAsset: Account.AccountAsset): SqlDbKey {
-                    return accountAsset.burstKey as SqlDbKey
+                override fun newKey(entity: Account.AccountAsset): SqlDbKey {
+                    return entity.burstKey as SqlDbKey
                 }
             }
 

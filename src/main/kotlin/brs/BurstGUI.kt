@@ -83,7 +83,7 @@ class BurstGUI : Application() {
                 popupMenu
             )
             newTrayIcon.image = newTrayIcon.image.getScaledInstance(newTrayIcon.size.width, -1, Image.SCALE_SMOOTH)
-            newTrayIcon.addActionListener { e -> openWebUi() }
+            newTrayIcon.addActionListener { openWebUi() }
             systemTray.add(newTrayIcon)
             return newTrayIcon
         } catch (e: Exception) {

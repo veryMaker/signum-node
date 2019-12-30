@@ -6,13 +6,12 @@ import org.jooq.Field
 import org.jooq.impl.TableImpl
 
 internal abstract class SqlVersionedValuesTable<T, V> internal constructor(
-    table: String,
     tableClass: TableImpl<*>,
     heightField: Field<Int>,
     latestField: Field<Boolean>,
     dbKeyFactory: SqlDbKey.Factory<T>,
     private val dp: DependencyProvider
-) : SqlValuesTable<T, V>(table, tableClass, heightField, latestField, dbKeyFactory, dp), ValuesTable<T, V> {
+) : SqlValuesTable<T, V>(tableClass, heightField, latestField, dbKeyFactory, dp), ValuesTable<T, V> {
     override fun rollback(height: Int) {
         SqlVersionedEntityTable.rollback(dp, cache, table, heightField, latestField, height, dbKeyFactory)
     }
