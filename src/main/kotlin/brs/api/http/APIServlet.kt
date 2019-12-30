@@ -5,7 +5,6 @@ import brs.api.http.JSONResponses.ERROR_MISSING_REQUEST
 import brs.api.http.JSONResponses.ERROR_NOT_ALLOWED
 import brs.entity.DependencyProvider
 import brs.objects.Props
-import brs.util.BurstException
 import brs.util.Subnet
 import brs.util.json.mustGetAsJsonObject
 import brs.util.json.writeTo
@@ -141,7 +140,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
         map["getGuaranteedBalance"] = GetGuaranteedBalance(dp.parameterService)
         map["generateSendTransactionQRCode"] = GenerateDeeplinkQRCode(dp.deeplinkQRCodeGeneratorService)
         map["generateDeeplink"] = GenerateDeeplink(dp.deeplinkGeneratorService)
-        map["generateDeeplinkQRCode"] = GenerateDeeplinkQR(dp.deeplinkGeneratorService)
+        map["generateDeeplinkQRCode"] = GenerateDeeplinkQR(dp)
         if (dp.propertyService.get(Props.API_DEBUG)) {
             map["clearUnconfirmedTransactions"] = ClearUnconfirmedTransactions(dp.transactionProcessorService)
             map["fullReset"] = FullReset(dp.blockchainProcessorService)
@@ -159,9 +158,6 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
                 processRequest(request)
             } catch (e: ParameterException) {
                 e.errorResponse
-            } catch (e: BurstException) {
-                logger.safeDebug(e) { "Error processing API request" }
-                ERROR_INCORRECT_REQUEST
             } catch (e: Exception) {
                 logger.safeDebug(e) { "Error processing API request" }
                 ERROR_INCORRECT_REQUEST

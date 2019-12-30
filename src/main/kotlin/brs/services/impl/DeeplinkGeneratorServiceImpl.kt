@@ -10,7 +10,7 @@ class DeeplinkGeneratorServiceImpl : DeeplinkGeneratorService {
 
     @Throws(UnsupportedEncodingException::class, IllegalArgumentException::class)
     override fun generateDeepLink(domain: String, action: String?, base64Payload: String?): String {
-        require(validDomains.contains(domain)) { "Invalid domain: $domain" }
+        require(validDomains.contains(domain)) { "Invalid domain: \"$domain\"" }
 
         val deeplinkBuilder = StringBuilder("burst.")
             .append(domain)

@@ -1,16 +1,15 @@
 package brs.api.http
 
 import brs.api.http.common.Parameters
-import brs.common.QuickMocker
 import brs.api.http.common.ResultFields.DEEPLINK_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.common.QuickMocker
 import brs.services.DeeplinkGeneratorService
 import brs.services.impl.DeeplinkGeneratorServiceImpl
 import brs.util.json.safeGetAsInt
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonObject
-import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -61,7 +60,7 @@ class GenerateDeeplinkTest {
         val result = t.processRequest(request) as JsonObject
 
         assertEquals(4, result.get(ERROR_CODE_RESPONSE).safeGetAsInt())
-        assertEquals("Incorrect \"arguments\"Invalid domain:invalid", result.get(ERROR_DESCRIPTION_RESPONSE).safeGetAsString())
+        assertEquals("Incorrect \"arguments\"Invalid domain: \"invalid\"", result.get(ERROR_DESCRIPTION_RESPONSE).safeGetAsString())
     }
 
     @Test

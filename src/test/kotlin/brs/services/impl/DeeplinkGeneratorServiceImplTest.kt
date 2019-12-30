@@ -1,8 +1,8 @@
 package brs.services.impl
 
 import brs.services.DeeplinkGeneratorService
-import com.google.zxing.WriterException
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,7 +40,7 @@ class DeeplinkGeneratorServiceImplTest {
         try {
             deeplinkGeneratorService.generateDeepLink("invalid", "testAction", null)
         } catch (e: IllegalArgumentException) {
-            assertEquals(e.message, "Invalid domain:invalid")
+            assertEquals(e.message, "Invalid domain: \"invalid\"")
         }
     }
 
@@ -58,13 +58,5 @@ class DeeplinkGeneratorServiceImplTest {
         } catch (e: IllegalArgumentException) {
             assertTrue(e.message!!.startsWith("Maximum Payload Length "))
         }
-
-    }
-
-    @Test
-    @Throws(WriterException::class, UnsupportedEncodingException::class)
-    fun testDeeplinkGenerator_QrCode() {
-        val bufferedImage = deeplinkGeneratorService.generateDeepLinkQrCode("generic", "testAction", "dGVzdERhdGE=")
-        assertNotNull(bufferedImage)
     }
 }
