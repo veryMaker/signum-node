@@ -17,7 +17,7 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
         assetTransferTable =
             object : SqlEntityTable<AssetTransfer>(ASSET_TRANSFER, transferDbKeyFactory, ASSET_TRANSFER.HEIGHT, null, dp) {
                 override fun load(ctx: DSLContext, record: Record): AssetTransfer {
-                    return SqlAssetTransfer(record)
+                    return sqlToAssetTransfer(record)
                 }
 
                 override fun save(ctx: DSLContext, entity: AssetTransfer) {
@@ -112,7 +112,7 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
         }
     }
 
-    internal inner class SqlAssetTransfer(record: Record) : AssetTransfer(
+    private fun sqlToAssetTransfer(record: Record) = AssetTransfer(
         record.get(ASSET_TRANSFER.ID),
         transferDbKeyFactory.newKey(record.get(ASSET_TRANSFER.ID)),
         record.get(ASSET_TRANSFER.ASSET_ID),
@@ -120,8 +120,7 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
         record.get(ASSET_TRANSFER.SENDER_ID),
         record.get(ASSET_TRANSFER.RECIPIENT_ID),
         record.get(ASSET_TRANSFER.QUANTITY),
-        record.get(ASSET_TRANSFER.TIMESTAMP)
-    )
+        record.get(ASSET_TRANSFER.TIMESTAMP))
 
     companion object {
         private object TransferDbKeyFactory : SqlDbKey.LongKeyFactory<AssetTransfer>(ASSET_TRANSFER.ID) {

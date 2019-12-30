@@ -6,6 +6,7 @@ import brs.db.VersionedEntityTable
 import brs.db.upsert
 import brs.entity.DependencyProvider
 import brs.entity.Escrow
+import brs.entity.Escrow.Companion.byteToDecision
 import brs.entity.Transaction
 import brs.schema.Tables.ESCROW
 import brs.schema.Tables.ESCROW_DECISION
@@ -33,7 +34,7 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
     init {
         escrowTable = object : SqlVersionedEntityTable<Escrow>(ESCROW, ESCROW.HEIGHT, ESCROW.LATEST, escrowDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, record: Record): Escrow {
-                return SqlEscrow(record)
+                return sqlToEscrow(record)
             }
 
             override fun save(ctx: DSLContext, entity: Escrow) {
@@ -44,7 +45,7 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
         decisionTable = object :
             SqlVersionedEntityTable<Escrow.Decision>(ESCROW_DECISION, ESCROW_DECISION.HEIGHT, ESCROW_DECISION.LATEST, decisionDbKeyFactory, dp) {
             override fun load(ctx: DSLContext, record: Record): Escrow.Decision {
-                return SqlDecision(record)
+                return sqlToDecision(record)
             }
 
             override fun save(ctx: DSLContext, entity: Escrow.Decision) {
@@ -88,17 +89,16 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
         ctx.upsert(record, ESCROW.ID, ESCROW.HEIGHT).execute()
     }
 
-    private inner class SqlDecision internal constructor(record: Record) : Escrow.Decision(
+    private fun sqlToDecision(record: Record) = Escrow.Decision(
         decisionDbKeyFactory.newKey(
             record.get(ESCROW_DECISION.ESCROW_ID),
             record.get(ESCROW_DECISION.ACCOUNT_ID)
         ),
         record.get(ESCROW_DECISION.ESCROW_ID),
         record.get(ESCROW_DECISION.ACCOUNT_ID),
-        Escrow.byteToDecision(record.get(ESCROW_DECISION.DECISION).toByte())
-    )
+        Escrow.byteToDecision(record.get(ESCROW_DECISION.DECISION).toByte()))
 
-    private inner class SqlEscrow internal constructor(record: Record) : Escrow(
+    private fun sqlToEscrow(record: Record) = Escrow(
         dp,
         record.get(ESCROW.ID),
         record.get(ESCROW.SENDER_ID),
@@ -107,8 +107,7 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
         record.get(ESCROW.AMOUNT),
         record.get(ESCROW.REQUIRED_SIGNERS),
         record.get(ESCROW.DEADLINE),
-        byteToDecision(record.get(ESCROW.DEADLINE_ACTION).toByte())
-    )
+        byteToDecision(record.get(ESCROW.DEADLINE_ACTION).toByte()))
 
     override fun getDecisions(id: Long?): Collection<Escrow.Decision> {
         return decisionTable.getManyBy(ESCROW_DECISION.ESCROW_ID.eq(id), 0, -1)

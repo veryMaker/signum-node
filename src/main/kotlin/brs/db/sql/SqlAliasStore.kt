@@ -30,7 +30,7 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
             dp
         ) {
             override fun load(ctx: DSLContext, record: Record): Alias.Offer {
-                return SqlOffer(record)
+                return sqlToOffer(record)
             }
 
             override fun save(ctx: DSLContext, entity: Alias.Offer) {
@@ -43,7 +43,7 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
                 override val defaultSort = listOf(table.field("alias_name_lower", String::class.java).asc())
 
                 override fun load(ctx: DSLContext, record: Record): Alias {
-                    return SqlAlias(record)
+                    return sqlToAlias(record)
                 }
 
                 override fun save(ctx: DSLContext, entity: Alias) {
@@ -52,12 +52,11 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
             }
     }
 
-    private inner class SqlOffer internal constructor(record: Record) : Alias.Offer(
+    private fun sqlToOffer(record: Record) = Alias.Offer(
         record.get(ALIAS_OFFER.ID),
         record.get(ALIAS_OFFER.PRICE),
         record.get(ALIAS_OFFER.BUYER_ID).nullToZero(),
-        offerDbKeyFactory.newKey(record.get(ALIAS_OFFER.ID))
-    )
+        offerDbKeyFactory.newKey(record.get(ALIAS_OFFER.ID)))
 
     private fun saveOffer(offer: Alias.Offer) {
         dp.db.useDslContext<Unit> { ctx ->
@@ -78,14 +77,13 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
         }
     }
 
-    private inner class SqlAlias internal constructor(record: Record) : Alias(
+    private fun sqlToAlias(record: Record) = Alias(
         record.get(ALIAS.ID),
         record.get(ALIAS.ACCOUNT_ID),
         record.get(ALIAS.ALIAS_NAME),
         record.get(ALIAS.ALIAS_URI),
         record.get(ALIAS.TIMESTAMP),
-        aliasDbKeyFactory.newKey(record.get(ALIAS.ID))
-    )
+        aliasDbKeyFactory.newKey(record.get(ALIAS.ID)))
 
     private fun saveAlias(ctx: DSLContext, alias: Alias) {
         ctx.insertInto<AliasRecord>(ALIAS).set(ALIAS.ID, alias.id).set(ALIAS.ACCOUNT_ID, alias.accountId)

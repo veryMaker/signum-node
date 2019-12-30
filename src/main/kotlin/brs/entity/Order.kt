@@ -46,7 +46,7 @@ abstract class Order {
         return "${javaClass.simpleName} id: ${id.toUnsignedString()} account: ${accountId.toUnsignedString()} asset: ${assetId.toUnsignedString()} price: $pricePlanck quantity: $quantity height: $height"
     }
 
-    open class Ask : Order {
+    class Ask : Order {
 
         val dbKey: BurstKey
 
@@ -61,7 +61,7 @@ abstract class Order {
             this.dbKey = dbKey
         }
 
-        protected constructor(
+        constructor(
             id: Long,
             accountId: Long,
             assetId: Long,
@@ -74,7 +74,7 @@ abstract class Order {
         }
     }
 
-    open class Bid : Order {
+    class Bid : Order {
 
         val dbKey: BurstKey
 
@@ -89,7 +89,7 @@ abstract class Order {
             this.dbKey = dbKey
         }
 
-        protected constructor(
+        constructor(
             id: Long,
             accountId: Long,
             assetId: Long,

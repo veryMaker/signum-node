@@ -228,7 +228,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
         val builder = Transaction.Builder(
             dp,
             1.toByte(),
-            Genesis.creatorPublicKey,
+            Genesis.CREATOR_PUBLIC_KEY,
             amountPlanck,
             0L,
             block.timestamp,

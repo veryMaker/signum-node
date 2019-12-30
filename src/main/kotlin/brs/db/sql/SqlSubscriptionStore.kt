@@ -36,7 +36,7 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
                 )
 
                 override fun load(ctx: DSLContext, record: Record): Subscription {
-                    return SqlSubscription(record)
+                    return sqlToSubscription(record)
                 }
 
                 override fun save(ctx: DSLContext, entity: Subscription) {
@@ -92,13 +92,12 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
         ).execute()
     }
 
-    private inner class SqlSubscription internal constructor(record: Record) : Subscription(
+    private fun sqlToSubscription(record: Record) = Subscription(
         record.get(SUBSCRIPTION.SENDER_ID),
         record.get(SUBSCRIPTION.RECIPIENT_ID),
         record.get(SUBSCRIPTION.ID),
         record.get(SUBSCRIPTION.AMOUNT),
         record.get(SUBSCRIPTION.FREQUENCY),
         record.get(SUBSCRIPTION.TIME_NEXT),
-        subscriptionDbKeyFactory.newKey(record.get(SUBSCRIPTION.ID))
-    )
+        subscriptionDbKeyFactory.newKey(record.get(SUBSCRIPTION.ID)))
 }

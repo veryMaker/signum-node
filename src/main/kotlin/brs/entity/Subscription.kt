@@ -3,7 +3,7 @@ package brs.entity
 import brs.db.BurstKey
 import brs.util.delegates.Atomic
 
-open class Subscription(
+class Subscription(
     val senderId: Long,
     val recipientId: Long,
     val id: Long,

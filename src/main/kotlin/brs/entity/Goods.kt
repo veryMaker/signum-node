@@ -4,8 +4,7 @@ import brs.db.BurstKey
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 
-open class Goods {
-
+class Goods {
     val id: Long
     val dbKey: BurstKey
     val sellerId: Long
@@ -19,7 +18,7 @@ open class Goods {
         private set
     var isDelisted: Boolean = false
 
-    protected constructor(
+    constructor(
         id: Long, dbKey: BurstKey, sellerId: Long, name: String, description: String, tags: String, timestamp: Int,
         quantity: Int, pricePlanck: Long, delisted: Boolean
     ) {

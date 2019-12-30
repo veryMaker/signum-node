@@ -27,15 +27,15 @@ class GetNextBlockIdsTest {
         repeat(100) {
             blocks.add((it + 1).toLong())
         }
-        every { mockBlockchainService.getBlockIdsAfter(eq(Genesis.GENESIS_BLOCK_ID), any()) } returns blocks
-        every { mockBlockchainService.getBlockIdsAfter(neq(Genesis.GENESIS_BLOCK_ID), any()) } returns emptyList()
+        every { mockBlockchainService.getBlockIdsAfter(eq(Genesis.BLOCK_ID), any()) } returns blocks
+        every { mockBlockchainService.getBlockIdsAfter(neq(Genesis.BLOCK_ID), any()) } returns emptyList()
         getNextBlockIds = GetNextBlockIds(mockBlockchainService)
     }
 
     @Test
     fun testGetNextBlocks() {
         val request = JsonObject()
-        request.addProperty("blockId", Genesis.GENESIS_BLOCK_ID.toUnsignedString())
+        request.addProperty("blockId", Genesis.BLOCK_ID.toUnsignedString())
         val responseElement = getNextBlockIds.processRequest(request, mockPeer)
         assertNotNull(responseElement)
         assertTrue(responseElement is JsonObject)

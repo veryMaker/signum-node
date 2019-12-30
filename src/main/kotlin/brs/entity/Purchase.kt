@@ -5,8 +5,7 @@ import brs.transaction.appendix.Attachment
 import brs.util.delegates.AtomicLazy
 import burst.kit.entity.BurstEncryptedMessage
 
-// TODO stop these entities from being open
-open class Purchase(
+class Purchase(
     private val dp: DependencyProvider,
     val id: Long,
     val dbKey: BurstKey,
@@ -56,7 +55,7 @@ open class Purchase(
         this.isPending = false
     }
 
-    protected constructor(
+    constructor(
         dp: DependencyProvider, id: Long, dbKey: BurstKey, buyerId: Long, goodsId: Long, sellerId: Long, quantity: Int,
         pricePlanck: Long, deadline: Int, note: BurstEncryptedMessage?, timestamp: Int, isPending: Boolean,
         encryptedGoods: BurstEncryptedMessage?, refundNote: BurstEncryptedMessage?,

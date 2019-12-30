@@ -3,7 +3,7 @@ package brs.entity
 import brs.db.BurstKey
 import brs.transaction.appendix.Attachment
 
-open class Asset {
+class Asset {
     val id: Long
     val dbKey: BurstKey
     val accountId: Long
@@ -12,7 +12,7 @@ open class Asset {
     val quantity: Long
     val decimals: Byte
 
-    protected constructor(
+    constructor(
         assetId: Long,
         dbKey: BurstKey,
         accountId: Long,

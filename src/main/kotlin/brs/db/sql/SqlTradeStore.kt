@@ -22,7 +22,7 @@ internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
     init {
         tradeTable = object : SqlEntityTable<Trade>(TRADE, tradeDbKeyFactory, TRADE.HEIGHT, null, dp) {
             override fun load(ctx: DSLContext, record: Record): Trade {
-                return SqlTrade(record)
+                return sqlToTrade(record)
             }
 
             override fun save(ctx: DSLContext, entity: Trade) {
@@ -118,7 +118,7 @@ internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
             .execute()
     }
 
-    private inner class SqlTrade internal constructor(record: Record) : Trade(
+    private fun sqlToTrade(record: Record) = Trade(
         record.get(TRADE.TIMESTAMP),
         record.get(TRADE.ASSET_ID),
         record.get(TRADE.BLOCK_ID),
@@ -131,6 +131,5 @@ internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
         record.get(TRADE.BUYER_ID),
         tradeDbKeyFactory.newKey(record.get(TRADE.ASK_ORDER_ID), record.get(TRADE.BID_ORDER_ID)),
         record.get(TRADE.QUANTITY),
-        record.get(TRADE.PRICE)
-    )
+        record.get(TRADE.PRICE))
 }

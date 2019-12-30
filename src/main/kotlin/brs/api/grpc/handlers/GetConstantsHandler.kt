@@ -33,7 +33,7 @@ class GetConstantsHandler(dp: DependencyProvider) : GrpcApiHandler<Empty, BrsApi
         }
 
         this.constants = BrsApi.Constants.newBuilder()
-            .setGenesisBlock(Genesis.GENESIS_BLOCK_ID)
+            .setGenesisBlock(Genesis.BLOCK_ID)
             .setGenesisAccount(Genesis.CREATOR_ID)
             .setMaxBlockPayloadLength(dp.fluxCapacitorService.getValue(FluxValues.MAX_PAYLOAD_LENGTH))
             .setMaxArbitraryMessageLength(Constants.MAX_ARBITRARY_MESSAGE_LENGTH)

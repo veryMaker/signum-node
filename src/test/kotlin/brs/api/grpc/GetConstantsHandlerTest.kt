@@ -22,7 +22,7 @@ class GetConstantsHandlerTest : AbstractGrpcTest() {
     fun testGetConstantsHandler() {
         val constants = brsService.getConstants(Empty.getDefaultInstance())
         assertEquals(Genesis.CREATOR_ID, constants.genesisAccount)
-        assertEquals(Genesis.GENESIS_BLOCK_ID, constants.genesisBlock)
+        assertEquals(Genesis.BLOCK_ID, constants.genesisBlock)
         // TODO check max block size / payload length
         assertEquals(dp.transactionTypes.size.toLong(), constants.transactionTypesList.size.toLong())
         constants.transactionTypesList.forEach { transactionType ->

@@ -19,7 +19,7 @@ internal class SqlAssetStore(private val dp: DependencyProvider) : AssetStore {
     init {
         assetTable = object : SqlEntityTable<Asset>(ASSET, assetDbKeyFactory, ASSET.HEIGHT, null, dp) {
             override fun load(ctx: DSLContext, record: Record): Asset {
-                return SqlAsset(record)
+                return sqlToAsset(record)
             }
 
             override fun save(ctx: DSLContext, entity: Asset) {
@@ -34,13 +34,12 @@ internal class SqlAssetStore(private val dp: DependencyProvider) : AssetStore {
         return assetTable.getManyBy(ASSET.ACCOUNT_ID.eq(accountId), from, to)
     }
 
-    private inner class SqlAsset internal constructor(record: Record) : Asset(
+    private fun sqlToAsset(record: Record) = Asset(
         record.get(ASSET.ID),
         assetDbKeyFactory.newKey(record.get(ASSET.ID)),
         record.get(ASSET.ACCOUNT_ID),
         record.get(ASSET.NAME),
         record.get(ASSET.DESCRIPTION),
         record.get(ASSET.QUANTITY),
-        record.get(ASSET.DECIMALS)
-    )
+        record.get(ASSET.DECIMALS))
 }

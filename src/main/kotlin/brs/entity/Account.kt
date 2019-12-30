@@ -8,18 +8,14 @@ import brs.util.logging.safeError
 import burst.kit.entity.BurstEncryptedMessage
 import org.slf4j.LoggerFactory
 
-open class Account {
+class Account {
     val id: Long
     val nxtKey: BurstKey
     val creationHeight: Int
     private var publicKeyInternal: ByteArray? = null
     var publicKey: ByteArray?
-        get() = if (this.keyHeight == -1) {
-            null
-        } else publicKeyInternal
-        set(v) {
-            publicKeyInternal = v
-        }
+        get() = if (this.keyHeight == -1) null else publicKeyInternal
+        set(v) { publicKeyInternal = v }
     var keyHeight: Int = 0
     var balancePlanck: Long = 0
     var unconfirmedBalancePlanck: Long = 0
@@ -109,7 +105,7 @@ open class Account {
         this.creationHeight = dp.blockchainService.height
     }
 
-    protected constructor(id: Long, burstKey: BurstKey, creationHeight: Int) {
+    constructor(id: Long, burstKey: BurstKey, creationHeight: Int) {
         if (!id.rsVerify()) {
             logger.safeError { "CRITICAL ERROR: Reed-Solomon encoding fails for $id" }
         }

@@ -186,7 +186,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
     }
 
     override fun calculateBaseTarget(block: Block, previousBlock: Block) {
-        if (block.id == Genesis.GENESIS_BLOCK_ID && block.previousBlockId == 0L) {
+        if (block.id == Genesis.BLOCK_ID && block.previousBlockId == 0L) {
             block.baseTarget = Constants.INITIAL_BASE_TARGET
             block.cumulativeDifficulty = BigInteger.ZERO
         } else if (block.height < 4) {

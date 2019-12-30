@@ -102,11 +102,11 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     return@run true
                 }
 
-                var commonBlockId = Genesis.GENESIS_BLOCK_ID
+                var commonBlockId = Genesis.BLOCK_ID
                 val cacheLastBlockId = dp.downloadCacheService.getLastBlockId()
 
                 // Now we will find the highest common block between us and the peer
-                if (cacheLastBlockId != Genesis.GENESIS_BLOCK_ID) {
+                if (cacheLastBlockId != Genesis.BLOCK_ID) {
                     commonBlockId = getCommonMilestoneBlockId(peer)
                     if (commonBlockId == 0L || !peerHasMore) {
                         logger.safeDebug { "We could not get a common milestone block from peer." }
@@ -402,7 +402,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 return 0
             }
             if (milestoneBlockIds.isEmpty()) {
-                return Genesis.GENESIS_BLOCK_ID
+                return Genesis.BLOCK_ID
             }
             // prevent overloading with blockIds
             if (milestoneBlockIds.size() > 20) {
@@ -604,7 +604,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     }
 
     private fun addGenesisBlock() {
-        if (dp.blockDb.hasBlock(Genesis.GENESIS_BLOCK_ID)) {
+        if (dp.blockDb.hasBlock(Genesis.BLOCK_ID)) {
             logger.safeInfo { "Genesis block already in database" }
             val lastBlock = dp.blockDb.findLastBlock()!!
             dp.blockchainService.lastBlock = lastBlock
@@ -614,8 +614,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         logger.safeInfo { "Genesis block not in database, starting from scratch" }
         val genesisBlock = Block(
             dp, -1, 0, 0, 0, 0, 0,
-            Constants.SHA256_NO_DATA, Genesis.creatorPublicKey, ByteArray(32),
-            Genesis.genesisBlockSignature, null, emptyList(), 0, byteArrayOf(), -1
+            Constants.SHA256_NO_DATA, Genesis.CREATOR_PUBLIC_KEY, ByteArray(32),
+            Genesis.BLOCK_SIGNATURE, null, emptyList(), 0, byteArrayOf(), -1
         )
         dp.blockService.setPrevious(genesisBlock, null)
         addBlock(genesisBlock)
@@ -792,7 +792,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     dp.db.transaction {
                         var block = dp.blockchainService.lastBlock
                         logger.safeInfo { "Rollback from ${block.height} to ${commonBlock.height}" }
-                        while (block.id != commonBlock.id && block.id != Genesis.GENESIS_BLOCK_ID) {
+                        while (block.id != commonBlock.id && block.id != Genesis.BLOCK_ID) {
                             poppedOffBlocks.add(block)
                             block = popLastBlock()
                         }
@@ -811,7 +811,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
     private fun popLastBlock(): Block {
         val block = dp.blockchainService.lastBlock
-        check(block.id != Genesis.GENESIS_BLOCK_ID) { "Cannot pop off genesis block" }
+        check(block.id != Genesis.BLOCK_ID) { "Cannot pop off genesis block" }
         val previousBlock = dp.blockDb.findBlock(block.previousBlockId)!!
         dp.blockchainService.setLastBlock(block, previousBlock)
         block.transactions.forEach { it.unsetBlock() }

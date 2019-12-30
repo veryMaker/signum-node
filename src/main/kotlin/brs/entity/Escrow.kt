@@ -3,7 +3,7 @@ package brs.entity
 import brs.api.grpc.proto.BrsApi
 import brs.db.BurstKey
 
-open class Escrow {
+class Escrow {
     private val dp: DependencyProvider
     val senderId: Long
     val recipientId: Long
@@ -45,7 +45,7 @@ open class Escrow {
         this.deadlineAction = deadlineAction
     }
 
-    protected constructor(
+    constructor(
         dp: DependencyProvider,
         id: Long,
         senderId: Long,

@@ -36,7 +36,7 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             override val defaultSort = listOf(table.field("creation_height", Int::class.java).desc())
 
             override fun load(ctx: DSLContext, record: Record): Order.Ask {
-                return SqlAsk(record)
+                return sqlToAsk(record)
             }
 
             override fun save(ctx: DSLContext, entity: Order.Ask) {
@@ -54,7 +54,7 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             override val defaultSort = listOf(table.field("creation_height", Int::class.java).desc())
 
             override fun load(ctx: DSLContext, record: Record): Order.Bid {
-                return SqlBid(record)
+                return sqlToBid(record)
             }
 
             override fun save(ctx: DSLContext, entity: Order.Bid) {
@@ -178,23 +178,21 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
         ctx.upsert(record, BID_ORDER.ID, BID_ORDER.HEIGHT).execute()
     }
 
-    internal inner class SqlAsk internal constructor(record: Record) : Order.Ask(
+    private fun sqlToAsk(record: Record) = Order.Ask(
         record.get(ASK_ORDER.ID),
         record.get(ASK_ORDER.ACCOUNT_ID),
         record.get(ASK_ORDER.ASSET_ID),
         record.get(ASK_ORDER.PRICE),
         record.get(ASK_ORDER.CREATION_HEIGHT),
         record.get(ASK_ORDER.QUANTITY),
-        askOrderDbKeyFactory.newKey(record.get(ASK_ORDER.ID))
-    )
+        askOrderDbKeyFactory.newKey(record.get(ASK_ORDER.ID)))
 
-    internal inner class SqlBid internal constructor(record: Record) : Order.Bid(
+    private fun sqlToBid(record: Record) = Order.Bid(
         record.get(BID_ORDER.ID),
         record.get(BID_ORDER.ACCOUNT_ID),
         record.get(BID_ORDER.ASSET_ID),
         record.get(BID_ORDER.PRICE),
         record.get(BID_ORDER.CREATION_HEIGHT),
         record.get(BID_ORDER.QUANTITY),
-        bidOrderDbKeyFactory.newKey(record.get(BID_ORDER.ID))
-    )
+        bidOrderDbKeyFactory.newKey(record.get(BID_ORDER.ID)))
 }

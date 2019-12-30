@@ -21,7 +21,7 @@ internal class GetConstants(dp: DependencyProvider) : APIServlet.JsonRequestHand
 
     init {
         val response = JsonObject()
-        response.addProperty("genesisBlockId", Genesis.GENESIS_BLOCK_ID.toUnsignedString())
+        response.addProperty("genesisBlockId", Genesis.BLOCK_ID.toUnsignedString())
         response.addProperty("genesisAccountId", Genesis.CREATOR_ID.toUnsignedString())
         response.addProperty("maxBlockPayloadLength", dp.fluxCapacitorService.getValue(FluxValues.MAX_PAYLOAD_LENGTH))
         response.addProperty("maxArbitraryMessageLength", Constants.MAX_ARBITRARY_MESSAGE_LENGTH)

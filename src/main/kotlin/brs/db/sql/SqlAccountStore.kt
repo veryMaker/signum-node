@@ -41,7 +41,7 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
             dp
         ) {
             override fun load(ctx: DSLContext, record: Record): Account.RewardRecipientAssignment {
-                return SqlRewardRecipientAssignment(record)
+                return sqlToRewardRecipientAssignment(record)
             }
 
             override fun save(ctx: DSLContext, entity: Account.RewardRecipientAssignment) {
@@ -92,7 +92,7 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
         accountTable = object :
             SqlVersionedBatchEntityTable<Account>(ACCOUNT, ACCOUNT.HEIGHT, ACCOUNT.LATEST, accountDbKeyFactory, Account::class.java, dp) {
             override fun load(ctx: DSLContext, record: Record): Account {
-                return SqlAccount(record)
+                return sqlToAccount(record)
             }
 
             override fun bulkInsert(ctx: DSLContext, entities: Collection<Account>) {
@@ -197,30 +197,28 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
         rs.get(ACCOUNT_ASSET.UNCONFIRMED_QUANTITY),
         accountAssetDbKeyFactory.newKey(rs.get(ACCOUNT_ASSET.ACCOUNT_ID), rs.get(ACCOUNT_ASSET.ASSET_ID))
     )
-
-    internal inner class SqlAccount(record: Record) : Account(
-        record.get(ACCOUNT.ID),
-        accountDbKeyFactory.newKey(record.get(ACCOUNT.ID)),
-        record.get(ACCOUNT.CREATION_HEIGHT)
-    ) {
-        init {
-            this.publicKey = record.get(ACCOUNT.PUBLIC_KEY)
-            this.keyHeight = record.get(ACCOUNT.KEY_HEIGHT)
-            this.balancePlanck = record.get(ACCOUNT.BALANCE)
-            this.unconfirmedBalancePlanck = record.get(ACCOUNT.UNCONFIRMED_BALANCE)
-            this.forgedBalancePlanck = record.get(ACCOUNT.FORGED_BALANCE)
-            this.name = record.get(ACCOUNT.NAME)
-            this.description = record.get(ACCOUNT.DESCRIPTION)
-        }
+    
+    private fun sqlToAccount(record: Record): Account {
+        val account = Account(
+            record.get(ACCOUNT.ID),
+            accountDbKeyFactory.newKey(record.get(ACCOUNT.ID)),
+            record.get(ACCOUNT.CREATION_HEIGHT))
+        account.publicKey = record.get(ACCOUNT.PUBLIC_KEY)
+        account.keyHeight = record.get(ACCOUNT.KEY_HEIGHT)
+        account.balancePlanck = record.get(ACCOUNT.BALANCE)
+        account.unconfirmedBalancePlanck = record.get(ACCOUNT.UNCONFIRMED_BALANCE)
+        account.forgedBalancePlanck = record.get(ACCOUNT.FORGED_BALANCE)
+        account.name = record.get(ACCOUNT.NAME)
+        account.description = record.get(ACCOUNT.DESCRIPTION)
+        return account
     }
 
-    internal inner class SqlRewardRecipientAssignment(record: Record) : Account.RewardRecipientAssignment(
+    private fun sqlToRewardRecipientAssignment(record: Record) = Account.RewardRecipientAssignment(
         record.get(REWARD_RECIP_ASSIGN.ACCOUNT_ID),
         record.get(REWARD_RECIP_ASSIGN.PREV_RECIP_ID),
         record.get(REWARD_RECIP_ASSIGN.RECIP_ID),
         record.get(REWARD_RECIP_ASSIGN.FROM_HEIGHT),
-        rewardRecipientAssignmentDbKeyFactory.newKey(record.get(REWARD_RECIP_ASSIGN.ACCOUNT_ID))
-    )
+        rewardRecipientAssignmentDbKeyFactory.newKey(record.get(REWARD_RECIP_ASSIGN.ACCOUNT_ID)))
 
     companion object {
 

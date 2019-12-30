@@ -61,7 +61,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
             )
 
             override fun load(ctx: DSLContext, record: Record): Purchase {
-                return SQLPurchase(record)
+                return sqlToPurchase(record)
             }
 
             override fun save(ctx: DSLContext, entity: Purchase) {
@@ -127,7 +127,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 )
 
                 override fun load(ctx: DSLContext, record: Record): Goods {
-                    return SQLGoods(record)
+                    return sqlToGoods(record)
                 }
 
                 override fun save(ctx: DSLContext, entity: Goods) {
@@ -246,7 +246,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         return purchaseTable.getManyBy(PURCHASE.SELLER_ID.eq(sellerId).and(PURCHASE.PENDING.isTrue), from, to)
     }
 
-    private inner class SQLGoods internal constructor(record: Record) : Goods(
+    private fun sqlToGoods(record: Record) = Goods(
         record.get(GOODS.ID),
         goodsDbKeyFactory.newKey(record.get(GOODS.ID)),
         record.get(GOODS.SELLER_ID),
@@ -256,10 +256,9 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         record.get(GOODS.TIMESTAMP),
         record.get(GOODS.QUANTITY),
         record.get(GOODS.PRICE),
-        record.get(GOODS.DELISTED)
-    )
+        record.get(GOODS.DELISTED))
 
-    internal inner class SQLPurchase(record: Record) : Purchase(
+    private fun sqlToPurchase(record: Record) = Purchase(
         dp,
         record.get(PURCHASE.ID),
         purchaseDbKeyFactory.newKey(record.get(PURCHASE.ID)),
@@ -277,6 +276,5 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         record.get(PURCHASE.HAS_FEEDBACK_NOTES),
         record.get(PURCHASE.HAS_PUBLIC_FEEDBACKS),
         record.get(PURCHASE.DISCOUNT),
-        record.get(PURCHASE.REFUND)
-    )
+        record.get(PURCHASE.REFUND))
 }

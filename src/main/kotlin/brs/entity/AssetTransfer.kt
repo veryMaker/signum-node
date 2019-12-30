@@ -3,7 +3,7 @@ package brs.entity
 import brs.db.BurstKey
 import brs.transaction.appendix.Attachment
 
-open class AssetTransfer {
+class AssetTransfer {
     val id: Long
     val dbKey: BurstKey
     val assetId: Long
@@ -28,7 +28,7 @@ open class AssetTransfer {
         this.timestamp = transaction.blockTimestamp
     }
 
-    protected constructor(
+    constructor(
         id: Long,
         dbKey: BurstKey,
         assetId: Long,

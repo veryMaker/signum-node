@@ -198,7 +198,7 @@ class AT : AtMachineState {
                 )
 
                 val builder = Transaction.Builder(
-                    dp, 1.toByte(), Genesis.creatorPublicKey,
+                    dp, 1.toByte(), Genesis.CREATOR_PUBLIC_KEY,
                     amount, 0L, block.timestamp, 1440.toShort(), Attachment.AtPayment(dp)
                 )
 

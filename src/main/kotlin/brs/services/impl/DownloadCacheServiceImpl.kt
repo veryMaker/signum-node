@@ -177,8 +177,8 @@ class DownloadCacheServiceImpl(private val dp: DependencyProvider) : DownloadCac
     private fun setLastVars() = stampedLock.write {
         if (blockCache.isNotEmpty()) {
             lastBlockId = blockCache[blockCache.keys.toTypedArray()[blockCache.keys.size - 1]]?.id
-            lastHeight = blockCache[lastBlockId ?: Genesis.GENESIS_BLOCK_ID]?.height ?: 0
-            highestCumulativeDifficulty = blockCache[lastBlockId ?: Genesis.GENESIS_BLOCK_ID]!!.cumulativeDifficulty
+            lastHeight = blockCache[lastBlockId ?: Genesis.BLOCK_ID]?.height ?: 0
+            highestCumulativeDifficulty = blockCache[lastBlockId ?: Genesis.BLOCK_ID]!!.cumulativeDifficulty
             logger.safeDebug { "Cache set to CacheData" }
             printLastVars()
         } else {

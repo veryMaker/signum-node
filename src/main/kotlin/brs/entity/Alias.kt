@@ -3,8 +3,7 @@ package brs.entity
 import brs.db.BurstKey
 import brs.transaction.appendix.Attachment
 
-open class Alias {
-
+class Alias {
     var accountId: Long = 0
     val id: Long
     val dbKey: BurstKey
@@ -28,7 +27,7 @@ open class Alias {
         this.timestamp = timestamp
     }
 
-    protected constructor(
+    constructor(
         id: Long,
         accountId: Long,
         aliasName: String,
@@ -68,7 +67,7 @@ open class Alias {
             this.id = aliasId
         }
 
-        protected constructor(aliasId: Long, pricePlanck: Long, buyerId: Long, nxtKey: BurstKey) {
+        constructor(aliasId: Long, pricePlanck: Long, buyerId: Long, nxtKey: BurstKey) {
             this.pricePlanck = pricePlanck
             this.buyerId = buyerId
             this.id = aliasId

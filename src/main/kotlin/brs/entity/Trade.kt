@@ -4,8 +4,7 @@ import brs.db.BurstKey
 import brs.util.convert.toUnsignedString
 import kotlin.math.min
 
-open class Trade {
-
+class Trade {
     val timestamp: Int
     val assetId: Long
     val blockId: Long
@@ -25,7 +24,7 @@ open class Trade {
         TRADE
     }
 
-    protected constructor(
+    constructor(
         timestamp: Int, assetId: Long, blockId: Long, height: Int,
         askOrderId: Long, bidOrderId: Long, askOrderHeight: Int, bidOrderHeight: Int,
         sellerId: Long, buyerId: Long, dbKey: BurstKey, quantity: Long, pricePlanck: Long
