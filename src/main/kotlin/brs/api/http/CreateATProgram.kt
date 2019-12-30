@@ -79,12 +79,14 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
                 }
                 require(data.length and 1 == 0)
 
-                val cpages = code.length / 2 / 256 + if (code.length / 2 % 256 != 0) 1 else 0
+                val cpages = code.length / 512 + if (code.length / 2 % 256 != 0) 1 else 0
                 val dpages = Integer.parseInt(request.getParameter(DPAGES_PARAMETER))
                 val cspages = Integer.parseInt(request.getParameter(CSPAGES_PARAMETER))
                 val uspages = Integer.parseInt(request.getParameter(USPAGES_PARAMETER))
 
-                require(!(dpages < 0 || cspages < 0 || uspages < 0))
+                require(dpages >= 0)
+                require(cspages >= 0)
+                require(uspages >= 0)
 
                 val minActivationAmount =
                     request.getParameter(MIN_ACTIVATION_AMOUNT_PLANCK_PARAMETER).parseUnsignedLong()
@@ -92,9 +94,9 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
                 var creationLength = 4 // version + reserved
                 creationLength += 8 // pages
                 creationLength += 8 // minActivationAmount
-                creationLength += if (cpages * 256 <= 256) 1 else if (cpages * 256 <= 32767) 2 else 4 // code size
+                creationLength += if (cpages <= 1) 1 else if (cpages < 128) 2 else 4 // code size
                 creationLength += code.length / 2
-                creationLength += if (dpages * 256 <= 256) 1 else if (dpages * 256 <= 32767) 2 else 4 // data size
+                creationLength += if (dpages <= 1) 1 else if (dpages < 128) 2 else 4 // data size
                 creationLength += data.length / 2
 
                 val creation = ByteBuffer.allocate(creationLength)
@@ -146,8 +148,8 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
 
     private fun putLength(nPages: Int, string: String, buffer: ByteBuffer) {
         when {
-            nPages * 256 <= 256 -> buffer.put((string.length / 2).toByte())
-            nPages * 256 <= 32767 -> buffer.putShort((string.length / 2).toShort())
+            nPages <= 1 -> buffer.put((string.length / 2).toByte())
+            nPages < 128 -> buffer.putShort((string.length / 2).toShort())
             else -> buffer.putInt(string.length / 2)
         }
     }
