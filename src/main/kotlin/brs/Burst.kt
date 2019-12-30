@@ -103,6 +103,7 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
             dp.downloadCacheService = DownloadCacheServiceImpl(dp)
             dp.indirectIncomingService = IndirectIncomingServiceImpl(dp)
             dp.feeSuggestionService = FeeSuggestionServiceImpl(dp)
+            dp.qrGeneratorService = QRGeneratorServiceImpl()
             dp.deeplinkQRCodeGeneratorService = DeeplinkQRCodeGeneratorServiceImpl()
             dp.deeplinkGeneratorService = DeeplinkGeneratorServiceImpl()
             dp.parameterService = ParameterServiceImpl(dp)

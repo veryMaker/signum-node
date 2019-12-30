@@ -67,4 +67,5 @@ class DependencyProvider {
     lateinit var atController: AtController
     lateinit var transactionTypes: Map<Byte, Map<Byte, TransactionType>>
     lateinit var db: Db
+    lateinit var qrGeneratorService: QRGeneratorService
 }

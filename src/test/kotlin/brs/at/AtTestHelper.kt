@@ -168,7 +168,7 @@ class AtTestHelper {
             var creationLength = 4 // version + reserved
             creationLength += 8 // pages
             creationLength += 8 // minActivationAmount
-            creationLength += if (cpages * 256 <= 256) 1 else if (cpages * 256 <= 32767) 2 else 4 // code size
+            creationLength += if (cpages <= 1) 1 else if (cpages < 128) 2 else 4 // code size
             creationLength += code.size
             creationLength += 1 // data size
             creationLength += data.size

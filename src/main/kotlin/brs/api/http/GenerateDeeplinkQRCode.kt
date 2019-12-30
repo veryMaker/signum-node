@@ -20,10 +20,8 @@ import brs.objects.Constants
 import brs.services.DeeplinkQRCodeGeneratorService
 import brs.util.convert.emptyToNull
 import brs.util.logging.safeError
-import com.google.zxing.WriterException
 import org.eclipse.jetty.http.HttpStatus
 import org.slf4j.LoggerFactory
-import java.io.IOException
 import javax.imageio.ImageIO
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -103,7 +101,7 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGeneratorService
                 return
             }
 
-            resp.contentType = "image/jpeg"
+            resp.contentType = "image/png"
 
             val qrImage = deeplinkQRCodeGeneratorService.generateRequestBurstDeepLinkQRCode(
                 receiverId,
@@ -113,17 +111,13 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGeneratorService
                 message,
                 immutable
             )
-            ImageIO.write(qrImage, "jpg", resp.outputStream)
+            ImageIO.write(qrImage, "png", resp.outputStream)
             resp.outputStream.close()
-        } catch (e: WriterException) {
-            logger.safeError(e) { "Could not generate Deeplink QR code" }
-            resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
-        } catch (e: IOException) {
-            logger.safeError(e) { "Could not generate Deeplink QR code" }
-            resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
         } catch (e: IllegalArgumentException) {
             logger.safeError(e) { "Problem with arguments" }
+        } catch (e: Exception) {
+            logger.safeError(e) { "Could not generate Deeplink QR code" }
+            resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
         }
-
     }
 }
