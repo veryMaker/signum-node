@@ -42,7 +42,6 @@ class FutureMaybeObserver<T> : CountDownLatch(1), MaybeObserver<T>, Future<T>, D
         return count == 0L
     }
 
-    @Throws(InterruptedException::class, ExecutionException::class)
     override fun get(): T? {
         if (count != 0L) {
             BlockingHelper.verifyNonBlocking()
@@ -59,7 +58,6 @@ class FutureMaybeObserver<T> : CountDownLatch(1), MaybeObserver<T>, Future<T>, D
         return value
     }
 
-    @Throws(InterruptedException::class, ExecutionException::class, TimeoutException::class)
     override fun get(timeout: Long, unit: TimeUnit): T? {
         if (count != 0L) {
             BlockingHelper.verifyNonBlocking()

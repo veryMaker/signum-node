@@ -1,14 +1,12 @@
 package brs.services.impl
 
 import brs.services.DeeplinkGeneratorService
-import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 class DeeplinkGeneratorServiceImpl : DeeplinkGeneratorService {
     private val validDomains = listOf("payment", "message", "contract", "asset", "market", "generic")
 
-    @Throws(UnsupportedEncodingException::class, IllegalArgumentException::class)
     override fun generateDeepLink(domain: String, action: String?, base64Payload: String?): String {
         require(validDomains.contains(domain)) { "Invalid domain: \"$domain\"" }
 

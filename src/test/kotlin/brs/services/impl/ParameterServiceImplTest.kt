@@ -697,7 +697,6 @@ class ParameterServiceImplTest {
     }
 
     @Test
-    @Throws(ValidationException::class, ParameterException::class)
     fun parseTransaction_transactionBytes() {
         val mockTransaction = mockk<Transaction>(relaxed = true)
 
@@ -713,7 +712,6 @@ class ParameterServiceImplTest {
     }
 
     @Test(expected = ParameterException::class)
-    @Throws(ValidationException::class, ParameterException::class)
     fun parseTransaction_transactionBytes_runTimeExceptionOccurs() {
         mockkObject(Transaction.Companion)
         every { Transaction.parseTransaction(any(), any<ByteArray>()) } throws RuntimeException()
@@ -722,7 +720,6 @@ class ParameterServiceImplTest {
     }
 
     @Test
-    @Throws(ValidationException::class, ParameterException::class)
     fun parseTransaction_transactionJSON() {
         val mockTransaction = mockk<Transaction>(relaxed = true)
 
@@ -733,7 +730,6 @@ class ParameterServiceImplTest {
     }
 
     @Test(expected = ParameterException::class)
-    @Throws(ParameterException::class, ValidationException::class)
     fun parseTransaction_transactionJSON_validationExceptionOccurs() {
         mockkObject(Transaction.Companion)
         every { Transaction.parseTransaction(any(), any(), any()) } throws BurstException.NotValidException("")
@@ -742,7 +738,6 @@ class ParameterServiceImplTest {
     }
 
     @Test(expected = ParameterException::class)
-    @Throws(ParameterException::class, ValidationException::class)
     fun parseTransaction_transactionJSON_runTimeExceptionOccurs() {
         mockkObject(Transaction.Companion)
         every { Transaction.parseTransaction(any(), any(), any()) } throws RuntimeException()

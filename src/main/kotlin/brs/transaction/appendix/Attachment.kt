@@ -82,7 +82,6 @@ import burst.kit.entity.BurstEncryptedMessage
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
-import com.google.protobuf.InvalidProtocolBufferException
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.util.*
@@ -137,7 +136,6 @@ interface Attachment : Appendix {
         abstract val transactionTypeAndSubtype: Pair<Byte, Byte>
 
         companion object {
-            @Throws(InvalidProtocolBufferException::class, BurstException.NotValidException::class)
             fun parseProtobufMessage(dp: DependencyProvider, attachment: Any): AbstractAttachment {
                 // Yes, this is fairly horrible. I wish there was a better way to do this but any does not let us switch on its contained class.
                 return when {

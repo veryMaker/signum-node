@@ -7,7 +7,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.UnsupportedEncodingException
 
 @RunWith(JUnit4::class)
 class DeeplinkGeneratorServiceImplTest {
@@ -19,7 +18,6 @@ class DeeplinkGeneratorServiceImplTest {
     }
 
     @Test
-    @Throws(UnsupportedEncodingException::class)
     fun testDeeplinkGenerator_Success() {
         val result = deeplinkGeneratorService.generateDeepLink("generic", "testAction", "dGVzdERhdGE=")
         val expectedResult = "burst.generic://v1?action=testAction&payload=dGVzdERhdGE%3D"
@@ -27,7 +25,6 @@ class DeeplinkGeneratorServiceImplTest {
     }
 
     @Test
-    @Throws(UnsupportedEncodingException::class)
     fun testDeeplinkGenerator_NoPayloadSuccess() {
         val result = deeplinkGeneratorService.generateDeepLink("generic", "testAction", null)
         val expectedResult = "burst.generic://v1?action=testAction"
@@ -35,7 +32,6 @@ class DeeplinkGeneratorServiceImplTest {
     }
 
     @Test
-    @Throws(UnsupportedEncodingException::class)
     fun testDeeplinkGenerator_InvalidDomain() {
         try {
             deeplinkGeneratorService.generateDeepLink("invalid", "testAction", null)
@@ -45,9 +41,7 @@ class DeeplinkGeneratorServiceImplTest {
     }
 
     @Test
-    @Throws(UnsupportedEncodingException::class)
     fun testDeeplinkGenerator_PayloadLengthExceeded() {
-
         val s = StringBuilder()
         for (i in 0..2048) {
             s.append("a")
