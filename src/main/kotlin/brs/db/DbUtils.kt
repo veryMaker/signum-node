@@ -11,7 +11,7 @@ import kotlin.contracts.contract
 /**
  * Use the DSL Context of the DB
  * @param action The action to perform using the DSL Context
- * @return The value fetched by the `action`
+ * @return The value fetched by the [action]
  */
 @UseExperimental(ExperimentalContracts::class)
 inline fun <T> Db.useDslContext(action: (DSLContext) -> T): T {
@@ -20,7 +20,7 @@ inline fun <T> Db.useDslContext(action: (DSLContext) -> T): T {
 }
 
 /**
- * Do `action` within a database transaction, and revert
+ * Perform [action] within a database transaction, and revert
  * if an exception was thrown.
  * @param action The action to perform within a DB transaction
  */

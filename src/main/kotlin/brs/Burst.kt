@@ -158,7 +158,7 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
      * Tries to perform an action that uses a `lateinit` property.
      * If this property is uninitialized, this swallows the exception produced.
      */
-    private inline fun tryOnLateinit(action: () -> Unit) {
+    private inline fun ignoreLateinitException(action: () -> Unit) {
         try {
             action()
         } catch (e: UninitializedPropertyAccessException) {
@@ -168,25 +168,25 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
 
     fun shutdown() {
         logger.safeInfo { "Shutting down..." }
-        tryOnLateinit {
+        ignoreLateinitException {
             dp.api.shutdown()
         }
-        tryOnLateinit {
+        ignoreLateinitException {
             dp.apiV2Server.shutdownNow()
         }
-        tryOnLateinit {
+        ignoreLateinitException {
             dp.peerService.shutdown()
         }
-        tryOnLateinit {
+        ignoreLateinitException {
             dp.taskSchedulerService.shutdown()
         }
-        tryOnLateinit {
+        ignoreLateinitException {
             dp.db.shutdown()
         }
-        tryOnLateinit {
+        ignoreLateinitException {
             dp.dbCacheService.close()
         }
-        tryOnLateinit {
+        ignoreLateinitException {
             dp.oclPocService.destroy()
         }
         logger.safeInfo { "$APPLICATION $VERSION stopped." }

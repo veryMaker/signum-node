@@ -63,8 +63,8 @@ interface AccountStore {
 
     /**
      * Set or verify an account's public key.
-     * If the account's public key is null, it is set to `key` and this returns true.
-     * If the account's public key is equal to `key`, this returns true.
+     * If the account's public key is null, it is set to [key] and this returns true.
+     * If the account's public key is equal to [key], this returns true.
      * Otherwise this returns false.
      * @param account The account to set or verify the public key of
      * @param key The public key to use in setting or verify

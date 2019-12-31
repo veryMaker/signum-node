@@ -12,9 +12,9 @@ interface AccountService : Observable<Account, Event> {
     val count: Int
 
     /**
-     * Add a listener that will be notified whenever the `eventType` occurs
-     * @param eventType The type of `Event` to listen for
-     * @param listener The function that will be called when the `eventType` occurs
+     * Add a listener that will be notified whenever this [eventType] occurs
+     * @param eventType The type of [Event] to listen for
+     * @param listener The function that will be called when this [eventType] occurs
      */
     fun addAssetListener(eventType: Event, listener: (AccountAsset) -> Unit)
 

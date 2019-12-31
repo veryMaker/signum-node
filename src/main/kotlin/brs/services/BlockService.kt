@@ -13,7 +13,7 @@ interface BlockService {
      * - Verifies block's generation signature
      * - Verifies fee slot order (if enabled at block's height)
      * - Verifies block hash
-     * - For each transaction, runs pre-validation (`TransactionService.preValidate()`)
+     * - For each transaction, runs pre-validation ([TransactionService.preValidate()])
      * - For each transaction, verifies signature
      *
      * @param scoopData Pre-calculated scoop data for this block to use to verify the block's PoC proof. Will be calculated if null

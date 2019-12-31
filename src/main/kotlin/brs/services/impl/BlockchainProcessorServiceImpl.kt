@@ -28,11 +28,29 @@ import brs.util.json.*
 import brs.util.logging.*
 import brs.util.sync.Mutex
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.util.*
+import kotlin.collections.List
+import kotlin.collections.Map
+import kotlin.collections.MutableList
+import kotlin.collections.MutableMap
+import kotlin.collections.associateBy
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.contentEquals
+import kotlin.collections.emptyList
+import kotlin.collections.filter
+import kotlin.collections.forEach
+import kotlin.collections.indices
+import kotlin.collections.isNullOrEmpty
+import kotlin.collections.iterator
+import kotlin.collections.joinToString
+import kotlin.collections.mutableListOf
+import kotlin.collections.mutableMapOf
+import kotlin.collections.set
+import kotlin.collections.sortedWith
 import kotlin.math.max
 
 class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : BlockchainProcessorService {
@@ -291,7 +309,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
      * This task pre-verifies blocks in the background,
      * using the GPU to verify the PoC proof.
      * It is NOT thread-safe, so only one instance may be
-     * run at a time. It should also only be run if `oclVerify` is `true`.
+     * run at a time. It should also only be run if [oclVerify] is `true`.
      */
     private val gpuPreVerificationTask: RepeatingTask = {
         val unVerified = dp.downloadCacheService.unverifiedSize
