@@ -9,7 +9,6 @@ import brs.services.DeeplinkGeneratorService
 import brs.services.impl.DeeplinkGeneratorServiceImpl
 import brs.util.json.safeGetAsInt
 import brs.util.json.safeGetAsString
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -61,7 +60,7 @@ class GenerateDeeplinkTest {
         val result = t.processRequest(request) as JsonObject
 
         assertEquals(4, result.get(ERROR_CODE_RESPONSE).safeGetAsInt())
-        assertEquals("Incorrect \"arguments\"Invalid domain: \"invalid\"", result.get(ERROR_DESCRIPTION_RESPONSE).safeGetAsString())
+        assertEquals("Incorrect \"arguments\": Invalid domain: \"invalid\"", result.get(ERROR_DESCRIPTION_RESPONSE).safeGetAsString())
     }
 
     @Test
@@ -74,7 +73,6 @@ class GenerateDeeplinkTest {
         val result = t.processRequest(request) as JsonObject
 
         assertEquals(4, result.get(ERROR_CODE_RESPONSE).safeGetAsInt())
-        assertEquals("Incorrect \"payload\"With 'payload' parameter the 'action' parameter is mandatory", result.get(ERROR_DESCRIPTION_RESPONSE).safeGetAsString())
+        assertEquals("Incorrect \"payload\": With 'payload' parameter the 'action' parameter is mandatory", result.get(ERROR_DESCRIPTION_RESPONSE).safeGetAsString())
     }
-
 }
