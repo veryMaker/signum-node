@@ -1,9 +1,9 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_DGS_LISTING_DESCRIPTION
-import brs.api.http.JSONResponses.INCORRECT_DGS_LISTING_NAME
-import brs.api.http.JSONResponses.INCORRECT_DGS_LISTING_TAGS
-import brs.api.http.JSONResponses.MISSING_NAME
+import brs.api.http.common.JSONResponses.INCORRECT_DGS_LISTING_DESCRIPTION
+import brs.api.http.common.JSONResponses.INCORRECT_DGS_LISTING_NAME
+import brs.api.http.common.JSONResponses.INCORRECT_DGS_LISTING_TAGS
+import brs.api.http.common.JSONResponses.MISSING_NAME
 import brs.api.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.api.http.common.Parameters.NAME_PARAMETER
 import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER

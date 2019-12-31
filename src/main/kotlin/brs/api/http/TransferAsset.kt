@@ -1,12 +1,11 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.NOT_ENOUGH_ASSETS
+import brs.api.http.common.JSONResponses.NOT_ENOUGH_ASSETS
 import brs.api.http.common.Parameters.ASSET_PARAMETER
 import brs.api.http.common.Parameters.QUANTITY_QNT_PARAMETER
 import brs.api.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.entity.DependencyProvider
 import brs.transaction.appendix.Attachment
-import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 

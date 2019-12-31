@@ -1,7 +1,7 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.MISSING_SIGNATURE_HASH
-import brs.api.http.JSONResponses.MISSING_UNSIGNED_BYTES
+import brs.api.http.common.JSONResponses.MISSING_SIGNATURE_HASH
+import brs.api.http.common.JSONResponses.MISSING_UNSIGNED_BYTES
 import brs.api.http.common.Parameters.FULL_HASH_RESPONSE
 import brs.api.http.common.Parameters.SIGNATURE_HASH_PARAMETER
 import brs.api.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
@@ -11,7 +11,6 @@ import brs.util.convert.toHexString
 import brs.util.crypto.Crypto
 import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 

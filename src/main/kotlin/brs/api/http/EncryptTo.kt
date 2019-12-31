@@ -1,14 +1,14 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_ENCRYPTED_MESSAGE
-import brs.api.http.JSONResponses.INCORRECT_RECIPIENT
+import brs.api.http.common.JSONResponses.INCORRECT_ENCRYPTED_MESSAGE
+import brs.api.http.common.JSONResponses.INCORRECT_RECIPIENT
 import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER
 import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER
 import brs.api.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.api.http.common.JSONData
 import brs.services.AccountService
 import brs.services.ParameterService
-import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 

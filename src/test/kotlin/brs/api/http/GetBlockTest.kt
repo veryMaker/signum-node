@@ -1,9 +1,9 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_BLOCK
-import brs.api.http.JSONResponses.INCORRECT_HEIGHT
-import brs.api.http.JSONResponses.INCORRECT_TIMESTAMP
-import brs.api.http.JSONResponses.UNKNOWN_BLOCK
+import brs.api.http.common.JSONResponses.INCORRECT_BLOCK
+import brs.api.http.common.JSONResponses.INCORRECT_HEIGHT
+import brs.api.http.common.JSONResponses.INCORRECT_TIMESTAMP
+import brs.api.http.common.JSONResponses.UNKNOWN_BLOCK
 import brs.api.http.common.Parameters.BLOCK_PARAMETER
 import brs.api.http.common.Parameters.HEIGHT_PARAMETER
 import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
@@ -12,7 +12,6 @@ import brs.common.QuickMocker.MockParam
 import brs.entity.Block
 import brs.services.BlockService
 import brs.services.BlockchainService
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk

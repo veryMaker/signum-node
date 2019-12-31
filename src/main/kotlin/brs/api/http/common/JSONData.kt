@@ -1,4 +1,4 @@
-package brs.api.http
+package brs.api.http.common
 
 import brs.api.http.common.Parameters.FULL_HASH_RESPONSE
 import brs.api.http.common.ResultFields.ACCOUNT_RESPONSE
@@ -99,8 +99,6 @@ import brs.entity.Alias.Offer
 import brs.objects.Constants
 import brs.peer.Peer
 import brs.services.AccountService
-import brs.util.byteArray.isZero
-import brs.util.convert.emptyToNull
 import brs.util.convert.rsAccount
 import brs.util.convert.toHexString
 import brs.util.convert.toUnsignedString
@@ -108,7 +106,6 @@ import brs.util.crypto.Crypto
 import brs.util.json.addAll
 import burst.kit.entity.BurstEncryptedMessage
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 object JSONData {
@@ -237,7 +234,12 @@ object JSONData {
         val transactions = JsonArray()
         for (transaction in block.transactions) {
             if (includeTransactions) {
-                transactions.add(transaction(transaction, currentBlockchainHeight))
+                transactions.add(
+                    transaction(
+                        transaction,
+                        currentBlockchainHeight
+                    )
+                )
             } else {
                 transactions.add(transaction.stringId)
             }
@@ -325,7 +327,9 @@ object JSONData {
         }
         json.addProperty(PENDING_RESPONSE, purchase.isPending)
         if (purchase.encryptedGoods != null) {
-            json.add(GOODS_DATA_RESPONSE, encryptedData(purchase.encryptedGoods!!))
+            json.add(GOODS_DATA_RESPONSE,
+                encryptedData(purchase.encryptedGoods!!)
+            )
             json.addProperty(GOODS_IS_TEXT_RESPONSE, purchase.encryptedGoods?.isText ?: false)
         }
         if (purchase.feedbackNotes.isNotEmpty()) {
@@ -344,7 +348,9 @@ object JSONData {
             json.add(PUBLIC_FEEDBACKS_RESPONSE, publicFeedbacks)
         }
         if (purchase.refundNote != null) {
-            json.add(REFUND_NOTE_RESPONSE, encryptedData(purchase.refundNote!!))
+            json.add(REFUND_NOTE_RESPONSE,
+                encryptedData(purchase.refundNote!!)
+            )
         }
         if (purchase.discountPlanck > 0) {
             json.addProperty(DISCOUNT_PLANCK_RESPONSE, purchase.discountPlanck.toString())
@@ -413,7 +419,11 @@ object JSONData {
         json.addProperty(DEADLINE_RESPONSE, transaction.deadline)
         json.addProperty(SENDER_PUBLIC_KEY_RESPONSE, transaction.senderPublicKey.toHexString())
         if (transaction.recipientId != 0L) {
-            putAccount(json, RECIPIENT_RESPONSE, transaction.recipientId)
+            putAccount(
+                json,
+                RECIPIENT_RESPONSE,
+                transaction.recipientId
+            )
         }
         json.addProperty(AMOUNT_PLANCK_RESPONSE, transaction.amountPlanck.toString())
         json.addProperty(FEE_PLANCK_RESPONSE, transaction.feePlanck.toString())

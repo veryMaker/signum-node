@@ -1,7 +1,7 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.MISSING_SIGNATURE_HASH
-import brs.api.http.JSONResponses.MISSING_UNSIGNED_BYTES
+import brs.api.http.common.JSONResponses.MISSING_SIGNATURE_HASH
+import brs.api.http.common.JSONResponses.MISSING_UNSIGNED_BYTES
 import brs.api.http.common.Parameters.SIGNATURE_HASH_PARAMETER
 import brs.api.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
 import brs.api.http.common.ResultFields.FULL_HASH_RESPONSE

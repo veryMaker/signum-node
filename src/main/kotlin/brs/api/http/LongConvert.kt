@@ -1,13 +1,12 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.MISSING_ID
+import brs.api.http.common.JSONResponses.MISSING_ID
 import brs.api.http.common.Parameters.ID_PARAMETER
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
 import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 

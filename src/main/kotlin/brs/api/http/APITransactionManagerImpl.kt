@@ -1,13 +1,14 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.FEATURE_NOT_AVAILABLE
-import brs.api.http.JSONResponses.INCORRECT_ARBITRARY_MESSAGE
-import brs.api.http.JSONResponses.INCORRECT_DEADLINE
-import brs.api.http.JSONResponses.INCORRECT_FEE
-import brs.api.http.JSONResponses.INCORRECT_REFERENCED_TRANSACTION
-import brs.api.http.JSONResponses.MISSING_DEADLINE
-import brs.api.http.JSONResponses.MISSING_SECRET_PHRASE
-import brs.api.http.JSONResponses.NOT_ENOUGH_FUNDS
+import brs.api.http.common.JSONData
+import brs.api.http.common.JSONResponses.FEATURE_NOT_AVAILABLE
+import brs.api.http.common.JSONResponses.INCORRECT_ARBITRARY_MESSAGE
+import brs.api.http.common.JSONResponses.INCORRECT_DEADLINE
+import brs.api.http.common.JSONResponses.INCORRECT_FEE
+import brs.api.http.common.JSONResponses.INCORRECT_REFERENCED_TRANSACTION
+import brs.api.http.common.JSONResponses.MISSING_DEADLINE
+import brs.api.http.common.JSONResponses.MISSING_SECRET_PHRASE
+import brs.api.http.common.JSONResponses.NOT_ENOUGH_FUNDS
 import brs.api.http.common.Parameters
 import brs.api.http.common.Parameters.BROADCAST_PARAMETER
 import brs.api.http.common.Parameters.COMMENT_PARAMETER

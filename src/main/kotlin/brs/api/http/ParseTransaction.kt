@@ -7,6 +7,7 @@ import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_RESPONSE
 import brs.api.http.common.ResultFields.VALIDATE_RESPONSE
 import brs.api.http.common.ResultFields.VERIFY_RESPONSE
+import brs.api.http.common.JSONData
 import brs.services.ParameterService
 import brs.services.TransactionService
 import brs.util.BurstException

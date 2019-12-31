@@ -1,15 +1,14 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.MISSING_SELLER
+import brs.api.http.common.JSONData
+import brs.api.http.common.JSONResponses.MISSING_SELLER
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.SELLER_PARAMETER
 import brs.api.http.common.ResultFields.PURCHASES_RESPONSE
 import brs.services.DigitalGoodsStoreService
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 

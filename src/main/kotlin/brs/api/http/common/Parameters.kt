@@ -98,12 +98,8 @@ object Parameters {
     const val ID_PARAMETER = "id"
     const val URI_PARAMETER = "uri"
     const val FEE_PARAMETER = "fee"
-    const val TOKEN_PARAMETER = "token"
-    const val WEBSITE_PARAMETER = "website"
     const val AMOUNT_PARAMETER = "amount"
     const val PRICE_PARAMETER = "price"
-    const val HOST_PARAMETER = "host"
-    const val DATE_PARAMETER = "date"
     const val ESCROW_ID_PARAMETER = "escrowId"
     const val SUBSCRIPTION_ID_PARAMETER = "subscriptionId"
     const val BLOCK_HEIGHT_PARAMETER = "blockheight"
@@ -125,9 +121,5 @@ object Parameters {
 
     fun isTrue(text: String?): Boolean {
         return "true".equals(text, ignoreCase = true)
-    }
-
-    fun isZero(recipientValue: String): Boolean {
-        return "0" == recipientValue
     }
 }

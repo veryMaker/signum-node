@@ -6,10 +6,10 @@ import brs.services.BlockchainService
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.objects.FluxValues
-import brs.api.http.JSONResponses.DUPLICATE_REFUND
-import brs.api.http.JSONResponses.GOODS_NOT_DELIVERED
-import brs.api.http.JSONResponses.INCORRECT_DGS_REFUND
-import brs.api.http.JSONResponses.INCORRECT_PURCHASE
+import brs.api.http.common.JSONResponses.DUPLICATE_REFUND
+import brs.api.http.common.JSONResponses.GOODS_NOT_DELIVERED
+import brs.api.http.common.JSONResponses.INCORRECT_DGS_REFUND
+import brs.api.http.common.JSONResponses.INCORRECT_PURCHASE
 import brs.api.http.common.Parameters.REFUND_PLANCK_PARAMETER
 import brs.entity.DependencyProvider
 import brs.objects.Constants

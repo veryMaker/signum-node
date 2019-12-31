@@ -1,9 +1,9 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_ALIAS_OWNER
-import brs.api.http.JSONResponses.INCORRECT_PRICE
-import brs.api.http.JSONResponses.INCORRECT_RECIPIENT
-import brs.api.http.JSONResponses.MISSING_PRICE
+import brs.api.http.common.JSONResponses.INCORRECT_ALIAS_OWNER
+import brs.api.http.common.JSONResponses.INCORRECT_PRICE
+import brs.api.http.common.JSONResponses.INCORRECT_RECIPIENT
+import brs.api.http.common.JSONResponses.MISSING_PRICE
 import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_PARAMETER
 import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER

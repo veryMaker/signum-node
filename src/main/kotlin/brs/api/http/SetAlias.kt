@@ -1,10 +1,10 @@
 package brs.api.http
 
 
-import brs.api.http.JSONResponses.INCORRECT_ALIAS_LENGTH
-import brs.api.http.JSONResponses.INCORRECT_ALIAS_NAME
-import brs.api.http.JSONResponses.INCORRECT_URI_LENGTH
-import brs.api.http.JSONResponses.MISSING_ALIAS_NAME
+import brs.api.http.common.JSONResponses.INCORRECT_ALIAS_LENGTH
+import brs.api.http.common.JSONResponses.INCORRECT_ALIAS_NAME
+import brs.api.http.common.JSONResponses.INCORRECT_URI_LENGTH
+import brs.api.http.common.JSONResponses.MISSING_ALIAS_NAME
 import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_URI_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
@@ -16,7 +16,6 @@ import brs.util.convert.emptyToNull
 import brs.util.string.isInAlphabet
 import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 

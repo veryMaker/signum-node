@@ -1,10 +1,10 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_ASSET_DESCRIPTION
-import brs.api.http.JSONResponses.INCORRECT_ASSET_NAME
-import brs.api.http.JSONResponses.INCORRECT_ASSET_NAME_LENGTH
-import brs.api.http.JSONResponses.INCORRECT_DECIMALS
-import brs.api.http.JSONResponses.MISSING_NAME
+import brs.api.http.common.JSONResponses.INCORRECT_ASSET_DESCRIPTION
+import brs.api.http.common.JSONResponses.INCORRECT_ASSET_NAME
+import brs.api.http.common.JSONResponses.INCORRECT_ASSET_NAME_LENGTH
+import brs.api.http.common.JSONResponses.INCORRECT_DECIMALS
+import brs.api.http.common.JSONResponses.MISSING_NAME
 import brs.api.http.common.Parameters.DECIMALS_PARAMETER
 import brs.api.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.api.http.common.Parameters.NAME_PARAMETER

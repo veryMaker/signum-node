@@ -1,7 +1,7 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_ACCOUNT_DESCRIPTION_LENGTH
-import brs.api.http.JSONResponses.INCORRECT_ACCOUNT_NAME_LENGTH
+import brs.api.http.common.JSONResponses.INCORRECT_ACCOUNT_DESCRIPTION_LENGTH
+import brs.api.http.common.JSONResponses.INCORRECT_ACCOUNT_NAME_LENGTH
 import brs.api.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.api.http.common.Parameters.NAME_PARAMETER
 import brs.entity.DependencyProvider

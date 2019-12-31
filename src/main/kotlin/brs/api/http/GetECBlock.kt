@@ -4,12 +4,11 @@ import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.api.http.common.ResultFields.EC_BLOCK_HEIGHT_RESPONSE
 import brs.api.http.common.ResultFields.EC_BLOCK_ID_RESPONSE
 import brs.api.http.common.ResultFields.TIMESTAMP_RESPONSE
+import brs.api.http.common.JSONResponses
 import brs.services.BlockchainService
 import brs.services.EconomicClusteringService
 import brs.services.TimeService
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 

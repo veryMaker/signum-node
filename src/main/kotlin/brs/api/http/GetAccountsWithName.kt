@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.MISSING_NAME
+import brs.api.http.common.JSONResponses.MISSING_NAME
 import brs.api.http.common.Parameters.ACCOUNTS_RESPONSE
 import brs.api.http.common.Parameters.NAME_PARAMETER
 import brs.services.AccountService

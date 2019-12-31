@@ -3,12 +3,11 @@ package brs.api.http
 import brs.api.http.common.Parameters.SUBSCRIPTION_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
+import brs.api.http.common.JSONData
 import brs.services.SubscriptionService
-import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 

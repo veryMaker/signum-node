@@ -1,11 +1,11 @@
 package brs.api.http
 
 
-import brs.api.http.JSONResponses.DUPLICATE_REFUND
-import brs.api.http.JSONResponses.GOODS_NOT_DELIVERED
-import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
-import brs.api.http.JSONResponses.INCORRECT_DGS_REFUND
-import brs.api.http.JSONResponses.INCORRECT_PURCHASE
+import brs.api.http.common.JSONResponses.DUPLICATE_REFUND
+import brs.api.http.common.JSONResponses.GOODS_NOT_DELIVERED
+import brs.api.http.common.JSONResponses.INCORRECT_ACCOUNT
+import brs.api.http.common.JSONResponses.INCORRECT_DGS_REFUND
+import brs.api.http.common.JSONResponses.INCORRECT_PURCHASE
 import brs.api.http.common.Parameters.PURCHASE_PARAMETER
 import brs.api.http.common.Parameters.REFUND_PLANCK_PARAMETER
 import brs.entity.DependencyProvider

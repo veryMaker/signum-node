@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
+import brs.api.http.common.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.common.Parameters.DATA_PARAMETER
 import brs.api.http.common.Parameters.DECRYPTED_MESSAGE_IS_TEXT_PARAMETER
 import brs.api.http.common.Parameters.NONCE_PARAMETER

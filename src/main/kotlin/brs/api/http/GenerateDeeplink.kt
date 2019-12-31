@@ -1,18 +1,17 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.MISSING_DOMAIN
-import brs.api.http.JSONResponses.PAYLOAD_WITHOUT_ACTION
-import brs.api.http.JSONResponses.incorrect
+import brs.api.http.common.JSONResponses.MISSING_DOMAIN
+import brs.api.http.common.JSONResponses.PAYLOAD_WITHOUT_ACTION
+import brs.api.http.common.JSONResponses.incorrect
 import brs.api.http.common.Parameters.ACTION_PARAMETER
 import brs.api.http.common.Parameters.DOMAIN_PARAMETER
 import brs.api.http.common.Parameters.PAYLOAD_PARAMETER
 import brs.api.http.common.ResultFields.DEEPLINK_RESPONSE
 import brs.services.DeeplinkGeneratorService
 import brs.util.convert.emptyToNull
+import brs.util.jetty.get
 import brs.util.logging.safeDebug
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
@@ -39,7 +38,7 @@ internal class GenerateDeeplink(private val deeplinkGeneratorService: DeeplinkGe
             return response
         } catch (e: IllegalArgumentException) {
             logger.safeDebug(e) { "Problem with arguments" }
-            return incorrect("arguments", e.message)
+            return incorrect("arguments", e.message ?: "")
         }
     }
 

@@ -1,14 +1,13 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_HEIGHT
-import brs.api.http.JSONResponses.MISSING_HEIGHT
+import brs.api.http.common.JSONResponses.INCORRECT_HEIGHT
+import brs.api.http.common.JSONResponses.MISSING_HEIGHT
 import brs.api.http.common.Parameters.HEIGHT_PARAMETER
 import brs.services.BlockchainService
 import brs.util.convert.emptyToNull
 import brs.util.convert.toUnsignedString
 import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 

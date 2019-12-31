@@ -1,13 +1,13 @@
 package brs.api.http
 
 import brs.api.http.APIServlet.HttpRequestHandler
-import brs.api.http.JSONResponses.FEE_OR_FEE_SUGGESTION_REQUIRED
-import brs.api.http.JSONResponses.FEE_SUGGESTION_TYPE_INVALID
-import brs.api.http.JSONResponses.INCORRECT_AMOUNT
-import brs.api.http.JSONResponses.INCORRECT_FEE
-import brs.api.http.JSONResponses.INCORRECT_MESSAGE_LENGTH
-import brs.api.http.JSONResponses.MISSING_AMOUNT
-import brs.api.http.JSONResponses.MISSING_RECEIVER_ID
+import brs.api.http.common.JSONResponses.FEE_OR_FEE_SUGGESTION_REQUIRED
+import brs.api.http.common.JSONResponses.FEE_SUGGESTION_TYPE_INVALID
+import brs.api.http.common.JSONResponses.INCORRECT_AMOUNT
+import brs.api.http.common.JSONResponses.INCORRECT_FEE
+import brs.api.http.common.JSONResponses.INCORRECT_MESSAGE_LENGTH
+import brs.api.http.common.JSONResponses.MISSING_AMOUNT
+import brs.api.http.common.JSONResponses.MISSING_RECEIVER_ID
 import brs.api.http.common.Parameters
 import brs.api.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.FEE_PLANCK_PARAMETER

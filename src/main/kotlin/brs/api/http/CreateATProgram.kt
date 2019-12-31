@@ -1,10 +1,10 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_DESCRIPTION
-import brs.api.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME
-import brs.api.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME_LENGTH
-import brs.api.http.JSONResponses.MISSING_CODE
-import brs.api.http.JSONResponses.MISSING_NAME
+import brs.api.http.common.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_DESCRIPTION
+import brs.api.http.common.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME
+import brs.api.http.common.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME_LENGTH
+import brs.api.http.common.JSONResponses.MISSING_CODE
+import brs.api.http.common.JSONResponses.MISSING_NAME
 import brs.api.http.common.Parameters.CODE_PARAMETER
 import brs.api.http.common.Parameters.CREATION_BYTES_PARAMETER
 import brs.api.http.common.Parameters.CSPAGES_PARAMETER

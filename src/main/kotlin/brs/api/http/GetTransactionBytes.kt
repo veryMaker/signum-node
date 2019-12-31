@@ -1,8 +1,8 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_TRANSACTION
-import brs.api.http.JSONResponses.MISSING_TRANSACTION
-import brs.api.http.JSONResponses.UNKNOWN_TRANSACTION
+import brs.api.http.common.JSONResponses.INCORRECT_TRANSACTION
+import brs.api.http.common.JSONResponses.MISSING_TRANSACTION
+import brs.api.http.common.JSONResponses.UNKNOWN_TRANSACTION
 import brs.api.http.common.Parameters.TRANSACTION_PARAMETER
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
@@ -10,7 +10,6 @@ import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toHexString
 import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 

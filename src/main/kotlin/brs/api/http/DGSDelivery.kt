@@ -1,10 +1,10 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.ALREADY_DELIVERED
-import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
-import brs.api.http.JSONResponses.INCORRECT_DGS_DISCOUNT
-import brs.api.http.JSONResponses.INCORRECT_DGS_GOODS
-import brs.api.http.JSONResponses.INCORRECT_PURCHASE
+import brs.api.http.common.JSONResponses.ALREADY_DELIVERED
+import brs.api.http.common.JSONResponses.INCORRECT_ACCOUNT
+import brs.api.http.common.JSONResponses.INCORRECT_DGS_DISCOUNT
+import brs.api.http.common.JSONResponses.INCORRECT_DGS_GOODS
+import brs.api.http.common.JSONResponses.INCORRECT_PURCHASE
 import brs.api.http.common.Parameters.DISCOUNT_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.GOODS_DATA_PARAMETER
 import brs.api.http.common.Parameters.GOODS_IS_TEXT_PARAMETER

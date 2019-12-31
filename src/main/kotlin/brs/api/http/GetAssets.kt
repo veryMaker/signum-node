@@ -1,10 +1,11 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_ASSET
-import brs.api.http.JSONResponses.MISSING_ASSETS
-import brs.api.http.JSONResponses.UNKNOWN_ASSET
+import brs.api.http.common.JSONResponses.INCORRECT_ASSET
+import brs.api.http.common.JSONResponses.MISSING_ASSETS
+import brs.api.http.common.JSONResponses.UNKNOWN_ASSET
 import brs.api.http.common.Parameters.ASSETS_PARAMETER
 import brs.api.http.common.ResultFields.ASSETS_RESPONSE
+import brs.api.http.common.JSONData
 import brs.services.AssetExchangeService
 import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonArray

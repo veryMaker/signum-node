@@ -1,7 +1,7 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.DECRYPTION_FAILED
-import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
+import brs.api.http.common.JSONResponses.DECRYPTION_FAILED
+import brs.api.http.common.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.common.Parameters
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.Parameters.DATA_PARAMETER
@@ -17,7 +17,6 @@ import brs.util.logging.safeDebug
 import burst.kit.entity.BurstEncryptedMessage
 import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest

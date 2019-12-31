@@ -1,24 +1,23 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_AMOUNT
-import brs.api.http.JSONResponses.INCORRECT_ASSET_QUANTITY
-import brs.api.http.JSONResponses.INCORRECT_CREATION_BYTES
-import brs.api.http.JSONResponses.INCORRECT_DGS_ENCRYPTED_GOODS
-import brs.api.http.JSONResponses.INCORRECT_FEE
-import brs.api.http.JSONResponses.INCORRECT_ORDER
-import brs.api.http.JSONResponses.INCORRECT_PRICE
-import brs.api.http.JSONResponses.INCORRECT_QUANTITY
-import brs.api.http.JSONResponses.INCORRECT_RECIPIENT
-import brs.api.http.JSONResponses.INCORRECT_TIMESTAMP
-import brs.api.http.JSONResponses.MISSING_AMOUNT
-import brs.api.http.JSONResponses.MISSING_FEE
-import brs.api.http.JSONResponses.MISSING_HEX_STRING
-import brs.api.http.JSONResponses.MISSING_ORDER
-import brs.api.http.JSONResponses.MISSING_PRICE
-import brs.api.http.JSONResponses.MISSING_QUANTITY
-import brs.api.http.JSONResponses.MISSING_RECIPIENT
-import brs.api.http.JSONResponses.MISSING_SECRET_PHRASE
-import brs.api.http.common.Parameters
+import brs.api.http.common.JSONResponses.INCORRECT_AMOUNT
+import brs.api.http.common.JSONResponses.INCORRECT_ASSET_QUANTITY
+import brs.api.http.common.JSONResponses.INCORRECT_CREATION_BYTES
+import brs.api.http.common.JSONResponses.INCORRECT_DGS_ENCRYPTED_GOODS
+import brs.api.http.common.JSONResponses.INCORRECT_FEE
+import brs.api.http.common.JSONResponses.INCORRECT_ORDER
+import brs.api.http.common.JSONResponses.INCORRECT_PRICE
+import brs.api.http.common.JSONResponses.INCORRECT_QUANTITY
+import brs.api.http.common.JSONResponses.INCORRECT_RECIPIENT
+import brs.api.http.common.JSONResponses.INCORRECT_TIMESTAMP
+import brs.api.http.common.JSONResponses.MISSING_AMOUNT
+import brs.api.http.common.JSONResponses.MISSING_FEE
+import brs.api.http.common.JSONResponses.MISSING_HEX_STRING
+import brs.api.http.common.JSONResponses.MISSING_ORDER
+import brs.api.http.common.JSONResponses.MISSING_PRICE
+import brs.api.http.common.JSONResponses.MISSING_QUANTITY
+import brs.api.http.common.JSONResponses.MISSING_RECIPIENT
+import brs.api.http.common.JSONResponses.MISSING_SECRET_PHRASE
 import brs.api.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.BUYER_PARAMETER
 import brs.api.http.common.Parameters.CREATION_BYTES_PARAMETER
@@ -45,7 +44,6 @@ import java.nio.ByteOrder
 import javax.servlet.http.HttpServletRequest
 
 internal object ParameterParser {
-
     fun getFeePlanck(request: HttpServletRequest): Long {
         val feeValuePlanck = request[FEE_PLANCK_PARAMETER].emptyToNull()
             ?: throw ParameterException(MISSING_FEE)
@@ -153,20 +151,13 @@ internal object ParameterParser {
     }
 
     fun getRecipientId(request: HttpServletRequest): Long {
-        val recipientValue = request[RECIPIENT_PARAMETER].emptyToNull()
-        if (recipientValue == null || Parameters.isZero(recipientValue)) {
-            throw ParameterException(MISSING_RECIPIENT)
-        }
-        val recipientId: Long
-        try {
-            recipientId = recipientValue.parseAccountId()
+        val recipientValue = request[RECIPIENT_PARAMETER].emptyToNull() ?: throw ParameterException(MISSING_RECIPIENT)
+        val recipientId = try {
+            recipientValue.parseAccountId()
         } catch (e: Exception) {
             throw ParameterException(INCORRECT_RECIPIENT)
         }
-
-        if (recipientId == 0L) {
-            throw ParameterException(INCORRECT_RECIPIENT)
-        }
+        if (recipientId == 0L) throw ParameterException(INCORRECT_RECIPIENT)
         return recipientId
     }
 

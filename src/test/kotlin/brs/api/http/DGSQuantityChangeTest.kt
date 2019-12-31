@@ -1,8 +1,8 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_DELTA_QUANTITY
-import brs.api.http.JSONResponses.MISSING_DELTA_QUANTITY
-import brs.api.http.JSONResponses.UNKNOWN_GOODS
+import brs.api.http.common.JSONResponses.INCORRECT_DELTA_QUANTITY
+import brs.api.http.common.JSONResponses.MISSING_DELTA_QUANTITY
+import brs.api.http.common.JSONResponses.UNKNOWN_GOODS
 import brs.api.http.common.Parameters.DELTA_QUANTITY_PARAMETER
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam

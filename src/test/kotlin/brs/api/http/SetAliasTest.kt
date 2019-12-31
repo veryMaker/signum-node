@@ -1,9 +1,9 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_ALIAS_LENGTH
-import brs.api.http.JSONResponses.INCORRECT_ALIAS_NAME
-import brs.api.http.JSONResponses.INCORRECT_URI_LENGTH
-import brs.api.http.JSONResponses.MISSING_ALIAS_NAME
+import brs.api.http.common.JSONResponses.INCORRECT_ALIAS_LENGTH
+import brs.api.http.common.JSONResponses.INCORRECT_ALIAS_NAME
+import brs.api.http.common.JSONResponses.INCORRECT_URI_LENGTH
+import brs.api.http.common.JSONResponses.MISSING_ALIAS_NAME
 import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_URI_PARAMETER
 import brs.common.QuickMocker

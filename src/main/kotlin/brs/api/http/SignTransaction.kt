@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.MISSING_SECRET_PHRASE
+import brs.api.http.common.JSONResponses.MISSING_SECRET_PHRASE
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
 import brs.api.http.common.Parameters.UNSIGNED_TRANSACTION_JSON_PARAMETER
@@ -21,7 +21,6 @@ import brs.util.crypto.Crypto
 import brs.util.logging.safeDebug
 import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest

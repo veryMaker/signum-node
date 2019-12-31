@@ -1,10 +1,11 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_TRANSACTION
-import brs.api.http.JSONResponses.MISSING_TRANSACTION
-import brs.api.http.JSONResponses.UNKNOWN_TRANSACTION
+import brs.api.http.common.JSONResponses.INCORRECT_TRANSACTION
+import brs.api.http.common.JSONResponses.MISSING_TRANSACTION
+import brs.api.http.common.JSONResponses.UNKNOWN_TRANSACTION
 import brs.api.http.common.Parameters.FULL_HASH_PARAMETER
 import brs.api.http.common.Parameters.TRANSACTION_PARAMETER
+import brs.api.http.common.JSONData
 import brs.entity.Transaction
 import brs.services.BlockchainService
 import brs.util.convert.emptyToNull

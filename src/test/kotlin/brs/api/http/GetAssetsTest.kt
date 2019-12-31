@@ -1,7 +1,7 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_ASSET
-import brs.api.http.JSONResponses.UNKNOWN_ASSET
+import brs.api.http.common.JSONResponses.INCORRECT_ASSET
+import brs.api.http.common.JSONResponses.UNKNOWN_ASSET
 import brs.api.http.common.Parameters.ASSETS_PARAMETER
 import brs.api.http.common.ResultFields.ASSETS_RESPONSE
 import brs.api.http.common.ResultFields.NUMBER_OF_ACCOUNTS_RESPONSE
@@ -12,7 +12,6 @@ import brs.entity.Asset
 import brs.services.AssetExchangeService
 import brs.util.json.safeGetAsLong
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk

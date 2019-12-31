@@ -2,9 +2,9 @@ package brs.api.http
 
 import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_PARAMETER
+import brs.api.http.common.JSONData
 import brs.services.AliasService
 import brs.services.ParameterService
-import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 

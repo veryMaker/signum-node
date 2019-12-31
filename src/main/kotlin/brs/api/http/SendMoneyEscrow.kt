@@ -1,7 +1,7 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.MISSING_ESCROW_DEADLINE
-import brs.api.http.JSONResponses.MISSING_REQUIRED_SIGNERS
+import brs.api.http.common.JSONResponses.MISSING_ESCROW_DEADLINE
+import brs.api.http.common.JSONResponses.MISSING_REQUIRED_SIGNERS
 import brs.api.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.DEADLINE_ACTION_PARAMETER
 import brs.api.http.common.Parameters.ESCROW_DEADLINE_PARAMETER

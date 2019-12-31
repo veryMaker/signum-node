@@ -1,5 +1,6 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.entity.Asset
 import brs.services.AssetExchangeService
 import com.google.gson.JsonArray

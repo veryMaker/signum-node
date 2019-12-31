@@ -4,13 +4,13 @@ import brs.api.http.common.Parameters.HEIGHT_PARAMETER
 import brs.api.http.common.Parameters.NUM_BLOCKS_PARAMETER
 import brs.api.http.common.ResultFields.BLOCKS_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_RESPONSE
+import brs.api.http.common.JSONData
 import brs.services.BlockService
 import brs.services.BlockchainProcessorService
 import brs.services.BlockchainService
 import com.google.gson.JsonArray
 import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 

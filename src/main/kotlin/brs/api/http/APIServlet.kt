@@ -1,8 +1,10 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.ERROR_INCORRECT_REQUEST
-import brs.api.http.JSONResponses.ERROR_MISSING_REQUEST
-import brs.api.http.JSONResponses.ERROR_NOT_ALLOWED
+import brs.api.http.common.JSONResponses
+import brs.api.http.common.JSONResponses.ERROR_INCORRECT_REQUEST
+import brs.api.http.common.JSONResponses.ERROR_MISSING_REQUEST
+import brs.api.http.common.JSONResponses.ERROR_NOT_ALLOWED
+import brs.api.http.common.JSONResponses.POST_REQUIRED
 import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.util.Subnet
@@ -11,9 +13,7 @@ import brs.util.json.mustGetAsJsonObject
 import brs.util.json.writeTo
 import brs.util.logging.safeDebug
 import brs.util.logging.safeWarn
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.eclipse.jetty.http.HttpStatus
 import org.slf4j.LoggerFactory
@@ -192,7 +192,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             for (parameter in request.parameterMap.keys) {
                 // _ is a parameter used in eg. jquery to avoid caching queries
                 if (!this.parameters.contains(parameter) && parameter != "_" && parameter != "requestType")
-                    throw ParameterException(JSONResponses.incorrectUnknown(parameter))
+                    throw ParameterException(JSONResponses.unknownParameter(parameter))
             }
         }
 
@@ -260,7 +260,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
 
         if (enforcePost && apiRequestHandler.requirePost() && "POST" != request.method) {
             resp.status = HttpStatus.METHOD_NOT_ALLOWED_405
-            writeJsonToResponse(resp, ERROR_NOT_ALLOWED)
+            writeJsonToResponse(resp, POST_REQUIRED)
             return
         }
 

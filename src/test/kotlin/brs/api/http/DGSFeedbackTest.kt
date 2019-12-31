@@ -1,7 +1,7 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.GOODS_NOT_DELIVERED
-import brs.api.http.JSONResponses.INCORRECT_PURCHASE
+import brs.api.http.common.JSONResponses.GOODS_NOT_DELIVERED
+import brs.api.http.common.JSONResponses.INCORRECT_PURCHASE
 import brs.common.QuickMocker
 import brs.entity.Account
 import brs.entity.DependencyProvider

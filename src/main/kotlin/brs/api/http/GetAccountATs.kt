@@ -1,15 +1,14 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.INCORRECT_AT
+import brs.api.http.common.JSONResponses.INCORRECT_AT
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.ResultFields.ATS_RESPONSE
+import brs.api.http.common.JSONData
 import brs.services.ATService
 import brs.services.AccountService
 import brs.services.ParameterService
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 

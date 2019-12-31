@@ -1,11 +1,10 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.UNKNOWN_GOODS
+import brs.api.http.common.JSONResponses.UNKNOWN_GOODS
 import brs.api.http.common.Parameters.GOODS_PARAMETER
 import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.entity.DependencyProvider
 import brs.transaction.appendix.Attachment
-import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 

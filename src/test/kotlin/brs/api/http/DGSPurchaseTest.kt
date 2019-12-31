@@ -8,11 +8,11 @@ import brs.entity.Goods
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.objects.FluxValues
-import brs.api.http.JSONResponses.INCORRECT_DELIVERY_DEADLINE_TIMESTAMP
-import brs.api.http.JSONResponses.INCORRECT_PURCHASE_PRICE
-import brs.api.http.JSONResponses.INCORRECT_PURCHASE_QUANTITY
-import brs.api.http.JSONResponses.MISSING_DELIVERY_DEADLINE_TIMESTAMP
-import brs.api.http.JSONResponses.UNKNOWN_GOODS
+import brs.api.http.common.JSONResponses.INCORRECT_DELIVERY_DEADLINE_TIMESTAMP
+import brs.api.http.common.JSONResponses.INCORRECT_PURCHASE_PRICE
+import brs.api.http.common.JSONResponses.INCORRECT_PURCHASE_QUANTITY
+import brs.api.http.common.JSONResponses.MISSING_DELIVERY_DEADLINE_TIMESTAMP
+import brs.api.http.common.JSONResponses.UNKNOWN_GOODS
 import brs.api.http.common.Parameters.DELIVERY_DEADLINE_TIMESTAMP_PARAMETER
 import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.QUANTITY_PARAMETER

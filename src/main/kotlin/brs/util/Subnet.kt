@@ -5,8 +5,8 @@ import java.net.InetAddress
 import java.net.UnknownHostException
 
 /**
- * Blatantly stolen from https://stackoverflow.com/a/25165891
- * @author c3oe.de, based on snippets from Scott Plante, John Kugelmann
+ * Based off of https://stackoverflow.com/a/25165891
+ * @author c3oe.de, based on snippets from Scott Plante, John Kugelmann. Modified by Harry Phillips
  */
 class Subnet {
     private val bytesSubnetCount: Int

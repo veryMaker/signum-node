@@ -1,9 +1,9 @@
 package brs.api.http
 
 import brs.api.http.APIServlet.HttpRequestHandler
-import brs.api.http.JSONResponses.MISSING_DOMAIN
-import brs.api.http.JSONResponses.PAYLOAD_WITHOUT_ACTION
-import brs.api.http.JSONResponses.incorrect
+import brs.api.http.common.JSONResponses.MISSING_DOMAIN
+import brs.api.http.common.JSONResponses.PAYLOAD_WITHOUT_ACTION
+import brs.api.http.common.JSONResponses.incorrect
 import brs.api.http.common.Parameters.ACTION_PARAMETER
 import brs.api.http.common.Parameters.DOMAIN_PARAMETER
 import brs.api.http.common.Parameters.PAYLOAD_PARAMETER
@@ -42,7 +42,7 @@ internal class GenerateDeeplinkQR(private val dp: DependencyProvider) : HttpRequ
                 resp.outputStream.close()
             } catch (e: IllegalArgumentException) {
                 logger.safeDebug(e) { "Problem with arguments" }
-                addErrorMessage(resp, incorrect("arguments", e.message))
+                addErrorMessage(resp, incorrect("arguments", e.message ?: ""))
             }
         } catch (e: WriterException) {
             logger.safeDebug(e) { "Could not generate Deeplink QR code" }

@@ -1,8 +1,8 @@
 package brs.api.http
 
 import brs.api.http.common.Parameters.GOODS_PARAMETER
+import brs.api.http.common.JSONData
 import brs.services.ParameterService
-import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 

@@ -1,12 +1,11 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.GOODS_NOT_DELIVERED
-import brs.api.http.JSONResponses.INCORRECT_ACCOUNT
-import brs.api.http.JSONResponses.INCORRECT_PURCHASE
+import brs.api.http.common.JSONResponses.GOODS_NOT_DELIVERED
+import brs.api.http.common.JSONResponses.INCORRECT_ACCOUNT
+import brs.api.http.common.JSONResponses.INCORRECT_PURCHASE
 import brs.api.http.common.Parameters.PURCHASE_PARAMETER
 import brs.entity.DependencyProvider
 import brs.transaction.appendix.Attachment
-import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 

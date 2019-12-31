@@ -9,7 +9,7 @@ import brs.services.AssetExchangeService
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.objects.FluxValues
-import brs.api.http.JSONResponses.UNKNOWN_ORDER
+import brs.api.http.common.JSONResponses.UNKNOWN_ORDER
 import brs.api.http.common.Parameters.ORDER_PARAMETER
 import brs.services.ParameterService
 import brs.transaction.type.TransactionType

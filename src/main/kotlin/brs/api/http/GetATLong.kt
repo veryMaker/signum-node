@@ -1,7 +1,7 @@
 package brs.api.http
 
 import brs.api.http.common.Parameters.HEX_STRING_PARAMETER
-import brs.util.jetty.get
+import brs.api.http.common.JSONData
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 

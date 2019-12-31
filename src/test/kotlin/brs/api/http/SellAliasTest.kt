@@ -6,10 +6,10 @@ import brs.services.BlockchainService
 import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.objects.FluxValues
-import brs.api.http.JSONResponses.INCORRECT_ALIAS_OWNER
-import brs.api.http.JSONResponses.INCORRECT_PRICE
-import brs.api.http.JSONResponses.INCORRECT_RECIPIENT
-import brs.api.http.JSONResponses.MISSING_PRICE
+import brs.api.http.common.JSONResponses.INCORRECT_ALIAS_OWNER
+import brs.api.http.common.JSONResponses.INCORRECT_PRICE
+import brs.api.http.common.JSONResponses.INCORRECT_RECIPIENT
+import brs.api.http.common.JSONResponses.MISSING_PRICE
 import brs.api.http.common.Parameters.PRICE_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.entity.Alias

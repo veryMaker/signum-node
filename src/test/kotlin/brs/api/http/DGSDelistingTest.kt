@@ -1,6 +1,6 @@
 package brs.api.http
 
-import brs.api.http.JSONResponses.UNKNOWN_GOODS
+import brs.api.http.common.JSONResponses.UNKNOWN_GOODS
 import brs.common.QuickMocker
 import brs.entity.Account
 import brs.entity.DependencyProvider
