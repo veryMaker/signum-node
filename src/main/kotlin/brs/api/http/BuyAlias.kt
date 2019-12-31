@@ -6,6 +6,7 @@ import brs.api.http.common.Parameters.ALIAS_PARAMETER
 import brs.api.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.entity.DependencyProvider
 import brs.transaction.appendix.Attachment
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 

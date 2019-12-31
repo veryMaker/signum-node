@@ -14,7 +14,9 @@ import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -25,7 +27,7 @@ internal class SendMoneyMulti(private val dp: DependencyProvider) :
     CreateTransaction(dp, arrayOf(APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION), true, *commonParameters) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)
-        val recipientString = request.getParameter(RECIPIENTS_PARAMETER).emptyToNull()
+        val recipientString = request[RECIPIENTS_PARAMETER].emptyToNull()
 
         if (recipientString == null) {
             val response = JsonObject()

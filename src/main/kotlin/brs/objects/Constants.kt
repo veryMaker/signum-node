@@ -5,6 +5,7 @@ import brs.util.Version
 import brs.util.convert.parseHexString
 
 object Constants {
+    val EMPTY_BYTE_ARRAY = ByteArray(0)
 
     const val BURST_DIFF_ADJUST_CHANGE_BLOCK = 2700
 

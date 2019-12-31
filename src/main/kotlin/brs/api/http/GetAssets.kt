@@ -1,6 +1,7 @@
 package brs.api.http
 
 import brs.api.http.JSONResponses.INCORRECT_ASSET
+import brs.api.http.JSONResponses.MISSING_ASSETS
 import brs.api.http.JSONResponses.UNKNOWN_ASSET
 import brs.api.http.common.Parameters.ASSETS_PARAMETER
 import brs.api.http.common.ResultFields.ASSETS_RESPONSE
@@ -19,7 +20,7 @@ internal class GetAssets(private val assetExchangeService: AssetExchangeService)
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val assets = request.getParameterValues(ASSETS_PARAMETER)
+        val assets = request.getParameterValues(ASSETS_PARAMETER) ?: return MISSING_ASSETS
 
         val response = JsonObject()
         val assetsJsonArray = JsonArray()

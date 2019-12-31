@@ -15,6 +15,7 @@ import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.api.http.common.ResultFields.TRADES_RESPONSE
 import brs.services.ParameterService
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import io.mockk.every

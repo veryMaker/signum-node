@@ -8,7 +8,9 @@ import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -30,7 +32,7 @@ internal class SendMoneySubscription(private val dp: DependencyProvider) : Creat
 
         val frequency: Int
         try {
-            frequency = Integer.parseInt(request.getParameter(FREQUENCY_PARAMETER))
+            frequency = Integer.parseInt(request[FREQUENCY_PARAMETER])
         } catch (e: Exception) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 4)

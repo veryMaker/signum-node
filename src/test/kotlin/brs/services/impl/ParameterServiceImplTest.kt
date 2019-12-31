@@ -25,9 +25,9 @@ import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.common.TestConstants.TEST_SECRET_PHRASE
 import brs.entity.*
+import brs.objects.Constants.EMPTY_BYTE_ARRAY
 import brs.services.*
 import brs.util.BurstException
-import brs.util.BurstException.ValidationException
 import brs.util.convert.parseHexString
 import brs.util.convert.toBytes
 import brs.util.crypto.Crypto
@@ -422,7 +422,7 @@ class ParameterServiceImplTest {
         )
 
         val mockRecipientAccount = mockk<Account>(relaxed = true)
-        every { mockRecipientAccount.publicKey } returns ByteArray(0)
+        every { mockRecipientAccount.publicKey } returns EMPTY_BYTE_ARRAY
 
         val encryptedDataMock = mockk<BurstEncryptedMessage>(relaxed = true)
 
@@ -453,7 +453,7 @@ class ParameterServiceImplTest {
         )
 
         val mockRecipientAccount = mockk<Account>(relaxed = true)
-        every { mockRecipientAccount.publicKey } returns ByteArray(0)
+        every { mockRecipientAccount.publicKey } returns EMPTY_BYTE_ARRAY
 
         val encryptedDataMock = mockk<BurstEncryptedMessage>(relaxed = true)
 

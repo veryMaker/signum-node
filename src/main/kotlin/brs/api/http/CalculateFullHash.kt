@@ -9,7 +9,9 @@ import brs.util.convert.emptyToNull
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
 import brs.util.crypto.Crypto
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -23,8 +25,8 @@ internal class CalculateFullHash : APIServlet.JsonRequestHandler(
 ) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val unsignedBytesString = request.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER).emptyToNull()
-        val signatureHashString = request.getParameter(SIGNATURE_HASH_PARAMETER).emptyToNull()
+        val unsignedBytesString = request[UNSIGNED_TRANSACTION_BYTES_PARAMETER].emptyToNull()
+        val signatureHashString = request[SIGNATURE_HASH_PARAMETER].emptyToNull()
 
         if (unsignedBytesString == null) {
             return MISSING_UNSIGNED_BYTES

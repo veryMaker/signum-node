@@ -6,6 +6,7 @@ import brs.common.TestConstants
 import brs.entity.Account
 import brs.services.ParameterService
 import brs.util.json.safeGetAsString
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import io.mockk.every

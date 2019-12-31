@@ -13,6 +13,7 @@ import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseAccountId
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -32,7 +33,7 @@ internal class SellAlias internal constructor(private val dp: DependencyProvider
         val alias = dp.parameterService.getAlias(request)
         val owner = dp.parameterService.getSenderAccount(request)
 
-        val priceValuePlanck = request.getParameter(PRICE_PLANCK_PARAMETER).emptyToNull() ?: return MISSING_PRICE
+        val priceValuePlanck = request[PRICE_PLANCK_PARAMETER].emptyToNull() ?: return MISSING_PRICE
         val pricePlanck: Long
         try {
             pricePlanck = priceValuePlanck.toLong()
@@ -44,7 +45,7 @@ internal class SellAlias internal constructor(private val dp: DependencyProvider
             throw ParameterException(INCORRECT_PRICE)
         }
 
-        val recipientValue = request.getParameter(RECIPIENT_PARAMETER).emptyToNull()
+        val recipientValue = request[RECIPIENT_PARAMETER].emptyToNull()
         var recipientId: Long = 0
         if (recipientValue != null) {
             try {

@@ -7,7 +7,9 @@ import brs.entity.DependencyProvider
 import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -20,7 +22,7 @@ internal class SubscriptionCancel(private val dp: DependencyProvider) :
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)
 
-        val subscriptionString = request.getParameter(SUBSCRIPTION_PARAMETER).emptyToNull()
+        val subscriptionString = request[SUBSCRIPTION_PARAMETER].emptyToNull()
         if (subscriptionString == null) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 3)

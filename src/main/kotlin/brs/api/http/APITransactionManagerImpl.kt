@@ -30,6 +30,7 @@ import brs.api.http.common.ResultFields.TRANSACTION_RESPONSE
 import brs.api.http.common.ResultFields.UNSIGNED_TRANSACTION_BYTES_RESPONSE
 import brs.entity.Account
 import brs.entity.DependencyProvider
+import brs.objects.Constants.EMPTY_BYTE_ARRAY
 import brs.objects.FluxValues
 import brs.transaction.appendix.Appendix.*
 import brs.transaction.appendix.Attachment
@@ -39,6 +40,7 @@ import brs.util.convert.parseHexString
 import brs.util.convert.safeAdd
 import brs.util.convert.toHexString
 import brs.util.crypto.Crypto
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -53,14 +55,14 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
         minimumFeePlanck: Long
     ): JsonElement {
         val blockchainHeight = dp.blockchainService.height
-        val deadlineValue = request.getParameter(DEADLINE_PARAMETER)
+        val deadlineValue = request[DEADLINE_PARAMETER]
         val referencedTransactionFullHash =
-            request.getParameter(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER).emptyToNull()
-        val referencedTransactionId = request.getParameter(REFERENCED_TRANSACTION_PARAMETER).emptyToNull()
-        val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
-        val publicKeyValue = request.getParameter(PUBLIC_KEY_PARAMETER).emptyToNull()
-        val recipientPublicKeyValue = request.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER).emptyToNull()
-        val broadcast = !Parameters.isFalse(request.getParameter(BROADCAST_PARAMETER))
+            request[REFERENCED_TRANSACTION_FULL_HASH_PARAMETER].emptyToNull()
+        val referencedTransactionId = request[REFERENCED_TRANSACTION_PARAMETER].emptyToNull()
+        val secretPhrase = request[SECRET_PHRASE_PARAMETER].emptyToNull()
+        val publicKeyValue = request[PUBLIC_KEY_PARAMETER].emptyToNull()
+        val recipientPublicKeyValue = request[RECIPIENT_PUBLIC_KEY_PARAMETER].emptyToNull()
+        val broadcast = !Parameters.isFalse(request[BROADCAST_PARAMETER])
 
         var encryptedMessage: EncryptedMessage? = null
 
@@ -89,12 +91,12 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
             )
         }
         var message: Message? = null
-        val messageValue = request.getParameter(MESSAGE_PARAMETER).emptyToNull()
+        val messageValue = request[MESSAGE_PARAMETER].emptyToNull()
         if (messageValue != null) {
             val messageIsText = dp.fluxCapacitorService.getValue(
                 FluxValues.DIGITAL_GOODS_STORE,
                 blockchainHeight
-            ) && !Parameters.isFalse(request.getParameter(MESSAGE_IS_TEXT_PARAMETER))
+            ) && !Parameters.isFalse(request[MESSAGE_IS_TEXT_PARAMETER])
             try {
                 message = if (messageIsText) Message(dp, messageValue, blockchainHeight) else Message(
                     dp,
@@ -110,7 +112,7 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
                 blockchainHeight
             )
         ) {
-            val commentValue = request.getParameter(COMMENT_PARAMETER).emptyToNull()
+            val commentValue = request[COMMENT_PARAMETER].emptyToNull()
             if (commentValue != null) {
                 message = Message(dp, commentValue, blockchainHeight)
             }
@@ -119,10 +121,10 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
                 blockchainHeight
             )
         ) {
-            message = Message(dp, ByteArray(0), blockchainHeight)
+            message = Message(dp, EMPTY_BYTE_ARRAY, blockchainHeight)
         }
         var publicKeyAnnouncement: PublicKeyAnnouncement? = null
-        val recipientPublicKey = request.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER).emptyToNull()
+        val recipientPublicKey = request[RECIPIENT_PUBLIC_KEY_PARAMETER].emptyToNull()
         if (recipientPublicKey != null && dp.fluxCapacitorService.getValue(
                 FluxValues.DIGITAL_GOODS_STORE,
                 blockchainHeight

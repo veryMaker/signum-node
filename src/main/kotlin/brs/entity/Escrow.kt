@@ -77,7 +77,7 @@ class Escrow {
             }
         }
 
-        fun stringToDecision(decision: String): DecisionType? {
+        fun stringToDecision(decision: String?): DecisionType? {
             return when (decision) {
                 "undecided" -> DecisionType.UNDECIDED
                 "release" -> DecisionType.RELEASE

@@ -13,6 +13,7 @@ import brs.api.http.common.Parameters.QUANTITY_PARAMETER
 import brs.entity.DependencyProvider
 import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -45,7 +46,7 @@ internal class DGSPurchase internal constructor(private val dp: DependencyProvid
             return INCORRECT_PURCHASE_PRICE
         }
 
-        val deliveryDeadlineString = request.getParameter(DELIVERY_DEADLINE_TIMESTAMP_PARAMETER).emptyToNull()
+        val deliveryDeadlineString = request[DELIVERY_DEADLINE_TIMESTAMP_PARAMETER].emptyToNull()
             ?: return MISSING_DELIVERY_DEADLINE_TIMESTAMP
         val deliveryDeadline: Int
         try {

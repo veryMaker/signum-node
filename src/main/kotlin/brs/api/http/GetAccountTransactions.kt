@@ -12,7 +12,9 @@ import brs.api.http.common.ResultFields.TRANSACTIONS_RESPONSE
 import brs.services.BlockchainService
 import brs.services.ParameterService
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -40,12 +42,12 @@ internal class GetAccountTransactions(
         val numberOfConfirmations = parameterService.getNumberOfConfirmations(request)
 
         val type: Byte = try {
-            request.getParameter(TYPE_PARAMETER)?.toByte() ?: -1
+            request[TYPE_PARAMETER]?.toByte() ?: -1
         } catch (e: NumberFormatException) {
             -1
         }
         val subtype: Byte = try {
-            request.getParameter(SUBTYPE_PARAMETER)?.toByte() ?: -1
+            request[SUBTYPE_PARAMETER]?.toByte() ?: -1
         } catch (e: NumberFormatException) {
             -1
         }

@@ -10,6 +10,7 @@ import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -29,7 +30,7 @@ internal class DGSQuantityChange internal constructor(private val dp: Dependency
 
         val deltaQuantity: Int
         try {
-            val deltaQuantityString = request.getParameter(DELTA_QUANTITY_PARAMETER).emptyToNull()
+            val deltaQuantityString = request[DELTA_QUANTITY_PARAMETER].emptyToNull()
                 ?: return MISSING_DELTA_QUANTITY
             deltaQuantity = Integer.parseInt(deltaQuantityString)
             if (deltaQuantity > Constants.MAX_DGS_LISTING_QUANTITY || deltaQuantity < -Constants.MAX_DGS_LISTING_QUANTITY) {

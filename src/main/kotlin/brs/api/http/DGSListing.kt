@@ -13,6 +13,7 @@ import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -29,9 +30,9 @@ internal class DGSListing internal constructor(private val dp: DependencyProvide
     PRICE_PLANCK_PARAMETER
 ) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        var name = request.getParameter(NAME_PARAMETER).emptyToNull()
-        val description = request.getParameter(DESCRIPTION_PARAMETER).orEmpty()
-        val tags = request.getParameter(TAGS_PARAMETER).orEmpty()
+        var name = request[NAME_PARAMETER].emptyToNull()
+        val description = request[DESCRIPTION_PARAMETER].orEmpty()
+        val tags = request[TAGS_PARAMETER].orEmpty()
         val pricePlanck = ParameterParser.getPricePlanck(request)
         val quantity = ParameterParser.getGoodsQuantity(request)
 

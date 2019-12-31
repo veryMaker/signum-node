@@ -12,7 +12,9 @@ import brs.services.AssetExchangeService
 import brs.services.ParameterService
 import brs.util.convert.emptyToNull
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -33,12 +35,12 @@ internal class GetTrades internal constructor(
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val assetId = request.getParameter(ASSET_PARAMETER).emptyToNull()
-        val accountId = request.getParameter(ACCOUNT_PARAMETER).emptyToNull()
+        val assetId = request[ASSET_PARAMETER].emptyToNull()
+        val accountId = request[ACCOUNT_PARAMETER].emptyToNull()
 
         val firstIndex = ParameterParser.getFirstIndex(request)
         val lastIndex = ParameterParser.getLastIndex(request)
-        val includeAssetInfo = !isFalse(request.getParameter(INCLUDE_ASSET_INFO_PARAMETER))
+        val includeAssetInfo = !isFalse(request[INCLUDE_ASSET_INFO_PARAMETER])
 
         val response = JsonObject()
         val tradesData = JsonArray()

@@ -17,6 +17,7 @@ import brs.services.AssetExchangeService
 import brs.services.ParameterService
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk

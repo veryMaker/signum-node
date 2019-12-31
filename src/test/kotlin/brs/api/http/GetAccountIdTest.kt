@@ -11,6 +11,7 @@ import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.ResultFields.ACCOUNT_RESPONSE
 import brs.api.http.common.ResultFields.PUBLIC_KEY_RESPONSE
 import brs.util.json.safeGetAsString
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

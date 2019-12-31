@@ -80,6 +80,7 @@ import brs.util.crypto.Crypto
 import brs.util.json.*
 import burst.kit.entity.BurstEncryptedMessage
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
 import java.math.BigInteger

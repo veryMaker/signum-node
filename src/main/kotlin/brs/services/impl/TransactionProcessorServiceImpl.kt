@@ -18,6 +18,7 @@ import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
 import brs.util.logging.safeTrace
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 

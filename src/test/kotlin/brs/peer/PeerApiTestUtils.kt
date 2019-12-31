@@ -3,6 +3,7 @@ package brs.peer
 import brs.util.json.JSON
 import brs.util.json.safeGetAsJsonObject
 import brs.util.json.safeGetAsString
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import org.junit.Assert.assertEquals

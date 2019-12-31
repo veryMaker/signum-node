@@ -2,6 +2,7 @@ package brs.api.http
 
 import brs.api.http.common.Parameters
 import brs.services.ParameterService
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 

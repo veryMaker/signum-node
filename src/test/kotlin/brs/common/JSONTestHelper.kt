@@ -3,6 +3,7 @@ package brs.common
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.util.json.mustGetAsInt
 import brs.util.json.mustGetAsJsonObject
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 
 object JSONTestHelper {

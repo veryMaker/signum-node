@@ -12,6 +12,7 @@ import brs.common.QuickMocker.MockParam
 import brs.entity.Block
 import brs.services.BlockService
 import brs.services.BlockchainService
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk

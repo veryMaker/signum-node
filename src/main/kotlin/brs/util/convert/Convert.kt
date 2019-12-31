@@ -1,5 +1,6 @@
 package brs.util.convert
 
+import brs.objects.Constants.EMPTY_BYTE_ARRAY
 import brs.util.BurstException
 import brs.util.crypto.Crypto
 import brs.util.crypto.burstCrypto
@@ -28,20 +29,8 @@ inline fun Long?.nullToZero(): Long {
     return this ?: 0
 }
 
-fun ByteArray?.emptyToNull(): ByteArray? { // TODO remove
-    if (this == null) {
-        return null
-    }
-    for (b in this) {
-        if (b.toInt() != 0) {
-            return this
-        }
-    }
-    return null
-}
-
 fun String?.toBytes(): ByteArray {
-    return this?.toByteArray(StandardCharsets.UTF_8) ?: ByteArray(0)
+    return this?.toByteArray(StandardCharsets.UTF_8) ?: EMPTY_BYTE_ARRAY
 }
 
 @Suppress("NOTHING_TO_INLINE")
@@ -81,7 +70,6 @@ inline fun Long.toUnsignedString(): String {
 }
 
 fun String?.parseUnsignedLong(): Long {
-    // TODO do we need nullable receiver?
     return if (this.isNullOrEmpty()) 0 else java.lang.Long.parseUnsignedLong(this)
 }
 

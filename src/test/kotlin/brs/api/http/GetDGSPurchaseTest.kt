@@ -19,6 +19,7 @@ import brs.util.json.safeGetAsBoolean
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import burst.kit.entity.BurstEncryptedMessage
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk

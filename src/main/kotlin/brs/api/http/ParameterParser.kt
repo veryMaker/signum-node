@@ -12,6 +12,7 @@ import brs.api.http.JSONResponses.INCORRECT_RECIPIENT
 import brs.api.http.JSONResponses.INCORRECT_TIMESTAMP
 import brs.api.http.JSONResponses.MISSING_AMOUNT
 import brs.api.http.JSONResponses.MISSING_FEE
+import brs.api.http.JSONResponses.MISSING_HEX_STRING
 import brs.api.http.JSONResponses.MISSING_ORDER
 import brs.api.http.JSONResponses.MISSING_PRICE
 import brs.api.http.JSONResponses.MISSING_QUANTITY
@@ -37,6 +38,7 @@ import brs.api.http.common.Parameters.SELLER_PARAMETER
 import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.objects.Constants
 import brs.util.convert.*
+import brs.util.jetty.get
 import burst.kit.entity.BurstEncryptedMessage
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -45,7 +47,7 @@ import javax.servlet.http.HttpServletRequest
 internal object ParameterParser {
 
     fun getFeePlanck(request: HttpServletRequest): Long {
-        val feeValuePlanck = request.getParameter(FEE_PLANCK_PARAMETER).emptyToNull()
+        val feeValuePlanck = request[FEE_PLANCK_PARAMETER].emptyToNull()
             ?: throw ParameterException(MISSING_FEE)
         val feePlanck: Long
         try {
@@ -61,7 +63,7 @@ internal object ParameterParser {
     }
 
     fun getPricePlanck(request: HttpServletRequest): Long {
-        val priceValuePlanck = request.getParameter(PRICE_PLANCK_PARAMETER).emptyToNull()
+        val priceValuePlanck = request[PRICE_PLANCK_PARAMETER].emptyToNull()
             ?: throw ParameterException(MISSING_PRICE)
         val pricePlanck: Long
         try {
@@ -77,7 +79,7 @@ internal object ParameterParser {
     }
 
     fun getQuantity(request: HttpServletRequest): Long {
-        val quantityValue = request.getParameter(QUANTITY_QNT_PARAMETER).emptyToNull()
+        val quantityValue = request[QUANTITY_QNT_PARAMETER].emptyToNull()
             ?: throw ParameterException(MISSING_QUANTITY)
         val quantity: Long
         try {
@@ -93,7 +95,7 @@ internal object ParameterParser {
     }
 
     fun getOrderId(request: HttpServletRequest): Long {
-        val orderValue = request.getParameter(ORDER_PARAMETER).emptyToNull()
+        val orderValue = request[ORDER_PARAMETER].emptyToNull()
             ?: throw ParameterException(MISSING_ORDER)
         try {
             return orderValue.parseUnsignedLong()
@@ -104,7 +106,7 @@ internal object ParameterParser {
     }
 
     fun getGoodsQuantity(request: HttpServletRequest): Int {
-        val quantityString = request.getParameter(QUANTITY_PARAMETER).emptyToNull()
+        val quantityString = request[QUANTITY_PARAMETER].emptyToNull()
         try {
             val quantity = Integer.parseInt(quantityString!!)
             if (quantity < 0 || quantity > Constants.MAX_DGS_LISTING_QUANTITY) {
@@ -117,8 +119,8 @@ internal object ParameterParser {
     }
 
     fun getEncryptedGoods(request: HttpServletRequest, goodsIsText: Boolean): BurstEncryptedMessage? {
-        val data = request.getParameter(GOODS_DATA_PARAMETER).emptyToNull()
-        val nonce = request.getParameter(GOODS_NONCE_PARAMETER).emptyToNull()
+        val data = request[GOODS_DATA_PARAMETER].emptyToNull()
+        val nonce = request[GOODS_NONCE_PARAMETER].emptyToNull()
         if (data != null && nonce != null) {
             try {
                 return BurstEncryptedMessage(data.parseHexString(), nonce.parseHexString(), goodsIsText)
@@ -131,12 +133,12 @@ internal object ParameterParser {
     }
 
     fun getSecretPhrase(request: HttpServletRequest): String {
-        return request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
+        return request[SECRET_PHRASE_PARAMETER].emptyToNull()
             ?: throw ParameterException(MISSING_SECRET_PHRASE)
     }
 
     fun getTimestamp(request: HttpServletRequest): Int {
-        val timestampValue = request.getParameter(TIMESTAMP_PARAMETER).emptyToNull() ?: return 0
+        val timestampValue = request[TIMESTAMP_PARAMETER].emptyToNull() ?: return 0
         val timestamp: Int
         try {
             timestamp = Integer.parseInt(timestampValue)
@@ -151,7 +153,7 @@ internal object ParameterParser {
     }
 
     fun getRecipientId(request: HttpServletRequest): Long {
-        val recipientValue = request.getParameter(RECIPIENT_PARAMETER).emptyToNull()
+        val recipientValue = request[RECIPIENT_PARAMETER].emptyToNull()
         if (recipientValue == null || Parameters.isZero(recipientValue)) {
             throw ParameterException(MISSING_RECIPIENT)
         }
@@ -169,7 +171,7 @@ internal object ParameterParser {
     }
 
     fun getSellerId(request: HttpServletRequest): Long {
-        val sellerIdValue = request.getParameter(SELLER_PARAMETER).emptyToNull()
+        val sellerIdValue = request[SELLER_PARAMETER].emptyToNull()
         try {
             return sellerIdValue!!.parseAccountId()
         } catch (e: Exception) {
@@ -179,7 +181,7 @@ internal object ParameterParser {
     }
 
     fun getBuyerId(request: HttpServletRequest): Long {
-        val buyerIdValue = request.getParameter(BUYER_PARAMETER).emptyToNull()
+        val buyerIdValue = request[BUYER_PARAMETER].emptyToNull()
         try {
             return buyerIdValue!!.parseAccountId()
         } catch (e: Exception) {
@@ -191,7 +193,7 @@ internal object ParameterParser {
     fun getFirstIndex(request: HttpServletRequest): Int {
         val firstIndex: Int
         try {
-            firstIndex = Integer.parseInt(request.getParameter(FIRST_INDEX_PARAMETER))
+            firstIndex = Integer.parseInt(request[FIRST_INDEX_PARAMETER])
             if (firstIndex < 0) {
                 return 0
             }
@@ -206,7 +208,7 @@ internal object ParameterParser {
         val firstIndex = getFirstIndex(request)
         var lastIndex: Int
         try {
-            lastIndex = Integer.parseInt(request.getParameter(LAST_INDEX_PARAMETER))
+            lastIndex = Integer.parseInt(request[LAST_INDEX_PARAMETER])
             if (lastIndex < 0) {
                 lastIndex = firstIndex + Constants.MAX_API_RETURNED_ITEMS
             }
@@ -225,16 +227,14 @@ internal object ParameterParser {
 
     fun getCreationBytes(request: HttpServletRequest): ByteArray? {
         try {
-            return request.getParameter(CREATION_BYTES_PARAMETER).parseHexString()
+            return request[CREATION_BYTES_PARAMETER]?.parseHexString()
         } catch (e: Exception) {
             throw ParameterException(INCORRECT_CREATION_BYTES)
         }
-
-
     }
 
     fun getATLong(request: HttpServletRequest): String {
-        val hex = request.getParameter(HEX_STRING_PARAMETER)
+        val hex = request[HEX_STRING_PARAMETER] ?: throw ParameterException(MISSING_HEX_STRING)
         val bf = ByteBuffer.allocate(8)
         bf.order(ByteOrder.LITTLE_ENDIAN)
         bf.put(hex.parseHexString())
@@ -242,7 +242,7 @@ internal object ParameterParser {
     }
 
     fun getAmountPlanck(request: HttpServletRequest): Long {
-        val amountValuePlanck = request.getParameter(AMOUNT_PLANCK_PARAMETER).emptyToNull()
+        val amountValuePlanck = request[AMOUNT_PLANCK_PARAMETER].emptyToNull()
             ?: throw ParameterException(MISSING_AMOUNT)
         val amountPlanck: Long
         try {

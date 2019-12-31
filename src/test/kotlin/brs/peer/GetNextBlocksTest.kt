@@ -5,6 +5,7 @@ import brs.objects.Genesis
 import brs.services.BlockchainService
 import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk

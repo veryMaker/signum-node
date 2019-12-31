@@ -9,7 +9,9 @@ import brs.api.http.common.ResultFields.TRADES_RESPONSE
 import brs.services.AssetExchangeService
 import brs.util.misc.filterWithLimits
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -29,7 +31,7 @@ internal class GetAllTrades internal constructor(private val assetExchangeServic
         val timestamp = ParameterParser.getTimestamp(request)
         val firstIndex = ParameterParser.getFirstIndex(request)
         val lastIndex = ParameterParser.getLastIndex(request)
-        val includeAssetInfo = !isFalse(request.getParameter(INCLUDE_ASSET_INFO_PARAMETER))
+        val includeAssetInfo = !isFalse(request[INCLUDE_ASSET_INFO_PARAMETER])
 
         val response = JsonObject()
         val trades = JsonArray()

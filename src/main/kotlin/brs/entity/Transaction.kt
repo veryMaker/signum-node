@@ -20,6 +20,7 @@ import brs.util.delegates.AtomicLateinit
 import brs.util.delegates.AtomicLazy
 import brs.util.json.*
 import brs.util.logging.safeDebug
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
@@ -434,9 +435,11 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                     deadline,
                     transactionType.parseAttachment(buffer, version)
                 )
-                    .signature(signature.emptyToNull())
                     .ecBlockHeight(ecBlockHeight)
                     .ecBlockId(ecBlockId)
+                if (!signature.isZero()) {
+                    builder.signature(signature)
+                }
                 if (!referencedTransactionFullHash.isZero()) {
                     builder.referencedTransactionFullHash(referencedTransactionFullHash)
                 }

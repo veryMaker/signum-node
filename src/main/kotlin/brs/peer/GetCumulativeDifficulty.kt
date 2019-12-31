@@ -1,7 +1,9 @@
 package brs.peer
 
 import brs.services.BlockchainService
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 internal class GetCumulativeDifficulty(private val blockchainService: BlockchainService) :

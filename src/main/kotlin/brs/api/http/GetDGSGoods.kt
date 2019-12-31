@@ -8,7 +8,9 @@ import brs.api.http.common.Parameters.SELLER_PARAMETER
 import brs.api.http.common.ResultFields.GOODS_RESPONSE
 import brs.services.DigitalGoodsStoreService
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -27,7 +29,7 @@ internal class GetDGSGoods(private val digitalGoodsStoreService: DigitalGoodsSto
         val sellerId = ParameterParser.getSellerId(request)
         val firstIndex = ParameterParser.getFirstIndex(request)
         val lastIndex = ParameterParser.getLastIndex(request)
-        val inStockOnly = !Parameters.isFalse(request.getParameter(IN_STOCK_ONLY_PARAMETER))
+        val inStockOnly = !Parameters.isFalse(request[IN_STOCK_ONLY_PARAMETER])
 
         val response = JsonObject()
         val goodsJSON = JsonArray()

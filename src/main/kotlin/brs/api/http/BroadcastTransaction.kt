@@ -15,7 +15,9 @@ import brs.util.BurstException
 import brs.util.convert.emptyToNull
 import brs.util.convert.toHexString
 import brs.util.logging.safeInfo
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
@@ -35,8 +37,8 @@ internal class BroadcastTransaction(
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val transactionBytes = request.getParameter(TRANSACTION_BYTES_PARAMETER).emptyToNull()
-        val transactionJSON = request.getParameter(TRANSACTION_JSON_PARAMETER).emptyToNull()
+        val transactionBytes = request[TRANSACTION_BYTES_PARAMETER].emptyToNull()
+        val transactionJSON = request[TRANSACTION_JSON_PARAMETER].emptyToNull()
         val transaction = parameterService.parseTransaction(transactionBytes, transactionJSON)
         val response = JsonObject()
         try {

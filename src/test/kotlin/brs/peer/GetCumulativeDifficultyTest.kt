@@ -5,6 +5,7 @@ import brs.entity.Block
 import brs.services.BlockchainService
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import io.mockk.every

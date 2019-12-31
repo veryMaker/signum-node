@@ -4,9 +4,10 @@ import brs.api.http.common.Parameters.ESCROW_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.services.EscrowService
-import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -18,7 +19,7 @@ internal class GetEscrowTransaction(private val escrowService: EscrowService) :
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val escrowId: Long
         try {
-            escrowId = request.getParameter(ESCROW_PARAMETER).emptyToNull().parseUnsignedLong()
+            escrowId = request[ESCROW_PARAMETER].parseUnsignedLong()
         } catch (e: Exception) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 3)

@@ -6,7 +6,9 @@ import brs.api.http.common.Parameters.HEIGHT_PARAMETER
 import brs.services.BlockchainService
 import brs.util.convert.emptyToNull
 import brs.util.convert.toUnsignedString
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -20,7 +22,7 @@ internal class GetBlockId(private val blockchainService: BlockchainService) :
 
         val height: Int
         try {
-            val heightValue = request.getParameter(HEIGHT_PARAMETER).emptyToNull() ?: return MISSING_HEIGHT
+            val heightValue = request[HEIGHT_PARAMETER].emptyToNull() ?: return MISSING_HEIGHT
             height = Integer.parseInt(heightValue)
         } catch (e: Exception) {
             return INCORRECT_HEIGHT

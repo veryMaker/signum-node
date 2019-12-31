@@ -16,6 +16,7 @@ import brs.util.json.mustGetAsJsonObject
 import brs.util.json.mustGetAsString
 import brs.util.json.safeGetAsByte
 import burst.kit.entity.BurstEncryptedMessage
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
 import java.nio.ByteBuffer

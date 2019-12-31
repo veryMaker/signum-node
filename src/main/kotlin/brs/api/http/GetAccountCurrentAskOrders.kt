@@ -10,7 +10,9 @@ import brs.services.AssetExchangeService
 import brs.services.ParameterService
 import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -33,7 +35,7 @@ internal class GetAccountCurrentAskOrders internal constructor(
 
         var assetId: Long = 0
         try {
-            assetId = request.getParameter(ASSET_PARAMETER).parseUnsignedLong()
+            assetId = request[ASSET_PARAMETER].parseUnsignedLong()
         } catch (e: Exception) {
             // ignore
         }

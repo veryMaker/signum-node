@@ -5,6 +5,7 @@ import brs.common.TestConstants
 import brs.db.*
 import brs.entity.Account
 import brs.entity.DependencyProvider
+import brs.objects.Constants.EMPTY_BYTE_ARRAY
 import brs.objects.Props
 import brs.services.AccountService
 import brs.services.BlockchainService
@@ -164,7 +165,7 @@ class AtTestHelper {
             val cspages: Short = 1
             val uspages: Short = 1
             val minActivationAmount = TestConstants.TEN_BURST
-            val data = ByteArray(0)
+            val data = EMPTY_BYTE_ARRAY
             var creationLength = 4 // version + reserved
             creationLength += 8 // pages
             creationLength += 8 // minActivationAmount

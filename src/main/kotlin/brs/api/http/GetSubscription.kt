@@ -6,7 +6,9 @@ import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.services.SubscriptionService
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -19,7 +21,7 @@ internal class GetSubscription(private val subscriptionService: SubscriptionServ
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val subscriptionId: Long
         try {
-            subscriptionId = request.getParameter(SUBSCRIPTION_PARAMETER).emptyToNull().parseUnsignedLong()
+            subscriptionId = request[SUBSCRIPTION_PARAMETER].parseUnsignedLong()
         } catch (e: Exception) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 3)

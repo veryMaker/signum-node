@@ -6,7 +6,9 @@ import brs.api.http.common.ResultFields.TIME_RESPONSE
 import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.objects.Props
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -24,7 +26,7 @@ internal class GetState(private val dp: DependencyProvider) :
         response.addProperty("lastBlock", dp.blockchainService.lastBlock.stringId)
         response.addProperty("cumulativeDifficulty", dp.blockchainService.lastBlock.cumulativeDifficulty.toString())
 
-        if (!"false".equals(request.getParameter("includeCounts"), ignoreCase = true)) {
+        if (!"false".equals(request["includeCounts"], ignoreCase = true)) {
             var totalEffectiveBalance: Long = 0
             for (account in dp.accountService.getAllAccounts(0, -1)) {
                 val effectiveBalanceBURST = account.balancePlanck

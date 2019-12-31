@@ -9,6 +9,7 @@ import brs.services.DeeplinkGeneratorService
 import brs.services.impl.DeeplinkGeneratorServiceImpl
 import brs.util.json.safeGetAsInt
 import brs.util.json.safeGetAsString
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Before

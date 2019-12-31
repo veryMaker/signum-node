@@ -4,7 +4,9 @@ import brs.services.BlockchainProcessorService
 import brs.services.BlockchainService
 import brs.util.BurstException
 import brs.util.json.safeGetAsString
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 class ProcessBlock(

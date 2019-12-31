@@ -14,6 +14,7 @@ import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import brs.util.string.isInAlphabet
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -30,9 +31,9 @@ internal class IssueAsset internal constructor(private val dp: DependencyProvide
 ) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        var name = request.getParameter(NAME_PARAMETER).emptyToNull()
-        val description = request.getParameter(DESCRIPTION_PARAMETER).emptyToNull()
-        val decimalsValue = request.getParameter(DECIMALS_PARAMETER).emptyToNull()
+        var name = request[NAME_PARAMETER].emptyToNull()
+        val description = request[DESCRIPTION_PARAMETER].emptyToNull()
+        val decimalsValue = request[DECIMALS_PARAMETER].emptyToNull()
 
         if (name == null) {
             return MISSING_NAME

@@ -4,7 +4,9 @@ import brs.entity.DependencyProvider
 import brs.services.PeerService
 import brs.util.json.safeGetAsBoolean
 import brs.util.json.safeGetAsString
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerRequestHandler {

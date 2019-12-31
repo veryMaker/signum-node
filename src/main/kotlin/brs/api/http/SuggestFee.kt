@@ -4,7 +4,9 @@ import brs.api.http.common.ResultFields.CHEAP_FEE_RESPONSE
 import brs.api.http.common.ResultFields.PRIORITY_FEE_RESPONSE
 import brs.api.http.common.ResultFields.STANDARD_FEE_RESPONSE
 import brs.services.FeeSuggestionService
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 

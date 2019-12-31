@@ -8,6 +8,7 @@ import brs.db.BurstKey.LongKeyFactory
 import brs.db.VersionedBatchEntityTable
 import brs.entity.Account
 import brs.entity.Account.RewardRecipientAssignment
+import brs.objects.Constants.EMPTY_BYTE_ARRAY
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -107,13 +108,12 @@ class AccountServiceImplTest {
 
     @Test
     fun getAccount_withPublicKey_notFoundReturnsNull() {
-        val publicKey = ByteArray(0)
         val mockKey = mockk<BurstKey>(relaxed = true)
 
         every { accountBurstKeyFactoryMock.newKey(any<Long>()) } returns mockKey
         every { accountTableMock[mockKey] } returns null
 
-        assertNull(t.getAccount(publicKey))
+        assertNull(t.getAccount(EMPTY_BYTE_ARRAY))
     }
 
     @Test(expected = Exception::class)

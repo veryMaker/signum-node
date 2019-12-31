@@ -13,7 +13,9 @@ import brs.services.BlockchainService
 import brs.util.convert.*
 import brs.util.crypto.Crypto
 import brs.util.logging.safeDebug
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
@@ -26,7 +28,7 @@ internal class ReadMessage(
     private val accountService: AccountService
 ) : APIServlet.JsonRequestHandler(arrayOf(APITag.MESSAGES), TRANSACTION_PARAMETER, SECRET_PHRASE_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        val transactionIdString = request.getParameter(TRANSACTION_PARAMETER).emptyToNull()
+        val transactionIdString = request[TRANSACTION_PARAMETER].emptyToNull()
             ?: return MISSING_TRANSACTION
 
         val transaction: Transaction?
@@ -53,7 +55,7 @@ internal class ReadMessage(
                 if (message.isText) message.messageBytes.toUtf8String() else message.messageBytes.toHexString()
             )
         }
-        val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
+        val secretPhrase = request[SECRET_PHRASE_PARAMETER].emptyToNull()
         if (secretPhrase != null) {
             if (encryptedMessage != null) {
                 val readerAccountId = Crypto.getPublicKey(secretPhrase).publicKeyToId()

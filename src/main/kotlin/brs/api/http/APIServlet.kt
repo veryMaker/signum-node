@@ -6,11 +6,14 @@ import brs.api.http.JSONResponses.ERROR_NOT_ALLOWED
 import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.util.Subnet
+import brs.util.jetty.get
 import brs.util.json.mustGetAsJsonObject
 import brs.util.json.writeTo
 import brs.util.logging.safeDebug
 import brs.util.logging.safeWarn
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.eclipse.jetty.http.HttpStatus
 import org.slf4j.LoggerFactory
@@ -241,7 +244,7 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             }
         }
 
-        val requestType = request.getParameter("requestType")
+        val requestType = request["requestType"]
         if (requestType == null) {
             resp.status = HttpStatus.NOT_FOUND_404
             writeJsonToResponse(resp, ERROR_MISSING_REQUEST)

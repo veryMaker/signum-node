@@ -11,7 +11,9 @@ import brs.services.BlockService
 import brs.services.BlockchainService
 import brs.services.ParameterService
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -38,7 +40,7 @@ internal class GetAccountBlocks internal constructor(
         val firstIndex = ParameterParser.getFirstIndex(request)
         val lastIndex = ParameterParser.getLastIndex(request)
 
-        val includeTransactions = Parameters.isTrue(request.getParameter(INCLUDE_TRANSACTIONS_PARAMETER))
+        val includeTransactions = Parameters.isTrue(request[INCLUDE_TRANSACTIONS_PARAMETER])
 
         val blocks = JsonArray()
         for (block in blockchainService.getBlocks(account, timestamp, firstIndex, lastIndex)) {

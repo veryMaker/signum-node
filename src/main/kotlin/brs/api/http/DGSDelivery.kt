@@ -19,6 +19,7 @@ import brs.util.convert.emptyToNull
 import brs.util.convert.parseHexString
 import brs.util.convert.safeMultiply
 import brs.util.convert.toBytes
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -47,7 +48,7 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
             return ALREADY_DELIVERED
         }
 
-        val discountValuePlanck = request.getParameter(DISCOUNT_PLANCK_PARAMETER).emptyToNull()
+        val discountValuePlanck = request[DISCOUNT_PLANCK_PARAMETER].emptyToNull()
         var discountPlanck: Long = 0
         try {
             if (discountValuePlanck != null) {
@@ -65,14 +66,14 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
         }
 
         val buyerAccount = dp.accountService.getAccount(purchase.buyerId) ?: return INCORRECT_ACCOUNT
-        val goodsIsText = !isFalse(request.getParameter(GOODS_IS_TEXT_PARAMETER))
+        val goodsIsText = !isFalse(request[GOODS_IS_TEXT_PARAMETER])
         var encryptedGoods = ParameterParser.getEncryptedGoods(request, goodsIsText)
 
         if (encryptedGoods == null) {
             val secretPhrase = ParameterParser.getSecretPhrase(request)
             val goodsBytes: ByteArray?
             try {
-                val plainGoods = request.getParameter(GOODS_TO_ENCRYPT_PARAMETER).orEmpty()
+                val plainGoods = request[GOODS_TO_ENCRYPT_PARAMETER].orEmpty()
                 if (plainGoods.isEmpty()) {
                     return INCORRECT_DGS_GOODS
                 }

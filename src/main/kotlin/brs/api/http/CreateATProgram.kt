@@ -1,9 +1,9 @@
 package brs.api.http
 
-
 import brs.api.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_DESCRIPTION
 import brs.api.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME
 import brs.api.http.JSONResponses.INCORRECT_AUTOMATED_TRANSACTION_NAME_LENGTH
+import brs.api.http.JSONResponses.MISSING_CODE
 import brs.api.http.JSONResponses.MISSING_NAME
 import brs.api.http.common.Parameters.CODE_PARAMETER
 import brs.api.http.common.Parameters.CREATION_BYTES_PARAMETER
@@ -18,9 +18,11 @@ import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.entity.DependencyProvider
 import brs.objects.Constants
+import brs.objects.Constants.EMPTY_BYTE_ARRAY
 import brs.transaction.appendix.Attachment
 import brs.util.convert.parseHexString
 import brs.util.convert.parseUnsignedLong
+import brs.util.jetty.get
 import brs.util.logging.safeDebug
 import brs.util.string.isInAlphabet
 import com.google.gson.JsonElement
@@ -46,12 +48,9 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
     USPAGES_PARAMETER,
     MIN_ACTIVATION_AMOUNT_PLANCK_PARAMETER
 ) {
-
-    private val logger = LoggerFactory.getLogger(CreateATProgram::class.java)
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        var name = request.getParameter(NAME_PARAMETER) ?: return MISSING_NAME
-        val description: String? = request.getParameter(DESCRIPTION_PARAMETER)
+        var name = request[NAME_PARAMETER] ?: return MISSING_NAME
+        val description: String? = request[DESCRIPTION_PARAMETER]
 
         name = name.trim { it <= ' ' }
         if (name.length > Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH) {
@@ -68,36 +67,30 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
 
         var creationBytes: ByteArray? = null
 
-        if (request.getParameter(CODE_PARAMETER) != null) {
+        if (request[CODE_PARAMETER] != null) {
             try {
-                val code = request.getParameter(CODE_PARAMETER)
-                require(code.length and 1 == 0)
+                val code = request[CODE_PARAMETER]?.parseHexString() ?: return MISSING_CODE
+                val data = request[DATA_PARAMETER]?.parseHexString() ?: EMPTY_BYTE_ARRAY
 
-                var data: String? = request.getParameter(DATA_PARAMETER)
-                if (data == null) {
-                    data = ""
-                }
-                require(data.length and 1 == 0)
-
-                val cpages = code.length / 512 + if (code.length / 2 % 256 != 0) 1 else 0
-                val dpages = Integer.parseInt(request.getParameter(DPAGES_PARAMETER))
-                val cspages = Integer.parseInt(request.getParameter(CSPAGES_PARAMETER))
-                val uspages = Integer.parseInt(request.getParameter(USPAGES_PARAMETER))
+                val cpages = code.size / 256 + if (code.size % 256 != 0) 1 else 0
+                val dpages = Integer.parseInt(request[DPAGES_PARAMETER])
+                val cspages = Integer.parseInt(request[CSPAGES_PARAMETER])
+                val uspages = Integer.parseInt(request[USPAGES_PARAMETER])
 
                 require(dpages >= 0)
                 require(cspages >= 0)
                 require(uspages >= 0)
 
                 val minActivationAmount =
-                    request.getParameter(MIN_ACTIVATION_AMOUNT_PLANCK_PARAMETER).parseUnsignedLong()
+                    request[MIN_ACTIVATION_AMOUNT_PLANCK_PARAMETER].parseUnsignedLong()
 
                 var creationLength = 4 // version + reserved
                 creationLength += 8 // pages
                 creationLength += 8 // minActivationAmount
                 creationLength += if (cpages <= 1) 1 else if (cpages < 128) 2 else 4 // code size
-                creationLength += code.length / 2
+                creationLength += code.size
                 creationLength += if (dpages <= 1) 1 else if (dpages < 128) 2 else 4 // data size
-                creationLength += data.length / 2
+                creationLength += data.size
 
                 val creation = ByteBuffer.allocate(creationLength)
                 creation.order(ByteOrder.LITTLE_ENDIAN)
@@ -109,15 +102,9 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
                 creation.putShort(uspages.toShort())
                 creation.putLong(minActivationAmount)
                 putLength(cpages, code, creation)
-                val codeBytes = code.parseHexString()
-                if (codeBytes.isNotEmpty()) {
-                    creation.put(codeBytes)
-                }
+                creation.put(code)
                 putLength(dpages, data, creation)
-                val dataBytes = data.parseHexString()
-                if (dataBytes.isNotEmpty()) {
-                    creation.put(dataBytes)
-                }
+                creation.put(data)
 
                 creationBytes = creation.array()
             } catch (e: Exception) {
@@ -146,11 +133,15 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
         return createTransaction(request, account, attachment)
     }
 
-    private fun putLength(nPages: Int, string: String, buffer: ByteBuffer) {
+    private fun putLength(nPages: Int, data: ByteArray, buffer: ByteBuffer) {
         when {
-            nPages <= 1 -> buffer.put((string.length / 2).toByte())
-            nPages < 128 -> buffer.putShort((string.length / 2).toShort())
-            else -> buffer.putInt(string.length / 2)
+            nPages <= 1 -> buffer.put((data.size).toByte())
+            nPages < 128 -> buffer.putShort((data.size).toShort())
+            else -> buffer.putInt(data.size)
         }
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(CreateATProgram::class.java)
     }
 }

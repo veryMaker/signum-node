@@ -62,13 +62,14 @@ import brs.util.json.mustGetAsJsonObject
 import brs.util.json.parseJson
 import brs.util.logging.safeDebug
 import burst.kit.entity.BurstEncryptedMessage
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 
 class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterService {
     override fun getAccount(request: HttpServletRequest): Account {
-        val accountId = request.getParameter(ACCOUNT_PARAMETER).emptyToNull()
+        val accountId = request[ACCOUNT_PARAMETER].emptyToNull()
             ?: throw ParameterException(MISSING_ACCOUNT)
         try {
             return dp.accountService.getAccount(accountId.parseAccountId())
@@ -101,8 +102,8 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     override fun getSenderAccount(request: HttpServletRequest): Account {
-        val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
-        val publicKeyString = request.getParameter(PUBLIC_KEY_PARAMETER).emptyToNull()
+        val secretPhrase = request[SECRET_PHRASE_PARAMETER].emptyToNull()
+        val publicKeyString = request[PUBLIC_KEY_PARAMETER].emptyToNull()
         return when {
             secretPhrase != null -> dp.accountService.getAccount(Crypto.getPublicKey(secretPhrase))
             publicKeyString != null -> try {
@@ -117,12 +118,12 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     override fun getAlias(request: HttpServletRequest): Alias {
         val aliasId: Long
         try {
-            aliasId = request.getParameter(ALIAS_PARAMETER).emptyToNull().parseUnsignedLong()
+            aliasId = request[ALIAS_PARAMETER].parseUnsignedLong()
         } catch (e: Exception) {
             throw ParameterException(INCORRECT_ALIAS)
         }
 
-        val aliasName = request.getParameter(ALIAS_NAME_PARAMETER).emptyToNull()
+        val aliasName = request[ALIAS_NAME_PARAMETER].emptyToNull()
         return when {
             aliasId != 0L -> dp.aliasService.getAlias(aliasId)
             aliasName != null -> dp.aliasService.getAlias(aliasName)
@@ -131,7 +132,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     override fun getAsset(request: HttpServletRequest): Asset {
-        val assetValue = request.getParameter(ASSET_PARAMETER).emptyToNull()
+        val assetValue = request[ASSET_PARAMETER].emptyToNull()
             ?: throw ParameterException(MISSING_ASSET)
         val asset: Asset?
         try {
@@ -148,7 +149,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     override fun getGoods(request: HttpServletRequest): Goods {
-        val goodsValue = request.getParameter(GOODS_PARAMETER).emptyToNull()
+        val goodsValue = request[GOODS_PARAMETER].emptyToNull()
             ?: throw ParameterException(MISSING_GOODS)
 
         try {
@@ -161,7 +162,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     override fun getPurchase(request: HttpServletRequest): Purchase {
-        val purchaseIdString = request.getParameter(PURCHASE_PARAMETER).emptyToNull()
+        val purchaseIdString = request[PURCHASE_PARAMETER].emptyToNull()
             ?: throw ParameterException(MISSING_PURCHASE)
         try {
             return dp.digitalGoodsStoreService.getPurchase(purchaseIdString.parseUnsignedLong())
@@ -177,9 +178,9 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         recipientAccount: Account?,
         publicKey: ByteArray?
     ): BurstEncryptedMessage? {
-        val data = request.getParameter(ENCRYPTED_MESSAGE_DATA_PARAMETER).emptyToNull()
-        val nonce = request.getParameter(ENCRYPTED_MESSAGE_NONCE_PARAMETER).emptyToNull()
-        val isText = isTrue(request.getParameter(MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER))
+        val data = request[ENCRYPTED_MESSAGE_DATA_PARAMETER].emptyToNull()
+        val nonce = request[ENCRYPTED_MESSAGE_NONCE_PARAMETER].emptyToNull()
+        val isText = isTrue(request[MESSAGE_TO_ENCRYPT_IS_TEXT_PARAMETER])
         if (data != null && nonce != null) {
             try {
                 return BurstEncryptedMessage(data.parseHexString(), nonce.parseHexString(), isText)
@@ -187,7 +188,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
                 throw ParameterException(INCORRECT_ENCRYPTED_MESSAGE)
             }
         }
-        val plainMessage = request.getParameter(MESSAGE_TO_ENCRYPT_PARAMETER).emptyToNull() ?: return null
+        val plainMessage = request[MESSAGE_TO_ENCRYPT_PARAMETER].emptyToNull() ?: return null
 
         val secretPhrase = getSecretPhrase(request)
         try {
@@ -213,9 +214,9 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     override fun getEncryptToSelfMessage(request: HttpServletRequest): BurstEncryptedMessage? {
-        val data = request.getParameter(ENCRYPT_TO_SELF_MESSAGE_DATA).emptyToNull()
-        val nonce = request.getParameter(ENCRYPT_TO_SELF_MESSAGE_NONCE).emptyToNull()
-        val isText = !isFalse(request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER))
+        val data = request[ENCRYPT_TO_SELF_MESSAGE_DATA].emptyToNull()
+        val nonce = request[ENCRYPT_TO_SELF_MESSAGE_NONCE].emptyToNull()
+        val isText = !isFalse(request[MESSAGE_TO_ENCRYPT_TO_SELF_IS_TEXT_PARAMETER])
         if (data != null && nonce != null) {
             try {
                 return BurstEncryptedMessage(data.parseHexString(), nonce.parseHexString(), isText)
@@ -223,7 +224,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
                 throw ParameterException(INCORRECT_ENCRYPTED_MESSAGE)
             }
         }
-        val plainMessage = request.getParameter(MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER).emptyToNull() ?: return null
+        val plainMessage = request[MESSAGE_TO_ENCRYPT_TO_SELF_PARAMETER].emptyToNull() ?: return null
         val secretPhrase = getSecretPhrase(request)
         val senderAccount = dp.accountService.getAccount(Crypto.getPublicKey(secretPhrase))
         try {
@@ -235,12 +236,12 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     override fun getSecretPhrase(request: HttpServletRequest): String {
-        return request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
+        return request[SECRET_PHRASE_PARAMETER].emptyToNull()
             ?: throw ParameterException(MISSING_SECRET_PHRASE)
     }
 
     override fun getNumberOfConfirmations(request: HttpServletRequest): Int {
-        val numberOfConfirmationsValue = request.getParameter(NUMBER_OF_CONFIRMATIONS_PARAMETER).emptyToNull()
+        val numberOfConfirmationsValue = request[NUMBER_OF_CONFIRMATIONS_PARAMETER].emptyToNull()
         if (numberOfConfirmationsValue != null) {
             try {
                 val numberOfConfirmations = Integer.parseInt(numberOfConfirmationsValue)
@@ -257,7 +258,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     override fun getHeight(request: HttpServletRequest): Int {
-        val heightValue = request.getParameter(HEIGHT_PARAMETER).emptyToNull()
+        val heightValue = request[HEIGHT_PARAMETER].emptyToNull()
         if (heightValue != null) {
             try {
                 val height = Integer.parseInt(heightValue)
@@ -313,7 +314,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     override fun getAT(request: HttpServletRequest): AT {
-        val atValue = request.getParameter(AT_PARAMETER).emptyToNull() ?: throw ParameterException(MISSING_AT)
+        val atValue = request[AT_PARAMETER].emptyToNull() ?: throw ParameterException(MISSING_AT)
         val at: AT?
         try {
             val atId = atValue.parseUnsignedLong()
@@ -329,7 +330,7 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     override fun getIncludeIndirect(request: HttpServletRequest): Boolean {
-        return request.getParameter(INCLUDE_INDIRECT_PARAMETER)?.toBoolean() ?: false
+        return request[INCLUDE_INDIRECT_PARAMETER]?.toBoolean() ?: false
     }
 
     companion object {

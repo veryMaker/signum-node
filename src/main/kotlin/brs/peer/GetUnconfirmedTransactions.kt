@@ -4,6 +4,7 @@ import brs.api.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
 import brs.entity.DependencyProvider
 import brs.peer.PeerServlet.ExtendedProcessRequest
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 internal class GetUnconfirmedTransactions(private val dp: DependencyProvider) :

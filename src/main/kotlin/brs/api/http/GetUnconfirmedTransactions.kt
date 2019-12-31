@@ -8,7 +8,9 @@ import brs.entity.DependencyProvider
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseAccountId
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -22,7 +24,7 @@ internal class GetUnconfirmedTransactions(private val dp: DependencyProvider) : 
 ) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        val accountIdString = request.getParameter(ACCOUNT_PARAMETER).emptyToNull()
+        val accountIdString = request[ACCOUNT_PARAMETER].emptyToNull()
         val includeIndirect = dp.parameterService.getIncludeIndirect(request)
 
         var accountId: Long = 0

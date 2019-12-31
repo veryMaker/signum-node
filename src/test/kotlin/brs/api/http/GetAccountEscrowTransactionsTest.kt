@@ -26,6 +26,7 @@ import brs.services.ParameterService
 import brs.util.json.safeGetAsLong
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk

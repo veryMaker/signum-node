@@ -15,7 +15,9 @@ import brs.util.convert.toHexString
 import brs.util.convert.toUtf8String
 import brs.util.logging.safeDebug
 import burst.kit.entity.BurstEncryptedMessage
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
@@ -39,9 +41,9 @@ internal class DecryptFrom internal constructor(private val parameterService: Pa
             return INCORRECT_ACCOUNT
         }
         val secretPhrase = ParameterParser.getSecretPhrase(request)
-        val data = request.getParameter(DATA_PARAMETER).orEmpty().parseHexString()
-        val nonce = request.getParameter(NONCE_PARAMETER).orEmpty().parseHexString()
-        val isText = !Parameters.isFalse(request.getParameter(DECRYPTED_MESSAGE_IS_TEXT_PARAMETER))
+        val data = request[DATA_PARAMETER].orEmpty().parseHexString()
+        val nonce = request[NONCE_PARAMETER].orEmpty().parseHexString()
+        val isText = !Parameters.isFalse(request[DECRYPTED_MESSAGE_IS_TEXT_PARAMETER])
         val encryptedData = BurstEncryptedMessage(data, nonce, isText)
         return try {
             val decrypted = account.decryptFrom(encryptedData, secretPhrase)

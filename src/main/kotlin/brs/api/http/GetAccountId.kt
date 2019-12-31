@@ -10,7 +10,9 @@ import brs.util.convert.parseHexString
 import brs.util.convert.publicKeyToId
 import brs.util.convert.toHexString
 import brs.util.crypto.Crypto
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -22,8 +24,8 @@ internal class GetAccountId :
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
         val accountId: Long
-        val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
-        var publicKeyString = request.getParameter(PUBLIC_KEY_PARAMETER).emptyToNull()
+        val secretPhrase = request[SECRET_PHRASE_PARAMETER].emptyToNull()
+        var publicKeyString = request[PUBLIC_KEY_PARAMETER].emptyToNull()
         when {
             secretPhrase != null -> {
                 val publicKey = Crypto.getPublicKey(secretPhrase)

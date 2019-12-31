@@ -19,6 +19,7 @@ import brs.entity.FeeSuggestion
 import brs.objects.Constants
 import brs.services.DeeplinkQRCodeGeneratorService
 import brs.util.convert.emptyToNull
+import brs.util.jetty.get
 import brs.util.logging.safeError
 import org.eclipse.jetty.http.HttpStatus
 import org.slf4j.LoggerFactory
@@ -42,16 +43,16 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGeneratorService
 
     override fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
-            val immutable = Parameters.isTrue(request.getParameter(IMMUTABLE_PARAMETER))
+            val immutable = Parameters.isTrue(request[IMMUTABLE_PARAMETER])
 
-            val receiverId = request.getParameter(RECEIVER_ID_PARAMETER).emptyToNull()
+            val receiverId = request[RECEIVER_ID_PARAMETER].emptyToNull()
 
             if (receiverId.isNullOrBlank()) {
                 addErrorMessage(resp, MISSING_RECEIVER_ID)
                 return
             }
 
-            val amountPlanckString = request.getParameter(AMOUNT_PLANCK_PARAMETER).emptyToNull()
+            val amountPlanckString = request[AMOUNT_PLANCK_PARAMETER].emptyToNull()
             if (amountPlanckString.isNullOrBlank()) {
                 addErrorMessage(resp, MISSING_AMOUNT)
                 return
@@ -63,7 +64,7 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGeneratorService
                 return
             }
 
-            val feePlanckString = request.getParameter(FEE_PLANCK_PARAMETER).emptyToNull()
+            val feePlanckString = request[FEE_PLANCK_PARAMETER].emptyToNull()
 
             var feePlanck: Long? = null
 
@@ -79,7 +80,7 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGeneratorService
             var feeSuggestionType: FeeSuggestion.Type? = null
 
             if (feePlanck == null) {
-                val feeSuggestionTypeString = request.getParameter(FEE_SUGGESTION_TYPE_PARAMETER).emptyToNull()
+                val feeSuggestionTypeString = request[FEE_SUGGESTION_TYPE_PARAMETER].emptyToNull()
 
                 if (feeSuggestionTypeString.isNullOrBlank()) {
                     addErrorMessage(resp, FEE_OR_FEE_SUGGESTION_REQUIRED)
@@ -94,7 +95,7 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGeneratorService
                 }
             }
 
-            val message = request.getParameter(MESSAGE_PARAMETER).emptyToNull()
+            val message = request[MESSAGE_PARAMETER].emptyToNull()
 
             if (!message.isNullOrBlank() && message.length > Constants.MAX_ARBITRARY_MESSAGE_LENGTH) {
                 addErrorMessage(resp, INCORRECT_MESSAGE_LENGTH)

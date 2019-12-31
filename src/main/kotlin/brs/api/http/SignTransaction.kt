@@ -19,7 +19,9 @@ import brs.util.convert.emptyToNull
 import brs.util.convert.toHexString
 import brs.util.crypto.Crypto
 import brs.util.logging.safeDebug
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
@@ -38,11 +40,11 @@ internal class SignTransaction(
 ) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val transactionBytes = request.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER).emptyToNull()
-        val transactionJSON = request.getParameter(UNSIGNED_TRANSACTION_JSON_PARAMETER).emptyToNull()
+        val transactionBytes = request[UNSIGNED_TRANSACTION_BYTES_PARAMETER].emptyToNull()
+        val transactionJSON = request[UNSIGNED_TRANSACTION_JSON_PARAMETER].emptyToNull()
         val transaction = parameterService.parseTransaction(transactionBytes, transactionJSON)
 
-        val secretPhrase = request.getParameter(SECRET_PHRASE_PARAMETER).emptyToNull()
+        val secretPhrase = request[SECRET_PHRASE_PARAMETER].emptyToNull()
             ?: return MISSING_SECRET_PHRASE
 
         val response = JsonObject()

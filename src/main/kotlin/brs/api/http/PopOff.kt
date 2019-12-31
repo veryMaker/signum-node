@@ -8,7 +8,9 @@ import brs.services.BlockService
 import brs.services.BlockchainProcessorService
 import brs.services.BlockchainService
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -26,13 +28,13 @@ internal class PopOff(
         val response = JsonObject()
         var numBlocks = 0
         try {
-            numBlocks = Integer.parseInt(request.getParameter(NUM_BLOCKS_PARAMETER))
+            numBlocks = Integer.parseInt(request[NUM_BLOCKS_PARAMETER])
         } catch (ignored: NumberFormatException) {
         }
 
         var height = 0
         try {
-            height = Integer.parseInt(request.getParameter(HEIGHT_PARAMETER))
+            height = Integer.parseInt(request[HEIGHT_PARAMETER])
         } catch (ignored: NumberFormatException) {
         }
 

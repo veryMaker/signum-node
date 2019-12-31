@@ -5,9 +5,11 @@ import brs.api.http.common.Parameters.ALIAS_NAME_PARAMETER
 import brs.api.http.common.Parameters.ALIAS_PARAMETER
 import brs.api.http.common.Parameters.AMOUNT_PARAMETER
 import brs.api.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
+import brs.api.http.common.Parameters.ASSETS_PARAMETER
 import brs.api.http.common.Parameters.ASSET_PARAMETER
 import brs.api.http.common.Parameters.AT_PARAMETER
 import brs.api.http.common.Parameters.BLOCK_PARAMETER
+import brs.api.http.common.Parameters.CODE_PARAMETER
 import brs.api.http.common.Parameters.DEADLINE_PARAMETER
 import brs.api.http.common.Parameters.DECIMALS_PARAMETER
 import brs.api.http.common.Parameters.DELIVERY_DEADLINE_TIMESTAMP_PARAMETER
@@ -16,6 +18,7 @@ import brs.api.http.common.Parameters.DESCRIPTION_PARAMETER
 import brs.api.http.common.Parameters.DISCOUNT_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.DOMAIN_PARAMETER
 import brs.api.http.common.Parameters.ENCRYPTED_MESSAGE_DATA_PARAMETER
+import brs.api.http.common.Parameters.ESCROW_DEADLINE_PARAMETER
 import brs.api.http.common.Parameters.FEE_PARAMETER
 import brs.api.http.common.Parameters.FEE_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.FEE_SUGGESTION_TYPE_PARAMETER
@@ -23,6 +26,7 @@ import brs.api.http.common.Parameters.GOODS_DATA_PARAMETER
 import brs.api.http.common.Parameters.GOODS_PARAMETER
 import brs.api.http.common.Parameters.GOODS_TO_ENCRYPT_PARAMETER
 import brs.api.http.common.Parameters.HEIGHT_PARAMETER
+import brs.api.http.common.Parameters.HEX_STRING_PARAMETER
 import brs.api.http.common.Parameters.ID_PARAMETER
 import brs.api.http.common.Parameters.MESSAGE_PARAMETER
 import brs.api.http.common.Parameters.MESSAGE_TO_ENCRYPT_PARAMETER
@@ -41,6 +45,7 @@ import brs.api.http.common.Parameters.RECEIVER_ID_PARAMETER
 import brs.api.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.api.http.common.Parameters.REFERENCED_TRANSACTION_FULL_HASH_PARAMETER
 import brs.api.http.common.Parameters.REFUND_PLANCK_PARAMETER
+import brs.api.http.common.Parameters.REQUIRED_SIGNERS_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.Parameters.SELLER_PARAMETER
 import brs.api.http.common.Parameters.SIGNATURE_HASH_PARAMETER
@@ -60,12 +65,10 @@ import com.google.gson.JsonObject
 object JSONResponses {
     val INCORRECT_ALIAS = incorrect(ALIAS_PARAMETER)
     val INCORRECT_ALIAS_OWNER = incorrect(ALIAS_PARAMETER, "(invalid alias owner)")
-    val INCORRECT_ALIAS_LENGTH =
-        incorrect(ALIAS_PARAMETER, "(length must be in [1.." + Constants.MAX_ALIAS_LENGTH + "] range)")
+    val INCORRECT_ALIAS_LENGTH = incorrect(ALIAS_PARAMETER, "(length must be in range [1..${Constants.MAX_ALIAS_LENGTH}])")
     val INCORRECT_ALIAS_NAME = incorrect(ALIAS_PARAMETER, "(must contain only digits and latin letters)")
     val INCORRECT_ALIAS_NOTFORSALE = incorrect(ALIAS_PARAMETER, "(alias is not for sale at the moment)")
-    val INCORRECT_URI_LENGTH =
-        incorrect(URI_PARAMETER, "(length must be not longer than " + Constants.MAX_ALIAS_URI_LENGTH + " characters)")
+    val INCORRECT_URI_LENGTH = incorrect(URI_PARAMETER, "(length must be not longer than ${Constants.MAX_ALIAS_URI_LENGTH} characters)")
     val MISSING_SECRET_PHRASE = missing(SECRET_PHRASE_PARAMETER)
     val INCORRECT_PUBLIC_KEY = incorrect(PUBLIC_KEY_PARAMETER)
     val MISSING_ALIAS_NAME = missing(ALIAS_NAME_PARAMETER)
@@ -95,20 +98,18 @@ object JSONResponses {
     val MISSING_TRANSACTION = missing(TRANSACTION_PARAMETER)
     val UNKNOWN_TRANSACTION = unknown(TRANSACTION_PARAMETER)
     val INCORRECT_TRANSACTION = incorrect(TRANSACTION_PARAMETER)
-    val INCORRECT_ASSET_DESCRIPTION = incorrect(
-        DESCRIPTION_PARAMETER,
-        "(length must not exceed " + Constants.MAX_ASSET_DESCRIPTION_LENGTH + " characters)"
-    )
+    val MISSING_CODE = missing(CODE_PARAMETER)
+    val MISSING_HEX_STRING = missing(HEX_STRING_PARAMETER)
+    val MISSING_REQUIRED_SIGNERS = missing(REQUIRED_SIGNERS_PARAMETER)
+    val MISSING_ESCROW_DEADLINE = missing(ESCROW_DEADLINE_PARAMETER)
+    val MISSING_ASSETS = missing(ASSETS_PARAMETER)
+    val INCORRECT_ASSET_DESCRIPTION = incorrect(DESCRIPTION_PARAMETER, "(length must not exceed ${Constants.MAX_ASSET_DESCRIPTION_LENGTH} characters)")
     val INCORRECT_ASSET_NAME = incorrect(NAME_PARAMETER, "(must contain only digits and latin letters)")
-    val INCORRECT_ASSET_NAME_LENGTH = incorrect(
-        NAME_PARAMETER,
-        "(length must be in [" + Constants.MIN_ASSET_NAME_LENGTH + ".." + Constants.MAX_ASSET_NAME_LENGTH + "] range)"
-    )
+    val INCORRECT_ASSET_NAME_LENGTH = incorrect(NAME_PARAMETER, "(length must be in [" + Constants.MIN_ASSET_NAME_LENGTH + ".." + Constants.MAX_ASSET_NAME_LENGTH + "] range)")
     val MISSING_NAME = missing(NAME_PARAMETER)
     val MISSING_QUANTITY = missing(QUANTITY_QNT_PARAMETER)
     val INCORRECT_QUANTITY = incorrect(QUANTITY_PARAMETER)
-    val INCORRECT_ASSET_QUANTITY =
-        incorrect(QUANTITY_PARAMETER, "(must be in [1.." + Constants.MAX_ASSET_QUANTITY + "] range)")
+    val INCORRECT_ASSET_QUANTITY = incorrect(QUANTITY_PARAMETER, "(must be in [1.." + Constants.MAX_ASSET_QUANTITY + "] range)")
     val INCORRECT_DECIMALS = incorrect(DECIMALS_PARAMETER)
     val MISSING_PRICE = missing(PRICE_PLANCK_PARAMETER)
     val INCORRECT_PRICE = incorrect(PRICE_PARAMETER)
@@ -118,26 +119,13 @@ object JSONResponses {
     val INCORRECT_ARBITRARY_MESSAGE = incorrect(MESSAGE_PARAMETER)
     val MISSING_AMOUNT = missing(AMOUNT_PLANCK_PARAMETER)
     val INCORRECT_AMOUNT = incorrect(AMOUNT_PARAMETER)
-    val INCORRECT_ACCOUNT_NAME_LENGTH =
-        incorrect(NAME_PARAMETER, "(length must be less than " + Constants.MAX_ACCOUNT_NAME_LENGTH + " characters)")
-    val INCORRECT_ACCOUNT_DESCRIPTION_LENGTH = incorrect(
-        DESCRIPTION_PARAMETER,
-        "(length must be less than " + Constants.MAX_ACCOUNT_DESCRIPTION_LENGTH + " characters)"
-    )
+    val INCORRECT_ACCOUNT_NAME_LENGTH = incorrect(NAME_PARAMETER, "(length must be less than " + Constants.MAX_ACCOUNT_NAME_LENGTH + " characters)")
+    val INCORRECT_ACCOUNT_DESCRIPTION_LENGTH = incorrect(DESCRIPTION_PARAMETER, "(length must be less than " + Constants.MAX_ACCOUNT_DESCRIPTION_LENGTH + " characters)")
     val MISSING_UNSIGNED_BYTES = missing(UNSIGNED_TRANSACTION_BYTES_PARAMETER)
     val MISSING_SIGNATURE_HASH = missing(SIGNATURE_HASH_PARAMETER)
-    val INCORRECT_DGS_LISTING_NAME = incorrect(
-        NAME_PARAMETER,
-        "(length must be not longer than " + Constants.MAX_DGS_LISTING_NAME_LENGTH + " characters)"
-    )
-    val INCORRECT_DGS_LISTING_DESCRIPTION = incorrect(
-        DESCRIPTION_PARAMETER,
-        "(length must be not longer than " + Constants.MAX_DGS_LISTING_DESCRIPTION_LENGTH + " characters)"
-    )
-    val INCORRECT_DGS_LISTING_TAGS = incorrect(
-        TAGS_PARAMETER,
-        "(length must be not longer than " + Constants.MAX_DGS_LISTING_TAGS_LENGTH + " characters)"
-    )
+    val INCORRECT_DGS_LISTING_NAME = incorrect(NAME_PARAMETER, "(length must be not longer than " + Constants.MAX_DGS_LISTING_NAME_LENGTH + " characters)")
+    val INCORRECT_DGS_LISTING_DESCRIPTION = incorrect(DESCRIPTION_PARAMETER, "(length must be not longer than " + Constants.MAX_DGS_LISTING_DESCRIPTION_LENGTH + " characters)")
+    val INCORRECT_DGS_LISTING_TAGS = incorrect(TAGS_PARAMETER, "(length must be not longer than " + Constants.MAX_DGS_LISTING_TAGS_LENGTH + " characters)")
     val MISSING_GOODS = missing(GOODS_PARAMETER)
     val INCORRECT_GOODS = incorrect(GOODS_PARAMETER)
     val UNKNOWN_GOODS = unknown(GOODS_PARAMETER)

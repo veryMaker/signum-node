@@ -12,6 +12,7 @@ import brs.services.TransactionService
 import brs.util.BurstException
 import brs.util.convert.emptyToNull
 import brs.util.logging.safeDebug
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
@@ -30,8 +31,8 @@ internal class ParseTransaction(
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
 
-        val transactionBytes = request.getParameter(TRANSACTION_BYTES_PARAMETER).emptyToNull()
-        val transactionJSON = request.getParameter(TRANSACTION_JSON_PARAMETER).emptyToNull()
+        val transactionBytes = request[TRANSACTION_BYTES_PARAMETER].emptyToNull()
+        val transactionJSON = request[TRANSACTION_JSON_PARAMETER].emptyToNull()
         val transaction = parameterService.parseTransaction(transactionBytes, transactionJSON)
         val response = JSONData.unconfirmedTransaction(transaction)
         try {

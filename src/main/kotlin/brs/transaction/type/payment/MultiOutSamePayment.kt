@@ -7,6 +7,7 @@ import brs.objects.FluxValues
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.convert.safeDivide
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 

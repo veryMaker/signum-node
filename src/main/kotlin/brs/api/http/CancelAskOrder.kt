@@ -4,6 +4,7 @@ import brs.api.http.JSONResponses.UNKNOWN_ORDER
 import brs.api.http.common.Parameters.ORDER_PARAMETER
 import brs.entity.DependencyProvider
 import brs.transaction.appendix.Attachment
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 

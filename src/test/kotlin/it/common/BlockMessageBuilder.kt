@@ -1,6 +1,7 @@
 package it.common
 
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 class BlockMessageBuilder {

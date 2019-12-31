@@ -13,6 +13,7 @@ import brs.services.BlockService
 import brs.services.BlockchainService
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -31,9 +32,9 @@ internal class GetBlock internal constructor(
 ) {
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        val blockValue = request.getParameter(BLOCK_PARAMETER).emptyToNull()
-        val heightValue = request.getParameter(HEIGHT_PARAMETER).emptyToNull()
-        val timestampValue = request.getParameter(TIMESTAMP_PARAMETER).emptyToNull()
+        val blockValue = request[BLOCK_PARAMETER].emptyToNull()
+        val heightValue = request[HEIGHT_PARAMETER].emptyToNull()
+        val timestampValue = request[TIMESTAMP_PARAMETER].emptyToNull()
 
         val blockData = when {
             blockValue != null -> try {
@@ -62,7 +63,7 @@ internal class GetBlock internal constructor(
             else -> blockchainService.lastBlock
         } ?: return UNKNOWN_BLOCK
 
-        val includeTransactions = isTrue(request.getParameter(INCLUDE_TRANSACTIONS_PARAMETER))
+        val includeTransactions = isTrue(request[INCLUDE_TRANSACTIONS_PARAMETER])
 
         return JSONData.block(
             blockData,

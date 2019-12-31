@@ -9,6 +9,7 @@ import brs.api.http.common.Parameters.DOMAIN_PARAMETER
 import brs.api.http.common.Parameters.PAYLOAD_PARAMETER
 import brs.entity.DependencyProvider
 import brs.util.convert.emptyToNull
+import brs.util.jetty.get
 import brs.util.logging.safeDebug
 import com.google.zxing.WriterException
 import org.eclipse.jetty.http.HttpStatus
@@ -20,14 +21,14 @@ import javax.servlet.http.HttpServletResponse
 internal class GenerateDeeplinkQR(private val dp: DependencyProvider) : HttpRequestHandler(arrayOf(APITag.UTILS), DOMAIN_PARAMETER, ACTION_PARAMETER, PAYLOAD_PARAMETER) {
     override fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
-            val domain = request.getParameter(DOMAIN_PARAMETER).emptyToNull()
+            val domain = request[DOMAIN_PARAMETER].emptyToNull()
             if (domain.isNullOrEmpty()) {
                 addErrorMessage(resp, MISSING_DOMAIN)
                 return
             }
 
-            val action = request.getParameter(ACTION_PARAMETER).emptyToNull()
-            val payload = request.getParameter(PAYLOAD_PARAMETER).emptyToNull()
+            val action = request[ACTION_PARAMETER].emptyToNull()
+            val payload = request[PAYLOAD_PARAMETER].emptyToNull()
 
             if (action.isNullOrEmpty() && !payload.isNullOrEmpty()) {
                 addErrorMessage(resp, PAYLOAD_WITHOUT_ACTION)

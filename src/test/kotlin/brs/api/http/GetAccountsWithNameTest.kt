@@ -7,6 +7,7 @@ import brs.api.http.common.Parameters.ACCOUNTS_RESPONSE
 import brs.api.http.common.Parameters.NAME_PARAMETER
 import brs.services.AccountService
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import io.mockk.every

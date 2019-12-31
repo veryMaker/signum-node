@@ -3,6 +3,7 @@ package brs.api.http
 import brs.api.http.common.Parameters.RECIPIENT_PARAMETER
 import brs.entity.DependencyProvider
 import brs.transaction.appendix.Attachment
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 

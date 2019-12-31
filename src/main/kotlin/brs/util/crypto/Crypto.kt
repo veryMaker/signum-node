@@ -1,5 +1,6 @@
 package brs.util.crypto
 
+import brs.objects.Constants.EMPTY_BYTE_ARRAY
 import brs.util.BurstException
 import burst.kit.crypto.BurstCrypto
 import burst.kit.entity.BurstEncryptedMessage
@@ -41,7 +42,7 @@ object Crypto {
         isText: Boolean
     ): BurstEncryptedMessage {
         if (plaintext.isEmpty()) {
-            return BurstEncryptedMessage(ByteArray(0), ByteArray(0), isText)
+            return BurstEncryptedMessage(EMPTY_BYTE_ARRAY, EMPTY_BYTE_ARRAY, isText)
         }
         val message = burstCrypto.encryptBytesMessage(plaintext, myPrivateKey, theirPublicKey)
         return BurstEncryptedMessage(message.data, message.nonce, isText)
@@ -49,7 +50,7 @@ object Crypto {
 
     fun readEncryptedData(buffer: ByteBuffer, length: Int, maxLength: Int, isText: Boolean): BurstEncryptedMessage {
         if (length == 0) {
-            return BurstEncryptedMessage(ByteArray(0), ByteArray(0), isText)
+            return BurstEncryptedMessage(EMPTY_BYTE_ARRAY, EMPTY_BYTE_ARRAY, isText)
         }
         if (length > maxLength) {
             throw BurstException.NotValidException("Max encrypted data length exceeded: $length")

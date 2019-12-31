@@ -16,6 +16,7 @@ import brs.services.ParameterService
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
 import brs.util.json.safeGetAsLong
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import io.mockk.every

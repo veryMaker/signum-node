@@ -5,7 +5,9 @@ import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
 import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 internal class GetNextBlockIds(private val blockchainService: BlockchainService) : PeerServlet.PeerRequestHandler {

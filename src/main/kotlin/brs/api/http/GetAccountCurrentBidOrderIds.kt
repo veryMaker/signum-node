@@ -11,7 +11,9 @@ import brs.services.ParameterService
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -34,7 +36,7 @@ internal class GetAccountCurrentBidOrderIds internal constructor(
         val accountId = parameterService.getAccount(request).id
         var assetId: Long = 0
         try {
-            assetId = request.getParameter(ASSET_PARAMETER).parseUnsignedLong()
+            assetId = request[ASSET_PARAMETER].parseUnsignedLong()
         } catch (e: Exception) {
             // ignore
         }

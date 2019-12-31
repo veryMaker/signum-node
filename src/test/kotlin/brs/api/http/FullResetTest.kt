@@ -6,6 +6,7 @@ import brs.common.QuickMocker
 import brs.services.BlockchainProcessorService
 import brs.util.json.mustGetAsBoolean
 import brs.util.json.safeGetAsString
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import io.mockk.every

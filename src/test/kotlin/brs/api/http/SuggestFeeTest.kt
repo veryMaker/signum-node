@@ -8,6 +8,7 @@ import brs.api.http.common.ResultFields.CHEAP_FEE_RESPONSE
 import brs.api.http.common.ResultFields.PRIORITY_FEE_RESPONSE
 import brs.api.http.common.ResultFields.STANDARD_FEE_RESPONSE
 import brs.util.json.safeGetAsLong
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import io.mockk.every

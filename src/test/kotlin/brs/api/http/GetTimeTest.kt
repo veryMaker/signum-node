@@ -4,6 +4,7 @@ import brs.common.QuickMocker
 import brs.api.http.common.ResultFields.TIME_RESPONSE
 import brs.services.TimeService
 import brs.util.json.safeGetAsLong
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import io.mockk.every

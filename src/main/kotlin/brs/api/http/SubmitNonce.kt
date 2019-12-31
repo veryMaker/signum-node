@@ -16,7 +16,9 @@ import brs.util.convert.parseUnsignedLong
 import brs.util.crypto.Crypto
 import burst.kit.crypto.BurstCrypto
 import burst.kit.entity.BurstAddress
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -50,12 +52,12 @@ internal class SubmitNonce(
     }
 
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        var secret: String? = request.getParameter(SECRET_PHRASE_PARAMETER)
-        val nonce = request.getParameter(NONCE_PARAMETER).parseUnsignedLong()
+        var secret: String? = request[SECRET_PHRASE_PARAMETER]
+        val nonce = request[NONCE_PARAMETER].parseUnsignedLong()
 
-        val accountId = request.getParameter(ACCOUNT_ID_PARAMETER)
+        val accountId = request[ACCOUNT_ID_PARAMETER]
 
-        val submissionHeight = request.getParameter(BLOCK_HEIGHT_PARAMETER).emptyToNull()
+        val submissionHeight = request[BLOCK_HEIGHT_PARAMETER].emptyToNull()
 
         val response = JsonObject()
 

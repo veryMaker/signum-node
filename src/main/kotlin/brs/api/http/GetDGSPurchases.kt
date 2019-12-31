@@ -10,7 +10,9 @@ import brs.api.http.common.ResultFields.PURCHASES_RESPONSE
 import brs.services.DigitalGoodsStoreService
 import brs.util.misc.filterWithLimits
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -32,7 +34,7 @@ internal class GetDGSPurchases(private val digitalGoodsStoreService: DigitalGood
         val buyerId = ParameterParser.getBuyerId(request)
         val firstIndex = ParameterParser.getFirstIndex(request)
         val lastIndex = ParameterParser.getLastIndex(request)
-        val completed = isTrue(request.getParameter(COMPLETED_PARAMETER))
+        val completed = isTrue(request[COMPLETED_PARAMETER])
 
 
         val response = JsonObject()

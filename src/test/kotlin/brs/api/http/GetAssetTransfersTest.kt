@@ -19,6 +19,7 @@ import brs.services.AssetExchangeService
 import brs.services.ParameterService
 import brs.util.json.mustGetAsString
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk

@@ -10,6 +10,7 @@ import brs.services.BlockchainService
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseHexString
 import brs.util.convert.parseUnsignedLong
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -19,8 +20,8 @@ import javax.servlet.http.HttpServletRequest
 internal class GetTransaction(private val blockchainService: BlockchainService) :
     APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_PARAMETER, FULL_HASH_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        val transactionIdString = request.getParameter(TRANSACTION_PARAMETER).emptyToNull()
-        val transactionFullHash = request.getParameter(FULL_HASH_PARAMETER).emptyToNull()
+        val transactionIdString = request[TRANSACTION_PARAMETER].emptyToNull()
+        val transactionFullHash = request[FULL_HASH_PARAMETER].emptyToNull()
         if (transactionIdString == null && transactionFullHash == null) {
             return MISSING_TRANSACTION
         }

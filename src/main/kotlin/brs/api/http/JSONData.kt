@@ -99,6 +99,7 @@ import brs.entity.Alias.Offer
 import brs.objects.Constants
 import brs.peer.Peer
 import brs.services.AccountService
+import brs.util.byteArray.isZero
 import brs.util.convert.emptyToNull
 import brs.util.convert.rsAccount
 import brs.util.convert.toHexString
@@ -107,6 +108,7 @@ import brs.util.crypto.Crypto
 import brs.util.json.addAll
 import burst.kit.entity.BurstEncryptedMessage
 import com.google.gson.JsonArray
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 object JSONData {
@@ -421,7 +423,7 @@ object JSONData {
                 transaction.referencedTransactionFullHash.toHexString()
             )
         }
-        val signature = transaction.signature.emptyToNull()
+        val signature = transaction.signature
         if (signature != null) {
             json.addProperty(SIGNATURE_RESPONSE, signature.toHexString())
             json.addProperty(SIGNATURE_HASH_RESPONSE, Crypto.sha256().digest(signature).toHexString())

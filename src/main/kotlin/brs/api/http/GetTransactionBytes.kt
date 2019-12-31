@@ -8,7 +8,9 @@ import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toHexString
+import brs.util.jetty.get
 import com.google.gson.JsonElement
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -17,7 +19,7 @@ import javax.servlet.http.HttpServletRequest
  */
 internal class GetTransactionBytes(private val dp: DependencyProvider) : APIServlet.JsonRequestHandler(arrayOf(APITag.TRANSACTIONS), TRANSACTION_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
-        val transactionValue = request.getParameter(TRANSACTION_PARAMETER) ?: return MISSING_TRANSACTION
+        val transactionValue = request[TRANSACTION_PARAMETER] ?: return MISSING_TRANSACTION
 
         val transactionId: Long
         var transaction: Transaction?

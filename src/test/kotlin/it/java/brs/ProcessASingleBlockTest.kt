@@ -1,5 +1,5 @@
 package it.java.brs
-
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 import it.common.AbstractIT
 import it.common.BlockMessageBuilder

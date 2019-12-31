@@ -12,6 +12,7 @@ import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -35,7 +36,7 @@ internal class DGSRefund internal constructor(private val dp: DependencyProvider
             return GOODS_NOT_DELIVERED
         }
 
-        val refundValuePlanck = request.getParameter(REFUND_PLANCK_PARAMETER).emptyToNull()
+        val refundValuePlanck = request[REFUND_PLANCK_PARAMETER].emptyToNull()
         var refundPlanck: Long = 0
         try {
             if (refundValuePlanck != null) {

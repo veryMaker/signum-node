@@ -1,5 +1,7 @@
 package brs.api.http
 
+import brs.api.http.JSONResponses.MISSING_ESCROW_DEADLINE
+import brs.api.http.JSONResponses.MISSING_REQUIRED_SIGNERS
 import brs.api.http.common.Parameters.AMOUNT_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.DEADLINE_ACTION_PARAMETER
 import brs.api.http.common.Parameters.ESCROW_DEADLINE_PARAMETER
@@ -15,6 +17,7 @@ import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseAccountId
 import brs.util.convert.safeAdd
+import brs.util.jetty.get
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -37,11 +40,11 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
         val sender = dp.parameterService.getSenderAccount(request)
         val recipient = ParameterParser.getRecipientId(request)
         val amountPlanck = ParameterParser.getAmountPlanck(request)
-        val signerString = request.getParameter(SIGNERS_PARAMETER).emptyToNull()
+        val signerString = request[SIGNERS_PARAMETER].emptyToNull()
 
         val requiredSigners: Long
         try {
-            requiredSigners = request.getParameter(REQUIRED_SIGNERS_PARAMETER).toLong()
+            requiredSigners = request[REQUIRED_SIGNERS_PARAMETER]?.toLong() ?: return MISSING_REQUIRED_SIGNERS
             if (requiredSigners < 1 || requiredSigners > 10) {
                 val response = JsonObject()
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
@@ -95,7 +98,7 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
 
         val deadline: Long
         try {
-            deadline = request.getParameter(ESCROW_DEADLINE_PARAMETER).toLong()
+            deadline = request[ESCROW_DEADLINE_PARAMETER]?.toLong() ?: return MISSING_ESCROW_DEADLINE
             if (deadline < 1 || deadline > 7776000) {
                 val response = JsonObject()
                 response.addProperty(ERROR_CODE_RESPONSE, 4)
@@ -109,7 +112,7 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
             return response
         }
 
-        val deadlineAction = Escrow.stringToDecision(request.getParameter(DEADLINE_ACTION_PARAMETER))
+        val deadlineAction = Escrow.stringToDecision(request[DEADLINE_ACTION_PARAMETER])
         if (deadlineAction == null || deadlineAction == Escrow.DecisionType.UNDECIDED) {
             val response = JsonObject()
             response.addProperty(ERROR_CODE_RESPONSE, 4)

@@ -1,6 +1,7 @@
 package brs.api.http
 
 import brs.util.Subnet
+import brs.util.jetty.get
 import brs.util.logging.safeDebug
 import org.intellij.lang.annotations.Language
 import org.owasp.encoder.Encode
@@ -34,7 +35,7 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
 
     private fun buildLinks(request: HttpServletRequest): String {
         val buf = StringBuilder()
-        val requestTag = request.getParameter("requestTag").orEmpty()
+        val requestTag = request["requestTag"].orEmpty()
         buf.append("<li")
         if (requestTag.isEmpty()) {
             buf.append(" class=\"active\"")
@@ -74,7 +75,7 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
                 writer.print(HEADER_1)
                 writer.print(buildLinks(request))
                 writer.print(HEADER_2)
-                val requestType = Encode.forHtml(request.getParameter("requestType")).orEmpty()
+                val requestType = Encode.forHtml(request["requestType"]).orEmpty()
                 var requestHandler: APIServlet.HttpRequestHandler? = apiRequestHandlers[requestType]
                 val bufJSCalls = StringBuilder()
                 if (requestHandler != null) {
@@ -89,7 +90,7 @@ class APITestServlet(apiServlet: APIServlet, private val allowedBotHosts: Set<Su
                     )
                     bufJSCalls.append("apiCalls.push(\"").append(requestType).append("\");\n")
                 } else {
-                    val requestTag = request.getParameter("requestTag").orEmpty()
+                    val requestTag = request["requestTag"].orEmpty()
                     val taggedTypes = requestTags[requestTag]
                     for (type in taggedTypes ?: requestTypes) {
                         requestHandler = apiRequestHandlers[type] ?: error("Could not find API Request Handler for type \"$type\"")

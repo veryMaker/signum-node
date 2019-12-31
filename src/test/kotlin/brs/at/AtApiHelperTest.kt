@@ -1,5 +1,6 @@
 package brs.at
 
+import brs.objects.Constants.EMPTY_BYTE_ARRAY
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
 import org.junit.Assert.assertEquals
@@ -12,7 +13,7 @@ import java.math.BigInteger
 class AtApiHelperTest {
     @Test
     fun testGetLong() {
-        assertEquals(0x0000000000000000L, AtApiHelper.getLong(ByteArray(0)))
+        assertEquals(0x0000000000000000L, AtApiHelper.getLong(EMPTY_BYTE_ARRAY))
         assertEquals(0x0000000000000001L, AtApiHelper.getLong("0100000000000000".parseHexString()))
         assertEquals(0x0000000000002301L, AtApiHelper.getLong("0123000000000000".parseHexString()))
         assertEquals(0x0000000000452301L, AtApiHelper.getLong("0123450000000000".parseHexString()))

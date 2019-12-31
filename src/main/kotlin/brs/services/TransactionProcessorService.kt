@@ -4,6 +4,7 @@ import brs.entity.Transaction
 import brs.peer.Peer
 import brs.transaction.appendix.Attachment
 import brs.util.Observable
+import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 interface TransactionProcessorService : Observable<Collection<Transaction>, TransactionProcessorService.Event> {
