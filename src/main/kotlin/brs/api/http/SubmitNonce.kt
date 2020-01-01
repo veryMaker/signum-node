@@ -1,7 +1,7 @@
 package brs.api.http
 
 import brs.api.grpc.ApiException
-import brs.api.grpc.http.SubmitNonceHandler
+import brs.api.grpc.api.SubmitNonceHandler
 import brs.api.http.common.Parameters.ACCOUNT_ID_PARAMETER
 import brs.api.http.common.Parameters.BLOCK_HEIGHT_PARAMETER
 import brs.api.http.common.Parameters.NONCE_PARAMETER

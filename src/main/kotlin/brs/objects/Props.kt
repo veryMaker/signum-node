@@ -104,6 +104,9 @@ object Props {
     val API_V2_LISTEN = Prop("API.V2.Listen", "0.0.0.0")
     val API_V2_PORT = Prop("API.V2.Port", 8121)
 
+    val P2P_V2_LISTEN = Prop("P2P.V2.Listen", "0.0.0.0")
+    val P2P_V2_PORT = Prop("P2P.V2.Port", 8120)
+
     val API_UI_DIR = Prop("API.UI_Dir", "html/ui")
     val API_SSL_KEY_STORE_PATH = Prop("API.SSL_keyStorePath", "keystore")
     val API_SSL_KEY_STORE_PASSWORD = Prop("API.SSL_keyStorePassword", "password")

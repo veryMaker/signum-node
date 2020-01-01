@@ -1,0 +1,17 @@
+package brs.api.grpc.api
+
+import brs.api.grpc.GrpcApiHandler
+import brs.api.grpc.proto.BrsApi
+import brs.api.grpc.ProtoBuilder
+import brs.services.SubscriptionService
+
+class GetAccountSubscriptionsHandler(private val subscriptionService: SubscriptionService) :
+    GrpcApiHandler<BrsApi.GetAccountRequest, BrsApi.Subscriptions> {
+    override fun handleRequest(request: BrsApi.GetAccountRequest): BrsApi.Subscriptions {
+        val accountId = request.accountId
+        val builder = BrsApi.Subscriptions.newBuilder()
+        subscriptionService.getSubscriptionsByParticipant(accountId)
+            .forEach { subscription -> builder.addSubscriptions(ProtoBuilder.buildSubscription(subscription)) }
+        return builder.build()
+    }
+}

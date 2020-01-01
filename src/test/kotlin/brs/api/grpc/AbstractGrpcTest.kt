@@ -1,7 +1,7 @@
 package brs.api.grpc
 
 import brs.api.grpc.proto.BrsApiServiceGrpc
-import brs.api.grpc.http.ApiService
+import brs.api.grpc.api.ApiService
 import brs.common.QuickMocker
 import brs.entity.Block
 import brs.entity.DependencyProvider
