@@ -1,6 +1,6 @@
 package brs
 
-import brs.api.grpc.service.BrsService
+import brs.api.grpc.http.ApiService
 import brs.api.http.API
 import brs.api.http.APITransactionManagerImpl
 import brs.at.*
@@ -127,7 +127,7 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
                         Props.API_V2_PORT
                     )
                 logger.safeInfo { "Starting V2 API Server on port $port" }
-                dp.apiV2Server = BrsService(dp).start(hostname, port)
+                dp.apiV2Server = ApiService(dp).start(hostname, port)
             } else {
                 logger.safeInfo { "Not starting V2 API Server - it is disabled." }
             }

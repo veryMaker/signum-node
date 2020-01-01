@@ -1,8 +1,8 @@
 package brs.transaction.appendix
 
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.service.ProtoBuilder
-import brs.api.grpc.service.toByteString
+import brs.api.grpc.ProtoBuilder
+import brs.api.grpc.toByteString
 import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
