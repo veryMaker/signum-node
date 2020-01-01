@@ -8,8 +8,7 @@ import brs.api.http.common.ResultFields.BUYER_RESPONSE
 import brs.api.http.common.ResultFields.PRICE_PLANCK_RESPONSE
 import brs.services.AliasService
 import brs.services.ParameterService
-import brs.util.json.safeGetAsString
-import brs.util.jetty.get
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import io.mockk.every
@@ -49,9 +48,9 @@ class GetAliasTest {
 
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
-        assertEquals(mockAlias.aliasName, result.get(ALIAS_NAME_RESPONSE).safeGetAsString())
-        assertEquals(mockOffer.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals(mockOffer.buyerId.toString(), result.get(BUYER_RESPONSE).safeGetAsString())
+        assertEquals(mockAlias.aliasName, result.getMemberAsString(ALIAS_NAME_RESPONSE))
+        assertEquals(mockOffer.pricePlanck.toString(), result.getMemberAsString(PRICE_PLANCK_RESPONSE))
+        assertEquals(mockOffer.buyerId.toString(), result.getMemberAsString(BUYER_RESPONSE))
     }
 
 }

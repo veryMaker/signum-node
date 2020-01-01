@@ -13,7 +13,7 @@ import brs.common.TestConstants.TEST_SECRET_PHRASE
 import brs.entity.Account
 import brs.services.ParameterService
 import brs.util.json.mustGetAsJsonObject
-import brs.util.json.safeGetAsString
+import brs.util.json.getMemberAsString
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals
@@ -50,7 +50,7 @@ class DecryptFromTest {
 
         every { mockParameterService.getAccount(request) } returns mockAccount
 
-        assertEquals("\u0001", t.processRequest(request).mustGetAsJsonObject("result").get(DECRYPTED_MESSAGE_RESPONSE).safeGetAsString())
+        assertEquals("\u0001", t.processRequest(request).mustGetAsJsonObject("result").getMemberAsString(DECRYPTED_MESSAGE_RESPONSE))
     }
 
     @Test

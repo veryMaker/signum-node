@@ -3,12 +3,10 @@ package brs.peer
 import brs.services.BlockchainService
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
-import brs.util.json.safeGetAsString
+import brs.util.json.getMemberAsString
 import brs.util.logging.safeDebug
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import kotlin.math.max
@@ -19,7 +17,7 @@ internal class GetMilestoneBlockIds(private val blockchainService: BlockchainSer
         val response = JsonObject()
         try {
             val milestoneBlockIds = JsonArray()
-            val lastBlockIdString = request.get("lastBlockId").safeGetAsString()
+            val lastBlockIdString = request.getMemberAsString("lastBlockId")
             if (!lastBlockIdString.isNullOrEmpty()) {
                 val lastBlockId = lastBlockIdString.parseUnsignedLong()
                 val myLastBlockId = blockchainService.lastBlock.id
@@ -38,7 +36,7 @@ internal class GetMilestoneBlockIds(private val blockchainService: BlockchainSer
             val jump: Int
             var limit = 10
             val blockchainHeight = blockchainService.height
-            val lastMilestoneBlockIdString = request.get("lastMilestoneBlockId").safeGetAsString()
+            val lastMilestoneBlockIdString = request.getMemberAsString("lastMilestoneBlockId")
             if (!lastMilestoneBlockIdString.isNullOrEmpty()) {
                 val lastMilestoneBlock = blockchainService.getBlock(lastMilestoneBlockIdString.parseUnsignedLong()) ?: error("Don't have block $lastMilestoneBlockIdString")
                 height = lastMilestoneBlock.height

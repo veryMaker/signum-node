@@ -15,8 +15,7 @@ import brs.services.EscrowService
 import brs.services.ParameterService
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
-import brs.util.json.safeGetAsLong
-import brs.util.jetty.get
+import brs.util.json.getMemberAsLong
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import io.mockk.every
@@ -154,7 +153,7 @@ class EscrowSignTest : AbstractTransactionTest() {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(3L, result.get(ERROR_CODE_RESPONSE).safeGetAsLong())
+        assertEquals(3L, result.getMemberAsLong(ERROR_CODE_RESPONSE))
     }
 
     @Test
@@ -169,7 +168,7 @@ class EscrowSignTest : AbstractTransactionTest() {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(5L, result.get(ERROR_CODE_RESPONSE).safeGetAsLong())
+        assertEquals(5L, result.getMemberAsLong(ERROR_CODE_RESPONSE))
     }
 
     @Test
@@ -187,7 +186,7 @@ class EscrowSignTest : AbstractTransactionTest() {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(5L, result.get(ERROR_CODE_RESPONSE).safeGetAsLong())
+        assertEquals(5L, result.getMemberAsLong(ERROR_CODE_RESPONSE))
     }
 
     @Test
@@ -214,7 +213,7 @@ class EscrowSignTest : AbstractTransactionTest() {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(5L, result.get(ERROR_CODE_RESPONSE).safeGetAsLong())
+        assertEquals(5L, result.getMemberAsLong(ERROR_CODE_RESPONSE))
     }
 
     @Test
@@ -238,7 +237,7 @@ class EscrowSignTest : AbstractTransactionTest() {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(4L, result.get(ERROR_CODE_RESPONSE).safeGetAsLong())
+        assertEquals(4L, result.getMemberAsLong(ERROR_CODE_RESPONSE))
     }
 
     @Test
@@ -262,6 +261,6 @@ class EscrowSignTest : AbstractTransactionTest() {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(4L, result.get(ERROR_CODE_RESPONSE).safeGetAsLong())
+        assertEquals(4L, result.getMemberAsLong(ERROR_CODE_RESPONSE))
     }
 }

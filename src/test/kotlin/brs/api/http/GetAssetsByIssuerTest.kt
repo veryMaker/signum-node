@@ -18,10 +18,9 @@ import brs.entity.Account
 import brs.entity.Asset
 import brs.services.AssetExchangeService
 import brs.services.ParameterService
-import brs.util.json.safeGetAsLong
-import brs.util.json.safeGetAsString
+import brs.util.json.getMemberAsLong
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk
@@ -90,13 +89,13 @@ class GetAssetsByIssuerTest : AbstractUnitTest() {
         val assetResult = assetsForAccount1Result.get(0) as JsonObject
         assertNotNull(assetResult)
 
-        assertEquals(mockAsset.name, assetResult.get(NAME_RESPONSE).safeGetAsString())
-        assertEquals(mockAsset.description, assetResult.get(DESCRIPTION_RESPONSE).safeGetAsString())
-        assertEquals(mockAsset.decimals.toLong(), assetResult.get(DECIMALS_RESPONSE).safeGetAsLong())
-        assertEquals(mockAsset.quantity.toString(), assetResult.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
-        assertEquals(mockAsset.id.toString(), assetResult.get(ASSET_RESPONSE).safeGetAsString())
-        assertEquals(1L, assetResult.get(NUMBER_OF_ACCOUNTS_RESPONSE).safeGetAsLong())
-        assertEquals(2L, assetResult.get(NUMBER_OF_TRANSFERS_RESPONSE).safeGetAsLong())
-        assertEquals(3L, assetResult.get(NUMBER_OF_TRADES_RESPONSE).safeGetAsLong())
+        assertEquals(mockAsset.name, assetResult.getMemberAsString(NAME_RESPONSE))
+        assertEquals(mockAsset.description, assetResult.getMemberAsString(DESCRIPTION_RESPONSE))
+        assertEquals(mockAsset.decimals.toLong(), assetResult.getMemberAsLong(DECIMALS_RESPONSE))
+        assertEquals(mockAsset.quantity.toString(), assetResult.getMemberAsString(QUANTITY_QNT_RESPONSE))
+        assertEquals(mockAsset.id.toString(), assetResult.getMemberAsString(ASSET_RESPONSE))
+        assertEquals(1L, assetResult.getMemberAsLong(NUMBER_OF_ACCOUNTS_RESPONSE))
+        assertEquals(2L, assetResult.getMemberAsLong(NUMBER_OF_TRANSFERS_RESPONSE))
+        assertEquals(3L, assetResult.getMemberAsLong(NUMBER_OF_TRADES_RESPONSE))
     }
 }

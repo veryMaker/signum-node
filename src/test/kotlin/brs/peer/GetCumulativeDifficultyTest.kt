@@ -3,12 +3,11 @@ package brs.peer
 import brs.common.QuickMocker
 import brs.entity.Block
 import brs.services.BlockchainService
-import brs.util.json.safeGetAsLong
-import brs.util.json.safeGetAsString
-import brs.util.jetty.get
+import brs.util.json.getMemberAsLong
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonObject
-import io.mockk.mockk
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -39,8 +38,8 @@ class GetCumulativeDifficultyTest {
         val result = t.processRequest(request, mockk(relaxed = true)) as JsonObject
         assertNotNull(result)
 
-        assertEquals("10", result.get("cumulativeDifficulty").safeGetAsString())
-        assertEquals(50L, result.get("blockchainHeight").safeGetAsLong())
+        assertEquals("10", result.getMemberAsString("cumulativeDifficulty"))
+        assertEquals(50L, result.getMemberAsLong("blockchainHeight"))
     }
 
     @Test

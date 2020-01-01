@@ -1,13 +1,12 @@
 package brs.api.http
 
-import brs.common.QuickMocker
 import brs.api.http.common.ResultFields.TIME_RESPONSE
+import brs.common.QuickMocker
 import brs.services.TimeService
-import brs.util.json.safeGetAsLong
-import brs.util.jetty.get
+import brs.util.json.getMemberAsLong
 import com.google.gson.JsonObject
-import io.mockk.mockk
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -35,7 +34,7 @@ class GetTimeTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(currentEpochTime.toLong(), result.get(TIME_RESPONSE).safeGetAsLong())
+        assertEquals(currentEpochTime.toLong(), result.getMemberAsLong(TIME_RESPONSE))
     }
 
 }

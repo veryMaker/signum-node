@@ -14,7 +14,6 @@ import brs.util.json.*
 import brs.util.logging.safeDebug
 import brs.util.sync.Mutex
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
@@ -235,24 +234,24 @@ class Block internal constructor(
 
         internal fun parseBlock(dp: DependencyProvider, blockData: JsonObject, height: Int): Block {
             try {
-                val version = blockData.get("version").mustGetAsInt("version")
-                val timestamp = blockData.get("timestamp").mustGetAsInt("timestamp")
-                val previousBlock = blockData.get("previousBlock").safeGetAsString().parseUnsignedLong()
-                val totalAmountPlanck = blockData.get("totalAmountNQT").mustGetAsLong("totalAmountNQT")
-                val totalFeePlanck = blockData.get("totalFeeNQT").mustGetAsLong("totalFeeNQT")
-                val payloadLength = blockData.get("payloadLength").mustGetAsInt("payloadLength")
-                val payloadHash = blockData.get("payloadHash").mustGetAsString("payloadHash").parseHexString()
+                val version = blockData.mustGetMemberAsInt("version")
+                val timestamp = blockData.mustGetMemberAsInt("timestamp")
+                val previousBlock = blockData.getMemberAsString("previousBlock").parseUnsignedLong()
+                val totalAmountPlanck = blockData.mustGetMemberAsLong("totalAmountNQT")
+                val totalFeePlanck = blockData.mustGetMemberAsLong("totalFeeNQT")
+                val payloadLength = blockData.mustGetMemberAsInt("payloadLength")
+                val payloadHash = blockData.mustGetMemberAsString("payloadHash").parseHexString()
                 val generatorPublicKey =
-                    blockData.get("generatorPublicKey").mustGetAsString("generatorPublicKey").parseHexString()
+                    blockData.mustGetMemberAsString("generatorPublicKey").parseHexString()
                 val generationSignature =
-                    blockData.get("generationSignature").mustGetAsString("generationSignature").parseHexString()
-                val blockSignature = blockData.get("blockSignature").mustGetAsString("blockSignature").parseHexString()
+                    blockData.mustGetMemberAsString("generationSignature").parseHexString()
+                val blockSignature = blockData.mustGetMemberAsString("blockSignature").parseHexString()
                 val previousBlockHash =
-                    if (version == 1) null else blockData.get("previousBlockHash").mustGetAsString("previousBlockHash").parseHexString()
-                val nonce = blockData.get("nonce").safeGetAsString().parseUnsignedLong()
+                    if (version == 1) null else blockData.mustGetMemberAsString("previousBlockHash").parseHexString()
+                val nonce = blockData.getMemberAsString("nonce").parseUnsignedLong()
 
                 val blockTransactions = TreeMap<Long, Transaction>()
-                val transactionsData = blockData.get("transactions").mustGetAsJsonArray("transactions")
+                val transactionsData = blockData.mustGetMemberAsJsonArray("transactions")
 
                 for (transactionData in transactionsData) {
                     val transaction = Transaction.parseTransaction(dp, transactionData.mustGetAsJsonObject("transactionData"), height)
@@ -261,7 +260,7 @@ class Block internal constructor(
                     }
                 }
 
-                val blockATs = blockData.get("blockATs").safeGetAsString()?.parseHexString()
+                val blockATs = blockData.getMemberAsString("blockATs")?.parseHexString()
                 return Block(
                     dp, version, timestamp, previousBlock, totalAmountPlanck, totalFeePlanck,
                     payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature,

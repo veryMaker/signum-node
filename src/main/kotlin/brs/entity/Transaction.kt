@@ -20,7 +20,6 @@ import brs.util.delegates.AtomicLateinit
 import brs.util.delegates.AtomicLazy
 import brs.util.json.*
 import brs.util.logging.safeDebug
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
@@ -459,19 +458,19 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
 
         internal fun parseTransaction(dp: DependencyProvider, transactionData: JsonObject, height: Int = dp.blockchainService.height): Transaction {
             try {
-                val type = transactionData.get("type").mustGetAsByte("type")
-                val subtype = transactionData.get("subtype").mustGetAsByte("subtype")
-                val timestamp = transactionData.get("timestamp").mustGetAsInt("timestamp")
-                val deadline = transactionData.get("deadline").mustGetAsShort("deadline")
+                val type = transactionData.mustGetMemberAsByte("type")
+                val subtype = transactionData.mustGetMemberAsByte("subtype")
+                val timestamp = transactionData.mustGetMemberAsInt("timestamp")
+                val deadline = transactionData.mustGetMemberAsShort("deadline")
                 val senderPublicKey =
-                    transactionData.get("senderPublicKey").mustGetAsString("senderPublicKey").parseHexString()
-                val amountPlanck = transactionData.get("amountNQT").mustGetAsLong("amountNQT")
-                val feePlanck = transactionData.get("feeNQT").mustGetAsLong("feeNQT")
+                    transactionData.mustGetMemberAsString("senderPublicKey").parseHexString()
+                val amountPlanck = transactionData.mustGetMemberAsLong("amountNQT")
+                val feePlanck = transactionData.mustGetMemberAsLong("feeNQT")
                 val referencedTransactionFullHash =
-                    transactionData.get("referencedTransactionFullHash").safeGetAsString()
-                val signature = transactionData.get("signature").mustGetAsString("signature").parseHexString()
-                val version = transactionData.get("version").mustGetAsByte("version")
-                val attachmentData = transactionData.get("attachment").mustGetAsJsonObject("attachment")
+                    transactionData.getMemberAsString("referencedTransactionFullHash")
+                val signature = transactionData.mustGetMemberAsString("signature").parseHexString()
+                val version = transactionData.mustGetMemberAsByte("version")
+                val attachmentData = transactionData.mustGetMemberAsJsonObject("attachment")
 
                 val transactionType =
                     TransactionType.findTransactionType(dp, type, subtype) ?: throw BurstException.NotValidException(
@@ -493,15 +492,15 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
                     builder.referencedTransactionFullHash(referencedTransactionFullHash.parseHexString())
                 }
                 if (transactionType.hasRecipient()) {
-                    val recipientId = transactionData.get("recipient").safeGetAsString().parseUnsignedLong()
+                    val recipientId = transactionData.getMemberAsString("recipient").parseUnsignedLong()
                     builder.recipientId(recipientId)
                 }
 
                 transactionType.parseAppendices(builder, attachmentData)
 
                 if (version > 0) {
-                    builder.ecBlockHeight(transactionData.get("ecBlockHeight").mustGetAsInt("ecBlockHeight"))
-                    builder.ecBlockId(transactionData.get("ecBlockId").safeGetAsString().parseUnsignedLong())
+                    builder.ecBlockHeight(transactionData.mustGetMemberAsInt("ecBlockHeight"))
+                    builder.ecBlockId(transactionData.getMemberAsString("ecBlockId").parseUnsignedLong())
                 }
                 return builder.build()
             } catch (e: BurstException.NotValidException) {

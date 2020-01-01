@@ -4,9 +4,8 @@ import brs.api.http.common.ResultFields.DONE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_RESPONSE
 import brs.common.QuickMocker
 import brs.services.BlockchainProcessorService
-import brs.util.json.mustGetAsBoolean
-import brs.util.json.safeGetAsString
-import brs.util.jetty.get
+import brs.util.json.mustGetMemberAsBoolean
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import io.mockk.every
@@ -34,7 +33,7 @@ class FullResetTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertTrue(result.get(DONE_RESPONSE).mustGetAsBoolean(DONE_RESPONSE))
+        assertTrue(result.mustGetMemberAsBoolean(DONE_RESPONSE))
     }
 
     @Test
@@ -45,7 +44,7 @@ class FullResetTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals("java.lang.RuntimeException: errorMessage", result.get(ERROR_RESPONSE).safeGetAsString())
+        assertEquals("java.lang.RuntimeException: errorMessage", result.getMemberAsString(ERROR_RESPONSE))
     }
 
     @Test

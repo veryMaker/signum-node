@@ -17,11 +17,10 @@ import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.entity.Goods
 import brs.services.DigitalGoodsStoreService
-import brs.util.json.safeGetAsBoolean
-import brs.util.json.safeGetAsLong
-import brs.util.json.safeGetAsString
+import brs.util.json.getMemberAsBoolean
+import brs.util.json.getMemberAsLong
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk
@@ -74,15 +73,15 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val result = goodsList.get(0) as JsonObject
         assertNotNull(result)
 
-        assertEquals(mockGood.id.toString(), result.get(GOODS_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.name, result.get(NAME_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals(mockGood.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.sellerId.toString(), result.get(SELLER_PARAMETER).safeGetAsString())
-        assertEquals(mockGood.tags, result.get(TAGS_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.isDelisted, result.get(DELISTED_RESPONSE).safeGetAsBoolean())
-        assertEquals(mockGood.timestamp.toLong(), result.get(TIMESTAMP_RESPONSE).safeGetAsLong())
+        assertEquals(mockGood.id.toString(), result.getMemberAsString(GOODS_RESPONSE))
+        assertEquals(mockGood.name, result.getMemberAsString(NAME_RESPONSE))
+        assertEquals(mockGood.description, result.getMemberAsString(DESCRIPTION_RESPONSE))
+        assertEquals(mockGood.quantity.toLong(), result.getMemberAsLong(QUANTITY_RESPONSE))
+        assertEquals(mockGood.pricePlanck.toString(), result.getMemberAsString(PRICE_PLANCK_RESPONSE))
+        assertEquals(mockGood.sellerId.toString(), result.getMemberAsString(SELLER_PARAMETER))
+        assertEquals(mockGood.tags, result.getMemberAsString(TAGS_RESPONSE))
+        assertEquals(mockGood.isDelisted, result.getMemberAsBoolean(DELISTED_RESPONSE))
+        assertEquals(mockGood.timestamp.toLong(), result.getMemberAsLong(TIMESTAMP_RESPONSE))
     }
 
     @Test
@@ -113,15 +112,15 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val result = goodsList.get(0) as JsonObject
         assertNotNull(result)
 
-        assertEquals(mockGood.id.toString(), result.get(GOODS_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.name, result.get(NAME_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals(mockGood.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.sellerId.toString(), result.get(SELLER_PARAMETER).safeGetAsString())
-        assertEquals(mockGood.tags, result.get(TAGS_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.isDelisted, result.get(DELISTED_RESPONSE).safeGetAsBoolean())
-        assertEquals(mockGood.timestamp.toLong(), result.get(TIMESTAMP_RESPONSE).safeGetAsLong())
+        assertEquals(mockGood.id.toString(), result.getMemberAsString(GOODS_RESPONSE))
+        assertEquals(mockGood.name, result.getMemberAsString(NAME_RESPONSE))
+        assertEquals(mockGood.description, result.getMemberAsString(DESCRIPTION_RESPONSE))
+        assertEquals(mockGood.quantity.toLong(), result.getMemberAsLong(QUANTITY_RESPONSE))
+        assertEquals(mockGood.pricePlanck.toString(), result.getMemberAsString(PRICE_PLANCK_RESPONSE))
+        assertEquals(mockGood.sellerId.toString(), result.getMemberAsString(SELLER_PARAMETER))
+        assertEquals(mockGood.tags, result.getMemberAsString(TAGS_RESPONSE))
+        assertEquals(mockGood.isDelisted, result.getMemberAsBoolean(DELISTED_RESPONSE))
+        assertEquals(mockGood.timestamp.toLong(), result.getMemberAsLong(TIMESTAMP_RESPONSE))
     }
 
     @Test
@@ -152,15 +151,15 @@ class GetDGSGoodsTest : AbstractUnitTest() {
         val result = goodsList.get(0) as JsonObject
         assertNotNull(result)
 
-        assertEquals(mockGood.id.toString(), result.get(GOODS_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.name, result.get(NAME_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals(mockGood.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.sellerId.toString(), result.get(SELLER_PARAMETER).safeGetAsString())
-        assertEquals(mockGood.tags, result.get(TAGS_RESPONSE).safeGetAsString())
-        assertEquals(mockGood.isDelisted, result.get(DELISTED_RESPONSE).safeGetAsBoolean())
-        assertEquals(mockGood.timestamp.toLong(), result.get(TIMESTAMP_RESPONSE).safeGetAsLong())
+        assertEquals(mockGood.id.toString(), result.getMemberAsString(GOODS_RESPONSE))
+        assertEquals(mockGood.name, result.getMemberAsString(NAME_RESPONSE))
+        assertEquals(mockGood.description, result.getMemberAsString(DESCRIPTION_RESPONSE))
+        assertEquals(mockGood.quantity.toLong(), result.getMemberAsLong(QUANTITY_RESPONSE))
+        assertEquals(mockGood.pricePlanck.toString(), result.getMemberAsString(PRICE_PLANCK_RESPONSE))
+        assertEquals(mockGood.sellerId.toString(), result.getMemberAsString(SELLER_PARAMETER))
+        assertEquals(mockGood.tags, result.getMemberAsString(TAGS_RESPONSE))
+        assertEquals(mockGood.isDelisted, result.getMemberAsBoolean(DELISTED_RESPONSE))
+        assertEquals(mockGood.timestamp.toLong(), result.getMemberAsLong(TIMESTAMP_RESPONSE))
     }
 
     private fun mockGood(): Goods {

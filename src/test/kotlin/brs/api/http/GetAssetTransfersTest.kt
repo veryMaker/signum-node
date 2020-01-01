@@ -17,9 +17,8 @@ import brs.entity.AssetTransfer
 import brs.services.AccountService
 import brs.services.AssetExchangeService
 import brs.services.ParameterService
-import brs.util.json.mustGetAsString
+import brs.util.json.mustGetMemberAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk
@@ -144,7 +143,7 @@ class GetAssetTransfersTest : AbstractUnitTest() {
         assertEquals(1, resultList.size().toLong())
 
         val transferInfoResult = resultList.get(0) as JsonObject
-        assertEquals(assetId.toString(), transferInfoResult.get(ASSET_RESPONSE).mustGetAsString(ASSET_RESPONSE))
-        assertEquals(mockAsset.name, transferInfoResult.get(NAME_RESPONSE).mustGetAsString(NAME_RESPONSE))
+        assertEquals(assetId.toString(), transferInfoResult.mustGetMemberAsString(ASSET_RESPONSE))
+        assertEquals(mockAsset.name, transferInfoResult.mustGetMemberAsString(NAME_RESPONSE))
     }
 }

@@ -11,9 +11,8 @@ import brs.entity.Account
 import brs.entity.Block
 import brs.services.BlockchainService
 import brs.services.ParameterService
-import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
+import brs.util.json.getElementAsString
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk
@@ -65,6 +64,6 @@ class GetAccountBlockIdsTest : AbstractUnitTest() {
         val blockIds = result.get(BLOCK_IDS_RESPONSE) as JsonArray
         assertNotNull(blockIds)
         assertEquals(1, blockIds.size().toLong())
-        assertEquals(mockBlockStringId, blockIds.get(0).safeGetAsString())
+        assertEquals(mockBlockStringId, blockIds.getElementAsString(0))
     }
 }

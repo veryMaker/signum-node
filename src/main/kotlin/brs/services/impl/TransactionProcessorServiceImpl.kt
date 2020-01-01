@@ -18,7 +18,6 @@ import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
 import brs.util.logging.safeTrace
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 
@@ -36,7 +35,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                 try {
                     val peer = dp.peerService.getAnyPeer(Peer.State.CONNECTED) ?: return@run
                     val response = dp.peerService.readUnconfirmedTransactions(peer) ?: return@run
-                    val transactionsData = response.get(UNCONFIRMED_TRANSACTIONS_RESPONSE).safeGetAsJsonArray()
+                    val transactionsData = response.getMemberAsJsonArray(UNCONFIRMED_TRANSACTIONS_RESPONSE)
                     if (transactionsData == null || transactionsData.isEmpty()) return@run
                     dp.peerService.feedingTime(peer, foodDispenser, doneFeedingLog)
 
@@ -53,8 +52,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                                         val otherPeerResponse = dp.peerService.readUnconfirmedTransactions(otherPeer)
                                         if (otherPeerResponse != null) {
                                             val otherPeerTransactions =
-                                                otherPeerResponse.get(UNCONFIRMED_TRANSACTIONS_RESPONSE)
-                                                    .safeGetAsJsonArray()
+                                                otherPeerResponse.getMemberAsJsonArray(UNCONFIRMED_TRANSACTIONS_RESPONSE)
                                             if (otherPeerTransactions != null && !otherPeerTransactions.isEmpty()) dp.peerService.feedingTime(
                                                 otherPeer,
                                                 foodDispenser,
@@ -143,7 +141,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
     }
 
     override fun processPeerTransactions(request: JsonObject, peer: Peer) {
-        val transactionsData = request.get("transactions").mustGetAsJsonArray("transactions")
+        val transactionsData = request.mustGetMemberAsJsonArray("transactions")
         val processedTransactions = processPeerTransactions(transactionsData, peer)
 
         if (!processedTransactions.isEmpty()) {

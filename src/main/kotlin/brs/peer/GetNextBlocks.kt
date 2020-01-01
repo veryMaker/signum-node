@@ -4,11 +4,9 @@ import brs.entity.Block
 import brs.objects.Constants
 import brs.services.BlockchainService
 import brs.util.convert.parseUnsignedLong
-import brs.util.json.safeGetAsString
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 internal class GetNextBlocks(private val blockchainService: BlockchainService) : PeerServlet.PeerRequestHandler {
@@ -19,7 +17,7 @@ internal class GetNextBlocks(private val blockchainService: BlockchainService) :
 
         val nextBlocks = mutableListOf<Block>()
         var totalLength = 0
-        val blockId = request.get("blockId").safeGetAsString().parseUnsignedLong()
+        val blockId = request.getMemberAsString("blockId").parseUnsignedLong()
         val blocks = blockchainService.getBlocksAfter(blockId, 100)
 
         for (block in blocks) {

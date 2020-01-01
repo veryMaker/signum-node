@@ -15,9 +15,8 @@ import brs.common.QuickMocker.MockParam
 import brs.entity.Asset
 import brs.services.AssetExchangeService
 import brs.services.ParameterService
-import brs.util.json.safeGetAsLong
-import brs.util.json.safeGetAsString
-import brs.util.jetty.get
+import brs.util.json.getMemberAsLong
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk
@@ -69,13 +68,13 @@ class GetAssetTest : AbstractUnitTest() {
         val result = t.processRequest(request) as JsonObject
 
         assertNotNull(result)
-        assertEquals(asset.name, result.get(NAME_RESPONSE).safeGetAsString())
-        assertEquals(asset.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
-        assertEquals(asset.decimals.toLong(), result.get(DECIMALS_RESPONSE).safeGetAsLong())
-        assertEquals(asset.quantity.toString(), result.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
-        assertEquals(asset.id.toString(), result.get(ASSET_RESPONSE).safeGetAsString())
-        assertEquals(tradeCount.toLong(), result.get(NUMBER_OF_TRADES_RESPONSE).safeGetAsLong())
-        assertEquals(transferCount.toLong(), result.get(NUMBER_OF_TRANSFERS_RESPONSE).safeGetAsLong())
-        assertEquals(assetAccountsCount.toLong(), result.get(NUMBER_OF_ACCOUNTS_RESPONSE).safeGetAsLong())
+        assertEquals(asset.name, result.getMemberAsString(NAME_RESPONSE))
+        assertEquals(asset.description, result.getMemberAsString(DESCRIPTION_RESPONSE))
+        assertEquals(asset.decimals.toLong(), result.getMemberAsLong(DECIMALS_RESPONSE))
+        assertEquals(asset.quantity.toString(), result.getMemberAsString(QUANTITY_QNT_RESPONSE))
+        assertEquals(asset.id.toString(), result.getMemberAsString(ASSET_RESPONSE))
+        assertEquals(tradeCount.toLong(), result.getMemberAsLong(NUMBER_OF_TRADES_RESPONSE))
+        assertEquals(transferCount.toLong(), result.getMemberAsLong(NUMBER_OF_TRANSFERS_RESPONSE))
+        assertEquals(assetAccountsCount.toLong(), result.getMemberAsLong(NUMBER_OF_ACCOUNTS_RESPONSE))
     }
 }

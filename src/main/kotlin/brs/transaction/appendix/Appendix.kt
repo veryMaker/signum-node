@@ -11,12 +11,11 @@ import brs.objects.FluxValues
 import brs.util.BurstException
 import brs.util.convert.*
 import brs.util.crypto.Crypto
-import brs.util.json.mustGetAsBoolean
-import brs.util.json.mustGetAsJsonObject
-import brs.util.json.mustGetAsString
-import brs.util.json.safeGetAsByte
+import brs.util.json.getMemberAsByte
+import brs.util.json.mustGetMemberAsBoolean
+import brs.util.json.mustGetMemberAsJsonObject
+import brs.util.json.mustGetMemberAsString
 import burst.kit.entity.BurstEncryptedMessage
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import com.google.protobuf.Any
 import java.nio.ByteBuffer
@@ -56,7 +55,7 @@ interface Appendix {
             }
 
         internal constructor(attachmentData: JsonObject) {
-            version = attachmentData.get("version.${getAppendixName()}").safeGetAsByte() ?: 0
+            version = attachmentData.getMemberAsByte("version.${getAppendixName()}") ?: 0
         }
 
         internal constructor(buffer: ByteBuffer, transactionVersion: Byte) {
@@ -124,8 +123,8 @@ interface Appendix {
         }
 
         internal constructor(attachmentData: JsonObject) : super(attachmentData) {
-            val messageString = attachmentData.get("message").mustGetAsString("message")
-            this.isText = attachmentData.get("messageIsText").mustGetAsBoolean("messageIsText")
+            val messageString = attachmentData.mustGetMemberAsString("message")
+            this.isText = attachmentData.mustGetMemberAsBoolean("messageIsText")
             this.messageBytes = if (isText) messageString.toBytes() else messageString.parseHexString()
         }
 
@@ -217,9 +216,9 @@ interface Appendix {
         }
 
         constructor(attachmentJSON: JsonObject, encryptedMessageJSON: JsonObject) : super(attachmentJSON) {
-            val data = encryptedMessageJSON.get("data").mustGetAsString("data").parseHexString()
-            val nonce = encryptedMessageJSON.get("nonce").mustGetAsString("data").parseHexString()
-            this.encryptedData = BurstEncryptedMessage(data, nonce, encryptedMessageJSON.get("isText").mustGetAsBoolean("data"))
+            val data = encryptedMessageJSON.mustGetMemberAsString("data").parseHexString()
+            val nonce = encryptedMessageJSON.mustGetMemberAsString("nonce").parseHexString()
+            this.encryptedData = BurstEncryptedMessage(data, nonce, encryptedMessageJSON.mustGetMemberAsBoolean("isText"))
         }
 
         constructor(
@@ -281,7 +280,7 @@ interface Appendix {
 
         internal constructor(attachmentData: JsonObject) : super(
             attachmentData,
-            attachmentData.get("encryptedMessage").mustGetAsJsonObject("encryptedMessage")
+            attachmentData.mustGetMemberAsJsonObject("encryptedMessage")
         )
 
         constructor(
@@ -333,7 +332,7 @@ interface Appendix {
 
         internal constructor(attachmentData: JsonObject) : super(
             attachmentData,
-            attachmentData.get("encryptToSelfMessage").mustGetAsJsonObject("encryptToSelfMessage")
+            attachmentData.mustGetMemberAsJsonObject("encryptToSelfMessage")
         )
 
         constructor(
@@ -393,7 +392,7 @@ interface Appendix {
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(attachmentData) {
             this.publicKey =
-                attachmentData.get("recipientPublicKey").mustGetAsString("recipientPublicKey").parseHexString()
+                attachmentData.mustGetMemberAsString("recipientPublicKey").parseHexString()
             this.dp = dp
         }
 

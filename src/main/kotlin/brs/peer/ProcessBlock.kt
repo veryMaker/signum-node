@@ -3,10 +3,8 @@ package brs.peer
 import brs.services.BlockchainProcessorService
 import brs.services.BlockchainService
 import brs.util.BurstException
-import brs.util.json.safeGetAsString
-import brs.util.jetty.get
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 class ProcessBlock(
@@ -17,7 +15,7 @@ class ProcessBlock(
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
 
         try {
-            if (blockchainService.lastBlock.stringId != request.get("previousBlock").safeGetAsString()) {
+            if (blockchainService.lastBlock.stringId != request.getMemberAsString("previousBlock")) {
                 // do this check first to avoid validation failures of future blocks and transactions
                 // when loading blockchain from scratch
                 return NOT_ACCEPTED

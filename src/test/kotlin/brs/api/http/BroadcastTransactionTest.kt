@@ -13,8 +13,8 @@ import brs.services.TransactionService
 import brs.util.BurstException
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
-import brs.util.json.safeGetAsLong
-import brs.util.json.safeGetAsString
+import brs.util.json.getMemberAsLong
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk
@@ -64,8 +64,8 @@ class BroadcastTransactionTest {
 
         verify { transactionProcessorServiceMock.broadcast(eq(mockTransaction)) }
 
-        assertEquals(mockTransactionStringId, result.get(TRANSACTION_RESPONSE).safeGetAsString())
-        assertEquals(mockTransactionFullHash.toHexString(), result.get(FULL_HASH_RESPONSE).safeGetAsString())
+        assertEquals(mockTransactionStringId, result.getMemberAsString(TRANSACTION_RESPONSE))
+        assertEquals(mockTransactionFullHash.toHexString(), result.getMemberAsString(FULL_HASH_RESPONSE))
     }
 
     @Test
@@ -85,7 +85,7 @@ class BroadcastTransactionTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(4L, result.get(ERROR_CODE_RESPONSE).safeGetAsLong())
+        assertEquals(4L, result.getMemberAsLong(ERROR_CODE_RESPONSE))
         assertNotNull(result.get(ERROR_DESCRIPTION_RESPONSE))
     }
 

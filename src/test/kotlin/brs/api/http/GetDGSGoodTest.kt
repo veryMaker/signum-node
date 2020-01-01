@@ -11,10 +11,9 @@ import brs.api.http.common.ResultFields.TIMESTAMP_RESPONSE
 import brs.common.QuickMocker
 import brs.entity.Goods
 import brs.services.ParameterService
-import brs.util.json.safeGetAsBoolean
-import brs.util.json.safeGetAsLong
-import brs.util.json.safeGetAsString
-import brs.util.jetty.get
+import brs.util.json.getMemberAsBoolean
+import brs.util.json.getMemberAsLong
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk
@@ -55,13 +54,13 @@ class GetDGSGoodTest {
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
-        assertEquals(mockGoods.id.toString(), result.get(GOODS_RESPONSE).safeGetAsString())
-        assertEquals(mockGoods.name, result.get(NAME_RESPONSE).safeGetAsString())
-        assertEquals(mockGoods.description, result.get(DESCRIPTION_RESPONSE).safeGetAsString())
-        assertEquals(mockGoods.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals(mockGoods.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals(mockGoods.tags, result.get(TAGS_RESPONSE).safeGetAsString())
-        assertEquals(mockGoods.isDelisted, result.get(DELISTED_RESPONSE).safeGetAsBoolean())
-        assertEquals(mockGoods.timestamp.toLong(), result.get(TIMESTAMP_RESPONSE).safeGetAsLong())
+        assertEquals(mockGoods.id.toString(), result.getMemberAsString(GOODS_RESPONSE))
+        assertEquals(mockGoods.name, result.getMemberAsString(NAME_RESPONSE))
+        assertEquals(mockGoods.description, result.getMemberAsString(DESCRIPTION_RESPONSE))
+        assertEquals(mockGoods.quantity.toLong(), result.getMemberAsLong(QUANTITY_RESPONSE))
+        assertEquals(mockGoods.pricePlanck.toString(), result.getMemberAsString(PRICE_PLANCK_RESPONSE))
+        assertEquals(mockGoods.tags, result.getMemberAsString(TAGS_RESPONSE))
+        assertEquals(mockGoods.isDelisted, result.getMemberAsBoolean(DELISTED_RESPONSE))
+        assertEquals(mockGoods.timestamp.toLong(), result.getMemberAsLong(TIMESTAMP_RESPONSE))
     }
 }

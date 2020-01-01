@@ -1,21 +1,20 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.entity.Alias
-import brs.entity.Alias.Offer
-import brs.common.AbstractUnitTest
-import brs.common.QuickMocker
 import brs.api.http.common.ResultFields.ALIASES_RESPONSE
 import brs.api.http.common.ResultFields.ALIAS_RESPONSE
 import brs.api.http.common.ResultFields.PRICE_PLANCK_RESPONSE
+import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
+import brs.entity.Account
+import brs.entity.Alias
+import brs.entity.Alias.Offer
 import brs.services.AliasService
 import brs.services.ParameterService
-import brs.util.json.safeGetAsString
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
-import io.mockk.mockk
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -66,8 +65,8 @@ class GetAliasesTest : AbstractUnitTest() {
 
         val result = resultList.get(0) as JsonObject
         assertNotNull(result)
-        assertEquals(mockAlias.id.toString(), result.get(ALIAS_RESPONSE).safeGetAsString())
-        assertEquals(mockOffer.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockAlias.id.toString(), result.getMemberAsString(ALIAS_RESPONSE))
+        assertEquals(mockOffer.pricePlanck.toString(), result.getMemberAsString(PRICE_PLANCK_RESPONSE))
     }
 
 }

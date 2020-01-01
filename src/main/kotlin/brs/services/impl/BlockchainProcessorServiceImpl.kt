@@ -102,7 +102,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 val response = peer.send(getCumulativeDifficultyRequest) ?: return@run true
                 if (response["blockchainHeight"] != null) {
                     lastBlockchainFeeder = peer
-                    lastBlockchainFeederHeight = response["blockchainHeight"].mustGetAsInt("blockchainHeight")
+                    lastBlockchainFeederHeight = response.mustGetMemberAsInt("blockchainHeight")
                 } else {
                     logger.safeDebug { "Peer has no chainheight" }
                     return@run true
@@ -111,7 +111,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 /* Cache now contains Cumulative Difficulty */
                 val curCumulativeDifficulty = dp.downloadCacheService.cumulativeDifficulty
                 val peerCumulativeDifficulty =
-                    response.get("cumulativeDifficulty").mustGetAsString("cumulativeDifficulty")
+                    response.mustGetMemberAsString("cumulativeDifficulty")
                 if (peerCumulativeDifficulty.isEmpty()) {
                     logger.safeDebug { "Peer CumulativeDifficulty is null" }
                     return@run true
@@ -397,7 +397,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     }
 
     private fun getCommonMilestoneBlockId(peer: Peer): Long {
-        var lastMilestoneBlockId: String? = null
+        var lastMilestoneBlockId: Long? = null
         while (true) {
             val milestoneBlockIdsRequest = JsonObject()
             milestoneBlockIdsRequest.addProperty("requestType", "getMilestoneBlockIds")
@@ -415,7 +415,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 logger.safeDebug { "Got null response in getCommonMilestoneBlockId" }
                 return 0
             }
-            val milestoneBlockIds = response.get("milestoneBlockIds").safeGetAsJsonArray()
+            val milestoneBlockIds = response.getMemberAsJsonArray("milestoneBlockIds")
             if (milestoneBlockIds == null || milestoneBlockIds.isEmpty()) {
                 logger.safeDebug { "MilestoneArray is empty" }
                 return 0
@@ -428,13 +428,13 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 peer.blacklist("obsolete or rogue peer sends too many milestoneBlockIds")
                 return 0
             }
-            if (response.get("last").safeGetAsBoolean() == true) {
+            if (response.getMemberAsBoolean("last") == true) {
                 peerHasMore = false
             }
 
             for (milestoneBlockId in milestoneBlockIds) {
-                val milestoneBlockIdString = milestoneBlockId.mustGetAsString("milestoneBlockId")
-                val blockId = milestoneBlockIdString.parseUnsignedLong()
+                val blockId = milestoneBlockId.safeGetAsString().parseUnsignedLong()
+                check(blockId != 0L)
 
                 if (dp.downloadCacheService.hasBlock(blockId)) {
                     if (lastMilestoneBlockId == null && milestoneBlockIds.size() > 1) {
@@ -443,7 +443,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     }
                     return blockId
                 }
-                lastMilestoneBlockId = milestoneBlockIdString
+                lastMilestoneBlockId = blockId
             }
         }
     }
@@ -455,7 +455,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             request.addProperty("requestType", "getNextBlockIds")
             request.addProperty("blockId", currentCommonBlockId.toUnsignedString())
             val response = peer.send(JSON.prepareRequest(request)) ?: return 0
-            val nextBlockIds = response.get("nextBlockIds").mustGetAsJsonArray("nextBlockIds")
+            val nextBlockIds = response.mustGetMemberAsJsonArray("nextBlockIds")
             if (nextBlockIds.isEmpty()) return 0
             nextBlockIds.truncate(1440)
             for (nextBlockId in nextBlockIds) {
@@ -475,7 +475,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         logger.safeDebug { "Getting next Blocks after ${curBlockId.toUnsignedString()} from ${peer!!.peerAddress}" }
         val response = peer!!.send(JSON.prepareRequest(request)) ?: return null
 
-        val nextBlocks = response.get("nextBlocks").safeGetAsJsonArray()
+        val nextBlocks = response.getMemberAsJsonArray("nextBlocks")
         if (nextBlocks == null || nextBlocks.isEmpty()) return null
         // prevent overloading with blocks
         if (nextBlocks.size() > 1440) {

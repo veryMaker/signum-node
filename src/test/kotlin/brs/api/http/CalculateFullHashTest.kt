@@ -6,7 +6,7 @@ import brs.api.http.common.Parameters.SIGNATURE_HASH_PARAMETER
 import brs.api.http.common.Parameters.UNSIGNED_TRANSACTION_BYTES_PARAMETER
 import brs.api.http.common.ResultFields.FULL_HASH_RESPONSE
 import brs.util.json.mustGetAsJsonObject
-import brs.util.json.safeGetAsString
+import brs.util.json.getMemberAsString
 import io.mockk.mockk
 import io.mockk.every
 import org.junit.Assert.assertEquals
@@ -36,7 +36,7 @@ class CalculateFullHashTest {
         every { request.getParameter(eq(SIGNATURE_HASH_PARAMETER)) } returns mockSignatureHash
 
         val result = t.processRequest(request).mustGetAsJsonObject("result")
-        assertEquals(expectedFullHash, result.get(FULL_HASH_RESPONSE).safeGetAsString())
+        assertEquals(expectedFullHash, result.getMemberAsString(FULL_HASH_RESPONSE))
     }
 
     @Test

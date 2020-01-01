@@ -2,16 +2,14 @@ package brs.peer
 
 import brs.entity.DependencyProvider
 import brs.services.PeerService
-import brs.util.json.safeGetAsBoolean
-import brs.util.json.safeGetAsString
-import brs.util.jetty.get
+import brs.util.json.getMemberAsBoolean
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerRequestHandler {
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
-        var announcedAddress = request.get("announcedAddress").safeGetAsString()
+        var announcedAddress = request.getMemberAsString("announcedAddress")
         if (!announcedAddress.isNullOrEmpty()) {
             announcedAddress = announcedAddress.trim { it <= ' ' }
             if (announcedAddress.isNotEmpty()) {
@@ -22,25 +20,25 @@ internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerReq
                 peer.announcedAddress = announcedAddress
             }
         }
-        var application = request.get("application").safeGetAsString()
+        var application = request.getMemberAsString("application")
         if (application.isNullOrEmpty()) {
             application = "?"
         }
         peer.application = application.trim { it <= ' ' }
 
-        var version = request.get("version").safeGetAsString()
+        var version = request.getMemberAsString("version")
         if (version.isNullOrEmpty()) {
             version = "?"
         }
         peer.setVersion(version.trim { it <= ' ' })
 
-        var platform = request.get("platform").safeGetAsString()
+        var platform = request.getMemberAsString("platform")
         if (platform.isNullOrEmpty()) {
             platform = "?"
         }
         peer.platform = platform.trim { it <= ' ' }
 
-        peer.shareAddress = request.get("shareAddress").safeGetAsBoolean() ?: false
+        peer.shareAddress = request.getMemberAsBoolean("shareAddress") ?: false
         peer.lastUpdated = dp.timeService.epochTime
 
         dp.peerService.notifyListeners(peer, PeerService.Event.ADDED_ACTIVE_PEER)

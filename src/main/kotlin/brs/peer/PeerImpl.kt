@@ -21,9 +21,7 @@ import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import brs.util.sync.Mutex
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.io.*
@@ -308,11 +306,11 @@ internal class PeerImpl(
     override fun connect(currentTime: Int) {
         val response = send(dp.peerService.myPeerInfoRequest)
         if (response != null && response.get("error") == null) {
-            application = response.get("application").mustGetAsString("application")
-            setVersion(response.get("version").mustGetAsString("version"))
-            platform = response.get("platform").mustGetAsString("platform")
-            shareAddress = response.get("shareAddress").safeGetAsBoolean() == true
-            val newAnnouncedAddress = response.get("announcedAddress").safeGetAsString().emptyToNull()
+            application = response.mustGetMemberAsString("application")
+            setVersion(response.mustGetMemberAsString("version"))
+            platform = response.mustGetMemberAsString("platform")
+            shareAddress = response.getMemberAsBoolean("shareAddress") == true
+            val newAnnouncedAddress = response.getMemberAsString("announcedAddress").emptyToNull()
             if (newAnnouncedAddress != null && newAnnouncedAddress != announcedAddress) {
                 // force verification of changed announced address
                 state = Peer.State.NON_CONNECTED

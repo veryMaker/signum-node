@@ -13,10 +13,9 @@ import brs.api.http.common.ResultFields.ID_RESPONSE
 import brs.api.http.common.ResultFields.TIME_NEXT_RESPONSE
 import brs.services.ParameterService
 import brs.services.SubscriptionService
-import brs.util.json.safeGetAsLong
-import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
+import brs.util.json.getMemberAsLong
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import io.mockk.every
@@ -71,10 +70,10 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
         val resultSubscription = resultSubscriptions.get(0) as JsonObject
         assertNotNull(resultSubscription)
 
-        assertEquals(subscription.id.toString(), resultSubscription.get(ID_RESPONSE).safeGetAsString())
-        assertEquals(subscription.amountPlanck.toString(), resultSubscription.get(AMOUNT_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals(subscription.frequency.toLong(), resultSubscription.get(FREQUENCY_RESPONSE).safeGetAsLong())
-        assertEquals(subscription.timeNext.toLong(), resultSubscription.get(TIME_NEXT_RESPONSE).safeGetAsLong())
+        assertEquals(subscription.id.toString(), resultSubscription.getMemberAsString(ID_RESPONSE))
+        assertEquals(subscription.amountPlanck.toString(), resultSubscription.getMemberAsString(AMOUNT_PLANCK_RESPONSE))
+        assertEquals(subscription.frequency.toLong(), resultSubscription.getMemberAsLong(FREQUENCY_RESPONSE))
+        assertEquals(subscription.timeNext.toLong(), resultSubscription.getMemberAsLong(TIME_NEXT_RESPONSE))
     }
 
 }

@@ -7,10 +7,8 @@ import brs.util.CountingOutputStream
 import brs.util.json.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeWarn
-import brs.util.jetty.get
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.io.InputStreamReader
@@ -19,6 +17,7 @@ import java.nio.charset.StandardCharsets
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import kotlin.collections.set
 
 class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
     private val peerRequestHandlers: Map<String, PeerRequestHandler>
@@ -94,8 +93,8 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
             }
             peer.updateDownloadedVolume(cis.count)
 
-            if (jsonRequest.get(PROTOCOL) != null && jsonRequest.get(PROTOCOL).safeGetAsString() == "B1") {
-                requestType = jsonRequest.get("requestType").mustGetAsString("requestType")
+            if (jsonRequest.getMemberAsString(PROTOCOL) == "B1") {
+                requestType = jsonRequest.mustGetMemberAsString("requestType")
                 val peerRequestHandler = peerRequestHandlers[requestType]
                 if (peerRequestHandler != null) {
                     if (peerRequestHandler is ExtendedPeerRequestHandler) {
@@ -108,7 +107,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
                     response = UNSUPPORTED_REQUEST_TYPE
                 }
             } else {
-                logger.safeDebug { "Unsupported protocol ${jsonRequest.get(PROTOCOL).safeGetAsString()}" }
+                logger.safeDebug { "Unsupported protocol ${jsonRequest.getMemberAsString(PROTOCOL)}" }
                 response = UNSUPPORTED_PROTOCOL
             }
 

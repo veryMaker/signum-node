@@ -1,23 +1,22 @@
 package brs.api.http
 
-import brs.entity.Account
-import brs.entity.Order.Bid
-import brs.services.AssetExchangeService
-import brs.common.AbstractUnitTest
-import brs.common.QuickMocker
-import brs.common.QuickMocker.MockParam
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.Parameters.ASSET_PARAMETER
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.api.http.common.ResultFields.BID_ORDER_IDS_RESPONSE
+import brs.common.AbstractUnitTest
+import brs.common.QuickMocker
+import brs.common.QuickMocker.MockParam
+import brs.entity.Account
+import brs.entity.Order.Bid
+import brs.services.AssetExchangeService
 import brs.services.ParameterService
-import brs.util.json.safeGetAsString
+import brs.util.json.getElementAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
-import io.mockk.mockk
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -68,7 +67,7 @@ class GetAccountCurrentBidOrderIdsTest : AbstractUnitTest() {
         val resultList = result.get(BID_ORDER_IDS_RESPONSE) as JsonArray
         assertNotNull(resultList)
         assertEquals(1, resultList.size().toLong())
-        assertEquals(mockBidId.toString(), resultList.get(0).safeGetAsString())
+        assertEquals(mockBidId.toString(), resultList.getElementAsString(0))
     }
 
     @Test
@@ -103,7 +102,7 @@ class GetAccountCurrentBidOrderIdsTest : AbstractUnitTest() {
         val resultList = result.get(BID_ORDER_IDS_RESPONSE) as JsonArray
         assertNotNull(resultList)
         assertEquals(1, resultList.size().toLong())
-        assertEquals(mockBidId.toString(), resultList.get(0).safeGetAsString())
+        assertEquals(mockBidId.toString(), resultList.getElementAsString(0))
     }
 
 }

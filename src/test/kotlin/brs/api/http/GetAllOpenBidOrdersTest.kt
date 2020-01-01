@@ -13,11 +13,10 @@ import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.entity.Order.Bid
 import brs.services.AssetExchangeService
-import brs.util.json.mustGetAsJsonObject
-import brs.util.json.safeGetAsLong
-import brs.util.json.safeGetAsString
+import brs.util.json.mustGetElementAsJsonObject
+import brs.util.json.getMemberAsLong
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk
@@ -65,11 +64,11 @@ class GetAllOpenBidOrdersTest : AbstractUnitTest() {
         assertNotNull(openOrdersResult)
         assertEquals(1, openOrdersResult.size().toLong())
 
-        val openOrderResult = openOrdersResult.get(0).mustGetAsJsonObject("openOrderResult")
-        assertEquals(mockBidOrder.id.toString(), openOrderResult.get(ORDER_RESPONSE).safeGetAsString())
-        assertEquals(mockBidOrder.assetId.toString(), openOrderResult.get(ASSET_RESPONSE).safeGetAsString())
-        assertEquals(mockBidOrder.quantity.toString(), openOrderResult.get(QUANTITY_QNT_RESPONSE).safeGetAsString())
-        assertEquals(mockBidOrder.pricePlanck.toString(), openOrderResult.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals(mockBidOrder.height.toLong(), openOrderResult.get(HEIGHT_RESPONSE).safeGetAsLong())
+        val openOrderResult = openOrdersResult.mustGetElementAsJsonObject(0)
+        assertEquals(mockBidOrder.id.toString(), openOrderResult.getMemberAsString(ORDER_RESPONSE))
+        assertEquals(mockBidOrder.assetId.toString(), openOrderResult.getMemberAsString(ASSET_RESPONSE))
+        assertEquals(mockBidOrder.quantity.toString(), openOrderResult.getMemberAsString(QUANTITY_QNT_RESPONSE))
+        assertEquals(mockBidOrder.pricePlanck.toString(), openOrderResult.getMemberAsString(PRICE_PLANCK_RESPONSE))
+        assertEquals(mockBidOrder.height.toLong(), openOrderResult.getMemberAsLong(HEIGHT_RESPONSE))
     }
 }

@@ -8,9 +8,8 @@ import brs.common.QuickMocker
 import brs.common.QuickMocker.MockParam
 import brs.entity.Asset
 import brs.services.AssetExchangeService
-import brs.util.json.safeGetAsString
+import brs.util.json.getElementAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk
@@ -57,7 +56,7 @@ class GetAssetIdsTest : AbstractUnitTest() {
         assertNotNull(resultAssetIds)
         assertEquals(1, resultAssetIds.size().toLong())
 
-        val resultAssetId = resultAssetIds.get(0).safeGetAsString()
+        val resultAssetId = resultAssetIds.getElementAsString(0)
         assertEquals("5", resultAssetId)
     }
 

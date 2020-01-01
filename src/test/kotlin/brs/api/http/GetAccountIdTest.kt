@@ -10,7 +10,7 @@ import brs.api.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.ResultFields.ACCOUNT_RESPONSE
 import brs.api.http.common.ResultFields.PUBLIC_KEY_RESPONSE
-import brs.util.json.safeGetAsString
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -35,8 +35,8 @@ class GetAccountIdTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(TEST_ACCOUNT_NUMERIC_ID, result.get(ACCOUNT_RESPONSE).safeGetAsString())
-        assertEquals(TEST_PUBLIC_KEY, result.get(PUBLIC_KEY_RESPONSE).safeGetAsString())
+        assertEquals(TEST_ACCOUNT_NUMERIC_ID, result.getMemberAsString(ACCOUNT_RESPONSE))
+        assertEquals(TEST_PUBLIC_KEY, result.getMemberAsString(PUBLIC_KEY_RESPONSE))
     }
 
     @Test
@@ -47,8 +47,8 @@ class GetAccountIdTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(TEST_ACCOUNT_NUMERIC_ID, result.get(ACCOUNT_RESPONSE).safeGetAsString())
-        assertEquals(TEST_PUBLIC_KEY, result.get(PUBLIC_KEY_RESPONSE).safeGetAsString())
+        assertEquals(TEST_ACCOUNT_NUMERIC_ID, result.getMemberAsString(ACCOUNT_RESPONSE))
+        assertEquals(TEST_PUBLIC_KEY, result.getMemberAsString(PUBLIC_KEY_RESPONSE))
     }
 
     @Test

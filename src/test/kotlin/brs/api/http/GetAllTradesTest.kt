@@ -14,9 +14,8 @@ import brs.common.QuickMocker.MockParam
 import brs.entity.Asset
 import brs.entity.Trade
 import brs.services.AssetExchangeService
-import brs.util.json.safeGetAsString
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk
@@ -79,9 +78,9 @@ class GetAllTradesTest : AbstractUnitTest() {
         val tradeAssetInfoResult = tradesResult.get(0) as JsonObject
         assertNotNull(tradeAssetInfoResult)
 
-        assertEquals(pricePlanck.toString(), tradeAssetInfoResult.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals(mockAssetId.toString(), tradeAssetInfoResult.get(ASSET_RESPONSE).safeGetAsString())
-        assertEquals(mockAssetName, tradeAssetInfoResult.get(NAME_RESPONSE).safeGetAsString())
+        assertEquals(pricePlanck.toString(), tradeAssetInfoResult.getMemberAsString(PRICE_PLANCK_RESPONSE))
+        assertEquals(mockAssetId.toString(), tradeAssetInfoResult.getMemberAsString(ASSET_RESPONSE))
+        assertEquals(mockAssetName, tradeAssetInfoResult.getMemberAsString(NAME_RESPONSE))
     }
 
     @Test
@@ -118,9 +117,9 @@ class GetAllTradesTest : AbstractUnitTest() {
         val tradeAssetInfoResult = tradesResult.get(0) as JsonObject
         assertNotNull(tradeAssetInfoResult)
 
-        assertEquals(pricePlanck.toString(), tradeAssetInfoResult.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals(mockAssetId.toString(), tradeAssetInfoResult.get(ASSET_RESPONSE).safeGetAsString())
-        assertEquals(null, tradeAssetInfoResult.get(NAME_RESPONSE).safeGetAsString())
+        assertEquals(pricePlanck.toString(), tradeAssetInfoResult.getMemberAsString(PRICE_PLANCK_RESPONSE))
+        assertEquals(mockAssetId.toString(), tradeAssetInfoResult.getMemberAsString(ASSET_RESPONSE))
+        assertEquals(null, tradeAssetInfoResult.getMemberAsString(NAME_RESPONSE))
 
         verify(exactly = 0) { mockAssetExchangeService.getAsset(eq(mockAssetId)) }
     }

@@ -8,11 +8,10 @@ import brs.api.http.common.ResultFields.UNCONFIRMED_BALANCE_PLANCK_RESPONSE
 import brs.common.QuickMocker
 import brs.entity.Account
 import brs.services.ParameterService
-import brs.util.json.safeGetAsString
-import brs.util.jetty.get
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonObject
-import io.mockk.mockk
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -42,11 +41,11 @@ class GetBalanceTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals("1", result.get(BALANCE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals("2", result.get(UNCONFIRMED_BALANCE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals("1", result.get(EFFECTIVE_BALANCE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals("3", result.get(FORGED_BALANCE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals("1", result.get(GUARANTEED_BALANCE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals("1", result.getMemberAsString(BALANCE_PLANCK_RESPONSE))
+        assertEquals("2", result.getMemberAsString(UNCONFIRMED_BALANCE_PLANCK_RESPONSE))
+        assertEquals("1", result.getMemberAsString(EFFECTIVE_BALANCE_PLANCK_RESPONSE))
+        assertEquals("3", result.getMemberAsString(FORGED_BALANCE_PLANCK_RESPONSE))
+        assertEquals("1", result.getMemberAsString(GUARANTEED_BALANCE_PLANCK_RESPONSE))
     }
 
     @Test
@@ -57,10 +56,10 @@ class GetBalanceTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals("0", result.get(BALANCE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals("0", result.get(UNCONFIRMED_BALANCE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals("0", result.get(EFFECTIVE_BALANCE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals("0", result.get(FORGED_BALANCE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals("0", result.get(GUARANTEED_BALANCE_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals("0", result.getMemberAsString(BALANCE_PLANCK_RESPONSE))
+        assertEquals("0", result.getMemberAsString(UNCONFIRMED_BALANCE_PLANCK_RESPONSE))
+        assertEquals("0", result.getMemberAsString(EFFECTIVE_BALANCE_PLANCK_RESPONSE))
+        assertEquals("0", result.getMemberAsString(FORGED_BALANCE_PLANCK_RESPONSE))
+        assertEquals("0", result.getMemberAsString(GUARANTEED_BALANCE_PLANCK_RESPONSE))
     }
 }

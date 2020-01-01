@@ -25,9 +25,7 @@ import brs.util.json.JSON.prepareRequest
 import brs.util.logging.*
 import brs.util.sync.Mutex
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.bitlet.weupnp.GatewayDevice
 import org.bitlet.weupnp.GatewayDiscover
@@ -467,11 +465,11 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
                 val peer = getAnyPeer(Peer.State.CONNECTED) ?: return@run false
                 val response = peer.send(getPeersRequest) ?: return@run true
-                val peersJson = response.get("peers").safeGetAsJsonArray()
+                val peersJson = response.getMemberAsJsonArray("peers")
                 val addedAddresses = mutableSetOf<String>()
                 if (peersJson != null && !peersJson.isEmpty()) {
                     for (announcedAddress in peersJson) {
-                        val announcedAddressString = announcedAddress.mustGetAsString("announcedAddress")
+                        val announcedAddressString = announcedAddress.safeGetAsString() ?: continue
                         if (addPeer(announcedAddressString) != null) {
                             addedAddresses.add(announcedAddressString)
                         }

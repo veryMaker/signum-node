@@ -5,11 +5,10 @@ import brs.common.QuickMocker
 import brs.common.TestConstants
 import brs.entity.Account
 import brs.services.ParameterService
-import brs.util.json.safeGetAsString
-import brs.util.jetty.get
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonObject
-import io.mockk.mockk
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -40,7 +39,7 @@ class GetAccountPublicKeyTest {
         val result = t.processRequest(request) as JsonObject
         assertNotNull(result)
 
-        assertEquals(TestConstants.TEST_PUBLIC_KEY, result.get(PUBLIC_KEY_RESPONSE).safeGetAsString())
+        assertEquals(TestConstants.TEST_PUBLIC_KEY, result.getMemberAsString(PUBLIC_KEY_RESPONSE))
     }
 
     @Test

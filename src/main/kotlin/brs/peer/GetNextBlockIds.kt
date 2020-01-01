@@ -3,11 +3,9 @@ package brs.peer
 import brs.services.BlockchainService
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
-import brs.util.json.safeGetAsString
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 internal class GetNextBlockIds(private val blockchainService: BlockchainService) : PeerServlet.PeerRequestHandler {
@@ -18,7 +16,7 @@ internal class GetNextBlockIds(private val blockchainService: BlockchainService)
         val response = JsonObject()
 
         val nextBlockIds = JsonArray()
-        val blockId = request.get("blockId").safeGetAsString().parseUnsignedLong()
+        val blockId = request.getMemberAsString("blockId").parseUnsignedLong()
         val ids = blockchainService.getBlockIdsAfter(blockId, 100)
 
         for (id in ids) {

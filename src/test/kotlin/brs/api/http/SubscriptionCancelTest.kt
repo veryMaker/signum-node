@@ -13,8 +13,7 @@ import brs.services.ParameterService
 import brs.services.SubscriptionService
 import brs.transaction.appendix.Attachment
 import brs.transaction.type.TransactionType
-import brs.util.json.safeGetAsLong
-import brs.util.jetty.get
+import brs.util.json.getMemberAsLong
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk
@@ -85,7 +84,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
 
-        assertEquals(3L, response.get(ERROR_CODE_RESPONSE).safeGetAsLong())
+        assertEquals(3L, response.getMemberAsLong(ERROR_CODE_RESPONSE))
     }
 
     @Test
@@ -97,7 +96,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
 
-        assertEquals(4L, response.get(ERROR_CODE_RESPONSE).safeGetAsLong())
+        assertEquals(4L, response.getMemberAsLong(ERROR_CODE_RESPONSE))
     }
 
     @Test
@@ -113,7 +112,7 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
 
-        assertEquals(5L, response.get(ERROR_CODE_RESPONSE).safeGetAsLong())
+        assertEquals(5L, response.getMemberAsLong(ERROR_CODE_RESPONSE))
     }
 
     @Test
@@ -137,6 +136,6 @@ class SubscriptionCancelTest : AbstractTransactionTest() {
         val response = t.processRequest(request) as JsonObject
         assertNotNull(response)
 
-        assertEquals(7L, response.get(ERROR_CODE_RESPONSE).safeGetAsLong())
+        assertEquals(7L, response.getMemberAsLong(ERROR_CODE_RESPONSE))
     }
 }

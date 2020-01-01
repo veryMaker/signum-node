@@ -10,7 +10,7 @@ import brs.api.http.common.ResultFields.NUMBER_OF_TRANSFERS_RESPONSE
 import brs.common.QuickMocker
 import brs.entity.Asset
 import brs.services.AssetExchangeService
-import brs.util.json.safeGetAsLong
+import brs.util.json.getMemberAsLong
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import io.mockk.every
@@ -62,9 +62,9 @@ class GetAssetsTest {
 
         val assetResponse = responseList.get(0) as JsonObject
         assertNotNull(assetResponse)
-        assertEquals(mockTradeCount.toLong(), assetResponse.get(NUMBER_OF_TRADES_RESPONSE).safeGetAsLong())
-        assertEquals(mockTransferCount.toLong(), assetResponse.get(NUMBER_OF_TRANSFERS_RESPONSE).safeGetAsLong())
-        assertEquals(mockAccountsCount.toLong(), assetResponse.get(NUMBER_OF_ACCOUNTS_RESPONSE).safeGetAsLong())
+        assertEquals(mockTradeCount.toLong(), assetResponse.getMemberAsLong(NUMBER_OF_TRADES_RESPONSE))
+        assertEquals(mockTransferCount.toLong(), assetResponse.getMemberAsLong(NUMBER_OF_TRANSFERS_RESPONSE))
+        assertEquals(mockAccountsCount.toLong(), assetResponse.getMemberAsLong(NUMBER_OF_ACCOUNTS_RESPONSE))
     }
 
     @Test

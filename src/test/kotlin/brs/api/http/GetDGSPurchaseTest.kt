@@ -15,11 +15,10 @@ import brs.api.http.common.ResultFields.TIMESTAMP_RESPONSE
 import brs.common.QuickMocker
 import brs.entity.Purchase
 import brs.services.ParameterService
-import brs.util.json.safeGetAsBoolean
-import brs.util.json.safeGetAsLong
-import brs.util.json.safeGetAsString
+import brs.util.json.getMemberAsBoolean
+import brs.util.json.getMemberAsLong
+import brs.util.json.getMemberAsString
 import burst.kit.entity.BurstEncryptedMessage
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk
@@ -79,18 +78,18 @@ class GetDGSPurchaseTest {
 
         assertNotNull(result)
 
-        assertEquals(mockPurchase.id.toString(), result.get(PURCHASE_RESPONSE).safeGetAsString())
-        assertEquals(mockPurchase.goodsId.toString(), result.get(GOODS_RESPONSE).safeGetAsString())
-        assertEquals(mockPurchase.name, result.get(NAME_RESPONSE).safeGetAsString())
-        assertEquals(mockPurchase.sellerId.toString(), result.get(SELLER_RESPONSE).safeGetAsString())
-        assertEquals(mockPurchase.pricePlanck.toString(), result.get(PRICE_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals(mockPurchase.quantity.toLong(), result.get(QUANTITY_RESPONSE).safeGetAsLong())
-        assertEquals(mockPurchase.buyerId.toString(), result.get(BUYER_RESPONSE).safeGetAsString())
-        assertEquals(mockPurchase.timestamp.toLong(), result.get(TIMESTAMP_RESPONSE).safeGetAsLong())
-        assertEquals(mockPurchase.deliveryDeadlineTimestamp.toLong(), result.get(DELIVERY_DEADLINE_TIMESTAMP_RESPONSE).safeGetAsLong())
-        assertEquals(mockPurchase.isPending, result.get(PENDING_RESPONSE).safeGetAsBoolean())
-        assertEquals(mockPurchase.discountPlanck.toString(), result.get(DISCOUNT_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals(mockPurchase.refundPlanck.toString(), result.get(REFUND_PLANCK_RESPONSE).safeGetAsString())
+        assertEquals(mockPurchase.id.toString(), result.getMemberAsString(PURCHASE_RESPONSE))
+        assertEquals(mockPurchase.goodsId.toString(), result.getMemberAsString(GOODS_RESPONSE))
+        assertEquals(mockPurchase.name, result.getMemberAsString(NAME_RESPONSE))
+        assertEquals(mockPurchase.sellerId.toString(), result.getMemberAsString(SELLER_RESPONSE))
+        assertEquals(mockPurchase.pricePlanck.toString(), result.getMemberAsString(PRICE_PLANCK_RESPONSE))
+        assertEquals(mockPurchase.quantity.toLong(), result.getMemberAsLong(QUANTITY_RESPONSE))
+        assertEquals(mockPurchase.buyerId.toString(), result.getMemberAsString(BUYER_RESPONSE))
+        assertEquals(mockPurchase.timestamp.toLong(), result.getMemberAsLong(TIMESTAMP_RESPONSE))
+        assertEquals(mockPurchase.deliveryDeadlineTimestamp.toLong(), result.getMemberAsLong(DELIVERY_DEADLINE_TIMESTAMP_RESPONSE))
+        assertEquals(mockPurchase.isPending, result.getMemberAsBoolean(PENDING_RESPONSE))
+        assertEquals(mockPurchase.discountPlanck.toString(), result.getMemberAsString(DISCOUNT_PLANCK_RESPONSE))
+        assertEquals(mockPurchase.refundPlanck.toString(), result.getMemberAsString(REFUND_PLANCK_RESPONSE))
     }
 
 }

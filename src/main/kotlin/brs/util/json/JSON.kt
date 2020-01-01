@@ -58,6 +58,12 @@ inline fun JsonArray.isEmpty() = this.size() == 0
 @Suppress("NOTHING_TO_INLINE")
 inline fun JsonObject.isEmpty() = this.size() == 0
 
+// Functions that are used directly on elements. Try to minimize uses of these
+
+fun JsonElement?.safeGetAsJsonArray(): JsonArray? {
+    return if (this != null && this.isJsonArray) this.asJsonArray else null
+}
+
 fun JsonElement?.safeGetAsJsonObject(): JsonObject? {
     return if (this != null && this.isJsonObject) this.asJsonObject else null
 }
@@ -66,60 +72,92 @@ fun JsonElement?.mustGetAsJsonObject(fieldName: String): JsonObject {
     return if (this != null && this.isJsonObject) this.asJsonObject else error("JSON: Could not get $fieldName")
 }
 
-fun JsonElement?.safeGetAsJsonArray(): JsonArray? {
-    return if (this != null && this.isJsonArray) this.asJsonArray else null
-}
-
-fun JsonElement?.mustGetAsJsonArray(fieldName: String): JsonArray {
-    return if (this != null && this.isJsonArray) this.asJsonArray else error("JSON: Could not get $fieldName")
-}
-
 fun JsonElement?.safeGetAsString(): String? {
     return if (this != null && this.isJsonPrimitive) this.asString else null
 }
 
-fun JsonElement?.mustGetAsString(fieldName: String): String {
-    return if (this != null && this.isJsonPrimitive) this.asString else error("JSON: Could not get $fieldName")
+// Functions that are used on the parent objects
+
+fun JsonObject.getMemberAsString(fieldName: String): String? {
+    return this.get(fieldName).safeGetAsString()
 }
 
-fun JsonElement?.safeGetAsLong(): Long? {
-    return if (this != null && this.isJsonPrimitive) this.asLong else null
+fun JsonObject.mustGetMemberAsString(fieldName: String): String {
+    return this.get(fieldName).run { if (this != null && this.isJsonPrimitive) this.asString else error("JSON: Could not get $fieldName") }
 }
 
-fun JsonElement?.mustGetAsLong(fieldName: String): Long {
-    return if (this != null && this.isJsonPrimitive) this.asLong else error("JSON: Could not get $fieldName")
+fun JsonObject.getMemberAsInt(fieldName: String): Int? {
+    return this.get(fieldName).run { if (this != null && this.isJsonPrimitive) this.asInt else null }
 }
 
-fun JsonElement?.safeGetAsInt(): Int? {
-    return if (this != null && this.isJsonPrimitive) this.asInt else null
+fun JsonObject.mustGetMemberAsInt(fieldName: String): Int {
+    return this.get(fieldName).run { if (this != null && this.isJsonPrimitive) this.asInt else error("JSON: Could not get $fieldName") }
 }
 
-fun JsonElement?.mustGetAsInt(fieldName: String): Int {
-    return if (this != null && this.isJsonPrimitive) this.asInt else error("JSON: Could not get $fieldName")
+fun JsonObject.getMemberAsLong(fieldName: String): Long? {
+    return this.get(fieldName).run { if (this != null && this.isJsonPrimitive) this.asLong else null }
 }
 
-fun JsonElement?.safeGetAsShort(): Short? {
-    return if (this != null && this.isJsonPrimitive) this.asShort else null
+fun JsonObject.mustGetMemberAsLong(fieldName: String): Long {
+    return this.get(fieldName).run { if (this != null && this.isJsonPrimitive) this.asLong else error("JSON: Could not get $fieldName") }
 }
 
-fun JsonElement?.mustGetAsShort(fieldName: String): Short {
-    return if (this != null && this.isJsonPrimitive) this.asShort else error("JSON: Could not get $fieldName")
+fun JsonObject.getMemberAsBoolean(fieldName: String): Boolean? {
+    return this.get(fieldName).run { if (this != null && this.isJsonPrimitive) this.asBoolean else null }
 }
 
-fun JsonElement?.safeGetAsByte(): Byte? {
-    return if (this != null && this.isJsonPrimitive) this.asByte else null
+fun JsonObject.mustGetMemberAsBoolean(fieldName: String): Boolean {
+    return this.get(fieldName).run { if (this != null && this.isJsonPrimitive) this.asBoolean else error("JSON: Could not get $fieldName") }
 }
 
-fun JsonElement?.mustGetAsByte(fieldName: String): Byte {
-    return if (this != null && this.isJsonPrimitive) this.asByte else error("JSON: Could not get $fieldName")
+fun JsonObject.getMemberAsShort(fieldName: String): Short? {
+    return this.get(fieldName).run { if (this != null && this.isJsonPrimitive) this.asShort else null }
 }
 
-fun JsonElement?.safeGetAsBoolean(): Boolean? {
-    return if (this != null && this.isJsonPrimitive) this.asBoolean else null
+fun JsonObject.mustGetMemberAsShort(fieldName: String): Short {
+    return this.get(fieldName).run { if (this != null && this.isJsonPrimitive) this.asShort else error("JSON: Could not get $fieldName") }
 }
 
-fun JsonElement?.mustGetAsBoolean(fieldName: String): Boolean {
-    return if (this != null && this.isJsonPrimitive) this.asBoolean else error("JSON: Could not get $fieldName")
+fun JsonObject.getMemberAsByte(fieldName: String): Byte? {
+    return this.get(fieldName).run { if (this != null && this.isJsonPrimitive) this.asByte else null }
+}
+
+fun JsonObject.mustGetMemberAsByte(fieldName: String): Byte {
+    return this.get(fieldName).run { if (this != null && this.isJsonPrimitive) this.asByte else error("JSON: Could not get $fieldName") }
+}
+
+fun JsonObject.getMemberAsJsonArray(fieldName: String): JsonArray? {
+    return this.get(fieldName).run { if (this != null && this.isJsonArray) this.asJsonArray else null }
+}
+
+fun JsonObject.mustGetMemberAsJsonArray(fieldName: String): JsonArray {
+    return this.get(fieldName).run { if (this != null && this.isJsonArray) this.asJsonArray else error("JSON: Could not get $fieldName") }
+}
+
+fun JsonObject.getMemberAsJsonObject(fieldName: String): JsonObject? {
+    return this.get(fieldName).run { if (this != null && this.isJsonObject) this.asJsonObject else null }
+}
+
+fun JsonObject.mustGetMemberAsJsonObject(fieldName: String): JsonObject {
+    return this.get(fieldName).mustGetAsJsonObject(fieldName)
+}
+
+// Functions to be used directly on parent arrays
+
+fun JsonArray.getElementAsString(index: Int): String? {
+    return this.get(index).safeGetAsString()
+}
+
+fun JsonArray.mustGetElementAsString(index: Int): String {
+    return this.get(index).run { if (this != null && this.isJsonPrimitive) this.asString else error("JSON: Could not get index $index") }
+}
+
+fun JsonArray.mustGetElementAsLong(index: Int): Long {
+    return this.get(index).run { if (this != null && this.isJsonPrimitive) this.asLong else error("JSON: Could not get index $index") }
+}
+
+fun JsonArray.mustGetElementAsJsonObject(index: Int): JsonObject {
+    return this.get(index).run { if (this != null && this.isJsonObject) this.asJsonObject else error("JSON: Could not get index $index") }
 }
 
 /**

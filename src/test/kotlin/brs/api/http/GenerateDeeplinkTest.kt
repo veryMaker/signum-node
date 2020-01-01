@@ -7,8 +7,8 @@ import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.common.QuickMocker
 import brs.services.DeeplinkGeneratorService
 import brs.services.impl.DeeplinkGeneratorServiceImpl
-import brs.util.json.safeGetAsInt
-import brs.util.json.safeGetAsString
+import brs.util.json.getMemberAsInt
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -36,7 +36,7 @@ class GenerateDeeplinkTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals("burst.payment://v1?action=testAction&payload=testPayload", result.get(DEEPLINK_RESPONSE).safeGetAsString())
+        assertEquals("burst.payment://v1?action=testAction&payload=testPayload", result.getMemberAsString(DEEPLINK_RESPONSE))
     }
 
     @Test
@@ -45,8 +45,8 @@ class GenerateDeeplinkTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(3, result.get(ERROR_CODE_RESPONSE).safeGetAsInt())
-        assertEquals("\"domain\" not specified", result.get(ERROR_DESCRIPTION_RESPONSE).safeGetAsString())
+        assertEquals(3, result.getMemberAsInt(ERROR_CODE_RESPONSE))
+        assertEquals("\"domain\" not specified", result.getMemberAsString(ERROR_DESCRIPTION_RESPONSE))
     }
 
     @Test
@@ -59,8 +59,8 @@ class GenerateDeeplinkTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(4, result.get(ERROR_CODE_RESPONSE).safeGetAsInt())
-        assertEquals("Incorrect \"arguments\": Invalid domain: \"invalid\"", result.get(ERROR_DESCRIPTION_RESPONSE).safeGetAsString())
+        assertEquals(4, result.getMemberAsInt(ERROR_CODE_RESPONSE))
+        assertEquals("Incorrect \"arguments\": Invalid domain: \"invalid\"", result.getMemberAsString(ERROR_DESCRIPTION_RESPONSE))
     }
 
     @Test
@@ -72,7 +72,7 @@ class GenerateDeeplinkTest {
 
         val result = t.processRequest(request) as JsonObject
 
-        assertEquals(4, result.get(ERROR_CODE_RESPONSE).safeGetAsInt())
-        assertEquals("Incorrect \"payload\": With 'payload' parameter the 'action' parameter is mandatory", result.get(ERROR_DESCRIPTION_RESPONSE).safeGetAsString())
+        assertEquals(4, result.getMemberAsInt(ERROR_CODE_RESPONSE))
+        assertEquals("Incorrect \"payload\": With 'payload' parameter the 'action' parameter is mandatory", result.getMemberAsString(ERROR_DESCRIPTION_RESPONSE))
     }
 }

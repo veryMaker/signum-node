@@ -23,10 +23,9 @@ import brs.entity.Escrow.Decision
 import brs.entity.Escrow.DecisionType
 import brs.services.EscrowService
 import brs.services.ParameterService
-import brs.util.json.safeGetAsLong
-import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
+import brs.util.json.getMemberAsLong
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonObject
 import io.mockk.every
 import io.mockk.mockk
@@ -99,22 +98,22 @@ class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
         val result = resultList.get(0) as JsonObject
         assertNotNull(result)
 
-        assertEquals(escrow.id.toString(), result.get(ID_RESPONSE).safeGetAsString())
-        assertEquals(escrow.senderId.toString(), result.get(SENDER_RESPONSE).safeGetAsString())
-        assertEquals("BURST-2228-2222-BMNG-22222", result.get(SENDER_RS_RESPONSE).safeGetAsString())
-        assertEquals(escrow.recipientId.toString(), result.get(RECIPIENT_RESPONSE).safeGetAsString())
-        assertEquals("BURST-2227-2222-ZAYB-22222", result.get(RECIPIENT_RS_RESPONSE).safeGetAsString())
-        assertEquals(escrow.amountPlanck.toString(), result.get(AMOUNT_PLANCK_RESPONSE).safeGetAsString())
-        assertEquals(escrow.requiredSigners.toLong(), result.get(REQUIRED_SIGNERS_RESPONSE).safeGetAsLong())
-        assertEquals(escrow.deadline.toLong(), result.get(DEADLINE_RESPONSE).safeGetAsLong())
-        assertEquals("undecided", result.get(DEADLINE_ACTION_RESPONSE).safeGetAsString())
+        assertEquals(escrow.id.toString(), result.getMemberAsString(ID_RESPONSE))
+        assertEquals(escrow.senderId.toString(), result.getMemberAsString(SENDER_RESPONSE))
+        assertEquals("BURST-2228-2222-BMNG-22222", result.getMemberAsString(SENDER_RS_RESPONSE))
+        assertEquals(escrow.recipientId.toString(), result.getMemberAsString(RECIPIENT_RESPONSE))
+        assertEquals("BURST-2227-2222-ZAYB-22222", result.getMemberAsString(RECIPIENT_RS_RESPONSE))
+        assertEquals(escrow.amountPlanck.toString(), result.getMemberAsString(AMOUNT_PLANCK_RESPONSE))
+        assertEquals(escrow.requiredSigners.toLong(), result.getMemberAsLong(REQUIRED_SIGNERS_RESPONSE))
+        assertEquals(escrow.deadline.toLong(), result.getMemberAsLong(DEADLINE_RESPONSE))
+        assertEquals("undecided", result.getMemberAsString(DEADLINE_ACTION_RESPONSE))
 
         val signersResult = result.get(SIGNERS_RESPONSE) as JsonArray
         assertEquals(1, signersResult.size().toLong())
 
         val signer = signersResult.get(0) as JsonObject
-        assertEquals(decision.accountId.toString(), signer.get(ID_RESPONSE).safeGetAsString())
-        assertEquals("BURST-2225-2222-QVC9-22222", signer.get(ID_RS_RESPONSE).safeGetAsString())
-        assertEquals("undecided", signer.get(DECISION_RESPONSE).safeGetAsString())
+        assertEquals(decision.accountId.toString(), signer.getMemberAsString(ID_RESPONSE))
+        assertEquals("BURST-2225-2222-QVC9-22222", signer.getMemberAsString(ID_RS_RESPONSE))
+        assertEquals("undecided", signer.getMemberAsString(DECISION_RESPONSE))
     }
 }

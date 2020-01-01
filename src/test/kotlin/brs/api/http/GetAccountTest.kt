@@ -14,9 +14,8 @@ import brs.api.http.common.ResultFields.UNCONFIRMED_ASSET_BALANCES_RESPONSE
 import brs.api.http.common.ResultFields.UNCONFIRMED_BALANCE_QUANTITY_RESPONSE
 import brs.services.AccountService
 import brs.services.ParameterService
-import brs.util.json.safeGetAsString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
+import brs.util.json.getMemberAsString
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import io.mockk.every
@@ -68,22 +67,22 @@ class GetAccountTest : AbstractUnitTest() {
         every { accountServiceMock.getAssets(eq(mockAccountId), eq(0), eq(-1)) } returns mockAssetOverview
 
         val response = t.processRequest(request) as JsonObject
-        assertEquals("01", response.get(PUBLIC_KEY_RESPONSE).safeGetAsString())
-        assertEquals(mockAccountName, response.get(NAME_RESPONSE).safeGetAsString())
-        assertEquals(mockAccountDescription, response.get(DESCRIPTION_RESPONSE).safeGetAsString())
+        assertEquals("01", response.getMemberAsString(PUBLIC_KEY_RESPONSE))
+        assertEquals(mockAccountName, response.getMemberAsString(NAME_RESPONSE))
+        assertEquals(mockAccountDescription, response.getMemberAsString(DESCRIPTION_RESPONSE))
 
         val confirmedBalanceResponses = response.get(ASSET_BALANCES_RESPONSE) as JsonArray
         assertNotNull(confirmedBalanceResponses)
         assertEquals(1, confirmedBalanceResponses.size().toLong())
         val balanceResponse = confirmedBalanceResponses.get(0) as JsonObject
-        assertEquals(mockAssetId.toString(), balanceResponse.get(ASSET_RESPONSE).safeGetAsString())
-        assertEquals(balancePlanck.toString(), balanceResponse.get(BALANCE_QUANTITY_RESPONSE).safeGetAsString())
+        assertEquals(mockAssetId.toString(), balanceResponse.getMemberAsString(ASSET_RESPONSE))
+        assertEquals(balancePlanck.toString(), balanceResponse.getMemberAsString(BALANCE_QUANTITY_RESPONSE))
 
         val unconfirmedBalanceResponses = response.get(UNCONFIRMED_ASSET_BALANCES_RESPONSE) as JsonArray
         assertNotNull(unconfirmedBalanceResponses)
         assertEquals(1, unconfirmedBalanceResponses.size().toLong())
         val unconfirmedBalanceResponse = unconfirmedBalanceResponses.get(0) as JsonObject
-        assertEquals(mockAssetId.toString(), unconfirmedBalanceResponse.get(ASSET_RESPONSE).safeGetAsString())
-        assertEquals(mockUnconfirmedQuantityPlanck.toString(), unconfirmedBalanceResponse.get(UNCONFIRMED_BALANCE_QUANTITY_RESPONSE).safeGetAsString())
+        assertEquals(mockAssetId.toString(), unconfirmedBalanceResponse.getMemberAsString(ASSET_RESPONSE))
+        assertEquals(mockUnconfirmedQuantityPlanck.toString(), unconfirmedBalanceResponse.getMemberAsString(UNCONFIRMED_BALANCE_QUANTITY_RESPONSE))
     }
 }
