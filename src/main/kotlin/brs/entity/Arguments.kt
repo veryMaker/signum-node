@@ -1,4 +1,4 @@
-package brs
+package brs.entity
 
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default

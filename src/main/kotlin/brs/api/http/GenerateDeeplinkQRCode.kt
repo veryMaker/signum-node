@@ -38,8 +38,6 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGeneratorService
         FEE_SUGGESTION_TYPE_PARAMETER,
         MESSAGE_PARAMETER
     ) {
-    private val logger = LoggerFactory.getLogger(GenerateDeeplinkQRCode::class.java)
-
     override fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {
         try {
             val immutable = Parameters.isTrue(request[IMMUTABLE_PARAMETER])
@@ -119,5 +117,9 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGeneratorService
             logger.safeError(e) { "Could not generate Deeplink QR code" }
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
         }
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(GenerateDeeplinkQRCode::class.java)
     }
 }

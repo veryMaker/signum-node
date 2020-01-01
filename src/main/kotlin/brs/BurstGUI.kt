@@ -1,5 +1,6 @@
 package brs
 
+import brs.entity.Arguments
 import brs.objects.Props
 import brs.util.logging.safeError
 import javafx.application.Application
@@ -312,13 +313,13 @@ class BurstGUI : Application() {
     }
 
     companion object {
+        private val logger = LoggerFactory.getLogger(BurstGUI::class.java)
+
         private const val ICON_LOCATION = "/images/burst_overlay_logo.png"
         private const val FAILED_TO_START_MESSAGE = "BurstGUI caught exception starting BRS"
         private const val UNEXPECTED_EXIT_MESSAGE = "BRS Quit unexpectedly! Exit code"
 
         private const val OUTPUT_MAX_LINES = 500
-
-        private val logger = LoggerFactory.getLogger(BurstGUI::class.java)
 
         @JvmStatic
         fun main(args: Array<String>) {

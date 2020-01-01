@@ -27,8 +27,6 @@ import java.sql.SQLNonTransientConnectionException
 import java.util.*
 
 internal class SqlDb(private val dp: DependencyProvider) : Db {
-    private val logger = LoggerFactory.getLogger(SqlDb::class.java)
-
     private val settings = Settings()
     private val staticStatementSettings = Settings()
     private val cp: HikariDataSource
@@ -325,4 +323,8 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
         subscriptionStore.subscriptionTable,
         tradeStore.tradeTable
     )
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(SqlDb::class.java)
+    }
 }

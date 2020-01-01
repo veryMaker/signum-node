@@ -220,6 +220,8 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
         rewardRecipientAssignmentDbKeyFactory.newKey(record.get(REWARD_RECIP_ASSIGN.ACCOUNT_ID)))
 
     companion object {
+        private val logger = LoggerFactory.getLogger(SqlAccountStore::class.java)
+
         private val accountDbKeyFactory = object : SqlDbKey.LongKeyFactory<Account>(ACCOUNT.ID) {
             override fun newKey(entity: Account): SqlDbKey {
                 return entity.nxtKey as SqlDbKey
@@ -231,7 +233,6 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                     return entity.burstKey as SqlDbKey
                 }
             }
-        private val logger = LoggerFactory.getLogger(SqlAccountStore::class.java)
         private val accountAssetDbKeyFactory =
             object : SqlDbKey.LinkKeyFactory<Account.AccountAsset>("account_id", "asset_id") {
                 override fun newKey(entity: Account.AccountAsset): SqlDbKey {

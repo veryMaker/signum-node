@@ -1,5 +1,6 @@
 package brs
 
+import brs.entity.Arguments
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import brs.util.logging.safeWarn

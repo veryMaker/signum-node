@@ -11,7 +11,6 @@ import java.util.*
 import kotlin.reflect.KClass
 
 class PropertyServiceImpl(private val properties: Properties) : PropertyService {
-    private val logger = LoggerFactory.getLogger(Burst::class.java)
     private val parsers: Map<KClass<*>, (String) -> Any>
     private val alreadyLoggedProperties = mutableListOf<String>()
 
@@ -81,12 +80,14 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
     private inline fun logOnce(propertyName: String, logText: LogMessageProducer) {
         if (propertyName == Props.SOLO_MINING_PASSPHRASES.name) return
         if (!this.alreadyLoggedProperties.contains(propertyName)) {
-            this.logger.safeInfo(logText)
+            logger.safeInfo(logText)
             this.alreadyLoggedProperties.add(propertyName)
         }
     }
 
     companion object {
+        private val logger = LoggerFactory.getLogger(Burst::class.java)
+
         private val hexRegex = Regex("(?i)^0x[0-9a-fA-F]+$")
         private val binaryRegex = Regex("(?i)^0b[01]+\$")
         private val booleanTrueRegex = Regex("(?i)^1|true|on|yes|active|enabled$")
