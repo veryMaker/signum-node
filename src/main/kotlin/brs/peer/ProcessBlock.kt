@@ -11,9 +11,7 @@ class ProcessBlock(
     private val blockchainService: BlockchainService,
     private val blockchainProcessorService: BlockchainProcessorService
 ) : PeerServlet.PeerRequestHandler {
-
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
-
         try {
             if (blockchainService.lastBlock.stringId != request.getMemberAsString("previousBlock")) {
                 // do this check first to avoid validation failures of future blocks and transactions
@@ -22,7 +20,6 @@ class ProcessBlock(
             }
             blockchainProcessorService.processPeerBlock(request, peer)
             return ACCEPTED
-
         } catch (e: BurstException) {
             peer.blacklist(e, "received invalid data via requestType=processBlock")
             return NOT_ACCEPTED
@@ -49,5 +46,4 @@ class ProcessBlock(
             NOT_ACCEPTED = response
         }
     }
-
 }

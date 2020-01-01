@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest
  */
 internal class CancelAskOrder(private val dp: DependencyProvider) :
     CreateTransaction(dp, arrayOf(APITag.AE, APITag.CREATE_TRANSACTION), ORDER_PARAMETER) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val orderId = ParameterParser.getOrderId(request)
         val account = dp.parameterService.getSenderAccount(request)
@@ -23,5 +22,4 @@ internal class CancelAskOrder(private val dp: DependencyProvider) :
         val attachment = Attachment.ColoredCoinsAskOrderCancellation(dp, orderId, dp.blockchainService.height)
         return createTransaction(request, account, attachment)
     }
-
 }

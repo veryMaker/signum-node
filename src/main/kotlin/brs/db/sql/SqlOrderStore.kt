@@ -11,7 +11,6 @@ import org.jooq.DSLContext
 import org.jooq.Record
 
 internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
-
     override val askOrderDbKeyFactory = object : SqlDbKey.LongKeyFactory<Order.Ask>(ASK_ORDER.ID) {
         override fun newKey(entity: Order.Ask): BurstKey {
             return entity.dbKey

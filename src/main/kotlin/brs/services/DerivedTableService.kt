@@ -4,12 +4,12 @@ import brs.db.DerivedTable
 
 interface DerivedTableService {
     /**
-     * TODO
+     * All registered derived tables
      */
     val derivedTables: List<DerivedTable>
 
     /**
-     * TODO
+     * Registers a derived table
      */
     fun registerDerivedTable(table: DerivedTable)
 }

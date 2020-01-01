@@ -204,7 +204,6 @@ class API(dp: DependencyProvider) {
             } catch (e: Exception) {
                 logger.safeInfo(e) { "Failed to stop API server" }
             }
-
         }
     }
 

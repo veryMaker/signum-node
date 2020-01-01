@@ -57,10 +57,5 @@ interface AssetTradeService : Observable<Trade, Trade.Event> {
     /**
      * TODO
      */
-    override fun addListener(eventType: Trade.Event, listener: (Trade) -> Unit)
-
-    /**
-     * TODO
-     */
     fun addTrade(assetId: Long, block: Block, askOrder: Order.Ask, bidOrder: Order.Bid): Trade
 }

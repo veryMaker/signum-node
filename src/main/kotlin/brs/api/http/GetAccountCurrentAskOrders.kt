@@ -1,17 +1,17 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.Parameters.ASSET_PARAMETER
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.api.http.common.ResultFields.ASK_ORDERS_RESPONSE
-import brs.api.http.common.JSONData
 import brs.entity.Order
 import brs.services.AssetExchangeService
 import brs.services.ParameterService
 import brs.util.convert.parseUnsignedLong
-import com.google.gson.JsonArray
 import brs.util.jetty.get
+import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -29,7 +29,6 @@ internal class GetAccountCurrentAskOrders internal constructor(
     FIRST_INDEX_PARAMETER,
     LAST_INDEX_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val accountId = parameterService.getAccount(request).id
 
@@ -57,5 +56,4 @@ internal class GetAccountCurrentAskOrders internal constructor(
         response.add(ASK_ORDERS_RESPONSE, orders)
         return response
     }
-
 }

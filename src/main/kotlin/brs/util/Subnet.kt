@@ -73,7 +73,6 @@ class Subnet {
     }
 
     companion object {
-
         /**
          * Subnet factory method.
          *

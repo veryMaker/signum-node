@@ -154,7 +154,6 @@ class OclPocServiceImpl(private val dp: DependencyProvider) : OclPocService {
             destroy()
             throw OclPocService.OCLCheckerException("OpenCL exception", e)
         }
-
     }
 
     override fun validateAndPreVerify(blocks: Collection<Block>, pocVersion: Int) {
@@ -287,7 +286,6 @@ class OclPocServiceImpl(private val dp: DependencyProvider) : OclPocService {
             // avoids infinite looping on repeat failed attempts.
             throw OclPocService.OCLCheckerException("OpenCL error", e)
         }
-
     }
 
     override fun destroy() {

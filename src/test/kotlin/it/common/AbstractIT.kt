@@ -13,7 +13,6 @@ import java.util.*
 
 @RunWith(JUnit4::class)
 abstract class AbstractIT {
-
     private lateinit var processBlock: ProcessBlock
 
     private lateinit var burst: Burst

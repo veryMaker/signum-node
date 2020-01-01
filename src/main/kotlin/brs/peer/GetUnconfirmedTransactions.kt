@@ -4,7 +4,6 @@ import brs.api.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
 import brs.entity.DependencyProvider
 import brs.peer.PeerServlet.ExtendedProcessRequest
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 internal class GetUnconfirmedTransactions(private val dp: DependencyProvider) :
@@ -22,10 +21,7 @@ internal class GetUnconfirmedTransactions(private val dp: DependencyProvider) :
         response.add(UNCONFIRMED_TRANSACTIONS_RESPONSE, transactionsData)
 
         return ExtendedProcessRequest(response) {
-            dp.unconfirmedTransactionService.markFingerPrintsOf(
-                peer,
-                unconfirmedTransactions
-            )
+            dp.unconfirmedTransactionService.markFingerPrintsOf(peer, unconfirmedTransactions)
         }
     }
 }

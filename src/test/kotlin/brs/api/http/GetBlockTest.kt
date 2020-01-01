@@ -21,7 +21,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetBlockTest {
-
     private lateinit var t: GetBlock
 
     private lateinit var blockchainServiceMock: BlockchainService

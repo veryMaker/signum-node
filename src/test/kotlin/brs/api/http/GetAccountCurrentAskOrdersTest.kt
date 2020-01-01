@@ -23,7 +23,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAccountCurrentAskOrdersTest : AbstractUnitTest() {
-
     private lateinit var t: GetAccountCurrentAskOrders
 
     private lateinit var mockParameterService: ParameterService
@@ -98,5 +97,4 @@ class GetAccountCurrentAskOrdersTest : AbstractUnitTest() {
         assertNotNull(result)
         assertEquals(1, (result.get(ASK_ORDERS_RESPONSE) as JsonArray).size())
     }
-
 }

@@ -1,19 +1,18 @@
 package brs
 
-import brs.entity.Block
-import brs.services.BlockchainService
-import brs.services.GeneratorService
-import brs.services.impl.GeneratorServiceImpl
 import brs.common.QuickMocker
 import brs.common.TestConstants
+import brs.entity.Block
 import brs.objects.FluxValues
 import brs.objects.Props
+import brs.services.BlockchainService
 import brs.services.PropertyService
 import brs.services.TimeService
+import brs.services.impl.GeneratorServiceImpl
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
-import io.mockk.mockk
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -23,7 +22,7 @@ import java.math.BigInteger
 
 @RunWith(JUnit4::class)
 class MockGeneratorServiceTest {
-    private lateinit var generatorService: GeneratorService
+    private lateinit var generatorService: GeneratorServiceImpl
 
     @Before
     fun setUpGeneratorTest() {
@@ -66,10 +65,10 @@ class MockGeneratorServiceTest {
 
     @Test
     fun testGeneratorAddNonce() {
-        assertEquals(0, generatorService.allGenerators.size.toLong())
+        assertEquals(0, generatorService.numberOfGenerators.toLong())
         generatorService.addNonce(TestConstants.TEST_SECRET_PHRASE, 0L)
-        assertEquals(1, generatorService.allGenerators.size.toLong())
-        val generatorState = generatorService.allGenerators.iterator().next()
+        assertEquals(1, generatorService.numberOfGenerators.toLong())
+        val generatorState = generatorService.generators.values.first()
         assertNotNull(generatorState)
         assertEquals(BigInteger.valueOf(1000), generatorState.deadline)
         assertEquals(500001, generatorState.block)
@@ -78,9 +77,8 @@ class MockGeneratorServiceTest {
     }
 
     companion object {
-
         private val exampleGenSig = "6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0".parseHexString()
-        private const val exampleBaseTarget: Long = 70312
+        private const val exampleBaseTarget = 70312L
         private const val exampleHeight = 500000
     }
 }

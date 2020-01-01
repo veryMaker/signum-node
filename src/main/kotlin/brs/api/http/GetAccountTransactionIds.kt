@@ -10,10 +10,9 @@ import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.api.http.common.Parameters.TYPE_PARAMETER
 import brs.services.BlockchainService
 import brs.services.ParameterService
+import brs.util.jetty.get
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -72,6 +71,5 @@ internal class GetAccountTransactionIds(
         val response = JsonObject()
         response.add("transactionIds", transactionIds)
         return response
-
     }
 }

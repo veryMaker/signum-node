@@ -222,7 +222,6 @@ class AT : AtMachineState {
                 } catch (e: BurstException.NotValidException) {
                     throw Exception("Failed to construct AT payment transaction", e)
                 }
-
             }
 
             if (transactions.isNotEmpty()) {

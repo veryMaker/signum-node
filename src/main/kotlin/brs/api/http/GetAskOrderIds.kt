@@ -8,9 +8,7 @@ import brs.services.AssetExchangeService
 import brs.services.ParameterService
 import brs.util.convert.toUnsignedString
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -21,9 +19,7 @@ internal class GetAskOrderIds internal constructor(
     private val parameterService: ParameterService,
     private val assetExchangeService: AssetExchangeService
 ) : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), ASSET_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val assetId = parameterService.getAsset(request).id
         val firstIndex = ParameterParser.getFirstIndex(request)
         val lastIndex = ParameterParser.getLastIndex(request)

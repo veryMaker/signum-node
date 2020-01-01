@@ -8,7 +8,6 @@ import brs.services.AssetExchangeService
 
 class GetOrdersHandler(private val assetExchangeService: AssetExchangeService) :
     GrpcApiHandler<BrsApi.GetOrdersRequest, BrsApi.Orders> {
-
     override fun handleRequest(request: BrsApi.GetOrdersRequest): BrsApi.Orders {
         val builder = BrsApi.Orders.newBuilder()
         val assetId = request.asset

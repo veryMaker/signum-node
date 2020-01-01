@@ -15,7 +15,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GenerateDeeplinkTest {
-
     private lateinit var t: GenerateDeeplink
 
     private lateinit var deeplinkService: DeeplinkGeneratorService

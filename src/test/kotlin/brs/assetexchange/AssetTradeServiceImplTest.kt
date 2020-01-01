@@ -13,7 +13,6 @@ import org.junit.Before
 import org.junit.Test
 
 class AssetTradeServiceImplTest : AbstractUnitTest() {
-
     private lateinit var t: AssetTradeServiceImpl
 
     private lateinit var mockTradeStore: TradeStore

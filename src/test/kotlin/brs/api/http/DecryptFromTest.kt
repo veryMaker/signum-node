@@ -21,7 +21,6 @@ import org.junit.Before
 import org.junit.Test
 
 class DecryptFromTest {
-
     private lateinit var t: DecryptFrom
 
     private lateinit var mockParameterService: ParameterService

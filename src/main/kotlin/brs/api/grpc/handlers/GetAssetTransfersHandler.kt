@@ -12,7 +12,6 @@ class GetAssetTransfersHandler(
     private val assetExchangeService: AssetExchangeService,
     private val accountService: AccountService
 ) : GrpcApiHandler<BrsApi.GetAssetTransfersRequest, BrsApi.AssetTransfers> {
-
     override fun handleRequest(request: BrsApi.GetAssetTransfersRequest): BrsApi.AssetTransfers {
         val accountId = request.account
         val assetId = request.asset

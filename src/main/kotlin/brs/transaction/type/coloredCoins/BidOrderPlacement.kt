@@ -6,14 +6,12 @@ import brs.entity.Transaction
 import brs.transaction.appendix.Attachment
 import brs.util.convert.safeMultiply
 import brs.util.logging.safeTrace
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 
 class BidOrderPlacement(dp: DependencyProvider) : OrderPlacement(dp) {
-
     override val subtype = SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT
 
     override val description = "Bid Order Placement"

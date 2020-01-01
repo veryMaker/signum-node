@@ -1,11 +1,11 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.JSONResponses.INCORRECT_ASSET
 import brs.api.http.common.JSONResponses.MISSING_ASSETS
 import brs.api.http.common.JSONResponses.UNKNOWN_ASSET
 import brs.api.http.common.Parameters.ASSETS_PARAMETER
 import brs.api.http.common.ResultFields.ASSETS_RESPONSE
-import brs.api.http.common.JSONData
 import brs.services.AssetExchangeService
 import brs.util.convert.parseUnsignedLong
 import com.google.gson.JsonArray
@@ -18,9 +18,7 @@ import javax.servlet.http.HttpServletRequest
  */
 internal class GetAssets(private val assetExchangeService: AssetExchangeService) // limit to 3 for testing
     : APIServlet.JsonRequestHandler(arrayOf(APITag.AE), ASSETS_PARAMETER, ASSETS_PARAMETER, ASSETS_PARAMETER) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val assets = request.getParameterValues(ASSETS_PARAMETER) ?: return MISSING_ASSETS
 
         val response = JsonObject()
@@ -41,9 +39,7 @@ internal class GetAssets(private val assetExchangeService: AssetExchangeService)
             } catch (e: Exception) {
                 return INCORRECT_ASSET
             }
-
         }
         return response
     }
-
 }

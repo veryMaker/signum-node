@@ -24,10 +24,12 @@ import brs.transaction.type.payment.OrdinaryPayment
 import brs.util.convert.safeAdd
 import brs.util.convert.safeMultiply
 import brs.util.logging.safeTrace
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
+import kotlin.collections.Map
+import kotlin.collections.mutableMapOf
+import kotlin.collections.set
 
 abstract class TransactionType constructor(internal val dp: DependencyProvider) {
     abstract val type: Byte

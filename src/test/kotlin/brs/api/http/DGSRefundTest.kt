@@ -28,7 +28,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class DGSRefundTest : AbstractTransactionTest() {
-
     private lateinit var t: DGSRefund
     private lateinit var dp: DependencyProvider
     private lateinit var mockParameterService: ParameterService
@@ -197,5 +196,4 @@ class DGSRefundTest : AbstractTransactionTest() {
 
         assertEquals(INCORRECT_DGS_REFUND, t.processRequest(request))
     }
-
 }

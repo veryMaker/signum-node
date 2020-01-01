@@ -3,9 +3,7 @@ package brs.services
 import brs.entity.Block
 import brs.entity.Transaction
 import brs.peer.Peer
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 interface PeerService {
@@ -152,7 +150,6 @@ interface PeerService {
      * TODO
      */
     enum class Event {
-        // TODO remove unused events
         BLACKLIST,
         UNBLACKLIST,
         REMOVE,

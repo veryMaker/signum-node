@@ -26,7 +26,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SetAliasTest : AbstractTransactionTest() {
-
     private lateinit var t: SetAlias
     private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService
@@ -112,5 +111,4 @@ class SetAliasTest : AbstractTransactionTest() {
 
         assertEquals(INCORRECT_URI_LENGTH, t.processRequest(request))
     }
-
 }

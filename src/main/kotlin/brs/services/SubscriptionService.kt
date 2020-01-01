@@ -5,7 +5,6 @@ import brs.entity.Block
 import brs.entity.Subscription
 
 interface SubscriptionService {
-
     /**
      * TODO
      */

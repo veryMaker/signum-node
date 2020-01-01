@@ -17,7 +17,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAccountsWithNameTest : AbstractUnitTest() {
-
     private lateinit var accountService: AccountService
 
     private lateinit var t: GetAccountsWithName

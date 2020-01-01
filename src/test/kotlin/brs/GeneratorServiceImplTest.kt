@@ -1,17 +1,16 @@
 package brs
 
-import brs.entity.Block
-import brs.services.BlockchainService
-import brs.services.GeneratorService
-import brs.services.impl.GeneratorServiceImpl
 import brs.common.QuickMocker
 import brs.common.TestConstants
+import brs.entity.Block
 import brs.objects.FluxValues
+import brs.services.BlockchainService
 import brs.services.TimeService
+import brs.services.impl.GeneratorServiceImpl
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
-import io.mockk.mockk
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -21,7 +20,7 @@ import java.math.BigInteger
 
 @RunWith(JUnit4::class)
 class GeneratorServiceImplTest {
-    private lateinit var generatorService: GeneratorService
+    private lateinit var generatorService: GeneratorServiceImpl
 
     @Before
     fun setUpGeneratorTest() {
@@ -68,10 +67,10 @@ class GeneratorServiceImplTest {
 
     @Test
     fun testGeneratorAddNonce() {
-        assertEquals(0, generatorService.allGenerators.size.toLong())
+        assertEquals(0, generatorService.numberOfGenerators.toLong())
         generatorService.addNonce(TestConstants.TEST_SECRET_PHRASE, 0L)
-        assertEquals(1, generatorService.allGenerators.size.toLong())
-        val generatorState = generatorService.allGenerators.iterator().next()
+        assertEquals(1, generatorService.numberOfGenerators.toLong())
+        val generatorState = generatorService.generators.values.first()
         assertNotNull(generatorState)
         assertEquals(BigInteger.valueOf(212350960282639L), generatorState.deadline)
         assertEquals(500001, generatorState.block)

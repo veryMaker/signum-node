@@ -7,12 +7,10 @@ import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.convert.safeMultiply
 import brs.util.convert.toUnsignedString
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 
 class BidOrderCancellation(dp: DependencyProvider) : OrderCancellation(dp) {
-
     override val subtype = SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION
 
     override val description = "Bid Order Cancellation"

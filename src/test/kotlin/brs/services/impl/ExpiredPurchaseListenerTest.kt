@@ -15,7 +15,6 @@ import org.junit.Test
 
 
 class ExpiredPurchaseListenerTest : AbstractUnitTest() {
-
     private lateinit var accountServiceMock: AccountService
     private lateinit var digitalGoodsStoreServiceMock: DigitalGoodsStoreService
 

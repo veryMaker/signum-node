@@ -16,7 +16,6 @@ import org.junit.Before
 import org.junit.Test
 
 class SuggestFeeTest {
-
     private lateinit var t: SuggestFee
 
     private lateinit var feeSuggestionServiceImpl: FeeSuggestionServiceImpl

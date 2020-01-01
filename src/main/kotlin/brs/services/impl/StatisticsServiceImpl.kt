@@ -6,13 +6,12 @@ import brs.util.logging.safeInfo
 import org.slf4j.LoggerFactory
 
 class StatisticsServiceImpl(private val dp: DependencyProvider) : StatisticsService {
-
-    private val logger = LoggerFactory.getLogger(StatisticsServiceImpl::class.java)
-
     private var addedBlockCount: Int = 0
     private var firstBlockAdded: Int = 0
 
     private val cacheStatistics = mutableMapOf<String, CacheStatisticsOverview>()
+
+    private val cacheGenerator: (String) -> CacheStatisticsOverview = { CacheStatisticsOverview(it) }
 
     override fun foundObjectInCache(cacheName: String) {
         getCacheStatisticsOverview(cacheName).cacheHit()
@@ -23,29 +22,19 @@ class StatisticsServiceImpl(private val dp: DependencyProvider) : StatisticsServ
     }
 
     private fun getCacheStatisticsOverview(cacheName: String): CacheStatisticsOverview {
-        if (!this.cacheStatistics.containsKey(cacheName)) {
-            this.cacheStatistics[cacheName] = CacheStatisticsOverview(cacheName)
-        }
-
-        return cacheStatistics[cacheName]!!
+        return cacheStatistics.computeIfAbsent(cacheName, cacheGenerator)
     }
 
     override fun blockAdded() {
         if (addedBlockCount++ == 0) {
             firstBlockAdded = dp.timeService.epochTime
-        } else if (addedBlockCount % 500 == 0) {
-            logger.safeInfo {
-                "handling ${String.format(
-                    "%.2f",
-                    500 / (dp.timeService.epochTime - firstBlockAdded).toFloat()
-                )} blocks/s ${cacheStatistics.values.joinToString { cacheInfo -> " " + cacheInfo.cacheInfoAndReset }}"
-            }
+        } else if (addedBlockCount % BLOCK_AVERAGE_PERIOD == 0) {
+            logger.safeInfo { "handling ${"%.2f".format(BLOCK_AVERAGE_PERIOD / (dp.timeService.epochTime - firstBlockAdded).toFloat())} blocks/s ${cacheStatistics.values.joinToString { cacheInfo -> " " + cacheInfo.cacheInfoAndReset }}" }
             addedBlockCount = 0
         }
     }
 
     private inner class CacheStatisticsOverview internal constructor(private val cacheName: String) {
-
         private var cacheHits: Long = 0
         private var cacheMisses: Long = 0
 
@@ -79,5 +68,14 @@ class StatisticsServiceImpl(private val dp: DependencyProvider) : StatisticsServ
             cacheMisses++
             totalCacheMisses++
         }
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(StatisticsServiceImpl::class.java)
+
+        /**
+         * The number of blocks to wait for before taking a block rate average
+         */
+        private const val BLOCK_AVERAGE_PERIOD = 500
     }
 }

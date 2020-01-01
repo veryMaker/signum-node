@@ -116,7 +116,6 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
         return if (countSplit >= escrow.requiredSigners) {
             DecisionType.SPLIT
         } else DecisionType.UNDECIDED
-
     }
 
     private fun getUpdateOnBlockClause(timestamp: Int): Condition {

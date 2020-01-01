@@ -1,22 +1,15 @@
 package brs.services
 
-import brs.entity.FluxEnable
 import brs.entity.FluxValue
 
 interface FluxCapacitorService {
-
     /**
-     * TODO
+     * Get the value of [fluxValue] at the current blockchain height
      */
     fun <T> getValue(fluxValue: FluxValue<T>): T
 
     /**
-     * TODO
+     * Get the value of [fluxValue] at [height]
      */
     fun <T> getValue(fluxValue: FluxValue<T>, height: Int): T
-
-    /**
-     * TODO
-     */
-    fun getStartingHeight(fluxEnable: FluxEnable): Int?
 }

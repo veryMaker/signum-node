@@ -20,7 +20,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetDGSPendingPurchasesTest : AbstractUnitTest() {
-
     private lateinit var t: GetDGSPendingPurchases
 
     private lateinit var mockDigitalGoodStoreService: DigitalGoodsStoreService
@@ -66,5 +65,4 @@ class GetDGSPendingPurchasesTest : AbstractUnitTest() {
 
         assertEquals(MISSING_SELLER, t.processRequest(request))
     }
-
 }

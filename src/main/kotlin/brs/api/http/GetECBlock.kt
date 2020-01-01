@@ -1,10 +1,11 @@
 package brs.api.http
 
+import brs.api.http.common.JSONResponses
 import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.api.http.common.ResultFields.EC_BLOCK_HEIGHT_RESPONSE
 import brs.api.http.common.ResultFields.EC_BLOCK_ID_RESPONSE
 import brs.api.http.common.ResultFields.TIMESTAMP_RESPONSE
-import brs.api.http.common.JSONResponses
+import brs.objects.Constants.MAX_TIMESTAMP_DIFFERENCE
 import brs.services.BlockchainService
 import brs.services.EconomicClusteringService
 import brs.services.TimeService
@@ -25,7 +26,7 @@ internal class GetECBlock(
         if (timestamp == 0) {
             timestamp = timeService.epochTime
         }
-        if (timestamp < blockchainService.lastBlock.timestamp - 15) {
+        if (timestamp < blockchainService.lastBlock.timestamp - MAX_TIMESTAMP_DIFFERENCE) {
             return JSONResponses.INCORRECT_TIMESTAMP
         }
         val ecBlock = economicClusteringService.getECBlock(timestamp)

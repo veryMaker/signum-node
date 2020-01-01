@@ -15,5 +15,4 @@ abstract class AbstractUnitTest {
 
         return result.toString()
     }
-
 }

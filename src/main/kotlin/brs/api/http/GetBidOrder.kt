@@ -1,8 +1,8 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.JSONResponses.UNKNOWN_ORDER
 import brs.api.http.common.Parameters.ORDER_PARAMETER
-import brs.api.http.common.JSONData
 import brs.services.AssetExchangeService
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest

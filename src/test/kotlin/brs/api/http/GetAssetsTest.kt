@@ -21,7 +21,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAssetsTest {
-
     private lateinit var t: GetAssets
 
     private lateinit var mockAssetExchangeService: AssetExchangeService
@@ -87,5 +86,4 @@ class GetAssetsTest {
 
         assertEquals(INCORRECT_ASSET, t.processRequest(request))
     }
-
 }

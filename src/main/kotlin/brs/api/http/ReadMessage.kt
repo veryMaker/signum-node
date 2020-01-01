@@ -12,8 +12,8 @@ import brs.services.AccountService
 import brs.services.BlockchainService
 import brs.util.convert.*
 import brs.util.crypto.Crypto
-import brs.util.logging.safeDebug
 import brs.util.jetty.get
+import brs.util.logging.safeDebug
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -70,7 +70,6 @@ internal class ReadMessage(
                     } catch (e: Exception) {
                         logger.safeDebug(e) { "Decryption of message to recipient failed: {}" }
                     }
-
                 }
             }
             if (encryptToSelfMessage != null) {
@@ -85,7 +84,6 @@ internal class ReadMessage(
                     } catch (e: Exception) {
                         logger.safeDebug(e) { "Decryption of message to self failed: {}" }
                     }
-
                 }
             }
         }
@@ -93,8 +91,6 @@ internal class ReadMessage(
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(ReadMessage::class.java)
     }
-
 }

@@ -8,12 +8,10 @@ import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.convert.toBytes
 import brs.util.json.toJsonString
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 
 class AccountInfo(dp: DependencyProvider) : Messaging(dp) {
-
     override val subtype = SUBTYPE_MESSAGING_ACCOUNT_INFO
 
     override val description = "Account Info"

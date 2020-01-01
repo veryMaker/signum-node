@@ -54,6 +54,11 @@ interface UnconfirmedTransactionService {
     /**
      * TODO
      */
+    fun markFingerPrintsOf(peer: Peer?, transaction: Transaction)
+
+    /**
+     * TODO
+     */
     fun markFingerPrintsOf(peer: Peer?, transactions: Collection<Transaction>)
 
     /**

@@ -23,7 +23,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetDGSGoodTest {
-
     private lateinit var t: GetDGSGood
 
     private lateinit var mockParameterService: ParameterService

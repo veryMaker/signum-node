@@ -25,7 +25,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SubscriptionCancelTest : AbstractTransactionTest() {
-
     private lateinit var t: SubscriptionCancel
     private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService

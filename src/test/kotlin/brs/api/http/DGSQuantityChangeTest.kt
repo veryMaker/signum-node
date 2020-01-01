@@ -25,7 +25,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class DGSQuantityChangeTest : AbstractTransactionTest() {
-
     private lateinit var t: DGSQuantityChange
     private lateinit var dp: DependencyProvider
     private lateinit var mockParameterService: ParameterService
@@ -178,5 +177,4 @@ class DGSQuantityChangeTest : AbstractTransactionTest() {
 
         assertEquals(INCORRECT_DELTA_QUANTITY, t.processRequest(request))
     }
-
 }

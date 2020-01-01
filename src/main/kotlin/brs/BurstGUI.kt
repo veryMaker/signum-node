@@ -20,7 +20,6 @@ import java.security.Permission
 import kotlin.system.exitProcess
 
 class BurstGUI : Application() {
-
     private var userClosed = false
     private lateinit var stage: Stage
     private var trayIcon: TrayIcon? = null
@@ -119,7 +118,6 @@ class BurstGUI : Application() {
                 logger.safeError(e) { "Could not open browser" }
                 showMessage("Error opening web UI. Please open your browser and navigate to $address")
             }
-
         } catch (e: Exception) { // Catches error accessing PropertyService
             logger.safeError(e) { "Could not access PropertyService" }
             showMessage("Could not open web UI as could not read BRS configuration.")
@@ -136,14 +134,12 @@ class BurstGUI : Application() {
             } catch (t: Exception) {
                 logger.safeError(t) { "Could not determine if running in testnet mode" }
             }
-
         } catch (ignored: SecurityException) {
         } catch (t: Exception) {
             logger.safeError(t) { FAILED_TO_START_MESSAGE }
             showMessage(FAILED_TO_START_MESSAGE)
             onBrsStopped()
         }
-
     }
 
     private fun onTestNetEnabled() {
@@ -176,7 +172,6 @@ class BurstGUI : Application() {
         private val textArea: TextArea?,
         private val actualOutput: PrintStream
     ) : OutputStream() {
-
         private val lineBuilder = StringBuilder()
 
         override fun write(b: Int) {
@@ -205,7 +200,6 @@ class BurstGUI : Application() {
     }
 
     private inner class BurstGUISecurityManager : SecurityManager() {
-
         override fun checkExit(status: Int) {
             if (!userClosed) {
                 logger.safeError { "$UNEXPECTED_EXIT_MESSAGE $status" }

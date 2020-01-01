@@ -177,7 +177,6 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 } catch (e: BlockOutOfOrderException) {
                     throw IllegalStateException(e.toString(), e)
                 }
-
             }
         } else {
             block.height = 0

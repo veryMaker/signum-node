@@ -16,7 +16,6 @@ import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 

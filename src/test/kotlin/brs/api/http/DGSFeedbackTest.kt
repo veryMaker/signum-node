@@ -21,7 +21,6 @@ import org.junit.Before
 import org.junit.Test
 
 class DGSFeedbackTest : AbstractTransactionTest() {
-
     private lateinit var t: DGSFeedback
     private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService
@@ -105,5 +104,4 @@ class DGSFeedbackTest : AbstractTransactionTest() {
 
         assertEquals(GOODS_NOT_DELIVERED, t.processRequest(request))
     }
-
 }

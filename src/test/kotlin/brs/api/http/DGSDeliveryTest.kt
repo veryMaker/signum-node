@@ -28,7 +28,6 @@ import org.junit.Before
 import org.junit.Test
 
 class DGSDeliveryTest : AbstractTransactionTest() {
-
     private lateinit var t: DGSDelivery
     private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService

@@ -1,7 +1,6 @@
 package brs.util
 
 abstract class BurstException : Exception {
-
     protected constructor() : super()
 
     internal constructor(message: String) : super(message)

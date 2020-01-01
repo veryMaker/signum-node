@@ -7,8 +7,8 @@ import brs.api.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_IDS_RESPONSE
 import brs.entity.DependencyProvider
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseAccountId
-import com.google.gson.JsonArray
 import brs.util.jetty.get
+import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -33,7 +33,6 @@ internal class GetUnconfirmedTransactionIds(private val dp: DependencyProvider) 
             } catch (e: Exception) {
                 return INCORRECT_ACCOUNT
             }
-
         }
 
         val transactionIds = JsonArray()
@@ -55,5 +54,4 @@ internal class GetUnconfirmedTransactionIds(private val dp: DependencyProvider) 
 
         return response
     }
-
 }

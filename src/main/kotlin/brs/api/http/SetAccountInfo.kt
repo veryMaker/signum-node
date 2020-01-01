@@ -16,9 +16,7 @@ import javax.servlet.http.HttpServletRequest
  */
 internal class SetAccountInfo(private val dp: DependencyProvider) :
     CreateTransaction(dp, arrayOf(APITag.ACCOUNTS, APITag.CREATE_TRANSACTION), NAME_PARAMETER, DESCRIPTION_PARAMETER) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val name = request[NAME_PARAMETER].orEmpty().trim { it <= ' ' }
         val description = request[DESCRIPTION_PARAMETER].orEmpty().trim { it <= ' ' }
 

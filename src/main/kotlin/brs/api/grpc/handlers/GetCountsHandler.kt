@@ -19,7 +19,7 @@ class GetCountsHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empt
         val numberOfTransfers = dp.assetExchangeService.assetTransferCount
         val numberOfAliases = dp.aliasService.getAliasCount()
         val numberOfPeers = dp.peerService.allPeers.size
-        val numberOfGenerators = dp.generatorService.allGenerators.size
+        val numberOfGenerators = dp.generatorService.numberOfGenerators
         for (account in dp.accountService.getAllAccounts(0, -1)) {
             val effectiveBalanceBURST = account.balancePlanck
             if (effectiveBalanceBURST > 0) {

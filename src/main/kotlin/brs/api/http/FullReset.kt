@@ -3,9 +3,7 @@ package brs.api.http
 import brs.api.http.common.ResultFields.DONE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_RESPONSE
 import brs.services.BlockchainProcessorService
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 

@@ -109,7 +109,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 
 object JSONData {
-
     internal fun alias(alias: Alias, offer: Offer?): JsonObject {
         val json = JsonObject()
         putAccount(json, ACCOUNT_RESPONSE, alias.accountId)

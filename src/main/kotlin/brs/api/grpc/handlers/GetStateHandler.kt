@@ -19,7 +19,7 @@ class GetStateHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empty
             .setCumulativeDifficulty(lastBlock.cumulativeDifficulty.toString())
             .setNumberOfPeers(dp.peerService.allPeers.size)
             .setNumberOfActivePeers(dp.peerService.activePeers.size)
-            .setNumberOfForgers(dp.generatorService.allGenerators.size)
+            .setNumberOfForgers(dp.generatorService.numberOfGenerators)
             .setLastBlockchainFeeder(lastBlockchainFeeder?.announcedAddress ?: "null")
             .setLastBlockchainFeederHeight(dp.blockchainProcessorService.lastBlockchainFeederHeight ?: 0)
             .setAvailableProcessors(Runtime.getRuntime().availableProcessors())

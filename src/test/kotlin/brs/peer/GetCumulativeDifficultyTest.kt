@@ -15,7 +15,6 @@ import org.junit.Test
 import java.math.BigInteger
 
 class GetCumulativeDifficultyTest {
-
     private lateinit var t: GetCumulativeDifficulty
     private lateinit var mockLastBlock: Block
     private lateinit var mockBlockchainService: BlockchainService
@@ -32,7 +31,6 @@ class GetCumulativeDifficultyTest {
 
     @Test
     fun processRequest() {
-
         val request = QuickMocker.jsonObject()
 
         val result = t.processRequest(request, mockk(relaxed = true)) as JsonObject

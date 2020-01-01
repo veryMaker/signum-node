@@ -15,7 +15,6 @@ import org.junit.Before
 import org.junit.Test
 
 class ClearUnconfirmedTransactionsTest {
-
     private lateinit var t: ClearUnconfirmedTransactions
 
     private lateinit var transactionProcessorServiceMock: TransactionProcessorService

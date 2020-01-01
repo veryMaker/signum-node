@@ -8,9 +8,7 @@ import brs.api.http.common.ResultFields.BLOCK_IDS_RESPONSE
 import brs.services.BlockchainService
 import brs.services.ParameterService
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -27,7 +25,6 @@ internal class GetAccountBlockIds internal constructor(
     FIRST_INDEX_PARAMETER,
     LAST_INDEX_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request)
 
@@ -45,5 +42,4 @@ internal class GetAccountBlockIds internal constructor(
 
         return response
     }
-
 }

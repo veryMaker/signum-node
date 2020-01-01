@@ -28,7 +28,6 @@ internal class SellAlias internal constructor(private val dp: DependencyProvider
     RECIPIENT_PARAMETER,
     PRICE_PLANCK_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val alias = dp.parameterService.getAlias(request)
         val owner = dp.parameterService.getSenderAccount(request)

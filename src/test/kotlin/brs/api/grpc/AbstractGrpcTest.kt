@@ -19,7 +19,6 @@ import io.mockk.mockk
 import org.junit.Rule
 
 abstract class AbstractGrpcTest {
-
     @get:Rule
     val grpcCleanup = GrpcCleanupRule()
 

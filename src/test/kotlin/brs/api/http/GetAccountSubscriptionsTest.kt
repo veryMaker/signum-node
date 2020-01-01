@@ -25,7 +25,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAccountSubscriptionsTest : AbstractUnitTest() {
-
     private lateinit var parameterServiceMock: ParameterService
     private lateinit var subscriptionServiceMock: SubscriptionService
 
@@ -75,5 +74,4 @@ class GetAccountSubscriptionsTest : AbstractUnitTest() {
         assertEquals(subscription.frequency.toLong(), resultSubscription.getMemberAsLong(FREQUENCY_RESPONSE))
         assertEquals(subscription.timeNext.toLong(), resultSubscription.getMemberAsLong(TIME_NEXT_RESPONSE))
     }
-
 }

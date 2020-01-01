@@ -1,5 +1,6 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.JSONResponses.INCORRECT_BLOCK
 import brs.api.http.common.JSONResponses.INCORRECT_HEIGHT
 import brs.api.http.common.JSONResponses.INCORRECT_TIMESTAMP
@@ -9,7 +10,6 @@ import brs.api.http.common.Parameters.HEIGHT_PARAMETER
 import brs.api.http.common.Parameters.INCLUDE_TRANSACTIONS_PARAMETER
 import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.api.http.common.Parameters.isTrue
-import brs.api.http.common.JSONData
 import brs.services.BlockService
 import brs.services.BlockchainService
 import brs.util.convert.emptyToNull
@@ -31,7 +31,6 @@ internal class GetBlock internal constructor(
     TIMESTAMP_PARAMETER,
     INCLUDE_TRANSACTIONS_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val blockValue = request[BLOCK_PARAMETER].emptyToNull()
         val heightValue = request[HEIGHT_PARAMETER].emptyToNull()

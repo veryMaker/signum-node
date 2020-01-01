@@ -1,5 +1,6 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.Parameters.TRANSACTION_BYTES_PARAMETER
 import brs.api.http.common.Parameters.TRANSACTION_JSON_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
@@ -7,13 +8,12 @@ import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_RESPONSE
 import brs.api.http.common.ResultFields.VALIDATE_RESPONSE
 import brs.api.http.common.ResultFields.VERIFY_RESPONSE
-import brs.api.http.common.JSONData
 import brs.services.ParameterService
 import brs.services.TransactionService
 import brs.util.BurstException
 import brs.util.convert.emptyToNull
-import brs.util.logging.safeDebug
 import brs.util.jetty.get
+import brs.util.logging.safeDebug
 import com.google.gson.JsonElement
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
@@ -29,9 +29,7 @@ internal class ParseTransaction(
     TRANSACTION_BYTES_PARAMETER,
     TRANSACTION_JSON_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val transactionBytes = request[TRANSACTION_BYTES_PARAMETER].emptyToNull()
         val transactionJSON = request[TRANSACTION_JSON_PARAMETER].emptyToNull()
         val transaction = parameterService.parseTransaction(transactionBytes, transactionJSON)
@@ -60,8 +58,6 @@ internal class ParseTransaction(
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(ParseTransaction::class.java)
     }
-
 }

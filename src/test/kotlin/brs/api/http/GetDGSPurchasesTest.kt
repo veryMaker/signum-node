@@ -22,7 +22,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetDGSPurchasesTest : AbstractUnitTest() {
-
     private lateinit var t: GetDGSPurchases
 
     private lateinit var mockDigitalGoodsStoreService: DigitalGoodsStoreService
@@ -133,5 +132,4 @@ class GetDGSPurchasesTest : AbstractUnitTest() {
         assertNotNull(purchasesResult)
         assertEquals(1, purchasesResult.size().toLong())
     }
-
 }

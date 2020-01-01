@@ -1,15 +1,15 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.Parameters.INCLUDE_INDIRECT_PARAMETER
 import brs.api.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
-import brs.api.http.common.JSONData
 import brs.entity.DependencyProvider
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseAccountId
-import com.google.gson.JsonArray
 import brs.util.jetty.get
+import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -22,7 +22,6 @@ internal class GetUnconfirmedTransactions(private val dp: DependencyProvider) : 
     ACCOUNT_PARAMETER,
     INCLUDE_INDIRECT_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val accountIdString = request[ACCOUNT_PARAMETER].emptyToNull()
         val includeIndirect = dp.parameterService.getIncludeIndirect(request)
@@ -35,7 +34,6 @@ internal class GetUnconfirmedTransactions(private val dp: DependencyProvider) : 
             } catch (e: Exception) {
                 return INCORRECT_ACCOUNT
             }
-
         }
 
         val unconfirmedTransactions = dp.unconfirmedTransactionService.all
@@ -57,5 +55,4 @@ internal class GetUnconfirmedTransactions(private val dp: DependencyProvider) : 
 
         return response
     }
-
 }

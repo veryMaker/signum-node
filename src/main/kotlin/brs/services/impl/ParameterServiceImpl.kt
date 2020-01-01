@@ -96,7 +96,6 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
             } catch (e: Exception) {
                 throw ParameterException(INCORRECT_ACCOUNT)
             }
-
         }
         return result
     }
@@ -158,7 +157,6 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         } catch (e: Exception) {
             throw ParameterException(INCORRECT_GOODS)
         }
-
     }
 
     override fun getPurchase(request: HttpServletRequest): Purchase {
@@ -170,7 +168,6 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         } catch (e: Exception) {
             throw ParameterException(INCORRECT_PURCHASE)
         }
-
     }
 
     override fun getEncryptedMessage(
@@ -210,7 +207,6 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
         } catch (e: Exception) {
             throw ParameterException(INCORRECT_PLAIN_MESSAGE)
         }
-
     }
 
     override fun getEncryptToSelfMessage(request: HttpServletRequest): BurstEncryptedMessage? {
@@ -252,7 +248,6 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
             } catch (e: NumberFormatException) {
                 throw ParameterException(INCORRECT_NUMBER_OF_CONFIRMATIONS)
             }
-
         }
         return 0
     }
@@ -272,7 +267,6 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
             } catch (e: NumberFormatException) {
                 throw ParameterException(INCORRECT_HEIGHT)
             }
-
         }
         return -1
     }
@@ -334,7 +328,6 @@ class ParameterServiceImpl(private val dp: DependencyProvider) : ParameterServic
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(ParameterServiceImpl::class.java)
     }
 }

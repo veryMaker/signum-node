@@ -26,7 +26,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SetRewardRecipientTest : AbstractTransactionTest() {
-
     private lateinit var t: SetRewardRecipient
     private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService

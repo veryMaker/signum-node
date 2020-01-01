@@ -1,5 +1,6 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.Parameters.BUYER_PARAMETER
 import brs.api.http.common.Parameters.COMPLETED_PARAMETER
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
@@ -7,11 +8,10 @@ import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.SELLER_PARAMETER
 import brs.api.http.common.Parameters.isTrue
 import brs.api.http.common.ResultFields.PURCHASES_RESPONSE
-import brs.api.http.common.JSONData
 import brs.services.DigitalGoodsStoreService
+import brs.util.jetty.get
 import brs.util.misc.filterWithLimits
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -28,7 +28,6 @@ internal class GetDGSPurchases(private val digitalGoodsStoreService: DigitalGood
         LAST_INDEX_PARAMETER,
         COMPLETED_PARAMETER
     ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sellerId = ParameterParser.getSellerId(request)
         val buyerId = ParameterParser.getBuyerId(request)

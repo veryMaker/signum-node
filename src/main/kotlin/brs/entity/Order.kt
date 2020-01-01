@@ -6,7 +6,6 @@ import brs.transaction.appendix.Attachment
 import brs.util.convert.toUnsignedString
 
 abstract class Order {
-
     val id: Long
     val accountId: Long
     val assetId: Long
@@ -47,7 +46,6 @@ abstract class Order {
     }
 
     class Ask : Order {
-
         val dbKey: BurstKey
 
         override val protobufType: BrsApi.AssetOrderType
@@ -75,7 +73,6 @@ abstract class Order {
     }
 
     class Bid : Order {
-
         val dbKey: BurstKey
 
         override val protobufType: BrsApi.AssetOrderType

@@ -10,7 +10,6 @@ import org.junit.Before
 import org.junit.Test
 
 class AssetAccountServiceImplTest {
-
     private lateinit var t: AssetAccountServiceImpl
 
     private lateinit var mockAccountStore: AccountStore

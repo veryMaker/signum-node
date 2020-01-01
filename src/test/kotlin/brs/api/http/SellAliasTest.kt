@@ -28,7 +28,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SellAliasTest : AbstractTransactionTest() {
-
     private lateinit var t: SellAlias
     private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService
@@ -157,5 +156,4 @@ class SellAliasTest : AbstractTransactionTest() {
 
         assertEquals(INCORRECT_ALIAS_OWNER, t.processRequest(request))
     }
-
 }

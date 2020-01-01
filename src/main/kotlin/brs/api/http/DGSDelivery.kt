@@ -36,9 +36,7 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
     GOODS_DATA_PARAMETER,
     GOODS_NONCE_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val sellerAccount = dp.parameterService.getSenderAccount(request)
         val purchase = dp.parameterService.getPurchase(request)
         if (sellerAccount.id != purchase.sellerId) {
@@ -93,7 +91,5 @@ internal class DGSDelivery internal constructor(private val dp: DependencyProvid
             dp.blockchainService.height
         )
         return createTransaction(request, sellerAccount, buyerAccount.id, 0, attachment)
-
     }
-
 }

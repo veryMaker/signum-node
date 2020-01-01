@@ -35,7 +35,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAccountEscrowTransactionsTest : AbstractUnitTest() {
-
     private lateinit var parameterServiceMock: ParameterService
     private lateinit var escrowServiceMock: EscrowService
 

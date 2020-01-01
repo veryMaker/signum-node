@@ -27,7 +27,6 @@ class VersionTest {
                 throw AssertionError("Did not fail to parse: $versionString")
             } catch (ignored: IllegalArgumentException) {
             }
-
         }
     }
 

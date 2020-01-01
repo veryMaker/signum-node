@@ -26,7 +26,6 @@ import org.junit.Before
 import org.junit.Test
 
 class AssetServiceImplTest : AbstractUnitTest() {
-
     private lateinit var t: AssetServiceImpl
 
     private lateinit var assetAccountServiceMock: AssetAccountServiceImpl

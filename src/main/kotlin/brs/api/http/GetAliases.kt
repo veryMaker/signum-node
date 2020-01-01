@@ -1,11 +1,11 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.api.http.common.ResultFields.ALIASES_RESPONSE
-import brs.api.http.common.JSONData
 import brs.services.AliasService
 import brs.services.ParameterService
 import brs.util.misc.filterWithLimits

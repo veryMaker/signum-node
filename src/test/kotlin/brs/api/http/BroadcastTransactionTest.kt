@@ -25,7 +25,6 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 class BroadcastTransactionTest {
-
     private lateinit var t: BroadcastTransaction
 
     private lateinit var transactionProcessorServiceMock: TransactionProcessorService

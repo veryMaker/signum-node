@@ -11,6 +11,7 @@ import brs.util.convert.fullHashToId
 import brs.util.convert.toUnsignedString
 import brs.util.crypto.Crypto
 import brs.util.logging.safeDebug
+import brs.util.logging.safeError
 import burst.kit.crypto.BurstCrypto
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
@@ -18,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorService {
     private val listeners = Listeners<GeneratorService.GeneratorState, GeneratorService.Event>()
-    private val generators = ConcurrentHashMap<Long, GeneratorStateImpl>() // Remember, this map type cannot take null keys.
+    val generators = ConcurrentHashMap<Long, GeneratorStateImpl>() // Remember, this map type cannot take null keys.
     private val burstCrypto = BurstCrypto.getInstance()
 
     init {
@@ -42,8 +43,8 @@ open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorS
         }
     }
 
-    override val allGenerators: Collection<GeneratorService.GeneratorState>
-        get() = generators.values
+    override val numberOfGenerators: Int
+        get() = generators.values.size
 
     override fun addListener(eventType: GeneratorService.Event, listener: (GeneratorService.GeneratorState) -> Unit) {
         return listeners.addListener(eventType, listener)
@@ -139,36 +140,24 @@ open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorS
 
             val elapsedTime = dp.timeService.epochTime - lastBlock.timestamp
             if (BigInteger.valueOf(elapsedTime.toLong()) > deadline) {
-                blockchainProcessorService.generateBlock(secretPhrase, publicKey, nonce)
+                try {
+                    blockchainProcessorService.generateBlock(secretPhrase, publicKey, nonce)
+                } catch (e: Exception) {
+                    logger.safeError(e) { "COULD NOT FORGE A BLOCK WHEN WE HAD AN ELAPSED DEADLINE!!!" }
+                }
             }
         }
     }
 
     class MockGeneratorService(private val dp: DependencyProvider) : GeneratorServiceImpl(dp) {
-        override fun calculateHit(
-            accountId: Long,
-            nonce: Long,
-            genSig: ByteArray,
-            scoop: Int,
-            blockHeight: Int
-        ): BigInteger {
-            return BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toLong())
-        }
+        override fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, blockHeight: Int): BigInteger =
+            BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toLong())
 
-        override fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoopData: ByteArray): BigInteger {
-            return BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toLong())
-        }
+        override fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoopData: ByteArray): BigInteger =
+            BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toLong())
 
-        override fun calculateDeadline(
-            accountId: Long,
-            nonce: Long,
-            genSig: ByteArray,
-            scoop: Int,
-            baseTarget: Long,
-            blockHeight: Int
-        ): BigInteger {
-            return BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toLong())
-        }
+        override fun calculateDeadline(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, baseTarget: Long, blockHeight: Int): BigInteger =
+            BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toLong())
     }
 
     companion object {

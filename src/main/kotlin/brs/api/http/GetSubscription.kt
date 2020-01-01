@@ -1,9 +1,9 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.Parameters.SUBSCRIPTION_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
-import brs.api.http.common.JSONData
 import brs.services.SubscriptionService
 import brs.util.convert.parseUnsignedLong
 import brs.util.jetty.get
@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletRequest
  */
 internal class GetSubscription(private val subscriptionService: SubscriptionService) :
     APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), SUBSCRIPTION_PARAMETER) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val subscriptionId: Long
         try {

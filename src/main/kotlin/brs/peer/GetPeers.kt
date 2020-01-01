@@ -2,9 +2,7 @@ package brs.peer
 
 import brs.entity.DependencyProvider
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 internal class GetPeers(private val dp: DependencyProvider) : PeerServlet.PeerRequestHandler {

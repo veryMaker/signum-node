@@ -28,7 +28,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAllAssetsTest : AbstractUnitTest() {
-
     private lateinit var t: GetAllAssets
 
     private lateinit var assetExchangeService: AssetExchangeService
@@ -86,5 +85,4 @@ class GetAllAssetsTest : AbstractUnitTest() {
         assertEquals(2L, assetResult.getMemberAsLong(NUMBER_OF_TRANSFERS_RESPONSE))
         assertEquals(3L, assetResult.getMemberAsLong(NUMBER_OF_TRADES_RESPONSE))
     }
-
 }

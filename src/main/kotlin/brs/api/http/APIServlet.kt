@@ -178,7 +178,6 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
     }
 
     internal abstract class HttpRequestHandler(apiTags: Array<APITag>, vararg parameters: String) {
-
         val parameters = parameters.toList()
         val apiTags = apiTags.toSet()
 
@@ -208,7 +207,6 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
             logger.safeWarn(e) { "Error handling GET request" }
         }
-
     }
 
     override fun doPost(request: HttpServletRequest, resp: HttpServletResponse) {
@@ -218,7 +216,6 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
             logger.safeWarn(e) { "Error handling GET request" }
         }
-
     }
 
     private fun process(request: HttpServletRequest, resp: HttpServletResponse) {
@@ -274,7 +271,6 @@ class APIServlet(dp: DependencyProvider, private val allowedBotHosts: Set<Subnet
             resp.status = HttpStatus.INTERNAL_SERVER_ERROR_500
             writeJsonToResponse(resp, ERROR_INCORRECT_REQUEST)
         }
-
     }
 
     companion object {

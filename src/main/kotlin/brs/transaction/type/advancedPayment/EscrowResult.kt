@@ -6,7 +6,6 @@ import brs.entity.Transaction
 import brs.entity.TransactionDuplicationKey
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 

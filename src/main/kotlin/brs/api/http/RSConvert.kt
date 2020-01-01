@@ -1,9 +1,9 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.JSONResponses.INCORRECT_ACCOUNT
 import brs.api.http.common.JSONResponses.MISSING_ACCOUNT
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
-import brs.api.http.common.JSONData
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseAccountId
 import brs.util.jetty.get

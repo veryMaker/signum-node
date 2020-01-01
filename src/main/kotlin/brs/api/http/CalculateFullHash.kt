@@ -23,7 +23,6 @@ internal class CalculateFullHash : APIServlet.JsonRequestHandler(
     SIGNATURE_HASH_PARAMETER
 ) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val unsignedBytesString = request[UNSIGNED_TRANSACTION_BYTES_PARAMETER].emptyToNull()
         val signatureHashString = request[SIGNATURE_HASH_PARAMETER].emptyToNull()
 

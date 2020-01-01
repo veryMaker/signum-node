@@ -21,7 +21,6 @@ import com.google.protobuf.Any
 import java.nio.ByteBuffer
 
 interface Appendix {
-
     val size: Int
     val jsonObject: JsonObject
     val version: Byte
@@ -33,7 +32,6 @@ interface Appendix {
     fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account)
 
     abstract class AbstractAppendix : Appendix {
-
         final override val version: Byte
 
         // Must be function as it is needed in constructor and properties will not have been initialized
@@ -91,7 +89,6 @@ interface Appendix {
     }
 
     class Message : AbstractAppendix {
-
         val messageBytes: ByteArray
         val isText: Boolean
 
@@ -186,7 +183,6 @@ interface Appendix {
     }
 
     abstract class AbstractEncryptedMessage : AbstractAppendix {
-
         val encryptedData: BurstEncryptedMessage
 
         override val mySize: Int
@@ -270,7 +266,6 @@ interface Appendix {
     }
 
     class EncryptedMessage : AbstractEncryptedMessage {
-
         override fun getAppendixName(): String = "EncryptedMessage"
 
         override val type: BrsApi.EncryptedMessageAppendix.Type
@@ -311,18 +306,15 @@ interface Appendix {
         }
 
         companion object {
-
             fun parse(attachmentData: JsonObject): EncryptedMessage? {
                 return if (attachmentData.get("encryptedMessage") == null) {
                     null
                 } else EncryptedMessage(attachmentData)
             }
         }
-
     }
 
     class EncryptToSelfMessage : AbstractEncryptedMessage {
-
         override fun getAppendixName(): String = "EncryptToSelfMessage"
 
         override val type: BrsApi.EncryptedMessageAppendix.Type

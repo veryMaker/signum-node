@@ -22,7 +22,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAccountBlockIdsTest : AbstractUnitTest() {
-
     private lateinit var t: GetAccountBlockIds
 
     private lateinit var mockParameterService: ParameterService

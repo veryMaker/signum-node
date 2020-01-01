@@ -1,10 +1,10 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.Parameters.ASSET_PARAMETER
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.HEIGHT_PARAMETER
 import brs.api.http.common.Parameters.LAST_INDEX_PARAMETER
-import brs.api.http.common.JSONData
 import brs.services.AssetExchangeService
 import brs.services.ParameterService
 import com.google.gson.JsonArray
@@ -25,9 +25,7 @@ internal class GetAssetAccounts(
     FIRST_INDEX_PARAMETER,
     LAST_INDEX_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val asset = parameterService.getAsset(request)
         val firstIndex = ParameterParser.getFirstIndex(request)
         val lastIndex = ParameterParser.getLastIndex(request)

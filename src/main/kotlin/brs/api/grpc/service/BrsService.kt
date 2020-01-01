@@ -15,7 +15,6 @@ import java.net.InetSocketAddress
 import kotlin.reflect.KClass
 
 class BrsService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBase() {
-
     private val handlers: Map<KClass<out GrpcApiHandler<out Message, out Message>>, GrpcApiHandler<out Message, out Message>>
 
     init { // TODO each handler should only take the dp

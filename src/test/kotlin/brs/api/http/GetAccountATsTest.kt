@@ -20,7 +20,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAccountATsTest {
-
     private lateinit var t: GetAccountATs
 
     private lateinit var mockParameterService: ParameterService
@@ -70,5 +69,4 @@ class GetAccountATsTest {
         val atsResult = atsResultList.get(0) as JsonObject
         assertNotNull(atsResult)
     }
-
 }

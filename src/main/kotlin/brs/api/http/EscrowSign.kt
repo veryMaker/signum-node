@@ -8,11 +8,9 @@ import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.entity.Escrow
 import brs.transaction.appendix.Attachment
-import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -25,7 +23,6 @@ internal class EscrowSign internal constructor(private val dp: DependencyProvide
     ESCROW_PARAMETER,
     DECISION_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val escrowId: Long
         try {

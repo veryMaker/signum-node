@@ -197,12 +197,18 @@ class UnconfirmedTransactionServiceImpl(private val dp: DependencyProvider) :
         }
     }
 
+    override fun markFingerPrintsOf(peer: Peer?, transaction: Transaction) {
+        internalStoreLock.withLock {
+            if (fingerPrintsOverview.containsKey(transaction)) {
+                fingerPrintsOverview[transaction]!!.add(peer)
+            }
+        }
+    }
+
     override fun markFingerPrintsOf(peer: Peer?, transactions: Collection<Transaction>) {
         internalStoreLock.withLock {
             for (transaction in transactions) {
-                if (fingerPrintsOverview.containsKey(transaction)) {
-                    fingerPrintsOverview[transaction]!!.add(peer)
-                }
+                markFingerPrintsOf(peer, transaction)
             }
         }
     }
@@ -403,7 +409,6 @@ class UnconfirmedTransactionServiceImpl(private val dp: DependencyProvider) :
                 } catch (e: BurstException.ValidationException) {
                     insufficientFundsTransactions.add(t)
                 }
-
             }
 
             return insufficientFundsTransactions

@@ -28,9 +28,7 @@ internal class DGSPurchase internal constructor(private val dp: DependencyProvid
     QUANTITY_PARAMETER,
     DELIVERY_DEADLINE_TIMESTAMP_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val goods = dp.parameterService.getGoods(request)
         if (goods.isDelisted) {
             return UNKNOWN_GOODS

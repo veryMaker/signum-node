@@ -10,7 +10,6 @@ import brs.util.Listeners
 
 internal class AssetTransferServiceImpl(private val assetTransferStore: AssetTransferStore) :
     AssetTransferService {
-
     override val listeners = Listeners<AssetTransfer, Event>()
     override val assetTransferTable = assetTransferStore.assetTransferTable
     override val transferDbKeyFactory = assetTransferStore.transferDbKeyFactory

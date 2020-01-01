@@ -28,7 +28,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetDGSPurchaseTest {
-
     private lateinit var t: GetDGSPurchase
 
     private lateinit var mockParameterService: ParameterService
@@ -91,5 +90,4 @@ class GetDGSPurchaseTest {
         assertEquals(mockPurchase.discountPlanck.toString(), result.getMemberAsString(DISCOUNT_PLANCK_RESPONSE))
         assertEquals(mockPurchase.refundPlanck.toString(), result.getMemberAsString(REFUND_PLANCK_RESPONSE))
     }
-
 }

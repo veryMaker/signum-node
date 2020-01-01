@@ -54,7 +54,6 @@ class Alias {
     )
 
     open class Offer {
-
         var pricePlanck: Long = 0
         var buyerId: Long = 0
         val id: Long
@@ -74,5 +73,4 @@ class Alias {
             this.dbKey = nxtKey
         }
     }
-
 }

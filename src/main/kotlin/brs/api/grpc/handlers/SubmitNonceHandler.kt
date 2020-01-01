@@ -65,7 +65,6 @@ class SubmitNonceHandler(private val dp: DependencyProvider) :
     }
 
     companion object {
-
         fun verifySecretAccount(
             accountService: AccountService,
             blockchainService: BlockchainService,

@@ -1,5 +1,6 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.Parameters.FIRST_INDEX_PARAMETER
 import brs.api.http.common.Parameters.INCLUDE_INDIRECT_PARAMETER
@@ -9,11 +10,10 @@ import brs.api.http.common.Parameters.SUBTYPE_PARAMETER
 import brs.api.http.common.Parameters.TIMESTAMP_PARAMETER
 import brs.api.http.common.Parameters.TYPE_PARAMETER
 import brs.api.http.common.ResultFields.TRANSACTIONS_RESPONSE
-import brs.api.http.common.JSONData
 import brs.services.BlockchainService
 import brs.services.ParameterService
-import com.google.gson.JsonArray
 import brs.util.jetty.get
+import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -35,7 +35,6 @@ internal class GetAccountTransactions(
     NUMBER_OF_CONFIRMATIONS_PARAMETER,
     INCLUDE_INDIRECT_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request)
         val timestamp = ParameterParser.getTimestamp(request)

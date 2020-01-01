@@ -14,11 +14,10 @@ import brs.services.PropertyService
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import brs.util.crypto.Crypto
+import brs.util.jetty.get
 import burst.kit.crypto.BurstCrypto
 import burst.kit.entity.BurstAddress
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -38,7 +37,6 @@ internal class SubmitNonce(
     ACCOUNT_ID_PARAMETER,
     BLOCK_HEIGHT_PARAMETER
 ) {
-
     private val passphrases: Map<Long, String>
     private val allowOtherSoloMiners: Boolean
 
@@ -72,7 +70,6 @@ internal class SubmitNonce(
                 response.addProperty("result", "Given block height is not a number")
                 return response
             }
-
         }
 
         if (secret == null || secret.isEmpty()) {

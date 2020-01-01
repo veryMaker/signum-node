@@ -3,12 +3,7 @@ package brs.services
 import brs.db.BurstKey
 import org.ehcache.Cache
 
-interface DBCacheService {
-    /**
-     * TODO
-     */
-    fun close()
-
+interface DBCacheService : AutoCloseable {
     /**
      * TODO
      */

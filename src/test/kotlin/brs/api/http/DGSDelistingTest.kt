@@ -18,7 +18,6 @@ import org.junit.Before
 import org.junit.Test
 
 class DGSDelistingTest : AbstractTransactionTest() {
-
     private lateinit var t: DGSDelisting
     private lateinit var dp: DependencyProvider
     private lateinit var mockParameterService: ParameterService
@@ -89,5 +88,4 @@ class DGSDelistingTest : AbstractTransactionTest() {
 
         assertEquals(UNKNOWN_GOODS, t.processRequest(request))
     }
-
 }

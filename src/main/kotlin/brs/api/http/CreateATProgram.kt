@@ -113,7 +113,6 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
                 response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Invalid or not specified parameters")
                 return response
             }
-
         }
 
         if (creationBytes == null) {

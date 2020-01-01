@@ -13,8 +13,8 @@ import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
-import brs.util.string.isInAlphabet
 import brs.util.jetty.get
+import brs.util.string.isInAlphabet
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -28,7 +28,6 @@ internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(
     ALIAS_NAME_PARAMETER,
     ALIAS_URI_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         var aliasName = request[ALIAS_NAME_PARAMETER].emptyToNull()
         var aliasURI = request[ALIAS_URI_PARAMETER].orEmpty()

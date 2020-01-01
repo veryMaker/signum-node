@@ -170,7 +170,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 logger.safeInfo { "Your announce address is invalid: $myAddress" }
                 throw Exception(e.toString(), e)
             }
-
         }
 
         json.addProperty("application", Burst.APPLICATION)
@@ -251,7 +250,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                         } catch (e: SAXException) {
                             logger.safeError(e) { "Can't start UPnP" }
                         }
-
                     }
                 }
                 if (this.gateway != null) {
@@ -434,7 +432,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 lastSavedPeers = peers.size
                 updateSavedPeers()
             }
-
         } catch (e: Exception) {
             logger.safeDebug(e) { "Error connecting to peer" }
         }
@@ -497,7 +494,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                     request.add("peers", myPeers)
                     peer.send(prepareRequest(request))
                 }
-
             } catch (e: Exception) {
                 logger.safeDebug(e) { "Error requesting peers from a peer" }
             }
@@ -590,7 +586,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             } catch (e: IllegalArgumentException) {
                 false
             }
-
         }
     }
 
@@ -613,7 +608,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             } catch (e: Exception) {
                 logger.safeInfo(e) { "Failed to stop peer server" }
             }
-
         }
         if (gateway != null) {
             try {
@@ -621,7 +615,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             } catch (e: Exception) {
                 logger.safeInfo(e) { "Failed to remove UPNP rule from gateway" }
             }
-
         }
         if (dumpPeersVersion != null) {
             val buf = StringBuilder()
@@ -684,7 +677,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         } catch (e: UnknownHostException) {
             return null
         }
-
     }
 
     override fun addPeer(address: String, announcedAddress: String?): Peer? {
@@ -728,6 +720,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             announcedAddresses.remove(peer.announcedAddress!!)
         }
         peers.remove(peer.peerAddress)
+        notifyListeners(peer, PeerService.Event.REMOVE)
     }
 
     override fun updateAddress(peer: Peer) {
@@ -764,7 +757,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                         } catch (e: ExecutionException) {
                             logger.safeDebug(e) { "Error in sendToSomePeers" }
                         }
-
                     }
                     expectedResponses.clear()
                 }

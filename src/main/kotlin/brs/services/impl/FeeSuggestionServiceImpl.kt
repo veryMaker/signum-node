@@ -71,6 +71,5 @@ class FeeSuggestionServiceImpl(private val dp: DependencyProvider, maxHistoryLen
             feeSuggestion = FeeSuggestion(cheapFee, standardFee, priorityFee)
         } catch (ignored: NullPointerException) { // Can happen if there are less than latestBlocks.length blocks in the blockchain
         }
-
     }
 }

@@ -21,7 +21,6 @@ import org.junit.Before
 import org.junit.Test
 
 class CancelAskOrderTest : AbstractTransactionTest() {
-
     private lateinit var t: CancelAskOrder
     private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService

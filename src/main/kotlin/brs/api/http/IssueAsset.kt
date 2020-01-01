@@ -13,8 +13,8 @@ import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.convert.emptyToNull
-import brs.util.string.isInAlphabet
 import brs.util.jetty.get
+import brs.util.string.isInAlphabet
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 
@@ -29,7 +29,6 @@ internal class IssueAsset internal constructor(private val dp: DependencyProvide
     QUANTITY_QNT_PARAMETER,
     DECIMALS_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         var name = request[NAME_PARAMETER].emptyToNull()
         val description = request[DESCRIPTION_PARAMETER].emptyToNull()
@@ -62,7 +61,6 @@ internal class IssueAsset internal constructor(private val dp: DependencyProvide
             } catch (e: NumberFormatException) {
                 return INCORRECT_DECIMALS
             }
-
         }
 
         val quantity = ParameterParser.getQuantity(request)

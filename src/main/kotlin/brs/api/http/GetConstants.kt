@@ -8,9 +8,7 @@ import brs.transaction.type.TransactionType
 import brs.util.convert.toUnsignedString
 import brs.util.json.toJsonArray
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -18,7 +16,6 @@ import javax.servlet.http.HttpServletRequest
  * TODO
  */
 internal class GetConstants(dp: DependencyProvider) : APIServlet.JsonRequestHandler(arrayOf(APITag.INFO)) {
-
     private val constants: JsonElement
 
     init {

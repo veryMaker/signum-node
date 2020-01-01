@@ -37,7 +37,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class UnconfirmedTransactionServiceTest {
-
     private lateinit var mockBlockChain: BlockchainServiceImpl
 
     private lateinit var accountStoreMock: AccountStore
@@ -51,7 +50,6 @@ class UnconfirmedTransactionServiceTest {
 
     @Before
     fun setUp() {
-
         val mockPropertyService = mockk<PropertyService>(relaxed = true)
         every { mockPropertyService.get(eq(Props.DB_MAX_ROLLBACK)) } returns 1440
         every { mockPropertyService.get(eq(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS)) } returns 8192
@@ -145,7 +143,6 @@ class UnconfirmedTransactionServiceTest {
     @DisplayName("When The amount of unconfirmed transactions exceeds max size, and adding another then the cache size stays the same")
     @Test
     fun numberOfUnconfirmedTransactionsOfSameSlotExceedsMaxSizeAddAnotherThenCacheSizeStaysMaxSize() {
-
         every { mockBlockChain.height } returns 20
 
         (1..8192).forEach { i ->
@@ -170,7 +167,6 @@ class UnconfirmedTransactionServiceTest {
     @DisplayName("When the amount of unconfirmed transactions exceeds max size, and adding another of a higher slot, the cache size stays the same, and a lower slot transaction gets removed")
     @Test
     fun numberOfUnconfirmedTransactionsOfSameSlotExceedsMaxSizeAddAnotherThenCacheSizeStaysMaxSizeAndLowerSlotTransactionGetsRemoved() {
-
         every { mockBlockChain.height } returns 20
 
         (1..8192).forEach { i ->
@@ -250,7 +246,6 @@ class UnconfirmedTransactionServiceTest {
     @DisplayName("When the maximum number of transactions with full hash reference is reached, following ones are ignored")
     @Test
     fun whenMaximumNumberOfTransactionsWithFullHashReferenceIsReachedFollowingOnesAreIgnored() {
-
         every { mockBlockChain.height } returns 20
 
         (1..414).forEach { i ->
@@ -266,7 +261,6 @@ class UnconfirmedTransactionServiceTest {
     @DisplayName("When the maximum number of transactions for a slot size is reached, following ones are ignored")
     @Test
     fun whenMaximumNumberOfTransactionsForSlotSizeIsReachedFollowingOnesAreIgnored() {
-
         every { mockBlockChain.height } returns 20
 
         (1..365).forEach { i ->

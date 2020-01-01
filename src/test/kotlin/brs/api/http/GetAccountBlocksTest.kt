@@ -23,7 +23,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAccountBlocksTest : AbstractUnitTest() {
-
     private lateinit var t: GetAccountBlocks
 
     private lateinit var blockchainServiceMock: BlockchainService

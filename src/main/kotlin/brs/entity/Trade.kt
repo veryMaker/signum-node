@@ -65,5 +65,4 @@ class Trade {
     override fun toString(): String {
         return "Trade asset: ${assetId.toUnsignedString()} ask: ${askOrderId.toUnsignedString()} bid: ${bidOrderId.toUnsignedString()} price: $pricePlanck quantity: $quantity height: $height"
     }
-
 }

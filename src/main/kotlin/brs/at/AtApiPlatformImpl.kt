@@ -58,7 +58,6 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         return if (tx.message != null) {
             1
         } else 0
-
     }
 
     override fun getAmountForTxInA(state: AtMachineState): Long {
@@ -77,7 +76,6 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         ) {
             tx.amountPlanck - state.minActivationAmount()
         } else 0
-
     }
 
     override fun getTimestampForTxInA(state: AtMachineState): Long {
@@ -189,7 +187,6 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         return if (!dp.fluxCapacitorService.getValue(FluxValues.AT_FIX_BLOCK_2, state.height)) {
             0
         } else state.getgBalance()
-
     }
 
     override fun getPreviousBalance(state: AtMachineState): Long {

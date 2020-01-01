@@ -7,7 +7,6 @@ import brs.services.DigitalGoodsStoreService
 
 class GetDgsGoodsHandler(private val digitalGoodsStoreService: DigitalGoodsStoreService) :
     GrpcApiHandler<BrsApi.GetDgsGoodsRequest, BrsApi.DgsGoods> {
-
     override fun handleRequest(request: BrsApi.GetDgsGoodsRequest): BrsApi.DgsGoods {
         val sellerId = request.seller
         val inStockOnly = request.inStockOnly

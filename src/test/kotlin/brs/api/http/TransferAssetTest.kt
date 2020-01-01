@@ -27,7 +27,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class TransferAssetTest : AbstractTransactionTest() {
-
     private lateinit var t: TransferAsset
     private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService

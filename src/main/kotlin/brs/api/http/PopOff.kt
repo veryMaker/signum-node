@@ -1,15 +1,15 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.Parameters.HEIGHT_PARAMETER
 import brs.api.http.common.Parameters.NUM_BLOCKS_PARAMETER
 import brs.api.http.common.ResultFields.BLOCKS_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_RESPONSE
-import brs.api.http.common.JSONData
 import brs.services.BlockService
 import brs.services.BlockchainProcessorService
 import brs.services.BlockchainService
-import com.google.gson.JsonArray
 import brs.util.jetty.get
+import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
@@ -22,9 +22,7 @@ internal class PopOff(
     private val blockchainService: BlockchainService,
     private val blockService: BlockService
 ) : APIServlet.JsonRequestHandler(arrayOf(APITag.DEBUG), NUM_BLOCKS_PARAMETER, HEIGHT_PARAMETER) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val response = JsonObject()
         var numBlocks = 0
         try {
@@ -65,5 +63,4 @@ internal class PopOff(
     override fun requirePost(): Boolean {
         return true
     }
-
 }

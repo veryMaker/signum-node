@@ -17,11 +17,8 @@ import javax.servlet.http.HttpServletRequest
 /**
  * TODO
  */
-internal class DGSQuantityChange internal constructor(private val dp: DependencyProvider) :
-    CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, DELTA_QUANTITY_PARAMETER) {
-
+internal class DGSQuantityChange internal constructor(private val dp: DependencyProvider) : CreateTransaction(dp, arrayOf(APITag.DGS, APITag.CREATE_TRANSACTION), GOODS_PARAMETER, DELTA_QUANTITY_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val account = dp.parameterService.getSenderAccount(request)
         val goods = dp.parameterService.getGoods(request)
         if (goods.isDelisted || goods.sellerId != account.id) {
@@ -42,7 +39,5 @@ internal class DGSQuantityChange internal constructor(private val dp: Dependency
 
         val attachment = Attachment.DigitalGoodsQuantityChange(dp, goods.id, deltaQuantity, dp.blockchainService.height)
         return createTransaction(request, account, attachment)
-
     }
-
 }

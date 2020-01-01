@@ -13,9 +13,9 @@ import brs.services.ParameterService
 import brs.util.convert.parseHexString
 import brs.util.convert.toHexString
 import brs.util.convert.toUtf8String
+import brs.util.jetty.get
 import brs.util.logging.safeDebug
 import burst.kit.entity.BurstEncryptedMessage
-import brs.util.jetty.get
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -33,7 +33,6 @@ internal class DecryptFrom internal constructor(private val parameterService: Pa
         DECRYPTED_MESSAGE_IS_TEXT_PARAMETER,
         SECRET_PHRASE_PARAMETER
     ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request)
         if (account.publicKey == null) {
@@ -56,7 +55,6 @@ internal class DecryptFrom internal constructor(private val parameterService: Pa
             logger.safeDebug { e.toString() }
             DECRYPTION_FAILED
         }
-
     }
 
     companion object {

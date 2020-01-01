@@ -1,11 +1,11 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.JSONResponses.MISSING_SECRET_PHRASE_OR_PUBLIC_KEY
 import brs.api.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
 import brs.api.http.common.ResultFields.ACCOUNT_RESPONSE
 import brs.api.http.common.ResultFields.PUBLIC_KEY_RESPONSE
-import brs.api.http.common.JSONData
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseHexString
 import brs.util.convert.publicKeyToId
@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest
 internal class GetAccountId :
     APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val accountId: Long
         val secretPhrase = request[SECRET_PHRASE_PARAMETER].emptyToNull()
         var publicKeyString = request[PUBLIC_KEY_PARAMETER].emptyToNull()
@@ -48,8 +47,6 @@ internal class GetAccountId :
     }
 
     companion object {
-
         internal val instance = GetAccountId()
     }
-
 }

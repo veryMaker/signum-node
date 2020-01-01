@@ -14,7 +14,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 class FluxCapacitorServiceImplTest {
-
     private lateinit var blockchainServiceMock: BlockchainService
     private lateinit var propertyServiceMock: PropertyService
 

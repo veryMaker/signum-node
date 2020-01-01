@@ -9,7 +9,6 @@ import brs.services.AssetExchangeService
 
 class GetOrderHandler(private val assetExchangeService: AssetExchangeService) :
     GrpcApiHandler<BrsApi.GetOrderRequest, BrsApi.Order> {
-
     override fun handleRequest(request: BrsApi.GetOrderRequest): BrsApi.Order {
         val order: Order = when (request.orderType) {
             BrsApi.AssetOrderType.ASK -> assetExchangeService.getAskOrder(request.orderId)

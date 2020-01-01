@@ -16,7 +16,6 @@ import org.jooq.SortField
 import org.slf4j.LoggerFactory
 
 internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
-
     override val accountAssetTable: VersionedEntityTable<Account.AccountAsset>
 
     override val rewardRecipientAssignmentTable: VersionedEntityTable<Account.RewardRecipientAssignment>
@@ -221,7 +220,6 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
         rewardRecipientAssignmentDbKeyFactory.newKey(record.get(REWARD_RECIP_ASSIGN.ACCOUNT_ID)))
 
     companion object {
-
         private val accountDbKeyFactory = object : SqlDbKey.LongKeyFactory<Account>(ACCOUNT.ID) {
             override fun newKey(entity: Account): SqlDbKey {
                 return entity.nxtKey as SqlDbKey

@@ -15,7 +15,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAccountPublicKeyTest {
-
     private lateinit var t: GetAccountPublicKey
 
     private lateinit var mockParameterService: ParameterService
@@ -56,5 +55,4 @@ class GetAccountPublicKeyTest {
             t.processRequest(request).asJsonObject["errorDescription"].asString
         )
     }
-
 }

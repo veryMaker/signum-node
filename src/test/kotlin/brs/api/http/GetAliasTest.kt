@@ -18,7 +18,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAliasTest {
-
     private lateinit var t: GetAlias
 
     private lateinit var mockParameterService: ParameterService
@@ -52,5 +51,4 @@ class GetAliasTest {
         assertEquals(mockOffer.pricePlanck.toString(), result.getMemberAsString(PRICE_PLANCK_RESPONSE))
         assertEquals(mockOffer.buyerId.toString(), result.getMemberAsString(BUYER_RESPONSE))
     }
-
 }

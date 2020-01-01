@@ -30,7 +30,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAssetsByIssuerTest : AbstractUnitTest() {
-
     private lateinit var t: GetAssetsByIssuer
 
     private lateinit var mockParameterService: ParameterService

@@ -18,7 +18,6 @@ import org.junit.Before
 import org.junit.Test
 
 class SubscriptionServiceImplTest : AbstractUnitTest() {
-
     private lateinit var t: SubscriptionServiceImpl
 
     private lateinit var mockSubscriptionStore: SubscriptionStore

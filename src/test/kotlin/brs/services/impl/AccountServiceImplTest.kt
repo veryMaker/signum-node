@@ -18,7 +18,6 @@ import org.junit.Before
 import org.junit.Test
 
 class AccountServiceImplTest {
-
     private lateinit var accountStoreMock: AccountStore
     private lateinit var accountTableMock: VersionedBatchEntityTable<Account>
     private lateinit var accountBurstKeyFactoryMock: LongKeyFactory<Account>
@@ -232,5 +231,4 @@ class AccountServiceImplTest {
 
         assertEquals(count.toLong(), t.count.toLong())
     }
-
 }

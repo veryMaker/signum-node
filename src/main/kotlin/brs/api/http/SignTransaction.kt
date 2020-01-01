@@ -18,8 +18,8 @@ import brs.util.BurstException
 import brs.util.convert.emptyToNull
 import brs.util.convert.toHexString
 import brs.util.crypto.Crypto
-import brs.util.logging.safeDebug
 import brs.util.jetty.get
+import brs.util.logging.safeDebug
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
@@ -38,7 +38,6 @@ internal class SignTransaction(
     SECRET_PHRASE_PARAMETER
 ) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val transactionBytes = request[UNSIGNED_TRANSACTION_BYTES_PARAMETER].emptyToNull()
         val transactionJSON = request[UNSIGNED_TRANSACTION_JSON_PARAMETER].emptyToNull()
         val transaction = parameterService.parseTransaction(transactionBytes, transactionJSON)
@@ -89,8 +88,6 @@ internal class SignTransaction(
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(SignTransaction::class.java)
     }
-
 }

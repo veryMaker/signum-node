@@ -4,12 +4,9 @@ import brs.entity.Prop
 
 interface PropertyService {
     /**
-     * TODO
+     * Get the value of the specified property, or the default value if it was not set
+     * @param prop The property to get the value of
+     * @return The value of [prop] or its default value if it is not set
      */
-    fun <T : Any> get(prop: Prop<T>): T = get(prop.name, prop.defaultValue)
-
-    /**
-     * TODO
-     */
-    fun <T : Any> get(propName: String, defaultValue: T): T
+    fun <T : Any> get(prop: Prop<T>): T
 }

@@ -10,7 +10,6 @@ import brs.objects.Constants
 import brs.transaction.appendix.Attachment
 import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -24,7 +23,6 @@ internal class SendMoneySubscription(private val dp: DependencyProvider) : Creat
     AMOUNT_PLANCK_PARAMETER,
     FREQUENCY_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)
         val recipient = ParameterParser.getRecipientId(request)

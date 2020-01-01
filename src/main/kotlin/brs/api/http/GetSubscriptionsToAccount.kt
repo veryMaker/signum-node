@@ -1,7 +1,7 @@
 package brs.api.http
 
-import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.JSONData
+import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.services.ParameterService
 import brs.services.SubscriptionService
 import com.google.gson.JsonArray
@@ -16,7 +16,6 @@ internal class GetSubscriptionsToAccount(
     private val parameterService: ParameterService,
     private val subscriptionService: SubscriptionService
 ) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request)
 

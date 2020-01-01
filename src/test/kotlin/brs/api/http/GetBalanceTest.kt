@@ -17,7 +17,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetBalanceTest {
-
     private lateinit var t: GetBalance
 
     private lateinit var parameterServiceMock: ParameterService

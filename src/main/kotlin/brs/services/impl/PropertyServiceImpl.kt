@@ -1,6 +1,7 @@
 package brs.services.impl
 
 import brs.Burst
+import brs.entity.Prop
 import brs.objects.Props
 import brs.services.PropertyService
 import brs.util.logging.LogMessageProducer
@@ -24,26 +25,26 @@ class PropertyServiceImpl(private val properties: Properties) : PropertyService 
     }
 
     // TODO caching
-    override operator fun <T : Any> get(propName: String, defaultValue: T): T {
-        val value = properties.getProperty(propName) ?: return defaultValue
+    override operator fun <T : Any> get(prop: Prop<T>): T {
+        val value = properties.getProperty(prop.name) ?: return prop.defaultValue
         try {
             parsers.forEach { (type, parser) ->
-                if (type.isInstance(defaultValue)) {
+                if (type.isInstance(prop.defaultValue)) {
                     val parsed = parser(value)
                     if (!type.isInstance(parsed)) {
-                        logger.safeInfo { "Property parser returned type ${parsed.javaClass}, was looking for type ${defaultValue.javaClass}, using default value $defaultValue" }
-                        return defaultValue
+                        logger.safeInfo { "Property parser returned type ${parsed.javaClass}, was looking for type ${prop.defaultValue.javaClass}, using default value ${prop.defaultValue}" }
+                        return prop.defaultValue
                     }
-                    logOnce(propName) { "$propName: $parsed" }
+                    logOnce(prop.name) { "${prop.name}: $parsed" }
                     @Suppress("UNCHECKED_CAST")
                     return parsed as T
                 }
             }
         } catch (e: Exception) {
-            logger.safeInfo { "Failed to parse property $propName, using default value $defaultValue" }
+            logger.safeInfo { "Failed to parse property ${prop.name}, using default value ${prop.defaultValue}" }
         }
 
-        return defaultValue
+        return prop.defaultValue
     }
 
     private fun getBoolean(value: String): Boolean {

@@ -10,7 +10,6 @@ import brs.transaction.type.TransactionType
 import com.google.protobuf.Empty
 
 class GetConstantsHandler(dp: DependencyProvider) : GrpcApiHandler<Empty, BrsApi.Constants> {
-
     private val constants: BrsApi.Constants
 
     init {

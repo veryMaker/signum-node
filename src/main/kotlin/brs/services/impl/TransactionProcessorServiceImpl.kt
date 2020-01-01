@@ -4,6 +4,7 @@ import brs.api.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
 import brs.db.transaction
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
+import brs.objects.Constants.MAX_TIMESTAMP_DIFFERENCE
 import brs.objects.FluxValues
 import brs.objects.Props
 import brs.peer.Peer
@@ -121,14 +122,14 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
         if (!transaction.verifySignature()) {
             throw BurstException.NotValidException("Transaction signature verification failed")
         }
-        val processedTransactions = processTransactions(setOf(transaction), null)
+        val processedTransactions = processTransactions(listOf(transaction), null)
         if (dp.transactionDb.hasTransaction(transaction.id)) {
-            logger.safeInfo { "Transaction ${transaction.stringId} already in blockchain, will not broadcast again" }
+            logger.safeDebug { "Transaction ${transaction.stringId} already in blockchain, will not broadcast again" }
             return null
         }
 
         if (dp.unconfirmedTransactionService.exists(transaction.id)) {
-            logger.safeInfo { "Transaction ${transaction.stringId} already in unconfirmed pool, will not broadcast again" }
+            logger.safeDebug { "Transaction ${transaction.stringId} already in unconfirmed pool, will not broadcast again" }
             return null
         }
 
@@ -196,7 +197,6 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                 logger.safeDebug { "Invalid transaction from peer: ${transactionData.toJsonString()}" }
                 throw e
             }
-
         }
         return processTransactions(transactions, peer)
     }
@@ -209,33 +209,22 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
         val addedUnconfirmedTransactions = mutableListOf<Transaction>()
 
         for (transaction in transactions) {
-
             try {
                 val curTime = dp.timeService.epochTime
-                if (transaction.timestamp > curTime + 15 || transaction.expiration < curTime
-                    || transaction.deadline > 1440
-                ) {
-                    continue
-                }
+                if (transaction.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE || transaction.expiration < curTime || transaction.deadline > 1440) continue
 
                 dp.db.transaction {
-                    if (dp.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionService.exists(
-                            transaction.id
-                        )
-                    ) {
-                        dp.unconfirmedTransactionService.markFingerPrintsOf(peer, listOf(transaction))
-                    } else if (!(transaction.verifySignature() && dp.transactionService.verifyPublicKey(transaction))) {
-                        if (dp.accountService.getAccount(transaction.senderId) != null) {
+                    when {
+                        dp.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionService.exists(transaction.id) ->
+                            dp.unconfirmedTransactionService.markFingerPrintsOf(peer, transaction)
+                        !transaction.verifySignature() || !dp.transactionService.verifyPublicKey(transaction) ->
                             logger.safeDebug { "Transaction ${transaction.toJsonObject().toJsonString()} failed to verify" }
-                        }
-                    } else if (dp.unconfirmedTransactionService.put(transaction, peer)) {
-                        addedUnconfirmedTransactions.add(transaction)
+                        dp.unconfirmedTransactionService.put(transaction, peer) -> addedUnconfirmedTransactions.add(transaction)
                     }
                 }
             } catch (e: Exception) {
                 logger.safeInfo(e) { "Error processing transaction" }
             }
-
         }
 
         if (addedUnconfirmedTransactions.isNotEmpty()) {

@@ -32,7 +32,6 @@ internal class AtMachineProcessor(
             return if (!validAddr(func.addr1, false) || !validAddr(func.addr2, false)) {
                 -1
             } else 0
-
         }
 
     private val addrOff: Int
@@ -46,7 +45,6 @@ internal class AtMachineProcessor(
             return if (!validAddr(func.addr1, false) || !validAddr(machineData.machineState.pc + func.off, true)) {
                 -1
             } else 0
-
         }
 
     private val addrsOff: Int
@@ -65,7 +63,6 @@ internal class AtMachineProcessor(
             ) {
                 -1
             } else 0
-
         }
 
     private val funAddr: Int
@@ -79,7 +76,6 @@ internal class AtMachineProcessor(
             return if (!validAddr(func.addr1, false)) {
                 -1
             } else 0
-
         }
 
     private val funAddrs: Int
@@ -95,7 +91,6 @@ internal class AtMachineProcessor(
             return if (!validAddr(func.addr3, false) || !validAddr(func.addr2, false)) {
                 -1
             } else 0
-
         }
 
     private val addressVal: Int
@@ -110,11 +105,9 @@ internal class AtMachineProcessor(
             return if (!validAddr(func.addr1, false)) {
                 -1
             } else 0
-
         }
 
     private fun getFun(): Int {
-
         if (machineData.machineState.pc + 2 >= machineData.cSize)
             return -1
         else {
@@ -133,7 +126,6 @@ internal class AtMachineProcessor(
         return if (!validAddr(func.addr1, isCode)) {
             -1
         } else 0
-
     }
 
     private fun validAddr(addr: Int, isCode: Boolean): Boolean {
@@ -144,7 +136,6 @@ internal class AtMachineProcessor(
         return if (!isCode && (addr.toLong() * 8 + 8 > Integer.MAX_VALUE.toLong() || addr * 8 + 8 > machineData.dSize)) {
             false
         } else !isCode || addr < machineData.cSize
-
     }
 
     fun processOp(disassemble: Boolean, determineJumps: Boolean): Int {
@@ -202,7 +193,6 @@ internal class AtMachineProcessor(
                         machineData.machineState.pc += rc
                         machineData.apData.putLong(func.addr1 * 8, machineData.apData.getLong(func.addr2 * 8)) // HERE
                         machineData.apData.clear()
-
                     }
                 }
             }
@@ -302,7 +292,6 @@ internal class AtMachineProcessor(
                                     machineData.apData.clear()
                                 }
                                 OpCodes.E_OP_CODE_DIV_DAT -> {
-
                                     val addData1 = machineData.apData.getLong(func.addr1 * 8)
                                     val addData2 = machineData.apData.getLong(func.addr2 * 8)
                                     machineData.apData.putLong(func.addr1 * 8, addData1 / addData2)
@@ -649,7 +638,6 @@ internal class AtMachineProcessor(
                             op == OpCodes.E_OP_CODE_BLE_DAT && val1 <= val2 ||
                             op == OpCodes.E_OP_CODE_BEQ_DAT && val1 == val2 ||
                             op == OpCodes.E_OP_CODE_BNE_DAT && val1 != val2) {
-
                             if (machineData.machineState.jumps.contains(machineData.machineState.pc + func.off))
                                 machineData.machineState.pc += func.off.toInt()
                             else
@@ -668,7 +656,6 @@ internal class AtMachineProcessor(
                     if (disassemble) {
                         if (!determineJumps)
                             logger.safeDebug { "SLP @ ${String.format("%8x", func.addr1)}" }
-
                     } else {
                         machineData.machineState.pc += rc
                         var numBlocks = machineData.apData.getLong(func.addr1 * 8).toInt()
@@ -746,7 +733,6 @@ internal class AtMachineProcessor(
                     machineData.machineState.stopped = true
                     machineData.setFreeze(true)
                 }
-
             }
             op == OpCodes.E_OP_CODE_SET_PCS -> {
                 rc = 1
@@ -816,7 +802,6 @@ internal class AtMachineProcessor(
                     if (disassemble) {
                         if (!determineJumps)
                             logger.safeDebug { "FUN @${String.format("%8x", func.addr1).replace(' ', '0')} ${func.func}" }
-
                     } else {
                         machineData.machineState.pc += rc
 

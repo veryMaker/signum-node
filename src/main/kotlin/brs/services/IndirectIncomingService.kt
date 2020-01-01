@@ -4,12 +4,12 @@ import brs.entity.Transaction
 
 interface IndirectIncomingService {
     /**
-     * TODO
+     * Process a transaction to determine if the transaction results in any indirect incoming payments.
      */
     fun processTransaction(transaction: Transaction)
 
     /**
-     * TODO
+     * @return Whether the account with ID [accountId] is indirectly receiving from this transaction
      */
     fun isIndirectlyReceiving(transaction: Transaction, accountId: Long): Boolean
 }

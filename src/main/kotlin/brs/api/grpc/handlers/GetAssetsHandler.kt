@@ -7,7 +7,6 @@ import brs.services.AssetExchangeService
 
 class GetAssetsHandler(private val assetExchangeService: AssetExchangeService) :
     GrpcApiHandler<BrsApi.GetAssetsRequest, BrsApi.Assets> {
-
     override fun handleRequest(request: BrsApi.GetAssetsRequest): BrsApi.Assets {
         val builder = BrsApi.Assets.newBuilder()
         request.assetList.forEach { assetId ->

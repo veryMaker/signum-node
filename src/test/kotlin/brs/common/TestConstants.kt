@@ -4,7 +4,6 @@ import brs.objects.Constants.ONE_BURST
 import brs.util.crypto.Crypto
 
 object TestConstants {
-
     const val TEST_ACCOUNT_ID = "BURST-D95D-67CQ-8VDN-5EVAR"
 
     const val TEST_ACCOUNT_NUMERIC_ID_PARSED = 4297397359864028267L

@@ -76,7 +76,6 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
             feedbackDbKeyFactory,
             dp
         ) {
-
             override fun load(ctx: DSLContext, record: Record): BurstEncryptedMessage {
                 val data = record.get(PURCHASE_FEEDBACK.FEEDBACK_DATA)
                 val nonce = record.get(PURCHASE_FEEDBACK.FEEDBACK_NONCE)
@@ -104,7 +103,6 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
             publicFeedbackDbKeyFactory,
             dp
         ) {
-
             override fun load(ctx: DSLContext, record: Record): String {
                 return record.get(PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK)
             }

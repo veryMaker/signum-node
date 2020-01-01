@@ -15,7 +15,6 @@ import org.junit.Before
 import org.junit.Test
 
 class FullResetTest {
-
     private lateinit var t: FullReset
 
     private lateinit var blockchainProcessorService: BlockchainProcessorService

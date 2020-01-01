@@ -18,7 +18,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAccountIdTest {
-
     private lateinit var t: GetAccountId
 
     @Before

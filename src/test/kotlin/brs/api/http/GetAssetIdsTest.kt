@@ -19,7 +19,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAssetIdsTest : AbstractUnitTest() {
-
     private lateinit var t: GetAssetIds
 
     private lateinit var mockAssetExchangeService: AssetExchangeService
@@ -59,5 +58,4 @@ class GetAssetIdsTest : AbstractUnitTest() {
         val resultAssetId = resultAssetIds.getElementAsString(0)
         assertEquals("5", resultAssetId)
     }
-
 }

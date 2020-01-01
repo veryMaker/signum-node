@@ -5,9 +5,6 @@ import java.awt.image.BufferedImage
 
 @Deprecated("Replace with DeeplinkGenerator")
 interface DeeplinkQRCodeGeneratorService {
-    /**
-     * TODO
-     */
     fun generateRequestBurstDeepLinkQRCode(
         receiverId: String,
         amountPlanck: Long,

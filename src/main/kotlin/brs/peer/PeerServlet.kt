@@ -61,7 +61,6 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
             resp.status = 500
             logger.safeWarn(e) { "Error handling peer request" }
         }
-
     }
 
     private fun process(request: HttpServletRequest, resp: HttpServletResponse) {
@@ -110,7 +109,6 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
                 logger.safeDebug { "Unsupported protocol ${jsonRequest.getMemberAsString(PROTOCOL)}" }
                 response = UNSUPPORTED_PROTOCOL
             }
-
         } catch (e: Exception) {
             logger.safeDebug(e) { "Error processing POST request" }
             val json = JsonObject()

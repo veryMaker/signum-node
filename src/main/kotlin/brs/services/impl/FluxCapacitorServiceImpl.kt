@@ -1,7 +1,6 @@
 package brs.services.impl
 
 import brs.entity.DependencyProvider
-import brs.entity.FluxEnable
 import brs.entity.FluxValue
 import brs.objects.HistoricalMoments
 import brs.objects.Props
@@ -9,7 +8,6 @@ import brs.services.FluxCapacitorService
 import java.util.concurrent.ConcurrentHashMap
 
 class FluxCapacitorServiceImpl(dp: DependencyProvider) : FluxCapacitorService {
-
     private val propertyService = dp.propertyService
     private val blockchain = dp.blockchainService
 
@@ -54,9 +52,5 @@ class FluxCapacitorServiceImpl(dp: DependencyProvider) : FluxCapacitorService {
             }
         }
         return mostRecentValue
-    }
-
-    override fun getStartingHeight(fluxEnable: FluxEnable): Int? {
-        return getHistoricalMomentHeight(fluxEnable.enablePoint)
     }
 }

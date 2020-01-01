@@ -23,7 +23,6 @@ import brs.objects.Constants.FEE_QUANT
 import brs.objects.Constants.ONE_BURST
 import brs.objects.FluxValues
 import brs.transaction.appendix.Attachment
-import brs.util.jetty.get
 import com.google.gson.JsonElement
 import javax.servlet.http.HttpServletRequest
 

@@ -1,5 +1,6 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.ResultFields.ACCOUNT_RESPONSE
 import brs.api.http.common.ResultFields.ASSET_BALANCES_RESPONSE
@@ -10,7 +11,6 @@ import brs.api.http.common.ResultFields.NAME_RESPONSE
 import brs.api.http.common.ResultFields.PUBLIC_KEY_RESPONSE
 import brs.api.http.common.ResultFields.UNCONFIRMED_ASSET_BALANCES_RESPONSE
 import brs.api.http.common.ResultFields.UNCONFIRMED_BALANCE_QUANTITY_RESPONSE
-import brs.api.http.common.JSONData
 import brs.services.AccountService
 import brs.services.ParameterService
 import brs.util.convert.toHexString
@@ -27,9 +27,7 @@ internal class GetAccount internal constructor(
     private val parameterService: ParameterService,
     private val accountService: AccountService
 ) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val account = parameterService.getAccount(request)
 
         val response = JSONData.accountBalance(account)

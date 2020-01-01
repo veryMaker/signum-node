@@ -2,9 +2,7 @@ package brs.api.http
 
 import brs.entity.DependencyProvider
 import brs.util.convert.toHexString
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -13,7 +11,6 @@ import javax.servlet.http.HttpServletRequest
  */
 internal class GetMiningInfo(private val dp: DependencyProvider) :
     APIServlet.JsonRequestHandler(arrayOf(APITag.MINING, APITag.INFO)) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val response = JsonObject()
 

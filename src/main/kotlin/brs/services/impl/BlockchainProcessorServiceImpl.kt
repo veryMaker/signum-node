@@ -10,6 +10,7 @@ import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.objects.Constants
 import brs.objects.Constants.FEE_QUANT
+import brs.objects.Constants.MAX_TIMESTAMP_DIFFERENCE
 import brs.objects.Constants.ONE_BURST
 import brs.objects.FluxValues
 import brs.objects.Genesis
@@ -231,7 +232,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 logger.safeTrace { "Bytes in cache: ${dp.downloadCacheService.blockCacheSize}" }
                 if (!saveInCache) {
                     /*
-                     * Since we cannot rely on peers reported cumulative difficulty we do
+                     * Since we cannot trust a peer's reported cumulative difficulty we do
                      * a final check to see that the CumulativeDifficulty actually is bigger
                      * before we do a popOff and switch chain.
                      */
@@ -484,7 +485,6 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         }
         logger.safeDebug { "Got ${nextBlocks.size()} blocks after ${curBlockId.toUnsignedString()} from ${peer.peerAddress}" }
         return nextBlocks
-
     }
 
     private fun processFork(peer: Peer, forkBlocks: List<Block>, forkBlockId: Long) {
@@ -516,7 +516,6 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                                 peer.blacklist(e, "during processing a fork")
                                 break
                             }
-
                         }
                     }
                 }
@@ -607,7 +606,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     }
 
     override fun popOffTo(height: Int): List<Block> {
-        return popOffTo(dp.blockchainService.getBlockAtHeight(height)!!)
+        return popOffTo(dp.blockchainService.getBlockAtHeight(height) ?: error("Could not find block at height $height"), logIt = true)
     }
 
     override fun fullReset() {
@@ -798,7 +797,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         }
     }
 
-    private fun popOffTo(commonBlock: Block): MutableList<Block> {
+    private fun popOffTo(commonBlock: Block, logIt: Boolean = false): MutableList<Block> {
         require(commonBlock.height >= minRollbackHeight) { "Rollback to height " + commonBlock.height + " not suppported, " + "current height " + dp.blockchainService.height }
         if (!dp.blockchainService.hasBlock(commonBlock.id)) {
             logger.safeDebug { "Block ${commonBlock.stringId} not found in blockchain, nothing to pop off" }
@@ -810,7 +809,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 try {
                     dp.db.transaction {
                         var block = dp.blockchainService.lastBlock
-                        logger.safeInfo { "Rollback from ${block.height} to ${commonBlock.height}" }
+                        if (logIt) logger.safeInfo { "Rollback from ${block.height} to ${commonBlock.height}" }
                         while (block.id != commonBlock.id && block.id != Genesis.BLOCK_ID) {
                             poppedOffBlocks.add(block)
                             block = popLastBlock()
@@ -974,7 +973,6 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 }
 
                 for ((slot, transaction) in transactionsToBeIncluded) {
-
                     if (blockSize <= 0 || payloadSize <= 0) {
                         break
                     } else if (transaction.size > payloadSize) {
@@ -1089,7 +1087,5 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
     companion object {
         private val logger = LoggerFactory.getLogger(BlockchainProcessorServiceImpl::class.java)
-
-        private const val MAX_TIMESTAMP_DIFFERENCE = 15
     }
 }

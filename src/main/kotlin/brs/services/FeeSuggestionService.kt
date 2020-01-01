@@ -4,7 +4,7 @@ import brs.entity.FeeSuggestion
 
 interface FeeSuggestionService {
     /**
-     * TODO
+     * @return A transaction fee suggestion based on recent blockchain activity
      */
     fun giveFeeSuggestion(): FeeSuggestion
 }

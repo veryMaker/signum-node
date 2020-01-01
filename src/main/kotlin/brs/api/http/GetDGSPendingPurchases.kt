@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest
  */
 internal class GetDGSPendingPurchases internal constructor(private val digitalGoodStoreService: DigitalGoodsStoreService) :
     APIServlet.JsonRequestHandler(arrayOf(APITag.DGS), SELLER_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sellerId = ParameterParser.getSellerId(request)
 
@@ -38,5 +37,4 @@ internal class GetDGSPendingPurchases internal constructor(private val digitalGo
         response.add(PURCHASES_RESPONSE, purchasesJSON)
         return response
     }
-
 }

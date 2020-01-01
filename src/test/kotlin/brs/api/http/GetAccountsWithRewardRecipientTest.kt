@@ -20,7 +20,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAccountsWithRewardRecipientTest : AbstractUnitTest() {
-
     private lateinit var parameterService: ParameterService
     private lateinit var accountService: AccountService
 

@@ -23,7 +23,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class DGSPriceChangeTest : AbstractTransactionTest() {
-
     private lateinit var t: DGSPriceChange
     private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService
@@ -105,5 +104,4 @@ class DGSPriceChangeTest : AbstractTransactionTest() {
 
         assertEquals(UNKNOWN_GOODS, t.processRequest(request))
     }
-
 }

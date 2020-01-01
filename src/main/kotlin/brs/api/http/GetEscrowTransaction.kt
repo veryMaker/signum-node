@@ -1,9 +1,9 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.Parameters.ESCROW_PARAMETER
 import brs.api.http.common.ResultFields.ERROR_CODE_RESPONSE
 import brs.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE
-import brs.api.http.common.JSONData
 import brs.services.EscrowService
 import brs.util.convert.parseUnsignedLong
 import brs.util.jetty.get

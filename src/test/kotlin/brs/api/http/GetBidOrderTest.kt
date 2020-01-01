@@ -17,7 +17,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetBidOrderTest {
-
     private lateinit var t: GetBidOrder
 
     private lateinit var mockAssetExchangeService: AssetExchangeService
@@ -53,5 +52,4 @@ class GetBidOrderTest {
 
         assertEquals(UNKNOWN_ORDER, t.processRequest(request))
     }
-
 }

@@ -8,7 +8,6 @@ import brs.services.BlockchainService
 
 class GetBlocksHandler(private val blockchainService: BlockchainService, private val blockService: BlockService) :
     GrpcApiHandler<BrsApi.GetBlocksRequest, BrsApi.Blocks> {
-
     override fun handleRequest(request: BrsApi.GetBlocksRequest): BrsApi.Blocks {
         val indexRange = ProtoBuilder.sanitizeIndexRange(request.indexRange)
         val firstIndex = indexRange.firstIndex

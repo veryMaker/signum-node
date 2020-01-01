@@ -35,7 +35,6 @@ internal class SendMoneyEscrow(private val dp: DependencyProvider) : CreateTrans
     REQUIRED_SIGNERS_PARAMETER,
     DEADLINE_ACTION_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val sender = dp.parameterService.getSenderAccount(request)
         val recipient = ParameterParser.getRecipientId(request)

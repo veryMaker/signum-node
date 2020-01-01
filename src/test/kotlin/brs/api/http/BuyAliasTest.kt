@@ -23,7 +23,6 @@ import org.junit.Before
 import org.junit.Test
 
 class BuyAliasTest : AbstractTransactionTest() {
-
     private lateinit var t: BuyAlias
     private lateinit var dp: DependencyProvider
     private lateinit var parameterServiceMock: ParameterService
@@ -80,5 +79,4 @@ class BuyAliasTest : AbstractTransactionTest() {
 
         assertEquals(INCORRECT_ALIAS_NOTFORSALE, t.processRequest(request))
     }
-
 }

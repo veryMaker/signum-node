@@ -5,10 +5,9 @@ import brs.api.http.common.Parameters.STATE_PARAMETER
 import brs.entity.DependencyProvider
 import brs.peer.Peer
 import brs.util.convert.emptyToNull
+import brs.util.jetty.get
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpServletRequest
 internal class GetPeers(private val dp: DependencyProvider) :
     APIServlet.JsonRequestHandler(arrayOf(APITag.INFO), ACTIVE_PARAMETER, STATE_PARAMETER) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val active = "true".equals(request[ACTIVE_PARAMETER], ignoreCase = true)
         val stateValue = request[STATE_PARAMETER].emptyToNull()
 

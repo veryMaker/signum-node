@@ -26,7 +26,6 @@ import org.junit.Before
 import org.junit.Test
 
 class DGSListingTest : AbstractTransactionTest() {
-
     private lateinit var t: DGSListing
     private lateinit var dp: DependencyProvider
     private lateinit var mockParameterService: ParameterService
@@ -126,5 +125,4 @@ class DGSListingTest : AbstractTransactionTest() {
 
         assertEquals(INCORRECT_DGS_LISTING_TAGS, t.processRequest(request))
     }
-
 }

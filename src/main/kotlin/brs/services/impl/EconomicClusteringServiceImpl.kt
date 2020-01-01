@@ -4,6 +4,7 @@ import brs.entity.Block
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.objects.Constants
+import brs.objects.Constants.MAX_TIMESTAMP_DIFFERENCE
 import brs.objects.FluxValues
 import brs.services.EconomicClusteringService
 import brs.util.json.toJsonString
@@ -27,7 +28,7 @@ import org.slf4j.LoggerFactory
 class EconomicClusteringServiceImpl(private val dp: DependencyProvider) : EconomicClusteringService {
     override fun getECBlock(timestamp: Int): Block {
         var block = dp.blockchainService.lastBlock
-        require(timestamp >= block.timestamp - 15) { "Timestamp cannot be more than 15s earlier than last block timestamp: Timestamp is $timestamp, last block timestamp is ${block.timestamp}" }
+        require(timestamp >= block.timestamp - MAX_TIMESTAMP_DIFFERENCE) { "Timestamp cannot be more than ${MAX_TIMESTAMP_DIFFERENCE}s earlier than last block timestamp: Timestamp is $timestamp, last block timestamp is ${block.timestamp}" }
         var distance = 0
         while (block.timestamp > timestamp - Constants.EC_RULE_TERMINATOR && distance < Constants.EC_BLOCK_DISTANCE_LIMIT) {
             block = dp.blockchainService.getBlock(block.previousBlockId) ?: error("Could not find previous block for finding EC block, missing ID is ${block.previousBlockId}")

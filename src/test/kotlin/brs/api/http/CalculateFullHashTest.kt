@@ -15,7 +15,6 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 class CalculateFullHashTest {
-
     private lateinit var t: CalculateFullHash
 
     @Before

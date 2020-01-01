@@ -17,7 +17,6 @@ import org.junit.Before
 import org.junit.Test
 
 class EscrowServiceImplTest {
-
     private lateinit var t: EscrowServiceImpl
 
     private lateinit var mockEscrowStore: EscrowStore

@@ -23,7 +23,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
-
     private lateinit var t: GetAccountCurrentAskOrderIds
 
     private lateinit var mockParameterService: ParameterService
@@ -106,5 +105,4 @@ class GetAccountCurrentAskOrderIdsTest : AbstractUnitTest() {
 
         assertEquals(mockAsk.id.toString(), resultList.getElementAsString(0))
     }
-
 }

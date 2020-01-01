@@ -16,9 +16,7 @@ import javax.servlet.http.HttpServletRequest
  */
 internal class GetBlockId(private val blockchainService: BlockchainService) :
     APIServlet.JsonRequestHandler(arrayOf(APITag.BLOCKS), HEIGHT_PARAMETER) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val height: Int
         try {
             val heightValue = request[HEIGHT_PARAMETER].emptyToNull() ?: return MISSING_HEIGHT
@@ -34,7 +32,5 @@ internal class GetBlockId(private val blockchainService: BlockchainService) :
         } catch (e: Exception) {
             INCORRECT_HEIGHT
         }
-
     }
-
 }

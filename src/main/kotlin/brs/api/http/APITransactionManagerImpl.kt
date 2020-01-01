@@ -107,7 +107,6 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
             } catch (e: Exception) {
                 throw ParameterException(INCORRECT_ARBITRARY_MESSAGE)
             }
-
         } else if (attachment is Attachment.ColoredCoinsAssetTransfer && dp.fluxCapacitorService.getValue(
                 FluxValues.DIGITAL_GOODS_STORE,
                 blockchainHeight
@@ -226,7 +225,6 @@ class APITransactionManagerImpl(private val dp: DependencyProvider) : APITransac
             }
             response.addProperty(UNSIGNED_TRANSACTION_BYTES_RESPONSE, transaction.toUnsignedBytes().toHexString())
             response.add(TRANSACTION_JSON_RESPONSE, JSONData.unconfirmedTransaction(transaction))
-
         } catch (e: BurstException.NotYetEnabledException) {
             return FEATURE_NOT_AVAILABLE
         } catch (e: BurstException.ValidationException) {

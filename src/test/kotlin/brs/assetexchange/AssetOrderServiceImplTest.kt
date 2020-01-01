@@ -18,7 +18,6 @@ import org.junit.Before
 import org.junit.Test
 
 class AssetOrderServiceImplTest {
-
     private lateinit var t: AssetOrderServiceImpl
 
     private lateinit var orderStoreMock: OrderStore

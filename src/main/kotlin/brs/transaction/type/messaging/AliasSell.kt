@@ -10,13 +10,11 @@ import brs.objects.Genesis
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.json.toJsonString
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 import java.util.*
 
 class AliasSell(dp: DependencyProvider) : Messaging(dp) {
-
     override val subtype = SUBTYPE_MESSAGING_ALIAS_SELL
 
     override val description = "Alias Sell"

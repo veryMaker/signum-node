@@ -1,7 +1,7 @@
 package brs.api.http
 
-import brs.api.http.common.Parameters.ASSET_PARAMETER
 import brs.api.http.common.JSONData
+import brs.api.http.common.Parameters.ASSET_PARAMETER
 import brs.services.AssetExchangeService
 import brs.services.ParameterService
 import com.google.gson.JsonElement

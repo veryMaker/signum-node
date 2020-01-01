@@ -28,7 +28,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAssetTransfersTest : AbstractUnitTest() {
-
     private lateinit var t: GetAssetTransfers
 
     private lateinit var mockParameterService: ParameterService

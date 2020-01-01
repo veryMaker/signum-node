@@ -13,7 +13,6 @@ import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertEquals
 
 class FeeSuggestionServiceImplTest : AbstractUnitTest() {
-
     private lateinit var t: FeeSuggestionServiceImpl
 
     private lateinit var blockchainProcessorServiceMock: BlockchainProcessorService

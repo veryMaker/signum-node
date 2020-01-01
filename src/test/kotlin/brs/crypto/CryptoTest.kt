@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets
 
 @RunWith(JUnit4::class)
 class CryptoTest {
-
     private fun stringToBytes(string: String): ByteArray {
         return string.toByteArray(StandardCharsets.UTF_8)
     }

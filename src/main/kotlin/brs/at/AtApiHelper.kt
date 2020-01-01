@@ -17,7 +17,6 @@ import java.security.MessageDigest
 import kotlin.experimental.and
 
 object AtApiHelper {
-
     private val burstCrypto = BurstCrypto.getInstance()
 
     fun longToHeight(x: Long): Int {

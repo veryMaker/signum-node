@@ -9,7 +9,6 @@ import brs.services.AssetExchangeService
 
 class GetAssetTradesHandler(private val assetExchangeService: AssetExchangeService) :
     GrpcApiHandler<BrsApi.GetAssetTransfersRequest, BrsApi.AssetTrades> {
-
     override fun handleRequest(request: BrsApi.GetAssetTransfersRequest): BrsApi.AssetTrades {
         val accountId = request.account
         val assetId = request.asset

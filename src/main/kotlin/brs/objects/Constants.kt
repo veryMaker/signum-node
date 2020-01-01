@@ -7,6 +7,8 @@ import brs.util.convert.parseHexString
 object Constants {
     val EMPTY_BYTE_ARRAY = ByteArray(0)
 
+    const val MAX_TIMESTAMP_DIFFERENCE = 15
+
     const val BURST_DIFF_ADJUST_CHANGE_BLOCK = 2700
 
     const val BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME = 4L

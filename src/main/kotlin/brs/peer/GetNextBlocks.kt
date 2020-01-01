@@ -10,9 +10,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 internal class GetNextBlocks(private val blockchainService: BlockchainService) : PeerServlet.PeerRequestHandler {
-
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
-
         val response = JsonObject()
 
         val nextBlocks = mutableListOf<Block>()
@@ -37,5 +35,4 @@ internal class GetNextBlocks(private val blockchainService: BlockchainService) :
 
         return response
     }
-
 }

@@ -26,7 +26,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAllOpenBidOrdersTest : AbstractUnitTest() {
-
     private lateinit var t: GetAllOpenBidOrders
 
     private lateinit var mockAssetExchangeService: AssetExchangeService

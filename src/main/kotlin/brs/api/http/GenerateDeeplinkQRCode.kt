@@ -38,7 +38,6 @@ internal class GenerateDeeplinkQRCode(private val deeplinkQRCodeGeneratorService
         FEE_SUGGESTION_TYPE_PARAMETER,
         MESSAGE_PARAMETER
     ) {
-
     private val logger = LoggerFactory.getLogger(GenerateDeeplinkQRCode::class.java)
 
     override fun processRequest(request: HttpServletRequest, resp: HttpServletResponse) {

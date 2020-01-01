@@ -1,8 +1,8 @@
 package brs.api.http
 
+import brs.api.http.common.JSONData
 import brs.api.http.common.Parameters.ACCOUNT_PARAMETER
 import brs.api.http.common.Parameters.ESCROWS_RESPONSE
-import brs.api.http.common.JSONData
 import brs.services.EscrowService
 import brs.services.ParameterService
 import com.google.gson.JsonArray
@@ -17,7 +17,6 @@ internal class GetAccountEscrowTransactions internal constructor(
     private val parameterService: ParameterService,
     private val escrowService: EscrowService
 ) : APIServlet.JsonRequestHandler(arrayOf(APITag.ACCOUNTS), ACCOUNT_PARAMETER) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val account = parameterService.getAccount(request)
 

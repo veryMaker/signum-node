@@ -11,7 +11,6 @@ import org.junit.Before
 import org.junit.Test
 
 class AssetTransferServiceImplTest {
-
     private lateinit var t: AssetTransferServiceImpl
 
     private lateinit var mockAssetTransferStore: AssetTransferStore

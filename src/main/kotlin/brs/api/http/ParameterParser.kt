@@ -100,7 +100,6 @@ internal object ParameterParser {
         } catch (e: Exception) {
             throw ParameterException(INCORRECT_ORDER)
         }
-
     }
 
     fun getGoodsQuantity(request: HttpServletRequest): Int {
@@ -125,7 +124,6 @@ internal object ParameterParser {
             } catch (e: Exception) {
                 throw ParameterException(INCORRECT_DGS_ENCRYPTED_GOODS)
             }
-
         }
         return null
     }
@@ -168,7 +166,6 @@ internal object ParameterParser {
         } catch (e: Exception) {
             throw ParameterException(INCORRECT_RECIPIENT)
         }
-
     }
 
     fun getBuyerId(request: HttpServletRequest): Long {
@@ -178,7 +175,6 @@ internal object ParameterParser {
         } catch (e: Exception) {
             throw ParameterException(INCORRECT_RECIPIENT)
         }
-
     }
 
     fun getFirstIndex(request: HttpServletRequest): Int {

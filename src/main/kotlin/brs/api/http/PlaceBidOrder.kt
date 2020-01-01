@@ -22,7 +22,6 @@ internal class PlaceBidOrder(private val dp: DependencyProvider) : CreateTransac
     PRICE_PLANCK_PARAMETER
 ) {
     override fun processRequest(request: HttpServletRequest): JsonElement {
-
         val asset = dp.parameterService.getAsset(request)
         val pricePlanck = ParameterParser.getPricePlanck(request)
         val quantity = ParameterParser.getQuantity(request)

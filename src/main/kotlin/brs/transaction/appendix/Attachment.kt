@@ -91,7 +91,6 @@ import kotlin.collections.set
 
 
 interface Attachment : Appendix {
-
     val transactionType: TransactionType
 
     abstract class AbstractAttachment : Appendix.AbstractAppendix,
@@ -286,7 +285,6 @@ interface Attachment : Appendix {
     }
 
     abstract class EmptyAttachment internal constructor(dp: DependencyProvider) : AbstractAttachment(dp, 0.toByte()) {
-
         override val mySize: Int
             get() = 0
 
@@ -335,7 +333,6 @@ interface Attachment : Appendix {
             buffer,
             transactionVersion
         ) {
-
             val numberOfRecipients = buffer.get().toUnsignedInt()
             val recipientOf = mutableMapOf<Long, Boolean>()
 
@@ -358,7 +355,6 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-
             val receipientsJson = attachmentData.mustGetMemberAsJsonArray(RECIPIENTS_PARAMETER)
             val recipientOf = mutableMapOf<Long, Boolean>()
 
@@ -453,7 +449,6 @@ interface Attachment : Appendix {
     }
 
     open class PaymentMultiSameOutCreation : AbstractAttachment {
-
         private val recipients = mutableListOf<Long>()
 
         override fun getAppendixName(): String = "MultiSameOutCreation"
@@ -477,7 +472,6 @@ interface Attachment : Appendix {
             buffer,
             transactionVersion
         ) {
-
             val numberOfRecipients = buffer.get().toUnsignedInt()
             val recipientOf = mutableMapOf<Long, Boolean>()
 
@@ -496,7 +490,6 @@ interface Attachment : Appendix {
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-
             val recipientsJson = attachmentData.mustGetMemberAsJsonArray(RECIPIENTS_PARAMETER)
             val recipientOf = mutableMapOf<Long, Boolean>()
 
@@ -519,7 +512,6 @@ interface Attachment : Appendix {
             dp,
             blockchainHeight
         ) {
-
             val recipientOf = mutableMapOf<Long, Boolean>()
             for (recipientId in recipients) {
                 if (recipientOf.containsKey(recipientId))
@@ -571,7 +563,6 @@ interface Attachment : Appendix {
     }
 
     class MessagingAliasAssignment : AbstractAttachment {
-
         val aliasName: String
         val aliasURI: String
 
@@ -638,7 +629,6 @@ interface Attachment : Appendix {
     }
 
     class MessagingAliasSell : AbstractAttachment {
-
         val aliasName: String
         val pricePlanck: Long
 
@@ -703,7 +693,6 @@ interface Attachment : Appendix {
     }
 
     class MessagingAliasBuy : AbstractAttachment {
-
         val aliasName: String
 
         override fun getAppendixName(): String = "AliasBuy"
@@ -757,7 +746,6 @@ interface Attachment : Appendix {
     }
 
     class MessagingAccountInfo : AbstractAttachment {
-
         val name: String
         val description: String
 
@@ -910,7 +898,6 @@ interface Attachment : Appendix {
     }
 
     class ColoredCoinsAssetTransfer : AbstractAttachment {
-
         val assetId: Long
         val quantity: Long
         val comment: String?
@@ -991,7 +978,6 @@ interface Attachment : Appendix {
     }
 
     abstract class ColoredCoinsOrderPlacement : AbstractAttachment {
-
         val assetId: Long
         val quantity: Long
         val pricePlanck: Long
@@ -1063,7 +1049,6 @@ interface Attachment : Appendix {
     }
 
     class ColoredCoinsAskOrderPlacement : ColoredCoinsOrderPlacement {
-
         override val type: BrsApi.AssetOrderType
             get() = BrsApi.AssetOrderType.ASK
 
@@ -1097,7 +1082,6 @@ interface Attachment : Appendix {
     }
 
     class ColoredCoinsBidOrderPlacement : ColoredCoinsOrderPlacement {
-
         override val type: BrsApi.AssetOrderType
             get() = BrsApi.AssetOrderType.BID
 
@@ -1128,11 +1112,9 @@ interface Attachment : Appendix {
         ) {
             require(attachment.type == type) { "Type does not match" }
         }
-
     }
 
     abstract class ColoredCoinsOrderCancellation : AbstractAttachment {
-
         val orderId: Long
 
         override val mySize: Int
@@ -1182,7 +1164,6 @@ interface Attachment : Appendix {
     }
 
     class ColoredCoinsAskOrderCancellation : ColoredCoinsOrderCancellation {
-
         override val type: BrsApi.AssetOrderType
             get() = BrsApi.AssetOrderType.ASK
 
@@ -1210,11 +1191,9 @@ interface Attachment : Appendix {
         ) {
             require(attachment.type == type) { "Type does not match" }
         }
-
     }
 
     class ColoredCoinsBidOrderCancellation : ColoredCoinsOrderCancellation {
-
         override val type: BrsApi.AssetOrderType
             get() = BrsApi.AssetOrderType.BID
 
@@ -1242,11 +1221,9 @@ interface Attachment : Appendix {
         ) {
             require(attachment.type == type) { "Type does not match" }
         }
-
     }
 
     class DigitalGoodsListing : AbstractAttachment {
-
         val name: String?
         val description: String?
         val tags: String?
@@ -1345,7 +1322,6 @@ interface Attachment : Appendix {
     }
 
     class DigitalGoodsDelisting : AbstractAttachment {
-
         val goodsId: Long
 
         override fun getAppendixName(): String = "DigitalGoodsDelisting"
@@ -1397,7 +1373,6 @@ interface Attachment : Appendix {
     }
 
     class DigitalGoodsPriceChange : AbstractAttachment {
-
         val goodsId: Long
         val pricePlanck: Long
 
@@ -1460,7 +1435,6 @@ interface Attachment : Appendix {
     }
 
     class DigitalGoodsQuantityChange : AbstractAttachment {
-
         val goodsId: Long
         val deltaQuantity: Int
 
@@ -1523,7 +1497,6 @@ interface Attachment : Appendix {
     }
 
     class DigitalGoodsPurchase : AbstractAttachment {
-
         val goodsId: Long
         val quantity: Int
         val pricePlanck: Long
@@ -1606,7 +1579,6 @@ interface Attachment : Appendix {
     }
 
     class DigitalGoodsDelivery : AbstractAttachment {
-
         val purchaseId: Long
         val goods: BurstEncryptedMessage
         val discountPlanck: Long
@@ -1693,7 +1665,6 @@ interface Attachment : Appendix {
     }
 
     class DigitalGoodsFeedback : AbstractAttachment {
-
         val purchaseId: Long
 
         override fun getAppendixName(): String = "DigitalGoodsFeedback"
@@ -1745,7 +1716,6 @@ interface Attachment : Appendix {
     }
 
     class DigitalGoodsRefund : AbstractAttachment {
-
         val purchaseId: Long
         val refundPlanck: Long
 
@@ -1856,7 +1826,6 @@ interface Attachment : Appendix {
     }
 
     class BurstMiningRewardRecipientAssignment : AbstractAttachment {
-
         override fun getAppendixName(): String = "RewardRecipientAssignment"
 
         override val mySize: Int
@@ -1900,7 +1869,6 @@ interface Attachment : Appendix {
     }
 
     class AdvancedPaymentEscrowCreation : AbstractAttachment {
-
         val amountPlanck: Long
         private val requiredSigners: Byte
         private val signers = TreeSet<Long>()
@@ -2114,7 +2082,6 @@ interface Attachment : Appendix {
     }
 
     class AdvancedPaymentEscrowResult : AbstractAttachment {
-
         private val escrowId: Long
         private val decision: Escrow.DecisionType
 
@@ -2179,7 +2146,6 @@ interface Attachment : Appendix {
     }
 
     class AdvancedPaymentSubscriptionSubscribe : AbstractAttachment {
-
         val frequency: Int
 
         override fun getAppendixName(): String = "SubscriptionSubscribe"
@@ -2234,7 +2200,6 @@ interface Attachment : Appendix {
     }
 
     class AdvancedPaymentSubscriptionCancel : AbstractAttachment {
-
         val subscriptionId: Long
 
         override fun getAppendixName(): String = "SubscriptionCancel"
@@ -2372,7 +2337,6 @@ interface Attachment : Appendix {
             dp: DependencyProvider, buffer: ByteBuffer,
             transactionVersion: Byte
         ) : super(dp, buffer, transactionVersion) {
-
             this.name = buffer.readString(buffer.get().toInt(), Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH)
             this.description = buffer.readString(
                 buffer.short.toInt(),
@@ -2488,7 +2452,6 @@ interface Attachment : Appendix {
 
     // the message payload is in the Appendix
     class ArbitraryMessage(dp: DependencyProvider) : EmptyAttachment(dp) {
-
         override val protobufMessage: Any = Any.pack(BrsApi.ArbitraryMessageAttachment.getDefaultInstance())
 
         override fun getAppendixName() = "ArbitraryMessage"

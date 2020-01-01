@@ -18,7 +18,6 @@ import org.junit.Before
 import org.junit.Test
 
 class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
-
     private lateinit var blockchainService: BlockchainService
 
     private lateinit var mockAccountService: AccountService
@@ -155,5 +154,4 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
 
         assertEquals(mockPurchaseIterator, t.getPendingSellerPurchases(sellerId, from, to))
     }
-
 }

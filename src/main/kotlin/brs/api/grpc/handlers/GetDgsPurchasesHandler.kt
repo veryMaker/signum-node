@@ -9,7 +9,6 @@ import brs.util.misc.filterWithLimits
 
 class GetDgsPurchasesHandler(private val digitalGoodsStoreService: DigitalGoodsStoreService) :
     GrpcApiHandler<BrsApi.GetDgsPurchasesRequest, BrsApi.DgsPurchases> {
-
     override fun handleRequest(request: BrsApi.GetDgsPurchasesRequest): BrsApi.DgsPurchases {
         val sellerId = request.seller
         val buyerId = request.buyer

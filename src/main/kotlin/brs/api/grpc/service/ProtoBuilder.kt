@@ -390,7 +390,6 @@ object ProtoBuilder {
                 } catch (e: InvalidProtocolBufferException) {
                     throw ApiException("Failed to unpack Any: " + e.message)
                 }
-
             }
             return transactionBuilder.build()
         } catch (e: BurstException.NotValidException) {

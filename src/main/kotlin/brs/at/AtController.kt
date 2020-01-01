@@ -34,7 +34,6 @@ class AtController(private val dp: DependencyProvider) {
         var numSteps = getNumSteps(state.apCode.get(state.machineState.pc), state.creationBlockHeight)
 
         while (state.machineState.steps + numSteps <= dp.atConstants[state.height].maxSteps) {
-
             if (state.getgBalance() < stepFee * numSteps) {
                 debugLogger.safeDebug { "stopped - not enough balance" }
                 state.setFreeze(true)
@@ -86,7 +85,6 @@ class AtController(private val dp: DependencyProvider) {
     }
 
     private fun listCode(state: AtMachineState, disassembly: Boolean, determineJumps: Boolean) {
-
         val machineProcessor = AtMachineProcessor(dp, state, dp.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
 
         val opc = state.machineState.pc
@@ -99,7 +97,6 @@ class AtController(private val dp: DependencyProvider) {
         state.machineState.opc = opc
 
         while (true) {
-
             val rc = machineProcessor.processOp(disassembly, determineJumps)
             if (rc <= 0) break
 
@@ -316,7 +313,6 @@ class AtController(private val dp: DependencyProvider) {
             } catch (e: Exception) {
                 throw AtException("ATs error. Block rejected", e)
             }
-
         }
 
         for (at in processedATs) {

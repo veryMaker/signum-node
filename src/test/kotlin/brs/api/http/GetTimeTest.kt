@@ -12,7 +12,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetTimeTest {
-
     private lateinit var t: GetTime
 
     private lateinit var mockTimeService: TimeService
@@ -36,5 +35,4 @@ class GetTimeTest {
 
         assertEquals(currentEpochTime.toLong(), result.getMemberAsLong(TIME_RESPONSE))
     }
-
 }

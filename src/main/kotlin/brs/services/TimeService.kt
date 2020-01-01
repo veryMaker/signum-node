@@ -2,7 +2,7 @@ package brs.services
 
 interface TimeService {
     /**
-     * TODO
+     * The current time, in number of seconds since Burst Epoch
      */
     val epochTime: Int
 }

@@ -26,7 +26,6 @@ internal interface SqlDbKey : BurstKey {
         arrayOf(idColumn.name),
         " a." + idColumn.name + " = b." + idColumn.name + " "
     ), BurstKey.LongKeyFactory<T> {
-
         override fun newKey(record: Record): BurstKey {
             val result = record.get(idColumn)
             return LongKey(result!!, idColumn.name)
@@ -78,7 +77,6 @@ internal interface SqlDbKey : BurstKey {
     }
 
     class LongKey internal constructor(private val id: Long, private val idColumn: String) : SqlDbKey {
-
         override val pkValues: LongArray
             get() = longArrayOf(id)
 
@@ -93,7 +91,6 @@ internal interface SqlDbKey : BurstKey {
         override fun getPKConditions(tableClass: Table<*>): Collection<Condition> {
             return listOf(tableClass.field(idColumn, Long::class.java).eq(id))
         }
-
     }
 
     class LinkKey internal constructor(
@@ -102,7 +99,6 @@ internal interface SqlDbKey : BurstKey {
         private val idColumnA: String,
         private val idColumnB: String
     ) : SqlDbKey {
-
         override val pkValues: LongArray
             get() = longArrayOf(idA, idB)
 

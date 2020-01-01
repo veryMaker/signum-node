@@ -20,7 +20,6 @@ import org.junit.Before
 import org.junit.Test
 
 class AliasServiceImplTest : AbstractUnitTest() {
-
     private lateinit var t: AliasServiceImpl
 
     private lateinit var aliasStoreMock: AliasStore

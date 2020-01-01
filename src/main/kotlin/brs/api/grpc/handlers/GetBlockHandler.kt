@@ -10,7 +10,6 @@ import brs.services.BlockchainService
 
 class GetBlockHandler(private val blockchainService: BlockchainService, private val blockService: BlockService) :
     GrpcApiHandler<BrsApi.GetBlockRequest, BrsApi.Block> {
-
     override fun handleRequest(request: BrsApi.GetBlockRequest): BrsApi.Block {
         val blockId = request.blockId
         val blockHeight = request.height
@@ -24,7 +23,6 @@ class GetBlockHandler(private val blockchainService: BlockchainService, private 
                 } catch (e: Exception) {
                     throw ApiException("Incorrect Block ID")
                 }
-
             }
             blockHeight > 0 -> {
                 try {
@@ -35,7 +33,6 @@ class GetBlockHandler(private val blockchainService: BlockchainService, private 
                 } catch (e: Exception) {
                     throw ApiException("Incorrect Block Height")
                 }
-
             }
             timestamp > 0 -> {
                 try {
@@ -43,7 +40,6 @@ class GetBlockHandler(private val blockchainService: BlockchainService, private 
                 } catch (e: Exception) {
                     throw ApiException("Incorrect Timestamp")
                 }
-
             }
             else -> {
                 block = blockchainService.lastBlock

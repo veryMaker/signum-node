@@ -8,7 +8,6 @@ import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.convert.toUnsignedString
 import brs.util.logging.safeTrace
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

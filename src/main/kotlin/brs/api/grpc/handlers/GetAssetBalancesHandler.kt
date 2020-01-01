@@ -8,7 +8,6 @@ import brs.services.AssetExchangeService
 
 class GetAssetBalancesHandler(private val assetExchangeService: AssetExchangeService) :
     GrpcApiHandler<BrsApi.GetAssetBalancesRequest, BrsApi.AssetBalances> {
-
     override fun handleRequest(request: BrsApi.GetAssetBalancesRequest): BrsApi.AssetBalances {
         val assetId = request.asset
         val indexRange = ProtoBuilder.sanitizeIndexRange(request.indexRange)

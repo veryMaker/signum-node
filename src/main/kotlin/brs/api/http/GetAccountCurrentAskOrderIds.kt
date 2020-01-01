@@ -10,10 +10,9 @@ import brs.services.AssetExchangeService
 import brs.services.ParameterService
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
+import brs.util.jetty.get
 import com.google.gson.JsonArray
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -30,7 +29,6 @@ internal class GetAccountCurrentAskOrderIds internal constructor(
     FIRST_INDEX_PARAMETER,
     LAST_INDEX_PARAMETER
 ) {
-
     override fun processRequest(request: HttpServletRequest): JsonElement {
         val accountId = parameterService.getAccount(request).id
         var assetId: Long = 0
@@ -57,5 +55,4 @@ internal class GetAccountCurrentAskOrderIds internal constructor(
         response.add(ASK_ORDER_IDS_RESPONSE, orderIds)
         return response
     }
-
 }

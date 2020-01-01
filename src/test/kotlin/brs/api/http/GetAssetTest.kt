@@ -26,7 +26,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetAssetTest : AbstractUnitTest() {
-
     private lateinit var parameterServiceMock: ParameterService
     private lateinit var mockAssetExchangeService: AssetExchangeService
 

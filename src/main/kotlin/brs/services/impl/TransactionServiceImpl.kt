@@ -6,12 +6,9 @@ import brs.services.TransactionService
 import brs.util.BurstException
 
 class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionService {
-
     override fun verifyPublicKey(transaction: Transaction): Boolean {
         val account = dp.accountService.getAccount(transaction.senderId) ?: return false
-        return if (transaction.signature == null) {
-            false
-        } else dp.accountStore.setOrVerify(account, transaction.senderPublicKey, transaction.height)
+        return transaction.signature != null && dp.accountStore.setOrVerify(account, transaction.senderPublicKey, transaction.height)
     }
 
     override fun validate(transaction: Transaction, preValidate: Boolean) {
@@ -32,8 +29,8 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
     }
 
     override fun applyUnconfirmed(transaction: Transaction): Boolean {
-        val senderAccount = dp.accountService.getAccount(transaction.senderId)
-        return senderAccount != null && transaction.type.applyUnconfirmed(transaction, senderAccount)
+        val senderAccount = dp.accountService.getAccount(transaction.senderId) ?: return false
+        return transaction.type.applyUnconfirmed(transaction, senderAccount)
     }
 
     override fun apply(transaction: Transaction) {
@@ -49,5 +46,4 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
         val senderAccount = dp.accountService.getAccount(transaction.senderId)!!
         transaction.type.undoUnconfirmed(transaction, senderAccount)
     }
-
 }

@@ -8,7 +8,6 @@ import brs.objects.Constants
 import brs.objects.Props
 import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import javax.servlet.http.HttpServletRequest
 
@@ -53,7 +52,7 @@ internal class GetState(private val dp: DependencyProvider) :
             response.addProperty("numberOfAliases", dp.aliasService.getAliasCount())
         }
         response.addProperty("numberOfPeers", dp.peerService.allPeers.size)
-        response.addProperty("numberOfUnlockedAccounts", dp.generatorService.allGenerators.size)
+        response.addProperty("numberOfUnlockedAccounts", dp.generatorService.numberOfGenerators)
         response.addProperty(
             "lastBlockchainFeeder",
             dp.blockchainProcessorService.lastBlockchainFeeder?.announcedAddress

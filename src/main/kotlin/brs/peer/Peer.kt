@@ -2,13 +2,10 @@ package brs.peer
 
 import brs.api.grpc.proto.BrsApi
 import brs.util.Version
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 interface Peer : Comparable<Peer> {
-
     val peerAddress: String
 
     var announcedAddress: String?

@@ -176,7 +176,6 @@ internal class PeerImpl(
 
     override fun remove() {
         dp.peerService.removePeer(this)
-        dp.peerService.notifyListeners(this, PeerService.Event.REMOVE)
     }
 
     override fun send(request: JsonElement): JsonObject? {

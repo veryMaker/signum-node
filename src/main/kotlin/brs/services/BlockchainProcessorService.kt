@@ -6,7 +6,6 @@ import brs.peer.Peer
 import brs.util.BurstException
 import brs.util.Observable
 import brs.util.json.toJsonString
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 interface BlockchainProcessorService : Observable<Block, BlockchainProcessorService.Event> {
@@ -32,7 +31,6 @@ interface BlockchainProcessorService : Observable<Block, BlockchainProcessorServ
         BLOCK_PUSHED,
         BLOCK_POPPED,
         BLOCK_GENERATED, BLOCK_SCANNED,
-        RESCAN_BEGIN,
         BEFORE_BLOCK_ACCEPT,
         BEFORE_BLOCK_APPLY,
         AFTER_BLOCK_APPLY

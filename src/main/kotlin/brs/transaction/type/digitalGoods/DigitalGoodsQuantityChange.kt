@@ -9,7 +9,6 @@ import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.convert.toUnsignedString
 import brs.util.json.toJsonString
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import java.nio.ByteBuffer
 

@@ -6,9 +6,9 @@ import java.math.BigInteger
 
 interface GeneratorService : Observable<GeneratorService.GeneratorState, GeneratorService.Event> {
     /**
-     * TODO
+     * The number of potential PoC solutions that are waiting for their deadline to elapse.
      */
-    val allGenerators: Collection<GeneratorState>
+    val numberOfGenerators: Int
 
     /**
      * TODO

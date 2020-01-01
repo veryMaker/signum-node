@@ -10,7 +10,6 @@ import org.junit.Before
 import org.junit.Test
 
 class ATServiceImplTest {
-
     private lateinit var t: ATServiceImpl
 
     private lateinit var mockATStore: ATStore
@@ -52,5 +51,4 @@ class ATServiceImplTest {
 
         assertEquals(mockAT, t.getAT(atId))
     }
-
 }

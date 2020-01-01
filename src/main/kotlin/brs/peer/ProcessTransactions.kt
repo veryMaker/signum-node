@@ -2,9 +2,7 @@ package brs.peer
 
 import brs.services.TransactionProcessorService
 import brs.util.BurstException
-import brs.util.jetty.get
 import com.google.gson.JsonElement
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 
 internal class ProcessTransactions(private val transactionProcessorService: TransactionProcessorService) :

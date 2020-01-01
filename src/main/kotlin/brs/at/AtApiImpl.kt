@@ -71,7 +71,6 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     override fun setA3A4(val1: Long, val2: Long, state: AtMachineState) {
         AtApiHelper.getByteArray(val1, state.a3)
         AtApiHelper.getByteArray(val2, state.a4)
-
     }
 
     override fun setB1(value: Long, state: AtMachineState) {
