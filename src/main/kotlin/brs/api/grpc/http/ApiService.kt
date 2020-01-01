@@ -18,8 +18,7 @@ class ApiService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
     private val handlers: Map<KClass<out GrpcApiHandler<out Message, out Message>>, GrpcApiHandler<out Message, out Message>>
 
     init { // TODO each handler should only take the dp
-        val handlerMap =
-            mutableMapOf<KClass<out GrpcApiHandler<out Message, out Message>>, GrpcApiHandler<out Message, out Message>>()
+        val handlerMap = mutableMapOf<KClass<out GrpcApiHandler<out Message, out Message>>, GrpcApiHandler<out Message, out Message>>()
         handlerMap[BroadcastTransactionHandler::class] = BroadcastTransactionHandler(dp)
         handlerMap[BroadcastTransactionBytesHandler::class] = BroadcastTransactionBytesHandler(dp)
         handlerMap[CompleteBasicTransactionHandler::class] = CompleteBasicTransactionHandler(dp)
@@ -82,7 +81,7 @@ class ApiService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
         if (handler is H) {
             handler.handleRequest(request, response)
         } else {
-            response.onError(ProtoBuilder.buildError(HandlerNotFoundException("H not registered: ${H::class}")))
+            response.onError(ProtoBuilder.buildError(GrpcApiHandler.HandlerNotFoundException("H not registered: ${H::class}")))
         }
     }
 
@@ -338,6 +337,4 @@ class ApiService(dp: DependencyProvider) : BrsApiServiceGrpc.BrsApiServiceImplBa
     ) {
         handleRequest(GetSubscriptionsToAccountHandler::class, request, responseObserver)
     }
-
-    private inner class HandlerNotFoundException(message: String) : Exception(message)
 }

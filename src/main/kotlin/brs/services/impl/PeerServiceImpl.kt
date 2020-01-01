@@ -48,7 +48,6 @@ import java.util.*
 import java.util.concurrent.*
 import javax.xml.parsers.ParserConfigurationException
 
-// TODO what about next-gen P2P network?
 class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     override val communicationLoggingMask: Int
 
@@ -751,7 +750,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                     for (expectedResponse in expectedResponses) {
                         try {
                             val response = expectedResponse.get()
-                            if (response != null && response.get("error") == null) {
+                            if (response != null && response.getMemberAsBoolean("accepted") ?: continue) {
                                 successful += 1
                             }
                         } catch (e: ExecutionException) {

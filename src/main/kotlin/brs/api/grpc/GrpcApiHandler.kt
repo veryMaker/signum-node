@@ -17,4 +17,6 @@ interface GrpcApiHandler<R : Message, S : Message> {
             responseObserver.onError(ProtoBuilder.buildError(e))
         }
     }
+
+    class HandlerNotFoundException(message: String) : Exception(message)
 }
