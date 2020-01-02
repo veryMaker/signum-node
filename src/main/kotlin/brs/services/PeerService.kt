@@ -4,7 +4,6 @@ import brs.entity.Block
 import brs.entity.Transaction
 import brs.peer.Peer
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 
 interface PeerService {
     /**
@@ -60,16 +59,7 @@ interface PeerService {
     /**
      * TODO
      */
-    fun readUnconfirmedTransactions(peer: Peer): JsonObject?
-
-    /**
-     * TODO
-     */
-    fun feedingTime(
-        peer: Peer,
-        foodDispenser: (Peer) -> Collection<Transaction>,
-        doneFeedingLog: (Peer, Collection<Transaction>) -> Unit
-    )
+    fun feedingTime(peer: Peer, foodDispenser: (Peer) -> Collection<Transaction>, doneFeedingLog: (Peer, Collection<Transaction>) -> Unit)
 
     /**
      * TODO

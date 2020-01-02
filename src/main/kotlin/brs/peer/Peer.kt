@@ -1,9 +1,11 @@
 package brs.peer
 
 import brs.api.grpc.proto.BrsApi
+import brs.entity.Block
+import brs.entity.PeerInfo
+import brs.entity.Transaction
 import brs.util.Version
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
+import java.math.BigInteger
 
 interface Peer : Comparable<Peer> {
     val peerAddress: String
@@ -12,7 +14,7 @@ interface Peer : Comparable<Peer> {
 
     var state: State
 
-    val version: Version
+    var version: Version
 
     var application: String
 
@@ -56,9 +58,81 @@ interface Peer : Comparable<Peer> {
 
     fun updateDownloadedVolume(volume: Long)
 
-    fun send(request: JsonElement): JsonObject?
+    /**
+     * Send the peer our [PeerInfo] and returns theirs
+     * @throws Exception if unsuccessful
+     */
+    fun exchangeInfo(): PeerInfo
 
-    fun setVersion(version: String?)
+    /**
+     * Get the peer's cumulative difficulty and current blockchain height
+     * @return A pair with first value of the Cumulative Difficulty and second value of the Blockchain Height
+     * @throws Exception if unsuccessful
+     */
+    fun getCumulativeDifficulty(): Pair<BigInteger, Int>
+
+    /**
+     * Get any unconfirmed transactions the peer has for us
+     * @return A list of unconfirmed transactions
+     * @throws Exception if unsuccessful
+     */
+    fun getUnconfirmedTransactions(): Collection<Transaction>
+
+    /**
+     * TODO improve doc
+     * Get milestone block IDs from a peer since the last block ID in the download cache
+     * @return A pair with first value of the milestone block IDs and second value being whether this is the last block ID
+     * @throws Exception if unsuccessful
+     */
+    fun getMilestoneBlockIds(): Pair<Collection<Long>, Boolean>
+
+    /**
+     * TODO improve doc
+     * Get milestone block IDs from a peer since [lastMilestoneBlockId]
+     * @return A pair with first value of the milestone block IDs and second value being whether this is the last block ID
+     * @throws Exception if unsuccessful
+     */
+    fun getMilestoneBlockIds(lastMilestoneBlockId: Long): Pair<Collection<Long>, Boolean>
+
+    /**
+     * Sends the unconfirmed transactions to the peer.
+     * limited to the first [brs.objects.Constants.MAX_PEER_RECEIVED_BLOCKS] that the peer returns.
+     * @throws Exception if unsuccessful
+     */
+    fun sendUnconfirmedTransactions(transactions: Collection<Transaction>)
+
+    /**
+     * Gets the blocks after [lastBlockId] from the peer,
+     * limited to the first [brs.objects.Constants.MAX_PEER_RECEIVED_BLOCKS] that the peer returns.
+     * @throws Exception if unsuccessful
+     */
+    fun getNextBlocks(lastBlockId: Long): Collection<Block>
+
+    /**
+     * Gets the block IDs after [lastBlockId] from the peer
+     * @throws Exception if unsuccessful
+     */
+    fun getNextBlockIds(lastBlockId: Long): Collection<Long>
+
+    /**
+     * Notifies this peer of the other peers
+     * @param announcedAddresses The announced addresses to notify this peer of
+     * @throws Exception if unsuccessful
+     */
+    fun addPeers(announcedAddresses: Collection<String>)
+
+    /**
+     * Get new peer addresses from this peer
+     * @throws Exception if unsuccessful
+     */
+    fun getPeers(): Collection<String>
+
+    /**
+     * Sends [block] to the peer to be added
+     * @return Whether the peer accepted the [block]
+     * @throws Exception if unsuccessful
+     */
+    fun sendBlock(block: Block): Boolean
 
     var shareAddress: Boolean
 

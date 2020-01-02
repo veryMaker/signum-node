@@ -1,5 +1,6 @@
 package brs.peer
 
+import brs.common.QuickMocker
 import brs.services.TransactionProcessorService
 import io.mockk.mockk
 import org.junit.Before
@@ -14,7 +15,7 @@ class ProcessTransactionsTest {
     fun setUp() {
         transactionProcessorService = mockk(relaxed = true)
         peer = mockk(relaxed = true)
-        t = ProcessTransactions(transactionProcessorService)
+        t = ProcessTransactions(QuickMocker.dependencyProvider(transactionProcessorService))
     }
 
     // TODO normal circumstances test

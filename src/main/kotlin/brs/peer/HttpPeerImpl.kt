@@ -1,7 +1,10 @@
 package brs.peer
 
 import brs.Burst
+import brs.entity.Block
 import brs.entity.DependencyProvider
+import brs.entity.PeerInfo
+import brs.entity.Transaction
 import brs.objects.Constants
 import brs.objects.Props
 import brs.services.BlockchainProcessorService
@@ -12,6 +15,8 @@ import brs.util.CountingInputStream
 import brs.util.CountingOutputStream
 import brs.util.Version
 import brs.util.convert.emptyToNull
+import brs.util.convert.parseUnsignedLong
+import brs.util.convert.toUnsignedString
 import brs.util.convert.truncate
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLateinit
@@ -21,16 +26,18 @@ import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import brs.util.sync.Mutex
+import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.io.*
+import java.math.BigInteger
 import java.net.*
 import java.nio.charset.StandardCharsets
 import java.sql.SQLException
 import java.util.zip.GZIPInputStream
 
-internal class PeerImpl(
+internal class HttpPeerImpl(
     private val dp: DependencyProvider,
     override val peerAddress: String,
     announcedAddress: String?
@@ -44,6 +51,7 @@ internal class PeerImpl(
                 try {
                     this.port = URL(Constants.HTTP + announcedPeerAddress).port
                 } catch (ignored: MalformedURLException) {
+                    // Do nothing
                 }
             }
         })
@@ -51,7 +59,20 @@ internal class PeerImpl(
     override var shareAddress by Atomic(true)
     override var platform by AtomicLateinit<String>()
     override var application by AtomicLateinit<String>()
-    override var version by Atomic(Version.EMPTY)
+    override var version by AtomicWithOverride(
+        initialValue = Version.EMPTY,
+        setValueDelegate = { newVersion, set ->
+            set(Version.EMPTY)
+            isOldVersion = false
+            if (Burst.APPLICATION == application) {
+                isOldVersion = try {
+                    set(newVersion)
+                    Constants.MIN_VERSION.isGreaterThan(newVersion)
+                } catch (e: Exception) {
+                    true
+                }
+            }
+        })
     private var isOldVersion by Atomic(false)
     private var blacklistingTime by Atomic<Long>(0)
     override var state: Peer.State by AtomicWithOverride(
@@ -60,10 +81,10 @@ internal class PeerImpl(
             if (state != newState) {
                 if (state == Peer.State.NON_CONNECTED) {
                     set(newState)
-                    dp.peerService.notifyListeners(this@PeerImpl, PeerService.Event.ADDED_ACTIVE_PEER)
+                    dp.peerService.notifyListeners(this@HttpPeerImpl, PeerService.Event.ADDED_ACTIVE_PEER)
                 } else if (newState != Peer.State.NON_CONNECTED) {
                     set(newState)
-                    dp.peerService.notifyListeners(this@PeerImpl, PeerService.Event.CHANGED_ACTIVE_PEER)
+                    dp.peerService.notifyListeners(this@HttpPeerImpl, PeerService.Event.CHANGED_ACTIVE_PEER)
                 }
             }
         })
@@ -113,19 +134,6 @@ internal class PeerImpl(
 
     override fun isHigherOrEqualVersionThan(version: Version): Boolean {
         return Peer.isHigherOrEqualVersion(version, this.version)
-    }
-
-    override fun setVersion(version: String?) {
-        this.version = Version.EMPTY
-        isOldVersion = false
-        if (Burst.APPLICATION == application && version != null) {
-            try {
-                this.version = Version.parse(version)
-                isOldVersion = Constants.MIN_VERSION.isGreaterThan(this.version)
-            } catch (e: IllegalArgumentException) {
-                isOldVersion = true
-            }
-        }
     }
 
     override fun blacklist(cause: Exception, description: String) {
@@ -178,7 +186,134 @@ internal class PeerImpl(
         dp.peerService.removePeer(this)
     }
 
-    override fun send(request: JsonElement): JsonObject? {
+    private fun onTimeout() {
+        // TODO
+    }
+
+    private fun couldNotConnect() {
+        // TODO
+    }
+
+    private fun checkError(json: JsonObject) {
+        val error = json.getMemberAsString("error")
+        if (error != null) {
+            when {
+                // TODO stop execution
+                error.contains("connect timed out") -> onTimeout()
+                error.contains("Connection refused") -> couldNotConnect()
+                else -> error(error)
+            }
+        }
+    }
+
+    override fun exchangeInfo(): PeerInfo {
+        val json = send(dp.peerService.myPeerInfoRequest) ?: error("Returned JSON was null")
+        checkError(json)
+        return PeerInfo.fromJson(json)
+    }
+
+    override fun getCumulativeDifficulty(): Pair<BigInteger, Int> {
+        val json = send(getCumulativeDifficultyRequest) ?: error("Returned JSON was null")
+        checkError(json)
+        return Pair(BigInteger(json.mustGetMemberAsString("cumulativeDifficulty")), json.mustGetMemberAsInt("blockchainHeight"))
+    }
+
+    override fun getUnconfirmedTransactions(): Collection<Transaction> {
+        val json = send(getUnconfirmedTransactionsRequest) ?: error("Returned JSON was null")
+        checkError(json)
+        return json.mustGetMemberAsJsonArray("unconfirmedTransactions").map { Transaction.parseTransaction(dp, it.mustGetAsJsonObject("transaction")) }
+    }
+
+    private fun getMilestoneBlockIds(request: JsonObject): Pair<Collection<Long>, Boolean> {
+        val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+        checkError(json)
+        val milestoneBlockIds = json.mustGetMemberAsJsonArray("milestoneBlockIds")
+            .map { it.safeGetAsString().parseUnsignedLong() }
+            .filter { it != 0L }
+        val last = json.getMemberAsBoolean("last") ?: false
+        return Pair(milestoneBlockIds, last)
+    }
+
+    override fun getMilestoneBlockIds(): Pair<Collection<Long>, Boolean> {
+        val request = JsonObject()
+        request.addProperty("requestType", "getMilestoneBlockIds")
+        request.addProperty("lastBlockId", dp.downloadCacheService.getLastBlockId().toUnsignedString())
+        return getMilestoneBlockIds(request)
+    }
+
+    override fun getMilestoneBlockIds(lastMilestoneBlockId: Long): Pair<Collection<Long>, Boolean> {
+        val request = JsonObject()
+        request.addProperty("requestType", "getMilestoneBlockIds")
+        request.addProperty("lastMilestoneBlockId", lastMilestoneBlockId)
+        return getMilestoneBlockIds(request)
+    }
+
+    override fun sendUnconfirmedTransactions(transactions: Collection<Transaction>) {
+        val jsonTransactions = JsonArray()
+        transactions.map { it.toJsonObject() }.forEach { jsonTransactions.add(it) }
+        val request = JsonObject()
+        request.addProperty("requestType", "processTransactions")
+        request.add("transactions", jsonTransactions)
+        val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+        checkError(json)
+    }
+
+    override fun getNextBlocks(lastBlockId: Long): Collection<Block> {
+        val firstNewBlockHeight = (dp.downloadCacheService.getBlock(lastBlockId) ?: error("Block with ID $lastBlockId not found in cache")).height + 1
+        val request = JsonObject()
+        request.addProperty("requestType", "getNextBlocks")
+        request.addProperty("blockId", lastBlockId.toUnsignedString())
+        val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+        checkError(json)
+        return json.mustGetMemberAsJsonArray("nextBlocks")
+            .asSequence()
+            .take(Constants.MAX_PEER_RECEIVED_BLOCKS)
+            .map { it.mustGetAsJsonObject("block") }
+            .mapIndexed { index, jsonElement -> Block.parseBlock(dp, jsonElement.mustGetAsJsonObject("block"), firstNewBlockHeight + index) }
+            .toList()
+    }
+
+    override fun getNextBlockIds(lastBlockId: Long): Collection<Long> {
+        val request = JsonObject()
+        request.addProperty("requestType", "getNextBlockIds")
+        request.addProperty("blockId", lastBlockId.toUnsignedString())
+        val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+        checkError(json)
+        return json.mustGetMemberAsJsonArray("nextBlockIds")
+            .asSequence()
+            .take(Constants.MAX_PEER_RECEIVED_BLOCKS)
+            .map { it.safeGetAsString().parseUnsignedLong() }
+            .filter { it != 0L }
+            .toList()
+    }
+
+    override fun addPeers(announcedAddresses: Collection<String>) {
+        val jsonAnnouncedAddresses = JsonArray()
+        announcedAddresses.forEach { jsonAnnouncedAddresses.add(it) }
+        val request = JsonObject()
+        request.addProperty("requestType", "getNextBlockIds")
+        request.add("peers", jsonAnnouncedAddresses)
+        val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+        checkError(json)
+    }
+
+    override fun getPeers(): Collection<String> {
+        val json = send(getPeersRequest) ?: error("Returned JSON was null")
+        checkError(json)
+        return json.mustGetMemberAsJsonArray("peers")
+            .map { it.safeGetAsString() ?: "" }
+            .filter { it.isNotBlank() }
+    }
+
+    override fun sendBlock(block: Block): Boolean {
+        val request = block.toJsonObject()
+        request.addProperty("requestType", "processBlock")
+        val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+        checkError(json)
+        return json.mustGetMemberAsBoolean("accepted")
+    }
+
+    private fun send(request: JsonElement): JsonObject? {
         var response: JsonObject? = null
         var log: String? = null
         var showLog = false
@@ -255,7 +390,7 @@ internal class PeerImpl(
                 } else {
                     Peer.State.NON_CONNECTED
                 }
-                response = error("Peer responded with HTTP " + connection.responseCode)
+                response = jsonError("Peer responded with HTTP " + connection.responseCode)
             }
         } catch (e: Exception) {
             if (!isConnectionException(e)) {
@@ -268,7 +403,7 @@ internal class PeerImpl(
             if (state == Peer.State.CONNECTED) {
                 state = Peer.State.DISCONNECTED
             }
-            response = error("Error getting response from peer: ${e.javaClass}: ${e.message}")
+            response = jsonError("Error getting response from peer: ${e.javaClass}: ${e.message}")
         } catch (e: IOException) {
             if (!isConnectionException(e)) {
                 logger.safeDebug(e) { "Error sending JSON request" }
@@ -280,7 +415,7 @@ internal class PeerImpl(
             if (state == Peer.State.CONNECTED) {
                 state = Peer.State.DISCONNECTED
             }
-            response = error("Error getting response from peer: ${e.javaClass}: ${e.message}")
+            response = jsonError("Error getting response from peer: ${e.javaClass}: ${e.message}")
         }
 
         if (showLog && log != null) {
@@ -303,38 +438,52 @@ internal class PeerImpl(
     }
 
     override fun connect(currentTime: Int) {
-        val response = send(dp.peerService.myPeerInfoRequest)
-        if (response != null && response.get("error") == null) {
-            application = response.mustGetMemberAsString("application")
-            setVersion(response.mustGetMemberAsString("version"))
-            platform = response.mustGetMemberAsString("platform")
-            shareAddress = response.getMemberAsBoolean("shareAddress") == true
-            val newAnnouncedAddress = response.getMemberAsString("announcedAddress").emptyToNull()
-            if (newAnnouncedAddress != null && newAnnouncedAddress != announcedAddress) {
-                // force verification of changed announced address
-                state = Peer.State.NON_CONNECTED
-                announcedAddress = newAnnouncedAddress
-                return
-            }
-            if (announcedAddress == null) {
-                announcedAddress = peerAddress
-            }
-
-            state = Peer.State.CONNECTED
-            dp.peerService.updateAddress(this)
-            lastUpdated = currentTime
-        } else {
+        val response = exchangeInfo()
+        application = response.application
+        version = response.version
+        platform = response.platform
+        shareAddress = response.shareAddress
+        val newAnnouncedAddress = response.announcedAddress.emptyToNull()
+        if (newAnnouncedAddress != null && newAnnouncedAddress != announcedAddress) {
+            // force verification of changed announced address
             state = Peer.State.NON_CONNECTED
+            announcedAddress = newAnnouncedAddress
+            return
         }
+        if (announcedAddress == null) {
+            announcedAddress = peerAddress
+        }
+
+        state = Peer.State.CONNECTED
+        dp.peerService.updateAddress(this)
+        lastUpdated = currentTime
     }
 
-    private fun error(message: String): JsonObject {
+    private fun jsonError(message: String): JsonObject {
         val jsonObject = JsonObject()
         jsonObject.addProperty("error", message)
         return jsonObject
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(PeerImpl::class.java)
+        private val logger = LoggerFactory.getLogger(HttpPeerImpl::class.java)
+
+        private val getCumulativeDifficultyRequest = run {
+            val request = JsonObject()
+            request.addProperty("requestType", "getCumulativeDifficulty")
+            JSON.prepareRequest(request)
+        }
+
+        private val getUnconfirmedTransactionsRequest = run {
+            val request = JsonObject()
+            request.addProperty("requestType", "getUnconfirmedTransactions")
+            JSON.prepareRequest(request)
+        }
+
+        private val getPeersRequest = run {
+            val request = JsonObject()
+            request.addProperty("requestType", "getPeers")
+            JSON.prepareRequest(request)
+        }
     }
 }

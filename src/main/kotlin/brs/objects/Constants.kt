@@ -57,6 +57,8 @@ object Constants {
 
     const val FEE_SUGGESTION_MAX_HISTORY_LENGTH = 10
 
+    const val MAX_PEER_RECEIVED_BLOCKS = 1440
+
     /**
      * Must be >= 1.
      */

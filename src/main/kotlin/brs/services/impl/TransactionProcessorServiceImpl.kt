@@ -1,6 +1,5 @@
 package brs.services.impl
 
-import brs.api.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE
 import brs.db.transaction
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
@@ -14,11 +13,10 @@ import brs.transaction.appendix.Attachment
 import brs.util.BurstException
 import brs.util.BurstException.ValidationException
 import brs.util.Listeners
-import brs.util.json.*
+import brs.util.json.toJsonString
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
 import brs.util.logging.safeTrace
-import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 
@@ -35,33 +33,21 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
             run {
                 try {
                     val peer = dp.peerService.getAnyPeer(Peer.State.CONNECTED) ?: return@run
-                    val response = dp.peerService.readUnconfirmedTransactions(peer) ?: return@run
-                    val transactionsData = response.getMemberAsJsonArray(UNCONFIRMED_TRANSACTIONS_RESPONSE)
-                    if (transactionsData == null || transactionsData.isEmpty()) return@run
+                    val transactions = peer.getUnconfirmedTransactions()
+                    if (transactions.isEmpty()) return@run
                     dp.peerService.feedingTime(peer, foodDispenser, doneFeedingLog)
 
                     try {
-                        val addedTransactions = processPeerTransactions(transactionsData, peer)
-
+                        val addedTransactions = processPeerTransactions(transactions, peer, false)
                         if (addedTransactions.isNotEmpty()) {
                             val activePriorityPlusExtra = dp.peerService.allActivePriorityPlusSomeExtraPeers
                             activePriorityPlusExtra.remove(peer)
 
-                            dp.taskSchedulerService.awaitTasks(TaskType.IO, activePriorityPlusExtra.map { otherPeer ->
-                                {
+                            dp.taskSchedulerService.awaitTasks(TaskType.IO, activePriorityPlusExtra.map { otherPeer -> {
                                     try {
-                                        val otherPeerResponse = dp.peerService.readUnconfirmedTransactions(otherPeer)
-                                        if (otherPeerResponse != null) {
-                                            val otherPeerTransactions =
-                                                otherPeerResponse.getMemberAsJsonArray(UNCONFIRMED_TRANSACTIONS_RESPONSE)
-                                            if (otherPeerTransactions != null && !otherPeerTransactions.isEmpty()) dp.peerService.feedingTime(
-                                                otherPeer,
-                                                foodDispenser,
-                                                doneFeedingLog
-                                            )
-                                        }
-                                    } catch (e: ValidationException) {
-                                        peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
+                                        val otherPeerTransactions = otherPeer.getUnconfirmedTransactions()
+                                        if (otherPeerTransactions.isNotEmpty())
+                                            dp.peerService.feedingTime(otherPeer, foodDispenser, doneFeedingLog)
                                     } catch (e: Exception) {
                                         peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
                                     }
@@ -141,17 +127,8 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
         }
     }
 
-    override fun processPeerTransactions(request: JsonObject, peer: Peer) {
-        val transactionsData = request.mustGetMemberAsJsonArray("transactions")
-        val processedTransactions = processPeerTransactions(transactionsData, peer)
-
-        if (!processedTransactions.isEmpty()) {
-            broadcastToPeers(false)
-        }
-    }
-
     fun parseTransaction(transactionData: JsonObject): Transaction {
-        return Transaction.parseTransaction(dp, transactionData, dp.blockchainService.height)
+        return Transaction.parseTransaction(dp, transactionData)
     }
 
     override fun clearUnconfirmedTransactions() {
@@ -179,7 +156,9 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
         }
     }
 
-    override fun processPeerTransactions(transactions: Iterable<Transaction>, peer: Peer) {
+    override fun processPeerTransactions(transactions: Collection<Transaction>, peer: Peer, rebroadcast: Boolean): Collection<Transaction> {
+        if (dp.blockchainService.lastBlock.timestamp < dp.timeService.epochTime - 60 * 1440 && !testUnconfirmedTransactions) return emptyList()
+
         val filteredTransactions = transactions.filter {
             try {
                 dp.transactionService.validate(it)
@@ -188,31 +167,12 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                 false
             }
         }
-        if (processTransactions(filteredTransactions, peer).isNotEmpty()) {
+
+        val processed = processTransactions(filteredTransactions, peer)
+        if (rebroadcast && processed.isNotEmpty()) {
             broadcastToPeers(false)
         }
-    }
-
-    private fun processPeerTransactions(transactionsData: JsonArray, peer: Peer): Collection<Transaction> {
-        if (dp.blockchainService.lastBlock.timestamp < dp.timeService.epochTime - 60 * 1440 && !testUnconfirmedTransactions) {
-            return mutableListOf()
-        }
-        val transactions = mutableListOf<Transaction>()
-        for (transactionData in transactionsData) {
-            try {
-                val transaction = Transaction.parseTransaction(dp, transactionData.mustGetAsJsonObject("transaction"))
-                dp.transactionService.validate(transaction)
-                if (!dp.economicClusteringService.verifyFork(transaction)) {
-                    continue
-                }
-                transactions.add(transaction)
-            } catch (ignored: BurstException.NotCurrentlyValidException) {
-            } catch (e: BurstException.NotValidException) {
-                logger.safeDebug { "Invalid transaction from peer: ${transactionData.toJsonString()}" }
-                throw e
-            }
-        }
-        return processTransactions(transactions, peer)
+        return processed
     }
 
     private fun processTransactions(transactions: Collection<Transaction>, peer: Peer?): Collection<Transaction> {

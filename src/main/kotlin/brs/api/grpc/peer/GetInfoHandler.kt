@@ -6,6 +6,7 @@ import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.peer.Peer
 import brs.services.PeerService
+import brs.util.Version
 
 internal class GetInfoHandler(private val dp: DependencyProvider) : GrpcPeerApiHandler<PeerApi.PeerInfo, PeerApi.PeerInfo>(dp) {
     private val myInfo = PeerApi.PeerInfo.newBuilder()
@@ -38,7 +39,7 @@ internal class GetInfoHandler(private val dp: DependencyProvider) : GrpcPeerApiH
         if (version.isNullOrEmpty()) {
             version = "?"
         }
-        peer.setVersion(version.trim { it <= ' ' })
+        peer.version = Version.parse(version.trim { it <= ' ' })
 
         var platform = request.platform
         if (platform.isNullOrEmpty()) {

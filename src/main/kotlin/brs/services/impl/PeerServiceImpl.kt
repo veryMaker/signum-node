@@ -9,9 +9,9 @@ import brs.objects.Constants.MIN_VERSION
 import brs.objects.Props
 import brs.objects.Props.P2P_ENABLE_TX_REBROADCAST
 import brs.objects.Props.P2P_SEND_TO_LIMIT
+import brs.peer.HttpPeerImpl
 import brs.peer.Peer
 import brs.peer.Peer.Companion.isHigherOrEqualVersion
-import brs.peer.PeerImpl
 import brs.peer.PeerServlet
 import brs.services.PeerService
 import brs.services.RepeatingTask
@@ -20,11 +20,10 @@ import brs.services.TaskType
 import brs.util.Listeners
 import brs.util.Version
 import brs.util.delegates.Atomic
-import brs.util.json.*
 import brs.util.json.JSON.prepareRequest
+import brs.util.json.toJsonString
 import brs.util.logging.*
 import brs.util.sync.Mutex
-import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.bitlet.weupnp.GatewayDevice
@@ -433,12 +432,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         true
     }
 
-    private val getPeersRequest by lazy {
-        val request = JsonObject()
-        request.addProperty("requestType", "getPeers")
-        prepareRequest(request)
-    }
-
     private var addedNewPeer by Atomic(false)
 
     init {
@@ -456,14 +449,12 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 }
 
                 val peer = getAnyPeer(Peer.State.CONNECTED) ?: return@run false
-                val response = peer.send(getPeersRequest) ?: return@run true
-                val peersJson = response.getMemberAsJsonArray("peers")
+                val newAddressess = peer.getPeers()
                 val addedAddresses = mutableSetOf<String>()
-                if (peersJson != null && !peersJson.isEmpty()) {
-                    for (announcedAddress in peersJson) {
-                        val announcedAddressString = announcedAddress.safeGetAsString() ?: continue
-                        if (getOrAddPeer(announcedAddressString) != null) {
-                            addedAddresses.add(announcedAddressString)
+                if (!newAddressess.isEmpty()) {
+                    for (announcedAddress in newAddressess) {
+                        if (getOrAddPeer(announcedAddress) != null) {
+                            addedAddresses.add(announcedAddress)
                         }
                     }
                     if (savePeers && addedNewPeer) { // FIXME: Atomics do not guarantee exclusivity in this way
@@ -471,7 +462,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                     }
                 }
 
-                val myPeers = JsonArray()
+                val myPeers = mutableListOf<String>()
                 for (myPeer in allPeers) {
                     if (!myPeer.isBlacklisted && myPeer.announcedAddress != null
                         && myPeer.state == Peer.State.CONNECTED && myPeer.shareAddress
@@ -479,15 +470,12 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                         && myPeer.announcedAddress != peer.announcedAddress
                         && myPeer.isHigherOrEqualVersionThan(MIN_VERSION)
                     ) {
-                        myPeers.add(myPeer.announcedAddress)
+                        myPeers.add(myPeer.announcedAddress!!)
                     }
                 }
 
-                if (myPeers.size() > 0) {
-                    val request = JsonObject()
-                    request.addProperty("requestType", "addPeers")
-                    request.add("peers", myPeers)
-                    peer.send(prepareRequest(request))
+                if (myPeers.isNotEmpty()) {
+                    peer.addPeers(myPeers)
                 }
             } catch (e: Exception) {
                 logger.safeDebug(e) { "Error requesting peers from a peer" }
@@ -546,8 +534,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             }
             return activePeers
         }
-
-    private val getUnconfirmedTransactionsRequest: JsonElement
 
     private val processingQueue = mutableListOf<Peer>()
     private val beingProcessed = mutableListOf<Peer>()
@@ -697,7 +683,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             return null
         }
 
-        peer = PeerImpl(dp, peerAddress, announcedPeerAddress)
+        peer = HttpPeerImpl(dp, peerAddress, announcedPeerAddress)
         if (dp.propertyService.get(Props.DEV_TESTNET) && peer.port > 0 && peer.port != TESTNET_PEER_PORT) {
             logger.safeDebug { "Peer $peerAddress on testnet port is not using port $TESTNET_PEER_PORT, ignoring" }
             return null
@@ -729,24 +715,19 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     }
 
     override fun sendToSomePeers(block: Block) {
-        val request = block.toJsonObject()
-        request.addProperty("requestType", "processBlock")
-
         dp.taskSchedulerService.run {
-            val jsonRequest = prepareRequest(request)
-
             var successful = 0
-            val expectedResponses = mutableListOf<Future<JsonObject?>>()
+            val expectedResponses = mutableListOf<Future<Boolean?>>()
             for (peer in peers.values) {
                 if (peerEligibleForSending(peer, false)) {
-                    val deferred = dp.taskSchedulerService.async(TaskType.IO) { peer.send(jsonRequest) }
+                    val deferred = dp.taskSchedulerService.async(TaskType.IO) { peer.sendBlock(block) }
                     expectedResponses.add(deferred)
                 }
                 if (expectedResponses.size >= sendToPeersLimit - successful) {
                     for (expectedResponse in expectedResponses) {
                         try {
                             val response = expectedResponse.get()
-                            if (response != null && response.getMemberAsBoolean("accepted") ?: continue) {
+                            if (response == true) {
                                 successful += 1
                             }
                         } catch (e: ExecutionException) {
@@ -760,16 +741,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 }
             }
         }
-    }
-
-    init {
-        val request = JsonObject()
-        request.addProperty("requestType", "getUnconfirmedTransactions")
-        getUnconfirmedTransactionsRequest = prepareRequest(request)
-    }
-
-    override fun readUnconfirmedTransactions(peer: Peer): JsonObject? {
-        return peer.send(getUnconfirmedTransactionsRequest)
     }
 
     override fun feedingTime(
@@ -788,22 +759,15 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         }
     }
 
-    private fun feedPeer(
-        peer: Peer,
-        foodDispenser: (Peer) -> Collection<Transaction>,
-        doneFeedingLog: (Peer, Collection<Transaction>) -> Unit
-    ) {
+    private fun feedPeer(peer: Peer, foodDispenser: (Peer) -> Collection<Transaction>, doneFeedingLog: (Peer, Collection<Transaction>) -> Unit) {
         val transactionsToSend = foodDispenser(peer)
 
         if (transactionsToSend.isNotEmpty()) {
-            logger.safeTrace { "Feeding ${peer.peerAddress} ${transactionsToSend.size} transactions" }
-            val response = peer.send(sendUnconfirmedTransactionsRequest(transactionsToSend))
-
-            if (response != null && response.get("error") == null) {
-                doneFeedingLog(peer, transactionsToSend)
-            } else {
-                // TODO why does this keep coming up??
-                logger.safeWarn { "Error feeding ${peer.peerAddress} transactions: ${transactionsToSend.map { it.id }} error: $response" }
+            try {
+                logger.safeTrace { "Feeding ${peer.peerAddress} ${transactionsToSend.size} transactions" }
+                peer.sendUnconfirmedTransactions(transactionsToSend)
+            } catch (e: Exception) {
+                logger.safeWarn(e) { "Error feeding ${peer.peerAddress} transactions ${transactionsToSend.map { it.id }.joinToString(", ")}" }
             }
         } else {
             logger.safeTrace { "No need to feed ${peer.peerAddress}" }
@@ -818,20 +782,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 feedPeer(peer, foodDispenser, doneFeedingLog)
             }
         }
-    }
-
-    private fun sendUnconfirmedTransactionsRequest(transactions: Collection<Transaction>): JsonElement {
-        val request = JsonObject()
-        val transactionsData = JsonArray()
-
-        for (transaction in transactions) {
-            transactionsData.add(transaction.toJsonObject())
-        }
-
-        request.addProperty("requestType", "processTransactions")
-        request.add("transactions", transactionsData)
-
-        return prepareRequest(request)
     }
 
     private fun peerEligibleForSending(peer: Peer, sendSameBRSclass: Boolean): Boolean {

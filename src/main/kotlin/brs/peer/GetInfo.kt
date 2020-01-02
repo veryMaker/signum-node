@@ -3,6 +3,7 @@ package brs.peer
 import brs.Burst
 import brs.entity.DependencyProvider
 import brs.services.PeerService
+import brs.util.Version
 import brs.util.json.getMemberAsBoolean
 import brs.util.json.getMemberAsString
 import com.google.gson.JsonElement
@@ -44,7 +45,11 @@ internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerReq
         if (version.isNullOrEmpty()) {
             version = "?"
         }
-        peer.setVersion(version.trim { it <= ' ' })
+        peer.version = try {
+            Version.parse(version.trim { it <= ' ' })
+        } catch (e: Exception) {
+            Version.EMPTY
+        }
 
         var platform = request.getMemberAsString("platform")
         if (platform.isNullOrEmpty()) {

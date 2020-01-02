@@ -36,7 +36,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
         map["getPeers"] = GetPeers(dp)
         map["getUnconfirmedTransactions"] = GetUnconfirmedTransactions(dp)
         map["processBlock"] = ProcessBlock(dp)
-        map["processTransactions"] = ProcessTransactions(dp.transactionProcessorService)
+        map["processTransactions"] = ProcessTransactions(dp)
         peerRequestHandlers = map
     }
 
