@@ -4,7 +4,6 @@ import brs.Burst
 import brs.common.TestInfrastructure
 import brs.objects.Props
 import brs.peer.ProcessBlock
-import brs.util.jetty.get
 import com.google.gson.JsonObject
 import io.mockk.mockk
 import org.junit.runner.RunWith
@@ -22,7 +21,7 @@ abstract class AbstractIT {
      */
     fun setupIT(dbUrl: String) {
         burst = Burst(testProperties(dbUrl), false)
-        processBlock = ProcessBlock(burst.dp.blockchainService, burst.dp.blockchainProcessorService)
+        processBlock = ProcessBlock(burst.dp)
     }
 
     /**

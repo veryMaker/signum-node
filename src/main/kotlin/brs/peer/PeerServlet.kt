@@ -8,7 +8,6 @@ import brs.util.json.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeWarn
 import com.google.gson.JsonElement
-import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.io.InputStreamReader
@@ -25,16 +24,6 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
     interface PeerRequestHandler {
         fun processRequest(request: JsonObject, peer: Peer): JsonElement
     }
-
-    internal abstract class ExtendedPeerRequestHandler : PeerRequestHandler {
-        override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
-            return JsonNull.INSTANCE
-        }
-
-        internal abstract fun extendedProcessRequest(request: JsonObject, peer: Peer): ExtendedProcessRequest
-    }
-
-    internal class ExtendedProcessRequest(val response: JsonElement, val afterRequestHook: () -> Unit)
 
     init { // TODO each one should take dp
         val map = mutableMapOf<String, PeerRequestHandler>()
@@ -67,8 +56,6 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
         var peer: Peer? = null
         var response: JsonElement
 
-        var extendedProcessRequest: ExtendedProcessRequest? = null
-
         var requestType = "unknown"
         try {
             peer = dp.peerService.getOrAddPeer(request.remoteAddr, null)
@@ -95,16 +82,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
             if (jsonRequest.getMemberAsString(PROTOCOL) == "B1") {
                 requestType = jsonRequest.mustGetMemberAsString("requestType")
                 val peerRequestHandler = peerRequestHandlers[requestType]
-                if (peerRequestHandler != null) {
-                    if (peerRequestHandler is ExtendedPeerRequestHandler) {
-                        extendedProcessRequest = peerRequestHandler.extendedProcessRequest(jsonRequest, peer)
-                        response = extendedProcessRequest.response
-                    } else {
-                        response = peerRequestHandler.processRequest(jsonRequest, peer)
-                    }
-                } else {
-                    response = UNSUPPORTED_REQUEST_TYPE
-                }
+                response = peerRequestHandler?.processRequest(jsonRequest, peer) ?: UNSUPPORTED_REQUEST_TYPE
             } else {
                 logger.safeDebug { "Unsupported protocol ${jsonRequest.getMemberAsString(PROTOCOL)}" }
                 response = UNSUPPORTED_PROTOCOL
@@ -127,8 +105,6 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
             peer?.blacklist(e, "can't respond to requestType=$requestType")
             return
         }
-
-        extendedProcessRequest?.afterRequestHook?.invoke()
     }
 
     companion object {
