@@ -48,6 +48,7 @@ import java.util.*
 import java.util.concurrent.*
 import javax.xml.parsers.ParserConfigurationException
 
+@Suppress("SENSELESS_COMPARISON")
 class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     override val communicationLoggingMask: Int
 
@@ -91,11 +92,12 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     override val blacklistingPeriod: Int
     override val getMorePeers: Boolean
 
-    private val myPlatform: String?
-    private val myAddress: String?
+    override val myPlatform = dp.propertyService.get(Props.P2P_MY_PLATFORM)
+    override val myAddress: String
+    override val announcedAddress: String
+    override val shareMyAddress: Boolean
     private val myPeerServerPort: Int
     private val useUpnp: Boolean
-    private val shareMyAddress: Boolean
     private val maxNumberOfConnectedPublicPeers: Int
     private val sendToPeersLimit: Int
     private val usePeersDb: Boolean
@@ -105,7 +107,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private var lastSavedPeers: Int = 0
 
     override val myPeerInfoRequest: JsonElement
-    override val myPeerInfoResponse: JsonElement
 
     private val listeners = Listeners<Peer, PeerService.Event>()
 
@@ -119,24 +120,21 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private val unresolvedPeersLock = Mutex()
 
     init {
-        myPlatform = dp.propertyService.get(Props.P2P_MY_PLATFORM)
-        myAddress = if (dp.propertyService.get(Props.P2P_MY_ADDRESS).isNotBlank()
+        val tempAddress = if (dp.propertyService.get(Props.P2P_MY_ADDRESS).isNotBlank()
             && dp.propertyService.get(Props.P2P_MY_ADDRESS).trim { it <= ' ' }.isEmpty()
             && gateway != null
         ) {
-            var externalIPAddress: String? = null
             try {
-                externalIPAddress = gateway!!.externalIPAddress
-            } catch (e: IOException) {
+                gateway!!.externalIPAddress
+            } catch (e: Exception) {
                 logger.safeInfo { "Can't get gateways IP adress" }
-            } catch (e: SAXException) {
-                logger.safeInfo { "Can't get gateways IP adress" }
+                null
             }
+        } else null
 
-            externalIPAddress
-        } else dp.propertyService.get(Props.P2P_MY_ADDRESS)
+        myAddress = tempAddress ?: dp.propertyService.get(Props.P2P_MY_ADDRESS)
 
-        if (myAddress != null && myAddress.endsWith(":$TESTNET_PEER_PORT") && !dp.propertyService.get(Props.DEV_TESTNET)) {
+        if (myAddress.endsWith(":$TESTNET_PEER_PORT") && !dp.propertyService.get(Props.DEV_TESTNET)) {
             throw Exception("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
         }
         myPeerServerPort = dp.propertyService.get(Props.P2P_PORT)
@@ -144,39 +142,37 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             throw Exception("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
         }
         useUpnp = dp.propertyService.get(Props.P2P_UPNP)
-        shareMyAddress =
-            dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE)
+        shareMyAddress = dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE)
 
         val json = JsonObject()
-        if (myAddress != null && myAddress.isNotEmpty()) {
+        this.announcedAddress = if (myAddress.isNotEmpty()) {
             try {
                 val uri = URI("http://" + myAddress.trim { it <= ' ' })
                 val host = uri.host
                 val port = uri.port
                 if (!dp.propertyService.get(Props.DEV_TESTNET)) {
                     if (port >= 0) {
-                        json.addProperty("announcedAddress", myAddress)
+                        myAddress
                     } else {
-                        json.addProperty(
-                            "announcedAddress",
-                            host + if (myPeerServerPort != DEFAULT_PEER_PORT) ":$myPeerServerPort" else ""
-                        )
+                        host + if (myPeerServerPort != DEFAULT_PEER_PORT) ":$myPeerServerPort" else ""
                     }
                 } else {
-                    json.addProperty("announcedAddress", host)
+                    host
                 }
             } catch (e: URISyntaxException) {
-                logger.safeInfo { "Your announce address is invalid: $myAddress" }
+                logger.safeError { "Your announced address is invalid: $myAddress" }
                 throw Exception(e.toString(), e)
             }
-        }
+        } else ""
 
+        if (announcedAddress.isNotEmpty()) {
+            json.addProperty("announcedAddress", announcedAddress)
+        }
         json.addProperty("application", Burst.APPLICATION)
         json.addProperty("version", Burst.VERSION.toString())
         json.addProperty("platform", this.myPlatform)
         json.addProperty("shareAddress", this.shareMyAddress)
         logger.safeDebug { "My peer info: ${json.toJsonString()}" }
-        myPeerInfoResponse = json.cloneJson()
         json.addProperty("requestType", "getInfo")
         myPeerInfoRequest = prepareRequest(json)
 
@@ -466,7 +462,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 if (peersJson != null && !peersJson.isEmpty()) {
                     for (announcedAddress in peersJson) {
                         val announcedAddressString = announcedAddress.safeGetAsString() ?: continue
-                        if (addPeer(announcedAddressString) != null) {
+                        if (getOrAddPeer(announcedAddressString) != null) {
                             addedAddresses.add(announcedAddressString)
                         }
                     }
@@ -591,7 +587,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private fun loadPeers(addresses: Collection<String>) {
         for (address in addresses) {
             val unresolvedAddress = dp.taskSchedulerService.async(TaskType.IO) {
-                val peer = addPeer(address)
+                val peer = getOrAddPeer(address)
                 if (peer == null) address else null
             }
             unresolvedPeersLock.withLock {
@@ -648,7 +644,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         return peers[peerAddress]
     }
 
-    override fun addPeer(announcedAddress: String?): Peer? {
+    override fun getOrAddPeer(announcedAddress: String?): Peer? {
         if (announcedAddress == null) return null
         val cleanAddress = announcedAddress.trim { it <= ' ' }
         var peer = peers[cleanAddress]
@@ -670,7 +666,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 return peer
             }
             val inetAddress = InetAddress.getByName(host)
-            return addPeer(inetAddress.hostAddress, cleanAddress)
+            return getOrAddPeer(inetAddress.hostAddress, cleanAddress)
         } catch (e: URISyntaxException) {
             return null
         } catch (e: UnknownHostException) {
@@ -678,7 +674,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         }
     }
 
-    override fun addPeer(address: String, announcedAddress: String?): Peer? {
+    override fun getOrAddPeer(address: String, announcedAddress: String?): Peer? {
         //re-add the [] to ipv6 addresses lost in getHostAddress() above
         var cleanAddress = address
         if (cleanAddress.split(':').dropLastWhile { it.isEmpty() }.toTypedArray().size > 2) {

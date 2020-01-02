@@ -657,16 +657,14 @@ public final class PeerApi {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>string cumulativeDifficulty = 1;</code>
+     * <pre>
+     * Big endian byte order
+     * </pre>
+     *
+     * <code>bytes cumulativeDifficulty = 1;</code>
      * @return The cumulativeDifficulty.
      */
-    java.lang.String getCumulativeDifficulty();
-    /**
-     * <code>string cumulativeDifficulty = 1;</code>
-     * @return The bytes for cumulativeDifficulty.
-     */
-    com.google.protobuf.ByteString
-        getCumulativeDifficultyBytes();
+    com.google.protobuf.ByteString getCumulativeDifficulty();
 
     /**
      * <code>uint32 blockchainHeight = 2;</code>
@@ -687,7 +685,7 @@ public final class PeerApi {
       super(builder);
     }
     private CumulativeDifficulty() {
-      cumulativeDifficulty_ = "";
+      cumulativeDifficulty_ = com.google.protobuf.ByteString.EMPTY;
     }
 
     @java.lang.Override
@@ -721,9 +719,8 @@ public final class PeerApi {
               done = true;
               break;
             case 10: {
-              java.lang.String s = input.readStringRequireUtf8();
 
-              cumulativeDifficulty_ = s;
+              cumulativeDifficulty_ = input.readBytes();
               break;
             }
             case 16: {
@@ -764,39 +761,17 @@ public final class PeerApi {
     }
 
     public static final int CUMULATIVEDIFFICULTY_FIELD_NUMBER = 1;
-    private volatile java.lang.Object cumulativeDifficulty_;
+    private com.google.protobuf.ByteString cumulativeDifficulty_;
     /**
-     * <code>string cumulativeDifficulty = 1;</code>
+     * <pre>
+     * Big endian byte order
+     * </pre>
+     *
+     * <code>bytes cumulativeDifficulty = 1;</code>
      * @return The cumulativeDifficulty.
      */
-    public java.lang.String getCumulativeDifficulty() {
-      java.lang.Object ref = cumulativeDifficulty_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        cumulativeDifficulty_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>string cumulativeDifficulty = 1;</code>
-     * @return The bytes for cumulativeDifficulty.
-     */
-    public com.google.protobuf.ByteString
-        getCumulativeDifficultyBytes() {
-      java.lang.Object ref = cumulativeDifficulty_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        cumulativeDifficulty_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
+    public com.google.protobuf.ByteString getCumulativeDifficulty() {
+      return cumulativeDifficulty_;
     }
 
     public static final int BLOCKCHAINHEIGHT_FIELD_NUMBER = 2;
@@ -823,8 +798,8 @@ public final class PeerApi {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (!getCumulativeDifficultyBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, cumulativeDifficulty_);
+      if (!cumulativeDifficulty_.isEmpty()) {
+        output.writeBytes(1, cumulativeDifficulty_);
       }
       if (blockchainHeight_ != 0) {
         output.writeUInt32(2, blockchainHeight_);
@@ -838,8 +813,9 @@ public final class PeerApi {
       if (size != -1) return size;
 
       size = 0;
-      if (!getCumulativeDifficultyBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, cumulativeDifficulty_);
+      if (!cumulativeDifficulty_.isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, cumulativeDifficulty_);
       }
       if (blockchainHeight_ != 0) {
         size += com.google.protobuf.CodedOutputStream
@@ -1012,7 +988,7 @@ public final class PeerApi {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        cumulativeDifficulty_ = "";
+        cumulativeDifficulty_ = com.google.protobuf.ByteString.EMPTY;
 
         blockchainHeight_ = 0;
 
@@ -1092,9 +1068,8 @@ public final class PeerApi {
 
       public Builder mergeFrom(brs.api.grpc.proto.PeerApi.CumulativeDifficulty other) {
         if (other == brs.api.grpc.proto.PeerApi.CumulativeDifficulty.getDefaultInstance()) return this;
-        if (!other.getCumulativeDifficulty().isEmpty()) {
-          cumulativeDifficulty_ = other.cumulativeDifficulty_;
-          onChanged();
+        if (other.getCumulativeDifficulty() != com.google.protobuf.ByteString.EMPTY) {
+          setCumulativeDifficulty(other.getCumulativeDifficulty());
         }
         if (other.getBlockchainHeight() != 0) {
           setBlockchainHeight(other.getBlockchainHeight());
@@ -1128,47 +1103,28 @@ public final class PeerApi {
         return this;
       }
 
-      private java.lang.Object cumulativeDifficulty_ = "";
+      private com.google.protobuf.ByteString cumulativeDifficulty_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>string cumulativeDifficulty = 1;</code>
+       * <pre>
+       * Big endian byte order
+       * </pre>
+       *
+       * <code>bytes cumulativeDifficulty = 1;</code>
        * @return The cumulativeDifficulty.
        */
-      public java.lang.String getCumulativeDifficulty() {
-        java.lang.Object ref = cumulativeDifficulty_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          cumulativeDifficulty_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
+      public com.google.protobuf.ByteString getCumulativeDifficulty() {
+        return cumulativeDifficulty_;
       }
       /**
-       * <code>string cumulativeDifficulty = 1;</code>
-       * @return The bytes for cumulativeDifficulty.
-       */
-      public com.google.protobuf.ByteString
-          getCumulativeDifficultyBytes() {
-        java.lang.Object ref = cumulativeDifficulty_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          cumulativeDifficulty_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>string cumulativeDifficulty = 1;</code>
+       * <pre>
+       * Big endian byte order
+       * </pre>
+       *
+       * <code>bytes cumulativeDifficulty = 1;</code>
        * @param value The cumulativeDifficulty to set.
        * @return This builder for chaining.
        */
-      public Builder setCumulativeDifficulty(
-          java.lang.String value) {
+      public Builder setCumulativeDifficulty(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
@@ -1178,28 +1134,16 @@ public final class PeerApi {
         return this;
       }
       /**
-       * <code>string cumulativeDifficulty = 1;</code>
+       * <pre>
+       * Big endian byte order
+       * </pre>
+       *
+       * <code>bytes cumulativeDifficulty = 1;</code>
        * @return This builder for chaining.
        */
       public Builder clearCumulativeDifficulty() {
         
         cumulativeDifficulty_ = getDefaultInstance().getCumulativeDifficulty();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string cumulativeDifficulty = 1;</code>
-       * @param value The bytes for cumulativeDifficulty to set.
-       * @return This builder for chaining.
-       */
-      public Builder setCumulativeDifficultyBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        
-        cumulativeDifficulty_ = value;
         onChanged();
         return this;
       }
@@ -6162,31 +6106,37 @@ public final class PeerApi {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>bytes blockData = 1;</code>
+     * <code>uint32 height = 1;</code>
+     * @return The height.
+     */
+    int getHeight();
+
+    /**
+     * <code>bytes blockData = 2;</code>
      * @return The blockData.
      */
     com.google.protobuf.ByteString getBlockData();
 
     /**
-     * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+     * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
      */
     java.util.List<brs.api.grpc.proto.PeerApi.RawTransaction> 
         getTransactionsDataList();
     /**
-     * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+     * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
      */
     brs.api.grpc.proto.PeerApi.RawTransaction getTransactionsData(int index);
     /**
-     * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+     * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
      */
     int getTransactionsDataCount();
     /**
-     * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+     * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
      */
     java.util.List<? extends brs.api.grpc.proto.PeerApi.RawTransactionOrBuilder> 
         getTransactionsDataOrBuilderList();
     /**
-     * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+     * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
      */
     brs.api.grpc.proto.PeerApi.RawTransactionOrBuilder getTransactionsDataOrBuilder(
         int index);
@@ -6239,12 +6189,17 @@ public final class PeerApi {
             case 0:
               done = true;
               break;
-            case 10: {
+            case 8: {
+
+              height_ = input.readUInt32();
+              break;
+            }
+            case 18: {
 
               blockData_ = input.readBytes();
               break;
             }
-            case 18: {
+            case 26: {
               if (!((mutable_bitField0_ & 0x00000001) != 0)) {
                 transactionsData_ = new java.util.ArrayList<brs.api.grpc.proto.PeerApi.RawTransaction>();
                 mutable_bitField0_ |= 0x00000001;
@@ -6288,45 +6243,55 @@ public final class PeerApi {
               brs.api.grpc.proto.PeerApi.RawBlock.class, brs.api.grpc.proto.PeerApi.RawBlock.Builder.class);
     }
 
-    public static final int BLOCKDATA_FIELD_NUMBER = 1;
+    public static final int HEIGHT_FIELD_NUMBER = 1;
+    private int height_;
+    /**
+     * <code>uint32 height = 1;</code>
+     * @return The height.
+     */
+    public int getHeight() {
+      return height_;
+    }
+
+    public static final int BLOCKDATA_FIELD_NUMBER = 2;
     private com.google.protobuf.ByteString blockData_;
     /**
-     * <code>bytes blockData = 1;</code>
+     * <code>bytes blockData = 2;</code>
      * @return The blockData.
      */
     public com.google.protobuf.ByteString getBlockData() {
       return blockData_;
     }
 
-    public static final int TRANSACTIONSDATA_FIELD_NUMBER = 2;
+    public static final int TRANSACTIONSDATA_FIELD_NUMBER = 3;
     private java.util.List<brs.api.grpc.proto.PeerApi.RawTransaction> transactionsData_;
     /**
-     * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+     * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
      */
     public java.util.List<brs.api.grpc.proto.PeerApi.RawTransaction> getTransactionsDataList() {
       return transactionsData_;
     }
     /**
-     * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+     * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
      */
     public java.util.List<? extends brs.api.grpc.proto.PeerApi.RawTransactionOrBuilder> 
         getTransactionsDataOrBuilderList() {
       return transactionsData_;
     }
     /**
-     * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+     * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
      */
     public int getTransactionsDataCount() {
       return transactionsData_.size();
     }
     /**
-     * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+     * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
      */
     public brs.api.grpc.proto.PeerApi.RawTransaction getTransactionsData(int index) {
       return transactionsData_.get(index);
     }
     /**
-     * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+     * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
      */
     public brs.api.grpc.proto.PeerApi.RawTransactionOrBuilder getTransactionsDataOrBuilder(
         int index) {
@@ -6347,11 +6312,14 @@ public final class PeerApi {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      if (height_ != 0) {
+        output.writeUInt32(1, height_);
+      }
       if (!blockData_.isEmpty()) {
-        output.writeBytes(1, blockData_);
+        output.writeBytes(2, blockData_);
       }
       for (int i = 0; i < transactionsData_.size(); i++) {
-        output.writeMessage(2, transactionsData_.get(i));
+        output.writeMessage(3, transactionsData_.get(i));
       }
       unknownFields.writeTo(output);
     }
@@ -6362,13 +6330,17 @@ public final class PeerApi {
       if (size != -1) return size;
 
       size = 0;
+      if (height_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(1, height_);
+      }
       if (!blockData_.isEmpty()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, blockData_);
+          .computeBytesSize(2, blockData_);
       }
       for (int i = 0; i < transactionsData_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, transactionsData_.get(i));
+          .computeMessageSize(3, transactionsData_.get(i));
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -6385,6 +6357,8 @@ public final class PeerApi {
       }
       brs.api.grpc.proto.PeerApi.RawBlock other = (brs.api.grpc.proto.PeerApi.RawBlock) obj;
 
+      if (getHeight()
+          != other.getHeight()) return false;
       if (!getBlockData()
           .equals(other.getBlockData())) return false;
       if (!getTransactionsDataList()
@@ -6400,6 +6374,8 @@ public final class PeerApi {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + HEIGHT_FIELD_NUMBER;
+      hash = (53 * hash) + getHeight();
       hash = (37 * hash) + BLOCKDATA_FIELD_NUMBER;
       hash = (53 * hash) + getBlockData().hashCode();
       if (getTransactionsDataCount() > 0) {
@@ -6540,6 +6516,8 @@ public final class PeerApi {
       @java.lang.Override
       public Builder clear() {
         super.clear();
+        height_ = 0;
+
         blockData_ = com.google.protobuf.ByteString.EMPTY;
 
         if (transactionsDataBuilder_ == null) {
@@ -6575,6 +6553,7 @@ public final class PeerApi {
       public brs.api.grpc.proto.PeerApi.RawBlock buildPartial() {
         brs.api.grpc.proto.PeerApi.RawBlock result = new brs.api.grpc.proto.PeerApi.RawBlock(this);
         int from_bitField0_ = bitField0_;
+        result.height_ = height_;
         result.blockData_ = blockData_;
         if (transactionsDataBuilder_ == null) {
           if (((bitField0_ & 0x00000001) != 0)) {
@@ -6633,6 +6612,9 @@ public final class PeerApi {
 
       public Builder mergeFrom(brs.api.grpc.proto.PeerApi.RawBlock other) {
         if (other == brs.api.grpc.proto.PeerApi.RawBlock.getDefaultInstance()) return this;
+        if (other.getHeight() != 0) {
+          setHeight(other.getHeight());
+        }
         if (other.getBlockData() != com.google.protobuf.ByteString.EMPTY) {
           setBlockData(other.getBlockData());
         }
@@ -6692,16 +6674,46 @@ public final class PeerApi {
       }
       private int bitField0_;
 
+      private int height_ ;
+      /**
+       * <code>uint32 height = 1;</code>
+       * @return The height.
+       */
+      public int getHeight() {
+        return height_;
+      }
+      /**
+       * <code>uint32 height = 1;</code>
+       * @param value The height to set.
+       * @return This builder for chaining.
+       */
+      public Builder setHeight(int value) {
+        
+        height_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>uint32 height = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearHeight() {
+        
+        height_ = 0;
+        onChanged();
+        return this;
+      }
+
       private com.google.protobuf.ByteString blockData_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>bytes blockData = 1;</code>
+       * <code>bytes blockData = 2;</code>
        * @return The blockData.
        */
       public com.google.protobuf.ByteString getBlockData() {
         return blockData_;
       }
       /**
-       * <code>bytes blockData = 1;</code>
+       * <code>bytes blockData = 2;</code>
        * @param value The blockData to set.
        * @return This builder for chaining.
        */
@@ -6715,7 +6727,7 @@ public final class PeerApi {
         return this;
       }
       /**
-       * <code>bytes blockData = 1;</code>
+       * <code>bytes blockData = 2;</code>
        * @return This builder for chaining.
        */
       public Builder clearBlockData() {
@@ -6738,7 +6750,7 @@ public final class PeerApi {
           brs.api.grpc.proto.PeerApi.RawTransaction, brs.api.grpc.proto.PeerApi.RawTransaction.Builder, brs.api.grpc.proto.PeerApi.RawTransactionOrBuilder> transactionsDataBuilder_;
 
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public java.util.List<brs.api.grpc.proto.PeerApi.RawTransaction> getTransactionsDataList() {
         if (transactionsDataBuilder_ == null) {
@@ -6748,7 +6760,7 @@ public final class PeerApi {
         }
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public int getTransactionsDataCount() {
         if (transactionsDataBuilder_ == null) {
@@ -6758,7 +6770,7 @@ public final class PeerApi {
         }
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public brs.api.grpc.proto.PeerApi.RawTransaction getTransactionsData(int index) {
         if (transactionsDataBuilder_ == null) {
@@ -6768,7 +6780,7 @@ public final class PeerApi {
         }
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public Builder setTransactionsData(
           int index, brs.api.grpc.proto.PeerApi.RawTransaction value) {
@@ -6785,7 +6797,7 @@ public final class PeerApi {
         return this;
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public Builder setTransactionsData(
           int index, brs.api.grpc.proto.PeerApi.RawTransaction.Builder builderForValue) {
@@ -6799,7 +6811,7 @@ public final class PeerApi {
         return this;
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public Builder addTransactionsData(brs.api.grpc.proto.PeerApi.RawTransaction value) {
         if (transactionsDataBuilder_ == null) {
@@ -6815,7 +6827,7 @@ public final class PeerApi {
         return this;
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public Builder addTransactionsData(
           int index, brs.api.grpc.proto.PeerApi.RawTransaction value) {
@@ -6832,7 +6844,7 @@ public final class PeerApi {
         return this;
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public Builder addTransactionsData(
           brs.api.grpc.proto.PeerApi.RawTransaction.Builder builderForValue) {
@@ -6846,7 +6858,7 @@ public final class PeerApi {
         return this;
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public Builder addTransactionsData(
           int index, brs.api.grpc.proto.PeerApi.RawTransaction.Builder builderForValue) {
@@ -6860,7 +6872,7 @@ public final class PeerApi {
         return this;
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public Builder addAllTransactionsData(
           java.lang.Iterable<? extends brs.api.grpc.proto.PeerApi.RawTransaction> values) {
@@ -6875,7 +6887,7 @@ public final class PeerApi {
         return this;
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public Builder clearTransactionsData() {
         if (transactionsDataBuilder_ == null) {
@@ -6888,7 +6900,7 @@ public final class PeerApi {
         return this;
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public Builder removeTransactionsData(int index) {
         if (transactionsDataBuilder_ == null) {
@@ -6901,14 +6913,14 @@ public final class PeerApi {
         return this;
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public brs.api.grpc.proto.PeerApi.RawTransaction.Builder getTransactionsDataBuilder(
           int index) {
         return getTransactionsDataFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public brs.api.grpc.proto.PeerApi.RawTransactionOrBuilder getTransactionsDataOrBuilder(
           int index) {
@@ -6918,7 +6930,7 @@ public final class PeerApi {
         }
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public java.util.List<? extends brs.api.grpc.proto.PeerApi.RawTransactionOrBuilder> 
            getTransactionsDataOrBuilderList() {
@@ -6929,14 +6941,14 @@ public final class PeerApi {
         }
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public brs.api.grpc.proto.PeerApi.RawTransaction.Builder addTransactionsDataBuilder() {
         return getTransactionsDataFieldBuilder().addBuilder(
             brs.api.grpc.proto.PeerApi.RawTransaction.getDefaultInstance());
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public brs.api.grpc.proto.PeerApi.RawTransaction.Builder addTransactionsDataBuilder(
           int index) {
@@ -6944,7 +6956,7 @@ public final class PeerApi {
             index, brs.api.grpc.proto.PeerApi.RawTransaction.getDefaultInstance());
       }
       /**
-       * <code>repeated .brs.peer.RawTransaction transactionsData = 2;</code>
+       * <code>repeated .brs.peer.RawTransaction transactionsData = 3;</code>
        */
       public java.util.List<brs.api.grpc.proto.PeerApi.RawTransaction.Builder> 
            getTransactionsDataBuilderList() {
@@ -7631,49 +7643,51 @@ public final class PeerApi {
 
   }
 
-  public interface ProcessResultOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:brs.peer.ProcessResult)
+  public interface ProcessBlockRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:brs.peer.ProcessBlockRequest)
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>bool accepted = 1;</code>
-     * @return The accepted.
+     * <code>uint64 previousBlockId = 1;</code>
+     * @return The previousBlockId.
      */
-    boolean getAccepted();
+    long getPreviousBlockId();
 
     /**
-     * <code>string error = 2;</code>
-     * @return The error.
+     * <code>.brs.peer.RawBlock block = 2;</code>
+     * @return Whether the block field is set.
      */
-    java.lang.String getError();
+    boolean hasBlock();
     /**
-     * <code>string error = 2;</code>
-     * @return The bytes for error.
+     * <code>.brs.peer.RawBlock block = 2;</code>
+     * @return The block.
      */
-    com.google.protobuf.ByteString
-        getErrorBytes();
+    brs.api.grpc.proto.PeerApi.RawBlock getBlock();
+    /**
+     * <code>.brs.peer.RawBlock block = 2;</code>
+     */
+    brs.api.grpc.proto.PeerApi.RawBlockOrBuilder getBlockOrBuilder();
   }
   /**
-   * Protobuf type {@code brs.peer.ProcessResult}
+   * Protobuf type {@code brs.peer.ProcessBlockRequest}
    */
-  public  static final class ProcessResult extends
+  public  static final class ProcessBlockRequest extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:brs.peer.ProcessResult)
-      ProcessResultOrBuilder {
+      // @@protoc_insertion_point(message_implements:brs.peer.ProcessBlockRequest)
+      ProcessBlockRequestOrBuilder {
   private static final long serialVersionUID = 0L;
-    // Use ProcessResult.newBuilder() to construct.
-    private ProcessResult(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+    // Use ProcessBlockRequest.newBuilder() to construct.
+    private ProcessBlockRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-    private ProcessResult() {
-      error_ = "";
+    private ProcessBlockRequest() {
     }
 
     @java.lang.Override
     @SuppressWarnings({"unused"})
     protected java.lang.Object newInstance(
         UnusedPrivateParameter unused) {
-      return new ProcessResult();
+      return new ProcessBlockRequest();
     }
 
     @java.lang.Override
@@ -7681,7 +7695,7 @@ public final class PeerApi {
     getUnknownFields() {
       return this.unknownFields;
     }
-    private ProcessResult(
+    private ProcessBlockRequest(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -7701,13 +7715,20 @@ public final class PeerApi {
               break;
             case 8: {
 
-              accepted_ = input.readBool();
+              previousBlockId_ = input.readUInt64();
               break;
             }
             case 18: {
-              java.lang.String s = input.readStringRequireUtf8();
+              brs.api.grpc.proto.PeerApi.RawBlock.Builder subBuilder = null;
+              if (block_ != null) {
+                subBuilder = block_.toBuilder();
+              }
+              block_ = input.readMessage(brs.api.grpc.proto.PeerApi.RawBlock.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(block_);
+                block_ = subBuilder.buildPartial();
+              }
 
-              error_ = s;
               break;
             }
             default: {
@@ -7731,61 +7752,48 @@ public final class PeerApi {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return brs.api.grpc.proto.PeerApi.internal_static_brs_peer_ProcessResult_descriptor;
+      return brs.api.grpc.proto.PeerApi.internal_static_brs_peer_ProcessBlockRequest_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return brs.api.grpc.proto.PeerApi.internal_static_brs_peer_ProcessResult_fieldAccessorTable
+      return brs.api.grpc.proto.PeerApi.internal_static_brs_peer_ProcessBlockRequest_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              brs.api.grpc.proto.PeerApi.ProcessResult.class, brs.api.grpc.proto.PeerApi.ProcessResult.Builder.class);
+              brs.api.grpc.proto.PeerApi.ProcessBlockRequest.class, brs.api.grpc.proto.PeerApi.ProcessBlockRequest.Builder.class);
     }
 
-    public static final int ACCEPTED_FIELD_NUMBER = 1;
-    private boolean accepted_;
+    public static final int PREVIOUSBLOCKID_FIELD_NUMBER = 1;
+    private long previousBlockId_;
     /**
-     * <code>bool accepted = 1;</code>
-     * @return The accepted.
+     * <code>uint64 previousBlockId = 1;</code>
+     * @return The previousBlockId.
      */
-    public boolean getAccepted() {
-      return accepted_;
+    public long getPreviousBlockId() {
+      return previousBlockId_;
     }
 
-    public static final int ERROR_FIELD_NUMBER = 2;
-    private volatile java.lang.Object error_;
+    public static final int BLOCK_FIELD_NUMBER = 2;
+    private brs.api.grpc.proto.PeerApi.RawBlock block_;
     /**
-     * <code>string error = 2;</code>
-     * @return The error.
+     * <code>.brs.peer.RawBlock block = 2;</code>
+     * @return Whether the block field is set.
      */
-    public java.lang.String getError() {
-      java.lang.Object ref = error_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        error_ = s;
-        return s;
-      }
+    public boolean hasBlock() {
+      return block_ != null;
     }
     /**
-     * <code>string error = 2;</code>
-     * @return The bytes for error.
+     * <code>.brs.peer.RawBlock block = 2;</code>
+     * @return The block.
      */
-    public com.google.protobuf.ByteString
-        getErrorBytes() {
-      java.lang.Object ref = error_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        error_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
+    public brs.api.grpc.proto.PeerApi.RawBlock getBlock() {
+      return block_ == null ? brs.api.grpc.proto.PeerApi.RawBlock.getDefaultInstance() : block_;
+    }
+    /**
+     * <code>.brs.peer.RawBlock block = 2;</code>
+     */
+    public brs.api.grpc.proto.PeerApi.RawBlockOrBuilder getBlockOrBuilder() {
+      return getBlock();
     }
 
     private byte memoizedIsInitialized = -1;
@@ -7802,11 +7810,11 @@ public final class PeerApi {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (accepted_ != false) {
-        output.writeBool(1, accepted_);
+      if (previousBlockId_ != 0L) {
+        output.writeUInt64(1, previousBlockId_);
       }
-      if (!getErrorBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, error_);
+      if (block_ != null) {
+        output.writeMessage(2, getBlock());
       }
       unknownFields.writeTo(output);
     }
@@ -7817,12 +7825,13 @@ public final class PeerApi {
       if (size != -1) return size;
 
       size = 0;
-      if (accepted_ != false) {
+      if (previousBlockId_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(1, accepted_);
+          .computeUInt64Size(1, previousBlockId_);
       }
-      if (!getErrorBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, error_);
+      if (block_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, getBlock());
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -7834,15 +7843,18 @@ public final class PeerApi {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof brs.api.grpc.proto.PeerApi.ProcessResult)) {
+      if (!(obj instanceof brs.api.grpc.proto.PeerApi.ProcessBlockRequest)) {
         return super.equals(obj);
       }
-      brs.api.grpc.proto.PeerApi.ProcessResult other = (brs.api.grpc.proto.PeerApi.ProcessResult) obj;
+      brs.api.grpc.proto.PeerApi.ProcessBlockRequest other = (brs.api.grpc.proto.PeerApi.ProcessBlockRequest) obj;
 
-      if (getAccepted()
-          != other.getAccepted()) return false;
-      if (!getError()
-          .equals(other.getError())) return false;
+      if (getPreviousBlockId()
+          != other.getPreviousBlockId()) return false;
+      if (hasBlock() != other.hasBlock()) return false;
+      if (hasBlock()) {
+        if (!getBlock()
+            .equals(other.getBlock())) return false;
+      }
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -7854,79 +7866,81 @@ public final class PeerApi {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + ACCEPTED_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getAccepted());
-      hash = (37 * hash) + ERROR_FIELD_NUMBER;
-      hash = (53 * hash) + getError().hashCode();
+      hash = (37 * hash) + PREVIOUSBLOCKID_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getPreviousBlockId());
+      if (hasBlock()) {
+        hash = (37 * hash) + BLOCK_FIELD_NUMBER;
+        hash = (53 * hash) + getBlock().hashCode();
+      }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
     }
 
-    public static brs.api.grpc.proto.PeerApi.ProcessResult parseFrom(
+    public static brs.api.grpc.proto.PeerApi.ProcessBlockRequest parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static brs.api.grpc.proto.PeerApi.ProcessResult parseFrom(
+    public static brs.api.grpc.proto.PeerApi.ProcessBlockRequest parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static brs.api.grpc.proto.PeerApi.ProcessResult parseFrom(
+    public static brs.api.grpc.proto.PeerApi.ProcessBlockRequest parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static brs.api.grpc.proto.PeerApi.ProcessResult parseFrom(
+    public static brs.api.grpc.proto.PeerApi.ProcessBlockRequest parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static brs.api.grpc.proto.PeerApi.ProcessResult parseFrom(byte[] data)
+    public static brs.api.grpc.proto.PeerApi.ProcessBlockRequest parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static brs.api.grpc.proto.PeerApi.ProcessResult parseFrom(
+    public static brs.api.grpc.proto.PeerApi.ProcessBlockRequest parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static brs.api.grpc.proto.PeerApi.ProcessResult parseFrom(java.io.InputStream input)
+    public static brs.api.grpc.proto.PeerApi.ProcessBlockRequest parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static brs.api.grpc.proto.PeerApi.ProcessResult parseFrom(
+    public static brs.api.grpc.proto.PeerApi.ProcessBlockRequest parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static brs.api.grpc.proto.PeerApi.ProcessResult parseDelimitedFrom(java.io.InputStream input)
+    public static brs.api.grpc.proto.PeerApi.ProcessBlockRequest parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static brs.api.grpc.proto.PeerApi.ProcessResult parseDelimitedFrom(
+    public static brs.api.grpc.proto.PeerApi.ProcessBlockRequest parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static brs.api.grpc.proto.PeerApi.ProcessResult parseFrom(
+    public static brs.api.grpc.proto.PeerApi.ProcessBlockRequest parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static brs.api.grpc.proto.PeerApi.ProcessResult parseFrom(
+    public static brs.api.grpc.proto.PeerApi.ProcessBlockRequest parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -7939,7 +7953,7 @@ public final class PeerApi {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(brs.api.grpc.proto.PeerApi.ProcessResult prototype) {
+    public static Builder newBuilder(brs.api.grpc.proto.PeerApi.ProcessBlockRequest prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -7955,26 +7969,26 @@ public final class PeerApi {
       return builder;
     }
     /**
-     * Protobuf type {@code brs.peer.ProcessResult}
+     * Protobuf type {@code brs.peer.ProcessBlockRequest}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:brs.peer.ProcessResult)
-        brs.api.grpc.proto.PeerApi.ProcessResultOrBuilder {
+        // @@protoc_insertion_point(builder_implements:brs.peer.ProcessBlockRequest)
+        brs.api.grpc.proto.PeerApi.ProcessBlockRequestOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return brs.api.grpc.proto.PeerApi.internal_static_brs_peer_ProcessResult_descriptor;
+        return brs.api.grpc.proto.PeerApi.internal_static_brs_peer_ProcessBlockRequest_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return brs.api.grpc.proto.PeerApi.internal_static_brs_peer_ProcessResult_fieldAccessorTable
+        return brs.api.grpc.proto.PeerApi.internal_static_brs_peer_ProcessBlockRequest_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                brs.api.grpc.proto.PeerApi.ProcessResult.class, brs.api.grpc.proto.PeerApi.ProcessResult.Builder.class);
+                brs.api.grpc.proto.PeerApi.ProcessBlockRequest.class, brs.api.grpc.proto.PeerApi.ProcessBlockRequest.Builder.class);
       }
 
-      // Construct using brs.api.grpc.proto.PeerApi.ProcessResult.newBuilder()
+      // Construct using brs.api.grpc.proto.PeerApi.ProcessBlockRequest.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -7992,27 +8006,31 @@ public final class PeerApi {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        accepted_ = false;
+        previousBlockId_ = 0L;
 
-        error_ = "";
-
+        if (blockBuilder_ == null) {
+          block_ = null;
+        } else {
+          block_ = null;
+          blockBuilder_ = null;
+        }
         return this;
       }
 
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return brs.api.grpc.proto.PeerApi.internal_static_brs_peer_ProcessResult_descriptor;
+        return brs.api.grpc.proto.PeerApi.internal_static_brs_peer_ProcessBlockRequest_descriptor;
       }
 
       @java.lang.Override
-      public brs.api.grpc.proto.PeerApi.ProcessResult getDefaultInstanceForType() {
-        return brs.api.grpc.proto.PeerApi.ProcessResult.getDefaultInstance();
+      public brs.api.grpc.proto.PeerApi.ProcessBlockRequest getDefaultInstanceForType() {
+        return brs.api.grpc.proto.PeerApi.ProcessBlockRequest.getDefaultInstance();
       }
 
       @java.lang.Override
-      public brs.api.grpc.proto.PeerApi.ProcessResult build() {
-        brs.api.grpc.proto.PeerApi.ProcessResult result = buildPartial();
+      public brs.api.grpc.proto.PeerApi.ProcessBlockRequest build() {
+        brs.api.grpc.proto.PeerApi.ProcessBlockRequest result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -8020,10 +8038,14 @@ public final class PeerApi {
       }
 
       @java.lang.Override
-      public brs.api.grpc.proto.PeerApi.ProcessResult buildPartial() {
-        brs.api.grpc.proto.PeerApi.ProcessResult result = new brs.api.grpc.proto.PeerApi.ProcessResult(this);
-        result.accepted_ = accepted_;
-        result.error_ = error_;
+      public brs.api.grpc.proto.PeerApi.ProcessBlockRequest buildPartial() {
+        brs.api.grpc.proto.PeerApi.ProcessBlockRequest result = new brs.api.grpc.proto.PeerApi.ProcessBlockRequest(this);
+        result.previousBlockId_ = previousBlockId_;
+        if (blockBuilder_ == null) {
+          result.block_ = block_;
+        } else {
+          result.block_ = blockBuilder_.build();
+        }
         onBuilt();
         return result;
       }
@@ -8062,22 +8084,21 @@ public final class PeerApi {
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof brs.api.grpc.proto.PeerApi.ProcessResult) {
-          return mergeFrom((brs.api.grpc.proto.PeerApi.ProcessResult)other);
+        if (other instanceof brs.api.grpc.proto.PeerApi.ProcessBlockRequest) {
+          return mergeFrom((brs.api.grpc.proto.PeerApi.ProcessBlockRequest)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(brs.api.grpc.proto.PeerApi.ProcessResult other) {
-        if (other == brs.api.grpc.proto.PeerApi.ProcessResult.getDefaultInstance()) return this;
-        if (other.getAccepted() != false) {
-          setAccepted(other.getAccepted());
+      public Builder mergeFrom(brs.api.grpc.proto.PeerApi.ProcessBlockRequest other) {
+        if (other == brs.api.grpc.proto.PeerApi.ProcessBlockRequest.getDefaultInstance()) return this;
+        if (other.getPreviousBlockId() != 0L) {
+          setPreviousBlockId(other.getPreviousBlockId());
         }
-        if (!other.getError().isEmpty()) {
-          error_ = other.error_;
-          onChanged();
+        if (other.hasBlock()) {
+          mergeBlock(other.getBlock());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -8094,11 +8115,11 @@ public final class PeerApi {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        brs.api.grpc.proto.PeerApi.ProcessResult parsedMessage = null;
+        brs.api.grpc.proto.PeerApi.ProcessBlockRequest parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (brs.api.grpc.proto.PeerApi.ProcessResult) e.getUnfinishedMessage();
+          parsedMessage = (brs.api.grpc.proto.PeerApi.ProcessBlockRequest) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -8108,110 +8129,153 @@ public final class PeerApi {
         return this;
       }
 
-      private boolean accepted_ ;
+      private long previousBlockId_ ;
       /**
-       * <code>bool accepted = 1;</code>
-       * @return The accepted.
+       * <code>uint64 previousBlockId = 1;</code>
+       * @return The previousBlockId.
        */
-      public boolean getAccepted() {
-        return accepted_;
+      public long getPreviousBlockId() {
+        return previousBlockId_;
       }
       /**
-       * <code>bool accepted = 1;</code>
-       * @param value The accepted to set.
+       * <code>uint64 previousBlockId = 1;</code>
+       * @param value The previousBlockId to set.
        * @return This builder for chaining.
        */
-      public Builder setAccepted(boolean value) {
+      public Builder setPreviousBlockId(long value) {
         
-        accepted_ = value;
+        previousBlockId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>bool accepted = 1;</code>
+       * <code>uint64 previousBlockId = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearAccepted() {
+      public Builder clearPreviousBlockId() {
         
-        accepted_ = false;
+        previousBlockId_ = 0L;
         onChanged();
         return this;
       }
 
-      private java.lang.Object error_ = "";
+      private brs.api.grpc.proto.PeerApi.RawBlock block_;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          brs.api.grpc.proto.PeerApi.RawBlock, brs.api.grpc.proto.PeerApi.RawBlock.Builder, brs.api.grpc.proto.PeerApi.RawBlockOrBuilder> blockBuilder_;
       /**
-       * <code>string error = 2;</code>
-       * @return The error.
+       * <code>.brs.peer.RawBlock block = 2;</code>
+       * @return Whether the block field is set.
        */
-      public java.lang.String getError() {
-        java.lang.Object ref = error_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          error_ = s;
-          return s;
+      public boolean hasBlock() {
+        return blockBuilder_ != null || block_ != null;
+      }
+      /**
+       * <code>.brs.peer.RawBlock block = 2;</code>
+       * @return The block.
+       */
+      public brs.api.grpc.proto.PeerApi.RawBlock getBlock() {
+        if (blockBuilder_ == null) {
+          return block_ == null ? brs.api.grpc.proto.PeerApi.RawBlock.getDefaultInstance() : block_;
         } else {
-          return (java.lang.String) ref;
+          return blockBuilder_.getMessage();
         }
       }
       /**
-       * <code>string error = 2;</code>
-       * @return The bytes for error.
+       * <code>.brs.peer.RawBlock block = 2;</code>
        */
-      public com.google.protobuf.ByteString
-          getErrorBytes() {
-        java.lang.Object ref = error_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          error_ = b;
-          return b;
+      public Builder setBlock(brs.api.grpc.proto.PeerApi.RawBlock value) {
+        if (blockBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          block_ = value;
+          onChanged();
         } else {
-          return (com.google.protobuf.ByteString) ref;
+          blockBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.brs.peer.RawBlock block = 2;</code>
+       */
+      public Builder setBlock(
+          brs.api.grpc.proto.PeerApi.RawBlock.Builder builderForValue) {
+        if (blockBuilder_ == null) {
+          block_ = builderForValue.build();
+          onChanged();
+        } else {
+          blockBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.brs.peer.RawBlock block = 2;</code>
+       */
+      public Builder mergeBlock(brs.api.grpc.proto.PeerApi.RawBlock value) {
+        if (blockBuilder_ == null) {
+          if (block_ != null) {
+            block_ =
+              brs.api.grpc.proto.PeerApi.RawBlock.newBuilder(block_).mergeFrom(value).buildPartial();
+          } else {
+            block_ = value;
+          }
+          onChanged();
+        } else {
+          blockBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.brs.peer.RawBlock block = 2;</code>
+       */
+      public Builder clearBlock() {
+        if (blockBuilder_ == null) {
+          block_ = null;
+          onChanged();
+        } else {
+          block_ = null;
+          blockBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.brs.peer.RawBlock block = 2;</code>
+       */
+      public brs.api.grpc.proto.PeerApi.RawBlock.Builder getBlockBuilder() {
+        
+        onChanged();
+        return getBlockFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.brs.peer.RawBlock block = 2;</code>
+       */
+      public brs.api.grpc.proto.PeerApi.RawBlockOrBuilder getBlockOrBuilder() {
+        if (blockBuilder_ != null) {
+          return blockBuilder_.getMessageOrBuilder();
+        } else {
+          return block_ == null ?
+              brs.api.grpc.proto.PeerApi.RawBlock.getDefaultInstance() : block_;
         }
       }
       /**
-       * <code>string error = 2;</code>
-       * @param value The error to set.
-       * @return This builder for chaining.
+       * <code>.brs.peer.RawBlock block = 2;</code>
        */
-      public Builder setError(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  
-        error_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string error = 2;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearError() {
-        
-        error_ = getDefaultInstance().getError();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string error = 2;</code>
-       * @param value The bytes for error to set.
-       * @return This builder for chaining.
-       */
-      public Builder setErrorBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        
-        error_ = value;
-        onChanged();
-        return this;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          brs.api.grpc.proto.PeerApi.RawBlock, brs.api.grpc.proto.PeerApi.RawBlock.Builder, brs.api.grpc.proto.PeerApi.RawBlockOrBuilder> 
+          getBlockFieldBuilder() {
+        if (blockBuilder_ == null) {
+          blockBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              brs.api.grpc.proto.PeerApi.RawBlock, brs.api.grpc.proto.PeerApi.RawBlock.Builder, brs.api.grpc.proto.PeerApi.RawBlockOrBuilder>(
+                  getBlock(),
+                  getParentForChildren(),
+                  isClean());
+          block_ = null;
+        }
+        return blockBuilder_;
       }
       @java.lang.Override
       public final Builder setUnknownFields(
@@ -8226,41 +8290,41 @@ public final class PeerApi {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:brs.peer.ProcessResult)
+      // @@protoc_insertion_point(builder_scope:brs.peer.ProcessBlockRequest)
     }
 
-    // @@protoc_insertion_point(class_scope:brs.peer.ProcessResult)
-    private static final brs.api.grpc.proto.PeerApi.ProcessResult DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:brs.peer.ProcessBlockRequest)
+    private static final brs.api.grpc.proto.PeerApi.ProcessBlockRequest DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new brs.api.grpc.proto.PeerApi.ProcessResult();
+      DEFAULT_INSTANCE = new brs.api.grpc.proto.PeerApi.ProcessBlockRequest();
     }
 
-    public static brs.api.grpc.proto.PeerApi.ProcessResult getDefaultInstance() {
+    public static brs.api.grpc.proto.PeerApi.ProcessBlockRequest getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<ProcessResult>
-        PARSER = new com.google.protobuf.AbstractParser<ProcessResult>() {
+    private static final com.google.protobuf.Parser<ProcessBlockRequest>
+        PARSER = new com.google.protobuf.AbstractParser<ProcessBlockRequest>() {
       @java.lang.Override
-      public ProcessResult parsePartialFrom(
+      public ProcessBlockRequest parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ProcessResult(input, extensionRegistry);
+        return new ProcessBlockRequest(input, extensionRegistry);
       }
     };
 
-    public static com.google.protobuf.Parser<ProcessResult> parser() {
+    public static com.google.protobuf.Parser<ProcessBlockRequest> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<ProcessResult> getParserForType() {
+    public com.google.protobuf.Parser<ProcessBlockRequest> getParserForType() {
       return PARSER;
     }
 
     @java.lang.Override
-    public brs.api.grpc.proto.PeerApi.ProcessResult getDefaultInstanceForType() {
+    public brs.api.grpc.proto.PeerApi.ProcessBlockRequest getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -8322,10 +8386,10 @@ public final class PeerApi {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_brs_peer_BlockIds_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_brs_peer_ProcessResult_descriptor;
+    internal_static_brs_peer_ProcessBlockRequest_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_brs_peer_ProcessResult_fieldAccessorTable;
+      internal_static_brs_peer_ProcessBlockRequest_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -8339,7 +8403,7 @@ public final class PeerApi {
       "uf/empty.proto\032\031google/protobuf/any.prot" +
       "o\"#\n\005Peers\022\032\n\022announcedAddresses\030\001 \003(\t\"N" +
       "\n\024CumulativeDifficulty\022\034\n\024cumulativeDiff" +
-      "iculty\030\001 \001(\t\022\030\n\020blockchainHeight\030\002 \001(\r\"r" +
+      "iculty\030\001 \001(\014\022\030\n\020blockchainHeight\030\002 \001(\r\"r" +
       "\n\010PeerInfo\022\030\n\020announcedAddress\030\001 \001(\t\022\023\n\013" +
       "application\030\002 \001(\t\022\017\n\007version\030\003 \001(\t\022\020\n\010pl" +
       "atform\030\004 \001(\t\022\024\n\014shareAddress\030\005 \001(\010\"P\n\033Ge" +
@@ -8351,30 +8415,31 @@ public final class PeerApi {
       ".\n\014transactions\030\001 \003(\0132\030.brs.peer.RawTran" +
       "saction\")\n\016RawTransaction\022\027\n\017transaction" +
       "Data\030\001 \001(\014\"/\n\tRawBlocks\022\"\n\006blocks\030\001 \003(\0132" +
-      "\022.brs.peer.RawBlock\"Q\n\010RawBlock\022\021\n\tblock" +
-      "Data\030\001 \001(\014\0222\n\020transactionsData\030\002 \003(\0132\030.b" +
-      "rs.peer.RawTransaction\"\034\n\010BlockIds\022\020\n\010bl" +
-      "ockIds\030\001 \003(\004\"0\n\rProcessResult\022\020\n\010accepte" +
-      "d\030\001 \001(\010\022\r\n\005error\030\002 \001(\t2\306\005\n\016BrsPeerServic" +
-      "e\0223\n\010AddPeers\022\017.brs.peer.Peers\032\026.google." +
-      "protobuf.Empty\0223\n\010GetPeers\022\026.google.prot" +
-      "obuf.Empty\032\017.brs.peer.Peers\022Q\n\027GetCumula" +
-      "tiveDifficulty\022\026.google.protobuf.Empty\032\036" +
-      ".brs.peer.CumulativeDifficulty\0221\n\007GetInf" +
-      "o\022\022.brs.peer.PeerInfo\032\022.brs.peer.PeerInf" +
-      "o\022Z\n\024GetMilestoneBlockIds\022%.brs.peer.Get" +
-      "MilestoneBlockIdsRequest\032\033.brs.peer.Mile" +
-      "stoneBlockIds\022F\n\016GetBlocksAfter\022\037.brs.pe" +
-      "er.GetBlocksAfterRequest\032\023.brs.peer.RawB" +
-      "locks\022G\n\020GetBlockIdsAfter\022\037.brs.peer.Get" +
-      "BlocksAfterRequest\032\022.brs.peer.BlockIds\022O" +
-      "\n\032GetUnconfirmedTransactions\022\026.google.pr" +
-      "otobuf.Empty\032\031.brs.peer.RawTransactions\022" +
-      ";\n\014ProcessBlock\022\022.brs.peer.RawBlock\032\027.br" +
-      "s.peer.ProcessResult\022I\n\023ProcessTransacti" +
-      "ons\022\031.brs.peer.RawTransactions\032\027.brs.pee" +
-      "r.ProcessResultB\024\n\022brs.api.grpc.protob\006p" +
-      "roto3"
+      "\022.brs.peer.RawBlock\"a\n\010RawBlock\022\016\n\006heigh" +
+      "t\030\001 \001(\r\022\021\n\tblockData\030\002 \001(\014\0222\n\020transactio" +
+      "nsData\030\003 \003(\0132\030.brs.peer.RawTransaction\"\034" +
+      "\n\010BlockIds\022\020\n\010blockIds\030\001 \003(\004\"Q\n\023ProcessB" +
+      "lockRequest\022\027\n\017previousBlockId\030\001 \001(\004\022!\n\005" +
+      "block\030\002 \001(\0132\022.brs.peer.RawBlock2\317\005\n\016BrsP" +
+      "eerService\0223\n\010AddPeers\022\017.brs.peer.Peers\032" +
+      "\026.google.protobuf.Empty\0223\n\010GetPeers\022\026.go" +
+      "ogle.protobuf.Empty\032\017.brs.peer.Peers\022Q\n\027" +
+      "GetCumulativeDifficulty\022\026.google.protobu" +
+      "f.Empty\032\036.brs.peer.CumulativeDifficulty\022" +
+      "1\n\007GetInfo\022\022.brs.peer.PeerInfo\032\022.brs.pee" +
+      "r.PeerInfo\022Z\n\024GetMilestoneBlockIds\022%.brs" +
+      ".peer.GetMilestoneBlockIdsRequest\032\033.brs." +
+      "peer.MilestoneBlockIds\022F\n\016GetBlocksAfter" +
+      "\022\037.brs.peer.GetBlocksAfterRequest\032\023.brs." +
+      "peer.RawBlocks\022G\n\020GetBlockIdsAfter\022\037.brs" +
+      ".peer.GetBlocksAfterRequest\032\022.brs.peer.B" +
+      "lockIds\022O\n\032GetUnconfirmedTransactions\022\026." +
+      "google.protobuf.Empty\032\031.brs.peer.RawTran" +
+      "sactions\022E\n\014ProcessBlock\022\035.brs.peer.Proc" +
+      "essBlockRequest\032\026.google.protobuf.Empty\022" +
+      "H\n\023ProcessTransactions\022\031.brs.peer.RawTra" +
+      "nsactions\032\026.google.protobuf.EmptyB\024\n\022brs" +
+      ".api.grpc.protob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -8441,19 +8506,19 @@ public final class PeerApi {
     internal_static_brs_peer_RawBlock_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_brs_peer_RawBlock_descriptor,
-        new java.lang.String[] { "BlockData", "TransactionsData", });
+        new java.lang.String[] { "Height", "BlockData", "TransactionsData", });
     internal_static_brs_peer_BlockIds_descriptor =
       getDescriptor().getMessageTypes().get(10);
     internal_static_brs_peer_BlockIds_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_brs_peer_BlockIds_descriptor,
         new java.lang.String[] { "BlockIds", });
-    internal_static_brs_peer_ProcessResult_descriptor =
+    internal_static_brs_peer_ProcessBlockRequest_descriptor =
       getDescriptor().getMessageTypes().get(11);
-    internal_static_brs_peer_ProcessResult_fieldAccessorTable = new
+    internal_static_brs_peer_ProcessBlockRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_brs_peer_ProcessResult_descriptor,
-        new java.lang.String[] { "Accepted", "Error", });
+        internal_static_brs_peer_ProcessBlockRequest_descriptor,
+        new java.lang.String[] { "PreviousBlockId", "Block", });
     com.google.protobuf.EmptyProto.getDescriptor();
     com.google.protobuf.AnyProto.getDescriptor();
   }

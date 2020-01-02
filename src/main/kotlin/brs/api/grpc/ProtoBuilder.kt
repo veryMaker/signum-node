@@ -1,6 +1,7 @@
 package brs.api.grpc
 
 import brs.api.grpc.proto.BrsApi
+import brs.api.grpc.proto.PeerApi
 import brs.at.AT
 import brs.entity.*
 import brs.services.AccountService
@@ -401,5 +402,26 @@ object ProtoBuilder {
         } catch (e: InvalidProtocolBufferException) {
             throw ApiException("Could not parse an Any: " + e.message)
         }
+    }
+
+    fun buildRawTransaction(transaction: Transaction): PeerApi.RawTransaction {
+        return PeerApi.RawTransaction.newBuilder()
+            .setTransactionData(transaction.toBytes().toByteString())
+            .build()
+    }
+
+    fun buidRawBlock(block: Block): PeerApi.RawBlock {
+        return PeerApi.RawBlock.newBuilder()
+            .setBlockData(block.toBytes().toByteString())
+            .addAllTransactionsData(block.transactions.map { buildRawTransaction(it) })
+            .build()
+    }
+
+    fun parseRawBlock(dp: DependencyProvider, rawBlock: PeerApi.RawBlock): Block {
+        return Block.parseBlock(dp, rawBlock.height, rawBlock.blockData.toByteArray(), rawBlock.transactionsDataList.map { it.toByteArray() })
+    }
+
+    fun parseRawTransaction(dp: DependencyProvider, rawTransaction: PeerApi.RawTransaction): Transaction {
+        return Transaction.parseTransaction(dp, rawTransaction.transactionData.toByteArray())
     }
 }

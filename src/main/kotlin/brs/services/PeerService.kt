@@ -50,7 +50,7 @@ interface PeerService {
     /**
      * TODO
      */
-    fun addPeer(announcedAddress: String?): Peer?
+    fun getOrAddPeer(announcedAddress: String?): Peer?
 
     /**
      * TODO
@@ -84,11 +84,6 @@ interface PeerService {
     /**
      * TODO
      */
-    val myPeerInfoResponse: JsonElement
-
-    /**
-     * TODO
-     */
     val communicationLoggingMask: Int
 
     /**
@@ -114,7 +109,7 @@ interface PeerService {
     /**
      * TODO
      */
-    fun addPeer(address: String, announcedAddress: String?): Peer?
+    fun getOrAddPeer(address: String, announcedAddress: String?): Peer?
 
     /**
      * TODO
@@ -159,4 +154,9 @@ interface PeerService {
         CHANGED_ACTIVE_PEER,
         NEW_PEER
     }
+
+    val myPlatform: String
+    val myAddress: String
+    val announcedAddress: String
+    val shareMyAddress: Boolean
 }

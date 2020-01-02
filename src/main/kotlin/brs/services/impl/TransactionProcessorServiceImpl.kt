@@ -179,6 +179,20 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
         }
     }
 
+    override fun processPeerTransactions(transactions: Iterable<Transaction>, peer: Peer) {
+        val filteredTransactions = transactions.filter {
+            try {
+                dp.transactionService.validate(it)
+                dp.economicClusteringService.verifyFork(it)
+            } catch (e: Exception) {
+                false
+            }
+        }
+        if (processTransactions(filteredTransactions, peer).isNotEmpty()) {
+            broadcastToPeers(false)
+        }
+    }
+
     private fun processPeerTransactions(transactionsData: JsonArray, peer: Peer): Collection<Transaction> {
         if (dp.blockchainService.lastBlock.timestamp < dp.timeService.epochTime - 60 * 1440 && !testUnconfirmedTransactions) {
             return mutableListOf()

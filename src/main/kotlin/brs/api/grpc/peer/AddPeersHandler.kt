@@ -7,6 +7,11 @@ import com.google.protobuf.Empty
 
 internal class AddPeersHandler(private val dp: DependencyProvider) : GrpcApiHandler<PeerApi.Peers, Empty> {
     override fun handleRequest(request: PeerApi.Peers): Empty {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        if (dp.peerService.getMorePeers) {
+            request.announcedAddressesList.forEach {
+                dp.peerService.getOrAddPeer(it)
+            }
+        }
+        return Empty.getDefaultInstance()
     }
 }

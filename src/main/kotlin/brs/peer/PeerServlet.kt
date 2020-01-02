@@ -46,7 +46,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
         map["getNextBlockIds"] = GetNextBlockIds(dp.blockchainService)
         map["getPeers"] = GetPeers(dp)
         map["getUnconfirmedTransactions"] = GetUnconfirmedTransactions(dp)
-        map["processBlock"] = ProcessBlock(dp.blockchainService, dp.blockchainProcessorService)
+        map["processBlock"] = ProcessBlock(dp)
         map["processTransactions"] = ProcessTransactions(dp.transactionProcessorService)
         peerRequestHandlers = map
     }
@@ -71,7 +71,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
 
         var requestType = "unknown"
         try {
-            peer = dp.peerService.addPeer(request.remoteAddr, null)
+            peer = dp.peerService.getOrAddPeer(request.remoteAddr, null)
             if (peer == null || peer.isBlacklisted) {
                 return
             }

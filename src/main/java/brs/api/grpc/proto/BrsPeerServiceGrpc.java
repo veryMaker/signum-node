@@ -267,29 +267,29 @@ public final class BrsPeerServiceGrpc {
     return getGetUnconfirmedTransactionsMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.RawBlock,
-      brs.api.grpc.proto.PeerApi.ProcessResult> getProcessBlockMethod;
+  private static volatile io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.ProcessBlockRequest,
+      com.google.protobuf.Empty> getProcessBlockMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "ProcessBlock",
-      requestType = brs.api.grpc.proto.PeerApi.RawBlock.class,
-      responseType = brs.api.grpc.proto.PeerApi.ProcessResult.class,
+      requestType = brs.api.grpc.proto.PeerApi.ProcessBlockRequest.class,
+      responseType = com.google.protobuf.Empty.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.RawBlock,
-      brs.api.grpc.proto.PeerApi.ProcessResult> getProcessBlockMethod() {
-    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.RawBlock, brs.api.grpc.proto.PeerApi.ProcessResult> getProcessBlockMethod;
+  public static io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.ProcessBlockRequest,
+      com.google.protobuf.Empty> getProcessBlockMethod() {
+    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.ProcessBlockRequest, com.google.protobuf.Empty> getProcessBlockMethod;
     if ((getProcessBlockMethod = BrsPeerServiceGrpc.getProcessBlockMethod) == null) {
       synchronized (BrsPeerServiceGrpc.class) {
         if ((getProcessBlockMethod = BrsPeerServiceGrpc.getProcessBlockMethod) == null) {
           BrsPeerServiceGrpc.getProcessBlockMethod = getProcessBlockMethod =
-              io.grpc.MethodDescriptor.<brs.api.grpc.proto.PeerApi.RawBlock, brs.api.grpc.proto.PeerApi.ProcessResult>newBuilder()
+              io.grpc.MethodDescriptor.<brs.api.grpc.proto.PeerApi.ProcessBlockRequest, com.google.protobuf.Empty>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "ProcessBlock"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  brs.api.grpc.proto.PeerApi.RawBlock.getDefaultInstance()))
+                  brs.api.grpc.proto.PeerApi.ProcessBlockRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  brs.api.grpc.proto.PeerApi.ProcessResult.getDefaultInstance()))
+                  com.google.protobuf.Empty.getDefaultInstance()))
               .setSchemaDescriptor(new BrsPeerServiceMethodDescriptorSupplier("ProcessBlock"))
               .build();
         }
@@ -299,28 +299,28 @@ public final class BrsPeerServiceGrpc {
   }
 
   private static volatile io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.RawTransactions,
-      brs.api.grpc.proto.PeerApi.ProcessResult> getProcessTransactionsMethod;
+      com.google.protobuf.Empty> getProcessTransactionsMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "ProcessTransactions",
       requestType = brs.api.grpc.proto.PeerApi.RawTransactions.class,
-      responseType = brs.api.grpc.proto.PeerApi.ProcessResult.class,
+      responseType = com.google.protobuf.Empty.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
   public static io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.RawTransactions,
-      brs.api.grpc.proto.PeerApi.ProcessResult> getProcessTransactionsMethod() {
-    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.RawTransactions, brs.api.grpc.proto.PeerApi.ProcessResult> getProcessTransactionsMethod;
+      com.google.protobuf.Empty> getProcessTransactionsMethod() {
+    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.RawTransactions, com.google.protobuf.Empty> getProcessTransactionsMethod;
     if ((getProcessTransactionsMethod = BrsPeerServiceGrpc.getProcessTransactionsMethod) == null) {
       synchronized (BrsPeerServiceGrpc.class) {
         if ((getProcessTransactionsMethod = BrsPeerServiceGrpc.getProcessTransactionsMethod) == null) {
           BrsPeerServiceGrpc.getProcessTransactionsMethod = getProcessTransactionsMethod =
-              io.grpc.MethodDescriptor.<brs.api.grpc.proto.PeerApi.RawTransactions, brs.api.grpc.proto.PeerApi.ProcessResult>newBuilder()
+              io.grpc.MethodDescriptor.<brs.api.grpc.proto.PeerApi.RawTransactions, com.google.protobuf.Empty>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "ProcessTransactions"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   brs.api.grpc.proto.PeerApi.RawTransactions.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  brs.api.grpc.proto.PeerApi.ProcessResult.getDefaultInstance()))
+                  com.google.protobuf.Empty.getDefaultInstance()))
               .setSchemaDescriptor(new BrsPeerServiceMethodDescriptorSupplier("ProcessTransactions"))
               .build();
         }
@@ -435,15 +435,15 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public void processBlock(brs.api.grpc.proto.PeerApi.RawBlock request,
-        io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.ProcessResult> responseObserver) {
+    public void processBlock(brs.api.grpc.proto.PeerApi.ProcessBlockRequest request,
+        io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnimplementedUnaryCall(getProcessBlockMethod(), responseObserver);
     }
 
     /**
      */
     public void processTransactions(brs.api.grpc.proto.PeerApi.RawTransactions request,
-        io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.ProcessResult> responseObserver) {
+        io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnimplementedUnaryCall(getProcessTransactionsMethod(), responseObserver);
     }
 
@@ -509,15 +509,15 @@ public final class BrsPeerServiceGrpc {
             getProcessBlockMethod(),
             asyncUnaryCall(
               new MethodHandlers<
-                brs.api.grpc.proto.PeerApi.RawBlock,
-                brs.api.grpc.proto.PeerApi.ProcessResult>(
+                brs.api.grpc.proto.PeerApi.ProcessBlockRequest,
+                com.google.protobuf.Empty>(
                   this, METHODID_PROCESS_BLOCK)))
           .addMethod(
             getProcessTransactionsMethod(),
             asyncUnaryCall(
               new MethodHandlers<
                 brs.api.grpc.proto.PeerApi.RawTransactions,
-                brs.api.grpc.proto.PeerApi.ProcessResult>(
+                com.google.protobuf.Empty>(
                   this, METHODID_PROCESS_TRANSACTIONS)))
           .build();
     }
@@ -603,8 +603,8 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public void processBlock(brs.api.grpc.proto.PeerApi.RawBlock request,
-        io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.ProcessResult> responseObserver) {
+    public void processBlock(brs.api.grpc.proto.PeerApi.ProcessBlockRequest request,
+        io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnaryCall(
           getChannel().newCall(getProcessBlockMethod(), getCallOptions()), request, responseObserver);
     }
@@ -612,7 +612,7 @@ public final class BrsPeerServiceGrpc {
     /**
      */
     public void processTransactions(brs.api.grpc.proto.PeerApi.RawTransactions request,
-        io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.ProcessResult> responseObserver) {
+        io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnaryCall(
           getChannel().newCall(getProcessTransactionsMethod(), getCallOptions()), request, responseObserver);
     }
@@ -690,14 +690,14 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public brs.api.grpc.proto.PeerApi.ProcessResult processBlock(brs.api.grpc.proto.PeerApi.RawBlock request) {
+    public com.google.protobuf.Empty processBlock(brs.api.grpc.proto.PeerApi.ProcessBlockRequest request) {
       return blockingUnaryCall(
           getChannel(), getProcessBlockMethod(), getCallOptions(), request);
     }
 
     /**
      */
-    public brs.api.grpc.proto.PeerApi.ProcessResult processTransactions(brs.api.grpc.proto.PeerApi.RawTransactions request) {
+    public com.google.protobuf.Empty processTransactions(brs.api.grpc.proto.PeerApi.RawTransactions request) {
       return blockingUnaryCall(
           getChannel(), getProcessTransactionsMethod(), getCallOptions(), request);
     }
@@ -783,15 +783,15 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<brs.api.grpc.proto.PeerApi.ProcessResult> processBlock(
-        brs.api.grpc.proto.PeerApi.RawBlock request) {
+    public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty> processBlock(
+        brs.api.grpc.proto.PeerApi.ProcessBlockRequest request) {
       return futureUnaryCall(
           getChannel().newCall(getProcessBlockMethod(), getCallOptions()), request);
     }
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<brs.api.grpc.proto.PeerApi.ProcessResult> processTransactions(
+    public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty> processTransactions(
         brs.api.grpc.proto.PeerApi.RawTransactions request) {
       return futureUnaryCall(
           getChannel().newCall(getProcessTransactionsMethod(), getCallOptions()), request);
@@ -859,12 +859,12 @@ public final class BrsPeerServiceGrpc {
               (io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.RawTransactions>) responseObserver);
           break;
         case METHODID_PROCESS_BLOCK:
-          serviceImpl.processBlock((brs.api.grpc.proto.PeerApi.RawBlock) request,
-              (io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.ProcessResult>) responseObserver);
+          serviceImpl.processBlock((brs.api.grpc.proto.PeerApi.ProcessBlockRequest) request,
+              (io.grpc.stub.StreamObserver<com.google.protobuf.Empty>) responseObserver);
           break;
         case METHODID_PROCESS_TRANSACTIONS:
           serviceImpl.processTransactions((brs.api.grpc.proto.PeerApi.RawTransactions) request,
-              (io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.ProcessResult>) responseObserver);
+              (io.grpc.stub.StreamObserver<com.google.protobuf.Empty>) responseObserver);
           break;
         default:
           throw new AssertionError();

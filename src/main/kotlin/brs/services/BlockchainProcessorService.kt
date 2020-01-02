@@ -6,7 +6,6 @@ import brs.peer.Peer
 import brs.util.BurstException
 import brs.util.Observable
 import brs.util.json.toJsonString
-import com.google.gson.JsonObject
 
 interface BlockchainProcessorService : Observable<Block, BlockchainProcessorService.Event> {
     /**
@@ -39,7 +38,7 @@ interface BlockchainProcessorService : Observable<Block, BlockchainProcessorServ
     /**
      * TODO
      */
-    fun processPeerBlock(request: JsonObject, peer: Peer)
+    fun processPeerBlock(newBlock: Block, peer: Peer)
 
     /**
      * TODO

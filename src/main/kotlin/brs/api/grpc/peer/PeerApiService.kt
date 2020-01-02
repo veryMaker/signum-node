@@ -9,6 +9,7 @@ import com.google.protobuf.Empty
 import com.google.protobuf.Message
 import io.grpc.Server
 import io.grpc.ServerBuilder
+import io.grpc.ServerInterceptors
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder
 import io.grpc.stub.StreamObserver
 import java.net.InetSocketAddress
@@ -35,10 +36,11 @@ class PeerApiService(dp: DependencyProvider) : BrsPeerServiceGrpc.BrsPeerService
     }
 
     fun start(hostname: String, port: Int): Server {
+        val service = ServerInterceptors.intercept(this, PeerApiContextKeys.RemoteAddressInterceptor)
         return if (hostname == "0.0.0.0")
-            ServerBuilder.forPort(port).addService(this).build().start()
+            ServerBuilder.forPort(port).addService(service).build().start()
         else
-            NettyServerBuilder.forAddress(InetSocketAddress(hostname, port)).addService(this).build().start()
+            NettyServerBuilder.forAddress(InetSocketAddress(hostname, port)).addService(service).build().start()
     }
 
     private inline fun <reified H : GrpcApiHandler<R, S>, R : Message, S : Message> handleRequest(
@@ -86,11 +88,11 @@ class PeerApiService(dp: DependencyProvider) : BrsPeerServiceGrpc.BrsPeerService
         return handleRequest(GetUnconfirmedTransactionsHandler::class, request, responseObserver)
     }
 
-    override fun processBlock(request: PeerApi.RawBlock, responseObserver: StreamObserver<PeerApi.ProcessResult>) {
+    override fun processBlock(request: PeerApi.ProcessBlockRequest, responseObserver: StreamObserver<Empty>) {
         return handleRequest(ProcessBlockHandler::class, request, responseObserver)
     }
 
-    override fun processTransactions(request: PeerApi.RawTransactions, responseObserver: StreamObserver<PeerApi.ProcessResult>) {
+    override fun processTransactions(request: PeerApi.RawTransactions, responseObserver: StreamObserver<Empty>) {
         return handleRequest(ProcessTransactionsHandler::class, request, responseObserver)
     }
 }

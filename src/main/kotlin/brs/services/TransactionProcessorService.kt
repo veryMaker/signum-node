@@ -34,6 +34,11 @@ interface TransactionProcessorService : Observable<Collection<Transaction>, Tran
     /**
      * TODO
      */
+    fun processPeerTransactions(transactions: Iterable<Transaction>, peer: Peer)
+
+    /**
+     * TODO
+     */
     fun processPeerTransactions(request: JsonObject, peer: Peer)
 
     /**

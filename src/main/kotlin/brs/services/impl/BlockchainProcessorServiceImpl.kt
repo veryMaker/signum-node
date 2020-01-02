@@ -590,8 +590,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         return blockListeners.addListener(eventType, listener)
     }
 
-    override fun processPeerBlock(request: JsonObject, peer: Peer) {
-        val newBlock = Block.parseBlock(dp, request, dp.blockchainService.height)
+    override fun processPeerBlock(newBlock: Block, peer: Peer) {
         //* This process takes care of the blocks that is announced by peers We do not want to be fed forks.
         val chainblock = dp.downloadCacheService.lastBlock
         if (chainblock.id == newBlock.previousBlockId) {

@@ -15,8 +15,8 @@ service BrsPeerService {
     rpc GetBlocksAfter (GetBlocksAfterRequest) returns (RawBlocks);
     rpc GetBlockIdsAfter (GetBlocksAfterRequest) returns (BlockIds);
     rpc GetUnconfirmedTransactions (google.protobuf.Empty) returns (RawTransactions);
-    rpc ProcessBlock (RawBlock) returns (ProcessResult);
-    rpc ProcessTransactions (RawTransactions) returns (ProcessResult);
+    rpc ProcessBlock (ProcessBlockRequest) returns (google.protobuf.Empty);
+    rpc ProcessTransactions (RawTransactions) returns (google.protobuf.Empty);
 }
 
 message Peers {
@@ -24,7 +24,8 @@ message Peers {
 }
 
 message CumulativeDifficulty {
-    string cumulativeDifficulty = 1;
+    // Big endian byte order
+    bytes cumulativeDifficulty = 1;
     uint32 blockchainHeight = 2;
 }
 
@@ -63,15 +64,16 @@ message RawBlocks {
 }
 
 message RawBlock {
-    bytes blockData = 1;
-    repeated RawTransaction transactionsData = 2;
+    uint32 height = 1;
+    bytes blockData = 2;
+    repeated RawTransaction transactionsData = 3;
 }
 
 message BlockIds {
     repeated uint64 blockIds = 1;
 }
 
-message ProcessResult {
-    bool accepted = 1;
-    string error = 2;
+message ProcessBlockRequest {
+    uint64 previousBlockId = 1;
+    RawBlock block = 2;
 }
