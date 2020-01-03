@@ -116,12 +116,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
         val minimumFeePlanck = type.minimumFeePlanck(effectiveHeight, countAppendeges)
         feePlanck = if (type.isSigned) {
             if (builder.feePlanck in 1 until minimumFeePlanck) {
-                throw BurstException.NotValidException(
-                    String.format(
-                        "Requested fee %d less than the minimum fee %d",
-                        builder.feePlanck, minimumFeePlanck
-                    )
-                )
+                throw BurstException.NotValidException("Requested fee ${builder.feePlanck} less than the minimum fee $minimumFeePlanck")
             }
             if (builder.feePlanck <= 0) {
                 minimumFeePlanck
@@ -390,7 +385,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     }
 
     fun verifySignature(): Boolean {
-        return toBytes(false).verifySignature(signature ?: return false, senderPublicKey, true)
+        return !type.isSigned || toBytes(false).verifySignature(signature ?: return false, senderPublicKey, true)
     }
 
     companion object {

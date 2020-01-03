@@ -108,7 +108,7 @@ interface Appendix {
 
         constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
             var messageLength = buffer.int
-            this.isText = messageLength < 0 // ugly hack
+            this.isText = messageLength < 0
             if (messageLength < 0) {
                 messageLength = messageLength and Integer.MAX_VALUE
             }
@@ -201,13 +201,14 @@ interface Appendix {
 
         constructor(buffer: ByteBuffer, transactionVersion: Byte) : super(buffer, transactionVersion) {
             var length = buffer.int
+            val isText = length < 0
             if (length < 0) {
                 length = length and Integer.MAX_VALUE
             }
             this.encryptedData = Crypto.readEncryptedData(
                 buffer, length,
                 Constants.MAX_ENCRYPTED_MESSAGE_LENGTH,
-                length < 0
+                isText
             )
         }
 

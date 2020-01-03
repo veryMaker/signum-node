@@ -1609,10 +1609,11 @@ interface Attachment : Appendix {
         ) {
             this.purchaseId = buffer.long
             var length = buffer.int
+            val isText = length < 0
             if (length < 0) {
                 length = length and Integer.MAX_VALUE
             }
-            this.goods = Crypto.readEncryptedData(buffer, length, Constants.MAX_DGS_GOODS_LENGTH, length < 0)
+            this.goods = Crypto.readEncryptedData(buffer, length, Constants.MAX_DGS_GOODS_LENGTH, isText)
             this.discountPlanck = buffer.long
         }
 
