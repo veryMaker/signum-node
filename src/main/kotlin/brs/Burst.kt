@@ -195,7 +195,7 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
     }
 
     companion object {
-        val VERSION = Version.parse("v3.0.0-dev")
+        val VERSION = Version.parse("v3.0.0-alpha4")
         const val APPLICATION = "BRS"
         private const val DEFAULT_PROPERTIES_NAME = "brs-default.properties"
 
