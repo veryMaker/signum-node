@@ -24,8 +24,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             if (block.blockSignature == null) {
                 return false
             }
-            val previousBlock = dp.blockchainService.getBlock(block.previousBlockId)
-                ?: throw BlockOutOfOrderException("Can't verify signature because previous block is missing")
+            val previousBlock = dp.blockchainService.getBlock(block.previousBlockId) ?: throw BlockOutOfOrderException("Can't verify signature because previous block is missing")
 
             val data = block.toBytes(includeSignature = false)
 

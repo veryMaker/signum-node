@@ -155,8 +155,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         dataField: Field<ByteArray>,
         nonceField: Field<ByteArray>
     ): BurstEncryptedMessage? {
-        val data = record.get(dataField) ?: return null // TODO
-        return BurstEncryptedMessage(data, record.get(nonceField), false)
+        return BurstEncryptedMessage(record.get(dataField) ?: return null, record.get(nonceField) ?: return null, false)
     }
 
     private fun savePurchase(ctx: DSLContext, purchase: Purchase) {

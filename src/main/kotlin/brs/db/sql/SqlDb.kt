@@ -42,8 +42,9 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
         } else {
             DSL.using(con, dialect, staticStatementSettings)
         }
-        if (dialect == SQLDialect.SQLITE) { // TODO yuck
+        if (dialect == SQLDialect.SQLITE) {
             ctx.execute("PRAGMA foreign_keys = ON;")
+            ctx.execute("PRAGMA journal_mode = WAL;")
         }
         return ctx
     }
@@ -133,8 +134,7 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
                 runFlyway = true
                 config.isAutoCommit = true
             }
-            else -> {
-            }
+            else -> logger.safeWarn { "You are using database type $dialect, which is not explicitly supported! You will need to add the driver to the classpath and even then it might not work. Supported databases are: MySQL/MariaDB, H2, SQLite" }
         }
 
         cp = HikariDataSource(config)

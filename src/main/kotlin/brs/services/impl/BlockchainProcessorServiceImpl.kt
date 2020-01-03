@@ -297,8 +297,9 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     // Should never reach here..
                     false
                 }
-            } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
+            } catch (e: Exception) {
                 logger.safeError(e) { "Block failed to pre-verify" }
+                // TODO reset cache
                 false
             }
         } else {

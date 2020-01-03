@@ -132,6 +132,7 @@ CREATE INDEX escrow_decision_escrow_id_height_idx ON escrow_decision (escrow_id,
 CREATE INDEX escrow_decision_account_id_height_idx ON escrow_decision (account_id, height DESC);
 CREATE TABLE subscription (db_id INTEGER PRIMARY KEY AUTOINCREMENT, id BIGINT NOT NULL, sender_id BIGINT NOT NULL, recipient_id BIGINT NOT NULL,
     amount BIGINT NOT NULL, frequency INT NOT NULL, time_next INT NOT NULL, height INT NOT NULL, latest BOOLEAN NOT NULL DEFAULT TRUE);
+CREATE UNIQUE INDEX subscription_idx ON subscription(id, sender_id, recipient_id, amount, frequency, time_next, height, latest);
 CREATE UNIQUE INDEX subscription_id_height_idx ON subscription (id, height DESC);
 CREATE INDEX subscription_sender_id_height_idx ON subscription (sender_id, height DESC);
 CREATE INDEX subscription_recipient_id_height_idx ON subscription (recipient_id, height DESC);
