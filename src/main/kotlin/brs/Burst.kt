@@ -121,19 +121,27 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
             dp.peerService = PeerServiceImpl(dp)
             dp.api = API(dp)
 
-            if (dp.propertyService.get(Props.API_V2_SERVER)) {
-                val hostname = dp.propertyService.get(Props.API_V2_LISTEN)
-                val port = if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_API_V2_PORT) else dp.propertyService.get(Props.API_V2_PORT)
-                logger.safeInfo { "Starting V2 API Server on port $port" }
-                dp.apiV2Server = ApiService(dp).start(hostname, port)
-            } else {
-                logger.safeInfo { "Not starting V2 API Server - it is disabled." }
+            dp.taskSchedulerService.runBeforeStart {
+                if (dp.propertyService.get(Props.API_V2_SERVER)) {
+                    val hostname = dp.propertyService.get(Props.API_V2_LISTEN)
+                    val port =
+                        if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_API_V2_PORT) else dp.propertyService.get(
+                            Props.API_V2_PORT
+                        )
+                    logger.safeInfo { "Starting V2 API Server on port $port" }
+                    dp.apiV2Server = ApiService(dp).start(hostname, port)
+                } else {
+                    logger.safeInfo { "Not starting V2 API Server - it is disabled." }
+                }
             }
 
-            val p2pHostname = dp.propertyService.get(Props.P2P_V2_LISTEN)
-            val p2pPort = if (dp.propertyService.get(Props.DEV_TESTNET)) 7120 else dp.propertyService.get(Props.P2P_V2_PORT)
-            logger.safeInfo { "Starting V2 P2P Server on port $p2pPort" }
-            dp.p2pV2Server = PeerApiService(dp).start(p2pHostname, p2pPort)
+            dp.taskSchedulerService.runBeforeStart {
+                val p2pHostname = dp.propertyService.get(Props.P2P_V2_LISTEN)
+                val p2pPort =
+                    if (dp.propertyService.get(Props.DEV_TESTNET)) 7120 else dp.propertyService.get(Props.P2P_V2_PORT)
+                logger.safeInfo { "Starting V2 P2P Server on port $p2pPort" }
+                dp.p2pV2Server = PeerApiService(dp).start(p2pHostname, p2pPort)
+            }
 
             logger.safeInfo { "Starting Task Scheduler" }
             dp.taskSchedulerService.start()
@@ -177,6 +185,9 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
         }
         ignoreLateinitException {
             dp.apiV2Server.shutdownNow()
+        }
+        ignoreLateinitException {
+            dp.p2pV2Server.shutdownNow()
         }
         ignoreLateinitException {
             dp.peerService.shutdown()
