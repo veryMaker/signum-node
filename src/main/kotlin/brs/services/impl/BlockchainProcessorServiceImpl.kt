@@ -365,7 +365,9 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             dp.taskSchedulerService.scheduleTask(TaskType.IO, this.gpuPreVerificationTask)
         } else {
             var numberOfInstances = dp.propertyService.get(Props.NUM_PRE_VERIFIER_THREADS)
-            if (numberOfInstances <= 0) numberOfInstances = Runtime.getRuntime().availableProcessors()
+            val defaultNumberOfInstances = Runtime.getRuntime().availableProcessors() - 1 // Leave one thread for blockImporterTask
+            if (numberOfInstances <= 0) numberOfInstances = defaultNumberOfInstances
+            numberOfInstances = numberOfInstances.coerceAtMost(defaultNumberOfInstances)
             logger.safeDebug { "Starting $numberOfInstances pre-verifier threads in CPU mode." }
             dp.taskSchedulerService.scheduleTask(TaskType.COMPUTATION, numberOfInstances, this.cpuPreVerificationTask)
         }

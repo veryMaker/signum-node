@@ -385,7 +385,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     }
 
     fun verifySignature(): Boolean {
-        return !type.isSigned || toBytes(false).verifySignature(signature ?: return false, senderPublicKey, true)
+        return toBytes(false).verifySignature(signature ?: return false, senderPublicKey, true)
     }
 
     companion object {
