@@ -365,22 +365,16 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             dp.taskSchedulerService.scheduleTask(TaskType.IO, this.gpuPreVerificationTask)
         } else {
             var numberOfInstances = dp.propertyService.get(Props.NUM_PRE_VERIFIER_THREADS)
-            val defaultNumberOfInstances = Runtime.getRuntime().availableProcessors() - 1 // Leave one thread for blockImporterTask
+            val defaultNumberOfInstances = (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(0) // Leave one thread for blockImporterTask
             if (numberOfInstances <= 0) numberOfInstances = defaultNumberOfInstances
             numberOfInstances = numberOfInstances.coerceAtMost(defaultNumberOfInstances)
             logger.safeDebug { "Starting $numberOfInstances pre-verifier threads in CPU mode." }
             dp.taskSchedulerService.scheduleTask(TaskType.COMPUTATION, numberOfInstances, this.cpuPreVerificationTask)
         }
 
-        blockListeners.addListener(BlockchainProcessorService.Event.BLOCK_SCANNED) { block ->
-            if (block.height % 5000 == 0) {
-                logger.safeInfo { "processed block ${block.height}" }
-            }
-        }
-
         blockListeners.addListener(BlockchainProcessorService.Event.BLOCK_PUSHED) { block ->
             if (block.height % 5000 == 0) {
-                logger.safeInfo { "processed block ${block.height}" }
+                logger.safeInfo { "Processed Block ${block.height}" }
             }
         }
 
@@ -636,7 +630,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         val genesisBlock = Block(
             dp, -1, 0, 0, 0, 0, 0,
             Constants.SHA256_NO_DATA, Genesis.CREATOR_PUBLIC_KEY, ByteArray(32),
-            Genesis.BLOCK_SIGNATURE, null, emptyList(), 0, byteArrayOf(), -1
+            Genesis.BLOCK_SIGNATURE, null, emptyList(), 0, Constants.EMPTY_BYTE_ARRAY, -1
         )
         dp.blockService.setPrevious(genesisBlock, null)
         addBlock(genesisBlock)
