@@ -203,7 +203,7 @@ class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : Digital
 
     override fun getPendingPurchase(purchaseId: Long): Purchase? {
         val purchase = getPurchase(purchaseId)
-        return if (purchase == null || !purchase.isPending) null else purchase
+        return if (purchase != null && purchase.isPending) purchase else null
     }
 
     override fun setPending(purchase: Purchase, pendingValue: Boolean) {

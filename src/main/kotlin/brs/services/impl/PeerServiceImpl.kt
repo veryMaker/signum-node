@@ -398,6 +398,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                     getAnyPeer(if (ThreadLocalRandom.current().nextInt(2) == 0) Peer.State.NON_CONNECTED else Peer.State.DISCONNECTED)
                 if (peer != null) {
                     peer.connect(dp.timeService.epochTime)
+                    if (peer.version == Version.parse("v3.0.0-alpha3")) peer.blacklist("Bad Version") // TODO remove before production release
                     /*
                      * remove non connected peer. if peer is blacklisted, keep it to maintain blacklist time.
                      * Peers should never be removed if total peers are below our target to prevent total erase of peers

@@ -51,8 +51,9 @@ class Purchase(
         attachment.quantity,
         attachment.pricePlanck,
         attachment.deliveryDeadlineTimestamp,
-        if (transaction.encryptedMessage == null) null else transaction.encryptedMessage.encryptedData, transaction.timestamp) {
-        this.isPending = false
+        if (transaction.encryptedMessage == null) null else transaction.encryptedMessage.encryptedData,
+        transaction.timestamp) {
+        this.isPending = true
     }
 
     constructor(
