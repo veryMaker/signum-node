@@ -119,8 +119,8 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     }
 
     override fun setAccountInfo(account: Account, name: String, description: String) {
-        account.name = name.trim { it <= ' ' }
-        account.description = description.trim { it <= ' ' }
+        account.name = name.trim()
+        account.description = description.trim()
         accountTable.insert(account)
     }
 

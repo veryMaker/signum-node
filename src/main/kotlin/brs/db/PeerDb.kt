@@ -2,17 +2,12 @@ package brs.db
 
 interface PeerDb : Table {
     /**
-     * TODO
+     * Get all peer addresses stored in the database
      */
     fun loadPeers(): List<String>
 
     /**
-     * TODO
+     * Removes all peers in the DB that are not in [peers] and adds peers that are in [peers] but not in the DB
      */
-    fun deletePeers(peers: Collection<String>)
-
-    /**
-     * TODO
-     */
-    fun addPeers(peers: Collection<String>)
+    fun updatePeers(peers: List<String>)
 }

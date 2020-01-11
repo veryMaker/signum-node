@@ -588,21 +588,21 @@ interface Attachment : Appendix {
             buffer,
             transactionVersion
         ) {
-            aliasName = buffer.readString(buffer.get().toInt(), Constants.MAX_ALIAS_LENGTH).trim { it <= ' ' }
-            aliasURI = buffer.readString(buffer.short.toInt(), Constants.MAX_ALIAS_URI_LENGTH).trim { it <= ' ' }
+            aliasName = buffer.readString(buffer.get().toInt(), Constants.MAX_ALIAS_LENGTH).trim()
+            aliasURI = buffer.readString(buffer.short.toInt(), Constants.MAX_ALIAS_URI_LENGTH).trim()
         }
 
         internal constructor(dp: DependencyProvider, attachmentData: JsonObject) : super(dp, attachmentData) {
-            aliasName = attachmentData.getMemberAsString(ALIAS_PARAMETER).orEmpty().trim { it <= ' ' }
-            aliasURI = attachmentData.getMemberAsString(URI_PARAMETER).orEmpty().trim { it <= ' ' }
+            aliasName = attachmentData.getMemberAsString(ALIAS_PARAMETER).orEmpty().trim()
+            aliasURI = attachmentData.getMemberAsString(URI_PARAMETER).orEmpty().trim()
         }
 
         constructor(dp: DependencyProvider, aliasName: String, aliasURI: String, blockchainHeight: Int) : super(
             dp,
             blockchainHeight
         ) {
-            this.aliasName = aliasName.trim { it <= ' ' }
-            this.aliasURI = aliasURI.trim { it <= ' ' }
+            this.aliasName = aliasName.trim()
+            this.aliasURI = aliasURI.trim()
         }
 
         internal constructor(dp: DependencyProvider, attachment: BrsApi.AliasAssignmentAttachment) : super(

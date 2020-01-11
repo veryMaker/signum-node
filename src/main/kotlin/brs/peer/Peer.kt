@@ -8,9 +8,19 @@ import brs.util.Version
 import java.math.BigInteger
 
 interface Peer : Comparable<Peer> {
-    val peerAddress: String
+    val remoteAddress: String
 
-    var announcedAddress: String?
+    /**
+     * The address this peer has announced or the address it came from
+     */
+    val address: PeerAddress
+
+    /**
+     * Updates the peer's address and sets the state to [State.NON_CONNECTED] to force re-verification of new address.
+     */
+    fun updateAddress(newAnnouncedAddress: PeerAddress)
+
+    val readyToSend: Boolean
 
     var state: State
 
@@ -19,10 +29,6 @@ interface Peer : Comparable<Peer> {
     var application: String
 
     var platform: String
-
-    val software: String
-
-    val port: Int
 
     val isWellKnown: Boolean
 
@@ -119,13 +125,13 @@ interface Peer : Comparable<Peer> {
      * @param announcedAddresses The announced addresses to notify this peer of
      * @throws Exception if unsuccessful
      */
-    fun addPeers(announcedAddresses: Collection<String>)
+    fun addPeers(announcedAddresses: Collection<PeerAddress>)
 
     /**
      * Get new peer addresses from this peer
      * @throws Exception if unsuccessful
      */
-    fun getPeers(): Collection<String>
+    fun getPeers(): Collection<PeerAddress>
 
     /**
      * Sends [block] to the peer to be added

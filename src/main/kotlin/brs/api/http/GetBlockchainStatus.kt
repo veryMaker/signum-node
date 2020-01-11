@@ -27,7 +27,7 @@ internal class GetBlockchainStatus(
         response.addProperty("cumulativeDifficulty", lastBlock.cumulativeDifficulty.toString())
         response.addProperty("numberOfBlocks", lastBlock.height + 1)
         val lastBlockchainFeeder = blockchainProcessorService.lastBlockchainFeeder
-        response.addProperty("lastBlockchainFeeder", lastBlockchainFeeder?.announcedAddress)
+        response.addProperty("lastBlockchainFeeder", lastBlockchainFeeder?.address?.toString())
         response.addProperty("lastBlockchainFeederHeight", blockchainProcessorService.lastBlockchainFeederHeight)
         return response
     }

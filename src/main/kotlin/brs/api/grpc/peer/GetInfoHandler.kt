@@ -5,6 +5,7 @@ import brs.api.grpc.proto.PeerApi
 import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.peer.Peer
+import brs.peer.PeerAddress
 import brs.services.PeerService
 import brs.util.Version
 
@@ -18,34 +19,30 @@ internal class GetInfoHandler(private val dp: DependencyProvider) : GrpcPeerApiH
         .build()
 
     override fun handleRequest(peer: Peer, request: PeerApi.PeerInfo): PeerApi.PeerInfo {
-        var announcedAddress: String = request.announcedAddress
-        if (announcedAddress.isNotEmpty()) {
-            announcedAddress = announcedAddress.trim { it <= ' ' }
-            if (announcedAddress.isNotEmpty()) {
-                if (peer.announcedAddress != null && announcedAddress != peer.announcedAddress) {
-                    // force verification of changed announced address
-                    peer.state = Peer.State.NON_CONNECTED
-                }
-                peer.announcedAddress = announcedAddress
+        val announcedAddress: String = request.announcedAddress
+        if (announcedAddress.isNotBlank()) {
+            val newAddress = PeerAddress.parse(dp, announcedAddress.trim())
+            if (newAddress != null && newAddress != peer.address) {
+                peer.updateAddress(newAddress)
             }
         }
         var application = request.application
         if (application.isNullOrEmpty()) {
             application = "?"
         }
-        peer.application = application.trim { it <= ' ' }
+        peer.application = application.trim()
 
         var version = request.version
         if (version.isNullOrEmpty()) {
             version = "?"
         }
-        peer.version = Version.parse(version.trim { it <= ' ' })
+        peer.version = Version.parse(version.trim())
 
         var platform = request.platform
         if (platform.isNullOrEmpty()) {
             platform = "?"
         }
-        peer.platform = platform.trim { it <= ' ' }
+        peer.platform = platform.trim()
 
         peer.shareAddress = request.shareAddress
         peer.lastUpdated = dp.timeService.epochTime

@@ -65,6 +65,7 @@ object Constants {
     const val MAX_API_RETURNED_ITEMS = 500
 
     const val HTTP = "http://"
+    const val GRPC = "grpc://"
 
     val MIN_VERSION = Version.parse("v2.3.0")
 

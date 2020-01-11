@@ -36,7 +36,7 @@ internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(
             return MISSING_ALIAS_NAME
         }
 
-        aliasName = aliasName.trim { it <= ' ' }
+        aliasName = aliasName.trim()
         if (aliasName.isEmpty() || aliasName.length > Constants.MAX_ALIAS_LENGTH) {
             return INCORRECT_ALIAS_LENGTH
         }
@@ -45,7 +45,7 @@ internal class SetAlias(private val dp: DependencyProvider) : CreateTransaction(
             return INCORRECT_ALIAS_NAME
         }
 
-        aliasURI = aliasURI.trim { it <= ' ' }
+        aliasURI = aliasURI.trim()
         if (aliasURI.length > Constants.MAX_ALIAS_URI_LENGTH) {
             return INCORRECT_URI_LENGTH
         }

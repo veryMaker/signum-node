@@ -6,7 +6,6 @@ import brs.entity.DependencyProvider
 import brs.entity.PeerInfo
 import brs.entity.Transaction
 import brs.objects.Constants
-import brs.objects.Props
 import brs.services.BlockchainProcessorService
 import brs.services.PeerService
 import brs.services.impl.PeerServiceImpl
@@ -17,7 +16,6 @@ import brs.util.Version
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
 import brs.util.convert.toUnsignedString
-import brs.util.convert.truncate
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLateinit
 import brs.util.delegates.AtomicWithOverride
@@ -25,6 +23,7 @@ import brs.util.json.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
+import brs.util.misc.filteringMap
 import brs.util.sync.Mutex
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -39,23 +38,20 @@ import java.util.zip.GZIPInputStream
 
 internal class HttpPeerImpl(
     private val dp: DependencyProvider,
-    override val peerAddress: String,
-    announcedAddress: String?
+    override val remoteAddress: String,
+    address: PeerAddress?
 ) : Peer {
-    override var announcedAddress by AtomicWithOverride<String?>(
-        initialValue = null,
-        setValueDelegate = { announcedAddress, set ->
-            val announcedPeerAddress = dp.peerService.normalizeHostAndPort(announcedAddress)
-            if (announcedPeerAddress != null) {
-                set(announcedPeerAddress)
-                try {
-                    this.port = URL(Constants.HTTP + announcedPeerAddress).port
-                } catch (ignored: MalformedURLException) {
-                    // Do nothing
-                }
-            }
-        })
-    override var port by AtomicLateinit<Int>()
+    override val address: PeerAddress
+        get() = announcedAddress ?: PeerAddress.parse(dp, remoteAddress) ?: error("Could not find peer's address")
+
+    private var announcedAddress by Atomic<PeerAddress?>(null)
+
+    init {
+        if (address != null) {
+            this.announcedAddress = address
+        }
+    }
+
     override var shareAddress by Atomic(true)
     override var platform by AtomicLateinit<String>()
     override var application by AtomicLateinit<String>()
@@ -96,27 +92,17 @@ internal class HttpPeerImpl(
     override val isAtLeastMyVersion: Boolean
         get() = isHigherOrEqualVersionThan(Burst.VERSION)
 
-    override val software: String
-        get() = (application.truncate("?", 10, false)
-                + " (" + version.toString().truncate("?", 10, false) + ")"
-                + " @ " + platform.truncate("?", 10, false))
-
     override val isWellKnown: Boolean
-        get() = announcedAddress != null && dp.peerService.wellKnownPeers.contains(announcedAddress!!)
+        get() = dp.peerService.wellKnownPeers.contains(address)
 
     override val isRebroadcastTarget: Boolean
-        get() = announcedAddress != null && dp.peerService.rebroadcastPeers.contains(announcedAddress!!)
+        get() = dp.peerService.rebroadcastPeers.contains(address)
 
     override val isBlacklisted: Boolean
-        get() = blacklistingTime > 0 || isOldVersion || dp.peerService.knownBlacklistedPeers.contains(peerAddress)
+        get() = blacklistingTime > 0 || isOldVersion || dp.peerService.knownBlacklistedPeers.contains(address)
 
-    init {
-        this.announcedAddress = announcedAddress
-        try {
-            this.port = URL(Constants.HTTP + announcedAddress).port
-        } catch (ignored: MalformedURLException) {
-        }
-    }
+    override val readyToSend: Boolean
+        get() = TODO()
 
     override fun updateDownloadedVolume(volume: Long) {
         mutex.withLock {
@@ -159,7 +145,7 @@ internal class HttpPeerImpl(
 
     override fun blacklist(description: String) {
         if (!isBlacklisted) {
-            logger.safeInfo { "Blacklisting $peerAddress ($version) because of: $description" }
+            logger.safeInfo { "Blacklisting $remoteAddress ($version) because of: $description" }
         }
         blacklist()
     }
@@ -187,18 +173,17 @@ internal class HttpPeerImpl(
     }
 
     private fun onTimeout() {
-        // TODO
+        error("Timeout")
     }
 
     private fun couldNotConnect() {
-        // TODO
+        error("Could not connect")
     }
 
     private fun checkError(json: JsonObject) {
         val error = json.getMemberAsString("error")
         if (error != null) {
             when {
-                // TODO stop execution
                 error.contains("connect timed out") -> onTimeout()
                 error.contains("Connection refused") -> couldNotConnect()
                 else -> error(error)
@@ -287,9 +272,13 @@ internal class HttpPeerImpl(
             .toList()
     }
 
-    override fun addPeers(announcedAddresses: Collection<String>) {
+    override fun addPeers(announcedAddresses: Collection<PeerAddress>) {
         val jsonAnnouncedAddresses = JsonArray()
-        announcedAddresses.forEach { jsonAnnouncedAddresses.add(it) }
+        if (this.version.isGreaterThanOrEqualTo(Version.parse("v3.0.0-dev"))) { // TODO don't parse version
+            announcedAddresses.forEach { jsonAnnouncedAddresses.add(it.toString()) }
+        } else {
+            announcedAddresses.forEach { jsonAnnouncedAddresses.add("${it.host}:${it.port}") }
+        }
         val request = JsonObject()
         request.addProperty("requestType", "getNextBlockIds")
         request.add("peers", jsonAnnouncedAddresses)
@@ -297,12 +286,13 @@ internal class HttpPeerImpl(
         checkError(json)
     }
 
-    override fun getPeers(): Collection<String> {
+    override fun getPeers(): Collection<PeerAddress> {
         val json = send(getPeersRequest) ?: error("Returned JSON was null")
         checkError(json)
         return json.mustGetMemberAsJsonArray("peers")
             .map { it.safeGetAsString() ?: "" }
             .filter { it.isNotBlank() }
+            .filteringMap { PeerAddress.parse(dp, it) }
     }
 
     override fun sendBlock(block: Block): Boolean {
@@ -320,13 +310,7 @@ internal class HttpPeerImpl(
         var connection: HttpURLConnection? = null
 
         try {
-            val address = if (announcedAddress != null) announcedAddress else peerAddress
-            val buf = StringBuilder(Constants.HTTP)
-            buf.append(address)
-            if (port <= 0) {
-                buf.append(':')
-                buf.append(if (dp.propertyService.get(Props.DEV_TESTNET)) PeerServiceImpl.TESTNET_PEER_PORT else PeerServiceImpl.DEFAULT_PEER_PORT)
-            }
+            val buf = StringBuilder(address.toString())
             buf.append("/burst")
             val url = URL(buf.toString())
 
@@ -404,18 +388,6 @@ internal class HttpPeerImpl(
                 state = Peer.State.DISCONNECTED
             }
             response = jsonError("Error getting response from peer: ${e.javaClass}: ${e.message}")
-        } catch (e: IOException) {
-            if (!isConnectionException(e)) {
-                logger.safeDebug(e) { "Error sending JSON request" }
-            }
-            if (dp.peerService.communicationLoggingMask and PeerServiceImpl.LOGGING_MASK_EXCEPTIONS != 0) {
-                log += " >>> $e"
-                showLog = true
-            }
-            if (state == Peer.State.CONNECTED) {
-                state = Peer.State.DISCONNECTED
-            }
-            response = jsonError("Error getting response from peer: ${e.javaClass}: ${e.message}")
         }
 
         if (showLog && log != null) {
@@ -444,18 +416,18 @@ internal class HttpPeerImpl(
         platform = response.platform
         shareAddress = response.shareAddress
         val newAnnouncedAddress = response.announcedAddress.emptyToNull()
-        if (newAnnouncedAddress != null && newAnnouncedAddress != announcedAddress) {
-            // force verification of changed announced address
-            state = Peer.State.NON_CONNECTED
-            announcedAddress = newAnnouncedAddress
-            return
+        if (newAnnouncedAddress != null) {
+            val parsedAddress = PeerAddress.parse(dp, newAnnouncedAddress)
+            if (parsedAddress != null && parsedAddress != announcedAddress) {
+                updateAddress(parsedAddress)
+            }
         }
+
         if (announcedAddress == null) {
-            announcedAddress = peerAddress
+            announcedAddress = PeerAddress.parse(dp, remoteAddress) ?: error("Could not find peer's address")
         }
 
         state = Peer.State.CONNECTED
-        dp.peerService.updateAddress(this)
         lastUpdated = currentTime
     }
 
@@ -463,6 +435,13 @@ internal class HttpPeerImpl(
         val jsonObject = JsonObject()
         jsonObject.addProperty("error", message)
         return jsonObject
+    }
+
+    override fun updateAddress(newAnnouncedAddress: PeerAddress) {
+        announcedAddress = newAnnouncedAddress
+        // Force re-validate address
+        state = Peer.State.NON_CONNECTED
+        dp.peerService.updateAddress(this)
     }
 
     companion object {

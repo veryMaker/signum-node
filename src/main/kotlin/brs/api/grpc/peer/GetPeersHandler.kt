@@ -10,8 +10,8 @@ internal class GetPeersHandler(private val dp: DependencyProvider) : GrpcApiHand
     override fun handleRequest(request: Empty): PeerApi.Peers {
         return PeerApi.Peers.newBuilder()
             .addAllAnnouncedAddresses(dp.peerService.allPeers
-                .filter { !it.isBlacklisted && it.announcedAddress != null && it.state == Peer.State.CONNECTED && it.shareAddress }
-                .map { it.announcedAddress })
+                .filter { !it.isBlacklisted && it.state == Peer.State.CONNECTED && it.shareAddress }
+                .map { it.address.toString() })
             .build()
     }
 }

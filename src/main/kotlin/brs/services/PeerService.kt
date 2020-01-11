@@ -3,6 +3,7 @@ package brs.services
 import brs.entity.Block
 import brs.entity.Transaction
 import brs.peer.Peer
+import brs.peer.PeerAddress
 import com.google.gson.JsonElement
 
 interface PeerService {
@@ -12,12 +13,12 @@ interface PeerService {
     val getMorePeers: Boolean
 
     /**
-     * TODO
+     * All peers, regardless of state
      */
     val allPeers: Collection<Peer>
 
     /**
-     * TODO
+     * All peers that are not in state [brs.peer.Peer.State.NON_CONNECTED]
      */
     val activePeers: List<Peer>
 
@@ -47,9 +48,16 @@ interface PeerService {
     fun getPeer(peerAddress: String): Peer?
 
     /**
-     * TODO
+     * Get or add a peer based on its [remoteAddress]. If it is added, it will not have completed handshake.
+     * Intended exclusively for use by peer API servers in order to identify clients.
+     * [announcedAddress] should start with a protocol identifier (http:// or grpc://)
      */
-    fun getOrAddPeer(announcedAddress: String?): Peer?
+    fun getOrAddPeer(remoteAddress: String): Peer
+
+    /**
+     * Gets a known peer or adds a new peer with the address [address]
+     */
+    fun getOrAddPeer(address: PeerAddress): Peer
 
     /**
      * TODO
@@ -99,22 +107,12 @@ interface PeerService {
     /**
      * TODO
      */
-    fun getOrAddPeer(address: String, announcedAddress: String?): Peer?
-
-    /**
-     * TODO
-     */
     val blacklistingPeriod: Int
 
     /**
      * TODO
      */
-    val knownBlacklistedPeers: Set<String>
-
-    /**
-     * TODO
-     */
-    fun normalizeHostAndPort(address: String?): String?
+    val knownBlacklistedPeers: Set<PeerAddress>
 
     /**
      * TODO
@@ -124,12 +122,12 @@ interface PeerService {
     /**
      * TODO
      */
-    val rebroadcastPeers: Set<String>
+    val rebroadcastPeers: Set<PeerAddress>
 
     /**
      * TODO
      */
-    val wellKnownPeers: Set<String>
+    val wellKnownPeers: Set<PeerAddress>
 
     /**
      * TODO

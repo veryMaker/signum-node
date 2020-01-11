@@ -140,13 +140,17 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     }
                 }
 
-                logger.safeDebug { "Getting next Blocks after ${commonBlockId.toUnsignedString()} from ${peer.peerAddress}" }
-                val nextBlocks = peer.getNextBlocks(commonBlockId)
+                logger.safeDebug { "Getting next Blocks after ${commonBlockId.toUnsignedString()} from ${peer.remoteAddress}" }
+                val nextBlocks = try {
+                    peer.getNextBlocks(commonBlockId)
+                } catch (e: Exception) {
+                    return@run true
+                }
                 if (nextBlocks.isEmpty()) {
                     logger.safeDebug { "Peer did not feed us any blocks" }
                     return@run true
                 }
-                logger.safeDebug { "Got ${nextBlocks.size} blocks after ${commonBlockId.toUnsignedString()} from ${peer.peerAddress}" }
+                logger.safeDebug { "Got ${nextBlocks.size} blocks after ${commonBlockId.toUnsignedString()} from ${peer.remoteAddress}" }
 
                 // download blocks from peer
                 var lastBlock = dp.downloadCacheService.getBlock(commonBlockId)
@@ -457,7 +461,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                  * difficulty If it is lower we blacklist peer and set chain to be processed later.
                  */
                 if (pushedForkBlocks > 0 && dp.blockchainService.lastBlock.cumulativeDifficulty < curCumulativeDifficulty) {
-                    logger.safeWarn { "Fork was bad and pop off was caused by peer ${peer.peerAddress}, blacklisting" }
+                    logger.safeWarn { "Fork was bad and pop off was caused by peer ${peer.remoteAddress}, blacklisting" }
                     peer.blacklist("got a bad fork")
                     val peerPoppedOffBlocks = popOffTo(forkBlock)
                     pushedForkBlocks = 0
@@ -530,9 +534,9 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
             newBlock.byteLength = newBlock.toBytes().size
             dp.blockService.calculateBaseTarget(newBlock, chainblock)
             dp.downloadCacheService.addBlock(newBlock)
-            logger.safeDebug { "Peer ${peer.peerAddress} added block from Announce: Id: ${newBlock.id} Height: ${newBlock.height}" }
+            logger.safeDebug { "Peer ${peer.remoteAddress} added block from Announce: Id: ${newBlock.id} Height: ${newBlock.height}" }
         } else {
-            logger.safeDebug { "Peer ${peer.peerAddress} sent us block: ${newBlock.previousBlockId} which is not the follow-up block for ${chainblock.id}" }
+            logger.safeDebug { "Peer ${peer.remoteAddress} sent us block: ${newBlock.previousBlockId} which is not the follow-up block for ${chainblock.id}" }
         }
     }
 

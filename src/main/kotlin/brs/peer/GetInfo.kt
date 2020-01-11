@@ -24,29 +24,25 @@ internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerReq
     }
 
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
-        var announcedAddress = request.getMemberAsString("announcedAddress")
-        if (!announcedAddress.isNullOrEmpty()) {
-            announcedAddress = announcedAddress.trim { it <= ' ' }
-            if (announcedAddress.isNotEmpty()) {
-                if (peer.announcedAddress != null && announcedAddress != peer.announcedAddress) {
-                    // force verification of changed announced address
-                    peer.state = Peer.State.NON_CONNECTED
-                }
-                peer.announcedAddress = announcedAddress
+        val announcedAddress = request.getMemberAsString("announcedAddress")
+        if (!announcedAddress.isNullOrBlank()) {
+            val newAddress = PeerAddress.parse(dp, announcedAddress.trim())
+            if (newAddress != null && newAddress != peer.address) {
+                peer.updateAddress(newAddress)
             }
         }
         var application = request.getMemberAsString("application")
         if (application.isNullOrEmpty()) {
             application = "?"
         }
-        peer.application = application.trim { it <= ' ' }
+        peer.application = application.trim()
 
         var version = request.getMemberAsString("version")
         if (version.isNullOrEmpty()) {
             version = "?"
         }
         peer.version = try {
-            Version.parse(version.trim { it <= ' ' })
+            Version.parse(version.trim())
         } catch (e: Exception) {
             Version.EMPTY
         }
@@ -55,7 +51,7 @@ internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerReq
         if (platform.isNullOrEmpty()) {
             platform = "?"
         }
-        peer.platform = platform.trim { it <= ' ' }
+        peer.platform = platform.trim()
 
         peer.shareAddress = request.getMemberAsBoolean("shareAddress") ?: false
         peer.lastUpdated = dp.timeService.epochTime

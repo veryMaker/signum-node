@@ -21,7 +21,7 @@ class GetPeersHandler(private val dp: DependencyProvider) : GrpcApiHandler<BrsAp
             )
         }
         for (peer in peerList) {
-            peers.addPeerAddresses(peer.announcedAddress)
+            peers.addPeerAddresses(peer.address.toString())
         }
         return peers.build()
     }

@@ -16,8 +16,6 @@ object Props {
     val DEV_DB_USERNAME = Prop("DEV.DB.Username", "")
     val DEV_DB_PASSWORD = Prop("DEV.DB.Password", "")
 
-    val DEV_DUMP_PEERS_VERSION = Prop("DEV.dumpPeersVersion", "")
-
     val DEV_P2P_REBROADCAST_TO = Prop("DEV.P2P.rebroadcastTo", emptyList<String>())
     val DEV_P2P_BOOTSTRAP_PEERS = Prop("DEV.P2P.BootstrapPeers", emptyList<String>())
 

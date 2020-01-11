@@ -12,7 +12,7 @@ internal class AddPeers(private val dp: DependencyProvider) : PeerServlet.PeerRe
         val peers = request.getMemberAsJsonArray("peers")
         if (peers != null && !peers.isEmpty() && dp.peerService.getMorePeers) {
             for (announcedAddress in peers) {
-                dp.peerService.getOrAddPeer(announcedAddress.safeGetAsString())
+                dp.peerService.getOrAddPeer(announcedAddress.safeGetAsString() ?: continue)
             }
         }
         return JsonObject()

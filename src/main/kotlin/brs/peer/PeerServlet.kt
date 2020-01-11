@@ -58,8 +58,8 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
 
         var requestType = "unknown"
         try {
-            peer = dp.peerService.getOrAddPeer(request.remoteAddr, null)
-            if (peer == null || peer.isBlacklisted) {
+            peer = dp.peerService.getOrAddPeer(request.remoteAddr)
+            if (peer.isBlacklisted) {
                 return
             }
 
@@ -73,9 +73,6 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
 
             if (peer.state == Peer.State.DISCONNECTED) {
                 peer.state = Peer.State.CONNECTED
-                if (peer.announcedAddress != null) {
-                    dp.peerService.updateAddress(peer)
-                }
             }
             peer.updateDownloadedVolume(cis.count)
 

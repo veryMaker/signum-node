@@ -225,7 +225,7 @@ class UnconfirmedTransactionServiceTest {
 
         val mockPeer = mockk<Peer>(relaxed = true)
 
-        every { mockPeer.peerAddress } returns "mockPeer"
+        every { mockPeer.remoteAddress } returns "mockPeer"
 
         val transactionBuilder = Builder(dp, 1.toByte(), TestConstants.TEST_PUBLIC_KEY_BYTES, 1, Constants.MAX_BALANCE_PLANCK - 100000, timeService.epochTime + 50000,
                 500.toShort(), Attachment.OrdinaryPayment(dp))

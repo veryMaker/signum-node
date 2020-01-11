@@ -10,6 +10,15 @@ fun <T> Iterable<T>.filterWithLimits(firstIndex: Int, lastIndex: Int, filter: (T
 
 /**
  * Applies the given [transform] function to each element of the original collection,
+ * and appends the result of the [transform] to a new list unless it was null.
+ * An item can be filtered out by the transform returning null.
+ */
+inline fun <T: Any, R: Any> Iterable<T>.filteringMap(transform: (T) -> R?): List<R> {
+    return filteringMapTo(mutableListOf(), transform)
+}
+
+/**
+ * Applies the given [transform] function to each element of the original collection,
  * and appends the result of the [transform] to the given [destination] unless it was null.
  * An item can be filtered out by the transform returning null.
  */
