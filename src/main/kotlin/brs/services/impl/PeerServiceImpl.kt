@@ -379,16 +379,12 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                     val peer =
                         getAnyPeer(if (ThreadLocalRandom.current().nextInt(2) == 0) Peer.State.NON_CONNECTED else Peer.State.DISCONNECTED)
                     if (peer != null) {
-                        try {
-                            peer.connect(dp.timeService.epochTime)
-                        } catch (e: Exception) {
-                            return@run true
-                        }
+                        if (!peer.connect()) return@run true
                         /*
-                     * remove non connected peer. if peer is blacklisted, keep it to maintain blacklist time.
-                     * Peers should never be removed if total peers are below our target to prevent total erase of peers
-                     * if we loose Internet connection
-                     */
+                         * remove non connected peer. if peer is blacklisted, keep it to maintain blacklist time.
+                         * Peers should never be removed if total peers are below our target to prevent total erase of peers
+                         * if we loose Internet connection
+                         */
                         if (!peer.isHigherOrEqualVersionThan(MIN_VERSION) || peer.state != Peer.State.CONNECTED && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers) {
                             removePeer(peer)
                         } else {
@@ -401,8 +397,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 val now = dp.timeService.epochTime
                 for (peer in peers.values) {
                     if (peer.state == Peer.State.CONNECTED && now - peer.lastUpdated > 3600) {
-                        peer.connect(dp.timeService.epochTime)
-                        if (!peer.isHigherOrEqualVersionThan(MIN_VERSION) || peer.state != Peer.State.CONNECTED && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers) {
+                        if (!peer.connect() || !peer.isHigherOrEqualVersionThan(MIN_VERSION) || peer.state != Peer.State.CONNECTED && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers) {
                             removePeer(peer)
                         }
                     }
@@ -436,9 +431,9 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 }
 
                 val peer = getAnyPeer(Peer.State.CONNECTED) ?: return@run false
-                val newAddressess = peer.getPeers()
-                if (!newAddressess.isEmpty()) {
-                    for (announcedAddress in newAddressess) {
+                val newAddresses = peer.getPeers() ?: return@run true
+                if (!newAddresses.isEmpty()) {
+                    for (announcedAddress in newAddresses) {
                         getOrAddPeer(announcedAddress)
                     }
                     if (savePeers && addedNewPeer) { // FIXME: Atomics do not guarantee exclusivity in this way
@@ -448,7 +443,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
                 val myPeers = allPeers.filter { myPeer -> !myPeer.isBlacklisted
                         && myPeer.state == Peer.State.CONNECTED && myPeer.shareAddress
-                        && !newAddressess.contains(myPeer.address)
+                        && !newAddresses.contains(myPeer.address)
                         && myPeer.address != peer.address
                         && myPeer.isHigherOrEqualVersionThan(MIN_VERSION) }
                     .map { it.address }
@@ -690,12 +685,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         val transactionsToSend = foodDispenser(peer)
 
         if (transactionsToSend.isNotEmpty()) {
-            try {
-                logger.safeTrace { "Feeding ${peer.address} ${transactionsToSend.size} transactions" }
-                peer.sendUnconfirmedTransactions(transactionsToSend)
-            } catch (e: Exception) {
-                logger.safeWarn(e) { "Error feeding ${peer.address} transactions ${transactionsToSend.map { it.id }.joinToString(", ")}" }
-            }
+            logger.safeTrace { "Feeding ${peer.address} ${transactionsToSend.size} transactions" }
+            peer.sendUnconfirmedTransactions(transactionsToSend)
         } else {
             logger.safeTrace { "No need to feed ${peer.address}" }
         }

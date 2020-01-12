@@ -90,7 +90,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     logger.safeDebug { "No peer connected." }
                     return@run false
                 }
-                val response = peer.getCumulativeDifficulty()
+                val response = peer.getCumulativeDifficulty() ?: return@run true
                 lastBlockchainFeeder = peer
                 lastBlockchainFeederHeight = response.second
 
@@ -141,12 +141,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 }
 
                 logger.safeDebug { "Getting next Blocks after ${commonBlockId.toUnsignedString()} from ${peer.remoteAddress}" }
-                val nextBlocks = try {
-                    peer.getNextBlocks(commonBlockId)
-                } catch (e: Exception) {
-                    return@run true
-                }
-                if (nextBlocks.isEmpty()) {
+                val nextBlocks = peer.getNextBlocks(commonBlockId)
+                if (nextBlocks.isNullOrEmpty()) {
                     logger.safeDebug { "Peer did not feed us any blocks" }
                     return@run true
                 }
@@ -383,8 +379,8 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 peer.getMilestoneBlockIds(lastMilestoneBlockId)
             }
 
-            val milestoneBlockIds = response.first
-            if (milestoneBlockIds.isEmpty()) return 0
+            val milestoneBlockIds = response?.first
+            if (milestoneBlockIds.isNullOrEmpty()) return 0
 
             // prevent overloading with blockIds
             if (milestoneBlockIds.size > 20) {
@@ -413,7 +409,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         var currentCommonBlockId = commonBlockId
         while (true) {
             val nextBlockIds = peer.getNextBlockIds(commonBlockId)
-            if (nextBlockIds.isEmpty()) return 0
+            if (nextBlockIds.isNullOrEmpty()) return 0
             for (nextBlockId in nextBlockIds) {
                 if (!dp.downloadCacheService.hasBlock(nextBlockId)) {
                     return currentCommonBlockId

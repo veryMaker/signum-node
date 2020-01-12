@@ -23,6 +23,7 @@ import brs.util.json.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
+import brs.util.logging.safeTrace
 import brs.util.misc.filteringMap
 import brs.util.sync.Mutex
 import com.google.gson.JsonArray
@@ -191,42 +192,62 @@ internal class HttpPeerImpl(
         }
     }
 
-    override fun exchangeInfo(): PeerInfo {
-        val json = send(dp.peerService.myPeerInfoRequest) ?: error("Returned JSON was null")
-        checkError(json)
-        return PeerInfo.fromJson(json)
+    override fun exchangeInfo(): PeerInfo? {
+        return try {
+            val json = send(dp.peerService.myPeerInfoRequest) ?: error("Returned JSON was null")
+            checkError(json)
+            PeerInfo.fromJson(json)
+        } catch (e: Exception) {
+            logger.safeTrace(e) { "Error exchanging info with peer" }
+            null
+        }
     }
 
-    override fun getCumulativeDifficulty(): Pair<BigInteger, Int> {
-        val json = send(getCumulativeDifficultyRequest) ?: error("Returned JSON was null")
-        checkError(json)
-        return Pair(BigInteger(json.mustGetMemberAsString("cumulativeDifficulty")), json.mustGetMemberAsInt("blockchainHeight"))
+    override fun getCumulativeDifficulty(): Pair<BigInteger, Int>? {
+        return try {
+            val json = send(getCumulativeDifficultyRequest) ?: error("Returned JSON was null")
+            checkError(json)
+            Pair(BigInteger(json.mustGetMemberAsString("cumulativeDifficulty")), json.mustGetMemberAsInt("blockchainHeight"))
+        } catch (e: Exception) {
+            logger.safeTrace(e) { "Error getting cumulative difficulty from peer" }
+            null
+        }
     }
 
-    override fun getUnconfirmedTransactions(): Collection<Transaction> {
-        val json = send(getUnconfirmedTransactionsRequest) ?: error("Returned JSON was null")
-        checkError(json)
-        return json.mustGetMemberAsJsonArray("unconfirmedTransactions").map { Transaction.parseTransaction(dp, it.mustGetAsJsonObject("transaction")) }
+    override fun getUnconfirmedTransactions(): Collection<Transaction>? {
+        return try {
+            val json = send(getUnconfirmedTransactionsRequest) ?: error("Returned JSON was null")
+            checkError(json)
+            json.mustGetMemberAsJsonArray("unconfirmedTransactions").map { Transaction.parseTransaction(dp, it.mustGetAsJsonObject("transaction")) }
+        } catch (e: Exception) {
+            logger.safeTrace(e) { "Error getting unconfirmed transactions from peer" }
+            null
+        }
     }
 
-    private fun getMilestoneBlockIds(request: JsonObject): Pair<Collection<Long>, Boolean> {
-        val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
-        checkError(json)
-        val milestoneBlockIds = json.mustGetMemberAsJsonArray("milestoneBlockIds")
-            .map { it.safeGetAsString().parseUnsignedLong() }
-            .filter { it != 0L }
-        val last = json.getMemberAsBoolean("last") ?: false
-        return Pair(milestoneBlockIds, last)
+    private fun getMilestoneBlockIds(request: JsonObject): Pair<Collection<Long>, Boolean>? {
+        return try {
+            val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+            checkError(json)
+            val milestoneBlockIds = json.mustGetMemberAsJsonArray("milestoneBlockIds")
+                .map { it.safeGetAsString().parseUnsignedLong() }
+                .filter { it != 0L }
+            val last = json.getMemberAsBoolean("last") ?: false
+            Pair(milestoneBlockIds, last)
+        } catch (e: Exception) {
+            logger.safeTrace(e) { "Error getting milestone block IDs" }
+            null
+        }
     }
 
-    override fun getMilestoneBlockIds(): Pair<Collection<Long>, Boolean> {
+    override fun getMilestoneBlockIds(): Pair<Collection<Long>, Boolean>? {
         val request = JsonObject()
         request.addProperty("requestType", "getMilestoneBlockIds")
         request.addProperty("lastBlockId", dp.downloadCacheService.getLastBlockId().toUnsignedString())
         return getMilestoneBlockIds(request)
     }
 
-    override fun getMilestoneBlockIds(lastMilestoneBlockId: Long): Pair<Collection<Long>, Boolean> {
+    override fun getMilestoneBlockIds(lastMilestoneBlockId: Long): Pair<Collection<Long>, Boolean>? {
         val request = JsonObject()
         request.addProperty("requestType", "getMilestoneBlockIds")
         request.addProperty("lastMilestoneBlockId", lastMilestoneBlockId)
@@ -234,73 +255,101 @@ internal class HttpPeerImpl(
     }
 
     override fun sendUnconfirmedTransactions(transactions: Collection<Transaction>) {
-        val jsonTransactions = JsonArray()
-        transactions.map { it.toJsonObject() }.forEach { jsonTransactions.add(it) }
-        val request = JsonObject()
-        request.addProperty("requestType", "processTransactions")
-        request.add("transactions", jsonTransactions)
-        val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
-        checkError(json)
+        try {
+            val jsonTransactions = JsonArray()
+            transactions.map { it.toJsonObject() }.forEach { jsonTransactions.add(it) }
+            val request = JsonObject()
+            request.addProperty("requestType", "processTransactions")
+            request.add("transactions", jsonTransactions)
+            val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+            checkError(json)
+        } catch (e: Exception) {
+            logger.safeTrace(e) { "Error sending unconfirmed transactions to peer" }
+        }
     }
 
-    override fun getNextBlocks(lastBlockId: Long): Collection<Block> {
-        val firstNewBlockHeight = (dp.downloadCacheService.getBlock(lastBlockId) ?: error("Block with ID $lastBlockId not found in cache")).height + 1
-        val request = JsonObject()
-        request.addProperty("requestType", "getNextBlocks")
-        request.addProperty("blockId", lastBlockId.toUnsignedString())
-        val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
-        checkError(json)
-        return json.mustGetMemberAsJsonArray("nextBlocks")
-            .asSequence()
-            .take(Constants.MAX_PEER_RECEIVED_BLOCKS)
-            .map { it.mustGetAsJsonObject("block") }
-            .mapIndexed { index, jsonElement -> Block.parseBlock(dp, jsonElement.mustGetAsJsonObject("block"), firstNewBlockHeight + index) }
-            .toList()
+    override fun getNextBlocks(lastBlockId: Long): Collection<Block>? {
+        return try {
+            val firstNewBlockHeight = (dp.downloadCacheService.getBlock(lastBlockId) ?: error("Block with ID $lastBlockId not found in cache")).height + 1
+            val request = JsonObject()
+            request.addProperty("requestType", "getNextBlocks")
+            request.addProperty("blockId", lastBlockId.toUnsignedString())
+            val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+            checkError(json)
+            json.mustGetMemberAsJsonArray("nextBlocks")
+                .asSequence()
+                .take(Constants.MAX_PEER_RECEIVED_BLOCKS)
+                .map { it.mustGetAsJsonObject("block") }
+                .mapIndexed { index, jsonElement -> Block.parseBlock(dp, jsonElement.mustGetAsJsonObject("block"), firstNewBlockHeight + index) }
+                .toList()
+        } catch (e: Exception) {
+            logger.safeTrace(e) { "Error getting next blocks from peer" }
+            null
+        }
     }
 
-    override fun getNextBlockIds(lastBlockId: Long): Collection<Long> {
-        val request = JsonObject()
-        request.addProperty("requestType", "getNextBlockIds")
-        request.addProperty("blockId", lastBlockId.toUnsignedString())
-        val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
-        checkError(json)
-        return json.mustGetMemberAsJsonArray("nextBlockIds")
-            .asSequence()
-            .take(Constants.MAX_PEER_RECEIVED_BLOCKS)
-            .map { it.safeGetAsString().parseUnsignedLong() }
-            .filter { it != 0L }
-            .toList()
+    override fun getNextBlockIds(lastBlockId: Long): Collection<Long>? {
+        return try {
+            val request = JsonObject()
+            request.addProperty("requestType", "getNextBlockIds")
+            request.addProperty("blockId", lastBlockId.toUnsignedString())
+            val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+            checkError(json)
+            json.mustGetMemberAsJsonArray("nextBlockIds")
+                .asSequence()
+                .take(Constants.MAX_PEER_RECEIVED_BLOCKS)
+                .map { it.safeGetAsString().parseUnsignedLong() }
+                .filter { it != 0L }
+                .toList()
+        } catch (e: Exception) {
+            logger.safeTrace(e) { "Error getting next block IDs from peer" }
+            null
+        }
     }
 
     override fun addPeers(announcedAddresses: Collection<PeerAddress>) {
-        val jsonAnnouncedAddresses = JsonArray()
-        if (this.version.isGreaterThanOrEqualTo(Version.parse("v3.0.0-dev"))) { // TODO don't parse version
-            announcedAddresses.forEach { jsonAnnouncedAddresses.add(it.toString()) }
-        } else {
-            announcedAddresses.forEach { jsonAnnouncedAddresses.add("${it.host}:${it.port}") }
+        try {
+            val jsonAnnouncedAddresses = JsonArray()
+            if (this.version.isGreaterThanOrEqualTo(Version.parse("v3.0.0-dev"))) { // TODO don't parse version
+                announcedAddresses.forEach { jsonAnnouncedAddresses.add(it.toString()) }
+            } else {
+                announcedAddresses.forEach { jsonAnnouncedAddresses.add("${it.host}:${it.port}") }
+            }
+            val request = JsonObject()
+            request.addProperty("requestType", "getNextBlockIds")
+            request.add("peers", jsonAnnouncedAddresses)
+            val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+            checkError(json)
+        } catch (e: Exception) {
+            logger.safeTrace(e) { "Error sending peers to peer" }
         }
-        val request = JsonObject()
-        request.addProperty("requestType", "getNextBlockIds")
-        request.add("peers", jsonAnnouncedAddresses)
-        val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
-        checkError(json)
     }
 
-    override fun getPeers(): Collection<PeerAddress> {
-        val json = send(getPeersRequest) ?: error("Returned JSON was null")
-        checkError(json)
-        return json.mustGetMemberAsJsonArray("peers")
-            .map { it.safeGetAsString() ?: "" }
-            .filter { it.isNotBlank() }
-            .filteringMap { PeerAddress.parse(dp, it) }
+    override fun getPeers(): Collection<PeerAddress>? {
+        return try {
+            val json = send(getPeersRequest) ?: error("Returned JSON was null")
+            checkError(json)
+            json.mustGetMemberAsJsonArray("peers")
+                .map { it.safeGetAsString() ?: "" }
+                .filter { it.isNotBlank() }
+                .filteringMap { PeerAddress.parse(dp, it) }
+        } catch (e: Exception) {
+            logger.safeTrace(e) { "Error getting peers from peer" }
+            null
+        }
     }
 
     override fun sendBlock(block: Block): Boolean {
-        val request = block.toJsonObject()
-        request.addProperty("requestType", "processBlock")
-        val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
-        checkError(json)
-        return json.mustGetMemberAsBoolean("accepted")
+        return try {
+            val request = block.toJsonObject()
+            request.addProperty("requestType", "processBlock")
+            val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+            checkError(json)
+            json.mustGetMemberAsBoolean("accepted")
+        } catch (e: Exception) {
+            logger.safeTrace(e) { "Error sending block to peers" }
+            false
+        }
     }
 
     private fun send(request: JsonElement): JsonObject? {
@@ -409,8 +458,8 @@ internal class HttpPeerImpl(
         return 0
     }
 
-    override fun connect(currentTime: Int) {
-        val response = exchangeInfo()
+    override fun connect(): Boolean {
+        val response = exchangeInfo() ?: return false
         application = response.application
         version = response.version
         platform = response.platform
@@ -428,7 +477,8 @@ internal class HttpPeerImpl(
         }
 
         state = Peer.State.CONNECTED
-        lastUpdated = currentTime
+        lastUpdated = dp.timeService.epochTime
+        return true
     }
 
     private fun jsonError(message: String): JsonObject {

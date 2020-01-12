@@ -34,7 +34,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                 try {
                     val peer = dp.peerService.getAnyPeer(Peer.State.CONNECTED) ?: return@run
                     val transactions = peer.getUnconfirmedTransactions()
-                    if (transactions.isEmpty()) return@run
+                    if (transactions.isNullOrEmpty()) return@run
                     dp.peerService.feedingTime(peer, foodDispenser, doneFeedingLog)
 
                     try {
@@ -46,7 +46,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                             dp.taskSchedulerService.awaitTasks(TaskType.IO, activePriorityPlusExtra.map { otherPeer -> {
                                     try {
                                         val otherPeerTransactions = otherPeer.getUnconfirmedTransactions()
-                                        if (otherPeerTransactions.isNotEmpty())
+                                        if (!otherPeerTransactions.isNullOrEmpty())
                                             dp.peerService.feedingTime(otherPeer, foodDispenser, doneFeedingLog)
                                     } catch (e: Exception) {
                                         peer.blacklist(e, "pulled invalid data using getUnconfirmedTransactions")
