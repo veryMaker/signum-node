@@ -42,11 +42,12 @@ import java.io.IOException
 import java.net.URI
 import java.net.URISyntaxException
 import java.util.*
-import java.util.concurrent.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Future
+import java.util.concurrent.ThreadLocalRandom
 
 class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
-    override val communicationLoggingMask: Int
-
     private val random = Random()
 
     override val rebroadcastPeers: Set<PeerAddress>
@@ -110,10 +111,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private val peers = ConcurrentHashMap<String, Peer>()
     private val remoteAddressCache = ConcurrentHashMap<PeerAddress, String>()
 
-    override val allPeers: Collection<Peer> = peers.values
-
-    private val unresolvedPeers = mutableListOf<Future<PeerAddress?>>()
-    private val unresolvedPeersLock = Mutex()
+    override val allPeers: Collection<Peer> get() = peers.values
 
     init {
         val tempAddress = if (dp.propertyService.get(Props.P2P_MY_ADDRESS).isNotBlank()
@@ -188,7 +186,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         readTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_READ_MS)
 
         blacklistingPeriod = dp.propertyService.get(Props.P2P_BLACKLISTING_TIME_MS)
-        communicationLoggingMask = dp.propertyService.get(Props.BRS_COMMUNICATION_LOGGING_MASK)
         sendToPeersLimit = dp.propertyService.get(P2P_SEND_TO_LIMIT)
         usePeersDb = dp.propertyService.get(Props.P2P_USE_PEERS_DB) && !dp.propertyService.get(Props.DEV_OFFLINE)
         savePeers = usePeersDb && dp.propertyService.get(Props.P2P_SAVE_PEERS)
@@ -470,25 +467,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             lastSavedPeers = peers.size
         }
 
-        dp.taskSchedulerService.runAfterStart {
-            unresolvedPeersLock.withLock {
-                for (unresolvedPeer in unresolvedPeers) {
-                    try {
-                        val badAddress = unresolvedPeer.get()
-                        if (badAddress != null) {
-                            logger.safeDebug { "Failed to resolve peer address: $badAddress" }
-                        }
-                    } catch (e: InterruptedException) {
-                        Thread.currentThread().interrupt()
-                    } catch (e: ExecutionException) {
-                        logger.safeDebug(e) { "Failed to add peer" }
-                    } catch (ignored: TimeoutException) {
-                    }
-                }
-                logger.safeDebug { "Known peers: ${peers.size}" }
-            }
-        }
-
         if (!dp.propertyService.get(Props.DEV_OFFLINE)) {
             dp.taskSchedulerService.scheduleTask(TaskType.IO, peerConnectingThread)
             dp.taskSchedulerService.scheduleTask(TaskType.IO, peerUnBlacklistingThread)
@@ -541,13 +519,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
      */
     private fun loadPeers(addresses: Collection<PeerAddress>) {
         for (address in addresses) {
-            val unresolvedAddress = dp.taskSchedulerService.async(TaskType.IO) {
-                val peer = getOrAddPeer(address)
-                if (peer == null) address else null
-            }
-            unresolvedPeersLock.withLock {
-                unresolvedPeers.add(unresolvedAddress)
-            }
+            getOrAddPeer(address)
         }
     }
 
@@ -731,9 +703,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
     companion object {
         private val logger = LoggerFactory.getLogger(PeerServiceImpl::class.java)
-        internal const val LOGGING_MASK_EXCEPTIONS = 1
-        internal const val LOGGING_MASK_NON200_RESPONSES = 2
-        internal const val LOGGING_MASK_200_RESPONSES = 4
         internal const val DEFAULT_PEER_PORT = 8123
         internal const val TESTNET_PEER_PORT = 7123
     }

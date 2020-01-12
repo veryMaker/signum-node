@@ -8,7 +8,6 @@ import brs.entity.Transaction
 import brs.objects.Constants
 import brs.services.BlockchainProcessorService
 import brs.services.PeerService
-import brs.services.impl.PeerServiceImpl
 import brs.util.BurstException
 import brs.util.CountingInputStream
 import brs.util.CountingOutputStream
@@ -23,7 +22,7 @@ import brs.util.json.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
-import brs.util.logging.safeTrace
+import brs.util.logging.safeWarn
 import brs.util.misc.filteringMap
 import brs.util.sync.Mutex
 import com.google.gson.JsonArray
@@ -124,9 +123,7 @@ internal class HttpPeerImpl(
     }
 
     override fun blacklist(cause: Exception, description: String) {
-        if (cause is BurstException.NotCurrentlyValidException || cause is BlockchainProcessorService.BlockOutOfOrderException
-            || cause is SQLException || cause.cause is SQLException
-        ) {
+        if (cause is BurstException.NotCurrentlyValidException || cause is BlockchainProcessorService.BlockOutOfOrderException || cause is SQLException || cause.cause is SQLException) {
             // don't blacklist peers just because a feature is not yet enabled, or because of database timeouts
             // prevents erroneous blacklisting during loading of blockchain from scratch
             return
@@ -173,60 +170,53 @@ internal class HttpPeerImpl(
         dp.peerService.removePeer(this)
     }
 
-    private fun onTimeout() {
-        error("Timeout")
-    }
-
-    private fun couldNotConnect() {
-        error("Could not connect")
+    private inline fun <T: Any> handlePeerError(errorMessage: String, action: () -> T): T? {
+        return try {
+            action()
+        } catch (e: Exception) {
+            if (!isConnectionException(e)) {
+                if (state == Peer.State.CONNECTED) {
+                    state = Peer.State.DISCONNECTED
+                }
+                logger.safeWarn(e) { errorMessage }
+            }
+            null
+        }
     }
 
     private fun checkError(json: JsonObject) {
         val error = json.getMemberAsString("error")
-        if (error != null) {
-            when {
-                error.contains("connect timed out") -> onTimeout()
-                error.contains("Connection refused") -> couldNotConnect()
-                else -> error(error)
-            }
+        if (!error.isNullOrBlank()) {
+            throw Exception("Peer Error: $error")
         }
     }
 
     override fun exchangeInfo(): PeerInfo? {
-        return try {
+        return handlePeerError("Error exchanging info with peer") {
             val json = send(dp.peerService.myPeerInfoRequest) ?: error("Returned JSON was null")
             checkError(json)
             PeerInfo.fromJson(json)
-        } catch (e: Exception) {
-            logger.safeTrace(e) { "Error exchanging info with peer" }
-            null
         }
     }
 
     override fun getCumulativeDifficulty(): Pair<BigInteger, Int>? {
-        return try {
+        return handlePeerError("Error getting cumulative difficulty from peer") {
             val json = send(getCumulativeDifficultyRequest) ?: error("Returned JSON was null")
             checkError(json)
             Pair(BigInteger(json.mustGetMemberAsString("cumulativeDifficulty")), json.mustGetMemberAsInt("blockchainHeight"))
-        } catch (e: Exception) {
-            logger.safeTrace(e) { "Error getting cumulative difficulty from peer" }
-            null
         }
     }
 
     override fun getUnconfirmedTransactions(): Collection<Transaction>? {
-        return try {
+        return handlePeerError("Error getting unconfirmed transactions from peer") {
             val json = send(getUnconfirmedTransactionsRequest) ?: error("Returned JSON was null")
             checkError(json)
             json.mustGetMemberAsJsonArray("unconfirmedTransactions").map { Transaction.parseTransaction(dp, it.mustGetAsJsonObject("transaction")) }
-        } catch (e: Exception) {
-            logger.safeTrace(e) { "Error getting unconfirmed transactions from peer" }
-            null
         }
     }
 
     private fun getMilestoneBlockIds(request: JsonObject): Pair<Collection<Long>, Boolean>? {
-        return try {
+        return handlePeerError("Error getting milestone block IDs") {
             val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
             checkError(json)
             val milestoneBlockIds = json.mustGetMemberAsJsonArray("milestoneBlockIds")
@@ -234,9 +224,6 @@ internal class HttpPeerImpl(
                 .filter { it != 0L }
             val last = json.getMemberAsBoolean("last") ?: false
             Pair(milestoneBlockIds, last)
-        } catch (e: Exception) {
-            logger.safeTrace(e) { "Error getting milestone block IDs" }
-            null
         }
     }
 
@@ -255,7 +242,7 @@ internal class HttpPeerImpl(
     }
 
     override fun sendUnconfirmedTransactions(transactions: Collection<Transaction>) {
-        try {
+        handlePeerError("Error sending unconfirmed transactions to peer") {
             val jsonTransactions = JsonArray()
             transactions.map { it.toJsonObject() }.forEach { jsonTransactions.add(it) }
             val request = JsonObject()
@@ -263,13 +250,11 @@ internal class HttpPeerImpl(
             request.add("transactions", jsonTransactions)
             val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
             checkError(json)
-        } catch (e: Exception) {
-            logger.safeTrace(e) { "Error sending unconfirmed transactions to peer" }
         }
     }
 
     override fun getNextBlocks(lastBlockId: Long): Collection<Block>? {
-        return try {
+        return handlePeerError("Error getting next blocks from peer") {
             val firstNewBlockHeight = (dp.downloadCacheService.getBlock(lastBlockId) ?: error("Block with ID $lastBlockId not found in cache")).height + 1
             val request = JsonObject()
             request.addProperty("requestType", "getNextBlocks")
@@ -282,14 +267,11 @@ internal class HttpPeerImpl(
                 .map { it.mustGetAsJsonObject("block") }
                 .mapIndexed { index, jsonElement -> Block.parseBlock(dp, jsonElement.mustGetAsJsonObject("block"), firstNewBlockHeight + index) }
                 .toList()
-        } catch (e: Exception) {
-            logger.safeTrace(e) { "Error getting next blocks from peer" }
-            null
         }
     }
 
     override fun getNextBlockIds(lastBlockId: Long): Collection<Long>? {
-        return try {
+        return handlePeerError("Error getting next block IDs from peer") {
             val request = JsonObject()
             request.addProperty("requestType", "getNextBlockIds")
             request.addProperty("blockId", lastBlockId.toUnsignedString())
@@ -301,14 +283,11 @@ internal class HttpPeerImpl(
                 .map { it.safeGetAsString().parseUnsignedLong() }
                 .filter { it != 0L }
                 .toList()
-        } catch (e: Exception) {
-            logger.safeTrace(e) { "Error getting next block IDs from peer" }
-            null
         }
     }
 
     override fun addPeers(announcedAddresses: Collection<PeerAddress>) {
-        try {
+        handlePeerError("Error sending peers to peer") {
             val jsonAnnouncedAddresses = JsonArray()
             if (this.version.isGreaterThanOrEqualTo(Version.parse("v3.0.0-dev"))) { // TODO don't parse version
                 announcedAddresses.forEach { jsonAnnouncedAddresses.add(it.toString()) }
@@ -320,56 +299,34 @@ internal class HttpPeerImpl(
             request.add("peers", jsonAnnouncedAddresses)
             val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
             checkError(json)
-        } catch (e: Exception) {
-            logger.safeTrace(e) { "Error sending peers to peer" }
         }
     }
 
     override fun getPeers(): Collection<PeerAddress>? {
-        return try {
+        return handlePeerError("Error getting peers from peer") {
             val json = send(getPeersRequest) ?: error("Returned JSON was null")
             checkError(json)
             json.mustGetMemberAsJsonArray("peers")
                 .map { it.safeGetAsString() ?: "" }
                 .filter { it.isNotBlank() }
                 .filteringMap { PeerAddress.parse(dp, it) }
-        } catch (e: Exception) {
-            logger.safeTrace(e) { "Error getting peers from peer" }
-            null
         }
     }
 
     override fun sendBlock(block: Block): Boolean {
-        return try {
+        return handlePeerError("Error sending block to peers") {
             val request = block.toJsonObject()
             request.addProperty("requestType", "processBlock")
             val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
             checkError(json)
             json.mustGetMemberAsBoolean("accepted")
-        } catch (e: Exception) {
-            logger.safeTrace(e) { "Error sending block to peers" }
-            false
-        }
+        } ?: false
     }
 
     private fun send(request: JsonElement): JsonObject? {
-        var response: JsonObject? = null
-        var log: String? = null
-        var showLog = false
         var connection: HttpURLConnection? = null
-
         try {
-            val buf = StringBuilder(address.toString())
-            buf.append("/burst")
-            val url = URL(buf.toString())
-
-            if (dp.peerService.communicationLoggingMask != 0) {
-                val stringWriter = StringWriter()
-                request.writeTo(stringWriter)
-                log = "\"$url\": $stringWriter"
-            }
-
-            connection = url.openConnection() as HttpURLConnection
+            connection = URL("$address/burst").openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
             connection.doOutput = true
             connection.connectTimeout = dp.peerService.connectTimeout
@@ -378,84 +335,39 @@ internal class HttpPeerImpl(
             connection.setRequestProperty("Accept-Encoding", "gzip")
             connection.setRequestProperty("Connection", "close")
 
-            val cos = CountingOutputStream(connection.outputStream)
-            BufferedWriter(
-                OutputStreamWriter(
-                    cos,
-                    StandardCharsets.UTF_8
-                )
-            ).use { writer -> request.writeTo(writer) } // rico666: no catch?
-            updateUploadedVolume(cos.count)
+            val outputStream = CountingOutputStream(connection.outputStream)
+            BufferedWriter(OutputStreamWriter(outputStream, StandardCharsets.UTF_8))
+                .use { writer -> request.writeTo(writer) }
+            updateUploadedVolume(outputStream.count)
 
             if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-                val cis = CountingInputStream(connection.inputStream)
-                var responseStream: InputStream = cis
-                if ("gzip" == connection.getHeaderField("Content-Encoding")) {
-                    responseStream = GZIPInputStream(cis)
-                }
-                if (dp.peerService.communicationLoggingMask and PeerServiceImpl.LOGGING_MASK_200_RESPONSES != 0) {
-                    val byteArrayOutputStream = ByteArrayOutputStream()
-                    responseStream.use { inputStream -> inputStream.copyTo(byteArrayOutputStream, 1024) }
-                    val responseValue = byteArrayOutputStream.toString("UTF-8")
-                    if (responseValue.isNotEmpty() && responseStream is GZIPInputStream) {
-                        log += String.format(
-                            "[length: %d, compression ratio: %.2f]",
-                            cis.count,
-                            cis.count.toDouble() / responseValue.length.toDouble()
-                        )
-                    }
-                    log += " >>> $responseValue"
-                    showLog = true
-                    response = responseValue.parseJson().safeGetAsJsonObject()
-                } else {
+                val inputStream = CountingInputStream(connection.inputStream)
+                try {
+                    var responseStream: InputStream = inputStream
+                    if ("gzip" == connection.getHeaderField("Content-Encoding")) responseStream = GZIPInputStream(inputStream)
                     BufferedReader(InputStreamReader(responseStream, StandardCharsets.UTF_8)).use { reader ->
-                        response = reader.parseJson().safeGetAsJsonObject()
+                        return reader.parseJson().safeGetAsJsonObject()
                     }
+                } finally {
+                    updateDownloadedVolume(inputStream.count)
                 }
-                updateDownloadedVolume(cis.count)
             } else {
-                if (dp.peerService.communicationLoggingMask and PeerServiceImpl.LOGGING_MASK_NON200_RESPONSES != 0) {
-                    log += " >>> Peer responded with HTTP " + connection.responseCode + " code!"
-                    showLog = true
-                }
                 state = if (state == Peer.State.CONNECTED) {
                     Peer.State.DISCONNECTED
                 } else {
                     Peer.State.NON_CONNECTED
                 }
-                response = jsonError("Peer responded with HTTP " + connection.responseCode)
+                throw Exception("Bad HTTP Response: ${connection.responseCode}")
             }
-        } catch (e: Exception) {
-            if (!isConnectionException(e)) {
-                logger.safeDebug(e) { "Error sending JSON request" }
-            }
-            if (dp.peerService.communicationLoggingMask and PeerServiceImpl.LOGGING_MASK_EXCEPTIONS != 0) {
-                log += " >>> $e"
-                showLog = true
-            }
-            if (state == Peer.State.CONNECTED) {
-                state = Peer.State.DISCONNECTED
-            }
-            response = jsonError("Error getting response from peer: ${e.javaClass}: ${e.message}")
+        } finally {
+            connection?.disconnect()
         }
-
-        if (showLog && log != null) {
-            logger.safeInfo { log }
-        }
-
-        connection?.disconnect()
-
-        return response
     }
 
     private fun isConnectionException(e: Throwable): Boolean {
         if (e is UnknownHostException || e is SocketTimeoutException || e is SocketException) return true
         val cause = e.cause
         return cause != null && isConnectionException(cause)
-    }
-
-    override fun compareTo(other: Peer): Int {
-        return 0
     }
 
     override fun connect(): Boolean {
@@ -479,12 +391,6 @@ internal class HttpPeerImpl(
         state = Peer.State.CONNECTED
         lastUpdated = dp.timeService.epochTime
         return true
-    }
-
-    private fun jsonError(message: String): JsonObject {
-        val jsonObject = JsonObject()
-        jsonObject.addProperty("error", message)
-        return jsonObject
     }
 
     override fun updateAddress(newAnnouncedAddress: PeerAddress) {

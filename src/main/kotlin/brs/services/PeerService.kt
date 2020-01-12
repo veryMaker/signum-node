@@ -82,11 +82,6 @@ interface PeerService {
     /**
      * TODO
      */
-    val communicationLoggingMask: Int
-
-    /**
-     * TODO
-     */
     val readTimeout: Int
 
     /**

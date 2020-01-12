@@ -29,8 +29,6 @@ object Props {
     val DEV_POC2_BLOCK_HEIGHT = Prop("DEV.poc2.startBlock", -1)
     val DEV_NEXT_FORK_BLOCK_HEIGHT = Prop("DEV.nextFork.startBlock", -1)
 
-    val BRS_COMMUNICATION_LOGGING_MASK = Prop("brs.communicationLoggingMask", 0)
-
     // GPU options
     val GPU_ACCELERATION = Prop("GPU.Acceleration", false)
     val GPU_AUTODETECT = Prop("GPU.AutoDetect", true)
@@ -41,7 +39,7 @@ object Props {
     val GPU_MEM_PERCENT = Prop("GPU.MemPercent", 50)
 
     // DB options
-    val DB_URL = Prop("DB.Url", "jdbc:mariadb://localhost:3306/burstwallet")
+    val DB_URL = Prop("DB.Url", "jdbc:h2:file:./burst;DB_CLOSE_ON_EXIT=FALSE")
     val DB_USERNAME = Prop("DB.Username", "")
     val DB_PASSWORD = Prop("DB.Password", "")
     val DB_CONNECTIONS = Prop("DB.Connections", 30)
@@ -149,8 +147,6 @@ object Props {
     val JETTY_P2P_DOS_FILTER_REMOTE_PORT = Prop("JETTY.P2P.DoSFilter.remotePort", "false")
     val JETTY_P2P_DOS_FILTER_IP_WHITELIST = Prop("JETTY.P2P.DoSFilter.ipWhitelist", "")
     val JETTY_P2P_DOS_FILTER_MANAGED_ATTR = Prop("JETTY.P2P.DoSFilter.managedAttr", "true")
-
-    val INDIRECT_INCOMING_SERVICE_ENABLE = Prop("IndirectIncomingService.Enable", true)
 
     val AUTO_POP_OFF_ENABLED = Prop("AutoPopOff.Enable", true)
 

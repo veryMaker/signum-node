@@ -7,7 +7,7 @@ import brs.entity.Transaction
 import brs.util.Version
 import java.math.BigInteger
 
-interface Peer : Comparable<Peer> {
+interface Peer {
     val remoteAddress: String
 
     /**

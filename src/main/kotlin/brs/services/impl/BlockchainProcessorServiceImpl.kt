@@ -146,7 +146,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     logger.safeDebug { "Peer did not feed us any blocks" }
                     return@run true
                 }
-                logger.safeDebug { "Got ${nextBlocks.size} blocks after ${commonBlockId.toUnsignedString()} from ${peer.remoteAddress}" }
+                logger.safeDebug { "Got ${nextBlocks.size} blocks after ${commonBlockId.toUnsignedString()}" }
 
                 // download blocks from peer
                 var lastBlock = dp.downloadCacheService.getBlock(commonBlockId)

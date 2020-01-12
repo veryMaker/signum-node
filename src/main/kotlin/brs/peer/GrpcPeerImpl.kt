@@ -128,10 +128,6 @@ class GrpcPeerImpl : Peer {
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
 
-    override fun compareTo(other: Peer): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun updateAddress(newAnnouncedAddress: PeerAddress) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

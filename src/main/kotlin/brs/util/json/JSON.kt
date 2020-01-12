@@ -30,10 +30,6 @@ fun JsonElement?.toJsonString(): String {
     return this?.toString() ?: JsonNull.INSTANCE.toString()
 }
 
-fun JsonElement.cloneJson(): JsonElement {
-    return this.toJsonString().parseJson()
-}
-
 fun Reader.parseJson(): JsonElement {
     val json: JsonElement = JsonParser.parseReader(if (this is JsonReader) this else JsonReader(this))
     if (json.isJsonPrimitive) {
