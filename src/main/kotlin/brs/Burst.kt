@@ -138,7 +138,7 @@ OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version"
             dp.taskSchedulerService.runBeforeStart {
                 val p2pHostname = dp.propertyService.get(Props.P2P_V2_LISTEN)
                 val p2pPort =
-                    if (dp.propertyService.get(Props.DEV_TESTNET)) 7120 else dp.propertyService.get(Props.P2P_V2_PORT)
+                    if (dp.propertyService.get(Props.DEV_TESTNET)) dp.propertyService.get(Props.DEV_P2P_V2_PORT) else dp.propertyService.get(Props.P2P_V2_PORT)
                 logger.safeInfo { "Starting V2 P2P Server on port $p2pPort" }
                 dp.p2pV2Server = PeerApiService(dp).start(p2pHostname, p2pPort)
             }

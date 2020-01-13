@@ -5,7 +5,6 @@ import brs.db.transaction
 import brs.entity.Block
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
-import brs.objects.Constants
 import brs.objects.Constants.MIN_VERSION
 import brs.objects.Props
 import brs.objects.Props.P2P_ENABLE_TX_REBROADCAST
@@ -39,8 +38,6 @@ import org.eclipse.jetty.servlets.DoSFilter
 import org.slf4j.LoggerFactory
 import org.xml.sax.SAXException
 import java.io.IOException
-import java.net.URI
-import java.net.URISyntaxException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutionException
@@ -78,7 +75,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
     private var peerServer: Server? = null
     private var gateway: GatewayDevice? = null
-    private var port: Int = -1
+    private var httpPort: Int = -1
 
     private var connectWellKnownFirst: Int = 0
     private var connectWellKnownFinished: Boolean = false
@@ -90,9 +87,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
     override val myPlatform = dp.propertyService.get(Props.P2P_MY_PLATFORM)
     override val myAddress: String
-    override val announcedAddress: String
+    override val announcedAddress: PeerAddress?
     override val shareMyAddress: Boolean
-    private val myPeerServerPort: Int
+    private val myHttpPeerServerPort: Int
+    private val myGrpcPeerServerPort: Int
     private val useUpnp: Boolean
     private val maxNumberOfConnectedPublicPeers: Int
     private val sendToPeersLimit: Int
@@ -127,40 +125,16 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         } else null
 
         myAddress = tempAddress ?: dp.propertyService.get(Props.P2P_MY_ADDRESS)
-
-        if (myAddress.endsWith(":$TESTNET_PEER_PORT") && !dp.propertyService.get(Props.DEV_TESTNET)) {
-            throw Exception("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
-        }
-        myPeerServerPort = dp.propertyService.get(Props.P2P_PORT)
-        if (myPeerServerPort == TESTNET_PEER_PORT && !dp.propertyService.get(Props.DEV_TESTNET)) {
-            throw Exception("Port $TESTNET_PEER_PORT should only be used for testnet!!!")
-        }
+        myHttpPeerServerPort = dp.propertyService.get(Props.P2P_PORT)
+        myGrpcPeerServerPort = dp.propertyService.get(Props.P2P_V2_PORT)
         useUpnp = dp.propertyService.get(Props.P2P_UPNP)
         shareMyAddress = dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE)
 
         val json = JsonObject()
-        this.announcedAddress = if (myAddress.isNotEmpty()) {
-            try {
-                val uri = URI(Constants.HTTP + myAddress.trim())
-                val host = uri.host
-                val port = uri.port
-                if (!dp.propertyService.get(Props.DEV_TESTNET)) {
-                    if (port >= 0) {
-                        myAddress
-                    } else {
-                        host + if (myPeerServerPort != DEFAULT_PEER_PORT) ":$myPeerServerPort" else ""
-                    }
-                } else {
-                    host
-                }
-            } catch (e: URISyntaxException) {
-                logger.safeError { "Your announced address is invalid: $myAddress" }
-                throw Exception(e.toString(), e)
-            }
-        } else ""
+        this.announcedAddress = PeerAddress.parse(dp, myAddress.trim(), defaultProtocol = PeerAddress.Protocol.GRPC)
 
-        if (announcedAddress.isNotEmpty()) {
-            json.addProperty("announcedAddress", announcedAddress)
+        if (announcedAddress != null) {
+            json.addProperty("announcedAddress", announcedAddress.toString())
         }
         json.addProperty("application", Burst.APPLICATION)
         json.addProperty("version", Burst.VERSION.toString())
@@ -191,7 +165,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         savePeers = usePeersDb && dp.propertyService.get(Props.P2P_SAVE_PEERS)
         getMorePeersThreshold = dp.propertyService.get(Props.P2P_GET_MORE_PEERS_THRESHOLD)
 
-        port = if (dp.propertyService.get(Props.DEV_TESTNET)) TESTNET_PEER_PORT else myPeerServerPort
+        httpPort = if (dp.propertyService.get(Props.DEV_TESTNET)) 7123 else myHttpPeerServerPort
         if (shareMyAddress) {
             if (useUpnp) {
                 val gatewayDiscover = GatewayDiscover()
@@ -212,23 +186,11 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                         try {
                             val localAddress = gateway!!.localAddress
                             val externalIPAddress = gateway!!.externalIPAddress
-                            logger.safeInfo { "Attempting to map $externalIPAddress:$port -> $localAddress:$port on Gateway ${gateway!!.modelName} (${gateway!!.modelDescription})" }
-                            val portMapping = PortMappingEntry()
-                            if (gateway!!.getSpecificPortMappingEntry(port, "TCP", portMapping)) {
-                                logger.safeInfo { "Port was already mapped. Aborting test." }
-                            } else {
-                                if (gateway!!.addPortMapping(
-                                        port,
-                                        port,
-                                        localAddress.hostAddress,
-                                        "TCP",
-                                        "burstcoin"
-                                    )
-                                ) {
-                                    logger.safeInfo { "UPnP Mapping successful" }
-                                } else {
-                                    logger.safeWarn { "UPnP Mapping was denied!" }
-                                }
+                            logger.safeInfo { "Attempting to map $externalIPAddress:$httpPort -> $localAddress:$httpPort on Gateway ${gateway!!.modelName} (${gateway!!.modelDescription})" }
+                            when {
+                                gateway!!.getSpecificPortMappingEntry(httpPort, "TCP", PortMappingEntry().apply { externalPort = httpPort; internalPort = httpPort }) -> logger.safeInfo { "Port was already mapped. Aborting test." }
+                                gateway!!.addPortMapping(httpPort, httpPort, localAddress.hostAddress, "TCP", "burstcoin") -> logger.safeInfo { "UPnP Mapping successful" }
+                                else -> logger.safeWarn { "UPnP Mapping was denied!" }
                             }
                         } catch (e: IOException) {
                             logger.safeError(e) { "Can't start UPnP" }
@@ -246,7 +208,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
             peerServer = Server()
             val connector = ServerConnector(peerServer)
-            connector.port = port
+            connector.port = httpPort
             val host = dp.propertyService.get(Props.P2P_LISTEN)
             connector.host = host
             connector.idleTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_IDLE_MS).toLong()
@@ -325,7 +287,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             peerServer!!.stopAtShutdown = true
             dp.taskSchedulerService.runBeforeStart {
                 peerServer!!.start()
-                logger.safeInfo { "Started peer networking server at $host:$port" }
+                logger.safeInfo { "Started peer networking server at $host:$httpPort" }
             }
         } else {
             logger.safeInfo { "shareMyAddress is disabled, will not start peer networking server" }
@@ -533,7 +495,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         }
         if (gateway != null) {
             try {
-                gateway!!.deletePortMapping(port, "TCP")
+                gateway!!.deletePortMapping(httpPort, "TCP")
             } catch (e: Exception) {
                 logger.safeInfo(e) { "Failed to remove UPNP rule from gateway" }
             }
@@ -703,7 +665,5 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
     companion object {
         private val logger = LoggerFactory.getLogger(PeerServiceImpl::class.java)
-        internal const val DEFAULT_PEER_PORT = 8123
-        internal const val TESTNET_PEER_PORT = 7123
     }
 }

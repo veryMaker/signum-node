@@ -2,7 +2,6 @@ package brs.peer
 
 import brs.entity.DependencyProvider
 import brs.objects.Props
-import brs.services.impl.PeerServiceImpl
 import java.net.InetAddress
 import java.net.URI
 
@@ -21,12 +20,12 @@ data class PeerAddress(
     }
 
     companion object {
-        fun parse(dp: DependencyProvider, address: String): PeerAddress? {
+        fun parse(dp: DependencyProvider, address: String, defaultProtocol: Protocol = Protocol.HTTP): PeerAddress? {
             try {
                 val uri = if (address.startsWith("http://") || address.startsWith("grpc://")) {
                     URI(address.trim())
                 } else {
-                    URI("http://" + address.trim())
+                    URI("${defaultProtocol.schemeName}://${address.trim()}")
                 }
                 val protocol = when (uri.scheme.toLowerCase()) {
                     "grpc" -> Protocol.GRPC
@@ -38,7 +37,17 @@ data class PeerAddress(
                 val inetAddress = InetAddress.getByName(host)
                 if (inetAddress.isAnyLocalAddress || inetAddress.isLoopbackAddress || inetAddress.isLinkLocalAddress) return null
                 var port = uri.port
-                if (port <= 0) port = if (dp.propertyService.get(Props.DEV_TESTNET)) PeerServiceImpl.TESTNET_PEER_PORT else PeerServiceImpl.DEFAULT_PEER_PORT
+                if (port <= 0) port = if (dp.propertyService.get(Props.DEV_TESTNET)) {
+                    when (protocol) {
+                        Protocol.HTTP -> 7123
+                        Protocol.GRPC -> Props.DEV_P2P_V2_PORT.defaultValue
+                    }
+                } else {
+                    when (protocol) {
+                        Protocol.HTTP -> Props.P2P_PORT.defaultValue
+                        Protocol.GRPC -> Props.P2P_V2_PORT.defaultValue
+                    }
+                }
                 return PeerAddress(protocol, host, port)
             } catch (e: Exception) {
                 return null

@@ -10,13 +10,15 @@ import brs.services.PeerService
 import brs.util.Version
 
 internal class GetInfoHandler(private val dp: DependencyProvider) : GrpcPeerApiHandler<PeerApi.PeerInfo, PeerApi.PeerInfo>(dp) {
-    private val myInfo = PeerApi.PeerInfo.newBuilder()
-        .setApplication(Burst.APPLICATION)
-        .setVersion(Burst.VERSION.toString())
-        .setShareAddress(dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE))
-        .setAnnouncedAddress(dp.peerService.announcedAddress)
-        .setPlatform(dp.peerService.myPlatform)
-        .build()
+    private val myInfo by lazy {
+        PeerApi.PeerInfo.newBuilder()
+            .setApplication(Burst.APPLICATION)
+            .setVersion(Burst.VERSION.toString())
+            .setShareAddress(dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE))
+            .setAnnouncedAddress(dp.peerService.announcedAddress?.toString() ?: "")
+            .setPlatform(dp.peerService.myPlatform)
+            .build()
+    }
 
     override fun handleRequest(peer: Peer, request: PeerApi.PeerInfo): PeerApi.PeerInfo {
         val announcedAddress: String = request.announcedAddress

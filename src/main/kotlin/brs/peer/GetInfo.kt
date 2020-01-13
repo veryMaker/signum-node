@@ -10,17 +10,16 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerRequestHandler {
-    private val myPeerInfo: JsonObject
-
-    init {
-        myPeerInfo = JsonObject()
-        myPeerInfo.addProperty("application", Burst.APPLICATION)
-        myPeerInfo.addProperty("version", Burst.VERSION.toString())
-        myPeerInfo.addProperty("platform", dp.peerService.myPlatform)
-        myPeerInfo.addProperty("shareAddress", dp.peerService.shareMyAddress)
-        if (dp.peerService.announcedAddress.isNotEmpty()) {
-            myPeerInfo.addProperty("announcedAddress", dp.peerService.announcedAddress)
+    private val myPeerInfo by lazy {
+        val info = JsonObject()
+        info.addProperty("application", Burst.APPLICATION)
+        info.addProperty("version", Burst.VERSION.toString())
+        info.addProperty("platform", dp.peerService.myPlatform)
+        info.addProperty("shareAddress", dp.peerService.shareMyAddress)
+        if (dp.peerService.announcedAddress != null) {
+            info.addProperty("announcedAddress", dp.peerService.announcedAddress.toString())
         }
+        info
     }
 
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {

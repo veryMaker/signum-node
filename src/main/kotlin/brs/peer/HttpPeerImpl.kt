@@ -41,8 +41,10 @@ internal class HttpPeerImpl(
     override val remoteAddress: String,
     address: PeerAddress?
 ) : Peer {
+    private val parsedRemoteAddress = PeerAddress.parse(dp, remoteAddress)
+
     override val address: PeerAddress
-        get() = announcedAddress ?: PeerAddress.parse(dp, remoteAddress) ?: error("Could not find peer's address")
+        get() = announcedAddress ?: parsedRemoteAddress ?: error("Could not find peer's address")
 
     private var announcedAddress by Atomic<PeerAddress?>(null)
 
@@ -289,7 +291,7 @@ internal class HttpPeerImpl(
     override fun addPeers(announcedAddresses: Collection<PeerAddress>) {
         handlePeerError("Error sending peers to peer") {
             val jsonAnnouncedAddresses = JsonArray()
-            if (this.version.isGreaterThanOrEqualTo(Version.parse("v3.0.0-dev"))) { // TODO don't parse version
+            if (this.version.isGreaterThanOrEqualTo(Constants.NEW_PEER_API_MIN_VERSION)) {
                 announcedAddresses.forEach { jsonAnnouncedAddresses.add(it.toString()) }
             } else {
                 announcedAddresses.forEach { jsonAnnouncedAddresses.add("${it.host}:${it.port}") }
@@ -394,6 +396,7 @@ internal class HttpPeerImpl(
     }
 
     override fun updateAddress(newAnnouncedAddress: PeerAddress) {
+        if (newAnnouncedAddress.protocol != PeerAddress.Protocol.HTTP) return // TODO is this the best way to handle this?
         announcedAddress = newAnnouncedAddress
         // Force re-validate address
         state = Peer.State.NON_CONNECTED

@@ -140,6 +140,6 @@ interface PeerService {
 
     val myPlatform: String
     val myAddress: String
-    val announcedAddress: String
+    val announcedAddress: PeerAddress?
     val shareMyAddress: Boolean
 }
