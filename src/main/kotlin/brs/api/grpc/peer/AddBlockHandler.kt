@@ -7,7 +7,7 @@ import brs.entity.DependencyProvider
 import brs.peer.Peer
 import com.google.protobuf.Empty
 
-internal class ProcessBlockHandler(private val dp: DependencyProvider) : GrpcPeerApiHandler<PeerApi.ProcessBlockRequest, Empty>(dp) {
+internal class AddBlockHandler(private val dp: DependencyProvider) : GrpcPeerApiHandler<PeerApi.ProcessBlockRequest, Empty>(dp) {
     override fun handleRequest(peer: Peer, request: PeerApi.ProcessBlockRequest): Empty {
         try {
             if (dp.blockchainService.lastBlock.id != request.previousBlockId) {

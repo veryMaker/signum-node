@@ -27,6 +27,37 @@ public final class BrsPeerServiceGrpc {
   public static final String SERVICE_NAME = "brs.peer.BrsPeerService";
 
   // Static method descriptors that strictly reflect the proto.
+  private static volatile io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.PeerInfo,
+      brs.api.grpc.proto.PeerApi.PeerInfo> getExchangeInfoMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "ExchangeInfo",
+      requestType = brs.api.grpc.proto.PeerApi.PeerInfo.class,
+      responseType = brs.api.grpc.proto.PeerApi.PeerInfo.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.PeerInfo,
+      brs.api.grpc.proto.PeerApi.PeerInfo> getExchangeInfoMethod() {
+    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.PeerInfo, brs.api.grpc.proto.PeerApi.PeerInfo> getExchangeInfoMethod;
+    if ((getExchangeInfoMethod = BrsPeerServiceGrpc.getExchangeInfoMethod) == null) {
+      synchronized (BrsPeerServiceGrpc.class) {
+        if ((getExchangeInfoMethod = BrsPeerServiceGrpc.getExchangeInfoMethod) == null) {
+          BrsPeerServiceGrpc.getExchangeInfoMethod = getExchangeInfoMethod =
+              io.grpc.MethodDescriptor.<brs.api.grpc.proto.PeerApi.PeerInfo, brs.api.grpc.proto.PeerApi.PeerInfo>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "ExchangeInfo"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  brs.api.grpc.proto.PeerApi.PeerInfo.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  brs.api.grpc.proto.PeerApi.PeerInfo.getDefaultInstance()))
+              .setSchemaDescriptor(new BrsPeerServiceMethodDescriptorSupplier("ExchangeInfo"))
+              .build();
+        }
+      }
+    }
+    return getExchangeInfoMethod;
+  }
+
   private static volatile io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.Peers,
       com.google.protobuf.Empty> getAddPeersMethod;
 
@@ -120,37 +151,6 @@ public final class BrsPeerServiceGrpc {
     return getGetCumulativeDifficultyMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.PeerInfo,
-      brs.api.grpc.proto.PeerApi.PeerInfo> getGetInfoMethod;
-
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "GetInfo",
-      requestType = brs.api.grpc.proto.PeerApi.PeerInfo.class,
-      responseType = brs.api.grpc.proto.PeerApi.PeerInfo.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.PeerInfo,
-      brs.api.grpc.proto.PeerApi.PeerInfo> getGetInfoMethod() {
-    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.PeerInfo, brs.api.grpc.proto.PeerApi.PeerInfo> getGetInfoMethod;
-    if ((getGetInfoMethod = BrsPeerServiceGrpc.getGetInfoMethod) == null) {
-      synchronized (BrsPeerServiceGrpc.class) {
-        if ((getGetInfoMethod = BrsPeerServiceGrpc.getGetInfoMethod) == null) {
-          BrsPeerServiceGrpc.getGetInfoMethod = getGetInfoMethod =
-              io.grpc.MethodDescriptor.<brs.api.grpc.proto.PeerApi.PeerInfo, brs.api.grpc.proto.PeerApi.PeerInfo>newBuilder()
-              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetInfo"))
-              .setSampledToLocalTracing(true)
-              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  brs.api.grpc.proto.PeerApi.PeerInfo.getDefaultInstance()))
-              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  brs.api.grpc.proto.PeerApi.PeerInfo.getDefaultInstance()))
-              .setSchemaDescriptor(new BrsPeerServiceMethodDescriptorSupplier("GetInfo"))
-              .build();
-        }
-      }
-    }
-    return getGetInfoMethod;
-  }
-
   private static volatile io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.GetMilestoneBlockIdsRequest,
       brs.api.grpc.proto.PeerApi.MilestoneBlockIds> getGetMilestoneBlockIdsMethod;
 
@@ -182,66 +182,97 @@ public final class BrsPeerServiceGrpc {
     return getGetMilestoneBlockIdsMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest,
-      brs.api.grpc.proto.PeerApi.RawBlocks> getGetBlocksAfterMethod;
+  private static volatile io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.ProcessBlockRequest,
+      com.google.protobuf.Empty> getAddBlockMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "GetBlocksAfter",
+      fullMethodName = SERVICE_NAME + '/' + "AddBlock",
+      requestType = brs.api.grpc.proto.PeerApi.ProcessBlockRequest.class,
+      responseType = com.google.protobuf.Empty.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.ProcessBlockRequest,
+      com.google.protobuf.Empty> getAddBlockMethod() {
+    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.ProcessBlockRequest, com.google.protobuf.Empty> getAddBlockMethod;
+    if ((getAddBlockMethod = BrsPeerServiceGrpc.getAddBlockMethod) == null) {
+      synchronized (BrsPeerServiceGrpc.class) {
+        if ((getAddBlockMethod = BrsPeerServiceGrpc.getAddBlockMethod) == null) {
+          BrsPeerServiceGrpc.getAddBlockMethod = getAddBlockMethod =
+              io.grpc.MethodDescriptor.<brs.api.grpc.proto.PeerApi.ProcessBlockRequest, com.google.protobuf.Empty>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "AddBlock"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  brs.api.grpc.proto.PeerApi.ProcessBlockRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  com.google.protobuf.Empty.getDefaultInstance()))
+              .setSchemaDescriptor(new BrsPeerServiceMethodDescriptorSupplier("AddBlock"))
+              .build();
+        }
+      }
+    }
+    return getAddBlockMethod;
+  }
+
+  private static volatile io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest,
+      brs.api.grpc.proto.PeerApi.RawBlocks> getGetNextBlocksMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "GetNextBlocks",
       requestType = brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest.class,
       responseType = brs.api.grpc.proto.PeerApi.RawBlocks.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
   public static io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest,
-      brs.api.grpc.proto.PeerApi.RawBlocks> getGetBlocksAfterMethod() {
-    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest, brs.api.grpc.proto.PeerApi.RawBlocks> getGetBlocksAfterMethod;
-    if ((getGetBlocksAfterMethod = BrsPeerServiceGrpc.getGetBlocksAfterMethod) == null) {
+      brs.api.grpc.proto.PeerApi.RawBlocks> getGetNextBlocksMethod() {
+    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest, brs.api.grpc.proto.PeerApi.RawBlocks> getGetNextBlocksMethod;
+    if ((getGetNextBlocksMethod = BrsPeerServiceGrpc.getGetNextBlocksMethod) == null) {
       synchronized (BrsPeerServiceGrpc.class) {
-        if ((getGetBlocksAfterMethod = BrsPeerServiceGrpc.getGetBlocksAfterMethod) == null) {
-          BrsPeerServiceGrpc.getGetBlocksAfterMethod = getGetBlocksAfterMethod =
+        if ((getGetNextBlocksMethod = BrsPeerServiceGrpc.getGetNextBlocksMethod) == null) {
+          BrsPeerServiceGrpc.getGetNextBlocksMethod = getGetNextBlocksMethod =
               io.grpc.MethodDescriptor.<brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest, brs.api.grpc.proto.PeerApi.RawBlocks>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetBlocksAfter"))
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetNextBlocks"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   brs.api.grpc.proto.PeerApi.RawBlocks.getDefaultInstance()))
-              .setSchemaDescriptor(new BrsPeerServiceMethodDescriptorSupplier("GetBlocksAfter"))
+              .setSchemaDescriptor(new BrsPeerServiceMethodDescriptorSupplier("GetNextBlocks"))
               .build();
         }
       }
     }
-    return getGetBlocksAfterMethod;
+    return getGetNextBlocksMethod;
   }
 
   private static volatile io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest,
-      brs.api.grpc.proto.PeerApi.BlockIds> getGetBlockIdsAfterMethod;
+      brs.api.grpc.proto.PeerApi.BlockIds> getGetNextBlockIdsMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "GetBlockIdsAfter",
+      fullMethodName = SERVICE_NAME + '/' + "GetNextBlockIds",
       requestType = brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest.class,
       responseType = brs.api.grpc.proto.PeerApi.BlockIds.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
   public static io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest,
-      brs.api.grpc.proto.PeerApi.BlockIds> getGetBlockIdsAfterMethod() {
-    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest, brs.api.grpc.proto.PeerApi.BlockIds> getGetBlockIdsAfterMethod;
-    if ((getGetBlockIdsAfterMethod = BrsPeerServiceGrpc.getGetBlockIdsAfterMethod) == null) {
+      brs.api.grpc.proto.PeerApi.BlockIds> getGetNextBlockIdsMethod() {
+    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest, brs.api.grpc.proto.PeerApi.BlockIds> getGetNextBlockIdsMethod;
+    if ((getGetNextBlockIdsMethod = BrsPeerServiceGrpc.getGetNextBlockIdsMethod) == null) {
       synchronized (BrsPeerServiceGrpc.class) {
-        if ((getGetBlockIdsAfterMethod = BrsPeerServiceGrpc.getGetBlockIdsAfterMethod) == null) {
-          BrsPeerServiceGrpc.getGetBlockIdsAfterMethod = getGetBlockIdsAfterMethod =
+        if ((getGetNextBlockIdsMethod = BrsPeerServiceGrpc.getGetNextBlockIdsMethod) == null) {
+          BrsPeerServiceGrpc.getGetNextBlockIdsMethod = getGetNextBlockIdsMethod =
               io.grpc.MethodDescriptor.<brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest, brs.api.grpc.proto.PeerApi.BlockIds>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetBlockIdsAfter"))
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetNextBlockIds"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   brs.api.grpc.proto.PeerApi.BlockIds.getDefaultInstance()))
-              .setSchemaDescriptor(new BrsPeerServiceMethodDescriptorSupplier("GetBlockIdsAfter"))
+              .setSchemaDescriptor(new BrsPeerServiceMethodDescriptorSupplier("GetNextBlockIds"))
               .build();
         }
       }
     }
-    return getGetBlockIdsAfterMethod;
+    return getGetNextBlockIdsMethod;
   }
 
   private static volatile io.grpc.MethodDescriptor<com.google.protobuf.Empty,
@@ -275,66 +306,35 @@ public final class BrsPeerServiceGrpc {
     return getGetUnconfirmedTransactionsMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.ProcessBlockRequest,
-      com.google.protobuf.Empty> getProcessBlockMethod;
-
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "ProcessBlock",
-      requestType = brs.api.grpc.proto.PeerApi.ProcessBlockRequest.class,
-      responseType = com.google.protobuf.Empty.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.ProcessBlockRequest,
-      com.google.protobuf.Empty> getProcessBlockMethod() {
-    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.ProcessBlockRequest, com.google.protobuf.Empty> getProcessBlockMethod;
-    if ((getProcessBlockMethod = BrsPeerServiceGrpc.getProcessBlockMethod) == null) {
-      synchronized (BrsPeerServiceGrpc.class) {
-        if ((getProcessBlockMethod = BrsPeerServiceGrpc.getProcessBlockMethod) == null) {
-          BrsPeerServiceGrpc.getProcessBlockMethod = getProcessBlockMethod =
-              io.grpc.MethodDescriptor.<brs.api.grpc.proto.PeerApi.ProcessBlockRequest, com.google.protobuf.Empty>newBuilder()
-              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "ProcessBlock"))
-              .setSampledToLocalTracing(true)
-              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  brs.api.grpc.proto.PeerApi.ProcessBlockRequest.getDefaultInstance()))
-              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.google.protobuf.Empty.getDefaultInstance()))
-              .setSchemaDescriptor(new BrsPeerServiceMethodDescriptorSupplier("ProcessBlock"))
-              .build();
-        }
-      }
-    }
-    return getProcessBlockMethod;
-  }
-
   private static volatile io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.RawTransactions,
-      com.google.protobuf.Empty> getProcessTransactionsMethod;
+      com.google.protobuf.Empty> getAddUnconfirmedTransactionsMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "ProcessTransactions",
+      fullMethodName = SERVICE_NAME + '/' + "AddUnconfirmedTransactions",
       requestType = brs.api.grpc.proto.PeerApi.RawTransactions.class,
       responseType = com.google.protobuf.Empty.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
   public static io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.RawTransactions,
-      com.google.protobuf.Empty> getProcessTransactionsMethod() {
-    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.RawTransactions, com.google.protobuf.Empty> getProcessTransactionsMethod;
-    if ((getProcessTransactionsMethod = BrsPeerServiceGrpc.getProcessTransactionsMethod) == null) {
+      com.google.protobuf.Empty> getAddUnconfirmedTransactionsMethod() {
+    io.grpc.MethodDescriptor<brs.api.grpc.proto.PeerApi.RawTransactions, com.google.protobuf.Empty> getAddUnconfirmedTransactionsMethod;
+    if ((getAddUnconfirmedTransactionsMethod = BrsPeerServiceGrpc.getAddUnconfirmedTransactionsMethod) == null) {
       synchronized (BrsPeerServiceGrpc.class) {
-        if ((getProcessTransactionsMethod = BrsPeerServiceGrpc.getProcessTransactionsMethod) == null) {
-          BrsPeerServiceGrpc.getProcessTransactionsMethod = getProcessTransactionsMethod =
+        if ((getAddUnconfirmedTransactionsMethod = BrsPeerServiceGrpc.getAddUnconfirmedTransactionsMethod) == null) {
+          BrsPeerServiceGrpc.getAddUnconfirmedTransactionsMethod = getAddUnconfirmedTransactionsMethod =
               io.grpc.MethodDescriptor.<brs.api.grpc.proto.PeerApi.RawTransactions, com.google.protobuf.Empty>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "ProcessTransactions"))
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "AddUnconfirmedTransactions"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   brs.api.grpc.proto.PeerApi.RawTransactions.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   com.google.protobuf.Empty.getDefaultInstance()))
-              .setSchemaDescriptor(new BrsPeerServiceMethodDescriptorSupplier("ProcessTransactions"))
+              .setSchemaDescriptor(new BrsPeerServiceMethodDescriptorSupplier("AddUnconfirmedTransactions"))
               .build();
         }
       }
     }
-    return getProcessTransactionsMethod;
+    return getAddUnconfirmedTransactionsMethod;
   }
 
   /**
@@ -387,6 +387,13 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
+    public void exchangeInfo(brs.api.grpc.proto.PeerApi.PeerInfo request,
+        io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.PeerInfo> responseObserver) {
+      asyncUnimplementedUnaryCall(getExchangeInfoMethod(), responseObserver);
+    }
+
+    /**
+     */
     public void addPeers(brs.api.grpc.proto.PeerApi.Peers request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnimplementedUnaryCall(getAddPeersMethod(), responseObserver);
@@ -408,13 +415,6 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public void getInfo(brs.api.grpc.proto.PeerApi.PeerInfo request,
-        io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.PeerInfo> responseObserver) {
-      asyncUnimplementedUnaryCall(getGetInfoMethod(), responseObserver);
-    }
-
-    /**
-     */
     public void getMilestoneBlockIds(brs.api.grpc.proto.PeerApi.GetMilestoneBlockIdsRequest request,
         io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.MilestoneBlockIds> responseObserver) {
       asyncUnimplementedUnaryCall(getGetMilestoneBlockIdsMethod(), responseObserver);
@@ -422,16 +422,23 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public void getBlocksAfter(brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request,
-        io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.RawBlocks> responseObserver) {
-      asyncUnimplementedUnaryCall(getGetBlocksAfterMethod(), responseObserver);
+    public void addBlock(brs.api.grpc.proto.PeerApi.ProcessBlockRequest request,
+        io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
+      asyncUnimplementedUnaryCall(getAddBlockMethod(), responseObserver);
     }
 
     /**
      */
-    public void getBlockIdsAfter(brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request,
+    public void getNextBlocks(brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request,
+        io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.RawBlocks> responseObserver) {
+      asyncUnimplementedUnaryCall(getGetNextBlocksMethod(), responseObserver);
+    }
+
+    /**
+     */
+    public void getNextBlockIds(brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request,
         io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.BlockIds> responseObserver) {
-      asyncUnimplementedUnaryCall(getGetBlockIdsAfterMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getGetNextBlockIdsMethod(), responseObserver);
     }
 
     /**
@@ -443,20 +450,20 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public void processBlock(brs.api.grpc.proto.PeerApi.ProcessBlockRequest request,
+    public void addUnconfirmedTransactions(brs.api.grpc.proto.PeerApi.RawTransactions request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
-      asyncUnimplementedUnaryCall(getProcessBlockMethod(), responseObserver);
-    }
-
-    /**
-     */
-    public void processTransactions(brs.api.grpc.proto.PeerApi.RawTransactions request,
-        io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
-      asyncUnimplementedUnaryCall(getProcessTransactionsMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getAddUnconfirmedTransactionsMethod(), responseObserver);
     }
 
     @java.lang.Override public final io.grpc.ServerServiceDefinition bindService() {
       return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
+          .addMethod(
+            getExchangeInfoMethod(),
+            asyncUnaryCall(
+              new MethodHandlers<
+                brs.api.grpc.proto.PeerApi.PeerInfo,
+                brs.api.grpc.proto.PeerApi.PeerInfo>(
+                  this, METHODID_EXCHANGE_INFO)))
           .addMethod(
             getAddPeersMethod(),
             asyncUnaryCall(
@@ -479,13 +486,6 @@ public final class BrsPeerServiceGrpc {
                 brs.api.grpc.proto.PeerApi.CumulativeDifficulty>(
                   this, METHODID_GET_CUMULATIVE_DIFFICULTY)))
           .addMethod(
-            getGetInfoMethod(),
-            asyncUnaryCall(
-              new MethodHandlers<
-                brs.api.grpc.proto.PeerApi.PeerInfo,
-                brs.api.grpc.proto.PeerApi.PeerInfo>(
-                  this, METHODID_GET_INFO)))
-          .addMethod(
             getGetMilestoneBlockIdsMethod(),
             asyncUnaryCall(
               new MethodHandlers<
@@ -493,19 +493,26 @@ public final class BrsPeerServiceGrpc {
                 brs.api.grpc.proto.PeerApi.MilestoneBlockIds>(
                   this, METHODID_GET_MILESTONE_BLOCK_IDS)))
           .addMethod(
-            getGetBlocksAfterMethod(),
+            getAddBlockMethod(),
+            asyncUnaryCall(
+              new MethodHandlers<
+                brs.api.grpc.proto.PeerApi.ProcessBlockRequest,
+                com.google.protobuf.Empty>(
+                  this, METHODID_ADD_BLOCK)))
+          .addMethod(
+            getGetNextBlocksMethod(),
             asyncUnaryCall(
               new MethodHandlers<
                 brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest,
                 brs.api.grpc.proto.PeerApi.RawBlocks>(
-                  this, METHODID_GET_BLOCKS_AFTER)))
+                  this, METHODID_GET_NEXT_BLOCKS)))
           .addMethod(
-            getGetBlockIdsAfterMethod(),
+            getGetNextBlockIdsMethod(),
             asyncUnaryCall(
               new MethodHandlers<
                 brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest,
                 brs.api.grpc.proto.PeerApi.BlockIds>(
-                  this, METHODID_GET_BLOCK_IDS_AFTER)))
+                  this, METHODID_GET_NEXT_BLOCK_IDS)))
           .addMethod(
             getGetUnconfirmedTransactionsMethod(),
             asyncUnaryCall(
@@ -514,19 +521,12 @@ public final class BrsPeerServiceGrpc {
                 brs.api.grpc.proto.PeerApi.RawTransactions>(
                   this, METHODID_GET_UNCONFIRMED_TRANSACTIONS)))
           .addMethod(
-            getProcessBlockMethod(),
-            asyncUnaryCall(
-              new MethodHandlers<
-                brs.api.grpc.proto.PeerApi.ProcessBlockRequest,
-                com.google.protobuf.Empty>(
-                  this, METHODID_PROCESS_BLOCK)))
-          .addMethod(
-            getProcessTransactionsMethod(),
+            getAddUnconfirmedTransactionsMethod(),
             asyncUnaryCall(
               new MethodHandlers<
                 brs.api.grpc.proto.PeerApi.RawTransactions,
                 com.google.protobuf.Empty>(
-                  this, METHODID_PROCESS_TRANSACTIONS)))
+                  this, METHODID_ADD_UNCONFIRMED_TRANSACTIONS)))
           .build();
     }
   }
@@ -543,6 +543,14 @@ public final class BrsPeerServiceGrpc {
     protected BrsPeerServiceStub build(
         io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new BrsPeerServiceStub(channel, callOptions);
+    }
+
+    /**
+     */
+    public void exchangeInfo(brs.api.grpc.proto.PeerApi.PeerInfo request,
+        io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.PeerInfo> responseObserver) {
+      asyncUnaryCall(
+          getChannel().newCall(getExchangeInfoMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
@@ -571,14 +579,6 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public void getInfo(brs.api.grpc.proto.PeerApi.PeerInfo request,
-        io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.PeerInfo> responseObserver) {
-      asyncUnaryCall(
-          getChannel().newCall(getGetInfoMethod(), getCallOptions()), request, responseObserver);
-    }
-
-    /**
-     */
     public void getMilestoneBlockIds(brs.api.grpc.proto.PeerApi.GetMilestoneBlockIdsRequest request,
         io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.MilestoneBlockIds> responseObserver) {
       asyncUnaryCall(
@@ -587,18 +587,26 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public void getBlocksAfter(brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request,
-        io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.RawBlocks> responseObserver) {
+    public void addBlock(brs.api.grpc.proto.PeerApi.ProcessBlockRequest request,
+        io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getGetBlocksAfterMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(getAddBlockMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
      */
-    public void getBlockIdsAfter(brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request,
+    public void getNextBlocks(brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request,
+        io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.RawBlocks> responseObserver) {
+      asyncUnaryCall(
+          getChannel().newCall(getGetNextBlocksMethod(), getCallOptions()), request, responseObserver);
+    }
+
+    /**
+     */
+    public void getNextBlockIds(brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request,
         io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.BlockIds> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getGetBlockIdsAfterMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(getGetNextBlockIdsMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
@@ -611,18 +619,10 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public void processBlock(brs.api.grpc.proto.PeerApi.ProcessBlockRequest request,
+    public void addUnconfirmedTransactions(brs.api.grpc.proto.PeerApi.RawTransactions request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getProcessBlockMethod(), getCallOptions()), request, responseObserver);
-    }
-
-    /**
-     */
-    public void processTransactions(brs.api.grpc.proto.PeerApi.RawTransactions request,
-        io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
-      asyncUnaryCall(
-          getChannel().newCall(getProcessTransactionsMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(getAddUnconfirmedTransactionsMethod(), getCallOptions()), request, responseObserver);
     }
   }
 
@@ -638,6 +638,13 @@ public final class BrsPeerServiceGrpc {
     protected BrsPeerServiceBlockingStub build(
         io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new BrsPeerServiceBlockingStub(channel, callOptions);
+    }
+
+    /**
+     */
+    public brs.api.grpc.proto.PeerApi.PeerInfo exchangeInfo(brs.api.grpc.proto.PeerApi.PeerInfo request) {
+      return blockingUnaryCall(
+          getChannel(), getExchangeInfoMethod(), getCallOptions(), request);
     }
 
     /**
@@ -663,13 +670,6 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public brs.api.grpc.proto.PeerApi.PeerInfo getInfo(brs.api.grpc.proto.PeerApi.PeerInfo request) {
-      return blockingUnaryCall(
-          getChannel(), getGetInfoMethod(), getCallOptions(), request);
-    }
-
-    /**
-     */
     public brs.api.grpc.proto.PeerApi.MilestoneBlockIds getMilestoneBlockIds(brs.api.grpc.proto.PeerApi.GetMilestoneBlockIdsRequest request) {
       return blockingUnaryCall(
           getChannel(), getGetMilestoneBlockIdsMethod(), getCallOptions(), request);
@@ -677,16 +677,23 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public brs.api.grpc.proto.PeerApi.RawBlocks getBlocksAfter(brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request) {
+    public com.google.protobuf.Empty addBlock(brs.api.grpc.proto.PeerApi.ProcessBlockRequest request) {
       return blockingUnaryCall(
-          getChannel(), getGetBlocksAfterMethod(), getCallOptions(), request);
+          getChannel(), getAddBlockMethod(), getCallOptions(), request);
     }
 
     /**
      */
-    public brs.api.grpc.proto.PeerApi.BlockIds getBlockIdsAfter(brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request) {
+    public brs.api.grpc.proto.PeerApi.RawBlocks getNextBlocks(brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request) {
       return blockingUnaryCall(
-          getChannel(), getGetBlockIdsAfterMethod(), getCallOptions(), request);
+          getChannel(), getGetNextBlocksMethod(), getCallOptions(), request);
+    }
+
+    /**
+     */
+    public brs.api.grpc.proto.PeerApi.BlockIds getNextBlockIds(brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request) {
+      return blockingUnaryCall(
+          getChannel(), getGetNextBlockIdsMethod(), getCallOptions(), request);
     }
 
     /**
@@ -698,16 +705,9 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public com.google.protobuf.Empty processBlock(brs.api.grpc.proto.PeerApi.ProcessBlockRequest request) {
+    public com.google.protobuf.Empty addUnconfirmedTransactions(brs.api.grpc.proto.PeerApi.RawTransactions request) {
       return blockingUnaryCall(
-          getChannel(), getProcessBlockMethod(), getCallOptions(), request);
-    }
-
-    /**
-     */
-    public com.google.protobuf.Empty processTransactions(brs.api.grpc.proto.PeerApi.RawTransactions request) {
-      return blockingUnaryCall(
-          getChannel(), getProcessTransactionsMethod(), getCallOptions(), request);
+          getChannel(), getAddUnconfirmedTransactionsMethod(), getCallOptions(), request);
     }
   }
 
@@ -723,6 +723,14 @@ public final class BrsPeerServiceGrpc {
     protected BrsPeerServiceFutureStub build(
         io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new BrsPeerServiceFutureStub(channel, callOptions);
+    }
+
+    /**
+     */
+    public com.google.common.util.concurrent.ListenableFuture<brs.api.grpc.proto.PeerApi.PeerInfo> exchangeInfo(
+        brs.api.grpc.proto.PeerApi.PeerInfo request) {
+      return futureUnaryCall(
+          getChannel().newCall(getExchangeInfoMethod(), getCallOptions()), request);
     }
 
     /**
@@ -751,14 +759,6 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<brs.api.grpc.proto.PeerApi.PeerInfo> getInfo(
-        brs.api.grpc.proto.PeerApi.PeerInfo request) {
-      return futureUnaryCall(
-          getChannel().newCall(getGetInfoMethod(), getCallOptions()), request);
-    }
-
-    /**
-     */
     public com.google.common.util.concurrent.ListenableFuture<brs.api.grpc.proto.PeerApi.MilestoneBlockIds> getMilestoneBlockIds(
         brs.api.grpc.proto.PeerApi.GetMilestoneBlockIdsRequest request) {
       return futureUnaryCall(
@@ -767,18 +767,26 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<brs.api.grpc.proto.PeerApi.RawBlocks> getBlocksAfter(
-        brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request) {
+    public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty> addBlock(
+        brs.api.grpc.proto.PeerApi.ProcessBlockRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getGetBlocksAfterMethod(), getCallOptions()), request);
+          getChannel().newCall(getAddBlockMethod(), getCallOptions()), request);
     }
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<brs.api.grpc.proto.PeerApi.BlockIds> getBlockIdsAfter(
+    public com.google.common.util.concurrent.ListenableFuture<brs.api.grpc.proto.PeerApi.RawBlocks> getNextBlocks(
         brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getGetBlockIdsAfterMethod(), getCallOptions()), request);
+          getChannel().newCall(getGetNextBlocksMethod(), getCallOptions()), request);
+    }
+
+    /**
+     */
+    public com.google.common.util.concurrent.ListenableFuture<brs.api.grpc.proto.PeerApi.BlockIds> getNextBlockIds(
+        brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest request) {
+      return futureUnaryCall(
+          getChannel().newCall(getGetNextBlockIdsMethod(), getCallOptions()), request);
     }
 
     /**
@@ -791,31 +799,23 @@ public final class BrsPeerServiceGrpc {
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty> processBlock(
-        brs.api.grpc.proto.PeerApi.ProcessBlockRequest request) {
-      return futureUnaryCall(
-          getChannel().newCall(getProcessBlockMethod(), getCallOptions()), request);
-    }
-
-    /**
-     */
-    public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty> processTransactions(
+    public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty> addUnconfirmedTransactions(
         brs.api.grpc.proto.PeerApi.RawTransactions request) {
       return futureUnaryCall(
-          getChannel().newCall(getProcessTransactionsMethod(), getCallOptions()), request);
+          getChannel().newCall(getAddUnconfirmedTransactionsMethod(), getCallOptions()), request);
     }
   }
 
-  private static final int METHODID_ADD_PEERS = 0;
-  private static final int METHODID_GET_PEERS = 1;
-  private static final int METHODID_GET_CUMULATIVE_DIFFICULTY = 2;
-  private static final int METHODID_GET_INFO = 3;
+  private static final int METHODID_EXCHANGE_INFO = 0;
+  private static final int METHODID_ADD_PEERS = 1;
+  private static final int METHODID_GET_PEERS = 2;
+  private static final int METHODID_GET_CUMULATIVE_DIFFICULTY = 3;
   private static final int METHODID_GET_MILESTONE_BLOCK_IDS = 4;
-  private static final int METHODID_GET_BLOCKS_AFTER = 5;
-  private static final int METHODID_GET_BLOCK_IDS_AFTER = 6;
-  private static final int METHODID_GET_UNCONFIRMED_TRANSACTIONS = 7;
-  private static final int METHODID_PROCESS_BLOCK = 8;
-  private static final int METHODID_PROCESS_TRANSACTIONS = 9;
+  private static final int METHODID_ADD_BLOCK = 5;
+  private static final int METHODID_GET_NEXT_BLOCKS = 6;
+  private static final int METHODID_GET_NEXT_BLOCK_IDS = 7;
+  private static final int METHODID_GET_UNCONFIRMED_TRANSACTIONS = 8;
+  private static final int METHODID_ADD_UNCONFIRMED_TRANSACTIONS = 9;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -834,6 +834,10 @@ public final class BrsPeerServiceGrpc {
     @java.lang.SuppressWarnings("unchecked")
     public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
+        case METHODID_EXCHANGE_INFO:
+          serviceImpl.exchangeInfo((brs.api.grpc.proto.PeerApi.PeerInfo) request,
+              (io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.PeerInfo>) responseObserver);
+          break;
         case METHODID_ADD_PEERS:
           serviceImpl.addPeers((brs.api.grpc.proto.PeerApi.Peers) request,
               (io.grpc.stub.StreamObserver<com.google.protobuf.Empty>) responseObserver);
@@ -846,32 +850,28 @@ public final class BrsPeerServiceGrpc {
           serviceImpl.getCumulativeDifficulty((com.google.protobuf.Empty) request,
               (io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.CumulativeDifficulty>) responseObserver);
           break;
-        case METHODID_GET_INFO:
-          serviceImpl.getInfo((brs.api.grpc.proto.PeerApi.PeerInfo) request,
-              (io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.PeerInfo>) responseObserver);
-          break;
         case METHODID_GET_MILESTONE_BLOCK_IDS:
           serviceImpl.getMilestoneBlockIds((brs.api.grpc.proto.PeerApi.GetMilestoneBlockIdsRequest) request,
               (io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.MilestoneBlockIds>) responseObserver);
           break;
-        case METHODID_GET_BLOCKS_AFTER:
-          serviceImpl.getBlocksAfter((brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest) request,
+        case METHODID_ADD_BLOCK:
+          serviceImpl.addBlock((brs.api.grpc.proto.PeerApi.ProcessBlockRequest) request,
+              (io.grpc.stub.StreamObserver<com.google.protobuf.Empty>) responseObserver);
+          break;
+        case METHODID_GET_NEXT_BLOCKS:
+          serviceImpl.getNextBlocks((brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest) request,
               (io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.RawBlocks>) responseObserver);
           break;
-        case METHODID_GET_BLOCK_IDS_AFTER:
-          serviceImpl.getBlockIdsAfter((brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest) request,
+        case METHODID_GET_NEXT_BLOCK_IDS:
+          serviceImpl.getNextBlockIds((brs.api.grpc.proto.PeerApi.GetBlocksAfterRequest) request,
               (io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.BlockIds>) responseObserver);
           break;
         case METHODID_GET_UNCONFIRMED_TRANSACTIONS:
           serviceImpl.getUnconfirmedTransactions((com.google.protobuf.Empty) request,
               (io.grpc.stub.StreamObserver<brs.api.grpc.proto.PeerApi.RawTransactions>) responseObserver);
           break;
-        case METHODID_PROCESS_BLOCK:
-          serviceImpl.processBlock((brs.api.grpc.proto.PeerApi.ProcessBlockRequest) request,
-              (io.grpc.stub.StreamObserver<com.google.protobuf.Empty>) responseObserver);
-          break;
-        case METHODID_PROCESS_TRANSACTIONS:
-          serviceImpl.processTransactions((brs.api.grpc.proto.PeerApi.RawTransactions) request,
+        case METHODID_ADD_UNCONFIRMED_TRANSACTIONS:
+          serviceImpl.addUnconfirmedTransactions((brs.api.grpc.proto.PeerApi.RawTransactions) request,
               (io.grpc.stub.StreamObserver<com.google.protobuf.Empty>) responseObserver);
           break;
         default:
@@ -935,16 +935,16 @@ public final class BrsPeerServiceGrpc {
         if (result == null) {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new BrsPeerServiceFileDescriptorSupplier())
+              .addMethod(getExchangeInfoMethod())
               .addMethod(getAddPeersMethod())
               .addMethod(getGetPeersMethod())
               .addMethod(getGetCumulativeDifficultyMethod())
-              .addMethod(getGetInfoMethod())
               .addMethod(getGetMilestoneBlockIdsMethod())
-              .addMethod(getGetBlocksAfterMethod())
-              .addMethod(getGetBlockIdsAfterMethod())
+              .addMethod(getAddBlockMethod())
+              .addMethod(getGetNextBlocksMethod())
+              .addMethod(getGetNextBlockIdsMethod())
               .addMethod(getGetUnconfirmedTransactionsMethod())
-              .addMethod(getProcessBlockMethod())
-              .addMethod(getProcessTransactionsMethod())
+              .addMethod(getAddUnconfirmedTransactionsMethod())
               .build();
         }
       }

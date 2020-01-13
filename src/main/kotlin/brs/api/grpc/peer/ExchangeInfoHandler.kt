@@ -7,7 +7,7 @@ import brs.peer.PeerAddress
 import brs.services.PeerService
 import brs.util.Version
 
-internal class GetInfoHandler(private val dp: DependencyProvider) : GrpcPeerApiHandler<PeerApi.PeerInfo, PeerApi.PeerInfo>(dp) {
+internal class ExchangeInfoHandler(private val dp: DependencyProvider) : GrpcPeerApiHandler<PeerApi.PeerInfo, PeerApi.PeerInfo>(dp) {
     override fun handleRequest(peer: Peer, request: PeerApi.PeerInfo): PeerApi.PeerInfo {
         val announcedAddress: String = request.announcedAddress
         if (announcedAddress.isNotBlank()) {

@@ -9,7 +9,7 @@ import com.google.protobuf.Empty
 internal class GetPeersHandler(private val dp: DependencyProvider) : GrpcApiHandler<Empty, PeerApi.Peers> {
     override fun handleRequest(request: Empty): PeerApi.Peers {
         return PeerApi.Peers.newBuilder()
-            .addAllAnnouncedAddresses(dp.peerService.allPeers
+            .addAllAddresses(dp.peerService.allPeers
                 .filter { !it.isBlacklisted && it.state == Peer.State.CONNECTED && it.shareAddress }
                 .map { it.address.toString() })
             .build()

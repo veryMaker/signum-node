@@ -412,6 +412,7 @@ object ProtoBuilder {
 
     fun buidRawBlock(block: Block): PeerApi.RawBlock {
         return PeerApi.RawBlock.newBuilder()
+            .setHeight(block.height)
             .setBlockData(block.toBytes().toByteString())
             .addAllTransactionsData(block.transactions.map { buildRawTransaction(it) })
             .build()

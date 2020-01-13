@@ -7,20 +7,24 @@ option java_package = "brs.api.grpc.proto";
 package brs.peer;
 
 service BrsPeerService {
+    rpc ExchangeInfo (PeerInfo) returns (PeerInfo);
+
     rpc AddPeers (Peers) returns (google.protobuf.Empty);
     rpc GetPeers (google.protobuf.Empty) returns (Peers);
+
     rpc GetCumulativeDifficulty (google.protobuf.Empty) returns (CumulativeDifficulty);
-    rpc GetInfo (PeerInfo) returns (PeerInfo);
     rpc GetMilestoneBlockIds (GetMilestoneBlockIdsRequest) returns (MilestoneBlockIds);
-    rpc GetBlocksAfter (GetBlocksAfterRequest) returns (RawBlocks);
-    rpc GetBlockIdsAfter (GetBlocksAfterRequest) returns (BlockIds);
+
+    rpc AddBlock (ProcessBlockRequest) returns (google.protobuf.Empty);
+    rpc GetNextBlocks (GetBlocksAfterRequest) returns (RawBlocks);
+    rpc GetNextBlockIds (GetBlocksAfterRequest) returns (BlockIds);
+
     rpc GetUnconfirmedTransactions (google.protobuf.Empty) returns (RawTransactions);
-    rpc ProcessBlock (ProcessBlockRequest) returns (google.protobuf.Empty);
-    rpc ProcessTransactions (RawTransactions) returns (google.protobuf.Empty);
+    rpc AddUnconfirmedTransactions (RawTransactions) returns (google.protobuf.Empty);
 }
 
 message Peers {
-    repeated string announcedAddresses = 1;
+    repeated string addresses = 1;
 }
 
 message CumulativeDifficulty {

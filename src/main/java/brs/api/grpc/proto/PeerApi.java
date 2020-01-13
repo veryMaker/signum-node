@@ -19,29 +19,29 @@ public final class PeerApi {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated string announcedAddresses = 1;</code>
-     * @return A list containing the announcedAddresses.
+     * <code>repeated string addresses = 1;</code>
+     * @return A list containing the addresses.
      */
     java.util.List<java.lang.String>
-        getAnnouncedAddressesList();
+        getAddressesList();
     /**
-     * <code>repeated string announcedAddresses = 1;</code>
-     * @return The count of announcedAddresses.
+     * <code>repeated string addresses = 1;</code>
+     * @return The count of addresses.
      */
-    int getAnnouncedAddressesCount();
+    int getAddressesCount();
     /**
-     * <code>repeated string announcedAddresses = 1;</code>
+     * <code>repeated string addresses = 1;</code>
      * @param index The index of the element to return.
-     * @return The announcedAddresses at the given index.
+     * @return The addresses at the given index.
      */
-    java.lang.String getAnnouncedAddresses(int index);
+    java.lang.String getAddresses(int index);
     /**
-     * <code>repeated string announcedAddresses = 1;</code>
+     * <code>repeated string addresses = 1;</code>
      * @param index The index of the value to return.
-     * @return The bytes of the announcedAddresses at the given index.
+     * @return The bytes of the addresses at the given index.
      */
     com.google.protobuf.ByteString
-        getAnnouncedAddressesBytes(int index);
+        getAddressesBytes(int index);
   }
   /**
    * Protobuf type {@code brs.peer.Peers}
@@ -56,7 +56,7 @@ public final class PeerApi {
       super(builder);
     }
     private Peers() {
-      announcedAddresses_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      addresses_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
 
     @java.lang.Override
@@ -93,10 +93,10 @@ public final class PeerApi {
             case 10: {
               java.lang.String s = input.readStringRequireUtf8();
               if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                announcedAddresses_ = new com.google.protobuf.LazyStringArrayList();
+                addresses_ = new com.google.protobuf.LazyStringArrayList();
                 mutable_bitField0_ |= 0x00000001;
               }
-              announcedAddresses_.add(s);
+              addresses_.add(s);
               break;
             }
             default: {
@@ -115,7 +115,7 @@ public final class PeerApi {
             e).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000001) != 0)) {
-          announcedAddresses_ = announcedAddresses_.getUnmodifiableView();
+          addresses_ = addresses_.getUnmodifiableView();
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -134,39 +134,39 @@ public final class PeerApi {
               brs.api.grpc.proto.PeerApi.Peers.class, brs.api.grpc.proto.PeerApi.Peers.Builder.class);
     }
 
-    public static final int ANNOUNCEDADDRESSES_FIELD_NUMBER = 1;
-    private com.google.protobuf.LazyStringList announcedAddresses_;
+    public static final int ADDRESSES_FIELD_NUMBER = 1;
+    private com.google.protobuf.LazyStringList addresses_;
     /**
-     * <code>repeated string announcedAddresses = 1;</code>
-     * @return A list containing the announcedAddresses.
+     * <code>repeated string addresses = 1;</code>
+     * @return A list containing the addresses.
      */
     public com.google.protobuf.ProtocolStringList
-        getAnnouncedAddressesList() {
-      return announcedAddresses_;
+        getAddressesList() {
+      return addresses_;
     }
     /**
-     * <code>repeated string announcedAddresses = 1;</code>
-     * @return The count of announcedAddresses.
+     * <code>repeated string addresses = 1;</code>
+     * @return The count of addresses.
      */
-    public int getAnnouncedAddressesCount() {
-      return announcedAddresses_.size();
+    public int getAddressesCount() {
+      return addresses_.size();
     }
     /**
-     * <code>repeated string announcedAddresses = 1;</code>
+     * <code>repeated string addresses = 1;</code>
      * @param index The index of the element to return.
-     * @return The announcedAddresses at the given index.
+     * @return The addresses at the given index.
      */
-    public java.lang.String getAnnouncedAddresses(int index) {
-      return announcedAddresses_.get(index);
+    public java.lang.String getAddresses(int index) {
+      return addresses_.get(index);
     }
     /**
-     * <code>repeated string announcedAddresses = 1;</code>
+     * <code>repeated string addresses = 1;</code>
      * @param index The index of the value to return.
-     * @return The bytes of the announcedAddresses at the given index.
+     * @return The bytes of the addresses at the given index.
      */
     public com.google.protobuf.ByteString
-        getAnnouncedAddressesBytes(int index) {
-      return announcedAddresses_.getByteString(index);
+        getAddressesBytes(int index) {
+      return addresses_.getByteString(index);
     }
 
     private byte memoizedIsInitialized = -1;
@@ -183,8 +183,8 @@ public final class PeerApi {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      for (int i = 0; i < announcedAddresses_.size(); i++) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, announcedAddresses_.getRaw(i));
+      for (int i = 0; i < addresses_.size(); i++) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, addresses_.getRaw(i));
       }
       unknownFields.writeTo(output);
     }
@@ -197,11 +197,11 @@ public final class PeerApi {
       size = 0;
       {
         int dataSize = 0;
-        for (int i = 0; i < announcedAddresses_.size(); i++) {
-          dataSize += computeStringSizeNoTag(announcedAddresses_.getRaw(i));
+        for (int i = 0; i < addresses_.size(); i++) {
+          dataSize += computeStringSizeNoTag(addresses_.getRaw(i));
         }
         size += dataSize;
-        size += 1 * getAnnouncedAddressesList().size();
+        size += 1 * getAddressesList().size();
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -218,8 +218,8 @@ public final class PeerApi {
       }
       brs.api.grpc.proto.PeerApi.Peers other = (brs.api.grpc.proto.PeerApi.Peers) obj;
 
-      if (!getAnnouncedAddressesList()
-          .equals(other.getAnnouncedAddressesList())) return false;
+      if (!getAddressesList()
+          .equals(other.getAddressesList())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -231,9 +231,9 @@ public final class PeerApi {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      if (getAnnouncedAddressesCount() > 0) {
-        hash = (37 * hash) + ANNOUNCEDADDRESSES_FIELD_NUMBER;
-        hash = (53 * hash) + getAnnouncedAddressesList().hashCode();
+      if (getAddressesCount() > 0) {
+        hash = (37 * hash) + ADDRESSES_FIELD_NUMBER;
+        hash = (53 * hash) + getAddressesList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -368,7 +368,7 @@ public final class PeerApi {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        announcedAddresses_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        addresses_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
         return this;
       }
@@ -398,10 +398,10 @@ public final class PeerApi {
         brs.api.grpc.proto.PeerApi.Peers result = new brs.api.grpc.proto.PeerApi.Peers(this);
         int from_bitField0_ = bitField0_;
         if (((bitField0_ & 0x00000001) != 0)) {
-          announcedAddresses_ = announcedAddresses_.getUnmodifiableView();
+          addresses_ = addresses_.getUnmodifiableView();
           bitField0_ = (bitField0_ & ~0x00000001);
         }
-        result.announcedAddresses_ = announcedAddresses_;
+        result.addresses_ = addresses_;
         onBuilt();
         return result;
       }
@@ -450,13 +450,13 @@ public final class PeerApi {
 
       public Builder mergeFrom(brs.api.grpc.proto.PeerApi.Peers other) {
         if (other == brs.api.grpc.proto.PeerApi.Peers.getDefaultInstance()) return this;
-        if (!other.announcedAddresses_.isEmpty()) {
-          if (announcedAddresses_.isEmpty()) {
-            announcedAddresses_ = other.announcedAddresses_;
+        if (!other.addresses_.isEmpty()) {
+          if (addresses_.isEmpty()) {
+            addresses_ = other.addresses_;
             bitField0_ = (bitField0_ & ~0x00000001);
           } else {
-            ensureAnnouncedAddressesIsMutable();
-            announcedAddresses_.addAll(other.announcedAddresses_);
+            ensureAddressesIsMutable();
+            addresses_.addAll(other.addresses_);
           }
           onChanged();
         }
@@ -490,112 +490,112 @@ public final class PeerApi {
       }
       private int bitField0_;
 
-      private com.google.protobuf.LazyStringList announcedAddresses_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureAnnouncedAddressesIsMutable() {
+      private com.google.protobuf.LazyStringList addresses_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureAddressesIsMutable() {
         if (!((bitField0_ & 0x00000001) != 0)) {
-          announcedAddresses_ = new com.google.protobuf.LazyStringArrayList(announcedAddresses_);
+          addresses_ = new com.google.protobuf.LazyStringArrayList(addresses_);
           bitField0_ |= 0x00000001;
          }
       }
       /**
-       * <code>repeated string announcedAddresses = 1;</code>
-       * @return A list containing the announcedAddresses.
+       * <code>repeated string addresses = 1;</code>
+       * @return A list containing the addresses.
        */
       public com.google.protobuf.ProtocolStringList
-          getAnnouncedAddressesList() {
-        return announcedAddresses_.getUnmodifiableView();
+          getAddressesList() {
+        return addresses_.getUnmodifiableView();
       }
       /**
-       * <code>repeated string announcedAddresses = 1;</code>
-       * @return The count of announcedAddresses.
+       * <code>repeated string addresses = 1;</code>
+       * @return The count of addresses.
        */
-      public int getAnnouncedAddressesCount() {
-        return announcedAddresses_.size();
+      public int getAddressesCount() {
+        return addresses_.size();
       }
       /**
-       * <code>repeated string announcedAddresses = 1;</code>
+       * <code>repeated string addresses = 1;</code>
        * @param index The index of the element to return.
-       * @return The announcedAddresses at the given index.
+       * @return The addresses at the given index.
        */
-      public java.lang.String getAnnouncedAddresses(int index) {
-        return announcedAddresses_.get(index);
+      public java.lang.String getAddresses(int index) {
+        return addresses_.get(index);
       }
       /**
-       * <code>repeated string announcedAddresses = 1;</code>
+       * <code>repeated string addresses = 1;</code>
        * @param index The index of the value to return.
-       * @return The bytes of the announcedAddresses at the given index.
+       * @return The bytes of the addresses at the given index.
        */
       public com.google.protobuf.ByteString
-          getAnnouncedAddressesBytes(int index) {
-        return announcedAddresses_.getByteString(index);
+          getAddressesBytes(int index) {
+        return addresses_.getByteString(index);
       }
       /**
-       * <code>repeated string announcedAddresses = 1;</code>
+       * <code>repeated string addresses = 1;</code>
        * @param index The index to set the value at.
-       * @param value The announcedAddresses to set.
+       * @param value The addresses to set.
        * @return This builder for chaining.
        */
-      public Builder setAnnouncedAddresses(
+      public Builder setAddresses(
           int index, java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureAnnouncedAddressesIsMutable();
-        announcedAddresses_.set(index, value);
+  ensureAddressesIsMutable();
+        addresses_.set(index, value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string announcedAddresses = 1;</code>
-       * @param value The announcedAddresses to add.
+       * <code>repeated string addresses = 1;</code>
+       * @param value The addresses to add.
        * @return This builder for chaining.
        */
-      public Builder addAnnouncedAddresses(
+      public Builder addAddresses(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureAnnouncedAddressesIsMutable();
-        announcedAddresses_.add(value);
+  ensureAddressesIsMutable();
+        addresses_.add(value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string announcedAddresses = 1;</code>
-       * @param values The announcedAddresses to add.
+       * <code>repeated string addresses = 1;</code>
+       * @param values The addresses to add.
        * @return This builder for chaining.
        */
-      public Builder addAllAnnouncedAddresses(
+      public Builder addAllAddresses(
           java.lang.Iterable<java.lang.String> values) {
-        ensureAnnouncedAddressesIsMutable();
+        ensureAddressesIsMutable();
         com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, announcedAddresses_);
+            values, addresses_);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string announcedAddresses = 1;</code>
+       * <code>repeated string addresses = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearAnnouncedAddresses() {
-        announcedAddresses_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      public Builder clearAddresses() {
+        addresses_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string announcedAddresses = 1;</code>
-       * @param value The bytes of the announcedAddresses to add.
+       * <code>repeated string addresses = 1;</code>
+       * @param value The bytes of the addresses to add.
        * @return This builder for chaining.
        */
-      public Builder addAnnouncedAddressesBytes(
+      public Builder addAddressesBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
-        ensureAnnouncedAddressesIsMutable();
-        announcedAddresses_.add(value);
+        ensureAddressesIsMutable();
+        addresses_.add(value);
         onChanged();
         return this;
       }
@@ -8401,45 +8401,45 @@ public final class PeerApi {
     java.lang.String[] descriptorData = {
       "\n\rpeerApi.proto\022\010brs.peer\032\033google/protob" +
       "uf/empty.proto\032\031google/protobuf/any.prot" +
-      "o\"#\n\005Peers\022\032\n\022announcedAddresses\030\001 \003(\t\"N" +
-      "\n\024CumulativeDifficulty\022\034\n\024cumulativeDiff" +
-      "iculty\030\001 \001(\014\022\030\n\020blockchainHeight\030\002 \001(\r\"r" +
-      "\n\010PeerInfo\022\030\n\020announcedAddress\030\001 \001(\t\022\023\n\013" +
-      "application\030\002 \001(\t\022\017\n\007version\030\003 \001(\t\022\020\n\010pl" +
-      "atform\030\004 \001(\t\022\024\n\014shareAddress\030\005 \001(\010\"P\n\033Ge" +
-      "tMilestoneBlockIdsRequest\022\023\n\013lastBlockId" +
-      "\030\001 \001(\004\022\034\n\024lastMilestoneBlockId\030\002 \001(\004\"<\n\021" +
-      "MilestoneBlockIds\022\031\n\021milestoneBlockIds\030\001" +
-      " \003(\004\022\014\n\004last\030\002 \001(\010\"(\n\025GetBlocksAfterRequ" +
-      "est\022\017\n\007blockId\030\001 \001(\004\"A\n\017RawTransactions\022" +
-      ".\n\014transactions\030\001 \003(\0132\030.brs.peer.RawTran" +
-      "saction\")\n\016RawTransaction\022\027\n\017transaction" +
-      "Data\030\001 \001(\014\"/\n\tRawBlocks\022\"\n\006blocks\030\001 \003(\0132" +
-      "\022.brs.peer.RawBlock\"a\n\010RawBlock\022\016\n\006heigh" +
-      "t\030\001 \001(\r\022\021\n\tblockData\030\002 \001(\014\0222\n\020transactio" +
-      "nsData\030\003 \003(\0132\030.brs.peer.RawTransaction\"\034" +
-      "\n\010BlockIds\022\020\n\010blockIds\030\001 \003(\004\"Q\n\023ProcessB" +
-      "lockRequest\022\027\n\017previousBlockId\030\001 \001(\004\022!\n\005" +
-      "block\030\002 \001(\0132\022.brs.peer.RawBlock2\317\005\n\016BrsP" +
-      "eerService\0223\n\010AddPeers\022\017.brs.peer.Peers\032" +
-      "\026.google.protobuf.Empty\0223\n\010GetPeers\022\026.go" +
-      "ogle.protobuf.Empty\032\017.brs.peer.Peers\022Q\n\027" +
-      "GetCumulativeDifficulty\022\026.google.protobu" +
-      "f.Empty\032\036.brs.peer.CumulativeDifficulty\022" +
-      "1\n\007GetInfo\022\022.brs.peer.PeerInfo\032\022.brs.pee" +
-      "r.PeerInfo\022Z\n\024GetMilestoneBlockIds\022%.brs" +
-      ".peer.GetMilestoneBlockIdsRequest\032\033.brs." +
-      "peer.MilestoneBlockIds\022F\n\016GetBlocksAfter" +
-      "\022\037.brs.peer.GetBlocksAfterRequest\032\023.brs." +
-      "peer.RawBlocks\022G\n\020GetBlockIdsAfter\022\037.brs" +
-      ".peer.GetBlocksAfterRequest\032\022.brs.peer.B" +
-      "lockIds\022O\n\032GetUnconfirmedTransactions\022\026." +
-      "google.protobuf.Empty\032\031.brs.peer.RawTran" +
-      "sactions\022E\n\014ProcessBlock\022\035.brs.peer.Proc" +
-      "essBlockRequest\032\026.google.protobuf.Empty\022" +
-      "H\n\023ProcessTransactions\022\031.brs.peer.RawTra" +
-      "nsactions\032\026.google.protobuf.EmptyB\024\n\022brs" +
-      ".api.grpc.protob\006proto3"
+      "o\"\032\n\005Peers\022\021\n\taddresses\030\001 \003(\t\"N\n\024Cumulat" +
+      "iveDifficulty\022\034\n\024cumulativeDifficulty\030\001 " +
+      "\001(\014\022\030\n\020blockchainHeight\030\002 \001(\r\"r\n\010PeerInf" +
+      "o\022\030\n\020announcedAddress\030\001 \001(\t\022\023\n\013applicati" +
+      "on\030\002 \001(\t\022\017\n\007version\030\003 \001(\t\022\020\n\010platform\030\004 " +
+      "\001(\t\022\024\n\014shareAddress\030\005 \001(\010\"P\n\033GetMileston" +
+      "eBlockIdsRequest\022\023\n\013lastBlockId\030\001 \001(\004\022\034\n" +
+      "\024lastMilestoneBlockId\030\002 \001(\004\"<\n\021Milestone" +
+      "BlockIds\022\031\n\021milestoneBlockIds\030\001 \003(\004\022\014\n\004l" +
+      "ast\030\002 \001(\010\"(\n\025GetBlocksAfterRequest\022\017\n\007bl" +
+      "ockId\030\001 \001(\004\"A\n\017RawTransactions\022.\n\014transa" +
+      "ctions\030\001 \003(\0132\030.brs.peer.RawTransaction\")" +
+      "\n\016RawTransaction\022\027\n\017transactionData\030\001 \001(" +
+      "\014\"/\n\tRawBlocks\022\"\n\006blocks\030\001 \003(\0132\022.brs.pee" +
+      "r.RawBlock\"a\n\010RawBlock\022\016\n\006height\030\001 \001(\r\022\021" +
+      "\n\tblockData\030\002 \001(\014\0222\n\020transactionsData\030\003 " +
+      "\003(\0132\030.brs.peer.RawTransaction\"\034\n\010BlockId" +
+      "s\022\020\n\010blockIds\030\001 \003(\004\"Q\n\023ProcessBlockReque" +
+      "st\022\027\n\017previousBlockId\030\001 \001(\004\022!\n\005block\030\002 \001" +
+      "(\0132\022.brs.peer.RawBlock2\325\005\n\016BrsPeerServic" +
+      "e\0226\n\014ExchangeInfo\022\022.brs.peer.PeerInfo\032\022." +
+      "brs.peer.PeerInfo\0223\n\010AddPeers\022\017.brs.peer" +
+      ".Peers\032\026.google.protobuf.Empty\0223\n\010GetPee" +
+      "rs\022\026.google.protobuf.Empty\032\017.brs.peer.Pe" +
+      "ers\022Q\n\027GetCumulativeDifficulty\022\026.google." +
+      "protobuf.Empty\032\036.brs.peer.CumulativeDiff" +
+      "iculty\022Z\n\024GetMilestoneBlockIds\022%.brs.pee" +
+      "r.GetMilestoneBlockIdsRequest\032\033.brs.peer" +
+      ".MilestoneBlockIds\022A\n\010AddBlock\022\035.brs.pee" +
+      "r.ProcessBlockRequest\032\026.google.protobuf." +
+      "Empty\022E\n\rGetNextBlocks\022\037.brs.peer.GetBlo" +
+      "cksAfterRequest\032\023.brs.peer.RawBlocks\022F\n\017" +
+      "GetNextBlockIds\022\037.brs.peer.GetBlocksAfte" +
+      "rRequest\032\022.brs.peer.BlockIds\022O\n\032GetUncon" +
+      "firmedTransactions\022\026.google.protobuf.Emp" +
+      "ty\032\031.brs.peer.RawTransactions\022O\n\032AddUnco" +
+      "nfirmedTransactions\022\031.brs.peer.RawTransa" +
+      "ctions\032\026.google.protobuf.EmptyB\024\n\022brs.ap" +
+      "i.grpc.protob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -8452,7 +8452,7 @@ public final class PeerApi {
     internal_static_brs_peer_Peers_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_brs_peer_Peers_descriptor,
-        new java.lang.String[] { "AnnouncedAddresses", });
+        new java.lang.String[] { "Addresses", });
     internal_static_brs_peer_CumulativeDifficulty_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_brs_peer_CumulativeDifficulty_fieldAccessorTable = new

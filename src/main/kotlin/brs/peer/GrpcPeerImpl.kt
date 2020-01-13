@@ -184,7 +184,7 @@ class GrpcPeerImpl(
 
     override fun exchangeInfo(): PeerInfo? {
         return handlePeerError("Error exchanging info with peer") { connection ->
-            PeerInfo.fromProto(connection.getInfo(dp.peerService.myProtoPeerInfo))
+            PeerInfo.fromProto(connection.exchangeInfo(dp.peerService.myProtoPeerInfo))
         }
     }
 
@@ -221,7 +221,7 @@ class GrpcPeerImpl(
 
     override fun sendUnconfirmedTransactions(transactions: Collection<Transaction>) {
         handlePeerError("Error sending unconfirmed transactions to peer") { connection ->
-            connection.processTransactions(PeerApi.RawTransactions.newBuilder()
+            connection.addUnconfirmedTransactions(PeerApi.RawTransactions.newBuilder()
                 .addAllTransactions(transactions.map { ProtoBuilder.buildRawTransaction(it) })
                 .build())
         }
@@ -229,7 +229,7 @@ class GrpcPeerImpl(
 
     override fun getNextBlocks(lastBlockId: Long): Collection<Block>? {
         return handlePeerError("Error getting next blocks from peer") { connection ->
-            connection.getBlocksAfter(PeerApi.GetBlocksAfterRequest.newBuilder()
+            connection.getNextBlocks(PeerApi.GetBlocksAfterRequest.newBuilder()
                 .setBlockId(lastBlockId)
                 .build())
                 .blocksList
@@ -242,7 +242,7 @@ class GrpcPeerImpl(
 
     override fun getNextBlockIds(lastBlockId: Long): Collection<Long>? {
         return handlePeerError("Error getting next block IDs from peer") { connection ->
-            connection.getBlockIdsAfter(PeerApi.GetBlocksAfterRequest.newBuilder()
+            connection.getNextBlockIds(PeerApi.GetBlocksAfterRequest.newBuilder()
                 .setBlockId(lastBlockId)
                 .build())
                 .blockIdsList
@@ -255,7 +255,7 @@ class GrpcPeerImpl(
     override fun addPeers(announcedAddresses: Collection<PeerAddress>) {
         handlePeerError("Error sending peers to peer") { connection ->
             connection.addPeers(PeerApi.Peers.newBuilder()
-                .addAllAnnouncedAddresses(announcedAddresses.map { it.toString() })
+                .addAllAddresses(announcedAddresses.map { it.toString() })
                 .build())
         }
     }
@@ -263,14 +263,15 @@ class GrpcPeerImpl(
     override fun getPeers(): Collection<PeerAddress>? {
         return handlePeerError("Error getting peers from peer") { connection ->
             connection.getPeers(Empty.getDefaultInstance())
-                .announcedAddressesList
+                .addressesList
                 .mapNotNull { PeerAddress.parse(dp, it) }
         }
     }
 
     override fun sendBlock(block: Block): Boolean {
         return handlePeerError("Error sending block to peers") { connection ->
-            connection.processBlock(PeerApi.ProcessBlockRequest.newBuilder()
+            connection.addBlock(PeerApi.ProcessBlockRequest.newBuilder()
+                .setPreviousBlockId(block.previousBlockId)
                 .setBlock(ProtoBuilder.buidRawBlock(block))
                 .build())
             true

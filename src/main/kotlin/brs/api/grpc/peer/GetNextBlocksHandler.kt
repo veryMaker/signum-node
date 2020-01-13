@@ -5,7 +5,7 @@ import brs.api.grpc.ProtoBuilder
 import brs.api.grpc.proto.PeerApi
 import brs.entity.DependencyProvider
 
-internal class GetBlocksAfterHandler(private val dp: DependencyProvider) : GrpcApiHandler<PeerApi.GetBlocksAfterRequest, PeerApi.RawBlocks> {
+internal class GetNextBlocksHandler(private val dp: DependencyProvider) : GrpcApiHandler<PeerApi.GetBlocksAfterRequest, PeerApi.RawBlocks> {
     override fun handleRequest(request: PeerApi.GetBlocksAfterRequest): PeerApi.RawBlocks {
         require(request.blockId != 0L)
         return PeerApi.RawBlocks.newBuilder()

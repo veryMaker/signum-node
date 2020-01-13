@@ -24,13 +24,13 @@ class PeerApiService(dp: DependencyProvider) : BrsPeerServiceGrpc.BrsPeerService
         handlerMap[AddPeersHandler::class] = AddPeersHandler(dp)
         handlerMap[GetPeersHandler::class] = GetPeersHandler(dp)
         handlerMap[GetCumulativeDifficultyHandler::class] = GetCumulativeDifficultyHandler(dp)
-        handlerMap[GetInfoHandler::class] = GetInfoHandler(dp)
+        handlerMap[ExchangeInfoHandler::class] = ExchangeInfoHandler(dp)
         handlerMap[GetMilestoneBlockIdsHandler::class] = GetMilestoneBlockIdsHandler(dp)
-        handlerMap[GetBlocksAfterHandler::class] = GetBlocksAfterHandler(dp)
-        handlerMap[GetBlockIdsAfterHandler::class] = GetBlockIdsAfterHandler(dp)
+        handlerMap[GetNextBlocksHandler::class] = GetNextBlocksHandler(dp)
+        handlerMap[GetNextBlockIdsHandler::class] = GetNextBlockIdsHandler(dp)
         handlerMap[GetUnconfirmedTransactionsHandler::class] = GetUnconfirmedTransactionsHandler(dp)
-        handlerMap[ProcessBlockHandler::class] = ProcessBlockHandler(dp)
-        handlerMap[ProcessTransactionsHandler::class] = ProcessTransactionsHandler(dp)
+        handlerMap[AddBlockHandler::class] = AddBlockHandler(dp)
+        handlerMap[AddUnconfirmedTransactionsHandler::class] = AddUnconfirmedTransactionsHandler(dp)
 
         this.handlers = handlerMap
     }
@@ -68,31 +68,31 @@ class PeerApiService(dp: DependencyProvider) : BrsPeerServiceGrpc.BrsPeerService
         return handleRequest(GetCumulativeDifficultyHandler::class, request, responseObserver)
     }
 
-    override fun getInfo(request: PeerApi.PeerInfo, responseObserver: StreamObserver<PeerApi.PeerInfo>) {
-        return handleRequest(GetInfoHandler::class, request, responseObserver)
+    override fun exchangeInfo(request: PeerApi.PeerInfo, responseObserver: StreamObserver<PeerApi.PeerInfo>) {
+        return handleRequest(ExchangeInfoHandler::class, request, responseObserver)
     }
 
     override fun getMilestoneBlockIds(request: PeerApi.GetMilestoneBlockIdsRequest, responseObserver: StreamObserver<PeerApi.MilestoneBlockIds>) {
         return handleRequest(GetMilestoneBlockIdsHandler::class, request, responseObserver)
     }
 
-    override fun getBlocksAfter(request: PeerApi.GetBlocksAfterRequest, responseObserver: StreamObserver<PeerApi.RawBlocks>) {
-        return handleRequest(GetBlocksAfterHandler::class, request, responseObserver)
+    override fun getNextBlocks(request: PeerApi.GetBlocksAfterRequest, responseObserver: StreamObserver<PeerApi.RawBlocks>) {
+        return handleRequest(GetNextBlocksHandler::class, request, responseObserver)
     }
 
-    override fun getBlockIdsAfter(request: PeerApi.GetBlocksAfterRequest, responseObserver: StreamObserver<PeerApi.BlockIds>) {
-        return handleRequest(GetBlockIdsAfterHandler::class, request, responseObserver)
+    override fun getNextBlockIds(request: PeerApi.GetBlocksAfterRequest, responseObserver: StreamObserver<PeerApi.BlockIds>) {
+        return handleRequest(GetNextBlockIdsHandler::class, request, responseObserver)
     }
 
     override fun getUnconfirmedTransactions(request: Empty, responseObserver: StreamObserver<PeerApi.RawTransactions>) {
         return handleRequest(GetUnconfirmedTransactionsHandler::class, request, responseObserver)
     }
 
-    override fun processBlock(request: PeerApi.ProcessBlockRequest, responseObserver: StreamObserver<Empty>) {
-        return handleRequest(ProcessBlockHandler::class, request, responseObserver)
+    override fun addBlock(request: PeerApi.ProcessBlockRequest, responseObserver: StreamObserver<Empty>) {
+        return handleRequest(AddBlockHandler::class, request, responseObserver)
     }
 
-    override fun processTransactions(request: PeerApi.RawTransactions, responseObserver: StreamObserver<Empty>) {
-        return handleRequest(ProcessTransactionsHandler::class, request, responseObserver)
+    override fun addUnconfirmedTransactions(request: PeerApi.RawTransactions, responseObserver: StreamObserver<Empty>) {
+        return handleRequest(AddUnconfirmedTransactionsHandler::class, request, responseObserver)
     }
 }
