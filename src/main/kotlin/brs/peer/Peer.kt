@@ -20,8 +20,6 @@ interface Peer {
      */
     fun updateAddress(newAnnouncedAddress: PeerAddress)
 
-    val readyToSend: Boolean
-
     var state: State
 
     var version: Version

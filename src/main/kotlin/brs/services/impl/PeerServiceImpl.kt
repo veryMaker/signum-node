@@ -648,8 +648,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         return (peer.isHigherOrEqualVersionThan(MIN_VERSION)
                 && (!sendSameBRSclass || peer.isAtLeastMyVersion)
                 && !peer.isBlacklisted
-                && peer.state == Peer.State.CONNECTED
-                && peer.readyToSend)
+                && peer.state == Peer.State.CONNECTED)
     }
 
     override fun getAnyPeer(state: Peer.State): Peer? {

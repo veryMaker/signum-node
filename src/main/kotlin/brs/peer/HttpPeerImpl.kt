@@ -102,9 +102,6 @@ internal class HttpPeerImpl(
     override val isBlacklisted: Boolean
         get() = blacklistingTime > 0 || isOldVersion || dp.peerService.knownBlacklistedPeers.contains(address)
 
-    override val readyToSend: Boolean
-        get() = TODO()
-
     override fun updateDownloadedVolume(volume: Long) {
         mutex.withLock {
             downloadedVolume += volume

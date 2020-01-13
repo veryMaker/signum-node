@@ -17,14 +17,13 @@ import brs.util.convert.emptyToNull
 import brs.util.delegates.Atomic
 import brs.util.delegates.AtomicLateinit
 import brs.util.delegates.AtomicWithOverride
-import brs.util.json.getMemberAsString
 import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import brs.util.logging.safeWarn
 import brs.util.sync.Mutex
-import com.google.gson.JsonObject
 import com.google.protobuf.Empty
+import io.grpc.ManagedChannelBuilder
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.math.BigInteger
@@ -99,9 +98,6 @@ class GrpcPeerImpl(
     override val isBlacklisted: Boolean
         get() = blacklistingTime > 0 || isOldVersion || dp.peerService.knownBlacklistedPeers.contains(address)
 
-    override val readyToSend: Boolean
-        get() = TODO()
-
     override fun updateDownloadedVolume(volume: Long) {
         mutex.withLock {
             downloadedVolume += volume
@@ -168,12 +164,18 @@ class GrpcPeerImpl(
         dp.peerService.removePeer(this)
     }
 
-    private val connection: PeerConnection?
-        get() = TODO()
+    private var connection: PeerConnection? = null
+
+    private fun getConnection(): PeerConnection? {
+        connection?.let { return it }
+        val newConnection = BrsPeerServiceGrpc.newBlockingStub(ManagedChannelBuilder.forAddress(address.host, address.port).usePlaintext().build())
+        connection = newConnection
+        return newConnection
+    }
 
     private inline fun <T: Any> handlePeerError(errorMessage: String, action: (PeerConnection) -> T): T? {
         return try {
-            connection?.let { action(it) }
+            getConnection()?.let { action(it) }
         } catch (e: Exception) {
             logger.safeWarn(e) { errorMessage }
             null
@@ -304,6 +306,7 @@ class GrpcPeerImpl(
         // Force re-validate address
         state = Peer.State.NON_CONNECTED
         dp.peerService.updateAddress(this)
+        connection = null // TODO is this the correct way to disconnect? (hint: no...)
     }
 
     companion object {
