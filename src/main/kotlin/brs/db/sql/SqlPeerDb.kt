@@ -4,7 +4,6 @@ import brs.db.PeerDb
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.schema.Tables.PEER
-import brs.util.misc.filteringMap
 
 internal class SqlPeerDb(private val dp: DependencyProvider) : PeerDb {
     override fun loadPeers(): List<String> {
@@ -17,7 +16,7 @@ internal class SqlPeerDb(private val dp: DependencyProvider) : PeerDb {
         dp.db.useDslContext { ctx ->
             val peers = ctx.selectFrom(PEER).fetch(PEER.ADDRESS)
             ctx.deleteFrom(PEER).where(PEER.ADDRESS.notIn(peers))
-            ctx.batch(peers.filteringMap { if (peers.contains(it)) null else ctx.insertInto(PEER).set(PEER.ADDRESS, it) })
+            ctx.batch(peers.mapNotNull { if (peers.contains(it)) null else ctx.insertInto(PEER).set(PEER.ADDRESS, it) })
         }
     }
 

@@ -23,7 +23,6 @@ import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import brs.util.logging.safeWarn
-import brs.util.misc.filteringMap
 import brs.util.sync.Mutex
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -195,7 +194,7 @@ internal class HttpPeerImpl(
 
     override fun exchangeInfo(): PeerInfo? {
         return handlePeerError("Error exchanging info with peer") {
-            val json = send(dp.peerService.myPeerInfoRequest) ?: error("Returned JSON was null")
+            val json = send(dp.peerService.myJsonPeerInfoRequest) ?: error("Returned JSON was null")
             checkError(json)
             PeerInfo.fromJson(json)
         }
@@ -297,7 +296,7 @@ internal class HttpPeerImpl(
                 announcedAddresses.forEach { jsonAnnouncedAddresses.add("${it.host}:${it.port}") }
             }
             val request = JsonObject()
-            request.addProperty("requestType", "getNextBlockIds")
+            request.addProperty("requestType", "addPeers")
             request.add("peers", jsonAnnouncedAddresses)
             val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
             checkError(json)
@@ -311,7 +310,7 @@ internal class HttpPeerImpl(
             json.mustGetMemberAsJsonArray("peers")
                 .map { it.safeGetAsString() ?: "" }
                 .filter { it.isNotBlank() }
-                .filteringMap { PeerAddress.parse(dp, it) }
+                .mapNotNull { PeerAddress.parse(dp, it) }
         }
     }
 

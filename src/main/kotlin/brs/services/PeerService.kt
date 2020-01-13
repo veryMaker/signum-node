@@ -1,5 +1,6 @@
 package brs.services
 
+import brs.api.grpc.proto.PeerApi
 import brs.entity.Block
 import brs.entity.Transaction
 import brs.peer.Peer
@@ -112,7 +113,12 @@ interface PeerService {
     /**
      * TODO
      */
-    val myPeerInfoRequest: JsonElement
+    val myJsonPeerInfoRequest: JsonElement
+
+    /**
+     * TODO
+     */
+    val myProtoPeerInfo: PeerApi.PeerInfo
 
     /**
      * TODO

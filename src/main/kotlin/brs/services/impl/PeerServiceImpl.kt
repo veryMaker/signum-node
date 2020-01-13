@@ -1,6 +1,7 @@
 package brs.services.impl
 
 import brs.Burst
+import brs.api.grpc.proto.PeerApi
 import brs.db.transaction
 import brs.entity.Block
 import brs.entity.DependencyProvider
@@ -21,7 +22,6 @@ import brs.util.delegates.Atomic
 import brs.util.json.JSON.prepareRequest
 import brs.util.json.toJsonString
 import brs.util.logging.*
-import brs.util.misc.filteringMap
 import brs.util.sync.Mutex
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -52,11 +52,11 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
     init {
         val wellKnownPeersList = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_BOOTSTRAP_PEERS else Props.P2P_BOOTSTRAP_PEERS)
-            .filteringMap { PeerAddress.parse(dp, it) }
+            .mapNotNull { PeerAddress.parse(dp, it) }
             .toMutableSet()
         if (dp.propertyService.get(P2P_ENABLE_TX_REBROADCAST)) {
             rebroadcastPeers = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_REBROADCAST_TO else Props.P2P_REBROADCAST_TO)
-                    .filteringMap { PeerAddress.parse(dp, it) }
+                    .mapNotNull { PeerAddress.parse(dp, it) }
                     .toSet()
 
             for (rePeer in rebroadcastPeers) {
@@ -99,7 +99,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private val getMorePeersThreshold: Int
     private var lastSavedPeers: Int = 0
 
-    override val myPeerInfoRequest: JsonElement
+    override val myJsonPeerInfoRequest: JsonElement
+    override val myProtoPeerInfo: PeerApi.PeerInfo
 
     private val listeners = Listeners<Peer, PeerService.Event>()
 
@@ -142,13 +143,20 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         json.addProperty("shareAddress", this.shareMyAddress)
         logger.safeDebug { "My peer info: ${json.toJsonString()}" }
         json.addProperty("requestType", "getInfo")
-        myPeerInfoRequest = prepareRequest(json)
+        myJsonPeerInfoRequest = prepareRequest(json)
+        myProtoPeerInfo = PeerApi.PeerInfo.newBuilder()
+            .setApplication(Burst.APPLICATION)
+            .setVersion(Burst.VERSION.toString())
+            .setPlatform(this.myPlatform)
+            .setShareAddress(this.shareMyAddress)
+            .setAnnouncedAddress(announcedAddress?.toString() ?: "")
+            .build()
 
         connectWellKnownFirst = dp.propertyService.get(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS)
         connectWellKnownFinished = connectWellKnownFirst == 0
 
         val knownBlacklistedPeersList = dp.propertyService.get(Props.P2P_BLACKLISTED_PEERS)
-            .filteringMap { PeerAddress.parse(dp, it) }
+            .mapNotNull { PeerAddress.parse(dp, it) }
         knownBlacklistedPeers = if (knownBlacklistedPeersList.isEmpty()) {
             emptySet()
         } else {
@@ -424,7 +432,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             }
             if (usePeersDb) {
                 logger.safeDebug { "Loading known peers from the database..." }
-                loadPeers(dp.peerDb.loadPeers().filteringMap { PeerAddress.parse(dp, it) })
+                loadPeers(dp.peerDb.loadPeers().mapNotNull { PeerAddress.parse(dp, it) })
             }
             lastSavedPeers = peers.size
         }
@@ -527,7 +535,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             return peer
         }
         peer = if (cleanRemoteAddress.startsWith("grpc://")) {
-            GrpcPeerImpl()
+            GrpcPeerImpl(dp, remoteAddress, null)
         } else {
             HttpPeerImpl(dp, remoteAddress, null)
         }
@@ -547,7 +555,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         if (peer != null) return peer
         peer = when (address.protocol) {
             PeerAddress.Protocol.HTTP -> HttpPeerImpl(dp, remoteAddress, address)
-            PeerAddress.Protocol.GRPC -> GrpcPeerImpl()
+            PeerAddress.Protocol.GRPC -> GrpcPeerImpl(dp, remoteAddress, address)
         }
         remoteAddressCache[address] = remoteAddress
         peers[remoteAddress] = peer

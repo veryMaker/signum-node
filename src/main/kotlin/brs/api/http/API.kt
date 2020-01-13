@@ -6,7 +6,6 @@ import brs.util.Subnet
 import brs.util.jetty.InverseExistsOrRewriteRegexRule
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
-import brs.util.misc.filteringMapTo
 import org.eclipse.jetty.rewrite.handler.RewriteHandler
 import org.eclipse.jetty.server.*
 import org.eclipse.jetty.server.handler.HandlerList
@@ -26,7 +25,7 @@ class API(dp: DependencyProvider) {
     init {
         val allowedBotHostsList = dp.propertyService.get(Props.API_ALLOWED)
         val allowedBotHosts = if (allowedBotHostsList.contains("*")) null else {
-            allowedBotHostsList.filteringMapTo(mutableSetOf<Subnet>()) {
+            allowedBotHostsList.mapNotNullTo(mutableSetOf<Subnet>()) {
                 try {
                     Subnet.createInstance(it)
                 } catch (e: UnknownHostException) {
