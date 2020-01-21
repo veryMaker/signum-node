@@ -8,20 +8,35 @@
 package brs.at
 
 internal object OpCodes {
+    /** No-op */
     const val E_OP_CODE_NOP: Byte = 0x7f
+    /** Set value at address (1st argument) to value (second argument) */
     const val E_OP_CODE_SET_VAL: Byte = 0x01
+    /** Set value at address (1st argument) to value at address (second argument) */
     const val E_OP_CODE_SET_DAT: Byte = 0x02
+    /** Set value at address (1st argument) to 0 */
     const val E_OP_CODE_CLR_DAT: Byte = 0x03
+    /** Increment value at address (1st argument) by 1 */
     const val E_OP_CODE_INC_DAT: Byte = 0x04
+    /** Decrement value at address (1st argument) by 1 */
     const val E_OP_CODE_DEC_DAT: Byte = 0x05
+    /** Add value at address (1st argument) to value at address (second argument) */
     const val E_OP_CODE_ADD_DAT: Byte = 0x06
+    /** Subtract value at address (1st argument) to value at address (second argument) */
     const val E_OP_CODE_SUB_DAT: Byte = 0x07
+    /** Multiply value at address (1st argument) by value at address (second argument) */
     const val E_OP_CODE_MUL_DAT: Byte = 0x08
+    /** Divide value at address (1st argument) by value at address (second argument) */
     const val E_OP_CODE_DIV_DAT: Byte = 0x09
+    /** Bitwise OR value at address (1st argument) with value at address (second argument) */
     const val E_OP_CODE_BOR_DAT: Byte = 0x0a
+    /** Bitwise AND value at address (1st argument) with value at address (second argument) */
     const val E_OP_CODE_AND_DAT: Byte = 0x0b
+    /** Bitwise XOR value at address (1st argument) with value at address (second argument) */
     const val E_OP_CODE_XOR_DAT: Byte = 0x0c
+    /** Bitwise NOT value at address (1st argument) */
     const val E_OP_CODE_NOT_DAT: Byte = 0x0d
+    /** Indirect Set: Set value at address (1st argument) to the value at address (value at address (2nd argument)) */
     const val E_OP_CODE_SET_IND: Byte = 0x0e
     const val E_OP_CODE_SET_IDX: Byte = 0x0f
     const val E_OP_CODE_PSH_DAT: Byte = 0x10
@@ -45,6 +60,7 @@ internal object OpCodes {
     const val E_OP_CODE_SLP_DAT: Byte = 0x25
     const val E_OP_CODE_FIZ_DAT: Byte = 0x26
     const val E_OP_CODE_STZ_DAT: Byte = 0x27
+    /** Finish (pc = pcs and stop) if address (1st argument) is zero */
     const val E_OP_CODE_FIN_IMD: Byte = 0x28
     const val E_OP_CODE_STP_IMD: Byte = 0x29
     const val E_OP_CODE_SLP_IMD: Byte = 0x2a
