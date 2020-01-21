@@ -157,16 +157,8 @@ internal class AtMachineProcessor(
                 logger.safeDebug { "  " }
         }
 
-        when {
-            op == OpCodes.E_OP_CODE_NOP -> if (disassemble) {
-                if (!disassemble)
-                    logger.safeDebug { "NOP" }
-                ++rc
-            } else {
-                ++rc
-                ++machineData.machineState.pc
-            }
-            op == OpCodes.E_OP_CODE_SET_VAL -> {
+        when (op) {
+            OpCodes.E_OP_CODE_SET_VAL -> {
                 rc = addressVal
 
                 if (rc == 0 || disassemble) {
@@ -181,7 +173,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_SET_DAT -> {
+            OpCodes.E_OP_CODE_SET_DAT -> {
                 rc = addrs
 
                 if (rc == 0 || disassemble) {
@@ -196,7 +188,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_CLR_DAT -> {
+            OpCodes.E_OP_CODE_CLR_DAT -> {
                 rc = getAddr(false)
 
                 if (rc == 0 || disassemble) {
@@ -211,9 +203,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_INC_DAT ||
-                    op == OpCodes.E_OP_CODE_DEC_DAT ||
-                    op == OpCodes.E_OP_CODE_NOT_DAT -> {
+            OpCodes.E_OP_CODE_INC_DAT, OpCodes.E_OP_CODE_DEC_DAT, OpCodes.E_OP_CODE_NOT_DAT -> {
                 rc = getAddr(false)
                 if (rc == 0 || disassemble) {
                     rc = 5
@@ -239,10 +229,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_ADD_DAT ||
-                    op == OpCodes.E_OP_CODE_SUB_DAT ||
-                    op == OpCodes.E_OP_CODE_MUL_DAT ||
-                    op == OpCodes.E_OP_CODE_DIV_DAT -> {
+            OpCodes.E_OP_CODE_ADD_DAT, OpCodes.E_OP_CODE_SUB_DAT, OpCodes.E_OP_CODE_MUL_DAT, OpCodes.E_OP_CODE_DIV_DAT -> {
                 rc = addrs
 
                 if (rc == 0 || disassemble) {
@@ -266,9 +253,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_BOR_DAT ||
-                    op == OpCodes.E_OP_CODE_AND_DAT ||
-                    op == OpCodes.E_OP_CODE_XOR_DAT -> {
+            OpCodes.E_OP_CODE_BOR_DAT, OpCodes.E_OP_CODE_AND_DAT, OpCodes.E_OP_CODE_XOR_DAT -> {
                 rc = addrs
 
                 if (rc == 0 || disassemble) {
@@ -286,7 +271,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_SET_IND -> {
+            OpCodes.E_OP_CODE_SET_IND -> {
                 rc = addrs
 
                 if (rc == 0) {
@@ -303,7 +288,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_SET_IDX -> {
+            OpCodes.E_OP_CODE_SET_IDX -> {
                 val addr1 = func.addr1
                 val addr2 = func.addr2
                 val size = 8
@@ -333,7 +318,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_PSH_DAT || op == OpCodes.E_OP_CODE_POP_DAT -> {
+            OpCodes.E_OP_CODE_PSH_DAT, OpCodes.E_OP_CODE_POP_DAT -> {
                 rc = getAddr(false)
                 if (rc == 0 || disassemble) {
                     rc = 5
@@ -361,7 +346,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_JMP_SUB -> {
+            OpCodes.E_OP_CODE_JMP_SUB -> {
                 rc = getAddr(true)
 
                 if (rc == 0 || disassemble) {
@@ -381,7 +366,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_RET_SUB -> {
+            OpCodes.E_OP_CODE_RET_SUB -> {
                 rc = 1
 
                 if (!disassemble) {
@@ -398,7 +383,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_IND_DAT -> {
+            OpCodes.E_OP_CODE_IND_DAT -> {
                 rc = addrs
 
                 if (rc == 0) {
@@ -414,7 +399,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_IDX_DAT -> {
+            OpCodes.E_OP_CODE_IDX_DAT -> {
                 val addr1 = func.addr1
                 val addr2 = func.addr2
                 val size = 8
@@ -442,7 +427,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_MOD_DAT -> {
+            OpCodes.E_OP_CODE_MOD_DAT -> {
                 rc = addrs
 
                 if (rc == 0 || disassemble) {
@@ -460,7 +445,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_SHL_DAT || op == OpCodes.E_OP_CODE_SHR_DAT -> {
+            OpCodes.E_OP_CODE_SHL_DAT, OpCodes.E_OP_CODE_SHR_DAT -> {
                 rc = addrs
 
                 if (rc == 0 || disassemble) {
@@ -477,7 +462,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_JMP_ADR -> {
+            OpCodes.E_OP_CODE_JMP_ADR -> {
                 rc = getAddr(true)
 
                 if (rc == 0 || disassemble) {
@@ -490,7 +475,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_BZR_DAT || op == OpCodes.E_OP_CODE_BNZ_DAT -> {
+            OpCodes.E_OP_CODE_BZR_DAT, OpCodes.E_OP_CODE_BNZ_DAT -> {
                 rc = addrOff
 
                 if (rc == 0 || disassemble) {
@@ -516,9 +501,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_BGT_DAT || op == OpCodes.E_OP_CODE_BLT_DAT ||
-                    op == OpCodes.E_OP_CODE_BGE_DAT || op == OpCodes.E_OP_CODE_BLE_DAT ||
-                    op == OpCodes.E_OP_CODE_BEQ_DAT || op == OpCodes.E_OP_CODE_BNE_DAT -> {
+            OpCodes.E_OP_CODE_BGT_DAT, OpCodes.E_OP_CODE_BLT_DAT, OpCodes.E_OP_CODE_BGE_DAT, OpCodes.E_OP_CODE_BLE_DAT, OpCodes.E_OP_CODE_BEQ_DAT, OpCodes.E_OP_CODE_BNE_DAT -> {
                 rc = addrsOff
 
                 if (rc == 0 || disassemble) {
@@ -542,7 +525,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_SLP_DAT -> {
+            OpCodes.E_OP_CODE_SLP_DAT -> {
                 rc = getAddr(true)
 
                 if (rc == 0 || disassemble) {
@@ -561,7 +544,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_FIZ_DAT || op == OpCodes.E_OP_CODE_STZ_DAT -> {
+            OpCodes.E_OP_CODE_FIZ_DAT, OpCodes.E_OP_CODE_STZ_DAT -> {
                 rc = getAddr(false)
 
                 if (rc == 0 || disassemble) {
@@ -583,7 +566,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_FIN_IMD || op == OpCodes.E_OP_CODE_STP_IMD -> {
+            OpCodes.E_OP_CODE_FIN_IMD, OpCodes.E_OP_CODE_STP_IMD -> {
                 rc = 1
 
                 if (!disassemble) {
@@ -598,7 +581,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_SLP_IMD -> {
+            OpCodes.E_OP_CODE_SLP_IMD -> {
                 rc = 1
 
                 if (!disassemble) {
@@ -607,7 +590,7 @@ internal class AtMachineProcessor(
                     machineData.setFreeze(true)
                 }
             }
-            op == OpCodes.E_OP_CODE_SET_PCS -> {
+            OpCodes.E_OP_CODE_SET_PCS -> {
                 rc = 1
 
                 if (!disassemble) {
@@ -615,7 +598,7 @@ internal class AtMachineProcessor(
                     machineData.machineState.pcs = machineData.machineState.pc
                 }
             }
-            op == OpCodes.E_OP_CODE_EXT_FUN -> {
+            OpCodes.E_OP_CODE_EXT_FUN -> {
                 rc = getFun()
 
                 if (rc == 0 || disassemble) {
@@ -627,7 +610,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_EXT_FUN_DAT -> {
+            OpCodes.E_OP_CODE_EXT_FUN_DAT -> {
                 rc = funAddr
                 if (rc == 0) {
                     rc = 7
@@ -639,7 +622,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_EXT_FUN_DAT_2 -> {
+            OpCodes.E_OP_CODE_EXT_FUN_DAT_2 -> {
                 rc = funAddrs
 
                 if (rc == 0 || disassemble) {
@@ -653,7 +636,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_EXT_FUN_RET -> {
+            OpCodes.E_OP_CODE_EXT_FUN_RET -> {
                 rc = funAddr
 
                 if (rc == 0 || disassemble) {
@@ -666,7 +649,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_EXT_FUN_RET_DAT || op == OpCodes.E_OP_CODE_EXT_FUN_RET_DAT_2 -> {
+            OpCodes.E_OP_CODE_EXT_FUN_RET_DAT, OpCodes.E_OP_CODE_EXT_FUN_RET_DAT_2 -> {
                 rc = funAddrs
                 val size = 10
 
@@ -693,7 +676,7 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            op == OpCodes.E_OP_CODE_ERR_ADR -> {
+            OpCodes.E_OP_CODE_ERR_ADR -> {
                 getAddr(true) // rico666: Why getAddr if rc is set hard anyway ?? // TODO check if this updates the buffer or can be removed
 
                 // don't check rc to allow for unsetting handler with -1
@@ -707,7 +690,17 @@ internal class AtMachineProcessor(
                         rc = -2
                 }
             }
-            !disassemble -> rc = -2
+            else -> {
+                // This is here because otherwise the when statement above becomes a lookup switch (instead of a table switch)
+                // which is O(log n) whereas table switch is O(1) so is faster.
+                if (op == OpCodes.E_OP_CODE_NOP) {
+                    ++rc
+                    if (!disassemble) {
+                        ++machineData.machineState.pc
+                    }
+                }
+                if (!disassemble) rc = -2
+            }
         }
 
         return rc
