@@ -49,6 +49,7 @@ internal class HttpPeerImpl(
 
     init {
         if (address != null) {
+            require(address.protocol == PeerAddress.Protocol.HTTP) { "Protocol must be HTTP" }
             this.announcedAddress = address
         }
     }

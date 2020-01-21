@@ -45,6 +45,7 @@ class GrpcPeerImpl(
 
     init {
         if (address != null) {
+            require(address.protocol == PeerAddress.Protocol.GRPC) { "Protocol must be GRPC" }
             this.announcedAddress = address
         }
     }
@@ -293,7 +294,7 @@ class GrpcPeerImpl(
         }
 
         if (announcedAddress == null) {
-            announcedAddress = PeerAddress.parse(dp, remoteAddress) ?: error("Could not find peer's address")
+            announcedAddress = parsedRemoteAddress
         }
 
         state = Peer.State.CONNECTED
