@@ -8,6 +8,9 @@
 package brs.at
 
 import brs.entity.DependencyProvider
+import kotlin.experimental.and
+import kotlin.experimental.or
+import kotlin.experimental.xor
 
 internal class AtMachineProcessor(
     private val dp: DependencyProvider,
@@ -204,18 +207,47 @@ internal class AtMachineProcessor(
                     }
                 }
             }
-            OpCodes.E_OP_CODE_BOR_DAT, OpCodes.E_OP_CODE_AND_DAT, OpCodes.E_OP_CODE_XOR_DAT -> {
+            OpCodes.E_OP_CODE_BOR_DAT -> {
                 rc = addrs
 
                 if (rc == 0) {
                     rc = 9
                     machineData.machineState.pc += rc
-                    val value = machineData.apData.getLong(func.addr2 * 8)
-                    val incData = machineData.apData.getLong(func.addr1 * 8)
-                    when (op) {
-                        OpCodes.E_OP_CODE_BOR_DAT -> machineData.apData.putLong(func.addr1 * 8, incData or value)
-                        OpCodes.E_OP_CODE_AND_DAT -> machineData.apData.putLong(func.addr1 * 8, incData and value)
-                        OpCodes.E_OP_CODE_XOR_DAT -> machineData.apData.putLong(func.addr1 * 8, incData xor value)
+                    val apData = machineData.apData.array()
+                    val firstAddress = func.addr1 * 8
+                    val secondAddress = func.addr2 * 8
+                    for (i in firstAddress..firstAddress+7) {
+                        apData[i] = apData[i] or apData[secondAddress+i]
+                    }
+                    machineData.apData.clear()
+                }
+            }
+            OpCodes.E_OP_CODE_AND_DAT -> {
+                rc = addrs
+
+                if (rc == 0) {
+                    rc = 9
+                    machineData.machineState.pc += rc
+                    val apData = machineData.apData.array()
+                    val firstAddress = func.addr1 * 8
+                    val secondAddress = func.addr2 * 8
+                    for (i in firstAddress..firstAddress+7) {
+                        apData[i] = apData[i] and apData[secondAddress+i]
+                    }
+                    machineData.apData.clear()
+                }
+            }
+            OpCodes.E_OP_CODE_XOR_DAT -> {
+                rc = addrs
+
+                if (rc == 0) {
+                    rc = 9
+                    machineData.machineState.pc += rc
+                    val apData = machineData.apData.array()
+                    val firstAddress = func.addr1 * 8
+                    val secondAddress = func.addr2 * 8
+                    for (i in firstAddress..firstAddress+7) {
+                        apData[i] = apData[i] xor apData[secondAddress+i]
                     }
                     machineData.apData.clear()
                 }
@@ -704,19 +736,16 @@ internal class AtMachineProcessor(
                 funAddr
                 rc = 7
             }
-            OpCodes.E_OP_CODE_EXT_FUN_RET_DAT, OpCodes.E_OP_CODE_EXT_FUN_RET_DAT_2 -> {
+            OpCodes.E_OP_CODE_EXT_FUN_RET_DAT -> {
                 rc = funAddrs
-                val size = 10
-
-                if (op == OpCodes.E_OP_CODE_EXT_FUN_RET_DAT_2) {
-                    machineData.apCode.position(size)
-                    rc = getAddr(false)
-                    machineData.apCode.position(machineData.apCode.position() - size)
-                }
-
-                if (rc == 0) {
-                    rc = 1 + size + if (op == OpCodes.E_OP_CODE_EXT_FUN_RET_DAT_2) 4 else 0
-                }
+                if (rc == 0) rc = 11
+            }
+            OpCodes.E_OP_CODE_EXT_FUN_RET_DAT_2 -> {
+                funAddrs
+                machineData.apCode.position(10)
+                rc = getAddr(false)
+                machineData.apCode.position(machineData.apCode.position() - 10)
+                if (rc == 0) rc = 15
             }
             else -> {
                 // This is here because otherwise the when statement above becomes a lookup switch (instead of a table switch)
