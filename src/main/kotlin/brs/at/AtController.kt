@@ -42,7 +42,7 @@ class AtController(private val dp: DependencyProvider) {
 
             state.setgBalance(state.getgBalance() - stepFee * numSteps)
             state.machineState.steps += numSteps
-            val rc = processor.processOp(disassemble = false, determineJumps = false)
+            val rc = processor.processOp(disassemble = false)
 
             if (rc >= 0) {
                 if (state.machineState.stopped) {
@@ -81,10 +81,10 @@ class AtController(private val dp: DependencyProvider) {
 
     fun resetMachine(state: AtMachineState) {
         state.machineState.reset()
-        listCode(state, disassembly = true, determineJumps = true)
+        listCode(state)
     }
 
-    private fun listCode(state: AtMachineState, disassembly: Boolean, determineJumps: Boolean) {
+    private fun listCode(state: AtMachineState) {
         val machineProcessor = AtMachineProcessor(dp, state, dp.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
 
         val opc = state.machineState.pc
@@ -97,7 +97,7 @@ class AtController(private val dp: DependencyProvider) {
         state.machineState.opc = opc
 
         while (true) {
-            val rc = machineProcessor.processOp(disassembly, determineJumps)
+            val rc = machineProcessor.processOp(disassemble = true)
             if (rc <= 0) break
 
             state.machineState.pc += rc
@@ -217,7 +217,7 @@ class AtController(private val dp: DependencyProvider) {
                     at.height = blockHeight
                     at.clearTransactions()
                     at.waitForNumberOfBlocks = at.sleepBetween
-                    listCode(at, disassembly = true, determineJumps = true)
+                    listCode(at)
                     runSteps(at)
 
                     var fee = at.machineState.steps * dp.atConstants[at.creationBlockHeight].stepFee
@@ -284,7 +284,7 @@ class AtController(private val dp: DependencyProvider) {
 
                 at.setgBalance(atAccountBalance)
 
-                listCode(at, disassembly = true, determineJumps = true)
+                listCode(at)
 
                 runSteps(at)
 

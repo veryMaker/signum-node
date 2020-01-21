@@ -138,18 +138,18 @@ internal class AtMachineProcessor(
         } else !isCode || addr < machineData.cSize
     }
 
-    fun processOp(disassemble: Boolean, determineJumps: Boolean): Int {
+    fun processOp(disassemble: Boolean): Int {
         var rc = 0
 
         if (machineData.cSize < 1 || machineData.machineState.pc >= machineData.cSize)
             return 0
 
-        if (determineJumps) {
+        if (disassemble) {
             machineData.machineState.jumps.add(machineData.machineState.pc)
         }
 
         val op = machineData.apCode.get(machineData.machineState.pc)
-        if (op > 0 && disassemble && !determineJumps) {
+        if (op > 0 && disassemble && !disassemble) {
             logger.safeDebug { String.format("%8x", machineData.machineState.pc).replace(' ', '0') }
             if (machineData.machineState.pc == machineData.machineState.opc)
                 logger.safeDebug { "* " }
@@ -159,7 +159,7 @@ internal class AtMachineProcessor(
 
         when {
             op == OpCodes.E_OP_CODE_NOP -> if (disassemble) {
-                if (!determineJumps)
+                if (!disassemble)
                     logger.safeDebug { "NOP" }
                 ++rc
             } else {
@@ -172,7 +172,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 13
                     if (disassemble) {
-                        if (!determineJumps)
+                        if (!disassemble)
                             logger.safeDebug { "SET @ ${String.format("%8s", func.addr1).replace(' ', '0')} ${String.format("#%16s", java.lang.Long.toHexString(func.value)).replace(' ', '0')}" }
                     } else {
                         machineData.machineState.pc += rc
@@ -187,7 +187,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 9
                     if (disassemble) {
-                        if (!determineJumps)
+                        if (!disassemble)
                             logger.safeDebug { "SET @ ${String.format("%8s", func.addr1).replace(' ', '0')} \$${String.format("%8s", func.addr2).replace(' ', '0')}" }
                     } else {
                         machineData.machineState.pc += rc
@@ -202,7 +202,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 5
                     if (disassemble) {
-                        if (!determineJumps)
+                        if (!disassemble)
                             logger.safeDebug { "CLR @ ${String.format("%8s", func.addr1)}" }
                     } else {
                         machineData.machineState.pc += rc
@@ -218,7 +218,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 5
                     if (disassemble) {
-                        if (!determineJumps) {
+                        if (!disassemble) {
                             when (op) {
                                 OpCodes.E_OP_CODE_INC_DAT -> logger.safeDebug { "INC @" }
                                 OpCodes.E_OP_CODE_DEC_DAT -> logger.safeDebug { "DEC @" }
@@ -257,7 +257,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 9
                     if (disassemble) {
-                        if (!determineJumps) {
+                        if (!disassemble) {
                             when (op) {
                                 OpCodes.E_OP_CODE_ADD_DAT -> logger.safeDebug { "ADD @" }
                                 OpCodes.E_OP_CODE_SUB_DAT -> logger.safeDebug { "SUB @" }
@@ -310,7 +310,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 9
                     if (disassemble) {
-                        if (!determineJumps) {
+                        if (!disassemble) {
                             when (op) {
                                 OpCodes.E_OP_CODE_BOR_DAT -> logger.safeDebug { "BOR @" }
                                 OpCodes.E_OP_CODE_AND_DAT -> logger.safeDebug { "AND @" }
@@ -348,7 +348,7 @@ internal class AtMachineProcessor(
                 if (rc == 0) {
                     rc = 9
                     if (disassemble) {
-                        if (!determineJumps)
+                        if (!disassemble)
                             logger.safeDebug { "SET @ ${String.format("%8s", func.addr1).replace(' ', '0')} ${String.format("$($%8s", func.addr2).replace(' ', '0')}" }
                     } else {
                         val addr = machineData.apData.getLong(func.addr2 * 8)
@@ -399,7 +399,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 5
                     if (disassemble) {
-                        if (!determineJumps) {
+                        if (!disassemble) {
                             if (op == OpCodes.E_OP_CODE_PSH_DAT)
                                 logger.safeDebug { "PSH $" }
                             else
@@ -434,7 +434,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 5
                     if (disassemble) {
-                        if (!determineJumps)
+                        if (!disassemble)
                             logger.safeDebug { "JSR : ${String.format("%8s", func.addr1).replace(' ', '0')}" }
                     } else {
                         when {
@@ -455,7 +455,7 @@ internal class AtMachineProcessor(
                 rc = 1
 
                 if (disassemble) {
-                    if (!determineJumps)
+                    if (!disassemble)
                         logger.safeDebug { "RET\n" }
                 } else {
                     if (machineData.machineState.cs == 0)
@@ -477,7 +477,7 @@ internal class AtMachineProcessor(
                 if (rc == 0) {
                     rc = 9
                     if (disassemble) {
-                        if (!determineJumps)
+                        if (!disassemble)
                             logger.safeDebug { "SET @${String.format("($%8s)", func.addr1).replace(' ', '0')} ${String.format("$%8s", func.addr2).replace(' ', '0')}" }
                     } else {
                         val addr = machineData.apData.getLong(func.addr1 * 8)
@@ -507,7 +507,7 @@ internal class AtMachineProcessor(
                     if (rc == 0 || disassemble) {
                         rc = 13
                         if (disassemble) {
-                            if (!determineJumps)
+                            if (!disassemble)
                                 logger.safeDebug { "SET @${String.format("($%8s+$%8s)", addr1, addr2).replace(' ', '0')} ${String.format("$%8s", func.addr1).replace(' ', '0')}" }
                         } else {
                             val addr = machineData.apData.getLong(addr1 * 8) + machineData.apData.getLong(addr2 * 8)
@@ -529,7 +529,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 9
                     if (disassemble) {
-                        if (!determineJumps)
+                        if (!disassemble)
                             logger.safeDebug { "MOD @${String.format("%8x", func.addr1).replace(' ', '0')} \$${String.format("%8s", func.addr2).replace(' ', '0')}" }
                     } else {
                         val modData1 = machineData.apData.getLong(func.addr1 * 8)
@@ -550,7 +550,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 9
                     if (disassemble) {
-                        if (!determineJumps) {
+                        if (!disassemble) {
                             if (op == OpCodes.E_OP_CODE_SHL_DAT)
                                 logger.safeDebug { "SHL @${String.format("%8x", func.addr1).replace(' ', '0')} \$${String.format("%8x", func.addr2).replace(' ', '0')}" }
                             else
@@ -574,7 +574,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 5
                     if (disassemble) {
-                        if (!determineJumps)
+                        if (!disassemble)
                             logger.safeDebug { "JMP : ${String.format("%8x", func.addr1)}" }
                     } else if (machineData.machineState.jumps.contains(func.addr1))
                         machineData.machineState.pc = func.addr1
@@ -588,7 +588,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 6
                     if (disassemble) {
-                        if (!determineJumps) {
+                        if (!disassemble) {
                             if (op == OpCodes.E_OP_CODE_BZR_DAT)
                                 logger.safeDebug { "BZR $" }
                             else
@@ -616,7 +616,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 10
                     if (disassemble) {
-                        if (!determineJumps) {
+                        if (!disassemble) {
                             when (op) {
                                 OpCodes.E_OP_CODE_BGT_DAT -> logger.safeDebug { "BGT $" }
                                 OpCodes.E_OP_CODE_BLT_DAT -> logger.safeDebug { "BLT $" }
@@ -654,7 +654,7 @@ internal class AtMachineProcessor(
                     rc = 1 + 4
 
                     if (disassemble) {
-                        if (!determineJumps)
+                        if (!disassemble)
                             logger.safeDebug { "SLP @ ${String.format("%8x", func.addr1)}" }
                     } else {
                         machineData.machineState.pc += rc
@@ -675,7 +675,7 @@ internal class AtMachineProcessor(
                 if (rc == 0 || disassemble) {
                     rc = 5
                     if (disassemble) {
-                        if (!determineJumps) {
+                        if (!disassemble) {
                             if (op == OpCodes.E_OP_CODE_FIZ_DAT)
                                 logger.safeDebug { "FIZ @" }
                             else
@@ -705,7 +705,7 @@ internal class AtMachineProcessor(
                 rc = 1
 
                 if (disassemble) {
-                    if (!determineJumps) {
+                    if (!disassemble) {
                         if (op == OpCodes.E_OP_CODE_FIN_IMD)
                             logger.safeDebug { "FIN\n" }
                         else
@@ -725,7 +725,7 @@ internal class AtMachineProcessor(
                 rc = 1
 
                 if (disassemble) {
-                    if (!determineJumps) {
+                    if (!disassemble) {
                         logger.safeDebug { "SLP\n" }
                     }
                 } else {
@@ -738,7 +738,7 @@ internal class AtMachineProcessor(
                 rc = 1
 
                 if (disassemble) {
-                    if (!determineJumps)
+                    if (!disassemble)
                         logger.safeDebug { "PCS" }
                 } else {
                     machineData.machineState.pc += rc
@@ -752,7 +752,7 @@ internal class AtMachineProcessor(
                     rc = 1 + 2
 
                     if (disassemble) {
-                        if (!determineJumps)
+                        if (!disassemble)
                             logger.safeDebug { "FUN ${func.func}" }
                     } else {
                         machineData.machineState.pc += rc
@@ -766,7 +766,7 @@ internal class AtMachineProcessor(
                     rc = 7
 
                     if (disassemble) {
-                        if (!determineJumps)
+                        if (!disassemble)
                             logger.safeDebug { "FUN ${func.func} \$${String.format("%8x", func.addr1).replace(' ', '0')}" }
                     } else {
                         machineData.machineState.pc += rc
@@ -782,7 +782,7 @@ internal class AtMachineProcessor(
                     rc = 11
 
                     if (disassemble) {
-                        if (!determineJumps)
+                        if (!disassemble)
                             logger.safeDebug { "FUN ${func.func} \$${String.format("%8x", func.addr3).replace(' ', '0')} \$${String.format("%8x", func.addr2).replace(' ', '0')}" }
                     } else {
                         machineData.machineState.pc += rc
@@ -800,7 +800,7 @@ internal class AtMachineProcessor(
                     rc = 7
 
                     if (disassemble) {
-                        if (!determineJumps)
+                        if (!disassemble)
                             logger.safeDebug { "FUN @${String.format("%8x", func.addr1).replace(' ', '0')} ${func.func}" }
                     } else {
                         machineData.machineState.pc += rc
@@ -824,7 +824,7 @@ internal class AtMachineProcessor(
                     rc = 1 + size + if (op == OpCodes.E_OP_CODE_EXT_FUN_RET_DAT_2) 4 else 0
 
                     if (disassemble) {
-                        if (!determineJumps) {
+                        if (!disassemble) {
                             logger.safeDebug { "FUN @${String.format("%8x", func.addr3).replace(' ', '0')} ${func.func} \$${String.format("%8x", func.addr2).replace(' ', '0')}" }
                             if (op == OpCodes.E_OP_CODE_EXT_FUN_RET_DAT_2)
                                 logger.safeDebug { "\$${String.format("%8x", func.addr1).replace(' ', '0')}"  }
@@ -850,7 +850,7 @@ internal class AtMachineProcessor(
                 rc = 5
 
                 if (disassemble) {
-                    if (!determineJumps)
+                    if (!disassemble)
                         logger.safeDebug { "ERR :${String.format("%8x", func.addr1)}" }
                 } else {
                     if (func.addr1 == -1 || machineData.machineState.jumps.contains(func.addr1)) {
@@ -863,10 +863,10 @@ internal class AtMachineProcessor(
             !disassemble -> rc = -2
         }
 
-        if (rc == -1 && disassemble && !determineJumps)
+        if (rc == -1 && disassemble && !disassemble)
             logger.safeDebug { "\n(overflow)" }
 
-        if (rc == -2 && disassemble && !determineJumps)
+        if (rc == -2 && disassemble && !disassemble)
             logger.safeDebug { "\n(invalid op)" }
 
         return rc
