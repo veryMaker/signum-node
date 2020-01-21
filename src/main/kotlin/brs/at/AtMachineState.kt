@@ -296,12 +296,14 @@ open class AtMachineState {
         var stopped: Boolean = false
         var finished: Boolean = false
         var dead: Boolean = false
-        internal var pc: Int = 0
-        internal var pcs: Int = 0
+        internal var programCounter: Int = 0
+        /** Program Counter Next Starting Point */
+        internal var pcNextStartPoint: Int = 0
         internal var opc: Int = 0
-        internal var cs: Int = 0
-        internal var us: Int = 0
-        internal var err: Int = 0
+        internal var callStackCounter: Int = 0
+        internal var userStackCounter: Int = 0
+        /** Program Counter Error Handler Point */
+        internal var pcErrorHandlerPoint: Int = 0
         internal var steps: Int = 0
         internal val a1 = ByteArray(8)
         internal val a2 = ByteArray(8)
@@ -326,11 +328,11 @@ open class AtMachineState {
 
             bytes.put(flags)
 
-            bytes.putInt(machineState.pc)
-            bytes.putInt(machineState.pcs)
-            bytes.putInt(machineState.cs)
-            bytes.putInt(machineState.us)
-            bytes.putInt(machineState.err)
+            bytes.putInt(machineState.programCounter)
+            bytes.putInt(machineState.pcNextStartPoint)
+            bytes.putInt(machineState.callStackCounter)
+            bytes.putInt(machineState.userStackCounter)
+            bytes.putInt(machineState.pcErrorHandlerPoint)
 
             bytes.put(a1)
             bytes.put(a2)
@@ -345,16 +347,16 @@ open class AtMachineState {
         }
 
         init {
-            pcs = 0
+            pcNextStartPoint = 0
             reset()
         }
 
         internal fun reset() {
-            pc = pcs
+            programCounter = pcNextStartPoint
             opc = 0
-            cs = 0
-            us = 0
-            err = -1
+            callStackCounter = 0
+            userStackCounter = 0
+            pcErrorHandlerPoint = -1
             steps = 0
             if (jumps.isNotEmpty())
                 jumps.clear()
@@ -373,11 +375,11 @@ open class AtMachineState {
             finished = flags[0].toInt().ushr(2) and 1 == 1
             dead = flags[0].toInt().ushr(3) and 1 == 1
 
-            pc = machineState.int
-            pcs = machineState.int
-            cs = machineState.int
-            us = machineState.int
-            err = machineState.int
+            programCounter = machineState.int
+            pcNextStartPoint = machineState.int
+            callStackCounter = machineState.int
+            userStackCounter = machineState.int
+            pcErrorHandlerPoint = machineState.int
             machineState.get(a1)
             machineState.get(a2)
             machineState.get(a3)

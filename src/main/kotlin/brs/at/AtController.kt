@@ -31,7 +31,7 @@ class AtController(private val dp: DependencyProvider) {
 
         val stepFee = dp.atConstants[state.creationBlockHeight].stepFee
 
-        var numSteps = getNumSteps(state.apCode.get(state.machineState.pc), state.creationBlockHeight)
+        var numSteps = getNumSteps(state.apCode.get(state.machineState.programCounter), state.creationBlockHeight)
 
         while (state.machineState.steps + numSteps <= dp.atConstants[state.height].maxSteps) {
             if (state.getgBalance() < stepFee * numSteps) {
@@ -61,15 +61,15 @@ class AtController(private val dp: DependencyProvider) {
                     else -> debugLogger.safeTrace { "unexpected error" }
                 }
 
-                if (state.machineState.jumps.contains(state.machineState.err)) {
-                    state.machineState.pc = state.machineState.err
+                if (state.machineState.jumps.contains(state.machineState.pcErrorHandlerPoint)) {
+                    state.machineState.programCounter = state.machineState.pcErrorHandlerPoint
                 } else {
                     state.machineState.dead = true
                     state.machineState.running = false
                     return 0
                 }
             }
-            numSteps = getNumSteps(state.apCode.get(state.machineState.pc), state.creationBlockHeight)
+            numSteps = getNumSteps(state.apCode.get(state.machineState.programCounter), state.creationBlockHeight)
         }
 
         return 5
@@ -87,24 +87,24 @@ class AtController(private val dp: DependencyProvider) {
     private fun listCode(state: AtMachineState) {
         val machineProcessor = AtMachineProcessor(dp, state)
 
-        val opc = state.machineState.pc
+        val opc = state.machineState.programCounter
         val osteps = state.machineState.steps
 
         state.apCode.order(ByteOrder.LITTLE_ENDIAN)
         state.apData.order(ByteOrder.LITTLE_ENDIAN)
 
-        state.machineState.pc = 0
+        state.machineState.programCounter = 0
         state.machineState.opc = opc
 
         while (true) {
             val rc = machineProcessor.simulateOp()
             if (rc <= 0) break
 
-            state.machineState.pc += rc
+            state.machineState.programCounter += rc
         }
 
         state.machineState.steps = osteps
-        state.machineState.pc = opc
+        state.machineState.programCounter = opc
     }
 
     /**

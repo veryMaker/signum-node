@@ -108,7 +108,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         if (blockHeight - txBlockHeight < dp.atConstants[blockHeight].blocksForRandom) { //for tests - for real case 1440
             state.waitForNumberOfBlocks =
                 dp.atConstants[blockHeight].blocksForRandom.toInt() - (blockHeight - txBlockHeight)
-            state.machineState.pc -= 7
+            state.machineState.programCounter -= 7
             state.machineState.stopped = true
             return 0
         }
