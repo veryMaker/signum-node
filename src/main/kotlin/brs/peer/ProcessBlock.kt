@@ -1,24 +1,21 @@
 package brs.peer
 
-import brs.services.BlockchainProcessorService
-import brs.services.BlockchainService
+import brs.entity.Block
+import brs.entity.DependencyProvider
 import brs.util.BurstException
 import brs.util.json.getMemberAsString
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
-class ProcessBlock(
-    private val blockchainService: BlockchainService,
-    private val blockchainProcessorService: BlockchainProcessorService
-) : PeerServlet.PeerRequestHandler {
+class ProcessBlock(private val dp: DependencyProvider) : PeerServlet.PeerRequestHandler {
     override fun processRequest(request: JsonObject, peer: Peer): JsonElement {
         try {
-            if (blockchainService.lastBlock.stringId != request.getMemberAsString("previousBlock")) {
+            if (dp.blockchainService.lastBlock.stringId != request.getMemberAsString("previousBlock")) {
                 // do this check first to avoid validation failures of future blocks and transactions
                 // when loading blockchain from scratch
                 return NOT_ACCEPTED
             }
-            blockchainProcessorService.processPeerBlock(request, peer)
+            dp.blockchainProcessorService.processPeerBlock(Block.parseBlock(dp, request, dp.blockchainService.height), peer)
             return ACCEPTED
         } catch (e: BurstException) {
             peer.blacklist(e, "received invalid data via requestType=processBlock")

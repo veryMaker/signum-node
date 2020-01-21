@@ -1,10 +1,11 @@
 package brs.services
 
+import brs.api.grpc.proto.PeerApi
 import brs.entity.Block
 import brs.entity.Transaction
 import brs.peer.Peer
+import brs.peer.PeerAddress
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 
 interface PeerService {
     /**
@@ -13,12 +14,12 @@ interface PeerService {
     val getMorePeers: Boolean
 
     /**
-     * TODO
+     * All peers, regardless of state
      */
     val allPeers: Collection<Peer>
 
     /**
-     * TODO
+     * All peers that are not in state [brs.peer.Peer.State.NON_CONNECTED]
      */
     val activePeers: List<Peer>
 
@@ -48,9 +49,16 @@ interface PeerService {
     fun getPeer(peerAddress: String): Peer?
 
     /**
-     * TODO
+     * Get or add a peer based on its [remoteAddress]. If it is added, it will not have completed handshake.
+     * Intended exclusively for use by peer API servers in order to identify clients.
+     * [announcedAddress] should start with a protocol identifier (http:// or grpc://)
      */
-    fun addPeer(announcedAddress: String?): Peer?
+    fun getOrAddPeer(remoteAddress: String): Peer
+
+    /**
+     * Gets a known peer or adds a new peer with the address [address]
+     */
+    fun getOrAddPeer(address: PeerAddress): Peer
 
     /**
      * TODO
@@ -60,16 +68,7 @@ interface PeerService {
     /**
      * TODO
      */
-    fun readUnconfirmedTransactions(peer: Peer): JsonObject?
-
-    /**
-     * TODO
-     */
-    fun feedingTime(
-        peer: Peer,
-        foodDispenser: (Peer) -> Collection<Transaction>,
-        doneFeedingLog: (Peer, Collection<Transaction>) -> Unit
-    )
+    fun feedingTime(peer: Peer, foodDispenser: (Peer) -> Collection<Transaction>, doneFeedingLog: (Peer, Collection<Transaction>) -> Unit)
 
     /**
      * TODO
@@ -80,16 +79,6 @@ interface PeerService {
      * TODO
      */
     fun notifyListeners(peer: Peer, eventType: Event)
-
-    /**
-     * TODO
-     */
-    val myPeerInfoResponse: JsonElement
-
-    /**
-     * TODO
-     */
-    val communicationLoggingMask: Int
 
     /**
      * TODO
@@ -114,37 +103,32 @@ interface PeerService {
     /**
      * TODO
      */
-    fun addPeer(address: String, announcedAddress: String?): Peer?
-
-    /**
-     * TODO
-     */
     val blacklistingPeriod: Int
 
     /**
      * TODO
      */
-    val knownBlacklistedPeers: Set<String>
+    val knownBlacklistedPeers: Set<PeerAddress>
 
     /**
      * TODO
      */
-    fun normalizeHostAndPort(address: String?): String?
+    val myJsonPeerInfoRequest: JsonElement
 
     /**
      * TODO
      */
-    val myPeerInfoRequest: JsonElement
+    val myProtoPeerInfo: PeerApi.PeerInfo
 
     /**
      * TODO
      */
-    val rebroadcastPeers: Set<String>
+    val rebroadcastPeers: Set<PeerAddress>
 
     /**
      * TODO
      */
-    val wellKnownPeers: Set<String>
+    val wellKnownPeers: Set<PeerAddress>
 
     /**
      * TODO
@@ -159,4 +143,9 @@ interface PeerService {
         CHANGED_ACTIVE_PEER,
         NEW_PEER
     }
+
+    val myPlatform: String
+    val myAddress: String
+    val announcedAddress: PeerAddress?
+    val shareMyAddress: Boolean
 }

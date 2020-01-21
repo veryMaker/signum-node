@@ -14,7 +14,6 @@ import brs.util.crypto.Crypto
 import brs.util.crypto.verifySignature
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
-import brs.util.logging.safeWarn
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 
@@ -71,7 +70,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             }
 
             if (warnIfNotVerified) {
-                logger.safeWarn{ "Block at height ${block.height} was not pre-verified! Pre-verification threads are probably not keeping up..." }
+                logger.safeDebug { "Block at height ${block.height} was not pre-verified! Pre-verification threads are probably not keeping up..." }
             }
 
             val pocTime = try {

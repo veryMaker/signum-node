@@ -16,8 +16,6 @@ object Props {
     val DEV_DB_USERNAME = Prop("DEV.DB.Username", "")
     val DEV_DB_PASSWORD = Prop("DEV.DB.Password", "")
 
-    val DEV_DUMP_PEERS_VERSION = Prop("DEV.dumpPeersVersion", "")
-
     val DEV_P2P_REBROADCAST_TO = Prop("DEV.P2P.rebroadcastTo", emptyList<String>())
     val DEV_P2P_BOOTSTRAP_PEERS = Prop("DEV.P2P.BootstrapPeers", emptyList<String>())
 
@@ -31,8 +29,6 @@ object Props {
     val DEV_POC2_BLOCK_HEIGHT = Prop("DEV.poc2.startBlock", -1)
     val DEV_NEXT_FORK_BLOCK_HEIGHT = Prop("DEV.nextFork.startBlock", -1)
 
-    val BRS_COMMUNICATION_LOGGING_MASK = Prop("brs.communicationLoggingMask", 0)
-
     // GPU options
     val GPU_ACCELERATION = Prop("GPU.Acceleration", false)
     val GPU_AUTODETECT = Prop("GPU.AutoDetect", true)
@@ -43,7 +39,7 @@ object Props {
     val GPU_MEM_PERCENT = Prop("GPU.MemPercent", 50)
 
     // DB options
-    val DB_URL = Prop("DB.Url", "jdbc:mariadb://localhost:3306/burstwallet")
+    val DB_URL = Prop("DB.Url", "jdbc:h2:file:./burst;DB_CLOSE_ON_EXIT=FALSE")
     val DB_USERNAME = Prop("DB.Username", "")
     val DB_PASSWORD = Prop("DB.Password", "")
     val DB_CONNECTIONS = Prop("DB.Connections", 30)
@@ -104,6 +100,10 @@ object Props {
     val API_V2_LISTEN = Prop("API.V2.Listen", "0.0.0.0")
     val API_V2_PORT = Prop("API.V2.Port", 8121)
 
+    val P2P_V2_LISTEN = Prop("P2P.V2.Listen", "0.0.0.0")
+    val P2P_V2_PORT = Prop("P2P.V2.Port", 8120)
+    val DEV_P2P_V2_PORT = Prop("DEV.P2P.V2.Port", 7120)
+
     val API_UI_DIR = Prop("API.UI_Dir", "html/ui")
     val API_SSL_KEY_STORE_PATH = Prop("API.SSL_keyStorePath", "keystore")
     val API_SSL_KEY_STORE_PASSWORD = Prop("API.SSL_keyStorePassword", "password")
@@ -148,8 +148,6 @@ object Props {
     val JETTY_P2P_DOS_FILTER_REMOTE_PORT = Prop("JETTY.P2P.DoSFilter.remotePort", "false")
     val JETTY_P2P_DOS_FILTER_IP_WHITELIST = Prop("JETTY.P2P.DoSFilter.ipWhitelist", "")
     val JETTY_P2P_DOS_FILTER_MANAGED_ATTR = Prop("JETTY.P2P.DoSFilter.managedAttr", "true")
-
-    val INDIRECT_INCOMING_SERVICE_ENABLE = Prop("IndirectIncomingService.Enable", true)
 
     val AUTO_POP_OFF_ENABLED = Prop("AutoPopOff.Enable", true)
 

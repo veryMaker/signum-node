@@ -1,7 +1,7 @@
 package brs.api.grpc
 
 import brs.api.grpc.proto.BrsApiServiceGrpc
-import brs.api.grpc.service.BrsService
+import brs.api.grpc.api.ApiService
 import brs.common.QuickMocker
 import brs.entity.Block
 import brs.entity.DependencyProvider
@@ -62,12 +62,12 @@ abstract class AbstractGrpcTest {
         dp.fluxCapacitorService = FluxCapacitorServiceImpl(dp)
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 
-        setUpBrsService(BrsService(dp))
+        setUpBrsService(ApiService(dp))
     }
 
-    private fun setUpBrsService(brsService: BrsService) {
+    private fun setUpBrsService(apiService: ApiService) {
         val serverName = InProcessServerBuilder.generateName()
-        grpcCleanup.register(InProcessServerBuilder.forName(serverName).directExecutor().addService(brsService).build().start())
+        grpcCleanup.register(InProcessServerBuilder.forName(serverName).directExecutor().addService(apiService).build().start())
 
         this.brsService = BrsApiServiceGrpc.newBlockingStub(grpcCleanup.register(InProcessChannelBuilder.forName(serverName).directExecutor().build()))
     }

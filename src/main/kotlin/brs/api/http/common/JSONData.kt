@@ -298,7 +298,7 @@ object JSONData {
     internal fun peer(peer: Peer): JsonObject {
         val json = JsonObject()
         json.addProperty("state", peer.state.ordinal)
-        json.addProperty("announcedAddress", peer.announcedAddress)
+        json.addProperty("announcedAddress", peer.address.toString())
         json.addProperty("shareAddress", peer.shareAddress)
         json.addProperty("downloadedVolume", peer.downloadedVolume)
         json.addProperty("uploadedVolume", peer.uploadedVolume)

@@ -1,6 +1,5 @@
 package brs.api.grpc
 
-import brs.api.grpc.service.ProtoBuilder
 import com.google.protobuf.Message
 import io.grpc.stub.StreamObserver
 
@@ -18,4 +17,6 @@ interface GrpcApiHandler<R : Message, S : Message> {
             responseObserver.onError(ProtoBuilder.buildError(e))
         }
     }
+
+    class HandlerNotFoundException(message: String) : Exception(message)
 }

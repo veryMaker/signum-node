@@ -1,5 +1,6 @@
 package brs.entity
 
+import brs.api.grpc.proto.PeerApi
 import brs.db.TransactionDb
 import brs.objects.Constants
 import brs.objects.FluxValues
@@ -232,7 +233,7 @@ class Block internal constructor(
     companion object {
         private val logger = LoggerFactory.getLogger(Block::class.java)
 
-        internal fun parseBlock(dp: DependencyProvider, blockData: JsonObject, height: Int): Block {
+        fun parseBlock(dp: DependencyProvider, blockData: JsonObject, height: Int): Block {
             try {
                 val version = blockData.mustGetMemberAsInt("version")
                 val timestamp = blockData.mustGetMemberAsInt("timestamp")
@@ -273,6 +274,50 @@ class Block internal constructor(
                 logger.safeDebug { "Failed to parse block: ${blockData.toJsonString()}" }
                 throw e
             }
+        }
+
+        fun parseBlock(dp: DependencyProvider, height: Int, blockBytes: ByteArray, transactionBytes: Iterable<ByteArray>): Block {
+            val transactions = transactionBytes.map { Transaction.parseTransaction(dp, it) }
+            val buffer = ByteBuffer.wrap(blockBytes)
+            buffer.order(ByteOrder.LITTLE_ENDIAN)
+            val version = buffer.int
+            val timestamp = buffer.int
+            val previousBlockId = buffer.long
+            val transactionsSize = buffer.int
+            check(transactions.size == transactionsSize)
+            val totalAmountPlanck: Long
+            val totalFeePlanck: Long
+            if (version < 3) {
+                totalAmountPlanck = buffer.int * Constants.ONE_BURST
+                totalFeePlanck = buffer.int * Constants.ONE_BURST
+            } else {
+                totalAmountPlanck = buffer.long
+                totalFeePlanck = buffer.long
+            }
+            val payloadLength = buffer.int
+            val payloadHash = ByteArray(32)
+            buffer.get(payloadHash)
+            val generatorPublicKey = ByteArray(32)
+            buffer.get(generatorPublicKey)
+            val generationSignature = ByteArray(32)
+            buffer.get(generationSignature)
+            val previousBlockHash = ByteArray(32)
+            if (version > 1) {
+                buffer.get(previousBlockHash)
+            }
+            val nonce = buffer.long
+            // Block ATs size is remaining size minus the size of the signature, which goes at the end
+            val blockATsSize = buffer.remaining() - 64
+            val blockATs: ByteArray?
+            if (blockATsSize > 0) {
+                blockATs = ByteArray(blockATsSize)
+                buffer.get(blockATs)
+            } else {
+                blockATs = null
+            }
+            val signature = ByteArray(32)
+            buffer.get(signature)
+            return Block(dp, version, timestamp, previousBlockId, totalAmountPlanck, totalFeePlanck, payloadLength, payloadHash, generatorPublicKey, generationSignature, signature, previousBlockHash, transactions, nonce, blockATs, height)
         }
     }
 }

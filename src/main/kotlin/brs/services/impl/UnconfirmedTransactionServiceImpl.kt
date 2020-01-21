@@ -76,7 +76,7 @@ class UnconfirmedTransactionServiceImpl(private val dp: DependencyProvider) :
         internalStoreLock.withLock {
             if (transactionIsCurrentlyInCache(transaction)) {
                 if (peer != null) {
-                    logger.safeInfo { "Transaction ${transaction.id}: Added fingerprint of ${peer.peerAddress}" }
+                    logger.safeInfo { "Transaction ${transaction.id}: Added fingerprint of ${peer.remoteAddress}" }
                     fingerPrintsOverview[transaction]!!.add(peer)
                 }
             } else if (transactionCanBeAddedToCache(transaction)) {
@@ -288,7 +288,7 @@ class UnconfirmedTransactionServiceImpl(private val dp: DependencyProvider) :
         if (peer == null) {
             logger.safeDebug { "Adding Transaction ${transaction.id} from ourself" }
         } else {
-            logger.safeDebug { "Adding Transaction ${transaction.id} from Peer ${peer.peerAddress}" }
+            logger.safeDebug { "Adding Transaction ${transaction.id} from Peer ${peer.remoteAddress}" }
         }
 
         if (transaction.referencedTransactionFullHash != null) {

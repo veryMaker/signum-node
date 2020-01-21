@@ -39,7 +39,7 @@ internal class DGSListing internal constructor(private val dp: DependencyProvide
         if (name == null) {
             return MISSING_NAME
         }
-        name = name.trim { it <= ' ' }
+        name = name.trim()
         if (name.length > Constants.MAX_DGS_LISTING_NAME_LENGTH) {
             return INCORRECT_DGS_LISTING_NAME
         }

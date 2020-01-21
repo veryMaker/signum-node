@@ -52,7 +52,7 @@ internal class CreateATProgram(private val dp: DependencyProvider) : CreateTrans
         var name = request[NAME_PARAMETER] ?: return MISSING_NAME
         val description: String? = request[DESCRIPTION_PARAMETER]
 
-        name = name.trim { it <= ' ' }
+        name = name.trim()
         if (name.length > Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH) {
             return INCORRECT_AUTOMATED_TRANSACTION_NAME_LENGTH
         }

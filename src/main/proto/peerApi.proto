@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+option java_package = "brs.api.grpc.proto";
+
+package brs.peer;
+
+service BrsPeerService {
+    rpc ExchangeInfo (PeerInfo) returns (PeerInfo);
+
+    rpc AddPeers (Peers) returns (google.protobuf.Empty);
+    rpc GetPeers (google.protobuf.Empty) returns (Peers);
+
+    rpc GetCumulativeDifficulty (google.protobuf.Empty) returns (CumulativeDifficulty);
+    rpc GetMilestoneBlockIds (GetMilestoneBlockIdsRequest) returns (MilestoneBlockIds);
+
+    rpc AddBlock (ProcessBlockRequest) returns (google.protobuf.Empty);
+    rpc GetNextBlocks (GetBlocksAfterRequest) returns (RawBlocks);
+    rpc GetNextBlockIds (GetBlocksAfterRequest) returns (BlockIds);
+
+    rpc GetUnconfirmedTransactions (google.protobuf.Empty) returns (RawTransactions);
+    rpc AddUnconfirmedTransactions (RawTransactions) returns (google.protobuf.Empty);
+}
+
+message Peers {
+    repeated string addresses = 1;
+}
+
+message CumulativeDifficulty {
+    // Big endian byte order
+    bytes cumulativeDifficulty = 1;
+    uint32 blockchainHeight = 2;
+}
+
+message PeerInfo {
+    string announcedAddress = 1;
+    string application = 2;
+    string version = 3;
+    string platform = 4;
+    bool shareAddress = 5;
+}
+
+message GetMilestoneBlockIdsRequest {
+    uint64 lastBlockId = 1;
+    uint64 lastMilestoneBlockId = 2;
+}
+
+message MilestoneBlockIds {
+    repeated uint64 milestoneBlockIds = 1;
+    bool last = 2;
+}
+
+message GetBlocksAfterRequest {
+    uint64 blockId = 1;
+}
+
+message RawTransactions {
+    repeated RawTransaction transactions = 1;
+}
+
+message RawTransaction {
+    bytes transactionData = 1;
+}
+
+message RawBlocks {
+    repeated RawBlock blocks = 1;
+}
+
+message RawBlock {
+    uint32 height = 1;
+    bytes blockData = 2;
+    repeated RawTransaction transactionsData = 3;
+}
+
+message BlockIds {
+    repeated uint64 blockIds = 1;
+}
+
+message ProcessBlockRequest {
+    uint64 previousBlockId = 1;
+    RawBlock block = 2;
+}

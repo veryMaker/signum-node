@@ -26,7 +26,7 @@ internal class GetPeers(private val dp: DependencyProvider) :
                 stateValue
             )
         ) else dp.peerService.allPeers) {
-            peers.add(peer.peerAddress)
+            peers.add(peer.remoteAddress)
         }
 
         val response = JsonObject()

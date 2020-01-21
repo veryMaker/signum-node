@@ -20,18 +20,14 @@ import brs.services.*
 import brs.util.BurstException
 import brs.util.Listeners
 import brs.util.TransactionDuplicateChecker
-import brs.util.convert.parseUnsignedLong
 import brs.util.convert.safeSubtract
 import brs.util.convert.toUnsignedString
 import brs.util.crypto.Crypto
 import brs.util.delegates.Atomic
-import brs.util.json.*
+import brs.util.json.toJsonString
 import brs.util.logging.*
 import brs.util.sync.Mutex
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
-import java.math.BigInteger
 import java.util.*
 import kotlin.collections.List
 import kotlin.collections.Map
@@ -73,12 +69,6 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
     private var peerHasMore = false
 
-    private val getCumulativeDifficultyRequest by lazy {
-        val request = JsonObject()
-        request.addProperty("requestType", "getCumulativeDifficulty")
-        JSON.prepareRequest(request)
-    }
-
     private val getMoreBlocksTask: RepeatingTask = {
         run {
             if (dp.propertyService.get(Props.DEV_OFFLINE)) return@run false
@@ -100,24 +90,13 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     logger.safeDebug { "No peer connected." }
                     return@run false
                 }
-                val response = peer.send(getCumulativeDifficultyRequest) ?: return@run true
-                if (response["blockchainHeight"] != null) {
-                    lastBlockchainFeeder = peer
-                    lastBlockchainFeederHeight = response.mustGetMemberAsInt("blockchainHeight")
-                } else {
-                    logger.safeDebug { "Peer has no chainheight" }
-                    return@run true
-                }
+                val response = peer.getCumulativeDifficulty() ?: return@run true
+                lastBlockchainFeeder = peer
+                lastBlockchainFeederHeight = response.second
 
                 /* Cache now contains Cumulative Difficulty */
                 val curCumulativeDifficulty = dp.downloadCacheService.cumulativeDifficulty
-                val peerCumulativeDifficulty =
-                    response.mustGetMemberAsString("cumulativeDifficulty")
-                if (peerCumulativeDifficulty.isEmpty()) {
-                    logger.safeDebug { "Peer CumulativeDifficulty is null" }
-                    return@run true
-                }
-                val betterCumulativeDifficulty = BigInteger(peerCumulativeDifficulty)
+                val betterCumulativeDifficulty = response.first
                 if (betterCumulativeDifficulty <= curCumulativeDifficulty) {
                     return@run true
                 }
@@ -161,11 +140,13 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     }
                 }
 
-                val nextBlocks = getNextBlocks(peer, commonBlockId)
-                if (nextBlocks == null || nextBlocks.size() == 0) {
+                logger.safeDebug { "Getting next Blocks after ${commonBlockId.toUnsignedString()} from ${peer.remoteAddress}" }
+                val nextBlocks = peer.getNextBlocks(commonBlockId)
+                if (nextBlocks.isNullOrEmpty()) {
                     logger.safeDebug { "Peer did not feed us any blocks" }
                     return@run true
                 }
+                logger.safeDebug { "Got ${nextBlocks.size} blocks after ${commonBlockId.toUnsignedString()}" }
 
                 // download blocks from peer
                 var lastBlock = dp.downloadCacheService.getBlock(commonBlockId)
@@ -175,24 +156,19 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 }
 
                 // loop blocks and make sure they fit in chain
-                var block: Block
-                var blockData: JsonObject
-
-                for (o in nextBlocks) {
+                for (block in nextBlocks) {
                     val height = lastBlock!!.height + 1
-                    blockData = o.mustGetAsJsonObject("nextBlock")
                     try {
-                        block = Block.parseBlock(dp, blockData, height)
                         // Make sure it maps back to chain
                         if (lastBlock.id != block.previousBlockId) {
-                            logger.safeDebug { "Discarding downloaded data. Last downloaded blocks is rubbish" }
+                            logger.safeDebug { "Discarding downloaded data due to block order mismatch" }
                             logger.safeDebug { "DB blockID: ${lastBlock?.id} DB blockheight: ${lastBlock?.height} Downloaded previd: ${block.previousBlockId}" }
                             return@run true
                         }
                         // set height and cumulative difficulty to block
                         block.height = height
                         block.peer = peer
-                        block.byteLength = blockData.toJsonString().length
+                        block.byteLength = block.toBytes().size
                         dp.blockService.calculateBaseTarget(block, lastBlock)
                         if (saveInCache) {
                             if (dp.downloadCacheService.getLastBlockId() == block.previousBlockId) { //still maps back? we might have got announced/forged blocks
@@ -397,51 +373,34 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     private fun getCommonMilestoneBlockId(peer: Peer): Long {
         var lastMilestoneBlockId: Long? = null
         while (true) {
-            val milestoneBlockIdsRequest = JsonObject()
-            milestoneBlockIdsRequest.addProperty("requestType", "getMilestoneBlockIds")
-            if (lastMilestoneBlockId == null) {
-                milestoneBlockIdsRequest.addProperty(
-                    "lastBlockId",
-                    dp.downloadCacheService.getLastBlockId().toUnsignedString()
-                )
+            val response = if (lastMilestoneBlockId == null) {
+                peer.getMilestoneBlockIds()
             } else {
-                milestoneBlockIdsRequest.addProperty("lastMilestoneBlockId", lastMilestoneBlockId)
+                peer.getMilestoneBlockIds(lastMilestoneBlockId)
             }
 
-            val response = peer.send(JSON.prepareRequest(milestoneBlockIdsRequest))
-            if (response == null) {
-                logger.safeDebug { "Got null response in getCommonMilestoneBlockId" }
-                return 0
-            }
-            val milestoneBlockIds = response.getMemberAsJsonArray("milestoneBlockIds")
-            if (milestoneBlockIds == null || milestoneBlockIds.isEmpty()) {
-                logger.safeDebug { "MilestoneArray is empty" }
-                return 0
-            }
-            if (milestoneBlockIds.isEmpty()) {
-                return Genesis.BLOCK_ID
-            }
+            val milestoneBlockIds = response?.first
+            if (milestoneBlockIds.isNullOrEmpty()) return 0
+
             // prevent overloading with blockIds
-            if (milestoneBlockIds.size() > 20) {
+            if (milestoneBlockIds.size > 20) {
                 peer.blacklist("obsolete or rogue peer sends too many milestoneBlockIds")
                 return 0
             }
-            if (response.getMemberAsBoolean("last") == true) {
+
+            if (response.second) {
                 peerHasMore = false
             }
 
-            for (milestoneBlockId in milestoneBlockIds) {
-                val blockId = milestoneBlockId.safeGetAsString().parseUnsignedLong()
-                check(blockId != 0L)
-
-                if (dp.downloadCacheService.hasBlock(blockId)) {
-                    if (lastMilestoneBlockId == null && milestoneBlockIds.size() > 1) {
+            milestoneBlockIds.forEach { milestoneBlockId ->
+                if (dp.downloadCacheService.hasBlock(milestoneBlockId)) {
+                    if (lastMilestoneBlockId == null && milestoneBlockIds.size > 1) {
                         peerHasMore = false
                         logger.safeDebug { "Peer doesn't have more (cache)" }
                     }
-                    return blockId
+                    return milestoneBlockId
                 }
-                lastMilestoneBlockId = blockId
+                lastMilestoneBlockId = milestoneBlockId
             }
         }
     }
@@ -449,39 +408,15 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     private fun getCommonBlockId(peer: Peer, commonBlockId: Long): Long {
         var currentCommonBlockId = commonBlockId
         while (true) {
-            val request = JsonObject()
-            request.addProperty("requestType", "getNextBlockIds")
-            request.addProperty("blockId", currentCommonBlockId.toUnsignedString())
-            val response = peer.send(JSON.prepareRequest(request)) ?: return 0
-            val nextBlockIds = response.mustGetMemberAsJsonArray("nextBlockIds")
-            if (nextBlockIds.isEmpty()) return 0
-            nextBlockIds.truncate(1440)
+            val nextBlockIds = peer.getNextBlockIds(commonBlockId)
+            if (nextBlockIds.isNullOrEmpty()) return 0
             for (nextBlockId in nextBlockIds) {
-                val blockId = nextBlockId.safeGetAsString().parseUnsignedLong()
-                if (!dp.downloadCacheService.hasBlock(blockId)) {
+                if (!dp.downloadCacheService.hasBlock(nextBlockId)) {
                     return currentCommonBlockId
                 }
-                currentCommonBlockId = blockId
+                currentCommonBlockId = nextBlockId
             }
         }
-    }
-
-    private fun getNextBlocks(peer: Peer?, curBlockId: Long): JsonArray? {
-        val request = JsonObject()
-        request.addProperty("requestType", "getNextBlocks")
-        request.addProperty("blockId", curBlockId.toUnsignedString())
-        logger.safeDebug { "Getting next Blocks after ${curBlockId.toUnsignedString()} from ${peer!!.peerAddress}" }
-        val response = peer!!.send(JSON.prepareRequest(request)) ?: return null
-
-        val nextBlocks = response.getMemberAsJsonArray("nextBlocks")
-        if (nextBlocks == null || nextBlocks.isEmpty()) return null
-        // prevent overloading with blocks
-        if (nextBlocks.size() > 1440) {
-            peer.blacklist("obsolete or rogue peer sends too many nextBlocks")
-            return null
-        }
-        logger.safeDebug { "Got ${nextBlocks.size()} blocks after ${curBlockId.toUnsignedString()} from ${peer.peerAddress}" }
-        return nextBlocks
     }
 
     private fun processFork(peer: Peer, forkBlocks: List<Block>, forkBlockId: Long) {
@@ -522,7 +457,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                  * difficulty If it is lower we blacklist peer and set chain to be processed later.
                  */
                 if (pushedForkBlocks > 0 && dp.blockchainService.lastBlock.cumulativeDifficulty < curCumulativeDifficulty) {
-                    logger.safeWarn { "Fork was bad and pop off was caused by peer ${peer.peerAddress}, blacklisting" }
+                    logger.safeWarn { "Fork was bad and pop off was caused by peer ${peer.remoteAddress}, blacklisting" }
                     peer.blacklist("got a bad fork")
                     val peerPoppedOffBlocks = popOffTo(forkBlock)
                     pushedForkBlocks = 0
@@ -587,18 +522,17 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         return blockListeners.addListener(eventType, listener)
     }
 
-    override fun processPeerBlock(request: JsonObject, peer: Peer) {
-        val newBlock = Block.parseBlock(dp, request, dp.blockchainService.height)
+    override fun processPeerBlock(newBlock: Block, peer: Peer) {
         //* This process takes care of the blocks that is announced by peers We do not want to be fed forks.
         val chainblock = dp.downloadCacheService.lastBlock
         if (chainblock.id == newBlock.previousBlockId) {
             newBlock.height = chainblock.height + 1
-            newBlock.byteLength = newBlock.toString().length
+            newBlock.byteLength = newBlock.toBytes().size
             dp.blockService.calculateBaseTarget(newBlock, chainblock)
             dp.downloadCacheService.addBlock(newBlock)
-            logger.safeDebug { "Peer ${peer.peerAddress} added block from Announce: Id: ${newBlock.id} Height: ${newBlock.height}" }
+            logger.safeDebug { "Peer ${peer.remoteAddress} added block from Announce: Id: ${newBlock.id} Height: ${newBlock.height}" }
         } else {
-            logger.safeDebug { "Peer ${peer.peerAddress} sent us block: ${newBlock.previousBlockId} which is not the follow-up block for ${chainblock.id}" }
+            logger.safeDebug { "Peer ${peer.remoteAddress} sent us block: ${newBlock.previousBlockId} which is not the follow-up block for ${chainblock.id}" }
         }
     }
 

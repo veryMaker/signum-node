@@ -4,7 +4,6 @@ import brs.entity.Transaction
 import brs.peer.Peer
 import brs.transaction.appendix.Attachment
 import brs.util.Observable
-import com.google.gson.JsonObject
 
 interface TransactionProcessorService : Observable<Collection<Transaction>, TransactionProcessorService.Event> {
     /**
@@ -34,7 +33,7 @@ interface TransactionProcessorService : Observable<Collection<Transaction>, Tran
     /**
      * TODO
      */
-    fun processPeerTransactions(request: JsonObject, peer: Peer)
+    fun processPeerTransactions(transactions: Collection<Transaction>, peer: Peer, rebroadcast: Boolean = true): Collection<Transaction>
 
     /**
      * TODO

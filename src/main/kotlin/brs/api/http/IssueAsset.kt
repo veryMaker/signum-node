@@ -38,7 +38,7 @@ internal class IssueAsset internal constructor(private val dp: DependencyProvide
             return MISSING_NAME
         }
 
-        name = name.trim { it <= ' ' }
+        name = name.trim()
         if (name.length < Constants.MIN_ASSET_NAME_LENGTH || name.length > Constants.MAX_ASSET_NAME_LENGTH) {
             return INCORRECT_ASSET_NAME_LENGTH
         }

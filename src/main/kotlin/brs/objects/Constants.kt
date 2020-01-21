@@ -57,14 +57,15 @@ object Constants {
 
     const val FEE_SUGGESTION_MAX_HISTORY_LENGTH = 10
 
+    const val MAX_PEER_RECEIVED_BLOCKS = 1440
+
     /**
      * Must be >= 1.
      */
     const val MAX_API_RETURNED_ITEMS = 500
 
-    const val HTTP = "http://"
-
     val MIN_VERSION = Version.parse("v2.3.0")
+    val NEW_PEER_API_MIN_VERSION = Version.parse("v3.0.0-dev")
 
     internal var UNCONFIRMED_POOL_DEPOSIT_PLANCK: Long = 0
 

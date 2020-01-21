@@ -36,6 +36,7 @@ class DependencyProvider {
     lateinit var dbCacheService: DBCacheService
     lateinit var api: API
     lateinit var apiV2Server: Server
+    lateinit var p2pV2Server: Server
     lateinit var timeService: TimeService
     lateinit var derivedTableService: DerivedTableService
     lateinit var statisticsService: StatisticsService
