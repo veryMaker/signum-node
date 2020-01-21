@@ -42,7 +42,7 @@ class AtController(private val dp: DependencyProvider) {
 
             state.setgBalance(state.getgBalance() - stepFee * numSteps)
             state.machineState.steps += numSteps
-            val rc = processor.processOp(disassemble = false)
+            val rc = processor.processOp()
 
             if (rc >= 0) {
                 if (state.machineState.stopped) {
@@ -76,7 +76,7 @@ class AtController(private val dp: DependencyProvider) {
     }
 
     private fun getNumSteps(op: Byte, height: Int): Int {
-        return if (op in 0x32..55) dp.atConstants[height].apiStepMultiplier.toInt() else 1
+        return if (op in 50..55) dp.atConstants[height].apiStepMultiplier.toInt() else 1
     }
 
     fun resetMachine(state: AtMachineState) {
@@ -97,7 +97,7 @@ class AtController(private val dp: DependencyProvider) {
         state.machineState.opc = opc
 
         while (true) {
-            val rc = machineProcessor.processOp(disassemble = true)
+            val rc = machineProcessor.simulateOp()
             if (rc <= 0) break
 
             state.machineState.pc += rc
