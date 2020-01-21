@@ -25,7 +25,7 @@ class AtController(private val dp: DependencyProvider) {
         state.machineState.dead = false
         state.machineState.steps = 0
 
-        val processor = AtMachineProcessor(dp, state, dp.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
+        val processor = AtMachineProcessor(dp, state)
 
         state.setFreeze(false)
 
@@ -85,7 +85,7 @@ class AtController(private val dp: DependencyProvider) {
     }
 
     private fun listCode(state: AtMachineState) {
-        val machineProcessor = AtMachineProcessor(dp, state, dp.propertyService.get(Props.ENABLE_AT_DEBUG_LOG))
+        val machineProcessor = AtMachineProcessor(dp, state)
 
         val opc = state.machineState.pc
         val osteps = state.machineState.steps

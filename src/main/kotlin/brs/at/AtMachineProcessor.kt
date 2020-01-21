@@ -8,16 +8,11 @@
 package brs.at
 
 import brs.entity.DependencyProvider
-import org.slf4j.LoggerFactory
-import org.slf4j.helpers.NOPLogger
 
 internal class AtMachineProcessor(
     private val dp: DependencyProvider,
-    private val machineData: AtMachineState,
-    enableLogger: Boolean
+    private val machineData: AtMachineState
 ) {
-    private val logger =
-        if (enableLogger) LoggerFactory.getLogger(AtMachineProcessor::class.java) else NOPLogger.NOP_LOGGER
     private val func = Fun()
 
     private val addrs: Int
@@ -141,15 +136,15 @@ internal class AtMachineProcessor(
         var rc = 0
         if (machineData.cSize < 1 || machineData.machineState.pc >= machineData.cSize) return 0
         if (disassemble) machineData.machineState.jumps.add(machineData.machineState.pc)
-        val op = machineData.apCode.get(machineData.machineState.pc)
 
-        when (op) {
+        when (val op = machineData.apCode.get(machineData.machineState.pc)) {
             OpCodes.E_OP_CODE_SET_VAL -> {
                 rc = addressVal
-
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 13
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 13
                         machineData.machineState.pc += rc
                         machineData.apData.putLong(func.addr1 * 8, func.value)
                         machineData.apData.clear()
@@ -159,9 +154,11 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_SET_DAT -> {
                 rc = addrs
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 9
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 9
                         machineData.machineState.pc += rc
                         machineData.apData.putLong(func.addr1 * 8, machineData.apData.getLong(func.addr2 * 8)) // HERE
                         machineData.apData.clear()
@@ -171,9 +168,11 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_CLR_DAT -> {
                 rc = getAddr(false)
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 5
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 5
                         machineData.machineState.pc += rc
                         machineData.apData.putLong(func.addr1 * 8, 0.toLong())
                         machineData.apData.clear()
@@ -182,9 +181,11 @@ internal class AtMachineProcessor(
             }
             OpCodes.E_OP_CODE_INC_DAT, OpCodes.E_OP_CODE_DEC_DAT, OpCodes.E_OP_CODE_NOT_DAT -> {
                 rc = getAddr(false)
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 5
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 5
                         machineData.machineState.pc += rc
                         when (op) {
                             OpCodes.E_OP_CODE_INC_DAT -> {
@@ -209,9 +210,11 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_ADD_DAT, OpCodes.E_OP_CODE_SUB_DAT, OpCodes.E_OP_CODE_MUL_DAT, OpCodes.E_OP_CODE_DIV_DAT -> {
                 rc = addrs
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 9
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 9
                         val value = machineData.apData.getLong(func.addr2 * 8)
                         if (op == OpCodes.E_OP_CODE_DIV_DAT && value == 0L)
                             rc = -2
@@ -233,16 +236,27 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_BOR_DAT, OpCodes.E_OP_CODE_AND_DAT, OpCodes.E_OP_CODE_XOR_DAT -> {
                 rc = addrs
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 9
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 9
                         machineData.machineState.pc += rc
                         val value = machineData.apData.getLong(func.addr2 * 8)
                         val incData = machineData.apData.getLong(func.addr1 * 8)
                         when (op) {
-                            OpCodes.E_OP_CODE_BOR_DAT -> machineData.apData.putLong(func.addr1 * 8, incData or value)
-                            OpCodes.E_OP_CODE_AND_DAT -> machineData.apData.putLong(func.addr1 * 8, incData and value)
-                            OpCodes.E_OP_CODE_XOR_DAT -> machineData.apData.putLong(func.addr1 * 8, incData xor value)
+                            OpCodes.E_OP_CODE_BOR_DAT -> machineData.apData.putLong(
+                                func.addr1 * 8,
+                                incData or value
+                            )
+                            OpCodes.E_OP_CODE_AND_DAT -> machineData.apData.putLong(
+                                func.addr1 * 8,
+                                incData and value
+                            )
+                            OpCodes.E_OP_CODE_XOR_DAT -> machineData.apData.putLong(
+                                func.addr1 * 8,
+                                incData xor value
+                            )
                         }
                         machineData.apData.clear()
                     }
@@ -251,6 +265,7 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_SET_IND -> {
                 rc = addrs
 
+                // TODO disassemble being true does not set rc here. Is this a bug?
                 if (rc == 0) {
                     rc = 9
                     if (!disassemble) {
@@ -272,33 +287,41 @@ internal class AtMachineProcessor(
 
                 rc = addrs
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     machineData.apCode.position(size)
                     rc = getAddr(false)
                     machineData.apCode.position(machineData.apCode.position() - size)
+                } else {
+                    if (rc == 0) {
+                        machineData.apCode.position(size)
+                        rc = getAddr(false)
+                        machineData.apCode.position(machineData.apCode.position() - size)
 
-                    if (rc == 0 || disassemble) {
-                        rc = 13
-                        val base = machineData.apData.getLong(addr2 * 8)
-                        val offs = machineData.apData.getLong(func.addr1 * 8)
+                        if (rc == 0) {
+                            rc = 13
+                            val base = machineData.apData.getLong(addr2 * 8)
+                            val offs = machineData.apData.getLong(func.addr1 * 8)
 
-                        val addr = base + offs
+                            val addr = base + offs
 
-                        if (!validAddr(addr.toInt(), false)) {
-                            rc = -1
-                        } else {
-                            machineData.machineState.pc += rc
-                            machineData.apData.putLong(addr1 * 8, machineData.apData.getLong(addr.toInt() * 8))
-                            machineData.apData.clear()
+                            if (!validAddr(addr.toInt(), false)) {
+                                rc = -1
+                            } else {
+                                machineData.machineState.pc += rc
+                                machineData.apData.putLong(addr1 * 8, machineData.apData.getLong(addr.toInt() * 8))
+                                machineData.apData.clear()
+                            }
                         }
                     }
                 }
             }
             OpCodes.E_OP_CODE_PSH_DAT, OpCodes.E_OP_CODE_POP_DAT -> {
                 rc = getAddr(false)
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 5
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 5
                         if (op == OpCodes.E_OP_CODE_PSH_DAT && machineData.machineState.us == machineData.cUserStackBytes / 8 || op == OpCodes.E_OP_CODE_POP_DAT && machineData.machineState.us == 0) {
                             rc = -1
                         } else {
@@ -306,14 +329,18 @@ internal class AtMachineProcessor(
                             if (op == OpCodes.E_OP_CODE_PSH_DAT) {
                                 val value = machineData.apData.getLong(func.addr1 * 8)
                                 machineData.machineState.us++
-                                machineData.apData.putLong(machineData.dSize +
-                                        machineData.cCallStackBytes +
-                                        machineData.cUserStackBytes - machineData.machineState.us * 8, value)
+                                machineData.apData.putLong(
+                                    machineData.dSize +
+                                            machineData.cCallStackBytes +
+                                            machineData.cUserStackBytes - machineData.machineState.us * 8, value
+                                )
                                 machineData.apData.clear()
                             } else {
-                                val value = machineData.apData.getLong(machineData.dSize +
-                                        machineData.cCallStackBytes +
-                                        machineData.cUserStackBytes - machineData.machineState.us * 8)
+                                val value = machineData.apData.getLong(
+                                    machineData.dSize +
+                                            machineData.cCallStackBytes +
+                                            machineData.cUserStackBytes - machineData.machineState.us * 8
+                                )
                                 machineData.machineState.us--
                                 machineData.apData.putLong(func.addr1 * 8, value)
                                 machineData.apData.clear()
@@ -325,15 +352,19 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_JMP_SUB -> {
                 rc = getAddr(true)
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 5
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 5
                         when {
                             machineData.machineState.cs == machineData.cCallStackBytes / 8 -> rc = -1
                             machineData.machineState.jumps.contains(func.addr1) -> {
                                 machineData.machineState.cs++
-                                machineData.apData.putLong(machineData.dSize + machineData.cCallStackBytes - machineData.machineState.cs * 8,
-                                    (machineData.machineState.pc + rc).toLong())
+                                machineData.apData.putLong(
+                                    machineData.dSize + machineData.cCallStackBytes - machineData.machineState.cs * 8,
+                                    (machineData.machineState.pc + rc).toLong()
+                                )
                                 machineData.apData.clear()
                                 machineData.machineState.pc = func.addr1
                             }
@@ -360,6 +391,7 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_IND_DAT -> {
                 rc = addrs
 
+                // TODO disassemble being true does not set rc here. Is this a bug?
                 if (rc == 0) {
                     rc = 9
                     if (!disassemble) {
@@ -380,21 +412,28 @@ internal class AtMachineProcessor(
 
                 rc = addrs
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     machineData.apCode.position(size)
                     rc = getAddr(false)
                     machineData.apCode.position(machineData.apCode.position() - size)
+                } else {
+                    if (rc == 0) {
+                        machineData.apCode.position(size)
+                        rc = getAddr(false)
+                        machineData.apCode.position(machineData.apCode.position() - size)
 
-                    if (rc == 0 || disassemble) {
-                        rc = 13
-                        if (!disassemble) {
+                        if (rc == 0) {
+                            rc = 13
                             val addr = machineData.apData.getLong(addr1 * 8) + machineData.apData.getLong(addr2 * 8)
 
                             if (!validAddr(addr.toInt(), false))
                                 rc = -1
                             else {
                                 machineData.machineState.pc += rc
-                                machineData.apData.putLong(addr.toInt() * 8, machineData.apData.getLong(func.addr1 * 8))
+                                machineData.apData.putLong(
+                                    addr.toInt() * 8,
+                                    machineData.apData.getLong(func.addr1 * 8)
+                                )
                                 machineData.apData.clear()
                             }
                         }
@@ -404,9 +443,11 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_MOD_DAT -> {
                 rc = addrs
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 9
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 9
                         val modData1 = machineData.apData.getLong(func.addr1 * 8)
                         val modData2 = machineData.apData.getLong(func.addr2 * 8)
 
@@ -422,9 +463,11 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_SHL_DAT, OpCodes.E_OP_CODE_SHR_DAT -> {
                 rc = addrs
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 9
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 9
                         machineData.machineState.pc += rc
                         val value = machineData.apData.getLong(func.addr1 * 8)
                         val shift = machineData.apData.getLong(func.addr2 * 8).coerceIn(0L, 63L).toInt()
@@ -439,9 +482,11 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_JMP_ADR -> {
                 rc = getAddr(true)
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 5
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 5
                         if (machineData.machineState.jumps.contains(func.addr1))
                             machineData.machineState.pc = func.addr1
                         else
@@ -452,9 +497,11 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_BZR_DAT, OpCodes.E_OP_CODE_BNZ_DAT -> {
                 rc = addrOff
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 6
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 6
                         val value = machineData.apData.getLong(func.addr1 * 8)
                         if (op == OpCodes.E_OP_CODE_BZR_DAT && value == 0L || op == OpCodes.E_OP_CODE_BNZ_DAT && value != 0L) {
                             if (machineData.machineState.jumps.contains(machineData.machineState.pc + func.off))
@@ -469,9 +516,11 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_BGT_DAT, OpCodes.E_OP_CODE_BLT_DAT, OpCodes.E_OP_CODE_BGE_DAT, OpCodes.E_OP_CODE_BLE_DAT, OpCodes.E_OP_CODE_BEQ_DAT, OpCodes.E_OP_CODE_BNE_DAT -> {
                 rc = addrsOff
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 10
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 10
                         val val1 = machineData.apData.getLong(func.addr1 * 8)
                         val val2 = machineData.apData.getLong(func.addr2 * 8)
 
@@ -480,7 +529,8 @@ internal class AtMachineProcessor(
                             op == OpCodes.E_OP_CODE_BGE_DAT && val1 >= val2 ||
                             op == OpCodes.E_OP_CODE_BLE_DAT && val1 <= val2 ||
                             op == OpCodes.E_OP_CODE_BEQ_DAT && val1 == val2 ||
-                            op == OpCodes.E_OP_CODE_BNE_DAT && val1 != val2) {
+                            op == OpCodes.E_OP_CODE_BNE_DAT && val1 != val2
+                        ) {
                             if (machineData.machineState.jumps.contains(machineData.machineState.pc + func.off))
                                 machineData.machineState.pc += func.off.toInt()
                             else
@@ -493,15 +543,18 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_SLP_DAT -> {
                 rc = getAddr(true)
 
-                if (rc == 0 || disassemble) {
-                    rc = 1 + 4
+                if (disassemble) {
+                    rc = 5
+                } else {
+                    if (rc == 0) {
+                        rc = 5
 
-                    if (!disassemble) {
                         machineData.machineState.pc += rc
                         var numBlocks = machineData.apData.getLong(func.addr1 * 8).toInt()
                         if (numBlocks < 0)
                             numBlocks = 0
-                        val maxNumBlocks = dp.atConstants[machineData.creationBlockHeight].maxWaitForNumOfBlocks.toInt()
+                        val maxNumBlocks =
+                            dp.atConstants[machineData.creationBlockHeight].maxWaitForNumOfBlocks.toInt()
                         if (numBlocks > maxNumBlocks)
                             numBlocks = maxNumBlocks
                         machineData.waitForNumberOfBlocks = numBlocks
@@ -512,9 +565,11 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_FIZ_DAT, OpCodes.E_OP_CODE_STZ_DAT -> {
                 rc = getAddr(false)
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 5
-                    if (!disassemble) {
+                } else {
+                    if (rc == 0) {
+                        rc = 5
                         if (machineData.apData.getLong(func.addr1 * 8) == 0L) {
                             if (op == OpCodes.E_OP_CODE_STZ_DAT) {
                                 machineData.machineState.pc += rc
@@ -538,12 +593,11 @@ internal class AtMachineProcessor(
                     if (op == OpCodes.E_OP_CODE_STP_IMD) {
                         machineData.machineState.pc += rc
                         machineData.machineState.stopped = true
-                        machineData.setFreeze(true)
                     } else {
                         machineData.machineState.pc = machineData.machineState.pcs
                         machineData.machineState.finished = true
-                        machineData.setFreeze(true)
                     }
+                    machineData.setFreeze(true)
                 }
             }
             OpCodes.E_OP_CODE_SLP_IMD -> {
@@ -566,10 +620,12 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_EXT_FUN -> {
                 rc = getFun()
 
-                if (rc == 0 || disassemble) {
-                    rc = 1 + 2
+                if (disassemble) {
+                    rc = 3
+                } else {
+                    if (rc == 0) {
+                        rc = 3
 
-                    if (!disassemble) {
                         machineData.machineState.pc += rc
                         dp.atApiController.func(func.func.toInt(), machineData)
                     }
@@ -577,6 +633,7 @@ internal class AtMachineProcessor(
             }
             OpCodes.E_OP_CODE_EXT_FUN_DAT -> {
                 rc = funAddr
+                // TODO disassemble being true does not set rc here. Is this a bug?
                 if (rc == 0) {
                     rc = 7
 
@@ -590,10 +647,12 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_EXT_FUN_DAT_2 -> {
                 rc = funAddrs
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 11
+                } else {
+                    if (rc == 0) {
+                        rc = 11
 
-                    if (!disassemble) {
                         machineData.machineState.pc += rc
                         val val1 = machineData.apData.getLong(func.addr3 * 8)
                         val val2 = machineData.apData.getLong(func.addr2 * 8)
@@ -604,12 +663,17 @@ internal class AtMachineProcessor(
             OpCodes.E_OP_CODE_EXT_FUN_RET -> {
                 rc = funAddr
 
-                if (rc == 0 || disassemble) {
+                if (disassemble) {
                     rc = 7
+                } else {
+                    if (rc == 0) {
+                        rc = 7
 
-                    if (!disassemble) {
                         machineData.machineState.pc += rc
-                        machineData.apData.putLong(func.addr1 * 8, dp.atApiController.func(func.func.toInt(), machineData))
+                        machineData.apData.putLong(
+                            func.addr1 * 8,
+                            dp.atApiController.func(func.func.toInt(), machineData)
+                        )
                         machineData.apData.clear()
                     }
                 }
