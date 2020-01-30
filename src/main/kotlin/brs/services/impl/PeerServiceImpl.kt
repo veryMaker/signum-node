@@ -302,7 +302,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         }
     }
 
-    private val peerUnBlacklistingThread: RepeatingTask = {
+    private val peerUnBlacklistingThread: Task = {
         try {
             val curTime = System.currentTimeMillis()
             for (peer in peers.values) {
@@ -311,7 +311,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         } catch (e: Exception) {
             logger.safeDebug(e) { "Error un-blacklisting peer" }
         }
-        true
     }
 
     private val numberOfConnectedPublicPeers: Int
@@ -439,7 +438,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
         if (!dp.propertyService.get(Props.DEV_OFFLINE)) {
             dp.taskSchedulerService.scheduleTask(TaskType.IO, peerConnectingThread)
-            dp.taskSchedulerService.scheduleTask(TaskType.IO, peerUnBlacklistingThread)
+            dp.taskSchedulerService.scheduleTaskWithDelay(TaskType.IO, 0, 1000, peerUnBlacklistingThread)
             if (getMorePeers) {
                 dp.taskSchedulerService.scheduleTask(TaskType.IO, getMorePeersThread)
             }
