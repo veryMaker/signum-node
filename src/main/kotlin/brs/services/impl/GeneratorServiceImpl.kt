@@ -24,7 +24,7 @@ open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorS
     private val burstCrypto = BurstCrypto.getInstance()
 
     init {
-        dp.taskSchedulerService.scheduleTask(TaskType.COMPUTATION) {
+        dp.taskSchedulerService.scheduleTaskWithDelay(TaskType.COMPUTATION, 0, 500L) {
             try {
                 val currentBlock = dp.blockchainService.lastBlock.height.toLong()
                 val it = generators.entries.iterator()
@@ -36,10 +36,8 @@ open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorS
                         it.remove()
                     }
                 }
-                true
             } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
                 logger.safeDebug(e) { "Error in block generation thread" }
-                false
             }
         }
     }
