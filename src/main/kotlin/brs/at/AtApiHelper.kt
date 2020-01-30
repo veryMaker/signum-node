@@ -40,13 +40,6 @@ object AtApiHelper {
     /**
      * Little Endian.
      */
-    fun getByteArray(long: Long): ByteArray {
-        return burstCrypto.longToBytesLE(long)
-    }
-
-    /**
-     * Little Endian.
-     */
     fun hashLong(messageDigest: MessageDigest, long: Long) {
         var l = long
         for (i in 7 downTo 0) {

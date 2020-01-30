@@ -9,7 +9,7 @@ object Constants {
 
     const val MAX_TIMESTAMP_DIFFERENCE = 15
 
-    const val BURST_DIFF_ADJUST_CHANGE_BLOCK = 2700
+    const val BURST_DIFF_ADJUST_CHANGE_BLOCK = 2700 // TODO move to flux capacitor
 
     const val BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME = 4L
 
@@ -24,7 +24,9 @@ object Constants {
     const val ONE_BURST = 100000000L
 
     const val MAX_BALANCE_PLANCK = MAX_BALANCE_BURST * ONE_BURST
-    const val INITIAL_BASE_TARGET = 18325193796L
+    /**
+     * The base target for 1TB Difficulty
+     */
     const val MAX_BASE_TARGET = 18325193796L
 
     const val MAX_ALIAS_URI_LENGTH = 1000

@@ -54,7 +54,7 @@ class GeneratorServiceImplTest {
     fun btestGeneratorCalculateDeadline() {
         val deadline = generatorService.calculateDeadline(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0,
             exampleGenSig, generatorService.calculateScoop(exampleGenSig, exampleHeight.toLong()), exampleBaseTarget, exampleHeight)
-        assertEquals(BigInteger.valueOf(7157291745432L), deadline)
+        assertEquals(7157291745432L.toBigInteger(), deadline)
     }
 
     @Test
@@ -72,7 +72,7 @@ class GeneratorServiceImplTest {
         assertEquals(1, generatorService.numberOfGenerators.toLong())
         val generatorState = generatorService.generators.values.first()
         assertNotNull(generatorState)
-        assertEquals(BigInteger.valueOf(212350960282639L), generatorState.deadline)
+        assertEquals(212350960282639L.toBigInteger(), generatorState.deadline)
         assertEquals(500001, generatorState.block)
         assertEquals(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, generatorState.accountId as Long)
         assertArrayEquals(TestConstants.TEST_PUBLIC_KEY_BYTES, generatorState.publicKey)

@@ -174,61 +174,53 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
     override fun addAToB(state: AtMachineState) {
         val a = AtApiHelper.getA(state)
         val b = AtApiHelper.getB(state)
-        val result = a.add(b)
-        AtApiHelper.getByteArray(result, state.b1, state.b2, state.b3, state.b4)
+        AtApiHelper.getByteArray(a + b, state.b1, state.b2, state.b3, state.b4)
     }
 
     override fun addBToA(state: AtMachineState) {
         val a = AtApiHelper.getA(state)
         val b = AtApiHelper.getB(state)
-        val result = a.add(b)
-        AtApiHelper.getByteArray(result, state.a1, state.a2, state.a3, state.a4)
+        AtApiHelper.getByteArray(a + b, state.a1, state.a2, state.a3, state.a4)
     }
 
     override fun subAFromB(state: AtMachineState) {
         val a = AtApiHelper.getA(state)
         val b = AtApiHelper.getB(state)
-        val result = b.subtract(a)
-        AtApiHelper.getByteArray(result, state.b1, state.b2, state.b3, state.b4)
+        AtApiHelper.getByteArray(b - a, state.b1, state.b2, state.b3, state.b4)
     }
 
     override fun subBFromA(state: AtMachineState) {
         val a = AtApiHelper.getA(state)
         val b = AtApiHelper.getB(state)
-        val result = a.subtract(b)
-        AtApiHelper.getByteArray(result, state.a1, state.a2, state.a3, state.a4)
+        AtApiHelper.getByteArray(a - b, state.a1, state.a2, state.a3, state.a4)
     }
 
     override fun mulAByB(state: AtMachineState) {
         val a = AtApiHelper.getA(state)
         val b = AtApiHelper.getB(state)
-        val result = a.multiply(b)
-        AtApiHelper.getByteArray(result, state.b1, state.b2, state.b3, state.b4)
+        AtApiHelper.getByteArray(a * b, state.b1, state.b2, state.b3, state.b4)
     }
 
     override fun mulBByA(state: AtMachineState) {
         val a = AtApiHelper.getA(state)
         val b = AtApiHelper.getB(state)
-        val result = a.multiply(b)
-        AtApiHelper.getByteArray(result, state.a1, state.a2, state.a3, state.a4)
+        AtApiHelper.getByteArray(a * b, state.a1, state.a2, state.a3, state.a4)
     }
 
     override fun divAByB(state: AtMachineState) {
         val a = AtApiHelper.getA(state)
         val b = AtApiHelper.getB(state)
-        if (b.compareTo(BigInteger.ZERO) == 0)
+        if (b == BigInteger.ZERO)
             return
-        val result = a.divide(b)
-        AtApiHelper.getByteArray(result, state.b1, state.b2, state.b3, state.b4)
+        AtApiHelper.getByteArray(a / b, state.b1, state.b2, state.b3, state.b4)
     }
 
     override fun divBByA(state: AtMachineState) {
         val a = AtApiHelper.getA(state)
         val b = AtApiHelper.getB(state)
-        if (a.compareTo(BigInteger.ZERO) == 0)
+        if (a == BigInteger.ZERO)
             return
-        val result = b.divide(a)
-        AtApiHelper.getByteArray(result, state.a1, state.a2, state.a3, state.a4)
+        AtApiHelper.getByteArray(b / a, state.a1, state.a2, state.a3, state.a4)
     }
 
     override fun orAWithB(state: AtMachineState) {
@@ -296,7 +288,7 @@ abstract class AtApiImpl(private val dp: DependencyProvider) : AtApi {
             val hash = md5.digest()
             if (hash.partEquals(state.b1, 0, 8) && hash.partEquals(state.b2, 8, 8)) 1L else 0L
         } else {
-            (if (state.a1.contentEquals(state.b1) && state.a2.contentEquals(state.b2)) 1 else 0).toLong()
+            if (state.a1.contentEquals(state.b1) && state.a2.contentEquals(state.b2)) 1L else 0L
         }
     }
 

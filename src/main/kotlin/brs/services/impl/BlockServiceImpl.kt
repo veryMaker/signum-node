@@ -10,6 +10,7 @@ import brs.services.BlockService
 import brs.services.BlockchainProcessorService
 import brs.services.BlockchainProcessorService.BlockOutOfOrderException
 import brs.util.BurstException
+import brs.util.biginteger.*
 import brs.util.crypto.Crypto
 import brs.util.crypto.verifySignature
 import brs.util.logging.safeDebug
@@ -52,7 +53,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             val previousBlock = dp.downloadCacheService.getBlock(block.previousBlockId) ?: throw BlockOutOfOrderException("Can't verify generation signature because previous block is missing")
             val correctGenerationSignature = dp.generatorService.calculateGenerationSignature(previousBlock.generationSignature, previousBlock.generatorId)
             if (!block.generationSignature.contentEquals(correctGenerationSignature)) return false
-            return BigInteger.valueOf(block.timestamp.toLong() - previousBlock.timestamp.toLong()) > pocTime.divide(BigInteger.valueOf(previousBlock.baseTarget))
+            return (block.timestamp - previousBlock.timestamp) > (pocTime / previousBlock.baseTarget)
         } catch (e: Exception) {
             logger.safeInfo(e) { "Error verifying block generation signature" }
             return false
@@ -75,15 +76,9 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
 
             val pocTime = try {
                 if (scoopData == null) {
-                    dp.generatorService.calculateHit(
-                        block.generatorId,
-                        block.nonce, block.generationSignature, getScoopNum(block), block.height
-                    )
+                    dp.generatorService.calculateHit(block.generatorId, block.nonce, block.generationSignature, getScoopNum(block), block.height)
                 } else {
-                    dp.generatorService.calculateHit(
-                        block.generatorId,
-                        block.nonce, block.generationSignature, scoopData
-                    )
+                    dp.generatorService.calculateHit(block.generatorId, block.nonce, block.generationSignature, scoopData)
                 }
             } catch (e: Exception) {
                 throw BlockchainProcessorService.BlockNotAcceptedException("Error pre-verifying block generation signature", e)
@@ -108,7 +103,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             if (dp.fluxCapacitorService.getValue(FluxValues.NEXT_FORK)) {
                 feeArray.sort()
                 for (i in feeArray.indices) {
-                    if (feeArray[i] >= Constants.FEE_QUANT * (i + 1)) {
+                    if (feeArray[i] < Constants.FEE_QUANT * (i + 1)) {
                         throw BlockchainProcessorService.BlockNotAcceptedException("Transaction fee is not enough to be included in this block at height ${block.height}")
                     }
                 }
@@ -158,9 +153,8 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             return 0
         }
         val month = block.height / 10800
-        return BigInteger.valueOf(10000).multiply(BigInteger.valueOf(95).pow(month))
-            .divide(BigInteger.valueOf(100).pow(month)).toLong() * Constants.ONE_BURST
-    }
+        return (10000 * (95 pow month) / (100 pow month)).toLong() * Constants.ONE_BURST
+}
 
     override fun setPrevious(block: Block, previousBlock: Block?) {
         if (previousBlock != null) {
@@ -169,7 +163,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 "Previous block id doesn't match"
             }
             block.height = previousBlock.height + 1
-            if (block.baseTarget == Constants.INITIAL_BASE_TARGET) {
+            if (block.baseTarget == Constants.MAX_BASE_TARGET) {
                 try {
                     this.calculateBaseTarget(block, previousBlock)
                 } catch (e: BlockOutOfOrderException) {
@@ -183,97 +177,57 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
     }
 
     override fun calculateBaseTarget(block: Block, previousBlock: Block) {
-        if (block.id == Genesis.BLOCK_ID && block.previousBlockId == 0L) {
-            block.baseTarget = Constants.INITIAL_BASE_TARGET
-            block.cumulativeDifficulty = BigInteger.ZERO
-        } else if (block.height < 4) {
-            block.baseTarget = Constants.INITIAL_BASE_TARGET
-            block.cumulativeDifficulty = previousBlock.cumulativeDifficulty.add(
-                two64.divide(
-                    BigInteger.valueOf(
-                        Constants.INITIAL_BASE_TARGET
-                    )
-                )
-            )
-        } else if (block.height < Constants.BURST_DIFF_ADJUST_CHANGE_BLOCK) {
-            var itBlock: Block = previousBlock
-            var avgBaseTarget = BigInteger.valueOf(itBlock.baseTarget)
-            do {
-                itBlock = dp.downloadCacheService.getBlock(itBlock.previousBlockId)
-                    ?: throw BlockOutOfOrderException("Previous block does no longer exist for block height ${itBlock.height}")
-                avgBaseTarget = avgBaseTarget.add(BigInteger.valueOf(itBlock.baseTarget))
-            } while (itBlock.height > block.height - 4)
-            avgBaseTarget = avgBaseTarget.divide(BigInteger.valueOf(4))
-            val difTime = block.timestamp.toLong() - itBlock.timestamp
-
-            val curBaseTarget = avgBaseTarget.toLong()
-            var newBaseTarget = BigInteger.valueOf(curBaseTarget).multiply(BigInteger.valueOf(difTime))
-                .divide(BigInteger.valueOf(240L * 4)).toLong()
-            if (newBaseTarget < 0 || newBaseTarget > Constants.MAX_BASE_TARGET) {
-                newBaseTarget = Constants.MAX_BASE_TARGET
+        when {
+            block.id == Genesis.BLOCK_ID && block.previousBlockId == 0L -> {
+                block.baseTarget = Constants.MAX_BASE_TARGET
+                block.cumulativeDifficulty = BigInteger.ZERO
             }
-            if (newBaseTarget < curBaseTarget * 9 / 10) {
-                newBaseTarget = curBaseTarget * 9 / 10
+            block.height < 4 -> {
+                block.baseTarget = Constants.MAX_BASE_TARGET
+                block.cumulativeDifficulty = previousBlock.cumulativeDifficulty + (two64 / Constants.MAX_BASE_TARGET)
             }
-            if (newBaseTarget == 0L) {
-                newBaseTarget = 1
+            block.height < Constants.BURST_DIFF_ADJUST_CHANGE_BLOCK -> {
+                var itBlock: Block = previousBlock
+                var avgBaseTarget = itBlock.baseTarget.toBigInteger()
+                do {
+                    itBlock = dp.downloadCacheService.getBlock(itBlock.previousBlockId) ?: throw BlockOutOfOrderException("Previous block does no longer exist for block height ${itBlock.height}")
+                    avgBaseTarget += itBlock.baseTarget
+                } while (itBlock.height > block.height - 4)
+                avgBaseTarget /= 4
+                val difTime = block.timestamp.toLong() - itBlock.timestamp
+                val curBaseTarget = avgBaseTarget.toLong()
+                var newBaseTarget = (avgBaseTarget * difTime / 960).toLong()
+                if (newBaseTarget < 0 || newBaseTarget > Constants.MAX_BASE_TARGET) newBaseTarget = Constants.MAX_BASE_TARGET
+                if (newBaseTarget < curBaseTarget * 9 / 10) newBaseTarget = curBaseTarget * 9 / 10
+                if (newBaseTarget == 0L) newBaseTarget = 1
+                var twofoldCurBaseTarget = curBaseTarget * 11 / 10
+                if (twofoldCurBaseTarget < 0) twofoldCurBaseTarget = Constants.MAX_BASE_TARGET
+                if (newBaseTarget > twofoldCurBaseTarget) newBaseTarget = twofoldCurBaseTarget
+                block.baseTarget = newBaseTarget
+                block.cumulativeDifficulty = previousBlock.cumulativeDifficulty + (two64 / newBaseTarget)
             }
-            var twofoldCurBaseTarget = curBaseTarget * 11 / 10
-            if (twofoldCurBaseTarget < 0) {
-                twofoldCurBaseTarget = Constants.MAX_BASE_TARGET
+            else -> {
+                var itBlock: Block = previousBlock
+                var avgBaseTarget = itBlock.baseTarget.toBigInteger()
+                var blockCounter = 1
+                do {
+                    itBlock = dp.downloadCacheService.getBlock(itBlock.previousBlockId) ?: throw BlockOutOfOrderException("Previous block does no longer exist for block height ${itBlock.height}")
+                    blockCounter++
+                    avgBaseTarget = (avgBaseTarget * blockCounter + itBlock.baseTarget) / (blockCounter + 1L)
+                } while (blockCounter < 24)
+                var difTime = block.timestamp.toLong() - itBlock.timestamp
+                val targetTimespan = 24L * 4 * 60
+                if (difTime < targetTimespan / 2) difTime = targetTimespan / 2
+                if (difTime > targetTimespan * 2) difTime = targetTimespan * 2
+                val curBaseTarget = previousBlock.baseTarget
+                var newBaseTarget = (avgBaseTarget * difTime / targetTimespan).toLong()
+                if (newBaseTarget < 0 || newBaseTarget > Constants.MAX_BASE_TARGET) newBaseTarget = Constants.MAX_BASE_TARGET
+                if (newBaseTarget == 0L) newBaseTarget = 1
+                if (newBaseTarget < curBaseTarget * 8 / 10) newBaseTarget = curBaseTarget * 8 / 10
+                if (newBaseTarget > curBaseTarget * 12 / 10) newBaseTarget = curBaseTarget * 12 / 10
+                block.baseTarget = newBaseTarget
+                block.cumulativeDifficulty = previousBlock.cumulativeDifficulty + (two64 / newBaseTarget)
             }
-            if (newBaseTarget > twofoldCurBaseTarget) {
-                newBaseTarget = twofoldCurBaseTarget
-            }
-            block.baseTarget = newBaseTarget
-            block.cumulativeDifficulty =
-                previousBlock.cumulativeDifficulty.add(two64.divide(BigInteger.valueOf(newBaseTarget)))
-        } else {
-            var itBlock: Block = previousBlock
-            var avgBaseTarget = BigInteger.valueOf(itBlock.baseTarget)
-            var blockCounter = 1
-            do {
-                itBlock = dp.downloadCacheService.getBlock(itBlock.previousBlockId)
-                    ?: throw BlockOutOfOrderException("Previous block does no longer exist for block height ${itBlock.height}")
-                blockCounter++
-                avgBaseTarget = avgBaseTarget.multiply(BigInteger.valueOf(blockCounter.toLong()))
-                    .add(BigInteger.valueOf(itBlock.baseTarget))
-                    .divide(BigInteger.valueOf(blockCounter + 1L))
-            } while (blockCounter < 24)
-            var difTime = block.timestamp.toLong() - itBlock.timestamp
-            val targetTimespan = 24L * 4 * 60
-
-            if (difTime < targetTimespan / 2) {
-                difTime = targetTimespan / 2
-            }
-
-            if (difTime > targetTimespan * 2) {
-                difTime = targetTimespan * 2
-            }
-
-            val curBaseTarget = previousBlock.baseTarget
-            var newBaseTarget = avgBaseTarget.multiply(BigInteger.valueOf(difTime))
-                .divide(BigInteger.valueOf(targetTimespan)).toLong()
-
-            if (newBaseTarget < 0 || newBaseTarget > Constants.MAX_BASE_TARGET) {
-                newBaseTarget = Constants.MAX_BASE_TARGET
-            }
-
-            if (newBaseTarget == 0L) {
-                newBaseTarget = 1
-            }
-
-            if (newBaseTarget < curBaseTarget * 8 / 10) {
-                newBaseTarget = curBaseTarget * 8 / 10
-            }
-
-            if (newBaseTarget > curBaseTarget * 12 / 10) {
-                newBaseTarget = curBaseTarget * 12 / 10
-            }
-
-            block.baseTarget = newBaseTarget
-            block.cumulativeDifficulty =
-                previousBlock.cumulativeDifficulty.add(two64.divide(BigInteger.valueOf(newBaseTarget)))
         }
     }
 
@@ -282,7 +236,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
     }
 
     companion object {
-        private val two64: BigInteger = BigInteger.valueOf(2).pow(64)
+        private val two64: BigInteger = 2.pow(64)
         private val logger = LoggerFactory.getLogger(BlockServiceImpl::class.java)
     }
 }

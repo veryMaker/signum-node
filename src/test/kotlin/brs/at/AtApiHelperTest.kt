@@ -31,18 +31,6 @@ class AtApiHelperTest {
     }
 
     @Test
-    fun testGetByteArray_long() {
-        assertEquals("0100000000000000", AtApiHelper.getByteArray(0x0000000000000001L).toHexString())
-        assertEquals("0123000000000000", AtApiHelper.getByteArray(0x0000000000002301L).toHexString())
-        assertEquals("0123450000000000", AtApiHelper.getByteArray(0x0000000000452301L).toHexString())
-        assertEquals("0123456700000000", AtApiHelper.getByteArray(0x0000000067452301L).toHexString())
-        assertEquals("0123456789000000", AtApiHelper.getByteArray(0x0000008967452301L).toHexString())
-        assertEquals("0123456789ab0000", AtApiHelper.getByteArray(0x0000ab8967452301L).toHexString())
-        assertEquals("0123456789abcd00", AtApiHelper.getByteArray(0x00cdab8967452301L).toHexString())
-        assertEquals("0123456789abcdef", AtApiHelper.getByteArray(-0x1032547698badcffL).toHexString())
-    }
-
-    @Test
     fun testGetByteArray_long_direct() {
         val buffer = ByteArray(8)
         AtApiHelper.getByteArray(0x0000000000000001L, buffer)
@@ -86,19 +74,19 @@ class AtApiHelperTest {
         fillArray(third)
         fillArray(fourth)
 
-        AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000000001L), first, second, third, fourth)
+        AtApiHelper.getByteArray(0x0000000000000001L.toBigInteger(), first, second, third, fourth)
         assertEquals("0100000000000000000000000000000000000000000000000000000000000000", arraySum())
-        AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000002301L), first, second, third, fourth)
+        AtApiHelper.getByteArray(0x0000000000002301L.toBigInteger(), first, second, third, fourth)
         assertEquals("0123000000000000000000000000000000000000000000000000000000000000", arraySum())
-        AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000000452301L), first, second, third, fourth)
+        AtApiHelper.getByteArray(0x0000000000452301L.toBigInteger(), first, second, third, fourth)
         assertEquals("0123450000000000000000000000000000000000000000000000000000000000", arraySum())
-        AtApiHelper.getByteArray(BigInteger.valueOf(0x0000000067452301L), first, second, third, fourth)
+        AtApiHelper.getByteArray(0x0000000067452301L.toBigInteger(), first, second, third, fourth)
         assertEquals("0123456700000000000000000000000000000000000000000000000000000000", arraySum())
-        AtApiHelper.getByteArray(BigInteger.valueOf(0x0000008967452301L), first, second, third, fourth)
+        AtApiHelper.getByteArray(0x0000008967452301L.toBigInteger(), first, second, third, fourth)
         assertEquals("0123456789000000000000000000000000000000000000000000000000000000", arraySum())
-        AtApiHelper.getByteArray(BigInteger.valueOf(0x0000ab8967452301L), first, second, third, fourth)
+        AtApiHelper.getByteArray(0x0000ab8967452301L.toBigInteger(), first, second, third, fourth)
         assertEquals("0123456789ab0000000000000000000000000000000000000000000000000000", arraySum())
-        AtApiHelper.getByteArray(BigInteger.valueOf(0x00cdab8967452301L), first, second, third, fourth)
+        AtApiHelper.getByteArray(0x00cdab8967452301L.toBigInteger(), first, second, third, fourth)
         assertEquals("0123456789abcd00000000000000000000000000000000000000000000000000", arraySum())
         AtApiHelper.getByteArray(BigInteger.valueOf(-0x1032547698badcffL), first, second, third, fourth)
         assertEquals("0123456789abcdefffffffffffffffffffffffffffffffffffffffffffffffff", arraySum())

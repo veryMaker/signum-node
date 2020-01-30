@@ -21,11 +21,13 @@ internal class GetPeers(private val dp: DependencyProvider) :
         val stateValue = request[STATE_PARAMETER].emptyToNull()
 
         val peers = JsonArray()
-        for (peer in if (active) dp.peerService.activePeers else if (stateValue != null) dp.peerService.getPeers(
-            Peer.State.valueOf(
-                stateValue
+        for (peer in when {
+            active -> dp.peerService.activePeers
+            stateValue != null -> dp.peerService.getPeers(
+                Peer.State.valueOf(stateValue)
             )
-        ) else dp.peerService.allPeers) {
+            else -> dp.peerService.allPeers
+        }) {
             peers.add(peer.remoteAddress)
         }
 

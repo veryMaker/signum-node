@@ -79,7 +79,6 @@ def kotlinArgParserVersion = "2.0.7"
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
     implementation "com.github.burst-apps-team:burstkit4j:$burstKit4jVersion"
     implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
     implementation "org.jocl:jocl:$joclVersion"

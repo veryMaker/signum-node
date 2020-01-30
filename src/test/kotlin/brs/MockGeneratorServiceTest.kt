@@ -52,15 +52,15 @@ class MockGeneratorServiceTest {
     fun testGeneratorCalculateDeadline() {
         val deadline = generatorService.calculateDeadline(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0,
             exampleGenSig, generatorService.calculateScoop(exampleGenSig, exampleHeight.toLong()), exampleBaseTarget, exampleHeight)
-        assertEquals(BigInteger.valueOf(1000L), deadline)
+        assertEquals(1000L.toBigInteger(), deadline)
     }
 
     @Test
     fun testGeneratorCalculateHit() {
-        assertEquals(BigInteger.valueOf(1000L), generatorService.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0,
+        assertEquals(1000L.toBigInteger(), generatorService.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0,
             exampleGenSig, 0, exampleHeight))
         // Scoop data is the generation signature repeated - not intended to be acutal scoop data for the purpose of this test. It is twice as long as the gensig as this is the expected scoop size.
-        assertEquals(BigInteger.valueOf(1000L), generatorService.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, "6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d06ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0".parseHexString()))
+        assertEquals(1000L.toBigInteger(), generatorService.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, "6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d06ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0".parseHexString()))
     }
 
     @Test
@@ -70,7 +70,7 @@ class MockGeneratorServiceTest {
         assertEquals(1, generatorService.numberOfGenerators.toLong())
         val generatorState = generatorService.generators.values.first()
         assertNotNull(generatorState)
-        assertEquals(BigInteger.valueOf(1000), generatorState.deadline)
+        assertEquals(1000.toBigInteger(), generatorState.deadline)
         assertEquals(500001, generatorState.block)
         assertEquals(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, generatorState.accountId as Long)
         assertArrayEquals(TestConstants.TEST_PUBLIC_KEY_BYTES, generatorState.publicKey)

@@ -115,7 +115,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
 
         val digest = Crypto.sha256()
         digest.update(dp.blockchainService.getBlockAtHeight(blockHeight - 1)!!.generationSignature)
-        digest.update(AtApiHelper.getByteArray(tx.id))
+        AtApiHelper.hashLong(digest, tx.id)
         digest.update(tx.senderPublicKey)
         if (!dp.fluxCapacitorService.getValue(FluxValues.NEXT_FORK)) {
             digest.update(ByteArray(56))

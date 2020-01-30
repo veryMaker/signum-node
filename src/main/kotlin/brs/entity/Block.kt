@@ -1,6 +1,5 @@
 package brs.entity
 
-import brs.api.grpc.proto.PeerApi
 import brs.db.TransactionDb
 import brs.objects.Constants
 import brs.objects.FluxValues
@@ -51,7 +50,7 @@ class Block internal constructor(
 
     var cumulativeDifficulty: BigInteger = BigInteger.ZERO
 
-    var baseTarget = Constants.INITIAL_BASE_TARGET
+    var baseTarget = Constants.MAX_BASE_TARGET
     var nextBlockId by Atomic<Long?>(null)
     var height = -1
     var id by AtomicLazy {

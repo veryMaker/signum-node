@@ -377,7 +377,7 @@ class Transaction private constructor(private val dp: DependencyProvider, builde
     }
 
     override fun hashCode(): Int {
-        return (id xor id.ushr(32)).toInt()
+        return (id xor (id ushr 32)).toInt()
     }
 
     override fun compareTo(other: Transaction): Int {

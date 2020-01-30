@@ -7,6 +7,7 @@ import brs.services.BlockchainProcessorService
 import brs.services.GeneratorService
 import brs.services.TaskType
 import brs.util.Listeners
+import brs.util.biginteger.compareTo
 import brs.util.convert.fullHashToId
 import brs.util.convert.toUnsignedString
 import brs.util.crypto.Crypto
@@ -131,15 +132,14 @@ open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorS
 
             val scoopNum = calculateScoop(newGenSig, lastBlock.height + 1L)
 
-            deadline =
-                calculateDeadline(accountId!!, nonce!!, newGenSig, scoopNum, lastBlock.baseTarget, lastBlock.height + 1)
+            deadline = calculateDeadline(accountId!!, nonce!!, newGenSig, scoopNum, lastBlock.baseTarget, lastBlock.height + 1)
         }
 
         internal fun forge(blockchainProcessorService: BlockchainProcessorService) {
             val lastBlock = dp.blockchainService.lastBlock
 
             val elapsedTime = dp.timeService.epochTime - lastBlock.timestamp
-            if (BigInteger.valueOf(elapsedTime.toLong()) > deadline) {
+            if (elapsedTime > deadline) {
                 try {
                     blockchainProcessorService.generateBlock(secretPhrase, publicKey, nonce)
                 } catch (e: Exception) {
@@ -151,13 +151,13 @@ open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorS
 
     class MockGeneratorService(private val dp: DependencyProvider) : GeneratorServiceImpl(dp) {
         override fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, blockHeight: Int): BigInteger =
-            BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toLong())
+            dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toBigInteger()
 
         override fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoopData: ByteArray): BigInteger =
-            BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toLong())
+            dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toBigInteger()
 
         override fun calculateDeadline(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, baseTarget: Long, blockHeight: Int): BigInteger =
-            BigInteger.valueOf(dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toLong())
+            dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toBigInteger()
     }
 
     companion object {
