@@ -19,6 +19,7 @@ import brs.util.LoggerConfigurator
 import brs.util.Version
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
+import burst.kit.util.LibShabal
 import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
 import java.io.FileReader
@@ -50,6 +51,7 @@ SYSTEM INFORMATION
 RT: ${System.getProperty("java.runtime.name")}, Version: ${System.getProperty("java.runtime.version")}
 VM: ${System.getProperty("java.vm.name")}, Version: ${System.getProperty("java.vm.version")}
 OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version")}, Architecture: ${System.getProperty("os.arch")}
+LS: ${LibShabal.LOAD_ERROR?.toString() ?: LibShabal.VERSION}
 **********"""
             }
             Constants.init(dp)
