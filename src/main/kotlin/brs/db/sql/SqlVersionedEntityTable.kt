@@ -94,7 +94,7 @@ internal abstract class SqlVersionedEntityTable<T> internal constructor(
                     selectMaxHeightQuery.addFrom(tableClass)
                     selectMaxHeightQuery.addConditions(dbKey.getPKConditions(tableClass))
                     selectMaxHeightQuery.addSelect(DSL.max(heightField))
-                    val maxHeight = selectMaxHeightQuery.fetchOne().get(DSL.max(heightField))
+                    val maxHeight = selectMaxHeightQuery.fetchOne()?.get(DSL.max(heightField))
 
                     if (maxHeight != null) {
                         val setLatestQuery = ctx.updateQuery(tableClass)

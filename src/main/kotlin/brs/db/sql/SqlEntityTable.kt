@@ -31,12 +31,12 @@ internal abstract class SqlEntityTable<T> internal constructor(
     override val count
         get() = dp.db.useDslContext<Int> { ctx ->
             val r = ctx.selectCount().from(table)
-            (if (latestField != null) r.where(latestField.isTrue) else r).fetchOne(0, Int::class.javaPrimitiveType)
+            (if (latestField != null) r.where(latestField.isTrue) else r).fetchOne(0, Int::class.javaPrimitiveType)!!
         }
 
     override val rowCount
         get() = dp.db.useDslContext<Int> { ctx ->
-            ctx.selectCount().from(table).fetchOne(0, Int::class.javaPrimitiveType)
+            ctx.selectCount().from(table).fetchOne(0, Int::class.javaPrimitiveType)!!
         }
 
     internal val cache: MutableMap<BurstKey, T>

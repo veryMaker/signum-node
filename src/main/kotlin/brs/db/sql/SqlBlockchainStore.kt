@@ -20,7 +20,7 @@ import kotlin.math.max
 
 internal class SqlBlockchainStore(private val dp: DependencyProvider) : BlockchainStore {
     override fun getTransactionCount() = dp.db.useDslContext<Int> { ctx ->
-        ctx.selectCount().from(TRANSACTION).fetchOne(0, Int::class.javaPrimitiveType)
+        ctx.selectCount().from(TRANSACTION).fetchOne(0, Int::class.javaPrimitiveType)!!
     }
 
     override fun getAllTransactions() = dp.db.useDslContext { ctx ->

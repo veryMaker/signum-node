@@ -15,10 +15,10 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 internal class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
-    override fun findTransaction(transactionId: Long): Transaction {
+    override fun findTransaction(transactionId: Long): Transaction? {
         return dp.db.useDslContext { ctx ->
             try {
-                val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId)).fetchOne()
+                val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId)).fetchOne() ?: return null
                 return@useDslContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
                 throw Exception("Transaction already in database, id = $transactionId, does not pass validation!", e)
@@ -26,10 +26,10 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
         }
     }
 
-    override fun findTransactionByFullHash(fullHash: ByteArray): Transaction {
+    override fun findTransactionByFullHash(fullHash: ByteArray): Transaction? {
         return dp.db.useDslContext { ctx ->
             try {
-                val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash)).fetchOne()
+                val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash)).fetchOne() ?: return null
                 return@useDslContext loadTransaction(transactionRecord)
             } catch (e: BurstException.ValidationException) {
                 throw Exception("Transaction already in database, full_hash = $fullHash, does not pass validation!", e)

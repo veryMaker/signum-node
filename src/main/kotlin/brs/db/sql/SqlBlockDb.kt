@@ -29,9 +29,7 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
 
     override fun findBlockIdAtHeight(height: Int): Long {
         return dp.db.useDslContext { ctx ->
-            val id = ctx.select(BLOCK.ID).from(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchOne(BLOCK.ID)
-                ?: throw Exception("Block at height $height not found in database!")
-            id
+            ctx.select(BLOCK.ID).from(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchOne(BLOCK.ID) ?: throw Exception("Block at height $height not found in database!")
         }
     }
 
@@ -144,7 +142,7 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
             blockHeightQuery.addFrom(BLOCK)
             blockHeightQuery.addSelect(BLOCK.HEIGHT)
             blockHeightQuery.addConditions(BLOCK.ID.eq(blockId))
-            val blockHeight = blockHeightQuery.fetchOne().get(BLOCK.HEIGHT)
+            val blockHeight = blockHeightQuery.fetchOne()?.get(BLOCK.HEIGHT)
 
             if (blockHeight != null) {
                 val deleteQuery = ctx.deleteQuery(BLOCK)

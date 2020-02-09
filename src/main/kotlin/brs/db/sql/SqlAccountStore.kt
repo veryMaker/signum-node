@@ -118,7 +118,7 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
     override fun getAssetAccountsCount(assetId: Long): Int {
         return dp.db.useDslContext<Int> { ctx ->
             ctx.selectCount().from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(assetId))
-                .and(ACCOUNT_ASSET.LATEST.isTrue).fetchOne(0, Int::class.javaPrimitiveType)
+                .and(ACCOUNT_ASSET.LATEST.isTrue).fetchOne(0, Int::class.javaPrimitiveType)!!
         }
     }
 
