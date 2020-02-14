@@ -95,7 +95,7 @@ CREATE TABLE purchase_feedback (db_id INTEGER PRIMARY KEY AUTOINCREMENT, id BIGI
 CREATE INDEX purchase_feedback_id_height_idx ON purchase_feedback (id, height DESC);
 CREATE TABLE purchase_public_feedback (db_id INTEGER PRIMARY KEY AUTOINCREMENT, id BIGINT NOT NULL, public_feedback
     VARCHAR NOT NULL, height INT NOT NULL, latest BOOLEAN NOT NULL DEFAULT TRUE);
-CREATE INDEX purchase_public_feedback_id_height_idx ON purchase_public_feedback (id, height DESC);
+CREATE UNIQUE INDEX purchase_public_feedback_id_height_idx ON purchase_public_feedback (id, height DESC);
 CREATE TABLE unconfirmed_transaction (db_id INTEGER PRIMARY KEY AUTOINCREMENT, id BIGINT NOT NULL, expiration INT NOT NULL,
     transaction_height INT NOT NULL, fee_per_byte BIGINT NOT NULL, timestamp INT NOT NULL,
     transaction_bytes BLOB NOT NULL, height INT NOT NULL);

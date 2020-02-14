@@ -87,6 +87,7 @@ internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
             }
             updateQuery.addConditions(latestField?.isTrue)
 
+            // TODO can we avoid batching the single query here?
             val updateBatch = ctx.batch(updateQuery)
             for (dbKey in keySet) {
                 val pkValues = dbKey.pkValues
