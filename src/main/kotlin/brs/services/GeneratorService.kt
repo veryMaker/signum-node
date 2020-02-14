@@ -45,7 +45,7 @@ interface GeneratorService : Observable<GeneratorService.GeneratorState, Generat
     /**
      * TODO
      */
-    fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoopData: ByteArray): BigInteger
+    fun calculateHit(genSig: ByteArray, scoopData: ByteArray): BigInteger
 
     /**
      * TODO

@@ -78,7 +78,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                 if (scoopData == null) {
                     dp.generatorService.calculateHit(block.generatorId, block.nonce, block.generationSignature, getScoopNum(block), block.height)
                 } else {
-                    dp.generatorService.calculateHit(block.generatorId, block.nonce, block.generationSignature, scoopData)
+                    dp.generatorService.calculateHit(block.generationSignature, scoopData)
                 }
             } catch (e: Exception) {
                 throw BlockchainProcessorService.BlockNotAcceptedException("Error pre-verifying block generation signature", e)

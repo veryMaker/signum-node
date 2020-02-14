@@ -93,8 +93,8 @@ open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorS
         return burstCrypto.calculateHit(accountId, nonce, genSig, scoop, getPocVersion(blockHeight))
     }
 
-    override fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoopData: ByteArray): BigInteger {
-        return burstCrypto.calculateHit(accountId, nonce, genSig, scoopData)
+    override fun calculateHit(genSig: ByteArray, scoopData: ByteArray): BigInteger {
+        return burstCrypto.calculateHit(genSig, scoopData)
     }
 
     override fun calculateDeadline(
@@ -151,7 +151,7 @@ open class GeneratorServiceImpl(private val dp: DependencyProvider) : GeneratorS
         override fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, blockHeight: Int): BigInteger =
             dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toBigInteger()
 
-        override fun calculateHit(accountId: Long, nonce: Long, genSig: ByteArray, scoopData: ByteArray): BigInteger =
+        override fun calculateHit(genSig: ByteArray, scoopData: ByteArray): BigInteger =
             dp.propertyService.get(Props.DEV_MOCK_MINING_DEADLINE).toBigInteger()
 
         override fun calculateDeadline(accountId: Long, nonce: Long, genSig: ByteArray, scoop: Int, baseTarget: Long, blockHeight: Int): BigInteger =
