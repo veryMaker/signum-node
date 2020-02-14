@@ -60,6 +60,11 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
         }
     }
 
+    // TODO:
+    // When the importer thread fails to push a block it clears the cache and may even rollback.
+    // This causes the pre-verifier threads to fail spectacularly and print loads of errors.
+    // We need to either hide the errors caused by this, or find a way to pause / restart the
+    // pre-verifier threads whenever the download cache gets cleared.
     override fun preVerify(block: Block, scoopData: ByteArray?, warnIfNotVerified: Boolean) {
         block.preVerificationLock.withLock {
             // Check if it's already verified

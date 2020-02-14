@@ -161,10 +161,6 @@ class GrpcPeerImpl(
         }
     }
 
-    override fun remove() {
-        dp.peerService.removePeer(this)
-    }
-
     private var connection: PeerConnection? = null
 
     private fun getConnection(): PeerConnection? {

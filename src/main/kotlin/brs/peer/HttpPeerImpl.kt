@@ -165,15 +165,11 @@ internal class HttpPeerImpl(
         }
     }
 
-    override fun remove() {
-        dp.peerService.removePeer(this)
-    }
-
     private inline fun <T: Any> handlePeerError(errorMessage: String, action: () -> T): T? {
         return try {
             action()
         } catch (e: Exception) {
-            if (!isConnectionException(e)) {
+            if (e != RETURNED_JSON_NULL && !isConnectionException(e)) {
                 if (state == Peer.State.CONNECTED) {
                     state = Peer.State.DISCONNECTED
                 }
@@ -192,7 +188,7 @@ internal class HttpPeerImpl(
 
     override fun exchangeInfo(): PeerInfo? {
         return handlePeerError("Error exchanging info with peer") {
-            val json = send(dp.peerService.myJsonPeerInfoRequest) ?: error("Returned JSON was null")
+            val json = send(dp.peerService.myJsonPeerInfoRequest) ?: throw RETURNED_JSON_NULL
             checkError(json)
             PeerInfo.fromJson(json)
         }
@@ -200,7 +196,7 @@ internal class HttpPeerImpl(
 
     override fun getCumulativeDifficulty(): Pair<BigInteger, Int>? {
         return handlePeerError("Error getting cumulative difficulty from peer") {
-            val json = send(getCumulativeDifficultyRequest) ?: error("Returned JSON was null")
+            val json = send(getCumulativeDifficultyRequest) ?: throw RETURNED_JSON_NULL
             checkError(json)
             Pair(BigInteger(json.mustGetMemberAsString("cumulativeDifficulty")), json.mustGetMemberAsInt("blockchainHeight"))
         }
@@ -208,7 +204,7 @@ internal class HttpPeerImpl(
 
     override fun getUnconfirmedTransactions(): Collection<Transaction>? {
         return handlePeerError("Error getting unconfirmed transactions from peer") {
-            val json = send(getUnconfirmedTransactionsRequest) ?: error("Returned JSON was null")
+            val json = send(getUnconfirmedTransactionsRequest) ?: throw RETURNED_JSON_NULL
             checkError(json)
             json.mustGetMemberAsJsonArray("unconfirmedTransactions").map { Transaction.parseTransaction(dp, it.mustGetAsJsonObject("transaction")) }
         }
@@ -216,7 +212,7 @@ internal class HttpPeerImpl(
 
     private fun getMilestoneBlockIds(request: JsonObject): Pair<Collection<Long>, Boolean>? {
         return handlePeerError("Error getting milestone block IDs") {
-            val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+            val json = send(JSON.prepareRequest(request)) ?: throw RETURNED_JSON_NULL
             checkError(json)
             val milestoneBlockIds = json.mustGetMemberAsJsonArray("milestoneBlockIds")
                 .map { it.safeGetAsString().parseUnsignedLong() }
@@ -247,7 +243,7 @@ internal class HttpPeerImpl(
             val request = JsonObject()
             request.addProperty("requestType", "processTransactions")
             request.add("transactions", jsonTransactions)
-            val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+            val json = send(JSON.prepareRequest(request)) ?: throw RETURNED_JSON_NULL
             checkError(json)
         }
     }
@@ -258,7 +254,7 @@ internal class HttpPeerImpl(
             val request = JsonObject()
             request.addProperty("requestType", "getNextBlocks")
             request.addProperty("blockId", lastBlockId.toUnsignedString())
-            val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+            val json = send(JSON.prepareRequest(request)) ?: throw RETURNED_JSON_NULL
             checkError(json)
             json.mustGetMemberAsJsonArray("nextBlocks")
                 .asSequence()
@@ -274,7 +270,7 @@ internal class HttpPeerImpl(
             val request = JsonObject()
             request.addProperty("requestType", "getNextBlockIds")
             request.addProperty("blockId", lastBlockId.toUnsignedString())
-            val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+            val json = send(JSON.prepareRequest(request)) ?: throw RETURNED_JSON_NULL
             checkError(json)
             json.mustGetMemberAsJsonArray("nextBlockIds")
                 .asSequence()
@@ -296,14 +292,14 @@ internal class HttpPeerImpl(
             val request = JsonObject()
             request.addProperty("requestType", "addPeers")
             request.add("peers", jsonAnnouncedAddresses)
-            val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+            val json = send(JSON.prepareRequest(request)) ?: throw RETURNED_JSON_NULL
             checkError(json)
         }
     }
 
     override fun getPeers(): Collection<PeerAddress>? {
         return handlePeerError("Error getting peers from peer") {
-            val json = send(getPeersRequest) ?: error("Returned JSON was null")
+            val json = send(getPeersRequest) ?: throw RETURNED_JSON_NULL
             checkError(json)
             json.mustGetMemberAsJsonArray("peers")
                 .map { it.safeGetAsString() ?: "" }
@@ -316,7 +312,7 @@ internal class HttpPeerImpl(
         return handlePeerError("Error sending block to peers") {
             val request = block.toJsonObject()
             request.addProperty("requestType", "processBlock")
-            val json = send(JSON.prepareRequest(request)) ?: error("Returned JSON was null")
+            val json = send(JSON.prepareRequest(request)) ?: throw RETURNED_JSON_NULL
             checkError(json)
             json.mustGetMemberAsBoolean("accepted")
         } ?: false
@@ -420,5 +416,7 @@ internal class HttpPeerImpl(
             request.addProperty("requestType", "getPeers")
             JSON.prepareRequest(request)
         }
+        
+        private val RETURNED_JSON_NULL = IllegalStateException("Returned JSON was null")
     }
 }

@@ -1,7 +1,6 @@
 package brs
 
 import brs.entity.Arguments
-import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import brs.util.logging.safeWarn
 import org.slf4j.LoggerFactory
@@ -21,7 +20,7 @@ object BurstLauncher {
         }
 
         if (canRunGui && GraphicsEnvironment.isHeadless()) {
-            logger.safeError { "Cannot start GUI as running in headless environment" }
+            logger.safeWarn { "Cannot start GUI as running in headless environment" }
             canRunGui = false
         }
 
@@ -29,7 +28,7 @@ object BurstLauncher {
             try {
                 Class.forName("javafx.application.Application")
             } catch (e: ClassNotFoundException) {
-                logger.safeError { "Could not start GUI as your JRE does not seem to have JavaFX installed. To install please install the \"openjfx\" package (eg. \"sudo apt install openjfx\")" }
+                logger.safeWarn { "Could not start GUI as your JRE does not seem to have JavaFX installed. To install please install the \"openjfx\" package (eg. \"sudo apt install openjfx\")" }
                 canRunGui = false
             }
         }

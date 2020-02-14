@@ -62,8 +62,6 @@ interface Peer {
 
     fun updateBlacklistedStatus(curTime: Long)
 
-    fun remove()
-
     fun updateDownloadedVolume(volume: Long)
 
     /**
