@@ -68,6 +68,10 @@ internal class GetState(private val dp: DependencyProvider) :
             "grpcApiPort",
             dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_API_V2_PORT else Props.API_V2_PORT)
         )
+        // We want mainnet to be oblivious to anything to do with testnet, so don't display this property if we aren't running on testnet
+        if (dp.propertyService.get(Props.DEV_TESTNET)) {
+            response.addProperty("testnet", true)
+        }
 
         return response
     }
