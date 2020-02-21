@@ -661,7 +661,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             if (wellKnownConnected >= connectWellKnownFirst) {
                 connectWellKnownFinished = true
                 logger.safeInfo { "Finished connecting to $connectWellKnownFirst well known peers." }
-                logger.safeInfo { "You can open your Burst Wallet in your favorite browser with: http://127.0.0.1:8125 or http://localhost:8125" }
+                val webSchema = if (dp.propertyService.get(Props.API_SSL)) "https" else "http"
+                val webHost = dp.propertyService.get(Props.API_LISTEN)
+                val webPort = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_API_PORT else Props.API_PORT)
+                logger.safeInfo { "You can open your Burst Wallet in your favorite browser with: $webSchema://$webHost:$webPort" }
             }
         }
 
