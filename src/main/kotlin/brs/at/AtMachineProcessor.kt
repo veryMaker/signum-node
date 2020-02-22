@@ -216,8 +216,8 @@ internal class AtMachineProcessor(
                     val apData = machineData.apData.array()
                     val firstAddress = func.addr1 * 8
                     val secondAddress = func.addr2 * 8
-                    for (i in firstAddress..firstAddress+7) {
-                        apData[i] = apData[i] or apData[secondAddress+i]
+                    for (i in 0..7) {
+                        apData[firstAddress+i] = apData[firstAddress+i] or apData[secondAddress+i]
                     }
                     machineData.apData.clear()
                 }
@@ -231,8 +231,8 @@ internal class AtMachineProcessor(
                     val apData = machineData.apData.array()
                     val firstAddress = func.addr1 * 8
                     val secondAddress = func.addr2 * 8
-                    for (i in firstAddress..firstAddress+7) {
-                        apData[i] = apData[i] and apData[secondAddress+i]
+                    for (i in 0..7) {
+                        apData[firstAddress+i] = apData[firstAddress+i] and apData[secondAddress+i]
                     }
                     machineData.apData.clear()
                 }
@@ -246,8 +246,8 @@ internal class AtMachineProcessor(
                     val apData = machineData.apData.array()
                     val firstAddress = func.addr1 * 8
                     val secondAddress = func.addr2 * 8
-                    for (i in firstAddress..firstAddress+7) {
-                        apData[i] = apData[i] xor apData[secondAddress+i]
+                    for (i in 0..7) {
+                        apData[firstAddress+i] = apData[firstAddress+i] xor apData[secondAddress+i]
                     }
                     machineData.apData.clear()
                 }
