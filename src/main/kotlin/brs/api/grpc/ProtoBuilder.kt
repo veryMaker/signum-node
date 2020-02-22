@@ -410,7 +410,7 @@ object ProtoBuilder {
             .build()
     }
 
-    fun buidRawBlock(block: Block): PeerApi.RawBlock {
+    fun buildRawBlock(block: Block): PeerApi.RawBlock {
         return PeerApi.RawBlock.newBuilder()
             .setHeight(block.height)
             .setBlockData(block.toBytes().toByteString())

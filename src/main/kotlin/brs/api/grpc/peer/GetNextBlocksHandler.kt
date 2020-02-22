@@ -9,7 +9,7 @@ internal class GetNextBlocksHandler(private val dp: DependencyProvider) : GrpcAp
     override fun handleRequest(request: PeerApi.GetBlocksAfterRequest): PeerApi.RawBlocks {
         require(request.blockId != 0L)
         return PeerApi.RawBlocks.newBuilder()
-            .addAllBlocks(dp.blockchainService.getBlocksAfter(request.blockId, 100).map { ProtoBuilder.buidRawBlock(it) })
+            .addAllBlocks(dp.blockchainService.getBlocksAfter(request.blockId, 100).map { ProtoBuilder.buildRawBlock(it) })
             .build()
     }
 }

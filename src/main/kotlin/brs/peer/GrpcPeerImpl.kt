@@ -24,6 +24,7 @@ import brs.util.logging.safeWarn
 import brs.util.sync.Mutex
 import com.google.protobuf.Empty
 import io.grpc.ManagedChannelBuilder
+import io.grpc.StatusRuntimeException
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.math.BigInteger
@@ -173,6 +174,10 @@ class GrpcPeerImpl(
     private inline fun <T: Any> handlePeerError(errorMessage: String, action: (PeerConnection) -> T): T? {
         return try {
             getConnection()?.let { action(it) }
+        } catch (e: StatusRuntimeException) {
+            // Error sent by peer TODO handle this differently
+            logger.safeWarn(e) { errorMessage }
+            null
         } catch (e: Exception) {
             logger.safeWarn(e) { errorMessage }
             null
@@ -269,7 +274,7 @@ class GrpcPeerImpl(
         return handlePeerError("Error sending block to peers") { connection ->
             connection.addBlock(PeerApi.ProcessBlockRequest.newBuilder()
                 .setPreviousBlockId(block.previousBlockId)
-                .setBlock(ProtoBuilder.buidRawBlock(block))
+                .setBlock(ProtoBuilder.buildRawBlock(block))
                 .build())
             true
         } ?: false
