@@ -8,41 +8,52 @@ import brs.entity.DependencyProvider
 import brs.schema.Tables.BLOCK
 import brs.schema.tables.records.BlockRecord
 import brs.util.BurstException
+import brs.util.cache.tryCache
+import org.ehcache.Cache
 import org.jooq.DSLContext
 import java.math.BigInteger
 
 internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
+    private val idCache: Cache<Long, Block>
+        get() = dp.dbCacheService.getCache("block_id", Long::class.javaObjectType, Block::class.java)!!
+    private val heightCache: Cache<Int, Block>
+        get() = dp.dbCacheService.getCache("block_height", Int::class.javaObjectType, Block::class.java)!!
+
     override fun findBlock(blockId: Long): Block? {
-        return dp.db.useDslContext { ctx ->
-            try {
-                val r = ctx.selectFrom(BLOCK).where(BLOCK.ID.eq(blockId)).fetchAny()
-                return@useDslContext if (r == null) null else loadBlock(r)
-            } catch (e: BurstException.ValidationException) {
-                throw Exception("Block already in database, id = $blockId, does not pass validation!", e)
+        return idCache.tryCache(blockId) {
+            dp.db.useDslContext { ctx ->
+                try {
+                    val r = ctx.selectFrom(BLOCK).where(BLOCK.ID.eq(blockId)).fetchAny()
+                    return@useDslContext if (r == null) null else loadBlock(r)
+                } catch (e: BurstException.ValidationException) {
+                    throw Exception("Block already in database, id = $blockId, does not pass validation!", e)
+                }
             }
         }
     }
 
     override fun hasBlock(blockId: Long): Boolean {
+        // TODO this isn't cached
         return dp.db.useDslContext { ctx -> ctx.fetchExists(ctx.selectOne().from(BLOCK).where(BLOCK.ID.eq(blockId))) }
     }
 
     override fun findBlockIdAtHeight(height: Int): Long {
+        // TODO this isn't cached
         return dp.db.useDslContext { ctx ->
             ctx.select(BLOCK.ID).from(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchOne(BLOCK.ID) ?: throw Exception("Block at height $height not found in database!")
         }
     }
 
     override fun findBlockAtHeight(height: Int): Block {
-        return dp.db.useDslContext { ctx ->
-            loadBlock(
-                ctx.selectFrom(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchAny()
-                    ?: throw Exception("Block at height $height not found in database!")
-            )
-        }
+        return heightCache.tryCache(height) {
+            dp.db.useDslContext { ctx ->
+                loadBlock(ctx.selectFrom(BLOCK).where(BLOCK.HEIGHT.eq(height)).fetchAny() ?: return@useDslContext null)
+            }
+        } ?: throw Exception("Block at height $height not found in database!")
     }
 
     override fun findLastBlock(): Block {
+        // TODO this isn't cached
         return dp.db.useDslContext { ctx ->
             try {
                 return@useDslContext loadBlock(
@@ -58,6 +69,7 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
     }
 
     override fun findLastBlock(timestamp: Int): Block {
+        // TODO this isn't cached
         return dp.db.useDslContext { ctx ->
             try {
                 return@useDslContext loadBlock(
@@ -150,6 +162,9 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
                 deleteQuery.execute()
             }
         }
+        // TODO Only partially clear the cache
+        idCache.clear()
+        heightCache.clear()
     }
 
     override fun optimize() {

@@ -9,24 +9,32 @@ import brs.schema.tables.records.TransactionRecord
 import brs.transaction.appendix.Appendix
 import brs.transaction.type.TransactionType
 import brs.util.BurstException
+import brs.util.cache.tryCache
 import brs.util.convert.toUnsignedString
 import brs.util.db.fetchAndMap
+import org.ehcache.Cache
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 internal class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
+    private val cache: Cache<Long, Transaction>
+        get() = dp.dbCacheService.getCache("transaction", Long::class.javaObjectType, Transaction::class.java)!!
+
     override fun findTransaction(transactionId: Long): Transaction? {
-        return dp.db.useDslContext { ctx ->
-            try {
-                val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId)).fetchOne() ?: return null
-                return@useDslContext loadTransaction(transactionRecord)
-            } catch (e: BurstException.ValidationException) {
-                throw Exception("Transaction already in database, id = $transactionId, does not pass validation!", e)
+        return cache.tryCache(transactionId) {
+            dp.db.useDslContext { ctx ->
+                try {
+                    val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId)).fetchOne() ?: return null
+                    return@useDslContext loadTransaction(transactionRecord)
+                } catch (e: BurstException.ValidationException) {
+                    throw Exception("Transaction already in database, id = $transactionId, does not pass validation!", e)
+                }
             }
         }
     }
 
     override fun findTransactionByFullHash(fullHash: ByteArray): Transaction? {
+        // TODO this isn't cached
         return dp.db.useDslContext { ctx ->
             try {
                 val transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash)).fetchOne() ?: return null
@@ -38,6 +46,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
     }
 
     override fun hasTransaction(transactionId: Long): Boolean {
+        // TODO this isn't cached
         return dp.db.useDslContext { ctx ->
             ctx.fetchExists(
                 ctx.selectFrom(TRANSACTION).where(
@@ -50,6 +59,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
     }
 
     override fun hasTransactionByFullHash(fullHash: ByteArray): Boolean {
+        // TODO this isn't cached
         return dp.db.useDslContext { ctx ->
             ctx.fetchExists(ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(fullHash)))
         }
@@ -93,6 +103,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
     }
 
     override fun findBlockTransactions(blockId: Long): Collection<Transaction> {
+        // TODO this isn't cached
         return dp.db.useDslContext { ctx ->
             ctx.selectFrom(TRANSACTION)
                 .where(TRANSACTION.BLOCK_ID.eq(blockId))

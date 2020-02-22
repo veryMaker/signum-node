@@ -4,6 +4,8 @@ import brs.services.StatisticsService
 import org.ehcache.Cache
 import org.ehcache.config.CacheRuntimeConfiguration
 
+// TODO this gets initialized literally millions of times, this needs to be done better
+// Idea: ditch cache hit tracking, implement block handling tracking as task every 60 seconds
 internal class StatisticsCache<K, V>(
     private val wrappedCache: Cache<K, V>,
     private val cacheName: String,
