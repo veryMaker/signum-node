@@ -135,7 +135,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
                         id = transaction.id
                         deadline = transaction.deadline
                         setSenderPublicKey(*transaction.senderPublicKey) // TODO better way of setting
-                        if (transaction.recipientId == 0L) recipientId = transaction.recipientId
+                        if (transaction.recipientId != 0L) recipientId = transaction.recipientId
                         amount = transaction.amountPlanck
                         fee = transaction.feePlanck
                         if (transaction.referencedTransactionFullHash != null) setReferencedTransactionFullhash(*transaction.referencedTransactionFullHash) // TODO better way of setting
