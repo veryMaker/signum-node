@@ -419,7 +419,7 @@ object ProtoBuilder {
     }
 
     fun parseRawBlock(dp: DependencyProvider, rawBlock: PeerApi.RawBlock): Block {
-        return Block.parseBlock(dp, rawBlock.height, rawBlock.blockData.toByteArray(), rawBlock.transactionsDataList.map { it.toByteArray() })
+        return Block.parseBlock(dp, rawBlock.height, rawBlock.blockData.toByteArray(), rawBlock.transactionsDataList.map { it.transactionData.toByteArray() })
     }
 
     fun parseRawTransaction(dp: DependencyProvider, rawTransaction: PeerApi.RawTransaction): Transaction {

@@ -314,7 +314,7 @@ class Block internal constructor(
             } else {
                 blockATs = null
             }
-            val signature = ByteArray(32)
+            val signature = ByteArray(64)
             buffer.get(signature)
             return Block(dp, version, timestamp, previousBlockId, totalAmountPlanck, totalFeePlanck, payloadLength, payloadHash, generatorPublicKey, generationSignature, signature, previousBlockHash, transactions, nonce, blockATs, height)
         }
