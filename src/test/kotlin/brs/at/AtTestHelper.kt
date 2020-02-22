@@ -104,7 +104,7 @@ class AtTestHelper {
         this.onAtAdded = onAtAdded
     }
 
-    fun addHelloWorldAT(dp: DependencyProvider) {
+    fun addHelloWorldAT(dp: DependencyProvider): AT {
         AT.addAT(
             dp,
             1L,
@@ -114,9 +114,10 @@ class AtTestHelper {
             HELLO_WORLD_CREATION_BYTES,
             Integer.MAX_VALUE
         )
+        return dp.atStore.getAT(1L)!!
     }
 
-    fun addEchoAT(dp: DependencyProvider) {
+    fun addEchoAT(dp: DependencyProvider): AT {
         AT.addAT(
             dp,
             2L,
@@ -126,9 +127,10 @@ class AtTestHelper {
             ECHO_CREATION_BYTES,
             Integer.MAX_VALUE
         )
+        return dp.atStore.getAT(2L)!!
     }
 
-    fun addTipThanksAT(dp: DependencyProvider) {
+    fun addTipThanksAT(dp: DependencyProvider): AT {
         AT.addAT(
             dp,
             3L,
@@ -138,6 +140,7 @@ class AtTestHelper {
             TIP_THANKS_CREATION_BYTES,
             Integer.MAX_VALUE
         )
+        return dp.atStore.getAT(3L)!!
     }
 
     companion object {
