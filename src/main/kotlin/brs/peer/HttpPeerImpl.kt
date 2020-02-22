@@ -232,7 +232,7 @@ internal class HttpPeerImpl(
     override fun getMilestoneBlockIds(lastMilestoneBlockId: Long): Pair<Collection<Long>, Boolean>? {
         val request = JsonObject()
         request.addProperty("requestType", "getMilestoneBlockIds")
-        request.addProperty("lastMilestoneBlockId", lastMilestoneBlockId)
+        request.addProperty("lastMilestoneBlockId", lastMilestoneBlockId.toUnsignedString())
         return getMilestoneBlockIds(request)
     }
 
