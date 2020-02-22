@@ -126,6 +126,10 @@ class OclPocServiceImpl(private val dp: DependencyProvider) : OclPocService {
                 getKernelPoc1, device, CL_KERNEL_WORK_GROUP_SIZE, 8,
                 Pointer.to(getGroupSize), null
             )
+            clGetKernelWorkGroupInfo(
+                getKernelPoc2, device, CL_KERNEL_WORK_GROUP_SIZE, 8,
+                Pointer.to(getGroupSize), null
+            )
 
             maxGroupItems = min(genGroupSize[0], getGroupSize[0])
 
