@@ -113,19 +113,16 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     override val allPeers: Collection<Peer> get() = peers.values
 
     init {
-        val tempAddress = if (dp.propertyService.get(Props.P2P_MY_ADDRESS).isNotBlank()
-            && dp.propertyService.get(Props.P2P_MY_ADDRESS).trim().isEmpty()
-            && gateway != null
-        ) {
+        val configuredAddress = dp.propertyService.get(Props.P2P_MY_ADDRESS)
+        myAddress = if (gateway != null && configuredAddress.isBlank()) {
             try {
                 gateway!!.externalIPAddress
             } catch (e: Exception) {
-                logger.safeInfo { "Can't get gateways IP adress" }
-                null
+                logger.safeInfo { "Can't get Gateway's IP address" }
+                configuredAddress
             }
-        } else null
+        } else configuredAddress
 
-        myAddress = tempAddress ?: dp.propertyService.get(Props.P2P_MY_ADDRESS)
         myHttpPeerServerPort = dp.propertyService.get(Props.P2P_PORT)
         myGrpcPeerServerPort = dp.propertyService.get(Props.P2P_V2_PORT)
         useUpnp = dp.propertyService.get(Props.P2P_UPNP)
@@ -362,10 +359,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
                 val now = dp.timeService.epochTime
                 for (peer in peers.values) {
-                    if (peer.state == Peer.State.CONNECTED && now - peer.lastUpdated > 3600) {
-                        if (!peer.connect() || !peer.isHigherOrEqualVersionThan(MIN_VERSION) || peer.state != Peer.State.CONNECTED && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers) {
-                            removePeer(peer)
-                        }
+                    if (peer.state == Peer.State.CONNECTED && now - peer.lastUpdated > 3600 && (!peer.connect() || !peer.isHigherOrEqualVersionThan(MIN_VERSION) || peer.state != Peer.State.CONNECTED && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers)) {
+                        removePeer(peer)
                     }
                 }
 
