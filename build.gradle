@@ -7,10 +7,12 @@ buildscript {
     ext.flywayPluginVersion = "6.2.4"
     ext.testLoggerPluginVersion = "2.0.0"
     ext.dokkaPluginVersion = "0.10.1"
+
     repositories {
         mavenCentral()
         jcenter()
     }
+
     dependencies {
         classpath "com.google.protobuf:protobuf-gradle-plugin:$protobufPluginVersion"
         classpath "com.github.jengelman.gradle.plugins:shadow:$shadowPluginVersion"
