@@ -211,7 +211,7 @@ LS: ${LibShabal.LOAD_ERROR?.toString() ?: LibShabal.VERSION}
     }
 
     companion object {
-        val VERSION = Version.parse("v3.0.0-dev")
+        val VERSION = Version.parse("v3.0.0-alpha5")
         const val APPLICATION = "BRS"
         private const val DEFAULT_PROPERTIES_NAME = "brs-default.properties"
 
