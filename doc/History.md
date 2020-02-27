@@ -10,6 +10,9 @@ YYYY-MM-DD v3.0.0 (WIP)
 - More documentation on interfaces
 - General Optimizations
 - Lots of optimizations to AT Implementation
+- More database objects (Blocks, Transactions) cached
+- New gRPC-based P2P Layer
+- Native implementations of performance-heavy operations
 - New RxJava-based Task Scheduler
 - Dependency Injection for services
 - Move to Gradle-based build
