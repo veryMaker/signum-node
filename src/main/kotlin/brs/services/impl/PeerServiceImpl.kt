@@ -110,7 +110,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private val peers = ConcurrentHashMap<String, Peer>()
     private val remoteAddressCache = ConcurrentHashMap<PeerAddress, String>()
 
-    override val allPeers: Collection<Peer> get() = peers.values
+    override val allPeers get() = peers.values
 
     init {
         val configuredAddress = dp.propertyService.get(Props.P2P_MY_ADDRESS)
@@ -525,8 +525,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     override fun getOrAddPeer(remoteAddress: String): Peer {
         val cleanRemoteAddress = remoteAddress.trim()
         var peer = peers[cleanRemoteAddress]
-        if (peer != null) {
-            return peer
+        if (peer != null) return peer
+        if (remoteAddressCache.containsValue(remoteAddress)) {
+            peer = peers[remoteAddressCache.values.find { it == remoteAddress }]
+            if (peer != null) return peer
         }
         peer = if (cleanRemoteAddress.startsWith("grpc://")) {
             GrpcPeerImpl(dp, remoteAddress, null)
@@ -538,15 +540,16 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         return peer
     }
 
-    override fun getOrAddPeer(address: PeerAddress): Peer {
+    override fun getOrAddPeer(address: PeerAddress) {
+        if (this.announcedAddress == address) return
         var remoteAddress = remoteAddressCache[address]
         if (remoteAddress != null) {
             val peer = peers[remoteAddress]
-            if (peer != null) return peer
+            if (peer != null) return
         }
         remoteAddress = address.toString()
         var peer = peers[remoteAddress]
-        if (peer != null) return peer
+        if (peer != null) return
         peer = when (address.protocol) {
             PeerAddress.Protocol.HTTP -> HttpPeerImpl(dp, remoteAddress, address)
             PeerAddress.Protocol.GRPC -> GrpcPeerImpl(dp, remoteAddress, address)
@@ -554,7 +557,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         remoteAddressCache[address] = remoteAddress
         peers[remoteAddress] = peer
         listeners.accept(PeerService.Event.NEW_PEER, peer)
-        return peer
     }
 
     override fun removePeer(peer: Peer) {

@@ -11,6 +11,7 @@ internal class GetPeers(private val dp: DependencyProvider) : PeerServlet.PeerRe
         val response = JsonObject()
         val peers = JsonArray()
         for (otherPeer in dp.peerService.allPeers) {
+            if (otherPeer == peer) continue
             val announcedAddress = otherPeer.address
             if (!otherPeer.isBlacklisted
                 && otherPeer.state == Peer.State.CONNECTED

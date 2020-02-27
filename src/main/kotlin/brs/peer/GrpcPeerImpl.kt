@@ -166,7 +166,10 @@ class GrpcPeerImpl(
 
     private fun getConnection(): PeerConnection? {
         connection?.let { return it }
-        val newConnection = BrsPeerServiceGrpc.newBlockingStub(ManagedChannelBuilder.forAddress(address.host, address.port).usePlaintext().build())
+        val newConnection = BrsPeerServiceGrpc.newBlockingStub(ManagedChannelBuilder.forAddress(address.host, address.port)
+            .usePlaintext()
+            .maxInboundMessageSize(1024 * 1024 * 100)
+            .build())
         connection = newConnection
         return newConnection
     }
@@ -310,6 +313,10 @@ class GrpcPeerImpl(
         state = Peer.State.NON_CONNECTED
         dp.peerService.updateAddress(this)
         connection = null // TODO is this the correct way to disconnect? (hint: no...)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is Peer && other.address == address
     }
 
     companion object {

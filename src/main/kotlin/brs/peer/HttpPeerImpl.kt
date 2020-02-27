@@ -396,6 +396,10 @@ internal class HttpPeerImpl(
         dp.peerService.updateAddress(this)
     }
 
+    override fun equals(other: Any?): Boolean {
+        return other is Peer && other.address == address
+    }
+
     companion object {
         private val logger = LoggerFactory.getLogger(HttpPeerImpl::class.java)
 

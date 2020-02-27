@@ -58,7 +58,7 @@ interface PeerService {
     /**
      * Gets a known peer or adds a new peer with the address [address]
      */
-    fun getOrAddPeer(address: PeerAddress): Peer
+    fun getOrAddPeer(address: PeerAddress)
 
     /**
      * TODO

@@ -20,7 +20,7 @@ internal class GetNextBlocks(private val blockchainService: BlockchainService) :
 
         for (block in blocks) {
             val length = Constants.BLOCK_HEADER_LENGTH + block.payloadLength
-            if (totalLength + length > 1048576) {
+            if (totalLength + length > 2097152) {
                 break
             }
             nextBlocks.add(block)
