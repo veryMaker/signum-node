@@ -149,7 +149,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             .setAnnouncedAddress(announcedAddress?.toString() ?: "")
             .build()
 
-        connectWellKnownFirst = dp.propertyService.get(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS)
+        connectWellKnownFirst = dp.propertyService.get(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS).coerceAtMost(wellKnownPeers.size)
         connectWellKnownFinished = connectWellKnownFirst == 0
 
         val knownBlacklistedPeersList = dp.propertyService.get(Props.P2P_BLACKLISTED_PEERS)
