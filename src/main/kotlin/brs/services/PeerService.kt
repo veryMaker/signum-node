@@ -128,11 +128,6 @@ interface PeerService {
     /**
      * TODO
      */
-    val wellKnownPeers: Set<PeerAddress>
-
-    /**
-     * TODO
-     */
     enum class Event {
         BLACKLIST,
         UNBLACKLIST,

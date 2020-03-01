@@ -28,8 +28,6 @@ interface Peer {
 
     var platform: String
 
-    val isWellKnown: Boolean
-
     val isRebroadcastTarget: Boolean
 
     val isBlacklisted: Boolean

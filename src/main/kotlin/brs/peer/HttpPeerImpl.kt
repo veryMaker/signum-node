@@ -94,9 +94,6 @@ internal class HttpPeerImpl(
     override val isAtLeastMyVersion: Boolean
         get() = isHigherOrEqualVersionThan(Burst.VERSION)
 
-    override val isWellKnown: Boolean
-        get() = dp.peerService.wellKnownPeers.contains(address)
-
     override val isRebroadcastTarget: Boolean
         get() = dp.peerService.rebroadcastPeers.contains(address)
 

@@ -48,7 +48,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private val random = Random()
 
     override val rebroadcastPeers: Set<PeerAddress>
-    override val wellKnownPeers: Set<PeerAddress>
+    private val wellKnownPeers: Set<PeerAddress>
 
     init {
         val wellKnownPeersList = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_BOOTSTRAP_PEERS else Props.P2P_BOOTSTRAP_PEERS)
@@ -324,7 +324,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private fun updateSavedPeers() {
         dp.db.transaction {
             dp.peerDb.updatePeers(peers.values
-                .filter { peer -> !peer.isBlacklisted && !peer.isWellKnown && peer.isHigherOrEqualVersionThan(MIN_VERSION) }
+                .filter { peer -> !peer.isBlacklisted && !wellKnownPeers.contains(peer.address) && peer.isHigherOrEqualVersionThan(MIN_VERSION) }
                 .map { it.address.toString() })
         }
     }
@@ -338,6 +338,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
              * if we have connected to our target amount we can exit loop.
              * if peers size is equal or below connected value we have nothing to connect to
              */
+                // TODO this loop somehow gets stuck meaning peers are rarely added to db...
                 while (numConnectedPeers < maxNumberOfConnectedPublicPeers && peers.size > numConnectedPeers) {
                     val peer =
                         getAnyPeer(if (ThreadLocalRandom.current().nextInt(2) == 0) Peer.State.NON_CONNECTED else Peer.State.DISCONNECTED)
@@ -651,7 +652,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         if (!connectWellKnownFinished) {
             var wellKnownConnected = 0
             for (peer in peers.values) {
-                if (peer.isWellKnown && peer.state == Peer.State.CONNECTED) {
+                if (wellKnownPeers.contains(peer.address) && peer.state == Peer.State.CONNECTED) {
                     wellKnownConnected++
                 }
             }
@@ -659,13 +660,14 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 connectWellKnownFinished = true
                 logger.safeInfo { "Finished connecting to $connectWellKnownFirst well known peers." }
                 val webSchema = if (dp.propertyService.get(Props.API_SSL)) "https" else "http"
-                val webHost = dp.propertyService.get(Props.API_LISTEN)
+                var webHost = dp.propertyService.get(Props.API_LISTEN)
+                if (webHost == "0.0.0.0") webHost = "localhost"
                 val webPort = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_API_PORT else Props.API_PORT)
                 logger.safeInfo { "You can open your Burst Wallet in your favorite browser with: $webSchema://$webHost:$webPort" }
             }
         }
 
-        val selectedPeers = peers.values.filter { peer -> !peer.isBlacklisted && peer.state == state && peer.shareAddress && (connectWellKnownFinished || peer.state == Peer.State.CONNECTED || peer.isWellKnown) }
+        val selectedPeers = peers.values.filter { peer -> !peer.isBlacklisted && peer.state == state && peer.shareAddress && (connectWellKnownFinished || peer.state == Peer.State.CONNECTED || wellKnownPeers.contains(peer.address)) }
         return if (selectedPeers.isNotEmpty()) selectedPeers[random.nextInt(selectedPeers.size)] else null
     }
 
