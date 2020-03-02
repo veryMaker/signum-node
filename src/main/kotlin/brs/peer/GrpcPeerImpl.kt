@@ -21,7 +21,6 @@ import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import brs.util.logging.safeWarn
-import brs.util.sync.Mutex
 import com.google.protobuf.Empty
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
@@ -72,46 +71,13 @@ class GrpcPeerImpl(
         })
     private var isOldVersion by Atomic(false)
     private var blacklistingTime by Atomic<Long>(0)
-    override var state: Peer.State by AtomicWithOverride(
-        initialValue = Peer.State.NON_CONNECTED,
-        setValueDelegate = { newState, set ->
-            if (state != newState) {
-                if (state == Peer.State.NON_CONNECTED) {
-                    set(newState)
-                    dp.peerService.notifyListeners(this@GrpcPeerImpl, PeerService.Event.ADDED_ACTIVE_PEER)
-                } else if (newState != Peer.State.NON_CONNECTED) {
-                    set(newState)
-                    dp.peerService.notifyListeners(this@GrpcPeerImpl, PeerService.Event.CHANGED_ACTIVE_PEER)
-                }
-            }
-        })
-    override var downloadedVolume by Atomic(0L)
-    override var uploadedVolume by Atomic(0L)
+    override val isConnected: Boolean
+        get() = connection != null && connection?.second?.isShutdown == false
+
     override var lastUpdated by AtomicLateinit<Int>()
-    private val mutex = Mutex()
-
-    override val isAtLeastMyVersion: Boolean
-        get() = isHigherOrEqualVersionThan(Burst.VERSION)
-
-    override val isRebroadcastTarget: Boolean
-        get() = dp.peerService.rebroadcastPeers.contains(address)
 
     override val isBlacklisted: Boolean
         get() = blacklistingTime > 0 || isOldVersion || dp.peerService.knownBlacklistedPeers.contains(address)
-
-    override fun updateDownloadedVolume(volume: Long) {
-        mutex.withLock {
-            downloadedVolume += volume
-        }
-        dp.peerService.notifyListeners(this, PeerService.Event.DOWNLOADED_VOLUME)
-    }
-
-    override fun updateUploadedVolume(volume: Long) {
-        mutex.withLock {
-            uploadedVolume += volume
-        }
-        dp.peerService.notifyListeners(this, PeerService.Event.UPLOADED_VOLUME)
-    }
 
     override fun isHigherOrEqualVersionThan(version: Version): Boolean {
         return Peer.isHigherOrEqualVersion(version, this.version)
@@ -143,48 +109,60 @@ class GrpcPeerImpl(
         blacklist()
     }
 
-    override fun blacklist() {
+    private fun blacklist() {
         blacklistingTime = System.currentTimeMillis()
-        state = Peer.State.NON_CONNECTED
+        shutdownConnection()
         dp.peerService.notifyListeners(this, PeerService.Event.BLACKLIST)
-    }
-
-    override fun unBlacklist() {
-        state = Peer.State.NON_CONNECTED
-        blacklistingTime = 0
-        dp.peerService.notifyListeners(this, PeerService.Event.UNBLACKLIST)
     }
 
     override fun updateBlacklistedStatus(curTime: Long) {
         if (blacklistingTime > 0 && blacklistingTime + dp.peerService.blacklistingPeriod <= curTime) {
-            unBlacklist()
+            blacklistingTime = 0
+            dp.peerService.notifyListeners(this, PeerService.Event.UNBLACKLIST)
         }
     }
 
-    private var connection: Pair<PeerConnection, ManagedChannel>? = null
+    private var connection: Pair<PeerConnection, ManagedChannel>? by Atomic(null)
 
     private fun getConnection(): PeerConnection? {
-        connection?.let { return it.first }
+        return connection?.first
+    }
+
+    private fun openConnection() {
         val channel = ManagedChannelBuilder.forAddress(address.host, address.port)
             .usePlaintext()
             .maxInboundMessageSize(1024 * 1024 * 100) // 100MB - way too big TODO reduce when alpha5 bug where peer sends too much is fixed
             .build()
         val newConnection = BrsPeerServiceGrpc.newBlockingStub(channel)
         connection = Pair(newConnection, channel)
-        return newConnection
+    }
+
+    private fun shutdownConnection() {
+        connection?.second?.let { channel ->
+            channel.shutdown()
+            channel.awaitTermination(10, TimeUnit.SECONDS)
+            while (!channel.isTerminated) {
+                channel.shutdownNow()
+                channel.awaitTermination(10, TimeUnit.SECONDS)
+            }
+        }
+        connection = null
     }
 
     private inline fun <T: Any> handlePeerError(errorMessage: String, action: (PeerConnection) -> T): T? {
-        return try {
-            getConnection()?.let { action(it) }
+        try {
+            val connection = getConnection()
+            if (connection != null) {
+                return action(connection)
+            } else {
+                logger.safeWarn { "$errorMessage: Peer was not connected" }
+            }
         } catch (e: StatusRuntimeException) {
-            // Error sent by peer
             logger.safeWarn { "$errorMessage: Peer Returned an Error: \"${e.message?.replace("ABORTED: ", "")}\"" }
-            null
         } catch (e: Exception) {
             logger.safeWarn(e) { errorMessage }
-            null
         }
+        return null
     }
 
     override fun exchangeInfo(): PeerInfo? {
@@ -284,6 +262,8 @@ class GrpcPeerImpl(
     }
 
     override fun connect(): Boolean {
+        if (isBlacklisted) return false
+        openConnection()
         val response = exchangeInfo() ?: return false
         application = response.application
         version = response.version
@@ -301,30 +281,16 @@ class GrpcPeerImpl(
             announcedAddress = parsedRemoteAddress
         }
 
-        state = Peer.State.CONNECTED
         lastUpdated = dp.timeService.epochTime
         return true
-    }
-
-    private fun shutdownConnection() {
-        connection?.second?.let { // it is the managed channel
-            it.shutdown()
-            it.awaitTermination(10, TimeUnit.SECONDS)
-            while (!it.isTerminated) {
-                it.shutdownNow()
-                it.awaitTermination(10, TimeUnit.SECONDS)
-            }
-        }
-        connection = null
     }
 
     override fun updateAddress(newAnnouncedAddress: PeerAddress) {
         if (newAnnouncedAddress.protocol != PeerAddress.Protocol.GRPC) return // TODO is this the best way to handle this?
         announcedAddress = newAnnouncedAddress
         // Force re-validate address
-        state = Peer.State.NON_CONNECTED
-        dp.peerService.updateAddress(this)
         shutdownConnection()
+        dp.peerService.updateAddress(this)
     }
 
     override fun hashCode(): Int {

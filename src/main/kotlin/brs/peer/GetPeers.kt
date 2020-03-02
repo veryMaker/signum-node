@@ -14,7 +14,7 @@ internal class GetPeers(private val dp: DependencyProvider) : PeerServlet.PeerRe
             if (otherPeer == peer) continue
             val announcedAddress = otherPeer.address
             if (!otherPeer.isBlacklisted
-                && otherPeer.state == Peer.State.CONNECTED
+                && otherPeer.isConnected
                 && otherPeer.shareAddress
                 && (announcedAddress.protocol == PeerAddress.Protocol.HTTP || peer.version.isGreaterThanOrEqualTo(Constants.NEW_PEER_API_MIN_VERSION))) {
                 if (peer.version.isGreaterThanOrEqualTo(Constants.NEW_PEER_API_MIN_VERSION)) {

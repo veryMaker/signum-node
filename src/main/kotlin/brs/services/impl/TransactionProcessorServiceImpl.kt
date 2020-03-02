@@ -32,7 +32,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
         dp.taskSchedulerService.scheduleTaskWithDelay(TaskType.IO, 0, 10000) {
             run {
                 try {
-                    val peer = dp.peerService.getAnyPeer(Peer.State.CONNECTED) ?: return@run
+                    val peer = dp.peerService.getAnyPeer(isConnected = true) ?: return@run
                     val transactions = peer.getUnconfirmedTransactions()
                     if (transactions.isNullOrEmpty()) return@run
                     dp.peerService.feedingTime(peer, foodDispenser, doneFeedingLog)

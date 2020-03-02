@@ -42,7 +42,6 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Future
-import java.util.concurrent.ThreadLocalRandom
 
 class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private val random = Random()
@@ -314,7 +313,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         get() {
             var numberOfConnectedPeers = 0
             for (peer in peers.values) {
-                if (peer.state == Peer.State.CONNECTED) {
+                if (peer.isConnected) {
                     numberOfConnectedPeers++
                 }
             }
@@ -340,8 +339,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
              */
                 // TODO this loop somehow gets stuck meaning peers are rarely added to db...
                 while (numConnectedPeers < maxNumberOfConnectedPublicPeers && peers.size > numConnectedPeers) {
-                    val peer =
-                        getAnyPeer(if (ThreadLocalRandom.current().nextInt(2) == 0) Peer.State.NON_CONNECTED else Peer.State.DISCONNECTED)
+                    val peer = getAnyPeer(isConnected = false)
                     if (peer != null) {
                         if (!peer.connect()) return@run true
                         /*
@@ -349,7 +347,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                          * Peers should never be removed if total peers are below our target to prevent total erase of peers
                          * if we loose Internet connection
                          */
-                        if (!peer.isHigherOrEqualVersionThan(MIN_VERSION) || peer.state != Peer.State.CONNECTED && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers) {
+                        if (!peer.isHigherOrEqualVersionThan(MIN_VERSION) || !peer.isConnected && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers) {
                             removePeer(peer)
                         } else {
                             numConnectedPeers++
@@ -360,7 +358,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
                 val now = dp.timeService.epochTime
                 for (peer in peers.values) {
-                    if (peer.state == Peer.State.CONNECTED && now - peer.lastUpdated > 3600 && (!peer.connect() || !peer.isHigherOrEqualVersionThan(MIN_VERSION) || peer.state != Peer.State.CONNECTED && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers)) {
+                    if (peer.isConnected && now - peer.lastUpdated > 3600 && (!peer.connect() || !peer.isHigherOrEqualVersionThan(MIN_VERSION) || !peer.isConnected && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPublicPeers)) {
                         removePeer(peer)
                     }
                 }
@@ -392,7 +390,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                     return@run false
                 }
 
-                val peer = getAnyPeer(Peer.State.CONNECTED) ?: return@run false
+                val peer = getAnyPeer(isConnected = true) ?: return@run false
                 val newAddresses = peer.getPeers() ?: return@run true
                 if (!newAddresses.isEmpty()) {
                     for (announcedAddress in newAddresses) {
@@ -404,7 +402,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 }
 
                 val myPeers = allPeers.filter { myPeer -> !myPeer.isBlacklisted
-                        && myPeer.state == Peer.State.CONNECTED && myPeer.shareAddress
+                        && myPeer.isConnected && myPeer.shareAddress
                         && !newAddresses.contains(myPeer.address)
                         && myPeer.address != peer.address
                         && myPeer.isHigherOrEqualVersionThan(MIN_VERSION) }
@@ -442,7 +440,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     }
 
     override val activePeers: List<Peer>
-        get() = peers.values.filter { it.state != Peer.State.NON_CONNECTED }
+        get() = peers.values.filter { it.isConnected }
 
     private val processingQueue = mutableListOf<Peer>()
     private val beingProcessed = mutableListOf<Peer>()
@@ -455,7 +453,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
             for (peer in peers.values) {
                 if (peerEligibleForSending(peer, true)) {
-                    if (peer.isRebroadcastTarget) {
+                    if (rebroadcastPeers.contains(peer.address)) {
                         peersActivePriorityPlusSomeExtraPeers.add(peer)
                     } else if (amountExtrasLeft > 0) {
                         peersActivePriorityPlusSomeExtraPeers.add(peer)
@@ -509,10 +507,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         this.listeners.accept(eventType, peer)
     }
 
-    override fun getPeers(state: Peer.State): Collection<Peer> {
+    override fun getPeers(isConnected: Boolean): Collection<Peer> {
         val peerList = mutableListOf<Peer>()
         for (peer in peers.values) {
-            if (peer.state == state) {
+            if (peer.isConnected == isConnected) {
                 peerList.add(peer)
             }
         }
@@ -643,16 +641,16 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
     private fun peerEligibleForSending(peer: Peer, sendSameBRSclass: Boolean): Boolean {
         return (peer.isHigherOrEqualVersionThan(MIN_VERSION)
-                && (!sendSameBRSclass || peer.isAtLeastMyVersion)
+                && (!sendSameBRSclass || peer.isHigherOrEqualVersionThan(Burst.VERSION))
                 && !peer.isBlacklisted
-                && peer.state == Peer.State.CONNECTED)
+                && peer.isConnected)
     }
 
-    override fun getAnyPeer(state: Peer.State): Peer? {
+    override fun getAnyPeer(isConnected: Boolean): Peer? {
         if (!connectWellKnownFinished) {
             var wellKnownConnected = 0
             for (peer in peers.values) {
-                if (wellKnownPeers.contains(peer.address) && peer.state == Peer.State.CONNECTED) {
+                if (wellKnownPeers.contains(peer.address) && peer.isConnected) {
                     wellKnownConnected++
                 }
             }
@@ -667,7 +665,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             }
         }
 
-        val selectedPeers = peers.values.filter { peer -> !peer.isBlacklisted && peer.state == state && peer.shareAddress && (connectWellKnownFinished || peer.state == Peer.State.CONNECTED || wellKnownPeers.contains(peer.address)) }
+        val selectedPeers = peers.values.filter { peer -> !peer.isBlacklisted && peer.isConnected == isConnected && peer.shareAddress && (connectWellKnownFinished || peer.isConnected || wellKnownPeers.contains(peer.address)) }
         return if (selectedPeers.isNotEmpty()) selectedPeers[random.nextInt(selectedPeers.size)] else null
     }
 

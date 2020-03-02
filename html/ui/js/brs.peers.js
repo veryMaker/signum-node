@@ -27,8 +27,6 @@ var BRS = (function(BRS, $, undefined) {
 
                         if (nrPeers === response.peers.length) {
                             var rows = "";
-                            var uploaded = 0;
-                            var downloaded = 0;
                             var connected = 0;
                             var upToDate = 0;
                             var activePeers = 0;
@@ -41,8 +39,6 @@ var BRS = (function(BRS, $, undefined) {
                                 }
 
                                 activePeers++;
-                                downloaded += peer.downloadedVolume;
-                                uploaded += peer.uploadedVolume;
                                 if (peer.state === 1) {
                                     connected++;
                                 }
@@ -58,9 +54,9 @@ var BRS = (function(BRS, $, undefined) {
                                     + "&nbsp;&nbsp;"
                                     + (peer.announcedAddress ? String(peer.announcedAddress).escapeHTML() : "No name")
                                     + "</td><td>"
-                                    + BRS.formatVolume(peer.downloadedVolume)
+                                    + "N/A"
                                     + "</td><td>"
-                                    + BRS.formatVolume(peer.uploadedVolume)
+                                    + "N/A"
                                     + "</td><td><span class='label label-"
                                     + (BRS.versionCompare(peer.version, versionToCompare) ? "success" : "danger")
                                     + "'>"
@@ -72,8 +68,8 @@ var BRS = (function(BRS, $, undefined) {
 
                             }
 
-                            $("#peers_uploaded_volume").html(BRS.formatVolume(uploaded)).removeClass("loading_dots");
-                            $("#peers_downloaded_volume").html(BRS.formatVolume(downloaded)).removeClass("loading_dots");
+                            $("#peers_uploaded_volume").html("N/A").removeClass("loading_dots");
+                            $("#peers_downloaded_volume").html("N/A").removeClass("loading_dots");
                             $("#peers_connected").html(connected).removeClass("loading_dots");
                             $("#peers_up_to_date").html(upToDate + '/' + activePeers).removeClass("loading_dots");
 

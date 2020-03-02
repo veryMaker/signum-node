@@ -85,7 +85,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     return@run false
                 }
                 peerHasMore = true
-                val peer = dp.peerService.getAnyPeer(Peer.State.CONNECTED)
+                val peer = dp.peerService.getAnyPeer(isConnected = true)
                 if (peer == null) {
                     logger.safeDebug { "No peer connected." }
                     return@run false

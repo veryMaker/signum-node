@@ -19,7 +19,7 @@ interface PeerService {
     val allPeers: Collection<Peer>
 
     /**
-     * All peers that are not in state [brs.peer.Peer.State.NON_CONNECTED]
+     * All peers that are connected
      */
     val activePeers: List<Peer>
 
@@ -39,9 +39,9 @@ interface PeerService {
     fun shutdown()
 
     /**
-     * TODO
+     * If [isConnected] is true, get any connected peers, else get any disconnected peers
      */
-    fun getPeers(state: Peer.State): Collection<Peer>
+    fun getPeers(isConnected: Boolean): Collection<Peer>
 
     /**
      * TODO
@@ -71,9 +71,9 @@ interface PeerService {
     fun feedingTime(peer: Peer, foodDispenser: (Peer) -> Collection<Transaction>, doneFeedingLog: (Peer, Collection<Transaction>) -> Unit)
 
     /**
-     * TODO
+     * If [isConnected] is true, get any connected peer, else get any disconnected peer
      */
-    fun getAnyPeer(state: Peer.State): Peer?
+    fun getAnyPeer(isConnected: Boolean): Peer?
 
     /**
      * TODO
@@ -132,10 +132,7 @@ interface PeerService {
         BLACKLIST,
         UNBLACKLIST,
         REMOVE,
-        DOWNLOADED_VOLUME,
-        UPLOADED_VOLUME,
         ADDED_ACTIVE_PEER,
-        CHANGED_ACTIVE_PEER,
         NEW_PEER
     }
 
