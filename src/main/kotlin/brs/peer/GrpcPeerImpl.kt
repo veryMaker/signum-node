@@ -23,12 +23,14 @@ import brs.util.logging.safeInfo
 import brs.util.logging.safeWarn
 import brs.util.sync.Mutex
 import com.google.protobuf.Empty
+import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.StatusRuntimeException
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.math.BigInteger
 import java.sql.SQLException
+import java.util.concurrent.TimeUnit
 
 typealias PeerConnection = BrsPeerServiceGrpc.BrsPeerServiceBlockingStub
 
@@ -159,15 +161,16 @@ class GrpcPeerImpl(
         }
     }
 
-    private var connection: PeerConnection? = null
+    private var connection: Pair<PeerConnection, ManagedChannel>? = null
 
     private fun getConnection(): PeerConnection? {
-        connection?.let { return it }
-        val newConnection = BrsPeerServiceGrpc.newBlockingStub(ManagedChannelBuilder.forAddress(address.host, address.port)
+        connection?.let { return it.first }
+        val channel = ManagedChannelBuilder.forAddress(address.host, address.port)
             .usePlaintext()
-            .maxInboundMessageSize(1024 * 1024 * 100)
-            .build())
-        connection = newConnection
+            .maxInboundMessageSize(1024 * 1024 * 100) // 100MB - way too big TODO reduce when alpha5 bug where peer sends too much is fixed
+            .build()
+        val newConnection = BrsPeerServiceGrpc.newBlockingStub(channel)
+        connection = Pair(newConnection, channel)
         return newConnection
     }
 
@@ -303,13 +306,25 @@ class GrpcPeerImpl(
         return true
     }
 
+    private fun shutdownConnection() {
+        connection?.second?.let { // it is the managed channel
+            it.shutdown()
+            it.awaitTermination(10, TimeUnit.SECONDS)
+            while (!it.isTerminated) {
+                it.shutdownNow()
+                it.awaitTermination(10, TimeUnit.SECONDS)
+            }
+        }
+        connection = null
+    }
+
     override fun updateAddress(newAnnouncedAddress: PeerAddress) {
         if (newAnnouncedAddress.protocol != PeerAddress.Protocol.GRPC) return // TODO is this the best way to handle this?
         announcedAddress = newAnnouncedAddress
         // Force re-validate address
         state = Peer.State.NON_CONNECTED
         dp.peerService.updateAddress(this)
-        connection = null // TODO is this the correct way to disconnect? (hint: no...)
+        shutdownConnection()
     }
 
     override fun hashCode(): Int {
