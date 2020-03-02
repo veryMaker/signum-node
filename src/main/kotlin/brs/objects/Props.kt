@@ -157,4 +157,5 @@ object Props {
     val ALLOW_OTHER_SOLO_MINERS = Prop("AllowOtherSoloMiners", true)
 
     val NUM_PRE_VERIFIER_THREADS = Prop("PreVerifier.NumberOfInstances", 0)
+    val MAX_CACHED_ENTITIES = Prop("MaxCachedEntities", 65536)
 }

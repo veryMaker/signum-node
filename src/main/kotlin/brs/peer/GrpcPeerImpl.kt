@@ -175,8 +175,8 @@ class GrpcPeerImpl(
         return try {
             getConnection()?.let { action(it) }
         } catch (e: StatusRuntimeException) {
-            // Error sent by peer TODO handle this differently
-            logger.safeWarn(e) { errorMessage }
+            // Error sent by peer
+            logger.safeWarn { "$errorMessage: Peer Returned an Error: \"${e.message?.replace("ABORTED: ", "")}\"" }
             null
         } catch (e: Exception) {
             logger.safeWarn(e) { errorMessage }
@@ -310,6 +310,10 @@ class GrpcPeerImpl(
         state = Peer.State.NON_CONNECTED
         dp.peerService.updateAddress(this)
         connection = null // TODO is this the correct way to disconnect? (hint: no...)
+    }
+
+    override fun hashCode(): Int {
+        return address.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {

@@ -40,18 +40,18 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
                 ctx.upsert(record, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
             }
 
-            override fun save(ctx: DSLContext, entities: Array<IndirectIncoming>) {
+            override fun save(ctx: DSLContext, entities: Collection<IndirectIncoming>) {
                 var insertQuery = ctx.insertInto(
                     INDIRECT_INCOMING,
                     INDIRECT_INCOMING.ACCOUNT_ID,
                     INDIRECT_INCOMING.TRANSACTION_ID,
                     INDIRECT_INCOMING.HEIGHT
                 )
-                entities.forEach { entity ->
+                entities.forEach { (accountId, transactionId, height) ->
                     insertQuery = insertQuery.values(
-                        entity.accountId,
-                        entity.transactionId,
-                        entity.height
+                        accountId,
+                        transactionId,
+                        height
                     )
                 }
                 insertQuery.execute()
@@ -60,7 +60,7 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
     }
 
     override fun addIndirectIncomings(indirectIncomings: Collection<IndirectIncoming>) {
-        dp.db.useDslContext { ctx -> indirectIncomingTable.save(ctx, indirectIncomings.toTypedArray()) }
+        dp.db.useDslContext { ctx -> indirectIncomingTable.save(ctx, indirectIncomings) }
     }
 
     override fun getIndirectIncomings(accountId: Long, from: Int, to: Int): List<Long> {

@@ -46,16 +46,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
     }
 
     override fun hasTransaction(transactionId: Long): Boolean {
-        // TODO this isn't cached
-        return dp.db.useDslContext { ctx ->
-            ctx.fetchExists(
-                ctx.selectFrom(TRANSACTION).where(
-                    TRANSACTION.ID.eq(
-                        transactionId
-                    )
-                )
-            )
-        }
+        return findTransaction(transactionId) != null
     }
 
     override fun hasTransactionByFullHash(fullHash: ByteArray): Boolean {
@@ -173,7 +164,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
                         transaction.id,
                         transaction.deadline,
                         transaction.senderPublicKey,
-                        transaction.recipientId,
+                        if (transaction.recipientId == 0L) null else transaction.recipientId,
                         transaction.amountPlanck,
                         transaction.feePlanck,
                         transaction.referencedTransactionFullHash,
@@ -193,7 +184,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
                         transaction.publicKeyAnnouncement != null,
                         transaction.encryptToSelfMessage != null,
                         transaction.ecBlockHeight,
-                        transaction.ecBlockId
+                        if (transaction.ecBlockId == 0L) null else transaction.ecBlockId
                     )
                 }
                 insertQuery.execute()

@@ -2,6 +2,7 @@ package brs.services.impl
 
 import brs.db.BurstKey
 import brs.entity.*
+import brs.objects.Props
 import brs.services.DBCacheService
 import org.ehcache.Cache
 import org.ehcache.CacheManager
@@ -10,6 +11,7 @@ import org.ehcache.config.CacheConfiguration
 import org.ehcache.config.builders.CacheConfigurationBuilder
 import org.ehcache.config.builders.CacheManagerBuilder
 import org.ehcache.config.builders.ResourcePoolsBuilder
+import org.ehcache.config.units.EntryUnit
 
 class DBCacheServiceImpl(private val dp: DependencyProvider) : DBCacheService {
     private val cacheManager: CacheManager
@@ -17,25 +19,27 @@ class DBCacheServiceImpl(private val dp: DependencyProvider) : DBCacheService {
 
     init {
         val caches = mutableMapOf<String, CacheConfiguration<*, *>>()
+        val resourcePoolBuilder = ResourcePoolsBuilder.newResourcePoolsBuilder()
+            .heap(dp.propertyService.get(Props.MAX_CACHED_ENTITIES).toLong(), EntryUnit.ENTRIES)
         caches["account"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(
             BurstKey::class.java,
             Account::class.java,
-            ResourcePoolsBuilder.heap(8192)
+            resourcePoolBuilder
         ).build()
         caches["block_id"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(
             Long::class.javaObjectType,
             Block::class.java,
-            ResourcePoolsBuilder.heap(8192)
+            resourcePoolBuilder
         ).build()
         caches["block_height"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(
             Int::class.javaObjectType,
             Block::class.java,
-            ResourcePoolsBuilder.heap(8192)
+            resourcePoolBuilder
         ).build()
         caches["transaction"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(
             Long::class.javaObjectType,
             Transaction::class.java,
-            ResourcePoolsBuilder.heap(8192)
+            resourcePoolBuilder
         ).build()
         var cacheBuilder = CacheManagerBuilder.newCacheManagerBuilder()
         for ((key, value) in caches) {

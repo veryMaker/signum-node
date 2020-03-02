@@ -50,7 +50,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
 
     internal abstract fun save(ctx: DSLContext, entity: T)
 
-    internal open fun save(ctx: DSLContext, entities: Array<T>) {
+    internal open fun save(ctx: DSLContext, entities: Collection<T>) {
         for (entity in entities) {
             save(ctx, entity)
         }
