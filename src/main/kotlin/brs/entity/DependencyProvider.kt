@@ -1,12 +1,13 @@
 package brs.entity
 
-import brs.api.http.API
 import brs.api.http.APITransactionManager
+import brs.api.http.ApiServer
 import brs.at.AtApi
 import brs.at.AtApiController
 import brs.at.AtConstants
 import brs.at.AtController
 import brs.db.*
+import brs.peer.PeerServer
 import brs.services.*
 import brs.transaction.type.TransactionType
 import io.grpc.Server
@@ -34,7 +35,8 @@ class DependencyProvider {
     lateinit var propertyService: PropertyService
     lateinit var fluxCapacitorService: FluxCapacitorService
     lateinit var dbCacheService: DBCacheService
-    lateinit var api: API
+    lateinit var apiServer: ApiServer
+    lateinit var peerServer: PeerServer
     lateinit var apiV2Server: Server
     lateinit var p2pV2Server: Server
     lateinit var timeService: TimeService

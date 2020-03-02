@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.net.UnknownHostException
 
-class API(dp: DependencyProvider) {
+class ApiServerImpl(dp: DependencyProvider) : ApiServer {
     private val apiServer: Server?
 
     init {
@@ -196,7 +196,7 @@ class API(dp: DependencyProvider) {
         }
     }
 
-    fun shutdown() {
+    override fun shutdown() {
         if (apiServer != null) {
             try {
                 apiServer.stop()
@@ -207,7 +207,7 @@ class API(dp: DependencyProvider) {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(API::class.java)
+        private val logger = LoggerFactory.getLogger(ApiServerImpl::class.java)
 
         private const val API_PATH = "/burst"
         private const val API_TEST_PATH = "/test"
