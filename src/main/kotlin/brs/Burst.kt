@@ -19,6 +19,7 @@ import brs.util.LoggerConfigurator
 import brs.util.Version
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
+import brs.util.logging.safeWarn
 import burst.kit.util.LibShabal
 import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
@@ -53,6 +54,9 @@ VM: ${System.getProperty("java.vm.name")}, Version: ${System.getProperty("java.v
 OS: ${System.getProperty("os.name")}, Version: ${System.getProperty("os.version")}, Architecture: ${System.getProperty("os.arch")}
 LS: ${LibShabal.LOAD_ERROR?.toString() ?: LibShabal.VERSION}
 **********"""
+            }
+            if (LibShabal.LOAD_ERROR != null) {
+                logger.safeWarn { "LibShabal failed to load. This will not affect normal operation, and this message can be safely ignored, but you could benefit from performance improvements by having LibShabal active. To enable LibShabal, place a compatible library binary in the working directory of BRS. BRS by default includes 64-bit binaries for Windows, Mac and Linux." }
             }
             Constants.init(dp)
             dp.taskSchedulerService = RxJavaTaskSchedulerService()
