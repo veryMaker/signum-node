@@ -9,7 +9,6 @@ import brs.entity.IndirectIncoming
 import brs.schema.Tables.INDIRECT_INCOMING
 import brs.schema.tables.records.IndirectIncomingRecord
 import org.jooq.DSLContext
-import org.jooq.Query
 import org.jooq.Record
 
 internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : IndirectIncomingStore {
@@ -33,24 +32,29 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
                 )
             }
 
-            private fun getQuery(ctx: DSLContext, indirectIncoming: IndirectIncoming): Query {
-                val record = IndirectIncomingRecord()
-                record.accountId = indirectIncoming.accountId
-                record.transactionId = indirectIncoming.transactionId
-                record.height = indirectIncoming.height
-                return ctx.upsert(record, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
-            }
-
             override fun save(ctx: DSLContext, entity: IndirectIncoming) {
-                getQuery(ctx, entity).execute()
+                val record = IndirectIncomingRecord()
+                record.accountId = entity.accountId
+                record.transactionId = entity.transactionId
+                record.height = entity.height
+                ctx.upsert(record, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
             }
 
             override fun save(ctx: DSLContext, entities: Array<IndirectIncoming>) {
-                val queries = mutableListOf<Query>()
-                for (indirectIncoming in entities) {
-                    queries.add(getQuery(ctx, indirectIncoming))
+                var insertQuery = ctx.insertInto(
+                    INDIRECT_INCOMING,
+                    INDIRECT_INCOMING.ACCOUNT_ID,
+                    INDIRECT_INCOMING.TRANSACTION_ID,
+                    INDIRECT_INCOMING.HEIGHT
+                )
+                entities.forEach { entity ->
+                    insertQuery = insertQuery.values(
+                        entity.accountId,
+                        entity.transactionId,
+                        entity.height
+                    )
                 }
-                ctx.batch(queries).execute()
+                insertQuery.execute()
             }
         }
     }
