@@ -36,8 +36,6 @@ import org.eclipse.jetty.servlet.ServletHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.eclipse.jetty.servlets.DoSFilter
 import org.slf4j.LoggerFactory
-import org.xml.sax.SAXException
-import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutionException
@@ -73,8 +71,9 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     override val knownBlacklistedPeers: Set<PeerAddress>
 
     private var peerServer: Server? = null
-    private var gateway: GatewayDevice? = null
+    private val gateway: GatewayDevice?
     private var httpPort: Int = -1
+    private var grpcPort: Int = -1
 
     private var connectWellKnownFirst: Int = 0
     private var connectWellKnownFinished: Boolean = false
@@ -88,8 +87,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     override val myAddress: String
     override val announcedAddress: PeerAddress?
     override val shareMyAddress: Boolean
-    private val myHttpPeerServerPort: Int
-    private val myGrpcPeerServerPort: Int
     private val useUpnp: Boolean
     private val maxNumberOfConnectedPublicPeers: Int
     private val sendToPeersLimit: Int
@@ -112,20 +109,22 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     override val allPeers get() = peers.values
 
     init {
+        useUpnp = dp.propertyService.get(Props.P2P_UPNP)
+        shareMyAddress = dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE)
+        httpPort = if (dp.propertyService.get(Props.DEV_TESTNET)) 7123 else dp.propertyService.get(Props.P2P_PORT)
+        grpcPort = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_V2_PORT else Props.P2P_V2_PORT)
+
+        this.gateway = if (shareMyAddress && useUpnp) setupUpnp(dp, httpPort, grpcPort) else null
+
         val configuredAddress = dp.propertyService.get(Props.P2P_MY_ADDRESS)
         myAddress = if (gateway != null && configuredAddress.isBlank()) {
             try {
-                gateway!!.externalIPAddress
+                gateway.externalIPAddress
             } catch (e: Exception) {
                 logger.safeInfo { "Can't get Gateway's IP address" }
                 configuredAddress
             }
         } else configuredAddress
-
-        myHttpPeerServerPort = dp.propertyService.get(Props.P2P_PORT)
-        myGrpcPeerServerPort = dp.propertyService.get(Props.P2P_V2_PORT)
-        useUpnp = dp.propertyService.get(Props.P2P_UPNP)
-        shareMyAddress = dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE)
 
         val json = JsonObject()
         this.announcedAddress = PeerAddress.parse(dp, myAddress.trim(), defaultProtocol = PeerAddress.Protocol.GRPC)
@@ -169,47 +168,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         savePeers = usePeersDb && dp.propertyService.get(Props.P2P_SAVE_PEERS)
         getMorePeersThreshold = dp.propertyService.get(Props.P2P_GET_MORE_PEERS_THRESHOLD)
 
-        httpPort = if (dp.propertyService.get(Props.DEV_TESTNET)) 7123 else myHttpPeerServerPort
         if (shareMyAddress) {
-            if (useUpnp) {
-                val gatewayDiscover = GatewayDiscover()
-                gatewayDiscover.timeout = 2000
-                try {
-                    gatewayDiscover.discover()
-                } catch (ignored: Exception) {
-                }
-
-                logger.safeTrace { "Looking for Gateway Devices" }
-                if (gatewayDiscover.validGateway != null) {
-                    gateway = gatewayDiscover.validGateway
-                }
-
-                val gwDiscover: Task = {
-                    if (gateway != null) {
-                        GatewayDevice.setHttpReadTimeout(2000)
-                        try {
-                            val localAddress = gateway!!.localAddress
-                            val externalIPAddress = gateway!!.externalIPAddress
-                            logger.safeInfo { "Attempting to map $externalIPAddress:$httpPort -> $localAddress:$httpPort on Gateway ${gateway!!.modelName} (${gateway!!.modelDescription})" }
-                            when {
-                                gateway!!.getSpecificPortMappingEntry(httpPort, "TCP", PortMappingEntry().apply { externalPort = httpPort; internalPort = httpPort }) -> logger.safeInfo { "Port was already mapped. Aborting test." }
-                                gateway!!.addPortMapping(httpPort, httpPort, localAddress.hostAddress, "TCP", "burstcoin") -> logger.safeInfo { "UPnP Mapping successful" }
-                                else -> logger.safeWarn { "UPnP Mapping was denied!" }
-                            }
-                        } catch (e: IOException) {
-                            logger.safeError(e) { "Can't start UPnP" }
-                        } catch (e: SAXException) {
-                            logger.safeError(e) { "Can't start UPnP" }
-                        }
-                    }
-                }
-                if (this.gateway != null) {
-                    dp.taskSchedulerService.runBeforeStart(gwDiscover)
-                } else {
-                    logger.safeWarn { "Tried to establish UPnP, but it was denied by the network." }
-                }
-            }
-
             peerServer = Server()
             val connector = ServerConnector(peerServer)
             connector.port = httpPort
@@ -496,9 +455,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         }
         if (gateway != null) {
             try {
-                gateway!!.deletePortMapping(httpPort, "TCP")
+                gateway.deletePortMapping(httpPort, "TCP")
+                gateway.deletePortMapping(grpcPort, "TCP")
             } catch (e: Exception) {
-                logger.safeInfo(e) { "Failed to remove UPNP rule from gateway" }
+                logger.safeInfo(e) { "Failed to remove UPnP rules from gateway" }
             }
         }
     }
@@ -671,5 +631,50 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
     companion object {
         private val logger = LoggerFactory.getLogger(PeerServiceImpl::class.java)
+
+        private fun mapUpnp(gateway: GatewayDevice, port: Int) {
+            val localAddress = gateway.localAddress
+            val externalIPAddress = gateway.externalIPAddress
+            logger.safeInfo { "Attempting to map $externalIPAddress:$port -> $localAddress:$port via UPnP" }
+            when {
+                gateway.getSpecificPortMappingEntry(port, "TCP", PortMappingEntry().apply { externalPort = port; internalPort = port }) -> logger.safeInfo { "Port was already mapped." }
+                gateway.addPortMapping(port, port, localAddress.hostAddress, "TCP", "burstcoin") -> logger.safeInfo { "UPnP Mapping successful." }
+                else -> logger.safeWarn { "UPnP Mapping was denied!" }
+            }
+        }
+
+        private fun setupUpnp(dp: DependencyProvider, httpPort: Int, grpcPort: Int): GatewayDevice? {
+            val gatewayDiscover = GatewayDiscover()
+            gatewayDiscover.timeout = 2000
+            try {
+                gatewayDiscover.discover()
+            } catch (e: Exception) {
+                logger.safeTrace(e) { "Error discovering gateway" }
+                return null
+            }
+
+            logger.safeDebug { "Looking for Gateway Devices" }
+            val gateway: GatewayDevice? = gatewayDiscover.validGateway
+            if (gateway != null) {
+                logger.safeDebug { "Gateway Device: ${gateway.modelName} (${gateway.modelDescription}" }
+            } else {
+                logger.safeDebug { "No Gateway Device Found" }
+            }
+
+            if (gateway != null) {
+                dp.taskSchedulerService.runBeforeStart {
+                    GatewayDevice.setHttpReadTimeout(2000)
+                    try {
+                        mapUpnp(gateway, httpPort)
+                        mapUpnp(gateway, grpcPort)
+                    } catch (e: Exception) {
+                        logger.safeError(e) { "Can't start UPnP" }
+                    }
+                }
+            } else {
+                logger.safeWarn { "Tried to establish UPnP, but it was denied by the network." }
+            }
+            return gateway
+        }
     }
 }
