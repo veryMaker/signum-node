@@ -77,7 +77,7 @@ class GrpcPeerImpl(
     override var lastUpdated by AtomicLateinit<Int>()
 
     override val isBlacklisted: Boolean
-        get() = blacklistingTime > 0 || isOldVersion || dp.peerService.knownBlacklistedPeers.contains(address)
+        get() = blacklistingTime > 0 || isOldVersion || dp.peerService.configuredBlacklistedPeers.contains(address)
 
     override fun isHigherOrEqualVersionThan(version: Version): Boolean {
         return Peer.isHigherOrEqualVersion(version, this.version)
@@ -283,6 +283,10 @@ class GrpcPeerImpl(
 
         lastUpdated = dp.timeService.epochTime
         return true
+    }
+
+    override fun disconnect() {
+        shutdownConnection()
     }
 
     override fun updateAddress(newAnnouncedAddress: PeerAddress) {

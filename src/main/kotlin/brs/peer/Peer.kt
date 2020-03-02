@@ -43,6 +43,8 @@ interface Peer {
      */
     fun connect(): Boolean
 
+    fun disconnect()
+
     fun isHigherOrEqualVersionThan(version: Version): Boolean
 
     fun blacklist(cause: Exception, description: String)

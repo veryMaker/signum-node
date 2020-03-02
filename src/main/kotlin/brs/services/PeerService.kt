@@ -26,7 +26,7 @@ interface PeerService {
     /**
      * TODO
      */
-    val allActivePriorityPlusSomeExtraPeers: MutableList<Peer>
+    fun getPeersToBroadcastTo(): MutableList<Peer>
 
     /**
      * TODO
@@ -108,7 +108,7 @@ interface PeerService {
     /**
      * TODO
      */
-    val knownBlacklistedPeers: Set<PeerAddress>
+    val configuredBlacklistedPeers: Set<PeerAddress>
 
     /**
      * TODO
@@ -119,11 +119,6 @@ interface PeerService {
      * TODO
      */
     val myProtoPeerInfo: PeerApi.PeerInfo
-
-    /**
-     * TODO
-     */
-    val rebroadcastPeers: Set<PeerAddress>
 
     /**
      * TODO

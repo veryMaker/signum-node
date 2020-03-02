@@ -8,7 +8,6 @@ import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.objects.Constants.MIN_VERSION
 import brs.objects.Props
-import brs.objects.Props.P2P_ENABLE_TX_REBROADCAST
 import brs.objects.Props.P2P_SEND_TO_LIMIT
 import brs.peer.GrpcPeerImpl
 import brs.peer.HttpPeerImpl
@@ -20,78 +19,85 @@ import brs.services.RepeatingTask
 import brs.services.Task
 import brs.services.TaskType
 import brs.util.Listeners
+import brs.util.UPnPUtils
 import brs.util.Version
 import brs.util.delegates.Atomic
 import brs.util.json.JSON.prepareRequest
 import brs.util.json.toJsonString
-import brs.util.logging.*
+import brs.util.logging.safeDebug
+import brs.util.logging.safeInfo
+import brs.util.logging.safeTrace
 import brs.util.sync.Mutex
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.bitlet.weupnp.GatewayDevice
-import org.bitlet.weupnp.GatewayDiscover
-import org.bitlet.weupnp.PortMappingEntry
 import org.slf4j.LoggerFactory
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Future
+import java.util.concurrent.ThreadLocalRandom
 
 class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
-    private val random = Random()
-
-    override val rebroadcastPeers: Set<PeerAddress>
-    private val wellKnownPeers: Set<PeerAddress>
-
-    init {
-        val wellKnownPeersList = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_BOOTSTRAP_PEERS else Props.P2P_BOOTSTRAP_PEERS)
+    private val bootstrapPeers : Set<PeerAddress> = if (dp.propertyService.get(Props.DEV_OFFLINE)) emptySet() else
+        dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_BOOTSTRAP_PEERS else Props.P2P_BOOTSTRAP_PEERS)
             .mapNotNull { PeerAddress.parse(dp, it) }
             .toMutableSet()
-        if (dp.propertyService.get(P2P_ENABLE_TX_REBROADCAST)) {
-            rebroadcastPeers = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_REBROADCAST_TO else Props.P2P_REBROADCAST_TO)
-                    .mapNotNull { PeerAddress.parse(dp, it) }
-                    .toSet()
 
-            for (rePeer in rebroadcastPeers) {
-                if (!wellKnownPeersList.contains(rePeer)) {
-                    wellKnownPeersList.add(rePeer)
-                }
-            }
-        } else {
-            rebroadcastPeers = emptySet()
-        }
-        wellKnownPeers =
-            if (wellKnownPeersList.isEmpty() || dp.propertyService.get(Props.DEV_OFFLINE)) emptySet() else wellKnownPeersList
-    }
+    override val configuredBlacklistedPeers = dp.propertyService.get(Props.P2P_BLACKLISTED_PEERS)
+        .mapNotNull { PeerAddress.parse(dp, it) }
+        .toSet()
 
-    override val knownBlacklistedPeers: Set<PeerAddress>
+    override val shareMyAddress = dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE)
+    private val httpPort = if (dp.propertyService.get(Props.DEV_TESTNET)) 7123 else dp.propertyService.get(Props.P2P_PORT)
+    private val grpcPort = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_V2_PORT else Props.P2P_V2_PORT)
+    private val gateway: GatewayDevice? = if (shareMyAddress && dp.propertyService.get(Props.P2P_UPNP)) UPnPUtils.setupUpnp(dp, httpPort, grpcPort) else null
 
-    private val gateway: GatewayDevice?
-    private var httpPort: Int = -1
-    private var grpcPort: Int = -1
+    private val numberOfBootstrapPeersToConnect = dp.propertyService.get(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS).coerceAtMost(bootstrapPeers.size)
+    private var connectToBootstrapPeersFinished: Boolean by Atomic(numberOfBootstrapPeersToConnect == 0)
 
-    private var connectWellKnownFirst: Int = 0
-    private var connectWellKnownFinished: Boolean = false
-
-    override val connectTimeout: Int
-    override val readTimeout: Int
-    override val blacklistingPeriod: Int
+    override val connectTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_CONNECT_MS)
+    override val readTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_READ_MS)
+    override val blacklistingPeriod = dp.propertyService.get(Props.P2P_BLACKLISTING_TIME_MS)
     override val getMorePeers = dp.propertyService.get(Props.P2P_GET_MORE_PEERS)
 
     override val myPlatform = dp.propertyService.get(Props.P2P_MY_PLATFORM)
-    override val myAddress: String
-    override val announcedAddress: PeerAddress?
-    override val shareMyAddress: Boolean
-    private val useUpnp: Boolean
-    private val maxNumberOfConnectedPublicPeers: Int
-    private val sendToPeersLimit: Int
-    private val usePeersDb: Boolean
+    override val myAddress: String = if (gateway != null && dp.propertyService.get(Props.P2P_MY_ADDRESS).isBlank()) {
+        try {
+            gateway.externalIPAddress
+        } catch (e: Exception) {
+            logger.safeInfo { "Can't get Gateway's IP address" }
+            ""
+        }
+    } else dp.propertyService.get(Props.P2P_MY_ADDRESS)
+
+    override val announcedAddress = PeerAddress.parse(dp, myAddress.trim(), defaultProtocol = PeerAddress.Protocol.GRPC)
+    private val maxNumberOfConnectedPublicPeers = dp.propertyService.get(Props.P2P_MAX_CONNECTIONS)
+    private val sendToPeersLimit = dp.propertyService.get(P2P_SEND_TO_LIMIT)
     private val savePeers: Boolean
-    private val getMorePeersThreshold: Int
+    private val getMorePeersThreshold = dp.propertyService.get(Props.P2P_GET_MORE_PEERS_THRESHOLD)
     private var lastSavedPeers: Int = 0
 
-    override val myJsonPeerInfoRequest: JsonElement
-    override val myProtoPeerInfo: PeerApi.PeerInfo
+    override val myJsonPeerInfoRequest: JsonElement = run {
+        val json = JsonObject()
+        if (announcedAddress != null) {
+            json.addProperty("announcedAddress", announcedAddress.toString())
+        }
+        json.addProperty("application", Burst.APPLICATION)
+        json.addProperty("version", Burst.VERSION.toString())
+        json.addProperty("platform", this.myPlatform)
+        json.addProperty("shareAddress", this.shareMyAddress)
+        logger.safeDebug { "My peer info: ${json.toJsonString()}" }
+        json.addProperty("requestType", "getInfo")
+        prepareRequest(json)
+    }
+
+    override val myProtoPeerInfo: PeerApi.PeerInfo = PeerApi.PeerInfo.newBuilder()
+        .setApplication(Burst.APPLICATION)
+        .setVersion(Burst.VERSION.toString())
+        .setPlatform(this.myPlatform)
+        .setShareAddress(this.shareMyAddress)
+        .setAnnouncedAddress(announcedAddress?.toString() ?: "")
+        .build()
 
     private val listeners = Listeners<Peer, PeerService.Event>()
 
@@ -104,64 +110,19 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     override val allPeers get() = peers.values
 
     init {
-        useUpnp = dp.propertyService.get(Props.P2P_UPNP)
-        shareMyAddress = dp.propertyService.get(Props.P2P_SHARE_MY_ADDRESS) && !dp.propertyService.get(Props.DEV_OFFLINE)
-        httpPort = if (dp.propertyService.get(Props.DEV_TESTNET)) 7123 else dp.propertyService.get(Props.P2P_PORT)
-        grpcPort = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_P2P_V2_PORT else Props.P2P_V2_PORT)
-
-        this.gateway = if (shareMyAddress && useUpnp) setupUpnp(dp, httpPort, grpcPort) else null
-
-        val configuredAddress = dp.propertyService.get(Props.P2P_MY_ADDRESS)
-        myAddress = if (gateway != null && configuredAddress.isBlank()) {
-            try {
-                gateway.externalIPAddress
-            } catch (e: Exception) {
-                logger.safeInfo { "Can't get Gateway's IP address" }
-                configuredAddress
-            }
-        } else configuredAddress
-
-        val json = JsonObject()
-        this.announcedAddress = PeerAddress.parse(dp, myAddress.trim(), defaultProtocol = PeerAddress.Protocol.GRPC)
-
-        if (announcedAddress != null) {
-            json.addProperty("announcedAddress", announcedAddress.toString())
-        }
-        json.addProperty("application", Burst.APPLICATION)
-        json.addProperty("version", Burst.VERSION.toString())
-        json.addProperty("platform", this.myPlatform)
-        json.addProperty("shareAddress", this.shareMyAddress)
-        logger.safeDebug { "My peer info: ${json.toJsonString()}" }
-        json.addProperty("requestType", "getInfo")
-        myJsonPeerInfoRequest = prepareRequest(json)
-        myProtoPeerInfo = PeerApi.PeerInfo.newBuilder()
-            .setApplication(Burst.APPLICATION)
-            .setVersion(Burst.VERSION.toString())
-            .setPlatform(this.myPlatform)
-            .setShareAddress(this.shareMyAddress)
-            .setAnnouncedAddress(announcedAddress?.toString() ?: "")
-            .build()
-
-        connectWellKnownFirst = dp.propertyService.get(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS).coerceAtMost(wellKnownPeers.size)
-        connectWellKnownFinished = connectWellKnownFirst == 0
-
-        val knownBlacklistedPeersList = dp.propertyService.get(Props.P2P_BLACKLISTED_PEERS)
-            .mapNotNull { PeerAddress.parse(dp, it) }
-        knownBlacklistedPeers = if (knownBlacklistedPeersList.isEmpty()) {
-            emptySet()
-        } else {
-            knownBlacklistedPeersList.toSet()
-        }
-
-        maxNumberOfConnectedPublicPeers = dp.propertyService.get(Props.P2P_MAX_CONNECTIONS)
-        connectTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_CONNECT_MS)
-        readTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_READ_MS)
-
-        blacklistingPeriod = dp.propertyService.get(Props.P2P_BLACKLISTING_TIME_MS)
-        sendToPeersLimit = dp.propertyService.get(P2P_SEND_TO_LIMIT)
-        usePeersDb = dp.propertyService.get(Props.P2P_USE_PEERS_DB) && !dp.propertyService.get(Props.DEV_OFFLINE)
+        val usePeersDb = dp.propertyService.get(Props.P2P_USE_PEERS_DB) && !dp.propertyService.get(Props.DEV_OFFLINE)
         savePeers = usePeersDb && dp.propertyService.get(Props.P2P_SAVE_PEERS)
-        getMorePeersThreshold = dp.propertyService.get(Props.P2P_GET_MORE_PEERS_THRESHOLD)
+
+        dp.taskSchedulerService.runBeforeStart {
+            if (bootstrapPeers.isNotEmpty()) {
+                loadPeers(bootstrapPeers)
+            }
+            if (usePeersDb) {
+                logger.safeDebug { "Loading known peers from the database..." }
+                loadPeers(dp.peerDb.loadPeers().mapNotNull { PeerAddress.parse(dp, it) })
+            }
+            lastSavedPeers = peers.size
+        }
     }
 
     private val peerUnBlacklistingThread: Task = {
@@ -189,7 +150,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private fun updateSavedPeers() {
         dp.db.transaction {
             dp.peerDb.updatePeers(peers.values
-                .filter { peer -> !peer.isBlacklisted && !wellKnownPeers.contains(peer.address) && peer.isHigherOrEqualVersionThan(MIN_VERSION) }
+                .filter { peer -> !peer.isBlacklisted && !bootstrapPeers.contains(peer.address) && peer.isHigherOrEqualVersionThan(MIN_VERSION) }
                 .map { it.address.toString() })
         }
     }
@@ -285,17 +246,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     }
 
     init {
-        dp.taskSchedulerService.runBeforeStart {
-            if (wellKnownPeers.isNotEmpty()) {
-                loadPeers(wellKnownPeers)
-            }
-            if (usePeersDb) {
-                logger.safeDebug { "Loading known peers from the database..." }
-                loadPeers(dp.peerDb.loadPeers().mapNotNull { PeerAddress.parse(dp, it) })
-            }
-            lastSavedPeers = peers.size
-        }
-
         if (!dp.propertyService.get(Props.DEV_OFFLINE)) {
             dp.taskSchedulerService.scheduleTask(TaskType.IO, peerConnectingThread)
             dp.taskSchedulerService.scheduleTaskWithDelay(TaskType.IO, 0, 1000, peerUnBlacklistingThread)
@@ -312,24 +262,19 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private val beingProcessed = mutableListOf<Peer>()
     private val processingMutex = Mutex()
 
-    override val allActivePriorityPlusSomeExtraPeers: MutableList<Peer>
-        get() {
-            val peersActivePriorityPlusSomeExtraPeers = mutableListOf<Peer>()
-            var amountExtrasLeft = dp.propertyService.get(P2P_SEND_TO_LIMIT)
+    override fun getPeersToBroadcastTo(): MutableList<Peer> {
+        val peersToBroadcastTo = mutableListOf<Peer>()
+        var numberOfPeersLeftToAdd = dp.propertyService.get(P2P_SEND_TO_LIMIT)
 
-            for (peer in peers.values) {
-                if (peerEligibleForSending(peer, true)) {
-                    if (rebroadcastPeers.contains(peer.address)) {
-                        peersActivePriorityPlusSomeExtraPeers.add(peer)
-                    } else if (amountExtrasLeft > 0) {
-                        peersActivePriorityPlusSomeExtraPeers.add(peer)
-                        amountExtrasLeft--
-                    }
-                }
+        for (peer in activePeers) {
+            if (peerEligibleForSending(peer) && numberOfPeersLeftToAdd > 0) {
+                peersToBroadcastTo.add(peer)
+                numberOfPeersLeftToAdd--
             }
-
-            return peersActivePriorityPlusSomeExtraPeers
         }
+
+        return peersToBroadcastTo
+    }
 
     override fun isSupportedUserAgent(header: String?): Boolean {
         return if (header == null || header.isEmpty() || !header.trim().startsWith("BRS/")) {
@@ -419,6 +364,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     }
 
     override fun removePeer(peer: Peer) {
+        peer.disconnect()
         peers.remove(peer.remoteAddress)
         notifyListeners(peer, PeerService.Event.REMOVE)
     }
@@ -438,7 +384,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             var successful = 0
             val expectedResponses = mutableListOf<Future<Boolean?>>()
             for (peer in peers.values) {
-                if (peerEligibleForSending(peer, false)) {
+                if (peerEligibleForSending(peer)) {
                     val deferred = dp.taskSchedulerService.async(TaskType.IO) { peer.sendBlock(block) }
                     expectedResponses.add(deferred)
                 }
@@ -499,82 +445,40 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         }
     }
 
-    private fun peerEligibleForSending(peer: Peer, sendSameBRSclass: Boolean): Boolean {
+    private fun peerEligibleForSending(peer: Peer): Boolean {
         return (peer.isHigherOrEqualVersionThan(MIN_VERSION)
-                && (!sendSameBRSclass || peer.isHigherOrEqualVersionThan(Burst.VERSION))
                 && !peer.isBlacklisted
                 && peer.isConnected)
     }
 
+    private fun announceConnectedToBootstrapPeers() {
+        logger.safeInfo { "Finished connecting to $numberOfBootstrapPeersToConnect bootstrap peers." }
+        val webSchema = if (dp.propertyService.get(Props.API_SSL)) "https" else "http"
+        var webHost = dp.propertyService.get(Props.API_LISTEN)
+        if (webHost == "0.0.0.0") webHost = "localhost"
+        val webPort = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_API_PORT else Props.API_PORT)
+        logger.safeInfo { "You can open your Burst Wallet in your favorite browser with: $webSchema://$webHost:$webPort" }
+    }
+
     override fun getAnyPeer(isConnected: Boolean): Peer? {
-        if (!connectWellKnownFinished) {
-            var wellKnownConnected = 0
+        if (!connectToBootstrapPeersFinished) {
+            var bootstrapPeersConnected = 0
             for (peer in peers.values) {
-                if (wellKnownPeers.contains(peer.address) && peer.isConnected) {
-                    wellKnownConnected++
+                if (bootstrapPeers.contains(peer.address) && peer.isConnected) {
+                    bootstrapPeersConnected++
                 }
             }
-            if (wellKnownConnected >= connectWellKnownFirst) {
-                connectWellKnownFinished = true
-                logger.safeInfo { "Finished connecting to $connectWellKnownFirst well known peers." }
-                val webSchema = if (dp.propertyService.get(Props.API_SSL)) "https" else "http"
-                var webHost = dp.propertyService.get(Props.API_LISTEN)
-                if (webHost == "0.0.0.0") webHost = "localhost"
-                val webPort = dp.propertyService.get(if (dp.propertyService.get(Props.DEV_TESTNET)) Props.DEV_API_PORT else Props.API_PORT)
-                logger.safeInfo { "You can open your Burst Wallet in your favorite browser with: $webSchema://$webHost:$webPort" }
+            if (bootstrapPeersConnected >= numberOfBootstrapPeersToConnect) {
+                connectToBootstrapPeersFinished = true
+                announceConnectedToBootstrapPeers()
             }
         }
 
-        val selectedPeers = peers.values.filter { peer -> !peer.isBlacklisted && peer.isConnected == isConnected && peer.shareAddress && (connectWellKnownFinished || peer.isConnected || wellKnownPeers.contains(peer.address)) }
-        return if (selectedPeers.isNotEmpty()) selectedPeers[random.nextInt(selectedPeers.size)] else null
+        val selectedPeers = peers.values.filter { peer -> !peer.isBlacklisted && peer.isConnected == isConnected && peer.shareAddress && (connectToBootstrapPeersFinished || peer.isConnected || bootstrapPeers.contains(peer.address)) }
+        return if (selectedPeers.isNotEmpty()) selectedPeers[ThreadLocalRandom.current().nextInt(selectedPeers.size)] else null
     }
 
     companion object {
         private val logger = LoggerFactory.getLogger(PeerServiceImpl::class.java)
-
-        private fun mapUpnp(gateway: GatewayDevice, port: Int) {
-            val localAddress = gateway.localAddress
-            val externalIPAddress = gateway.externalIPAddress
-            logger.safeInfo { "Attempting to map $externalIPAddress:$port -> $localAddress:$port via UPnP" }
-            when {
-                gateway.getSpecificPortMappingEntry(port, "TCP", PortMappingEntry().apply { externalPort = port; internalPort = port }) -> logger.safeInfo { "Port was already mapped." }
-                gateway.addPortMapping(port, port, localAddress.hostAddress, "TCP", "burstcoin") -> logger.safeInfo { "UPnP Mapping successful." }
-                else -> logger.safeWarn { "UPnP Mapping was denied!" }
-            }
-        }
-
-        private fun setupUpnp(dp: DependencyProvider, httpPort: Int, grpcPort: Int): GatewayDevice? {
-            val gatewayDiscover = GatewayDiscover()
-            gatewayDiscover.timeout = 2000
-            try {
-                gatewayDiscover.discover()
-            } catch (e: Exception) {
-                logger.safeTrace(e) { "Error discovering gateway" }
-                return null
-            }
-
-            logger.safeDebug { "Looking for Gateway Devices" }
-            val gateway: GatewayDevice? = gatewayDiscover.validGateway
-            if (gateway != null) {
-                logger.safeDebug { "Gateway Device: ${gateway.modelName} (${gateway.modelDescription}" }
-            } else {
-                logger.safeDebug { "No Gateway Device Found" }
-            }
-
-            if (gateway != null) {
-                dp.taskSchedulerService.runBeforeStart {
-                    GatewayDevice.setHttpReadTimeout(2000)
-                    try {
-                        mapUpnp(gateway, httpPort)
-                        mapUpnp(gateway, grpcPort)
-                    } catch (e: Exception) {
-                        logger.safeError(e) { "Can't start UPnP" }
-                    }
-                }
-            } else {
-                logger.safeWarn { "Tried to establish UPnP, but it was denied by the network." }
-            }
-            return gateway
-        }
     }
 }

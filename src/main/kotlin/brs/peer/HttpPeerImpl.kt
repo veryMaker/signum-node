@@ -71,12 +71,12 @@ internal class HttpPeerImpl(
     private var isOldVersion by Atomic(false)
     private var blacklistingTime by Atomic<Long>(0)
 
-    override var isConnected: Boolean = false // todo
+    override var isConnected by Atomic(false)
 
     override var lastUpdated by AtomicLateinit<Int>()
 
     override val isBlacklisted: Boolean
-        get() = blacklistingTime > 0 || isOldVersion || dp.peerService.knownBlacklistedPeers.contains(address)
+        get() = blacklistingTime > 0 || isOldVersion || dp.peerService.configuredBlacklistedPeers.contains(address)
 
     override fun isHigherOrEqualVersionThan(version: Version): Boolean {
         return Peer.isHigherOrEqualVersion(version, this.version)
@@ -333,6 +333,10 @@ internal class HttpPeerImpl(
         isConnected = true
         lastUpdated = dp.timeService.epochTime
         return true
+    }
+
+    override fun disconnect() {
+        isConnected = false
     }
 
     override fun updateAddress(newAnnouncedAddress: PeerAddress) {

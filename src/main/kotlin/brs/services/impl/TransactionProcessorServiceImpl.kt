@@ -40,7 +40,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                     try {
                         val addedTransactions = processPeerTransactions(transactions, peer, false)
                         if (addedTransactions.isNotEmpty()) {
-                            val activePriorityPlusExtra = dp.peerService.allActivePriorityPlusSomeExtraPeers
+                            val activePriorityPlusExtra = dp.peerService.getPeersToBroadcastTo()
                             activePriorityPlusExtra.remove(peer)
 
                             dp.taskSchedulerService.awaitTasks(TaskType.IO, activePriorityPlusExtra.map { otherPeer -> {
@@ -213,7 +213,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
 
     private fun broadcastToPeers(toAll: Boolean): Int {
         val peersToSendTo =
-            if (toAll) dp.peerService.activePeers.take(100) else dp.peerService.allActivePriorityPlusSomeExtraPeers
+            if (toAll) dp.peerService.activePeers.take(100) else dp.peerService.getPeersToBroadcastTo()
 
         logger.safeTrace { "Queueing up ${peersToSendTo.size} Peers for feeding" }
 
