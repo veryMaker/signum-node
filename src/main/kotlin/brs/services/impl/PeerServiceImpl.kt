@@ -53,14 +53,12 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private val gateway: GatewayDevice? = if (shareMyAddress && dp.propertyService.get(Props.P2P_UPNP)) UPnPUtils.setupUpnp(dp, httpPort, grpcPort) else null
 
     private val numberOfBootstrapPeersToConnect = dp.propertyService.get(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS).coerceAtMost(bootstrapPeers.size)
-    private var connectToBootstrapPeersFinished: Boolean by Atomic(numberOfBootstrapPeersToConnect == 0)
+    private var connectToBootstrapPeersFinished by Atomic(numberOfBootstrapPeersToConnect == 0)
 
-    override val connectTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_CONNECT_MS)
-    override val readTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_READ_MS)
     override val blacklistingPeriod = dp.propertyService.get(Props.P2P_BLACKLISTING_TIME_MS)
     override val getMorePeers = dp.propertyService.get(Props.P2P_GET_MORE_PEERS)
-
     override val myPlatform = dp.propertyService.get(Props.P2P_MY_PLATFORM)
+
     override val myAddress: String = if (gateway != null && dp.propertyService.get(Props.P2P_MY_ADDRESS).isBlank()) {
         try {
             gateway.externalIPAddress
@@ -70,7 +68,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         }
     } else dp.propertyService.get(Props.P2P_MY_ADDRESS)
 
-    override val announcedAddress = PeerAddress.parse(dp, myAddress.trim(), defaultProtocol = PeerAddress.Protocol.GRPC)
+    override val myAnnouncedAddress = PeerAddress.parse(dp, myAddress.trim(), defaultProtocol = PeerAddress.Protocol.GRPC)
     private val maxNumberOfConnectedPublicPeers = dp.propertyService.get(Props.P2P_MAX_CONNECTIONS)
     private val sendToPeersLimit = dp.propertyService.get(P2P_SEND_TO_LIMIT)
     private val savePeers: Boolean
@@ -79,8 +77,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
     override val myJsonPeerInfoRequest: JsonElement = run {
         val json = JsonObject()
-        if (announcedAddress != null) {
-            json.addProperty("announcedAddress", announcedAddress.toString())
+        if (myAnnouncedAddress != null) {
+            json.addProperty("announcedAddress", myAnnouncedAddress.toString())
         }
         json.addProperty("application", Burst.APPLICATION)
         json.addProperty("version", Burst.VERSION.toString())
@@ -96,15 +94,19 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         .setVersion(Burst.VERSION.toString())
         .setPlatform(this.myPlatform)
         .setShareAddress(this.shareMyAddress)
-        .setAnnouncedAddress(announcedAddress?.toString() ?: "")
+        .setAnnouncedAddress(myAnnouncedAddress?.toString() ?: "")
         .build()
 
     private val listeners = Listeners<Peer, PeerService.Event>()
 
     /**
-     * All peers, identified by their actual remote address for use when a peer contacts us
+     * All peers, identified by their actual remote address as they may not announce an address
      */
     private val peers = ConcurrentHashMap<String, Peer>()
+
+    /**
+     * A directory mapping parsed peer addresses to their remote address
+     */
     private val remoteAddressCache = ConcurrentHashMap<PeerAddress, String>()
 
     override val allPeers get() = peers.values
@@ -202,10 +204,6 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     }
 
     private var addedNewPeer by Atomic(false)
-
-    init {
-        listeners.addListener(PeerService.Event.NEW_PEER) { addedNewPeer = true }
-    }
 
     private val getMorePeersThread: RepeatingTask = {
         run {
@@ -341,11 +339,12 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         }
         peers[cleanRemoteAddress] = peer
         listeners.accept(PeerService.Event.NEW_PEER, peer)
+        addedNewPeer = true
         return peer
     }
 
     override fun getOrAddPeer(address: PeerAddress) {
-        if (this.announcedAddress == address) return
+        if (this.myAnnouncedAddress == address) return
         var remoteAddress = remoteAddressCache[address]
         if (remoteAddress != null) {
             val peer = peers[remoteAddress]
@@ -361,9 +360,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         remoteAddressCache[address] = remoteAddress
         peers[remoteAddress] = peer
         listeners.accept(PeerService.Event.NEW_PEER, peer)
+        addedNewPeer = true
     }
 
-    override fun removePeer(peer: Peer) {
+    private fun removePeer(peer: Peer) {
         peer.disconnect()
         peers.remove(peer.remoteAddress)
         notifyListeners(peer, PeerService.Event.REMOVE)

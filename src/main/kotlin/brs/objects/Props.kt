@@ -16,7 +16,6 @@ object Props {
     val DEV_DB_USERNAME = Prop("DEV.DB.Username", "")
     val DEV_DB_PASSWORD = Prop("DEV.DB.Password", "")
 
-    val DEV_P2P_REBROADCAST_TO = Prop("DEV.P2P.rebroadcastTo", emptyList<String>())
     val DEV_P2P_BOOTSTRAP_PEERS = Prop("DEV.P2P.BootstrapPeers", emptyList<String>())
 
     val DEV_REWARD_RECIPIENT_ENABLE_BLOCK_HEIGHT = Prop("DEV.rewardRecipient.startBlock", -1)
@@ -61,7 +60,6 @@ object Props {
     val P2P_PORT = Prop("P2P.Port", 8123)
     val P2P_UPNP = Prop("P2P.UPnP", true)
     val P2P_SHARE_MY_ADDRESS = Prop("P2P.shareMyAddress", true)
-    val P2P_REBROADCAST_TO = Prop("P2P.rebroadcastTo", emptyList<String>())
     val P2P_BOOTSTRAP_PEERS = Prop("P2P.BootstrapPeers", emptyList<String>())
     val P2P_NUM_BOOTSTRAP_CONNECTIONS = Prop("P2P.NumBootstrapConnections", 4)
     val P2P_BLACKLISTED_PEERS = Prop("P2P.BlacklistedPeers", emptyList<String>())

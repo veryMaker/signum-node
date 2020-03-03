@@ -6,6 +6,7 @@ import brs.entity.DependencyProvider
 import brs.entity.PeerInfo
 import brs.entity.Transaction
 import brs.objects.Constants
+import brs.objects.Props
 import brs.services.BlockchainProcessorService
 import brs.services.PeerService
 import brs.util.BurstException
@@ -281,8 +282,8 @@ internal class HttpPeerImpl(
             connection = URL("$address/burst").openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
             connection.doOutput = true
-            connection.connectTimeout = dp.peerService.connectTimeout
-            connection.readTimeout = dp.peerService.readTimeout
+            connection.connectTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_CONNECT_MS)
+            connection.readTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_READ_MS)
             connection.addRequestProperty("User-Agent", "BRS/" + Burst.VERSION.toString())
             connection.setRequestProperty("Accept-Encoding", "gzip")
             connection.setRequestProperty("Connection", "close")

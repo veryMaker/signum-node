@@ -16,8 +16,8 @@ internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerReq
         info.addProperty("version", Burst.VERSION.toString())
         info.addProperty("platform", dp.peerService.myPlatform)
         info.addProperty("shareAddress", dp.peerService.shareMyAddress)
-        if (dp.peerService.announcedAddress != null) {
-            info.addProperty("announcedAddress", dp.peerService.announcedAddress.toString())
+        if (dp.peerService.myAnnouncedAddress != null) {
+            info.addProperty("announcedAddress", dp.peerService.myAnnouncedAddress.toString())
         }
         info
     }

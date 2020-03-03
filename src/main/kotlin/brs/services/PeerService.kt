@@ -51,7 +51,7 @@ interface PeerService {
     /**
      * Get or add a peer based on its [remoteAddress]. If it is added, it will not have completed handshake.
      * Intended exclusively for use by peer API servers in order to identify clients.
-     * [announcedAddress] should start with a protocol identifier (http:// or grpc://)
+     * [myAnnouncedAddress] should start with a protocol identifier (http:// or grpc://)
      */
     fun getOrAddPeer(remoteAddress: String): Peer
 
@@ -83,30 +83,15 @@ interface PeerService {
     /**
      * TODO
      */
-    val readTimeout: Int
-
-    /**
-     * TODO
-     */
-    val connectTimeout: Int
-
-    /**
-     * TODO
-     */
-    fun removePeer(peer: Peer)
-
-    /**
-     * TODO
-     */
     fun updateAddress(peer: Peer)
 
     /**
-     * TODO
+     * The duration a peer should be blacklisted for
      */
     val blacklistingPeriod: Int
 
     /**
-     * TODO
+     * Peers that the user has manually requested to never connect to.
      */
     val configuredBlacklistedPeers: Set<PeerAddress>
 
@@ -133,6 +118,6 @@ interface PeerService {
 
     val myPlatform: String
     val myAddress: String
-    val announcedAddress: PeerAddress?
+    val myAnnouncedAddress: PeerAddress?
     val shareMyAddress: Boolean
 }
