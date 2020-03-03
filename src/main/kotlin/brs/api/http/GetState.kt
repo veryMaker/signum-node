@@ -55,7 +55,7 @@ internal class GetState(private val dp: DependencyProvider) :
         response.addProperty("numberOfUnlockedAccounts", dp.generatorService.numberOfGenerators)
         response.addProperty(
             "lastBlockchainFeeder",
-            dp.blockchainProcessorService.lastBlockchainFeeder?.address?.toString()
+            dp.blockchainProcessorService.lastBlockchainFeeder?.announcedAddress?.toString()
         )
         response.addProperty("lastBlockchainFeederHeight", dp.blockchainProcessorService.lastBlockchainFeederHeight)
         response.addProperty("availableProcessors", Runtime.getRuntime().availableProcessors())

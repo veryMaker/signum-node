@@ -10,7 +10,7 @@ internal class GetPeersHandler(private val dp: DependencyProvider) : GrpcPeerApi
         return PeerApi.Peers.newBuilder()
             .addAllAddresses(dp.peerService.allPeers
                 .filter { it != peer && !it.isBlacklisted && it.isConnected && it.shareAddress }
-                .map { it.address.toString() })
+                .map { it.announcedAddress.toString() })
             .build()
     }
 }

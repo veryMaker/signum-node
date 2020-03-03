@@ -7,12 +7,15 @@ import brs.util.Version
 import java.math.BigInteger
 
 interface Peer {
+    /**
+     * The address that this peer has contacted us from
+     */
     val remoteAddress: String
 
     /**
-     * The address this peer has announced or the address it came from
+     * The address this peer has announced as being contactable at. If the peer did not announce an address, this will be null, and the peer cannot be contacted.
      */
-    val address: PeerAddress
+    val announcedAddress: PeerAddress?
 
     /**
      * Updates the peer's address and disconnects to force re-verification of new address.

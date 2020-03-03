@@ -8,7 +8,7 @@ class GetPeersHandler(private val dp: DependencyProvider) : GrpcApiHandler<BrsAp
     override fun handleRequest(request: BrsApi.GetPeersRequest): BrsApi.Peers {
         val peers = BrsApi.Peers.newBuilder()
         for (peer in if (request.allPeers) dp.peerService.allPeers else dp.peerService.getPeers(request.isConnected)) {
-            peers.addPeerAddresses(peer.address.toString())
+            peers.addPeerAddresses(peer.announcedAddress.toString())
         }
         return peers.build()
     }

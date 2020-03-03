@@ -10,7 +10,7 @@ class GetPeerHandler(private val dp: DependencyProvider) : GrpcApiHandler<BrsApi
         val peer = dp.peerService.getPeer(request.peerAddress) ?: throw ApiException("Could not find peer")
         return BrsApi.Peer.newBuilder()
             .setIsConnected(peer.isConnected)
-            .setAnnouncedAddress(peer.address.toString()) // TODO should we use an object for this?
+            .setAnnouncedAddress(peer.announcedAddress.toString()) // TODO should we use an object for this?
             .setShareAddress(peer.shareAddress)
             .setApplication(peer.application)
             .setVersion(peer.version.toStringIfNotEmpty())

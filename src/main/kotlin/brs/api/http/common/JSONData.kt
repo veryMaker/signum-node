@@ -299,7 +299,7 @@ object JSONData {
         val json = JsonObject()
         json.addProperty("state", 0) // Compatibility only
         json.addProperty("connected", peer.isConnected)
-        json.addProperty("announcedAddress", peer.address.toString())
+        json.addProperty("announcedAddress", peer.announcedAddress.toString())
         json.addProperty("shareAddress", peer.shareAddress)
         json.addProperty("downloadedVolume", 0) // Compatibility only
         json.addProperty("uploadedVolume", 0) // Compatibility only

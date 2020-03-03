@@ -38,12 +38,7 @@ internal class HttpPeerImpl(
     override val remoteAddress: String,
     address: PeerAddress?
 ) : Peer {
-    private val parsedRemoteAddress = PeerAddress.parse(dp, remoteAddress)
-
-    override val address: PeerAddress
-        get() = announcedAddress ?: parsedRemoteAddress ?: error("Could not find peer's address")
-
-    private var announcedAddress by Atomic<PeerAddress?>(null)
+    override var announcedAddress by Atomic<PeerAddress?>(null)
 
     init {
         if (address != null) {
@@ -77,7 +72,7 @@ internal class HttpPeerImpl(
     override var lastUpdated by AtomicLateinit<Int>()
 
     override val isBlacklisted: Boolean
-        get() = blacklistingTime > 0 || isOldVersion || dp.peerService.configuredBlacklistedPeers.contains(address)
+        get() = blacklistingTime > 0 || isOldVersion || dp.peerService.configuredBlacklistedPeers.contains(this.announcedAddress)
 
     override fun isHigherOrEqualVersionThan(version: Version): Boolean {
         return Peer.isHigherOrEqualVersion(version, this.version)
@@ -146,6 +141,7 @@ internal class HttpPeerImpl(
 
     override fun exchangeInfo(): PeerInfo? {
         return handlePeerError("Error exchanging info with peer") {
+            if (announcedAddress == null) throw NO_ANNOUNCED_ADDRESS
             val json = send(dp.peerService.myJsonPeerInfoRequest) ?: throw RETURNED_JSON_NULL
             checkError(json)
             PeerInfo.fromJson(json)
@@ -277,9 +273,10 @@ internal class HttpPeerImpl(
     }
 
     private fun send(request: JsonElement): JsonObject? {
+        if (announcedAddress == null) throw NO_ANNOUNCED_ADDRESS
         var connection: HttpURLConnection? = null
         try {
-            connection = URL("$address/burst").openConnection() as HttpURLConnection
+            connection = URL("${this.announcedAddress}/burst").openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
             connection.doOutput = true
             connection.connectTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_CONNECT_MS)
@@ -322,13 +319,13 @@ internal class HttpPeerImpl(
         val newAnnouncedAddress = response.announcedAddress.emptyToNull()
         if (newAnnouncedAddress != null) {
             val parsedAddress = PeerAddress.parse(dp, newAnnouncedAddress)
-            if (parsedAddress != null && parsedAddress != announcedAddress) {
+            if (parsedAddress != null && parsedAddress != this.announcedAddress) {
                 updateAddress(parsedAddress)
             }
         }
 
-        if (announcedAddress == null) {
-            announcedAddress = PeerAddress.parse(dp, remoteAddress) ?: error("Could not find peer's address")
+        if (this.announcedAddress == null) {
+            this.announcedAddress = PeerAddress.parse(dp, remoteAddress) ?: error("Could not find peer's address")
         }
 
         isConnected = true
@@ -342,14 +339,18 @@ internal class HttpPeerImpl(
 
     override fun updateAddress(newAnnouncedAddress: PeerAddress) {
         if (newAnnouncedAddress.protocol != PeerAddress.Protocol.HTTP) return // TODO is this the best way to handle this?
-        announcedAddress = newAnnouncedAddress
+        this.announcedAddress = newAnnouncedAddress
         // Force re-validate address
         isConnected = false
         dp.peerService.updateAddress(this)
     }
 
+    override fun hashCode(): Int {
+        return remoteAddress.hashCode()
+    }
+
     override fun equals(other: Any?): Boolean {
-        return other is Peer && other.address == address
+        return other is Peer && other.remoteAddress == this.remoteAddress
     }
 
     companion object {
@@ -374,5 +375,6 @@ internal class HttpPeerImpl(
         }
 
         private val RETURNED_JSON_NULL = IllegalStateException("Returned JSON was null")
+        private val NO_ANNOUNCED_ADDRESS = IllegalStateException("Peer has no announced address")
     }
 }

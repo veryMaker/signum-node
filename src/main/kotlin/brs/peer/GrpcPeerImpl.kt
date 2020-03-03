@@ -38,12 +38,7 @@ class GrpcPeerImpl(
     override val remoteAddress: String,
     address: PeerAddress?
 ) : Peer {
-    private val parsedRemoteAddress = PeerAddress.parse(dp, remoteAddress, defaultProtocol = PeerAddress.Protocol.GRPC)
-
-    override val address: PeerAddress
-        get() = announcedAddress ?: parsedRemoteAddress ?: error("Could not find peer's address")
-
-    private var announcedAddress by Atomic<PeerAddress?>(null)
+    override var announcedAddress by Atomic<PeerAddress?>(null)
 
     init {
         if (address != null) {
@@ -74,10 +69,10 @@ class GrpcPeerImpl(
     override val isConnected: Boolean
         get() = connection != null && connection?.second?.isShutdown == false
 
-    override var lastUpdated by AtomicLateinit<Int>()
+    override var lastUpdated by Atomic(initialValue = dp.timeService.epochTime)
 
     override val isBlacklisted: Boolean
-        get() = blacklistingTime > 0 || isOldVersion || dp.peerService.configuredBlacklistedPeers.contains(address)
+        get() = blacklistingTime > 0 || isOldVersion || dp.peerService.configuredBlacklistedPeers.contains(announcedAddress)
 
     override fun isHigherOrEqualVersionThan(version: Version): Boolean {
         return Peer.isHigherOrEqualVersion(version, this.version)
@@ -129,12 +124,14 @@ class GrpcPeerImpl(
     }
 
     private fun openConnection() {
-        val channel = ManagedChannelBuilder.forAddress(address.host, address.port)
-            .usePlaintext()
-            .maxInboundMessageSize(1024 * 1024 * 100) // 100MB - way too big TODO reduce when alpha5 bug where peer sends too much is fixed
-            .build()
-        val newConnection = BrsPeerServiceGrpc.newBlockingStub(channel)
-        connection = Pair(newConnection, channel)
+        announcedAddress?.let {
+            val channel = ManagedChannelBuilder.forAddress(it.host, it.port)
+                .usePlaintext()
+                .maxInboundMessageSize(1024 * 1024 * 100) // 100MB - way too big TODO reduce when alpha5 bug where peer sends too much is fixed
+                .build()
+            val newConnection = BrsPeerServiceGrpc.newBlockingStub(channel)
+            connection = Pair(newConnection, channel)
+        }
     }
 
     private fun shutdownConnection() {
@@ -263,7 +260,9 @@ class GrpcPeerImpl(
 
     override fun connect(): Boolean {
         if (isBlacklisted) return false
+        if (announcedAddress == null) return false
         openConnection()
+        if (!isConnected) return false
         val response = exchangeInfo() ?: return false
         application = response.application
         version = response.version
@@ -275,10 +274,6 @@ class GrpcPeerImpl(
             if (parsedAddress != null && parsedAddress != announcedAddress) {
                 updateAddress(parsedAddress)
             }
-        }
-
-        if (announcedAddress == null) {
-            announcedAddress = parsedRemoteAddress
         }
 
         lastUpdated = dp.timeService.epochTime
@@ -298,11 +293,11 @@ class GrpcPeerImpl(
     }
 
     override fun hashCode(): Int {
-        return address.hashCode()
+        return announcedAddress.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is Peer && other.address == address
+        return other is Peer && other.remoteAddress == remoteAddress
     }
 
     companion object {

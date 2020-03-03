@@ -12,7 +12,7 @@ internal class GetPeers(private val dp: DependencyProvider) : PeerServlet.PeerRe
         val peers = JsonArray()
         for (otherPeer in dp.peerService.allPeers) {
             if (otherPeer == peer) continue
-            val announcedAddress = otherPeer.address
+            val announcedAddress = otherPeer.announcedAddress ?: continue
             if (!otherPeer.isBlacklisted
                 && otherPeer.isConnected
                 && otherPeer.shareAddress

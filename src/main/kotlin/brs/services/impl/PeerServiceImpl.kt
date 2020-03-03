@@ -152,8 +152,8 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private fun updateSavedPeers() {
         dp.db.transaction {
             dp.peerDb.updatePeers(peers.values
-                .filter { peer -> !peer.isBlacklisted && !bootstrapPeers.contains(peer.address) && peer.isHigherOrEqualVersionThan(MIN_VERSION) }
-                .map { it.address.toString() })
+                .filter { peer -> !peer.isBlacklisted && !bootstrapPeers.contains(peer.announcedAddress) && peer.isHigherOrEqualVersionThan(MIN_VERSION) }
+                .map { it.announcedAddress.toString() })
         }
     }
 
@@ -228,10 +228,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
                 val myPeers = allPeers.filter { myPeer -> !myPeer.isBlacklisted
                         && myPeer.isConnected && myPeer.shareAddress
-                        && !newAddresses.contains(myPeer.address)
-                        && myPeer.address != peer.address
+                        && !newAddresses.contains(myPeer.announcedAddress)
+                        && myPeer.announcedAddress != peer.announcedAddress
                         && myPeer.isHigherOrEqualVersionThan(MIN_VERSION) }
-                    .map { it.address }
+                    .mapNotNull { it.announcedAddress }
 
                 if (myPeers.isNotEmpty()) {
                     peer.addPeers(myPeers)
@@ -370,7 +370,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     }
 
     override fun updateAddress(peer: Peer) {
-        val oldAddress = remoteAddressCache.put(peer.address, peer.remoteAddress)
+        val oldAddress = remoteAddressCache.put(peer.announcedAddress ?: return, peer.remoteAddress)
         if (oldAddress != null && peer.remoteAddress != oldAddress) {
             val oldPeer = peers.remove(oldAddress)
             if (oldPeer != null) {
@@ -428,10 +428,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         val transactionsToSend = foodDispenser(peer)
 
         if (transactionsToSend.isNotEmpty()) {
-            logger.safeTrace { "Feeding ${peer.address} ${transactionsToSend.size} transactions" }
+            logger.safeTrace { "Feeding ${peer.announcedAddress} ${transactionsToSend.size} transactions" }
             peer.sendUnconfirmedTransactions(transactionsToSend)
         } else {
-            logger.safeTrace { "No need to feed ${peer.address}" }
+            logger.safeTrace { "No need to feed ${peer.announcedAddress}" }
         }
 
         processingMutex.withLock {
@@ -464,7 +464,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         if (!connectToBootstrapPeersFinished) {
             var bootstrapPeersConnected = 0
             for (peer in peers.values) {
-                if (bootstrapPeers.contains(peer.address) && peer.isConnected) {
+                if (bootstrapPeers.contains(peer.announcedAddress) && peer.isConnected) {
                     bootstrapPeersConnected++
                 }
             }
@@ -474,7 +474,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             }
         }
 
-        val selectedPeers = peers.values.filter { peer -> !peer.isBlacklisted && peer.isConnected == isConnected && peer.shareAddress && (connectToBootstrapPeersFinished || peer.isConnected || bootstrapPeers.contains(peer.address)) }
+        val selectedPeers = peers.values.filter { peer -> !peer.isBlacklisted && peer.isConnected == isConnected && peer.shareAddress && (connectToBootstrapPeersFinished || peer.isConnected || bootstrapPeers.contains(peer.announcedAddress)) }
         return if (selectedPeers.isNotEmpty()) selectedPeers[ThreadLocalRandom.current().nextInt(selectedPeers.size)] else null
     }
 
