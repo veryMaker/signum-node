@@ -4,7 +4,6 @@ import org.jooq.DSLContext
 import org.jooq.Field
 import org.jooq.Query
 import org.jooq.UpdatableRecord
-import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
@@ -13,7 +12,6 @@ import kotlin.contracts.contract
  * @param action The action to perform using the DSL Context
  * @return The value fetched by the [action]
  */
-@UseExperimental(ExperimentalContracts::class)
 inline fun <T> Db.useDslContext(action: (DSLContext) -> T): T {
     contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
     getDslContext().use { context -> return action(context) }
@@ -24,7 +22,6 @@ inline fun <T> Db.useDslContext(action: (DSLContext) -> T): T {
  * if an exception was thrown.
  * @param action The action to perform within a DB transaction
  */
-@UseExperimental(ExperimentalContracts::class)
 inline fun Db.transaction(action: () -> Unit) {
     contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
     beginTransaction()
