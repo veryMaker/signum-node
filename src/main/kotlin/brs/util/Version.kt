@@ -78,7 +78,7 @@ class Version(
                         return prereleaseTag
                     }
                 }
-                throw IllegalArgumentException("Provided does not match any prelease tags")
+                throw IllegalArgumentException("Provided does not match any prerelease tags")
             }
         }
     }
@@ -97,16 +97,15 @@ class Version(
                 version = version.replace("-", ".").toLowerCase(Locale.ENGLISH)
                 if (version.startsWith("v")) version = version.substring(1)
                 val tokenizer = StringTokenizer(version, ".", false)
-                val major = Integer.parseInt(tokenizer.nextToken())
-                val minor = Integer.parseInt(tokenizer.nextToken())
-                val patch = Integer.parseInt(tokenizer.nextToken())
+                val major = tokenizer.nextToken().toInt()
+                val minor = tokenizer.nextToken().toInt()
+                val patch = tokenizer.nextToken().toInt()
                 return if (tokenizer.hasMoreTokens()) {
-                    val prereleaseTagAndIteration =
-                        tokenizer.nextToken().split(prereleaseTagRegex).dropLastWhile { it.isEmpty() }
-                            .toTypedArray()
+                    val prereleaseTagAndIteration = tokenizer.nextToken()
+                        .split(prereleaseTagRegex)
+                        .dropLastWhile { it.isEmpty() }
                     val prereleaseTag = PrereleaseTag.withTag(prereleaseTagAndIteration[0])
-                    val prereleaseIteration =
-                        if (prereleaseTagAndIteration.size == 2) Integer.parseInt(prereleaseTagAndIteration[1]) else -1
+                    val prereleaseIteration = if (prereleaseTagAndIteration.size == 2) prereleaseTagAndIteration[1].toInt() else -1
                     Version(major, minor, patch, prereleaseTag, prereleaseIteration)
                 } else {
                     Version(major, minor, patch, PrereleaseTag.NONE, -1)

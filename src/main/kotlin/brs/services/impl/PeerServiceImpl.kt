@@ -145,8 +145,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     private val peerValidationTask: Task = {
         val now = dp.timeService.epochTime
         for (peer in peers.values) {
-            // TODO update this list of conditions
-            if (peer.isConnected && now - peer.lastUpdated > 3600 && (!peer.connect() || !peer.isHigherOrEqualVersionThan(MIN_VERSION) || !peer.isConnected && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPeers)) {
+            if (peer.isConnected && now - peer.lastHandshakeTime > 3600 && (!peer.connect() || !peer.isHigherOrEqualVersionThan(MIN_VERSION) || !peer.isConnected && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPeers)) {
                 removePeer(peer)
             }
         }

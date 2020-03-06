@@ -69,7 +69,7 @@ internal class HttpPeerImpl(
 
     override var isConnected by Atomic(false)
 
-    override var lastUpdated by Atomic(initialValue = dp.timeService.epochTime)
+    override var lastHandshakeTime by Atomic(initialValue = dp.timeService.epochTime)
 
     override val isBlacklisted: Boolean
         get() = blacklistingTime > 0 || isOldVersion || dp.peerService.configuredBlacklistedPeers.contains(this.announcedAddress)
@@ -329,7 +329,7 @@ internal class HttpPeerImpl(
         }
 
         isConnected = true
-        lastUpdated = dp.timeService.epochTime
+        lastHandshakeTime = dp.timeService.epochTime
         return true
     }
 

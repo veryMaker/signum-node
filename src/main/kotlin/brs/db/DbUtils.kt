@@ -20,7 +20,6 @@ inline fun <T> Db.useDslContext(action: (DSLContext) -> T): T {
 /**
  * Perform [action] within a database transaction if we are not already in a transaction.
  */
-@UseExperimental(ExperimentalContracts::class)
 inline fun Db.ensureInTransaction(action: () -> Unit) {
     contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
     if (this.isInTransaction()) {

@@ -53,7 +53,7 @@ internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerReq
         peer.platform = platform.trim()
 
         peer.shareAddress = request.getMemberAsBoolean("shareAddress") ?: false
-        peer.lastUpdated = dp.timeService.epochTime
+        peer.lastHandshakeTime = dp.timeService.epochTime
 
         dp.peerService.notifyListeners(peer, PeerService.Event.ADDED_ACTIVE_PEER)
 

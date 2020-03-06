@@ -16,7 +16,7 @@ class GetPeerHandler(private val dp: DependencyProvider) : GrpcApiHandler<BrsApi
             .setVersion(peer.version.toStringIfNotEmpty())
             .setPlatform(peer.platform)
             .setBlacklisted(peer.isBlacklisted)
-            .setLastUpdated(peer.lastUpdated)
+            .setLastUpdated(peer.lastHandshakeTime)
             .build()
     }
 }

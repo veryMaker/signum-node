@@ -307,7 +307,7 @@ object JSONData {
         json.addProperty("version", peer.version.toStringIfNotEmpty())
         json.addProperty("platform", peer.platform)
         json.addProperty("blacklisted", peer.isBlacklisted)
-        json.addProperty("lastUpdated", peer.lastUpdated)
+        json.addProperty("lastUpdated", peer.lastHandshakeTime)
         return json
     }
 

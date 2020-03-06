@@ -38,7 +38,7 @@ interface Peer {
 
     val isBlacklisted: Boolean
 
-    var lastUpdated: Int
+    var lastHandshakeTime: Int
 
     /**
      * Connect to the peer, and handshake.

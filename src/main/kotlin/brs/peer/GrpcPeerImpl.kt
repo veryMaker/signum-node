@@ -69,7 +69,7 @@ class GrpcPeerImpl(
     override val isConnected: Boolean
         get() = connection != null && connection?.second?.isShutdown == false
 
-    override var lastUpdated by Atomic(initialValue = dp.timeService.epochTime)
+    override var lastHandshakeTime by Atomic(initialValue = dp.timeService.epochTime)
 
     override val isBlacklisted: Boolean
         get() = blacklistingTime > 0 || isOldVersion || dp.peerService.configuredBlacklistedPeers.contains(announcedAddress)
@@ -276,7 +276,7 @@ class GrpcPeerImpl(
             }
         }
 
-        lastUpdated = dp.timeService.epochTime
+        lastHandshakeTime = dp.timeService.epochTime
         return true
     }
 

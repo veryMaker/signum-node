@@ -35,7 +35,7 @@ internal class ExchangeInfoHandler(private val dp: DependencyProvider) : GrpcPee
         peer.platform = platform.trim()
 
         peer.shareAddress = request.shareAddress
-        peer.lastUpdated = dp.timeService.epochTime
+        peer.lastHandshakeTime = dp.timeService.epochTime
 
         dp.peerService.notifyListeners(peer, PeerService.Event.ADDED_ACTIVE_PEER)
 
