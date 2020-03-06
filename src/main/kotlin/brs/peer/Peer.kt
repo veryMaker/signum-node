@@ -115,7 +115,9 @@ interface Peer {
     fun addPeers(announcedAddresses: Collection<PeerAddress>)
 
     /**
-     * Get new peer addresses from this peer, or null if unsuccessful
+     * Get new peer addresses from this peer, or null if unsuccessful.
+     * The peer can send us as many addresses as it wants TODO
+     * It is not guaranteed that we do not already know of the peers that the peer sends us.
      */
     fun getPeers(): Collection<PeerAddress>?
 

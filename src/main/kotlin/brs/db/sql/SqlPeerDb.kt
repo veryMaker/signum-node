@@ -1,6 +1,7 @@
 package brs.db.sql
 
 import brs.db.PeerDb
+import brs.db.ensureInTransaction
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.schema.Tables.PEER
@@ -13,10 +14,15 @@ internal class SqlPeerDb(private val dp: DependencyProvider) : PeerDb {
     }
 
     override fun updatePeers(peers: List<String>) {
-        dp.db.useDslContext { ctx ->
-            val dbPeers = ctx.selectFrom(PEER).fetch(PEER.ADDRESS)
-            ctx.deleteFrom(PEER).where(PEER.ADDRESS.notIn(peers))
-            ctx.batch(peers.mapNotNull { if (dbPeers.contains(it)) null else ctx.insertInto(PEER).set(PEER.ADDRESS, it) })
+        dp.db.ensureInTransaction {
+            dp.db.useDslContext { ctx ->
+                val dbPeers = ctx.selectFrom(PEER).fetch(PEER.ADDRESS)
+                ctx.deleteFrom(PEER).where(PEER.ADDRESS.notIn(peers))
+                ctx.batch(peers.mapNotNull {
+                    if (dbPeers.contains(it)) null else ctx.insertInto(PEER).set(PEER.ADDRESS,
+                        it)
+                })
+            }
         }
     }
 

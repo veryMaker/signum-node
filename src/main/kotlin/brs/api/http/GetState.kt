@@ -25,7 +25,7 @@ internal class GetState(private val dp: DependencyProvider) :
         response.addProperty("lastBlock", dp.blockchainService.lastBlock.stringId)
         response.addProperty("cumulativeDifficulty", dp.blockchainService.lastBlock.cumulativeDifficulty.toString())
 
-        if (!"false".equals(request["includeCounts"], ignoreCase = true)) {
+        if ("true".equals(request["includeCounts"], ignoreCase = true)) {
             var totalEffectiveBalance: Long = 0
             for (account in dp.accountService.getAllAccounts(0, -1)) {
                 val effectiveBalanceBURST = account.balancePlanck

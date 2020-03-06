@@ -1,7 +1,7 @@
 package brs.db.sql
 
 import brs.db.BlockDb
-import brs.db.transaction
+import brs.db.ensureInTransaction
 import brs.db.useDslContext
 import brs.entity.Block
 import brs.entity.DependencyProvider
@@ -143,28 +143,24 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
 
     override fun deleteBlocksFrom(blockId: Long) {
         // This relies on cascade triggers in the database to delete the transactions in deleted blocks
-        if (!dp.db.isInTransaction()) {
-            dp.db.transaction {
-                deleteBlocksFrom(blockId)
-            }
-            return
-        }
-        dp.db.useDslContext { ctx ->
-            val blockHeightQuery = ctx.selectQuery()
-            blockHeightQuery.addFrom(BLOCK)
-            blockHeightQuery.addSelect(BLOCK.HEIGHT)
-            blockHeightQuery.addConditions(BLOCK.ID.eq(blockId))
-            val blockHeight = blockHeightQuery.fetchOne()?.get(BLOCK.HEIGHT)
+        dp.db.ensureInTransaction {
+            dp.db.useDslContext { ctx ->
+                val blockHeightQuery = ctx.selectQuery()
+                blockHeightQuery.addFrom(BLOCK)
+                blockHeightQuery.addSelect(BLOCK.HEIGHT)
+                blockHeightQuery.addConditions(BLOCK.ID.eq(blockId))
+                val blockHeight = blockHeightQuery.fetchOne()?.get(BLOCK.HEIGHT)
 
-            if (blockHeight != null) {
-                val deleteQuery = ctx.deleteQuery(BLOCK)
-                deleteQuery.addConditions(BLOCK.HEIGHT.ge(blockHeight))
-                deleteQuery.execute()
+                if (blockHeight != null) {
+                    val deleteQuery = ctx.deleteQuery(BLOCK)
+                    deleteQuery.addConditions(BLOCK.HEIGHT.ge(blockHeight))
+                    deleteQuery.execute()
+                }
             }
+            // TODO Only partially clear the cache
+            idCache.clear()
+            heightCache.clear()
         }
-        // TODO Only partially clear the cache
-        idCache.clear()
-        heightCache.clear()
     }
 
     override fun optimize() {
