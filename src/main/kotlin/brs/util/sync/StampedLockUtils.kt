@@ -1,11 +1,9 @@
 package brs.util.sync
 
 import java.util.concurrent.locks.StampedLock
-import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-@UseExperimental(ExperimentalContracts::class)
 inline fun <T> StampedLock.read(reader: () -> T): T {
     contract { callsInPlace(reader, InvocationKind.AT_LEAST_ONCE) }
     val stamp = this.tryOptimisticRead()
@@ -19,7 +17,6 @@ inline fun <T> StampedLock.read(reader: () -> T): T {
     return retVal
 }
 
-@UseExperimental(ExperimentalContracts::class)
 inline fun <T> StampedLock.forceRead(reader: () -> T): T {
     contract { callsInPlace(reader, InvocationKind.EXACTLY_ONCE) }
     val stamp = this.readLock()
@@ -30,7 +27,6 @@ inline fun <T> StampedLock.forceRead(reader: () -> T): T {
     }
 }
 
-@UseExperimental(ExperimentalContracts::class)
 inline fun <T> StampedLock.write(writer: () -> T): T {
     contract { callsInPlace(writer, InvocationKind.EXACTLY_ONCE) }
     val stamp = this.writeLock()

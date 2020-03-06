@@ -1,14 +1,12 @@
 package brs.util.logging
 
 import org.slf4j.Logger
-import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 typealias LogMessageProducer = () -> String
 typealias NullableLogMessageProducer = () -> String?
 
-@UseExperimental(ExperimentalContracts::class)
 inline fun Logger.safeTrace(messageProducer: LogMessageProducer) {
     contract { callsInPlace(messageProducer, InvocationKind.AT_MOST_ONCE) }
     if (this.isTraceEnabled) {
@@ -16,7 +14,6 @@ inline fun Logger.safeTrace(messageProducer: LogMessageProducer) {
     }
 }
 
-@UseExperimental(ExperimentalContracts::class)
 inline fun Logger.safeTrace(t: Throwable, messageProducer: NullableLogMessageProducer) {
     contract { callsInPlace(messageProducer, InvocationKind.AT_MOST_ONCE) }
     if (this.isTraceEnabled) {
@@ -24,7 +21,6 @@ inline fun Logger.safeTrace(t: Throwable, messageProducer: NullableLogMessagePro
     }
 }
 
-@UseExperimental(ExperimentalContracts::class)
 inline fun Logger.safeDebug(messageProducer: LogMessageProducer) {
     contract { callsInPlace(messageProducer, InvocationKind.AT_MOST_ONCE) }
     if (this.isDebugEnabled) {
@@ -32,7 +28,6 @@ inline fun Logger.safeDebug(messageProducer: LogMessageProducer) {
     }
 }
 
-@UseExperimental(ExperimentalContracts::class)
 inline fun Logger.safeDebug(t: Throwable, messageProducer: NullableLogMessageProducer) {
     contract { callsInPlace(messageProducer, InvocationKind.AT_MOST_ONCE) }
     if (this.isDebugEnabled) {
@@ -40,7 +35,6 @@ inline fun Logger.safeDebug(t: Throwable, messageProducer: NullableLogMessagePro
     }
 }
 
-@UseExperimental(ExperimentalContracts::class)
 inline fun Logger.safeInfo(messageProducer: LogMessageProducer) {
     contract { callsInPlace(messageProducer, InvocationKind.AT_MOST_ONCE) }
     if (this.isInfoEnabled) {
@@ -48,7 +42,6 @@ inline fun Logger.safeInfo(messageProducer: LogMessageProducer) {
     }
 }
 
-@UseExperimental(ExperimentalContracts::class)
 inline fun Logger.safeInfo(t: Throwable, messageProducer: NullableLogMessageProducer) {
     contract { callsInPlace(messageProducer, InvocationKind.AT_MOST_ONCE) }
     if (this.isInfoEnabled) {
@@ -56,7 +49,6 @@ inline fun Logger.safeInfo(t: Throwable, messageProducer: NullableLogMessageProd
     }
 }
 
-@UseExperimental(ExperimentalContracts::class)
 inline fun Logger.safeWarn(messageProducer: LogMessageProducer) {
     contract { callsInPlace(messageProducer, InvocationKind.AT_MOST_ONCE) }
     if (this.isWarnEnabled) {
@@ -64,7 +56,6 @@ inline fun Logger.safeWarn(messageProducer: LogMessageProducer) {
     }
 }
 
-@UseExperimental(ExperimentalContracts::class)
 inline fun Logger.safeWarn(t: Throwable, messageProducer: NullableLogMessageProducer) {
     contract { callsInPlace(messageProducer, InvocationKind.AT_MOST_ONCE) }
     if (this.isWarnEnabled) {
@@ -72,7 +63,6 @@ inline fun Logger.safeWarn(t: Throwable, messageProducer: NullableLogMessageProd
     }
 }
 
-@UseExperimental(ExperimentalContracts::class)
 inline fun Logger.safeError(messageProducer: LogMessageProducer) {
     contract { callsInPlace(messageProducer, InvocationKind.AT_MOST_ONCE) }
     if (this.isErrorEnabled) {
@@ -80,7 +70,6 @@ inline fun Logger.safeError(messageProducer: LogMessageProducer) {
     }
 }
 
-@UseExperimental(ExperimentalContracts::class)
 inline fun Logger.safeError(t: Throwable, messageProducer: NullableLogMessageProducer) {
     contract { callsInPlace(messageProducer, InvocationKind.AT_MOST_ONCE) }
     if (this.isErrorEnabled) {

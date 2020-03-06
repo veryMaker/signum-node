@@ -2,10 +2,8 @@ package brs.util.string
 
 import brs.objects.Constants
 import java.util.*
-import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-@UseExperimental(ExperimentalContracts::class)
 fun String?.isInAlphabet(): Boolean {
     contract { returns(false) implies (this@isInAlphabet != null) }
     if (this == null) return true
