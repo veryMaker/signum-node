@@ -426,28 +426,20 @@ message GetPeerRequest {
 }
 
 message GetPeersRequest {
-    bool active = 1;
-    PeerState state = 2;
-}
-
-enum PeerState {
-    PeerState_UNSET = 0;
-    NON_CONNECTED = 1;
-    CONNECTED = 2;
-    DISCONNECTED = 3;
+    // If this is true, get all peers. If this is false, get peers that are connected or not based on isConnected.
+    bool allPeers = 1;
+    bool isConnected = 2;
 }
 
 message Peer {
-    PeerState state = 1;
+    bool isConnected = 1;
     string announcedAddress = 2;
     bool shareAddress = 3;
-    uint64 downloadedVolume = 4;
-    uint64 uploadedVolume = 5;
-    string application = 6;
-    string version = 7;
-    string platform = 8;
-    bool blacklisted = 9;
-    uint32 lastUpdated = 10;
+    string application = 4;
+    string version = 5;
+    string platform = 6;
+    bool blacklisted = 7;
+    uint32 lastUpdated = 8;
 }
 
 message Peers {

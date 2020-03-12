@@ -297,16 +297,17 @@ object JSONData {
 
     internal fun peer(peer: Peer): JsonObject {
         val json = JsonObject()
-        json.addProperty("state", peer.state.ordinal)
-        json.addProperty("announcedAddress", peer.address.toString())
+        json.addProperty("state", 0) // Compatibility only
+        json.addProperty("connected", peer.isConnected)
+        json.addProperty("announcedAddress", peer.announcedAddress.toString())
         json.addProperty("shareAddress", peer.shareAddress)
-        json.addProperty("downloadedVolume", peer.downloadedVolume)
-        json.addProperty("uploadedVolume", peer.uploadedVolume)
+        json.addProperty("downloadedVolume", 0) // Compatibility only
+        json.addProperty("uploadedVolume", 0) // Compatibility only
         json.addProperty("application", peer.application)
         json.addProperty("version", peer.version.toStringIfNotEmpty())
         json.addProperty("platform", peer.platform)
         json.addProperty("blacklisted", peer.isBlacklisted)
-        json.addProperty("lastUpdated", peer.lastUpdated)
+        json.addProperty("lastUpdated", peer.lastHandshakeTime)
         return json
     }
 

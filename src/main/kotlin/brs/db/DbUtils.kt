@@ -18,6 +18,20 @@ inline fun <T> Db.useDslContext(action: (DSLContext) -> T): T {
 }
 
 /**
+ * Perform [action] within a database transaction if we are not already in a transaction.
+ */
+inline fun Db.ensureInTransaction(action: () -> Unit) {
+    contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
+    if (this.isInTransaction()) {
+        action()
+    } else {
+        this.transaction {
+            action()
+        }
+    }
+}
+
+/**
  * Perform [action] within a database transaction, and revert
  * if an exception was thrown.
  * @param action The action to perform within a DB transaction

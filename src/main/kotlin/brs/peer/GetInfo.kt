@@ -16,8 +16,8 @@ internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerReq
         info.addProperty("version", Burst.VERSION.toString())
         info.addProperty("platform", dp.peerService.myPlatform)
         info.addProperty("shareAddress", dp.peerService.shareMyAddress)
-        if (dp.peerService.announcedAddress != null) {
-            info.addProperty("announcedAddress", dp.peerService.announcedAddress.toString())
+        if (dp.peerService.myAnnouncedAddress != null) {
+            info.addProperty("announcedAddress", dp.peerService.myAnnouncedAddress.toString())
         }
         info
     }
@@ -26,7 +26,7 @@ internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerReq
         val announcedAddress = request.getMemberAsString("announcedAddress")
         if (!announcedAddress.isNullOrBlank()) {
             val newAddress = PeerAddress.parse(dp, announcedAddress.trim())
-            if (newAddress != null && newAddress != peer.address) {
+            if (newAddress != null && newAddress != peer.announcedAddress) {
                 peer.updateAddress(newAddress)
             }
         }
@@ -53,7 +53,7 @@ internal class GetInfo(private val dp: DependencyProvider) : PeerServlet.PeerReq
         peer.platform = platform.trim()
 
         peer.shareAddress = request.getMemberAsBoolean("shareAddress") ?: false
-        peer.lastUpdated = dp.timeService.epochTime
+        peer.lastHandshakeTime = dp.timeService.epochTime
 
         dp.peerService.notifyListeners(peer, PeerService.Event.ADDED_ACTIVE_PEER)
 

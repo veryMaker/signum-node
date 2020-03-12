@@ -2,8 +2,6 @@ package brs.peer
 
 import brs.entity.DependencyProvider
 import brs.objects.Constants.PROTOCOL
-import brs.util.CountingInputStream
-import brs.util.CountingOutputStream
 import brs.util.json.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeWarn
@@ -59,22 +57,20 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
         var requestType = "unknown"
         try {
             peer = dp.peerService.getOrAddPeer(request.remoteAddr)
-            if (peer.isBlacklisted) {
+            if (peer !is HttpPeerImpl || peer.isBlacklisted) {
                 return
             }
 
-            val cis = CountingInputStream(request.inputStream)
-            val jsonRequest = InputStreamReader(cis, StandardCharsets.UTF_8).use { reader ->
+            val jsonRequest = InputStreamReader(request.inputStream, StandardCharsets.UTF_8).use { reader ->
                 reader.parseJson().safeGetAsJsonObject()
             }
             if (jsonRequest == null || jsonRequest.isEmpty()) {
                 return
             }
 
-            if (peer.state == Peer.State.DISCONNECTED) {
-                peer.state = Peer.State.CONNECTED
+            if (!peer.isConnected) {
+                peer.isConnected = true
             }
-            peer.updateDownloadedVolume(cis.count)
 
             if (jsonRequest.getMemberAsString(PROTOCOL) == "B1") {
                 requestType = jsonRequest.mustGetMemberAsString("requestType")
@@ -93,11 +89,7 @@ class PeerServlet(private val dp: DependencyProvider) : HttpServlet() {
 
         resp.contentType = "text/plain; charset=UTF-8"
         try {
-            val byteCount: Long
-            val cos = CountingOutputStream(resp.outputStream)
-            OutputStreamWriter(cos, StandardCharsets.UTF_8).use { writer -> response.writeTo(writer) }
-            byteCount = cos.count
-            peer?.updateUploadedVolume(byteCount)
+            OutputStreamWriter(resp.outputStream, StandardCharsets.UTF_8).use { writer -> response.writeTo(writer) }
         } catch (e: Exception) {
             peer?.blacklist(e, "can't respond to requestType=$requestType")
             return

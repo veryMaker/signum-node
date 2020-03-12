@@ -1,6 +1,5 @@
 package brs.peer
 
-import brs.api.grpc.proto.BrsApi
 import brs.entity.Block
 import brs.entity.PeerInfo
 import brs.entity.Transaction
@@ -8,37 +7,38 @@ import brs.util.Version
 import java.math.BigInteger
 
 interface Peer {
+    /**
+     * The address that this peer has contacted us from
+     */
     val remoteAddress: String
 
     /**
-     * The address this peer has announced or the address it came from
+     * The address this peer has announced as being contactable at. If the peer did not announce an address, this will be null, and the peer cannot be contacted.
      */
-    val address: PeerAddress
+    val announcedAddress: PeerAddress?
 
     /**
-     * Updates the peer's address and sets the state to [State.NON_CONNECTED] to force re-verification of new address.
+     * Updates the peer's address and disconnects to force re-verification of new address.
      */
     fun updateAddress(newAnnouncedAddress: PeerAddress)
 
-    var state: State
+    /**
+     * Whether the peer is currently connected
+     */
+    val isConnected: Boolean
 
     var version: Version
 
     var application: String
 
+    /**
+     * Peer operator's "platform" string theoretically describing what platform they are running on
+     */
     var platform: String
-
-    val isRebroadcastTarget: Boolean
 
     val isBlacklisted: Boolean
 
-    val isAtLeastMyVersion: Boolean
-
-    val downloadedVolume: Long
-
-    val uploadedVolume: Long
-
-    var lastUpdated: Int
+    var lastHandshakeTime: Int
 
     /**
      * Connect to the peer, and handshake.
@@ -46,7 +46,7 @@ interface Peer {
      */
     fun connect(): Boolean
 
-    fun updateUploadedVolume(volume: Long)
+    fun disconnect()
 
     fun isHigherOrEqualVersionThan(version: Version): Boolean
 
@@ -54,13 +54,7 @@ interface Peer {
 
     fun blacklist(description: String)
 
-    fun blacklist()
-
-    fun unBlacklist()
-
     fun updateBlacklistedStatus(curTime: Long)
-
-    fun updateDownloadedVolume(volume: Long)
 
     /**
      * Send the peer our [PeerInfo] and returns theirs
@@ -121,7 +115,9 @@ interface Peer {
     fun addPeers(announcedAddresses: Collection<PeerAddress>)
 
     /**
-     * Get new peer addresses from this peer, or null if unsuccessful
+     * Get new peer addresses from this peer, or null if unsuccessful.
+     * The peer can send us as many addresses as it wants TODO
+     * It is not guaranteed that we do not already know of the peers that the peer sends us.
      */
     fun getPeers(): Collection<PeerAddress>?
 
@@ -132,29 +128,6 @@ interface Peer {
     fun sendBlock(block: Block): Boolean
 
     var shareAddress: Boolean
-
-    enum class State {
-        NON_CONNECTED, CONNECTED, DISCONNECTED;
-
-        fun toProtobuf(): BrsApi.PeerState {
-            return when (this) {
-                NON_CONNECTED -> BrsApi.PeerState.NON_CONNECTED
-                CONNECTED -> BrsApi.PeerState.CONNECTED
-                DISCONNECTED -> BrsApi.PeerState.NON_CONNECTED
-            }
-        }
-
-        companion object {
-            fun fromProtobuf(peer: BrsApi.PeerState): State? {
-                return when (peer) {
-                    BrsApi.PeerState.NON_CONNECTED -> NON_CONNECTED
-                    BrsApi.PeerState.CONNECTED -> CONNECTED
-                    BrsApi.PeerState.DISCONNECTED -> DISCONNECTED
-                    else -> null
-                }
-            }
-        }
-    }
 
     companion object {
         fun isHigherOrEqualVersion(ourVersion: Version?, possiblyLowerVersion: Version?): Boolean {

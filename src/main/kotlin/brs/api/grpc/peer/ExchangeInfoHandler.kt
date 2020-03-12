@@ -12,7 +12,7 @@ internal class ExchangeInfoHandler(private val dp: DependencyProvider) : GrpcPee
         val announcedAddress: String = request.announcedAddress
         if (announcedAddress.isNotBlank()) {
             val newAddress = PeerAddress.parse(dp, announcedAddress.trim())
-            if (newAddress != null && newAddress != peer.address) {
+            if (newAddress != null && newAddress != peer.announcedAddress) {
                 peer.updateAddress(newAddress)
             }
         }
@@ -35,7 +35,7 @@ internal class ExchangeInfoHandler(private val dp: DependencyProvider) : GrpcPee
         peer.platform = platform.trim()
 
         peer.shareAddress = request.shareAddress
-        peer.lastUpdated = dp.timeService.epochTime
+        peer.lastHandshakeTime = dp.timeService.epochTime
 
         dp.peerService.notifyListeners(peer, PeerService.Event.ADDED_ACTIVE_PEER)
 

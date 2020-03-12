@@ -6,11 +6,10 @@ import brs.entity.DependencyProvider
 import brs.entity.PeerInfo
 import brs.entity.Transaction
 import brs.objects.Constants
+import brs.objects.Props
 import brs.services.BlockchainProcessorService
 import brs.services.PeerService
 import brs.util.BurstException
-import brs.util.CountingInputStream
-import brs.util.CountingOutputStream
 import brs.util.Version
 import brs.util.convert.emptyToNull
 import brs.util.convert.parseUnsignedLong
@@ -23,7 +22,6 @@ import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import brs.util.logging.safeWarn
-import brs.util.sync.Mutex
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -40,12 +38,7 @@ internal class HttpPeerImpl(
     override val remoteAddress: String,
     address: PeerAddress?
 ) : Peer {
-    private val parsedRemoteAddress = PeerAddress.parse(dp, remoteAddress)
-
-    override val address: PeerAddress
-        get() = announcedAddress ?: parsedRemoteAddress ?: error("Could not find peer's address")
-
-    private var announcedAddress by Atomic<PeerAddress?>(null)
+    override var announcedAddress by Atomic<PeerAddress?>(null)
 
     init {
         if (address != null) {
@@ -73,46 +66,13 @@ internal class HttpPeerImpl(
         })
     private var isOldVersion by Atomic(false)
     private var blacklistingTime by Atomic<Long>(0)
-    override var state: Peer.State by AtomicWithOverride(
-        initialValue = Peer.State.NON_CONNECTED,
-        setValueDelegate = { newState, set ->
-            if (state != newState) {
-                if (state == Peer.State.NON_CONNECTED) {
-                    set(newState)
-                    dp.peerService.notifyListeners(this@HttpPeerImpl, PeerService.Event.ADDED_ACTIVE_PEER)
-                } else if (newState != Peer.State.NON_CONNECTED) {
-                    set(newState)
-                    dp.peerService.notifyListeners(this@HttpPeerImpl, PeerService.Event.CHANGED_ACTIVE_PEER)
-                }
-            }
-        })
-    override var downloadedVolume by Atomic(0L)
-    override var uploadedVolume by Atomic(0L)
-    override var lastUpdated by AtomicLateinit<Int>()
-    private val mutex = Mutex()
 
-    override val isAtLeastMyVersion: Boolean
-        get() = isHigherOrEqualVersionThan(Burst.VERSION)
+    override var isConnected by Atomic(false)
 
-    override val isRebroadcastTarget: Boolean
-        get() = dp.peerService.rebroadcastPeers.contains(address)
+    override var lastHandshakeTime by Atomic(initialValue = dp.timeService.epochTime)
 
     override val isBlacklisted: Boolean
-        get() = blacklistingTime > 0 || isOldVersion || dp.peerService.knownBlacklistedPeers.contains(address)
-
-    override fun updateDownloadedVolume(volume: Long) {
-        mutex.withLock {
-            downloadedVolume += volume
-        }
-        dp.peerService.notifyListeners(this, PeerService.Event.DOWNLOADED_VOLUME)
-    }
-
-    override fun updateUploadedVolume(volume: Long) {
-        mutex.withLock {
-            uploadedVolume += volume
-        }
-        dp.peerService.notifyListeners(this, PeerService.Event.UPLOADED_VOLUME)
-    }
+        get() = blacklistingTime > 0 || isOldVersion || dp.peerService.configuredBlacklistedPeers.contains(this.announcedAddress)
 
     override fun isHigherOrEqualVersionThan(version: Version): Boolean {
         return Peer.isHigherOrEqualVersion(version, this.version)
@@ -144,21 +104,17 @@ internal class HttpPeerImpl(
         blacklist()
     }
 
-    override fun blacklist() {
+    private fun blacklist() {
         blacklistingTime = System.currentTimeMillis()
-        state = Peer.State.NON_CONNECTED
+        isConnected = false
         dp.peerService.notifyListeners(this, PeerService.Event.BLACKLIST)
-    }
-
-    override fun unBlacklist() {
-        state = Peer.State.NON_CONNECTED
-        blacklistingTime = 0
-        dp.peerService.notifyListeners(this, PeerService.Event.UNBLACKLIST)
     }
 
     override fun updateBlacklistedStatus(curTime: Long) {
         if (blacklistingTime > 0 && blacklistingTime + dp.peerService.blacklistingPeriod <= curTime) {
-            unBlacklist()
+            isConnected = false
+            blacklistingTime = 0
+            dp.peerService.notifyListeners(this, PeerService.Event.UNBLACKLIST)
         }
     }
 
@@ -167,8 +123,8 @@ internal class HttpPeerImpl(
             action()
         } catch (e: Exception) {
             if (e != RETURNED_JSON_NULL && !isConnectionException(e)) {
-                if (state == Peer.State.CONNECTED) {
-                    state = Peer.State.DISCONNECTED
+                if (isConnected) {
+                    isConnected = false
                 }
                 logger.safeWarn(e) { errorMessage }
             }
@@ -185,6 +141,7 @@ internal class HttpPeerImpl(
 
     override fun exchangeInfo(): PeerInfo? {
         return handlePeerError("Error exchanging info with peer") {
+            if (announcedAddress == null) throw NO_ANNOUNCED_ADDRESS
             val json = send(dp.peerService.myJsonPeerInfoRequest) ?: throw RETURNED_JSON_NULL
             checkError(json)
             PeerInfo.fromJson(json)
@@ -316,39 +273,29 @@ internal class HttpPeerImpl(
     }
 
     private fun send(request: JsonElement): JsonObject? {
+        if (announcedAddress == null) throw NO_ANNOUNCED_ADDRESS
         var connection: HttpURLConnection? = null
         try {
-            connection = URL("$address/burst").openConnection() as HttpURLConnection
+            connection = URL("${this.announcedAddress}/burst").openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
             connection.doOutput = true
-            connection.connectTimeout = dp.peerService.connectTimeout
-            connection.readTimeout = dp.peerService.readTimeout
+            connection.connectTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_CONNECT_MS)
+            connection.readTimeout = dp.propertyService.get(Props.P2P_TIMEOUT_READ_MS)
             connection.addRequestProperty("User-Agent", "BRS/" + Burst.VERSION.toString())
             connection.setRequestProperty("Accept-Encoding", "gzip")
             connection.setRequestProperty("Connection", "close")
 
-            val outputStream = CountingOutputStream(connection.outputStream)
-            BufferedWriter(OutputStreamWriter(outputStream, StandardCharsets.UTF_8))
+            BufferedWriter(OutputStreamWriter(connection.outputStream, StandardCharsets.UTF_8))
                 .use { writer -> request.writeTo(writer) }
-            updateUploadedVolume(outputStream.count)
 
             if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-                val inputStream = CountingInputStream(connection.inputStream)
-                try {
-                    var responseStream: InputStream = inputStream
-                    if ("gzip" == connection.getHeaderField("Content-Encoding")) responseStream = GZIPInputStream(inputStream)
-                    BufferedReader(InputStreamReader(responseStream, StandardCharsets.UTF_8)).use { reader ->
-                        return reader.parseJson().safeGetAsJsonObject()
-                    }
-                } finally {
-                    updateDownloadedVolume(inputStream.count)
+                var responseStream = connection.inputStream
+                if ("gzip" == connection.getHeaderField("Content-Encoding")) responseStream = GZIPInputStream(responseStream)
+                BufferedReader(InputStreamReader(responseStream, StandardCharsets.UTF_8)).use { reader ->
+                    return reader.parseJson().safeGetAsJsonObject()
                 }
             } else {
-                state = if (state == Peer.State.CONNECTED) {
-                    Peer.State.DISCONNECTED
-                } else {
-                    Peer.State.NON_CONNECTED
-                }
+                isConnected = false
                 throw Exception("Bad HTTP Response: ${connection.responseCode}")
             }
         } finally {
@@ -363,6 +310,7 @@ internal class HttpPeerImpl(
     }
 
     override fun connect(): Boolean {
+        if (isBlacklisted) return false
         val response = exchangeInfo() ?: return false
         application = response.application
         version = response.version
@@ -371,30 +319,38 @@ internal class HttpPeerImpl(
         val newAnnouncedAddress = response.announcedAddress.emptyToNull()
         if (newAnnouncedAddress != null) {
             val parsedAddress = PeerAddress.parse(dp, newAnnouncedAddress)
-            if (parsedAddress != null && parsedAddress != announcedAddress) {
+            if (parsedAddress != null && parsedAddress != this.announcedAddress) {
                 updateAddress(parsedAddress)
             }
         }
 
-        if (announcedAddress == null) {
-            announcedAddress = PeerAddress.parse(dp, remoteAddress) ?: error("Could not find peer's address")
+        if (this.announcedAddress == null) {
+            this.announcedAddress = PeerAddress.parse(dp, remoteAddress) ?: error("Could not find peer's address")
         }
 
-        state = Peer.State.CONNECTED
-        lastUpdated = dp.timeService.epochTime
+        isConnected = true
+        lastHandshakeTime = dp.timeService.epochTime
         return true
+    }
+
+    override fun disconnect() {
+        isConnected = false
     }
 
     override fun updateAddress(newAnnouncedAddress: PeerAddress) {
         if (newAnnouncedAddress.protocol != PeerAddress.Protocol.HTTP) return // TODO is this the best way to handle this?
-        announcedAddress = newAnnouncedAddress
+        this.announcedAddress = newAnnouncedAddress
         // Force re-validate address
-        state = Peer.State.NON_CONNECTED
+        isConnected = false
         dp.peerService.updateAddress(this)
     }
 
+    override fun hashCode(): Int {
+        return remoteAddress.hashCode()
+    }
+
     override fun equals(other: Any?): Boolean {
-        return other is Peer && other.address == address
+        return other is Peer && other.remoteAddress == this.remoteAddress
     }
 
     companion object {
@@ -417,7 +373,8 @@ internal class HttpPeerImpl(
             request.addProperty("requestType", "getPeers")
             JSON.prepareRequest(request)
         }
-        
+
         private val RETURNED_JSON_NULL = IllegalStateException("Returned JSON was null")
+        private val NO_ANNOUNCED_ADDRESS = IllegalStateException("Peer has no announced address")
     }
 }

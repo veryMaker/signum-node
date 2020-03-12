@@ -32,7 +32,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
         dp.taskSchedulerService.scheduleTaskWithDelay(TaskType.IO, 0, 10000) {
             run {
                 try {
-                    val peer = dp.peerService.getAnyPeer(Peer.State.CONNECTED) ?: return@run
+                    val peer = dp.peerService.getAnyPeer(isConnected = true) ?: return@run
                     val transactions = peer.getUnconfirmedTransactions()
                     if (transactions.isNullOrEmpty()) return@run
                     dp.peerService.feedingTime(peer, foodDispenser, doneFeedingLog)
@@ -40,7 +40,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
                     try {
                         val addedTransactions = processPeerTransactions(transactions, peer, false)
                         if (addedTransactions.isNotEmpty()) {
-                            val activePriorityPlusExtra = dp.peerService.allActivePriorityPlusSomeExtraPeers
+                            val activePriorityPlusExtra = dp.peerService.getPeersToBroadcastTo()
                             activePriorityPlusExtra.remove(peer)
 
                             dp.taskSchedulerService.awaitTasks(TaskType.IO, activePriorityPlusExtra.map { otherPeer -> {
@@ -213,7 +213,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
 
     private fun broadcastToPeers(toAll: Boolean): Int {
         val peersToSendTo =
-            if (toAll) dp.peerService.activePeers.take(100) else dp.peerService.allActivePriorityPlusSomeExtraPeers
+            if (toAll) dp.peerService.activePeers.take(100) else dp.peerService.getPeersToBroadcastTo()
 
         logger.safeTrace { "Queueing up ${peersToSendTo.size} Peers for feeding" }
 

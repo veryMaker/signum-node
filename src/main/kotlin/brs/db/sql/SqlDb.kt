@@ -5,6 +5,7 @@ import brs.entity.DependencyProvider
 import brs.objects.Props
 import brs.schema.Tables
 import brs.util.logging.safeDebug
+import brs.util.logging.safeError
 import brs.util.logging.safeInfo
 import brs.util.logging.safeWarn
 import com.zaxxer.hikari.HikariConfig
@@ -37,12 +38,11 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
 
     override fun getDslContext(): DSLContext {
         val con = localConnection.get()
-        val ctx = if (con == null) {
+        return if (con == null) {
             DSL.using(cp, dialect, settings)
         } else {
             DSL.using(con, dialect, staticStatementSettings)
         }
-        return ctx
     }
 
     override fun isInTransaction() = localConnection.get() != null
@@ -138,9 +138,13 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
         cp = HikariDataSource(config)
 
         if (runFlyway) {
-            logger.safeInfo { "Running flyway migration" }
-            val flyway = flywayBuilder.load()
-            flyway.migrate()
+            try {
+                logger.safeInfo { "Running flyway migration" }
+                val flyway = flywayBuilder.load()
+                flyway.migrate()
+            } catch (e: Exception) {
+                logger.safeError(e) { "Flyway failed to migrate. This may cause serious errors when running BRS." }
+            }
         }
     }
 
@@ -253,28 +257,24 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
     }
 
     override fun deleteAll() {
-        if (!dp.db.isInTransaction()) {
-            dp.db.transaction {
-                deleteAll()
-            }
-            return
-        }
         logger.safeWarn { "Deleting blockchain..." }
-        dp.db.useDslContext { ctx ->
-            // TODO use allTables list
-            val tables = listOf<TableImpl<*>>(
-                Tables.ACCOUNT,
-                Tables.ACCOUNT_ASSET, Tables.ALIAS, Tables.ALIAS_OFFER,
-                Tables.ASK_ORDER, Tables.ASSET, Tables.ASSET_TRANSFER,
-                Tables.AT, Tables.AT_STATE, Tables.BID_ORDER,
-                Tables.BLOCK, Tables.ESCROW, Tables.ESCROW_DECISION,
-                Tables.GOODS, Tables.PEER, Tables.PURCHASE,
-                Tables.PURCHASE_FEEDBACK, Tables.PURCHASE_PUBLIC_FEEDBACK,
-                Tables.REWARD_RECIP_ASSIGN, Tables.SUBSCRIPTION,
-                Tables.TRADE, Tables.TRANSACTION
-            )
-            for (table in tables) {
-                ctx.truncate(table).execute()
+        dp.db.ensureInTransaction {
+            dp.db.useDslContext { ctx ->
+                // TODO use allTables list
+                val tables = listOf<TableImpl<*>>(
+                    Tables.ACCOUNT,
+                    Tables.ACCOUNT_ASSET, Tables.ALIAS, Tables.ALIAS_OFFER,
+                    Tables.ASK_ORDER, Tables.ASSET, Tables.ASSET_TRANSFER,
+                    Tables.AT, Tables.AT_STATE, Tables.BID_ORDER,
+                    Tables.BLOCK, Tables.ESCROW, Tables.ESCROW_DECISION,
+                    Tables.GOODS, Tables.PEER, Tables.PURCHASE,
+                    Tables.PURCHASE_FEEDBACK, Tables.PURCHASE_PUBLIC_FEEDBACK,
+                    Tables.REWARD_RECIP_ASSIGN, Tables.SUBSCRIPTION,
+                    Tables.TRADE, Tables.TRANSACTION
+                )
+                for (table in tables) {
+                    ctx.truncate(table).execute()
+                }
             }
         }
     }

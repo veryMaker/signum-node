@@ -2,14 +2,15 @@ package brs
 
 import brs.api.grpc.api.ApiService
 import brs.api.grpc.peer.PeerApiService
-import brs.api.http.API
 import brs.api.http.APITransactionManagerImpl
+import brs.api.http.ApiServerImpl
 import brs.at.*
 import brs.db.sql.*
 import brs.entity.Arguments
 import brs.entity.DependencyProvider
 import brs.objects.Constants
 import brs.objects.Props
+import brs.peer.PeerServerImpl
 import brs.services.BlockchainProcessorService
 import brs.services.PropertyService
 import brs.services.impl.*
@@ -125,7 +126,8 @@ LS: ${LibShabal.LOAD_ERROR?.toString() ?: LibShabal.VERSION}
             )
             dp.apiTransactionManager = APITransactionManagerImpl(dp)
             dp.peerService = PeerServiceImpl(dp)
-            dp.api = API(dp)
+            dp.peerServer = PeerServerImpl(dp)
+            dp.apiServer = ApiServerImpl(dp)
 
             dp.taskSchedulerService.runBeforeStart {
                 if (dp.propertyService.get(Props.API_V2_SERVER)) {
@@ -187,7 +189,10 @@ LS: ${LibShabal.LOAD_ERROR?.toString() ?: LibShabal.VERSION}
     fun shutdown() {
         logger.safeInfo { "Shutting down..." }
         ignoreLateinitException {
-            dp.api.shutdown()
+            dp.apiServer.shutdown()
+        }
+        ignoreLateinitException {
+            dp.peerServer.shutdown()
         }
         ignoreLateinitException {
             dp.apiV2Server.shutdownNow()

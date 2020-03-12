@@ -128,128 +128,6 @@ public final class BrsApi {
   }
 
   /**
-   * Protobuf enum {@code brs.api.PeerState}
-   */
-  public enum PeerState
-      implements com.google.protobuf.ProtocolMessageEnum {
-    /**
-     * <code>PeerState_UNSET = 0;</code>
-     */
-    PeerState_UNSET(0),
-    /**
-     * <code>NON_CONNECTED = 1;</code>
-     */
-    NON_CONNECTED(1),
-    /**
-     * <code>CONNECTED = 2;</code>
-     */
-    CONNECTED(2),
-    /**
-     * <code>DISCONNECTED = 3;</code>
-     */
-    DISCONNECTED(3),
-    UNRECOGNIZED(-1),
-    ;
-
-    /**
-     * <code>PeerState_UNSET = 0;</code>
-     */
-    public static final int PeerState_UNSET_VALUE = 0;
-    /**
-     * <code>NON_CONNECTED = 1;</code>
-     */
-    public static final int NON_CONNECTED_VALUE = 1;
-    /**
-     * <code>CONNECTED = 2;</code>
-     */
-    public static final int CONNECTED_VALUE = 2;
-    /**
-     * <code>DISCONNECTED = 3;</code>
-     */
-    public static final int DISCONNECTED_VALUE = 3;
-
-
-    public final int getNumber() {
-      if (this == UNRECOGNIZED) {
-        throw new java.lang.IllegalArgumentException(
-            "Can't get the number of an unknown enum value.");
-      }
-      return value;
-    }
-
-    /**
-     * @param value The numeric wire value of the corresponding enum entry.
-     * @return The enum associated with the given numeric wire value.
-     * @deprecated Use {@link #forNumber(int)} instead.
-     */
-    @java.lang.Deprecated
-    public static PeerState valueOf(int value) {
-      return forNumber(value);
-    }
-
-    /**
-     * @param value The numeric wire value of the corresponding enum entry.
-     * @return The enum associated with the given numeric wire value.
-     */
-    public static PeerState forNumber(int value) {
-      switch (value) {
-        case 0: return PeerState_UNSET;
-        case 1: return NON_CONNECTED;
-        case 2: return CONNECTED;
-        case 3: return DISCONNECTED;
-        default: return null;
-      }
-    }
-
-    public static com.google.protobuf.Internal.EnumLiteMap<PeerState>
-        internalGetValueMap() {
-      return internalValueMap;
-    }
-    private static final com.google.protobuf.Internal.EnumLiteMap<
-        PeerState> internalValueMap =
-          new com.google.protobuf.Internal.EnumLiteMap<PeerState>() {
-            public PeerState findValueByNumber(int number) {
-              return PeerState.forNumber(number);
-            }
-          };
-
-    public final com.google.protobuf.Descriptors.EnumValueDescriptor
-        getValueDescriptor() {
-      return getDescriptor().getValues().get(ordinal());
-    }
-    public final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptorForType() {
-      return getDescriptor();
-    }
-    public static final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptor() {
-      return brs.api.grpc.proto.BrsApi.getDescriptor().getEnumTypes().get(1);
-    }
-
-    private static final PeerState[] VALUES = values();
-
-    public static PeerState valueOf(
-        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-      if (desc.getType() != getDescriptor()) {
-        throw new java.lang.IllegalArgumentException(
-          "EnumValueDescriptor is not for this type.");
-      }
-      if (desc.getIndex() == -1) {
-        return UNRECOGNIZED;
-      }
-      return VALUES[desc.getIndex()];
-    }
-
-    private final int value;
-
-    private PeerState(int value) {
-      this.value = value;
-    }
-
-    // @@protoc_insertion_point(enum_scope:brs.api.PeerState)
-  }
-
-  /**
    * Protobuf enum {@code brs.api.AssetOrderType}
    */
   public enum AssetOrderType
@@ -336,7 +214,7 @@ public final class BrsApi {
     }
     public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return brs.api.grpc.proto.BrsApi.getDescriptor().getEnumTypes().get(2);
+      return brs.api.grpc.proto.BrsApi.getDescriptor().getEnumTypes().get(1);
     }
 
     private static final AssetOrderType[] VALUES = values();
@@ -467,7 +345,7 @@ public final class BrsApi {
     }
     public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return brs.api.grpc.proto.BrsApi.getDescriptor().getEnumTypes().get(3);
+      return brs.api.grpc.proto.BrsApi.getDescriptor().getEnumTypes().get(2);
     }
 
     private static final EscrowDecisionType[] VALUES = values();
@@ -42843,21 +42721,20 @@ public final class BrsApi {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>bool active = 1;</code>
-     * @return The active.
+     * <pre>
+     * If this is true, get all peers. If this is false, get peers that are connected or not based on isConnected.
+     * </pre>
+     *
+     * <code>bool allPeers = 1;</code>
+     * @return The allPeers.
      */
-    boolean getActive();
+    boolean getAllPeers();
 
     /**
-     * <code>.brs.api.PeerState state = 2;</code>
-     * @return The enum numeric value on the wire for state.
+     * <code>bool isConnected = 2;</code>
+     * @return The isConnected.
      */
-    int getStateValue();
-    /**
-     * <code>.brs.api.PeerState state = 2;</code>
-     * @return The state.
-     */
-    brs.api.grpc.proto.BrsApi.PeerState getState();
+    boolean getIsConnected();
   }
   /**
    * Protobuf type {@code brs.api.GetPeersRequest}
@@ -42872,7 +42749,6 @@ public final class BrsApi {
       super(builder);
     }
     private GetPeersRequest() {
-      state_ = 0;
     }
 
     @java.lang.Override
@@ -42907,13 +42783,12 @@ public final class BrsApi {
               break;
             case 8: {
 
-              active_ = input.readBool();
+              allPeers_ = input.readBool();
               break;
             }
             case 16: {
-              int rawValue = input.readEnum();
 
-              state_ = rawValue;
+              isConnected_ = input.readBool();
               break;
             }
             default: {
@@ -42948,33 +42823,28 @@ public final class BrsApi {
               brs.api.grpc.proto.BrsApi.GetPeersRequest.class, brs.api.grpc.proto.BrsApi.GetPeersRequest.Builder.class);
     }
 
-    public static final int ACTIVE_FIELD_NUMBER = 1;
-    private boolean active_;
+    public static final int ALLPEERS_FIELD_NUMBER = 1;
+    private boolean allPeers_;
     /**
-     * <code>bool active = 1;</code>
-     * @return The active.
+     * <pre>
+     * If this is true, get all peers. If this is false, get peers that are connected or not based on isConnected.
+     * </pre>
+     *
+     * <code>bool allPeers = 1;</code>
+     * @return The allPeers.
      */
-    public boolean getActive() {
-      return active_;
+    public boolean getAllPeers() {
+      return allPeers_;
     }
 
-    public static final int STATE_FIELD_NUMBER = 2;
-    private int state_;
+    public static final int ISCONNECTED_FIELD_NUMBER = 2;
+    private boolean isConnected_;
     /**
-     * <code>.brs.api.PeerState state = 2;</code>
-     * @return The enum numeric value on the wire for state.
+     * <code>bool isConnected = 2;</code>
+     * @return The isConnected.
      */
-    public int getStateValue() {
-      return state_;
-    }
-    /**
-     * <code>.brs.api.PeerState state = 2;</code>
-     * @return The state.
-     */
-    public brs.api.grpc.proto.BrsApi.PeerState getState() {
-      @SuppressWarnings("deprecation")
-      brs.api.grpc.proto.BrsApi.PeerState result = brs.api.grpc.proto.BrsApi.PeerState.valueOf(state_);
-      return result == null ? brs.api.grpc.proto.BrsApi.PeerState.UNRECOGNIZED : result;
+    public boolean getIsConnected() {
+      return isConnected_;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -42991,11 +42861,11 @@ public final class BrsApi {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (active_ != false) {
-        output.writeBool(1, active_);
+      if (allPeers_ != false) {
+        output.writeBool(1, allPeers_);
       }
-      if (state_ != brs.api.grpc.proto.BrsApi.PeerState.PeerState_UNSET.getNumber()) {
-        output.writeEnum(2, state_);
+      if (isConnected_ != false) {
+        output.writeBool(2, isConnected_);
       }
       unknownFields.writeTo(output);
     }
@@ -43006,13 +42876,13 @@ public final class BrsApi {
       if (size != -1) return size;
 
       size = 0;
-      if (active_ != false) {
+      if (allPeers_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(1, active_);
+          .computeBoolSize(1, allPeers_);
       }
-      if (state_ != brs.api.grpc.proto.BrsApi.PeerState.PeerState_UNSET.getNumber()) {
+      if (isConnected_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(2, state_);
+          .computeBoolSize(2, isConnected_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -43029,9 +42899,10 @@ public final class BrsApi {
       }
       brs.api.grpc.proto.BrsApi.GetPeersRequest other = (brs.api.grpc.proto.BrsApi.GetPeersRequest) obj;
 
-      if (getActive()
-          != other.getActive()) return false;
-      if (state_ != other.state_) return false;
+      if (getAllPeers()
+          != other.getAllPeers()) return false;
+      if (getIsConnected()
+          != other.getIsConnected()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -43043,11 +42914,12 @@ public final class BrsApi {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + ACTIVE_FIELD_NUMBER;
+      hash = (37 * hash) + ALLPEERS_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getActive());
-      hash = (37 * hash) + STATE_FIELD_NUMBER;
-      hash = (53 * hash) + state_;
+          getAllPeers());
+      hash = (37 * hash) + ISCONNECTED_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getIsConnected());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -43181,9 +43053,9 @@ public final class BrsApi {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        active_ = false;
+        allPeers_ = false;
 
-        state_ = 0;
+        isConnected_ = false;
 
         return this;
       }
@@ -43211,8 +43083,8 @@ public final class BrsApi {
       @java.lang.Override
       public brs.api.grpc.proto.BrsApi.GetPeersRequest buildPartial() {
         brs.api.grpc.proto.BrsApi.GetPeersRequest result = new brs.api.grpc.proto.BrsApi.GetPeersRequest(this);
-        result.active_ = active_;
-        result.state_ = state_;
+        result.allPeers_ = allPeers_;
+        result.isConnected_ = isConnected_;
         onBuilt();
         return result;
       }
@@ -43261,11 +43133,11 @@ public final class BrsApi {
 
       public Builder mergeFrom(brs.api.grpc.proto.BrsApi.GetPeersRequest other) {
         if (other == brs.api.grpc.proto.BrsApi.GetPeersRequest.getDefaultInstance()) return this;
-        if (other.getActive() != false) {
-          setActive(other.getActive());
+        if (other.getAllPeers() != false) {
+          setAllPeers(other.getAllPeers());
         }
-        if (other.state_ != 0) {
-          setStateValue(other.getStateValue());
+        if (other.getIsConnected() != false) {
+          setIsConnected(other.getIsConnected());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -43296,84 +43168,74 @@ public final class BrsApi {
         return this;
       }
 
-      private boolean active_ ;
+      private boolean allPeers_ ;
       /**
-       * <code>bool active = 1;</code>
-       * @return The active.
+       * <pre>
+       * If this is true, get all peers. If this is false, get peers that are connected or not based on isConnected.
+       * </pre>
+       *
+       * <code>bool allPeers = 1;</code>
+       * @return The allPeers.
        */
-      public boolean getActive() {
-        return active_;
+      public boolean getAllPeers() {
+        return allPeers_;
       }
       /**
-       * <code>bool active = 1;</code>
-       * @param value The active to set.
+       * <pre>
+       * If this is true, get all peers. If this is false, get peers that are connected or not based on isConnected.
+       * </pre>
+       *
+       * <code>bool allPeers = 1;</code>
+       * @param value The allPeers to set.
        * @return This builder for chaining.
        */
-      public Builder setActive(boolean value) {
+      public Builder setAllPeers(boolean value) {
         
-        active_ = value;
+        allPeers_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>bool active = 1;</code>
+       * <pre>
+       * If this is true, get all peers. If this is false, get peers that are connected or not based on isConnected.
+       * </pre>
+       *
+       * <code>bool allPeers = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearActive() {
+      public Builder clearAllPeers() {
         
-        active_ = false;
+        allPeers_ = false;
         onChanged();
         return this;
       }
 
-      private int state_ = 0;
+      private boolean isConnected_ ;
       /**
-       * <code>.brs.api.PeerState state = 2;</code>
-       * @return The enum numeric value on the wire for state.
+       * <code>bool isConnected = 2;</code>
+       * @return The isConnected.
        */
-      public int getStateValue() {
-        return state_;
+      public boolean getIsConnected() {
+        return isConnected_;
       }
       /**
-       * <code>.brs.api.PeerState state = 2;</code>
-       * @param value The enum numeric value on the wire for state to set.
+       * <code>bool isConnected = 2;</code>
+       * @param value The isConnected to set.
        * @return This builder for chaining.
        */
-      public Builder setStateValue(int value) {
-        state_ = value;
+      public Builder setIsConnected(boolean value) {
+        
+        isConnected_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>.brs.api.PeerState state = 2;</code>
-       * @return The state.
-       */
-      public brs.api.grpc.proto.BrsApi.PeerState getState() {
-        @SuppressWarnings("deprecation")
-        brs.api.grpc.proto.BrsApi.PeerState result = brs.api.grpc.proto.BrsApi.PeerState.valueOf(state_);
-        return result == null ? brs.api.grpc.proto.BrsApi.PeerState.UNRECOGNIZED : result;
-      }
-      /**
-       * <code>.brs.api.PeerState state = 2;</code>
-       * @param value The state to set.
+       * <code>bool isConnected = 2;</code>
        * @return This builder for chaining.
        */
-      public Builder setState(brs.api.grpc.proto.BrsApi.PeerState value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
+      public Builder clearIsConnected() {
         
-        state_ = value.getNumber();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.brs.api.PeerState state = 2;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearState() {
-        
-        state_ = 0;
+        isConnected_ = false;
         onChanged();
         return this;
       }
@@ -43435,15 +43297,10 @@ public final class BrsApi {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>.brs.api.PeerState state = 1;</code>
-     * @return The enum numeric value on the wire for state.
+     * <code>bool isConnected = 1;</code>
+     * @return The isConnected.
      */
-    int getStateValue();
-    /**
-     * <code>.brs.api.PeerState state = 1;</code>
-     * @return The state.
-     */
-    brs.api.grpc.proto.BrsApi.PeerState getState();
+    boolean getIsConnected();
 
     /**
      * <code>string announcedAddress = 2;</code>
@@ -43464,61 +43321,49 @@ public final class BrsApi {
     boolean getShareAddress();
 
     /**
-     * <code>uint64 downloadedVolume = 4;</code>
-     * @return The downloadedVolume.
-     */
-    long getDownloadedVolume();
-
-    /**
-     * <code>uint64 uploadedVolume = 5;</code>
-     * @return The uploadedVolume.
-     */
-    long getUploadedVolume();
-
-    /**
-     * <code>string application = 6;</code>
+     * <code>string application = 4;</code>
      * @return The application.
      */
     java.lang.String getApplication();
     /**
-     * <code>string application = 6;</code>
+     * <code>string application = 4;</code>
      * @return The bytes for application.
      */
     com.google.protobuf.ByteString
         getApplicationBytes();
 
     /**
-     * <code>string version = 7;</code>
+     * <code>string version = 5;</code>
      * @return The version.
      */
     java.lang.String getVersion();
     /**
-     * <code>string version = 7;</code>
+     * <code>string version = 5;</code>
      * @return The bytes for version.
      */
     com.google.protobuf.ByteString
         getVersionBytes();
 
     /**
-     * <code>string platform = 8;</code>
+     * <code>string platform = 6;</code>
      * @return The platform.
      */
     java.lang.String getPlatform();
     /**
-     * <code>string platform = 8;</code>
+     * <code>string platform = 6;</code>
      * @return The bytes for platform.
      */
     com.google.protobuf.ByteString
         getPlatformBytes();
 
     /**
-     * <code>bool blacklisted = 9;</code>
+     * <code>bool blacklisted = 7;</code>
      * @return The blacklisted.
      */
     boolean getBlacklisted();
 
     /**
-     * <code>uint32 lastUpdated = 10;</code>
+     * <code>uint32 lastUpdated = 8;</code>
      * @return The lastUpdated.
      */
     int getLastUpdated();
@@ -43536,7 +43381,6 @@ public final class BrsApi {
       super(builder);
     }
     private Peer() {
-      state_ = 0;
       announcedAddress_ = "";
       application_ = "";
       version_ = "";
@@ -43574,9 +43418,8 @@ public final class BrsApi {
               done = true;
               break;
             case 8: {
-              int rawValue = input.readEnum();
 
-              state_ = rawValue;
+              isConnected_ = input.readBool();
               break;
             }
             case 18: {
@@ -43590,40 +43433,30 @@ public final class BrsApi {
               shareAddress_ = input.readBool();
               break;
             }
-            case 32: {
-
-              downloadedVolume_ = input.readUInt64();
-              break;
-            }
-            case 40: {
-
-              uploadedVolume_ = input.readUInt64();
-              break;
-            }
-            case 50: {
+            case 34: {
               java.lang.String s = input.readStringRequireUtf8();
 
               application_ = s;
               break;
             }
-            case 58: {
+            case 42: {
               java.lang.String s = input.readStringRequireUtf8();
 
               version_ = s;
               break;
             }
-            case 66: {
+            case 50: {
               java.lang.String s = input.readStringRequireUtf8();
 
               platform_ = s;
               break;
             }
-            case 72: {
+            case 56: {
 
               blacklisted_ = input.readBool();
               break;
             }
-            case 80: {
+            case 64: {
 
               lastUpdated_ = input.readUInt32();
               break;
@@ -43660,23 +43493,14 @@ public final class BrsApi {
               brs.api.grpc.proto.BrsApi.Peer.class, brs.api.grpc.proto.BrsApi.Peer.Builder.class);
     }
 
-    public static final int STATE_FIELD_NUMBER = 1;
-    private int state_;
+    public static final int ISCONNECTED_FIELD_NUMBER = 1;
+    private boolean isConnected_;
     /**
-     * <code>.brs.api.PeerState state = 1;</code>
-     * @return The enum numeric value on the wire for state.
+     * <code>bool isConnected = 1;</code>
+     * @return The isConnected.
      */
-    public int getStateValue() {
-      return state_;
-    }
-    /**
-     * <code>.brs.api.PeerState state = 1;</code>
-     * @return The state.
-     */
-    public brs.api.grpc.proto.BrsApi.PeerState getState() {
-      @SuppressWarnings("deprecation")
-      brs.api.grpc.proto.BrsApi.PeerState result = brs.api.grpc.proto.BrsApi.PeerState.valueOf(state_);
-      return result == null ? brs.api.grpc.proto.BrsApi.PeerState.UNRECOGNIZED : result;
+    public boolean getIsConnected() {
+      return isConnected_;
     }
 
     public static final int ANNOUNCEDADDRESS_FIELD_NUMBER = 2;
@@ -43725,30 +43549,10 @@ public final class BrsApi {
       return shareAddress_;
     }
 
-    public static final int DOWNLOADEDVOLUME_FIELD_NUMBER = 4;
-    private long downloadedVolume_;
-    /**
-     * <code>uint64 downloadedVolume = 4;</code>
-     * @return The downloadedVolume.
-     */
-    public long getDownloadedVolume() {
-      return downloadedVolume_;
-    }
-
-    public static final int UPLOADEDVOLUME_FIELD_NUMBER = 5;
-    private long uploadedVolume_;
-    /**
-     * <code>uint64 uploadedVolume = 5;</code>
-     * @return The uploadedVolume.
-     */
-    public long getUploadedVolume() {
-      return uploadedVolume_;
-    }
-
-    public static final int APPLICATION_FIELD_NUMBER = 6;
+    public static final int APPLICATION_FIELD_NUMBER = 4;
     private volatile java.lang.Object application_;
     /**
-     * <code>string application = 6;</code>
+     * <code>string application = 4;</code>
      * @return The application.
      */
     public java.lang.String getApplication() {
@@ -43764,7 +43568,7 @@ public final class BrsApi {
       }
     }
     /**
-     * <code>string application = 6;</code>
+     * <code>string application = 4;</code>
      * @return The bytes for application.
      */
     public com.google.protobuf.ByteString
@@ -43781,10 +43585,10 @@ public final class BrsApi {
       }
     }
 
-    public static final int VERSION_FIELD_NUMBER = 7;
+    public static final int VERSION_FIELD_NUMBER = 5;
     private volatile java.lang.Object version_;
     /**
-     * <code>string version = 7;</code>
+     * <code>string version = 5;</code>
      * @return The version.
      */
     public java.lang.String getVersion() {
@@ -43800,7 +43604,7 @@ public final class BrsApi {
       }
     }
     /**
-     * <code>string version = 7;</code>
+     * <code>string version = 5;</code>
      * @return The bytes for version.
      */
     public com.google.protobuf.ByteString
@@ -43817,10 +43621,10 @@ public final class BrsApi {
       }
     }
 
-    public static final int PLATFORM_FIELD_NUMBER = 8;
+    public static final int PLATFORM_FIELD_NUMBER = 6;
     private volatile java.lang.Object platform_;
     /**
-     * <code>string platform = 8;</code>
+     * <code>string platform = 6;</code>
      * @return The platform.
      */
     public java.lang.String getPlatform() {
@@ -43836,7 +43640,7 @@ public final class BrsApi {
       }
     }
     /**
-     * <code>string platform = 8;</code>
+     * <code>string platform = 6;</code>
      * @return The bytes for platform.
      */
     public com.google.protobuf.ByteString
@@ -43853,20 +43657,20 @@ public final class BrsApi {
       }
     }
 
-    public static final int BLACKLISTED_FIELD_NUMBER = 9;
+    public static final int BLACKLISTED_FIELD_NUMBER = 7;
     private boolean blacklisted_;
     /**
-     * <code>bool blacklisted = 9;</code>
+     * <code>bool blacklisted = 7;</code>
      * @return The blacklisted.
      */
     public boolean getBlacklisted() {
       return blacklisted_;
     }
 
-    public static final int LASTUPDATED_FIELD_NUMBER = 10;
+    public static final int LASTUPDATED_FIELD_NUMBER = 8;
     private int lastUpdated_;
     /**
-     * <code>uint32 lastUpdated = 10;</code>
+     * <code>uint32 lastUpdated = 8;</code>
      * @return The lastUpdated.
      */
     public int getLastUpdated() {
@@ -43887,8 +43691,8 @@ public final class BrsApi {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (state_ != brs.api.grpc.proto.BrsApi.PeerState.PeerState_UNSET.getNumber()) {
-        output.writeEnum(1, state_);
+      if (isConnected_ != false) {
+        output.writeBool(1, isConnected_);
       }
       if (!getAnnouncedAddressBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 2, announcedAddress_);
@@ -43896,26 +43700,20 @@ public final class BrsApi {
       if (shareAddress_ != false) {
         output.writeBool(3, shareAddress_);
       }
-      if (downloadedVolume_ != 0L) {
-        output.writeUInt64(4, downloadedVolume_);
-      }
-      if (uploadedVolume_ != 0L) {
-        output.writeUInt64(5, uploadedVolume_);
-      }
       if (!getApplicationBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 6, application_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, application_);
       }
       if (!getVersionBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 7, version_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 5, version_);
       }
       if (!getPlatformBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 8, platform_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 6, platform_);
       }
       if (blacklisted_ != false) {
-        output.writeBool(9, blacklisted_);
+        output.writeBool(7, blacklisted_);
       }
       if (lastUpdated_ != 0) {
-        output.writeUInt32(10, lastUpdated_);
+        output.writeUInt32(8, lastUpdated_);
       }
       unknownFields.writeTo(output);
     }
@@ -43926,9 +43724,9 @@ public final class BrsApi {
       if (size != -1) return size;
 
       size = 0;
-      if (state_ != brs.api.grpc.proto.BrsApi.PeerState.PeerState_UNSET.getNumber()) {
+      if (isConnected_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, state_);
+          .computeBoolSize(1, isConnected_);
       }
       if (!getAnnouncedAddressBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, announcedAddress_);
@@ -43937,30 +43735,22 @@ public final class BrsApi {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(3, shareAddress_);
       }
-      if (downloadedVolume_ != 0L) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(4, downloadedVolume_);
-      }
-      if (uploadedVolume_ != 0L) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(5, uploadedVolume_);
-      }
       if (!getApplicationBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, application_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, application_);
       }
       if (!getVersionBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, version_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, version_);
       }
       if (!getPlatformBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, platform_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, platform_);
       }
       if (blacklisted_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(9, blacklisted_);
+          .computeBoolSize(7, blacklisted_);
       }
       if (lastUpdated_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(10, lastUpdated_);
+          .computeUInt32Size(8, lastUpdated_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -43977,15 +43767,12 @@ public final class BrsApi {
       }
       brs.api.grpc.proto.BrsApi.Peer other = (brs.api.grpc.proto.BrsApi.Peer) obj;
 
-      if (state_ != other.state_) return false;
+      if (getIsConnected()
+          != other.getIsConnected()) return false;
       if (!getAnnouncedAddress()
           .equals(other.getAnnouncedAddress())) return false;
       if (getShareAddress()
           != other.getShareAddress()) return false;
-      if (getDownloadedVolume()
-          != other.getDownloadedVolume()) return false;
-      if (getUploadedVolume()
-          != other.getUploadedVolume()) return false;
       if (!getApplication()
           .equals(other.getApplication())) return false;
       if (!getVersion()
@@ -44007,19 +43794,14 @@ public final class BrsApi {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + STATE_FIELD_NUMBER;
-      hash = (53 * hash) + state_;
+      hash = (37 * hash) + ISCONNECTED_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getIsConnected());
       hash = (37 * hash) + ANNOUNCEDADDRESS_FIELD_NUMBER;
       hash = (53 * hash) + getAnnouncedAddress().hashCode();
       hash = (37 * hash) + SHAREADDRESS_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getShareAddress());
-      hash = (37 * hash) + DOWNLOADEDVOLUME_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          getDownloadedVolume());
-      hash = (37 * hash) + UPLOADEDVOLUME_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          getUploadedVolume());
       hash = (37 * hash) + APPLICATION_FIELD_NUMBER;
       hash = (53 * hash) + getApplication().hashCode();
       hash = (37 * hash) + VERSION_FIELD_NUMBER;
@@ -44164,15 +43946,11 @@ public final class BrsApi {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        state_ = 0;
+        isConnected_ = false;
 
         announcedAddress_ = "";
 
         shareAddress_ = false;
-
-        downloadedVolume_ = 0L;
-
-        uploadedVolume_ = 0L;
 
         application_ = "";
 
@@ -44210,11 +43988,9 @@ public final class BrsApi {
       @java.lang.Override
       public brs.api.grpc.proto.BrsApi.Peer buildPartial() {
         brs.api.grpc.proto.BrsApi.Peer result = new brs.api.grpc.proto.BrsApi.Peer(this);
-        result.state_ = state_;
+        result.isConnected_ = isConnected_;
         result.announcedAddress_ = announcedAddress_;
         result.shareAddress_ = shareAddress_;
-        result.downloadedVolume_ = downloadedVolume_;
-        result.uploadedVolume_ = uploadedVolume_;
         result.application_ = application_;
         result.version_ = version_;
         result.platform_ = platform_;
@@ -44268,8 +44044,8 @@ public final class BrsApi {
 
       public Builder mergeFrom(brs.api.grpc.proto.BrsApi.Peer other) {
         if (other == brs.api.grpc.proto.BrsApi.Peer.getDefaultInstance()) return this;
-        if (other.state_ != 0) {
-          setStateValue(other.getStateValue());
+        if (other.getIsConnected() != false) {
+          setIsConnected(other.getIsConnected());
         }
         if (!other.getAnnouncedAddress().isEmpty()) {
           announcedAddress_ = other.announcedAddress_;
@@ -44277,12 +44053,6 @@ public final class BrsApi {
         }
         if (other.getShareAddress() != false) {
           setShareAddress(other.getShareAddress());
-        }
-        if (other.getDownloadedVolume() != 0L) {
-          setDownloadedVolume(other.getDownloadedVolume());
-        }
-        if (other.getUploadedVolume() != 0L) {
-          setUploadedVolume(other.getUploadedVolume());
         }
         if (!other.getApplication().isEmpty()) {
           application_ = other.application_;
@@ -44331,54 +44101,32 @@ public final class BrsApi {
         return this;
       }
 
-      private int state_ = 0;
+      private boolean isConnected_ ;
       /**
-       * <code>.brs.api.PeerState state = 1;</code>
-       * @return The enum numeric value on the wire for state.
+       * <code>bool isConnected = 1;</code>
+       * @return The isConnected.
        */
-      public int getStateValue() {
-        return state_;
+      public boolean getIsConnected() {
+        return isConnected_;
       }
       /**
-       * <code>.brs.api.PeerState state = 1;</code>
-       * @param value The enum numeric value on the wire for state to set.
+       * <code>bool isConnected = 1;</code>
+       * @param value The isConnected to set.
        * @return This builder for chaining.
        */
-      public Builder setStateValue(int value) {
-        state_ = value;
+      public Builder setIsConnected(boolean value) {
+        
+        isConnected_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>.brs.api.PeerState state = 1;</code>
-       * @return The state.
-       */
-      public brs.api.grpc.proto.BrsApi.PeerState getState() {
-        @SuppressWarnings("deprecation")
-        brs.api.grpc.proto.BrsApi.PeerState result = brs.api.grpc.proto.BrsApi.PeerState.valueOf(state_);
-        return result == null ? brs.api.grpc.proto.BrsApi.PeerState.UNRECOGNIZED : result;
-      }
-      /**
-       * <code>.brs.api.PeerState state = 1;</code>
-       * @param value The state to set.
+       * <code>bool isConnected = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder setState(brs.api.grpc.proto.BrsApi.PeerState value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
+      public Builder clearIsConnected() {
         
-        state_ = value.getNumber();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.brs.api.PeerState state = 1;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearState() {
-        
-        state_ = 0;
+        isConnected_ = false;
         onChanged();
         return this;
       }
@@ -44489,69 +44237,9 @@ public final class BrsApi {
         return this;
       }
 
-      private long downloadedVolume_ ;
-      /**
-       * <code>uint64 downloadedVolume = 4;</code>
-       * @return The downloadedVolume.
-       */
-      public long getDownloadedVolume() {
-        return downloadedVolume_;
-      }
-      /**
-       * <code>uint64 downloadedVolume = 4;</code>
-       * @param value The downloadedVolume to set.
-       * @return This builder for chaining.
-       */
-      public Builder setDownloadedVolume(long value) {
-        
-        downloadedVolume_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>uint64 downloadedVolume = 4;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearDownloadedVolume() {
-        
-        downloadedVolume_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      private long uploadedVolume_ ;
-      /**
-       * <code>uint64 uploadedVolume = 5;</code>
-       * @return The uploadedVolume.
-       */
-      public long getUploadedVolume() {
-        return uploadedVolume_;
-      }
-      /**
-       * <code>uint64 uploadedVolume = 5;</code>
-       * @param value The uploadedVolume to set.
-       * @return This builder for chaining.
-       */
-      public Builder setUploadedVolume(long value) {
-        
-        uploadedVolume_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>uint64 uploadedVolume = 5;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearUploadedVolume() {
-        
-        uploadedVolume_ = 0L;
-        onChanged();
-        return this;
-      }
-
       private java.lang.Object application_ = "";
       /**
-       * <code>string application = 6;</code>
+       * <code>string application = 4;</code>
        * @return The application.
        */
       public java.lang.String getApplication() {
@@ -44567,7 +44255,7 @@ public final class BrsApi {
         }
       }
       /**
-       * <code>string application = 6;</code>
+       * <code>string application = 4;</code>
        * @return The bytes for application.
        */
       public com.google.protobuf.ByteString
@@ -44584,7 +44272,7 @@ public final class BrsApi {
         }
       }
       /**
-       * <code>string application = 6;</code>
+       * <code>string application = 4;</code>
        * @param value The application to set.
        * @return This builder for chaining.
        */
@@ -44599,7 +44287,7 @@ public final class BrsApi {
         return this;
       }
       /**
-       * <code>string application = 6;</code>
+       * <code>string application = 4;</code>
        * @return This builder for chaining.
        */
       public Builder clearApplication() {
@@ -44609,7 +44297,7 @@ public final class BrsApi {
         return this;
       }
       /**
-       * <code>string application = 6;</code>
+       * <code>string application = 4;</code>
        * @param value The bytes for application to set.
        * @return This builder for chaining.
        */
@@ -44627,7 +44315,7 @@ public final class BrsApi {
 
       private java.lang.Object version_ = "";
       /**
-       * <code>string version = 7;</code>
+       * <code>string version = 5;</code>
        * @return The version.
        */
       public java.lang.String getVersion() {
@@ -44643,7 +44331,7 @@ public final class BrsApi {
         }
       }
       /**
-       * <code>string version = 7;</code>
+       * <code>string version = 5;</code>
        * @return The bytes for version.
        */
       public com.google.protobuf.ByteString
@@ -44660,7 +44348,7 @@ public final class BrsApi {
         }
       }
       /**
-       * <code>string version = 7;</code>
+       * <code>string version = 5;</code>
        * @param value The version to set.
        * @return This builder for chaining.
        */
@@ -44675,7 +44363,7 @@ public final class BrsApi {
         return this;
       }
       /**
-       * <code>string version = 7;</code>
+       * <code>string version = 5;</code>
        * @return This builder for chaining.
        */
       public Builder clearVersion() {
@@ -44685,7 +44373,7 @@ public final class BrsApi {
         return this;
       }
       /**
-       * <code>string version = 7;</code>
+       * <code>string version = 5;</code>
        * @param value The bytes for version to set.
        * @return This builder for chaining.
        */
@@ -44703,7 +44391,7 @@ public final class BrsApi {
 
       private java.lang.Object platform_ = "";
       /**
-       * <code>string platform = 8;</code>
+       * <code>string platform = 6;</code>
        * @return The platform.
        */
       public java.lang.String getPlatform() {
@@ -44719,7 +44407,7 @@ public final class BrsApi {
         }
       }
       /**
-       * <code>string platform = 8;</code>
+       * <code>string platform = 6;</code>
        * @return The bytes for platform.
        */
       public com.google.protobuf.ByteString
@@ -44736,7 +44424,7 @@ public final class BrsApi {
         }
       }
       /**
-       * <code>string platform = 8;</code>
+       * <code>string platform = 6;</code>
        * @param value The platform to set.
        * @return This builder for chaining.
        */
@@ -44751,7 +44439,7 @@ public final class BrsApi {
         return this;
       }
       /**
-       * <code>string platform = 8;</code>
+       * <code>string platform = 6;</code>
        * @return This builder for chaining.
        */
       public Builder clearPlatform() {
@@ -44761,7 +44449,7 @@ public final class BrsApi {
         return this;
       }
       /**
-       * <code>string platform = 8;</code>
+       * <code>string platform = 6;</code>
        * @param value The bytes for platform to set.
        * @return This builder for chaining.
        */
@@ -44779,14 +44467,14 @@ public final class BrsApi {
 
       private boolean blacklisted_ ;
       /**
-       * <code>bool blacklisted = 9;</code>
+       * <code>bool blacklisted = 7;</code>
        * @return The blacklisted.
        */
       public boolean getBlacklisted() {
         return blacklisted_;
       }
       /**
-       * <code>bool blacklisted = 9;</code>
+       * <code>bool blacklisted = 7;</code>
        * @param value The blacklisted to set.
        * @return This builder for chaining.
        */
@@ -44797,7 +44485,7 @@ public final class BrsApi {
         return this;
       }
       /**
-       * <code>bool blacklisted = 9;</code>
+       * <code>bool blacklisted = 7;</code>
        * @return This builder for chaining.
        */
       public Builder clearBlacklisted() {
@@ -44809,14 +44497,14 @@ public final class BrsApi {
 
       private int lastUpdated_ ;
       /**
-       * <code>uint32 lastUpdated = 10;</code>
+       * <code>uint32 lastUpdated = 8;</code>
        * @return The lastUpdated.
        */
       public int getLastUpdated() {
         return lastUpdated_;
       }
       /**
-       * <code>uint32 lastUpdated = 10;</code>
+       * <code>uint32 lastUpdated = 8;</code>
        * @param value The lastUpdated to set.
        * @return This builder for chaining.
        */
@@ -44827,7 +44515,7 @@ public final class BrsApi {
         return this;
       }
       /**
-       * <code>uint32 lastUpdated = 10;</code>
+       * <code>uint32 lastUpdated = 8;</code>
        * @return This builder for chaining.
        */
       public Builder clearLastUpdated() {
@@ -87067,238 +86755,234 @@ public final class BrsApi {
       "e.protobuf.Any\022%\n\035referencedTransactionF" +
       "ullHash\030\r \001(\014\022\021\n\tecBlockId\030\016 \001(\004\022\025\n\recBl" +
       "ockHeight\030\017 \001(\r\022\021\n\tsignature\030\020 \001(\014\"%\n\016Ge" +
-      "tPeerRequest\022\023\n\013peerAddress\030\001 \001(\t\"D\n\017Get" +
-      "PeersRequest\022\016\n\006active\030\001 \001(\010\022!\n\005state\030\002 " +
-      "\001(\0162\022.brs.api.PeerState\"\355\001\n\004Peer\022!\n\005stat" +
-      "e\030\001 \001(\0162\022.brs.api.PeerState\022\030\n\020announced" +
-      "Address\030\002 \001(\t\022\024\n\014shareAddress\030\003 \001(\010\022\030\n\020d" +
-      "ownloadedVolume\030\004 \001(\004\022\026\n\016uploadedVolume\030" +
-      "\005 \001(\004\022\023\n\013application\030\006 \001(\t\022\017\n\007version\030\007 " +
-      "\001(\t\022\020\n\010platform\030\010 \001(\t\022\023\n\013blacklisted\030\t \001" +
-      "(\010\022\023\n\013lastUpdated\030\n \001(\r\"\036\n\005Peers\022\025\n\rpeer" +
-      "Addresses\030\001 \003(\t\"+\n\017GetAliasRequest\022\n\n\002id" +
-      "\030\001 \001(\004\022\014\n\004name\030\002 \001(\t\"\177\n\005Alias\022\n\n\002id\030\001 \001(" +
-      "\004\022\r\n\005owner\030\002 \001(\004\022\014\n\004name\030\003 \001(\t\022\013\n\003uri\030\004 " +
-      "\001(\t\022\021\n\ttimestamp\030\005 \001(\r\022\017\n\007offered\030\006 \001(\010\022" +
-      "\r\n\005price\030\007 \001(\004\022\r\n\005buyer\030\010 \001(\004\"\024\n\004Time\022\014\n" +
-      "\004time\030\001 \001(\r\"\367\002\n\005State\022\023\n\013application\030\001 \001" +
-      "(\t\022\017\n\007version\030\002 \001(\t\022\033\n\004time\030\003 \001(\0132\r.brs." +
-      "api.Time\022\021\n\tlastBlock\030\004 \001(\004\022\022\n\nlastHeigh" +
-      "t\030\005 \001(\r\022\034\n\024cumulativeDifficulty\030\006 \001(\t\022\025\n" +
-      "\rnumberOfPeers\030\007 \001(\r\022\033\n\023numberOfActivePe" +
-      "ers\030\010 \001(\r\022\027\n\017numberOfForgers\030\t \001(\r\022\034\n\024la" +
-      "stBlockchainFeeder\030\n \001(\t\022\"\n\032lastBlockcha" +
-      "inFeederHeight\030\013 \001(\r\022\033\n\023availableProcess" +
-      "ors\030\014 \001(\r\022\021\n\tmaxMemory\030\r \001(\004\022\023\n\013totalMem" +
-      "ory\030\016 \001(\004\022\022\n\nfreeMemory\030\017 \001(\004\"B\n\rFeeSugg" +
-      "estion\022\r\n\005cheap\030\001 \001(\004\022\020\n\010standard\030\002 \001(\004\022" +
-      "\020\n\010priority\030\003 \001(\004\"9\n\032TransactionBroadcas" +
-      "tResult\022\033\n\023numberOfPeersSentTo\030\001 \001(\r\"b\n\017" +
-      "GetBlockRequest\022\017\n\007blockId\030\001 \001(\004\022\016\n\006heig" +
-      "ht\030\002 \001(\r\022\021\n\ttimestamp\030\003 \001(\r\022\033\n\023includeTr" +
-      "ansactions\030\004 \001(\010\"&\n\021GetAccountRequest\022\021\n" +
-      "\taccountId\030\001 \001(\004\"T\n\022GetAccountsRequest\022\027" +
-      "\n\017rewardRecipient\030\001 \001(\004\022\014\n\004name\030\002 \001(\t\022\027\n" +
-      "\017includeAccounts\030\003 \001(\010\"@\n\025GetTransaction" +
-      "Request\022\025\n\rtransactionId\030\001 \001(\004\022\020\n\010fullHa" +
-      "sh\030\002 \001(\014\"_\n\022SubmitNonceRequest\022\024\n\014secret" +
-      "Phrase\030\001 \001(\t\022\r\n\005nonce\030\002 \001(\004\022\017\n\007account\030\003" +
-      " \001(\004\022\023\n\013blockHeight\030\004 \001(\r\"\'\n\023SubmitNonce" +
-      "Response\022\020\n\010deadline\030\001 \001(\004\"\304\003\n\005Block\022\n\n\002" +
-      "id\030\001 \001(\004\022\016\n\006height\030\002 \001(\r\022\034\n\024numberOfTran" +
-      "sactions\030\003 \001(\r\022\023\n\013totalAmount\030\004 \001(\004\022\020\n\010t" +
-      "otalFee\030\005 \001(\004\022\023\n\013blockReward\030\006 \001(\004\022\025\n\rpa" +
-      "yloadLength\030\007 \001(\r\022\017\n\007version\030\010 \001(\005\022\022\n\nba" +
-      "seTarget\030\t \001(\004\022\021\n\ttimestamp\030\n \001(\r\022\033\n\023gen" +
-      "erationSignature\030\013 \001(\014\022\026\n\016blockSignature" +
-      "\030\014 \001(\014\022\023\n\013payloadHash\030\r \001(\014\022*\n\014transacti" +
-      "ons\030\016 \003(\0132\024.brs.api.Transaction\022\026\n\016trans" +
-      "actionIds\030\017 \003(\004\022\032\n\022generatorPublicKey\030\020 " +
-      "\001(\014\022\r\n\005nonce\030\021 \001(\004\022\r\n\005scoop\030\022 \001(\r\022\031\n\021pre" +
-      "viousBlockHash\030\023 \001(\014\022\023\n\013nextBlockId\030\024 \001(" +
-      "\004\"\333\001\n\013Transaction\022.\n\013transaction\030\001 \001(\0132\031" +
-      ".brs.api.BasicTransaction\022\n\n\002id\030\002 \001(\004\022\030\n" +
-      "\020transactionBytes\030\003 \001(\014\022\r\n\005block\030\004 \001(\004\022\023" +
-      "\n\013blockHeight\030\005 \001(\r\022\026\n\016blockTimestamp\030\006 " +
-      "\001(\r\022\021\n\tsignature\030\007 \001(\014\022\020\n\010fullHash\030\010 \001(\014" +
-      "\022\025\n\rconfirmations\030\t \001(\021\"C\n\017MessageAppend" +
-      "ix\022\017\n\007version\030\001 \001(\r\022\017\n\007message\030\002 \001(\014\022\016\n\006" +
-      "isText\030\003 \001(\010\"\327\001\n\030EncryptedMessageAppendi" +
-      "x\022\017\n\007version\030\001 \001(\r\022-\n\rencryptedData\030\002 \001(" +
-      "\0132\026.brs.api.EncryptedData\022\016\n\006isText\030\003 \001(" +
-      "\010\0224\n\004type\030\004 \001(\0162&.brs.api.EncryptedMessa" +
-      "geAppendix.Type\"5\n\004Type\022\016\n\nType_UNSET\020\000\022" +
-      "\020\n\014TO_RECIPIENT\020\001\022\013\n\007TO_SELF\020\002\"L\n\035Public" +
-      "KeyAnnouncementAppendix\022\017\n\007version\030\001 \001(\r" +
-      "\022\032\n\022recipientPublicKey\030\002 \001(\014\"\240\001\n\022MultiOu" +
-      "tAttachment\022\017\n\007version\030\001 \001(\r\022A\n\nrecipien" +
-      "ts\030\002 \003(\0132-.brs.api.MultiOutAttachment.Mu" +
-      "ltiOutRecipient\0326\n\021MultiOutRecipient\022\021\n\t" +
-      "recipient\030\001 \001(\004\022\016\n\006amount\030\002 \001(\004\"=\n\026Multi" +
-      "OutSameAttachment\022\017\n\007version\030\001 \001(\r\022\022\n\nre" +
-      "cipients\030\002 \003(\004\"G\n\031AliasAssignmentAttachm" +
-      "ent\022\017\n\007version\030\001 \001(\r\022\014\n\004name\030\002 \001(\t\022\013\n\003ur" +
-      "i\030\003 \001(\t\"C\n\023AliasSellAttachment\022\017\n\007versio" +
-      "n\030\001 \001(\r\022\014\n\004name\030\002 \001(\t\022\r\n\005price\030\003 \001(\004\"3\n\022" +
-      "AliasBuyAttachment\022\017\n\007version\030\001 \001(\r\022\014\n\004n" +
-      "ame\030\002 \001(\t\"K\n\025AccountInfoAttachment\022\017\n\007ve" +
-      "rsion\030\001 \001(\r\022\014\n\004name\030\002 \001(\t\022\023\n\013description" +
-      "\030\003 \001(\t\"q\n\027AssetIssuanceAttachment\022\017\n\007ver" +
-      "sion\030\001 \001(\r\022\014\n\004name\030\002 \001(\t\022\023\n\013description\030" +
-      "\003 \001(\t\022\020\n\010quantity\030\004 \001(\004\022\020\n\010decimals\030\005 \001(" +
-      "\r\"\\\n\027AssetTransferAttachment\022\017\n\007version\030" +
-      "\001 \001(\r\022\r\n\005asset\030\002 \001(\004\022\020\n\010quantity\030\003 \001(\004\022\017" +
-      "\n\007comment\030\004 \001(\t\"\207\001\n\035AssetOrderPlacementA" +
-      "ttachment\022\017\n\007version\030\001 \001(\r\022\r\n\005asset\030\002 \001(" +
-      "\004\022\020\n\010quantity\030\003 \001(\004\022\r\n\005price\030\004 \001(\004\022%\n\004ty" +
-      "pe\030\005 \001(\0162\027.brs.api.AssetOrderType\"i\n Ass" +
-      "etOrderCancellationAttachment\022\017\n\007version" +
-      "\030\001 \001(\r\022\r\n\005order\030\002 \001(\004\022%\n\004type\030\003 \001(\0162\027.br" +
-      "s.api.AssetOrderType\"\202\001\n\035DigitalGoodsLis" +
-      "tingAttachment\022\017\n\007version\030\001 \001(\r\022\014\n\004name\030" +
-      "\002 \001(\t\022\023\n\013description\030\003 \001(\t\022\014\n\004tags\030\004 \001(\t" +
-      "\022\020\n\010quantity\030\005 \001(\r\022\r\n\005price\030\006 \001(\004\"A\n\037Dig" +
-      "italGoodsDelistingAttachment\022\017\n\007version\030" +
-      "\001 \001(\r\022\r\n\005goods\030\002 \001(\004\"R\n!DigitalGoodsPric" +
-      "eChangeAttachment\022\017\n\007version\030\001 \001(\r\022\r\n\005go" +
-      "ods\030\002 \001(\004\022\r\n\005price\030\003 \001(\004\"]\n$DigitalGoods" +
-      "QuantityChangeAttachment\022\017\n\007version\030\001 \001(" +
-      "\r\022\r\n\005goods\030\002 \001(\004\022\025\n\rdeltaQuantity\030\003 \001(\021\"" +
-      "\204\001\n\036DigitalGoodsPurchaseAttachment\022\017\n\007ve" +
-      "rsion\030\001 \001(\r\022\r\n\005goods\030\002 \001(\004\022\020\n\010quantity\030\003" +
-      " \001(\r\022\r\n\005price\030\004 \001(\004\022!\n\031deliveryDeadlineT" +
-      "imestmap\030\005 \001(\r\"\214\001\n\036DigitalGoodsDeliveryA" +
-      "ttachment\022\017\n\007version\030\001 \001(\r\022\020\n\010purchase\030\002" +
-      " \001(\004\022\020\n\010discount\030\003 \001(\004\022%\n\005goods\030\004 \001(\0132\026." +
-      "brs.api.EncryptedData\022\016\n\006isText\030\005 \001(\010\"C\n" +
-      "\036DigitalGoodsFeedbackAttachment\022\017\n\007versi" +
-      "on\030\001 \001(\r\022\020\n\010purchase\030\002 \001(\004\"Q\n\034DigitalGoo" +
-      "dsRefundAttachment\022\017\n\007version\030\001 \001(\r\022\020\n\010p" +
-      "urchase\030\002 \001(\004\022\016\n\006refund\030\003 \001(\004\"6\n#RewardR" +
-      "ecipientAssignmentAttachment\022\017\n\007version\030" +
-      "\001 \001(\r\"\254\001\n\030EscrowCreationAttachment\022\017\n\007ve" +
-      "rsion\030\001 \001(\r\022\016\n\006amount\030\002 \001(\004\022\027\n\017requiredS" +
-      "igners\030\003 \001(\r\022\017\n\007signers\030\004 \003(\004\022\020\n\010deadlin" +
-      "e\030\005 \001(\r\0223\n\016deadlineAction\030\006 \001(\0162\033.brs.ap" +
-      "i.EscrowDecisionType\"f\n\024EscrowSignAttach" +
-      "ment\022\017\n\007version\030\001 \001(\r\022\016\n\006escrow\030\002 \001(\004\022-\n" +
-      "\010decision\030\003 \001(\0162\033.brs.api.EscrowDecision" +
-      "Type\"h\n\026EscrowResultAttachment\022\017\n\007versio" +
-      "n\030\001 \001(\r\022\016\n\006escrow\030\002 \001(\004\022-\n\010decision\030\003 \001(" +
-      "\0162\033.brs.api.EscrowDecisionType\"E\n\037Subscr" +
-      "iptionSubscribeAttachment\022\017\n\007version\030\001 \001" +
-      "(\r\022\021\n\tfrequency\030\002 \001(\r\"E\n\034SubscriptionCan" +
-      "celAttachment\022\017\n\007version\030\001 \001(\r\022\024\n\014subscr" +
-      "iption\030\002 \001(\004\"F\n\035SubscriptionPaymentAttac" +
-      "hment\022\017\n\007version\030\001 \001(\r\022\024\n\014subscription\030\002" +
-      " \001(\004\"a\n\024ATCreationAttachment\022\017\n\007version\030" +
-      "\001 \001(\r\022\014\n\004name\030\002 \001(\t\022\023\n\013description\030\003 \001(\t" +
-      "\022\025\n\rcreationBytes\030\004 \001(\014\";\n\010Accounts\022\013\n\003i" +
-      "ds\030\001 \003(\004\022\"\n\010accounts\030\002 \003(\0132\020.brs.api.Acc" +
-      "ount\"\326\001\n\007Account\022\n\n\002id\030\001 \001(\004\022\021\n\tpublicKe" +
-      "y\030\002 \001(\014\022\017\n\007balance\030\003 \001(\004\022\032\n\022unconfirmedB" +
-      "alance\030\004 \001(\004\022\025\n\rforgedBalance\030\005 \001(\004\022\014\n\004n" +
-      "ame\030\006 \001(\t\022\023\n\013description\030\007 \001(\t\022\027\n\017reward" +
-      "Recipient\030\010 \001(\004\022,\n\rassetBalances\030\t \003(\0132\025" +
-      ".brs.api.AssetBalance\"=\n\rAssetBalances\022," +
-      "\n\rassetBalances\030\001 \003(\0132\025.brs.api.AssetBal" +
-      "ance\"[\n\014AssetBalance\022\r\n\005asset\030\001 \001(\004\022\017\n\007a" +
-      "ccount\030\002 \001(\004\022\017\n\007balance\030\003 \001(\004\022\032\n\022unconfi" +
-      "rmedBalance\030\004 \001(\004\"M\n\nMiningInfo\022\016\n\006heigh" +
-      "t\030\001 \001(\r\022\033\n\023generationSignature\030\002 \001(\014\022\022\n\n" +
-      "baseTarget\030\003 \001(\004\",\n\020TransactionBytes\022\030\n\020" +
-      "transactionBytes\030\001 \001(\014\"\033\n\031OrdinaryPaymen" +
-      "tAttachment\"\034\n\032ArbitraryMessageAttachmen" +
-      "t\"\025\n\023ATPaymentAttachment\"D\n!EffectiveBal" +
-      "anceLeasingAttachment\022\017\n\007version\030\001 \001(\r\022\016" +
-      "\n\006period\030\002 \001(\r*=\n\016AssetTradeType\022\030\n\024Asse" +
-      "tTradeType_UNSET\020\000\022\007\n\003BUY\020\001\022\010\n\004SELL\020\002*T\n" +
-      "\tPeerState\022\023\n\017PeerState_UNSET\020\000\022\021\n\rNON_C" +
-      "ONNECTED\020\001\022\r\n\tCONNECTED\020\002\022\020\n\014DISCONNECTE" +
-      "D\020\003*7\n\016AssetOrderType\022\023\n\017OrderType_UNSET" +
-      "\020\000\022\007\n\003ASK\020\001\022\007\n\003BID\020\002*e\n\022EscrowDecisionTy" +
-      "pe\022\034\n\030EscrowDecisionType_UNSET\020\000\022\r\n\tUNDE" +
-      "CIDED\020\001\022\013\n\007RELEASE\020\002\022\n\n\006REFUND\020\003\022\t\n\005SPLI" +
-      "T\020\0042\277\030\n\rBrsApiService\022V\n\024BroadcastTransa" +
-      "ction\022\031.brs.api.BasicTransaction\032#.brs.a" +
-      "pi.TransactionBroadcastResult\022[\n\031Broadca" +
-      "stTransactionBytes\022\031.brs.api.Transaction" +
-      "Bytes\032#.brs.api.TransactionBroadcastResu" +
-      "lt\022P\n\030CompleteBasicTransaction\022\031.brs.api" +
-      ".BasicTransaction\032\031.brs.api.BasicTransac" +
-      "tion\022:\n\nGetAccount\022\032.brs.api.GetAccountR" +
-      "equest\032\020.brs.api.Account\022@\n\rGetAccountAT" +
-      "s\022\032.brs.api.GetAccountRequest\032\023.brs.api." +
-      "AccountATs\022E\n\020GetAccountBlocks\022 .brs.api" +
-      ".GetAccountBlocksRequest\032\017.brs.api.Block" +
-      "s\022L\n\027GetAccountCurrentOrders\022 .brs.api.G" +
-      "etAccountOrdersRequest\032\017.brs.api.Orders\022" +
-      "W\n\034GetAccountEscrowTransactions\022\032.brs.ap" +
-      "i.GetAccountRequest\032\033.brs.api.EscrowTran" +
-      "sactions\022=\n\013GetAccounts\022\033.brs.api.GetAcc" +
-      "ountsRequest\032\021.brs.api.Accounts\022M\n\027GetAc" +
-      "countSubscriptions\022\032.brs.api.GetAccountR" +
-      "equest\032\026.brs.api.Subscriptions\022W\n\026GetAcc" +
-      "ountTransactions\022&.brs.api.GetAccountTra" +
-      "nsactionsRequest\032\025.brs.api.Transactions\022" +
-      "4\n\010GetAlias\022\030.brs.api.GetAliasRequest\032\016." +
-      "brs.api.Alias\022:\n\nGetAliases\022\032.brs.api.Ge" +
-      "tAliasesRequest\032\020.brs.api.Aliases\0223\n\010Get" +
-      "Asset\022\027.brs.api.GetByIdRequest\032\016.brs.api" +
-      ".Asset\022L\n\020GetAssetBalances\022 .brs.api.Get" +
-      "AssetBalancesRequest\032\026.brs.api.AssetBala" +
-      "nces\0227\n\tGetAssets\022\031.brs.api.GetAssetsReq" +
-      "uest\032\017.brs.api.Assets\022@\n\021GetAssetsByIssu" +
-      "er\022\032.brs.api.GetAccountRequest\032\017.brs.api" +
-      ".Assets\022I\n\016GetAssetTrades\022!.brs.api.GetA" +
-      "ssetTransfersRequest\032\024.brs.api.AssetTrad" +
-      "es\022O\n\021GetAssetTransfers\022!.brs.api.GetAss" +
-      "etTransfersRequest\032\027.brs.api.AssetTransf" +
-      "ers\022-\n\005GetAT\022\027.brs.api.GetByIdRequest\032\013." +
-      "brs.api.AT\0222\n\010GetATIds\022\026.google.protobuf" +
-      ".Empty\032\016.brs.api.ATIds\0224\n\010GetBlock\022\030.brs" +
-      ".api.GetBlockRequest\032\016.brs.api.Block\0227\n\t" +
-      "GetBlocks\022\031.brs.api.GetBlocksRequest\032\017.b" +
-      "rs.api.Blocks\022:\n\014GetConstants\022\026.google.p" +
-      "rotobuf.Empty\032\022.brs.api.Constants\0224\n\tGet" +
-      "Counts\022\026.google.protobuf.Empty\032\017.brs.api" +
-      ".Counts\0227\n\016GetCurrentTime\022\026.google.proto" +
-      "buf.Empty\032\r.brs.api.Time\0227\n\nGetDgsGood\022\027" +
-      ".brs.api.GetByIdRequest\032\020.brs.api.DgsGoo" +
-      "d\022=\n\013GetDgsGoods\022\033.brs.api.GetDgsGoodsRe" +
-      "quest\032\021.brs.api.DgsGoods\022W\n\026GetDgsPendin" +
-      "gPurchases\022&.brs.api.GetDgsPendingPurcha" +
-      "sesRequest\032\025.brs.api.DgsPurchases\022?\n\016Get" +
-      "DgsPurchase\022\027.brs.api.GetByIdRequest\032\024.b" +
-      "rs.api.DgsPurchase\022I\n\017GetDgsPurchases\022\037." +
-      "brs.api.GetDgsPurchasesRequest\032\025.brs.api" +
-      ".DgsPurchases\022K\n\024GetEscrowTransaction\022\027." +
-      "brs.api.GetByIdRequest\032\032.brs.api.EscrowT" +
-      "ransaction\022>\n\rGetMiningInfo\022\026.google.pro" +
-      "tobuf.Empty\032\023.brs.api.MiningInfo0\001\0224\n\010Ge" +
-      "tOrder\022\030.brs.api.GetOrderRequest\032\016.brs.a" +
-      "pi.Order\0227\n\tGetOrders\022\031.brs.api.GetOrder" +
-      "sRequest\032\017.brs.api.Orders\0221\n\007GetPeer\022\027.b" +
-      "rs.api.GetPeerRequest\032\r.brs.api.Peer\0224\n\010" +
-      "GetPeers\022\030.brs.api.GetPeersRequest\032\016.brs" +
-      ".api.Peers\0222\n\010GetState\022\026.google.protobuf" +
-      ".Empty\032\016.brs.api.State\022A\n\017GetSubscriptio" +
-      "n\022\027.brs.api.GetByIdRequest\032\025.brs.api.Sub" +
-      "scription\022O\n\031GetSubscriptionsToAccount\022\032" +
-      ".brs.api.GetAccountRequest\032\026.brs.api.Sub" +
-      "scriptions\022F\n\016GetTransaction\022\036.brs.api.G" +
-      "etTransactionRequest\032\024.brs.api.Transacti" +
-      "on\022K\n\023GetTransactionBytes\022\031.brs.api.Basi" +
-      "cTransaction\032\031.brs.api.TransactionBytes\022" +
-      "Z\n\032GetUnconfirmedTransactions\022\032.brs.api." +
-      "GetAccountRequest\032 .brs.api.UnconfirmedT" +
-      "ransactions\022H\n\020ParseTransaction\022\031.brs.ap" +
-      "i.TransactionBytes\032\031.brs.api.BasicTransa" +
-      "ction\022H\n\013SubmitNonce\022\033.brs.api.SubmitNon" +
-      "ceRequest\032\034.brs.api.SubmitNonceResponse\022" +
-      "<\n\nSuggestFee\022\026.google.protobuf.Empty\032\026." +
-      "brs.api.FeeSuggestionB\024\n\022brs.api.grpc.pr" +
-      "otob\006proto3"
+      "tPeerRequest\022\023\n\013peerAddress\030\001 \001(\t\"8\n\017Get" +
+      "PeersRequest\022\020\n\010allPeers\030\001 \001(\010\022\023\n\013isConn" +
+      "ected\030\002 \001(\010\"\255\001\n\004Peer\022\023\n\013isConnected\030\001 \001(" +
+      "\010\022\030\n\020announcedAddress\030\002 \001(\t\022\024\n\014shareAddr" +
+      "ess\030\003 \001(\010\022\023\n\013application\030\004 \001(\t\022\017\n\007versio" +
+      "n\030\005 \001(\t\022\020\n\010platform\030\006 \001(\t\022\023\n\013blacklisted" +
+      "\030\007 \001(\010\022\023\n\013lastUpdated\030\010 \001(\r\"\036\n\005Peers\022\025\n\r" +
+      "peerAddresses\030\001 \003(\t\"+\n\017GetAliasRequest\022\n" +
+      "\n\002id\030\001 \001(\004\022\014\n\004name\030\002 \001(\t\"\177\n\005Alias\022\n\n\002id\030" +
+      "\001 \001(\004\022\r\n\005owner\030\002 \001(\004\022\014\n\004name\030\003 \001(\t\022\013\n\003ur" +
+      "i\030\004 \001(\t\022\021\n\ttimestamp\030\005 \001(\r\022\017\n\007offered\030\006 " +
+      "\001(\010\022\r\n\005price\030\007 \001(\004\022\r\n\005buyer\030\010 \001(\004\"\024\n\004Tim" +
+      "e\022\014\n\004time\030\001 \001(\r\"\367\002\n\005State\022\023\n\013application" +
+      "\030\001 \001(\t\022\017\n\007version\030\002 \001(\t\022\033\n\004time\030\003 \001(\0132\r." +
+      "brs.api.Time\022\021\n\tlastBlock\030\004 \001(\004\022\022\n\nlastH" +
+      "eight\030\005 \001(\r\022\034\n\024cumulativeDifficulty\030\006 \001(" +
+      "\t\022\025\n\rnumberOfPeers\030\007 \001(\r\022\033\n\023numberOfActi" +
+      "vePeers\030\010 \001(\r\022\027\n\017numberOfForgers\030\t \001(\r\022\034" +
+      "\n\024lastBlockchainFeeder\030\n \001(\t\022\"\n\032lastBloc" +
+      "kchainFeederHeight\030\013 \001(\r\022\033\n\023availablePro" +
+      "cessors\030\014 \001(\r\022\021\n\tmaxMemory\030\r \001(\004\022\023\n\013tota" +
+      "lMemory\030\016 \001(\004\022\022\n\nfreeMemory\030\017 \001(\004\"B\n\rFee" +
+      "Suggestion\022\r\n\005cheap\030\001 \001(\004\022\020\n\010standard\030\002 " +
+      "\001(\004\022\020\n\010priority\030\003 \001(\004\"9\n\032TransactionBroa" +
+      "dcastResult\022\033\n\023numberOfPeersSentTo\030\001 \001(\r" +
+      "\"b\n\017GetBlockRequest\022\017\n\007blockId\030\001 \001(\004\022\016\n\006" +
+      "height\030\002 \001(\r\022\021\n\ttimestamp\030\003 \001(\r\022\033\n\023inclu" +
+      "deTransactions\030\004 \001(\010\"&\n\021GetAccountReques" +
+      "t\022\021\n\taccountId\030\001 \001(\004\"T\n\022GetAccountsReque" +
+      "st\022\027\n\017rewardRecipient\030\001 \001(\004\022\014\n\004name\030\002 \001(" +
+      "\t\022\027\n\017includeAccounts\030\003 \001(\010\"@\n\025GetTransac" +
+      "tionRequest\022\025\n\rtransactionId\030\001 \001(\004\022\020\n\010fu" +
+      "llHash\030\002 \001(\014\"_\n\022SubmitNonceRequest\022\024\n\014se" +
+      "cretPhrase\030\001 \001(\t\022\r\n\005nonce\030\002 \001(\004\022\017\n\007accou" +
+      "nt\030\003 \001(\004\022\023\n\013blockHeight\030\004 \001(\r\"\'\n\023SubmitN" +
+      "onceResponse\022\020\n\010deadline\030\001 \001(\004\"\304\003\n\005Block" +
+      "\022\n\n\002id\030\001 \001(\004\022\016\n\006height\030\002 \001(\r\022\034\n\024numberOf" +
+      "Transactions\030\003 \001(\r\022\023\n\013totalAmount\030\004 \001(\004\022" +
+      "\020\n\010totalFee\030\005 \001(\004\022\023\n\013blockReward\030\006 \001(\004\022\025" +
+      "\n\rpayloadLength\030\007 \001(\r\022\017\n\007version\030\010 \001(\005\022\022" +
+      "\n\nbaseTarget\030\t \001(\004\022\021\n\ttimestamp\030\n \001(\r\022\033\n" +
+      "\023generationSignature\030\013 \001(\014\022\026\n\016blockSigna" +
+      "ture\030\014 \001(\014\022\023\n\013payloadHash\030\r \001(\014\022*\n\014trans" +
+      "actions\030\016 \003(\0132\024.brs.api.Transaction\022\026\n\016t" +
+      "ransactionIds\030\017 \003(\004\022\032\n\022generatorPublicKe" +
+      "y\030\020 \001(\014\022\r\n\005nonce\030\021 \001(\004\022\r\n\005scoop\030\022 \001(\r\022\031\n" +
+      "\021previousBlockHash\030\023 \001(\014\022\023\n\013nextBlockId\030" +
+      "\024 \001(\004\"\333\001\n\013Transaction\022.\n\013transaction\030\001 \001" +
+      "(\0132\031.brs.api.BasicTransaction\022\n\n\002id\030\002 \001(" +
+      "\004\022\030\n\020transactionBytes\030\003 \001(\014\022\r\n\005block\030\004 \001" +
+      "(\004\022\023\n\013blockHeight\030\005 \001(\r\022\026\n\016blockTimestam" +
+      "p\030\006 \001(\r\022\021\n\tsignature\030\007 \001(\014\022\020\n\010fullHash\030\010" +
+      " \001(\014\022\025\n\rconfirmations\030\t \001(\021\"C\n\017MessageAp" +
+      "pendix\022\017\n\007version\030\001 \001(\r\022\017\n\007message\030\002 \001(\014" +
+      "\022\016\n\006isText\030\003 \001(\010\"\327\001\n\030EncryptedMessageApp" +
+      "endix\022\017\n\007version\030\001 \001(\r\022-\n\rencryptedData\030" +
+      "\002 \001(\0132\026.brs.api.EncryptedData\022\016\n\006isText\030" +
+      "\003 \001(\010\0224\n\004type\030\004 \001(\0162&.brs.api.EncryptedM" +
+      "essageAppendix.Type\"5\n\004Type\022\016\n\nType_UNSE" +
+      "T\020\000\022\020\n\014TO_RECIPIENT\020\001\022\013\n\007TO_SELF\020\002\"L\n\035Pu" +
+      "blicKeyAnnouncementAppendix\022\017\n\007version\030\001" +
+      " \001(\r\022\032\n\022recipientPublicKey\030\002 \001(\014\"\240\001\n\022Mul" +
+      "tiOutAttachment\022\017\n\007version\030\001 \001(\r\022A\n\nreci" +
+      "pients\030\002 \003(\0132-.brs.api.MultiOutAttachmen" +
+      "t.MultiOutRecipient\0326\n\021MultiOutRecipient" +
+      "\022\021\n\trecipient\030\001 \001(\004\022\016\n\006amount\030\002 \001(\004\"=\n\026M" +
+      "ultiOutSameAttachment\022\017\n\007version\030\001 \001(\r\022\022" +
+      "\n\nrecipients\030\002 \003(\004\"G\n\031AliasAssignmentAtt" +
+      "achment\022\017\n\007version\030\001 \001(\r\022\014\n\004name\030\002 \001(\t\022\013" +
+      "\n\003uri\030\003 \001(\t\"C\n\023AliasSellAttachment\022\017\n\007ve" +
+      "rsion\030\001 \001(\r\022\014\n\004name\030\002 \001(\t\022\r\n\005price\030\003 \001(\004" +
+      "\"3\n\022AliasBuyAttachment\022\017\n\007version\030\001 \001(\r\022" +
+      "\014\n\004name\030\002 \001(\t\"K\n\025AccountInfoAttachment\022\017" +
+      "\n\007version\030\001 \001(\r\022\014\n\004name\030\002 \001(\t\022\023\n\013descrip" +
+      "tion\030\003 \001(\t\"q\n\027AssetIssuanceAttachment\022\017\n" +
+      "\007version\030\001 \001(\r\022\014\n\004name\030\002 \001(\t\022\023\n\013descript" +
+      "ion\030\003 \001(\t\022\020\n\010quantity\030\004 \001(\004\022\020\n\010decimals\030" +
+      "\005 \001(\r\"\\\n\027AssetTransferAttachment\022\017\n\007vers" +
+      "ion\030\001 \001(\r\022\r\n\005asset\030\002 \001(\004\022\020\n\010quantity\030\003 \001" +
+      "(\004\022\017\n\007comment\030\004 \001(\t\"\207\001\n\035AssetOrderPlacem" +
+      "entAttachment\022\017\n\007version\030\001 \001(\r\022\r\n\005asset\030" +
+      "\002 \001(\004\022\020\n\010quantity\030\003 \001(\004\022\r\n\005price\030\004 \001(\004\022%" +
+      "\n\004type\030\005 \001(\0162\027.brs.api.AssetOrderType\"i\n" +
+      " AssetOrderCancellationAttachment\022\017\n\007ver" +
+      "sion\030\001 \001(\r\022\r\n\005order\030\002 \001(\004\022%\n\004type\030\003 \001(\0162" +
+      "\027.brs.api.AssetOrderType\"\202\001\n\035DigitalGood" +
+      "sListingAttachment\022\017\n\007version\030\001 \001(\r\022\014\n\004n" +
+      "ame\030\002 \001(\t\022\023\n\013description\030\003 \001(\t\022\014\n\004tags\030\004" +
+      " \001(\t\022\020\n\010quantity\030\005 \001(\r\022\r\n\005price\030\006 \001(\004\"A\n" +
+      "\037DigitalGoodsDelistingAttachment\022\017\n\007vers" +
+      "ion\030\001 \001(\r\022\r\n\005goods\030\002 \001(\004\"R\n!DigitalGoods" +
+      "PriceChangeAttachment\022\017\n\007version\030\001 \001(\r\022\r" +
+      "\n\005goods\030\002 \001(\004\022\r\n\005price\030\003 \001(\004\"]\n$DigitalG" +
+      "oodsQuantityChangeAttachment\022\017\n\007version\030" +
+      "\001 \001(\r\022\r\n\005goods\030\002 \001(\004\022\025\n\rdeltaQuantity\030\003 " +
+      "\001(\021\"\204\001\n\036DigitalGoodsPurchaseAttachment\022\017" +
+      "\n\007version\030\001 \001(\r\022\r\n\005goods\030\002 \001(\004\022\020\n\010quanti" +
+      "ty\030\003 \001(\r\022\r\n\005price\030\004 \001(\004\022!\n\031deliveryDeadl" +
+      "ineTimestmap\030\005 \001(\r\"\214\001\n\036DigitalGoodsDeliv" +
+      "eryAttachment\022\017\n\007version\030\001 \001(\r\022\020\n\010purcha" +
+      "se\030\002 \001(\004\022\020\n\010discount\030\003 \001(\004\022%\n\005goods\030\004 \001(" +
+      "\0132\026.brs.api.EncryptedData\022\016\n\006isText\030\005 \001(" +
+      "\010\"C\n\036DigitalGoodsFeedbackAttachment\022\017\n\007v" +
+      "ersion\030\001 \001(\r\022\020\n\010purchase\030\002 \001(\004\"Q\n\034Digita" +
+      "lGoodsRefundAttachment\022\017\n\007version\030\001 \001(\r\022" +
+      "\020\n\010purchase\030\002 \001(\004\022\016\n\006refund\030\003 \001(\004\"6\n#Rew" +
+      "ardRecipientAssignmentAttachment\022\017\n\007vers" +
+      "ion\030\001 \001(\r\"\254\001\n\030EscrowCreationAttachment\022\017" +
+      "\n\007version\030\001 \001(\r\022\016\n\006amount\030\002 \001(\004\022\027\n\017requi" +
+      "redSigners\030\003 \001(\r\022\017\n\007signers\030\004 \003(\004\022\020\n\010dea" +
+      "dline\030\005 \001(\r\0223\n\016deadlineAction\030\006 \001(\0162\033.br" +
+      "s.api.EscrowDecisionType\"f\n\024EscrowSignAt" +
+      "tachment\022\017\n\007version\030\001 \001(\r\022\016\n\006escrow\030\002 \001(" +
+      "\004\022-\n\010decision\030\003 \001(\0162\033.brs.api.EscrowDeci" +
+      "sionType\"h\n\026EscrowResultAttachment\022\017\n\007ve" +
+      "rsion\030\001 \001(\r\022\016\n\006escrow\030\002 \001(\004\022-\n\010decision\030" +
+      "\003 \001(\0162\033.brs.api.EscrowDecisionType\"E\n\037Su" +
+      "bscriptionSubscribeAttachment\022\017\n\007version" +
+      "\030\001 \001(\r\022\021\n\tfrequency\030\002 \001(\r\"E\n\034Subscriptio" +
+      "nCancelAttachment\022\017\n\007version\030\001 \001(\r\022\024\n\014su" +
+      "bscription\030\002 \001(\004\"F\n\035SubscriptionPaymentA" +
+      "ttachment\022\017\n\007version\030\001 \001(\r\022\024\n\014subscripti" +
+      "on\030\002 \001(\004\"a\n\024ATCreationAttachment\022\017\n\007vers" +
+      "ion\030\001 \001(\r\022\014\n\004name\030\002 \001(\t\022\023\n\013description\030\003" +
+      " \001(\t\022\025\n\rcreationBytes\030\004 \001(\014\";\n\010Accounts\022" +
+      "\013\n\003ids\030\001 \003(\004\022\"\n\010accounts\030\002 \003(\0132\020.brs.api" +
+      ".Account\"\326\001\n\007Account\022\n\n\002id\030\001 \001(\004\022\021\n\tpubl" +
+      "icKey\030\002 \001(\014\022\017\n\007balance\030\003 \001(\004\022\032\n\022unconfir" +
+      "medBalance\030\004 \001(\004\022\025\n\rforgedBalance\030\005 \001(\004\022" +
+      "\014\n\004name\030\006 \001(\t\022\023\n\013description\030\007 \001(\t\022\027\n\017re" +
+      "wardRecipient\030\010 \001(\004\022,\n\rassetBalances\030\t \003" +
+      "(\0132\025.brs.api.AssetBalance\"=\n\rAssetBalanc" +
+      "es\022,\n\rassetBalances\030\001 \003(\0132\025.brs.api.Asse" +
+      "tBalance\"[\n\014AssetBalance\022\r\n\005asset\030\001 \001(\004\022" +
+      "\017\n\007account\030\002 \001(\004\022\017\n\007balance\030\003 \001(\004\022\032\n\022unc" +
+      "onfirmedBalance\030\004 \001(\004\"M\n\nMiningInfo\022\016\n\006h" +
+      "eight\030\001 \001(\r\022\033\n\023generationSignature\030\002 \001(\014" +
+      "\022\022\n\nbaseTarget\030\003 \001(\004\",\n\020TransactionBytes" +
+      "\022\030\n\020transactionBytes\030\001 \001(\014\"\033\n\031OrdinaryPa" +
+      "ymentAttachment\"\034\n\032ArbitraryMessageAttac" +
+      "hment\"\025\n\023ATPaymentAttachment\"D\n!Effectiv" +
+      "eBalanceLeasingAttachment\022\017\n\007version\030\001 \001" +
+      "(\r\022\016\n\006period\030\002 \001(\r*=\n\016AssetTradeType\022\030\n\024" +
+      "AssetTradeType_UNSET\020\000\022\007\n\003BUY\020\001\022\010\n\004SELL\020" +
+      "\002*7\n\016AssetOrderType\022\023\n\017OrderType_UNSET\020\000" +
+      "\022\007\n\003ASK\020\001\022\007\n\003BID\020\002*e\n\022EscrowDecisionType" +
+      "\022\034\n\030EscrowDecisionType_UNSET\020\000\022\r\n\tUNDECI" +
+      "DED\020\001\022\013\n\007RELEASE\020\002\022\n\n\006REFUND\020\003\022\t\n\005SPLIT\020" +
+      "\0042\277\030\n\rBrsApiService\022V\n\024BroadcastTransact" +
+      "ion\022\031.brs.api.BasicTransaction\032#.brs.api" +
+      ".TransactionBroadcastResult\022[\n\031Broadcast" +
+      "TransactionBytes\022\031.brs.api.TransactionBy" +
+      "tes\032#.brs.api.TransactionBroadcastResult" +
+      "\022P\n\030CompleteBasicTransaction\022\031.brs.api.B" +
+      "asicTransaction\032\031.brs.api.BasicTransacti" +
+      "on\022:\n\nGetAccount\022\032.brs.api.GetAccountReq" +
+      "uest\032\020.brs.api.Account\022@\n\rGetAccountATs\022" +
+      "\032.brs.api.GetAccountRequest\032\023.brs.api.Ac" +
+      "countATs\022E\n\020GetAccountBlocks\022 .brs.api.G" +
+      "etAccountBlocksRequest\032\017.brs.api.Blocks\022" +
+      "L\n\027GetAccountCurrentOrders\022 .brs.api.Get" +
+      "AccountOrdersRequest\032\017.brs.api.Orders\022W\n" +
+      "\034GetAccountEscrowTransactions\022\032.brs.api." +
+      "GetAccountRequest\032\033.brs.api.EscrowTransa" +
+      "ctions\022=\n\013GetAccounts\022\033.brs.api.GetAccou" +
+      "ntsRequest\032\021.brs.api.Accounts\022M\n\027GetAcco" +
+      "untSubscriptions\022\032.brs.api.GetAccountReq" +
+      "uest\032\026.brs.api.Subscriptions\022W\n\026GetAccou" +
+      "ntTransactions\022&.brs.api.GetAccountTrans" +
+      "actionsRequest\032\025.brs.api.Transactions\0224\n" +
+      "\010GetAlias\022\030.brs.api.GetAliasRequest\032\016.br" +
+      "s.api.Alias\022:\n\nGetAliases\022\032.brs.api.GetA" +
+      "liasesRequest\032\020.brs.api.Aliases\0223\n\010GetAs" +
+      "set\022\027.brs.api.GetByIdRequest\032\016.brs.api.A" +
+      "sset\022L\n\020GetAssetBalances\022 .brs.api.GetAs" +
+      "setBalancesRequest\032\026.brs.api.AssetBalanc" +
+      "es\0227\n\tGetAssets\022\031.brs.api.GetAssetsReque" +
+      "st\032\017.brs.api.Assets\022@\n\021GetAssetsByIssuer" +
+      "\022\032.brs.api.GetAccountRequest\032\017.brs.api.A" +
+      "ssets\022I\n\016GetAssetTrades\022!.brs.api.GetAss" +
+      "etTransfersRequest\032\024.brs.api.AssetTrades" +
+      "\022O\n\021GetAssetTransfers\022!.brs.api.GetAsset" +
+      "TransfersRequest\032\027.brs.api.AssetTransfer" +
+      "s\022-\n\005GetAT\022\027.brs.api.GetByIdRequest\032\013.br" +
+      "s.api.AT\0222\n\010GetATIds\022\026.google.protobuf.E" +
+      "mpty\032\016.brs.api.ATIds\0224\n\010GetBlock\022\030.brs.a" +
+      "pi.GetBlockRequest\032\016.brs.api.Block\0227\n\tGe" +
+      "tBlocks\022\031.brs.api.GetBlocksRequest\032\017.brs" +
+      ".api.Blocks\022:\n\014GetConstants\022\026.google.pro" +
+      "tobuf.Empty\032\022.brs.api.Constants\0224\n\tGetCo" +
+      "unts\022\026.google.protobuf.Empty\032\017.brs.api.C" +
+      "ounts\0227\n\016GetCurrentTime\022\026.google.protobu" +
+      "f.Empty\032\r.brs.api.Time\0227\n\nGetDgsGood\022\027.b" +
+      "rs.api.GetByIdRequest\032\020.brs.api.DgsGood\022" +
+      "=\n\013GetDgsGoods\022\033.brs.api.GetDgsGoodsRequ" +
+      "est\032\021.brs.api.DgsGoods\022W\n\026GetDgsPendingP" +
+      "urchases\022&.brs.api.GetDgsPendingPurchase" +
+      "sRequest\032\025.brs.api.DgsPurchases\022?\n\016GetDg" +
+      "sPurchase\022\027.brs.api.GetByIdRequest\032\024.brs" +
+      ".api.DgsPurchase\022I\n\017GetDgsPurchases\022\037.br" +
+      "s.api.GetDgsPurchasesRequest\032\025.brs.api.D" +
+      "gsPurchases\022K\n\024GetEscrowTransaction\022\027.br" +
+      "s.api.GetByIdRequest\032\032.brs.api.EscrowTra" +
+      "nsaction\022>\n\rGetMiningInfo\022\026.google.proto" +
+      "buf.Empty\032\023.brs.api.MiningInfo0\001\0224\n\010GetO" +
+      "rder\022\030.brs.api.GetOrderRequest\032\016.brs.api" +
+      ".Order\0227\n\tGetOrders\022\031.brs.api.GetOrdersR" +
+      "equest\032\017.brs.api.Orders\0221\n\007GetPeer\022\027.brs" +
+      ".api.GetPeerRequest\032\r.brs.api.Peer\0224\n\010Ge" +
+      "tPeers\022\030.brs.api.GetPeersRequest\032\016.brs.a" +
+      "pi.Peers\0222\n\010GetState\022\026.google.protobuf.E" +
+      "mpty\032\016.brs.api.State\022A\n\017GetSubscription\022" +
+      "\027.brs.api.GetByIdRequest\032\025.brs.api.Subsc" +
+      "ription\022O\n\031GetSubscriptionsToAccount\022\032.b" +
+      "rs.api.GetAccountRequest\032\026.brs.api.Subsc" +
+      "riptions\022F\n\016GetTransaction\022\036.brs.api.Get" +
+      "TransactionRequest\032\024.brs.api.Transaction" +
+      "\022K\n\023GetTransactionBytes\022\031.brs.api.BasicT" +
+      "ransaction\032\031.brs.api.TransactionBytes\022Z\n" +
+      "\032GetUnconfirmedTransactions\022\032.brs.api.Ge" +
+      "tAccountRequest\032 .brs.api.UnconfirmedTra" +
+      "nsactions\022H\n\020ParseTransaction\022\031.brs.api." +
+      "TransactionBytes\032\031.brs.api.BasicTransact" +
+      "ion\022H\n\013SubmitNonce\022\033.brs.api.SubmitNonce" +
+      "Request\032\034.brs.api.SubmitNonceResponse\022<\n" +
+      "\nSuggestFee\022\026.google.protobuf.Empty\032\026.br" +
+      "s.api.FeeSuggestionB\024\n\022brs.api.grpc.prot" +
+      "ob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -87587,13 +87271,13 @@ public final class BrsApi {
     internal_static_brs_api_GetPeersRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_brs_api_GetPeersRequest_descriptor,
-        new java.lang.String[] { "Active", "State", });
+        new java.lang.String[] { "AllPeers", "IsConnected", });
     internal_static_brs_api_Peer_descriptor =
       getDescriptor().getMessageTypes().get(45);
     internal_static_brs_api_Peer_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_brs_api_Peer_descriptor,
-        new java.lang.String[] { "State", "AnnouncedAddress", "ShareAddress", "DownloadedVolume", "UploadedVolume", "Application", "Version", "Platform", "Blacklisted", "LastUpdated", });
+        new java.lang.String[] { "IsConnected", "AnnouncedAddress", "ShareAddress", "Application", "Version", "Platform", "Blacklisted", "LastUpdated", });
     internal_static_brs_api_Peers_descriptor =
       getDescriptor().getMessageTypes().get(46);
     internal_static_brs_api_Peers_fieldAccessorTable = new
