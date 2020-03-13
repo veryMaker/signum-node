@@ -20,8 +20,8 @@ internal abstract class SqlEntityTable<T> internal constructor(
     override val defaultSort: Collection<SortField<*>> by lazy {
         val sort = mutableListOf<SortField<*>>()
         if (latestField != null) {
-            for (column in this.dbKeyFactory.pkColumns) {
-                sort.add(table.field(column, Long::class.java).asc())
+            this.dbKeyFactory.primaryKeyColumns.forEach { column ->
+                sort.add(column.asc())
             }
         }
         sort.add(heightField.desc())
@@ -29,13 +29,13 @@ internal abstract class SqlEntityTable<T> internal constructor(
     }
 
     override val count
-        get() = dp.db.useDslContext<Int> { ctx ->
+        get() = dp.db.useDslContext { ctx ->
             val r = ctx.selectCount().from(table)
             (if (latestField != null) r.where(latestField.isTrue) else r).fetchOne(0, Int::class.javaPrimitiveType)!!
         }
 
     override val rowCount
-        get() = dp.db.useDslContext<Int> { ctx ->
+        get() = dp.db.useDslContext { ctx ->
             ctx.selectCount().from(table).fetchOne(0, Int::class.javaPrimitiveType)!!
         }
 
@@ -71,7 +71,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
         return dp.db.useDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(table)
-            query.addConditions(key.getPKConditions(table))
+            query.addConditions(key.getPrimaryKeyConditions(table))
             if (latestField != null) {
                 query.addConditions(latestField.isTrue)
             }
@@ -88,13 +88,13 @@ internal abstract class SqlEntityTable<T> internal constructor(
         return dp.db.useDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(table)
-            query.addConditions(key.getPKConditions(table))
+            query.addConditions(key.getPrimaryKeyConditions(table))
             query.addConditions(heightField.le(height))
             if (latestField != null) {
                 val innerTable = table.`as`("b")
                 val innerQuery = ctx.selectQuery()
                 innerQuery.addConditions(innerTable.field("height", Int::class.java).gt(height))
-                innerQuery.addConditions(key.getPKConditions(innerTable))
+                innerQuery.addConditions(key.getPrimaryKeyConditions(innerTable))
                 query.addConditions(latestField.isTrue.or(DSL.field(DSL.exists(innerQuery))))
             }
             query.addOrderBy(heightField.desc())
@@ -129,7 +129,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
                 val innerTable = table.`as`("b")
                 val innerQuery = ctx.selectQuery()
                 innerQuery.addConditions(innerTable.field("height", Int::class.java).gt(height))
-                dbKeyFactory.applySelfJoin(innerQuery, innerTable, table)
+                dbKeyFactory.applySelfJoin(innerQuery, innerTable)
                 query.addConditions(latestField.isTrue?.or(DSL.field(DSL.exists(innerQuery))))
             }
             query.addOrderBy(heightField.desc())
@@ -189,7 +189,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
                 val innerTableB = table.`as`("b")
                 val innerQueryB = ctx.selectQuery()
                 innerQueryB.addConditions(innerTableB.field("height", Int::class.java).gt(height))
-                dbKeyFactory.applySelfJoin(innerQueryB, innerTableB, table)
+                dbKeyFactory.applySelfJoin(innerQueryB, innerTableB)
 
                 val innerTableC = table.`as`("c")
                 val innerQueryC = ctx.selectQuery()
@@ -198,7 +198,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
                         innerTableC.field("height", Int::class.java).gt(heightField)
                     )
                 )
-                dbKeyFactory.applySelfJoin(innerQueryC, innerTableC, table)
+                dbKeyFactory.applySelfJoin(innerQueryC, innerTableC)
                 query.addConditions(latestField.isTrue.or(DSL.field(DSL.exists(innerQueryB).and(DSL.notExists(innerQueryC)))))
             }
             query.addOrderBy(sort)
@@ -250,7 +250,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
                 val innerTableB = table.`as`("b")
                 val innerQueryB = ctx.selectQuery()
                 innerQueryB.addConditions(innerTableB.field("height", Int::class.java).gt(height))
-                dbKeyFactory.applySelfJoin(innerQueryB, innerTableB, table)
+                dbKeyFactory.applySelfJoin(innerQueryB, innerTableB)
 
                 val innerTableC = table.`as`("c")
                 val innerQueryC = ctx.selectQuery()
@@ -259,7 +259,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
                         innerTableC.field("height", Int::class.java).gt(heightField)
                     )
                 )
-                dbKeyFactory.applySelfJoin(innerQueryC, innerTableC, table)
+                dbKeyFactory.applySelfJoin(innerQueryC, innerTableC)
                 query.addConditions(latestField.isTrue.or(DSL.field(DSL.exists(innerQueryB).and(DSL.notExists(innerQueryC)))))
             }
             query.addOrderBy(sort)
@@ -282,7 +282,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
                     latestField,
                     false
                 )
-                query.addConditions(dbKey.getPKConditions(table))
+                query.addConditions(dbKey.getPrimaryKeyConditions(table))
                 query.addConditions(latestField.isTrue)
                 query.execute()
             }

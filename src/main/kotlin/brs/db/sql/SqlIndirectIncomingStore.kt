@@ -16,7 +16,7 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
 
     init {
         val indirectIncomingDbKeyFactory =
-            object : SqlDbKey.LinkKeyFactory<IndirectIncoming>("account_id", "transaction_id") {
+            object : SqlDbKey.LinkKeyFactory<IndirectIncoming>(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID) {
                 override fun newKey(entity: IndirectIncoming): BurstKey {
                     return newKey(entity.accountId, entity.transactionId)
                 }

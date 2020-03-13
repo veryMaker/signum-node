@@ -34,7 +34,7 @@ internal abstract class SqlValuesTable<K, V> internal constructor(
             val key = dbKey as SqlDbKey
             if (dp.db.isInTransaction()) cache[key]?.let { return@useDslContext it }
             val values = ctx.selectFrom(table)
-                .where(key.getPKConditions(table))
+                .where(key.getPrimaryKeyConditions(table))
                 .and(latestField.isTrue)
                 .orderBy(table.field("db_id").desc())
                 .fetchAndMap { record -> load(ctx, record) }
@@ -50,7 +50,7 @@ internal abstract class SqlValuesTable<K, V> internal constructor(
             cache[dbKey] = values
             ctx.update(table)
                 .set(latestField, false)
-                .where(dbKey.getPKConditions(table))
+                .where(dbKey.getPrimaryKeyConditions(table))
                 .and(latestField.isTrue)
                 .execute()
             for (value in values) {

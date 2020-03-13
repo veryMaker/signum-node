@@ -23,7 +23,7 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
     }
 
     override val escrowTable: VersionedEntityTable<Escrow>
-    override val decisionDbKeyFactory = object : SqlDbKey.LinkKeyFactory<Escrow.Decision>("escrow_id", "account_id") {
+    override val decisionDbKeyFactory = object : SqlDbKey.LinkKeyFactory<Escrow.Decision>(ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID) {
         override fun newKey(entity: Escrow.Decision): BurstKey {
             return entity.dbKey
         }

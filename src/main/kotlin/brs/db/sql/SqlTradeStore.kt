@@ -11,7 +11,7 @@ import org.jooq.Record
 
 internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
     override val tradeDbKeyFactory: SqlDbKey.LinkKeyFactory<Trade> =
-        object : SqlDbKey.LinkKeyFactory<Trade>("ask_order_id", "bid_order_id") {
+        object : SqlDbKey.LinkKeyFactory<Trade>(TRADE.ASK_ORDER_ID, TRADE.BID_ORDER_ID) {
             override fun newKey(entity: Trade): BurstKey {
                 return entity.dbKey
             }

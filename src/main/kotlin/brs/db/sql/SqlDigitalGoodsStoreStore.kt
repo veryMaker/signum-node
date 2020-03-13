@@ -15,7 +15,7 @@ import org.jooq.Field
 import org.jooq.Record
 
 internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoodsStoreStore {
-    override val feedbackDbKeyFactory = object : SqlDbKey.LongKeyFactory<Purchase>(PURCHASE.ID) {
+    override val feedbackDbKeyFactory = object : SqlDbKey.LongKeyFactory<Purchase>(PURCHASE_FEEDBACK.ID) {
         override fun newKey(entity: Purchase): BurstKey {
             return entity.dbKey
         }
@@ -31,7 +31,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
 
     override val feedbackTable: ValuesTable<Purchase, BurstEncryptedMessage>
 
-    override val publicFeedbackDbKeyFactory = object : SqlDbKey.LongKeyFactory<Purchase>(PURCHASE.ID) {
+    override val publicFeedbackDbKeyFactory = object : SqlDbKey.LongKeyFactory<Purchase>(PURCHASE_PUBLIC_FEEDBACK.ID) {
         override fun newKey(entity: Purchase): BurstKey {
             return entity.dbKey
         }

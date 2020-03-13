@@ -3,7 +3,7 @@ package brs.db
 import org.jooq.Record
 
 interface BurstKey {
-    val pkValues: LongArray
+    val primaryKeyValues: LongArray
 
     interface Factory<T> {
         /**

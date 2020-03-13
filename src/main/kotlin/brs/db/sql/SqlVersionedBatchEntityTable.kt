@@ -81,22 +81,21 @@ internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
         }
 
         dp.db.useDslContext { ctx ->
-            // keySet chunked due:
-            // [SQLITE_ERROR] SQL error or missing database (Expression tree is too large (maximum depth 1000)
+            // Update "latest" fields.
+            // This is chunked as SQLite is limited to expression tress of depth 1000.
             for (keySetChunk in keySet.chunked(990)) {
                 val updateQuery = ctx.updateQuery(table)
                 updateQuery.addConditions(latestField?.isTrue)
                 updateQuery.addValue(latestField, false)
-                var accountsCondition = DSL.noCondition()
+                var updateCondition = DSL.noCondition()
                 for (dbKey in keySetChunk) {
-                    var pkCondition = DSL.noCondition()
-                    for ((index, idColumn) in dbKeyFactory.pkColumns.withIndex()) {
-                        pkCondition = pkCondition
-                            .and(table.field(idColumn, Long::class.java).eq(dbKey.pkValues[index]))
+                    var primaryKeyCondition = DSL.noCondition()
+                    for ((index, primaryKeyField) in dbKeyFactory.primaryKeyColumns.withIndex()) {
+                        primaryKeyCondition = primaryKeyCondition.and(primaryKeyField.eq(dbKey.primaryKeyValues[index]))
                     }
-                    accountsCondition = accountsCondition.or(pkCondition)
+                    updateCondition = updateCondition.or(primaryKeyCondition)
                 }
-                updateQuery.addConditions(accountsCondition)
+                updateQuery.addConditions(updateCondition)
                 ctx.execute(updateQuery)
             }
             bulkUpsert(ctx, batch.values)

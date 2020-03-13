@@ -31,7 +31,7 @@ internal abstract class SqlVersionedEntityTable<T> internal constructor(
             try {
                 val countQuery = ctx.selectQuery()
                 countQuery.addFrom(table)
-                countQuery.addConditions(dbKey.getPKConditions(table))
+                countQuery.addConditions(dbKey.getPrimaryKeyConditions(table))
                 countQuery.addConditions(heightField.lt(dp.blockchainService.height))
                 if (ctx.fetchCount(countQuery) > 0) {
                     val updateQuery = ctx.updateQuery(table)
@@ -39,7 +39,7 @@ internal abstract class SqlVersionedEntityTable<T> internal constructor(
                         latestField,
                         false
                     )
-                    updateQuery.addConditions(dbKey.getPKConditions(table))
+                    updateQuery.addConditions(dbKey.getPrimaryKeyConditions(table))
                     updateQuery.addConditions(latestField?.isTrue)
 
                     updateQuery.execute()
@@ -50,7 +50,7 @@ internal abstract class SqlVersionedEntityTable<T> internal constructor(
                     return@useDslContext true
                 } else {
                     val deleteQuery = ctx.deleteQuery(table)
-                    deleteQuery.addConditions(dbKey.getPKConditions(table))
+                    deleteQuery.addConditions(dbKey.getPrimaryKeyConditions(table))
                     return@useDslContext deleteQuery.execute() > 0
                 }
             } finally {
@@ -77,8 +77,8 @@ internal abstract class SqlVersionedEntityTable<T> internal constructor(
                 val selectForDeleteQuery = ctx.selectQuery()
                 selectForDeleteQuery.addFrom(tableClass)
                 selectForDeleteQuery.addConditions(heightField.gt(height))
-                for (column in dbKeyFactory.pkColumns) {
-                    selectForDeleteQuery.addSelect(tableClass.field(column, Long::class.java))
+                for (primaryKeyField in dbKeyFactory.primaryKeyColumns) {
+                    selectForDeleteQuery.addSelect(primaryKeyField)
                 }
                 selectForDeleteQuery.setDistinct(true)
                 val dbKeys = selectForDeleteQuery.fetch { r -> dbKeyFactory.newKey(r) as SqlDbKey }
@@ -92,13 +92,13 @@ internal abstract class SqlVersionedEntityTable<T> internal constructor(
                 for (dbKey in dbKeys) {
                     val selectMaxHeightQuery = ctx.selectQuery()
                     selectMaxHeightQuery.addFrom(tableClass)
-                    selectMaxHeightQuery.addConditions(dbKey.getPKConditions(tableClass))
+                    selectMaxHeightQuery.addConditions(dbKey.getPrimaryKeyConditions(tableClass))
                     selectMaxHeightQuery.addSelect(DSL.max(heightField))
                     val maxHeight = selectMaxHeightQuery.fetchOne()?.get(DSL.max(heightField))
 
                     if (maxHeight != null) {
                         val setLatestQuery = ctx.updateQuery(tableClass)
-                        setLatestQuery.addConditions(dbKey.getPKConditions(tableClass))
+                        setLatestQuery.addConditions(dbKey.getPrimaryKeyConditions(tableClass))
                         setLatestQuery.addConditions(heightField.eq(maxHeight))
                         setLatestQuery.addValue(latestField, true)
                         setLatestQuery.execute()
@@ -123,10 +123,9 @@ internal abstract class SqlVersionedEntityTable<T> internal constructor(
                 val selectMaxHeightQuery = ctx.selectQuery()
                 selectMaxHeightQuery.addFrom(tableClass)
                 selectMaxHeightQuery.addSelect(DSL.max(heightField).`as`("max_height"))
-                for (column in dbKeyFactory.pkColumns) {
-                    val pkField = tableClass.field(column, Long::class.java)
-                    selectMaxHeightQuery.addSelect(pkField)
-                    selectMaxHeightQuery.addGroupBy(pkField)
+                for (primaryKeyField in dbKeyFactory.primaryKeyColumns) {
+                    selectMaxHeightQuery.addSelect(primaryKeyField)
+                    selectMaxHeightQuery.addGroupBy(primaryKeyField)
                 }
                 selectMaxHeightQuery.addConditions(heightField.lt(height))
                 selectMaxHeightQuery.addHaving(DSL.countDistinct(heightField).gt(1))
@@ -134,9 +133,8 @@ internal abstract class SqlVersionedEntityTable<T> internal constructor(
                 // delete all fetched accounts, except if it's height is the max height we figured out
                 val deleteLowerHeightQuery = ctx.deleteQuery(tableClass)
                 deleteLowerHeightQuery.addConditions(heightField.lt(null as Int?))
-                for (column in dbKeyFactory.pkColumns) {
-                    val pkField = tableClass.field(column, Long::class.java)
-                    deleteLowerHeightQuery.addConditions(pkField.eq(null as Long?))
+                for (primaryKeyField in dbKeyFactory.primaryKeyColumns) {
+                    deleteLowerHeightQuery.addConditions(primaryKeyField.eq(null as Long?))
                 }
                 val deleteBatch = ctx.batch(deleteLowerHeightQuery)
 
@@ -145,9 +143,7 @@ internal abstract class SqlVersionedEntityTable<T> internal constructor(
                     val maxHeight = record.get("max_height", Int::class.java)
                     val bindValues = mutableListOf<Long>()
                     bindValues.add(maxHeight.toLong())
-                    for (pkValue in dbKey.pkValues) {
-                        bindValues.add(pkValue)
-                    }
+                    bindValues.addAll(dbKey.primaryKeyValues.toTypedArray())
                     deleteBatch.bind(bindValues.toTypedArray())
                 }
                 if (deleteBatch.size() > 0) {

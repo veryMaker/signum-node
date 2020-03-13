@@ -232,7 +232,7 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                 }
             }
         private val accountAssetDbKeyFactory =
-            object : SqlDbKey.LinkKeyFactory<Account.AccountAsset>("account_id", "asset_id") {
+            object : SqlDbKey.LinkKeyFactory<Account.AccountAsset>(ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID) {
                 override fun newKey(entity: Account.AccountAsset): SqlDbKey {
                     return entity.burstKey as SqlDbKey
                 }
