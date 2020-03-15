@@ -52,7 +52,7 @@ internal abstract class SqlValuesTable<K, V> internal constructor(
                 .set(latestField, false)
                 .where(dbKey.primaryKeyConditions)
                 .and(latestField.isTrue)
-                .execute() // TODO this is optimal! do this elsewhere
+                .execute()
             save(ctx, key, values)
         }
     }

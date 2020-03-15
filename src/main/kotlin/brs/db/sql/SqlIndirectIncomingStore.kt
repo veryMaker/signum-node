@@ -7,12 +7,10 @@ import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.entity.IndirectIncoming
 import brs.schema.Tables.INDIRECT_INCOMING
-import brs.util.logging.safeDebug
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import kotlin.system.measureTimeMillis
 
 internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : IndirectIncomingStore {
     internal val indirectIncomingTable: SqlEntityTable<IndirectIncoming>
@@ -26,7 +24,7 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
             }
 
         this.indirectIncomingTable = object :
-            SqlEntityTable<IndirectIncoming>(INDIRECT_INCOMING, indirectIncomingDbKeyFactory, INDIRECT_INCOMING.HEIGHT, null, dp) {
+            SqlBatchEntityTable<IndirectIncoming>(INDIRECT_INCOMING, indirectIncomingDbKeyFactory, INDIRECT_INCOMING.HEIGHT, IndirectIncoming::class.java, dp) {
             override fun load(record: Record): IndirectIncoming {
                 return IndirectIncoming(
                     record.get(INDIRECT_INCOMING.ACCOUNT_ID),
@@ -38,25 +36,11 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
             private val upsertColumns = listOf(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
             private val upsertKeys = listOf(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
 
-            override fun save(ctx: DSLContext, entity: IndirectIncoming) {
-                ctx.upsert(INDIRECT_INCOMING, upsertKeys, mapOf(
-                    INDIRECT_INCOMING.ACCOUNT_ID to entity.accountId,
-                    INDIRECT_INCOMING.TRANSACTION_ID to entity.transactionId,
-                    INDIRECT_INCOMING.HEIGHT to entity.height
-                )).execute()
-            }
-
-            override fun save(ctx: DSLContext, entities: Collection<IndirectIncoming>) {
-                if (entities.isEmpty()) return
-                val time = measureTimeMillis {
-                    ctx.upsert(INDIRECT_INCOMING,
-                        upsertColumns,
-                        upsertKeys,
-                        entities.map { (accountId, transactionId, height) ->
-                            arrayOf(accountId, transactionId, height)
-                        }).execute()
-                }
-                logger.safeDebug { "Time to upsert indirect incomings: ${time}ms" }
+            override fun storeBatch(ctx: DSLContext, entities: Collection<IndirectIncoming>) {
+                // FIXME because of lack of foreign keys on indirect incoming table, this breaks when BRS rolls back. TODO: change this into an insert when the migrations get fixed
+                ctx.upsert(INDIRECT_INCOMING, upsertColumns, upsertKeys, entities.map { (accountId, transactionId, height) ->
+                    arrayOf(accountId, transactionId, height)
+                }).execute()
             }
         }
     }

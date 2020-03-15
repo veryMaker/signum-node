@@ -5,14 +5,12 @@ import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.schema.Tables.*
 import brs.util.convert.toUnsignedString
-import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.SortField
 import org.slf4j.LoggerFactory
-import kotlin.system.measureTimeMillis
 
 internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
     override val accountAssetTable: MutableEntityTable<Account.AccountAsset>
@@ -126,22 +124,19 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
 
             override fun bulkUpsert(ctx: DSLContext, entities: Collection<Account>) {
                 val height = dp.blockchainService.height
-                val time = measureTimeMillis {
-                    ctx.upsert(ACCOUNT, upsertColumns, upsertKeys, entities.map { entity ->
-                        arrayOf(entity.id,
-                            entity.creationHeight,
-                            entity.publicKey,
-                            entity.keyHeight,
-                            entity.balancePlanck,
-                            entity.unconfirmedBalancePlanck,
-                            entity.forgedBalancePlanck,
-                            entity.name,
-                            entity.description,
-                            height,
-                            true)
-                    }).execute()
-                }
-                logger.safeDebug { "Time to upsert accounts: ${time}ms" }
+                ctx.upsert(ACCOUNT, upsertColumns, upsertKeys, entities.map { entity ->
+                    arrayOf(entity.id,
+                        entity.creationHeight,
+                        entity.publicKey,
+                        entity.keyHeight,
+                        entity.balancePlanck,
+                        entity.unconfirmedBalancePlanck,
+                        entity.forgedBalancePlanck,
+                        entity.name,
+                        entity.description,
+                        height,
+                        true)
+                }).execute()
             }
         }
     }

@@ -26,6 +26,11 @@ class DBCacheServiceImpl(private val dp: DependencyProvider) : DBCacheService {
             Account::class.java,
             resourcePoolBuilder
         ).build()
+        caches["indirect_incoming"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(
+            BurstKey::class.java,
+            IndirectIncoming::class.java,
+            resourcePoolBuilder
+        ).build()
         caches["block_id"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(
             Long::class.javaObjectType,
             Block::class.java,
