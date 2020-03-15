@@ -7,8 +7,12 @@ import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.entity.IndirectIncoming
 import brs.schema.Tables.INDIRECT_INCOMING
+import brs.util.logging.safeDebug
 import org.jooq.DSLContext
 import org.jooq.Record
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import kotlin.system.measureTimeMillis
 
 internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : IndirectIncomingStore {
     internal val indirectIncomingTable: SqlEntityTable<IndirectIncoming>
@@ -43,10 +47,16 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
             }
 
             override fun save(ctx: DSLContext, entities: Collection<IndirectIncoming>) {
-                ctx.upsert(INDIRECT_INCOMING,
-                    upsertColumns,
-                    upsertKeys,
-                    entities.map { (accountId, transactionId, height) -> listOf(accountId, transactionId, height)}).execute()
+                if (entities.isEmpty()) return
+                val time = measureTimeMillis {
+                    ctx.upsert(INDIRECT_INCOMING,
+                        upsertColumns,
+                        upsertKeys,
+                        entities.map { (accountId, transactionId, height) ->
+                            arrayOf(accountId, transactionId, height)
+                        }).execute()
+                }
+                logger.safeDebug { "Time to upsert indirect incomings: ${time}ms" }
             }
         }
     }
@@ -58,5 +68,9 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
     override fun getIndirectIncomings(accountId: Long, from: Int, to: Int): List<Long> {
         return indirectIncomingTable.getManyBy(INDIRECT_INCOMING.ACCOUNT_ID.eq(accountId), from, to)
             .map { it.transactionId }
+    }
+
+    companion object {
+        private val logger: Logger = LoggerFactory.getLogger(SqlIndirectIncomingStore::class.java)
     }
 }

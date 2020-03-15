@@ -44,6 +44,7 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
                 }
 
                 override fun save(ctx: DSLContext, entities: Collection<AssetTransfer>) {
+                    if (entities.isEmpty()) return
                     val query = ctx.insertInto(
                         ASSET_TRANSFER,
                         ASSET_TRANSFER.ID,

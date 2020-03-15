@@ -53,8 +53,9 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             }
 
             override fun save(ctx: DSLContext, entities: Collection<Order.Ask>) {
+                if (entities.isEmpty()) return
                 val height = dp.blockchainService.height
-                ctx.upsert(ASK_ORDER, upsertColumns, upsertKeys, entities.map { entity -> listOf(
+                ctx.upsert(ASK_ORDER, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
                     entity.id,
                     entity.accountId,
                     entity.assetId,
@@ -97,8 +98,9 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             }
 
             override fun save(ctx: DSLContext, entities: Collection<Order.Bid>) {
+                if (entities.isEmpty()) return
                 val height = dp.blockchainService.height
-                ctx.upsert(BID_ORDER, upsertColumns, upsertKeys, entities.map { entity -> listOf(
+                ctx.upsert(BID_ORDER, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
                     entity.id,
                     entity.accountId,
                     entity.assetId,

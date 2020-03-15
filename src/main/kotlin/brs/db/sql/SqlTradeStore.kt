@@ -70,6 +70,7 @@ internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
             }
 
             override fun save(ctx: DSLContext, entities: Collection<Trade>) {
+                if (entities.isEmpty()) return
                 val query = ctx.insertInto(
                     TRADE,
                     TRADE.ASSET_ID,

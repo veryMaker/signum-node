@@ -52,12 +52,20 @@ fun Db.assertInTransaction() {
     check(isInTransaction()) { "Database not in transaction" }
 }
 
+private fun SQLDialect.supportsMerge(): Boolean {
+    return when(this) {
+        SQLDialect.CUBRID, SQLDialect.DERBY, SQLDialect.FIREBIRD, SQLDialect.H2, SQLDialect.HSQLDB, SQLDialect.MARIADB, SQLDialect.MYSQL, SQLDialect.POSTGRES -> true
+        else -> false
+    }
+}
+
 fun DSLContext.upsert(table: Table<*>, keys: Collection<Field<*>>, record: Map<Field<*>, *>): Query {
-    return when(dialect()) {
-        SQLDialect.CUBRID, SQLDialect.DERBY, SQLDialect.FIREBIRD, SQLDialect.H2, SQLDialect.HSQLDB, SQLDialect.MARIADB, SQLDialect.MYSQL, SQLDialect.POSTGRES -> mergeInto(table, record.keys)
+    return if (dialect().supportsMerge()) {
+        mergeInto(table, record.keys)
             .key(keys)
             .values(record.values)
-        else -> insertInto(table)
+    } else {
+        insertInto(table)
             .set(record)
             .onConflict(keys)
             .doUpdate()
@@ -66,31 +74,28 @@ fun DSLContext.upsert(table: Table<*>, keys: Collection<Field<*>>, record: Map<F
 }
 
 /**
- * Hack that turns a collection of keys and a collection of values into a map.
- * TODO remove when bulk upsert is optimized
+ * This takes a collection of keys and returns a map, with each key in [keys] corresponding to `null` in the map.
+ * This is used for creating a blank query for adding bind variables to later.
  */
-private fun <K, V> mapOf(keys: Collection<K>, values: Collection<V>): Map<K, V> {
-    require(keys.size == values.size)
-
-    return object : AbstractMap<K, V>() {
-        override val entries: Set<Map.Entry<K, V>>
-            get() = object : AbstractSet<Map.Entry<K, V>>() {
+private fun <T> mapKeysToNull(keys: Collection<T>): Map<T, Nothing?> {
+    return object : AbstractMap<T, Nothing?>() {
+        override val entries: Set<Map.Entry<T, Nothing?>>
+            get() = object : AbstractSet<Map.Entry<T, Nothing?>>() {
                 override val size: Int
                     get() = keys.size
 
-                override fun iterator(): Iterator<Map.Entry<K, V>> {
-                    return object : Iterator<Map.Entry<K, V>> {
+                override fun iterator(): Iterator<Map.Entry<T, Nothing?>> {
+                    return object : Iterator<Map.Entry<T, Nothing?>> {
                         val keyIterator = keys.iterator()
-                        val valueIterator = values.iterator()
 
                         override fun hasNext(): Boolean {
                             return keyIterator.hasNext()
                         }
 
-                        override fun next(): Map.Entry<K, V> {
-                            return object : Map.Entry<K, V> {
+                        override fun next(): Map.Entry<T, Nothing?> {
+                            return object : Map.Entry<T, Nothing?> {
                                 override val key = keyIterator.next()
-                                override val value = valueIterator.next()
+                                override val value: Nothing? = null
                             }
                         }
                     }
@@ -99,10 +104,11 @@ private fun <K, V> mapOf(keys: Collection<K>, values: Collection<V>): Map<K, V> 
     }
 }
 
-fun DSLContext.upsert(table: Table<*>, columns: Collection<Field<*>>, keys: Collection<Field<*>>, values: Collection<Collection<*>>): Batch {
-    // TODO turn into just one query
-    return batch(values.map { value ->
-        require(columns.size == value.size)
-        upsert(table, keys, mapOf(columns, value))
-    })
+fun DSLContext.upsert(table: Table<*>, columns: Collection<Field<*>>, keys: Collection<Field<*>>, values: Collection<Array<*>>): Batch {
+    require(columns.isNotEmpty() && keys.isNotEmpty() && values.isNotEmpty()) { "Columns, keys and values must not be empty" }
+    val query = batch(upsert(table, keys, mapKeysToNull(columns)))
+    values.forEach { value ->
+        query.bind(*value)
+    }
+    return query
 }

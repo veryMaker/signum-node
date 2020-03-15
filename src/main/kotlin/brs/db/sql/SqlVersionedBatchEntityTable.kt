@@ -55,6 +55,7 @@ internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
     }
 
     override fun save(ctx: DSLContext, entities: Collection<T>) {
+        if (entities.isEmpty()) return
         entities.forEach { insert(it) }
     }
 

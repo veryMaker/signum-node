@@ -108,6 +108,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
             }
 
             override fun save(ctx: DSLContext, entities: Collection<Purchase>) {
+                if (entities.isEmpty()) return
                 val height = dp.blockchainService.height
                 ctx.upsert(PURCHASE, upsertColumns, upsertKeys, entities.map { entity ->
                     var note: ByteArray? = null
@@ -129,7 +130,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                         refundNonce = entity.refundNote!!.nonce
                     }
 
-                    listOf(entity.id,
+                    arrayOf(entity.id,
                         entity.buyerId,
                         entity.goodsId,
                         entity.sellerId,
@@ -196,7 +197,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 ctx.upsert(PURCHASE_PUBLIC_FEEDBACK,
                     upsertColumns,
                     upsertKeys,
-                    values.map { publicFeedback -> listOf(key.id, publicFeedback, height, true) }).execute()
+                    values.map { publicFeedback -> arrayOf(key.id, publicFeedback, height, true) }).execute()
             }
         }
 
@@ -231,8 +232,9 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 }
 
                 override fun save(ctx: DSLContext, entities: Collection<Goods>) {
+                    if (entities.isEmpty()) return
                     val height = dp.blockchainService.height
-                    ctx.upsert(GOODS, upsertColumns, upsertKeys, entities.map { entity -> listOf(
+                    ctx.upsert(GOODS, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
                         entity.id,
                         entity.sellerId,
                         entity.name,

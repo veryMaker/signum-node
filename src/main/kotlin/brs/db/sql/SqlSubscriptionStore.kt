@@ -69,8 +69,9 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
                 }
 
                 override fun save(ctx: DSLContext, entities: Collection<Subscription>) {
+                    if (entities.isEmpty()) return
                     val height = dp.blockchainService.height
-                    ctx.upsert(SUBSCRIPTION, upsertColumns, upsertKeys, entities.map { entity -> listOf(
+                    ctx.upsert(SUBSCRIPTION, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
                         entity.id,
                         entity.senderId,
                         entity.recipientId,

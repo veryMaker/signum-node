@@ -70,6 +70,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
                 }
 
                 override fun save(ctx: DSLContext, entities: Collection<AT>) {
+                    if (entities.isEmpty()) return
                     val height = dp.blockchainService.height
                     val query = ctx.insertInto(
                         ATTable,
@@ -127,8 +128,10 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
                 }
 
                 override fun save(ctx: DSLContext, entities: Collection<AT.ATState>) {
+                    if (entities.isEmpty()) return
+                    if (entities.isEmpty()) return
                     val height = dp.blockchainService.height
-                    ctx.upsert(AT_STATE, upsertColumns, upsertKeys, entities.map { entity -> listOf(
+                    ctx.upsert(AT_STATE, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
                         entity.atId,
                         AT.compressState(entity.state),
                         entity.prevHeight,

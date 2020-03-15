@@ -50,6 +50,7 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
             }
 
             override fun save(ctx: DSLContext, entities: Collection<Alias.Offer>) {
+                if (entities.isEmpty()) return
                 val height = dp.blockchainService.height
                 val query = ctx.insertInto(
                     ALIAS_OFFER,
@@ -89,6 +90,7 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
                 }
 
                 override fun save(ctx: DSLContext, entities: Collection<Alias>) {
+                    if (entities.isEmpty()) return
                     val height = dp.blockchainService.height
                     val query = ctx.insertInto(ALIAS, ALIAS.ID, ALIAS.ACCOUNT_ID, ALIAS.ALIAS_NAME, ALIAS.ALIAS_NAME_LOWER, ALIAS.ALIAS_URI, ALIAS.TIMESTAMP, ALIAS.HEIGHT)
                     entities.forEach { entity ->

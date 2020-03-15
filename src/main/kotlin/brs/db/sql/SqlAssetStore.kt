@@ -34,6 +34,7 @@ internal class SqlAssetStore(private val dp: DependencyProvider) : AssetStore {
             }
 
             override fun save(ctx: DSLContext, entities: Collection<Asset>) {
+                if (entities.isEmpty()) return
                 val height = dp.blockchainService.height
                 val query = ctx.insertInto(ASSET, ASSET.ID, ASSET.ACCOUNT_ID, ASSET.NAME, ASSET.DESCRIPTION, ASSET.QUANTITY, ASSET.DECIMALS, ASSET.HEIGHT)
                 entities.forEach { entity ->

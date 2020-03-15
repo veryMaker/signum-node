@@ -60,8 +60,9 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
             }
 
             override fun save(ctx: DSLContext, entities: Collection<Escrow>) {
+                if (entities.isEmpty()) return
                 val height = dp.blockchainService.height
-                ctx.upsert(ESCROW, upsertColumns, upsertKeys, entities.map { entity -> listOf(
+                ctx.upsert(ESCROW, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
                     entity.id,
                     entity.senderId,
                     entity.recipientId,
@@ -100,8 +101,9 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
             }
 
             override fun save(ctx: DSLContext, entities: Collection<Escrow.Decision>) {
+                if (entities.isEmpty()) return
                 val height = dp.blockchainService.height
-                ctx.upsert(ESCROW_DECISION, upsertColumns, upsertKeys, entities.map { entity -> listOf(
+                ctx.upsert(ESCROW_DECISION, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
                     entity.escrowId,
                     entity.accountId,
                     Escrow.decisionToByte(entity.decision).toInt(),
