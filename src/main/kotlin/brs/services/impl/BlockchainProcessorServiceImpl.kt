@@ -3,7 +3,7 @@ package brs.services.impl
 import brs.at.AT
 import brs.at.AtBlock
 import brs.at.AtException
-import brs.db.VersionedBatchEntityTable
+import brs.db.BatchEntityTable
 import brs.db.transaction
 import brs.entity.Block
 import brs.entity.DependencyProvider
@@ -29,25 +29,9 @@ import brs.util.logging.*
 import brs.util.sync.Mutex
 import org.slf4j.LoggerFactory
 import java.util.*
-import kotlin.collections.List
-import kotlin.collections.Map
-import kotlin.collections.MutableList
-import kotlin.collections.MutableMap
-import kotlin.collections.associateBy
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.collections.contentEquals
-import kotlin.collections.emptyList
-import kotlin.collections.filter
-import kotlin.collections.forEach
-import kotlin.collections.indices
-import kotlin.collections.isNullOrEmpty
-import kotlin.collections.iterator
-import kotlin.collections.joinToString
-import kotlin.collections.mutableListOf
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
-import kotlin.collections.sortedWith
 import kotlin.math.max
 
 class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : BlockchainProcessorService {
@@ -651,7 +635,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     dp.downloadCacheService.removeBlock(block) // We make sure downloadCache do not have this block anymore.
                     accept(block, remainingAmount, remainingFee)
                     dp.derivedTableService.derivedTables.forEach {
-                        if (it is VersionedBatchEntityTable<*>) {
+                        if (it is BatchEntityTable<*>) {
                             it.finish()
                         }
                     }

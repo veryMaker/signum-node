@@ -9,12 +9,12 @@ interface AccountStore {
     /**
      * TODO
      */
-    val accountTable: VersionedBatchEntityTable<Account>
+    val accountTable: BatchEntityTable<Account>
 
     /**
      * TODO
      */
-    val rewardRecipientAssignmentTable: VersionedEntityTable<Account.RewardRecipientAssignment>
+    val rewardRecipientAssignmentTable: MutableEntityTable<Account.RewardRecipientAssignment>
 
     /**
      * TODO
@@ -29,7 +29,7 @@ interface AccountStore {
     /**
      * TODO
      */
-    val accountAssetTable: VersionedEntityTable<Account.AccountAsset>
+    val accountAssetTable: MutableEntityTable<Account.AccountAsset>
 
     /**
      * TODO

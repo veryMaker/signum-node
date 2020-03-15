@@ -15,11 +15,11 @@ import org.slf4j.LoggerFactory
 import kotlin.system.measureTimeMillis
 
 internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
-    override val accountAssetTable: VersionedEntityTable<Account.AccountAsset>
+    override val accountAssetTable: MutableEntityTable<Account.AccountAsset>
 
-    override val rewardRecipientAssignmentTable: VersionedEntityTable<Account.RewardRecipientAssignment>
+    override val rewardRecipientAssignmentTable: MutableEntityTable<Account.RewardRecipientAssignment>
 
-    override val accountTable: VersionedBatchEntityTable<Account>
+    override val accountTable: BatchEntityTable<Account>
 
     override val rewardRecipientAssignmentKeyFactory: BurstKey.LongKeyFactory<Account.RewardRecipientAssignment>
         get() = rewardRecipientAssignmentDbKeyFactory
@@ -31,7 +31,7 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
         get() = accountDbKeyFactory
 
     init {
-        rewardRecipientAssignmentTable = object : SqlVersionedEntityTable<Account.RewardRecipientAssignment>(
+        rewardRecipientAssignmentTable = object : SqlMutableEntityTable<Account.RewardRecipientAssignment>(
             REWARD_RECIP_ASSIGN,
             REWARD_RECIP_ASSIGN.HEIGHT,
             REWARD_RECIP_ASSIGN.LATEST,
@@ -70,7 +70,7 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
             }
         }
 
-        accountAssetTable = object : SqlVersionedEntityTable<Account.AccountAsset>(
+        accountAssetTable = object : SqlMutableEntityTable<Account.AccountAsset>(
             ACCOUNT_ASSET,
             ACCOUNT_ASSET.HEIGHT,
             ACCOUNT_ASSET.LATEST,
@@ -116,7 +116,7 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
         }
 
         accountTable = object :
-            SqlVersionedBatchEntityTable<Account>(ACCOUNT, ACCOUNT.HEIGHT, ACCOUNT.LATEST, accountDbKeyFactory, Account::class.java, dp) {
+            SqlMutableBatchEntityTable<Account>(ACCOUNT, ACCOUNT.HEIGHT, ACCOUNT.LATEST, accountDbKeyFactory, Account::class.java, dp) {
             override fun load(record: Record): Account {
                 return sqlToAccount(record)
             }

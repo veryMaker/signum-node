@@ -21,7 +21,7 @@ interface ATStore {
     /**
      * TODO
      */
-    val atTable: VersionedEntityTable<AT>
+    val atTable: MutableEntityTable<AT>
 
     /**
      * TODO
@@ -31,7 +31,7 @@ interface ATStore {
     /**
      * TODO
      */
-    val atStateTable: VersionedEntityTable<AT.ATState>
+    val atStateTable: MutableEntityTable<AT.ATState>
 
     /**
      * TODO

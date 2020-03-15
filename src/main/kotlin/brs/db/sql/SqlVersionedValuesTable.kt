@@ -13,10 +13,10 @@ internal abstract class SqlVersionedValuesTable<T, V> internal constructor(
     private val dp: DependencyProvider
 ) : SqlValuesTable<T, V>(tableClass, heightField, latestField, dbKeyFactory, dp), ValuesTable<T, V> {
     override fun rollback(height: Int) {
-        SqlVersionedEntityTable.rollback(dp, cache, table, heightField, latestField, height, dbKeyFactory)
+        SqlMutableEntityTable.rollback(dp, cache, table, heightField, latestField, height, dbKeyFactory)
     }
 
     override fun trim(height: Int) {
-        SqlVersionedEntityTable.trim(dp, table, heightField, height, dbKeyFactory)
+        SqlMutableEntityTable.trim(dp, table, heightField, height, dbKeyFactory)
     }
 }

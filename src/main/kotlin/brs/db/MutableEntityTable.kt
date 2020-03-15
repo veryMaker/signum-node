@@ -1,6 +1,6 @@
 package brs.db
 
-interface VersionedEntityTable<T> : EntityTable<T> {
+interface MutableEntityTable<T> : EntityTable<T> {
     /**
      * Delete an entity
      * @param t The entity

@@ -2,7 +2,7 @@ package brs.db.sql
 
 import brs.db.BurstKey
 import brs.db.EscrowStore
-import brs.db.VersionedEntityTable
+import brs.db.MutableEntityTable
 import brs.db.upsert
 import brs.entity.DependencyProvider
 import brs.entity.Escrow
@@ -20,17 +20,17 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
         }
     }
 
-    override val escrowTable: VersionedEntityTable<Escrow>
+    override val escrowTable: MutableEntityTable<Escrow>
     override val decisionDbKeyFactory = object : SqlDbKey.LinkKeyFactory<Escrow.Decision>(ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID) {
         override fun newKey(entity: Escrow.Decision): BurstKey {
             return entity.dbKey
         }
     }
-    override val decisionTable: VersionedEntityTable<Escrow.Decision>
+    override val decisionTable: MutableEntityTable<Escrow.Decision>
     override val resultTransactions = mutableListOf<Transaction>()
 
     init {
-        escrowTable = object : SqlVersionedEntityTable<Escrow>(ESCROW, ESCROW.HEIGHT, ESCROW.LATEST, escrowDbKeyFactory, dp) {
+        escrowTable = object : SqlMutableEntityTable<Escrow>(ESCROW, ESCROW.HEIGHT, ESCROW.LATEST, escrowDbKeyFactory, dp) {
             override fun load(record: Record) = Escrow(
                 dp,
                 record.get(ESCROW.ID),
@@ -77,7 +77,7 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
         }
 
         decisionTable = object :
-            SqlVersionedEntityTable<Escrow.Decision>(ESCROW_DECISION, ESCROW_DECISION.HEIGHT, ESCROW_DECISION.LATEST, decisionDbKeyFactory, dp) {
+            SqlMutableEntityTable<Escrow.Decision>(ESCROW_DECISION, ESCROW_DECISION.HEIGHT, ESCROW_DECISION.LATEST, decisionDbKeyFactory, dp) {
             override fun load(record: Record) = Escrow.Decision(
                 decisionDbKeyFactory.newKey(
                     record.get(ESCROW_DECISION.ESCROW_ID),

@@ -23,7 +23,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         }
     }
 
-    override val purchaseTable: VersionedEntityTable<Purchase>
+    override val purchaseTable: MutableEntityTable<Purchase>
 
     override val feedbackTable: ValuesTable<Purchase, BurstEncryptedMessage>
 
@@ -41,10 +41,10 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         }
     }
 
-    override val goodsTable: VersionedEntityTable<Goods>
+    override val goodsTable: MutableEntityTable<Goods>
 
     init {
-        purchaseTable = object : SqlVersionedEntityTable<Purchase>(
+        purchaseTable = object : SqlMutableEntityTable<Purchase>(
             PURCHASE,
             PURCHASE.HEIGHT,
             PURCHASE.LATEST,
@@ -202,7 +202,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         }
 
         goodsTable =
-            object : SqlVersionedEntityTable<Goods>(GOODS, GOODS.HEIGHT, GOODS.LATEST, goodsDbKeyFactory, dp) {
+            object : SqlMutableEntityTable<Goods>(GOODS, GOODS.HEIGHT, GOODS.LATEST, goodsDbKeyFactory, dp) {
                 override val defaultSort = listOf(
                     GOODS.TIMESTAMP.desc(),
                     GOODS.ID.asc()

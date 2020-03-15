@@ -1,7 +1,7 @@
 package brs.db.sql
 
 import brs.db.BurstKey
-import brs.db.VersionedEntityTable
+import brs.db.MutableEntityTable
 import brs.db.assertInTransaction
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
@@ -9,13 +9,13 @@ import org.jooq.Field
 import org.jooq.Table
 import org.jooq.impl.DSL
 
-internal abstract class SqlVersionedEntityTable<T> internal constructor(
+internal abstract class SqlMutableEntityTable<T> internal constructor(
     table: Table<*>,
     heightField: Field<Int>,
     latestField: Field<Boolean>,
     dbKeyFactory: SqlDbKey.Factory<T>,
     private val dp: DependencyProvider
-) : SqlEntityTable<T>(table, dbKeyFactory, heightField, latestField, dp), VersionedEntityTable<T> {
+) : SqlEntityTable<T>(table, dbKeyFactory, heightField, latestField, dp), MutableEntityTable<T> {
     override fun rollback(height: Int) {
         rollback(dp, cache, table, heightField, latestField, height, dbKeyFactory)
     }

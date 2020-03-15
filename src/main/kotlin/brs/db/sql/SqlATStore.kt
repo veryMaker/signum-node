@@ -16,7 +16,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
         }
     }
 
-    override val atTable: VersionedEntityTable<AT>
+    override val atTable: MutableEntityTable<AT>
 
     override val atStateDbKeyFactory = object : SqlDbKey.LongKeyFactory<AT.ATState>(AT_STATE.AT_ID) {
         override fun newKey(entity: AT.ATState): BurstKey {
@@ -24,7 +24,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
         }
     }
 
-    override val atStateTable: VersionedEntityTable<AT.ATState>
+    override val atStateTable: MutableEntityTable<AT.ATState>
 
     override fun getOrderedATs() = dp.db.useDslContext<List<Long>> { ctx ->
         ctx.selectFrom(ATTable.join(AT_STATE).on(ATTable.ID.eq(AT_STATE.AT_ID)).join(ACCOUNT).on(ATTable.ID.eq(ACCOUNT.ID)))
@@ -47,7 +47,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
 
     init {
         atTable =
-            object : SqlVersionedEntityTable<AT>(ATTable, ATTable.HEIGHT, ATTable.LATEST, atDbKeyFactory, dp) {
+            object : SqlMutableEntityTable<AT>(ATTable, ATTable.HEIGHT, ATTable.LATEST, atDbKeyFactory, dp) {
                 override val defaultSort = listOf(ATTable.ID.asc())
 
                 override fun load(record: Record): AT {
@@ -92,7 +92,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
             }
 
         atStateTable =
-            object : SqlVersionedEntityTable<AT.ATState>(
+            object : SqlMutableEntityTable<AT.ATState>(
                 AT_STATE,
                 AT_STATE.HEIGHT,
                 AT_STATE.LATEST,

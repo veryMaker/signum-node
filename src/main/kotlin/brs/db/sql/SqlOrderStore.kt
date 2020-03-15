@@ -14,16 +14,16 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             return entity.dbKey
         }
     }
-    override val askOrderTable: VersionedEntityTable<Order.Ask>
+    override val askOrderTable: MutableEntityTable<Order.Ask>
     override val bidOrderDbKeyFactory = object : SqlDbKey.LongKeyFactory<Order.Bid>(BID_ORDER.ID) {
         override fun newKey(entity: Order.Bid): BurstKey {
             return entity.dbKey
         }
     }
-    override val bidOrderTable: VersionedEntityTable<Order.Bid>
+    override val bidOrderTable: MutableEntityTable<Order.Bid>
 
     init {
-        askOrderTable = object : SqlVersionedEntityTable<Order.Ask>(
+        askOrderTable = object : SqlMutableEntityTable<Order.Ask>(
             ASK_ORDER,
             ASK_ORDER.HEIGHT,
             ASK_ORDER.LATEST,
@@ -68,7 +68,7 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             }
         }
 
-        bidOrderTable = object : SqlVersionedEntityTable<Order.Bid>(
+        bidOrderTable = object : SqlMutableEntityTable<Order.Bid>(
             BID_ORDER,
             BID_ORDER.HEIGHT,
             BID_ORDER.LATEST,

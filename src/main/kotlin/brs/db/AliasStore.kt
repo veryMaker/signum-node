@@ -16,12 +16,12 @@ interface AliasStore {
     /**
      * TODO
      */
-    val aliasTable: VersionedEntityTable<Alias>
+    val aliasTable: MutableEntityTable<Alias>
 
     /**
      * TODO
      */
-    val offerTable: VersionedEntityTable<Alias.Offer>
+    val offerTable: MutableEntityTable<Alias.Offer>
 
     /**
      * TODO

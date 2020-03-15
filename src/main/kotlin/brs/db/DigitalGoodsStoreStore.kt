@@ -18,7 +18,7 @@ interface DigitalGoodsStoreStore {
     /**
      * TODO
      */
-    val purchaseTable: VersionedEntityTable<Purchase>
+    val purchaseTable: MutableEntityTable<Purchase>
 
     /**
      * TODO
@@ -43,7 +43,7 @@ interface DigitalGoodsStoreStore {
     /**
      * TODO
      */
-    val goodsTable: VersionedEntityTable<Goods>
+    val goodsTable: MutableEntityTable<Goods>
 
     /**
      * TODO

@@ -1,23 +1,21 @@
 package brs.db.sql
 
-import brs.db.BurstKey
-import brs.db.VersionedBatchEntityTable
-import brs.db.assertInTransaction
-import brs.db.useDslContext
+import brs.db.*
 import brs.entity.DependencyProvider
 import brs.util.cache.set
 import org.ehcache.Cache
 import org.jooq.*
+import org.jooq.Table
 import org.jooq.impl.DSL
 
-internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
+internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
     table: Table<*>,
     heightField: Field<Int>,
     latestField: Field<Boolean>,
     dbKeyFactory: SqlDbKey.Factory<T>,
     private val tClass: Class<T>,
     private val dp: DependencyProvider
-) : SqlVersionedEntityTable<T>(table, heightField, latestField, dbKeyFactory, dp), VersionedBatchEntityTable<T> {
+) : SqlMutableEntityTable<T>(table, heightField, latestField, dbKeyFactory, dp), BatchEntityTable<T>, MutableEntityTable<T> {
     override val count: Int
         get() {
             assertNotInTransaction()

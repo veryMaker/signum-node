@@ -5,7 +5,7 @@ import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.DigitalGoodsStoreStore
-import brs.db.VersionedEntityTable
+import brs.db.MutableEntityTable
 import brs.entity.Goods
 import brs.entity.Purchase
 import brs.services.AccountService
@@ -23,8 +23,8 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
     private lateinit var mockAccountService: AccountService
     private lateinit var mockDigitalGoodsStoreStore: DigitalGoodsStoreStore
 
-    private lateinit var mockGoodsTable: VersionedEntityTable<Goods>
-    private lateinit var mockPurchaseTable: VersionedEntityTable<Purchase>
+    private lateinit var mockGoodsTable: MutableEntityTable<Goods>
+    private lateinit var mockPurchaseTable: MutableEntityTable<Purchase>
     private lateinit var mockGoodsDbKeyFactory: LongKeyFactory<Goods>
 
     private lateinit var t: DigitalGoodsStoreServiceImpl

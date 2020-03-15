@@ -11,7 +11,7 @@ interface SubscriptionStore {
     /**
      * TODO
      */
-    val subscriptionTable: VersionedEntityTable<Subscription>
+    val subscriptionTable: MutableEntityTable<Subscription>
 
     /**
      * TODO

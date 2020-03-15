@@ -13,7 +13,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
     table: Table<*>,
     internal val dbKeyFactory: SqlDbKey.Factory<T>,
     heightField: Field<Int>,
-    /** If not null then this is multi-version, if null this is not */
+    /** If not null then this is mutable, if null this is not */
     internal val latestField: Field<Boolean>?,
     private val dp: DependencyProvider
 ) : SqlDerivedTable<T>(table, heightField, dp), EntityTable<T> {

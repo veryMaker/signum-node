@@ -2,7 +2,7 @@ package brs.db.sql
 
 import brs.db.AliasStore
 import brs.db.BurstKey
-import brs.db.VersionedEntityTable
+import brs.db.MutableEntityTable
 import brs.entity.Alias
 import brs.entity.DependencyProvider
 import brs.schema.Tables.ALIAS
@@ -13,13 +13,13 @@ import org.jooq.Record
 import java.util.*
 
 internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
-    override val offerTable: VersionedEntityTable<Alias.Offer>
-    override val aliasTable: VersionedEntityTable<Alias>
+    override val offerTable: MutableEntityTable<Alias.Offer>
+    override val aliasTable: MutableEntityTable<Alias>
     override val aliasDbKeyFactory: SqlDbKey.LongKeyFactory<Alias> = AliasDbKeyFactory
     override val offerDbKeyFactory: SqlDbKey.LongKeyFactory<Alias.Offer> = OfferDbKeyFactory
 
     init {
-        offerTable = object : SqlVersionedEntityTable<Alias.Offer>(
+        offerTable = object : SqlMutableEntityTable<Alias.Offer>(
             ALIAS_OFFER,
             ALIAS_OFFER.HEIGHT,
             ALIAS_OFFER.LATEST,
@@ -72,7 +72,7 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
         }
 
         aliasTable =
-            object : SqlVersionedEntityTable<Alias>(ALIAS, ALIAS.HEIGHT, ALIAS.LATEST, aliasDbKeyFactory, dp) {
+            object : SqlMutableEntityTable<Alias>(ALIAS, ALIAS.HEIGHT, ALIAS.LATEST, aliasDbKeyFactory, dp) {
                 override val defaultSort = listOf(ALIAS.ALIAS_NAME_LOWER.asc())
 
                 override fun load(record: Record) = Alias(
