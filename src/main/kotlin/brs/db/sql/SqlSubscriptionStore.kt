@@ -30,8 +30,8 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
                 dp
             ) {
                 override val defaultSort = listOf(
-                    table.field("time_next", Int::class.java).asc(),
-                    table.field("id", Long::class.java).asc()
+                    SUBSCRIPTION.TIME_NEXT.asc(),
+                    SUBSCRIPTION.ID.asc()
                 )
 
                 override fun load(record: Record): Subscription {

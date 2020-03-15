@@ -48,7 +48,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
     init {
         atTable =
             object : SqlVersionedEntityTable<AT>(ATTable, ATTable.HEIGHT, ATTable.LATEST, atDbKeyFactory, dp) {
-                override val defaultSort = listOf(table.field("id", Long::class.java).asc())
+                override val defaultSort = listOf(ATTable.ID.asc())
 
                 override fun load(record: Record): AT {
                     throw UnsupportedOperationException("AT cannot be created with atTable.load")
@@ -99,10 +99,9 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
                 dp
             ) {
                 override val defaultSort = listOf(
-                    // TODO remove all .field invocations
-                    table.field("prev_height", Int::class.java).asc(),
-                    heightField.asc(),
-                    table.field("at_id", Long::class.java).asc()
+                    AT_STATE.PREV_HEIGHT.asc(),
+                    AT_STATE.HEIGHT.asc(),
+                    AT_STATE.AT_ID.asc()
                 )
 
                 override fun load(record: Record): AT.ATState {

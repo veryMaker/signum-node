@@ -62,9 +62,9 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
             dp
         ) {
             override val defaultSort = listOf<SortField<*>>(
-                table.field("quantity", Long::class.java).desc(),
-                table.field("account_id", Long::class.java).asc(),
-                table.field("asset_id", Long::class.java).asc()
+                ACCOUNT_ASSET.QUANTITY.desc(),
+                ACCOUNT_ASSET.ACCOUNT_ID.asc(),
+                ACCOUNT_ASSET.ASSET_ID.asc()
             )
 
             override fun load(record: Record): Account.AccountAsset {
@@ -123,24 +123,20 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
         return accountAssetTable.getManyBy(ACCOUNT_ASSET.ACCOUNT_ID.eq(id), from, to)
     }
 
+    private val assetAccountsSort = listOf(
+        ACCOUNT_ASSET.QUANTITY.desc(),
+        ACCOUNT_ASSET.ACCOUNT_ID.asc()
+    )
+
     override fun getAssetAccounts(assetId: Long, from: Int, to: Int): Collection<Account.AccountAsset> {
-        val sort = listOf(
-            ACCOUNT_ASSET.field("quantity", Long::class.java).desc(),
-            ACCOUNT_ASSET.field("account_id", Long::class.java).asc()
-        )
-        return accountAssetTable.getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), from, to, sort)
+        return accountAssetTable.getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), from, to, assetAccountsSort)
     }
 
     override fun getAssetAccounts(assetId: Long, height: Int, from: Int, to: Int): Collection<Account.AccountAsset> {
         if (height < 0) {
             return getAssetAccounts(assetId, from, to)
         }
-
-        val sort = listOf<SortField<*>>(
-            ACCOUNT_ASSET.field("quantity", Long::class.java).desc(),
-            ACCOUNT_ASSET.field("account_id", Long::class.java).asc()
-        )
-        return accountAssetTable.getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), height, from, to, sort)
+        return accountAssetTable.getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), height, from, to, assetAccountsSort)
     }
 
     override fun setOrVerify(account: Account, key: ByteArray, height: Int): Boolean {

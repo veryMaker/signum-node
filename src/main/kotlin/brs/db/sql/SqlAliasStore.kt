@@ -40,7 +40,7 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
 
         aliasTable =
             object : SqlVersionedEntityTable<Alias>(ALIAS, ALIAS.HEIGHT, ALIAS.LATEST, aliasDbKeyFactory, dp) {
-                override val defaultSort = listOf(table.field("alias_name_lower", String::class.java).asc())
+                override val defaultSort = listOf(ALIAS.ALIAS_NAME_LOWER.asc())
 
                 override fun load(record: Record): Alias {
                     return sqlToAlias(record)

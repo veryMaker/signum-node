@@ -30,7 +30,7 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             askOrderDbKeyFactory,
             dp
         ) {
-            override val defaultSort = listOf(table.field("creation_height", Int::class.java).desc())
+            override val defaultSort = listOf(ASK_ORDER.CREATION_HEIGHT.desc())
 
             override fun load(record: Record): Order.Ask {
                 return sqlToAsk(record)
@@ -59,7 +59,7 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             bidOrderDbKeyFactory,
             dp
         ) {
-            override val defaultSort = listOf(table.field("creation_height", Int::class.java).desc())
+            override val defaultSort = listOf(BID_ORDER.CREATION_HEIGHT.desc())
 
             override fun load(record: Record): Order.Bid {
                 return sqlToBid(record)
@@ -87,9 +87,9 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
     }
 
     private val askSort = listOf(
-        ASK_ORDER.field("price", Long::class.java).asc(),
-        ASK_ORDER.field("creation_height", Int::class.java).asc(),
-        ASK_ORDER.field("id", Long::class.java).asc()
+        ASK_ORDER.PRICE.asc(),
+        ASK_ORDER.CREATION_HEIGHT.asc(),
+        ASK_ORDER.ID.asc()
     )
 
     override fun getSortedAsks(assetId: Long, from: Int, to: Int): Collection<Order.Ask> {
@@ -143,9 +143,9 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
     }
 
     private val bidSort = listOf(
-        BID_ORDER.field("price", Long::class.java).desc(),
-        BID_ORDER.field("creation_height", Int::class.java).asc(),
-        BID_ORDER.field("id", Long::class.java).asc()
+        BID_ORDER.PRICE.desc(),
+        BID_ORDER.CREATION_HEIGHT.asc(),
+        BID_ORDER.ID.asc()
     )
 
     override fun getSortedBids(assetId: Long, from: Int, to: Int): Collection<Order.Bid> {

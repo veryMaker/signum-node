@@ -52,8 +52,8 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
             dp
         ) {
             override val defaultSort = listOf(
-                table.field("timestamp", Int::class.java).desc(),
-                table.field("id", Long::class.java).asc()
+                PURCHASE.TIMESTAMP.desc(),
+                PURCHASE.ID.asc()
             )
 
             override fun load(record: Record): Purchase {
@@ -153,8 +153,8 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         goodsTable =
             object : SqlVersionedEntityTable<Goods>(GOODS, GOODS.HEIGHT, GOODS.LATEST, goodsDbKeyFactory, dp) {
                 override val defaultSort = listOf(
-                    table.field("timestamp", Int::class.java).desc(),
-                    table.field("id", Long::class.java).asc()
+                    GOODS.TIMESTAMP.desc(),
+                    GOODS.ID.asc()
                 )
 
                 override fun load(record: Record): Goods {
@@ -197,21 +197,15 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         return goodsTable.getManyBy(GOODS.DELISTED.isFalse.and(GOODS.QUANTITY.gt(0)), from, to)
     }
 
+    private val sellerGoodsSort = listOf(
+        GOODS.NAME.asc(),
+        GOODS.TIMESTAMP.desc(),
+        GOODS.ID.asc()
+    )
+
     override fun getSellerGoods(sellerId: Long, inStockOnly: Boolean, from: Int, to: Int): Collection<Goods> {
-        return goodsTable.getManyBy(
-            if (inStockOnly) GOODS.SELLER_ID.eq(sellerId).and(GOODS.DELISTED.isFalse).and(
-                GOODS.QUANTITY.gt(
-                    0
-                )
-            ) else GOODS.SELLER_ID.eq(sellerId),
-            from,
-            to,
-            listOf(
-                GOODS.field("name", String::class.java).asc(),
-                GOODS.field("timestamp", Int::class.java).desc(),
-                GOODS.field("id", Long::class.java).asc()
-            )
-        )
+        val condition = if (inStockOnly) GOODS.SELLER_ID.eq(sellerId).and(GOODS.DELISTED.isFalse).and(GOODS.QUANTITY.gt(0)) else GOODS.SELLER_ID.eq(sellerId)
+        return goodsTable.getManyBy(condition, from, to, sellerGoodsSort)
     }
 
     override fun getAllPurchases(from: Int, to: Int): Collection<Purchase> {
