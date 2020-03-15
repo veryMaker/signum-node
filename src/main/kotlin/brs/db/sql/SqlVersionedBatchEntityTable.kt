@@ -5,6 +5,7 @@ import brs.db.VersionedBatchEntityTable
 import brs.db.assertInTransaction
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
+import brs.util.cache.set
 import org.ehcache.Cache
 import org.jooq.*
 import org.jooq.impl.DSL
@@ -65,7 +66,7 @@ internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
         }
         val item = super.get(dbKey)
         if (item != null) {
-            batchCache.put(dbKey, item)
+            batchCache[dbKey] = item
         }
         return item
     }
@@ -74,8 +75,7 @@ internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
         dp.db.assertInTransaction()
         val key = dbKeyFactory.newKey(entity)
         batch[key] = entity
-        // TODO extension operator fun for cache
-        batchCache.put(key, entity)
+        batchCache[key] = entity
     }
 
     override fun finish() {
