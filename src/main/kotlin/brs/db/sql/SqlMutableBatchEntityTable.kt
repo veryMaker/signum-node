@@ -6,7 +6,6 @@ import brs.util.cache.set
 import org.ehcache.Cache
 import org.jooq.*
 import org.jooq.Table
-import org.jooq.impl.DSL
 
 internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
     table: Table<*>,
@@ -28,8 +27,9 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
             return super.rowCount
         }
 
-    private val batch: MutableMap<BurstKey, T>
-        get() = dp.db.getBatch(table)
+    @Suppress("UNCHECKED_CAST")
+    private val batch: MutableMap<SqlDbKey, T>
+        get() = dp.db.getBatch<T>(table) as MutableMap<SqlDbKey, T>
 
     private val batchCache: Cache<BurstKey, T>
         get() = dp.dbCacheService.getCache(tableName, tClass)!!
@@ -42,7 +42,8 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
 
     override fun delete(t: T): Boolean {
         dp.db.assertInTransaction()
-        val dbKey = dbKeyFactory.newKey(t) as SqlDbKey
+        val dbKey = dbKeyFactory.newKey(t)
+        check(dbKey is SqlDbKey)
         batchCache.remove(dbKey)
         batch.remove(dbKey)
         return true
@@ -58,6 +59,7 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
     }
 
     override fun get(dbKey: BurstKey): T? {
+        require(dbKey is SqlDbKey)
         if (batchCache.containsKey(dbKey)) {
             return batchCache.get(dbKey)
         } else if (dp.db.isInTransaction() && batch.containsKey(dbKey)) {
@@ -73,34 +75,31 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
     override fun insert(entity: T) {
         dp.db.assertInTransaction()
         val key = dbKeyFactory.newKey(entity)
+        check(key is SqlDbKey)
         batch[key] = entity
         batchCache[key] = entity
     }
 
     override fun finish() {
         dp.db.assertInTransaction()
-        val keySet = batch.keys
-        if (keySet.isEmpty()) {
+        val batchKeys = batch.keys
+        if (batchKeys.isEmpty()) {
             return
         }
 
         dp.db.useDslContext { ctx ->
             // Update "latest" fields.
-            // This is chunked as SQLite is limited to expression tress of depth 1000.
-            for (keySetChunk in keySet.chunked(990)) {
+            // This is chunked as SQLite is limited to expression tress of depth 1000. We have "WHERE latestField = 1" and "SET latestField = false" so we have room for 998 more conditions.
+            for (keySetChunk in batchKeys.chunked(998)) {
                 val updateQuery = ctx.updateQuery(table)
                 updateQuery.addConditions(latestField?.isTrue)
                 updateQuery.addValue(latestField, false)
-                var updateCondition = DSL.noCondition()
-                for (dbKey in keySetChunk) {
-                    var primaryKeyCondition = DSL.noCondition()
-                    for ((index, primaryKeyField) in dbKeyFactory.primaryKeyColumns.withIndex()) {
-                        primaryKeyCondition = primaryKeyCondition.and(primaryKeyField.eq(dbKey.primaryKeyValues[index]))
-                    }
-                    updateCondition = updateCondition.or(primaryKeyCondition)
+                var updateCondition = keySetChunk.first().allPrimaryKeyConditions
+                for (index in 1 until keySetChunk.size) {
+                    updateCondition = updateCondition.or(keySetChunk[index].allPrimaryKeyConditions)
                 }
                 updateQuery.addConditions(updateCondition)
-                ctx.execute(updateQuery)
+                updateQuery.execute()
             }
             bulkUpsert(ctx, batch.values)
             batch.clear()

@@ -31,7 +31,7 @@ internal abstract class SqlMutableEntityTable<T> internal constructor(
             try {
                 val countQuery = ctx.selectQuery()
                 countQuery.addFrom(table)
-                countQuery.addConditions(dbKey.getPrimaryKeyConditions(table))
+                countQuery.addConditions(dbKey.primaryKeyConditions)
                 countQuery.addConditions(heightField.lt(dp.blockchainService.height))
                 if (ctx.fetchCount(countQuery) > 0) {
                     val updateQuery = ctx.updateQuery(table)
@@ -39,7 +39,7 @@ internal abstract class SqlMutableEntityTable<T> internal constructor(
                         latestField,
                         false
                     )
-                    updateQuery.addConditions(dbKey.getPrimaryKeyConditions(table))
+                    updateQuery.addConditions(dbKey.primaryKeyConditions)
                     updateQuery.addConditions(latestField?.isTrue)
 
                     updateQuery.execute()
@@ -50,7 +50,7 @@ internal abstract class SqlMutableEntityTable<T> internal constructor(
                     return@useDslContext true
                 } else {
                     val deleteQuery = ctx.deleteQuery(table)
-                    deleteQuery.addConditions(dbKey.getPrimaryKeyConditions(table))
+                    deleteQuery.addConditions(dbKey.primaryKeyConditions)
                     return@useDslContext deleteQuery.execute() > 0
                 }
             } finally {
@@ -92,13 +92,13 @@ internal abstract class SqlMutableEntityTable<T> internal constructor(
                 for (dbKey in dbKeys) {
                     val selectMaxHeightQuery = ctx.selectQuery()
                     selectMaxHeightQuery.addFrom(tableClass)
-                    selectMaxHeightQuery.addConditions(dbKey.getPrimaryKeyConditions(tableClass))
+                    selectMaxHeightQuery.addConditions(dbKey.primaryKeyConditions)
                     selectMaxHeightQuery.addSelect(DSL.max(heightField))
                     val maxHeight = selectMaxHeightQuery.fetchOne()?.get(DSL.max(heightField))
 
                     if (maxHeight != null) {
                         val setLatestQuery = ctx.updateQuery(tableClass)
-                        setLatestQuery.addConditions(dbKey.getPrimaryKeyConditions(tableClass))
+                        setLatestQuery.addConditions(dbKey.primaryKeyConditions)
                         setLatestQuery.addConditions(heightField.eq(maxHeight))
                         setLatestQuery.addValue(latestField, true)
                         setLatestQuery.execute()

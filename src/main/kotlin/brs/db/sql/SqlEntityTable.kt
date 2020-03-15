@@ -13,7 +13,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
     table: Table<*>,
     internal val dbKeyFactory: SqlDbKey.Factory<T>,
     heightField: Field<Int>,
-    /** If not null then this is mutable, if null this is not */
+    /** If not null then this is mutable */
     internal val latestField: Field<Boolean>?,
     private val dp: DependencyProvider
 ) : SqlDerivedTable<T>(table, heightField, dp), EntityTable<T> {
@@ -77,7 +77,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
         return dp.db.useDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(table)
-            query.addConditions(key.getPrimaryKeyConditions(table))
+            query.addConditions(key.primaryKeyConditions)
             if (latestField != null) {
                 query.addConditions(latestField.isTrue)
             }
@@ -94,13 +94,13 @@ internal abstract class SqlEntityTable<T> internal constructor(
         return dp.db.useDslContext { ctx ->
             val query = ctx.selectQuery()
             query.addFrom(table)
-            query.addConditions(key.getPrimaryKeyConditions(table))
+            query.addConditions(key.primaryKeyConditions)
             query.addConditions(heightField.le(height))
             if (latestField != null) {
                 val innerTable = table.`as`("b")
                 val innerQuery = ctx.selectQuery()
                 innerQuery.addConditions(innerTable.field("height", Int::class.java).gt(height))
-                innerQuery.addConditions(key.getPrimaryKeyConditions(innerTable))
+                innerQuery.addConditions(key.primaryKeyConditions)
                 query.addConditions(latestField.isTrue.or(DSL.field(DSL.exists(innerQuery))))
             }
             query.addOrderBy(heightField.desc())
@@ -288,7 +288,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
                     latestField,
                     false
                 )
-                query.addConditions(dbKey.getPrimaryKeyConditions(table))
+                query.addConditions(dbKey.primaryKeyConditions)
                 query.addConditions(latestField.isTrue)
                 query.execute()
             }
