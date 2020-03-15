@@ -21,7 +21,7 @@ internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
 
     init {
         tradeTable = object : SqlEntityTable<Trade>(TRADE, tradeDbKeyFactory, TRADE.HEIGHT, null, dp) {
-            override fun load(ctx: DSLContext, record: Record): Trade {
+            override fun load(record: Record): Trade {
                 return sqlToTrade(record)
             }
 

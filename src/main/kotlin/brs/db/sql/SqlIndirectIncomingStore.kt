@@ -7,7 +7,6 @@ import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.entity.IndirectIncoming
 import brs.schema.Tables.INDIRECT_INCOMING
-import brs.schema.tables.records.IndirectIncomingRecord
 import org.jooq.DSLContext
 import org.jooq.Record
 
@@ -24,7 +23,7 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
 
         this.indirectIncomingTable = object :
             SqlEntityTable<IndirectIncoming>(INDIRECT_INCOMING, indirectIncomingDbKeyFactory, INDIRECT_INCOMING.HEIGHT, null, dp) {
-            override fun load(ctx: DSLContext, record: Record): IndirectIncoming {
+            override fun load(record: Record): IndirectIncoming {
                 return IndirectIncoming(
                     record.get(INDIRECT_INCOMING.ACCOUNT_ID),
                     record.get(INDIRECT_INCOMING.TRANSACTION_ID),
@@ -32,29 +31,19 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
                 )
             }
 
+            private val upsertColumns = listOf(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
+            private val upsertKeys = listOf(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
+
             override fun save(ctx: DSLContext, entity: IndirectIncoming) {
-                val record = IndirectIncomingRecord()
-                record.accountId = entity.accountId
-                record.transactionId = entity.transactionId
-                record.height = entity.height
-                ctx.upsert(record, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
+                ctx.upsert(INDIRECT_INCOMING, mapOf(
+                    INDIRECT_INCOMING.ACCOUNT_ID to entity.accountId,
+                    INDIRECT_INCOMING.TRANSACTION_ID to entity.transactionId,
+                    INDIRECT_INCOMING.HEIGHT to entity.height
+                ), upsertKeys).execute()
             }
 
             override fun save(ctx: DSLContext, entities: Collection<IndirectIncoming>) {
-                var insertQuery = ctx.insertInto(
-                    INDIRECT_INCOMING,
-                    INDIRECT_INCOMING.ACCOUNT_ID,
-                    INDIRECT_INCOMING.TRANSACTION_ID,
-                    INDIRECT_INCOMING.HEIGHT
-                )
-                entities.forEach { (accountId, transactionId, height) ->
-                    insertQuery = insertQuery.values(
-                        accountId,
-                        transactionId,
-                        height
-                    )
-                }
-                insertQuery.execute()
+                ctx.upsert(INDIRECT_INCOMING, upsertColumns, entities.map { (accountId, transactionId, height) -> listOf(accountId, transactionId, height)}, upsertKeys).execute()
             }
         }
     }

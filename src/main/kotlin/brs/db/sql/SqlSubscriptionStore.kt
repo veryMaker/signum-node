@@ -7,7 +7,6 @@ import brs.db.upsert
 import brs.entity.DependencyProvider
 import brs.entity.Subscription
 import brs.schema.Tables.SUBSCRIPTION
-import brs.schema.tables.records.SubscriptionRecord
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.Record
@@ -35,7 +34,7 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
                     table.field("id", Long::class.java).asc()
                 )
 
-                override fun load(ctx: DSLContext, record: Record): Subscription {
+                override fun load(record: Record): Subscription {
                     return sqlToSubscription(record)
                 }
 
@@ -69,27 +68,28 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
         return subscriptionTable.getManyBy(getUpdateOnBlockClause(timestamp), 0, -1)
     }
 
+    private val upsertKeys = listOf(
+        SUBSCRIPTION.ID,
+        SUBSCRIPTION.SENDER_ID,
+        SUBSCRIPTION.RECIPIENT_ID,
+        SUBSCRIPTION.AMOUNT,
+        SUBSCRIPTION.FREQUENCY,
+        SUBSCRIPTION.TIME_NEXT,
+        SUBSCRIPTION.HEIGHT,
+        SUBSCRIPTION.LATEST
+    )
+
     private fun saveSubscription(ctx: DSLContext, subscription: Subscription) {
-        val record = SubscriptionRecord()
-        record.id = subscription.id
-        record.senderId = subscription.senderId
-        record.recipientId = subscription.recipientId
-        record.amount = subscription.amountPlanck
-        record.frequency = subscription.frequency
-        record.timeNext = subscription.timeNext
-        record.height = dp.blockchainService.height
-        record.latest = true
-        ctx.upsert(
-            record,
-            SUBSCRIPTION.ID,
-            SUBSCRIPTION.SENDER_ID,
-            SUBSCRIPTION.RECIPIENT_ID,
-            SUBSCRIPTION.AMOUNT,
-            SUBSCRIPTION.FREQUENCY,
-            SUBSCRIPTION.TIME_NEXT,
-            SUBSCRIPTION.HEIGHT,
-            SUBSCRIPTION.LATEST
-        ).execute()
+        ctx.upsert(SUBSCRIPTION, mapOf(
+            SUBSCRIPTION.ID to subscription.id,
+            SUBSCRIPTION.SENDER_ID to subscription.senderId,
+            SUBSCRIPTION.RECIPIENT_ID to subscription.recipientId,
+            SUBSCRIPTION.AMOUNT to subscription.amountPlanck,
+            SUBSCRIPTION.FREQUENCY to subscription.frequency,
+            SUBSCRIPTION.TIME_NEXT to subscription.timeNext,
+            SUBSCRIPTION.HEIGHT to dp.blockchainService.height,
+            SUBSCRIPTION.LATEST to true
+        ), upsertKeys).execute()
     }
 
     private fun sqlToSubscription(record: Record) = Subscription(

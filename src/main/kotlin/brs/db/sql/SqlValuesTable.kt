@@ -20,7 +20,7 @@ internal abstract class SqlValuesTable<K, V> internal constructor(
 ) : SqlDerivedTable<K>(tableClass, heightField, dp), ValuesTable<K, V> {
     protected abstract fun load(ctx: DSLContext, record: Record): V
 
-    protected abstract fun save(ctx: DSLContext, key: K, value: V)
+    protected abstract fun save(ctx: DSLContext, key: K, values: List<V>)
 
     internal val cache: MutableMap<BurstKey, List<V>>
         get() = dp.db.getCache(table)
@@ -52,10 +52,8 @@ internal abstract class SqlValuesTable<K, V> internal constructor(
                 .set(latestField, false)
                 .where(dbKey.getPrimaryKeyConditions(table))
                 .and(latestField.isTrue)
-                .execute()
-            for (value in values) {
-                save(ctx, key, value)
-            }
+                .execute() // TODO this is optimal! do this elsewhere
+            save(ctx, key, values)
         }
     }
 }

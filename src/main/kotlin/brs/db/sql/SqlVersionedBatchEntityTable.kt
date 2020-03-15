@@ -53,6 +53,10 @@ internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
         insert(entity)
     }
 
+    override fun save(ctx: DSLContext, entities: Collection<T>) {
+        entities.forEach { insert(it) }
+    }
+
     override fun get(dbKey: BurstKey): T? {
         if (batchCache.containsKey(dbKey)) {
             return batchCache.get(dbKey)
@@ -70,6 +74,7 @@ internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
         dp.db.assertInTransaction()
         val key = dbKeyFactory.newKey(entity)
         batch[key] = entity
+        // TODO extension operator fun for cache
         batchCache.put(key, entity)
     }
 

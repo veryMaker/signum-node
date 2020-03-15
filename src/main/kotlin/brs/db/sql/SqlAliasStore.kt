@@ -29,7 +29,7 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
             offerDbKeyFactory,
             dp
         ) {
-            override fun load(ctx: DSLContext, record: Record): Alias.Offer {
+            override fun load(record: Record): Alias.Offer {
                 return sqlToOffer(record)
             }
 
@@ -42,7 +42,7 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
             object : SqlVersionedEntityTable<Alias>(ALIAS, ALIAS.HEIGHT, ALIAS.LATEST, aliasDbKeyFactory, dp) {
                 override val defaultSort = listOf(table.field("alias_name_lower", String::class.java).asc())
 
-                override fun load(ctx: DSLContext, record: Record): Alias {
+                override fun load(record: Record): Alias {
                     return sqlToAlias(record)
                 }
 

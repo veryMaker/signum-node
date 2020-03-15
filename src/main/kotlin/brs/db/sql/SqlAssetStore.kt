@@ -18,7 +18,7 @@ internal class SqlAssetStore(private val dp: DependencyProvider) : AssetStore {
 
     init {
         assetTable = object : SqlEntityTable<Asset>(ASSET, assetDbKeyFactory, ASSET.HEIGHT, null, dp) {
-            override fun load(ctx: DSLContext, record: Record): Asset {
+            override fun load(record: Record): Asset {
                 return sqlToAsset(record)
             }
 

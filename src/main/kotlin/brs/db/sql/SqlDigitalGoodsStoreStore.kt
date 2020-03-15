@@ -5,10 +5,6 @@ import brs.entity.DependencyProvider
 import brs.entity.Goods
 import brs.entity.Purchase
 import brs.schema.Tables.*
-import brs.schema.tables.records.GoodsRecord
-import brs.schema.tables.records.PurchaseFeedbackRecord
-import brs.schema.tables.records.PurchasePublicFeedbackRecord
-import brs.schema.tables.records.PurchaseRecord
 import burst.kit.entity.BurstEncryptedMessage
 import org.jooq.DSLContext
 import org.jooq.Field
@@ -60,12 +56,54 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 table.field("id", Long::class.java).asc()
             )
 
-            override fun load(ctx: DSLContext, record: Record): Purchase {
+            override fun load(record: Record): Purchase {
                 return sqlToPurchase(record)
             }
 
+            private val upsertKeys = listOf(PURCHASE.ID, PURCHASE.HEIGHT)
+
             override fun save(ctx: DSLContext, entity: Purchase) {
-                savePurchase(ctx, entity)
+                var note: ByteArray? = null
+                var nonce: ByteArray? = null
+                var goods: ByteArray? = null
+                var goodsNonce: ByteArray? = null
+                var refundNote: ByteArray? = null
+                var refundNonce: ByteArray? = null
+                if (entity.note != null) {
+                    note = entity.note.data
+                    nonce = entity.note.nonce
+                }
+                if (entity.encryptedGoods != null) {
+                    goods = entity.encryptedGoods!!.data
+                    goodsNonce = entity.encryptedGoods!!.nonce
+                }
+                if (entity.refundNote != null) {
+                    refundNote = entity.refundNote!!.data
+                    refundNonce = entity.refundNote!!.nonce
+                }
+                ctx.upsert(PURCHASE, mapOf(
+                    PURCHASE.ID to entity.id,
+                    PURCHASE.BUYER_ID to entity.buyerId,
+                    PURCHASE.GOODS_ID to entity.goodsId,
+                    PURCHASE.SELLER_ID to entity.sellerId,
+                    PURCHASE.QUANTITY to entity.quantity,
+                    PURCHASE.PRICE to entity.pricePlanck,
+                    PURCHASE.DEADLINE to entity.deliveryDeadlineTimestamp,
+                    PURCHASE.NOTE to note,
+                    PURCHASE.NONCE to nonce,
+                    PURCHASE.PENDING to entity.isPending,
+                    PURCHASE.TIMESTAMP to entity.timestamp,
+                    PURCHASE.GOODS to goods,
+                    PURCHASE.GOODS_NONCE to goodsNonce,
+                    PURCHASE.REFUND_NOTE to refundNote,
+                    PURCHASE.REFUND_NONCE to refundNonce,
+                    PURCHASE.HAS_FEEDBACK_NOTES to entity.feedbackNotes.isNotEmpty(),
+                    PURCHASE.HAS_PUBLIC_FEEDBACKS to entity.publicFeedback.isNotEmpty(),
+                    PURCHASE.DISCOUNT to entity.discountPlanck,
+                    PURCHASE.REFUND to entity.refundPlanck,
+                    PURCHASE.HEIGHT to dp.blockchainService.height,
+                    PURCHASE.LATEST to true
+                ), upsertKeys).execute()
             }
         }
 
@@ -82,17 +120,13 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 return BurstEncryptedMessage(data, nonce, false)
             }
 
-            override fun save(ctx: DSLContext, key: Purchase, value: BurstEncryptedMessage) {
-                ctx.insertInto<PurchaseFeedbackRecord, Long, ByteArray, ByteArray, Int, Boolean>(
-                    PURCHASE_FEEDBACK,
-                    PURCHASE_FEEDBACK.ID,
-                    PURCHASE_FEEDBACK.FEEDBACK_DATA, PURCHASE_FEEDBACK.FEEDBACK_NONCE,
-                    PURCHASE_FEEDBACK.HEIGHT, PURCHASE_FEEDBACK.LATEST
-                ).values(
-                    key.id,
-                    value.data, value.nonce,
-                    dp.blockchainService.height, true
-                ).execute()
+            override fun save(ctx: DSLContext, key: Purchase, values: List<BurstEncryptedMessage>) {
+                val height = dp.blockchainService.height
+                var query = ctx.insertInto(PURCHASE_FEEDBACK, PURCHASE_FEEDBACK.ID, PURCHASE_FEEDBACK.FEEDBACK_DATA, PURCHASE_FEEDBACK.FEEDBACK_NONCE, PURCHASE_FEEDBACK.HEIGHT, PURCHASE_FEEDBACK.LATEST)
+                for (value in values) {
+                    query = query.values(key.id, value.data, value.nonce, height, true)
+                }
+                query.execute()
             }
         }
 
@@ -107,13 +141,12 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 return record.get(PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK)
             }
 
-            override fun save(ctx: DSLContext, key: Purchase, value: String) {
-                val record = PurchasePublicFeedbackRecord()
-                record.id = key.id
-                record.publicFeedback = value
-                record.height = dp.blockchainService.height
-                record.latest = true
-                ctx.upsert(record, PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.HEIGHT).execute()
+            private val upsertColumns = listOf(PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK, PURCHASE_PUBLIC_FEEDBACK.HEIGHT, PURCHASE_PUBLIC_FEEDBACK.LATEST)
+            private val upsertKeys = listOf(PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.HEIGHT)
+
+            override fun save(ctx: DSLContext, key: Purchase, values: List<String>) {
+                val height = dp.blockchainService.height
+                ctx.upsert(PURCHASE_PUBLIC_FEEDBACK, upsertColumns, values.map { publicFeedback -> listOf(key.id, publicFeedback, height, true) }, upsertKeys).execute()
             }
         }
 
@@ -124,24 +157,26 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                     table.field("id", Long::class.java).asc()
                 )
 
-                override fun load(ctx: DSLContext, record: Record): Goods {
+                override fun load(record: Record): Goods {
                     return sqlToGoods(record)
                 }
 
+                private val upsertKeys = listOf(GOODS.ID, GOODS.HEIGHT)
+
                 override fun save(ctx: DSLContext, entity: Goods) {
-                    val record = GoodsRecord()
-                    record.id = entity.id
-                    record.sellerId = entity.sellerId
-                    record.name = entity.name
-                    record.description = entity.description
-                    record.tags = entity.tags
-                    record.timestamp = entity.timestamp
-                    record.quantity = entity.quantity
-                    record.price = entity.pricePlanck
-                    record.delisted = entity.isDelisted
-                    record.height = dp.blockchainService.height
-                    record.latest = true
-                    ctx.upsert(record, GOODS.ID, GOODS.HEIGHT).execute()
+                    ctx.upsert(GOODS, mapOf(
+                        GOODS.ID to entity.id,
+                        GOODS.SELLER_ID to entity.sellerId,
+                        GOODS.NAME to entity.name,
+                        GOODS.DESCRIPTION to entity.description,
+                        GOODS.TAGS to entity.tags,
+                        GOODS.TIMESTAMP to entity.timestamp,
+                        GOODS.QUANTITY to entity.quantity,
+                        GOODS.PRICE to entity.pricePlanck,
+                        GOODS.DELISTED to entity.isDelisted,
+                        GOODS.HEIGHT to dp.blockchainService.height,
+                        GOODS.LATEST to true
+                    ), upsertKeys).execute()
                 }
             }
     }
@@ -156,50 +191,6 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         nonceField: Field<ByteArray>
     ): BurstEncryptedMessage? {
         return BurstEncryptedMessage(record.get(dataField) ?: return null, record.get(nonceField) ?: return null, false)
-    }
-
-    private fun savePurchase(ctx: DSLContext, purchase: Purchase) {
-        var note: ByteArray? = null
-        var nonce: ByteArray? = null
-        var goods: ByteArray? = null
-        var goodsNonce: ByteArray? = null
-        var refundNote: ByteArray? = null
-        var refundNonce: ByteArray? = null
-        if (purchase.note != null) {
-            note = purchase.note.data
-            nonce = purchase.note.nonce
-        }
-        if (purchase.encryptedGoods != null) {
-            goods = purchase.encryptedGoods!!.data
-            goodsNonce = purchase.encryptedGoods!!.nonce
-        }
-        if (purchase.refundNote != null) {
-            refundNote = purchase.refundNote!!.data
-            refundNonce = purchase.refundNote!!.nonce
-        }
-        val record = PurchaseRecord()
-        record.id = purchase.id
-        record.buyerId = purchase.buyerId
-        record.goodsId = purchase.goodsId
-        record.sellerId = purchase.sellerId
-        record.quantity = purchase.quantity
-        record.price = purchase.pricePlanck
-        record.deadline = purchase.deliveryDeadlineTimestamp
-        record.note = note
-        record.nonce = nonce
-        record.pending = purchase.isPending
-        record.timestamp = purchase.timestamp
-        record.goods = goods
-        record.goodsNonce = goodsNonce
-        record.refundNote = refundNote
-        record.refundNonce = refundNonce
-        record.hasFeedbackNotes = purchase.feedbackNotes.isNotEmpty()
-        record.hasPublicFeedbacks = purchase.publicFeedback.isNotEmpty()
-        record.discount = purchase.discountPlanck
-        record.refund = purchase.refundPlanck
-        record.height = dp.blockchainService.height
-        record.latest = true
-        ctx.upsert(record, PURCHASE.ID, PURCHASE.HEIGHT).execute()
     }
 
     override fun getGoodsInStock(from: Int, to: Int): Collection<Goods> {

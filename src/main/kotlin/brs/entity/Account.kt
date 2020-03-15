@@ -73,9 +73,9 @@ class Account {
         }
     }
 
-    open class RewardRecipientAssignment(
+    class RewardRecipientAssignment(
         val accountId: Long,
-        var prevRecipientId: Long,
+        var previousRecipientId: Long,
         var recipientId: Long,
         fromHeight: Int,
         val burstKey: BurstKey
@@ -88,7 +88,7 @@ class Account {
         }
 
         fun setRecipient(newRecipientId: Long, fromHeight: Int) {
-            prevRecipientId = recipientId
+            previousRecipientId = recipientId
             recipientId = newRecipientId
             this.fromHeight = fromHeight
         }

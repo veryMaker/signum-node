@@ -151,6 +151,9 @@ class AT : AtMachineState {
             account.apply(dp, ByteArray(32), height)
         }
 
+        /**
+         * TODO convert to extension function
+         */
         fun compressState(stateBytes: ByteArray?): ByteArray? {
             if (stateBytes == null || stateBytes.isEmpty()) {
                 return null

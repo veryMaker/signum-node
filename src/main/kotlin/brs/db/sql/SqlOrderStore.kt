@@ -5,8 +5,6 @@ import brs.entity.DependencyProvider
 import brs.entity.Order
 import brs.schema.Tables.ASK_ORDER
 import brs.schema.Tables.BID_ORDER
-import brs.schema.tables.records.AskOrderRecord
-import brs.schema.tables.records.BidOrderRecord
 import org.jooq.DSLContext
 import org.jooq.Record
 
@@ -34,12 +32,23 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
         ) {
             override val defaultSort = listOf(table.field("creation_height", Int::class.java).desc())
 
-            override fun load(ctx: DSLContext, record: Record): Order.Ask {
+            override fun load(record: Record): Order.Ask {
                 return sqlToAsk(record)
             }
 
+            private val upsertKeys = listOf(ASK_ORDER.ID, ASK_ORDER.HEIGHT)
+
             override fun save(ctx: DSLContext, entity: Order.Ask) {
-                saveAsk(ctx, entity)
+                ctx.upsert(ASK_ORDER, mapOf(
+                    ASK_ORDER.ID to entity.id,
+                    ASK_ORDER.ACCOUNT_ID to entity.accountId,
+                    ASK_ORDER.ASSET_ID to entity.assetId,
+                    ASK_ORDER.PRICE to entity.pricePlanck,
+                    ASK_ORDER.QUANTITY to entity.quantity,
+                    ASK_ORDER.CREATION_HEIGHT to entity.height,
+                    ASK_ORDER.HEIGHT to dp.blockchainService.height,
+                    ASK_ORDER.LATEST to true
+                ), upsertKeys).execute()
             }
         }
 
@@ -52,12 +61,23 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
         ) {
             override val defaultSort = listOf(table.field("creation_height", Int::class.java).desc())
 
-            override fun load(ctx: DSLContext, record: Record): Order.Bid {
+            override fun load(record: Record): Order.Bid {
                 return sqlToBid(record)
             }
 
+            private val upsertKeys = listOf(BID_ORDER.ID, BID_ORDER.HEIGHT)
+
             override fun save(ctx: DSLContext, entity: Order.Bid) {
-                saveBid(ctx, entity)
+                ctx.upsert(BID_ORDER, mapOf(
+                    BID_ORDER.ID to entity.id,
+                    BID_ORDER.ACCOUNT_ID to entity.accountId,
+                    BID_ORDER.ASSET_ID to entity.assetId,
+                    BID_ORDER.PRICE to entity.pricePlanck,
+                    BID_ORDER.QUANTITY to entity.quantity,
+                    BID_ORDER.CREATION_HEIGHT to entity.height,
+                    BID_ORDER.HEIGHT to dp.blockchainService.height,
+                    BID_ORDER.LATEST to true
+                ), upsertKeys).execute()
             }
         }
     }
@@ -102,19 +122,6 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
 
     override fun getAskOrdersByAsset(assetId: Long, from: Int, to: Int): Collection<Order.Ask> {
         return askOrderTable.getManyBy(ASK_ORDER.ASSET_ID.eq(assetId), from, to)
-    }
-
-    private fun saveAsk(ctx: DSLContext, ask: Order.Ask) {
-        val record = AskOrderRecord()
-        record.id = ask.id
-        record.accountId = ask.accountId
-        record.assetId = ask.assetId
-        record.price = ask.pricePlanck
-        record.quantity = ask.quantity
-        record.creationHeight = ask.height
-        record.height = dp.blockchainService.height
-        record.latest = true
-        ctx.upsert(record, ASK_ORDER.ID, ASK_ORDER.HEIGHT).execute()
     }
 
     override fun getBidOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Order.Bid> {
@@ -162,19 +169,6 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             val result = bidOrderTable.getManyBy(ctx, query, true).iterator()
             if (result.hasNext()) result.next() else null
         }
-    }
-
-    private fun saveBid(ctx: DSLContext, bid: Order.Bid) {
-        val record = BidOrderRecord()
-        record.id = bid.id
-        record.accountId = bid.accountId
-        record.assetId = bid.assetId
-        record.price = bid.pricePlanck
-        record.quantity = bid.quantity
-        record.creationHeight = bid.height
-        record.height = dp.blockchainService.height
-        record.latest = true
-        ctx.upsert(record, BID_ORDER.ID, BID_ORDER.HEIGHT).execute()
     }
 
     private fun sqlToAsk(record: Record) = Order.Ask(

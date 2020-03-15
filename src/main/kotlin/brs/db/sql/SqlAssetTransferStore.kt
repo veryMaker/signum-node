@@ -16,7 +16,7 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
     init {
         assetTransferTable =
             object : SqlEntityTable<AssetTransfer>(ASSET_TRANSFER, transferDbKeyFactory, ASSET_TRANSFER.HEIGHT, null, dp) {
-                override fun load(ctx: DSLContext, record: Record): AssetTransfer {
+                override fun load(record: Record): AssetTransfer {
                     return sqlToAssetTransfer(record)
                 }
 

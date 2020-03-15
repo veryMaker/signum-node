@@ -4,9 +4,6 @@ import brs.db.*
 import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.schema.Tables.*
-import brs.schema.tables.records.AccountAssetRecord
-import brs.schema.tables.records.AccountRecord
-import brs.schema.tables.records.RewardRecipAssignRecord
 import brs.util.convert.toUnsignedString
 import brs.util.logging.safeInfo
 import org.jooq.Condition
@@ -39,20 +36,21 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
             rewardRecipientAssignmentDbKeyFactory,
             dp
         ) {
-            override fun load(ctx: DSLContext, record: Record): Account.RewardRecipientAssignment {
+            override fun load(record: Record): Account.RewardRecipientAssignment {
                 return sqlToRewardRecipientAssignment(record)
             }
 
+            private val upsertKeys = listOf(REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.HEIGHT)
+
             override fun save(ctx: DSLContext, entity: Account.RewardRecipientAssignment) {
-                val record = RewardRecipAssignRecord()
-                record.accountId = entity.accountId
-                record.prevRecipId = entity.prevRecipientId
-                record.recipId = entity.recipientId
-                record.fromHeight = entity.fromHeight
-                record.height = dp.blockchainService.height
-                record.latest = true
-                ctx.upsert(record, REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.HEIGHT)
-                    .execute()
+                ctx.upsert(REWARD_RECIP_ASSIGN, mapOf(
+                    REWARD_RECIP_ASSIGN.ACCOUNT_ID to entity.accountId,
+                    REWARD_RECIP_ASSIGN.PREV_RECIP_ID to entity.previousRecipientId,
+                    REWARD_RECIP_ASSIGN.RECIP_ID to entity.recipientId,
+                    REWARD_RECIP_ASSIGN.FROM_HEIGHT to entity.fromHeight,
+                    REWARD_RECIP_ASSIGN.HEIGHT to dp.blockchainService.height,
+                    REWARD_RECIP_ASSIGN.LATEST to true
+                ), upsertKeys).execute()
             }
         }
 
@@ -69,46 +67,38 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                 table.field("asset_id", Long::class.java).asc()
             )
 
-            override fun load(ctx: DSLContext, record: Record): Account.AccountAsset {
+            override fun load(record: Record): Account.AccountAsset {
                 return SQLAccountAsset(record)
             }
 
+            private val upsertKeys = listOf(ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.HEIGHT)
+
             override fun save(ctx: DSLContext, entity: Account.AccountAsset) {
-                val record = AccountAssetRecord()
-                record.accountId = entity.accountId
-                record.assetId = entity.assetId
-                record.quantity = entity.quantity
-                record.unconfirmedQuantity = entity.unconfirmedQuantity
-                record.height = dp.blockchainService.height
-                record.latest = true
-                ctx.upsert(record, ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.HEIGHT)
-                    .execute()
+                ctx.upsert(ACCOUNT_ASSET, mapOf(
+                    ACCOUNT_ASSET.ACCOUNT_ID to entity.accountId,
+                    ACCOUNT_ASSET.ASSET_ID to entity.assetId,
+                    ACCOUNT_ASSET.QUANTITY to entity.quantity,
+                    ACCOUNT_ASSET.UNCONFIRMED_QUANTITY to entity.unconfirmedQuantity,
+                    ACCOUNT_ASSET.HEIGHT to dp.blockchainService.height,
+                    ACCOUNT_ASSET.LATEST to true
+                ), upsertKeys).execute()
             }
         }
 
         accountTable = object :
             SqlVersionedBatchEntityTable<Account>(ACCOUNT, ACCOUNT.HEIGHT, ACCOUNT.LATEST, accountDbKeyFactory, Account::class.java, dp) {
-            override fun load(ctx: DSLContext, record: Record): Account {
+            override fun load(record: Record): Account {
                 return sqlToAccount(record)
             }
 
+            private val upsertColumns = listOf(ACCOUNT.ID, ACCOUNT.CREATION_HEIGHT, ACCOUNT.PUBLIC_KEY, ACCOUNT.KEY_HEIGHT, ACCOUNT.BALANCE, ACCOUNT.UNCONFIRMED_BALANCE, ACCOUNT.FORGED_BALANCE, ACCOUNT.NAME, ACCOUNT.DESCRIPTION, ACCOUNT.HEIGHT, ACCOUNT.LATEST)
+            private val upsertKeys = listOf(ACCOUNT.ID, ACCOUNT.HEIGHT)
+
             override fun bulkUpsert(ctx: DSLContext, entities: Collection<Account>) {
                 val height = dp.blockchainService.height
-                ctx.batch(entities.map { account ->
-                    val record = AccountRecord()
-                    record.id = account.id
-                    record.height = height
-                    record.creationHeight = account.creationHeight
-                    record.publicKey = account.publicKey
-                    record.keyHeight = account.keyHeight
-                    record.balance = account.balancePlanck
-                    record.unconfirmedBalance = account.unconfirmedBalancePlanck
-                    record.forgedBalance = account.forgedBalancePlanck
-                    record.name = account.name
-                    record.description = account.description
-                    record.latest = true
-                    ctx.upsert(record, ACCOUNT.ID, ACCOUNT.HEIGHT)
-                }).execute()
+                ctx.upsert(ACCOUNT, upsertColumns, entities.map { entity ->
+                    listOf(entity.id, entity.creationHeight, entity.publicKey, entity.keyHeight, entity.balancePlanck, entity.unconfirmedBalancePlanck, entity.forgedBalancePlanck, entity.name, entity.description, height, true)
+                }, upsertKeys).execute()
             }
         }
     }

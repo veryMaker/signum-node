@@ -46,15 +46,21 @@ internal abstract class SqlEntityTable<T> internal constructor(
         cache.clear()
     }
 
-    protected abstract fun load(ctx: DSLContext, record: Record): T
+    /**
+     * Create an entity from a DB record
+     */
+    protected abstract fun load(record: Record): T
 
+    /**
+     * Save a single entity in the DB
+     */
     internal abstract fun save(ctx: DSLContext, entity: T)
 
-    internal open fun save(ctx: DSLContext, entities: Collection<T>) {
-        for (entity in entities) {
-            save(ctx, entity)
-        }
-    }
+    /**
+     * Save multiple entities in the DB
+     * TODO this is barely utilized
+     */
+    internal abstract fun save(ctx: DSLContext, entities: Collection<T>)
 
     override fun ensureAvailable(height: Int) {
         require(latestField == null || height >= dp.blockchainProcessorService.minRollbackHeight) { "Historical data as of height $height not available, set brs.trimDerivedTables=false and re-scan" }
@@ -148,7 +154,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
             t = this.cache[dbKey]
         }
         return if (t == null) {
-            t = load(ctx, record)
+            t = load(record)
             if (doCache && dbKey != null) {
                 this.cache[dbKey] = t
             }
@@ -218,7 +224,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
                 t = this.cache[dbKey]
             }
             if (t == null) {
-                t = load(ctx, record)
+                t = load(record)
                 if (doCache && dbKey != null) {
                     this.cache[dbKey] = t
                 }
