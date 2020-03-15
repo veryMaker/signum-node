@@ -21,34 +21,53 @@ internal class SqlAssetTransferStore(private val dp: DependencyProvider) : Asset
                 }
 
                 override fun save(ctx: DSLContext, entity: AssetTransfer) {
-                    saveAssetTransfer(entity)
+                    ctx.insertInto(
+                            ASSET_TRANSFER,
+                            ASSET_TRANSFER.ID,
+                            ASSET_TRANSFER.ASSET_ID,
+                            ASSET_TRANSFER.SENDER_ID,
+                            ASSET_TRANSFER.RECIPIENT_ID,
+                            ASSET_TRANSFER.QUANTITY,
+                            ASSET_TRANSFER.TIMESTAMP,
+                            ASSET_TRANSFER.HEIGHT
+                        )
+                        .values(
+                            entity.id,
+                            entity.assetId,
+                            entity.senderId,
+                            entity.recipientId,
+                            entity.quantity,
+                            entity.timestamp,
+                            entity.height
+                        )
+                        .execute()
+                }
+
+                override fun save(ctx: DSLContext, entities: Collection<AssetTransfer>) {
+                    val query = ctx.insertInto(
+                        ASSET_TRANSFER,
+                        ASSET_TRANSFER.ID,
+                        ASSET_TRANSFER.ASSET_ID,
+                        ASSET_TRANSFER.SENDER_ID,
+                        ASSET_TRANSFER.RECIPIENT_ID,
+                        ASSET_TRANSFER.QUANTITY,
+                        ASSET_TRANSFER.TIMESTAMP,
+                        ASSET_TRANSFER.HEIGHT
+                    )
+                    entities.forEach { entity ->
+                        query.values(
+                            entity.id,
+                            entity.assetId,
+                            entity.senderId,
+                            entity.recipientId,
+                            entity.quantity,
+                            entity.timestamp,
+                            entity.height
+                        )
+                    }
+                    query.execute()
                 }
             }
-    }
-
-    private fun saveAssetTransfer(assetTransfer: AssetTransfer) {
-        dp.db.useDslContext<Unit> { ctx ->
-            ctx.insertInto(
-                ASSET_TRANSFER,
-                ASSET_TRANSFER.ID,
-                ASSET_TRANSFER.ASSET_ID,
-                ASSET_TRANSFER.SENDER_ID,
-                ASSET_TRANSFER.RECIPIENT_ID,
-                ASSET_TRANSFER.QUANTITY,
-                ASSET_TRANSFER.TIMESTAMP,
-                ASSET_TRANSFER.HEIGHT
-            )
-                .values(
-                    assetTransfer.id,
-                    assetTransfer.assetId,
-                    assetTransfer.senderId,
-                    assetTransfer.recipientId,
-                    assetTransfer.quantity,
-                    assetTransfer.timestamp,
-                    assetTransfer.height
-                )
-                .execute()
-        }
     }
 
     override fun getAssetTransfers(assetId: Long, from: Int, to: Int): Collection<AssetTransfer> {

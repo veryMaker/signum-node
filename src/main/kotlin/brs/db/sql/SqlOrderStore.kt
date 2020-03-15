@@ -36,10 +36,11 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
                 return sqlToAsk(record)
             }
 
+            private val upsertColumns = listOf(ASK_ORDER.ID, ASK_ORDER.ACCOUNT_ID, ASK_ORDER.ASSET_ID, ASK_ORDER.PRICE, ASK_ORDER.QUANTITY, ASK_ORDER.CREATION_HEIGHT, ASK_ORDER.HEIGHT, ASK_ORDER.LATEST)
             private val upsertKeys = listOf(ASK_ORDER.ID, ASK_ORDER.HEIGHT)
 
             override fun save(ctx: DSLContext, entity: Order.Ask) {
-                ctx.upsert(ASK_ORDER, mapOf(
+                ctx.upsert(ASK_ORDER, upsertKeys, mapOf(
                     ASK_ORDER.ID to entity.id,
                     ASK_ORDER.ACCOUNT_ID to entity.accountId,
                     ASK_ORDER.ASSET_ID to entity.assetId,
@@ -48,7 +49,21 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
                     ASK_ORDER.CREATION_HEIGHT to entity.height,
                     ASK_ORDER.HEIGHT to dp.blockchainService.height,
                     ASK_ORDER.LATEST to true
-                ), upsertKeys).execute()
+                )).execute()
+            }
+
+            override fun save(ctx: DSLContext, entities: Collection<Order.Ask>) {
+                val height = dp.blockchainService.height
+                ctx.upsert(ASK_ORDER, upsertColumns, upsertKeys, entities.map { entity -> listOf(
+                    entity.id,
+                    entity.accountId,
+                    entity.assetId,
+                    entity.pricePlanck,
+                    entity.quantity,
+                    entity.height,
+                    height,
+                    true
+                ) }).execute()
             }
         }
 
@@ -65,10 +80,11 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
                 return sqlToBid(record)
             }
 
+            private val upsertColumns = listOf(BID_ORDER.ID, BID_ORDER.ACCOUNT_ID, BID_ORDER.ASSET_ID, BID_ORDER.PRICE, BID_ORDER.QUANTITY, BID_ORDER.CREATION_HEIGHT, BID_ORDER.HEIGHT, BID_ORDER.LATEST)
             private val upsertKeys = listOf(BID_ORDER.ID, BID_ORDER.HEIGHT)
 
             override fun save(ctx: DSLContext, entity: Order.Bid) {
-                ctx.upsert(BID_ORDER, mapOf(
+                ctx.upsert(BID_ORDER, upsertKeys, mapOf(
                     BID_ORDER.ID to entity.id,
                     BID_ORDER.ACCOUNT_ID to entity.accountId,
                     BID_ORDER.ASSET_ID to entity.assetId,
@@ -77,7 +93,21 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
                     BID_ORDER.CREATION_HEIGHT to entity.height,
                     BID_ORDER.HEIGHT to dp.blockchainService.height,
                     BID_ORDER.LATEST to true
-                ), upsertKeys).execute()
+                )).execute()
+            }
+
+            override fun save(ctx: DSLContext, entities: Collection<Order.Bid>) {
+                val height = dp.blockchainService.height
+                ctx.upsert(BID_ORDER, upsertColumns, upsertKeys, entities.map { entity -> listOf(
+                    entity.id,
+                    entity.accountId,
+                    entity.assetId,
+                    entity.pricePlanck,
+                    entity.quantity,
+                    entity.height,
+                    height,
+                    true
+                ) }).execute()
             }
         }
     }

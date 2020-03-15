@@ -60,6 +60,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 return sqlToPurchase(record)
             }
 
+            private val upsertColumns = listOf(PURCHASE.ID, PURCHASE.BUYER_ID, PURCHASE.GOODS_ID, PURCHASE.SELLER_ID, PURCHASE.QUANTITY, PURCHASE.PRICE, PURCHASE.DEADLINE, PURCHASE.NOTE, PURCHASE.NONCE, PURCHASE.PENDING, PURCHASE.TIMESTAMP, PURCHASE.GOODS, PURCHASE.GOODS_NONCE, PURCHASE.REFUND_NOTE, PURCHASE.REFUND_NONCE, PURCHASE.HAS_FEEDBACK_NOTES, PURCHASE.HAS_PUBLIC_FEEDBACKS, PURCHASE.DISCOUNT, PURCHASE.REFUND, PURCHASE.HEIGHT, PURCHASE.LATEST)
             private val upsertKeys = listOf(PURCHASE.ID, PURCHASE.HEIGHT)
 
             override fun save(ctx: DSLContext, entity: Purchase) {
@@ -81,7 +82,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                     refundNote = entity.refundNote!!.data
                     refundNonce = entity.refundNote!!.nonce
                 }
-                ctx.upsert(PURCHASE, mapOf(
+                ctx.upsert(PURCHASE, upsertKeys, mapOf(
                     PURCHASE.ID to entity.id,
                     PURCHASE.BUYER_ID to entity.buyerId,
                     PURCHASE.GOODS_ID to entity.goodsId,
@@ -103,7 +104,53 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                     PURCHASE.REFUND to entity.refundPlanck,
                     PURCHASE.HEIGHT to dp.blockchainService.height,
                     PURCHASE.LATEST to true
-                ), upsertKeys).execute()
+                )).execute()
+            }
+
+            override fun save(ctx: DSLContext, entities: Collection<Purchase>) {
+                val height = dp.blockchainService.height
+                ctx.upsert(PURCHASE, upsertColumns, upsertKeys, entities.map { entity ->
+                    var note: ByteArray? = null
+                    var nonce: ByteArray? = null
+                    var goods: ByteArray? = null
+                    var goodsNonce: ByteArray? = null
+                    var refundNote: ByteArray? = null
+                    var refundNonce: ByteArray? = null
+                    if (entity.note != null) {
+                        note = entity.note.data
+                        nonce = entity.note.nonce
+                    }
+                    if (entity.encryptedGoods != null) {
+                        goods = entity.encryptedGoods!!.data
+                        goodsNonce = entity.encryptedGoods!!.nonce
+                    }
+                    if (entity.refundNote != null) {
+                        refundNote = entity.refundNote!!.data
+                        refundNonce = entity.refundNote!!.nonce
+                    }
+
+                    listOf(entity.id,
+                        entity.buyerId,
+                        entity.goodsId,
+                        entity.sellerId,
+                        entity.quantity,
+                        entity.pricePlanck,
+                        entity.deliveryDeadlineTimestamp,
+                        note,
+                        nonce,
+                        entity.isPending,
+                        entity.timestamp,
+                        goods,
+                        goodsNonce,
+                        refundNote,
+                        refundNonce,
+                        entity.feedbackNotes.isNotEmpty(),
+                        entity.publicFeedback.isNotEmpty(),
+                        entity.discountPlanck,
+                        entity.refundPlanck,
+                        height,
+                        true)
+                }).execute()
             }
         }
 
@@ -122,9 +169,9 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
 
             override fun save(ctx: DSLContext, key: Purchase, values: List<BurstEncryptedMessage>) {
                 val height = dp.blockchainService.height
-                var query = ctx.insertInto(PURCHASE_FEEDBACK, PURCHASE_FEEDBACK.ID, PURCHASE_FEEDBACK.FEEDBACK_DATA, PURCHASE_FEEDBACK.FEEDBACK_NONCE, PURCHASE_FEEDBACK.HEIGHT, PURCHASE_FEEDBACK.LATEST)
-                for (value in values) {
-                    query = query.values(key.id, value.data, value.nonce, height, true)
+                val query = ctx.insertInto(PURCHASE_FEEDBACK, PURCHASE_FEEDBACK.ID, PURCHASE_FEEDBACK.FEEDBACK_DATA, PURCHASE_FEEDBACK.FEEDBACK_NONCE, PURCHASE_FEEDBACK.HEIGHT, PURCHASE_FEEDBACK.LATEST)
+                values.forEach { value ->
+                    query.values(key.id, value.data, value.nonce, height, true)
                 }
                 query.execute()
             }
@@ -146,7 +193,10 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
 
             override fun save(ctx: DSLContext, key: Purchase, values: List<String>) {
                 val height = dp.blockchainService.height
-                ctx.upsert(PURCHASE_PUBLIC_FEEDBACK, upsertColumns, values.map { publicFeedback -> listOf(key.id, publicFeedback, height, true) }, upsertKeys).execute()
+                ctx.upsert(PURCHASE_PUBLIC_FEEDBACK,
+                    upsertColumns,
+                    upsertKeys,
+                    values.map { publicFeedback -> listOf(key.id, publicFeedback, height, true) }).execute()
             }
         }
 
@@ -161,10 +211,11 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                     return sqlToGoods(record)
                 }
 
+                private val upsertColumns = listOf(GOODS.ID, GOODS.SELLER_ID, GOODS.NAME, GOODS.DESCRIPTION, GOODS.TAGS, GOODS.TIMESTAMP, GOODS.QUANTITY, GOODS.PRICE, GOODS.DELISTED, GOODS.HEIGHT, GOODS.LATEST)
                 private val upsertKeys = listOf(GOODS.ID, GOODS.HEIGHT)
 
                 override fun save(ctx: DSLContext, entity: Goods) {
-                    ctx.upsert(GOODS, mapOf(
+                    ctx.upsert(GOODS, upsertKeys, mapOf(
                         GOODS.ID to entity.id,
                         GOODS.SELLER_ID to entity.sellerId,
                         GOODS.NAME to entity.name,
@@ -176,7 +227,24 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                         GOODS.DELISTED to entity.isDelisted,
                         GOODS.HEIGHT to dp.blockchainService.height,
                         GOODS.LATEST to true
-                    ), upsertKeys).execute()
+                    )).execute()
+                }
+
+                override fun save(ctx: DSLContext, entities: Collection<Goods>) {
+                    val height = dp.blockchainService.height
+                    ctx.upsert(GOODS, upsertColumns, upsertKeys, entities.map { entity -> listOf(
+                        entity.id,
+                        entity.sellerId,
+                        entity.name,
+                        entity.description,
+                        entity.tags,
+                        entity.timestamp,
+                        entity.quantity,
+                        entity.pricePlanck,
+                        entity.isDelisted,
+                        height,
+                        true
+                    ) }).execute()
                 }
             }
     }

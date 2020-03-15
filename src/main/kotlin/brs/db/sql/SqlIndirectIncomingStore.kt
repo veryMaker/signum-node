@@ -35,15 +35,18 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
             private val upsertKeys = listOf(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
 
             override fun save(ctx: DSLContext, entity: IndirectIncoming) {
-                ctx.upsert(INDIRECT_INCOMING, mapOf(
+                ctx.upsert(INDIRECT_INCOMING, upsertKeys, mapOf(
                     INDIRECT_INCOMING.ACCOUNT_ID to entity.accountId,
                     INDIRECT_INCOMING.TRANSACTION_ID to entity.transactionId,
                     INDIRECT_INCOMING.HEIGHT to entity.height
-                ), upsertKeys).execute()
+                )).execute()
             }
 
             override fun save(ctx: DSLContext, entities: Collection<IndirectIncoming>) {
-                ctx.upsert(INDIRECT_INCOMING, upsertColumns, entities.map { (accountId, transactionId, height) -> listOf(accountId, transactionId, height)}, upsertKeys).execute()
+                ctx.upsert(INDIRECT_INCOMING,
+                    upsertColumns,
+                    upsertKeys,
+                    entities.map { (accountId, transactionId, height) -> listOf(accountId, transactionId, height)}).execute()
             }
         }
     }

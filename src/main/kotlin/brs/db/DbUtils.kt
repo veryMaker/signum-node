@@ -52,7 +52,7 @@ fun Db.assertInTransaction() {
     check(isInTransaction()) { "Database not in transaction" }
 }
 
-fun DSLContext.upsert(table: Table<*>, record: Map<Field<*>, *>, keys: Collection<Field<*>>): Query {
+fun DSLContext.upsert(table: Table<*>, keys: Collection<Field<*>>, record: Map<Field<*>, *>): Query {
     return when(dialect()) {
         SQLDialect.CUBRID, SQLDialect.DERBY, SQLDialect.FIREBIRD, SQLDialect.H2, SQLDialect.HSQLDB, SQLDialect.MARIADB, SQLDialect.MYSQL, SQLDialect.POSTGRES -> mergeInto(table, record.keys)
             .key(keys)
@@ -99,9 +99,10 @@ private fun <K, V> mapOf(keys: Collection<K>, values: Collection<V>): Map<K, V> 
     }
 }
 
-fun DSLContext.upsert(table: Table<*>, columns: Collection<Field<*>>, values: Collection<Collection<*>>, keys: Collection<Field<*>>): Batch {
+fun DSLContext.upsert(table: Table<*>, columns: Collection<Field<*>>, keys: Collection<Field<*>>, values: Collection<Collection<*>>): Batch {
     // TODO turn into just one query
-    values.forEach { value ->
-        upsert(table, mapOf(columns, value), keys)
-    }
+    return batch(values.map { value ->
+        require(columns.size == value.size)
+        upsert(table, keys, mapOf(columns, value))
+    })
 }

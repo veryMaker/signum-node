@@ -40,17 +40,30 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                 return sqlToRewardRecipientAssignment(record)
             }
 
+            private val upsertColumns = listOf(REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.PREV_RECIP_ID, REWARD_RECIP_ASSIGN.RECIP_ID, REWARD_RECIP_ASSIGN.FROM_HEIGHT, REWARD_RECIP_ASSIGN.HEIGHT, REWARD_RECIP_ASSIGN.LATEST)
             private val upsertKeys = listOf(REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.HEIGHT)
 
             override fun save(ctx: DSLContext, entity: Account.RewardRecipientAssignment) {
-                ctx.upsert(REWARD_RECIP_ASSIGN, mapOf(
+                ctx.upsert(REWARD_RECIP_ASSIGN, upsertKeys, mapOf(
                     REWARD_RECIP_ASSIGN.ACCOUNT_ID to entity.accountId,
                     REWARD_RECIP_ASSIGN.PREV_RECIP_ID to entity.previousRecipientId,
                     REWARD_RECIP_ASSIGN.RECIP_ID to entity.recipientId,
                     REWARD_RECIP_ASSIGN.FROM_HEIGHT to entity.fromHeight,
                     REWARD_RECIP_ASSIGN.HEIGHT to dp.blockchainService.height,
                     REWARD_RECIP_ASSIGN.LATEST to true
-                ), upsertKeys).execute()
+                )).execute()
+            }
+
+            override fun save(ctx: DSLContext, entities: Collection<Account.RewardRecipientAssignment>) {
+                val height = dp.blockchainService.height
+                ctx.upsert(REWARD_RECIP_ASSIGN, upsertColumns, upsertKeys, entities.map { entity -> listOf(
+                    entity.accountId,
+                    entity.previousRecipientId,
+                    entity.recipientId,
+                    entity.fromHeight,
+                    height,
+                    true
+                ) }).execute()
             }
         }
 
@@ -71,17 +84,30 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                 return SQLAccountAsset(record)
             }
 
+            private val upsertColumns = listOf(ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.QUANTITY, ACCOUNT_ASSET.UNCONFIRMED_QUANTITY, ACCOUNT_ASSET.HEIGHT, ACCOUNT_ASSET.LATEST)
             private val upsertKeys = listOf(ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.HEIGHT)
 
             override fun save(ctx: DSLContext, entity: Account.AccountAsset) {
-                ctx.upsert(ACCOUNT_ASSET, mapOf(
+                ctx.upsert(ACCOUNT_ASSET, upsertKeys, mapOf(
                     ACCOUNT_ASSET.ACCOUNT_ID to entity.accountId,
                     ACCOUNT_ASSET.ASSET_ID to entity.assetId,
                     ACCOUNT_ASSET.QUANTITY to entity.quantity,
                     ACCOUNT_ASSET.UNCONFIRMED_QUANTITY to entity.unconfirmedQuantity,
                     ACCOUNT_ASSET.HEIGHT to dp.blockchainService.height,
                     ACCOUNT_ASSET.LATEST to true
-                ), upsertKeys).execute()
+                )).execute()
+            }
+
+            override fun save(ctx: DSLContext, entities: Collection<Account.AccountAsset>) {
+                val height = dp.blockchainService.height
+                ctx.upsert(ACCOUNT_ASSET, upsertColumns, upsertKeys, entities.map { entity -> listOf(
+                    entity.accountId,
+                    entity.assetId,
+                    entity.quantity,
+                    entity.unconfirmedQuantity,
+                    height,
+                    true
+                ) }).execute()
             }
         }
 
@@ -96,9 +122,9 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
 
             override fun bulkUpsert(ctx: DSLContext, entities: Collection<Account>) {
                 val height = dp.blockchainService.height
-                ctx.upsert(ACCOUNT, upsertColumns, entities.map { entity ->
+                ctx.upsert(ACCOUNT, upsertColumns, upsertKeys, entities.map { entity ->
                     listOf(entity.id, entity.creationHeight, entity.publicKey, entity.keyHeight, entity.balancePlanck, entity.unconfirmedBalancePlanck, entity.forgedBalancePlanck, entity.name, entity.description, height, true)
-                }, upsertKeys).execute()
+                }).execute()
             }
         }
     }

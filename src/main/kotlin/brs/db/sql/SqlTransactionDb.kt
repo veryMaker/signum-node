@@ -132,7 +132,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
     override fun saveTransactions(transactions: Collection<Transaction>) {
         if (transactions.isNotEmpty()) {
             dp.db.useDslContext { ctx ->
-                var insertQuery = ctx.insertInto(
+                val insertQuery = ctx.insertInto(
                     TRANSACTION,
                     TRANSACTION.ID,
                     TRANSACTION.DEADLINE,
@@ -160,7 +160,7 @@ internal class SqlTransactionDb(private val dp: DependencyProvider) : Transactio
                     TRANSACTION.EC_BLOCK_ID
                 )
                 transactions.forEach { transaction ->
-                    insertQuery = insertQuery.values(
+                    insertQuery.values(
                         transaction.id,
                         transaction.deadline,
                         transaction.senderPublicKey,

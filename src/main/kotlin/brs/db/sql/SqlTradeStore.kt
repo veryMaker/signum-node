@@ -21,12 +21,87 @@ internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
 
     init {
         tradeTable = object : SqlEntityTable<Trade>(TRADE, tradeDbKeyFactory, TRADE.HEIGHT, null, dp) {
-            override fun load(record: Record): Trade {
-                return sqlToTrade(record)
-            }
+            override fun load(record: Record) = Trade(
+                record.get(TRADE.TIMESTAMP),
+                record.get(TRADE.ASSET_ID),
+                record.get(TRADE.BLOCK_ID),
+                record.get(TRADE.HEIGHT),
+                record.get(TRADE.ASK_ORDER_ID),
+                record.get(TRADE.BID_ORDER_ID),
+                record.get(TRADE.ASK_ORDER_HEIGHT),
+                record.get(TRADE.BID_ORDER_HEIGHT),
+                record.get(TRADE.SELLER_ID),
+                record.get(TRADE.BUYER_ID),
+                tradeDbKeyFactory.newKey(record.get(TRADE.ASK_ORDER_ID), record.get(TRADE.BID_ORDER_ID)),
+                record.get(TRADE.QUANTITY),
+                record.get(TRADE.PRICE))
 
             override fun save(ctx: DSLContext, entity: Trade) {
-                saveTrade(ctx, entity)
+                ctx.insertInto(
+                        TRADE,
+                        TRADE.ASSET_ID,
+                        TRADE.BLOCK_ID,
+                        TRADE.ASK_ORDER_ID,
+                        TRADE.BID_ORDER_ID,
+                        TRADE.ASK_ORDER_HEIGHT,
+                        TRADE.BID_ORDER_HEIGHT,
+                        TRADE.SELLER_ID,
+                        TRADE.BUYER_ID,
+                        TRADE.QUANTITY,
+                        TRADE.PRICE,
+                        TRADE.TIMESTAMP,
+                        TRADE.HEIGHT
+                    )
+                    .values(
+                        entity.assetId,
+                        entity.blockId,
+                        entity.askOrderId,
+                        entity.bidOrderId,
+                        entity.askOrderHeight,
+                        entity.bidOrderHeight,
+                        entity.sellerId,
+                        entity.buyerId,
+                        entity.quantity,
+                        entity.pricePlanck,
+                        entity.timestamp,
+                        entity.height
+                    )
+                    .execute()
+            }
+
+            override fun save(ctx: DSLContext, entities: Collection<Trade>) {
+                val query = ctx.insertInto(
+                    TRADE,
+                    TRADE.ASSET_ID,
+                    TRADE.BLOCK_ID,
+                    TRADE.ASK_ORDER_ID,
+                    TRADE.BID_ORDER_ID,
+                    TRADE.ASK_ORDER_HEIGHT,
+                    TRADE.BID_ORDER_HEIGHT,
+                    TRADE.SELLER_ID,
+                    TRADE.BUYER_ID,
+                    TRADE.QUANTITY,
+                    TRADE.PRICE,
+                    TRADE.TIMESTAMP,
+                    TRADE.HEIGHT
+                )
+                entities.forEach { entity ->
+                    query.values(
+                        entity.assetId,
+                        entity.blockId,
+                        entity.askOrderId,
+                        entity.bidOrderId,
+                        entity.askOrderHeight,
+                        entity.bidOrderHeight,
+                        entity.sellerId,
+                        entity.buyerId,
+                        entity.quantity,
+                        entity.pricePlanck,
+                        entity.timestamp,
+                        entity.height
+                    )
+                }
+                query.execute()
             }
         }
     }
@@ -84,52 +159,4 @@ internal class SqlTradeStore(private val dp: DependencyProvider) : TradeStore {
     override fun getTradeCount(assetId: Long): Int {
         return dp.db.useDslContext { ctx -> ctx.fetchCount(ctx.selectFrom(TRADE).where(TRADE.ASSET_ID.eq(assetId))) }
     }
-
-    private fun saveTrade(ctx: DSLContext, trade: Trade) {
-        ctx.insertInto(
-            TRADE,
-            TRADE.ASSET_ID,
-            TRADE.BLOCK_ID,
-            TRADE.ASK_ORDER_ID,
-            TRADE.BID_ORDER_ID,
-            TRADE.ASK_ORDER_HEIGHT,
-            TRADE.BID_ORDER_HEIGHT,
-            TRADE.SELLER_ID,
-            TRADE.BUYER_ID,
-            TRADE.QUANTITY,
-            TRADE.PRICE,
-            TRADE.TIMESTAMP,
-            TRADE.HEIGHT
-        )
-            .values(
-                trade.assetId,
-                trade.blockId,
-                trade.askOrderId,
-                trade.bidOrderId,
-                trade.askOrderHeight,
-                trade.bidOrderHeight,
-                trade.sellerId,
-                trade.buyerId,
-                trade.quantity,
-                trade.pricePlanck,
-                trade.timestamp,
-                trade.height
-            )
-            .execute()
-    }
-
-    private fun sqlToTrade(record: Record) = Trade(
-        record.get(TRADE.TIMESTAMP),
-        record.get(TRADE.ASSET_ID),
-        record.get(TRADE.BLOCK_ID),
-        record.get(TRADE.HEIGHT),
-        record.get(TRADE.ASK_ORDER_ID),
-        record.get(TRADE.BID_ORDER_ID),
-        record.get(TRADE.ASK_ORDER_HEIGHT),
-        record.get(TRADE.BID_ORDER_HEIGHT),
-        record.get(TRADE.SELLER_ID),
-        record.get(TRADE.BUYER_ID),
-        tradeDbKeyFactory.newKey(record.get(TRADE.ASK_ORDER_ID), record.get(TRADE.BID_ORDER_ID)),
-        record.get(TRADE.QUANTITY),
-        record.get(TRADE.PRICE))
 }

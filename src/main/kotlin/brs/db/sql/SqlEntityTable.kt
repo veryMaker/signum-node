@@ -83,7 +83,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
             }
             query.addLimit(1)
 
-            get(ctx, query, true)
+            get(query, true)
         }
     }
 
@@ -106,7 +106,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
             query.addOrderBy(heightField.desc())
             query.addLimit(1)
 
-            get(ctx, query, false)
+            get(query, false)
         }
     }
 
@@ -120,7 +120,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
             }
             query.addLimit(1)
 
-            get(ctx, query, true)
+            get(query, true)
         }
     }
 
@@ -140,11 +140,11 @@ internal abstract class SqlEntityTable<T> internal constructor(
             }
             query.addOrderBy(heightField.desc())
             query.addLimit(1)
-            get(ctx, query, false)
+            get(query, false)
         }
     }
 
-    private fun get(ctx: DSLContext, query: SelectQuery<Record>, cache: Boolean): T? {
+    private fun get(query: SelectQuery<Record>, cache: Boolean): T? {
         val doCache = cache && dp.db.isInTransaction()
         val record = query.fetchOne() ?: return null
         var t: T? = null

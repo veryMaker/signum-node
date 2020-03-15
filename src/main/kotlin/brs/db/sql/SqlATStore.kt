@@ -70,7 +70,8 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
                 }
 
                 override fun save(ctx: DSLContext, entities: Collection<AT>) {
-                    var query = ctx.insertInto(
+                    val height = dp.blockchainService.height
+                    val query = ctx.insertInto(
                         ATTable,
                         ATTable.ID, ATTable.CREATOR_ID, ATTable.NAME, ATTable.DESCRIPTION,
                         ATTable.VERSION, ATTable.CSIZE, ATTable.DSIZE, ATTable.C_USER_STACK_BYTES,
@@ -78,12 +79,11 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
                         ATTable.AP_CODE, ATTable.HEIGHT
                     )
                     entities.forEach { entity ->
-                        // TODO reassignment is probably unnecessary
-                        query = query.values(
+                        query.values(
                             entity.id, entity.creator, entity.name, entity.description,
                             entity.version, entity.cSize, entity.dSize, entity.cUserStackBytes,
                             entity.cCallStackBytes, entity.creationBlockHeight,
-                            AT.compressState(entity.apCodeBytes), dp.blockchainService.height
+                            AT.compressState(entity.apCodeBytes), height
                         )
                     }
                     query.execute()
@@ -108,10 +108,11 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
                     return SqlATState(dp, record)
                 }
 
+                private val upsertColumns = listOf(AT_STATE.AT_ID, AT_STATE.STATE, AT_STATE.PREV_HEIGHT, AT_STATE.NEXT_HEIGHT, AT_STATE.SLEEP_BETWEEN, AT_STATE.PREV_BALANCE, AT_STATE.FREEZE_WHEN_SAME_BALANCE, AT_STATE.MIN_ACTIVATE_AMOUNT, AT_STATE.HEIGHT, AT_STATE.LATEST)
                 private val upsertKeys = listOf(AT_STATE.AT_ID, AT_STATE.HEIGHT)
 
                 override fun save(ctx: DSLContext, entity: AT.ATState) {
-                    ctx.upsert(AT_STATE, mapOf(
+                    ctx.upsert(AT_STATE, upsertKeys, mapOf(
                         AT_STATE.AT_ID to entity.atId,
                         AT_STATE.STATE to AT.compressState(entity.state),
                         AT_STATE.PREV_HEIGHT to entity.prevHeight,
@@ -122,7 +123,23 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
                         AT_STATE.MIN_ACTIVATE_AMOUNT to entity.minActivationAmount,
                         AT_STATE.HEIGHT to dp.blockchainService.height,
                         AT_STATE.LATEST to true
-                    ), upsertKeys).execute()
+                    )).execute()
+                }
+
+                override fun save(ctx: DSLContext, entities: Collection<AT.ATState>) {
+                    val height = dp.blockchainService.height
+                    ctx.upsert(AT_STATE, upsertColumns, upsertKeys, entities.map { entity -> listOf(
+                        entity.atId,
+                        AT.compressState(entity.state),
+                        entity.prevHeight,
+                        entity.nextHeight,
+                        entity.sleepBetween,
+                        entity.prevBalance,
+                        entity.freezeWhenSameBalance,
+                        entity.minActivationAmount,
+                        height,
+                        true
+                    ) }).execute()
                 }
             }
     }
