@@ -1,10 +1,14 @@
 package brs.db.sql
 
-import brs.db.*
+import brs.db.BurstKey
+import brs.db.DigitalGoodsStoreStore
+import brs.db.MutableEntityTable
+import brs.db.ValuesTable
 import brs.entity.DependencyProvider
 import brs.entity.Goods
 import brs.entity.Purchase
 import brs.schema.Tables.*
+import brs.util.db.upsert
 import burst.kit.entity.BurstEncryptedMessage
 import org.jooq.DSLContext
 import org.jooq.Field

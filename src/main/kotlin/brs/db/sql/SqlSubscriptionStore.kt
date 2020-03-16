@@ -3,10 +3,10 @@ package brs.db.sql
 import brs.db.BurstKey
 import brs.db.MutableEntityTable
 import brs.db.SubscriptionStore
-import brs.db.upsert
 import brs.entity.DependencyProvider
 import brs.entity.Subscription
 import brs.schema.Tables.SUBSCRIPTION
+import brs.util.db.upsert
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.Record

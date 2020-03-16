@@ -41,6 +41,7 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
         return if (con == null) {
             DSL.using(cp, dialect, settings)
         } else {
+            // Using transaction connection. Use static statements. TODO why?
             DSL.using(con, dialect, staticStatementSettings)
         }
     }

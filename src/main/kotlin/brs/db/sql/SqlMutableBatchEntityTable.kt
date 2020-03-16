@@ -101,6 +101,7 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
                 updateQuery.addConditions(updateCondition)
                 updateQuery.execute()
             }
+
             bulkUpsert(ctx, batch.values)
             batch.clear()
         }

@@ -3,13 +3,13 @@ package brs.db.sql
 import brs.db.BurstKey
 import brs.db.EscrowStore
 import brs.db.MutableEntityTable
-import brs.db.upsert
 import brs.entity.DependencyProvider
 import brs.entity.Escrow
 import brs.entity.Escrow.Companion.byteToDecision
 import brs.entity.Transaction
 import brs.schema.Tables.ESCROW
 import brs.schema.Tables.ESCROW_DECISION
+import brs.util.db.upsert
 import org.jooq.DSLContext
 import org.jooq.Record
 

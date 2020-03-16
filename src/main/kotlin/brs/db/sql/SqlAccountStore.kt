@@ -5,6 +5,7 @@ import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.schema.Tables.*
 import brs.util.convert.toUnsignedString
+import brs.util.db.upsert
 import brs.util.logging.safeInfo
 import org.jooq.Condition
 import org.jooq.DSLContext

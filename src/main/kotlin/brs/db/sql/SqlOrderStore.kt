@@ -1,10 +1,14 @@
 package brs.db.sql
 
-import brs.db.*
+import brs.db.BurstKey
+import brs.db.MutableEntityTable
+import brs.db.OrderStore
+import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.entity.Order
 import brs.schema.Tables.ASK_ORDER
 import brs.schema.Tables.BID_ORDER
+import brs.util.db.upsert
 import org.jooq.DSLContext
 import org.jooq.Record
 
