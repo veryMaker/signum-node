@@ -630,15 +630,14 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     blockListeners.accept(BlockchainProcessorService.Event.BEFORE_BLOCK_ACCEPT, block)
                     dp.unconfirmedTransactionService.removeForgedTransactions(block.transactions)
                     dp.unconfirmedTransactionService.resetAccountBalances()
-                    dp.accountService.flushAccountTable()
-                    addBlock(block)
-                    dp.downloadCacheService.removeBlock(block) // We make sure downloadCache do not have this block anymore.
-                    accept(block, remainingAmount, remainingFee)
                     dp.derivedTableService.derivedTables.forEach {
                         if (it is BatchEntityTable<*>) {
                             it.finish()
                         }
                     }
+                    addBlock(block)
+                    dp.downloadCacheService.removeBlock(block) // We make sure downloadCache do not have this block anymore.
+                    accept(block, remainingAmount, remainingFee)
                 }
             } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
                 dp.blockchainService.lastBlock = lastBlock
