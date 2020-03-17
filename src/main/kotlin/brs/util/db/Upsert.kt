@@ -4,7 +4,7 @@ import org.jooq.*
 
 private fun SQLDialect.supportsMerge(): Boolean {
     return when(this) {
-        // SQLDialect.CUBRID is also supported but support for this in jOOQ is deprecated.
+        // SQLDialect.CUBRID is also supports merge but support for this in jOOQ is deprecated.
         SQLDialect.DERBY, SQLDialect.FIREBIRD, SQLDialect.H2, SQLDialect.HSQLDB, SQLDialect.MARIADB, SQLDialect.MYSQL, SQLDialect.POSTGRES -> true
         else -> false
     }
@@ -70,7 +70,7 @@ fun DSLContext.upsert(table: Table<*>, columns: Collection<Field<*>>, keys: Coll
         }
         query
     } else {
-        // TODO I can't get the bind values to work both in the insert clause for SQLite.
+        // TODO I can't get the bind values to work both in the insert clause and the update clause for SQLite.
         // Whenever I do so, SQLite complains that the NOT NULL constraint is violated because,
         // in the template with no bind values, the value is null. Not sure how to work around this.
         // For now we'll just do a batch query.

@@ -131,6 +131,5 @@ internal abstract class SqlBatchEntityTable<T> internal constructor(
     override fun rollback(height: Int) {
         super.rollback(height)
         batch.clear()
-        batchCache.clear()
     }
 }

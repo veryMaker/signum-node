@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 
 class Account {
     val id: Long
+    // TODO rename
     val nxtKey: BurstKey
     val creationHeight: Int
     private var publicKeyInternal: ByteArray? = null

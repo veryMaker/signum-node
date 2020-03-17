@@ -6,7 +6,6 @@ import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.entity.IndirectIncoming
 import brs.schema.Tables.INDIRECT_INCOMING
-import brs.util.db.upsert
 import org.jooq.DSLContext
 import org.jooq.Record
 
@@ -21,8 +20,7 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
                 }
             }
 
-        this.indirectIncomingTable = object :
-            SqlBatchEntityTable<IndirectIncoming>(INDIRECT_INCOMING, indirectIncomingDbKeyFactory, INDIRECT_INCOMING.HEIGHT, IndirectIncoming::class.java, dp) {
+        this.indirectIncomingTable = object : SqlBatchEntityTable<IndirectIncoming>(INDIRECT_INCOMING, indirectIncomingDbKeyFactory, INDIRECT_INCOMING.HEIGHT, IndirectIncoming::class.java, dp) {
             override fun load(record: Record): IndirectIncoming {
                 return IndirectIncoming(
                     record.get(INDIRECT_INCOMING.ACCOUNT_ID),
@@ -31,14 +29,12 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
                 )
             }
 
-            private val upsertColumns = listOf(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
-            private val upsertKeys = listOf(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
-
             override fun storeBatch(ctx: DSLContext, entities: Collection<IndirectIncoming>) {
-                // FIXME because of lack of foreign keys on indirect incoming table, this breaks when BRS rolls back. TODO: change this into an insert when the migrations get fixed
-                ctx.upsert(INDIRECT_INCOMING, upsertColumns, upsertKeys, entities.map { (accountId, transactionId, height) ->
-                    arrayOf(accountId, transactionId, height)
-                }).execute()
+                val query = ctx.insertInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
+                entities.forEach { (accountId, transactionId, height) ->
+                    query.values(accountId, transactionId, height)
+                }
+                query.execute()
             }
         }
     }

@@ -120,13 +120,11 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                 return sqlToAccount(record)
             }
 
-            private val upsertColumns = listOf(ACCOUNT.ID, ACCOUNT.CREATION_HEIGHT, ACCOUNT.PUBLIC_KEY, ACCOUNT.KEY_HEIGHT, ACCOUNT.BALANCE, ACCOUNT.UNCONFIRMED_BALANCE, ACCOUNT.FORGED_BALANCE, ACCOUNT.NAME, ACCOUNT.DESCRIPTION, ACCOUNT.HEIGHT, ACCOUNT.LATEST)
-            private val upsertKeys = listOf(ACCOUNT.ID, ACCOUNT.HEIGHT)
-
             override fun bulkUpsert(ctx: DSLContext, entities: Collection<Account>) {
                 val height = dp.blockchainService.height
-                ctx.upsert(ACCOUNT, upsertColumns, upsertKeys, entities.map { entity ->
-                    arrayOf(entity.id,
+                val query = ctx.insertInto(ACCOUNT, ACCOUNT.ID, ACCOUNT.CREATION_HEIGHT, ACCOUNT.PUBLIC_KEY, ACCOUNT.KEY_HEIGHT, ACCOUNT.BALANCE, ACCOUNT.UNCONFIRMED_BALANCE, ACCOUNT.FORGED_BALANCE, ACCOUNT.NAME, ACCOUNT.DESCRIPTION, ACCOUNT.HEIGHT, ACCOUNT.LATEST)
+                entities.forEach { entity ->
+                    query.values(entity.id,
                         entity.creationHeight,
                         entity.publicKey,
                         entity.keyHeight,
@@ -137,13 +135,14 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                         entity.description,
                         height,
                         true)
-                }).execute()
+                }
+                query.execute()
             }
         }
     }
 
     override fun getAssetAccountsCount(assetId: Long): Int {
-        return dp.db.useDslContext<Int> { ctx ->
+        return dp.db.useDslContext { ctx ->
             ctx.selectCount().from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(assetId))
                 .and(ACCOUNT_ASSET.LATEST.isTrue).fetchOne(0, Int::class.javaPrimitiveType)!!
         }

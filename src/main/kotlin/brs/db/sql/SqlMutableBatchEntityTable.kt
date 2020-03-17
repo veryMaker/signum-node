@@ -82,15 +82,12 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
 
     override fun finish() {
         dp.db.assertInTransaction()
-        val batchKeys = batch.keys
-        if (batchKeys.isEmpty()) {
-            return
-        }
+        if (batch.isEmpty()) return
 
         dp.db.useDslContext { ctx ->
             // Update "latest" fields.
             // This is chunked as SQLite is limited to expression tress of depth 1000. We have "WHERE latestField = 1" and "SET latestField = false" so we have room for 998 more conditions.
-            for (keySetChunk in batchKeys.chunked(998)) {
+            for (keySetChunk in batch.keys.chunked(998)) {
                 val updateQuery = ctx.updateQuery(table)
                 updateQuery.addConditions(latestField?.isTrue)
                 updateQuery.addValue(latestField, false)
@@ -156,6 +153,5 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
     override fun rollback(height: Int) {
         super.rollback(height)
         batch.clear()
-        batchCache.clear()
     }
 }

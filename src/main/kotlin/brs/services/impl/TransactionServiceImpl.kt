@@ -4,10 +4,18 @@ import brs.entity.DependencyProvider
 import brs.entity.Transaction
 import brs.services.TransactionService
 import brs.util.BurstException
+import brs.util.convert.toUnsignedString
+import brs.util.logging.safeError
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionService {
     override fun verifyPublicKey(transaction: Transaction): Boolean {
-        val account = dp.accountService.getAccount(transaction.senderId) ?: return false
+        val account = dp.accountService.getAccount(transaction.senderId)
+        if (account == null) {
+            logger.safeError { "Account was null for tx. Account: ${transaction.senderId.toUnsignedString()}" }
+            return false
+        }
         return transaction.signature != null && dp.accountStore.setOrVerify(account, transaction.senderPublicKey, transaction.height)
     }
 
@@ -45,5 +53,9 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
     override fun undoUnconfirmed(transaction: Transaction) {
         val senderAccount = dp.accountService.getAccount(transaction.senderId)!!
         transaction.type.undoUnconfirmed(transaction, senderAccount)
+    }
+
+    companion object {
+        private val logger: Logger = LoggerFactory.getLogger(TransactionServiceImpl::class.java)
     }
 }
