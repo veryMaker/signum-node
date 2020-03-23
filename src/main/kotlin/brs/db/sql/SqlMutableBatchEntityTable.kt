@@ -6,6 +6,7 @@ import brs.util.cache.set
 import org.ehcache.Cache
 import org.jooq.*
 import org.jooq.Table
+import org.jooq.impl.DSL
 
 internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
     table: Table<*>,
@@ -82,6 +83,16 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
         batchCache[key] = entity
     }
 
+    private fun updateLatest(ctx: DSLContext, keys: Collection<SqlDbKey>) {
+        val updateQuery = ctx.updateQuery(table)
+        updateQuery.addConditions(latestField?.isTrue)
+        updateQuery.addValue(latestField, false)
+        var updateCondition = DSL.noCondition()
+        keys.forEach { key -> updateCondition = updateCondition.or(key.allPrimaryKeyConditions) }
+        updateQuery.addConditions(updateCondition)
+        updateQuery.execute()
+    }
+
     override fun finish(height: Int) {
         dp.db.assertInTransaction()
         if (batch.isEmpty()) return
@@ -89,17 +100,12 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
 
         dp.db.useDslContext { ctx ->
             // Update "latest" fields.
-            // This is chunked as SQLite is limited to expression tress of depth 1000. We have "WHERE latestField = true" and "SET latestField = false" so we have room for 998 more conditions.
-            for (chunk in batch.keys.chunked(998)) {
-                val updateQuery = ctx.updateQuery(table)
-                updateQuery.addConditions(latestField?.isTrue)
-                updateQuery.addValue(latestField, false)
-                var updateCondition = chunk.first().allPrimaryKeyConditions
-                for (index in 1 until chunk.size) {
-                    updateCondition = updateCondition.or(chunk[index].allPrimaryKeyConditions)
-                }
-                updateQuery.addConditions(updateCondition)
-                updateQuery.execute()
+            if (ctx.dialect() == SQLDialect.SQLITE) {
+                // This is chunked as SQLite is limited to expression tress of depth 1000.
+                // We have "WHERE latestField = true" and "SET latestField = false" so we have room for 998 more conditions.
+                batch.keys.chunked(998).forEach { chunk -> updateLatest(ctx, chunk) }
+            } else {
+                updateLatest(ctx, batch.keys)
             }
 
             saveBatch(ctx, batch.values)
