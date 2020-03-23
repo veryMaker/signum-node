@@ -633,14 +633,14 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     dp.unconfirmedTransactionService.resetAccountBalances()
                     // Account table must be flushed first as lots of tables have foreign keys referencing it
                     dp.accountService.flushAccountTable(block.height)
+                    addBlock(block)
+                    dp.downloadCacheService.removeBlock(block) // We make sure downloadCache does not have this block anymore.
+                    accept(block, remainingAmount, remainingFee)
                     dp.db.allTables.forEach {
                         if (it is BatchEntityTable<*>) {
                             it.finish(block.height)
                         }
                     }
-                    addBlock(block)
-                    dp.downloadCacheService.removeBlock(block) // We make sure downloadCache does not have this block anymore.
-                    accept(block, remainingAmount, remainingFee)
                 }
             } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
                 dp.blockchainService.lastBlock = lastBlock
