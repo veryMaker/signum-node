@@ -15,7 +15,6 @@ import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.Table
 import org.jooq.conf.Settings
-import org.jooq.conf.StatementType
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 import org.jooq.tools.jdbc.JDBCUtils
@@ -29,7 +28,6 @@ import java.util.*
 
 internal class SqlDb(private val dp: DependencyProvider) : Db {
     private val settings = Settings()
-    private val staticStatementSettings = Settings()
     private val cp: HikariDataSource
     private val dialect: SQLDialect
     private val localConnection = ThreadLocal<Connection>()
@@ -41,8 +39,8 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
         return if (con == null) {
             DSL.using(cp, dialect, settings)
         } else {
-            // Using transaction connection. Use static statements. TODO why?
-            DSL.using(con, dialect, staticStatementSettings)
+            // Using transaction connection
+            DSL.using(con, dialect, settings)
         }
     }
 
@@ -50,8 +48,6 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
 
     init {
         settings.isRenderSchema = false
-        staticStatementSettings.isRenderSchema = false
-        staticStatementSettings.statementType = StatementType.STATIC_STATEMENT
 
         val dbUrl: String
         val dbUsername: String?

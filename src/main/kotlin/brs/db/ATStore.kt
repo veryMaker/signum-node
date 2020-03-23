@@ -21,7 +21,7 @@ interface ATStore {
     /**
      * TODO
      */
-    val atTable: MutableEntityTable<AT>
+    val atTable: EntityTable<AT>
 
     /**
      * TODO

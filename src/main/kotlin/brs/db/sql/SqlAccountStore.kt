@@ -41,31 +41,20 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                 return sqlToRewardRecipientAssignment(record)
             }
 
-            private val upsertColumns = listOf(REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.PREV_RECIP_ID, REWARD_RECIP_ASSIGN.RECIP_ID, REWARD_RECIP_ASSIGN.FROM_HEIGHT, REWARD_RECIP_ASSIGN.HEIGHT, REWARD_RECIP_ASSIGN.LATEST)
-            private val upsertKeys = listOf(REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.HEIGHT)
-
             override fun save(ctx: DSLContext, entity: Account.RewardRecipientAssignment) {
-                ctx.upsert(REWARD_RECIP_ASSIGN, upsertKeys, mapOf(
-                    REWARD_RECIP_ASSIGN.ACCOUNT_ID to entity.accountId,
-                    REWARD_RECIP_ASSIGN.PREV_RECIP_ID to entity.previousRecipientId,
-                    REWARD_RECIP_ASSIGN.RECIP_ID to entity.recipientId,
-                    REWARD_RECIP_ASSIGN.FROM_HEIGHT to entity.fromHeight,
-                    REWARD_RECIP_ASSIGN.HEIGHT to dp.blockchainService.height,
-                    REWARD_RECIP_ASSIGN.LATEST to true
-                )).execute()
+                ctx.insertInto(REWARD_RECIP_ASSIGN, REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.PREV_RECIP_ID, REWARD_RECIP_ASSIGN.RECIP_ID, REWARD_RECIP_ASSIGN.FROM_HEIGHT, REWARD_RECIP_ASSIGN.HEIGHT, REWARD_RECIP_ASSIGN.LATEST)
+                    .values(entity.accountId, entity.previousRecipientId, entity.recipientId, entity.fromHeight, dp.blockchainService.height, true)
+                    .execute()
             }
 
             override fun save(ctx: DSLContext, entities: Collection<Account.RewardRecipientAssignment>) {
                 if (entities.isEmpty()) return
                 val height = dp.blockchainService.height
-                ctx.upsert(REWARD_RECIP_ASSIGN, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
-                    entity.accountId,
-                    entity.previousRecipientId,
-                    entity.recipientId,
-                    entity.fromHeight,
-                    height,
-                    true
-                ) }).execute()
+                val query = ctx.insertInto(REWARD_RECIP_ASSIGN, REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.PREV_RECIP_ID, REWARD_RECIP_ASSIGN.RECIP_ID, REWARD_RECIP_ASSIGN.FROM_HEIGHT, REWARD_RECIP_ASSIGN.HEIGHT, REWARD_RECIP_ASSIGN.LATEST)
+                entities.forEach { entity ->
+                    query.values(entity.accountId, entity.previousRecipientId, entity.recipientId, entity.fromHeight, height, true)
+                }
+                query.execute()
             }
         }
 
@@ -120,7 +109,7 @@ internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStor
                 return sqlToAccount(record)
             }
 
-            override fun bulkUpsert(ctx: DSLContext, entities: Collection<Account>) {
+            override fun saveBatch(ctx: DSLContext, entities: Collection<Account>) {
                 val height = dp.blockchainService.height
                 val query = ctx.insertInto(ACCOUNT, ACCOUNT.ID, ACCOUNT.CREATION_HEIGHT, ACCOUNT.PUBLIC_KEY, ACCOUNT.KEY_HEIGHT, ACCOUNT.BALANCE, ACCOUNT.UNCONFIRMED_BALANCE, ACCOUNT.FORGED_BALANCE, ACCOUNT.NAME, ACCOUNT.DESCRIPTION, ACCOUNT.HEIGHT, ACCOUNT.LATEST)
                 entities.forEach { entity ->

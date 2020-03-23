@@ -1,10 +1,7 @@
 package brs.db.sql
 
 import brs.at.AT
-import brs.db.ATStore
-import brs.db.BurstKey
-import brs.db.MutableEntityTable
-import brs.db.useDslContext
+import brs.db.*
 import brs.entity.DependencyProvider
 import brs.schema.Tables.*
 import brs.util.db.upsert
@@ -20,7 +17,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
         }
     }
 
-    override val atTable: MutableEntityTable<AT>
+    override val atTable: EntityTable<AT>
 
     override val atStateDbKeyFactory = object : SqlDbKey.LongKeyFactory<AT.ATState>(AT_STATE.AT_ID) {
         override fun newKey(entity: AT.ATState): BurstKey {
@@ -50,8 +47,9 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
     }
 
     init {
+        // TODO Remove latest field from AT Table.
         atTable =
-            object : SqlMutableEntityTable<AT>(ATTable, ATTable.HEIGHT, ATTable.LATEST, atDbKeyFactory, dp) {
+            object : SqlEntityTable<AT>(ATTable, ATTable.HEIGHT, null, atDbKeyFactory, dp) {
                 override val defaultSort = listOf(ATTable.ID.asc())
 
                 override fun load(record: Record): AT {

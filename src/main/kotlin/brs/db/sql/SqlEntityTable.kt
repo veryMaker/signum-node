@@ -11,10 +11,10 @@ import org.jooq.impl.DSL
 
 internal abstract class SqlEntityTable<T> internal constructor(
     table: Table<*>,
-    internal val dbKeyFactory: SqlDbKey.Factory<T>,
     heightField: Field<Int>,
     /** If not null then this is mutable */
     internal val latestField: Field<Boolean>?,
+    internal val dbKeyFactory: SqlDbKey.Factory<T>,
     private val dp: DependencyProvider
 ) : SqlDerivedTable<T>(table, heightField, dp), EntityTable<T> {
     override val defaultSort: Collection<SortField<*>> by lazy {

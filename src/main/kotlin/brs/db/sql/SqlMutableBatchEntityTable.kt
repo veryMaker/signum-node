@@ -38,7 +38,7 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
         check(!dp.db.isInTransaction()) { "Cannot use batch table during transaction" }
     }
 
-    protected abstract fun bulkUpsert(ctx: DSLContext, entities: Collection<T>)
+    protected abstract fun saveBatch(ctx: DSLContext, entities: Collection<T>)
 
     override fun delete(t: T): Boolean {
         dp.db.assertInTransaction()
@@ -87,19 +87,19 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
         dp.db.useDslContext { ctx ->
             // Update "latest" fields.
             // This is chunked as SQLite is limited to expression tress of depth 1000. We have "WHERE latestField = 1" and "SET latestField = false" so we have room for 998 more conditions.
-            for (keySetChunk in batch.keys.chunked(998)) {
+            for (chunk in batch.keys.chunked(998)) {
                 val updateQuery = ctx.updateQuery(table)
                 updateQuery.addConditions(latestField?.isTrue)
                 updateQuery.addValue(latestField, false)
-                var updateCondition = keySetChunk.first().allPrimaryKeyConditions
-                for (index in 1 until keySetChunk.size) {
-                    updateCondition = updateCondition.or(keySetChunk[index].allPrimaryKeyConditions)
+                var updateCondition = chunk.first().allPrimaryKeyConditions
+                for (index in 1 until chunk.size) {
+                    updateCondition = updateCondition.or(chunk[index].allPrimaryKeyConditions)
                 }
                 updateQuery.addConditions(updateCondition)
                 updateQuery.execute()
             }
 
-            bulkUpsert(ctx, batch.values)
+            saveBatch(ctx, batch.values)
             batch.clear()
         }
     }
@@ -124,13 +124,7 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
         return super.getManyBy(condition, from, to, sort)
     }
 
-    override fun getManyBy(
-        condition: Condition,
-        height: Int,
-        from: Int,
-        to: Int,
-        sort: Collection<SortField<*>>
-    ): Collection<T> {
+    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         assertNotInTransaction()
         return super.getManyBy(condition, height, from, to, sort)
     }

@@ -15,7 +15,7 @@ internal abstract class SqlMutableEntityTable<T> internal constructor(
     latestField: Field<Boolean>,
     dbKeyFactory: SqlDbKey.Factory<T>,
     private val dp: DependencyProvider
-) : SqlEntityTable<T>(table, dbKeyFactory, heightField, latestField, dp), MutableEntityTable<T> {
+) : SqlEntityTable<T>(table, heightField, latestField, dbKeyFactory, dp), MutableEntityTable<T> {
     override fun rollback(height: Int) {
         rollback(dp, cache, table, heightField, latestField, height, dbKeyFactory)
     }

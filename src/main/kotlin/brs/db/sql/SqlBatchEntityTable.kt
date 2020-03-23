@@ -15,7 +15,7 @@ internal abstract class SqlBatchEntityTable<T> internal constructor(
     heightField: Field<Int>,
     private val tClass: Class<T>,
     private val dp: DependencyProvider
-) : SqlEntityTable<T>(table, dbKeyFactory, heightField, null, dp), BatchEntityTable<T> {
+) : SqlEntityTable<T>(table, heightField, null, dbKeyFactory, dp), BatchEntityTable<T> {
     override val count: Int
         get() {
             assertNotInTransaction()
