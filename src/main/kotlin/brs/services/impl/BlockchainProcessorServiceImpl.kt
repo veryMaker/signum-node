@@ -4,6 +4,7 @@ import brs.at.AT
 import brs.at.AtBlock
 import brs.at.AtException
 import brs.db.BatchEntityTable
+import brs.db.DerivedTable
 import brs.db.transaction
 import brs.entity.Block
 import brs.entity.DependencyProvider
@@ -345,7 +346,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 if (block.height % 1440 == 0) {
                     lastTrimHeight = max(block.height - dp.propertyService.get(Props.DB_MAX_ROLLBACK), 0)
                     if (lastTrimHeight > 0) {
-                        dp.derivedTableService.derivedTables.forEach { table -> table.trim(lastTrimHeight) }
+                        dp.db.allTables.forEach { table -> if (table is DerivedTable) table.trim(lastTrimHeight) }
                     }
                 }
             }
@@ -630,13 +631,15 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     blockListeners.accept(BlockchainProcessorService.Event.BEFORE_BLOCK_ACCEPT, block)
                     dp.unconfirmedTransactionService.removeForgedTransactions(block.transactions)
                     dp.unconfirmedTransactionService.resetAccountBalances()
-                    dp.derivedTableService.derivedTables.forEach {
+                    // Account table must be flushed first as lots of tables have foreign keys referencing it
+                    dp.accountService.flushAccountTable(block.height)
+                    dp.db.allTables.forEach {
                         if (it is BatchEntityTable<*>) {
-                            it.finish()
+                            it.finish(block.height)
                         }
                     }
                     addBlock(block)
-                    dp.downloadCacheService.removeBlock(block) // We make sure downloadCache do not have this block anymore.
+                    dp.downloadCacheService.removeBlock(block) // We make sure downloadCache does not have this block anymore.
                     accept(block, remainingAmount, remainingFee)
                 }
             } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
@@ -728,7 +731,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                             poppedOffBlocks.add(block)
                             block = popLastBlock()
                         }
-                        dp.derivedTableService.derivedTables.forEach { table -> table.rollback(commonBlock.height) }
+                        dp.db.allTables.forEach { table -> if (table is DerivedTable) table.rollback(commonBlock.height) }
                         dp.dbCacheService.flushCache()
                         dp.downloadCacheService.resetCache()
                     }

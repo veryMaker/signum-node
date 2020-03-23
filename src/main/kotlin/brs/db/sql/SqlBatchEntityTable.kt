@@ -28,6 +28,8 @@ internal abstract class SqlBatchEntityTable<T> internal constructor(
             return super.rowCount
         }
 
+    private var lastFinishHeight: Int = -1
+
     @Suppress("UNCHECKED_CAST")
     private val batch: MutableMap<SqlDbKey, T>
         get() = dp.db.getBatch<T>(table) as MutableMap<SqlDbKey, T>
@@ -39,7 +41,7 @@ internal abstract class SqlBatchEntityTable<T> internal constructor(
         check(!dp.db.isInTransaction()) { "Cannot use batch table during transaction" }
     }
 
-    protected abstract fun storeBatch(ctx: DSLContext, entities: Collection<T>)
+    protected abstract fun saveBatch(ctx: DSLContext, entities: Collection<T>)
 
     final override fun save(ctx: DSLContext, entity: T) {
         insert(entity)
@@ -72,12 +74,14 @@ internal abstract class SqlBatchEntityTable<T> internal constructor(
         batchCache[key] = entity
     }
 
-    override fun finish() {
+    override fun finish(height: Int) {
         dp.db.assertInTransaction()
         if (batch.isNotEmpty()) {
+            require(height != lastFinishHeight) { "Already finished block height $height and batch is not empty" }
             dp.db.useDslContext { ctx ->
-                storeBatch(ctx, batch.values)
+                saveBatch(ctx, batch.values)
                 batch.clear()
+                lastFinishHeight = height
             }
         }
     }
@@ -102,13 +106,7 @@ internal abstract class SqlBatchEntityTable<T> internal constructor(
         return super.getManyBy(condition, from, to, sort)
     }
 
-    override fun getManyBy(
-        condition: Condition,
-        height: Int,
-        from: Int,
-        to: Int,
-        sort: Collection<SortField<*>>
-    ): Collection<T> {
+    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         assertNotInTransaction()
         return super.getManyBy(condition, height, from, to, sort)
     }
@@ -131,5 +129,6 @@ internal abstract class SqlBatchEntityTable<T> internal constructor(
     override fun rollback(height: Int) {
         super.rollback(height)
         batch.clear()
+        lastFinishHeight = -1
     }
 }

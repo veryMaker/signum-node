@@ -68,7 +68,6 @@ LS: ${LibShabal.LOAD_ERROR?.toString() ?: LibShabal.VERSION}
                 dp.oclPocService = OclPocServiceImpl(dp)
             }
             dp.timeService = TimeServiceImpl()
-            dp.derivedTableService = DerivedTableServiceImpl()
             dp.statisticsService = StatisticsServiceImpl(dp)
             dp.dbCacheService = DBCacheServiceImpl(dp)
             dp.db = SqlDb(dp)

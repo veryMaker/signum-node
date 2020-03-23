@@ -29,7 +29,7 @@ internal class SqlIndirectIncomingStore(private val dp: DependencyProvider) : In
                 )
             }
 
-            override fun storeBatch(ctx: DSLContext, entities: Collection<IndirectIncoming>) {
+            override fun saveBatch(ctx: DSLContext, entities: Collection<IndirectIncoming>) {
                 val query = ctx.insertInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
                 entities.forEach { (accountId, transactionId, height) ->
                     query.values(accountId, transactionId, height)

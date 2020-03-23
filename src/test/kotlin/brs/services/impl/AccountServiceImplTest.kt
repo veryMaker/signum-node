@@ -218,9 +218,9 @@ class AccountServiceImplTest {
 
     @Test
     fun flushAccountTable() {
-        t.flushAccountTable()
+        t.flushAccountTable(0)
 
-        verify { accountTableMock.finish() }
+        verify { accountTableMock.finish(eq(0)) }
     }
 
     @Test

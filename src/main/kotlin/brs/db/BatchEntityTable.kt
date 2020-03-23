@@ -4,5 +4,5 @@ interface BatchEntityTable<T> : EntityTable<T> {
     /**
      * TODO
      */
-    fun finish()
+    fun finish(height: Int)
 }

@@ -106,8 +106,8 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
         return account
     }
 
-    override fun flushAccountTable() {
-        accountTable.finish()
+    override fun flushAccountTable(height: Int) {
+        accountTable.finish(height)
     }
 
     override fun addToForgedBalancePlanck(account: Account, amountPlanck: Long) {

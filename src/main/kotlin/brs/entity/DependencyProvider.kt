@@ -40,7 +40,6 @@ class DependencyProvider {
     lateinit var apiV2Server: Server
     lateinit var p2pV2Server: Server
     lateinit var timeService: TimeService
-    lateinit var derivedTableService: DerivedTableService
     lateinit var statisticsService: StatisticsService
     lateinit var taskSchedulerService: TaskSchedulerService
     lateinit var aliasService: AliasService

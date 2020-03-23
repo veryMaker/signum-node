@@ -27,6 +27,8 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
             return super.rowCount
         }
 
+    private var lastFinishHeight: Int = -1
+
     @Suppress("UNCHECKED_CAST")
     private val batch: MutableMap<SqlDbKey, T>
         get() = dp.db.getBatch<T>(table) as MutableMap<SqlDbKey, T>
@@ -49,11 +51,11 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
         return true
     }
 
-    override fun save(ctx: DSLContext, entity: T) {
+    final override fun save(ctx: DSLContext, entity: T) {
         insert(entity)
     }
 
-    override fun save(ctx: DSLContext, entities: Collection<T>) {
+    final override fun save(ctx: DSLContext, entities: Collection<T>) {
         if (entities.isEmpty()) return
         entities.forEach { insert(it) }
     }
@@ -80,13 +82,14 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
         batchCache[key] = entity
     }
 
-    override fun finish() {
+    override fun finish(height: Int) {
         dp.db.assertInTransaction()
         if (batch.isEmpty()) return
+        require(height != lastFinishHeight) { "Already finished block height $height and batch is not empty" }
 
         dp.db.useDslContext { ctx ->
             // Update "latest" fields.
-            // This is chunked as SQLite is limited to expression tress of depth 1000. We have "WHERE latestField = 1" and "SET latestField = false" so we have room for 998 more conditions.
+            // This is chunked as SQLite is limited to expression tress of depth 1000. We have "WHERE latestField = true" and "SET latestField = false" so we have room for 998 more conditions.
             for (chunk in batch.keys.chunked(998)) {
                 val updateQuery = ctx.updateQuery(table)
                 updateQuery.addConditions(latestField?.isTrue)
@@ -101,6 +104,7 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
 
             saveBatch(ctx, batch.values)
             batch.clear()
+            lastFinishHeight = height
         }
     }
 
@@ -147,5 +151,6 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
     override fun rollback(height: Int) {
         super.rollback(height)
         batch.clear()
+        lastFinishHeight = -1
     }
 }

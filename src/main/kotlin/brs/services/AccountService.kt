@@ -87,7 +87,7 @@ interface AccountService : Observable<Account, Event> {
     /**
      * TODO
      */
-    fun flushAccountTable()
+    fun flushAccountTable(height: Int)
 
     /**
      * Add to the forged balance of an account (This does not increase the balance of an account)
