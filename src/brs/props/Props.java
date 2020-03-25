@@ -42,6 +42,12 @@ public class Props {
 
   public static final Prop<Integer> BRS_SHUTDOWN_TIMEOUT = new Prop<>("brs.ShutdownTimeout", 180);
 
+  // Checkpoint block for faster sync from empty database
+  public static final Prop<Integer> BRS_CHECKPOINT_HEIGHT = new Prop<>("brs.checkPointHeight", 730_000);
+  public static final Prop<String> BRS_CHECKPOINT_HASH = new Prop<>("brs.checkPointPrevHash", "7c9f8eb553ae1c47cb8960847f6ae672a9923d9c0c4c13a2e23a430e1099a5bc");
+  public static final Prop<Integer> DEV_CHECKPOINT_HEIGHT = new Prop<>("DEV.checkPointHeight", 150_000);
+  public static final Prop<String> DEV_CHECKPOINT_HASH = new Prop<>("DEV.checkPointPrevHash", "c99b807f4bff0d439375d083e2e04c465e96ec36d85092e8faba7b9a19534b94");
+
   // GPU options
   public static final Prop<Boolean> GPU_ACCELERATION     = new Prop<>("GPU.Acceleration", false);
   public static final Prop<Boolean> GPU_AUTODETECT       = new Prop<>("GPU.AutoDetect", true);
