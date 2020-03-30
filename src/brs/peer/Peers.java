@@ -299,8 +299,8 @@ public final class Peers {
     static void init(TimeService timeService, AccountService accountService, Blockchain blockchain, TransactionProcessor transactionProcessor,
                      BlockchainProcessor blockchainProcessor, PropertyService propertyService, ThreadPool threadPool) {
       if (Peers.shareMyAddress) {
+        port = Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? TESTNET_PEER_PORT : Peers.myPeerServerPort;
         if (useUpnp) {
-          port = propertyService.getInt(Props.P2P_PORT);
           GatewayDiscover gatewayDiscover = new GatewayDiscover();
           gatewayDiscover.setTimeout(2000);
           try {
@@ -343,7 +343,6 @@ public final class Peers {
 
         peerServer = new Server();
         ServerConnector connector = new ServerConnector(peerServer);
-        port = Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? TESTNET_PEER_PORT : Peers.myPeerServerPort;
         connector.setPort(port);
         final String host = propertyService.getString(Props.P2P_LISTEN);
         connector.setHost(host);
