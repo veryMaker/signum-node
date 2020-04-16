@@ -913,7 +913,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           throw new BlockNotAcceptedException("Total amount or fee don't match transaction totals for block " + block.getHeight());
         }
 
-        if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+        if (Burst.getFluxCapacitor().getValue(FluxValues.LN_TIME)) {
           Arrays.sort(feeArray);
           for (int i = 0; i < feeArray.length; i++) {
             if (feeArray[i] >= Constants.FEE_QUANT * (i + 1)) {
@@ -984,7 +984,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     calculatedRemainingFee += atBlock.getTotalFees();
     // ATs
     if (subscriptionService.isEnabled()) {
-      calculatedRemainingFee += subscriptionService.applyUnconfirmed(block.getTimestamp());
+      calculatedRemainingFee += subscriptionService.applyUnconfirmed(block.getTimestamp(), block.getHeight());
     }
     if (remainingAmount != null && remainingAmount != calculatedRemainingAmount) {
       throw new BlockNotAcceptedException("Calculated remaining amount doesn't add up for block " + block.getHeight());
@@ -1215,7 +1215,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         if (subscriptionService.isEnabled()) {
           subscriptionService.clearRemovals();
-          totalFeeNQT += subscriptionService.calculateFees(blockTimestamp);
+          totalFeeNQT += subscriptionService.calculateFees(blockTimestamp, previousBlock.getHeight() + 1);
         }
       }
       catch (Exception e) {

@@ -29,6 +29,7 @@ public class Props {
   public static final Prop<Integer> DEV_AT_FIX_BLOCK_4_BLOCK_HEIGHT = new Prop<>("DEV.atFixBlock4.startBlock", -1);
   public static final Prop<Integer> DEV_PRE_DYMAXION_BLOCK_HEIGHT = new Prop<>("DEV.preDymaxion.startBlock", -1);
   public static final Prop<Integer> DEV_POC2_BLOCK_HEIGHT = new Prop<>("DEV.poc2.startBlock", -1);
+  public static final Prop<Integer> DEV_LN_TIME_BLOCK_HEIGHT = new Prop<>("DEV.lnTime.startBlock", -1);
   public static final Prop<Integer> DEV_NEXT_FORK_BLOCK_HEIGHT = new Prop<>("DEV.nextFork.startBlock", -1);
 
   public static final Prop<Boolean> BRS_DEBUG_TRACE_ENABLED = new Prop<>("brs.debugTraceEnable", false);
