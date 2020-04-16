@@ -140,8 +140,8 @@ public class GeneratorImpl implements Generator {
     if(Burst.getFluxCapacitor().getValue(FluxValues.LN_TIME, blockHeight)) {
       if(deadline.bitLength() < 100) {
     	  // Avoid the double precision limit for extremely large numbers
-    	  double lnDeadline = Math.log(deadline.doubleValue()) * 240.0/Math.log(240);
-    	  deadline = BigDecimal.valueOf(lnDeadline).toBigInteger();
+    	  double lnDeadline = Math.log(deadline.doubleValue()) * 240.0D / Math.log(240.0D);
+    	  deadline = BigInteger.valueOf((long)lnDeadline);
       }
     }
     return deadline;
