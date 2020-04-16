@@ -136,9 +136,9 @@ public class GeneratorImpl implements Generator {
   @Override
   public BigInteger calculateDeadline(BigInteger hit, long baseTarget, int blockHeight) {
     BigInteger deadline = hit.divide(BigInteger.valueOf(baseTarget));
-    if(Burst.getFluxCapacitor().getValue(FluxValues.LN_TIME, blockHeight)) {
-      if(deadline.bitLength() < 100) {
-    	  // Avoid the double precision limit for extremely large numbers
+    if(fluxCapacitor.getValue(FluxValues.LN_TIME, blockHeight)) {
+      if(deadline.bitLength() < 100 && deadline.longValue() > 0L) {
+    	  // Avoid the double precision limit for extremely large numbers (of no value) and zero logarithm
     	  double lnDeadline = Math.log(deadline.doubleValue()) * 240.0D / Math.log(240.0D);
     	  deadline = BigInteger.valueOf((long)lnDeadline);
       }
