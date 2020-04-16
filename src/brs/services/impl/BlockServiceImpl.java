@@ -91,7 +91,8 @@ public class BlockServiceImpl implements BlockService {
         return false;
       }
       int elapsedTime = block.getTimestamp() - previousBlock.getTimestamp();
-      BigInteger pTime = block.getPocTime().divide(BigInteger.valueOf(previousBlock.getBaseTarget()));
+      BigInteger hit = block.getPocTime();
+      BigInteger pTime = generator.calculateDeadline(hit, previousBlock.getBaseTarget(), block.getHeight());
       return BigInteger.valueOf(elapsedTime).compareTo(pTime) > 0;
     } catch (RuntimeException e) {
       logger.info("Error verifying block generation signature", e);

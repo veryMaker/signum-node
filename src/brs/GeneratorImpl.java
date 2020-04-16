@@ -14,6 +14,7 @@ import burst.kit.crypto.BurstCrypto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
@@ -134,8 +135,16 @@ public class GeneratorImpl implements Generator {
   }
 
   @Override
-  public BigInteger calculateDeadline(long accountId, long nonce, byte[] genSig, int scoop, long baseTarget, int blockHeight) {
-    return burstCrypto.calculateDeadline(accountId, nonce, genSig, scoop, baseTarget, getPocVersion(blockHeight));
+  public BigInteger calculateDeadline(BigInteger hit, long baseTarget, int blockHeight) {
+    BigInteger deadline = hit.divide(BigInteger.valueOf(baseTarget));
+    if(Burst.getFluxCapacitor().getValue(FluxValues.LN_TIME, blockHeight)) {
+      if(deadline.bitLength() < 100) {
+    	  // Avoid the double precision limit for extremely large numbers
+    	  double lnDeadline = Math.log(deadline.doubleValue()) * 240.0/Math.log(240);
+    	  deadline = BigDecimal.valueOf(lnDeadline).toBigInteger();
+      }
+    }
+    return deadline;
   }
 
   public class GeneratorStateImpl implements GeneratorState {
@@ -164,7 +173,8 @@ public class GeneratorImpl implements Generator {
 
       int scoopNum = calculateScoop(newGenSig, lastBlock.getHeight() + 1L);
 
-      deadline = calculateDeadline(accountId, nonce, newGenSig, scoopNum, lastBlock.getBaseTarget(), lastBlock.getHeight() + 1);
+      deadline = calculateDeadline(calculateHit(accountId, nonce, newGenSig, scoopNum, lastBlock.getHeight() + 1),
+    		  lastBlock.getBaseTarget(), lastBlock.getHeight() + 1);
     }
 
     @Override
@@ -215,7 +225,7 @@ public class GeneratorImpl implements Generator {
     }
 
     @Override
-    public BigInteger calculateDeadline(long accountId, long nonce, byte[] genSig, int scoop, long baseTarget, int blockHeight) {
+    public BigInteger calculateDeadline(BigInteger hit, long baseTarget, int blockHeight) {
       return BigInteger.valueOf(propertyService.getInt(Props.DEV_MOCK_MINING_DEADLINE));
     }
   }

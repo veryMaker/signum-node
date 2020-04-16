@@ -4,6 +4,7 @@ import brs.common.QuickMocker;
 import brs.common.TestConstants;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxValues;
+import brs.fluxcapacitor.HistoricalMoments;
 import brs.services.TimeService;
 import brs.util.Convert;
 import org.junit.Before;
@@ -24,6 +25,7 @@ public class GeneratorImplTest {
     private static final byte[] exampleGenSig = Convert.parseHexString("6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0");
     private static final long exampleBaseTarget = 70312;
     private static final int exampleHeight = 500000;
+    private static final int exampleHeightLnTime = HistoricalMoments.LN_TIME.getMainnetHeight() + 1;
 
     @Before
     public void setUpGeneratorTest() {
@@ -49,8 +51,16 @@ public class GeneratorImplTest {
 
     @Test
     public void testGeneratorCalculateDeadline() {
-        BigInteger deadline = generator.calculateDeadline(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, generator.calculateScoop(exampleGenSig, exampleHeight), exampleBaseTarget, exampleHeight);
+    	BigInteger hit = generator.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, generator.calculateScoop(exampleGenSig, exampleHeight), exampleHeight);
+        BigInteger deadline = generator.calculateDeadline(hit, exampleBaseTarget, exampleHeight);
         assertEquals(BigInteger.valueOf(7157291745432L), deadline);
+    }
+
+    @Test
+    public void testGeneratorCalculateLnDeadline() {
+    	BigInteger hit = generator.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, generator.calculateScoop(exampleGenSig, exampleHeightLnTime), exampleHeightLnTime);
+        BigInteger deadline = generator.calculateDeadline(hit, exampleBaseTarget, exampleHeightLnTime);
+        assertEquals(BigInteger.valueOf(1296L), deadline);
     }
 
     @Test
