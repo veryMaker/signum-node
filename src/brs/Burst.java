@@ -45,6 +45,7 @@ public final class Burst {
   public static final String APPLICATION = "BRS";
 
   public static final String DEFAULT_PROPERTIES_NAME = "brs-default.properties";
+  public static final String PROPERTIES_NAME = "brs.properties";
 
   private static final Logger logger = LoggerFactory.getLogger(Burst.class);
 
@@ -90,13 +91,13 @@ public final class Burst {
     }
 
     Properties properties;
-    try (InputStream is = ClassLoader.getSystemResourceAsStream("brs.properties")) {
+    try (InputStream is = ClassLoader.getSystemResourceAsStream(PROPERTIES_NAME)) {
       properties = new Properties(defaultProperties);
       if (is != null) { // parse if brs.properties was loaded
         properties.load(is);
       }
     } catch (IOException e) {
-      throw new RuntimeException("Error loading brs.properties", e);
+      throw new RuntimeException("Error loading " + PROPERTIES_NAME, e);
     }
 
     return new PropertyServiceImpl(properties);
