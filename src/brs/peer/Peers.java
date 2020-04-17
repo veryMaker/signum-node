@@ -875,7 +875,8 @@ public final class Peers {
         connectWellKnownFinished = true;
         logger.info("Finished connecting to {} well known peers.", connectWellKnownFirst);
         // TODO should we remove this?
-        logger.info("You can open your Burst Wallet in your favorite browser with: http://127.0.0.1:8125 or http://localhost:8125");
+        int port = propertyService.getBoolean(Props.DEV_TESTNET) ? propertyService.getInt(Props.DEV_API_PORT) : propertyService.getInt(Props.API_PORT);
+        logger.info("You can open your Burst Wallet in your favorite browser with: http://127.0.0.1:" + port + " or http://localhost:" + port);
       }
     }
 
