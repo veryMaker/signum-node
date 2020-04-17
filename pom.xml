@@ -6,7 +6,7 @@
 
   <groupId>burstcoin</groupId>
   <artifactId>burstcoin</artifactId>
-  <version>2.5.0-dev</version>
+  <version>2.5.0</version>
   <name>Burstcoin Reference Software</name>
   <url>https://github.com/burst-apps-team/burstcoin</url>
 
@@ -323,7 +323,7 @@
       <id>protoc</id>
       <build>
         <plugins>
-          <plugin>
+	        <plugin>
             <groupId>org.xolstice.maven.plugins</groupId>
             <artifactId>protobuf-maven-plugin</artifactId>
             <version>0.6.1</version>
@@ -385,7 +385,6 @@
     </extensions>
 
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -412,6 +411,41 @@
           </execution>
         </executions>
       </plugin>
+
+        <plugin>
+          <groupId>com.akathist.maven.plugins.launch4j</groupId>
+          <artifactId>launch4j-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>l4j-clui</id>
+              <phase>package</phase>
+              <goals><goal>launch4j</goal></goals>
+              <configuration>
+                <headerType>gui</headerType>
+                <outfile>target/burst.exe</outfile>
+                <dontWrapJar>true</dontWrapJar>
+                <errTitle>Burst Reference Software</errTitle>
+                <icon>resources/images/burst_overlay_logo.ico</icon>
+                <jar>burst.jar</jar>
+                <jre>
+                  <minVersion>1.8.0</minVersion>
+                </jre>
+                <versionInfo>
+                  <fileVersion>${project.version}.0</fileVersion>
+                  <txtFileVersion>${project.version}.0</txtFileVersion>
+                  <fileDescription>Burst Reference Software</fileDescription>
+                  <copyright>Burstcoin Apps Team</copyright>
+                  <productVersion>${project.version}.0</productVersion>
+                  <txtProductVersion>txt product version</txtProductVersion>
+                  <productName>BRS</productName>
+                  <internalName>BRS</internalName>
+                  <originalFilename>burst.exe</originalFilename>
+                </versionInfo>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -452,6 +486,8 @@
                   </fileset>
                 </copy>
                 <!-- copy properties from conf dir -->
+                <copy file="conf/brs-template.properties"
+                  tofile="${project.basedir}/dist/tmp/brs.properties"/>
                 <copy todir="${project.basedir}/dist/tmp/conf">
                   <fileset dir="${project.basedir}/conf">
                     <include name="logging-default.properties"/>
@@ -467,7 +503,7 @@
                     <include name="LICENSE.txt"/>
                     <include name="README.md"/>
                     <include name="README_refactoring.md"/>
-                    <include name="burst.cmd"/>
+                    <include name="burst.exe"/>
                     <include name="burst.sh"/>
                   </fileset>
                 </copy>
@@ -475,8 +511,8 @@
                 <!-- workaround to keep org. burst.(sh|cmd) working, if build with compile scripts -->
                 <copy file="${project.basedir}/burst.sh"
                       tofile="${project.basedir}/dist/tmp/burst.sh"/>
-                <copy file="${project.basedir}/burst.cmd"
-                  tofile="${project.basedir}/dist/tmp/burst.cmd"/>
+                <copy file="${project.basedir}/target/burst.exe"
+                  tofile="${project.basedir}/dist/tmp/burst.exe"/>
                 <!-- create zip file -->
                 <zip destfile="${project.basedir}/dist/${project.build.finalName}.zip"
                      basedir="${project.basedir}/dist/tmp"/>
