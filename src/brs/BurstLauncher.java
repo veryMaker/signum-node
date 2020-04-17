@@ -31,15 +31,6 @@ public class BurstLauncher {
 
         if (canRunGui) {
             try {
-                Class.forName("javafx.application.Application");
-            } catch (ClassNotFoundException e) {
-                logger.error("Could not start GUI as your JRE does not seem to have JavaFX installed. To install please install the \"openjfx\" package (eg. \"sudo apt install openjfx\")");
-                canRunGui = false;
-            }
-        }
-
-        if (canRunGui) {
-            try {
                 Class.forName("brs.BurstGUI")
                         .getDeclaredMethod("main", String[].class)
                         .invoke(null, (Object) args);

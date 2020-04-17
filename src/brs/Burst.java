@@ -44,7 +44,7 @@ public final class Burst {
   public static final Version VERSION = Version.parse("v2.5.0-dev");
   public static final String APPLICATION = "BRS";
 
-  private static final String DEFAULT_PROPERTIES_NAME = "brs-default.properties";
+  public static final String DEFAULT_PROPERTIES_NAME = "brs-default.properties";
 
   private static final Logger logger = LoggerFactory.getLogger(Burst.class);
 
