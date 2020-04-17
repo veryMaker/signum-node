@@ -305,12 +305,15 @@ public final class Burst {
       api.shutdown();
     if (apiV2Server != null)
       apiV2Server.shutdownNow();
-    Peers.shutdown(threadPool);
-    threadPool.shutdown();
+    if (threadPool != null) {
+      Peers.shutdown(threadPool);
+      threadPool.shutdown();
+    }
     if(! ignoreDBShutdown) {
       Db.shutdown();
     }
-    dbCacheManager.close();
+    if (dbCacheManager != null)
+      dbCacheManager.close();
     if (blockchainProcessor != null && blockchainProcessor.getOclVerify()) {
       OCLPoC.destroy();
     }
