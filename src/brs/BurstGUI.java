@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.URI;
+import java.net.URL;
 import java.security.Permission;
 
 import javax.imageio.ImageIO;
@@ -155,11 +156,12 @@ public class BurstGUI extends JFrame {
     }
     
     private void editConf() {
-    	String configFile = System.getProperty(Burst.DEFAULT_PROPERTIES_NAME);
-    	if(configFile == null)
-    		configFile = Burst.DEFAULT_PROPERTIES_NAME;
+    	URL configFile = ClassLoader.getSystemResource(Burst.DEFAULT_PROPERTIES_NAME);
+    	String fileName = configFile.getFile();
+    	if(fileName == null)
+    		fileName = Burst.DEFAULT_PROPERTIES_NAME;
     	
-    	File file = new File(configFile);
+    	File file = new File(fileName);
     	if(!file.exists()) {
     		JOptionPane.showMessageDialog(this, "Could not find conf file: " + configFile, "File not found", JOptionPane.ERROR_MESSAGE);
     		return;
