@@ -1,14 +1,15 @@
 package brs;
 
-import brs.props.PropertyService;
-import brs.props.Props;
-import jiconfont.icons.font_awesome.FontAwesome;
-import jiconfont.swing.IconFontSwing;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.FlowLayout;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -20,22 +21,41 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
 import java.security.Permission;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bulenkov.darcula.DarculaLaf;
+
+import brs.props.PropertyService;
+import brs.props.Props;
+import brs.util.Convert;
+import jiconfont.icons.font_awesome.FontAwesome;
+import jiconfont.swing.IconFontSwing;
 
 @SuppressWarnings("serial")
 public class BurstGUI extends JFrame {
     private static final String ICON_LOCATION = "/images/burst_overlay_logo.png";
     private static final String FAILED_TO_START_MESSAGE = "BurstGUI caught exception starting BRS";
     private static final String UNEXPECTED_EXIT_MESSAGE = "BRS Quit unexpectedly! Exit code ";
+    
+	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss yyyy-MM-dd");
 
     private static final int OUTPUT_MAX_LINES = 500;
 
@@ -44,7 +64,10 @@ public class BurstGUI extends JFrame {
 
     private boolean userClosed = false;
     private TrayIcon trayIcon = null;
-    private JToolBar toolBar = null;
+    private JPanel toolBar = null;
+    private JLabel infoLable = null;
+    private JProgressBar syncProgressBar = null;
+    Color iconColor = Color.BLACK;
 
     public static void main(String[] args) {
         BurstGUI.args = args;
@@ -54,6 +77,15 @@ public class BurstGUI extends JFrame {
     public BurstGUI() {
         System.setSecurityManager(new BurstGUISecurityManager());
         setTitle("Burst Reference Software version " + Burst.VERSION);
+        
+		try {
+			DarculaLaf laf = new DarculaLaf();
+			UIManager.setLookAndFeel(laf);
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+		IconFontSwing.register(FontAwesome.getIconFont());
+
         JTextArea textArea = new JTextArea() {
 			@Override
 			public void replaceRange(String str, int start, int end) {
@@ -65,17 +97,29 @@ public class BurstGUI extends JFrame {
                 setCaretPosition(getText().length());
             }
         };
+        iconColor = textArea.getForeground();
         textArea.setEditable(false);
         sendJavaOutputToTextArea(textArea);
-        JScrollPane pane = new JScrollPane(textArea);
+        JScrollPane pane = new JScrollPane(textArea);        
         JPanel content = new JPanel(new BorderLayout());
         setContentPane(content);
         content.add(pane, BorderLayout.CENTER);
         
-        toolBar = new JToolBar();
+        toolBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
         content.add(toolBar, BorderLayout.PAGE_START);
         
-        setSize(800, 450);
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        content.add(bottomPanel, BorderLayout.PAGE_END);
+        
+        syncProgressBar = new JProgressBar(0, 100);
+        syncProgressBar.setStringPainted(true);
+        infoLable = new JLabel("Latest block info");
+
+        bottomPanel.add(infoLable, BorderLayout.CENTER);
+        bottomPanel.add(syncProgressBar, BorderLayout.LINE_END);
+
+        pack();
+        setSize(960, 600);
         setLocationRelativeTo(null);
         try {
 			setIconImage(ImageIO.read(getClass().getResourceAsStream(ICON_LOCATION)));
@@ -101,8 +145,23 @@ public class BurstGUI extends JFrame {
         	}
         });
         
-		IconFontSwing.register(FontAwesome.getIconFont());
-        SwingUtilities.invokeLater(() -> showTrayIcon());
+        showTrayIcon();
+        
+        new Timer(5000, e -> {
+        	Blockchain blockChain = Burst.getBlockchain();
+        	if(blockChain != null) {
+        		Block block = blockChain.getLastBlock();
+        		Date blockDate = Convert.fromEpochTime(block.getTimestamp());
+        		infoLable.setText("Latest block: " + block.getHeight() + 
+        				" Timestamp: " + DATE_FORMAT.format(blockDate));
+        		
+        		Date now = new Date();
+        		int missingBlocks = (int) ((now.getTime() - blockDate.getTime())/(240_000));
+        		int prog = block.getHeight()*100/(block.getHeight() + missingBlocks);
+        		syncProgressBar.setValue(prog);
+        		syncProgressBar.setString(prog + " %");
+        	}
+        }).start();
     }
 
     private void shutdown() {
@@ -118,7 +177,7 @@ public class BurstGUI extends JFrame {
             trayIcon = createTrayIcon();
             if (trayIcon == null) {
             	// No tray icon available, so show the window
-                showWindow();
+                SwingUtilities.invokeLater(() -> showWindow());
             }
         }
     }
@@ -130,9 +189,9 @@ public class BurstGUI extends JFrame {
     	MenuItem showItem = new MenuItem("Show BRS output");
     	MenuItem shutdownItem = new MenuItem("Shutdown BRS");
 
-    	JButton openWebUiButton = new JButton(openWebUiItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.WINDOW_RESTORE, 18));
-    	JButton editConfButton = new JButton("Edit conf file", IconFontSwing.buildIcon(FontAwesome.PENCIL, 18));
-    	JButton popOffButton = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18));
+    	JButton openWebUiButton = new JButton(openWebUiItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.WINDOW_RESTORE, 18, iconColor));
+    	JButton editConfButton = new JButton("Edit conf file", IconFontSwing.buildIcon(FontAwesome.PENCIL, 18, iconColor));
+    	JButton popOffButton = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
     	
     	openWebUiButton.addActionListener(e -> openWebUi());
     	editConfButton.addActionListener(e -> editConf());

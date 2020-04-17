@@ -47,6 +47,7 @@
     <jacoco.version>0.8.4</jacoco.version>
     <jiconfont.version>1.0.0</jiconfont.version>
     <font_awesome.version>4.7.0.1</font_awesome.version>
+    <darcula.version>2018.2</darcula.version>
     
 
     <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -63,6 +64,10 @@
     <repository>
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
+    </repository>
+    <repository>
+      <id>spring.io</id>
+      <url>https://repo.spring.io/plugins-release</url>
     </repository>
   </repositories>
 
@@ -298,6 +303,12 @@
       <artifactId>jiconfont-font_awesome</artifactId>
       <version>${font_awesome.version}</version>
     </dependency>
+    
+	<dependency>
+    	<groupId>com.bulenkov</groupId>
+    	<artifactId>darcula</artifactId>
+    	<version>2018.2</version>
+	</dependency>
 
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
