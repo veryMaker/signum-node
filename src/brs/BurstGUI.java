@@ -10,6 +10,7 @@ import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
+import java.awt.TrayIcon.MessageType;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -31,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -67,6 +69,7 @@ public class BurstGUI extends JFrame {
     private JPanel toolBar = null;
     private JLabel infoLable = null;
     private JProgressBar syncProgressBar = null;
+	private JScrollPane textScrollPane = null;
     Color iconColor = Color.BLACK;
 
     public static void main(String[] args) {
@@ -87,23 +90,25 @@ public class BurstGUI extends JFrame {
 		IconFontSwing.register(FontAwesome.getIconFont());
 
         JTextArea textArea = new JTextArea() {
-			@Override
-			public void replaceRange(String str, int start, int end) {
-				super.replaceRange(str, start, end);
+        	@Override
+        	public void append(String str) {
+        		super.append(str);
+        		
                 while(getText().split("\n", -1).length > OUTPUT_MAX_LINES) {
                     int fle = getText().indexOf('\n');
                     super.replaceRange("", 0, fle+1);
                 }
-                setCaretPosition(getText().length());
-            }
+                JScrollBar vertical = textScrollPane.getVerticalScrollBar();
+                vertical.setValue( vertical.getMaximum() );        		
+        	}
         };
         iconColor = textArea.getForeground();
         textArea.setEditable(false);
         sendJavaOutputToTextArea(textArea);
-        JScrollPane pane = new JScrollPane(textArea);        
+        textScrollPane = new JScrollPane(textArea);        
         JPanel content = new JPanel(new BorderLayout());
         setContentPane(content);
-        content.add(pane, BorderLayout.CENTER);
+        content.add(textScrollPane, BorderLayout.CENTER);
         
         toolBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
         content.add(toolBar, BorderLayout.PAGE_START);
@@ -140,27 +145,36 @@ public class BurstGUI extends JFrame {
         				shutdown();
         			}
         		}
-        		else
+        		else {
+        			trayIcon.displayMessage("BRS GUI closed", "BRS is still running", MessageType.INFO);
         			setVisible(false);
+        		}
         	}
         });
         
         showTrayIcon();
         
         new Timer(5000, e -> {
-        	Blockchain blockChain = Burst.getBlockchain();
-        	if(blockChain != null) {
-        		Block block = blockChain.getLastBlock();
-        		Date blockDate = Convert.fromEpochTime(block.getTimestamp());
-        		infoLable.setText("Latest block: " + block.getHeight() + 
-        				" Timestamp: " + DATE_FORMAT.format(blockDate));
-        		
-        		Date now = new Date();
-        		int missingBlocks = (int) ((now.getTime() - blockDate.getTime())/(240_000));
-        		int prog = block.getHeight()*100/(block.getHeight() + missingBlocks);
-        		syncProgressBar.setValue(prog);
-        		syncProgressBar.setString(prog + " %");
+        	try {
+        		Blockchain blockChain = Burst.getBlockchain();
+        		if(blockChain != null) {
+        			Block block = blockChain.getLastBlock();
+        			if(block != null) {
+        				Date blockDate = Convert.fromEpochTime(block.getTimestamp());
+        				infoLable.setText("Latest block: " + block.getHeight() + 
+        						" Timestamp: " + DATE_FORMAT.format(blockDate));
+
+        				Date now = new Date();
+        				int missingBlocks = (int) ((now.getTime() - blockDate.getTime())/(240_000));
+        				int prog = block.getHeight()*100/(block.getHeight() + missingBlocks) + 1;
+        				syncProgressBar.setValue(prog);
+        				syncProgressBar.setString(prog + " %");
+        			}
+        		}
         	}
+        	finally {
+				// do nothing on error here
+			}
         }).start();
     }
 
@@ -175,10 +189,9 @@ public class BurstGUI extends JFrame {
     private void showTrayIcon() {
         if (trayIcon == null) { // Don't start running in tray twice
             trayIcon = createTrayIcon();
-            if (trayIcon == null) {
-            	// No tray icon available, so show the window
-                SwingUtilities.invokeLater(() -> showWindow());
-            }
+
+            // Also show the main window
+            SwingUtilities.invokeLater(() -> showWindow());
         }
     }
 
@@ -216,6 +229,9 @@ public class BurstGUI extends JFrame {
 
     		SystemTray systemTray = SystemTray.getSystemTray();
     		systemTray.add(newTrayIcon);
+    		
+    		newTrayIcon.displayMessage("BRS Running", "BRS is running on backgroud, use this icon to interact with it.", MessageType.INFO);
+    		
     		return newTrayIcon;
     	} catch (Exception e) {
     		LOGGER.warn("Could not create tray icon");
