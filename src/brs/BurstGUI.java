@@ -166,7 +166,7 @@ public class BurstGUI extends JFrame {
 
         				Date now = new Date();
         				int missingBlocks = (int) ((now.getTime() - blockDate.getTime())/(240_000));
-        				int prog = block.getHeight()*100/(block.getHeight() + missingBlocks) + 1;
+        				int prog = block.getHeight()*100/(block.getHeight() + missingBlocks);
         				syncProgressBar.setValue(prog);
         				syncProgressBar.setString(prog + " %");
         			}
