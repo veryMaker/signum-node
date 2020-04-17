@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -81,6 +83,23 @@ public class BurstGUI extends JFrame {
 			e.printStackTrace();
 		}
         new Thread(this::runBrs).start();
+
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+        	@Override
+        	public void windowClosing(WindowEvent e) {
+        		if(trayIcon == null) {
+        			if (JOptionPane.showConfirmDialog(BurstGUI.this, 
+        					"This will stop BRS. Are you sure?", "Exit and stop BRS", 
+        					JOptionPane.YES_NO_OPTION,
+        					JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+        				shutdown();
+        			}
+        		}
+        		else
+        			setVisible(false);
+        	}
+        });
         
 		IconFontSwing.register(FontAwesome.getIconFont());
         SwingUtilities.invokeLater(() -> showTrayIcon());
@@ -98,9 +117,8 @@ public class BurstGUI extends JFrame {
         if (trayIcon == null) { // Don't start running in tray twice
             trayIcon = createTrayIcon();
             if (trayIcon == null) {
-            	// No tray icon available, so show the window and exit if closed
+            	// No tray icon available, so show the window
                 showWindow();
-                setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             }
         }
     }
