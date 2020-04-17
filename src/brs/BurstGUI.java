@@ -114,11 +114,11 @@ public class BurstGUI extends JFrame {
 
     	JButton openWebUiButton = new JButton(openWebUiItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.WINDOW_RESTORE, 18));
     	JButton editConfButton = new JButton("Edit conf file", IconFontSwing.buildIcon(FontAwesome.PENCIL, 18));
-    	JButton popOffButton = new JButton("Pop off 1000 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18));
+    	JButton popOffButton = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18));
     	
     	openWebUiButton.addActionListener(e -> openWebUi());
     	editConfButton.addActionListener(e -> editConf());
-    	popOffButton.addActionListener(e -> popOff1000());
+    	popOffButton.addActionListener(e -> popOff());
  
     	toolBar.add(openWebUiButton);
     	toolBar.add(editConfButton);
@@ -141,7 +141,7 @@ public class BurstGUI extends JFrame {
     		systemTray.add(newTrayIcon);
     		return newTrayIcon;
     	} catch (Exception e) {
-    		LOGGER.warn("Could not create tray icon", e);
+    		LOGGER.warn("Could not create tray icon");
     		return null;
     	}
     }
@@ -150,18 +150,23 @@ public class BurstGUI extends JFrame {
     	setVisible(true);
     }
     
-    private void popOff1000() {
+    private void popOff() {
     	Block lastBlock = Burst.getBlockchain().getLastBlock();
-    	Burst.getBlockchainProcessor().popOffTo(lastBlock.getHeight() - 1000);
+    	LOGGER.info("Pop off requested, this can take a while...");
+    	new Thread(() -> Burst.getBlockchainProcessor().popOffTo(lastBlock.getHeight() - 100)).start();
     }
     
     private void editConf() {
-    	URL configFile = ClassLoader.getSystemResource(Burst.DEFAULT_PROPERTIES_NAME);
-    	String fileName = configFile.getFile();
-    	if(fileName == null)
-    		fileName = Burst.DEFAULT_PROPERTIES_NAME;
+    	URL configFile = ClassLoader.getSystemResource(Burst.PROPERTIES_NAME);
+    	File file = new File(configFile.getFile());
+    	if(!file.exists()) {
+        	configFile = ClassLoader.getSystemResource(Burst.DEFAULT_PROPERTIES_NAME);
+        	file = new File(configFile.getFile());
+        	if(!file.exists()) {
+        		file = new File(Burst.DEFAULT_PROPERTIES_NAME);
+        	}
+    	}
     	
-    	File file = new File(fileName);
     	if(!file.exists()) {
     		JOptionPane.showMessageDialog(this, "Could not find conf file: " + configFile, "File not found", JOptionPane.ERROR_MESSAGE);
     		return;
