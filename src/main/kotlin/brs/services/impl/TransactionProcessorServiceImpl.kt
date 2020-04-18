@@ -114,7 +114,7 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
             return null
         }
 
-        if (dp.unconfirmedTransactionService.exists(transaction.id)) {
+        if (dp.unconfirmedTransactionService.exists(transaction.id)) { // TODO this is always true after processTransaction. ProcessTransaction shouuld be moved to below this check
             logger.safeDebug { "Transaction ${transaction.stringId} already in unconfirmed pool, will not broadcast again" }
             return null
         }
@@ -185,10 +185,8 @@ class TransactionProcessorServiceImpl(private val dp: DependencyProvider) : Tran
 
                 dp.db.transaction {
                     when {
-                        dp.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionService.exists(transaction.id) ->
-                            dp.unconfirmedTransactionService.markFingerPrintsOf(peer, transaction)
-                        !transaction.verifySignature() || !dp.transactionService.verifyPublicKey(transaction) ->
-                            logger.safeDebug { "Transaction ${transaction.toJsonObject().toJsonString()} failed to verify" }
+                        dp.transactionDb.hasTransaction(transaction.id) || dp.unconfirmedTransactionService.exists(transaction.id) -> dp.unconfirmedTransactionService.markFingerPrintsOf(peer, transaction)
+                        !transaction.verifySignature() || !dp.transactionService.verifyPublicKey(transaction) -> logger.safeDebug { "Transaction ${transaction.toJsonObject().toJsonString()} failed to verify" }
                         dp.unconfirmedTransactionService.put(transaction, peer) -> addedUnconfirmedTransactions.add(transaction)
                     }
                 }
