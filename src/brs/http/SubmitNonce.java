@@ -130,7 +130,7 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
     }
 
     response.addProperty("result", "success");
-    response.addProperty("deadline", generatorState.getDeadline());
+    response.addProperty("deadline", generatorState.getDeadlineLegacy());
 
     return response;
   }

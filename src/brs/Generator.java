@@ -41,6 +41,8 @@ public interface Generator {
 
     BigInteger getDeadline();
 
+    BigInteger getDeadlineLegacy();
+
     long getBlock();
   }
 }

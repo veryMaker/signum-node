@@ -151,6 +151,8 @@ public class GeneratorImpl implements Generator {
     private final String secretPhrase;
     private final byte[] publicKey;
     private final BigInteger deadline;
+    private final BigInteger hit;
+    private final long baseTarget;
     private final long nonce;
     private final long block;
 
@@ -172,8 +174,9 @@ public class GeneratorImpl implements Generator {
 
       int scoopNum = calculateScoop(newGenSig, lastBlock.getHeight() + 1L);
 
-      deadline = calculateDeadline(calculateHit(accountId, nonce, newGenSig, scoopNum, lastBlock.getHeight() + 1),
-    		  lastBlock.getBaseTarget(), lastBlock.getHeight() + 1);
+      baseTarget = lastBlock.getBaseTarget();
+      hit = calculateHit(accountId, nonce, newGenSig, scoopNum, lastBlock.getHeight() + 1);
+      deadline = calculateDeadline(hit, baseTarget, lastBlock.getHeight() + 1);
     }
 
     @Override
@@ -189,6 +192,11 @@ public class GeneratorImpl implements Generator {
     @Override
     public BigInteger getDeadline() {
       return deadline;
+    }
+    
+    @Override
+    public BigInteger getDeadlineLegacy() {
+      return hit.divide(BigInteger.valueOf(baseTarget));
     }
 
     @Override
