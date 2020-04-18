@@ -34,7 +34,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         val height = AtApiHelper.longToHeight(value)
         val numOfTx = AtApiHelper.longToNumOfTx(value)
 
-        val tx = dp.atStore.findTransaction(
+        val tx = dp.db.atStore.findTransaction(
             height,
             state.height,
             state.id,
@@ -88,7 +88,7 @@ class AtApiPlatformImpl constructor(private val dp: DependencyProvider) : AtApiI
         }
 
         val blockHeight = tx.height
-        val txHeight = dp.atStore.findTransactionHeight(txId, blockHeight, state.id, state.minActivationAmount())
+        val txHeight = dp.db.atStore.findTransactionHeight(txId, blockHeight, state.id, state.minActivationAmount())
 
         return AtApiHelper.getLongTimestamp(blockHeight, txHeight)
     }

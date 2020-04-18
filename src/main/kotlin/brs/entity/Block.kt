@@ -209,7 +209,7 @@ class Block internal constructor(
     }
 
     private fun transactionDb(): TransactionDb {
-        return dp.transactionDb
+        return dp.db.transactionDb
     }
 
     fun getNonce(): Long? {

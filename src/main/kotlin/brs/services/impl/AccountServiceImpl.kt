@@ -37,11 +37,11 @@ class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     override val count get() = accountTable.count
 
     init {
-        val accountStore = dp.accountStore
+        val accountStore = dp.db.accountStore
         this.accountStore = accountStore
         this.accountTable = accountStore.accountTable
         this.accountBurstKeyFactory = accountStore.accountKeyFactory
-        this.assetTransferStore = dp.assetTransferStore
+        this.assetTransferStore = dp.db.assetTransferStore
         this.accountAssetTable = accountStore.accountAssetTable
         this.accountAssetKeyFactory = accountStore.accountAssetKeyFactory
         this.rewardRecipientAssignmentTable = accountStore.rewardRecipientAssignmentTable

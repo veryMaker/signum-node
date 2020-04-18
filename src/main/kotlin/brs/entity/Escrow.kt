@@ -14,7 +14,7 @@ class Escrow {
     val deadline: Int
     val deadlineAction: DecisionType
 
-    val decisions get() = dp.escrowStore.getDecisions(id)
+    val decisions get() = dp.db.escrowStore.getDecisions(id)
 
     enum class DecisionType {
         UNDECIDED,

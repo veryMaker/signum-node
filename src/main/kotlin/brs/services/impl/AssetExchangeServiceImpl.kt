@@ -9,9 +9,9 @@ import brs.services.*
 import brs.transaction.appendix.Attachment.*
 
 class AssetExchangeServiceImpl(dp: DependencyProvider) : AssetExchangeService {
-    private val tradeService: AssetTradeService = AssetTradeServiceImpl(dp.tradeStore)
-    private val assetAccountService: AssetAccountService = AssetAccountServiceImpl(dp.accountStore)
-    private val assetTransferService: AssetTransferService = AssetTransferServiceImpl(dp.assetTransferStore)
+    private val tradeService: AssetTradeService = AssetTradeServiceImpl(dp.db.tradeStore)
+    private val assetAccountService: AssetAccountService = AssetAccountServiceImpl(dp.db.accountStore)
+    private val assetTransferService: AssetTransferService = AssetTransferServiceImpl(dp.db.assetTransferStore)
     private val assetService: AssetService
     private val orderService: AssetOrderService
 
@@ -30,7 +30,7 @@ class AssetExchangeServiceImpl(dp: DependencyProvider) : AssetExchangeService {
         this.assetService = AssetServiceImpl(
             this.assetAccountService,
             tradeService,
-            dp.assetStore,
+            dp.db.assetStore,
             assetTransferService
         )
         this.orderService = AssetOrderServiceImpl(dp, tradeService)

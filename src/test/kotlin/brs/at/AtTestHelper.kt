@@ -97,7 +97,7 @@ class AtTestHelper {
 
     internal fun clearAddedAts(dp: DependencyProvider) {
         addedAts.clear()
-        assertEquals(0, dp.atStore.getOrderedATs().size.toLong())
+        assertEquals(0, dp.db.atStore.getOrderedATs().size.toLong())
     }
 
     internal fun setOnAtAdded(onAtAdded: (AT) -> Unit) {
@@ -114,7 +114,7 @@ class AtTestHelper {
             HELLO_WORLD_CREATION_BYTES,
             Integer.MAX_VALUE
         )
-        return dp.atStore.getAT(1L)!!
+        return dp.db.atStore.getAT(1L)!!
     }
 
     fun addEchoAT(dp: DependencyProvider): AT {
@@ -127,7 +127,7 @@ class AtTestHelper {
             ECHO_CREATION_BYTES,
             Integer.MAX_VALUE
         )
-        return dp.atStore.getAT(2L)!!
+        return dp.db.atStore.getAT(2L)!!
     }
 
     fun addTipThanksAT(dp: DependencyProvider): AT {
@@ -140,7 +140,7 @@ class AtTestHelper {
             TIP_THANKS_CREATION_BYTES,
             Integer.MAX_VALUE
         )
-        return dp.atStore.getAT(3L)!!
+        return dp.db.atStore.getAT(3L)!!
     }
 
     companion object {

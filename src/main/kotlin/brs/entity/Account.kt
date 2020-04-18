@@ -102,7 +102,7 @@ class Account {
             logger.safeError { "CRITICAL ERROR: Reed-Solomon encoding fails for $id" }
         }
         this.id = id
-        this.nxtKey = dp.accountStore.accountKeyFactory.newKey(this.id)
+        this.nxtKey = dp.db.accountStore.accountKeyFactory.newKey(this.id)
         this.creationHeight = dp.blockchainService.height
     }
 
@@ -127,14 +127,14 @@ class Account {
     }
 
     fun apply(dp: DependencyProvider, key: ByteArray, height: Int) {
-        check(dp.accountStore.setOrVerify(this, key, height)) { "Public key mismatch" }
+        check(dp.db.accountStore.setOrVerify(this, key, height)) { "Public key mismatch" }
         checkNotNull(this.publicKeyInternal) {
             ("Public key has not been set for account " + id.toUnsignedString()
                     + " at height " + height + ", key height is " + keyHeight)
         }
         if (this.keyHeight == -1 || this.keyHeight > height) {
             this.keyHeight = height
-            dp.accountStore.accountTable.insert(this)
+            dp.db.accountStore.accountTable.insert(this)
         }
     }
 

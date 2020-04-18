@@ -97,6 +97,7 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
         dp.db.assertInTransaction()
         if (batch.isEmpty()) return
         require(height != lastFinishHeight) { "Already finished block height $height and batch is not empty" }
+        lastFinishHeight = height
 
         dp.db.useDslContext { ctx ->
             // Update "latest" fields.
@@ -110,7 +111,6 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
 
             saveBatch(ctx, batch.values)
             batch.clear()
-            lastFinishHeight = height
         }
     }
 

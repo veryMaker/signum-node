@@ -10,7 +10,7 @@ import brs.services.AliasService
 import brs.transaction.appendix.Attachment
 
 class AliasServiceImpl(dp: DependencyProvider) : AliasService {
-    private val aliasStore = dp.aliasStore
+    private val aliasStore = dp.db.aliasStore
     private val aliasTable: MutableEntityTable<Alias>
     private val aliasDbKeyFactory: BurstKey.LongKeyFactory<Alias>
     private val offerTable: MutableEntityTable<Offer>

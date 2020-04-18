@@ -193,7 +193,7 @@ class AtController(private val dp: DependencyProvider) {
     }
 
     fun getCurrentBlockATs(freePayload: Int, blockHeight: Int): AtBlock {
-        val orderedATs = dp.atStore.getOrderedATs()
+        val orderedATs = dp.db.atStore.getOrderedATs()
         val keys = orderedATs.iterator()
 
         val processedATs = mutableListOf<AT>()
@@ -204,7 +204,7 @@ class AtController(private val dp: DependencyProvider) {
 
         while (payload <= freePayload - costOfOneAT && keys.hasNext()) {
             val id = keys.next()
-            val at = dp.atStore.getAT(id)!!
+            val at = dp.db.atStore.getAT(id)!!
 
             val atAccountBalance = getATAccountBalance(id)
             val atStateBalance = at.getgBalance()
@@ -263,7 +263,7 @@ class AtController(private val dp: DependencyProvider) {
         val md5 = Crypto.md5()
 
         for ((atId, receivedMd5) in ats) {
-            val at = dp.atStore.getAT(AtApiHelper.getLong(atId))!!
+            val at = dp.db.atStore.getAT(AtApiHelper.getLong(atId))!!
             try {
                 at.clearTransactions()
                 at.height = blockHeight

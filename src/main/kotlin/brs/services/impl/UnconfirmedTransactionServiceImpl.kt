@@ -22,7 +22,7 @@ import java.util.*
 class UnconfirmedTransactionServiceImpl(private val dp: DependencyProvider) :
     UnconfirmedTransactionService {
     private val reservedBalanceCache =
-        ReservedBalanceCache(dp.accountStore)
+        ReservedBalanceCache(dp.db.accountStore)
     private val transactionDuplicatesChecker = TransactionDuplicateChecker()
 
     private val fingerPrintsOverview = mutableMapOf<Transaction, MutableSet<Peer?>>()
@@ -44,7 +44,7 @@ class UnconfirmedTransactionServiceImpl(private val dp: DependencyProvider) :
         dp.taskSchedulerService.scheduleTaskWithDelay(TaskType.IO, 10000, 10000) {
             internalStoreLock.withLock {
                 getAllNoLock().filter { t ->
-                    dp.timeService.epochTime > t.expiration || dp.transactionDb.hasTransaction(
+                    dp.timeService.epochTime > t.expiration || dp.db.transactionDb.hasTransaction(
                         t.id
                     )
                 }

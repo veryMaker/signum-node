@@ -131,7 +131,7 @@ internal class SqlBlockDb(private val dp: DependencyProvider) : BlockDb {
             )
             .execute()
 
-        dp.transactionDb.saveTransactions(block.transactions)
+        dp.db.transactionDb.saveTransactions(block.transactions)
 
         if (block.previousBlockId != 0L) {
             ctx.update(BLOCK)

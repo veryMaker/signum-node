@@ -36,7 +36,7 @@ class AT : AtMachineState {
     ) : super(dp, atId, creator, creationBytes, height) {
         this.name = name
         this.description = description
-        dbKey = dp.atStore.atDbKeyFactory.newKey(atId)
+        dbKey = dp.db.atStore.atDbKeyFactory.newKey(atId)
         this.nextHeight = dp.blockchainService.height
     }
 
@@ -53,12 +53,12 @@ class AT : AtMachineState {
     ) {
         this.name = name
         this.description = description
-        dbKey = dp.atStore.atDbKeyFactory.newKey(atId)
+        dbKey = dp.db.atStore.atDbKeyFactory.newKey(atId)
         this.nextHeight = nextHeight
     }
 
     fun saveState() {
-        var state: ATState? = dp.atStore.atStateTable[dp.atStore.atStateDbKeyFactory.newKey(id)]
+        var state: ATState? = dp.db.atStore.atStateTable[dp.db.atStore.atStateDbKeyFactory.newKey(id)]
         val prevHeight = dp.blockchainService.height
         val newNextHeight = prevHeight + waitForNumberOfBlocks
         if (state != null) {
@@ -76,7 +76,7 @@ class AT : AtMachineState {
                 getpBalance(), freezeOnSameBalance(), minActivationAmount()
             )
         }
-        dp.atStore.atStateTable.insert(state)
+        dp.db.atStore.atStateTable.insert(state)
     }
 
     fun nextHeight(): Int {
@@ -93,7 +93,7 @@ class AT : AtMachineState {
         var freezeWhenSameBalance: Boolean,
         var minActivationAmount: Long
     ) {
-        val dbKey = dp.atStore.atStateDbKeyFactory.newKey(this.atId)
+        val dbKey = dp.db.atStore.atStateDbKeyFactory.newKey(this.atId)
         var prevHeight: Int = 0
     }
 
@@ -143,7 +143,7 @@ class AT : AtMachineState {
 
             dp.atController.resetMachine(at)
 
-            dp.atStore.atTable.insert(at)
+            dp.db.atStore.atTable.insert(at)
 
             at.saveState()
 
@@ -219,7 +219,7 @@ class AT : AtMachineState {
 
                 try {
                     val transaction = builder.build()
-                    if (!dp.transactionDb.hasTransaction(transaction.id)) {
+                    if (!dp.db.transactionDb.hasTransaction(transaction.id)) {
                         transactions.add(transaction)
                     }
                 } catch (e: BurstException.NotValidException) {
@@ -229,7 +229,7 @@ class AT : AtMachineState {
 
             if (transactions.isNotEmpty()) {
                 // WATCH: Replace after transactions are converted!
-                dp.transactionDb.saveTransactions(transactions)
+                dp.db.transactionDb.saveTransactions(transactions)
             }
         }
     }

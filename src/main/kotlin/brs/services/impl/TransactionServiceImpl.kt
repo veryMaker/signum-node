@@ -16,7 +16,7 @@ class TransactionServiceImpl(private val dp: DependencyProvider) : TransactionSe
             logger.safeError { "Account was null for tx. Account: ${transaction.senderId.toUnsignedString()}" }
             return false
         }
-        return transaction.signature != null && dp.accountStore.setOrVerify(account, transaction.senderPublicKey, transaction.height)
+        return transaction.signature != null && dp.db.accountStore.setOrVerify(account, transaction.senderPublicKey, transaction.height)
     }
 
     override fun validate(transaction: Transaction, preValidate: Boolean) {
