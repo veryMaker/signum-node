@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -37,13 +38,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bulenkov.darcula.DarculaLaf;
+import com.github.weisj.darklaf.LafManager;
+import com.github.weisj.darklaf.theme.DarculaTheme;
 
 import brs.props.PropertyService;
 import brs.props.Props;
@@ -81,12 +81,7 @@ public class BurstGUI extends JFrame {
         System.setSecurityManager(new BurstGUISecurityManager());
         setTitle("Burst Reference Software version " + Burst.VERSION);
         
-		try {
-			DarculaLaf laf = new DarculaLaf();
-			UIManager.setLookAndFeel(laf);
-		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		}
+        LafManager.install(new DarculaTheme());
 		IconFontSwing.register(FontAwesome.getIconFont());
 
         JTextArea textArea = new JTextArea() {
@@ -114,6 +109,7 @@ public class BurstGUI extends JFrame {
         content.add(toolBar, BorderLayout.PAGE_START);
         
         JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         content.add(bottomPanel, BorderLayout.PAGE_END);
         
         syncProgressBar = new JProgressBar(0, 100);
@@ -198,10 +194,12 @@ public class BurstGUI extends JFrame {
     private TrayIcon createTrayIcon() {
     	PopupMenu popupMenu = new PopupMenu();
     	
-    	MenuItem openWebUiItem = new MenuItem("Open Web Interface");
+    	MenuItem openWebUiItem = new MenuItem("Open Legacy Wallet");
     	MenuItem showItem = new MenuItem("Show BRS output");
     	MenuItem shutdownItem = new MenuItem("Shutdown BRS");
 
+    	// TODO: add support for the Phoenix Wallet
+//    	JButton openPhoenixButton = new JButton("Open Phoenix Wallet", IconFontSwing.buildIcon(FontAwesome.FIRE, 18, iconColor));
     	JButton openWebUiButton = new JButton(openWebUiItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.WINDOW_RESTORE, 18, iconColor));
     	JButton editConfButton = new JButton("Edit conf file", IconFontSwing.buildIcon(FontAwesome.PENCIL, 18, iconColor));
     	JButton popOffButton = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
@@ -210,6 +208,7 @@ public class BurstGUI extends JFrame {
     	editConfButton.addActionListener(e -> editConf());
     	popOffButton.addActionListener(e -> popOff());
  
+//    	toolBar.add(openPhoenixButton);
     	toolBar.add(openWebUiButton);
     	toolBar.add(editConfButton);
     	toolBar.add(popOffButton);
