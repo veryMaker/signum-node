@@ -1,7 +1,10 @@
 package brs.services.impl
 
 import brs.db.BurstKey
-import brs.entity.*
+import brs.db.CachedTable
+import brs.entity.Block
+import brs.entity.DependencyProvider
+import brs.entity.StatisticsCache
 import brs.objects.Props
 import brs.services.DBCacheService
 import org.ehcache.Cache
@@ -21,16 +24,18 @@ class DBCacheServiceImpl(private val dp: DependencyProvider) : DBCacheService {
         val caches = mutableMapOf<String, CacheConfiguration<*, *>>()
         val resourcePoolBuilder = ResourcePoolsBuilder.newResourcePoolsBuilder()
             .heap(dp.propertyService.get(Props.MAX_CACHED_ENTITIES).toLong(), EntryUnit.ENTRIES)
-        caches["account"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(
-            BurstKey::class.java,
-            Account::class.java,
-            resourcePoolBuilder
-        ).build()
-        caches["indirect_incoming"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(
-            BurstKey::class.java,
-            IndirectIncoming::class.java,
-            resourcePoolBuilder
-        ).build()
+
+        dp.db.allTables.forEach {
+            if (it is CachedTable<*, *>) {
+                caches[it.cacheName] = CacheConfigurationBuilder.newCacheConfigurationBuilder(
+                    it.cacheKeyClass,
+                    it.cacheValueClass,
+                    resourcePoolBuilder
+                ).build()
+            }
+        }
+
+        // Block Table has 2 caches so do that manually TODO automate this
         caches["block_id"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(
             Long::class.javaObjectType,
             Block::class.java,
@@ -41,11 +46,7 @@ class DBCacheServiceImpl(private val dp: DependencyProvider) : DBCacheService {
             Block::class.java,
             resourcePoolBuilder
         ).build()
-        caches["transaction"] = CacheConfigurationBuilder.newCacheConfigurationBuilder(
-            Long::class.javaObjectType,
-            Transaction::class.java,
-            resourcePoolBuilder
-        ).build()
+
         var cacheBuilder = CacheManagerBuilder.newCacheManagerBuilder()
         for ((key, value) in caches) {
             cacheBuilder = cacheBuilder.withCache(key, value)
@@ -66,7 +67,7 @@ class DBCacheServiceImpl(private val dp: DependencyProvider) : DBCacheService {
     }
 
     override fun <K, V> getCache(name: String, keyClass: Class<K>, valueClass: Class<V>): Cache<K, V>? {
-        return cacheManager.getCache(name, keyClass, valueClass)
+        return cacheManager.getCache(name, keyClass, valueClass) // TODO statisticsCache is never constructed here...
     }
 
     override fun flushCache() {

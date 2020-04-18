@@ -1,13 +1,11 @@
 package brs.db.sql
 
-import brs.db.BurstKey
-import brs.db.MutableBatchEntityTable
-import brs.db.assertInTransaction
-import brs.db.useDslContext
+import brs.db.*
 import brs.entity.DependencyProvider
 import brs.util.cache.set
 import org.ehcache.Cache
 import org.jooq.*
+import org.jooq.Table
 import org.jooq.impl.DSL
 
 internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
@@ -15,9 +13,9 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
     heightField: Field<Int>,
     latestField: Field<Boolean>,
     dbKeyFactory: SqlDbKey.Factory<T>,
-    private val tClass: Class<T>,
+    override val cacheValueClass: Class<T>,
     private val dp: DependencyProvider
-) : SqlMutableEntityTable<T>(table, heightField, latestField, dbKeyFactory, dp), MutableBatchEntityTable<T> {
+) : SqlMutableEntityTable<T>(table, heightField, latestField, dbKeyFactory, dp), MutableBatchEntityTable<T>, CachedTable<SqlDbKey, T> {
     override val count: Int
         get() {
             assertNotInTransaction()
@@ -30,14 +28,16 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
             return super.rowCount
         }
 
+    override val cacheKeyClass = SqlDbKey::class.java
+    override val cacheName: String = table.name
+
     private var lastFinishHeight: Int = -1
 
     @Suppress("UNCHECKED_CAST")
     private val batch: MutableMap<SqlDbKey, T>
         get() = dp.db.getBatch<T>(table) as MutableMap<SqlDbKey, T>
 
-    private val batchCache: Cache<BurstKey, T>
-        get() = dp.dbCacheService.getCache(tableName, tClass)!!
+    private val batchCache: Cache<SqlDbKey, T> get() = getCache(dp)
 
     private fun assertNotInTransaction() {
         check(!dp.db.isInTransaction()) { "Cannot use batch table during transaction" }

@@ -1,6 +1,8 @@
 package brs.db.sql
 
+import brs.db.CachedTable
 import brs.db.TransactionDb
+import brs.db.getCache
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
@@ -16,9 +18,12 @@ import org.ehcache.Cache
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-internal class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb {
-    private val cache: Cache<Long, Transaction>
-        get() = dp.dbCacheService.getCache("transaction", Long::class.javaObjectType, Transaction::class.java)!!
+internal class SqlTransactionDb(private val dp: DependencyProvider) : TransactionDb, CachedTable<Long, Transaction> {
+    override val cacheKeyClass = Long::class.javaObjectType
+    override val cacheValueClass = Transaction::class.java
+    override val cacheName = "transaction"
+
+    private val cache: Cache<Long, Transaction> get() = getCache(dp)
 
     override fun findTransaction(transactionId: Long): Transaction? {
         return cache.tryCache(transactionId) {

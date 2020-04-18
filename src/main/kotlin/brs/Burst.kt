@@ -69,8 +69,8 @@ LS: ${LibShabal.LOAD_ERROR?.toString() ?: LibShabal.VERSION}
             }
             dp.timeService = TimeServiceImpl()
             dp.statisticsService = StatisticsServiceImpl(dp)
-            dp.dbCacheService = DBCacheServiceImpl(dp)
             dp.db = SqlDb(dp)
+            dp.dbCacheService = DBCacheServiceImpl(dp)
             dp.unconfirmedTransactionService = UnconfirmedTransactionServiceImpl(dp)
             dp.blockchainService = BlockchainServiceImpl(dp)
             dp.aliasService = AliasServiceImpl(dp)
