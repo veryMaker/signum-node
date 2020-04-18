@@ -53,7 +53,7 @@ final class GetState extends APIServlet.JsonRequestHandler {
     response.addProperty("lastBlock", blockchain.getLastBlock().getStringId());
     response.addProperty("cumulativeDifficulty", blockchain.getLastBlock().getCumulativeDifficulty().toString());
 
-    if (!"false".equalsIgnoreCase(req.getParameter("includeCounts"))) {
+    if ("true".equalsIgnoreCase(req.getParameter(INCLUDE_COUNTS_PARAMETER))) {
       long totalEffectiveBalance = 0;
       for (Account account : accountService.getAllAccounts(0, -1)) {
         long effectiveBalanceBURST = account.getBalanceNQT();
@@ -65,20 +65,21 @@ final class GetState extends APIServlet.JsonRequestHandler {
         totalEffectiveBalance += escrow.getAmountNQT();
       }
       response.addProperty("totalEffectiveBalanceNXT", totalEffectiveBalance / Constants.ONE_BURST);
-
-      response.addProperty("numberOfBlocks", blockchain.getHeight() + 1);
-      response.addProperty("numberOfTransactions", blockchain.getTransactionCount());
-      response.addProperty("numberOfAccounts", accountService.getCount());
-      response.addProperty("numberOfAssets", assetExchange.getAssetsCount());
-      int askCount = assetExchange.getAskCount();
-      int bidCount = assetExchange.getBidCount();
-      response.addProperty("numberOfOrders", askCount + bidCount);
-      response.addProperty("numberOfAskOrders", askCount);
-      response.addProperty("numberOfBidOrders", bidCount);
-      response.addProperty("numberOfTrades", assetExchange.getTradesCount());
-      response.addProperty("numberOfTransfers", assetExchange.getAssetTransferCount());
-      response.addProperty("numberOfAliases", aliasService.getAliasCount());
     }
+
+    response.addProperty("numberOfBlocks", blockchain.getHeight() + 1);
+    response.addProperty("numberOfTransactions", blockchain.getTransactionCount());
+    response.addProperty("numberOfAccounts", accountService.getCount());
+    response.addProperty("numberOfAssets", assetExchange.getAssetsCount());
+    int askCount = assetExchange.getAskCount();
+    int bidCount = assetExchange.getBidCount();
+    response.addProperty("numberOfOrders", askCount + bidCount);
+    response.addProperty("numberOfAskOrders", askCount);
+    response.addProperty("numberOfBidOrders", bidCount);
+    response.addProperty("numberOfTrades", assetExchange.getTradesCount());
+    response.addProperty("numberOfTransfers", assetExchange.getAssetTransferCount());
+    response.addProperty("numberOfAliases", aliasService.getAliasCount());
+    
     response.addProperty("numberOfPeers", Peers.getAllPeers().size());
     response.addProperty("numberOfUnlockedAccounts", generator.getAllGenerators().size());
     Peer lastBlockchainFeeder = Burst.getBlockchainProcessor().getLastBlockchainFeeder();
