@@ -9,7 +9,7 @@ import java.util.*;
 public class PropertyServiceImpl implements PropertyService {
 
   private final Logger logger = LoggerFactory.getLogger(Burst.class);
-  private static final String LOG_UNDEF_NAME_DEFAULT = "{} undefined. Default: >{}<";
+  private static final String LOG_UNDEF_NAME_DEFAULT = "{} using default: >{}<";
 
   private final Properties properties;
 
