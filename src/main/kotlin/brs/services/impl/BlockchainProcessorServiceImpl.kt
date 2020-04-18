@@ -3,7 +3,7 @@ package brs.services.impl
 import brs.at.AT
 import brs.at.AtBlock
 import brs.at.AtException
-import brs.db.BatchEntityTable
+import brs.db.BatchTable
 import brs.db.DerivedTable
 import brs.db.transaction
 import brs.entity.Block
@@ -631,16 +631,16 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     blockListeners.accept(BlockchainProcessorService.Event.BEFORE_BLOCK_ACCEPT, block)
                     dp.unconfirmedTransactionService.removeForgedTransactions(block.transactions)
                     dp.unconfirmedTransactionService.resetAccountBalances()
-                    // Account table must be flushed first as lots of tables have foreign keys referencing it
-                    dp.accountService.flushAccountTable(block.height)
                     addBlock(block)
-                    dp.downloadCacheService.removeBlock(block) // We make sure downloadCache does not have this block anymore.
                     accept(block, remainingAmount, remainingFee)
+                    // Account table must be flushed first as lots of tables have foreign keys referencing it TODO proper order in which to flush batch tables
+                    dp.db.accountStore.accountTable.flushBatch(block.height)
                     dp.db.allTables.forEach {
-                        if (it is BatchEntityTable<*>) {
-                            it.finish(block.height)
+                        if (it is BatchTable) {
+                            it.flushBatch(block.height)
                         }
                     }
+                    dp.downloadCacheService.removeBlock(block) // We make sure downloadCache does not have this block anymore.
                 }
             } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
                 dp.blockchainService.lastBlock = lastBlock

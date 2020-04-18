@@ -2,13 +2,12 @@ package brs.db.sql
 
 import brs.db.BurstKey
 import brs.db.DigitalGoodsStoreStore
-import brs.db.MutableEntityTable
+import brs.db.MutableBatchEntityTable
 import brs.db.ValuesTable
 import brs.entity.DependencyProvider
 import brs.entity.Goods
 import brs.entity.Purchase
 import brs.schema.Tables.*
-import brs.util.db.upsert
 import burst.kit.entity.BurstEncryptedMessage
 import org.jooq.DSLContext
 import org.jooq.Field
@@ -27,7 +26,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         }
     }
 
-    override val purchaseTable: MutableEntityTable<Purchase>
+    override val purchaseTable: MutableBatchEntityTable<Purchase>
 
     override val feedbackTable: ValuesTable<Purchase, BurstEncryptedMessage>
 
@@ -45,7 +44,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
         }
     }
 
-    override val goodsTable: MutableEntityTable<Goods>
+    override val goodsTable: MutableBatchEntityTable<Goods>
 
     init {
         purchaseTable = object : SqlMutableBatchEntityTable<Purchase>(PURCHASE, PURCHASE.HEIGHT, PURCHASE.LATEST, purchaseDbKeyFactory, Purchase::class.java, dp) {
@@ -129,7 +128,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
             }
         }
 
-        feedbackTable = object : SqlVersionedValuesTable<Purchase, BurstEncryptedMessage>(
+        feedbackTable = object : SqlMutableBatchValuesTable<Purchase, BurstEncryptedMessage>(
             PURCHASE_FEEDBACK,
             PURCHASE_FEEDBACK.HEIGHT,
             PURCHASE_FEEDBACK.LATEST,
@@ -142,17 +141,19 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 return BurstEncryptedMessage(data, nonce, false)
             }
 
-            override fun save(ctx: DSLContext, key: Purchase, values: List<BurstEncryptedMessage>) {
+            override fun saveBatch(ctx: DSLContext, entities: Map<Purchase, List<BurstEncryptedMessage>>) {
                 val height = dp.blockchainService.height
                 val query = ctx.insertInto(PURCHASE_FEEDBACK, PURCHASE_FEEDBACK.ID, PURCHASE_FEEDBACK.FEEDBACK_DATA, PURCHASE_FEEDBACK.FEEDBACK_NONCE, PURCHASE_FEEDBACK.HEIGHT, PURCHASE_FEEDBACK.LATEST)
-                values.forEach { value ->
-                    query.values(key.id, value.data, value.nonce, height, true)
+                entities.forEach { (key, values) ->
+                    values.forEach { value ->
+                        query.values(key.id, value.data, value.nonce, height, true)
+                    }
                 }
                 query.execute()
             }
         }
 
-        publicFeedbackTable = object : SqlVersionedValuesTable<Purchase, String>(
+        publicFeedbackTable = object : SqlMutableBatchValuesTable<Purchase, String>(
             PURCHASE_PUBLIC_FEEDBACK,
             PURCHASE_PUBLIC_FEEDBACK.HEIGHT,
             PURCHASE_PUBLIC_FEEDBACK.LATEST,
@@ -163,15 +164,15 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 return record.get(PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK)
             }
 
-            private val upsertColumns = listOf(PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK, PURCHASE_PUBLIC_FEEDBACK.HEIGHT, PURCHASE_PUBLIC_FEEDBACK.LATEST)
-            private val upsertKeys = listOf(PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.HEIGHT)
-
-            override fun save(ctx: DSLContext, key: Purchase, values: List<String>) {
+            override fun saveBatch(ctx: DSLContext, entities: Map<Purchase, List<String>>) {
                 val height = dp.blockchainService.height
-                ctx.upsert(PURCHASE_PUBLIC_FEEDBACK,
-                    upsertColumns,
-                    upsertKeys,
-                    values.map { publicFeedback -> arrayOf(key.id, publicFeedback, height, true) }).execute()
+                val query = ctx.insertInto(PURCHASE_PUBLIC_FEEDBACK, PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK, PURCHASE_PUBLIC_FEEDBACK.HEIGHT, PURCHASE_PUBLIC_FEEDBACK.LATEST)
+                entities.forEach { (key, values) ->
+                    values.forEach { value ->
+                        query.values(key.id, value, height, true)
+                    }
+                }
+                query.execute()
             }
         }
 

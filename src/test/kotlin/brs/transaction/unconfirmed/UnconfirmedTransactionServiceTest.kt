@@ -3,7 +3,7 @@ package brs.transaction.unconfirmed
 import brs.common.QuickMocker
 import brs.common.TestConstants
 import brs.db.AccountStore
-import brs.db.BatchEntityTable
+import brs.db.BatchTable
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.TransactionDb
@@ -40,7 +40,7 @@ class UnconfirmedTransactionServiceTest {
     private lateinit var mockBlockChain: BlockchainServiceImpl
 
     private lateinit var accountStoreMock: AccountStore
-    private lateinit var accountTableMock: BatchEntityTable<Account>
+    private lateinit var accountTableMock: BatchTable<Account>
     private lateinit var accountBurstKeyFactoryMock: LongKeyFactory<Account>
 
     private val timeService = TimeServiceImpl()

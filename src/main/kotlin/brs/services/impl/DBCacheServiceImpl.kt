@@ -60,7 +60,7 @@ class DBCacheServiceImpl(private val dp: DependencyProvider) : DBCacheService {
         }
     }
 
-    override fun <V> getCache(name: String, valueClass: Class<V>): Cache<BurstKey, V>? {
+    override fun <V> getCache(name: String, valueClass: Class<V>): Cache<BurstKey, V>? { // TODO this ain't gonna work!
         val cache = cacheManager.getCache(name, BurstKey::class.java, valueClass) ?: return null
         return StatisticsCache(cache, name, dp.statisticsService) // TODO constructing this every time sucks
     }

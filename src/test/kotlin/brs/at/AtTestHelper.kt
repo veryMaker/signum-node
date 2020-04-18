@@ -34,12 +34,12 @@ class AtTestHelper {
         val mockBlockchain = mockk<BlockchainService>(relaxed = true)
         val mockPropertyService = mockk<PropertyService>(relaxed = true)
 
-        val mockAtTable = mockk<MutableEntityTable<AT>>(relaxUnitFun = true)
+        val mockAtTable = mockk<MutableBatchEntityTable<AT>>(relaxUnitFun = true)
         every { mockAtTable[any()] } returns null
 
-        val mockAccountTable = mockk<BatchEntityTable<Account>>(relaxUnitFun = true)
+        val mockAccountTable = mockk<BatchTable<Account>>(relaxUnitFun = true)
 
-        val mockAtStateTable = mockk<MutableEntityTable<AT.ATState>>(relaxUnitFun = true)
+        val mockAtStateTable = mockk<MutableBatchEntityTable<AT.ATState>>(relaxUnitFun = true)
         every { mockAtStateTable[any()] } returns null
         val mockAccountStore = mockk<AccountStore>(relaxed = true)
         val mockAccountService = mockk<AccountService>(relaxed = true)

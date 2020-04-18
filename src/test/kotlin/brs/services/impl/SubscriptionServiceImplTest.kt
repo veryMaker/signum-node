@@ -4,7 +4,7 @@ import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
-import brs.db.MutableEntityTable
+import brs.db.MutableBatchEntityTable
 import brs.db.SubscriptionStore
 import brs.db.TransactionDb
 import brs.entity.Subscription
@@ -21,7 +21,7 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
     private lateinit var t: SubscriptionServiceImpl
 
     private lateinit var mockSubscriptionStore: SubscriptionStore
-    private lateinit var mockSubscriptionTable: MutableEntityTable<Subscription>
+    private lateinit var mockSubscriptionTable: MutableBatchEntityTable<Subscription>
     private lateinit var mockSubscriptionDbKeyFactory: LongKeyFactory<Subscription>
     private lateinit var transactionDb: TransactionDb
     private lateinit var blockchainService: BlockchainService

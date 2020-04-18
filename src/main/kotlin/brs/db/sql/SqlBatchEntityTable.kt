@@ -1,6 +1,6 @@
 package brs.db.sql
 
-import brs.db.BatchEntityTable
+import brs.db.BatchTable
 import brs.db.BurstKey
 import brs.db.assertInTransaction
 import brs.db.useDslContext
@@ -15,7 +15,7 @@ internal abstract class SqlBatchEntityTable<T> internal constructor(
     heightField: Field<Int>,
     private val tClass: Class<T>,
     private val dp: DependencyProvider
-) : SqlEntityTable<T>(table, heightField, null, dbKeyFactory, dp), BatchEntityTable<T> {
+) : SqlEntityTable<T>(table, heightField, null, dbKeyFactory, dp), BatchTable {
     override val count: Int
         get() {
             assertNotInTransaction()
@@ -74,7 +74,7 @@ internal abstract class SqlBatchEntityTable<T> internal constructor(
         batchCache[key] = entity
     }
 
-    override fun finish(height: Int) {
+    override fun flushBatch(height: Int) {
         dp.db.assertInTransaction()
         if (batch.isNotEmpty()) {
             require(height != lastFinishHeight) { "Already finished block height $height and batch is not empty" }

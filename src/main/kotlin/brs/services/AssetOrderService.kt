@@ -1,7 +1,7 @@
 package brs.services
 
 import brs.db.BurstKey
-import brs.db.MutableEntityTable
+import brs.db.MutableBatchEntityTable
 import brs.entity.Order
 import brs.entity.Transaction
 import brs.transaction.appendix.Attachment
@@ -10,7 +10,7 @@ interface AssetOrderService {
     /**
      * TODO
      */
-    val askOrderTable: MutableEntityTable<Order.Ask>
+    val askOrderTable: MutableBatchEntityTable<Order.Ask>
 
     /**
      * TODO
@@ -20,7 +20,7 @@ interface AssetOrderService {
     /**
      * TODO
      */
-    val bidOrderTable: MutableEntityTable<Order.Bid>
+    val bidOrderTable: MutableBatchEntityTable<Order.Bid>
 
     /**
      * TODO

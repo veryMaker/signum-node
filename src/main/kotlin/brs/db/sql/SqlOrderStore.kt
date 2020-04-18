@@ -1,7 +1,7 @@
 package brs.db.sql
 
 import brs.db.BurstKey
-import brs.db.MutableEntityTable
+import brs.db.MutableBatchEntityTable
 import brs.db.OrderStore
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
@@ -17,13 +17,13 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             return entity.dbKey
         }
     }
-    override val askOrderTable: MutableEntityTable<Order.Ask>
+    override val askOrderTable: MutableBatchEntityTable<Order.Ask>
     override val bidOrderDbKeyFactory = object : SqlDbKey.LongKeyFactory<Order.Bid>(BID_ORDER.ID) {
         override fun newKey(entity: Order.Bid): BurstKey {
             return entity.dbKey
         }
     }
-    override val bidOrderTable: MutableEntityTable<Order.Bid>
+    override val bidOrderTable: MutableBatchEntityTable<Order.Bid>
 
     init {
         askOrderTable = object : SqlMutableBatchEntityTable<Order.Ask>(ASK_ORDER, ASK_ORDER.HEIGHT, ASK_ORDER.LATEST, askOrderDbKeyFactory, Order.Ask::class.java, dp) {

@@ -1,11 +1,13 @@
 package brs.db.sql
 
-import brs.db.*
+import brs.db.BurstKey
+import brs.db.MutableBatchEntityTable
+import brs.db.assertInTransaction
+import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.util.cache.set
 import org.ehcache.Cache
 import org.jooq.*
-import org.jooq.Table
 import org.jooq.impl.DSL
 
 internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
@@ -15,7 +17,7 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
     dbKeyFactory: SqlDbKey.Factory<T>,
     private val tClass: Class<T>,
     private val dp: DependencyProvider
-) : SqlMutableEntityTable<T>(table, heightField, latestField, dbKeyFactory, dp), BatchEntityTable<T>, MutableEntityTable<T> {
+) : SqlMutableEntityTable<T>(table, heightField, latestField, dbKeyFactory, dp), MutableBatchEntityTable<T> {
     override val count: Int
         get() {
             assertNotInTransaction()
@@ -40,8 +42,6 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
     private fun assertNotInTransaction() {
         check(!dp.db.isInTransaction()) { "Cannot use batch table during transaction" }
     }
-
-    protected abstract fun saveBatch(ctx: DSLContext, entities: Collection<T>)
 
     override fun delete(t: T): Boolean {
         dp.db.assertInTransaction()
@@ -93,7 +93,9 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
         updateQuery.execute()
     }
 
-    override fun finish(height: Int) {
+    protected abstract fun saveBatch(ctx: DSLContext, entities: Collection<T>)
+
+    final override fun flushBatch(height: Int) {
         dp.db.assertInTransaction()
         if (batch.isEmpty()) return
         require(height != lastFinishHeight) { "Already finished block height $height and batch is not empty" }

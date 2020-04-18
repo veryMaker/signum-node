@@ -9,12 +9,14 @@ import brs.util.db.fetchAndMap
 import org.jooq.DSLContext
 import org.jooq.Field
 import org.jooq.Record
+import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 
 internal abstract class SqlValuesTable<K, V> internal constructor(
     tableClass: TableImpl<*>,
     heightField: Field<Int>,
-    internal val latestField: Field<Boolean>,
+    /** If not null then this is mutable */
+    internal val latestField: Field<Boolean>?,
     internal val dbKeyFactory: SqlDbKey.Factory<K>,
     private val dp: DependencyProvider
 ) : SqlDerivedTable<K>(tableClass, heightField, dp), ValuesTable<K, V> {
@@ -35,7 +37,7 @@ internal abstract class SqlValuesTable<K, V> internal constructor(
             if (dp.db.isInTransaction()) cache[key]?.let { return@useDslContext it }
             val values = ctx.selectFrom(table)
                 .where(key.primaryKeyConditions)
-                .and(latestField.isTrue)
+                .and(latestField?.isTrue ?: DSL.noCondition())
                 .orderBy(table.field("db_id").desc())
                 .fetchAndMap { record -> load(ctx, record) }
             if (dp.db.isInTransaction()) cache[key] = values
@@ -51,7 +53,7 @@ internal abstract class SqlValuesTable<K, V> internal constructor(
             ctx.update(table)
                 .set(latestField, false)
                 .where(dbKey.primaryKeyConditions)
-                .and(latestField.isTrue)
+                .and(latestField?.isTrue ?: DSL.noCondition())
                 .execute()
             save(ctx, key, values)
         }

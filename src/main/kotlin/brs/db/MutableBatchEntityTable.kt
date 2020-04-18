@@ -1,6 +1,6 @@
 package brs.db
 
-interface MutableEntityTable<T> : EntityTable<T> {
+interface MutableBatchEntityTable<T> : EntityTable<T>, BatchTable {
     /**
      * Delete an entity
      * @param t The entity

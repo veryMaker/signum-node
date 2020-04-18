@@ -78,9 +78,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
             val query = ctx.selectQuery()
             query.addFrom(table)
             query.addConditions(key.primaryKeyConditions)
-            if (latestField != null) {
-                query.addConditions(latestField.isTrue)
-            }
+            if (latestField != null) query.addConditions(latestField.isTrue)
             query.addLimit(1)
 
             get(query, true)
@@ -280,7 +278,7 @@ internal abstract class SqlEntityTable<T> internal constructor(
         val cachedT = cache[dbKey]
         if (cachedT == null) {
             cache[dbKey] = entity
-        } else check(!(entity !== cachedT)) { "Trying to insert an object which has a duplicate in cache, perhaps trying to save an object that was read outside the current transaction" }
+        } else check(entity === cachedT) { "Trying to insert an object which has a duplicate in cache, perhaps trying to save an object that was read outside the current transaction" }
         dp.db.useDslContext { ctx ->
             if (latestField != null) {
                 val query = ctx.updateQuery(table)

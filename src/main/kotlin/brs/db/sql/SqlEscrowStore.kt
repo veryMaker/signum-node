@@ -2,7 +2,7 @@ package brs.db.sql
 
 import brs.db.BurstKey
 import brs.db.EscrowStore
-import brs.db.MutableEntityTable
+import brs.db.MutableBatchEntityTable
 import brs.entity.DependencyProvider
 import brs.entity.Escrow
 import brs.entity.Escrow.Companion.byteToDecision
@@ -19,13 +19,13 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
         }
     }
 
-    override val escrowTable: MutableEntityTable<Escrow>
+    override val escrowTable: MutableBatchEntityTable<Escrow>
     override val decisionDbKeyFactory = object : SqlDbKey.LinkKeyFactory<Escrow.Decision>(ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID) {
         override fun newKey(entity: Escrow.Decision): BurstKey {
             return entity.dbKey
         }
     }
-    override val decisionTable: MutableEntityTable<Escrow.Decision>
+    override val decisionTable: MutableBatchEntityTable<Escrow.Decision>
     override val resultTransactions = mutableListOf<Transaction>()
 
     init {

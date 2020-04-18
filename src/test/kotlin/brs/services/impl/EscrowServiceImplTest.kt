@@ -4,7 +4,7 @@ import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
 import brs.db.EscrowStore
-import brs.db.MutableEntityTable
+import brs.db.MutableBatchEntityTable
 import brs.entity.Escrow
 import brs.services.AccountService
 import brs.services.AliasService
@@ -20,7 +20,7 @@ class EscrowServiceImplTest {
     private lateinit var t: EscrowServiceImpl
 
     private lateinit var mockEscrowStore: EscrowStore
-    private lateinit var mockEscrowTable: MutableEntityTable<Escrow>
+    private lateinit var mockEscrowTable: MutableBatchEntityTable<Escrow>
     private lateinit var mockEscrowDbKeyFactory: LongKeyFactory<Escrow>
     private lateinit var blockchainServiceMock: BlockchainService
     private lateinit var aliasServiceMock: AliasService

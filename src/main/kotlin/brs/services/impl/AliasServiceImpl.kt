@@ -1,7 +1,7 @@
 package brs.services.impl
 
 import brs.db.BurstKey
-import brs.db.MutableEntityTable
+import brs.db.MutableBatchEntityTable
 import brs.entity.Alias
 import brs.entity.Alias.Offer
 import brs.entity.DependencyProvider
@@ -11,9 +11,9 @@ import brs.transaction.appendix.Attachment
 
 class AliasServiceImpl(dp: DependencyProvider) : AliasService {
     private val aliasStore = dp.db.aliasStore
-    private val aliasTable: MutableEntityTable<Alias>
+    private val aliasTable: MutableBatchEntityTable<Alias>
     private val aliasDbKeyFactory: BurstKey.LongKeyFactory<Alias>
-    private val offerTable: MutableEntityTable<Offer>
+    private val offerTable: MutableBatchEntityTable<Offer>
     private val offerDbKeyFactory: BurstKey.LongKeyFactory<Offer>
 
     override fun getAliasCount() = aliasTable.count.toLong()

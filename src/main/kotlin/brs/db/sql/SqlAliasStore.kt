@@ -2,7 +2,7 @@ package brs.db.sql
 
 import brs.db.AliasStore
 import brs.db.BurstKey
-import brs.db.MutableEntityTable
+import brs.db.MutableBatchEntityTable
 import brs.entity.Alias
 import brs.entity.DependencyProvider
 import brs.schema.Tables.ALIAS
@@ -13,8 +13,8 @@ import org.jooq.Record
 import java.util.*
 
 internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
-    override val offerTable: MutableEntityTable<Alias.Offer>
-    override val aliasTable: MutableEntityTable<Alias>
+    override val offerTable: MutableBatchEntityTable<Alias.Offer>
+    override val aliasTable: MutableBatchEntityTable<Alias>
     override val aliasDbKeyFactory: SqlDbKey.LongKeyFactory<Alias> = AliasDbKeyFactory
     override val offerDbKeyFactory: SqlDbKey.LongKeyFactory<Alias.Offer> = OfferDbKeyFactory
 

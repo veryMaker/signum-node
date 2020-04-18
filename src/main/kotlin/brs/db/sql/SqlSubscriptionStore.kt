@@ -1,7 +1,7 @@
 package brs.db.sql
 
 import brs.db.BurstKey
-import brs.db.MutableEntityTable
+import brs.db.MutableBatchEntityTable
 import brs.db.SubscriptionStore
 import brs.entity.DependencyProvider
 import brs.entity.Subscription
@@ -17,7 +17,7 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
         }
     }
 
-    override val subscriptionTable: MutableEntityTable<Subscription>
+    override val subscriptionTable: MutableBatchEntityTable<Subscription>
 
     init {
         subscriptionTable = object : SqlMutableBatchEntityTable<Subscription>(SUBSCRIPTION, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST, subscriptionDbKeyFactory, Subscription::class.java, dp) {

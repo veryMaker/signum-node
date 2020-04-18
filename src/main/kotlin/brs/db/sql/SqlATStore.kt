@@ -24,7 +24,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
         }
     }
 
-    override val atStateTable: MutableEntityTable<AT.ATState>
+    override val atStateTable: MutableBatchEntityTable<AT.ATState>
 
     override fun getOrderedATs() = dp.db.useDslContext<List<Long>> { ctx ->
         ctx.selectFrom(ATTable.join(AT_STATE).on(ATTable.ID.eq(AT_STATE.AT_ID)).join(ACCOUNT).on(ATTable.ID.eq(ACCOUNT.ID)))
