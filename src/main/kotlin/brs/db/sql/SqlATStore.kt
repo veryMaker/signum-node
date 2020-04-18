@@ -4,7 +4,6 @@ import brs.at.AT
 import brs.db.*
 import brs.entity.DependencyProvider
 import brs.schema.Tables.*
-import brs.util.db.upsert
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.exception.DataAccessException
@@ -47,7 +46,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
     }
 
     init {
-        // TODO Remove latest field from AT Table.
+        // TODO Remove latest field from AT Table in a migration
         atTable =
             object : SqlEntityTable<AT>(ATTable, ATTable.HEIGHT, null, atDbKeyFactory, dp) {
                 override val defaultSort = listOf(ATTable.ID.asc())
@@ -94,13 +93,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
             }
 
         atStateTable =
-            object : SqlMutableEntityTable<AT.ATState>(
-                AT_STATE,
-                AT_STATE.HEIGHT,
-                AT_STATE.LATEST,
-                atStateDbKeyFactory,
-                dp
-            ) {
+            object : SqlMutableBatchEntityTable<AT.ATState>(AT_STATE, AT_STATE.HEIGHT, AT_STATE.LATEST, atStateDbKeyFactory, AT.ATState::class.java, dp) {
                 override val defaultSort = listOf(
                     AT_STATE.PREV_HEIGHT.asc(),
                     AT_STATE.HEIGHT.asc(),
@@ -111,39 +104,24 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
                     return SqlATState(dp, record)
                 }
 
-                private val upsertColumns = listOf(AT_STATE.AT_ID, AT_STATE.STATE, AT_STATE.PREV_HEIGHT, AT_STATE.NEXT_HEIGHT, AT_STATE.SLEEP_BETWEEN, AT_STATE.PREV_BALANCE, AT_STATE.FREEZE_WHEN_SAME_BALANCE, AT_STATE.MIN_ACTIVATE_AMOUNT, AT_STATE.HEIGHT, AT_STATE.LATEST)
-                private val upsertKeys = listOf(AT_STATE.AT_ID, AT_STATE.HEIGHT)
-
-                override fun save(ctx: DSLContext, entity: AT.ATState) {
-                    ctx.upsert(AT_STATE, upsertKeys, mapOf(
-                        AT_STATE.AT_ID to entity.atId,
-                        AT_STATE.STATE to AT.compressState(entity.state),
-                        AT_STATE.PREV_HEIGHT to entity.prevHeight,
-                        AT_STATE.NEXT_HEIGHT to entity.nextHeight,
-                        AT_STATE.SLEEP_BETWEEN to entity.sleepBetween,
-                        AT_STATE.PREV_BALANCE to entity.prevBalance,
-                        AT_STATE.FREEZE_WHEN_SAME_BALANCE to entity.freezeWhenSameBalance,
-                        AT_STATE.MIN_ACTIVATE_AMOUNT to entity.minActivationAmount,
-                        AT_STATE.HEIGHT to dp.blockchainService.height,
-                        AT_STATE.LATEST to true
-                    )).execute()
-                }
-
-                override fun save(ctx: DSLContext, entities: Collection<AT.ATState>) {
-                    if (entities.isEmpty()) return
+                override fun saveBatch(ctx: DSLContext, entities: Collection<AT.ATState>) {
                     val height = dp.blockchainService.height
-                    ctx.upsert(AT_STATE, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
-                        entity.atId,
-                        AT.compressState(entity.state),
-                        entity.prevHeight,
-                        entity.nextHeight,
-                        entity.sleepBetween,
-                        entity.prevBalance,
-                        entity.freezeWhenSameBalance,
-                        entity.minActivationAmount,
-                        height,
-                        true
-                    ) }).execute()
+                    val query = ctx.insertInto(AT_STATE, AT_STATE.AT_ID, AT_STATE.STATE, AT_STATE.PREV_HEIGHT, AT_STATE.NEXT_HEIGHT, AT_STATE.SLEEP_BETWEEN, AT_STATE.PREV_BALANCE, AT_STATE.FREEZE_WHEN_SAME_BALANCE, AT_STATE.MIN_ACTIVATE_AMOUNT, AT_STATE.HEIGHT, AT_STATE.LATEST)
+                    entities.forEach { entity ->
+                        query.values(
+                            entity.atId,
+                            AT.compressState(entity.state),
+                            entity.prevHeight,
+                            entity.nextHeight,
+                            entity.sleepBetween,
+                            entity.prevBalance,
+                            entity.freezeWhenSameBalance,
+                            entity.minActivationAmount,
+                            height,
+                            true
+                        )
+                    }
+                    query.execute()
                 }
             }
     }
@@ -241,6 +219,7 @@ internal class SqlATStore(private val dp: DependencyProvider) : ATStore {
         }
     }
 
+    // TODO remove
     internal inner class SqlATState internal constructor(dp: DependencyProvider, record: Record) : AT.ATState(
         dp,
         record.get(AT_STATE.AT_ID),

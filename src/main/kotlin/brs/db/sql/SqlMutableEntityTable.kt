@@ -9,6 +9,7 @@ import org.jooq.Field
 import org.jooq.Table
 import org.jooq.impl.DSL
 
+// TODO combine with batch
 internal abstract class SqlMutableEntityTable<T> internal constructor(
     table: Table<*>,
     heightField: Field<Int>,

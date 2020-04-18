@@ -19,60 +19,30 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
     override val offerDbKeyFactory: SqlDbKey.LongKeyFactory<Alias.Offer> = OfferDbKeyFactory
 
     init {
-        offerTable = object : SqlMutableEntityTable<Alias.Offer>(
-            ALIAS_OFFER,
-            ALIAS_OFFER.HEIGHT,
-            ALIAS_OFFER.LATEST,
-            offerDbKeyFactory,
-            dp
-        ) {
+        offerTable = object : SqlMutableBatchEntityTable<Alias.Offer>(ALIAS_OFFER, ALIAS_OFFER.HEIGHT, ALIAS_OFFER.LATEST, offerDbKeyFactory, Alias.Offer::class.java, dp) {
             override fun load(record: Record) = Alias.Offer(
                 record.get(ALIAS_OFFER.ID),
                 record.get(ALIAS_OFFER.PRICE),
                 record.get(ALIAS_OFFER.BUYER_ID).nullToZero(),
                 offerDbKeyFactory.newKey(record.get(ALIAS_OFFER.ID)))
 
-            override fun save(ctx: DSLContext, entity: Alias.Offer) {
-                ctx.insertInto(
-                        ALIAS_OFFER,
-                        ALIAS_OFFER.ID,
-                        ALIAS_OFFER.PRICE,
-                        ALIAS_OFFER.BUYER_ID,
-                        ALIAS_OFFER.HEIGHT
-                    )
-                    .values(
-                        entity.id,
-                        entity.pricePlanck,
-                        if (entity.buyerId == 0L) null else entity.buyerId,
-                        dp.blockchainService.height
-                    )
-                    .execute()
-            }
-
-            override fun save(ctx: DSLContext, entities: Collection<Alias.Offer>) {
-                if (entities.isEmpty()) return
+            override fun saveBatch(ctx: DSLContext, entities: Collection<Alias.Offer>) {
                 val height = dp.blockchainService.height
-                val query = ctx.insertInto(
-                    ALIAS_OFFER,
-                    ALIAS_OFFER.ID,
-                    ALIAS_OFFER.PRICE,
-                    ALIAS_OFFER.BUYER_ID,
-                    ALIAS_OFFER.HEIGHT
-                )
+                val query = ctx.insertInto(ALIAS_OFFER, ALIAS_OFFER.ID, ALIAS_OFFER.PRICE, ALIAS_OFFER.BUYER_ID, ALIAS_OFFER.HEIGHT, ALIAS_OFFER.LATEST)
                 entities.forEach { entity ->
                     query.values(
                         entity.id,
                         entity.pricePlanck,
                         if (entity.buyerId == 0L) null else entity.buyerId,
-                        height
+                        height,
+                        true
                     )
                 }
                 query.execute()
             }
         }
 
-        aliasTable =
-            object : SqlMutableEntityTable<Alias>(ALIAS, ALIAS.HEIGHT, ALIAS.LATEST, aliasDbKeyFactory, dp) {
+        aliasTable = object : SqlMutableBatchEntityTable<Alias>(ALIAS, ALIAS.HEIGHT, ALIAS.LATEST, aliasDbKeyFactory, Alias::class.java, dp) {
                 override val defaultSort = listOf(ALIAS.ALIAS_NAME_LOWER.asc())
 
                 override fun load(record: Record) = Alias(
@@ -83,14 +53,7 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
                     record.get(ALIAS.TIMESTAMP),
                     aliasDbKeyFactory.newKey(record.get(ALIAS.ID)))
 
-                override fun save(ctx: DSLContext, entity: Alias) {
-                    ctx.insertInto(ALIAS, ALIAS.ID, ALIAS.ACCOUNT_ID, ALIAS.ALIAS_NAME, ALIAS.ALIAS_NAME_LOWER, ALIAS.ALIAS_URI, ALIAS.TIMESTAMP, ALIAS.HEIGHT)
-                        .values(entity.id, entity.accountId, entity.aliasName, entity.aliasName.toLowerCase(Locale.ENGLISH), entity.aliasURI, entity.timestamp, dp.blockchainService.height)
-                        .execute()
-                }
-
-                override fun save(ctx: DSLContext, entities: Collection<Alias>) {
-                    if (entities.isEmpty()) return
+                override fun saveBatch(ctx: DSLContext, entities: Collection<Alias>) {
                     val height = dp.blockchainService.height
                     val query = ctx.insertInto(ALIAS, ALIAS.ID, ALIAS.ACCOUNT_ID, ALIAS.ALIAS_NAME, ALIAS.ALIAS_NAME_LOWER, ALIAS.ALIAS_URI, ALIAS.TIMESTAMP, ALIAS.HEIGHT)
                     entities.forEach { entity ->
