@@ -2,9 +2,7 @@ package brs.at
 
 import brs.common.QuickMocker
 import brs.common.TestConstants
-import brs.db.ATStore
-import brs.db.AccountStore
-import brs.db.BurstKey
+import brs.db.*
 import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.objects.Constants.EMPTY_BYTE_ARRAY
@@ -36,12 +34,12 @@ class AtTestHelper {
         val mockBlockchain = mockk<BlockchainService>(relaxed = true)
         val mockPropertyService = mockk<PropertyService>(relaxed = true)
 
-        val mockAtTable = mockk<MutableBatchEntityTable<AT>>(relaxUnitFun = true)
+        val mockAtTable = mockk<MutableEntityTable<AT>>(relaxUnitFun = true)
         every { mockAtTable[any()] } returns null
 
         val mockAccountTable = mockk<MutableBatchEntityTable<Account>>(relaxUnitFun = true)
 
-        val mockAtStateTable = mockk<MutableBatchEntityTable<AT.ATState>>(relaxUnitFun = true)
+        val mockAtStateTable = mockk<MutableEntityTable<AT.ATState>>(relaxUnitFun = true)
         every { mockAtStateTable[any()] } returns null
         val mockAccountStore = mockk<AccountStore>(relaxed = true)
         val mockAccountService = mockk<AccountService>(relaxed = true)

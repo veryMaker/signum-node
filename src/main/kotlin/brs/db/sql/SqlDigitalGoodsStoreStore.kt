@@ -17,7 +17,7 @@ import org.jooq.Record
 internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : DigitalGoodsStoreStore {
     override val feedbackDbKeyFactory = object : SqlDbKey.LongKeyFactory<Purchase>(PURCHASE_FEEDBACK.ID) {
         override fun newKey(entity: Purchase): BurstKey {
-            return entity.dbKey
+            return newKey(entity.id)
         }
     }
 
@@ -33,7 +33,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
 
     override val publicFeedbackDbKeyFactory = object : SqlDbKey.LongKeyFactory<Purchase>(PURCHASE_PUBLIC_FEEDBACK.ID) {
         override fun newKey(entity: Purchase): BurstKey {
-            return entity.dbKey
+            return newKey(entity.id)
         }
     }
 
@@ -41,7 +41,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
 
     override val goodsDbKeyFactory = object : SqlDbKey.LongKeyFactory<Goods>(GOODS.ID) {
         override fun newKey(entity: Goods): BurstKey {
-            return entity.dbKey
+            return newKey(entity.id)
         }
     }
 
@@ -159,7 +159,7 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
             }
         }
 
-        feedbackTable = object : SqlMutableBatchValuesTable<Purchase, BurstEncryptedMessage>(
+        feedbackTable = object : SqlVersionedValuesTable<Purchase, BurstEncryptedMessage>(
             PURCHASE_FEEDBACK,
             PURCHASE_FEEDBACK.HEIGHT,
             PURCHASE_FEEDBACK.LATEST,
@@ -172,19 +172,17 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 return BurstEncryptedMessage(data, nonce, false)
             }
 
-            override fun saveBatch(ctx: DSLContext, entities: Map<Purchase, List<BurstEncryptedMessage>>) {
+            override fun save(ctx: DSLContext, key: Purchase, values: List<BurstEncryptedMessage>) {
                 val height = dp.blockchainService.height
                 val query = ctx.insertInto(PURCHASE_FEEDBACK, PURCHASE_FEEDBACK.ID, PURCHASE_FEEDBACK.FEEDBACK_DATA, PURCHASE_FEEDBACK.FEEDBACK_NONCE, PURCHASE_FEEDBACK.HEIGHT, PURCHASE_FEEDBACK.LATEST)
-                entities.forEach { (key, values) ->
-                    values.forEach { value ->
-                        query.values(key.id, value.data, value.nonce, height, true)
-                    }
+                values.forEach { value ->
+                    query.values(key.id, value.data, value.nonce, height, true)
                 }
                 query.execute()
             }
         }
 
-        publicFeedbackTable = object : SqlMutableBatchValuesTable<Purchase, String>(
+        publicFeedbackTable = object : SqlVersionedValuesTable<Purchase, String>(
             PURCHASE_PUBLIC_FEEDBACK,
             PURCHASE_PUBLIC_FEEDBACK.HEIGHT,
             PURCHASE_PUBLIC_FEEDBACK.LATEST,
@@ -195,15 +193,15 @@ internal class SqlDigitalGoodsStoreStore(private val dp: DependencyProvider) : D
                 return record.get(PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK)
             }
 
-            override fun saveBatch(ctx: DSLContext, entities: Map<Purchase, List<String>>) {
+            private val upsertColumns = listOf(PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK, PURCHASE_PUBLIC_FEEDBACK.HEIGHT, PURCHASE_PUBLIC_FEEDBACK.LATEST)
+            private val upsertKeys = listOf(PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.HEIGHT)
+
+            override fun save(ctx: DSLContext, key: Purchase, values: List<String>) {
                 val height = dp.blockchainService.height
-                val query = ctx.insertInto(PURCHASE_PUBLIC_FEEDBACK, PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK, PURCHASE_PUBLIC_FEEDBACK.HEIGHT, PURCHASE_PUBLIC_FEEDBACK.LATEST)
-                entities.forEach { (key, values) ->
-                    values.forEach { value ->
-                        query.values(key.id, value, height, true)
-                    }
-                }
-                query.execute()
+                ctx.upsert(PURCHASE_PUBLIC_FEEDBACK,
+                    upsertColumns,
+                    upsertKeys,
+                    values.map { publicFeedback -> arrayOf(key.id, publicFeedback, height, true) }).execute()
             }
         }
 
