@@ -1111,7 +1111,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                         ))
                 .filter(transaction -> preCheckUnconfirmedTransaction(transactionDuplicatesChecker, unconfirmedTransactionStore, transaction)); // Extra check for transactions that are to be considered
 
-        if (Burst.getFluxCapacitor().getValue(FluxValues.PRE_DYMAXION)) {
+        if (Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2)) {
           // In this step we get all unconfirmed transactions and then sort them by slot, followed by priority
           Map<Long, Map<Long, Transaction>> unconfirmedTransactionsOrderedBySlotThenPriority = new HashMap<>();
             inclusionCandidates.collect(Collectors.toMap(Function.identity(), priorityCalculator::applyAsLong)).forEach((transaction, priority) -> {
@@ -1167,7 +1167,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             slotToTakeFrom.remove(highestPriority.get());
           });
           transactionsToBeIncluded = unconfirmedTransactionsOrderedBySlot;
-        } else { // Before Pre-Dymaxion HF, just choose highest priority
+        } else { // Before Pre-POC2 HF, just choose highest priority
           Map<Long, Transaction> transactionsOrderedByPriority = inclusionCandidates.collect(Collectors.toMap(priorityCalculator::applyAsLong, Function.identity()));
           Map<Long, Transaction> transactionsOrderedBySlot = new HashMap<>();
           AtomicLong currentSlot = new AtomicLong(1);
@@ -1191,7 +1191,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             continue;
           }
 
-          long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_DYMAXION) ? slot * FEE_QUANT : ONE_BURST;
+          long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT : ONE_BURST;
           if (transaction.getFeeNQT() >= slotFee) {
             if (transactionService.applyUnconfirmed(transaction)) {
               try {

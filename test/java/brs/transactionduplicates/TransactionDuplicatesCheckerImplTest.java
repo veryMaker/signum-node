@@ -36,7 +36,7 @@ public class TransactionDuplicatesCheckerImplTest {
   public void setUp() {
     mockStatic(Burst.class);
 
-    final FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_DYMAXION);
+    final FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_POC2);
     when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
     BlockchainImpl mockBlockchain = mock(BlockchainImpl.class);
     when(mockBlockchain.getHeight()).thenReturn(4);

@@ -401,8 +401,8 @@ public abstract class TransactionType {
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        if (!fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, transaction.getHeight())) {
-          throw new BurstException.NotCurrentlyValidException("Multi Out Payments are not allowed before the Pre Dymaxion block");
+        if (!fluxCapacitor.getValue(FluxValues.PRE_POC2, transaction.getHeight())) {
+          throw new BurstException.NotCurrentlyValidException("Multi Out Payments are not allowed before the Pre POC2 block");
         }
 
         Attachment.PaymentMultiOutCreation attachment = (Attachment.PaymentMultiOutCreation) transaction.getAttachment();
@@ -461,8 +461,8 @@ public abstract class TransactionType {
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        if (!fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, transaction.getHeight())) {
-          throw new BurstException.NotCurrentlyValidException("Multi Same Out Payments are not allowed before the Pre Dymaxion block");
+        if (!fluxCapacitor.getValue(FluxValues.PRE_POC2, transaction.getHeight())) {
+          throw new BurstException.NotCurrentlyValidException("Multi Same Out Payments are not allowed before the Pre POC2 block");
         }
 
         Attachment.PaymentMultiSameOutCreation attachment = (Attachment.PaymentMultiSameOutCreation) transaction.getAttachment();
@@ -1915,7 +1915,7 @@ public abstract class TransactionType {
           throw new BurstException.NotValidException("Reward recipient must have public key saved in blockchain: " + JSON.toJsonString(transaction.getJsonObject()));
         }
 
-        if (fluxCapacitor.getValue(FluxValues.PRE_DYMAXION)) {
+        if (fluxCapacitor.getValue(FluxValues.PRE_POC2)) {
           if (transaction.getAmountNQT() != 0 || transaction.getFeeNQT() < FEE_QUANT) {
             throw new BurstException.NotValidException("Reward recipient assignment transaction must have 0 send amount and at least minimum fee: " + JSON.toJsonString(transaction.getJsonObject()));
           }
@@ -2558,7 +2558,7 @@ public abstract class TransactionType {
   }
 
   protected Fee getBaselineFee(int height) {
-    return new Fee((fluxCapacitor.getValue(FluxValues.PRE_DYMAXION, height) ? FEE_QUANT : ONE_BURST), 0);
+    return new Fee((fluxCapacitor.getValue(FluxValues.PRE_POC2, height) ? FEE_QUANT : ONE_BURST), 0);
   }
 
   public static final class Fee {
