@@ -20,7 +20,6 @@ import brs.util.delegates.AtomicWithOverride
 import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
-import brs.util.logging.safeWarn
 import com.google.protobuf.Empty
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
@@ -152,12 +151,12 @@ class GrpcPeerImpl(
             if (connection != null) {
                 return action(connection)
             } else {
-                logger.safeWarn { "$errorMessage: Peer was not connected" }
+                logger.safeDebug { "$errorMessage: Peer was not connected" }
             }
         } catch (e: StatusRuntimeException) {
-            logger.safeWarn { "$errorMessage: Peer Returned an Error: \"${e.message?.replace("ABORTED: ", "")}\"" }
+            logger.safeDebug { "$errorMessage: Peer Returned an Error: \"${e.message?.replace("ABORTED: ", "")}\"" }
         } catch (e: Exception) {
-            logger.safeWarn(e) { errorMessage }
+            logger.safeDebug(e) { errorMessage }
         }
         return null
     }

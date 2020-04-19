@@ -7,6 +7,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.InetAddress
 import java.net.URI
+import java.net.UnknownHostException
 
 data class PeerAddress(
     val protocol: Protocol,
@@ -64,7 +65,9 @@ data class PeerAddress(
                 }
                 return PeerAddress(protocol, host, port)
             } catch (e: Exception) {
-                logger.safeDebug(e) { "Could not parse peer address $address due to exception" }
+                if (e !is UnknownHostException) {
+                    logger.safeDebug(e) { "Could not parse peer address $address due to exception" }
+                }
                 return null
             }
         }

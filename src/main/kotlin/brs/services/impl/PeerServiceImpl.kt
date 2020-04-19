@@ -156,6 +156,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         val disconnectedPeer = getAnyPeer(isConnected = false)
         // If we have a peer to connect and we are allowed to connect to more peers
         if (disconnectedPeer != null && peers.values.countFilterResults { it.isConnected } < maxNumberOfConnectedPeers) {
+            logger.safeDebug { "Connecting to peer..." }
             if (disconnectedPeer.connect()) {
                 // They've connected! Disconnect them if they do not meet the
                 // version requirements, or if they are not actually connected.
@@ -167,8 +168,10 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 // but we mustn't remove them if they are blacklisted
                 // or we'll forget their blacklist and they could connect again.
                 if (disconnectedPeer.isBlacklisted) {
+                    logger.safeDebug { "Could not connect to peer, and it is blacklisted." }
                     disconnectedPeer.disconnect()
                 } else {
+                    logger.safeDebug { "Could not connect to peer, removing peer." }
                     removePeer(disconnectedPeer)
                 }
             }

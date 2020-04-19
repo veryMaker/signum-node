@@ -21,7 +21,6 @@ import brs.util.json.*
 import brs.util.logging.safeDebug
 import brs.util.logging.safeError
 import brs.util.logging.safeInfo
-import brs.util.logging.safeWarn
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -126,7 +125,7 @@ internal class HttpPeerImpl(
                 if (isConnected) {
                     isConnected = false
                 }
-                logger.safeWarn(e) { errorMessage }
+                logger.safeDebug(e) { errorMessage }
             }
             null
         }
