@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 public final class Constants {
+	
+  public static final long BURST_BLOCK_TIME = 240L;
 
   public static final int BURST_DIFF_ADJUST_CHANGE_BLOCK = 2700;
 

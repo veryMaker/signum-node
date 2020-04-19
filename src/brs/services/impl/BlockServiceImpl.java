@@ -236,7 +236,7 @@ public class BlockServiceImpl implements BlockService {
 
       long curBaseTarget = avgBaseTarget.longValue();
       long newBaseTarget = BigInteger.valueOf(curBaseTarget).multiply(BigInteger.valueOf(difTime))
-          .divide(BigInteger.valueOf(240L * 4)).longValue();
+          .divide(BigInteger.valueOf(Constants.BURST_BLOCK_TIME * 4)).longValue();
       if (newBaseTarget < 0 || newBaseTarget > Constants.MAX_BASE_TARGET) {
         newBaseTarget = Constants.MAX_BASE_TARGET;
       }

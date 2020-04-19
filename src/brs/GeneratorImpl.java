@@ -32,6 +32,8 @@ public class GeneratorImpl implements Generator {
   private final Blockchain blockchain;
   private final TimeService timeService;
   private final FluxCapacitor fluxCapacitor;
+  
+  private static final double LN_SCALE = ((double) Constants.BURST_BLOCK_TIME) / Math.log((double) Constants.BURST_BLOCK_TIME);
 
   public GeneratorImpl(Blockchain blockchain, TimeService timeService, FluxCapacitor fluxCapacitor) {
     this.blockchain = blockchain;
@@ -139,7 +141,7 @@ public class GeneratorImpl implements Generator {
     if(fluxCapacitor.getValue(FluxValues.LN_TIME, blockHeight)) {
       if(deadline.bitLength() < 100 && deadline.longValue() > 0L) {
     	  // Avoid the double precision limit for extremely large numbers (of no value) and zero logarithm
-    	  double lnDeadline = Math.log(deadline.doubleValue()) * 240.0D / Math.log(240.0D);
+    	  double lnDeadline = Math.log(deadline.doubleValue()) * LN_SCALE;
     	  deadline = BigInteger.valueOf((long)lnDeadline);
       }
     }
