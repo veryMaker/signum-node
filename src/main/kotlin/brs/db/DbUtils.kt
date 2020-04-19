@@ -4,6 +4,9 @@ import org.jooq.DSLContext
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
+// TODO: Batch tables.
+// Currently the only thing preventing batch tables is the fact that some methods use useDslContext outside of the Table object. This needs to be removed.
+
 /**
  * Use the DSL Context of the DB
  * @param action The action to perform using the DSL Context

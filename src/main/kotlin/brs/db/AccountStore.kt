@@ -14,7 +14,7 @@ interface AccountStore {
     /**
      * TODO
      */
-    val rewardRecipientAssignmentTable: MutableBatchEntityTable<Account.RewardRecipientAssignment>
+    val rewardRecipientAssignmentTable: MutableEntityTable<Account.RewardRecipientAssignment>
 
     /**
      * TODO
@@ -29,7 +29,7 @@ interface AccountStore {
     /**
      * TODO
      */
-    val accountAssetTable: MutableBatchEntityTable<Account.AccountAsset>
+    val accountAssetTable: MutableEntityTable<Account.AccountAsset>
 
     /**
      * TODO

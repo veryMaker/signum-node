@@ -12,7 +12,7 @@ interface EscrowStore {
     /**
      * TODO
      */
-    val escrowTable: MutableBatchEntityTable<Escrow>
+    val escrowTable: MutableEntityTable<Escrow>
 
     /**
      * TODO
@@ -22,7 +22,7 @@ interface EscrowStore {
     /**
      * TODO
      */
-    val decisionTable: MutableBatchEntityTable<Escrow.Decision>
+    val decisionTable: MutableEntityTable<Escrow.Decision>
 
     /**
      * TODO

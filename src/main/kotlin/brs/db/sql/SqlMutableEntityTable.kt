@@ -1,7 +1,7 @@
 package brs.db.sql
 
 import brs.db.BurstKey
-import brs.db.MutableBatchEntityTable
+import brs.db.MutableEntityTable
 import brs.db.assertInTransaction
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
@@ -16,7 +16,7 @@ internal abstract class SqlMutableEntityTable<T> internal constructor(
     latestField: Field<Boolean>,
     dbKeyFactory: SqlDbKey.Factory<T>,
     private val dp: DependencyProvider
-) : SqlEntityTable<T>(table, heightField, latestField, dbKeyFactory, dp), MutableBatchEntityTable<T> {
+) : SqlEntityTable<T>(table, heightField, latestField, dbKeyFactory, dp), MutableEntityTable<T> {
     override fun rollback(height: Int) {
         rollback(dp, cache, table, heightField, latestField, height, dbKeyFactory)
     }

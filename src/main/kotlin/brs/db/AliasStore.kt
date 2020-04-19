@@ -16,12 +16,12 @@ interface AliasStore {
     /**
      * TODO
      */
-    val aliasTable: MutableBatchEntityTable<Alias>
+    val aliasTable: MutableEntityTable<Alias>
 
     /**
      * TODO
      */
-    val offerTable: MutableBatchEntityTable<Alias.Offer>
+    val offerTable: MutableEntityTable<Alias.Offer>
 
     /**
      * TODO

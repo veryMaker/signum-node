@@ -31,7 +31,7 @@ interface ATStore {
     /**
      * TODO
      */
-    val atStateTable: MutableBatchEntityTable<AT.ATState>
+    val atStateTable: MutableEntityTable<AT.ATState>
 
     /**
      * TODO

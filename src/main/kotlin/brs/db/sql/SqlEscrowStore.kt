@@ -2,13 +2,14 @@ package brs.db.sql
 
 import brs.db.BurstKey
 import brs.db.EscrowStore
-import brs.db.MutableBatchEntityTable
+import brs.db.MutableEntityTable
 import brs.entity.DependencyProvider
 import brs.entity.Escrow
 import brs.entity.Escrow.Companion.byteToDecision
 import brs.entity.Transaction
 import brs.schema.Tables.ESCROW
 import brs.schema.Tables.ESCROW_DECISION
+import brs.util.db.upsert
 import org.jooq.DSLContext
 import org.jooq.Record
 
@@ -19,17 +20,17 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
         }
     }
 
-    override val escrowTable: MutableBatchEntityTable<Escrow>
+    override val escrowTable: MutableEntityTable<Escrow>
     override val decisionDbKeyFactory = object : SqlDbKey.LinkKeyFactory<Escrow.Decision>(ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID) {
         override fun newKey(entity: Escrow.Decision): BurstKey {
             return entity.dbKey
         }
     }
-    override val decisionTable: MutableBatchEntityTable<Escrow.Decision>
+    override val decisionTable: MutableEntityTable<Escrow.Decision>
     override val resultTransactions = mutableListOf<Transaction>()
 
     init {
-        escrowTable = object : SqlMutableBatchEntityTable<Escrow>(ESCROW, ESCROW.HEIGHT, ESCROW.LATEST, escrowDbKeyFactory, Escrow::class.java, dp) {
+        escrowTable = object : SqlMutableEntityTable<Escrow>(ESCROW, ESCROW.HEIGHT, ESCROW.LATEST, escrowDbKeyFactory, dp) { // TODO batch table!
             override fun load(record: Record) = Escrow(
                 dp,
                 record.get(ESCROW.ID),
@@ -41,27 +42,42 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
                 record.get(ESCROW.DEADLINE),
                 byteToDecision(record.get(ESCROW.DEADLINE_ACTION).toByte()))
 
-            override fun saveBatch(ctx: DSLContext, entities: Collection<Escrow>) {
+            private val upsertColumns = listOf(ESCROW.ID, ESCROW.SENDER_ID, ESCROW.RECIPIENT_ID, ESCROW.AMOUNT, ESCROW.REQUIRED_SIGNERS, ESCROW.DEADLINE, ESCROW.DEADLINE_ACTION, ESCROW.HEIGHT, ESCROW.LATEST)
+            private val upsertKeys = listOf(ESCROW.ID, ESCROW.HEIGHT)
+
+            override fun save(ctx: DSLContext, entity: Escrow) {
+                ctx.upsert(ESCROW, upsertKeys, mapOf(
+                    ESCROW.ID to entity.id,
+                    ESCROW.SENDER_ID to entity.senderId,
+                    ESCROW.RECIPIENT_ID to entity.recipientId,
+                    ESCROW.AMOUNT to entity.amountPlanck,
+                    ESCROW.REQUIRED_SIGNERS to entity.requiredSigners,
+                    ESCROW.DEADLINE to entity.deadline,
+                    ESCROW.DEADLINE_ACTION to Escrow.decisionToByte(entity.deadlineAction).toInt(),
+                    ESCROW.HEIGHT to dp.blockchainService.height,
+                    ESCROW.LATEST to true
+                )).execute()
+            }
+
+            override fun save(ctx: DSLContext, entities: Collection<Escrow>) {
+                if (entities.isEmpty()) return
                 val height = dp.blockchainService.height
-                val query = ctx.insertInto(ESCROW, ESCROW.ID, ESCROW.SENDER_ID, ESCROW.RECIPIENT_ID, ESCROW.AMOUNT, ESCROW.REQUIRED_SIGNERS, ESCROW.DEADLINE, ESCROW.DEADLINE_ACTION, ESCROW.HEIGHT, ESCROW.LATEST)
-                entities.forEach { entity ->
-                    query.values(
-                        entity.id,
-                        entity.senderId,
-                        entity.recipientId,
-                        entity.amountPlanck,
-                        entity.requiredSigners,
-                        entity.deadline,
-                        Escrow.decisionToByte(entity.deadlineAction).toInt(),
-                        height,
-                        true
-                    )
-                }
-                query.execute()
+                ctx.upsert(ESCROW, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
+                    entity.id,
+                    entity.senderId,
+                    entity.recipientId,
+                    entity.amountPlanck,
+                    entity.requiredSigners,
+                    entity.deadline,
+                    Escrow.decisionToByte(entity.deadlineAction).toInt(),
+                    height,
+                    true
+                ) }).execute()
             }
         }
 
-        decisionTable = object : SqlMutableBatchEntityTable<Escrow.Decision>(ESCROW_DECISION, ESCROW_DECISION.HEIGHT, ESCROW_DECISION.LATEST, decisionDbKeyFactory, Escrow.Decision::class.java, dp) {
+        decisionTable = object :
+            SqlMutableEntityTable<Escrow.Decision>(ESCROW_DECISION, ESCROW_DECISION.HEIGHT, ESCROW_DECISION.LATEST, decisionDbKeyFactory, dp) { // TODO batch table!
             override fun load(record: Record) = Escrow.Decision(
                 decisionDbKeyFactory.newKey(
                     record.get(ESCROW_DECISION.ESCROW_ID),
@@ -71,19 +87,29 @@ internal class SqlEscrowStore(private val dp: DependencyProvider) : EscrowStore 
                 record.get(ESCROW_DECISION.ACCOUNT_ID),
                 byteToDecision(record.get(ESCROW_DECISION.DECISION).toByte()))
 
-            override fun saveBatch(ctx: DSLContext, entities: Collection<Escrow.Decision>) {
+            private val upsertColumns = listOf(ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.DECISION, ESCROW_DECISION.HEIGHT, ESCROW_DECISION.LATEST)
+            private val upsertKeys = listOf(ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.HEIGHT)
+
+            override fun save(ctx: DSLContext, entity: Escrow.Decision) {
+                ctx.upsert(ESCROW_DECISION, upsertKeys, mapOf(
+                    ESCROW_DECISION.ESCROW_ID to entity.escrowId,
+                    ESCROW_DECISION.ACCOUNT_ID to entity.accountId,
+                    ESCROW_DECISION.DECISION to Escrow.decisionToByte(entity.decision).toInt(),
+                    ESCROW_DECISION.HEIGHT to dp.blockchainService.height,
+                    ESCROW_DECISION.LATEST to true
+                )).execute()
+            }
+
+            override fun save(ctx: DSLContext, entities: Collection<Escrow.Decision>) {
+                if (entities.isEmpty()) return
                 val height = dp.blockchainService.height
-                val query = ctx.insertInto(ESCROW_DECISION, ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.DECISION, ESCROW_DECISION.HEIGHT, ESCROW_DECISION.LATEST)
-                entities.forEach { entity ->
-                    query.values(
-                        entity.escrowId,
-                        entity.accountId,
-                        Escrow.decisionToByte(entity.decision).toInt(),
-                        height,
-                        true
-                    )
-                }
-                query.execute()
+                ctx.upsert(ESCROW_DECISION, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
+                    entity.escrowId,
+                    entity.accountId,
+                    Escrow.decisionToByte(entity.decision).toInt(),
+                    height,
+                    true
+                ) }).execute()
             }
         }
     }

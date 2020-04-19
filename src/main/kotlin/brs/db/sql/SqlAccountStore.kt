@@ -1,9 +1,6 @@
 package brs.db.sql
 
-import brs.db.AccountStore
-import brs.db.BurstKey
-import brs.db.MutableBatchEntityTable
-import brs.db.useDslContext
+import brs.db.*
 import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.schema.Tables.*
@@ -16,9 +13,9 @@ import org.jooq.SortField
 import org.slf4j.LoggerFactory
 
 internal class SqlAccountStore(private val dp: DependencyProvider) : AccountStore {
-    override val accountAssetTable: MutableBatchEntityTable<Account.AccountAsset>
+    override val accountAssetTable: MutableEntityTable<Account.AccountAsset>
 
-    override val rewardRecipientAssignmentTable: MutableBatchEntityTable<Account.RewardRecipientAssignment>
+    override val rewardRecipientAssignmentTable: MutableEntityTable<Account.RewardRecipientAssignment>
 
     override val accountTable: MutableBatchEntityTable<Account>
 

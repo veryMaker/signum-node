@@ -27,8 +27,6 @@ import brs.util.logging.safeTrace
 import com.google.gson.JsonObject
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
-import kotlin.collections.Map
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
 
 abstract class TransactionType constructor(internal val dp: DependencyProvider) {

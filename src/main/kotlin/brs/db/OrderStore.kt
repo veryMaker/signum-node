@@ -6,7 +6,7 @@ interface OrderStore {
     /**
      * TODO
      */
-    val bidOrderTable: MutableBatchEntityTable<Order.Bid>
+    val bidOrderTable: MutableEntityTable<Order.Bid>
 
     /**
      * TODO
@@ -16,7 +16,7 @@ interface OrderStore {
     /**
      * TODO
      */
-    val askOrderTable: MutableBatchEntityTable<Order.Ask>
+    val askOrderTable: MutableEntityTable<Order.Ask>
 
     /**
      * TODO

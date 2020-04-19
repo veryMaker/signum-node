@@ -2,7 +2,7 @@ package brs.db.sql
 
 import brs.db.AliasStore
 import brs.db.BurstKey
-import brs.db.MutableBatchEntityTable
+import brs.db.MutableEntityTable
 import brs.entity.Alias
 import brs.entity.DependencyProvider
 import brs.schema.Tables.ALIAS
@@ -13,36 +13,66 @@ import org.jooq.Record
 import java.util.*
 
 internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
-    override val offerTable: MutableBatchEntityTable<Alias.Offer>
-    override val aliasTable: MutableBatchEntityTable<Alias>
+    override val offerTable: MutableEntityTable<Alias.Offer>
+    override val aliasTable: MutableEntityTable<Alias>
     override val aliasDbKeyFactory: SqlDbKey.LongKeyFactory<Alias> = AliasDbKeyFactory
     override val offerDbKeyFactory: SqlDbKey.LongKeyFactory<Alias.Offer> = OfferDbKeyFactory
 
     init {
-        offerTable = object : SqlMutableBatchEntityTable<Alias.Offer>(ALIAS_OFFER, ALIAS_OFFER.HEIGHT, ALIAS_OFFER.LATEST, offerDbKeyFactory, Alias.Offer::class.java, dp) {
+        offerTable = object : SqlMutableEntityTable<Alias.Offer>( // TODO batch table!
+            ALIAS_OFFER,
+            ALIAS_OFFER.HEIGHT,
+            ALIAS_OFFER.LATEST,
+            offerDbKeyFactory,
+            dp
+        ) {
             override fun load(record: Record) = Alias.Offer(
                 record.get(ALIAS_OFFER.ID),
                 record.get(ALIAS_OFFER.PRICE),
                 record.get(ALIAS_OFFER.BUYER_ID).nullToZero(),
                 offerDbKeyFactory.newKey(record.get(ALIAS_OFFER.ID)))
 
-            override fun saveBatch(ctx: DSLContext, entities: Collection<Alias.Offer>) {
+            override fun save(ctx: DSLContext, entity: Alias.Offer) {
+                ctx.insertInto(
+                        ALIAS_OFFER,
+                        ALIAS_OFFER.ID,
+                        ALIAS_OFFER.PRICE,
+                        ALIAS_OFFER.BUYER_ID,
+                        ALIAS_OFFER.HEIGHT
+                    )
+                    .values(
+                        entity.id,
+                        entity.pricePlanck,
+                        if (entity.buyerId == 0L) null else entity.buyerId,
+                        dp.blockchainService.height
+                    )
+                    .execute()
+            }
+
+            override fun save(ctx: DSLContext, entities: Collection<Alias.Offer>) {
+                if (entities.isEmpty()) return
                 val height = dp.blockchainService.height
-                val query = ctx.insertInto(ALIAS_OFFER, ALIAS_OFFER.ID, ALIAS_OFFER.PRICE, ALIAS_OFFER.BUYER_ID, ALIAS_OFFER.HEIGHT, ALIAS_OFFER.LATEST)
+                val query = ctx.insertInto(
+                    ALIAS_OFFER,
+                    ALIAS_OFFER.ID,
+                    ALIAS_OFFER.PRICE,
+                    ALIAS_OFFER.BUYER_ID,
+                    ALIAS_OFFER.HEIGHT
+                )
                 entities.forEach { entity ->
                     query.values(
                         entity.id,
                         entity.pricePlanck,
                         if (entity.buyerId == 0L) null else entity.buyerId,
-                        height,
-                        true
+                        height
                     )
                 }
                 query.execute()
             }
         }
 
-        aliasTable = object : SqlMutableBatchEntityTable<Alias>(ALIAS, ALIAS.HEIGHT, ALIAS.LATEST, aliasDbKeyFactory, Alias::class.java, dp) {
+        aliasTable =
+            object : SqlMutableEntityTable<Alias>(ALIAS, ALIAS.HEIGHT, ALIAS.LATEST, aliasDbKeyFactory, dp) { // TODO batch table!
                 override val defaultSort = listOf(ALIAS.ALIAS_NAME_LOWER.asc())
 
                 override fun load(record: Record) = Alias(
@@ -53,7 +83,14 @@ internal class SqlAliasStore(private val dp: DependencyProvider) : AliasStore {
                     record.get(ALIAS.TIMESTAMP),
                     aliasDbKeyFactory.newKey(record.get(ALIAS.ID)))
 
-                override fun saveBatch(ctx: DSLContext, entities: Collection<Alias>) {
+                override fun save(ctx: DSLContext, entity: Alias) {
+                    ctx.insertInto(ALIAS, ALIAS.ID, ALIAS.ACCOUNT_ID, ALIAS.ALIAS_NAME, ALIAS.ALIAS_NAME_LOWER, ALIAS.ALIAS_URI, ALIAS.TIMESTAMP, ALIAS.HEIGHT)
+                        .values(entity.id, entity.accountId, entity.aliasName, entity.aliasName.toLowerCase(Locale.ENGLISH), entity.aliasURI, entity.timestamp, dp.blockchainService.height)
+                        .execute()
+                }
+
+                override fun save(ctx: DSLContext, entities: Collection<Alias>) {
+                    if (entities.isEmpty()) return
                     val height = dp.blockchainService.height
                     val query = ctx.insertInto(ALIAS, ALIAS.ID, ALIAS.ACCOUNT_ID, ALIAS.ALIAS_NAME, ALIAS.ALIAS_NAME_LOWER, ALIAS.ALIAS_URI, ALIAS.TIMESTAMP, ALIAS.HEIGHT)
                     entities.forEach { entity ->

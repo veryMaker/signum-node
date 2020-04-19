@@ -4,7 +4,7 @@ import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.db.AliasStore
 import brs.db.BurstKey
-import brs.db.MutableBatchEntityTable
+import brs.db.MutableEntityTable
 import brs.entity.Alias
 import brs.entity.Alias.Offer
 import brs.entity.Transaction
@@ -23,9 +23,9 @@ class AliasServiceImplTest : AbstractUnitTest() {
     private lateinit var t: AliasServiceImpl
 
     private lateinit var aliasStoreMock: AliasStore
-    private lateinit var aliasTableMock: MutableBatchEntityTable<Alias>
+    private lateinit var aliasTableMock: MutableEntityTable<Alias>
     private lateinit var aliasDbKeyFactoryMock: BurstKey.LongKeyFactory<Alias>
-    private lateinit var offerTableMock: MutableBatchEntityTable<Offer>
+    private lateinit var offerTableMock: MutableEntityTable<Offer>
     private lateinit var offerDbKeyFactoryMock: BurstKey.LongKeyFactory<Offer>
 
     @Before

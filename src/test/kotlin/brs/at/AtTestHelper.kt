@@ -5,7 +5,6 @@ import brs.common.TestConstants
 import brs.db.ATStore
 import brs.db.AccountStore
 import brs.db.BurstKey
-import brs.db.MutableBatchEntityTable
 import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.objects.Constants.EMPTY_BYTE_ARRAY

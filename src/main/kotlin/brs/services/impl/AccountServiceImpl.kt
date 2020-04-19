@@ -4,7 +4,7 @@ import brs.db.AccountStore
 import brs.db.AssetTransferStore
 import brs.db.BurstKey.LinkKeyFactory
 import brs.db.BurstKey.LongKeyFactory
-import brs.db.MutableBatchEntityTable
+import brs.db.MutableEntityTable
 import brs.entity.Account
 import brs.entity.Account.*
 import brs.entity.AssetTransfer
@@ -21,11 +21,11 @@ import brs.util.crypto.Crypto
 
 class AccountServiceImpl(private val dp: DependencyProvider) : AccountService {
     private val accountStore: AccountStore
-    private val accountTable: MutableBatchEntityTable<Account>
+    private val accountTable: MutableEntityTable<Account>
     private val accountBurstKeyFactory: LongKeyFactory<Account>
-    private val accountAssetTable: MutableBatchEntityTable<AccountAsset>
+    private val accountAssetTable: MutableEntityTable<AccountAsset>
     private val accountAssetKeyFactory: LinkKeyFactory<AccountAsset>
-    private val rewardRecipientAssignmentTable: MutableBatchEntityTable<RewardRecipientAssignment>
+    private val rewardRecipientAssignmentTable: MutableEntityTable<RewardRecipientAssignment>
     private val rewardRecipientAssignmentKeyFactory: LongKeyFactory<RewardRecipientAssignment>
 
     private val assetTransferStore: AssetTransferStore

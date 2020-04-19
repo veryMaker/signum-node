@@ -1,13 +1,14 @@
 package brs.db.sql
 
 import brs.db.BurstKey
-import brs.db.MutableBatchEntityTable
+import brs.db.MutableEntityTable
 import brs.db.OrderStore
 import brs.db.useDslContext
 import brs.entity.DependencyProvider
 import brs.entity.Order
 import brs.schema.Tables.ASK_ORDER
 import brs.schema.Tables.BID_ORDER
+import brs.util.db.upsert
 import org.jooq.DSLContext
 import org.jooq.Record
 
@@ -17,64 +18,102 @@ internal class SqlOrderStore(private val dp: DependencyProvider) : OrderStore {
             return entity.dbKey
         }
     }
-    override val askOrderTable: MutableBatchEntityTable<Order.Ask>
+    override val askOrderTable: MutableEntityTable<Order.Ask>
     override val bidOrderDbKeyFactory = object : SqlDbKey.LongKeyFactory<Order.Bid>(BID_ORDER.ID) {
         override fun newKey(entity: Order.Bid): BurstKey {
             return entity.dbKey
         }
     }
-    override val bidOrderTable: MutableBatchEntityTable<Order.Bid>
+    override val bidOrderTable: MutableEntityTable<Order.Bid>
 
     init {
-        askOrderTable = object : SqlMutableBatchEntityTable<Order.Ask>(ASK_ORDER, ASK_ORDER.HEIGHT, ASK_ORDER.LATEST, askOrderDbKeyFactory, Order.Ask::class.java, dp) {
+        askOrderTable = object : SqlMutableEntityTable<Order.Ask>( // TODO batch table!
+            ASK_ORDER,
+            ASK_ORDER.HEIGHT,
+            ASK_ORDER.LATEST,
+            askOrderDbKeyFactory,
+            dp
+        ) {
             override val defaultSort = listOf(ASK_ORDER.CREATION_HEIGHT.desc())
 
             override fun load(record: Record): Order.Ask {
                 return sqlToAsk(record)
             }
 
-            override fun saveBatch(ctx: DSLContext, entities: Collection<Order.Ask>) {
+            private val upsertColumns = listOf(ASK_ORDER.ID, ASK_ORDER.ACCOUNT_ID, ASK_ORDER.ASSET_ID, ASK_ORDER.PRICE, ASK_ORDER.QUANTITY, ASK_ORDER.CREATION_HEIGHT, ASK_ORDER.HEIGHT, ASK_ORDER.LATEST)
+            private val upsertKeys = listOf(ASK_ORDER.ID, ASK_ORDER.HEIGHT)
+
+            override fun save(ctx: DSLContext, entity: Order.Ask) {
+                ctx.upsert(ASK_ORDER, upsertKeys, mapOf(
+                    ASK_ORDER.ID to entity.id,
+                    ASK_ORDER.ACCOUNT_ID to entity.accountId,
+                    ASK_ORDER.ASSET_ID to entity.assetId,
+                    ASK_ORDER.PRICE to entity.pricePlanck,
+                    ASK_ORDER.QUANTITY to entity.quantity,
+                    ASK_ORDER.CREATION_HEIGHT to entity.height,
+                    ASK_ORDER.HEIGHT to dp.blockchainService.height,
+                    ASK_ORDER.LATEST to true
+                )).execute()
+            }
+
+            override fun save(ctx: DSLContext, entities: Collection<Order.Ask>) {
+                if (entities.isEmpty()) return
                 val height = dp.blockchainService.height
-                val query = ctx.insertInto(ASK_ORDER, ASK_ORDER.ID, ASK_ORDER.ACCOUNT_ID, ASK_ORDER.ASSET_ID, ASK_ORDER.PRICE, ASK_ORDER.QUANTITY, ASK_ORDER.CREATION_HEIGHT, ASK_ORDER.HEIGHT, ASK_ORDER.LATEST)
-                entities.forEach { entity ->
-                    query.values(
-                        entity.id,
-                        entity.accountId,
-                        entity.assetId,
-                        entity.pricePlanck,
-                        entity.quantity,
-                        entity.height,
-                        height,
-                        true
-                    )
-                }
-                query.execute()
+                ctx.upsert(ASK_ORDER, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
+                    entity.id,
+                    entity.accountId,
+                    entity.assetId,
+                    entity.pricePlanck,
+                    entity.quantity,
+                    entity.height,
+                    height,
+                    true
+                ) }).execute()
             }
         }
 
-        bidOrderTable = object : SqlMutableBatchEntityTable<Order.Bid>(BID_ORDER, BID_ORDER.HEIGHT, BID_ORDER.LATEST, bidOrderDbKeyFactory, Order.Bid::class.java, dp) {
+        bidOrderTable = object : SqlMutableEntityTable<Order.Bid>( // TODO batch table!
+            BID_ORDER,
+            BID_ORDER.HEIGHT,
+            BID_ORDER.LATEST,
+            bidOrderDbKeyFactory,
+            dp
+        ) {
             override val defaultSort = listOf(BID_ORDER.CREATION_HEIGHT.desc())
 
             override fun load(record: Record): Order.Bid {
                 return sqlToBid(record)
             }
 
-            override fun saveBatch(ctx: DSLContext, entities: Collection<Order.Bid>) {
+            private val upsertColumns = listOf(BID_ORDER.ID, BID_ORDER.ACCOUNT_ID, BID_ORDER.ASSET_ID, BID_ORDER.PRICE, BID_ORDER.QUANTITY, BID_ORDER.CREATION_HEIGHT, BID_ORDER.HEIGHT, BID_ORDER.LATEST)
+            private val upsertKeys = listOf(BID_ORDER.ID, BID_ORDER.HEIGHT)
+
+            override fun save(ctx: DSLContext, entity: Order.Bid) {
+                ctx.upsert(BID_ORDER, upsertKeys, mapOf(
+                    BID_ORDER.ID to entity.id,
+                    BID_ORDER.ACCOUNT_ID to entity.accountId,
+                    BID_ORDER.ASSET_ID to entity.assetId,
+                    BID_ORDER.PRICE to entity.pricePlanck,
+                    BID_ORDER.QUANTITY to entity.quantity,
+                    BID_ORDER.CREATION_HEIGHT to entity.height,
+                    BID_ORDER.HEIGHT to dp.blockchainService.height,
+                    BID_ORDER.LATEST to true
+                )).execute()
+            }
+
+            override fun save(ctx: DSLContext, entities: Collection<Order.Bid>) {
+                if (entities.isEmpty()) return
                 val height = dp.blockchainService.height
-                val query = ctx.insertInto(BID_ORDER, BID_ORDER.ID, BID_ORDER.ACCOUNT_ID, BID_ORDER.ASSET_ID, BID_ORDER.PRICE, BID_ORDER.QUANTITY, BID_ORDER.CREATION_HEIGHT, BID_ORDER.HEIGHT, BID_ORDER.LATEST)
-                entities.forEach { entity ->
-                    query.values(
-                        entity.id,
-                        entity.accountId,
-                        entity.assetId,
-                        entity.pricePlanck,
-                        entity.quantity,
-                        entity.height,
-                        height,
-                        true
-                    )
-                }
-                query.execute()
+                ctx.upsert(BID_ORDER, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
+                    entity.id,
+                    entity.accountId,
+                    entity.assetId,
+                    entity.pricePlanck,
+                    entity.quantity,
+                    entity.height,
+                    height,
+                    true
+                ) }).execute()
             }
         }
     }
