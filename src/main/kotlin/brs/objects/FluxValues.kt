@@ -2,6 +2,7 @@ package brs.objects
 
 import brs.entity.FluxEnable
 import brs.entity.FluxValue
+import brs.util.Version
 
 object FluxValues {
     val REWARD_RECIPIENT_ENABLE = FluxEnable(HistoricalMoments.REWARD_RECIPIENT_ENABLE)
@@ -21,4 +22,6 @@ object FluxValues {
         FluxValue(255, FluxValue.ValueChange(HistoricalMoments.PRE_DYMAXION, 1020))
     val MAX_PAYLOAD_LENGTH =
         FluxValue(255 * 176, FluxValue.ValueChange(HistoricalMoments.PRE_DYMAXION, 1020 * 176))
+
+    val MINIMUM_PEER_VERSION = FluxValue(Version.parse("v2.3.0"))
 }

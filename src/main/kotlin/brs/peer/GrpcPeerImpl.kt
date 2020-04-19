@@ -9,6 +9,7 @@ import brs.entity.DependencyProvider
 import brs.entity.PeerInfo
 import brs.entity.Transaction
 import brs.objects.Constants
+import brs.objects.FluxValues
 import brs.services.BlockchainProcessorService
 import brs.services.PeerService
 import brs.util.BurstException
@@ -57,7 +58,7 @@ class GrpcPeerImpl(
             if (Burst.APPLICATION == application) {
                 isOldVersion = try {
                     set(newVersion)
-                    Constants.MIN_VERSION.isGreaterThan(newVersion)
+                    dp.fluxCapacitorService.getValue(FluxValues.MINIMUM_PEER_VERSION).isGreaterThan(newVersion)
                 } catch (e: Exception) {
                     true
                 }

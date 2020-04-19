@@ -5,7 +5,7 @@ import brs.api.grpc.proto.PeerApi
 import brs.entity.Block
 import brs.entity.DependencyProvider
 import brs.entity.Transaction
-import brs.objects.Constants.MIN_VERSION
+import brs.objects.FluxValues
 import brs.objects.Props
 import brs.objects.Props.P2P_SEND_TO_LIMIT
 import brs.peer.GrpcPeerImpl
@@ -139,14 +139,14 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
 
     private fun updateSavedPeers() {
         dp.db.peerDb.updatePeers(peers.values
-            .filter { peer -> !peer.isBlacklisted && !bootstrapPeers.contains(peer.announcedAddress) && peer.isHigherOrEqualVersionThan(MIN_VERSION) }
+            .filter { peer -> !peer.isBlacklisted && !bootstrapPeers.contains(peer.announcedAddress) && peer.isHigherOrEqualVersionThan(dp.fluxCapacitorService.getValue(FluxValues.MINIMUM_PEER_VERSION)) }
             .map { it.announcedAddress.toString() })
     }
 
     private val peerValidationTask: Task = {
         val now = dp.timeService.epochTime
         for (peer in peers.values) {
-            if (peer.isConnected && now - peer.lastHandshakeTime > 3600 && (!peer.connect() || !peer.isHigherOrEqualVersionThan(MIN_VERSION) || !peer.isConnected && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPeers)) {
+            if (peer.isConnected && now - peer.lastHandshakeTime > 3600 && (!peer.connect() || !peer.isHigherOrEqualVersionThan(dp.fluxCapacitorService.getValue(FluxValues.MINIMUM_PEER_VERSION)) || !peer.isConnected && !peer.isBlacklisted && peers.size > maxNumberOfConnectedPeers)) {
                 removePeer(peer)
             }
         }
@@ -160,7 +160,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             if (disconnectedPeer.connect()) {
                 // They've connected! Disconnect them if they do not meet the
                 // version requirements, or if they are not actually connected.
-                if (!disconnectedPeer.isHigherOrEqualVersionThan(MIN_VERSION) || !disconnectedPeer.isConnected) {
+                if (!disconnectedPeer.isHigherOrEqualVersionThan(dp.fluxCapacitorService.getValue(FluxValues.MINIMUM_PEER_VERSION)) || !disconnectedPeer.isConnected) {
                     logger.safeDebug { "Peer either failed to connect or did not meet the minimum version requirements." }
                     removePeer(disconnectedPeer)
                 }
@@ -203,7 +203,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
                 && it.isConnected && it.shareAddress
                 && !newPeers.contains(it.announcedAddress)
                 && it.announcedAddress != peer.announcedAddress
-                && it.isHigherOrEqualVersionThan(MIN_VERSION) }
+                && it.isHigherOrEqualVersionThan(dp.fluxCapacitorService.getValue(FluxValues.MINIMUM_PEER_VERSION)) }
                 .mapNotNull { it.announcedAddress }
             if (myPeers.isNotEmpty()) {
                 peer.addPeers(myPeers)
@@ -251,7 +251,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             false
         } else {
             try {
-                isHigherOrEqualVersion(MIN_VERSION, Version.parse(header.trim().substring("BRS/".length)))
+                isHigherOrEqualVersion(dp.fluxCapacitorService.getValue(FluxValues.MINIMUM_PEER_VERSION), Version.parse(header.trim().substring("BRS/".length)))
             } catch (e: IllegalArgumentException) {
                 false
             }
@@ -419,7 +419,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     }
 
     private fun peerEligibleForSending(peer: Peer): Boolean {
-        return (peer.isHigherOrEqualVersionThan(MIN_VERSION)
+        return (peer.isHigherOrEqualVersionThan(dp.fluxCapacitorService.getValue(FluxValues.MINIMUM_PEER_VERSION))
                 && !peer.isBlacklisted
                 && peer.isConnected)
     }

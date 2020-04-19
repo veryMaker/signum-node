@@ -66,7 +66,6 @@ object Constants {
      */
     const val MAX_API_RETURNED_ITEMS = 500
 
-    val MIN_VERSION = Version.parse("v2.3.0")
     val NEW_PEER_API_MIN_VERSION = Version.parse("v3.0.0-dev")
 
     internal var UNCONFIRMED_POOL_DEPOSIT_PLANCK: Long = 0
