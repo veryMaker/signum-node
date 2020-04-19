@@ -18,20 +18,20 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
 ) : SqlMutableEntityTable<T>(table, heightField, latestField, dbKeyFactory, dp), MutableBatchEntityTable<T>, CachedTable<SqlDbKey, T> {
     override val count: Int
         get() {
-            assertNotInTransaction()
+            ensureBatchIsEmpty()
             return super.count
         }
 
     override val rowCount: Int
         get() {
-            assertNotInTransaction()
+            ensureBatchIsEmpty()
             return super.rowCount
         }
 
     override val cacheKeyClass = SqlDbKey::class.java
     override val cacheName: String = table.name
 
-    private var lastFinishHeight: Int = -1
+    private var lastFlushHeight: Int = -1
 
     @Suppress("UNCHECKED_CAST")
     private val batch: MutableMap<SqlDbKey, T>
@@ -39,8 +39,8 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
 
     private val batchCache: Cache<SqlDbKey, T> get() = getCache(dp)
 
-    private fun assertNotInTransaction() {
-        check(!dp.db.isInTransaction()) { "Cannot use batch table during transaction" }
+    private fun ensureBatchIsEmpty() {
+        if (batch.isNotEmpty() && dp.db.isInTransaction()) flushBatch(dp.blockchainService.height + 1)
     }
 
     override fun delete(t: T): Boolean {
@@ -98,15 +98,15 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
     final override fun flushBatch(height: Int) {
         dp.db.assertInTransaction()
         if (batch.isEmpty()) return
-        require(height != lastFinishHeight) { "Already finished block height $height and batch is not empty" }
-        lastFinishHeight = height
+        require(height != lastFlushHeight) { "Already finished block height $height and batch is not empty" }
+        lastFlushHeight = height
 
         dp.db.useDslContext { ctx ->
             // Update "latest" fields.
             if (ctx.dialect() == SQLDialect.SQLITE) {
                 // This is chunked as SQLite is limited to expression tress of depth 1000.
-                // We have "WHERE latestField = true" and "SET latestField = false" so we have room for 998 more conditions.
-                batch.keys.chunked(998).forEach { chunk -> updateLatest(ctx, chunk) }
+                // We have "UPDATE table", "SET latestField = false" and "WHERE latestField = true" so we have room for 997 more conditions.
+                batch.keys.chunked(997).forEach { chunk -> updateLatest(ctx, chunk) }
             } else {
                 updateLatest(ctx, batch.keys)
             }
@@ -117,48 +117,48 @@ internal abstract class SqlMutableBatchEntityTable<T> internal constructor(
     }
 
     override fun get(dbKey: BurstKey, height: Int): T? {
-        assertNotInTransaction()
+        ensureBatchIsEmpty()
         return super.get(dbKey, height)
     }
 
     override fun getBy(condition: Condition): T? {
-        assertNotInTransaction()
+        ensureBatchIsEmpty()
         return super.getBy(condition)
     }
 
     override fun getBy(condition: Condition, height: Int): T? {
-        assertNotInTransaction()
+        ensureBatchIsEmpty()
         return super.getBy(condition, height)
     }
 
     override fun getManyBy(condition: Condition, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
-        assertNotInTransaction()
+        ensureBatchIsEmpty()
         return super.getManyBy(condition, from, to, sort)
     }
 
     override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
-        assertNotInTransaction()
+        ensureBatchIsEmpty()
         return super.getManyBy(condition, height, from, to, sort)
     }
 
     override fun getManyBy(ctx: DSLContext, query: SelectQuery<out Record>, cache: Boolean): Collection<T> {
-        assertNotInTransaction()
+        ensureBatchIsEmpty()
         return super.getManyBy(ctx, query, cache)
     }
 
     override fun getAll(from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
-        assertNotInTransaction()
+        ensureBatchIsEmpty()
         return super.getAll(from, to, sort)
     }
 
     override fun getAll(height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
-        assertNotInTransaction()
+        ensureBatchIsEmpty()
         return super.getAll(height, from, to, sort)
     }
 
     override fun rollback(height: Int) {
         super.rollback(height)
         batch.clear()
-        lastFinishHeight = -1
+        lastFlushHeight = -1
     }
 }

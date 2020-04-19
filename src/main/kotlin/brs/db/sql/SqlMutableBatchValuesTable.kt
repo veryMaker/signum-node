@@ -60,8 +60,8 @@ internal abstract class SqlMutableBatchValuesTable<K, V> internal constructor(
             // Update "latest" fields.
             if (ctx.dialect() == SQLDialect.SQLITE) {
                 // This is chunked as SQLite is limited to expression tress of depth 1000.
-                // We have "WHERE latestField = true" and "SET latestField = false" so we have room for 998 more conditions.
-                batch.keys.chunked(998).forEach { chunk -> updateLatest(ctx, chunk) }
+                // We have "UPDATE table", "SET latestField = false" and "WHERE latestField = true" so we have room for 997 more conditions.
+                batch.keys.chunked(997).forEach { chunk -> updateLatest(ctx, chunk) }
             } else {
                 updateLatest(ctx, batch.keys)
             }
