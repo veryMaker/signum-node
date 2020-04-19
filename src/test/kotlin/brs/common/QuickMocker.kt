@@ -4,6 +4,7 @@ import brs.api.http.common.Parameters.DEADLINE_PARAMETER
 import brs.api.http.common.Parameters.FEE_PLANCK_PARAMETER
 import brs.api.http.common.Parameters.PUBLIC_KEY_PARAMETER
 import brs.api.http.common.Parameters.SECRET_PHRASE_PARAMETER
+import brs.db.Db
 import brs.entity.DependencyProvider
 import brs.entity.FluxEnable
 import brs.entity.FluxValue
@@ -20,11 +21,39 @@ import io.mockk.every
 import io.mockk.mockk
 import javax.servlet.http.HttpServletRequest
 import kotlin.reflect.KMutableProperty
+import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSupertypeOf
 
 object QuickMocker {
+    fun mockDb(vararg stores: Any): Db {
+        val classToStore = stores
+            .map { it::class.createType() to it }
+            .toMap()
+        require(stores.size == classToStore.size) { "Duplicate dependencies found (two or more dependencies of the same type were provided)" }
+
+        val mockDb = mockk<Db>()
+        val mockedStores = mutableListOf<KType>()
+
+        Db::class.members.forEach { member ->
+            if (member is KProperty<*>) {
+                classToStore.forEach { (storeType, store) ->
+                    if (member.returnType == storeType || member.returnType.isSupertypeOf(storeType)) {
+                        every { member.getter.call(mockDb) } returns store
+                        mockedStores.add(storeType)
+                    }
+                }
+            }
+        }
+        require(mockedStores.size == classToStore.size) {
+            val notInsertedDependencies = classToStore.keys.toMutableList()
+            notInsertedDependencies.removeAll(mockedStores)
+            "Not all dependencies can go into dependency provider, these types can't: $notInsertedDependencies"
+        }
+        return mockDb
+    }
+
     fun dependencyProvider(vararg dependencies: Any): DependencyProvider {
         val classToDependency = dependencies
             .map { it::class.createType() to it }

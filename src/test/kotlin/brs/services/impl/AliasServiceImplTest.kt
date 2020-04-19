@@ -44,7 +44,7 @@ class AliasServiceImplTest : AbstractUnitTest() {
         every { offerTableMock[any()] } returns null
         every { aliasDbKeyFactoryMock.newKey(any<Long>()) } returns mockk(relaxed = true)
 
-        t = AliasServiceImpl(QuickMocker.dependencyProvider(aliasStoreMock))
+        t = AliasServiceImpl(QuickMocker.dependencyProvider(QuickMocker.mockDb(aliasStoreMock)))
     }
 
     @Test

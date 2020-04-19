@@ -44,7 +44,7 @@ class DigitalGoodsStoreServiceImplTest : AbstractUnitTest() {
 
         t = DigitalGoodsStoreServiceImpl(QuickMocker.dependencyProvider(
             blockchainService,
-            mockDigitalGoodsStoreStore,
+            QuickMocker.mockDb(mockDigitalGoodsStoreStore),
             mockAccountService
         ))
     }

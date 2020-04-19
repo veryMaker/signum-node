@@ -46,7 +46,7 @@ class AssetOrderServiceImplTest {
         every { orderStoreMock.bidOrderDbKeyFactory } returns mockBidOrderDbKeyFactory
 
         t = AssetOrderServiceImpl(
-            QuickMocker.dependencyProvider(orderStoreMock, accountServiceMock),
+            QuickMocker.dependencyProvider(QuickMocker.mockDb(orderStoreMock), accountServiceMock),
             tradeServiceMock
         )
     }

@@ -43,8 +43,7 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
         every { mockSubscriptionStore.subscriptionDbKeyFactory } returns mockSubscriptionDbKeyFactory
 
         t = SubscriptionServiceImpl(QuickMocker.dependencyProvider(
-            mockSubscriptionStore,
-            transactionDb,
+            QuickMocker.mockDb(mockSubscriptionStore, transactionDb),
             blockchainService,
             aliasService,
             accountService

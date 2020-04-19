@@ -2,7 +2,10 @@ package brs.at
 
 import brs.common.QuickMocker
 import brs.common.TestConstants
-import brs.db.*
+import brs.db.ATStore
+import brs.db.AccountStore
+import brs.db.BurstKey
+import brs.db.MutableBatchEntityTable
 import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.objects.Constants.EMPTY_BYTE_ARRAY
@@ -37,7 +40,7 @@ class AtTestHelper {
         val mockAtTable = mockk<MutableBatchEntityTable<AT>>(relaxUnitFun = true)
         every { mockAtTable[any()] } returns null
 
-        val mockAccountTable = mockk<BatchTable<Account>>(relaxUnitFun = true)
+        val mockAccountTable = mockk<MutableBatchEntityTable<Account>>(relaxUnitFun = true)
 
         val mockAtStateTable = mockk<MutableBatchEntityTable<AT.ATState>>(relaxUnitFun = true)
         every { mockAtStateTable[any()] } returns null
@@ -81,9 +84,8 @@ class AtTestHelper {
         every { mockAtStore.atStateDbKeyFactory } returns atStateLongKeyFactory
         every { atStateLongKeyFactory.newKey(any<Long>()) } returns mockk(relaxed = true)
         val dp = QuickMocker.dependencyProvider(
-            mockAccountStore,
+            QuickMocker.mockDb(mockAccountStore, mockAtStore),
             mockAccountService,
-            mockAtStore,
             mockBlockchain,
             mockFluxCapacitor,
             mockPropertyService

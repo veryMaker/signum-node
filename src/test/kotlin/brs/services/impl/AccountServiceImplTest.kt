@@ -35,7 +35,7 @@ class AccountServiceImplTest {
         every { accountStoreMock.accountTable } returns accountTableMock
         every { accountStoreMock.accountKeyFactory } returns accountBurstKeyFactoryMock
 
-        t = AccountServiceImpl(QuickMocker.dependencyProvider(accountStoreMock, assetTransferStoreMock))
+        t = AccountServiceImpl(QuickMocker.dependencyProvider(QuickMocker.mockDb(accountStoreMock, assetTransferStoreMock)))
     }
 
     @Test

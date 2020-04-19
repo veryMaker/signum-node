@@ -3,8 +3,8 @@ package brs.services.impl
 import brs.at.AT
 import brs.common.QuickMocker
 import brs.db.ATStore
-import io.mockk.mockk
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -18,7 +18,7 @@ class ATServiceImplTest {
     fun setUp() {
         mockATStore = mockk(relaxed = true)
 
-        t = ATServiceImpl(QuickMocker.dependencyProvider(mockATStore))
+        t = ATServiceImpl(QuickMocker.dependencyProvider(QuickMocker.mockDb(mockATStore)))
     }
 
     @Test

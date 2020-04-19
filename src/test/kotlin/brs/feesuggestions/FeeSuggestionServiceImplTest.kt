@@ -31,7 +31,7 @@ class FeeSuggestionServiceImplTest : AbstractUnitTest() {
         t = FeeSuggestionServiceImpl(
             QuickMocker.dependencyProvider(
                 blockchainProcessorServiceMock,
-                blockchainStoreMock
+                QuickMocker.mockDb(blockchainStoreMock)
             ), 5
         )
     }

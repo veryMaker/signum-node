@@ -3,9 +3,9 @@ package brs.transaction.unconfirmed
 import brs.common.QuickMocker
 import brs.common.TestConstants
 import brs.db.AccountStore
-import brs.db.BatchTable
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
+import brs.db.MutableBatchEntityTable
 import brs.db.TransactionDb
 import brs.entity.Account
 import brs.entity.DependencyProvider
@@ -40,7 +40,7 @@ class UnconfirmedTransactionServiceTest {
     private lateinit var mockBlockChain: BlockchainServiceImpl
 
     private lateinit var accountStoreMock: AccountStore
-    private lateinit var accountTableMock: BatchTable<Account>
+    private lateinit var accountTableMock: MutableBatchEntityTable<Account>
     private lateinit var accountBurstKeyFactoryMock: LongKeyFactory<Account>
 
     private val timeService = TimeServiceImpl()
@@ -76,7 +76,7 @@ class UnconfirmedTransactionServiceTest {
 
         dp = QuickMocker.dependencyProvider(
             mockBlockChain, mockFluxCapacitor,
-            accountStoreMock, timeService, mockPropertyService, transactionDbMock)
+            QuickMocker.mockDb(accountStoreMock, transactionDbMock), timeService, mockPropertyService)
 
         dp.transactionTypes = TransactionType.getTransactionTypes(dp)
 

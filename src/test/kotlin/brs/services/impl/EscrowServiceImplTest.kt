@@ -41,13 +41,12 @@ class EscrowServiceImplTest {
         every { mockEscrowStore.escrowDbKeyFactory } returns mockEscrowDbKeyFactory
 
         t = EscrowServiceImpl(QuickMocker.dependencyProvider(
-            mockEscrowStore,
+            QuickMocker.mockDb(mockEscrowStore),
             blockchainServiceMock,
             aliasServiceMock,
             accountServiceMock
         ))
     }
-
 
     @Test
     fun getAllEscrowTransactions() {
