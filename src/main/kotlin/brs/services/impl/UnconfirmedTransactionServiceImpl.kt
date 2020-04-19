@@ -16,6 +16,7 @@ import brs.util.convert.safeSubtract
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
 import brs.util.sync.Mutex
+import brs.util.sync.withLock
 import org.slf4j.LoggerFactory
 import java.util.*
 

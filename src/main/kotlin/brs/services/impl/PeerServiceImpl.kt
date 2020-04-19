@@ -28,6 +28,7 @@ import brs.util.logging.safeInfo
 import brs.util.logging.safeTrace
 import brs.util.misc.countFilterResults
 import brs.util.sync.Mutex
+import brs.util.sync.withLock
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.bitlet.weupnp.GatewayDevice

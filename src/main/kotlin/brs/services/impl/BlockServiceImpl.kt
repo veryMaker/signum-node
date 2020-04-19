@@ -15,6 +15,7 @@ import brs.util.crypto.Crypto
 import brs.util.crypto.verifySignature
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
+import brs.util.sync.withLock
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 
