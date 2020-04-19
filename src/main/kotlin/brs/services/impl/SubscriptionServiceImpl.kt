@@ -2,6 +2,7 @@ package brs.services.impl
 
 import brs.entity.*
 import brs.objects.Constants
+import brs.objects.FluxValues
 import brs.services.SubscriptionService
 import brs.transaction.appendix.Attachment
 import brs.util.BurstException.NotValidException
@@ -15,8 +16,13 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     private val appliedSubscriptions = mutableListOf<Subscription>()
     private val removeSubscriptions = mutableSetOf<Long>()
 
-    private val fee: Long
-        get() = Constants.ONE_BURST
+    private fun getFee(height: Int): Long {
+        return if (dp.fluxCapacitorService.getValue(FluxValues.NEXT_FORK, height)) {
+            Constants.FEE_QUANT
+        } else {
+            Constants.ONE_BURST
+        }
+    }
 
     override fun getSubscription(id: Long?): Subscription? {
         return subscriptionTable[subscriptionDbKeyFactory.newKey(id!!)]
@@ -71,21 +77,21 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         }
     }
 
-    override fun calculateFees(timestamp: Int): Long {
+    override fun calculateFees(height: Int, timestamp: Int): Long {
         var totalFeePlanck: Long = 0
         val appliedUnconfirmedSubscriptions = mutableListOf<Subscription>()
         for (subscription in dp.db.subscriptionStore.getUpdateSubscriptions(timestamp)) {
             if (removeSubscriptions.contains(subscription.id)) {
                 continue
             }
-            if (applyUnconfirmed(subscription)) {
+            if (applyUnconfirmed(subscription, height)) {
                 appliedUnconfirmedSubscriptions.add(subscription)
             }
         }
         if (appliedUnconfirmedSubscriptions.isNotEmpty()) {
             for (subscription in appliedUnconfirmedSubscriptions) {
-                totalFeePlanck = totalFeePlanck.safeAdd(fee)
-                undoUnconfirmed(subscription)
+                totalFeePlanck = totalFeePlanck.safeAdd(getFee(height))
+                undoUnconfirmed(subscription, height)
             }
         }
         return totalFeePlanck
@@ -99,16 +105,16 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         removeSubscriptions.add(id)
     }
 
-    override fun applyUnconfirmed(timestamp: Int): Long {
+    override fun applyUnconfirmed(height: Int, timestamp: Int): Long {
         appliedSubscriptions.clear()
         var totalFees: Long = 0
         for (subscription in dp.db.subscriptionStore.getUpdateSubscriptions(timestamp)) {
             if (removeSubscriptions.contains(subscription.id)) {
                 continue
             }
-            if (applyUnconfirmed(subscription)) {
+            if (applyUnconfirmed(subscription, height)) {
                 appliedSubscriptions.add(subscription)
-                totalFees += fee
+                totalFees += getFee(height)
             } else {
                 removeSubscriptions.add(subscription.id)
             }
@@ -116,9 +122,9 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         return totalFees
     }
 
-    private fun applyUnconfirmed(subscription: Subscription): Boolean {
+    private fun applyUnconfirmed(subscription: Subscription, height: Int): Boolean {
         val sender = dp.accountService.getAccount(subscription.senderId)
-        val totalAmountPlanck = subscription.amountPlanck.safeAdd(fee)
+        val totalAmountPlanck = subscription.amountPlanck.safeAdd(getFee(height))
 
         if (sender == null || sender.unconfirmedBalancePlanck < totalAmountPlanck) {
             return false
@@ -129,9 +135,9 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         return true
     }
 
-    private fun undoUnconfirmed(subscription: Subscription) {
+    private fun undoUnconfirmed(subscription: Subscription, height: Int) {
         val sender = dp.accountService.getAccount(subscription.senderId)
-        val totalAmountPlanck = subscription.amountPlanck.safeAdd(fee)
+        val totalAmountPlanck = subscription.amountPlanck.safeAdd(getFee(height))
 
         if (sender != null) {
             dp.accountService.addToUnconfirmedBalancePlanck(sender, totalAmountPlanck)
@@ -142,7 +148,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
         val sender = dp.accountService.getAccount(subscription.senderId)!!
         val recipient = dp.accountService.getAccount(subscription.recipientId)!!
 
-        dp.accountService.addToBalancePlanck(sender, -subscription.amountPlanck.safeAdd(fee))
+        dp.accountService.addToBalancePlanck(sender, -subscription.amountPlanck.safeAdd(getFee(block.height)))
         dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(recipient, subscription.amountPlanck)
 
         val attachment = Attachment.AdvancedPaymentSubscriptionPayment(dp, subscription.id, blockchainHeight)
@@ -151,7 +157,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
             1.toByte(),
             sender.publicKey!!,
             subscription.amountPlanck,
-            fee,
+            getFee(block.height),
             subscription.timeNext,
             1440.toShort(),
             attachment

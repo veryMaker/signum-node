@@ -714,7 +714,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
         calculatedRemainingAmount += atBlock.totalAmountPlanck
         calculatedRemainingFee += atBlock.totalFees
-        calculatedRemainingFee += dp.subscriptionService.applyUnconfirmed(block.timestamp)
+        calculatedRemainingFee += dp.subscriptionService.applyUnconfirmed(block.height, block.timestamp)
         if (remainingAmount != null && remainingAmount != calculatedRemainingAmount) {
             throw BlockchainProcessorService.BlockNotAcceptedException("Calculated remaining amount doesn't add up for block " + block.height)
         }
@@ -940,7 +940,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                     }
                 }
                 dp.subscriptionService.clearRemovals()
-                totalFeePlanck += dp.subscriptionService.calculateFees(blockTimestamp)
+                totalFeePlanck += dp.subscriptionService.calculateFees(blockTimestamp, previousBlock.height + 1)
             } finally {
                 dp.db.rollbackTransaction()
                 dp.db.endTransaction()

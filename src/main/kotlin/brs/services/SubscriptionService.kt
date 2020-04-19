@@ -45,7 +45,7 @@ interface SubscriptionService {
     /**
      * TODO
      */
-    fun calculateFees(timestamp: Int): Long
+    fun calculateFees(height: Int, timestamp: Int): Long
 
     /**
      * TODO
@@ -60,5 +60,5 @@ interface SubscriptionService {
     /**
      * TODO
      */
-    fun applyUnconfirmed(timestamp: Int): Long
+    fun applyUnconfirmed(height: Int, timestamp: Int): Long
 }
