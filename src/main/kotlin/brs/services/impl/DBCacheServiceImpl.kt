@@ -1,10 +1,8 @@
 package brs.services.impl
 
-import brs.db.BurstKey
 import brs.db.CachedTable
 import brs.entity.Block
 import brs.entity.DependencyProvider
-import brs.entity.StatisticsCache
 import brs.objects.Props
 import brs.services.DBCacheService
 import org.ehcache.Cache
@@ -61,13 +59,8 @@ class DBCacheServiceImpl(private val dp: DependencyProvider) : DBCacheService {
         }
     }
 
-    override fun <V> getCache(name: String, valueClass: Class<V>): Cache<BurstKey, V>? { // TODO this ain't gonna work!
-        val cache = cacheManager.getCache(name, BurstKey::class.java, valueClass) ?: return null
-        return StatisticsCache(cache, name, dp.statisticsService) // TODO constructing this every time sucks
-    }
-
     override fun <K, V> getCache(name: String, keyClass: Class<K>, valueClass: Class<V>): Cache<K, V>? {
-        return cacheManager.getCache(name, keyClass, valueClass) // TODO statisticsCache is never constructed here...
+        return cacheManager.getCache(name, keyClass, valueClass)
     }
 
     override fun flushCache() {

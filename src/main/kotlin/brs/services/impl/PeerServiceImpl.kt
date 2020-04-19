@@ -156,13 +156,15 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
         val disconnectedPeer = getAnyPeer(isConnected = false)
         // If we have a peer to connect and we are allowed to connect to more peers
         if (disconnectedPeer != null && peers.values.countFilterResults { it.isConnected } < maxNumberOfConnectedPeers) {
-            logger.safeDebug { "Connecting to peer..." }
+            logger.safeDebug { "Connecting to peer ${disconnectedPeer.announcedAddress ?: disconnectedPeer.remoteAddress}..." }
             if (disconnectedPeer.connect()) {
                 // They've connected! Disconnect them if they do not meet the
                 // version requirements, or if they are not actually connected.
                 if (!disconnectedPeer.isHigherOrEqualVersionThan(MIN_VERSION) || !disconnectedPeer.isConnected) {
+                    logger.safeDebug { "Peer either failed to connect or did not meet the minimum version requirements." }
                     removePeer(disconnectedPeer)
                 }
+                logger.safeDebug { "Connected to peer!" }
             } else {
                 // We want to remove peers that cannot connect,
                 // but we mustn't remove them if they are blacklisted

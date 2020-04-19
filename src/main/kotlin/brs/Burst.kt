@@ -154,7 +154,7 @@ LS: ${LibShabal.LOAD_ERROR?.toString() ?: LibShabal.VERSION}
     private fun validateVersionNotDev(propertyService: PropertyService) {
         if (VERSION.isPrelease && !propertyService.get(Props.DEV_TESTNET)) {
             logger.safeError { "THIS IS A DEVELOPMENT WALLET, PLEASE DO NOT USE THIS" }
-            exitProcess(0)
+//            exitProcess(0)
         }
     }
 

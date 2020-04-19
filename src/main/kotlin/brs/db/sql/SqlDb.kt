@@ -15,6 +15,7 @@ import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.Table
 import org.jooq.conf.Settings
+import org.jooq.conf.StatementType
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 import org.jooq.tools.jdbc.JDBCUtils
@@ -28,8 +29,10 @@ import java.util.*
 
 internal class SqlDb(private val dp: DependencyProvider) : Db {
     private val settings = Settings()
+    private val staticSettings = Settings()
     private val cp: HikariDataSource
     private val dialect: SQLDialect
+    private val useStaticStatementsInTransaction: Boolean
     private val localConnection = ThreadLocal<Connection>()
     private val transactionCaches = ThreadLocal<MutableMap<Table<*>, MutableMap<BurstKey, *>>>()
     private val transactionBatches = ThreadLocal<MutableMap<Table<*>, MutableMap<BurstKey, *>>>()
@@ -40,7 +43,7 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
             DSL.using(cp, dialect, settings)
         } else {
             // Using transaction connection
-            DSL.using(con, dialect, settings)
+            DSL.using(con, dialect, if (useStaticStatementsInTransaction) staticSettings else settings)
         }
     }
 
@@ -48,6 +51,8 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
 
     init {
         settings.isRenderSchema = false
+        staticSettings.isRenderSchema = false
+        staticSettings.statementType = StatementType.STATIC_STATEMENT
 
         val dbUrl: String
         val dbUsername: String?
@@ -63,6 +68,10 @@ internal class SqlDb(private val dp: DependencyProvider) : Db {
             dbPassword = dp.propertyService.get(Props.DB_PASSWORD)
         }
         dialect = JDBCUtils.dialect(dbUrl)
+        useStaticStatementsInTransaction = when (dialect) {
+            SQLDialect.MARIADB, SQLDialect.MYSQL -> true
+            else -> false
+        }
 
         logger.safeDebug { "Database jdbc url set to: $dbUrl" }
         val config = HikariConfig()
