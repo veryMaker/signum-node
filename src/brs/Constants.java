@@ -73,8 +73,6 @@ public final class Constants {
 
   public static final String HTTP = "http://";
 
-  public static final Version MIN_VERSION = Version.parse("v2.3.0");
-
   static final long UNCONFIRMED_POOL_DEPOSIT_NQT = (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? 50 : 100) * ONE_BURST;
 
   // TODO burstkit4j integration

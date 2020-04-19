@@ -15,6 +15,7 @@ import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxCapacitorImpl;
+import brs.fluxcapacitor.FluxValues;
 import brs.grpc.proto.BrsService;
 import brs.http.API;
 import brs.http.APITransactionManager;
@@ -42,6 +43,8 @@ import java.util.regex.Pattern;
 public final class Burst {
 
   public static final Version VERSION = Version.parse("v2.5.0");
+  public static final Version MIN_VERSION = Version.parse("v2.3.0");
+
   public static final String APPLICATION = "BRS";
 
   public static final String DEFAULT_PROPERTIES_NAME = "brs-default.properties";
@@ -136,6 +139,14 @@ public final class Burst {
       logger.error("THIS IS A DEVELOPMENT WALLET, PLEASE DO NOT USE THIS");
       System.exit(0);
     }
+  }
+  
+  public static Version getMinVersion() {
+	// TODO: this is not needed but can help to split the network
+	// in two after the hard-fork
+	if (Burst.getFluxCapacitor().getValue(FluxValues.LN_TIME))
+	  return VERSION;
+	return MIN_VERSION;
   }
 
   public static void init(Properties customProperties) {

@@ -142,7 +142,7 @@ final class PeerImpl implements Peer {
     if (Burst.APPLICATION.equals(getApplication()) && version != null) {
       try {
         this.version.set(Version.parse(version));
-        isOldVersion.set(Constants.MIN_VERSION.isGreaterThan(this.version.get()));
+        isOldVersion.set(Burst.getMinVersion().isGreaterThan(this.version.get()));
       } catch (IllegalArgumentException e) {
         isOldVersion.set(true);
       }
