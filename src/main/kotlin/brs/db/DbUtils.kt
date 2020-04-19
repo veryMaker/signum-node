@@ -1,11 +1,11 @@
 package brs.db
 
 import org.jooq.DSLContext
-import org.jooq.Field
-import org.jooq.Query
-import org.jooq.UpdatableRecord
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+
+// TODO: Batch tables.
+// Currently the only thing preventing batch tables is the fact that some methods use useDslContext outside of the Table object. This needs to be removed.
 
 /**
  * Use the DSL Context of the DB
@@ -52,12 +52,4 @@ inline fun Db.transaction(action: () -> Unit) {
 
 fun Db.assertInTransaction() {
     check(isInTransaction()) { "Database not in transaction" }
-}
-
-fun DSLContext.upsert(record: UpdatableRecord<*>, vararg keys: Field<*>): Query {
-    return insertInto(record.getTable())
-        .set(record)
-        .onConflict(*keys) // TODO work around having to use spread operator here...
-        .doUpdate()
-        .set(record)
 }

@@ -14,10 +14,6 @@ internal abstract class SqlDerivedTable<T> internal constructor(
 ) : DerivedTable {
     internal val tableName = table.name
 
-    init {
-        dp.derivedTableService.registerDerivedTable(this)
-    }
-
     override fun rollback(height: Int) {
         dp.db.assertInTransaction()
         dp.db.useDslContext { ctx -> ctx.delete(table).where(heightField.gt(height)).execute() }

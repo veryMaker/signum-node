@@ -1,7 +1,7 @@
 package brs.transaction.appendix
 
-import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.ProtoBuilder
+import brs.api.grpc.proto.BrsApi
 import brs.api.grpc.toByteString
 import brs.entity.Account
 import brs.entity.DependencyProvider
@@ -439,7 +439,7 @@ interface Appendix {
         }
 
         override fun apply(transaction: Transaction, senderAccount: Account, recipientAccount: Account) {
-            if (dp.accountStore.setOrVerify(recipientAccount, publicKey, transaction.height)) {
+            if (dp.db.accountStore.setOrVerify(recipientAccount, publicKey, transaction.height)) {
                 recipientAccount.apply(dp, this.publicKey, transaction.height)
             }
         }

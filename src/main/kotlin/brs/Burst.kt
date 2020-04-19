@@ -5,7 +5,7 @@ import brs.api.grpc.peer.PeerApiService
 import brs.api.http.APITransactionManagerImpl
 import brs.api.http.ApiServerImpl
 import brs.at.*
-import brs.db.sql.*
+import brs.db.sql.SqlDb
 import brs.entity.Arguments
 import brs.entity.DependencyProvider
 import brs.objects.Constants
@@ -68,26 +68,10 @@ LS: ${LibShabal.LOAD_ERROR?.toString() ?: LibShabal.VERSION}
                 dp.oclPocService = OclPocServiceImpl(dp)
             }
             dp.timeService = TimeServiceImpl()
-            dp.derivedTableService = DerivedTableServiceImpl()
             dp.statisticsService = StatisticsServiceImpl(dp)
-            dp.dbCacheService = DBCacheServiceImpl(dp)
             dp.db = SqlDb(dp)
-            dp.blockDb = SqlBlockDb(dp)
-            dp.transactionDb = SqlTransactionDb(dp)
-            dp.peerDb = SqlPeerDb(dp)
-            dp.accountStore = SqlAccountStore(dp)
-            dp.aliasStore = SqlAliasStore(dp)
-            dp.assetStore = SqlAssetStore(dp)
-            dp.assetTransferStore = SqlAssetTransferStore(dp)
-            dp.atStore = SqlATStore(dp)
-            dp.digitalGoodsStoreStore = SqlDigitalGoodsStoreStore(dp)
-            dp.escrowStore = SqlEscrowStore(dp)
-            dp.orderStore = SqlOrderStore(dp)
-            dp.tradeStore = SqlTradeStore(dp)
-            dp.subscriptionStore = SqlSubscriptionStore(dp)
+            dp.dbCacheService = DBCacheServiceImpl(dp)
             dp.unconfirmedTransactionService = UnconfirmedTransactionServiceImpl(dp)
-            dp.indirectIncomingStore = SqlIndirectIncomingStore(dp)
-            dp.blockchainStore = SqlBlockchainStore(dp)
             dp.blockchainService = BlockchainServiceImpl(dp)
             dp.aliasService = AliasServiceImpl(dp)
             dp.fluxCapacitorService = FluxCapacitorServiceImpl(dp)

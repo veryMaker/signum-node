@@ -1,8 +1,8 @@
 package brs.api.grpc.api
 
+import brs.api.grpc.ApiException
 import brs.api.grpc.GrpcApiHandler
 import brs.api.grpc.proto.BrsApi
-import brs.api.grpc.ApiException
 import brs.entity.Account
 import brs.entity.DependencyProvider
 import brs.objects.Props
@@ -81,7 +81,7 @@ class SubmitNonceHandler(private val dp: DependencyProvider) :
                 val assignment = accountService.getRewardRecipientAssignment(genAccount)
                 val rewardId = when {
                     assignment == null -> genAccount.id
-                    assignment.fromHeight > blockchainService.lastBlock.height + 1 -> assignment.prevRecipientId
+                    assignment.fromHeight > blockchainService.lastBlock.height + 1 -> assignment.previousRecipientId
                     else -> assignment.recipientId
                 }
                 if (rewardId != secretAccount.id) {

@@ -28,7 +28,7 @@ internal class GetRewardRecipient(
             assignment == null -> response.addProperty(REWARD_RECIPIENT_RESPONSE, account.id.toUnsignedString())
             assignment.fromHeight > height + 1 -> response.addProperty(
                 REWARD_RECIPIENT_RESPONSE,
-                assignment.prevRecipientId.toUnsignedString()
+                assignment.previousRecipientId.toUnsignedString()
             )
             else -> response.addProperty(REWARD_RECIPIENT_RESPONSE, assignment.recipientId.toUnsignedString())
         }

@@ -6,29 +6,14 @@ import brs.at.AtApi
 import brs.at.AtApiController
 import brs.at.AtConstants
 import brs.at.AtController
-import brs.db.*
+import brs.db.Db
 import brs.peer.PeerServer
 import brs.services.*
 import brs.transaction.type.TransactionType
 import io.grpc.Server
 
 class DependencyProvider {
-    lateinit var accountStore: AccountStore
-    lateinit var aliasStore: AliasStore
-    lateinit var assetTransferStore: AssetTransferStore
-    lateinit var assetStore: AssetStore
-    lateinit var atStore: ATStore
-    lateinit var blockchainStore: BlockchainStore
-    lateinit var digitalGoodsStoreStore: DigitalGoodsStoreStore
-    lateinit var escrowStore: EscrowStore
-    lateinit var orderStore: OrderStore
-    lateinit var tradeStore: TradeStore
-    lateinit var subscriptionStore: SubscriptionStore
     lateinit var unconfirmedTransactionService: UnconfirmedTransactionService
-    lateinit var indirectIncomingStore: IndirectIncomingStore
-    lateinit var blockDb: BlockDb
-    lateinit var transactionDb: TransactionDb
-    lateinit var peerDb: PeerDb
     lateinit var blockchainService: BlockchainService
     lateinit var blockchainProcessorService: BlockchainProcessorService
     lateinit var transactionProcessorService: TransactionProcessorService
@@ -40,7 +25,6 @@ class DependencyProvider {
     lateinit var apiV2Server: Server
     lateinit var p2pV2Server: Server
     lateinit var timeService: TimeService
-    lateinit var derivedTableService: DerivedTableService
     lateinit var statisticsService: StatisticsService
     lateinit var taskSchedulerService: TaskSchedulerService
     lateinit var aliasService: AliasService

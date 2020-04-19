@@ -3,23 +3,34 @@ package brs.db.sql
 import brs.db.BurstKey
 import org.jooq.*
 
-internal interface SqlDbKey : BurstKey {
-    override val primaryKeyValues: LongArray
-
+internal abstract class SqlDbKey : BurstKey {
     abstract class Factory<T> internal constructor(val primaryKeyColumns: Array<Field<Long>>) : BurstKey.Factory<T> {
         abstract fun applySelfJoin(query: SelectQuery<Record>, queryTable: Table<*>)
     }
 
-    fun getPrimaryKeyConditions(tableClass: Table<*>): Collection<Condition>
+    abstract val primaryKeyConditions: List<Condition>
+
+    /**
+     * All conditions in [primaryKeyConditions], concatenated with the AND operator.
+     */
+    val allPrimaryKeyConditions by lazy {
+        val conditions = primaryKeyConditions
+        var condition = conditions.first()
+        for (index in 1 until conditions.size) {
+            condition = condition.and(conditions[index])
+        }
+        condition
+    }
 
     abstract class LongKeyFactory<T>(private val idColumn: Field<Long>) : Factory<T>(arrayOf(idColumn)), BurstKey.LongKeyFactory<T> {
         override fun newKey(record: Record): BurstKey {
             val result = record.get(idColumn)
-            return LongKey(result!!, idColumn.name)
+            checkNotNull(result) { "Record contained no ID" }
+            return LongKey(result, idColumn)
         }
 
         override fun newKey(id: Long): BurstKey {
-            return LongKey(id, idColumn.name)
+            return LongKey(id, idColumn)
         }
 
         override fun applySelfJoin(query: SelectQuery<Record>, queryTable: Table<*>) {
@@ -49,7 +60,7 @@ internal interface SqlDbKey : BurstKey {
         }
     }
 
-    class LongKey internal constructor(private val id: Long, private val idColumn: String) : SqlDbKey {
+    class LongKey internal constructor(private val id: Long, column: Field<Long>) : SqlDbKey() {
         override val primaryKeyValues: LongArray
             get() = longArrayOf(id)
 
@@ -58,24 +69,30 @@ internal interface SqlDbKey : BurstKey {
         }
 
         override fun hashCode(): Int {
-            return (id xor id.ushr(32)).toInt()
+            return id.hashCode()
         }
 
-        override fun getPrimaryKeyConditions(tableClass: Table<*>): Collection<Condition> {
-            return listOf(tableClass.field(idColumn, Long::class.java).eq(id))
-        }
+        override val primaryKeyConditions = listOf(column.eq(id))
     }
 
-    data class LinkKey internal constructor(
+    class LinkKey internal constructor(
         private val idA: Long,
         private val idB: Long,
-        private val idColumnA: Field<Long>,
-        private val idColumnB: Field<Long>
-    ) : SqlDbKey {
+        idColumnA: Field<Long>,
+        idColumnB: Field<Long>
+    ) : SqlDbKey() {
         override val primaryKeyValues = longArrayOf(idA, idB)
 
-        override fun getPrimaryKeyConditions(tableClass: Table<*>): Collection<Condition> {
-            return listOf(idColumnA.eq(idA), idColumnB.eq(idB))
+        override val primaryKeyConditions = listOf(idColumnA.eq(idA), idColumnB.eq(idB))
+
+        override fun equals(other: Any?): Boolean {
+            return other is LinkKey && other.idA == idA && other.idB == idB
+        }
+
+        override fun hashCode(): Int {
+            var result = idA.hashCode()
+            result = 31 * result + idB.hashCode()
+            return result
         }
     }
 }

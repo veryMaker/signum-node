@@ -10,7 +10,7 @@ import brs.transaction.type.payment.MultiOutSamePayment
 
 class IndirectIncomingServiceImpl(private val dp: DependencyProvider) : IndirectIncomingService {
     override fun processTransaction(transaction: Transaction) {
-        dp.indirectIncomingStore.addIndirectIncomings(getIndirectIncomings(transaction)
+        dp.db.indirectIncomingStore.addIndirectIncomings(getIndirectIncomings(transaction)
             .map { account -> IndirectIncoming(account, transaction.id, transaction.height) })
     }
 

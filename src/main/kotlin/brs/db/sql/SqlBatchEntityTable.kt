@@ -1,22 +1,19 @@
 package brs.db.sql
 
-import brs.db.BurstKey
-import brs.db.VersionedBatchEntityTable
-import brs.db.assertInTransaction
-import brs.db.useDslContext
+import brs.db.*
 import brs.entity.DependencyProvider
+import brs.util.cache.set
 import org.ehcache.Cache
 import org.jooq.*
-import org.jooq.impl.DSL
+import org.jooq.Table
 
-internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
+internal abstract class SqlBatchEntityTable<T> internal constructor(
     table: Table<*>,
-    heightField: Field<Int>,
-    latestField: Field<Boolean>,
     dbKeyFactory: SqlDbKey.Factory<T>,
-    private val tClass: Class<T>,
+    heightField: Field<Int>,
+    override val cacheValueClass: Class<T>,
     private val dp: DependencyProvider
-) : SqlVersionedEntityTable<T>(table, heightField, latestField, dbKeyFactory, dp), VersionedBatchEntityTable<T> {
+) : SqlEntityTable<T>(table, heightField, null, dbKeyFactory, dp), BatchTable, CachedTable<SqlDbKey, T> {
     override val count: Int
         get() {
             assertNotInTransaction()
@@ -29,31 +26,34 @@ internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
             return super.rowCount
         }
 
-    private val batch: MutableMap<BurstKey, T>
-        get() = dp.db.getBatch(table)
+    override val cacheKeyClass = SqlDbKey::class.java
+    override val cacheName: String = table.name
 
-    private val batchCache: Cache<BurstKey, T>
-        get() = dp.dbCacheService.getCache(tableName, tClass)!!
+    private var lastFinishHeight: Int = -1
+
+    @Suppress("UNCHECKED_CAST")
+    private val batch: MutableMap<SqlDbKey, T>
+        get() = dp.db.getBatch<T>(table) as MutableMap<SqlDbKey, T>
+
+    private val batchCache: Cache<SqlDbKey, T> get() = getCache(dp)
 
     private fun assertNotInTransaction() {
         check(!dp.db.isInTransaction()) { "Cannot use batch table during transaction" }
     }
 
-    protected abstract fun bulkUpsert(ctx: DSLContext, entities: Collection<T>)
+    protected abstract fun saveBatch(ctx: DSLContext, entities: Collection<T>)
 
-    override fun delete(t: T): Boolean {
-        dp.db.assertInTransaction()
-        val dbKey = dbKeyFactory.newKey(t) as SqlDbKey
-        batchCache.remove(dbKey)
-        batch.remove(dbKey)
-        return true
-    }
-
-    override fun save(ctx: DSLContext, entity: T) {
+    final override fun save(ctx: DSLContext, entity: T) {
         insert(entity)
     }
 
+    final override fun save(ctx: DSLContext, entities: Collection<T>) {
+        if (entities.isEmpty()) return
+        entities.forEach { insert(it) }
+    }
+
     override fun get(dbKey: BurstKey): T? {
+        require(dbKey is SqlDbKey)
         if (batchCache.containsKey(dbKey)) {
             return batchCache.get(dbKey)
         } else if (dp.db.isInTransaction() && batch.containsKey(dbKey)) {
@@ -61,7 +61,7 @@ internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
         }
         val item = super.get(dbKey)
         if (item != null) {
-            batchCache.put(dbKey, item)
+            batchCache[dbKey] = item
         }
         return item
     }
@@ -69,37 +69,20 @@ internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
     override fun insert(entity: T) {
         dp.db.assertInTransaction()
         val key = dbKeyFactory.newKey(entity)
+        check(key is SqlDbKey)
         batch[key] = entity
-        batchCache.put(key, entity)
+        batchCache[key] = entity
     }
 
-    override fun finish() {
+    override fun flushBatch(height: Int) {
         dp.db.assertInTransaction()
-        val keySet = batch.keys
-        if (keySet.isEmpty()) {
-            return
-        }
-
-        dp.db.useDslContext { ctx ->
-            // Update "latest" fields.
-            // This is chunked as SQLite is limited to expression tress of depth 1000.
-            for (keySetChunk in keySet.chunked(990)) {
-                val updateQuery = ctx.updateQuery(table)
-                updateQuery.addConditions(latestField?.isTrue)
-                updateQuery.addValue(latestField, false)
-                var updateCondition = DSL.noCondition()
-                for (dbKey in keySetChunk) {
-                    var primaryKeyCondition = DSL.noCondition()
-                    for ((index, primaryKeyField) in dbKeyFactory.primaryKeyColumns.withIndex()) {
-                        primaryKeyCondition = primaryKeyCondition.and(primaryKeyField.eq(dbKey.primaryKeyValues[index]))
-                    }
-                    updateCondition = updateCondition.or(primaryKeyCondition)
-                }
-                updateQuery.addConditions(updateCondition)
-                ctx.execute(updateQuery)
+        if (batch.isNotEmpty()) {
+            require(height != lastFinishHeight) { "Already finished block height $height and batch is not empty" }
+            dp.db.useDslContext { ctx ->
+                saveBatch(ctx, batch.values)
+                batch.clear()
+                lastFinishHeight = height
             }
-            bulkUpsert(ctx, batch.values)
-            batch.clear()
         }
     }
 
@@ -123,13 +106,7 @@ internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
         return super.getManyBy(condition, from, to, sort)
     }
 
-    override fun getManyBy(
-        condition: Condition,
-        height: Int,
-        from: Int,
-        to: Int,
-        sort: Collection<SortField<*>>
-    ): Collection<T> {
+    override fun getManyBy(condition: Condition, height: Int, from: Int, to: Int, sort: Collection<SortField<*>>): Collection<T> {
         assertNotInTransaction()
         return super.getManyBy(condition, height, from, to, sort)
     }
@@ -152,5 +129,6 @@ internal abstract class SqlVersionedBatchEntityTable<T> internal constructor(
     override fun rollback(height: Int) {
         super.rollback(height)
         batch.clear()
+        lastFinishHeight = -1
     }
 }

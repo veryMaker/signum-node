@@ -15,6 +15,7 @@ import brs.util.crypto.Crypto
 import brs.util.crypto.verifySignature
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
+import brs.util.sync.withLock
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 
@@ -37,7 +38,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
                     if (previousBlock.height + 1 >= rewardAssignment.fromHeight) {
                         dp.accountService.getAccount(rewardAssignment.recipientId)?.publicKey
                     } else {
-                        dp.accountService.getAccount(rewardAssignment.prevRecipientId)?.publicKey
+                        dp.accountService.getAccount(rewardAssignment.previousRecipientId)?.publicKey
                     }
                 } ?: throw BurstException.NotValidException("Could not get signer's public key to verify block")
 
@@ -139,7 +140,7 @@ class BlockServiceImpl(private val dp: DependencyProvider) : BlockService {
             rewardAccount = when {
                 rewardAssignment == null -> generatorAccount
                 block.height >= rewardAssignment.fromHeight -> dp.accountService.getAccount(rewardAssignment.recipientId)!!
-                else -> dp.accountService.getAccount(rewardAssignment.prevRecipientId)!!
+                else -> dp.accountService.getAccount(rewardAssignment.previousRecipientId)!!
             }
             dp.accountService.addToBalanceAndUnconfirmedBalancePlanck(
                 rewardAccount,

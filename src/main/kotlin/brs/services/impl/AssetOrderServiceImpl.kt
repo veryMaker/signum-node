@@ -13,10 +13,10 @@ import brs.util.convert.toUnsignedString
 
 internal class AssetOrderServiceImpl(private val dp: DependencyProvider, private val tradeService: AssetTradeService) :
     AssetOrderService {
-    override val askOrderTable = dp.orderStore.askOrderTable
-    override val askOrderDbKeyFactory = dp.orderStore.askOrderDbKeyFactory
-    override val bidOrderTable = dp.orderStore.bidOrderTable
-    override val bidOrderDbKeyFactory = dp.orderStore.bidOrderDbKeyFactory
+    override val askOrderTable = dp.db.orderStore.askOrderTable
+    override val askOrderDbKeyFactory = dp.db.orderStore.askOrderDbKeyFactory
+    override val bidOrderTable = dp.db.orderStore.bidOrderTable
+    override val bidOrderDbKeyFactory = dp.db.orderStore.bidOrderDbKeyFactory
 
     override val bidCount get() = bidOrderTable.count
 
@@ -39,27 +39,27 @@ internal class AssetOrderServiceImpl(private val dp: DependencyProvider, private
     }
 
     override fun getSortedBidOrders(assetId: Long, from: Int, to: Int): Collection<Bid> {
-        return dp.orderStore.getSortedBids(assetId, from, to)
+        return dp.db.orderStore.getSortedBids(assetId, from, to)
     }
 
     override fun getAskOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Ask> {
-        return dp.orderStore.getAskOrdersByAccount(accountId, from, to)
+        return dp.db.orderStore.getAskOrdersByAccount(accountId, from, to)
     }
 
     override fun getAskOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Ask> {
-        return dp.orderStore.getAskOrdersByAccountAsset(accountId, assetId, from, to)
+        return dp.db.orderStore.getAskOrdersByAccountAsset(accountId, assetId, from, to)
     }
 
     override fun getSortedAskOrders(assetId: Long, from: Int, to: Int): Collection<Ask> {
-        return dp.orderStore.getSortedAsks(assetId, from, to)
+        return dp.db.orderStore.getSortedAsks(assetId, from, to)
     }
 
     override fun getBidOrdersByAccount(accountId: Long, from: Int, to: Int): Collection<Bid> {
-        return dp.orderStore.getBidOrdersByAccount(accountId, from, to)
+        return dp.db.orderStore.getBidOrdersByAccount(accountId, from, to)
     }
 
     override fun getBidOrdersByAccountAsset(accountId: Long, assetId: Long, from: Int, to: Int): Collection<Bid> {
-        return dp.orderStore.getBidOrdersByAccountAsset(accountId, assetId, from, to)
+        return dp.db.orderStore.getBidOrdersByAccountAsset(accountId, assetId, from, to)
     }
 
     override fun removeBidOrder(orderId: Long) {
@@ -85,11 +85,11 @@ internal class AssetOrderServiceImpl(private val dp: DependencyProvider, private
     }
 
     override fun getNextAskOrder(assetId: Long): Ask? {
-        return dp.orderStore.getNextOrder(assetId)
+        return dp.db.orderStore.getNextOrder(assetId)
     }
 
     override fun getNextBidOrder(assetId: Long): Bid? {
-        return dp.orderStore.getNextBid(assetId)
+        return dp.db.orderStore.getNextBid(assetId)
     }
 
     override fun matchOrders(assetId: Long) {

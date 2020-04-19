@@ -12,7 +12,7 @@ import org.junit.Test
 class AtControllerTest {
     private lateinit var atTestHelper: AtTestHelper
     private lateinit var dp: DependencyProvider
-    
+
     @Before
     fun setUp() {
         atTestHelper = AtTestHelper()
@@ -34,7 +34,7 @@ class AtControllerTest {
         val helloWorldAT = atTestHelper.addHelloWorldAT(dp)
         val echoAT = atTestHelper.addEchoAT(dp)
         val tipThanksAT = atTestHelper.addTipThanksAT(dp)
-        assertEquals(3, dp.atStore.getOrderedATs().size.toLong())
+        assertEquals(3, dp.db.atStore.getOrderedATs().size.toLong())
         // This calls runSteps
         val atBlock = dp.atController.getCurrentBlockATs(Integer.MAX_VALUE, Integer.MAX_VALUE)
         assertNotNull(atBlock)
@@ -51,7 +51,7 @@ class AtControllerTest {
         val helloWorldAT = atTestHelper.addHelloWorldAT(dp)
         val echoAT = atTestHelper.addEchoAT(dp)
         val tipThanksAT = atTestHelper.addTipThanksAT(dp)
-        assertEquals(3, dp.atStore.getOrderedATs().size.toLong())
+        assertEquals(3, dp.db.atStore.getOrderedATs().size.toLong())
         val atBlock = dp.atController.validateATs("010000000000000097c1d1e5b25c1d109f2ba522d1dda248020000000000000014ea12712c274caebc49ccd7fff0b0b703000000000000009f1af5443c8d1e7b492f848e91fccb1f".parseHexString(), Integer.MAX_VALUE)
         assertNotNull(atBlock)
         assertEquals(0, atBlock.totalAmountPlanck)

@@ -1,13 +1,12 @@
 package brs.db.sql
 
 import brs.db.BurstKey
+import brs.db.MutableEntityTable
 import brs.db.SubscriptionStore
-import brs.db.VersionedEntityTable
-import brs.db.upsert
 import brs.entity.DependencyProvider
 import brs.entity.Subscription
 import brs.schema.Tables.SUBSCRIPTION
-import brs.schema.tables.records.SubscriptionRecord
+import brs.util.db.upsert
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.Record
@@ -19,11 +18,11 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
         }
     }
 
-    override val subscriptionTable: VersionedEntityTable<Subscription>
+    override val subscriptionTable: MutableEntityTable<Subscription>
 
     init {
-        subscriptionTable =
-            object : SqlVersionedEntityTable<Subscription>(
+        subscriptionTable = // TODO batch table!
+            object : SqlMutableEntityTable<Subscription>(
                 SUBSCRIPTION,
                 SUBSCRIPTION.HEIGHT,
                 SUBSCRIPTION.LATEST,
@@ -31,16 +30,57 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
                 dp
             ) {
                 override val defaultSort = listOf(
-                    table.field("time_next", Int::class.java).asc(),
-                    table.field("id", Long::class.java).asc()
+                    SUBSCRIPTION.TIME_NEXT.asc(),
+                    SUBSCRIPTION.ID.asc()
                 )
 
-                override fun load(ctx: DSLContext, record: Record): Subscription {
-                    return sqlToSubscription(record)
-                }
+                override fun load(record: Record) = Subscription(
+                    record.get(SUBSCRIPTION.SENDER_ID),
+                    record.get(SUBSCRIPTION.RECIPIENT_ID),
+                    record.get(SUBSCRIPTION.ID),
+                    record.get(SUBSCRIPTION.AMOUNT),
+                    record.get(SUBSCRIPTION.FREQUENCY),
+                    record.get(SUBSCRIPTION.TIME_NEXT),
+                subscriptionDbKeyFactory.newKey(record.get(SUBSCRIPTION.ID)))
+
+                private val upsertColumns = listOf(
+                    SUBSCRIPTION.ID,
+                    SUBSCRIPTION.SENDER_ID,
+                    SUBSCRIPTION.RECIPIENT_ID,
+                    SUBSCRIPTION.AMOUNT,
+                    SUBSCRIPTION.FREQUENCY,
+                    SUBSCRIPTION.TIME_NEXT,
+                    SUBSCRIPTION.HEIGHT,
+                    SUBSCRIPTION.LATEST
+                )
+                private val upsertKeys = upsertColumns // TODO do we really need every column unique? what's the point?
 
                 override fun save(ctx: DSLContext, entity: Subscription) {
-                    saveSubscription(ctx, entity)
+                    ctx.upsert(SUBSCRIPTION, upsertKeys, mapOf(
+                        SUBSCRIPTION.ID to entity.id,
+                        SUBSCRIPTION.SENDER_ID to entity.senderId,
+                        SUBSCRIPTION.RECIPIENT_ID to entity.recipientId,
+                        SUBSCRIPTION.AMOUNT to entity.amountPlanck,
+                        SUBSCRIPTION.FREQUENCY to entity.frequency,
+                        SUBSCRIPTION.TIME_NEXT to entity.timeNext,
+                        SUBSCRIPTION.HEIGHT to dp.blockchainService.height,
+                        SUBSCRIPTION.LATEST to true
+                    )).execute()
+                }
+
+                override fun save(ctx: DSLContext, entities: Collection<Subscription>) {
+                    if (entities.isEmpty()) return
+                    val height = dp.blockchainService.height
+                    ctx.upsert(SUBSCRIPTION, upsertColumns, upsertKeys, entities.map { entity -> arrayOf(
+                        entity.id,
+                        entity.senderId,
+                        entity.recipientId,
+                        entity.amountPlanck,
+                        entity.frequency,
+                        entity.timeNext,
+                        height,
+                        true
+                    ) }).execute()
                 }
             }
     }
@@ -68,36 +108,4 @@ internal class SqlSubscriptionStore(private val dp: DependencyProvider) : Subscr
     override fun getUpdateSubscriptions(timestamp: Int): Collection<Subscription> {
         return subscriptionTable.getManyBy(getUpdateOnBlockClause(timestamp), 0, -1)
     }
-
-    private fun saveSubscription(ctx: DSLContext, subscription: Subscription) {
-        val record = SubscriptionRecord()
-        record.id = subscription.id
-        record.senderId = subscription.senderId
-        record.recipientId = subscription.recipientId
-        record.amount = subscription.amountPlanck
-        record.frequency = subscription.frequency
-        record.timeNext = subscription.timeNext
-        record.height = dp.blockchainService.height
-        record.latest = true
-        ctx.upsert(
-            record,
-            SUBSCRIPTION.ID,
-            SUBSCRIPTION.SENDER_ID,
-            SUBSCRIPTION.RECIPIENT_ID,
-            SUBSCRIPTION.AMOUNT,
-            SUBSCRIPTION.FREQUENCY,
-            SUBSCRIPTION.TIME_NEXT,
-            SUBSCRIPTION.HEIGHT,
-            SUBSCRIPTION.LATEST
-        ).execute()
-    }
-
-    private fun sqlToSubscription(record: Record) = Subscription(
-        record.get(SUBSCRIPTION.SENDER_ID),
-        record.get(SUBSCRIPTION.RECIPIENT_ID),
-        record.get(SUBSCRIPTION.ID),
-        record.get(SUBSCRIPTION.AMOUNT),
-        record.get(SUBSCRIPTION.FREQUENCY),
-        record.get(SUBSCRIPTION.TIME_NEXT),
-        subscriptionDbKeyFactory.newKey(record.get(SUBSCRIPTION.ID)))
 }

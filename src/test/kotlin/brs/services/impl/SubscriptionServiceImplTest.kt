@@ -1,18 +1,18 @@
 package brs.services.impl
 
-import brs.services.BlockchainService
-import brs.entity.Subscription
 import brs.common.AbstractUnitTest
 import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
-import brs.db.TransactionDb
-import brs.db.VersionedEntityTable
+import brs.db.MutableEntityTable
 import brs.db.SubscriptionStore
+import brs.db.TransactionDb
+import brs.entity.Subscription
 import brs.services.AccountService
 import brs.services.AliasService
-import io.mockk.mockk
+import brs.services.BlockchainService
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -21,7 +21,7 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
     private lateinit var t: SubscriptionServiceImpl
 
     private lateinit var mockSubscriptionStore: SubscriptionStore
-    private lateinit var mockSubscriptionTable: VersionedEntityTable<Subscription>
+    private lateinit var mockSubscriptionTable: MutableEntityTable<Subscription>
     private lateinit var mockSubscriptionDbKeyFactory: LongKeyFactory<Subscription>
     private lateinit var transactionDb: TransactionDb
     private lateinit var blockchainService: BlockchainService
@@ -43,8 +43,7 @@ class SubscriptionServiceImplTest : AbstractUnitTest() {
         every { mockSubscriptionStore.subscriptionDbKeyFactory } returns mockSubscriptionDbKeyFactory
 
         t = SubscriptionServiceImpl(QuickMocker.dependencyProvider(
-            mockSubscriptionStore,
-            transactionDb,
+            QuickMocker.mockDb(mockSubscriptionStore, transactionDb),
             blockchainService,
             aliasService,
             accountService

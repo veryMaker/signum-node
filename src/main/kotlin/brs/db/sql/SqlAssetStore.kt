@@ -17,15 +17,30 @@ internal class SqlAssetStore(private val dp: DependencyProvider) : AssetStore {
     override val assetTable: SqlEntityTable<Asset>
 
     init {
-        assetTable = object : SqlEntityTable<Asset>(ASSET, assetDbKeyFactory, ASSET.HEIGHT, null, dp) {
-            override fun load(ctx: DSLContext, record: Record): Asset {
-                return sqlToAsset(record)
-            }
+        assetTable = object : SqlEntityTable<Asset>(ASSET, ASSET.HEIGHT, null, assetDbKeyFactory, dp) {
+            override fun load(record: Record) = Asset(
+                record.get(ASSET.ID),
+                assetDbKeyFactory.newKey(record.get(ASSET.ID)),
+                record.get(ASSET.ACCOUNT_ID),
+                record.get(ASSET.NAME),
+                record.get(ASSET.DESCRIPTION),
+                record.get(ASSET.QUANTITY),
+                record.get(ASSET.DECIMALS))
 
             override fun save(ctx: DSLContext, entity: Asset) {
-                ctx.insertInto(ASSET).set(ASSET.ID, entity.id).set(ASSET.ACCOUNT_ID, entity.accountId).set(ASSET.NAME, entity.name)
-                    .set(ASSET.DESCRIPTION, entity.description).set(ASSET.QUANTITY, entity.quantity)
-                    .set(ASSET.DECIMALS, entity.decimals).set(ASSET.HEIGHT, dp.blockchainService.height).execute()
+                ctx.insertInto(ASSET, ASSET.ID, ASSET.ACCOUNT_ID, ASSET.NAME, ASSET.DESCRIPTION, ASSET.QUANTITY, ASSET.DECIMALS, ASSET.HEIGHT)
+                    .values(entity.id, entity.accountId, entity.name, entity.description, entity.quantity, entity.decimals, dp.blockchainService.height)
+                    .execute()
+            }
+
+            override fun save(ctx: DSLContext, entities: Collection<Asset>) {
+                if (entities.isEmpty()) return
+                val height = dp.blockchainService.height
+                val query = ctx.insertInto(ASSET, ASSET.ID, ASSET.ACCOUNT_ID, ASSET.NAME, ASSET.DESCRIPTION, ASSET.QUANTITY, ASSET.DECIMALS, ASSET.HEIGHT)
+                entities.forEach { entity ->
+                    query.values(entity.id, entity.accountId, entity.name, entity.description, entity.quantity, entity.decimals, height)
+                }
+                query.execute()
             }
         }
     }
@@ -33,13 +48,4 @@ internal class SqlAssetStore(private val dp: DependencyProvider) : AssetStore {
     override fun getAssetsIssuedBy(accountId: Long, from: Int, to: Int): Collection<Asset> {
         return assetTable.getManyBy(ASSET.ACCOUNT_ID.eq(accountId), from, to)
     }
-
-    private fun sqlToAsset(record: Record) = Asset(
-        record.get(ASSET.ID),
-        assetDbKeyFactory.newKey(record.get(ASSET.ID)),
-        record.get(ASSET.ACCOUNT_ID),
-        record.get(ASSET.NAME),
-        record.get(ASSET.DESCRIPTION),
-        record.get(ASSET.QUANTITY),
-        record.get(ASSET.DECIMALS))
 }

@@ -3,7 +3,8 @@ package brs.services.impl
 import brs.at.AT
 import brs.at.AtBlock
 import brs.at.AtException
-import brs.db.VersionedBatchEntityTable
+import brs.db.BatchTable
+import brs.db.DerivedTable
 import brs.db.transaction
 import brs.entity.Block
 import brs.entity.DependencyProvider
@@ -27,12 +28,14 @@ import brs.util.delegates.Atomic
 import brs.util.json.toJsonString
 import brs.util.logging.*
 import brs.util.sync.Mutex
+import brs.util.sync.withLock
 import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
 import kotlin.math.max
+import kotlin.system.measureTimeMillis
 
 class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : BlockchainProcessorService {
     private val oclVerify = dp.propertyService.get(Props.GPU_ACCELERATION)
@@ -345,7 +348,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                 if (block.height % 1440 == 0) {
                     lastTrimHeight = max(block.height - dp.propertyService.get(Props.DB_MAX_ROLLBACK), 0)
                     if (lastTrimHeight > 0) {
-                        dp.derivedTableService.derivedTables.forEach { table -> table.trim(lastTrimHeight) }
+                        dp.db.allTables.forEach { table -> if (table is DerivedTable) table.trim(lastTrimHeight) }
                     }
                 }
             }
@@ -532,14 +535,14 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     }
 
     private fun addBlock(block: Block) {
-        dp.blockchainStore.addBlock(block)
+        dp.db.blockchainStore.addBlock(block)
         dp.blockchainService.lastBlock = block
     }
 
     private fun addGenesisBlock() {
-        if (dp.blockDb.hasBlock(Genesis.BLOCK_ID)) {
+        if (dp.db.blockDb.hasBlock(Genesis.BLOCK_ID)) {
             logger.safeInfo { "Genesis block already in database" }
-            val lastBlock = dp.blockDb.findLastBlock()!!
+            val lastBlock = dp.db.blockDb.findLastBlock()!!
             dp.blockchainService.lastBlock = lastBlock
             logger.safeInfo { "Last block height: ${lastBlock.height}" }
             return
@@ -556,99 +559,119 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
 
     private fun pushBlock(block: Block) {
         dp.blockService.preVerify(block, warnIfNotVerified = true)
-        processMutex.withLock {
-            val curTime = dp.timeService.epochTime
-            val lastBlock = dp.blockchainService.lastBlock
-            try {
-                dp.db.transaction {
-                    if (lastBlock.id != block.previousBlockId) {
-                        throw BlockchainProcessorService.BlockOutOfOrderException(
-                            "Previous block id doesn't match for block " + block.height
+        processMutex.withLock { waitTime ->
+            val pushTime = measureTimeMillis {
+                val curTime = dp.timeService.epochTime
+                val lastBlock = dp.blockchainService.lastBlock
+                try {
+                    dp.db.transaction {
+                        if (lastBlock.id != block.previousBlockId) {
+                            throw BlockchainProcessorService.BlockOutOfOrderException(
+                                "Previous block id doesn't match for block " + block.height
                                     + if (lastBlock.height + 1 == block.height) "" else " invalid previous height " + lastBlock.height
-                        )
-                    }
-
-                    if (block.version != blockVersion) {
-                        throw BlockchainProcessorService.BlockNotAcceptedException("Invalid version " + block.version + " for block " + block.height)
-                    }
-                    if (block.version != 1 && !Crypto.sha256().digest(lastBlock.toBytes())!!.contentEquals(block.previousBlockHash!!)) {
-                        throw BlockchainProcessorService.BlockNotAcceptedException("Previous block hash doesn't match for block " + block.height)
-                    }
-                    if (block.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE || block.timestamp <= lastBlock.timestamp) {
-                        throw BlockchainProcessorService.BlockOutOfOrderException("Invalid timestamp: " + block.timestamp + " current time is " + curTime + ", previous block timestamp is " + lastBlock.timestamp)
-                    }
-                    if (block.id == 0L || dp.blockDb.hasBlock(block.id)) {
-                        throw BlockchainProcessorService.BlockNotAcceptedException("Duplicate block or invalid id for block " + block.height)
-                    }
-                    if (!dp.blockService.verifyBlockSignature(block)) {
-                        throw BlockchainProcessorService.BlockNotAcceptedException("Block signature verification failed for block " + block.height)
-                    }
-
-                    val transactionDuplicatesChecker = TransactionDuplicateChecker()
-                    var calculatedTotalAmount: Long = 0
-                    var calculatedTotalFee: Long = 0
-
-                    for (transaction in block.transactions) {
-                        if (transaction.id == 0L)
-                            throw BlockchainProcessorService.TransactionNotAcceptedException("Invalid transaction id", transaction)
-                        if (transaction.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE)
-                            throw BlockchainProcessorService.BlockOutOfOrderException("Invalid transaction timestamp: ${transaction.timestamp}, current time is $curTime")
-                        if (transaction.timestamp > block.timestamp + MAX_TIMESTAMP_DIFFERENCE || transaction.expiration < block.timestamp)
-                            throw BlockchainProcessorService.TransactionNotAcceptedException("Invalid transaction timestamp ${transaction.timestamp} for transaction ${transaction.stringId}, current time is $curTime, block timestamp is ${block.timestamp}", transaction)
-                        if (dp.transactionDb.hasTransaction(transaction.id))
-                            throw BlockchainProcessorService.TransactionNotAcceptedException("Transaction ${transaction.stringId} is already in the blockchain", transaction)
-                        if (transaction.referencedTransactionFullHash != null && !hasAllReferencedTransactions(transaction, transaction.timestamp, 0))
-                            throw BlockchainProcessorService.TransactionNotAcceptedException("Missing or invalid referenced transaction ${transaction.referencedTransactionFullHash} for transaction ${transaction.stringId}", transaction)
-                        if (transaction.version.toInt() != dp.transactionProcessorService.getTransactionVersion(lastBlock.height))
-                            throw BlockchainProcessorService.TransactionNotAcceptedException("Invalid transaction version ${transaction.version} at height ${lastBlock.height}", transaction)
-                        if (!dp.transactionService.verifyPublicKey(transaction))
-                            throw BlockchainProcessorService.TransactionNotAcceptedException("Wrong public key in transaction ${transaction.stringId} at height ${lastBlock.height}", transaction)
-                        if (transactionDuplicatesChecker.hasAnyDuplicate(transaction))
-                            throw BlockchainProcessorService.TransactionNotAcceptedException("Transaction is a duplicate: ${transaction.stringId}", transaction)
-                        if (dp.fluxCapacitorService.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) && !dp.economicClusteringService.verifyFork(transaction))
-                            throw BlockchainProcessorService.TransactionNotAcceptedException("Transaction belongs to a different fork - EC verification failed", transaction)
-
-                        try {
-                            dp.transactionService.validate(transaction, false)
-                        } catch (e: BurstException.ValidationException) {
-                            throw BlockchainProcessorService.TransactionNotAcceptedException(e.message ?: "", transaction, e)
+                            )
                         }
 
-                        calculatedTotalAmount += transaction.amountPlanck
-                        calculatedTotalFee += transaction.feePlanck
-                        dp.indirectIncomingService.processTransaction(transaction)
-                    }
-
-                    if (calculatedTotalAmount > block.totalAmountPlanck || calculatedTotalFee > block.totalFeePlanck) {
-                        throw BlockchainProcessorService.BlockNotAcceptedException("Total amount or fee don't match transaction totals for block " + block.height)
-                    }
-
-                    val remainingAmount = block.totalAmountPlanck.safeSubtract(calculatedTotalAmount)
-                    val remainingFee = block.totalFeePlanck.safeSubtract(calculatedTotalFee)
-
-                    dp.blockService.setPrevious(block, lastBlock)
-                    blockListeners.accept(BlockchainProcessorService.Event.BEFORE_BLOCK_ACCEPT, block)
-                    dp.unconfirmedTransactionService.removeForgedTransactions(block.transactions)
-                    dp.unconfirmedTransactionService.resetAccountBalances()
-                    dp.derivedTableService.derivedTables.forEach {
-                        if (it is VersionedBatchEntityTable<*>) {
-                            it.finish()
+                        if (block.version != blockVersion) {
+                            throw BlockchainProcessorService.BlockNotAcceptedException("Invalid version " + block.version + " for block " + block.height)
                         }
+                        if (block.version != 1 && !Crypto.sha256().digest(lastBlock.toBytes())!!
+                                .contentEquals(block.previousBlockHash!!)) {
+                            throw BlockchainProcessorService.BlockNotAcceptedException("Previous block hash doesn't match for block " + block.height)
+                        }
+                        if (block.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE || block.timestamp <= lastBlock.timestamp) {
+                            throw BlockchainProcessorService.BlockOutOfOrderException("Invalid timestamp: " + block.timestamp + " current time is " + curTime + ", previous block timestamp is " + lastBlock.timestamp)
+                        }
+                        if (block.id == 0L || dp.db.blockDb.hasBlock(block.id)) {
+                            throw BlockchainProcessorService.BlockNotAcceptedException("Duplicate block or invalid id for block " + block.height)
+                        }
+                        if (!dp.blockService.verifyBlockSignature(block)) {
+                            throw BlockchainProcessorService.BlockNotAcceptedException("Block signature verification failed for block " + block.height)
+                        }
+
+                        val transactionDuplicatesChecker = TransactionDuplicateChecker()
+                        var calculatedTotalAmount: Long = 0
+                        var calculatedTotalFee: Long = 0
+
+                        for (transaction in block.transactions) {
+                            if (transaction.id == 0L)
+                                throw BlockchainProcessorService.TransactionNotAcceptedException("Invalid transaction id",
+                                    transaction)
+                            if (transaction.timestamp > curTime + MAX_TIMESTAMP_DIFFERENCE)
+                                throw BlockchainProcessorService.BlockOutOfOrderException("Invalid transaction timestamp: ${transaction.timestamp}, current time is $curTime")
+                            if (transaction.timestamp > block.timestamp + MAX_TIMESTAMP_DIFFERENCE || transaction.expiration < block.timestamp)
+                                throw BlockchainProcessorService.TransactionNotAcceptedException("Invalid transaction timestamp ${transaction.timestamp} for transaction ${transaction.stringId}, current time is $curTime, block timestamp is ${block.timestamp}",
+                                    transaction)
+                            if (dp.db.transactionDb.hasTransaction(transaction.id))
+                                throw BlockchainProcessorService.TransactionNotAcceptedException("Transaction ${transaction.stringId} is already in the blockchain",
+                                    transaction)
+                            if (transaction.referencedTransactionFullHash != null && !hasAllReferencedTransactions(
+                                    transaction,
+                                    transaction.timestamp,
+                                    0))
+                                throw BlockchainProcessorService.TransactionNotAcceptedException("Missing or invalid referenced transaction ${transaction.referencedTransactionFullHash} for transaction ${transaction.stringId}",
+                                    transaction)
+                            if (transaction.version.toInt() != dp.transactionProcessorService.getTransactionVersion(
+                                    lastBlock.height))
+                                throw BlockchainProcessorService.TransactionNotAcceptedException("Invalid transaction version ${transaction.version} at height ${lastBlock.height}",
+                                    transaction)
+                            if (!dp.transactionService.verifyPublicKey(transaction))
+                                throw BlockchainProcessorService.TransactionNotAcceptedException("Wrong public key in transaction ${transaction.stringId} at height ${lastBlock.height}",
+                                    transaction)
+                            if (transactionDuplicatesChecker.hasAnyDuplicate(transaction))
+                                throw BlockchainProcessorService.TransactionNotAcceptedException("Transaction is a duplicate: ${transaction.stringId}",
+                                    transaction)
+                            if (dp.fluxCapacitorService.getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) && !dp.economicClusteringService.verifyFork(
+                                    transaction))
+                                throw BlockchainProcessorService.TransactionNotAcceptedException("Transaction belongs to a different fork - EC verification failed",
+                                    transaction)
+
+                            try {
+                                dp.transactionService.validate(transaction, false)
+                            } catch (e: BurstException.ValidationException) {
+                                throw BlockchainProcessorService.TransactionNotAcceptedException(e.message ?: "",
+                                    transaction,
+                                    e)
+                            }
+
+                            calculatedTotalAmount += transaction.amountPlanck
+                            calculatedTotalFee += transaction.feePlanck
+                            dp.indirectIncomingService.processTransaction(transaction)
+                        }
+
+                        if (calculatedTotalAmount > block.totalAmountPlanck || calculatedTotalFee > block.totalFeePlanck) {
+                            throw BlockchainProcessorService.BlockNotAcceptedException("Total amount or fee don't match transaction totals for block " + block.height)
+                        }
+
+                        val remainingAmount = block.totalAmountPlanck.safeSubtract(calculatedTotalAmount)
+                        val remainingFee = block.totalFeePlanck.safeSubtract(calculatedTotalFee)
+
+                        dp.blockService.setPrevious(block, lastBlock)
+                        blockListeners.accept(BlockchainProcessorService.Event.BEFORE_BLOCK_ACCEPT, block)
+                        dp.unconfirmedTransactionService.removeForgedTransactions(block.transactions)
+                        dp.unconfirmedTransactionService.resetAccountBalances()
+                        addBlock(block)
+                        accept(block, remainingAmount, remainingFee)
+                        // Account table must be flushed first as lots of tables have foreign keys referencing it TODO proper order in which to flush batch tables
+                        dp.db.accountStore.accountTable.flushBatch(block.height)
+                        dp.db.allTables.forEach {
+                            if (it is BatchTable) {
+                                it.flushBatch(block.height)
+                            }
+                        }
+                        dp.downloadCacheService.removeBlock(block) // We make sure downloadCache does not have this block anymore.
                     }
-                    addBlock(block)
-                    dp.downloadCacheService.removeBlock(block) // We make sure downloadCache do not have this block anymore.
-                    accept(block, remainingAmount, remainingFee)
+                } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
+                    dp.blockchainService.lastBlock = lastBlock
+                    dp.downloadCacheService.resetCache()
+                    throw e
+                } catch (e: ArithmeticException) {
+                    dp.blockchainService.lastBlock = lastBlock
+                    dp.downloadCacheService.resetCache()
+                    throw e
                 }
-            } catch (e: BlockchainProcessorService.BlockNotAcceptedException) {
-                dp.blockchainService.lastBlock = lastBlock
-                dp.downloadCacheService.resetCache()
-                throw e
-            } catch (e: ArithmeticException) {
-                dp.blockchainService.lastBlock = lastBlock
-                dp.downloadCacheService.resetCache()
-                throw e
             }
-            logger.safeDebug { "Successfully pushed ${block.id.toUnsignedString()} (height ${block.height})" }
+            logger.safeDebug { "Successfully pushed ${block.id.toUnsignedString()} (at height ${block.height} with ${block.transactions.size} transactions) in ${pushTime}ms. Waited ${waitTime}ms for the block's process lock." }
             dp.statisticsService.blockAdded()
             blockListeners.accept(BlockchainProcessorService.Event.BLOCK_PUSHED, block)
             if (block.timestamp >= dp.timeService.epochTime - MAX_TIMESTAMP_DIFFERENCE) {
@@ -728,7 +751,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
                             poppedOffBlocks.add(block)
                             block = popLastBlock()
                         }
-                        dp.derivedTableService.derivedTables.forEach { table -> table.rollback(commonBlock.height) }
+                        dp.db.allTables.forEach { table -> if (table is DerivedTable) table.rollback(commonBlock.height) }
                         dp.dbCacheService.flushCache()
                         dp.downloadCacheService.resetCache()
                     }
@@ -744,10 +767,10 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     private fun popLastBlock(): Block {
         val block = dp.blockchainService.lastBlock
         check(block.id != Genesis.BLOCK_ID) { "Cannot pop off genesis block" }
-        val previousBlock = dp.blockDb.findBlock(block.previousBlockId)!!
+        val previousBlock = dp.db.blockDb.findBlock(block.previousBlockId)!!
         dp.blockchainService.setLastBlock(block, previousBlock)
         block.transactions.forEach { it.unsetBlock() }
-        dp.blockDb.deleteBlocksFrom(block.id)
+        dp.db.blockDb.deleteBlocksFrom(block.id)
         blockListeners.accept(BlockchainProcessorService.Event.BLOCK_POPPED, block)
         return previousBlock
     }
@@ -759,7 +782,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
     ): Boolean {
         val ok = (hasAllReferencedTransactions(transaction, transaction.timestamp, 0)
                 && !transactionDuplicatesChecker.hasAnyDuplicate(transaction)
-                && !dp.transactionDb.hasTransaction(transaction.id))
+                && !dp.db.transactionDb.hasTransaction(transaction.id))
         if (!ok) unconfirmedTransactionService.remove(transaction)
         return ok
     }
@@ -995,7 +1018,7 @@ class BlockchainProcessorServiceImpl(private val dp: DependencyProvider) : Block
         if (transaction.referencedTransactionFullHash == null) {
             return timestamp - transaction.timestamp < 60 * 1440 * 60 && count < 10
         }
-        val foundTransaction = dp.transactionDb.findTransactionByFullHash(transaction.referencedTransactionFullHash)
+        val foundTransaction = dp.db.transactionDb.findTransactionByFullHash(transaction.referencedTransactionFullHash)
         return foundTransaction != null && hasAllReferencedTransactions(foundTransaction, timestamp, count + 1)
     }
 

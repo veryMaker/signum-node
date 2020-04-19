@@ -43,6 +43,6 @@ class ATTest {
         }
         atTestHelper.addTipThanksAT(dp)
         assertTrue(tipThanksReceived.get())
-        assertEquals(3, dp.atStore.getOrderedATs().size.toLong())
+        assertEquals(3, dp.db.atStore.getOrderedATs().size.toLong())
     }
 }

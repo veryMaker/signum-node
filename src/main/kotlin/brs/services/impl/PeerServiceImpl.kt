@@ -28,6 +28,7 @@ import brs.util.logging.safeInfo
 import brs.util.logging.safeTrace
 import brs.util.misc.countFilterResults
 import brs.util.sync.Mutex
+import brs.util.sync.withLock
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import org.bitlet.weupnp.GatewayDevice
@@ -120,7 +121,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
             }
             if (usePeersDb) {
                 logger.safeDebug { "Loading known peers from the database..." }
-                loadPeers(dp.peerDb.loadPeers().mapNotNull { PeerAddress.parse(dp, it) })
+                loadPeers(dp.db.peerDb.loadPeers().mapNotNull { PeerAddress.parse(dp, it) })
             }
         }
     }
@@ -137,7 +138,7 @@ class PeerServiceImpl(private val dp: DependencyProvider) : PeerService {
     }
 
     private fun updateSavedPeers() {
-        dp.peerDb.updatePeers(peers.values
+        dp.db.peerDb.updatePeers(peers.values
             .filter { peer -> !peer.isBlacklisted && !bootstrapPeers.contains(peer.announcedAddress) && peer.isHigherOrEqualVersionThan(MIN_VERSION) }
             .map { it.announcedAddress.toString() })
     }

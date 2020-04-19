@@ -5,7 +5,7 @@ import brs.db.AccountStore
 import brs.db.AssetTransferStore
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
-import brs.db.VersionedBatchEntityTable
+import brs.db.MutableBatchEntityTable
 import brs.entity.Account
 import brs.entity.Account.RewardRecipientAssignment
 import brs.objects.Constants.EMPTY_BYTE_ARRAY
@@ -19,7 +19,7 @@ import org.junit.Test
 
 class AccountServiceImplTest {
     private lateinit var accountStoreMock: AccountStore
-    private lateinit var accountTableMock: VersionedBatchEntityTable<Account>
+    private lateinit var accountTableMock: MutableBatchEntityTable<Account>
     private lateinit var accountBurstKeyFactoryMock: LongKeyFactory<Account>
     private lateinit var assetTransferStoreMock: AssetTransferStore
 
@@ -35,7 +35,7 @@ class AccountServiceImplTest {
         every { accountStoreMock.accountTable } returns accountTableMock
         every { accountStoreMock.accountKeyFactory } returns accountBurstKeyFactoryMock
 
-        t = AccountServiceImpl(QuickMocker.dependencyProvider(accountStoreMock, assetTransferStoreMock))
+        t = AccountServiceImpl(QuickMocker.dependencyProvider(QuickMocker.mockDb(accountStoreMock, assetTransferStoreMock)))
     }
 
     @Test
@@ -214,13 +214,6 @@ class AccountServiceImplTest {
 
         assertNotNull(retrievedAccount)
         assertEquals(mockAccount, retrievedAccount)
-    }
-
-    @Test
-    fun flushAccountTable() {
-        t.flushAccountTable()
-
-        verify { accountTableMock.finish() }
     }
 
     @Test

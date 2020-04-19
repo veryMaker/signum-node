@@ -1,6 +1,7 @@
 package brs.util.delegates
 
 import brs.util.sync.Mutex
+import brs.util.sync.withLock
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty

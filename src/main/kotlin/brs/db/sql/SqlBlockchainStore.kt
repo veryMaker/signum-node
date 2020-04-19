@@ -55,7 +55,7 @@ internal class SqlBlockchainStore(private val dp: DependencyProvider) : Blockcha
     override fun getBlocks(blockRecords: Result<BlockRecord>): Collection<Block> {
         return blockRecords.inlineMap { blockRecord ->
             try {
-                return@inlineMap dp.blockDb.loadBlock(blockRecord)
+                return@inlineMap dp.db.blockDb.loadBlock(blockRecord)
             } catch (e: BurstException.ValidationException) {
                 throw Exception(e)
             }
@@ -79,7 +79,7 @@ internal class SqlBlockchainStore(private val dp: DependencyProvider) : Blockcha
                 .where(BLOCK.HEIGHT.gt(ctx.select(BLOCK.HEIGHT).from(BLOCK).where(BLOCK.ID.eq(blockId))))
                 .orderBy(BLOCK.HEIGHT.asc())
                 .limit(limit)
-                .fetchAndMap { result -> dp.blockDb.loadBlock(result) }
+                .fetchAndMap { result -> dp.db.blockDb.loadBlock(result) }
         }
     }
 
@@ -125,7 +125,7 @@ internal class SqlBlockchainStore(private val dp: DependencyProvider) : Blockcha
                 select = select.unionAll(
                     ctx.selectFrom(TRANSACTION)
                         .where(conditions)
-                        .and(TRANSACTION.ID.`in`(dp.indirectIncomingStore.getIndirectIncomings(account.id, from, to)))
+                        .and(TRANSACTION.ID.`in`(dp.db.indirectIncomingStore.getIndirectIncomings(account.id, from, to)))
                 )
             }
 
@@ -140,15 +140,15 @@ internal class SqlBlockchainStore(private val dp: DependencyProvider) : Blockcha
     }
 
     override fun getTransactions(ctx: DSLContext, rs: Result<TransactionRecord>): Collection<Transaction> {
-        return rs.inlineMap { r -> dp.transactionDb.loadTransaction(r) }
+        return rs.inlineMap { r -> dp.db.transactionDb.loadTransaction(r) }
     }
 
     override fun addBlock(block: Block) {
-        dp.db.useDslContext { ctx -> dp.blockDb.saveBlock(ctx, block) }
+        dp.db.useDslContext { ctx -> dp.db.blockDb.saveBlock(ctx, block) }
     }
 
     override fun getLatestBlocks(amountBlocks: Int): Collection<Block> {
-        val latestBlockHeight = dp.blockDb.findLastBlock()!!.height
+        val latestBlockHeight = dp.db.blockDb.findLastBlock()!!.height
 
         val firstLatestBlockHeight = max(0, latestBlockHeight - amountBlocks)
 

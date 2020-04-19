@@ -5,13 +5,13 @@ import brs.entity.DependencyProvider
 import brs.services.ATService
 
 class ATServiceImpl(private val dp: DependencyProvider) : ATService {
-    override fun getAllATIds() = dp.atStore.getAllATIds()
+    override fun getAllATIds() = dp.db.atStore.getAllATIds()
 
     override fun getATsIssuedBy(accountId: Long): List<Long> {
-        return dp.atStore.getATsIssuedBy(accountId)
+        return dp.db.atStore.getATsIssuedBy(accountId)
     }
 
     override fun getAT(id: Long): AT? {
-        return dp.atStore.getAT(id)
+        return dp.db.atStore.getAT(id)
     }
 }

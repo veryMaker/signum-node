@@ -9,6 +9,7 @@ import brs.util.MiningPlot
 import brs.util.logging.safeDebug
 import brs.util.logging.safeInfo
 import brs.util.sync.Mutex
+import brs.util.sync.withLock
 import org.jocl.*
 import org.jocl.CL.*
 import org.slf4j.LoggerFactory

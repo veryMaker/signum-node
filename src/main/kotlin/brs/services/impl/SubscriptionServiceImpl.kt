@@ -8,8 +8,8 @@ import brs.util.BurstException.NotValidException
 import brs.util.convert.safeAdd
 
 class SubscriptionServiceImpl(private val dp: DependencyProvider) : SubscriptionService {
-    private val subscriptionTable = dp.subscriptionStore.subscriptionTable
-    private val subscriptionDbKeyFactory = dp.subscriptionStore.subscriptionDbKeyFactory
+    private val subscriptionTable = dp.db.subscriptionStore.subscriptionTable
+    private val subscriptionDbKeyFactory = dp.db.subscriptionStore.subscriptionDbKeyFactory
 
     private val paymentTransactions = mutableListOf<Transaction>()
     private val appliedSubscriptions = mutableListOf<Subscription>()
@@ -23,11 +23,11 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     }
 
     override fun getSubscriptionsByParticipant(accountId: Long): Collection<Subscription> {
-        return dp.subscriptionStore.getSubscriptionsByParticipant(accountId)
+        return dp.db.subscriptionStore.getSubscriptionsByParticipant(accountId)
     }
 
     override fun getSubscriptionsToId(accountId: Long): Collection<Subscription> {
-        return dp.subscriptionStore.getSubscriptionsToId(accountId)
+        return dp.db.subscriptionStore.getSubscriptionsToId(accountId)
     }
 
     override fun addSubscription(
@@ -59,7 +59,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
             subscriptionTable.insert(subscription)
         }
         if (paymentTransactions.isNotEmpty()) {
-            dp.transactionDb.saveTransactions(paymentTransactions)
+            dp.db.transactionDb.saveTransactions(paymentTransactions)
         }
         removeSubscriptions.forEach { this.removeSubscription(it) }
     }
@@ -74,7 +74,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     override fun calculateFees(timestamp: Int): Long {
         var totalFeePlanck: Long = 0
         val appliedUnconfirmedSubscriptions = mutableListOf<Subscription>()
-        for (subscription in dp.subscriptionStore.getUpdateSubscriptions(timestamp)) {
+        for (subscription in dp.db.subscriptionStore.getUpdateSubscriptions(timestamp)) {
             if (removeSubscriptions.contains(subscription.id)) {
                 continue
             }
@@ -102,7 +102,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
     override fun applyUnconfirmed(timestamp: Int): Long {
         appliedSubscriptions.clear()
         var totalFees: Long = 0
-        for (subscription in dp.subscriptionStore.getUpdateSubscriptions(timestamp)) {
+        for (subscription in dp.db.subscriptionStore.getUpdateSubscriptions(timestamp)) {
             if (removeSubscriptions.contains(subscription.id)) {
                 continue
             }
@@ -166,7 +166,7 @@ class SubscriptionServiceImpl(private val dp: DependencyProvider) : Subscription
                 .ecBlockHeight(0)
                 .ecBlockId(0L)
             val transaction = builder.build()
-            if (!dp.transactionDb.hasTransaction(transaction.id)) {
+            if (!dp.db.transactionDb.hasTransaction(transaction.id)) {
                 paymentTransactions.add(transaction)
             }
         } catch (e: NotValidException) {

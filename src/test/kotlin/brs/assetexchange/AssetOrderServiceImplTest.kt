@@ -3,8 +3,8 @@ package brs.assetexchange
 import brs.common.QuickMocker
 import brs.db.BurstKey
 import brs.db.BurstKey.LongKeyFactory
+import brs.db.MutableEntityTable
 import brs.db.OrderStore
-import brs.db.VersionedEntityTable
 import brs.entity.Order.Ask
 import brs.entity.Order.Bid
 import brs.services.AccountService
@@ -21,9 +21,9 @@ class AssetOrderServiceImplTest {
     private lateinit var t: AssetOrderServiceImpl
 
     private lateinit var orderStoreMock: OrderStore
-    private lateinit var mockAskOrderTable: VersionedEntityTable<Ask>
+    private lateinit var mockAskOrderTable: MutableEntityTable<Ask>
     private lateinit var mockAskOrderDbKeyFactory: LongKeyFactory<Ask>
-    private lateinit var mockBidOrderTable: VersionedEntityTable<Bid>
+    private lateinit var mockBidOrderTable: MutableEntityTable<Bid>
     private lateinit var mockBidOrderDbKeyFactory: LongKeyFactory<Bid>
 
     private lateinit var accountServiceMock: AccountService
@@ -46,7 +46,7 @@ class AssetOrderServiceImplTest {
         every { orderStoreMock.bidOrderDbKeyFactory } returns mockBidOrderDbKeyFactory
 
         t = AssetOrderServiceImpl(
-            QuickMocker.dependencyProvider(orderStoreMock, accountServiceMock),
+            QuickMocker.dependencyProvider(QuickMocker.mockDb(orderStoreMock), accountServiceMock),
             tradeServiceMock
         )
     }

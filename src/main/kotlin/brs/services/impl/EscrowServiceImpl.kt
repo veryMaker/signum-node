@@ -11,11 +11,11 @@ import org.jooq.Condition
 import java.util.concurrent.ConcurrentSkipListSet
 
 class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
-    private val escrowTable = dp.escrowStore.escrowTable
-    private val escrowDbKeyFactory = dp.escrowStore.escrowDbKeyFactory
-    private val decisionTable = dp.escrowStore.decisionTable
-    private val decisionDbKeyFactory = dp.escrowStore.decisionDbKeyFactory
-    private val resultTransactions = dp.escrowStore.resultTransactions
+    private val escrowTable = dp.db.escrowStore.escrowTable
+    private val escrowDbKeyFactory = dp.db.escrowStore.escrowDbKeyFactory
+    private val decisionTable = dp.db.escrowStore.decisionTable
+    private val decisionDbKeyFactory = dp.db.escrowStore.decisionDbKeyFactory
+    private val resultTransactions = dp.db.escrowStore.resultTransactions
 
     override fun getAllEscrowTransactions() = escrowTable.getAll(0, -1)
 
@@ -26,7 +26,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
     }
 
     override fun getEscrowTransactionsByParticipant(accountId: Long): Collection<Escrow> {
-        return dp.escrowStore.getEscrowTransactionsByParticipant(accountId)
+        return dp.db.escrowStore.getEscrowTransactionsByParticipant(accountId)
     }
 
     override fun removeEscrowTransaction(id: Long) {
@@ -94,7 +94,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
         var countRefund = 0
         var countSplit = 0
 
-        for (decision in dp.escrowStore.getDecisions(escrow.id)) {
+        for (decision in dp.db.escrowStore.getDecisions(escrow.id)) {
             if (decision.accountId == escrow.senderId || decision.accountId == escrow.recipientId) {
                 continue
             }
@@ -142,7 +142,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
                 }
             }
             if (resultTransactions.isNotEmpty()) {
-                dp.transactionDb.saveTransactions(resultTransactions)
+                dp.db.transactionDb.saveTransactions(resultTransactions)
             }
             updatedEscrowIds.clear()
         }
@@ -245,7 +245,7 @@ class EscrowServiceImpl(private val dp: DependencyProvider) : EscrowService {
         val transaction: Transaction
         transaction = builder.build()
 
-        if (!dp.transactionDb.hasTransaction(transaction.id)) {
+        if (!dp.db.transactionDb.hasTransaction(transaction.id)) {
             resultTransactions.add(transaction)
         }
     }

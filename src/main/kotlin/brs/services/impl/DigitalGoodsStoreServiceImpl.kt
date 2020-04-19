@@ -11,13 +11,13 @@ import brs.util.convert.safeSubtract
 import brs.util.convert.toUtf8String
 
 class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : DigitalGoodsStoreService {
-    private val feedbackTable = dp.digitalGoodsStoreStore.feedbackTable
-    private val publicFeedbackTable = dp.digitalGoodsStoreStore.publicFeedbackTable
+    private val feedbackTable = dp.db.digitalGoodsStoreStore.feedbackTable
+    private val publicFeedbackTable = dp.db.digitalGoodsStoreStore.publicFeedbackTable
 
-    private val goodsTable = dp.digitalGoodsStoreStore.goodsTable
-    private val purchaseTable = dp.digitalGoodsStoreStore.purchaseTable
-    private val goodsDbKeyFactory = dp.digitalGoodsStoreStore.goodsDbKeyFactory
-    private val purchaseDbKeyFactory = dp.digitalGoodsStoreStore.purchaseDbKeyFactory
+    private val goodsTable = dp.db.digitalGoodsStoreStore.goodsTable
+    private val purchaseTable = dp.db.digitalGoodsStoreStore.purchaseTable
+    private val goodsDbKeyFactory = dp.db.digitalGoodsStoreStore.goodsDbKeyFactory
+    private val purchaseDbKeyFactory = dp.db.digitalGoodsStoreStore.purchaseDbKeyFactory
 
     private val goodsListeners = Listeners<Goods, Event>()
     private val purchaseListeners = Listeners<Purchase, Event>()
@@ -39,11 +39,11 @@ class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : Digital
     }
 
     override fun getGoodsInStock(from: Int, to: Int): Collection<Goods> {
-        return dp.digitalGoodsStoreStore.getGoodsInStock(from, to)
+        return dp.db.digitalGoodsStoreStore.getGoodsInStock(from, to)
     }
 
     override fun getSellerGoods(sellerId: Long, inStockOnly: Boolean, from: Int, to: Int): Collection<Goods> {
-        return dp.digitalGoodsStoreStore.getSellerGoods(sellerId, inStockOnly, from, to)
+        return dp.db.digitalGoodsStoreStore.getSellerGoods(sellerId, inStockOnly, from, to)
     }
 
     override fun getAllPurchases(from: Int, to: Int): Collection<Purchase> {
@@ -51,19 +51,19 @@ class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : Digital
     }
 
     override fun getSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<Purchase> {
-        return dp.digitalGoodsStoreStore.getSellerPurchases(sellerId, from, to)
+        return dp.db.digitalGoodsStoreStore.getSellerPurchases(sellerId, from, to)
     }
 
     override fun getBuyerPurchases(buyerId: Long, from: Int, to: Int): Collection<Purchase> {
-        return dp.digitalGoodsStoreStore.getBuyerPurchases(buyerId, from, to)
+        return dp.db.digitalGoodsStoreStore.getBuyerPurchases(buyerId, from, to)
     }
 
     override fun getSellerBuyerPurchases(sellerId: Long, buyerId: Long, from: Int, to: Int): Collection<Purchase> {
-        return dp.digitalGoodsStoreStore.getSellerBuyerPurchases(sellerId, buyerId, from, to)
+        return dp.db.digitalGoodsStoreStore.getSellerBuyerPurchases(sellerId, buyerId, from, to)
     }
 
     override fun getPendingSellerPurchases(sellerId: Long, from: Int, to: Int): Collection<Purchase> {
-        return dp.digitalGoodsStoreStore.getPendingSellerPurchases(sellerId, from, to)
+        return dp.db.digitalGoodsStoreStore.getPendingSellerPurchases(sellerId, from, to)
     }
 
     override fun getPurchase(purchaseId: Long): Purchase? {
@@ -167,7 +167,7 @@ class DigitalGoodsStoreServiceImpl(private val dp: DependencyProvider) : Digital
     }
 
     override fun getExpiredPendingPurchases(timestamp: Int): Collection<Purchase> {
-        return dp.digitalGoodsStoreStore.getExpiredPendingPurchases(timestamp)
+        return dp.db.digitalGoodsStoreStore.getExpiredPendingPurchases(timestamp)
     }
 
     override fun changePrice(goodsId: Long, pricePlanck: Long) {

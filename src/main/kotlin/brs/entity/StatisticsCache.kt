@@ -1,6 +1,7 @@
 package brs.entity
 
 import brs.services.StatisticsService
+import brs.util.cache.set
 import org.ehcache.Cache
 import org.ehcache.config.CacheRuntimeConfiguration
 
@@ -16,7 +17,7 @@ internal class StatisticsCache<K, V>(
     }
 
     override fun put(k: K, v: V) {
-        wrappedCache.put(k, v)
+        wrappedCache[k] = v
     }
 
     override fun containsKey(k: K): Boolean {

@@ -9,6 +9,7 @@ import brs.services.BlockchainService
 import brs.services.GeneratorService
 import brs.util.delegates.Atomic
 import brs.util.sync.Mutex
+import brs.util.sync.withLock
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
 

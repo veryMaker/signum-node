@@ -24,17 +24,17 @@ class Purchase(
     var refundNote: BurstEncryptedMessage? = null
     private var hasFeedbackNotes: Boolean = false
     val feedbackNotes by AtomicLazy {
-        if (!hasFeedbackNotes) mutableListOf() else dp.digitalGoodsStoreStore.feedbackTable[dp.digitalGoodsStoreStore.feedbackDbKeyFactory.newKey(this@Purchase)].toMutableList()
+        if (!hasFeedbackNotes) mutableListOf() else dp.db.digitalGoodsStoreStore.feedbackTable[dp.db.digitalGoodsStoreStore.feedbackDbKeyFactory.newKey(this@Purchase)].toMutableList()
     }
     private var hasPublicFeedbacks: Boolean = false
     val publicFeedback by lazy {
-        if (!hasFeedbackNotes) mutableListOf() else dp.digitalGoodsStoreStore.publicFeedbackTable[dp.digitalGoodsStoreStore.publicFeedbackDbKeyFactory.newKey(this@Purchase)].toMutableList()
+        if (!hasFeedbackNotes) mutableListOf() else dp.db.digitalGoodsStoreStore.publicFeedbackTable[dp.db.digitalGoodsStoreStore.publicFeedbackDbKeyFactory.newKey(this@Purchase)].toMutableList()
     }
     var discountPlanck: Long = 0
     var refundPlanck: Long = 0
 
     val name by lazy {
-        dp.digitalGoodsStoreStore.goodsTable[dp.digitalGoodsStoreStore.goodsDbKeyFactory.newKey(goodsId)]!!.name
+        dp.db.digitalGoodsStoreStore.goodsTable[dp.db.digitalGoodsStoreStore.goodsDbKeyFactory.newKey(goodsId)]!!.name
     }
 
     constructor(
@@ -44,7 +44,7 @@ class Purchase(
         sellerId: Long
     ) : this(dp,
         transaction.id,
-        dp.digitalGoodsStoreStore.purchaseDbKeyFactory.newKey(transaction.id),
+        dp.db.digitalGoodsStoreStore.purchaseDbKeyFactory.newKey(transaction.id),
         transaction.senderId,
         attachment.goodsId,
         sellerId,

@@ -38,7 +38,7 @@ class FeeSuggestionServiceImpl(private val dp: DependencyProvider, maxHistoryLen
     }
 
     private fun fillInitialHistory() {
-        dp.blockchainStore.getLatestBlocks(latestBlocks.size).forEach { this.pushNewBlock(it) }
+        dp.db.blockchainStore.getLatestBlocks(latestBlocks.size).forEach { this.pushNewBlock(it) }
     }
 
     private fun latestBlocksIsEmpty(): Boolean {

@@ -85,11 +85,6 @@ interface AccountService : Observable<Account, Event> {
     fun getOrAddAccount(id: Long): Account
 
     /**
-     * TODO
-     */
-    fun flushAccountTable()
-
-    /**
      * Add to the forged balance of an account (This does not increase the balance of an account)
      * @param account The account
      * @param amountPlanck The amount, in Planck, to increase the account's forged balance by
