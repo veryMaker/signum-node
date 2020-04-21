@@ -7,6 +7,7 @@ import brs.db.BurstKey.LongKeyFactory;
 import brs.db.TransactionDb;
 import brs.db.VersionedEntityTable;
 import brs.db.store.SubscriptionStore;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.AccountService;
 import brs.services.AliasService;
 import brs.services.SubscriptionService;
@@ -86,7 +87,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     removeSubscriptions.forEach(this::removeSubscription);
   }
 
-  private long getFee() {
+  private long getFee(int height) {
+	if (Burst.getFluxCapacitor().getValue(FluxValues.LN_TIME, height))
+	  return Constants.FEE_QUANT;
     return Constants.ONE_BURST;
   }
 
@@ -99,21 +102,21 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   @Override
-  public long calculateFees(int timestamp) {
+  public long calculateFees(int timestamp, int height) {
     long totalFeeNQT = 0;
     List<Subscription> appliedUnconfirmedSubscriptions = new ArrayList<>();
     for (Subscription subscription : subscriptionStore.getUpdateSubscriptions(timestamp)){
       if (removeSubscriptions.contains(subscription.getId())) {
         continue;
       }
-      if (applyUnconfirmed(subscription)) {
+      if (applyUnconfirmed(subscription, height)) {
         appliedUnconfirmedSubscriptions.add(subscription);
       }
     }
     if (! appliedUnconfirmedSubscriptions.isEmpty()) {
       for (Subscription subscription : appliedUnconfirmedSubscriptions) {
-        totalFeeNQT = Convert.safeAdd(totalFeeNQT, getFee());
-        undoUnconfirmed(subscription);
+        totalFeeNQT = Convert.safeAdd(totalFeeNQT, getFee(height));
+        undoUnconfirmed(subscription, height);
       }
     }
     return totalFeeNQT;
@@ -130,16 +133,16 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   @Override
-  public long applyUnconfirmed(int timestamp) {
+  public long applyUnconfirmed(int timestamp, int height) {
     appliedSubscriptions.clear();
     long totalFees = 0;
     for (Subscription subscription : subscriptionStore.getUpdateSubscriptions(timestamp)) {
       if (removeSubscriptions.contains(subscription.getId())) {
         continue;
       }
-      if (applyUnconfirmed(subscription)) {
+      if (applyUnconfirmed(subscription, height)) {
         appliedSubscriptions.add(subscription);
-        totalFees += getFee();
+        totalFees += getFee(height);
       } else {
         removeSubscriptions.add(subscription.getId());
       }
@@ -147,9 +150,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     return totalFees;
   }
 
-  private boolean applyUnconfirmed(Subscription subscription) {
+  private boolean applyUnconfirmed(Subscription subscription, int height) {
     Account sender = accountService.getAccount(subscription.getSenderId());
-    long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee());
+    long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee(height));
 
     if (sender == null || sender.getUnconfirmedBalanceNQT() < totalAmountNQT) {
       return false;
@@ -160,9 +163,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     return true;
   }
 
-  private void undoUnconfirmed(Subscription subscription) {
+  private void undoUnconfirmed(Subscription subscription, int height) {
     Account sender = accountService.getAccount(subscription.getSenderId());
-    long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee());
+    long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee(height));
 
     if (sender != null) {
       accountService.addToUnconfirmedBalanceNQT(sender, totalAmountNQT);
@@ -173,7 +176,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     Account sender = accountService.getAccount(subscription.getSenderId());
     Account recipient = accountService.getAccount(subscription.getRecipientId());
 
-    long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee());
+    long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee(block.getHeight()));
 
     accountService.addToBalanceNQT(sender, -totalAmountNQT);
     accountService.addToBalanceAndUnconfirmedBalanceNQT(recipient, subscription.getAmountNQT());
@@ -181,7 +184,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     Attachment.AbstractAttachment attachment = new Attachment.AdvancedPaymentSubscriptionPayment(subscription.getId(), blockchainHeight);
     Transaction.Builder builder = new Transaction.Builder((byte) 1,
         sender.getPublicKey(), subscription.getAmountNQT(),
-        getFee(),
+        getFee(block.getHeight()),
         subscription.getTimeNext(), (short) 1440, attachment);
 
     try {

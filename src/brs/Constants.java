@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 public final class Constants {
+	
+  public static final long BURST_BLOCK_TIME = 240L;
 
   public static final int BURST_DIFF_ADJUST_CHANGE_BLOCK = 2700;
 
@@ -72,8 +74,6 @@ public final class Constants {
   public static final int MAX_API_RETURNED_ITEMS = 500;
 
   public static final String HTTP = "http://";
-
-  public static final Version MIN_VERSION = Version.parse("v2.3.0");
 
   static final long UNCONFIRMED_POOL_DEPOSIT_NQT = (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? 50 : 100) * ONE_BURST;
 

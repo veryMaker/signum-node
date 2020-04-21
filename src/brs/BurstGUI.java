@@ -1,30 +1,62 @@
 package brs;
 
-import brs.props.PropertyService;
-import brs.props.Props;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.TextArea;
-import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.FlowLayout;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
+import java.awt.TrayIcon.MessageType;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.FileDescriptor;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.URI;
 import java.security.Permission;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-public class BurstGUI extends Application {
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.github.weisj.darklaf.LafManager;
+import com.github.weisj.darklaf.theme.DarculaTheme;
+
+import brs.props.PropertyService;
+import brs.props.Props;
+import brs.util.Convert;
+import jiconfont.icons.font_awesome.FontAwesome;
+import jiconfont.swing.IconFontSwing;
+
+@SuppressWarnings("serial")
+public class BurstGUI extends JFrame {
     private static final String ICON_LOCATION = "/images/burst_overlay_logo.png";
     private static final String FAILED_TO_START_MESSAGE = "BurstGUI caught exception starting BRS";
     private static final String UNEXPECTED_EXIT_MESSAGE = "BRS Quit unexpectedly! Exit code ";
+    
+	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss yyyy-MM-dd");
 
     private static final int OUTPUT_MAX_LINES = 500;
 
@@ -32,37 +64,113 @@ public class BurstGUI extends Application {
     private static String[] args;
 
     private boolean userClosed = false;
-    private Stage stage;
     private TrayIcon trayIcon = null;
+    private JPanel toolBar = null;
+    private JLabel infoLable = null;
+    private JProgressBar syncProgressBar = null;
+	private JScrollPane textScrollPane = null;
+    Color iconColor = Color.BLACK;
 
     public static void main(String[] args) {
         BurstGUI.args = args;
-        Platform.setImplicitExit(false);
-        launch(args);
+        new BurstGUI();
     }
 
-    @Override
-    public void start(Stage primaryStage) {
+    public BurstGUI() {
         System.setSecurityManager(new BurstGUISecurityManager());
-        primaryStage.setTitle("Burst Reference Software version " + Burst.VERSION);
-        TextArea textArea = new TextArea() {
-            @Override
-            public void replaceText(int start, int end, String text) {
-                super.replaceText(start, end, text);
+        setTitle("Burst Reference Software version " + Burst.VERSION);
+        
+        LafManager.install(new DarculaTheme());
+		IconFontSwing.register(FontAwesome.getIconFont());
+
+        JTextArea textArea = new JTextArea() {
+        	@Override
+        	public void append(String str) {
+        		super.append(str);
+        		
                 while(getText().split("\n", -1).length > OUTPUT_MAX_LINES) {
                     int fle = getText().indexOf('\n');
-                    super.replaceText(0, fle+1, "");
+                    super.replaceRange("", 0, fle+1);
                 }
-                positionCaret(getText().length());
-            }
+                JScrollBar vertical = textScrollPane.getVerticalScrollBar();
+                vertical.setValue( vertical.getMaximum() );        		
+        	}
         };
+        iconColor = textArea.getForeground();
         textArea.setEditable(false);
         sendJavaOutputToTextArea(textArea);
-        primaryStage.setScene(new Scene(textArea, 800, 450));
-        primaryStage.getIcons().add(new javafx.scene.image.Image(getClass().getResourceAsStream(ICON_LOCATION)));
-        stage = primaryStage;
-        showTrayIcon();
+        textScrollPane = new JScrollPane(textArea);        
+        JPanel content = new JPanel(new BorderLayout());
+        setContentPane(content);
+        content.add(textScrollPane, BorderLayout.CENTER);
+        
+        toolBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        content.add(toolBar, BorderLayout.PAGE_START);
+        
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        content.add(bottomPanel, BorderLayout.PAGE_END);
+        
+        syncProgressBar = new JProgressBar(0, 100);
+        syncProgressBar.setStringPainted(true);
+        infoLable = new JLabel("Latest block info");
+
+        bottomPanel.add(infoLable, BorderLayout.CENTER);
+        bottomPanel.add(syncProgressBar, BorderLayout.LINE_END);
+
+        pack();
+        setSize(960, 600);
+        setLocationRelativeTo(null);
+        try {
+			setIconImage(ImageIO.read(getClass().getResourceAsStream(ICON_LOCATION)));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
         new Thread(this::runBrs).start();
+
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+        	@Override
+        	public void windowClosing(WindowEvent e) {
+        		if(trayIcon == null) {
+        			if (JOptionPane.showConfirmDialog(BurstGUI.this, 
+        					"This will stop BRS. Are you sure?", "Exit and stop BRS", 
+        					JOptionPane.YES_NO_OPTION,
+        					JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+        				shutdown();
+        			}
+        		}
+        		else {
+        			trayIcon.displayMessage("BRS GUI closed", "BRS is still running", MessageType.INFO);
+        			setVisible(false);
+        		}
+        	}
+        });
+        
+        showTrayIcon();
+        
+        new Timer(5000, e -> {
+        	try {
+        		Blockchain blockChain = Burst.getBlockchain();
+        		if(blockChain != null) {
+        			Block block = blockChain.getLastBlock();
+        			if(block != null) {
+        				Date blockDate = Convert.fromEpochTime(block.getTimestamp());
+        				infoLable.setText("Latest block: " + block.getHeight() + 
+        						" Timestamp: " + DATE_FORMAT.format(blockDate));
+
+        				Date now = new Date();
+        				int missingBlocks = (int) ((now.getTime() - blockDate.getTime())/(Constants.BURST_BLOCK_TIME * 1000));
+        				int prog = block.getHeight()*100/(block.getHeight() + missingBlocks);
+        				syncProgressBar.setValue(prog);
+        				syncProgressBar.setString(prog + " %");
+        			}
+        		}
+        	}
+        	finally {
+				// do nothing on error here
+			}
+        }).start();
     }
 
     private void shutdown() {
@@ -76,49 +184,87 @@ public class BurstGUI extends Application {
     private void showTrayIcon() {
         if (trayIcon == null) { // Don't start running in tray twice
             trayIcon = createTrayIcon();
-            if (trayIcon != null) {
-                stage.setOnCloseRequest(event -> hideWindow());
-            } else {
-                stage.show();
-                stage.setOnCloseRequest(event -> shutdown());
-            }
+
+            // Also show the main window
+            SwingUtilities.invokeLater(() -> showWindow());
         }
     }
 
     private TrayIcon createTrayIcon() {
-        try {
-            SystemTray systemTray = SystemTray.getSystemTray();
-            PopupMenu popupMenu = new PopupMenu();
+    	PopupMenu popupMenu = new PopupMenu();
+    	
+    	MenuItem openWebUiItem = new MenuItem("Open Legacy Wallet");
+    	MenuItem showItem = new MenuItem("Show BRS output");
+    	MenuItem shutdownItem = new MenuItem("Shutdown BRS");
 
-            MenuItem openWebUiButton = new MenuItem("Open Web GUI");
-            MenuItem showItem = new MenuItem("Show BRS output");
-            MenuItem shutdownItem = new MenuItem("Shutdown BRS");
+    	// TODO: add support for the Phoenix Wallet
+//    	JButton openPhoenixButton = new JButton("Open Phoenix Wallet", IconFontSwing.buildIcon(FontAwesome.FIRE, 18, iconColor));
+    	JButton openWebUiButton = new JButton(openWebUiItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.WINDOW_RESTORE, 18, iconColor));
+    	JButton editConfButton = new JButton("Edit conf file", IconFontSwing.buildIcon(FontAwesome.PENCIL, 18, iconColor));
+    	JButton popOffButton = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
+    	
+    	openWebUiButton.addActionListener(e -> openWebUi());
+    	editConfButton.addActionListener(e -> editConf());
+    	popOffButton.addActionListener(e -> popOff());
+ 
+//    	toolBar.add(openPhoenixButton);
+    	toolBar.add(openWebUiButton);
+    	toolBar.add(editConfButton);
+    	toolBar.add(popOffButton);
 
-            openWebUiButton.addActionListener(e -> openWebUi());
-            showItem.addActionListener(e -> showWindow());
-            shutdownItem.addActionListener(e -> shutdown());
+    	openWebUiItem.addActionListener(e -> openWebUi());
+    	showItem.addActionListener(e -> showWindow());
+    	shutdownItem.addActionListener(e -> shutdown());
 
-            popupMenu.add(openWebUiButton);
-            popupMenu.add(showItem);
-            popupMenu.add(shutdownItem);
+    	popupMenu.add(openWebUiItem);
+    	popupMenu.add(showItem);
+    	popupMenu.add(shutdownItem);
 
-            TrayIcon newTrayIcon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(BurstGUI.class.getResource(ICON_LOCATION)), "Burst Reference Software", popupMenu);
-            newTrayIcon.setImage(newTrayIcon.getImage().getScaledInstance(newTrayIcon.getSize().width, -1, Image.SCALE_SMOOTH));
-            newTrayIcon.addActionListener(e -> openWebUi());
-            systemTray.add(newTrayIcon);
-            return newTrayIcon;
-        } catch (Exception e) {
-            LOGGER.error("Could not create tray icon", e);
-            return null;
-        }
+    	try {
+    		TrayIcon newTrayIcon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(BurstGUI.class.getResource(ICON_LOCATION)), "Burst Reference Software", popupMenu);
+    		newTrayIcon.setImage(newTrayIcon.getImage().getScaledInstance(newTrayIcon.getSize().width, -1, Image.SCALE_SMOOTH));
+    		newTrayIcon.addActionListener(e -> openWebUi());
+
+    		SystemTray systemTray = SystemTray.getSystemTray();
+    		systemTray.add(newTrayIcon);
+    		
+    		newTrayIcon.displayMessage("BRS Running", "BRS is running on backgroud, use this icon to interact with it.", MessageType.INFO);
+    		
+    		return newTrayIcon;
+    	} catch (Exception e) {
+    		LOGGER.warn("Could not create tray icon");
+    		return null;
+    	}
     }
 
     private void showWindow() {
-        Platform.runLater(stage::show);
+    	setVisible(true);
     }
-
-    private void hideWindow() {
-        Platform.runLater(stage::hide);
+    
+    private void popOff() {
+    	Block lastBlock = Burst.getBlockchain().getLastBlock();
+    	LOGGER.info("Pop off requested, this can take a while...");
+    	new Thread(() -> Burst.getBlockchainProcessor().popOffTo(lastBlock.getHeight() - 100)).start();
+    }
+    
+    private void editConf() {
+    	File file = new File(Burst.CONF_FOLDER, Burst.PROPERTIES_NAME);
+    	if(!file.exists()) {
+        	file = new File(Burst.CONF_FOLDER, Burst.DEFAULT_PROPERTIES_NAME);
+        	if(!file.exists()) {
+        		file = new File(Burst.DEFAULT_PROPERTIES_NAME);
+        	}
+    	}
+    	
+    	if(!file.exists()) {
+    		JOptionPane.showMessageDialog(this, "Could not find conf file: " + Burst.DEFAULT_PROPERTIES_NAME, "File not found", JOptionPane.ERROR_MESSAGE);
+    		return;
+    	}
+    	try {
+			Desktop.getDesktop().open(file);
+		} catch (IOException e) {
+			LOGGER.error("Could not edit conf file", e);
+		}
     }
 
     private void openWebUi() {
@@ -158,40 +304,36 @@ public class BurstGUI extends Application {
     }
 
     private void onTestNetEnabled() {
-        Platform.runLater(() -> stage.setTitle(stage.getTitle() + " (TESTNET)"));
-        trayIcon.setToolTip(trayIcon.getToolTip() + " (TESTNET)");
+        SwingUtilities.invokeLater(() -> setTitle(getTitle() + " (TESTNET)"));
+        if(trayIcon != null)
+        	trayIcon.setToolTip(trayIcon.getToolTip() + " (TESTNET)");
     }
 
     private void onBrsStopped() {
-        Platform.runLater(() -> stage.setTitle(stage.getTitle() + " (STOPPED)"));
-        trayIcon.setToolTip(trayIcon.getToolTip() + " (STOPPED)");
+        SwingUtilities.invokeLater(() -> setTitle(getTitle() + " (STOPPED)"));
+        if(trayIcon != null)
+        	trayIcon.setToolTip(trayIcon.getToolTip() + " (STOPPED)");
     }
 
-    @SuppressWarnings("squid:S106")
-    private void sendJavaOutputToTextArea(TextArea textArea) {
+    private void sendJavaOutputToTextArea(JTextArea textArea) {
         System.setOut(new PrintStream(new TextAreaOutputStream(textArea, System.out)));
         System.setErr(new PrintStream(new TextAreaOutputStream(textArea, System.err)));
     }
 
-    @SuppressWarnings("squid:S106")
     private void showMessage(String message) {
-        Platform.runLater(() -> {
+    	SwingUtilities.invokeLater(() -> {
             System.err.println("Showing message: " + message);
-            Dialog dialog = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
-            dialog.setGraphic(null);
-            dialog.setHeaderText(null);
-            dialog.setTitle("BRS Message");
-            dialog.show();
+            JOptionPane.showMessageDialog(this, message, "BRS Message", JOptionPane.ERROR_MESSAGE);
         });
     }
 
     private static class TextAreaOutputStream extends OutputStream {
-        private final TextArea textArea;
+        private final JTextArea textArea;
         private final PrintStream actualOutput;
 
         private StringBuilder lineBuilder = new StringBuilder();
 
-        private TextAreaOutputStream(TextArea textArea, PrintStream actualOutput) {
+        private TextAreaOutputStream(JTextArea textArea, PrintStream actualOutput) {
             this.textArea = textArea;
             this.actualOutput = actualOutput;
         }
@@ -216,9 +358,8 @@ public class BurstGUI extends Application {
             String line = lineBuilder.toString();
             if (line.contains("\n")) {
                 actualOutput.print(line);
-                if (textArea != null) {
-                    Platform.runLater(() -> textArea.appendText(line));
-                }
+                if (textArea != null)
+                	SwingUtilities.invokeLater(() -> textArea.append(line));
                 lineBuilder.delete(0, lineBuilder.length());
             }
         }
@@ -228,9 +369,9 @@ public class BurstGUI extends Application {
 
         @Override
         public void checkExit(int status) {
-            if (!userClosed) {
+            if (!userClosed && status != 0) {
                 LOGGER.error("{} {}", UNEXPECTED_EXIT_MESSAGE, status);
-                Platform.runLater(() -> stage.show());
+                SwingUtilities.invokeLater(() -> showWindow());
                 showMessage(UNEXPECTED_EXIT_MESSAGE + String.valueOf(status));
                 onBrsStopped();
                 throw new SecurityException();

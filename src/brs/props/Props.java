@@ -27,8 +27,9 @@ public class Props {
   public static final Prop<Integer> DEV_AT_FIX_BLOCK_2_BLOCK_HEIGHT = new Prop<>("DEV.atFixBlock2.startBlock", -1);
   public static final Prop<Integer> DEV_AT_FIX_BLOCK_3_BLOCK_HEIGHT = new Prop<>("DEV.atFixBlock3.startBlock", -1);
   public static final Prop<Integer> DEV_AT_FIX_BLOCK_4_BLOCK_HEIGHT = new Prop<>("DEV.atFixBlock4.startBlock", -1);
-  public static final Prop<Integer> DEV_PRE_DYMAXION_BLOCK_HEIGHT = new Prop<>("DEV.preDymaxion.startBlock", -1);
+  public static final Prop<Integer> DEV_PRE_POC2_BLOCK_HEIGHT = new Prop<>("DEV.prePoc2.startBlock", -1);
   public static final Prop<Integer> DEV_POC2_BLOCK_HEIGHT = new Prop<>("DEV.poc2.startBlock", -1);
+  public static final Prop<Integer> DEV_LN_TIME_BLOCK_HEIGHT = new Prop<>("DEV.lnTime.startBlock", -1);
   public static final Prop<Integer> DEV_NEXT_FORK_BLOCK_HEIGHT = new Prop<>("DEV.nextFork.startBlock", -1);
 
   public static final Prop<Boolean> BRS_DEBUG_TRACE_ENABLED = new Prop<>("brs.debugTraceEnable", false);
@@ -41,6 +42,12 @@ public class Props {
   public static final Prop<Integer> BRS_COMMUNICATION_LOGGING_MASK = new Prop<>("brs.communicationLoggingMask", 0);
 
   public static final Prop<Integer> BRS_SHUTDOWN_TIMEOUT = new Prop<>("brs.ShutdownTimeout", 180);
+
+  // Checkpoint block for faster sync from empty database
+  public static final Prop<Integer> BRS_CHECKPOINT_HEIGHT = new Prop<>("brs.checkPointHeight", 730_000);
+  public static final Prop<String> BRS_CHECKPOINT_HASH = new Prop<>("brs.checkPointPrevHash", "7c9f8eb553ae1c47cb8960847f6ae672a9923d9c0c4c13a2e23a430e1099a5bc");
+  public static final Prop<Integer> DEV_CHECKPOINT_HEIGHT = new Prop<>("DEV.checkPointHeight", 150_000);
+  public static final Prop<String> DEV_CHECKPOINT_HASH = new Prop<>("DEV.checkPointPrevHash", "c99b807f4bff0d439375d083e2e04c465e96ec36d85092e8faba7b9a19534b94");
 
   // GPU options
   public static final Prop<Boolean> GPU_ACCELERATION     = new Prop<>("GPU.Acceleration", false);

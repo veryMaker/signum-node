@@ -913,10 +913,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           throw new BlockNotAcceptedException("Total amount or fee don't match transaction totals for block " + block.getHeight());
         }
 
-        if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+        if (Burst.getFluxCapacitor().getValue(FluxValues.LN_TIME)) {
           Arrays.sort(feeArray);
           for (int i = 0; i < feeArray.length; i++) {
-            if (feeArray[i] >= Constants.FEE_QUANT * (i + 1)) {
+            if (feeArray[i] < Constants.FEE_QUANT * (i + 1)) {
               throw new BlockNotAcceptedException("Transaction fee is not enough to be included in this block " + block.getHeight());
             }
           }
@@ -984,7 +984,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     calculatedRemainingFee += atBlock.getTotalFees();
     // ATs
     if (subscriptionService.isEnabled()) {
-      calculatedRemainingFee += subscriptionService.applyUnconfirmed(block.getTimestamp());
+      calculatedRemainingFee += subscriptionService.applyUnconfirmed(block.getTimestamp(), block.getHeight());
     }
     if (remainingAmount != null && remainingAmount != calculatedRemainingAmount) {
       throw new BlockNotAcceptedException("Calculated remaining amount doesn't add up for block " + block.getHeight());
@@ -1110,7 +1110,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                         ))
                 .filter(transaction -> preCheckUnconfirmedTransaction(transactionDuplicatesChecker, unconfirmedTransactionStore, transaction)); // Extra check for transactions that are to be considered
 
-        if (Burst.getFluxCapacitor().getValue(FluxValues.PRE_DYMAXION)) {
+        if (Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2)) {
           // In this step we get all unconfirmed transactions and then sort them by slot, followed by priority
           Map<Long, Map<Long, Transaction>> unconfirmedTransactionsOrderedBySlotThenPriority = new HashMap<>();
             inclusionCandidates.collect(Collectors.toMap(Function.identity(), priorityCalculator::applyAsLong)).forEach((transaction, priority) -> {
@@ -1166,7 +1166,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             slotToTakeFrom.remove(highestPriority.get());
           });
           transactionsToBeIncluded = unconfirmedTransactionsOrderedBySlot;
-        } else { // Before Pre-Dymaxion HF, just choose highest priority
+        } else { // Before Pre-POC2 HF, just choose highest priority
           Map<Long, Transaction> transactionsOrderedByPriority = inclusionCandidates.collect(Collectors.toMap(priorityCalculator::applyAsLong, Function.identity()));
           Map<Long, Transaction> transactionsOrderedBySlot = new HashMap<>();
           AtomicLong currentSlot = new AtomicLong(1);
@@ -1190,7 +1190,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             continue;
           }
 
-          long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_DYMAXION) ? slot * FEE_QUANT : ONE_BURST;
+          long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT : ONE_BURST;
           if (transaction.getFeeNQT() >= slotFee) {
             if (transactionService.applyUnconfirmed(transaction)) {
               try {
@@ -1215,7 +1215,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         if (subscriptionService.isEnabled()) {
           subscriptionService.clearRemovals();
-          totalFeeNQT += subscriptionService.calculateFees(blockTimestamp);
+          totalFeeNQT += subscriptionService.calculateFees(blockTimestamp, previousBlock.getHeight() + 1);
         }
       }
       catch (Exception e) {

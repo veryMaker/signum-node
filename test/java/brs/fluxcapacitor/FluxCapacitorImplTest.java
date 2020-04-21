@@ -34,7 +34,7 @@ public class FluxCapacitorImplTest {
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
 
-    assertTrue(t.getValue(FluxValues.PRE_DYMAXION));
+    assertTrue(t.getValue(FluxValues.PRE_POC2));
   }
 
   @DisplayName("Feature is not active on ProdNet")
@@ -116,7 +116,7 @@ public class FluxCapacitorImplTest {
   @Test
   public void fluxIntTestNetHistoricalMomentChangedThroughProperty() {
     when(propertyServiceMock.getBoolean(eq(Props.DEV_TESTNET))).thenReturn(true);
-    when(propertyServiceMock.getInt(eq(Props.DEV_PRE_DYMAXION_BLOCK_HEIGHT))).thenReturn(12345);
+    when(propertyServiceMock.getInt(eq(Props.DEV_PRE_POC2_BLOCK_HEIGHT))).thenReturn(12345);
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
 

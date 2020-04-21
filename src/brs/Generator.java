@@ -32,7 +32,7 @@ public interface Generator {
 
   BigInteger calculateHit(long accountId, long nonce, byte[] genSig, byte[] scoopData);
 
-  BigInteger calculateDeadline(long accountId, long nonce, byte[] genSig, int scoop, long baseTarget, int blockHeight);
+  BigInteger calculateDeadline(BigInteger hit, long baseTarget, int blockHeight);
 
   interface GeneratorState {
     byte[] getPublicKey();
@@ -40,6 +40,8 @@ public interface Generator {
     Long getAccountId();
 
     BigInteger getDeadline();
+
+    BigInteger getDeadlineLegacy();
 
     long getBlock();
   }

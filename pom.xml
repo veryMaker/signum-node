@@ -19,6 +19,7 @@
   <packaging>jar</packaging>
 
   <properties>
+    <versionQualifier>-beta2</versionQualifier>
     <bcprov-jdk15on.version>1.62</bcprov-jdk15on.version>
     <burstkit4j.version>v0.12.2</burstkit4j.version>
     <rxjava.version>2.2.12</rxjava.version>
@@ -45,7 +46,10 @@
     <powermock.version>2.0.2</powermock.version>
     <apachehttpclient.version>4.5.9</apachehttpclient.version>
     <jacoco.version>0.8.4</jacoco.version>
-
+    <jiconfont.version>1.0.0</jiconfont.version>
+    <font_awesome.version>4.7.0.1</font_awesome.version>
+    <darklaf.version>1.4.3.1</darklaf.version>
+    
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
 
@@ -285,6 +289,24 @@
     </dependency>
 
     <dependency>
+      <groupId>com.github.jiconfont</groupId>
+      <artifactId>jiconfont-swing</artifactId>
+      <version>${jiconfont.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.jiconfont</groupId>
+      <artifactId>jiconfont-font_awesome</artifactId>
+      <version>${font_awesome.version}</version>
+    </dependency>
+    
+	<dependency>
+		<groupId>com.github.weisj</groupId>
+		<artifactId>darklaf-core</artifactId>
+		<version>${darklaf.version}</version>
+	</dependency>
+
+    <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <version>${apachehttpclient.version}</version>
@@ -297,7 +319,7 @@
       <id>protoc</id>
       <build>
         <plugins>
-          <plugin>
+	        <plugin>
             <groupId>org.xolstice.maven.plugins</groupId>
             <artifactId>protobuf-maven-plugin</artifactId>
             <version>0.6.1</version>
@@ -359,7 +381,6 @@
     </extensions>
 
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -386,6 +407,41 @@
           </execution>
         </executions>
       </plugin>
+
+        <plugin>
+          <groupId>com.akathist.maven.plugins.launch4j</groupId>
+          <artifactId>launch4j-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>l4j-clui</id>
+              <phase>package</phase>
+              <goals><goal>launch4j</goal></goals>
+              <configuration>
+                <headerType>gui</headerType>
+                <outfile>target/burst.exe</outfile>
+                <dontWrapJar>true</dontWrapJar>
+                <errTitle>Burst Reference Software</errTitle>
+                <icon>resources/images/burst_overlay_logo.ico</icon>
+                <jar>burst.jar</jar>
+                <jre>
+                  <minVersion>1.8.0</minVersion>
+                </jre>
+                <versionInfo>
+                  <fileVersion>${project.version}.0</fileVersion>
+                  <txtFileVersion>${project.version}${versionQualifier}</txtFileVersion>
+                  <fileDescription>Burst Reference Software</fileDescription>
+                  <copyright>Burstcoin Apps Team</copyright>
+                  <productVersion>${project.version}.0</productVersion>
+                  <txtProductVersion>${project.version}${versionQualifier}</txtProductVersion>
+                  <productName>BRS</productName>
+                  <internalName>BRS</internalName>
+                  <originalFilename>burst.exe</originalFilename>
+                </versionInfo>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -435,24 +491,26 @@
                 <!-- copy remaining files from root dir -->
                 <copy todir="${project.basedir}/dist/tmp">
                   <fileset dir="${project.basedir}">
+                  <!-- TODO: deprecated files
                     <include name="Burst_Wallet.url"/>
                     <include name="genscoop.cl"/>
                     <include name="init-mysql.sql"/>
+                    <include name="burst.sh"/>
+                    -->
                     <include name="LICENSE.txt"/>
                     <include name="README.md"/>
                     <include name="README_refactoring.md"/>
-                    <include name="burst.cmd"/>
-                    <include name="burst.sh"/>
+                    <include name="burst.exe"/>
                   </fileset>
                 </copy>
 
-                <!-- workaround to keep org. burst.(sh|cmd) working, if build with compile scripts -->
+                <!-- workaround to keep org. burst.(sh|cmd) working, if build with compile scripts
                 <copy file="${project.basedir}/burst.sh"
-                      tofile="${project.basedir}/dist/tmp/burst.sh"/>
-                <copy file="${project.basedir}/burst.cmd"
-                  tofile="${project.basedir}/dist/tmp/burst.cmd"/>
+                      tofile="${project.basedir}/dist/tmp/burst.sh"/> -->
+                <copy file="${project.basedir}/target/burst.exe"
+                  tofile="${project.basedir}/dist/tmp/burst.exe"/>
                 <!-- create zip file -->
-                <zip destfile="${project.basedir}/dist/${project.build.finalName}.zip"
+                <zip destfile="${project.basedir}/dist/${project.build.finalName}${versionQualifier}.zip"
                      basedir="${project.basedir}/dist/tmp"/>
               </target>
             </configuration>
