@@ -15,6 +15,7 @@ import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxCapacitorImpl;
+import brs.fluxcapacitor.FluxValues;
 import brs.grpc.proto.BrsService;
 import brs.http.API;
 import brs.http.APITransactionManager;
@@ -41,10 +42,13 @@ import java.util.regex.Pattern;
 
 public final class Burst {
 
-  public static final Version VERSION = Version.parse("v2.4.2");
+  public static final Version VERSION = Version.parse("v2.5.0");
+  public static final Version MIN_VERSION = Version.parse("v2.3.0");
+
   public static final String APPLICATION = "BRS";
 
-  private static final String DEFAULT_PROPERTIES_NAME = "brs-default.properties";
+  public static final String DEFAULT_PROPERTIES_NAME = "brs-default.properties";
+  public static final String PROPERTIES_NAME = "brs.properties";
 
   private static final Logger logger = LoggerFactory.getLogger(Burst.class);
 
@@ -90,13 +94,13 @@ public final class Burst {
     }
 
     Properties properties;
-    try (InputStream is = ClassLoader.getSystemResourceAsStream("brs.properties")) {
+    try (InputStream is = ClassLoader.getSystemResourceAsStream(PROPERTIES_NAME)) {
       properties = new Properties(defaultProperties);
       if (is != null) { // parse if brs.properties was loaded
         properties.load(is);
       }
     } catch (IOException e) {
-      throw new RuntimeException("Error loading brs.properties", e);
+      throw new RuntimeException("Error loading " + PROPERTIES_NAME, e);
     }
 
     return new PropertyServiceImpl(properties);
@@ -135,6 +139,14 @@ public final class Burst {
       logger.error("THIS IS A DEVELOPMENT WALLET, PLEASE DO NOT USE THIS");
       System.exit(0);
     }
+  }
+  
+  public static Version getMinVersion() {
+	// TODO: this is not needed but can help to split the network
+	// in two after the hard-fork
+	if (Burst.getFluxCapacitor().getValue(FluxValues.LN_TIME))
+	  return VERSION;
+	return MIN_VERSION;
   }
 
   public static void init(Properties customProperties) {
@@ -305,12 +317,15 @@ public final class Burst {
       api.shutdown();
     if (apiV2Server != null)
       apiV2Server.shutdownNow();
-    Peers.shutdown(threadPool);
-    threadPool.shutdown();
+    if (threadPool != null) {
+      Peers.shutdown(threadPool);
+      threadPool.shutdown();
+    }
     if(! ignoreDBShutdown) {
       Db.shutdown();
     }
-    dbCacheManager.close();
+    if (dbCacheManager != null)
+      dbCacheManager.close();
     if (blockchainProcessor != null && blockchainProcessor.getOclVerify()) {
       OCLPoC.destroy();
     }

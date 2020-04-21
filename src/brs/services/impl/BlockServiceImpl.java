@@ -4,12 +4,15 @@ import brs.*;
 import brs.BlockchainProcessor.BlockOutOfOrderException;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
+import brs.props.Props;
 import brs.services.AccountService;
 import brs.services.BlockService;
 import brs.services.TransactionService;
 import brs.util.Convert;
 import brs.util.DownloadCacheImpl;
 import brs.util.ThreadPool;
+
+import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +91,8 @@ public class BlockServiceImpl implements BlockService {
         return false;
       }
       int elapsedTime = block.getTimestamp() - previousBlock.getTimestamp();
-      BigInteger pTime = block.getPocTime().divide(BigInteger.valueOf(previousBlock.getBaseTarget()));
+      BigInteger hit = block.getPocTime();
+      BigInteger pTime = generator.calculateDeadline(hit, previousBlock.getBaseTarget(), block.getHeight());
       return BigInteger.valueOf(elapsedTime).compareTo(pTime) > 0;
     } catch (RuntimeException e) {
       logger.info("Error verifying block generation signature", e);
@@ -107,13 +111,34 @@ public class BlockServiceImpl implements BlockService {
     if (block.isVerified()) {
       return;
     }
-
+    
+    int checkPointHeight = Burst.getPropertyService().getInt(
+    		Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
+    				Props.DEV_CHECKPOINT_HEIGHT : Props.BRS_CHECKPOINT_HEIGHT);
     try {
-      // Pre-verify poc:
-      if (scoopData == null) {
-        block.setPocTime(generator.calculateHit(block.getGeneratorId(), block.getNonce(), block.getGenerationSignature(), getScoopNum(block), block.getHeight()));
-      } else {
-        block.setPocTime(generator.calculateHit(block.getGeneratorId(), block.getNonce(), block.getGenerationSignature(), scoopData));
+      if(block.getHeight() < checkPointHeight) {
+        // do not verify the nonce up to the checkpoint block
+        block.setPocTime(BigInteger.valueOf(0L));
+      }
+      else {
+    	if(block.getHeight() == checkPointHeight) {
+       	    String checkPointHash = Burst.getPropertyService().getString(
+    	    		Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
+    	    				Props.DEV_CHECKPOINT_HASH : Props.BRS_CHECKPOINT_HASH);
+
+       	    String receivedHash = Hex.toHexString(block.getPreviousBlockHash()); 
+    		if(!receivedHash.equals(checkPointHash)) {
+    			logger.error("Error pre-verifying checkpoint block {}", block.getHeight());
+    			return;
+    		}
+    		logger.info("Checkpoint block {} with previous block hash {} verified", block.getHeight(), block.getPreviousBlockHash());
+    	}
+        // Pre-verify poc:
+        if (scoopData == null) {
+          block.setPocTime(generator.calculateHit(block.getGeneratorId(), block.getNonce(), block.getGenerationSignature(), getScoopNum(block), block.getHeight()));
+        } else {
+          block.setPocTime(generator.calculateHit(block.getGeneratorId(), block.getNonce(), block.getGenerationSignature(), scoopData));
+        }
       }
     } catch (RuntimeException e) {
       logger.info("Error pre-verifying block generation signature", e);
@@ -211,7 +236,7 @@ public class BlockServiceImpl implements BlockService {
 
       long curBaseTarget = avgBaseTarget.longValue();
       long newBaseTarget = BigInteger.valueOf(curBaseTarget).multiply(BigInteger.valueOf(difTime))
-          .divide(BigInteger.valueOf(240L * 4)).longValue();
+          .divide(BigInteger.valueOf(Constants.BURST_BLOCK_TIME * 4)).longValue();
       if (newBaseTarget < 0 || newBaseTarget > Constants.MAX_BASE_TARGET) {
         newBaseTarget = Constants.MAX_BASE_TARGET;
       }

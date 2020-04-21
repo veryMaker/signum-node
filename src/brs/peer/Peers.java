@@ -40,7 +40,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static brs.Constants.MIN_VERSION;
 import static brs.peer.Peer.isHigherOrEqualVersion;
 import static brs.props.Props.P2P_ENABLE_TX_REBROADCAST;
 import static brs.props.Props.P2P_SEND_TO_LIMIT;
@@ -55,7 +54,7 @@ public final class Peers {
       return false;
     } else {
       try {
-        return isHigherOrEqualVersion(MIN_VERSION, Version.parse(header.trim().substring("BRS/".length())));
+        return isHigherOrEqualVersion(Burst.getMinVersion(), Version.parse(header.trim().substring("BRS/".length())));
       } catch (IllegalArgumentException e) {
         return false;
       }
@@ -299,8 +298,8 @@ public final class Peers {
     static void init(TimeService timeService, AccountService accountService, Blockchain blockchain, TransactionProcessor transactionProcessor,
                      BlockchainProcessor blockchainProcessor, PropertyService propertyService, ThreadPool threadPool) {
       if (Peers.shareMyAddress) {
+        port = Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? TESTNET_PEER_PORT : Peers.myPeerServerPort;
         if (useUpnp) {
-          port = propertyService.getInt(Props.P2P_PORT);
           GatewayDiscover gatewayDiscover = new GatewayDiscover();
           gatewayDiscover.setTimeout(2000);
           try {
@@ -343,7 +342,6 @@ public final class Peers {
 
         peerServer = new Server();
         ServerConnector connector = new ServerConnector(peerServer);
-        port = Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? TESTNET_PEER_PORT : Peers.myPeerServerPort;
         connector.setPort(port);
         final String host = propertyService.getString(Props.P2P_LISTEN);
         connector.setHost(host);
@@ -456,7 +454,7 @@ public final class Peers {
              * if we loose Internet connection
              */
 
-            if (!peer.isHigherOrEqualVersionThan(MIN_VERSION)
+            if (!peer.isHigherOrEqualVersionThan(Burst.getMinVersion())
                     || (peer.getState() != Peer.State.CONNECTED && !peer.isBlacklisted() && peers.size() > maxNumberOfConnectedPublicPeers)) {
               removePeer(peer);
             }
@@ -478,7 +476,7 @@ public final class Peers {
         for (Peer peer : peers.values()) {
           if (peer.getState() == Peer.State.CONNECTED && now - peer.getLastUpdated() > 3600) {
             peer.connect(timeService.getEpochTime());
-            if (!peer.isHigherOrEqualVersionThan(MIN_VERSION) ||
+            if (!peer.isHigherOrEqualVersionThan(Burst.getMinVersion()) ||
                     (peer.getState() != Peer.State.CONNECTED && !peer.isBlacklisted() && peers.size() > maxNumberOfConnectedPublicPeers)) {
               removePeer(peer);
             }
@@ -501,7 +499,7 @@ public final class Peers {
         if (peer.getAnnouncedAddress() != null
                 && ! peer.isBlacklisted()
                 && ! peer.isWellKnown()
-                && peer.isHigherOrEqualVersionThan(MIN_VERSION)) {
+                && peer.isHigherOrEqualVersionThan(Burst.getMinVersion())) {
           currentPeers.add(peer.getAnnouncedAddress());
         }
       }
@@ -579,7 +577,7 @@ public final class Peers {
                   && myPeer.getState() == Peer.State.CONNECTED && myPeer.shareAddress()
                   && ! addedAddresses.contains(myPeer.getAnnouncedAddress())
                   && ! myPeer.getAnnouncedAddress().equals(peer.getAnnouncedAddress())
-                  && myPeer.isHigherOrEqualVersionThan(MIN_VERSION)
+                  && myPeer.isHigherOrEqualVersionThan(Burst.getMinVersion())
           ) {
             myPeers.add(myPeer.getAnnouncedAddress());
           }
@@ -857,7 +855,7 @@ public final class Peers {
   }
 
   private static boolean peerEligibleForSending(Peer peer, boolean sendSameBRSclass) {
-    return peer.isHigherOrEqualVersionThan(MIN_VERSION)
+    return peer.isHigherOrEqualVersionThan(Burst.getMinVersion())
             && (! sendSameBRSclass || peer.isAtLeastMyVersion())
             && ! peer.isBlacklisted()
             && peer.getState() == Peer.State.CONNECTED
@@ -875,8 +873,6 @@ public final class Peers {
       if (wellKnownConnected >= connectWellKnownFirst) {
         connectWellKnownFinished = true;
         logger.info("Finished connecting to {} well known peers.", connectWellKnownFirst);
-        // TODO should we remove this?
-        logger.info("You can open your Burst Wallet in your favorite browser with: http://127.0.0.1:8125 or http://localhost:8125");
       }
     }
 

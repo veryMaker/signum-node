@@ -22,11 +22,11 @@ public interface SubscriptionService {
 
   void removeSubscription(Long id);
 
-  long calculateFees(int timestamp);
+  long calculateFees(int timestamp, int height);
 
   void clearRemovals();
 
   void addRemoval(Long id);
 
-  long applyUnconfirmed(int timestamp);
+  long applyUnconfirmed(int timestamp, int blockchainHeight);
 }

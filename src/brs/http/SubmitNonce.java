@@ -31,6 +31,8 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
   private final AccountService accountService;
   private final Blockchain blockchain;
   private final Generator generator;
+  private final int checkPointHeight;
+
 
   SubmitNonce(PropertyService propertyService, AccountService accountService, Blockchain blockchain, Generator generator) {
     super(new APITag[] {APITag.MINING}, SECRET_PHRASE_PARAMETER, NONCE_PARAMETER, ACCOUNT_ID_PARAMETER, BLOCK_HEIGHT_PARAMETER);
@@ -39,6 +41,8 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
             .stream()
             .collect(Collectors.toMap(passphrase -> burstCrypto.getBurstAddressFromPassphrase(passphrase).getBurstID().getSignedLongId(), Function.identity()));
     this.allowOtherSoloMiners = propertyService.getBoolean(Props.ALLOW_OTHER_SOLO_MINERS);
+    this.checkPointHeight = propertyService.getInt(propertyService.getBoolean(Props.DEV_TESTNET) ?
+    				Props.DEV_CHECKPOINT_HEIGHT : Props.BRS_CHECKPOINT_HEIGHT);
 
     this.accountService = accountService;
     this.blockchain = blockchain;
@@ -59,6 +63,10 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
     if (submissionHeight != null) {
       try {
         int height = Integer.parseInt(submissionHeight);
+        if (height < checkPointHeight) {
+            response.addProperty("result", "Given block height smaller than the check point height");
+            return response;
+        }
         if (height != blockchain.getHeight() + 1) {
           response.addProperty("result", "Given block height does not match current blockchain height");
           return response;
@@ -122,7 +130,7 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
     }
 
     response.addProperty("result", "success");
-    response.addProperty("deadline", generatorState.getDeadline());
+    response.addProperty("deadline", generatorState.getDeadlineLegacy());
 
     return response;
   }
