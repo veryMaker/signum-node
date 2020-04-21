@@ -19,6 +19,7 @@
   <packaging>jar</packaging>
 
   <properties>
+    <versionQualifier>-beta2</versionQualifier>
     <bcprov-jdk15on.version>1.62</bcprov-jdk15on.version>
     <burstkit4j.version>v0.12.2</burstkit4j.version>
     <rxjava.version>2.2.11</rxjava.version>
@@ -427,11 +428,11 @@
                 </jre>
                 <versionInfo>
                   <fileVersion>${project.version}.0</fileVersion>
-                  <txtFileVersion>${project.version}.0</txtFileVersion>
+                  <txtFileVersion>${project.version}${versionQualifier}</txtFileVersion>
                   <fileDescription>Burst Reference Software</fileDescription>
                   <copyright>Burstcoin Apps Team</copyright>
                   <productVersion>${project.version}.0</productVersion>
-                  <txtProductVersion>txt product version</txtProductVersion>
+                  <txtProductVersion>${project.version}${versionQualifier}</txtProductVersion>
                   <productName>BRS</productName>
                   <internalName>BRS</internalName>
                   <originalFilename>burst.exe</originalFilename>
@@ -481,8 +482,6 @@
                   </fileset>
                 </copy>
                 <!-- copy properties from conf dir -->
-                <copy file="conf/brs-template.properties"
-                  tofile="${project.basedir}/dist/tmp/brs.properties"/>
                 <copy todir="${project.basedir}/dist/tmp/conf">
                   <fileset dir="${project.basedir}/conf">
                     <include name="logging-default.properties"/>
@@ -492,24 +491,26 @@
                 <!-- copy remaining files from root dir -->
                 <copy todir="${project.basedir}/dist/tmp">
                   <fileset dir="${project.basedir}">
+                  <!-- TODO: deprecated files
                     <include name="Burst_Wallet.url"/>
                     <include name="genscoop.cl"/>
                     <include name="init-mysql.sql"/>
+                    <include name="burst.sh"/>
+                    -->
                     <include name="LICENSE.txt"/>
                     <include name="README.md"/>
                     <include name="README_refactoring.md"/>
                     <include name="burst.exe"/>
-                    <include name="burst.sh"/>
                   </fileset>
                 </copy>
 
-                <!-- workaround to keep org. burst.(sh|cmd) working, if build with compile scripts -->
+                <!-- workaround to keep org. burst.(sh|cmd) working, if build with compile scripts
                 <copy file="${project.basedir}/burst.sh"
-                      tofile="${project.basedir}/dist/tmp/burst.sh"/>
+                      tofile="${project.basedir}/dist/tmp/burst.sh"/> -->
                 <copy file="${project.basedir}/target/burst.exe"
                   tofile="${project.basedir}/dist/tmp/burst.exe"/>
                 <!-- create zip file -->
-                <zip destfile="${project.basedir}/dist/${project.build.finalName}.zip"
+                <zip destfile="${project.basedir}/dist/${project.build.finalName}${versionQualifier}.zip"
                      basedir="${project.basedir}/dist/tmp"/>
               </target>
             </configuration>
