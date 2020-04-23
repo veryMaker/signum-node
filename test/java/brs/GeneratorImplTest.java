@@ -38,7 +38,7 @@ public class GeneratorImplTest {
         TimeService timeService = mock(TimeService.class);
 
         FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2);
-        FluxCapacitor fluxCapacitorLnTime = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2, FluxValues.LN_TIME);
+        FluxCapacitor fluxCapacitorLnTime = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2, FluxValues.SODIUM);
 
         generator = new GeneratorImpl(blockchain, timeService, fluxCapacitor);
         generatorLnTime = new GeneratorImpl(blockchain, timeService, fluxCapacitorLnTime);

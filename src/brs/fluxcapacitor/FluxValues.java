@@ -14,13 +14,13 @@ public class FluxValues {
     public static final FluxEnable AT_FIX_BLOCK_4 = new FluxEnable(HistoricalMoments.AT_FIX_BLOCK_4);
     public static final FluxEnable PRE_POC2 = new FluxEnable(HistoricalMoments.PRE_POC2);
     public static final FluxEnable POC2 = new FluxEnable(HistoricalMoments.POC2);
-    public static final FluxEnable LN_TIME = new FluxEnable(HistoricalMoments.LN_TIME);
+    public static final FluxEnable SODIUM = new FluxEnable(HistoricalMoments.SODIUM);
     public static final FluxEnable NEXT_FORK = new FluxEnable(HistoricalMoments.NEXT_FORK);
 
-    public static final FluxValue<Short> AT_VERSION = new FluxValue<>((short) 1, new FluxValue.ValueChange<>(HistoricalMoments.LN_TIME, (short) 2));
+    public static final FluxValue<Short> AT_VERSION = new FluxValue<>((short) 1, new FluxValue.ValueChange<>(HistoricalMoments.SODIUM, (short) 2));
 
     public static final FluxValue<Integer> MAX_NUMBER_TRANSACTIONS = new FluxValue<>(255, new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, 1020));
     public static final FluxValue<Integer> MAX_PAYLOAD_LENGTH = new FluxValue<>(255 * 176, new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, 1020 * 176));
     
-    public static final FluxValue<Version> MIN_PEER_VERSION = new FluxValue<>(Version.parse("2.3.0"), new FluxValue.ValueChange<>(HistoricalMoments.LN_TIME, Version.parse("2.4.9")));
+    public static final FluxValue<Version> MIN_PEER_VERSION = new FluxValue<>(Version.parse("2.3.0"), new FluxValue.ValueChange<>(HistoricalMoments.SODIUM, Version.parse("2.4.9")));
 }
