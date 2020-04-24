@@ -18,7 +18,7 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
 
   private final ParameterService parameterService;
   private final AccountService accountService;
-  private final String depreciationMessage = "For account assets use getAccountAssets. This will be removed after net hardfork";
+  private final String depreciationMessage = "For account assets use getAccountAssets. This will be removed after next hardfork";
 
   GetAccount(ParameterService parameterService, AccountService accountService) {
     super(new APITag[] {APITag.ACCOUNTS}, ACCOUNT_PARAMETER);
