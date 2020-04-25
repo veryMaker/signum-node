@@ -166,7 +166,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
         byte[] senderPublicKey = tx.getSenderPublicKey();
 
-        ByteBuffer bf = ByteBuffer.allocate(32 + Long.SIZE + senderPublicKey.length);
+        ByteBuffer bf = ByteBuffer.allocate((Burst.getFluxCapacitor().getValue(FluxValues.LN_TIME)) ? 32 + Long.SIZE + senderPublicKey.length : 32 + 8 + senderPublicKey.length);
         bf.order(ByteOrder.LITTLE_ENDIAN);
         bf.put(Burst.getBlockchain().getBlockAtHeight(blockHeight - 1).getGenerationSignature());
         bf.putLong(tx.getId());
@@ -250,7 +250,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
         b.put(Burst.getBlockchain().getBlockAtHeight(state.getHeight() - 1).getGenerationSignature());
 
-        if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+        if (Burst.getFluxCapacitor().getValue(FluxValues.LN_TIME)) {
             b.clear();
         }
 
