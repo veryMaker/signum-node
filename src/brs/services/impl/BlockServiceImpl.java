@@ -271,7 +271,7 @@ public class BlockServiceImpl implements BlockService {
             .divide(BigInteger.valueOf(blockCounter + 1L));
       } while (blockCounter < 24);
       long difTime = (long) block.getTimestamp() - itBlock.getTimestamp();
-      long targetTimespan = 24L * 4 * 60;
+      long targetTimespan = 24L * Constants.BURST_BLOCK_TIME;
 
       if (difTime < targetTimespan / 2) {
         difTime = targetTimespan / 2;
