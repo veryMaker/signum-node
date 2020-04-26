@@ -15,6 +15,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -250,23 +251,24 @@ public final class APIServlet extends HttpServlet {
       process(req, resp);
     } catch (Exception e) { // We don't want to send exception information to client...
       resp.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
-      logger.warn("Error handling GET request", e);
+      logger.warn("Error handling request", e);
     }
   }
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-    try {
-      process(req, resp);
-    } catch (Exception e) { // We don't want to send exception information to client...
-      resp.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
-      logger.warn("Error handling GET request", e);
-    }
+    doGet(req, resp);
+  }
+  
+  @Override
+  protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    doGet(req, resp);
   }
 
   private void process(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    resp.setHeader("Access-Control-Allow-Methods", "GET, POST");
+    resp.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, HEAD");
     resp.setHeader("Access-Control-Allow-Origin", allowedOrigins);
+    resp.setHeader("Access-Control-Allow-Headers", allowedOrigins);
     resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private");
     resp.setHeader("Pragma", "no-cache");
     resp.setDateHeader("Expires", 0);
@@ -285,6 +287,12 @@ public final class APIServlet extends HttpServlet {
         writeJsonToResponse(resp, ERROR_NOT_ALLOWED);
         return;
       }
+    }
+    
+    if("OPTIONS".equals(req.getMethod())) {
+      // For HTTP OPTIONS reply with ACCEPTED status code -- per CORS handshake
+      resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+      return;
     }
 
     String requestType = req.getParameter("requestType");
