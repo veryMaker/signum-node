@@ -253,6 +253,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 } else {
                   logger.warn("Our peer want to feed us a fork that is more than "
                           + Constants.MAX_ROLLBACK + " blocks old.");
+                  peer.blacklist("feeding us a too old fork");
                   return;
                 }
               }
