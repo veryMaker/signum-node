@@ -146,8 +146,6 @@ public class BurstGUI extends JFrame {
         	}
         });
         
-        showTrayIcon();
-        
         new Timer(5000, e -> {
         	try {
         		Blockchain blockChain = Burst.getBlockchain();
@@ -292,6 +290,8 @@ public class BurstGUI extends JFrame {
         try {
             Burst.main(args);
             try {
+            	SwingUtilities.invokeLater(() -> showTrayIcon());
+            	
                 if (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
                     onTestNetEnabled();
                 }
