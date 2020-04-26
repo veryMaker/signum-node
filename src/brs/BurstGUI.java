@@ -212,7 +212,8 @@ public class BurstGUI extends JFrame {
 //    	toolBar.add(openPhoenixButton);
     	toolBar.add(openWebUiButton);
     	toolBar.add(editConfButton);
-    	toolBar.add(popOffButton);
+    	if(Burst.getPropertyService().getBoolean(Props.API_DEBUG))
+    		toolBar.add(popOffButton);
 
     	openWebUiItem.addActionListener(e -> openWebUi());
     	showItem.addActionListener(e -> showWindow());
