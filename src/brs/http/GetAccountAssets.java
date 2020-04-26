@@ -11,7 +11,7 @@ import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
+import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.*;
 
 public final class GetAccountAssets extends APIServlet.JsonRequestHandler {
@@ -20,7 +20,7 @@ public final class GetAccountAssets extends APIServlet.JsonRequestHandler {
     private final AccountService accountService;
 
     GetAccountAssets(ParameterService parameterService, AccountService accountService) {
-        super(new APITag[] {APITag.ACCOUNTS}, ACCOUNT_PARAMETER);
+        super(new APITag[] {APITag.ACCOUNTS}, ACCOUNT_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER);
         this.parameterService = parameterService;
         this.accountService = accountService;
     }
@@ -30,12 +30,15 @@ public final class GetAccountAssets extends APIServlet.JsonRequestHandler {
 
         Account account = parameterService.getAccount(req);
 
+        int firstIndex = ParameterParser.getFirstIndex(req);
+        int lastIndex = ParameterParser.getLastIndex(req);
+
         JsonObject response = new JsonObject();
 
         JsonArray assetBalances = new JsonArray();
         JsonArray unconfirmedAssetBalances = new JsonArray();
 
-        for (Account.AccountAsset accountAsset : accountService.getAssets(account.getId(), 0, -1)) {
+        for (Account.AccountAsset accountAsset : accountService.getAssets(account.getId(), firstIndex, lastIndex)) {
             JsonObject assetBalance = new JsonObject();
             assetBalance.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.getAssetId()));
             assetBalance.addProperty(BALANCE_QNT_RESPONSE, String.valueOf(accountAsset.getQuantityQNT()));
