@@ -1820,6 +1820,8 @@ public abstract class TransactionType {
 
       @Override
       void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+        if (Burst.getFluxCapacitor().getValue(FluxValues.LN_TIME)) throw new BurstException.NotCurrentlyValidException("Effective Balance Leasing disabled after Sodium HF");
+
         Attachment.AccountControlEffectiveBalanceLeasing attachment = (Attachment.AccountControlEffectiveBalanceLeasing)transaction.getAttachment();
         Account recipientAccount = accountService.getAccount(transaction.getRecipientId());
         if (transaction.getSenderId() == transaction.getRecipientId()
