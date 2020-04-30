@@ -126,7 +126,6 @@ public class BurstGUI extends JFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        new Thread(this::runBrs).start();
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
@@ -146,8 +145,6 @@ public class BurstGUI extends JFrame {
         		}
         	}
         });
-        
-        showTrayIcon();
         
         new Timer(5000, e -> {
         	try {
@@ -171,6 +168,9 @@ public class BurstGUI extends JFrame {
 				// do nothing on error here
 			}
         }).start();
+        
+        // Start BRS
+        new Thread(this::runBrs).start();
     }
 
     private void shutdown() {
@@ -210,7 +210,8 @@ public class BurstGUI extends JFrame {
 //    	toolBar.add(openPhoenixButton);
     	toolBar.add(openWebUiButton);
     	toolBar.add(editConfButton);
-    	toolBar.add(popOffButton);
+    	if(Burst.getPropertyService().getBoolean(Props.API_DEBUG))
+    		toolBar.add(popOffButton);
 
     	openWebUiItem.addActionListener(e -> openWebUi());
     	showItem.addActionListener(e -> showWindow());
@@ -289,9 +290,13 @@ public class BurstGUI extends JFrame {
         try {
             Burst.main(args);
             try {
+            	SwingUtilities.invokeLater(() -> showTrayIcon());
+            	
                 if (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
                     onTestNetEnabled();
                 }
+                if (Burst.getBlockchain() == null)
+                	onBrsStopped();
             } catch (Exception t) {
                 LOGGER.error("Could not determine if running in testnet mode", t);
             }

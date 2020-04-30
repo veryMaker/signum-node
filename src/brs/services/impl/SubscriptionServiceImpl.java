@@ -88,7 +88,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   private long getFee(int height) {
-	if (Burst.getFluxCapacitor().getValue(FluxValues.LN_TIME, height))
+	if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM, height))
 	  return Constants.FEE_QUANT;
     return Constants.ONE_BURST;
   }
