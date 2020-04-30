@@ -7,6 +7,7 @@ public class ResultFields {
   public static final String ERROR_CODE_RESPONSE = "errorCode";
   public static final String ERROR_DESCRIPTION_RESPONSE = "errorDescription";
   public static final String DECRYPTED_MESSAGE_RESPONSE = "decryptedMessage";
+  public static final String DEPRECATION_RESPONSE = "deprecation";
   public static final String BALANCE_NQT_RESPONSE = "balanceNQT";
   public static final String BALANCE_QNT_RESPONSE = "balanceQNT";
   public static final String UNCONFIRMED_BALANCE_NQT_RESPONSE = "unconfirmedBalanceNQT";
