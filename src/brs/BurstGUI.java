@@ -193,7 +193,7 @@ public class BurstGUI extends JFrame {
     private TrayIcon createTrayIcon() {
     	PopupMenu popupMenu = new PopupMenu();
     	
-    	MenuItem openWebUiItem = new MenuItem("Open Legacy Wallet");
+    	MenuItem openWebUiItem = new MenuItem("Open Wallet"); // TODO: will be the legacy wallet after Phoenix is available
     	MenuItem showItem = new MenuItem("Show BRS output");
     	MenuItem shutdownItem = new MenuItem("Shutdown BRS");
 
