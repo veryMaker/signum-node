@@ -52,11 +52,25 @@ public class ParameterServiceImpl implements ParameterService {
   @Override
   public Account getAccount(HttpServletRequest req) throws BurstException {
     String accountId = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
+    String heightValue = Convert.emptyToNull(req.getParameter(HEIGHT_PARAMETER));
     if (accountId == null) {
       throw new ParameterException(MISSING_ACCOUNT);
     }
     try {
-      Account account = accountService.getAccount(Convert.parseAccountId(accountId));
+      Account account = null;
+      if (heightValue != null) {
+    	try {
+    	  int height = Integer.parseInt(heightValue);
+    	  if (height < 0 || height > blockchain.getHeight())
+    		throw new ParameterException(INCORRECT_HEIGHT);
+    	  blockchain.getBlockAtHeight(height);
+      	  account = accountService.getAccount(Convert.parseAccountId(accountId), height);
+    	} catch (RuntimeException e) {
+    	  throw new ParameterException(INCORRECT_HEIGHT);
+    	}
+      }
+      else
+        account = accountService.getAccount(Convert.parseAccountId(accountId));
       if (account == null) {
         throw new ParameterException(UNKNOWN_ACCOUNT);
       }
