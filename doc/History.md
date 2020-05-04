@@ -1,6 +1,55 @@
 [History of Burst](https://burstwiki.org/en/history-of-burst/)
 
 ```
+2020-05-10 v2.5.0 (Backport of fixes from v3.0.0 and many other improvements)
+- New deadline computation formula aiming at more stable block times (CIP24)
+- More powerful and cheaper running smart contracts (CIP20)
+- Enforce slot fees (CIP23)
+- Can run on recent Java versions (previously limited to Java 8)
+- A new GUI implementation
+- Improved CORS support
+- Fixed Escrow ID in Escrow Result Attachment Protobuf is always 2
+- Fixed Get Peer Handler in gRPC API is never initialized
+- Fixed GetOrdersHandler always returns ask orders
+- Fixed Bugs in AT API Implementation
+
+2019-08-13 v2.4.2
+- Fixed HTTP API Encoding being reported to the client incorrectly, leading to the client incorrectly parsing special characters
+- Limit maximum number of items returned by HTTP API
+- Fixed NPE in ProtoBuilder when fetching an account
+
+2019-07-15 v2.4.1
+- Default to submit nonce whitelist off
+- Revert removal of rejection of surplus parameters
+- Add option to bind V2 API to specific interface
+- MariaDB Settings tweaks 
+- Various bug fixes and improvements
+
+2019-07-01 v2.4.0
+- Massive DB optimization, much much faster sync speed (Benchmarked at 7 hours to sync to block 600k on a 4C/8T 16GB RAM system, under MariaDB 10.3)
+- Implemented CIP19 - View incoming & outgoing multi-out transactions in the UI
+- Added new feature to sign arbitrary messages using UI
+- Fixed gRPC error descriptions
+- Comprehensive V2 API with all functionality of V1 implemented
+- Auto pop-off on block push fail with slow back-off, should prevent nodes from getting stuck forever
+- UTStore should produce waaaay less spam
+- CORS on by default
+- Minimum previous version is now v2.3.0
+- Enforce fee structure (Inactive)
+- Improved algorithm for transaction candidate selection
+- Check in gRPC generated files (simplifies build)
+- Tighter timings for sync threads
+- Burstkit4j integration
+- Rewrite support for UI (Apps that utilize deep linking such as phoenix can now be hosted by BRS)
+- Add a method to not submit passphrase when solo mining by configuring passphrase in config and only submitting account ID, and an option to disallow others from mining on your node
+- AT debug option
+- Improvements to AT implementation
+- Web UI: Display AT messages as both string and hex
+- Fix UT Store failed removal
+- Re-add `getGuaranteedBalance` HTTP API call as lots of clients depended on it
+- Test endpoint support for QR code generator
+- Implemented CIP20 (Inactive)
+
 2018-04-04 v2.3.0
            Fix of major security vulnerability where passphrase was sent to node upon login
            gRPC-based V2 API. Currently only contains calls needed for mining, will be expanded in future if well received.

@@ -1,14 +1,14 @@
 <img align="right" width="120" height="120" title="Burst Logo" src="https://raw.githubusercontent.com/burst-apps-team/Marketing_Resources/master/BURST_LOGO/PNG/icon_blue.png" />
 
 # Burstcoin Reference Software (Burstcoin Wallet)
-[![Build Status](https://travis-ci.com/burst-apps-team/burstcoin.svg?branch=develop)](https://travis-ci.com/burst-apps-team/burstcoin)
+[![Build Status](https://travis-ci.com/burst-apps-team/burstcoin.svg?branch=v2.5)](https://travis-ci.com/burst-apps-team/burstcoin)
 [![GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.txt)
 [![Get Support at https://discord.gg/ms6eagX](https://img.shields.io/badge/join-discord-blue.svg)](https://discord.gg/ms6eagX)
 
 The world's first HDD-mined cryptocurrency using an energy efficient
 and fair Proof-of-Capacity (PoC) consensus algorithm.
 
-This wallet version is developed and maintained by the Burst Apps Team (BAT). The two supported database servers are:
+This wallet version is developed and maintained by the Burst Apps Team (BAT). The two supported database backends are:
 
 - MariaDB (recommended)
 - H2 (embedded, easier install)
@@ -17,8 +17,8 @@ This wallet version is developed and maintained by the Burst Apps Team (BAT). Th
 
 - Proof of Capacity - ASIC proof / Energy efficient mining
 - No ICO/Airdrops/Premine
-- Turing-complete smart contracts, via [Automated Transactions (ATs)](https://ciyam.org/at/at.html)
-- Asset Exchange, Digital Goods Store, Crowdfunds (via ATs), and Alias system
+- Turing-complete smart contracts, via [BlockTalk](https://github.com/burst-apps-team/blocktalk)
+- Asset Exchange; Digital Goods Store; Crowdfunds, NFTs, games, and more (via smart contracts); and Alias system
 
 ## Network Specification
 
@@ -38,11 +38,11 @@ This wallet version is developed and maintained by the Burst Apps Team (BAT). Th
 
 ## Prerequisites (All Platforms)
 
-**NOTE: `burst.sh` is now deprecated and will not be included with the next release.**
+**NOTE: `burst.sh` is now deprecated and is not included on this release.**
 
-### Java 8 (Required)
+### Java 8 (Recommended) or higher
 
-You need Java 8 installed. To check if it is, run `java -version`. You should get an output similar to the following:
+You need Java 8 (recommended) or higher installed. To check your java version, run `java -version`. You should get an output similar to the following:
 
 ```text
 java version "1.8.0_181"
@@ -52,7 +52,7 @@ Java HotSpot(TM) 64-Bit Server VM (build 25.181-b13, mixed mode)
 
 The important part is that the Java version starts with `1.8` (Java 8)
 
-If you do not have Java 8 installed, download it from [Oracle's Website](https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
+If you do not have Java installed, download it from [Oracle's Website](https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
 
 ### MariaDB (Optional)
 
@@ -77,7 +77,8 @@ Grab the latest release (Or, if you prefer, compile yourself using the instructi
 
 In the conf directory, copy `brs-default.properties` into a new file named `brs.properties` and modify this file to suit your needs (See "Configuration" section below)
 
-To run BRS, run `java -jar burst.jar`. On MacOS and Windows this will create a tray icon to show that BRS is running. To disable this, instead run `java -jar burst.jar --headless`.
+To run BRS, double click on `burst.exe` (if on Windows) or run `java -jar burst.jar`.
+On most systems this will show you a monitoring window and will create a tray icon to show that BRS is running. To disable this, instead run `java -jar burst.jar --headless`.
 
 ### Installation Packages
 
@@ -85,64 +86,11 @@ To run BRS, run `java -jar burst.jar`. On MacOS and Windows this will create a t
 
 [QBundle](https://github.com/burst-apps-team/qbundle) is a tool which will automatically download any required files and tools and manage BRS for you. This is recommended for users who do not want to learn how to setup BRS.
 
-#### MacOS
-
-BRS can be installed using a [Homebrew formula](https://github.com/burst-apps-team/burstcoin-packages/tree/master/homebrew/burstcoind).
-
-A number of other Homebrew formulas written by [Nixops](https://github.com/nixops) are also available for plotters and miners.
-
-#### Linux
-
-##### Debian
-
-A `.deb` package is available [here](https://github.com/burst-apps-team/burstcoin-packages/releases/tag/v2.3.0).
-
-##### Docker
-
-[Docker repository](https://hub.docker.com/r/burstappsteam/burstcoin)
-
-`latest` : Latest tag of the BRS with H2 database  
-`mariadb` : Latest tag of the BRS with MariaDB database
-`2-h2` / `2-mariadb` - Version 2.X.X (latest) with corresponding database
-`2.3-h2` / `2.3-mariadb` - Version 2.3.X (latest) with corresponding database
-`2.3.0-h2` / `2.3.0-mariadb` - Version 2.3.0 with corresponding database
-
-Docker Compose for use with MariaDB database
-
-```docker-compose
-version: '3'
-
-services:
-  burstcoin:
-    image: burstappsteam/burstcoin:2-mariadb
-    restart: always
-    depends_on:
-     - mariadb
-    ports:
-     - 8123:8123
-     - 8125:8125
-     - 8121:8121
-  mariadb:
-    image: mariadb:10
-    environment:
-     - MYSQL_ROOT_PASSWORD=burst
-     - MYSQL_DATABASE=burst
-    command: mysqld --character_set_server=utf8mb4
-    volumes:
-     - ./burst_db:/var/lib/mysql
-```
-
-Docker command for use with H2 database
-
-```bash
-docker run -p 8123:8123 -p 8125:8125 -p 8121:8121 -v "$(pwd)"/burst_db:/db -d burstappsteam/burstcoin:2-h2
-```
-
 ## Configuration
 
 ### Running on mainnet (unless you are developing or running on testnet, you will probably want this)
 
-Now you need to add the following to your `conf/brs.properties` (as a minimum):
+There is no need to change any configuration. Optionally, if you want to use mariadb (see above), you will need to add the following to your `conf/brs.properties`:
 
 ```properties
 DB.Url=jdbc:mariadb://localhost:3306/brs_master
@@ -150,7 +98,7 @@ DB.Username=brs_user
 DB.Password=yourpassword
 ```
 
-Once you have done this, look through the existing properties if there is anything you want to change.
+Also look through the existing properties if there is anything you want to change.
 
 ### Testnet
 
@@ -173,7 +121,7 @@ DEV.automatedTransactions.startBlock = 0
 DEV.atFixBlock2.startBlock = 0
 DEV.atFixBlock3.startBlock = 0
 DEV.atFixBlock4.startBlock = 0
-DEV.preDymaxion.startBlock = 0
+DEV.prePoc2.startBlock = 0
 DEV.poc2.startBlock = 0
 DEV.rewardRecipient.startBlock = 0
 ```
@@ -199,7 +147,7 @@ git checkout origin/master
 mvn package
 ```
 
-Your packaged release will now be available in `dist/burstcoin-2.4.0.zip`
+Your packaged release will now be available in `dist/burstcoin-2.5.0.zip`
 
 ## Building the latest development version
 
@@ -211,7 +159,7 @@ git checkout origin/develop
 mvn package
 ```
 
-Your packaged release will now be available in `dist/burstcoin-2.4.0.zip`.
+Your packaged release will now be available in `dist/burstcoin-3.0.0.zip`.
 
 **Please note that development builds will refuse to run outside of testnet or a private chain**
 
