@@ -90,7 +90,7 @@ On most systems this will show you a monitoring window and will create a tray ic
 
 ### Running on mainnet (unless you are developing or running on testnet, you will probably want this)
 
-There is no need to change any configuration. Optionally, if you want to used mariadb (see above), you will need to add the following to your `conf/brs.properties`:
+There is no need to change any configuration. Optionally, if you want to use mariadb (see above), you will need to add the following to your `conf/brs.properties`:
 
 ```properties
 DB.Url=jdbc:mariadb://localhost:3306/brs_master
