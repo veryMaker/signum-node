@@ -63,7 +63,6 @@ public class ParameterServiceImpl implements ParameterService {
     	  int height = Integer.parseInt(heightValue);
     	  if (height < 0 || height > blockchain.getHeight())
     		throw new ParameterException(INCORRECT_HEIGHT);
-    	  blockchain.getBlockAtHeight(height);
       	  account = accountService.getAccount(Convert.parseAccountId(accountId), height);
     	} catch (RuntimeException e) {
     	  throw new ParameterException(INCORRECT_HEIGHT);
