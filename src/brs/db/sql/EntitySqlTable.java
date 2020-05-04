@@ -91,7 +91,6 @@ public abstract class EntitySqlTable<T> extends DerivedSqlTable implements Entit
   @Override
   public T get(BurstKey nxtKey, int height) {
     DbKey dbKey = (DbKey) nxtKey;
-    checkAvailable(height);
 
     return Db.useDSLContext(ctx -> {
       SelectQuery<Record> query = ctx.selectQuery();
