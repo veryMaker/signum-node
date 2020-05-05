@@ -109,6 +109,9 @@ public final class JSONResponses {
   public static final JsonElement INCORRECT_CREATION_BYTES = incorrect("incorrect creation bytes");
 
   public static final JsonElement MISSING_RECEIVER_ID = missing(RECEIVER_ID_PARAMETER);
+  public static final JsonElement MISSING_DOMAIN = missing(DOMAIN_PARAMETER);
+  public static final JsonElement PAYLOAD_WITHOUT_ACTION = incorrect(PAYLOAD_PARAMETER, "With 'payload' parameter the 'action' parameter is mandatory");
+
 
   public static final JsonElement FEE_OR_FEE_SUGGESTION_REQUIRED = incorrect(FEE_SUGGESTION_TYPE_PARAMETER, "Either feeNQT or feeSuggestionType is a required parameter");
   public static final JsonElement FEE_SUGGESTION_TYPE_INVALID = incorrect(FEE_SUGGESTION_TYPE_PARAMETER, "feeSuggestionType is not valid");
@@ -233,17 +236,17 @@ public final class JSONResponses {
     return incorrect(paramName, null);
   }
 
-  private static JsonElement incorrect(String paramName, String details) {
-    JsonObject response = new JsonObject();
-    response.addProperty(ERROR_CODE_RESPONSE, 4);
-    response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect \"" + paramName + "\"" + (details == null ? "" : details));
-    return response;
-  }
-
   private static JsonElement unknown(String objectName) {
     JsonObject response = new JsonObject();
     response.addProperty(ERROR_CODE_RESPONSE, 5);
     response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Unknown " + objectName);
+    return response;
+  }
+
+  public static JsonElement incorrect(String paramName, String details) {
+    JsonObject response = new JsonObject();
+    response.addProperty(ERROR_CODE_RESPONSE, 4);
+    response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect \"" + paramName + "\"" + (details == null ? "" : details));
     return response;
   }
 
