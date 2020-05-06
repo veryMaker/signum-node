@@ -2,9 +2,10 @@
 
 ```
 2020-05-10 v2.5.0 (Backport of fixes from v3.0.0 and many other improvements)
-- New deadline computation formula aiming at more stable block times (CIP24)
 - More powerful and cheaper running smart contracts (CIP20)
+- Deeplink Generator API (CIP22)
 - Enforce slot fees (CIP23)
+- New deadline computation formula aiming at more stable block times (CIP24)
 - Can run on recent Java versions (previously limited to Java 8)
 - A new GUI implementation
 - Improved CORS support
