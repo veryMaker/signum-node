@@ -17,7 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 public class BlockServiceImpl implements BlockService {
 
@@ -26,6 +29,8 @@ public class BlockServiceImpl implements BlockService {
   private final Blockchain blockchain;
   private final DownloadCacheImpl downloadCache;
   private final Generator generator;
+  
+  private final List<Block> watchedBlocks = new ArrayList<>();
 
   private static final Logger logger = LoggerFactory.getLogger(BlockServiceImpl.class);
 
@@ -98,6 +103,19 @@ public class BlockServiceImpl implements BlockService {
       logger.info("Error verifying block generation signature", e);
       return false;
     }
+  }
+  
+  private Account getRewardAccount(byte []publicKey) {
+	Account rewardAccount = accountService.getAccount(publicKey);
+	Account.RewardRecipientAssignment rewardRecipiengAssignment = accountService.getRewardRecipientAssignment(rewardAccount);
+	if (rewardRecipiengAssignment != null) {
+	  rewardAccount = accountService.getAccount(rewardRecipiengAssignment.getRecipientId());
+	}
+	return rewardAccount;
+  }
+  @Override
+  public void watchBlock(Block block) {
+	  watchedBlocks.add(block);
   }
 
   @Override
