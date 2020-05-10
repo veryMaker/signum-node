@@ -15,4 +15,4 @@ COPY conf/brs.properties.mariadb /app/conf/brs.properties
 COPY conf/brs-default.properties /app/conf/brs-default.properties
 COPY conf/logging-default.properties /app/conf/logging-default.properties
 EXPOSE 8125 8123 8121
-ENTRYPOINT ["java", "-classpath", "/app/burst.jar:/conf", "brs.Burst"]
+ENTRYPOINT ["java", "-classpath", "/app/burst.jar", "brs.Burst"]
