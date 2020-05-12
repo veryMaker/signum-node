@@ -426,6 +426,7 @@
                 <jar>burst.jar</jar>
                 <jre>
                   <minVersion>1.8.0</minVersion>
+                  <runtimeBits>64</runtimeBits>
                 </jre>
                 <versionInfo>
                   <fileVersion>${project.version}.0</fileVersion>
