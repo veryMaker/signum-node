@@ -90,9 +90,10 @@ public final class ThreadPool {
 
     int cores = propertyService.getInt(Props.CPU_NUM_CORES);
     if (cores <= 0) {
-        logger.warn("Cannot use 0 cores - defaulting to all available");
-        cores = Runtime.getRuntime().availableProcessors();
-      }
+        cores = Runtime.getRuntime().availableProcessors() / 2;
+        cores = Math.max(1, cores);
+    }
+    logger.info("Using {} cores", cores);
     int totalThreads = backgroundJobs.size() + backgroundJobsCores.size() * cores;
     logger.debug("Starting {} background jobs", totalThreads);
     scheduledThreadPool = Executors.newScheduledThreadPool(totalThreads);
