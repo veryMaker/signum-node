@@ -1,6 +1,4 @@
-FROM maven:3-jdk-8-alpine as builder
-RUN apk update && apk add protobuf
-RUN apk add grpc-java --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing
+FROM maven:3-jdk-8-slim as builder
 WORKDIR /app
 COPY . .
 RUN mvn -DskipTests=true -P headless package
@@ -12,8 +10,9 @@ WORKDIR /app
 COPY --from=builder /app/dist/tmp/burst.jar .
 COPY --from=builder /app/html html
 VOLUME ["/conf"]
-COPY conf/brs.properties.mariadb /conf/brs.properties
-COPY conf/brs-default.properties /conf/brs-default.properties
-COPY conf/logging-default.properties /conf/logging-default.properties
+RUN ln -s /conf /app/conf
+COPY conf/brs.properties.mariadb /app/conf/brs.properties
+COPY conf/brs-default.properties /app/conf/brs-default.properties
+COPY conf/logging-default.properties /app/conf/logging-default.properties
 EXPOSE 8125 8123 8121
-ENTRYPOINT ["java", "-classpath", "/app/burst.jar:/conf", "brs.Burst"]
+ENTRYPOINT ["java", "-classpath", "/app/burst.jar", "brs.Burst"]

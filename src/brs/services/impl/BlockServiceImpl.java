@@ -149,7 +149,7 @@ public class BlockServiceImpl implements BlockService {
     			logger.error("Error pre-verifying checkpoint block {}", block.getHeight());
     			return;
     		}
-    		logger.info("Checkpoint block {} with previous block hash {} verified", block.getHeight(), block.getPreviousBlockHash());
+    		logger.info("Checkpoint block {} with previous block hash {} verified", block.getHeight(), Hex.toHexString(block.getPreviousBlockHash()));
     	}
         // Pre-verify poc:
         if (scoopData == null) {

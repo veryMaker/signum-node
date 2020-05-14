@@ -826,7 +826,8 @@ public final class Peers {
       if(response != null && response.get("error") == null) {
         doneFeedingLog.accept(peer, transactionsToSend);
       } else {
-        logger.warn("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(Transaction::getId).collect(Collectors.toList()), response);
+    	if(logger.isDebugEnabled())
+          logger.debug("Error feeding {} transactions: {} error: {}", peer.getPeerAddress(), transactionsToSend.stream().map(Transaction::getId).collect(Collectors.toList()), response);
       }
     } else {
       logger.trace("No need to feed {}", peer.getPeerAddress());
