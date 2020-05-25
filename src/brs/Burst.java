@@ -31,6 +31,11 @@ import brs.util.LoggerConfigurator;
 import brs.util.ThreadPool;
 import brs.util.Time;
 import io.grpc.Server;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +53,23 @@ public final class Burst {
   public static final String CONF_FOLDER = "./conf";
   public static final String DEFAULT_PROPERTIES_NAME = "brs-default.properties";
   public static final String PROPERTIES_NAME = "brs.properties";
+
+  public static final Option CONF_FOLDER_OPTION = Option.builder("c")
+		  .longOpt("config")
+		  .argName("conf folder")
+		  .numberOfArgs(1)
+		  .desc("The configuration folder to use")
+		  .build();
+
+  public static final Options CLI_OPTIONS = new Options()
+		  .addOption(CONF_FOLDER_OPTION)
+		  .addOption(Option.builder("l")
+	        		.longOpt("headless")
+	        		.desc("Run in headless mode")
+	        		.build())
+		  .addOption(Option.builder("h")
+	        		.longOpt("help")
+	        		.build());
 
   private static final Logger logger = LoggerFactory.getLogger(Burst.class);
 
@@ -68,18 +90,19 @@ public final class Burst {
   private static API api;
   private static Server apiV2Server;
 
-  private static PropertyService loadProperties() {
-    final Properties defaultProperties = new Properties();
-
+  private static PropertyService loadProperties(String confFolder) {
     logger.info("Initializing Burst Reference Software (BRS) version {}", VERSION);
-    try (InputStream is = new FileInputStream(new File(CONF_FOLDER, DEFAULT_PROPERTIES_NAME))) {
+    
+    logger.info("Configurations from folder {}", confFolder);
+    Properties defaultProperties = new Properties();
+    try (InputStream is = new FileInputStream(new File(confFolder, DEFAULT_PROPERTIES_NAME))) {
        defaultProperties.load(is);
     } catch (IOException e) {
       throw new RuntimeException("Error loading " + DEFAULT_PROPERTIES_NAME, e);
     }
 
     Properties properties = new Properties(defaultProperties);
-    try (InputStream is = new FileInputStream(new File(CONF_FOLDER, PROPERTIES_NAME))) {
+    try (InputStream is = new FileInputStream(new File(confFolder, PROPERTIES_NAME))) {
       if (is != null) { // parse if brs.properties was loaded
         properties.load(is);
       }
@@ -113,9 +136,18 @@ public final class Burst {
     return dbs;
   }
 
-  public static void main(String[] args) {
+  public static void main(String []args) {
     Runtime.getRuntime().addShutdownHook(new Thread(Burst::shutdown));
-    init();
+    String confFolder = CONF_FOLDER;
+    try {
+      CommandLine cmd = new DefaultParser().parse(CLI_OPTIONS, args);
+      if(cmd.hasOption(CONF_FOLDER_OPTION.getOpt()))
+    	  confFolder = cmd.getOptionValue(CONF_FOLDER_OPTION.getOpt());
+    }
+    catch (Exception e) {
+    	logger.error("Exception parsing command line arguments", e);
+	}
+    init(confFolder);
   }
 
   private static boolean validateVersionNotDev(PropertyService propertyService) {
@@ -130,8 +162,8 @@ public final class Burst {
     loadWallet(new PropertyServiceImpl(customProperties));
   }
 
-  private static void init() {
-    loadWallet(loadProperties());
+  private static void init(String confFolder) {
+    loadWallet(loadProperties(confFolder));
   }
 
   private static void loadWallet(PropertyService propertyService) {
