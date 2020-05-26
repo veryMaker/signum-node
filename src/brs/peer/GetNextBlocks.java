@@ -17,7 +17,7 @@ final class GetNextBlocks implements PeerServlet.PeerRequestHandler {
 
   private final Blockchain blockchain;
   private final int maxLength = 1048576;
-  private final int maxBlocks = Constants.MAX_ROLLBACK / 2;
+  private final int maxBlocks = 1440 / 2; // maxRollback must be at least 1440 and we are using half of that
 
   GetNextBlocks(Blockchain blockchain) {
     this.blockchain = blockchain;
