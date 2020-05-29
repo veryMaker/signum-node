@@ -16,8 +16,8 @@ import java.util.List;
 final class GetNextBlocks implements PeerServlet.PeerRequestHandler {
 
   private final Blockchain blockchain;
-  private final int maxLength = 1048576;
-  private final int maxBlocks = 1440 / 2; // maxRollback must be at least 1440 and we are using half of that
+  private static final int MAX_LENGHT = 1048576;
+  private static final int MAX_BLOCKS = 1440 / 2; // maxRollback must be at least 1440 and we are using half of that
 
   GetNextBlocks(Blockchain blockchain) {
     this.blockchain = blockchain;
@@ -33,16 +33,17 @@ final class GetNextBlocks implements PeerServlet.PeerRequestHandler {
     int totalLength = 0;
     long blockId = Convert.parseUnsignedLong(JSON.getAsString(request.get("blockId")));
     
-    while(totalLength < maxLength && nextBlocks.size() < maxBlocks) {
+    while(totalLength < MAX_LENGHT && nextBlocks.size() < MAX_BLOCKS) {
       Collection<? extends Block> blocks = blockchain.getBlocksAfter(blockId, 100);
-      if (blocks.size() == 0)
+      if (blocks.isEmpty()) {
     	break;
+      }
       
       for (Block block : blocks) {
         int length = Constants.BLOCK_HEADER_LENGTH + block.getPayloadLength();
         totalLength += length;
         nextBlocks.add(block);
-        if (totalLength >= maxLength || nextBlocks.size() >= maxBlocks) {
+        if (totalLength >= MAX_LENGHT || nextBlocks.size() >= MAX_BLOCKS) {
           break;
         }
         blockId = block.getId();
