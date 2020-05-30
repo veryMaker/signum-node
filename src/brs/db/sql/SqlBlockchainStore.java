@@ -42,6 +42,7 @@ public class SqlBlockchainStore implements BlockchainStore {
   @Override
   public Collection<Block> getBlocks(Account account, int timestamp, int from, int to) {
     return Db.useDSLContext(ctx -> {
+      // FIXME: pagination is ignored here
       SelectConditionStep<BlockRecord> query = ctx.selectFrom(BLOCK).where(BLOCK.GENERATOR_ID.eq(account.getId()));
       if (timestamp > 0) {
         query.and(BLOCK.TIMESTAMP.ge(timestamp));

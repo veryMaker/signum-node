@@ -11,6 +11,8 @@ import brs.services.TransactionService;
 import brs.util.Convert;
 import brs.util.DownloadCacheImpl;
 import brs.util.ThreadPool;
+import burst.kit.entity.BurstID;
+import burst.kit.entity.BurstValue;
 
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collection;
 
 public class BlockServiceImpl implements BlockService {
 
@@ -111,6 +114,37 @@ public class BlockServiceImpl implements BlockService {
     if (block.isVerified()) {
       return;
     }
+    
+    // Check on the number of blocks mined to estimate the capacity and also the committed balance on 4 days
+    int nBlocksMined = 1; // The current block being mined
+    long committedBalance = 0;
+    Account account = accountService.getAccount(block.getGeneratorId());
+    if (account != null) {
+    	committedBalance = account.getBalanceNQT();
+        Account accountPast = accountService.getAccount(block.getGeneratorId(), block.getHeight() - Constants.MIN_MAX_ROLLBACK);
+        if(accountPast == null) {
+        	committedBalance = 0;
+        }
+        else {
+        	committedBalance = Math.min(committedBalance, accountPast.getBalanceNQT());
+        }
+    	
+    	// We use no pagination and look back up to the capacity estimation blocks in past
+        // TODO implement the pagination on the getBlocks method and used Constants.MIN_MAX_ROLLBACK
+    	Collection<Block> minedBlocks = blockchain.getBlocks(account, 0, 0, 0);
+    	for(Block mb : minedBlocks) {
+    		if(mb.getHeight() < block.getHeight() - Constants.CAPACITY_ESTIMATION_BLOCKS) {
+    			break;
+    		}
+    	}
+    }
+    
+    long estimatedCapacityGb = Constants.INITIAL_BASE_TARGET*nBlocksMined*1000L
+    		/(Constants.CAPACITY_ESTIMATION_BLOCKS * block.getBaseTarget());
+    logger.info("Miner {}, forged {} blocks, estimated capacity {} Tb, balance {}/Tb",
+    		BurstID.fromLong(block.getGeneratorId()).getID(),
+    		nBlocksMined, estimatedCapacityGb/1000D,
+    		BurstValue.fromPlanck(committedBalance*1000/estimatedCapacityGb).toFormattedString());
     
     int checkPointHeight = Burst.getPropertyService().getInt(
     		Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
