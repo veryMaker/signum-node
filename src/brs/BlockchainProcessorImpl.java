@@ -25,6 +25,8 @@ import brs.util.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -488,7 +490,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
             // We remove blocks from chain back to where we start our fork
             // and save it in a list if we need to restore
-            List<Block> myPoppedOffBlocks = popOffTo(forkBlock);
+            List<Block> myPoppedOffBlocks = popOffTo(forkBlock, forkBlocks);
 
             // now we check that our chain is popped off.
             // If all seems ok is we try to push fork.
@@ -498,6 +500,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 if (blockchain.getLastBlock().getId() == block.getPreviousBlockId()) {
                   try {
                     blockService.preVerify(block);
+                    
+                    logger.info("Pushing block {} generator {} sig {}", block.getHeight(), block.getGeneratorId(),
+                    		Hex.toHexString(block.getBlockSignature()));
+                    
                     pushBlock(block);
                     pushedForkBlocks += 1;
                   } catch (InterruptedException e) {
@@ -518,7 +524,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     .compareTo(curCumulativeDifficulty) < 0) {
               logger.warn("Fork was bad and pop off was caused by peer {}, blacklisting", peer.getPeerAddress());
               peer.blacklist("got a bad fork");
-              List<Block> peerPoppedOffBlocks = popOffTo(forkBlock);
+              List<Block> peerPoppedOffBlocks = popOffTo(forkBlock, null);
               pushedForkBlocks = 0;
               peerPoppedOffBlocks.forEach(block -> transactionProcessor.processLater(block.getTransactions()));
             }
@@ -745,7 +751,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
   @Override
   public List<Block> popOffTo(int height) {
-    return popOffTo(blockchain.getBlockAtHeight(height));
+    return popOffTo(blockchain.getBlockAtHeight(height), null);
   }
 
   @Override
@@ -1006,7 +1012,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     }
   }
 
-  private List<Block> popOffTo(Block commonBlock) {
+  private List<Block> popOffTo(Block commonBlock, List<Block> forkBlocks) {
   
     if (commonBlock.getHeight() < getMinRollbackHeight()) {
         throw new IllegalArgumentException("Rollback to height " + commonBlock.getHeight() + " not suppported, " + "current height " + blockchain.getHeight());
@@ -1023,6 +1029,16 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           Block block = blockchain.getLastBlock();
           logger.info("Rollback from {} to {}", block.getHeight(), commonBlock.getHeight());
           while (block.getId() != commonBlock.getId() && block.getId() != Genesis.GENESIS_BLOCK_ID) {
+        	if(forkBlocks != null) {
+        	  for(Block fb : forkBlocks) {
+        		if(fb.getHeight() == block.getHeight() && fb.getGeneratorId() == block.getGeneratorId()) {
+        	      logger.info("Possible rewrite fork, ID {} block being monitored {}", block.getGeneratorId(), block.getHeight());
+        	      blockService.watchBlock(block);
+        		}
+        	  }
+        	}
+            logger.info("Popping block {} generator {} sig {}", block.getHeight(), block.getGeneratorId(),
+            		Hex.toHexString(block.getBlockSignature()));
             poppedOffBlocks.add(block);
             block = popLastBlock();
           }

@@ -10,6 +10,8 @@ public interface BlockService {
   void preVerify(Block block) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException;
 
   void preVerify(Block block, byte[] scoopData) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException;
+  
+  void watchBlock(Block block);
 
   long getBlockReward(Block block);
 

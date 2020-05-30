@@ -157,6 +157,8 @@ public final class APIServlet extends HttpServlet {
     map.put("getAccountATs", new GetAccountATs(parameterService, atService, accountService));
     map.put("getGuaranteedBalance", new GetGuaranteedBalance(parameterService));
     map.put("generateSendTransactionQRCode", new GenerateDeeplinkQRCode(deeplinkQRCodeGenerator));
+    map.put("generateDeeplink", GenerateDeeplink.instance);
+    map.put("generateDeeplinkQRCode", GenerateDeeplinkQR.instance);
 
     if (propertyService.getBoolean(Props.API_DEBUG)) {
       map.put("clearUnconfirmedTransactions", new ClearUnconfirmedTransactions(transactionProcessor));
