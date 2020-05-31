@@ -28,7 +28,7 @@ public final class Constants {
 
   public static final long MAX_BALANCE_NQT = MAX_BALANCE_BURST * ONE_BURST;
   public static final long INITIAL_BASE_TARGET = 18325193796L;
-  public static final long CAPACITY_ESTIMATION_BLOCKS = 10800L * 3;
+  public static final int CAPACITY_ESTIMATION_BLOCKS = 10800 * 3;
   public static final long MAX_BASE_TARGET = 18325193796L;
   public static final int MAX_ROLLBACK = Burst.getPropertyService().getInt(Props.DB_MAX_ROLLBACK);
   public static final int MIN_MAX_ROLLBACK = 1440;

@@ -139,15 +139,8 @@ public class BlockServiceImpl implements BlockService {
         	committedBalance = Math.min(committedBalance, accountPast.getBalanceNQT());
         }
     	
-    	// We use no pagination and look back up to the capacity estimation blocks in past
-        // TODO implement the pagination on the getBlocks method and used Constants.MIN_MAX_ROLLBACK
-    	Collection<Block> minedBlocks = blockchain.getBlocks(account, 0, 0, 0);
-    	for(Block mb : minedBlocks) {
-    		if(mb.getHeight() < block.getHeight() - Constants.CAPACITY_ESTIMATION_BLOCKS) {
-    			break;
-    		}
-    		nBlocksMined++;
-    	}
+    	Collection<Block> minedBlocks = blockchain.getBlocks(account, 0, 0, Constants.CAPACITY_ESTIMATION_BLOCKS);
+    	nBlocksMined+= minedBlocks.size();
     }
     
     long estimatedCapacityGb = Constants.INITIAL_BASE_TARGET*nBlocksMined*1000L
