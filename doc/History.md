@@ -1,6 +1,13 @@
 [History of Burst](https://burstwiki.org/en/history-of-burst/)
 
 ```
+2020-05-31 v2.5.1
+- Docker build
+- Windows executable now refuse to run on 32 bit Java and a download link is shown to the user
+- Limit the amount of blocks sent to peers by total length and not number of blocks
+- Improved command line arguments, including one for setting the conf folder
+- Other minor improvements
+
 2020-05-10 v2.5.0 (Backport of fixes from v3.0.0 and many other improvements)
 - More powerful and cheaper running smart contracts (CIP20)
 - Deeplink Generator API (CIP22)
