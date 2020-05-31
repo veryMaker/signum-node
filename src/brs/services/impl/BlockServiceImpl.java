@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Collection;
 
@@ -58,19 +57,8 @@ public class BlockServiceImpl implements BlockService {
       byte[] data2 = new byte[data.length - 64];
       System.arraycopy(data, 0, data2, 0, data2.length);
 
-      byte[] publicKey;
-      Account genAccount = accountService.getAccount(block.getGeneratorPublicKey());
-      Account.RewardRecipientAssignment rewardAssignment;
-      rewardAssignment = genAccount == null ? null : accountService.getRewardRecipientAssignment(genAccount);
-      if (genAccount == null || rewardAssignment == null || !Burst.getFluxCapacitor().getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
-        publicKey = block.getGeneratorPublicKey();
-      } else {
-        if (previousBlock.getHeight() + 1 >= rewardAssignment.getFromHeight()) {
-          publicKey = accountService.getAccount(rewardAssignment.getRecipientId()).getPublicKey();
-        } else {
-          publicKey = accountService.getAccount(rewardAssignment.getPrevRecipientId()).getPublicKey();
-        }
-      }
+      Account rewardAccount = getRewardAccount(block);
+      byte[] publicKey = rewardAccount.getPublicKey();
 
       return Crypto.verify(block.getBlockSignature(), data2, publicKey, block.getVersion() >= 3);
 
@@ -80,7 +68,6 @@ public class BlockServiceImpl implements BlockService {
       return false;
 
     }
-
   }
 
   @Override
@@ -108,14 +95,19 @@ public class BlockServiceImpl implements BlockService {
     }
   }
   
-  private Account getRewardAccount(byte []publicKey) {
-	Account rewardAccount = accountService.getAccount(publicKey);
-	Account.RewardRecipientAssignment rewardRecipiengAssignment = accountService.getRewardRecipientAssignment(rewardAccount);
-	if (rewardRecipiengAssignment != null) {
-	  rewardAccount = accountService.getAccount(rewardRecipiengAssignment.getRecipientId());
-	}
-	return rewardAccount;
+  private Account getRewardAccount(Block block) {
+	Account rewardAccount = accountService.getAccount(block.getGeneratorPublicKey());
+    Account.RewardRecipientAssignment rewardAssignment = accountService.getRewardRecipientAssignment(rewardAccount);
+    if (rewardAssignment != null) {
+      if (block.getHeight() >= rewardAssignment.getFromHeight()) {
+        rewardAccount = accountService.getAccount(rewardAssignment.getRecipientId());
+      } else {
+        rewardAccount = accountService.getAccount(rewardAssignment.getPrevRecipientId());
+      }
+    }
+    return rewardAccount;
   }
+  
   @Override
   public void watchBlock(Block block) {
 	  watchedBlocks.add(block);
@@ -154,6 +146,7 @@ public class BlockServiceImpl implements BlockService {
     		if(mb.getHeight() < block.getHeight() - Constants.CAPACITY_ESTIMATION_BLOCKS) {
     			break;
     		}
+    		nBlocksMined++;
     	}
     }
     
@@ -219,15 +212,7 @@ public class BlockServiceImpl implements BlockService {
       accountService.addToBalanceAndUnconfirmedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + getBlockReward(block));
       accountService.addToForgedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + getBlockReward(block));
     } else {
-      Account rewardAccount;
-      Account.RewardRecipientAssignment rewardAssignment = accountService.getRewardRecipientAssignment(generatorAccount);
-      if (rewardAssignment == null) {
-        rewardAccount = generatorAccount;
-      } else if (block.getHeight() >= rewardAssignment.getFromHeight()) {
-        rewardAccount = accountService.getAccount(rewardAssignment.getRecipientId());
-      } else {
-        rewardAccount = accountService.getAccount(rewardAssignment.getPrevRecipientId());
-      }
+      Account rewardAccount = getRewardAccount(block);
       accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + getBlockReward(block));
       accountService.addToForgedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + getBlockReward(block));
     }
