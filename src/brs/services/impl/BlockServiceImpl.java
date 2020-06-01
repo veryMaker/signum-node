@@ -22,7 +22,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Collection;
 
 public class BlockServiceImpl implements BlockService {
 
@@ -137,10 +136,8 @@ public class BlockServiceImpl implements BlockService {
         }
         else {
         	committedBalance = Math.min(committedBalance, accountPast.getBalanceNQT());
-        }
-    	
-    	Collection<Block> minedBlocks = blockchain.getBlocks(account, 0, 0, Constants.CAPACITY_ESTIMATION_BLOCKS);
-    	nBlocksMined+= minedBlocks.size();
+        }    	
+    	nBlocksMined+= blockchain.getBlocksCount(account, Constants.CAPACITY_ESTIMATION_BLOCKS);
     }
     
     long estimatedCapacityGb = Constants.INITIAL_BASE_TARGET*nBlocksMined*1000L

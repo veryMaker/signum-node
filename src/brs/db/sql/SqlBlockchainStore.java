@@ -54,6 +54,18 @@ public class SqlBlockchainStore implements BlockchainStore {
       return getBlocks(query.orderBy(BLOCK.HEIGHT.desc()).fetch());
     });
   }
+  
+  @Override
+  public int getBlocksCount(Account account, int limit) {
+    return Db.useDSLContext(ctx -> {
+      int blockchainHeight = Burst.getBlockchain().getHeight();
+      
+      SelectConditionStep<BlockRecord> query = ctx.selectFrom(BLOCK).where(BLOCK.GENERATOR_ID.eq(account.getId()))
+    		  .and(BLOCK.HEIGHT.between(blockchainHeight - limit).and(blockchainHeight));
+      
+      return ctx.fetchCount(query);
+    });
+  }
 
   @Override
   public Collection<Block> getBlocks(Result<BlockRecord> blockRecords) {
