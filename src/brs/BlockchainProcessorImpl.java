@@ -22,6 +22,8 @@ import brs.statistics.StatisticsManagerImpl;
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
 import brs.util.*;
+import burst.kit.entity.BurstID;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -1037,7 +1039,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         		}
         	  }
         	}
-            logger.info("Popping block {} generator {} sig {}", block.getHeight(), block.getGeneratorId(),
+            logger.info("Popping block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()).getID(),
             		Hex.toHexString(block.getBlockSignature()));
             poppedOffBlocks.add(block);
             block = popLastBlock();
