@@ -56,8 +56,12 @@ public class BlockServiceImpl implements BlockService {
       byte[] data2 = new byte[data.length - 64];
       System.arraycopy(data, 0, data2, 0, data2.length);
 
-      Account rewardAccount = getRewardAccount(block);
-      byte[] publicKey = rewardAccount.getPublicKey();
+      byte[] publicKey = block.getGeneratorPublicKey();
+      if(accountService.getAccount(publicKey) != null) {
+        // only if the account exists
+        Account rewardAccount = getRewardAccount(block);
+        publicKey = rewardAccount.getPublicKey();
+      }
 
       return Crypto.verify(block.getBlockSignature(), data2, publicKey, block.getVersion() >= 3);
 
@@ -137,15 +141,21 @@ public class BlockServiceImpl implements BlockService {
         else {
         	committedBalance = Math.min(committedBalance, accountPast.getBalanceNQT());
         }    	
-    	nBlocksMined+= blockchain.getBlocksCount(account, Constants.CAPACITY_ESTIMATION_BLOCKS);
+    	nBlocksMined+= blockchain.getBlocksCount(account, Constants.CAPACITY_ESTIMATION_BLOCKS - 1);
     }
     
     long estimatedCapacityGb = Constants.INITIAL_BASE_TARGET*nBlocksMined*1000L
-    		/(Constants.CAPACITY_ESTIMATION_BLOCKS * block.getBaseTarget());
-    logger.info("Miner {}, forged {} blocks, estimated capacity {} Tb, balance {}/Tb",
-    		BurstID.fromLong(block.getGeneratorId()).getID(),
-    		nBlocksMined, estimatedCapacityGb/1000D,
-    		BurstValue.fromPlanck(committedBalance*1000/estimatedCapacityGb).toFormattedString());
+    		/(block.getBaseTarget() * Constants.CAPACITY_ESTIMATION_BLOCKS);
+    if(estimatedCapacityGb < 1000L) {
+      estimatedCapacityGb = 1000L;
+    }
+    
+    logger.info("Block {}, net cap {} Tb, miner {}, forged {} blocks, estimated capacity {} Tb, balance {}/Tb",
+        block.getHeight(),
+        (double)Constants.INITIAL_BASE_TARGET/block.getBaseTarget(),
+        BurstID.fromLong(block.getGeneratorId()).getID(),
+        nBlocksMined, estimatedCapacityGb/1000D,
+        BurstValue.fromPlanck((committedBalance/estimatedCapacityGb) * 1000).toFormattedString());
     
     int checkPointHeight = Burst.getPropertyService().getInt(
     		Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
