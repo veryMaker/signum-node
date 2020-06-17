@@ -150,7 +150,7 @@ public class BlockServiceImpl implements BlockService {
       estimatedCapacityGb = 1000L;
     }
     
-    logger.info("Block {}, net cap {} Tb, miner {}, forged {} blocks, estimated capacity {} Tb, balance {}/Tb",
+    logger.info("Block {}, net cap {} TiB, miner {}, forged {} blocks, estimated capacity {} TiB, balance {}/TiB",
         block.getHeight(),
         (double)Constants.INITIAL_BASE_TARGET/block.getBaseTarget(),
         BurstID.fromLong(block.getGeneratorId()).getID(),
@@ -261,7 +261,7 @@ public class BlockServiceImpl implements BlockService {
     } else if (block.getHeight() < 4) {
       block.setBaseTarget(Constants.INITIAL_BASE_TARGET);
       block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(Convert.two64.divide(BigInteger.valueOf(Constants.INITIAL_BASE_TARGET))));
-    } else if (block.getHeight() < Constants.BURST_DIFF_ADJUST_CHANGE_BLOCK) {
+    } else if (block.getHeight() < Constants.BURST_DIFF_ADJUST_CHANGE_BLOCK && !Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
       Block itBlock = previousBlock;
       BigInteger avgBaseTarget = BigInteger.valueOf(itBlock.getBaseTarget());
       do {
