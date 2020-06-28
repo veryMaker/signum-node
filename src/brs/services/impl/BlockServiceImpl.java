@@ -144,15 +144,19 @@ public class BlockServiceImpl implements BlockService {
     	nBlocksMined+= blockchain.getBlocksCount(account, Constants.CAPACITY_ESTIMATION_BLOCKS - 1);
     }
     
-    long estimatedCapacityGb = Constants.INITIAL_BASE_TARGET*nBlocksMined*1000L
+    long genesisTarget = Constants.INITIAL_BASE_TARGET;
+    if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
+      genesisTarget = (long)(genesisTarget / 1.83d);
+    }
+    long estimatedCapacityGb = genesisTarget*nBlocksMined*1000L
     		/(block.getBaseTarget() * Constants.CAPACITY_ESTIMATION_BLOCKS);
     if(estimatedCapacityGb < 1000L) {
       estimatedCapacityGb = 1000L;
     }
     
-    logger.info("Block {}, net cap {} TiB, miner {}, forged {} blocks, estimated capacity {} TiB, balance {}/TiB",
+    logger.info("Block {}, Network {} TiB, miner {}, forged {} blocks, {} TiB, commitment {}/TiB",
         block.getHeight(),
-        (double)Constants.INITIAL_BASE_TARGET/block.getBaseTarget(),
+        (double)genesisTarget/block.getBaseTarget(),
         BurstID.fromLong(block.getGeneratorId()).getID(),
         nBlocksMined, estimatedCapacityGb/1000D,
         BurstValue.fromPlanck((committedBalance/estimatedCapacityGb) * 1000).toFormattedString());
@@ -182,7 +186,7 @@ public class BlockServiceImpl implements BlockService {
         if (scoopData == null) {
           block.setPocTime(generator.calculateHit(block.getGeneratorId(), block.getNonce(), block.getGenerationSignature(), getScoopNum(block), block.getHeight()));
         } else {
-          block.setPocTime(generator.calculateHit(block.getGeneratorId(), block.getNonce(), block.getGenerationSignature(), scoopData));
+          block.setPocTime(generator.calculateHit(block.getGenerationSignature(), scoopData));
         }
       }
     } catch (RuntimeException e) {
