@@ -30,7 +30,7 @@ public interface Generator {
 
   BigInteger calculateHit(long accountId, long nonce, byte[] genSig, int scoop, int blockHeight);
 
-  BigInteger calculateHit(long accountId, long nonce, byte[] genSig, byte[] scoopData);
+  BigInteger calculateHit(byte[] genSig, byte[] scoopData);
 
   BigInteger calculateDeadline(BigInteger hit, long baseTarget, int blockHeight);
 

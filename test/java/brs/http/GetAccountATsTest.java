@@ -54,7 +54,7 @@ public class GetAccountATsTest {
 
     final long mockATId = 1L;
     byte[] mockATIDBytes = new byte[ AtConstants.AT_ID_SIZE ];
-    byte[] creatorBytes = new byte[]{(byte) 'c', (byte) 'r', (byte) 'e', (byte) 'a', (byte) 't', (byte) 'o', (byte) 'r'};
+    byte[] creatorBytes = new byte[]{(byte) 'c', (byte) 'r', (byte) 'e', (byte) 'a', (byte) 't', (byte) 'o', (byte) 'r', (byte) 'r'};
     final AtMachineState.MachineState mockMachineState = mock(AtMachineState.MachineState.class);
     final AT mockAT = mock(AT.class);
     when(mockAT.getCreator()).thenReturn(creatorBytes);

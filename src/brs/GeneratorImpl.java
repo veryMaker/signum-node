@@ -34,6 +34,7 @@ public class GeneratorImpl implements Generator {
   private final FluxCapacitor fluxCapacitor;
   
   private static final double LN_SCALE = ((double) Constants.BURST_BLOCK_TIME) / Math.log((double) Constants.BURST_BLOCK_TIME);
+  // private static final double LN_SCALE = 49d; // value that would keep the legacy network size estimation close to real capacity
 
   public GeneratorImpl(Blockchain blockchain, TimeService timeService, FluxCapacitor fluxCapacitor) {
     this.blockchain = blockchain;
@@ -131,8 +132,8 @@ public class GeneratorImpl implements Generator {
   }
 
   @Override
-  public BigInteger calculateHit(long accountId, long nonce, byte[] genSig, byte[] scoopData) {
-    return burstCrypto.calculateHit(accountId, nonce, genSig, scoopData);
+  public BigInteger calculateHit(byte[] genSig, byte[] scoopData) {
+    return burstCrypto.calculateHit(genSig, scoopData);
   }
 
   @Override
@@ -229,7 +230,7 @@ public class GeneratorImpl implements Generator {
     }
 
     @Override
-    public BigInteger calculateHit(long accountId, long nonce, byte[] genSig, byte[] scoopData) {
+    public BigInteger calculateHit(byte[] genSig, byte[] scoopData) {
       return BigInteger.valueOf(propertyService.getInt(Props.DEV_MOCK_MINING_DEADLINE));
     }
 
