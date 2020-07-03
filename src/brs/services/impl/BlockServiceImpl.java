@@ -128,6 +128,15 @@ public class BlockServiceImpl implements BlockService {
       return;
     }
     
+    Block previousBlock = blockchain.getBlock(block.getPreviousBlockId());
+    Block beforePreviousBlock = blockchain.getBlock(previousBlock.getPreviousBlockId());
+    Account thisAccount = getRewardAccount(block);
+    Account previousAccount = getRewardAccount(previousBlock);
+    Account beforePreviousAccount = getRewardAccount(beforePreviousBlock);
+    if(thisAccount.getId() == previousAccount.getId() && thisAccount.getId() == beforePreviousAccount.getId()) {
+        logger.info("Block {} signers of previous blocks: {} {} {}", block.getHeight(), thisAccount.getId(), previousAccount.getId(), beforePreviousAccount.getId());
+    }
+    
     // Check on the number of blocks mined to estimate the capacity and also the committed balance on 4 days
     int nBlocksMined = 1; // The current block being mined
     long committedBalance = 0;
