@@ -11,8 +11,6 @@ import brs.services.TransactionService;
 import brs.util.Convert;
 import brs.util.DownloadCacheImpl;
 import brs.util.ThreadPool;
-import burst.kit.entity.BurstID;
-import burst.kit.entity.BurstValue;
 
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
@@ -90,7 +88,7 @@ public class BlockServiceImpl implements BlockService {
       }
       int elapsedTime = block.getTimestamp() - previousBlock.getTimestamp();
       BigInteger hit = block.getPocTime();
-      BigInteger pTime = generator.calculateDeadline(hit, previousBlock.getBaseTarget(), block.getHeight());
+      BigInteger pTime = generator.calculateDeadline(hit, previousBlock.getBaseTarget(), block.getCommitment(), previousBlock.getAverageCommitment(), block.getHeight());
       return BigInteger.valueOf(elapsedTime).compareTo(pTime) > 0;
     } catch (RuntimeException e) {
       logger.info("Error verifying block generation signature", e);
@@ -120,55 +118,13 @@ public class BlockServiceImpl implements BlockService {
   public void preVerify(Block block) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException {
     preVerify(block, null);
   }
-
+  
   @Override
   public void preVerify(Block block, byte[] scoopData) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException {
     // Just in case its already verified
     if (block.isVerified()) {
       return;
     }
-    
-    Block previousBlock = blockchain.getBlock(block.getPreviousBlockId());
-    Block beforePreviousBlock = blockchain.getBlock(previousBlock.getPreviousBlockId());
-    Account thisAccount = getRewardAccount(block);
-    Account previousAccount = getRewardAccount(previousBlock);
-    Account beforePreviousAccount = getRewardAccount(beforePreviousBlock);
-    if(thisAccount.getId() == previousAccount.getId() && thisAccount.getId() == beforePreviousAccount.getId()) {
-        logger.info("Block {} signers of previous blocks: {} {} {}", block.getHeight(), thisAccount.getId(), previousAccount.getId(), beforePreviousAccount.getId());
-    }
-    
-    // Check on the number of blocks mined to estimate the capacity and also the committed balance on 4 days
-    int nBlocksMined = 1; // The current block being mined
-    long committedBalance = 0;
-    Account account = accountService.getAccount(block.getGeneratorId());
-    if (account != null) {
-    	committedBalance = account.getBalanceNQT();
-        Account accountPast = accountService.getAccount(block.getGeneratorId(), block.getHeight() - Constants.MIN_MAX_ROLLBACK);
-        if(accountPast == null) {
-        	committedBalance = 0;
-        }
-        else {
-        	committedBalance = Math.min(committedBalance, accountPast.getBalanceNQT());
-        }    	
-    	nBlocksMined+= blockchain.getBlocksCount(account, Constants.CAPACITY_ESTIMATION_BLOCKS - 1);
-    }
-    
-    long genesisTarget = Constants.INITIAL_BASE_TARGET;
-    if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
-      genesisTarget = (long)(genesisTarget / 1.83d);
-    }
-    long estimatedCapacityGb = genesisTarget*nBlocksMined*1000L
-    		/(block.getBaseTarget() * Constants.CAPACITY_ESTIMATION_BLOCKS);
-    if(estimatedCapacityGb < 1000L) {
-      estimatedCapacityGb = 1000L;
-    }
-    
-    logger.info("Block {}, Network {} TiB, miner {}, forged {} blocks, {} TiB, commitment {}/TiB",
-        block.getHeight(),
-        (double)genesisTarget/block.getBaseTarget(),
-        BurstID.fromLong(block.getGeneratorId()).getID(),
-        nBlocksMined, estimatedCapacityGb/1000D,
-        BurstValue.fromPlanck((committedBalance/estimatedCapacityGb) * 1000).toFormattedString());
     
     int checkPointHeight = Burst.getPropertyService().getInt(
     		Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
@@ -179,6 +135,8 @@ public class BlockServiceImpl implements BlockService {
         block.setPocTime(BigInteger.valueOf(0L));
       }
       else {
+        block.setCommitment(generator.calculateCommitment(block.getGeneratorId(), block.getBaseTarget(), block.getHeight()));
+        
     	if(block.getHeight() == checkPointHeight) {
        	    String checkPointHash = Burst.getPropertyService().getString(
     	    		Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
@@ -353,6 +311,18 @@ public class BlockServiceImpl implements BlockService {
 
       block.setBaseTarget(newBaseTarget);
       block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(Convert.two64.divide(BigInteger.valueOf(newBaseTarget))));
+      
+      if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+        // update the average commitment based on 100 blocks past filter
+        long curCommitment = previousBlock.getAverageCommitment();
+        curCommitment = Math.max(curCommitment, Constants.ONE_BURST);
+        
+        long newAvgCommitment = (curCommitment*99L + block.getCommitment())/100L;
+        block.setBaseTarget(newBaseTarget, newAvgCommitment);
+        
+        // TODO: check if we really need to add the cumulative difficulty
+        block.setCumulativeDifficulty(block.getCumulativeDifficulty().add(BigInteger.valueOf(newAvgCommitment)));
+      }
     }
   }
 

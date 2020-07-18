@@ -47,6 +47,7 @@ public class Block {
   private long nonce;
 
   private BigInteger pocTime = null;
+  private long commitment = 0L;
 
   private final byte[] blockATs;
 
@@ -186,7 +187,27 @@ public class Block {
   }
 
   public long getBaseTarget() {
-    return baseTarget;
+    long capacityBaseTarget = baseTarget;
+    if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height)) {
+      // Base target encoded as two floats, one for the commitment and the other the classical base target
+      float capacityBaseTargetFloat = Float.intBitsToFloat((int)(baseTarget & 0xFFFFL));
+      capacityBaseTarget = (long)capacityBaseTargetFloat;
+    }
+    return capacityBaseTarget;
+  }
+  
+  public long getAverageCommitment() {
+    if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height)) {
+      // Base target encoded as two floats, one for the commitment and the other the classical base target
+      float commitmentBaseTargetFloat = Float.intBitsToFloat((int)((baseTarget & 0xFFFFL) >> 32));
+      return (long)commitmentBaseTargetFloat;
+    }
+    return 0L;
+  }
+  
+  public void setBaseTarget(long baseTargetCapacity, long averageCommitment) {
+    this.baseTarget = ((long)Float.floatToIntBits((float)baseTargetCapacity)) << 32 +
+        ((long)Float.floatToIntBits((float)averageCommitment));
   }
 
   public BigInteger getCumulativeDifficulty() {
@@ -361,6 +382,14 @@ public class Block {
 
   public void setPocTime(BigInteger pocTime) {
     this.pocTime = pocTime;
+  }
+  
+  public long getCommitment() {
+    return this.commitment;
+  }
+
+  public void setCommitment(long commitment) {
+    this.commitment = commitment;
   }
 
   public void setBaseTarget(long baseTarget) {

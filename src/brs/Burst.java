@@ -200,9 +200,9 @@ public final class Burst {
 
       EconomicClustering economicClustering = new EconomicClustering(blockchain);
 
-      final Generator generator = propertyService.getBoolean(Props.DEV_MOCK_MINING) ? new GeneratorImpl.MockGenerator(propertyService, blockchain, timeService, fluxCapacitor) : new GeneratorImpl(blockchain, timeService, fluxCapacitor);
-
       final AccountService accountService = new AccountServiceImpl(stores.getAccountStore(), stores.getAssetTransferStore());
+
+      final Generator generator = propertyService.getBoolean(Props.DEV_MOCK_MINING) ? new GeneratorImpl.MockGenerator(propertyService, blockchain, timeService, fluxCapacitor) : new GeneratorImpl(blockchain, accountService, timeService, fluxCapacitor);
 
       final TransactionService transactionService = new TransactionServiceImpl(accountService, blockchain);
 
