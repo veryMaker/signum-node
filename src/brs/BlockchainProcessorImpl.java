@@ -501,7 +501,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               for (Block block : forkBlocks) {
                 if (blockchain.getLastBlock().getId() == block.getPreviousBlockId()) {
                   try {
-                    blockService.preVerify(block);
+                    blockService.preVerify(block, blockchain.getLastBlock());
                     
                     logger.info("Pushing block {} generator {} sig {}", block.getHeight(), block.getGeneratorId(),
                     		Hex.toHexString(block.getBlockSignature()));
@@ -536,7 +536,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               for (int i = myPoppedOffBlocks.size() - 1; i >= 0; i--) {
                 Block block = myPoppedOffBlocks.remove(i);
                 try {
-                  blockService.preVerify(block);
+                  blockService.preVerify(block, blockchain.getLastBlock());
                   pushBlock(block);
                 } catch (InterruptedException e) {
                   Thread.currentThread().interrupt();
@@ -576,7 +576,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           try {
             if (!currentBlock.isVerified()) {
               downloadCache.removeUnverified(currentBlock.getId());
-              blockService.preVerify(currentBlock);
+              blockService.preVerify(currentBlock, lastBlock);
               logger.debug("block was not preverified");
             }
             pushBlock(currentBlock); //pushblock removes the block from cache.
@@ -622,7 +622,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           if (verifyWithOcl) {
             int poCVersion;
             int pos = 0;
-            List<Block> blocks = new LinkedList<>();
+            HashMap<Block, Block> blocks = new HashMap<>();
             poCVersion = downloadCache.getPoCVersion(downloadCache.getUnverifiedBlockIdFromPos(0));
             while (!Thread.interrupted() && ThreadPool.running.get()
                     && (downloadCache.getUnverifiedSize() - 1) > pos
@@ -631,12 +631,16 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               if (downloadCache.getPoCVersion(blockId) != poCVersion) {
                 break;
               }
-              blocks.add(downloadCache.getBlock(blockId));
+              Block block = downloadCache.getBlock(blockId);
+              Block prevBlock = downloadCache.getBlock(block.getPreviousBlockId());
+              if(prevBlock == null)
+                prevBlock = blockchain.getBlock(block.getPreviousBlockId());
+              blocks.put(block, prevBlock);
               pos += 1;
             }
             try {
               OCLPoC.validatePoC(blocks, poCVersion, blockService);
-              downloadCache.removeUnverifiedBatch(blocks);
+              downloadCache.removeUnverifiedBatch(blocks.keySet());
             } catch (OCLPoC.PreValidateFailException e) {
               logger.info(e.toString(), e);
               blacklistClean(e.getBlock(), e, "found invalid pull/push data during processing the pocVerification");
@@ -649,7 +653,11 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             }
           } else { //verify using java
             try {
-              blockService.preVerify(downloadCache.getFirstUnverifiedBlock());
+              Block block = downloadCache.getFirstUnverifiedBlock();
+              Block prevBlock = downloadCache.getBlock(block.getPreviousBlockId());
+              if(prevBlock == null)
+                prevBlock = blockchain.getBlock(block.getPreviousBlockId());
+              blockService.preVerify(block, prevBlock);
             } catch (InterruptedException e) {
               Thread.currentThread().interrupt();
             } catch (BlockNotAcceptedException e) {
@@ -809,7 +817,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       try {
 
         previousLastBlock = blockchain.getLastBlock();
-
+        
         if (previousLastBlock.getId() != block.getPreviousBlockId()) {
           throw new BlockOutOfOrderException(
               "Previous block id doesn't match for block " + block.getHeight()
@@ -1281,7 +1289,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       block.sign(secretPhrase);
       blockService.setPrevious(block, previousBlock);
       try {
-        blockService.preVerify(block);
+        blockService.preVerify(block, previousBlock);
         pushBlock(block);
         blockListeners.notify(block, Event.BLOCK_GENERATED);
         if (logger.isDebugEnabled()) {

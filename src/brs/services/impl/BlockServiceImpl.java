@@ -115,14 +115,19 @@ public class BlockServiceImpl implements BlockService {
   }
 
   @Override
-  public void preVerify(Block block) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException {
-    preVerify(block, null);
+  public void preVerify(Block block, Block prevBlock) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException {
+    preVerify(block, prevBlock, null);
   }
   
   @Override
-  public void preVerify(Block block, byte[] scoopData) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException {
+  public void preVerify(Block block, Block prevBlock, byte[] scoopData) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException {
     // Just in case its already verified
     if (block.isVerified()) {
+      return;
+    }
+    
+    if(block.getPreviousBlockId() != prevBlock.getId()) {
+      logger.info("Error pre-verifying block, invalid previous block");
       return;
     }
     
@@ -135,7 +140,6 @@ public class BlockServiceImpl implements BlockService {
         block.setPocTime(BigInteger.valueOf(0L));
       }
       else {
-        Block prevBlock = blockchain.getBlock(block.getPreviousBlockId());
         block.setCommitment(generator.calculateCommitment(block.getGeneratorId(), prevBlock.getCapacityBaseTarget(), block.getHeight()));
         
     	if(block.getHeight() == checkPointHeight) {
