@@ -143,10 +143,10 @@ public class GeneratorImpl implements Generator {
   }
 
   @Override
-  public BigInteger calculateDeadline(BigInteger hit, long baseTarget, long commitment, long commitmentBaseTarget, int blockHeight) {
-    BigInteger deadline = hit.divide(BigInteger.valueOf(baseTarget));
+  public BigInteger calculateDeadline(BigInteger hit, long capacityBaseTarget, long commitment, long averageCommitment, int blockHeight) {
+    BigInteger deadline = hit.divide(BigInteger.valueOf(capacityBaseTarget));
     if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, blockHeight)) {
-      double commitmentFactor = ((double)commitment)/commitmentBaseTarget;
+      double commitmentFactor = ((double)commitment)/averageCommitment;
       commitmentFactor = Math.pow(commitmentFactor, 0.1505);
       commitmentFactor = Math.min(4.0, commitmentFactor);
       commitmentFactor = Math.max(0.25, commitmentFactor);
@@ -155,8 +155,8 @@ public class GeneratorImpl implements Generator {
       if(nextDeadline > 0) {
         // Avoid zero logarithm
         nextDeadline = Math.log(nextDeadline) * LN_SCALE;
-        deadline = BigInteger.valueOf((long)(nextDeadline));
       }
+      deadline = BigInteger.valueOf((long)(nextDeadline));
     }
     else if(fluxCapacitor.getValue(FluxValues.SODIUM, blockHeight)) {
       if(deadline.bitLength() < 100 && deadline.longValue() > 0L) {
@@ -259,13 +259,13 @@ public class GeneratorImpl implements Generator {
     }
 
     @Override
-    public BigInteger calculateDeadline(BigInteger hit, long baseTarget, long commitment, long commitmentBaseTarget, int blockHeight) {
+    public BigInteger calculateDeadline(BigInteger hit, long capacityBaseTarget, long commitment, long averageCommitment, int blockHeight) {
       return BigInteger.valueOf(propertyService.getInt(Props.DEV_MOCK_MINING_DEADLINE));
     }
   }
 
   @Override
-  public long calculateCommitment(long generatorId, long baseTarget, int height) {
+  public long calculateCommitment(long generatorId, long capacityBaseTarget, int height) {
     // Check on the number of blocks mined to estimate the capacity and also the committed balance
     int nBlocksMined = 0;
     long committedBalance = 0;
@@ -297,7 +297,7 @@ public class GeneratorImpl implements Generator {
     if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
       genesisTarget = (long)(genesisTarget / 1.83d);
     }
-    long estimatedCapacityGb = genesisTarget*nBlocksMined*1000L/(baseTarget * capacityEstimationBlocks);
+    long estimatedCapacityGb = genesisTarget*nBlocksMined*1000L/(capacityBaseTarget * capacityEstimationBlocks);
     if(estimatedCapacityGb < 1000L) {
       estimatedCapacityGb = 1000L;
     }
@@ -306,7 +306,7 @@ public class GeneratorImpl implements Generator {
     
     logger.info("Block {}, Network {} TiB, miner {}, forged {}/{} blocks, {} TiB, commitment {}/TiB",
         height,
-        (double)genesisTarget/baseTarget,
+        (double)genesisTarget/capacityBaseTarget,
         BurstID.fromLong(generatorId).getID(),
         nBlocksMined, capacityEstimationBlocks, estimatedCapacityGb/1000D,
         BurstValue.fromPlanck(commitment).toFormattedString());

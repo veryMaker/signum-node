@@ -32,9 +32,9 @@ public interface Generator {
 
   BigInteger calculateHit(byte[] genSig, byte[] scoopData);
 
-  BigInteger calculateDeadline(BigInteger hit, long baseTarget, long commitment, long commitmentBaseTarget, int blockHeight);
+  BigInteger calculateDeadline(BigInteger hit, long capacityBaseTarget, long commitment, long averageCommitment, int blockHeight);
 
-  long calculateCommitment(long generatorId, long baseTarget, int height);
+  long calculateCommitment(long generatorId, long capacityBaseTarget, int height);
   
   interface GeneratorState {
     byte[] getPublicKey();
