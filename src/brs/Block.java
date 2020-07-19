@@ -203,7 +203,7 @@ public class Block {
   public long getAverageCommitment() {
     if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height)) {
       // Base target encoded as two floats, one for the commitment and the other the classical base target
-      float commitmentBaseTargetFloat = Float.intBitsToFloat((int)((baseTarget & 0xFFFFL) >> 32));
+      float commitmentBaseTargetFloat = Float.intBitsToFloat((int)((baseTarget & 0xFFFF0000L) >> 32));
       return (long)commitmentBaseTargetFloat;
     }
     return 0L;
