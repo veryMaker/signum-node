@@ -187,6 +187,10 @@ public class Block {
   }
 
   public long getBaseTarget() {
+    return baseTarget;
+  }
+  
+  public long getCapacityBaseTarget() {
     long capacityBaseTarget = baseTarget;
     if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height)) {
       // Base target encoded as two floats, one for the commitment and the other the classical base target

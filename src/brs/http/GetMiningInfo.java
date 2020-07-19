@@ -31,7 +31,8 @@ final class GetMiningInfo extends APIServlet.JsonRequestHandler {
     byte[] newGenSig = generator.calculateGenerationSignature(lastBlock.getGenerationSignature(), lastBlock.getGeneratorId());
 		
     response.addProperty("generationSignature", Convert.toHexString(newGenSig));
-    response.addProperty("baseTarget", Long.toString(lastBlock.getBaseTarget()));
+    response.addProperty("baseTarget", Long.toString(lastBlock.getCapacityBaseTarget()));
+    response.addProperty("averageCommitment", Long.toString(lastBlock.getAverageCommitment()));
 		
     return response;
   }

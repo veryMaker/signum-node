@@ -135,7 +135,8 @@ public class BlockServiceImpl implements BlockService {
         block.setPocTime(BigInteger.valueOf(0L));
       }
       else {
-        block.setCommitment(generator.calculateCommitment(block.getGeneratorId(), block.getBaseTarget(), block.getHeight()));
+        Block prevBlock = blockchain.getBlock(block.getPreviousBlockId());
+        block.setCommitment(generator.calculateCommitment(block.getGeneratorId(), prevBlock.getCapacityBaseTarget(), block.getHeight()));
         
     	if(block.getHeight() == checkPointHeight) {
        	    String checkPointHash = Burst.getPropertyService().getString(
@@ -265,7 +266,7 @@ public class BlockServiceImpl implements BlockService {
       block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(Convert.two64.divide(BigInteger.valueOf(newBaseTarget))));
     } else {
       Block itBlock = previousBlock;
-      BigInteger avgBaseTarget = BigInteger.valueOf(itBlock.getBaseTarget());
+      BigInteger avgBaseTarget = BigInteger.valueOf(itBlock.getCapacityBaseTarget());
       int blockCounter = 1;
       do {
         int previousHeight = itBlock.getHeight();
@@ -275,7 +276,7 @@ public class BlockServiceImpl implements BlockService {
         }
         blockCounter++;
         avgBaseTarget = (avgBaseTarget.multiply(BigInteger.valueOf(blockCounter))
-            .add(BigInteger.valueOf(itBlock.getBaseTarget())))
+            .add(BigInteger.valueOf(itBlock.getCapacityBaseTarget())))
             .divide(BigInteger.valueOf(blockCounter + 1L));
       } while (blockCounter < 24);
       long difTime = (long) block.getTimestamp() - itBlock.getTimestamp();
@@ -289,7 +290,7 @@ public class BlockServiceImpl implements BlockService {
         difTime = targetTimespan * 2;
       }
 
-      long curBaseTarget = previousBlock.getBaseTarget();
+      long curBaseTarget = previousBlock.getCapacityBaseTarget();
       long newBaseTarget = avgBaseTarget.multiply(BigInteger.valueOf(difTime))
           .divide(BigInteger.valueOf(targetTimespan)).longValue();
 

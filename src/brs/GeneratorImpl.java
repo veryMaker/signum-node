@@ -196,7 +196,7 @@ public class GeneratorImpl implements Generator {
 
       int scoopNum = calculateScoop(newGenSig, lastBlock.getHeight() + 1L);
 
-      baseTarget = lastBlock.getBaseTarget();
+      baseTarget = lastBlock.getCapacityBaseTarget();
       hit = calculateHit(accountId, nonce, newGenSig, scoopNum, lastBlock.getHeight() + 1);
       long commitmment = 0L;
       if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, lastBlock.getHeight() + 1)) {
