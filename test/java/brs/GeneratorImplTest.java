@@ -35,6 +35,7 @@ public class GeneratorImplTest {
         doReturn(exampleGenSig).when(block).getGenerationSignature();
         doReturn(exampleHeight).when(block).getHeight();
         doReturn(exampleBaseTarget).when(block).getBaseTarget();
+        doReturn(exampleBaseTarget).when(block).getCapacityBaseTarget();
 
         TimeService timeService = mock(TimeService.class);
 
