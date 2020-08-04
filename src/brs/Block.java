@@ -194,7 +194,7 @@ public class Block {
     long capacityBaseTarget = baseTarget;
     if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height)) {
       // Base target encoded as two floats, one for the commitment and the other the classical base target
-      float capacityBaseTargetFloat = Float.intBitsToFloat((int)(baseTarget & 0xFFFFL));
+      float capacityBaseTargetFloat = Float.intBitsToFloat((int)(baseTarget & 0xFFFFFFFFL));
       capacityBaseTarget = (long)capacityBaseTargetFloat;
     }
     return capacityBaseTarget;
@@ -203,14 +203,14 @@ public class Block {
   public long getAverageCommitment() {
     if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height)) {
       // Base target encoded as two floats, one for the commitment and the other the classical base target
-      float commitmentBaseTargetFloat = Float.intBitsToFloat((int)((baseTarget & 0xFFFF0000L) >> 32));
+      float commitmentBaseTargetFloat = Float.intBitsToFloat((int)((baseTarget) >> 32));
       return (long)commitmentBaseTargetFloat;
     }
-    return 0L;
+    return Constants.ONE_BURST;
   }
   
   public void setBaseTarget(long baseTargetCapacity, long averageCommitment) {
-    this.baseTarget = ((long)Float.floatToIntBits((float)baseTargetCapacity)) << 32 +
+    this.baseTarget = ((long)Float.floatToIntBits((float)baseTargetCapacity)) << 32 |
         ((long)Float.floatToIntBits((float)averageCommitment));
   }
 

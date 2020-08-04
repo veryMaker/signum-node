@@ -140,7 +140,9 @@ public class BlockServiceImpl implements BlockService {
         block.setPocTime(BigInteger.valueOf(0L));
       }
       else {
-        block.setCommitment(generator.calculateCommitment(block.getGeneratorId(), prevBlock.getCapacityBaseTarget(), block.getHeight()));
+        if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, block.getHeight())) {
+          block.setCommitment(generator.calculateCommitment(block.getGeneratorId(), prevBlock.getCapacityBaseTarget(), block.getHeight()));
+        }
         
     	if(block.getHeight() == checkPointHeight) {
        	    String checkPointHash = Burst.getPropertyService().getString(

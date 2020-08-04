@@ -25,7 +25,7 @@ public class GeneratorImplTest {
 
     private static final byte[] exampleGenSig = Convert.parseHexString("6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0");
     private static final long exampleBaseTarget = 70312;
-    private static final long exampleCommitmentBaseTarget = 70312;
+    private static final long exampleAverageCommitment = Constants.ONE_BURST * 10;
     private static final int exampleHeight = 500000;
 
     @Before
@@ -72,7 +72,7 @@ public class GeneratorImplTest {
     @Test
     public void testGeneratorCalculateNextDeadline() {
         BigInteger hit = generatorNextFork.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, generator.calculateScoop(exampleGenSig, exampleHeight), exampleHeight);
-        BigInteger deadline = generatorNextFork.calculateDeadline(hit, exampleBaseTarget, 1000*exampleCommitmentBaseTarget, exampleCommitmentBaseTarget, exampleHeight);
+        BigInteger deadline = generatorNextFork.calculateDeadline(hit, exampleBaseTarget, 1000*exampleAverageCommitment, exampleAverageCommitment, exampleHeight);
         assertEquals(BigInteger.valueOf(1235L), deadline);
     }
 
