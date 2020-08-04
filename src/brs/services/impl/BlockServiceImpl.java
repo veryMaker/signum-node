@@ -320,13 +320,11 @@ public class BlockServiceImpl implements BlockService {
       if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
         // update the average commitment based on 100 blocks past filter
         long curCommitment = previousBlock.getAverageCommitment();
-        curCommitment = Math.max(curCommitment, Constants.ONE_BURST);
         
         long newAvgCommitment = (curCommitment*99L + block.getCommitment())/100L;
+        // assuming a minimum value of 1 BURST
+        newAvgCommitment = Math.max(newAvgCommitment, Constants.ONE_BURST);
         block.setBaseTarget(newBaseTarget, newAvgCommitment);
-        
-        // TODO: check if we really need to add the cumulative difficulty
-        block.setCumulativeDifficulty(block.getCumulativeDifficulty().add(BigInteger.valueOf(newAvgCommitment)));
       }
     }
   }
