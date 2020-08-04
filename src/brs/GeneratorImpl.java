@@ -151,7 +151,7 @@ public class GeneratorImpl implements Generator {
       commitmentFactor = Math.min(4.0, commitmentFactor);
       commitmentFactor = Math.max(0.25, commitmentFactor);
       
-      double nextDeadline = deadline.doubleValue()*commitmentFactor;
+      double nextDeadline = deadline.doubleValue()/commitmentFactor;
       if(nextDeadline > 0) {
         // Avoid zero logarithm
         nextDeadline = Math.log(nextDeadline) * LN_SCALE;

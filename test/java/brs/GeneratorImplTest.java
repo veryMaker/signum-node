@@ -21,6 +21,7 @@ import static org.mockito.Mockito.mock;
 public class GeneratorImplTest {
     private Generator generator;
     private Generator generatorLnTime;
+    private Generator generatorNextFork;
 
     private static final byte[] exampleGenSig = Convert.parseHexString("6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0");
     private static final long exampleBaseTarget = 70312;
@@ -41,9 +42,11 @@ public class GeneratorImplTest {
 
         FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2);
         FluxCapacitor fluxCapacitorLnTime = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2, FluxValues.SODIUM);
+        FluxCapacitor fluxCapacitorNextFork = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2, FluxValues.NEXT_FORK);
 
         generator = new GeneratorImpl(blockchain, null, timeService, fluxCapacitor);
         generatorLnTime = new GeneratorImpl(blockchain, null, timeService, fluxCapacitorLnTime);
+        generatorNextFork = new GeneratorImpl(blockchain, null, timeService, fluxCapacitorNextFork);
     }
 
     @Test
@@ -68,9 +71,9 @@ public class GeneratorImplTest {
 
     @Test
     public void testGeneratorCalculateNextDeadline() {
-        BigInteger hit = generatorLnTime.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, generator.calculateScoop(exampleGenSig, exampleHeight), exampleHeight);
-        BigInteger deadline = generatorLnTime.calculateDeadline(hit, exampleBaseTarget, 1000*exampleCommitmentBaseTarget, exampleCommitmentBaseTarget, exampleHeight);
-        assertEquals(BigInteger.valueOf(1296L), deadline);
+        BigInteger hit = generatorNextFork.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, generator.calculateScoop(exampleGenSig, exampleHeight), exampleHeight);
+        BigInteger deadline = generatorNextFork.calculateDeadline(hit, exampleBaseTarget, 1000*exampleCommitmentBaseTarget, exampleCommitmentBaseTarget, exampleHeight);
+        assertEquals(BigInteger.valueOf(1235L), deadline);
     }
 
     @Test
