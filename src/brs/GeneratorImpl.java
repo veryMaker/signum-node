@@ -147,7 +147,7 @@ public class GeneratorImpl implements Generator {
     BigInteger deadline = hit.divide(BigInteger.valueOf(capacityBaseTarget));
     if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, blockHeight)) {
       double commitmentFactor = ((double)commitment)/averageCommitment;
-      commitmentFactor = Math.pow(commitmentFactor, 0.1505);
+      commitmentFactor = Math.pow(commitmentFactor, 0.2);
       commitmentFactor = Math.min(4.0, commitmentFactor);
       commitmentFactor = Math.max(0.25, commitmentFactor);
       
