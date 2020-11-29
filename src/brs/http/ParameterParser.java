@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.stream.Collectors;
 
 import static brs.http.JSONResponses.*;
 import static brs.http.common.Parameters.*;
@@ -209,15 +208,13 @@ final class ParameterParser {
       String creationBytes = req.getParameter(CREATION_BYTES_PARAMETER);
       if(creationBytes == null) {
         // Check the body for the creationBytes as an alternative
-        creationBytes = req.getReader().lines().collect(Collectors.joining());
+        creationBytes = req.getReader().readLine();
         creationBytes = creationBytes.replace("\"", "");
       }
       return Convert.parseHexString(creationBytes);
     } catch (RuntimeException | IOException e) {
       throw new ParameterException(INCORRECT_CREATION_BYTES);
     }
-
-
   }
 
   public static String getATLong(HttpServletRequest req) {
