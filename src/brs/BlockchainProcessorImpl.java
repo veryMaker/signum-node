@@ -772,20 +772,14 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
   
   private void checkDatabaseState() {
-    logger.info("Checking database state (it can take a minute or two)...");
-    long totalEffectiveBalance = 0;
+    logger.info("Checking database state...");
     long totalMined = 0;
     
     for (int i=0; i <= blockchain.getHeight(); i++) {
       totalMined += BlockServiceImpl.getBlockReward(i);
     }
 
-    for (Account account : accountService.getAllAccounts(0, -1)) {
-      long effectiveBalanceBURST = account.getBalanceNQT();
-      if (effectiveBalanceBURST > 0 && account.getId() != 0) {
-        totalEffectiveBalance += effectiveBalanceBURST;
-      }
-    }
+    long totalEffectiveBalance = accountService.getAllAccountsBalance();
     for (Escrow escrow : escrowService.getAllEscrowTransactions()) {
       totalEffectiveBalance += escrow.getAmountNQT();
     }
