@@ -137,14 +137,25 @@ public class SqlATStore implements ATStore {
       ).fetch().getValues(AT.ID);
     });
   }
-
+  
   @Override
   public brs.at.AT getAT(Long id) {
+    return getAT(id, -1);
+  }
+
+  @Override
+  public brs.at.AT getAT(Long id, int height) {
     return Db.useDSLContext(ctx -> {
-      Record record = ctx.select(AT.fields()).select(AT_STATE.fields()).from(AT.join(AT_STATE).on(AT.ID.eq(AT_STATE.AT_ID))).
-              where(AT.LATEST.isTrue().
-                      and(AT_STATE.LATEST.isTrue()).
-                      and(AT.ID.eq(id))).fetchOne();
+      SelectJoinStep<Record> select = ctx.select(AT.fields()).select(AT_STATE.fields()).from(AT.join(AT_STATE)
+          .on(AT.ID.eq(AT_STATE.AT_ID)));
+      SelectConditionStep<Record> where = null;
+      if(height > 0) {
+        where = select.where(AT.LATEST.isTrue()).and(AT_STATE.HEIGHT.equal(height)).and(AT.ID.eq(id));
+      }
+      else {
+        where = select.where(AT.LATEST.isTrue()).and(AT_STATE.LATEST.isTrue()).and(AT.ID.eq(id));
+      }
+      Record record = where.fetchOne();
       if (record == null) {
         return null;
       }

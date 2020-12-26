@@ -343,10 +343,21 @@ public class ParameterServiceImpl implements ParameterService {
     if (atValue == null) {
       throw new ParameterException(MISSING_AT);
     }
+    String heightValue = Convert.emptyToNull(req.getParameter(HEIGHT_PARAMETER));
+    int height = -1;
+    if (heightValue != null) {
+      try {
+        height = Integer.parseInt(heightValue);
+        if (height < 0 || height > blockchain.getHeight())
+          throw new ParameterException(INCORRECT_HEIGHT);
+      } catch (RuntimeException e) {
+        throw new ParameterException(INCORRECT_HEIGHT);
+      }
+    }
     AT at;
     try {
       Long atId = Convert.parseUnsignedLong(atValue);
-      at = atService.getAT(atId);
+      at = atService.getAT(atId, height);
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_AT);
     }
