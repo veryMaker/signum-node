@@ -107,7 +107,7 @@ public class AT extends AtMachineState {
     }
 
     public static AT getAT(Long id) {
-        return Burst.getStores().getAtStore().getAT(id);
+        return Burst.getStores().getAtStore().getAT(id, -1);
     }
 
     public static void addAT(Long atId, Long senderAccountId, String name, String description, byte[] creationBytes, int height) {
