@@ -102,8 +102,8 @@ public class BlockchainImpl implements Blockchain {
   }
   
   @Override
-  public int getBlocksCount(Account account, int limit) {
-    return blockchainStore.getBlocksCount(account, limit);
+  public int getBlocksCount(Account account, int from, int to) {
+    return blockchainStore.getBlocksCount(account, from, to);
   }
 
   @Override

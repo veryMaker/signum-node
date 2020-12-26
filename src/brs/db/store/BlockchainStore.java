@@ -21,7 +21,7 @@ public interface BlockchainStore {
 
   Collection<Block> getBlocks(Account account, int timestamp, int from, int to);
 
-  int getBlocksCount(Account account, int limit);
+  int getBlocksCount(Account account, int from, int to);
 
   Collection<Block> getBlocks(Result<BlockRecord> blockRecords);
 

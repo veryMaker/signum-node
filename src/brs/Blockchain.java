@@ -24,7 +24,7 @@ public interface Blockchain {
 
   Collection<Block> getBlocks(Account account, int timestamp, int from, int to);
 
-  int getBlocksCount(Account account, int limit);
+  int getBlocksCount(Account account, int from, int to);
 
   Collection<Long> getBlockIdsAfter(long blockImplId, int limit);
 

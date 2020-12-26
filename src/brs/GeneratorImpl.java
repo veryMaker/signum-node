@@ -267,7 +267,7 @@ public class GeneratorImpl implements Generator {
   @Override
   public long calculateCommitment(long generatorId, long capacityBaseTarget, int height) {
     // Check on the number of blocks mined to estimate the capacity and also the committed balance
-    int nBlocksMined = 0;
+    int nBlocksMined = 1;
     long committedBalance = 0;
     int capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS;
     // TODO: consider making the getAccount already return the committed balance
@@ -279,15 +279,18 @@ public class GeneratorImpl implements Generator {
 
         if(committedBalance > 0) {
           // First we try to estimate the capacity using recent blocks
-          nBlocksMined = blockchain.getBlocksCount(account, capacityEstimationBlocks - 1);
+          nBlocksMined = blockchain.getBlocksCount(account,
+              height - capacityEstimationBlocks - Constants.MIN_MAX_ROLLBACK,
+              height - Constants.MIN_MAX_ROLLBACK);
           if(nBlocksMined < 3) {
             // Use more blocks in the past to make the estimation if that is necessary
             capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
-            nBlocksMined = blockchain.getBlocksCount(account, capacityEstimationBlocks - 1);        
+            nBlocksMined = blockchain.getBlocksCount(account,
+                height - capacityEstimationBlocks - Constants.MIN_MAX_ROLLBACK,
+                height - Constants.MIN_MAX_ROLLBACK);        
           }
         }
     }
-    nBlocksMined++; // The current block being mined
     
     long genesisTarget = Constants.INITIAL_BASE_TARGET;
     if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
