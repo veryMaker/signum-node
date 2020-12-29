@@ -13,6 +13,8 @@ import java.util.Collection;
 public interface AccountStore {
 
   VersionedBatchEntityTable<Account> getAccountTable();
+  
+  long getAllAccountsBalance();
 
   VersionedEntityTable<Account.RewardRecipientAssignment> getRewardRecipientAssignmentTable();
 

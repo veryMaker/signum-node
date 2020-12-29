@@ -111,6 +111,11 @@ public class AccountServiceImpl implements AccountService {
   public Collection<Account> getAllAccounts(int from, int to) {
     return accountTable.getAll(from, to);
   }
+  
+  @Override
+  public long getAllAccountsBalance() {
+    return accountStore.getAllAccountsBalance();
+  }
 
   @Override
   public Account getOrAddAccount(long id) {

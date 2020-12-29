@@ -1,5 +1,7 @@
 package brs;
 
+import brs.Attachment.PaymentMultiOutCreation;
+import brs.Attachment.PaymentMultiSameOutCreation;
 import brs.at.AT;
 import brs.at.AtBlock;
 import brs.at.AtController;
@@ -148,20 +150,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
     blockListeners.addListener(block -> transactionProcessor.revalidateUnconfirmedTransactions(), Event.BLOCK_PUSHED);
 
-    if (trimDerivedTables) {
-      blockListeners.addListener(block -> {
-        if (block.getHeight() % 1440 == 0) {
-          lastTrimHeight.set(Math.max(block.getHeight() - Constants.MAX_ROLLBACK, 0));
-          if (lastTrimHeight.get() > 0) {
-            this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get()));
-          }
-        }
-      }, Event.AFTER_BLOCK_APPLY);
-    }
-
     addGenesisBlock();
     if(Boolean.FALSE.equals(propertyService.getBoolean(Props.DB_SKIP_CHECK))) {
-      checkDatabaseState();
+      if(checkDatabaseState() != 0) {
+        logger.error("Database is inconsistent, try to pop off 1000 blocks or more or sync from empty. Alternatively add '{} = true' at your own risk.", Props.DB_SKIP_CHECK.getName());
+        System.exit(-1);
+      }
     }
 
     Runnable getMoreBlocksThread = new Runnable() {
@@ -771,31 +765,46 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     blockchain.setLastBlock(block);
   }
   
-  private void checkDatabaseState() {
-    logger.info("Checking database state (it can take a minute or two)...");
-    long totalEffectiveBalance = 0;
+  private int checkDatabaseState() {
+    logger.trace("Checking database state...");
     long totalMined = 0;
     
     for (int i=0; i <= blockchain.getHeight(); i++) {
       totalMined += BlockServiceImpl.getBlockReward(i);
     }
 
-    for (Account account : accountService.getAllAccounts(0, -1)) {
-      long effectiveBalanceBURST = account.getBalanceNQT();
-      if (effectiveBalanceBURST > 0 && account.getId() != 0) {
-        totalEffectiveBalance += effectiveBalanceBURST;
+    long totalEffectiveBalance = accountService.getAllAccountsBalance();
+    // Check the amount burnt with multi-out transactions the the 0L address
+    long totalBurnt = 0;
+    Account nullAccount = accountService.getOrAddAccount(0L);
+    for (Transaction transaction : blockchain.getTransactions(nullAccount, (byte)0, (byte)1, 0, true)) {
+      Attachment attachment = transaction.getAttachment();
+      if(attachment instanceof PaymentMultiOutCreation) {
+        PaymentMultiOutCreation multiOut = (PaymentMultiOutCreation) attachment;
+        for (List<Long> recipient : multiOut.getRecipients()) {
+          if(recipient.get(0) == nullAccount.getId())
+            totalBurnt += recipient.get(1);
+        }
       }
     }
+    for (Transaction transaction : blockchain.getTransactions(nullAccount, (byte)0, (byte)2, 0, true)) {
+      Attachment attachment = transaction.getAttachment();
+      if(attachment instanceof PaymentMultiSameOutCreation) {
+        PaymentMultiSameOutCreation multiOut = (PaymentMultiSameOutCreation) attachment;
+        for (Long recipient : multiOut.getRecipients()) {
+          if(recipient == nullAccount.getId())
+            totalBurnt += transaction.getAmountNQT()/multiOut.getRecipients().size();
+        }
+      }
+    }
+    
     for (Escrow escrow : escrowService.getAllEscrowTransactions()) {
       totalEffectiveBalance += escrow.getAmountNQT();
     }
     
-    logger.info("Total mined {}, total effective on wallets {}", totalMined, totalEffectiveBalance);
-    
-    if(totalEffectiveBalance > totalMined) {
-      logger.info("Database is inconsistent, please sync from empty. Alternatively, pop off some blocks or add '{} = true' at your own risk.", Props.DB_SKIP_CHECK.getName());
-      System.exit(-1);
-    }
+    totalEffectiveBalance += totalBurnt;
+    logger.trace("Total mined {}, total effective+burnt {}", totalMined, totalEffectiveBalance);
+    return Long.compare(totalMined, totalEffectiveBalance);
   }
 
   private void addGenesisBlock() {
@@ -973,6 +982,18 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         accept(block, remainingAmount, remainingFee);
         derivedTableManager.getDerivedTables().forEach(DerivedTable::finish);
         stores.commitTransaction();
+        if (trimDerivedTables && block.getHeight() % 1440 == 0) {
+          if(checkDatabaseState()==0) {
+            // Only trim a consistent database, otherwise it would be impossible to fix it by rollback
+            lastTrimHeight.set(Math.max(block.getHeight() - Constants.MAX_ROLLBACK, 0));
+            if (lastTrimHeight.get() > 0) {
+              this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get()));
+            }
+          }
+          else {
+            logger.warn("Balance mismatch on the database, please try popping off to block {}", block.getHeight() - Constants.MAX_ROLLBACK);
+          }
+        }
       } catch (BlockNotAcceptedException | ArithmeticException e) {
         stores.rollbackTransaction();
         blockchain.setLastBlock(previousLastBlock);
