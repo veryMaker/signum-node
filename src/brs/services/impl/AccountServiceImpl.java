@@ -65,6 +65,11 @@ public class AccountServiceImpl implements AccountService {
   public Account getAccount(long id) {
     return id == 0 ? null : accountTable.get(accountBurstKeyFactory.newKey(id));
   }
+  
+  @Override
+  public Account getNullAccount() {
+    return accountTable.get(accountBurstKeyFactory.newKey(0L));
+  }
 
   @Override
   public Account getAccount(long id, int height) {

@@ -164,6 +164,11 @@ public class BlockchainImpl implements Blockchain {
   public Collection<Transaction> getAllTransactions() {
     return blockchainStore.getAllTransactions();
   }
+  
+  @Override
+  public long getAtBurnTotal(){
+    return blockchainStore.getAtBurnTotal();
+  }
 
   @Override
   public Collection<Transaction> getTransactions(Account account, byte type, byte subtype, int blockTimestamp, boolean includeIndirectIncoming) {
