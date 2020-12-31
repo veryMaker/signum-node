@@ -199,17 +199,21 @@ public class BurstGUI extends JFrame {
 //    	JButton openPhoenixButton = new JButton("Open Phoenix Wallet", IconFontSwing.buildIcon(FontAwesome.FIRE, 18, iconColor));
     	JButton openWebUiButton = new JButton(openWebUiItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.WINDOW_RESTORE, 18, iconColor));
     	JButton editConfButton = new JButton("Edit conf file", IconFontSwing.buildIcon(FontAwesome.PENCIL, 18, iconColor));
-    	JButton popOffButton = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
+        JButton popOffButton = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
+        JButton popOff1KButton = new JButton("Pop off 1000 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
     	
     	openWebUiButton.addActionListener(e -> openWebUi());
     	editConfButton.addActionListener(e -> editConf());
-    	popOffButton.addActionListener(e -> popOff());
+        popOffButton.addActionListener(e -> popOff(100));
+        popOff1KButton.addActionListener(e -> popOff(1000));
  
 //    	toolBar.add(openPhoenixButton);
     	toolBar.add(openWebUiButton);
     	toolBar.add(editConfButton);
-    	if(Burst.getPropertyService().getBoolean(Props.API_DEBUG))
-    		toolBar.add(popOffButton);
+    	if(Burst.getPropertyService().getBoolean(Props.API_DEBUG)) {
+          toolBar.add(popOffButton);
+          toolBar.add(popOff1KButton);
+    	}
 
     	openWebUiItem.addActionListener(e -> openWebUi());
     	showItem.addActionListener(e -> showWindow());
@@ -240,10 +244,10 @@ public class BurstGUI extends JFrame {
     	setVisible(true);
     }
     
-    private void popOff() {
+    private void popOff(int blocks) {
     	Block lastBlock = Burst.getBlockchain().getLastBlock();
     	LOGGER.info("Pop off requested, this can take a while...");
-    	new Thread(() -> Burst.getBlockchainProcessor().popOffTo(lastBlock.getHeight() - 100)).start();
+    	new Thread(() -> Burst.getBlockchainProcessor().popOffTo(lastBlock.getHeight() - blocks)).start();
     }
     
     private void editConf() {
