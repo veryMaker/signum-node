@@ -1001,7 +1001,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           }
           else {
             lastTrimHeight.set(0);
-            logger.warn("Balance mismatch on the database, please try popping off to block {}", block.getHeight() - Constants.MAX_ROLLBACK);
+            logger.warn("Balance mismatch on the database, please try popping off to block {}", getMinRollbackHeight());
           }
         }
       } catch (BlockNotAcceptedException | ArithmeticException e) {
