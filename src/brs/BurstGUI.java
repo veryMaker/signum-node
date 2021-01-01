@@ -200,19 +200,19 @@ public class BurstGUI extends JFrame {
     	JButton openWebUiButton = new JButton(openWebUiItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.WINDOW_RESTORE, 18, iconColor));
     	JButton editConfButton = new JButton("Edit conf file", IconFontSwing.buildIcon(FontAwesome.PENCIL, 18, iconColor));
         JButton popOffButton = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
-        JButton popOff1KButton = new JButton("Pop off 1000 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
+        JButton popOffMaxButton = new JButton("Pop off max", IconFontSwing.buildIcon(FontAwesome.FAST_BACKWARD, 18, iconColor));
     	
     	openWebUiButton.addActionListener(e -> openWebUi());
     	editConfButton.addActionListener(e -> editConf());
         popOffButton.addActionListener(e -> popOff(100));
-        popOff1KButton.addActionListener(e -> popOff(1000));
+        popOffMaxButton.addActionListener(e -> popOff(0));
  
 //    	toolBar.add(openPhoenixButton);
     	toolBar.add(openWebUiButton);
     	toolBar.add(editConfButton);
     	if(Burst.getPropertyService().getBoolean(Props.API_DEBUG)) {
           toolBar.add(popOffButton);
-          toolBar.add(popOff1KButton);
+          toolBar.add(popOffMaxButton);
     	}
 
     	openWebUiItem.addActionListener(e -> openWebUi());
@@ -245,9 +245,9 @@ public class BurstGUI extends JFrame {
     }
     
     private void popOff(int blocks) {
-    	Block lastBlock = Burst.getBlockchain().getLastBlock();
     	LOGGER.info("Pop off requested, this can take a while...");
-    	new Thread(() -> Burst.getBlockchainProcessor().popOffTo(lastBlock.getHeight() - blocks)).start();
+    	int height = blocks > 0 ? Burst.getBlockchain().getLastBlock().getHeight() - blocks : Burst.getBlockchainProcessor().getMinRollbackHeight();
+    	new Thread(() -> Burst.getBlockchainProcessor().popOffTo(height)).start();
     }
     
     private void editConf() {
