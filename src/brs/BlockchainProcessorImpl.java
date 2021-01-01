@@ -151,7 +151,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     blockListeners.addListener(block -> transactionProcessor.revalidateUnconfirmedTransactions(), Event.BLOCK_PUSHED);
     if (trimDerivedTables) {    
       blockListeners.addListener(block -> { 
-        if (block.getHeight() % 1440 == 0) {    
+        if (block.getHeight() % Constants.MAX_ROLLBACK == 0) {
           if (lastTrimHeight.get() > 0) {   
             this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get())); 
           } 
@@ -161,7 +161,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     addGenesisBlock();
     if(Boolean.FALSE.equals(propertyService.getBoolean(Props.DB_SKIP_CHECK))) {
       if(checkDatabaseState() != 0) {
-        logger.warn("Database is inconsistent, try to pop off 1000 blocks or more or sync from empty.");
+        logger.warn("Database is inconsistent, try to pop off to block height {} or sync from empty.", getMinRollbackHeight());
       }
     }
 
@@ -994,7 +994,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         accept(block, remainingAmount, remainingFee);
         derivedTableManager.getDerivedTables().forEach(DerivedTable::finish);
         stores.commitTransaction();
-        if (trimDerivedTables && block.getHeight() % 1440 == 0) {
+        if (trimDerivedTables && block.getHeight() % Constants.MAX_ROLLBACK == 0) {
           if(checkDatabaseState()==0) {
             // Only trim a consistent database, otherwise it would be impossible to fix it by roll back
             lastTrimHeight.set(Math.max(block.getHeight() - Constants.MAX_ROLLBACK, 0));
