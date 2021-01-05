@@ -10,8 +10,8 @@ and fair Proof-of-Capacity (PoC) consensus algorithm.
 
 This wallet version is developed and maintained by the Burst Apps Team (BAT). The two supported database backends are:
 
-- MariaDB (recommended)
-- H2 (embedded, easier install)
+- H2 (embedded, recommended)
+- MariaDB (advanced users)
 
 ## Network Features
 
@@ -40,9 +40,9 @@ This wallet version is developed and maintained by the Burst Apps Team (BAT). Th
 
 **NOTE: `burst.sh` is now deprecated and is not included on this release.**
 
-### Java 8 (Recommended) or higher
+### Java 64-bit 8 (Recommended) or higher
 
-You need Java 8 (recommended) or higher installed. To check your java version, run `java -version`. You should get an output similar to the following:
+You need Java 64-bit 8 (recommended) or higher installed. To check your java version, run `java -version`. You should get an output similar to the following:
 
 ```text
 java version "1.8.0_181"
@@ -69,22 +69,12 @@ DB.Password=YOUR_PASSWORD
 
 ## Installation
 
-You can manually install using the following steps, or by using the pre-packaged options below.
-
-### Manually installing - All Platforms
-
-Grab the latest release (Or, if you prefer, compile yourself using the instructions below)
+Grab the latest [release](https://github.com/burst-apps-team/burstcoin/releases) (or, if you prefer, compile yourself using the instructions below)
 
 In the conf directory, copy `brs-default.properties` into a new file named `brs.properties` and modify this file to suit your needs (See "Configuration" section below)
 
 To run BRS, double click on `burst.exe` (if on Windows) or run `java -jar burst.jar`.
 On most systems this will show you a monitoring window and will create a tray icon to show that BRS is running. To disable this, instead run `java -jar burst.jar --headless`.
-
-### Installation Packages
-
-#### Windows
-
-[QBundle](https://github.com/burst-apps-team/qbundle) is a tool which will automatically download any required files and tools and manage BRS for you. This is recommended for users who do not want to learn how to setup BRS.
 
 ## Configuration
 
