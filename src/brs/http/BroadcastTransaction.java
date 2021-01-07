@@ -37,6 +37,18 @@ public final class BroadcastTransaction extends APIServlet.JsonRequestHandler {
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     String transactionBytes = Convert.emptyToNull(req.getParameter(TRANSACTION_BYTES_PARAMETER));
+    if(transactionBytes == null) {
+      // Check the body
+      try {
+        transactionBytes = Convert.emptyToNull(req.getReader().readLine());
+        if(transactionBytes != null) {
+          transactionBytes = transactionBytes.replace("\"", "");
+        }
+      }
+      catch (Exception e) {
+        transactionBytes = null;
+      }
+    }
     String transactionJSON = Convert.emptyToNull(req.getParameter(TRANSACTION_JSON_PARAMETER));
     Transaction transaction = parameterService.parseTransaction(transactionBytes, transactionJSON);
     JsonObject response = new JsonObject();

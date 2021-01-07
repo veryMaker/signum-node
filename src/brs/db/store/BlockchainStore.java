@@ -32,6 +32,8 @@ public interface BlockchainStore {
   int getTransactionCount();
 
   Collection<Transaction> getAllTransactions();
+  
+  long getAtBurnTotal();
 
   Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype,
                                                  int blockTimestamp, int from, int to, boolean includeIndirectIncoming);

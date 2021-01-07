@@ -1,5 +1,7 @@
 package brs;
 
+import brs.Attachment.PaymentMultiOutCreation;
+import brs.Attachment.PaymentMultiSameOutCreation;
 import brs.at.AT;
 import brs.at.AtBlock;
 import brs.at.AtController;
@@ -18,6 +20,7 @@ import brs.peer.Peers;
 import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.*;
+import brs.services.impl.BlockServiceImpl;
 import brs.statistics.StatisticsManagerImpl;
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
@@ -149,19 +152,17 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     }, Event.BLOCK_PUSHED);
 
     blockListeners.addListener(block -> transactionProcessor.revalidateUnconfirmedTransactions(), Event.BLOCK_PUSHED);
-
-    if (trimDerivedTables) {
-      blockListeners.addListener(block -> {
-        if (block.getHeight() % 1440 == 0) {
-          lastTrimHeight.set(Math.max(block.getHeight() - Constants.MAX_ROLLBACK, 0));
-          if (lastTrimHeight.get() > 0) {
-            this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get()));
-          }
-        }
-      }, Event.AFTER_BLOCK_APPLY);
+    if (trimDerivedTables) {    
+      blockListeners.addListener(block -> { 
+        if (block.getHeight() % Constants.MAX_ROLLBACK == 0 && lastTrimHeight.get() > 0) {   
+            this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get())); 
+        }   
+      }, Event.AFTER_BLOCK_APPLY);  
     }
-
     addGenesisBlock();
+    if(Boolean.FALSE.equals(propertyService.getBoolean(Props.DB_SKIP_CHECK)) && checkDatabaseState() != 0) {
+      logger.warn("Database is inconsistent, try to pop off to block height {} or sync from empty.", getMinRollbackHeight());
+    }
 
     Runnable getMoreBlocksThread = new Runnable() {
       private JsonElement getCumulativeDifficultyRequest;
@@ -223,6 +224,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               if (betterCumulativeDifficulty.compareTo(curCumulativeDifficulty) <= 0) {
                 return;
               }
+              logger.trace("Got a better cumulative difficulty {} than current {}.", betterCumulativeDifficulty, curCumulativeDifficulty);
 
               long commonBlockId = Genesis.GENESIS_BLOCK_ID;
               long cacheLastBlockId = downloadCache.getLastBlockId();
@@ -780,6 +782,53 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     blockchainStore.addBlock(block);
     blockchain.setLastBlock(block);
   }
+  
+  private int checkDatabaseState() {
+    logger.trace("Checking database state...");
+    long totalMined = 0;
+    
+    for (int i=0; i <= blockchain.getHeight(); i++) {
+      totalMined += BlockServiceImpl.getBlockReward(i);
+    }
+
+    long totalEffectiveBalance = accountService.getAllAccountsBalance();
+    // Check the amount burnt with multi-out transactions the the 0L address
+    long totalBurnt = 0;
+    Account nullAccount = accountService.getNullAccount();
+    if(nullAccount != null) {
+      for (Transaction transaction : blockchain.getTransactions(nullAccount, (byte)0, (byte)1, 0, true)) {
+        Attachment attachment = transaction.getAttachment();
+        if(attachment instanceof PaymentMultiOutCreation) {
+          PaymentMultiOutCreation multiOut = (PaymentMultiOutCreation) attachment;
+          for (List<Long> recipient : multiOut.getRecipients()) {
+            if(recipient.get(0) == nullAccount.getId())
+              totalBurnt += recipient.get(1);
+          }
+        }
+      }
+      for (Transaction transaction : blockchain.getTransactions(nullAccount, (byte)0, (byte)2, 0, true)) {
+        Attachment attachment = transaction.getAttachment();
+        if(attachment instanceof PaymentMultiSameOutCreation) {
+          PaymentMultiSameOutCreation multiOut = (PaymentMultiSameOutCreation) attachment;
+          for (Long recipient : multiOut.getRecipients()) {
+            if(recipient == nullAccount.getId())
+              totalBurnt += transaction.getAmountNQT()/multiOut.getRecipients().size();
+          }
+        }
+      }
+      totalBurnt += blockchain.getAtBurnTotal();
+    }
+    
+    for (Escrow escrow : escrowService.getAllEscrowTransactions()) {
+      totalEffectiveBalance += escrow.getAmountNQT();
+    }
+    
+    totalEffectiveBalance += totalBurnt;
+    if(totalEffectiveBalance != totalMined) {
+      logger.warn("Block {}, total mined {}, total effective+burnt {}", blockchain.getHeight(), totalMined, totalEffectiveBalance);      
+    }
+    return Long.compare(totalMined, totalEffectiveBalance);
+  }
 
   private void addGenesisBlock() {
     if (blockDb.hasBlock(Genesis.GENESIS_BLOCK_ID)) {
@@ -956,6 +1005,16 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         accept(block, remainingAmount, remainingFee);
         derivedTableManager.getDerivedTables().forEach(DerivedTable::finish);
         stores.commitTransaction();
+        if (trimDerivedTables && block.getHeight() % Constants.MAX_ROLLBACK == 0) {
+          if(checkDatabaseState()==0) {
+            // Only trim a consistent database, otherwise it would be impossible to fix it by roll back
+            lastTrimHeight.set(Math.max(block.getHeight() - Constants.MAX_ROLLBACK, 0));
+          }
+          else {
+            lastTrimHeight.set(0);
+            logger.warn("Balance mismatch on the database, please try popping off to block {}", getMinRollbackHeight());
+          }
+        }
       } catch (BlockNotAcceptedException | ArithmeticException e) {
         stores.rollbackTransaction();
         blockchain.setLastBlock(previousLastBlock);
@@ -1142,6 +1201,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           Map<Long, Map<Long, Transaction>> unconfirmedTransactionsOrderedBySlotThenPriority = new HashMap<>();
             inclusionCandidates.collect(Collectors.toMap(Function.identity(), priorityCalculator::applyAsLong)).forEach((transaction, priority) -> {
             long slot = (transaction.getFeeNQT() - (transaction.getFeeNQT() % FEE_QUANT)) / FEE_QUANT;
+            slot = Math.min(Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS), slot);
             unconfirmedTransactionsOrderedBySlotThenPriority.computeIfAbsent(slot, k -> new HashMap<>());
             unconfirmedTransactionsOrderedBySlotThenPriority.get(slot).put(priority, transaction);
           });

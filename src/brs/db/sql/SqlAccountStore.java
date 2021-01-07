@@ -9,6 +9,7 @@ import brs.db.store.AccountStore;
 import brs.db.store.DerivedTableManager;
 import brs.util.Convert;
 import org.jooq.*;
+import org.jooq.impl.DSL;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
@@ -144,6 +145,13 @@ public class SqlAccountStore implements AccountStore {
   @Override
   public VersionedEntityTable<Account.AccountAsset> getAccountAssetTable() {
     return accountAssetTable;
+  }
+  
+  @Override
+  public long getAllAccountsBalance() {
+    return Db.useDSLContext(ctx -> {
+      return ctx.select(DSL.sum(ACCOUNT.BALANCE)).from(ACCOUNT).where(ACCOUNT.ID.ne(0L)).and(ACCOUNT.LATEST.isTrue()).fetchOneInto(long.class);
+    });
   }
 
   @Override
