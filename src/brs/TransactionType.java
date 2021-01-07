@@ -221,6 +221,13 @@ public abstract class TransactionType {
     if (senderAccount.getUnconfirmedBalanceNQT() < totalAmountNQT) {
       return false;
     }
+    if (fluxCapacitor.getValue(FluxValues.NEXT_FORK, transaction.getHeight())) {
+      int blocksMined = blockchain.getBlocksCount(senderAccount, transaction.getHeight()-Constants.MIN_MAX_ROLLBACK/2, transaction.getHeight());
+      if (blocksMined > 0) {
+        // Block forger can only move funds after 2 days
+        return false;
+      }
+    }
     accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
     if (!applyAttachmentUnconfirmed(transaction, senderAccount)) {
       if (logger.isTraceEnabled()) {
