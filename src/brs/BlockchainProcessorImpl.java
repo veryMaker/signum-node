@@ -151,18 +151,14 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     blockListeners.addListener(block -> transactionProcessor.revalidateUnconfirmedTransactions(), Event.BLOCK_PUSHED);
     if (trimDerivedTables) {    
       blockListeners.addListener(block -> { 
-        if (block.getHeight() % Constants.MAX_ROLLBACK == 0) {
-          if (lastTrimHeight.get() > 0) {   
+        if (block.getHeight() % Constants.MAX_ROLLBACK == 0 && lastTrimHeight.get() > 0) {   
             this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get())); 
-          } 
         }   
       }, Event.AFTER_BLOCK_APPLY);  
     }
     addGenesisBlock();
-    if(Boolean.FALSE.equals(propertyService.getBoolean(Props.DB_SKIP_CHECK))) {
-      if(checkDatabaseState() != 0) {
-        logger.warn("Database is inconsistent, try to pop off to block height {} or sync from empty.", getMinRollbackHeight());
-      }
+    if(Boolean.FALSE.equals(propertyService.getBoolean(Props.DB_SKIP_CHECK)) && checkDatabaseState() != 0) {
+      logger.warn("Database is inconsistent, try to pop off to block height {} or sync from empty.", getMinRollbackHeight());
     }
 
     Runnable getMoreBlocksThread = new Runnable() {
