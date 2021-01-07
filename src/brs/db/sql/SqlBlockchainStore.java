@@ -10,6 +10,7 @@ import brs.db.store.IndirectIncomingStore;
 import brs.schema.tables.records.BlockRecord;
 import brs.schema.tables.records.TransactionRecord;
 import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -108,6 +109,17 @@ public class SqlBlockchainStore implements BlockchainStore {
   public Collection<Transaction> getAllTransactions() {
     return Db.useDSLContext(ctx -> {
       return getTransactions(ctx, ctx.selectFrom(TRANSACTION).orderBy(TRANSACTION.DB_ID.asc()).fetch());
+    });
+  }
+
+  @Override
+  public long getAtBurnTotal() {
+    return Db.useDSLContext(ctx -> {
+      return ctx.select(DSL.sum(TRANSACTION.AMOUNT)).from(TRANSACTION)
+          .where(TRANSACTION.RECIPIENT_ID.isNull())
+          .and(TRANSACTION.AMOUNT.gt(0L))
+          .and(TRANSACTION.TYPE.equal((byte)22))
+          .fetchOneInto(long.class);
     });
   }
 

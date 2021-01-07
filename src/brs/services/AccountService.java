@@ -18,6 +18,8 @@ public interface AccountService {
   Account getAccount(long id);
 
   Account getAccount(long id, int height);
+  
+  Account getNullAccount();
 
   Account getAccount(byte[] publicKey);
 

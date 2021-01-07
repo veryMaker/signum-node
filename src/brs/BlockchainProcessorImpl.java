@@ -149,13 +149,16 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     }, Event.BLOCK_PUSHED);
 
     blockListeners.addListener(block -> transactionProcessor.revalidateUnconfirmedTransactions(), Event.BLOCK_PUSHED);
-
+    if (trimDerivedTables) {    
+      blockListeners.addListener(block -> { 
+        if (block.getHeight() % Constants.MAX_ROLLBACK == 0 && lastTrimHeight.get() > 0) {   
+            this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get())); 
+        }   
+      }, Event.AFTER_BLOCK_APPLY);  
+    }
     addGenesisBlock();
-    if(Boolean.FALSE.equals(propertyService.getBoolean(Props.DB_SKIP_CHECK))) {
-      if(checkDatabaseState() != 0) {
-        logger.error("Database is inconsistent, try to pop off 1000 blocks or more or sync from empty. Alternatively add '{} = true' at your own risk.", Props.DB_SKIP_CHECK.getName());
-        System.exit(-1);
-      }
+    if(Boolean.FALSE.equals(propertyService.getBoolean(Props.DB_SKIP_CHECK)) && checkDatabaseState() != 0) {
+      logger.warn("Database is inconsistent, try to pop off to block height {} or sync from empty.", getMinRollbackHeight());
     }
 
     Runnable getMoreBlocksThread = new Runnable() {
@@ -776,26 +779,29 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     long totalEffectiveBalance = accountService.getAllAccountsBalance();
     // Check the amount burnt with multi-out transactions the the 0L address
     long totalBurnt = 0;
-    Account nullAccount = accountService.getOrAddAccount(0L);
-    for (Transaction transaction : blockchain.getTransactions(nullAccount, (byte)0, (byte)1, 0, true)) {
-      Attachment attachment = transaction.getAttachment();
-      if(attachment instanceof PaymentMultiOutCreation) {
-        PaymentMultiOutCreation multiOut = (PaymentMultiOutCreation) attachment;
-        for (List<Long> recipient : multiOut.getRecipients()) {
-          if(recipient.get(0) == nullAccount.getId())
-            totalBurnt += recipient.get(1);
+    Account nullAccount = accountService.getNullAccount();
+    if(nullAccount != null) {
+      for (Transaction transaction : blockchain.getTransactions(nullAccount, (byte)0, (byte)1, 0, true)) {
+        Attachment attachment = transaction.getAttachment();
+        if(attachment instanceof PaymentMultiOutCreation) {
+          PaymentMultiOutCreation multiOut = (PaymentMultiOutCreation) attachment;
+          for (List<Long> recipient : multiOut.getRecipients()) {
+            if(recipient.get(0) == nullAccount.getId())
+              totalBurnt += recipient.get(1);
+          }
         }
       }
-    }
-    for (Transaction transaction : blockchain.getTransactions(nullAccount, (byte)0, (byte)2, 0, true)) {
-      Attachment attachment = transaction.getAttachment();
-      if(attachment instanceof PaymentMultiSameOutCreation) {
-        PaymentMultiSameOutCreation multiOut = (PaymentMultiSameOutCreation) attachment;
-        for (Long recipient : multiOut.getRecipients()) {
-          if(recipient == nullAccount.getId())
-            totalBurnt += transaction.getAmountNQT()/multiOut.getRecipients().size();
+      for (Transaction transaction : blockchain.getTransactions(nullAccount, (byte)0, (byte)2, 0, true)) {
+        Attachment attachment = transaction.getAttachment();
+        if(attachment instanceof PaymentMultiSameOutCreation) {
+          PaymentMultiSameOutCreation multiOut = (PaymentMultiSameOutCreation) attachment;
+          for (Long recipient : multiOut.getRecipients()) {
+            if(recipient == nullAccount.getId())
+              totalBurnt += transaction.getAmountNQT()/multiOut.getRecipients().size();
+          }
         }
       }
+      totalBurnt += blockchain.getAtBurnTotal();
     }
     
     for (Escrow escrow : escrowService.getAllEscrowTransactions()) {
@@ -803,7 +809,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     }
     
     totalEffectiveBalance += totalBurnt;
-    logger.trace("Total mined {}, total effective+burnt {}", totalMined, totalEffectiveBalance);
+    if(totalEffectiveBalance != totalMined) {
+      logger.warn("Block {}, total mined {}, total effective+burnt {}", blockchain.getHeight(), totalMined, totalEffectiveBalance);      
+    }
     return Long.compare(totalMined, totalEffectiveBalance);
   }
 
@@ -982,16 +990,14 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         accept(block, remainingAmount, remainingFee);
         derivedTableManager.getDerivedTables().forEach(DerivedTable::finish);
         stores.commitTransaction();
-        if (trimDerivedTables && block.getHeight() % 1440 == 0) {
+        if (trimDerivedTables && block.getHeight() % Constants.MAX_ROLLBACK == 0) {
           if(checkDatabaseState()==0) {
-            // Only trim a consistent database, otherwise it would be impossible to fix it by rollback
+            // Only trim a consistent database, otherwise it would be impossible to fix it by roll back
             lastTrimHeight.set(Math.max(block.getHeight() - Constants.MAX_ROLLBACK, 0));
-            if (lastTrimHeight.get() > 0) {
-              this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get()));
-            }
           }
           else {
-            logger.warn("Balance mismatch on the database, please try popping off to block {}", block.getHeight() - Constants.MAX_ROLLBACK);
+            lastTrimHeight.set(0);
+            logger.warn("Balance mismatch on the database, please try popping off to block {}", getMinRollbackHeight());
           }
         }
       } catch (BlockNotAcceptedException | ArithmeticException e) {
