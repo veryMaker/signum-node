@@ -16,6 +16,7 @@ import brs.transactionduplicates.TransactionDuplicationKey;
 import brs.util.Convert;
 import brs.util.JSON;
 import brs.util.TextUtils;
+
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -225,7 +226,7 @@ public abstract class TransactionType {
       int blocksMined = blockchain.getBlocksCount(senderAccount, transaction.getHeight()-Constants.MIN_MAX_ROLLBACK/2, transaction.getHeight());
       if (blocksMined > 0) {
         // Block forger can only move funds after 2 days
-        logger.trace("block forger {} trying to move funds too soon", senderAccount.getId());
+        logger.trace("block forger {} trying to move funds too soon", Convert.toUnsignedLong(senderAccount.getId()));
         return false;
       }
     }
