@@ -225,6 +225,8 @@ public class BurstGUI extends JFrame {
     	popupMenu.add(openWebUiItem);
     	popupMenu.add(showItem);
     	popupMenu.add(shutdownItem);
+    	
+    	getContentPane().validate();
 
     	try {
     		TrayIcon newTrayIcon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(BurstGUI.class.getResource(ICON_LOCATION)), "Burst Reference Software", popupMenu);
