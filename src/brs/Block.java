@@ -210,8 +210,8 @@ public class Block {
   }
   
   public void setBaseTarget(long baseTargetCapacity, long averageCommitment) {
-    this.baseTarget = ((long)Float.floatToIntBits((float)baseTargetCapacity)) << 32 |
-        ((long)Float.floatToIntBits((float)averageCommitment));
+    this.baseTarget = ((long)Float.floatToIntBits((float)averageCommitment)) << 32 |
+        ((long)Float.floatToIntBits((float)baseTargetCapacity));
   }
 
   public BigInteger getCumulativeDifficulty() {
