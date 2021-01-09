@@ -199,19 +199,22 @@ public class BurstGUI extends JFrame {
 //    	JButton openPhoenixButton = new JButton("Open Phoenix Wallet", IconFontSwing.buildIcon(FontAwesome.FIRE, 18, iconColor));
     	JButton openWebUiButton = new JButton(openWebUiItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.WINDOW_RESTORE, 18, iconColor));
     	JButton editConfButton = new JButton("Edit conf file", IconFontSwing.buildIcon(FontAwesome.PENCIL, 18, iconColor));
-        JButton popOffButton = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
+        JButton popOff10Button = new JButton("Pop off 10 blocks", IconFontSwing.buildIcon(FontAwesome.STEP_BACKWARD, 18, iconColor));
+        JButton popOff100Button = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
         JButton popOffMaxButton = new JButton("Pop off max", IconFontSwing.buildIcon(FontAwesome.FAST_BACKWARD, 18, iconColor));
     	
     	openWebUiButton.addActionListener(e -> openWebUi());
     	editConfButton.addActionListener(e -> editConf());
-        popOffButton.addActionListener(e -> popOff(100));
+        popOff10Button.addActionListener(e -> popOff(10));
+        popOff100Button.addActionListener(e -> popOff(100));
         popOffMaxButton.addActionListener(e -> popOff(0));
  
 //    	toolBar.add(openPhoenixButton);
     	toolBar.add(openWebUiButton);
     	toolBar.add(editConfButton);
     	if(Burst.getPropertyService().getBoolean(Props.API_DEBUG) || Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
-          toolBar.add(popOffButton);
+          toolBar.add(popOff10Button);
+          toolBar.add(popOff100Button);
           toolBar.add(popOffMaxButton);
     	}
 

@@ -88,7 +88,7 @@ public class BlockServiceImpl implements BlockService {
       }
       int elapsedTime = block.getTimestamp() - previousBlock.getTimestamp();
       BigInteger hit = block.getPocTime();
-      BigInteger pTime = generator.calculateDeadline(hit, previousBlock.getBaseTarget(), block.getCommitment(), previousBlock.getAverageCommitment(), block.getHeight());
+      BigInteger pTime = generator.calculateDeadline(hit, previousBlock.getCapacityBaseTarget(), block.getCommitment(), previousBlock.getAverageCommitment(), block.getHeight());
       return BigInteger.valueOf(elapsedTime).compareTo(pTime) > 0;
     } catch (RuntimeException e) {
       logger.info("Error verifying block generation signature", e);
@@ -140,10 +140,6 @@ public class BlockServiceImpl implements BlockService {
         block.setPocTime(BigInteger.valueOf(0L));
       }
       else {
-        if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, block.getHeight())) {
-          block.setCommitment(generator.calculateCommitment(block.getGeneratorId(), prevBlock.getCapacityBaseTarget(), block.getHeight()));
-        }
-        
     	if(block.getHeight() == checkPointHeight) {
        	    String checkPointHash = Burst.getPropertyService().getString(
     	    		Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
@@ -323,7 +319,9 @@ public class BlockServiceImpl implements BlockService {
       block.setBaseTarget(newBaseTarget);
       block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(Convert.two64.divide(BigInteger.valueOf(newBaseTarget))));
       
-      if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+      if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, block.getHeight())) {
+        block.setCommitment(generator.calculateCommitment(block.getGeneratorId(), previousBlock.getCapacityBaseTarget(), block.getHeight()));
+
         // update the average commitment based on 24 blocks past filter
         long curCommitment = previousBlock.getAverageCommitment();
         
