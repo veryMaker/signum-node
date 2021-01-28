@@ -279,13 +279,13 @@ public class GeneratorImpl implements Generator {
 
         if(committedBalance > 0) {
           // First we try to estimate the capacity using recent blocks
-          nBlocksMined = blockchain.getBlocksCount(account, height - Constants.MIN_MAX_ROLLBACK/2 - capacityEstimationBlocks,
-              height - Constants.MIN_MAX_ROLLBACK/2);
+          nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
+              height);
           if(nBlocksMined < 3) {
             // Use more blocks in the past to make the estimation if that is necessary
             capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
-            nBlocksMined = blockchain.getBlocksCount(account, height - Constants.MIN_MAX_ROLLBACK/2 - capacityEstimationBlocks,
-                height - Constants.MIN_MAX_ROLLBACK/2);
+            nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
+                height);
           }
         }
     }
