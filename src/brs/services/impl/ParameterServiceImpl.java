@@ -371,4 +371,9 @@ public class ParameterServiceImpl implements ParameterService {
   public boolean getIncludeIndirect(HttpServletRequest req) {
     return Boolean.parseBoolean(req.getParameter(INCLUDE_INDIRECT_PARAMETER));
   }
+  
+  @Override
+  public boolean getCalculateCommitment(HttpServletRequest req) {
+    return Boolean.parseBoolean(req.getParameter(CALCULATE_COMMITMENT_PARAMETER));
+  }
 }

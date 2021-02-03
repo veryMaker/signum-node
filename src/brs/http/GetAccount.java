@@ -5,7 +5,6 @@ import brs.Block;
 import brs.Blockchain;
 import brs.BurstException;
 import brs.Generator;
-import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.Convert;
 import com.google.gson.JsonElement;
@@ -15,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
 import static brs.http.common.Parameters.HEIGHT_PARAMETER;
+import static brs.http.common.Parameters.CALCULATE_COMMITMENT_PARAMETER;
 import static brs.http.common.ResultFields.*;
 
 public final class GetAccount extends APIServlet.JsonRequestHandler {
@@ -24,7 +24,7 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
   private final Generator generator;
 
   GetAccount(ParameterService parameterService, Blockchain blockchain, Generator generator) {
-    super(new APITag[] {APITag.ACCOUNTS}, ACCOUNT_PARAMETER, HEIGHT_PARAMETER);
+    super(new APITag[] {APITag.ACCOUNTS}, ACCOUNT_PARAMETER, HEIGHT_PARAMETER, CALCULATE_COMMITMENT_PARAMETER);
     this.parameterService = parameterService;
     this.blockchain = blockchain;
     this.generator = generator;
@@ -53,9 +53,11 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
       height = blockchain.getHeight();
     }
     
-    Block block = blockchain.getBlockAtHeight(height);
-    long commitment = generator.calculateCommitment(account.getId(), block.getCapacityBaseTarget(), height);
-    response.addProperty(COMMITMENT_RESPONSE, commitment);
+    if(parameterService.getCalculateCommitment(req)) {
+      Block block = blockchain.getBlockAtHeight(height);
+      long commitment = generator.calculateCommitment(account.getId(), block.getCapacityBaseTarget(), height);
+      response.addProperty(COMMITMENT_RESPONSE, commitment);
+    }
 
     return response;
   }
