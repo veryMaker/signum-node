@@ -322,10 +322,10 @@ public class BlockServiceImpl implements BlockService {
       if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, block.getHeight())) {
         block.setCommitment(generator.calculateCommitment(block.getGeneratorId(), previousBlock.getCapacityBaseTarget(), block.getHeight()));
 
-        // update the average commitment based on 24 blocks past filter
+        // update the average commitment based on 100 blocks past filter
         long curCommitment = previousBlock.getAverageCommitment();
         
-        long newAvgCommitment = (curCommitment*23L + block.getCommitment())/24L;
+        long newAvgCommitment = (curCommitment*99L + block.getCommitment())/100L;
         // assuming a minimum value of 1 BURST
         newAvgCommitment = Math.max(newAvgCommitment, Constants.ONE_BURST);
         block.setBaseTarget(newBaseTarget, newAvgCommitment);
