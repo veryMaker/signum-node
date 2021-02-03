@@ -62,7 +62,7 @@ public final class APIServlet extends HttpServlet {
     map.put("dgsRefund", new DGSRefund(parameterService, blockchain, accountService, apiTransactionManager));
     map.put("encryptTo", new EncryptTo(parameterService, accountService));
     map.put("generateToken", new GenerateToken(timeService));
-    map.put("getAccount", new GetAccount(parameterService, accountService));
+    map.put("getAccount", new GetAccount(parameterService, blockchain, generator));
     map.put("getAccountsWithName", new GetAccountsWithName(accountService));
     map.put("getAccountBlockIds", new GetAccountBlockIds(parameterService, blockchain));
     map.put("getAccountBlocks", new GetAccountBlocks(blockchain, parameterService, blockService));

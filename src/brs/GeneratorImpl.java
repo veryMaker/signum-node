@@ -200,7 +200,7 @@ public class GeneratorImpl implements Generator {
       hit = calculateHit(accountId, nonce, newGenSig, scoopNum, lastBlock.getHeight() + 1);
       long commitmment = 0L;
       if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, lastBlock.getHeight() + 1)) {
-        commitmment = calculateCommitment(accountId, baseTarget, lastBlock.getHeight() + 1);
+        commitmment = calculateCommitment(accountId, baseTarget, lastBlock.getHeight());
       }
       
       deadline = calculateDeadline(hit, baseTarget, commitmment, lastBlock.getAverageCommitment(), lastBlock.getHeight() + 1);
