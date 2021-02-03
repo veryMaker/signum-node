@@ -222,11 +222,11 @@ public abstract class TransactionType {
     if (senderAccount.getUnconfirmedBalanceNQT() < totalAmountNQT) {
       return false;
     }
-    if (transaction.getAmountNQT() > 0L && fluxCapacitor.getValue(FluxValues.NEXT_FORK, transaction.getHeight())) {
-      int blocksMined = blockchain.getBlocksCount(senderAccount, transaction.getHeight()-Constants.MIN_MAX_ROLLBACK/2, transaction.getHeight());
+    if (fluxCapacitor.getValue(FluxValues.NEXT_FORK, transaction.getHeight())) {
+      int blocksMined = blockchain.getBlocksCount(senderAccount, transaction.getHeight()-Constants.BURST_COMMITMENT_WAIT_TIME, transaction.getHeight());
       if (blocksMined > 0) {
         // Block forger can only move funds after 2 days
-        logger.info("block forger {} trying to move funds too soon", Convert.toUnsignedLong(senderAccount.getId()));
+        logger.info("block forger {} trying to make transactions too soon", Convert.toUnsignedLong(senderAccount.getId()));
         return false;
       }
     }

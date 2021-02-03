@@ -270,15 +270,16 @@ public class GeneratorImpl implements Generator {
     int nBlocksMined = 1;
     long committedBalance = 0;
     int capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS;
-    // TODO: consider making the getAccount already return the committed balance
     Account account = accountService.getAccount(generatorId, height - Constants.BURST_COMMITMENT_WAIT_TIME);
     if (account != null) {
         committedBalance = account.getBalanceNQT();
+        Account accountNow = accountService.getAccount(generatorId, height);
+        if(accountNow.getBalanceNQT() < committedBalance)
+          committedBalance = accountNow.getBalanceNQT();
 
         if(committedBalance > 0) {
           // First we try to estimate the capacity using more recent blocks only
-          nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
-              height);
+          nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks, height);
           if(nBlocksMined < 3) {
             // Use more blocks in the past to make the estimation if that is necessary
             capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
