@@ -157,6 +157,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     if (sender == null || sender.getUnconfirmedBalanceNQT() < totalAmountNQT) {
       return false;
     }
+    if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height)) {
+      int blocksMined = blockchain.getBlocksCount(sender, height-Constants.BURST_COMMITMENT_WAIT_TIME, height);
+      if (blocksMined > 0) {
+        // Block forger can only move funds after the wait time, subscription will be cancelled
+        return false;
+      }
+    }
 
     accountService.addToUnconfirmedBalanceNQT(sender, -totalAmountNQT);
 
